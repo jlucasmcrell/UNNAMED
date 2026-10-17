@@ -260,9 +260,16 @@ public partial class Main
         }
         string shown = "default";
         var list = new List<(string Shot, Action? Then, int NextMs)> { ("01_people", () => _creator.Go(CreatorStep.Body), 2000) };
+        // each body full length, then at the upper-body and face framings (the clipping QA's contact sheet)
         foreach (var body in walk)
         {
-            list.Add(($"{list.Count + 1:00}_body_{shown}", () => _creator.Use(_creator.Draft with { BodyPresetId = body.Id }), 6000));
+            list.Add(($"{list.Count + 1:00}_body_{shown}", () => _creator.Frame(CreatorPreview.Framings[1].Zoom), 2500));
+            list.Add(($"{list.Count + 1:00}_body_{shown}_upper", () => _creator.Frame(CreatorPreview.Framings[2].Zoom), 2500));
+            list.Add(($"{list.Count + 1:00}_body_{shown}_face", () =>
+            {
+                _creator.Frame(CreatorPreview.Framings[0].Zoom);
+                _creator.Use(_creator.Draft with { BodyPresetId = body.Id });
+            }, 6000));
             shown = $"{body.Type}_{body.Build}";
         }
         list.Add(($"{list.Count + 1:00}_body_{shown}", () => _creator.Go(CreatorStep.Identity), 1500));

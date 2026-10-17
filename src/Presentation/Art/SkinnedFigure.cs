@@ -91,6 +91,7 @@ public sealed partial class SkinnedFigure : Figure
         // the figure's owner adds once this returns.
         CorrectiveJoints.Load(art, person.Model, model.Skeleton);
         Outfit.Dress(art, model, person.Model, person.Outfit);
+        CharacterMaterials.ShareLodBox(model.Skeleton);
         Callable.From(() => KeepLast(model.Skeleton)).CallDeferred();
         return figure;
     }

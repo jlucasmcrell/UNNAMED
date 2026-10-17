@@ -88,7 +88,10 @@ public static class CharacterMaterials
 
     /// <summary>
     /// The authored LOD chain (meshes named <c>..._LOD1</c>, <c>..._LOD2</c> ... on the same skeleton: charprod's lods.py, or a
-    /// MetaHuman's own LOD0-3 from the Blender assembly) switched by distance with a dithered cross-fade; returns the number of levels
+    /// MetaHuman's own LOD0-3 from the Blender assembly) switched by distance - a hard switch, as ArtLibrary's models switch: a dithered
+    /// cross-fade drew two levels of a figure at once across its margin, each half-stippled, and a MetaHuman's band (4-8 m) is where the
+    /// creator and the third-person camera stand - the body showed through its clothes and the hair cards (alpha scissor) toggled
+    /// black over the face (WP17, owner 2026-10-17). <see cref="ShareLodBox"/> then switches a dressed figure as one. Returns the number of levels
     /// found (0: a model without a chain is left alone). Where each level ends comes from <c>lods</c>: <c>chain_&lt;n&gt;</c> for a chain of
     /// n levels when it is given, else <c>lod0_end</c> and <c>lod1_end</c>. <c>chain_&lt;n&gt;_shadow_levels</c> limits shadow casting to that many
     /// nearest levels: a distant figure's shadow costs a draw per surface per cascade. A mesh named <c>..._shadow</c> (the assembler's
@@ -113,16 +116,13 @@ public static class CharacterMaterials
         float[] ends = _chains.TryGetValue(levels + 1, out var chain) && chain.Length == levels
             ? chain
             : new[] { _lods.GetValueOrDefault("lod0_end", 18f), _lods.GetValueOrDefault("lod1_end", 45f) };
-        float margin = _lods.GetValueOrDefault("margin", 2f);
         int shadowLevels = (int)_lods.GetValueOrDefault($"chain_{levels + 1}_shadow_levels", levels + 1);
         foreach (var m in meshes)
         {
             int level = Math.Min(Level(m), ends.Length);
-            m.VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Self;
+            m.VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Disabled;
             m.VisibilityRangeBegin = level == 0 ? 0 : ends[level - 1];
-            m.VisibilityRangeEnd = level == levels ? 0 : ends[level];
-            m.VisibilityRangeBeginMargin = level == 0 ? 0 : margin;
-            m.VisibilityRangeEndMargin = level == levels ? 0 : margin;
+            m.VisibilityRangeEnd = level == levels ? 0 : MathF.BitDecrement(ends[level]);
             if (level >= shadowLevels)
                 m.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
         }
@@ -132,6 +132,21 @@ public static class CharacterMaterials
             proxy.VisibilityRangeBegin = shadowLevels <= levels ? ends[shadowLevels - 1] : 0;
         }
         return levels + 1;
+    }
+
+    /// <summary>
+    /// One visibility box for every mesh on a figure's skeleton - body, head, hair and each garment - so all of them change level at the
+    /// same distance (Godot measures a visibility range to each mesh's own box centre: a cap's sits half a metre above the body's). The
+    /// box is their rest bounds grown by half a metre, room for any clip's reach.
+    /// </summary>
+    public static void ShareLodBox(Skeleton3D skeleton)
+    {
+        var meshes = skeleton.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>().Where(m => m.Mesh is not null).ToList();
+        if (meshes.Count == 0)
+            return;
+        var box = meshes.Select(m => m.Transform * m.Mesh.GetAabb()).Aggregate((a, b) => a.Merge(b)).Grow(0.5f);
+        foreach (var m in meshes)
+            m.CustomAabb = m.Transform.AffineInverse() * box;
     }
 
     private static readonly Dictionary<string, float> _lods = new(StringComparer.Ordinal);

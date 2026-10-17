@@ -191,6 +191,9 @@ public partial class CreatorScreen : CanvasLayer
         Render(null);
     }
 
+    /// <summary>Stand the preview camera at a framing, as the framing buttons do (the creator shots).</summary>
+    public void Frame(float zoom) => _preview.Frame(zoom);
+
     /// <summary>Press Begin as a click would (the creator shots). False when the draft cannot begin.</summary>
     public bool PressBegin()
     {
