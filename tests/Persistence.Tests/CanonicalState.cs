@@ -337,6 +337,22 @@ internal static class CanonicalState
                 json.WriteEndObject();
             }
             json.WriteEndArray();
+            // Schema 27: the attack under way - what makes the blow, when it began, what it has struck - or null.
+            if (player.Attack is { } attack)
+            {
+                json.WriteStartObject("attack");
+                json.WriteString("source", attack.Source);
+                json.WriteNumber("start_tick", attack.StartTick);
+                json.WriteStartArray("struck");
+                foreach (var struck in attack.Struck)
+                    json.WriteStringValue(struck.Value);
+                json.WriteEndArray();
+                json.WriteEndObject();
+            }
+            else
+            {
+                json.WriteNull("attack");
+            }
             json.WriteEndObject();
 
             json.WriteStartArray("cells");

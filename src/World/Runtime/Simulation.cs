@@ -713,6 +713,7 @@ public sealed class Simulation
             QuickBar = _state.QuickBar,
             QuickBarCleared = _state.QuickBarCleared.ToImmutableArray(),
             PartySheets = _sheets.Records(),
+            Attack = _combat.AttackUnderWay(),
         };
     }
 

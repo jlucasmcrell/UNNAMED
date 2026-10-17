@@ -384,6 +384,19 @@ public class HistoricalFixtureTests
             Assert.Empty(loaded.Player.PartySheets);
         }
 
+        // Schema 27's attack under way (the soak's W4-SAVE-01): a swing of the sword begun at tick 4995 that has struck the first den wolf.
+        // Before it, a load started every attack over.
+        if (schema >= 27)
+        {
+            var attack = loaded.Player.Attack!;
+            Assert.Equal(("item.weapon.iron_sword", 4_995L), (attack.Source, attack.StartTick));
+            Assert.Equal(UNNAMED.Domain.EntityId.Create(UNNAMED.Domain.EntityKind.Creature, 1_700_000_000_101, new byte[] { 7, 7, 7, 7, 7, 7, 7, 7, 7, 1 }), Assert.Single(attack.Struck));
+        }
+        else
+        {
+            Assert.Null(loaded.Player.Attack);
+        }
+
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);
         // v4 names the potion twice - held, and first produced - and the report counts each occurrence; v21 a third time, in the
         // warden's contract supply; v23 the potion and the firebolt once more, on the quick bar; v25 the potion and the warden once more, on

@@ -228,6 +228,9 @@ public static class M2Fixtures
                 Belongings = ImmutableArray.Create(new InventoryEntry(EntityId.Create(EntityKind.Item, 1_700_000_000_006, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 6 }),
                     "item.potion.healing_draught", 1)),
             }),
+            // Schema 27 (the soak's W4-SAVE-01): a swing of the sword in hand under way, begun at tick 4 995, that has struck the first
+            // den wolf already.
+            Attack = new AttackRecord("item.weapon.iron_sword", 4_995, ImmutableArray.Create(Creature(1))),
         };
 
         public static readonly EntityId SwordId = EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 });

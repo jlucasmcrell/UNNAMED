@@ -488,6 +488,12 @@ internal static class SaveLoader
             };
         }
 
+        // The attack under way (schema 27): its weapon's or technique's ID passes through the pass, and one whose source was removed is
+        // dropped, so the character loads at rest. Bare hands are no definition.
+        var attack = player.Attack;
+        if (attack is not null && UNNAMED.Domain.DefinitionId.IsValid(attack.Source))
+            attack = Resolve(attack.Source, "player attack under way") is { } source ? attack with { Source = source } : null;
+
         // The party ledger is set aside while the party is rewritten: a rename may bring the two together, which the record refuses.
         var rewritten = player with { Party = PartyLedger.Empty, PartySheets = ImmutableArray<PartySheet>.Empty };
         rewritten = rewritten.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values).WithEffects(effects.Values)
@@ -497,6 +503,7 @@ internal static class SaveLoader
                 Party = new PartyLedger(recovering.Values.ToImmutableArray(), fallen.ToImmutableArray()),
                 QuickBar = bar.ToImmutable(), QuickBarCleared = cleared.ToImmutableArray(),
                 PartySheets = sheets.Values.ToImmutableArray(),
+                Attack = attack,
             },
             new DeltaSnapshot(cells, entities.ToImmutable())
             {

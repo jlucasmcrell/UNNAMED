@@ -72,6 +72,12 @@ public sealed record RelationshipValue(string NpcId, string Dimension, int Value
 /// <summary>The lines of one conversation the player has heard, sorted (SYSTEMS.md S-28; schema 10): what keeps a one-time line spent.</summary>
 public sealed record ConversationMemory(string DialogueId, ImmutableArray<string> Heard);
 
+/// <summary>
+/// The character's attack under way (schema 27): what makes the blow - a weapon's definition ID, "unarmed" or a technique's ID - the tick it
+/// began, and the creatures it has struck. Its timing is not kept: the weapon in hand and the technique make the blow again on load.
+/// </summary>
+public sealed record AttackRecord(string Source, long StartTick, ImmutableArray<EntityId> Struck);
+
 /// <summary>A mark on the character's trail, which a following companion walks (M6).</summary>
 public sealed record TrailMark(long XMm, long ZMm);
 
@@ -387,6 +393,25 @@ public sealed record PlayerRecord
     private readonly ImmutableArray<PartySheet> _partySheets = ImmutableArray<PartySheet>.Empty;
 
     /// <summary>
+    /// The attack the character had under way (schema 27), or null when none: a save mid-windup loads mid-windup. Its source is the weapon's
+    /// own blow, bare hands' or a technique's; what it has struck are creatures, each once, sorted.
+    /// </summary>
+    public AttackRecord? Attack
+    {
+        get => _attack;
+        init
+        {
+            var attack = value is null ? null : value with { Struck = value.Struck.IsDefault ? ImmutableArray<EntityId>.Empty : value.Struck.OrderBy(e => e.Value, StringComparer.Ordinal).ToImmutableArray() };
+            if (attack is not null && (string.IsNullOrWhiteSpace(attack.Source) || attack.StartTick < 0
+                || attack.Struck.Any(e => e.Kind != EntityKind.Creature) || attack.Struck.Distinct().Count() != attack.Struck.Length))
+                throw new ArgumentException($"Invalid attack under way {attack}", nameof(Attack));
+            _attack = attack;
+        }
+    }
+
+    private readonly AttackRecord? _attack;
+
+    /// <summary>
     /// The appearance seed a character gets when nothing chose one: derived from its ULID, so it is
     /// deterministic and unique per character. Schema 3 made the field required; the 2 -> 3 migration
     /// gives older saves exactly this value.
@@ -404,32 +429,32 @@ public sealed record PlayerRecord
         var held = entries.Select(e => e.ItemId).ToHashSet();
         // An equipped item whose entry the pass dropped is unequipped with it, never left dangling.
         return new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, entries, Progression, FacingMdeg, Discoveries,
-            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets };
+            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack };
     }
 
     /// <summary>The same player with different progression (schema 4; the definition-ID pass rewrites its IDs too).</summary>
     public PlayerRecord WithProgression(CharacterProgression progression) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack };
 
     /// <summary>The same player with different discovery records (schema 5; the definition-ID pass rewrites their location IDs).</summary>
     public PlayerRecord WithDiscoveries(IEnumerable<DiscoveryRecord> discoveries) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack };
 
     /// <summary>The same player with different active effects (schema 7; the definition-ID pass rewrites their effect IDs).</summary>
     public PlayerRecord WithEffects(IEnumerable<ActiveEffect> effects) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack };
 
     /// <summary>The same player with different relationships and conversation memory (schema 10; the definition-ID pass rewrites their IDs).</summary>
     public PlayerRecord WithSocial(IEnumerable<RelationshipValue> relationships, IEnumerable<ConversationMemory> conversations) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, relationships, conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, relationships, conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack };
 
     /// <summary>The same player with different quests (schema 11; the definition-ID pass rewrites their quest IDs).</summary>
     public PlayerRecord WithQuests(IEnumerable<QuestState> quests) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack };
 
     /// <summary>The same player with different companions (schema 12; the definition-ID pass rewrites their NPC IDs).</summary>
     public PlayerRecord WithCompanions(IEnumerable<CompanionRecord> companions) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack };
 
     public EntityId Id { get; }
     public string Name { get; }
@@ -745,6 +770,13 @@ public sealed record PlayerRecord
                     foreach (var e in sheet.Belongings)
                         WearDigest.Add(NotableDigest.Add(h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality), e.Notable), e.Wear);
                 }
+            }
+            // The attack under way (schema 27) only when there is one, so every older record digests as it always has.
+            if (Attack is { } attack)
+            {
+                h.Add("attack").Add(attack.Source).Add(attack.StartTick).Add(attack.Struck.Length);
+                foreach (var struck in attack.Struck)
+                    h.Add(struck.Value);
             }
             return h.Finish();
         }

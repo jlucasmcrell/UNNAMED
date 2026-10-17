@@ -259,7 +259,10 @@ internal sealed record ActionState(ActionKind Kind, long StartTick, AttackProfil
     }
 }
 
-/// <summary>The player's transient combat state. Never saved: a load starts at rest, with pools and effects from the save - fallen, at none (DN15).</summary>
+/// <summary>
+/// The player's transient combat state. Saved only in the attack under way (schema 27): a load starts at rest, or in that attack, with pools
+/// and effects from the save - fallen, at none (DN15).
+/// </summary>
 internal sealed record PlayerCombat(ActionState Action, bool Blocking, long StaggerImmuneUntil, long LastExertion, long LastCombat,
     ImmutableArray<DeathRecapLine> Recent)
 {
@@ -812,6 +815,31 @@ internal sealed partial class CombatSystem
     {
         if (player.Progression.Pools.Health == 0)
             State.SetPlayerCombat(_owner, PlayerCombat.Rested with { Defeated = true, PastHelp = true });
+        else if (player.Attack is { } saved && Resumed(saved) is { } attack)
+            State.SetPlayerCombat(_owner, PlayerCombat.Rested with
+            {
+                Action = ActionState.Begin(ActionKind.Attack, saved.StartTick, attack) with { Struck = saved.Struck.ToImmutableHashSet() },
+            });
+    }
+
+    /// <summary>The attack under way as a save keeps it (schema 27), so a save mid-windup loads mid-windup; null when there is none.</summary>
+    public AttackRecord? AttackUnderWay()
+    {
+        var action = State.PlayerCombat.Action;
+        return action.Kind == ActionKind.Attack && action.PhaseAt(State.WorldTick, C).Phase != CombatPhase.Idle
+            ? new AttackRecord(action.Attack!.Source, action.StartTick, action.Struck.ToImmutableArray())
+            : null;
+    }
+
+    /// <summary>The blow a saved attack makes again: the weapon in hand's, or a technique's with it; null when neither makes it now.</summary>
+    private AttackProfile? Resumed(AttackRecord saved)
+    {
+        var weapon = PlayerAttack();
+        if (saved.Source == weapon.Source)
+            return weapon;
+        return _context.Setup.Techniques.TryGetValue(saved.Source, out var technique) && technique.SkillId == weapon.SkillId
+            ? TechniqueRules.Profile(weapon, technique)
+            : null;
     }
 
     /// <summary>The health a downed character stands up with: the revive share of their maximum, at least one.</summary>

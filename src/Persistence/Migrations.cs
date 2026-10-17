@@ -32,6 +32,7 @@ using V22 = UNNAMED.Persistence.Sections.V22;
 using V23 = UNNAMED.Persistence.Sections.V23;
 using V24 = UNNAMED.Persistence.Sections.V24;
 using V25 = UNNAMED.Persistence.Sections.V25;
+using V26 = UNNAMED.Persistence.Sections.V26;
 
 namespace UNNAMED.Persistence;
 
@@ -104,7 +105,8 @@ public static class SchemaMigrations
         new SchemaV22ToV23(),
         new SchemaV23ToV24(),
         new SchemaV24ToV25(),
-        new SchemaV25ToV26());
+        new SchemaV25ToV26(),
+        new SchemaV26ToV27());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -1371,7 +1373,7 @@ public sealed class SchemaV24ToV25 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V24.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V26.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -1435,6 +1437,59 @@ public sealed class SchemaV25ToV26 : SchemaMigration
                 Economy = old.Economy,
                 Merchants = old.Merchants,
                 NpcLife = null,
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 26 to 27 (the soak's W4-SAVE-01): the player gains the attack they had under way. A save from before it held none: its load started
+/// every attack over, at rest.
+/// </summary>
+public sealed class SchemaV26ToV27 : SchemaMigration
+{
+    public override int From => 26;
+
+    public override string Summary => "schema 26 -> 27: the player gains the attack under way (none before)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V26.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions,
+                Posture = old.Posture,
+                Waystones = old.Waystones,
+                ReturnPoint = old.ReturnPoint,
+                RoadsWalked = old.RoadsWalked,
+                Deeds = old.Deeds,
+                Identity = old.Identity,
+                Factions = old.Factions,
+                Party = old.Party,
+                QuickBar = old.QuickBar,
+                PartySheets = old.PartySheets,
+                Attack = null,
             }, options);
         }
         document.Manifest["schema_version"] = To;

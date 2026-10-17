@@ -105,6 +105,21 @@ public sealed class PlayerDto
     /// saves none: no party member had grown, worn or kept anything before.
     /// </summary>
     [Key("party_sheets")] public PartySheetDto[]? PartySheets { get; set; }
+
+    /// <summary>
+    /// From schema 27: the attack the character had under way, or null when none. The 26 -> 27 step gives older saves none: a load started
+    /// every attack over.
+    /// </summary>
+    [Key("attack")] public AttackDto? Attack { get; set; }
+}
+
+/// <summary>An attack under way (schema 27): what makes the blow, the tick it began, and the creatures it has struck.</summary>
+[MessagePackObject]
+public sealed class AttackDto
+{
+    [Key("source")] public string Source { get; set; } = "";
+    [Key("start_tick")] public long StartTick { get; set; }
+    [Key("struck")] public string[] Struck { get; set; } = Array.Empty<string>();
 }
 
 /// <summary>
@@ -831,6 +846,8 @@ public static class SectionCodec
             Gear = p.Gear.Select(g => new PartyGearDto { Slot = EquipSlots.Key(g.Key), Loaned = g.Value.Loaned, Item = StackToDto(g.Value.Item) }).ToArray(),
             Belongings = p.Belongings.Select(StackToDto).ToArray(),
         }).ToArray(),
+        Attack = player.Attack is not { } attack ? null
+            : new AttackDto { Source = attack.Source, StartTick = attack.StartTick, Struck = attack.Struck.Select(e => e.Value).ToArray() },
     }, Options);
 
     /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard, fine or (schema 19) masterwork.</summary>
@@ -943,6 +960,8 @@ public static class SectionCodec
                 Gear = p.Gear.ToImmutableSortedDictionary(g => EquipSlots.Parse(g.Slot), g => new PartyGear(StackOf(g.Item, $"{p.NpcId}'s {g.Slot}"), g.Loaned)),
                 Belongings = p.Belongings.Select(e => StackOf(e, $"{p.NpcId}'s {e.ItemId}")).ToImmutableArray(),
             }).ToImmutableArray(),
+            Attack = dto.Attack is not { } attack ? null
+                : new AttackRecord(attack.Source, attack.StartTick, attack.Struck.Select(EntityId.Parse).ToImmutableArray()),
         };
     }
 

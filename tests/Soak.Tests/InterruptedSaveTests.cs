@@ -9,14 +9,16 @@ namespace UNNAMED.Soak.Tests;
 // Strong continuation requirements: run these probes before assigning a Skip reason to a finding.
 public sealed class InterruptedSaveTests
 {
-    [Fact(Skip = "W4-SAVE-01: attack action is not persisted; save during Windup reloads Idle. StateDump deliberately excludes Phase, so digest alone misses this continuation mismatch."), Trait("Category", "KnownBug")]
+    // W4-SAVE-01: the attack under way is saved (schema 27), so a save mid-windup loads mid-windup and the fight goes on as it would have.
+    [Fact, Trait("Category", "Smoke")]
     public void MidCombatSave_ContinuesLikeUninterruptedCombat()
     {
         using var w = new SoakWorld();
         var sim = Fight(w, downed: false);
         sim.Step();
+        Assert.Equal(CombatPhase.Windup, sim.Combat.Phase);
         var resumed = w.RoundTrip(sim);
-        Assert.Equal(sim.Combat.Phase, resumed.Combat.Phase);
+        Assert.Equal((sim.Combat.Phase, sim.Combat.PhaseTicksLeft), (resumed.Combat.Phase, resumed.Combat.PhaseTicksLeft));
         for (int i = 0; i < 60; i++) { sim.Step(); resumed.Step(); }
         SoakWorld.Equal(sim, resumed, "combat continuation", replayable: true);
     }

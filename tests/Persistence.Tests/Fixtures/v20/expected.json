@@ -339,7 +339,8 @@
       ],
       "cleared": []
     },
-    "party_sheets": []
+    "party_sheets": [],
+    "attack": null
   },
   "cells": [
     {

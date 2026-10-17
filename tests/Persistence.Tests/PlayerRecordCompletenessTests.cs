@@ -93,6 +93,10 @@ public class PlayerRecordCompletenessTests
                         new InventoryEntry(Item(10), "item.weapon.fixture_knife", 1) { Notable = vest.Notable! with { Familiarity = 1 }, Wear = new Domain.Items.ItemWear(3, 1) },
                         new InventoryEntry(Item(11), "item.weapon.fixture_axe", 1) { Notable = player.Inventory.Single(e => e.Notable is not null).Notable }),
                 }),
+                // A swing under way that has struck two creatures (schema 27).
+                Attack = new AttackRecord("item.weapon.iron_sword", 4_200, ImmutableArray.Create(
+                    EntityId.Create(EntityKind.Creature, 1_700_000_000_101, new byte[] { 7, 7, 7, 7, 7, 7, 7, 7, 7, 1 }),
+                    EntityId.Create(EntityKind.Creature, 1_700_000_000_102, new byte[] { 7, 7, 7, 7, 7, 7, 7, 7, 7, 2 }))),
             };
     }
 

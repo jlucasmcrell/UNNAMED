@@ -357,7 +357,8 @@
         "item.potion.minor_healing"
       ]
     },
-    "party_sheets": []
+    "party_sheets": [],
+    "attack": null
   },
   "cells": [
     {

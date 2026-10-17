@@ -47,13 +47,9 @@ Every attempt checks stock and price factors against **content-configured** boun
 
 **Motion:** observes player, NPCs (including party bodies), creatures and world items at each tick. Bounds use configured sprint/run maxima, creature-specific movement/charge speeds, and two millimetres for integer rounding. Positions are navigation-plane X/Z coordinates; Y follows terrain/jump rules and is not treated as horizontal locomotion. An NPC with a WP12 life (not a companion) is bounded by the tier the tick simulated them at, as `NpcLifeWorldTests` bounds them: tier A by the tick, tier B by its ten-tick glide plus half a metre, tier C and D (out of sight, parked by the hour) not at all. Birth/removal/new creature generations are not displacement of an existing body. Only a matching `PlayerRespawned`/`PlayerTravelled` event at the observed tick can authorize a player jump; Waystone party members must arrive within the runtime's documented 2 m arrival ring. A collision's separation is a push, not motion: a body past its bound that ends touching something (a structure, closed door, creature, person or the character) is reported as a push, not a violation, if the excess is within the two footprints' radii. Free motion keeps the strict bound. The 36,000-tick run reports two: a wolf 2.3 mm past its tick's travel, off a tree (W4-MOTION-03), and the Hollow's porter pushed 0.31 m off a hen that had walked into them while they ate. Rejected command actors are also exercised. The long run is simulated time, not a wall-time wait or a visual/GPU observation.
 
-## Skipped findings and integration gaps
+## Findings and gaps
 
-`KnownBug` tests contain executable assertions of the stronger requested contract. To reproduce, remove that test's `Fact(Skip = ...)` locally and run its fully qualified name. They remain skipped until the owner resolves the save-policy conflict; this PR does not change game behavior.
-
-| Test / ID | Reason |
-|---|---|
-| `MidCombatSave_ContinuesLikeUninterruptedCombat` / W4-SAVE-01 | Saving a player attack during Windup reloads Idle. Current StateDump deliberately omits action phase, so digest equality alone can conceal this. |
+The three findings PR #19 reproduced are fixed, and their tests run by default: W4-SAVE-01 (the attack under way is saved, schema 27), W4-SAVE-02 (a save while Downed loads as the death, DN15) and W4-MOTION-03 (a collision push is classified as a push). Only the opt-in Soak and Long runs are skipped by default.
 
 Not yet covered: repair-cost arbitrage (WP3b's `MerchantRepairCommand`) and a save during LFG (WP16's `JoinGroupCommand`). Both landed in wave 3; their strategies are still to write.
 
