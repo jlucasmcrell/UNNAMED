@@ -345,6 +345,34 @@ public class NpcLifeLinksTests
         Assert.All(said, m => Assert.Contains(m.Params["place"], new[] { "Ashen Hollow", "Cairnwold", "the wilds" }));
     }
 
+    /// <summary>
+    /// A rainy start (the story port's crowd trap: everyone in a row inside the longhouse) is no different now (owner, 2026-10-17): rain
+    /// is no input to a schedule, so in worlds that start in rain every life stands and does as in a fair one.
+    /// </summary>
+    [Fact]
+    public void ARainyStart_PutsEveryoneWhereAFairOneDoes()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        string Where(Simulation s) => string.Join(";", s.Lives.Select(l => $"{l.Key}:{l.Activity}:{s.World.NpcLife!.Npcs[l.Key].XMm},{s.World.NpcLife!.Npcs[l.Key].ZMm}"));
+        // Trips are drawn from the world seed, so they are left out: a world's seed is what makes it rain.
+        var homebound = session.Setup with
+        {
+            NpcLife = session.Setup.NpcLife with { Routines = session.Setup.NpcLife.Routines.ToImmutableSortedDictionary(kv => kv.Key, kv => kv.Value with { Trip = null }, StringComparer.Ordinal) },
+        };
+        var worlds = Enumerable.Range(1, 60).Select(seed => Open(session, homebound, seed: (ulong)seed).Simulation).ToList();
+        var rainy = worlds.Where(w => w.Weather.State == WeatherState.Rain).Take(3).ToList();
+        var fair = worlds.First(w => w.Weather.State == WeatherState.Fair);
+        _output.WriteLine($"{rainy.Count} rainy starts in 60 seeds");
+        Assert.NotEmpty(rainy);
+        foreach (var world in rainy)
+        {
+            world.Advance(Hour);
+            fair.Advance(world.WorldTick - fair.WorldTick);
+            Assert.Equal(Where(fair), Where(world));
+        }
+    }
+
     /// <summary>DeepSeek's corpus as shipped: the residents say its lines, each about their own town or the wilds, and the named never do.</summary>
     [Fact]
     public void TheShippedCorpus_IsSaidByTheResidents()
