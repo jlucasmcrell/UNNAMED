@@ -116,7 +116,7 @@ nodes:
       text: I'll take the long bank round.
       next: again
   story_waterline:
-    text: There. Wet, light. Dry, dark. Can the whole village manage that much? Sel calls it listening grass, a fold-bleed plant. Berrin's old records are at the lodge. Ask him about them when you
+    text: There. Wet, light. Dry, dark. Can the whole village manage that much? Berrin's old records are at the lodge. Ask him about them when you
       find him; I'm not doing his remembering as well as the water.
     choices:
     - id: back

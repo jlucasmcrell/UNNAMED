@@ -15,7 +15,7 @@ entry_objective: o_read
 objectives:
 - id: o_read
   type: talk_to
-  description: Let Renn read the note wherever he is awake; he keeps the lodge 07:00–19:00.
+  description: Let Renn read the note wherever he is awake; he keeps the waystation 07:00–19:00.
   params:
     npc_ref: npc.ashen_hollow.renn_vale
     nodes:

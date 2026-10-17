@@ -95,12 +95,12 @@ public class HaldasTallyTests
 
         var empty = At(AtRenn, session);
         TalkAgain(empty, Renn);
-        Assert.Equal(new[] { "place", "work", "notices", "leave", "story_begin_accounts", "story_note", "story_road_east" }, Replies(empty));
+        Assert.Equal(new[] { "place", "work", "notices", "leave", "story_begin_accounts", "story_note" }, Replies(empty));
         Assert.Empty(empty.Simulation.Quests.Where(q => q.Id == Quest));
 
         var bearer = At(AtRenn, session, r => Carrying(r, Token));
         TalkAgain(bearer, Renn);
-        Assert.Equal(new[] { "place", "work", "tally", "notices", "leave", "story_begin_accounts", "story_note", "story_road_east" }, Replies(bearer));
+        Assert.Equal(new[] { "place", "work", "tally", "notices", "leave", "story_begin_accounts", "story_note" }, Replies(bearer));
         Assert.Null(Say(bearer, "tally"));
         bearer.Tick();
 
@@ -207,7 +207,7 @@ public class HaldasTallyTests
         Assert.Equal((ObjectiveStatus.Satisfied, ObjectiveStatus.Closed), (Objective(arena, "o_keep"), Objective(arena, "o_return")));
         // Kept: the tally stays in the pack, he no longer asks about it, and he will talk about her line instead.
         Assert.Equal(1, Carried(arena, Token));
-        Assert.Equal(new[] { "place", "work", "trapline", "notices", "leave", "story_begin_accounts", "story_note", "story_road_east" }, Replies(arena));
+        Assert.Equal(new[] { "place", "work", "trapline", "notices", "leave", "story_begin_accounts", "story_note" }, Replies(arena));
         Assert.Contains("North slope. Before breakfast, Halda said. I wrote it down.", arena.Simulation.Barks(Renn).Select(b => b.Text));
         Assert.Null(arena.Submit(new LeaveCommand(arena.Player)));
 

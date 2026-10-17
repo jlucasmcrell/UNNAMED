@@ -18,5 +18,5 @@ objectives:
     next: [o_keeper]
   - id: o_keeper
     type: talk_to
-    description: Speak to Renn, the keeper, wherever you find him awake. He keeps the lodge from 07:00 to 19:00.
+    description: Speak to Renn, the keeper, wherever you find him awake. He keeps the waystation from 07:00 to 19:00.
     params: { npc_ref: npc.ashen_hollow.renn_vale, nodes: [greet, again] }

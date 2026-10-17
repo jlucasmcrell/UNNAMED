@@ -201,6 +201,8 @@ public class ActOneStoryTests
         Assert.Equal("'first' is not a reply here", s.Arena.Submit(new ChooseCommand(s.Arena.Player, "first")));
         s.Say("later");
         Assert.Equal(first, Trust());
+        s.Talk(Renn);   // his departure line cites Tavar's account, so it waits until it has been heard
+        Assert.Contains(s.Sim.Conversation!.Replies, r => r.Id == "story_road_east");
     }
 
     [Fact]

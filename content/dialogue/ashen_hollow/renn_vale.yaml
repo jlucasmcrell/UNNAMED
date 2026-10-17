@@ -111,6 +111,10 @@ nodes:
       - id: story_road_east
         text: What should I know before I take the road east?
         next: story_road_east
+        conditions:
+        - kind: quest_state
+          quest_ref: quest.main.wrong_side
+          is: completed
         consequences:
         - command: start_quest
           quest_ref: quest.main.road_east
@@ -242,8 +246,8 @@ nodes:
       text: I'll look from the shrine and come back.
       next: again
   story_accounts:
-    text: Renn unfolds the map beside three accounts. 'Tavar's afternoon and Berrin's old record. Neither's going in the fire. Three accounts, traveller.
-      Which are you carrying?'
+    text: "Renn unfolds the map beside three accounts. \"Tavar's afternoon and Berrin's old record. Neither's going in the fire. Three accounts, traveller.
+      Which are you carrying?\""
     choices:
     - id: carry_wayhold
       text: The Wayhold letter. Keep the road record with it.

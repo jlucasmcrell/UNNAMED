@@ -118,9 +118,6 @@ nodes:
           quest_ref: quest.main.closed_seam
         - command: start_quest
           quest_ref: quest.story.lantern_ledger
-      - id: story_fold_quiet
-        text: Would you go near the Foldscar?
-        next: story_fold_quiet
   lesson:
     text: "Good! Then bring me iron. Blackvein Cut - the old quarry, south off the road. There's a seam on the floor of it; break me some ore out. Ore goes in the hearth and comes out a billet, if you keep the fire honest. A billet and a straight ash haft - Charwood's thick with ash - and the anvil makes you a spear. Make it yourself, bring it here, and I'll tell you the truth about it. And don't blame the iron. It's always the hands."
     once: true
@@ -271,12 +268,6 @@ nodes:
     choices:
     - id: back
       text: I'll keep looking.
-      next: again
-  story_fold_quiet:
-    text: No. Stay clear of that ridge, new iron. You know what happens to a Kal caught when a world turns? We set.
-    choices:
-    - id: back
-      text: I won't press you.
       next: again
 barks:
   - { text: "Ha! Look at that weld. I'm talking to the hinge, not you." }
