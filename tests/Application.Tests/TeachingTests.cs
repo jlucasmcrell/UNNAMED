@@ -57,8 +57,12 @@ public class TeachingTests
         var view = arena.Simulation.Teaching(Kera)!;
         Assert.True(view.Available);   // at the forge, in her working hours (WP12)
         Assert.Equal(new[] { Billet, "recipe.smithing.march_spear", "recipe.fletching.arrows", "recipe.fletching.hunting_bow",
-            "recipe.fletching.hunting_bow_silk", PowerStrike }, view.Lessons.Select(l => l.DefinitionId));
+            "recipe.fletching.hunting_bow_silk", "recipe.smithing.fitting_wedge", PowerStrike }, view.Lessons.Select(l => l.DefinitionId));
         Assert.All(view.Lessons.Take(5), l => Assert.True(l.ByDialogue && l.Fee == 0 && l.Met));
+        // The Barrowworks wedge waits on the ring being reachable, which it never is with the Barrowworks off.
+        var wedge = view.Lessons[5];
+        Assert.False(wedge.Met);
+        Assert.IsType<FlagRequirement>(Assert.Single(wedge.Requirements).Requirement);
         var strike = view.Lessons.Last();
         Assert.Equal((TeachingKind.Technique, 25L, false, false), (strike.Kind, strike.Fee, strike.Known, strike.ByDialogue));
         var gate = Assert.Single(strike.Requirements);

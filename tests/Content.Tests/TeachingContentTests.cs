@@ -69,9 +69,12 @@ public class TeachingContentTests
         Assert.Equal(loader.GetByKind("piece").Keys.OrderBy(k => k, StringComparer.Ordinal),
             Lessons("npc.cairnwold.berrin_garth", TeachingKind.BuildingPiece).OrderBy(k => k, StringComparer.Ordinal));
         Assert.All(npcs["npc.cairnwold.berrin_garth"].Teaches, o => Assert.Equal(TeachingKind.BuildingPiece, o.Kind));
-        // The conversations' lessons keep their outcomes: free, ungated, given by a line.
+        // The conversations' lessons keep their outcomes: free, ungated, given by a line - but for the Barrowworks wedge, which waits on the
+        // ring being reachable, as Kera's ring replies do.
         Assert.All(npcs.Values.SelectMany(n => n.Teaches).Where(o => o.Kind == TeachingKind.Recipe),
-            o => Assert.True(o.ByDialogue && o.Fee == 0 && o.Requirements.IsEmpty));
+            o => Assert.True(o.ByDialogue && o.Fee == 0 && (o.Requirements.IsEmpty || o.DefinitionId == "recipe.smithing.fitting_wedge")));
+        var wedge = npcs["npc.ashen_hollow.kera_voss"].Teaches.Single(o => o.DefinitionId == "recipe.smithing.fitting_wedge");
+        Assert.Equal("world.barrowworks.ring_accessible", Assert.IsType<FlagRequirement>(Assert.Single(wedge.Requirements)).Condition.FlagId);
         // Techniques are asked for, for a fee, once familiar with the family's weapon.
         Assert.All(npcs.Values.SelectMany(n => n.Teaches).Where(o => o.Kind == TeachingKind.Technique), o =>
         {
