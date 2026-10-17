@@ -4,7 +4,7 @@ schema: 1
 display_key: body.veth_m.very_heavy.name
 tags: [body]
 name: Masculine, very heavy
-notes: "WP17 (owner 2026-10-17). The Veth masculine body, very heavy build - the owner's blend (Blend_M = Victor x Trey) moved along the Creator's Fat/Muscularity sliders by +2.00/+0.55 (tools/character_build/builds.json). Models mh_veth_m_very_heavy (MetaHuman) and the production MPFB build; garments baked per body. Clipping gate: failed (23 faults). Not offered until the gate passes it."
+notes: "WP17 (owner 2026-10-17). The Veth masculine body, very heavy build - the owner's MetaHuman (Blend_M = Victor x Trey) with the Creator solver's change for girth factor 1.22 (tools/character_build/builds.json). Models mh_veth_m_very_heavy (MetaHuman) and the production MPFB build; garments baked per body. Clipping gate: failed (33 faults). Not offered until the gate passes it."
 people_ref: people.veth
 type: veth_m
 type_label: Masculine
@@ -13,5 +13,5 @@ build_label: Very heavy
 order: 5
 offered: false
 arm_splay_deg: 6
-measurements_mm: { chest: 1178, waist: 1085, hips: 1085, thigh: 634 }
+measurements_mm: { chest: 1182, waist: 988, hips: 1291, thigh: 695 }
 rest_offsets_mm: {}

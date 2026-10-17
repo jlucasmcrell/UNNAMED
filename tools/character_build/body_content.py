@@ -1,12 +1,12 @@
 """WP17 step 5: the body presets as content (content/bodies/<type>_<build>.yaml, kind body), from the builds, the measured models and the
 clipping gate's verdict.
 
-python body_content.py --summaries <dir with builds_m.json, builds_f.json> --gate <INTERSECTIONS_<date>.json> --content <repo>/content
+python body_content.py --recipes <asset_work/metahuman/recipes> --gate <INTERSECTIONS_<date>.json> --content <repo>/content
 
 Lean and Average are offered; Very lean, Heavy and Very heavy only when the gate passed that body on both verdicts (build and outfit; owner 2026-10-17:
 Heavy and Very heavy stay hidden until they pass).
-Measurements are the MetaHuman model's tape girths (build_bodies.py), in whole millimetres. Rest offsets are empty: a build changes no
-joint (bl_preset_shapes.py carries every preset onto the Veth skeleton); a later people with other proportions lists its own.
+Measurements are the MetaHuman Creator's own tape (the build recipes ue_build_variants.py writes: the owner's character for Average,
+what the solver reached for a build), in whole millimetres. Rest offsets are empty: each build's model carries its own rest.
 """
 import argparse
 import json
@@ -17,7 +17,7 @@ TYPES = {"m": ("veth_m", "Masculine"), "f": ("veth_f", "Feminine")}
 HELD = ("very_lean", "heavy", "very_heavy")
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--summaries", required=True)
+ap.add_argument("--recipes", required=True)
 ap.add_argument("--gate", required=True)
 ap.add_argument("--content", required=True)
 a = ap.parse_args()
@@ -26,10 +26,11 @@ verdict = json.load(open(a.gate))["verdict"]
 out = os.path.join(a.content, "bodies")
 os.makedirs(out, exist_ok=True)
 for sex, (type_id, type_label) in TYPES.items():
-    summary = json.load(open(os.path.join(a.summaries, f"builds_{sex}.json")))
     for order, build in enumerate(builds, start=1):
         asset = f"mh_veth_{sex}" if build["id"] == "average" else f"mh_veth_{sex}_{build['id']}"
-        girths = summary["average_girths_cm"] if build["id"] == "average" else summary["builds"][build["id"]]["girths_cm"]
+        body = json.load(open(os.path.join(a.recipes, f"{type_id}_{'same' if build['id'] == 'average' else build['id']}.json")))["body"]
+        tape = body["base"] if build["id"] == "average" else body["reached"]
+        girths = {"chest": tape["Chest"], "waist": tape["Waist"], "hips": tape["Hip"], "thigh": tape["Thigh"]}
         v = verdict[asset]
         offered = build["id"] not in HELD or (v["pass"] and v["outfit_pass"])
         gate = "passed" if v["pass"] and v["outfit_pass"] else f"failed ({len(v['faults']) + len(v['outfit_faults'])} faults)"
@@ -40,10 +41,11 @@ for sex, (type_id, type_label) in TYPES.items():
             f"display_key: body.{type_id}.{build['id']}.name",
             "tags: [body]",
             f"name: {type_label}, {build['label'].lower()}",
-            "notes: " + json.dumps(f"WP17 (owner 2026-10-17). The Veth {type_label.lower()} body, {build['label'].lower()} build - the owner's blend "
-            f"({'Blend_M = Victor x Trey' if sex == 'm' else 'Blend_F = Sunita x Tuya'}) moved along the Creator's Fat/Muscularity sliders by "
-            f"{build['sliders'][sex]['fat']:+.2f}/{build['sliders'][sex]['muscularity']:+.2f} (tools/character_build/builds.json). Models "
-            f"{asset} (MetaHuman) and the production MPFB build; garments baked per body. Clipping gate: {gate}."
+            "notes: " + json.dumps(f"WP17 (owner 2026-10-17). The Veth {type_label.lower()} body, {build['label'].lower()} build - the owner's MetaHuman "
+            f"({'Blend_M = Victor x Trey' if sex == 'm' else 'Blend_F = Sunita x Tuya'})"
+            + (" unchanged" if build["id"] == "average" else f" with the Creator solver's change for girth factor {build['girth_factor']}")
+            + f" (tools/character_build/builds.json). Models {asset} (MetaHuman) and the production MPFB build; garments baked per body. "
+            f"Clipping gate: {gate}."
             + ("" if offered else " Not offered until the gate passes it.")),
             "people_ref: people.veth",
             f"type: {type_id}",

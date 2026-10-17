@@ -4,7 +4,7 @@ schema: 1
 display_key: body.veth_m.average.name
 tags: [body]
 name: Masculine, average
-notes: "WP17 (owner 2026-10-17). The Veth masculine body, average build - the owner's blend (Blend_M = Victor x Trey) moved along the Creator's Fat/Muscularity sliders by +0.00/+0.00 (tools/character_build/builds.json). Models mh_veth_m (MetaHuman) and the production MPFB build; garments baked per body. Clipping gate: passed."
+notes: "WP17 (owner 2026-10-17). The Veth masculine body, average build - the owner's MetaHuman (Blend_M = Victor x Trey) unchanged (tools/character_build/builds.json). Models mh_veth_m (MetaHuman) and the production MPFB build; garments baked per body. Clipping gate: failed (10 faults)."
 people_ref: people.veth
 type: veth_m
 type_label: Masculine
@@ -13,5 +13,5 @@ build_label: Average
 order: 3
 offered: true
 arm_splay_deg: 0
-measurements_mm: { chest: 1037, waist: 741, hips: 966, thigh: 565 }
+measurements_mm: { chest: 995, waist: 806, hips: 1035, thigh: 570 }
 rest_offsets_mm: {}

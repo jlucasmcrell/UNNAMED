@@ -4,7 +4,7 @@ schema: 1
 display_key: body.veth_f.heavy.name
 tags: [body]
 name: Feminine, heavy
-notes: "WP17 (owner 2026-10-17). The Veth feminine body, heavy build - the owner's blend (Blend_F = Sunita x Tuya) moved along the Creator's Fat/Muscularity sliders by +0.90/+0.20 (tools/character_build/builds.json). Models mh_veth_f_heavy (MetaHuman) and the production MPFB build; garments baked per body. Clipping gate: failed (10 faults)."
+notes: "WP17 (owner 2026-10-17). The Veth feminine body, heavy build - the owner's MetaHuman (Blend_F = Sunita x Tuya) with the Creator solver's change for girth factor 1.1 (tools/character_build/builds.json). Models mh_veth_f_heavy (MetaHuman) and the production MPFB build; garments baked per body. Clipping gate: failed (20 faults). Not offered until the gate passes it."
 people_ref: people.veth
 type: veth_f
 type_label: Feminine
@@ -13,5 +13,5 @@ build_label: Heavy
 order: 4
 offered: false
 arm_splay_deg: 3
-measurements_mm: { chest: 936, waist: 872, hips: 968, thigh: 497 }
+measurements_mm: { chest: 930, waist: 759, hips: 1092, thigh: 574 }
 rest_offsets_mm: {}
