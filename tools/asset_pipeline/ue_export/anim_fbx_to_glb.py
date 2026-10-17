@@ -1,11 +1,12 @@
 """Blender: AnimSequence FBX files (export_pack.py --animations) -> one GLB per clip, the clip on its UE skeleton, which is what
 _retarget_clip.py reads as a source (exact glTF sampling, the skeleton's reference pose as the node rest).
 
-    blender --background --factory-startup --python anim_fbx_to_glb.py -- <pack>_anim [--match regex] [--out <dir>]
+    blender --background --factory-startup --python anim_fbx_to_glb.py -- <pack>_anim [--match regex] [--out <dir>] [--frames a:b]
 
 Writes <out>/<key>.glb (default <pack>_anim/Glb) with the action named after the FBX key. The FBX node defaults are the
 skeleton's reference pose (no preview mesh is exported), so the GLB rest is the UE reference pose; UE centimetres stay as a
-0.01 scale on the armature node, which the retarget's forward kinematics carries.
+0.01 scale on the armature node, which the retarget's forward kinematics carries. --frames a:b keeps only those source frames
+(a long mocap take, such as a minute-long Rokoko idle, cut to the loop the game plays).
 """
 import os
 import re
@@ -17,6 +18,7 @@ argv = sys.argv[sys.argv.index("--") + 1:]
 pack = argv[0]
 match = argv[argv.index("--match") + 1] if "--match" in argv else ""
 out = argv[argv.index("--out") + 1] if "--out" in argv else os.path.join(pack, "Glb")
+frames = tuple(int(v) for v in argv[argv.index("--frames") + 1].split(":")) if "--frames" in argv else None
 os.makedirs(out, exist_ok=True)
 done = 0
 for name in sorted(os.listdir(os.path.join(pack, "Animations"))):
@@ -36,7 +38,7 @@ for name in sorted(os.listdir(os.path.join(pack, "Animations"))):
             bpy.data.objects.remove(obj, do_unlink=True)
     action = rig.animation_data.action
     action.name = key
-    f0, f1 = (int(round(v)) for v in action.frame_range)
+    f0, f1 = frames or (int(round(v)) for v in action.frame_range)
     scene = bpy.context.scene
     scene.frame_start, scene.frame_end = f0, f1
     for obj in scene.objects:
@@ -44,7 +46,8 @@ for name in sorted(os.listdir(os.path.join(pack, "Animations"))):
     bpy.ops.export_scene.gltf(filepath=os.path.join(out, key + ".glb"), export_format="GLB", use_selection=True,
                               export_apply=False, export_yup=True, export_materials="NONE", export_skins=True,
                               export_animations=True, export_animation_mode="ACTIVE_ACTIONS", export_force_sampling=True,
-                              export_frame_range=False, export_def_bones=False)
+                              export_frame_range=frames is not None, export_anim_slide_to_zero=frames is not None,
+                              export_def_bones=False)
     done += 1
     print(f"ANIM_GLB {key} frames {f0}-{f1} fps {scene.render.fps}/{scene.render.fps_base:.4f}")
 print(f"ANIM_GLB done {done}")

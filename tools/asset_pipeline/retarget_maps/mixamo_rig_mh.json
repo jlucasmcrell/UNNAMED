@@ -1,0 +1,566 @@
+{
+ "map_version": 1,
+ "target_rig": "MetaHuman game skeleton (asset_work/metahuman bl_assemble.py: 145 joints, UE5 names, A-pose rest; mh_veth_m / mh_veth_f)",
+ "target_hips": "pelvis",
+ "target_lateral": [
+  "thigh_l",
+  "thigh_r"
+ ],
+ "target_legs": [
+  [
+   "thigh_l",
+   "calf_l",
+   "foot_l"
+  ],
+  [
+   "thigh_r",
+   "calf_r",
+   "foot_r"
+  ]
+ ],
+ "target_arms": [
+  [
+   "clavicle_l",
+   "upperarm_l",
+   "lowerarm_l",
+   "hand_l"
+  ],
+  [
+   "clavicle_r",
+   "upperarm_r",
+   "lowerarm_r",
+   "hand_r"
+  ]
+ ],
+ "target_chain": {
+  "clavicle_l": "upperarm_l",
+  "upperarm_l": "lowerarm_l",
+  "lowerarm_l": "hand_l",
+  "hand_l": "middle_01_l",
+  "thigh_l": "calf_l",
+  "calf_l": "foot_l",
+  "thumb_01_l": "thumb_02_l",
+  "thumb_02_l": "thumb_03_l",
+  "index_01_l": "index_02_l",
+  "index_02_l": "index_03_l",
+  "middle_01_l": "middle_02_l",
+  "middle_02_l": "middle_03_l",
+  "ring_01_l": "ring_02_l",
+  "ring_02_l": "ring_03_l",
+  "pinky_01_l": "pinky_02_l",
+  "pinky_02_l": "pinky_03_l",
+  "clavicle_r": "upperarm_r",
+  "upperarm_r": "lowerarm_r",
+  "lowerarm_r": "hand_r",
+  "hand_r": "middle_01_r",
+  "thigh_r": "calf_r",
+  "calf_r": "foot_r",
+  "thumb_01_r": "thumb_02_r",
+  "thumb_02_r": "thumb_03_r",
+  "index_01_r": "index_02_r",
+  "index_02_r": "index_03_r",
+  "middle_01_r": "middle_02_r",
+  "middle_02_r": "middle_03_r",
+  "ring_01_r": "ring_02_r",
+  "ring_02_r": "ring_03_r",
+  "pinky_01_r": "pinky_02_r",
+  "pinky_02_r": "pinky_03_r",
+  "root": "pelvis",
+  "pelvis": "spine_01",
+  "spine_01": "spine_02",
+  "spine_02": "spine_03",
+  "spine_03": "spine_04",
+  "spine_04": "spine_05",
+  "spine_05": "neck_01",
+  "neck_01": "neck_02",
+  "neck_02": "head"
+ },
+ "source_skeleton": "Mixamo rig (mixamorig:*; Hips root, Spine/Spine1/Spine2, Neck, Head, LeftShoulder..LeftHand, 3-segment fingers, LeftUpLeg/LeftLeg/LeftFoot/LeftToeBase; T-pose rest) as anim_fbx_to_glb.py writes it: Mixamo downloads and the Rokoko free mocap (*_mixamo.fbx)",
+ "notes": "The Mixamo rig onto the MetaHuman game skeleton, made from mixamo_rig_prod.json (its entry per production bone given to the MetaHuman bone it stands for); MetaHuman bones the production rig lacks (spine_02/04, neck_02, metacarpals, twist and helper joints, sockets, eyes, cloth chains) follow their parent at rest.",
+ "source_root": null,
+ "source_lateral": [
+  "mixamorig:LeftUpLeg",
+  "mixamorig:RightUpLeg"
+ ],
+ "bones": {
+  "root": {
+   "source": null
+  },
+  "pelvis": {
+   "source": "mixamorig:Hips"
+  },
+  "cloth_apron_1": {
+   "source": null
+  },
+  "cloth_apron_2": {
+   "source": null
+  },
+  "cloth_apron_3": {
+   "source": null
+  },
+  "cloth_pouch_1": {
+   "source": null
+  },
+  "cloth_pouch_2": {
+   "source": null
+  },
+  "cloth_scabbard_1": {
+   "source": null
+  },
+  "cloth_scabbard_2": {
+   "source": null
+  },
+  "cloth_skirt_0_1": {
+   "source": null
+  },
+  "cloth_skirt_0_2": {
+   "source": null
+  },
+  "cloth_skirt_0_3": {
+   "source": null
+  },
+  "cloth_skirt_1_1": {
+   "source": null
+  },
+  "cloth_skirt_1_2": {
+   "source": null
+  },
+  "cloth_skirt_1_3": {
+   "source": null
+  },
+  "cloth_skirt_2_1": {
+   "source": null
+  },
+  "cloth_skirt_2_2": {
+   "source": null
+  },
+  "cloth_skirt_2_3": {
+   "source": null
+  },
+  "cloth_skirt_3_1": {
+   "source": null
+  },
+  "cloth_skirt_3_2": {
+   "source": null
+  },
+  "cloth_skirt_3_3": {
+   "source": null
+  },
+  "cloth_skirt_4_1": {
+   "source": null
+  },
+  "cloth_skirt_4_2": {
+   "source": null
+  },
+  "cloth_skirt_4_3": {
+   "source": null
+  },
+  "cloth_skirt_5_1": {
+   "source": null
+  },
+  "cloth_skirt_5_2": {
+   "source": null
+  },
+  "cloth_skirt_5_3": {
+   "source": null
+  },
+  "cloth_skirt_6_1": {
+   "source": null
+  },
+  "cloth_skirt_6_2": {
+   "source": null
+  },
+  "cloth_skirt_6_3": {
+   "source": null
+  },
+  "cloth_skirt_7_1": {
+   "source": null
+  },
+  "cloth_skirt_7_2": {
+   "source": null
+  },
+  "cloth_skirt_7_3": {
+   "source": null
+  },
+  "spine_01": {
+   "source": "mixamorig:Spine"
+  },
+  "spine_02": {
+   "source": null
+  },
+  "spine_03": {
+   "source": "mixamorig:Spine1"
+  },
+  "spine_04": {
+   "source": null
+  },
+  "spine_05": {
+   "source": "mixamorig:Spine2"
+  },
+  "clavicle_l": {
+   "source": "mixamorig:LeftShoulder"
+  },
+  "upperarm_l": {
+   "source": "mixamorig:LeftArm",
+   "align": true
+  },
+  "lowerarm_l": {
+   "source": "mixamorig:LeftForeArm",
+   "align": true
+  },
+  "hand_l": {
+   "source": "mixamorig:LeftHand",
+   "align": true,
+   "aim": "mixamorig:LeftHandMiddle1",
+   "drive": "mixamorig:LeftHand"
+  },
+  "index_metacarpal_l": {
+   "source": null
+  },
+  "index_01_l": {
+   "source": "mixamorig:LeftHandIndex1",
+   "align": true
+  },
+  "index_02_l": {
+   "source": "mixamorig:LeftHandIndex2",
+   "align": true
+  },
+  "index_03_l": {
+   "source": "mixamorig:LeftHandIndex3"
+  },
+  "middle_metacarpal_l": {
+   "source": null
+  },
+  "middle_01_l": {
+   "source": "mixamorig:LeftHandMiddle1",
+   "align": true
+  },
+  "middle_02_l": {
+   "source": "mixamorig:LeftHandMiddle2",
+   "align": true
+  },
+  "middle_03_l": {
+   "source": "mixamorig:LeftHandMiddle3"
+  },
+  "pinky_metacarpal_l": {
+   "source": null
+  },
+  "pinky_01_l": {
+   "source": "mixamorig:LeftHandPinky1",
+   "align": true
+  },
+  "pinky_02_l": {
+   "source": "mixamorig:LeftHandPinky2",
+   "align": true
+  },
+  "pinky_03_l": {
+   "source": "mixamorig:LeftHandPinky3"
+  },
+  "ring_metacarpal_l": {
+   "source": null
+  },
+  "ring_01_l": {
+   "source": "mixamorig:LeftHandRing1",
+   "align": true
+  },
+  "ring_02_l": {
+   "source": "mixamorig:LeftHandRing2",
+   "align": true
+  },
+  "ring_03_l": {
+   "source": "mixamorig:LeftHandRing3"
+  },
+  "SOCK_hand_l": {
+   "source": null
+  },
+  "thumb_01_l": {
+   "source": "mixamorig:LeftHandThumb1",
+   "align": true
+  },
+  "thumb_02_l": {
+   "source": "mixamorig:LeftHandThumb2",
+   "align": true
+  },
+  "thumb_03_l": {
+   "source": "mixamorig:LeftHandThumb3"
+  },
+  "wrist_outer_l": {
+   "source": null
+  },
+  "lowerarm_bck_l": {
+   "source": null
+  },
+  "lowerarm_twist_01_l": {
+   "source": null
+  },
+  "lowerarm_twist_02_l": {
+   "source": null
+  },
+  "upperarm_out_l": {
+   "source": null
+  },
+  "upperarm_twist_01_l": {
+   "source": null
+  },
+  "upperarm_twist_02_l": {
+   "source": null
+  },
+  "clavicle_r": {
+   "source": "mixamorig:RightShoulder"
+  },
+  "upperarm_r": {
+   "source": "mixamorig:RightArm",
+   "align": true
+  },
+  "lowerarm_r": {
+   "source": "mixamorig:RightForeArm",
+   "align": true
+  },
+  "hand_r": {
+   "source": "mixamorig:RightHand",
+   "align": true,
+   "aim": "mixamorig:RightHandMiddle1",
+   "drive": "mixamorig:RightHand"
+  },
+  "index_metacarpal_r": {
+   "source": null
+  },
+  "index_01_r": {
+   "source": "mixamorig:RightHandIndex1",
+   "align": true
+  },
+  "index_02_r": {
+   "source": "mixamorig:RightHandIndex2",
+   "align": true
+  },
+  "index_03_r": {
+   "source": "mixamorig:RightHandIndex3"
+  },
+  "middle_metacarpal_r": {
+   "source": null
+  },
+  "middle_01_r": {
+   "source": "mixamorig:RightHandMiddle1",
+   "align": true
+  },
+  "middle_02_r": {
+   "source": "mixamorig:RightHandMiddle2",
+   "align": true
+  },
+  "middle_03_r": {
+   "source": "mixamorig:RightHandMiddle3"
+  },
+  "pinky_metacarpal_r": {
+   "source": null
+  },
+  "pinky_01_r": {
+   "source": "mixamorig:RightHandPinky1",
+   "align": true
+  },
+  "pinky_02_r": {
+   "source": "mixamorig:RightHandPinky2",
+   "align": true
+  },
+  "pinky_03_r": {
+   "source": "mixamorig:RightHandPinky3"
+  },
+  "ring_metacarpal_r": {
+   "source": null
+  },
+  "ring_01_r": {
+   "source": "mixamorig:RightHandRing1",
+   "align": true
+  },
+  "ring_02_r": {
+   "source": "mixamorig:RightHandRing2",
+   "align": true
+  },
+  "ring_03_r": {
+   "source": "mixamorig:RightHandRing3"
+  },
+  "SOCK_hand_r": {
+   "source": null
+  },
+  "thumb_01_r": {
+   "source": "mixamorig:RightHandThumb1",
+   "align": true
+  },
+  "thumb_02_r": {
+   "source": "mixamorig:RightHandThumb2",
+   "align": true
+  },
+  "thumb_03_r": {
+   "source": "mixamorig:RightHandThumb3"
+  },
+  "wrist_outer_r": {
+   "source": null
+  },
+  "lowerarm_bck_r": {
+   "source": null
+  },
+  "lowerarm_twist_01_r": {
+   "source": null
+  },
+  "lowerarm_twist_02_r": {
+   "source": null
+  },
+  "upperarm_out_r": {
+   "source": null
+  },
+  "upperarm_twist_01_r": {
+   "source": null
+  },
+  "upperarm_twist_02_r": {
+   "source": null
+  },
+  "cloth_cloak_0_1": {
+   "source": null
+  },
+  "cloth_cloak_0_2": {
+   "source": null
+  },
+  "cloth_cloak_0_3": {
+   "source": null
+  },
+  "cloth_cloak_0_4": {
+   "source": null
+  },
+  "cloth_cloak_1_1": {
+   "source": null
+  },
+  "cloth_cloak_1_2": {
+   "source": null
+  },
+  "cloth_cloak_1_3": {
+   "source": null
+  },
+  "cloth_cloak_1_4": {
+   "source": null
+  },
+  "cloth_cloak_2_1": {
+   "source": null
+  },
+  "cloth_cloak_2_2": {
+   "source": null
+  },
+  "cloth_cloak_2_3": {
+   "source": null
+  },
+  "cloth_cloak_2_4": {
+   "source": null
+  },
+  "neck_01": {
+   "source": "mixamorig:Neck"
+  },
+  "neck_02": {
+   "source": null
+  },
+  "cloth_hood_1": {
+   "source": null
+  },
+  "cloth_hood_2": {
+   "source": null
+  },
+  "head": {
+   "source": "mixamorig:Head"
+  },
+  "cloth_ponytail_1": {
+   "source": null
+  },
+  "cloth_ponytail_2": {
+   "source": null
+  },
+  "cloth_ponytail_3": {
+   "source": null
+  },
+  "cloth_ponytail_4": {
+   "source": null
+  },
+  "FACIAL_L_Eye": {
+   "source": null
+  },
+  "FACIAL_R_Eye": {
+   "source": null
+  },
+  "thigh_l": {
+   "source": "mixamorig:LeftUpLeg",
+   "align": true
+  },
+  "calf_l": {
+   "source": "mixamorig:LeftLeg",
+   "align": true
+  },
+  "calf_knee_l": {
+   "source": null
+  },
+  "calf_kneeBack_l": {
+   "source": null
+  },
+  "calf_twist_01_l": {
+   "source": null
+  },
+  "calf_twist_02_l": {
+   "source": null
+  },
+  "foot_l": {
+   "source": "mixamorig:LeftFoot"
+  },
+  "ball_l": {
+   "source": "mixamorig:LeftToeBase"
+  },
+  "thigh_bck_l": {
+   "source": null
+  },
+  "thigh_twist_01_l": {
+   "source": null
+  },
+  "thigh_twist_02_l": {
+   "source": null
+  },
+  "thigh_r": {
+   "source": "mixamorig:RightUpLeg",
+   "align": true
+  },
+  "calf_r": {
+   "source": "mixamorig:RightLeg",
+   "align": true
+  },
+  "calf_knee_r": {
+   "source": null
+  },
+  "calf_kneeBack_r": {
+   "source": null
+  },
+  "calf_twist_01_r": {
+   "source": null
+  },
+  "calf_twist_02_r": {
+   "source": null
+  },
+  "foot_r": {
+   "source": "mixamorig:RightFoot"
+  },
+  "ball_r": {
+   "source": "mixamorig:RightToeBase"
+  },
+  "thigh_bck_r": {
+   "source": null
+  },
+  "thigh_twist_01_r": {
+   "source": null
+  },
+  "thigh_twist_02_r": {
+   "source": null
+  }
+ },
+ "contacts": {
+  "foot_l": {
+   "ankle": "mixamorig:LeftFoot",
+   "toe": "mixamorig:LeftToeBase"
+  },
+  "foot_r": {
+   "ankle": "mixamorig:RightFoot",
+   "toe": "mixamorig:RightToeBase"
+  }
+ }
+}

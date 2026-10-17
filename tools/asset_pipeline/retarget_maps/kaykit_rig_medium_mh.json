@@ -1,0 +1,552 @@
+{
+ "map_version": 1,
+ "target_rig": "MetaHuman game skeleton (asset_work/metahuman bl_assemble.py: 145 joints, UE5 names, A-pose rest; mh_veth_m / mh_veth_f)",
+ "target_hips": "pelvis",
+ "target_lateral": [
+  "thigh_l",
+  "thigh_r"
+ ],
+ "target_legs": [
+  [
+   "thigh_l",
+   "calf_l",
+   "foot_l"
+  ],
+  [
+   "thigh_r",
+   "calf_r",
+   "foot_r"
+  ]
+ ],
+ "target_arms": [
+  [
+   "clavicle_l",
+   "upperarm_l",
+   "lowerarm_l",
+   "hand_l"
+  ],
+  [
+   "clavicle_r",
+   "upperarm_r",
+   "lowerarm_r",
+   "hand_r"
+  ]
+ ],
+ "target_chain": {
+  "clavicle_l": "upperarm_l",
+  "upperarm_l": "lowerarm_l",
+  "lowerarm_l": "hand_l",
+  "hand_l": "middle_01_l",
+  "thigh_l": "calf_l",
+  "calf_l": "foot_l",
+  "thumb_01_l": "thumb_02_l",
+  "thumb_02_l": "thumb_03_l",
+  "index_01_l": "index_02_l",
+  "index_02_l": "index_03_l",
+  "middle_01_l": "middle_02_l",
+  "middle_02_l": "middle_03_l",
+  "ring_01_l": "ring_02_l",
+  "ring_02_l": "ring_03_l",
+  "pinky_01_l": "pinky_02_l",
+  "pinky_02_l": "pinky_03_l",
+  "clavicle_r": "upperarm_r",
+  "upperarm_r": "lowerarm_r",
+  "lowerarm_r": "hand_r",
+  "hand_r": "middle_01_r",
+  "thigh_r": "calf_r",
+  "calf_r": "foot_r",
+  "thumb_01_r": "thumb_02_r",
+  "thumb_02_r": "thumb_03_r",
+  "index_01_r": "index_02_r",
+  "index_02_r": "index_03_r",
+  "middle_01_r": "middle_02_r",
+  "middle_02_r": "middle_03_r",
+  "ring_01_r": "ring_02_r",
+  "ring_02_r": "ring_03_r",
+  "pinky_01_r": "pinky_02_r",
+  "pinky_02_r": "pinky_03_r",
+  "root": "pelvis",
+  "pelvis": "spine_01",
+  "spine_01": "spine_02",
+  "spine_02": "spine_03",
+  "spine_03": "spine_04",
+  "spine_04": "spine_05",
+  "spine_05": "neck_01",
+  "neck_01": "neck_02",
+  "neck_02": "head"
+ },
+ "source_skeleton": "KayKit Rig_Medium (23 joints, no fingers, T-pose rest, faces +Z)",
+ "notes": "KayKit Rig_Medium onto the MetaHuman game skeleton, made from kaykit_rig_medium_std.json (its entry per production bone given to the MetaHuman bone it stands for); MetaHuman bones the production rig lacks (spine_02/04, neck_02, metacarpals, twist and helper joints, sockets, eyes, cloth chains) follow their parent at rest.",
+ "source_root": "root",
+ "source_lateral": [
+  "upperleg.l",
+  "upperleg.r"
+ ],
+ "bones": {
+  "root": {
+   "source": "root"
+  },
+  "pelvis": {
+   "source": "hips"
+  },
+  "cloth_apron_1": {
+   "source": null
+  },
+  "cloth_apron_2": {
+   "source": null
+  },
+  "cloth_apron_3": {
+   "source": null
+  },
+  "cloth_pouch_1": {
+   "source": null
+  },
+  "cloth_pouch_2": {
+   "source": null
+  },
+  "cloth_scabbard_1": {
+   "source": null
+  },
+  "cloth_scabbard_2": {
+   "source": null
+  },
+  "cloth_skirt_0_1": {
+   "source": null
+  },
+  "cloth_skirt_0_2": {
+   "source": null
+  },
+  "cloth_skirt_0_3": {
+   "source": null
+  },
+  "cloth_skirt_1_1": {
+   "source": null
+  },
+  "cloth_skirt_1_2": {
+   "source": null
+  },
+  "cloth_skirt_1_3": {
+   "source": null
+  },
+  "cloth_skirt_2_1": {
+   "source": null
+  },
+  "cloth_skirt_2_2": {
+   "source": null
+  },
+  "cloth_skirt_2_3": {
+   "source": null
+  },
+  "cloth_skirt_3_1": {
+   "source": null
+  },
+  "cloth_skirt_3_2": {
+   "source": null
+  },
+  "cloth_skirt_3_3": {
+   "source": null
+  },
+  "cloth_skirt_4_1": {
+   "source": null
+  },
+  "cloth_skirt_4_2": {
+   "source": null
+  },
+  "cloth_skirt_4_3": {
+   "source": null
+  },
+  "cloth_skirt_5_1": {
+   "source": null
+  },
+  "cloth_skirt_5_2": {
+   "source": null
+  },
+  "cloth_skirt_5_3": {
+   "source": null
+  },
+  "cloth_skirt_6_1": {
+   "source": null
+  },
+  "cloth_skirt_6_2": {
+   "source": null
+  },
+  "cloth_skirt_6_3": {
+   "source": null
+  },
+  "cloth_skirt_7_1": {
+   "source": null
+  },
+  "cloth_skirt_7_2": {
+   "source": null
+  },
+  "cloth_skirt_7_3": {
+   "source": null
+  },
+  "spine_01": {
+   "source": "spine"
+  },
+  "spine_02": {
+   "source": null
+  },
+  "spine_03": {
+   "source": null
+  },
+  "spine_04": {
+   "source": null
+  },
+  "spine_05": {
+   "source": "chest"
+  },
+  "clavicle_l": {
+   "source": null,
+   "derive": {
+    "toward": "upperarm.l",
+    "pivot": "midline"
+   }
+  },
+  "upperarm_l": {
+   "source": "upperarm.l",
+   "align": true
+  },
+  "lowerarm_l": {
+   "source": "lowerarm.l",
+   "align": true
+  },
+  "hand_l": {
+   "source": "hand.l",
+   "align": true,
+   "drive": "hand.l"
+  },
+  "index_metacarpal_l": {
+   "source": null
+  },
+  "index_01_l": {
+   "source": null
+  },
+  "index_02_l": {
+   "source": null
+  },
+  "index_03_l": {
+   "source": null
+  },
+  "middle_metacarpal_l": {
+   "source": null
+  },
+  "middle_01_l": {
+   "source": null
+  },
+  "middle_02_l": {
+   "source": null
+  },
+  "middle_03_l": {
+   "source": null
+  },
+  "pinky_metacarpal_l": {
+   "source": null
+  },
+  "pinky_01_l": {
+   "source": null
+  },
+  "pinky_02_l": {
+   "source": null
+  },
+  "pinky_03_l": {
+   "source": null
+  },
+  "ring_metacarpal_l": {
+   "source": null
+  },
+  "ring_01_l": {
+   "source": null
+  },
+  "ring_02_l": {
+   "source": null
+  },
+  "ring_03_l": {
+   "source": null
+  },
+  "SOCK_hand_l": {
+   "source": null
+  },
+  "thumb_01_l": {
+   "source": null
+  },
+  "thumb_02_l": {
+   "source": null
+  },
+  "thumb_03_l": {
+   "source": null
+  },
+  "wrist_outer_l": {
+   "source": null
+  },
+  "lowerarm_bck_l": {
+   "source": null
+  },
+  "lowerarm_twist_01_l": {
+   "source": null
+  },
+  "lowerarm_twist_02_l": {
+   "source": null
+  },
+  "upperarm_out_l": {
+   "source": null
+  },
+  "upperarm_twist_01_l": {
+   "source": null
+  },
+  "upperarm_twist_02_l": {
+   "source": null
+  },
+  "clavicle_r": {
+   "source": null,
+   "derive": {
+    "toward": "upperarm.r",
+    "pivot": "midline"
+   }
+  },
+  "upperarm_r": {
+   "source": "upperarm.r",
+   "align": true
+  },
+  "lowerarm_r": {
+   "source": "lowerarm.r",
+   "align": true
+  },
+  "hand_r": {
+   "source": "hand.r",
+   "align": true,
+   "drive": "hand.r"
+  },
+  "index_metacarpal_r": {
+   "source": null
+  },
+  "index_01_r": {
+   "source": null
+  },
+  "index_02_r": {
+   "source": null
+  },
+  "index_03_r": {
+   "source": null
+  },
+  "middle_metacarpal_r": {
+   "source": null
+  },
+  "middle_01_r": {
+   "source": null
+  },
+  "middle_02_r": {
+   "source": null
+  },
+  "middle_03_r": {
+   "source": null
+  },
+  "pinky_metacarpal_r": {
+   "source": null
+  },
+  "pinky_01_r": {
+   "source": null
+  },
+  "pinky_02_r": {
+   "source": null
+  },
+  "pinky_03_r": {
+   "source": null
+  },
+  "ring_metacarpal_r": {
+   "source": null
+  },
+  "ring_01_r": {
+   "source": null
+  },
+  "ring_02_r": {
+   "source": null
+  },
+  "ring_03_r": {
+   "source": null
+  },
+  "SOCK_hand_r": {
+   "source": null
+  },
+  "thumb_01_r": {
+   "source": null
+  },
+  "thumb_02_r": {
+   "source": null
+  },
+  "thumb_03_r": {
+   "source": null
+  },
+  "wrist_outer_r": {
+   "source": null
+  },
+  "lowerarm_bck_r": {
+   "source": null
+  },
+  "lowerarm_twist_01_r": {
+   "source": null
+  },
+  "lowerarm_twist_02_r": {
+   "source": null
+  },
+  "upperarm_out_r": {
+   "source": null
+  },
+  "upperarm_twist_01_r": {
+   "source": null
+  },
+  "upperarm_twist_02_r": {
+   "source": null
+  },
+  "cloth_cloak_0_1": {
+   "source": null
+  },
+  "cloth_cloak_0_2": {
+   "source": null
+  },
+  "cloth_cloak_0_3": {
+   "source": null
+  },
+  "cloth_cloak_0_4": {
+   "source": null
+  },
+  "cloth_cloak_1_1": {
+   "source": null
+  },
+  "cloth_cloak_1_2": {
+   "source": null
+  },
+  "cloth_cloak_1_3": {
+   "source": null
+  },
+  "cloth_cloak_1_4": {
+   "source": null
+  },
+  "cloth_cloak_2_1": {
+   "source": null
+  },
+  "cloth_cloak_2_2": {
+   "source": null
+  },
+  "cloth_cloak_2_3": {
+   "source": null
+  },
+  "cloth_cloak_2_4": {
+   "source": null
+  },
+  "neck_01": {
+   "source": null
+  },
+  "neck_02": {
+   "source": null
+  },
+  "cloth_hood_1": {
+   "source": null
+  },
+  "cloth_hood_2": {
+   "source": null
+  },
+  "head": {
+   "source": "head"
+  },
+  "cloth_ponytail_1": {
+   "source": null
+  },
+  "cloth_ponytail_2": {
+   "source": null
+  },
+  "cloth_ponytail_3": {
+   "source": null
+  },
+  "cloth_ponytail_4": {
+   "source": null
+  },
+  "FACIAL_L_Eye": {
+   "source": null
+  },
+  "FACIAL_R_Eye": {
+   "source": null
+  },
+  "thigh_l": {
+   "source": "upperleg.l",
+   "align": true
+  },
+  "calf_l": {
+   "source": "lowerleg.l",
+   "align": true
+  },
+  "calf_knee_l": {
+   "source": null
+  },
+  "calf_kneeBack_l": {
+   "source": null
+  },
+  "calf_twist_01_l": {
+   "source": null
+  },
+  "calf_twist_02_l": {
+   "source": null
+  },
+  "foot_l": {
+   "source": "foot.l"
+  },
+  "ball_l": {
+   "source": null
+  },
+  "thigh_bck_l": {
+   "source": null
+  },
+  "thigh_twist_01_l": {
+   "source": null
+  },
+  "thigh_twist_02_l": {
+   "source": null
+  },
+  "thigh_r": {
+   "source": "upperleg.r",
+   "align": true
+  },
+  "calf_r": {
+   "source": "lowerleg.r",
+   "align": true
+  },
+  "calf_knee_r": {
+   "source": null
+  },
+  "calf_kneeBack_r": {
+   "source": null
+  },
+  "calf_twist_01_r": {
+   "source": null
+  },
+  "calf_twist_02_r": {
+   "source": null
+  },
+  "foot_r": {
+   "source": "foot.r"
+  },
+  "ball_r": {
+   "source": null
+  },
+  "thigh_bck_r": {
+   "source": null
+  },
+  "thigh_twist_01_r": {
+   "source": null
+  },
+  "thigh_twist_02_r": {
+   "source": null
+  }
+ },
+ "contacts": {
+  "foot_l": {
+   "ankle": "foot.l",
+   "toe": "toes.l"
+  },
+  "foot_r": {
+   "ankle": "foot.r",
+   "toe": "toes.r"
+  }
+ }
+}
