@@ -82,8 +82,9 @@ for k, item in enumerate(items):
     roots = [o for o in new if o.parent is None]
     # the rest skeleton is yawed (~10 deg on the Veth bodies): square each figure to the camera as bl_garment.py --drape-body does
     joint = {b.name: body_arm.matrix_world @ b.head_local for b in body_arm.data.bones}
-    across = sum((joint[f"{n}_l"] - joint[f"{n}_r"] for n in ("thigh", "upperarm", "foot")), Vector())
-    square = Matrix.Rotation(-math.atan2(across.y, across.x), 4, "Z")
+    pairs = [(f"{n}_l", f"{n}_r") for n in ("thigh", "upperarm", "foot")] + [(f"{n}.L", f"{n}.R") for n in ("thigh", "upper_arm", "foot")]
+    across = sum((joint[l_] - joint[r_] for l_, r_ in pairs if l_ in joint and r_ in joint), Vector())
+    square = Matrix.Rotation(-math.atan2(across.y, across.x), 4, "Z") if across.length > 0 else Matrix()
     for r in roots:
         r.matrix_world = square @ r.matrix_world
     figures.append((roots, body_arm))

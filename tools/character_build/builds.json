@@ -1,10 +1,115 @@
 {
- "note": "The Veth builds (WP17, owner 2026-10-17: Lean/Average/Heavy plus one more at each end). Sliders are Creator Fat and Muscularity steps away from the Average body (the owner's blend: Blend_M fat -0.96, muscularity +0.06; Blend_F fat -0.56, muscularity -0.30), kept inside the Creator's preset spread (fat -1.49..+1.65) so every build stays a natural body. The extremes ship only if every garment passes the clipping gate on them.",
+ "note": "The Veth builds (WP17, owner 2026-10-17: Lean/Average/Heavy plus one more at each end). Sliders are Creator Fat and Muscularity steps away from the Average body (the owner's blend: Blend_M fat -0.96, muscularity +0.06; Blend_F fat -0.56, muscularity -0.30), kept inside the Creator's preset spread (fat -1.49..+1.65) so every build stays a natural body. The extremes ship only if every garment passes the clipping gate on them. mpfb: MakeHuman macro steps (weight, muscle) from the production (MPFB) players' own macros, for the production family's build models (mpfb_specs.py). arm_splay_deg: the build's pose offset - upper arms turned out from the trunk after the clips (Art/BuildPose.cs), chosen by the gate so the arm swing clears the build's own sides.",
  "builds": [
-  {"id": "very_lean", "label": "Very lean", "sliders": {"m": {"fat": -0.55, "muscularity": -0.35}, "f": {"fat": -0.65, "muscularity": -0.30}}},
-  {"id": "lean", "label": "Lean", "sliders": {"m": {"fat": -0.30, "muscularity": -0.15}, "f": {"fat": -0.35, "muscularity": -0.15}}},
-  {"id": "average", "label": "Average", "sliders": {"m": {"fat": 0.0, "muscularity": 0.0}, "f": {"fat": 0.0, "muscularity": 0.0}}},
-  {"id": "heavy", "label": "Heavy", "sliders": {"m": {"fat": 1.0, "muscularity": 0.30}, "f": {"fat": 0.9, "muscularity": 0.20}}},
-  {"id": "very_heavy", "label": "Very heavy", "sliders": {"m": {"fat": 2.0, "muscularity": 0.55}, "f": {"fat": 1.8, "muscularity": 0.40}}}
+  {
+   "id": "very_lean",
+   "label": "Very lean",
+   "sliders": {
+    "m": {
+     "fat": -0.55,
+     "muscularity": -0.35
+    },
+    "f": {
+     "fat": -0.65,
+     "muscularity": -0.3
+    }
+   },
+   "mpfb": {
+    "weight": -0.2,
+    "muscle": -0.08
+   },
+   "arm_splay_deg": {
+    "m": 4,
+    "f": 3
+   }
+  },
+  {
+   "id": "lean",
+   "label": "Lean",
+   "sliders": {
+    "m": {
+     "fat": -0.3,
+     "muscularity": -0.15
+    },
+    "f": {
+     "fat": -0.35,
+     "muscularity": -0.15
+    }
+   },
+   "mpfb": {
+    "weight": -0.1,
+    "muscle": -0.04
+   },
+   "arm_splay_deg": {
+    "m": 5,
+    "f": 3
+   }
+  },
+  {
+   "id": "average",
+   "label": "Average",
+   "sliders": {
+    "m": {
+     "fat": 0.0,
+     "muscularity": 0.0
+    },
+    "f": {
+     "fat": 0.0,
+     "muscularity": 0.0
+    }
+   },
+   "mpfb": {
+    "weight": 0.0,
+    "muscle": 0.0
+   },
+   "arm_splay_deg": {
+    "m": 6,
+    "f": 4
+   }
+  },
+  {
+   "id": "heavy",
+   "label": "Heavy",
+   "sliders": {
+    "m": {
+     "fat": 1.0,
+     "muscularity": 0.3
+    },
+    "f": {
+     "fat": 0.9,
+     "muscularity": 0.2
+    }
+   },
+   "mpfb": {
+    "weight": 0.25,
+    "muscle": 0.05
+   },
+   "arm_splay_deg": {
+    "m": 13,
+    "f": 10
+   }
+  },
+  {
+   "id": "very_heavy",
+   "label": "Very heavy",
+   "sliders": {
+    "m": {
+     "fat": 2.0,
+     "muscularity": 0.55
+    },
+    "f": {
+     "fat": 1.8,
+     "muscularity": 0.4
+    }
+   },
+   "mpfb": {
+    "weight": 0.45,
+    "muscle": 0.08
+   },
+   "arm_splay_deg": {
+    "m": 17,
+    "f": 14
+   }
+  }
  ]
 }
