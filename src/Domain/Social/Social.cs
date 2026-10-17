@@ -13,6 +13,12 @@ public sealed record NpcDefinition(string Id, string Name, string Role, Immutabl
     /// <summary>Set for an NPC who can join the character (M6): how they fight.</summary>
     public CompanionProfile? Companion { get; init; }
 
+    /// <summary>The faction the NPC belongs to (WP6), or none. Definition data: nothing can change it, so it is not saved.</summary>
+    public string? FactionId { get; init; }
+
+    /// <summary>Set for an NPC who can be hired (WP15a): the roles they take on and how they fight. Never on someone who can join as a companion.</summary>
+    public HirelingProfile? Hireling { get; init; }
+
     public bool Offers(string service) => Services.Contains(service);
 }
 
@@ -90,7 +96,7 @@ public static class LineIds
 public sealed record DialogueChoice(string Id, string Text, ImmutableArray<DialogueCondition> Conditions,
     ImmutableArray<DialogueConsequence> Consequences, string? Next);
 
-/// <summary>A closed-set condition over world state (DATA_MODEL.md §4.12; Phase 1 builds seven kinds, M5 and M6 two more, E-7 <c>deed</c>).</summary>
+/// <summary>A closed-set condition over world state (DATA_MODEL.md §4.12; Phase 1 builds seven kinds, M5 and M6 two more, E-7 <c>deed</c>, WP6 <c>standing</c> and <c>act_done</c>).</summary>
 public abstract record DialogueCondition;
 
 /// <summary>
@@ -145,6 +151,15 @@ public sealed record DeedCondition(DeedKind Kind, string SubjectId, int Count, b
 }
 
 /// <summary>
+/// <c>standing</c> (WP6): the character's standing with a faction is at a tier from <c>min_tier</c> to <c>max_tier</c>, compared by level.
+/// FAC001 holds it to the speaker's own faction.
+/// </summary>
+public sealed record StandingCondition(string FactionId, int MinLevel, int MaxLevel) : DialogueCondition;
+
+/// <summary><c>act_done</c> (WP6): the character's act log holds at least one act of this kind and subject.</summary>
+public sealed record ActDoneCondition(string Kind, string Subject) : DialogueCondition;
+
+/// <summary>
 /// How many times the character has done one deed (E-7) - to one NPC, for a delivery - and when they last did it. What a <c>deed</c>
 /// condition reads; quests count their own.
 /// </summary>
@@ -197,11 +212,29 @@ public sealed record OpenServiceConsequence(string Service) : DialogueConsequenc
 /// <summary><c>start_quest</c> (M5): the speaker gives the player a quest. A quest already started is not started again.</summary>
 public sealed record StartQuestConsequence(string QuestId) : DialogueConsequence;
 
-/// <summary><c>recruit_companion</c> (M6): the speaker joins the character, following.</summary>
-public sealed record RecruitCompanionConsequence : DialogueConsequence;
+/// <summary><c>recruit_companion</c> (M6): the speaker joins the character, following - as a companion, or with <c>as: temporary_ally</c> (WP15a).</summary>
+public sealed record RecruitCompanionConsequence : DialogueConsequence
+{
+    public PartyMembership As { get; init; } = PartyMembership.Companion;
+}
+
+/// <summary>
+/// <c>hire_hireling</c> (WP15a): the speaker hires on in a role for so many days at the role's wage, the first day paid now. The reply
+/// that carries it states the risk (DN9: a hireling can die), which the content attests with <c>risk_stated: true</c>.
+/// </summary>
+public sealed record HireHirelingConsequence(HirelingRole Role, int Days) : DialogueConsequence;
+
+/// <summary><c>dismiss_companion</c> (WP15a): the speaker leaves the party and goes home; a hireling's wage already paid is not refunded.</summary>
+public sealed record DismissCompanionConsequence : DialogueConsequence;
 
 /// <summary><c>order_companion</c> (M6): the speaker, already a companion, takes an order - follow or wait.</summary>
 public sealed record OrderCompanionConsequence(CompanionOrder Order) : DialogueConsequence;
+
+/// <summary>
+/// <c>report_act</c> (WP6): the character tells the speaker of every logged act of this kind and subject; the speaker's faction learns
+/// them. The only way an act reaches a faction (report-only standing).
+/// </summary>
+public sealed record ReportActConsequence(string Kind, string Subject) : DialogueConsequence;
 
 /// <summary>What a condition may ask of the world, answered by the simulation (read only).</summary>
 public interface IDialogueFacts
@@ -229,6 +262,12 @@ public interface IDialogueFacts
 
     /// <summary>How many times the character has done this deed (E-7): of any NPC when <paramref name="npcId"/> is null.</summary>
     int Deeds(DeedKind kind, string subjectId, string? npcId);
+
+    /// <summary>The level of the character's standing tier with a faction (WP6); 0, neutral, when nothing moved it.</summary>
+    int StandingLevel(string factionId) => 0;
+
+    /// <summary>Whether the character's act log holds an act of this kind and subject (WP6).</summary>
+    bool ActDone(string kind, string subject) => false;
 }
 
 public static class DialogueRules
@@ -245,6 +284,8 @@ public static class DialogueRules
         QuestStateCondition q => facts.QuestState(q.QuestId, q.ObjectiveId) == q.State != q.Negated,
         CompanionPresentCondition p => (facts.CompanionOrderOf(p.NpcId) is { } order && (p.Order is null || p.Order == order)) != p.Negated,
         DeedCondition d => facts.Deeds(d.Kind, d.SubjectId, d.NpcId) >= d.Count != d.Negated,
+        StandingCondition s => facts.StandingLevel(s.FactionId) is var level && level >= s.MinLevel && level <= s.MaxLevel,
+        ActDoneCondition a => facts.ActDone(a.Kind, a.Subject),
         _ => throw new ArgumentOutOfRangeException(nameof(condition), condition, "Unknown dialogue condition"),
     };
 

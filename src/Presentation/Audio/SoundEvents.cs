@@ -316,7 +316,65 @@ public partial class SoundEvents : Node
         s.Subscribe<ItemBought>(_ => _bank.Play(Own("sfx.interaction.trade.coins")));
         s.Subscribe<ItemSold>(_ => _bank.Play(Own("sfx.interaction.trade.coins")));
         s.Subscribe<ConversationEnded>(_ => _bank.Play("sfx.ui.back"));
+        SubscribeMissing();
     }
+
+    /// <summary>
+    /// The hooks the audio recovery found missing (AUDIO_RECOVERY:45; WP10 A2): a quest begun, a skill's level, the respawn, downed and
+    /// helped up, the party's moments - joined, told, hurt, downed, helped up, fallen - and the Waystones. Each asks for its own family
+    /// first, so the coverage report names what the set still lacks; a UI moment falls back to the confirm, a body's to the nearest
+    /// sound the set has, and one with nothing fitting stays silent rather than wrong. The party's hooks key on the party, not on
+    /// Tavar, so a hireling in a party slot (WP15a) is heard the same way.
+    /// </summary>
+    private void SubscribeMissing()
+    {
+        var s = _session;
+        s.Subscribe<QuestStarted>(_ => _bank.Play(Own("sfx.ui.quest_start")));
+        s.Subscribe<SkillPracticed>(e =>
+        {
+            // Every use of a skill is practice; only a level gained is heard.
+            if (e.LevelsGained > 0)
+                _bank.Play(Own("sfx.ui.skill_up"));
+        });
+        s.Subscribe<PlayerRespawned>(e => _bank.Play("sfx.player.respawn", Chest(Feet(e.Body))));
+        s.Subscribe<PlayerDowned>(_ => PlayOr("sfx.player.downed", "sfx.player.hurt.heavy", Chest(_feet)));
+        s.Subscribe<PlayerRevived>(_ => PlayOr("sfx.player.revived", "sfx.player.gear.cloth", Chest(_feet)));
+        s.Subscribe<CompanionRecruited>(_ => _bank.Play(Own("sfx.ui.party.join")));
+        s.Subscribe<CompanionOrdered>(_ => _bank.Play(Own("sfx.ui.party.order")));
+        s.Subscribe<CompanionDowned>(e =>
+        {
+            if (Member(e.NpcId) is { } at)
+                _bank.Play("sfx.party.downed", Chest(at));
+        });
+        s.Subscribe<CompanionRevived>(e =>
+        {
+            if (Member(e.NpcId) is { } at)
+                PlayOr("sfx.party.revived", "sfx.player.gear.cloth", Chest(at));
+        });
+        s.Subscribe<CompanionFell>(_ => _bank.Play(Own("sfx.ui.party.fell")));
+        s.Subscribe<HitResolved>(e =>
+        {
+            if (!e.Dodged && !e.Blocked && e.Damage > 0 && e.HealthAfter > 0 && Companion(e.Target) is not null && Where(e.Target) is { } at)
+                _bank.Play("sfx.party.hurt", Chest(at), 0.04);
+        });
+        s.Subscribe<StoneTouched>(e => _bank.Play("sfx.travel.waystone.touch", StoneAt(e.StoneKey)));
+        s.Subscribe<ReturnPointBound>(e => PlayOr("sfx.travel.waystone.bind", "sfx.ui.select", StoneAt(e.StoneKey)));
+        s.Subscribe<PlayerTravelled>(e => _bank.Play("sfx.travel.waystone.arrive", Chest(Feet(e.Arrival))));
+    }
+
+    /// <summary>A family, or a stand-in the set has when it lacks that one. Whether either played.</summary>
+    private bool PlayOr(string family, string fallback, Vector3? at) => _bank.Play(family, at) || _bank.Play(fallback, at);
+
+    private static Vector3 Feet(Body body) => new(body.XMm / 1000f, body.YMm / 1000f, body.ZMm / 1000f);
+
+    /// <summary>Where a party member stands, by NPC ID; null when they are not in the party.</summary>
+    private Vector3? Member(string npcId) =>
+        _session.Simulation!.Companions.FirstOrDefault(c => c.NpcId == npcId) is { } member ? Feet(member.Body) : null;
+
+    private Vector3 StoneAt(string key) =>
+        _session.Setup.Layout.FindWaystone(key) is { } site && Footprints.Center(site.Body) is var (x, z)
+            ? new Vector3(x / 1000f, _feet.Y + 1.2f, z / 1000f)
+            : Chest(_feet);
 
     private string? _openStation;
 
@@ -669,6 +727,22 @@ public partial class SoundEvents : Node
         Add("sfx.ui.level_up", "level_up()", optional: true);
         Add("sfx.ui.quest_complete", "quest_complete()", optional: true);
         Add("sfx.interaction.trade.coins", "trade()", optional: true);
+        // WP10's hooks (A2): the contract's downed(), and the moments the set does not have yet. A body's are asked for whether or not the
+        // set has them, so the static check names what is still to make; a UI moment asks only when present and is the confirm until then.
+        foreach (var (name, moment) in new[]
+                 {
+                     ("sfx.player.downed", "downed()"), ("sfx.player.respawn", "respawn()"), ("sfx.player.revived", "revived()"),
+                     ("sfx.party.downed", "party_downed()"), ("sfx.party.revived", "party_revived()"), ("sfx.party.hurt", "party_hurt()"),
+                     ("sfx.travel.waystone.touch", "waystone_touch()"), ("sfx.travel.waystone.bind", "waystone_bind()"),
+                     ("sfx.travel.waystone.arrive", "travel_arrive()"),
+                 })
+            Add(name, moment);
+        foreach (var (name, moment) in new[]
+                 {
+                     ("sfx.ui.quest_start", "quest_start()"), ("sfx.ui.skill_up", "skill_up()"), ("sfx.ui.party.join", "party_join()"),
+                     ("sfx.ui.party.order", "party_order()"), ("sfx.ui.party.fell", "party_fell()"),
+                 })
+            Add(name, moment, optional: true);
         // The score (MusicPlayer): asked for only where the set has it.
         Add(MusicChoice.Title, "music(title)", optional: true);
         Add(MusicChoice.Combat, "music(combat)", optional: true);

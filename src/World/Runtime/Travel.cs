@@ -27,7 +27,7 @@ public sealed record StoneTouched(string StoneKey, WaystoneMethod Method, string
 /// <summary>A stone was made the character's return point.</summary>
 public sealed record ReturnPointBound(string StoneKey, long Tick);
 
-/// <summary>The party went by the stones: the road it did not walk, and the world time that passed instead.</summary>
+/// <summary>The party went by the stones: the road it did not walk. No world time passes for it (DN8).</summary>
 public sealed record PlayerTravelled(string FromKey, string ToKey, TravelCost Cost, Body Arrival, ImmutableArray<string> Party, long Tick);
 
 /// <summary>A Waystone as the character sees it: awake or dormant, known to them or not, and whether it is their return point.</summary>
@@ -39,9 +39,6 @@ public sealed record WaystoneView(WaystoneSite Site, bool Awake, bool Known, boo
 /// </summary>
 public sealed record TravelOption(string ToKey, string RegionId, TravelCost Cost, string? Blocked);
 
-/// <summary>To <see cref="ClockSystem"/>: world time passes at once.</summary>
-internal sealed record AdvanceTime(long Ticks) : InternalCommand;
-
 /// <summary>To <see cref="CompanionSystem"/>: the party arrives with the character, on a ring round where they stand.</summary>
 internal sealed record ArriveWithParty(Body Arrival) : InternalCommand;
 
@@ -49,8 +46,9 @@ internal sealed record ArriveWithParty(Body Arrival) : InternalCommand;
 /// Owns: <see cref="StateSlice.Waystones"/> - the stones the character knows and the one they chose to return to. A stone becomes known by
 /// touching it; a dormant stone wakes for someone who has heard its rite, and its flag is set in its cell. Travel goes only from a stone the
 /// character stands at to another they know (19 §9.3: never from the field), takes the following party and nothing else, is refused while
-/// anything is fighting the character or a companion, or while a companion is down, and lets a share of the road's walking time pass in
-/// the world. Binding the return point is its own command: travel never changes it.
+/// anything is fighting the character or a companion, or while a companion is down. It lets no world time pass (DN8, accepted 2026-10-17:
+/// with a living world, a time cost would let one player fast-forward everyone else). Binding the return point is its own command: travel
+/// never changes it.
 /// </summary>
 internal sealed class TravelSystem
 {
@@ -129,7 +127,6 @@ internal sealed class TravelSystem
             .Select(c => c.NpcId).ToImmutableArray();
         _context.Dispatch(new Relocate(arrival));
         _context.Dispatch(new ArriveWithParty(arrival));
-        _context.Dispatch(new AdvanceTime(cost.WorldTicks));
         _context.Events.Publish(new PlayerTravelled(from.Key, to.Key, cost, arrival, party, State.WorldTick));
         return null;
     }

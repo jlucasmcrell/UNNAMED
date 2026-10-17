@@ -1,4 +1,4 @@
-// UNNAMED World - trade with NPCs: buy, sell and merchant wares (M3b economy stub, opened by M4)
+// UNNAMED World - trade with NPCs: buy, sell and merchant wares (M3b's stub, opened by M4, priced by WP14's living economy)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -6,6 +6,7 @@ using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Crafting;
+using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
@@ -24,29 +25,47 @@ public sealed record ItemBought(string NpcId, string ItemId, int Count, long Pri
 
 public sealed record ItemSold(string NpcId, string ItemId, int Count, long Price, long Tick);
 
-/// <summary>A trader's wares as they stand, each at the price they ask for one.</summary>
-public sealed record WaresView(string NpcId, string MerchantId, ImmutableArray<WareView> Wares);
+/// <summary>
+/// A trader's wares as they stand, each at the price they ask for one; what their purse holds (null: bottomless), and the goods their
+/// town is short of (WP14: "the smith is short of iron").
+/// </summary>
+public sealed record WaresView(string NpcId, string MerchantId, ImmutableArray<WareView> Wares)
+{
+    public long? Purse { get; init; }
+
+    public ImmutableArray<string> Short { get; init; } = ImmutableArray<string>.Empty;
+}
 
 /// <summary>A ware: <see cref="Ref"/> is what a <see cref="BuyCommand"/> names it by.</summary>
-public sealed record WareView(string Ref, string ItemId, int Count, int Quality, long Price);
+public sealed record WareView(string Ref, string ItemId, int Count, int Quality, long Price)
+{
+    /// <summary>Where its price stands against base in the trader's town: 1 dearer, -1 cheaper, 0 at base (WP14's trend arrow).</summary>
+    public int Trend { get; init; }
+}
 
 /// <summary>
-/// Owns no state. Trade with an NPC who offers it (M3b's economy stub, opened by M4's NPCs): a trader's wares are a container
-/// at the trader - their authored stock until the first sale, then a changed container like any other - so buying and selling
-/// are one move of a stack and the coin the other way, all or nothing. A trader asks each ware's value times their bias, and
-/// pays a fraction of value for what their trade takes; what they buy joins their wares. Their purse is bottomless.
+/// Owns no state. Trade with an NPC who offers it (M4, priced by the living economy since WP14): a trader's wares are a container at the
+/// trader - their authored stock until the first sale, then a changed container like any other, drawn again from their town market at each
+/// restock - so buying and selling are one move of a stack and the coin the other way, all or nothing. A trader asks each ware's value
+/// times their bias times their town's price for it, and pays the sell ratio of that, less what the town already took from the character
+/// lately, always below what they ask; they pay out of their purse, and buy nothing it cannot cover. Each trade moves the town's stock,
+/// and the coin goes into or out of the purse.
 /// </summary>
 internal sealed class TradeSystem
 {
     private readonly SystemContext _context;
     private readonly EntityId _player;
     private readonly Func<ContainerSite, ContainerView> _contents;
+    private readonly MarketSystem _markets;
+    private readonly MerchantSystem _merchants;
 
-    public TradeSystem(SystemContext context, EntityId player, Func<ContainerSite, ContainerView> contents)
+    public TradeSystem(SystemContext context, EntityId player, Func<ContainerSite, ContainerView> contents, MarketSystem markets, MerchantSystem merchants)
     {
         _context = context;
         _player = player;
         _contents = contents;
+        _markets = markets;
+        _merchants = merchants;
     }
 
     private RuntimeState State => _context.State;
@@ -66,6 +85,9 @@ internal sealed class TradeSystem
             return $"not enough coin: {price} asked, {State.Currency} carried";
         if (_context.Dispatch(new Trade(new MoveItemCommand(_player, ware.Ref, ItemPlace.In(merchant.Id), ItemPlace.Carried, command.Count), -price)) is { } failed)
             return failed;
+        if (MarketOf(merchant) is { } market)
+            _context.Dispatch(new MarketTrade(market, ware.DefId, command.Count, 0));
+        _context.Dispatch(new PayMerchant(merchant.Id, price, ByCharacter: true));
         _context.Events.Publish(new ItemBought(npc.Definition.Id, ware.DefId, command.Count, price, tick));
         return null;
     }
@@ -78,13 +100,18 @@ internal sealed class TradeSystem
             return $"{command.Item} is not carried";
         if (command.Count < 1 || command.Count > entry.Count)
             return $"only {entry.Count} carried";
-        if (Items.Pricing.SellPrice(Items.Catalog.Get(entry.DefId), merchant) is not { } each)
+        if (OfferFor(merchant, entry.DefId) is not { } each)
             return $"{npc.Definition.Name} does not buy that";
         if (each == 0)
             return $"{npc.Definition.Name} would give nothing for that";
         long price = each * command.Count;
+        if (_merchants.Purse(merchant.Id) is { } purse && purse < price)
+            return purse == 0 ? $"{npc.Definition.Name} has no coin left to buy with" : $"{npc.Definition.Name} cannot pay {price}: their purse holds {purse}";
         if (_context.Dispatch(new Trade(new MoveItemCommand(_player, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.In(merchant.Id), command.Count), price)) is { } failed)
             return failed;
+        _context.Dispatch(new PayFromPurse(merchant.Id, price));
+        if (MarketOf(merchant) is { } market)
+            _context.Dispatch(new MarketTrade(market, entry.DefId, 0, command.Count));
         _context.Events.Publish(new ItemSold(npc.Definition.Id, entry.DefId, command.Count, price, tick));
         return null;
     }
@@ -94,14 +121,40 @@ internal sealed class TradeSystem
     {
         if (!State.Npcs.TryGetValue(npcId, out var npc) || _context.WaresOf(npc) is not { } site || !Items.Merchants.TryGetValue(site.Key, out var merchant))
             return null;
+        string? market = MarketOf(merchant);
         return new WaresView(npcId, merchant.Id, _contents(site).Items
-            .Select(i => new WareView(i.Ref, i.DefId, i.Count, i.Quality, AskFor(merchant, i.DefId)))
-            .ToImmutableArray());
+            .Select(i => new WareView(i.Ref, i.DefId, i.Count, i.Quality, AskFor(merchant, i.DefId)) { Trend = Math.Sign(_markets.Factor(market, i.DefId) - 1000) })
+            .ToImmutableArray())
+        {
+            Purse = _merchants.Purse(merchant.Id),
+            Short = market is null ? ImmutableArray<string>.Empty : _markets.View(market)!.Goods.Where(g => g.Short).Select(g => g.ItemId).ToImmutableArray(),
+        };
     }
 
-    /// <summary>What a trader asks for one: its value times their bias for it (1 for anything they did not stock).</summary>
+    /// <summary>What a trader would pay for one of an item now; null when this NPC does not trade, or does not buy it.</summary>
+    public long? Offer(string npcId, string itemId) =>
+        State.Npcs.TryGetValue(npcId, out var npc) && npc.Definition.MerchantId is { } id && Items.Merchants.TryGetValue(id, out var merchant)
+            && Items.Catalog.Find(itemId) is not null
+            ? OfferFor(merchant, itemId)
+            : null;
+
+    /// <summary>What a trader asks for one: its value times their bias for it (1 for anything they did not stock) times their town's price.</summary>
     private long AskFor(Merchant merchant, string itemId) =>
-        Items.Pricing.BuyPrice(Items.Catalog.Get(itemId), merchant.Stock.FirstOrDefault(s => s.ItemId == itemId) ?? new MerchantStock(itemId, 0, 1.0));
+        EconomyEngine.Ask(Items.Catalog.Get(itemId).ValueBase, merchant.Stock.FirstOrDefault(s => s.ItemId == itemId)?.PriceBias ?? 1.0,
+            _markets.Factor(MarketOf(merchant), itemId));
+
+    /// <summary>What a trader pays for one, or null when they do not buy it (S-36: always below what they ask).</summary>
+    private long? OfferFor(Merchant merchant, string itemId)
+    {
+        var item = Items.Catalog.Get(itemId);
+        if (Items.Pricing.SellPrice(item, merchant) is null)
+            return null;
+        string? market = MarketOf(merchant);
+        return EconomyEngine.Offer(item.ValueBase, Items.Pricing.SellRatio, _markets.Factor(market, itemId), _markets.Remembered(market, itemId),
+            _context.Setup.Economy.Rules, AskFor(merchant, itemId));
+    }
+
+    private string? MarketOf(Merchant merchant) => _context.Setup.Economy.MarketOf(merchant.Id)?.Id;
 
     private string? Trader(EntityId actor, string npcId, out NpcState npc, out Merchant merchant)
     {

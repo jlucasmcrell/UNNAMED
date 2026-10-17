@@ -34,6 +34,10 @@ public class DialogueRulesTests
         public Dictionary<(UNNAMED.Domain.Quests.DeedKind, string, string?), int> Done { get; } = new();
         public int Deeds(UNNAMED.Domain.Quests.DeedKind kind, string subjectId, string? npcId) =>
             npcId is null ? Done.Where(d => d.Key.Item1 == kind && d.Key.Item2 == subjectId).Sum(d => d.Value) : Done.GetValueOrDefault((kind, subjectId, npcId));
+        public Dictionary<string, int> Standing { get; } = new(StringComparer.Ordinal);
+        public int StandingLevel(string factionId) => Standing.GetValueOrDefault(factionId);
+        public HashSet<(string, string)> Acts { get; } = new();
+        public bool ActDone(string kind, string subject) => Acts.Contains((kind, subject));
     }
 
     private static DialogueNode Node(string id, bool once = false, string? exhausted = null) =>
@@ -41,6 +45,28 @@ public class DialogueRulesTests
 
     private static DialogueDefinition Graph(params DialogueNode[] nodes) =>
         new(Talk, ImmutableArray.Create("npc.test.smith"), nodes[0].Id, nodes.ToImmutableSortedDictionary(n => n.Id, n => n, StringComparer.Ordinal));
+
+    [Fact]
+    public void AStanding_HoldsWithinItsTiers_AndAnActDoneOnceLogged()
+    {
+        var facts = new Facts();
+        bool Holds(DialogueCondition c) => DialogueRules.Holds(c, Talk, facts);
+        var accepted = new StandingCondition("faction.test.keepers", 1, 5);   // accepted or better
+        var wary = new StandingCondition("faction.test.keepers", -5, -1);     // wary or worse
+
+        Assert.False(Holds(accepted));                                       // neutral (0) when nothing moved it
+        Assert.False(Holds(wary));
+        facts.Standing["faction.test.keepers"] = 1;
+        Assert.True(Holds(accepted));
+        facts.Standing["faction.test.keepers"] = -2;
+        Assert.True(Holds(wary));
+        Assert.False(Holds(new StandingCondition("faction.test.other", -5, -1)));
+
+        var steadied = new ActDoneCondition("switch_set", "world.test.heart");
+        Assert.False(Holds(steadied));
+        facts.Acts.Add(("switch_set", "world.test.heart"));
+        Assert.True(Holds(steadied));
+    }
 
     [Fact]
     public void ADeed_HoldsOnceDoneOftenEnough_AndNamingAnNpcCountsOnlyTheirs()

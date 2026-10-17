@@ -46,7 +46,7 @@ public partial class Main
             _controller.OnTravelled(e);
             _autorun = false;
             CloseScreens();
-            _hud.Toast($"The {StoneName(e.ToKey)}. {TravelWords.Journey(e.Cost.WalkTicks, e.Cost.WorldTicks, TicksPerDay).Replace("You arrive", "You arrived").Replace("would take", "would have taken")}", 7);
+            _hud.Toast($"The {StoneName(e.ToKey)}. {TravelWords.Journey(e.Cost.WalkTicks, TicksPerDay).Replace("You arrive the moment you leave", "You arrived the moment you left").Replace("would take", "would have taken")}", 7);
         });        _session.Subscribe<DoorToggled>(e =>
         {
             _controller.OnDoorToggled(e);
@@ -101,6 +101,7 @@ public partial class Main
             if (e.From.Kind == PlaceKind.Ground || e.To.Kind == PlaceKind.Ground)
                 _items.Refresh(_session.Simulation!);
         });
+        _session.Subscribe<QuickSlotAssigned>(_ => _inventory.Refresh());
         _session.Subscribe<ItemEquipped>(_ => _inventory.Refresh());
         _session.Subscribe<ItemUnequipped>(_ => _inventory.Refresh());
         _session.Subscribe<NodeGathered>(e =>
@@ -119,6 +120,7 @@ public partial class Main
         SubscribeSocial();
         SubscribeQuests();
         SubscribeCombat();
+        SubscribeGuidance();
     }
 
     /// <summary>
@@ -279,9 +281,19 @@ public partial class Main
         {
             if (e.Xp > 0)
                 _hud.Log($"{Name(e.SkillId)} +{e.Xp} XP (level {e.Level})");
+            // A skill risen by use is told quietly (WP9, O4): its name and the level it reached, and the skill-up sound.
+            if (e.LevelsGained > 0)
+                _hud.Toast($"Skill: {Name(e.SkillId)} {e.Level}", 3);
         });
         _session.Subscribe<ItemUsed>(e => _hud.Toast(e.EffectId is null ? $"Read {Name(e.DefId)}" : $"Used {Name(e.DefId)}", 2));
         _session.Subscribe<ItemConsumed>(_ => _inventory.Refresh());
+        // Downed with a hand near (OD-13 = B): who will help the character up, and when they are up.
+        _session.Subscribe<PlayerDowned>(e =>
+        {
+            _autorun = false;
+            _hud.Toast($"You are down - {Names.Of(_session, e.HandNpcId)} will help you up", 6);
+        });
+        _session.Subscribe<PlayerRevived>(e => _hud.Toast($"{Names.Of(_session, e.NpcId)} helps you up", 4));
         _session.Subscribe<PlayerDied>(e =>
         {
             string recap = string.Join("\n", e.Recap.Select(r =>

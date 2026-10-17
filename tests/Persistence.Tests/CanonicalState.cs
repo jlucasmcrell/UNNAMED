@@ -159,6 +159,34 @@ internal static class CanonicalState
                     json.WriteNumberValue(mark.ZMm);
                 }
                 json.WriteEndArray();
+                // Schema 21 (WP15a): why they travel with the character, how they fight, and a hireling's contract.
+                json.WriteString("membership", PartyKeys.Key(companion.Membership));
+                json.WriteString("stance", PartyKeys.Key(companion.Stance));
+                json.WriteStartObject("tactics");
+                json.WriteBoolean("keep_to_leash", companion.Tactics.KeepToLeash);
+                json.WriteBoolean("protect_injured", companion.Tactics.ProtectInjured);
+                json.WriteBoolean("hold_healing", companion.Tactics.HoldHealing);
+                json.WriteEndObject();
+                if (companion.Contract is { } contract)
+                {
+                    json.WriteStartObject("contract");
+                    json.WriteString("role", PartyKeys.Key(contract.Role));
+                    json.WriteNumber("days", contract.Days);
+                    json.WriteNumber("daily_wage", contract.DailyWage);
+                    json.WriteString("loot_rule", contract.LootRule);
+                    json.WriteNumber("days_served", contract.DaysServed);
+                    json.WriteNumber("unpaid_days", contract.UnpaidDays);
+                    json.WriteNumber("purse", contract.Purse);
+                    if (contract.WorkSite is { } site) json.WriteString("work_site", site); else json.WriteNull("work_site");
+                    if (contract.RecipeId is { } recipe) json.WriteString("recipe_id", recipe); else json.WriteNull("recipe_id");
+                    json.WriteStartObject("supply");
+                    foreach (var (item, count) in contract.Supply)
+                        json.WriteNumber(item, count);
+                    json.WriteEndObject();
+                    json.WriteEndObject();
+                }
+                else
+                    json.WriteNull("contract");
                 json.WriteEndObject();
             }
             json.WriteEndArray();
@@ -209,6 +237,76 @@ internal static class CanonicalState
                 json.WriteString("call", call);
             else
                 json.WriteNull("call");
+            json.WriteEndObject();
+            json.WriteStartObject("factions");
+            json.WriteNumber("next_act_seq", player.Factions.NextActSeq);
+            json.WriteStartArray("acts");
+            foreach (var act in player.Factions.Acts)
+            {
+                json.WriteStartObject();
+                json.WriteNumber("seq", act.Seq);
+                json.WriteString("kind", act.Kind);
+                json.WriteString("subject", act.Subject);
+                json.WriteString("cell", act.CellKey);
+                json.WriteNumber("x_mm", act.XMm);
+                json.WriteNumber("z_mm", act.ZMm);
+                json.WriteNumber("tick", act.Tick);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
+            json.WriteStartArray("knowledge");
+            foreach (var row in player.Factions.Knowledge)
+            {
+                json.WriteStartObject();
+                json.WriteString("knower", row.Knower);
+                json.WriteNumber("act", row.Act);
+                json.WriteString("identity", row.Identity);
+                json.WriteString("source", row.Source);
+                if (row.Via is { } via)
+                    json.WriteString("via", via);
+                else
+                    json.WriteNull("via");
+                json.WriteNumber("tick", row.Tick);
+                json.WriteNumber("delta", row.Delta);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
+            json.WriteStartObject("standing");
+            foreach (var row in player.Factions.Standing)
+                json.WriteNumber(row.FactionId, row.Points);
+            json.WriteEndObject();
+            json.WriteEndObject();
+            // Schema 21 (WP15a): the party's ledger - who is recovering at home, and who has fallen.
+            json.WriteStartObject("party");
+            json.WriteStartArray("recovering");
+            foreach (var recovery in player.Party.Recovering)
+            {
+                json.WriteStartObject();
+                json.WriteString("npc_id", recovery.NpcId);
+                json.WriteNumber("until_tick", recovery.UntilTick);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
+            json.WriteStartArray("fallen");
+            foreach (string fallen in player.Party.Fallen)
+                json.WriteStringValue(fallen);
+            json.WriteEndArray();
+            json.WriteEndObject();
+            // Schema 23 (WP9): the quick bar's slots, and what was cleared off it on purpose.
+            json.WriteStartObject("quick_bar");
+            json.WriteStartArray("slots");
+            foreach (string? slot in player.QuickBar)
+            {
+                if (slot is null)
+                    json.WriteNullValue();
+                else
+                    json.WriteStringValue(slot);
+            }
+            json.WriteEndArray();
+            json.WriteStartArray("cleared");
+            foreach (string cleared in player.QuickBarCleared)
+                json.WriteStringValue(cleared);
+            json.WriteEndArray();
             json.WriteEndObject();
             json.WriteEndObject();
 
@@ -344,6 +442,59 @@ internal static class CanonicalState
                     json.WriteString("caller_kind", kind);
                 else
                     json.WriteNull("caller_kind");
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
+
+            // The economy (schema 22).
+            if (snapshot.Economy is { } economy)
+            {
+                json.WriteStartObject("economy");
+                json.WriteNumber("day", economy.Day);
+                json.WriteStartArray("markets");
+                foreach (var market in economy.Markets.Values)
+                {
+                    json.WriteStartObject();
+                    json.WriteString("market_id", market.MarketId);
+                    json.WriteStartObject("stock");
+                    foreach (var (item, count) in market.Stock)
+                        json.WriteNumber(item, count);
+                    json.WriteEndObject();
+                    json.WriteStartObject("sold_by_character");
+                    foreach (var (item, count) in market.SoldByCharacter)
+                        json.WriteNumber(item, count);
+                    json.WriteEndObject();
+                    json.WriteEndObject();
+                }
+                json.WriteEndArray();
+                json.WriteStartArray("shipments");
+                foreach (var shipment in economy.Shipments)
+                {
+                    json.WriteStartObject();
+                    json.WriteString("link_id", shipment.LinkId);
+                    json.WriteString("from_market", shipment.FromMarket);
+                    json.WriteString("to_market", shipment.ToMarket);
+                    json.WriteString("item_id", shipment.ItemId);
+                    json.WriteNumber("count", shipment.Count);
+                    json.WriteNumber("arrives_day", shipment.ArrivesDay);
+                    json.WriteEndObject();
+                }
+                json.WriteEndArray();
+                json.WriteEndObject();
+            }
+            else
+            {
+                json.WriteNull("economy");
+            }
+            json.WriteStartArray("merchants");
+            foreach (var merchant in snapshot.Merchants)
+            {
+                json.WriteStartObject();
+                json.WriteString("merchant_id", merchant.MerchantId);
+                json.WriteNumber("purse", merchant.Purse);
+                json.WriteNumber("restocked_day", merchant.RestockedDay);
+                json.WriteNumber("shelf_day", merchant.ShelfDay);
+                json.WriteBoolean("traded", merchant.Traded);
                 json.WriteEndObject();
             }
             json.WriteEndArray();

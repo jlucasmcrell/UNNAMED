@@ -4,7 +4,7 @@
 // The exact stack shapes schemas 9 to 18 wrote - a carried stack, a container's item, a created instance - and the player and entities
 // shapes schemas 17-18 (player) and 14-18 (entities) wrote around them: written by the steps that produce those schemas and read by the
 // 18 -> 19 step; the schema-9 to -18 fixtures pin them. Their parts that schema 19 did not change are the current DTOs (ProgressionDto,
-// DiscoveryDto, EquipmentDto, EffectDto, RelationshipDto, ConversationDto, QuestDto, CompanionDto, PostureDto, WaystoneDto, DeedDto,
+// DiscoveryDto, EquipmentDto, EffectDto, RelationshipDto, ConversationDto, QuestDto, V20.Companion, PostureDto, WaystoneDto, DeedDto,
 // IdentityDto, EntityDto, CellBaselineDto, CreatureDto, NoiseDto); the step that next changes one of those must freeze a copy of it first.
 
 using MessagePack;
@@ -69,7 +69,7 @@ public sealed class Player
     [Key("relationships")] public RelationshipDto[]? Relationships { get; set; }
     [Key("conversations")] public ConversationDto[]? Conversations { get; set; }
     [Key("quests")] public QuestDto[]? Quests { get; set; }
-    [Key("companions")] public CompanionDto[]? Companions { get; set; }
+    [Key("companions")] public V20.Companion[]? Companions { get; set; }
     [Key("posture")] public PostureDto? Posture { get; set; }
     [Key("waystones")] public WaystoneDto[]? Waystones { get; set; }
     [Key("return_point")] public string? ReturnPoint { get; set; }

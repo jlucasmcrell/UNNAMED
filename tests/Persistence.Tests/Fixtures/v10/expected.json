@@ -166,6 +166,29 @@
       "people": "people.veth",
       "body_preset": "body.default",
       "call": null
+    },
+    "factions": {
+      "next_act_seq": 1,
+      "acts": [],
+      "knowledge": [],
+      "standing": {}
+    },
+    "party": {
+      "recovering": [],
+      "fallen": []
+    },
+    "quick_bar": {
+      "slots": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cleared": []
     }
   },
   "cells": [
@@ -376,5 +399,7 @@
       "stagger_lasts_ticks": 0
     }
   ],
-  "noises": []
+  "noises": [],
+  "economy": null,
+  "merchants": []
 }

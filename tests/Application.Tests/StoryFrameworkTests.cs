@@ -35,9 +35,13 @@ public class StoryFrameworkTests
         new(id, "Test " + id, "A quest the test plays.", null, objectives[0].Id, objectives.ToImmutableArray(), ImmutableArray<ObjectiveCondition>.Empty,
             ImmutableArray<QuestReward>.Empty);
 
-    /// <summary>The game's rules, with these quests added to its own.</summary>
+    /// <summary>The game's rules, with these quests added to its own and its own opening (The Road In) left out, so a test's opening is the only one.</summary>
     private static SimulationSetup With(GameSession session, params QuestDefinition[] quests) =>
-        session.Setup with { Quests = new QuestSetup(session.Setup.Quests.Quests.SetItems(quests.Select(q => KeyValuePair.Create(q.Id, q)))) };
+        session.Setup with
+        {
+            Quests = new QuestSetup(session.Setup.Quests.Quests.RemoveRange(session.Setup.Quests.Quests.Values.Where(q => q.OnNewGame).Select(q => q.Id))
+                .SetItems(quests.Select(q => KeyValuePair.Create(q.Id, q)))),
+        };
 
     private static Arena Hollow(GameSession session, SimulationSetup setup, (double X, double Z) place, Func<PlayerRecord, PlayerRecord>? change = null,
         params (string DefId, double X, double Z, string Role)[] creatures) =>
@@ -109,33 +113,21 @@ public class StoryFrameworkTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
-        Assert.False(simulation.HasOpeningQuests);
-        Assert.Empty(simulation.CommandLog);   // today's content has no opening: a new game submits nothing
-
-        using var opened = new EditedContent(("quests/test_opening.yaml", """
-            id: quest.test.opening
-            kind: quest
-            schema: 1
-            title: The Opening
-            summary: Where it begins.
-            track: main
-            act: 1
-            on_new_game: true
-            entry_objective: o_outpost
-            objectives:
-              - id: o_outpost
-                type: visit_location
-                description: Look about you.
-                params: { location_ref: location.outpost }
-            """));
-        using var second = new TempProfile();
-        var story = GameSession.Boot(new GameOptions(opened.Root, second.Root));
-        var begun = story.NewGame(Harness.Named("Wanderer"), seed: 42);
+        // The game's own opening (WP2's local part): The Road In, on the main track, begun before the first tick.
+        var begun = session.NewGame(Harness.Named("Wanderer"), seed: 42);
+        Assert.True(begun.HasOpeningQuests);
         Assert.Equal(0, begun.WorldTick);
-        Assert.Equal(QuestStatus.Active, Assert.Single(begun.Quests).Status);
+        var road = Assert.Single(begun.Quests);
+        Assert.Equal(("quest.main.the_road_in", QuestStatus.Active), (road.Id, road.Status));
         Assert.IsType<BeginStoryCommand>(Assert.Single(begun.CommandLog).Command);
-        Assert.Equal("Took up The Opening.", story.Journal!.Recent.Single().Text);
+        Assert.Equal("Took up The Road In.", session.Journal!.Recent.Single().Text);
+
+        // Content with no opening: a new game submits nothing.
+        using var bare = EditedContent.Without("quests/main/the_road_in.yaml");
+        using var second = new TempProfile();
+        var simulation = GameSession.Boot(new GameOptions(bare.Root, second.Root)).NewGame(Harness.Named("Wanderer"), seed: 42);
+        Assert.False(simulation.HasOpeningQuests);
+        Assert.Empty(simulation.CommandLog);
     }
 
     // ── defeat, choices, replies, stones ────────────────────────────────────
@@ -400,13 +392,14 @@ public class StoryFrameworkTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         session.NewGame(Harness.Named("Wanderer"), seed: 42);
-        Assert.Empty(session.Journal!.Recent);
+        const string Opening = "Took up The Road In.";   // the opening's line, there from the start
+        Assert.Equal(new[] { Opening }, session.Journal!.Recent.Select(e => e.Text));
         session.NoteAway(0, new[] { "Three days passed.", " ", "Renn sold the last of the salt." });
-        Assert.Equal(new[] { "Renn sold the last of the salt.", "Three days passed." }, session.Journal!.Recent.Select(e => e.Text));
-        Assert.All(session.Journal.Recent, e => Assert.Equal(JournalEntryKind.Away, e.Kind));
+        Assert.Equal(new[] { "Renn sold the last of the salt.", "Three days passed.", Opening }, session.Journal!.Recent.Select(e => e.Text));
+        Assert.All(session.Journal.Recent.Take(2), e => Assert.Equal(JournalEntryKind.Away, e.Kind));
 
         session.NewGame(Harness.Named("Wanderer"), seed: 43);
-        Assert.Empty(session.Journal!.Recent);
+        Assert.Equal(new[] { Opening }, session.Journal!.Recent.Select(e => e.Text));
     }
 
     [Fact]
@@ -473,6 +466,15 @@ public class StoryFrameworkTests
     /// <summary>A copy of the game's content with files added, in a directory removed afterwards.</summary>
     private sealed class EditedContent : IDisposable
     {
+        /// <summary>The game's content without these files.</summary>
+        public static EditedContent Without(params string[] removed)
+        {
+            var content = new EditedContent();
+            foreach (string relative in removed)
+                File.Delete(Path.Combine(content.Root, relative));
+            return content;
+        }
+
         public EditedContent(params (string Path, string Text)[] added)
         {
             string source = Path.Combine(Harness.RepoRoot(), "content");

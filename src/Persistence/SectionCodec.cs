@@ -9,6 +9,8 @@ using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Factions;
+using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
@@ -82,6 +84,123 @@ public sealed class PlayerDto
     /// the default body, and no Call.
     /// </summary>
     [Key("identity")] public IdentityDto? Identity { get; set; }
+
+    /// <summary>Required from schema 20. The 19 -> 20 step gives older saves the empty ledger: there was no faction to tell before WP6.</summary>
+    [Key("factions")] public FactionLedgerDto? Factions { get; set; }
+
+    /// <summary>
+    /// Required from schema 21 (WP15a): companions recovering from a grave wound, and hirelings who died in the character's service. The
+    /// 20 -> 21 step gives older saves none: no one could be wounded away or die in the party before.
+    /// </summary>
+    [Key("party")] public PartyLedgerDto? Party { get; set; }
+
+    /// <summary>
+    /// Required from schema 23 (WP9): the eight quick slots, and what the player took off the bar on purpose. The 22 -> 23 step gives older
+    /// saves an empty bar with nothing taken off, which what they carry and know fills on load.
+    /// </summary>
+    [Key("quick_bar")] public QuickBarDto? QuickBar { get; set; }
+}
+
+/// <summary>
+/// The quick bar (schema 23): each slot a definition ID or nil, and the IDs the player cleared off it on purpose, which a login does not
+/// offer a slot again.
+/// </summary>
+[MessagePackObject]
+public sealed class QuickBarDto
+{
+    [Key("slots")] public string?[] Slots { get; set; } = Array.Empty<string?>();
+    [Key("cleared")] public string[] Cleared { get; set; } = Array.Empty<string>();
+}
+
+/// <summary>The character's faction ledger (schema 20): the acts logged, what each faction knows of them, and the standing each holds.</summary>
+[MessagePackObject]
+public sealed class FactionLedgerDto
+{
+    [Key("next_act_seq")] public long NextActSeq { get; set; }
+    [Key("acts")] public ActDto[] Acts { get; set; } = Array.Empty<ActDto>();
+    [Key("knowledge")] public FactionKnowledgeDto[] Knowledge { get; set; } = Array.Empty<FactionKnowledgeDto>();
+    [Key("standing")] public FactionStandingDto[] Standing { get; set; } = Array.Empty<FactionStandingDto>();
+}
+
+/// <summary>An act some faction reacts to, where and when the character did it (schema 20).</summary>
+[MessagePackObject]
+public sealed class ActDto
+{
+    [Key("seq")] public long Seq { get; set; }
+    [Key("kind")] public string Kind { get; set; } = "";
+    [Key("subject")] public string Subject { get; set; } = "";
+    [Key("cell")] public string Cell { get; set; } = "";
+    [Key("x_mm")] public long XMm { get; set; }
+    [Key("z_mm")] public long ZMm { get; set; }
+    [Key("tick")] public long Tick { get; set; }
+}
+
+/// <summary>What one faction knows of one act (schema 20).</summary>
+[MessagePackObject]
+public sealed class FactionKnowledgeDto
+{
+    [Key("knower")] public string Knower { get; set; } = "";
+    [Key("act")] public long Act { get; set; }
+    [Key("identity")] public string Identity { get; set; } = "";
+    [Key("source")] public string Source { get; set; } = "";
+    [Key("via")] public string? Via { get; set; }
+    [Key("tick")] public long Tick { get; set; }
+    [Key("delta")] public int Delta { get; set; }
+}
+
+/// <summary>The character's points with one faction, never 0 (schema 20).</summary>
+[MessagePackObject]
+public sealed class FactionStandingDto
+{
+    [Key("faction")] public string Faction { get; set; } = "";
+    [Key("points")] public int Points { get; set; }
+}
+
+/// <summary>Who is recovering at home, until when, and who has fallen (schema 21).</summary>
+[MessagePackObject]
+public sealed class PartyLedgerDto
+{
+    [Key("recovering")] public RecoveryDto[] Recovering { get; set; } = Array.Empty<RecoveryDto>();
+    [Key("fallen")] public string[] Fallen { get; set; } = Array.Empty<string>();
+}
+
+[MessagePackObject]
+public sealed class RecoveryDto
+{
+    [Key("npc_id")] public string NpcId { get; set; } = "";
+    [Key("until_tick")] public long UntilTick { get; set; }
+}
+
+/// <summary>A party member's standing rules (schema 21).</summary>
+[MessagePackObject]
+public sealed class TacticsDto
+{
+    [Key("keep_to_leash")] public bool KeepToLeash { get; set; }
+    [Key("protect_injured")] public bool ProtectInjured { get; set; }
+    [Key("hold_healing")] public bool HoldHealing { get; set; }
+}
+
+/// <summary>A hireling's contract, and how it stands (schema 21).</summary>
+[MessagePackObject]
+public sealed class ContractDto
+{
+    [Key("role")] public string Role { get; set; } = "";
+    [Key("days")] public int Days { get; set; }
+    [Key("daily_wage")] public long DailyWage { get; set; }
+    [Key("loot_rule")] public string LootRule { get; set; } = "";
+    [Key("days_served")] public int DaysServed { get; set; }
+    [Key("unpaid_days")] public int UnpaidDays { get; set; }
+    [Key("purse")] public long Purse { get; set; }
+    [Key("work_site")] public string? WorkSite { get; set; }
+    [Key("recipe_id")] public string? RecipeId { get; set; }
+    [Key("supply")] public SupplyDto[] Supply { get; set; } = Array.Empty<SupplyDto>();
+}
+
+[MessagePackObject]
+public sealed class SupplyDto
+{
+    [Key("item_id")] public string ItemId { get; set; } = "";
+    [Key("count")] public int Count { get; set; }
 }
 
 /// <summary>How many times the character has done one deed, and when last (schema 16).</summary>
@@ -140,6 +259,18 @@ public sealed class CompanionDto
 
     /// <summary>The trail being walked, as x, z pairs in millimetres.</summary>
     [Key("trail_mm")] public long[] TrailMm { get; set; } = Array.Empty<long>();
+
+    /// <summary>Required from schema 21 (WP15a): companion, hireling or temporary_ally. The 20 -> 21 step makes every older one a companion.</summary>
+    [Key("membership")] public string? Membership { get; set; }
+
+    /// <summary>Required from schema 21: aggressive, defensive or passive. The 20 -> 21 step gives aggressive, the behaviour as built.</summary>
+    [Key("stance")] public string? Stance { get; set; }
+
+    /// <summary>Required from schema 21. The 20 -> 21 step gives the leash kept and nothing else.</summary>
+    [Key("tactics")] public TacticsDto? Tactics { get; set; }
+
+    /// <summary>From schema 21: a hireling's contract; absent for everyone else.</summary>
+    [Key("contract")] public ContractDto? Contract { get; set; }
 }
 
 [MessagePackObject]
@@ -287,6 +418,59 @@ public sealed class EntitiesSectionDto
 
     /// <summary>The sounds made on the last tick that creatures hear on the next, in order. Required from schema 14.</summary>
     [Key("noises")] public NoiseDto[]? Noises { get; set; }
+
+    /// <summary>The town markets, the road and the economy's day (WP14); null in a save from before the economy first ran (schema 22).</summary>
+    [Key("economy")] public EconomyDto? Economy { get; set; }
+
+    /// <summary>The merchants' purses and restocks (WP14). Required from schema 22.</summary>
+    [Key("merchants")] public MerchantDto[]? Merchants { get; set; }
+}
+
+/// <summary>The economy (schema 22; WP14): the last day settled, every market, and what is on the road.</summary>
+[MessagePackObject]
+public sealed class EconomyDto
+{
+    [Key("day")] public long Day { get; set; }
+    [Key("markets")] public MarketDto[] Markets { get; set; } = Array.Empty<MarketDto>();
+    [Key("shipments")] public ShipmentDto[] Shipments { get; set; } = Array.Empty<ShipmentDto>();
+}
+
+/// <summary>A town market: its stock of each good, and the character's recent sells there (sell history), both sorted by good.</summary>
+[MessagePackObject]
+public sealed class MarketDto
+{
+    [Key("market_id")] public string MarketId { get; set; } = "";
+    [Key("stock")] public GoodCountDto[] Stock { get; set; } = Array.Empty<GoodCountDto>();
+    [Key("sold_by_character")] public GoodCountDto[] SoldByCharacter { get; set; } = Array.Empty<GoodCountDto>();
+}
+
+[MessagePackObject]
+public sealed class GoodCountDto
+{
+    [Key("item_id")] public string ItemId { get; set; } = "";
+    [Key("count")] public long Count { get; set; }
+}
+
+[MessagePackObject]
+public sealed class ShipmentDto
+{
+    [Key("link_id")] public string LinkId { get; set; } = "";
+    [Key("from_market")] public string FromMarket { get; set; } = "";
+    [Key("to_market")] public string ToMarket { get; set; } = "";
+    [Key("item_id")] public string ItemId { get; set; } = "";
+    [Key("count")] public long Count { get; set; }
+    [Key("arrives_day")] public long ArrivesDay { get; set; }
+}
+
+/// <summary>A merchant's purse, the day they last restocked, the restock their shelf was drawn for, and whether the character traded with them.</summary>
+[MessagePackObject]
+public sealed class MerchantDto
+{
+    [Key("merchant_id")] public string MerchantId { get; set; } = "";
+    [Key("purse")] public long Purse { get; set; }
+    [Key("restocked_day")] public long RestockedDay { get; set; }
+    [Key("shelf_day")] public long ShelfDay { get; set; }
+    [Key("traded")] public bool Traded { get; set; }
 }
 
 /// <summary>A sound waiting to be heard (schema 14): where, how far it carries, and - for a howl - whose kind answers it.</summary>
@@ -482,6 +666,22 @@ public static class SectionCodec
                 StuckTicks = c.StuckTicks,
                 LastCombatTick = c.LastCombatTick,
                 TrailMm = c.Trail.SelectMany(m => new[] { m.XMm, m.ZMm }).ToArray(),
+                Membership = PartyKeys.Key(c.Membership),
+                Stance = PartyKeys.Key(c.Stance),
+                Tactics = new TacticsDto { KeepToLeash = c.Tactics.KeepToLeash, ProtectInjured = c.Tactics.ProtectInjured, HoldHealing = c.Tactics.HoldHealing },
+                Contract = c.Contract is not { } k ? null : new ContractDto
+                {
+                    Role = PartyKeys.Key(k.Role),
+                    Days = k.Days,
+                    DailyWage = k.DailyWage,
+                    LootRule = k.LootRule,
+                    DaysServed = k.DaysServed,
+                    UnpaidDays = k.UnpaidDays,
+                    Purse = k.Purse,
+                    WorkSite = k.WorkSite,
+                    RecipeId = k.RecipeId,
+                    Supply = k.Supply.Select(kv => new SupplyDto { ItemId = kv.Key, Count = kv.Value }).ToArray(),
+                },
             })
             .ToArray(),
         Posture = new PostureDto { Stance = StanceKeys.Key(player.Posture.Stance), Airborne = player.Posture.Airborne, AirMs = player.Posture.AirMs },
@@ -496,6 +696,22 @@ public static class SectionCodec
             BodyPreset = player.Identity.BodyPresetId,
             Call = player.Identity.CallId,
         },
+        Factions = new FactionLedgerDto
+        {
+            NextActSeq = player.Factions.NextActSeq,
+            Acts = player.Factions.Acts.Select(a => new ActDto { Seq = a.Seq, Kind = a.Kind, Subject = a.Subject, Cell = a.CellKey, XMm = a.XMm, ZMm = a.ZMm, Tick = a.Tick }).ToArray(),
+            Knowledge = player.Factions.Knowledge.Select(k => new FactionKnowledgeDto
+            {
+                Knower = k.Knower, Act = k.Act, Identity = k.Identity, Source = k.Source, Via = k.Via, Tick = k.Tick, Delta = k.Delta,
+            }).ToArray(),
+            Standing = player.Factions.Standing.Select(st => new FactionStandingDto { Faction = st.FactionId, Points = st.Points }).ToArray(),
+        },
+        Party = new PartyLedgerDto
+        {
+            Recovering = player.Party.Recovering.Select(r => new RecoveryDto { NpcId = r.NpcId, UntilTick = r.UntilTick }).ToArray(),
+            Fallen = player.Party.Fallen.ToArray(),
+        },
+        QuickBar = new QuickBarDto { Slots = player.QuickBar.ToArray(), Cleared = player.QuickBarCleared.ToArray() },
     }, Options);
 
     /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard, fine or (schema 19) masterwork.</summary>
@@ -549,6 +765,9 @@ public static class SectionCodec
         var roads = dto.RoadsWalked ?? throw new FormatException("player.msgpack has no walked roads (required from schema 15)");
         var deeds = dto.Deeds ?? throw new FormatException("player.msgpack has no deed tallies (required from schema 16)");
         var identity = dto.Identity ?? throw new FormatException("player.msgpack has no identity (required from schema 17)");
+        var factions = dto.Factions ?? throw new FormatException("player.msgpack has no faction ledger (required from schema 20)");
+        var party = dto.Party ?? throw new FormatException("player.msgpack has no party ledger (required from schema 21)");
+        var quickBar = dto.QuickBar ?? throw new FormatException("player.msgpack has no quick bar (required from schema 23)");
         var pronouns = PronounKeys.Parse(identity.Pronouns) ?? throw new FormatException($"player identity has pronouns '{identity.Pronouns}'");
         var stance = posture.Stance switch
         {
@@ -581,6 +800,13 @@ public static class SectionCodec
             Deeds = deeds.Select(d => new DeedTally(DeedKeys.Parse(d.Deed) ?? throw new FormatException($"a deed tally of {d.Subject} is '{d.Deed}'"),
                 d.Subject, d.Npc, d.Count, d.LastTick)).ToImmutableArray(),
             Identity = new CharacterIdentity(pronouns, identity.People, identity.BodyPreset, identity.Call),
+            Factions = new FactionLedger(factions.NextActSeq,
+                factions.Acts.Select(a => new ActRecord(a.Seq, a.Kind, a.Subject, a.Cell, a.XMm, a.ZMm, a.Tick)).ToImmutableArray(),
+                factions.Knowledge.Select(k => new FactionKnowledge(k.Knower, k.Act, k.Identity, k.Source, k.Via, k.Tick, k.Delta)).ToImmutableArray(),
+                factions.Standing.Select(st => new FactionStanding(st.Faction, st.Points)).ToImmutableArray()),
+            Party = new PartyLedger(party.Recovering.Select(r => new RecoveryRecord(r.NpcId, r.UntilTick)).ToImmutableArray(), party.Fallen.ToImmutableArray()),
+            QuickBar = quickBar.Slots.ToImmutableArray(),
+            QuickBarCleared = quickBar.Cleared.ToImmutableArray(),
         };
     }
 
@@ -597,6 +823,23 @@ public static class SectionCodec
             StuckTicks = c.StuckTicks,
             LastCombatTick = c.LastCombatTick,
             Trail = Enumerable.Range(0, c.TrailMm.Length / 2).Select(i => new TrailMark(c.TrailMm[2 * i], c.TrailMm[2 * i + 1])).ToImmutableArray(),
+            Membership = PartyKeys.ParseMembership(c.Membership ?? throw new FormatException($"companion {c.NpcId} has no membership (required from schema 21)"))
+                ?? throw new FormatException($"companion {c.NpcId} has membership '{c.Membership}'"),
+            Stance = PartyKeys.ParseStance(c.Stance ?? throw new FormatException($"companion {c.NpcId} has no stance (required from schema 21)"))
+                ?? throw new FormatException($"companion {c.NpcId} has stance '{c.Stance}'"),
+            Tactics = c.Tactics is { } t
+                ? new PartyTactics(t.KeepToLeash, t.ProtectInjured, t.HoldHealing)
+                : throw new FormatException($"companion {c.NpcId} has no tactics (required from schema 21)"),
+            Contract = c.Contract is not { } k ? null : new HirelingContract(
+                PartyKeys.ParseRole(k.Role) ?? throw new FormatException($"companion {c.NpcId}'s contract has role '{k.Role}'"), k.Days, k.DailyWage, k.LootRule)
+            {
+                DaysServed = k.DaysServed,
+                UnpaidDays = k.UnpaidDays,
+                Purse = k.Purse,
+                WorkSite = k.WorkSite,
+                RecipeId = k.RecipeId,
+                Supply = k.Supply.ToImmutableSortedDictionary(i => i.ItemId, i => i.Count, StringComparer.Ordinal),
+            },
         };
     }
 
@@ -708,6 +951,26 @@ public static class SectionCodec
             }).ToArray(),
             Noises = snapshot.Noises.Select(n => new NoiseDto { XMm = n.XMm, ZMm = n.ZMm, RadiusMm = n.RadiusMm, Call = n.Call, CallerKind = n.CallerKind })
                 .ToArray(),
+            Economy = snapshot.Economy is { } economy
+                ? new EconomyDto
+                {
+                    Day = economy.Day,
+                    Markets = economy.Markets.Values.Select(m => new MarketDto
+                    {
+                        MarketId = m.MarketId,
+                        Stock = m.Stock.Select(kv => new GoodCountDto { ItemId = kv.Key, Count = kv.Value }).ToArray(),
+                        SoldByCharacter = m.SoldByCharacter.Select(kv => new GoodCountDto { ItemId = kv.Key, Count = kv.Value }).ToArray(),
+                    }).ToArray(),
+                    Shipments = economy.Shipments.Select(s => new ShipmentDto
+                    {
+                        LinkId = s.LinkId, FromMarket = s.FromMarket, ToMarket = s.ToMarket, ItemId = s.ItemId, Count = s.Count, ArrivesDay = s.ArrivesDay,
+                    }).ToArray(),
+                }
+                : null,
+            Merchants = snapshot.Merchants.OrderBy(m => m.MerchantId, StringComparer.Ordinal).Select(m => new MerchantDto
+            {
+                MerchantId = m.MerchantId, Purse = m.Purse, RestockedDay = m.RestockedDay, ShelfDay = m.ShelfDay, Traded = m.Traded,
+            }).ToArray(),
         }, Options);
     }
 
@@ -771,6 +1034,26 @@ public static class SectionCodec
     }
 
     public static ImmutableArray<EntityDeltaRecord> DecodeEntities(byte[] bytes) => DecodeEntitySection(bytes).Entities;
+
+    /// <summary>The entities section's economy (schema 22; WP14): the markets and the road (null before the economy first ran), and the merchants.</summary>
+    public static (EconomyState? Economy, ImmutableArray<MerchantState> Merchants) DecodeEconomy(byte[] bytes)
+    {
+        var section = MessagePackSerializer.Deserialize<EntitiesSectionDto>(bytes, Options);
+        var merchants = (section.Merchants ?? throw new FormatException("entities.msgpack has no merchants list (required from schema 22)"))
+            .Select(m => new MerchantState(m.MerchantId, m.Purse, m.RestockedDay, m.ShelfDay, m.Traded))
+            .ToImmutableArray();
+        if (section.Economy is not { } economy)
+            return (null, merchants);
+        static ImmutableSortedDictionary<string, long> Counts(GoodCountDto[] counts, string what) =>
+            counts.Select(c => KeyValuePair.Create(c.ItemId, c.Count)).ToImmutableSortedDictionary(StringComparer.Ordinal) is var built
+                && built.Count == counts.Length ? built : throw new FormatException($"{what} names a good twice");
+        var markets = economy.Markets.Select(m => new MarketState(m.MarketId, Counts(m.Stock, $"market {m.MarketId} stock"),
+            Counts(m.SoldByCharacter, $"market {m.MarketId} sell history"))).ToList();
+        if (markets.Select(m => m.MarketId).Distinct(StringComparer.Ordinal).Count() != markets.Count)
+            throw new FormatException("entities.msgpack names a market twice");
+        return (new EconomyState(economy.Day, markets.ToImmutableSortedDictionary(m => m.MarketId, m => m, StringComparer.Ordinal),
+            economy.Shipments.Select(s => new Shipment(s.LinkId, s.FromMarket, s.ToMarket, s.ItemId, s.Count, s.ArrivesDay)).ToImmutableArray()), merchants);
+    }
 
     /// <summary>The cell key of a slot key: <c>&lt;cell_key&gt;.&lt;population_id&gt;.&lt;ordinal&gt;</c>, and a cell key has no '.'.</summary>
     public static string HostCell(string slotKey)

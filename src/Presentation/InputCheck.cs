@@ -26,7 +26,7 @@ public sealed class InputCheck
     /// <summary>Every gameplay key, held or pressed at once.</summary>
     private static readonly string[] Gameplay =
     {
-        "move_forward", "sprint", "attack", "guard", "dodge", "use", "interact", "jump", "crouch", "cast_1", "companion_order", "quicksave",
+        "move_forward", "sprint", "attack", "guard", "dodge", "use", "interact", "jump", "crouch", "quick_4", "companion_order", "quicksave",
         "first_person",
     };
 

@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using UNNAMED.Content;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Character;
+using UNNAMED.Domain.Guidance;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
@@ -75,12 +76,6 @@ public sealed record StartChoice(SaveSummary? Continue, ImmutableArray<SaveSumma
 {
     /// <summary>Newer saves that Continue passes over because they cannot be loaded as they are. They are shown, never skipped silently.</summary>
     public ImmutableArray<SaveSummary> PassedOver => Saves.TakeWhile(s => s.Problem is not null).ToImmutableArray();
-
-    /// <summary>
-    /// Never: a new character saves in a folder of its own (OD-14), so starting one cannot replace a save already there. Kept so a start
-    /// screen written before folders asks nothing.
-    /// </summary>
-    public bool NewGameAsksFirst => false;
 }
 
 /// <summary>A character's save folder as the start screen lists it: whose it is, and its saves, newest first.</summary>
@@ -212,12 +207,20 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Combat = CombatContent.Build(loader, options.RegionId),
             Magic = MagicContent.Build(loader),
             Crafting = CraftingContent.Build(loader),
-            Social = new SocialSetup(SocialContent.BuildNpcs(loader), SocialContent.BuildDialogues(loader)) { Companions = SocialContent.BuildCompanionTuning(loader) },
+            Social = new SocialSetup(SocialContent.BuildNpcs(loader), SocialContent.BuildDialogues(loader))
+            {
+                Companions = SocialContent.BuildCompanionTuning(loader),
+                Party = SocialContent.BuildPartyRules(loader),
+            },
             Quests = new QuestSetup(QuestContent.BuildQuests(loader)),
+            Factions = FactionContent.Build(loader),
             Travel = WorldContent.BuildTravel(loader),
             Character = CharacterContent.Build(loader),
             Clock = WorldContent.BuildClock(loader),
             Offline = WorldContent.BuildOffline(loader),
+            Calendar = WorldContent.BuildCalendar(loader),
+            Weather = WorldContent.BuildWeather(loader),
+            Economy = EconomyContent.Build(loader),
         };
         var content = new ContentIdentity(options.ContentVersion, loader.ComputeContentHash(), loader.Definitions.Keys,
             loader.Aliases, loader.Removed, loader.Discarded);
@@ -240,6 +243,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
         return new GameSession(options, setup, content, generator, WorldContent.DisplayNames(loader), transitions)
         {
             ClockAtWorldStartHours = WorldContent.ClockAtWorldStartHours(loader),
+            Hints = HintContent.Build(loader),
         };
     }
 
@@ -248,6 +252,10 @@ public sealed class GameSession : IDomainEvents, IDisposable
 
     /// <summary>What the world clock reads at tick 0, in hours (config.time): the sky shows it and the creatures keep their hours by it.</summary>
     public double ClockAtWorldStartHours { get; private init; }
+
+    /// <summary>The guidance hints (WP10): presentation shows them once each, as the player's guidance level allows. Not game state.</summary>
+    public ImmutableSortedDictionary<string, HintDefinition> Hints { get; private init; } =
+        ImmutableSortedDictionary.Create<string, HintDefinition>(StringComparer.Ordinal);
     public ContentIdentity Content { get; }
     public ICellBaselineGenerator Generator { get; }
 

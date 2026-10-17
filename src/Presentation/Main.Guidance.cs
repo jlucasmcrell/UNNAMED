@@ -1,0 +1,121 @@
+// UNNAMED Presentation - Main's guidance: the moments that call for a hint, and the hint line that shows it (WP10, §2.10 O1)
+// Godot presentation only: this file renders state and submits commands; it never writes state.
+
+using UNNAMED.Domain.Guidance;
+using UNNAMED.Presentation.Settings;
+using UNNAMED.Presentation.Ui;
+using UNNAMED.World.Runtime;
+
+namespace UNNAMED.Presentation;
+
+public partial class Main
+{
+    private const double LowHealthShare = 0.3;
+
+    private HintLine? _hintLine;
+
+    /// <summary>Moments with nothing left to show at this guidance level: asked no more each frame until the settings change.</summary>
+    private readonly HashSet<string> _hintless = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Hints (PJ07): each named moment shows the next hint waiting on it that the player has not seen, as their guidance level allows,
+    /// and marks it seen in their preferences, so it never shows again until they reset hints. A hint the line has no room for is not
+    /// marked, so it waits for the moment's next turn. A harness run plays on the defaults and keeps nothing, so its hints come and go
+    /// with the run. True when a hint was shown or queued.
+    /// </summary>
+    private bool Hint(string trigger)
+    {
+        if (_hintLine is null || _session.Hints.Count == 0 || _hintless.Contains(trigger))
+            return false;
+        var prefs = SettingsStore.Current;
+        var ui = prefs.Profile.Interface;
+        var depth = ui.Guidance switch { Guidance.Full => HintDepth.Every, Guidance.Light => HintDepth.FirstOfEachCategory, _ => HintDepth.None };
+        var seen = ui.SeenHints.ToHashSet(StringComparer.Ordinal);
+        if (HintRules.Pick(_session.Hints.Values, trigger, seen, depth) is not { } hint)
+        {
+            _hintless.Add(trigger);
+            return false;
+        }
+        if (!_hintLine.Show(HintRules.Words(hint.Text, HelpPanel.Key)))
+            return false;
+        SettingsStore.Set(prefs with { Profile = prefs.Profile with { Interface = ui with { SeenHints = ui.SeenHints.Append(hint.Id).ToArray() } } });
+        return true;
+    }
+
+    /// <summary>The hint line on the HUD, and the moments the simulation's events name.</summary>
+    private void SubscribeGuidance()
+    {
+        _hintLine = new HintLine { Name = "HintLine" };
+        AddChild(_hintLine);
+        SettingsStore.Changed += () =>
+        {
+            _hintless.Clear();
+            if (SettingsStore.Current.Profile.Interface.Guidance == Guidance.Off)
+                _hintLine?.Clear();
+        };
+        var player = () => _session.Simulation!.PlayerId;
+        _session.Subscribe<CreatureNoticed>(e =>
+        {
+            if (e.Mind == World.CreatureMind.Engaged)
+                Hint(HintTriggers.CreatureEngaged);
+        });
+        _session.Subscribe<HitResolved>(e =>
+        {
+            if (e.Target == player() && e.Damage > 0)
+                Hint(HintTriggers.HitTaken);
+        });
+        _session.Subscribe<PlayerDowned>(_ => Hint(HintTriggers.PlayerDowned));
+        _session.Subscribe<PlayerDied>(_ => Hint(HintTriggers.PlayerDied));
+        _session.Subscribe<CreatureKilled>(e =>
+        {
+            if (e.Killer == player())
+                Hint(HintTriggers.CreatureKilled);
+        });
+        _session.Subscribe<ItemMoved>(e =>
+        {
+            if (e.Actor == player() && e.To.Kind == PlaceKind.Inventory && e.From.Kind != PlaceKind.Inventory)
+                Hint(HintTriggers.ItemPickedUp);
+        });
+        _session.Subscribe<QuestStarted>(_ => Hint(HintTriggers.QuestStarted));
+        _session.Subscribe<ExperienceGained>(e =>
+        {
+            if (e.LevelsGained > 0)
+                Hint(HintTriggers.LevelUp);
+        });
+        _session.Subscribe<SkillPracticed>(e =>
+        {
+            if (e.Xp > 0)
+                Hint(HintTriggers.SkillPracticed);
+        });
+        _session.Subscribe<NodeGathered>(_ => Hint(HintTriggers.NodeGathered));
+        _session.Subscribe<StoneTouched>(_ => Hint(HintTriggers.StoneTouched));
+        _session.Subscribe<TechniqueLearned>(e =>
+        {
+            if (_session.Setup.Magic.Formulas.ContainsKey(e.DefinitionId))
+                Hint(HintTriggers.FormulaLearned);
+        });
+        _session.Subscribe<CompanionRecruited>(_ => Hint(HintTriggers.CompanionRecruited));
+        _session.Subscribe<CompanionDowned>(_ => Hint(HintTriggers.CompanionDowned));
+        _session.Subscribe<ServiceOpened>(e =>
+        {
+            if (e.Service == Domain.Social.NpcServices.Trade)
+                Hint(HintTriggers.TradeOpened);
+        });
+        // Still to come: hire_offered (WP15a's hiring sheet) and price_changed (WP14's markets) are named by those systems when they land.
+    }
+
+    /// <summary>The moments a frame shows rather than an event: a prompt up, health low, the pack full, a station open.</summary>
+    private void GuidanceFrame(Simulation simulation, CombatView combat, bool prompting)
+    {
+        if (_hintLine is null)
+            return;
+        if (prompting)
+            Hint(HintTriggers.PromptShown);
+        if (!combat.Defeated && combat.Health > 0 && combat.Health <= combat.MaxHealth * LowHealthShare)
+            Hint(HintTriggers.HealthLow);
+        if (simulation.Player.CarriedGrams >= simulation.Player.CarryLimitGrams)
+            Hint(HintTriggers.OverLimit);
+        if (_inventory.OpenStation is not null)
+            Hint(HintTriggers.StationOpened);
+    }
+}

@@ -20,6 +20,9 @@ public sealed record SocialSetup(ImmutableSortedDictionary<string, NpcDefinition
     /// <summary>How companions behave (M6); null in a pack where nobody can join.</summary>
     public CompanionTuning? Companions { get; init; }
 
+    /// <summary>The party's size, wages and wounds (<c>config.party</c>; WP15a); null in a pack where nobody can be hired or join.</summary>
+    public PartyRules? Party { get; init; }
+
     public static SocialSetup Empty { get; } = new(ImmutableSortedDictionary.Create<string, NpcDefinition>(StringComparer.Ordinal),
         ImmutableSortedDictionary.Create<string, DialogueDefinition>(StringComparer.Ordinal));
 }
@@ -73,7 +76,8 @@ internal sealed class NpcSystem
     {
         foreach (var site in _context.Setup.Layout.Npcs)
         {
-            if (!_context.Setup.Social.Npcs.TryGetValue(site.NpcId, out var definition))
+            // A hireling who died in the character's service stays dead (DN9).
+            if (!_context.Setup.Social.Npcs.TryGetValue(site.NpcId, out var definition) || State.Fallen.Contains(site.NpcId))
                 continue;
             var id = InstanceIdOf(site.NpcId);
             if (!State.World.Registry.Exists(id))
@@ -81,6 +85,17 @@ internal sealed class NpcSystem
             long y = _context.Setup.Layout.Space.Terrain.HeightAtMm(site.XMm, site.ZMm);
             State.SetNpc(_owner, new NpcState(definition, id, site, new Body(site.XMm, y, site.ZMm, site.FacingMdeg)));
         }
+    }
+
+    /// <summary>A hireling died (DN9): they are gone from the world, their instance with them.</summary>
+    public string? Handle(RemoveNpc command)
+    {
+        if (!State.Npcs.TryGetValue(command.NpcId, out var npc))
+            return $"there is no one called {command.NpcId} here";
+        State.RemoveNpc(_owner, command.NpcId);
+        if (State.World.Registry.Exists(npc.InstanceId))
+            State.World.Registry.DestroyEntity(npc.InstanceId);
+        return null;
     }
 
     public string? Handle(PlaceNpc command)

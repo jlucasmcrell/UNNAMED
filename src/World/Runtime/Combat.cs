@@ -1,10 +1,11 @@
-// UNNAMED World - combat at run time: attacks, the guard, dodging, stamina, status effects and death
-// (SYSTEMS.md S-06, S-07, S-11, S-12; COMBAT_DAMAGE_ARMOR_AND_DEATH.md; PROTOTYPE.md §5 steps 6-7; M3c, M3d)
+// UNNAMED World - combat at run time: attacks, the guard, dodging, stamina, status effects, downed and death
+// (SYSTEMS.md S-06, S-07, S-11, S-12; COMBAT_DAMAGE_ARMOR_AND_DEATH.md; PROTOTYPE.md §5 steps 6-7; M3c, M3d; OD-13 = B, WP10)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Magic;
@@ -104,8 +105,17 @@ public sealed record PlayerDied(string KillerDefId, string Cause, ImmutableArray
 
 public sealed record PlayerRespawned(Body Body, long Tick);
 
-/// <summary>A use of a skill: the XP it earned, which the difficulty gate may make zero (PROGRESSION.md §4.2).</summary>
-public sealed record SkillPracticed(string SkillId, long Xp, int Level, long Tick);
+/// <summary>
+/// The player was brought to nothing with a hand near (OD-13 = B): <see cref="HandNpcId"/>, up and close, will help them up at
+/// <see cref="RevivedAtTick"/> unless they fall or leave first. <see cref="KillerDefId"/> and <see cref="Cause"/> are the last blow's.
+/// </summary>
+public sealed record PlayerDowned(string KillerDefId, string Cause, string HandNpcId, long Tick, long RevivedAtTick);
+
+/// <summary>A companion or hireling helped the downed player up, with <see cref="Health"/>.</summary>
+public sealed record PlayerRevived(string NpcId, int Health, long Tick);
+
+/// <summary>A use of a skill: the XP it earned, which the difficulty gate may make zero (PROGRESSION.md §4.2), and the levels it gained.</summary>
+public sealed record SkillPracticed(string SkillId, long Xp, int Level, int LevelsGained, long Tick);
 
 /// <summary>A carried item was used: a consumable's effect (the salve's mending), or none for a book that taught.</summary>
 public sealed record ItemUsed(EntityId Actor, string DefId, string? EffectId, long Tick);
@@ -145,8 +155,14 @@ public sealed record CombatView(CombatPhase Phase, int PhaseTicksLeft, string? A
     /// <summary>The character lies dead, until the respawn.</summary>
     public bool Defeated { get; init; }
 
-    /// <summary>Ticks until the respawn (the fade to black closes on it); zero when alive.</summary>
+    /// <summary>Ticks until the respawn (the fade to black closes on it); zero when alive, and while downed.</summary>
     public int RespawnTicksLeft { get; init; }
+
+    /// <summary>Down but not dead (OD-13 = B): <see cref="Defeated"/> is true as well, so nothing the character does goes through.</summary>
+    public bool Downed { get; init; }
+
+    /// <summary>While downed: ticks until the hand near them helps them up.</summary>
+    public int DownedTicksLeft { get; init; }
 }
 
 // ── state (internal) ────────────────────────────────────────────────────────
@@ -257,6 +273,12 @@ internal sealed record PlayerCombat(ActionState Action, bool Blocking, long Stag
     /// <summary>The tick the death ends in a respawn; zero until the death system has settled it.</summary>
     public long RespawnAt { get; init; }
 
+    /// <summary>
+    /// While downed (OD-13 = B): the tick a hand helps the character up; zero when not downed. <see cref="Defeated"/> stays true while
+    /// it runs, so every system that refuses the dead refuses the downed too, and creatures leave them be.
+    /// </summary>
+    public long DownedUntil { get; init; }
+
     /// <summary>Thousandths of a point accrued by sprinting, regeneration and recovery, so integer pools move smoothly.</summary>
     public int SprintMilli { get; init; }
     public int StaminaMilli { get; init; }
@@ -304,6 +326,9 @@ internal sealed record EndFight : InternalCommand;
 
 /// <summary>To <see cref="CombatSystem"/>: a death is settled; the player lies down until this tick.</summary>
 internal sealed record AwaitRespawn(long At) : InternalCommand;
+
+/// <summary>To <see cref="CombatSystem"/>: the player lies downed until <see cref="Until"/>; zero helps them up.</summary>
+internal sealed record LieDowned(long Until) : InternalCommand;
 
 /// <summary>To <see cref="InventorySystem"/>: spend carried items by definition (an arrow at release).</summary>
 internal sealed record ConsumeItem(string DefId, int Count) : InternalCommand;
@@ -415,7 +440,7 @@ internal sealed partial class CombatSystem
 
     private string? Busy(ActionState action, long tick) => action.PhaseAt(tick, C).Phase switch
     {
-        CombatPhase.Idle => State.PlayerCombat.Defeated ? "dead" : null,
+        CombatPhase.Idle => State.PlayerCombat.DownedUntil > 0 ? "downed" : State.PlayerCombat.Defeated ? "dead" : null,
         CombatPhase.Staggered => "staggered",
         CombatPhase.Dodge => "dodging",
         var phase => $"already {(action.Kind == ActionKind.Cast ? "casting" : "attacking")} ({phase.ToString().ToLowerInvariant()})",
@@ -753,7 +778,7 @@ internal sealed partial class CombatSystem
         if (command.Target != _player)
             return _context.Dispatch(new HealCreature(command.Target, command.Source, command.Amount));
         if (State.PlayerCombat.Defeated)
-            return "the dead do not heal";
+            return State.PlayerCombat.DownedUntil > 0 ? "the downed are helped up, not healed" : "the dead do not heal";
         int before = Health();
         _context.Dispatch(new ChangePools(command.Amount, 0));
         if (Health() != before)
@@ -769,7 +794,27 @@ internal sealed partial class CombatSystem
 
     public string? Handle(AwaitRespawn command)
     {
-        State.SetPlayerCombat(_owner, State.PlayerCombat with { RespawnAt = command.At });
+        State.SetPlayerCombat(_owner, State.PlayerCombat with { RespawnAt = command.At, DownedUntil = 0 });
+        return null;
+    }
+
+    /// <summary>The character as a hand helps them up: health at the revive share (a save made while downed is this; OD-13 = B).</summary>
+    public CharacterProgression HelpedUp(CharacterProgression progression) =>
+        progression with { Pools = progression.Pools with { Health = RevivedHealth(progression, _context.Setup.Progression, C) } };
+
+    /// <summary>The health a downed character stands up with: the revive share of their maximum, at least one.</summary>
+    internal static int RevivedHealth(CharacterProgression progression, ProgressionRules rules, CombatConstants constants) =>
+        Math.Max(1, (int)(ProgressionEngine.Derive(progression, rules).HealthMax * constants.DownedRevivePercent / 100));
+
+    public string? Handle(LieDowned command, long tick)
+    {
+        var combat = State.PlayerCombat;
+        if (!combat.Defeated || combat.RespawnAt != 0)
+            return "not down";
+        // Helped up: the fight goes on from here, so health returns only after the usual pause.
+        State.SetPlayerCombat(_owner, command.Until > 0
+            ? combat with { DownedUntil = command.Until, Action = ActionState.Idle, Blocking = false }
+            : combat with { Defeated = false, DownedUntil = 0, LastCombat = tick, Action = ActionState.Idle, HealthMilli = 0 });
         return null;
     }
 
@@ -886,7 +931,9 @@ internal sealed partial class CombatSystem
             Strained = MagicRules.Strained(Strain(), StrainTolerance(), M),
             Casting = combat.Action.Kind == ActionKind.Cast && phase != CombatPhase.Idle ? combat.Action.Formula!.Id : null,
             Defeated = combat.Defeated,
-            RespawnTicksLeft = combat.Defeated ? (int)Math.Max(0, combat.RespawnAt - State.WorldTick) : 0,
+            RespawnTicksLeft = combat.Defeated && combat.RespawnAt > 0 ? (int)Math.Max(0, combat.RespawnAt - State.WorldTick) : 0,
+            Downed = combat.DownedUntil > 0,
+            DownedTicksLeft = combat.DownedUntil > 0 ? (int)Math.Max(0, combat.DownedUntil - State.WorldTick) : 0,
         };
     }
 }
@@ -1020,6 +1067,9 @@ internal sealed class StatusEffectSystem : IAbstractAdvance
 /// <summary>
 /// Owns no state. Settles a death at the end of the tick it happened in (PROTOTYPE.md §5 step 7): XP debt, never lost
 /// XP (AG-8); the effects of the fight cleared; respawn at the return point (the region's spawn until one is chosen); a spell of weakness. It asks each owner in turn.
+/// With a hand near - a companion or hireling up within <see cref="CombatConstants.DownedHandWithinMm"/> (OD-13 = B) - the character is
+/// downed first: they lie <see cref="CombatConstants.DownedTicks"/> and the hand helps them up. Should the last hand fall or go before
+/// then, the death goes on as it would have. A death is never downed twice: once settled, it runs to the respawn.
 /// </summary>
 internal sealed class DeathSystem
 {
@@ -1045,6 +1095,25 @@ internal sealed class DeathSystem
         if (combat.RespawnAt == 0)
         {
             var last = combat.Recent.LastOrDefault();
+            var constants = _context.Setup.Combat.Constants;
+            string? hand = Hand(state, constants.DownedHandWithinMm);
+            if (combat.DownedUntil == 0 && hand is not null)
+            {
+                long until = tick + constants.DownedTicks;
+                _context.Dispatch(new LieDowned(until));
+                _context.Events.Publish(new PlayerDowned(last?.AttackerDefId ?? "unknown", last?.Source ?? "unknown", hand, tick, until));
+                return;
+            }
+            if (combat.DownedUntil > 0 && hand is not null)
+            {
+                if (tick < combat.DownedUntil)
+                    return;
+                int health = CombatSystem.RevivedHealth(state.Progression, _context.Setup.Progression, constants);
+                _context.Dispatch(new ChangePools(health, 0));
+                _context.Dispatch(new LieDowned(0));
+                _context.Events.Publish(new PlayerRevived(hand, state.Progression.Pools.Health ?? health, tick));
+                return;
+            }
             long debtBefore = state.Progression.XpDebt;
             long respawnAt = tick + _context.Setup.Combat.Constants.DeathTicks;
             _context.Dispatch(new RecordDeath());
@@ -1069,5 +1138,18 @@ internal sealed class DeathSystem
         _context.Dispatch(new EndFight());
         _context.Dispatch(new ForgetPlayer());
         _context.Events.Publish(new PlayerRespawned(body, tick));
+    }
+
+    /// <summary>The party member who can help the character up: up, and near enough; the nearest, then by ID. Null when there is none.</summary>
+    private static string? Hand(RuntimeState state, long withinMm)
+    {
+        var at = state.Body;
+        return state.Companions.Values
+            .Where(c => c.Condition == CompanionCondition.Up && state.Npcs.ContainsKey(c.NpcId))
+            .Select(c => (c.NpcId, Distance: Math.Sqrt(Math.Pow(state.Npcs[c.NpcId].Body.XMm - at.XMm, 2) + Math.Pow(state.Npcs[c.NpcId].Body.ZMm - at.ZMm, 2))))
+            .Where(c => c.Distance <= withinMm)
+            .OrderBy(c => c.Distance).ThenBy(c => c.NpcId, StringComparer.Ordinal)
+            .Select(c => c.NpcId)
+            .FirstOrDefault();
     }
 }

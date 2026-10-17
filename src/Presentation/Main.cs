@@ -29,9 +29,8 @@ namespace UNNAMED.Presentation;
 /// </summary>
 public partial class Main : Node3D
 {
-    /// <summary>Input actions for the formula keys, 4 to 6.</summary>
-    private static readonly string[] CastKeys = { "cast_1", "cast_2", "cast_3" };
-    private static readonly string[] QuickKeys = { "quick_1", "quick_2", "quick_3" };
+    /// <summary>Input actions for the eight quick slots (WP9), on 1 to 8 by default: items, formulas and techniques alike.</summary>
+    private static readonly string[] QuickKeys = Enumerable.Range(1, UNNAMED.Domain.Progression.QuickBar.Slots).Select(n => $"quick_{n}").ToArray();
 
     private readonly HashSet<string> _flags = new(StringComparer.Ordinal);
 
@@ -64,6 +63,7 @@ public partial class Main : Node3D
     private SaveOutcome? _lastSave;
     private string? _loadedFrom;
     private EffectsPanel _effectsPanel = null!;
+    private ReputationPanel _reputation = null!;
     private CompanionsPanel _companionsPanel = null!;
     private WaystonePanel _waystones = null!;
     private MapPanel _map = null!;
@@ -179,6 +179,8 @@ public partial class Main : Node3D
 
     public override void _Ready()
     {
+        // An exception nothing catches is written to a local crash file, and the next launch's title says so (WP10; never sent anywhere).
+        InstallCrashLog();
         // Whatever stops the game starting is said to the player, with where the log is, rather than leaving a blank window (M-07).
         try
         {
@@ -258,12 +260,14 @@ public partial class Main : Node3D
         string contentRoot = _options.GetValueOrDefault("--content-root") is { } content ? Path.GetFullPath(content) : Path.Combine(Home(), "content");
         string? playthrough = _options.GetValueOrDefault("--playthrough") ?? _options.GetValueOrDefault("--playthrough-verify");
         string profile = playthrough is not null ? Path.Combine(Path.GetFullPath(playthrough), "profile")
-            : _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots")
+            : _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf")
+              || (_options.ContainsKey("--ui-shots") && !_flags.Contains("--ui-shots-continue"))
               || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check") || _options.ContainsKey("--survey")
               || _options.ContainsKey("--shot")
               || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
               || (_options.ContainsKey("--showcase") && !_options.ContainsKey("--profile"))
               || (_options.ContainsKey("--front-shots") && !_options.ContainsKey("--profile"))
+              || _options.ContainsKey("--creator-shots")
             ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
             : _options.GetValueOrDefault("--profile") is { } chosen ? Path.GetFullPath(chosen)
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
@@ -300,7 +304,9 @@ public partial class Main : Node3D
         _scripted = (scripted && !_flags.Contains("--input-check")) || _options.ContainsKey("--resume-shots");
         // A scripted run plays one world from its start - the acceptance playthrough a fixed one, so it is the same run every time (M6).
         // A player's run begins at the start screen (the Phase-1 technical audit, B-01); the relaunch check continues as a player would.
-        bool showcaseContinues = _options.ContainsKey("--showcase") && _options.ContainsKey("--profile");
+        // --ui-shots-continue pictures the screens over the profile's newest save instead of a new character (WP9: one with skills,
+        // formulas and recipes to show).
+        bool showcaseContinues = (_options.ContainsKey("--showcase") || _flags.Contains("--ui-shots-continue")) && _options.ContainsKey("--profile");
         // Every harness run takes the SAME world, which is what the line above intends. The audit and
         // audition runs were left out of this and so fell to seed 0 - a fresh random world each time -
         // which made their stills incomparable: a before/after pair was the same camera over the same
@@ -466,8 +472,8 @@ public partial class Main : Node3D
                 _startCamera = new StartCamera { Name = "StartCamera", Ground = _ground.Height,
                     Offset = region == "region.starting_frontier" ? new Vector2(400, 600) : Vector2.Zero };
                 AddChild(_startCamera);
-                // The ground's scatter from a preview seed, so the shot is not bare earth; a world places its own on start.
-                _scatter.Build(0x5CE4E5EED);
+                // The ground's scatter of the world a new game will be (Main.Creator), so the shot is not bare earth and Begin finds it placed.
+                _scatter.Build(NextWorldSeed);
             }
             return;
         }
@@ -610,6 +616,7 @@ public partial class Main : Node3D
         if (Art.SkinnedFigure.Create(_art, _bindings, "player") is { } skinned)
         {
             _avatar = skinned;
+            _avatarModel = body;
             // Phase B: the feet planted on the ground under them (the ground field the terrain is drawn from).
             if (VisualOptions.BodyModifiers)
                 Art.BodyModifiers.PlantFeet(skinned.Skeleton, skinned, _ground.Height);
@@ -668,6 +675,8 @@ public partial class Main : Node3D
             ResumeShots(resumeShots);
         if (_options.GetValueOrDefault("--front-shots") is { } frontShots && _session is not null)
             FrontShots(frontShots);
+        if (_options.GetValueOrDefault("--creator-shots") is { } creatorShots && _session is not null)
+            CreatorShots(creatorShots);
         if (_session?.Simulation is null)
         {
             ReadFrontInput();
@@ -1003,7 +1012,9 @@ public partial class Main : Node3D
         var combat = simulation.Combat;
         _avatar.SetStance(Stance(combat, alpha));
         _avatar.SetDowned(combat.Defeated);
-        _hud.FadeToBlack(combat.Defeated && combat.RespawnTicksLeft * _session.TickSeconds <= DeathFadeLeadSeconds);
+        DrawOpening(delta);
+        // Downed is not dead (OD-13 = B): the character lies in view until helped up, and the fade waits for a death.
+        _hud.FadeToBlack(combat.Defeated && !combat.Downed && combat.RespawnTicksLeft * _session.TickSeconds <= DeathFadeLeadSeconds);
         _avatar.Hold(combat.Weapon.Source == "unarmed" ? null : combat.Weapon.Source);
         string? Worn(EquipSlot slot) => simulation.Player.Equipment.TryGetValue(slot, out var id)
             ? simulation.Player.Inventory.FirstOrDefault(e => e.ItemId == id)?.DefId : null;
@@ -1210,7 +1221,7 @@ public partial class Main : Node3D
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
-                    or "--front-shots" or "--load-order"
+                    or "--front-shots" or "--creator-shots" or "--load-order"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

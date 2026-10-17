@@ -118,6 +118,9 @@ internal sealed record Trade(MoveItemCommand Move, long Coin) : InternalCommand;
 /// <summary>To <see cref="InventorySystem"/>: coin into the purse - a quest's reward (M5).</summary>
 internal sealed record AddCurrency(long Amount) : InternalCommand;
 
+/// <summary>To <see cref="InventorySystem"/>: coin out of the purse - a hireling's wage (WP15a). Refused, and nothing taken, when it holds less.</summary>
+internal sealed record SpendCurrency(long Amount) : InternalCommand;
+
 /// <summary>
 /// To <see cref="InventorySystem"/>: an item given that is never lost - a quest's reward (M5): into the pack, or where the character
 /// stands when the pack has no room or it would be too heavy.
@@ -192,7 +195,7 @@ internal sealed class InventorySystem
     private int MostThatFits(ItemDefinition definition, int quality, int count)
     {
         var stacks = State.Inventory.Select(e => (e.ItemId, e.DefId, e.Count, e.Quality)).ToList();
-        long spare = Items.Inventory.CarryLimitGrams(State.Progression, _context.Setup.Progression) - CarriedGrams();
+        long spare = CarryLimitGrams() - CarriedGrams();
         int most = definition.WeightGrams > 0 ? (int)Math.Min(count, Math.Max(0, spare / definition.WeightGrams)) : count;
         while (most > 0 && Room(stacks, definition, quality, most, Items.Inventory.StackSlots) is not null)
             most--;
@@ -204,7 +207,7 @@ internal sealed class InventorySystem
     {
         var stacks = State.Inventory.Select(e => (e.ItemId, e.DefId, e.Count, e.Quality)).ToList();
         return Room(stacks, definition, quality, 1, Items.Inventory.StackSlots)
-            ?? $"too heavy: {(CarriedGrams() + definition.WeightGrams) / 1000.0:0.##} kg of {Items.Inventory.CarryLimitGrams(State.Progression, _context.Setup.Progression) / 1000.0:0.##} kg";
+            ?? $"too heavy: {(CarriedGrams() + definition.WeightGrams) / 1000.0:0.##} kg of {CarryLimitGrams() / 1000.0:0.##} kg";
     }
 
     /// <summary>A trade: the coin first, then the move; a refused move takes no coin.</summary>
@@ -260,7 +263,7 @@ internal sealed class InventorySystem
             if (Room(stacks, definition, source.Quality, command.Count, Items.Inventory.StackSlots) is { } full)
                 return full;
             long weight = CarriedGrams() + definition.WeightGrams * command.Count;
-            long limit = Items.Inventory.CarryLimitGrams(State.Progression, _context.Setup.Progression);
+            long limit = CarryLimitGrams();
             if (weight > limit)
                 return $"too heavy: {weight / 1000.0:0.##} kg of {limit / 1000.0:0.##} kg";
         }
@@ -380,7 +383,7 @@ internal sealed class InventorySystem
                     Items.Inventory.StackSlots) is { } full)
                 return full;
             long weight = CarriedGrams() - spentGrams + definition.WeightGrams * command.Count;
-            long limit = Items.Inventory.CarryLimitGrams(State.Progression, _context.Setup.Progression);
+            long limit = CarryLimitGrams();
             if (weight > limit)
                 return $"too heavy: {weight / 1000.0:0.##} kg of {limit / 1000.0:0.##} kg";
         }
@@ -395,6 +398,20 @@ internal sealed class InventorySystem
         if (command.Amount < 0)
             return "a grant adds coin";
         State.SetCurrency(_owner, checked(State.Currency + command.Amount));
+        return null;
+    }
+
+    /// <summary>What the character can carry: their own limit, and what porters on their feet and following add (WP15a).</summary>
+    public long CarryLimitGrams() =>
+        Items.Inventory.CarryLimitGrams(State.Progression, _context.Setup.Progression) + PartyCarry.BonusGrams(State, _context.Setup.Social.Party);
+
+    public string? Handle(SpendCurrency command)
+    {
+        if (command.Amount < 0)
+            return "spending takes coin";
+        if (State.Currency < command.Amount)
+            return $"not enough coin: {command.Amount} asked, {State.Currency} carried";
+        State.SetCurrency(_owner, State.Currency - command.Amount);
         return null;
     }
 
@@ -429,6 +446,47 @@ internal sealed class InventorySystem
         }
         if (changed)
             State.SetInventory(_owner, entries);
+        return null;
+    }
+
+    /// <summary>
+    /// A trader's shelf drawn again from their town market (WP14): each line's good, of standard make and with no record of its own, is
+    /// brought to exactly its count - the newest stacks go first, and their identities retire - and nothing else on the shelf changes.
+    /// </summary>
+    public string? Handle(RestockWares command)
+    {
+        if (_context.MerchantSites().FirstOrDefault(s => s.Key == command.MerchantId) is not { } site)
+            return $"{command.MerchantId} keeps no wares here";
+        var record = Materialize(site);
+        var items = record.Items.ToList();
+        foreach (var line in command.Lines)
+        {
+            var definition = Items.Catalog.Get(line.ItemId);
+            bool Plain(ContainerItem i) => i.DefId == line.ItemId && i.Quality == Quality.Standard && i.Notable is null;
+            int have = items.Where(Plain).Sum(i => i.Count);
+            for (int over = have - line.Count; over > 0;)
+            {
+                var stack = items.Where(Plain).OrderByDescending(i => i.ItemId.Value, StringComparer.Ordinal).First();
+                int take = Math.Min(over, stack.Count);
+                if (take == stack.Count)
+                {
+                    items.Remove(stack);
+                    Retire(stack.ItemId);
+                }
+                else
+                {
+                    items[items.IndexOf(stack)] = stack with { Count = stack.Count - take };
+                }
+                over -= take;
+            }
+            if (have >= line.Count)
+                continue;
+            int left = MergeInto(items.Where(Plain).OrderBy(i => i.ItemId.Value, StringComparer.Ordinal).ToList(),
+                definition, line.Count - have, (i, add) => items[items.IndexOf(i)] = i with { Count = i.Count + add });
+            foreach (int stack in Stacks(left, definition.StackMax))
+                items.Add(new ContainerItem(NewItem(definition.Id), definition.Id, stack) { Quality = Quality.Standard });
+        }
+        State.SetContainer(_owner, record with { Items = items.ToImmutableArray() });
         return null;
     }
 

@@ -120,7 +120,7 @@ public partial class WaystonePanel : CanvasLayer
             foreach (var option in options)
             {
                 var to = stones.First(w => w.Site.Key == option.ToKey).Site;
-                var journey = UiKit.Row(UiKit.Icon(_icons, "panel.waystones", 32), to.Name, TravelWords.Journey(option.Cost.WalkTicks, option.Cost.WorldTicks, Main.TicksPerDay));
+                var journey = UiKit.Row(UiKit.Icon(_icons, "panel.waystones", 32), to.Name, TravelWords.Journey(option.Cost.WalkTicks, Main.TicksPerDay));
                 string toKey = to.Key;
                 var go = UiKit.Action("Travel", () => _controller.TravelTo(here.Site.Key, toKey), id: $"travel/{toKey}");
                 go.Disabled = option.Blocked is not null;

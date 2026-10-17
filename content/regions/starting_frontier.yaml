@@ -33,6 +33,13 @@ spawn:
   - 430
   - 758
   facing_deg: 90
+# The opening (PJ06 5.1, B-min): a character who takes the road in starts below the north-west crest, about 32 m up the slope from
+# the Ashen Waystone, facing down toward it. The veteran's skip starts at the spawn above.
+opening:
+  position_m:
+  - 406
+  - 782
+  facing_deg: 139
 generation:
   terrain:
     base_height_mm: 0

@@ -56,6 +56,10 @@ public class PlayerRecordCompletenessTests
                     {
                         DownedTick = 4_990,
                         Trail = ImmutableArray.Create(new TrailMark(151_500, -38_500)),
+                        // An ally along for a shared goal, told to keep out of fights and to hold healing for the injured (schema 21).
+                        Membership = PartyMembership.TemporaryAlly,
+                        Stance = CompanionStance.Passive,
+                        Tactics = new PartyTactics(KeepToLeash: true, ProtectInjured: false, HoldHealing: true),
                     }))
             {
                 Posture = new Posture(Stance.Crouched, Airborne: true, AirMs: 120),
@@ -66,6 +70,19 @@ Waystones = ImmutableArray.Create(new WaystoneRecord("waystone.fixture.cairn", "
                 RoadsWalked = ImmutableArray.Create("road.fixture.track#2"),
                 Deeds = player.Deeds,
                 Identity = player.Identity,
+                // Three acts, the last two told to no one, so a sequence can move alone and a row can name another act (schema 20).
+                Factions = new Domain.Factions.FactionLedger(6,
+                    player.Factions.Acts.AddRange(new[]
+                    {
+                        new Domain.Factions.ActRecord(2, Domain.Factions.ActKinds.SwitchSet, "world.lever.mill_gate", "r_0_0:c_00_07", 70_000, 3_000, 4_850),
+                        new Domain.Factions.ActRecord(4, Domain.Factions.ActKinds.CreatureKilled, "creature.beast.wolf_grey", "r_0_0:c_00_02", 21_000, 4_000, 4_950),
+                    }),
+                    player.Factions.Knowledge, player.Factions.Standing.Add(new Domain.Factions.FactionStanding("faction.fixture.wilders", -40))),
+                // Someone recovering from a grave wound, and a hireling who fell (schema 21).
+                Party = new PartyLedger(ImmutableArray.Create(new RecoveryRecord("npc.fixture.healer", 9_000)), ImmutableArray.Create("npc.fixture.porter")),
+                // A slot in use and something cleared off the bar (schema 23).
+                QuickBar = ImmutableArray.Create<string?>("item.potion.minor_healing", null, null, "spell.ember.bolt", null, null, null, null),
+                QuickBarCleared = ImmutableArray.Create("item.food.roast_meat"),
             };
     }
 
@@ -143,6 +160,7 @@ Waystones = ImmutableArray.Create(new WaystoneRecord("waystone.fixture.cairn", "
     private static readonly SortedDictionary<string, string> Coupled = new(StringComparer.Ordinal)
     {
         ["player.companions[].condition"] = "up or downed decides the health (0 when downed) and the downed tick (0 when up)",
+        ["player.companions[].contract"] = "a whole contract, present exactly on a hireling (schema 21); each of its fields is perturbed where one is present",
         ["player.inventory[].notable"] = "a whole record, absent on an ordinary stack; each of its fields is perturbed where one is present",
         ["player.posture.airborne"] = "in the air or not decides the air time (0 on the ground)",
     };
@@ -167,6 +185,7 @@ Waystones = ImmutableArray.Create(new WaystoneRecord("waystone.fixture.cairn", "
         }))
         .OfType<string>()
         .Concat(UNNAMED.Domain.Social.Relationships.Dimensions)
+        .Concat(UNNAMED.Domain.Factions.ActKinds.Built).Concat(UNNAMED.Domain.Factions.Identities.All).Concat(UNNAMED.Domain.Factions.KnowledgeSources.All)
         .Distinct(StringComparer.Ordinal)
         .ToArray();
 

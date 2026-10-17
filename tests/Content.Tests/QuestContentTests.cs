@@ -260,10 +260,32 @@ public class QuestContentTests
         Assert.Contains("fail_if reads the world as it stands; kill_creature counts deeds", Refused(
             """  - { id: o_a, type: visit_location, description: A., params: { location_ref: location.blackvein_cut } }""",
             "fail_if: [{ type: kill_creature, params: { creature_ref: creature.beast.wolf_grey } }]"));
-        Assert.Contains("reward kind 'reputation' is not built in Phase 1", Refused(
+        Assert.Contains("reward kind 'title' is not built in Phase 1", Refused(
             """  - { id: o_a, type: visit_location, description: A., params: { location_ref: location.blackvein_cut } }""",
-            "rewards: [{ kind: reputation, amount: 5 }]"));
+            "rewards: [{ kind: title, amount: 5 }]"));
     }
+    [Fact]
+    public void AFactionReputationObjective_AndAReputationReward_Build()
+    {
+        var quest = Parse(
+            """  - { id: o_a, type: faction_reputation, description: A., params: { faction_ref: faction.ashen_hollow.wayhold, min_tier: accepted } }""",
+            "rewards: [{ kind: reputation, faction_ref: faction.ashen_hollow.wayhold, amount: 50 }]");
+        Assert.Equal(new FactionReputation("faction.ashen_hollow.wayhold", 1, 5), quest.Objectives["o_a"].Condition);
+        Assert.Equal(new ReputationReward("faction.ashen_hollow.wayhold", 50), Assert.Single(quest.Rewards));
+
+        Assert.Contains("names min_tier, max_tier or both", Refused(
+            """  - { id: o_a, type: faction_reputation, description: A., params: { faction_ref: faction.ashen_hollow.wayhold } }"""));
+        Assert.Contains("'hostile' is not a standing tier", Refused(
+            """  - { id: o_a, type: faction_reputation, description: A., params: { faction_ref: faction.ashen_hollow.wayhold, max_tier: hostile } }"""));
+        Assert.Contains("min_tier is above max_tier", Refused(
+            """  - { id: o_a, type: faction_reputation, description: A., params: { faction_ref: faction.ashen_hollow.wayhold, min_tier: trusted, max_tier: wary } }"""));
+        Assert.Contains("moves standing by 1 to 250 points", Refused(
+            """  - { id: o_a, type: visit_location, description: A., params: { location_ref: location.blackvein_cut } }""",
+            "rewards: [{ kind: reputation, faction_ref: faction.ashen_hollow.wayhold, amount: 400 }]"));
+        Assert.Contains("'faction_state' is not built in Phase 1", Refused(
+            """  - { id: o_a, type: faction_state, description: A., params: { faction_ref: faction.ashen_hollow.wayhold } }"""));
+    }
+
     // ── the story framework (WP4) ───────────────────────────────────────────
 
     [Fact]
@@ -271,8 +293,12 @@ public class QuestContentTests
     {
         var quests = QuestContent.BuildQuests(Game.Value);
         Assert.All(quests.Values.Where(q => q.Id.StartsWith("quest.bounty.", StringComparison.Ordinal)), q => Assert.Equal(QuestTrack.Bounty, q.Track));
-        Assert.All(quests.Values.Where(q => !q.Id.StartsWith("quest.bounty.", StringComparison.Ordinal)), q => Assert.Equal(QuestTrack.Side, q.Track));
-        Assert.All(quests.Values, q => Assert.False(q.OnNewGame || q.Competitive));
+        Assert.All(quests.Values.Where(q => q.Id.StartsWith("quest.main.", StringComparison.Ordinal)), q => Assert.Equal((QuestTrack.Main, (int?)1), (q.Track, q.Act)));
+        Assert.All(quests.Values.Where(q => !q.Id.StartsWith("quest.bounty.", StringComparison.Ordinal) && !q.Id.StartsWith("quest.main.", StringComparison.Ordinal)),
+            q => Assert.Equal(QuestTrack.Side, q.Track));
+        // The opening (WP2) is the one quest every new character starts; no bounty is competitive yet.
+        Assert.Equal(new[] { "quest.main.the_road_in" }, quests.Values.Where(q => q.OnNewGame).Select(q => q.Id));
+        Assert.All(quests.Values, q => Assert.False(q.Competitive));
     }
 
     [Fact]

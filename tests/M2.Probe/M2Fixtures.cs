@@ -2,7 +2,9 @@ using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
+using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
@@ -162,6 +164,21 @@ public static class M2Fixtures
                     StuckTicks = 2,
                     LastCombatTick = 4_950,
                     Trail = ImmutableArray.Create(new TrailMark(149_250, -41_000), new TrailMark(149_750, -40_750), new TrailMark(150_250, -40_125)),
+                    // Schema 21 (WP15a): the warden is in Aelin's hire, a crafter on a ten-day contract at 7 a day - three days served, the
+                    // last one unpaid, 21 coin earned - set to the salve at the fixture hearth with two healing draughts handed over; defensive,
+                    // off the leash, protecting the injured. The draught is under the name it had then.
+                    Membership = PartyMembership.Hireling,
+                    Stance = CompanionStance.Defensive,
+                    Tactics = new PartyTactics(KeepToLeash: false, ProtectInjured: true, HoldHealing: false),
+                    Contract = new HirelingContract(HirelingRole.Crafter, 10, 7, PartyRules.WageOnly)
+                    {
+                        DaysServed = 3,
+                        UnpaidDays = 1,
+                        Purse = 21,
+                        WorkSite = "station.fixture_hearth",
+                        RecipeId = "recipe.alchemy.salve_minor",
+                        Supply = ImmutableSortedDictionary.Create<string, int>(StringComparer.Ordinal).Add("item.potion.healing_draught", 2),
+                    },
                 },
             })
         {
@@ -180,6 +197,17 @@ public static class M2Fixtures
                 new DeedTally(DeedKind.Crafted, "item.weapon.iron_sword", null, 1, 3_900)),
             // Schema 17 (the character creator): Aelin is "she", a Veth of a chosen build, of the Scholar's Call.
             Identity = new CharacterIdentity(Pronouns.She, "people.veth", "body.build_slender", "call.scholar"),
+            // Schema 20 (WP6): Aelin killed an ash hound at the ridge and told the warden, so the wardens know it of her and regard her
+            // at +100; the act log counts on from 2. The hound, the warden and the wardens under the names they had then.
+            Factions = new FactionLedger(2,
+                ImmutableArray.Create(new ActRecord(1, ActKinds.CreatureKilled, "creature.beast.ash_hound", "r_0_0:c_00_02", 21_500, 4_250, 4_800)),
+                ImmutableArray.Create(new FactionKnowledge("faction.fixture.wardens", 1, Identities.Identified, KnowledgeSources.Reported,
+                    "npc.fixture.warden", 4_900, 100)),
+                ImmutableArray.Create(new FactionStanding("faction.fixture.wardens", 100))),
+            // Schema 23 (the quick bar, WP9): the firebolt on key 4, and the draught taken off key 1 on purpose - both renamed by the
+            // current pack, so the renames must reach the bar and what was cleared off it.
+            QuickBar = ImmutableArray.Create<string?>(null, null, null, "spell.ember.firebolt", null, null, null, null),
+            QuickBarCleared = ImmutableArray.Create("item.potion.healing_draught"),
         };
 
         public static readonly EntityId SwordId = EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 });
@@ -279,13 +307,27 @@ public static class M2Fixtures
                 new ContainerItem(meat, "item.potion.healing_draught", 1))));
             world.SetCreature(new CreatureRecord("spawn.fixture.ridge#0", "creature.beast.ash_hound", Creature(3), TenCells[2].ToString(), 2,
                 CreatureCondition.Gone, 20_000, 30_000, 0, 0, 4_900, 30_000));
+            // Schema 22 (WP14): the vale's market on day 3, short of draughts and remembering three the character sold it, with four more
+            // on the road from the ford; its trader's purse, restocked on day 2 and shelf drawn on day 1, traded with.
+            world.SetEconomy(new EconomyState(3,
+                ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[]
+                {
+                    KeyValuePair.Create("market.fixture.vale", new MarketState("market.fixture.vale",
+                        ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[]
+                        {
+                            KeyValuePair.Create("item.potion.minor_healing", 14L), KeyValuePair.Create("item.weapon.iron_sword", 2L),
+                        }),
+                        ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[] { KeyValuePair.Create("item.potion.minor_healing", 3L) }))),
+                }),
+                ImmutableArray.Create(new Shipment("road.fixture.track", "market.fixture.ford", "market.fixture.vale", "item.potion.minor_healing", 4, 4))));
+            world.SetMerchant(new MerchantState("merchant.fixture.trader", 75, 2, 1, Traded: true));
             return world;
         }
 
         private static EntityId Creature(byte n) => EntityId.Create(EntityKind.Creature, 1_700_000_000_100 + n, new byte[] { 7, 7, 7, 7, 7, 7, 7, 7, 7, n });
 
-        public const string CurrentContentVersion = "0.2.8";
-        public const string CurrentContentHash = "sha256:8ebeed4870c4da0c42b7bd58386a90761fb4bd7f7b2cf674c9b45f826791190f";
+        public const string CurrentContentVersion = "0.2.9";
+        public const string CurrentContentHash = "sha256:c4892c92c6e2fd41f08ea5da5ff27914a035183a2503c6e3f0c8c360cb846b75";
 
         /// <summary>
         /// Fixtures/content (0.2.0) as a content identity, for the probe, which does not load content
@@ -295,9 +337,9 @@ public static class M2Fixtures
             CurrentContentVersion, CurrentContentHash,
             new[]
             {
-                "config.base_speeds", "config.simulation_tiers",
+                "config.base_speeds", "config.factions", "config.simulation_tiers",
                 "creature.beast.ash_ember_hound", "creature.beast.deer", "creature.beast.wolf_grey", "dialogue.fixture.warden_sera",
-                "effect.bleeding", "effect.weakened",
+                "effect.bleeding", "effect.weakened", "faction.fixture.keepers",
                 "item.potion.minor_healing",
                 "item.weapon.iron_sword",
                 "location.den_mouth", "npc.fixture.warden_sera", "quest.fixture.cull", "quest.fixture.wardens_errand", "recipe.alchemy.salve_minor",
@@ -315,6 +357,7 @@ public static class M2Fixtures
                 ["npc.fixture.warden"] = "npc.fixture.warden_sera",
                 ["dialogue.fixture.warden"] = "dialogue.fixture.warden_sera",
                 ["quest.fixture.errand"] = "quest.fixture.wardens_errand",
+                ["faction.fixture.wardens"] = "faction.fixture.keepers",
             });
 
         public static LoadContext Context(Registry registry) => new(Generator(), CurrentContent(), registry);

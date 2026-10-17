@@ -42,6 +42,21 @@ public class GameSaveTests
         (new Regex(@"^\$\.player\.Identity$"), """{"Pronouns":"They","PeopleId":"people.veth","BodyPresetId":"body.default","CallId":null}"""),
         // Schema 19: every stack may carry a notable record; none before.
         (new Regex(@"^\$\.(player\.Inventory|world\.Created|world\.Containers\[\d+\]\.Items)\[\d+\]\.Notable$"), "null"),
+        // Schema 20: no faction was ever told anything - the empty ledger.
+        (new Regex(@"^\$\.player\.Factions$"), """{"NextActSeq":1,"Acts":[],"Knowledge":[],"Standing":[]}"""),
+        // Schema 21 (WP15a): every party member was a companion, aggressive, keeping to the leash, with no contract; no one was recovering
+        // or fallen.
+        (new Regex(@"^\$\.player\.Companions\[\d+\]\.Membership$"), "\"Companion\""),
+        (new Regex(@"^\$\.player\.Companions\[\d+\]\.Stance$"), "\"Aggressive\""),
+        (new Regex(@"^\$\.player\.Companions\[\d+\]\.Tactics$"), """{"KeepToLeash":true,"ProtectInjured":false,"HoldHealing":false}"""),
+        (new Regex(@"^\$\.player\.Companions\[\d+\]\.Contract$"), "null"),
+        (new Regex(@"^\$\.player\.Party$"), null),
+        // Schema 22: no economy was kept, so the markets start at their targets and the merchants with full purses, from content.
+        (new Regex(@"^\$\.world\.(Economy|Merchants)$"), null),
+        // Schema 23: an empty quick bar with nothing cleared off it; the world fills it from what is carried and known once it runs, not at
+        // the load.
+        (new Regex(@"^\$\.player\.QuickBar$"), "[null,null,null,null,null,null,null,null]"),
+        (new Regex(@"^\$\.player\.QuickBarCleared$"), "[]"),
     };
 
     [Fact]
@@ -78,9 +93,11 @@ public class GameSaveTests
         Assert.True(creatureRecords > 0, "the M6 save holds no creature records");
         int stacks = differences.Count(d => d.Contains(".Notable: ", StringComparison.Ordinal));
         Assert.True(stacks >= expected["player"]!["Inventory"]!.AsArray().Count, "every carried stack gains its (empty) notable record");
-// The posture and digest, four fields a record, the noises, the Waystones, the deeds, the identity, and each stack's notable record.
-        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 2, differences.Count);
-
+        // The posture and digest, four fields a record, the noises, the Waystones, the deeds, the identity, each stack's notable record,
+        // the faction ledger, the economy and merchants, four fields each party member and the party's ledger, the quick bar and its
+        // cleared record, and this branch's two space fields.
+        int members = expected["player"]!["Companions"]!.AsArray().Count;
+        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 1 + 2 + 4 * members + 1 + 2 + 2, differences.Count);
         // And it plays on: a fixed stretch of ticks, then a walk to the Ashen Waystone, with no observer failing, no body inside anything,
         // Tavar still at the character's side and every quest still answering the debugger.
         var simulation = session.Simulation!;

@@ -789,6 +789,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         {
             _context.Dispatch(new RecordDeed(new Deed(DeedKind.Killed, c.Definition.Id, 1, Domain.Crafting.Quality.Standard, null, tick)));
             _context.Dispatch(new CountUse());
+            _context.Dispatch(new RecordAct(Domain.Factions.ActKinds.CreatureKilled, c.Definition.Id, _context.State.Body.XMm, _context.State.Body.ZMm));
         }
         var definition = c.Definition;
         if (definition.XpValue > 0 && killer == _player)

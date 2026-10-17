@@ -164,13 +164,6 @@ internal sealed class ClockSystem : IAbstractAdvance
             log.Add(new AdvanceLine(toTick, AdvanceKinds.DaysPassed, string.Empty, days));
         _context.Events.Publish(new WorldTimeAdvanced(fromTick, toTick, days));
     }
-
-    /// <summary>World time passing at once - a journey by the stones (S-38). Nothing is simulated through it: what was due falls due on the next tick.</summary>
-    public string? Handle(AdvanceTime command)
-    {
-        _context.State.AdvanceClock(_owner, command.Ticks);
-        return null;
-    }
 }
 
 /// <summary>
@@ -368,6 +361,7 @@ internal sealed class InteractionSystem
             return site.LockedText;
         if (_context.Dispatch(new SetWorldFlag(cell, site.FlagId, 1)) is { } refused)
             return refused;
+        _context.Dispatch(new RecordAct(Domain.Factions.ActKinds.SwitchSet, site.FlagId, body.XMm, body.ZMm));
         _context.Events.Publish(new SwitchSet(_player, site.Key, tick));
         return null;
     }
@@ -482,7 +476,7 @@ internal sealed class ProgressionSystem
         var result = ProgressionEngine.Practice(_context.State.Progression, command.Practice, _context.Setup.Progression);
         _context.State.SetProgression(_owner, result.Progression);
         _context.Events.Publish(new SkillPracticed(command.Practice.SkillId, result.XpGained,
-            ProgressionEngine.SkillLevel(result.Progression, command.Practice.SkillId), command.Practice.Tick));
+            ProgressionEngine.SkillLevel(result.Progression, command.Practice.SkillId), result.LevelsGained, command.Practice.Tick));
         return null;
     }
 

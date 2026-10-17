@@ -7,6 +7,7 @@ using UNNAMED.Domain;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
+using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
@@ -80,6 +81,39 @@ public sealed record CompanionRecord(string NpcId, CompanionOrder Order, Compani
     public long LastCombatTick { get; init; }
 
     public ImmutableArray<TrailMark> Trail { get; init; } = ImmutableArray<TrailMark>.Empty;
+
+    /// <summary>Why they travel with the character (WP15a): a companion, a hireling under contract, or a temporary ally.</summary>
+    public PartyMembership Membership { get; init; } = PartyMembership.Companion;
+
+    /// <summary>How readily they fight (WP15a).</summary>
+    public CompanionStance Stance { get; init; } = CompanionStance.Aggressive;
+
+    /// <summary>The standing rules they keep (WP15a).</summary>
+    public PartyTactics Tactics { get; init; } = PartyTactics.Default;
+
+    /// <summary>A hireling's contract (WP15a); null for anyone else.</summary>
+    public HirelingContract? Contract { get; init; }
+}
+
+/// <summary>A companion gravely wounded (DN9): away at home until <see cref="UntilTick"/>, recovering, and not to be asked along before.</summary>
+public sealed record RecoveryRecord(string NpcId, long UntilTick);
+
+/// <summary>
+/// What the party has lost and who is mending (WP15a): companions recovering at home from a grave wound, and the hirelings who died in
+/// the character's service (DN9) - who stay dead, so are never put back in the world.
+/// </summary>
+public sealed record PartyLedger(ImmutableArray<RecoveryRecord> Recovering, ImmutableArray<string> Fallen)
+{
+    public static readonly PartyLedger Empty = new(ImmutableArray<RecoveryRecord>.Empty, ImmutableArray<string>.Empty);
+
+    /// <summary>Sorted, so equal ledgers are equal records and digests.</summary>
+    public PartyLedger Sorted() => new(Recovering.OrderBy(r => r.NpcId, StringComparer.Ordinal).ToImmutableArray(),
+        Fallen.OrderBy(f => f, StringComparer.Ordinal).ToImmutableArray());
+
+    public bool Equals(PartyLedger? other) =>
+        other is not null && Recovering.SequenceEqual(other.Recovering) && Fallen.SequenceEqual(other.Fallen);
+
+    public override int GetHashCode() => HashCode.Combine(Recovering.Length, Fallen.Length);
 }
 
 public static class DiscoveryMethods
@@ -221,12 +255,68 @@ public sealed record PlayerRecord
             bool down = c.Condition == CompanionCondition.Downed;
             if (!DefinitionId.IsValid(c.NpcId) || !c.NpcId.StartsWith("npc.", StringComparison.Ordinal) || !Enum.IsDefined(c.Order) || !Enum.IsDefined(c.Condition)
                 || c.FacingMdeg is < 0 or >= 360_000 || c.Health < 0 || down != (c.Health == 0) || c.DownedTick < 0 || (!down && c.DownedTick != 0)
-                || c.StuckTicks < 0 || c.LastCombatTick < 0 || c.Trail.IsDefault)
+                || c.StuckTicks < 0 || c.LastCombatTick < 0 || c.Trail.IsDefault || !Enum.IsDefined(c.Membership) || !Enum.IsDefined(c.Stance)
+                || c.Tactics is null || (c.Membership == PartyMembership.Hireling) != (c.Contract is not null) || c.Contract is { } k && !ValidContract(k))
                 throw new ArgumentException($"Invalid companion record for {c.NpcId}", nameof(companions));
         }
         if (Companions.Select(c => c.NpcId).Distinct(StringComparer.Ordinal).Count() != Companions.Length)
             throw new ArgumentException("A companion is recorded once", nameof(companions));
     }
+
+    private static bool ValidContract(HirelingContract k) =>
+        Enum.IsDefined(k.Role) && k.Days >= 1 && k.DailyWage >= 0 && !string.IsNullOrWhiteSpace(k.LootRule) && k.DaysServed >= 0 && k.DaysServed < k.Days
+        && k.UnpaidDays >= 0 && k.Purse >= 0 && k.WorkSite is not "" && (k.RecipeId is null || DefinitionId.IsValid(k.RecipeId))
+        && k.Supply.All(kv => DefinitionId.IsValid(kv.Key) && kv.Value > 0);
+
+    /// <summary>
+    /// What the party has lost and who is mending (WP15a): sorted, each NPC once, and none of them in the party now.
+    /// </summary>
+    public PartyLedger Party
+    {
+        get => _party;
+        init
+        {
+            var party = (value ?? throw new ArgumentNullException(nameof(Party))).Sorted();
+            var ids = party.Recovering.Select(r => r.NpcId).Concat(party.Fallen).ToList();
+            if (ids.Any(id => !DefinitionId.IsValid(id) || !id.StartsWith("npc.", StringComparison.Ordinal)) || ids.Distinct(StringComparer.Ordinal).Count() != ids.Count
+                || party.Recovering.Any(r => r.UntilTick < 0) || ids.Any(id => Companions.Any(c => c.NpcId == id)))
+                throw new ArgumentException("Invalid party ledger: each NPC recovering or fallen once, and not in the party", nameof(Party));
+            _party = party;
+        }
+    }
+
+    private readonly PartyLedger _party = PartyLedger.Empty;
+
+    /// <summary>
+    /// The eight quick slots (WP9; schema 23), each empty or holding a usable item, a known formula or a known technique by definition ID,
+    /// nothing twice. A character before the bar has it empty.
+    /// </summary>
+    public ImmutableArray<string?> QuickBar
+    {
+        get => _quickBar;
+        init => _quickBar = Domain.Progression.QuickBar.IsValid(value) ? value
+            : throw new ArgumentException("A quick bar is eight slots, each empty or holding one item, formula or technique once", nameof(QuickBar));
+    }
+
+    private readonly ImmutableArray<string?> _quickBar = Domain.Progression.QuickBar.Empty;
+
+    /// <summary>
+    /// What the player cleared off the quick bar on purpose (schema 23), sorted: the bar offers none of these a slot, at a login either,
+    /// until the player puts it back - or, an item, until it is next picked up after leaving the pack.
+    /// </summary>
+    public ImmutableArray<string> QuickBarCleared
+    {
+        get => _quickBarCleared;
+        init
+        {
+            var cleared = value.IsDefault ? throw new ArgumentNullException(nameof(QuickBarCleared)) : value.Order(StringComparer.Ordinal).ToImmutableArray();
+            if (cleared.Any(id => !Domain.Progression.QuickBar.CanHold(id)) || cleared.Distinct(StringComparer.Ordinal).Count() != cleared.Length)
+                throw new ArgumentException("A quick bar's cleared record holds items, formulas or techniques, each once", nameof(QuickBarCleared));
+            _quickBarCleared = cleared;
+        }
+    }
+
+    private readonly ImmutableArray<string> _quickBarCleared = ImmutableArray<string>.Empty;
 
     /// <summary>
     /// The appearance seed a character gets when nothing chose one: derived from its ULID, so it is
@@ -246,32 +336,32 @@ public sealed record PlayerRecord
         var held = entries.Select(e => e.ItemId).ToHashSet();
         // An equipped item whose entry the pass dropped is unequipped with it, never left dangling.
         return new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, entries, Progression, FacingMdeg, Discoveries,
-            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity };
+            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared };
     }
 
     /// <summary>The same player with different progression (schema 4; the definition-ID pass rewrites its IDs too).</summary>
     public PlayerRecord WithProgression(CharacterProgression progression) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared };
 
     /// <summary>The same player with different discovery records (schema 5; the definition-ID pass rewrites their location IDs).</summary>
     public PlayerRecord WithDiscoveries(IEnumerable<DiscoveryRecord> discoveries) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared };
 
     /// <summary>The same player with different active effects (schema 7; the definition-ID pass rewrites their effect IDs).</summary>
     public PlayerRecord WithEffects(IEnumerable<ActiveEffect> effects) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared };
 
     /// <summary>The same player with different relationships and conversation memory (schema 10; the definition-ID pass rewrites their IDs).</summary>
     public PlayerRecord WithSocial(IEnumerable<RelationshipValue> relationships, IEnumerable<ConversationMemory> conversations) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, relationships, conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, relationships, conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared };
 
     /// <summary>The same player with different quests (schema 11; the definition-ID pass rewrites their quest IDs).</summary>
     public PlayerRecord WithQuests(IEnumerable<QuestState> quests) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared };
 
     /// <summary>The same player with different companions (schema 12; the definition-ID pass rewrites their NPC IDs).</summary>
     public PlayerRecord WithCompanions(IEnumerable<CompanionRecord> companions) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared };
 
     public EntityId Id { get; }
     public string Name { get; }
@@ -467,6 +557,54 @@ public sealed record PlayerRecord
     public PlayerRecord WithDeeds(IEnumerable<DeedTally> deeds) => this with { Deeds = deeds.ToImmutableArray() };
 
     /// <summary>
+    /// The character's faction ledger (WP6; schema 20): the acts some faction reacts to, in sequence; what each faction knows of them, by
+    /// knower then act; and the standing each holds, by faction, never 0. A tier is derived from points when read, never saved.
+    /// </summary>
+    public FactionLedger Factions
+    {
+        get => _factions;
+        init
+        {
+            var ledger = value ?? throw new ArgumentNullException(nameof(Factions));
+            if (ledger.NextActSeq < 1 || ledger.Acts.IsDefault || ledger.Knowledge.IsDefault || ledger.Standing.IsDefault)
+                throw new ArgumentException("A faction ledger counts acts from 1 and holds its lists", nameof(Factions));
+            long previous = 0;
+            foreach (var a in ledger.Acts)
+            {
+                if (a.Seq <= previous || a.Seq >= ledger.NextActSeq || !ActKinds.Built.Contains(a.Kind) || !DefinitionId.IsValid(a.Subject)
+                    || string.IsNullOrEmpty(a.CellKey) || a.Tick < 0)
+                    throw new ArgumentException($"Invalid act {a}: acts are built kinds, in ascending sequence below the next", nameof(Factions));
+                previous = a.Seq;
+            }
+            var acts = ledger.Acts.Select(a => a.Seq).ToHashSet();
+            foreach (var k in ledger.Knowledge)
+            {
+                if (!IsFaction(k.Knower) || !acts.Contains(k.Act) || !Identities.All.Contains(k.Identity) || !KnowledgeSources.All.Contains(k.Source)
+                    || (k.Via is not null && (!DefinitionId.IsValid(k.Via) || !k.Via.StartsWith("npc.", StringComparison.Ordinal))) || k.Tick < 0)
+                    throw new ArgumentException($"Invalid faction knowledge {k}", nameof(Factions));
+            }
+            if (!ledger.Knowledge.SequenceEqual(ledger.Knowledge.OrderBy(k => k.Knower, StringComparer.Ordinal).ThenBy(k => k.Act))
+                || ledger.Knowledge.Select(k => (k.Knower, k.Act)).Distinct().Count() != ledger.Knowledge.Length)
+                throw new ArgumentException("A faction knows an act once, rows by knower then act", nameof(Factions));
+            foreach (var st in ledger.Standing)
+            {
+                if (!IsFaction(st.FactionId) || st.Points == 0 || st.Points < FactionLedger.MinPoints || st.Points > FactionLedger.MaxPoints)
+                    throw new ArgumentException($"Invalid standing {st}", nameof(Factions));
+            }
+            if (!ledger.Standing.Select(st => st.FactionId).SequenceEqual(ledger.Standing.Select(st => st.FactionId).Distinct().OrderBy(f => f, StringComparer.Ordinal)))
+                throw new ArgumentException("A standing is held once per faction, by faction", nameof(Factions));
+            _factions = ledger;
+        }
+    }
+
+    private readonly FactionLedger _factions = FactionLedger.Empty;
+
+    private static bool IsFaction(string id) => DefinitionId.IsValid(id) && id.StartsWith("faction.", StringComparison.Ordinal);
+
+    /// <summary>The same player with a different faction ledger (schema 20; the definition-ID pass rewrites its IDs).</summary>
+    public PlayerRecord WithFactions(FactionLedger factions) => this with { Factions = factions };
+
+    /// <summary>
     /// Who the character is besides their name (schema 17): pronouns, people, body preset and Call, as the creator made them. A character
     /// from before the creator is "they", a Veth of the default body, with no Call.
     /// </summary>
@@ -530,6 +668,17 @@ public sealed record PlayerRecord
                     .Add(c.DownedTick).Add(c.StuckTicks).Add(c.LastCombatTick).Add(c.Trail.Length);
                 foreach (var mark in c.Trail)
                     h.Add(mark.XMm).Add(mark.ZMm);
+                h.Add(PartyKeys.Key(c.Membership)).Add(PartyKeys.Key(c.Stance)).Add(c.Tactics.KeepToLeash ? 1 : 0).Add(c.Tactics.ProtectInjured ? 1 : 0)
+                    .Add(c.Tactics.HoldHealing ? 1 : 0);
+                if (c.Contract is { } k)
+                {
+                    h.Add(PartyKeys.Key(k.Role)).Add(k.Days).Add(k.DailyWage).Add(k.LootRule).Add(k.DaysServed).Add(k.UnpaidDays).Add(k.Purse)
+                        .Add(k.WorkSite ?? "-").Add(k.RecipeId ?? "-").Add(k.Supply.Count);
+                    foreach (var (item, count) in k.Supply)
+                        h.Add(item).Add(count);
+                }
+                else
+                    h.Add("no-contract");
             }
             h.Add(StanceKeys.Key(Posture.Stance)).Add(Posture.Airborne ? 1 : 0).Add(Posture.AirMs);
             h.Add(Waystones.Length);
@@ -546,6 +695,27 @@ public sealed record PlayerRecord
             foreach (var d in Deeds)
                 h.Add(DeedKeys.Key(d.Kind)).Add(d.SubjectId).Add(d.NpcId ?? "-").Add(d.Count).Add(d.LastTick);
             h.Add(PronounKeys.Key(Identity.Pronouns)).Add(Identity.PeopleId).Add(Identity.BodyPresetId).Add(Identity.CallId ?? "-");
+            h.Add(Factions.NextActSeq).Add(Factions.Acts.Length);
+            foreach (var a in Factions.Acts)
+                h.Add(a.Seq).Add(a.Kind).Add(a.Subject).Add(a.CellKey).Add(a.XMm).Add(a.ZMm).Add(a.Tick);
+            h.Add(Factions.Knowledge.Length);
+            foreach (var k in Factions.Knowledge)
+                h.Add(k.Knower).Add(k.Act).Add(k.Identity).Add(k.Source).Add(k.Via ?? "-").Add(k.Tick).Add(k.Delta);
+            h.Add(Factions.Standing.Length);
+            foreach (var st in Factions.Standing)
+                h.Add(st.FactionId).Add(st.Points);
+            h.Add(Party.Recovering.Length);
+            foreach (var r in Party.Recovering)
+                h.Add(r.NpcId).Add(r.UntilTick);
+            h.Add(Party.Fallen.Length);
+            foreach (string fallen in Party.Fallen)
+                h.Add(fallen);
+            h.Add(QuickBar.Length);
+            foreach (string? slot in QuickBar)
+                h.Add(slot ?? "-");
+            h.Add(QuickBarCleared.Length);
+            foreach (string cleared in QuickBarCleared)
+                h.Add(cleared);
             return h.Finish();
         }
     }

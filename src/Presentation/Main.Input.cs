@@ -107,6 +107,8 @@ public partial class Main
                 Toggle(_inventory, () => OpenInventory(null));
             if (Input.IsActionJustPressed("character"))
                 Toggle(_character, () => Show(_character));
+            if (Input.IsActionJustPressed("skills"))
+                Toggle(_skills, () => ShowSkills(null));
             if (Input.IsActionJustPressed("journal"))
                 Toggle(_journal, () => Show(_journal));
             if (Input.IsActionJustPressed("map"))
@@ -158,6 +160,11 @@ public partial class Main
             Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
             Input.GetActionStrength("move_forward") - Input.GetActionStrength("move_back"));
         var gait = ReadGait();
+        if (HeldByTheOpening(stick))
+        {
+            _controller.Steer(_camera, Vector2.Zero, gait);
+            return;
+        }
         // A sprint pressed on ends where the running does.
         if (stick == Vector2.Zero && !_autorun)
             _toggled["sprint"] = false;
@@ -178,19 +185,15 @@ public partial class Main
         bool captured = Input.MouseMode == Input.MouseModeEnum.Captured;
         bool holding = captured && Engaged("guard");
         bool swing = captured && Input.IsActionJustPressed("attack");
-        int slot = captured ? Array.FindIndex(CastKeys, key => Input.IsActionJustPressed(key)) : -1;
-        _controller.Steer(_camera, stick, gait, faceCamera: holding || swing || slot >= 0 || combat.Phase == CombatPhase.Windup);
+        // The quick bar (WP9): a slot's key uses what is on it - an item, or a formula worked where the camera looks, like a swing (M3e).
+        int slot = Array.FindIndex(QuickKeys, key => Input.IsActionJustPressed(key));
+        string? quick = slot >= 0 ? _session.Simulation!.QuickBar[slot] : null;
+        bool working = captured && quick is not null && _session.Setup.Magic.Formulas.ContainsKey(quick);
+        _controller.Steer(_camera, stick, gait, faceCamera: holding || swing || working || combat.Phase == CombatPhase.Windup);
         if (swing)
             _controller.Attack();
         if (slot >= 0)
-        {
-            // A working goes where the camera looks, like a swing (M3e).
-            var hotbar = _controller.Formulas();
-            if (slot < hotbar.Length)
-                _controller.Cast(hotbar[slot]);
-            else
-                _hud.Toast("No formula known for that key", 2);
-        }
+            UseQuickSlot(slot, quick, captured);
         bool guard = holding && !combat.Weapon.Ranged;
         if (guard != combat.Blocking && (!guard || combat.Phase == CombatPhase.Idle))
             _controller.Guard(guard);
@@ -201,11 +204,6 @@ public partial class Main
         }
         if (Input.IsActionJustPressed("use") && !_controller.UseConsumable())
             _hud.Toast("Nothing to use", 2);
-        for (int q = 0; q < QuickKeys.Length; q++)
-        {
-            if (Input.IsActionJustPressed(QuickKeys[q]) && !_controller.UseQuick(q))
-                _hud.Toast($"Quick slot {q + 1} is empty - it fills with what you carry to use", 2);
-        }
 
         if (Input.IsActionJustPressed("interact") && _controller.FocusOn(_camera) is { } focus)
         {
@@ -266,6 +264,28 @@ public partial class Main
             QuickSave();
     }
 
+    /// <summary>
+    /// What a quick slot's key does: an item is used from its first carried stack, a formula worked (only with the mouse in the game, so
+    /// it goes where the camera looks), and an empty slot, an item none of which is left or a technique says why nothing happened.
+    /// </summary>
+    private void UseQuickSlot(int slot, string? id, bool captured)
+    {
+        if (id is null)
+            _hud.Toast($"Quick slot {HelpPanel.Key(QuickKeys[slot])} is empty - put something on it from Skills [{HelpPanel.Key("skills")}] or the inventory", 3);
+        else if (_session.Setup.Magic.Formulas.ContainsKey(id))
+        {
+            if (captured)
+                _controller.Cast(id);
+        }
+        else if (id.StartsWith("item.", StringComparison.Ordinal))
+        {
+            if (!_controller.UseItem(id))
+                _hud.Toast($"No {Names.Of(_session, id)} left", 2);
+        }
+        else
+            _hud.Toast($"{Names.Of(_session, id)} is not worked from the quick bar yet", 3);
+    }
+
     private static void DefineInput()
     {
         void Bind(string action, params Key[] keys)
@@ -285,6 +305,7 @@ public partial class Main
         Bind("jump", Key.Space);
         Bind("crouch", Key.X);            // a toggle by default (the owner's M6 playtest; Settings can make it a hold); C stays the dodge
         Bind("character", Key.K);
+        Bind("skills", Key.P);
         Bind("help", Key.F1);
         Bind("take_all", Key.R);          // in a container's panel
         Bind("first_person", Key.V);
@@ -301,12 +322,10 @@ public partial class Main
         Bind("dodge", Key.C);
         Bind("use", Key.H);
         Bind("companion_order", Key.G);   // follow or wait (content bible §9: no radial menu)
-        for (int i = 0; i < CastKeys.Length; i++)
-            Bind(CastKeys[i], Key.Key4 + i);   // the content bible's hotbar: 4 to 6 are the formulas
         for (int n = 1; n <= 9; n++)
             Bind($"reply_{n}", Key.Key1 + n - 1);   // in a conversation, the number keys answer
         for (int i = 0; i < QuickKeys.Length; i++)
-            Bind(QuickKeys[i], Key.Key1 + i);   // outside one, 1 to 3 are the quick slots (the owner's first playtest)
+            Bind(QuickKeys[i], Key.Key1 + i);   // outside one, 1 to 8 are the quick bar (WP9; PJ09)
         foreach (var (action, button) in new[] { ("attack", MouseButton.Left), ("guard", MouseButton.Right) })
         {
             if (!InputMap.HasAction(action))

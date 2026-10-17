@@ -925,6 +925,19 @@
    "note": "The wolves are the prototype's (not the bible's five): the frost wolf's body, and the hound's voice until a wolf set exists."
   }
  },
+ "player_bodies": {
+  "comment": "The character creator's bodies (WP2; owner decision D3 and OD15:20-21). A body type and a build make the body preset a character keeps, body.<type>.<build>; body.default (every character made before the creator) is drawn as 'default'. A type lists its models per player family, the first one installed drawn: production is the MPFB cast the player plays (people.player), metahuman the --visual player=metahuman_* bodies - male Veth the MetaHuman blend Victor x Trey (mh_veth_m), female Sunita x Tuya (mh_veth_f), owner 2026-10-15. A type none of whose models is installed is offered disabled. A build is a bounded girth on its type's body (Art/BuildShape.cs) until the archived build blends are exported as models of their own.",
+  "default": "body.veth_m.average",
+  "types": [
+   { "id": "veth_m", "label": "Masculine", "models": { "production": [ "pc_veth_m_body_c" ], "metahuman": [ "mh_veth_m" ] } },
+   { "id": "veth_f", "label": "Feminine", "models": { "production": [ "pc_veth_f" ], "metahuman": [ "mh_veth_f" ] } }
+  ],
+  "builds": [
+   { "id": "lean", "label": "Lean", "girth": 0.93 },
+   { "id": "average", "label": "Average", "girth": 1.0 },
+   { "id": "heavy", "label": "Heavy", "girth": 1.09 }
+  ]
+ },
  "people": {
   "player": {
    "model": "player_veth_wanderer",
@@ -1160,6 +1173,7 @@
   "moment.handed_over": "ui.moment.handed_over",
   "quick.empty": "ui.quick.empty",
   "panel.character": "ui.panel.character",
+  "panel.skills": "ui.panel.techniques",
   "panel.inventory": "ui.panel.inventory",
   "panel.journal": "ui.panel.journal",
   "panel.map": "ui.panel.map",

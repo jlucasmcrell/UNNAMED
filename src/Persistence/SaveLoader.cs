@@ -9,6 +9,8 @@ using System.Text.Json.Nodes;
 using MessagePack;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Factions;
+using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
 using UNNAMED.Persistence.Sections;
@@ -146,7 +148,14 @@ internal static class SaveLoader
         var (entities, created, containers, creatures, noises) = DecodeOrQuarantine(sections[SaveFormat.Entities], SaveFormat.Entities,
             SectionCodec.DecodeEntitySection, quarantined, report, (ImmutableArray<EntityDeltaRecord>.Empty, ImmutableArray<CreatedEntityRecord>.Empty,
                 ImmutableArray<ContainerRecord>.Empty, ImmutableArray<CreatureRecord>.Empty, ImmutableArray<Noise>.Empty));
-        var delta = new DeltaSnapshot(cells, entities) { Created = created, Containers = containers, Creatures = creatures, Noises = noises };
+        // The economy (schema 22): its markets and goods are matched against content when the world starts (EconomyEngine.Reconcile),
+        // which drops what content no longer defines, so they take no part in the definition-ID pass.
+        var (economy, merchants) = DecodeOrQuarantine(quarantined.Contains(SectionName(SaveFormat.Entities)) ? null : sections[SaveFormat.Entities],
+            SaveFormat.Entities, SectionCodec.DecodeEconomy, quarantined, report, ((EconomyState?)null, ImmutableArray<MerchantState>.Empty));
+        var delta = new DeltaSnapshot(cells, entities)
+        {
+            Created = created, Containers = containers, Creatures = creatures, Noises = noises, Economy = economy, Merchants = merchants,
+        };
         PlayerRecord player;
         try
         {
@@ -358,12 +367,41 @@ internal static class SaveLoader
                 quests[id] = resolved;
         }
 
-        // Companions (schema 12): a companion whose NPC was removed goes with it; two records that resolve to one NPC keep the first.
+        // Companions (schema 12): a companion whose NPC was removed goes with it; two records that resolve to one NPC keep the first. A
+        // hireling's contract (schema 20) names a recipe and the materials they were handed: a removed recipe leaves them with no work, and
+        // removed materials are lost; two that resolve to one are summed.
         var companions = new SortedDictionary<string, CompanionRecord>(StringComparer.Ordinal);
         foreach (var companion in player.Companions)
         {
-            if (Resolve(companion.NpcId, "player companion") is { } id)
-                companions.TryAdd(id, companion with { NpcId = id });
+            if (Resolve(companion.NpcId, "player companion") is not { } id)
+                continue;
+            var contract = companion.Contract;
+            if (contract is not null)
+            {
+                string? recipe = contract.RecipeId is { } r ? Resolve(r, "player companion (contract recipe)") : null;
+                var supply = ImmutableSortedDictionary.Create<string, int>(StringComparer.Ordinal);
+                foreach (var (item, count) in contract.Supply)
+                {
+                    if (Resolve(item, "player companion (contract supply)") is { } current)
+                        supply = supply.SetItem(current, (int)Math.Min(int.MaxValue, (long)supply.GetValueOrDefault(current) + count));
+                }
+                contract = contract with { RecipeId = recipe, WorkSite = recipe is null && contract.RecipeId is not null ? null : contract.WorkSite, Supply = supply };
+            }
+            companions.TryAdd(id, companion with { NpcId = id, Contract = contract });
+        }
+
+        // The party's ledger (schema 20): someone recovering or fallen whose NPC was removed goes with them; a party member is never also in it.
+        var recovering = new SortedDictionary<string, RecoveryRecord>(StringComparer.Ordinal);
+        foreach (var recovery in player.Party.Recovering)
+        {
+            if (Resolve(recovery.NpcId, "player party (recovering)") is { } id && !companions.ContainsKey(id))
+                recovering.TryAdd(id, recovery with { NpcId = id });
+        }
+        var fallen = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (string npc in player.Party.Fallen)
+        {
+            if (Resolve(npc, "player party (fallen)") is { } id && !companions.ContainsKey(id) && !recovering.ContainsKey(id))
+                fallen.Add(id);
         }
 
         // Deeds (schema 16): a deed whose subject or NPC was removed goes with it; two tallies that resolve to one are summed, keeping
@@ -382,12 +420,63 @@ internal static class SaveLoader
                 : resolved;
         }
 
-        return (player.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values).WithEffects(effects.Values)
-                .WithSocial(relationships.Values, conversations.Values).WithQuests(quests.Values).WithCompanions(companions.Values)
-                .WithDeeds(deeds.Values),
+        // The faction ledger (schema 20): an act whose subject was removed goes, with what any faction knew of it; a faction removed takes
+        // its knowledge and standing with it; a member removed leaves the knowledge, told by no one now named. Two factions that resolve to
+        // one keep the first row for an act and sum their standing, within the range.
+        var ledger = player.Factions;
+        var acts = new List<ActRecord>();
+        foreach (var act in ledger.Acts)
+        {
+            if (Resolve(act.Subject, $"player act {act.Seq} ({act.Kind})") is { } subject)
+                acts.Add(act with { Subject = subject });
+        }
+        var kept = acts.Select(a => a.Seq).ToHashSet();
+        var knowledge = new SortedDictionary<(string Knower, long Act), FactionKnowledge>(
+            Comparer<(string Knower, long Act)>.Create((a, b) => string.CompareOrdinal(a.Knower, b.Knower) is var c && c != 0 ? c : a.Act.CompareTo(b.Act)));
+        foreach (var row in ledger.Knowledge.Where(k => kept.Contains(k.Act)))
+        {
+            if (Resolve(row.Knower, $"faction knowledge of act {row.Act}") is not { } knower)
+                continue;
+            string? via = row.Via is { } told ? Resolve(told, $"faction knowledge of act {row.Act} (told to)") : null;
+            knowledge.TryAdd((knower, row.Act), row with { Knower = knower, Via = via });
+        }
+        var standing = new SortedDictionary<string, int>(StringComparer.Ordinal);
+        foreach (var row in ledger.Standing)
+        {
+            if (Resolve(row.FactionId, "player standing") is { } faction)
+                standing[faction] = Math.Clamp(standing.GetValueOrDefault(faction) + row.Points, FactionLedger.MinPoints, FactionLedger.MaxPoints);
+        }
+        var factions = new FactionLedger(ledger.NextActSeq, acts.ToImmutableArray(), knowledge.Values.ToImmutableArray(),
+            standing.Where(kv => kv.Value != 0).Select(kv => new FactionStanding(kv.Key, kv.Value)).ToImmutableArray());
+
+        // The quick bar (schema 23): a slot whose item, formula or technique was removed is emptied, and two that resolve to one keep the
+        // first; what was cleared off the bar stays cleared under its current ID, unless it is on the bar.
+        var bar = player.QuickBar.ToBuilder();
+        for (int slot = 0; slot < bar.Count; slot++)
+        {
+            if (bar[slot] is { } held && Resolve(held, $"quick slot {slot + 1}") is var id)
+                bar[slot] = id is not null && bar.Take(slot).All(earlier => earlier != id) ? id : null;
+        }
+        var cleared = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (string off in player.QuickBarCleared)
+        {
+            if (Resolve(off, "quick bar (cleared)") is { } id && !bar.Contains(id))
+                cleared.Add(id);
+        }
+
+        // The party ledger is set aside while the party is rewritten: a rename may bring the two together, which the record refuses.
+        var rewritten = player with { Party = PartyLedger.Empty };
+        rewritten = rewritten.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values).WithEffects(effects.Values)
+            .WithSocial(relationships.Values, conversations.Values).WithQuests(quests.Values).WithCompanions(companions.Values);
+        return (rewritten.WithDeeds(deeds.Values).WithFactions(factions) with
+            {
+                Party = new PartyLedger(recovering.Values.ToImmutableArray(), fallen.ToImmutableArray()),
+                QuickBar = bar.ToImmutable(), QuickBarCleared = cleared.ToImmutableArray(),
+            },
             new DeltaSnapshot(cells, entities.ToImmutable())
             {
                 Created = created.ToImmutable(), Containers = containers, Creatures = creatures.ToImmutable(), Noises = noises.ToImmutable(),
+                Economy = delta.Economy, Merchants = delta.Merchants,
             });
     }
 

@@ -1,0 +1,10 @@
+id: hint.away
+kind: hint
+schema: 1
+display_key: hint.away.text
+tags: [hint]
+notes: WP10 guidance (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.10 O1). Mechanics only, no lore; shown once, never modal.
+category: world
+trigger: away_sheet
+order: 0
+text: "The world went on while you were away, as it always will. The away log says what changed."

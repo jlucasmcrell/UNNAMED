@@ -3,7 +3,7 @@
 //
 // The exact player shape schema 16 wrote: written by the 15 -> 16 step and read by the 16 -> 17 step; the schema-16 fixture pins it. Its stacks are V18.Inventory; its
 // parts that schema 17 did not change are the current DTOs (ProgressionDto, DiscoveryDto, EquipmentDto, EffectDto,
-// RelationshipDto, ConversationDto, QuestDto, CompanionDto, PostureDto, WaystoneDto, DeedDto); the step that next changes one of those must
+// RelationshipDto, ConversationDto, QuestDto, V20.Companion, PostureDto, WaystoneDto, DeedDto); the step that next changes one of those must
 // freeze a copy of it first. Schema 17 left the other sections alone.
 
 using MessagePack;
@@ -29,7 +29,7 @@ public sealed class Player
     [Key("relationships")] public RelationshipDto[]? Relationships { get; set; }
     [Key("conversations")] public ConversationDto[]? Conversations { get; set; }
     [Key("quests")] public QuestDto[]? Quests { get; set; }
-    [Key("companions")] public CompanionDto[]? Companions { get; set; }
+    [Key("companions")] public V20.Companion[]? Companions { get; set; }
     [Key("posture")] public PostureDto? Posture { get; set; }
     [Key("waystones")] public WaystoneDto[]? Waystones { get; set; }
     [Key("return_point")] public string? ReturnPoint { get; set; }

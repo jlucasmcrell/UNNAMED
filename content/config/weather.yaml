@@ -1,0 +1,15 @@
+id: config.weather
+kind: config
+schema: 1
+display_key: config.weather.name
+tags: [config]
+notes: The weather (WP7; SYSTEMS_COMPLETENESS_PLAN §2.8 W3, D6 accepted). A pure function of the world seed, the region and the game hour; nothing but a cursor is saved. No survival effects.
+front_hours_min: 4                # a front lasts 4-12 game hours (D6)
+front_hours_max: 12
+span_hours: 24                    # fronts are laid out a game day at a time; a span is longer than the longest front
+weights:                          # how often each state is drawn; fold is reserved and has no weight
+  fair: 4
+  overcast: 3
+  rain: 2
+  fog: 1
+  wind: 2

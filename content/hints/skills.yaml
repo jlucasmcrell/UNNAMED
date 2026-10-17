@@ -1,0 +1,10 @@
+id: hint.skills
+kind: hint
+schema: 1
+display_key: hint.skills.text
+tags: [hint]
+notes: WP10 guidance (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.10 O1). Mechanics only, no lore; shown once, never modal.
+category: progression
+trigger: skill_practiced
+order: 0
+text: "Skills rise by use: the more you use one, the better it gets. No fee or teacher raises one."

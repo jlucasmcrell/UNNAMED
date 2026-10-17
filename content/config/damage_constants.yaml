@@ -23,3 +23,4 @@ ranged: { range_m: 40, recovery_s: 0.3 }                         # a shot resolv
 unarmed: { damage: [2, 3], damage_type: physical_blunt, reach: 1.2, attack_time: 0.6, stamina_cost: 4 }
 creature_leash_m: 40               # a creature gives up a chase this far from home
 death: { effect_ref: effect.weakened, respawn_delay_s: 4 }   # PROTOTYPE.md §5 step 7: return at the Ashen Waystone (content bible §18), weakened for 60 s; the body lies 4 s first (the death clip, then the fade)
+downed: { duration_s: 30, revive_percent: 40, hand_within_m: 16 }   # OD-13 = B (DCP:912): with a companion or hireling up within 16 m, health at nothing is 30 s downed, then they help the character up with 40%; with none, death as above

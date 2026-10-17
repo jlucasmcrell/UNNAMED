@@ -1,0 +1,10 @@
+id: hint.helping_up
+kind: hint
+schema: 1
+display_key: hint.helping_up.text
+tags: [hint]
+notes: WP10 guidance (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.10 O1). Mechanics only, no lore; shown once, never modal.
+category: party
+trigger: companion_downed
+order: 0
+text: "A downed companion can be helped up: reach them and press {key:interact} before they fall."

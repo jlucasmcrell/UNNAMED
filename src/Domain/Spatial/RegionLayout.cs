@@ -145,6 +145,12 @@ public sealed record RegionLayout(
     /// </remarks>
     public SpaceId SpaceId { get; init; } = SpaceId.Exterior;
 
+    /// <summary>
+    /// Where a new character who walks the road in first stands (PJ06 §5.1, B-min), or null when the region has no
+    /// opening and every character starts at <see cref="Spawn"/>.
+    /// </summary>
+    public Body? Opening { get; init; }
+
     public DoorSite? FindDoor(string key) => Doors.FirstOrDefault(d => d.Key == key);
 
     public WaystoneSite? FindWaystone(string key) => Waystones.FirstOrDefault(w => w.Key == key);

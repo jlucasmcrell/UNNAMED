@@ -290,6 +290,10 @@ internal sealed class QuestDebugger
                     ? $"touch the {stone.Name} ({Point(stone.ArrivalXMm, stone.ArrivalZMm)})"
                     : $"{w.StoneKey} is not in this region";
                 break;
+            case FactionReputation f:
+                yield return $"tell {Name(f.FactionId)} of what you have done, through one of its members; it is " +
+                    $"{Setup.Factions.Ladder.StandingTierOf(State.StandingOf(f.FactionId)).Key} ({State.StandingOf(f.FactionId)})";
+                break;
         }
     }
 
@@ -448,8 +452,25 @@ internal sealed class QuestDebugger
             (p.Order is { } order ? $", {Domain.Companions.CompanionKeys.Key(order)}ing" : ""),
         DeedCondition d => $"needs {d.SubjectId} {DeedKeys.Key(d.Kind)}{(d.NpcId is { } to ? " to " + to : "")} {(d.Negated ? "fewer than" : "at least")} {d.Count} " +
             $"time(s); it was {DeedSystem.Count(State, d.Kind, d.SubjectId, d.NpcId)}",
+        StandingCondition s => Standing(s),
+        ActDoneCondition a => $"needs the character to have {(a.Kind == Domain.Factions.ActKinds.SwitchSet ? "set" : "killed")} {a.Subject}; " +
+            $"the act log holds {(State.Factions.Acts.Any(x => x.Kind == a.Kind && x.Subject == a.Subject) ? "it" : "none")}",
         _ => condition.ToString(),
     };
+
+    private string Name(string factionId) => Setup.Factions.Factions.TryGetValue(factionId, out var faction) ? faction.Name : factionId;
+
+    /// <summary>A standing condition in words: "needs the Long Survey at accepted or better; it is neutral (0)".</summary>
+    private string Standing(StandingCondition s)
+    {
+        var ladder = Setup.Factions.Ladder;
+        string Key(int level) => ladder.Tiers.First(t => t.Level == level).Key;
+        string range = s.MaxLevel >= ladder.Tiers[0].Level ? $"at {Key(s.MinLevel)} or better"
+            : s.MinLevel <= ladder.Tiers[^1].Level ? $"at {Key(s.MaxLevel)} or worse"
+            : $"from {Key(s.MinLevel)} to {Key(s.MaxLevel)}";
+        int points = State.StandingOf(s.FactionId);
+        return $"needs {Name(s.FactionId)} {range}; it is {ladder.StandingTierOf(points).Key} ({points})";
+    }
 
     private string Recipe(RecipeDefinition recipe)
     {

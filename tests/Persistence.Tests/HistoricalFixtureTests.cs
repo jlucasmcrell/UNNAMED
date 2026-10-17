@@ -1,7 +1,9 @@
+using System.Collections.Immutable;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
@@ -18,7 +20,7 @@ namespace UNNAMED.Persistence.Tests;
 /// <summary>The committed historical fixtures (Fixtures/README.md) and the context they load under.</summary>
 internal static class Fixtures
 {
-    public const string ContentVersion = "0.2.8";
+    public const string ContentVersion = "0.2.9";
 
     public static string Root { get; } = FindRoot();
 
@@ -239,6 +241,16 @@ public class HistoricalFixtureTests
             Assert.Equal(("npc.fixture.warden_sera", CompanionOrder.Follow, CompanionCondition.Up, 64), (warden.NpcId, warden.Order, warden.Condition, warden.Health));
             Assert.Equal((148_750L, -41_500L, 45_000, 2, 4_950L), (warden.XMm, warden.ZMm, warden.FacingMdeg, warden.StuckTicks, warden.LastCombatTick));
             Assert.Equal(new[] { new TrailMark(149_250, -41_000), new TrailMark(149_750, -40_750), new TrailMark(150_250, -40_125) }, warden.Trail);
+            // Schema 21's party (WP15a): the warden is in Aelin's hire, a crafter at the hearth, the draughts handed over renamed on load;
+            // before it, everyone in the party was a companion, aggressive and keeping to the leash.
+            Assert.Equal(schema >= 21
+                    ? (PartyMembership.Hireling, CompanionStance.Defensive, new PartyTactics(false, true, false), new HirelingContract(HirelingRole.Crafter, 10, 7, PartyRules.WageOnly)
+                    {
+                        DaysServed = 3, UnpaidDays = 1, Purse = 21, WorkSite = "station.fixture_hearth", RecipeId = "recipe.alchemy.salve_minor",
+                        Supply = ImmutableSortedDictionary.Create<string, int>(StringComparer.Ordinal).Add("item.potion.minor_healing", 2),
+                    })
+                    : (PartyMembership.Companion, CompanionStance.Aggressive, PartyTactics.Default, (HirelingContract?)null),
+                (warden.Membership, warden.Stance, warden.Tactics, warden.Contract));
         }
         else
         {
@@ -275,6 +287,12 @@ public class HistoricalFixtureTests
                 : new CharacterIdentity(Pronouns.They, "people.veth", "body.default", null),
             loaded.Player.Identity);
         Assert.Equal("Aelin", loaded.Player.Name);
+        // Schema 21's ledger: no one recovering or fallen - the fixture pack has one NPC, and the warden is in the party.
+        Assert.Equal(PartyLedger.Empty, loaded.Player.Party);
+        // Schema 23's quick bar (WP9): the firebolt on key 4 and the draught cleared off the bar, both under their current names; before
+        // it, an empty bar with nothing cleared, which what she carries and knows fills once she is in the world.
+        Assert.Equal(schema >= 23 ? new string?[] { null, null, null, "spell.ember.bolt", null, null, null, null } : new string?[8], loaded.Player.QuickBar);
+        Assert.Equal(schema >= 23 ? new[] { "item.potion.minor_healing" } : Array.Empty<string>(), loaded.Player.QuickBarCleared);
         // Schema 18's persistent clock (WP11): saved at a known moment after a login that caught up a game day and a quarter; before it, the
         // moment the save was taken is its build_timestamp, to the second, and no login had caught anything up.
         if (schema >= 18)
@@ -299,11 +317,63 @@ public class HistoricalFixtureTests
             Assert.Equal(schema >= 19 ? (2, new NotableRecord("Iron Sword", ProvenanceKind.Crafted, "recipe.fixture.sword", 2_000) { Maker = "Aelin" }) : (0, null),
                 (blade.Quality, blade.Notable));
         }
+        // Schema 22's economy (WP14): the vale's market on day 3 with four draughts on the road, and its trader's purse. Before it, a save
+        // held no economy: the markets start at their targets when the world does.
+        var economy = loaded.World.Economy;
+        if (schema >= 22)
+        {
+            Assert.NotNull(economy);
+            Assert.Equal((3L, 14L, 3L), (economy!.Day, economy.Markets["market.fixture.vale"].Stock["item.potion.minor_healing"],
+                economy.Markets["market.fixture.vale"].SoldByCharacter["item.potion.minor_healing"]));
+            Assert.Equal(4, Assert.Single(economy.Shipments).Count);
+            Assert.Equal(new UNNAMED.Domain.Economy.MerchantState("merchant.fixture.trader", 75, 2, 1, true), Assert.Single(loaded.World.Merchants));
+        }
+        else
+        {
+            Assert.Null(economy);
+            Assert.Empty(loaded.World.Merchants);
+        }
+
+        // Schema 20's faction ledger (WP6): one ash hound killed at the ridge and told to the warden, so the keepers - the wardens, when it
+        // was written - regard Aelin at +100; every name renamed to today's. Before it, no act and every faction neutral.
+        Assert.Equal(schema >= 20
+                ? new FactionLedger(2,
+                    ImmutableArray.Create(new ActRecord(1, ActKinds.CreatureKilled, "creature.beast.ash_ember_hound", "r_0_0:c_00_02", 21_500, 4_250, 4_800)),
+                    ImmutableArray.Create(new FactionKnowledge("faction.fixture.keepers", 1, Identities.Identified, KnowledgeSources.Reported,
+                        "npc.fixture.warden_sera", 4_900, 100)),
+                    ImmutableArray.Create(new FactionStanding("faction.fixture.keepers", 100)))
+                : FactionLedger.Empty,
+            loaded.Player.Factions);
 
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);
-        // v4 names the potion twice - held, and first produced - and the report counts each occurrence.
+        // v4 names the potion twice - held, and first produced - and the report counts each occurrence; v21 a third time, in the
+        // warden's contract supply; v23 the potion and the firebolt once more, on the quick bar.
         var aliases = schema switch
         {
+            >= 23 => new[]
+            {
+                "creature.beast.ash_hound -> creature.beast.ash_ember_hound x4", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",
+                "effect.weakness -> effect.weakened", "faction.fixture.wardens -> faction.fixture.keepers x2",
+                "item.potion.healing_draught -> item.potion.minor_healing x8", "location.wolf_den -> location.den_mouth",
+                "npc.fixture.warden -> npc.fixture.warden_sera x5", "quest.fixture.errand -> quest.fixture.wardens_errand",
+                "spell.ember.firebolt -> spell.ember.bolt x2",
+            },
+            >= 21 => new[]
+            {
+                "creature.beast.ash_hound -> creature.beast.ash_ember_hound x4", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",
+                "effect.weakness -> effect.weakened", "faction.fixture.wardens -> faction.fixture.keepers x2",
+                "item.potion.healing_draught -> item.potion.minor_healing x7", "location.wolf_den -> location.den_mouth",
+                "npc.fixture.warden -> npc.fixture.warden_sera x5", "quest.fixture.errand -> quest.fixture.wardens_errand",
+                "spell.ember.firebolt -> spell.ember.bolt",
+            },
+            >= 20 => new[]
+            {
+                "creature.beast.ash_hound -> creature.beast.ash_ember_hound x4", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",
+                "effect.weakness -> effect.weakened", "faction.fixture.wardens -> faction.fixture.keepers x2",
+                "item.potion.healing_draught -> item.potion.minor_healing x6", "location.wolf_den -> location.den_mouth",
+                "npc.fixture.warden -> npc.fixture.warden_sera x5", "quest.fixture.errand -> quest.fixture.wardens_errand",
+                "spell.ember.firebolt -> spell.ember.bolt",
+            },
             >= 16 => new[]
             {
                 "creature.beast.ash_hound -> creature.beast.ash_ember_hound x3", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",

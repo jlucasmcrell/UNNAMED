@@ -356,6 +356,10 @@ internal sealed class QuestSystem : IQuestFacts, IAbstractAdvance
                     _context.Dispatch(new SetWorldFlag(CellOfLocation(flag.LocationId), flag.FlagId, flag.Value));
                     (what, named, amount) = ($"{flag.FlagId} = {flag.Value} at {flag.LocationId}", flag.FlagId, flag.Value);
                     break;
+                case ReputationReward reputation:
+                    _context.Dispatch(new GrantStanding(reputation.FactionId, reputation.Delta, quest.Id));
+                    (what, named, amount) = ($"{reputation.FactionId} {reputation.Delta:+#;-#}", reputation.FactionId, reputation.Delta);
+                    break;
                 default:
                     throw new InvalidOperationException($"Unknown reward {reward.GetType().Name}");
             }
@@ -537,6 +541,8 @@ internal sealed class QuestSystem : IQuestFacts, IAbstractAdvance
         _context.Setup.Layout.Locations.Any(l => l.Id == locationId) ? State.World.GetFlag(CellOfLocation(locationId), flagId) : 0;
 
     public int Relationship(string npcId, string dimension) => State.RelationshipOf(npcId, dimension);
+
+    public int StandingLevel(string factionId) => _context.Setup.Factions.Ladder.StandingTierOf(State.StandingOf(factionId)).Level;
 
     public bool KnowsStone(string stoneKey) => State.KnownStones.ContainsKey(stoneKey);
 

@@ -196,10 +196,25 @@ public class ContentLoader
             _errors.AddRange(characterErrors);
             success &= characterErrors.Count == 0;
 
+            // Town markets, the road trade link, merchant purses and price bounds (ECO codes)
+            var economyErrors = EconomyContent.Validate(this);
+            _errors.AddRange(economyErrors);
+            success &= economyErrors.Count == 0;
+
             // Quests: objective graphs over world state (QST codes)
             var questErrors = QuestContent.Validate(this);
             _errors.AddRange(questErrors);
             success &= questErrors.Count == 0;
+
+            // Hints: the guidance lines and the moments they wait for (HNT codes; WP10)
+            var hintErrors = HintContent.Validate(this);
+            _errors.AddRange(hintErrors);
+            success &= hintErrors.Count == 0;
+
+            // Factions: the ladder, reactions, members at their seat, and who may be told what (FAC001; WP6)
+            var factionErrors = FactionContent.Validate(this);
+            _errors.AddRange(factionErrors);
+            success &= factionErrors.Count == 0;
         }
         
         return success;

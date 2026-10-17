@@ -41,6 +41,7 @@ public static class ContentChecks
         ["merchant_ref"] = new[] { "merchant" },
         ["skill_ref"] = new[] { "skill" },   // skill joined the closed kind table at M2c (§4.21)
         ["node_ref"] = new[] { "node" },     // a region's authored node (M3f)
+        ["market_ref"] = new[] { "market" }, // a town market (WP14)
     };
 
     /// <summary>§4 fields that are references although they predate the <c>_ref</c> naming convention.</summary>

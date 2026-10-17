@@ -1,0 +1,10 @@
+id: hint.quality
+kind: hint
+schema: 1
+display_key: hint.quality.text
+tags: [hint]
+notes: WP10 guidance (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.10 O1). Mechanics only, no lore; shown once, never modal.
+category: crafting
+trigger: station_opened
+order: 0
+text: "Each thing you make keeps its own quality, shown in its name."

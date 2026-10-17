@@ -1,0 +1,10 @@
+id: hint.fighting
+kind: hint
+schema: 1
+display_key: hint.fighting.text
+tags: [hint]
+notes: WP10 guidance (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.10 O1). Mechanics only, no lore; shown once, never modal.
+category: combat
+trigger: creature_engaged
+order: 0
+text: "{key:attack} strikes. Hold {key:guard} to guard what is in front of you, for as long as your stamina holds."

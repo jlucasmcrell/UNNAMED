@@ -5,6 +5,8 @@ using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Factions;
+using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
@@ -85,6 +87,22 @@ public enum StateSlice
 
     /// <summary>How many times the character has done each deed (E-7), which dialogue's <c>deed</c> condition reads. Saved with the player (schema 16).</summary>
     Deeds,
+
+    /// <summary>
+    /// The weather's seed cursor: the game hour the front last announced began (WP7). The weather itself is derived from the world seed, the
+    /// region and the hour, so nothing else of it is state.
+    /// </summary>
+    Weather,
+    /// <summary>The character's faction ledger (WP6): the act log, what each faction knows of it, and the standing each holds. Saved with the player (schema 20).</summary>
+    Factions,
+
+    /// <summary>The town markets' stock and sell history, the goods on the road, and the economy's day (S-36; WP14). In the world delta.</summary>
+    Markets,
+
+    /// <summary>The merchants' purses and restocks (S-36; WP14). In the world delta.</summary>
+    Merchants,
+    /// <summary>What is on each of the eight quick slots (WP9).</summary>
+    QuickBar,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -135,6 +153,11 @@ internal sealed class RuntimeState
         KnownStones = player.Waystones.ToImmutableSortedDictionary(w => w.StoneKey, w => w, StringComparer.Ordinal);
         ReturnPoint = player.ReturnPoint;
         Deeds = player.Deeds.ToImmutableSortedDictionary(d => d.Key, d => d, StringComparer.Ordinal);
+        Factions = player.Factions;
+        Recovering = player.Party.Recovering.ToImmutableSortedDictionary(r => r.NpcId, r => r.UntilTick, StringComparer.Ordinal);
+        Fallen = player.Party.Fallen.ToImmutableSortedSet(StringComparer.Ordinal);
+        QuickBar = player.QuickBar;
+        QuickBarCleared = player.QuickBarCleared.ToImmutableSortedSet(StringComparer.Ordinal);
     }
 
     public WorldDelta World { get; }
@@ -165,6 +188,18 @@ internal sealed class RuntimeState
     public ImmutableSortedDictionary<string, CompanionState> Companions { get; private set; } =
         ImmutableSortedDictionary.Create<string, CompanionState>(StringComparer.Ordinal);
     public ImmutableSortedDictionary<string, DeedTally> Deeds { get; private set; }
+    public long? WeatherCursor { get; private set; }
+    public FactionLedger Factions { get; private set; }
+
+    /// <summary>Companions gravely wounded, recovering at home, and the tick they are well again (WP15a; part of the companions' slice).</summary>
+    public ImmutableSortedDictionary<string, long> Recovering { get; private set; }
+
+    /// <summary>Hirelings who died in the character's service (DN9; part of the companions' slice): never put back in the world.</summary>
+    public ImmutableSortedSet<string> Fallen { get; private set; }
+    public ImmutableArray<string?> QuickBar { get; private set; }
+
+    /// <summary>What the player cleared off the quick bar on purpose (part of the quick bar's slice): not offered a slot while held.</summary>
+    public ImmutableSortedSet<string> QuickBarCleared { get; private set; }
 
     /// <summary>The space the player is in. The exterior until the space system moves them (M8 D10).</summary>
     public SpaceId Space { get; private set; } = SpaceId.Exterior;
@@ -252,6 +287,29 @@ internal sealed class RuntimeState
         Deeds = Deeds.SetItem(tally.Key, tally);
     }
 
+    /// <summary>The character's points with a faction; 0 when nothing moved them.</summary>
+    public int StandingOf(string factionId) => FactionRules.PointsOf(Factions, factionId);
+
+    public void SetFactions(SliceOwner owner, FactionLedger ledger)
+    {
+        Require(owner, StateSlice.Factions);
+        Factions = ledger ?? throw new ArgumentNullException(nameof(ledger));
+    }
+
+    public void SetQuickBar(SliceOwner owner, ImmutableArray<string?> bar)
+    {
+        Require(owner, StateSlice.QuickBar);
+        if (!Domain.Progression.QuickBar.IsValid(bar))
+            throw new InvalidOperationException("A quick bar is eight slots, each empty or holding one item, formula or technique once");
+        QuickBar = bar;
+    }
+
+    public void SetQuickBarCleared(SliceOwner owner, ImmutableSortedSet<string> cleared)
+    {
+        Require(owner, StateSlice.QuickBar);
+        QuickBarCleared = cleared;
+    }
+
     public void WalkRoad(SliceOwner owner, string stretch)
     {
         Require(owner, StateSlice.Discoveries);
@@ -272,7 +330,13 @@ internal sealed class RuntimeState
         ReturnPoint = KnownStones.ContainsKey(stoneKey) ? stoneKey : throw new InvalidOperationException($"{stoneKey} is not a known stone");
     }
 
-    /// <summary>World time passing at once (Waystone travel): the clock moves on by whole ticks.</summary>
+    public void SetWeatherCursor(SliceOwner owner, long? startHour)
+    {
+        Require(owner, StateSlice.Weather);
+        WeatherCursor = startHour;
+    }
+
+    /// <summary>World time passing at once (the offline catch-up): the clock moves on by whole ticks.</summary>
     public void AdvanceClock(SliceOwner owner, long ticks)
     {
         Require(owner, StateSlice.Clock);
@@ -414,10 +478,49 @@ internal sealed class RuntimeState
         Quests = Quests.SetItem(quest.QuestId, quest);
     }
 
+    public void SetEconomy(SliceOwner owner, EconomyState economy)
+    {
+        Require(owner, StateSlice.Markets);
+        World.SetEconomy(economy);
+    }
+
+    public void SetMerchant(SliceOwner owner, MerchantState merchant)
+    {
+        Require(owner, StateSlice.Merchants);
+        World.SetMerchant(merchant);
+    }
+
     public void SetCompanion(SliceOwner owner, CompanionState companion)
     {
         Require(owner, StateSlice.Companions);
         Companions = Companions.SetItem(companion.NpcId, companion);
+    }
+
+    /// <summary>Someone leaves the party (WP15a): dismissed, their contract over, gravely wounded or dead.</summary>
+    public void RemoveCompanion(SliceOwner owner, string npcId)
+    {
+        Require(owner, StateSlice.Companions);
+        Companions = Companions.Remove(npcId);
+    }
+
+    /// <summary>A companion recovering at home until a tick; null: well again.</summary>
+    public void SetRecovering(SliceOwner owner, string npcId, long? untilTick)
+    {
+        Require(owner, StateSlice.Companions);
+        Recovering = untilTick is { } until ? Recovering.SetItem(npcId, until) : Recovering.Remove(npcId);
+    }
+
+    public void AddFallen(SliceOwner owner, string npcId)
+    {
+        Require(owner, StateSlice.Companions);
+        Fallen = Fallen.Add(npcId);
+    }
+
+    /// <summary>An NPC is gone from the world: a hireling who died (DN9).</summary>
+    public void RemoveNpc(SliceOwner owner, string npcId)
+    {
+        Require(owner, StateSlice.Npcs);
+        Npcs = Npcs.Remove(npcId);
     }
 
     private void Require(SliceOwner owner, StateSlice slice)

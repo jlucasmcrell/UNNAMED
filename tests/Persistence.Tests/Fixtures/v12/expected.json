@@ -207,7 +207,15 @@
           -40750,
           150250,
           -40125
-        ]
+        ],
+        "membership": "companion",
+        "stance": "aggressive",
+        "tactics": {
+          "keep_to_leash": true,
+          "protect_injured": false,
+          "hold_healing": false
+        },
+        "contract": null
       }
     ],
     "posture": {
@@ -224,6 +232,29 @@
       "people": "people.veth",
       "body_preset": "body.default",
       "call": null
+    },
+    "factions": {
+      "next_act_seq": 1,
+      "acts": [],
+      "knowledge": [],
+      "standing": {}
+    },
+    "party": {
+      "recovering": [],
+      "fallen": []
+    },
+    "quick_bar": {
+      "slots": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cleared": []
     }
   },
   "cells": [
@@ -434,5 +465,7 @@
       "stagger_lasts_ticks": 0
     }
   ],
-  "noises": []
+  "noises": [],
+  "economy": null,
+  "merchants": []
 }

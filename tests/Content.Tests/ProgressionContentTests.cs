@@ -76,6 +76,32 @@ public class ProgressionContentTests : IDisposable
     }
 
     [Fact]
+    public void TheGameContent_ListsEverySkillByFamily_AndNamesTheBandsOfProgressionMd()
+    {
+        var rules = ProgressionContent.BuildRules(Load(Path.Combine(RepoPaths.Root(), "content")));
+
+        Assert.Equal(
+            new[] { "skill.bow", "skill.one_hand_blade", "skill.polearm", "skill.force", "skill.vital", "skill.warding", "skill.smithing", "skill.athletics", "skill.survival" },
+            rules.Roster.Select(s => s.Id));
+        Assert.Equal("combat", rules.Roster[0].Family);
+        Assert.Equal(new[] { (0, "Untrained"), (15, "Familiar"), (30, "Proficient"), (45, "Adept"), (60, "Expert"), (61, "Master") },
+            rules.SkillBands.Select(b => (b.From, b.Name)));
+        Assert.Equal("Untrained", rules.BandOf(14).Name);
+        Assert.Equal("Familiar", rules.BandOf(15).Name);
+        Assert.Equal("Expert", rules.BandOf(rules.Skills.CommonCeiling).Name);
+        Assert.Equal(30, rules.NextBand(15)!.From);
+        Assert.Null(rules.NextBand(100));
+    }
+
+    [Fact]
+    public void SkillBandsThatDoNotStartAtZero_FailTheLint()
+    {
+        Edit(Path.Combine("config", "progression.yaml"), "  - [0, Untrained]", "  - [1, Untrained]");
+
+        Assert.Contains(Load(_root).Errors, e => e.Code == "PRG005" && e.Message.Contains("skill_bands"));
+    }
+
+    [Fact]
     public void ACopyOfTheGameConfig_Lints()
     {
         Assert.Empty(Load(_root).Errors);

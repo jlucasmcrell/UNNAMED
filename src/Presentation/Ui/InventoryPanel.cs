@@ -43,6 +43,9 @@ public partial class InventoryPanel : CanvasLayer
     /// <summary>The container open alongside the inventory, if any.</summary>
     public string? OpenContainer { get; private set; }
 
+    /// <summary>Put a usable item on a quick slot (0-7), or clear the slot (null); Main submits the command (WP9).</summary>
+    public Action<int, string?>? Assign { get; set; }
+
     /// <summary>The crafting station open alongside the inventory, if any.</summary>
     public StationSite? OpenStation { get; private set; }
 
@@ -195,7 +198,7 @@ public partial class InventoryPanel : CanvasLayer
         _totals.AddChild(UiKit.Stat("Armour", $"{player.Armor}", null, 18));
 
         UiKit.Clear(_carried);
-        var quick = _controller.QuickItems().Select(q => q.DefId).ToList();
+        var quick = simulation.QuickBar;
         var worn = player.Inventory.Where(e => player.Equipment.ContainsValue(e.ItemId));
         var rest = player.Inventory.Where(e => !player.Equipment.ContainsValue(e.ItemId))
             .OrderBy(e => Names.Of(_session, e.DefId), StringComparer.Ordinal);
@@ -210,15 +213,25 @@ public partial class InventoryPanel : CanvasLayer
             var row = ItemRow(id, entry.DefId, entry.Quality, entry.Count, "");
             if (equipped)
                 row.Root.AddChild(UiKit.Chip(Names.Slot(slot.Key), HudStyle.Iron, HudStyle.Bone));
-            if (quick.IndexOf(entry.DefId) is var q and >= 0)
+            bool usable = simulation.Setup.Combat.UseEffects.ContainsKey(entry.DefId);
+            int q = quick.IndexOf(entry.DefId);
+            if (q >= 0)
                 row.Root.AddChild(new HudView.KeyCap(HelpPanel.Key($"quick_{q + 1}"), 16));
+            // The quick bar (WP9): a usable thing goes on its first free slot - key 1 first - or comes off it; the Skills screen moves it.
+            if (usable && Assign is { } assign && !quick.IsDefault)
+            {
+                string defId = entry.DefId;
+                int free = UNNAMED.Domain.Progression.QuickBar.FreeSlot(quick, UNNAMED.Domain.Progression.QuickBar.ItemOrder);
+                row.Root.AddChild(q >= 0 ? Button(id, "Off the bar", () => assign(q, null))
+                    : Button(id, "To the bar", () => assign(free >= 0 ? free : 0, defId)));
+            }
             if (definition?.Slot is not null)
             {
                 row.Root.AddChild(Button(id, equipped ? "Unequip" : "Equip", () => Submit(equipped
                     ? new UnequipCommand(simulation.PlayerId, slot.Key)
                     : new EquipCommand(simulation.PlayerId, entry.ItemId))));
             }
-            if (simulation.Setup.Combat.UseEffects.ContainsKey(entry.DefId))
+            if (usable)
                 row.Root.AddChild(Button(id, "Use", () => Submit(new UseItemCommand(simulation.PlayerId, entry.ItemId))));
             if (simulation.Setup.Magic.Teaches.ContainsKey(entry.DefId))
                 row.Root.AddChild(Button(id, "Read", () => Submit(new UseItemCommand(simulation.PlayerId, entry.ItemId))));
@@ -542,13 +555,8 @@ public partial class InventoryPanel : CanvasLayer
     }
 
     /// <summary>What the open trader would pay for one of these, or null when they do not buy it.</summary>
-    private static long? SellPrice(Simulation simulation, string npcId, string defId)
-    {
-        var items = simulation.Setup.Items;
-        return simulation.Wares(npcId) is { } wares && items.Merchants.TryGetValue(wares.MerchantId, out var merchant) && items.Catalog.Find(defId) is { } item
-            ? items.Pricing.SellPrice(item, merchant)
-            : null;
-    }
+    /// <summary>What the trader pays for one now: their town's price, less what it remembers the character selling it (WP14).</summary>
+    private static long? SellPrice(Simulation simulation, string npcId, string defId) => simulation.Offer(npcId, defId);
 
     private void Submit(GameCommand command) => _session.Submit(command);
 

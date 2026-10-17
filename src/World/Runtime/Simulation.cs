@@ -5,6 +5,8 @@ using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Companions;
+using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
@@ -43,6 +45,18 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>The catch-up cap and the login grace (config.time; WP11).</summary>
     public OfflineRules Offline { get; init; } = OfflineRules.None;
+
+    /// <summary>How the calendar counts the clock's days (config.time; WP7).</summary>
+    public CalendarRules Calendar { get; init; } = CalendarRules.Default;
+
+    /// <summary>How the weather's fronts are laid out and drawn (config.weather; WP7).</summary>
+    public WeatherRules Weather { get; init; } = WeatherRules.Default;
+
+    /// <summary>The factions, the standing ladder and the act log's capacity (WP6).</summary>
+    public FactionSetup Factions { get; init; } = FactionSetup.Empty;
+
+    /// <summary>The town markets, the road trade link and the merchants' purses (WP14).</summary>
+    public EconomySetup Economy { get; init; } = EconomySetup.Empty;
 }
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>
@@ -113,6 +127,11 @@ public sealed class Simulation
     private readonly SpaceSystem _spaces;
     private readonly TravelSystem _travel;
     private readonly DeedSystem _deeds;
+    private readonly WeatherSystem _weather;
+    private readonly FactionSystem _factions;
+    private readonly MarketSystem _markets;
+    private readonly MerchantSystem _merchants;
+    private readonly QuickBarSystem _quickBar;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private readonly ImmutableArray<IAbstractAdvance> _advances;
     private long _sequence;
@@ -158,7 +177,10 @@ public sealed class Simulation
         _npcs = new NpcSystem(_context, _state.Claim(nameof(NpcSystem), StateSlice.Npcs));
         _relationships = new RelationshipSystem(_context, _state.Claim(nameof(RelationshipSystem), StateSlice.Relationships));
         _dialogue = new DialogueSystem(_context, _state.Claim(nameof(DialogueSystem), StateSlice.Conversations), player.Id);
-        _trade = new TradeSystem(_context, player.Id, _inventory.View);
+        _markets = new MarketSystem(_context, _state.Claim(nameof(MarketSystem), StateSlice.Markets));
+        _merchants = new MerchantSystem(_context, _state.Claim(nameof(MerchantSystem), StateSlice.Merchants), _markets);
+        _merchants.Listen(bus);
+        _trade = new TradeSystem(_context, player.Id, _inventory.View, _markets, _merchants);
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests), player.Id);
         _quests.Listen(bus);
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions);
@@ -172,19 +194,27 @@ public sealed class Simulation
         _death = new DeathSystem(_context, player.Id, _travel.ReturnBody, _spaces.LeaveForDeath);
         _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views, _inventory.WorldItems);
         _deeds = new DeedSystem(_context, _state.Claim(nameof(DeedSystem), StateSlice.Deeds));
+        _weather = new WeatherSystem(_context, _state.Claim(nameof(WeatherSystem), StateSlice.Weather), new CellKey(_cells[0].Region, 0, 0));
+        _factions = new FactionSystem(_context, _state.Claim(nameof(FactionSystem), StateSlice.Factions));
+        _quickBar = new QuickBarSystem(_context, _state.Claim(nameof(QuickBarSystem), StateSlice.QuickBar), player.Id);
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         // The abstract advance (WP11): the clock first, so every other system brings itself to the tick it reads. A new world system
         // that goes on while the character is away adds itself here.
-        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _creatures, _effects, _gathering, _quests);
+        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _creatures, _effects, _gathering, _quests, _factions, _companions, _markets);
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
         _npcs.Populate();
+        _markets.Populate();
+        _merchants.Populate();
         _companions.Populate();
         _creatures.Populate();
         _tiers.Settle();
     }
 
-    /// <summary>Start simulating a world: a new game's, or one a save just loaded. The world tick continues from the save.</summary>
+    /// <summary>
+    /// Start simulating a world: a new game's, or one a save just loaded. The world tick continues from the save; the weather cursor starts
+    /// empty, so the first tick announces the front overhead.
+    /// </summary>
     public static Simulation Start(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events)
     {
         if (worldTick < 0)
@@ -211,15 +241,17 @@ public sealed class Simulation
         spec = spec.Validated();
         setup.Character.Check(spec);
         var call = spec.CallId is { } callId ? setup.Character.Calls[callId] : null;
-        return NewCharacter(setup, id, spec.Name, call, appearanceSeed, atXMm, atZMm) with { Identity = CharacterIdentity.Of(spec) };
+        var start = spec.Start == StartPoint.Road ? setup.Layout.Opening ?? setup.Layout.Spawn : setup.Layout.Spawn;
+        return NewCharacter(setup, id, spec.Name, call, appearanceSeed, start, atXMm, atZMm) with { Identity = CharacterIdentity.Of(spec) };
     }
 
-    private static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, CallDefinition? call,
-        ulong appearanceSeed, long? atXMm, long? atZMm)
+    private static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, CallDefinition? call, ulong appearanceSeed,
+        Body? start = null, long? atXMm = null, long? atZMm = null)
     {
-        var spawn = setup.Layout.Spawn;
+        var spawn = start ?? setup.Layout.Spawn;
         // A capture opens the character where it asked to rather than walking him there, which in the Barrowworks
-        // measured about a quarter of an hour per room (plan P2h). Null is the spawn, so ordinary runs are untouched.
+        // measured about a quarter of an hour per room (plan P2h). Null is the chosen start, so ordinary runs are
+        // untouched - the road start still decides where a character is made.
         long xMm = atXMm ?? spawn.XMm;
         long zMm = atZMm ?? spawn.ZMm;
         var lines = call is null ? setup.Items.StartingKit : setup.Items.StartingKit.AddRange(call.Kit);
@@ -293,7 +325,7 @@ public sealed class Simulation
     public PlayerView Player => new(_identity.Id, _identity.Name, _state.Body, _movement.Intent, _state.Progression,
         ProgressionEngine.Derive(_state.Progression, Setup.Progression), _state.Discoveries.Values.ToImmutableArray(),
         _state.Inventory, _state.Equipment, _state.Currency, _inventory.CarriedGrams(),
-        Setup.Items.Inventory.CarryLimitGrams(_state.Progression, Setup.Progression), _equipment.Armor()) { Identity = _identity.Identity };
+        _inventory.CarryLimitGrams(), _equipment.Armor()) { Identity = _identity.Identity };
 
     /// <summary>Every authored container and what it holds now.</summary>
     public ImmutableArray<ContainerView> Containers => Setup.Layout.Containers.Concat(_context.CorpseSites()).Select(_inventory.View).ToImmutableArray();
@@ -337,8 +369,32 @@ public sealed class Simulation
     /// <summary>What the character's map holds: the places they discovered, the roads they walked, the stones they know.</summary>
     public KnownMap Map => Cartography.Known(Setup.Layout, _state.Discoveries.Keys, _state.RoadsWalked, _state.KnownStones.Keys);
 
-    /// <summary>The character's companions (M6).</summary>
+    /// <summary>The date the world clock reads now (WP7): a pure function of the tick.</summary>
+    public CalendarDate Calendar => Runtime.Calendar.Of(WorldTick, Setup.Clock, Setup.Calendar);
+
+    /// <summary>The weather over the region played now (WP7): its state and the ticks its front holds.</summary>
+    public WeatherView Weather => _weather.View(WorldTick);
+
+    /// <summary>The weather's seed cursor (WP7): the game hour the front last announced began; null before the first. What a save keeps of the weather.</summary>
+    public long? WeatherCursor => _state.WeatherCursor;
+
+    /// <summary>The eight quick slots (WP9): each empty, or the item, formula or technique it uses.</summary>
+    public ImmutableArray<string?> QuickBar => _state.QuickBar;
+
+    /// <summary>The character's companions (M6): the whole party - companions, hirelings and allies (WP15a).</summary>
     public ImmutableArray<CompanionView> Companions => _companions.Views();
+
+    /// <summary>The party's rules (<c>config.party</c>): its size, the grace on wages, the roles' terms. Null in a pack with none.</summary>
+    public PartyRules? Party => Setup.Social.Party;
+
+    /// <summary>
+    /// What hiring someone would mean (DN9, DN11), for the hiring sheet to state before the character agrees: the wage, the whole cost,
+    /// the loot rule, that the hireling can die - and why it would be refused now, if it would.
+    /// </summary>
+    public HireTerms HireTerms(string npcId, HirelingRole role, int days) => _companions.Terms(npcId, role, days);
+
+    /// <summary>Companions gravely wounded and recovering at home (DN9), and when each is well again.</summary>
+    public ImmutableArray<RecoveryView> Recovering => _companions.Recoveries();
 
     /// <summary>The conversation open now, if any (M4).</summary>
     public ConversationView? Conversation => _dialogue.View();
@@ -351,6 +407,12 @@ public sealed class Simulation
 
     /// <summary>A trader's wares at their prices; null when that NPC does not trade (M4).</summary>
     public WaresView? Wares(string npcId) => _trade.View(npcId);
+
+    /// <summary>What a trader would pay for one of an item now (WP14); null when they do not trade, or do not buy it.</summary>
+    public long? Offer(string npcId, string itemId) => _trade.Offer(npcId, itemId);
+
+    /// <summary>The town markets: each good's stock and price against base, and what is on the road to them (WP14).</summary>
+    public ImmutableArray<MarketView> Markets => _markets.Views();
 
     /// <summary>The quests the character has started, as the journal shows them: active first (M5).</summary>
     public ImmutableArray<QuestView> Quests => _quests.Views();
@@ -374,6 +436,12 @@ public sealed class Simulation
     public QuestDiagnosis Diagnose(string questId) => _debugger.Diagnose(questId);
 
     public ImmutableSortedDictionary<string, SimulationTier> CellTiers => _state.Tiers;
+
+    /// <summary>Every faction as the character stands with it, in ordinal ID order (WP6).</summary>
+    public ImmutableArray<FactionView> Factions => _factions.Views();
+
+    /// <summary>The character's act log, with what each faction knows of each act (WP6).</summary>
+    public ImmutableArray<ActView> Acts => _factions.Acts();
 
     /// <summary>The footprints that currently block movement besides the static ones: closed doors, standing barriers, living creatures and NPCs. Prediction needs them.</summary>
     public ImmutableArray<Blocker> DynamicBlockers => _context.Obstacles();
@@ -425,11 +493,18 @@ public sealed class Simulation
                 SellCommand sell => _trade.Handle(sell, WorldTick),
                 OrderCompanionCommand order => _companions.Handle(order, WorldTick),
                 ReviveCommand revive => _companions.Handle(revive, WorldTick),
+                HireCommand hire => _companions.Handle(hire, WorldTick),
+                DismissCommand dismiss => _companions.Handle(dismiss, WorldTick),
+                SetStanceCommand stance => _companions.Handle(stance, WorldTick),
+                SetTacticsCommand tactics => _companions.Handle(tactics, WorldTick),
+                AssignWorkCommand work => _companions.Handle(work, WorldTick),
+                SupplyHirelingCommand supply => _companions.Handle(supply, WorldTick),
                 TouchStoneCommand touch => _travel.Handle(touch, WorldTick),
                 BindStoneCommand bind => _travel.Handle(bind, WorldTick),
                 TravelCommand travel => _travel.Handle(travel, WorldTick),
                 BeginStoryCommand begin => _quests.Handle(begin, WorldTick),
                 ClaimBountyCommand claim => _quests.Handle(claim, WorldTick),
+                AssignQuickSlotCommand assign => _quickBar.Handle(assign, WorldTick),
                 _ => $"no system handles {command.GetType().Name}",
             };
             _log.Add(new LoggedCommand(WorldTick, _sequence++, command, rejected));
@@ -441,8 +516,9 @@ public sealed class Simulation
     }
 
     /// <summary>
-    /// Advance one fixed tick. The order is data, fixed here: movement, tiers, the tier simulations, the player's combat,
-    /// creatures, companions, NPCs, conversations, status effects, death, discovery, quests (which read what all of that did), clock.
+    /// Advance one fixed tick. The order is data, fixed here: movement, tiers, the weather, the tier simulations, the player's combat,
+    /// creatures, companions, NPCs, conversations, status effects, death, discovery, quests (which read what all of that did), the markets'
+    /// day, the quick bar (which offers a slot to what came to hand), clock.
     /// </summary>
     public void Step()
     {
@@ -454,6 +530,7 @@ public sealed class Simulation
             long tick = WorldTick + 1;
             _movement.Tick(tick);
             _tiers.Tick(tick);
+            _weather.Tick(tick);
             foreach (var simulation in _tierSimulations)
                 simulation.Tick(tick, _cells.Where(c => _state.Tiers.GetValueOrDefault(c.ToString(), SimulationTier.D) == simulation.Tier).ToList());
             _combat.Tick(tick);
@@ -465,6 +542,8 @@ public sealed class Simulation
             _death.Tick(tick);
             _discovery.Tick(tick);
             _quests.Tick(tick);
+            _markets.Tick(tick);
+            _quickBar.Tick(tick);
             _clock.Tick();
         }
         finally
@@ -512,11 +591,13 @@ public sealed class Simulation
     /// <summary>The player as a save records them: identity from the loaded record, everything else from live state.</summary>
     public PlayerRecord CaptureRecord()
     {
-        // A save made while the character lies dead is the save of their respawn: it loads at the return point.
-        bool dead = _state.PlayerCombat.Defeated;
+        // A save made while the character lies dead is the save of their respawn: it loads at the return point. One made while they lie
+        // downed with a hand near is the save of being helped up where they lie (OD-13 = B).
+        bool downed = _state.PlayerCombat.DownedUntil > 0;
+        bool dead = _state.PlayerCombat.Defeated && !downed;
         var body = dead ? _travel.ReturnBody() : _state.Body;
         return new PlayerRecord(_identity.Id, _identity.Name, body.XMm, body.YMm, body.ZMm, _identity.AppearanceSeed, _state.Inventory,
-            _state.Progression, body.FacingMdeg, _state.Discoveries.Values, _state.Equipment, _state.Currency,
+            downed ? _combat.HelpedUp(_state.Progression) : _state.Progression, body.FacingMdeg, _state.Discoveries.Values, _state.Equipment, _state.Currency,
             _state.Effects.GetValueOrDefault(_identity.Id, ImmutableArray<ActiveEffect>.Empty),
             _state.Relationships.SelectMany(n => n.Value.Select(d => new RelationshipValue(n.Key, d.Key, d.Value))),
             _state.Conversations.Select(c => new ConversationMemory(c.Key, c.Value.ToImmutableArray())),
@@ -532,6 +613,10 @@ public sealed class Simulation
             // not, so a save that read these from the identity would record the exterior for a body standing inside.
             SpaceId = _state.Space.Name ?? "",
             SpaceTraversal = _state.Traversal.IsNone ? null : _state.Traversal.PortalKey,
+            Factions = _state.Factions,
+            Party = _companions.Ledger(),
+            QuickBar = _state.QuickBar,
+            QuickBarCleared = _state.QuickBarCleared.ToImmutableArray(),
         };
     }
 
@@ -548,6 +633,24 @@ public sealed class Simulation
         h.Add(World.Noises.Length);
         foreach (var noise in World.Noises)
             h.Add(noise.XMm).Add(noise.ZMm).Add(noise.RadiusMm).Add(noise.Call).Add(noise.CallerKind ?? "-");
+        // The economy (WP14): every market's stock and memory, the road, and every purse.
+        var economy = World.Economy!;
+        h.Add(economy.Day).Add(economy.Markets.Count);
+        foreach (var market in economy.Markets.Values)
+        {
+            h.Add(market.MarketId).Add(market.Stock.Count);
+            foreach (var (item, stock) in market.Stock)
+                h.Add(item).Add(stock);
+            h.Add(market.SoldByCharacter.Count);
+            foreach (var (item, sold) in market.SoldByCharacter)
+                h.Add(item).Add(sold);
+        }
+        h.Add(economy.Shipments.Length);
+        foreach (var shipment in economy.Shipments)
+            h.Add(shipment.LinkId).Add(shipment.FromMarket).Add(shipment.ToMarket).Add(shipment.ItemId).Add(shipment.Count).Add(shipment.ArrivesDay);
+        h.Add(World.Merchants.Count);
+        foreach (var merchant in World.Merchants)
+            h.Add(merchant.MerchantId).Add(merchant.Purse).Add(merchant.RestockedDay).Add(merchant.ShelfDay).Add(merchant.Traded);
         return h.Finish();
     }
 
@@ -570,6 +673,7 @@ public sealed class Simulation
         Heal heal => _combat.Handle(heal, Now),
         EndFight end => _combat.Handle(end),
         AwaitRespawn await => _combat.Handle(await),
+        LieDowned downed => _combat.Handle(downed, Now),
         CreatureStrike strike => _combat.Handle(strike, Now),
         WoundCreature wound => _creatures.Handle(wound, Now),
         HarmCreature harm => _creatures.Handle(harm, Now),
@@ -580,7 +684,14 @@ public sealed class Simulation
         ConsumeItem consume => _inventory.Handle(consume, Now),
         ExchangeItems exchange => _inventory.Handle(exchange, Now),
         Trade trade => _inventory.Handle(trade, Now),
+        RestockWares restock => _inventory.Handle(restock),
+        MarketTrade trade => _markets.Handle(trade),
+        ProduceGoods produce => _markets.Handle(produce),
+        SettleMerchants settle => _merchants.Handle(settle),
+        PayMerchant pay => _merchants.Handle(pay),
+        PayFromPurse pay => _merchants.Handle(pay),
         AddCurrency add => _inventory.Handle(add),
+        SpendCurrency spend => _inventory.Handle(spend),
         GrantItem grant => _inventory.Handle(grant, Now),
         CountUse use => _inventory.Handle(use),
         ChangeRelationship change => _relationships.Handle(change, Now),
@@ -590,8 +701,13 @@ public sealed class Simulation
         OrderCompanion order => _companions.Handle(order, Now),
         CompanionStruck struck => _companions.Handle(struck, Now),
         PlaceNpc place => _npcs.Handle(place),
-        AdvanceTime advance => _clock.Handle(advance),
+        RemoveNpc remove => _npcs.Handle(remove),
+        Hire hire => _companions.Handle(hire, Now),
+        Dismiss dismiss => _companions.Handle(dismiss, Now),
         ArriveWithParty arrive => _companions.Handle(arrive),
+        RecordAct act => _factions.Handle(act, Now),
+        ReportAct report => _factions.Handle(report, Now),
+        GrantStanding grant => _factions.Handle(grant, Now),
         _ => throw new InvalidOperationException($"No system handles {command.GetType().Name}"),
     };
 }
