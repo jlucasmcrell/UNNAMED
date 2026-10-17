@@ -234,6 +234,7 @@
           150250,
           -40125
         ],
+        "space": null,
         "membership": "hireling",
         "stance": "defensive",
         "tactics": {
@@ -416,7 +417,9 @@
         ]
       }
     ],
-    "attack": null
+    "attack": null,
+    "space_id": "",
+    "space_traversal": null
   },
   "cells": [
     {

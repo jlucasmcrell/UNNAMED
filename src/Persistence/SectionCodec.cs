@@ -111,6 +111,15 @@ public sealed class PlayerDto
     /// every attack over.
     /// </summary>
     [Key("attack")] public AttackDto? Attack { get; set; }
+
+    /// <summary>
+    /// Required from schema 30 (the Barrowworks): the space the body stands in, empty for the exterior - where every save before it was
+    /// written.
+    /// </summary>
+    [Key("space_id")] public string? SpaceId { get; set; }
+
+    /// <summary>From schema 30: the portal the body came into its space by, or null in the exterior.</summary>
+    [Key("space_traversal")] public string? SpaceTraversal { get; set; }
 }
 
 /// <summary>An attack under way (schema 27): what makes the blow, the tick it began, and the creatures it has struck.</summary>
@@ -310,6 +319,9 @@ public sealed class CompanionDto
 
     /// <summary>From schema 21: a hireling's contract; absent for everyone else.</summary>
     [Key("contract")] public ContractDto? Contract { get; set; }
+
+    /// <summary>From schema 30: the space a companion was left waiting in, when it is not their own ground's; null otherwise.</summary>
+    [Key("space")] public string? Space { get; set; }
 }
 
 [MessagePackObject]
@@ -867,6 +879,7 @@ public static class SectionCodec
                 StuckTicks = c.StuckTicks,
                 LastCombatTick = c.LastCombatTick,
                 TrailMm = c.Trail.SelectMany(m => new[] { m.XMm, m.ZMm }).ToArray(),
+                Space = c.Space,
                 Membership = PartyKeys.Key(c.Membership),
                 Stance = PartyKeys.Key(c.Stance),
                 Tactics = new TacticsDto { KeepToLeash = c.Tactics.KeepToLeash, ProtectInjured = c.Tactics.ProtectInjured, HoldHealing = c.Tactics.HoldHealing },
@@ -922,6 +935,8 @@ public static class SectionCodec
         }).ToArray(),
         Attack = player.Attack is not { } attack ? null
             : new AttackDto { Source = attack.Source, StartTick = attack.StartTick, Struck = attack.Struck.Select(e => e.Value).ToArray() },
+        SpaceId = player.SpaceId,
+        SpaceTraversal = player.SpaceTraversal,
     }, Options);
 
     /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard, fine or (schema 19) masterwork.</summary>
@@ -989,6 +1004,7 @@ public static class SectionCodec
         var factions = dto.Factions ?? throw new FormatException("player.msgpack has no faction ledger (required from schema 20)");
         var party = dto.Party ?? throw new FormatException("player.msgpack has no party ledger (required from schema 21)");
         var quickBar = dto.QuickBar ?? throw new FormatException("player.msgpack has no quick bar (required from schema 23)");
+        var spaceId = dto.SpaceId ?? throw new FormatException("player.msgpack has no space (required from schema 30)");
         var sheets = dto.PartySheets ?? throw new FormatException("player.msgpack has no party sheets (required from schema 25)");
         var pronouns = PronounKeys.Parse(identity.Pronouns) ?? throw new FormatException($"player identity has pronouns '{identity.Pronouns}'");
         var stance = posture.Stance switch
@@ -1036,6 +1052,8 @@ public static class SectionCodec
             }).ToImmutableArray(),
             Attack = dto.Attack is not { } attack ? null
                 : new AttackRecord(attack.Source, attack.StartTick, attack.Struck.Select(EntityId.Parse).ToImmutableArray()),
+            SpaceId = SpaceId.Parse(spaceId).ToString(),
+            SpaceTraversal = dto.SpaceTraversal,
         };
     }
 
@@ -1058,6 +1076,7 @@ public static class SectionCodec
             StuckTicks = c.StuckTicks,
             LastCombatTick = c.LastCombatTick,
             Trail = Enumerable.Range(0, c.TrailMm.Length / 2).Select(i => new TrailMark(c.TrailMm[2 * i], c.TrailMm[2 * i + 1])).ToImmutableArray(),
+            Space = c.Space is null ? null : SpaceId.Parse(c.Space).ToString(),
             Membership = PartyKeys.ParseMembership(c.Membership ?? throw new FormatException($"companion {c.NpcId} has no membership (required from schema 21)"))
                 ?? throw new FormatException($"companion {c.NpcId} has membership '{c.Membership}'"),
             Stance = PartyKeys.ParseStance(c.Stance ?? throw new FormatException($"companion {c.NpcId} has no stance (required from schema 21)"))

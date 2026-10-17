@@ -160,6 +160,11 @@ internal static class CanonicalState
                     json.WriteNumberValue(mark.ZMm);
                 }
                 json.WriteEndArray();
+                // Schema 30: the space they were left in, when not their own ground's.
+                if (companion.Space is { } space)
+                    json.WriteString("space", space);
+                else
+                    json.WriteNull("space");
                 // Schema 21 (WP15a): why they travel with the character, how they fight, and a hireling's contract.
                 json.WriteString("membership", PartyKeys.Key(companion.Membership));
                 json.WriteString("stance", PartyKeys.Key(companion.Stance));
@@ -353,6 +358,12 @@ internal static class CanonicalState
             {
                 json.WriteNull("attack");
             }
+            // Schema 30 (the Barrowworks): the space the body stands in - empty, the exterior - and the portal it came in by, or null.
+            json.WriteString("space_id", player.SpaceId);
+            if (player.SpaceTraversal is { } traversal)
+                json.WriteString("space_traversal", traversal);
+            else
+                json.WriteNull("space_traversal");
             json.WriteEndObject();
 
             json.WriteStartArray("cells");

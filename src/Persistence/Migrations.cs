@@ -34,6 +34,7 @@ using V24 = UNNAMED.Persistence.Sections.V24;
 using V25 = UNNAMED.Persistence.Sections.V25;
 using V26 = UNNAMED.Persistence.Sections.V26;
 using V28 = UNNAMED.Persistence.Sections.V28;
+using V29 = UNNAMED.Persistence.Sections.V29;
 
 namespace UNNAMED.Persistence;
 
@@ -109,7 +110,8 @@ public static class SchemaMigrations
         new SchemaV25ToV26(),
         new SchemaV26ToV27(),
         new SchemaV27ToV28(),
-        new SchemaV28ToV29());
+        new SchemaV28ToV29(),
+        new SchemaV29ToV30());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -1162,7 +1164,7 @@ public sealed class SchemaV20ToV21 : SchemaMigration
                 Relationships = old.Relationships,
                 Conversations = old.Conversations,
                 Quests = old.Quests,
-                Companions = old.Companions?.Select(c => new CompanionDto
+                Companions = old.Companions?.Select(c => new V29.Companion
                 {
                     NpcId = c.NpcId,
                     Order = c.Order,
@@ -1463,7 +1465,7 @@ public sealed class SchemaV26ToV27 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V26.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V29.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -1566,6 +1568,81 @@ public sealed class SchemaV28ToV29 : SchemaMigration
                     }
                     : null,
                 Adventurers = null,
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 29 to 30 (the Barrowworks, M8 D10): the player records the space they stand in and the portal they came into it by, and a
+/// companion record may name the space its companion was left in. Every save before it was written in the exterior, where every
+/// companion stood in their own ground: the empty space, no portal, no companion space. Every older field is copied one by one, since the
+/// frozen shapes and the live DTOs are different types.
+/// </summary>
+public sealed class SchemaV29ToV30 : SchemaMigration
+{
+    public override int From => 29;
+
+    public override string Summary => "schema 29 -> 30: the player records the space it stands in and the portal it entered by (the exterior before)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V29.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions?.Select(c => new CompanionDto
+                {
+                    NpcId = c.NpcId,
+                    Order = c.Order,
+                    Condition = c.Condition,
+                    XMm = c.XMm,
+                    ZMm = c.ZMm,
+                    FacingMdeg = c.FacingMdeg,
+                    Health = c.Health,
+                    DownedTick = c.DownedTick,
+                    StuckTicks = c.StuckTicks,
+                    LastCombatTick = c.LastCombatTick,
+                    TrailMm = c.TrailMm,
+                    Membership = c.Membership,
+                    Stance = c.Stance,
+                    Tactics = c.Tactics,
+                    Contract = c.Contract,
+                    Space = null,
+                }).ToArray(),
+                Posture = old.Posture,
+                Waystones = old.Waystones,
+                ReturnPoint = old.ReturnPoint,
+                RoadsWalked = old.RoadsWalked,
+                Deeds = old.Deeds,
+                Identity = old.Identity,
+                Factions = old.Factions,
+                Party = old.Party,
+                QuickBar = old.QuickBar,
+                PartySheets = old.PartySheets,
+                Attack = old.Attack,
+                SpaceId = "",
+                SpaceTraversal = null,
             }, options);
         }
         document.Manifest["schema_version"] = To;

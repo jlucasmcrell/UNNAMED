@@ -231,6 +231,7 @@
           150250,
           -40125
         ],
+        "space": null,
         "membership": "companion",
         "stance": "aggressive",
         "tactics": {
@@ -340,7 +341,9 @@
       "cleared": []
     },
     "party_sheets": [],
-    "attack": null
+    "attack": null,
+    "space_id": "",
+    "space_traversal": null
   },
   "cells": [
     {

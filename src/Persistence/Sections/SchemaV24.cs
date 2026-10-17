@@ -3,7 +3,7 @@
 //
 // The exact player shape schema 24 wrote: written by the 23 -> 24 step and read by the 24 -> 25 step; the schema-24 fixture pins it. Its
 // parts that schema 25 did not change are the current DTOs (InventoryDto, ProgressionDto, DiscoveryDto, EquipmentDto, EffectDto,
-// RelationshipDto, ConversationDto, QuestDto, CompanionDto, PostureDto, WaystoneDto, DeedDto, IdentityDto, FactionLedgerDto,
+// RelationshipDto, ConversationDto, QuestDto, the V29 companion, PostureDto, WaystoneDto, DeedDto, IdentityDto, FactionLedgerDto,
 // PartyLedgerDto, QuickBarDto); the step that next changes one of those must freeze a copy of it first. Schema 25 left the other sections
 // alone.
 
@@ -30,7 +30,7 @@ public sealed class Player
     [Key("relationships")] public RelationshipDto[]? Relationships { get; set; }
     [Key("conversations")] public ConversationDto[]? Conversations { get; set; }
     [Key("quests")] public QuestDto[]? Quests { get; set; }
-    [Key("companions")] public CompanionDto[]? Companions { get; set; }
+    [Key("companions")] public V29.Companion[]? Companions { get; set; }
     [Key("posture")] public PostureDto? Posture { get; set; }
     [Key("waystones")] public WaystoneDto[]? Waystones { get; set; }
     [Key("return_point")] public string? ReturnPoint { get; set; }

@@ -174,7 +174,9 @@
       "cleared": []
     },
     "party_sheets": [],
-    "attack": null
+    "attack": null,
+    "space_id": "",
+    "space_traversal": null
   },
   "cells": [
     {

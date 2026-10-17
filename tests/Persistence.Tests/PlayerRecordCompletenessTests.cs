@@ -56,6 +56,8 @@ public class PlayerRecordCompletenessTests
                 player.Relationships, player.Conversations, player.Quests, player.Companions.Add(
                     new CompanionRecord("npc.fixture.scout", CompanionOrder.Wait, CompanionCondition.Downed, 151_000, -39_000, 270_000, 0)
                     {
+                        // Left waiting in an interior space, not their own ground (schema 30).
+                        Space = "space.fixture.ring",
                         DownedTick = 4_990,
                         Trail = ImmutableArray.Create(new TrailMark(151_500, -38_500)),
                         // An ally along for a shared goal, told to keep out of fights and to hold healing for the injured (schema 21).
@@ -65,6 +67,9 @@ public class PlayerRecordCompletenessTests
                     }))
             {
                 Posture = new Posture(Stance.Crouched, Airborne: true, AirMs: 120),
+                // Inside an interior space, come in by its portal (schema 30, the Barrowworks).
+                SpaceId = "space.fixture.ring",
+                SpaceTraversal = "portal.fixture.mouth",
                 Waystones = ImmutableArray.Create(new WaystoneRecord("waystone.fixture.cairn", "region.fixture_vale", WaystoneMethod.Woken, 4_400)),
                 ReturnPoint = "waystone.fixture.cairn",
                 RoadsWalked = ImmutableArray.Create("road.fixture.track#2"),
