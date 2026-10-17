@@ -90,7 +90,7 @@ public class CharacterContentTests
 
     [Fact]
     public void ACallWhoseContactIsNoNpc_IsRefused() =>
-        AssertRefused("calls/hedge_healer.yaml", "npc_ref: npc.cairnwold.mara_ling", "npc_ref: npc.cairnwold.nobody", "is not a defined npc");
+        AssertRefused("calls/hedge_healer.yaml", "contact: { npc_ref: npc.ashen_hollow.renn_vale", "contact: { npc_ref: npc.cairnwold.nobody", "is not a defined npc");
 
     [Fact]
     public void APeopleWithAnUnusableName_IsRefused() =>
