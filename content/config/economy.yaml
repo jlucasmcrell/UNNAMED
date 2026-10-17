@@ -5,3 +5,15 @@ display_key: config.economy.name
 tags: [config]
 notes: PROTOTYPE.md §5 - a merchant buys at 40% of value, so a craft-sell loop loses money.
 sell_ratio: 0.4
+# The living economy (WP14, SYSTEMS_COMPLETENESS_PLAN §2.14). DN6 (accepted, provisional): prices move within 0.6-1.6x base, and each
+# market's stock closes a tenth of its distance to target a day (at least one), so its prices relax toward base by 10% a day.
+price_min_factor: 0.6
+price_max_factor: 1.6
+daily_relaxation: 0.1
+# E-1, E-2: a town remembers what the character sold it; this many remembered sells of a good halve what it pays for the next, and the
+# memory fades by this share a day.
+sell_memory_half_units: 20
+sell_memory_daily_decay: 0.1
+# The one abstract trade link (§2.14): a daily carrier on the Old East Road takes surplus to deficit, arriving the next day.
+trade_links:
+  - { id: old_east_road, from_market_ref: market.ashen_hollow, to_market_ref: market.cairnwold, delay_days: 1, capacity_per_day: 20 }

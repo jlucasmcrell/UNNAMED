@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
@@ -79,6 +80,12 @@ public enum StateSlice
 
     /// <summary>How many times the character has done each deed (E-7), which dialogue's <c>deed</c> condition reads. Saved with the player (schema 16).</summary>
     Deeds,
+
+    /// <summary>The town markets' stock and sell history, the goods on the road, and the economy's day (S-36; WP14). In the world delta.</summary>
+    Markets,
+
+    /// <summary>The merchants' purses and restocks (S-36; WP14). In the world delta.</summary>
+    Merchants,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -375,6 +382,18 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Quests);
         Quests = Quests.SetItem(quest.QuestId, quest);
+    }
+
+    public void SetEconomy(SliceOwner owner, EconomyState economy)
+    {
+        Require(owner, StateSlice.Markets);
+        World.SetEconomy(economy);
+    }
+
+    public void SetMerchant(SliceOwner owner, MerchantState merchant)
+    {
+        Require(owner, StateSlice.Merchants);
+        World.SetMerchant(merchant);
     }
 
     public void SetCompanion(SliceOwner owner, CompanionState companion)

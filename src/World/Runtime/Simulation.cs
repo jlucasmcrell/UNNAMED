@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
@@ -43,6 +44,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>The catch-up cap and the login grace (config.time; WP11).</summary>
     public OfflineRules Offline { get; init; } = OfflineRules.None;
+
+    /// <summary>The town markets, the road trade link and the merchants' purses (WP14).</summary>
+    public EconomySetup Economy { get; init; } = EconomySetup.Empty;
 }
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>
@@ -112,6 +116,8 @@ public sealed class Simulation
     private readonly CompanionSystem _companions;
     private readonly TravelSystem _travel;
     private readonly DeedSystem _deeds;
+    private readonly MarketSystem _markets;
+    private readonly MerchantSystem _merchants;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private readonly ImmutableArray<IAbstractAdvance> _advances;
     private long _sequence;
@@ -154,7 +160,10 @@ public sealed class Simulation
         _npcs = new NpcSystem(_context, _state.Claim(nameof(NpcSystem), StateSlice.Npcs));
         _relationships = new RelationshipSystem(_context, _state.Claim(nameof(RelationshipSystem), StateSlice.Relationships));
         _dialogue = new DialogueSystem(_context, _state.Claim(nameof(DialogueSystem), StateSlice.Conversations), player.Id);
-        _trade = new TradeSystem(_context, player.Id, _inventory.View);
+        _markets = new MarketSystem(_context, _state.Claim(nameof(MarketSystem), StateSlice.Markets));
+        _merchants = new MerchantSystem(_context, _state.Claim(nameof(MerchantSystem), StateSlice.Merchants), _markets);
+        _merchants.Listen(bus);
+        _trade = new TradeSystem(_context, player.Id, _inventory.View, _markets, _merchants);
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests), player.Id);
         _quests.Listen(bus);
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions);
@@ -163,10 +172,12 @@ public sealed class Simulation
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         // The abstract advance (WP11): the clock first, so every other system brings itself to the tick it reads. A new world system
         // that goes on while the character is away adds itself here.
-        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _creatures, _effects, _gathering, _quests);
+        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _creatures, _effects, _gathering, _quests, _markets);
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
         _npcs.Populate();
+        _markets.Populate();
+        _merchants.Populate();
         _companions.Populate();
         _creatures.Populate();
         _tiers.Settle();
@@ -321,6 +332,12 @@ public sealed class Simulation
     /// <summary>A trader's wares at their prices; null when that NPC does not trade (M4).</summary>
     public WaresView? Wares(string npcId) => _trade.View(npcId);
 
+    /// <summary>What a trader would pay for one of an item now (WP14); null when they do not trade, or do not buy it.</summary>
+    public long? Offer(string npcId, string itemId) => _trade.Offer(npcId, itemId);
+
+    /// <summary>The town markets: each good's stock and price against base, and what is on the road to them (WP14).</summary>
+    public ImmutableArray<MarketView> Markets => _markets.Views();
+
     /// <summary>The quests the character has started, as the journal shows them: active first (M5).</summary>
     public ImmutableArray<QuestView> Quests => _quests.Views();
 
@@ -409,7 +426,8 @@ public sealed class Simulation
 
     /// <summary>
     /// Advance one fixed tick. The order is data, fixed here: movement, tiers, the tier simulations, the player's combat,
-    /// creatures, companions, NPCs, conversations, status effects, death, discovery, quests (which read what all of that did), clock.
+    /// creatures, companions, NPCs, conversations, status effects, death, discovery, quests (which read what all of that did), the markets'
+    /// day, clock.
     /// </summary>
     public void Step()
     {
@@ -432,6 +450,7 @@ public sealed class Simulation
             _death.Tick(tick);
             _discovery.Tick(tick);
             _quests.Tick(tick);
+            _markets.Tick(tick);
             _clock.Tick();
         }
         finally
@@ -511,6 +530,24 @@ public sealed class Simulation
         h.Add(World.Noises.Length);
         foreach (var noise in World.Noises)
             h.Add(noise.XMm).Add(noise.ZMm).Add(noise.RadiusMm).Add(noise.Call).Add(noise.CallerKind ?? "-");
+        // The economy (WP14): every market's stock and memory, the road, and every purse.
+        var economy = World.Economy!;
+        h.Add(economy.Day).Add(economy.Markets.Count);
+        foreach (var market in economy.Markets.Values)
+        {
+            h.Add(market.MarketId).Add(market.Stock.Count);
+            foreach (var (item, stock) in market.Stock)
+                h.Add(item).Add(stock);
+            h.Add(market.SoldByCharacter.Count);
+            foreach (var (item, sold) in market.SoldByCharacter)
+                h.Add(item).Add(sold);
+        }
+        h.Add(economy.Shipments.Length);
+        foreach (var shipment in economy.Shipments)
+            h.Add(shipment.LinkId).Add(shipment.FromMarket).Add(shipment.ToMarket).Add(shipment.ItemId).Add(shipment.Count).Add(shipment.ArrivesDay);
+        h.Add(World.Merchants.Count);
+        foreach (var merchant in World.Merchants)
+            h.Add(merchant.MerchantId).Add(merchant.Purse).Add(merchant.RestockedDay).Add(merchant.ShelfDay).Add(merchant.Traded);
         return h.Finish();
     }
 
@@ -543,6 +580,12 @@ public sealed class Simulation
         ConsumeItem consume => _inventory.Handle(consume, Now),
         ExchangeItems exchange => _inventory.Handle(exchange, Now),
         Trade trade => _inventory.Handle(trade, Now),
+        RestockWares restock => _inventory.Handle(restock),
+        MarketTrade trade => _markets.Handle(trade),
+        ProduceGoods produce => _markets.Handle(produce),
+        SettleMerchants settle => _merchants.Handle(settle),
+        PayMerchant pay => _merchants.Handle(pay),
+        PayFromPurse pay => _merchants.Handle(pay),
         AddCurrency add => _inventory.Handle(add),
         GrantItem grant => _inventory.Handle(grant, Now),
         CountUse use => _inventory.Handle(use),

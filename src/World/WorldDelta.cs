@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Items;
 using Registry = UNNAMED.EntityRegistry.EntityRegistry;
 
@@ -223,6 +224,12 @@ public sealed record DeltaSnapshot(ImmutableArray<CellDeltaRecord> Cells, Immuta
 
     /// <summary>The sounds made on the last tick - a blow, a howl - that creatures hear on the next, in the order made (schema 14).</summary>
     public ImmutableArray<Noise> Noises { get; init; } = ImmutableArray<Noise>.Empty;
+
+    /// <summary>The town markets, the goods on the road and the economy's day (WP14); null before the economy first ran.</summary>
+    public EconomyState? Economy { get; init; }
+
+    /// <summary>The merchants' purses and restocks (WP14), sorted by merchant.</summary>
+    public ImmutableArray<MerchantState> Merchants { get; init; } = ImmutableArray<MerchantState>.Empty;
 }
 
 /// <summary>A record that failed post-load invariant validation and was dropped (PERSISTENCE.md §7.2).</summary>
@@ -248,6 +255,8 @@ public sealed class WorldDelta
     private readonly SortedDictionary<string, ContainerRecord> _containers = new(StringComparer.Ordinal);
     private readonly SortedDictionary<string, CreatureRecord> _creatures = new(StringComparer.Ordinal);
     private ImmutableArray<Noise> _noises = ImmutableArray<Noise>.Empty;
+    private EconomyState? _economy;
+    private readonly SortedDictionary<string, MerchantState> _merchants = new(StringComparer.Ordinal);
 
     public WorldDelta(ICellBaselineGenerator generator, ulong worldSeed, Registry registry)
     {
@@ -458,6 +467,20 @@ public sealed class WorldDelta
 
     internal void SetNoises(ImmutableArray<Noise> noises) => _noises = noises;
 
+    // ── the economy (WP14) ──────────────────────────────────────────────────
+
+    /// <summary>The town markets, the goods on the road and the economy's day; null until the economy first runs.</summary>
+    public EconomyState? Economy => _economy;
+
+    internal void SetEconomy(EconomyState economy) => _economy = economy;
+
+    /// <summary>A merchant's purse and restocks, or null before the economy first ran for them.</summary>
+    public MerchantState? Merchant(string merchantId) => _merchants.GetValueOrDefault(merchantId);
+
+    public IReadOnlyCollection<MerchantState> Merchants => _merchants.Values;
+
+    internal void SetMerchant(MerchantState merchant) => _merchants[merchant.MerchantId] = merchant;
+
     /// <summary>Remove a created instance. It existed nowhere else, so its identity retires with it.</summary>
     internal void RemoveCreated(EntityId instanceId)
     {
@@ -551,6 +574,7 @@ public sealed class WorldDelta
         return new DeltaSnapshot(cells.ToImmutable(), entities.ToImmutable())
         {
             Created = created, Containers = containers, Creatures = creatures, Noises = _noises,
+            Economy = _economy, Merchants = _merchants.Values.ToImmutableArray(),
         };
     }
 
@@ -615,6 +639,22 @@ public sealed class WorldDelta
                 noises.Add(noise);
         }
         world._noises = noises.ToImmutable();
+
+        if (snapshot.Economy is { } economy)
+        {
+            if (economy.Markets.Values.Any(m => m.Stock.Values.Any(v => v < 0) || m.SoldByCharacter.Values.Any(v => v < 0))
+                || economy.Shipments.Any(s => s.Count <= 0))
+                problems.Add(new RejectedRecord("entities", "economy", "a market with negative stock or sell history, or an empty shipment"));
+            else
+                world._economy = economy;
+        }
+        foreach (var merchant in snapshot.Merchants)
+        {
+            if (merchant.Purse < 0 || !DefinitionId.IsValid(merchant.MerchantId) || world._merchants.ContainsKey(merchant.MerchantId))
+                problems.Add(new RejectedRecord("entities", merchant.MerchantId, "a merchant with a negative purse, an invalid ID, or held twice"));
+            else
+                world._merchants[merchant.MerchantId] = merchant;
+        }
 
         rejected = problems.ToImmutable();
         return world;

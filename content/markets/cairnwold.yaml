@@ -1,0 +1,15 @@
+id: market.cairnwold
+kind: market
+schema: 1
+display_key: market.cairnwold.name
+tags: [market]
+notes: "Cairnwold's market (WP14, SYSTEMS_COMPLETENESS_PLAN §2.14): a moorland village's hides and ash, and Durn's moor gear. Its own iron is running out (Durn's merchant notes), so iron is dear here and the Old East Road carrier brings Ashen Hollow's surplus - travel has economic value (DATA_MODEL.md §4.15's rural example). Production and consumption are working numbers pending WP12's job hooks."
+merchants:
+  - { merchant_ref: merchant.cairnwold.durn_skell }
+goods:
+  - { item_ref: item.material.wolf_hide, target: 12, min: 2, max: 40, production: 4, consumption: 2, elasticity: 0.5 }   # off the moor; the surplus goes west
+  - { item_ref: item.material.deer_hide, target: 8, min: 2, max: 30, production: 2, consumption: 2, elasticity: 0.5 }
+  - { item_ref: item.material.ash_haft, target: 8, min: 2, max: 30, production: 2, consumption: 2, elasticity: 0.5 }   # from the ash stand
+  - { item_ref: item.material.iron_ingot, target: 10, min: 0, max: 30, consumption: 2, elasticity: 0.6 }   # none made here any more
+  - { item_ref: item.armor.hide_vest, target: 1, min: 0, max: 3, elasticity: 0.3 }   # Durn makes one again when his is sold
+  - { item_ref: item.armor.hide_cap, target: 1, min: 0, max: 3, elasticity: 0.3 }

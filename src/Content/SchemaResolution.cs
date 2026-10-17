@@ -301,6 +301,14 @@ public static class ContentKindRegistry
             IdPrefix: "call"
         );
 
+        // 30. market - a settlement's market: its goods' stock, bounds and daily flows, and the merchants who sell from it (WP14)
+        kinds["market"] = new ContentKindDefinition(
+            Kind: "market",
+            FullKind: "market",
+            Directory: "markets",
+            IdPrefix: "market"
+        );
+
         _kinds = kinds;
         
         // Build directory lookup (first occurrence only to avoid duplicates)

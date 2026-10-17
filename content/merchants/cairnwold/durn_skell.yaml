@@ -12,3 +12,5 @@ stock:
   - { item_ref: item.material.deer_hide, count: 2, price_bias: 1.0 }
   - { item_ref: item.material.ash_haft, count: 2, price_bias: 1.0 }
 buys_tags: [material, consumable, weapon, armor, misc]
+gold_reserve: [40, 250]   # a village smith's purse (WP14)
+restock_min: 1
