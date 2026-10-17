@@ -11,10 +11,6 @@
         0.02
       ]
     },
-    "mh_lashes": {
-      "alpha_blend": true,
-      "specular": 0.2
-    },
     "mh_groom": {
       "alpha_coverage": true,
       "specular": 0.2
@@ -64,10 +60,10 @@
     "mh_veth_m_hair_hair": "mh_groom",
     "mh_veth_m_beard_hair": "mh_groom",
     "mh_veth_m_eyebrows_hair": "mh_groom",
-    "mh_veth_m_lashes_hair": "mh_lashes",
+    "mh_veth_m_lashes_hair": "mh_groom",
     "mh_veth_f_hair_hair": "mh_groom",
     "mh_veth_f_eyebrows_hair": "mh_groom",
-    "mh_veth_f_lashes_hair": "mh_lashes"
+    "mh_veth_f_lashes_hair": "mh_groom"
   },
   "lods": {
     "note": "Metres from the camera: LOD0 (the full mesh) to lod0_end - past any dialogue or third-person framing - LOD1 to lod1_end, LOD2 beyond; each switch is hard (no dithered cross-fade, CharacterMaterials.ApplyLods). chain_4 is a MetaHuman's LOD0-3 (CHARACTER_ANIMATION_STRATEGY.md 2.6: under 6 m, to 15 m, to 40 m, beyond); LOD0 casts its own shadow and beyond it the figure's merged <asset>_shadow proxy does (the 13-figure budget, 2026-10-15).",

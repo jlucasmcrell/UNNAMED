@@ -68,7 +68,8 @@ public sealed partial class CreatorPreview : TextureRect
         _environment.Sky = new Sky { SkyMaterial = _sky };
         _environment.AmbientLightSource = Godot.Environment.AmbientSource.Sky;
         _environment.ReflectedLightSource = Godot.Environment.ReflectionSource.Sky;
-        _environment.TonemapMode = Godot.Environment.ToneMapper.Filmic;
+        // The world's tone mapper (HollowView), so a face in the creator is the face in the game: Filmic pushed the skin warm and red.
+        _environment.TonemapMode = Godot.Environment.ToneMapper.Agx;
         _environment.SsaoEnabled = true;
         var stage = new Node3D { Name = "Stage" };
         stage.AddChild(new WorldEnvironment { Environment = _environment });

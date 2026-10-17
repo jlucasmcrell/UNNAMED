@@ -195,10 +195,13 @@ public static class CharacterMaterials
         // sample (alpha to coverage) a strand keeps the part of a pixel it covers, and the texture cache's mip chain keeps the cards'
         // coverage with distance: dense, dark, solid strands, as the Blender reference draws them.
         if (spec.TryGetProperty("alpha_coverage", out var coverage) && coverage.ValueKind == JsonValueKind.True && m.Transparency == BaseMaterial3D.TransparencyEnum.AlphaScissor)
+        {
             m.AlphaAntialiasingMode = BaseMaterial3D.AlphaAntiAliasing.AlphaToCoverageAndToOne;
-        // A MetaHuman's lash strips are a translucent dark fringe (bl_assemble.py LASH_ALPHA): blended, not cut.
-        if (spec.TryGetProperty("alpha_blend", out var blend) && blend.ValueKind == JsonValueKind.True)
-            m.Transparency = BaseMaterial3D.TransparencyEnum.Alpha;
+            // Plain averaged mips thin the strands to nothing a few metres off (the brows, the hair at a parting): the mip chain keeps
+            // the base level's coverage (ImageMips.Coverage, as the texture cache does for cut-outs - these textures are outside it).
+            if (m.AlbedoTexture is { } albedo)
+                m.AlbedoTexture = CoverageMips(m.ResourceName, albedo, m.AlphaScissorThreshold);
+        }
         if (spec.TryGetProperty("sss", out _))
         {
             m.SubsurfScatterEnabled = true;
@@ -247,6 +250,23 @@ public static class CharacterMaterials
             m.AnisotropyEnabled = true;
             m.Anisotropy = Num("anisotropy", 0.5f);
         }
+    }
+
+    // One coverage mip chain per groom material for the run: every build of a body shares its groom's texture.
+    private static readonly Dictionary<string, Texture2D> _coverageMips = new(StringComparer.Ordinal);
+
+    private static Texture2D CoverageMips(string key, Texture2D source, float cutoff)
+    {
+        if (_coverageMips.TryGetValue(key, out var made))
+            return made;
+        var image = (Image)source.GetImage().Duplicate();
+        if (image.IsCompressed())
+            image.Decompress();
+        image.ClearMipmaps();
+        image.Convert(Image.Format.Rgba8);
+        made = ImageTexture.CreateFromImage(ImageMips.Coverage(image, cutoff));
+        _coverageMips[key] = made;
+        return made;
     }
 
     private static Dictionary<string, JsonElement> Kinds()
