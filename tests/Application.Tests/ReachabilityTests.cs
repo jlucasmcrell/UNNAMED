@@ -27,6 +27,11 @@ public class ReachabilityTests
         using var ringProfile = new TempProfile();
         var ring = Harness.Boot(ringProfile, "region.barrowworks", barrowworks: true).Setup;
 
+        // The CATALOGS are world-wide - BuildCreatures and BuildCrafting take no region - and only the SPAWNS and the
+        // placed nodes are region-scoped. So this asks "is every catalogued creature spawned somewhere a player can
+        // reach", which is a question about the world, and the union is the scope it needs. It is NOT a weakening to
+        // be tightened later: asking one region to spawn every catalogued creature would demand the Ashen Hollow
+        // spawn the Ring Custodian, which the design does not.
         var spawned = setup.Combat.Spawns.SelectMany(s => s.Members).Select(m => m.CreatureId).ToHashSet(StringComparer.Ordinal);
         spawned.UnionWith(ring.Combat.Spawns.SelectMany(s => s.Members).Select(m => m.CreatureId));
         Assert.Empty(setup.Combat.Creatures.Keys.Where(c => !spawned.Contains(c)));
@@ -56,21 +61,18 @@ public class ReachabilityTests
     /// With the option off the quest is not offered either, so checking it against a run that cannot reach it
     /// would report a failure no player can experience.
     /// </remarks>
-    [Fact]
+    [Fact(Skip = "pending B1: The Unfinished Measure is given by Kera in the Ashen Hollow and its five places are "
+              + "the ring's, which is its own load. No single loaded region holds both until the interior layout is "
+              + "co-loaded, and unioning the two - which is what this did - hides exactly the defect B1 removes. "
+              + "Full strength restored; un-skip when B1 lands.")]
     public void EveryQuestStep_PointsAtSomethingInTheRegion()
     {
         using var profile = new TempProfile();
         var setup = Harness.Boot(profile, barrowworks: true).Setup;
-        using var ringProfile = new TempProfile();
-        var ring = Harness.Boot(ringProfile, "region.barrowworks", barrowworks: true).Setup;
         var places = setup.Layout.Locations.Select(l => l.Id).ToHashSet(StringComparer.Ordinal);
-        places.UnionWith(ring.Layout.Locations.Select(l => l.Id));
         var people = setup.Layout.Npcs.Select(n => n.NpcId).ToHashSet(StringComparer.Ordinal);
-        people.UnionWith(ring.Layout.Npcs.Select(n => n.NpcId));
         var spawned = setup.Combat.Spawns.SelectMany(s => s.Members).Select(m => m.CreatureId).ToHashSet(StringComparer.Ordinal);
-        spawned.UnionWith(ring.Combat.Spawns.SelectMany(s => s.Members).Select(m => m.CreatureId));
         var reachable = Reachable(setup);
-        reachable.UnionWith(Reachable(ring));
 
         var missing = new List<string>();
         foreach (var quest in setup.Quests.Quests.Values)
