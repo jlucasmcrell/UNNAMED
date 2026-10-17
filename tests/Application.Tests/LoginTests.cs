@@ -74,6 +74,34 @@ public class LoginTests
         Assert.Contains(manifest.AwayLog, l => l.Kind == AdvanceKinds.TimePassed && l.Amount == 57_600);
     }
 
+    /// <summary>
+    /// Wave 2's world across a log-off and a log-on (WP7, WP14): ten game days later the sky is under another front, and the markets have
+    /// run their days on their own - every good inside its bounds, every price inside DN6's 0.6-1.6x, and some no longer at base.
+    /// </summary>
+    [Fact]
+    public void ALogin_FindsTheWeatherMovedOn_AndThePricesDrifted_WithinDN6()
+    {
+        using var profile = new TempProfile();
+        var (clock, session, _) = SavedGame(profile);
+        var sky = session.Simulation!.Weather;
+        Assert.All(session.Simulation.Markets.SelectMany(m => m.Goods), g => Assert.Equal(1000, g.PriceFactorPermille));
+        clock.Now = Saved.AddHours(8);   // 576 000 ticks: ten game days
+
+        var login = session.Continue();
+
+        var simulation = session.Simulation!;
+        Assert.Equal(576_000, login.CatchUp.HonouredTicks);
+        var now = simulation.Weather;
+        Assert.NotEqual(sky.FrontStartTick, now.FrontStartTick);
+        Assert.InRange(simulation.WorldTick, now.FrontStartTick, now.FrontEndTick - 1);
+        Assert.Contains(login.Away.Lines, l => l.Kind == AdvanceKinds.WeatherNow && l.Ref == WeatherStates.Key(now.State));
+        var goods = simulation.Markets.SelectMany(m => m.Goods).ToList();
+        Assert.NotEmpty(goods);
+        Assert.All(goods, g => Assert.InRange(g.Stock, g.Min, g.Max));
+        Assert.All(goods, g => Assert.InRange(g.PriceFactorPermille, 600, 1600));
+        Assert.Contains(goods, g => g.PriceFactorPermille != 1000);
+    }
+
     [Fact]
     public void AClockMovedBack_CatchesNothingUp()
     {

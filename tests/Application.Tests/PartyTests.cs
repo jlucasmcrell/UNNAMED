@@ -317,6 +317,33 @@ public class PartyTests
     }
 
     /// <summary>A crafter set to a station works a recipe the character showed them, from the materials they were handed, a few times a day.</summary>
+    /// <summary>
+    /// A hireling keeps working, and is paid, while the character is away (§2.12, §2.15): through the abstract advance a login runs, each
+    /// midnight brings in the gatherer's day of work and pays the next day's wage from the purse.
+    /// </summary>
+    [Fact]
+    public void AHireling_KeepsWorking_AndIsPaid_WhileTheCharacterIsAway()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = At(session, 100);
+        var stand = arena.Simulation.Nodes.Where(n => n.NodeDefId == AshStand).OrderBy(n => n.Key, StringComparer.Ordinal).First();
+        Assert.Null(Hire(arena, Kera, HirelingRole.Gatherer, 10));
+        Assert.Null(arena.Submit(new AssignWorkCommand(arena.Player, Kera, stand.Key)));
+        arena.Tick();
+        long wage = Member(arena, Kera).Contract!.DailyWage;
+        long coin = arena.Simulation.Player.Currency;
+
+        var away = arena.Simulation.Advance(Midnight(session.Setup, 3) - arena.Simulation.WorldTick);
+
+        var contract = Member(arena, Kera).Contract!;
+        Assert.Equal((3, 0, 4 * wage), (contract.DaysServed, contract.UnpaidDays, contract.Purse));   // the first day at hire, then three midnights
+        Assert.Equal(coin - 3 * wage, arena.Simulation.Player.Currency);
+        Assert.Equal(3 * wage, away.Lines.Single(l => l.Kind == PartyAdvanceKinds.WagesPaid && l.Ref == Kera).Amount);
+        Assert.Equal(3, away.Lines.Count(l => l.Kind == PartyAdvanceKinds.Delivered && l.Ref.StartsWith(Kera, StringComparison.Ordinal)));
+        Assert.True(Carried(arena.Simulation, session.Setup.Crafting.Nodes[AshStand].ItemId) > 0);
+    }
+
     [Fact]
     public void ACrafter_WorksTheirRecipe_FromWhatTheyWereHanded()
     {
