@@ -16,7 +16,8 @@ public sealed record QuickSlotAssigned(int Slot, string? DefinitionId, long Tick
 /// <summary>
 /// Owns: <see cref="StateSlice.QuickBar"/>. The player assigns the slots. What comes to hand is offered a free slot as it does: a usable
 /// item the character starts to carry (keys 1 to 3 first) and a formula or technique they come to know (keys 4 to 8 first). What is
-/// already on the bar stays where it is, even while none of it is carried.
+/// already on the bar stays where it is, even while none of it is carried. What the player cleared off the bar is kept off it while it is
+/// carried or known, across logins too, until they put it back.
 /// </summary>
 internal sealed class QuickBarSystem
 {
@@ -52,6 +53,8 @@ internal sealed class QuickBarSystem
             return null;
         var was = State.QuickBar;
         State.SetQuickBar(_owner, bar);
+        // What left the bar was cleared on purpose (a swap keeps both on it); what is on it now is not.
+        State.SetQuickBarCleared(_owner, State.QuickBarCleared.Union(was.OfType<string>()).Except(bar.OfType<string>()));
         for (int slot = 0; slot < QuickBar.Slots; slot++)
         {
             if (bar[slot] != was[slot])
@@ -85,11 +88,13 @@ internal sealed class QuickBarSystem
             .OrderBy(k => k.Value.Tick)
             .ThenBy(k => k.Value.SourceRef is { } book && magic.Teaches.TryGetValue(book, out var taught) && taught.Contains(k.Key) ? taught.IndexOf(k.Key) : int.MaxValue)
             .ThenBy(k => k.Key, StringComparer.Ordinal).Select(k => k.Key).ToList();
-        // An item no longer carried may be offered again when it is next picked up; nothing is unlearned.
+        // An item no longer carried may be offered again when it is next picked up, even one cleared off the bar; nothing is unlearned.
         _offered.RemoveWhere(id => id.StartsWith("item.", StringComparison.Ordinal) && !carried.Contains(id));
+        if (State.QuickBarCleared.Where(id => id.StartsWith("item.", StringComparison.Ordinal) && !carried.Contains(id)).ToList() is { Count: > 0 } dropped)
+            State.SetQuickBarCleared(_owner, State.QuickBarCleared.Except(dropped));
         foreach (var (id, order) in carried.Select(id => (id, QuickBar.ItemOrder)).Concat(workings.Select(id => (id, QuickBar.WorkingOrder))))
         {
-            if (!_offered.Add(id) || State.QuickBar.Contains(id))
+            if (!_offered.Add(id) || State.QuickBar.Contains(id) || State.QuickBarCleared.Contains(id))
                 continue;
             int slot = QuickBar.FreeSlot(State.QuickBar, order);
             if (slot < 0)

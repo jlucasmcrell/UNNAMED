@@ -49,6 +49,10 @@ public class GameSaveTests
         (new Regex(@"^\$\.player\.Party$"), null),
         // Schema 22: no economy was kept, so the markets start at their targets and the merchants with full purses, from content.
         (new Regex(@"^\$\.world\.(Economy|Merchants)$"), null),
+        // Schema 23: an empty quick bar with nothing cleared off it; the world fills it from what is carried and known once it runs, not at
+        // the load.
+        (new Regex(@"^\$\.player\.QuickBar$"), "[null,null,null,null,null,null,null,null]"),
+        (new Regex(@"^\$\.player\.QuickBarCleared$"), "[]"),
     };
 
     [Fact]
@@ -88,8 +92,8 @@ public class GameSaveTests
         // The posture and digest, four fields a record, the noises, the Waystones, the deeds, the identity, each stack's notable record,
         // the faction ledger, and the economy and merchants.
         int members = expected["player"]!["Companions"]!.AsArray().Count;
-        // ... and, schema 21, four fields each party member and the party's ledger.
-        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 1 + 2 + 4 * members + 1, differences.Count);
+        // ... and, schema 21, four fields each party member and the party's ledger; schema 23, the quick bar and its cleared record.
+        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 1 + 2 + 4 * members + 1 + 2, differences.Count);
 
         // And it plays on: a fixed stretch of ticks, then a walk to the Ashen Waystone, with no observer failing, no body inside anything,
         // Tavar still at the character's side and every quest still answering the debugger.

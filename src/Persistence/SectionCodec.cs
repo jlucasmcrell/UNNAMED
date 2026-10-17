@@ -93,6 +93,23 @@ public sealed class PlayerDto
     /// 20 -> 21 step gives older saves none: no one could be wounded away or die in the party before.
     /// </summary>
     [Key("party")] public PartyLedgerDto? Party { get; set; }
+
+    /// <summary>
+    /// Required from schema 23 (WP9): the eight quick slots, and what the player took off the bar on purpose. The 22 -> 23 step gives older
+    /// saves an empty bar with nothing taken off, which what they carry and know fills on load.
+    /// </summary>
+    [Key("quick_bar")] public QuickBarDto? QuickBar { get; set; }
+}
+
+/// <summary>
+/// The quick bar (schema 23): each slot a definition ID or nil, and the IDs the player cleared off it on purpose, which a login does not
+/// offer a slot again.
+/// </summary>
+[MessagePackObject]
+public sealed class QuickBarDto
+{
+    [Key("slots")] public string?[] Slots { get; set; } = Array.Empty<string?>();
+    [Key("cleared")] public string[] Cleared { get; set; } = Array.Empty<string>();
 }
 
 /// <summary>The character's faction ledger (schema 20): the acts logged, what each faction knows of them, and the standing each holds.</summary>
@@ -694,6 +711,7 @@ public static class SectionCodec
             Recovering = player.Party.Recovering.Select(r => new RecoveryDto { NpcId = r.NpcId, UntilTick = r.UntilTick }).ToArray(),
             Fallen = player.Party.Fallen.ToArray(),
         },
+        QuickBar = new QuickBarDto { Slots = player.QuickBar.ToArray(), Cleared = player.QuickBarCleared.ToArray() },
     }, Options);
 
     /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard, fine or (schema 19) masterwork.</summary>
@@ -749,6 +767,7 @@ public static class SectionCodec
         var identity = dto.Identity ?? throw new FormatException("player.msgpack has no identity (required from schema 17)");
         var factions = dto.Factions ?? throw new FormatException("player.msgpack has no faction ledger (required from schema 20)");
         var party = dto.Party ?? throw new FormatException("player.msgpack has no party ledger (required from schema 21)");
+        var quickBar = dto.QuickBar ?? throw new FormatException("player.msgpack has no quick bar (required from schema 23)");
         var pronouns = PronounKeys.Parse(identity.Pronouns) ?? throw new FormatException($"player identity has pronouns '{identity.Pronouns}'");
         var stance = posture.Stance switch
         {
@@ -786,6 +805,8 @@ public static class SectionCodec
                 factions.Knowledge.Select(k => new FactionKnowledge(k.Knower, k.Act, k.Identity, k.Source, k.Via, k.Tick, k.Delta)).ToImmutableArray(),
                 factions.Standing.Select(st => new FactionStanding(st.Faction, st.Points)).ToImmutableArray()),
             Party = new PartyLedger(party.Recovering.Select(r => new RecoveryRecord(r.NpcId, r.UntilTick)).ToImmutableArray(), party.Fallen.ToImmutableArray()),
+            QuickBar = quickBar.Slots.ToImmutableArray(),
+            QuickBarCleared = quickBar.Cleared.ToImmutableArray(),
         };
     }
 

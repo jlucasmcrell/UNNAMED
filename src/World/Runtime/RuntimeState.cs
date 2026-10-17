@@ -145,6 +145,8 @@ internal sealed class RuntimeState
         Factions = player.Factions;
         Recovering = player.Party.Recovering.ToImmutableSortedDictionary(r => r.NpcId, r => r.UntilTick, StringComparer.Ordinal);
         Fallen = player.Party.Fallen.ToImmutableSortedSet(StringComparer.Ordinal);
+        QuickBar = player.QuickBar;
+        QuickBarCleared = player.QuickBarCleared.ToImmutableSortedSet(StringComparer.Ordinal);
     }
 
     public WorldDelta World { get; }
@@ -183,7 +185,10 @@ internal sealed class RuntimeState
 
     /// <summary>Hirelings who died in the character's service (DN9; part of the companions' slice): never put back in the world.</summary>
     public ImmutableSortedSet<string> Fallen { get; private set; }
-    public ImmutableArray<string?> QuickBar { get; private set; } = Domain.Progression.QuickBar.Empty;
+    public ImmutableArray<string?> QuickBar { get; private set; }
+
+    /// <summary>What the player cleared off the quick bar on purpose (part of the quick bar's slice): not offered a slot while held.</summary>
+    public ImmutableSortedSet<string> QuickBarCleared { get; private set; }
 
     public IReadOnlyDictionary<StateSlice, string> Owners => _owners;
 
@@ -260,6 +265,12 @@ internal sealed class RuntimeState
         if (!Domain.Progression.QuickBar.IsValid(bar))
             throw new InvalidOperationException("A quick bar is eight slots, each empty or holding one item, formula or technique once");
         QuickBar = bar;
+    }
+
+    public void SetQuickBarCleared(SliceOwner owner, ImmutableSortedSet<string> cleared)
+    {
+        Require(owner, StateSlice.QuickBar);
+        QuickBarCleared = cleared;
     }
 
     public void WalkRoad(SliceOwner owner, string stretch)

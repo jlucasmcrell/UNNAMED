@@ -113,4 +113,34 @@ public class QuickBarTests
 
         Assert.Equal(Salve, arena.Simulation.QuickBar[0]);
     }
+
+    /// <summary>
+    /// The owner's rule for the bar (schema 23): a slot the player cleared stays cleared across a log-off and a log-on, though what it held
+    /// is still carried - the bar remembers it was taken off on purpose - until the player puts it back.
+    /// </summary>
+    [Fact]
+    public void ASlotClearedOnPurpose_StaysClearedAcrossALogin_UntilThePlayerPutsItBack()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        session.NewGame(Harness.Named("Wanderer"), seed: 7);
+        Harness.Ticks(session, 2);
+        Assert.Equal(Salve, session.Simulation!.QuickBar[0]);
+        session.Submit(new AssignQuickSlotCommand(session.Simulation.PlayerId, 0, null));
+        Harness.Ticks(session, 2);
+        Assert.Equal(new[] { Salve }, session.Simulation.CaptureRecord().QuickBarCleared);
+        session.Save(Persistence.SaveSlots.Quick);
+
+        var relaunched = Harness.Boot(profile);
+        relaunched.Continue();
+        Harness.Ticks(relaunched, 5);
+        var simulation = relaunched.Simulation!;
+        Assert.Contains(simulation.CaptureRecord().Inventory, e => e.DefId == Salve);
+        Assert.All(simulation.QuickBar, slot => Assert.Null(slot));
+
+        relaunched.Submit(new AssignQuickSlotCommand(simulation.PlayerId, 2, Salve));
+        Harness.Ticks(relaunched, 2);
+        Assert.Equal(Salve, simulation.QuickBar[2]);
+        Assert.Empty(simulation.CaptureRecord().QuickBarCleared);
+    }
 }

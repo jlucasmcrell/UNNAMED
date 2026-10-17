@@ -576,6 +576,8 @@ public sealed class Simulation
             Identity = _identity.Identity,   // as the creator made it: nothing in the world changes it
             Factions = _state.Factions,
             Party = _companions.Ledger(),
+            QuickBar = _state.QuickBar,
+            QuickBarCleared = _state.QuickBarCleared.ToImmutableArray(),
         };
     }
 

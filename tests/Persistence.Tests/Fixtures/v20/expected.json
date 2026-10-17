@@ -323,6 +323,19 @@
     "party": {
       "recovering": [],
       "fallen": []
+    },
+    "quick_bar": {
+      "slots": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cleared": []
     }
   },
   "cells": [

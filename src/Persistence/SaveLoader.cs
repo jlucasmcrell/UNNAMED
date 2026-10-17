@@ -449,12 +449,30 @@ internal static class SaveLoader
         var factions = new FactionLedger(ledger.NextActSeq, acts.ToImmutableArray(), knowledge.Values.ToImmutableArray(),
             standing.Where(kv => kv.Value != 0).Select(kv => new FactionStanding(kv.Key, kv.Value)).ToImmutableArray());
 
+        // The quick bar (schema 23): a slot whose item, formula or technique was removed is emptied, and two that resolve to one keep the
+        // first; what was cleared off the bar stays cleared under its current ID, unless it is on the bar.
+        var bar = player.QuickBar.ToBuilder();
+        for (int slot = 0; slot < bar.Count; slot++)
+        {
+            if (bar[slot] is { } held && Resolve(held, $"quick slot {slot + 1}") is var id)
+                bar[slot] = id is not null && bar.Take(slot).All(earlier => earlier != id) ? id : null;
+        }
+        var cleared = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (string off in player.QuickBarCleared)
+        {
+            if (Resolve(off, "quick bar (cleared)") is { } id && !bar.Contains(id))
+                cleared.Add(id);
+        }
 
         // The party ledger is set aside while the party is rewritten: a rename may bring the two together, which the record refuses.
         var rewritten = player with { Party = PartyLedger.Empty };
         rewritten = rewritten.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values).WithEffects(effects.Values)
             .WithSocial(relationships.Values, conversations.Values).WithQuests(quests.Values).WithCompanions(companions.Values);
-        return (rewritten.WithDeeds(deeds.Values).WithFactions(factions) with { Party = new PartyLedger(recovering.Values.ToImmutableArray(), fallen.ToImmutableArray()) },
+        return (rewritten.WithDeeds(deeds.Values).WithFactions(factions) with
+            {
+                Party = new PartyLedger(recovering.Values.ToImmutableArray(), fallen.ToImmutableArray()),
+                QuickBar = bar.ToImmutable(), QuickBarCleared = cleared.ToImmutableArray(),
+            },
             new DeltaSnapshot(cells, entities.ToImmutable())
             {
                 Created = created.ToImmutable(), Containers = containers, Creatures = creatures.ToImmutable(), Noises = noises.ToImmutable(),

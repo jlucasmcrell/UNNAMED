@@ -292,6 +292,22 @@ internal static class CanonicalState
                 json.WriteStringValue(fallen);
             json.WriteEndArray();
             json.WriteEndObject();
+            // Schema 23 (WP9): the quick bar's slots, and what was cleared off it on purpose.
+            json.WriteStartObject("quick_bar");
+            json.WriteStartArray("slots");
+            foreach (string? slot in player.QuickBar)
+            {
+                if (slot is null)
+                    json.WriteNullValue();
+                else
+                    json.WriteStringValue(slot);
+            }
+            json.WriteEndArray();
+            json.WriteStartArray("cleared");
+            foreach (string cleared in player.QuickBarCleared)
+                json.WriteStringValue(cleared);
+            json.WriteEndArray();
+            json.WriteEndObject();
             json.WriteEndObject();
 
             json.WriteStartArray("cells");

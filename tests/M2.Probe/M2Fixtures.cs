@@ -204,6 +204,10 @@ public static class M2Fixtures
                 ImmutableArray.Create(new FactionKnowledge("faction.fixture.wardens", 1, Identities.Identified, KnowledgeSources.Reported,
                     "npc.fixture.warden", 4_900, 100)),
                 ImmutableArray.Create(new FactionStanding("faction.fixture.wardens", 100))),
+            // Schema 23 (the quick bar, WP9): the firebolt on key 4, and the draught taken off key 1 on purpose - both renamed by the
+            // current pack, so the renames must reach the bar and what was cleared off it.
+            QuickBar = ImmutableArray.Create<string?>(null, null, null, "spell.ember.firebolt", null, null, null, null),
+            QuickBarCleared = ImmutableArray.Create("item.potion.healing_draught"),
         };
 
         public static readonly EntityId SwordId = EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 });

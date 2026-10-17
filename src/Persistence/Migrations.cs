@@ -28,6 +28,7 @@ using V18 = UNNAMED.Persistence.Sections.V18;
 using V19 = UNNAMED.Persistence.Sections.V19;
 using V20 = UNNAMED.Persistence.Sections.V20;
 using V21 = UNNAMED.Persistence.Sections.V21;
+using V22 = UNNAMED.Persistence.Sections.V22;
 
 namespace UNNAMED.Persistence;
 
@@ -96,7 +97,8 @@ public static class SchemaMigrations
         new SchemaV18ToV19(),
         new SchemaV19ToV20(),
         new SchemaV20ToV21(),
-        new SchemaV21ToV22());
+        new SchemaV21ToV22(),
+        new SchemaV22ToV23());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -1131,7 +1133,7 @@ public sealed class SchemaV20ToV21 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V20.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V22.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -1208,6 +1210,60 @@ public sealed class SchemaV21ToV22 : SchemaMigration
                 Noises = old.Noises,
                 Economy = null,
                 Merchants = Array.Empty<MerchantDto>(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 22 to 23 (WP9, the quick bar): the player gains eight quick slots and the record of what they took off it on purpose. A save from
+/// before them has an empty bar and took nothing off; when it loads, what the character carries to use and the formulas they know are
+/// offered slots as the fixed keys had them - items on 1 to 3, formulas on 4 to 6 - by the quick bar's own rule, so nothing here reads
+/// content.
+/// </summary>
+public sealed class SchemaV22ToV23 : SchemaMigration
+{
+    public override int From => 22;
+
+    public override string Summary => "schema 22 -> 23: the player gains an empty eight-slot quick bar";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V22.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions,
+                Posture = old.Posture,
+                Waystones = old.Waystones,
+                ReturnPoint = old.ReturnPoint,
+                RoadsWalked = old.RoadsWalked,
+                Deeds = old.Deeds,
+                Identity = old.Identity,
+                Factions = old.Factions,
+                Party = old.Party,
+                // Literal, not QuickBar.Empty: a step is a fixed function of the schema it reads.
+                QuickBar = new QuickBarDto { Slots = new string?[8], Cleared = Array.Empty<string>() },
             }, options);
         }
         document.Manifest["schema_version"] = To;

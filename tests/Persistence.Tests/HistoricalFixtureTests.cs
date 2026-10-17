@@ -289,6 +289,10 @@ public class HistoricalFixtureTests
         Assert.Equal("Aelin", loaded.Player.Name);
         // Schema 21's ledger: no one recovering or fallen - the fixture pack has one NPC, and the warden is in the party.
         Assert.Equal(PartyLedger.Empty, loaded.Player.Party);
+        // Schema 23's quick bar (WP9): the firebolt on key 4 and the draught cleared off the bar, both under their current names; before
+        // it, an empty bar with nothing cleared, which what she carries and knows fills once she is in the world.
+        Assert.Equal(schema >= 23 ? new string?[] { null, null, null, "spell.ember.bolt", null, null, null, null } : new string?[8], loaded.Player.QuickBar);
+        Assert.Equal(schema >= 23 ? new[] { "item.potion.minor_healing" } : Array.Empty<string>(), loaded.Player.QuickBarCleared);
         // Schema 18's persistent clock (WP11): saved at a known moment after a login that caught up a game day and a quarter; before it, the
         // moment the save was taken is its build_timestamp, to the second, and no login had caught anything up.
         if (schema >= 18)
@@ -343,9 +347,17 @@ public class HistoricalFixtureTests
 
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);
         // v4 names the potion twice - held, and first produced - and the report counts each occurrence; v21 a third time, in the
-        // warden's contract supply.
+        // warden's contract supply; v23 the potion and the firebolt once more, on the quick bar.
         var aliases = schema switch
         {
+            >= 23 => new[]
+            {
+                "creature.beast.ash_hound -> creature.beast.ash_ember_hound x4", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",
+                "effect.weakness -> effect.weakened", "faction.fixture.wardens -> faction.fixture.keepers x2",
+                "item.potion.healing_draught -> item.potion.minor_healing x8", "location.wolf_den -> location.den_mouth",
+                "npc.fixture.warden -> npc.fixture.warden_sera x5", "quest.fixture.errand -> quest.fixture.wardens_errand",
+                "spell.ember.firebolt -> spell.ember.bolt x2",
+            },
             >= 21 => new[]
             {
                 "creature.beast.ash_hound -> creature.beast.ash_ember_hound x4", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",

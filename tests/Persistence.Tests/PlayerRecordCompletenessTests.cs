@@ -78,6 +78,9 @@ public class PlayerRecordCompletenessTests
                     player.Factions.Knowledge, player.Factions.Standing.Add(new Domain.Factions.FactionStanding("faction.fixture.wilders", -40))),
                 // Someone recovering from a grave wound, and a hireling who fell (schema 21).
                 Party = new PartyLedger(ImmutableArray.Create(new RecoveryRecord("npc.fixture.healer", 9_000)), ImmutableArray.Create("npc.fixture.porter")),
+                // A slot in use and something cleared off the bar (schema 23).
+                QuickBar = ImmutableArray.Create<string?>("item.potion.minor_healing", null, null, "spell.ember.bolt", null, null, null, null),
+                QuickBarCleared = ImmutableArray.Create("item.food.roast_meat"),
             };
     }
 
