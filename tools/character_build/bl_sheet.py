@@ -102,6 +102,8 @@ for k, item in enumerate(items):
     if clip_action is not None:
         body_arm.animation_data_create()
         body_arm.animation_data.action = clip_action
+        if getattr(clip_action, "slots", None):
+            body_arm.animation_data.action_slot = clip_action.slots[0]
 
 times = [float(t) for t in a.times.split(",")] if a.times else [None]
 views = a.views.split(",")
