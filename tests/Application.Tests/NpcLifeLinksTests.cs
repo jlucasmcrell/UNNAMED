@@ -195,7 +195,7 @@ public class NpcLifeLinksTests
         Beside(arena, Porter);
         var first = arena.Simulation.Npcs.Single(n => n.Id == Porter).InstanceId;
         Assert.Null(arena.Submit(new HireCommand(arena.Player, Porter, HirelingRole.Porter, 3, AcceptsRisk: true)));
-        Assert.Null(arena.Simulation.Submit(new RemoveNpc(Porter)));
+        Assert.Null(arena.Simulation.Submit(new RemoveNpc(Porter, arena.Simulation.WorldTick)));
         var vacancy = arena.Simulation.World.NpcLife!.Vacancies[Porter];
         Assert.InRange(vacancy.ArrivalDay - vacancy.LeftDay, 3, 7);
         // Nobody arrives in sight (spawn suppression): the character goes off to Cairnwold first.
@@ -207,6 +207,32 @@ public class NpcLifeLinksTests
         Assert.NotNull(next);
         Assert.NotEqual(first, next!.InstanceId);
         Assert.Equal(NpcCondition.Living, LifeOf(arena.Simulation, Porter).Condition);
+    }
+
+    [Fact]
+    public void AResidentHirelingWhoFallsWhileTheCharacterIsAway_LeavesTheSameVacancy_HoweverTheAbsenceIsSplit()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        Simulation Downed()
+        {
+            var arena = Open(session);
+            Beside(arena, Porter);
+            Assert.Null(arena.Submit(new HireCommand(arena.Player, Porter, HirelingRole.Porter, 3, AcceptsRisk: true)));
+            arena.Simulation.Submit(new CompanionStruck(arena.Simulation.Creatures.First(c => c.Alive).Id, Porter,
+                new AttackProfile("test", 10_000, 10_000, DamageTypes.All[0], 1_000, 1, 1, 1, 1)));
+            arena.Simulation.Step();
+            return arena.Simulation;
+        }
+        long total = 5 * Day + 321;
+        var once = Downed();
+        once.Advance(total);
+        var vacancy = once.World.NpcLife!.Vacancies[Porter];
+        var split = Downed();
+        split.Advance(Hour);
+        split.Advance(total - Hour);
+        Assert.Equal(vacancy, split.World.NpcLife!.Vacancies[Porter]);
+        Assert.Equal(once.Setup.Clock.Day(split.WorldTick - total), vacancy.LeftDay);
     }
 
     // ── trips and looking for company ───────────────────────────────────────

@@ -108,7 +108,8 @@ internal sealed partial class NpcSystem : INpcHireability, ISettingOutSource, IC
 
     public NpcHireView? Hireability(string key)
     {
-        if (!State.Npcs.TryGetValue(key, out var npc))
+        // An adventurer's body is theirs to answer for (WP13).
+        if (!State.Npcs.TryGetValue(key, out var npc) || npc.Definition.Role == AdventurerSystem.Role)
             return null;
         var routine = LifeOf(key) is { } life ? Life.Routines.GetValueOrDefault(life.RoutineId) : null;
         var roles = routine?.Roles ?? ImmutableArray<string>.Empty;

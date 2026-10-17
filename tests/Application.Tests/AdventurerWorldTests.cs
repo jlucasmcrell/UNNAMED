@@ -164,10 +164,10 @@ public class AdventurerWorldTests
         var arena = AtTheLodge(session, coin: 50);
         var adventurer = arena.Simulation.Adventurers.Single(a => a.Key == "npc.adventurer.ashen_hollow.slot_1_g0");
         var hireability = arena.Record<HireabilityChanged>();
-        Assert.True(arena.Simulation.AdventurerHireability(adventurer.Key)!.Hireable);
-        Assert.Equal(new[] { HirelingRole.Guard, HirelingRole.Porter }, arena.Simulation.AdventurerHireability(adventurer.Key)!.HiresAs);
+        Assert.True(arena.Simulation.Hiring.Hireability(adventurer.Key)!.Hireable);
+        Assert.Equal(new[] { HirelingRole.Guard, HirelingRole.Porter }, arena.Simulation.Hiring.Hireability(adventurer.Key)!.HiresAs);
         Assert.Null(arena.Submit(new HireCommand(arena.Player, adventurer.Key, HirelingRole.Guard, 3, AcceptsRisk: true)));
-        Assert.False(arena.Simulation.AdventurerHireability(adventurer.Key)!.Hireable);
+        Assert.False(arena.Simulation.Hiring.Hireability(adventurer.Key)!.Hireable);
         arena.Simulation.Step();
         Assert.Contains(hireability, h => h.Key == adventurer.Key && !h.Hireable);
 
@@ -256,5 +256,73 @@ public class AdventurerWorldTests
         sim.Advance(next - sim.WorldTick);
         Assert.DoesNotContain(sim.Companions, c => c.NpcId == key);
         Assert.Null(sim.Adventurers.Single(a => a.Key == key).Party);
+    }
+
+    [Fact]
+    public void OneHiringAnswer_ForResidentsAndAdventurers_AndOnlyTheAdventurersRaiseTheirChanges()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = AtTheLodge(session, coin: 50);
+        const string key = "npc.adventurer.ashen_hollow.slot_1_g0";
+        Assert.True(arena.Simulation.IsHireable(key));
+        Assert.Equal(new[] { "adventurer" }, arena.Simulation.Hiring.Hireability(key)!.Roles);
+        var changes = arena.Record<HireabilityChanged>();
+        Assert.Null(arena.Submit(new HireCommand(arena.Player, key, HirelingRole.Guard, 3, AcceptsRisk: true)));
+        arena.Simulation.Step();
+        Assert.Single(changes, c => c.Key == key);
+        Assert.False(arena.Simulation.IsHireable(key));
+        Assert.Equal("is with you", arena.Simulation.Hiring.Hireability(key)!.Refusal);
+    }
+
+    [Fact]
+    public void AnAdventurerOutOnTheirDay_CannotBeHired_ThoughTheirBodyStandsInSight()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = AtTheLodge(session, coin: 50);
+        var sim = arena.Simulation;
+        AdventurerRecord? gone = null;
+        for (int d = 0; d < 20 && gone is null; d++)
+        {
+            long midnight = (sim.Setup.Clock.Day(sim.WorldTick) + 1) * Day - sim.Setup.Clock.StartTicks;
+            sim.Advance(midnight - sim.WorldTick + 1);
+            var leaving = sim.World.Adventurers!.Agents.Values.FirstOrDefault(a => a.At == "ashen_hollow" && a.Party is null
+                && AdventurerGoals.Out(a.Plan.Goal) && a.Plan.Day == sim.Setup.Clock.Day(sim.WorldTick));
+            if (leaving is null)
+                continue;
+            sim.Advance(leaving.Plan.DepartTick - sim.WorldTick + 1);
+            if (sim.Npcs.Any(n => n.Id == leaving.Key))
+                gone = leaving;
+        }
+        Assert.NotNull(gone);
+        Assert.False(sim.IsHireable(gone!.Key));
+        Assert.Equal("is out", sim.Hiring.Hireability(gone.Key)!.Refusal);
+        Assert.Equal($"{gone.Name} is out", arena.Submit(new HireCommand(arena.Player, gone.Key, HirelingRole.Guard, 3, AcceptsRisk: true)));
+    }
+
+    [Fact]
+    public void AnAbsence_WithAHiredAdventurerWhoseContractEnds_InAnyPieces_LeavesTheSameWorld()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        const string key = "npc.adventurer.ashen_hollow.slot_1_g0";
+        Simulation Hired()
+        {
+            var arena = AtTheLodge(session, coin: 200);
+            Assert.Null(arena.Submit(new HireCommand(arena.Player, key, HirelingRole.Guard, 2, AcceptsRisk: true)));
+            return arena.Simulation;
+        }
+        long total = 7 * Day + 1_234;
+        var once = Hired();
+        once.Advance(total);
+        Assert.DoesNotContain(once.Companions, c => c.NpcId == key);
+        foreach (var pieces in new[] { new long[] { Day + 17, total - Day - 17 }, new long[] { 3 * Day - 5, 10, total - 3 * Day - 5 } })
+        {
+            var chunked = Hired();
+            foreach (long piece in pieces)
+                chunked.Advance(piece);
+            Assert.Equal(World(once, bodies: false), World(chunked, bodies: false));
+        }
     }
 }

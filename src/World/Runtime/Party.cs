@@ -119,8 +119,8 @@ internal sealed record Hire(string NpcId, HirelingRole Role, int Days) : Interna
 /// <summary>To <see cref="CompanionSystem"/>: the speaker leaves the party (a conversation's <c>dismiss_companion</c>).</summary>
 internal sealed record Dismiss(string NpcId) : InternalCommand;
 
-/// <summary>To <see cref="NpcSystem"/>: an NPC is gone from the world - a hireling who died (DN9).</summary>
-internal sealed record RemoveNpc(string NpcId) : InternalCommand
+/// <summary>To <see cref="NpcSystem"/>: an NPC is gone from the world at <paramref name="Tick"/> - a hireling who died (DN9).</summary>
+internal sealed record RemoveNpc(string NpcId, long Tick) : InternalCommand
 {
     /// <summary>Only the body goes; the instance stays known, so the same person can stand there again (WP13: an adventurer leaving town).</summary>
     public bool KeepIdentity { get; init; }

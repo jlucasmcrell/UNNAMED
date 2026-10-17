@@ -92,14 +92,17 @@ internal sealed record EmbodyNpc(NpcDefinition Definition, EntityId InstanceId, 
 /// <summary>To <see cref="NpcSystem"/>: a retiring adventurer takes an open role slot in their settlement, if one stands open (§2.13).</summary>
 internal sealed record SettleRetiree(string Settlement, string Name, long Tick) : InternalCommand;
 
-/// <summary>To <see cref="AdventurerSystem"/>: an adventurer joined the party (as <see cref="Membership"/>) or left it, fell, or was wounded.</summary>
-internal sealed record AdventurerPartyChanged(string Key, string Change) : InternalCommand
+/// <summary>
+/// To <see cref="AdventurerSystem"/>: an adventurer joined the party (as <see cref="Membership"/>) or left it, fell, or was wounded, at
+/// <paramref name="Tick"/> - the party's tick, which in an absence is the midnight it happened at, not the end of the absence.
+/// </summary>
+internal sealed record AdventurerPartyChanged(string Key, string Change, long Tick) : InternalCommand
 {
     public const string Joined = "joined", Left = "left", Died = "died", Wounded = "wounded";
 
     public PartyMembership Membership { get; init; }
 
-    /// <summary>When a wound heals; when someone fell.</summary>
+    /// <summary>When a wound heals.</summary>
     public long UntilTick { get; init; }
 }
 
@@ -177,22 +180,22 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
         events.Listen<CompanionRecruited>(e =>
         {
             if (Agent(e.NpcId) is not null && State.Companions.TryGetValue(e.NpcId, out var member))
-                _context.Dispatch(new AdventurerPartyChanged(e.NpcId, AdventurerPartyChanged.Joined) { Membership = member.Membership });
+                _context.Dispatch(new AdventurerPartyChanged(e.NpcId, AdventurerPartyChanged.Joined, e.Tick) { Membership = member.Membership });
         });
         events.Listen<PartyMemberLeft>(e =>
         {
             if (Agent(e.NpcId) is not null)
-                _context.Dispatch(new AdventurerPartyChanged(e.NpcId, AdventurerPartyChanged.Left));
+                _context.Dispatch(new AdventurerPartyChanged(e.NpcId, AdventurerPartyChanged.Left, e.Tick));
         });
         events.Listen<HirelingDied>(e =>
         {
             if (Agent(e.NpcId) is not null)
-                _context.Dispatch(new AdventurerPartyChanged(e.NpcId, AdventurerPartyChanged.Died) { UntilTick = e.Tick });
+                _context.Dispatch(new AdventurerPartyChanged(e.NpcId, AdventurerPartyChanged.Died, e.Tick));
         });
         events.Listen<CompanionGravelyWounded>(e =>
         {
             if (Agent(e.NpcId) is not null)
-                _context.Dispatch(new AdventurerPartyChanged(e.NpcId, AdventurerPartyChanged.Wounded) { UntilTick = e.UntilTick });
+                _context.Dispatch(new AdventurerPartyChanged(e.NpcId, AdventurerPartyChanged.Wounded, e.Tick) { UntilTick = e.UntilTick });
         });
         // An answered offer: the group sets out, the adventurer with the character as a temporary ally (WP16's group; its life is ours).
         events.Listen<AllyGroupFormed>(e =>
@@ -508,14 +511,14 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
                 _context.Dispatch(new EmbodyNpc(Definition(a), InstanceIdOf(a.Key), SiteOf(a, town)));
             }
             else if (TierAt(State.Npcs[a.Key].Body.XMm, State.Npcs[a.Key].Body.ZMm) != SimulationTier.A)
-                _context.Dispatch(new RemoveNpc(a.Key) { KeepIdentity = true });
+                _context.Dispatch(new RemoveNpc(a.Key, tick) { KeepIdentity = true });
         }
         // Those no longer living their lives here - dead, retired - leave their body only out of sight.
         foreach (var npc in State.Npcs.Values.Where(n => n.Definition.Role == Role && !state.Agents.ContainsKey(n.Definition.Id)
                      && !State.Companions.ContainsKey(n.Definition.Id)).ToList())
         {
             if (TierAt(npc.Body.XMm, npc.Body.ZMm) != SimulationTier.A)
-                _context.Dispatch(new RemoveNpc(npc.Definition.Id));
+                _context.Dispatch(new RemoveNpc(npc.Definition.Id, tick));
         }
     }
 
@@ -537,7 +540,7 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
 
     // ── the party ───────────────────────────────────────────────────────────
 
-    public string? Handle(AdventurerPartyChanged command, long tick)
+    public string? Handle(AdventurerPartyChanged command)
     {
         if (Current is not { } state || Agent(command.Key) is not { } a || Setup is not { } setup)
             return $"no adventurer called {command.Key}";
@@ -552,12 +555,12 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
                 {
                     Party = PartyKeys.Key(command.Membership),
                     Gear = ImmutableSortedDictionary<EquipSlot, AdventurerGear>.Empty,
-                    Plan = new AdventurerPlan(Clock.Day(tick), AdventurerGoals.Rest, command.Membership == PartyMembership.TemporaryAlly ? a.Plan.Ref : null),
+                    Plan = new AdventurerPlan(Clock.Day(command.Tick), AdventurerGoals.Rest, command.Membership == PartyMembership.TemporaryAlly ? a.Plan.Ref : null),
                 });
                 return null;
             case AdventurerPartyChanged.Left:
             case AdventurerPartyChanged.Wounded:
-                a = Restored(a) with { Party = null, Plan = AdventurerPlan.Resting(Clock.Day(tick)) };
+                a = Restored(a) with { Party = null, Plan = AdventurerPlan.Resting(Clock.Day(command.Tick)) };
                 if (command.Change == AdventurerPartyChanged.Wounded)
                     a = a with { Condition = AdventurerCondition.Injured, InjuredUntilDay = Clock.Day(command.UntilTick) + 1 };
                 _context.Dispatch(new ReleaseSheet(a.Key));
@@ -565,8 +568,8 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
                 return null;
             case AdventurerPartyChanged.Died:
                 // The slot waits from the day they fell: their arrival is counted from it.
-                State.SetAdventurers(_owner, AdventurerEngine.Remove(state, a.Key, setup.Rules, Day(Math.Min(state.Day, Clock.Day(command.UntilTick)))));
-                _context.Events.Publish(new AdventurerDied(a.Key, a.Name, "party", tick));
+                State.SetAdventurers(_owner, AdventurerEngine.Remove(state, a.Key, setup.Rules, Day(Clock.Day(command.Tick))));
+                _context.Events.Publish(new AdventurerDied(a.Key, a.Name, "party", command.Tick));
                 return null;
             default:
                 return $"no such change '{command.Change}'";
@@ -604,13 +607,19 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
 
     // ── hireability (WP12b's contract) ──────────────────────────────────────
 
-    /// <summary>Why an adventurer cannot be hired now, or null: they hire on while in town, on their feet, with a body, and not with the party.</summary>
+    /// <summary>
+    /// Why an adventurer cannot be hired now, worded after their name as WP12b's refusals are, or null: they hire on while in town, on their
+    /// feet, with a body, and not with the party.
+    /// </summary>
     private string? Refusal(AdventurerRecord a) =>
-        a.Party is not null ? $"{a.Name} is with you"
-        : a.Condition == AdventurerCondition.Injured ? $"{a.Name} is resting an injury"
-        : !InTown(a, State.WorldTick) ? $"{a.Name} is out"
-        : !State.Npcs.ContainsKey(a.Key) ? $"{a.Name} is not here"
+        a.Party is not null ? "is with you"
+        : a.Condition == AdventurerCondition.Injured ? "is resting an injury"
+        : !InTown(a, State.WorldTick) ? "is out"
+        : !State.Npcs.ContainsKey(a.Key) ? "is not here"
         : null;
+
+    /// <summary>Why an adventurer cannot be hired now, for the party's hire (as <see cref="NpcSystem.HireRefusal"/> is); null for anyone else.</summary>
+    public string? HireRefusal(string key) => Agent(key) is { } a ? Refusal(a) : null;
 
     public bool IsHireable(string key) => Agent(key) is { } a && Refusal(a) is null;
 
@@ -714,6 +723,23 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
         if (Current is { } state)
             State.SetAdventurers(_owner, state with { Agents = state.Agents.SetItem(a.Key, a) });
     }
+}
+
+/// <summary>One answer to who can be hired (WP12b's contract): the adventurers for their own, NPC life for everyone else.</summary>
+internal sealed class CombinedHireability : INpcHireability
+{
+    private readonly AdventurerSystem _adventurers;
+    private readonly INpcHireability _residents;
+
+    public CombinedHireability(AdventurerSystem adventurers, INpcHireability residents)
+    {
+        _adventurers = adventurers;
+        _residents = residents;
+    }
+
+    public bool IsHireable(string key) => Hireability(key)?.Hireable ?? false;
+
+    public NpcHireView? Hireability(string key) => _adventurers.Hireability(key) ?? _residents.Hireability(key);
 }
 
 /// <summary>Setting-outs from more than one source, in tick order: the NPC life simulation's and the adventurers'.</summary>

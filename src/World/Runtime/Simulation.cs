@@ -173,6 +173,7 @@ public sealed class Simulation
     private readonly ChatSystem _chat;
     private readonly AdventurerSystem _adventurers;
     private readonly CombinedSettingOuts _trips;
+    private readonly CombinedHireability _hiring;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private readonly ImmutableArray<IAbstractAdvance> _advances;
     private long _sequence;
@@ -232,7 +233,7 @@ public sealed class Simulation
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests), player.Id);
         _quests.Listen(bus);
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions,
-            new NpcPartyLife(Dispatch, _npcs.Lives, life)) { Unhireable = _npcs.HireRefusal };
+            new NpcPartyLife(Dispatch, _npcs.Lives, life)) { Unhireable = key => _adventurers.HireRefusal(key) ?? _npcs.HireRefusal(key) };
         _sheets = new PartySheetSystem(_context, _state.Claim(nameof(PartySheetSystem), StateSlice.PartySheets), player.Id);
         _sheets.Listen(bus);
         _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views, _inventory.WorldItems);
@@ -248,6 +249,7 @@ public sealed class Simulation
         _approval.Listen(bus);
         _adventurers = new AdventurerSystem(_context, _state.Claim(nameof(AdventurerSystem), StateSlice.Adventurers), player.Id);
         _trips = new CombinedSettingOuts(setup.SettingOuts ?? _npcs, _adventurers);
+        _hiring = new CombinedHireability(_adventurers, _npcs);
         _lfg = new LfgSystem(_context, _state.Claim(nameof(LfgSystem), StateSlice.Lfg), player.Id, _trips);
         _chat = new ChatSystem(_context, player.Id, new CellKey(_cells[0].Region, 0, 0), _lfg, t => _weather.FrontAt(t).State, setup.ChatterSpeakers ?? _npcs);
         _chat.Listen(bus);
@@ -256,8 +258,9 @@ public sealed class Simulation
         _context.OtherActorName = _adventurers.NameOf;
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new NpcTierSimulation(SimulationTier.B, _npcs), new NpcTierSimulation(SimulationTier.C, _npcs));
         // The abstract advance (WP11): the clock first, so every other system brings itself to the tick it reads. A new world system
-        // that goes on while the character is away adds itself here.
-        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _adventurers, _creatures, _effects, _gathering, _quests, _factions, _companions, _sheets, _approval, _npcs, _markets, _teaching, _durability, _laden, _lfg);
+        // that goes on while the character is away adds itself here. The party goes before the adventurers: an adventurer it lets go or
+        // loses at a midnight of the absence takes up their life from that midnight, however the absence is split (T-22).
+        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _companions, _adventurers, _creatures, _effects, _gathering, _quests, _factions, _sheets, _approval, _npcs, _markets, _teaching, _durability, _laden, _lfg);
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
         _combat.Seed(player);
@@ -414,12 +417,12 @@ public sealed class Simulation
 
     /// <summary>
     /// Who can be hired (WP12b), derived: never a vendor or a quest giver; anyone else whose town roles hire out and who is about their own
-    /// life. <see cref="HireabilityChanged"/> follows each change. WP13's contract.
+    /// life; and the adventurers in town (WP13), whom their own system answers for. <see cref="HireabilityChanged"/> follows each change.
     /// </summary>
-    public INpcHireability Hiring => _npcs;
+    public INpcHireability Hiring => _hiring;
 
     /// <summary>Whether someone can be hired now (WP12b).</summary>
-    public bool IsHireable(string npcId) => _npcs.IsHireable(npcId);
+    public bool IsHireable(string npcId) => _hiring.IsHireable(npcId);
 
     /// <summary>Who sets out on a trip and asks along whoever will come (WP12b's planner): every SettingOut in (from, to], in tick order.</summary>
     public ISettingOutSource Trips => _trips;
@@ -542,8 +545,6 @@ public sealed class Simulation
     /// <summary>The region's NPC adventurers (WP13): level, coin, gear, what they are about today, and whether they are in town or with the party.</summary>
     public ImmutableArray<AdventurerView> Adventurers => _adventurers.Views();
 
-    /// <summary>Whether an adventurer can be hired now, and why not (WP12b's <see cref="INpcHireability"/>, answered for adventurers).</summary>
-    public NpcHireView? AdventurerHireability(string key) => _adventurers.Hireability(key);
 
     /// <summary>The town markets: each good's stock and price against base, and what is on the road to them (WP14).</summary>
     public ImmutableArray<MarketView> Markets => _markets.Views();
@@ -891,7 +892,7 @@ public sealed class Simulation
         ReleaseSheet release => _sheets.Handle(release),
         EmbodyNpc embody => _npcs.Handle(embody),
         SettleRetiree retiree => _npcs.Handle(retiree),
-        AdventurerPartyChanged changed => _adventurers.Handle(changed, Now),
+        AdventurerPartyChanged changed => _adventurers.Handle(changed),
         ShareBounty share => _adventurers.Handle(share, Now),
         _ => throw new InvalidOperationException($"No system handles {command.GetType().Name}"),
     };

@@ -370,12 +370,14 @@ public static class AdventurerEngine
         var agents = state.Agents.ToBuilder();
         var vacancies = state.Vacancies.ToBuilder();
         var claimed = new HashSet<string>(StringComparer.Ordinal);
+        // Someone with the party, or back from it with today already planned (let go at a midnight the absence has not lived yet), is left be.
+        var away = state.Agents.Values.Where(a => a.Party is not null || a.Plan.Day >= day.Day).Select(a => a.Key).ToHashSet(StringComparer.Ordinal);
 
         // Yesterday's plans come to their end, in key order: the first to a bounty is the first by key.
         foreach (string key in agents.Keys.ToList())
         {
             var a = agents[key];
-            if (a.Party is not null)
+            if (away.Contains(key))
                 continue;
             var resolved = Resolve(a, rules, day, agents, claimed, happenings);
             if (resolved is null)
@@ -391,7 +393,7 @@ public static class AdventurerEngine
         foreach (string key in agents.Keys.ToList())
         {
             var a = agents[key];
-            if (a.Party is not null || a.Condition != AdventurerCondition.Active || (a.Coin < rules.RetireCoin && day.Day - a.ArrivedDay < rules.RetireDays))
+            if (away.Contains(key) || a.Condition != AdventurerCondition.Active || (a.Coin < rules.RetireCoin && day.Day - a.ArrivedDay < rules.RetireDays))
                 continue;
             agents.Remove(key);
             Vacate(a, rules, day, vacancies);
@@ -418,7 +420,7 @@ public static class AdventurerEngine
         foreach (string key in agents.Keys.ToList())
         {
             var a = agents[key];
-            if (a.Party is not null)
+            if (away.Contains(key))
                 continue;
             agents[key] = Plan(a, rules, day, claimed, planned, happenings);
         }

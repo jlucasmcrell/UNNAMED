@@ -644,7 +644,7 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
             _context.Events.Publish(new CompanionFell(c.NpcId, npc.Body, tick));
             // What was loaned comes back to the character; what was theirs lies where they fell (§2.15, DN9).
             _context.Dispatch(new SettleFallen(c.NpcId, npc.Body.XMm, npc.Body.ZMm));
-            _context.Dispatch(new RemoveNpc(c.NpcId));
+            _context.Dispatch(new RemoveNpc(c.NpcId, tick));
             _context.Events.Publish(new HirelingDied(c.NpcId, tick));
             return;
         }

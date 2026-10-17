@@ -132,7 +132,7 @@ internal sealed partial class NpcSystem
             {
                 ulong sample = RngChannel.Open(State.World.WorldSeed, RegionCell, "npc_life", $"arrival:{lived.RoutineId}#{lived.Generation + 1}").UInt64(0);
                 State.SetNpcLife(_owner, NpcLifeEngine.Depart(life, _context.Setup.NpcLife.Routines, _context.Setup.NpcLife.Rules, command.NpcId,
-                    _context.Setup.Clock.Day(State.WorldTick), sample, out _) ?? life with { Npcs = life.Npcs.Remove(command.NpcId) });
+                    _context.Setup.Clock.Day(command.Tick), sample, out _) ?? life with { Npcs = life.Npcs.Remove(command.NpcId) });
             }
             else
                 State.SetNpcLife(_owner, life with { Npcs = life.Npcs.Remove(command.NpcId) });
