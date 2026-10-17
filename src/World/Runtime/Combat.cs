@@ -538,7 +538,7 @@ internal sealed partial class CombatSystem
         }
 
         var struck = action.Struck;
-        foreach (var creature in State.Creatures.Values.Where(c => c.Alive && !struck.Contains(c.Id)).ToList())
+        foreach (var creature in State.Creatures.Values.Where(c => c.Alive && c.Site.Space == State.Space && !struck.Contains(c.Id)).ToList())
         {
             if (!CombatRules.InFront(body.XMm, body.ZMm, body.FacingMdeg, creature.Body.XMm, creature.Body.ZMm,
                     attack.ReachMm + creature.Definition.RadiusMm, C.MeleeArcMdeg)
@@ -596,7 +596,7 @@ internal sealed partial class CombatSystem
         double dx = Math.Sin(facing), dz = Math.Cos(facing);
         CreatureState? best = null;
         double bestAlong = double.MaxValue;
-        foreach (var creature in State.Creatures.Values.Where(c => c.Alive))
+        foreach (var creature in State.Creatures.Values.Where(c => c.Alive && c.Site.Space == State.Space))
         {
             double ox = creature.Body.XMm - from.XMm, oz = creature.Body.ZMm - from.ZMm;
             double along = ox * dx + oz * dz;
