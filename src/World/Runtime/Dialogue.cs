@@ -117,10 +117,13 @@ internal sealed class DialogueSystem : IDialogueFacts
         if (choice is null || !DialogueRules.Offered(choice, dialogue.Id, this))
             return $"'{command.ReplyId}' is not a reply here";
 
-        // An item changing hands is the one consequence that can be refused (a full pack, say): it goes first, and a
-        // refusal refuses the reply before anything else happens. The content lint allows one a reply.
+        // An item changing hands and a hire are the consequences that can be refused (a full pack, a purse short of the first wage): one
+        // goes first, and a refusal refuses the reply before anything else happens. The content lint allows one a reply.
         if (choice.Consequences.OfType<TransferItemConsequence>().FirstOrDefault() is { } transfer && Transfer(open.NpcId, transfer, tick) is { } refused)
             return refused;
+        if (choice.Consequences.OfType<HireHirelingConsequence>().FirstOrDefault() is { } hire
+            && _context.Dispatch(new Hire(open.NpcId, hire.Role, hire.Days)) is { } refusedHire)
+            return refusedHire;
         foreach (var consequence in choice.Consequences)
             Apply(open, consequence, tick);
         _context.Events.Publish(new ReplyChosen(open.NpcId, open.DialogueId, open.NodeId, choice.Id, tick));
@@ -235,9 +238,6 @@ internal sealed class DialogueSystem : IDialogueFacts
                 break;
             case RecruitCompanionConsequence recruit:
                 _context.Dispatch(new Recruit(open.NpcId) { As = recruit.As });
-                break;
-            case HireHirelingConsequence hire:
-                _context.Dispatch(new Hire(open.NpcId, hire.Role, hire.Days));
                 break;
             case DismissCompanionConsequence:
                 _context.Dispatch(new Dismiss(open.NpcId));

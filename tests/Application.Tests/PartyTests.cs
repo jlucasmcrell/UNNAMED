@@ -3,6 +3,7 @@ using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Progression;
+using UNNAMED.Domain.Social;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
 using Registry = UNNAMED.EntityRegistry.EntityRegistry;
@@ -102,6 +103,46 @@ public class PartyTests
         Assert.Equal((PartyMembership.Hireling, CompanionStance.Aggressive, CompanionOrder.Follow, 60), (her.Membership, her.Stance, her.Order, her.MaxHealth));
         Assert.Equal(new HirelingContract(HirelingRole.Guard, 5, 8, PartyRules.WageOnly) { Purse = 8 }, her.Contract);
         Assert.Equal("Kera Voss is already with you", Hire(arena, Kera, HirelingRole.Guard, 5));
+    }
+
+    /// <summary>
+    /// A hire by dialogue that cannot go through - here, a purse short of the first wage - refuses the reply: the conversation stays where
+    /// it was, so the hiring line is not spent, and no one is hired. A conversation of this test's own, given to Kera.
+    /// </summary>
+    [Fact]
+    public void AHireByDialogue_ThatIsRefused_RefusesTheReply()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var dialogue = new DialogueDefinition("dialogue.test.hire", ImmutableArray.Create(Kera), "ask", new[]
+        {
+            new DialogueNode("ask", "Need a guard?", ImmutableArray.Create(
+                new DialogueChoice("hire", "Five days, then.", ImmutableArray<DialogueCondition>.Empty,
+                    ImmutableArray.Create<DialogueConsequence>(new HireHirelingConsequence(HirelingRole.Guard, 5)), "hired")), null, false, null),
+            new DialogueNode("hired", "Lead on.", ImmutableArray<DialogueChoice>.Empty, null, false, null),
+        }.ToImmutableSortedDictionary(n => n.Id, n => n, StringComparer.Ordinal));
+        var setup = Hireable(session.Setup, Kera);
+        setup = setup with
+        {
+            Social = setup.Social with
+            {
+                Npcs = setup.Social.Npcs.SetItem(Kera, setup.Social.Npcs[Kera] with { DialogueId = dialogue.Id }),
+                Dialogues = setup.Social.Dialogues.SetItem(dialogue.Id, dialogue),
+            },
+        };
+        Arena Open(long coin) => Arena.OpenCreatures(session, setup, AtKera, 0, Array.Empty<(string, double, double, string)>(), r => WithCoin(r, coin));
+
+        var poor = Open(5);
+        Assert.Null(poor.Submit(new TalkCommand(poor.Player, Kera)));
+        Assert.Equal("not enough coin: the first day's wage is 8, 5 carried", poor.Submit(new ChooseCommand(poor.Player, "hire")));
+        Assert.Equal("ask", poor.Simulation.Conversation!.NodeId);
+        Assert.Empty(poor.Simulation.Companions);
+
+        var paid = Open(50);
+        Assert.Null(paid.Submit(new TalkCommand(paid.Player, Kera)));
+        Assert.Null(paid.Submit(new ChooseCommand(paid.Player, "hire")));
+        Assert.Equal("hired", paid.Simulation.Conversation!.NodeId);
+        Assert.Equal(PartyMembership.Hireling, Member(paid, Kera).Membership);
     }
 
     [Fact]

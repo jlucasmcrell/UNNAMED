@@ -212,9 +212,11 @@ public static class SocialContent
     {
         string at = $"{where} reply {Text(map, "id")}";
         var consequences = Rows(map, "consequences", at).Select(c => Consequence(at, c, loader)).ToImmutableArray();
-        // An item changing hands is the one consequence that can be refused, so a reply carries at most one and it goes first.
+        // An item changing hands and a hire are the consequences that can be refused, so a reply carries at most one and it goes first.
         if (consequences.OfType<TransferItemConsequence>().Count() > 1)
             throw new FormatException($"{at}: a reply moves at most one item (transfer_item)");
+        if (consequences.Count(c => c is TransferItemConsequence or HireHirelingConsequence) > 1)
+            throw new FormatException($"{at}: a reply carries at most one consequence that can be refused (transfer_item, hire_hireling)");
         return new DialogueChoice(Text(map, "id"), Text(map, "text"),
             Rows(map, "conditions", at).Select(c => Condition(at, c, loader)).ToImmutableArray(), consequences,
             map.GetValueOrDefault("next") as string);

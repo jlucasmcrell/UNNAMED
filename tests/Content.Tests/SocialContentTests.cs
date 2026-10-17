@@ -264,6 +264,12 @@ public class SocialContentTests
         AssertRefused("dialogue/ashen_hollow/tavar_orr.yaml", "consequences: [{ command: recruit_companion }]",
             "consequences: [{ command: hire_hireling, role: guard, days: 3, risk_stated: true }]", "hires a guard, but none of its participants hires on as one");
 
+    [Fact]
+    public void AReplyThatHiresAndMovesAnItem_IsRefused() =>
+        AssertRefused("dialogue/ashen_hollow/tavar_orr.yaml", "consequences: [{ command: recruit_companion }]",
+            "consequences: [{ command: transfer_item, item_ref: item.consumable.roast_meat, count: 1, to: player }, { command: hire_hireling, role: guard, days: 3, risk_stated: true }]",
+            "a reply carries at most one consequence that can be refused (transfer_item, hire_hireling)");
+
     /// <summary>DN9: a named companion is wounded where a hireling dies, so no one is both.</summary>
     [Fact]
     public void ACompanionWhoIsAlsoForHire_IsRefused() =>
