@@ -464,14 +464,34 @@ internal static class SaveLoader
                 cleared.Add(id);
         }
 
+        // The party's sheets (schema 25): a sheet whose NPC was removed goes with them, and what they held with it; a piece whose item was
+        // removed goes; the progression is passed through the pass as the character's is. Two sheets that resolve to one NPC keep the first.
+        var sheets = new SortedDictionary<string, PartySheet>(StringComparer.Ordinal);
+        foreach (var sheet in player.PartySheets)
+        {
+            if (Resolve(sheet.NpcId, "player party sheet") is not { } id || sheets.ContainsKey(id))
+                continue;
+            InventoryEntry? Item(InventoryEntry entry) =>
+                Resolve(entry.DefId, $"player party sheet {id} item {entry.ItemId}") is { } def ? entry with { DefId = def } : null;
+            sheets[id] = sheet with
+            {
+                NpcId = id,
+                Progression = sheet.Progression.RewriteDefinitionIds((ref_, role) => Resolve(ref_, $"party sheet {id} {role}")),
+                Gear = sheet.Gear.Select(g => (g.Key, Item: Item(g.Value.Item), g.Value.Loaned)).Where(g => g.Item is not null)
+                    .ToImmutableSortedDictionary(g => g.Key, g => new PartyGear(g.Item!, g.Loaned)),
+                Belongings = sheet.Belongings.Select(Item).OfType<InventoryEntry>().ToImmutableArray(),
+            };
+        }
+
         // The party ledger is set aside while the party is rewritten: a rename may bring the two together, which the record refuses.
-        var rewritten = player with { Party = PartyLedger.Empty };
+        var rewritten = player with { Party = PartyLedger.Empty, PartySheets = ImmutableArray<PartySheet>.Empty };
         rewritten = rewritten.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values).WithEffects(effects.Values)
             .WithSocial(relationships.Values, conversations.Values).WithQuests(quests.Values).WithCompanions(companions.Values);
         return (rewritten.WithDeeds(deeds.Values).WithFactions(factions) with
             {
                 Party = new PartyLedger(recovering.Values.ToImmutableArray(), fallen.ToImmutableArray()),
                 QuickBar = bar.ToImmutable(), QuickBarCleared = cleared.ToImmutableArray(),
+                PartySheets = sheets.Values.ToImmutableArray(),
             },
             new DeltaSnapshot(cells, entities.ToImmutable())
             {

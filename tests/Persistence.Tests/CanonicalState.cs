@@ -309,6 +309,34 @@ internal static class CanonicalState
                 json.WriteStringValue(cleared);
             json.WriteEndArray();
             json.WriteEndObject();
+            // Schema 25 (WP15b): the party's sheets - each member's progression, the gear they wear, given or loaned, and their own things.
+            json.WriteStartArray("party_sheets");
+            foreach (var sheet in player.PartySheets)
+            {
+                json.WriteStartObject();
+                json.WriteString("npc_id", sheet.NpcId);
+                WriteProgression(json, sheet.Progression);
+                json.WriteStartArray("gear");
+                foreach (var (slot, gear) in sheet.Gear)
+                {
+                    json.WriteStartObject();
+                    json.WriteString("slot", Domain.Items.EquipSlots.Key(slot));
+                    json.WriteBoolean("loaned", gear.Loaned);
+                    WriteStack(json, gear.Item);
+                    json.WriteEndObject();
+                }
+                json.WriteEndArray();
+                json.WriteStartArray("belongings");
+                foreach (var item in sheet.Belongings)
+                {
+                    json.WriteStartObject();
+                    WriteStack(json, item);
+                    json.WriteEndObject();
+                }
+                json.WriteEndArray();
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
             json.WriteEndObject();
 
             json.WriteStartArray("cells");
@@ -538,6 +566,16 @@ internal static class CanonicalState
         json.WriteNumber("familiarity", notable.Familiarity);
         json.WriteNumber("uses", notable.Uses);
         json.WriteEndObject();
+    }
+
+    private static void WriteStack(Utf8JsonWriter json, InventoryEntry entry)
+    {
+        json.WriteString("item_id", entry.ItemId.Value);
+        json.WriteString("def_id", entry.DefId);
+        json.WriteNumber("count", entry.Count);
+        json.WriteNumber("quality", entry.Quality);
+        WriteNotable(json, entry.Notable);
+        WriteWear(json, entry.Wear);
     }
 
     private static void WriteProgression(Utf8JsonWriter json, CharacterProgression p)

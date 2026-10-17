@@ -30,6 +30,7 @@ using V20 = UNNAMED.Persistence.Sections.V20;
 using V21 = UNNAMED.Persistence.Sections.V21;
 using V22 = UNNAMED.Persistence.Sections.V22;
 using V23 = UNNAMED.Persistence.Sections.V23;
+using V24 = UNNAMED.Persistence.Sections.V24;
 
 namespace UNNAMED.Persistence;
 
@@ -100,7 +101,8 @@ public static class SchemaMigrations
         new SchemaV20ToV21(),
         new SchemaV21ToV22(),
         new SchemaV22ToV23(),
-        new SchemaV23ToV24());
+        new SchemaV23ToV24(),
+        new SchemaV24ToV25());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -1289,7 +1291,7 @@ public sealed class SchemaV23ToV24 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V23.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V24.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -1343,6 +1345,59 @@ public sealed class SchemaV23ToV24 : SchemaMigration
                 Noises = old.Noises,
                 Economy = old.Economy,
                 Merchants = old.Merchants,
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 24 to 25 (WP15b): the player gains the party's sheets - each past or present party member's progression on the character's rules,
+/// the gear they wear in the ten slots, given or loaned, and their own things. A save from before them has none: no party member had grown,
+/// worn or kept anything.
+/// </summary>
+public sealed class SchemaV24ToV25 : SchemaMigration
+{
+    public override int From => 24;
+
+    public override string Summary => "schema 24 -> 25: the player gains the party's sheets (none before)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V24.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions,
+                Posture = old.Posture,
+                Waystones = old.Waystones,
+                ReturnPoint = old.ReturnPoint,
+                RoadsWalked = old.RoadsWalked,
+                Deeds = old.Deeds,
+                Identity = old.Identity,
+                Factions = old.Factions,
+                Party = old.Party,
+                QuickBar = old.QuickBar,
+                PartySheets = Array.Empty<PartySheetDto>(),
             }, options);
         }
         document.Manifest["schema_version"] = To;

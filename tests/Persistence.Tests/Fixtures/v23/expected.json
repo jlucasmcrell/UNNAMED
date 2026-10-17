@@ -353,7 +353,8 @@
       "cleared": [
         "item.potion.minor_healing"
       ]
-    }
+    },
+    "party_sheets": []
   },
   "cells": [
     {

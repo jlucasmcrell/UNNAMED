@@ -83,8 +83,20 @@ public class PlayerRecordCompletenessTests
                 // A slot in use and something cleared off the bar (schema 23).
                 QuickBar = ImmutableArray.Create<string?>("item.potion.minor_healing", null, null, "spell.ember.bolt", null, null, null, null),
                 QuickBarCleared = ImmutableArray.Create("item.food.roast_meat"),
+                // A party member's sheet in every field: a filled progression, a gift and a loan worn, a notable thing of their own (schema 25).
+                PartySheets = ImmutableArray.Create(new PartySheet("npc.fixture.scout", progression)
+                {
+                    Gear = ImmutableSortedDictionary.Create<EquipSlot, PartyGear>()
+                        .Add(EquipSlot.MainHand, new PartyGear(new InventoryEntry(Item(7), "item.weapon.iron_sword", 1) { Quality = 1, Notable = player.Inventory.Single(e => e.Notable is not null).Notable, Wear = new Domain.Items.ItemWear(9, 1) }, Loaned: true))
+                        .Add(EquipSlot.Head, new PartyGear(new InventoryEntry(Item(8), "item.armor.fixture_cap", 1) { Quality = -1, Notable = vest.Notable }, Loaned: false)),
+                    Belongings = ImmutableArray.Create(new InventoryEntry(Item(9), "item.potion.minor_healing", 2) { Quality = 1 },
+                        new InventoryEntry(Item(10), "item.weapon.fixture_knife", 1) { Notable = vest.Notable! with { Familiarity = 1 }, Wear = new Domain.Items.ItemWear(3, 1) },
+                        new InventoryEntry(Item(11), "item.weapon.fixture_axe", 1) { Notable = player.Inventory.Single(e => e.Notable is not null).Notable }),
+                }),
             };
     }
+
+    private static EntityId Item(byte n) => EntityId.Create(EntityKind.Item, 1_700_000_000_000 + n, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, n });
 
     [Fact]
     public void TheSample_FillsEveryFieldOfThePlayer()
@@ -163,6 +175,9 @@ public class PlayerRecordCompletenessTests
         ["player.companions[].contract"] = "a whole contract, present exactly on a hireling (schema 21); each of its fields is perturbed where one is present",
         ["player.inventory[].notable"] = "a whole record, absent on an ordinary stack; each of its fields is perturbed where one is present",
         ["player.inventory[].wear"] = "a whole record, absent on an unworn stack; each of its fields is perturbed where one is present",
+        ["player.party_sheets[].belongings[].notable"] = "a whole record, absent on an ordinary stack; each of its fields is perturbed where one is present",
+        ["player.party_sheets[].belongings[].wear"] = "a whole record, absent on an unworn stack; each of its fields is perturbed where one is present",
+        ["player.party_sheets[].gear[].item.wear"] = "a whole record, absent on an unworn stack; each of its fields is perturbed where one is present",
         ["player.posture.airborne"] = "in the air or not decides the air time (0 on the ground)",
     };
 

@@ -99,6 +99,12 @@ public sealed class PlayerDto
     /// saves an empty bar with nothing taken off, which what they carry and know fills on load.
     /// </summary>
     [Key("quick_bar")] public QuickBarDto? QuickBar { get; set; }
+
+    /// <summary>
+    /// Required from schema 25 (WP15b): each past or present party member's progression, gear and belongings. The 24 -> 25 step gives older
+    /// saves none: no party member had grown, worn or kept anything before.
+    /// </summary>
+    [Key("party_sheets")] public PartySheetDto[]? PartySheets { get; set; }
 }
 
 /// <summary>
@@ -110,6 +116,24 @@ public sealed class QuickBarDto
 {
     [Key("slots")] public string?[] Slots { get; set; } = Array.Empty<string?>();
     [Key("cleared")] public string[] Cleared { get; set; } = Array.Empty<string>();
+}
+
+/// <summary>A party member's sheet (schema 25): their progression, what they wear and whether it was loaned, and their own things.</summary>
+[MessagePackObject]
+public sealed class PartySheetDto
+{
+    [Key("npc_id")] public string NpcId { get; set; } = "";
+    [Key("progression")] public ProgressionDto Progression { get; set; } = new();
+    [Key("gear")] public PartyGearDto[] Gear { get; set; } = Array.Empty<PartyGearDto>();
+    [Key("belongings")] public InventoryDto[] Belongings { get; set; } = Array.Empty<InventoryDto>();
+}
+
+[MessagePackObject]
+public sealed class PartyGearDto
+{
+    [Key("slot")] public string Slot { get; set; } = "";
+    [Key("loaned")] public bool Loaned { get; set; }
+    [Key("item")] public InventoryDto Item { get; set; } = new();
 }
 
 /// <summary>The character's faction ledger (schema 20): the acts logged, what each faction knows of them, and the standing each holds.</summary>
@@ -729,6 +753,13 @@ public static class SectionCodec
             Fallen = player.Party.Fallen.ToArray(),
         },
         QuickBar = new QuickBarDto { Slots = player.QuickBar.ToArray(), Cleared = player.QuickBarCleared.ToArray() },
+        PartySheets = player.PartySheets.Select(p => new PartySheetDto
+        {
+            NpcId = p.NpcId,
+            Progression = ProgressionCodec.ToDto(p.Progression),
+            Gear = p.Gear.Select(g => new PartyGearDto { Slot = EquipSlots.Key(g.Key), Loaned = g.Value.Loaned, Item = StackToDto(g.Value.Item) }).ToArray(),
+            Belongings = p.Belongings.Select(StackToDto).ToArray(),
+        }).ToArray(),
     }, Options);
 
     /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard, fine or (schema 19) masterwork.</summary>
@@ -796,6 +827,7 @@ public static class SectionCodec
         var factions = dto.Factions ?? throw new FormatException("player.msgpack has no faction ledger (required from schema 20)");
         var party = dto.Party ?? throw new FormatException("player.msgpack has no party ledger (required from schema 21)");
         var quickBar = dto.QuickBar ?? throw new FormatException("player.msgpack has no quick bar (required from schema 23)");
+        var sheets = dto.PartySheets ?? throw new FormatException("player.msgpack has no party sheets (required from schema 25)");
         var pronouns = PronounKeys.Parse(identity.Pronouns) ?? throw new FormatException($"player identity has pronouns '{identity.Pronouns}'");
         var stance = posture.Stance switch
         {
@@ -835,8 +867,19 @@ public static class SectionCodec
             Party = new PartyLedger(party.Recovering.Select(r => new RecoveryRecord(r.NpcId, r.UntilTick)).ToImmutableArray(), party.Fallen.ToImmutableArray()),
             QuickBar = quickBar.Slots.ToImmutableArray(),
             QuickBarCleared = quickBar.Cleared.ToImmutableArray(),
+            PartySheets = sheets.Select(p => new PartySheet(p.NpcId, ProgressionCodec.FromDto(p.Progression))
+            {
+                Gear = p.Gear.ToImmutableSortedDictionary(g => EquipSlots.Parse(g.Slot), g => new PartyGear(StackOf(g.Item, $"{p.NpcId}'s {g.Slot}"), g.Loaned)),
+                Belongings = p.Belongings.Select(e => StackOf(e, $"{p.NpcId}'s {e.ItemId}")).ToImmutableArray(),
+            }).ToImmutableArray(),
         };
     }
+
+    private static InventoryDto StackToDto(InventoryEntry e) =>
+        new() { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality, Notable = NotableToDto(e.Notable), Wear = WearToDto(e.Wear) };
+
+    private static InventoryEntry StackOf(InventoryDto e, string what) =>
+        new(EntityId.Parse(e.ItemId), e.DefId, e.Count) { Quality = QualityOf(e.Quality, what), Notable = NotableOf(e.Notable, what), Wear = WearOf(e.Wear, what) };
 
     private static CompanionRecord Companion(CompanionDto c)
     {

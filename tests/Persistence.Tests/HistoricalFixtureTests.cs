@@ -349,11 +349,36 @@ public class HistoricalFixtureTests
                 : FactionLedger.Empty,
             loaded.Player.Factions);
 
+        // Schema 25's party sheets (WP15b): the warden at level 2, one-hand blade 4, wearing a sword on loan - worn a little - and keeping a
+        // draught of her own, renamed on load with her. Before it, no party member had grown, worn or kept anything.
+        if (schema >= 25)
+        {
+            var sheet = Assert.Single(loaded.Player.PartySheets);
+            Assert.Equal(("npc.fixture.warden_sera", 2, 40L, 4), (sheet.NpcId, sheet.Progression.Level, sheet.Progression.LevelProgressXp,
+                sheet.Progression.Skills["skill.one_hand_blade"].Level));
+            Assert.Equal(("item.weapon.iron_sword", true, new ItemWear(12, 0)),
+                (sheet.Gear[EquipSlot.MainHand].Item.DefId, sheet.Gear[EquipSlot.MainHand].Loaned, sheet.Gear[EquipSlot.MainHand].Item.Wear));
+            Assert.Equal("item.potion.minor_healing", Assert.Single(sheet.Belongings).DefId);
+        }
+        else
+        {
+            Assert.Empty(loaded.Player.PartySheets);
+        }
+
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);
         // v4 names the potion twice - held, and first produced - and the report counts each occurrence; v21 a third time, in the
-        // warden's contract supply; v23 the potion and the firebolt once more, on the quick bar.
+        // warden's contract supply; v23 the potion and the firebolt once more, on the quick bar; v25 the potion and the warden once more, on
+        // her party sheet.
         var aliases = schema switch
         {
+            >= 25 => new[]
+            {
+                "creature.beast.ash_hound -> creature.beast.ash_ember_hound x4", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",
+                "effect.weakness -> effect.weakened", "faction.fixture.wardens -> faction.fixture.keepers x2",
+                "item.potion.healing_draught -> item.potion.minor_healing x9", "location.wolf_den -> location.den_mouth",
+                "npc.fixture.warden -> npc.fixture.warden_sera x6", "quest.fixture.errand -> quest.fixture.wardens_errand",
+                "spell.ember.firebolt -> spell.ember.bolt x2",
+            },
             >= 23 => new[]
             {
                 "creature.beast.ash_hound -> creature.beast.ash_ember_hound x4", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",

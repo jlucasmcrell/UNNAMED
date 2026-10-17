@@ -210,6 +210,24 @@ public static class M2Fixtures
             // current pack, so the renames must reach the bar and what was cleared off it.
             QuickBar = ImmutableArray.Create<string?>(null, null, null, "spell.ember.firebolt", null, null, null, null),
             QuickBarCleared = ImmutableArray.Create("item.potion.healing_draught"),
+            // Schema 25 (WP15b): the warden's sheet - level 2 with 40 XP toward 3, one-hand blade 4 - wearing a sword Aelin loaned her in
+            // the main hand, and keeping a healing draught of her own. The draught under the name it had then.
+            PartySheets = ImmutableArray.Create(new PartySheet("npc.fixture.warden", CharacterProgression.Empty with
+            {
+                Level = 2,
+                LevelProgressXp = 40,
+                Skills = ImmutableSortedDictionary.Create<string, SkillState>(StringComparer.Ordinal).Add("skill.one_hand_blade", new SkillState(4, 6)),
+            })
+            {
+                Gear = ImmutableSortedDictionary.Create<EquipSlot, PartyGear>().Add(EquipSlot.MainHand, new PartyGear(
+                    new InventoryEntry(EntityId.Create(EntityKind.Item, 1_700_000_000_005, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 5 }), "item.weapon.iron_sword", 1)
+                    {
+                        Wear = new ItemWear(12, 0),   // schema 24's wear goes with a piece a party member wears
+                    },
+                    Loaned: true)),
+                Belongings = ImmutableArray.Create(new InventoryEntry(EntityId.Create(EntityKind.Item, 1_700_000_000_006, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 6 }),
+                    "item.potion.healing_draught", 1)),
+            }),
         };
 
         public static readonly EntityId SwordId = EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 });
