@@ -522,7 +522,7 @@ public class ContentLoaderTests
                 "call.hedge_healer", "call.scholar", "call.smiths_hand", "call.wayfarer",
                 "config.base_speeds", "config.companion", "config.crafting", "config.creature_behaviour", "config.damage_constants",
                 "config.economy", "config.inventory", "config.level_cap", "config.magic", "config.progression", "config.simulation_tiers",
-                "config.time", "config.travel", "config.xp_curve",
+                "config.time", "config.travel", "config.weather", "config.xp_curve",
                 "creature.beast.ash_ember_hound", "creature.beast.bristleback_boar", "creature.beast.buck", "creature.beast.cave_hunting_spider",
                 "creature.beast.chicken", "creature.beast.doe", "creature.beast.rabbit", "creature.beast.red_fox", "creature.beast.rooster",
                 "creature.beast.wolf_grey", "creature.construct.animated_armour", "creature.grazer.barrowback", "creature.grazer.fellhorn",

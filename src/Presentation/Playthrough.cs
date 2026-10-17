@@ -469,7 +469,6 @@ public sealed class Playthrough
             if (option.Blocked is { } why)
                 return (_broken = $"the stones would not go: {why}") is null;
             _leftAt = simulation.WorldTick;
-            _travelCost = option.Cost;
             Note($"At the {_session.Setup.Layout.FindWaystone(from)!.Name}: {TravelWords.Journey(option.Cost.WalkTicks, option.Cost.WorldTicks, Main.TicksPerDay)} ({option.Cost.RoadMm / 1000.0:0} m by road)");
             _controller.TravelTo(from, to);
             _phase = 1;
@@ -482,19 +481,17 @@ public sealed class Playthrough
         string? returnPoint = simulation.Waystones.FirstOrDefault(w => w.ReturnPoint)?.Site.Key;
         string party = string.Join(", ", simulation.Companions.Select(c => $"{c.Name} {Metres(Distance(c.Body, body))} away"));
         Note($"Arrived at {Where(body)}, {Metres(Math.Sqrt(Math.Pow(body.XMm - site.ArrivalXMm, 2) + Math.Pow(body.ZMm - site.ArrivalZMm, 2)))} from the stone's arrival; " +
-             $"world tick {_leftAt} -> {simulation.WorldTick} (cost {_travelCost!.WorldTicks}); companions: {party}; return point {returnPoint}");
+             $"world tick {_leftAt} -> {simulation.WorldTick}; companions: {party}; return point {returnPoint}");
         if (Math.Sqrt(Math.Pow(body.XMm - site.ArrivalXMm, 2) + Math.Pow(body.ZMm - site.ArrivalZMm, 2)) > 2_000)
             _failures.Add($"the journey set the character down at {Where(body)}, not beside the {site.Name}");
-        if (simulation.WorldTick < _leftAt + _travelCost.WorldTicks)
-            _failures.Add($"the world went on {simulation.WorldTick - _leftAt} ticks, less than the journey's {_travelCost.WorldTicks}");
+        if (simulation.WorldTick - _leftAt > 60)   // the few frames the journey is watched for, and no more: the stones skip no time (DN8)
+            _failures.Add($"the world went on {simulation.WorldTick - _leftAt} ticks over the journey: the stones skip no world time");
         if (simulation.Companions.Any(c => c.Order == CompanionOrder.Follow && Distance(c.Body, body) > 8_000))
             _failures.Add("a following companion was left behind by the stones");
         if (returnPoint != RimStone)
             _failures.Add($"the return point is {returnPoint ?? "none"} after the journey, not the Rim Stone it was bound to");
         return LookAtTavar();
     }
-
-    private Domain.Travel.TravelCost? _travelCost;
 
     private bool TalkToSel()
     {

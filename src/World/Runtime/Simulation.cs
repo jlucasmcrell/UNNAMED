@@ -43,6 +43,12 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>The catch-up cap and the login grace (config.time; WP11).</summary>
     public OfflineRules Offline { get; init; } = OfflineRules.None;
+
+    /// <summary>How the calendar counts the clock's days (config.time; WP7).</summary>
+    public CalendarRules Calendar { get; init; } = CalendarRules.Default;
+
+    /// <summary>How the weather's fronts are laid out and drawn (config.weather; WP7).</summary>
+    public WeatherRules Weather { get; init; } = WeatherRules.Default;
 }
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>
@@ -112,6 +118,7 @@ public sealed class Simulation
     private readonly CompanionSystem _companions;
     private readonly TravelSystem _travel;
     private readonly DeedSystem _deeds;
+    private readonly WeatherSystem _weather;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private readonly ImmutableArray<IAbstractAdvance> _advances;
     private long _sequence;
@@ -160,10 +167,11 @@ public sealed class Simulation
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions);
         _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views, _inventory.WorldItems);
         _deeds = new DeedSystem(_context, _state.Claim(nameof(DeedSystem), StateSlice.Deeds));
+        _weather = new WeatherSystem(_context, _state.Claim(nameof(WeatherSystem), StateSlice.Weather), new CellKey(_cells[0].Region, 0, 0));
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         // The abstract advance (WP11): the clock first, so every other system brings itself to the tick it reads. A new world system
         // that goes on while the character is away adds itself here.
-        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _creatures, _effects, _gathering, _quests);
+        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _creatures, _effects, _gathering, _quests);
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
         _npcs.Populate();
@@ -172,12 +180,17 @@ public sealed class Simulation
         _tiers.Settle();
     }
 
-    /// <summary>Start simulating a world: a new game's, or one a save just loaded. The world tick continues from the save.</summary>
-    public static Simulation Start(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events)
+    /// <summary>
+    /// Start simulating a world: a new game's, or one a save just loaded. The world tick continues from the save, and the weather from the
+    /// save's cursor (null: no front announced yet).
+    /// </summary>
+    public static Simulation Start(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events, long? weatherCursor = null)
     {
         if (worldTick < 0)
             throw new ArgumentOutOfRangeException(nameof(worldTick), worldTick, "The world tick is never negative");
-        return new Simulation(setup, player, world, worldTick, events);
+        var simulation = new Simulation(setup, player, world, worldTick, events);
+        simulation._weather.Resume(weatherCursor);
+        return simulation;
     }
 
     /// <summary>
@@ -306,6 +319,15 @@ public sealed class Simulation
     /// <summary>What the character's map holds: the places they discovered, the roads they walked, the stones they know.</summary>
     public KnownMap Map => Cartography.Known(Setup.Layout, _state.Discoveries.Keys, _state.RoadsWalked, _state.KnownStones.Keys);
 
+    /// <summary>The date the world clock reads now (WP7): a pure function of the tick.</summary>
+    public CalendarDate Calendar => Runtime.Calendar.Of(WorldTick, Setup.Clock, Setup.Calendar);
+
+    /// <summary>The weather over the region played now (WP7): its state and the ticks its front holds.</summary>
+    public WeatherView Weather => _weather.View(WorldTick);
+
+    /// <summary>The weather's seed cursor (WP7): the game hour the front last announced began; null before the first. What a save keeps of the weather.</summary>
+    public long? WeatherCursor => _state.WeatherCursor;
+
     /// <summary>The character's companions (M6).</summary>
     public ImmutableArray<CompanionView> Companions => _companions.Views();
 
@@ -408,7 +430,7 @@ public sealed class Simulation
     }
 
     /// <summary>
-    /// Advance one fixed tick. The order is data, fixed here: movement, tiers, the tier simulations, the player's combat,
+    /// Advance one fixed tick. The order is data, fixed here: movement, tiers, the weather, the tier simulations, the player's combat,
     /// creatures, companions, NPCs, conversations, status effects, death, discovery, quests (which read what all of that did), clock.
     /// </summary>
     public void Step()
@@ -421,6 +443,7 @@ public sealed class Simulation
             long tick = WorldTick + 1;
             _movement.Tick(tick);
             _tiers.Tick(tick);
+            _weather.Tick(tick);
             foreach (var simulation in _tierSimulations)
                 simulation.Tick(tick, _cells.Where(c => _state.Tiers.GetValueOrDefault(c.ToString(), SimulationTier.D) == simulation.Tier).ToList());
             _combat.Tick(tick);
@@ -553,7 +576,6 @@ public sealed class Simulation
         OrderCompanion order => _companions.Handle(order, Now),
         CompanionStruck struck => _companions.Handle(struck, Now),
         PlaceNpc place => _npcs.Handle(place),
-        AdvanceTime advance => _clock.Handle(advance),
         ArriveWithParty arrive => _companions.Handle(arrive),
         _ => throw new InvalidOperationException($"No system handles {command.GetType().Name}"),
     };

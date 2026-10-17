@@ -31,6 +31,9 @@ public static class AdvanceKinds
 
     /// <summary>An effect on the character ran out; <see cref="AdvanceLine.Ref"/> is the effect.</summary>
     public const string EffectExpired = "effect.expired";
+
+    /// <summary>The weather at the end of the absence (WP7); <see cref="AdvanceLine.Ref"/> is its state's key.</summary>
+    public const string WeatherNow = "weather.now";
 }
 
 /// <summary>What one advance did that the character could know, in the order the systems wrote it (§2.12 item 7).</summary>
@@ -64,8 +67,25 @@ public sealed record WorldClock(long TicksPerDay, long StartTicks)
     /// <summary>A 48-minute day at 20 Hz starting at midnight: what a setup has before content gives it one.</summary>
     public static readonly WorldClock Default = new(57_600, 0);
 
+    /// <summary>The hours of a day (config.time's <c>game_hours_per_day</c>): what the weather's fronts are counted in (WP7).</summary>
+    public int HoursPerDay { get; init; } = 24;
+
     /// <summary>The calendar day a tick falls in, counting from the world's first (day 0).</summary>
     public long Day(long tick) => (tick + StartTicks) / TicksPerDay;
+
+    /// <summary>The game hour a tick falls in, counting from the first hour of the world's first day (hour 0).</summary>
+    public long Hour(long tick) => (tick + StartTicks) * HoursPerDay / TicksPerDay;
+
+    /// <summary>The first tick of a game hour: the earliest tick whose <see cref="Hour"/> it is. Before the world began for an hour before it.</summary>
+    public long TickOfHour(long hour)
+    {
+        long scaled = hour * TicksPerDay;
+        long start = scaled / HoursPerDay + (scaled % HoursPerDay > 0 ? 1 : 0);
+        return start - StartTicks;
+    }
+
+    /// <summary>The minute of the day a tick falls in, from midnight.</summary>
+    public int MinuteOfDay(long tick) => (int)((tick + StartTicks) % TicksPerDay * HoursPerDay * 60 / TicksPerDay);
 
     /// <summary>Midnights passed going from one tick to a later one.</summary>
     public long DaysCrossed(long fromTick, long toTick) => Day(toTick) - Day(fromTick);

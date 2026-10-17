@@ -1,4 +1,5 @@
 using UNNAMED.Domain.Spatial;
+using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Content.Tests;
 
@@ -135,4 +136,33 @@ public class WorldContentTests
     [Fact]
     public void AMissingMovementConfig_IsRefused_WhenThePackHasARegion() =>
         AssertRefused("WLD008", "config/base_speeds.yaml", "base_m_s: 3.2", "base_speed: 3.2");
+
+    // ── the calendar and the weather (WP7) ──────────────────────────────────
+
+    [Fact]
+    public void TheGamesCalendarAndWeather_BuildFromItsContent()
+    {
+        var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
+        Assert.Equal(new CalendarRules(14, 13, 1), WorldContent.BuildCalendar(loader));
+        var weather = WorldContent.BuildWeather(loader);
+        Assert.Equal((4, 12, 24), (weather.FrontHoursMin, weather.FrontHoursMax, weather.SpanHours));
+        Assert.Equal(WeatherRules.Default.Weights, weather.Weights);
+        Assert.Equal(24, WorldContent.BuildClock(loader).HoursPerDay);
+    }
+
+    [Fact]
+    public void AWeatherStateTheSimulationDoesNotKnow_IsRefused() =>
+        AssertRefused("WLD008", "config/weather.yaml", "  fog: 1", "  storm: 1", "storm");
+
+    [Fact]
+    public void AWeightOnTheReservedFold_IsRefused() =>
+        AssertRefused("WLD008", "config/weather.yaml", "  fog: 1", "  fog: 1\n  fold: 1", "fold");
+
+    [Fact]
+    public void FrontsLongerThanTheirSpan_AreRefused() =>
+        AssertRefused("WLD008", "config/weather.yaml", "span_hours: 24", "span_hours: 12", "span");
+
+    [Fact]
+    public void ACalendarWithoutDays_IsRefused() =>
+        AssertRefused("WLD008", "config/time.yaml", "days_per_tally: 14", "days_per_tally: 0", "calendar");
 }
