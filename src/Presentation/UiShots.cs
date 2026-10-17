@@ -99,9 +99,9 @@ public sealed class UiShots
     /// </summary>
     private static readonly string[] Screens =
     {
-        "menu", "character", "journal", "effects", "companions", "help", "saves",
+        "menu", "character", "skills", "skills_formulas", "skills_recipes", "skills_map", "journal", "effects", "companions", "help", "saves",
         "settings", "settings_audio", "settings_controls", "settings_camera", "settings_interface", "credits", "",
-        "announce", "menu_character", "escape", "",
+        "announce", "announce_skill", "menu_character", "escape", "",
     };
 
     /// <summary>
@@ -110,8 +110,8 @@ public sealed class UiShots
     /// </summary>
     private static readonly Dictionary<string, string[]> LatePasses = new(StringComparer.Ordinal)
     {
-        ["warded"] = new[] { "effects", "character", "" },
-        ["traded"] = new[] { "menu", "character", "inventory", "journal", "effects", "companions", "" },
+        ["warded"] = new[] { "effects", "character", "skills", "skills_formulas", "" },
+        ["traded"] = new[] { "menu", "character", "skills", "skills_recipes", "skills_map", "inventory", "journal", "effects", "companions", "" },
     };
 
     private readonly Action<string>? _screen;
@@ -188,7 +188,7 @@ public sealed class UiShots
             if (name.Length > 0)
             {
                 _pending = "screen_" + name;
-                _wait = name == "announce" ? 40 : 12;
+                _wait = name.StartsWith("announce", StringComparison.Ordinal) ? 40 : 12;
             }
             return null;
         }

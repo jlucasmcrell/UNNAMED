@@ -413,7 +413,11 @@ public class CraftingTests
         var novice = At(session, AtHearth, r => Carrying(r, Stack(Ore, 1)));
         var learning = novice.Record<SkillPracticed>();
         Craft(novice, BilletRecipe);
-        Assert.True(Assert.Single(learning, p => p.SkillId == Smithing).Xp > novelty);
+        var lesson = Assert.Single(learning, p => p.SkillId == Smithing);
+        Assert.True(lesson.Xp > novelty);
+        // Twenty XP takes smithing from 0 to 1, so the event says it rose: the skill-up the HUD tells (WP9).
+        Assert.Equal(ProgressionEngine.SkillLevel(novice.Simulation.Player.Progression, Smithing), lesson.LevelsGained);
+        Assert.True(lesson.LevelsGained > 0);
 
         // Twenty points past a complexity-0 billet is past the margin: the first one made teaches its novelty, the rest nothing.
         var master = At(session, AtHearth, r => Skilled(Carrying(r, Stack(Ore, 5)), Smithing, 20));
@@ -421,6 +425,7 @@ public class CraftingTests
         for (int i = 0; i < 5; i++)
             Craft(master, BilletRecipe);
         Assert.Equal(new[] { novelty, 0, 0, 0, 0 }, practised.Where(p => p.SkillId == Smithing).Select(p => p.Xp));
+        Assert.All(practised, p => Assert.Equal(0, p.LevelsGained));   // 25 XP is not the 100 that level 20 needs
         Assert.Equal(20, ProgressionEngine.SkillLevel(master.Simulation.Player.Progression, Smithing));
 
         // So with gathering: the seam is difficulty 5.

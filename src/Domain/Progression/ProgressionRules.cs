@@ -43,7 +43,25 @@ public sealed record ProgressionRules
 
     /// <summary>The attribute points §11.3 lets post-creation grants add in total.</summary>
     public int AttributeGrantBudget => (int)Math.Floor(AttributeGrantCapFraction * (SoftCap - 1) * AttributePointsPerLevel);
+
+    /// <summary>The named skill bands (§6), lowest first; the first starts at 0. What a skill's level is called - never a gate by itself.</summary>
+    public ImmutableArray<SkillBand> SkillBands { get; init; } = ImmutableArray<SkillBand>.Empty;
+
+    /// <summary>Every skill the content defines, by family in <c>ProgressionContent.SkillFamilies</c>' order and then by ID.</summary>
+    public ImmutableArray<SkillEntry> Roster { get; init; } = ImmutableArray<SkillEntry>.Empty;
+
+    /// <summary>The band a skill level stands in: the last whose floor it has reached.</summary>
+    public SkillBand BandOf(int level) => SkillBands.Last(b => b.From <= level);
+
+    /// <summary>The next band above a level, or null at the last.</summary>
+    public SkillBand? NextBand(int level) => SkillBands.FirstOrDefault(b => b.From > level);
 }
+
+/// <summary>A named stretch of skill levels from <see cref="From"/> (PROGRESSION.md §6: Untrained, Familiar, Proficient, ...).</summary>
+public sealed record SkillBand(int From, string Name);
+
+/// <summary>A skill as the roster lists it: its ID and its family (<c>combat</c>, <c>magic</c>, ...).</summary>
+public sealed record SkillEntry(string Id, string Family);
 
 /// <summary>
 /// <c>XP(n) = Base * (n-1)^Exponent</c>, times the band factor for levels inside the band, rounded to the

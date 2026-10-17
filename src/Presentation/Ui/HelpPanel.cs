@@ -32,7 +32,7 @@ public partial class HelpPanel : CanvasLayer
             {
                 ("Open, take, talk, work, help up", new[] { "interact" }), ("Attack, or shoot the bow", new[] { "attack" }),
                 ("Guard, or aim the bow", new[] { "guard" }), ("Dodge", new[] { "dodge" }), ("Use a salve", new[] { "use" }),
-                ("Use a quick slot", new[] { "quick_1", "quick_3" }), ("Work a formula", new[] { "cast_1", "cast_3" }),
+                ("Use a quick slot: an item, a formula", new[] { "quick_1", "quick_8" }),
                 ("Take all, from a container", new[] { "take_all" }),
             }),
         },
@@ -51,7 +51,7 @@ public partial class HelpPanel : CanvasLayer
             {
                 ("System menu, or close a screen", new[] { "release_mouse" }), ("Inventory", new[] { "inventory" }), ("Journal", new[] { "journal" }),
                 ("Map", new[] { "map" }),
-                ("Character", new[] { "character" }), ("These controls", new[] { "help" }),
+                ("Character", new[] { "character" }), ("Skills, and what you know", new[] { "skills" }), ("These controls", new[] { "help" }),
             }),
         },
     };

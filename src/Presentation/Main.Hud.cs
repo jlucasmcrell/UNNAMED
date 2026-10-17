@@ -59,10 +59,11 @@ public partial class Main
             $"   Carrying {view.CarriedGrams / 1000.0:0.#}/{view.CarryLimitGrams / 1000.0:0.#} kg   [{HelpPanel.Key("inventory")}] inventory");
         _hud.SetVitals(combat.Health, combat.MaxHealth, combat.Stamina, combat.MaxStamina);
         _hud.SetMagicPools(combat.Focus, combat.MaxFocus, combat.Strain, combat.StrainTolerance, combat.Strained);
-        var formulas = _controller.Formulas();
+        var bar = simulation.QuickBar;
+        var onBar = Enumerable.Range(0, bar.Length).Where(i => bar[i] is { } id && _session.Setup.Magic.Formulas.ContainsKey(id)).ToList();
         _hud.SetMagic((combat.Casting is { } casting ? $"Casting {Names.Of(_session, casting)}\n" : "") +
-            string.Join("   ", formulas.Select((f, i) => $"[{i + 4}] {Names.Of(_session, f)} {_session.Setup.Magic.Formulas[f].FocusCost}F")) +
-            (combat.Strained ? "   Strained" : ""), formulas);
+            string.Join("   ", onBar.Select(i => $"[{HelpPanel.Key(QuickKeys[i])}] {Names.Of(_session, bar[i]!)} {_session.Setup.Magic.Formulas[bar[i]!].FocusCost}F")) +
+            (combat.Strained ? "   Strained" : ""), onBar.Select(i => bar[i]!).ToList());
         _hud.SetEffects(string.Join("   ", combat.Effects.Select(e =>
             $"{Names.Of(_session, e.EffectId)}{(e.Stacks > 1 ? $" x{e.Stacks}" : "")} {Math.Max(0, e.ExpiresTick - simulation.WorldTick) * _session.TickSeconds:0}s")),
             combat.Effects.Select(e => e.EffectId).Concat(combat.Strained ? new[] { "strained" } : Array.Empty<string>()).ToList());
@@ -73,9 +74,8 @@ public partial class Main
             pools.Focus ?? stats.FocusMax, stats.FocusMax, pools.Strain, stats.StrainTolerance, stats.Resonance,
             Names.Item(_session, combat.Weapon.Source, Wielded(view)?.Quality ?? 0), combat.Weapon.Source, combat.Blocking, view.Currency, view.Armor,
             view.CarriedGrams / 1000.0, view.CarryLimitGrams / 1000.0, HelpPanel.Key("inventory"),
-            combat.Casting is { } worked ? Names.Of(_session, worked) : null,
-            formulas.Select(f => new HudFormula(f, Names.Of(_session, f), _session.Setup.Magic.Formulas[f].FocusCost)).ToList(), combat.Strained,
-            QuickSlots()));
+            combat.Casting is { } worked ? Names.Of(_session, worked) : null, combat.Strained,
+            QuickSlots(simulation, combat.Casting)));
         if (Target(simulation) is { } target)
             _hud.SetTarget(Names.Of(_session, target.DefId), target.Health, target.MaxHealth);
         else
@@ -92,6 +92,7 @@ public partial class Main
         _journal.Refresh(_session);
         _questDebug.Refresh(_session, delta);
         _character.Refresh();
+        _skills.Refresh();
 
         if (_hud.DebugVisible)
         {
@@ -180,12 +181,22 @@ public partial class Main
             .OrderBy(Distance).FirstOrDefault();
     }
 
-    /// <summary>The three quick slots on their keys: what is in each, or an empty ID for an empty one.</summary>
-    private List<HudQuick> QuickSlots()
+    /// <summary>
+    /// The eight quick slots on their keys (WP9): what is on each - an item with how many are carried, a formula with its Focus and lit
+    /// while it is worked, a technique - or an empty ID for an empty one.
+    /// </summary>
+    private List<HudQuick> QuickSlots(Simulation simulation, string? casting)
     {
-        var quick = _controller.QuickItems();
-        return QuickKeys.Select((key, i) => i < quick.Count
-            ? new HudQuick(HelpPanel.Key(key), quick[i].DefId, Names.Of(_session, quick[i].DefId), quick[i].Count)
-            : new HudQuick(HelpPanel.Key(key), string.Empty, string.Empty, 0)).ToList();
+        var bar = simulation.QuickBar;
+        var inventory = simulation.Player.Inventory;
+        return QuickKeys.Select((key, i) => bar[i] switch
+        {
+            null => new HudQuick(HelpPanel.Key(key), string.Empty, string.Empty, false, false),
+            var id when _session.Setup.Magic.Formulas.TryGetValue(id, out var formula) =>
+                new HudQuick(HelpPanel.Key(key), id, $"{formula.FocusCost}F", false, id == casting),
+            var id when id.StartsWith("item.", StringComparison.Ordinal) && inventory.Where(e => e.DefId == id).Sum(e => e.Count) is var count =>
+                new HudQuick(HelpPanel.Key(key), id, $"×{count}", count == 0, false),
+            var id => new HudQuick(HelpPanel.Key(key), id, string.Empty, false, false),
+        }).ToList();
     }
 }

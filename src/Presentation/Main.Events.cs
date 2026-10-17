@@ -101,6 +101,7 @@ public partial class Main
             if (e.From.Kind == PlaceKind.Ground || e.To.Kind == PlaceKind.Ground)
                 _items.Refresh(_session.Simulation!);
         });
+        _session.Subscribe<QuickSlotAssigned>(_ => _inventory.Refresh());
         _session.Subscribe<ItemEquipped>(_ => _inventory.Refresh());
         _session.Subscribe<ItemUnequipped>(_ => _inventory.Refresh());
         _session.Subscribe<NodeGathered>(e =>
@@ -280,6 +281,9 @@ public partial class Main
         {
             if (e.Xp > 0)
                 _hud.Log($"{Name(e.SkillId)} +{e.Xp} XP (level {e.Level})");
+            // A skill risen by use is told quietly (WP9, O4): its name and the level it reached, and the skill-up sound.
+            if (e.LevelsGained > 0)
+                _hud.Toast($"Skill: {Name(e.SkillId)} {e.Level}", 3);
         });
         _session.Subscribe<ItemUsed>(e => _hud.Toast(e.EffectId is null ? $"Read {Name(e.DefId)}" : $"Used {Name(e.DefId)}", 2));
         _session.Subscribe<ItemConsumed>(_ => _inventory.Refresh());

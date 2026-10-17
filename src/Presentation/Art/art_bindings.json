@@ -1160,6 +1160,7 @@
   "moment.handed_over": "ui.moment.handed_over",
   "quick.empty": "ui.quick.empty",
   "panel.character": "ui.panel.character",
+  "panel.skills": "ui.panel.techniques",
   "panel.inventory": "ui.panel.inventory",
   "panel.journal": "ui.panel.journal",
   "panel.map": "ui.panel.map",

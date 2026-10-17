@@ -95,6 +95,8 @@ public enum StateSlice
 
     /// <summary>The merchants' purses and restocks (S-36; WP14). In the world delta.</summary>
     Merchants,
+    /// <summary>What is on each of the eight quick slots (WP9).</summary>
+    QuickBar,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -181,6 +183,7 @@ internal sealed class RuntimeState
 
     /// <summary>Hirelings who died in the character's service (DN9; part of the companions' slice): never put back in the world.</summary>
     public ImmutableSortedSet<string> Fallen { get; private set; }
+    public ImmutableArray<string?> QuickBar { get; private set; } = Domain.Progression.QuickBar.Empty;
 
     public IReadOnlyDictionary<StateSlice, string> Owners => _owners;
 
@@ -249,6 +252,14 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Factions);
         Factions = ledger ?? throw new ArgumentNullException(nameof(ledger));
+    }
+
+    public void SetQuickBar(SliceOwner owner, ImmutableArray<string?> bar)
+    {
+        Require(owner, StateSlice.QuickBar);
+        if (!Domain.Progression.QuickBar.IsValid(bar))
+            throw new InvalidOperationException("A quick bar is eight slots, each empty or holding one item, formula or technique once");
+        QuickBar = bar;
     }
 
     public void WalkRoad(SliceOwner owner, string stretch)

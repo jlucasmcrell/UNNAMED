@@ -14,16 +14,14 @@ public sealed record HudSheet(
     string Name, int Level, bool LevelCapped, long Xp, long XpToNext, long XpDebt, string? PointKey, bool Crouched,
     long Focus, long FocusMax, long Strain, long StrainTolerance, long Resonance,
     string Wielded, string? WieldedId, bool Guarding, long Coin, int Armor, double CarriedKg, double CarryLimitKg, string InventoryKey,
-    string? Casting, IReadOnlyList<HudFormula> Formulas, bool Strained, IReadOnlyList<HudQuick> Quick);
-
-/// <summary>A formula on its key: its ID (for its icon), its name and its Focus cost.</summary>
-public readonly record struct HudFormula(string Id, string Name, int FocusCost);
+    string? Casting, bool Strained, IReadOnlyList<HudQuick> Quick);
 
 /// <summary>
-/// A quick slot (the owner's first playtest: "quick bars ... for things like the minor salve"): its key, what is in it, how many; an
-/// empty ID is an empty slot, drawn as its key and an empty pouch while any slot holds something.
+/// A quick slot of the eight (WP9; the owner's first playtest: "quick bars ... for things like the minor salve"): its key, what is on it
+/// and its note - how many are carried, or a formula's Focus - dim when none is carried, lit while its formula is being worked. An empty
+/// ID is an empty slot, drawn as its key and an empty pouch while any slot holds something.
 /// </summary>
-public readonly record struct HudQuick(string Key, string Id, string Name, int Count);
+public readonly record struct HudQuick(string Key, string Id, string Note, bool Spent, bool Active);
 
 /// <summary>
 /// The production HUD (visual option <c>hud=production</c>, which every quality tier selects). It shows what the classic HUD shows, at
@@ -76,20 +74,16 @@ public partial class HudView : Control
     private string _companionText = string.Empty;
     private string? _companionIcon;
 
-    // Bottom left: the effects, the quick slots, the formulas and the pools.
+    // Bottom left: the effects, the formula being worked, the quick bar and the pools.
     private readonly PanelContainer _lowerLeft = new();
     private readonly HFlowContainer _effects = new();
+    private readonly VBoxContainer _bar = new();
     private readonly HBoxContainer _quick = new();
     private string _quickKeys = string.Empty;
     private string _effectText = string.Empty;
     private string _effectKeys = string.Empty;
-    private readonly VBoxContainer _spells = new();
     private readonly HBoxContainer _casting = new();
     private readonly Label _castingName = HudStyle.Text(HudStyle.Strong, 16, HudStyle.Bone);
-    private readonly HBoxContainer _slots = new();
-    private readonly List<(PanelContainer Frame, string Name)> _slotFrames = new();
-    private string _formulaKeys = string.Empty;
-    private string? _castingNow;
     private readonly Dictionary<string, TextureRect> _poolIcons = new(StringComparer.Ordinal);
     private readonly Gauge _health = new(HudStyle.HealthFill, new Vector2(PoolWidth, 12));
     private readonly Gauge _stamina = new(HudStyle.StaminaFill, new Vector2(PoolWidth, 8));
@@ -270,21 +264,19 @@ public partial class HudView : Control
         _effects.Visible = false;
         rows.AddChild(_effects);
 
-        _quick.AddThemeConstantOverride("separation", 14);
-        _quick.Visible = false;
-        rows.AddChild(_quick);
-
-        _spells.AddThemeConstantOverride("separation", 5);
         _casting.AddThemeConstantOverride("separation", 8);
         _casting.AddChild(HudStyle.Text(HudStyle.Caps, 16, HudStyle.Ember, caps: true).Say("Casting"));
         _casting.AddChild(_castingName);
         _casting.Visible = false;
-        _spells.AddChild(_casting);
-        _slots.AddThemeConstantOverride("separation", 14);
-        _spells.AddChild(_slots);
-        _spells.AddChild(HudStyle.Rule(3));
-        _spells.Visible = false;
-        rows.AddChild(_spells);
+        rows.AddChild(_casting);
+
+        // The quick bar (WP9): eight slots on their keys, what each holds and its count or cost; a rule under it.
+        _bar.AddThemeConstantOverride("separation", 4);
+        _quick.AddThemeConstantOverride("separation", 6);
+        _bar.AddChild(_quick);
+        _bar.AddChild(HudStyle.Rule(3));
+        _bar.Visible = false;
+        rows.AddChild(_bar);
 
         var pools = new GridContainer { Columns = 4 };
         pools.AddThemeConstantOverride("h_separation", 9);
@@ -608,7 +600,7 @@ public partial class HudView : Control
             icon.Texture = icons.For(key);
             icon.Visible = icon.Texture is not null;
         }
-        _formulaKeys = _effectKeys = string.Empty;
+        _quickKeys = _effectKeys = string.Empty;
         _companionIcon = null;
         _weaponId = null;
     }
@@ -656,14 +648,18 @@ public partial class HudView : Control
             _strainValue.AddThemeColorOverride("font_color", sheet.Strained ? HudStyle.Wound : HudStyle.Bone);
         }
 
-        SetFormulas(sheet.Formulas, sheet.Casting);
+        _casting.Visible = sheet.Casting is not null;
+        _castingName.Text = sheet.Casting ?? string.Empty;
         SetQuick(sheet.Quick);
     }
 
-    /// <summary>The quick slots on their keys: the framed icon with its key on the corner, the name and how many are left.</summary>
+    /// <summary>
+    /// The quick bar (WP9): eight slots on their keys - the framed icon with its key on the corner and its note under it (how many are
+    /// carried, or a formula's Focus) - lit while its formula is worked, dim when none of it is left. Shown once anything is on it.
+    /// </summary>
     private void SetQuick(IReadOnlyList<HudQuick> quick)
     {
-        string keys = string.Join("|", quick.Select(q => $"{q.Key}:{q.Id}:{q.Count}"));
+        string keys = string.Join("|", quick.Select(q => $"{q.Key}:{q.Id}:{q.Note}:{q.Spent}:{q.Active}"));
         if (keys == _quickKeys)
             return;
         _quickKeys = keys;
@@ -671,74 +667,25 @@ public partial class HudView : Control
             child.QueueFree();
         foreach (var slot in quick)
         {
-            var unit = new HBoxContainer();
-            unit.AddThemeConstantOverride("separation", 8);
-            var holder = new Control { CustomMinimumSize = new Vector2(38, 38), SizeFlagsVertical = SizeFlags.ShrinkCenter };
-            if (slot.Id.Length == 0)
-            {
-                var empty = HudStyle.IconSlot(_icons.Binds("quick.empty") ? _icons.For("quick.empty") : null, 34);
-                empty.Modulate = new Color(1, 1, 1, 0.6f);
-                holder.AddChild(empty);
-                holder.AddChild(new KeyCap(slot.Key, 16) { Position = new Vector2(-6, 20) });
-                unit.AddChild(holder);
-                _quick.AddChild(unit);
-                Quiet(unit);
-                continue;
-            }
-            holder.AddChild(HudStyle.IconSlot(_icons.For(slot.Id), 34));
-            holder.AddChild(new KeyCap(slot.Key, 16) { Position = new Vector2(-6, 20) });
+            var unit = new VBoxContainer();
+            unit.AddThemeConstantOverride("separation", 0);
+            var holder = new Control { CustomMinimumSize = new Vector2(38, 38) };
+            // An empty slot is its bare frame: the pouch icon read as something carried once eight slots stood in a row.
+            var frame = HudStyle.IconSlot(slot.Id.Length == 0 ? null : _icons.For(slot.Id), 34, active: slot.Active);
+            frame.Position = new Vector2(2, 0);
+            if (slot.Id.Length == 0 || slot.Spent)
+                frame.Modulate = new Color(1, 1, 1, slot.Id.Length == 0 ? 0.45f : 0.6f);
+            holder.AddChild(frame);
+            holder.AddChild(new KeyCap(slot.Key, 16) { Position = new Vector2(-4, 20) });
             unit.AddChild(holder);
-            var words = new VBoxContainer { SizeFlagsVertical = SizeFlags.ShrinkCenter };
-            words.AddThemeConstantOverride("separation", -1);
-            words.AddChild(HudStyle.Text(HudStyle.Body, 16, HudStyle.Bone).Say(slot.Name));
-            words.AddChild(HudStyle.Text(HudStyle.Caps, 16, HudStyle.Muted, caps: true).Say($"×{slot.Count}"));
-            unit.AddChild(words);
+            var note = HudStyle.Text(HudStyle.Caps, 16, slot.Spent ? HudStyle.Wound : HudStyle.Muted, caps: true).Say(slot.Note);
+            note.HorizontalAlignment = HorizontalAlignment.Center;
+            note.CustomMinimumSize = new Vector2(42, 0);
+            unit.AddChild(note);
             _quick.AddChild(unit);
             Quiet(unit);
         }
-        _quick.Visible = quick.Any(q => q.Id.Length > 0);
-    }
-
-    private void SetFormulas(IReadOnlyList<HudFormula> formulas, string? casting)
-    {
-        _spells.Visible = formulas.Count > 0;
-        _casting.Visible = casting is not null;
-        _castingName.Text = casting ?? string.Empty;
-        string keys = string.Join("|", formulas.Select(f => $"{f.Id}:{f.Name}:{f.FocusCost}"));
-        if (keys != _formulaKeys)
-        {
-            _formulaKeys = keys;
-            _castingNow = null;
-            _slotFrames.Clear();
-            foreach (var child in _slots.GetChildren())
-                child.QueueFree();
-            for (int i = 0; i < formulas.Count; i++)
-            {
-                // A slot: the framed icon with its key on the lower left corner, the name and the Focus cost beside it.
-                var formula = formulas[i];
-                var unit = new HBoxContainer();
-                unit.AddThemeConstantOverride("separation", 8);
-                var holder = new Control { CustomMinimumSize = new Vector2(38, 38), SizeFlagsVertical = SizeFlags.ShrinkCenter };
-                var frame = HudStyle.IconSlot(_icons.For(formula.Id), 34);
-                holder.AddChild(frame);
-                var key = new KeyCap($"{i + 4}", 16) { Position = new Vector2(-6, 20) };
-                holder.AddChild(key);
-                unit.AddChild(holder);
-                var words = new VBoxContainer { SizeFlagsVertical = SizeFlags.ShrinkCenter };
-                words.AddThemeConstantOverride("separation", -1);
-                words.AddChild(HudStyle.Text(HudStyle.Body, 16, HudStyle.Bone).Say(formula.Name));
-                words.AddChild(HudStyle.Text(HudStyle.Caps, 16, HudStyle.Muted, caps: true).Say($"{formula.FocusCost} Focus"));
-                unit.AddChild(words);
-                _slots.AddChild(unit);
-                _slotFrames.Add((frame, formula.Name));
-                Quiet(unit);
-            }
-        }
-        if (casting == _castingNow)
-            return;
-        _castingNow = casting;
-        foreach (var (frame, name) in _slotFrames)
-            frame.AddThemeStyleboxOverride("panel", HudStyle.SlotBox(active: name == casting));
+        _bar.Visible = quick.Any(q => q.Id.Length > 0);
     }
 
     public void SetVitals(int health, int maxHealth, int stamina, int maxStamina)
@@ -977,7 +924,7 @@ public partial class HudView : Control
 
     private static (string? Kind, string Words) Headline(string text)
     {
-        foreach (string kind in new[] { "Quest complete", "New quest", "Quest failed", "Discovered", "Done" })
+        foreach (string kind in new[] { "Quest complete", "New quest", "Quest failed", "Discovered", "Done", "Skill" })
         {
             if (text.StartsWith(kind + ": ", StringComparison.Ordinal))
                 return (kind, text[(kind.Length + 2)..]);

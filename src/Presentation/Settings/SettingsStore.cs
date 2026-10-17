@@ -22,9 +22,9 @@ public static class SettingsStore
     public static readonly string[] Remappable =
     {
         "move_forward", "move_back", "move_left", "move_right", "sprint", "walk", "jump", "crouch", "autorun",
-        "interact", "attack", "guard", "dodge", "use", "quick_1", "quick_2", "quick_3", "cast_1", "cast_2", "cast_3", "take_all",
+        "interact", "attack", "guard", "dodge", "use", "quick_1", "quick_2", "quick_3", "quick_4", "quick_5", "quick_6", "quick_7", "quick_8", "take_all",
         "companion_order", "first_person", "shoulder_swap",
-        "inventory", "character", "journal", "map", "help", "saves", "quicksave",
+        "inventory", "character", "skills", "journal", "map", "help", "saves", "quicksave",
         "reply_1", "reply_2", "reply_3", "reply_4", "reply_5", "reply_6", "reply_7", "reply_8", "reply_9",
     };
 

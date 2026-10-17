@@ -47,6 +47,13 @@ tier_targets:                     # §3.2 pacing: [from_level, to_level, min_hou
   - [21, 30, 13, 18]
   - [31, 40, 16, 22]
   - [41, 50, 20, 28]
+skill_bands:                      # §6: what a skill level is called, [from, name]; techniques gate on levels, never on a band's name
+  - [0, Untrained]
+  - [15, Familiar]
+  - [30, Proficient]
+  - [45, Adept]
+  - [60, Expert]                  # the common ceiling
+  - [61, Master]                  # designated masteries only (M12)
 starting_package:                 # §5: Phase 1 has no archetype choice, so one default package
   attribute_bias: {}
   skills: {}

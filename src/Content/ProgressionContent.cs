@@ -115,6 +115,10 @@ public static class ProgressionContent
                         kv => (string)kv.Key, kv => ParseInt(kv.Value, "starting_package.skills"), StringComparer.Ordinal),
                     List(package, "techniques").Select(t => (string)t).ToImmutableArray()),
                 TierTargets = List(p, "tier_targets").Select((row, i) => TierRow(row, i)).ToImmutableArray(),
+                SkillBands = List(p, "skill_bands").Select((row, i) => SkillBandRow(row, i)).ToImmutableArray(),
+                Roster = loader.GetByKind("skill").Values
+                    .Select(s => new SkillEntry(s.Id, Read(s.YamlSource).GetValueOrDefault("family") as string ?? ""))
+                    .OrderBy(s => SkillFamilies.IndexOf(s.Family)).ThenBy(s => s.Id, StringComparer.Ordinal).ToImmutableArray(),
             };
 
             CheckRules(rules, loader, errors, file);
@@ -144,6 +148,10 @@ public static class ProgressionContent
         Check(rules.TicksPerWorldDay > 0, "config.time gives a world day of no ticks");
         Check(rules.TierTargets.Length > 0 && rules.TierTargets.All(t => t.FromLevel >= 1 && t.ToLevel > t.FromLevel && t.MinHours > 0 && t.MaxHours >= t.MinHours),
             "tier_targets rows must be [from < to, min hours <= max hours]");
+        var bands = rules.SkillBands;
+        Check(bands.Length > 0 && bands[0].From == 0 && bands.Zip(bands.Skip(1)).All(pair => pair.First.From < pair.Second.From)
+              && bands[^1].From <= 100 && bands.All(b => b.Name.Trim().Length > 0),
+            "skill_bands rows must be [from, name], the first from 0, rising to at most 100 (PROGRESSION.md §6)");
 
         // AG-1 must answer every level difference, exactly once.
         var band = rules.Guards.LevelBand.OrderBy(r => r.Min).ToList();
@@ -171,6 +179,13 @@ public static class ProgressionContent
             Long(map, "base"),
             Map(map, "per_point").ToImmutableSortedDictionary(
                 kv => ProgressionKeys.ParseAttribute((string)kv.Key), kv => (long)ParseInt(kv.Value, $"derived.{key}.per_point")));
+    }
+
+    private static SkillBand SkillBandRow(object row, int index)
+    {
+        if (row is not List<object> { Count: 2 } cells || cells[1] is not string name)
+            throw new FormatException($"skill_bands[{index}] must be [from, name]");
+        return new SkillBand(IntOf(cells, 0, "skill_bands"), name);
     }
 
     private static LevelBandRow BandRow(object row, int index)
