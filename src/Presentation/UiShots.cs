@@ -795,8 +795,6 @@ public sealed class UiShots
             }
             if (!Approach(_hireKey))
                 return Stalled(2_400, $"the character never reached {_hireKey} to hire");
-            // Stand still in front of them: a sheet closes once its person is out of talking reach.
-            _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera);
             _pending = $"hire_{who}_prompt";
         }
         else if (phase < 4)
@@ -847,6 +845,8 @@ public sealed class UiShots
         }
         if (!_controller.InTalkReach(npc) && !Walk(_way, Near))
             return false;
+        // Stand still in front of them: reach can come mid-stride, and a conversation or sheet closes once its person is out of reach.
+        _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera);
         _way = null;
         Face(npc.Body.XMm, npc.Body.ZMm);
         return true;
