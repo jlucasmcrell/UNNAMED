@@ -1,0 +1,23 @@
+id: quest.main.the_road_in
+kind: quest
+schema: 1
+display_key: quest.main.the_road_in.name
+tags: [quest]
+notes: The opening (OD-01 "The Road In", B-min; PJ06 §5) and the first beat of the main thread (DCP C.1 M1, "Arrival"). Every new character starts it before the first tick (on_new_game), so the journal's first entry is there when the character first looks. It asks nothing a character who skipped the road has not already done - the Waystone start stands inside the waystation - and it gives nothing (the road holds no required content, PJ06 §8). Renn's greet and again nodes are his first words to any stranger. The title is OD-01's; the summary is a placeholder until the story script lands. TODO-STORY - the summary and the objective lines, from the main-thread script in the canon repo.
+title: The Road In
+# TODO-STORY: placeholder summary and objective lines, to be replaced from the main-thread script.
+summary: "You came over the ridge on the old road with what you carry and not much else. Below is a waystation, smoke from a forge, and people already busy with their own day."
+track: main
+act: 1
+on_new_game: true
+entry_objective: o_arrive
+objectives:
+  - id: o_arrive
+    type: visit_location
+    description: Follow the road down to the waystation.
+    params: { location_ref: location.outpost }
+    next: [o_keeper]
+  - id: o_keeper
+    type: talk_to
+    description: Speak to whoever keeps the waystation.
+    params: { npc_ref: npc.ashen_hollow.renn_vale, nodes: [greet, again] }

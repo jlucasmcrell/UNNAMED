@@ -407,6 +407,16 @@ public static class WorldContent
             var (spawnX, spawnZ) = Pair(spawnMap, "position_m");
             long facingMdeg = (long)Math.Round(Number(spawnMap, "facing_deg") * 1000, MidpointRounding.AwayFromZero);
             Check(facingMdeg is >= 0 and < MoveIntent.FullTurnMdeg, "WLD007", "spawn facing_deg must be in [0, 360)");
+            // The opening's start (PJ06 §5.1): optional, and held to the spawn's rules below.
+            Body? opening = null;
+            if (map.ContainsKey("opening"))
+            {
+                var openingMap = Map(map, "opening");
+                var (openingX, openingZ) = Pair(openingMap, "position_m");
+                long openingMdeg = (long)Math.Round(Number(openingMap, "facing_deg") * 1000, MidpointRounding.AwayFromZero);
+                Check(openingMdeg is >= 0 and < MoveIntent.FullTurnMdeg, "WLD007", "opening facing_deg must be in [0, 360)");
+                opening = new Body(openingX, terrain.HeightAtMm(openingX, openingZ), openingZ, (int)openingMdeg);
+            }
 
             var space = new WalkSpace(minX, minZ, maxX, maxZ, terrain, structures);
             var layout = new RegionLayout(regionId, cells.Select(c => c.ToString()).ToImmutableArray(), space, doors.ToImmutable(),
@@ -420,6 +430,7 @@ public static class WorldContent
                 Barriers = barriers.ToImmutable(),
                 Waystones = waystones.ToImmutable(),
                 Roads = roads.ToImmutable(),
+                Opening = opening,
             };
 
             // The spawn must stand clear with every door shut and every barrier standing, the harshest case. An NPC may stand
@@ -427,6 +438,8 @@ public static class WorldContent
             var closed = layout.ClosedDoors(_ => false);
             long radius = loader.Definitions.ContainsKey("config.base_speeds") ? BuildMovement(loader).BodyRadiusMm : 0;
             Check(Kinematics.IsClear(spawnX, spawnZ, radius, space, closed), "WLD007", "the spawn point must be inside the bounds and clear of every structure, door and barrier");
+            if (opening is not null)
+                Check(Kinematics.IsClear(opening.XMm, opening.ZMm, radius, space, closed), "WLD007", "the opening's start must be inside the bounds and clear of every structure, door and barrier");
             var shut = layout.ClosedDoors(_ => false, _ => true);
             foreach (var npc in layout.Npcs)
                 Check(Kinematics.IsClear(npc.XMm, npc.ZMm, radius, space, shut), "WLD012", $"{npc.NpcId} must stand clear of every structure and door");

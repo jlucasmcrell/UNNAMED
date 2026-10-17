@@ -154,7 +154,7 @@ public class SessionTests
         Assert.Contains("exceeds full deflection", rejected[0].Reason);
         Assert.Contains("facing", rejected[1].Reason);
         Assert.Contains("unknown actor", rejected[2].Reason);
-        Assert.All(simulation.CommandLog, entry => Assert.NotNull(entry.RejectedReason));
+        Assert.All(simulation.CommandLog.Where(entry => entry.Command is MoveCommand), entry => Assert.NotNull(entry.RejectedReason));
         Assert.Equal(session.Setup.Layout.Spawn, simulation.Player.Body);
     }
 

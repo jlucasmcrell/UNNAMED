@@ -196,12 +196,14 @@ public sealed class Simulation
         spec = spec.Validated();
         setup.Character.Check(spec);
         var call = spec.CallId is { } callId ? setup.Character.Calls[callId] : null;
-        return NewCharacter(setup, id, spec.Name, call, appearanceSeed) with { Identity = CharacterIdentity.Of(spec) };
+        var start = spec.Start == StartPoint.Road ? setup.Layout.Opening ?? setup.Layout.Spawn : setup.Layout.Spawn;
+        return NewCharacter(setup, id, spec.Name, call, appearanceSeed, start) with { Identity = CharacterIdentity.Of(spec) };
     }
 
-    private static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, CallDefinition? call, ulong appearanceSeed)
+    private static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, CallDefinition? call, ulong appearanceSeed,
+        Body? start = null)
     {
-        var spawn = setup.Layout.Spawn;
+        var spawn = start ?? setup.Layout.Spawn;
         var lines = call is null ? setup.Items.StartingKit : setup.Items.StartingKit.AddRange(call.Kit);
         // A notable piece of the kit carries its record from the start (WP3a).
         var kit = lines.Select(item => (Item: item, Entry: new InventoryEntry(EntityId.NewId(EntityKind.Item), item.ItemId, item.Count)
