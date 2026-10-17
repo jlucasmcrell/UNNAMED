@@ -113,6 +113,31 @@ public sealed class Playthrough
     internal static (double X, double Z)[] Hollow(params (double X, double Z)[] points) =>
         points.Select(p => (p.X + HollowX, p.Z + HollowZ)).ToArray();
 
+    /// <summary>
+    /// The way to someone, for the harnesses: over WP12's navigation lattice, through doors that stand open, and to a hand's reach (1.3 m)
+    /// on the side the way arrives from. Someone sheltering from rain stands in a row inside the longhouse: walked at in a straight line
+    /// they are a wall away, and from the wrong side the row pens the character short of talk reach. With no way found, the straight line.
+    /// </summary>
+    internal static (double X, double Z)[] WayTo(Simulation simulation, Body from, Body to)
+    {
+        var navigation = simulation.Navigation;
+        var config = simulation.Setup.Navigation;
+        bool Open(NavInput gate) => navigation.Gates.FirstOrDefault(g => g.Key == gate.GateKey)?.Open ?? false;
+        var plan = NavSearch.Plan(new NavQuery(navigation.Grid, Open, config, new NavScratch(), null), new NavAgent(config.PersonClass, false),
+            new NavPoint(from.XMm, from.ZMm), new NavPoint(to.XMm, to.ZMm));
+        var corners = plan.Outcome == NavOutcome.Found && !plan.Partial && plan.Corners.Length > 0
+            ? plan.Corners.RemoveAt(plan.Corners.Length - 1)
+            : ImmutableArray<NavPoint>.Empty;
+        var last = corners.Length > 0 ? corners[^1] : new NavPoint(from.XMm, from.ZMm);
+        double dx = last.XMm - to.XMm, dz = last.ZMm - to.ZMm, length = Math.Max(1, Math.Sqrt(dx * dx + dz * dz));
+        return corners.Select(c => (c.XMm / 1000.0, c.ZMm / 1000.0))
+            .Append((to.XMm / 1000.0 + dx / length * 1.3, to.ZMm / 1000.0 + dz / length * 1.3)).ToArray();
+    }
+
+    private (double X, double Z)[]? _way;
+    private string? _wayTo;
+    private Body _wayFrom = new(0, 0, 0, 0);
+
     private sealed record Beat(string Name, string Says, int Budget, Func<bool> Run, string? Shot = null);
 
     private readonly GameSession _session;
@@ -912,12 +937,14 @@ public sealed class Playthrough
         }
         var npc = _session.Simulation!.Npcs.Single(n => n.Id == npcId);
         var body = _controller.Authoritative;
-        var away = new Vector3(body.XMm - npc.Body.XMm, 0, body.ZMm - npc.Body.ZMm).Normalized() * 1.3f;
-        var spot = new[] { (npc.Body.XMm / 1000.0 + away.X, npc.Body.ZMm / 1000.0 + away.Z) };
-        if (_waypoint > 0 && Distance(body, npc.Body) > 1_900)
-            _waypoint = 0;   // they moved: go again
-        if (!_controller.InTalkReach(npc) && !Walk(spot, Near))
+        if (_way is null || _wayTo != npcId || Distance(_wayFrom, npc.Body) > 1_000)
+        {
+            // Planned once, again only if they moved: the way goes round walls and in through doors.
+            (_way, _wayTo, _wayFrom, _waypoint) = (WayTo(_session.Simulation!, body, npc.Body), npcId, npc.Body, 0);
+        }
+        if (!_controller.InTalkReach(npc) && !Walk(_way, Near))
             return false;
+        _way = null;
         Look(npc.Body.XMm, npc.Body.ZMm);
         return true;
     }

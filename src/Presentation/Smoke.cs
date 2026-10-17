@@ -228,10 +228,8 @@ public sealed class Smoke
         var speaker = simulation.Npcs.Single(n => n.Id == path.NpcId);
         if (!_talked)
         {
-            // Up to within a hand's reach of them, from where the character stands.
-            var body = _controller.Authoritative;
-            var away = new Vector3(body.XMm - speaker.Body.XMm, 0, body.ZMm - speaker.Body.ZMm).Normalized() * 1.3f;
-            if (!_controller.InTalkReach(speaker) && !Walk((speaker.Body.XMm / 1000.0 + away.X, speaker.Body.ZMm / 1000.0 + away.Z)))
+            // Up to within a hand's reach of them, from where the character stands: round walls and in through doors.
+            if (!_controller.InTalkReach(speaker) && !WalkTo(speaker))
                 return null;
             _controller.Talk(path.NpcId);
             foreach (string reply in path.Replies)
@@ -290,9 +288,7 @@ public sealed class Smoke
                 return null;
             }
             var giver = simulation.Npcs.Single(n => n.Id == quest.NpcId);
-            var at = _controller.Authoritative;
-            var toward = new Vector3(at.XMm - giver.Body.XMm, 0, at.ZMm - giver.Body.ZMm).Normalized() * 1.3f;
-            if (!_controller.InTalkReach(giver) && !Walk((giver.Body.XMm / 1000.0 + toward.X, giver.Body.ZMm / 1000.0 + toward.Z)))
+            if (!_controller.InTalkReach(giver) && !WalkTo(giver))
                 return null;
             if (_questAsked)
                 return Fail($"{quest.NpcId}'s replies {string.Join(", ", quest.Replies)} did not start {quest.QuestId}");
@@ -481,6 +477,24 @@ public sealed class Smoke
             }
         }
         return null;
+    }
+
+    private (double X, double Z)[]? _way;
+    private int _wayAt;
+    private string? _wayTo;
+    private Body _wayFrom = new(0, 0, 0, 0);
+
+    /// <summary>
+    /// One frame of walking to within a hand's reach of someone (Playthrough.WayTo: round walls, in through open doors); true once there.
+    /// Planned once, and again only if they move.
+    /// </summary>
+    private bool WalkTo(NpcView npc)
+    {
+        if (_way is null || _wayTo != npc.Id || Math.Abs(_wayFrom.XMm - npc.Body.XMm) + Math.Abs(_wayFrom.ZMm - npc.Body.ZMm) > 1_000)
+            (_way, _wayAt, _wayTo, _wayFrom) = (Playthrough.WayTo(_session.Simulation!, _controller.Authoritative, npc.Body), 0, npc.Id, npc.Body);
+        if (_wayAt < _way.Length && Walk(_way[_wayAt]))
+            _wayAt++;
+        return _wayAt >= _way.Length;
     }
 
     /// <summary>One frame of walking towards a point at a run; true once there.</summary>

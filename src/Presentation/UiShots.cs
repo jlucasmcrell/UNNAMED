@@ -73,6 +73,9 @@ public sealed class UiShots
 
     private int _frame;
     private int _waypoint;
+    private (double X, double Z)[]? _way;
+    private string? _wayTo;
+    private Body _wayFrom = new(0, 0, 0, 0);
     private int _look;
     private int _step;
     private int _wait;
@@ -772,9 +775,14 @@ public sealed class UiShots
         }
         var npc = _session.Simulation!.Npcs.Single(n => n.Id == npcId);
         var body = _controller.Authoritative;
-        var away = new Vector3(body.XMm - npc.Body.XMm, 0, body.ZMm - npc.Body.ZMm).Normalized() * 1.3f;
-        if (!_controller.InTalkReach(npc) && !Walk(new[] { (npc.Body.XMm / 1000.0 + away.X, npc.Body.ZMm / 1000.0 + away.Z) }, Near))
+        if (_way is null || _wayTo != npcId || Math.Abs(_wayFrom.XMm - npc.Body.XMm) + Math.Abs(_wayFrom.ZMm - npc.Body.ZMm) > 1_000)
+        {
+            // Round walls and in through doors (Playthrough.WayTo): planned once, again only if they moved.
+            (_way, _wayTo, _wayFrom, _waypoint) = (Playthrough.WayTo(_session.Simulation!, body, npc.Body), npcId, npc.Body, 0);
+        }
+        if (!_controller.InTalkReach(npc) && !Walk(_way, Near))
             return false;
+        _way = null;
         Face(npc.Body.XMm, npc.Body.ZMm);
         return true;
     }
