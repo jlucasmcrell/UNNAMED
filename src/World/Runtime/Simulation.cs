@@ -112,6 +112,7 @@ public sealed class Simulation
     private readonly CompanionSystem _companions;
     private readonly TravelSystem _travel;
     private readonly DeedSystem _deeds;
+    private readonly QuickBarSystem _quickBar;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private readonly ImmutableArray<IAbstractAdvance> _advances;
     private long _sequence;
@@ -160,6 +161,7 @@ public sealed class Simulation
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions);
         _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views, _inventory.WorldItems);
         _deeds = new DeedSystem(_context, _state.Claim(nameof(DeedSystem), StateSlice.Deeds));
+        _quickBar = new QuickBarSystem(_context, _state.Claim(nameof(QuickBarSystem), StateSlice.QuickBar), player.Id);
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         // The abstract advance (WP11): the clock first, so every other system brings itself to the tick it reads. A new world system
         // that goes on while the character is away adds itself here.
@@ -306,6 +308,9 @@ public sealed class Simulation
     /// <summary>What the character's map holds: the places they discovered, the roads they walked, the stones they know.</summary>
     public KnownMap Map => Cartography.Known(Setup.Layout, _state.Discoveries.Keys, _state.RoadsWalked, _state.KnownStones.Keys);
 
+    /// <summary>The eight quick slots (WP9): each empty, or the item, formula or technique it uses.</summary>
+    public ImmutableArray<string?> QuickBar => _state.QuickBar;
+
     /// <summary>The character's companions (M6).</summary>
     public ImmutableArray<CompanionView> Companions => _companions.Views();
 
@@ -397,6 +402,7 @@ public sealed class Simulation
                 TravelCommand travel => _travel.Handle(travel, WorldTick),
                 BeginStoryCommand begin => _quests.Handle(begin, WorldTick),
                 ClaimBountyCommand claim => _quests.Handle(claim, WorldTick),
+                AssignQuickSlotCommand assign => _quickBar.Handle(assign, WorldTick),
                 _ => $"no system handles {command.GetType().Name}",
             };
             _log.Add(new LoggedCommand(WorldTick, _sequence++, command, rejected));
@@ -409,7 +415,8 @@ public sealed class Simulation
 
     /// <summary>
     /// Advance one fixed tick. The order is data, fixed here: movement, tiers, the tier simulations, the player's combat,
-    /// creatures, companions, NPCs, conversations, status effects, death, discovery, quests (which read what all of that did), clock.
+    /// creatures, companions, NPCs, conversations, status effects, death, discovery, quests (which read what all of that did), the quick
+    /// bar (which offers a slot to what came to hand), clock.
     /// </summary>
     public void Step()
     {
@@ -432,6 +439,7 @@ public sealed class Simulation
             _death.Tick(tick);
             _discovery.Tick(tick);
             _quests.Tick(tick);
+            _quickBar.Tick(tick);
             _clock.Tick();
         }
         finally

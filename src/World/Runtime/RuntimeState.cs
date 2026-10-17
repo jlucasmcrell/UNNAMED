@@ -79,6 +79,9 @@ public enum StateSlice
 
     /// <summary>How many times the character has done each deed (E-7), which dialogue's <c>deed</c> condition reads. Saved with the player (schema 16).</summary>
     Deeds,
+
+    /// <summary>What is on each of the eight quick slots (WP9).</summary>
+    QuickBar,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -154,6 +157,7 @@ internal sealed class RuntimeState
     public ImmutableSortedDictionary<string, CompanionState> Companions { get; private set; } =
         ImmutableSortedDictionary.Create<string, CompanionState>(StringComparer.Ordinal);
     public ImmutableSortedDictionary<string, DeedTally> Deeds { get; private set; }
+    public ImmutableArray<string?> QuickBar { get; private set; } = Domain.Progression.QuickBar.Empty;
 
     public IReadOnlyDictionary<StateSlice, string> Owners => _owners;
 
@@ -213,6 +217,14 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Deeds);
         Deeds = Deeds.SetItem(tally.Key, tally);
+    }
+
+    public void SetQuickBar(SliceOwner owner, ImmutableArray<string?> bar)
+    {
+        Require(owner, StateSlice.QuickBar);
+        if (!Domain.Progression.QuickBar.IsValid(bar))
+            throw new InvalidOperationException("A quick bar is eight slots, each empty or holding one item, formula or technique once");
+        QuickBar = bar;
     }
 
     public void WalkRoad(SliceOwner owner, string stretch)
