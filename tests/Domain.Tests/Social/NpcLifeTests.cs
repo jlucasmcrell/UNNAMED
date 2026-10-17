@@ -111,14 +111,34 @@ public class NpcLifeTests
         var job = new NpcJob("market.town", "item.material.iron_ingot", 2);
         var routines = Routines(Routine("routine.town.miner", job: job));
         var life = Begin(routines, 8);
-        Assert.Single(NpcLifeEngine.JobOutput(life, routines, 1));
+        Assert.Single(NpcLifeEngine.JobOutput(life, routines, 1, 1_000));
         var left = NpcLifeEngine.Depart(life, routines, Rules, "routine.town.miner", 2, 0, out _)!;
         long due = left.Vacancies["routine.town.miner"].ArrivalDay;
-        Assert.Single(NpcLifeEngine.JobOutput(left, routines, 1));   // a day before they left: the job was held
-        Assert.Empty(NpcLifeEngine.JobOutput(left, routines, 3));
+        Assert.Single(NpcLifeEngine.JobOutput(left, routines, 1, 1_000));   // a day before they left: the job was held
+        Assert.Empty(NpcLifeEngine.JobOutput(left, routines, 3, 1_000));
         var refilled = Live(left, routines, due * 24 + 1);
-        Assert.Empty(NpcLifeEngine.JobOutput(refilled, routines, due - 1));
-        Assert.Single(NpcLifeEngine.JobOutput(refilled, routines, due));
+        Assert.Empty(NpcLifeEngine.JobOutput(refilled, routines, due - 1, 1_000));
+        Assert.Single(NpcLifeEngine.JobOutput(refilled, routines, due, 1_000));
+    }
+
+    [Fact]
+    public void JobOutput_StopsForTheDaysTheHolderBeginsInTheCharactersHire()
+    {
+        const long Day = 1_000;
+        var job = new NpcJob("market.town", "item.material.iron_ingot", 2);
+        var routines = Routines(Routine("routine.town.miner", job: job));
+        var life = Begin(routines, 8);
+        NpcLifeState As(NpcCondition condition, long until) =>
+            life with { Npcs = life.Npcs.SetItem("routine.town.miner", life.Npcs["routine.town.miner"] with { Condition = condition, ConditionUntil = until }) };
+        Assert.Empty(NpcLifeEngine.JobOutput(As(NpcCondition.Hired, 0), routines, 1, Day));   // in the party
+        // Let go at tick 2 500 - while the world catches up (still marked hired) or taken up again - the job is worked from day 3, the
+        // first day that begins after it.
+        foreach (var condition in new[] { NpcCondition.Hired, NpcCondition.Living })
+        {
+            Assert.Empty(NpcLifeEngine.JobOutput(As(condition, 2_500), routines, 2, Day));
+            Assert.Single(NpcLifeEngine.JobOutput(As(condition, 2_500), routines, 3, Day));
+        }
+        Assert.Single(NpcLifeEngine.JobOutput(life, routines, 1, Day));
     }
 
     [Fact]
@@ -188,7 +208,8 @@ public class NpcLifeTests
         var letGo = later with { Npcs = later.Npcs.SetItem("npc.town.smith", later.Npcs["npc.town.smith"] with { ConditionUntil = 40 * 2_400 + 7 }) };
         Assert.Equal(NpcCondition.Hired, Live(letGo, routines, 40).Npcs["npc.town.smith"].Condition);
         var back = Live(letGo, routines, 41).Npcs["npc.town.smith"];
-        Assert.Equal((NpcCondition.Living, 0L), (back.Condition, back.ConditionUntil));
+        // The tick they were let go is kept: their job is not worked on a day that began with them in the party.
+        Assert.Equal((NpcCondition.Living, 40L * 2_400 + 7), (back.Condition, back.ConditionUntil));
     }
 
     private static RoutineDefinition Tripper(int chance = 100, int from = 9, int to = 9, int away = 3) => Routine("routine.town.hunter") with

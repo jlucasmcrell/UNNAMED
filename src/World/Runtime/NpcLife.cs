@@ -253,7 +253,7 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
     /// <summary>What the jobs make on a day (WP14's hook): each job's daily output for each day its holder held it.</summary>
     public IEnumerable<(string MarketId, string ItemId, long Count)> On(long day) =>
         State.World.NpcLife is { } life
-            ? NpcLifeEngine.JobOutput(life, Life.Routines, day).Select(job => (job.MarketId, job.ItemId, job.PerDay)).ToList()
+            ? NpcLifeEngine.JobOutput(life, Life.Routines, day, Clock.TicksPerDay).Select(job => (job.MarketId, job.ItemId, job.PerDay)).ToList()
             : Enumerable.Empty<(string, string, long)>();
 
     // ── who is where, doing what ────────────────────────────────────────────

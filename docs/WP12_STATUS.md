@@ -4,6 +4,8 @@ SYSTEMS_COMPLETENESS_PLAN_20261017 §2.13 (residents and vendors) and the WP12 b
 
 > **Owner cut, 2026-10-17 (wave 4 integration, schema 29): NPC life was going "too Sims".** Gone: the needs (hunger, rest, social, coin) and the utility chooser, meals, NPC-NPC pairs and visits, shopping, and rain shelter, with their config (`needs`, `meal_hours`), routine fields (`weights`, `pairs`, `eat`/`social` anchors) and tests. Each routine now has a fixed daily schedule: work in work hours, asleep at home at night, the rest at home or at a spot a `schedule` band names (`{ hours: [from, to], at: <anchor> }`; none authored yet). Kept: homes and work hours (merchants trade and trainers teach at work), the mover and navigation, tiers B/C/D, the offline catch-up, hireability and the hired state, trips and SettingOut, arrivals, jobs. The sections below describe the package as built before the cut.
 
+> **Rules settled 2026-10-17 (owner, delegated; wave 5).** A newcomer in a resident's slot meets the character as a stranger: their slot's relationship values are forgotten when they arrive (keys stay per slot and derived). A resident in the character's hire works nothing for the market: their job is not worked on a day that begins with them in the party, and a life let go keeps the tick it was let go (`ConditionUntil`) so a catch-up in pieces settles alike.
+
 
 ## What is built
 

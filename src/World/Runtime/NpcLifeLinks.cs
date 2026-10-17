@@ -161,7 +161,7 @@ internal sealed partial class NpcSystem : INpcHireability, ISettingOutSource, IC
             SetLife(life with { Condition = NpcCondition.Hired, ConditionUntil = Math.Max(1, command.Tick), Route = NavRoute.None, StuckTicks = 0 });
             return null;
         }
-        life = life with { Condition = NpcCondition.Living, ConditionUntil = 0, Route = NavRoute.None, StuckTicks = 0 };
+        life = life with { Condition = NpcCondition.Living, ConditionUntil = command.Tick, Route = NavRoute.None, StuckTicks = 0 };
         if (command.Reason == "wounded" && State.Recovering.TryGetValue(command.Key, out long until) && until > tick)
             life = life with { Condition = NpcCondition.Injured, ConditionUntil = until };
         string activity = NpcLifeEngine.ActivityOf(life, routine, Life.Rules, HourContext(lives.Hour));

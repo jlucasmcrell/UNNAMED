@@ -26,6 +26,7 @@ public class NpcLifeLinksTests
     private const string Tavar = "npc.ashen_hollow.tavar_orr";
     private const string Berrin = "npc.cairnwold.berrin_garth";
     private const string Porter = "routine.ashen_hollow.porter";
+    private const string Woodcutter = "routine.cairnwold.woodcutter";
 
     private readonly ITestOutputHelper _output;
 
@@ -235,6 +236,49 @@ public class NpcLifeLinksTests
         split.Advance(total - Hour);
         Assert.Equal(vacancy, split.World.NpcLife!.Vacancies[Porter]);
         Assert.Equal(once.Setup.Clock.Day(split.WorldTick - total), vacancy.LeftDay);
+    }
+
+    [Fact]
+    public void AHiredResident_WorksNothingForTheMarket_AndAContractEndingWhileAway_SettlesAlike_HoweverTheAbsenceIsSplit()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        // The woodcutter's job made larger than the market's floor, so what it makes shows in the stock.
+        var routine = session.Setup.NpcLife.Routines[Woodcutter];
+        SimulationSetup Job(int perDay) => session.Setup with
+        {
+            NpcLife = session.Setup.NpcLife with { Routines = session.Setup.NpcLife.Routines.SetItem(Woodcutter, routine with { Job = routine.Job! with { PerDay = perDay } }) },
+        };
+        Simulation World(int days, int perDay = 40)
+        {
+            var arena = Open(session, Job(perDay));
+            Beside(arena, Woodcutter);
+            if (days > 0)
+            {
+                var role = arena.Simulation.Hiring.Hireability(Woodcutter)!.HiresAs.First();
+                Assert.Null(arena.Submit(new HireCommand(arena.Player, Woodcutter, role, days, AcceptsRisk: true)));
+            }
+            return arena.Simulation;
+        }
+        long Hafts(Simulation s) => s.Markets.Single(m => m.MarketId == "market.cairnwold").Goods.Single(g => g.ItemId == "item.material.ash_haft").Stock;
+        // Three days in the character's hire: the woodcutter's hafts never reach the market (owner, 2026-10-17).
+        var free = World(0);
+        var hired = World(5);
+        var jobless = World(0, perDay: 0);
+        foreach (var s in new[] { free, hired, jobless })
+            s.Advance(3 * Day);
+        Assert.Equal(Hafts(jobless), Hafts(hired));
+        Assert.True(Hafts(free) > Hafts(hired), $"the free woodcutter's market holds {Hafts(free)} hafts, the hired one's {Hafts(hired)}");
+
+        // A contract that ends while the character is away: the same days are worked however the absence is cut.
+        long total = 6 * Day + 321;
+        var once = World(2);
+        once.Advance(total);
+        var split = World(2);
+        split.Advance(Day + 7 * Hour);
+        split.Advance(total - Day - 7 * Hour);
+        Assert.Equal(LifeOf(once, Woodcutter), LifeOf(split, Woodcutter));
+        Assert.Equal(Hafts(once), Hafts(split));
     }
 
     // ── trips and looking for company ───────────────────────────────────────

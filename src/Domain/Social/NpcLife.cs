@@ -303,7 +303,10 @@ public sealed record NpcLifeRecord(string Key, string RoutineId, string Activity
 
     public NpcCondition Condition { get; init; } = NpcCondition.Living;
 
-    /// <summary>The tick an injury passes; 0 when living. Hired (WP12b): the tick the party let them go, while the world catches up to it; 0 while in the party.</summary>
+    /// <summary>
+    /// The tick an injury passes. Hired (WP12b): the tick the party let them go, while the world catches up to it; 0 while in the party.
+    /// Living: the tick the party let them go, kept so their job is not worked on a day that began with them in the party; 0 otherwise.
+    /// </summary>
     public long ConditionUntil { get; init; }
 
     public Spatial.NavRoute Route { get; init; } = Spatial.NavRoute.None;
@@ -424,7 +427,7 @@ public static class NpcLifeEngine
             {
                 if (npc.ConditionUntil <= 0 || npc.ConditionUntil > hour.Tick)
                     continue;
-                npc = npc with { Condition = NpcCondition.Living, ConditionUntil = 0 };
+                npc = npc with { Condition = NpcCondition.Living };
             }
             if (npc.Condition == NpcCondition.Injured && npc.ConditionUntil <= hour.Tick)
                 npc = npc with { Condition = NpcCondition.Living, ConditionUntil = 0 };
@@ -483,22 +486,28 @@ public static class NpcLifeEngine
     }
 
     /// <summary>
-    /// What the towns' jobs make on a calendar day (WP14's job hook): each routine's job, for each day its holder held it. A pure function of
-    /// when each holder arrived and each slot fell vacant, so the markets read the same output whenever they settle the day (T-22).
+    /// What the towns' jobs make on a calendar day (WP14's job hook): each routine's job, for each day its holder held it and began out of the
+    /// character's hire (owner, 2026-10-17: a hired resident makes nothing for the market). A pure function of when each holder arrived, each
+    /// slot fell vacant and each hireling was let go, so the markets read the same output whenever they settle the day (T-22).
     /// </summary>
-    public static IEnumerable<NpcJob> JobOutput(NpcLifeState state, IReadOnlyDictionary<string, RoutineDefinition> routines, long day)
+    public static IEnumerable<NpcJob> JobOutput(NpcLifeState state, IReadOnlyDictionary<string, RoutineDefinition> routines, long day, long ticksPerDay)
     {
         foreach (var routine in routines.Values.OrderBy(r => r.Id, StringComparer.Ordinal))
         {
             if (routine.Job is not { PerDay: > 0 } job)
                 continue;
             bool held = state.Npcs.TryGetValue(routine.Key, out var npc)
-                ? npc.RoutineId == routine.Id && npc.ArrivedDay <= day
+                ? npc.RoutineId == routine.Id && npc.ArrivedDay <= day && !InHireAt(npc, day * ticksPerDay)
                 : state.Vacancies.TryGetValue(routine.Id, out var vacancy) && day < vacancy.LeftDay;
             if (held)
                 yield return job;
         }
     }
+
+    /// <summary>Whether someone was in the character's hire at a tick: in the party, or let go only later.</summary>
+    private static bool InHireAt(NpcLifeRecord npc, long tick) =>
+        npc.Condition == NpcCondition.Hired && (npc.ConditionUntil <= 0 || npc.ConditionUntil > tick)
+        || npc.Condition == NpcCondition.Living && npc.ConditionUntil > tick;
 
     private static NpcLifeRecord Newcomer(RoutineDefinition routine, NpcLifeRules rules, NpcHourContext hour, int generation, string? name,
         (long X, long Z, int Facing)? place)
