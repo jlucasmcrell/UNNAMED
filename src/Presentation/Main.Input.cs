@@ -140,6 +140,20 @@ public partial class Main
             return;
         }
 
+        // ENTERING OR LEAVING A SPACE STOPS IT. A portal puts the body down somewhere it did not walk to, and a
+        // character who keeps going from there walks into whatever happens to be in front of them - the far room's
+        // wall on the way in, or straight back through the door on the way out (M8 D10).
+        bool outside = _session.Simulation?.PlayerInExterior ?? true;
+        if (outside != _wasOutside)
+        {
+            _wasOutside = outside;
+            if (_autorun)
+            {
+                _autorun = false;
+                _hud.Toast("Autorun off - you went through a door", 2);
+            }
+        }
+
         var stick = new Vector2(
             Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
             Input.GetActionStrength("move_forward") - Input.GetActionStrength("move_back"));

@@ -73,6 +73,7 @@ public partial class Main : Node3D
 
     /// <summary>Whether the player was in the exterior last frame, so entering or leaving a space is noticed.</summary>
     private bool _wasOutside = true;
+
     private ProjectilesView _projectiles = null!;
     private Art.MagicEffects _magicEffects = null!;
     private Art.HitImpacts _hits = null!;
