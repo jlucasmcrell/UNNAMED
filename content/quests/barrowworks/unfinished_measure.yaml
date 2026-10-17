@@ -46,9 +46,12 @@ objectives:
   # It is the join of the two readings, because they are what a character has to have understood before the court means
   # anything - and a join is where the objectives it waits on lead to.
   - id: o_custodian
-    type: world_state
+    type: defeat_boss
     description: Put down the Ring Custodian.
-    params: { flag_ref: world.barrowworks.ring_custodian_defeated, location_ref: location.barrowworks.service_vestibule, value: 1 }
+    # WP4's defeat_boss writes the flag from the creature's death, in the service vestibule's cell, and a death
+    # before the quest was offered still counts - which is the durable-fact reading the design asks for. This was a
+    # bare world_state while nothing in the engine wrote a flag on a kill (OQ-17).
+    params: { creature_ref: creature.construct.ring_custodian, flag_ref: world.barrowworks.ring_custodian_defeated, location_ref: location.barrowworks.service_vestibule }
     all_of: [o_read_fitting, o_read_diagram]
     next: [o_haft]
   # ── acquire ─────────────────────────────────────────────────────────────────────────────────────────────────────────────

@@ -33,16 +33,14 @@ public class BarrowworksQuestSatisfiabilityTests
     /// or a door - which records its own flag when it swings. A flag nothing writes is a step nobody can pass.
     /// </summary>
     /// <remarks>
-    /// One flag is exempt, by name and on purpose: <c>ring_custodian_defeated</c>. Nothing in this engine writes a
-    /// flag when a creature dies, and the systems-completeness plan (§2.11) assigns the creature-defeat path to
-    /// WP4, so the Barrowworks consumes it rather than growing a second one. When WP4 lands, delete the exemption -
-    /// and if the id it writes differs from this one, this test is where that shows up.
+    /// No exemption. There was one, for <c>ring_custodian_defeated</c>, while nothing in the engine wrote a flag on
+    /// a creature's death; WP4's <c>defeat_boss</c> writes it now, and <c>o_custodian</c> is such an objective
+    /// rather than a <c>world_state</c> one - so this test no longer looks at that flag at all, and the exemption
+    /// would have been dead code that hid a missing writer if the id ever drifted.
     /// </remarks>
     [Fact]
     public void EveryFlagTheQuestWaitsOn_IsSetBySomethingInTheRegion()
     {
-        const string AwaitingTheDefeatPath = "world.barrowworks.ring_custodian_defeated";
-
         using var profile = new TempProfile();
         using var session = Boot(profile);
         var layout = session.Setup.Layout;
@@ -59,9 +57,7 @@ public class BarrowworksQuestSatisfiabilityTests
             .ToImmutableArray();
 
         Assert.NotEmpty(waited);
-        var orphaned = waited
-            .Where(f => !written.Contains(f) && f != AwaitingTheDefeatPath)
-            .ToImmutableArray();
+        var orphaned = waited.Where(f => !written.Contains(f)).ToImmutableArray();
         Assert.True(orphaned.IsEmpty, $"the quest waits on flags nothing can set: {string.Join(", ", orphaned)}");
     }
 
