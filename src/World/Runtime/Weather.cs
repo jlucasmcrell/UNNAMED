@@ -191,9 +191,6 @@ internal sealed class WeatherSystem : IAbstractAdvance
     private WorldClock Clock => _context.Setup.Clock;
     private string RegionId => _context.Setup.Layout.Id;
 
-    /// <summary>Take up the cursor a save held (null: no front announced yet, so the first tick announces the one overhead).</summary>
-    public void Resume(long? cursor) => State.SetWeatherCursor(_owner, cursor);
-
     public WeatherFront FrontAt(long tick) => FrontOfHour(Clock.Hour(tick));
 
     public WeatherView View(long tick)

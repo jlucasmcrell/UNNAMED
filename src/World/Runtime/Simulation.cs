@@ -181,16 +181,14 @@ public sealed class Simulation
     }
 
     /// <summary>
-    /// Start simulating a world: a new game's, or one a save just loaded. The world tick continues from the save, and the weather from the
-    /// save's cursor (null: no front announced yet).
+    /// Start simulating a world: a new game's, or one a save just loaded. The world tick continues from the save; the weather cursor starts
+    /// empty, so the first tick announces the front overhead.
     /// </summary>
-    public static Simulation Start(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events, long? weatherCursor = null)
+    public static Simulation Start(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events)
     {
         if (worldTick < 0)
             throw new ArgumentOutOfRangeException(nameof(worldTick), worldTick, "The world tick is never negative");
-        var simulation = new Simulation(setup, player, world, worldTick, events);
-        simulation._weather.Resume(weatherCursor);
-        return simulation;
+        return new Simulation(setup, player, world, worldTick, events);
     }
 
     /// <summary>
