@@ -5,6 +5,7 @@ using Godot;
 using UNNAMED.Application;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Items;
+using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
 using UNNAMED.Presentation.Greybox;
 using UNNAMED.Presentation.Perf;
@@ -39,6 +40,12 @@ public partial class Main : Node3D
     private readonly Dictionary<string, string> _options = new(StringComparer.Ordinal);
     private GameSession _session = null!;
     private HollowView _hollow = null!;
+
+    /// <summary>
+    /// The ring, built from the interior layout with its own bindings overlay and hidden until the body goes in
+    /// (review 3, B6). Null when this run holds no interior, which is every run without the gate.
+    /// </summary>
+    private HollowView? _interior;
     private Figure _avatar = null!;
     private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
     private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
@@ -592,6 +599,47 @@ public partial class Main : Node3D
         }
     }
 
+
+    /// <summary>
+    /// The ring, built once from the interior layout with the ring's own bindings overlay, and hidden. Sharing the
+    /// frontier's overlay would draw the Ashen Hollow's props in the ring's rooms; sharing the frontier's view would
+    /// put the ring at the frontier's metres, which is where the body used to stand after a portal (review 3, B6).
+    /// </summary>
+    private void BuildInterior()
+    {
+        if (_session.Setup.Interior is not { } ring)
+            return;
+        string? overlay = Path.Combine(_session.Options.ContentRoot, "_art_bindings_barrowworks.json");
+        var bindings = Art.ArtBindings.LoadWithOverlay(
+            Art.ArtBindings.ResourcePath, System.IO.File.Exists(overlay) ? overlay : null);
+        _interior = new HollowView { Name = "Barrowworks" };
+        _interior.Bind(_art, bindings, new GroundField(ring, bindings, _scatterRules));
+        AddChild(_interior);
+        _interior.Build(ring);
+        _interior.Visible = false;
+        BuildPortalEntrances(_session.Setup.Layout);
+        GD.Print($"UNNAMED barrowworks: the ring is built at {ring.SpaceId} and hidden until the body goes in");
+    }
+
+    /// <summary>
+    /// A doorway at each exterior anchor, so the way in is a thing in the world rather than a prompt in mid-air.
+    /// </summary>
+    private void BuildPortalEntrances(RegionLayout layout)
+    {
+        foreach (var portal in layout.Portals.Portals.Where(p => p.Space != layout.SpaceId))
+            _hollow.AddChild(Greybox.PortalEntrance.Build(portal, layout));
+    }
+
+    /// <summary>
+    /// Show the space the body is in and hide the other (review 3, B6). Called on the space change.
+    /// </summary>
+    private void ShowSpace(bool outside)
+    {
+        _hollow.Visible = outside;
+        if (_interior is { } ring)
+            ring.Visible = !outside;
+    }
+
     /// <summary>The world's scene - ground, buildings, figures, effects - drawn from the asset library where it can be, greybox where not.</summary>
     private void BuildScene()
     {
@@ -603,6 +651,7 @@ public partial class Main : Node3D
         _hollow.Bind(_art, _bindings, _ground);
         AddChild(_hollow);
         _hollow.Build(layout);
+        BuildInterior();
         // What grows and lies on the ground (Phase A, the visual audit's V3): placed once a world, and so its seed, is known (Resync).
         _scatter = new ScatterView { Name = "Scatter" };
         // The card grass is thrown away; --grass=cards restores it for a single comparison run and nothing else.

@@ -149,6 +149,9 @@ public partial class Main
         if (outside != _wasOutside)
         {
             _wasOutside = outside;
+            // The scene follows the body: the ring is shown inside and the frontier's world hidden, and back on the
+            // way out (review 3, B6 - nothing used to react to a space change at all).
+            ShowSpace(outside);
             if (_autorun)
             {
                 _autorun = false;
