@@ -762,7 +762,7 @@ public sealed class UiShots
         var npc = _session.Simulation!.Npcs.Single(n => n.Id == npcId);
         var body = _controller.Authoritative;
         var away = new Vector3(body.XMm - npc.Body.XMm, 0, body.ZMm - npc.Body.ZMm).Normalized() * 1.3f;
-        if (!Walk(new[] { (npc.Body.XMm / 1000.0 + away.X, npc.Body.ZMm / 1000.0 + away.Z) }, Near))
+        if (!_controller.InTalkReach(npc) && !Walk(new[] { (npc.Body.XMm / 1000.0 + away.X, npc.Body.ZMm / 1000.0 + away.Z) }, Near))
             return false;
         Face(npc.Body.XMm, npc.Body.ZMm);
         return true;

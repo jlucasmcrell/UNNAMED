@@ -227,7 +227,7 @@ public sealed class Smoke
             // Up to within a hand's reach of them, from where the character stands.
             var body = _controller.Authoritative;
             var away = new Vector3(body.XMm - speaker.Body.XMm, 0, body.ZMm - speaker.Body.ZMm).Normalized() * 1.3f;
-            if (!Walk((speaker.Body.XMm / 1000.0 + away.X, speaker.Body.ZMm / 1000.0 + away.Z)))
+            if (!_controller.InTalkReach(speaker) && !Walk((speaker.Body.XMm / 1000.0 + away.X, speaker.Body.ZMm / 1000.0 + away.Z)))
                 return null;
             _controller.Talk(path.NpcId);
             foreach (string reply in path.Replies)
@@ -288,7 +288,7 @@ public sealed class Smoke
             var giver = simulation.Npcs.Single(n => n.Id == quest.NpcId);
             var at = _controller.Authoritative;
             var toward = new Vector3(at.XMm - giver.Body.XMm, 0, at.ZMm - giver.Body.ZMm).Normalized() * 1.3f;
-            if (!Walk((giver.Body.XMm / 1000.0 + toward.X, giver.Body.ZMm / 1000.0 + toward.Z)))
+            if (!_controller.InTalkReach(giver) && !Walk((giver.Body.XMm / 1000.0 + toward.X, giver.Body.ZMm / 1000.0 + toward.Z)))
                 return null;
             if (_questAsked)
                 return Fail($"{quest.NpcId}'s replies {string.Join(", ", quest.Replies)} did not start {quest.QuestId}");

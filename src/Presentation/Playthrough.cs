@@ -907,7 +907,7 @@ public sealed class Playthrough
         var spot = new[] { (npc.Body.XMm / 1000.0 + away.X, npc.Body.ZMm / 1000.0 + away.Z) };
         if (_waypoint > 0 && Distance(body, npc.Body) > 1_900)
             _waypoint = 0;   // they moved: go again
-        if (!Walk(spot, Near))
+        if (!_controller.InTalkReach(npc) && !Walk(spot, Near))
             return false;
         Look(npc.Body.XMm, npc.Body.ZMm);
         return true;

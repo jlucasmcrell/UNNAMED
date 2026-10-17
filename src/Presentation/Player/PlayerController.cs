@@ -245,6 +245,17 @@ public sealed class PlayerController
     /// <summary>Speak to an NPC within reach (M4).</summary>
     public void Talk(string npcId) => _session.Submit(new TalkCommand(_session.Simulation!.PlayerId, npcId));
 
+    /// <summary>
+    /// Whether an NPC is near enough to talk to, by the simulation's measure (a hand's reach plus the body), a step inside it. The harnesses
+    /// read it: someone who walks their day (WP12) may come to stand nearer than the spot a harness was making for.
+    /// </summary>
+    public bool InTalkReach(NpcView npc)
+    {
+        var body = Authoritative;
+        long dx = body.XMm - npc.Body.XMm, dz = body.ZMm - npc.Body.ZMm, reach = _session.Setup.Items.Inventory.ReachMm + _session.Setup.Movement.BodyRadiusMm - 100;
+        return dx * dx + dz * dz <= reach * reach;
+    }
+
     /// <summary>Tell a companion to follow or to wait (M6).</summary>
     public void Order(string npcId, Domain.Companions.CompanionOrder order) =>
         _session.Submit(new OrderCompanionCommand(_session.Simulation!.PlayerId, npcId, order));
