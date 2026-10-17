@@ -196,14 +196,23 @@ public class ArchitectureTests
 
     /// <summary>
     /// The wall clock is read in one place, <c>Application/GameSession.cs</c>, which turns an absence into a tick count (WP11; canon
-    /// SYSTEMS.md: the domain never reads the wall clock). A ULID's timestamp is identity, not game time, so <c>EntityId</c> may.
+    /// SYSTEMS.md: the domain never reads the wall clock). A ULID's timestamp is identity, not game time, so <c>EntityId</c> may. A
+    /// stopwatch or a tick counter is the wall clock by another name: the simulation's time is its tick.
     /// </summary>
     [Fact]
     public void TheWallClock_IsReadOnlyByTheSession()
     {
         string root = RepositoryRoot();
-        string[] allowed = { Path.Combine("src", "Application", "GameSession.cs"), Path.Combine("src", "Domain", "EntityId.cs") };
-        string[] forbidden = { "DateTime.Now", "DateTime.UtcNow", "DateTimeOffset.Now", "DateTimeOffset.UtcNow", "Environment.TickCount", "TimeProvider.System" };
+        var allowed = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            [Path.Combine("src", "Application", "GameSession.cs")] = "turns the time away into ticks for the offline catch-up, and stamps saves (WP11)",
+            [Path.Combine("src", "Domain", "EntityId.cs")] = "a ULID's timestamp is identity, not game time (D-04)",
+        };
+        string[] forbidden =
+        {
+            "DateTime.Now", "DateTime.UtcNow", "DateTime.Today", "DateTimeOffset.Now", "DateTimeOffset.UtcNow", "Environment.TickCount",
+            "TimeProvider.System", "Stopwatch",
+        };
         var offenders = new List<string>();
         foreach (string project in new[] { "Domain", "World", "Application", "Content" })
         {
@@ -212,7 +221,7 @@ public class ArchitectureTests
                                      && !f.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal)))
             {
                 string relative = Path.GetRelativePath(root, file);
-                if (allowed.Contains(relative))
+                if (allowed.ContainsKey(relative))
                     continue;
                 string[] lines = File.ReadAllLines(file);
                 for (int i = 0; i < lines.Length; i++)
