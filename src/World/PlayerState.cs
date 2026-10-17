@@ -126,6 +126,34 @@ public sealed record PartyLedger(ImmutableArray<RecoveryRecord> Recovering, Immu
     public override int GetHashCode() => HashCode.Combine(Recovering.Length, Fallen.Length);
 }
 
+/// <summary>
+/// A piece a party member wears (WP15b): the item, with its identity, and whether the character only loaned it - a loan comes back when they
+/// leave the party or are asked for it; a gift is theirs.
+/// </summary>
+public sealed record PartyGear(InventoryEntry Item, bool Loaned);
+
+/// <summary>
+/// What a party member, past or present, has made of themselves (WP15b; canon :20-36, :74-82): their progression on the character's rules,
+/// what they wear in the same ten slots, and what is theirs but not worn. It outlives their time in the party: someone dismissed keeps their
+/// level, gear and belongings, and has them again when they come back.
+/// </summary>
+public sealed record PartySheet(string NpcId, CharacterProgression Progression)
+{
+    public ImmutableSortedDictionary<EquipSlot, PartyGear> Gear { get; init; } = ImmutableSortedDictionary<EquipSlot, PartyGear>.Empty;
+
+    /// <summary>Their own things, not worn: gifts a later gift displaced. Sorted by item instance.</summary>
+    public ImmutableArray<InventoryEntry> Belongings { get; init; } = ImmutableArray<InventoryEntry>.Empty;
+
+    /// <summary>Every item they hold, worn or not.</summary>
+    public IEnumerable<InventoryEntry> Items => Gear.Values.Select(g => g.Item).Concat(Belongings);
+
+    public bool Equals(PartySheet? other) =>
+        other is not null && NpcId == other.NpcId && Progression.Digest == other.Progression.Digest && Gear.SequenceEqual(other.Gear)
+        && Belongings.SequenceEqual(other.Belongings);
+
+    public override int GetHashCode() => HashCode.Combine(NpcId, Gear.Count, Belongings.Length);
+}
+
 public static class DiscoveryMethods
 {
     public static string Key(DiscoveryMethod method) => method switch
@@ -330,6 +358,35 @@ public sealed record PlayerRecord
     private readonly ImmutableArray<string> _quickBarCleared = ImmutableArray<string>.Empty;
 
     /// <summary>
+    /// The party's sheets (WP15b), sorted by NPC: each past or present party member's progression, gear and belongings. Each NPC once; an item
+    /// instance is held once - by one member, and never also carried by the character.
+    /// </summary>
+    public ImmutableArray<PartySheet> PartySheets
+    {
+        get => _partySheets;
+        init
+        {
+            var sheets = value.IsDefault ? ImmutableArray<PartySheet>.Empty
+                : value.Select(p => p with { Belongings = p.Belongings.OrderBy(e => e.ItemId.Value, StringComparer.Ordinal).ToImmutableArray() })
+                    .OrderBy(p => p.NpcId, StringComparer.Ordinal).ToImmutableArray();
+            foreach (var sheet in sheets)
+            {
+                sheet.Progression.Validate();
+                if (!DefinitionId.IsValid(sheet.NpcId) || !sheet.NpcId.StartsWith("npc.", StringComparison.Ordinal) || sheet.Gear.Values.Any(g => g is null)
+                    || sheet.Items.Any(e => e.ItemId.Kind != EntityKind.Item || !DefinitionId.IsValid(e.DefId) || e.Count <= 0 || e.Notable is { IsValid: false } || e.Wear is { IsValid: false } || (e.Wear is not null && e.Count != 1)))
+                    throw new ArgumentException($"Invalid party sheet for {sheet.NpcId}", nameof(PartySheets));
+            }
+            var items = sheets.SelectMany(p => p.Items).Select(e => e.ItemId).ToList();
+            if (sheets.Select(p => p.NpcId).Distinct(StringComparer.Ordinal).Count() != sheets.Length || items.Distinct().Count() != items.Count
+                || items.Intersect(Inventory.Select(e => e.ItemId)).Any())
+                throw new ArgumentException("Each NPC has one party sheet, and an item instance is held once", nameof(PartySheets));
+            _partySheets = sheets;
+        }
+    }
+
+    private readonly ImmutableArray<PartySheet> _partySheets = ImmutableArray<PartySheet>.Empty;
+
+    /// <summary>
     /// The appearance seed a character gets when nothing chose one: derived from its ULID, so it is
     /// deterministic and unique per character. Schema 3 made the field required; the 2 -> 3 migration
     /// gives older saves exactly this value.
@@ -347,32 +404,32 @@ public sealed record PlayerRecord
         var held = entries.Select(e => e.ItemId).ToHashSet();
         // An equipped item whose entry the pass dropped is unequipped with it, never left dangling.
         return new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, entries, Progression, FacingMdeg, Discoveries,
-            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared };
+            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets };
     }
 
     /// <summary>The same player with different progression (schema 4; the definition-ID pass rewrites its IDs too).</summary>
     public PlayerRecord WithProgression(CharacterProgression progression) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets };
 
     /// <summary>The same player with different discovery records (schema 5; the definition-ID pass rewrites their location IDs).</summary>
     public PlayerRecord WithDiscoveries(IEnumerable<DiscoveryRecord> discoveries) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets };
 
     /// <summary>The same player with different active effects (schema 7; the definition-ID pass rewrites their effect IDs).</summary>
     public PlayerRecord WithEffects(IEnumerable<ActiveEffect> effects) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets };
 
     /// <summary>The same player with different relationships and conversation memory (schema 10; the definition-ID pass rewrites their IDs).</summary>
     public PlayerRecord WithSocial(IEnumerable<RelationshipValue> relationships, IEnumerable<ConversationMemory> conversations) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, relationships, conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, relationships, conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets };
 
     /// <summary>The same player with different quests (schema 11; the definition-ID pass rewrites their quest IDs).</summary>
     public PlayerRecord WithQuests(IEnumerable<QuestState> quests) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets };
 
     /// <summary>The same player with different companions (schema 12; the definition-ID pass rewrites their NPC IDs).</summary>
     public PlayerRecord WithCompanions(IEnumerable<CompanionRecord> companions) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets };
 
     public EntityId Id { get; }
     public string Name { get; }
@@ -674,6 +731,21 @@ public sealed record PlayerRecord
             h.Add(QuickBarCleared.Length);
             foreach (string cleared in QuickBarCleared)
                 h.Add(cleared);
+            // The party's sheets (WP15b) only when there are any, so every older record digests as it always has.
+            if (!PartySheets.IsEmpty)
+            {
+                h.Add("party-sheets").Add(PartySheets.Length);
+                foreach (var sheet in PartySheets)
+                {
+                    h.Add(sheet.NpcId).Add(sheet.Progression.Digest).Add(sheet.Gear.Count);
+                    foreach (var (slot, gear) in sheet.Gear)
+                        WearDigest.Add(NotableDigest.Add(h.Add(EquipSlots.Key(slot)).Add(gear.Loaned ? 1 : 0).Add(gear.Item.ItemId.Value).Add(gear.Item.DefId)
+                            .Add(gear.Item.Count).Add(gear.Item.Quality), gear.Item.Notable), gear.Item.Wear);
+                    h.Add(sheet.Belongings.Length);
+                    foreach (var e in sheet.Belongings)
+                        WearDigest.Add(NotableDigest.Add(h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality), e.Notable), e.Wear);
+                }
+            }
             return h.Finish();
         }
     }

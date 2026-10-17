@@ -442,4 +442,47 @@ public class QuestContentTests
     public void AnOpeningQuest_NeedsNothingElseToStartIt() =>
         Assert.Empty(ErrorsWith("quests/ashen_hollow/end_of_playtest.yaml", "track: side", "track: main\nact: 1\non_new_game: true",
                 ("dialogue/ashen_hollow/renn_vale.yaml", "consequences: [{ command: start_quest, quest_ref: quest.ashen_hollow.end_of_playtest }]", "consequences: []")));
+
+    // ── WP15b: a companion's personal quest ─────────────────────────────────
+
+    private const string Talk = """
+          - id: o_a
+            type: talk_to
+            description: Hear him out.
+            params: { npc_ref: npc.ashen_hollow.tavar_orr }
+        """;
+
+    /// <summary>WP15b: a personal quest names its companion, the trust at which they confide it, and what it does to their regard.</summary>
+    [Fact]
+    public void APersonalQuest_NamesItsCompanion_ItsConfidesGate_AndAnApprovalChange()
+    {
+        var quest = Parse(Talk, """
+            companion_ref: npc.ashen_hollow.tavar_orr
+            confides_at: 50
+            rewards: [{ kind: approval_change, changes: { trust: 5, loyalty: 10 } }]
+            """);
+
+        Assert.Equal(("npc.ashen_hollow.tavar_orr", 50), (quest.CompanionId, quest.ConfidesAt));
+        var reward = Assert.IsType<ApprovalChangeReward>(Assert.Single(quest.Rewards));
+        Assert.Equal(new[] { ("loyalty", 10), ("trust", 5) }, reward.Changes.Select(c => (c.Key, c.Value)));
+        Assert.False(QuestRules.Confides(quest, _ => 49));
+        Assert.True(QuestRules.Confides(quest, _ => 50));
+    }
+
+    [Fact]
+    public void AConfidesGate_WithoutACompanion_IsRefused() =>
+        Assert.Contains("confides_at gates a personal quest", Refused(Talk, "confides_at: 20"));
+
+    [Fact]
+    public void AnApprovalChange_WithoutACompanion_IsRefused() =>
+        Assert.Contains("an approval_change reward moves the personal quest's companion's regard", Refused(Talk, "rewards: [{ kind: approval_change, changes: { trust: 5 } }]"));
+
+    [Fact]
+    public void APersonalQuest_OfSomeoneWhoCannotJoin_IsRefused() =>
+        Assert.Contains("cannot join the character as a companion", Refused(Talk, "companion_ref: npc.ashen_hollow.sel_arien"));
+
+    [Fact]
+    public void AnApprovalChange_OnADimensionThereIsNot_IsRefused() =>
+        Assert.Contains("'attraction' is not a relationship dimension",
+            Refused(Talk, "companion_ref: npc.ashen_hollow.tavar_orr\nrewards: [{ kind: approval_change, changes: { attraction: 5 } }]"));
 }

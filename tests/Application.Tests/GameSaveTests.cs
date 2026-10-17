@@ -55,6 +55,8 @@ public class GameSaveTests
         // the load.
         (new Regex(@"^\$\.player\.QuickBar$"), "[null,null,null,null,null,null,null,null]"),
         (new Regex(@"^\$\.player\.QuickBarCleared$"), "[]"),
+        // Schema 25 (WP15b): no party member had grown, worn or kept anything - no sheets.
+        (new Regex(@"^\$\.player\.PartySheets$"), "[]"),
     };
 
     [Fact]
@@ -96,8 +98,8 @@ public class GameSaveTests
         // the faction ledger, and the economy and merchants.
         int members = expected["player"]!["Companions"]!.AsArray().Count;
         // ... and, schema 21, four fields each party member and the party's ledger; schema 23, the quick bar and its cleared record;
-        // and, schema 24, each stack's (empty) wear.
-        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 1 + 2 + 4 * members + 1 + 2 + stacks, differences.Count);
+        // schema 24, each stack's (empty) wear; and, schema 25, the party's sheets.
+        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 1 + 2 + 4 * members + 1 + 2 + stacks + 1, differences.Count);
 
         // And it plays on: a fixed stretch of ticks, then a walk to the Ashen Waystone, with no observer failing, no body inside anything,
         // Tavar still at the character's side and every quest still answering the debugger.

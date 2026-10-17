@@ -292,6 +292,15 @@ internal sealed class DialogueSystem : IDialogueFacts
 
     public bool ActDone(string kind, string subject) => State.Factions.Acts.Any(a => a.Kind == kind && a.Subject == subject);
 
+    public long? DeedLastTick(DeedKind kind, string subjectId, string? npcId) => DeedSystem.LastTick(State, kind, subjectId, npcId);
+
+    public long Now => State.WorldTick;
+
+    /// <summary>The character within a place's radius (WP15b); a place this region does not hold is never near.</summary>
+    public bool Near(string locationId, long? radiusMm) =>
+        _context.Setup.Layout.Locations.FirstOrDefault(l => l.Id == locationId) is { } place
+        && Math.Sqrt(Math.Pow(State.Body.XMm - place.XMm, 2) + Math.Pow(State.Body.ZMm - place.ZMm, 2)) <= (radiusMm ?? place.DiscoveryRadiusMm);
+
     public string QuestState(string questId, string? objectiveId)
     {
         if (!State.Quests.TryGetValue(questId, out var quest))
@@ -302,7 +311,8 @@ internal sealed class DialogueSystem : IDialogueFacts
     }
 
     public bool QuestAvailable(string questId) =>
-        _context.Setup.Quests.Quests.TryGetValue(questId, out var quest) && QuestRules.CanStart(quest, State.Quests.GetValueOrDefault(questId), State.WorldTick);
+        _context.Setup.Quests.Quests.TryGetValue(questId, out var quest) && QuestRules.CanStart(quest, State.Quests.GetValueOrDefault(questId), State.WorldTick)
+        && QuestRules.Confides(quest, npc => State.RelationshipOf(npc, "trust"));
 
     /// <summary>Whether each condition of a reply holds now, as it would in a conversation with <paramref name="npcId"/> (the quest debugger).</summary>
     public ImmutableArray<(DialogueCondition Condition, bool Holds)> Check(string npcId, string dialogueId, DialogueChoice choice)
@@ -324,6 +334,20 @@ internal sealed class DialogueSystem : IDialogueFacts
 
     /// <summary>What a conversation with <paramref name="npcId"/> would see: what a teacher's requirements are asked of (WP9).</summary>
     public IDialogueFacts FactsOf(string npcId) => new SpeakerFacts(this, npcId);
+
+    /// <summary>
+    /// The banter <paramref name="npcId"/> could say on the road now (WP15b): their conversation's banter lines whose conditions hold, with
+    /// their line IDs (<c>banter.&lt;npc&gt;.&lt;n&gt;</c>).
+    /// </summary>
+    public ImmutableArray<SpokenLine> Banter(string npcId)
+    {
+        if (!State.Npcs.TryGetValue(npcId, out var npc) || npc.Definition.DialogueId is not { } dialogueId
+            || !Setup.Dialogues.TryGetValue(dialogueId, out var dialogue) || dialogue.Banter.IsEmpty)
+            return ImmutableArray<SpokenLine>.Empty;
+        var facts = new SpeakerFacts(this, npcId);
+        return dialogue.Banter.Select((b, i) => (Line: b, Spoken: new SpokenLine(LineIds.Banter(npcId, i + 1), b.Text)))
+            .Where(b => b.Line.Conditions.All(c => DialogueRules.Holds(c, dialogueId, facts))).Select(b => b.Spoken).ToImmutableArray();
+    }
 
     /// <summary>What a conversation with one NPC would see, without one open: flags in that NPC's cell.</summary>
     private sealed class SpeakerFacts : IDialogueFacts
@@ -362,5 +386,11 @@ internal sealed class DialogueSystem : IDialogueFacts
         public int StandingLevel(string factionId) => _system.StandingLevel(factionId);
 
         public bool ActDone(string kind, string subject) => _system.ActDone(kind, subject);
+
+        public long? DeedLastTick(DeedKind kind, string subjectId, string? npcId) => _system.DeedLastTick(kind, subjectId, npcId);
+
+        public long Now => _system.Now;
+
+        public bool Near(string locationId, long? radiusMm) => _system.Near(locationId, radiusMm);
     }
 }

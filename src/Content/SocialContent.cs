@@ -25,7 +25,7 @@ public static class SocialContent
         { "villager", "merchant", "guard", "craftsperson", "quest_giver", "trainer", "innkeeper", "noble", "bandit", "scholar", "steward" };
 
     private static readonly string[] Conditions =
-        { "visited", "world_state", "has_item", "relationship", "skill", "level", "quest_state", "companion_present", "deed", "standing", "act_done" };
+        { "visited", "world_state", "has_item", "relationship", "skill", "level", "quest_state", "companion_present", "deed", "standing", "act_done", "near" };
 
     private static readonly string[] Consequences =
         { "transfer_item", "teach", "set_world_flag", "record_relationship_event", "open_service", "start_quest", "recruit_companion", "order_companion",
@@ -89,9 +89,36 @@ public static class SocialContent
                     (int)LongOr(role, "yields_per_day", 0), (int)LongOr(role, "crafts_per_day", 0),
                     PartyKeys.ParseStance(stance) ?? throw new FormatException($"config.party: role {kv.Key}'s stance is aggressive, defensive or passive, not '{stance}'"));
             });
+        int tickMs = WorldContent.TickMilliseconds(loader);
         var rules = new PartyRules(Int(map, "max_members"), Int(map, "grace_days"), Int(map, "grave_wound_days_min"), Int(map, "grave_wound_days_max"),
-            Int(map, "contract_days_min"), Int(map, "contract_days_max"), roles);
+            Int(map, "contract_days_min"), Int(map, "contract_days_max"), roles)
+        {
+            Approval = map.ContainsKey("approval") ? Approval(Map(map, "approval")) : ApprovalRules.None,
+            Banter = map.ContainsKey("banter") && Map(map, "banter") is var banter
+                ? new BanterRules(ToTicks(Number(banter, "every_s"), tickMs), (int)LongOr(banter, "chance_percent", 100),
+                    banter.ContainsKey("quiet_s") ? ToTicks(Number(banter, "quiet_s"), tickMs) : 0)
+                : null,
+        };
         return rules.Problem() is { } problem ? throw new FormatException($"config.party: {problem}") : rules;
+    }
+
+    /// <summary>
+    /// <c>config.party</c>'s <c>approval</c> (WP15b): <c>loyalty_per_day</c> a companion or ally gains each midnight on their feet in the
+    /// party, <c>loyalty_wage_paid</c> and <c>loyalty_wage_unpaid</c> a hireling gains or loses with each wage, and under <c>hesitate</c>,
+    /// <c>refuse</c> and <c>leave</c> the bounds - <c>{ dimension, below | above }</c> - any one of which, past, is enough.
+    /// </summary>
+    private static ApprovalRules Approval(Dictionary<object, object> map)
+    {
+        ImmutableArray<DimensionBound> Bounds(string key) => Rows(map, key, $"config.party approval {key}").Select(row =>
+        {
+            string at = $"config.party approval {key}";
+            bool below = row.ContainsKey("below"), above = row.ContainsKey("above");
+            if (below == above)
+                throw new FormatException($"{at}: a bound names exactly one of below and above");
+            return new DimensionBound(Dimension(Text(row, "dimension"), at), below ? (int)LongOr(row, "below", 0) : null, above ? (int)LongOr(row, "above", 0) : null);
+        }).ToImmutableArray();
+        return new ApprovalRules((int)LongOr(map, "loyalty_per_day", 0), (int)LongOr(map, "loyalty_wage_paid", 0), (int)LongOr(map, "loyalty_wage_unpaid", 0),
+            Bounds("hesitate"), Bounds("refuse"), Bounds("leave"));
     }
 
     /// <summary>
@@ -131,8 +158,49 @@ public static class SocialContent
                 FactionId = map.GetValueOrDefault("faction_ref") is string faction ? Defined(loader, faction, "faction", id) : null,
                 Hireling = map.ContainsKey("hireling") ? HireProfile(id, Map(map, "hireling"), loader) : null,
                 Teaches = TeachingContent.Offers(id, map, loader),
+                Values = Rows(map, "values", id).Select((row, i) => Value($"{id} values[{i}]", row, loader)).ToImmutableArray(),
             };
         }).ToImmutableSortedDictionary(n => n.Id, n => n, StringComparer.Ordinal);
+
+    /// <summary>
+    /// One of a party member's <c>values</c> (WP15b): the <c>deed</c> (killed, crafted, harvested, delivered) on a subject named as a deed
+    /// condition names it (<c>creature_ref</c>, <c>item_ref</c>, <c>resource_ref</c>) or by a content <c>tag</c> its definitions carry, or
+    /// - a delivery to a named <c>npc_ref</c> - anything; the <c>changes</c> it makes, dimension by dimension (1 to 100 either way); and the
+    /// <c>remark</c> said when it happens. A tag that names no subject is refused: the value could never be touched.
+    /// </summary>
+    private static ValueReaction Value(string at, Dictionary<object, object> map, ContentLoader loader)
+    {
+        string key = Text(map, "deed");
+        var kind = DeedKeys.Parse(key) ?? throw new FormatException($"{at}: a deed is {string.Join(", ", DeedKeys.Tallied.Select(DeedKeys.Key))}, not '{key}'");
+        var (field, subjectKind) = kind switch
+        {
+            DeedKind.Killed => ("creature_ref", "creature"),
+            DeedKind.Harvested => ("resource_ref", "resource"),
+            _ => ("item_ref", "item"),
+        };
+        string? npc = map.GetValueOrDefault("npc_ref") is string named ? Defined(loader, named, "npc", at) : null;
+        if (npc is not null && kind != DeedKind.Delivered)
+            throw new FormatException($"{at}: only a delivered deed names npc_ref");
+        var ofKind = loader.Definitions.Values.Where(d => d.Kind == subjectKind || d.Kind.StartsWith(subjectKind + ".", StringComparison.Ordinal));
+        ImmutableSortedSet<string> subjects;
+        if (map.GetValueOrDefault(field) is string subject && !map.ContainsKey("tag"))
+            subjects = ImmutableSortedSet.Create(StringComparer.Ordinal, Defined(loader, subject, subjectKind, at));
+        else if (map.GetValueOrDefault("tag") is string tag && !map.ContainsKey(field))
+            subjects = ofKind.Where(d => d.Tags?.Contains(tag) == true).Select(d => d.Id).ToImmutableSortedSet(StringComparer.Ordinal) is { IsEmpty: false } tagged
+                ? tagged
+                : throw new FormatException($"{at}: no {subjectKind} carries the tag '{tag}'");
+        else if (!map.ContainsKey(field) && !map.ContainsKey("tag") && npc is not null)
+            subjects = ofKind.Select(d => d.Id).ToImmutableSortedSet(StringComparer.Ordinal);
+        else
+            throw new FormatException($"{at}: a value names its subject by {field} or by tag (one of them), or is a delivery to an npc_ref");
+        var changes = Map(map, "changes").ToImmutableSortedDictionary(kv => Dimension(kv.Key as string ?? "", at),
+            kv => LongOr(Map(map, "changes"), kv.Key as string ?? "", 0) is var delta && delta != 0 && Math.Abs(delta) <= Relationships.Max
+                ? (int)delta
+                : throw new FormatException($"{at}: a value moves a dimension by 1 to 100 either way"), StringComparer.Ordinal);
+        if (changes.IsEmpty)
+            throw new FormatException($"{at}: a value changes at least one dimension");
+        return new ValueReaction(kind, subjects, npc, changes, map.GetValueOrDefault("remark") as string);
+    }
 
     /// <summary>
     /// <c>companion</c> (M6): what an NPC who can join the character fights with - <c>health</c>, a <c>weapon_item_ref</c> (a melee weapon;
@@ -186,6 +254,8 @@ public static class SocialContent
             {
                 Barks = Rows(map, "barks", id).Select((row, i) => new DialogueBark(Text(row, "text"),
                     Rows(row, "conditions", $"{id} bark {i}").Select(c => Condition($"{id} bark {i}", c, loader)).ToImmutableArray())).ToImmutableArray(),
+                Banter = Rows(map, "banter", id).Select((row, i) => new DialogueBark(Text(row, "text"),
+                    Rows(row, "conditions", $"{id} banter {i + 1}").Select(c => Condition($"{id} banter {i + 1}", c, loader)).ToImmutableArray())).ToImmutableArray(),
             };
             CheckGraph(dialogue);
             return dialogue;
@@ -250,6 +320,8 @@ public static class SocialContent
             "deed" => Deed(at, map, loader, negated),
             "standing" => Standing(at, map, loader),
             "act_done" => ActDone(at, map, loader),
+            "near" => new NearCondition(Defined(loader, Text(map, "location_ref"), "location", at),
+                map.ContainsKey("radius_m") ? Mm(map, "radius_m") is var radius && radius > 0 ? radius : throw new FormatException($"{at}: radius_m is positive") : null),
             _ => throw new FormatException($"{at}: condition '{kind}' is not built in Phase 1 ({string.Join(", ", Conditions)})"),
         };
     }
@@ -377,7 +449,10 @@ public static class SocialContent
         string? npc = map.GetValueOrDefault("npc_ref") is string named ? Defined(loader, named, "npc", at) : null;
         if (npc is not null && kind != DeedKind.Delivered)
             throw new FormatException($"{at}: only a delivered deed names npc_ref");
-        return new DeedCondition(kind, Defined(loader, Text(map, field), subjectKind, at), Positive(map, "count", 1), negated) { NpcId = npc };
+        long? within = map.ContainsKey("within_s")
+            ? ToTicks(Number(map, "within_s"), WorldContent.TickMilliseconds(loader)) is var ticks && ticks > 0 ? ticks : throw new FormatException($"{at}: within_s is positive")
+            : null;
+        return new DeedCondition(kind, Defined(loader, Text(map, field), subjectKind, at), Positive(map, "count", 1), negated) { NpcId = npc, WithinTicks = within };
     }
 
     /// <summary>Every way through a conversation leads to a node it has, and no chain of spent lines loops.</summary>
@@ -411,7 +486,7 @@ public static class SocialContent
                     throw new FormatException($"{id}: spent lines loop through node {at.Id}");
             }
         }
-        foreach (var visited in dialogue.Barks.SelectMany(b => b.Conditions).OfType<VisitedCondition>().Where(v => v.DialogueId is null || v.DialogueId == id))
+        foreach (var visited in dialogue.Barks.Concat(dialogue.Banter).SelectMany(b => b.Conditions).OfType<VisitedCondition>().Where(v => v.DialogueId is null || v.DialogueId == id))
             Exists(visited.NodeId, "a bark's visited condition");
         foreach (var node in dialogue.Nodes.Values.Where(n => n.Once))
             OnceLineKeepsItsConsequences(dialogue, node);
@@ -485,19 +560,25 @@ public static class SocialContent
                 if (npcs.Values.Where(n => n.DialogueId == dialogue.Id).FirstOrDefault(n => !n.Teaches.Any(o => o.DefinitionId == taught && o.ByDialogue)) is { } speaker)
                     throw new FormatException($"{dialogue.Id}: teaches {taught}, which {speaker.Id}, who speaks it, does not give by_dialogue");
             }
+            // Banter is said on the road by a party member (WP15b): only someone who can join or be hired has any.
+            if (!dialogue.Banter.IsEmpty && !dialogue.Participants.Any(p => npcs.TryGetValue(p, out var npc) && (npc.Companion is not null || npc.Hireling is not null)))
+                throw new FormatException($"{dialogue.Id}: has banter, but none of its participants can join or be hired");
             bool dismissal = dialogue.Nodes.Values.SelectMany(n => n.Choices).SelectMany(c => c.Consequences).Any(c => c is DismissCompanionConsequence);
             if (dismissal && !dialogue.Participants.Any(p => npcs.TryGetValue(p, out var npc) && (npc.Companion is not null || npc.Hireling is not null)))
                 throw new FormatException($"{dialogue.Id}: dismisses a party member, but none of its participants can join or be hired");
             // A visited condition about another conversation names a line that conversation has.
             foreach (var visited in dialogue.Nodes.Values.SelectMany(n => n.Choices).SelectMany(c => c.Conditions)
                          .Concat(dialogue.Nodes.Values.SelectMany(n => n.Variants).SelectMany(v => v.Conditions))
-                         .Concat(dialogue.Barks.SelectMany(b => b.Conditions)).OfType<VisitedCondition>()
+                         .Concat(dialogue.Barks.Concat(dialogue.Banter).SelectMany(b => b.Conditions)).OfType<VisitedCondition>()
                          .Where(v => v.DialogueId is { } other && other != dialogue.Id))
             {
                 if (!dialogues.TryGetValue(visited.DialogueId!, out var other) || !other.Nodes.ContainsKey(visited.NodeId))
                     throw new FormatException($"{dialogue.Id}: a visited condition names node '{visited.NodeId}' of {visited.DialogueId}, which it does not have");
             }
         }
+        // Values are a party member's (WP15b): they react to what the character does with them along.
+        if (npcs.Values.FirstOrDefault(n => !n.Values.IsEmpty && n.Companion is null && n.Hireling is null) is { } valued)
+            throw new FormatException($"{valued.Id}: only someone who can join or be hired has values (they react to what the character does in the party)");
         return npcs;
     }
 

@@ -280,4 +280,72 @@ public class SocialContentTests
     public void AHirelingRoleThereIsNot_IsRefused() =>
         AssertRefused("npcs/ashen_hollow/renn_vale.yaml", "unique: true",
             "unique: true\nhireling: { roles: [cook], health: 50, weapon_item_ref: item.weapon.march_spear }", "'cook' is not a role");
+
+    // ── WP15b: approval, values, banter ─────────────────────────────────────
+
+    /// <summary>WP15b: how party members come to go along with the character, and how often the party talks, are content.</summary>
+    [Fact]
+    public void ThePartysApprovalAndBanter_AreContent()
+    {
+        var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
+        var rules = SocialContent.BuildPartyRules(loader)!;
+        var approval = rules.Approval;
+
+        Assert.Equal((1, 1, -5), (approval.LoyaltyPerDay, approval.LoyaltyWagePaid, approval.LoyaltyWageUnpaid));
+        Assert.Equal(new DimensionBound("loyalty", -20, null), approval.Hesitate[0]);
+        Assert.Equal(new DimensionBound("grudge", null, 90), approval.Leave[1]);
+        Assert.Equal(new BanterRules(120 * 20, 35, 45 * 20), rules.Banter);
+    }
+
+    /// <summary>
+    /// Tavar's values: a delivery to Sel, whatever it is, and a kill of anything content tags undead - a tag resolved to the creatures
+    /// carrying it. His banter is read with its conditions: where he is, and a deed done lately.
+    /// </summary>
+    [Fact]
+    public void TavarsValues_AndBanter_AreRead()
+    {
+        var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
+        var tavar = SocialContent.BuildNpcs(loader)["npc.ashen_hollow.tavar_orr"];
+
+        Assert.Equal(2, tavar.Values.Length);
+        var sel = tavar.Values[0];
+        Assert.True(sel.Matches(Domain.Quests.DeedKind.Delivered, "item.material.boneleaf", "npc.ashen_hollow.sel_arien"));
+        Assert.False(sel.Matches(Domain.Quests.DeedKind.Delivered, "item.material.boneleaf", "npc.ashen_hollow.kera_voss"));
+        Assert.Equal(new[] { ("respect", 1), ("trust", 2) }, sel.Changes.Select(c => (c.Key, c.Value)));
+        var undead = tavar.Values[1];
+        Assert.Equal(new[] { "creature.undead.bone_walker_husk" }, undead.Subjects);
+        Assert.NotNull(undead.Remark);
+
+        var banter = SocialContent.BuildDialogues(loader)["dialogue.ashen_hollow.tavar_orr"].Banter;
+        Assert.Equal(4, banter.Length);
+        Assert.Equal(new NearCondition("location.foldscar", null), Assert.Single(banter[0].Conditions));
+        var recent = Assert.IsType<DeedCondition>(Assert.Single(banter[2].Conditions));
+        Assert.Equal(60 * 20, recent.WithinTicks);
+    }
+
+    [Fact]
+    public void ValuesOnSomeoneWhoCannotJoinOrBeHired_AreRefused() =>
+        AssertRefused("npcs/ashen_hollow/renn_vale.yaml", "unique: true",
+            "unique: true\nvalues: [{ deed: killed, tag: undead, changes: { respect: 1 } }]", "only someone who can join or be hired has values");
+
+    [Fact]
+    public void AValueWhoseTagNamesNothing_IsRefused() =>
+        AssertRefused("npcs/ashen_hollow/tavar_orr.yaml", "tag: undead", "tag: dragon", "no creature carries the tag 'dragon'");
+
+    [Fact]
+    public void AValueThatChangesNothing_IsRefused() =>
+        AssertRefused("npcs/ashen_hollow/tavar_orr.yaml", "changes: { respect: 2 }", "changes: { respect: 0 }", "a value moves a dimension by 1 to 100");
+
+    [Fact]
+    public void ABoundNamingBothBelowAndAbove_IsRefused() =>
+        AssertRefused("config/party.yaml", "{ dimension: loyalty, below: -20 }", "{ dimension: loyalty, below: -20, above: 20 }", "names exactly one of below and above");
+
+    [Fact]
+    public void BanterFromSomeoneWhoCannotJoin_IsRefused() =>
+        AssertRefused("dialogue/ashen_hollow/renn_vale.yaml", "participants: [npc.ashen_hollow.renn_vale]",
+            "participants: [npc.ashen_hollow.renn_vale]\nbanter: [{ text: \"Hm.\" }]", "has banter, but none of its participants can join or be hired");
+
+    [Fact]
+    public void ANearConditionOnAPlaceThereIsNot_IsRefused() =>
+        AssertRefused("dialogue/ashen_hollow/tavar_orr.yaml", "location_ref: location.foldscar }", "location_ref: location.nowhere }", "location.nowhere is not a defined location");
 }

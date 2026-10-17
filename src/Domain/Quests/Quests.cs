@@ -42,6 +42,18 @@ public sealed record QuestDefinition(
     /// closed to everyone else until it is posted again.
     /// </summary>
     public bool Competitive { get; init; }
+
+    /// <summary>
+    /// A companion's personal quest (<c>companion_ref</c>; WP15b): whose problem it is. Personal problems exist apart from approval; trust
+    /// decides only whether the companion confides it (canon :189-191).
+    /// </summary>
+    public string? CompanionId { get; init; }
+
+    /// <summary>
+    /// The "confides" gate (<c>confides_at</c>): the companion's trust in the character must be at least this for the quest to start. Null:
+    /// no gate. Only a personal quest has one.
+    /// </summary>
+    public int? ConfidesAt { get; init; }
 }
 
 /// <summary>The journal's sections (<c>track</c>).</summary>
@@ -316,9 +328,23 @@ public sealed record ReputationReward(string FactionId, int Delta) : QuestReward
     public override string Kind => "reputation";
 }
 
+/// <summary>
+/// <c>approval_change</c> (WP15b): what the personal quest's companion (<see cref="QuestDefinition.CompanionId"/>) thinks of the character moves
+/// on each named dimension.
+/// </summary>
+public sealed record ApprovalChangeReward(ImmutableSortedDictionary<string, int> Changes) : QuestReward
+{
+    public override string Kind => "approval_change";
+
+    public bool Equals(ApprovalChangeReward? other) => other is not null && Changes.SequenceEqual(other.Changes);
+
+    public override int GetHashCode() => Changes.Count;
+}
+
 public static class RewardKinds
 {
-    public static readonly ImmutableArray<string> Built = ImmutableArray.Create("xp", "currency", "item", "recipe", "spell", "relationship", "world_flag", "reputation");
+    public static readonly ImmutableArray<string> Built = ImmutableArray.Create("xp", "currency", "item", "recipe", "spell", "relationship", "world_flag", "reputation",
+        "approval_change");
 
     public static readonly ImmutableArray<string> NotBuilt = ImmutableArray.Create(
         "ability", "title", "access", "companion", "property", "permanent_ability", "transformation");
@@ -454,6 +480,13 @@ public static class QuestRules
     /// <summary>Whether the quest would start now: never started, or repeatable and ended at least its repeat time ago.</summary>
     public static bool CanStart(QuestDefinition quest, QuestState? state, long tick) =>
         state is null || state.Status != QuestStatus.Active && quest.RepeatAfterTicks is { } after && state.EndedTick is { } ended && tick >= ended + after;
+
+    /// <summary>
+    /// Whether a personal quest's companion confides it now (WP15b): their trust (<paramref name="trust"/> reads it) at least the gate. A quest
+    /// with no gate always does.
+    /// </summary>
+    public static bool Confides(QuestDefinition quest, Func<string, int> trust) =>
+        quest is not { CompanionId: { } companion, ConfidesAt: { } gate } || trust(companion) >= gate;
 
     /// <summary><see cref="QuestState.EndedBy"/> of a competitive bounty another actor finished while the character held it.</summary>
     public const string LostTo = "lost_to:";

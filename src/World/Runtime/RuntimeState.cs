@@ -97,6 +97,9 @@ public enum StateSlice
     Merchants,
     /// <summary>What is on each of the eight quick slots (WP9).</summary>
     QuickBar,
+
+    /// <summary>Each past or present party member's progression, gear and belongings (WP15b). Saved with the player.</summary>
+    PartySheets,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -147,6 +150,7 @@ internal sealed class RuntimeState
         Fallen = player.Party.Fallen.ToImmutableSortedSet(StringComparer.Ordinal);
         QuickBar = player.QuickBar;
         QuickBarCleared = player.QuickBarCleared.ToImmutableSortedSet(StringComparer.Ordinal);
+        PartySheets = player.PartySheets.ToImmutableSortedDictionary(p => p.NpcId, p => p, StringComparer.Ordinal);
     }
 
     public WorldDelta World { get; }
@@ -189,6 +193,9 @@ internal sealed class RuntimeState
 
     /// <summary>What the player cleared off the quick bar on purpose (part of the quick bar's slice): not offered a slot while held.</summary>
     public ImmutableSortedSet<string> QuickBarCleared { get; private set; }
+
+    /// <summary>Each past or present party member's progression, gear and belongings, by NPC (WP15b).</summary>
+    public ImmutableSortedDictionary<string, PartySheet> PartySheets { get; private set; }
 
     public IReadOnlyDictionary<StateSlice, string> Owners => _owners;
 
@@ -471,6 +478,18 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Companions);
         Recovering = untilTick is { } until ? Recovering.SetItem(npcId, until) : Recovering.Remove(npcId);
+    }
+
+    public void SetPartySheet(SliceOwner owner, PartySheet sheet)
+    {
+        Require(owner, StateSlice.PartySheets);
+        PartySheets = PartySheets.SetItem(sheet.NpcId, sheet);
+    }
+
+    public void RemovePartySheet(SliceOwner owner, string npcId)
+    {
+        Require(owner, StateSlice.PartySheets);
+        PartySheets = PartySheets.Remove(npcId);
     }
 
     public void AddFallen(SliceOwner owner, string npcId)
