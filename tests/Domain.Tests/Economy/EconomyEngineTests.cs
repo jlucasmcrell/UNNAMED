@@ -146,7 +146,7 @@ public class EconomyEngineTests
     [Fact]
     public void Reconcile_DropsWhatContentNoLongerDefines_AndAddsWhatItNowDoes()
     {
-        var setup = Setup(new[] { Good(Ore) }, new[] { Good(Hide) });
+        var setup = Setup(new[] { Good(Ore) }, new[] { Good(Hide) }, new TradeLink("road.test", "market.west", "market.east", 1, 10));
         var saved = new EconomyState(9,
             ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[]
             {
@@ -155,7 +155,11 @@ public class EconomyEngineTests
                     ImmutableSortedDictionary<string, long>.Empty)),
                 KeyValuePair.Create("market.gone", new MarketState("market.gone", ImmutableSortedDictionary<string, long>.Empty, ImmutableSortedDictionary<string, long>.Empty)),
             }),
-            ImmutableArray.Create(new Shipment("road.test", "market.gone", "market.west", "item.gone", 4, 10), new Shipment("road.test", "market.east", "market.east", Hide, 2, 10)));
+            ImmutableArray.Create(
+                new Shipment("road.test", "market.gone", "market.west", "item.gone", 4, 10),
+                new Shipment("road.test", "market.gone", "market.east", Hide, 3, 10),     // its source is gone
+                new Shipment("road.gone", "market.west", "market.east", Hide, 5, 10),     // its road is gone
+                new Shipment("road.test", "market.west", "market.east", Hide, 2, 10)));
         var state = EconomyEngine.Reconcile(setup, saved, 0);
         Assert.Equal(9, state.Day);
         Assert.Equal(new[] { "market.east", "market.west" }, state.Markets.Keys);

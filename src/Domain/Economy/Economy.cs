@@ -106,7 +106,8 @@ public static class EconomyEngine
 {
     /// <summary>
     /// The economy as content describes it, carrying over what a save holds: every market and good content defines, at its saved stock or
-    /// else its target; goods and markets content no longer defines are dropped, and so is anything on the road to or from them.
+    /// else its target; goods and markets content no longer defines are dropped, and so is anything on the road to or from them, or on a road
+    /// between them content no longer defines.
     /// </summary>
     public static EconomyState Reconcile(EconomySetup setup, EconomyState? saved, long day)
     {
@@ -120,7 +121,9 @@ public static class EconomyEngine
             return new MarketState(market.Id, stock, sold);
         }).ToImmutableSortedDictionary(m => m.MarketId, m => m, StringComparer.Ordinal);
         var shipments = (saved?.Shipments ?? ImmutableArray<Shipment>.Empty)
-            .Where(s => setup.Markets.TryGetValue(s.ToMarket, out var to) && to.Goods.ContainsKey(s.ItemId) && s.Count > 0)
+            .Where(s => s.Count > 0 && setup.Markets.ContainsKey(s.FromMarket) && setup.Markets.TryGetValue(s.ToMarket, out var to)
+                        && to.Goods.ContainsKey(s.ItemId) && setup.Links.Any(l => l.Id == s.LinkId
+                            && ((l.From == s.FromMarket && l.To == s.ToMarket) || (l.From == s.ToMarket && l.To == s.FromMarket))))
             .ToImmutableArray();
         return new EconomyState(saved?.Day ?? day, markets, shipments);
     }
