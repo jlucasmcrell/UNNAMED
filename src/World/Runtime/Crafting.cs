@@ -53,6 +53,9 @@ public sealed record NodeGathered(string NodeKey, string NodeDefId, string ItemI
 /// <summary>A recipe was worked: its inputs spent, its output made at this quality.</summary>
 public sealed record ItemCrafted(string RecipeId, string ItemId, int Count, int Quality, long Tick);
 
+/// <summary>An experiment closed a question (UI progression F): what it found, hinted at, or came to nothing; kept as a Finding.</summary>
+public sealed record FindingRecorded(Finding Finding);
+
 /// <summary>An experiment found a recipe (WP3a): it is known now.</summary>
 public sealed record RecipeDiscovered(string StationKey, string RecipeId, long Tick);
 
@@ -173,10 +176,12 @@ internal sealed class CraftingSystem
     private readonly SystemContext _context;
     private readonly EntityId _player;
     private readonly string _maker;
+    private readonly SliceOwner _owner;
 
-    public CraftingSystem(SystemContext context, EntityId player, string maker)
+    public CraftingSystem(SystemContext context, SliceOwner owner, EntityId player, string maker)
     {
         _context = context;
+        _owner = owner;
         _player = player;
         _maker = maker;
     }
@@ -265,11 +270,21 @@ internal sealed class CraftingSystem
             return $"everything this {station.Kind} has to teach is known";
         var carried = State.Inventory.Where(e => !State.Equipment.ContainsValue(e.ItemId))
             .GroupBy(e => e.DefId, StringComparer.Ordinal).ToDictionary(g => g.Key, g => g.Sum(e => e.Count), StringComparer.Ordinal);
-        string? found = fresh.FirstOrDefault(id => Setup.Recipes[id].Inputs.All(i => carried.GetValueOrDefault(i.ItemId) >= i.Count));
-        if (found is null)
-            return "nothing comes of it: what you carry suggests nothing new here";
-        _context.Dispatch(new LearnTechnique(new TechniqueLearning(found, LearningSource.Experiment, tick) { SourceRef = station.Key }));
-        _context.Events.Publish(new RecipeDiscovered(station.Key, found, tick));
+        var outcome = FindingRules.Assess(fresh.Select(id => Setup.Recipes[id]).ToList(), carried);
+        // One attempt, one Finding (C12 §5.3): the question closes, so the same attempt teaches nothing twice and cannot be farmed.
+        string key = FindingKeys.Of(station.Key, outcome.Kind, outcome.Recipe?.Id);
+        if (outcome.Kind != FindingKind.Found && State.Findings.Any(f => f.Key == key))
+            return outcome.Kind == FindingKind.Hint
+                ? "there is more to this than what you carry, and you have learned all it will say"
+                : "nothing comes of it: what you carry suggests nothing new here";
+        var finding = new Finding(outcome.Kind, station.Key, station.Kind, outcome.Recipe?.Id, outcome.Materials, tick);
+        State.SetFindings(_owner, State.Findings.Add(finding));
+        _context.Events.Publish(new FindingRecorded(finding));
+        if (outcome is { Kind: FindingKind.Found, Recipe: { } found })
+        {
+            _context.Dispatch(new LearnTechnique(new TechniqueLearning(found.Id, LearningSource.Experiment, tick) { SourceRef = station.Key }));
+            _context.Events.Publish(new RecipeDiscovered(station.Key, found.Id, tick));
+        }
         return null;
     }
 

@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Items;
@@ -300,7 +301,7 @@ public sealed class Simulation
         _effects = new StatusEffectSystem(_context, _state.Claim(nameof(StatusEffectSystem), StateSlice.Effects), player.Id);
         _travel = new TravelSystem(_context, _state.Claim(nameof(TravelSystem), StateSlice.Waystones), player.Id);
         _gathering = new GatheringSystem(_context, _state.Claim(nameof(GatheringSystem), StateSlice.Nodes), player.Id);
-        _crafting = new CraftingSystem(_context, player.Id, player.Name);
+        _crafting = new CraftingSystem(_context, _state.Claim(nameof(CraftingSystem), StateSlice.Findings), player.Id, player.Name);
         _navigation = new WorldNavigation(_context);
         _npcs = new NpcSystem(_context, _state.Claim(nameof(NpcSystem), StateSlice.Npcs, StateSlice.NpcLife), _navigation, _tiers.Observers,
             () => _movement.Effective);
@@ -604,6 +605,9 @@ public sealed class Simulation
     /// <summary>The eight quick slots (WP9): each empty, or the item, formula or technique it uses.</summary>
     public ImmutableArray<string?> QuickBar => _state.QuickBar;
 
+    /// <summary>What the character's experiments taught, oldest first (UI progression F).</summary>
+    public ImmutableArray<Finding> Findings => _state.Findings;
+
     /// <summary>The character's companions (M6): the whole party - companions, hirelings and allies (WP15a).</summary>
     public ImmutableArray<CompanionView> Companions => _companions.Views();
 
@@ -903,6 +907,7 @@ public sealed class Simulation
             QuickBarCleared = _state.QuickBarCleared.ToImmutableArray(),
             PartySheets = _sheets.Records(),
             Attack = _combat.AttackUnderWay(),
+            Findings = _state.Findings,
         };
     }
 

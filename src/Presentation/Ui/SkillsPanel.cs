@@ -96,7 +96,7 @@ public partial class SkillsPanel : CanvasLayer
                 .OrderByDescending(s => s.Value.Level).ThenBy(s => s.Key, StringComparer.Ordinal).Select(s => s.Key).FirstOrDefault()
                 ?? roster.FirstOrDefault()?.Id ?? Formulas;
         // The pools and the carried counts change the known views' "not now" lines and counts.
-        string detail = $"{state}|{_selected}|{progression.Pools}|{view.Stats.StrainTolerance}|" +
+        string detail = $"{state}|{simulation.Findings.Length}|{_selected}|{progression.Pools}|{view.Stats.StrainTolerance}|" +
                         string.Join(",", view.Inventory.Select(e => $"{e.DefId}{e.Count}")) + "|" +
                         string.Join(",", view.Equipment.Select(kv => $"{kv.Key}:{kv.Value}")) + $"|{NearStation?.Invoke()}|" +
                         string.Join(",", progression.Known.Keys.Where(IsTechnique).Select(simulation.TechniqueCooldown).Select(t => (t + 19) / 20));
@@ -422,6 +422,18 @@ public partial class SkillsPanel : CanvasLayer
             list.AddChild(card);
         }
         _panes.Detail.AddChild(list);
+
+        // Findings (canon 26 W7): what trying at a station taught, oldest first; a found recipe is above, in Known recipes.
+        var findings = UiKit.Section("Findings", "what trying taught you");
+        if (simulation.Findings.IsEmpty)
+            findings.AddChild(UiKit.Quiet("None yet - try what you carry at a bench or a forge, and what comes of it is kept here."));
+        foreach (var finding in simulation.Findings)
+        {
+            var line = FindingWords.Line(finding, key => Names.Of(session, key));
+            findings.AddChild(UiKit.Row(UiKit.Chip(FindingKeys.Key(finding.Kind), finding.Kind == FindingKind.Found ? HudStyle.Lichen : HudStyle.Brass,
+                finding.Kind == FindingKind.Found ? HudStyle.Lichen : HudStyle.Brass), line.Says, line.Where, height: 44).Root);
+        }
+        _panes.Detail.AddChild(findings);
     }
 
     /// <summary>The known techniques (C5), each with where it was learned and its quick slot.</summary>

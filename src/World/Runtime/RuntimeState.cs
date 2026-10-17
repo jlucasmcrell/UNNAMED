@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Economy;
@@ -115,6 +116,9 @@ public enum StateSlice
 
     /// <summary>Every NPC adventurer's life and the slots awaiting arrivals (WP13). In the world delta.</summary>
     Adventurers,
+
+    /// <summary>What the character's experiments at stations taught (UI progression F). Saved with the player (schema 31).</summary>
+    Findings,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -171,6 +175,7 @@ internal sealed class RuntimeState
         QuickBar = player.QuickBar;
         QuickBarCleared = player.QuickBarCleared.ToImmutableSortedSet(StringComparer.Ordinal);
         PartySheets = player.PartySheets.ToImmutableSortedDictionary(p => p.NpcId, p => p, StringComparer.Ordinal);
+        Findings = player.Findings;
     }
 
     public WorldDelta World { get; }
@@ -201,6 +206,7 @@ internal sealed class RuntimeState
     public ImmutableSortedDictionary<string, CompanionState> Companions { get; private set; } =
         ImmutableSortedDictionary.Create<string, CompanionState>(StringComparer.Ordinal);
     public ImmutableSortedDictionary<string, DeedTally> Deeds { get; private set; }
+    public ImmutableArray<Finding> Findings { get; private set; }
     public long? WeatherCursor { get; private set; }
     public LfgState Lfg { get; private set; } = LfgState.Empty;
     public FactionLedger Factions { get; private set; }
@@ -318,6 +324,12 @@ internal sealed class RuntimeState
         if (!Domain.Progression.QuickBar.IsValid(bar))
             throw new InvalidOperationException("A quick bar is eight slots, each empty or holding one item, formula or technique once");
         QuickBar = bar;
+    }
+
+    public void SetFindings(SliceOwner owner, ImmutableArray<Finding> findings)
+    {
+        Require(owner, StateSlice.Findings);
+        Findings = findings;
     }
 
     public void SetQuickBarCleared(SliceOwner owner, ImmutableSortedSet<string> cleared)
