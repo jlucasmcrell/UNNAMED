@@ -241,6 +241,7 @@ public class PartyTests
         var session = Harness.Boot(profile);
         var down = Member(Kera, 61, 141) with { Condition = CompanionCondition.Downed, Health = 0, DownedTick = 0 };
         var arena = At(session, 50, r => r.WithCompanions(new[] { down }));
+        Assert.Contains(arena.Simulation.Lives, l => l.Key == Kera);
         var died = arena.Record<HirelingDied>();
         int window = session.Setup.Social.Companions!.ReviveWindowTicks;
         // The same fall in a world whose registry the test holds: the dead hireling's instance goes with her.
@@ -264,8 +265,11 @@ public class PartyTests
         var record = arena.Simulation.CaptureRecord();
         Assert.Equal(new[] { Kera }, record.Party.Fallen);
 
+        // Her life ends with her (WP12): no needs, no pairs and no forge output after, and none when the world starts again.
+        Assert.DoesNotContain(arena.Simulation.Lives, l => l.Key == Kera);
         var again = Simulation.Start(arena.Simulation.Setup, record, new WorldDelta(session.Generator, 42, new Registry()), arena.Simulation.WorldTick, new EventBus());
         Assert.DoesNotContain(again.Npcs, n => n.Id == Kera);
+        Assert.DoesNotContain(again.Lives, l => l.Key == Kera);
         Assert.Equal($"there is no one called {Kera} here", again.HireTerms(Kera, HirelingRole.Guard, 3).Refusal);
     }
 

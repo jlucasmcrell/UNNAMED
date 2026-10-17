@@ -95,7 +95,10 @@ internal sealed class WorldNavigation
 
     /// <summary>Whether a body of the person class can stand at a point now.</summary>
     public bool Standable(NavPoint p) =>
-        NavSearch.Standable(Grid, new NavAgent(0, true), IsGateOpen, p, Config.Classes[0].RadiusMm);
+        NavSearch.Standable(Grid, Person, IsGateOpen, p, Config.Classes[Config.PersonClass].RadiusMm);
+
+    /// <summary>A person, who opens doors: the class people walk as.</summary>
+    public NavAgent Person => new(Config.PersonClass, true);
 
     /// <summary>Whether an edit keeps the world navigable: the one rule, on the grid as it stands. For building (WP8).</summary>
     public NavEditVerdict CheckEdit(ImmutableArray<NavInput> addSolids, ImmutableArray<NavInput> addDoors, ImmutableArray<NavProtectedPoint> points)

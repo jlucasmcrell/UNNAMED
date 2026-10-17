@@ -65,6 +65,9 @@ public sealed record NavConfig(long NodeMm, long MarginMm, long AgentHeightMm, I
     /// <summary>The planning radius of class <paramref name="k"/>: its body radius and the margin.</summary>
     public long RpMm(int k) => Classes[k].RadiusMm + MarginMm;
 
+    /// <summary>The index of the <c>person</c> class, the one people walk as: wherever the ascending class list puts it.</summary>
+    public int PersonClass => Classes.IndexOf(Classes.Single(c => c.Id == "person"));
+
     /// <summary>The smallest class whose radius holds a body of this radius; -1 when none does.</summary>
     public int ClassFor(long radiusMm)
     {

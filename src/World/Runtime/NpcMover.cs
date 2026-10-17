@@ -31,8 +31,6 @@ internal sealed class NpcTierSimulation : ITierSimulation
 
 internal sealed partial class NpcSystem
 {
-    private static readonly NavAgent Person = new(0, true);
-
     /// <summary>Headway: a step of at least 30% of a walk's travel, else the tick counts as stuck.</summary>
     private const long HeadwayMm = 24;
 
@@ -191,7 +189,7 @@ internal sealed partial class NpcSystem
             return;
         }
         var goal = new NavPoint(goalX, goalZ);
-        var step = _navigation.Follow(Person, life.Route, new NavPoint(body.XMm, body.ZMm), goal, life.StuckTicks, tick);
+        var step = _navigation.Follow(_navigation.Person, life.Route, new NavPoint(body.XMm, body.ZMm), goal, life.StuckTicks, tick);
         if (step.ReplanReason is { } why)
             _context.Events.Publish(new RoutePlanned(life.Key, NavSearch.OutcomeKey(step.Outcome!.Value), why, step.Route.Corners.Length, step.Expansions, tick));
         switch (step.Kind)
@@ -228,7 +226,7 @@ internal sealed partial class NpcSystem
             return;
         }
         var goal = new NavPoint(goalX, goalZ);
-        var step = _navigation.Follow(Person, life.Route, new NavPoint(body.XMm, body.ZMm), goal, life.StuckTicks, tick);
+        var step = _navigation.Follow(_navigation.Person, life.Route, new NavPoint(body.XMm, body.ZMm), goal, life.StuckTicks, tick);
         if (step.Kind == NavStepKind.Unreachable)
         {
             // A body pressed into something cannot plan from where it stands: it steps out to the nearest place it can stand first.
@@ -268,8 +266,8 @@ internal sealed partial class NpcSystem
         long nx = (long)Math.Round(x), nz = (long)Math.Round(z);
         bool landed = nx == goalX && nz == goalZ;
         // The glide is checked as the walk is: a step that would sweep through the world is not taken, and counts as stuck.
-        long r = _navigation.Config.Classes[Person.ClassIndex].RadiusMm - _navigation.Config.Limits.OffLineToleranceMm;
-        if (!NavSearch.Clear(_navigation.Grid, Person, _navigation.IsGateOpen, new NavPoint(body.XMm, body.ZMm), new NavPoint(nx, nz), r))
+        long r = _navigation.Config.Classes[_navigation.Person.ClassIndex].RadiusMm - _navigation.Config.Limits.OffLineToleranceMm;
+        if (!NavSearch.Clear(_navigation.Grid, _navigation.Person, _navigation.IsGateOpen, new NavPoint(body.XMm, body.ZMm), new NavPoint(nx, nz), r))
         {
             Write(npc, life, body, route, life.StuckTicks + 1);
             return;

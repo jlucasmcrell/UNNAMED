@@ -57,6 +57,37 @@ public class NpcLifeWorldTests
         Assert.All(residents, r => Assert.True(arena.Simulation.World.Registry.Exists(r.InstanceId)));
     }
 
+    [Fact]
+    public void ResidentNames_StayUniqueInEachTown_InEveryWorld()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        for (ulong seed = 1; seed <= 24; seed++)
+        {
+            var arena = Arena.OpenCreatures(session, session.Setup, (30, 158), 90, Array.Empty<(string, double, double, string)>(), seed: seed, keepSpawns: true);
+            foreach (var town in arena.Simulation.Lives.Where(l => l.Resident).GroupBy(l => l.Settlement))
+                Assert.Equal(town.Count(), town.Select(l => l.Name).Distinct().Count());
+        }
+    }
+
+    [Fact]
+    public void AWorldWhoseRoutinesAreGone_HoldsNoLives_NotTheSavesOld_Ones()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = AtSpawn(session);
+        Assert.NotEmpty(arena.Simulation.Lives);
+        var store = new SaveStore(profile.Root);
+        store.Save(SaveSlots.Manual("life"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content, arena.Simulation.WorldTick, 0));
+        var loaded = store.Load(SaveSlots.Manual("life"), new LoadContext(session.Generator, session.Content, new Registry()));
+        var none = arena.Simulation.Setup with { NpcLife = arena.Simulation.Setup.NpcLife with { Routines = ImmutableSortedDictionary.Create<string, RoutineDefinition>(StringComparer.Ordinal) } };
+        var resumed = Simulation.Start(none, loaded.Player, loaded.World, loaded.Manifest.WorldTick, new EventBus());
+        Assert.Empty(resumed.Lives);
+        Assert.Empty(resumed.World.NpcLife!.Npcs);
+        resumed.Advance(2 * Day);
+        Assert.Empty(resumed.World.NpcLife!.Npcs);
+    }
+
     /// <summary>One world saved, so every copy loaded from it is the same world - character and all.</summary>
     private static Func<Simulation> Saved(TempProfile profile, GameSession session, Arena arena)
     {

@@ -117,6 +117,9 @@ internal sealed partial class NpcSystem
         State.RemoveNpc(_owner, command.NpcId);
         if (State.World.Registry.Exists(npc.InstanceId))
             State.World.Registry.DestroyEntity(npc.InstanceId);
+        // Their life ends with them: no needs, no pairs, no job output after.
+        if (State.World.NpcLife is { } life && life.Npcs.ContainsKey(command.NpcId))
+            State.SetNpcLife(_owner, life with { Npcs = life.Npcs.Remove(command.NpcId) });
         return null;
     }
 

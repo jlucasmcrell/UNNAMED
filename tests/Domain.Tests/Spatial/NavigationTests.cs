@@ -52,6 +52,15 @@ public class NavigationTests
     }
 
     [Fact]
+    public void ThePersonClass_IsFoundByItsId_WhereverTheClassListPutsIt()
+    {
+        var config = NavConfig.Default with { Classes = ImmutableArray.Create(new NavClass("small", 300), new NavClass("person", 350)) };
+        Assert.Null(config.Problem());
+        Assert.Equal(1, config.PersonClass);
+        Assert.Equal(0, NavConfig.Default.PersonClass);
+    }
+
+    [Fact]
     public void AnOpenField_RoutesStraight()
     {
         var grid = Field(100_000, 100_000, Array.Empty<NavInput>());

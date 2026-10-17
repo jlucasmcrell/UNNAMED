@@ -54,14 +54,21 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput
     /// </summary>
     private void PopulateLives()
     {
-        if (Life.Routines.IsEmpty)
-            return;
         long hour = Clock.Hour(State.WorldTick);
+        if (Life.Routines.IsEmpty)
+        {
+            if (State.World.NpcLife is not null)
+                State.SetNpcLife(_owner, NpcLifeState.Empty(hour));
+            return;
+        }
         var context = HourContext(hour);
+        var given = new HashSet<string>(StringComparer.Ordinal);
         var life = State.World.NpcLife is { } saved
-            ? NpcLifeEngine.Reconcile(saved, Life.Routines, Life.Rules, context, NameFor, PlaceOf)
-            : NpcLifeEngine.Begin(Life.Routines, Life.Rules, context, NameFor, PlaceOf);
-        State.SetNpcLife(_owner, life with { Npcs = life.Npcs.ToImmutableSortedDictionary(kv => kv.Key, kv => WithCell(kv.Value), StringComparer.Ordinal) });
+            ? NpcLifeEngine.Reconcile(saved, Life.Routines, Life.Rules, context, (r, g) => NameFor(r, g, given), PlaceOf)
+            : NpcLifeEngine.Begin(Life.Routines, Life.Rules, context, (r, g) => NameFor(r, g, given), PlaceOf);
+        // A hireling who died in the character's service (DN9) has no life to go on with.
+        var living = life.Npcs.Where(kv => !State.Fallen.Contains(kv.Key));
+        State.SetNpcLife(_owner, life with { Npcs = living.ToImmutableSortedDictionary(kv => kv.Key, kv => WithCell(kv.Value), StringComparer.Ordinal) });
         foreach (var npc in State.World.NpcLife!.Npcs.Values)
             Embody(npc);
     }
@@ -93,15 +100,19 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput
     /// A resident's name (WP2's Suggest name source): their people's name a sample picks, passing over names their settlement's residents
     /// already carry while the list lasts. Never invented: with no names, the role.
     /// </summary>
-    private string? NameFor(RoutineDefinition routine, int generation)
+    private string? NameFor(RoutineDefinition routine, int generation, HashSet<string> given)
     {
         if (routine.PeopleId is not { } people || !_context.Setup.Character.Peoples.TryGetValue(people, out var definition) || definition.Names.IsEmpty)
             return null;
         var taken = (State.World.NpcLife?.Npcs.Values ?? Enumerable.Empty<NpcLifeRecord>())
             .Where(n => n.Name is not null && Life.Routines.TryGetValue(n.RoutineId, out var r) && r.Settlement == routine.Settlement)
             .Select(n => n.Name!).ToHashSet(StringComparer.Ordinal);
+        // The state is the batch's start: the names this batch has already given are taken too.
+        taken.UnionWith(given);
         ulong sample = RngChannel.Open(State.World.WorldSeed, RegionCell, "npc_life", $"name:{routine.Id}#{generation}").UInt64(0);
-        return definition.Names.PickUnused(sample, taken) ?? definition.Names.Pick(sample);
+        string name = definition.Names.PickUnused(sample, taken) ?? definition.Names.Pick(sample);
+        given.Add(name);
+        return name;
     }
 
     private CellKey RegionCell => new(CellKey.Parse(_context.Setup.Layout.CellKeys[0]).Region, 0, 0);
@@ -155,7 +166,8 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput
         while (State.World.NpcLife is { } life && life.Hour < hour)
         {
             var before = life.Npcs;
-            var (next, happenings) = NpcLifeEngine.Hour(life, Life.Routines, Life.Pairs, Life.Rules, HourContext(life.Hour + 1), NameFor, CanArrive);
+            var given = new HashSet<string>(StringComparer.Ordinal);
+            var (next, happenings) = NpcLifeEngine.Hour(life, Life.Routines, Life.Pairs, Life.Rules, HourContext(life.Hour + 1), (r, g) => NameFor(r, g, given), CanArrive);
             State.SetNpcLife(_owner, next);
             foreach (var happening in happenings.Where(h => h.Kind == NpcLifeEngine.Arrived))
             {

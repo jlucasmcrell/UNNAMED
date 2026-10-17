@@ -99,13 +99,13 @@ public static class NpcLifeContent
             }
             var grid = NavigationLayout.Build(layout, config);
             var reach = NavReach.FromSpawn(grid, config, new NavPoint(layout.Spawn.XMm, layout.Spawn.ZMm));
-            var person = new NavAgent(0, true);
+            var person = new NavAgent(config.PersonClass, true);
             foreach (var routine in setup.Routines.Values)
             {
                 foreach (var (kind, anchor) in routine.Anchors)
                 {
                     var at = new NavPoint(anchor.XMm, anchor.ZMm);
-                    if (!NavSearch.Standable(grid, person, _ => true, at, config.Classes[0].RadiusMm) || !reach.Near(at, AnchorReachMm))
+                    if (!NavSearch.Standable(grid, person, _ => true, at, config.Classes[config.PersonClass].RadiusMm) || !reach.Near(at, AnchorReachMm))
                         errors.Add(NavigationContent.Error("NPL003",
                             $"{routine.Id}: its {kind} anchor ({anchor.XMm / 1000.0:0.###}, {anchor.ZMm / 1000.0:0.###}) cannot be stood at, or reached from the spawn",
                             loader.Definitions[routine.Id].SourceFile));
