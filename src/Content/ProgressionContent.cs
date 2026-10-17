@@ -30,6 +30,8 @@ public static class ProgressionContent
             string? family = Read(skill.YamlSource).GetValueOrDefault("family") as string;
             if (family is null || !SkillFamilies.Contains(family))
                 errors.Add(Error("PRG001", $"Skill {skill.Id} needs a family, one of {string.Join(", ", SkillFamilies)} (DATA_MODEL.md §4.21)", skill.SourceFile));
+            if (Read(skill.YamlSource).GetValueOrDefault("teaches") is not string { Length: > 0 })
+                errors.Add(Error("PRG006", $"Skill {skill.Id} needs a teaches line: what kind of use teaches it (UI_PROGRESSION_AUDIT item G; canon 26 W3)", skill.SourceFile));
         }
         if (loader.Definitions.ContainsKey("config.progression"))
             TryBuild(loader, errors);
@@ -117,7 +119,8 @@ public static class ProgressionContent
                 TierTargets = List(p, "tier_targets").Select((row, i) => TierRow(row, i)).ToImmutableArray(),
                 SkillBands = List(p, "skill_bands").Select((row, i) => SkillBandRow(row, i)).ToImmutableArray(),
                 Roster = loader.GetByKind("skill").Values
-                    .Select(s => new SkillEntry(s.Id, Read(s.YamlSource).GetValueOrDefault("family") as string ?? ""))
+                    .Select(s => new SkillEntry(s.Id, Read(s.YamlSource).GetValueOrDefault("family") as string ?? "",
+                        Read(s.YamlSource).GetValueOrDefault("teaches") as string ?? ""))
                     .OrderBy(s => SkillFamilies.IndexOf(s.Family)).ThenBy(s => s.Id, StringComparer.Ordinal).ToImmutableArray(),
             };
 

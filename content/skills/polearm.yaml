@@ -6,3 +6,4 @@ tags: [skill]
 name: Polearm
 family: combat
 notes: The spear's weapon-family skill (PROGRESSION.md §5's combat list; §6). Effective thrusts train it. No passive yet - competence only.
+teaches: "Thrusts that wound with a spear or other polearm, against foes that test you. A thrust at nothing teaches nothing."

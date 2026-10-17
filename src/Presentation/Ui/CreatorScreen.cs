@@ -552,8 +552,7 @@ public partial class CreatorScreen : CanvasLayer
     }
 
     /// <summary>A Call's attribute leaning, in words: "Endurance +2 · Might +1 · Agility +1".</summary>
-    private static string Leaning(CallDefinition call) =>
-        string.Join(" · ", call.Package.AttributeBias.OrderByDescending(a => a.Value).Select(a => $"{Capital(ProgressionKeys.Key(a.Key))} +{a.Value}"));
+    private static string Leaning(CallDefinition call) => CharacterWords.Leaning(call);
 
     private Control Package(CallDefinition call)
     {

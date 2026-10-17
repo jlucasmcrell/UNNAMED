@@ -134,7 +134,19 @@ public partial class CharacterPanel : CanvasLayer
             chips.AddChild(UiKit.Chip($"{progression.UnspentAttributePoints} {(progression.UnspentAttributePoints == 1 ? "point" : "points")} to spend", HudStyle.Ember));
         top.AddChild(chips);
         band.AddChild(top);
-        string hint = "Every character starts from the same package; a level-up grants an attribute point.";
+        if (CharacterWords.Call(view.Identity.CallId, _session.Characters.Calls, id => Names.Of(_session, id)) is { } call)
+        {
+            var who = new HBoxContainer();
+            who.AddThemeConstantOverride("separation", 12);
+            who.AddChild(UiKit.Caption("Call", HudStyle.Brass));
+            var callName = HudStyle.Text(HudStyle.Strong, 20, HudStyle.Bone);
+            callName.Text = call.Name;
+            who.AddChild(callName);
+            who.AddChild(UiKit.Words(call.Tagline, 17, HudStyle.Ash));
+            band.AddChild(who);
+            band.AddChild(UiKit.Words($"{call.Package} · contact {call.Contact}", 16, HudStyle.Ash));
+        }
+        string hint = "A level-up grants an attribute point.";
         if (progression.XpDebt > 0)
             hint += " The XP debt is repaid from the next XP earned.";
         band.AddChild(UiKit.Words(hint, 16, HudStyle.Muted));
