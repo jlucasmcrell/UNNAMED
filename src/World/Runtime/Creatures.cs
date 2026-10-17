@@ -697,7 +697,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             {
                 new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0),
             };
-            obstacles.AddRange(Companions());
+            obstacles.AddRange(People(c));
             c = c with { Body = Kinematics.Step(c.Body, intent, rules, SpaceNear(c.Body), obstacles, TickMs) };
         }
         bool reaches = !spent && (foe.Companion is not null || !State.PlayerCombat.Defeated)
@@ -933,7 +933,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         {
             new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0),
         };
-        others.AddRange(Companions());
+        others.AddRange(People(c));
         others.AddRange(Herd(c));
         return Kinematics.Step(from, intent, rules, SpaceNear(from), others, TickMs);
     }
@@ -997,11 +997,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// <summary>A companion stands nearer than the character by more than this before a creature turns on them.</summary>
     private const long FoeMarginMm = 1_000;
 
-    /// <summary>Companions on their feet, as bodies creatures do not walk through.</summary>
-    private IEnumerable<Blocker> Companions() =>
-        State.Companions.Values.Where(x => x.Condition == CompanionCondition.Up && State.Npcs.ContainsKey(x.NpcId))
-            .Select(x => State.Npcs[x.NpcId])
-            .Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0));
+    /// <summary>Everyone standing in the world, as bodies creatures walk round: a creature never shoves a person out of its way (companions included).</summary>
+    private IEnumerable<Blocker> People(CreatureState c) =>
+        State.Npcs.Values.Where(n => Math.Abs(n.Body.XMm - c.Body.XMm) < NearMm && Math.Abs(n.Body.ZMm - c.Body.ZMm) < NearMm).Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0));
 
     private static bool Arrived(CreatureState c, long xMm, long zMm) => Distance(c.Body.XMm, c.Body.ZMm, xMm, zMm) <= 700;
 

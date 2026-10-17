@@ -99,4 +99,32 @@ public class WildlifeTests
         Assert.False(light.Creature().Asleep);
         Assert.True(light.Creature().Peaceful);
     }
+    [Fact]
+    public void Hens_ScratchAboutAPerson_WithoutEverShovingThem()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var hours = session.Setup.Combat.Hours!;
+        long day = Enumerable.Range(0, 48).Select(h => h * hours.TicksPerDay / 48).First(t => !hours.IsNight(t));
+        var kera = Harness.HollowOf(session.Setup);
+        var probe = Arena.OpenCreatures(session, session.Setup, (0, 0), 0, new[] { (Hen, 0.0, 0.0, "yard_fowl") }, startTick: day);
+        var at = probe.Simulation.Npcs.Single(n => n.Id == "npc.ashen_hollow.kera_voss").Body;
+        double x = at.XMm / 1000.0 - kera.X, z = at.ZMm / 1000.0 - kera.Z;
+        var hens = Enumerable.Range(0, 3).Select(i => (Hen, x + Math.Sin(i * Math.PI * 2 / 3) * 1.2, z + Math.Cos(i * Math.PI * 2 / 3) * 1.2, "yard_fowl")).ToArray();
+
+        var arena = Arena.OpenCreatures(session, session.Setup, (x, z - 25), 0, hens, startTick: day);
+        long minMm = long.MaxValue;
+        long shoved = 0;
+        for (int tick = 0; tick < 600; tick++)
+        {
+            arena.Tick();
+            var npc = arena.Simulation.Npcs.Single(n => n.Id == "npc.ashen_hollow.kera_voss").Body;
+            shoved = Math.Max(shoved, Math.Max(Math.Abs(npc.XMm - at.XMm), Math.Abs(npc.ZMm - at.ZMm)));
+            foreach (var hen in arena.Simulation.Creatures)
+                minMm = Math.Min(minMm, (long)Math.Sqrt(Math.Pow(hen.Body.XMm - npc.XMm, 2) + Math.Pow(hen.Body.ZMm - npc.ZMm, 2)));
+        }
+        var def = session.Setup.Combat.Creatures[Hen];
+        Assert.Equal(0, shoved);
+        Assert.True(minMm >= def.RadiusMm + session.Setup.Movement.BodyRadiusMm - 2, $"a hen came within {minMm} mm of Kera");
+    }
 }
