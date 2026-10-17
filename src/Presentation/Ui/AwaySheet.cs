@@ -10,13 +10,10 @@ namespace UNNAMED.Presentation.Ui;
 /// The sheet a login opens when the world went on long enough to tell of: a SMALL sheet with the time away in days and tallies, the date
 /// now, then the log's lines in their groups - the weather, the prices, the character's hirelings and their wages, respawns, the rest. It
 /// is dismissed like any screen (Escape, or its one button), and like every screen it stops nothing: the world runs underneath it (the
-/// no-pause ruling). Every line is in the journal's Recent list too, so a group longer than the sheet shows says where the rest are.
+/// no-pause ruling). The journal's Recent list keeps only the latest lines, so the sheet shows every one.
 /// </summary>
 public partial class AwaySheet : CanvasLayer
 {
-    /// <summary>The most lines a group shows here; the journal has them all.</summary>
-    public const int LinesShown = 6;
-
     private Sheet _sheet = null!;
     private Button? _done;
 
@@ -46,13 +43,11 @@ public partial class AwaySheet : CanvasLayer
         {
             var section = UiKit.Section(group.Heading);
             section.AddThemeConstantOverride("separation", 6);
-            foreach (string line in group.Lines.Take(LinesShown))
+            foreach (string line in group.Lines)
                 section.AddChild(UiKit.Words(line, 18, HudStyle.Bone));
-            if (group.Lines.Length > LinesShown)
-                section.AddChild(UiKit.Quiet($"And {group.Lines.Length - LinesShown} more, in the journal's Recent list."));
             _sheet.Body.AddChild(section);
         }
-        _sheet.Body.AddChild(UiKit.Callout(HudStyle.Brass, "All of this is in the journal's Recent list."));
+        _sheet.Body.AddChild(UiKit.Callout(HudStyle.Brass, "The journal's Recent list keeps the latest of this."));
         _done = UiKit.Action("Back to the world", () => Dismissed?.Invoke(), UiKit.Kind.Primary, id: "away.done");
         _done.SizeFlagsHorizontal = Control.SizeFlags.ShrinkEnd;
         _sheet.Body.AddChild(_done);
