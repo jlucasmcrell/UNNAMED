@@ -247,42 +247,49 @@ public partial class Main
         }
         if (Time.GetTicksMsec() < _creatorNext)
             return;
-        var types = _bindings.Bodies.Types;
-        string Body(int type, string build) => types.Count > type ? $"body.{types[type].Type}.{build}" : CharacterSpec.DefaultBodyPreset;
-        var steps = new (string Shot, Action? Then, int NextMs)[]
+        // Every body content offers, type by type and build by build, the second type's middle build last: each its own model, whose
+        // first showing loads it. A shot shows what the step before it chose.
+        var typeOrder = _bindings.Bodies.Types.Select(t => t.Type).ToList();
+        var bodies = _session.Characters.OfferedBodies(CharacterSpec.DefaultPeople)
+            .OrderBy(b => typeOrder.IndexOf(b.Type) is var i && i >= 0 ? i : typeOrder.Count).ThenBy(b => b.Order).ToList();
+        var walk = bodies.Where(b => b.Id != _bindings.Bodies.Default).ToList();
+        if (bodies.Count > 0)
         {
-            ("01_people", () => _creator.Go(CreatorStep.Body), 2000),
-            // every build of each type, each its own model: a model's first showing loads it
-            ("02_body_default", () => _creator.Use(_creator.Draft with { BodyPresetId = Body(0, "very_lean") }), 6000),
-            ("03_body_very_lean", () => _creator.Use(_creator.Draft with { BodyPresetId = Body(0, "lean") }), 6000),
-            ("04_body_lean", () => _creator.Use(_creator.Draft with { BodyPresetId = Body(0, "heavy") }), 6000),
-            ("05_body_heavy", () => _creator.Use(_creator.Draft with { BodyPresetId = Body(0, "very_heavy") }), 6000),
-            ("06_body_very_heavy", () => _creator.Use(_creator.Draft with { BodyPresetId = Body(1, "very_lean") }), 6000),
-            ("07_body_second_type_very_lean", () => _creator.Use(_creator.Draft with { BodyPresetId = Body(1, "lean") }), 6000),
-            ("08_body_second_type_lean", () => _creator.Use(_creator.Draft with { BodyPresetId = Body(1, "heavy") }), 6000),
-            ("09_body_second_type_heavy", () => _creator.Use(_creator.Draft with { BodyPresetId = Body(1, "very_heavy") }), 6000),
-            ("10_body_second_type_very_heavy", () => _creator.Use(_creator.Draft with { BodyPresetId = Body(1, "average") }), 6000),
-            ("11_body_second_type", () => _creator.Go(CreatorStep.Identity), 1500),
-            ("12_identity_empty", () => _creator.Use(_creator.Draft with { Name = "Wenna Lind", Pronouns = Pronouns.She }), 1500),
-            ("13_identity_named", () => _creator.Go(CreatorStep.Call), 1500),
-            ("14_call_wayfarer", () => _creator.Use(_creator.Draft with { CallId = "call.smiths_hand" }), 1500),
-            ("15_call_smiths_hand", () => _creator.Go(CreatorStep.Confirm), 1500),
-            ("16_confirm", () =>
+            var lastType = bodies.Where(b => b.Type == bodies[^1].Type).ToList();
+            walk.Add(lastType[lastType.Count / 2]);
+        }
+        string shown = "default";
+        var list = new List<(string Shot, Action? Then, int NextMs)> { ("01_people", () => _creator.Go(CreatorStep.Body), 2000) };
+        foreach (var body in walk)
+        {
+            list.Add(($"{list.Count + 1:00}_body_{shown}", () => _creator.Use(_creator.Draft with { BodyPresetId = body.Id }), 6000));
+            shown = $"{body.Type}_{body.Build}";
+        }
+        list.Add(($"{list.Count + 1:00}_body_{shown}", () => _creator.Go(CreatorStep.Identity), 1500));
+        int n = list.Count;
+        string N(string shot) => $"{++n:00}_{shot}";
+        var steps = list.Concat(new (string Shot, Action? Then, int NextMs)[]
+        {
+            (N("identity_empty"), () => _creator.Use(_creator.Draft with { Name = "Wenna Lind", Pronouns = Pronouns.She }), 1500),
+            (N("identity_named"), () => _creator.Go(CreatorStep.Call), 1500),
+            (N("call_wayfarer"), () => _creator.Use(_creator.Draft with { CallId = "call.smiths_hand" }), 1500),
+            (N("call_smiths_hand"), () => _creator.Go(CreatorStep.Confirm), 1500),
+            (N("confirm"), () =>
             {
                 _creator.RoadWalked = true;
                 _creator.Use(_creator.Draft with { Start = StartPoint.Waystone });
             }, 1500),
-            ("17_confirm_veteran", () =>
+            (N("confirm_veteran"), () =>
             {
                 _creator.RoadWalked = false;
                 _creator.Use(_creator.Draft with { Start = StartPoint.Road });
                 if (!_creator.PressBegin())
                     GD.PushError("UNNAMED creator shots: Begin was refused");
             }, 6000),
-            ("18_road_lying", GetUp, 700),
-            ("19_road_getting_up", null, 3000),
-            ("20_road_standing", null, 0),
-        };
+            (N("road_lying"), GetUp, 700),
+            (N("road_getting_up"), null, 3000),
+            (N("road_standing"), null, 0),
+        }).ToArray();
         if (_creatorStep >= steps.Length)
         {
             GD.Print($"UNNAMED creator shots written to {directory}");
