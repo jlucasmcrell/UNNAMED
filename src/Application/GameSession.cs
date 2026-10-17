@@ -261,8 +261,9 @@ public sealed class GameSession : IDomainEvents, IDisposable
         var terrain = layout.Generation;
         var terrainRule = new TerrainRule(terrain.TerrainBaseHeightMm, terrain.TerrainAmplitudeMm, terrain.TerrainSamplesPerAxis);
         // The region's authored nodes are part of its baseline (M3f), each where it was put.
-        var fixedNodes = layout.Nodes.Select(site => new FixedNode(site.Name, site.NodeDefId, CellKey.OfWorld(site.XMm / 1000.0, site.ZMm / 1000.0),
-            (int)WorldMath.FloorMod(site.XMm / 10, WorldMath.CellSizeCm), (int)WorldMath.FloorMod(site.ZMm / 10, WorldMath.CellSizeCm)));
+        var fixedNodes = setup.Sites(l => l.Nodes).Select(pair => new FixedNode(pair.Site.Name, pair.Site.NodeDefId,
+            CellKey.OfInterior(pair.Layout.SpaceId, pair.Site.XMm / 1000.0, pair.Site.ZMm / 1000.0),
+            (int)WorldMath.FloorMod(pair.Site.XMm / 10, WorldMath.CellSizeCm), (int)WorldMath.FloorMod(pair.Site.ZMm / 10, WorldMath.CellSizeCm)));
         var generator = new CellBaselineGenerator(new GenerationProfile(Array.Empty<NodeRule>(), Array.Empty<PopulationRule>(), terrainRule, fixedNodes));
         // A save from before the region placed its nodes carries onto the baseline that has them: nothing it holds was a node.
         var before = new CellBaselineGenerator(new GenerationProfile(Array.Empty<NodeRule>(), Array.Empty<PopulationRule>(), terrainRule));
@@ -408,8 +409,10 @@ public sealed class GameSession : IDomainEvents, IDisposable
         _store = store;
         _card = character is null ? null
             : CharacterFolders.ReadCard(store.Root) ?? new CharacterCard(character, result.Player.Name, result.Player.Identity.PeopleId, result.Player.Identity.CallId);
-        Begin(Simulation.Start(Setup, result.Player, result.World, result.Manifest.WorldTick, _bus), result.Manifest.PlaytimeSeconds,
+        Begin(Simulation.Start(Setup, result.Player, result.World, result.Manifest.WorldTick, _bus, restoreAttempt: true), result.Manifest.PlaytimeSeconds,
             result.Manifest.WorldTimeAdvancedTicks, result.Manifest.AwayLog.Select(e => e.ToLine()).ToImmutableArray());
+        if (_simulation!.Player.Body.XMm != result.Player.XMm || _simulation.Player.Body.ZMm != result.Player.ZMm)
+            NoteAway(_simulation.WorldTick, new[] { "Active boss encounters restart when loaded. You return outside the court with your saved resources." });
         return result;
     }
 

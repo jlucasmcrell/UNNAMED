@@ -306,8 +306,16 @@ public static class CombatContent
                 if (!charge.IsCharge)
                     throw new FormatException($"{id}: a second attack is a charge (Phase 1 builds one blow and one charge)");
             }
+            AttackProfile? close = null;
             if (set.Count > 2)
-                throw new FormatException($"{id}: Phase 1 builds at most a blow and a charge");
+            {
+                var third = abilities.GetValueOrDefault(set[2]) ?? throw new FormatException($"{id}: {set[2]} is not an ability");
+                close = Attack(third, tickMs);
+                if (close.IsCharge || close.ReachMm >= Attack(ability, tickMs).ReachMm)
+                    throw new FormatException($"{id}: the third attack is a shorter melee blow");
+            }
+            if (set.Count > 3)
+                throw new FormatException($"{id}: attack_set builds a main blow, a charge and an optional shorter blow");
             var armor = map.ContainsKey("armor") ? Map(map, "armor") : new Dictionary<object, object>();
             var resistances = map.ContainsKey("resistances") && map["resistances"] is Dictionary<object, object> r ? r : new Dictionary<object, object>();
             var creature = new CreatureDefinition(id, Text(map, "family"), IntOf(band, 0, "level_band"), Int(Map(map, "pools"), "health"),
@@ -318,6 +326,7 @@ public static class CombatContent
                 LootTableId = map.GetValueOrDefault("loot_table") as string,
                 Senses = Senses(id, map),
                 Charge = charge,
+                CloseAttack = close,
                 TurnMdegPerSecond = map.ContainsKey("turn_deg_s") ? (long)Math.Round(Number(map, "turn_deg_s") * 1000) : 720_000,
                 WeakPoint = map.GetValueOrDefault("weak_point") is Dictionary<object, object> weak
                     ? new WeakPoint(BodyRegions.Parse(Text(weak, "region")), weak.GetValueOrDefault("from_behind") as string == "true")
@@ -360,6 +369,7 @@ public static class CombatContent
             CooldownTicks = map.ContainsKey("cooldown_s") ? ToTicks(Number(map, "cooldown_s"), tickMs) : 0,
             ForcesStagger = map.GetValueOrDefault("forces_stagger") as string == "true",
             Advances = map.GetValueOrDefault("advance") as string == "true",
+            CommitFacing = map.GetValueOrDefault("commit_facing") as string == "true",
         };
         if (attack.DamageMin < 1 || attack.DamageMin > attack.DamageMax || attack.ReachMm <= 0 || attack.LungeMm < 0)
             throw new FormatException($"{id}: amount is [min, max] with 1 <= min <= max, range_m (or a charge's max_distance_m) is positive, lunge_m is not negative");
@@ -419,6 +429,9 @@ public static class CombatContent
                     RespawnTicks = respawn,
                     Route = route,
                     Space = space,
+                    Recovery = s.Map.GetValueOrDefault("encounter_recovery") is Dictionary<object, object> recovery
+                        ? new EncounterRecovery(Mm(recovery, "min_x_m"), Mm(recovery, "min_z_m"), Mm(recovery, "max_x_m"),
+                            Mm(recovery, "max_z_m"), Mm(recovery, "safe_x_m"), Mm(recovery, "safe_z_m")) : null,
                 };
             }).ToImmutableArray();
     }

@@ -285,6 +285,9 @@ internal sealed class InventorySystem
             _ => null,
         };
         Put(command.To, definition, command.Count, moving, source.Quality, whole ? source.Notable : null, origin, tick);
+        if (command.From.Kind == PlaceKind.Container && _context.FindContainer(command.From.ContainerKey!) is { EmptyFlag: { } flag } emptiedSite
+            && ContentsOf(emptiedSite).Count == 0)
+            _context.Dispatch(new SetWorldFlag(_context.CellOfSite(_context.ContainerSpace(emptiedSite), emptiedSite.XMm, emptiedSite.ZMm), flag, 1));
         _context.Events.Publish(new ItemMoved(_player, definition.Id, command.Count, command.From, command.To, tick));
         return null;
     }

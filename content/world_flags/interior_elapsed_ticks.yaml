@@ -1,0 +1,9 @@
+id: world.space.elapsed_ticks
+kind: world_flag
+schema: 1
+display_key: world.space.elapsed_ticks.name
+tags: [world_flag]
+notes: "Elapsed online ticks in an unflagged interior, stored in its spawn cell. Systems plan 2.11: these spaces freeze while absent. Exterior clocks and catch-up continue normally. Internal clock fact, without per-tick UI notifications."
+type: int
+default: 0
+owning_system: S-04

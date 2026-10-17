@@ -1,0 +1,9 @@
+id: loot.barrowworks.lantern_foot
+kind: loot
+schema: 1
+display_key: loot.barrowworks.lantern_foot.name
+tags: [loot]
+notes: "The accepted incomplete Foot in the Blind Store, without a new quest or an invented reveal target. PROPOSED implementation binding."
+rolls: 0
+guaranteed:
+  - { item_ref: item.artefact.lantern_foot, count_range: [1, 1] }

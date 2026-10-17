@@ -202,6 +202,16 @@ public static class QuestContent
             "faction_reputation" => FactionReputationOf(where, p, loader),
             _ => throw new FormatException($"{at}: '{type}' is not built"),
         };
+        if (p.ContainsKey("ever"))
+        {
+            bool ever = p["ever"] as string switch { "true" => true, "false" => false, _ => throw new FormatException($"{where}: ever is true or false") };
+            condition = condition switch
+            {
+                AcquireItem a when !ever || a.QualityMin == Quality.Crude => a with { Ever = ever },
+                CraftItem c when !ever || c.QualityMin == Quality.Crude => c with { Ever = ever },
+                _ => throw new FormatException($"{where}: ever applies only to acquire_item/craft_item without a quality minimum; the historical ledger has no quality bands"),
+            };
+        }
         var allowed = Params(type);
         if (p.Keys.Select(k => k as string ?? "").FirstOrDefault(k => !allowed.Contains(k)) is { } stray)
             throw new FormatException($"{where}: '{stray}' is not a parameter of {type} ({string.Join(", ", allowed)})");
@@ -215,8 +225,8 @@ public static class QuestContent
         "talk_to" => new[] { "npc_ref", "dialogue_ref", "nodes" },
         "visit_location" => new[] { "location_ref" },
         "explore_location" => new[] { "location_ref", "within_m" },
-        "acquire_item" => new[] { "item_ref", "or_item_refs", "count", "quality_min" },
-        "craft_item" => new[] { "item_ref", "count", "quality_min" },
+        "acquire_item" => new[] { "item_ref", "or_item_refs", "count", "quality_min", "ever" },
+        "craft_item" => new[] { "item_ref", "count", "quality_min", "ever" },
         "harvest_resource" => new[] { "resource_ref", "count" },
         "kill_creature" => new[] { "creature_ref", "count" },
         "deliver_item" => new[] { "npc_ref", "item_ref", "count" },

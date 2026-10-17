@@ -25,7 +25,7 @@ public sealed record Placement(string? Model, string Fit = "none", string? Surfa
     bool HideReady = false, string? Beside = null, Vector3 Offset = default, string? Sound = null, string? Spent = null,
     Vector3 BesideOffset = default, LightSpec? Light = null, IReadOnlyList<LightSpec>? Lights = null,
     Vector3? SurfaceTint = null, Vector3? Glow = null, float GlowEnergy = 0, float Wind = 0,
-    IReadOnlyList<(string Recipe, Vector3 At)>? Emitters = null, float YawSpread = 0, float LateS = 0);
+    IReadOnlyList<(string Recipe, Vector3 At)>? Emitters = null, float YawSpread = 0, float LateS = 0, string? AnimationFlag = null);
 
 /// <summary>
 /// A light that is presentation data, not a coordinate in code: where it stands relative to what it lights (a station's feet, a building's
@@ -88,6 +88,7 @@ public sealed record LightSpec(Vector3 At, Color Colour, float Energy, float Ran
 public sealed record CreatureArt(string Model, IReadOnlyDictionary<string, string> Clips, string Voice, string Flesh,
     IReadOnlyDictionary<string, string> Steps, int StepsPerSound)
 {
+    public IReadOnlyDictionary<string, float> Paces { get; init; } = new Dictionary<string, float>();
     /// <summary>How the species is drawn "plausible but wrong" over its scanned model (<see cref="OtherFauna"/>), or null as scanned.</summary>
     public FaunaLook? Fauna { get; init; }
 }
@@ -359,9 +360,16 @@ public sealed class ArtBindings
                 GroundItem = root.TryGetProperty("ground_item", out var ground) ? Look(ground) : null,
                 Creatures = root.TryGetProperty("creatures", out var creatures)
                     ? creatures.EnumerateObject().ToDictionary(c => c.Name, c => new CreatureArt(Text(c.Value, "model")!,
-                        new[] { "idle", "walk", "run", "attack", "hit", "death" }.ToDictionary(s => s, s => $"{Text(c.Value, "clips")}.{s}"),
+                        c.Value.TryGetProperty("clips", out var creatureClips) && creatureClips.ValueKind == JsonValueKind.Object
+                            ? Strings(c.Value, "clips")
+                            : new[] { "idle", "walk", "run", "attack", "hit", "death" }.ToDictionary(s => s, s => $"{Text(c.Value, "clips")}.{s}"),
                         Text(c.Value, "voice") ?? string.Empty, Text(c.Value, "flesh") ?? "flesh", Strings(c.Value, "steps"),
-                        c.Value.TryGetProperty("steps_per_sound", out var steps) ? steps.GetInt32() : 1) { Fauna = FaunaLook.Parse(c.Value) },
+                        c.Value.TryGetProperty("steps_per_sound", out var steps) ? steps.GetInt32() : 1)
+                        {
+                            Fauna = FaunaLook.Parse(c.Value),
+                            Paces = c.Value.TryGetProperty("paces", out var creaturePaces)
+                                ? creaturePaces.EnumerateObject().ToDictionary(p => p.Name, p => p.Value.GetSingle()) : new Dictionary<string, float>(),
+                        },
                         StringComparer.Ordinal)
                     : new Dictionary<string, CreatureArt>(),
                 People = root.TryGetProperty("people", out var people)
@@ -510,7 +518,7 @@ public sealed class ArtBindings
             ? emitters.EnumerateArray().Where(x => Text(x, "recipe") is not null && x.TryGetProperty("at", out _))
                 .Select(x => (Text(x, "recipe")!, Vector(x.GetProperty("at")))).ToList()
             : null,
-        Number(e, "yaw_spread", 0), Number(e, "late_s", 0));
+        Number(e, "yaw_spread", 0), Number(e, "late_s", 0), Text(e, "animation_flag"));
 
     private static bool Flag(JsonElement e, string name) =>
         e.ValueKind == JsonValueKind.Object && e.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.True;

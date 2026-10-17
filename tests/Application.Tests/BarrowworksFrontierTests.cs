@@ -77,6 +77,57 @@ public class BarrowworksFrontierTests
     }
 
     [Fact]
+    public void ConnectedRoute_EnforcesTheGalleryLatchAndTheUndefeatedCustodianInterlock()
+    {
+        using var profile = new TempProfile();
+        using var session = Harness.Boot(profile, barrowworks: true);
+        var arena = AtThreshold(session);
+        Assert.Null(arena.Submit(new EnterSpaceCommand(arena.Player, "portal.barrowworks.threshold")));
+        arena.Tick();
+        var gallery = arena.Simulation.ActiveLayout.Doors.Single(d => d.Key == "door.barrowworks.g1");
+        Walk(arena, (x, z) => x < gallery.ClosedFootprint.CenterXMm
+            && gallery.ClosedFootprint.DistanceTo(x, z) < session.Setup.Movement.InteractReachMm - 200);
+        Assert.Equal(gallery.LockedText, arena.Submit(new InteractCommand(arena.Player, gallery.Key)));
+        Walk(arena, (x, z) => x > gallery.ClosedFootprint.CenterXMm
+            && gallery.ClosedFootprint.DistanceTo(x, z) < session.Setup.Movement.InteractReachMm - 200);
+        Assert.Null(arena.Submit(new InteractCommand(arena.Player, gallery.Key)));
+        Assert.True(arena.Simulation.Doors.Single(d => d.Site == gallery).Open);
+        var headworks = arena.Simulation.ActiveLayout.Doors.Single(d => d.Key == "door.barrowworks.g3");
+        Walk(arena, (x, z) => headworks.ClosedFootprint.DistanceTo(x, z) < session.Setup.Movement.InteractReachMm - 200);
+        Assert.Equal(headworks.LockedText, arena.Submit(new InteractCommand(arena.Player, headworks.Key)));
+        Assert.False(arena.Simulation.Doors.Single(d => d.Site == headworks).Open);
+    }
+
+    [Fact]
+    public void ConnectedArchiveRoute_ProvidesLootAndRenewableWoodInItsOwnSpace()
+    {
+        using var profile = new TempProfile();
+        using var session = Harness.Boot(profile, barrowworks: true);
+        var arena = AtThreshold(session);
+        Assert.Null(arena.Submit(new EnterSpaceCommand(arena.Player, "portal.barrowworks.threshold")));
+        arena.Tick();
+        var crate = arena.Simulation.ActiveLayout.Containers.Single(c => c.Key == "container.barrowworks.archive_crate");
+        Walk(arena, (x, z) => Math.Sqrt(Math.Pow(x-crate.XMm, 2)+Math.Pow(z-crate.ZMm, 2)) < session.Setup.Items.Inventory.ReachMm - 200);
+        Assert.Null(arena.Submit(new TakeAllCommand(arena.Player, crate.Key)));
+        Assert.Contains(arena.Simulation.Player.Inventory, i => i.DefId == "item.material.ash_haft");
+        var fragment = arena.Simulation.ActiveLayout.Containers.Single(c => c.Key == "container.barrowworks.codex_fragment");
+        Walk(arena, (x, z) => Math.Sqrt(Math.Pow(x-fragment.XMm, 2)+Math.Pow(z-fragment.ZMm, 2)) < session.Setup.Items.Inventory.ReachMm - 200);
+        Assert.Null(arena.Submit(new TakeAllCommand(arena.Player, fragment.Key)));
+        Assert.Contains(arena.Simulation.Player.Inventory, i => i.DefId == "item.quest.barrowworks_codex_fragment");
+        Assert.Equal(1, arena.Simulation.World.GetFlag(CellKey.OfInterior(arena.Simulation.ActiveLayout.SpaceId,
+            fragment.XMm/1000.0, fragment.ZMm/1000.0), "world.barrowworks.codex_fragment_taken"));
+        var node = arena.Simulation.Nodes.Single(n => n.Name == "barrowworks_ash_stand");
+        Walk(arena, (x, z) => Math.Sqrt(Math.Pow(x-node.XMm, 2)+Math.Pow(z-node.ZMm, 2)) < session.Setup.Items.Inventory.ReachMm - 200);
+        Assert.Null(arena.Submit(new GatherCommand(arena.Player, node.Key)));
+        Assert.False(arena.Simulation.Nodes.Single(n => n.Key == node.Key).Ready);
+        var home = CellKey.OfInterior(arena.Simulation.ActiveLayout.SpaceId, node.XMm/1000.0, node.ZMm/1000.0);
+        Assert.NotNull(arena.Simulation.World.NodeRecord(home, node.Key));
+        Assert.Null(arena.Simulation.World.NodeRecord(CellKey.OfWorld(node.XMm/1000.0, node.ZMm/1000.0), node.Key));
+        arena.Simulation.Advance(session.Setup.Clock.TicksPerDay * 3);
+        Assert.False(arena.Simulation.Nodes.Single(n => n.Key == node.Key).Ready);
+    }
+
+    [Fact]
     public void SaveInside_PreservesTheExteriorPeoplesOwnGround()
     {
         using var profile = new TempProfile();

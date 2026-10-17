@@ -6,8 +6,10 @@
 // exterior cell and the read to a space-qualified one.
 
 using UNNAMED.Application;
-using UNNAMED.Domain.Quests;
+using System.Collections.Immutable;
 using UNNAMED.Domain.Spatial;
+using Registry = UNNAMED.EntityRegistry.EntityRegistry;
+using UNNAMED.Domain.Quests;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
 using Xunit;
@@ -16,6 +18,64 @@ namespace UNNAMED.Application.Tests;
 
 public class BarrowworksSwitchTests
 {
+    [Theory]
+    [InlineData("headworks_preserve", "headworks_dismantle", 0)]
+    [InlineData("headworks_dismantle", "headworks_preserve", 2)]
+    public void APreparedChoice_ConsumesOneWedgeAndPaysAtMostOnce(string first, string other, int ingots)
+    {
+        using var profile = new TempProfile();
+        using var session = Boot(profile);
+        var site = session.Setup.Layout.Switches.Single(s => s.Key == "switch.barrowworks."+first);
+        var arena = StandingOn(session, site);
+        var snapshot = arena.Simulation.World.TakeSnapshot();
+        var cells = snapshot.Cells.ToDictionary(c => c.CellKey, StringComparer.Ordinal);
+        foreach (var requirements in site.Requirements.GroupBy(r => QuestCell(session, r.LocationId)))
+        {
+            string key = requirements.Key.ToString();
+            var original = cells.GetValueOrDefault(key) ?? new CellDeltaRecord(key, arena.Simulation.World.Baseline(requirements.Key).Digest,
+                ImmutableArray<string>.Empty, ImmutableArray<KeyValuePair<string,long>>.Empty,
+                ImmutableArray<NodeHarvest>.Empty, ImmutableArray<KeyValuePair<string,int>>.Empty);
+            var flags = original.Flags.ToDictionary(f => f.Key, f => f.Value, StringComparer.Ordinal);
+            foreach (var requirement in requirements) flags[requirement.FlagId] = 1;
+            cells[key] = original with { Flags = flags.OrderBy(f => f.Key, StringComparer.Ordinal).ToImmutableArray() };
+        }
+        var world = WorldDelta.FromSnapshot(session.Generator, arena.Simulation.World.WorldSeed, new Registry(),
+            snapshot with { Cells = cells.Values.OrderBy(c => c.CellKey, StringComparer.Ordinal).ToImmutableArray() }, out var rejected);
+        Assert.Empty(rejected);
+        var record = arena.Simulation.CaptureRecord().WithInventory(arena.Simulation.CaptureRecord().Inventory.Append(Arena.Stack("item.tool.fitting_wedge", 2)))
+            .WithSpace(session.Setup.Layout.SpaceId.ToString(), null);
+        var bus = new EventBus();
+        var simulation = Simulation.Start(session.Setup, record, world, arena.Simulation.WorldTick, bus);
+        string? refusal = null;
+        bus.Subscribe<CommandRejected>(e => refusal = e.Reason);
+        simulation.Enqueue(new InteractCommand(simulation.PlayerId, site.Key));
+        simulation.DrainCommands();
+        Assert.Null(refusal);
+        Assert.Equal(1, simulation.Player.Inventory.Where(i => i.DefId == "item.tool.fitting_wedge").Sum(i => i.Count));
+        Assert.Equal(ingots, simulation.Player.Inventory.Where(i => i.DefId == "item.material.iron_ingot").Sum(i => i.Count));
+        Assert.Equal(ingots == 0, simulation.Barriers.Single(b => b.Site.Key == "barrier.barrowworks.measure").Standing);
+        simulation.Enqueue(new InteractCommand(simulation.PlayerId, site.Key));
+        simulation.DrainCommands();
+        Assert.Contains("already", refusal);
+        Assert.Equal(1, simulation.Player.Inventory.Where(i => i.DefId == "item.tool.fitting_wedge").Sum(i => i.Count));
+        var alternative = session.Setup.Layout.Switches.Single(s => s.Key == "switch.barrowworks."+other);
+        Assert.True(simulation.World.GetFlag(Simulation.CellOf(session.Setup.Layout.SpaceId, site), site.FlagId) == 1);
+        Assert.Equal(0, simulation.World.GetFlag(Simulation.CellOf(session.Setup.Layout.SpaceId, alternative), alternative.FlagId));
+        var after = simulation.CaptureRecord();
+        var (ax, az) = Centre(alternative);
+        var otherRecord = new PlayerRecord(after.Id, after.Name, ax, 0, az, after.AppearanceSeed, after.Inventory, after.Progression,
+            after.FacingMdeg, after.Discoveries, after.Equipment, after.Currency, after.Effects, after.Relationships, after.Conversations,
+            after.Quests, after.Companions) { Factions = after.Factions, SpaceId = after.SpaceId };
+        world = WorldDelta.FromSnapshot(session.Generator, world.WorldSeed, new Registry(), world.TakeSnapshot(), out rejected);
+        Assert.Empty(rejected);
+        simulation = Simulation.Start(session.Setup, otherRecord, world, simulation.WorldTick, bus);
+        refusal = null;
+        simulation.Enqueue(new InteractCommand(simulation.PlayerId, alternative.Key));
+        simulation.DrainCommands();
+        Assert.Equal("That choice has already been made.", refusal);
+        Assert.Equal(1, simulation.Player.Inventory.Where(i => i.DefId == "item.tool.fitting_wedge").Sum(i => i.Count));
+        Assert.Equal(ingots, simulation.Player.Inventory.Where(i => i.DefId == "item.material.iron_ingot").Sum(i => i.Count));
+    }
     private const string Region = "region.barrowworks";
     private const string Quest = "quest.barrowworks.unfinished_measure";
 
@@ -120,7 +180,7 @@ public class BarrowworksSwitchTests
     /// own flag. One switch that set both would answer the question twice.
     /// </summary>
     [Fact]
-    public void TheTwoAnswers_AreOneStructure_AndEachSetsOnlyItsOwnFlag()
+    public void TheTwoAnswers_HaveDistinctControls_AndCannotBeMadeWithoutTheResearch()
     {
         using var profile = new TempProfile();
         using var session = Boot(profile);
@@ -130,13 +190,18 @@ public class BarrowworksSwitchTests
 
         var preserve = session.Setup.Layout.Switches.Single(s => s.FlagId == preserved);
         var dismantle = session.Setup.Layout.Switches.Single(s => s.FlagId == dismantled);
-        Assert.Equal("r12_headworks_measure", preserve.Body.Id);
-        Assert.Equal("r12_headworks_measure", dismantle.Body.Id);
+        Assert.Equal("r12_preserve_control", preserve.Body.Id);
+        Assert.Equal("r12_dismantle_control", dismantle.Body.Id);
+        Assert.Contains(dismantled, preserve.Excludes);
+        Assert.Contains(preserved, dismantle.Excludes);
+        Assert.Equal(new SiteItem("item.tool.fitting_wedge", 1), preserve.Consume);
+        Assert.Equal(preserve.Consume, dismantle.Consume);
+        Assert.Equal(new SiteItem("item.material.iron_ingot", 2), dismantle.Reward);
 
         var arena = StandingOn(session, preserve);
-        Assert.Null(arena.Submit(new InteractCommand(arena.Simulation.PlayerId, preserve.Key)));
+        Assert.Equal(preserve.LockedText, arena.Submit(new InteractCommand(arena.Simulation.PlayerId, preserve.Key)));
 
-        Assert.NotEqual(0, arena.Simulation.World.GetFlag(QuestCell(session, places[preserved]), preserved));
+        Assert.Equal(0, arena.Simulation.World.GetFlag(QuestCell(session, places[preserved]), preserved));
         Assert.Equal(0, arena.Simulation.World.GetFlag(QuestCell(session, places[dismantled]), dismantled));
     }
 

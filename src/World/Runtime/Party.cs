@@ -222,7 +222,7 @@ internal sealed partial class CompanionSystem
     {
         State.RemoveCompanion(_owner, c.NpcId);
         if (State.Npcs.TryGetValue(c.NpcId, out var npc))
-            Place(npc, Home(npc));
+            Place(npc, Home(npc), _context.Setup.SpaceOfNpc(npc.Definition.Id));
         _context.Events.Publish(new PartyMemberLeft(c.NpcId, reason, tick));
         log?.Add(new AdvanceLine(tick, PartyAdvanceKinds.Left, $"{c.NpcId}|{reason}"));
     }

@@ -61,6 +61,9 @@ public sealed record AttackProfile(
     int RecoveryTicks,
     int StaminaCost)
 {
+    /// <summary>The tell commits its facing at the start, so stepping aside can beat it.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool CommitFacing { get; init; }
     /// <summary>A ranged attack resolves once, at release, along the attacker's facing; a melee one sweeps its arc every active tick.</summary>
     public bool Ranged { get; init; }
 
@@ -279,6 +282,10 @@ public sealed record CreatureDefinition(
 
     /// <summary>A charge it can open with (the boar's), or null.</summary>
     public AttackProfile? Charge { get; init; }
+
+    /// <summary>An optional shorter blow, used when a target crowds the main attack's reach.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public AttackProfile? CloseAttack { get; init; }
 
     /// <summary>How fast it turns, in millidegrees a second: a heavy body cannot swing round onto whoever gets behind it.</summary>
     public long TurnMdegPerSecond { get; init; } = 720_000;

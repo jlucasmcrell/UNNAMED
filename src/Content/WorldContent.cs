@@ -261,6 +261,20 @@ public static class WorldContent
             Check(structures.Select(s => s.Id).Distinct(StringComparer.Ordinal).Count() == structures.Length, "WLD002", "two structures share an id");
 
             var flags = loader.GetByKind("world_flag");
+            SiteFlagRequirement Requirement(Dictionary<object, object> data)
+            {
+                string flag = Text(data, "flag_ref"), location = Text(data, "location_ref");
+                Check(flags.ContainsKey(flag), "WLD013", $"requirement names undefined world flag '{flag}'");
+                Check(loader.GetByKind("location").ContainsKey(location), "WLD013", $"requirement names undefined location '{location}'");
+                return new SiteFlagRequirement(flag, location);
+            }
+            SiteItem SiteItem(Dictionary<object, object> data)
+            {
+                string item = Text(data, "item_ref");
+                int count = Int(data, "count");
+                Check(loader.GetByKind("item").ContainsKey(item) && count > 0, "WLD013", $"site item '{item}' needs a defined item and positive count");
+                return new SiteItem(item, count);
+            }
             var doors = ImmutableArray.CreateBuilder<DoorSite>();
             foreach (var (entry, i) in List(map, "doors").Select((d, i) => (d, i)))
             {
@@ -271,7 +285,16 @@ public static class WorldContent
                     ?? throw new FormatException($"door {key} needs a box_m footprint");
                 Check(key.StartsWith("door.", StringComparison.Ordinal), "WLD004", $"door key '{key}' must start with 'door.'");
                 Check(flags.ContainsKey(flag), "WLD004", $"door {key} names world flag '{flag}', which is not a declared world_flag");
-                doors.Add(new DoorSite(key, flag, footprint));
+                var locked = door.GetValueOrDefault("locked_text") as string;
+                var latch = door.GetValueOrDefault("latch_side") as string;
+                Check(latch is null or "north" or "south" or "east" or "west", "WLD004", $"{key}: invalid latch_side");
+                Check((latch is null && !door.ContainsKey("requirement")) || !string.IsNullOrWhiteSpace(locked), "WLD004", $"{key}: a locked door needs locked_text");
+                doors.Add(new DoorSite(key, flag, footprint)
+                {
+                    Requirement = door.ContainsKey("requirement") ? Requirement(Map(door, "requirement")) : null,
+                    LatchSide = latch,
+                    LockedText = locked,
+                });
             }
             Check(doors.Select(d => d.Key).Distinct(StringComparer.Ordinal).Count() == doors.Count, "WLD004", "two doors share a key");
             Check(doors.Select(d => d.FlagId).Distinct(StringComparer.Ordinal).Count() == doors.Count, "WLD004", "two doors share a world flag");
@@ -306,7 +329,11 @@ public static class WorldContent
             {
                 var site = entry as Dictionary<object, object> ?? throw new FormatException($"containers[{i}] must be a map");
                 var (cx, cz) = Pair(site, "position_m");
-                var container = new ContainerSite(Text(site, "key"), Text(site, "loot_ref"), cx, cz, Int(site, "stack_slots"));
+                var container = new ContainerSite(Text(site, "key"), Text(site, "loot_ref"), cx, cz, Int(site, "stack_slots"))
+                {
+                    EmptyFlag = site.GetValueOrDefault("flag_ref") as string,
+                };
+                Check(container.EmptyFlag is null || flags.ContainsKey(container.EmptyFlag), "WLD009", $"{container.Key}: flag_ref must name a world flag");
                 Check(container.Key.StartsWith("container.", StringComparison.Ordinal), "WLD009", $"container key '{container.Key}' must start with 'container.'");
                 Check(container.StackSlots >= 1, "WLD009", $"{container.Key} needs at least one stack slot");
                 Check(cx >= minX && cx <= maxX && cz >= minZ && cz <= maxZ, "WLD009", $"{container.Key} lies outside the walkable bounds");
@@ -372,11 +399,25 @@ public static class WorldContent
                 Check(body is not null, "WLD013", $"{key} stands on structure '{structure}', which the region does not have");
                 var requires = (site.ContainsKey("requires") ? List(site, "requires") : new List<object>()).Select(r => r as string ?? "").ToImmutableArray();
                 var sw = new SwitchSite(key, Text(site, "flag_ref"), body ?? new CircleBlocker(structure, 0, 0, 1, 0), requires, Text(site, "name"),
-                    Text(site, "verb"), Text(site, "done_text"), site.GetValueOrDefault("locked_text") as string);
+                    Text(site, "verb"), Text(site, "done_text"), site.GetValueOrDefault("locked_text") as string)
+                {
+                    Requirements = site.ContainsKey("requirements") ? List(site, "requirements").Select(r => Requirement((Dictionary<object, object>)r)).ToImmutableArray() : default,
+                    Excludes = site.ContainsKey("excludes") ? List(site, "excludes").Select(r => (string)r).ToImmutableArray() : default,
+                    Consume = site.ContainsKey("consume") ? SiteItem(Map(site, "consume")) : null,
+                    Reward = site.ContainsKey("reward") ? SiteItem(Map(site, "reward")) : null,
+                    Learn = site.GetValueOrDefault("recipe_ref") as string,
+                };
                 Check(key.StartsWith("switch.", StringComparison.Ordinal), "WLD013", $"switch key '{key}' must start with 'switch.'");
                 foreach (string flag in requires.Prepend(sw.FlagId))
                     Check(flags.ContainsKey(flag), "WLD013", $"{key} names world flag '{flag}', which is not a declared world_flag");
                 Check(requires.IsEmpty || !string.IsNullOrWhiteSpace(sw.LockedText), "WLD013", $"{key} has requirements, so it says why it will not work (locked_text)");
+                if (!sw.Excludes.IsDefaultOrEmpty)
+                    foreach (var flag in sw.Excludes)
+                        Check(flags.ContainsKey(flag), "WLD013", $"{key}: undefined exclusion '{flag}'");
+                if (sw.Learn is { } learned)
+                    Check(loader.GetByKind("recipe").ContainsKey(learned), "WLD013", $"{key}: recipe_ref must name a recipe");
+                Check((sw.Requirements.IsDefaultOrEmpty && sw.Excludes.IsDefaultOrEmpty && sw.Consume is null) || !string.IsNullOrWhiteSpace(sw.LockedText),
+                    "WLD013", $"{key}: guarded interaction needs locked_text");
                 switches.Add(sw);
             }
             Check(switches.Select(s => s.Key).Distinct(StringComparer.Ordinal).Count() == switches.Count, "WLD013", "two switches share a key");

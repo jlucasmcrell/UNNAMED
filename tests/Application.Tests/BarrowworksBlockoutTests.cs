@@ -90,6 +90,13 @@ public class BarrowworksBlockoutTests
         var unreachable = Rooms.Where(r => !reached.Contains(((int)r.X, (int)r.Z))).Select(r => r.Id).ToArray();
         Assert.True(unreachable.Length == 0,
             $"unreachable from the spawn: {string.Join(", ", unreachable)} (reached {tiles} tiles out of {Rooms.Length} rooms)");
+        if (Environment.GetEnvironmentVariable("BARROWWORKS_FILL_OUT") is { Length: > 0 } output)
+        {
+            Directory.CreateDirectory(output);
+            File.WriteAllLines(Path.Combine(output, "open.csv"), reached.OrderBy(p => p.Item2).ThenBy(p => p.Item1).Select(p => $"{p.Item1},{p.Item2}"));
+            File.WriteAllLines(Path.Combine(output, "closed.csv"), FloodFromSpawn(session, out _).OrderBy(p => p.Item2).ThenBy(p => p.Item1).Select(p => $"{p.Item1},{p.Item2}"));
+            File.WriteAllLines(Path.Combine(output, "rooms.csv"), Rooms.Select(r => $"{r.Id},{r.X},{r.Z}"));
+        }
     }
 
     /// <summary>

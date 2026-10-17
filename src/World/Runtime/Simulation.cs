@@ -208,7 +208,7 @@ public sealed class Simulation
     private bool _stepping;
     private bool _advancing;
 
-    private Simulation(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events)
+    private Simulation(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events, bool restoreAttempt)
     {
         Setup = setup;
         _identity = player;
@@ -285,6 +285,7 @@ public sealed class Simulation
         _merchants.Populate();
         _companions.Populate();
         _creatures.Populate();
+        if (restoreAttempt) _creatures.RecoverLoadedAttempt();
         _tiers.Settle();
         SeedReachableNotices();
     }
@@ -309,11 +310,11 @@ public sealed class Simulation
     /// Start simulating a world: a new game's, or one a save just loaded. The world tick continues from the save; the weather cursor starts
     /// empty, so the first tick announces the front overhead.
     /// </summary>
-    public static Simulation Start(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events)
+    public static Simulation Start(SimulationSetup setup, PlayerRecord player, WorldDelta world, long worldTick, IEventBus events, bool restoreAttempt = false)
     {
         if (worldTick < 0)
             throw new ArgumentOutOfRangeException(nameof(worldTick), worldTick, "The world tick is never negative");
-        return new Simulation(setup, player, world, worldTick, events);
+        return new Simulation(setup, player, world, worldTick, events, restoreAttempt);
     }
 
     /// <summary>
@@ -420,6 +421,7 @@ public sealed class Simulation
     public bool PlayerInExterior => _state.Space.IsExterior;
 
     public RegionLayout ActiveLayout => Setup.LayoutFor(_state.Space);
+    public long ActiveSpaceTick => _context.SpaceTick(_state.Space, _state.WorldTick);
 
     public PlayerView Player => new(_identity.Id, _identity.Name, _state.Body, _movement.Intent, _state.Progression,
         ProgressionEngine.Derive(_state.Progression, Setup.Progression), _state.Discoveries.Values.ToImmutableArray(),
@@ -808,6 +810,7 @@ public sealed class Simulation
         Hire hire => _companions.Handle(hire, Now),
         Dismiss dismiss => _companions.Handle(dismiss, Now),
         ArriveWithParty arrive => _companions.Handle(arrive),
+        RestageEncounterParty restage => _companions.Handle(restage),
         RecordAct act => _factions.Handle(act, Now),
         ReportAct report => _factions.Handle(report, Now),
         GrantStanding grant => _factions.Handle(grant, Now),

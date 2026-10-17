@@ -2,6 +2,7 @@
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
+using System.Buffers;
 using System.Text.Json;
 using MessagePack;
 using UNNAMED.Domain;
@@ -621,7 +622,7 @@ public static class SectionCodec
         JsonSerializer.Deserialize<SaveManifest>(bytes, ManifestJson)
         ?? throw new JsonException("manifest.json is empty");
 
-    public static byte[] EncodePlayer(PlayerRecord player) => MessagePackSerializer.Serialize(new PlayerDto
+    public static byte[] EncodePlayer(PlayerRecord player) => WithoutNullCompanionSpaces(MessagePackSerializer.Serialize(new PlayerDto
     {
         InstanceId = player.Id.Value,
         Name = player.Name,
@@ -726,7 +727,52 @@ public static class SectionCodec
         QuickBar = new QuickBarDto { Slots = player.QuickBar.ToArray(), Cleared = player.QuickBarCleared.ToArray() },
         SpaceId = player.SpaceId,
         SpaceTraversal = player.SpaceTraversal,
-    }, Options);
+    }, Options));
+
+    /// <summary>The optional companion-space extension adds no bytes to ordinary/home-space party saves.</summary>
+    private static byte[] WithoutNullCompanionSpaces(byte[] encoded)
+    {
+        var reader = new MessagePackReader(encoded);
+        var output = new ArrayBufferWriter<byte>();
+        var writer = new MessagePackWriter(output);
+        int fields = reader.ReadMapHeader();
+        writer.WriteMapHeader(fields);
+        for (int field = 0; field < fields; field++)
+        {
+            var key = reader.ReadRaw();
+            var keyReader = new MessagePackReader(key);
+            writer.WriteRaw(key);
+            if (keyReader.ReadString() != "companions" || reader.NextMessagePackType != MessagePackType.Array)
+            {
+                writer.WriteRaw(reader.ReadRaw());
+                continue;
+            }
+            int companions = reader.ReadArrayHeader();
+            writer.WriteArrayHeader(companions);
+            for (int companion = 0; companion < companions; companion++)
+            {
+                int count = reader.ReadMapHeader();
+                var kept = new List<(ReadOnlySequence<byte> Key, ReadOnlySequence<byte> Value)>();
+                for (int member = 0; member < count; member++)
+                {
+                    var memberKey = reader.ReadRaw();
+                    var memberValue = reader.ReadRaw();
+                    var memberReader = new MessagePackReader(memberKey);
+                    var valueReader = new MessagePackReader(memberValue);
+                    if (memberReader.ReadString() != "space" || !valueReader.TryReadNil())
+                        kept.Add((memberKey, memberValue));
+                }
+                writer.WriteMapHeader(kept.Count);
+                foreach (var member in kept)
+                {
+                    writer.WriteRaw(member.Key);
+                    writer.WriteRaw(member.Value);
+                }
+            }
+        }
+        writer.Flush();
+        return output.WrittenSpan.ToArray();
+    }
 
     /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard, fine or (schema 19) masterwork.</summary>
     private static int QualityOf(int? quality, string what) => quality switch

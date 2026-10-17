@@ -71,8 +71,12 @@ public class BarrowworksGateTests
         var root = doc.RootElement;
 
         Assert.True(root.GetProperty("structures").EnumerateObject().Count() >= 125);
-        Assert.Equal(29, root.GetProperty("roof_groups").GetArrayLength());
-        Assert.Equal(29, root.GetProperty("building_walls").EnumerateObject().Count());
+        for (int room = 1; room <= 13; room++)
+        {
+            string prefix = $"r{room:00}_wall";
+            Assert.Contains(root.GetProperty("roof_groups").EnumerateArray(), group => group.GetString() == prefix);
+            Assert.Equal($"bw_codex_room_{room:00}", root.GetProperty("building_walls").GetProperty(prefix).GetProperty("model").GetString());
+        }
         Assert.All(root.GetProperty("terrain").EnumerateObject(),
             cell => Assert.Contains("space.barrowworks", cell.Name, StringComparison.Ordinal));
     }

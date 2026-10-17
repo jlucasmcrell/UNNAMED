@@ -21,6 +21,8 @@ public partial class HollowView : Node3D
     private readonly HashSet<string> _artBuildings = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Node3D> _setMarks = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Node3D> _barriers = new(StringComparer.Ordinal);
+    private readonly List<(string Flag, AnimationPlayer Player, string Clip)> _flagAnimations = new();
+    private HashSet<string> _activeFlags = new(StringComparer.Ordinal);
     private Node3D? _debug;
     private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
     private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
@@ -70,7 +72,7 @@ public partial class HollowView : Node3D
         // The particle recipes, read once here (B0.7): a structure's own emitters (a lantern's flame, in ArtStructure) and a
         // building's (the smithy's chimney smoke, in BuildLighting) both build from this one instance.
         _recipes = VisualOptions.Recipes ? Art.ParticleRecipes.Load(_art.Root) : null;
-        var ground = BuildTerrain(terrain);
+        var ground = BuildTerrain(terrain, layout.SpaceId);
         AddChild(ground);
         foreach (var building in ArtBuildings(layout, terrain))
             AddChild(building);
@@ -231,6 +233,8 @@ public partial class HollowView : Node3D
     /// </summary>
     public void SetFlags(IEnumerable<SwitchView> switches, IEnumerable<BarrierView> barriers, bool inPlay = false)
     {
+        if (_flagAnimations.Count > 0)
+            _activeFlags = switches.Where(s => s.Set).Select(s => s.Site.FlagId).ToHashSet(StringComparer.Ordinal);
         foreach (var view in switches)
         {
             if (_setMarks.TryGetValue(view.Site.Key, out var mark) && _register?.Owns(view.Site.Key) != true)
@@ -239,9 +243,23 @@ public partial class HollowView : Node3D
         foreach (var view in barriers)
         {
             if (_barriers.TryGetValue(view.Site.Key, out var node) && _register?.OwnsFold(view.Site.Key) != true)
+            {
                 node.Visible = view.Standing;
+                foreach (var collision in node.FindChildren("*", nameof(StaticBody3D), true, false).Cast<StaticBody3D>())
+                    collision.CollisionLayer = view.Standing ? CameraCollisionLayer : 0;
+            }
         }
         _register?.Apply(switches, barriers, inPlay);
+    }
+
+    /// <summary>Fixture animation samples the simulation clock; a saved mechanism has the same phase after a load.</summary>
+    public void DrawWorld(long tick, double tickSeconds)
+    {
+        foreach (var (flag, player, clip) in _flagAnimations)
+        {
+            double length = player.GetAnimation(clip).Length;
+            player.Seek(_activeFlags.Contains(flag) && length > 0 ? tick * tickSeconds % length : 0, update: true);
+        }
     }
 
     private FoldscarRegister? _register;
@@ -260,7 +278,7 @@ public partial class HollowView : Node3D
     /// The ground: the domain's triangles, one surface per cell so each cell can wear its own ground material (the bindings'
     /// <c>terrain</c>); a cell without one, or whose material is unavailable, keeps the greybox colour.
     /// </summary>
-    private Node3D BuildTerrain(TerrainGrid grid)
+    private Node3D BuildTerrain(TerrainGrid grid, SpaceId space)
     {
         var cells = new SortedDictionary<string, SurfaceTool>(StringComparer.Ordinal);
         Vector3 At(int i, int j) => ToGodot(grid.OriginXMm + i * grid.SpacingMm, grid.HeightAt(i, j), grid.OriginZMm + j * grid.SpacingMm);
@@ -269,7 +287,8 @@ public partial class HollowView : Node3D
         for (int i = 0; i < grid.Columns - 1; i++)
         {
             var centre = (At(i, j) + At(i + 1, j + 1)) / 2;
-            string cell = UNNAMED.World.CellKey.OfWorld(centre.X, centre.Z).ToString();
+            string cell = (space.IsExterior ? UNNAMED.World.CellKey.OfWorld(centre.X, centre.Z)
+                : UNNAMED.World.CellKey.OfInterior(space, centre.X, centre.Z)).ToString();
             if (!cells.TryGetValue(cell, out var tool))
             {
                 tool = new SurfaceTool();
@@ -597,7 +616,7 @@ public partial class HollowView : Node3D
         // So a door may also name its building EXACTLY: `door.cw_house_05` finds `cw_house_05`. Strictly additive, so the two doors
         // that already work - `door.smithy` and `door.longhouse` - keep matching through the clauses they always used.
         string named = door.Key["door.".Length..];
-        bool framed = _artBuildings.Any(built =>
+        bool framed = !layout.IsOutdoors || _artBuildings.Any(built =>
         {
             string bare = built.TrimEnd('_');
             return bare.Equals(group, StringComparison.Ordinal)
@@ -693,6 +712,22 @@ public partial class HollowView : Node3D
     /// <summary>A barrier while it stands: a faint haze over its footprint. Scenery: the camera passes through it.</summary>
     private Node3D BuildBarrier(BarrierSite barrier, TerrainGrid terrain)
     {
+        if (_bindings.Structure(barrier.Key) is { Model: not null } look
+            && Art.Fitting.Structure(_art, look, barrier.Footprint, terrain) is { } model)
+        {
+            model.AddChild(Unseen(BuildStructure(barrier.Footprint, terrain)));
+            _barriers[barrier.Key] = model;
+            if (look.AnimationFlag is { } flag && model.FindChildren("*", nameof(AnimationPlayer), true, false).FirstOrDefault() is AnimationPlayer player
+                && player.GetAnimationList().FirstOrDefault(name => name != "RESET") is { } clip)
+            {
+                player.Play(clip);
+                player.Pause();
+                player.Seek(0, update: true);
+                _flagAnimations.Add((flag, player, clip));
+            }
+            Coverage.Resolved("barrier", barrier.Key, look.Model);
+            return model;
+        }
         Coverage.Resolved("barrier", barrier.Key, "a refractive violet shimmer shader with drifting motes (Palette.FoldscarBarrier); an effect, not a model");
         var (x, z) = Footprints.Center(barrier.Footprint);
         float height = barrier.Footprint.HeightMm / 1000f;

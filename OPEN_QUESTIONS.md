@@ -1,5 +1,7 @@
 # Open questions
 
+**Codex takeover, 2026-10-17:** this is the historical planning log. Current implementation and asset provenance are in `docs/BARROWWORKS_CODEX_HANDOFF.md`. OQ-08 now has a licensed modular shell and a scan-based rigged Custodian; OQ-10 is superseded by the branch's existing interior save extension. OQ-15 now has three committed attacks. OQ-16 is resolved as a defeat-gated G3 and a wedge consumed at either exclusive headworks saddle. OQ-17 uses WP4's durable `defeat_boss` fact. Active-attempt load/retreat recovery is implemented for the authored court; bespoke audio remains with the audio team.
+
 Points the design leaves open, or where the sources disagree with what is actually on this machine.
 Each records the smallest choice that keeps work moving, per the project brief. **None of these is a
 request for a decision before work starts**; they are recorded so the choice is visible and reversible.

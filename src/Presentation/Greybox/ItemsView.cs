@@ -14,6 +14,7 @@ namespace UNNAMED.Presentation.Greybox;
 public partial class ItemsView : Node3D
 {
     private readonly Node3D _ground = new() { Name = "GroundItems" };
+    private readonly Dictionary<string, Node3D> _pickups = new(StringComparer.Ordinal);
     private static readonly StandardMaterial3D Crate = new() { AlbedoColor = new Color(0.72f, 0.62f, 0.38f) };
     private static readonly StandardMaterial3D Chest = new() { AlbedoColor = new Color(0.38f, 0.26f, 0.14f) };
     private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
@@ -30,6 +31,7 @@ public partial class ItemsView : Node3D
 
     public void BuildContainers(RegionLayout layout)
     {
+        _pickups.Clear();
         foreach (var child in GetChildren().Where(child => child != _ground))
         {
             RemoveChild(child);
@@ -50,6 +52,8 @@ public partial class ItemsView : Node3D
                 model.Name = site.Key;
                 model.AddChild(body);
                 AddChild(model);
+                if (site.EmptyFlag is not null)
+                    _pickups[site.Key] = model;
                 _art.Coverage.Resolved("container", site.Key, look.Model!);
                 continue;
             }
@@ -59,11 +63,16 @@ public partial class ItemsView : Node3D
             chest.AddChild(body);
             chest.Position = feet + new Vector3(0, size.Y / 2, 0);
             AddChild(chest);
+            if (site.EmptyFlag is not null)
+                _pickups[site.Key] = chest;
         }
     }
 
     public void Refresh(Simulation simulation)
     {
+        foreach (var container in simulation.Containers.Where(c => c.Site.EmptyFlag is not null))
+            if (_pickups.TryGetValue(container.Site.Key, out var model))
+                model.Visible = !container.Items.IsEmpty;
         foreach (var child in _ground.GetChildren())
             child.QueueFree();
         var terrain = simulation.ActiveLayout.Space.Terrain;

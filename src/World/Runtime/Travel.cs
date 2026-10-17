@@ -41,6 +41,7 @@ public sealed record TravelOption(string ToKey, string RegionId, TravelCost Cost
 
 /// <summary>To <see cref="CompanionSystem"/>: the party arrives with the character, on a ring round where they stand.</summary>
 internal sealed record ArriveWithParty(Body Arrival) : InternalCommand;
+internal sealed record RestageEncounterParty(Body Arrival, EncounterRecovery Court) : InternalCommand;
 
 /// <summary>
 /// Owns: <see cref="StateSlice.Waystones"/> - the stones the character knows and the one they chose to return to. A stone becomes known by

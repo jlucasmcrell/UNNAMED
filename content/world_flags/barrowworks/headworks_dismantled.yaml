@@ -3,7 +3,7 @@ kind: world_flag
 schema: 1
 display_key: world.barrowworks.headworks_dismantled.name
 tags: [world_flag]
-notes: Whether Kera was told to break the mechanism up for what it is made of.
+notes: The player fitted the release saddle locally and dismantled the measure. NPCs learn only through reports.
 type: bool
 default: 0
 owning_system: S-22

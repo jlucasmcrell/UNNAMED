@@ -612,7 +612,7 @@ internal sealed partial class CombatSystem
     }
 
     private bool Walled(double x0, double z0, double x1, double z1) =>
-        _context.Setup.Layout.Space.Blockers.Concat(_context.ClosedDoors()).Any(b => b.Crosses(x0, z0, x1, z1));
+        _context.Setup.SpaceFor(State.Space).Blockers.Concat(_context.ClosedDoors()).Where(b => b.ClearanceMm < 1800).Any(b => b.Crosses(x0, z0, x1, z1));
 
     /// <summary>The player's blow on a creature: resolved here, applied by the creature's owner.</summary>
     private void PlayerHits(CreatureState creature, AttackProfile attack, long tick)
@@ -679,6 +679,8 @@ internal sealed partial class CombatSystem
     {
         if (State.Creatures.Values.FirstOrDefault(c => c.Id == command.Attacker) is not { Alive: true } creature)
             return "no such attacker";
+        if (creature.Site.Space != State.Space)
+            return "attacker is in another space";
         var combat = State.PlayerCombat;
         if (combat.Defeated)
             return "dead";

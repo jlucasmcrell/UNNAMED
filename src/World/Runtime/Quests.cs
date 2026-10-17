@@ -543,6 +543,9 @@ internal sealed class QuestSystem : IQuestFacts, IAbstractAdvance
     public int Carried(string itemId, int qualityMin) =>
         State.Inventory.Where(e => e.DefId == itemId && e.Quality >= qualityMin).Sum(e => e.Count);
 
+    public int HistoricallyCrafted(string itemId) =>
+        State.Deeds.Values.Where(d => d.Kind == DeedKind.Crafted && d.SubjectId == itemId).Sum(d => d.Count);
+
     public long WorldFlag(string flagId, string locationId) =>
         _context.Setup.Sites(l => l.Locations).Any(p => p.Site.Id == locationId) ? State.World.GetFlag(CellOfLocation(locationId), flagId) : 0;
 

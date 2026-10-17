@@ -24,6 +24,19 @@ namespace UNNAMED.Persistence.Tests;
 /// </summary>
 public class PlayerRecordCompletenessTests
 {
+    [Fact]
+    public void HomeSpaceCompanions_KeepTheHistoricalWireMap_WhileAwaySpaceRoundTrips()
+    {
+        var player = M2Fixtures.Historical.Player();
+        Assert.NotEmpty(player.Companions);
+        var bytes = SectionCodec.EncodePlayer(player);
+        using var json = JsonDocument.Parse(MessagePackSerializer.ConvertToJson(bytes));
+        foreach (var companion in json.RootElement.GetProperty("companions").EnumerateArray())
+            Assert.False(companion.TryGetProperty("space", out _));
+        var away = player.WithCompanions(player.Companions.Select(c => c with { Space = "space.barrowworks" }));
+        Assert.All(SectionCodec.DecodePlayer(SectionCodec.EncodePlayer(away)).Companions, c => Assert.Equal("space.barrowworks", c.Space));
+        Assert.Equal(bytes, SectionCodec.EncodePlayer(SectionCodec.DecodePlayer(bytes)));
+    }
     private static readonly MessagePackSerializerOptions Options = MessagePackSerializerOptions.Standard.WithSecurity(MessagePackSecurity.UntrustedData);
 
     /// <summary>
@@ -54,6 +67,7 @@ public class PlayerRecordCompletenessTests
                 player.Relationships, player.Conversations, player.Quests, player.Companions.Add(
                     new CompanionRecord("npc.fixture.scout", CompanionOrder.Wait, CompanionCondition.Downed, 151_000, -39_000, 270_000, 0)
                     {
+                        Space = "space.fixture.ring",
                         DownedTick = 4_990,
                         Trail = ImmutableArray.Create(new TrailMark(151_500, -38_500)),
                         // An ally along for a shared goal, told to keep out of fights and to hold healing for the injured (schema 21).

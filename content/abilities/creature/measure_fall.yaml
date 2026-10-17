@@ -4,12 +4,13 @@ schema: 1
 display_key: ability.creature.measure_fall.name
 tags: [ability]
 name: Measure Fall
-notes: "Both arms come up, the housing drops, and it comes forward in a straight line. The heaviest thing the Custodian does, with the longest tell of the two the engine lets a creature have: the windup is the warning and the recovery is the whole window to get behind it. It cannot turn while it commits, which is the fight."
+notes: "Both arms come up, the housing drops, and it comes forward in a straight line. The heaviest thing the Custodian does, with the longest tell of its three attacks: the windup is the warning and the recovery is the whole window to get behind it. It cannot turn while it commits, which is the fight."
 class: creature
 windup_s: 1.2
 recovery_s: 1.6
 cooldown_s: 7
 forces_stagger: true
+commit_facing: true
 charge: { speed_m_s: 7, min_range_m: 4, max_distance_m: 12, stun_s: 1.6 }
 cost: { stamina: 0 }
 payload:

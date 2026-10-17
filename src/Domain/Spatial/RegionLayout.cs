@@ -9,7 +9,18 @@ namespace UNNAMED.Domain.Spatial;
 /// A door: an interactable whose open state is a <c>world.*</c> flag in the cell it stands in. Closed, its
 /// footprint blocks movement; open, it does not. The key is what an interaction command names.
 /// </summary>
-public sealed record DoorSite(string Key, string FlagId, BoxBlocker ClosedFootprint);
+public sealed record DoorSite(string Key, string FlagId, BoxBlocker ClosedFootprint)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public SiteFlagRequirement? Requirement { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? LatchSide { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? LockedText { get; init; }
+}
+
+public sealed record SiteFlagRequirement(string FlagId, string LocationId);
+public sealed record SiteItem(string ItemId, int Count);
 
 /// <summary>
 /// A switch (M6): an interactable standing on a structure (<see cref="Body"/>) that sets a <c>world.*</c> flag in its cell to 1 -
@@ -18,7 +29,19 @@ public sealed record DoorSite(string Key, string FlagId, BoxBlocker ClosedFootpr
 /// <see cref="Name"/>, <see cref="DoneText"/> is what happens, <see cref="LockedText"/> why it will not work yet.
 /// </summary>
 public sealed record SwitchSite(string Key, string FlagId, Blocker Body, ImmutableArray<string> Requires, string Name, string Verb,
-    string DoneText, string? LockedText);
+    string DoneText, string? LockedText)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public ImmutableArray<SiteFlagRequirement> Requirements { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public ImmutableArray<string> Excludes { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public SiteItem? Consume { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public SiteItem? Reward { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? Learn { get; init; }
+}
 
 /// <summary>
 /// A barrier (M6): a footprint that blocks like a closed door while a <c>world.*</c> flag in its cell is 0 - the fold that holds Tavar
@@ -62,6 +85,9 @@ public sealed record RoadSite(string Id, string Name, ImmutableArray<(long XMm, 
 /// </summary>
 public sealed record ContainerSite(string Key, string LootTableId, long XMm, long ZMm, int StackSlots)
 {
+    /// <summary>An optional durable pickup fact, written when the authored contents have all been taken.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? EmptyFlag { get; init; }
     /// <summary>A body's: the level of the creature it was, which its drops roll their quality by (DCP:662). Null for an authored container.</summary>
     public int? DropLevel { get; init; }
 }

@@ -21,6 +21,7 @@ public class QuestRulesTests
         public List<(string ItemId, int Count, int Quality)> Pack { get; } = new();
         public Dictionary<(string, string), long> Flags { get; } = new();
         public Dictionary<(string, string), int> Regard { get; } = new();
+        public Dictionary<string, int> Production { get; } = new(StringComparer.Ordinal);
 
         public bool Heard(string dialogueId, string nodeId) => Lines.Contains(dialogueId + "/" + nodeId);
         public bool Discovered(string locationId) => Places.Contains(locationId);
@@ -28,6 +29,7 @@ public class QuestRulesTests
         public int Carried(string itemId, int qualityMin) => Pack.Where(p => p.ItemId == itemId && p.Quality >= qualityMin).Sum(p => p.Count);
         public long WorldFlag(string flagId, string locationId) => Flags.GetValueOrDefault((flagId, locationId));
         public int Relationship(string npcId, string dimension) => Regard.GetValueOrDefault((npcId, dimension));
+        public int HistoricallyCrafted(string itemId) => Production.GetValueOrDefault(itemId);
     }
 
     private static ObjectiveDefinition O(string id, ObjectiveCondition condition, params string[] next) =>
@@ -42,6 +44,19 @@ public class QuestRulesTests
     private static readonly ObjectiveCondition MakeSpear = new CraftItem(Spear, 1, Quality.Crude);
 
     private static ObjectiveStatus? StatusOf(QuestState state, string id) => state.Objective(id)?.Status;
+
+    [Fact]
+    public void HistoricalProduction_IsOptIn_AndCountsAnInputAlreadyMadeIntoAConsumedOutput()
+    {
+        var facts = new Facts();
+        facts.Production[Spear] = 1;
+        var acquire = new AcquireItem(Ore, 1, Quality.Crude) { OrItems = ImmutableArray.Create(Spear), Ever = true };
+        var make = new CraftItem(Spear, 1, Quality.Crude) { Ever = true };
+        var historical = Quest(O("o_ore", acquire, "o_make"), O("o_make", make));
+        Assert.Equal(QuestStatus.Completed, QuestRules.Advance(historical, QuestRules.Start(historical, 10), facts, 11).State.Status);
+        var ordinary = Quest(O("o_make", new CraftItem(Spear, 1, Quality.Crude)));
+        Assert.Equal(QuestStatus.Active, QuestRules.Advance(ordinary, QuestRules.Start(ordinary, 10), facts, 11).State.Status);
+    }
 
     [Fact]
     public void AQuest_StartsAtItsEntry_AndWaitsWhileNothingHolds()

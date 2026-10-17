@@ -32,6 +32,9 @@ public partial class Main
 
     private void Subscribe()
     {
+        _session.Subscribe<EncounterRestarted>(e => _hud.Toast(e.Loaded
+            ? "Active boss encounters restart when loaded. You return outside the court with your saved resources."
+            : "The Custodian disengages. The court falls quiet.", 7));
         _session.Subscribe<BodyMoved>(_controller.OnBodyMoved);
         _session.Subscribe<PlayerRespawned>(_controller.OnRespawned);
         // Waystones (S-38): what a hand on a stone found, a return point chosen, and a journey's arrival with the time it took.
@@ -103,7 +106,8 @@ public partial class Main
         _session.Subscribe<ItemMoved>(e =>
         {
             _inventory.Refresh();
-            if (e.From.Kind == PlaceKind.Ground || e.To.Kind == PlaceKind.Ground)
+            if (e.From.Kind == PlaceKind.Ground || e.To.Kind == PlaceKind.Ground
+                || _session.Simulation!.ActiveLayout.Containers.Any(c => c.EmptyFlag is not null && c.Key == e.From.ContainerKey))
                 _items.Refresh(_session.Simulation!);
         });
         _session.Subscribe<QuickSlotAssigned>(_ => _inventory.Refresh());

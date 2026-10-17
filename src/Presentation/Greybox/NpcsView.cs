@@ -48,6 +48,8 @@ public partial class NpcsView : Node3D
         PlayerHead.GlobalPosition = HollowView.ToGodot(simulation.Player.Body.XMm, simulation.Player.Body.YMm, simulation.Player.Body.ZMm) + new Vector3(0, 1.6f, 0);
         foreach (var npc in simulation.Npcs)
         {
+            if (npc.Space != simulation.ActiveLayout.SpaceId && !_figures.ContainsKey(npc.Id))
+                continue;
             if (!_figures.TryGetValue(npc.Id, out var figure))
             {
                 var body = Art.SkinnedFigure.Create(_art, _bindings, npc.Id);

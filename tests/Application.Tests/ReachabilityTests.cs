@@ -45,7 +45,7 @@ public class ReachabilityTests
     public void EveryItem_CanBeGotInAFreshSession()
     {
         using var profile = new TempProfile();
-        var setup = Harness.Boot(profile).Setup;
+        var setup = Harness.Boot(profile, barrowworks: true).Setup;
 
         var reachable = Reachable(setup);
         Assert.Empty(setup.Items.Catalog.Definitions.Keys.Where(id => !reachable.Contains(id)));
@@ -125,7 +125,7 @@ public class ReachabilityTests
     {
         var items = setup.Items;
         // Loot a fresh character can reach: the region's containers, and the corpses of the creatures that spawn.
-        var tables = new Queue<string>(setup.Layout.Containers.Select(c => c.LootTableId)
+        var tables = new Queue<string>(setup.AllLayouts.SelectMany(l => l.Containers).Select(c => c.LootTableId)
             .Concat(setup.Combat.Spawns.SelectMany(s => s.Members).Select(m => setup.Combat.Creatures[m.CreatureId].LootTableId).OfType<string>()));
         var seenTables = new HashSet<string>(StringComparer.Ordinal);
         var reachable = new HashSet<string>(items.StartingKit.Select(k => k.ItemId), StringComparer.Ordinal);

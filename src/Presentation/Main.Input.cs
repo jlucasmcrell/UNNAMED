@@ -213,6 +213,7 @@ public partial class Main
             switch (focus.Kind)
             {
                 case FocusKind.Door:
+                case FocusKind.Portal:
                     _controller.Interact(focus.Key);
                     break;
                 case FocusKind.Container:

@@ -1,0 +1,9 @@
+id: loot.barrowworks.codex_fragment
+kind: loot
+schema: 1
+display_key: loot.barrowworks.codex_fragment.name
+tags: [loot]
+notes: "One archive fragment, accessible regardless of the headworks outcome. PROPOSED implementation binding for accepted L2; no Lantern quest logic."
+rolls: 0
+guaranteed:
+  - { item_ref: item.quest.barrowworks_codex_fragment, count_range: [1, 1] }

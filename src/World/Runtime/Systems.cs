@@ -16,7 +16,10 @@ namespace UNNAMED.World.Runtime;
 internal abstract record InternalCommand;
 
 /// <summary>To <see cref="WorldFlagSystem"/>: set a cell's world flag.</summary>
-internal sealed record SetWorldFlag(CellKey Cell, string FlagId, long Value) : InternalCommand;
+internal sealed record SetWorldFlag(CellKey Cell, string FlagId, long Value) : InternalCommand
+{
+    public bool Quiet { get; init; }
+}
 
 /// <summary>To <see cref="ProgressionSystem"/>: award level XP.</summary>
 internal sealed record AwardExperience(XpAward Award) : InternalCommand;
@@ -49,6 +52,24 @@ internal sealed class SystemContext
     public bool IsOpen(DoorSite door) => State.World.GetFlag(Simulation.CellOf(SpaceOf(door, l => l.Doors), door), door.FlagId) != 0;
 
     public bool IsSet(SwitchSite site) => State.World.GetFlag(Simulation.CellOf(SpaceOf(site, l => l.Switches), site), site.FlagId) != 0;
+
+    internal const string InteriorTicksFlag = "world.space.elapsed_ticks";
+
+    public CellKey ClockCell(SpaceId space)
+    {
+        var spawn = Setup.LayoutFor(space).Spawn;
+        return CellOfSite(space, spawn.XMm, spawn.ZMm);
+    }
+
+    public long SpaceTick(SpaceId space, long worldTick) =>
+        space.IsExterior ? worldTick : State.World.GetFlag(ClockCell(space), InteriorTicksFlag);
+
+    public bool RequirementMet(SiteFlagRequirement requirement) =>
+        Setup.Sites(l => l.Locations).FirstOrDefault(p => p.Site.Id == requirement.LocationId) is { Site: { } place, Layout: var home }
+            && State.World.GetFlag(CellOfSite(home.SpaceId, place.XMm, place.ZMm), requirement.FlagId) != 0;
+
+    public bool Excluded(SwitchSite site) => !site.Excludes.IsDefaultOrEmpty
+        && site.Excludes.Any(flag => State.World.GetFlag(Simulation.CellOf(SpaceOf(site, l => l.Switches), site), flag) != 0);
 
     public bool IsLifted(BarrierSite barrier) => State.World.GetFlag(Simulation.CellOf(SpaceOf(barrier, l => l.Barriers), barrier), barrier.FlagId) != 0;
 
@@ -120,7 +141,7 @@ internal sealed class SystemContext
 
     /// <summary>A wall, a structure or a closed door lies across the line between two points.</summary>
     public bool Walled(long x0, long z0, long x1, long z1) =>
-        Setup.SpaceFor(State.Space).Blockers.Concat(ClosedDoors()).Any(b => b.Crosses(x0, z0, x1, z1));
+        Setup.SpaceFor(State.Space).Blockers.Concat(ClosedDoors()).Where(b => b.ClearanceMm < 1800).Any(b => b.Crosses(x0, z0, x1, z1));
 
     /// <summary>An NPC the character can speak to: within a hand's reach, and not through a wall (the Phase-1 technical audit, L-09).</summary>
     public bool InTalkReach(NpcState npc) =>
@@ -164,7 +185,14 @@ internal sealed class ClockSystem : IAbstractAdvance
         _owner = owner;
     }
 
-    public void Tick() => _context.State.AdvanceClock(_owner);
+    public void Tick()
+    {
+        _context.State.AdvanceClock(_owner);
+        var space = _context.State.Space;
+        if (!space.IsExterior)
+            _context.Dispatch(new SetWorldFlag(_context.ClockCell(space), SystemContext.InteriorTicksFlag,
+                _context.SpaceTick(space, _context.State.WorldTick) + 1) { Quiet = true });
+    }
 
     /// <summary>The world going on while the character was away (WP11): the first system of the advance, so the others see the new tick.</summary>
     public void Advance(long fromTick, long toTick, AdvanceLog log)
@@ -352,6 +380,19 @@ internal sealed class InteractionSystem
             return $"{door.Key} is {distance / 1000:0.00} m away; reach is {rules.InteractReachMm / 1000.0:0.00} m";
 
         bool open = _context.IsOpen(door);
+        if (!open)
+        {
+            bool atLatch = door.LatchSide switch
+            {
+                "east" => body.XMm > door.ClosedFootprint.CenterXMm,
+                "west" => body.XMm < door.ClosedFootprint.CenterXMm,
+                "north" => body.ZMm > door.ClosedFootprint.CenterZMm,
+                "south" => body.ZMm < door.ClosedFootprint.CenterZMm,
+                _ => true,
+            };
+            if (!atLatch || (door.Requirement is { } requirement && !_context.RequirementMet(requirement)))
+                return door.LockedText ?? "The door is locked.";
+        }
         // Nor on anyone else standing in it - a creature or an NPC - who would be shut inside the wall (the Phase-1 technical audit, L-16).
         bool blocked = door.ClosedFootprint.Separation(body.XMm, body.ZMm, rules.BodyRadiusMm) is not null
                        || _context.State.Creatures.Values.Any(c => c.Alive && door.ClosedFootprint.Separation(c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm) is not null)
@@ -376,12 +417,22 @@ internal sealed class InteractionSystem
             return $"the {site.Name} is {distance / 1000:0.00} m away; reach is {reach / 1000.0:0.00} m";
         if (_context.IsSet(site))
             return $"the {site.Name} is already set";
+        if (_context.Excluded(site))
+            return "That choice has already been made.";
         var cell = Simulation.CellOf(home.SpaceId, site);
         if (site.Requires.Any(flag => _context.State.World.GetFlag(cell, flag) == 0))
             return site.LockedText;
+        if (!site.Requirements.IsDefaultOrEmpty && site.Requirements.Any(r => !_context.RequirementMet(r)))
+            return site.LockedText;
+        if (site.Consume is { } cost && _context.Dispatch(new ConsumeItem(cost.ItemId, cost.Count)) is { } missing)
+            return missing;
         if (_context.Dispatch(new SetWorldFlag(cell, site.FlagId, 1)) is { } refused)
             return refused;
         _context.Dispatch(new RecordAct(Domain.Factions.ActKinds.SwitchSet, site.FlagId, body.XMm, body.ZMm));
+        if (site.Learn is { } recipe)
+            _context.Dispatch(new LearnTechnique(new TechniqueLearning(recipe, LearningSource.Discovery, tick) { SourceRef = site.Key }));
+        if (site.Reward is { } reward)
+            _context.Dispatch(new GrantItem(reward.ItemId, reward.Count, Domain.Crafting.Quality.Standard) { SourceRef = site.Key });
         _context.Events.Publish(new SwitchSet(_player, site.Key, tick));
         return null;
     }
@@ -412,7 +463,8 @@ internal sealed class WorldFlagSystem
         if (from == command.Value)
             return null;
         _context.State.SetFlag(_owner, command.Cell, command.FlagId, command.Value);
-        _context.Events.Publish(new WorldFlagChanged(command.Cell.ToString(), command.FlagId, from, command.Value, tick));
+        if (!command.Quiet)
+            _context.Events.Publish(new WorldFlagChanged(command.Cell.ToString(), command.FlagId, from, command.Value, tick));
         return null;
     }
 }

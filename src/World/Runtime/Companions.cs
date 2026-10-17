@@ -286,6 +286,23 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
         return null;
     }
 
+    public string? Handle(RestageEncounterParty command)
+    {
+        var box = command.Court;
+        foreach (var companion in State.Companions.Values.ToList())
+        {
+            var npc = State.Npcs[companion.NpcId];
+            if (npc.Space != State.Space || npc.Body.XMm < box.MinXMm || npc.Body.XMm > box.MaxXMm
+                || npc.Body.ZMm < box.MinZMm || npc.Body.ZMm > box.MaxZMm) continue;
+            var at = Ring(command.Arrival, 180_000, 2_000, Obstacles(companion.NpcId))
+                     ?? (command.Arrival.XMm, command.Arrival.ZMm);
+            _context.Dispatch(new PlaceNpc(npc.Definition.Id, new Body(at.X,
+                _context.Setup.SpaceFor(State.Space).Terrain.HeightAtMm(at.X, at.Z), at.Z, npc.Body.FacingMdeg), State.Space));
+            State.SetCompanion(_owner, companion with { Trail = ImmutableArray<TrailMark>.Empty, TargetKey = null, Action = ActionState.Idle });
+        }
+        return null;
+    }
+
     // ── blows on a companion ────────────────────────────────────────────────
 
     /// <summary>A creature's blow on a companion: resolved like one on the character - their armor, no guard, no dodge - and applied here.</summary>
@@ -638,7 +655,7 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
             return;
         }
         var home = Home(npc);
-        Place(npc, home);
+        Place(npc, home, _context.Setup.SpaceOfNpc(npc.Definition.Id));
         _context.Events.Publish(new CompanionFell(c.NpcId, home, tick));
         long until = tick + WoundDays(c.NpcId, tick) * _context.Setup.Clock.TicksPerDay;
         State.SetRecovering(_owner, c.NpcId, until);
@@ -675,10 +692,10 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
 
     private string Name(string npcId) => State.Npcs.TryGetValue(npcId, out var npc) ? npc.Definition.Name : npcId;
 
-    private void Place(NpcState npc, Body body)
+    private void Place(NpcState npc, Body body, SpaceId? space = null)
     {
-        if (body != npc.Body)
-            _context.Dispatch(new PlaceNpc(npc.Definition.Id, body));
+        if (body != npc.Body || (space is { } destination && destination != npc.Space))
+            _context.Dispatch(new PlaceNpc(npc.Definition.Id, body, space));
     }
 
     /// <summary>One tick of walking towards a point, at a gait, facing the way it goes; everything solid pushes back.</summary>
@@ -722,7 +739,7 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
     }
 
     private bool Walled(double x0, double z0, double x1, double z1) =>
-        _context.Setup.SpaceFor(State.Space).Blockers.Concat(_context.ClosedDoors()).Any(b => b.Crosses(x0, z0, x1, z1));
+        _context.Setup.SpaceFor(State.Space).Blockers.Concat(_context.ClosedDoors()).Where(b => b.ClearanceMm < 1800).Any(b => b.Crosses(x0, z0, x1, z1));
 
     /// <summary>The body turned towards a facing by at most 360 degrees a second, as NPCs turn.</summary>
     private Body Turn(Body body, int towardMdeg)

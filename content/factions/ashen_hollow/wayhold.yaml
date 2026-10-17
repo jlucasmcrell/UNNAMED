@@ -6,5 +6,7 @@ tags: [faction]
 name: the Wayhold
 notes: The Wayhold's chapter at Ashen Hollow (DCP:213-217) - Renn Vale's stewardship of the road stop and Kera Voss's forge. Members are the NPCs whose faction_ref names it; this file lists none. It reacts to nothing yet - the m7 armour reaction was single-instance, and the armour now returns - so its standing moves only through a quest reward a member pays.
 seat_location_ref: location.outpost
+reactions:
+  - { act: switch_set, flag_ref: world.barrowworks.headworks_dismantled, delta: 25 }
 relations:
   - { faction_ref: faction.ashen_hollow.long_survey, attitude: cordial }   # read by nothing but views

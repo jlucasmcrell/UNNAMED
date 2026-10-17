@@ -96,6 +96,7 @@ public partial class Main : Node3D
     private ConnectedCheck? _connectedCheck;
     private InputCheck? _inputCheck;
     private UiShots? _shots;
+    private BarrowworksReview? _barrowworksReview;
     private Showcase? _showcase;
     private Playthrough? _play;
 
@@ -271,7 +272,7 @@ public partial class Main : Node3D
             : _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf")
               || (_options.ContainsKey("--ui-shots") && !_flags.Contains("--ui-shots-continue"))
               || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check") || _options.ContainsKey("--survey")
-              || _options.ContainsKey("--shot")
+              || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review")
               || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
               || (_options.ContainsKey("--showcase") && !_options.ContainsKey("--profile"))
               || (_options.ContainsKey("--front-shots") && !_options.ContainsKey("--profile"))
@@ -285,6 +286,8 @@ public partial class Main : Node3D
         // change - its region file, its cells and its bindings are the whole of it.
         string region = _options.GetValueOrDefault("--region") ?? "region.starting_frontier";
         var shotStart = VisualOptions.Barrowworks && region == BarrowworksRegion ? ShotStart() : null;
+        if (VisualOptions.Barrowworks && _options.ContainsKey("--barrowworks-review"))
+            shotStart = (437_000, 663_000);
         // Bad content refuses to start, naming every file (ARCHITECTURE.md §8.1); so does a profile another copy of the game holds.
         // The Barrowworks switch is read here, once, and passed down: it is parsed as --visual (this layer's own
         // options) but what it gates is content the simulation holds, so GameOptions carries it (M8 D10). Off
@@ -306,7 +309,7 @@ public partial class Main : Node3D
         bool scripted = playthrough is not null || _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf")
                         || _options.ContainsKey("--ui-shots")
                         || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check") || _options.ContainsKey("--survey")
-                        || _options.ContainsKey("--shot")
+                        || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review")
                         || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
                         || _options.ContainsKey("--showcase");
         // No run of a harness takes the mouse - but the input check, which checks who has it.
@@ -331,7 +334,7 @@ public partial class Main : Node3D
                           || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
                           || _options.ContainsKey("--survey")
                           || _options.ContainsKey("--connected-check")
-                          || _options.ContainsKey("--shot")
+                          || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review")
                           || _flags.Contains("--perf")
                           || _options.ContainsKey("--resume-shots");
         if (scripted && !verify && !showcaseContinues)
@@ -531,6 +534,11 @@ public partial class Main : Node3D
             Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
             _delta = new DeltaShots(_session, _controller, _camera, _inventory, _dialogue, _character, _help, _projectiles, Path.GetFullPath(deltaShots), _assets.Root);
         }
+        else if (VisualOptions.Barrowworks && _options.TryGetValue("--barrowworks-review", out string? review))
+        {
+            SizeForCapture();
+            _barrowworksReview = new BarrowworksReview(_session, _controller, _camera, Path.GetFullPath(review));
+        }
         else if (_options.TryGetValue("--shot", out string? shotSpec))
         {
             // --shot "<x,z,yaw_deg[,pitch][,seconds]>" is WHERE TO STAND AND LOOK; the frames go to --shot-out.
@@ -640,6 +648,8 @@ public partial class Main : Node3D
     private void ShowSpace(bool outside)
     {
         _hollow.SetSpaceActive(outside);
+        if (_scatter is not null)
+            _scatter.Visible = outside;
         if (_interior is { } ring)
             ring.SetSpaceActive(!outside);
         var bindings = outside ? _bindings : _interiorBindings ?? _bindings;
@@ -894,6 +904,27 @@ public partial class Main : Node3D
                     break;
             }
         }
+        else if (_barrowworksReview is not null)
+        {
+            _barrowworksReview.RecordFrame(delta);
+            switch (_barrowworksReview.Update())
+            {
+                case "done":
+                    _barrowworksReview.WriteTiming();
+                    WriteReports(_barrowworksReview.Directory, "barrowworks-frontier-review");
+                    GetTree().Quit(0);
+                    return;
+                case "failed":
+                    if (DisplayServer.GetName() != "headless")
+                        SaveScreenshot(_barrowworksReview.Directory, "failed");
+                    GetTree().Quit(1);
+                    return;
+                case { } shot:
+                    if (DisplayServer.GetName() != "headless")
+                        SaveScreenshot(_barrowworksReview.Directory, shot);
+                    break;
+            }
+        }
         else if (_survey is not null)
         {
             switch (_survey.Update())
@@ -930,9 +961,16 @@ public partial class Main : Node3D
 
         // The smoke and the playthrough run one tick per frame: the smoke finishes in a fraction of real time, and the playthrough is
         // the same run every time, whatever the frame rate.
-        var frame = _session.Frame(_smoke is not null || _connectedCheck is not null || (_play is not null && !_realtime) || _delta is not null || _survey is not null || _audit is not null || _auditAb is not null
+        var frame = _session.Frame(_smoke is not null || _connectedCheck is not null || _barrowworksReview is not null || (_play is not null && !_realtime) || _delta is not null || _survey is not null || _audit is not null || _auditAb is not null
             ? _session.TickSeconds : delta);
         _ticksLastFrame = frame.TicksRun;
+        bool outside = _session.Simulation!.PlayerInExterior;
+        if (outside != _wasOutside)
+        {
+            _wasOutside = outside;
+            ShowSpace(outside);
+            _autorun = false;
+        }
         if (_stats is not null)
         {
             if (frame.AutosaveTaken is { } taken)
@@ -1073,6 +1111,7 @@ public partial class Main : Node3D
         _drawnAlpha = alpha;
 
         var simulation = _session.Simulation!;
+        _interior?.DrawWorld(simulation.ActiveSpaceTick, _session.TickSeconds);
         var combat = simulation.Combat;
         _avatar.SetStance(Stance(combat, alpha));
         _avatar.SetDowned(combat.Defeated);
@@ -1285,7 +1324,7 @@ public partial class Main : Node3D
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
-                    or "--front-shots" or "--creator-shots" or "--load-order"
+                    or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

@@ -17,7 +17,7 @@ public class BarrowworksCustodianTests
     private const string Custodian = "creature.construct.ring_custodian";
 
     [Fact]
-    public void TheCustodian_StandsInTheServiceVestibule_WhichIsTheRoomTheObjectiveNames()
+    public void TheCustodian_StandsInTheMeasuringCourt_LeavingTheVestibuleForRetreat()
     {
         using var profile = new TempProfile();
         var setup = Harness.Boot(profile, "region.barrowworks", barrowworks: true).Setup;
@@ -26,9 +26,9 @@ public class BarrowworksCustodianTests
         var member = Assert.Single(spawn.Members);
         Assert.Equal(Custodian, member.CreatureId);
 
-        // R10, the service vestibule, at the blockout's own centre for it.
+        // R11, the measuring court; R10 stays clear for retreat through the dogleg.
         Assert.Equal(50_000L, spawn.XMm);
-        Assert.Equal(84_000L, spawn.ZMm);
+        Assert.Equal(106_000L, spawn.ZMm);
 
         // One, and it does not come back: the design reads the defeat as a durable fact, and a respawning
         // Custodian would make that fact a farm.
@@ -36,7 +36,7 @@ public class BarrowworksCustodianTests
     }
 
     [Fact]
-    public void TheCustodian_HasTheFightTheEngineCanBuild_ABlowAndAChargeAndARearWeakPoint()
+    public void TheCustodian_HasThreeCommittedTelegraphsAndARearWeakPoint()
     {
         using var profile = new TempProfile();
         var setup = Harness.Boot(profile, "region.barrowworks", barrowworks: true).Setup;
@@ -50,6 +50,12 @@ public class BarrowworksCustodianTests
         // is the tell a body reads.
         Assert.NotNull(custodian.Attack);
         Assert.NotNull(custodian.Charge);
+        Assert.NotNull(custodian.CloseAttack);
+        Assert.True(custodian.Attack.CommitFacing);
+        Assert.True(custodian.Charge!.CommitFacing);
+        Assert.True(custodian.CloseAttack!.CommitFacing);
+        Assert.True(custodian.CloseAttack.WindupTicks > 0);
+        Assert.True(custodian.CloseAttack.ReachMm < custodian.Attack.ReachMm);
         Assert.True(custodian.Attack.WindupTicks > 0, "the blow telegraphs");
         Assert.True(custodian.Charge!.WindupTicks > 0, "the charge telegraphs");
 

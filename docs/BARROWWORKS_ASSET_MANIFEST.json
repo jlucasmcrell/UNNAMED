@@ -1,0 +1,830 @@
+{
+  "asset_root": "D:\\Otherreach_Depot\\barrowworks_codex",
+  "raw_sources_committed": false,
+  "assets": [
+    {
+      "asset_id": "bw_codex_room_01",
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+      "creator": "DanStudios; room assembly by Codex",
+      "source_modules": [
+        "masonry",
+        "floor",
+        "ceiling",
+        "pillar",
+        "brazier"
+      ],
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "outputs": [
+        {
+          "file": "bw_codex_room_01.glb",
+          "triangles": 174744,
+          "bytes": 18969012,
+          "sha256": "f9ee3f3ea89fe7ad086ea86a4c6599e2c650b448c4a99960c2d2027c699167ac"
+        },
+        {
+          "file": "bw_codex_room_01_lod1.glb",
+          "triangles": 87371,
+          "bytes": 15935616,
+          "sha256": "edb8b9eb82b9f6158f9ebb2e8ff35f450eaba7b8a150d85cced324497b67e6b8"
+        },
+        {
+          "file": "bw_codex_room_01_lod2.glb",
+          "triangles": 34948,
+          "bytes": 14024756,
+          "sha256": "9c1d70d64b4163ce70d5362860dbc0b3fae40398c50bf0b3c5244a56f09b11e8"
+        }
+      ],
+      "collision": "authoritative region footprint; camera proxy only",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_room_02",
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+      "creator": "DanStudios; room assembly by Codex",
+      "source_modules": [
+        "masonry",
+        "floor",
+        "ceiling",
+        "pillar",
+        "brazier"
+      ],
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "outputs": [
+        {
+          "file": "bw_codex_room_02.glb",
+          "triangles": 191400,
+          "bytes": 19556108,
+          "sha256": "3f792ea341bcc76bbf9bb961648719310fa616e5519c25262872d6cb4abc84dd"
+        },
+        {
+          "file": "bw_codex_room_02_lod1.glb",
+          "triangles": 95699,
+          "bytes": 16229624,
+          "sha256": "84d94a3713d9ab88adea66b7685a759ef77875fffc9eb2701324f128fb81564b"
+        },
+        {
+          "file": "bw_codex_room_02_lod2.glb",
+          "triangles": 38279,
+          "bytes": 14157896,
+          "sha256": "f7a8fd3f9aba0336c8a25398e5dc73375564079be7819af0a2dd255a7b8145a7"
+        }
+      ],
+      "collision": "authoritative region footprint; camera proxy only",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_room_03",
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+      "creator": "DanStudios; room assembly by Codex",
+      "source_modules": [
+        "masonry",
+        "floor",
+        "ceiling",
+        "pillar",
+        "brazier"
+      ],
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "outputs": [
+        {
+          "file": "bw_codex_room_03.glb",
+          "triangles": 174780,
+          "bytes": 18980668,
+          "sha256": "62346bde5332390fd06397945f678c2ff8c5ad9e0b04d0136f65167e37bd024a"
+        },
+        {
+          "file": "bw_codex_room_03_lod1.glb",
+          "triangles": 87389,
+          "bytes": 15931148,
+          "sha256": "5cace5d50bff8e015616e4d69e451cc1be5cc338da8f9b0f505b132032d2411a"
+        },
+        {
+          "file": "bw_codex_room_03_lod2.glb",
+          "triangles": 34956,
+          "bytes": 14026988,
+          "sha256": "cb18d970f8b49e43cad0a5bb565279a8ae227c5d4c713a95d20d344b49b54c60"
+        }
+      ],
+      "collision": "authoritative region footprint; camera proxy only",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_room_04",
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+      "creator": "DanStudios; room assembly by Codex",
+      "source_modules": [
+        "masonry",
+        "floor",
+        "ceiling",
+        "pillar",
+        "brazier"
+      ],
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "outputs": [
+        {
+          "file": "bw_codex_room_04.glb",
+          "triangles": 174744,
+          "bytes": 18972392,
+          "sha256": "ce3d33fce650a662970006d23fb30da2f599102d799c1ea80e604450effbf0f1"
+        },
+        {
+          "file": "bw_codex_room_04_lod1.glb",
+          "triangles": 87372,
+          "bytes": 15934372,
+          "sha256": "e7c4ea30cacad8d1fe2a8a0584ee5e47e0022f7d87769441f8a7bffe7a1eb9df"
+        },
+        {
+          "file": "bw_codex_room_04_lod2.glb",
+          "triangles": 34948,
+          "bytes": 14023664,
+          "sha256": "4745f45f2162b14fc9a41c3dcf51a21c9cc10484fb58d98086c26befaae26d4e"
+        }
+      ],
+      "collision": "authoritative region footprint; camera proxy only",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_room_05",
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+      "creator": "DanStudios; room assembly by Codex",
+      "source_modules": [
+        "masonry",
+        "floor",
+        "ceiling",
+        "pillar",
+        "brazier"
+      ],
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "outputs": [
+        {
+          "file": "bw_codex_room_05.glb",
+          "triangles": 241946,
+          "bytes": 22095360,
+          "sha256": "9ea0f904b677b48aef3363436d7ff379559063c23f559b4060f8b2a052890a46"
+        },
+        {
+          "file": "bw_codex_room_05_lod1.glb",
+          "triangles": 120972,
+          "bytes": 17208376,
+          "sha256": "990d77d77a0bcd713cd2f86bffe5982f620dc6e62a510e087c1702ac79719ffc"
+        },
+        {
+          "file": "bw_codex_room_05_lod2.glb",
+          "triangles": 48389,
+          "bytes": 14614700,
+          "sha256": "11d527c8c19b531343b0eb216932baa507107acde2f0aa3c56d8660a64466177"
+        }
+      ],
+      "collision": "authoritative region footprint; camera proxy only",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_room_06",
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+      "creator": "DanStudios; room assembly by Codex",
+      "source_modules": [
+        "masonry",
+        "floor",
+        "ceiling",
+        "pillar",
+        "brazier"
+      ],
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "outputs": [
+        {
+          "file": "bw_codex_room_06.glb",
+          "triangles": 197070,
+          "bytes": 19761716,
+          "sha256": "89252ca475523f8d014f00fe07b9487420a5be83416598c288cd9ff88dba5f41"
+        },
+        {
+          "file": "bw_codex_room_06_lod1.glb",
+          "triangles": 98534,
+          "bytes": 16347520,
+          "sha256": "7ede144bd5187365cf6449019f9d4b0ea52cdc4f04786e12d086eff31b889e44"
+        },
+        {
+          "file": "bw_codex_room_06_lod2.glb",
+          "triangles": 39414,
+          "bytes": 14211248,
+          "sha256": "0dfec7f4a67f35ca274a146cf4f5dfe4008613de677134fda977eb766d7c9f4e"
+        }
+      ],
+      "collision": "authoritative region footprint; camera proxy only",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_room_07",
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+      "creator": "DanStudios; room assembly by Codex",
+      "source_modules": [
+        "masonry",
+        "floor",
+        "ceiling",
+        "pillar",
+        "brazier"
+      ],
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "outputs": [
+        {
+          "file": "bw_codex_room_07.glb",
+          "triangles": 191400,
+          "bytes": 19556108,
+          "sha256": "6a21f586a8a8e7a4fadf89aebd88fa5c3b65ba79c545d2cae5299b286b90a7fd"
+        },
+        {
+          "file": "bw_codex_room_07_lod1.glb",
+          "triangles": 95699,
+          "bytes": 16229624,
+          "sha256": "08ffc1c4d5c097f9cee2c9ddf957690da1fee7de09b9f84085dadec4319afb20"
+        },
+        {
+          "file": "bw_codex_room_07_lod2.glb",
+          "triangles": 38279,
+          "bytes": 14157896,
+          "sha256": "e2d6553e0b9462dec212224360784e975e54948428af8fc09edec592150e53cc"
+        }
+      ],
+      "collision": "authoritative region footprint; camera proxy only",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_room_08",
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+      "creator": "DanStudios; room assembly by Codex",
+      "source_modules": [
+        "masonry",
+        "floor",
+        "ceiling",
+        "pillar",
+        "brazier"
+      ],
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "outputs": [
+        {
+          "file": "bw_codex_room_08.glb",
+          "triangles": 197070,
+          "bytes": 19768576,
+          "sha256": "fa92c3c2d5ff8261f2389534b19288ef465fbb6a632e2c0c370e8693b344447c"
+        },
+        {
+          "file": "bw_codex_room_08_lod1.glb",
+          "triangles": 98535,
+          "bytes": 16351472,
+          "sha256": "457c49e970a9fff4326401fc5fe3d74ce44eba3eff919613afdce1b24ed7b698"
+        },
+        {
+          "file": "bw_codex_room_08_lod2.glb",
+          "triangles": 39414,
+          "bytes": 14220396,
+          "sha256": "94fdd23ae25a29b8ecaeb9174b996d03b51434fc39213a8105e16ab7b27d113b"
+        }
+      ],
+      "collision": "authoritative region footprint; camera proxy only",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_room_09",
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+      "creator": "DanStudios; room assembly by Codex",
+      "source_modules": [
+        "masonry",
+        "floor",
+        "ceiling",
+        "pillar",
+        "brazier"
+      ],
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "outputs": [
+        {
+          "file": "bw_codex_room_09.glb",
+          "triangles": 174744,
+          "bytes": 18973640,
+          "sha256": "3b6a2de0408cb3a73d1fbdb7feba4d6fdd8a35889218d96eb636bbd159aeb11b"
+        },
+        {
+          "file": "bw_codex_room_09_lod1.glb",
+          "triangles": 87371,
+          "bytes": 15934628,
+          "sha256": "2e009559cbb764b162d7f525737acd2617623d8b417682f9a3c2870c5d80fa09"
+        },
+        {
+          "file": "bw_codex_room_09_lod2.glb",
+          "triangles": 34948,
+          "bytes": 14024232,
+          "sha256": "5b03dd80f1d04d54b76d6cf37856cf192397821d17bb211ef8e63f48cb74b68b"
+        }
+      ],
+      "collision": "authoritative region footprint; camera proxy only",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_room_10",
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+      "creator": "DanStudios; room assembly by Codex",
+      "source_modules": [
+        "masonry",
+        "floor",
+        "ceiling",
+        "pillar",
+        "brazier"
+      ],
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "outputs": [
+        {
+          "file": "bw_codex_room_10.glb",
+          "triangles": 197070,
+          "bytes": 19765892,
+          "sha256": "3a317e22067c0ad21da264ce82af7de729a018bddd7ccd6cc2ea3e8d2b95f9e6"
+        },
+        {
+          "file": "bw_codex_room_10_lod1.glb",
+          "triangles": 98535,
+          "bytes": 16340504,
+          "sha256": "bbb8121e19fef25e1e1a6f1f0a682a43a9f8cd76687375b33279bfac052d7b44"
+        },
+        {
+          "file": "bw_codex_room_10_lod2.glb",
+          "triangles": 39413,
+          "bytes": 14209104,
+          "sha256": "6c2873a452d049396789d7dc149a2cab9c987d1fdf2f15eae2270275df3e585c"
+        }
+      ],
+      "collision": "authoritative region footprint; camera proxy only",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_room_11",
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+      "creator": "DanStudios; room assembly by Codex",
+      "source_modules": [
+        "masonry",
+        "floor",
+        "ceiling",
+        "pillar",
+        "brazier"
+      ],
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "outputs": [
+        {
+          "file": "bw_codex_room_11.glb",
+          "triangles": 454842,
+          "bytes": 31238488,
+          "sha256": "92795c474a49d8e8df34ccabe4e62be30ef80a65e66730604fe0680484a87147"
+        },
+        {
+          "file": "bw_codex_room_11_lod1.glb",
+          "triangles": 227421,
+          "bytes": 21469124,
+          "sha256": "97d133d51fb1eb1e2e58abbe64fb1b5c6b6a2bbdc77166250d4c2774f18c8528"
+        },
+        {
+          "file": "bw_codex_room_11_lod2.glb",
+          "triangles": 90967,
+          "bytes": 16570916,
+          "sha256": "7283119b7618a6ebf17f9b15b28193027e95d7388f244548b178e052203b5908"
+        }
+      ],
+      "collision": "authoritative region footprint; camera proxy only",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_room_12",
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+      "creator": "DanStudios; room assembly by Codex",
+      "source_modules": [
+        "masonry",
+        "floor",
+        "ceiling",
+        "pillar",
+        "brazier"
+      ],
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "outputs": [
+        {
+          "file": "bw_codex_room_12.glb",
+          "triangles": 208410,
+          "bytes": 20179924,
+          "sha256": "205f3e6cc3fb8d7eb566155832b98df73b58b45f72e650c405b2cb362201b5e8"
+        },
+        {
+          "file": "bw_codex_room_12_lod1.glb",
+          "triangles": 104205,
+          "bytes": 16570508,
+          "sha256": "21723fc11604a3043974177114168c5746c50dabe610f9acd0f83834112335ea"
+        },
+        {
+          "file": "bw_codex_room_12_lod2.glb",
+          "triangles": 41681,
+          "bytes": 14320420,
+          "sha256": "5490007f59111626c4f6da03975d749e3c701bc7557aa6a54703ebc1a9bea305"
+        }
+      ],
+      "collision": "authoritative region footprint; camera proxy only",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_room_13",
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+      "creator": "DanStudios; room assembly by Codex",
+      "source_modules": [
+        "masonry",
+        "floor",
+        "ceiling",
+        "pillar",
+        "brazier"
+      ],
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "outputs": [
+        {
+          "file": "bw_codex_room_13.glb",
+          "triangles": 174756,
+          "bytes": 18973348,
+          "sha256": "abfcdf185a3f14c5a2d50400e39a2ccf16e555d2207d3693603627a71dfdda12"
+        },
+        {
+          "file": "bw_codex_room_13_lod1.glb",
+          "triangles": 87377,
+          "bytes": 15931444,
+          "sha256": "94b80ee6c2f843dd5c1605ddd5209180c6ac09f3d21778af7338bbc48d510656"
+        },
+        {
+          "file": "bw_codex_room_13_lod2.glb",
+          "triangles": 34951,
+          "bytes": 14023892,
+          "sha256": "b140bff69d47378ed6c7e6b65f944fcbb4686b8fdafba0f4f56ccee6602fc8ef"
+        }
+      ],
+      "collision": "authoritative region footprint; camera proxy only",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_rock_mass",
+      "licence": "CC0 1.0; first-party enclosure geometry",
+      "creator": "Poly Haven; geometry by Codex",
+      "source_url": "https://polyhaven.com/a/rock_ground",
+      "sha256": "0a056c78fb3a28e051c341ef36f1ce42ed0981a8518f0ad9f1175f65bdfd287e",
+      "shippable": true,
+      "source_provenance": {
+        "id": "cw_rock_ground",
+        "built_for": "CAIRNWOLD",
+        "source_folder": "polyhaven__rock_ground",
+        "source_store": "G:\\Otherreach\\external-assets\\assets\\materials",
+        "source_url": "https://polyhaven.com",
+        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+        "licence_text_sha256": "cd9628ae4c9470847401479e821542c2ee1fa2b7e6093dfcf47a133d7a45fd9b",
+        "shippable": true,
+        "maps": {
+          "basecolor": {
+            "file": "cw_rock_ground_basecolor.jpg",
+            "sha256": "1bd796dcfb07bf473732f53ade9bd6c27f56df5150f6f120b9aeb5994884cce7"
+          },
+          "normal": {
+            "file": "cw_rock_ground_normal.jpg",
+            "sha256": "ddbff689451fd5ef8a88dacc596b23ccad5a3651a19d86e37282e40553152bca"
+          },
+          "orm": {
+            "file": "cw_rock_ground_orm.jpg",
+            "sha256": "0e4b5508d78811658179b9abd8b088738819b612e9bebb92d20ccc80a3407b5d"
+          }
+        }
+      }
+    },
+    {
+      "asset_id": "bw_codex_corridors",
+      "licence": "Fab Standard Personal",
+      "creator": "DanStudios; manual assembly by Codex",
+      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+      "sha256": "059071831af8dfff4b42b724cb97869c0bfb5f73212c0778b0cb0cfbb46d4351",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_notice",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_fitting_note",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_diagram",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_ledger",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_measure",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_measure_running",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_measure_dismantled",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_preserve_control",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_dismantle_control",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_codex_fragment",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_lantern_foot",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_gate_1",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_gate_2",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_gate_3",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_wash_pipe",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_drain_valve",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_inspection_gauge",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_sorting_rack",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_work_seat",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_counterweight",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_custodian",
+      "built_by": "build_barrowworks_custodian.py",
+      "mesh": "Real source parts, manually assembled and rigidly weighted to nine joints.",
+      "sources": [
+        {
+          "title": "Boiler from the puffer VIC 32",
+          "author": "Scottish Maritime Museum",
+          "licence": "CC0 1.0",
+          "url": "https://sketchfab.com/3d-models/884ed11e38054aa48a3db1d9025c881d"
+        },
+        {
+          "title": "Old Industrial Pipe Pack PBR",
+          "author": "SLASH-RENDAR",
+          "licence": "CC-BY 4.0",
+          "url": "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4",
+          "modifications": "Reoriented, resized, decimated, assembled and animated; attribution required."
+        }
+      ],
+      "clips": [
+        {
+          "clip": "creature.bw_codex_custodian.idle",
+          "sha256": "ed9d438cda7abfb205dd9e738c8fdd4df26cc61a65d0bcb36c0273558ad42578",
+          "frames": 120
+        },
+        {
+          "clip": "creature.bw_codex_custodian.walk",
+          "sha256": "99957ee81b2ed47e8e2a6cf11e5450431d0ea43606b21b7e752ce50ebcb4bf88",
+          "frames": 18
+        },
+        {
+          "clip": "creature.bw_codex_custodian.run",
+          "sha256": "03a81485620a74afe717dcd44757706dc6fc9efc408aca94250d060920fef3da",
+          "frames": 16
+        },
+        {
+          "clip": "creature.bw_codex_custodian.sweep",
+          "sha256": "b443d5ee5b33fa6b95c67cfb24445e0af591094686bde28f27ab862304ec81b0",
+          "frames": 90
+        },
+        {
+          "clip": "creature.bw_codex_custodian.fall",
+          "sha256": "f6007ad1fb7e497649b12290d25f43c9767fbf585f0da95859f645f0be459ca9",
+          "frames": 100
+        },
+        {
+          "clip": "creature.bw_codex_custodian.grasp",
+          "sha256": "9d190b00dda6e42318cc752d748ef5956efc0d71ce173575dc48970da2aaeadc",
+          "frames": 75
+        },
+        {
+          "clip": "creature.bw_codex_custodian.hit",
+          "sha256": "777cb40c956b9a8ba2cc50e1e4fa6723af6cb2e8d0acc1ab704820584d251a15",
+          "frames": 24
+        },
+        {
+          "clip": "creature.bw_codex_custodian.death",
+          "sha256": "ba4b6d8031f6342d0f2773bca08723b120de50885706a023d47fe477f179ccba",
+          "frames": 90
+        }
+      ],
+      "shippable": true
+    }
+  ]
+}

@@ -22,6 +22,7 @@ public sealed record SpawnMember(string CreatureId, string RoleId);
 /// </summary>
 public sealed record SpawnSite(string Key, long XMm, long ZMm, long RadiusMm, ImmutableArray<SpawnMember> Members)
 {
+    public EncounterRecovery? Recovery { get; init; }
     /// <summary>
     /// The space this spawner stands in (M8 D10). Its creatures are in that space and in no other: a view is offered
     /// to a player standing there, a height comes from that space's ground, and a blow can only reach something that
@@ -35,9 +36,17 @@ public sealed record SpawnSite(string Key, long XMm, long ZMm, long RadiusMm, Im
     public ImmutableArray<(long XMm, long ZMm)> Route { get; init; } = ImmutableArray<(long XMm, long ZMm)>.Empty;
 }
 
+public sealed record EncounterRecovery(long MinXMm, long MinZMm, long MaxXMm, long MaxZMm, long SafeXMm, long SafeZMm);
+public sealed record EncounterRestarted(string SpawnKey, bool Loaded, long Tick);
+
 public sealed record CreatureView(EntityId Id, string Key, string DefId, string RoleId, Body Body, int Health, int MaxHealth,
     CombatPhase Phase, int PhaseTicksLeft, CreatureCondition Condition, CreatureMind Mind, int Awareness, bool Asleep)
 {
+    // Presentation's sampled clip, part of the deliberately transient blow (as Phase/PhaseTicksLeft are in StateDump).
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string? AttackSource { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore]
+    public int PhaseDurationTicks { get; init; }
     public bool Alive => Condition == CreatureCondition.Alive;
 
     public bool Hostile => Mind == CreatureMind.Engaged;
@@ -148,6 +157,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
     private readonly EntityId _player;
     private readonly Func<MoveIntent> _intent;
     private long _graceUntil;
+    private readonly Dictionary<string, int> _outsideAttemptTicks = new(StringComparer.Ordinal);
 
     public CreatureSystem(SystemContext context, SliceOwner owner, EntityId player, Func<MoveIntent> intent)
     {
@@ -258,7 +268,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
         foreach (string key in State.Creatures.Keys.ToList())
         {
             var creature = State.Creatures[key];
-            Save(creature.Alive ? AtHome(creature) : Afterlife(creature, toTick, away: true));
+            if (creature.Site.Space.IsExterior)
+                Save(creature.Alive ? AtHome(creature) : Afterlife(creature, toTick, away: true));
         }
     }
 
@@ -279,6 +290,24 @@ internal sealed class CreatureSystem : IAbstractAdvance
         Action = ActionState.Idle,
     };
 
+    // Load is an explicit attempt boundary. Saved player resources and generic effects are untouched.
+    public bool RecoverLoadedAttempt()
+    {
+        bool recovered = false;
+        foreach (var c in State.Creatures.Values.Where(c => c.Alive && c.Site.Space == State.Space
+                     && c.Site.Recovery is not null && c.Mind == CreatureMind.Engaged).ToList())
+        {
+            var safe = c.Site.Recovery!;
+            Save(AtHome(c) with { Health = c.Definition.MaxHealth });
+            var arrival = new Body(safe.SafeXMm, _context.Setup.SpaceFor(State.Space).Terrain.HeightAtMm(safe.SafeXMm, safe.SafeZMm), safe.SafeZMm, State.Body.FacingMdeg);
+            _context.Dispatch(new Relocate(arrival));
+            _context.Dispatch(new RestageEncounterParty(arrival, safe));
+            _context.Events.Publish(new EncounterRestarted(c.Site.Key, true, State.WorldTick));
+            recovered = true;
+        }
+        return recovered;
+    }
+
     /// <summary>The login grace: until <paramref name="untilTick"/> no creature sees or hears the character (WP11).</summary>
     public void BeginGrace(long untilTick) => _graceUntil = untilTick;
 
@@ -295,7 +324,27 @@ internal sealed class CreatureSystem : IAbstractAdvance
         foreach (string key in State.Creatures.Keys.ToList())
         {
             var creature = State.Creatures[key];
-            Save(creature.Alive ? Live(creature, tick, noises) : Afterlife(creature, tick));
+            if (!creature.Site.Space.IsExterior && creature.Site.Space != State.Space)
+                continue;
+            if (creature.Alive && creature.Mind == CreatureMind.Engaged && creature.Site.Recovery is { } court)
+            {
+                var player = State.Body;
+                bool outside = player.XMm < court.MinXMm || player.XMm > court.MaxXMm
+                               || player.ZMm < court.MinZMm || player.ZMm > court.MaxZMm || State.PlayerCombat.Defeated;
+                int count = outside ? _outsideAttemptTicks.GetValueOrDefault(key) + 1 : 0;
+                _outsideAttemptTicks[key] = count;
+                if (count >= 20)
+                {
+                    Save(AtHome(creature) with { Health = creature.Definition.MaxHealth });
+                    var arrival = new Body(court.SafeXMm, _context.Setup.SpaceFor(State.Space).Terrain.HeightAtMm(court.SafeXMm, court.SafeZMm), court.SafeZMm, 0);
+                    _context.Dispatch(new RestageEncounterParty(arrival, court));
+                    _context.Events.Publish(new EncounterRestarted(creature.Site.Key, false, tick));
+                    _outsideAttemptTicks.Remove(key);
+                    continue;
+                }
+            }
+            Save(creature.Alive ? Live(creature, tick, creature.Site.Space == State.Space ? noises : new List<Noise>())
+                : Afterlife(creature, tick, timer: _context.SpaceTick(creature.Site.Space, tick)));
         }
     }
 
@@ -360,7 +409,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             ? own with { SightMm = (long)Math.Round(own.SightMm * (1 + penalty)) }
             : c.Definition.Senses;
         var player = State.Body;
-        bool target = !State.PlayerCombat.Defeated && !InGrace(tick);
+        bool target = c.Site.Space == State.Space && !State.PlayerCombat.Defeated && !InGrace(tick);
         bool asleep = Asleep(c, tick);
         double? seen = !asleep && target ? Perception.Sees(c.Body, senses, player.XMm, player.ZMm, Walls(c)) : null;
         int awareness = Perception.Accrue(c.Awareness, seen, senses.SightMm, rules, TickMs);
@@ -403,7 +452,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         // A peaceful creature turns on someone only once roused - wounded, or called to its herd's fight - and goes on until it gives up.
         bool roused = !c.Role.Peaceful || mind is CreatureMind.Engaged or CreatureMind.Searching;
         double toPlayer = Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
-        if (State.PlayerCombat.Defeated)
+        if (State.PlayerCombat.Defeated || c.Site.Space != State.Space)
             mind = mind is CreatureMind.Unaware ? mind : CreatureMind.Returning;
         else if (mind == CreatureMind.Fleeing)
         {
@@ -562,6 +611,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
         // The character is gone after where they were last perceived; a companion who stands nearer is simply there (M6).
         long targetX = foe.Companion is null && c.Knows ? c.KnownXMm : player.XMm, targetZ = foe.Companion is null && c.Knows ? c.KnownZMm : player.ZMm;
         double distance = Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
+        if (c.Definition.CloseAttack is { } close && distance <= close.ReachMm + _context.Setup.Movement.BodyRadiusMm - 100)
+            attack = close;
         double toKnown = Distance(c.Body.XMm, c.Body.ZMm, targetX, targetZ);
         int facing = CombatRules.FacingTowards(c.Body.XMm, c.Body.ZMm, targetX, targetZ);
         // A territory holds the line: past its edge the guardian goes back and faces the intruder from inside.
@@ -631,6 +682,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// </summary>
     private CreatureState Aim(CreatureState c)
     {
+        if (c.Action.Attack?.CommitFacing == true)
+            return c;
         var player = c.Action.Kind == ActionKind.Charge ? State.Body : Foe(c).Body;
         var faced = c with
         {
@@ -815,7 +868,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         if (c.Site.RespawnTicks > 0)
         {
             bool saturated = Saturated(c.Site.Key, tick);
-            respawn = tick + c.Site.RespawnTicks * (saturated ? 2 : 1);
+            respawn = _context.SpaceTick(c.Site.Space, tick) + c.Site.RespawnTicks * (saturated ? 2 : 1);
             if (saturated)
                 _context.Events.Publish(new SpawnerSaturated(c.Site.Key, tick));
         }
@@ -827,7 +880,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             Mind = CreatureMind.Unaware,
             Awareness = 0,
             Knows = false,
-            DiedTick = tick,
+            DiedTick = _context.SpaceTick(c.Site.Space, tick),
             RespawnTick = respawn,
         };
     }
@@ -844,16 +897,17 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// A corpse decays; a spawner with a timer brings its creature back once the player is not standing over the place - or, for an
     /// absence, <paramref name="away"/>, since the player was not there at all.
     /// </summary>
-    private CreatureState Afterlife(CreatureState c, long tick, bool away = false)
+    private CreatureState Afterlife(CreatureState c, long tick, bool away = false, long? timer = null)
     {
-        if (c.Condition == CreatureCondition.Corpse && tick >= c.DiedTick + Setup.CorpseDecayTicks)
+        long elapsed = timer ?? tick;
+        if (c.Condition == CreatureCondition.Corpse && elapsed >= c.DiedTick + Setup.CorpseDecayTicks)
         {
             _context.Dispatch(new DiscardContainer(c.CorpseKey));
             _context.Events.Publish(new CorpseGone(c.CorpseKey, tick));
             c = c with { Condition = CreatureCondition.Gone };
         }
         var player = State.Body;
-        if (c.RespawnTick > 0 && tick >= c.RespawnTick && (away || Distance(player.XMm, player.ZMm, c.HomeXMm, c.HomeZMm) > C.LeashMm))
+        if (c.RespawnTick > 0 && elapsed >= c.RespawnTick && (away || Distance(player.XMm, player.ZMm, c.HomeXMm, c.HomeZMm) > C.LeashMm))
         {
             if (c.Condition == CreatureCondition.Corpse)
             {
@@ -1039,7 +1093,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         return delta > 180_000 ? delta - 360_000 : delta;
     }
 
-    private IEnumerable<Blocker> Walls(CreatureState c) => _context.Setup.SpaceFor(c.Site.Space).Blockers.Concat(_context.ClosedDoors(c.Site.Space));
+    private IEnumerable<Blocker> Walls(CreatureState c) => _context.Setup.SpaceFor(c.Site.Space).Blockers.Concat(_context.ClosedDoors(c.Site.Space)).Where(b => b.ClearanceMm < 1800);
 
     private bool Walled(CreatureState c, double x0, double z0, double x1, double z1) => Walls(c).Any(b => b.Crosses(x0, z0, x1, z1));
 
@@ -1057,6 +1111,18 @@ internal sealed class CreatureSystem : IAbstractAdvance
         {
             var (phase, left) = c.Action.PhaseAt(State.WorldTick, C);
             return new CreatureView(c.Id, c.Key, c.Definition.Id, c.Role.Id, c.Body, c.Health, c.Definition.MaxHealth, phase, left, c.Condition,
-                c.Mind, c.Awareness, Asleep(c, State.WorldTick)) { Generation = c.Generation, Peaceful = c.Role.Peaceful };
+                c.Mind, c.Awareness, Asleep(c, State.WorldTick))
+            {
+                Generation = c.Generation, Peaceful = c.Role.Peaceful,
+                AttackSource = c.Definition.CloseAttack is not null ? c.Action.Attack?.Source : null,
+                PhaseDurationTicks = c.Definition.CloseAttack is not null && c.Action.Attack is { } attack ? phase switch
+                {
+                    CombatPhase.Windup => attack.WindupTicks,
+                    CombatPhase.Active => c.Action.Kind == ActionKind.Charge
+                        ? Math.Max(1, (int)(attack.ReachMm * 1000 / Math.Max(1, attack.ChargeSpeedMmPerSecond * TickMs))) : attack.ActiveTicks,
+                    CombatPhase.Recovery => attack.RecoveryTicks,
+                    _ => 0,
+                } : 0,
+            };
         }).ToImmutableArray();
 }

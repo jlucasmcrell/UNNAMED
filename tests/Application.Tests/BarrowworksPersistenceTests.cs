@@ -13,6 +13,31 @@ namespace UNNAMED.Application.Tests;
 
 public class BarrowworksPersistenceTests
 {
+    [Fact]
+    public void LoadingAnActiveAttempt_RestagesOutsideCourt_WithoutRefillingThePlayer()
+    {
+        using var profile = new TempProfile();
+        var options = new GameOptions(Path.Combine(Harness.RepoRoot(), "content"), profile.Root)
+        { RegionId = "region.barrowworks", Barrowworks = true, StartXMm = 47_000, StartZMm = 106_000 };
+        using var session = GameSession.Boot(options);
+        session.NewGame(Harness.Named("Wanderer"), seed: 42);
+        for (int i = 0; i < 60; i++) session.Frame(session.TickSeconds);
+        Assert.Contains(session.Simulation!.Creatures, c => c.DefId == "creature.construct.ring_custodian" && c.Hostile);
+        var pools = session.Simulation.Player.Progression.Pools;
+        var inventory = session.Simulation.Player.Inventory.ToArray();
+        session.Save(SaveSlots.Quick);
+        session.Load(SaveSlots.Quick);
+        Assert.Equal(50_000, session.Simulation.Player.Body.XMm);
+        Assert.Equal(84_000, session.Simulation.Player.Body.ZMm);
+        Assert.Equal(pools, session.Simulation.Player.Progression.Pools);
+        Assert.Equal(inventory, session.Simulation.Player.Inventory);
+        var boss = Assert.Single(session.Simulation.Creatures.Where(c => c.DefId == "creature.construct.ring_custodian"));
+        Assert.False(boss.Hostile);
+        Assert.Equal(boss.MaxHealth, boss.Health);
+        session.Save(SaveSlots.Quick);
+        session.Load(SaveSlots.Quick);
+        Assert.Equal(84_000, session.Simulation.Player.Body.ZMm);
+    }
     private const string Threshold = "portal.barrowworks.threshold";
 
     /// <summary>

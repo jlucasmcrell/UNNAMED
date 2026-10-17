@@ -4,7 +4,7 @@ schema: 1
 display_key: spawn.barrowworks.ring_custodian.name
 tags:
 - spawn
-notes: "The Ring Custodian, standing in the service vestibule - R10, the room the quest's o_custodian names. One, and it does not respawn: the design reads its defeat as a durable fact, so a second Custodian would make the fact a farm instead. placement is the blockout's R10 centre (50, 84) and provisional."
+notes: "The Ring Custodian in R11, the measuring court. One, without respawn: its defeat persists. R10 remains the retreat vestibule, beyond the court's dogleg. Fixed level and health; no scaling."
 region_ref: region.barrowworks
 creatures:
 - creature_ref: creature.construct.ring_custodian
@@ -15,7 +15,7 @@ creatures:
 at:
   position_m:
   - 50
-  - 84
+  - 106
   radius_m: 2
 level_band:
 - 5
@@ -23,3 +23,4 @@ level_band:
 respawn:
   kind: none
 tier_hint: B
+encounter_recovery: { min_x_m: 36, min_z_m: 94, max_x_m: 64, max_z_m: 118, safe_x_m: 50, safe_z_m: 84 }

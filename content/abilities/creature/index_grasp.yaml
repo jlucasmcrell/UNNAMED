@@ -1,0 +1,16 @@
+id: ability.creature.index_grasp
+kind: ability
+schema: 1
+display_key: ability.creature.index_grasp.name
+tags: [ability]
+name: Index Grasp
+notes: "The Custodian's short grasp, the third attack in the frozen M8 brief. The housing plants, the index arm draws back, and the clamp closes where the tell began. A short reach and long recovery reward stepping aside toward the open rear hinge. Fixed numbers, provisional for balance review."
+class: creature
+range_m: 1.3
+windup_s: 0.9
+active_s: 0.2
+recovery_s: 1.2
+commit_facing: true
+cost: { stamina: 0 }
+payload:
+  - { type: damage, damage_type: physical_blunt, amount: [9, 12] }

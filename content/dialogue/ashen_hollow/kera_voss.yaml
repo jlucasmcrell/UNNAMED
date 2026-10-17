@@ -122,14 +122,16 @@ nodes:
       - id: ring_whole
         text: "I left the mechanism standing."
         conditions:
-          - { kind: quest_state, quest_ref: quest.barrowworks.unfinished_measure, objective: o_preserve, is: satisfied }
+          - { kind: world_state, flag_ref: world.barrowworks.headworks_preserved, location_ref: location.barrowworks.headworks, min: 1 }
           - { kind: visited, node: barrowworks_told, not: true }
         next: barrowworks_told
       - id: ring_broken
-        text: "I had it broken up for what it was made of."
+        text: "I dismantled the measure."
         conditions:
-          - { kind: quest_state, quest_ref: quest.barrowworks.unfinished_measure, objective: o_dismantle, is: satisfied }
+          - { kind: world_state, flag_ref: world.barrowworks.headworks_dismantled, location_ref: location.barrowworks.headworks, min: 1 }
           - { kind: visited, node: barrowworks_told, not: true }
+        consequences:
+          - { command: report_act, act: switch_set, flag_ref: world.barrowworks.headworks_dismantled }
         next: barrowworks_told
       - id: leave
         text: "Nothing today."
@@ -172,6 +174,11 @@ nodes:
   barrowworks_told:
     text: "\"So.\" She doesn't ask which way you went; she watches your hands instead, which is how she asks everything. Then she nods, once, and goes back to the fire. \"Right. That's the measure finished, then - one way or the other. Not many people get to say that about a thing that big.\""
     once: true
+    variants:
+      - conditions: [{ kind: world_state, flag_ref: world.barrowworks.headworks_preserved, location_ref: location.barrowworks.headworks, min: 1 }]
+        text: "\"Left it running?\" She turns the billet once. \"All right. Keep the drawings. A machine nobody understands is a fine argument for better drawings.\""
+      - conditions: [{ kind: world_state, flag_ref: world.barrowworks.headworks_dismantled, location_ref: location.barrowworks.headworks, min: 1 }]
+        text: "\"Two ingots, and the machine's done taking up the room.\" She nods. \"I can work with that. Tell Sel before she goes down there with a notebook and finds a pile of joints.\""
     next_if_exhausted: again
     choices:
       - id: back

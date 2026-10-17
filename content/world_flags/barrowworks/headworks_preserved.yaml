@@ -3,7 +3,7 @@ kind: world_flag
 schema: 1
 display_key: world.barrowworks.headworks_preserved.name
 tags: [world_flag]
-notes: Whether Kera was told to leave the mechanism whole.
+notes: The player fitted the retaining saddle locally and preserved the measure. NPCs learn only through reports.
 type: bool
 default: 0
 owning_system: S-22

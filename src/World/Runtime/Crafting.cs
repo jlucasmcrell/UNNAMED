@@ -61,6 +61,7 @@ public sealed record RecipeDiscovered(string StationKey, string RecipeId, long T
 /// <summary>A node as presentation draws it: where, what it gives, and whether it can be harvested now.</summary>
 public sealed record NodeView(string Key, string Name, string NodeDefId, string ItemId, long XMm, long ZMm, bool Ready)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public SpaceId Space { get; init; } = SpaceId.Exterior;
 }
 
@@ -119,8 +120,9 @@ internal sealed class GatheringSystem : IAbstractAdvance
         if (Math.Sqrt(Math.Pow(node.Site.XMm - body.XMm, 2) + Math.Pow(node.Site.ZMm - body.ZMm, 2)) > _context.Setup.Items.Inventory.ReachMm)
             return "that is out of reach";
         var record = State.World.NodeRecord(node.Cell, node.Key);
+        long localTick = _context.SpaceTick(node.Cell.Space, tick);
         int harvests = record?.HarvestSeq ?? 0;
-        if (!Ready(definition, record, tick))
+        if (!Ready(definition, record, localTick))
             return definition.Respawn == Respawn.None ? "it is worked out" : "there is nothing to take until it grows back";
 
         // The yield is rolled from the node and its harvest, and a skilled hand takes more.
@@ -128,13 +130,13 @@ internal sealed class GatheringSystem : IAbstractAdvance
         int count = channel.Int(0, definition.YieldMin, definition.YieldMax + 1) + Bonus(definition.SkillId);
         if (_context.Dispatch(new ExchangeItems(ImmutableArray<StackTake>.Empty, definition.ItemId, count, Quality.Standard)) is { } refused)
             return refused;
-        State.HarvestNode(_owner, node.Cell, node.Key, tick);
+        State.HarvestNode(_owner, node.Cell, node.Key, localTick);
         _context.Dispatch(new PracticeSkill(new SkillPractice(definition.SkillId, definition.Difficulty, PracticeOutcome.Success, tick)
         {
             NoveltyKey = definition.Id,
         }));
         _context.Events.Publish(new NodeGathered(node.Key, definition.Id, definition.ItemId, count,
-            !Ready(definition, State.World.NodeRecord(node.Cell, node.Key), tick), tick));
+            !Ready(definition, State.World.NodeRecord(node.Cell, node.Key), localTick), tick));
         if (definition.ResourceId is { } resource)
             _context.Dispatch(new RecordDeed(new Deed(DeedKind.Harvested, resource, count, Quality.Standard, null, tick)));
         return null;
@@ -154,7 +156,7 @@ internal sealed class GatheringSystem : IAbstractAdvance
         {
             var definition = Setup.Nodes[n.Site.NodeDefId];
             return new NodeView(n.Key, n.Site.Name, definition.Id, definition.ItemId, n.Site.XMm, n.Site.ZMm,
-                Ready(definition, State.World.NodeRecord(n.Cell, n.Key), State.WorldTick)) { Space = n.Cell.Space };
+                Ready(definition, State.World.NodeRecord(n.Cell, n.Key), _context.SpaceTick(n.Cell.Space, State.WorldTick))) { Space = n.Cell.Space };
         }).ToImmutableArray();
 }
 
@@ -196,7 +198,7 @@ internal sealed class CraftingSystem
             return $"{recipe.Id} is not known";
         var body = State.Body;
         // The best station of its kind within reach: an upgraded one is what masterwork needs.
-        if (_context.Setup.Sites(l => l.Stations).Where(p => p.Site.Kind == recipe.StationKind && InReach(p.Site))
+        if (_context.Setup.Sites(l => l.Stations).Where(p => p.Layout.SpaceId == State.Space && p.Site.Kind == recipe.StationKind && InReach(p.Site))
                 .OrderByDescending(p => p.Site.Grade).ThenBy(p => p.Site.Key, StringComparer.Ordinal)
                 .Select(p => p.Site).FirstOrDefault() is not { } station)
             return $"no {recipe.StationKind} in reach";
@@ -251,7 +253,7 @@ internal sealed class CraftingSystem
             return $"unknown actor {command.Actor}";
         if (State.PlayerCombat.Defeated)
             return "dead";
-        if (_context.Setup.Sites(l => l.Stations).FirstOrDefault(p => p.Site.Key == command.StationKey) is not { Site: { } station })
+        if (_context.Setup.Sites(l => l.Stations).FirstOrDefault(p => p.Layout.SpaceId == State.Space && p.Site.Key == command.StationKey) is not { Site: { } station })
             return $"there is no station '{command.StationKey}'";
         if (!InReach(station))
             return $"{station.Key} is out of reach";
@@ -279,7 +281,8 @@ internal sealed class CraftingSystem
     {
         int count = Setup.Constants.ExperimentsPerStation.GetValueOrDefault(station.Kind);
         var candidates = Setup.Recipes.Values.Where(r => r.Experiment && r.StationKind == station.Kind).Select(r => r.Id);
-        var channel = RngChannel.Open(State.World.WorldSeed, CellKey.OfWorld(station.XMm / 1000.0, station.ZMm / 1000.0), "experiment", station.Key);
+        var home = _context.Setup.Sites(l => l.Stations).First(p => p.Site == station).Layout;
+        var channel = RngChannel.Open(State.World.WorldSeed, _context.CellOfSite(home.SpaceId, station.XMm, station.ZMm), "experiment", station.Key);
         return CraftingRules.ExperimentSet(candidates, count, sample => channel.UInt64(sample) / SampleScale);
     }
 

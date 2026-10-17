@@ -166,11 +166,11 @@ public static class Kinematics
     public static bool Blocks(Blocker blocker, long liftMm, long bodyHeightMm) =>
         blocker.HeightMm <= 0 || (liftMm < blocker.HeightMm && liftMm + bodyHeightMm > blocker.ClearanceMm);
 
-    /// <summary>True when a body circle at the point overlaps nothing and lies inside the bounds.</summary>
+    /// <summary>True when a standing body at the point overlaps nothing and lies inside the bounds. Roofs above its head remain clear.</summary>
     public static bool IsClear(long xMm, long zMm, long radiusMm, WalkSpace space, IReadOnlyList<Blocker> dynamicBlockers) =>
         xMm - radiusMm >= space.MinXMm && xMm + radiusMm <= space.MaxXMm
         && zMm - radiusMm >= space.MinZMm && zMm + radiusMm <= space.MaxZMm
-        && space.Blockers.Concat(dynamicBlockers).All(b => b.Separation(xMm, zMm, radiusMm) is null);
+        && space.Blockers.Concat(dynamicBlockers).All(b => !Blocks(b, 0, 1800) || b.Separation(xMm, zMm, radiusMm) is null);
 
     /// <summary>Whether a crouched body here has room to stand: no overhang above it lower than a standing head.</summary>
     public static bool CanStand(Body body, MovementRules rules, WalkSpace space) =>

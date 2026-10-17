@@ -20,9 +20,9 @@ import io
 import json
 import os
 import re
-import subprocess
+from pathlib import Path
 
-ROOT = r"C:\Otherreach_Build\barrowworks_wt"
+ROOT = str(Path(__file__).resolve().parents[1])
 REGION = os.path.join(ROOT, "content", "regions", "barrowworks.yaml")
 # The ring's OWN overlay, NOT Cairnwold's. `content/_art_bindings.json` is the region overlay the shipped
 # PLAY.bat passes on every launch, and `ArtBindings` REPLACES a top-level `roof_groups` - so a ring roof list
@@ -105,13 +105,37 @@ def main():
     # leaving every other region's entries untouched. Matching on a name pattern missed the corridors, which
     # are `corr_r10_r11_z` and carry no room number of their own.
     before = len(structures)
-    for key in [k for k in structures if k in set(ids)]:
+    for key in [k for k in structures if k.startswith(("rock_", "corr_")) or re.match(r"r\d\d_", k)]:
         del structures[key]
 
     dressed = 0
     for sid in ids:
         structures[sid] = {"surface": wall_for(sid)}
         dressed += 1
+    for sid, model in {
+        "r02_notice_board": "notice", "r07_fitting_stand": "fitting_note", "r07_diagram_rack": "diagram",
+        "r09_blind_ledger": "ledger", "r12_preserve_control": "preserve_control", "r12_dismantle_control": "dismantle_control",
+        "r03_wash_pipe": "wash_pipe", "r04_drain_valve": "drain_valve", "r05_sorting_rack": "sorting_rack",
+        "r06_work_seat": "work_seat", "r08_counterweight": "counterweight", "r10_retreat_seat": "work_seat",
+        "r13_inspection_gauge": "inspection_gauge",
+    }.items():
+        structures[sid] = {"model": "bw_codex_"+model}
+    structures["barrier.barrowworks.measure"] = {
+        "model": "bw_codex_measure_running", "animation_flag": "world.barrowworks.headworks_preserved"}
+    doc["containers"] = {
+        "container.barrowworks.archive_crate": {"model": "prop_ph_wooden_crate_01"},
+        "container.barrowworks.codex_fragment": {"model": "bw_codex_codex_fragment"},
+        "container.barrowworks.lantern_foot": {"model": "bw_codex_lantern_foot"},
+    }
+    doc["doors"] = {f"door.barrowworks.g{i}": {"model": f"bw_codex_gate_{i}"} for i in range(1,4)}
+    clips = {state: "creature.bw_codex_custodian."+state for state in ("idle","walk","run","hit","death")}
+    clips.update({"attack": "creature.bw_codex_custodian.sweep",
+                  "ability.creature.gauge_sweep": "creature.bw_codex_custodian.sweep",
+                  "ability.creature.measure_fall": "creature.bw_codex_custodian.fall",
+                  "ability.creature.index_grasp": "creature.bw_codex_custodian.grasp"})
+    doc["creatures"] = {"creature.construct.ring_custodian": {
+        "model": "bw_codex_custodian", "clips": clips, "voice": "animated_armour", "flesh": "plate",
+        "steps": {"walk": "walk", "run": "move_heavy"}, "paces": {"walk": 1.55, "run": 2.2}}}
 
     deep = sum(1 for sid in ids if wall_for(sid) == DEEP_WALL)
 
@@ -149,8 +173,23 @@ def main():
     lit = 0
     for group in room_groups:
         number = int(group[1:])
-        walls[group] = {"interior_light": deep_light if number >= DEEP_FROM else hall_light}
+        walls.pop(group, None)
+        # The shell contains real modular walls, a stone ceiling, floor slabs and iron lamp fixtures.
+        # Only the wall prefix is replaced: interactable reading props remain separate.
+        text = open(REGION, encoding="utf-8").read()
+        boxes = [list(map(float, box.split(','))) for box in re.findall(
+            rf'id: {group}_wall\w*, box_m: \[([^\]]+)\]', text)]
+        x0, z0 = min(b[0] for b in boxes), min(b[1] for b in boxes)
+        x1, z1 = max(b[2] for b in boxes), max(b[3] for b in boxes)
+        cx, cz = (x0+x1)/2, (z0+z1)/2
+        positions = [(x0+1.5, z0+1.5), (x1-1.5, z1-1.5)]
+        if number == 11:
+            positions += [(x1-1.5, z0+1.5), (x0+1.5, z1-1.5)]
+        lights = [dict(hall_light, at=[x-cx, 1.0, z-cz], colour=[.70, .77, .80],
+                       energy=3.2, range=16 if number == 11 else 12, size=.2) for x, z in positions]
+        walls[group + "_wall"] = {"model": f"bw_codex_room_{number:02d}", "interior_light": lights}
         lit += 1
+    doc["roof_groups"] = [g + "_wall" for g in room_groups] + corridor_groups
     # The corridors are roofed too, and a five-metre passage under a slab is a black tube without its own light.
     corridor_light = dict(hall_light)
     corridor_light["energy"] = 1.2
@@ -158,6 +197,10 @@ def main():
     for leg in corridor_groups:
         walls[leg] = {"interior_light": corridor_light}
         lit += 1
+    walls['rock_'] = {'model': 'bw_codex_rock_mass'}
+    walls['corr_'] = {'model': 'bw_codex_corridors'}
+    # Corridor ceiling colliders are already authored at four metres; do not add floor-height proxy roofs.
+    doc['roof_groups'] = [g + '_wall' for g in room_groups]
 
     # The file's own comment explains the region's art; note this addition beside it rather than in it.
     doc[HEADER] = (f"GENERATED by tools/gen_barrowworks_bindings.py - {dressed} Barrowworks structures, "
