@@ -1,0 +1,265 @@
+// UNNAMED Presentation - the creator's live preview: the body being made, turning on a quiet set under the light the player chooses (PJ04 §3.2, §6)
+// Godot presentation only: it draws the gameplay model the character will be drawn with, and holds no game state (D-11)
+
+using Godot;
+using UNNAMED.Presentation.Art;
+using UNNAMED.Presentation.Player;
+
+namespace UNNAMED.Presentation.Ui;
+
+/// <summary>
+/// The body on a set of its own (its own world, so the hollow behind the title neither lights it nor is lit by it), drawn at the window's
+/// own pixels behind the creator's panel. Drag to turn it and the wheel to come closer; the creator's buttons do the same from the keys.
+/// The figure is the game's own: the same model, the same materials, the same clips, the same build.
+/// </summary>
+public sealed partial class CreatorPreview : TextureRect
+{
+    /// <summary>The four lights PJ04 §3.2 names, in its order.</summary>
+    public static readonly string[] Lights = { "Road morning", "Overcast", "Torchlit interior", "Night by lantern" };
+
+    /// <summary>Where the camera can stand: the whole body, the upper body, the face (PJ04 §3.2's framing buttons), as a zoom from 0 to 1.</summary>
+    public static readonly (string Name, float Zoom)[] Framings = { ("Full body", 0f), ("Upper body", 0.55f), ("Face", 1f) };
+
+    private readonly SubViewport _viewport = new()
+    {
+        Name = "Set", OwnWorld3D = true, Msaa3D = Viewport.Msaa.Msaa4X, RenderTargetUpdateMode = SubViewport.UpdateMode.Disabled,
+        Size = new Vector2I(1920, 1080),
+    };
+
+    private readonly Node3D _turntable = new() { Name = "Turntable" };
+    private readonly Camera3D _camera = new() { Name = "Camera", Fov = 30, Near = 0.05f };
+    private readonly DirectionalLight3D _key = new() { Name = "Key", ShadowEnabled = true };
+    private readonly OmniLight3D _rim = new() { Name = "Rim", OmniRange = 8 };
+    private readonly OmniLight3D _lamp = new() { Name = "Lamp", OmniRange = 5, ShadowEnabled = true };
+    private readonly ProceduralSkyMaterial _sky = new();
+    private readonly MeshInstance3D _ground = new() { Name = "Ground", Mesh = new PlaneMesh { Size = new Vector2(120, 120) } };
+    private readonly Godot.Environment _environment = new();
+    private readonly Dictionary<string, Figure> _figures = new(StringComparer.Ordinal);
+    private readonly Dictionary<Figure, BuildShape?> _builds = new();
+
+    private ArtLibrary _art = ArtLibrary.Empty;
+    private ArtBindings _bindings = ArtBindings.Empty;
+    private Figure? _figure;
+    private float _yaw;
+    private float _zoom;
+    private float _shownZoom;
+    private float _eyes = Avatar.EyeHeight;
+    private bool _dragging;
+
+    /// <summary>The light in use, by its index in <see cref="Lights"/>.</summary>
+    public int Light { get; private set; }
+
+    public void Bind(ArtLibrary art, ArtBindings bindings)
+    {
+        _art = art;
+        _bindings = bindings;
+    }
+
+    public override void _Ready()
+    {
+        ExpandMode = ExpandModeEnum.IgnoreSize;
+        SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        StretchMode = StretchModeEnum.Scale;
+        MouseFilter = MouseFilterEnum.Stop;
+        AddChild(_viewport);
+        Texture = _viewport.GetTexture();
+
+        _environment.BackgroundMode = Godot.Environment.BGMode.Sky;
+        _environment.Sky = new Sky { SkyMaterial = _sky };
+        _environment.AmbientLightSource = Godot.Environment.AmbientSource.Sky;
+        _environment.ReflectedLightSource = Godot.Environment.ReflectionSource.Sky;
+        _environment.TonemapMode = Godot.Environment.ToneMapper.Filmic;
+        _environment.SsaoEnabled = true;
+        var stage = new Node3D { Name = "Stage" };
+        stage.AddChild(new WorldEnvironment { Environment = _environment });
+        _key.RotationDegrees = new Vector3(-38, -32, 0);
+        stage.AddChild(_key);
+        _rim.Position = new Vector3(-1.4f, 2.1f, -1.8f);
+        stage.AddChild(_rim);
+        stage.AddChild(_lamp);
+        // The ground the body stands on, running off into the set's haze: the feet meet something, the shadow falls somewhere, and
+        // there is no edge to the world behind the body.
+        stage.AddChild(_ground);
+        // A haze that starts well behind the body, so the body itself is never veiled.
+        _environment.FogEnabled = true;
+        _environment.FogMode = Godot.Environment.FogModeEnum.Depth;
+        _environment.FogDepthBegin = 9;
+        _environment.FogDepthEnd = 55;
+        _environment.FogDensity = 1;
+        _environment.FogSkyAffect = 0;
+        stage.AddChild(_turntable);
+        stage.AddChild(_camera);
+        _viewport.AddChild(stage);
+        _camera.MakeCurrent();
+        UseLight(0);
+    }
+
+    /// <summary>
+    /// Draw this body: <paramref name="model"/> on the player's binding (null: the greybox mannequin, as the game would), at this
+    /// <paramref name="girth"/>, wearing the outfit for <paramref name="chest"/> (an item ID, or the base clothes). A body already
+    /// drawn once this session is shown again without loading.
+    /// </summary>
+    public void Show(string? model, float girth, string? chest)
+    {
+        string key = model ?? "";
+        if (!_figures.TryGetValue(key, out var figure))
+        {
+            figure = model is not null && SkinnedFigure.Create(_art, _bindings, "player", model) is { } skinned ? skinned : new Avatar();
+            figure.Name = model ?? "Greybox";
+            _turntable.AddChild(figure);
+            _figures[key] = figure;
+            BuildShape? build = null;
+            if (figure is SkinnedFigure body)
+            {
+                build = new BuildShape();
+                if (build.Bind(body.Skeleton))
+                    body.Skeleton.AddChild(build);
+                else
+                {
+                    build.Free();
+                    build = null;
+                }
+            }
+            _builds[figure] = build;
+        }
+        foreach (var other in _figures.Values)
+            other.Visible = other == figure;
+        _figure = figure;
+        if (_builds[figure] is { } shape)
+            shape.Girth = girth;
+        figure.Wear(chest);
+    }
+
+    /// <summary>Turn the body by an angle, in radians.</summary>
+    public void Turn(float radians) => _yaw = Mathf.Wrap(_yaw + radians, -Mathf.Pi, Mathf.Pi);
+
+    /// <summary>Come closer (positive) or step back, as a share of the way from the whole body to the face.</summary>
+    public void Zoom(float by) => _zoom = Mathf.Clamp(_zoom + by, 0, 1);
+
+    /// <summary>Stand the camera at a framing (<see cref="Framings"/>).</summary>
+    public void Frame(float zoom) => _zoom = Mathf.Clamp(zoom, 0, 1);
+
+    /// <summary>Put the body back as it first stood: facing the camera, the whole body in view.</summary>
+    public void ResetView()
+    {
+        _yaw = 0;
+        _zoom = 0;
+    }
+
+    /// <summary>Light the set as one of <see cref="Lights"/>.</summary>
+    public void UseLight(int index)
+    {
+        Light = ((index % Lights.Length) + Lights.Length) % Lights.Length;
+        switch (Light)
+        {
+            case 0:   // the opening's light: late morning, light overcast (bible §28)
+                Sky(new Color(0.36f, 0.48f, 0.66f), new Color(0.70f, 0.72f, 0.74f), new Color(0.20f, 0.18f, 0.16f), 0.9f);
+                Key(new Color(1f, 0.94f, 0.84f), 2.1f);
+                Rim(new Color(0.75f, 0.82f, 1f), 0.9f);
+                Lamp(null, 0);
+                break;
+            case 1:
+                Sky(new Color(0.52f, 0.55f, 0.60f), new Color(0.70f, 0.71f, 0.72f), new Color(0.22f, 0.21f, 0.20f), 1.2f);
+                Key(new Color(0.92f, 0.94f, 0.97f), 0.7f);
+                Rim(new Color(0.9f, 0.92f, 0.96f), 0.4f);
+                Lamp(null, 0);
+                break;
+            case 2:
+                Sky(new Color(0.06f, 0.05f, 0.04f), new Color(0.12f, 0.09f, 0.07f), new Color(0.05f, 0.04f, 0.03f), 0.35f);
+                Key(new Color(0.9f, 0.85f, 0.8f), 0.25f);
+                Rim(new Color(1f, 0.55f, 0.25f), 0.5f);
+                Lamp(new Vector3(1.1f, 1.7f, 1.0f), 4.5f);
+                break;
+            default:
+                Sky(new Color(0.03f, 0.05f, 0.10f), new Color(0.08f, 0.10f, 0.16f), new Color(0.03f, 0.03f, 0.04f), 0.4f);
+                Key(new Color(0.55f, 0.65f, 0.95f), 0.35f);
+                Rim(new Color(0.5f, 0.6f, 1f), 0.6f);
+                Lamp(new Vector3(0.7f, 1.1f, 1.1f), 3.0f);
+                break;
+        }
+    }
+
+    private void Sky(Color top, Color horizon, Color ground, float ambient)
+    {
+        _sky.SkyTopColor = top;
+        _sky.SkyHorizonColor = horizon;
+        // Below the horizon the sky is the haze, so the ground fades into it with no line where the set ends.
+        _sky.GroundBottomColor = horizon;
+        _sky.GroundHorizonColor = horizon;
+        _ground.MaterialOverride = new StandardMaterial3D { AlbedoColor = ground, Roughness = 1 };
+        _environment.AmbientLightEnergy = ambient;
+        _environment.FogLightColor = horizon;
+    }
+
+    private void Key(Color colour, float energy)
+    {
+        _key.LightColor = colour;
+        _key.LightEnergy = energy;
+    }
+
+    private void Rim(Color colour, float energy)
+    {
+        _rim.LightColor = colour;
+        _rim.LightEnergy = energy;
+    }
+
+    private void Lamp(Vector3? at, float energy)
+    {
+        _lamp.Visible = at is not null;
+        _lamp.Position = at ?? Vector3.Zero;
+        _lamp.LightColor = new Color(1f, 0.66f, 0.36f);
+        _lamp.LightEnergy = energy;
+    }
+
+    public override void _Process(double delta)
+    {
+        // The set is drawn only while the creator shows it.
+        var mode = IsVisibleInTree() ? SubViewport.UpdateMode.Always : SubViewport.UpdateMode.Disabled;
+        if (_viewport.RenderTargetUpdateMode != mode)
+            _viewport.RenderTargetUpdateMode = mode;
+        if (mode == SubViewport.UpdateMode.Disabled || _figure is null)
+            return;
+        // At the window's own pixels: the canvas is stretched, and a set drawn at canvas size would be blurred at 1440p.
+        var window = DisplayServer.WindowGetSize();
+        if (window.X > 0 && window.Y > 0 && _viewport.Size != window)
+            _viewport.Size = window;
+        _figure.Pose(Vector3.Zero, 0, 0, delta);
+        _turntable.Rotation = new Vector3(0, _yaw, 0);
+        if (_figure.Head is { } head)
+            _eyes = Mathf.Lerp(_eyes, head.Y - 0.06f, 0.2f);
+        _shownZoom = Mathf.Lerp(_shownZoom, _zoom, 1f - Mathf.Exp(-10f * (float)delta));
+        // The whole body (the hips' height, far enough for head to feet), the upper body, the face: eased between as one zoom.
+        float scale = _eyes / Avatar.EyeHeight;
+        float t = _shownZoom;
+        float height = t < 0.55f ? Mathf.Lerp(0.95f, 1.38f, t / 0.55f) * scale : Mathf.Lerp(1.38f * scale, _eyes, (t - 0.55f) / 0.45f);
+        float distance = t < 0.55f ? Mathf.Lerp(5.1f, 2.1f, t / 0.55f) : Mathf.Lerp(2.1f, 0.85f, (t - 0.55f) / 0.45f);
+        _camera.Position = new Vector3(0, height + 0.04f * distance, distance);
+        _camera.LookAt(new Vector3(0, height, 0), Vector3.Up);
+        // The body stands right of the panel: the camera moved left of it by a share of what it sees across.
+        float across = 2f * distance * Mathf.Tan(Mathf.DegToRad(_camera.Fov) / 2f) * (float)window.X / Math.Max(1, window.Y);
+        _camera.HOffset = -across * 0.17f;
+    }
+
+    public override void _GuiInput(InputEvent @event)
+    {
+        switch (@event)
+        {
+            case InputEventMouseButton { ButtonIndex: MouseButton.Left } press:
+                _dragging = press.Pressed;
+                AcceptEvent();
+                break;
+            case InputEventMouseButton { ButtonIndex: MouseButton.WheelUp, Pressed: true }:
+                Zoom(0.08f);
+                AcceptEvent();
+                break;
+            case InputEventMouseButton { ButtonIndex: MouseButton.WheelDown, Pressed: true }:
+                Zoom(-0.08f);
+                AcceptEvent();
+                break;
+            case InputEventMouseMotion motion when _dragging:
+                Turn(motion.Relative.X * 0.012f);
+                AcceptEvent();
+                break;
+        }
+    }
+}
