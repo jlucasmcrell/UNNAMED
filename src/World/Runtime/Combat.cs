@@ -259,7 +259,7 @@ internal sealed record ActionState(ActionKind Kind, long StartTick, AttackProfil
     }
 }
 
-/// <summary>The player's transient combat state. Never saved: a load starts at rest, with pools and effects from the save.</summary>
+/// <summary>The player's transient combat state. Never saved: a load starts at rest, with pools and effects from the save - fallen, at none (DN15).</summary>
 internal sealed record PlayerCombat(ActionState Action, bool Blocking, long StaggerImmuneUntil, long LastExertion, long LastCombat,
     ImmutableArray<DeathRecapLine> Recent)
 {
@@ -278,6 +278,9 @@ internal sealed record PlayerCombat(ActionState Action, bool Blocking, long Stag
     /// it runs, so every system that refuses the dead refuses the downed too, and creatures leave them be.
     /// </summary>
     public long DownedUntil { get; init; }
+
+    /// <summary>A death no hand can turn into a downing: one loaded from a save made while downed (DN15).</summary>
+    public bool PastHelp { get; init; }
 
     /// <summary>Thousandths of a point accrued by sprinting, regeneration and recovery, so integer pools move smoothly.</summary>
     public int SprintMilli { get; init; }
@@ -801,9 +804,15 @@ internal sealed partial class CombatSystem
         return null;
     }
 
-    /// <summary>The character as a hand helps them up: health at the revive share (a save made while downed is this; OD-13 = B).</summary>
-    public CharacterProgression HelpedUp(CharacterProgression progression) =>
-        progression with { Pools = progression.Pools with { Health = RevivedHealth(progression, _context.Setup.Progression, C) } };
+    /// <summary>
+    /// The combat a loaded character starts in. One saved at no health was saved downed, and under MMO rules that save is the death
+    /// (DN15): they start fallen and past help, and the death system settles it on the first tick as it settles any other.
+    /// </summary>
+    public void Seed(PlayerRecord player)
+    {
+        if (player.Progression.Pools.Health == 0)
+            State.SetPlayerCombat(_owner, PlayerCombat.Rested with { Defeated = true, PastHelp = true });
+    }
 
     /// <summary>The health a downed character stands up with: the revive share of their maximum, at least one.</summary>
     internal static int RevivedHealth(CharacterProgression progression, ProgressionRules rules, CombatConstants constants) =>
@@ -1072,7 +1081,8 @@ internal sealed class StatusEffectSystem : IAbstractAdvance
 /// XP (AG-8); the effects of the fight cleared; respawn at the return point (the region's spawn until one is chosen); a spell of weakness. It asks each owner in turn.
 /// With a hand near - a companion or hireling up within <see cref="CombatConstants.DownedHandWithinMm"/> (OD-13 = B) - the character is
 /// downed first: they lie <see cref="CombatConstants.DownedTicks"/> and the hand helps them up. Should the last hand fall or go before
-/// then, the death goes on as it would have. A death is never downed twice: once settled, it runs to the respawn.
+/// then, the death goes on as it would have. A death is never downed twice: once settled, it runs to the respawn. Nor is one loaded from a
+/// save made while downed (DN15): it is past help.
 /// </summary>
 internal sealed class DeathSystem
 {
@@ -1098,7 +1108,7 @@ internal sealed class DeathSystem
             var last = combat.Recent.LastOrDefault();
             var constants = _context.Setup.Combat.Constants;
             string? hand = Hand(state, constants.DownedHandWithinMm);
-            if (combat.DownedUntil == 0 && hand is not null)
+            if (combat.DownedUntil == 0 && !combat.PastHelp && hand is not null)
             {
                 long until = tick + constants.DownedTicks;
                 _context.Dispatch(new LieDowned(until));

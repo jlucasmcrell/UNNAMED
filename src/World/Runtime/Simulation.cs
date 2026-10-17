@@ -239,6 +239,7 @@ public sealed class Simulation
         _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _creatures, _effects, _gathering, _quests, _factions, _companions, _sheets, _approval, _npcs, _markets, _teaching, _durability, _laden, _lfg);
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
+        _combat.Seed(player);
         _npcs.Populate();
         _markets.Populate();
         _merchants.Populate();
@@ -691,12 +692,11 @@ public sealed class Simulation
     public PlayerRecord CaptureRecord()
     {
         // A save made while the character lies dead is the save of their respawn: it loads at the return point. One made while they lie
-        // downed with a hand near is the save of being helped up where they lie (OD-13 = B).
-        bool downed = _state.PlayerCombat.DownedUntil > 0;
-        bool dead = _state.PlayerCombat.Defeated && !downed;
+        // downed is saved as it is, at no health where they lie, and loads as the death (DN15: logging out can never escape one).
+        bool dead = _state.PlayerCombat.Defeated && _state.PlayerCombat.DownedUntil == 0;
         var body = dead ? _travel.ReturnBody() : _state.Body;
         return new PlayerRecord(_identity.Id, _identity.Name, body.XMm, body.YMm, body.ZMm, _identity.AppearanceSeed, _state.Inventory,
-            downed ? _combat.HelpedUp(_state.Progression) : _state.Progression, body.FacingMdeg, _state.Discoveries.Values, _state.Equipment, _state.Currency,
+            _state.Progression, body.FacingMdeg, _state.Discoveries.Values, _state.Equipment, _state.Currency,
             _state.Effects.GetValueOrDefault(_identity.Id, ImmutableArray<ActiveEffect>.Empty),
             _state.Relationships.SelectMany(n => n.Value.Select(d => new RelationshipValue(n.Key, d.Key, d.Value))),
             _state.Conversations.Select(c => new ConversationMemory(c.Key, c.Value.ToImmutableArray())),

@@ -11,7 +11,7 @@ namespace UNNAMED.Application.Tests;
 /// <summary>
 /// WP10's Downed (OD-13 = B, SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.10 X8): brought to nothing with a companion or hireling up and
 /// near, the character lies downed for 30 s and is helped up; with no hand near - alone, the hand too far, or the hand down too - they
-/// die as before. Downed costs nothing: no XP debt, no weakness, no respawn. A save made while downed is the save of being helped up.
+/// die as before. Downed costs nothing: no XP debt, no weakness, no respawn. A save made while downed loads as the death (DN15).
 /// </summary>
 public class DownedTests
 {
@@ -124,25 +124,39 @@ public class DownedTests
     }
 
     [Fact]
-    public void ASaveMadeWhileDowned_LoadsHelpedUp_WhereTheyLay()
+    public void ASaveMadeWhileDowned_LoadsAsTheDeath()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
+        var constants = session.Setup.Combat.Constants;
         var arena = Fight(session, TavarAt(Player.X, Player.Z - 1.5));
         BroughtDown(arena);
         arena.Tick(10);
         Assert.True(arena.Simulation.Combat.Downed);
-        var lying = arena.Simulation.Player.Body;
 
         var store = new SaveStore(profile.Root);
         store.Save(SaveSlots.Manual("downed"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content,
             arena.Simulation.WorldTick, 0));
         var loaded = Arena.Resume(arena.Simulation.Setup, store.Load(SaveSlots.Manual("downed"), new LoadContext(session.Generator, session.Content, new Registry())));
+        var downed = loaded.Record<PlayerDowned>();
+        var died = loaded.Record<PlayerDied>();
+        var respawned = loaded.Record<PlayerRespawned>();
+        Assert.True(loaded.Simulation.Combat.Defeated && !loaded.Simulation.Combat.Downed);
+        Assert.Equal(0, loaded.Simulation.Combat.Health);
 
-        var combat = loaded.Simulation.Combat;
-        Assert.False(combat.Defeated || combat.Downed);
-        Assert.Equal((lying.XMm, lying.ZMm), (loaded.Simulation.Player.Body.XMm, loaded.Simulation.Player.Body.ZMm));
-        Assert.Equal(Math.Max(1, combat.MaxHealth * session.Setup.Combat.Constants.DownedRevivePercent / 100), combat.Health);
-        Assert.Equal(0, loaded.Simulation.Player.Progression.XpDebt);
+        // Tavar is still near, but the death is past help: it is settled as any other, once.
+        loaded.Tick();
+        Assert.Empty(downed);
+        var death = Assert.Single(died);
+        Assert.True(death.DebtAdded > 0);
+        Assert.Equal(death.DebtAdded, loaded.Simulation.Player.Progression.XpDebt);
+        Assert.Contains(loaded.Simulation.Combat.Effects, e => e.EffectId == constants.DeathEffect);
+
+        loaded.Tick((int)(death.RespawnTick - loaded.Simulation.WorldTick));
+        var back = Assert.Single(respawned);
+        Assert.Equal((back.Body.XMm, back.Body.ZMm), (loaded.Simulation.Player.Body.XMm, loaded.Simulation.Player.Body.ZMm));
+        Assert.False(loaded.Simulation.Combat.Defeated);
+        Assert.Equal(loaded.Simulation.Combat.MaxHealth, loaded.Simulation.Combat.Health);
+        Assert.Single(died);
     }
 }

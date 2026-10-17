@@ -10,14 +10,52 @@ namespace UNNAMED.Soak.Tests;
 public sealed class InterruptedSaveTests
 {
     [Fact(Skip = "W4-SAVE-01: attack action is not persisted; save during Windup reloads Idle. StateDump deliberately excludes Phase, so digest alone misses this continuation mismatch."), Trait("Category", "KnownBug")]
-    public void MidCombatSave_ContinuesLikeUninterruptedCombat() => Probe(false);
-
-    [Fact(Skip = "W4-SAVE-02: CaptureRecord resolves Downed immediately to helped-up; continuous branch stays Downed for 600 ticks. Strong continuation equivalence is unmet."), Trait("Category", "KnownBug")]
-    public void DownedSave_ContinuesLikeUninterruptedDowned() => Probe(true);
-
-    private static void Probe(bool downed)
+    public void MidCombatSave_ContinuesLikeUninterruptedCombat()
     {
         using var w = new SoakWorld();
+        var sim = Fight(w, downed: false);
+        sim.Step();
+        var resumed = w.RoundTrip(sim);
+        Assert.Equal(sim.Combat.Phase, resumed.Combat.Phase);
+        for (int i = 0; i < 60; i++) { sim.Step(); resumed.Step(); }
+        SoakWorld.Equal(sim, resumed, "combat continuation", replayable: true);
+    }
+
+    // W4-SAVE-02, DN15: under MMO rules a save made while downed counts as the death, so quitting can never escape one. The uninterrupted
+    // branch is helped up by Tavar; the resumed one dies once, owes the usual debt and respawns at the return point, Tavar near or not.
+    [Fact, Trait("Category", "Smoke")]
+    public void DownedSave_LoadsAsTheDeath()
+    {
+        using var w = new SoakWorld();
+        var sim = Fight(w, downed: true);
+        for (int i = 0; i < 300 && !sim.Combat.Downed; i++) sim.Step();
+        Assert.True(sim.Combat.Downed, "fixture did not reach Downed");
+        var resumed = w.RoundTrip(sim);
+        var died = new List<PlayerDied>();
+        var respawned = new List<PlayerRespawned>();
+        w.Bus(resumed).Subscribe<PlayerDied>(died.Add);
+        w.Bus(resumed).Subscribe<PlayerRespawned>(respawned.Add);
+        var helped = new List<PlayerRevived>();
+        var continuousDied = new List<PlayerDied>();
+        w.Bus(sim).Subscribe<PlayerRevived>(helped.Add);
+        w.Bus(sim).Subscribe<PlayerDied>(continuousDied.Add);
+        long debt = sim.Player.Progression.XpDebt;
+        int window = sim.Setup.Combat.Constants.DownedTicks + sim.Setup.Combat.Constants.DeathTicks;
+        for (int i = 0; i < window; i++) { sim.Step(); resumed.Step(); }
+
+        Assert.Single(helped);
+        Assert.Empty(continuousDied);
+        Assert.Equal(debt, sim.Player.Progression.XpDebt);
+        var death = Assert.Single(died);
+        Assert.Equal(debt + death.DebtAdded, resumed.Player.Progression.XpDebt);
+        Assert.True(death.DebtAdded > 0);
+        var back = Assert.Single(respawned);
+        Assert.Equal((back.Body.XMm, back.Body.ZMm), (resumed.Player.Body.XMm, resumed.Player.Body.ZMm));
+        Assert.False(resumed.Combat.Defeated || resumed.Combat.Downed);
+    }
+
+    private static Simulation Fight(SoakWorld w, bool downed)
+    {
         long x = 470_000, z = 750_000;
         var setup = w.Session.Setup with { Combat = w.Session.Setup.Combat with {
             Spawns = ImmutableArray.Create(new SpawnSite("spawn.soak.wolf", x, z + 1900, 0,
@@ -30,15 +68,6 @@ public sealed class InterruptedSaveTests
                     CompanionCondition.Up, x, z - 1500, 0, 100) });
         });
         Assert.Null(w.Command(sim, new AttackCommand(sim.PlayerId)));
-        if (downed)
-        {
-            for (int i = 0; i < 300 && !sim.Combat.Downed; i++) sim.Step();
-            Assert.True(sim.Combat.Downed, "fixture did not reach Downed");
-        }
-        else sim.Step();
-        var resumed = w.RoundTrip(sim);
-        if (!downed) Assert.Equal(sim.Combat.Phase, resumed.Combat.Phase);
-        for (int i = 0; i < 60; i++) { sim.Step(); resumed.Step(); }
-        SoakWorld.Equal(sim, resumed, downed ? "Downed continuation" : "combat continuation", replayable: true);
+        return sim;
     }
 }
