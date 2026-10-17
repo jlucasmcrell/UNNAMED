@@ -80,8 +80,9 @@ public partial class DialoguePanel : CanvasLayer
         float foot = _styled ? -72 : -80;
         if (GetTree().Root.FindChild("HudView", true, false) is HudView { Aside: true } hud)
         {
-            float bottom = _panel.GetParentControl().Size.Y;
-            foreach (var rect in hud.Intrusions().Where(r => r.Position.X < _panel.GetGlobalRect().End.X && r.End.X > _panel.GetGlobalRect().Position.X))
+            float bottom = _panel.GetViewportRect().Size.Y;
+            var across = _panel.GetGlobalRect();
+            foreach (var rect in hud.Intrusions().Where(r => r.Position.X < across.End.X && r.End.X > across.Position.X))
                 foot = Math.Min(foot, rect.Position.Y - 12 - bottom);
         }
         _panel.OffsetTop = _panel.OffsetBottom = foot;
