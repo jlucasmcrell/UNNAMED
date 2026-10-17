@@ -87,8 +87,8 @@ public class CreatorTests
           "default": "body.veth_m.average",
           "base_build": "average",
           "types": [
-            { "id": "veth_m", "models": { "production": [ "pc_veth_m_body_c" ], "metahuman": [ "mh_veth_m" ] } },
-            { "id": "veth_f", "models": { "production": [ "pc_veth_f_new", "pc_veth_f" ], "metahuman": [ "mh_veth_f" ] } }
+            { "id": "veth_m", "models": [ "mh_veth_m" ] },
+            { "id": "veth_f", "models": [ "mh_veth_f_new", "mh_veth_f" ] }
           ]
         }
         """;
@@ -107,15 +107,13 @@ public class CreatorTests
     {
         var bodies = Read(Bindings);
 
-        Assert.Equal("pc_veth_f", bodies.Model(Body("veth_f", "average"), "production", m => m == "pc_veth_f"));
-        Assert.Equal("pc_veth_f_new", bodies.Model(Body("veth_f", "average"), "production", _ => true));
-        Assert.Equal("pc_veth_f_heavy", bodies.Model(Body("veth_f", "heavy"), "production", m => m == "pc_veth_f_heavy"));
-        Assert.Equal("mh_veth_m_very_lean", bodies.Model(Body("veth_m", "very_lean"), PlayerBodies.Family("metahuman_m"), _ => true));
+        Assert.Equal("mh_veth_f", bodies.Model(Body("veth_f", "average"), m => m == "mh_veth_f"));
+        Assert.Equal("mh_veth_f_new", bodies.Model(Body("veth_f", "average"), _ => true));
+        Assert.Equal("mh_veth_f_heavy", bodies.Model(Body("veth_f", "heavy"), m => m == "mh_veth_f_heavy"));
+        Assert.Equal("mh_veth_m_very_lean", bodies.Model(Body("veth_m", "very_lean"), _ => true));
         // A build whose model is not installed is not drawn at all: there is no stand-in shape any more.
-        Assert.Null(bodies.Model(Body("veth_m", "very_heavy"), "production", m => m == "pc_veth_m_body_c"));
-        Assert.Null(bodies.Model(Body("veth_x", "average"), "production", _ => true));
-        Assert.Equal("production", PlayerBodies.Family("production"));
-        Assert.Equal("production", PlayerBodies.Family(null));
+        Assert.Null(bodies.Model(Body("veth_m", "very_heavy"), m => m == "mh_veth_m"));
+        Assert.Null(bodies.Model(Body("veth_x", "average"), _ => true));
     }
 
     [Fact]
@@ -125,7 +123,7 @@ public class CreatorTests
 
         Assert.Empty(none.Types);
         Assert.Equal(CharacterSpec.DefaultBodyPreset, none.Default);
-        Assert.Null(none.Model(Body("veth_m", "average"), "production", _ => true));
+        Assert.Null(none.Model(Body("veth_m", "average"), _ => true));
     }
 
     [Fact]
@@ -137,7 +135,7 @@ public class CreatorTests
     }
 
     [Fact]
-    public void TheShippedBindings_DrawEveryBodyContentOffers_OnEitherFamily()
+    public void TheShippedBindings_DrawEveryBodyContentOffers_AsAMetaHuman()
     {
         string root = Root();
         using var document = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "src", "Presentation", "Art", "art_bindings.json")));
@@ -148,7 +146,7 @@ public class CreatorTests
         Assert.Equal(new[] { "veth_m", "veth_f" }, bodies.Types.Select(t => t.Type));
         Assert.Equal(types.OrderBy(t => t), bodies.Types.Select(t => t.Type).OrderBy(t => t));
         foreach (var type in bodies.Types)
-            Assert.Equal(new[] { "metahuman", "production" }, type.Models.Keys.OrderBy(k => k));
+            Assert.All(type.Models, m => Assert.StartsWith("mh_", m));
         Assert.True(File.Exists(Path.Combine(root, "content", "bodies", bodies.Default["body.".Length..].Replace('.', '_') + ".yaml")));
     }
 

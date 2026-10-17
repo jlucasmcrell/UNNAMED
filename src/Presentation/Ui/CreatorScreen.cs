@@ -239,13 +239,12 @@ public partial class CreatorScreen : CanvasLayer
     private List<Offered> OfferedBodies()
     {
         var bodies = _bindings.Bodies;
-        string family = PlayerBodies.Family(VisualOptions.All.GetValueOrDefault("player"));
         bool Installed(string model) => _art.RiggedFile(model, model + "_rigged.glb") is not null;
         var typeOrder = bodies.Types.Select(t => t.Type).ToList();
         int TypeOrder(string type) => typeOrder.IndexOf(type) is var i && i >= 0 ? i : typeOrder.Count;
         var offered = _session.Characters.OfferedBodies(_draft?.PeopleId ?? CharacterSpec.DefaultPeople).OrderBy(b => TypeOrder(b.Type)).ThenBy(b => b.Order).Select(b =>
         {
-            string? model = bodies.Model(b, family, Installed);
+            string? model = bodies.Model(b, Installed);
             return new Offered(b, model, model is not null);
         }).ToList();
         if (offered.Count > 0 && offered.All(o => !o.Installed))

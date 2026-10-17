@@ -926,12 +926,12 @@
   }
  },
   "player_bodies": {
-   "comment": "What each body preset (content/bodies, body.<type>.<build>; WP17) is drawn with. A type lists its models per player family, the first one installed drawn: production is the MPFB cast the player plays (people.player), metahuman the --visual player=metahuman_* bodies - male Veth the MetaHuman blend Victor x Trey (mh_veth_m), female Sunita x Tuya (mh_veth_f), owner 2026-10-15. Each build is its own model, baked with its garments by tools/character_build: <model>_<build>, base_build drawn by the model itself. A body whose model is not installed is offered disabled; there is no stand-in. body.default (every character made before the creator) keeps the body the run was bound with.",
+   "comment": "What each body preset (content/bodies, body.<type>.<build>; WP17) is drawn with. A type lists its models, the first one installed drawn; the player is a MetaHuman (the MPFB player bodies retired, owner 2026-10-17) - male Veth the MetaHuman blend Victor x Trey (mh_veth_m), female Sunita x Tuya (mh_veth_f), owner 2026-10-15. Each build is its own model, baked with its garments by tools/character_build: <model>_<build>, base_build drawn by the model itself. A body whose model is not installed is offered disabled; there is no stand-in. body.default (every character made before the creator) keeps the body the run was bound with.",
    "default": "body.veth_m.average",
    "base_build": "average",
    "types": [
-    { "id": "veth_m", "models": { "production": [ "pc_veth_m_body_c" ], "metahuman": [ "mh_veth_m" ] } },
-    { "id": "veth_f", "models": { "production": [ "pc_veth_f" ], "metahuman": [ "mh_veth_f" ] } }
+    { "id": "veth_m", "models": [ "mh_veth_m" ] },
+    { "id": "veth_f", "models": [ "mh_veth_f" ] }
    ]
   },
  "people": {

@@ -111,8 +111,7 @@ public partial class Main
         // A character made before the creator (and every harness's) keeps the body the run was bound with.
         string preset = simulation.Player.Identity.BodyPresetId;
         var body = _session.Characters.Bodies.GetValueOrDefault(preset);
-        string family = PlayerBodies.Family(VisualOptions.All.GetValueOrDefault("player"));
-        string? model = body is not null ? _bindings.Bodies.Model(body, family, m => _art.RiggedFile(m, m + "_rigged.glb") is not null) : null;
+        string? model = body is not null ? _bindings.Bodies.Model(body, m => _art.RiggedFile(m, m + "_rigged.glb") is not null) : null;
         if (model is not null && model != _avatarModel && SkinnedFigure.Create(_art, _bindings, "player", model) is { } skinned)
         {
             var feet = _avatar.Position;
