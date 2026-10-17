@@ -652,7 +652,10 @@ public sealed class Sheet
         layer.VisibilityChanged += () =>
         {
             if (!layer.Visible)
+            {
+                Hud()?.StepAside(false);
                 return;
+            }
             Keys();
             Place();
             Open();
@@ -749,8 +752,10 @@ public sealed class Sheet
         var canvas = Root.IsInsideTree() && Root.Size.X > 100 ? Root.Size : new Vector2(1920, 1080);
         float width = Math.Min(_width, canvas.X - 32), top = Math.Min(UiKit.BandTop, Math.Max(16, canvas.Y - UiKit.BandHeight - 16));
         float bottom = Math.Min(top + UiKit.BandHeight, canvas.Y - 16);
-        if (Root.IsInsideTree() && Root.GetTree().Root.FindChild("HudView", true, false) is HudView { Visible: true } hud && hud.IsVisibleInTree())
+        if (Hud() is { } hud)
         {
+            // Enlarged (a canvas under the reference's 1080 lines, or larger text), the HUD steps aside rather than the sheet shrinking round it.
+            hud.StepAside(canvas.Y < 1079 || HudStyle.TextScale > 1);
             float centre = Root.Size.X / 2;
             foreach (var rect in hud.Intrusions())
             {
@@ -784,6 +789,10 @@ public sealed class Sheet
         if (moved || Scroll is not null)
             Refit();
     }
+
+    /// <summary>The production HUD while it shows, or null.</summary>
+    private HudView? Hud() =>
+        Root.IsInsideTree() && Root.GetTree().Root.FindChild("HudView", true, false) is HudView { Visible: true } hud && hud.IsVisibleInTree() ? hud : null;
 
     private void Refit()
     {

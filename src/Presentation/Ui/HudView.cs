@@ -47,6 +47,17 @@ public partial class HudView : Control
     private HudIcons _icons = HudIcons.None;
     private double _clock;
 
+    // What steps aside for a sheet at a large interface (the plate and companions, the bottom-left panel, the log, the tracked quest),
+    // and what stays in their place: health and stamina, so a screen never hides that the character is being hurt.
+    private readonly Control _besides = new() { MouseFilter = MouseFilterEnum.Ignore };
+    private readonly PanelContainer _vitals = new();
+    private readonly Gauge _vitalHealth = new(HudStyle.HealthFill, new Vector2(PoolWidth, 12));
+    private readonly Gauge _vitalStamina = new(HudStyle.StaminaFill, new Vector2(PoolWidth, 8));
+    private readonly Label _vitalHealthValue = PoolValue();
+    private readonly Label _vitalStaminaValue = PoolValue();
+    private bool _aside;
+    private bool _trackerWanted;
+
     // Top left: the character plate.
     private readonly Label _name = HudStyle.Text(HudStyle.Caps, 23, HudStyle.Bone, caps: true);
     private readonly Label _level = HudStyle.Text(HudStyle.Caps, 17, HudStyle.Ember, caps: true);
@@ -149,6 +160,8 @@ public partial class HudView : Control
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         MouseFilter = MouseFilterEnum.Ignore;
 
+        _besides.SetAnchorsPreset(LayoutPreset.FullRect);
+        AddChild(_besides);
         BuildTopLeft();
         BuildBottomLeft();
         BuildTopCentre();
@@ -165,7 +178,7 @@ public partial class HudView : Control
         // this corner, where the classic status text ended at y 105.
         var column = new VBoxContainer { Position = new Vector2(Margin, 16) };
         column.AddThemeConstantOverride("separation", 8);
-        AddChild(column);
+        _besides.AddChild(column);
 
         var plate = new PanelContainer { CustomMinimumSize = new Vector2(420, 0) };
         plate.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(14, 5));
@@ -258,7 +271,7 @@ public partial class HudView : Control
             AnchorTop = 1, AnchorBottom = 1, OffsetLeft = Margin, OffsetRight = Margin, OffsetTop = -Margin, OffsetBottom = -Margin,
             GrowVertical = GrowDirection.Begin,
         };
-        AddChild(column);
+        _besides.AddChild(column);
 
         _chat.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(12, 6, quiet: true));
         _chat.CustomMinimumSize = new Vector2(420, 0);
@@ -313,6 +326,39 @@ public partial class HudView : Control
 
         panel.AddChild(rows);
         column.AddChild(panel);
+
+        _vitals.AnchorTop = _vitals.AnchorBottom = 1;
+        _vitals.OffsetLeft = _vitals.OffsetRight = Margin;
+        _vitals.OffsetTop = _vitals.OffsetBottom = -Margin;
+        _vitals.GrowVertical = GrowDirection.Begin;
+        _vitals.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(12, 6));
+        var vitals = new GridContainer { Columns = 3 };
+        vitals.AddThemeConstantOverride("h_separation", 9);
+        vitals.AddThemeConstantOverride("v_separation", 2);
+        foreach (var (name, gauge, value) in new[] { ("Health", _vitalHealth, _vitalHealthValue), ("Stamina", _vitalStamina, _vitalStaminaValue) })
+        {
+            vitals.AddChild(PoolName(name));
+            gauge.SizeFlagsVertical = SizeFlags.ShrinkCenter;
+            vitals.AddChild(gauge);
+            vitals.AddChild(value);
+        }
+        _vitals.AddChild(vitals);
+        _vitals.Visible = false;
+        AddChild(_vitals);
+    }
+
+    /// <summary>
+    /// While a sheet is open at a large interface or text size, the HUD steps aside for it rather than the sheet shrinking round it: the
+    /// plate, the companions, the bottom-left panel, the log and the tracked quest go, and health and stamina stay at the bottom left.
+    /// </summary>
+    public void StepAside(bool aside)
+    {
+        if (aside == _aside)
+            return;
+        _aside = aside;
+        _besides.Visible = !aside;
+        _vitals.Visible = aside;
+        _tracker.Visible = _trackerWanted && !aside;
     }
 
     private void PoolRow(GridContainer grid, string key, Label name, Control gauge, Label value)
@@ -503,6 +549,12 @@ public partial class HudView : Control
     /// </summary>
     public IEnumerable<Rect2> Intrusions()
     {
+        if (_aside)
+        {
+            // From its minimum size: the panel was shown this frame and has not been laid out yet.
+            var vitals = _vitals.GetCombinedMinimumSize();
+            yield return new Rect2(Margin, Size.Y - Margin - vitals.Y, vitals.X, vitals.Y);
+        }
         if (_companions.IsVisibleInTree())
             yield return _companions.GetGlobalRect();
         if (_tracker.IsVisibleInTree())
@@ -581,7 +633,7 @@ public partial class HudView : Control
         }
         _log.AddChild(lines);
         _log.Visible = false;
-        AddChild(_log);
+        _besides.AddChild(_log);
     }
 
     private void BuildMiddle()
@@ -724,6 +776,10 @@ public partial class HudView : Control
         _stamina.Set(stamina, maxStamina);
         _healthValue.Text = $"{health} / {maxHealth}";
         _staminaValue.Text = $"{stamina} / {maxStamina}";
+        _vitalHealth.Set(health, maxHealth);
+        _vitalStamina.Set(stamina, maxStamina);
+        _vitalHealthValue.Text = _healthValue.Text;
+        _vitalStaminaValue.Text = _staminaValue.Text;
     }
 
     /// <summary>Focus, and Strain against its tolerance: once Strained the gauge turns red and hatched, and its name says so.</summary>
@@ -903,7 +959,8 @@ public partial class HudView : Control
     public void SetTracker(string? text, bool shown)
     {
         text ??= string.Empty;
-        _tracker.Visible = shown && text.Length > 0;
+        _trackerWanted = shown && text.Length > 0;
+        _tracker.Visible = _trackerWanted && !_aside;
         if (text == _trackerText)
             return;
         _trackerText = text;
