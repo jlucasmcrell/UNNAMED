@@ -73,6 +73,8 @@ if not os.path.exists(backup):
 for src, dst in items:
     target = os.path.join(a.root, dst)
     os.makedirs(os.path.dirname(target), exist_ok=True)
+    if os.path.exists(target):
+        os.remove(target)   # a root mirrored by hard links: replace the file, never write through to the package it links to
     shutil.copy2(src, target)
 record = {"package": "WP17 bodies and garments that follow the body (tools/character_build/install_bodies.py)",
           "installed_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
