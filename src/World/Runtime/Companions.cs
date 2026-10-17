@@ -153,7 +153,11 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
             if (!State.Npcs.TryGetValue(record.NpcId, out var npc) || BodyOf(npc.Definition, record.Membership) is not { } profile || Tuning is null
                 || AttackOf(profile) is not { } attack)
                 continue;
-            var terrain = _context.Setup.SpaceFor(State.Space).Terrain;
+            // The companion own ground, from the layout that lists its NPC. The player space is wrong here: this
+            // runs after the space is adopted from a save, so a save made inside the ring put a companion left
+            // waiting outside on the ring floor (review 3, B8). The other uses in this file are the follow and
+            // arrival paths, where the player space IS the companion space.
+            var terrain = _context.Setup.SpaceFor(_context.Setup.SpaceOfNpc(record.NpcId)).Terrain;
             _context.Dispatch(new PlaceNpc(record.NpcId, new Body(record.XMm, terrain.HeightAtMm(record.XMm, record.ZMm), record.ZMm, record.FacingMdeg)));
             State.SetCompanion(_owner, new CompanionState(record.NpcId, profile, attack, record.Order, record.Condition, record.Health)
             {

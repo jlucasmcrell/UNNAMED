@@ -80,9 +80,12 @@ internal sealed class GatheringSystem : IAbstractAdvance
         _context = context;
         _owner = owner;
         _player = player;
-        _nodes = context.Setup.Layout.Nodes.Select(site =>
+        // Every layout's nodes, each in its OWN space: a ring node authored at 12 m must not be a frontier node at
+        // 12 m, and with one layout the ring had no nodes at all (review 3, B6).
+        _nodes = context.Setup.Sites(l => l.Nodes).Select(pair =>
         {
-            var cell = context.CellOfSite(site.XMm, site.ZMm);
+            var (home, site) = pair;
+            var cell = context.CellOfSite(home.SpaceId, site.XMm, site.ZMm);
             return (Keys.NodeKey(cell, site.Name, 0), cell, site);
         }).ToImmutableArray();
     }
@@ -188,8 +191,9 @@ internal sealed class CraftingSystem
             return $"{recipe.Id} is not known";
         var body = State.Body;
         // The best station of its kind within reach: an upgraded one is what masterwork needs.
-        if (_context.Setup.Layout.Stations.Where(s => s.Kind == recipe.StationKind && InReach(s))
-                .OrderByDescending(s => s.Grade).ThenBy(s => s.Key, StringComparer.Ordinal).FirstOrDefault() is not { } station)
+        if (_context.Setup.Sites(l => l.Stations).Where(p => p.Site.Kind == recipe.StationKind && InReach(p.Site))
+                .OrderByDescending(p => p.Site.Grade).ThenBy(p => p.Site.Key, StringComparer.Ordinal)
+                .Select(p => p.Site).FirstOrDefault() is not { } station)
             return $"no {recipe.StationKind} in reach";
 
         var takes = ImmutableArray.CreateBuilder<StackTake>();
@@ -242,7 +246,7 @@ internal sealed class CraftingSystem
             return $"unknown actor {command.Actor}";
         if (State.PlayerCombat.Defeated)
             return "dead";
-        if (_context.Setup.Layout.Stations.FirstOrDefault(s => s.Key == command.StationKey) is not { } station)
+        if (_context.Setup.Sites(l => l.Stations).FirstOrDefault(p => p.Site.Key == command.StationKey) is not { Site: { } station })
             return $"there is no station '{command.StationKey}'";
         if (!InReach(station))
             return $"{station.Key} is out of reach";

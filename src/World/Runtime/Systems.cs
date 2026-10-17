@@ -71,7 +71,15 @@ internal sealed class SystemContext
     /// their cells must be qualified with the layout's space rather than the exterior.
     /// </summary>
     public CellKey CellOfSite(long xMm, long zMm) =>
-        CellKey.OfInterior(Setup.Layout.SpaceId, xMm / 1000.0, zMm / 1000.0);
+        CellOfSite(Setup.Layout.SpaceId, xMm, zMm);
+
+    /// <summary>
+    /// The same, in the space the caller names. A site's space is its OWN layout's, never the player's: a ring place
+    /// and a frontier place authored at the same metres are different cells, and taking the player's space put a
+    /// loaded save's exterior NPCs underground and the ring's flags in the frontier (review 3, B8).
+    /// </summary>
+    public CellKey CellOfSite(SpaceId space, long xMm, long zMm) =>
+        CellKey.OfInterior(space, xMm / 1000.0, zMm / 1000.0);
 
     /// <summary>Closed doors and standing barriers: the footprints whose passability is a world flag.</summary>
     public ImmutableArray<Blocker> ClosedDoors() => Setup.Layout.ClosedDoors(IsOpen, IsLifted);
@@ -322,11 +330,15 @@ internal sealed class InteractionSystem
     {
         if (command.Actor != _player)
             return $"unknown actor {command.Actor}";
-        if (_context.Setup.Layout.FindSwitch(command.TargetKey) is { } site)
-            return Work(site, tick);
-        var door = _context.Setup.Layout.FindDoor(command.TargetKey);
-        if (door is null)
+        // The site's own layout, and only usable from inside its space: local metres overlap between spaces, so a
+        // proximity test without a space test would reach across the hill.
+        if (_context.Setup.Sites(l => l.Switches).FirstOrDefault(p => p.Site.Key == command.TargetKey) is { Site: { } switchSite, Layout: var switchHome })
+            return Work(switchHome, switchSite, tick);
+        var found = _context.Setup.Sites(l => l.Doors).FirstOrDefault(p => p.Site.Key == command.TargetKey);
+        if (found.Site is not { } door)
             return $"nothing to interact with called '{command.TargetKey}'";
+        if (found.Layout.SpaceId != _context.State.Space)
+            return $"{door.Key} is not in this place";
         var body = _context.State.Body;
         var rules = _context.Setup.Movement;
         double distance = door.ClosedFootprint.DistanceTo(body.XMm, body.ZMm);
@@ -340,15 +352,17 @@ internal sealed class InteractionSystem
                        || _context.State.Npcs.Values.Any(n => door.ClosedFootprint.Separation(n.Body.XMm, n.Body.ZMm, rules.BodyRadiusMm) is not null);
         if (open && blocked)
             return $"{door.Key} cannot close: something is in the doorway";
-        if (_context.Dispatch(new SetWorldFlag(Simulation.CellOf(_context.Setup.Layout.SpaceId, door), door.FlagId, open ? 0 : 1)) is { } refused)
+        if (_context.Dispatch(new SetWorldFlag(Simulation.CellOf(found.Layout.SpaceId, door), door.FlagId, open ? 0 : 1)) is { } refused)
             return refused;
         _context.Events.Publish(new DoorToggled(_player, door.Key, !open, tick));
         return null;
     }
 
     /// <summary>A switch sets its flag once, and only when every flag it requires is set in its cell.</summary>
-    private string? Work(SwitchSite site, long tick)
+    private string? Work(RegionLayout home, SwitchSite site, long tick)
     {
+        if (home.SpaceId != _context.State.Space)
+            return $"the {site.Name} is not in this place";
         var body = _context.State.Body;
         long reach = _context.Setup.Movement.InteractReachMm;
         double distance = site.Body.DistanceTo(body.XMm, body.ZMm);
@@ -356,7 +370,7 @@ internal sealed class InteractionSystem
             return $"the {site.Name} is {distance / 1000:0.00} m away; reach is {reach / 1000.0:0.00} m";
         if (_context.IsSet(site))
             return $"the {site.Name} is already set";
-        var cell = Simulation.CellOf(_context.Setup.Layout.SpaceId, site);
+        var cell = Simulation.CellOf(home.SpaceId, site);
         if (site.Requires.Any(flag => _context.State.World.GetFlag(cell, flag) == 0))
             return site.LockedText;
         if (_context.Dispatch(new SetWorldFlag(cell, site.FlagId, 1)) is { } refused)
@@ -508,11 +522,12 @@ internal sealed class DiscoverySystem
     public void Tick(long tick)
     {
         var state = _context.State;
-        foreach (var place in _context.Setup.Layout.Locations)
+        foreach (var (layout, place) in _context.Setup.Sites(l => l.Locations))
         {
             if (state.Discoveries.ContainsKey(place.Id))
                 continue;
-            string cell = _context.CellOfSite(place.XMm, place.ZMm).ToString();
+            // The place's own space: its discovery tier, and its distance, are its layout's.
+            string cell = _context.CellOfSite(layout.SpaceId, place.XMm, place.ZMm).ToString();
             if (state.Tiers.GetValueOrDefault(cell, SimulationTier.D) != SimulationTier.A)
                 continue;
             double dx = state.Body.XMm - place.XMm, dz = state.Body.ZMm - place.ZMm;
@@ -578,6 +593,11 @@ internal sealed class TierSystem
 
     private long DistanceTo(CellKey cell)
     {
+        // A cell in another space is not near the body, whatever the local metres say. Without this the ring's cells
+        // would be promoted by a body standing at the same metres in the frontier, and the Custodian's tier would be
+        // decided by someone in a different room entirely (review 3, B8).
+        if (cell.Space != _context.State.Space)
+            return long.MaxValue / 4;
         long minX = ((long)cell.Region.Rx * WorldMath.RegionSizeMeters + (long)cell.Cx * WorldMath.CellSizeMeters) * 1000;
         long minZ = ((long)cell.Region.Rz * WorldMath.RegionSizeMeters + (long)cell.Cz * WorldMath.CellSizeMeters) * 1000;
         long size = WorldMath.CellSizeMeters * 1000L;

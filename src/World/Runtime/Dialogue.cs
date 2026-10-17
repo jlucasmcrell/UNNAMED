@@ -270,9 +270,14 @@ internal sealed class DialogueSystem : IDialogueFacts
         locationId is not null ? PlaceFlag(locationId, flagId)
         : State.Conversation is { } open ? State.World.GetFlag(SpeakerCell(open.NpcId), flagId) : 0;
 
+    /// <summary>
+    /// A place's flag, read in the space the place's own layout stands in. Kera's offer asks this for
+    /// <c>location.barrowworks.intake_hall</c>, which lives in the ring - so with one layout it was never found and
+    /// the offer was never shown anywhere (review 3, B6/B3e).
+    /// </summary>
     private long PlaceFlag(string locationId, string flagId) =>
-        _context.Setup.Layout.Locations.FirstOrDefault(l => l.Id == locationId) is { } place
-            ? State.World.GetFlag(_context.CellOfSite(place.XMm, place.ZMm), flagId)
+        _context.Setup.Sites(l => l.Locations).FirstOrDefault(p => p.Site.Id == locationId) is { Site: { } place, Layout: var layout }
+            ? State.World.GetFlag(_context.CellOfSite(layout.SpaceId, place.XMm, place.ZMm), flagId)
             : 0;
 
     public int Carried(string itemId, int qualityMin) =>

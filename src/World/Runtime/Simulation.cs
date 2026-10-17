@@ -33,12 +33,57 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
         ImmutableDictionary<SpaceId, WalkSpace>.Empty;
 
     /// <summary>
-    /// The interior layout this run can reach, when the gate lets one in (B1). Null otherwise, which is every run that
-    /// does not open the Barrowworks. Its places, nodes, containers, stations and NPCs are its own: they are authored
-    /// in its local metres and belong to its space, so a caller asking whether a quest step is reachable has to look
-    /// in the layout that holds it.
+    /// Every layout this run holds, by the space it stands in (B6). The region's own is always here; an interior
+    /// reachable from it is added when the gate lets it in.
     /// </summary>
-    public RegionLayout? Interior { get; init; }
+    /// <remarks>
+    /// A layout is one space: its switches, doors, containers, nodes, stations, places and NPCs are authored together
+    /// in its own metres. So a consumer that wants "every switch" wants every layout's switches, and one that wants
+    /// the cell of a site wants that site's OWN layout's space - never the player's, which is what made the ring's
+    /// switches invisible and, later, buried the exterior's NPCs (review 3, B6 and B8).
+    /// </remarks>
+    public ImmutableDictionary<SpaceId, RegionLayout> Layouts { get; init; } =
+        ImmutableDictionary<SpaceId, RegionLayout>.Empty;
+
+    /// <summary>The interior this run can reach, or null when the gate let none in.</summary>
+    public RegionLayout? Interior =>
+        Layouts.Values.FirstOrDefault(l => l.SpaceId != Layout.SpaceId);
+
+    /// <summary>Every layout held: the region's own first, then any interior.</summary>
+    public IEnumerable<RegionLayout> AllLayouts =>
+        Layouts.Count == 0 ? new[] { Layout } : new[] { Layout }.Concat(Layouts.Values.Where(l => l.SpaceId != Layout.SpaceId));
+
+    /// <summary>
+    /// Every authored site of a kind, each with the layout that stands it. A site has a space only through its
+    /// layout, which is why this pairs them rather than returning the sites alone.
+    /// </summary>
+    public IEnumerable<(RegionLayout Layout, T Site)> Sites<T>(Func<RegionLayout, IEnumerable<T>> pick)
+    {
+        foreach (var layout in AllLayouts)
+        {
+            foreach (var site in pick(layout))
+                yield return (layout, site);
+        }
+    }
+
+    /// <summary>
+    /// The space an NPC's own site stands in, or the exterior when no layout lists it. An entity's space is its own,
+    /// never the player's: the two overlay in local metres, so the player's space is only right by coincidence and
+    /// is wrong on every load and every walk through a door (review 3, B8).
+    /// </summary>
+    public SpaceId SpaceOfNpc(string npcId)
+    {
+        foreach (var (layout, site) in Sites(l => l.Npcs))
+        {
+            if (site.NpcId == npcId)
+                return layout.SpaceId;
+        }
+        return SpaceId.Exterior;
+    }
+
+    /// <summary>The layout that stands in <paramref name="space"/>, or the region's own when none does.</summary>
+    public RegionLayout LayoutFor(SpaceId space) =>
+        Layouts.TryGetValue(space, out var held) ? held : Layout;
 
     /// <summary>
     /// The ground and walls of <paramref name="space"/>, or the layout's own when it names nothing this holds. The
@@ -167,7 +212,14 @@ public sealed class Simulation
     {
         Setup = setup;
         _identity = player;
-        _cells = setup.Layout.CellKeys.Select(CellKey.Parse).OrderBy(c => c).ToImmutableArray();
+        // Every space's cells. A run that holds the ring must hold its cells too: a creature's AI keys on the
+        // tier of the cell it stands in, and a space with no cells has no tiers, so the Custodian was never woken.
+        _cells = setup.AllLayouts
+            .SelectMany(l => l.CellKeys)
+            .Select(CellKey.Parse)
+            .Distinct()
+            .OrderBy(c => c)
+            .ToImmutableArray();
         // The session opens in the region's own space (M8 D10): the exterior for the world's regions, its own for
         // an interior. A body placed in an interior's metres while the simulation believes it is outside is the
         // collision the space identity exists to prevent, in reverse.
@@ -345,6 +397,9 @@ public sealed class Simulation
     /// a HUD or a map prompt can say which space the character is in, and so a test can assert a transition
     /// without reaching into state.
     /// </summary>
+    /// <summary>Every cell this run holds a tier for, across every space it holds (review 3, B6).</summary>
+    public ImmutableArray<CellKey> HeldCells => _cells;
+
     public bool PlayerInExterior => _state.Space.IsExterior;
 
     public PlayerView Player => new(_identity.Id, _identity.Name, _state.Body, _movement.Intent, _state.Progression,
@@ -353,16 +408,20 @@ public sealed class Simulation
         _inventory.CarryLimitGrams(), _equipment.Armor()) { Identity = _identity.Identity };
 
     /// <summary>Every authored container and what it holds now.</summary>
-    public ImmutableArray<ContainerView> Containers => Setup.Layout.Containers.Concat(_context.CorpseSites()).Select(_inventory.View).ToImmutableArray();
+    public ImmutableArray<ContainerView> Containers =>
+        Setup.AllLayouts.SelectMany(l => l.Containers).Concat(_context.CorpseSites()).Select(_inventory.View).ToImmutableArray();
 
     /// <summary>Items lying in the region.</summary>
     public ImmutableArray<WorldItemView> WorldItems => _inventory.WorldItems();
 
-    public ImmutableArray<DoorView> Doors => Setup.Layout.Doors.Select(d => new DoorView(d, _context.IsOpen(d))).ToImmutableArray();
+    public ImmutableArray<DoorView> Doors =>
+        Setup.AllLayouts.SelectMany(l => l.Doors).Select(d => new DoorView(d, _context.IsOpen(d))).ToImmutableArray();
 
-    public ImmutableArray<SwitchView> Switches => Setup.Layout.Switches.Select(s => new SwitchView(s, _context.IsSet(s))).ToImmutableArray();
+    public ImmutableArray<SwitchView> Switches =>
+        Setup.AllLayouts.SelectMany(l => l.Switches).Select(s => new SwitchView(s, _context.IsSet(s))).ToImmutableArray();
 
-    public ImmutableArray<BarrierView> Barriers => Setup.Layout.Barriers.Select(b => new BarrierView(b, !_context.IsLifted(b))).ToImmutableArray();
+    public ImmutableArray<BarrierView> Barriers =>
+        Setup.AllLayouts.SelectMany(l => l.Barriers).Select(b => new BarrierView(b, !_context.IsLifted(b))).ToImmutableArray();
 
     /// <summary>The player in combat: phase, guard, weapon, pools and effects.</summary>
     public CombatView Combat => _combat.View();

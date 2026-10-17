@@ -182,10 +182,13 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// <summary>World start: every spawner's creatures at their baseline places, then each record's divergence over it.</summary>
     public void Populate()
     {
-        var space = _context.Setup.Layout.Space;
         foreach (var site in Setup.Spawns)
         {
-            var cell = _context.CellOfSite(site.XMm, site.ZMm);
+            // The spawner's own ground and space: a ring spawner's creatures stand on the ring's floor, and its cell
+            // is a ring cell. Taking the layout's space gave every co-loaded ring creature an EXTERIOR key, so the
+            // Custodian's defeat flag would have landed in a frontier cell (review 3, B8).
+            var space = _context.Setup.SpaceFor(site.Space);
+            var cell = _context.CellOfSite(site.Space, site.XMm, site.ZMm);
             for (int i = 0; i < site.Members.Length; i++)
             {
                 var member = site.Members[i];
@@ -323,7 +326,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
     private CreatureState Live(CreatureState c, long tick, List<Noise> noises)
     {
-        if (TierOf(c.Body) != SimulationTier.A)
+        if (TierOf(c) != SimulationTier.A)
             return c;
         var (phase, _) = c.Action.PhaseAt(tick, C);
         if (c.Action.Kind != ActionKind.Idle && phase == CombatPhase.Idle)
@@ -531,7 +534,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         if (radius <= 0)
             return c;
         long leg = (tick + Offset(c.Key, WanderLegTicks)) / WanderLegTicks;
-        var channel = RngChannel.Open(State.World.WorldSeed, CellKey.OfInterior(State.Space, aroundX / 1000.0, aroundZ / 1000.0), "wander", $"{c.Key}@{leg}");
+        // The creature's own space, not the player's: keyed on the player's, every exterior creature's stream changed
+        // the moment the character walked through a door (review 3, B8).
+        var channel = RngChannel.Open(State.World.WorldSeed, CellKey.OfInterior(c.Site.Space, aroundX / 1000.0, aroundZ / 1000.0), "wander", $"{c.Key}@{leg}");
         double angle = channel.UInt64(0) / SampleScale * 2 * Math.PI, distance = Math.Sqrt(channel.UInt64(1) / SampleScale) * radius;
         long x = aroundX + (long)Math.Round(Math.Sin(angle) * distance), z = aroundZ + (long)Math.Round(Math.Cos(angle) * distance);
         return Arrived(c, x, z) ? c : c with { Body = Move(c, x, z, Gait.Walk) };
@@ -904,7 +909,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 State.RemoveCreatureRecord(_owner, c.Key);
             return;
         }
-        var record = new CreatureRecord(c.Key, c.Definition.Id, c.Id, _context.CellOfSite(c.Site.XMm, c.Site.ZMm).ToString(), c.Generation,
+        var record = new CreatureRecord(c.Key, c.Definition.Id, c.Id, _context.CellOfSite(c.Site.Space, c.Site.XMm, c.Site.ZMm).ToString(), c.Generation,
             c.Condition, c.Body.XMm, c.Body.ZMm, c.Body.FacingMdeg, c.Health, c.DiedTick, c.RespawnTick)
         {
             Mind = c.Mind,
@@ -1038,8 +1043,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
     private bool Walled(double x0, double z0, double x1, double z1) => Walls().Any(b => b.Crosses(x0, z0, x1, z1));
 
-    private SimulationTier TierOf(Body body) =>
-        State.Tiers.GetValueOrDefault(_context.CellOf(body).ToString(), SimulationTier.D);
+    private SimulationTier TierOf(CreatureState c) =>
+        State.Tiers.GetValueOrDefault(_context.CellOfSite(c.Site.Space, c.Body.XMm, c.Body.ZMm).ToString(), SimulationTier.D);
 
     private static double Distance(long x0, long z0, long x1, long z1)
     {

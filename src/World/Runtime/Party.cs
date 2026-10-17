@@ -229,7 +229,7 @@ internal sealed partial class CompanionSystem
 
     /// <summary>Where someone lives: their place in the region's layout.</summary>
     private Body Home(NpcState npc) =>
-        new(npc.Site.XMm, _context.Setup.SpaceFor(_context.State.Space).Terrain.HeightAtMm(npc.Site.XMm, npc.Site.ZMm), npc.Site.ZMm, npc.Site.FacingMdeg);
+        new(npc.Site.XMm, _context.Setup.SpaceFor(_context.Setup.SpaceOfNpc(npc.Site.NpcId)).Terrain.HeightAtMm(npc.Site.XMm, npc.Site.ZMm), npc.Site.ZMm, npc.Site.FacingMdeg);
 
     /// <summary>How many days a grave wound keeps a companion at home: rolled from the world, who and when, so a replay or a load agrees.</summary>
     private long WoundDays(string npcId, long tick)
@@ -297,7 +297,7 @@ internal sealed partial class CompanionSystem
                 site = (node.Site.XMm, node.Site.ZMm);
                 break;
             case HirelingRole.Crafter:
-                if (_context.Setup.Layout.Stations.FirstOrDefault(s => s.Key == command.SiteKey) is not { } station)
+                if (_context.Setup.Sites(l => l.Stations).FirstOrDefault(p => p.Site.Key == command.SiteKey) is not { Site: { } station })
                     return $"there is no station '{command.SiteKey}'";
                 if (command.RecipeId is null || !_context.Setup.Crafting.Recipes.TryGetValue(command.RecipeId, out var recipe))
                     return "a crafter needs a recipe to work";
@@ -314,7 +314,7 @@ internal sealed partial class CompanionSystem
         var npc = State.Npcs[c.NpcId];
         var siteBody = new Body(site.X, 0, site.Z, npc.Body.FacingMdeg);
         var at = Ring(siteBody, 0, 1_500, Obstacles(c.NpcId)) ?? site;
-        Place(npc, new Body(at.X, _context.Setup.SpaceFor(_context.State.Space).Terrain.HeightAtMm(at.X, at.Z), at.Z, CombatRules.FacingTowards(at.X, at.Z, site.X, site.Z)));
+        Place(npc, new Body(at.X, _context.Setup.SpaceFor(_context.Setup.SpaceOfNpc(npc.Site.NpcId)).Terrain.HeightAtMm(at.X, at.Z), at.Z, CombatRules.FacingTowards(at.X, at.Z, site.X, site.Z)));
         State.SetCompanion(_owner, c with
         {
             Order = CompanionOrder.Wait,
@@ -347,9 +347,10 @@ internal sealed partial class CompanionSystem
     }
 
     private (string Key, CellKey Cell, NodeSite Site)? Node(string key) =>
-        _context.Setup.Layout.Nodes.Select(site =>
+        _context.Setup.Sites(l => l.Nodes).Select(pair =>
         {
-            var cell = CellKey.OfWorld(site.XMm / 1000.0, site.ZMm / 1000.0);
+            var (home, site) = pair;
+            var cell = CellKey.OfInterior(home.SpaceId, site.XMm / 1000.0, site.ZMm / 1000.0);
             return (Key: Keys.NodeKey(cell, site.Name, 0), Cell: cell, Site: site);
         }).Where(n => n.Key == key).Cast<(string, CellKey, NodeSite)?>().FirstOrDefault();
 

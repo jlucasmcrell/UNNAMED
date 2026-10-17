@@ -74,7 +74,10 @@ internal sealed class NpcSystem
 
     public void Populate()
     {
-        foreach (var site in _context.Setup.Layout.Npcs)
+        // Every layout's NPCs, each on its OWN ground. The player's space is wrong here: Populate runs after the
+        // space is adopted from a save, so a save made inside the ring put all eight exterior NPCs on the ring's
+        // floor and buried them under the Ashen Hollow (review 3, B8).
+        foreach (var (home, site) in _context.Setup.Sites(l => l.Npcs))
         {
             // A hireling who died in the character's service stays dead (DN9).
             if (!_context.Setup.Social.Npcs.TryGetValue(site.NpcId, out var definition) || State.Fallen.Contains(site.NpcId))
@@ -82,7 +85,7 @@ internal sealed class NpcSystem
             var id = InstanceIdOf(site.NpcId);
             if (!State.World.Registry.Exists(id))
                 State.World.Registry.CreateEntity(DefinitionId.Parse(site.NpcId), id);
-            long y = _context.Setup.SpaceFor(_context.State.Space).Terrain.HeightAtMm(site.XMm, site.ZMm);
+            long y = _context.Setup.SpaceFor(home.SpaceId).Terrain.HeightAtMm(site.XMm, site.ZMm);
             State.SetNpc(_owner, new NpcState(definition, id, site, new Body(site.XMm, y, site.ZMm, site.FacingMdeg)));
         }
     }
