@@ -1,0 +1,32 @@
+id: quest.main.road_east
+kind: quest
+schema: 1
+display_key: quest.main.road_east.name
+tags:
+- quest
+notes: 'Act I port from canon PR #2 at 05737c7. Independent of Barrowworks. Named NPCs follow routines; talk objectives follow the speaker, not
+  a fixed coordinate. The shipped generic xref pass rejects waystone_ref despite the built objective parser, so this content-only port observes
+  the existing wake flag instead. TouchStoneCommand also grants knowledge; no validator or system bypass is introduced.'
+title: The Road East
+summary: The Rim Stone answers. The road goes east. Tavar's afternoon and the older records still do not tell the same complete story.
+track: main
+act: 1
+giver_ref: npc.cairnwold.berrin_garth
+entry_objective: o_rite
+objectives:
+- id: o_rite
+  type: talk_to
+  description: Learn Berrin's Rim Stone rite. He keeps the lodge 07:00–19:00; the same account is available if you meet him elsewhere.
+  params:
+    npc_ref: npc.cairnwold.berrin_garth
+    nodes:
+    - rim_stone
+  next:
+  - o_wake
+- id: o_wake
+  type: world_state
+  description: Touch and wake the Rim Stone after hearing the rite. The same interaction learns it; binding your return point is separate.
+  params:
+    flag_ref: world.road.rim_stone_woken
+    location_ref: location.road.basin_rim
+    value: 1

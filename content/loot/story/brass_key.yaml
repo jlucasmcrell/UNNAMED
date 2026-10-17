@@ -1,0 +1,13 @@
+id: loot.story.brass_key
+kind: loot
+schema: 1
+display_key: loot.story.brass_key.name
+tags:
+- loot
+notes: One authored start-area pickup, no repeat respawn or copies elsewhere.
+rolls: 0
+guaranteed:
+- item_ref: item.story.brass_key
+  count_range:
+  - 1
+  - 1

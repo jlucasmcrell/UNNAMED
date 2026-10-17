@@ -73,7 +73,7 @@ public class CompanionTests
         Assert.Equal((CompanionOrder.Follow, CompanionCondition.Up, 100, 100, "healthy"), (him.Order, him.Condition, him.Health, him.MaxHealth, him.Standing));
         // Asked again, he is already with the character: he offers to wait, not to join.
         Assert.Null(arena.Submit(new TalkCommand(arena.Player, Tavar)));
-        Assert.Equal(new[] { "stones", "wait", "done" }, arena.Simulation.Conversation!.Replies.Select(r => r.Id));
+        Assert.Equal(new[] { "stones", "wait", "done", "story_afternoon" }, arena.Simulation.Conversation!.Replies.Select(r => r.Id));
         Assert.Null(arena.Submit(new LeaveCommand(arena.Player)));
 
         // He keeps close as the character walks off across the Foldscar.

@@ -1,0 +1,29 @@
+id: quest.story.lantern_ledger
+kind: quest
+schema: 1
+display_key: quest.story.lantern_ledger.name
+tags:
+- quest
+notes: 'Act I port from canon PR #2 at 05737c7. Independent of Barrowworks. Named NPCs follow routines; talk objectives follow the speaker, not
+  a fixed coordinate.'
+title: The Sundered Lantern — The Ledger
+summary: A Blackvein ledger names the Order of the Lantern and a lantern-forge east. The archive, lodge records and Halda's den cache are the
+  next leads; the Barrowworks archive is not yet open.
+track: side
+giver_ref: npc.ashen_hollow.kera_voss
+entry_objective: o_fragment
+objectives:
+- id: o_fragment
+  type: acquire_item
+  description: Keep the Blackvein ledger fragment.
+  params:
+    item_ref: item.story.lantern_ledger
+  next:
+  - o_marks
+- id: o_marks
+  type: talk_to
+  description: Ask Kera to compare its worked marks; find her during her daily routine.
+  params:
+    npc_ref: npc.ashen_hollow.kera_voss
+    nodes:
+    - story_ledger

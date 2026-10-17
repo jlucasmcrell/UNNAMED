@@ -75,6 +75,54 @@ nodes:
         next: survey
       - id: leave
         text: "Another time."
+      - id: story_grazers
+        text: What do the grazers tell you about that afternoon?
+        next: story_grazers
+        consequences:
+        - command: start_quest
+          quest_ref: quest.main.wrong_side
+      - id: story_order
+        text: What can you read in this Lantern heading?
+        next: story_order
+        conditions:
+        - kind: has_item
+          item_ref: item.story.lantern_ledger
+      - id: story_catalog_stopped_watch
+        text: Can you catalogue this stopped watch?
+        next: story_catalog_stopped_watch
+        conditions:
+        - kind: has_item
+          item_ref: item.story.stopped_watch
+      - id: story_catalog_brass_key
+        text: Can you catalogue this brass key?
+        next: story_catalog_brass_key
+        conditions:
+        - kind: has_item
+          item_ref: item.story.brass_key
+      - id: story_catalog_glass_marble
+        text: Can you catalogue this glass marble?
+        next: story_catalog_glass_marble
+        conditions:
+        - kind: has_item
+          item_ref: item.story.glass_marble
+      - id: story_catalog_unreadable_page
+        text: Can you catalogue this unreadable page?
+        next: story_catalog_unreadable_page
+        conditions:
+        - kind: has_item
+          item_ref: item.story.unreadable_page
+      - id: story_species_robin
+        text: I have a name for the small bird near where I woke.
+        next: story_species_robin
+        consequences:
+        - command: start_quest
+          quest_ref: quest.story.name_robin
+      - id: story_species_dandelion
+        text: I have a name for the yellow flower near where I woke.
+        next: story_species_dandelion
+        consequences:
+        - command: start_quest
+          quest_ref: quest.story.name_dandelion
   notes:
     text: "\"Not the Primer - Berrin keeps that, in Cairnwold, if he can find the shelf. This is mine.\" She takes a gathering of pages from the back of her ledger and tears it free along a line she has clearly folded many times. \"A fair copy of the one working I trust in the field. Brace Ward. It holds the body for a few breaths while the ground decides what it's doing. Read it once and it stays with you. And don't push past what your body can hold. I've seen what that costs; I'll swear to it.\""
     choices:
@@ -226,6 +274,109 @@ nodes:
       - id: back
         text: "Unfinished. I'll keep it to myself."
         next: again
+  story_grazers:
+    text: The grazers were first recorded that week. That puts two observations close together; it doesn't establish their order, or their cause.
+    choices:
+    - id: back
+      text: I'll keep looking.
+      next: again
+  story_order:
+    text: The heading names an order. It doesn't say whether the ledger's last entry was followed. The other records aren't all accessible yet;
+      don't fill their gaps with a better story.
+    choices:
+    - id: back
+      text: I'll keep looking.
+      next: again
+  story_catalog_stopped_watch:
+    text: Otherborn carry odd things. You aren't the first. May I record what you call it?
+    choices:
+    - id: name
+      text: A watch. It used to tell the time.
+      next: story_catalog_stopped_watch_named
+    - id: back
+      text: I'd rather keep it private.
+      next: again
+  story_catalog_stopped_watch_named:
+    text: Stopped watch. I'll record that it no longer moves, and that you say it told the time. The object doesn't establish where it came from.
+    choices:
+    - id: back
+      text: I'll keep looking.
+      next: again
+  story_catalog_brass_key:
+    text: Otherborn carry odd things. You aren't the first. May I record what you call it?
+    choices:
+    - id: name
+      text: A house key. I do not know a lock for it here.
+      next: story_catalog_brass_key_named
+    - id: back
+      text: I'd rather keep it private.
+      next: again
+  story_catalog_brass_key_named:
+    text: Brass key; intended lock unverified. I'll keep the shape in the record. I won't improve the account with an invented door.
+    choices:
+    - id: back
+      text: I'll keep looking.
+      next: again
+  story_catalog_glass_marble:
+    text: Otherborn carry odd things. You aren't the first. May I record what you call it?
+    choices:
+    - id: name
+      text: A marble. A little glass ball.
+      next: story_catalog_glass_marble_named
+    - id: back
+      text: I'd rather keep it private.
+      next: again
+  story_catalog_glass_marble_named:
+    text: Glass marble. Round, transparent, carried by an Otherborn. That's an observation, not a theory of its arrival.
+    choices:
+    - id: back
+      text: I'll keep looking.
+      next: again
+  story_catalog_unreadable_page:
+    text: Otherborn carry odd things. You aren't the first. May I record what you call it?
+    choices:
+    - id: name
+      text: I cannot read this printing either.
+      next: story_catalog_unreadable_page_named
+    - id: back
+      text: I'd rather keep it private.
+      next: again
+  story_catalog_unreadable_page_named:
+    text: Unreadable page, then. Neither of us reading it isn't evidence that it says nothing. I'll copy the shapes, not guess at the words.
+    choices:
+    - id: back
+      text: I'll keep looking.
+      next: again
+  story_species_robin:
+    text: Locally we call such things leakwild. If you know a name, I'll record your word, not improve it into an explanation.
+    choices:
+    - id: name
+      text: I call it a robin.
+      next: story_species_robin_named
+    - id: back
+      text: I'd rather leave it unnamed.
+      next: again
+  story_species_robin_named:
+    text: Robin. Your word for it. The name doesn't tell us how it came here.
+    choices:
+    - id: back
+      text: I'll keep looking.
+      next: again
+  story_species_dandelion:
+    text: Locally we call such things leakwild. If you know a name, I'll record your word, not improve it into an explanation.
+    choices:
+    - id: name
+      text: I call it a dandelion.
+      next: story_species_dandelion_named
+    - id: back
+      text: I'd rather leave it unnamed.
+      next: again
+  story_species_dandelion_named:
+    text: Dandelion. Your word for it. The name doesn't tell us how it came here.
+    choices:
+    - id: back
+      text: I'll keep looking.
+      next: again
 barks:
   - { text: "Two chances in three. No - three in five. Hm." }
   - { text: "Don't mind me. I'm measuring the stones' shadows. They're late." }

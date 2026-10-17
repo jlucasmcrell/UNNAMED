@@ -1,0 +1,73 @@
+id: quest.main.three_accounts
+kind: quest
+schema: 1
+display_key: quest.main.three_accounts.name
+tags:
+- quest
+title: Three Accounts
+summary: Tavar's afternoon and the earlier records leave the timing disputed. Choose whose account to carry east, or leave the question open.
+track: main
+act: 1
+giver_ref: npc.ashen_hollow.renn_vale
+entry_objective: o_field
+objectives:
+- id: o_field
+  type: explore_location
+  description: Walk to the Lantern Shrine and compare the road, ridge and accounts for yourself.
+  params:
+    location_ref: location.road.lantern_shrine
+    within_m: 10
+  next:
+  - o_table
+- id: o_table
+  type: visit_location
+  description: Compare the accounts at the waystation.
+  params:
+    location_ref: location.outpost
+  next:
+  - o_wayhold
+  - o_survey
+  - o_cairnwold
+  branch: first
+- id: o_wayhold
+  type: dialogue_choice
+  description: Choose the Wayhold account.
+  params:
+    npc_ref: npc.ashen_hollow.renn_vale
+    dialogue_ref: dialogue.ashen_hollow.renn_vale
+    node: story_accounts
+    choice: carry_wayhold
+  effects:
+  - kind: choice
+    flag_ref: world.main.carrier
+    value: 1
+    location_ref: location.outpost
+    line: I carry the Wayhold account to the roadwarden at the Vessmere stone.
+- id: o_survey
+  type: dialogue_choice
+  description: Choose Sel's account.
+  params:
+    npc_ref: npc.ashen_hollow.renn_vale
+    dialogue_ref: dialogue.ashen_hollow.renn_vale
+    node: story_accounts
+    choice: carry_survey
+  effects:
+  - kind: choice
+    flag_ref: world.main.carrier
+    value: 2
+    location_ref: location.outpost
+    line: I carry the Survey account to Keeper Daun.
+- id: o_cairnwold
+  type: dialogue_choice
+  description: Choose Berrin's account.
+  params:
+    npc_ref: npc.ashen_hollow.renn_vale
+    dialogue_ref: dialogue.ashen_hollow.renn_vale
+    node: story_accounts
+    choice: carry_cairnwold
+  effects:
+  - kind: choice
+    flag_ref: world.main.carrier
+    value: 3
+    location_ref: location.outpost
+    line: I carry Cairnwold's account to Factor Ilesa.

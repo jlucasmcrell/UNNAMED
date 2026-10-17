@@ -26,6 +26,7 @@ nodes:
         next: lodge_book
       - id: rim_stone
         text: "There's a standing stone up on the Rim. It's cold, and it doesn't answer."
+        consequences: [{ command: start_quest, quest_ref: quest.main.road_east }]
         next: rim_stone
       - id: leave
         text: "Later."
@@ -60,9 +61,27 @@ nodes:
       - id: rim_stone
         text: "The standing stone up on the Rim."
         conditions: [{ kind: visited, node: rim_stone, not: true }]
+        consequences: [{ command: start_quest, quest_ref: quest.main.road_east }]
         next: rim_stone
       - id: leave
         text: "Later."
+      - id: story_note
+        text: Renn read your name on this note.
+        next: story_note
+        conditions:
+        - kind: has_item
+          item_ref: item.story.folded_note
+      - id: story_records
+        text: What do the old records say about the moss lights?
+        next: story_records
+        conditions:
+        - kind: quest_state
+          quest_ref: quest.main.moss_lights
+          is: satisfied
+          objective: o_lodge
+      - id: story_doors
+        text: How do you tell which door an old record means?
+        next: story_doors
   primer:
     text: "Ah - now. Behind you, top shelf, the cupboard with the warped door. Nobody's opened it since we buried Wenna, and Wenna was the last of us who could make sense of what's in it. There's a primer - three small workings, one to strike, one to brace, one to mend. Take it. A book on a shelf is a promise nobody's keeping."
     choices:
@@ -125,7 +144,7 @@ nodes:
         text: "That's oddly reassuring."
         next: again
   rim_stone:
-    text: "\"The Rim Stone? Oh, it's a Waystone right enough - or it was. Cold since before my grandfather, and he was cold before most things.\" He hauls the lodge book round and turns back a great many pages, then a great many more. \"Here. Old Corra had it: 'Three hands and a name.' And then not another word on it for forty years, which was very like her. Three times with the flat of your hand - one after another, mind, it's not a dance - and then you tell it its name. The Rim Stone. As if you're reminding it.\" He shuts the book. \"Nobody's tried in my time. Nobody here has ever wanted to be anywhere it went.\""
+    text: "\"The Rim Stone? Oh, it's a Waystone right enough - or it was. Cold since before my grandfather, and he was cold before most things.\" He counts on his fingers, then starts again. \"It's in the lodge book. Old Corra had it: 'Three hands and a name.' And then not another word on it for forty years, which was very like her. Three times with the flat of your hand - one after another, mind, it's not a dance - and then you tell it its name. The Rim Stone. As if you're reminding it.\" He lowers his hand. \"Nobody's tried in my time. Nobody here has ever wanted to be anywhere it went.\""
     once: true
     next_if_exhausted: again
     choices:
@@ -139,6 +158,28 @@ nodes:
         text: "Your secret's safe."
         next: again
 # Said in passing, unprompted, when the character comes near (the bark patch): each line while its conditions hold.
+  story_note:
+    text: Now then, that's my name, and it's still mine, last I checked. The rubbed bit... no, I won't fill that in for you. You're welcome at the
+      lodge. I keep it from seven to nineteen, and the book stays there when I don't.
+    choices:
+    - id: back
+      text: I'll keep looking.
+      next: again
+  story_records:
+    text: Now then, the two old entries... roughly two hundred years apart, and both before you. The light's like what they wrote. Like isn't the
+      same as certain. We've weathered it before, and that comforts me, and then I look at the mark beside your day and... no, I won't rub that
+      out to make a better story.
+    choices:
+    - id: back
+      text: I'll keep looking.
+      next: again
+  story_doors:
+    text: Knock on that door, and the other, next time you're at the lodge. Aye, different, aren't they? We kept writing 'the door', and then the
+      door was mended, and... where was I? The book. A name's useful when the thing doesn't stay the same.
+    choices:
+    - id: back
+      text: I'll compare them at the lodge.
+      next: again
 barks:
   - { text: "Now then. Mind the step - it's older than it looks, and so am I." }
   - { text: "Where was I... the long wall. No. The ewe. It'll come back to me." }

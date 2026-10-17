@@ -94,6 +94,12 @@ nodes:
       - id: done
         text: "Nothing. Let's go on."
         conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr }]
+      - id: story_afternoon
+        text: When was your long afternoon?
+        next: story_afternoon
+        consequences:
+        - command: start_quest
+          quest_ref: quest.main.wrong_side
   ledger:
     text: "\"Three days, give or take. Cheap, for a crossing I never meant to make.\" He pats a coat pocket; something in it is the shape of a small book. \"We keep a ledger - what each crossing took. I'll put it under 'things I've lost', between my mother's name and a very good knife.\" He smiles as if that were the joke, and not the list."
     choices:
@@ -117,6 +123,37 @@ nodes:
         text: "This way."
 # Said in passing, unprompted, when the character comes near (the bark patch). Every line waits until he is free: before then he stands
 # in the fold and says nothing to anyone.
+  story_afternoon:
+    text: Three days, Sel will say. For me it was one long afternoon. The light was there when you came over the ridge. I heard you coming from
+      the wrong side.
+    choices:
+    - id: first
+      text: Then I'll hear your account before I take it to anyone else.
+      next: story_heard
+      conditions:
+      - kind: world_state
+        flag_ref: world.main.gauge_seen
+        location_ref: location.outpost
+        min: 0
+        max: 0
+      - kind: visited
+        node: story_heard
+        not: true
+      consequences:
+      - command: record_relationship_event
+        npc_ref: npc.ashen_hollow.tavar_orr
+        dimension: trust
+        delta: 5
+        event: story_heard_tavar_first
+    - id: later
+      text: Tell me what you remember. I won't put a date to it for you.
+      next: story_heard
+  story_heard:
+    text: Good. I've lost enough without losing the telling of it.
+    choices:
+    - id: back
+      text: I'll keep looking.
+      next: again
 barks:
   - text: "Still here. Still on time."
     conditions: [{ kind: visited, node: greet }]

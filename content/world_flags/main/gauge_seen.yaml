@@ -1,0 +1,11 @@
+id: world.main.gauge_seen
+kind: world_flag
+schema: 1
+display_key: world.main.gauge_seen.name
+tags:
+- world_flag
+notes: 'M3 early-telling condition at location.outpost. TODO Barrowworks: M5 writes this via a location-anchored choice effect once its observation
+  lands. Do not fake an unseen gauge reading.'
+type: bool
+default: 0
+owning_system: S-29

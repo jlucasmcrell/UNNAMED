@@ -1,0 +1,13 @@
+id: loot.story.lantern_ledger
+kind: loot
+schema: 1
+display_key: loot.story.lantern_ledger.name
+tags:
+- loot
+notes: One Blackvein pickup shared by M4 and L1, not two ledger copies.
+rolls: 0
+guaranteed:
+- item_ref: item.story.lantern_ledger
+  count_range:
+  - 1
+  - 1

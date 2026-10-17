@@ -74,6 +74,9 @@ nodes:
         next: work
       - id: leave
         text: "Nothing today."
+      - id: story_packing
+        text: How would you tell packing from a fallen face?
+        next: story_packing
   lesson:
     text: "\"Iron. Our own.\" He points the hammer south. \"Crags. Far west end of the line. Black in the face. Three good strikes, then it is done. Do not waste them.\" The hammer moves to the hearth. \"Ore in there. Billet out.\" Then north. \"Ash, where the ground rises. For the haft.\" He goes back to work. After a while: \"Make a spear. Bring it.\""
     once: true
@@ -188,6 +191,21 @@ nodes:
       - id: back
         text: "Not your anvil."
         next: again
+  story_packing:
+    text: Packed. Not fallen.
+    choices:
+    - id: open
+      text: Would you open it?
+      next: story_breach
+    - id: back
+      text: Then I will leave it intact.
+      next: again
+  story_breach:
+    text: I open no man's door.
+    choices:
+    - id: back
+      text: I will inspect it myself.
+      next: again
 barks:
   - { text: "Mind the sparks." }
   - { text: "Hm." }

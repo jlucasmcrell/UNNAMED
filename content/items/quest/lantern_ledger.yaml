@@ -1,0 +1,14 @@
+id: item.story.lantern_ledger
+kind: item
+schema: 1
+display_key: item.story.lantern_ledger.name
+tags:
+- item
+notes: 'M4/L1 accepted heading: Order of the Lantern; reference to the lantern-forge east. Other entries remain incomplete. No statement about
+  what the Lantern held.'
+name: Ledger Fragment — Order of the Lantern
+category: misc
+stack_max: 1
+weight: 0.05
+value_base: 0
+rarity: common

@@ -147385,6 +147385,36 @@ containers:
   - 884.8
   - 701.4
   stack_slots: 6
+- key: container.story.stopped_watch
+  loot_ref: loot.story.stopped_watch
+  position_m:
+  - 411
+  - 776
+  stack_slots: 1
+- key: container.story.brass_key
+  loot_ref: loot.story.brass_key
+  position_m:
+  - 423
+  - 770
+  stack_slots: 1
+- key: container.story.glass_marble
+  loot_ref: loot.story.glass_marble
+  position_m:
+  - 414
+  - 754
+  stack_slots: 1
+- key: container.story.unreadable_page
+  loot_ref: loot.story.unreadable_page
+  position_m:
+  - 445
+  - 767
+  stack_slots: 1
+- key: container.story.lantern_ledger
+  loot_ref: loot.story.lantern_ledger
+  position_m:
+  - 431
+  - 647
+  stack_slots: 1
 npcs:
 - npc_ref: npc.ashen_hollow.renn_vale
   position_m:

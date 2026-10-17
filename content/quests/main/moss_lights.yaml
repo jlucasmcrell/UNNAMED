@@ -1,0 +1,46 @@
+id: quest.main.moss_lights
+kind: quest
+schema: 1
+display_key: quest.main.moss_lights.name
+tags:
+- quest
+notes: 'Act I port from canon PR #2 at 05737c7. Independent of Barrowworks. Named NPCs follow routines; talk objectives follow the speaker, not
+  a fixed coordinate.'
+title: The Moss Lights
+summary: The moss lights follow standing water. Berrin has two earlier bleed records. Their dating is approximate; none names me.
+track: main
+act: 1
+giver_ref: npc.cairnwold.mara_ling
+entry_objective: o_moss
+objectives:
+- id: o_moss
+  type: explore_location
+  description: Follow the wet boundary in the Sinking Moss. Night lights are optional; inspect the shaded bank by day.
+  params:
+    location_ref: location.cairnwold.the_bog
+    within_m: 12
+  next:
+  - o_compare
+- id: o_compare
+  type: talk_to
+  description: Compare observations with Mara wherever she is awake; she works at the well 07:00–19:00.
+  params:
+    npc_ref: npc.cairnwold.mara_ling
+    nodes:
+    - story_waterline
+  next:
+  - o_lodge
+- id: o_lodge
+  type: visit_location
+  description: Examine the records at Cairnwold's lodge.
+  params:
+    location_ref: location.cairnwold.lodge
+  next:
+  - o_records
+- id: o_records
+  type: talk_to
+  description: Hear Berrin's reading of the earlier entries, at his lodge or wherever you meet him awake.
+  params:
+    npc_ref: npc.cairnwold.berrin_garth
+    nodes:
+    - story_records

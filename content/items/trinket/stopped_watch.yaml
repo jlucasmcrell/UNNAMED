@@ -1,0 +1,13 @@
+id: item.story.stopped_watch
+kind: item
+schema: 1
+display_key: item.story.stopped_watch.name
+tags:
+- item
+notes: Accepted start-area relic (DCP C.1a, E3). No stat or combat power; no merchant value. Its origin remains unconfirmed.
+name: Stopped Watch
+category: misc
+stack_max: 1
+weight: 0.02
+value_base: 0
+rarity: common

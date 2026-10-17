@@ -76,8 +76,46 @@ nodes:
         next: farewell
       - id: leave
         text: "Nothing for now."
+      - id: story_begin_accounts
+        text: Before I carry an account, I want to see the road for myself.
+        conditions:
+        - kind: quest_state
+          quest_ref: quest.main.three_accounts
+          is: not_started
+        consequences:
+        - command: start_quest
+          quest_ref: quest.main.three_accounts
+        next: story_route
+      - id: story_accounts
+        text: Let me compare the accounts before I choose a letter.
+        conditions:
+        - kind: world_state
+          flag_ref: world.main.carrier
+          min: 0
+          max: 0
+          location_ref: location.outpost
+        - kind: quest_state
+          quest_ref: quest.main.three_accounts
+          objective: o_field
+          is: satisfied
+        next: story_accounts
+      - id: story_note
+        text: Can you read what is left of this folded note?
+        next: story_note
+        conditions:
+        - kind: has_item
+          item_ref: item.story.folded_note
+        consequences:
+        - command: start_quest
+          quest_ref: quest.main.folded_note
+      - id: story_road_east
+        text: What should I know before I take the road east?
+        next: story_road_east
+        consequences:
+        - command: start_quest
+          quest_ref: quest.main.road_east
   farewell:
-    text: "He opens the book, finds your line and reads it back to himself. \"Blackvein. The Foldscar. Durn's seam. Mara's bog.\" He looks up. \"Most of my guests manage the privy.\" He turns the book round and holds out the pen. \"That's this stretch of the road, end to end - there's no more of it yet, not that anyone's built. Write yourself in properly: name, road, where you're bound. And thank you. The roofs are dry, the stones are quiet and nobody I liked got eaten. I'll call that a season.\""
+    text: "He opens the book, finds your line and reads it back to himself. \"Blackvein. The Foldscar. Durn's seam. Mara's bog.\" He looks up. \"Most of my guests manage the privy.\" He turns the book round and holds out the pen. \"That's this stretch of the road. Berrin knows the Rim Stone's rite; wake it before you head east. Write yourself in properly: name, road, where you're bound. And thank you. The roofs are dry, the stones are quiet and nobody I liked got eaten. I'll call that a season.\""
     once: true
     next_if_exhausted: again
     choices:
@@ -197,6 +235,84 @@ nodes:
       - id: back
         text: "I will."
         next: again
+  story_route:
+    text: Ridge, shrine, the road between. Walk it before you decide what you've seen. The letters can wait.
+    choices:
+    - id: back
+      text: I'll look from the shrine and come back.
+      next: again
+  story_accounts:
+    text: Renn unfolds the map beside three accounts. 'Tavar's afternoon and Berrin's old record. Neither's going in the fire. Three accounts, traveller.
+      Which are you carrying?'
+    choices:
+    - id: carry_wayhold
+      text: The Wayhold letter. Keep the road record with it.
+      next: story_wayhold
+    - id: carry_survey
+      text: Sel's account. The readings need another reader.
+      next: story_survey
+    - id: carry_cairnwold
+      text: Berrin's letter. Keep the village's experience in it.
+      next: story_cairnwold
+    - id: defer
+      text: I'm not choosing yet.
+      next: again
+  story_wayhold:
+    text: The roadwarden at the Vessmere stone. Read it, pack it, keep it dry.
+    choices:
+    - id: back
+      text: I'll keep it safe.
+      next: again
+  story_survey:
+    text: Keeper Daun. Sel's named her. Take the observation with the question.
+    choices:
+    - id: back
+      text: I'll take both.
+      next: again
+  story_cairnwold:
+    text: Factor Ilesa. Berrin knows her. There's a name for the far end of your road.
+    choices:
+    - id: back
+      text: I'll find her.
+      next: again
+  story_note:
+    text: Berrin Garth. Cairnwold lodge. The rest's been rubbed away. Why it was rubbed away is still your business.
+    choices:
+    - id: take
+      text: I'll take it to him.
+      next: story_note_road
+    - id: remember
+      text: I remember more than this says.
+      next: story_note_road
+    - id: uncertain
+      text: I can't place that part of the journey.
+      next: story_note_road
+    - id: back
+      text: I'll keep it private for now.
+      next: again
+  story_note_road:
+    text: Road east, lodge door, old man with the book. Berrin keeps it from seven to nineteen. If you meet him elsewhere, ask him there.
+    choices:
+    - id: back
+      text: I'll keep looking.
+      next: again
+  story_road_east:
+    text: Tavar puts that afternoon at the hour you crossed the ridge. That's close enough to keep in the record, traveller. Berrin's got an older
+      bleed in his book. Keep both dates. Neither tells me what started this one.
+    choices:
+    - id: rite
+      text: I'll ask Berrin about the Rim Stone.
+      next: story_east_rite
+    - id: back
+      text: I'm not leaving yet.
+      next: again
+  story_east_rite:
+    text: Berrin has the rite in his lodge book. The Rim Stone's on the road east. Wake it, learn it, choose where you'll return. Those are separate
+      decisions. Keep the account dry. The roadwarden's going to want to read it.
+    choices:
+    - id: back
+      text: I'll keep looking.
+      next: again
 barks:
   - { text: "Bed, meal, roof. Two out of three today. I won't say which." }
   - { text: "Mind the step. Kera fixed it. Kera says." }

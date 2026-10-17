@@ -1,0 +1,29 @@
+id: quest.main.folded_note
+kind: quest
+schema: 1
+display_key: quest.main.folded_note.name
+tags:
+- quest
+notes: 'Act I port from canon PR #2 at 05737c7. Independent of Barrowworks. Named NPCs follow routines; talk objectives follow the speaker, not
+  a fixed coordinate.'
+title: The Folded Note
+summary: The worn note names Berrin Garth at Cairnwold. The missing name remains missing.
+track: main
+act: 1
+giver_ref: npc.ashen_hollow.renn_vale
+entry_objective: o_read
+objectives:
+- id: o_read
+  type: talk_to
+  description: Let Renn read the note wherever he is awake; he keeps the lodge 07:00–19:00.
+  params:
+    npc_ref: npc.ashen_hollow.renn_vale
+    nodes:
+    - story_note
+  next:
+  - o_lodge
+- id: o_lodge
+  type: visit_location
+  description: Follow the road to Berrin's lodge at Cairnwold.
+  params:
+    location_ref: location.cairnwold.lodge

@@ -1,0 +1,13 @@
+id: loot.story.stopped_watch
+kind: loot
+schema: 1
+display_key: loot.story.stopped_watch.name
+tags:
+- loot
+notes: One authored start-area pickup, no repeat respawn or copies elsewhere.
+rolls: 0
+guaranteed:
+- item_ref: item.story.stopped_watch
+  count_range:
+  - 1
+  - 1

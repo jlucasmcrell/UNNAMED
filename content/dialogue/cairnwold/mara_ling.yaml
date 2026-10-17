@@ -54,6 +54,24 @@ nodes:
         next: herbs
       - id: leave
         text: "Later."
+      - id: story_lights
+        text: Can I compare the moss lights with the wet ground?
+        next: story_lights
+        conditions:
+        - kind: quest_state
+          quest_ref: quest.cairnwold.what_the_bog_kept
+          is: completed
+        consequences:
+        - command: start_quest
+          quest_ref: quest.main.moss_lights
+      - id: story_waterline
+        text: I followed the wet edge of the Sinking Moss.
+        next: story_waterline
+        conditions:
+        - kind: quest_state
+          quest_ref: quest.main.moss_lights
+          is: satisfied
+          objective: o_moss
   complaint:
     text: "The well's forty feet of good stone and it has never once run low, and this spring it comes up brown at the end of the rope. Everyone says the well. I'd stake my life on that well. It's where the water comes FROM - north-east, the low ground, the moss that never drains. Something up there has changed. And before you ask: no, I'm not walking it alone. I'm stubborn, not daft."
     # NOT `once`. The loader refused this file with QST001 and it was right: this node is where the errand is offered,
@@ -90,6 +108,20 @@ nodes:
         text: "Sensible."
         next: again
 # Said in passing, unprompted, when the character comes near (the bark patch): each line while its conditions hold.
+  story_lights:
+    text: Everyone says the well. Want to test it? Follow the wet edge in the Sinking Moss. The lights are clearer at night. In daylight, compare
+      the damp plant with the dry bank in shade. You don't need me standing beside you to look.
+    choices:
+    - id: back
+      text: I'll take the long bank round.
+      next: again
+  story_waterline:
+    text: There. Wet, light. Dry, dark. Can the whole village manage that much? Sel calls it listening grass, a fold-bleed plant. Berrin's old records are at the lodge. Ask him about them when you
+      find him; I'm not doing his remembering as well as the water.
+    choices:
+    - id: back
+      text: I'll keep looking.
+      next: again
 barks:
   - { text: "Brown again. Of course it is." }
   - { text: "Everyone says the well. Everyone's wrong." }

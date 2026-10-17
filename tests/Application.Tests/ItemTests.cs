@@ -69,9 +69,9 @@ public class ItemTests
         var player = session.NewGame(Harness.Named("Wanderer"), seed: 42).Player;
 
         // Content bible §14: the sword in hand and a simple restorative; the bow is found at the cart, the spear is made.
-        Assert.Equal(new[] { "item.consumable.salve_minor", "item.tool.water_flask", "item.weapon.rusted_sword" }, player.Inventory.Select(e => e.DefId).Order());
+        Assert.Equal(new[] { "item.consumable.salve_minor", "item.story.folded_note", "item.tool.water_flask", "item.weapon.rusted_sword" }, player.Inventory.Select(e => e.DefId).Order());
         Assert.Equal(Carried(session.Simulation!, "item.weapon.rusted_sword").ItemId, player.Equipment[EquipSlot.MainHand]);
-        Assert.Equal(3_700, player.CarriedGrams);
+        Assert.Equal(3_710, player.CarriedGrams);
         Assert.Equal(50_000, player.CarryLimitGrams);   // 30 kg + 2 kg per point of Might (10)
     }
 
@@ -249,7 +249,7 @@ public class ItemTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         // A limit of exactly what the starting kit weighs: anything more is too heavy.
-        var (simulation, bus) = Custom(session, items => items with { Inventory = items.Inventory with { CarryBaseGrams = 3_700, CarryGramsPerMight = 0 } });
+        var (simulation, bus) = Custom(session, items => items with { Inventory = items.Inventory with { CarryBaseGrams = 3_710, CarryGramsPerMight = 0 } });
         var rejected = new List<CommandRejected>();
         bus.Subscribe<CommandRejected>(rejected.Add);
         Walk(simulation, ToTheDenCache);

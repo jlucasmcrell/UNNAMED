@@ -1,0 +1,13 @@
+id: item.story.folded_note
+kind: item
+schema: 1
+display_key: item.story.folded_note.name
+tags:
+- item
+notes: M2, DCP C.1. Worn-away name, readable contact Berrin Garth. Separate from the unreadable relic page; does not assign the player a past.
+name: Folded Note — Berrin Garth
+category: misc
+stack_max: 1
+weight: 0.01
+value_base: 0
+rarity: common

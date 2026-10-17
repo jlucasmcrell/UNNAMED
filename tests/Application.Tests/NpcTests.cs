@@ -137,7 +137,7 @@ public class NpcTests
         // The greeting is spent: the conversation stands at its again-node, and carrying nothing, the character is offered
         // neither the iron nor the spear.
         Assert.Equal("again", Now(arena).NodeId);
-        Assert.Equal(new[] { "place", "work", "notices", "leave" }, Replies(arena));
+        Assert.Equal(new[] { "place", "work", "notices", "leave", "story_begin_accounts", "story_note", "story_road_east" }, Replies(arena));
         Assert.Null(Say(arena, "leave"));
         Assert.Null(arena.Simulation.Conversation);
         Assert.Equal(new[] { "greet", "place", "again" }, lines.Select(l => l.NodeId));
@@ -151,7 +151,7 @@ public class NpcTests
         Assert.Null(bearer.Submit(new TalkCommand(bearer.Player, Renn)));
         Assert.Null(Say(bearer, "leave"));
         Assert.Null(bearer.Submit(new TalkCommand(bearer.Player, Renn)));
-        Assert.Equal(new[] { "place", "work", "iron", "spear", "notices", "leave" }, Replies(bearer));
+        Assert.Equal(new[] { "place", "work", "iron", "spear", "notices", "leave", "story_begin_accounts", "story_note", "story_road_east" }, Replies(bearer));
         Assert.Null(Say(bearer, "iron"));
         Assert.Equal(5, Regard(bearer, Renn, "respect"));
         Assert.Null(Say(bearer, "back"));
@@ -256,7 +256,7 @@ public class NpcTests
         Assert.Equal((1, 5), (Carried(arena, Notes), Regard(arena, Sel, "trust")));
         Assert.Equal("notes_given", Now(arena).NodeId);
         Assert.Null(Say(arena, "back"));
-        Assert.Equal(new[] { "ruin", "strain", "tavar", "survey", "leave" }, Replies(arena));   // the notes are given once; now she will talk of strain
+        Assert.Equal(new[] { "ruin", "strain", "tavar", "survey", "leave", "story_grazers", "story_species_robin", "story_species_dandelion" }, Replies(arena));   // the notes are given once; now she will talk of strain
     }
 
     /// <summary>

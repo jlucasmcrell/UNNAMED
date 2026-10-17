@@ -101,7 +101,7 @@ public class CharacterCreationTests
         Assert.Equal(CharacterIdentity.BeforeTheCreator, record.Identity);
         Assert.Empty(record.Progression.Grants);
         Assert.Empty(record.Relationships);
-        Assert.Equal(new[] { "item.consumable.salve_minor", "item.tool.water_flask", "item.weapon.rusted_sword" },
+        Assert.Equal(new[] { "item.consumable.salve_minor", "item.story.folded_note", "item.tool.water_flask", "item.weapon.rusted_sword" },
             record.Inventory.Select(e => e.DefId).Order(StringComparer.Ordinal));
     }
 

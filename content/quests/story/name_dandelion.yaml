@@ -1,0 +1,28 @@
+id: quest.story.name_dandelion
+kind: quest
+schema: 1
+display_key: quest.story.name_dandelion.name
+tags:
+- quest
+notes: 'Act I port from canon PR #2 at 05737c7. Independent of Barrowworks. Named NPCs follow routines; talk objectives follow the speaker, not
+  a fixed coordinate.'
+title: Things You Remember — Dandelion
+summary: Sel records a name supplied by the player, not an established origin.
+track: side
+giver_ref: npc.ashen_hollow.sel_arien
+entry_objective: o_name
+objectives:
+- id: o_name
+  type: dialogue_choice
+  description: Tell Sel the word you use, or leave this aside.
+  params:
+    npc_ref: npc.ashen_hollow.sel_arien
+    dialogue_ref: dialogue.ashen_hollow.sel_arien
+    node: story_species_dandelion
+    choice: name
+  effects:
+  - kind: choice
+    flag_ref: world.main.named_dandelion
+    value: 1
+    location_ref: location.outpost
+    line: I called the yellow flower a dandelion. Sel recorded my word.

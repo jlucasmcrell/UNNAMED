@@ -1,0 +1,13 @@
+id: loot.story.glass_marble
+kind: loot
+schema: 1
+display_key: loot.story.glass_marble.name
+tags:
+- loot
+notes: One authored start-area pickup, no repeat respawn or copies elsewhere.
+rolls: 0
+guaranteed:
+- item_ref: item.story.glass_marble
+  count_range:
+  - 1
+  - 1

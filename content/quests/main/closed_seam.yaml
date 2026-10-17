@@ -1,0 +1,36 @@
+id: quest.main.closed_seam
+kind: quest
+schema: 1
+display_key: quest.main.closed_seam.name
+tags:
+- quest
+notes: 'Act I port from canon PR #2 at 05737c7. Independent of Barrowworks. Named NPCs follow routines; talk objectives follow the speaker, not
+  a fixed coordinate.'
+title: The Closed Seam
+summary: The Blackvein face was sealed. A ledger names the Order of the Lantern. Purpose and date remain unproved.
+track: main
+act: 1
+giver_ref: npc.ashen_hollow.kera_voss
+entry_objective: o_cut
+objectives:
+- id: o_cut
+  type: visit_location
+  description: Inspect the joins at Blackvein on Kera's iron trail.
+  params:
+    location_ref: location.blackvein_cut
+  next:
+  - o_ledger
+- id: o_ledger
+  type: acquire_item
+  description: Take the loose ledger fragment from the recess beside the worked face.
+  params:
+    item_ref: item.story.lantern_ledger
+  next:
+  - o_read
+- id: o_read
+  type: talk_to
+  description: Show Kera the fragment wherever she is available; her forge hours are 07:00–19:00.
+  params:
+    npc_ref: npc.ashen_hollow.kera_voss
+    nodes:
+    - story_ledger

@@ -101,6 +101,26 @@ nodes:
         next: work
       - id: leave
         text: "Nothing today."
+      - id: story_cut
+        text: What should I look for at Blackvein?
+        next: story_cut
+        consequences:
+        - command: start_quest
+          quest_ref: quest.main.closed_seam
+      - id: story_ledger
+        text: This fragment names an Order of the Lantern.
+        next: story_ledger
+        conditions:
+        - kind: has_item
+          item_ref: item.story.lantern_ledger
+        consequences:
+        - command: start_quest
+          quest_ref: quest.main.closed_seam
+        - command: start_quest
+          quest_ref: quest.story.lantern_ledger
+      - id: story_fold_quiet
+        text: Would you go near the Foldscar?
+        next: story_fold_quiet
   lesson:
     text: "Good! Then bring me iron. Blackvein Cut - the old quarry, south off the road. There's a seam on the floor of it; break me some ore out. Ore goes in the hearth and comes out a billet, if you keep the fire honest. A billet and a straight ash haft - Charwood's thick with ash - and the anvil makes you a spear. Make it yourself, bring it here, and I'll tell you the truth about it. And don't blame the iron. It's always the hands."
     once: true
@@ -228,6 +248,36 @@ nodes:
       - id: back
         text: "The bench, then."
         next: again
+  story_cut:
+    text: Look at the joins beside the iron, new iron. A cut edge isn't the same as a natural break. Gather what you need, try the forge, then tell
+      me what you've seen. If I'm not there, find me when I'm back at work, seven to nineteen.
+    choices:
+    - id: back
+      text: I'll keep looking.
+      next: again
+  story_ledger:
+    text: Ha! That's a cut edge. Look at the spacing, new iron. Worked out? No. Someone shut it. That's a maker's cut. Not the same as knowing the
+      maker.
+    choices:
+    - id: compare
+      text: I can see the join. I cannot date it.
+      next: story_ledger_read
+    - id: back
+      text: I want to compare it with the face again.
+      next: again
+  story_ledger_read:
+    text: Order of the Lantern. An incomplete list, and a lantern-forge east. Keep the reading separate from the theory. Sel can compare it with
+      the other records when those are reachable.
+    choices:
+    - id: back
+      text: I'll keep looking.
+      next: again
+  story_fold_quiet:
+    text: No. Stay clear of that ridge, new iron. You know what happens to a Kal caught when a world turns? We set.
+    choices:
+    - id: back
+      text: I won't press you.
+      next: again
 barks:
   - { text: "Ha! Look at that weld. I'm talking to the hinge, not you." }
   - { text: "Hand me the - no. Never mind. Wings are quicker." }

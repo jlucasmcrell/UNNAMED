@@ -1,0 +1,10 @@
+id: world.main.carrier
+kind: world_flag
+schema: 1
+display_key: world.main.carrier.name
+tags:
+- world_flag
+notes: Chosen account, not a causal truth. Owned in location.outpost's cell by quest choice effects; remote readers name that location.
+type: int
+default: 0
+owning_system: S-29
