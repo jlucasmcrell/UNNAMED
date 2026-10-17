@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
@@ -85,6 +86,8 @@ public enum StateSlice
     /// region and the hour, so nothing else of it is state.
     /// </summary>
     Weather,
+    /// <summary>The character's faction ledger (WP6): the act log, what each faction knows of it, and the standing each holds.</summary>
+    Factions,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -161,6 +164,7 @@ internal sealed class RuntimeState
         ImmutableSortedDictionary.Create<string, CompanionState>(StringComparer.Ordinal);
     public ImmutableSortedDictionary<string, DeedTally> Deeds { get; private set; }
     public long? WeatherCursor { get; private set; }
+    public FactionLedger Factions { get; private set; } = FactionLedger.Empty;
 
     public IReadOnlyDictionary<StateSlice, string> Owners => _owners;
 
@@ -220,6 +224,15 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Deeds);
         Deeds = Deeds.SetItem(tally.Key, tally);
+    }
+
+    /// <summary>The character's points with a faction; 0 when nothing moved them.</summary>
+    public int StandingOf(string factionId) => FactionRules.PointsOf(Factions, factionId);
+
+    public void SetFactions(SliceOwner owner, FactionLedger ledger)
+    {
+        Require(owner, StateSlice.Factions);
+        Factions = ledger ?? throw new ArgumentNullException(nameof(ledger));
     }
 
     public void WalkRoad(SliceOwner owner, string stretch)

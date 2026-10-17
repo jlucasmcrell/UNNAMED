@@ -235,13 +235,23 @@ public sealed record WaystoneKnown(string StoneKey) : ObjectiveCondition
     public override string Type => "waystone_known";
 }
 
+/// <summary>
+/// <c>faction_reputation</c> (WP6): the character's standing with the faction is at a tier from <c>min_tier</c> to <c>max_tier</c>, compared
+/// by level. Standing moves only when a member is told, so this holds once the character has reported, or been rewarded.
+/// </summary>
+public sealed record FactionReputation(string FactionId, int MinLevel, int MaxLevel) : ObjectiveCondition
+{
+    public override string Type => "faction_reputation";
+}
+
 /// <summary>The vocabulary: what Phase 1 builds, and the rest of DATA_MODEL.md §4.11's closed set, which arrives with its systems.</summary>
 public static class ObjectiveTypes
 {
     public static readonly ImmutableArray<string> Built = ImmutableArray.Create(
         "talk_to", "visit_location", "explore_location", "acquire_item", "craft_item", "harvest_resource", "kill_creature",
         "deliver_item", "world_state", "relationship_value", "wait_until",
-        "defeat_creature", "defeat_boss", "companion_present", "dialogue_choice", "travel_to", "waystone_known");
+        "defeat_creature", "defeat_boss", "companion_present", "dialogue_choice", "travel_to", "waystone_known",
+        "faction_reputation");
 
     /// <summary>Named by the closed set and not built yet, each with what it waits for.</summary>
     public static readonly ImmutableSortedDictionary<string, string> NotBuilt = new Dictionary<string, string>
@@ -255,8 +265,7 @@ public static class ObjectiveTypes
         ["escort_npc"] = "NPCs that travel",
         ["defend_location"] = "waves (M8)",
         ["solve_puzzle"] = "puzzles (M8)",
-        ["faction_reputation"] = "factions (M7)",
-        ["faction_state"] = "factions (M7)",
+        ["faction_state"] = "a faction's own state: no faction holds state of its own yet, only the character's standing with it (WP6)",
         ["know_fact"] = "knowledge facts",
         ["time_window"] = "the time of day",
     }.ToImmutableSortedDictionary(StringComparer.Ordinal);
@@ -301,12 +310,18 @@ public sealed record WorldFlagReward(string FlagId, string LocationId, long Valu
     public override string Kind => "world_flag";
 }
 
+/// <summary><c>reputation</c> (WP6): the giver's faction moves the character's standing by <see cref="Delta"/> points.</summary>
+public sealed record ReputationReward(string FactionId, int Delta) : QuestReward
+{
+    public override string Kind => "reputation";
+}
+
 public static class RewardKinds
 {
-    public static readonly ImmutableArray<string> Built = ImmutableArray.Create("xp", "currency", "item", "recipe", "spell", "relationship", "world_flag");
+    public static readonly ImmutableArray<string> Built = ImmutableArray.Create("xp", "currency", "item", "recipe", "spell", "relationship", "world_flag", "reputation");
 
     public static readonly ImmutableArray<string> NotBuilt = ImmutableArray.Create(
-        "ability", "reputation", "title", "access", "companion", "property", "permanent_ability", "transformation");
+        "ability", "title", "access", "companion", "property", "permanent_ability", "transformation");
 }
 
 // ── state ──────────────────────────────────────────────────────────────────────
@@ -404,6 +419,9 @@ public interface IQuestFacts
 
     /// <summary>The NPC's order when they are the character's companion and on their feet; null otherwise.</summary>
     CompanionOrder? CompanionPresent(string npcId) => null;
+
+    /// <summary>The level of the character's standing tier with a faction (WP6); 0, neutral, when nothing moved it.</summary>
+    int StandingLevel(string factionId) => 0;
 }
 
 public enum DeedKind { Crafted, Harvested, Killed, Delivered, Chose, Travelled }
@@ -561,6 +579,12 @@ public static class QuestRules
                 return One(new Term($"arrived at {t.StoneKey} by the stones while active", progress.ToString(), ">= 1", progress >= 1));
             case WaystoneKnown w:
                 return One(Is($"{w.StoneKey} known", facts.KnowsStone(w.StoneKey)));
+            case FactionReputation f:
+            {
+                int level = facts.StandingLevel(f.FactionId);
+                return One(new Term($"standing level with {f.FactionId}", level.ToString(), Range(f.MinLevel, f.MaxLevel),
+                    level >= f.MinLevel && level <= f.MaxLevel));
+            }
             default:
                 throw new ArgumentOutOfRangeException(nameof(condition), condition, "Unknown objective type");
         }

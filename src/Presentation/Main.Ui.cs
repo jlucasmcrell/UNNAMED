@@ -40,6 +40,9 @@ public partial class Main
         _effectsPanel = new EffectsPanel { Name = "Effects" };
         _effectsPanel.Bind(_session);
         AddChild(_effectsPanel);
+        _reputation = new ReputationPanel { Name = "Reputation" };
+        _reputation.Bind(_session);
+        AddChild(_reputation);
         _companionsPanel = new CompanionsPanel { Name = "Companions" };
         _companionsPanel.Bind(_session, _controller);
         AddChild(_companionsPanel);
@@ -247,6 +250,7 @@ public partial class Main
         new("The world", "Journal", "journal", "panel.journal", FromMenu(() => Show(_journal))),
         new("The world", "Map", "map", "panel.map", FromMenu(() => Show(_map))),
         new("The world", "Companions", null, "panel.companions", FromMenu(() => Show(_companionsPanel))),
+        new("The world", "Reputation", null, null, FromMenu(() => Show(_reputation))),
         new("System", "Save and load", "saves", "panel.saves", FromMenu(() => _saves.OpenInGame())),
         new("System", "Settings", null, "panel.settings", FromMenu(() => _settings.Open())),
         new("System", "Controls and help", "help", "panel.help", FromMenu(_help.Toggle)),
@@ -262,7 +266,7 @@ public partial class Main
 
     /// <summary>The management screen open, if any: one at a time.</summary>
     private CanvasLayer? Screen =>
-        new CanvasLayer[] { _menu, _inventory, _character, _journal, _effectsPanel, _companionsPanel, _waystones, _map, _settings, _credits, _help, _saves }.FirstOrDefault(s => s.Visible);
+        new CanvasLayer[] { _menu, _inventory, _character, _journal, _effectsPanel, _companionsPanel, _reputation, _waystones, _map, _settings, _credits, _help, _saves }.FirstOrDefault(s => s.Visible);
 
     /// <summary>Close whatever management screen is open, back to play.</summary>
     private void CloseScreens()
@@ -276,7 +280,7 @@ public partial class Main
             _help.Toggle();
         _waystones.Close();
         _settings.Close();
-        foreach (var screen in new CanvasLayer[] { _menu, _character, _journal, _effectsPanel, _companionsPanel, _map, _credits })
+        foreach (var screen in new CanvasLayer[] { _menu, _character, _journal, _effectsPanel, _companionsPanel, _reputation, _map, _credits })
             screen.Visible = false;
     }
 
@@ -315,6 +319,9 @@ public partial class Main
                 break;
             case "companions":
                 Show(_companionsPanel);
+                break;
+            case "reputation":
+                Show(_reputation);
                 break;
             case "help":
                 _help.Toggle();

@@ -205,6 +205,11 @@ public class ContentLoader
             var hintErrors = HintContent.Validate(this);
             _errors.AddRange(hintErrors);
             success &= hintErrors.Count == 0;
+
+            // Factions: the ladder, reactions, members at their seat, and who may be told what (FAC001; WP6)
+            var factionErrors = FactionContent.Validate(this);
+            _errors.AddRange(factionErrors);
+            success &= factionErrors.Count == 0;
         }
         
         return success;

@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Globalization;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
+using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
 using static UNNAMED.Content.CombatContent;
@@ -24,10 +25,11 @@ public static class SocialContent
         { "villager", "merchant", "guard", "craftsperson", "quest_giver", "trainer", "innkeeper", "noble", "bandit", "scholar", "steward" };
 
     private static readonly string[] Conditions =
-        { "visited", "world_state", "has_item", "relationship", "skill", "level", "quest_state", "companion_present", "deed" };
+        { "visited", "world_state", "has_item", "relationship", "skill", "level", "quest_state", "companion_present", "deed", "standing", "act_done" };
 
     private static readonly string[] Consequences =
-        { "transfer_item", "give_recipe", "set_world_flag", "record_relationship_event", "open_service", "start_quest", "recruit_companion", "order_companion" };
+        { "transfer_item", "give_recipe", "set_world_flag", "record_relationship_event", "open_service", "start_quest", "recruit_companion", "order_companion",
+          "report_act" };
 
     public static IReadOnlyList<ValidationError> Validate(ContentLoader loader)
     {
@@ -90,6 +92,7 @@ public static class SocialContent
             return new NpcDefinition(id, Text(map, "name"), role, services, merchant, map.GetValueOrDefault("dialogue_ref") as string)
             {
                 Companion = map.ContainsKey("companion") ? Profile(id, Map(map, "companion"), loader) : null,
+                FactionId = map.GetValueOrDefault("faction_ref") is string faction ? Defined(loader, faction, "faction", id) : null,
             };
         }).ToImmutableSortedDictionary(n => n.Id, n => n, StringComparer.Ordinal);
 
@@ -196,6 +199,8 @@ public static class SocialContent
             "companion_present" => new CompanionPresentCondition(Defined(loader, Text(map, "npc_ref"), "npc", at),
                 map.GetValueOrDefault("order") is string order ? Order(order, at) : null, negated),
             "deed" => Deed(at, map, loader, negated),
+            "standing" => Standing(at, map, loader),
+            "act_done" => ActDone(at, map, loader),
             _ => throw new FormatException($"{at}: condition '{kind}' is not built in Phase 1 ({string.Join(", ", Conditions)})"),
         };
     }
@@ -226,8 +231,35 @@ public static class SocialContent
             "start_quest" => new StartQuestConsequence(Defined(loader, Text(map, "quest_ref"), "quest", at)),
             "recruit_companion" => new RecruitCompanionConsequence(),
             "order_companion" => new OrderCompanionConsequence(Order(Text(map, "order"), at)),
+            "report_act" => ReportAct(at, map, loader),
+            "add_reputation" => throw new FormatException($"{at}: add_reputation is refused: standing moves only when a member is told of an act (WP6)"),
             _ => throw new FormatException($"{at}: consequence '{command}' is not built in Phase 1 ({string.Join(", ", Consequences)})"),
         };
+    }
+
+    /// <summary>
+    /// <c>standing</c> (WP6): the character's tier with <c>faction_ref</c> from <c>min_tier</c> (default anathema) to <c>max_tier</c>
+    /// (default exalted), as levels. FAC001 holds it to the speaker's own faction.
+    /// </summary>
+    private static StandingCondition Standing(string at, Dictionary<object, object> map, ContentLoader loader)
+    {
+        string faction = Defined(loader, Text(map, "faction_ref"), "faction", at);
+        var (min, max) = FactionContent.TierRange(map, at);
+        return new StandingCondition(faction, min, max);
+    }
+
+    /// <summary><c>act_done</c> (WP6): the act log holds this act. FAC001 allows it only beside a report of the same act.</summary>
+    private static ActDoneCondition ActDone(string at, Dictionary<object, object> map, ContentLoader loader)
+    {
+        var (kind, subject) = FactionContent.ActAndSubject(loader, map, at);
+        return new ActDoneCondition(kind, subject);
+    }
+
+    /// <summary><c>report_act</c> (WP6): the character tells the speaker of this act. FAC001 allows it only to a faction that reacts.</summary>
+    private static ReportActConsequence ReportAct(string at, Dictionary<object, object> map, ContentLoader loader)
+    {
+        var (kind, subject) = FactionContent.ActAndSubject(loader, map, at);
+        return new ReportActConsequence(kind, subject);
     }
 
     private static CompanionOrder Order(string order, string at) =>
