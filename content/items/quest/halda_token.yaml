@@ -9,6 +9,6 @@ category: quest_item
 stack_max: 1
 weight: 0.1
 value_base: 0
-rarity: uncommon
+rarity: common
 no_drop: true
 no_sell: true

@@ -1,0 +1,39 @@
+id: people.veth
+kind: people
+schema: 1
+display_key: people.veth.name
+tags: [people]
+name: Veth
+notes: The touched lineage (RACES.md §1). The slice ships the Veth only (E14 / OD-08, DCP:912), so they are the one playable people. Suggest names are the owner-approved working list (owner, 2026-10-06, "Draft list for review"; canon proposals/new/playtest/VETH_NAMES_AND_GRAZERS.md as recorded in docs/restore/OWNER_RULINGS_2026-10-05_to_14.txt) - a short given name and a land-or-work surname, old roots vess, tal, lind, ren, ost, pel. They are working names until the owner reviews them; the list makes no leaning by body or pronouns.
+playable: true
+suggest_names:
+  - Oswin Tallow
+  - Davan Pellcroft
+  - Corran Ostley
+  - Bram Hallow
+  - Edric Fenlow
+  - Halden Rook
+  - Joss Marley
+  - Tobin Ashcombe
+  - Wyn Carrow
+  - Garret Lindmoor
+  - Aldo Renning
+  - Kester Vale-of-Stones
+  - Wenna Lind
+  - Isla Vessey
+  - Tesk Marrow
+  - Brenna Holt
+  - Maren Tally
+  - Elsa Pellow
+  - Neve Ostrey
+  - Rowan Kell
+  - Hesta Crane
+  - Liss Fallow
+  - Odile Renfell
+  - Sabra Coldwater
+  - Ash Tarrow
+  - Fen Hollis
+  - Wren Ostick
+  - Rook Lindell
+  - Corin Vessmoor
+  - Teagan Peel

@@ -287,6 +287,18 @@ public partial class InventoryPanel : CanvasLayer
         _contextHead.AddChild(skills);
         if (recipes.Count == 0)
             _container.AddChild(UiKit.Quiet("You know nothing to make here yet."));
+        // Experimenting (WP3a): the station's seeded set, found by carrying a recipe's makings. The set's recipes stay hidden until found.
+        var (found, total) = simulation.Experiments(station.Key);
+        if (total > 0)
+        {
+            var experiment = new HBoxContainer();
+            experiment.AddThemeConstantOverride("separation", 10);
+            experiment.AddChild(UiKit.Chip($"Experiments found {found} of {total}", found < total ? HudStyle.Brass : HudStyle.Ash));
+            var attempt = Button("x:" + station.Key, "Experiment", () => Submit(new ExperimentCommand(simulation.PlayerId, station.Key)));
+            attempt.Disabled = found >= total;
+            experiment.AddChild(attempt);
+            _contextHead.AddChild(experiment);
+        }
         int Carried(string defId) => player.Inventory.Where(e => e.DefId == defId && !player.Equipment.ContainsValue(e.ItemId)).Sum(e => e.Count);
         foreach (var recipe in recipes)
         {
@@ -355,7 +367,7 @@ public partial class InventoryPanel : CanvasLayer
     private void Details(Simulation simulation)
     {
         UiKit.Clear(_details);
-        var (defId, quality) = Chosen(simulation);
+        var (defId, quality, notable) = Chosen(simulation);
         if (defId is null)
         {
             _details.AddChild(UiKit.Section("Item"));
@@ -381,6 +393,9 @@ public partial class InventoryPanel : CanvasLayer
         var player = simulation.Player;
         ItemDefinition? Worn(EquipSlot slot) => player.Equipment.TryGetValue(slot, out var worn)
             && player.Inventory.FirstOrDefault(e => e.ItemId == worn) is { } entry && entry.DefId != defId ? setup.Items.Catalog.Find(entry.DefId) : null;
+        (ItemDefinition Definition, int Quality)? WornEntry(EquipSlot slot) => player.Equipment.TryGetValue(slot, out var worn)
+            && player.Inventory.FirstOrDefault(e => e.ItemId == worn) is { } entry && entry.DefId != defId && setup.Items.Catalog.Find(entry.DefId) is { } d
+                ? (d, entry.Quality) : null;
         var notes = new List<(string Text, Color Tone, string? Icon)>();
         if (item?.Weapon is { } weapon)
         {
@@ -405,13 +420,21 @@ public partial class InventoryPanel : CanvasLayer
         }
         if (item is { ArmorValue: > 0 } || item?.Slot is not null && item.Weapon is null)
         {
-            Fact("Armour", $"+{item!.ArmorValue}", icon: "stat.armour");
-            Fact("Worn on", Names.Slot(item.Slot!.Value));
-            if (Worn(item.Slot!.Value) is { } other)
+            // A piece's quality moves its armour a step a step (WP3a), as the character sheet counts it.
+            int armorPerStep = setup.Crafting.Constants.ArmorPerStep;
+            int armour = EquipmentRules.ArmorOf(item!, quality, armorPerStep);
+            Fact("Armour", $"+{armour}", icon: "stat.armour");
+            Fact("Worn on", Names.Slot(item!.Slot!.Value));
+            if (item.LightRadiusMm > 0)
+                Fact("Light", $"{item.LightRadiusMm / 1000.0:0.#} m");
+            if (item.StealthPenalty > 0)
+                notes.Add(($"Seen {item.StealthPenalty * 100:0}% further off while it is equipped.", HudStyle.Wound, null));
+            if (WornEntry(item.Slot!.Value) is { } other)
             {
-                int delta = item.ArmorValue - other.ArmorValue;
-                notes.Add((delta == 0 ? $"As much armour as your {Names.Of(_session, other.Id)}."
-                    : $"{Math.Abs(delta)} {(delta > 0 ? "more" : "less")} armour than your {Names.Of(_session, other.Id)}.",
+                int delta = armour - EquipmentRules.ArmorOf(other.Definition, other.Quality, armorPerStep);
+                var otherItem = other.Definition;
+                notes.Add((delta == 0 ? $"As much armour as your {Names.Of(_session, otherItem.Id)}."
+                    : $"{Math.Abs(delta)} {(delta > 0 ? "more" : "less")} armour than your {Names.Of(_session, otherItem.Id)}.",
                     delta > 0 ? HudStyle.Lichen : delta < 0 ? HudStyle.Wound : HudStyle.Ash, null));
             }
         }
@@ -434,9 +457,19 @@ public partial class InventoryPanel : CanvasLayer
                 Fact($"Needs {Names.Of(_session, skill)}", $"{minimum}", level >= minimum ? HudStyle.Lichen : HudStyle.Wound);
             }
         }
-        if (quality != Quality.Standard)
+        if (quality == Quality.Masterwork)
+            notes.Add(("Masterwork: two steps past the common make.", HudStyle.Brass, "quality.fine"));
+        else if (quality != Quality.Standard)
             notes.Add((quality > 0 ? "Fine work: better than the common make." : "Crude work: worse than the common make.", quality > 0 ? HudStyle.Lichen : HudStyle.Wound,
                 quality > 0 ? "quality.fine" : "quality.crude"));
+        // Class, provenance and familiarity (WP3a, DCP:673-676).
+        if (item is not null && ItemClasses.Of(item, quality) is var itemClass && itemClass != ItemClass.Ordinary)
+            Fact("Class", Names.Words(ItemClasses.Key(itemClass)), HudStyle.Brass);
+        if (notable is not null)
+        {
+            notes.Add((Provenance(notable), HudStyle.Ash, null));
+            notes.Add(($"Familiarity {new string('●', notable.Familiarity)}{new string('○', NotableRecord.MaxFamiliarity - notable.Familiarity)}", HudStyle.Brass, null));
+        }
         _details.AddChild(grid);
         foreach (var (text, tone, icon) in notes)
         {
@@ -472,20 +505,32 @@ public partial class InventoryPanel : CanvasLayer
     }
 
     /// <summary>The chosen item's definition and quality, wherever it lies; null when nothing is chosen or it is gone.</summary>
-    private (string? DefId, int Quality) Chosen(Simulation simulation)
+    private (string? DefId, int Quality, NotableRecord? Notable) Chosen(Simulation simulation)
     {
         if (_chosen is null)
-            return (null, 0);
+            return (null, 0, null);
         if (_chosen.StartsWith("c:", StringComparison.Ordinal) && OpenContainer is { } open
             && simulation.Containers.FirstOrDefault(c => c.Site.Key == open)?.Items.FirstOrDefault(i => "c:" + i.Ref == _chosen) is { } inside)
-            return (inside.DefId, inside.Quality);
+            return (inside.DefId, inside.Quality, inside.Notable);
         if (_chosen.StartsWith("w:", StringComparison.Ordinal) && OpenTrader is { } trader
             && simulation.Wares(trader)?.Wares.FirstOrDefault(w => "w:" + w.Ref == _chosen) is { } ware)
-            return (ware.ItemId, ware.Quality);
+            return (ware.ItemId, ware.Quality, null);
         if (_chosen.StartsWith("r:", StringComparison.Ordinal) && simulation.Setup.Crafting.Recipes.TryGetValue(_chosen[2..], out var recipe))
-            return (recipe.OutputItemId, Quality.Standard);
-        return simulation.Player.Inventory.FirstOrDefault(e => e.ItemId.Value == _chosen) is { } entry ? (entry.DefId, entry.Quality) : (null, 0);
+            return (recipe.OutputItemId, Quality.Standard, null);
+        return simulation.Player.Inventory.FirstOrDefault(e => e.ItemId.Value == _chosen) is { } entry ? (entry.DefId, entry.Quality, entry.Notable) : (null, 0, null);
     }
+
+    /// <summary>A notable instance's provenance line (DCP:673-676): how it came to be held, from what, and by whose hand when made.</summary>
+    private string Provenance(NotableRecord notable) => notable.Provenance switch
+    {
+        ProvenanceKind.Crafted => $"Made by {notable.Maker} ({Names.Of(_session, notable.SourceRef)}), day {Day(notable.Tick)}.",
+        ProvenanceKind.Found => $"Found in {Names.Place(_session, notable.SourceRef)}, day {Day(notable.Tick)}.",
+        ProvenanceKind.Bought => $"Bought from {Names.Place(_session, notable.SourceRef)}, day {Day(notable.Tick)}.",
+        ProvenanceKind.Given => $"Given: {Names.Of(_session, notable.SourceRef)}, day {Day(notable.Tick)}.",
+        _ => "Carried from the start.",
+    };
+
+    private long Day(long tick) => _session.Simulation is { } simulation ? tick / simulation.Setup.Progression.TicksPerWorldDay + 1 : 1;
 
     /// <summary>Choose an item for the details, as the pointer or the focus reaches its row.</summary>
     private void Choose(string id)

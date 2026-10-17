@@ -6,6 +6,7 @@ tags: [quest, bounty]
 notes: Sel's fold-bleed collecting. Boneleaf grows only round the Foldscar, two of its bushes inside the hunting spider's ground.
 title: Leaves That Grow Wrong
 summary: Sel wants boneleaf from the Foldscar's edge - two leaves, and she wants to know which way you found them facing.
+track: bounty
 giver_ref: npc.ashen_hollow.sel_arien
 entry_objective: o_deliver
 objectives:

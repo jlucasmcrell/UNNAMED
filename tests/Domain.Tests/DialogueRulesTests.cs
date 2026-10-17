@@ -31,6 +31,9 @@ public class DialogueRulesTests
             Quests.TryGetValue((questId, objectiveId), out var state) ? state : objectiveId is null ? "not_started" : "not_reached";
         public Dictionary<string, UNNAMED.Domain.Companions.CompanionOrder> Companions { get; } = new(StringComparer.Ordinal);
         public UNNAMED.Domain.Companions.CompanionOrder? CompanionOrderOf(string npcId) => Companions.TryGetValue(npcId, out var order) ? order : null;
+        public Dictionary<(UNNAMED.Domain.Quests.DeedKind, string, string?), int> Done { get; } = new();
+        public int Deeds(UNNAMED.Domain.Quests.DeedKind kind, string subjectId, string? npcId) =>
+            npcId is null ? Done.Where(d => d.Key.Item1 == kind && d.Key.Item2 == subjectId).Sum(d => d.Value) : Done.GetValueOrDefault((kind, subjectId, npcId));
     }
 
     private static DialogueNode Node(string id, bool once = false, string? exhausted = null) =>
@@ -38,6 +41,52 @@ public class DialogueRulesTests
 
     private static DialogueDefinition Graph(params DialogueNode[] nodes) =>
         new(Talk, ImmutableArray.Create("npc.test.smith"), nodes[0].Id, nodes.ToImmutableSortedDictionary(n => n.Id, n => n, StringComparer.Ordinal));
+
+    [Fact]
+    public void ADeed_HoldsOnceDoneOftenEnough_AndNamingAnNpcCountsOnlyTheirs()
+    {
+        var facts = new Facts();
+        var killed = UNNAMED.Domain.Quests.DeedKind.Killed;
+        var delivered = UNNAMED.Domain.Quests.DeedKind.Delivered;
+        facts.Done[(killed, "creature.test.wolf", null)] = 2;
+        facts.Done[(delivered, "item.test.ore", "npc.test.smith")] = 1;
+        facts.Done[(delivered, "item.test.ore", "npc.test.guide")] = 3;
+        bool Holds(DialogueCondition c) => DialogueRules.Holds(c, Talk, facts);
+
+        Assert.True(Holds(new DeedCondition(killed, "creature.test.wolf", 2, false)));
+        Assert.False(Holds(new DeedCondition(killed, "creature.test.wolf", 3, false)));
+        Assert.True(Holds(new DeedCondition(killed, "creature.test.wolf", 3, true)));
+        Assert.False(Holds(new DeedCondition(killed, "creature.test.bear", 1, false)));
+        Assert.True(Holds(new DeedCondition(delivered, "item.test.ore", 4, false)));                              // to anyone
+        Assert.False(Holds(new DeedCondition(delivered, "item.test.ore", 2, false) { NpcId = "npc.test.smith" }));
+        Assert.True(Holds(new DeedCondition(delivered, "item.test.ore", 2, false) { NpcId = "npc.test.guide" }));
+    }
+
+    [Fact]
+    public void ALine_IsSaidInItsFirstVariantThatHolds_OrInItsOwnWords_EachUnderItsLineId()
+    {
+        var facts = new Facts();
+        var node = Node("greet") with
+        {
+            Variants = ImmutableArray.Create(
+                new DialogueVariant("You came back.", ImmutableArray.Create<DialogueCondition>(new VisitedCondition("lesson", false))),
+                new DialogueVariant("Gate's open.", ImmutableArray.Create<DialogueCondition>(new WorldStateCondition("world.test.gate", 1, long.MaxValue)))),
+        };
+
+        Assert.Equal(new SpokenLine("dialogue.test.smith/greet", "greet"), DialogueRules.Line(node, Talk, facts));
+        facts.Flags["world.test.gate"] = 1;
+        Assert.Equal(new SpokenLine("dialogue.test.smith/greet.2", "Gate's open."), DialogueRules.Line(node, Talk, facts));
+        facts.Heard.Add("lesson");
+        Assert.Equal(new SpokenLine("dialogue.test.smith/greet.1", "You came back."), DialogueRules.Line(node, Talk, facts));
+    }
+
+    [Fact]
+    public void LineIds_AreDerivedFromWhereTheLineStands()
+    {
+        Assert.Equal("dialogue.ashen_hollow.kera_voss/greet", LineIds.Node("dialogue.ashen_hollow.kera_voss", "greet"));
+        Assert.Equal("dialogue.ashen_hollow.kera_voss/greet.3", LineIds.Node("dialogue.ashen_hollow.kera_voss", "greet", 3));
+        Assert.Equal("bark.ashen_hollow.kera_voss.1", LineIds.Bark("npc.ashen_hollow.kera_voss", 1));
+    }
 
     [Fact]
     public void EachConditionKind_ReadsTheWorld()

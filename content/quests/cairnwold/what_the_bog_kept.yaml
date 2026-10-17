@@ -6,6 +6,7 @@ tags: [quest]
 notes: "Mara Ling's quest - the village's water, the low ground it comes from, and the herb that says whether the trouble is in the plant or under it. It sends the player to the region's own Sinking Moss at (1050, 770), where four ashbloom patches grow (node.firstplay.ashbloom), and closes when three are given to Mara (her bog_return reply). Deliberately unresolved: she learns the water is coming from deeper than the plant reaches, and nothing more - the charter's \"uncertain knowledge rather than omniscient exposition\"."
 title: What The Bog Kept
 summary: Mara Ling's well is drawing thin and brown, and she does not think the well is the problem.
+track: side
 giver_ref: npc.cairnwold.mara_ling
 entry_objective: o_speak
 objectives:

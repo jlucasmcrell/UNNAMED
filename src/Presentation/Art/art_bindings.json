@@ -1153,6 +1153,7 @@
   "panel.saves": "ui.panel.saves",
   "panel.help": "ui.panel.help",
   "panel.quit": "ui.panel.quit",
+  "panel.settings": "ui.panel.settings",
   "moment.level_up": "ui.moment.level_up",
   "moment.quest_complete": "ui.moment.quest_complete",
   "moment.quest_new": "ui.moment.quest_new",

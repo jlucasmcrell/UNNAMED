@@ -1,9 +1,12 @@
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Travel;
+using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.M2Probe;
 using UNNAMED.SaveTool;
@@ -254,10 +257,60 @@ public class HistoricalFixtureTests
         Assert.Equal(schema >= 15 ? "waystone.fixture.ford" : null, loaded.Player.ReturnPoint);
         Assert.Equal(schema >= 15 ? new[] { "road.fixture.track#0", "road.fixture.track#1" } : Array.Empty<string>(), loaded.Player.RoadsWalked);
 
+        // Schema 16's deeds (WP5, E-7): three hounds killed, two draughts handed to the warden, a sword crafted - every name renamed to
+        // today's; before it, nothing counted.
+        Assert.Equal(schema >= 16
+                ? new[]
+                {
+                    new DeedTally(DeedKind.Crafted, "item.weapon.iron_sword", null, 1, 3_900),
+                    new DeedTally(DeedKind.Delivered, "item.potion.minor_healing", "npc.fixture.warden_sera", 2, 4_200),
+                    new DeedTally(DeedKind.Killed, "creature.beast.ash_ember_hound", null, 3, 4_800),
+                }
+                : Array.Empty<DeedTally>(),
+            loaded.Player.Deeds);
+        // Schema 17's identity (the character creator): Aelin is "she", a Veth of a chosen build, of the Scholar's Call; before it, the
+        // character the game always made - "they", a Veth of the default body, with no Call - and her name kept.
+        Assert.Equal(schema >= 17
+                ? new CharacterIdentity(Pronouns.She, "people.veth", "body.build_slender", "call.scholar")
+                : new CharacterIdentity(Pronouns.They, "people.veth", "body.default", null),
+            loaded.Player.Identity);
+        Assert.Equal("Aelin", loaded.Player.Name);
+        // Schema 18's persistent clock (WP11): saved at a known moment after a login that caught up a game day and a quarter; before it, the
+        // moment the save was taken is its build_timestamp, to the second, and no login had caught anything up.
+        if (schema >= 18)
+        {
+            Assert.Equal("2026-10-17T09:30:00.250Z", loaded.Manifest.SavedUtc);
+            Assert.Equal(72_000, loaded.Manifest.WorldTimeAdvancedTicks);
+            Assert.Equal(new[] { ("time.passed", 72_000L), ("time.days", 1L) }, loaded.Manifest.AwayLog.Select(l => (l.Kind, l.Amount)));
+        }
+        else
+        {
+            Assert.Equal(DateTimeOffset.Parse(loaded.Manifest.BuildTimestamp, System.Globalization.CultureInfo.InvariantCulture), loaded.Manifest.SavedAt);
+            Assert.Empty(loaded.Manifest.AwayLog);
+        }
+        // Schema 19's notable records (WP3a): the carried sword was given as the cull's reward and has grown a little familiar; the chest's
+        // blade is a masterwork with its maker's mark. Before it, no stack carried a record, and none was masterwork.
+        var carried = loaded.Player.Inventory.Single(e => e.ItemId == M2Fixtures.Historical.SwordId);
+        Assert.Equal(schema >= 19 ? new NotableRecord("Iron Sword", ProvenanceKind.Given, "quest.fixture.cull", 3_500) { Familiarity = 2, Uses = 1 } : null,
+            carried.Notable);
+        if (chest is not null)
+        {
+            var blade = chest.Items.Single(i => i.DefId == "item.weapon.iron_sword");
+            Assert.Equal(schema >= 19 ? (2, new NotableRecord("Iron Sword", ProvenanceKind.Crafted, "recipe.fixture.sword", 2_000) { Maker = "Aelin" }) : (0, null),
+                (blade.Quality, blade.Notable));
+        }
+
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);
         // v4 names the potion twice - held, and first produced - and the report counts each occurrence.
         var aliases = schema switch
         {
+            >= 16 => new[]
+            {
+                "creature.beast.ash_hound -> creature.beast.ash_ember_hound x3", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",
+                "effect.weakness -> effect.weakened", "item.potion.healing_draught -> item.potion.minor_healing x6",
+                "location.wolf_den -> location.den_mouth", "npc.fixture.warden -> npc.fixture.warden_sera x4",
+                "quest.fixture.errand -> quest.fixture.wardens_errand", "spell.ember.firebolt -> spell.ember.bolt",
+            },
             >= 14 => new[]
             {
                 "creature.beast.ash_hound -> creature.beast.ash_ember_hound x2", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",

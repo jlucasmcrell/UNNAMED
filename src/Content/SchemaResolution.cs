@@ -285,6 +285,22 @@ public static class ContentKindRegistry
             IdPrefix: "world"
         );
         
+        // 28. people - a people (race) a character can be made from, and its names (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.2, WP2)
+        kinds["people"] = new ContentKindDefinition(
+            Kind: "people",
+            FullKind: "people",
+            Directory: "people",
+            IdPrefix: "people"
+        );
+
+        // 29. call - a starting package a character chooses (accepted OD-C03; WP2)
+        kinds["call"] = new ContentKindDefinition(
+            Kind: "call",
+            FullKind: "call",
+            Directory: "calls",
+            IdPrefix: "call"
+        );
+
         _kinds = kinds;
         
         // Build directory lookup (first occurrence only to avoid duplicates)

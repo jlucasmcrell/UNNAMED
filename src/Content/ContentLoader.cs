@@ -191,6 +191,11 @@ public class ContentLoader
             _errors.AddRange(socialErrors);
             success &= socialErrors.Count == 0;
 
+            // Peoples and Calls: what the character creator offers (CHR codes)
+            var characterErrors = CharacterContent.Validate(this);
+            _errors.AddRange(characterErrors);
+            success &= characterErrors.Count == 0;
+
             // Quests: objective graphs over world state (QST codes)
             var questErrors = QuestContent.Validate(this);
             _errors.AddRange(questErrors);

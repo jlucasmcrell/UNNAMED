@@ -1,0 +1,15 @@
+id: item.tool.torch
+kind: item
+schema: 1
+display_key: item.tool.torch.name
+tags: [item]
+name: Torch
+notes: An off-hand light (owner, ORR:1333) - timber and bog-cotton lint fired at the forge. It lights the way and is seen from further off - its stealth cost.
+category: tool
+item_class: ordinary
+stack_max: 1
+weight: 0.6
+value_base: 3
+equip_slot: off_hand
+light_radius: 8
+stealth_penalty: 0.5

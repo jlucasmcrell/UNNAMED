@@ -8,6 +8,7 @@ using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 
 namespace UNNAMED.World.Runtime;
@@ -81,6 +82,9 @@ public enum StateSlice
 
     /// <summary>The Waystones the player knows and the one they chose to return to (S-38). Saved with the player (schema 15).</summary>
     Waystones,
+
+    /// <summary>How many times the character has done each deed (E-7), which dialogue's <c>deed</c> condition reads. Saved with the player (schema 16).</summary>
+    Deeds,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -130,6 +134,7 @@ internal sealed class RuntimeState
         RoadsWalked = player.RoadsWalked.ToImmutableSortedSet(StringComparer.Ordinal);
         KnownStones = player.Waystones.ToImmutableSortedDictionary(w => w.StoneKey, w => w, StringComparer.Ordinal);
         ReturnPoint = player.ReturnPoint;
+        Deeds = player.Deeds.ToImmutableSortedDictionary(d => d.Key, d => d, StringComparer.Ordinal);
     }
 
     public WorldDelta World { get; }
@@ -159,6 +164,7 @@ internal sealed class RuntimeState
     public ImmutableSortedDictionary<string, QuestState> Quests { get; private set; }
     public ImmutableSortedDictionary<string, CompanionState> Companions { get; private set; } =
         ImmutableSortedDictionary.Create<string, CompanionState>(StringComparer.Ordinal);
+    public ImmutableSortedDictionary<string, DeedTally> Deeds { get; private set; }
 
     /// <summary>The space the player is in. The exterior until the space system moves them (M8 D10).</summary>
     public SpaceId Space { get; private set; } = SpaceId.Exterior;
@@ -240,6 +246,12 @@ internal sealed class RuntimeState
         Discoveries = Discoveries.Add(record.LocationId, record);
     }
 
+    public void SetDeed(SliceOwner owner, DeedTally tally)
+    {
+        Require(owner, StateSlice.Deeds);
+        Deeds = Deeds.SetItem(tally.Key, tally);
+    }
+
     public void WalkRoad(SliceOwner owner, string stretch)
     {
         Require(owner, StateSlice.Discoveries);
@@ -303,10 +315,11 @@ internal sealed class RuntimeState
         Equipment = equipment;
     }
 
-    public void PlaceItem(SliceOwner owner, CellKey cell, EntityId itemId, string defId, int count, int xCm, int zCm, int quality = 0)
+    public void PlaceItem(SliceOwner owner, CellKey cell, EntityId itemId, string defId, int count, int xCm, int zCm, int quality = 0,
+        NotableRecord? notable = null)
     {
         Require(owner, StateSlice.WorldItems);
-        World.PlaceItem(cell, itemId, defId, count, xCm, zCm, quality);
+        World.PlaceItem(cell, itemId, defId, count, xCm, zCm, quality, notable);
     }
 
     public CreatedEntityRecord TakeItem(SliceOwner owner, EntityId itemId)

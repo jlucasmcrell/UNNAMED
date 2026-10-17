@@ -254,6 +254,42 @@ internal sealed class QuestDebugger
             case WaitUntil w:
                 yield return "time passing: nothing else";
                 break;
+            case DefeatCreature d:
+            {
+                foreach (var spawn in Setup.Combat.Spawns.Where(s => s.Members.Any(m => m.CreatureId == d.CreatureId)))
+                    yield return $"{d.CreatureId} stands at {spawn.Key} ({Point(spawn.XMm, spawn.ZMm)})";
+                yield return $"its death, by any hand, sets {d.FlagId} in the cell of {d.LocationId}";
+                if (Place(d.LocationId) is null)
+                    problems.Add($"{d.LocationId} is not in this region, so nothing here records the defeat");
+                else if (_quests.WorldFlag(d.FlagId, d.LocationId) == 0 && !_creatures().Any(c => c.DefId == d.CreatureId && c.Alive)
+                         && !Setup.Combat.Spawns.Any(s => s.RespawnTicks > 0 && s.Members.Any(m => m.CreatureId == d.CreatureId)))
+                    problems.Add($"no {d.CreatureId} is alive here or returns, and its defeat is not on record");
+                break;
+            }
+            case CompanionPresent c:
+            {
+                string name = Setup.Social.Npcs.TryGetValue(c.NpcId, out var npc) ? npc.Name : c.NpcId;
+                yield return State.Companions.TryGetValue(c.NpcId, out var companion)
+                    ? $"{name} is a companion, {Domain.Companions.CompanionKeys.Key(companion.Condition)} and told to {Domain.Companions.CompanionKeys.Key(companion.Order)}"
+                    : $"{name} has not joined the character";
+                break;
+            }
+            case ChoiceGiven g:
+                if (Setup.Social.Dialogues.TryGetValue(g.DialogueId, out var said) && said.Nodes.TryGetValue(g.NodeId, out var line)
+                    && line.Choices.FirstOrDefault(x => x.Id == g.ChoiceId) is { } reply)
+                    yield return $"give it: {Reply(g.NpcId, said, line, reply)} while the objective is active";
+                break;
+            case TravelTo t:
+                yield return Setup.Layout.FindWaystone(t.StoneKey) is { } to
+                    ? $"travel by the stones to the {to.Name} ({Point(to.ArrivalXMm, to.ArrivalZMm)}) while the objective is active" +
+                      (State.KnownStones.ContainsKey(to.Key) ? "" : "; the character does not know it yet")
+                    : $"{t.StoneKey} is not in this region";
+                break;
+            case WaystoneKnown w:
+                yield return Setup.Layout.FindWaystone(w.StoneKey) is { } stone
+                    ? $"touch the {stone.Name} ({Point(stone.ArrivalXMm, stone.ArrivalZMm)})"
+                    : $"{w.StoneKey} is not in this region";
+                break;
         }
     }
 
@@ -410,6 +446,8 @@ internal sealed class QuestDebugger
         QuestStateCondition q => $"needs {q.QuestId}{(q.ObjectiveId is { } o ? " " + o : "")} {(q.Negated ? "not " : "")}{q.State}",
         CompanionPresentCondition p => $"needs {p.NpcId} {(p.Negated ? "not " : "")}with the character" +
             (p.Order is { } order ? $", {Domain.Companions.CompanionKeys.Key(order)}ing" : ""),
+        DeedCondition d => $"needs {d.SubjectId} {DeedKeys.Key(d.Kind)}{(d.NpcId is { } to ? " to " + to : "")} {(d.Negated ? "fewer than" : "at least")} {d.Count} " +
+            $"time(s); it was {DeedSystem.Count(State, d.Kind, d.SubjectId, d.NpcId)}",
         _ => condition.ToString(),
     };
 

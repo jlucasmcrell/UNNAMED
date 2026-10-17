@@ -4,6 +4,7 @@
 using System.Buffers.Binary;
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Items;
@@ -18,8 +19,21 @@ namespace UNNAMED.World;
 /// <summary>An inventory stack held by the player, keyed by its item instance ID.</summary>
 public sealed record InventoryEntry(EntityId ItemId, string DefId, int Count)
 {
-    /// <summary>The stack's quality (M3f, schema 9): crude -1, standard 0, fine +1. It belongs to the instance, never the definition.</summary>
+    /// <summary>The stack's quality (M3f, schema 9): crude -1, standard 0, fine +1, masterwork +2. It belongs to the instance, never the definition.</summary>
     public int Quality { get; init; }
+
+    /// <summary>A notable instance's record (WP3a): name, provenance, familiarity. Null for an ordinary stack.</summary>
+    public NotableRecord? Notable { get; init; }
+}
+
+/// <summary>How a notable-instance record enters a digest: nothing for an ordinary stack, so ordinary stacks hash as they always have.</summary>
+public static class NotableDigest
+{
+    public static CanonicalHasher Add(CanonicalHasher h, NotableRecord? notable) =>
+        notable is null
+            ? h
+            : h.Add("notable").Add(notable.Name).Add(ProvenanceKinds.Key(notable.Provenance)).Add(notable.SourceRef).Add(notable.Tick)
+                .Add(notable.Maker ?? "-").Add(notable.Familiarity).Add(notable.Uses);
 }
 
 /// <summary>How a place became known (SYSTEMS.md S-30). Phase 1 discovers by visiting only; the rest arrive with S-30.</summary>
@@ -119,7 +133,7 @@ public sealed record PlayerRecord
         {
             if (entry.ItemId.Kind != EntityKind.Item)
                 throw new ArgumentException($"Inventory holds item instances, got {entry.ItemId}", nameof(inventory));
-            if (!DefinitionId.IsValid(entry.DefId) || entry.Count <= 0)
+            if (!DefinitionId.IsValid(entry.DefId) || entry.Count <= 0 || entry.Notable is { IsValid: false } || (entry.Notable is not null && entry.Count != 1))
                 throw new ArgumentException($"Invalid inventory entry {entry}", nameof(inventory));
         }
         if (Inventory.Select(e => e.ItemId).Distinct().Count() != Inventory.Length)
@@ -232,32 +246,32 @@ public sealed record PlayerRecord
         var held = entries.Select(e => e.ItemId).ToHashSet();
         // An equipped item whose entry the pass dropped is unequipped with it, never left dangling.
         return new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, entries, Progression, FacingMdeg, Discoveries,
-            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked };
+            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity };
     }
 
     /// <summary>The same player with different progression (schema 4; the definition-ID pass rewrites its IDs too).</summary>
     public PlayerRecord WithProgression(CharacterProgression progression) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity };
 
     /// <summary>The same player with different discovery records (schema 5; the definition-ID pass rewrites their location IDs).</summary>
     public PlayerRecord WithDiscoveries(IEnumerable<DiscoveryRecord> discoveries) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity };
 
     /// <summary>The same player with different active effects (schema 7; the definition-ID pass rewrites their effect IDs).</summary>
     public PlayerRecord WithEffects(IEnumerable<ActiveEffect> effects) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity };
 
     /// <summary>The same player with different relationships and conversation memory (schema 10; the definition-ID pass rewrites their IDs).</summary>
     public PlayerRecord WithSocial(IEnumerable<RelationshipValue> relationships, IEnumerable<ConversationMemory> conversations) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, relationships, conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, relationships, conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity };
 
     /// <summary>The same player with different quests (schema 11; the definition-ID pass rewrites their quest IDs).</summary>
     public PlayerRecord WithQuests(IEnumerable<QuestState> quests) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity };
 
     /// <summary>The same player with different companions (schema 12; the definition-ID pass rewrites their NPC IDs).</summary>
     public PlayerRecord WithCompanions(IEnumerable<CompanionRecord> companions) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity };
 
     public EntityId Id { get; }
     public string Name { get; }
@@ -377,9 +391,9 @@ public sealed record PlayerRecord
     private readonly ImmutableArray<string> _roadsWalked = ImmutableArray<string>.Empty;
 
     /// <summary>
-    /// The space the character stands in (schema 16, M8 D10). Empty means the exterior, which is where every
+    /// The space the character stands in (schema 20, M8 D10). Empty means the exterior, which is where every
     /// character was before the Barrowworks existed and where most still are - the same empty-name convention
-    /// <see cref="SpaceId"/> uses everywhere else, so a save from before schema 16 reads as the exterior.
+    /// <see cref="SpaceId"/> uses everywhere else, so a save from before schema 20 reads as the exterior.
     /// </summary>
     /// <remarks>
     /// This is what makes a save taken inside the ring load back inside it. Before schema 16 the position was
@@ -402,7 +416,7 @@ public sealed record PlayerRecord
     private readonly string _spaceId = "";
 
     /// <summary>
-    /// The portal the character came into its space through (schema 16): null while it is in the exterior, or a
+    /// The portal the character came into its space through (schema 20): null while it is in the exterior, or a
     /// <c>SpaceTraversal</c> portal key. This is the whole of the return rule - the design is explicit that the
     /// stored entry is not a reason to force a particular exit, so the portal is kept and no coordinate is.
     /// </summary>
@@ -423,9 +437,53 @@ public sealed record PlayerRecord
 
     private readonly string? _spaceTraversal;
 
-    /// <summary>The same player standing in a different space, traversing it differently (schema 16).</summary>
+    /// <summary>The same player standing in a different space, traversing it differently (schema 20).</summary>
     public PlayerRecord WithSpace(string spaceId, string? traversal) =>
         this with { SpaceId = spaceId, SpaceTraversal = traversal };
+    /// How many times the character has done each deed, and when last, sorted by tally key (E-7; schema 16): killed a creature, crafted
+    /// or harvested something, delivered an item to someone. What dialogue's <c>deed</c> condition reads.
+    /// </summary>
+    public ImmutableArray<DeedTally> Deeds
+    {
+        get => _deeds;
+        init
+        {
+            var deeds = value.IsDefault ? ImmutableArray<DeedTally>.Empty : value.OrderBy(d => d.Key, StringComparer.Ordinal).ToImmutableArray();
+            foreach (var d in deeds)
+            {
+                if (!DeedKeys.Tallied.Contains(d.Kind) || !DefinitionId.IsValid(d.SubjectId) || d.Count < 1 || d.LastTick < 0
+                    || (d.NpcId is not null && (d.Kind != DeedKind.Delivered || !DefinitionId.IsValid(d.NpcId) || !d.NpcId.StartsWith("npc.", StringComparison.Ordinal))))
+                    throw new ArgumentException($"Invalid deed tally {d}", nameof(Deeds));
+            }
+            if (deeds.Select(d => d.Key).Distinct(StringComparer.Ordinal).Count() != deeds.Length)
+                throw new ArgumentException("A deed is tallied once", nameof(Deeds));
+            _deeds = deeds;
+        }
+    }
+
+    private readonly ImmutableArray<DeedTally> _deeds = ImmutableArray<DeedTally>.Empty;
+
+    /// <summary>The same player with different deed tallies (schema 16; the definition-ID pass rewrites their IDs).</summary>
+    public PlayerRecord WithDeeds(IEnumerable<DeedTally> deeds) => this with { Deeds = deeds.ToImmutableArray() };
+
+    /// <summary>
+    /// Who the character is besides their name (schema 17): pronouns, people, body preset and Call, as the creator made them. A character
+    /// from before the creator is "they", a Veth of the default body, with no Call.
+    /// </summary>
+    public CharacterIdentity Identity
+    {
+        get => _identity;
+        init
+        {
+            if (value is null || !Enum.IsDefined(value.Pronouns) || !DefinitionId.IsValid(value.PeopleId) || !value.PeopleId.StartsWith("people.", StringComparison.Ordinal)
+                || !DefinitionId.IsValid(value.BodyPresetId) || !value.BodyPresetId.StartsWith("body.", StringComparison.Ordinal)
+                || value.CallId is { } call && (!DefinitionId.IsValid(call) || !call.StartsWith("call.", StringComparison.Ordinal)))
+                throw new ArgumentException($"Invalid character identity {value}", nameof(Identity));
+            _identity = value;
+        }
+    }
+
+    private readonly CharacterIdentity _identity = CharacterIdentity.BeforeTheCreator;
 
     /// <summary>The same player holding themselves differently.</summary>
     public PlayerRecord WithPosture(Posture posture) => this with { Posture = posture };
@@ -438,7 +496,7 @@ public sealed record PlayerRecord
             using var h = new CanonicalHasher();
             h.Add("unnamed.player/v10").Add(Id.Value).Add(Name).Add(XMm).Add(YMm).Add(ZMm).Add(FacingMdeg).Add(AppearanceSeed).Add(Inventory.Length);
             foreach (var e in Inventory)
-                h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality);
+                NotableDigest.Add(h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality), e.Notable);
             h.Add(Progression.Digest).Add(Discoveries.Length);
             foreach (var d in Discoveries)
                 h.Add(d.LocationId).Add(DiscoveryMethods.Key(d.Method)).Add(d.Tick);
@@ -480,10 +538,14 @@ public sealed record PlayerRecord
             h.Add(ReturnPoint ?? "-").Add(RoadsWalked.Length);
             foreach (string stretch in RoadsWalked)
                 h.Add(stretch);
-            // Schema 16: the space and the portal into it. Both are in the digest because two bodies at the same
+            // Schema 20: the space and the portal into it. Both are in the digest because two bodies at the same
             // metres in different spaces are in different places, and a digest that could not tell them apart
             // would let a load land in the wrong one without any test noticing.
             h.Add(SpaceId).Add(SpaceTraversal ?? "-");
+            h.Add(Deeds.Length);
+            foreach (var d in Deeds)
+                h.Add(DeedKeys.Key(d.Kind)).Add(d.SubjectId).Add(d.NpcId ?? "-").Add(d.Count).Add(d.LastTick);
+            h.Add(PronounKeys.Key(Identity.Pronouns)).Add(Identity.PeopleId).Add(Identity.BodyPresetId).Add(Identity.CallId ?? "-");
             return h.Finish();
         }
     }

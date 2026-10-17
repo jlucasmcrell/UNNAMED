@@ -19,15 +19,17 @@
   </ItemGroup>
 
   <!-- The presentation's Godot-free parts (the Godot project itself cannot load outside the engine): the asset records, the coverage
-       reports, the scatter rules, the ID-to-words half of the display-name path and a journey's words, compiled here as they are compiled into the game. -->
+       reports, the scatter rules, the voice rules, the ID-to-words half of the display-name path, a journey's words and the player's preferences, compiled here as they are compiled into the game. -->
   <ItemGroup>
     <Compile Include="..\..\src\Presentation\Art\ArtRecords.cs" Link="Linked\ArtRecords.cs" />
     <Compile Include="..\..\src\Presentation\Art\ArtCoverage.cs" Link="Linked\ArtCoverage.cs" />
     <Compile Include="..\..\src\Presentation\Art\ScatterRules.cs" Link="Linked\ScatterRules.cs" />
     <Compile Include="..\..\src\Presentation\Audio\AudioCoverage.cs" Link="Linked\AudioCoverage.cs" />
     <Compile Include="..\..\src\Presentation\Audio\MusicChoice.cs" Link="Linked\MusicChoice.cs" />
+    <Compile Include="..\..\src\Presentation\Audio\VoiceRules.cs" Link="Linked\VoiceRules.cs" />
     <Compile Include="..\..\src\Presentation\Ui\NameWords.cs" Link="Linked\NameWords.cs" />
     <Compile Include="..\..\src\Presentation\Ui\TravelWords.cs" Link="Linked\TravelWords.cs" />
+    <Compile Include="..\..\src\Presentation\Settings\ClientPrefs.cs" Link="Linked\ClientPrefs.cs" />
   </ItemGroup>
 
   <ItemGroup>

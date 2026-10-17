@@ -7,6 +7,7 @@ using System.Globalization;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Domain.Travel;
 using UNNAMED.World;
+using UNNAMED.World.Runtime;
 using YamlDotNet.Serialization;
 
 namespace UNNAMED.Content;
@@ -41,6 +42,7 @@ public static class WorldContent
             TryBuild(() => BuildMovement(loader), "config.base_speeds", loader, errors);
             TryBuild(() => BuildTiers(loader), "config.simulation_tiers", loader, errors);
             TryBuild(() => BuildTravel(loader), "config.travel", loader, errors);
+            TryBuild(() => BuildOffline(loader), "config.time", loader, errors);
         }
         return errors;
     }
@@ -134,6 +136,36 @@ public static class WorldContent
         if (hour < 0 || hour >= hoursPerDay)
             throw new FormatException($"config.time clock_at_world_start_h {hour} is an hour of the day, from 0 to {hoursPerDay}");
         return hour;
+    }
+
+    /// <summary>The world clock's day (<c>config.time</c>): its length in ticks, and where midnight falls from <c>clock_at_world_start_h</c>.</summary>
+    public static WorldClock BuildClock(ContentLoader loader)
+    {
+        var map = Config(loader, "config.time");
+        double ticksPerHour = Int(map, "ticks_per_second") * Number(map, "seconds_per_game_minute") * Number(map, "game_minutes_per_hour");
+        double hoursPerDay = Number(map, "game_hours_per_day");
+        long ticksPerDay = (long)Math.Round(ticksPerHour * hoursPerDay, MidpointRounding.AwayFromZero);
+        if (ticksPerDay <= 0)
+            throw new FormatException("config.time gives a world day of no ticks");
+        return new WorldClock(ticksPerDay, (long)Math.Round(ClockAtWorldStartHours(loader) * ticksPerHour, MidpointRounding.AwayFromZero));
+    }
+
+    /// <summary>
+    /// The catch-up cap and the login grace (<c>config.time</c>'s <c>offline_cap_game_days</c> and <c>login_grace_seconds</c>; WP11). A pack
+    /// that declares neither catches nothing up and gives no grace.
+    /// </summary>
+    public static OfflineRules BuildOffline(ContentLoader loader)
+    {
+        if (!loader.Definitions.ContainsKey("config.time"))
+            return OfflineRules.None;
+        var map = Config(loader, "config.time");
+        if (!map.ContainsKey("offline_cap_game_days") && !map.ContainsKey("login_grace_seconds"))
+            return OfflineRules.None;
+        double days = Number(map, "offline_cap_game_days"), grace = Number(map, "login_grace_seconds");
+        if (days < 0 || grace < 0)
+            throw new FormatException("config.time offline_cap_game_days and login_grace_seconds are never negative");
+        return new OfflineRules((long)Math.Round(days * BuildClock(loader).TicksPerDay, MidpointRounding.AwayFromZero),
+            (long)Math.Round(grace * Int(map, "ticks_per_second"), MidpointRounding.AwayFromZero));
     }
 
     private static RegionLayout? TryBuildLayout(ContentLoader loader, string regionId, List<ValidationError> errors)
@@ -261,8 +293,12 @@ public static class WorldContent
             {
                 var site = entry as Dictionary<object, object> ?? throw new FormatException($"stations[{i}] must be a map");
                 var (sx, sz) = Pair(site, "position_m");
-                var station = new StationSite(Text(site, "key"), Text(site, "kind"), sx, sz);
+                var station = new StationSite(Text(site, "key"), Text(site, "kind"), sx, sz)
+                {
+                    Grade = site.ContainsKey("grade") ? Int(site, "grade") : 0,
+                };
                 Check(station.Key.StartsWith("station.", StringComparison.Ordinal), "WLD011", $"station key '{station.Key}' must start with 'station.'");
+                Check(station.Grade >= 0, "WLD011", $"{station.Key}: grade is 0 (a common station) or more (upgraded)");
                 Check(sx >= minX && sx <= maxX && sz >= minZ && sz <= maxZ, "WLD011", $"{station.Key} lies outside the walkable bounds");
                 stations.Add(station);
             }

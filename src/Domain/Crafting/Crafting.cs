@@ -30,7 +30,14 @@ public sealed record RecipeInput(string ItemId, int Count);
 /// against its complexity decides the output's quality and what the work teaches; no rank gates it.
 /// </summary>
 public sealed record RecipeDefinition(string Id, string StationKind, string SkillId, int Complexity, ImmutableArray<RecipeInput> Inputs,
-    string OutputItemId, int OutputCount, bool QualityRoll, long FirstTimeXp);
+    string OutputItemId, int OutputCount, bool QualityRoll, long FirstTimeXp)
+{
+    /// <summary>A fine roll at an upgraded station may come out masterwork (<c>outputs[0].masterwork_possible</c>; WP3a).</summary>
+    public bool MasterworkPossible { get; init; }
+
+    /// <summary>One of its station's experiment candidates (<c>discovery: { experiment: true }</c>): it can be found by experimenting.</summary>
+    public bool Experiment { get; init; }
+}
 
 /// <summary>An item's quality, per stack: it lands on the instance, never the definition (PROTOTYPE.md C14).</summary>
 public static class Quality
@@ -39,12 +46,16 @@ public static class Quality
     public const int Standard = 0;
     public const int Fine = 1;
 
-    public static bool IsValid(int quality) => quality is >= Crude and <= Fine;
+    /// <summary>Craft-only, two steps past standard (C12:186-205): no drop and no trader's stock is ever masterwork (PROGRESSION.md §11.2).</summary>
+    public const int Masterwork = 2;
+
+    public static bool IsValid(int quality) => quality is >= Crude and <= Masterwork;
 
     public static string Key(int quality) => quality switch
     {
         Crude => "crude",
         Fine => "fine",
+        Masterwork => "masterwork",
         _ => "standard",
     };
 }
@@ -66,7 +77,28 @@ public sealed record CraftingConstants
 
     /// <summary>What a step of quality adds to (or takes from) a weapon's damage.</summary>
     public int WeaponDamagePerStep { get; init; } = 2;
+
+    /// <summary>What a step of quality adds to (or takes from) a piece of armour's armour value (WP3a: mirrors weapons).</summary>
+    public int ArmorPerStep { get; init; } = 1;
+
+    /// <summary>
+    /// Of the fine pieces a recipe flagged <c>masterwork_possible</c> makes at a station of at least <see cref="MasterworkStationGrade"/>,
+    /// this share comes out masterwork instead (C12:186-205).
+    /// </summary>
+    public int MasterworkPercentOfFine { get; init; } = 25;
+
+    /// <summary>The station grade masterwork needs: an upgraded station, never a common one.</summary>
+    public int MasterworkStationGrade { get; init; } = 1;
+
+    /// <summary>How many recipes of each station kind a world's experiment set holds (C12:263-302): seeded from the world, fixed for it.</summary>
+    public ImmutableSortedDictionary<string, int> ExperimentsPerStation { get; init; } = ImmutableSortedDictionary.Create<string, int>(StringComparer.Ordinal);
 }
+
+/// <summary>
+/// How a dropped stack's quality is rolled for creatures from <see cref="LevelMin"/> up (DCP:662): crude and fine percentages, the rest
+/// standard. A drop is never masterwork.
+/// </summary>
+public sealed record DropQualityBand(int LevelMin, int CrudePercent, int FinePercent);
 
 /// <summary>The rules of making things.</summary>
 public static class CraftingRules
@@ -86,6 +118,44 @@ public static class CraftingRules
         double percent = sample * 100;
         int step = percent < CrudePercent(skill, complexity, rules) ? -1 : percent >= 100 - FinePercent(skill, complexity, rules) ? 1 : 0;
         return Math.Clamp(weakestInput + step, Quality.Crude, Quality.Fine);
+    }
+
+    /// <summary>
+    /// A fine piece becomes masterwork when the recipe allows it, the station is upgraded far enough, and the second sample falls in
+    /// <see cref="CraftingConstants.MasterworkPercentOfFine"/>. Anything else is returned as it was.
+    /// </summary>
+    public static int Masterwork(int quality, bool possible, int stationGrade, CraftingConstants rules, double sample) =>
+        quality == Quality.Fine && possible && stationGrade >= rules.MasterworkStationGrade && sample * 100 < rules.MasterworkPercentOfFine
+            ? Quality.Masterwork
+            : quality;
+
+    /// <summary>
+    /// A drop's quality from the creature's level (DCP:662): the highest band at or below the level decides; below every band, standard.
+    /// <paramref name="sample"/> is in [0, 1). Never masterwork (PROGRESSION.md §11.2).
+    /// </summary>
+    public static int DropQuality(int level, IReadOnlyList<DropQualityBand> bands, double sample)
+    {
+        var band = bands.Where(b => b.LevelMin <= level).OrderByDescending(b => b.LevelMin).FirstOrDefault();
+        if (band is null)
+            return Quality.Standard;
+        double percent = sample * 100;
+        return percent < band.CrudePercent ? Quality.Crude : percent >= 100 - band.FinePercent ? Quality.Fine : Quality.Standard;
+    }
+
+    /// <summary>
+    /// A world's experiment set at one station kind (C12:263-302): <paramref name="count"/> of the kind's candidates, picked by a seeded
+    /// partial shuffle - so the same world always holds the same set, and a reload changes nothing. Sorted by ID.
+    /// </summary>
+    public static ImmutableArray<string> ExperimentSet(IEnumerable<string> candidates, int count, Func<uint, double> random)
+    {
+        var pool = candidates.OrderBy(c => c, StringComparer.Ordinal).ToList();
+        int take = Math.Clamp(count, 0, pool.Count);
+        for (int i = 0; i < take; i++)
+        {
+            int j = i + (int)Math.Floor(random((uint)i) * (pool.Count - i));
+            (pool[i], pool[j]) = (pool[j], pool[i]);
+        }
+        return pool.Take(take).OrderBy(c => c, StringComparer.Ordinal).ToImmutableArray();
     }
 
     /// <summary>Whether a node that was last harvested at a tick, that many times, can be harvested now.</summary>

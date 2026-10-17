@@ -711,14 +711,16 @@ internal sealed partial class CombatSystem
     /// <summary>The player's armor on each region, from what is worn there (coverage, COMBAT §11), plus effects such as oakskin.</summary>
     private ImmutableSortedDictionary<BodyRegion, int> PlayerArmor()
     {
+        // A piece's quality moves its armour as a weapon's moves its damage (WP3a); a shield in the off hand guards the body.
         int Worn(params EquipSlot[] slots) => slots.Sum(slot =>
             State.Equipment.TryGetValue(slot, out var id) && State.Inventory.FirstOrDefault(e => e.ItemId == id) is { } entry
-                ? _context.Setup.Items.Catalog.Find(entry.DefId)?.ArmorValue ?? 0
+                && _context.Setup.Items.Catalog.Find(entry.DefId) is { } item
+                ? EquipmentRules.ArmorOf(item, entry.Quality, _context.Setup.Crafting.Constants.ArmorPerStep)
                 : 0);
         var armor = ImmutableSortedDictionary.CreateRange(new[]
         {
             KeyValuePair.Create(BodyRegion.Head, Worn(EquipSlot.Head)),
-            KeyValuePair.Create(BodyRegion.Torso, Worn(EquipSlot.Chest, EquipSlot.Cloak)),
+            KeyValuePair.Create(BodyRegion.Torso, Worn(EquipSlot.Chest, EquipSlot.Cloak, EquipSlot.OffHand)),
             KeyValuePair.Create(BodyRegion.Limbs, Worn(EquipSlot.Hands, EquipSlot.Legs, EquipSlot.Feet)),
         });
         return WithBonus(armor, EffectRules.ArmorBonus(EffectsOf(_player), Setup.Effects));
@@ -891,17 +893,51 @@ internal sealed partial class CombatSystem
 
 /// <summary>
 /// Owns: <see cref="StateSlice.Effects"/> - the status effects on every combatant (S-11). Applies and refreshes them, ticks
-/// their damage and healing into <see cref="CombatSystem"/>, and expires them. The player's are saved (schema 7).
+/// their damage and healing into <see cref="CombatSystem"/>, and expires them. The player's are saved (schema 7). While the character is
+/// away they only expire (WP11): closed-form, nothing ticks through the absence.
 /// </summary>
-internal sealed class StatusEffectSystem
+internal sealed class StatusEffectSystem : IAbstractAdvance
 {
     private readonly SystemContext _context;
     private readonly SliceOwner _owner;
+    private readonly EntityId _player;
 
-    public StatusEffectSystem(SystemContext context, SliceOwner owner)
+    public StatusEffectSystem(SystemContext context, SliceOwner owner, EntityId player)
     {
         _context = context;
         _owner = owner;
+        _player = player;
+    }
+
+    /// <summary>
+    /// Every effect whose deadline fell inside the absence is gone; one still running keeps its deadline, and its next pulse is the first
+    /// of its own beats after the absence - the beats are fixed from when it was applied, so however the absence is split they land alike.
+    /// </summary>
+    public void Advance(long fromTick, long toTick, AdvanceLog log)
+    {
+        foreach (var target in _context.State.Effects.Keys.ToList())
+        {
+            var kept = new List<ActiveEffect>();
+            foreach (var effect in _context.State.Effects[target])
+            {
+                var definition = Definitions.GetValueOrDefault(effect.EffectId);
+                if (definition is null || effect.ExpiresTick <= toTick)
+                {
+                    _context.Events.Publish(new EffectExpired(target, effect.EffectId, toTick));
+                    if (target == _player)
+                        log.Add(new AdvanceLine(Math.Max(fromTick, Math.Min(effect.ExpiresTick, toTick)), AdvanceKinds.EffectExpired, effect.EffectId));
+                    continue;
+                }
+                var current = effect;
+                if (definition.TickIntervalTicks > 0 && current.NextTickAt <= toTick)
+                {
+                    long beats = (toTick - current.NextTickAt) / definition.TickIntervalTicks + 1;
+                    current = current with { NextTickAt = current.NextTickAt + beats * definition.TickIntervalTicks };
+                }
+                kept.Add(current);
+            }
+            _context.State.SetEffects(_owner, target, kept.ToImmutableArray());
+        }
     }
 
     private IReadOnlyDictionary<string, EffectDefinition> Definitions => _context.Setup.Combat.Effects;

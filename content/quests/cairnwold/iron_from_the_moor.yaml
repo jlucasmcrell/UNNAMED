@@ -6,6 +6,7 @@ tags: [quest]
 notes: Durn Skell's smithing quest, and Cairnwold's own - it names Cairnwold's iron seam and Cairnwold's ash stand, both of them placed by this region rather than borrowed from the demo's Blackvein Cut and Charwood. No objective to kill anything, nothing assumes an order the fiction does not need, and ore got without a fight counts; each item objective also counts what its item is made into, so working ahead cannot strand it (the Phase-1 technical audit, C-01).
 title: Iron From The Moor
 summary: Durn Skell will make a smith of you, if the iron comes out of Cairnwold's own crag and the haft comes off Cairnwold's own ash.
+track: side
 giver_ref: npc.cairnwold.durn_skell
 entry_objective: o_speak
 objectives:

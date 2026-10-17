@@ -3,13 +3,16 @@ using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Domain.Travel;
 using UNNAMED.Persistence;
 using UNNAMED.World;
+using UNNAMED.World.Runtime;
 using Registry = UNNAMED.EntityRegistry.EntityRegistry;
 
 namespace UNNAMED.M2Probe;
@@ -117,7 +120,12 @@ public static class M2Fixtures
             {
                 // Schema 9: the sword is a fine one (quality lands on the instance).
                 new InventoryEntry(EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 }),
-                    "item.weapon.iron_sword", 1) { Quality = 1 },
+                    "item.weapon.iron_sword", 1)
+                {
+                    Quality = 1,
+                    // Schema 19 (WP3a): the sword carries a notable record - given as the cull's reward, grown a little familiar.
+                    Notable = new NotableRecord("Iron Sword", ProvenanceKind.Given, "quest.fixture.cull", 3_500) { Familiarity = 2, Uses = 1 },
+                },
                 new InventoryEntry(EntityId.Create(EntityKind.Item, 1_700_000_000_002, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 2 }),
                     "item.potion.healing_draught", 3),
             },
@@ -165,6 +173,13 @@ public static class M2Fixtures
                 new WaystoneRecord("waystone.fixture.ford", "region.fixture_vale", WaystoneMethod.Woken, 4_500)),
             ReturnPoint = "waystone.fixture.ford",
             RoadsWalked = ImmutableArray.Create("road.fixture.track#0", "road.fixture.track#1"),
+            // Schema 16 (WP5, E-7): three ash hounds killed, two healing draughts handed to the warden, a sword crafted - the hound, the
+            // draught and the warden under the names they had then.
+            Deeds = ImmutableArray.Create(new DeedTally(DeedKind.Killed, "creature.beast.ash_hound", null, 3, 4_800),
+                new DeedTally(DeedKind.Delivered, "item.potion.healing_draught", "npc.fixture.warden", 2, 4_200),
+                new DeedTally(DeedKind.Crafted, "item.weapon.iron_sword", null, 1, 3_900)),
+            // Schema 17 (the character creator): Aelin is "she", a Veth of a chosen build, of the Scholar's Call.
+            Identity = new CharacterIdentity(Pronouns.She, "people.veth", "body.build_slender", "call.scholar"),
         };
 
         public static readonly EntityId SwordId = EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 });
@@ -233,7 +248,12 @@ public static class M2Fixtures
             var blade = registry.CreateEntity(DefinitionId.Parse("item.weapon.iron_sword")).InstanceId;
             var potions = registry.CreateEntity(DefinitionId.Parse("item.potion.healing_draught")).InstanceId;
             world.SetContainer(new ContainerRecord("container.fixture_chest", chest, TenCells[9].ToString(), ImmutableArray.Create(
-                new ContainerItem(blade, "item.weapon.iron_sword", 1),
+                // Schema 19 (WP3a): a masterwork blade in the chest, with its maker's mark.
+                new ContainerItem(blade, "item.weapon.iron_sword", 1)
+                {
+                    Quality = 2,
+                    Notable = new NotableRecord("Iron Sword", ProvenanceKind.Crafted, "recipe.fixture.sword", 2_000) { Maker = "Aelin" },
+                },
                 new ContainerItem(potions, "item.potion.healing_draught", 4) { Quality = -1 })));   // schema 9: crude
             // Schema 8: spawners' creatures that left their baseline - one alive, moved and wounded; one a corpse half
             // searched (its body is a changed container); one gone, of a renamed species, two generations on and due back.
@@ -299,11 +319,20 @@ public static class M2Fixtures
 
         public static LoadContext Context(Registry registry) => new(Generator(), CurrentContent(), registry);
 
-        /// <summary>Write the fixture with this build's writer.</summary>
+        /// <summary>
+        /// Write the fixture with this build's writer. From schema 18 it was saved at a known moment, after a login that caught up a game day
+        /// and a quarter (Fixtures/README.md).
+        /// </summary>
         public static void Write(string profileRoot) =>
             new SaveStore(profileRoot).Save(SaveSlots.Quick, SaveDocuments.Capture(
                 World(new Registry()), Player(), new ContentIdentity(WriterContentVersion, WriterContentHash, Array.Empty<string>()),
-                5_000, playtimeSeconds: 321.5));
+                5_000, playtimeSeconds: 321.5, worldTimeAdvancedTicks: 72_000) with
+            {
+                CapturedAt = new DateTimeOffset(2026, 10, 17, 9, 30, 0, 250, TimeSpan.Zero),
+                SavedUtc = new DateTimeOffset(2026, 10, 17, 9, 30, 0, 250, TimeSpan.Zero),
+                AwayLog = ImmutableArray.Create(new AdvanceLine(4_000, AdvanceKinds.TimePassed, string.Empty, 72_000),
+                    new AdvanceLine(4_000, AdvanceKinds.DaysPassed, string.Empty, 1)),
+            });
     }
 
     public static SaveDocument Document(WorldDelta world, PlayerRecord? player = null, long tick = 5_000, ContentIdentity? content = null) =>

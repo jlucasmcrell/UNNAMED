@@ -88,7 +88,7 @@ public class MagicContentTests
     [Fact]
     public void ABookTeachingSomethingOtherThanAFormula_IsRefused() =>
         AssertRefused("items/tome/resonance_primer.yaml", "    - { kind: spell, ref: spell.vital.mending_thread }",
-            "    - { kind: recipe, ref: spell.vital.mending_thread }", "Phase 1 books teach formulas");
+            "    - { kind: quest, ref: spell.vital.mending_thread }", "a book teaches formulas or recipes");
 
     [Fact]
     public void ABookReadMoreThanOnce_IsRefused() =>

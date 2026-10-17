@@ -92,6 +92,15 @@ internal sealed class SystemContext
             ? new ContainerSite(merchant, string.Empty, npc.Site.XMm, npc.Site.ZMm, WaresStackSlots)
             : null;
 
+    /// <summary>
+    /// How much further the character is seen for what they have equipped (WP3a): the equipped items' <c>stealth_penalty</c>, summed and
+    /// capped at 1 - a lit torch in the off hand.
+    /// </summary>
+    public double PlayerStealthPenalty() =>
+        Math.Min(1, State.Equipment.Values
+            .Select(id => State.Inventory.FirstOrDefault(e => e.ItemId == id))
+            .Sum(entry => entry is null ? 0 : Setup.Items.Catalog.Find(entry.DefId)?.StealthPenalty ?? 0));
+
     /// <summary>How close the body must be to speak or trade with an NPC: a hand's reach, to the NPC's body (M4).</summary>
     public long TalkReachMm => Setup.Items.Inventory.ReachMm + Setup.Movement.BodyRadiusMm;
 
@@ -110,7 +119,10 @@ internal sealed class SystemContext
     public IEnumerable<ContainerSite> CorpseSites() =>
         State.Creatures.Values
             .Where(c => c.Condition == CreatureCondition.Corpse && c.Definition.LootTableId is not null)
-            .Select(c => new ContainerSite(c.CorpseKey, c.Definition.LootTableId!, c.Body.XMm, c.Body.ZMm, Setup.Combat.CorpseStackSlots));
+            .Select(c => new ContainerSite(c.CorpseKey, c.Definition.LootTableId!, c.Body.XMm, c.Body.ZMm, Setup.Combat.CorpseStackSlots)
+            {
+                DropLevel = c.Definition.Level,
+            });
 
     /// <summary>
     /// What the player's body cannot pass besides the static blockers: closed doors, standing barriers, living creatures and people - but
@@ -123,8 +135,11 @@ internal sealed class SystemContext
                 .Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, Setup.Movement.BodyRadiusMm, 0)));
 }
 
-/// <summary>Owns: <see cref="StateSlice.Clock"/>. Advances <c>world_tick</c>, the only clock (S-04).</summary>
-internal sealed class ClockSystem
+/// <summary>
+/// Owns: <see cref="StateSlice.Clock"/>. Advances <c>world_tick</c>, the only clock (S-04). Its abstract advance is closed-form: the tick
+/// jumps, and the calendar's day is a function of it (<see cref="WorldClock"/>).
+/// </summary>
+internal sealed class ClockSystem : IAbstractAdvance
 {
     private readonly SystemContext _context;
     private readonly SliceOwner _owner;
@@ -136,6 +151,19 @@ internal sealed class ClockSystem
     }
 
     public void Tick() => _context.State.AdvanceClock(_owner);
+
+    /// <summary>The world going on while the character was away (WP11): the first system of the advance, so the others see the new tick.</summary>
+    public void Advance(long fromTick, long toTick, AdvanceLog log)
+    {
+        if (_context.State.WorldTick != fromTick)
+            throw new InvalidOperationException($"The clock reads {_context.State.WorldTick}, not the advance's start {fromTick}");
+        _context.State.AdvanceClock(_owner, toTick - fromTick);
+        long days = _context.Setup.Clock.DaysCrossed(fromTick, toTick);
+        log.Add(new AdvanceLine(toTick, AdvanceKinds.TimePassed, string.Empty, toTick - fromTick));
+        if (days > 0)
+            log.Add(new AdvanceLine(toTick, AdvanceKinds.DaysPassed, string.Empty, days));
+        _context.Events.Publish(new WorldTimeAdvanced(fromTick, toTick, days));
+    }
 
     /// <summary>World time passing at once - a journey by the stones (S-38). Nothing is simulated through it: what was due falls due on the next tick.</summary>
     public string? Handle(AdvanceTime command)

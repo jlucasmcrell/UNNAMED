@@ -32,3 +32,39 @@ public sealed record LocationDiscovered(string LocationId, DiscoveryMethod Metho
 public sealed record ExperienceGained(XpSource Source, long Awarded, long Repaid, int LevelsGained, int Level, long Tick);
 
 public sealed record CellTierChanged(string CellKey, SimulationTier From, SimulationTier To, long Tick);
+
+/// <summary>
+/// The bus the simulation's systems publish to: what a system listens for runs first, in the order it was registered, then the event goes
+/// on to the views. A listener lives and dies with its simulation - a session's bus outlives every world it runs - and responds only by
+/// dispatching commands (ARCHITECTURE.md §4.3).
+/// </summary>
+internal sealed class SimulationEvents : IEventBus
+{
+    private readonly IEventBus _views;
+    private readonly Dictionary<Type, List<Delegate>> _listeners = new();
+
+    public SimulationEvents(IEventBus views) => _views = views;
+
+    public void Listen<T>(Action<T> listener)
+    {
+        if (!_listeners.TryGetValue(typeof(T), out var list))
+            _listeners[typeof(T)] = list = new List<Delegate>();
+        list.Add(listener);
+    }
+
+    public void Subscribe<T>(Action<T> handler) => _views.Subscribe(handler);
+
+    public void Unsubscribe<T>(Action<T> handler) => _views.Unsubscribe(handler);
+
+    public void Publish<T>(T @event)
+    {
+        if (_listeners.TryGetValue(typeof(T), out var list))
+            foreach (var listener in list.ToArray())
+                ((Action<T>)listener)(@event);
+        _views.Publish(@event);
+    }
+}
+/// World time passed at once while the character was away (WP11): the calendar's hook. <see cref="DaysCrossed"/> counts the midnights the
+/// world clock passed; a system that keeps a calendar reads them here or from the ticks.
+/// </summary>
+public sealed record WorldTimeAdvanced(long FromTick, long ToTick, long DaysCrossed);

@@ -79,7 +79,7 @@ public partial class Main : Node3D
     private Audio.SoundBank _sounds = null!;
     private Audio.SoundEvents _soundEvents = null!;
     private Audio.MusicPlayer _music = null!;
-    private Ui.SoundPanel _soundPanel = null!;
+    private Audio.VoicePlayer _voice = null!;
     private AssetCatalog _assets = AssetCatalog.Empty;
     private FrameStats? _stats;
     private PerfRun? _perf;
@@ -205,11 +205,21 @@ public partial class Main : Node3D
     private void Start()
     {
         ParseArguments(OS.GetCmdlineUserArgs());
-        // A player's run draws at the tier they saved on the start screen; a harness run never reads it (its numbers stay comparable).
+        // A player's run plays with the player's settings (the window, the tier they chose, the dials); a harness run never reads or
+        // writes them (its numbers stay comparable).
         _developer = OS.IsDebugBuild() || _flags.Contains("--dev");
         bool harness = _flags.Any(f => f != "--dev") || _options.Keys.Any(k => k is not ("--asset-root" or "--asset-fallback" or "--content-root" or "--profile" or "--visual" or "--region" or "--bindings-overlay" or "--scatter-rules" or "--menu-escape"));
         _escapeToMenu = _options.GetValueOrDefault("--menu-escape") == "back";
-        VisualOptions.Parse(_options.GetValueOrDefault("--visual"), harness ? null : Ui.GraphicsPanel.SavedTier());
+        Settings.SettingsStore.Load(persist: !harness);
+        if (harness)
+        {
+            VisualOptions.Parse(_options.GetValueOrDefault("--visual"));
+        }
+        else
+        {
+            VisualOptions.Parse(Settings.SettingsStore.StartVisuals(_options.GetValueOrDefault("--visual")), Settings.SettingsStore.Current.Machine.Tier);
+            Settings.SettingsStore.ApplyWindow();
+        }
         Art.ArtLibrary.BuildTextureCache = _flags.Contains("--texture-cache");
         VisualOptions.Apply(GetViewport());
         if (_flags.Contains("--spike"))
@@ -252,6 +262,7 @@ public partial class Main : Node3D
               || _options.ContainsKey("--shot")
               || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
               || (_options.ContainsKey("--showcase") && !_options.ContainsKey("--profile"))
+              || (_options.ContainsKey("--front-shots") && !_options.ContainsKey("--profile"))
             ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
             : _options.GetValueOrDefault("--profile") is { } chosen ? Path.GetFullPath(chosen)
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
@@ -308,7 +319,7 @@ public partial class Main : Node3D
                           || _flags.Contains("--perf")
                           || _options.ContainsKey("--resume-shots");
         if (scripted && !verify && !showcaseContinues)
-            _session.NewGame("Wanderer", fixedWorld ? Playthrough.Seed : 0);
+            _session.NewGame(DefaultCharacter, fixedWorld ? Playthrough.Seed : 0);
         GD.Print($"UNNAMED boot: content {_session.Content.Version} ({_session.Content.Hash[..19]}...), region {_session.Setup.Layout.Id}, " +
                  $"{_session.Setup.Layout.CellKeys.Length} cells");
 
@@ -355,6 +366,13 @@ public partial class Main : Node3D
                  + $"{ProjectSettings.GetSetting("rendering/lights_and_shadows/directional_shadow/size")}, soft shadows "
                  + $"{ProjectSettings.GetSetting("rendering/lights_and_shadows/directional_shadow/soft_shadow_filter_quality")}");
 
+        // A player's run parses the model files on workers ahead of the build, in the order the last boot asked for them (WP1's
+        // startup measurement); a harness run builds as it always has, so its load numbers stay comparable - unless it names its own
+        // order file with --load-order, which is how the two are measured against each other.
+        string? loadOrder = _options.GetValueOrDefault("--load-order") is { } order ? Path.GetFullPath(order)
+            : harness ? null : ProjectSettings.GlobalizePath(LoadOrderPath);
+        if (loadOrder is not null)
+            Prefetch(loadOrder);
         int before = GetChildCount();
         ulong building = Time.GetTicksMsec();
         try
@@ -379,6 +397,9 @@ public partial class Main : Node3D
             BuildScene();
         }
         _sceneMs = Time.GetTicksMsec() - building;
+        _art.EndPrefetch();
+        if (loadOrder is not null)
+            KeepLoadOrder(loadOrder);
         var cost = _art.Cost;
         GD.Print($"UNNAMED load: the scene built in {_sceneMs} ms - {cost.Scenes} model files in {cost.SceneMs:0} ms (their {cost.ModelTextures} textures "
                  + $"given mipmaps in {cost.MipmapMs:0} ms), {cost.MaterialMaps} material maps in {cost.MaterialMapMs:0} ms, the ground field in {_groundMs} ms; "
@@ -387,8 +408,8 @@ public partial class Main : Node3D
             GD.Print($"UNNAMED texture cache: {_art.Cache.Hits} textures from the cache, {_art.Cache.Added} added, {_art.Cache.Failed} failed; "
                      + $"{_art.Cache.CompressedBytes / 1048576.0:0.0} MB compressed");
         _art.Cache.Save();
-        // The player's mix (Master, Music, Effects); a harness run keeps the defaults so its captures stay comparable.
-        Audio.AudioMix.Apply(harness ? new Audio.AudioMix.Volumes() : Audio.AudioMix.Saved());
+        // The player's mix; a harness run keeps the defaults so its captures stay comparable.
+        Settings.SettingsStore.ApplyAudio();
         _sounds = new Audio.SoundBank { Name = "Sounds" };
         _sounds.Load(_assets.Root);
         if (_sounds.Problems.Count > 0)
@@ -403,6 +424,11 @@ public partial class Main : Node3D
         _music = new Audio.MusicPlayer { Name = "Music" };
         AddChild(_music);
         _music.Bind(_sounds, _session, _bindings);
+        // Voice-over (WP5): a line's recording, when the asset workspace has one, on the Voice bus with the music ducked under it.
+        _voice = new Audio.VoicePlayer { Name = "Voice" };
+        _voice.Load(_assets.Root);
+        AddChild(_voice);
+        _npcs.Voice = _voice;
         _projectiles.Arrived = _soundEvents.Arrived;
         GD.Print(_sounds.Count > 0 ? $"UNNAMED audio: {_sounds.Count} sounds from {Audio.SoundBank.Manifest}" : "UNNAMED audio: no sound set - silent");
         _controller = new PlayerController(_session);
@@ -410,10 +436,13 @@ public partial class Main : Node3D
         BuildPanels(profile);
         Subscribe();
         DefineInput();
+        UseSettings(applyPicture: !harness);
 
         if (verify || showcaseContinues)
         {
-            _continued = Continue();
+            // The playthrough's relaunch proves the save came back exactly, so it restores the newest save with no catch-up (DN7); the
+            // showcase logs in as a player would.
+            _continued = Continue(catchUp: !verify);
             if (_continued is null)
             {
                 GD.PushError(verify ? "UNNAMED playthrough verification: Continue loaded nothing" : "UNNAMED showcase: the profile has no save to continue");
@@ -428,15 +457,13 @@ public partial class Main : Node3D
                 ? $"UNNAMED start screen: Continue would load {next.Slot} ({next.Copy}); {choice.Saves.Length} saves in {profile}"
                 : $"UNNAMED start screen: no save to continue; {choice.Saves.Length} saves in {profile}");
             _hud.Visible = false;   // no world yet: nothing to show but the choice
-            _saves.OpenStart();
+            OpenFrontEnd();
             _music.Title(true);
             // Phase B: behind the choice, a slow establishing shot over the hollow instead of whatever the game camera faces.
             if (VisualOptions.Tier != "phase_a")
             {
                 _startCamera = new StartCamera { Name = "StartCamera", Ground = _ground.Height,
                     Offset = region == "region.starting_frontier" ? new Vector2(400, 600) : Vector2.Zero };
-                _graphics = new Ui.GraphicsPanel { Name = "Graphics" };
-                AddChild(_graphics);
                 AddChild(_startCamera);
                 // The ground's scatter from a preview seed, so the shot is not bare earth; a world places its own on start.
                 _scatter.Build(0x5CE4E5EED);
@@ -533,6 +560,31 @@ public partial class Main : Node3D
         }
     }
 
+    /// <summary>The model files the last boot loaded, in its order, one path a line: the next boot's prefetch (machine-local, rebuilt each boot).</summary>
+    private const string LoadOrderPath = "user://model_load_order.txt";
+
+    private void Prefetch(string path)
+    {
+        if (!File.Exists(path))
+            return;
+        var order = File.ReadAllLines(path);
+        int ahead = Math.Clamp(System.Environment.ProcessorCount / 2, 2, 8);
+        _art.Prefetch(order, ahead);
+        GD.Print($"UNNAMED load: {order.Length} model files parsed ahead on {ahead} workers, in the last boot's order");
+    }
+
+    private void KeepLoadOrder(string path)
+    {
+        try
+        {
+            File.WriteAllLines(path, _art.LoadOrder);
+        }
+        catch (IOException e)
+        {
+            GD.PushWarning($"UNNAMED load: the model load order could not be kept ({e.Message}); the next start parses in place");
+        }
+    }
+
     /// <summary>The world's scene - ground, buildings, figures, effects - drawn from the asset library where it can be, greybox where not.</summary>
     private void BuildScene()
     {
@@ -613,8 +665,13 @@ public partial class Main : Node3D
     {
         if (_options.GetValueOrDefault("--resume-shots") is { } resumeShots && _session is not null)
             ResumeShots(resumeShots);
+        if (_options.GetValueOrDefault("--front-shots") is { } frontShots && _session is not null)
+            FrontShots(frontShots);
         if (_session?.Simulation is null)
+        {
+            ReadFrontInput();
             return;
+        }
 
         if (_perf is not null)
         {
@@ -626,7 +683,13 @@ public partial class Main : Node3D
         }
         else if (_smoke is not null)
         {
-            if (_smoke.Update() is { } code)
+            // First, the no-pause doctrine (the owner's ruling, 2026-10-17): every screen open in turn while the world ticks under it.
+            if (NoPauseStep() is false)
+            {
+                GetTree().Quit(1);
+                return;
+            }
+            if (NoPauseDone && _smoke.Update() is { } code)
             {
                 // The smoke's profile is removed as it ends: its reports go beside the log (or to --coverage-out).
                 WriteReports(Path.GetDirectoryName(LogPath) ?? OS.GetUserDataDir(), "smoke");
@@ -1146,6 +1209,7 @@ public partial class Main : Node3D
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
+                    or "--front-shots" or "--load-order"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

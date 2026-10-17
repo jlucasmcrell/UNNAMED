@@ -337,6 +337,9 @@ public partial class Hud : CanvasLayer
     /// <summary>The compass: where the view faces, degrees clockwise from north.</summary>
     public void SetHeading(float degrees) => _compass.SetHeading(degrees);
 
+    /// <summary>The compass's mark for the tracked beat, as a bearing in degrees clockwise from north; null hides it.</summary>
+    public void SetMarker(float? bearingDegrees) => _compass.SetMarker(bearingDegrees);
+
     /// <summary>The pipeline's compass dial, when the asset workspace has one.</summary>
     public void UseCompassDial(Texture2D? dial) => _compass.UseDial(dial);
 
@@ -387,6 +390,8 @@ public partial class Hud : CanvasLayer
 
     public void Toast(string text, double seconds = 4)
     {
+        // Settings' notice duration (Interface): short, normal, long or longer.
+        seconds *= Settings.SettingsStore.Current.Profile.Interface.NoticeDuration;
         if (_view is not null)
         {
             _view.Toast(text, seconds);

@@ -6,6 +6,7 @@ tags: [quest, bounty]
 notes: 'Canon firstplay moor_billets, ported: smelt one billet while the work is taken, and hand it over.'
 title: Iron for the Repairs
 summary: Make a fresh billet, then deliver it to Durn. His stock does not count as work.
+track: bounty
 giver_ref: npc.cairnwold.durn_skell
 entry_objective: o_make
 objectives:

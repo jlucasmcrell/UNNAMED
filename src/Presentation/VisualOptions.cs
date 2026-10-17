@@ -154,14 +154,19 @@ public static class VisualOptions
     public static bool BodyModifiers => Values["body"] == "modifiers";
     public static bool ProductionHud => Values["hud"] == "production";
 
-    /// <summary>The share of the prepared plant models' density this profile draws.</summary>
-    public static float PlantDensity => Tier switch
+    /// <summary>The share of the prepared plant models' density this profile draws, times the player's plant density dial.</summary>
+    public static float PlantDensity => PlantScale * Tier switch
     {
         "low" => 0.45f,
         "medium" => 0.70f,
         "high" => 1.00f,
         _ => 1.00f,
     };
+
+    /// <summary>Settings' plant density and detail distance dials, read as the world is built (a player's run; 1 for a harness).</summary>
+    public static float PlantScale { get; set; } = 1f;
+
+    public static float ReachScale { get; set; } = 1f;
 
     private static readonly Dictionary<string, string> Values = new(Defaults);
 

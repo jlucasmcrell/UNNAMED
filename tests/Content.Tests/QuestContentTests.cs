@@ -34,8 +34,10 @@ public class QuestContentTests
             {
                 string path = Path.Combine(Root, relative);
                 string text = File.ReadAllText(path).Replace("\r\n", "\n");
-                Assert.Contains(from, text);
-                File.WriteAllText(path, text.Replace(from, to));
+                // A raw string literal in this file has the checkout's line endings: CRLF on Windows.
+                string lf = from.Replace("\r\n", "\n");
+                Assert.Contains(lf, text);
+                File.WriteAllText(path, text.Replace(lf, to.Replace("\r\n", "\n")));
             }
         }
 
@@ -109,8 +111,8 @@ public class QuestContentTests
     [Fact]
     public void AnObjectiveTypeNotBuiltYet_IsRefused_SayingWhatItWaitsFor() =>
         Assert.Contains(ErrorsWith(Quest1, "type: visit_location\n    description: Reach Blackvein Cut, the old quarry south of the waystation.\n    params: { location_ref: location.blackvein_cut }",
-                "type: defeat_boss\n    description: Reach Blackvein Cut, the old quarry south of the waystation.\n    params: { boss_ref: location.blackvein_cut }"),
-            e => e.Code == "QST001" && e.Message.Contains("'defeat_boss' is not built in Phase 1 (it waits for bosses (M8))", StringComparison.Ordinal));
+                "type: solve_puzzle\n    description: Reach Blackvein Cut, the old quarry south of the waystation.\n    params: { puzzle_ref: location.blackvein_cut }"),
+            e => e.Code == "QST001" && e.Message.Contains("'solve_puzzle' is not built in Phase 1 (it waits for puzzles (M8))", StringComparison.Ordinal));
 
     [Fact]
     public void AnItemThatDoesNotExist_IsRefused()
@@ -262,4 +264,156 @@ public class QuestContentTests
             """  - { id: o_a, type: visit_location, description: A., params: { location_ref: location.blackvein_cut } }""",
             "rewards: [{ kind: reputation, amount: 5 }]"));
     }
+    // ── the story framework (WP4) ───────────────────────────────────────────
+
+    [Fact]
+    public void EveryQuest_SaysItsTrack_TheBountiesBeingBounties()
+    {
+        var quests = QuestContent.BuildQuests(Game.Value);
+        Assert.All(quests.Values.Where(q => q.Id.StartsWith("quest.bounty.", StringComparison.Ordinal)), q => Assert.Equal(QuestTrack.Bounty, q.Track));
+        Assert.All(quests.Values.Where(q => !q.Id.StartsWith("quest.bounty.", StringComparison.Ordinal)), q => Assert.Equal(QuestTrack.Side, q.Track));
+        Assert.All(quests.Values, q => Assert.False(q.OnNewGame || q.Competitive));
+    }
+
+    [Fact]
+    public void TheStoryFields_Parse()
+    {
+        var quest = Parse("""
+              - id: o_a
+                type: defeat_creature
+                description: Put the wolf down.
+                params: { creature_ref: creature.beast.wolf_grey, flag_ref: world.hollow.halda_tally_kept, location_ref: location.outpost }
+                next: [o_b]
+                effects:
+                  - { kind: choice, flag_ref: world.hollow.halda_tally_kept, location_ref: location.outpost, value: 2, line: You kept it. }
+              - id: o_b
+                type: companion_present
+                description: With Tavar.
+                params: { npc_ref: npc.ashen_hollow.tavar_orr, order: follow }
+                next: [o_c]
+              - id: o_c
+                type: dialogue_choice
+                description: Take the wolves.
+                params: { npc_ref: npc.ashen_hollow.renn_vale, node: notices, choice: take_wolves }
+                next: [o_d]
+              - id: o_d
+                type: waystone_known
+                description: Touch the stone.
+                params: { waystone_ref: waystone.ashen }
+                next: [o_e]
+              - id: o_e
+                type: travel_to
+                description: Go by the stones.
+                params: { waystone_ref: waystone.rim }
+            """, "track: main\nact: 1\non_new_game: true");
+
+        Assert.Equal((QuestTrack.Main, (int?)1, true, false), (quest.Track, quest.Act, quest.OnNewGame, quest.Competitive));
+        Assert.Equal(new DefeatCreature("creature.beast.wolf_grey", "world.hollow.halda_tally_kept", "location.outpost", false), quest.Objectives["o_a"].Condition);
+        Assert.Equal(new ChoiceEffect("world.hollow.halda_tally_kept", "location.outpost", 2, "You kept it."), Assert.Single(quest.Objectives["o_a"].Effects));
+        Assert.Equal(new CompanionPresent("npc.ashen_hollow.tavar_orr", UNNAMED.Domain.Companions.CompanionOrder.Follow), quest.Objectives["o_b"].Condition);
+        Assert.Equal(new ChoiceGiven("npc.ashen_hollow.renn_vale", "dialogue.ashen_hollow.renn_vale", "notices", "take_wolves"), quest.Objectives["o_c"].Condition);
+        Assert.Equal(new WaystoneKnown("waystone.ashen"), quest.Objectives["o_d"].Condition);
+        Assert.Equal(new TravelTo("waystone.rim"), quest.Objectives["o_e"].Condition);
+    }
+
+    private const string OneStep = """
+          - id: o_a
+            type: wait_until
+            description: Wait.
+            params: { after_min: 1 }
+        """;
+
+    [Fact]
+    public void WhatTheStoryFieldsSay_IsChecked()
+    {
+        Assert.Contains("track is main, side or bounty", Refused(OneStep, "track: story"));
+        Assert.Contains("a main-track quest names its act", Refused(OneStep, "track: main"));
+        Assert.Contains("a main-track quest names its act", Refused(OneStep, "act: 1"));
+        Assert.Contains("a bounty is standing work", Refused(OneStep, "track: bounty"));
+        Assert.Contains("only a bounty (track: bounty) is competitive", Refused(OneStep, "competitive: true"));
+        Assert.Contains("taken once", Refused(OneStep, "on_new_game: true\nrepeat_policy: { repeatable: true, cooldown_min: 10 }"));
+        Assert.Contains("on_new_game is true or false", Refused(OneStep, "on_new_game: yes"));
+        Assert.True(Parse(OneStep, "track: bounty\ncompetitive: true\nrepeat_policy: { repeatable: true, cooldown_min: 10 }").Competitive);
+    }
+
+    [Fact]
+    public void WhatTheNewObjectivesAndEffectsSay_IsChecked()
+    {
+        string With(string type, string p, string extra = "") => $$"""
+              - id: o_a
+                type: {{type}}
+                description: A step.
+                params: {{p}}
+            {{extra}}
+            """;
+        Assert.Contains("is not a Waystone key", Refused(With("travel_to", "{ waystone_ref: location.outpost }")));
+        Assert.Contains("order is follow or wait", Refused(With("companion_present", "{ npc_ref: npc.ashen_hollow.tavar_orr, order: lead }")));
+        Assert.Contains("'count' is not a parameter of defeat_boss",
+            Refused(With("defeat_boss", "{ creature_ref: creature.beast.wolf_grey, flag_ref: world.hollow.halda_tally_kept, location_ref: location.outpost, count: 1 }")));
+        Assert.Contains("world.test.nothing is not a defined world_flag",
+            Refused(With("defeat_creature", "{ creature_ref: creature.beast.wolf_grey, flag_ref: world.test.nothing, location_ref: location.outpost }")));
+        string choice(string effect) => With("wait_until", "{ after_min: 1 }", $"    effects:\n      - {effect}");
+        Assert.Contains("is not an objective effect", Refused(choice("{ kind: set_flag, flag_ref: world.hollow.halda_tally_kept }")));
+        Assert.Contains("a choice has a journal line",
+            Refused(choice("{ kind: choice, flag_ref: world.hollow.halda_tally_kept, location_ref: location.outpost, line: ' ' }")));
+        Assert.Contains("'note' is not part of a choice",
+            Refused(choice("{ kind: choice, flag_ref: world.hollow.halda_tally_kept, location_ref: location.outpost, line: x, note: y }")));
+    }
+
+    private const string Halda = "quests/ashen_hollow/haldas_tally.yaml";
+
+    private const string HaldaFirst = """
+          - id: o_tally
+            type: talk_to
+            description: Ask Renn whose tally this is.
+            params: { npc_ref: npc.ashen_hollow.renn_vale, nodes: [tally] }
+        """;
+
+    private static IReadOnlyList<ValidationError> HaldaWith(string objective, string fields = "") =>
+        ErrorsWith(Halda, HaldaFirst, objective, ("quests/ashen_hollow/haldas_tally.yaml", "track: side", "track: side" + fields));
+
+    private static string Step(string type, string p) => $$"""
+          - id: o_tally
+            type: {{type}}
+            description: A step.
+            params: {{p}}
+        """;
+
+    private const string HaldaKeep = "    type: world_state\n    description: Or keep it, and tell Renn you will walk Halda's line.\n" +
+                                     "    params: { flag_ref: world.hollow.halda_tally_kept, location_ref: location.outpost, value: 1 }";
+
+    [Fact]
+    public void ABoss_DoesNotReturn_AndOneDefeatFlagRecordsOneCreatureInOnePlace()
+    {
+        Assert.Contains(HaldaWith(Step("defeat_boss",
+                "{ creature_ref: creature.beast.wolf_grey, flag_ref: world.hollow.halda_tally_kept, location_ref: location.outpost }")),
+            e => e.Code == "QST001" && e.Message.Contains("a boss does not return, and creature.beast.wolf_grey returns", StringComparison.Ordinal));
+        Assert.Contains(ErrorsWith(Halda, HaldaFirst,
+                Step("defeat_creature", "{ creature_ref: creature.beast.wolf_grey, flag_ref: world.hollow.halda_tally_kept, location_ref: location.outpost }"),
+                (Halda, HaldaKeep, "    type: defeat_creature\n    description: Again.\n" +
+                                   "    params: { creature_ref: creature.beast.wolf_grey, flag_ref: world.hollow.halda_tally_kept, location_ref: location.den_mouth }")),
+            e => e.Code == "QST001" && e.Message.Contains("already records creature.beast.wolf_grey at location.outpost", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void ANewObjective_NamingWhatContentLacks_IsRefused()
+    {
+        Assert.Contains(HaldaWith(Step("companion_present", "{ npc_ref: npc.ashen_hollow.renn_vale }")),
+            e => e.Code == "QST001" && e.Message.Contains("cannot join the character", StringComparison.Ordinal));
+        Assert.Contains(HaldaWith(Step("dialogue_choice", "{ npc_ref: npc.ashen_hollow.renn_vale, node: notices, choice: take_bears }")),
+            e => e.Code == "QST001" && e.Message.Contains("offers no reply 'take_bears'", StringComparison.Ordinal));
+        Assert.Contains(HaldaWith(Step("dialogue_choice", "{ npc_ref: npc.ashen_hollow.renn_vale, node: elsewhere, choice: back }")),
+            e => e.Code == "QST001" && e.Message.Contains("has no line 'elsewhere'", StringComparison.Ordinal));
+        Assert.Contains(ErrorsWith(Halda, HaldaFirst,
+                Step("defeat_creature", "{ creature_ref: creature.grazer.barrowback, flag_ref: world.hollow.halda_tally_kept, location_ref: location.outpost }"),
+                ("spawns/wildlife/foldscar_barrowbacks.yaml", "creature_ref: creature.grazer.barrowback", "creature_ref: creature.grazer.fellhorn")),
+            e => e.Code == "QST001" && e.Message.Contains("no spawn places creature.grazer.barrowback", StringComparison.Ordinal));
+        Assert.Contains(HaldaWith(Step("waystone_known", "{ waystone_ref: waystone.far_north }")),
+            e => e.Code == "QST001" && e.Message.Contains("no region places the Waystone waystone.far_north", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void AnOpeningQuest_NeedsNothingElseToStartIt() =>
+        Assert.Empty(ErrorsWith("quests/ashen_hollow/end_of_playtest.yaml", "track: side", "track: main\nact: 1\non_new_game: true",
+                ("dialogue/ashen_hollow/renn_vale.yaml", "consequences: [{ command: start_quest, quest_ref: quest.ashen_hollow.end_of_playtest }]", "consequences: []")));
 }

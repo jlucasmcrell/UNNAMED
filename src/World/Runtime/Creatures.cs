@@ -129,9 +129,10 @@ internal sealed record DiscardContainer(string Key) : InternalCommand;
 /// future is in its record - body, health, life, mind, the charge it must wait out, the stagger it is in (a charger's stun)
 /// and the one it is immune to - the sounds made on a tick wait in the world delta for the next, and its idle wandering and
 /// patrolling are functions of the world tick, so a loaded world goes on exactly as the saved one would have. Only a blow
-/// in progress is not kept (schema 14; the Phase-1 technical audit, L-06).
+/// in progress is not kept (schema 14; the Phase-1 technical audit, L-06). While the character is away (WP11) a corpse decays and a
+/// spawner brings its creature back by their deadlines, and the living give up whatever they were doing and are at home.
 /// </summary>
-internal sealed class CreatureSystem
+internal sealed class CreatureSystem : IAbstractAdvance
 {
     private const double SampleScale = 18446744073709551616.0;
 
@@ -139,6 +140,7 @@ internal sealed class CreatureSystem
     private readonly SliceOwner _owner;
     private readonly EntityId _player;
     private readonly Func<MoveIntent> _intent;
+    private long _graceUntil;
 
     public CreatureSystem(SystemContext context, SliceOwner owner, EntityId player, Func<MoveIntent> intent)
     {
@@ -232,11 +234,53 @@ internal sealed class CreatureSystem
         }
     }
 
+    // ── the absence and the login ───────────────────────────────────────────
+
+    /// <summary>
+    /// The world going on while the character was away. Closed-form: whatever fell due by <paramref name="toTick"/> has happened - a corpse
+    /// is gone, a creature whose timer ran out is back at home (the character was not there to stand over the place) - and a living one is
+    /// at home, unaware, as if it had long since given up and gone back. The sounds waiting to be heard are long gone. Every outcome depends
+    /// only on the deadlines and <paramref name="toTick"/>, so the same absence split anywhere ends the same.
+    /// </summary>
+    public void Advance(long fromTick, long toTick, AdvanceLog log)
+    {
+        State.SetNoises(_owner, ImmutableArray<Noise>.Empty);
+        foreach (string key in State.Creatures.Keys.ToList())
+        {
+            var creature = State.Creatures[key];
+            Save(creature.Alive ? AtHome(creature) : Afterlife(creature, toTick, away: true));
+        }
+    }
+
+    /// <summary>A living creature after an absence: at home as it stood at the start, its fight and its search forgotten. Its wounds stay.</summary>
+    private CreatureState AtHome(CreatureState c) => c with
+    {
+        Body = new Body(c.HomeXMm, _context.Setup.Layout.Space.Terrain.HeightAtMm(c.HomeXMm, c.HomeZMm), c.HomeZMm, c.HomeFacingMdeg),
+        Mind = CreatureMind.Unaware,
+        Awareness = 0,
+        Knows = false,
+        KnownXMm = 0,
+        KnownZMm = 0,
+        LastSeenTick = 0,
+        SearchUntil = 0,
+        HasCalled = false,
+        NextChargeTick = 0,
+        StaggerImmuneUntil = 0,
+        Action = ActionState.Idle,
+    };
+
+    /// <summary>The login grace: until <paramref name="untilTick"/> no creature sees or hears the character (WP11).</summary>
+    public void BeginGrace(long untilTick) => _graceUntil = untilTick;
+
+    public long GraceUntil => _graceUntil;
+
+    private bool InGrace(long tick) => tick <= _graceUntil;
+
     // ── the tick ────────────────────────────────────────────────────────────
 
     public void Tick(long tick)
     {
-        var noises = PlayerNoises().Concat(State.World.Noises).ToList();
+        var noises = (InGrace(tick) ? Enumerable.Empty<Noise>() : PlayerNoises()).Concat(State.World.Noises).ToList();
         State.SetNoises(_owner, ImmutableArray<Noise>.Empty);
         foreach (string key in State.Creatures.Keys.ToList())
         {
@@ -301,9 +345,12 @@ internal sealed class CreatureSystem
     private CreatureState Perceive(CreatureState c, long tick, List<Noise> noises)
     {
         var rules = Setup.Awareness;
-        var senses = c.Definition.Senses;
+        // A lit torch in hand is seen from further off (its stealth cost, WP3a).
+        var senses = c.Definition.Senses is var own && _context.PlayerStealthPenalty() is > 0 and var penalty
+            ? own with { SightMm = (long)Math.Round(own.SightMm * (1 + penalty)) }
+            : c.Definition.Senses;
         var player = State.Body;
-        bool target = !State.PlayerCombat.Defeated;
+        bool target = !State.PlayerCombat.Defeated && !InGrace(tick);
         bool asleep = Asleep(c, tick);
         double? seen = !asleep && target ? Perception.Sees(c.Body, senses, player.XMm, player.ZMm, Walls()) : null;
         int awareness = Perception.Accrue(c.Awareness, seen, senses.SightMm, rules, TickMs);
@@ -739,7 +786,10 @@ internal sealed class CreatureSystem
         _context.Dispatch(new ClearEffects(c.Id));
         _context.Events.Publish(new CreatureKilled(c.Id, c.Definition.Id, killer, tick));
         if (killer == _player)
+        {
             _context.Dispatch(new RecordDeed(new Deed(DeedKind.Killed, c.Definition.Id, 1, Domain.Crafting.Quality.Standard, null, tick)));
+            _context.Dispatch(new CountUse());
+        }
         var definition = c.Definition;
         if (definition.XpValue > 0 && killer == _player)
         {
@@ -777,8 +827,11 @@ internal sealed class CreatureSystem
         return kills.Count(t => t > tick - guards.ClusterWindowTicks) >= guards.ClusterThreshold;
     }
 
-    /// <summary>A corpse decays; a spawner with a timer brings its creature back once the player is not standing over the place.</summary>
-    private CreatureState Afterlife(CreatureState c, long tick)
+    /// <summary>
+    /// A corpse decays; a spawner with a timer brings its creature back once the player is not standing over the place - or, for an
+    /// absence, <paramref name="away"/>, since the player was not there at all.
+    /// </summary>
+    private CreatureState Afterlife(CreatureState c, long tick, bool away = false)
     {
         if (c.Condition == CreatureCondition.Corpse && tick >= c.DiedTick + Setup.CorpseDecayTicks)
         {
@@ -787,7 +840,7 @@ internal sealed class CreatureSystem
             c = c with { Condition = CreatureCondition.Gone };
         }
         var player = State.Body;
-        if (c.RespawnTick > 0 && tick >= c.RespawnTick && Distance(player.XMm, player.ZMm, c.HomeXMm, c.HomeZMm) > C.LeashMm)
+        if (c.RespawnTick > 0 && tick >= c.RespawnTick && (away || Distance(player.XMm, player.ZMm, c.HomeXMm, c.HomeZMm) > C.LeashMm))
         {
             if (c.Condition == CreatureCondition.Corpse)
             {

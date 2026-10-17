@@ -14,7 +14,7 @@ public class SaveFailureTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        session.NewGame("Wanderer", seed: 42);
+        session.NewGame(Harness.Named("Wanderer"), seed: 42);
         Directory.Delete(profile.Root, recursive: true);
         File.WriteAllText(profile.Root, "the disk refuses: nothing can be written under it");
 
@@ -63,7 +63,7 @@ public class SaveFailureTests
         using var profile = new TempProfile();
         string content = Path.Combine(Harness.RepoRoot(), "content");
         using var first = GameSession.Boot(new GameOptions(content, profile.Root) { LockProfile = true });
-        first.NewGame("Wanderer", seed: 42);
+        first.NewGame(Harness.Named("Wanderer"), seed: 42);
 
         Assert.Throws<ProfileInUseException>(() => GameSession.Boot(new GameOptions(content, profile.Root) { LockProfile = true }));
 

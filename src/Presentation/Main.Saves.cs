@@ -1,7 +1,8 @@
-// UNNAMED Presentation - Main's saves: new game, load, continue, quicksave, and the resync after each (D-11)
+// UNNAMED Presentation - Main's saves: new game, continue, restore, save now, and the resync after each (D-11)
 // Godot presentation only: this file renders state and submits commands; it never writes state.
 
 using Godot;
+using UNNAMED.Domain.Character;
 using UNNAMED.Persistence;
 using UNNAMED.Presentation.Greybox;
 using UNNAMED.Presentation.Player;
@@ -12,6 +13,12 @@ namespace UNNAMED.Presentation;
 
 public partial class Main
 {
+    /// <summary>
+    /// The character a new game makes until the creator screen exists (WP2's local part): the slice's acceptance character, with no Call,
+    /// exactly as before the creator.
+    /// </summary>
+    private static readonly CharacterSpec DefaultCharacter = CharacterSpec.Quick(CharacterSpec.DefaultName, null);
+
     /// <summary>After a new game or a load: the only moments presentation copies the whole state.</summary>
     private void Resync()
     {
@@ -32,10 +39,11 @@ public partial class Main
         _scatter.Build(_session.Simulation!.World.WorldSeed);
     }
 
-    /// <summary>F5: taken now, written in the background (P-01); "Saved", or why not, when it has been.</summary>
+    /// <summary>
+    /// F5, "save now": taken now, written in the background (P-01); "Saved", or why not, when it has been. There is no quickload: one live
+    /// world (DN7), and an older save is only ever restored by choice from the saves list.
+    /// </summary>
     private void QuickSave() => _session.SaveInBackground(SaveSlots.Quick);
-
-    private void QuickLoad() => LoadChosen(SaveSlots.Quick, SaveCopy.Current);
 
     /// <summary>
     /// <c>--resume-shots dir</c>, with <c>--profile</c>: the start screen as a player meets it, Continue pressed, and the saves list opened
@@ -47,7 +55,7 @@ public partial class Main
         {
             case 20:
                 SaveScreenshot(directory, "01_start_screen");
-                if (!_saves.PressContinue())
+                if (!_title.PressContinue())
                 {
                     GD.PushError("UNNAMED resume shots: the start screen offered no Continue");
                     GetTree().Quit(1);
@@ -69,7 +77,6 @@ public partial class Main
 
     /// <summary>A world began - a new game or a load: the views copy it whole, and a player's mouse is the game's again.</summary>
     private StartCamera? _startCamera;
-    private Ui.GraphicsPanel? _graphics;
 
     private void Started()
     {
@@ -79,10 +86,8 @@ public partial class Main
             _startCamera = null;
             _camera.Camera.MakeCurrent();
             StartCamera.Track(this, _camera.Camera);
-            _graphics?.QueueFree();
-            _graphics = null;
         }
-        _saves.Close();
+        CloseFrontEnd();
         _music.Title(false);
         _lastSave = null;
         _loadedFrom = null;
@@ -152,20 +157,53 @@ public partial class Main
         }
     }
 
-    /// <summary>Continue (B-01): the newest save that can be loaded, as the start screen offers it. Null when there is none, or it failed.</summary>
-    private (string Slot, SaveCopy Copy, LoadResult Result)? Continue() =>
-        _session.StartChoice().Continue is { } next && LoadChosen(next.Slot, next.Copy) is { } result ? (next.Slot, next.Copy, result) : null;
+    /// <summary>
+    /// Continue (B-01, DN7): log in to the newest save that can be loaded, as the start screen offers it - the live world, gone on while
+    /// the character was away (WP11). With <paramref name="catchUp"/> false it is restored exactly instead. Null when there is none, or
+    /// it failed.
+    /// </summary>
+    private (string Slot, SaveCopy Copy, LoadResult Result)? Continue(bool catchUp = true)
+    {
+        if (_session.StartChoice().Continue is not { } next)
+            return null;
+        if (!catchUp)
+            return LoadChosen(next.Slot, next.Copy, next) is { } restored ? (next.Slot, next.Copy, restored) : null;
+        string what = SavesPanel.Describe(next.Slot, next.Copy);
+        try
+        {
+            var login = _session.Continue();
+            Started();
+            _loadedFrom = what;
+            _hud.Toast(login.Result.IsComplete ? $"Continued: {what}" : $"Continued {what}, with losses - see the log");
+            GD.Print($"UNNAMED login: away {login.CatchUp.RequestedTicks} ticks, the world caught up {login.CatchUp.HonouredTicks}" +
+                     $"{(login.CatchUp.Capped ? " (capped)" : "")}; {login.Away.Lines.Count} away-log lines");
+            foreach (string problem in login.Result.Report.Loss.Concat(login.Result.Report.Warnings))
+                GD.PushWarning(problem);
+            return (login.Slot, SaveCopy.Current, login.Result);
+        }
+        catch (Exception e) when (e is SaveException or IOException or UnauthorizedAccessException)
+        {
+            GD.PushError($"UNNAMED continue from {next.Slot} failed: {e.Message}");
+            string failure = $"{what} could not be loaded: {e.Message}";
+            if (_session.Simulation is null)
+                _saves.ShowFailure(failure);
+            else
+                _saves.OpenInGame(failure);
+            return null;
+        }
+    }
 
     /// <summary>
-    /// Load the copy of a save the player chose. When it cannot be loaded, the saves list opens saying why, with that save's backups and
-    /// the save it displaced beneath it - offered, never loaded in its place (PERSISTENCE.md §7.2).
+    /// Restore the copy of a save the player chose: its moment, with no catch-up (DN7). When it cannot be loaded, the saves list opens saying
+    /// why, with that save's backups and the save it displaced beneath it - offered, never loaded in its place (PERSISTENCE.md §7.2). A
+    /// save the list offered is loaded from its own character's folder (OD-14); without one, the slot is the character in play's.
     /// </summary>
-    private LoadResult? LoadChosen(string slot, SaveCopy copy)
+    private LoadResult? LoadChosen(string slot, SaveCopy copy, SaveSummary? offered = null)
     {
         string what = SavesPanel.Describe(slot, copy);
         try
         {
-            var result = _session.Load(slot, copy);
+            var result = offered is null ? _session.Load(slot, copy) : _session.Load(offered);
             Started();
             _loadedFrom = what;
             _hud.Toast(result.IsComplete ? $"Loaded: {what}" : $"Loaded {what}, with losses - see the log");

@@ -27,7 +27,7 @@ public class ResumeTests
     {
         using var profile = new TempProfile();
         var first = Harness.Boot(profile);
-        first.NewGame("Wanderer", seed: 42);
+        first.NewGame(Harness.Named("Wanderer"), seed: 42);
         Harness.Ticks(first, 100);
         first.Save(SaveSlots.Quick);
         Harness.Ticks(first, 100);
@@ -40,34 +40,41 @@ public class ResumeTests
         Assert.Equal(new[] { "auto_02", "quick" }, choice.Saves.Select(s => s.Slot));
         Assert.Equal((SaveSlots.Auto(2), SaveCopy.Current), (choice.Continue!.Slot, choice.Continue.Copy));
         Assert.Empty(choice.PassedOver);
-        Assert.True(choice.NewGameAsksFirst);
+        Assert.False(choice.NewGameAsksFirst);   // a new character saves in its own folder (OD-14): nothing here is at risk
 
         Assert.True(second.Load(choice.Continue.Slot, choice.Continue.Copy).IsComplete);
         Assert.Equal((tick, digest), (second.Simulation!.WorldTick, second.Simulation.StateDigest()));
     }
 
-    /// <summary>The audit's probe: a new game's first quicksave deleted the last session's quick save, which no load had proven.</summary>
+    /// <summary>
+    /// The audit's probe: a new game's first quicksave deleted the last session's quick save, which no load had proven. Saves are now kept
+    /// per character (OD-14), so a new character's quicksave lands in its own folder and the last character's quick save is not touched.
+    /// </summary>
     [Fact]
-    public void AQuicksaveAfterARelaunch_KeepsThePreviousQuickSaveRecoverable()
+    public void ANewCharacter_SavesInAFolderOfItsOwn_AndTheLastCharactersQuickSaveStandsAsItWas()
     {
         using var profile = new TempProfile();
         var first = Harness.Boot(profile);
-        first.NewGame("Wanderer", seed: 42);
+        first.NewGame(Harness.Named("Wanderer"), seed: 42);
         Harness.Ticks(first, 200);
         first.Save(SaveSlots.Quick);
         string before = first.Simulation!.StateDigest();
+        string firstCharacter = first.Character!;
 
         var second = Harness.Boot(profile);
-        second.NewGame("Wanderer", seed: 7);
+        second.NewGame(Harness.Named("Wenna Lind"), seed: 7);
         second.Save(SaveSlots.Quick);
 
-        var previous = Assert.Single(second.OtherCopies(SaveSlots.Quick));
-        Assert.Equal((SaveCopy.Previous, (string?)null, 200L), (previous.Copy, previous.Problem, previous.WorldTick));
-        Assert.True(second.Load(SaveSlots.Quick, SaveCopy.Previous).IsComplete);
+        Assert.NotEqual(firstCharacter, second.Character);
+        Assert.Equal(Path.Combine(profile.Root, CharacterFolders.Directory, second.Character!), second.SaveFolder);
+        Assert.Empty(second.OtherCopies(SaveSlots.Quick));   // nothing displaced: the slot was new
+        var quicks = second.StartChoice().Saves.Where(s => s.Slot == SaveSlots.Quick).ToList();
+        Assert.Equal(new[] { (second.Character, 0L), (firstCharacter, 200L) }, quicks.Select(s => (s.Character, s.WorldTick)));
+        Assert.Equal(new[] { "Wenna Lind", "Wanderer" }, second.CharacterSaves().Select(c => c.Name));
+
+        Assert.True(second.Load(quicks[1]).IsComplete);
         Assert.Equal(before, second.Simulation!.StateDigest());
-        // Loading it proves nothing and moves nothing: the quick save is still the new game's.
-        Assert.Equal(0, second.StartChoice().Saves.Single(s => s.Slot == SaveSlots.Quick).WorldTick);
-        Assert.Equal(SaveCopy.Previous, Assert.Single(second.OtherCopies(SaveSlots.Quick)).Copy);
+        Assert.Equal(firstCharacter, second.Character);   // and the character in play, and the folder it saves to, are the first again
     }
 
     [Fact]
@@ -75,7 +82,7 @@ public class ResumeTests
     {
         using var profile = new TempProfile();
         var first = Harness.Boot(profile);
-        first.NewGame("Wanderer", seed: 42);
+        first.NewGame(Harness.Named("Wanderer"), seed: 42);
         Harness.Ticks(first, 200);
         first.Save(SaveSlots.Quick);
 
@@ -94,7 +101,7 @@ public class ResumeTests
     {
         using var profile = new TempProfile();
         var first = Harness.Boot(profile);
-        first.NewGame("Wanderer", seed: 42);
+        first.NewGame(Harness.Named("Wanderer"), seed: 42);
         Harness.Ticks(first, 40);
         first.Save(SaveSlots.Auto(1));
         Harness.Ticks(first, 40);
@@ -102,7 +109,7 @@ public class ResumeTests
         first.Load(SaveSlots.Quick);   // proven by a load, so the next quicksave keeps it as backup 1
         Harness.Ticks(first, 40);
         first.Save(SaveSlots.Quick);
-        string player = Path.Combine(profile.Root, SaveSlots.Quick, SaveFormat.Player);
+        string player = Path.Combine(first.SaveFolder, SaveSlots.Quick, SaveFormat.Player);
         byte[] bytes = File.ReadAllBytes(player);
         bytes[bytes.Length / 2] ^= 0xFF;
         File.WriteAllBytes(player, bytes);

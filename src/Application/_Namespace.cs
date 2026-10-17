@@ -20,7 +20,7 @@ public static class ApplicationMarker
 // Core application types:
 // - CommandBus: In-process command routing (synchronous, in-process)
 // - EventBus: In-process event publication/subscription (synchronous)
-// - TickScheduler: Deterministic tick execution
+// - GameSession: the fixed-step loop, and the offline catch-up through Simulation.Advance (WP11)
 //
 // Commands:
 // - Commands are immutable value types that carry intent

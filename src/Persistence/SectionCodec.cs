@@ -7,9 +7,11 @@ using MessagePack;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Domain.Travel;
 using UNNAMED.World;
@@ -72,18 +74,35 @@ public sealed class PlayerDto
     /// <summary>Required from schema 15. The 14 -> 15 step gives older saves none: no road was on the map before it.</summary>
     [Key("roads_walked")] public string[]? RoadsWalked { get; set; }
 
-    /// <summary>
-    /// Required from schema 16: the space the body stands in (M8 D10). The 15 -> 16 step gives older saves the
-    /// exterior, which is where every save written before the Barrowworks was - and where a save that never
-    /// entered the ring still is.
-    /// </summary>
-    [Key("space_id")] public string? SpaceId { get; set; }
+    /// <summary>Required from schema 16. The 15 -> 16 step gives older saves none: no deed was counted before the deed condition (E-7).</summary>
+    [Key("deeds")] public DeedDto[]? Deeds { get; set; }
 
     /// <summary>
-    /// From schema 16: how the body is traversing that space, or null for none. A body standing in the ring is
-    /// <c>inside</c>; a body on a road is <c>road</c>. Null and the exterior together mean ordinary walking.
+    /// Required from schema 17. The 16 -> 17 step gives older saves the identity of a character made before the creator: "they", a Veth of
+    /// the default body, and no Call.
     /// </summary>
-    [Key("space_traversal")] public string? SpaceTraversal { get; set; }
+    [Key("identity")] public IdentityDto? Identity { get; set; }
+}
+
+/// <summary>How many times the character has done one deed, and when last (schema 16).</summary>
+[MessagePackObject]
+public sealed class DeedDto
+{
+    [Key("deed")] public string Deed { get; set; } = "";
+    [Key("subject")] public string Subject { get; set; } = "";
+    [Key("npc")] public string? Npc { get; set; }
+    [Key("count")] public int Count { get; set; }
+    [Key("last_tick")] public long LastTick { get; set; }
+}
+
+/// <summary>Who the character is besides their name, as the creator made them (schema 17). No World Rules or difficulty: there are none.</summary>
+[MessagePackObject]
+public sealed class IdentityDto
+{
+    [Key("pronouns")] public string Pronouns { get; set; } = "";
+    [Key("people")] public string People { get; set; } = "";
+    [Key("body_preset")] public string BodyPreset { get; set; } = "";
+    [Key("call")] public string? Call { get; set; }
 }
 
 /// <summary>A Waystone the character knows (schema 15).</summary>
@@ -190,8 +209,24 @@ public sealed class InventoryDto
     [Key("def_id")] public string DefId { get; set; } = "";
     [Key("count")] public int Count { get; set; }
 
-    /// <summary>Required from schema 9: the stack's quality (-1 crude, 0 standard, 1 fine). The 8 -> 9 step gives older stacks 0.</summary>
+    /// <summary>Required from schema 9: the stack's quality (-1 crude, 0 standard, 1 fine, 2 masterwork from schema 19). The 8 -> 9 step gives older stacks 0.</summary>
     [Key("quality")] public int? Quality { get; set; }
+
+    /// <summary>From schema 19: a notable instance's record, or null for an ordinary stack.</summary>
+    [Key("notable")] public NotableDto? Notable { get; set; }
+}
+
+/// <summary>A notable instance's record (schema 19): name, provenance, the maker's mark when made, familiarity.</summary>
+[MessagePackObject]
+public sealed class NotableDto
+{
+    [Key("name")] public string Name { get; set; } = "";
+    [Key("provenance")] public string Provenance { get; set; } = "";
+    [Key("source_ref")] public string SourceRef { get; set; } = "";
+    [Key("tick")] public long Tick { get; set; }
+    [Key("maker")] public string? Maker { get; set; }
+    [Key("familiarity")] public int Familiarity { get; set; }
+    [Key("uses")] public int Uses { get; set; }
 }
 
 [MessagePackObject]
@@ -321,6 +356,9 @@ public sealed class ContainerItemDto
 
     /// <summary>Required from schema 9. The 8 -> 9 step gives older stacks 0.</summary>
     [Key("quality")] public int? Quality { get; set; }
+
+    /// <summary>From schema 19: a notable instance's record, or null.</summary>
+    [Key("notable")] public NotableDto? Notable { get; set; }
 }
 
 [MessagePackObject]
@@ -337,6 +375,9 @@ public sealed class CreatedDto
 
     /// <summary>Required from schema 9. The 8 -> 9 step gives older records 0.</summary>
     [Key("quality")] public int? Quality { get; set; }
+
+    /// <summary>From schema 19: a notable instance's record, or null.</summary>
+    [Key("notable")] public NotableDto? Notable { get; set; }
 }
 
 [MessagePackObject]
@@ -394,7 +435,7 @@ public static class SectionCodec
         ZMm = player.ZMm,
         AppearanceSeed = player.AppearanceSeed,
         Inventory = player.Inventory
-            .Select(e => new InventoryDto { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality })
+            .Select(e => new InventoryDto { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality, Notable = NotableToDto(e.Notable) })
             .ToArray(),
         Progression = ProgressionCodec.ToDto(player.Progression),
         FacingMdeg = player.FacingMdeg,
@@ -447,19 +488,48 @@ public static class SectionCodec
         Waystones = player.Waystones.Select(w => new WaystoneDto { Stone = w.StoneKey, Region = w.RegionId, Method = WaystoneMethods.Key(w.Method), Tick = w.Tick }).ToArray(),
         ReturnPoint = player.ReturnPoint,
         RoadsWalked = player.RoadsWalked.ToArray(),
-        // Schema 16: the space and the portal that led into it. The space is written as "" for the exterior, which
-        // is what PlayerRecord.SpaceId holds, so the reader does not have to treat null and empty differently.
-        SpaceId = player.SpaceId,
-        SpaceTraversal = player.SpaceTraversal,
+        Deeds = player.Deeds.Select(d => new DeedDto { Deed = DeedKeys.Key(d.Kind), Subject = d.SubjectId, Npc = d.NpcId, Count = d.Count, LastTick = d.LastTick }).ToArray(),
+        Identity = new IdentityDto
+        {
+            Pronouns = PronounKeys.Key(player.Identity.Pronouns),
+            People = player.Identity.PeopleId,
+            BodyPreset = player.Identity.BodyPresetId,
+            Call = player.Identity.CallId,
+        },
     }, Options);
 
-    /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard or fine.</summary>
+    /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard, fine or (schema 19) masterwork.</summary>
     private static int QualityOf(int? quality, string what) => quality switch
     {
         null => throw new FormatException($"{what} has no quality (required from schema 9)"),
         var q when UNNAMED.Domain.Crafting.Quality.IsValid(q.Value) => q.Value,
-        var q => throw new FormatException($"{what} has quality {q}, which is not -1, 0 or 1"),
+        var q => throw new FormatException($"{what} has quality {q}, which is not -1, 0, 1 or 2"),
     };
+
+    private static NotableDto? NotableToDto(NotableRecord? notable) => notable is null ? null : new NotableDto
+    {
+        Name = notable.Name,
+        Provenance = ProvenanceKinds.Key(notable.Provenance),
+        SourceRef = notable.SourceRef,
+        Tick = notable.Tick,
+        Maker = notable.Maker,
+        Familiarity = notable.Familiarity,
+        Uses = notable.Uses,
+    };
+
+    /// <summary>A stack's saved notable record (schema 19), whole and in range, or null for an ordinary stack.</summary>
+    private static NotableRecord? NotableOf(NotableDto? dto, string what)
+    {
+        if (dto is null)
+            return null;
+        var record = new NotableRecord(dto.Name, ProvenanceKinds.Parse(dto.Provenance), dto.SourceRef, dto.Tick)
+        {
+            Maker = dto.Maker,
+            Familiarity = dto.Familiarity,
+            Uses = dto.Uses,
+        };
+        return record.IsValid ? record : throw new FormatException($"{what} has an invalid notable record");
+    }
 
     public static PlayerRecord DecodePlayer(byte[] bytes)
     {
@@ -477,10 +547,9 @@ public static class SectionCodec
         var posture = dto.Posture ?? throw new FormatException("player.msgpack has no posture (required from schema 13)");
         var waystones = dto.Waystones ?? throw new FormatException("player.msgpack has no Waystone records (required from schema 15)");
         var roads = dto.RoadsWalked ?? throw new FormatException("player.msgpack has no walked roads (required from schema 15)");
-        // The space is required from schema 16. Null is refused rather than defaulted: a save that predates the
-        // schema travels through the 15 -> 16 step, which writes "" for the exterior, so a null here means the
-        // file was written by something that did not know about the field.
-        var spaceId = dto.SpaceId ?? throw new FormatException("player.msgpack has no space (required from schema 16)");
+        var deeds = dto.Deeds ?? throw new FormatException("player.msgpack has no deed tallies (required from schema 16)");
+        var identity = dto.Identity ?? throw new FormatException("player.msgpack has no identity (required from schema 17)");
+        var pronouns = PronounKeys.Parse(identity.Pronouns) ?? throw new FormatException($"player identity has pronouns '{identity.Pronouns}'");
         var stance = posture.Stance switch
         {
             "standing" or "crouched" => StanceKeys.Parse(posture.Stance),
@@ -489,7 +558,7 @@ public static class SectionCodec
         if (posture.AirMs < 0 || (!posture.Airborne && posture.AirMs != 0))
             throw new FormatException($"player posture has air_ms {posture.AirMs} while {(posture.Airborne ? "airborne" : "on the ground")}");
         return new PlayerRecord(EntityId.Parse(dto.InstanceId), dto.Name, dto.XMm, dto.YMm, dto.ZMm, dto.AppearanceSeed,
-            dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count) { Quality = QualityOf(e.Quality, $"carried {e.ItemId}") }),
+            dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count) { Quality = QualityOf(e.Quality, $"carried {e.ItemId}"), Notable = NotableOf(e.Notable, $"carried {e.ItemId}") }),
             ProgressionCodec.FromDto(progression), facing,
             discoveries.Select(d => new DiscoveryRecord(d.LocationId, DiscoveryMethods.Parse(d.Method), d.Tick)),
             equipment.Select(e => KeyValuePair.Create(EquipSlots.Parse(e.Slot), EntityId.Parse(e.ItemId))), currency,
@@ -509,8 +578,9 @@ public static class SectionCodec
                 WaystoneMethods.Parse(w.Method) ?? throw new FormatException($"Waystone {w.Stone} was known by '{w.Method}'"), w.Tick)).ToImmutableArray(),
             ReturnPoint = dto.ReturnPoint,
             RoadsWalked = roads.ToImmutableArray(),
-            SpaceId = spaceId,
-            SpaceTraversal = dto.SpaceTraversal,
+            Deeds = deeds.Select(d => new DeedTally(DeedKeys.Parse(d.Deed) ?? throw new FormatException($"a deed tally of {d.Subject} is '{d.Deed}'"),
+                d.Subject, d.Npc, d.Count, d.LastTick)).ToImmutableArray(),
+            Identity = new CharacterIdentity(pronouns, identity.People, identity.BodyPreset, identity.Call),
         };
     }
 
@@ -596,6 +666,7 @@ public static class SectionCodec
                 ZCm = c.ZCm,
                 Count = c.Count,
                 Quality = c.Quality,
+                Notable = NotableToDto(c.Notable),
             }).ToArray(),
             Baselines = baselines.Select(kv => new CellBaselineDto { CellKey = kv.Key, BaselineHash = kv.Value }).ToArray(),
             Containers = snapshot.Containers.Select(c => new ContainerDto
@@ -603,7 +674,7 @@ public static class SectionCodec
                 Key = c.Key,
                 InstanceId = c.InstanceId.Value,
                 HostCell = c.HostCell,
-                Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId.Value, DefId = i.DefId, Count = i.Count, Quality = i.Quality }).ToArray(),
+                Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId.Value, DefId = i.DefId, Count = i.Count, Quality = i.Quality, Notable = NotableToDto(i.Notable) }).ToArray(),
             }).ToArray(),
             Creatures = snapshot.Creatures.Select(c => new CreatureDto
             {
@@ -661,12 +732,13 @@ public static class SectionCodec
             {
                 Count = c.Count ?? throw new FormatException($"created instance {c.InstanceId} has no count (required from schema 6)"),
                 Quality = QualityOf(c.Quality, $"created instance {c.InstanceId}"),
+                Notable = NotableOf(c.Notable, $"created instance {c.InstanceId}"),
             })
             .ToImmutableArray();
         var containers = (section.Containers ?? throw new FormatException("entities.msgpack has no containers list (required from schema 6)"))
             .Select(c => new ContainerRecord(
                 c.Key, EntityId.Parse(c.InstanceId), c.HostCell,
-                c.Items.Select(i => new ContainerItem(EntityId.Parse(i.ItemId), i.DefId, i.Count) { Quality = QualityOf(i.Quality, $"{c.Key} item {i.ItemId}") })
+                c.Items.Select(i => new ContainerItem(EntityId.Parse(i.ItemId), i.DefId, i.Count) { Quality = QualityOf(i.Quality, $"{c.Key} item {i.ItemId}"), Notable = NotableOf(i.Notable, $"{c.Key} item {i.ItemId}") })
                     .ToImmutableArray(),
                 baselines.GetValueOrDefault(c.HostCell)))
             .ToImmutableArray();

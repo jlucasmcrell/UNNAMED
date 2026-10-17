@@ -1,0 +1,14 @@
+id: item.armor.timber_shield
+kind: item.armor
+schema: 1
+display_key: item.armor.timber_shield.name
+tags: [item]
+name: Timber Shield
+notes: An off-hand shield (WP3a, DCP:669) - rough timber faced with a small hide. It guards the body; a two-handed weapon leaves no hand for it. Found by experiment at the bench.
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 3.0
+value_base: 18
+slot: off_hand
+armor_value: 2

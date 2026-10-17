@@ -30,7 +30,7 @@ one under the current code and migrates every one through the real commit path
    plus the two effects the effect record names - is the pack v7 was written with; `content-0.1.4/` - 0.1.3 plus the
    creature a creature record names - is the pack v8 and v9 were written with; `content-0.1.5/` - 0.1.4 plus the NPC and the
    conversation the relationship and conversation records name - is the pack v10 was written with; `content-0.1.6/` - 0.1.5 plus the two
-   quests the quest records name, and the warden's replies that start them - is the pack v11 to v15 were written with. Content 0.2.0 renamed the
+   quests the quest records name, and the warden's replies that start them - is the pack v11 to v16 were written with. Content 0.2.0 renamed the
    potion; 0.2.1 renamed the formula; 0.2.2 renamed the place; 0.2.3 gave the items and creatures their Phase-1
    schema fields, which today's content checks require; 0.2.4 gave the sword its attack timing (M3c requires it)
    and renamed the weakness; 0.2.5 renamed the ash hound; 0.2.6 gave the recipe the fields today's recipe checks
@@ -77,6 +77,10 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | Aelin crouched, on the ground | player posture | Schema 13 (the owner's M6 playtest: jump and crouch). v1-v12 migrate to standing on the ground; a schema-13 player without a posture is corrupt, not defaulted |
 | `spawn.fixture.den#0` may charge again at tick 5060, is immune to a stagger until 5020, and is stunned - 40 ticks from 4995; two sounds wait to be heard: a howl of `creature.beast.ash_hound` at (12345, 67890) mm carrying 30 m, and a blow at (14000, 66000) mm carrying 12 m | creature record continuation, entities `noises` | Schema 14 (the Phase-1 technical audit, L-06). The howl's kind is **renamed** to `creature.beast.ash_ember_hound`, as the creature record's is. v1-v13 migrate to no cooldown, stagger or immunity and nothing to hear; a schema-14 creature without its continuation, or a section without its noises, is corrupt, not defaulted |
 | Aelin knows `waystone.fixture.cairn` (touched, tick 4100) and `waystone.fixture.ford` (woken, tick 4500), both of `region.fixture_vale`, has made the ford stone her return point, and has walked stretches 0 and 1 of `road.fixture.track` | player waystones, return point, walked roads | Schema 15 (Waystone travel, S-38). The fixture pack has no Waystones: the records are the character's, kept as they are. v1-v14 migrate to no stone known, no return point (the region's spawn) and no road walked; a schema-15 player without its Waystone records or walked roads is corrupt, not defaulted |
+| Aelin has killed `creature.beast.ash_hound` three times (last at tick 4800), handed `item.potion.healing_draught` to `npc.fixture.warden` twice (last at 4200) and crafted `item.weapon.iron_sword` once (at 3900) | player deeds | Schema 16 (WP5, E-7: what dialogue's `deed` condition reads). The hound, the draught and the warden are **renamed** to `creature.beast.ash_ember_hound`, `item.potion.minor_healing` and `npc.fixture.warden_sera`: the renames must reach the deed tallies. v1-v15 migrate to no deed counted; a schema-16 player without its deeds is corrupt, not defaulted |
+| Aelin is "she", `people.veth`, body preset `body.build_slender`, of the Call `call.scholar` | player identity | Schema 17 (the character creator, WP2). The fixture pack has no peoples or Calls: the identity is the character's, kept as it is, like a Waystone record. v1-v16 migrate to the character the game made before the creator - "they", `people.veth`, `body.default`, no Call - and keep their name; a schema-17 player without its identity is corrupt, not defaulted |
+| Saved at `2026-10-17T09:30:00.250Z` (`saved_utc`), after a login that caught up 72 000 ticks - a game day and a quarter - so `world_time_advanced_ticks` is 72 000 and the away log holds two lines: `time.passed` 72 000 and `time.days` 1, at tick 4000 | manifest | Schema 18 (the persistent clock, WP11). v1-v17 migrate `saved_utc` from their own `build_timestamp`, to the second, and to an empty away log; a schema-18 manifest without either, or with a `saved_utc` that is not a moment, is corrupt, not defaulted |
+| The carried sword carries a notable record: "Iron Sword", given by `quest.fixture.cull` at tick 3500, familiarity 2 with 1 use toward the next step; the chest's sword is a masterwork (quality 2) with its record: made by Aelin from `recipe.fixture.sword` at tick 2000 | player inventory, changed container | Schema 19 (WP3a, itemization). A record is optional on a stack, so v1-v18 migrate to none, and no older stack is masterwork |
 
 ## Provenance
 
@@ -96,6 +100,10 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `v12/` | The M6 schema-12 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 | `v13/` | The owner-playtest schema-13 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 | `v15/` | The Waystone-travel schema-15 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
+| `v16/` | The WP5 schema-16 writer (deeds) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
+| `v17/` | The character-creator schema-17 writer (WP2) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
+| `v18/` | The persistent-clock schema-18 writer (WP11) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
+| `v19/` | The WP3a itemization schema-19 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 
 The one-off addition to `7ff4c57`'s probe that wrote `v1/`. It is not compiled into this build, since
 that build's world API no longer exists:

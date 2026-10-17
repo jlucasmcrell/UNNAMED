@@ -2,6 +2,7 @@
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
+using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Crafting;
 
 namespace UNNAMED.Domain.Quests;
@@ -26,6 +27,43 @@ public sealed record QuestDefinition(
 
     /// <summary>A repeatable quest (<c>repeat_policy</c>) may be taken again this long after it last ended; null when it is taken once.</summary>
     public long? RepeatAfterTicks { get; init; }
+
+    /// <summary>Which part of the journal it belongs to (<c>track</c>): the main story, a side quest, or standing bounty work.</summary>
+    public QuestTrack Track { get; init; } = QuestTrack.Side;
+
+    /// <summary>The act of the main story it belongs to (<c>act</c>); null off the main track.</summary>
+    public int? Act { get; init; }
+
+    /// <summary>Started for every new character, before anything is said to them (<c>on_new_game</c>).</summary>
+    public bool OnNewGame { get; init; }
+
+    /// <summary>
+    /// A bounty anyone may take (<c>competitive</c>): the first actor to finish it - the character or another - claims it, and it is
+    /// closed to everyone else until it is posted again.
+    /// </summary>
+    public bool Competitive { get; init; }
+}
+
+/// <summary>The journal's sections (<c>track</c>).</summary>
+public enum QuestTrack { Main, Side, Bounty }
+
+public static class QuestTracks
+{
+    public static string Key(QuestTrack track) => track switch
+    {
+        QuestTrack.Main => "main",
+        QuestTrack.Side => "side",
+        QuestTrack.Bounty => "bounty",
+        _ => throw new ArgumentOutOfRangeException(nameof(track)),
+    };
+
+    public static QuestTrack? Parse(string key) => key switch
+    {
+        "main" => QuestTrack.Main,
+        "side" => QuestTrack.Side,
+        "bounty" => QuestTrack.Bounty,
+        _ => null,
+    };
 }
 
 /// <summary>
@@ -48,7 +86,25 @@ public sealed record ObjectiveDefinition(string Id, string Description, Objectiv
 
     public string? OnFail { get; init; }
 
+    /// <summary>What happens in the world when the objective is satisfied (<c>effects</c>), in authored order.</summary>
+    public ImmutableArray<QuestEffect> Effects { get; init; } = ImmutableArray<QuestEffect>.Empty;
+
     public bool Terminal => Next.IsEmpty;
+}
+
+/// <summary>A closed-set effect of an objective being satisfied, applied through its owner's command once.</summary>
+public abstract record QuestEffect
+{
+    public abstract string Kind { get; }
+}
+
+/// <summary>
+/// <c>choice</c>: a choice the story remembers - a namespaced world flag (<c>world.main.carrier</c>) set in the cell that holds the place,
+/// and the line the journal's Recent list keeps for it.
+/// </summary>
+public sealed record ChoiceEffect(string FlagId, string LocationId, long Value, string Line) : QuestEffect
+{
+    public override string Kind => "choice";
 }
 
 // ── objective types: the closed set Phase 1 builds ─────────────────────────────
@@ -139,30 +195,68 @@ public sealed record WaitUntil(long AfterTicks) : ObjectiveCondition
     public override string Type => "wait_until";
 }
 
+/// <summary>
+/// <c>defeat_creature</c> / <c>defeat_boss</c>: the creature's defeat is on record - a world flag written from its death, by whoever's
+/// hand, in the cell that holds <see cref="LocationId"/>. A death before the quest counts. A boss is a creature that does not return.
+/// </summary>
+public sealed record DefeatCreature(string CreatureId, string FlagId, string LocationId, bool Boss) : ObjectiveCondition
+{
+    public override string Type => Boss ? "defeat_boss" : "defeat_creature";
+}
+
+/// <summary><c>companion_present</c>: the NPC is the character's companion and on their feet - and, naming an order, under it.</summary>
+public sealed record CompanionPresent(string NpcId, CompanionOrder? Order) : ObjectiveCondition
+{
+    public override string Type => "companion_present";
+}
+
+/// <summary><c>dialogue_choice</c>: this reply, at this line of the NPC's conversation, was given while the objective was active.</summary>
+public sealed record ChoiceGiven(string NpcId, string DialogueId, string NodeId, string ChoiceId) : ObjectiveCondition
+{
+    public override string Type => "dialogue_choice";
+    public override bool CountsDeeds => true;
+
+    /// <summary>The deed's subject: the reply, by its conversation and line.</summary>
+    public string Subject => ChoiceSubject(DialogueId, NodeId, ChoiceId);
+
+    public static string ChoiceSubject(string dialogueId, string nodeId, string choiceId) => $"{dialogueId}/{nodeId}/{choiceId}";
+}
+
+/// <summary><c>travel_to</c>: the character arrived at the Waystone by the stones while the objective was active.</summary>
+public sealed record TravelTo(string StoneKey) : ObjectiveCondition
+{
+    public override string Type => "travel_to";
+    public override bool CountsDeeds => true;
+}
+
+/// <summary><c>waystone_known</c>: the character knows the Waystone - touched or woken; an earlier touch counts.</summary>
+public sealed record WaystoneKnown(string StoneKey) : ObjectiveCondition
+{
+    public override string Type => "waystone_known";
+}
+
 /// <summary>The vocabulary: what Phase 1 builds, and the rest of DATA_MODEL.md §4.11's closed set, which arrives with its systems.</summary>
 public static class ObjectiveTypes
 {
     public static readonly ImmutableArray<string> Built = ImmutableArray.Create(
         "talk_to", "visit_location", "explore_location", "acquire_item", "craft_item", "harvest_resource", "kill_creature",
-        "deliver_item", "world_state", "relationship_value", "wait_until");
+        "deliver_item", "world_state", "relationship_value", "wait_until",
+        "defeat_creature", "defeat_boss", "companion_present", "dialogue_choice", "travel_to", "waystone_known");
 
     /// <summary>Named by the closed set and not built yet, each with what it waits for.</summary>
     public static readonly ImmutableSortedDictionary<string, string> NotBuilt = new Dictionary<string, string>
     {
         ["discover_secret"] = "secrets (S-30)",
-        ["dialogue_choice"] = "choice records; talk_to a node the reply leads to instead",
         ["use_recipe"] = "recipe-use records; craft_item instead",
         ["construct_building"] = "building (M7)",
         ["upgrade_settlement"] = "settlement simulation (M10)",
         ["kill_named"] = "named spawns (M8)",
-        ["defeat_boss"] = "bosses (M8)",
         ["survive_encounter"] = "encounters (M8)",
         ["escort_npc"] = "NPCs that travel",
         ["defend_location"] = "waves (M8)",
         ["solve_puzzle"] = "puzzles (M8)",
         ["faction_reputation"] = "factions (M7)",
         ["faction_state"] = "factions (M7)",
-        ["companion_present"] = "a quest that asks after a companion (companions arrived in M6; no quest needs one yet)",
         ["know_fact"] = "knowledge facts",
         ["time_window"] = "the time of day",
     }.ToImmutableSortedDictionary(StringComparer.Ordinal);
@@ -304,9 +398,15 @@ public interface IQuestFacts
     long WorldFlag(string flagId, string locationId);
 
     int Relationship(string npcId, string dimension);
+
+    /// <summary>The character knows the Waystone.</summary>
+    bool KnowsStone(string stoneKey) => false;
+
+    /// <summary>The NPC's order when they are the character's companion and on their feet; null otherwise.</summary>
+    CompanionOrder? CompanionPresent(string npcId) => null;
 }
 
-public enum DeedKind { Crafted, Harvested, Killed, Delivered }
+public enum DeedKind { Crafted, Harvested, Killed, Delivered, Chose, Travelled }
 
 /// <summary>Something the character did that a counting objective may be waiting for.</summary>
 public sealed record Deed(DeedKind Kind, string Subject, int Count, int Quality, string? NpcId, long Tick);
@@ -336,6 +436,61 @@ public static class QuestRules
     /// <summary>Whether the quest would start now: never started, or repeatable and ended at least its repeat time ago.</summary>
     public static bool CanStart(QuestDefinition quest, QuestState? state, long tick) =>
         state is null || state.Status != QuestStatus.Active && quest.RepeatAfterTicks is { } after && state.EndedTick is { } ended && tick >= ended + after;
+
+    /// <summary><see cref="QuestState.EndedBy"/> of a competitive bounty another actor finished while the character held it.</summary>
+    public const string LostTo = "lost_to:";
+
+    /// <summary><see cref="QuestState.EndedBy"/> of a competitive bounty another actor finished while the character did not hold it.</summary>
+    public const string ClaimedBy = "claimed_by:";
+
+    /// <summary>Who else finished a competitive bounty first, or null when nobody did.</summary>
+    public static string? Claimant(QuestState state) =>
+        state.EndedBy is { } by && (by.StartsWith(LostTo, StringComparison.Ordinal) || by.StartsWith(ClaimedBy, StringComparison.Ordinal))
+            ? by[(by.IndexOf(':') + 1)..]
+            : null;
+
+    /// <summary>Whether the record is of the character's own doing: false for a bounty someone else claimed while they never held it.</summary>
+    public static bool Held(QuestState state) => state.EndedBy?.StartsWith(ClaimedBy, StringComparison.Ordinal) != true;
+
+    /// <summary>Whether another actor may claim the bounty now: it is competitive, and held by the character or posted and open.</summary>
+    public static bool CanClaim(QuestDefinition quest, QuestState? state, long tick) =>
+        quest.Competitive && (state is { Status: QuestStatus.Active } || CanStart(quest, state, tick));
+
+    /// <summary>
+    /// Another actor finished a competitive bounty first: the character's hold on it, if they had one, fails with everything still active
+    /// closed; otherwise the posting is recorded as taken. Either way it is open again only once its repeat time has passed.
+    /// </summary>
+    public static QuestState Claim(QuestDefinition quest, QuestState? state, string claimantId, long tick)
+    {
+        if (!CanClaim(quest, state, tick))
+            throw new InvalidOperationException($"{quest.Id} cannot be claimed now");
+        if (state is { Status: QuestStatus.Active })
+            return state with
+            {
+                Status = QuestStatus.Failed,
+                EndedTick = tick,
+                EndedBy = LostTo + claimantId,
+                Objectives = state.Objectives.Select(o => o.Status == ObjectiveStatus.Active ? o with { Status = ObjectiveStatus.Closed, EndedTick = tick } : o)
+                    .ToImmutableArray(),
+            };
+        return new QuestState(quest.Id, QuestStatus.Failed, tick, tick, ClaimedBy + claimantId,
+            ImmutableArray.Create(new ObjectiveState(quest.Entry, ObjectiveStatus.Closed, tick, tick, 0)));
+    }
+
+    /// <summary>Where an objective sends the character, when it names a place, a person or a stone; null when it names none.</summary>
+    public static QuestTarget? Target(ObjectiveCondition condition) => condition switch
+    {
+        VisitLocation v => new QuestTarget(TargetKind.Location, v.LocationId),
+        ExploreLocation e => new QuestTarget(TargetKind.Location, e.LocationId),
+        WorldStateObjective w => new QuestTarget(TargetKind.Location, w.LocationId),
+        DefeatCreature d => new QuestTarget(TargetKind.Location, d.LocationId),
+        TalkTo t => new QuestTarget(TargetKind.Npc, t.NpcId),
+        DeliverItem d => new QuestTarget(TargetKind.Npc, d.NpcId),
+        ChoiceGiven d => new QuestTarget(TargetKind.Npc, d.NpcId),
+        TravelTo t => new QuestTarget(TargetKind.Stone, t.StoneKey),
+        WaystoneKnown w => new QuestTarget(TargetKind.Stone, w.StoneKey),
+        _ => null,
+    };
 
     /// <summary>A quest starts with its entry objective active.</summary>
     public static QuestState Start(QuestDefinition quest, long tick) =>
@@ -388,6 +543,24 @@ public static class QuestRules
                 long waited = tick - activatedTick;
                 return One(new Term("ticks since active", waited.ToString(), $">= {w.AfterTicks}", waited >= w.AfterTicks));
             }
+            case DefeatCreature d:
+            {
+                long value = facts.WorldFlag(d.FlagId, d.LocationId);
+                return One(new Term($"{d.CreatureId} defeated ({d.FlagId} at {d.LocationId})", value.ToString(), ">= 1", value >= 1));
+            }
+            case CompanionPresent c:
+            {
+                var order = facts.CompanionPresent(c.NpcId);
+                string value = order is { } o ? CompanionKeys.Key(o) : "absent";
+                return One(new Term($"{c.NpcId} with the character", value, c.Order is { } wanted ? CompanionKeys.Key(wanted) : "present",
+                    order is not null && (c.Order is null || c.Order == order)));
+            }
+            case ChoiceGiven d:
+                return One(new Term($"'{d.ChoiceId}' given at '{d.NodeId}' ({d.DialogueId}) while active", progress.ToString(), ">= 1", progress >= 1));
+            case TravelTo t:
+                return One(new Term($"arrived at {t.StoneKey} by the stones while active", progress.ToString(), ">= 1", progress >= 1));
+            case WaystoneKnown w:
+                return One(Is($"{w.StoneKey} known", facts.KnowsStone(w.StoneKey)));
             default:
                 throw new ArgumentOutOfRangeException(nameof(condition), condition, "Unknown objective type");
         }
@@ -411,6 +584,8 @@ public static class QuestRules
         HarvestResource h => deed.Kind == DeedKind.Harvested && deed.Subject == h.ResourceId,
         KillCreature k => deed.Kind == DeedKind.Killed && deed.Subject == k.CreatureId,
         DeliverItem d => deed.Kind == DeedKind.Delivered && deed.Subject == d.ItemId && deed.NpcId == d.NpcId,
+        ChoiceGiven c => deed.Kind == DeedKind.Chose && deed.Subject == c.Subject && deed.NpcId == c.NpcId,
+        TravelTo t => deed.Kind == DeedKind.Travelled && deed.Subject == t.StoneKey,
         _ => false,
     };
 
@@ -571,4 +746,66 @@ public static class QuestRules
             _ when min == max => $"= {min}",
             _ => $"in [{min}, {max}]",
         };
+}
+
+// ── targets and the journal ────────────────────────────────────────────────────
+
+public enum TargetKind { Location, Npc, Stone }
+
+/// <summary>What an objective points at: a place, a person, or a Waystone, by its ID or key.</summary>
+public sealed record QuestTarget(TargetKind Kind, string Ref);
+
+public enum JournalEntryKind { Started, Progress, Choice, Completed, Failed, Claimed, Away }
+
+/// <summary>One line of the journal's Recent list, at the tick it happened.</summary>
+public sealed record JournalEntry(long Tick, JournalEntryKind Kind, string Text)
+{
+    /// <summary>The quest the line is about; null for a line from elsewhere (the away log).</summary>
+    public string? QuestId { get; init; }
+}
+
+/// <summary>
+/// The journal's Recent list, derived from what the quest records already hold - when each was taken up, each objective's end, the choices
+/// made on the way, how it ended - so it needs no record of its own.
+/// </summary>
+public static class QuestJournal
+{
+    /// <summary>How many lines the Recent list shows.</summary>
+    public const int RecentLength = 20;
+
+    /// <summary>Every line one quest's record gives, oldest first; <paramref name="name"/> names a claimant.</summary>
+    public static IEnumerable<JournalEntry> Entries(QuestDefinition quest, QuestState state, Func<string, string> name)
+    {
+        if (!QuestRules.Held(state))
+            yield break;
+        yield return new JournalEntry(state.StartedTick, JournalEntryKind.Started, $"Took up {quest.Title}.") { QuestId = quest.Id };
+        foreach (var objective in quest.Order)
+        {
+            if (state.Objective(objective.Id) is not { EndedTick: { } at } s)
+                continue;
+            if (s.Status == ObjectiveStatus.Satisfied)
+            {
+                yield return new JournalEntry(at, JournalEntryKind.Progress, objective.Description) { QuestId = quest.Id };
+                foreach (var choice in objective.Effects.OfType<ChoiceEffect>())
+                    yield return new JournalEntry(at, JournalEntryKind.Choice, choice.Line) { QuestId = quest.Id };
+            }
+            else if (s.Status == ObjectiveStatus.Failed)
+            {
+                yield return new JournalEntry(at, JournalEntryKind.Failed, $"Too late: {objective.Description}") { QuestId = quest.Id };
+            }
+        }
+        if (state.EndedTick is not { } ended)
+            yield break;
+        if (QuestRules.Claimant(state) is { } claimant)
+            yield return new JournalEntry(ended, JournalEntryKind.Claimed, $"{name(claimant)} finished {quest.Title} first.") { QuestId = quest.Id };
+        else if (state.Status == QuestStatus.Completed)
+            yield return new JournalEntry(ended, JournalEntryKind.Completed, $"Finished {quest.Title}.") { QuestId = quest.Id };
+        else
+            yield return new JournalEntry(ended, JournalEntryKind.Failed, $"Failed {quest.Title}.") { QuestId = quest.Id };
+    }
+
+    /// <summary>The newest lines first, at most <paramref name="length"/>: within a tick, what came later first.</summary>
+    public static ImmutableArray<JournalEntry> Recent(IEnumerable<JournalEntry> entries, int length = RecentLength) =>
+        entries.Select((e, i) => (Entry: e, Index: i)).OrderByDescending(x => x.Entry.Tick).ThenByDescending(x => x.Index)
+            .Take(length).Select(x => x.Entry).ToImmutableArray();
 }

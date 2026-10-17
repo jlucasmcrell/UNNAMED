@@ -56,10 +56,12 @@ public class CraftingRulesTests
     }
 
     [Fact]
-    public void Quality_IsCrudeStandardOrFine()
+    public void Quality_IsCrudeStandardFineOrMasterwork()
     {
-        Assert.Equal(new[] { "crude", "standard", "fine" }, new[] { Quality.Crude, Quality.Standard, Quality.Fine }.Select(Quality.Key));
-        Assert.False(Quality.IsValid(2));
+        Assert.Equal(new[] { "crude", "standard", "fine", "masterwork" },
+            new[] { Quality.Crude, Quality.Standard, Quality.Fine, Quality.Masterwork }.Select(Quality.Key));
+        Assert.True(Quality.IsValid(2));
+        Assert.False(Quality.IsValid(3));
         Assert.False(Quality.IsValid(-2));
     }
 }

@@ -2,10 +2,10 @@
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Text.Json.Nodes;
 using MessagePack;
 using UNNAMED.Domain;
-using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence.Sections;
 using UNNAMED.World;
 using UNNAMED.World.Legacy;
@@ -23,6 +23,8 @@ using V12 = UNNAMED.Persistence.Sections.V12;
 using V13 = UNNAMED.Persistence.Sections.V13;
 using V14 = UNNAMED.Persistence.Sections.V14;
 using V15 = UNNAMED.Persistence.Sections.V15;
+using V16 = UNNAMED.Persistence.Sections.V16;
+using V18 = UNNAMED.Persistence.Sections.V18;
 
 namespace UNNAMED.Persistence;
 
@@ -85,7 +87,10 @@ public static class SchemaMigrations
         new SchemaV12ToV13(),
         new SchemaV13ToV14(),
         new SchemaV14ToV15(),
-        new SchemaV15ToV16());
+        new SchemaV15ToV16(),
+        new SchemaV16ToV17(),
+        new SchemaV17ToV18(),
+        new SchemaV18ToV19());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -558,7 +563,7 @@ public sealed class SchemaV8ToV9 : SchemaMigration
                 YMm = old.YMm,
                 ZMm = old.ZMm,
                 AppearanceSeed = old.AppearanceSeed,
-                Inventory = old.Inventory.Select(i => new InventoryDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count, Quality = 0 }).ToArray(),
+                Inventory = old.Inventory.Select(i => new V18.Inventory { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count, Quality = 0 }).ToArray(),
                 Progression = old.Progression,
                 FacingMdeg = old.FacingMdeg,
                 Discoveries = old.Discoveries,
@@ -573,17 +578,17 @@ public sealed class SchemaV8ToV9 : SchemaMigration
             document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new V13.EntitiesSection
             {
                 Records = old.Records,
-                Created = old.Created.Select(c => new CreatedDto
+                Created = old.Created.Select(c => new V18.Created
                 {
                     InstanceId = c.InstanceId, DefId = c.DefId, HostCell = c.HostCell, XCm = c.XCm, ZCm = c.ZCm, Count = c.Count, Quality = 0,
                 }).ToArray(),
                 Baselines = old.Baselines,
-                Containers = old.Containers?.Select(c => new ContainerDto
+                Containers = old.Containers?.Select(c => new V18.Container
                 {
                     Key = c.Key,
                     InstanceId = c.InstanceId,
                     HostCell = c.HostCell,
-                    Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count, Quality = 0 }).ToArray(),
+                    Items = c.Items.Select(i => new V18.ContainerItem { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count, Quality = 0 }).ToArray(),
                 }).ToArray(),
                 Creatures = old.Creatures,
             }, options);
@@ -771,7 +776,7 @@ public sealed class SchemaV13ToV14 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
         {
             var old = MessagePackSerializer.Deserialize<V13.EntitiesSection>(entities, options);
-            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new V18.EntitiesSection
             {
                 Records = old.Records,
                 Created = old.Created,
@@ -827,9 +832,6 @@ public sealed class SchemaV14ToV15 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V14.Player>(player, options);
-            // Writes the FROZEN schema-15 shape, not the current DTO: schema 16 adds the space, so this step must
-            // keep producing exactly what schema 15 produced. Sections/V15.Player mirrors the current DTO field
-            // for field as it stood before schema 16.
             document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V15.Player
             {
                 InstanceId = old.InstanceId,
@@ -861,19 +863,14 @@ public sealed class SchemaV14ToV15 : SchemaMigration
 }
 
 /// <summary>
-/// Schema 16: the space a body stands in, and how it is traversing it (M8 D10, the Barrowworks).
+/// Schema 15 to 16 (WP5, E-7): the player gains the deeds they have done - how many times they killed, crafted, harvested or delivered
+/// each thing - which dialogue's deed condition reads. A save that predates them counted none: it starts the tally at nothing.
 /// </summary>
-/// <remarks>
-/// Every save written before this one was in the exterior, because there was nowhere else to be: the interior
-/// space system is the first thing that let a body stand somewhere that is not the world. So the step gives
-/// older saves the exterior and no traversal, which is exactly the state those saves were in - and it reads the
-/// frozen schema-15 shape, so it stays a fixed <c>V15 -> V16</c> function.
-/// </remarks>
 public sealed class SchemaV15ToV16 : SchemaMigration
 {
     public override int From => 15;
 
-    public override string Summary => "schema 15 -> 16: the player gains the space they stand in (the exterior) and how they are traversing it (none)";
+    public override string Summary => "schema 15 -> 16: the player gains the deeds they have done (none counted)";
 
     public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
     {
@@ -881,7 +878,7 @@ public sealed class SchemaV15ToV16 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V15.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V16.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -904,10 +901,155 @@ public sealed class SchemaV15ToV16 : SchemaMigration
                 Waystones = old.Waystones,
                 ReturnPoint = old.ReturnPoint,
                 RoadsWalked = old.RoadsWalked,
-                // SpaceId.Exterior's name is empty by design, so an older save stores the empty string and every
-                // reader treats it as the exterior - the same convention the whole content plane uses.
-                SpaceId = SpaceId.Exterior.Name ?? "",
-                SpaceTraversal = null,
+                Deeds = Array.Empty<DeedDto>(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 16 to 17 (WP2, the character creator): the player gains an identity besides their name - pronouns, people, body preset and Call.
+/// A save that predates the creator keeps its name (the game's own were all "Wanderer") and is the character the game always made: "they",
+/// a Veth of the default body, and no Call.
+/// </summary>
+public sealed class SchemaV16ToV17 : SchemaMigration
+{
+    public override int From => 16;
+
+    public override string Summary => "schema 16 -> 17: the player gains an identity (they, people.veth, body.default) and no Call; the name is kept";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V16.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V18.Player
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions,
+                Posture = old.Posture,
+                Waystones = old.Waystones,
+                ReturnPoint = old.ReturnPoint,
+                RoadsWalked = old.RoadsWalked,
+                Deeds = old.Deeds,
+                // Literal, not CharacterIdentity.BeforeTheCreator: a step is a fixed function of the schema it reads.
+                Identity = new IdentityDto { Pronouns = "they", People = "people.veth", BodyPreset = "body.default", Call = null },
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 17 to 18 (the persistent clock, WP11): the manifest gains <c>saved_utc</c>, the real moment the world was captured, which a login
+/// measures the absence from - before it, <c>build_timestamp</c> was that moment to the second, so it is carried over - and <c>away_log</c>,
+/// the tail of the last login's "while you were away" log: none, since no login before it caught anything up. No section changes.
+/// </summary>
+public sealed class SchemaV17ToV18 : SchemaMigration
+{
+    public override int From => 17;
+
+    public override string Summary => "schema 17 -> 18: the manifest gains saved_utc (from build_timestamp) and an away log (empty)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        string? built = document.Manifest["build_timestamp"]?.GetValue<string>();
+        if (built is null || !DateTimeOffset.TryParse(built, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                out var captured))
+        {
+            report.Blockers.Add($"schema-17 manifest has no readable build_timestamp ('{built}') to carry over as saved_utc");
+            return;
+        }
+        document.Manifest["saved_utc"] = SaveManifest.FormatSavedUtc(captured);
+        document.Manifest["away_log"] = new JsonArray();
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 18 to 19 (WP3a, itemization): a stack - carried, in a container, or lying in the world - may carry a notable instance's record
+/// (name, provenance, familiarity). A save that predates records has none: a notable item from before it takes its record the next time
+/// it moves, as one found then. Masterwork quality (+2) is new too; no older stack holds it.
+/// </summary>
+public sealed class SchemaV18ToV19 : SchemaMigration
+{
+    public override int From => 18;
+
+    public override string Summary => "schema 18 -> 19: stacks gain a notable instance's record (none before)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V18.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory.Select(i => new InventoryDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count, Quality = i.Quality }).ToArray(),
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions,
+                Posture = old.Posture,
+                Waystones = old.Waystones,
+                ReturnPoint = old.ReturnPoint,
+                RoadsWalked = old.RoadsWalked,
+                Deeds = old.Deeds,
+                Identity = old.Identity,
+            }, options);
+        }
+        if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
+        {
+            var old = MessagePackSerializer.Deserialize<V18.EntitiesSection>(entities, options);
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            {
+                Records = old.Records,
+                Created = old.Created.Select(c => new CreatedDto
+                {
+                    InstanceId = c.InstanceId, DefId = c.DefId, HostCell = c.HostCell, XCm = c.XCm, ZCm = c.ZCm, Count = c.Count, Quality = c.Quality,
+                }).ToArray(),
+                Baselines = old.Baselines,
+                Containers = old.Containers?.Select(c => new ContainerDto
+                {
+                    Key = c.Key,
+                    InstanceId = c.InstanceId,
+                    HostCell = c.HostCell,
+                    Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count, Quality = i.Quality }).ToArray(),
+                }).ToArray(),
+                Creatures = old.Creatures,
+                Noises = old.Noises,
             }, options);
         }
         document.Manifest["schema_version"] = To;

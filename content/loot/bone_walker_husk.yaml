@@ -3,8 +3,12 @@ kind: loot
 schema: 1
 display_key: loot.bone_walker_husk.name
 tags: [loot]
-notes: What a husk still carries from whoever it was - arrows, now and then a salve.
+notes: What a husk still carries from whoever it was - arrows, now and then a salve; rarely worn gear or a book of patterns (WP3a). Each stack's quality rolls by the husk's level.
 rolls: 0
 entries:
   - { item_ref: item.ammo.arrow_rough, chance: 0.50, count_range: [3, 6] }
   - { item_ref: item.consumable.salve_minor, chance: 0.20, count_range: [1, 1] }
+  - { item_ref: item.armor.smith_gloves, chance: 0.10, count_range: [1, 1] }
+  - { item_ref: item.armor.hide_boots, chance: 0.08, count_range: [1, 1] }
+  - { item_ref: item.tome.bench_patterns, chance: 0.06, count_range: [1, 1] }
+  - { item_ref: item.tome.herbal_remedies, chance: 0.06, count_range: [1, 1] }

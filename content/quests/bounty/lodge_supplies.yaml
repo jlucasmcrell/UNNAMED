@@ -6,6 +6,7 @@ tags: [quest, bounty]
 notes: 'Canon firstplay lodge_supplies, ported: meat from hares, hens, deer, grazers or wolves.'
 title: For the Pot
 summary: Two portions of meat for the lodge pot. Tam counts them in.
+track: bounty
 giver_ref: npc.cairnwold.tam_crowden
 entry_objective: o_deliver
 objectives:

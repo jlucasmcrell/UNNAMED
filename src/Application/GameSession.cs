@@ -5,6 +5,8 @@ using System.Collections.Immutable;
 using System.Security.Cryptography;
 using UNNAMED.Content;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Character;
+using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
 using UNNAMED.World;
@@ -31,31 +33,20 @@ public sealed record GameOptions(string ContentRoot, string ProfileRoot)
     public Action<SaveStep>? SaveStepHook { get; init; }
 
     /// <summary>
-    /// Whether this run includes the Barrowworks (M8 D10). Off in every run that does not ask for it, which is
-    /// the whole of the default-off guarantee: with this false no portal is registered, so the interior can
-    /// never be entered, nothing in the playtest changes, and every existing save and test is untouched.
+    /// Whether this run includes the Barrowworks (M8 D10). Off unless asked for: with it false no portal is
+    /// registered, so the interior cannot be entered and nothing in a normal launch changes. Presentation parses
+    /// <c>--visual barrowworks=1</c> and sets this, because what it gates is content the simulation holds.
     /// </summary>
-    /// <remarks>
-    /// Presentation parses <c>--visual barrowworks=1</c> and sets this - the projects reference Presentation
-    /// to Application, so a flag is passed down rather than an option read upward. The gate lives here because
-    /// what it gates is content the simulation holds, which is not a presentation concern (D-11).
-    /// </remarks>
     public bool Barrowworks { get; init; }
 
-    /// <summary>
-    /// Where a new game places the player, overriding the region's own spawn. Null - the ordinary case - uses
-    /// the spawn, so a normal launch and every existing test are untouched.
-    /// </summary>
-    /// <remarks>
-    /// A harness that photographs a place needs the player standing at that place. Left to the spawn, it has to
-    /// WALK him there, and in the Barrowworks that walk measured around a quarter of an hour per room (plan
-    /// P2h), because `SurveyShots` steps one tick per frame and the frames are slow. The spawn is a content
-    /// decision; where a capture wants to stand is not.
-    /// </remarks>
+    /// <summary>Where a capture stands a new character; null uses the region's spawn, as every ordinary run does.</summary>
     public long? StartXMm { get; init; }
 
     /// <inheritdoc cref="StartXMm"/>
     public long? StartZMm { get; init; }
+
+    /// <summary>Where the session reads the real time: the wall clock unless a test gives another (WP11).</summary>
+    public Func<DateTimeOffset>? Clock { get; init; }
 }
 
 /// <summary>Content failed validation: the game refuses to start, naming every file and reason (ARCHITECTURE.md §8.1 step 1).</summary>
@@ -85,9 +76,21 @@ public sealed record StartChoice(SaveSummary? Continue, ImmutableArray<SaveSumma
     /// <summary>Newer saves that Continue passes over because they cannot be loaded as they are. They are shown, never skipped silently.</summary>
     public ImmutableArray<SaveSummary> PassedOver => Saves.TakeWhile(s => s.Problem is not null).ToImmutableArray();
 
-    /// <summary>A new game writes to the same slots as the saves already there, so it is confirmed first when there are any.</summary>
-    public bool NewGameAsksFirst => !Saves.IsEmpty;
+    /// <summary>
+    /// Never: a new character saves in a folder of its own (OD-14), so starting one cannot replace a save already there. Kept so a start
+    /// screen written before folders asks nothing.
+    /// </summary>
+    public bool NewGameAsksFirst => false;
 }
+
+/// <summary>A character's save folder as the start screen lists it: whose it is, and its saves, newest first.</summary>
+public sealed record CharacterSaves(string? Character, string? Name, ImmutableArray<SaveSummary> Saves);
+
+/// <summary>
+/// A login (WP11): the live save Continue loaded, when it was saved and when it was loaded by the session's clock, the absence that asked
+/// for (<see cref="CatchUp.RequestedTicks"/>) and what the world honoured (DN1), and what happened meanwhile that the character could know.
+/// </summary>
+public sealed record Login(string Slot, LoadResult Result, DateTimeOffset SavedUtc, DateTimeOffset NowUtc, CatchUp CatchUp, AdvanceLog Away);
 
 /// <summary>
 /// How a save written in the background went (P-01): its slot, whether it was an autosave, the playtime its world was captured at, and
@@ -120,20 +123,35 @@ public sealed class GameSession : IDomainEvents, IDisposable
     /// <summary>A frame longer than this is clamped, so a stall or a long load cannot spiral (WORLD_ARCHITECTURE.md §6.1).</summary>
     public const double MaxFrameSeconds = 0.25;
 
+    /// <summary>
+    /// The least playtime between an event's autosave and the autosave before it: a run of quests completed together, or a stone travelled
+    /// straight after a quest, is one save, not a burst.
+    /// </summary>
+    public const double EventAutosaveSpacingSeconds = 10;
+
     private readonly EventBus _bus;
-    private readonly SaveStore _store;
+    private readonly SaveStore _profileStore;
+    private readonly Dictionary<string, SaveStore> _characterStores = new(StringComparer.Ordinal);
+    private SaveStore _store;
+    private string? _character;
+    private CharacterCard? _card;
     private readonly ProfileLock? _lock;
     private readonly IReadOnlyDictionary<string, string> _names;
     private readonly ImmutableArray<BaselineTransition> _transitions;
     private Simulation? _simulation;
     private double _accumulator;
     private double _lastAutosave;
+    private long _worldTimeAdvanced;
+    private ImmutableArray<AdvanceLine> _away = ImmutableArray<AdvanceLine>.Empty;
 
     private GameSession(GameOptions options, SimulationSetup setup, ContentIdentity content, ICellBaselineGenerator generator,
         IReadOnlyDictionary<string, string> names, ImmutableArray<BaselineTransition> transitions)
     {
         Options = options;
         _bus = new EventBus(OnSubscriberFailed);
+        // Event autosaves (WP4; PERSISTENCE.md §7.4): a quest completed and an arrival by the stones each save the world soon after.
+        _bus.Subscribe<QuestCompleted>(_ => RequestAutosave());
+        _bus.Subscribe<PlayerTravelled>(_ => RequestAutosave());
         _transitions = transitions;
         _names = names;
         Setup = setup;
@@ -143,8 +161,13 @@ public sealed class GameSession : IDomainEvents, IDisposable
         _lock = options.LockProfile ? ProfileLock.Acquire(options.ProfileRoot) : null;
         try
         {
-            _store = new SaveStore(options.ProfileRoot, options.SaveStepHook);
-            _store.RecoverInterruptedCommits();
+            _profileStore = new SaveStore(options.ProfileRoot, options.SaveStepHook);
+            _profileStore.RecoverInterruptedCommits();
+            foreach (var character in CharacterFolders.List(options.ProfileRoot))
+                StoreFor(character.Value).RecoverInterruptedCommits();
+            // Until a game starts, the saves in play are those Continue would load: the newest loadable save's character.
+            _character = StartChoice().Continue?.Character;
+            _store = StoreOf(_character);
         }
         catch
         {
@@ -192,6 +215,9 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Social = new SocialSetup(SocialContent.BuildNpcs(loader), SocialContent.BuildDialogues(loader)) { Companions = SocialContent.BuildCompanionTuning(loader) },
             Quests = new QuestSetup(QuestContent.BuildQuests(loader)),
             Travel = WorldContent.BuildTravel(loader),
+            Character = CharacterContent.Build(loader),
+            Clock = WorldContent.BuildClock(loader),
+            Offline = WorldContent.BuildOffline(loader),
         };
         var content = new ContentIdentity(options.ContentVersion, loader.ComputeContentHash(), loader.Definitions.Keys,
             loader.Aliases, loader.Removed, loader.Discarded);
@@ -231,6 +257,18 @@ public sealed class GameSession : IDomainEvents, IDisposable
     /// <summary>Seconds of play, carried through saves (<c>playtime_seconds</c>).</summary>
     public double PlaytimeSeconds { get; private set; }
 
+    /// <summary>Every world tick an absence has honoured in this world's life (<c>world_time_advanced_ticks</c>; canon PERSISTENCE.md).</summary>
+    public long WorldTimeAdvancedTicks => _worldTimeAdvanced;
+
+    /// <summary>The last login's away log, as the running world's saves carry it (its tail); empty before any catch-up.</summary>
+    public ImmutableArray<AdvanceLine> AwayLog => _away;
+
+    /// <summary>The last <see cref="Continue"/> in this session, or null.</summary>
+    public Login? LastLogin { get; private set; }
+
+    /// <summary>The real time now: the one place the wall clock is read (WP11).</summary>
+    private DateTimeOffset Now() => Options.Clock?.Invoke() ?? DateTimeOffset.UtcNow;
+
     public double TickSeconds => Setup.TickMilliseconds / 1000.0;
 
     public ImmutableArray<BaselineTransition> Transitions => _transitions;
@@ -246,33 +284,90 @@ public sealed class GameSession : IDomainEvents, IDisposable
         }
     }
 
-    /// <summary>A new character in a new world. A seed of 0 or none picks one at random (PERSISTENCE.md §4.2).</summary>
-    public Simulation NewGame(string characterName, ulong seed = 0)
+    /// <summary>The peoples a character can be made from and the Calls they can choose: what the creator offers (WP2).</summary>
+    public CharacterSetup Characters => Setup.Character;
+
+    /// <summary>
+    /// The character folder whose saves are in play (OD-14): the running character's, or before a game starts the one Continue would load.
+    /// Null for the saves written at the profile root before folders existed.
+    /// </summary>
+    public string? Character => _character;
+
+    /// <summary>The folder the character in play saves to: its own under <c>characters/</c>, or the profile root for a save from before folders.</summary>
+    public string SaveFolder => _store.Root;
+
+    /// <summary>
+    /// A new character, made from the creator's spec, in a new world. A seed of 0 or none picks one at random (PERSISTENCE.md §4.2). The
+    /// character's saves go to a folder of their own (OD-14). Throws an <see cref="ArgumentException"/> when the spec is invalid or names
+    /// a people or Call this content does not offer.
+    /// </summary>
+    public Simulation NewGame(CharacterSpec spec, ulong seed = 0)
     {
         while (seed == 0)
             seed = BitConverter.ToUInt64(RandomNumberGenerator.GetBytes(8));
         var id = EntityId.NewId(EntityKind.Character);
-        // A capture stands where it asked to; null keeps the region's spawn, which is what every ordinary run
-        // and every existing test gets.
-        var player = Simulation.NewCharacter(Setup, id, characterName, PlayerRecord.DerivedAppearanceSeed(id),
+        var player = Simulation.NewCharacter(Setup, id, spec, PlayerRecord.DerivedAppearanceSeed(id),
             Options.StartXMm, Options.StartZMm);
         var world = new WorldDelta(Generator, seed, new Registry());
-        Begin(Simulation.Start(Setup, player, world, 0, _bus), playtime: 0);
+        var simulation = Simulation.Start(Setup, player, world, 0, _bus);
+        _character = id.Value;   // a save of the last character still being written goes to that character's folder: Queue kept it
+        _store = StoreFor(id.Value);
+        _card = new CharacterCard(id.Value, player.Name, spec.PeopleId, spec.CallId);
+        Begin(simulation, playtime: 0, worldTimeAdvanced: 0, ImmutableArray<AdvanceLine>.Empty);
+        // The story begins before the first tick: the journal's first entries are there when the character first looks (WP4).
+        if (_simulation!.HasOpeningQuests)
+        {
+            _simulation.Enqueue(new BeginStoryCommand(id));
+            _simulation.DrainCommands();
+        }
         return _simulation!;
     }
 
-    /// <summary>Load a slot through the normative load sequence (PERSISTENCE.md §7.4). Throws a <see cref="SaveException"/> when it cannot.</summary>
+    /// <summary>
+    /// Log in (WP11; DN7): load the character's live state - the newest save that loads, Continue on the start screen - and let the world
+    /// go on for as long as they were away. The absence is measured from the save's <c>saved_utc</c> by the session's clock, capped at
+    /// one Reckoning (config.time), and applied through <see cref="Simulation.Advance"/>, every system bringing itself to the new tick;
+    /// then the login grace begins. A clock that reads earlier than the save catches nothing up. Throws a <see cref="SaveException"/> when
+    /// there is nothing to continue or it cannot be loaded.
+    /// </summary>
+    public Login Continue()
+    {
+        var live = StartChoice().Continue ?? throw new SaveException("There is no save to continue");
+        var result = Load(live);
+        var now = Now();
+        var catchUp = OfflineCatchUp.Compute(result.Manifest.SavedAt, now, 1000 / Setup.TickMilliseconds, Setup.Offline.CapTicks);
+        var away = _simulation!.Advance(catchUp.HonouredTicks);
+        _simulation.BeginLoginGrace();
+        _worldTimeAdvanced += catchUp.HonouredTicks;
+        _away = away.Tail(AwayLogEntry.Kept);
+        return LastLogin = new Login(live.Slot, result, result.Manifest.SavedAt, now, catchUp, away);
+    }
+
+    /// <summary>Restore a slot of the character in play through the normative load sequence (PERSISTENCE.md §7.4). Throws a <see cref="SaveException"/> when it cannot.</summary>
     public LoadResult Load(string slot) => Load(slot, SaveCopy.Current);
 
     /// <summary>
-    /// Load one copy of a slot: the save, a backup, or the save it displaced (B-01). A copy other than the save itself is loaded only
-    /// because the player chose it (§7.2). Throws a <see cref="SaveException"/> when it cannot.
+    /// Restore one copy of a slot of the character in play: the save, a backup, or the save it displaced (B-01) - the moment it holds,
+    /// exactly, with no catch-up (DN7: a restore is for recovery; only <see cref="Continue"/> lets the world go on). A copy other than the
+    /// save itself is loaded only because the player chose it (§7.2). Throws a <see cref="SaveException"/> when it cannot.
     /// </summary>
-    public LoadResult Load(string slot, SaveCopy copy)
+    public LoadResult Load(string slot, SaveCopy copy) => Load(_character, slot, copy);
+
+    /// <summary>Load a save as the start screen or the saves list offered it, from whichever character's folder holds it.</summary>
+    public LoadResult Load(SaveSummary save) => Load(save.Character, save.Slot, save.Copy);
+
+    private LoadResult Load(string? character, string slot, SaveCopy copy)
     {
         WaitForSaves(Timeout.InfiniteTimeSpan);   // a save being written finishes first: the slot loaded is the one it committed
-        var result = _store.Load(slot, copy, new LoadContext(Generator, Content, new Registry()) { Transitions = _transitions });
-        Begin(Simulation.Start(Setup, result.Player, result.World, result.Manifest.WorldTick, _bus), result.Manifest.PlaytimeSeconds);
+        var store = StoreOf(character);
+        var result = store.Load(slot, copy, new LoadContext(Generator, Content, new Registry()) { Transitions = _transitions });
+        // Only once it loaded: a refused load leaves the running world, and the folder it saves to, as they were.
+        _character = character;
+        _store = store;
+        _card = character is null ? null
+            : CharacterFolders.ReadCard(store.Root) ?? new CharacterCard(character, result.Player.Name, result.Player.Identity.PeopleId, result.Player.Identity.CallId);
+        Begin(Simulation.Start(Setup, result.Player, result.World, result.Manifest.WorldTick, _bus), result.Manifest.PlaytimeSeconds,
+            result.Manifest.WorldTimeAdvancedTicks, result.Manifest.AwayLog.Select(e => e.ToLine()).ToImmutableArray());
         return result;
     }
 
@@ -280,17 +375,61 @@ public sealed class GameSession : IDomainEvents, IDisposable
     public MigrationReport PlanLoadAt(string saveDirectory) =>
         SaveStore.PlanMigrationAt(saveDirectory, new LoadContext(Generator, Content, new Registry()) { Transitions = _transitions });
 
-    public ImmutableArray<SaveSummary> SaveSlots() => _store.Summaries();
+    /// <summary>The saves of the character in play, newest first.</summary>
+    public ImmutableArray<SaveSummary> SaveSlots() => Summaries(_character);
 
-    /// <summary>What the start screen offers: the saves in the profile, newest first, and which one Continue loads (B-01).</summary>
+    /// <summary>
+    /// What the start screen offers: every character's saves, newest first, and which one Continue loads (B-01). Each save names the
+    /// folder it is in, so loading it reaches the right character.
+    /// </summary>
     public StartChoice StartChoice()
     {
-        var saves = _store.Summaries();
+        var saves = Folders().SelectMany(folder => Summaries(folder))
+            .OrderByDescending(s => s.WrittenAt).ThenByDescending(s => s.PlaytimeSeconds).ThenBy(s => s.Slot, StringComparer.Ordinal)
+            .ThenBy(s => s.Character, StringComparer.Ordinal)
+            .ToImmutableArray();
         return new StartChoice(saves.FirstOrDefault(s => s.Problem is null), saves);
     }
 
-    /// <summary>A slot's backups and the save it displaced unproven, for a player choosing one after the save itself failed.</summary>
-    public ImmutableArray<SaveSummary> OtherCopies(string slot) => _store.OtherCopies(slot);
+    /// <summary>Every character with saves, the one with the newest save first; the saves from before folders, if any, as one more.</summary>
+    public ImmutableArray<CharacterSaves> CharacterSaves() =>
+        StartChoice().Saves.GroupBy(s => s.Character ?? "")   // in the start screen's order: the first group holds the newest save
+            .Select(g => new CharacterSaves(g.First().Character,
+                g.First().Character is { } folder ? CharacterFolders.ReadCard(StoreOf(folder).Root)?.Name : null, g.ToImmutableArray()))
+            .ToImmutableArray();
+
+    /// <summary>A slot's backups and the save it displaced unproven, of the character in play, for a player choosing one after the save itself failed.</summary>
+    public ImmutableArray<SaveSummary> OtherCopies(string slot) => Tagged(_store.OtherCopies(slot), _character);
+
+    /// <summary>The other copies of a save as the saves list offered it, from whichever character's folder holds it.</summary>
+    public ImmutableArray<SaveSummary> OtherCopies(SaveSummary save) => Tagged(StoreOf(save.Character).OtherCopies(save.Slot), save.Character);
+
+    /// <summary>The profile root's saves (null), then each character's folder.</summary>
+    private IEnumerable<string?> Folders() =>
+        new string?[] { null }.Concat(CharacterFolders.List(Options.ProfileRoot).Select(id => (string?)id.Value));
+
+    private ImmutableArray<SaveSummary> Summaries(string? character) => Tagged(StoreOf(character).Summaries(), character);
+
+    private static ImmutableArray<SaveSummary> Tagged(ImmutableArray<SaveSummary> saves, string? character) =>
+        saves.Select(s => s with { Character = character }).ToImmutableArray();
+
+    private SaveStore StoreOf(string? character) => character is null ? _profileStore : StoreFor(character);
+
+    /// <summary>One store per folder for the session (a store serializes its own writes), made on first use.</summary>
+    private SaveStore StoreFor(string character)
+    {
+        lock (_characterStores)
+        {
+            if (!_characterStores.TryGetValue(character, out var store))
+            {
+                var id = EntityId.TryParse(character, out var parsed) && parsed.Kind == EntityKind.Character
+                    ? parsed
+                    : throw new ArgumentException($"'{character}' is not a character's save folder", nameof(character));
+                _characterStores[character] = store = new SaveStore(CharacterFolders.PathOf(Options.ProfileRoot, id), Options.SaveStepHook);
+            }
+            return store;
+        }
+    }
 
     /// <summary>Save the running world to a slot (the §7.1 write sequence). The world tick is saved, never reset or advanced.</summary>
     public void Save(string slot)
@@ -298,6 +437,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
         var document = Capture();
         WaitForSaves(Timeout.InfiniteTimeSpan);   // after any save taken before it, never in front of one
         _store.Save(slot, document);
+        RecordCard(_store, _card);
     }
 
     /// <summary>
@@ -332,15 +472,21 @@ public sealed class GameSession : IDomainEvents, IDisposable
     private SaveDocument Capture()
     {
         var simulation = _simulation ?? throw new InvalidOperationException("There is no running world to save");
-        return SaveDocuments.Capture(simulation.World, simulation.CaptureRecord(), Content, simulation.WorldTick, PlaytimeSeconds)
-            with { CapturedAt = DateTimeOffset.UtcNow };
+        var now = Now();
+        return SaveDocuments.Capture(simulation.World, simulation.CaptureRecord(), Content, simulation.WorldTick, PlaytimeSeconds, _worldTimeAdvanced)
+            with { CapturedAt = now, SavedUtc = now, AwayLog = _away };
     }
 
     private void Queue(string slot, bool auto)
     {
         var document = Capture();
+        var (store, card) = (_store, _card);   // the folder of the character it was taken from, whatever is in play when it is written
         // One writer, in capture order: each save starts once the one before it has finished, however that one went.
-        var written = _writer.ContinueWith(_ => _store.Save(slot, document), CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
+        var written = _writer.ContinueWith(_ =>
+        {
+            store.Save(slot, document);
+            RecordCard(store, card);
+        }, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
         _writer = written;
         _pending.Add(new PendingSave(slot, auto, document.PlaytimeSeconds, written));
     }
@@ -377,6 +523,24 @@ public sealed class GameSession : IDomainEvents, IDisposable
 
     public IReadOnlyList<string> Slots() => _store.ListSlots();
 
+    /// <summary>
+    /// After a character's save is committed, its folder's card, if the folder has none yet, so the start screen can name whose saves they
+    /// are. Only a label: a card that cannot be written is left for the next save, and never fails the save.
+    /// </summary>
+    private static void RecordCard(SaveStore store, CharacterCard? card)
+    {
+        if (card is null || File.Exists(Path.Combine(store.Root, CharacterFolders.CardFile)))
+            return;
+        try
+        {
+            CharacterFolders.WriteCard(store.Root, card);
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            // The saves are there; the start screen lists them unnamed until a later save writes it.
+        }
+    }
+
     public ImmutableArray<int> Backups(string slot) => _store.AvailableBackups(slot);
 
     /// <summary>Queue a command for the next tick boundary.</summary>
@@ -408,15 +572,60 @@ public sealed class GameSession : IDomainEvents, IDisposable
         // An autosave is taken at this boundary and written in the background (P-01) - but not while the last is still being written: the
         // next is counted from that one's capture. A failure never stops the frame (M-02); it comes back as an outcome.
         string? taken = null;
-        if (!_pending.Any(p => p.Auto) && AutosaveCadence.IsDue(PlaytimeSeconds, _lastAutosave))
+        bool writing = _pending.Any(p => p.Auto);
+        if (!writing && (AutosaveCadence.IsDue(PlaytimeSeconds, _lastAutosave)
+                         || _autosaveRequested && PlaytimeSeconds - _lastAutosave >= EventAutosaveSpacingSeconds))
         {
             Queue(taken = _store.NextAutosaveSlot(), auto: true);
             _lastAutosave = PlaytimeSeconds;
+            _autosaveRequested = false;
         }
         return new FrameResult(ticks, _accumulator / TickSeconds, saves) { AutosaveTaken = taken };
     }
 
     private int _autosaveFailures;
+    private bool _autosaveRequested;
+
+    /// <summary>
+    /// Autosave soon, because something worth keeping just happened (WP4's event autosaves): a quest completed and an arrival by the stones
+    /// ask through the events; entering or leaving a space and finishing the creator ask here. It is taken at a frame's tick boundary and
+    /// written in the background like any autosave, no sooner than <see cref="EventAutosaveSpacingSeconds"/> after the last one.
+    /// </summary>
+    public void RequestAutosave() => _autosaveRequested = _simulation is not null;
+
+    /// <summary>Whether an event's autosave is waiting to be taken.</summary>
+    public bool AutosaveRequested => _autosaveRequested;
+
+    private readonly List<JournalEntry> _awayNotes = new();
+
+    /// <summary>
+    /// The journal, its Recent list holding the away log's lines among the quests' own (WP11 writes them through <see cref="NoteAway"/>);
+    /// null before a world runs.
+    /// </summary>
+    public JournalView? Journal
+    {
+        get
+        {
+            if (_simulation?.Journal is not { } journal)
+                return null;
+            // Oldest first into the merge, which puts what came later first.
+            return _awayNotes.Count == 0 ? journal : journal with { Recent = QuestJournal.Recent(journal.Recent.Reverse().Concat(_awayNotes)) };
+        }
+    }
+
+    /// <summary>Lines of the "while you were away" log, for the journal's Recent list, at the tick the character came back.</summary>
+    public void NoteAway(long tick, IEnumerable<string> lines) =>
+        _awayNotes.AddRange(lines.Where(l => !string.IsNullOrWhiteSpace(l)).Select(l => new JournalEntry(tick, JournalEntryKind.Away, l)));
+
+    /// <summary>The running character's journal notes; null before a world runs.</summary>
+    public JournalNotes? Notes { get; private set; }
+
+    /// <summary>Write a note in the journal, at the current world tick; the reason it was refused, or null.</summary>
+    public string? AddNote(string text) =>
+        Notes is { } notes ? notes.Add(text, _simulation!.WorldTick) : "there is no running world";
+
+    /// <summary>Cross out a journal note; the reason it was refused, or null.</summary>
+    public string? RemoveNote(int index) => Notes is { } notes ? notes.Remove(index) : "there is no running world";
 
     public void Subscribe<T>(Action<T> handler) => _bus.Subscribe(handler);
 
@@ -437,11 +646,17 @@ public sealed class GameSession : IDomainEvents, IDisposable
         SubscriberFailed?.Invoke(exception, @event);
     }
 
-    private void Begin(Simulation simulation, double playtime)
+    private void Begin(Simulation simulation, double playtime, long worldTimeAdvanced, ImmutableArray<AdvanceLine> away)
     {
         _simulation = simulation;
         _accumulator = 0;
         PlaytimeSeconds = playtime;
         _lastAutosave = playtime;
+        _autosaveRequested = false;
+        _awayNotes.Clear();
+        Notes = new JournalNotes(Options.ProfileRoot, simulation.PlayerId);
+        _worldTimeAdvanced = worldTimeAdvanced;
+        _away = away;
+        LastLogin = null;
     }
 }

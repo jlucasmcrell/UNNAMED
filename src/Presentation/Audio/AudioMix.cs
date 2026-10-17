@@ -1,27 +1,28 @@
-// UNNAMED Presentation - the mix the player sets: master, music and effects volumes, kept for the next launch
+// UNNAMED Presentation - the mix: one bus a kind of sound under Master, at the volumes Settings sets
 // Godot presentation only (D-11): how loud the game is; nothing here is game state or part of a save
 
-using System.Text.Json;
 using Godot;
+using UNNAMED.Presentation.Settings;
 
 namespace UNNAMED.Presentation.Audio;
 
 /// <summary>
-/// Two buses under Master - <see cref="Music"/> for the score and <see cref="Effects"/> for every other sound - and the three volumes
-/// (0..1) the Sound screen sets, kept in <c>user://audio_volume.json</c>. Harness runs read the defaults, never the player's file.
+/// Five buses under Master (PJ03 §4.2): <see cref="Music"/> for the score, <see cref="Ambience"/> for the beds and the world's distant
+/// one-shots, <see cref="Interface"/> for the menus' sounds, <see cref="Voice"/> for spoken lines, and <see cref="Effects"/> for every
+/// other sound. A sound goes on the bus its manifest group names (<see cref="BusFor"/>).
 /// </summary>
 public static class AudioMix
 {
-    public const string ConfigPath = "user://audio_volume.json";
     public const string Music = "Music";
     public const string Effects = "Effects";
+    public const string Ambience = "Ambience";
+    public const string Interface = "Interface";
+    public const string Voice = "Voice";
 
-    public sealed record Volumes(float Master = 1f, float Music = 0.7f, float Effects = 1f);
-
-    /// <summary>The Music and Effects buses, made once per engine run, both sending to Master.</summary>
+    /// <summary>The buses, made once per engine run, each sending to Master.</summary>
     public static void EnsureBuses()
     {
-        foreach (string name in new[] { Music, Effects })
+        foreach (string name in new[] { Music, Effects, Ambience, Interface, Voice })
         {
             if (AudioServer.GetBusIndex(name) >= 0)
                 continue;
@@ -32,37 +33,25 @@ public static class AudioMix
         }
     }
 
-    public static Volumes Saved()
+    /// <summary>The bus for a sound of a manifest group: "ambience.bed" plays on Ambience, "ui" on Interface, "voice.*" on Voice.</summary>
+    public static string BusFor(string? group) => group?.Split('.')[0] switch
     {
-        string path = ProjectSettings.GlobalizePath(ConfigPath);
-        try
-        {
-            return File.Exists(path) ? JsonSerializer.Deserialize<Volumes>(File.ReadAllText(path)) ?? new Volumes() : new Volumes();
-        }
-        catch (Exception e) when (e is IOException or JsonException)
-        {
-            return new Volumes();
-        }
-    }
+        "ambience" => Ambience,
+        "ui" => Interface,
+        "voice" or "vo" or "dialogue" or "bark" => Voice,
+        "music" => Music,
+        _ => Effects,
+    };
 
-    public static void Save(Volumes volumes)
-    {
-        try
-        {
-            File.WriteAllText(ProjectSettings.GlobalizePath(ConfigPath), JsonSerializer.Serialize(volumes));
-        }
-        catch (IOException e)
-        {
-            GD.PushWarning($"UNNAMED audio: the volumes could not be saved ({e.Message})");
-        }
-    }
-
-    public static void Apply(Volumes volumes)
+    public static void Apply(AudioPrefs volumes)
     {
         EnsureBuses();
         Set("Master", volumes.Master);
         Set(Music, volumes.Music);
         Set(Effects, volumes.Effects);
+        Set(Ambience, volumes.Ambience);
+        Set(Interface, volumes.Interface);
+        Set(Voice, volumes.Voice);
     }
 
     private static void Set(string bus, float level)

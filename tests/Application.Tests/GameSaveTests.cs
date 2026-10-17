@@ -32,10 +32,16 @@ public class GameSaveTests
         // Schema 15: the player knows no Waystone, has chosen none to return to, and has walked no road.
         (new Regex(@"^\$\.player\.(Waystones|RoadsWalked)$"), "[]"),
         (new Regex(@"^\$\.player\.ReturnPoint$"), "null"),
-        // Schema 16: the player stands in no space but the world's own, which has the empty name, and traverses
+        // Schema 20: the player stands in no space but the world's own, which has the empty name, and traverses
         // none. An M6 save was in the hollow, and the hollow is not an interior.
         (new Regex(@"^\$\.player\.SpaceId$"), "\"\""),
         (new Regex(@"^\$\.player\.SpaceTraversal$"), "null"),
+        // Schema 16: the player has counted no deed.
+        (new Regex(@"^\$\.player\.Deeds$"), "[]"),
+        // Schema 17: the character the game made before the creator - "they", a Veth of the default body, with no Call.
+        (new Regex(@"^\$\.player\.Identity$"), """{"Pronouns":"They","PeopleId":"people.veth","BodyPresetId":"body.default","CallId":null}"""),
+        // Schema 19: every stack may carry a notable record; none before.
+        (new Regex(@"^\$\.(player\.Inventory|world\.Created|world\.Containers\[\d+\]\.Items)\[\d+\]\.Notable$"), "null"),
     };
 
     [Fact]
@@ -71,6 +77,11 @@ public class GameSaveTests
         int creatureRecords = expected["world"]!["Creatures"]!.AsArray().Count;
         Assert.True(creatureRecords > 0, "the M6 save holds no creature records");
         Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 2, differences.Count);   // the posture and digest, four fields a record, the noises, the Waystones, the space
+        int stacks = differences.Count(d => d.Contains(".Notable: ", StringComparison.Ordinal));
+        Assert.True(stacks >= expected["player"]!["Inventory"]!.AsArray().Count, "every carried stack gains its (empty) notable record");
+        // The posture and digest, four fields a record, the noises, the Waystones, the deeds, the identity,
+        // each stack's notable record, and the space with the portal the body came in through.
+        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 2, differences.Count);
 
         // And it plays on: a fixed stretch of ticks, then a walk to the Ashen Waystone, with no observer failing, no body inside anything,
         // Tavar still at the character's side and every quest still answering the debugger.

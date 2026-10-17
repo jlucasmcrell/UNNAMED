@@ -226,7 +226,8 @@ internal static class PhaseOneSchemas
     private static readonly string[] Rarities = { "common", "uncommon", "rare", "epic", "legendary", "artifact" };
     private static readonly string[] DamageTypes = { "physical_slash", "physical_pierce", "physical_blunt", "fire", "frost", "shock", "arcane", "holy", "necrotic", "poison" };
     private static readonly string[] Hands = { "one", "two", "offhand" };
-    private static readonly string[] Slots = { "head", "chest", "hands", "legs", "feet", "cloak", "ring", "amulet" };
+    private static readonly string[] Slots = { "head", "chest", "hands", "legs", "feet", "cloak", "ring", "amulet", "off_hand" };
+    private static readonly string[] ItemClasses = { "ordinary", "masterwork", "notable", "artefact" };
     private static readonly string[] MaterialClasses = { "cloth", "leather", "mail", "plate", "chitin", "exotic" };
     private static readonly string[] Archetypes = { "predator", "prey", "scavenger", "humanoid", "undead", "construct", "spirit", "apex" };
     private static readonly string[] Attributes = { "might", "endurance", "agility", "precision", "will", "insight", "presence" };
@@ -252,7 +253,10 @@ internal static class PhaseOneSchemas
         long? stack = f.Integer("stack_max", required: true, min: 1);
         f.Number("weight", required: true, min: 0);
         f.Integer("value_base", required: true, min: 0);
-        f.OneOf("rarity", Rarities, required: true);
+        // Rarity is derived from item_class (WP3a, DCP:903); ITM001 refuses a written rarity that does not match it.
+        f.OneOf("item_class", ItemClasses, required: false);
+        f.OneOf("rarity", Rarities, required: false);
+        f.Number("light_radius", required: false, min: 0);
         f.Integer("durability_max", required: false, min: 1);
         f.Integer("enchant_sockets", required: false, min: 0);
 
@@ -276,6 +280,10 @@ internal static class PhaseOneSchemas
             f.Number("armor_value", required: true, min: 0);
             f.OneOf("material_class", MaterialClasses, required: false);
             f.Number("movement_penalty", required: false, min: 0, max: 1);
+            f.Number("stealth_penalty", required: false, min: 0, max: 1);
+        }
+        else
+        {
             f.Number("stealth_penalty", required: false, min: 0, max: 1);
         }
     }
