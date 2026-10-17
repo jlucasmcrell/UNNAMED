@@ -1,0 +1,16 @@
+id: routine.cairnwold.carter
+kind: routine
+schema: 1
+display_key: routine.cairnwold.carter.name
+tags: [routine]
+notes: "A Cairnwold role resident (DN3): the carter. Each resident takes a name from their people's Suggest list (WP2); when one leaves, someone new arrives 3-7 days later (DN4)."
+region_ref: region.starting_frontier
+people_ref: people.veth
+settlement: cairnwold
+role: carter
+work_hours: [7, 19]
+anchors:
+  home: { position_m: [939, 644.5], facing_deg: 90 }
+  work: { position_m: [904, 691], facing_deg: 270 }
+  eat: { position_m: [953.5, 688], facing_deg: 90 }
+  social: { position_m: [965.5, 666.25], facing_deg: 135 }

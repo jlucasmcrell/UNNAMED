@@ -70,6 +70,7 @@ public class ArchitectureTests
             nameof(WorldDelta.Creature), nameof(WorldDelta.CreaturesIn), nameof(WorldDelta.NodeRecord),
             "get_" + nameof(WorldDelta.Generator), "get_" + nameof(WorldDelta.WorldSeed), "get_" + nameof(WorldDelta.Noises),
             "get_" + nameof(WorldDelta.Economy), "get_" + nameof(WorldDelta.Merchants), nameof(WorldDelta.Merchant),   // the economy (WP14)
+            "get_" + nameof(WorldDelta.NpcLife),   // NPC life (WP12)
         };
         var exposed = typeof(WorldDelta)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
@@ -130,6 +131,10 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.Experiments),   // how much of a station's experiment set is found, for its panel (WP3a)
             nameof(UNNAMED.World.Runtime.Simulation.HireTerms),   // what a hire would mean - wage, cost, that they can die - for the hiring sheet (WP15a)
             nameof(UNNAMED.World.Runtime.Simulation.Offer),   // what a trader would pay for one of an item now, for the sell buttons (WP14)
+            nameof(UNNAMED.World.Runtime.Simulation.AtWork),   // whether an NPC is working at their work anchor now (WP12)
+            nameof(UNNAMED.World.Runtime.Simulation.TradeRefusal),   // why a merchant is not trading now, for the trade column (WP12)
+            nameof(UNNAMED.World.Runtime.Simulation.TeachRefusal),   // why a teacher is not teaching now, for WP9's trainers (WP12)
+            nameof(UNNAMED.World.Runtime.Simulation.NpcPairs),   // whom an NPC knows and as what, for barks (WP12)
         };
         var exposed = typeof(UNNAMED.World.Runtime.Simulation)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)

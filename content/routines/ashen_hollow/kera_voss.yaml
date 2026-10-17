@@ -1,0 +1,17 @@
+id: routine.ashen_hollow.kera_voss
+kind: routine
+schema: 1
+display_key: routine.ashen_hollow.kera_voss.name
+tags: [routine]
+notes: "Kera trades, so works the trading hours (06:00-20:00) at the anvil where the region places her; sleeps in the forge shed."
+region_ref: region.starting_frontier
+npc_ref: npc.ashen_hollow.kera_voss
+settlement: ashen_hollow
+role: craftsperson
+work_hours: [6, 20]
+anchors:
+  home: { position_m: [455, 744.3], facing_deg: 90 }
+  work: { position_m: [461.6, 739.6], facing_deg: 300 }
+  eat: { position_m: [445.2, 736.5], facing_deg: 90 }
+  social: { position_m: [454, 736], facing_deg: 270 }
+job: { market_ref: market.ashen_hollow, item_ref: item.material.iron_ingot, per_day: 1 }   # joins the market's stock each day the job is held (WP14's job hook)

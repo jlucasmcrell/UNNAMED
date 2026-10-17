@@ -91,7 +91,14 @@ public static class WorldContent
     public static TierRules BuildTiers(ContentLoader loader)
     {
         var map = Config(loader, "config.simulation_tiers");
-        var rules = new TierRules(Mm(map, "full_radius_m"), Mm(map, "regional_radius_m"), Mm(map, "abstract_radius_m"), Mm(map, "hysteresis_m"));
+        var rules = new TierRules(Mm(map, "full_radius_m"), Mm(map, "regional_radius_m"), Mm(map, "abstract_radius_m"), Mm(map, "hysteresis_m"))
+        {
+            // The NPC budgets (WP12) are performance budgets for admission, never population limits; a pack without them keeps 60 and 300.
+            FullBudget = map.ContainsKey("full_budget") ? Int(map, "full_budget") : 60,
+            RegionalBudget = map.ContainsKey("regional_budget") ? Int(map, "regional_budget") : 300,
+        };
+        if (rules.FullBudget < 1 || rules.RegionalBudget < 1)
+            throw new FormatException("config.simulation_tiers' budgets admit at least one NPC each");
         if (!(0 < rules.FullRadiusMm && rules.FullRadiusMm < rules.RegionalRadiusMm && rules.RegionalRadiusMm < rules.AbstractRadiusMm)
             || rules.HysteresisMm < 0 || rules.HysteresisMm * 2 >= rules.FullRadiusMm)
             throw new FormatException("config.simulation_tiers needs 0 < full < regional < abstract radii and a hysteresis under half the full radius");

@@ -190,7 +190,10 @@ public class PartyTests
         var log = arena.Simulation.Advance(day);   // and the one after: the contract lapses, and she goes home
         Assert.Equal(new PartyMemberLeft(Kera, "lapsed", Midnight(setup, 3)), Assert.Single(left));
         Assert.Empty(arena.Simulation.Companions);
-        Assert.Equal(Home(setup, Kera), (arena.Simulation.Npcs.Single(n => n.Id == Kera).Body.XMm, arena.Simulation.Npcs.Single(n => n.Id == Kera).Body.ZMm));
+        // Home is her routine's (WP12): at midnight she is asleep there, not at the anvil the region places her at.
+        var bed = setup.NpcLife.RoutineOf(Kera)!.Anchors["home"];
+        Assert.Equal("sleep", arena.Simulation.Lives.Single(l => l.Key == Kera).Activity);
+        Assert.Equal((bed.XMm, bed.ZMm), (arena.Simulation.Npcs.Single(n => n.Id == Kera).Body.XMm, arena.Simulation.Npcs.Single(n => n.Id == Kera).Body.ZMm));
         Assert.Contains(new AdvanceLine(Midnight(setup, 3), PartyAdvanceKinds.Left, $"{Kera}|lapsed"), log.Lines);
     }
 

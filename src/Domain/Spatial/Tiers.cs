@@ -20,6 +20,15 @@ public enum SimulationTier
 public sealed record TierRules(long FullRadiusMm, long RegionalRadiusMm, long AbstractRadiusMm, long HysteresisMm)
 {
     /// <summary>
+    /// How many NPCs tier A simulates in full at once (WORLD_ARCHITECTURE.md §5: A=60): a performance budget applied by admission - the
+    /// farthest beyond it are simulated as tier B - never a limit on how many NPCs exist, and never a despawn (owner, 2026-10-17).
+    /// </summary>
+    public int FullBudget { get; init; } = 60;
+
+    /// <summary>How many NPCs tier B moves at once (B=300); beyond it the farthest are held at tier C. A budget, never a cap.</summary>
+    public int RegionalBudget { get; init; } = 300;
+
+    /// <summary>
     /// The tier a cell should hold, given the tier it holds now. Transitions are stepwise (§5.1): one step per
     /// evaluation, A -> B -> C -> D and back, never A -> D. A step towards A needs the cell to be inside the
     /// inner radius by the hysteresis margin; a step away needs it outside by the same margin.

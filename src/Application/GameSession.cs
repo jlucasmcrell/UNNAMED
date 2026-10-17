@@ -209,6 +209,8 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Calendar = WorldContent.BuildCalendar(loader),
             Weather = WorldContent.BuildWeather(loader),
             Economy = EconomyContent.Build(loader),
+            Navigation = NavigationContent.Build(loader),
+            NpcLife = NpcLifeContent.Build(loader, options.RegionId),
         };
         var content = new ContentIdentity(options.ContentVersion, loader.ComputeContentHash(), loader.Definitions.Keys,
             loader.Aliases, loader.Removed, loader.Discarded);

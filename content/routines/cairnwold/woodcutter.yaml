@@ -1,0 +1,17 @@
+id: routine.cairnwold.woodcutter
+kind: routine
+schema: 1
+display_key: routine.cairnwold.woodcutter.name
+tags: [routine]
+notes: "A Cairnwold role resident (DN3): the woodcutter. Each resident takes a name from their people's Suggest list (WP2); when one leaves, someone new arrives 3-7 days later (DN4)."
+region_ref: region.starting_frontier
+people_ref: people.veth
+settlement: cairnwold
+role: woodcutter
+work_hours: [7, 19]
+anchors:
+  home: { position_m: [971.75, 669.85], facing_deg: 90 }
+  work: { position_m: [973, 712], facing_deg: 0 }
+  eat: { position_m: [954.2, 688.8], facing_deg: 135 }
+  social: { position_m: [971.5, 663], facing_deg: 270 }
+job: { market_ref: market.cairnwold, item_ref: item.material.ash_haft, per_day: 1 }   # joins the market's stock each day the job is held (WP14's job hook)

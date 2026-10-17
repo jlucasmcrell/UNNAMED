@@ -1,0 +1,17 @@
+id: routine.cairnwold.trapper
+kind: routine
+schema: 1
+display_key: routine.cairnwold.trapper.name
+tags: [routine]
+notes: "A Cairnwold role resident (DN3): the trapper. Each resident takes a name from their people's Suggest list (WP2); when one leaves, someone new arrives 3-7 days later (DN4)."
+region_ref: region.starting_frontier
+people_ref: people.veth
+settlement: cairnwold
+role: trapper
+work_hours: [7, 19]
+anchors:
+  home: { position_m: [972.75, 654.85], facing_deg: 90 }
+  work: { position_m: [930, 700], facing_deg: 270 }
+  eat: { position_m: [957.05, 689.05], facing_deg: 225 }
+  social: { position_m: [964.25, 662.75], facing_deg: 90 }
+job: { market_ref: market.cairnwold, item_ref: item.material.deer_hide, per_day: 1 }   # joins the market's stock each day the job is held (WP14's job hook)

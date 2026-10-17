@@ -12,6 +12,16 @@ internal sealed record MarketTrade(string MarketId, string ItemId, long Bought, 
 /// <summary>To <see cref="MarketSystem"/>: goods made in a town besides its floor - a resident's job output (WP12's hook).</summary>
 internal sealed record ProduceGoods(string MarketId, string ItemId, long Count) : InternalCommand;
 
+/// <summary>
+/// What the towns' residents make at their jobs on a calendar day (WP12's job hook): the markets join it to their stock before they settle
+/// the day. A pure function of the day and of state that does not depend on when the markets ask, so a long absence and the same absence
+/// in pieces settle alike (T-22).
+/// </summary>
+internal interface IJobOutput
+{
+    IEnumerable<(string MarketId, string ItemId, long Count)> On(long day);
+}
+
 /// <summary>A good in a town market as it stands, and its price against base in permille.</summary>
 public sealed record MarketGoodView(string ItemId, long Stock, long Target, long Min, long Max, int PriceFactorPermille)
 {
@@ -60,6 +70,9 @@ internal sealed class MarketSystem : IAbstractAdvance
         _context = context;
         _owner = owner;
     }
+
+    /// <summary>Where the residents' job output comes from (WP12); none until composition gives one.</summary>
+    public IJobOutput? Jobs { get; set; }
 
     private RuntimeState State => _context.State;
     private EconomySetup Economy => _context.Setup.Economy;
@@ -146,6 +159,11 @@ internal sealed class MarketSystem : IAbstractAdvance
         long from = state.Day;
         while (state.Day < day)
         {
+            foreach (var (marketId, itemId, count) in Jobs?.On(state.Day + 1) ?? Enumerable.Empty<(string, string, long)>())
+            {
+                if (Economy.Markets.TryGetValue(marketId, out var market) && state.Markets.TryGetValue(marketId, out var stock))
+                    state = state with { Markets = state.Markets.SetItem(marketId, EconomyEngine.Produced(market, stock, itemId, count)) };
+            }
             (state, var income) = EconomyEngine.Step(Economy, state, state.Day + 1, ValueBase);
             State.SetEconomy(_owner, state);
             _context.Dispatch(new SettleMerchants(state.Day, income));

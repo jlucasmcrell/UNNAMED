@@ -1,0 +1,16 @@
+id: routine.ashen_hollow.hunter
+kind: routine
+schema: 1
+display_key: routine.ashen_hollow.hunter.name
+tags: [routine]
+notes: "An Ashen Hollow role resident (DN3): the hunter. Each resident takes a name from their people's Suggest list (WP2); when one leaves, someone new arrives 3-7 days later (DN4)."
+region_ref: region.starting_frontier
+people_ref: people.veth
+settlement: ashen_hollow
+role: hunter
+work_hours: [7, 19]
+anchors:
+  home: { position_m: [439, 725.6], facing_deg: 0 }
+  work: { position_m: [500, 745], facing_deg: 90 }
+  eat: { position_m: [448.3, 735.2], facing_deg: 315 }
+  social: { position_m: [458.5, 735.5], facing_deg: 270 }

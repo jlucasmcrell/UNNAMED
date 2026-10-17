@@ -9,6 +9,7 @@ using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
+using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Domain.Travel;
 
@@ -57,6 +58,12 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>The town markets, the road trade link and the merchants' purses (WP14).</summary>
     public EconomySetup Economy { get; init; } = EconomySetup.Empty;
+
+    /// <summary>The navigation lattice and its limits (<c>config.navigation</c>; WP12).</summary>
+    public NavConfig Navigation { get; init; } = NavConfig.Default;
+
+    /// <summary>The routines, pairs and rules of NPC life in the region played (WP12).</summary>
+    public NpcLifeSetup NpcLife { get; init; } = NpcLifeSetup.Empty;
 }
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>
@@ -118,6 +125,7 @@ public sealed class Simulation
     private readonly GatheringSystem _gathering;
     private readonly CraftingSystem _crafting;
     private readonly NpcSystem _npcs;
+    private readonly WorldNavigation _navigation;
     private readonly RelationshipSystem _relationships;
     private readonly DialogueSystem _dialogue;
     private readonly TradeSystem _trade;
@@ -169,13 +177,15 @@ public sealed class Simulation
         _death = new DeathSystem(_context, player.Id, _travel.ReturnBody);
         _gathering = new GatheringSystem(_context, _state.Claim(nameof(GatheringSystem), StateSlice.Nodes), player.Id);
         _crafting = new CraftingSystem(_context, player.Id, player.Name);
-        _npcs = new NpcSystem(_context, _state.Claim(nameof(NpcSystem), StateSlice.Npcs));
+        _navigation = new WorldNavigation(_context);
+        _npcs = new NpcSystem(_context, _state.Claim(nameof(NpcSystem), StateSlice.Npcs, StateSlice.NpcLife), _navigation);
         _relationships = new RelationshipSystem(_context, _state.Claim(nameof(RelationshipSystem), StateSlice.Relationships));
         _dialogue = new DialogueSystem(_context, _state.Claim(nameof(DialogueSystem), StateSlice.Conversations), player.Id);
         _markets = new MarketSystem(_context, _state.Claim(nameof(MarketSystem), StateSlice.Markets));
         _merchants = new MerchantSystem(_context, _state.Claim(nameof(MerchantSystem), StateSlice.Merchants), _markets);
         _merchants.Listen(bus);
-        _trade = new TradeSystem(_context, player.Id, _inventory.View, _markets, _merchants);
+        _trade = new TradeSystem(_context, player.Id, _inventory.View, _markets, _merchants) { Closed = _npcs.TradeRefusal };
+        _markets.Jobs = _npcs;
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests), player.Id);
         _quests.Listen(bus);
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions);
@@ -183,10 +193,10 @@ public sealed class Simulation
         _deeds = new DeedSystem(_context, _state.Claim(nameof(DeedSystem), StateSlice.Deeds));
         _weather = new WeatherSystem(_context, _state.Claim(nameof(WeatherSystem), StateSlice.Weather), new CellKey(_cells[0].Region, 0, 0));
         _factions = new FactionSystem(_context, _state.Claim(nameof(FactionSystem), StateSlice.Factions));
-        _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
+        _tierSimulations = ImmutableArray.Create<ITierSimulation>(new NpcTierSimulation(SimulationTier.B, _npcs), new NpcTierSimulation(SimulationTier.C, _npcs));
         // The abstract advance (WP11): the clock first, so every other system brings itself to the tick it reads. A new world system
         // that goes on while the character is away adds itself here.
-        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _creatures, _effects, _gathering, _quests, _factions, _companions, _markets);
+        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _creatures, _effects, _gathering, _quests, _factions, _companions, _npcs, _markets);
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
         _npcs.Populate();
@@ -324,6 +334,30 @@ public sealed class Simulation
 
     /// <summary>The region's named NPCs (M4).</summary>
     public ImmutableArray<NpcView> Npcs => _npcs.Views();
+
+    /// <summary>Every NPC life (WP12): what each is doing and with whom, their needs as bands, their condition, and whether they are at work.</summary>
+    public ImmutableArray<NpcLifeView> Lives => _npcs.Lives();
+
+    /// <summary>The pairs an NPC is in (WP12): whom they know and as what.</summary>
+    public ImmutableArray<NpcPair> NpcPairs(string npcId) => _npcs.PairsOf(npcId);
+
+    /// <summary>Whether an NPC is working at their work anchor now (WP12); one with no routine always is.</summary>
+    public bool AtWork(string npcId) => _npcs.AtWork(npcId);
+
+    /// <summary>Why a merchant will not trade now (WP12: only at work, in trading hours); null when they will, or there is no such merchant.</summary>
+    public string? TradeRefusal(string npcId) => _state.Npcs.TryGetValue(npcId, out var npc) ? _npcs.TradeRefusal(npc) : null;
+
+    /// <summary>
+    /// Why an NPC will not teach now (WP12's hook for WP9's trainers): a teacher teaches only at their work anchor, in their work hours. Null
+    /// when they will; an NPC with no routine teaches whenever spoken to.
+    /// </summary>
+    public string? TeachRefusal(string npcId) => _npcs.TeachRefusal(npcId);
+
+    /// <summary>Navigation, read-only (WP12): the grid, every gate and its state, the walkers' routes and the work counts.</summary>
+    public NavigationView Navigation => new(_navigation.Grid, _navigation.Gates(),
+        (_state.World.NpcLife?.Npcs.Values ?? Enumerable.Empty<NpcLifeRecord>())
+            .Select(n => new NavMoverView(n.Key, n.Route, n.StuckTicks >= Setup.Navigation.Limits.BlockedViewTicks)).ToImmutableArray(),
+        _navigation.Counters.Snapshot());
 
     /// <summary>The region's Waystones: awake or dormant, known or not, and which is the return point (S-38).</summary>
     public ImmutableArray<WaystoneView> Waystones => _travel.Views();
@@ -603,7 +637,21 @@ public sealed class Simulation
         h.Add(World.Merchants.Count);
         foreach (var merchant in World.Merchants)
             h.Add(merchant.MerchantId).Add(merchant.Purse).Add(merchant.RestockedDay).Add(merchant.ShelfDay).Add(merchant.Traded);
+        // NPC life (WP12): every life, the slots awaiting arrivals, the pairs.
+        h.Add(World.NpcLife is not null);
+        World.NpcLife?.AddTo(h);
         return h.Finish();
+    }
+
+    /// <summary>
+    /// An internal command at the tick boundary, as another system would send it: for tests and the fixture probe only (internal), standing
+    /// in for systems not built yet - WP13's departures and injuries.
+    /// </summary>
+    internal string? Submit(InternalCommand command)
+    {
+        if (_stepping || _advancing)
+            throw new InvalidOperationException("Submit applies at a tick boundary");
+        return Dispatch(command);
     }
 
     /// <summary>The tick an internal command belongs to: the one being stepped, or the boundary commands apply at.</summary>
@@ -654,6 +702,8 @@ public sealed class Simulation
         CompanionStruck struck => _companions.Handle(struck, Now),
         PlaceNpc place => _npcs.Handle(place),
         RemoveNpc remove => _npcs.Handle(remove),
+        DepartNpc depart => _npcs.Handle(depart, Now),
+        InjureNpc injure => _npcs.Handle(injure),
         Hire hire => _companions.Handle(hire, Now),
         Dismiss dismiss => _companions.Handle(dismiss, Now),
         ArriveWithParty arrive => _companions.Handle(arrive),

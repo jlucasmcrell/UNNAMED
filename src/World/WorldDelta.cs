@@ -6,6 +6,7 @@ using UNNAMED.Domain;
 using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Items;
+using UNNAMED.Domain.Social;
 using Registry = UNNAMED.EntityRegistry.EntityRegistry;
 
 namespace UNNAMED.World;
@@ -230,6 +231,9 @@ public sealed record DeltaSnapshot(ImmutableArray<CellDeltaRecord> Cells, Immuta
 
     /// <summary>The merchants' purses and restocks (WP14), sorted by merchant.</summary>
     public ImmutableArray<MerchantState> Merchants { get; init; } = ImmutableArray<MerchantState>.Empty;
+
+    /// <summary>Every NPC life, the role slots awaiting an arrival and the pairs' last meetings (WP12); null before lives first ran.</summary>
+    public NpcLifeState? NpcLife { get; init; }
 }
 
 /// <summary>A record that failed post-load invariant validation and was dropped (PERSISTENCE.md §7.2).</summary>
@@ -257,6 +261,7 @@ public sealed class WorldDelta
     private ImmutableArray<Noise> _noises = ImmutableArray<Noise>.Empty;
     private EconomyState? _economy;
     private readonly SortedDictionary<string, MerchantState> _merchants = new(StringComparer.Ordinal);
+    private NpcLifeState? _npcLife;
 
     public WorldDelta(ICellBaselineGenerator generator, ulong worldSeed, Registry registry)
     {
@@ -481,6 +486,13 @@ public sealed class WorldDelta
 
     internal void SetMerchant(MerchantState merchant) => _merchants[merchant.MerchantId] = merchant;
 
+    // ── NPC life (WP12) ─────────────────────────────────────────────────────
+
+    /// <summary>Every NPC life, keyed with no limit; null until lives first run.</summary>
+    public NpcLifeState? NpcLife => _npcLife;
+
+    internal void SetNpcLife(NpcLifeState life) => _npcLife = life;
+
     /// <summary>Remove a created instance. It existed nowhere else, so its identity retires with it.</summary>
     internal void RemoveCreated(EntityId instanceId)
     {
@@ -574,7 +586,7 @@ public sealed class WorldDelta
         return new DeltaSnapshot(cells.ToImmutable(), entities.ToImmutable())
         {
             Created = created, Containers = containers, Creatures = creatures, Noises = _noises,
-            Economy = _economy, Merchants = _merchants.Values.ToImmutableArray(),
+            Economy = _economy, Merchants = _merchants.Values.ToImmutableArray(), NpcLife = _npcLife,
         };
     }
 
@@ -656,9 +668,39 @@ public sealed class WorldDelta
                 world._merchants[merchant.MerchantId] = merchant;
         }
 
+        if (snapshot.NpcLife is { } life)
+        {
+            // Each life is checked on its own and a bad one dropped with its reason; nothing is refused for how many there are.
+            var npcs = ImmutableSortedDictionary.CreateBuilder<string, NpcLifeRecord>(StringComparer.Ordinal);
+            foreach (var npc in life.Npcs.Values)
+            {
+                if (LifeProblem(npc) is { } reason)
+                    problems.Add(new RejectedRecord("entities", $"npc life {npc.Key}", reason));
+                else
+                    npcs[npc.Key] = npc;
+            }
+            var vacancies = life.Vacancies.Values.Where(v =>
+            {
+                bool bad = !DefinitionId.IsValid(v.SlotId) || v.ArrivalDay < v.LeftDay || v.NextGeneration < 1 || npcs.ContainsKey(v.SlotId);
+                if (bad)
+                    problems.Add(new RejectedRecord("entities", $"vacancy {v.SlotId}", "a vacancy with an invalid slot, an arrival before the leaving, or a holder"));
+                return !bad;
+            }).ToImmutableSortedDictionary(v => v.SlotId, v => v, StringComparer.Ordinal);
+            world._npcLife = life with { Npcs = npcs.ToImmutable(), Vacancies = vacancies };
+        }
+
         rejected = problems.ToImmutable();
         return world;
     }
+
+    /// <summary>Why a saved NPC life cannot be trusted; null when it can.</summary>
+    private static string? LifeProblem(NpcLifeRecord npc) =>
+        !DefinitionId.IsValid(npc.Key) || !DefinitionId.IsValid(npc.RoutineId) ? "an invalid key or routine"
+        : !npc.Needs.Valid ? "needs outside 0..3999"
+        : !NpcActivities.IsActivity(npc.Activity) ? $"'{npc.Activity}' is not an activity"
+        : npc.Generation < 0 || npc.StuckTicks < 0 || npc.ConditionUntil < 0 ? "a negative generation, stuck count or condition time"
+        : Domain.Spatial.NavRoute.ProblemOf(npc.Route.Status, npc.Route.GoalXMm, npc.Route.GoalZMm, npc.Route.Corners, npc.Route.PlannedTick,
+            npc.Route.Stamp, npc.Route.Watch, npc.Route.Partial);
 
     /// <summary>
     /// A digest of a cell's effective state - baseline plus every divergence, including the occupants of

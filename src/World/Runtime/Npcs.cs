@@ -1,4 +1,4 @@
-// UNNAMED World - NPC bodies, the social setup and relationship bookkeeping (SYSTEMS.md S-24, S-26; M4)
+// UNNAMED World - NPC bodies, the social setup and relationship bookkeeping (SYSTEMS.md S-24, S-26; M4; WP12)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -35,32 +35,47 @@ public sealed record NpcView(string Id, EntityId InstanceId, string Name, Body B
 {
     /// <summary>A companion lying downed (M6).</summary>
     public bool Downed { get; init; }
+
+    /// <summary>What their routine has them doing (WP12; <see cref="NpcActivities"/>), for the activity idles; null for an NPC with no routine.</summary>
+    public string? Activity { get; init; }
+
+    /// <summary>A role resident (WP12, DN3) rather than a named NPC: presentation dresses them from the role's variants.</summary>
+    public bool Resident { get; init; }
+
+    /// <summary>The role they fill: a named NPC's, or a resident's slot's.</summary>
+    public string? Role { get; init; }
+
+    /// <summary>Whether they are walking now (WP12): presentation plays the walk.</summary>
+    public bool Moving { get; init; }
 }
 
-/// <summary>An NPC's body as the simulation holds it: where they stand and which way they face. Transient in Phase 1.</summary>
+/// <summary>An NPC's body as the simulation holds it: where they stand and which way they face. Saved with their life (WP12).</summary>
 internal sealed record NpcState(NpcDefinition Definition, EntityId InstanceId, NpcSite Site, Body Body);
 
 /// <summary>To <see cref="RelationshipSystem"/>: move what an NPC thinks of the player on one dimension, for a reason.</summary>
 internal sealed record ChangeRelationship(string NpcId, string Dimension, int Delta, string EventKey) : InternalCommand;
 
 /// <summary>
-/// Owns: <see cref="StateSlice.Npcs"/> - the NPCs' bodies (S-24). Each named NPC stands where the region puts them, turned
-/// the way the region says, and turns to face whoever talks to them. Phase 1 has no schedules (the vertical slice) and no
-/// simulation tiers for NPCs: the whole population is simulated in full. Identity is derived from the NPC's ID (D-10). A
-/// companion's body (M6) is moved by <see cref="CompanionSystem"/> through <see cref="PlaceNpc"/> and saved with the companion;
-/// everyone else stands where the region puts them, so nothing about their bodies needs saving.
+/// Owns: <see cref="StateSlice.Npcs"/> - the NPCs' bodies (S-24) - and <see cref="StateSlice.NpcLife"/> - their lives (WP12). Each named
+/// NPC stands where the region puts them until their routine takes them elsewhere; role residents fill their slots. An NPC with a routine
+/// walks their day on the navigation grid (<see cref="TickBodies"/>) and lives it hour by hour (<see cref="TickLives"/>), and while the
+/// character is away lives it in the abstract (<see cref="Advance"/>). One with none stands where the region puts them, turned the way it
+/// says, as before. Everyone turns to face whoever talks to them, and talking pauses their routine. Identity is derived (D-10). A
+/// companion's body (M6) is moved by <see cref="CompanionSystem"/> through <see cref="PlaceNpc"/>.
 /// </summary>
-internal sealed class NpcSystem
+internal sealed partial class NpcSystem
 {
     private const int TurnMdegPerTick = 18_000;   // 360 degrees a second at 20 Hz
 
     private readonly SystemContext _context;
     private readonly SliceOwner _owner;
+    private readonly WorldNavigation _navigation;
 
-    public NpcSystem(SystemContext context, SliceOwner owner)
+    public NpcSystem(SystemContext context, SliceOwner owner, WorldNavigation navigation)
     {
         _context = context;
         _owner = owner;
+        _navigation = navigation;
     }
 
     private RuntimeState State => _context.State;
@@ -70,6 +85,13 @@ internal sealed class NpcSystem
     {
         using var h = new CanonicalHasher();
         return EntityId.Create(EntityKind.Npc, 1, h.Add("unnamed.npc/v1").Add(npcId).FinishBytes().AsSpan(0, 10));
+    }
+
+    /// <summary>A role resident's instance ID: derived from their slot and how many held it before them, so each arrival is someone new.</summary>
+    public static EntityId ResidentIdOf(string slotId, int generation)
+    {
+        using var h = new CanonicalHasher();
+        return EntityId.Create(EntityKind.Npc, 1, h.Add("unnamed.resident/v1").Add(slotId).Add(generation).FinishBytes().AsSpan(0, 10));
     }
 
     public void Populate()
@@ -82,9 +104,9 @@ internal sealed class NpcSystem
             var id = InstanceIdOf(site.NpcId);
             if (!State.World.Registry.Exists(id))
                 State.World.Registry.CreateEntity(DefinitionId.Parse(site.NpcId), id);
-            long y = _context.Setup.Layout.Space.Terrain.HeightAtMm(site.XMm, site.ZMm);
-            State.SetNpc(_owner, new NpcState(definition, id, site, new Body(site.XMm, y, site.ZMm, site.FacingMdeg)));
+            State.SetNpc(_owner, new NpcState(definition, id, site, BodyAt(site.XMm, site.ZMm, site.FacingMdeg)));
         }
+        PopulateLives();
     }
 
     /// <summary>A hireling died (DN9): they are gone from the world, their instance with them.</summary>
@@ -106,28 +128,62 @@ internal sealed class NpcSystem
         return null;
     }
 
+    /// <summary>
+    /// One tick: lives cross an hour if one began, bodies with a routine walk theirs (tier A here; B and C through their tier simulations),
+    /// and everyone else - and anyone talking - turns: to the speaker, or back to the way their place faces.
+    /// </summary>
     public void Tick(long tick)
     {
+        TickLives(tick);
+        TickBodies(tick, SimulationTier.A);
         string? talking = State.Conversation?.NpcId;
         var player = State.Body;
         foreach (var npc in State.Npcs.Values.Where(n => !State.Companions.ContainsKey(n.Definition.Id)))
         {
+            bool lives = LifeOf(npc.Definition.Id) is not null;
+            if (lives && npc.Definition.Id != talking)
+                continue;
             int wanted = npc.Definition.Id == talking
                 ? CombatRules.FacingTowards(npc.Body.XMm, npc.Body.ZMm, player.XMm, player.ZMm)
                 : npc.Site.FacingMdeg;
-            int delta = (int)(((long)wanted - npc.Body.FacingMdeg + 540_000) % 360_000) - 180_000;
-            if (delta == 0)
-                continue;
-            int facing = (int)(((long)npc.Body.FacingMdeg + Math.Clamp(delta, -TurnMdegPerTick, TurnMdegPerTick) + 360_000) % 360_000);
-            State.SetNpc(_owner, npc with { Body = npc.Body with { FacingMdeg = facing } });
+            var turned = Turn(npc.Body, wanted);
+            if (turned != npc.Body)
+                Place(npc, turned);
         }
     }
 
     public ImmutableArray<NpcView> Views() =>
-        State.Npcs.Values.Select(n => new NpcView(n.Definition.Id, n.InstanceId, n.Definition.Name, n.Body, State.Conversation?.NpcId == n.Definition.Id)
+        State.Npcs.Values.Select(n =>
         {
-            Downed = State.Companions.TryGetValue(n.Definition.Id, out var companion) && companion.Condition == CompanionCondition.Downed,
+            var life = LifeOf(n.Definition.Id);
+            return new NpcView(n.Definition.Id, n.InstanceId, n.Definition.Name, n.Body, State.Conversation?.NpcId == n.Definition.Id)
+            {
+                Downed = State.Companions.TryGetValue(n.Definition.Id, out var companion) && companion.Condition == CompanionCondition.Downed,
+                Activity = life?.Activity,
+                Resident = _context.Setup.NpcLife.Routines.TryGetValue(n.Definition.Id, out var slot) && slot.IsSlot,
+                Role = n.Definition.Role,
+                Moving = life is { Route.Status: NavRouteStatus.Active } && !State.Companions.ContainsKey(n.Definition.Id),
+            };
         }).ToImmutableArray();
+
+    /// <summary>A body on the ground at a place: its height is the terrain's there.</summary>
+    private Body BodyAt(long xMm, long zMm, int facingMdeg) =>
+        new(xMm, _context.Setup.Layout.Space.Terrain.HeightAtMm(xMm, zMm), zMm, facingMdeg);
+
+    /// <summary>The body turned towards a facing by at most 18 degrees a tick, as NPCs turn.</summary>
+    private static Body Turn(Body body, int towardMdeg)
+    {
+        int delta = (int)(((long)towardMdeg - body.FacingMdeg + 540_000) % 360_000) - 180_000;
+        if (delta == 0)
+            return body;
+        return body with { FacingMdeg = (int)(((long)body.FacingMdeg + Math.Clamp(delta, -TurnMdegPerTick, TurnMdegPerTick) + 360_000) % 360_000) };
+    }
+
+    private void Place(NpcState npc, Body body)
+    {
+        if (body != npc.Body)
+            State.SetNpc(_owner, npc with { Body = body });
+    }
 }
 
 /// <summary>

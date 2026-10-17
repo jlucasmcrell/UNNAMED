@@ -1,0 +1,18 @@
+id: routine.ashen_hollow.cook
+kind: routine
+schema: 1
+display_key: routine.ashen_hollow.cook.name
+tags: [routine]
+notes: "An Ashen Hollow role resident (DN3): the cook. Each resident takes a name from their people's Suggest list (WP2); when one leaves, someone new arrives 3-7 days later (DN4)."
+region_ref: region.starting_frontier
+people_ref: people.veth
+settlement: ashen_hollow
+role: cook
+work_hours: [6, 18]
+anchors:
+  home: { position_m: [438.5, 729.9], facing_deg: 180 }
+  work: { position_m: [445.7, 737.8], facing_deg: 135 }
+  eat: { position_m: [445.7, 737.8], facing_deg: 135 }
+  social: { position_m: [455.75, 738.75], facing_deg: 270 }
+pairs:
+  - { routine_ref: routine.ashen_hollow.porter, kind: friend }

@@ -1,0 +1,16 @@
+id: routine.cairnwold.durn_skell
+kind: routine
+schema: 1
+display_key: routine.cairnwold.durn_skell.name
+tags: [routine]
+notes: "Durn trades, so works the trading hours (06:00-20:00) in front of the smithy, where the region places him; sleeps in house 05."
+region_ref: region.starting_frontier
+npc_ref: npc.cairnwold.durn_skell
+settlement: cairnwold
+role: craftsperson
+work_hours: [6, 20]
+anchors:
+  home: { position_m: [961, 664], facing_deg: 0 }
+  work: { position_m: [982, 674.5], facing_deg: 0 }
+  eat: { position_m: [954.45, 687.75], facing_deg: 90 }
+  social: { position_m: [966.25, 661.75], facing_deg: 90 }

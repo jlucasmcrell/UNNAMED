@@ -1,0 +1,19 @@
+id: routine.cairnwold.hunter
+kind: routine
+schema: 1
+display_key: routine.cairnwold.hunter.name
+tags: [routine]
+notes: "A Cairnwold role resident (DN3): the hunter. Each resident takes a name from their people's Suggest list (WP2); when one leaves, someone new arrives 3-7 days later (DN4)."
+region_ref: region.starting_frontier
+people_ref: people.veth
+settlement: cairnwold
+role: hunter
+work_hours: [7, 19]
+anchors:
+  home: { position_m: [948, 666], facing_deg: 0 }
+  work: { position_m: [1000, 700], facing_deg: 90 }
+  eat: { position_m: [954.7, 686.7], facing_deg: 45 }
+  social: { position_m: [970, 664.5], facing_deg: 225 }
+job: { market_ref: market.cairnwold, item_ref: item.material.wolf_hide, per_day: 1 }   # joins the market's stock each day the job is held (WP14's job hook)
+pairs:
+  - { routine_ref: routine.cairnwold.trapper, kind: friend }
