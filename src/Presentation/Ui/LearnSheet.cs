@@ -71,7 +71,11 @@ public partial class LearnSheet : CanvasLayer
         var canvas = _panel.GetParentControl().Size;
         float top = Math.Max(16, canvas.Y / 2 - 300), bottom = Math.Min(canvas.Y - 16, canvas.Y / 2 + 300);
         if (Conversation?.Invoke() is { } talk && talk.Position.X < _panel.GetGlobalRect().End.X)
+        {
+            // Only an enlarged interface brings them together, and the HUD's plate has stepped aside: the column may rise to the top.
+            top = 16;
             bottom = Math.Min(bottom, talk.Position.Y - 12);
+        }
         // With too little room left above an enlarged conversation, the column stands down: the reply's LEARN tag still says what is taught.
         _panel.Visible = bottom - top >= MinRoom;
         _panel.OffsetTop = top;
