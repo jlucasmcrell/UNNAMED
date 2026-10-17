@@ -513,6 +513,9 @@ public sealed class Simulation
     /// <summary>The region's NPC adventurers (WP13): level, coin, gear, what they are about today, and whether they are in town or with the party.</summary>
     public ImmutableArray<AdventurerView> Adventurers => _adventurers.Views();
 
+    /// <summary>Whether an adventurer can be hired now, and why not (WP12b's <see cref="INpcHireability"/>, answered for adventurers).</summary>
+    public NpcHireView? AdventurerHireability(string key) => _adventurers.Hireability(key);
+
     /// <summary>The town markets: each good's stock and price against base, and what is on the road to them (WP14).</summary>
     public ImmutableArray<MarketView> Markets => _markets.Views();
 

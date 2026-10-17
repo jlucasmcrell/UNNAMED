@@ -128,6 +128,7 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.TrackedQuest),   // which quest the tracker follows (WP4)
             nameof(UNNAMED.World.Runtime.Simulation.Marker),   // where the compass marks the tracked beat, when it is known (WP4)
             nameof(UNNAMED.World.Runtime.Simulation.Advance),   // the offline catch-up, the session's at login like Step (WP11)
+            nameof(UNNAMED.World.Runtime.Simulation.AdventurerHireability),   // whether an adventurer hires on now, for the hiring sheet (WP13)
             nameof(UNNAMED.World.Runtime.Simulation.BeginLoginGrace),   // the login grace, the session's at login (WP11)
             nameof(UNNAMED.World.Runtime.Simulation.Experiments),   // how much of a station's experiment set is found, for its panel (WP3a)
             nameof(UNNAMED.World.Runtime.Simulation.HireTerms),   // what a hire would mean - wage, cost, that they can die - for the hiring sheet (WP15a)

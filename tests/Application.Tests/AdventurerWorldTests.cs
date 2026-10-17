@@ -163,7 +163,13 @@ public class AdventurerWorldTests
         var session = Harness.Boot(profile);
         var arena = AtTheLodge(session, coin: 50);
         var adventurer = arena.Simulation.Adventurers.Single(a => a.Key == "npc.adventurer.ashen_hollow.slot_1_g0");
+        var hireability = arena.Record<HireabilityChanged>();
+        Assert.True(arena.Simulation.AdventurerHireability(adventurer.Key)!.Hireable);
+        Assert.Equal(new[] { HirelingRole.Guard, HirelingRole.Porter }, arena.Simulation.AdventurerHireability(adventurer.Key)!.HiresAs);
         Assert.Null(arena.Submit(new HireCommand(arena.Player, adventurer.Key, HirelingRole.Guard, 3, AcceptsRisk: true)));
+        Assert.False(arena.Simulation.AdventurerHireability(adventurer.Key)!.Hireable);
+        arena.Simulation.Step();
+        Assert.Contains(hireability, h => h.Key == adventurer.Key && !h.Hireable);
 
         var member = arena.Simulation.Companions.Single(c => c.NpcId == adventurer.Key);
         Assert.Equal(PartyMembership.Hireling, member.Membership);

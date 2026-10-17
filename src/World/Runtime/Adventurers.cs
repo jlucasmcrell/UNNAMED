@@ -129,7 +129,7 @@ internal interface IAgentTrade
 /// the character as temporary allies when answered, and hire on through the party's hiring (WP15a) with their level and gear; while with the
 /// party their own life waits, and they take it up again, with what they gained, when they leave.
 /// </summary>
-internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISettingOutSource
+internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISettingOutSource, INpcHireability
 {
     /// <summary>How far apart bodies stand at a lodge.</summary>
     private const long LodgeSpacingMm = 1_200;
@@ -141,6 +141,9 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
     private readonly SortedDictionary<long, List<(string MerchantId, long Coin)>> _coin = new();
     private ImmutableSortedDictionary<string, AdventurerGround>? _grounds;
     private ImmutableArray<AdventurerBounty>? _bounties;
+
+    /// <summary>The last hireability answer raised for each adventurer: events only, not state.</summary>
+    private readonly Dictionary<string, bool> _hireable = new(StringComparer.Ordinal);
 
     public AdventurerSystem(SystemContext context, SliceOwner owner, EntityId player)
     {
@@ -235,6 +238,7 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
         if (Current is { } state && Clock.Day(tick) > state.Day)
             LiveTo(Clock.Day(tick), null);
         Bodies(tick, force: false);
+        Hireabilities(tick);
     }
 
     /// <summary>
@@ -596,6 +600,43 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
         }
         _context.Dispatch(new Dismiss(a.Key));
         return null;
+    }
+
+    // ── hireability (WP12b's contract) ──────────────────────────────────────
+
+    /// <summary>Why an adventurer cannot be hired now, or null: they hire on while in town, on their feet, with a body, and not with the party.</summary>
+    private string? Refusal(AdventurerRecord a) =>
+        a.Party is not null ? $"{a.Name} is with you"
+        : a.Condition == AdventurerCondition.Injured ? $"{a.Name} is resting an injury"
+        : !InTown(a, State.WorldTick) ? $"{a.Name} is out"
+        : !State.Npcs.ContainsKey(a.Key) ? $"{a.Name} is not here"
+        : null;
+
+    public bool IsHireable(string key) => Agent(key) is { } a && Refusal(a) is null;
+
+    public NpcHireView? Hireability(string key) =>
+        Agent(key) is { } a
+            ? new NpcHireView(key, Refusal(a) is null, Refusal(a), ImmutableArray.Create(Role), Setup?.Hire.Roles ?? ImmutableArray<HirelingRole>.Empty)
+            : null;
+
+    /// <summary>Raise <see cref="HireabilityChanged"/> for every adventurer whose answer changed since the last tick, and forget those gone.</summary>
+    private void Hireabilities(long tick)
+    {
+        if (Current is not { } state)
+            return;
+        foreach (var a in state.Agents.Values)
+        {
+            string? refusal = Refusal(a);
+            if (_hireable.TryGetValue(a.Key, out bool was) && was == (refusal is null))
+                continue;
+            _hireable[a.Key] = refusal is null;
+            _context.Events.Publish(new HireabilityChanged(a.Key, refusal is null, refusal, tick));
+        }
+        foreach (string gone in _hireable.Keys.Where(k => !state.Agents.ContainsKey(k)).ToList())
+        {
+            _hireable.Remove(gone);
+            _context.Events.Publish(new HireabilityChanged(gone, false, "gone", tick));
+        }
     }
 
     // ── reads ───────────────────────────────────────────────────────────────
