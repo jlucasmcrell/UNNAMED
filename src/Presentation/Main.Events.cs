@@ -46,7 +46,7 @@ public partial class Main
             _controller.OnTravelled(e);
             _autorun = false;
             CloseScreens();
-            _hud.Toast($"The {StoneName(e.ToKey)}. {TravelWords.Journey(e.Cost.WalkTicks, e.Cost.WorldTicks, TicksPerDay).Replace("You arrive", "You arrived").Replace("would take", "would have taken")}", 7);
+            _hud.Toast($"The {StoneName(e.ToKey)}. {TravelWords.Journey(e.Cost.WalkTicks, TicksPerDay).Replace("You arrive the moment you leave", "You arrived the moment you left").Replace("would take", "would have taken")}", 7);
         });        _session.Subscribe<DoorToggled>(e =>
         {
             _controller.OnDoorToggled(e);

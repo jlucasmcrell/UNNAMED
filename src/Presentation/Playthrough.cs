@@ -469,7 +469,7 @@ public sealed class Playthrough
             if (option.Blocked is { } why)
                 return (_broken = $"the stones would not go: {why}") is null;
             _leftAt = simulation.WorldTick;
-            Note($"At the {_session.Setup.Layout.FindWaystone(from)!.Name}: {TravelWords.Journey(option.Cost.WalkTicks, option.Cost.WorldTicks, Main.TicksPerDay)} ({option.Cost.RoadMm / 1000.0:0} m by road)");
+            Note($"At the {_session.Setup.Layout.FindWaystone(from)!.Name}: {TravelWords.Journey(option.Cost.WalkTicks, Main.TicksPerDay)} ({option.Cost.RoadMm / 1000.0:0} m by road)");
             _controller.TravelTo(from, to);
             _phase = 1;
             return false;
@@ -786,7 +786,7 @@ public sealed class Playthrough
         _session.Subscribe<StoneTouched>(e => Note($"{(e.Method == Domain.Travel.WaystoneMethod.Woken ? "Woken" : "Touched")}: {e.StoneKey} - \"{e.Text}\""));
         _session.Subscribe<ReturnPointBound>(e => Note($"Return point: {e.StoneKey}"));
         _session.Subscribe<PlayerTravelled>(e => Note($"By the stones: {e.FromKey} to {e.ToKey}, {e.Cost.RoadMm / 1000.0:0} m of road, " +
-            $"{e.Cost.WalkTicks} ticks of walking, {e.Cost.WorldTicks} of world time; with {(e.Party.IsEmpty ? "no one" : string.Join(", ", e.Party.Select(Name)))}"));
+            $"{e.Cost.WalkTicks} ticks of walking spared; with {(e.Party.IsEmpty ? "no one" : string.Join(", ", e.Party.Select(Name)))}"));
     }
 
     private void Note(string line)
