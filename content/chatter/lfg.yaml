@@ -3,7 +3,7 @@ kind: chatter
 schema: 1
 display_key: chatter.lfg.name
 tags: [chatter]
-notes: Hand-written (WP16, not AI). An NPC setting out asks along on World (SettingOut), answers the character on Party, and leaves alone on Local when nobody came. The slots are the SettingOut's words.
+notes: Hand-written (WP16). An NPC setting out asks along on World (SettingOut), answers the character on Party, and leaves alone on Local when nobody came. The slots are the SettingOut's words. Extended 2026-10-18 to about forty per use so a player does not read the same offer twice; every line is a hand-written template, never corpus.
 role: templates
 lines:
   - { key: lfg.hunt.01, use: lfg.hunt, ai_generated: false, text: "Going after {purpose} out by {destination}. Leaving {anchor} at {depart_time} - another blade would be welcome." }
@@ -11,23 +11,180 @@ lines:
   - { key: lfg.hunt.03, use: lfg.hunt, ai_generated: false, text: "Anyone for a hunt? {purpose}, at {destination}. Meet me at {anchor}; I go at {depart_time}, with or without." }
   - { key: lfg.hunt.04, use: lfg.hunt, ai_generated: false, text: "Setting out for {destination} at {depart_time}, after {purpose}. I'm at {anchor} if you want a share." }
   - { key: lfg.hunt.05, use: lfg.hunt, ai_generated: false, text: "{purpose} has been seen near {destination}. Waiting at {anchor} until {depart_time}. Bring a bow if you have one." }
+  - { key: lfg.hunt.06, use: lfg.hunt, ai_generated: false, text: "After {purpose} at {destination}. I'm at {anchor} now and gone by {depart_time}." }
+  - { key: lfg.hunt.07, use: lfg.hunt, ai_generated: false, text: "Hunt going out to {destination} this morning. {purpose}. Meet at {anchor}, no later than {depart_time}." }
+  - { key: lfg.hunt.08, use: lfg.hunt, ai_generated: false, text: "Who wants {purpose}? It's at {destination} and it's had a good week of not being hunted." }
+  - { key: lfg.hunt.09, use: lfg.hunt, ai_generated: false, text: "{anchor} at {depart_time}, then {destination}. Come armed and come early." }
+  - { key: lfg.hunt.10, use: lfg.hunt, ai_generated: false, text: "Tracking {purpose} from {destination} back toward {anchor}. Walk with me from {depart_time}." }
+  - { key: lfg.hunt.11, use: lfg.hunt, ai_generated: false, text: "Going out for {purpose}. {destination}, from {anchor}, at {depart_time}. Room for one more on the trail." }
+  - { key: lfg.hunt.12, use: lfg.hunt, ai_generated: false, text: "Anyone hunting {purpose} near {destination}? I'd as soon not go at it alone. {anchor}, {depart_time}." }
+  - { key: lfg.hunt.13, use: lfg.hunt, ai_generated: false, text: "{purpose} at {destination}, and I want the whole hide. Meet {anchor} at {depart_time} and we'll split it fair." }
+  - { key: lfg.hunt.14, use: lfg.hunt, ai_generated: false, text: "Off to {destination} at {depart_time}. {purpose}. If you're coming, be at {anchor} before then." }
+  - { key: lfg.hunt.15, use: lfg.hunt, ai_generated: false, text: "Two of us would make {purpose} at {destination} a shorter morning. {anchor}, {depart_time}." }
+  - { key: lfg.hunt.16, use: lfg.hunt, ai_generated: false, text: "Hunt from {anchor} at {depart_time}, out to {destination}. {purpose}. The last one took all day." }
+  - { key: lfg.hunt.17, use: lfg.hunt, ai_generated: false, text: "Going to sit up over {destination} tonight. {purpose}. Anyone at {anchor} at {depart_time} can sit with me." }
+  - { key: lfg.hunt.18, use: lfg.hunt, ai_generated: false, text: "I need a second pair of eyes at {destination}. {purpose}, from {anchor}, {depart_time}." }
+  - { key: lfg.hunt.19, use: lfg.hunt, ai_generated: false, text: "{purpose} is out past {destination} and it's getting bolder. Waiting at {anchor} till {depart_time}." }
+  - { key: lfg.hunt.20, use: lfg.hunt, ai_generated: false, text: "Leaving {anchor} for {destination} at {depart_time} for {purpose}. Slow going, and I don't mind slow." }
+  - { key: lfg.hunt.21, use: lfg.hunt, ai_generated: false, text: "Any bow at {anchor} at {depart_time} going my way to {destination}? {purpose} won't wait all morning." }
+  - { key: lfg.hunt.22, use: lfg.hunt, ai_generated: false, text: "For {purpose}, from {anchor}, at {depart_time}. It's out at {destination}. Company wanted." }
+  - { key: lfg.hunt.23, use: lfg.hunt, ai_generated: false, text: "Going out to {destination} to find {purpose}. I leave {anchor} at {depart_time} and I won't be rushed." }
+  - { key: lfg.hunt.24, use: lfg.hunt, ai_generated: false, text: "If anyone's after {purpose}, it's at {destination}. I'll be at {anchor} at {depart_time} either way." }
+  - { key: lfg.hunt.25, use: lfg.hunt, ai_generated: false, text: "{anchor}, {depart_time}, for {destination}. {purpose}. Bring water; there's none out there." }
+  - { key: lfg.hunt.26, use: lfg.hunt, ai_generated: false, text: "Taking the trail out to {destination} at {depart_time} for {purpose}. Starting from {anchor}." }
+  - { key: lfg.hunt.27, use: lfg.hunt, ai_generated: false, text: "Hunting {purpose} from {anchor} at {depart_time}. It went into {destination}. Two of us would be quicker." }
+  - { key: lfg.hunt.28, use: lfg.hunt, ai_generated: false, text: "Want to bring in {purpose} from {destination}? I'm at {anchor} and I leave at {depart_time}." }
+  - { key: lfg.hunt.29, use: lfg.hunt, ai_generated: false, text: "Going after {purpose}. It's near {destination} and it's had a night to get clever. {anchor}, {depart_time}." }
+  - { key: lfg.hunt.30, use: lfg.hunt, ai_generated: false, text: "Hunt leaving {anchor} at {depart_time} for {destination}. Bring a bow and a knife and leave the rest behind." }
+  - { key: lfg.hunt.31, use: lfg.hunt, ai_generated: false, text: "I'm going out to {destination} for {purpose} at {depart_time}. A companion who keeps quiet is worth two who don't." }
+  - { key: lfg.hunt.32, use: lfg.hunt, ai_generated: false, text: "For {purpose} at {destination}, from {anchor} at {depart_time}. Don't come if you can't keep up." }
+  - { key: lfg.hunt.33, use: lfg.hunt, ai_generated: false, text: "{purpose}. {destination}. {anchor} at {depart_time}. That's the whole of it." }
+  - { key: lfg.hunt.34, use: lfg.hunt, ai_generated: false, text: "Going to try for {purpose} by {destination}. Anyone at {anchor} by {depart_time} comes along." }
+  - { key: lfg.hunt.35, use: lfg.hunt, ai_generated: false, text: "Hunt, {destination}, {depart_time}, from {anchor}. {purpose}. Not a good day alone." }
   - { key: lfg.bounty.01, use: lfg.bounty, ai_generated: false, text: "Taking the bounty on {purpose}. Leaving {anchor} for {destination} at {depart_time} - the purse splits with whoever comes." }
   - { key: lfg.bounty.02, use: lfg.bounty, ai_generated: false, text: "Going for {purpose} before someone else does. From {anchor}, at {depart_time}. A second pair of hands is welcome." }
   - { key: lfg.bounty.03, use: lfg.bounty, ai_generated: false, text: "The board wants {purpose} dealt with. I'm heading to {destination} at {depart_time}. Meet at {anchor}." }
   - { key: lfg.bounty.04, use: lfg.bounty, ai_generated: false, text: "Anyone after {purpose}? I'll be at {anchor} until {depart_time}, then on to {destination}." }
   - { key: lfg.bounty.05, use: lfg.bounty, ai_generated: false, text: "Bounty work at {destination}: {purpose}. Waiting by {anchor} till {depart_time}. Fair shares, no arguments." }
+  - { key: lfg.bounty.06, use: lfg.bounty, ai_generated: false, text: "{purpose} is on the board and I'm going to be the one who does it. {anchor}, {depart_time}, {destination}." }
+  - { key: lfg.bounty.07, use: lfg.bounty, ai_generated: false, text: "Work at {destination} for anyone who can hold a blade. {purpose}. From {anchor} at {depart_time}." }
+  - { key: lfg.bounty.08, use: lfg.bounty, ai_generated: false, text: "After {purpose}. {depart_time} from {anchor}. Pay's the same whether one of us does it or three." }
+  - { key: lfg.bounty.09, use: lfg.bounty, ai_generated: false, text: "{purpose} wants doing and I want it done this week. {anchor} at {depart_time}, then {destination}." }
+  - { key: lfg.bounty.10, use: lfg.bounty, ai_generated: false, text: "Taking {purpose}. If you've read the notice you know what it is. {anchor}, {depart_time}." }
+  - { key: lfg.bounty.11, use: lfg.bounty, ai_generated: false, text: "Going out for {purpose} at {destination}. I leave {anchor} at {depart_time} and I come back with it or I don't." }
+  - { key: lfg.bounty.12, use: lfg.bounty, ai_generated: false, text: "{purpose}, {destination}, from {anchor} at {depart_time}. Purse splits even. Undertakers excluded." }
+  - { key: lfg.bounty.13, use: lfg.bounty, ai_generated: false, text: "Bounty, and a hard one, {purpose}. Meeting at {anchor} at {depart_time} to go to {destination}." }
+  - { key: lfg.bounty.14, use: lfg.bounty, ai_generated: false, text: "Anyone short of coin? {purpose} is worth taking. From {anchor} at {depart_time}, out to {destination}." }
+  - { key: lfg.bounty.15, use: lfg.bounty, ai_generated: false, text: "I'm claiming {purpose} before the road brings someone faster. {anchor}, {depart_time}. {destination}." }
+  - { key: lfg.bounty.16, use: lfg.bounty, ai_generated: false, text: "{purpose} at {destination} and nobody's taken it yet, which tells you something. {anchor}, {depart_time}." }
+  - { key: lfg.bounty.17, use: lfg.bounty, ai_generated: false, text: "Going to settle {purpose}. {depart_time} from {anchor}. Come if you want the share and the walking." }
+  - { key: lfg.bounty.18, use: lfg.bounty, ai_generated: false, text: "Fancy {purpose}? It's at {destination} and I've been putting it off. Not any more. {anchor}, {depart_time}." }
+  - { key: lfg.bounty.19, use: lfg.bounty, ai_generated: false, text: "{purpose}. I'll say it plainly because it isn't a small thing. From {anchor} at {depart_time} to {destination}." }
+  - { key: lfg.bounty.20, use: lfg.bounty, ai_generated: false, text: "For {purpose} I want two more. {anchor} at {depart_time}. {destination}. Say now or stay home." }
+  - { key: lfg.bounty.21, use: lfg.bounty, ai_generated: false, text: "Heading for {destination} at {depart_time} on {purpose}. The board's note says more hands, so here I am asking." }
+  - { key: lfg.bounty.22, use: lfg.bounty, ai_generated: false, text: "{purpose} is mine. Anyone at {anchor} by {depart_time} can make it ours." }
+  - { key: lfg.bounty.23, use: lfg.bounty, ai_generated: false, text: "Taking on {purpose} out at {destination}. Leaving {anchor} at {depart_time}. No heroics, just work." }
+  - { key: lfg.bounty.24, use: lfg.bounty, ai_generated: false, text: "If you're free and armed, {purpose} needs doing. {anchor}, {depart_time}, then {destination}." }
+  - { key: lfg.bounty.25, use: lfg.bounty, ai_generated: false, text: "{purpose}: {destination}. I go from {anchor} at {depart_time}. I'd rather go with three than alone." }
+  - { key: lfg.bounty.26, use: lfg.bounty, ai_generated: false, text: "Bounty's up on {purpose} and it'll be gone by tomorrow. {anchor} at {depart_time} if you want in." }
+  - { key: lfg.bounty.27, use: lfg.bounty, ai_generated: false, text: "Going after {purpose} with or without help. {anchor}, {depart_time}. Hope it's with." }
+  - { key: lfg.bounty.28, use: lfg.bounty, ai_generated: false, text: "{purpose} wants settling and I've the day for it. From {anchor} at {depart_time} out to {destination}." }
+  - { key: lfg.bounty.29, use: lfg.bounty, ai_generated: false, text: "Anyone wanting work: {purpose}, at {destination}. Meeting at {anchor} at {depart_time}, shares even." }
+  - { key: lfg.bounty.30, use: lfg.bounty, ai_generated: false, text: "For {purpose} I'll be at {anchor} at {depart_time}. {destination} after. Bring the sort of boots you don't mind losing." }
+  - { key: lfg.bounty.31, use: lfg.bounty, ai_generated: false, text: "{purpose}. {destination}. {depart_time}, {anchor}. I've said it plainly because it's plainly a two-man job." }
+  - { key: lfg.bounty.32, use: lfg.bounty, ai_generated: false, text: "Settling {purpose} at {destination}. From {anchor} at {depart_time}. Come for the work, stay for the share." }
+  - { key: lfg.bounty.33, use: lfg.bounty, ai_generated: false, text: "The notice on {purpose} is mine. {anchor}, {depart_time}. {destination}. Last call." }
+  - { key: lfg.bounty.34, use: lfg.bounty, ai_generated: false, text: "Going out on {purpose} from {anchor} at {depart_time}. {destination}. If it's a fight, it's a short one." }
+  - { key: lfg.bounty.35, use: lfg.bounty, ai_generated: false, text: "{purpose} needs doing before the weather turns. {anchor}, {depart_time}. {destination}. Fair shares." }
   - { key: lfg.errand.01, use: lfg.errand, ai_generated: false, text: "Walking to {destination} for {purpose}. Leaving {anchor} at {depart_time} if anyone wants the company." }
   - { key: lfg.errand.02, use: lfg.errand, ai_generated: false, text: "Off to {destination} at {depart_time} - {purpose}. The road's long alone. You'll find me at {anchor}." }
   - { key: lfg.errand.03, use: lfg.errand, ai_generated: false, text: "Need a walking partner as far as {destination}. {purpose}. From {anchor}, at {depart_time}." }
   - { key: lfg.errand.04, use: lfg.errand, ai_generated: false, text: "Heading out at {depart_time}: {purpose}, over at {destination}. I'll wait by {anchor} a while." }
+  - { key: lfg.errand.05, use: lfg.errand, ai_generated: false, text: "Going to {destination} for {purpose}. From {anchor} at {depart_time}. It's a long walk and I'd rather talk." }
+  - { key: lfg.errand.06, use: lfg.errand, ai_generated: false, text: "{purpose}. That's the errand and it's at {destination}. {anchor} at {depart_time}, if you'd walk it with me." }
+  - { key: lfg.errand.07, use: lfg.errand, ai_generated: false, text: "Off from {anchor} at {depart_time} toward {destination}, on {purpose}. Company would shorten it." }
+  - { key: lfg.errand.08, use: lfg.errand, ai_generated: false, text: "Walking out to {destination} at {depart_time} for {purpose}. Two walk faster than one; that's the whole offer." }
+  - { key: lfg.errand.09, use: lfg.errand, ai_generated: false, text: "Anyone going my way to {destination}? {purpose}. I leave {anchor} at {depart_time}." }
+  - { key: lfg.errand.10, use: lfg.errand, ai_generated: false, text: "{anchor}, {depart_time}, for {destination}. {purpose}. Bring a coat and an opinion." }
+  - { key: lfg.errand.11, use: lfg.errand, ai_generated: false, text: "I've an errand at {destination} and no good at walking it alone. {purpose}. {anchor}, {depart_time}." }
+  - { key: lfg.errand.12, use: lfg.errand, ai_generated: false, text: "Going out to {destination} at {depart_time} for {purpose}. Starting from {anchor}. Come along or don't." }
+  - { key: lfg.errand.13, use: lfg.errand, ai_generated: false, text: "{purpose}, {destination}, from {anchor} at {depart_time}. It's a day there and a day back, and better shared." }
+  - { key: lfg.errand.14, use: lfg.errand, ai_generated: false, text: "Need to get to {destination} for {purpose}. Leaving {anchor} at {depart_time}. Anyone walking that way?" }
+  - { key: lfg.errand.15, use: lfg.errand, ai_generated: false, text: "For {purpose} I'm going to {destination}. {anchor} at {depart_time}. The road's no place for one on their own." }
+  - { key: lfg.errand.16, use: lfg.errand, ai_generated: false, text: "Off on an errand at {destination}: {purpose}. From {anchor} at {depart_time}. I'll share the load if you share the walk." }
+  - { key: lfg.errand.17, use: lfg.errand, ai_generated: false, text: "{purpose} at {destination}. I'd sooner not walk it alone. {anchor}, {depart_time}." }
+  - { key: lfg.errand.18, use: lfg.errand, ai_generated: false, text: "Walking to {destination} at {depart_time}, for {purpose}. Find me at {anchor} before then." }
+  - { key: lfg.errand.19, use: lfg.errand, ai_generated: false, text: "Anyone for {destination}? It's {purpose} and it's dull work, but the company would be worth it." }
+  - { key: lfg.errand.20, use: lfg.errand, ai_generated: false, text: "Errand at {destination}, {purpose}, leaving {anchor} at {depart_time}. Bring a story if you've one." }
+  - { key: lfg.errand.21, use: lfg.errand, ai_generated: false, text: "Going to {destination} to see about {purpose}. {anchor}, {depart_time}. It's the kind of walk that wants company." }
+  - { key: lfg.errand.22, use: lfg.errand, ai_generated: false, text: "{purpose}. {destination}. From {anchor} at {depart_time}. Nothing more to it and nobody should do it alone." }
+  - { key: lfg.errand.23, use: lfg.errand, ai_generated: false, text: "I'm for {destination} at {depart_time} on {purpose}. Walk with me as far as you fancy." }
+  - { key: lfg.errand.24, use: lfg.errand, ai_generated: false, text: "Anybody heading to {destination} from {anchor} at {depart_time}? I've {purpose} to see to." }
+  - { key: lfg.errand.25, use: lfg.errand, ai_generated: false, text: "Setting out for {destination} at {depart_time} for {purpose}. Two on a road is one less thing to worry at." }
+  - { key: lfg.errand.26, use: lfg.errand, ai_generated: false, text: "For {purpose}, to {destination}. {anchor} at {depart_time}. It's a fair walk and the road's the road." }
+  - { key: lfg.errand.27, use: lfg.errand, ai_generated: false, text: "Off at {depart_time} from {anchor} for {destination}. {purpose}. Come for the walk, not the errand." }
+  - { key: lfg.errand.28, use: lfg.errand, ai_generated: false, text: "{purpose} wants doing at {destination} and I've no one to carry the other end. {anchor}, {depart_time}." }
+  - { key: lfg.errand.29, use: lfg.errand, ai_generated: false, text: "Going to walk to {destination} and back before dark. {purpose}. {anchor} at {depart_time}, if I've company." }
+  - { key: lfg.errand.30, use: lfg.errand, ai_generated: false, text: "There's {purpose} at {destination}. I'm at {anchor} until {depart_time} and then I'm walking." }
+  - { key: lfg.errand.31, use: lfg.errand, ai_generated: false, text: "Anyone with time to spare: {purpose}, at {destination}. Leaving {anchor} at {depart_time}. Nothing dangerous." }
   - { key: lfg.joined.01, use: lfg.joined, ai_generated: false, text: "Good. {anchor}, {depart_time}. Don't be late." }
   - { key: lfg.joined.02, use: lfg.joined, ai_generated: false, text: "Glad of it. I'll be at {anchor} - we leave at {depart_time}." }
   - { key: lfg.joined.03, use: lfg.joined, ai_generated: false, text: "That's two of us, then. Meet me at {anchor} before {depart_time}." }
   - { key: lfg.joined.04, use: lfg.joined, ai_generated: false, text: "Right. Be at {anchor} by {depart_time} and we'll go together." }
+  - { key: lfg.joined.05, use: lfg.joined, ai_generated: false, text: "{anchor}. {depart_time}. Bring what you'll need and nothing else." }
+  - { key: lfg.joined.06, use: lfg.joined, ai_generated: false, text: "Good. I won't wait past {depart_time} but I'll be at {anchor} a while before." }
+  - { key: lfg.joined.07, use: lfg.joined, ai_generated: false, text: "Then it's settled. {anchor}, at {depart_time}. Mind the roads." }
+  - { key: lfg.joined.08, use: lfg.joined, ai_generated: false, text: "That's a weight off. {anchor} at {depart_time}. I'll have the rest ready." }
+  - { key: lfg.joined.09, use: lfg.joined, ai_generated: false, text: "Suits me. {depart_time} at {anchor}. Don't stop for anything on the way." }
+  - { key: lfg.joined.10, use: lfg.joined, ai_generated: false, text: "Right then. Find me at {anchor} at {depart_time} and we'll be off." }
+  - { key: lfg.joined.11, use: lfg.joined, ai_generated: false, text: "I'll be at {anchor}. You come at {depart_time} and we'll see it done." }
+  - { key: lfg.joined.12, use: lfg.joined, ai_generated: false, text: "Good. Two's what I wanted. {anchor}, {depart_time}." }
+  - { key: lfg.joined.13, use: lfg.joined, ai_generated: false, text: "Done, then. {depart_time} at {anchor}, and wear something you can move in." }
+  - { key: lfg.joined.14, use: lfg.joined, ai_generated: false, text: "Well enough. Be at {anchor} before {depart_time}; I don't intend to look for you." }
+  - { key: lfg.joined.15, use: lfg.joined, ai_generated: false, text: "That's the offer taken. I'll be at {anchor} at {depart_time} with my share of the tools." }
+  - { key: lfg.joined.16, use: lfg.joined, ai_generated: false, text: "Good. {anchor}, then. Not the gate, the {anchor} side." }
+  - { key: lfg.joined.17, use: lfg.joined, ai_generated: false, text: "I'll take that. {depart_time}, at {anchor}. We go quietly and we go early." }
+  - { key: lfg.joined.18, use: lfg.joined, ai_generated: false, text: "Right. Come to {anchor} at {depart_time} and bring your own water." }
+  - { key: lfg.joined.19, use: lfg.joined, ai_generated: false, text: "Settled. I'll be at {anchor} from {depart_time} onwards." }
+  - { key: lfg.joined.20, use: lfg.joined, ai_generated: false, text: "Better. {anchor}, {depart_time}. Everything else we sort out on the way." }
+  - { key: lfg.joined.21, use: lfg.joined, ai_generated: false, text: "Good to hear it. {depart_time} at {anchor}, and if I'm not there, wait." }
+  - { key: lfg.joined.22, use: lfg.joined, ai_generated: false, text: "That'll do. {anchor}, {depart_time}. I'll not be carrying your share." }
+  - { key: lfg.joined.23, use: lfg.joined, ai_generated: false, text: "Then we're agreed. Meet at {anchor} at {depart_time} and we'll start as we mean to go on." }
+  - { key: lfg.joined.24, use: lfg.joined, ai_generated: false, text: "Fine. {anchor} at {depart_time}. Don't bring anyone I haven't met." }
+  - { key: lfg.joined.25, use: lfg.joined, ai_generated: false, text: "I'll be there. {anchor}, {depart_time}. Mind you are too." }
+  - { key: lfg.joined.26, use: lfg.joined, ai_generated: false, text: "Good. That's {anchor} at {depart_time}. Bring the boots you don't mind wrecking." }
+  - { key: lfg.joined.27, use: lfg.joined, ai_generated: false, text: "Right, that's a plan. {depart_time} at {anchor}. I'll bring the rope and the sense." }
+  - { key: lfg.joined.28, use: lfg.joined, ai_generated: false, text: "Taken. {anchor} at {depart_time}. If you're late I'll assume the worst and go anyway." }
+  - { key: lfg.joined.29, use: lfg.joined, ai_generated: false, text: "Settled then. {depart_time}, {anchor}. Say nothing to anyone about it till we're gone." }
+  - { key: lfg.joined.30, use: lfg.joined, ai_generated: false, text: "Good. I'll be at {anchor} at {depart_time}. Come armed and come warm." }
   - { key: lfg.left_alone.01, use: lfg.left_alone, ai_generated: false, text: "No sign of them. I'm off to {destination} alone." }
   - { key: lfg.left_alone.02, use: lfg.left_alone, ai_generated: false, text: "Can't wait any longer. {destination} won't come to me." }
   - { key: lfg.left_alone.03, use: lfg.left_alone, ai_generated: false, text: "Well, that's the hour gone. Going on to {destination} by myself." }
+  - { key: lfg.left_alone.04, use: lfg.left_alone, ai_generated: false, text: "Nobody came. {destination}, then, and I'll do it as I always do." }
+  - { key: lfg.left_alone.05, use: lfg.left_alone, ai_generated: false, text: "That's my own company for {destination}. Fine. I've had worse." }
+  - { key: lfg.left_alone.06, use: lfg.left_alone, ai_generated: false, text: "I said I'd go at the hour and I'm going. {destination} doesn't wait on anybody." }
+  - { key: lfg.left_alone.07, use: lfg.left_alone, ai_generated: false, text: "Alone to {destination}, then. At least there's no one to argue the pace." }
+  - { key: lfg.left_alone.08, use: lfg.left_alone, ai_generated: false, text: "Expected better. Going on to {destination} on my own." }
+  - { key: lfg.left_alone.09, use: lfg.left_alone, ai_generated: false, text: "Nobody's coming. {destination} is a long way on your own, and it's longer waiting." }
+  - { key: lfg.left_alone.10, use: lfg.left_alone, ai_generated: false, text: "That's the last of my patience and the last of the light. {destination}, alone." }
+  - { key: lfg.left_alone.11, use: lfg.left_alone, ai_generated: false, text: "No one. Right. {destination} it is, and I'd best be quick about it." }
+  - { key: lfg.left_alone.12, use: lfg.left_alone, ai_generated: false, text: "I'll not stand here till dark. {destination}, by myself." }
+  - { key: lfg.left_alone.13, use: lfg.left_alone, ai_generated: false, text: "Well. I talked myself into {destination} and I'll talk myself through it alone." }
+  - { key: lfg.left_alone.14, use: lfg.left_alone, ai_generated: false, text: "Nobody. Going to {destination} alone and I'll say no more about it." }
+  - { key: lfg.left_alone.15, use: lfg.left_alone, ai_generated: false, text: "That's my own boots doing the work to {destination} then. Nothing new." }
+  - { key: lfg.left_alone.16, use: lfg.left_alone, ai_generated: false, text: "Hour's gone. {destination}. On my own. As usual." }
+  - { key: lfg.left_alone.17, use: lfg.left_alone, ai_generated: false, text: "They'll find me gone and the road to {destination} the reason." }
+  - { key: lfg.left_alone.18, use: lfg.left_alone, ai_generated: false, text: "No company, no waiting. Off to {destination} and good luck to the rest of them." }
+  - { key: lfg.left_alone.19, use: lfg.left_alone, ai_generated: false, text: "I've waited long enough to know better. {destination}, alone, and quickly." }
+  - { key: lfg.left_alone.20, use: lfg.left_alone, ai_generated: false, text: "So it's just me and {destination}. I've made that trip before and survived it." }
+  - { key: lfg.left_alone.21, use: lfg.left_alone, ai_generated: false, text: "That's the hour. I'm for {destination} and I'm not looking back for anybody." }
+  - { key: lfg.left_alone.22, use: lfg.left_alone, ai_generated: false, text: "Nobody came. {destination} won't mind the company of one." }
+  - { key: lfg.left_alone.23, use: lfg.left_alone, ai_generated: false, text: "Right. Alone to {destination}. Slower, but nothing else has changed." }
+  - { key: lfg.left_alone.24, use: lfg.left_alone, ai_generated: false, text: "I gave them the hour and the hour's spent. {destination}, on my own." }
+  - { key: lfg.left_alone.25, use: lfg.left_alone, ai_generated: false, text: "Empty-handed and empty-roaded. {destination}, then, and I'll make what I can of it." }
   - { key: party.set_out.01, use: party.set_out, ai_generated: false, text: "{members}. That's everyone - on to {destination}." }
   - { key: party.set_out.02, use: party.set_out, ai_generated: false, text: "Right, {destination}. Keep close and keep quiet." }
   - { key: party.set_out.03, use: party.set_out, ai_generated: false, text: "Off we go. {destination}, and back before dark if we're lucky." }
   - { key: party.set_out.04, use: party.set_out, ai_generated: false, text: "Together, then. Watch the edges of the path on the way to {destination}." }
+  - { key: party.set_out.05, use: party.set_out, ai_generated: false, text: "{members}. Good. {destination}, and nobody strays off the path." }
+  - { key: party.set_out.06, use: party.set_out, ai_generated: false, text: "That's the lot of us. {destination} and no wandering." }
+  - { key: party.set_out.07, use: party.set_out, ai_generated: false, text: "Ready? {destination}. {members}, keep in sight of one another." }
+  - { key: party.set_out.08, use: party.set_out, ai_generated: false, text: "{members} - all here. On to {destination} and mind your footing." }
+  - { key: party.set_out.09, use: party.set_out, ai_generated: false, text: "Good. {destination}. Whoever's at the back, shout if you lose the line." }
+  - { key: party.set_out.10, use: party.set_out, ai_generated: false, text: "Now we're a party. {destination}, and quietly till we're clear of the wall." }
+  - { key: party.set_out.11, use: party.set_out, ai_generated: false, text: "Off to {destination} with {members}. Nobody stops for anything." }
+  - { key: party.set_out.12, use: party.set_out, ai_generated: false, text: "All of us, then. {destination}. Speak when it matters and not before." }
+  - { key: party.set_out.13, use: party.set_out, ai_generated: false, text: "{members}. Feeling better about this already. {destination}, at a walk." }
+  - { key: party.set_out.14, use: party.set_out, ai_generated: false, text: "Right. {destination}. No lagging and no heroics." }
+  - { key: party.set_out.15, use: party.set_out, ai_generated: false, text: "{members}. Nobody's missing. {destination}, and keep your voices down." }
+  - { key: party.set_out.16, use: party.set_out, ai_generated: false, text: "That's everyone I wanted. {destination} - and I go first." }
+  - { key: party.set_out.17, use: party.set_out, ai_generated: false, text: "Good. On to {destination}. {members}, watch the ground more than the view." }
+  - { key: party.set_out.18, use: party.set_out, ai_generated: false, text: "Then it's {destination}. All of us, together, and no one behind." }
+  - { key: party.set_out.19, use: party.set_out, ai_generated: false, text: "{members}. {destination}. We stop when I say and not before." }
+  - { key: party.set_out.20, use: party.set_out, ai_generated: false, text: "Ready as we'll ever be. {destination}, at a steady pace." }
+  - { key: party.set_out.21, use: party.set_out, ai_generated: false, text: "All present. {destination}. If we're split, we meet at the last place we were together." }
+  - { key: party.set_out.22, use: party.set_out, ai_generated: false, text: "{members}. Right. {destination}, and I'll take the rear." }
+  - { key: party.set_out.23, use: party.set_out, ai_generated: false, text: "Off we go and no talking till {destination}'s in sight." }
+  - { key: party.set_out.24, use: party.set_out, ai_generated: false, text: "{destination}, then. Everyone's here, so nobody's got an excuse." }
+  - { key: party.set_out.25, use: party.set_out, ai_generated: false, text: "That's the party. {destination}. Keep your weapons where you can reach them." }
+  - { key: party.set_out.26, use: party.set_out, ai_generated: false, text: "{members}, and me in front. {destination}, at a walk, till we're out of the open." }

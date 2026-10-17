@@ -46,3 +46,32 @@ terms:
   # the calendar (WP7)
   - { term: Reckoning, note: the calendar's year (config.time) }
   - { term: Hollow Day, note: the day at a Reckoning's end that belongs to no tally (config.time) }
+
+  # Canon terms the corpus uses, added for the b0001 revision and later batches (Claude's notes, §1). Each carries its
+  # source on the entry, so a term can be traced back; a term with no source does not belong in this file.
+  # peoples - direction/extensions/RACES.md:114-478
+  - { term: Siann, note: the long view, a people (RACES.md 213) }
+  - { term: Kal, note: the calcified, a people (RACES.md 157) }
+  - { term: Ondrek, note: the read-stone, a people (RACES.md 469) }
+  - { term: Veth, note: the touched lineage, a people (RACES.md 114) }
+  - { term: Orenth, note: the walkers, a people (RACES.md 266) }
+  - { term: Mor, note: the stolen, a people (RACES.md 316) }
+  - { term: Constructed, note: the written, a people (RACES.md 354) }
+  - { term: Vaskaal, note: the void-farers, a people (RACES.md 408) }
+  # cosmology - direction/extensions/OTHERREACH_COSMOLOGY.md
+  - { term: Pacha, note: a reality, as the world's cosmology names them (OTHERREACH_COSMOLOGY.md 32) }
+  - { term: Pachakuti, note: the turning of a Pacha that the peoples' histories turn on (OTHERREACH_COSMOLOGY.md 32-52, RACES.md 199) }
+  - { term: Other, note: the Other, what everything else is named around (OTHERREACH_COSMOLOGY.md 32-52) }
+  - { term: Veil, note: the perceived boundary between ordinary reality and the Other (OTHERREACH_COSMOLOGY.md 56-69) }
+  - { term: Otherfold, note: a distortion in normal space-time (OTHERREACH_COSMOLOGY.md 73-88) }
+  - { term: Otherways, note: the roads through the Other, as the world names them (OTHERREACH_COSMOLOGY.md 92-117) }
+  - { term: Othermarked, note: a person changed by later exposure to the Other (OTHERREACH_COSMOLOGY.md 236-253) }
+  - { term: Otherwake, note: a disturbance left behind by travel through the Other (candidate vocabulary, OTHERREACH_COSMOLOGY.md 360-374) }
+  - { term: Othertide, note: the Other's influence rising and falling (candidate vocabulary, OTHERREACH_COSMOLOGY.md 377-396) }
+  # Calls - content/calls
+  - { term: Call, note: what a person's working life is called here (content/calls) }
+  - { term: Hedge healer, note: a Call (content/calls/hedge_healer.yaml) }
+  - { term: Scholar, note: a Call (content/calls/scholar.yaml) }
+  - { term: Wayfarer, note: a Call, and the working name of the starting package (content/calls/wayfarer.yaml) }
+  - { term: Ashen Waystone, note: the stone at Ashen Hollow that a newcomer starts beside and the downed return to }
+  - { term: Charwood, note: the woodland east of the waystation (PHASE1_ASHEN_HOLLOW_PLAYABLE_CONTENT_BIBLE.md 167-197) }
