@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Items;
+using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Social;
 using UNNAMED.World;
@@ -64,6 +65,20 @@ public class TeachingTests
         Assert.Equal((new SkillBandRequirement(Blade, "familiar", 15) as TeachingRequirement, false, 4L), (gate.Requirement, gate.Met, gate.Have));
         Assert.False(strike.Met);
         Assert.Null(arena.Simulation.Teaching("npc.ashen_hollow.renn_vale"));   // Renn teaches nothing
+    }
+
+    /// <summary>DN13: a teacher who hires on does not teach while in the character's hire, at their work in work hours or anywhere else.</summary>
+    [Fact]
+    public void ATeacherInTheCharactersHire_DoesNotTeach()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Arena.OpenCreatures(session, Harness.HireableTownsfolk(session.Setup, Kera), AtKera, 0, Array.Empty<(string, double, double, string)>(),
+            r => With(r, 100, 15));
+        Assert.Null(arena.Simulation.TeachRefusal(Kera));
+        Assert.Null(arena.Submit(new HireCommand(arena.Player, Kera, HirelingRole.Guard, 3, AcceptsRisk: true)));
+        Assert.Equal("Kera Voss is in your hire: they teach only at their work", arena.Simulation.TeachRefusal(Kera));
+        Assert.False(arena.Simulation.Teaching(Kera)!.Available);
     }
 
     [Fact]

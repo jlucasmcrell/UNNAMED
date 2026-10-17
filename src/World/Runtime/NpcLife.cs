@@ -304,16 +304,18 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
     }
 
     /// <summary>
-    /// Why an NPC will not teach now (WP9's hook): a teacher teaches only at their work anchor, in their work hours. Null when they will; an
-    /// NPC with no routine teaches whenever spoken to.
+    /// Why an NPC will not teach now (WP9's hook): a teacher teaches only at their work anchor, in their work hours, and not while in the
+    /// character's hire (DN13). Null when they will; an NPC with no routine teaches whenever spoken to, unless hired.
     /// </summary>
     string? ITeachingHours.Unavailable(string npcId, long tick) => TeachRefusal(npcId);
 
     public string? TeachRefusal(string npcId)
     {
+        string name = State.Npcs.TryGetValue(npcId, out var npc) ? npc.Definition.Name : npcId;
+        if (State.Companions.ContainsKey(npcId))
+            return $"{name} is in your hire: they teach only at their work";
         if (LifeOf(npcId) is not { } life || !Life.Routines.TryGetValue(life.RoutineId, out var routine))
             return null;
-        string name = State.Npcs.TryGetValue(npcId, out var npc) ? npc.Definition.Name : npcId;
         int hourOfDay = Clock.MinuteOfDay(State.WorldTick) / 60;
         if (!routine.WorksAt(hourOfDay))
             return $"{name} teaches at their work, {routine.WorkFromHour:00}:00-{routine.WorkToHour:00}:00";
