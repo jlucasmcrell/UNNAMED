@@ -8,6 +8,13 @@ namespace UNNAMED.Domain.Tests;
 /// </summary>
 public class SpacePortalTests
 {
+    [Fact]
+    public void EmptyExteriorNames_HaveTheSameIdentityAsDefault()
+    {
+        Assert.Equal(SpaceId.Exterior, SpaceId.Parse(""));
+        Assert.Equal(SpaceId.Exterior.GetHashCode(), SpaceId.Parse("").GetHashCode());
+        Assert.Single(new HashSet<SpaceId> { default, new(""), SpaceId.Parse("") });
+    }
     /// <summary>The reach the space system uses to decide a body is at a portal.</summary>
     private const long Reach = 2_000;
 

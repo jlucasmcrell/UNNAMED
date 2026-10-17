@@ -9,6 +9,8 @@ using UNNAMED.Domain.Spatial;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
 using Xunit;
+using UNNAMED.Persistence;
+using Registry = UNNAMED.EntityRegistry.EntityRegistry;
 
 namespace UNNAMED.Application.Tests;
 
@@ -24,6 +26,36 @@ public class SpaceCompanionTests
             new CompanionRecord(Tavar, CompanionOrder.Follow, CompanionCondition.Up,
                 record.XMm + 2_000, record.ZMm + 2_000, 90_000, 100),
         });
+
+    [Theory]
+    [InlineData(CompanionOrder.Follow)]
+    [InlineData(CompanionOrder.Wait)]
+    public void SaveInside_KeepsEachPartyMembersActualSpace(CompanionOrder order)
+    {
+        using var profile = new TempProfile();
+        using var session = Harness.Boot(profile, barrowworks: true);
+        var arena = Arena.OpenCreatures(session, session.Setup, (437, 663), 90,
+            Array.Empty<(string, double, double, string)>(),
+            r => r.WithCompanions(new[] { new CompanionRecord(Tavar, order, CompanionCondition.Up, 436_000, 663_000, 90_000, 100) }),
+            origin: (0, 0));
+        Assert.Null(arena.Submit(new EnterSpaceCommand(arena.Player, "portal.barrowworks.threshold")));
+        arena.Tick();
+        var expectedSpace = order == CompanionOrder.Follow ? SpaceId.Parse(Ring) : SpaceId.Exterior;
+        Assert.Equal(expectedSpace, arena.Simulation.Npcs.Single(n => n.Id == Tavar).Space);
+        var store = new SaveStore(profile.Root);
+        store.Save(SaveSlots.Manual("party_inside"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(),
+            session.Content, arena.Simulation.WorldTick, 0));
+        var loaded = Arena.Resume(session.Setup, store.Load(SaveSlots.Manual("party_inside"),
+            new LoadContext(session.Generator, session.Content, new Registry())));
+        Assert.Equal(arena.Simulation.StateDigest(), loaded.Simulation.StateDigest());
+        var before = loaded.Simulation.Npcs.Single(n => n.Id == Tavar);
+        Assert.Equal(expectedSpace, before.Space);
+        Assert.Equal(session.Setup.SpaceFor(expectedSpace).Terrain.HeightAtMm(before.Body.XMm, before.Body.ZMm), before.Body.YMm);
+        loaded.Tick(20);
+        Assert.Equal(expectedSpace, loaded.Simulation.Npcs.Single(n => n.Id == Tavar).Space);
+        if (order == CompanionOrder.Wait)
+            Assert.Equal(before.Body, loaded.Simulation.Npcs.Single(n => n.Id == Tavar).Body);
+    }
 
     [Fact]
     public void GoingThroughAPortal_BringsTheFollower()

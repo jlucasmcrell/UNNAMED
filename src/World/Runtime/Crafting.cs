@@ -59,7 +59,10 @@ public sealed record RecipeDiscovered(string StationKey, string RecipeId, long T
 // ── views ───────────────────────────────────────────────────────────────────
 
 /// <summary>A node as presentation draws it: where, what it gives, and whether it can be harvested now.</summary>
-public sealed record NodeView(string Key, string Name, string NodeDefId, string ItemId, long XMm, long ZMm, bool Ready);
+public sealed record NodeView(string Key, string Name, string NodeDefId, string ItemId, long XMm, long ZMm, bool Ready)
+{
+    public SpaceId Space { get; init; } = SpaceId.Exterior;
+}
 
 // ── systems ─────────────────────────────────────────────────────────────────
 
@@ -151,7 +154,7 @@ internal sealed class GatheringSystem : IAbstractAdvance
         {
             var definition = Setup.Nodes[n.Site.NodeDefId];
             return new NodeView(n.Key, n.Site.Name, definition.Id, definition.ItemId, n.Site.XMm, n.Site.ZMm,
-                Ready(definition, State.World.NodeRecord(n.Cell, n.Key), State.WorldTick));
+                Ready(definition, State.World.NodeRecord(n.Cell, n.Key), State.WorldTick)) { Space = n.Cell.Space };
         }).ToImmutableArray();
 }
 

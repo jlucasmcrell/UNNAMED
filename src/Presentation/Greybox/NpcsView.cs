@@ -78,6 +78,9 @@ public partial class NpcsView : Node3D
                         _eyes[npc.Id] = eyes;
                 }
             }
+            figure.Visible = npc.Space == simulation.ActiveLayout.SpaceId;
+            if (!figure.Visible)
+                continue;
             // A companion carries their own weapon (M6: the March Spear, from their NPC definition's companion block).
             if (figure is Art.SkinnedFigure skinned)
                 skinned.Equip(simulation.Companions.Any(c => c.NpcId == npc.Id) ? _bindings.CompanionWeapon : null);

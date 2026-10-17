@@ -186,13 +186,13 @@ public sealed class PlayerController
         foreach (var item in simulation.WorldItems)
             candidates.Add((new Focus(FocusKind.Item, item.Id.Value, item.DefId, item.XMm, item.ZMm, item.Quality), Distance(item.XMm, item.ZMm) - itemReach));
         // Gathering and crafting (M3f) are measured like picking up: from the body, at the same reach.
-        foreach (var node in simulation.Nodes)
+        foreach (var node in simulation.Nodes.Where(n => n.Space == simulation.ActiveLayout.SpaceId))
             candidates.Add((new Focus(FocusKind.Node, node.Key, node.NodeDefId, node.XMm, node.ZMm), Distance(node.XMm, node.ZMm) - itemReach));
         foreach (var station in simulation.ActiveLayout.Stations)
             candidates.Add((new Focus(FocusKind.Station, station.Key, station.Kind, station.XMm, station.ZMm), Distance(station.XMm, station.ZMm) - itemReach));
         // An NPC is spoken to within a hand's reach of their body (M4), and not through a wall: the rule the simulation applies.
         long talkReach = itemReach + _session.Setup.Movement.BodyRadiusMm;
-        foreach (var npc in simulation.Npcs.Where(n => !simulation.Walled(Authoritative.XMm, Authoritative.ZMm, n.Body.XMm, n.Body.ZMm)))
+        foreach (var npc in simulation.Npcs.Where(n => n.Space == simulation.ActiveLayout.SpaceId && !simulation.Walled(Authoritative.XMm, Authoritative.ZMm, n.Body.XMm, n.Body.ZMm)))
             candidates.Add((new Focus(FocusKind.Npc, npc.Id, npc.Id, npc.Body.XMm, npc.Body.ZMm), Distance(npc.Body.XMm, npc.Body.ZMm) - talkReach));
         // A switch is worked like a door, from the body to its edge (M6); once set it has nothing more to offer.
         foreach (var view in simulation.Switches.Where(s => !s.Set && simulation.ActiveLayout.Switches.Contains(s.Site)))
@@ -220,7 +220,7 @@ public sealed class PlayerController
         }
 
         // A standing barrier cannot be used, but whoever stands at it is told what it is.
-        foreach (var view in simulation.Barriers.Where(b => b.Standing))
+        foreach (var view in simulation.Barriers.Where(b => b.Standing && simulation.ActiveLayout.Barriers.Contains(b.Site)))
         {
             var (x, z) = Footprints.Center(view.Site.Footprint);
             candidates.Add((new Focus(FocusKind.Barrier, view.Site.Key, view.Site.FlagId, x, z), view.Site.Footprint.DistanceTo(Authoritative.XMm, Authoritative.ZMm) - doorReach));

@@ -73,6 +73,9 @@ public sealed record TrailMark(long XMm, long ZMm);
 /// </summary>
 public sealed record CompanionRecord(string NpcId, CompanionOrder Order, CompanionCondition Condition, long XMm, long ZMm, int FacingMdeg, int Health)
 {
+    /// <summary>Null in historical saves: use the NPC's home space. Otherwise the actual space where they were saved.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? Space { get; init; }
     /// <summary>The tick they went down; 0 while up.</summary>
     public long DownedTick { get; init; }
 
@@ -679,6 +682,9 @@ public sealed record PlayerRecord
                 }
                 else
                     h.Add("no-contract");
+                // Historical/home-space parties keep their digest. An away companion's space is authoritative too.
+                if (c.Space is { } space)
+                    h.Add("companion-space").Add(space);
             }
             h.Add(StanceKeys.Key(Posture.Stance)).Add(Posture.Airborne ? 1 : 0).Add(Posture.AirMs);
             h.Add(Waystones.Length);

@@ -671,7 +671,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         var others = new List<Blocker>(_context.ClosedDoors(c.Site.Space));
         others.AddRange(Herd(c));
         // People are solid to a charge as to anything else walking: a companion, or anyone standing in its line (L-24).
-        others.AddRange(State.Npcs.Values.Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0)));
+        others.AddRange(State.Npcs.Values.Where(n => n.Space == c.Site.Space).Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0)));
         var moved = Kinematics.Step(c.Body, intent, rules, SpaceNear(c, c.Body), others, TickMs);
         if (Distance(c.Body.XMm, c.Body.ZMm, moved.XMm, moved.ZMm) < step / 2)
         {
@@ -709,7 +709,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             {
                 new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0),
             };
-            obstacles.AddRange(Companions());
+            obstacles.AddRange(Companions(c.Site.Space));
             c = c with { Body = Kinematics.Step(c.Body, intent, rules, SpaceNear(c, c.Body), obstacles, TickMs) };
         }
         bool reaches = !spent && (foe.Companion is not null || !State.PlayerCombat.Defeated)
@@ -945,7 +945,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         {
             new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0),
         };
-        others.AddRange(Companions());
+        others.AddRange(Companions(c.Site.Space));
         others.AddRange(Herd(c));
         return Kinematics.Step(from, intent, rules, SpaceNear(c, from), others, TickMs);
     }
@@ -997,7 +997,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         (Body, EntityId, string?) foe = (player, _player, null);
         foreach (var companion in State.Companions.Values.Where(x => x.Condition == CompanionCondition.Up))
         {
-            if (!State.Npcs.TryGetValue(companion.NpcId, out var npc))
+            if (!State.Npcs.TryGetValue(companion.NpcId, out var npc) || npc.Space != c.Site.Space)
                 continue;
             double toCompanion = Distance(c.Body.XMm, c.Body.ZMm, npc.Body.XMm, npc.Body.ZMm);
             if (toCompanion + FoeMarginMm < toPlayer && toCompanion + FoeMarginMm < Distance(c.Body.XMm, c.Body.ZMm, foe.Item1.XMm, foe.Item1.ZMm))
@@ -1010,9 +1010,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
     private const long FoeMarginMm = 1_000;
 
     /// <summary>Companions on their feet, as bodies creatures do not walk through.</summary>
-    private IEnumerable<Blocker> Companions() =>
+    private IEnumerable<Blocker> Companions(SpaceId space) =>
         State.Companions.Values.Where(x => x.Condition == CompanionCondition.Up && State.Npcs.ContainsKey(x.NpcId))
-            .Select(x => State.Npcs[x.NpcId])
+            .Select(x => State.Npcs[x.NpcId]).Where(n => n.Space == space)
             .Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0));
 
     private static bool Arrived(CreatureState c, long xMm, long zMm) => Distance(c.Body.XMm, c.Body.ZMm, xMm, zMm) <= 700;

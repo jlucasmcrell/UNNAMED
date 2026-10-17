@@ -147,7 +147,7 @@ internal sealed partial class CompanionSystem
             return "dead";
         if (!State.Npcs.TryGetValue(command.NpcId, out var npc))
             return $"there is no one called {command.NpcId} here";
-        if (!_context.InTalkReach(npc.Body))
+        if (!_context.InTalkReach(npc))
             return $"{npc.Definition.Name} is out of reach";
         if (!command.AcceptsRisk)
             return "a hireling can die in your service: the hire needs that risk accepted";
@@ -333,7 +333,7 @@ internal sealed partial class CompanionSystem
             return $"unknown actor {command.Actor}";
         if (!State.Companions.TryGetValue(command.NpcId, out var c) || c.Contract is not { Role: HirelingRole.Crafter } contract)
             return $"{Name(command.NpcId)} is not a crafter in your hire";
-        if (!_context.InTalkReach(State.Npcs[c.NpcId].Body))
+        if (!_context.InTalkReach(State.Npcs[c.NpcId]))
             return $"{Name(command.NpcId)} is out of reach";
         if (command.Count < 1)
             return "hand over at least one";

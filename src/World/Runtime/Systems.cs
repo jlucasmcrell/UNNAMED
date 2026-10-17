@@ -96,7 +96,7 @@ internal sealed class SystemContext
 
     /// <summary>Every trader's wares (M4): a container keyed by the merchant, standing at the trader.</summary>
     public IEnumerable<ContainerSite> MerchantSites() =>
-        State.Npcs.Values.Select(WaresOf).OfType<ContainerSite>();
+        State.Npcs.Values.Where(n => n.Space == State.Space).Select(WaresOf).OfType<ContainerSite>();
 
     public ContainerSite? WaresOf(NpcState npc) =>
         npc.Definition.MerchantId is { } merchant && Setup.Items.Merchants.ContainsKey(merchant)
@@ -123,6 +123,9 @@ internal sealed class SystemContext
         Setup.SpaceFor(State.Space).Blockers.Concat(ClosedDoors()).Any(b => b.Crosses(x0, z0, x1, z1));
 
     /// <summary>An NPC the character can speak to: within a hand's reach, and not through a wall (the Phase-1 technical audit, L-09).</summary>
+    public bool InTalkReach(NpcState npc) =>
+        npc.Space == State.Space && InTalkReach(npc.Body);
+
     public bool InTalkReach(Body npc) =>
         DistanceToPlayer(npc) <= TalkReachMm && !Walled(State.Body.XMm, State.Body.ZMm, npc.XMm, npc.ZMm);
 
@@ -142,7 +145,7 @@ internal sealed class SystemContext
     public ImmutableArray<Blocker> Obstacles() =>
         ClosedDoors().AddRange(State.Creatures.Values.Where(c => c.Alive && c.Site.Space == State.Space)
             .Select(c => (Blocker)new CircleBlocker(c.Key, c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm, 0)))
-            .AddRange(State.Npcs.Values.Where(n => !State.Companions.ContainsKey(n.Definition.Id) && Setup.SpaceOfNpc(n.Definition.Id) == State.Space)
+            .AddRange(State.Npcs.Values.Where(n => !State.Companions.ContainsKey(n.Definition.Id) && n.Space == State.Space)
                 .Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, Setup.Movement.BodyRadiusMm, 0)));
 }
 

@@ -46,6 +46,7 @@ public partial class Main : Node3D
     /// (review 3, B6). Null when this run holds no interior, which is every run without the gate.
     /// </summary>
     private HollowView? _interior;
+    private Art.ArtBindings? _interiorBindings;
     private Figure _avatar = null!;
     private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
     private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
@@ -613,6 +614,7 @@ public partial class Main : Node3D
         string? overlay = Path.Combine(_session.Options.ContentRoot, "_art_bindings_barrowworks.json");
         var bindings = Art.ArtBindings.LoadWithOverlay(
             Art.ArtBindings.ResourcePath, System.IO.File.Exists(overlay) ? overlay : null);
+        _interiorBindings = bindings;
         _interior = new HollowView { Name = "Barrowworks" };
         _interior.Bind(_art, bindings, new GroundField(ring, bindings, _scatterRules));
         AddChild(_interior);
@@ -640,6 +642,15 @@ public partial class Main : Node3D
         _hollow.SetSpaceActive(outside);
         if (_interior is { } ring)
             ring.SetSpaceActive(!outside);
+        var bindings = outside ? _bindings : _interiorBindings ?? _bindings;
+        _items.Bind(_art, bindings);
+        _items.BuildContainers(_session.Simulation!.ActiveLayout);
+        _items.Refresh(_session.Simulation!);
+        _crafting.Bind(_art, bindings);
+        _crafting.Build(_session.Simulation!.ActiveLayout);
+        _crafting.Refresh(_session.Simulation!.Nodes);
+        _creatures.Bind(_art, bindings);
+        _creatures.Reset();
     }
 
     /// <summary>The world's scene - ground, buildings, figures, effects - drawn from the asset library where it can be, greybox where not.</summary>
@@ -701,6 +712,8 @@ public partial class Main : Node3D
         _crafting.Build(_session.Setup.Layout);
         _npcs = new NpcsView { Name = "Npcs", Ground = VisualOptions.BodyModifiers ? _ground.Height : null };
         _npcs.Bind(_art, _bindings);
+        if (_session.Setup.Interior is not null && VisualOptions.BodyModifiers)
+            _npcs.Ground = (x, z) => _session.Simulation!.ActiveLayout.Space.Terrain.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f;
         AddChild(_npcs);
         // The character budget's harness (MetaHuman pipeline, Phase 1.4): bound people stood along the camera's view.
         if (OS.GetEnvironment("UNNAMED_PERF_CROWD") is { Length: > 0 } crowd)

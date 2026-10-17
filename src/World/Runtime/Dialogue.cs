@@ -86,7 +86,7 @@ internal sealed class DialogueSystem : IDialogueFacts
             return $"{npc.Definition.Name} has nothing to say";
         if (State.Companions.TryGetValue(command.NpcId, out var companion) && companion.Condition == CompanionCondition.Downed)
             return $"{npc.Definition.Name} is down";
-        if (!_context.InTalkReach(npc.Body))
+        if (!_context.InTalkReach(npc))
             return $"{npc.Definition.Name} is out of reach";
         if (State.Conversation is { } open)
             End(open, tick);

@@ -230,19 +230,36 @@ def _in_corridor(x, z):
     return any(c[0] - 0.05 <= x <= c[2] + 0.05 and c[1] - 0.05 <= z <= c[3] + 0.05 for c in _corridor_rects)
 
 
+# Merge adjacent solid cells into rectangles without changing a millimetre of the carved walk space.
+# Thousands of individual rock tiles were unnecessary simulation broad-phase work and camera bodies.
 _rock = 0
-gx = min_x
-while gx < max_x - 0.001:
-    gz = min_z
-    while gz < max_z - 0.001:
-        cx0, cz0 = gx, gz
-        cx1, cz1 = min(gx + CELL_ROCK, max_x), min(gz + CELL_ROCK, max_z)
-        mx, mz = (cx0 + cx1) / 2, (cz0 + cz1) / 2
-        if not _in_room(mx, mz) and not _in_corridor(mx, mz):
-            box(f"rock_{_rock:04d}", cx0, cz0, cx1, cz1, 40.0)
+active_runs = {}
+gz = min_z
+while gz < max_z - 0.001:
+    z1 = min(gz + CELL_ROCK, max_z)
+    runs, start = [], None
+    gx = min_x
+    while gx < max_x - 0.001:
+        x1 = min(gx + CELL_ROCK, max_x)
+        solid = not _in_room((gx + x1) / 2, (gz + z1) / 2) and not _in_corridor((gx + x1) / 2, (gz + z1) / 2)
+        if solid and start is None:
+            start = gx
+        if not solid and start is not None:
+            runs.append((start, gx))
+            start = None
+        gx = x1
+    if start is not None:
+        runs.append((start, max_x))
+    for run in list(active_runs):
+        if run not in runs:
+            box(f"rock_{_rock:04d}", run[0], active_runs.pop(run), run[1], gz, 40.0)
             _rock += 1
-        gz += CELL_ROCK
-    gx += CELL_ROCK
+    for run in runs:
+        active_runs.setdefault(run, gz)
+    gz = z1
+for run, z0 in active_runs.items():
+    box(f"rock_{_rock:04d}", run[0], z0, run[1], max_z, 40.0)
+    _rock += 1
 
 CELL = 100
 cells = []
@@ -327,9 +344,11 @@ w("doors:")
 for gate, (x0, z0, x1, z1) in doors:
     w(f"  - {{ key: door.barrowworks.{gate}, flag_ref: world.barrowworks.gate_{gate}_open, "
       f"box_m: [{x0:.1f}, {z0:.1f}, {x1:.1f}, {z1:.1f}], height_m: 2.4 }}")
-w("containers: []")
+w("containers:")
+w("  - { key: container.barrowworks.archive_crate, loot_ref: loot.barrowworks.archive_crate, position_m: [74.5, 62.5], stack_slots: 4 }")
 w("npcs: []")
-w("nodes: []")
+w("nodes:")
+w("  - { name: barrowworks_ash_stand, node_ref: node.wood.ash_stand, position_m: [74, 64] }")
 w("stations: []")
 # A switch stands on a structure and sets its flag in that cell, once. These three are the readings: the verb is
 # Read rather than Turn, because what a character does to a notice is read it.

@@ -33,12 +33,17 @@ public sealed record RelationshipChanged(string NpcId, string Dimension, int Fro
 /// <summary>An NPC as presentation draws them: who, where, and whether the character is talking to them.</summary>
 public sealed record NpcView(string Id, EntityId InstanceId, string Name, Body Body, bool Talking)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public SpaceId Space { get; init; }
     /// <summary>A companion lying downed (M6).</summary>
     public bool Downed { get; init; }
 }
 
 /// <summary>An NPC's body as the simulation holds it: where they stand and which way they face. Transient in Phase 1.</summary>
-internal sealed record NpcState(NpcDefinition Definition, EntityId InstanceId, NpcSite Site, Body Body);
+internal sealed record NpcState(NpcDefinition Definition, EntityId InstanceId, NpcSite Site, Body Body)
+{
+    public SpaceId Space { get; init; }
+}
 
 /// <summary>To <see cref="RelationshipSystem"/>: move what an NPC thinks of the player on one dimension, for a reason.</summary>
 internal sealed record ChangeRelationship(string NpcId, string Dimension, int Delta, string EventKey) : InternalCommand;
@@ -86,7 +91,7 @@ internal sealed class NpcSystem
             if (!State.World.Registry.Exists(id))
                 State.World.Registry.CreateEntity(DefinitionId.Parse(site.NpcId), id);
             long y = _context.Setup.SpaceFor(home.SpaceId).Terrain.HeightAtMm(site.XMm, site.ZMm);
-            State.SetNpc(_owner, new NpcState(definition, id, site, new Body(site.XMm, y, site.ZMm, site.FacingMdeg)));
+            State.SetNpc(_owner, new NpcState(definition, id, site, new Body(site.XMm, y, site.ZMm, site.FacingMdeg)) { Space = home.SpaceId });
         }
     }
 
@@ -105,7 +110,7 @@ internal sealed class NpcSystem
     {
         if (!State.Npcs.TryGetValue(command.NpcId, out var npc))
             return $"there is no one called {command.NpcId} here";
-        State.SetNpc(_owner, npc with { Body = command.Body });
+        State.SetNpc(_owner, npc with { Body = command.Body, Space = command.Space ?? npc.Space });
         return null;
     }
 
@@ -129,6 +134,7 @@ internal sealed class NpcSystem
     public ImmutableArray<NpcView> Views() =>
         State.Npcs.Values.Select(n => new NpcView(n.Definition.Id, n.InstanceId, n.Definition.Name, n.Body, State.Conversation?.NpcId == n.Definition.Id)
         {
+            Space = n.Space,
             Downed = State.Companions.TryGetValue(n.Definition.Id, out var companion) && companion.Condition == CompanionCondition.Downed,
         }).ToImmutableArray();
 }

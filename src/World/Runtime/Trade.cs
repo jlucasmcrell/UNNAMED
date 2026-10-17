@@ -170,6 +170,6 @@ internal sealed class TradeSystem
         if (!npc.Definition.Offers(NpcServices.Trade) || npc.Definition.MerchantId is not { } merchantId || !Items.Merchants.TryGetValue(merchantId, out var stock))
             return $"{npc.Definition.Name} does not trade";
         merchant = stock;
-        return !_context.InTalkReach(npc.Body) ? $"{npc.Definition.Name} is out of reach" : null;
+        return !_context.InTalkReach(npc) ? $"{npc.Definition.Name} is out of reach" : null;
     }
 }

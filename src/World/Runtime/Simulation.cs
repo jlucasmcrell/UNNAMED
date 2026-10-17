@@ -83,7 +83,7 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>The layout that stands in <paramref name="space"/>, or the region's own when none does.</summary>
     public RegionLayout LayoutFor(SpaceId space) =>
-        Layouts.TryGetValue(space, out var held) ? held : Layout;
+        space == Layout.SpaceId ? Layout : Layouts.TryGetValue(space, out var held) ? held : Layout;
 
     /// <summary>
     /// The ground and walls of <paramref name="space"/>, or the layout's own when it names nothing this holds. The
@@ -91,7 +91,7 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
     /// something in the loaded region would stand.
     /// </summary>
     public WalkSpace SpaceFor(SpaceId space) =>
-        Spaces.TryGetValue(space, out var held) ? held : Layout.Space;
+        space == Layout.SpaceId ? Layout.Space : Spaces.TryGetValue(space, out var held) ? held : Layout.Space;
 
     /// <summary>The formulas, the tuning of casting, and what books teach (M3e).</summary>
     public MagicSetup Magic { get; init; } = MagicSetup.Empty;

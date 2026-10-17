@@ -533,7 +533,8 @@ internal sealed class QuestSystem : IQuestFacts, IAbstractAdvance
 
     public long DistanceMm(string locationId)
     {
-        if (_context.Setup.Sites(l => l.Locations).FirstOrDefault(p => p.Site.Id == locationId) is not { Site: { } place })
+        if (_context.Setup.Sites(l => l.Locations).FirstOrDefault(p => p.Site.Id == locationId) is not { Site: { } place, Layout: var home }
+            || home.SpaceId != State.Space)
             return long.MaxValue;
         var body = State.Body;
         return (long)Math.Round(Math.Sqrt(Math.Pow(place.XMm - body.XMm, 2) + Math.Pow(place.ZMm - body.ZMm, 2)));
@@ -552,7 +553,8 @@ internal sealed class QuestSystem : IQuestFacts, IAbstractAdvance
     public bool KnowsStone(string stoneKey) => State.KnownStones.ContainsKey(stoneKey);
 
     public CompanionOrder? CompanionPresent(string npcId) =>
-        State.Companions.TryGetValue(npcId, out var companion) && companion.Condition == CompanionCondition.Up ? companion.Order : null;
+        State.Companions.TryGetValue(npcId, out var companion) && companion.Condition == CompanionCondition.Up
+            && State.Npcs.TryGetValue(npcId, out var npc) && npc.Space == State.Space ? companion.Order : null;
 }
 
 /// <summary>

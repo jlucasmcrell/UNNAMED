@@ -30,6 +30,11 @@ public partial class ItemsView : Node3D
 
     public void BuildContainers(RegionLayout layout)
     {
+        foreach (var child in GetChildren().Where(child => child != _ground))
+        {
+            RemoveChild(child);
+            child.QueueFree();
+        }
         foreach (var site in layout.Containers)
         {
             var feet = new Vector3(site.XMm / 1000f, layout.Space.Terrain.HeightAtMm(site.XMm, site.ZMm) / 1000f, site.ZMm / 1000f);
@@ -61,7 +66,7 @@ public partial class ItemsView : Node3D
     {
         foreach (var child in _ground.GetChildren())
             child.QueueFree();
-        var terrain = simulation.Setup.Layout.Space.Terrain;
+        var terrain = simulation.ActiveLayout.Space.Terrain;
         foreach (var item in simulation.WorldItems)
         {
             var feet = new Vector3(item.XMm / 1000f, terrain.HeightAtMm(item.XMm, item.ZMm) / 1000f, item.ZMm / 1000f);

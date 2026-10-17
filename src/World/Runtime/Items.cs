@@ -549,7 +549,7 @@ internal sealed class InventorySystem
     }
 
     public ImmutableArray<WorldItemView> WorldItems() =>
-        _context.Setup.Layout.CellKeys.Select(CellKey.Parse)
+        _context.Setup.LayoutFor(State.Space).CellKeys.Select(CellKey.Parse)
             .SelectMany(cell => State.World.CreatedIn(cell).Select(c =>
             {
                 var (x, z) = WorldPosition(cell, c.XCm, c.ZCm);
@@ -589,7 +589,8 @@ internal sealed class InventorySystem
                     .Select(e => new Located(itemRef, e.DefId, e.Count, e.ItemId, -1, 0, 0, e.Quality) { Notable = e.Notable }).FirstOrDefault();
             case PlaceKind.Ground:
             {
-                if (!EntityId.TryParse(itemRef, out var id) || State.World.FindCreated(id) is not { } record || !CellKey.TryParse(record.HostCell, out var cell))
+                if (!EntityId.TryParse(itemRef, out var id) || State.World.FindCreated(id) is not { } record || !CellKey.TryParse(record.HostCell, out var cell)
+                    || cell.Space != State.Space)
                     return null;
                 var (x, z) = WorldPosition(cell, record.XCm, record.ZCm);
                 return new Located(itemRef, record.DefId, record.Count, id, -1, x, z, record.Quality) { Notable = record.Notable };

@@ -256,6 +256,7 @@ public sealed class PostureDto
 [MessagePackObject]
 public sealed class CompanionDto
 {
+    [Key("space")] public string? Space { get; set; }
     [Key("npc_id")] public string NpcId { get; set; } = "";
     [Key("order")] public string Order { get; set; } = "";
     [Key("condition")] public string Condition { get; set; } = "";
@@ -665,6 +666,7 @@ public static class SectionCodec
         Companions = player.Companions
             .Select(c => new CompanionDto
             {
+                Space = c.Space,
                 NpcId = c.NpcId,
                 Order = CompanionKeys.Key(c.Order),
                 Condition = CompanionKeys.Key(c.Condition),
@@ -834,6 +836,7 @@ public static class SectionCodec
             CompanionKeys.ParseCondition(c.Condition) ?? throw new FormatException($"companion {c.NpcId} has condition '{c.Condition}'"),
             c.XMm, c.ZMm, c.FacingMdeg, c.Health)
         {
+            Space = c.Space is null ? null : SpaceId.Parse(c.Space).ToString(),
             DownedTick = c.DownedTick,
             StuckTicks = c.StuckTicks,
             LastCombatTick = c.LastCombatTick,

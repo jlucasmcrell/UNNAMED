@@ -39,6 +39,11 @@ public readonly record struct SpaceId
 
     public bool IsExterior => string.IsNullOrEmpty(Name);
 
+    // A parsed empty save value and default(SpaceId) name the same exterior.
+    public bool Equals(SpaceId other) => string.Equals(ToString(), other.ToString(), StringComparison.Ordinal);
+
+    public override int GetHashCode() => StringComparer.Ordinal.GetHashCode(ToString());
+
     /// <summary>Rejects a name that cannot round-trip through a save key, rather than writing a broken one.</summary>
     public static SpaceId Parse(string value)
     {

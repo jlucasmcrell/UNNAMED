@@ -100,7 +100,7 @@ internal sealed record OrderCompanion(string NpcId, CompanionOrder Order) : Inte
 internal sealed record CompanionStruck(EntityId Attacker, string NpcId, AttackProfile Attack) : InternalCommand;
 
 /// <summary>To <see cref="NpcSystem"/>: an NPC's body moves - a companion walking, turning, or put down somewhere.</summary>
-internal sealed record PlaceNpc(string NpcId, Body Body) : InternalCommand;
+internal sealed record PlaceNpc(string NpcId, Body Body, SpaceId? Space = null) : InternalCommand;
 
 // ── the system ──────────────────────────────────────────────────────────────
 
@@ -157,8 +157,9 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
             // runs after the space is adopted from a save, so a save made inside the ring put a companion left
             // waiting outside on the ring floor (review 3, B8). The other uses in this file are the follow and
             // arrival paths, where the player space IS the companion space.
-            var terrain = _context.Setup.SpaceFor(_context.Setup.SpaceOfNpc(record.NpcId)).Terrain;
-            _context.Dispatch(new PlaceNpc(record.NpcId, new Body(record.XMm, terrain.HeightAtMm(record.XMm, record.ZMm), record.ZMm, record.FacingMdeg)));
+            var space = record.Space is null ? npc.Space : SpaceId.Parse(record.Space);
+            var terrain = _context.Setup.SpaceFor(space).Terrain;
+            _context.Dispatch(new PlaceNpc(record.NpcId, new Body(record.XMm, terrain.HeightAtMm(record.XMm, record.ZMm), record.ZMm, record.FacingMdeg), space));
             State.SetCompanion(_owner, new CompanionState(record.NpcId, profile, attack, record.Order, record.Condition, record.Health)
             {
                 DownedTick = record.DownedTick,
@@ -184,6 +185,7 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
             var body = State.Npcs[c.NpcId].Body;
             return new CompanionRecord(c.NpcId, c.Order, c.Condition, body.XMm, body.ZMm, body.FacingMdeg, c.Health)
             {
+                Space = State.Npcs[c.NpcId].Space == _context.Setup.SpaceOfNpc(c.NpcId) ? null : State.Npcs[c.NpcId].Space.ToString(),
                 DownedTick = c.DownedTick,
                 StuckTicks = c.StuckTicks,
                 LastCombatTick = c.LastCombatTick,
@@ -256,7 +258,7 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
             return $"{Name(command.NpcId)} is not with you";
         if (c.Condition != CompanionCondition.Downed)
             return $"{Name(command.NpcId)} is not down";
-        if (!_context.InTalkReach(State.Npcs[c.NpcId].Body))
+        if (!_context.InTalkReach(State.Npcs[c.NpcId]))
             return $"{Name(command.NpcId)} is out of reach";
         int health = Math.Max(1, c.Profile.MaxHealth * Tuning!.RevivePercent / 100);
         State.SetCompanion(_owner, Up(c, health, tick));
@@ -277,7 +279,8 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
             var npc = State.Npcs[c.NpcId];
             var arrival = command.Arrival;
             var at = Ring(arrival, arrival.FacingMdeg + 180_000 + place++ * 45_000, 2_000, Obstacles(c.NpcId)) ?? (arrival.XMm, arrival.ZMm);
-            Place(npc, new Body(at.X, terrain.HeightAtMm(at.X, at.Z), at.Z, CombatRules.FacingTowards(at.X, at.Z, arrival.XMm, arrival.ZMm)));
+            _context.Dispatch(new PlaceNpc(npc.Definition.Id,
+                new Body(at.X, terrain.HeightAtMm(at.X, at.Z), at.Z, CombatRules.FacingTowards(at.X, at.Z, arrival.XMm, arrival.ZMm)), State.Space));
             State.SetCompanion(_owner, c with { StuckTicks = 0, Trail = ImmutableArray<TrailMark>.Empty, TargetKey = null, Action = ActionState.Idle });
         }
         return null;
@@ -346,6 +349,9 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
             Fall(c, npc, tick);
             return null;
         }
+        // A party member left waiting in another space stays there; portal travel explicitly moves followers.
+        if (npc.Space != State.Space)
+            return c;
         if (TierOf(npc.Body) != SimulationTier.A)
         {
             // Left outside the simulated ground - the character went far at once, by a fall, a jump or a return - a follower would stand
@@ -514,7 +520,7 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
         long radius = c.Order == CompanionOrder.Follow && c.Stance == CompanionStance.Aggressive ? tuning.FightRadiusMm : tuning.GuardRadiusMm;
         bool leashed = c.Order == CompanionOrder.Follow && c.Tactics.KeepToLeash;
         bool InPlay(CreatureState x, long within) =>
-            x.Alive && TierOf(x.Body) == SimulationTier.A && Distance(body.XMm, body.ZMm, x.Body.XMm, x.Body.ZMm) <= within
+            x.Alive && x.Site.Space == npc.Space && TierOf(x.Body) == SimulationTier.A && Distance(body.XMm, body.ZMm, x.Body.XMm, x.Body.ZMm) <= within
             && (!leashed || Distance(player.XMm, player.ZMm, x.Body.XMm, x.Body.ZMm) <= tuning.LeashMm);
         if (c.TargetKey is { } key && State.Creatures.TryGetValue(key, out var current) && InPlay(current, radius * 3 / 2))
             return current;
@@ -693,10 +699,10 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
     {
         long radius = _context.Setup.Movement.BodyRadiusMm;
         var obstacles = new List<Blocker>(_context.ClosedDoors());
-        obstacles.AddRange(State.Creatures.Values.Where(x => x.Alive)
+        obstacles.AddRange(State.Creatures.Values.Where(x => x.Alive && x.Site.Space == State.Space)
             .Select(x => (Blocker)new CircleBlocker(x.Key, x.Body.XMm, x.Body.ZMm, x.Definition.RadiusMm, 0)));
         obstacles.Add(new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, radius, 0));
-        obstacles.AddRange(State.Npcs.Values.Where(n => n.Definition.Id != npcId)
+        obstacles.AddRange(State.Npcs.Values.Where(n => n.Definition.Id != npcId && n.Space == State.Space)
             .Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, radius, 0)));
         return obstacles;
     }

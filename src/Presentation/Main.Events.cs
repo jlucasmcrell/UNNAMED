@@ -51,14 +51,19 @@ public partial class Main
         {
             _controller.OnDoorToggled(e);
             _hollow.SetDoor(e.DoorKey, e.Open);
+            _interior?.SetDoor(e.DoorKey, e.Open);
         });
         // Switches and barriers (M6): what a switch did, and every flag change shown as it now stands.
         _session.Subscribe<SwitchSet>(e =>
         {
-            if (_session.Setup.Layout.FindSwitch(e.SwitchKey) is { } site)
+            if (_session.Simulation!.ActiveLayout.FindSwitch(e.SwitchKey) is { } site)
                 _hud.Toast(site.DoneText, 6);
         });
-        _session.Subscribe<WorldFlagChanged>(_ => _hollow.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers, inPlay: true));
+        _session.Subscribe<WorldFlagChanged>(_ =>
+        {
+            _hollow.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers, inPlay: true);
+            _interior?.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers, inPlay: true);
+        });
         _session.Subscribe<LocationDiscovered>(e => _hud.Toast($"Discovered: {Names.Of(_session, e.LocationId)}"));
         // Companions (M6): joined, told, downed, helped up, fallen back to the Waystone.
         _session.Subscribe<CompanionRecruited>(e => _hud.Toast($"{Names.Of(_session, e.NpcId)} joins you"));
