@@ -157,7 +157,7 @@ public partial class SystemMenuPanel : CanvasLayer
 
     /// <summary>
     /// The strip under the title: the name in capitals, the level in ember, the XP gauge with its exact numbers (tenths marked), a debt
-    /// chip; and under it the date and the weather, the time played and the last save, with the point waiting at the right. The
+    /// chip; under it the date and the weather; and under that the time played and the last save, with the point waiting at the right. The
     /// world-goes-on cue closes the first line. Without a status (no world yet) only the cue shows.
     /// </summary>
     private Control Strip()
@@ -194,12 +194,11 @@ public partial class SystemMenuPanel : CanvasLayer
         cue.AddChild(UiKit.Caption("The world goes on"));
         top.AddChild(cue);
         strip.AddChild(top);
+        _date = HudStyle.Text(HudStyle.Body, 16, HudStyle.Bone);
+        strip.AddChild(_date);
 
         _strip = new HBoxContainer();
         _strip.AddThemeConstantOverride("separation", 8);
-        _date = HudStyle.Text(HudStyle.Body, 16, HudStyle.Bone);
-        _date.VerticalAlignment = VerticalAlignment.Center;
-        _strip.AddChild(_date);
         _session = HudStyle.Text(HudStyle.Body, 16, HudStyle.Muted);
         _session.VerticalAlignment = VerticalAlignment.Center;
         _strip.AddChild(_session);
@@ -233,6 +232,7 @@ public partial class SystemMenuPanel : CanvasLayer
         _name.Visible = _level.Visible = _strip.Visible = known;
         _xp.Visible = known && !status!.Capped;
         _debt.Visible = known && status!.XpDebt > 0;
+        _date.Visible = known && status!.Date.Length > 0;
         if (_pointsChip is not null)
         {
             _pointsChip.Visible = known && status!.Points > 0;
@@ -246,8 +246,7 @@ public partial class SystemMenuPanel : CanvasLayer
         _xpGauge.Set(status.Xp, status.XpToNext);
         _xpValue.Text = $"{status.Xp} / {status.XpToNext}";
         _debtWord.Text = $"Debt {status.XpDebt}";
-        _date.Text = status.Date.Length > 0 ? status.Date + " ·" : string.Empty;
-        _date.Visible = status.Date.Length > 0;
+        _date.Text = status.Date;
         _session.Text = $"{status.Played} · {status.Saved}";
         _points.Visible = status.Points > 0;
     }
