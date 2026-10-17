@@ -12,7 +12,8 @@ namespace UNNAMED.Presentation.Ui;
 /// <summary>
 /// The map (M), a WIDE sheet: the region drawn from what the character knows - the ground round each place they have discovered, the
 /// stretches of road they have walked, the Waystones they know (the return point ringed) - and where they stand, facing. Everything they
-/// have not found is blank soot: no undiscovered marker, no quest pin. North is up; a scale bar measures it.
+/// have not found is blank soot: no undiscovered marker, no quest pin. North is up; a scale bar measures it. Over it, the calendar line:
+/// the date in numbered tallies and the weather now (WP7).
 /// </summary>
 public partial class MapPanel : CanvasLayer
 {
@@ -21,6 +22,7 @@ public partial class MapPanel : CanvasLayer
     private HudIcons _icons = HudIcons.None;
     private MapCanvas _canvas = null!;
     private Label _known = null!;
+    private Label _date = null!;
 
     public void Bind(GameSession session) => _session = session;
 
@@ -36,6 +38,8 @@ public partial class MapPanel : CanvasLayer
         Visible = false;
         _sheet = UiKit.Sheet(this, "Map", "map", UiKit.Wide);
         _sheet.SetHint("What you have found: the places you have been, the roads you have walked, the stones you know.");
+        _date = UiKit.Words(string.Empty, 17, HudStyle.Bone);
+        _sheet.Body.AddChild(_date);
         _canvas = new MapCanvas { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, ClipContents = true };
         _sheet.Body.AddChild(_canvas);
         var legend = new HBoxContainer();
@@ -54,6 +58,7 @@ public partial class MapPanel : CanvasLayer
         if (!Visible || _session?.Simulation is not { } simulation)
             return;
         var map = simulation.Map;
+        _date.Text = CalendarWords.Line(simulation.Calendar, _session.Setup.Calendar, simulation.Weather.State);
         var stones = simulation.Waystones.Where(w => w.Known).ToList();
         _canvas.Show(_session.Setup.Layout, map, stones.Select(w => (w.Site, w.ReturnPoint)).ToList(),
             map.Places.Select(p => (p, Names.Of(_session, p.LocationId))).ToList(), simulation.Player.Body);

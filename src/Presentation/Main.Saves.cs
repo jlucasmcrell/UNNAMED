@@ -8,6 +8,7 @@ using UNNAMED.Presentation.Greybox;
 using UNNAMED.Presentation.Player;
 using UNNAMED.Presentation.Ui;
 using UNNAMED.World;
+using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Presentation;
 
@@ -180,8 +181,16 @@ public partial class Main
                      $"{(login.CatchUp.Capped ? " (capped)" : "")}; {login.Away.Lines.Count} away-log lines");
             foreach (string problem in login.Result.Report.Loss.Concat(login.Result.Report.Warnings))
                 GD.PushWarning(problem);
-            if (login.Away.Lines.Count > 0)
+            var away = AwayOf(login.Away.FromTick, login.Away.ToTick, login.Away.Lines, login.CatchUp.Capped);
+            if (away.WorthShowing)
+            {
+                // Every line goes to the journal's Recent list whether or not the sheet is read; the sheet opens over a running world.
+                _session.NoteAway(login.Away.ToTick, away.JournalLines);
+                // The showcase photographs the world from the moment it logs in; the sheet would stand in front of every shot.
+                if (!_options.ContainsKey("--showcase"))
+                    ShowAway(away);
                 Hint(Domain.Guidance.HintTriggers.AwaySheet);
+            }
             return (login.Slot, SaveCopy.Current, login.Result);
         }
         catch (Exception e) when (e is SaveException or IOException or UnauthorizedAccessException)
@@ -194,6 +203,31 @@ public partial class Main
                 _saves.OpenInGame(failure);
             return null;
         }
+    }
+
+    /// <summary>An absence's away log in the sheet's words, with the content's names.</summary>
+    private AwaySummary AwayOf(long fromTick, long toTick, IReadOnlyList<AdvanceLine> lines, bool capped) =>
+        AwayWords.Of(fromTick, toTick, lines, capped, _session.Setup.Clock, _session.Setup.Calendar, id => Names.Of(_session, id));
+
+    /// <summary>The "while you were away" sheet, opened in place of any other screen; the world runs on under it.</summary>
+    private void ShowAway(AwaySummary away)
+    {
+        CloseScreens();
+        _awaySheet.Show(away);
+        _awaySheet.Visible = true;
+    }
+
+    /// <summary>
+    /// The sheet as the harnesses picture it: this session's last login's, or a day's absence ending now with the weather the world has -
+    /// a preview, so nothing passes and nothing reaches the journal.
+    /// </summary>
+    private AwaySummary AwayPreview()
+    {
+        if (_session.LastLogin is { } login && login.Away.Ticks > 0)
+            return AwayOf(login.Away.FromTick, login.Away.ToTick, login.Away.Lines, login.CatchUp.Capped);
+        var simulation = _session.Simulation!;
+        long to = simulation.WorldTick, from = Math.Max(0, to - _session.Setup.Clock.TicksPerDay);
+        return AwayOf(from, to, new[] { new AdvanceLine(to, AdvanceKinds.WeatherNow, World.Runtime.WeatherStates.Key(simulation.Weather.State)) }, false);
     }
 
     /// <summary>

@@ -48,6 +48,8 @@ public partial class Main
         _reputation = new ReputationPanel { Name = "Reputation" };
         _reputation.Bind(_session);
         AddChild(_reputation);
+        _awaySheet = new AwaySheet { Name = "Away", Dismissed = CloseScreens };
+        AddChild(_awaySheet);
         _companionsPanel = new CompanionsPanel { Name = "Companions" };
         _companionsPanel.Bind(_session, _controller);
         AddChild(_companionsPanel);
@@ -271,7 +273,7 @@ public partial class Main
 
     /// <summary>The management screen open, if any: one at a time.</summary>
     private CanvasLayer? Screen =>
-        new CanvasLayer[] { _menu, _inventory, _character, _skills, _journal, _effectsPanel, _companionsPanel, _reputation, _waystones, _map, _settings, _credits, _help, _saves }.FirstOrDefault(s => s.Visible);
+        new CanvasLayer[] { _menu, _inventory, _character, _skills, _journal, _effectsPanel, _companionsPanel, _reputation, _awaySheet, _waystones, _map, _settings, _credits, _help, _saves }.FirstOrDefault(s => s.Visible);
 
     /// <summary>Close whatever management screen is open, back to play.</summary>
     private void CloseScreens()
@@ -285,7 +287,7 @@ public partial class Main
             _help.Toggle();
         _waystones.Close();
         _settings.Close();
-        foreach (var screen in new CanvasLayer[] { _menu, _character, _skills, _journal, _effectsPanel, _companionsPanel, _reputation, _map, _credits })
+        foreach (var screen in new CanvasLayer[] { _menu, _character, _skills, _journal, _effectsPanel, _companionsPanel, _reputation, _awaySheet, _map, _credits })
             screen.Visible = false;
     }
 
@@ -344,6 +346,10 @@ public partial class Main
             case "reputation":
                 Show(_reputation);
                 break;
+            case "away":
+                // The sheet a login opens, pictured from the last login's log, or from a day's absence ending now (a preview: nothing passes).
+                ShowAway(AwayPreview());
+                break;
             case "help":
                 _help.Toggle();
                 break;
@@ -369,7 +375,8 @@ public partial class Main
 
     /// <summary>Every management screen, as the smoke opens them to prove the world runs under each.</summary>
     private static readonly string[] EveryScreen =
-        { "menu", "character", "skills", "skills_formulas", "inventory", "journal", "effects", "companions", "map", "help", "saves", "settings", "settings_controls", "credits" };
+        { "menu", "character", "skills", "skills_formulas", "inventory", "journal", "effects", "companions", "reputation", "away", "map", "help", "saves",
+          "settings", "settings_controls", "credits" };
 
     private int _noPauseScreen;
     private int _noPauseFrames;
@@ -548,8 +555,12 @@ public partial class Main
             : _loadedFrom is { } loaded ? $"Loaded {loaded}, not saved since" : "Not saved yet";
         return new SystemMenuPanel.StatusLine(simulation.Player.Name, progression.Level, capped, progression.LevelProgressXp,
             capped ? 0 : rules.Curve.ToReach(progression.Level + 1), progression.XpDebt, progression.UnspentAttributePoints,
-            $"Played {Span(_session.PlaytimeSeconds)}", saved);
+            $"Played {Span(_session.PlaytimeSeconds)}", saved, DateLine(simulation));
     }
+
+    /// <summary>The calendar line (WP7): the date in numbered tallies and the weather now, as the System Menu's strip and the map show it.</summary>
+    private string DateLine(UNNAMED.World.Runtime.Simulation simulation) =>
+        CalendarWords.Line(simulation.Calendar, _session.Setup.Calendar, simulation.Weather.State);
 
     /// <summary>A stretch of play in words: "12 min", "1 h 04 min".</summary>
     private static string Span(double seconds)

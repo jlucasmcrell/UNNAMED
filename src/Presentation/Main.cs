@@ -64,6 +64,7 @@ public partial class Main : Node3D
     private string? _loadedFrom;
     private EffectsPanel _effectsPanel = null!;
     private ReputationPanel _reputation = null!;
+    private AwaySheet _awaySheet = null!;
     private CompanionsPanel _companionsPanel = null!;
     private WaystonePanel _waystones = null!;
     private MapPanel _map = null!;

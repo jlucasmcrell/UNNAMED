@@ -23,9 +23,10 @@ public partial class SystemMenuPanel : CanvasLayer
 
     /// <summary>
     /// The strip's facts, as Main has them for the HUD: the name, the level and the XP toward the next (exact), what is owed, the points
-    /// waiting, the time played and the last save in words.
+    /// waiting, the time played and the last save in words, and the calendar line - the date in numbered tallies and the weather now (WP7).
     /// </summary>
-    public sealed record StatusLine(string Name, int Level, bool Capped, long Xp, long XpToNext, long XpDebt, int Points, string Played, string Saved);
+    public sealed record StatusLine(string Name, int Level, bool Capped, long Xp, long XpToNext, long XpDebt, int Points, string Played, string Saved,
+        string Date = "");
 
     private static readonly string[] Groups = { "You", "The world", "System" };
 
@@ -38,7 +39,7 @@ public partial class SystemMenuPanel : CanvasLayer
     private string _shown = string.Empty;
 
     // The status strip, built with the menu and updated in place while it is open (the world, and the clock, run on).
-    private Label _name = null!, _level = null!, _xpValue = null!, _debtWord = null!, _session = null!;
+    private Label _name = null!, _level = null!, _xpValue = null!, _debtWord = null!, _session = null!, _date = null!;
     private HBoxContainer _xp = null!, _points = null!, _strip = null!;
     private HudView.Gauge _xpGauge = null!;
     private PanelContainer _debt = null!;
@@ -156,8 +157,8 @@ public partial class SystemMenuPanel : CanvasLayer
 
     /// <summary>
     /// The strip under the title: the name in capitals, the level in ember, the XP gauge with its exact numbers (tenths marked), a debt
-    /// chip; and under it the time played and the last save, with the point waiting at the right. The world-goes-on cue closes the first
-    /// line. Without a status (no world yet) only the cue shows.
+    /// chip; and under it the date and the weather, the time played and the last save, with the point waiting at the right. The
+    /// world-goes-on cue closes the first line. Without a status (no world yet) only the cue shows.
     /// </summary>
     private Control Strip()
     {
@@ -196,6 +197,9 @@ public partial class SystemMenuPanel : CanvasLayer
 
         _strip = new HBoxContainer();
         _strip.AddThemeConstantOverride("separation", 8);
+        _date = HudStyle.Text(HudStyle.Body, 16, HudStyle.Bone);
+        _date.VerticalAlignment = VerticalAlignment.Center;
+        _strip.AddChild(_date);
         _session = HudStyle.Text(HudStyle.Body, 16, HudStyle.Muted);
         _session.VerticalAlignment = VerticalAlignment.Center;
         _strip.AddChild(_session);
@@ -242,6 +246,8 @@ public partial class SystemMenuPanel : CanvasLayer
         _xpGauge.Set(status.Xp, status.XpToNext);
         _xpValue.Text = $"{status.Xp} / {status.XpToNext}";
         _debtWord.Text = $"Debt {status.XpDebt}";
+        _date.Text = status.Date.Length > 0 ? status.Date + " ·" : string.Empty;
+        _date.Visible = status.Date.Length > 0;
         _session.Text = $"{status.Played} · {status.Saved}";
         _points.Visible = status.Points > 0;
     }
