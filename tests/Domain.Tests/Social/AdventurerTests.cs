@@ -117,7 +117,26 @@ public class AdventurerTests
     }
 
     [Fact]
-    public void TheFirstByKey_ClaimsACompetitiveBounty_AndTheOtherHuntsInstead()
+    public void TheFirstGoAtAContestedBounty_IsDrawnEachDay_NotAlwaysTheLowestKey()
+    {
+        var rules = Rules(target: 2);
+        var bounty = new AdventurerBounty("quest.bounty.wolves", "Wolves", "town", Wolf, null, 2, 15, 60);
+        // A sample that tells the two apart: on even days the second slot draws lower, on odd days the first.
+        static ulong Sample(string use, long d) => use.StartsWith("plan_order:", StringComparison.Ordinal)
+            ? (use.Contains("slot_2") == (d % 2 == 0) ? 1UL : 2UL) : (ulong)use.Length * 2_654_435_761UL + (ulong)d * 40_503UL;
+        AdventurerDay Day(long d) => At(d, rules, new[] { bounty }) with { Sample = use => Sample(use, d) };
+        var (odd, _) = AdventurerEngine.Midnight(Begin(rules), rules, Day(1));
+        Assert.Equal(AdventurerGoals.Bounty, odd.Agents["npc.adventurer.town.slot_1_g0"].Plan.Goal);
+        Assert.Equal(AdventurerGoals.Hunt, odd.Agents["npc.adventurer.town.slot_2_g0"].Plan.Goal);
+        var (even, _) = AdventurerEngine.Midnight(Begin(rules) with { Day = 1 }, rules, Day(2));
+        Assert.Equal(AdventurerGoals.Bounty, even.Agents["npc.adventurer.town.slot_2_g0"].Plan.Goal);
+        Assert.Equal(AdventurerGoals.Hunt, even.Agents["npc.adventurer.town.slot_1_g0"].Plan.Goal);
+        // The same day draws the same order, however it is reached.
+        Assert.Equal(even.Agents, AdventurerEngine.Midnight(Begin(rules) with { Day = 1 }, rules, Day(2)).State.Agents);
+    }
+
+    [Fact]
+    public void TheFirstToPlanIt_ClaimsACompetitiveBounty_AndTheOtherHuntsInstead()
     {
         var rules = Rules(target: 2);
         var bounty = new AdventurerBounty("quest.bounty.wolves", "Wolves", "town", Wolf, null, 2, 15, 60);

@@ -319,8 +319,8 @@ public sealed record AdventurerHappening(string Kind, string Key)
 
 /// <summary>
 /// The rules of adventurers' lives, pure (§2.13; DN2). Lives advance one calendar day at a time at midnight: each adventurer's planned day is
-/// resolved by the outcome table - never by simulated combat - then each plans the next by the canon goal chain, in key order, so the first
-/// to a competitive bounty is the first by key. Arrivals fill the slots whose day has come. Nothing reads the markets', the creatures' or the
+/// resolved by the outcome table - never by simulated combat - then each plans the next by the canon goal chain, in an order drawn afresh
+/// each day, so who gets first go at a competitive bounty rotates. Arrivals fill the slots whose day has come. Nothing reads the markets', the creatures' or the
 /// clock's state: the same days give the same lives however they are split (T-22). What touches other systems comes out as happenings.
 /// </summary>
 public static class AdventurerEngine
@@ -387,7 +387,7 @@ public static class AdventurerEngine
         // Someone with the party, or back from it with today already planned (let go at a midnight the absence has not lived yet), is left be.
         var away = state.Agents.Values.Where(a => a.Party is not null || a.Plan.Day >= day.Day).Select(a => a.Key).ToHashSet(StringComparer.Ordinal);
 
-        // Yesterday's plans come to their end, in key order: the first to a bounty is the first by key.
+        // Yesterday's plans come to their end, in key order (who went for which bounty was settled when the day was planned).
         foreach (string key in agents.Keys.ToList())
         {
             var a = agents[key];
@@ -429,9 +429,10 @@ public static class AdventurerEngine
             happenings.Add(new AdventurerHappening(Arrived, newcomer.Key) { Settlement = settlement.Id });
         }
 
-        // Every life plans the day: in key order, each seeing what those before them took.
+        // Every life plans the day, each seeing what those before them took: in an order drawn for the day, so the first go at a contested
+        // bounty rotates rather than always falling to the lowest key.
         var planned = new Dictionary<string, AdventurerPlan>(StringComparer.Ordinal);
-        foreach (string key in agents.Keys.ToList())
+        foreach (string key in agents.Keys.OrderBy(k => day.Sample($"plan_order:{k}@{day.Day}")).ThenBy(k => k, StringComparer.Ordinal).ToList())
         {
             var a = agents[key];
             if (away.Contains(key))
