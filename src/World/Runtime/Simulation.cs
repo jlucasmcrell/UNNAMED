@@ -286,7 +286,24 @@ public sealed class Simulation
         _companions.Populate();
         _creatures.Populate();
         _tiers.Settle();
+        SeedReachableNotices();
     }
+
+    /// <summary>
+    /// What is readable in a world the character can reach as it starts. Only an interior this run holds contributes:
+    /// with the gate off no interior is loaded, so nothing is seeded and Kera's offer stays closed (B3e).
+    /// </summary>
+    private void SeedReachableNotices()
+    {
+        foreach (var (layout, place) in Setup.Sites(l => l.Locations))
+        {
+            if (place.Id == RingIntakeHall)
+                _flags.Seed(_context.CellOfSite(layout.SpaceId, place.XMm, place.ZMm), RingNoticeFlag, 1);
+        }
+    }
+
+    private const string RingIntakeHall = "location.barrowworks.intake_hall";
+    private const string RingNoticeFlag = "world.barrowworks.withdrawal_notice_read";
 
     /// <summary>
     /// Start simulating a world: a new game's, or one a save just loaded. The world tick continues from the save; the weather cursor starts

@@ -135,7 +135,7 @@ nodes:
         text: "Nothing today."
   # o_offer accepts either of these, so a character who comes back a second time still starts the quest.
   barrowworks:
-    text: "She puts the hammer down, which she does not often. \"You went in. And you came back out with your bones the right shape.\" She looks at you the way she looks at a weld. \"Service ring. Thirteen rooms under the Ashen Hollow. They built it to gauge something, and they never finished the job - the readings are still cut into the walls. I want to know what it measures. I want to know what you think we should do about the thing that measures it. Go on. You've been down there; you know the way back in.\""
+    text: "She puts the hammer down, which she does not often. \"Service ring. Thirteen rooms under the Ashen Hollow, and a sealed door the strata never shut.\" She looks at you the way she looks at a weld. \"They built it to gauge something and never finished the job - the readings are cut into its walls, or so the notice says. I want to know what it measures. And I want to know what you think we should do about the thing that measures it. The way in is under the hill. Go on - I'll want your bones the right shape when you come back out.\""
     once: true
     next_if_exhausted: barrowworks_again
     choices:

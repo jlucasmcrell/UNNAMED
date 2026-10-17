@@ -393,6 +393,13 @@ internal sealed class WorldFlagSystem
         _owner = owner;
     }
 
+    /// <summary>
+    /// Writes a flag as a FACT OF THE WORLD at creation rather than as something the character did, through the same
+    /// slice this system owns. The ring's withdrawal notice is the case: it is in a hall the character can reach, so
+    /// it is readable before they go anywhere.
+    /// </summary>
+    public void Seed(CellKey cell, string flagId, long value) => _context.State.SetFlag(_owner, cell, flagId, value);
+
     public string? Handle(SetWorldFlag command, long tick)
     {
         long from = _context.State.World.GetFlag(command.Cell, command.FlagId);
