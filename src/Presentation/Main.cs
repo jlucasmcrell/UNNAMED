@@ -263,7 +263,8 @@ public partial class Main : Node3D
         if (_options.TryGetValue("--anim-sheet", out string? sheet))
         {
             var catalog = AssetCatalog.Load(_options.GetValueOrDefault("--asset-root"), Home());
-            AddChild(new Art.AnimationSheet(new Art.ArtLibrary(catalog.Root), Art.ArtBindings.Load(Art.ArtBindings.ResourcePath), Path.GetFullPath(sheet)));
+            AddChild(new Art.AnimationSheet(new Art.ArtLibrary(catalog.Root),
+                Art.ArtBindings.LoadWithOverlay(Art.ArtBindings.ResourcePath, _options.GetValueOrDefault("--bindings-overlay")), Path.GetFullPath(sheet)));
             return;
         }
 
