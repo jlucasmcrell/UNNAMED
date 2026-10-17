@@ -41,7 +41,7 @@ public class ActOneStoryTests
             {
                 Posture = r.Posture, Waystones = r.Waystones, ReturnPoint = r.ReturnPoint, RoadsWalked = r.RoadsWalked,
                 Deeds = r.Deeds, Identity = r.Identity, Factions = r.Factions, Party = r.Party,
-                QuickBar = r.QuickBar, QuickBarCleared = r.QuickBarCleared, PartySheets = r.PartySheets,
+                QuickBar = r.QuickBar, QuickBarCleared = r.QuickBarCleared, PartySheets = r.PartySheets, Attack = r.Attack,
             };
             var store = new SaveStore(profile.Root);
             store.Save(SaveSlots.Manual("scene"), SaveDocuments.Capture(Sim.World, moved, Session.Content, Sim.WorldTick, 0));
