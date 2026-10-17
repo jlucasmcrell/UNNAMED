@@ -20,6 +20,7 @@ public enum FocusKind
     Switch,
     Barrier,
     Waystone,
+    Portal,
 }
 
 /// <summary>
@@ -204,6 +205,19 @@ public sealed class PlayerController
             var (x, z) = Footprints.Center(view.Site.Body);
             candidates.Add((new Focus(FocusKind.Waystone, view.Site.Key, view.Site.Key, x, z), view.Site.Body.DistanceTo(Authoritative.XMm, Authoritative.ZMm) - doorReach));
         }
+        // A portal: the door out of the exterior, or out of the space the body is in. It stands at its own anchor -
+        // the exterior's while the body is outside, the interior's while it is in - so the same gesture works both
+        // ways and the body is never offered a door it cannot reach (B1).
+        bool outside = simulation.PlayerInExterior;
+        foreach (var portal in simulation.Setup.Layout.Portals.Portals)
+        {
+            long px = outside ? portal.ExteriorXMm : portal.InteriorXMm;
+            long pz = outside ? portal.ExteriorZMm : portal.InteriorZMm;
+            var foot = new CircleBlocker(portal.Key, px, pz, 1_500, 2_200);
+            candidates.Add((new Focus(FocusKind.Portal, portal.Key, portal.Key, px, pz),
+                foot.DistanceTo(Authoritative.XMm, Authoritative.ZMm) - doorReach));
+        }
+
         // A standing barrier cannot be used, but whoever stands at it is told what it is.
         foreach (var view in simulation.Barriers.Where(b => b.Standing))
         {
@@ -235,7 +249,19 @@ public sealed class PlayerController
 
     public void Interact(string doorKey)
     {
-        _session.Submit(new InteractCommand(_session.Simulation!.PlayerId, doorKey));
+        var simulation = _session.Simulation!;
+        // A portal is not an interaction: it moves the body between spaces, and the simulation decides by where it
+        // stands whether that is going in or coming out. The key is the whole of what the player names.
+        if (doorKey.StartsWith("portal.", StringComparison.Ordinal))
+        {
+            if (simulation.PlayerInExterior)
+                _session.Submit(new EnterSpaceCommand(simulation.PlayerId, doorKey));
+            else
+                _session.Submit(new LeaveSpaceCommand(simulation.PlayerId));
+            Reached?.Invoke();
+            return;
+        }
+        _session.Submit(new InteractCommand(simulation.PlayerId, doorKey));
         Reached?.Invoke();
     }
 
