@@ -139,5 +139,5 @@ public class CharacterContentTests
 
     [Fact]
     public void AnArmSplayOutOfRange_IsRefused() =>
-        AssertRefused("bodies/veth_f_heavy.yaml", "arm_splay_deg: 10", "arm_splay_deg: 45", "arm_splay_deg must be a whole number of degrees, 0 to 30");
+        AssertRefused("bodies/veth_f_heavy.yaml", "arm_splay_deg: 3", "arm_splay_deg: 45", "arm_splay_deg must be a whole number of degrees, 0 to 30");
 }
