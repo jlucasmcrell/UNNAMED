@@ -182,6 +182,20 @@ public sealed class GameSession : IDomainEvents, IDisposable
     /// <summary>The generator fingerprint of M3's layout, the one M3f to M5 saves were written against. Frozen: it names a past layout.</summary>
     private const string M3LayoutFingerprint = "sha256:4c97504c3d0db625e2447230087d2eabb56b4427c486a790f541d677a01b9a1b";
 
+/// <summary>
+    /// The region's combat setup, with an interior's spawns added when this run can reach it (B1). A spawn carries the
+    /// space it stands in, so the added creatures are the ring's and are never seen or struck from the exterior.
+    /// </summary>
+    private static CombatSetup CoLoadSpawns(CombatSetup primary, ContentLoader loader, RegionLayout layout, RegionLayout? interior)
+    {
+        if (interior is null)
+            return primary;
+        var inner = CombatContent.Build(loader, "region.barrowworks", interior.SpaceId).Spawns;
+        if (inner.IsEmpty)
+            return primary;
+        return primary with { Spawns = primary.Spawns.AddRange(inner.Where(s => s.Space != layout.SpaceId)) };
+    }
+
     public static GameSession Boot(GameOptions options)
     {
         var loader = new ContentLoader();
@@ -203,15 +217,13 @@ public sealed class GameSession : IDomainEvents, IDisposable
         // routes those per space; what this makes possible is a height or a wall test in the interior's own space
         // rather than the exterior's metres under it.
         var spaces = ImmutableDictionary<SpaceId, WalkSpace>.Empty.Add(layout.SpaceId, layout.Space);
+        // An interior this run can reach, built once and shared by the ground map and the spawn co-load.
+        RegionLayout? inner = null;
         if (options.Barrowworks && !layout.Portals.Portals.IsEmpty)
         {
-            foreach (var portal in layout.Portals.Portals)
-            {
-                if (portal.Space == layout.SpaceId)
-                    continue;
-                var inner = WorldContent.BuildLayout(loader, "region.barrowworks");
+            inner = WorldContent.BuildLayout(loader, "region.barrowworks");
+            foreach (var portal in layout.Portals.Portals.Where(p => p.Space != layout.SpaceId))
                 spaces = spaces.SetItem(portal.Space, inner.Space);
-            }
         }
 
         var setup = new SimulationSetup(layout, movement, ProgressionContent.BuildRules(loader),
@@ -220,7 +232,9 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Items = new ItemSetup(ItemContent.BuildCatalog(loader), ItemContent.BuildLootTables(loader),
                 ItemContent.BuildInventoryRules(loader, movement.InteractReachMm), ItemContent.BuildStartingKit(loader),
                 ItemContent.BuildPricing(loader), ItemContent.BuildMerchants(loader)),
-            Combat = CombatContent.Build(loader, options.RegionId),
+            // The region's spawns carry the region's space, and the ring's carry the ring's, so a creature is
+            // only ever seen, struck or advanced in the space it stands in (B1).
+            Combat = CoLoadSpawns(CombatContent.Build(loader, options.RegionId, layout.SpaceId), loader, layout, inner),
             Magic = MagicContent.Build(loader),
             Crafting = CraftingContent.Build(loader),
             Social = new SocialSetup(SocialContent.BuildNpcs(loader), SocialContent.BuildDialogues(loader))

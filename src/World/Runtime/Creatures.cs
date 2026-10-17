@@ -22,6 +22,13 @@ public sealed record SpawnMember(string CreatureId, string RoleId);
 /// </summary>
 public sealed record SpawnSite(string Key, long XMm, long ZMm, long RadiusMm, ImmutableArray<SpawnMember> Members)
 {
+    /// <summary>
+    /// The space this spawner stands in (M8 D10). Its creatures are in that space and in no other: a view is offered
+    /// to a player standing there, a height comes from that space's ground, and a blow can only reach something that
+    /// shares the attacker's space.
+    /// </summary>
+    public SpaceId Space { get; init; } = SpaceId.Exterior;
+
     /// <summary>Ticks from a death to the return, or 0 when the dead stay dead.</summary>
     public long RespawnTicks { get; init; }
 
@@ -255,7 +262,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// <summary>A living creature after an absence: at home as it stood at the start, its fight and its search forgotten. Its wounds stay.</summary>
     private CreatureState AtHome(CreatureState c) => c with
     {
-        Body = new Body(c.HomeXMm, _context.Setup.Layout.Space.Terrain.HeightAtMm(c.HomeXMm, c.HomeZMm), c.HomeZMm, c.HomeFacingMdeg),
+        Body = new Body(c.HomeXMm, _context.Setup.SpaceFor(c.Site.Space).Terrain.HeightAtMm(c.HomeXMm, c.HomeZMm), c.HomeZMm, c.HomeFacingMdeg),
         Mind = CreatureMind.Unaware,
         Awareness = 0,
         Knows = false,
@@ -849,7 +856,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 _context.Events.Publish(new CorpseGone(c.CorpseKey, tick));
             }
             int generation = c.Generation + 1;
-            var home = new Body(c.HomeXMm, _context.Setup.Layout.Space.Terrain.HeightAtMm(c.HomeXMm, c.HomeZMm), c.HomeZMm, c.HomeFacingMdeg);
+            var home = new Body(c.HomeXMm, _context.Setup.SpaceFor(c.Site.Space).Terrain.HeightAtMm(c.HomeXMm, c.HomeZMm), c.HomeZMm, c.HomeFacingMdeg);
             c = new CreatureState(Identity(c.Key, generation), c.Key, c.Site, c.Definition, c.Role, c.HomeXMm, c.HomeZMm, c.HomeFacingMdeg,
                 generation, CreatureCondition.Alive, home, c.Definition.MaxHealth, ActionState.Idle, 0);
             _context.Events.Publish(new CreatureRespawned(c.Id, c.Key, generation, tick));
@@ -1041,7 +1048,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
     }
 
     public ImmutableArray<CreatureView> Views() =>
-        State.Creatures.Values.Select(c =>
+        State.Creatures.Values.Where(c => c.Site.Space == State.Space).Select(c =>
         {
             var (phase, left) = c.Action.PhaseAt(State.WorldTick, C);
             return new CreatureView(c.Id, c.Key, c.Definition.Id, c.Role.Id, c.Body, c.Health, c.Definition.MaxHealth, phase, left, c.Condition,

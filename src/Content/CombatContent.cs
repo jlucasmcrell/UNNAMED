@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Globalization;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Spatial;
 using UNNAMED.World.Runtime;
 using YamlDotNet.Serialization;
 
@@ -53,10 +54,10 @@ public static class CombatContent
     }
 
     /// <summary>Everything combat needs for one region.</summary>
-    public static CombatSetup Build(ContentLoader loader, string regionId)
+    public static CombatSetup Build(ContentLoader loader, string regionId, SpaceId space = default)
     {
         int tickMs = WorldContent.TickMilliseconds(loader);
-        var setup = new CombatSetup(BuildConstants(loader, tickMs), BuildEffects(loader, tickMs), BuildCreatures(loader, tickMs), BuildSpawns(loader, regionId))
+        var setup = new CombatSetup(BuildConstants(loader, tickMs), BuildEffects(loader, tickMs), BuildCreatures(loader, tickMs), BuildSpawns(loader, regionId, space))
         {
             UseEffects = BuildUseEffects(loader),
             Passives = BuildPassives(loader),
@@ -368,7 +369,7 @@ public static class CombatContent
     }
 
     /// <summary>A region's spawn sites (Phase 1: a fixed count at a point, no respawn).</summary>
-    public static ImmutableArray<SpawnSite> BuildSpawns(ContentLoader loader, string regionId)
+    public static ImmutableArray<SpawnSite> BuildSpawns(ContentLoader loader, string regionId, SpaceId space = default)
     {
         var creatures = loader.GetByKind("creature");
         var roles = loader.Definitions.TryGetValue("config.creature_behaviour", out var behaviour)
@@ -417,6 +418,7 @@ public static class CombatContent
                 {
                     RespawnTicks = respawn,
                     Route = route,
+                    Space = space,
                 };
             }).ToImmutableArray();
     }
