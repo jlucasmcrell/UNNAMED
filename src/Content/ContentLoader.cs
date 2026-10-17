@@ -196,6 +196,11 @@ public class ContentLoader
             _errors.AddRange(characterErrors);
             success &= characterErrors.Count == 0;
 
+            // Town markets, the road trade link, merchant purses and price bounds (ECO codes)
+            var economyErrors = EconomyContent.Validate(this);
+            _errors.AddRange(economyErrors);
+            success &= economyErrors.Count == 0;
+
             // Quests: objective graphs over world state (QST codes)
             var questErrors = QuestContent.Validate(this);
             _errors.AddRange(questErrors);

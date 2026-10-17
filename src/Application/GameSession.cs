@@ -208,6 +208,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Offline = WorldContent.BuildOffline(loader),
             Calendar = WorldContent.BuildCalendar(loader),
             Weather = WorldContent.BuildWeather(loader),
+            Economy = EconomyContent.Build(loader),
         };
         var content = new ContentIdentity(options.ContentVersion, loader.ComputeContentHash(), loader.Definitions.Keys,
             loader.Aliases, loader.Removed, loader.Discarded);

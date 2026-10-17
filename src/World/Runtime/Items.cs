@@ -449,6 +449,47 @@ internal sealed class InventorySystem
         return null;
     }
 
+    /// <summary>
+    /// A trader's shelf drawn again from their town market (WP14): each line's good, of standard make and with no record of its own, is
+    /// brought to exactly its count - the newest stacks go first, and their identities retire - and nothing else on the shelf changes.
+    /// </summary>
+    public string? Handle(RestockWares command)
+    {
+        if (_context.MerchantSites().FirstOrDefault(s => s.Key == command.MerchantId) is not { } site)
+            return $"{command.MerchantId} keeps no wares here";
+        var record = Materialize(site);
+        var items = record.Items.ToList();
+        foreach (var line in command.Lines)
+        {
+            var definition = Items.Catalog.Get(line.ItemId);
+            bool Plain(ContainerItem i) => i.DefId == line.ItemId && i.Quality == Quality.Standard && i.Notable is null;
+            int have = items.Where(Plain).Sum(i => i.Count);
+            for (int over = have - line.Count; over > 0;)
+            {
+                var stack = items.Where(Plain).OrderByDescending(i => i.ItemId.Value, StringComparer.Ordinal).First();
+                int take = Math.Min(over, stack.Count);
+                if (take == stack.Count)
+                {
+                    items.Remove(stack);
+                    Retire(stack.ItemId);
+                }
+                else
+                {
+                    items[items.IndexOf(stack)] = stack with { Count = stack.Count - take };
+                }
+                over -= take;
+            }
+            if (have >= line.Count)
+                continue;
+            int left = MergeInto(items.Where(Plain).OrderBy(i => i.ItemId.Value, StringComparer.Ordinal).ToList(),
+                definition, line.Count - have, (i, add) => items[items.IndexOf(i)] = i with { Count = i.Count + add });
+            foreach (int stack in Stacks(left, definition.StackMax))
+                items.Add(new ContainerItem(NewItem(definition.Id), definition.Id, stack) { Quality = Quality.Standard });
+        }
+        State.SetContainer(_owner, record with { Items = items.ToImmutableArray() });
+        return null;
+    }
+
     /// <summary>A container stops existing - a corpse that decayed or whose creature returned - and whatever it held with it.</summary>
     public string? Handle(DiscardContainer command)
     {

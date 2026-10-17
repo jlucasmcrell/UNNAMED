@@ -47,6 +47,8 @@ public class GameSaveTests
         (new Regex(@"^\$\.player\.Companions\[\d+\]\.Tactics$"), """{"KeepToLeash":true,"ProtectInjured":false,"HoldHealing":false}"""),
         (new Regex(@"^\$\.player\.Companions\[\d+\]\.Contract$"), "null"),
         (new Regex(@"^\$\.player\.Party$"), null),
+        // Schema 22: no economy was kept, so the markets start at their targets and the merchants with full purses, from content.
+        (new Regex(@"^\$\.world\.(Economy|Merchants)$"), null),
     };
 
     [Fact]
@@ -84,10 +86,10 @@ public class GameSaveTests
         int stacks = differences.Count(d => d.Contains(".Notable: ", StringComparison.Ordinal));
         Assert.True(stacks >= expected["player"]!["Inventory"]!.AsArray().Count, "every carried stack gains its (empty) notable record");
         // The posture and digest, four fields a record, the noises, the Waystones, the deeds, the identity, each stack's notable record,
-        // and the faction ledger.
+        // the faction ledger, and the economy and merchants.
         int members = expected["player"]!["Companions"]!.AsArray().Count;
         // ... and, schema 21, four fields each party member and the party's ledger.
-        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 1 + 4 * members + 1, differences.Count);
+        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 1 + 2 + 4 * members + 1, differences.Count);
 
         // And it plays on: a fixed stretch of ticks, then a walk to the Ashen Waystone, with no observer failing, no body inside anything,
         // Tavar still at the character's side and every quest still answering the debugger.
