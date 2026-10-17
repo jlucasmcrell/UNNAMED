@@ -2,7 +2,7 @@
   "map_version": 1,
   "source_skeleton": "UE5 Manny / Quinn (SK_Mannequin, 5.4+ with correctives and twist bones; 5 spine, 2 neck, metacarpals, 3-segment fingers, A-pose reference pose, faces +Y in UE = +Z in glTF), as export_pack.py --animations + anim_fbx_to_glb.py write it",
   "target_rig": "MetaHuman game skeleton (asset_work/metahuman bl_assemble.py: 145 joints, UE5 names, A-pose rest; mh_veth_m / mh_veth_f)",
-  "notes": "One-to-one by name: the MetaHuman game skeleton is the UE5 mannequin hierarchy. Limbs and the first two finger segments rest-aligned; twist bones take their source twist; the helper joints the game drives itself (CorrectiveJoints: calf_knee, calf_kneeBack, thigh_bck, lowerarm_bck, upperarm_out, wrist_outer, the shoulder's upper arm, clavicle and latissimus helpers, and the limbs' corrective roots), the sockets, the eyes and the cloth chains follow at rest. Use with --stance source.",
+  "notes": "One-to-one by name: the MetaHuman game skeleton is the UE5 mannequin hierarchy. Limbs and the first two finger segments rest-aligned; twist bones take their source twist; the helper joints the game drives itself (CorrectiveJoints: calf_knee, calf_kneeBack, thigh_bck, lowerarm_bck, upperarm_out, wrist_outer, the shoulder's upper arm, clavicle and latissimus helpers, and the limbs' corrective roots), the sockets, the eyes and the cloth chains follow at rest. Use with --stance source. The hands are aimed at their middle knuckle (target_chain hand -> middle_01, the hand driven by itself): a MetaHuman hand bone's own axis does not run along the hand, and aligning that axis turned the left wrist about 98 deg and the right 83 deg off the take (2026-10-17).",
   "source_root": "root",
   "target_hips": "pelvis",
   "source_lateral": [
@@ -43,6 +43,7 @@
     "clavicle_l": "upperarm_l",
     "upperarm_l": "lowerarm_l",
     "lowerarm_l": "hand_l",
+    "hand_l": "middle_01_l",
     "thigh_l": "calf_l",
     "calf_l": "foot_l",
     "thumb_01_l": "thumb_02_l",
@@ -58,6 +59,7 @@
     "clavicle_r": "upperarm_r",
     "upperarm_r": "lowerarm_r",
     "lowerarm_r": "hand_r",
+    "hand_r": "middle_01_r",
     "thigh_r": "calf_r",
     "calf_r": "foot_r",
     "thumb_01_r": "thumb_02_r",
@@ -208,6 +210,7 @@
     },
     "hand_l": {
       "source": "hand_l",
+      "drive": "hand_l",
       "align": true,
       "aim": "middle_01_l"
     },
@@ -381,6 +384,7 @@
     },
     "hand_r": {
       "source": "hand_r",
+      "drive": "hand_r",
       "align": true,
       "aim": "middle_01_r"
     },
