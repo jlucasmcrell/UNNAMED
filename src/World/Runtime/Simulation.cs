@@ -43,6 +43,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>The catch-up cap and the login grace (config.time; WP11).</summary>
     public OfflineRules Offline { get; init; } = OfflineRules.None;
+
+    /// <summary>The factions, the standing ladder and the act log's capacity (WP6).</summary>
+    public FactionSetup Factions { get; init; } = FactionSetup.Empty;
 }
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>
@@ -112,6 +115,7 @@ public sealed class Simulation
     private readonly CompanionSystem _companions;
     private readonly TravelSystem _travel;
     private readonly DeedSystem _deeds;
+    private readonly FactionSystem _factions;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private readonly ImmutableArray<IAbstractAdvance> _advances;
     private long _sequence;
@@ -160,10 +164,11 @@ public sealed class Simulation
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions);
         _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views, _inventory.WorldItems);
         _deeds = new DeedSystem(_context, _state.Claim(nameof(DeedSystem), StateSlice.Deeds));
+        _factions = new FactionSystem(_context, _state.Claim(nameof(FactionSystem), StateSlice.Factions));
         _tierSimulations = ImmutableArray.Create<ITierSimulation>(new StubTierSimulation(SimulationTier.B), new StubTierSimulation(SimulationTier.C));
         // The abstract advance (WP11): the clock first, so every other system brings itself to the tick it reads. A new world system
         // that goes on while the character is away adds itself here.
-        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _creatures, _effects, _gathering, _quests);
+        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _creatures, _effects, _gathering, _quests, _factions);
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
         _npcs.Populate();
@@ -343,6 +348,12 @@ public sealed class Simulation
     public QuestDiagnosis Diagnose(string questId) => _debugger.Diagnose(questId);
 
     public ImmutableSortedDictionary<string, SimulationTier> CellTiers => _state.Tiers;
+
+    /// <summary>Every faction as the character stands with it, in ordinal ID order (WP6).</summary>
+    public ImmutableArray<FactionView> Factions => _factions.Views();
+
+    /// <summary>The character's act log, with what each faction knows of each act (WP6).</summary>
+    public ImmutableArray<ActView> Acts => _factions.Acts();
 
     /// <summary>The footprints that currently block movement besides the static ones: closed doors, standing barriers, living creatures and NPCs. Prediction needs them.</summary>
     public ImmutableArray<Blocker> DynamicBlockers => _context.Obstacles();
@@ -555,6 +566,9 @@ public sealed class Simulation
         PlaceNpc place => _npcs.Handle(place),
         AdvanceTime advance => _clock.Handle(advance),
         ArriveWithParty arrive => _companions.Handle(arrive),
+        RecordAct act => _factions.Handle(act, Now),
+        ReportAct report => _factions.Handle(report, Now),
+        GrantStanding grant => _factions.Handle(grant, Now),
         _ => throw new InvalidOperationException($"No system handles {command.GetType().Name}"),
     };
 }

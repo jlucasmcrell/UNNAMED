@@ -200,6 +200,11 @@ public class ContentLoader
             var questErrors = QuestContent.Validate(this);
             _errors.AddRange(questErrors);
             success &= questErrors.Count == 0;
+
+            // Factions: the ladder, reactions, members at their seat, and who may be told what (FAC001; WP6)
+            var factionErrors = FactionContent.Validate(this);
+            _errors.AddRange(factionErrors);
+            success &= factionErrors.Count == 0;
         }
         
         return success;

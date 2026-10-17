@@ -24,6 +24,7 @@ nodes:
         consequences:
           - { command: start_quest, quest_ref: quest.ashen_hollow.three_quiet_stones }
           - { command: record_relationship_event, npc_ref: npc.ashen_hollow.sel_arien, dimension: trust, delta: 5, event: brought_tavar_back }
+          - { command: report_act, act: switch_set, flag_ref: world.foldscar.steadied }   # the Long Survey learns the fold is quiet (WP6)
         next: tavar_back
       - id: leave
         text: "I'll leave you to it."
@@ -67,6 +68,7 @@ nodes:
         consequences:
           - { command: start_quest, quest_ref: quest.ashen_hollow.three_quiet_stones }
           - { command: record_relationship_event, npc_ref: npc.ashen_hollow.sel_arien, dimension: trust, delta: 5, event: brought_tavar_back }
+          - { command: report_act, act: switch_set, flag_ref: world.foldscar.steadied }   # the Long Survey learns the fold is quiet (WP6)
         next: tavar_back
       - id: survey
         text: "Does the Survey need anything collected?"

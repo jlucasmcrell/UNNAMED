@@ -239,6 +239,9 @@ internal sealed class DialogueSystem : IDialogueFacts
             case OrderCompanionConsequence order:
                 _context.Dispatch(new OrderCompanion(open.NpcId, order.Order));
                 break;
+            case ReportActConsequence report:
+                _context.Dispatch(new ReportAct(report.Kind, report.Subject, open.NpcId));
+                break;
         }
     }
 
@@ -278,6 +281,10 @@ internal sealed class DialogueSystem : IDialogueFacts
     public CompanionOrder? CompanionOrderOf(string npcId) => State.Companions.TryGetValue(npcId, out var companion) ? companion.Order : null;
 
     public int Deeds(DeedKind kind, string subjectId, string? npcId) => DeedSystem.Count(State, kind, subjectId, npcId);
+
+    public int StandingLevel(string factionId) => _context.Setup.Factions.Ladder.StandingTierOf(State.StandingOf(factionId)).Level;
+
+    public bool ActDone(string kind, string subject) => State.Factions.Acts.Any(a => a.Kind == kind && a.Subject == subject);
 
     public string QuestState(string questId, string? objectiveId)
     {
@@ -342,5 +349,9 @@ internal sealed class DialogueSystem : IDialogueFacts
         public CompanionOrder? CompanionOrderOf(string npcId) => _system.CompanionOrderOf(npcId);
 
         public int Deeds(DeedKind kind, string subjectId, string? npcId) => _system.Deeds(kind, subjectId, npcId);
+
+        public int StandingLevel(string factionId) => _system.StandingLevel(factionId);
+
+        public bool ActDone(string kind, string subject) => _system.ActDone(kind, subject);
     }
 }

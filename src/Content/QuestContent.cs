@@ -199,6 +199,7 @@ public static class QuestContent
             "dialogue_choice" => Choice(where, p, loader),
             "travel_to" => new TravelTo(StoneKey(Text(p, "waystone_ref"), where)),
             "waystone_known" => new WaystoneKnown(StoneKey(Text(p, "waystone_ref"), where)),
+            "faction_reputation" => FactionReputationOf(where, p, loader),
             _ => throw new FormatException($"{at}: '{type}' is not built"),
         };
         var allowed = Params(type);
@@ -226,8 +227,16 @@ public static class QuestContent
         "companion_present" => new[] { "npc_ref", "order" },
         "dialogue_choice" => new[] { "npc_ref", "dialogue_ref", "node", "choice" },
         "travel_to" or "waystone_known" => new[] { "waystone_ref" },
+        "faction_reputation" => new[] { "faction_ref", "min_tier", "max_tier" },
         _ => Array.Empty<string>(),
     };
+
+    /// <summary><c>faction_reputation</c> (WP6): the character's standing with <c>faction_ref</c> in a tier range.</summary>
+    private static FactionReputation FactionReputationOf(string where, Dictionary<object, object> p, ContentLoader loader)
+    {
+        var (min, max) = FactionContent.TierRange(p, where);
+        return new FactionReputation(Defined(loader, Text(p, "faction_ref"), "faction", where), min, max);
+    }
 
     /// <summary>A Waystone's key, as a region names it (<c>waystone.&lt;name&gt;</c>); that some region has it is checked across content.</summary>
     private static string StoneKey(string key, string at) =>
@@ -313,6 +322,10 @@ public static class QuestContent
                     : throw new FormatException($"{at}: a relationship reward moves a dimension by 1 to 100 either way")),
             "world_flag" => new WorldFlagReward(Defined(loader, Text(map, "flag_ref"), "world_flag", at),
                 Defined(loader, Text(map, "location_ref"), "location", at), LongOr(map, "value", 1, at)),
+            "reputation" => new ReputationReward(Defined(loader, Text(map, "faction_ref"), "faction", at),
+                LongOf(map, "amount", at) is var points && points != 0 && Math.Abs(points) <= FactionContent.MaxDelta
+                    ? (int)points
+                    : throw new FormatException($"{at}: a reputation reward moves standing by 1 to {FactionContent.MaxDelta} points either way")),
             _ => throw new FormatException($"{at}: '{kind}' is not a reward kind ({string.Join(", ", RewardKinds.Built)})"),
         };
     }

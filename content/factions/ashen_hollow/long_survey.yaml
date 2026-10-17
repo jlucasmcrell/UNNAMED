@@ -1,0 +1,12 @@
+id: faction.ashen_hollow.long_survey
+kind: faction
+schema: 1
+display_key: faction.ashen_hollow.long_survey.name
+tags: [faction]
+name: the Long Survey
+notes: The Long Survey's chapter at Ashen Hollow (DCP:213-217) - Sel Arien's survey of the Foldscar and the old workings around it. Wants the Quiet Stones set right. Members are the NPCs whose faction_ref names it.
+seat_location_ref: location.outpost
+reactions:
+  - { act: switch_set, flag_ref: world.foldscar.steadied, delta: 100 }   # the stones set right, the fold quiet
+relations:
+  - { faction_ref: faction.ashen_hollow.wayhold, attitude: cordial }

@@ -196,6 +196,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Crafting = CraftingContent.Build(loader),
             Social = new SocialSetup(SocialContent.BuildNpcs(loader), SocialContent.BuildDialogues(loader)) { Companions = SocialContent.BuildCompanionTuning(loader) },
             Quests = new QuestSetup(QuestContent.BuildQuests(loader)),
+            Factions = FactionContent.Build(loader),
             Travel = WorldContent.BuildTravel(loader),
             Character = CharacterContent.Build(loader),
             Clock = WorldContent.BuildClock(loader),
