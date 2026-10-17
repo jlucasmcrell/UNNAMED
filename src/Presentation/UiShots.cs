@@ -203,7 +203,7 @@ public sealed class UiShots
         }
         var simulation = _session.Simulation!;
         var magic = _session.Setup.Magic;
-        if (_step == 4 && _screen is not null && _people < 2 * PeopleShots)
+        if (_step == 5 && _screen is not null && _people < 2 * PeopleShots)
             return People(simulation);
         switch (_step)
         {
@@ -767,8 +767,8 @@ public sealed class UiShots
     private const int PeopleShots = 5;
 
     /// <summary>
-    /// The hiring sheet (PR #24), opened as interacting opens it: at the nearest resident who hires on, then at the nearest adventurer in
-    /// town, each with the prompt and its context line on them first. Someone the world does not hold is left out of the pictures, not the run.
+    /// The hiring sheet (PR #24), opened as interacting opens it, once out of the longhouse: at the nearest resident who hires on, then at
+    /// the nearest adventurer in town, each with the prompt and its context line on them first. Someone the world does not hold is left out of the pictures, not the run.
     /// </summary>
     private string? People(Simulation simulation)
     {
@@ -795,6 +795,8 @@ public sealed class UiShots
             }
             if (!Approach(_hireKey))
                 return Stalled(2_400, $"the character never reached {_hireKey} to hire");
+            // Stand still in front of them: a sheet closes once its person is out of talking reach.
+            _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera);
             _pending = $"hire_{who}_prompt";
         }
         else if (phase < 4)

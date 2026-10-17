@@ -890,6 +890,9 @@ public partial class HudView : Control
         _deathUntil = _clock + seconds;
     }
 
+    /// <summary>Where the prompt stands while it shows, or null: the hint line sits above it.</summary>
+    public Rect2? PromptRect => _prompt.IsVisibleInTree() ? _prompt.GetGlobalRect() : null;
+
     public void SetPrompt(string? text, string? context = null)
     {
         _prompt.Visible = !string.IsNullOrEmpty(text);

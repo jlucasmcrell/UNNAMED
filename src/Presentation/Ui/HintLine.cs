@@ -19,6 +19,9 @@ public partial class HintLine : CanvasLayer
     private const int Waiting = 3;
     private const double FadeSeconds = 0.6;
 
+    /// <summary>The line's foot above the screen's with no prompt showing, its half width, and its distance from what it keeps clear of.</summary>
+    private const float Foot = 150, HalfWidth = 360, Gap = 12;
+
     private readonly Queue<string> _queue = new();
     private PanelContainer _panel = null!;
     private Label _words = null!;
@@ -32,7 +35,7 @@ public partial class HintLine : CanvasLayer
         _panel = new PanelContainer
         {
             AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 1, AnchorBottom = 1,
-            OffsetLeft = -360, OffsetRight = 360, OffsetTop = -196, OffsetBottom = -150,
+            OffsetLeft = -HalfWidth, OffsetRight = HalfWidth,
             GrowHorizontal = Control.GrowDirection.Both, GrowVertical = Control.GrowDirection.Begin,
             MouseFilter = Control.MouseFilterEnum.Ignore,
             Visible = false,
@@ -82,6 +85,7 @@ public partial class HintLine : CanvasLayer
     {
         if (!_panel.Visible)
             return;
+        Place();
         _left -= delta;
         _panel.Modulate = new Color(1, 1, 1, (float)Math.Clamp(_left / FadeSeconds, 0, 1));
         if (_left > 0)
@@ -89,5 +93,32 @@ public partial class HintLine : CanvasLayer
         _panel.Visible = false;
         if (_queue.TryDequeue(out string? next))
             Show(next);
+    }
+
+    /// <summary>
+    /// Above the prompt and its context line at any text size (or low, where the prompt stands, while there is none), and clear of the
+    /// HUD's bottom-left and bottom-right panels: narrowed beside whichever reaches into its row, as a sheet keeps clear of them.
+    /// </summary>
+    private void Place()
+    {
+        var canvas = _panel.GetParentControl().Size;
+        var hud = GetTree().Root.FindChild("HudView", true, false) as HudView;
+        bool shown = hud is { Visible: true } && hud.IsVisibleInTree();
+        float bottom = shown && hud!.PromptRect is { } prompt ? prompt.Position.Y - Gap - canvas.Y : -Foot;
+        _panel.OffsetBottom = _panel.OffsetTop = bottom;
+        float centre = canvas.X / 2, left = centre - HalfWidth, right = centre + HalfWidth;
+        if (shown)
+        {
+            float top = canvas.Y + bottom - _panel.Size.Y, foot = canvas.Y + bottom;
+            foreach (var rect in hud!.Intrusions().Where(r => r.Position.Y < foot && r.End.Y > top))
+            {
+                if (rect.GetCenter().X < centre)
+                    left = Math.Max(left, rect.End.X + Gap);
+                else
+                    right = Math.Min(right, rect.Position.X - Gap);
+            }
+        }
+        _panel.OffsetLeft = left - centre;
+        _panel.OffsetRight = right - centre;
     }
 }
