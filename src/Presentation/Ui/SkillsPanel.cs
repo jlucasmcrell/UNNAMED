@@ -4,6 +4,7 @@
 using Godot;
 using UNNAMED.Application;
 using UNNAMED.Domain.Crafting;
+using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Magic;
 using UNNAMED.Domain.Progression;
 using UNNAMED.World.Runtime;
@@ -35,6 +36,9 @@ public partial class SkillsPanel : CanvasLayer
 
     /// <summary>Put an item, formula or technique on a quick slot (0-7), or clear one (null); Main submits the command.</summary>
     public Action<int, string?>? Assign { get; set; }
+
+    /// <summary>The kind of station the character is working at, if one is open: recipes are Ready only where their kind stands.</summary>
+    public Func<string?>? NearStation { get; set; }
 
     public void Bind(GameSession session) => _session = session;
 
@@ -93,7 +97,9 @@ public partial class SkillsPanel : CanvasLayer
                 ?? roster.FirstOrDefault()?.Id ?? Formulas;
         // The pools and the carried counts change the known views' "not now" lines and counts.
         string detail = $"{state}|{_selected}|{progression.Pools}|{view.Stats.StrainTolerance}|" +
-                        string.Join(",", view.Inventory.Select(e => $"{e.DefId}{e.Count}"));
+                        string.Join(",", view.Inventory.Select(e => $"{e.DefId}{e.Count}")) + "|" +
+                        string.Join(",", view.Equipment.Select(kv => $"{kv.Key}:{kv.Value}")) + $"|{NearStation?.Invoke()}|" +
+                        string.Join(",", progression.Known.Keys.Where(IsTechnique).Select(simulation.TechniqueCooldown).Select(t => (t + 19) / 20));
         if (detail == _detailDrawn)
             return;
         _detailDrawn = detail;
@@ -110,7 +116,7 @@ public partial class SkillsPanel : CanvasLayer
                 DrawFormulas(simulation);
                 break;
             case Recipes:
-                DrawRecipes(view);
+                DrawRecipes(simulation);
                 break;
             case Techniques:
                 DrawTechniques(simulation);
@@ -362,27 +368,25 @@ public partial class SkillsPanel : CanvasLayer
         var known = view.Progression.Known.Where(k => magic.Formulas.ContainsKey(k.Key)).OrderBy(k => k.Value.Tick).ThenBy(k => k.Key, StringComparer.Ordinal).ToList();
         if (known.Count == 0)
             list.AddChild(UiKit.Quiet("None yet - a formula is taught or read, never bought with points."));
-        int focus = view.Progression.Pools.Focus ?? (int)view.Stats.FocusMax;
-        int strain = view.Progression.Pools.Strain, tolerance = (int)view.Stats.StrainTolerance;
+        int tolerance = (int)view.Stats.StrainTolerance;
+        var context = Context(simulation);
         foreach (var (id, learned) in known)
         {
             var formula = magic.Formulas[id];
             int skill = ProgressionEngine.SkillLevel(view.Progression, formula.DomainSkillId);
             int cost = MagicRules.StrainCost(formula, skill, magic.Constants);
-            int fizzle = MagicRules.FizzlePercent(formula, skill, magic.Constants);
-            var (_, backlash) = MagicRules.Settle(strain, cost, tolerance, magic.Constants);
             var card = Card(id, Source(session, learned));
             card.AddChild(UiKit.Words($"{Names.Of(session, formula.DomainSkillId)} · complexity {formula.Complexity} · your {Names.Of(session, formula.DomainSkillId)} {skill}", 16, HudStyle.Ash));
+            // The read of the risk is words at this skill (canon 26 W8, 07 §5.7): the slip chance is a number only from 30, the Strain's severity from 45.
+            var read = AvailabilityRules.Risk(formula, magic.Constants, context);
             var numbers = Numbers(("Focus", $"{formula.FocusCost}", HudStyle.Bone), ("Strain", $"{cost} of {tolerance}", HudStyle.Bone),
-                ("Fizzle", fizzle == 0 ? "none" : $"{fizzle}%", fizzle == 0 ? HudStyle.Lichen : HudStyle.Wound));
+                ("Read", read.Word, read.Word == "steady" ? HudStyle.Lichen : read.Word == "uncertain" ? HudStyle.Ember : HudStyle.Wound));
             card.AddChild(numbers);
-            string? why = focus < formula.FocusCost ? $"Not now: it needs {formula.FocusCost} Focus and you have {focus}."
-                : backlash > 0 ? $"Past your Strain tolerance now: working it costs {backlash} health in backlash."
-                : null;
-            if (why is not null)
-                card.AddChild(UiKit.Words(why, 16, HudStyle.Wound));
-            if (fizzle > 0)
-                card.AddChild(UiKit.Words($"It stops fizzling at {Names.Of(session, formula.DomainSkillId)} {formula.Complexity}.", 16, HudStyle.Muted));
+            card.AddChild(AvailabilityBlock(AvailabilityRules.Formula(formula, magic.Constants, context), checklist: false));
+            foreach (string line in read.Lines)
+                card.AddChild(UiKit.Words(line, 16, HudStyle.Ash));
+            if (skill < formula.Complexity)
+                card.AddChild(UiKit.Words($"It stops slipping at {Names.Of(session, formula.DomainSkillId)} {formula.Complexity}.", 16, HudStyle.Muted));
             card.AddChild(SlotPicker(simulation, id));
             list.AddChild(card);
         }
@@ -390,9 +394,11 @@ public partial class SkillsPanel : CanvasLayer
     }
 
     /// <summary>The known recipes: station, skill against complexity and the quality it gives, the inputs, and where each was learned.</summary>
-    private void DrawRecipes(PlayerView view)
+    private void DrawRecipes(Simulation simulation)
     {
         var session = _session!;
+        var view = simulation.Player;
+        var context = Context(simulation);
         var crafting = session.Setup.Crafting;
         Title("Recipes", "made at a station of their kind; the skill decides the quality");
         var list = UiKit.Section("Known recipes");
@@ -412,6 +418,7 @@ public partial class SkillsPanel : CanvasLayer
                 ("Fine", recipe.QualityRoll ? $"{fine}%" : "—", HudStyle.Bone)));
             card.AddChild(UiKit.Words("Needs " + string.Join(", ", recipe.Inputs.Select(i =>
                 $"{i.Count} × {Names.Of(session, i.ItemId)} (have {view.Inventory.Where(e => e.DefId == i.ItemId).Sum(e => e.Count)})")), 16, HudStyle.Ash));
+            card.AddChild(AvailabilityBlock(AvailabilityRules.Recipe(recipe, context), checklist: false));
             list.AddChild(card);
         }
         _panes.Detail.AddChild(list);
@@ -427,9 +434,15 @@ public partial class SkillsPanel : CanvasLayer
         var known = simulation.Player.Progression.Known.Where(k => IsTechnique(k.Key)).OrderBy(k => k.Value.Tick).ToList();
         if (known.Count == 0)
             list.AddChild(UiKit.Quiet("None yet - a technique is taught, read, found or worked out, never bought with points."));
+        var context = Context(simulation);
         foreach (var (id, learned) in known)
         {
             var card = Card(id, Source(session, learned));
+            if (session.Setup.Techniques.TryGetValue(id, out var technique))
+            {
+                card.AddChild(UiKit.Words(AvailabilityRules.TechniqueSummary(technique, key => Names.Of(session, key)), 16, HudStyle.Ash));
+                card.AddChild(AvailabilityBlock(AvailabilityRules.Technique(technique, context), checklist: true));
+            }
             card.AddChild(SlotPicker(simulation, id));
             list.AddChild(card);
         }
@@ -459,6 +472,56 @@ public partial class SkillsPanel : CanvasLayer
         head.AddChild(name);
         head.AddChild(UiKit.Words(note, 16, HudStyle.Muted));
         _panes.Detail.AddChild(head);
+    }
+
+    /// <summary>What the evaluator needs of the character now: pools, the weapon family in hand, what is carried, the station open, the waits.</summary>
+    private AvailabilityContext Context(Simulation simulation)
+    {
+        var session = _session!;
+        var view = simulation.Player;
+        var progression = view.Progression;
+        string? held = null, heldName = null;
+        if (view.Equipment.TryGetValue(EquipSlot.MainHand, out var hand) && view.Inventory.FirstOrDefault(e => e.ItemId == hand) is { } entry
+            && session.Setup.Items.Catalog.Find(entry.DefId) is { Weapon.SkillId: { } skill })
+        {
+            held = skill;
+            heldName = Names.Of(session, entry.DefId);
+        }
+        return new AvailabilityContext(id => ProgressionEngine.SkillLevel(progression, id),
+            progression.Pools.Stamina ?? (int)view.Stats.StaminaMax, progression.Pools.Focus ?? (int)view.Stats.FocusMax, progression.Pools.Strain,
+            (int)view.Stats.StrainTolerance, progression.Pools.Health ?? (int)view.Stats.HealthMax, held, heldName,
+            id => view.Inventory.Where(e => e.DefId == id).Sum(e => e.Count), NearStation?.Invoke(),
+            id => (simulation.TechniqueCooldown(id) + 19) / 20, key => Names.Of(session, key));
+    }
+
+    /// <summary>
+    /// An availability as the row shows it: the word as a chip, the first reason beside it, and - on a detail card - the checklist of what
+    /// is needed against what the character has, each marked met or not met in words (never by colour alone).
+    /// </summary>
+    private static Control AvailabilityBlock(Availability availability, bool checklist)
+    {
+        var block = new VBoxContainer();
+        block.AddThemeConstantOverride("separation", 4);
+        var tone = availability.Ready ? HudStyle.Lichen : availability.Kind is AvailabilityKind.NeedsGear or AvailabilityKind.NeedsSituation ? HudStyle.Brass : HudStyle.Ember;
+        var head = new HBoxContainer();
+        head.AddThemeConstantOverride("separation", 12);
+        head.AddChild(UiKit.Chip(availability.Word, tone, tone));
+        if (availability.Reason is { } reason)
+            head.AddChild(UiKit.Words(reason, 16, HudStyle.Bone));
+        block.AddChild(head);
+        if (availability.Caution is { } caution)
+            block.AddChild(UiKit.Words(caution, 16, HudStyle.Wound));
+        if (checklist)
+        {
+            block.AddChild(UiKit.Caption("What you need"));
+            foreach (var line in availability.Checklist)
+            {
+                var met = UiKit.Chip(line.Met ? "met" : "not met", line.Met ? HudStyle.Lichen : HudStyle.Ember, line.Met ? HudStyle.Lichen : HudStyle.Ember);
+                met.CustomMinimumSize = new Vector2(96, 0);
+                block.AddChild(UiKit.Row(met, line.Need, $"you: {line.Have}", height: 36).Root);
+            }
+        }
+        return block;
     }
 
     /// <summary>A known thing's card: its icon and name, and where it was learned at the right.</summary>
