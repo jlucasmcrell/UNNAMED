@@ -92,15 +92,25 @@ public class SimulationDoctrineTests
     /// a fixed or default ID - and nothing in the runtime is called a command without being one.
     /// </summary>
     /// <summary>
-    /// Every event goes through the bus as <c>Publish(new X(...))</c>, so <see cref="SimulationEvents_CarryOnlyPlainData"/> sees its type: an
-    /// event built elsewhere and published by variable, or by an explicit type argument, would slip past it.
+    /// Events published by variable, each with the type it publishes - so <see cref="SimulationEvents_CarryOnlyPlainData"/> checks it - and
+    /// why it is not built where it is published. The bus forwarding what it was given to the views publishes no type of its own.
+    /// </summary>
+    private static readonly Dictionary<(string File, string Code), (Type? Event, string Why)> PublishedByVariable = new()
+    {
+        [(Path.Combine("World", "Runtime", "Events.cs"), "_views.Publish(@event);")] = (null, "the bus hands each event it was given on to the views"),
+        [(Path.Combine("World", "Runtime", "Chatter.cs"), "_context.Events.Publish(message);")] = (typeof(ChatMessage), "every chat line, of whatever origin, is said through one Say (WP16)"),
+        [(Path.Combine("World", "Runtime", "Lfg.cs"), "_context.Events.Publish(s);")] = (typeof(SettingOut), "an offer is the life simulation's SettingOut, relayed as it came (WP16)"),
+    };
+
+    /// <summary>
+    /// Every event goes through the bus as <c>Publish(new X(...))</c>, so <see cref="SimulationEvents_CarryOnlyPlainData"/> sees its type, or
+    /// is named with its type in <see cref="PublishedByVariable"/>: anything else - an event built elsewhere and published by variable, or by
+    /// an explicit type argument - would slip past it.
     /// </summary>
     [Fact]
     public void EveryPublishedEvent_IsBuiltWhereItIsPublished()
     {
         string src = Path.Combine(RepositoryRoot(), "src");
-        // The bus hands each event it was given on to the views; that is the one forwarding call.
-        string bus = Path.Combine("World", "Runtime", "Events.cs");
         var offenders = new List<string>();
         foreach (string file in SimulationSources(src))
         {
@@ -111,7 +121,7 @@ public class SimulationDoctrineTests
                 string code = lines[i].Split("//")[0];
                 if (!Regex.IsMatch(code, @"\.Publish(<[^>]*>)?\(\s*(?!new\s)"))
                     continue;
-                if (relative == bus && code.Trim() == "_views.Publish(@event);")
+                if (PublishedByVariable.ContainsKey((relative, code.Trim())))
                     continue;
                 offenders.Add($"{relative}:{i + 1}: {lines[i].Trim()}");
             }
@@ -245,6 +255,7 @@ public class SimulationDoctrineTests
             }
         }
         Assert.True(unresolved.Count == 0, "Published events that name no single type:\n" + string.Join("\n", unresolved.Distinct()));
+        found.AddRange(PublishedByVariable.Values.Select(v => v.Event).OfType<Type>());
         return found.Distinct().ToList();
     }
 
