@@ -60,8 +60,8 @@ public sealed record ProgressionRules
 /// <summary>A named stretch of skill levels from <see cref="From"/> (PROGRESSION.md §6: Untrained, Familiar, Proficient, ...).</summary>
 public sealed record SkillBand(int From, string Name);
 
-/// <summary>A skill as the roster lists it: its ID and its family (<c>combat</c>, <c>magic</c>, ...).</summary>
-public sealed record SkillEntry(string Id, string Family);
+/// <summary>A skill as the roster lists it: its ID, its family (<c>combat</c>, <c>magic</c>, ...) and the one line that says what teaches it.</summary>
+public sealed record SkillEntry(string Id, string Family, string Teaches = "");
 
 /// <summary>
 /// <c>XP(n) = Base * (n-1)^Exponent</c>, times the band factor for levels inside the band, rounded to the

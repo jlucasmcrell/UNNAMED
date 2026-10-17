@@ -31,6 +31,7 @@ public partial class SkillsPanel : CanvasLayer
     private string _listDrawn = string.Empty;
     private string _detailDrawn = string.Empty;
     private string? _selected;
+    private bool _showAll;
 
     /// <summary>Put an item, formula or technique on a quick slot (0-7), or clear one (null); Main submits the command.</summary>
     public Action<int, string?>? Assign { get; set; }
@@ -76,7 +77,7 @@ public partial class SkillsPanel : CanvasLayer
         var view = simulation.Player;
         var progression = view.Progression;
         string state = string.Join(",", progression.Skills.Select(s => $"{s.Key}:{s.Value.Level}:{s.Value.ProgressXp}")) + "|" +
-                       string.Join(",", progression.Known.Keys) + "|" + string.Join(",", QuickBar(simulation));
+                       string.Join(",", progression.Known.Keys) + "|" + string.Join(",", QuickBar(simulation)) + $"|{_showAll}";
         if (state != _listDrawn)
         {
             _listDrawn = state;
@@ -141,7 +142,8 @@ public partial class SkillsPanel : CanvasLayer
         var rules = _session!.Setup.Progression;
         UiKit.Clear(_panes.List);
         _rows.Clear();
-        foreach (var family in rules.Roster.GroupBy(s => s.Family))
+        var listed = Shown(progression);
+        foreach (var family in listed.GroupBy(s => s.Family))
         {
             var section = UiKit.Section(family.Key);
             foreach (var skill in family)
@@ -170,6 +172,16 @@ public partial class SkillsPanel : CanvasLayer
             }
             _panes.List.AddChild(section);
         }
+        int hidden = DisciplineRoster.Hidden(rules.Roster, listed);
+        if (hidden > 0 || _showAll)
+        {
+            var toggle = UiKit.Action(DisciplineRoster.Toggle(_showAll, hidden), () =>
+            {
+                _showAll = !_showAll;
+                Callable.From(Refresh).CallDeferred();
+            }, compact: true, id: "skills/show_all");
+            _panes.List.AddChild(toggle);
+        }
 
         var known = UiKit.Section("Known");
         var magic = _session.Setup.Magic.Formulas;
@@ -190,6 +202,19 @@ public partial class SkillsPanel : CanvasLayer
         Wire(map.Button, Map);
         known.AddChild(map.Button);
         _panes.List.AddChild(known);
+    }
+
+    /// <summary>The disciplines the list shows now: the practised and the linked to something known, or every one.</summary>
+    private IReadOnlyList<SkillEntry> Shown(CharacterProgression progression)
+    {
+        var session = _session!;
+        var linked = progression.Known.Keys.Select(id =>
+                session.Setup.Magic.Formulas.TryGetValue(id, out var f) ? f.DomainSkillId
+                : session.Setup.Crafting.Recipes.TryGetValue(id, out var r) ? r.SkillId
+                : session.Setup.Techniques.TryGetValue(id, out var t) ? t.SkillId : null)
+            .OfType<string>().ToHashSet(StringComparer.Ordinal);
+        return DisciplineRoster.Shown(session.Setup.Progression.Roster,
+            id => progression.Skills.GetValueOrDefault(id) is { } s && (s.Level > 0 || s.ProgressXp > 0), linked, _showAll, _selected);
     }
 
     private void Wire(Button row, string id)
@@ -250,6 +275,8 @@ public partial class SkillsPanel : CanvasLayer
         {
             head.AddChild(UiKit.Words("Untrained - use it against a real challenge to begin.", 17, HudStyle.Ash));
         }
+        if (entry.Teaches.Length > 0)
+            head.AddChild(UiKit.Words($"What teaches it: {entry.Teaches}", 17, HudStyle.Bone));
         _panes.Detail.AddChild(head);
 
         var openings = Openings(session, skillId);
@@ -491,21 +518,8 @@ public partial class SkillsPanel : CanvasLayer
         return row;
     }
 
-    /// <summary>Where something known was learned, in words: "taught by Kera Voss", "read in the Resonance Primer".</summary>
-    internal static string Source(GameSession session, KnownTechnique learned)
-    {
-        string? from = learned.SourceRef is { } source ? Names.Of(session, source) : null;
-        return learned.Source switch
-        {
-            LearningSource.StartingPackage => "known from the start",
-            LearningSource.Teacher => from is null ? "taught" : $"taught by {from}",
-            LearningSource.Book => from is null ? "read" : $"read in {from}",
-            LearningSource.Quest => from is null ? "from a quest" : $"from the quest {from}",
-            LearningSource.Experiment => "worked out at the bench",
-            LearningSource.Discovery => "found by doing",
-            _ => ProgressionKeys.Key(learned.Source).Replace('_', ' ') + (from is null ? "" : $" ({from})"),
-        };
-    }
+    /// <summary>Where something known was learned, with its source label: "Learned: taught by Kera Voss".</summary>
+    internal static string Source(GameSession session, KnownTechnique learned) => CharacterWords.Labelled(learned, id => Names.Of(session, id));
 }
 
 /// <summary>

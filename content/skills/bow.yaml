@@ -6,3 +6,4 @@ tags: [skill]
 name: Bow
 family: combat
 notes: The bow's weapon-family skill (PROGRESSION.md §5's combat list; §6). Arrows that land train it. No passive yet - competence only.
+teaches: "Arrows that land on foes that test you. A shot at nothing, or at a foe far below you, teaches nothing."

@@ -8,3 +8,4 @@ family: combat
 notes: The prototype's weapon-family skill (PROTOTYPE.md; replaces the mastery.one_handed track). Effective blows train it; at 3 its stagger comes steadier.
 passives:
   - { at: 3, modifiers: [{ target: stat.stagger_power, op: multiply, value: 1.05 }] }   # PROTOTYPE.md: +5% stagger consistency
+teaches: "Blows that wound, and guards made with a blade, against foes that test you. A swing at nothing teaches nothing."
