@@ -23,6 +23,23 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
     /// <summary>Combat constants, status effects, creatures and where they stand (M3c).</summary>
     public CombatSetup Combat { get; init; } = CombatSetup.Empty;
 
+    /// <summary>
+    /// Every space this simulation holds the ground and walls of, by identity (M8 D10). The region's own is always
+    /// here; an interior reachable from it is added when the gate lets it in. Before this there was one
+    /// <c>WalkSpace</c> - <see cref="RegionLayout.Space"/> - and every height and every wall test came from it, which
+    /// is only correct while one space is loaded.
+    /// </summary>
+    public ImmutableDictionary<SpaceId, WalkSpace> Spaces { get; init; } =
+        ImmutableDictionary<SpaceId, WalkSpace>.Empty;
+
+    /// <summary>
+    /// The ground and walls of <paramref name="space"/>, or the layout's own when it names nothing this holds. The
+    /// fallback is deliberate: a space that is not loaded has no ground, and a caller asking for one is asking where
+    /// something in the loaded region would stand.
+    /// </summary>
+    public WalkSpace SpaceFor(SpaceId space) =>
+        Spaces.TryGetValue(space, out var held) ? held : Layout.Space;
+
     /// <summary>The formulas, the tuning of casting, and what books teach (M3e).</summary>
     public MagicSetup Magic { get; init; } = MagicSetup.Empty;
 

@@ -198,6 +198,22 @@ public sealed class GameSession : IDomainEvents, IDisposable
         if (!options.Barrowworks)
             layout = layout with { Portals = SpacePortalSet.Empty };
         var movement = WorldContent.BuildMovement(loader);
+        // Every space this run holds the ground of. The region's own always; the interior's when the gate is on and
+        // the region declares a way in. Its CONTENT - creatures, nodes, NPCs - is still the region's alone until B1
+        // routes those per space; what this makes possible is a height or a wall test in the interior's own space
+        // rather than the exterior's metres under it.
+        var spaces = ImmutableDictionary<SpaceId, WalkSpace>.Empty.Add(layout.SpaceId, layout.Space);
+        if (options.Barrowworks && !layout.Portals.Portals.IsEmpty)
+        {
+            foreach (var portal in layout.Portals.Portals)
+            {
+                if (portal.Space == layout.SpaceId)
+                    continue;
+                var inner = WorldContent.BuildLayout(loader, "region.barrowworks");
+                spaces = spaces.SetItem(portal.Space, inner.Space);
+            }
+        }
+
         var setup = new SimulationSetup(layout, movement, ProgressionContent.BuildRules(loader),
             WorldContent.BuildTiers(loader), WorldContent.TickMilliseconds(loader))
         {
@@ -221,6 +237,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Calendar = WorldContent.BuildCalendar(loader),
             Weather = WorldContent.BuildWeather(loader),
             Economy = EconomyContent.Build(loader),
+            Spaces = spaces,
         };
         var content = new ContentIdentity(options.ContentVersion, loader.ComputeContentHash(), loader.Definitions.Keys,
             loader.Aliases, loader.Removed, loader.Discarded);

@@ -57,11 +57,11 @@ internal sealed class SystemContext
     /// interior's local metres would otherwise address real exterior ground.
     /// </summary>
     /// <remarks>
-    /// The space is the player's, which is the simulation's ambient space. That is correct while one space
-    /// holds every actor: the Barrowworks is a single shared instance, its rooms are always reached through
-    /// the player, and the design freezes an absent space rather than simulating it, so no creature is ever
-    /// acting in a space the player is not in. The generalisation - a space recorded per creature rather
-    /// than taken from the player - is what a second concurrently simulated space would need.
+    /// The space is the player's, which is the simulation's ambient space, and that is a shortcut that stops being
+    /// true the moment two spaces are live at once - which is what co-loading the interior is for. An interior is NOT
+    /// frozen while the player is away: the owner's rules supersede the design's old "persistent:false" and every
+    /// space a simulation holds is advanced by the IAbstractAdvance chain (WP11). The generalisation this needs - a
+    /// space recorded per creature, companion and NPC rather than taken from the player - is B1's remaining half.
     /// </remarks>
     public CellKey CellOf(Body body) => CellKey.OfInterior(State.Space, body.XMm / 1000.0, body.ZMm / 1000.0);
 
