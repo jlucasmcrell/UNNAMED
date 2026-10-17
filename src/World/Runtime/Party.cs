@@ -229,7 +229,7 @@ internal sealed partial class CompanionSystem
 
     /// <summary>Where someone lives: their place in the region's layout.</summary>
     private Body Home(NpcState npc) =>
-        new(npc.Site.XMm, _context.Setup.Layout.Space.Terrain.HeightAtMm(npc.Site.XMm, npc.Site.ZMm), npc.Site.ZMm, npc.Site.FacingMdeg);
+        new(npc.Site.XMm, _context.Setup.SpaceFor(_context.State.Space).Terrain.HeightAtMm(npc.Site.XMm, npc.Site.ZMm), npc.Site.ZMm, npc.Site.FacingMdeg);
 
     /// <summary>How many days a grave wound keeps a companion at home: rolled from the world, who and when, so a replay or a load agrees.</summary>
     private long WoundDays(string npcId, long tick)
@@ -314,7 +314,7 @@ internal sealed partial class CompanionSystem
         var npc = State.Npcs[c.NpcId];
         var siteBody = new Body(site.X, 0, site.Z, npc.Body.FacingMdeg);
         var at = Ring(siteBody, 0, 1_500, Obstacles(c.NpcId)) ?? site;
-        Place(npc, new Body(at.X, _context.Setup.Layout.Space.Terrain.HeightAtMm(at.X, at.Z), at.Z, CombatRules.FacingTowards(at.X, at.Z, site.X, site.Z)));
+        Place(npc, new Body(at.X, _context.Setup.SpaceFor(_context.State.Space).Terrain.HeightAtMm(at.X, at.Z), at.Z, CombatRules.FacingTowards(at.X, at.Z, site.X, site.Z)));
         State.SetCompanion(_owner, c with
         {
             Order = CompanionOrder.Wait,
