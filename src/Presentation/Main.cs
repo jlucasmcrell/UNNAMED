@@ -29,9 +29,8 @@ namespace UNNAMED.Presentation;
 /// </summary>
 public partial class Main : Node3D
 {
-    /// <summary>Input actions for the formula keys, 4 to 6.</summary>
-    private static readonly string[] CastKeys = { "cast_1", "cast_2", "cast_3" };
-    private static readonly string[] QuickKeys = { "quick_1", "quick_2", "quick_3" };
+    /// <summary>Input actions for the eight quick slots (WP9), on 1 to 8 by default: items, formulas and techniques alike.</summary>
+    private static readonly string[] QuickKeys = Enumerable.Range(1, UNNAMED.Domain.Progression.QuickBar.Slots).Select(n => $"quick_{n}").ToArray();
 
     private readonly HashSet<string> _flags = new(StringComparer.Ordinal);
 
@@ -247,7 +246,8 @@ public partial class Main : Node3D
         string contentRoot = _options.GetValueOrDefault("--content-root") is { } content ? Path.GetFullPath(content) : Path.Combine(Home(), "content");
         string? playthrough = _options.GetValueOrDefault("--playthrough") ?? _options.GetValueOrDefault("--playthrough-verify");
         string profile = playthrough is not null ? Path.Combine(Path.GetFullPath(playthrough), "profile")
-            : _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf") || _options.ContainsKey("--ui-shots")
+            : _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf")
+              || (_options.ContainsKey("--ui-shots") && !_flags.Contains("--ui-shots-continue"))
               || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check") || _options.ContainsKey("--survey")
               || _options.ContainsKey("--shot")
               || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
@@ -276,7 +276,9 @@ public partial class Main : Node3D
         _scripted = (scripted && !_flags.Contains("--input-check")) || _options.ContainsKey("--resume-shots");
         // A scripted run plays one world from its start - the acceptance playthrough a fixed one, so it is the same run every time (M6).
         // A player's run begins at the start screen (the Phase-1 technical audit, B-01); the relaunch check continues as a player would.
-        bool showcaseContinues = _options.ContainsKey("--showcase") && _options.ContainsKey("--profile");
+        // --ui-shots-continue pictures the screens over the profile's newest save instead of a new character (WP9: one with skills,
+        // formulas and recipes to show).
+        bool showcaseContinues = (_options.ContainsKey("--showcase") || _flags.Contains("--ui-shots-continue")) && _options.ContainsKey("--profile");
         // Every harness run takes the SAME world, which is what the line above intends. The audit and
         // audition runs were left out of this and so fell to seed 0 - a fresh random world each time -
         // which made their stills incomparable: a before/after pair was the same camera over the same

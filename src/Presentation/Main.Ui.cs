@@ -5,6 +5,7 @@ using Godot;
 using UNNAMED.Persistence;
 using UNNAMED.Presentation.Settings;
 using UNNAMED.Presentation.Ui;
+using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Presentation;
 
@@ -14,13 +15,14 @@ public partial class Main
     private CreditsPanel _credits = null!;
     private TitleScreen _title = null!;
     private FirstLaunchPanel _firstLaunch = null!;
+    private SkillsPanel _skills = null!;
 
     /// <summary>The settings as last applied: a change applies only the parts it touched (a volume slider never restyles the interface).</summary>
     private ClientPrefs _applied = new();
     /// <summary>The panels and the System Menu: built, bound and given their icons.</summary>
     private void BuildPanels(string profile)
     {
-        _inventory = new InventoryPanel { Name = "Inventory" };
+        _inventory = new InventoryPanel { Name = "Inventory", Assign = AssignQuickSlot };
         _inventory.Bind(_session, _controller);
         AddChild(_inventory);
         _dialogue = new DialoguePanel { Name = "Dialogue" };
@@ -31,9 +33,12 @@ public partial class Main
         AddChild(_journal);
         _questDebug = new QuestDebugPanel { Name = "QuestDebug" };
         AddChild(_questDebug);
-        _character = new CharacterPanel { Name = "Character" };
+        _character = new CharacterPanel { Name = "Character", AllSkills = () => ShowSkills(null) };
         _character.Bind(_session);
         AddChild(_character);
+        _skills = new SkillsPanel { Name = "Skills", Assign = AssignQuickSlot };
+        _skills.Bind(_session);
+        AddChild(_skills);
         _help = new HelpPanel { Name = "Help", DeveloperKeys = _developer, Files = $"Saves: {profile}\nThe log, to send with a problem report: {LogPath}" };
         GD.Print($"UNNAMED files: saves in {profile}; the log at {LogPath}");
         AddChild(_help);
@@ -71,6 +76,7 @@ public partial class Main
         _hud.UseIcons(icons);
         _inventory.UseIcons(icons);
         _character.UseIcons(icons);
+        _skills.UseIcons(icons);
         _effectsPanel.UseIcons(icons);
         _companionsPanel.UseIcons(icons);
         _waystones.UseIcons(icons);
@@ -239,6 +245,7 @@ public partial class Main
     private SystemMenuPanel.Entry[] MenuEntries() => new SystemMenuPanel.Entry[]
     {
         new("You", "Character", "character", "panel.character", FromMenu(() => Show(_character))),
+        new("You", "Skills", "skills", "panel.skills", FromMenu(() => ShowSkills(null))),
         new("You", "Inventory", "inventory", "panel.inventory", FromMenu(() => OpenInventory(null))),
         new("You", "Effects", null, "panel.effects", FromMenu(() => Show(_effectsPanel))),
         new("The world", "Journal", "journal", "panel.journal", FromMenu(() => Show(_journal))),
@@ -259,7 +266,7 @@ public partial class Main
 
     /// <summary>The management screen open, if any: one at a time.</summary>
     private CanvasLayer? Screen =>
-        new CanvasLayer[] { _menu, _inventory, _character, _journal, _effectsPanel, _companionsPanel, _waystones, _map, _settings, _credits, _help, _saves }.FirstOrDefault(s => s.Visible);
+        new CanvasLayer[] { _menu, _inventory, _character, _skills, _journal, _effectsPanel, _companionsPanel, _waystones, _map, _settings, _credits, _help, _saves }.FirstOrDefault(s => s.Visible);
 
     /// <summary>Close whatever management screen is open, back to play.</summary>
     private void CloseScreens()
@@ -273,7 +280,7 @@ public partial class Main
             _help.Toggle();
         _waystones.Close();
         _settings.Close();
-        foreach (var screen in new CanvasLayer[] { _menu, _character, _journal, _effectsPanel, _companionsPanel, _map, _credits })
+        foreach (var screen in new CanvasLayer[] { _menu, _character, _skills, _journal, _effectsPanel, _companionsPanel, _map, _credits })
             screen.Visible = false;
     }
 
@@ -300,6 +307,22 @@ public partial class Main
                 break;
             case "character":
                 Show(_character);
+                break;
+            case "skills":
+                ShowSkills(null);
+                break;
+            case "skills_formulas":
+                ShowSkills(SkillsPanel.Formulas);
+                break;
+            case "skills_recipes":
+                ShowSkills(SkillsPanel.Recipes);
+                break;
+            case "skills_map":
+                ShowSkills(SkillsPanel.Map);
+                break;
+            case "announce_skill":
+                // The skill-up notice, pictured without waiting for a skill to rise (a preview: nothing is awarded).
+                _hud.Toast("Skill: One-hand Blade 4", 3);
                 break;
             case "inventory":
                 OpenInventory(null);
@@ -338,7 +361,7 @@ public partial class Main
 
     /// <summary>Every management screen, as the smoke opens them to prove the world runs under each.</summary>
     private static readonly string[] EveryScreen =
-        { "menu", "character", "inventory", "journal", "effects", "companions", "map", "help", "saves", "settings", "settings_controls", "credits" };
+        { "menu", "character", "skills", "skills_formulas", "inventory", "journal", "effects", "companions", "map", "help", "saves", "settings", "settings_controls", "credits" };
 
     private int _noPauseScreen;
     private int _noPauseFrames;
@@ -458,6 +481,20 @@ public partial class Main
         var (shot, then) = steps[_frontStep++];
         SaveScreenshot(directory, shot);
         then?.Invoke();
+    }
+
+    /// <summary>The Skills screen in place of whatever was open, on a row (a skill or a known view), or on the most practised skill.</summary>
+    private void ShowSkills(string? select)
+    {
+        CloseScreens();
+        _skills.Open(select);
+    }
+
+    /// <summary>A quick slot given something to use, or cleared: the command, as the Skills screen and the inventory ask for it (WP9).</summary>
+    private void AssignQuickSlot(int slot, string? id)
+    {
+        if (_session.Simulation is { } simulation)
+            _session.Submit(new AssignQuickSlotCommand(simulation.PlayerId, slot, id));
     }
 
     /// <summary>The Waystone panel, at the stone the character stands at.</summary>

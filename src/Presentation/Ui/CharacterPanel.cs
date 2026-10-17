@@ -29,6 +29,9 @@ public partial class CharacterPanel : CanvasLayer
 
     public void Bind(GameSession session) => _session = session;
 
+    /// <summary>Open the Skills screen (WP9): every discipline, where Practised shows the top four.</summary>
+    public Action? AllSkills { get; set; }
+
     /// <summary>The icon set: the attributes', the skills', what is worn and the empty slots' ghosts, and the screen's own tile.</summary>
     public void UseIcons(HudIcons icons)
     {
@@ -297,6 +300,12 @@ public partial class CharacterPanel : CanvasLayer
         }
         if (view.Progression.Skills.Count == 0)
             practised.AddChild(UiKit.Quiet("None yet - skills grow by use."));
+        if (AllSkills is { } all)
+        {
+            var more = UiKit.Action($"See all skills [{HelpPanel.Key("skills")}]", all, compact: true, id: "all_skills");
+            more.SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin;
+            practised.AddChild(more);
+        }
         column.AddChild(practised);
 
         var known = UiKit.Section("Known");
