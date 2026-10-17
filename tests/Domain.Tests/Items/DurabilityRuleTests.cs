@@ -59,6 +59,33 @@ public class DurabilityRuleTests
     }
 
     [Theory]
+    [InlineData(10, 0, 10)]
+    [InlineData(10, 5, 7)]    // half worn: a quarter off, rounded down (50% at full wear)
+    [InlineData(10, 10, 5)]   // worn out: half
+    [InlineData(10, 40, 5)]   // wear never counts past its durability
+    [InlineData(1, 10, 1)]    // anything that sells for something sells for at least 1
+    [InlineData(0, 10, 0)]
+    public void AWornPiece_SellsForLess_ByTheShareATraderWouldChargeToMendIt(long offer, int points, long expected) =>
+        Assert.Equal(expected, Durability.SalePrice(offer, Sword, new ItemWear(points, Quality.Standard), DurabilityRules.Default));
+
+    [Fact]
+    public void MendingAWornPiece_ToSellIt_NeverPaysForItself()
+    {
+        var rules = DurabilityRules.Default;
+        for (long offer = 1; offer <= Sword.ValueBase; offer++)
+            for (int points = 1; points <= Sword.DurabilityMax; points++)
+            {
+                var wear = new ItemWear(points, Quality.Standard);
+                long gain = Durability.SalePrice(offer, Sword, null, rules) - Durability.SalePrice(offer, Sword, wear, rules);
+                Assert.True(gain <= Durability.MerchantFee(Sword, wear, rules), $"offer {offer}, wear {points}: mending gains {gain}");
+            }
+    }
+
+    [Fact]
+    public void ThePieceWithoutDurability_SellsAtTheOffer() =>
+        Assert.Equal(7, Durability.SalePrice(7, Sword with { DurabilityMax = 0 }, new ItemWear(3, Quality.Standard), DurabilityRules.Default));
+
+    [Theory]
     [InlineData(24_000, 30_000, false)]   // exactly 80%: not above the band
     [InlineData(24_001, 30_000, true)]
     [InlineData(30_000, 30_000, true)]

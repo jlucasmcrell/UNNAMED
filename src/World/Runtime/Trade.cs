@@ -112,7 +112,7 @@ internal sealed class TradeSystem
             return $"{command.Item} is not carried";
         if (command.Count < 1 || command.Count > entry.Count)
             return $"only {entry.Count} carried";
-        if (OfferFor(merchant, entry.DefId) is not { } each)
+        if (OfferFor(merchant, entry.DefId, entry.Wear) is not { } each)
             return $"{npc.Definition.Name} does not buy that";
         if (each == 0)
             return $"{npc.Definition.Name} would give nothing for that";
@@ -186,10 +186,10 @@ internal sealed class TradeSystem
     }
 
     /// <summary>What a trader would pay for one of an item now; null when this NPC does not trade, or does not buy it.</summary>
-    public long? Offer(string npcId, string itemId) =>
+    public long? Offer(string npcId, string itemId, ItemWear? wear = null) =>
         State.Npcs.TryGetValue(npcId, out var npc) && npc.Definition.MerchantId is { } id && Items.Merchants.TryGetValue(id, out var merchant)
             && Items.Catalog.Find(itemId) is not null
-            ? OfferFor(merchant, itemId)
+            ? OfferFor(merchant, itemId, wear)
             : null;
 
     /// <summary>What a trader asks for one: its value times their bias for it (1 for anything they did not stock) times their town's price.</summary>
@@ -197,15 +197,16 @@ internal sealed class TradeSystem
         EconomyEngine.Ask(Items.Catalog.Get(itemId).ValueBase, merchant.Stock.FirstOrDefault(s => s.ItemId == itemId)?.PriceBias ?? 1.0,
             _markets.Factor(MarketOf(merchant), itemId));
 
-    /// <summary>What a trader pays for one, or null when they do not buy it (S-36: always below what they ask).</summary>
-    private long? OfferFor(Merchant merchant, string itemId)
+    /// <summary>What a trader pays for one, or null when they do not buy it (S-36: always below what they ask); less for a worn piece (WP3b).</summary>
+    private long? OfferFor(Merchant merchant, string itemId, ItemWear? wear)
     {
         var item = Items.Catalog.Get(itemId);
         if (Items.Pricing.SellPrice(item, merchant) is null)
             return null;
         string? market = MarketOf(merchant);
-        return EconomyEngine.Offer(item.ValueBase, Items.Pricing.SellRatio, _markets.Factor(market, itemId), _markets.Remembered(market, itemId),
+        long offer = EconomyEngine.Offer(item.ValueBase, Items.Pricing.SellRatio, _markets.Factor(market, itemId), _markets.Remembered(market, itemId),
             _context.Setup.Economy.Rules, AskFor(merchant, itemId));
+        return Durability.SalePrice(offer, item, wear, Items.Inventory.Durability);
     }
 
     private string? MarketOf(Merchant merchant) => _context.Setup.Economy.MarketOf(merchant.Id)?.Id;

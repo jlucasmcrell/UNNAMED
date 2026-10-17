@@ -250,6 +250,19 @@ public static class Durability
         return Math.Max(1, fee);
     }
 
+    /// <summary>
+    /// What a trader pays for a worn piece: their offer less the share of it that a trader's repair would charge for the wear, so a worn-out
+    /// piece sells for what <see cref="DurabilityRules.MerchantFeePercent"/> leaves of it. Repairing to resell can never gain: the fee is that
+    /// share of the piece's value, and the offer is never above it. A piece that sells for anything sells for at least 1.
+    /// </summary>
+    public static long SalePrice(long offer, ItemDefinition item, ItemWear? wear, DurabilityRules rules)
+    {
+        if (offer <= 0 || item.DurabilityMax <= 0 || wear is null)
+            return offer;
+        long points = Math.Min(wear.Points, item.DurabilityMax);
+        return Math.Max(1, offer * (100L * item.DurabilityMax - rules.MerchantFeePercent * points) / (100L * item.DurabilityMax));
+    }
+
     private static (int, ItemWear?) Normal(int quality, ItemWear wear) => (quality, wear.Points == 0 && quality == wear.MadeQuality ? null : wear);
 }
 

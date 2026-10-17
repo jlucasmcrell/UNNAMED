@@ -238,7 +238,7 @@ public partial class InventoryPanel : CanvasLayer
             // Remains take nothing in: the world takes a body away with whatever lies in it.
             if (OpenContainer is { } key && !simulation.Creatures.Any(c => c.Condition == CreatureCondition.Corpse && c.CorpseKey == key))
                 row.Root.AddChild(Button(id, "Put", () => Submit(new MoveItemCommand(simulation.PlayerId, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.In(key), entry.Count))));
-            if (OpenTrader is { } trader && SellPrice(simulation, trader, entry.DefId) is { } each && each > 0 && !equipped)
+            if (OpenTrader is { } trader && SellPrice(simulation, trader, entry.DefId, entry.Wear) is { } each && each > 0 && !equipped)
             {
                 row.Root.AddChild(Button(id, $"Sell {each * entry.Count}", () => Submit(new SellCommand(simulation.PlayerId, trader, entry.ItemId, entry.Count))));
                 if (entry.Count > 1)
@@ -564,9 +564,8 @@ public partial class InventoryPanel : CanvasLayer
         Details(simulation);
     }
 
-    /// <summary>What the open trader would pay for one of these, or null when they do not buy it.</summary>
-    /// <summary>What the trader pays for one now: their town's price, less what it remembers the character selling it (WP14).</summary>
-    private static long? SellPrice(Simulation simulation, string npcId, string defId) => simulation.Offer(npcId, defId);
+    /// <summary>What the trader pays for one now: their town's price, less what it remembers the character selling it (WP14) and what the wear costs (WP3b); null when they do not buy it.</summary>
+    private static long? SellPrice(Simulation simulation, string npcId, string defId, ItemWear? wear) => simulation.Offer(npcId, defId, wear);
 
     private void Submit(GameCommand command) => _session.Submit(command);
 

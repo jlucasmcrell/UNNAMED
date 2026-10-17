@@ -239,6 +239,24 @@ public class DurabilityTests
     }
 
     [Fact]
+    public void ATrader_PaysLessForAWornPiece_AndMendingItToSellItNeverGains()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = At(session, AtKera, r => Kit(r, session.Setup, 50, new[] { Stack(Sword, quality: Quality.Crude, wear: new ItemWear(200, Quality.Standard)) }, Sword));
+        var sword = Carried(arena, Sword);
+        long whole = arena.Simulation.Offer(Kera, Sword)!.Value, worn = arena.Simulation.Offer(Kera, Sword, sword.Wear)!.Value;
+        long fee = arena.Simulation.RepairQuote(Kera, sword.ItemId)!.Fee;
+        Assert.True(worn < whole);
+        Assert.True(whole - worn <= fee, $"mending costs {fee} and raises the offer by {whole - worn}");
+
+        Assert.Null(arena.Submit(new UnequipCommand(arena.Player, EquipSlot.MainHand)));
+        long coin = arena.Simulation.Player.Currency;
+        Assert.Null(arena.Submit(new SellCommand(arena.Player, Kera, sword.ItemId, 1)));
+        Assert.Equal(coin + worn, arena.Simulation.Player.Currency);   // what was offered is what is paid
+    }
+
+    [Fact]
     public void ATradersRepair_IsRefused_WithoutTheCoin_OrByOneWhoDoesNotRepair()
     {
         using var profile = new TempProfile();
