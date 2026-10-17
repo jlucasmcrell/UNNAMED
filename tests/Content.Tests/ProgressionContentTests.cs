@@ -76,6 +76,15 @@ public class ProgressionContentTests : IDisposable
     }
 
     [Fact]
+    public void EveryShippedSkill_SaysWhatTeachesIt()
+    {
+        var rules = ProgressionContent.BuildRules(Load(_root));
+
+        Assert.NotEmpty(rules.Roster);
+        Assert.All(rules.Roster, skill => Assert.True(skill.Teaches.Length > 20, $"{skill.Id} says what teaches it (canon 26 W3)"));
+    }
+
+    [Fact]
     public void TheGameContent_ListsEverySkillByFamily_AndNamesTheBandsOfProgressionMd()
     {
         var rules = ProgressionContent.BuildRules(Load(Path.Combine(RepoPaths.Root(), "content")));
