@@ -3,7 +3,8 @@ clipping gate's verdict.
 
 python body_content.py --summaries <dir with builds_m.json, builds_f.json> --gate <INTERSECTIONS_<date>.json> --content <repo>/content
 
-A core build (lean, average, heavy) is offered; an extreme (very_lean, very_heavy) is offered only when the gate passed it for that body.
+Lean and Average are offered; Very lean, Heavy and Very heavy only when the gate passed that body on both verdicts (build and outfit; owner 2026-10-17:
+Heavy and Very heavy stay hidden until they pass).
 Measurements are the MetaHuman model's tape girths (build_bodies.py), in whole millimetres. Rest offsets are empty: a build changes no
 joint (bl_preset_shapes.py carries every preset onto the Veth skeleton); a later people with other proportions lists its own.
 """
@@ -13,7 +14,7 @@ import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TYPES = {"m": ("veth_m", "Masculine"), "f": ("veth_f", "Feminine")}
-EXTREMES = ("very_lean", "very_heavy")
+HELD = ("very_lean", "heavy", "very_heavy")
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--summaries", required=True)
@@ -29,8 +30,9 @@ for sex, (type_id, type_label) in TYPES.items():
     for order, build in enumerate(builds, start=1):
         asset = f"mh_veth_{sex}" if build["id"] == "average" else f"mh_veth_{sex}_{build['id']}"
         girths = summary["average_girths_cm"] if build["id"] == "average" else summary["builds"][build["id"]]["girths_cm"]
-        offered = build["id"] not in EXTREMES or verdict[asset]["pass"]
-        gate = "passed" if verdict[asset]["pass"] else f"failed ({len(verdict[asset]['faults'])} faults)"
+        v = verdict[asset]
+        offered = build["id"] not in HELD or (v["pass"] and v["outfit_pass"])
+        gate = "passed" if v["pass"] and v["outfit_pass"] else f"failed ({len(v['faults']) + len(v['outfit_faults'])} faults)"
         lines = [
             f"id: body.{type_id}.{build['id']}",
             "kind: body",

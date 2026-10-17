@@ -13,7 +13,8 @@ each <garment>_garment.json); a triangle with any hidden corner is not drawn. Bl
 Fails, per memo 4.3 rule 8, when in any sampled pose
   * skin: a drawn body or head vertex stands outside a garment - a ray inward along its normal meets the garment more than tol below it,
     further than 15 mm from the garment's border (the visible margin) - more than 0 is a failure;
-  * gaps: a body vertex the masks hide that no garment encloses (a ray outward meets none within 30 cm) - the hole shows; more than 0;
+  * gaps: a body vertex the masks hide that no garment encloses (a ray outward meets none within 30 cm), or a garment vertex its
+    masks hide that no outer garment encloses - the hole shows; more than 0;
   * layers: a drawn vertex of a lower garment standing outside a higher one the same way - more than 10 per layer pair in locomotion
     clips is a failure (25 in get-ups);
   * hair: a hair vertex stands outside headwear - a ray from it towards the head joint meets the garment before the skull; more than 0.
@@ -35,6 +36,7 @@ import numpy as np
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
+
 argv = sys.argv[sys.argv.index("--") + 1:]
 ap = argparse.ArgumentParser()
 ap.add_argument("--body", required=True)
@@ -43,15 +45,15 @@ ap.add_argument("--clips", required=True)
 ap.add_argument("--out", required=True)
 ap.add_argument("--phases", type=int, default=12)
 ap.add_argument("--tol-mm", type=float, default=3.0)
+ap.add_argument("--dump", help="write every fault's posed position here (json: {clip: {t: {gaps, own}}}), and with --dump-at the posed "
+                "meshes as drawn (<dump>_<clip>_<phase>.obj, glTF frame), for a look at them")
+ap.add_argument("--dump-at", default="", help="clip@phase,... (e.g. player.mh.idle@0) whose posed meshes --dump writes")
 ap.add_argument("--arm-splay-deg", type=float, default=0.0, help="the body's build pose offset (body content arm_splay_deg; Art/BuildPose.cs)")
-ap.add_argument("--fix", action="store_true", help="push each garment out, at rest, by the most any sampled pose let the cloth it covers "
-                                                   "or a lower layer through, and rewrite the garment glbs (clearance from motion)")
 a = ap.parse_args(argv)
 TOL = a.tol_mm / 1000
 COVER = 0.03   # how far inward a covering layer is looked for
 MARGIN = 0.015  # memo 4.3: 15 mm visible margin at a garment border
 REACH = 0.30   # how far outward a hidden body point looks for its garment (loose cloth stands well off)
-MAX_PUSH = 0.008  # --fix: deeper than this the pose, not the cloth's clearance, is at fault (a thigh folded into the belly)
 DEPTH = 0.01   # ...starting this far under the skin
 GETUP = ("getup", "get_up")
 REGION_NAMES = {i: n for n, i in json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "regions.json")))["regions"].items()}
@@ -360,6 +362,16 @@ def drawn(mesh, hidden_mask):
     return shown, mesh.triangles[~tri_hidden]
 
 
+def write_obj(path, parts):
+    with open(path, "w") as f:
+        base = 1
+        for name, verts, tris in parts:
+            f.write(f"o {name}\n")
+            f.writelines(f"v {x:.5f} {y:.5f} {z:.5f}\n" for x, y, z in verts)
+            f.writelines(f"f {i + base} {j + base} {k + base}\n" for i, j, k in tris)
+            base += len(verts)
+
+
 def normals(verts, tris):
     n = np.zeros_like(verts)
     face = np.cross(verts[tris[:, 1]] - verts[tris[:, 0]], verts[tris[:, 2]] - verts[tris[:, 0]])
@@ -388,8 +400,8 @@ class Cover:
         rim = verts[border(verts, tris)] if len(tris) else np.zeros((0, 3))
         self.rim = BVHTree.FromPolygons([Vector(v) for v in rim], [(i, i, i) for i in range(len(rim))]) if len(rim) else None
 
-    def near_rim(self, point):
-        return self.rim is not None and self.rim.find_nearest(point, MARGIN)[0] is not None
+    def near_rim(self, point, margin=MARGIN):
+        return self.rim is not None and self.rim.find_nearest(point, margin)[0] is not None
 
 
 def first(bvh, origin, direction, reach):
@@ -397,11 +409,9 @@ def first(bvh, origin, direction, reach):
     return hit[3] if hit[0] is not None else None
 
 
-def show_through(points, normals_, shown, cover, flesh, regions=None, tally=None, push=None, own=None):
+def show_through(points, normals_, shown, cover, flesh, regions=None, tally=None, where=None):
     """Shown points standing outside the covering surface: a ray inward meets it more than TOL below, away from its border, before it
-    meets the body's own surface (a ray through a hand that reaches the trousers beside it is not a hand under the trousers).
-    With push (per covering vertex, metres): each point of a region the cover is worn over (own; all when own is None) asks the
-    corners of the triangle it is under to stand out by its depth plus TOL, up to MAX_PUSH."""
+    meets the body's own surface (a ray through a hand that reaches the trousers beside it is not a hand under the trousers)."""
     count = 0
     for i, (p, n, s) in enumerate(zip(points, normals_, shown)):
         if not s:
@@ -415,13 +425,12 @@ def show_through(points, normals_, shown, cover, flesh, regions=None, tally=None
             count += 1
             if tally is not None:
                 tally[int(regions[i])] = tally.get(int(regions[i]), 0) + 1
-            if push is not None and (own is None or int(regions[i]) in own) and dist + TOL <= MAX_PUSH:
-                corners = cover.tris[cover.bvh.ray_cast(o, d, COVER)[2]]
-                push[corners] = np.maximum(push[corners], dist + TOL)
+            if where is not None:
+                where.append([round(float(x), 4) for x in p])
     return count
 
 
-def gaps(points, normals_, hidden, regions, covers, flesh):
+def gaps(points, normals_, hidden, regions, covers, flesh, where=None):
     """Hidden body points no garment encloses: a ray outward reaches open space - meeting neither a garment nor the body itself within
     REACH - so the hole shows. By region."""
     by_region = {}
@@ -435,52 +444,9 @@ def gaps(points, normals_, hidden, regions, covers, flesh):
         inside = Vector(p) - Vector(n) * DEPTH
         if not any(first(c.bvh, inside, d, DEPTH + REACH) is not None for c in covers):
             by_region[int(r)] = by_region.get(int(r), 0) + 1
+            if where is not None:
+                where.append([round(float(x), 4) for x in p])
     return by_region
-
-
-def fix(g):
-    """Push the garment out at rest along its normals by what the poses asked of it (grown one ring and eased so the cloth moves as a
-    whole, never less than asked), in its glb: LOD0 exactly, the LODs by their nearest LOD0 points. Returns the largest push, mm."""
-    mesh, push = g["mesh"], g["push"]
-    if not push.any():
-        return 0.0
-    _, weld = np.unique(np.round(mesh.positions / 1e-5).astype(np.int64), axis=0, return_inverse=True)
-    weld = weld.ravel()
-    w = np.zeros(weld.max() + 1)
-    np.maximum.at(w, weld, push)
-    tri = weld[mesh.triangles]
-    edges = np.vstack([tri[:, [0, 1]], tri[:, [1, 2]], tri[:, [2, 0]]])
-    edges = np.vstack([edges, edges[:, ::-1]])
-    grown = w.copy()
-    np.maximum.at(grown, edges[:, 0], w[edges[:, 1]])
-    for _ in range(2):
-        avg = np.zeros_like(grown)
-        np.add.at(avg, edges[:, 0], grown[edges[:, 1]])
-        grown = np.maximum(w, avg / np.maximum(np.bincount(edges[:, 0], minlength=len(grown)), 1))
-    move = normals(mesh.positions, mesh.triangles) * grown[weld][:, None]
-    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from glb import Glb
-    from mathutils.kdtree import KDTree
-    tree = KDTree(len(mesh.positions))
-    for i, p in enumerate(mesh.positions):
-        tree.insert(p, i)
-    tree.balance()
-    doc = Glb(g["path"])
-    for node in doc.doc["nodes"]:
-        if "mesh" not in node or not node.get("name", "").startswith(g["id"]):
-            continue
-        base = 0
-        for prim in doc.doc["meshes"][node["mesh"]]["primitives"]:
-            at = prim["attributes"]["POSITION"]
-            pos = doc.read(at)
-            if node["name"] == g["id"]:
-                d = move[base:base + len(pos)]
-                base += len(pos)
-            else:
-                d = np.array([move[tree.find(p)[1]] for p in pos])
-            doc.write(at, pos + d)
-    doc.save(g["path"])
-    return round(float(grown.max()) * 1000, 1)
 
 
 def main():
@@ -499,7 +465,7 @@ def main():
         names = {n: i for i, n in REGION_NAMES.items()}
         covers = {names[r] for r, share in spec.get("coverage", {}).items() if share >= 0.5 and r in names}
         garments.append({"id": spec["id"], "layer": spec["layer"], "hides": spec["hides_mask"], "mesh": mesh, "covers": covers,
-                         "path": path, "push": np.zeros(len(mesh.positions)) if a.fix else None})
+                         "headwear": spec.get("headwear", False), "path": path})
     garments.sort(key=lambda g: g["layer"])
     body_hidden = 0
     for g in garments:
@@ -516,6 +482,7 @@ def main():
     body_shown, _ = drawn(body, body_hidden)
     for g in garments:
         g["shown"], g["tris"] = drawn(g["mesh"], g["hidden"])
+    dumped = {}
     for path in a.clips.split(","):
         clip = Clip(path)
         state = clip.name.replace("anim.", "").replace(".glb", "")
@@ -534,27 +501,44 @@ def main():
             flesh = BVHTree.FromPolygons([Vector(v) for v in bv], [tuple(int(x) for x in t) for t in body.triangles])
             row["skin_by"] = {}
             row["skin_own"] = row["skin_contact"] = 0
+            spots = {"gaps": [], "own": []}
             for g in garments:
                 tally = {}
-                row["skin"] += show_through(bv, bn, body_shown, g["cover"], flesh, body.regions, tally, g["push"], g["covers"])
+                row["skin"] += show_through(bv, bn, body_shown, g["cover"], flesh, body.regions, tally, spots["own"] if a.dump else None)
                 for r, n in tally.items():
                     row["skin_by"][f"{REGION_NAMES.get(r, r)}>{g['id']}"] = n
                     row["skin_own" if r in g["covers"] else "skin_contact"] += n
-            holes = gaps(bv, bn, ~body_shown, body.regions, [g["cover"] for g in garments], flesh)
+            holes = gaps(bv, bn, ~body_shown, body.regions, [g["cover"] for g in garments], flesh, spots["gaps"] if a.dump else None)
+            if a.dump:
+                dumped.setdefault(state, {})[str(row["t"])] = spots
+                if f"{state}@{k}" in a.dump_at.split(","):
+                    _, body_tris = drawn(body, body_hidden)
+                    shown_set = set(map(tuple, body_tris.tolist()))
+                    hidden_tris = np.array([t for t in body.triangles.tolist() if tuple(t) not in shown_set]).reshape(-1, 3)
+                    write_obj(f"{a.dump[:-5]}_{state}_{k}.obj", [("body", bv, body_tris), ("body_hidden", bv, hidden_tris)]
+                              + [(g["id"], g["now"], g["tris"]) for g in garments])
+            # a garment's masked vertices must be enclosed too: an outer garment over them, or the hole shows what is beneath
+            for g in garments:
+                outer = [h["cover"] for h in garments if h["layer"] > g["layer"]]
+                n = sum(1 for i in np.flatnonzero(~g["shown"])
+                        if not any(first(c.bvh, Vector(g["now"][i]) - Vector(g["normals"][i]) * 0.001, Vector(g["normals"][i]), REACH)
+                                   is not None for c in outer))
+                if n:
+                    holes[f"under {g['id']}"] = n
             row["gaps"] = sum(holes.values())
             if hair is not None:
                 # hair standing outside headwear: a ray from each hair vertex towards the head joint meets a garment before the skull
                 hv = hair.deform(G)
                 centre = (G["head"] @ np.array([0.0, 0.0, 0.0, 1.0]))[:3]
                 out = (hv - centre) / np.maximum(np.linalg.norm(hv - centre, axis=1, keepdims=True), 1e-9)
-                row["hair_by"] = {g["id"]: n for g in garments
-                                  if (n := show_through(hv, out, np.ones(len(hv), dtype=bool), g["cover"], flesh))}
+                row["hair_by"] = {g["id"]: n for g in garments if g["headwear"]
+                                  and (n := show_through(hv, out, np.ones(len(hv), dtype=bool), g["cover"], flesh))}
                 row["hair"] = sum(row["hair_by"].values())
-            row["gaps_by_region"] = {REGION_NAMES.get(r, str(r)): n for r, n in sorted(holes.items())}
+            row["gaps_by_region"] = {REGION_NAMES.get(r, str(r)): n for r, n in sorted(holes.items(), key=lambda kv: str(kv[0]))}
             for lo in garments:
                 for hi in garments:
                     if hi["layer"] > lo["layer"]:
-                        n = show_through(lo["now"], lo["normals"], lo["shown"], hi["cover"], flesh, push=hi["push"])
+                        n = show_through(lo["now"], lo["normals"], lo["shown"], hi["cover"], flesh)
                         if n:
                             row["layers"][f"{lo['id']}<{hi['id']}"] = n
             rows.append(row)
@@ -572,8 +556,8 @@ def main():
                                   "worst_gaps": max(r["gaps"] for r in rows), "worst_hair": max(r.get("hair", 0) for r in rows),
                                   "worst_layer": max([max(r["layers"].values()) for r in rows if r["layers"]] or [0]), "phases": rows}
     report["pass"] = not report["fail"]
-    if a.fix:
-        report["fixed_mm"] = {g["id"]: fix(g) for g in garments}
+    if a.dump:
+        json.dump(dumped, open(a.dump, "w"))
     json.dump(report, open(a.out, "w"), indent=1)
     print("MHGATE", "PASS" if report["pass"] else "FAIL", json.dumps({s: {"skin": c["worst_skin"], "gaps": c["worst_gaps"], "hair": c["worst_hair"], "layer": c["worst_layer"]} for s, c in report["clips"].items()}))
 

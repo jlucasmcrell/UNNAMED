@@ -22,17 +22,17 @@ from concurrent.futures import ThreadPoolExecutor
 HERE = os.path.dirname(os.path.abspath(__file__))
 MH = r"C:\Otherreach_Recovery\asset_work\metahuman"
 BLENDER = r"C:\Program Files\Blender Foundation\Blender 5.2\blender.exe"
-OUTFIT = ("shirt", "trousers", "boots", "jerkin", "hide_cap")
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--sex", default="m,f")
 ap.add_argument("--builds", default="very_lean,lean,average,heavy,very_heavy")
+ap.add_argument("--outfit", default="trousers,boots,shirt,vest,belt,hood", help="the player outfit's garments (outfit v8)")
 ap.add_argument("--out", required=True)
 ap.add_argument("--jobs", type=int, default=5)
 ap.add_argument("--report-only", action="store_true")
-ap.add_argument("--fix", action="store_true", help="mh_gate.py --fix on every body: motion clearance written into the baked garments")
 ap.add_argument("--clips", default=os.path.join(MH, "work", "clips_veth", "animation", "ready", "player"))
 a = ap.parse_args()
+OUTFIT = a.outfit.split(",")
 os.makedirs(a.out, exist_ok=True)
 clips = sorted(os.path.join(a.clips, f) for f in os.listdir(a.clips) if f.endswith(".glb"))
 
@@ -51,7 +51,7 @@ def gate(sex, build):
                         for g in OUTFIT)
     cmd = [BLENDER, "-b", "--factory-startup", "--python", os.path.join(HERE, "mh_gate.py"), "--",
            "--body", os.path.join(MH, "work", "assembled", body, f"{body}_rigged.glb"), "--garments", garments,
-           "--clips", ",".join(clips), "--arm-splay-deg", str(SPLAY[build][sex]), "--out", out] + (["--fix"] if a.fix else [])
+           "--clips", ",".join(clips), "--arm-splay-deg", str(SPLAY[build][sex]), "--out", out]
     log = subprocess.run(cmd, capture_output=True, text=True).stdout
     line = next((x for x in log.splitlines() if x.startswith("MHGATE")), "MHGATE ERROR " + log[-400:])
     print(body, line[:160], flush=True)

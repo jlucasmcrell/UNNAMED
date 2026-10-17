@@ -19,10 +19,11 @@ M() { cygpath -m "$1"; }
 fit() {  # id source-dir [below] [rigid]: the spec's fit is the target for a rigid piece (no refit), hides the Average's
   tmp=$(mktemp -d)
   cp "$2/$1.glb" "$tmp/"
-  python - "$(M $2/$1.json)" "$(M $W/rigged/${1}__$average/${1}__${average}_garment.json)" "$(M $tmp/$1.json)" "${4:+$target}" <<'EOF'
+  python - "$(M $2/$1.json)" "$(M $W/rigged/${1}__$average/${1}__${average}_garment.json)" "$(M $tmp/$1.json)" "${4:+$target}" "$target" "$average" <<'EOF'
 import json, sys
-spec, average, out, rigid = json.load(open(sys.argv[1])), json.load(open(sys.argv[2])), sys.argv[3], sys.argv[4]
-spec["hides"] = average["hides"]
+spec, out, rigid, target, average = json.load(open(sys.argv[1])), sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6]
+if target != average:   # the Average decides its own (spec "auto")
+    spec["hides"] = json.load(open(sys.argv[2]))["hides"]
 if rigid:
     spec["fit"] = rigid
 json.dump(spec, open(out, "w"), indent=1)
@@ -32,9 +33,9 @@ EOF
   rm -rf "$tmp"
   [ -f "$W/rigged/${1}__$target/${1}__${target}_garment.json" ] || { echo "BAKE FAILED $1 on $target"; exit 1; }
 }
-fit player_shirt_$s $W/v4_player_shirt_$s
-fit player_trousers_$s $W/v4_player_trousers_$s player_shirt_$s
-fit player_boots_$s $W/src_$s player_shirt_$s,player_trousers_$s
-fit player_jerkin_$s $W/v4_player_jerkin_$s player_shirt_$s,player_trousers_$s
-fit player_hide_cap_$s $W/src_$s "" rigid
+V=$W/v8
+fit player_boots_$s $V/boots_$s
+fit player_trousers_$s $W/v6_player_trousers_$s
+[ "$3" = "legs" ] && { echo "BAKED $target (legs)"; exit 0; }
+fit player_shirt_$s $V/shirt_$s player_trousers_$s,player_boots_$s
 echo "BAKED $target"
