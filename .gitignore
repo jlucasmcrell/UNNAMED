@@ -83,3 +83,5 @@ TestResults/
 
 # Third-party Godot plugins (606 MB) live on disk only; restore from the Godot asset library or a worker snapshot
 src/Presentation/addons/
+# Humanizer (NitroxNova) is AGPL-3.0: a local reference only, never committed or exported (export_presets.cfg excludes it; WP17)
+src/Presentation/addons/humanizer/
