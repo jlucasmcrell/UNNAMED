@@ -3050,7 +3050,7 @@
   "people_clips_by_visual_option": {
     "clips=ext": {
       "player": {
-        "note": "CAIRNWOLD's own clip set, retargeted from Quaternius UAL1 and KayKit (both CC0). turn and stop are synthesised from the CC0 walk and labelled as such in their records. walk/run/sprint are Fab motion capture since 2026-10-16 (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py, --stance source); paces are the clips' root speed on pc_veth_m_body_c, an NPC's scaled by its hips height.",
+        "note": "CAIRNWOLD's own clip set, retargeted from Quaternius UAL1 and KayKit (both CC0). turn and stop are synthesised from the CC0 walk and labelled as such in their records. walk/run/sprint are Fab motion capture since 2026-10-16 (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py, --stance source); idle (Sample Animation Pack Unarmed_Idle_01), talk (Unarmed_Gesture_01) and sword_ready (Rokoko SwordIdleMedium) are motion capture since 2026-10-17 (tools/asset_pipeline/stance_clips.py: narrow stance, open hands, the drawn sword held low); paces are the clips' root speed on pc_veth_m_body_c, an NPC's scaled by its hips height.",
         "clips": {
           "idle": "player.cw_player.idle",
           "walk": "player.cw_player.walk",
@@ -3077,7 +3077,8 @@
           "cast": "player.cw_player.cast",
           "hit": "player.cw_player.hit",
           "death": "player.cw_player.death",
-          "interact": "player.cw_player.interact"
+          "interact": "player.cw_player.interact",
+          "talk": "player.cw_player.talk"
         },
         "paces": {
           "walk": 1.2908,
@@ -3114,9 +3115,10 @@
           "cast": "player.cw_player.cast",
           "hit": "player.cw_player.hit",
           "death": "player.cw_player.death",
-          "interact": "player.cw_player.interact"
+          "interact": "player.cw_player.interact",
+          "talk": "player.cw_player.talk"
         },
-        "note": "CAIRNWOLD's own clip set, retargeted onto cw_player from Quaternius UAL1 and KayKit (both CC0). Every state the shared bindings ask for is answered by a clip on this region's own rig, so nothing here falls through to the Phase-B names any more. walk/run/sprint are Fab motion capture since 2026-10-16 (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py, --stance source); paces are the clips' root speed on pc_veth_m_body_c, an NPC's scaled by its hips height.",
+        "note": "CAIRNWOLD's own clip set, retargeted onto cw_player from Quaternius UAL1 and KayKit (both CC0). Every state the shared bindings ask for is answered by a clip on this region's own rig, so nothing here falls through to the Phase-B names any more. walk/run/sprint are Fab motion capture since 2026-10-16 (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py, --stance source); idle (Sample Animation Pack Unarmed_Idle_01), talk (Unarmed_Gesture_01) and sword_ready (Rokoko SwordIdleMedium) are motion capture since 2026-10-17 (tools/asset_pipeline/stance_clips.py: narrow stance, open hands, the drawn sword held low); paces are the clips' root speed on pc_veth_m_body_c, an NPC's scaled by its hips height.",
         "paces": {
           "walk": 1.2908,
           "run": 2.9471,

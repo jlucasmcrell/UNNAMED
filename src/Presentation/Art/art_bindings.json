@@ -562,7 +562,21 @@
      "interact": "player.mh.interact",
      "stop": "player.mh.idle",
      "turn": "player.mh.idle",
-     "talk": "player.mh.idle"
+     "talk": "player.mh.talk",
+     "sword_ready": "player.mh.sword_ready",
+     "sword_attack": "player.mh.sword_attack",
+     "sword_attack_1": "player.mh.sword_attack_1",
+     "sword_attack_2": "player.mh.sword_attack_2",
+     "sword_attack_3": "player.mh.sword_attack_3",
+     "sword_attack_4": "player.mh.sword_attack_4",
+     "sword_block": "player.mh.sword_block",
+     "bow_ready": "player.mh.bow_ready",
+     "bow_draw": "player.mh.bow_draw",
+     "spear_ready": "player.mh.spear_ready",
+     "spear_thrust": "player.mh.spear_thrust",
+     "cast": "player.mh.cast",
+     "hit": "player.mh.hit",
+     "death": "player.mh.death"
     },
     "paces": {
      "walk": 1.2956,
@@ -570,7 +584,7 @@
      "sprint": 6.1264,
      "crouch_walk": 1.0662
     },
-    "note": "MetaHuman mh_veth_m (UE 5.8 in-editor Creator; UE EULA, never used to build, train or test AI), unclothed, on the shared UE5-mannequin game skeleton; walk/run/sprint player.mh.* are Fab motion capture (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py) baked on mh_veth_m, the other states the Phase 1 smoke clips (UAL1, CC0); all carried rest-relative. Paces are the clips' root speed on mh_veth_m."
+    "note": "MetaHuman mh_veth_m (UE 5.8 in-editor Creator; UE EULA, never used to build, train or test AI), unclothed, on the shared UE5-mannequin game skeleton; walk/run/sprint player.mh.* are Fab motion capture (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py) baked on mh_veth_m; since 2026-10-17 (tools/asset_pipeline/stance_clips.py) idle and talk are Fab mocap (Sample Animation Pack Unarmed_Idle_01 and Gesture_01: narrow stance, open hands), sword_ready Rokoko mocap (SwordIdleMedium: the sword held low, arms hanging), and every combat state has its own clip on this skeleton (the production rig's UAL/KayKit takes, retargeted) - before, those states fell through to player.cw_player.*, whose bone names this skeleton lacks, and the body stood in its bind pose with the arms out; crouch, jump, fall, land and interact stay the Phase 1 smoke clips (UAL1, CC0); all carried rest-relative. Paces are the clips' root speed on mh_veth_m."
    }
   },
   "player=metahuman_f": {
@@ -588,7 +602,21 @@
      "interact": "player.mh.interact",
      "stop": "player.mh.idle",
      "turn": "player.mh.idle",
-     "talk": "player.mh.idle"
+     "talk": "player.mh.talk",
+     "sword_ready": "player.mh.sword_ready",
+     "sword_attack": "player.mh.sword_attack",
+     "sword_attack_1": "player.mh.sword_attack_1",
+     "sword_attack_2": "player.mh.sword_attack_2",
+     "sword_attack_3": "player.mh.sword_attack_3",
+     "sword_attack_4": "player.mh.sword_attack_4",
+     "sword_block": "player.mh.sword_block",
+     "bow_ready": "player.mh.bow_ready",
+     "bow_draw": "player.mh.bow_draw",
+     "spear_ready": "player.mh.spear_ready",
+     "spear_thrust": "player.mh.spear_thrust",
+     "cast": "player.mh.cast",
+     "hit": "player.mh.hit",
+     "death": "player.mh.death"
     },
     "paces": {
      "walk": 1.2098,
@@ -596,7 +624,7 @@
      "sprint": 5.7206,
      "crouch_walk": 0.9956
     },
-    "note": "MetaHuman mh_veth_f (UE 5.8 in-editor Creator; UE EULA, never used to build, train or test AI), unclothed, on the shared UE5-mannequin game skeleton; walk/run/sprint player.mh.* are Fab motion capture (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py) baked on mh_veth_m, the other states the Phase 1 smoke clips (UAL1, CC0); all carried rest-relative. Paces are the clips' root speed on mh_veth_m x the hips-height ratio 0.9135 / 0.9783."
+    "note": "MetaHuman mh_veth_f (UE 5.8 in-editor Creator; UE EULA, never used to build, train or test AI), unclothed, on the shared UE5-mannequin game skeleton; walk/run/sprint player.mh.* are Fab motion capture (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py) baked on mh_veth_m; since 2026-10-17 (tools/asset_pipeline/stance_clips.py) idle and talk are Fab mocap (Sample Animation Pack Unarmed_Idle_01 and Gesture_01: narrow stance, open hands), sword_ready Rokoko mocap (SwordIdleMedium: the sword held low, arms hanging), and every combat state has its own clip on this skeleton (the production rig's UAL/KayKit takes, retargeted) - before, those states fell through to player.cw_player.*, whose bone names this skeleton lacks, and the body stood in its bind pose with the arms out; crouch, jump, fall, land and interact stay the Phase 1 smoke clips (UAL1, CC0); all carried rest-relative. Paces are the clips' root speed on mh_veth_m x the hips-height ratio 0.9135 / 0.9783."
    }
   }
  },
