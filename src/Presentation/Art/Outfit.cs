@@ -15,6 +15,7 @@ namespace UNNAMED.Presentation.Art;
 /// (<c>chains</c>: prefix to stiffness, drag and gravity); only those chains spring, round capsules on the legs (memo 4.3 rule 7).
 /// A garment is baked per body (<c>&lt;garment&gt;__&lt;body&gt;</c>, WP17: authored once, the body's build carried into it at build time):
 /// a figure wears the variant baked for its own body, and a garment with no variant for that body is not worn rather than worn clipping.
+/// An outfit may list garments for several bodies (a shirt for each body type): each figure wears those baked for its own.
 /// </summary>
 public static partial class Outfit
 {
@@ -31,16 +32,15 @@ public static partial class Outfit
             return 0;
         var skin = figure.Skeleton.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>().ToList();
         var worn = new List<(List<MeshInstance3D> Meshes, int Layer, int Hides)>();
-        foreach (string id in garments.Select(g => PlayerBodies.Garment(g, body)))
+        var baked = garments.Select(g => PlayerBodies.Garment(g, body)).Distinct()
+            .Select(id => (Id: id, Spec: art.RiggedFile(id, id + "_garment.json"))).Where(g => g.Spec is not null).ToList();
+        if (baked.Count == 0)
+            art.Report(body, $"no garment of the outfit ({string.Join(", ", garments)}) is baked for {body}; drawn without it", body);
+        foreach (var (id, spec) in baked)
         {
-            if (art.RiggedFile(id, id + "_garment.json") is not { } spec)
-            {
-                art.Report(id, $"garment without {id}_garment.json (its layer and the regions it covers); not worn", id);
-                continue;
-            }
             if (art.Rigged(id) is not { } model)
                 continue;
-            using var json = JsonDocument.Parse(File.ReadAllText(spec));
+            using var json = JsonDocument.Parse(File.ReadAllText(spec!));
             int layer = json.RootElement.GetProperty("layer").GetInt32();
             int hides = json.RootElement.GetProperty("hides_mask").GetInt32();
             if (json.RootElement.TryGetProperty("chains", out var chains))
