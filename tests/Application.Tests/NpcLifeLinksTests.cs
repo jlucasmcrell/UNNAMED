@@ -141,6 +141,33 @@ public class NpcLifeLinksTests
             "they walk back to their life");
     }
 
+    /// <summary>
+    /// A world that starts with someone already in the party - a save from before schema 27, whose lives never heard of the hired state -
+    /// hands them to the party at once: their routine is suspended, not run on beside the character.
+    /// </summary>
+    [Fact]
+    public void APartyFromBeforeTheHiredState_IsHandedToTheParty_AtLoad()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var setup = Harness.HireableTownsfolk(session.Setup, Kera);
+        var spawn = setup.Layout.Spawn;
+        var guard = new CompanionRecord(Kera, CompanionOrder.Follow, CompanionCondition.Up, spawn.XMm + 1_500, spawn.ZMm, 0, 60)
+        {
+            Membership = PartyMembership.Hireling,
+            Contract = new HirelingContract(HirelingRole.Guard, 5, 8, PartyRules.WageOnly),
+        };
+        var resumed = Arena.OpenCreatures(session, setup, (spawn.XMm / 1000.0, spawn.ZMm / 1000.0), 0, Array.Empty<(string, double, double, string)>(),
+            r => new PlayerRecord(r.Id, r.Name, r.XMm, r.YMm, r.ZMm, r.AppearanceSeed, r.Inventory, r.Progression, r.FacingMdeg, r.Discoveries,
+                r.Equipment, 100, r.Effects, r.Relationships, r.Conversations, r.Quests, new[] { guard }), keepSpawns: true, origin: (0, 0)).Simulation;
+        Assert.Contains(resumed.Companions, c => c.NpcId == Kera);
+        Assert.Equal(NpcCondition.Hired, LifeOf(resumed, Kera).Condition);
+        var needs = LifeOf(resumed, Kera).Needs;
+        for (int i = 0; i < (int)Hour + 10; i++)
+            resumed.Step();
+        Assert.Equal((NpcCondition.Hired, needs), (LifeOf(resumed, Kera).Condition, LifeOf(resumed, Kera).Needs));
+    }
+
     [Fact]
     public void AnInjuredResident_CannotBeHired_UntilWell()
     {

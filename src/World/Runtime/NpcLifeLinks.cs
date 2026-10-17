@@ -174,11 +174,14 @@ internal sealed partial class NpcSystem : INpcHireability, ISettingOutSource, IC
     }
 
     /// <summary>
-    /// At load, after the party is back: a life still marked hired whose NPC the party no longer holds (their definition changed, a save
-    /// edited) takes their life up again where they stand. Then who is hireable is noted, quietly.
+    /// At load, after the party is back, lives and the party are made to agree: someone in the party whose life is not marked hired (a save
+    /// from before schema 27, or a new world started with a party) is handed to it; a life still marked hired whose NPC the party no longer
+    /// holds (their definition changed, a save edited) takes their life up again where they stand. Then who is hireable is noted, quietly.
     /// </summary>
     public void SettleParty()
     {
+        foreach (string key in State.Companions.Keys.Where(k => LifeOf(k) is { Condition: not NpcCondition.Hired }).ToList())
+            Handle(new HandToParty(key), State.WorldTick);
         foreach (var life in (State.World.NpcLife?.Npcs.Values ?? Enumerable.Empty<NpcLifeRecord>()).ToList())
         {
             if (life.Condition == NpcCondition.Hired && life.ConditionUntil == 0 && !State.Companions.ContainsKey(life.Key))
