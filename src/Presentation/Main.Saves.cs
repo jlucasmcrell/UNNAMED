@@ -48,7 +48,8 @@ public partial class Main
 
     /// <summary>
     /// <c>--resume-shots dir</c>, with <c>--profile</c>: the start screen as a player meets it, Continue pressed, and the saves list opened
-    /// in the game - each pictured - then quit. The Phase-1 technical audit's B-01, shown.
+    /// in the game - each pictured - then quit. The Phase-1 technical audit's B-01, shown. A login that caught the world up shows the away
+    /// sheet over the continued world, pictured again at the largest text.
     /// </summary>
     private void ResumeShots(string directory)
     {
@@ -64,9 +65,13 @@ public partial class Main
                 break;
             case 80:
                 SaveScreenshot(directory, "02_continued");
-                _saves.OpenInGame();
+                ScreenByName("large_away");
                 break;
             case 100:
+                SaveScreenshot(directory, "02b_away_large");
+                ScreenByName("saves");
+                break;
+            case 120:
                 SaveScreenshot(directory, "03_saves_in_game");
                 GD.Print($"UNNAMED resume shots written to {directory}: continued at world tick {_session.Simulation?.WorldTick}");
                 GetTree().Quit(_session.Simulation is null ? 1 : 0);

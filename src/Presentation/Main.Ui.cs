@@ -299,7 +299,22 @@ public partial class Main
     {
         if (name != "escape")
             CloseScreens();
-        switch (name)
+        // "large_<screen>": that screen at the largest text and interface scale, in high contrast; "text_<screen>" at the largest text in
+        // high contrast, the interface scale as it was (in memory only: a harness writes no preferences). Any other name puts them back.
+        string? prefix = name.StartsWith("large_", StringComparison.Ordinal) ? "large_" : name.StartsWith("text_", StringComparison.Ordinal) ? "text_" : null;
+        if (prefix != _enlarged)
+        {
+            if (_beforeLarge is not null)
+                SettingsStore.Set(_beforeLarge);
+            _beforeLarge = prefix is null ? null : SettingsStore.Current;
+            if (_beforeLarge is { Profile.Interface: var ui })
+                SettingsStore.Set(_beforeLarge with
+                {
+                    Profile = _beforeLarge.Profile with { Interface = ui with { UiScale = prefix == "large_" ? 1.5f : ui.UiScale, TextSize = 2f, HighContrast = true } },
+                });
+            _enlarged = prefix;
+        }
+        switch (prefix is null ? name : name[prefix.Length..])
         {
             case "menu_character":
                 // A destination chosen on the System Menu, as its row's press chooses it.
@@ -372,6 +387,9 @@ public partial class Main
                 break;
         }
     }
+
+    private ClientPrefs? _beforeLarge;
+    private string? _enlarged;
 
     /// <summary>Every management screen, as the smoke opens them to prove the world runs under each.</summary>
     private static readonly string[] EveryScreen =

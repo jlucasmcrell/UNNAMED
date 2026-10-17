@@ -100,7 +100,8 @@ public sealed class UiShots
     /// </summary>
     private static readonly string[] Screens =
     {
-        "menu", "character", "skills", "skills_formulas", "skills_recipes", "skills_map", "journal", "effects", "companions", "help", "saves",
+        "menu", "character", "skills", "skills_formulas", "skills_recipes", "skills_map", "journal", "effects", "companions", "reputation", "away", "map",
+        "large_menu", "large_reputation", "large_away", "large_map", "text_menu", "text_reputation", "text_away", "text_map", "help", "saves",
         "settings", "settings_audio", "settings_controls", "settings_camera", "settings_interface", "credits", "",
         "announce", "announce_skill", "menu_character", "escape", "",
     };
@@ -112,7 +113,8 @@ public sealed class UiShots
     private static readonly Dictionary<string, string[]> LatePasses = new(StringComparer.Ordinal)
     {
         ["warded"] = new[] { "effects", "character", "skills", "skills_formulas", "" },
-        ["traded"] = new[] { "menu", "character", "skills", "skills_recipes", "skills_map", "inventory", "journal", "effects", "companions", "" },
+        ["traded"] = new[] { "menu", "character", "skills", "skills_recipes", "skills_map", "inventory", "journal", "effects", "companions", "reputation", "map",
+            "large_menu", "large_reputation", "large_away", "large_map", "text_menu", "text_reputation", "" },
     };
 
     private readonly Action<string>? _screen;
