@@ -11,7 +11,7 @@ role: miner
 roles: [miner]           # WP12b: town roles (config.npc_life); hireability is derived from them
 work_hours: [7, 19]
 anchors:
-  home: { position_m: [441, 730.4], facing_deg: 180 }
+  home: { position_m: [441.6, 730.9], facing_deg: 180 }
   work: { position_m: [440, 651], facing_deg: 180 }
   eat: { position_m: [449.63, 738.68], facing_deg: 236 }
   social: { position_m: [452.75, 737.75], facing_deg: 270 }

@@ -397,6 +397,48 @@ public class NpcLifeLinksTests
     }
 
     /// <summary>
+    /// The crowd trap in the rain: everyone shelters at home, the Ashen residents in a row inside the longhouse. Each home stands a talk
+    /// reach from the next, and each has a spot within a hand's reach, clear of the others' bodies, that the lattice reaches from the town's
+    /// work through the doors - so the character can walk up to anyone sheltering and talk.
+    /// </summary>
+    [Theory]
+    [InlineData("cairnwold")]
+    [InlineData("ashen_hollow")]
+    public void TheHomes_StandATalkReachApart_AndEachCanBeWalkedUpTo(string town)
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var setup = session.Setup;
+        var simulation = Open(session).Simulation;
+        long reach = setup.Items.Inventory.ReachMm + setup.Movement.BodyRadiusMm, radius = setup.Movement.BodyRadiusMm;
+        var routines = setup.NpcLife.Routines.Values.Where(r => r.Settlement == town).ToList();
+        var homes = routines.Select(r => (r.Id, Home: r.Anchors[NpcAnchorKinds.Home])).ToList();
+        foreach (var a in homes)
+        {
+            foreach (var b in homes.Where(b => b.Id != a.Id))
+            {
+                double d = Math.Sqrt(Math.Pow(a.Home.XMm - b.Home.XMm, 2) + Math.Pow(a.Home.ZMm - b.Home.ZMm, 2));
+                Assert.True(d >= reach, $"{a.Id} and {b.Id} sleep {d:0} mm apart at {town}, under the {reach} mm talk reach");
+            }
+        }
+        // From the town's first workplace, to every home in the town (Tavar's, beyond the Foldscar's barrier, is no town home).
+        var start = routines.OrderBy(r => r.Id, StringComparer.Ordinal).First().Anchors[NpcAnchorKinds.Work];
+        var navigation = simulation.Navigation;
+        var query = new NavQuery(navigation.Grid, _ => false, setup.Navigation, new NavScratch(), null);
+        foreach (var (id, home) in homes.Where(h => Math.Abs(h.Home.XMm - start.XMm) + Math.Abs(h.Home.ZMm - start.ZMm) < 80_000))
+        {
+            var others = homes.Where(h => h.Id != id).Select(h => (Blocker)new CircleBlocker(h.Id, h.Home.XMm, h.Home.ZMm, radius, 0)).ToList();
+            bool reached = Enumerable.Range(0, 16).Select(k => k * Math.PI / 8).Any(angle =>
+            {
+                long x = home.XMm + (long)Math.Round(Math.Sin(angle) * 1_300), z = home.ZMm + (long)Math.Round(Math.Cos(angle) * 1_300);
+                return Kinematics.IsClear(x, z, radius, setup.Layout.Space, others)
+                       && NavSearch.Plan(query, new NavAgent(setup.Navigation.PersonClass, true), new NavPoint(start.XMm, start.ZMm), new NavPoint(x, z)).Outcome == NavOutcome.Found;
+            });
+            Assert.True(reached, $"no way to within a hand's reach of {id}'s home at {town}");
+        }
+    }
+
+    /// <summary>
     /// The integrator's crowd trap: everyone sat round a town's cookfire, the character in among them. Pushing out any way the town leaves
     /// open gets them out within seconds - the NPC in the way steps aside - and the NPCs stay solid all the while.
     /// </summary>

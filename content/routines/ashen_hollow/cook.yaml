@@ -11,7 +11,7 @@ role: cook
 roles: [cook]           # WP12b: town roles (config.npc_life); hireability is derived from them
 work_hours: [6, 18]
 anchors:
-  home: { position_m: [438.5, 729.9], facing_deg: 180 }
+  home: { position_m: [439.6, 729.9], facing_deg: 180 }
   work: { position_m: [445.7, 737.8], facing_deg: 135 }
   eat: { position_m: [443.92, 738.28], facing_deg: 116 }
   social: { position_m: [455.75, 738.75], facing_deg: 270 }

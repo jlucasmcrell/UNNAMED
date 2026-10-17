@@ -11,7 +11,7 @@ role: guard
 roles: [guard]           # WP12b: town roles (config.npc_life); hireability is derived from them
 work_hours: [8, 20]
 anchors:
-  home: { position_m: [443, 730.4], facing_deg: 180 }
+  home: { position_m: [443.6, 730.9], facing_deg: 180 }
   work: { position_m: [433, 754], facing_deg: 0 }
   eat: { position_m: [444.95, 734.17], facing_deg: 36 }
   social: { position_m: [457.5, 733], facing_deg: 270 }

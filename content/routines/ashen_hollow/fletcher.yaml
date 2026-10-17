@@ -11,7 +11,7 @@ role: fletcher
 roles: [fletcher]           # WP12b: town roles (config.npc_life); hireability is derived from them
 work_hours: [7, 19]
 anchors:
-  home: { position_m: [445, 730.4], facing_deg: 180 }
+  home: { position_m: [445.6, 730.9], facing_deg: 180 }
   work: { position_m: [440, 744], facing_deg: 270 }
   eat: { position_m: [447.12, 733.54], facing_deg: 356 }
   social: { position_m: [455.5, 736.8], facing_deg: 270 }
