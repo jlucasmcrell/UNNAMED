@@ -3,6 +3,7 @@ using UNNAMED.Application;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
 using UNNAMED.World;
@@ -66,12 +67,25 @@ internal sealed class SoakWorld : IDisposable
     }
     public EventBus Bus(Simulation sim) => buses[sim];
 
+    /// <summary>The Ashen porter, a resident who hires on (WP12b), living their whole day a step from Kera's counter, so the soak can hire them and trade with her from one place.</summary>
+    public const string Hireling = "routine.ashen_hollow.porter";
+
     public static SimulationSetup WithHireling(SimulationSetup setup)
     {
-        const string id = "npc.ashen_hollow.kera_voss";
-        return setup with { Social = setup.Social with { Npcs = setup.Social.Npcs.SetItem(id,
-            setup.Social.Npcs[id] with { Hireling = new HirelingProfile(Enum.GetValues<HirelingRole>().ToImmutableArray(),
-                new CompanionProfile(60, "item.weapon.march_spear", ImmutableSortedDictionary<BodyRegion, int>.Empty)) }) } };
+        var kera = setup.Layout.Npcs.Single(n => n.NpcId == "npc.ashen_hollow.kera_voss");
+        var spot = new NpcAnchor(kera.XMm - 1_200, kera.ZMm, 90_000);
+        var porter = setup.NpcLife.Routines[Hireling];
+        return setup with
+        {
+            NpcLife = setup.NpcLife with
+            {
+                Routines = setup.NpcLife.Routines.SetItem(Hireling, porter with
+                {
+                    Anchors = porter.Anchors.ToImmutableSortedDictionary(kv => kv.Key, _ => spot, StringComparer.Ordinal),
+                    Trip = null,
+                }),
+            },
+        };
     }
 
     public string? Command(Simulation sim, GameCommand command)

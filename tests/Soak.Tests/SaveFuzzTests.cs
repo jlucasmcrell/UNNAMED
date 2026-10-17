@@ -26,7 +26,7 @@ public sealed class SaveFuzzTests(ITestOutputHelper output)
         var setup = SoakWorld.WithHireling(w.Session.Setup);
         var kera = setup.Layout.Npcs.Single(n => n.NpcId == "npc.ashen_hollow.kera_voss");
         var sim = w.New((ulong)seed, setup, r => SoakWorld.Place(SoakWorld.Fund(r, 20_000), setup, kera.XMm, kera.ZMm));
-        Assert.Null(w.Command(sim, new HireCommand(sim.PlayerId, kera.NpcId, HirelingRole.Porter, 30, true)));
+        Assert.Null(w.Command(sim, new HireCommand(sim.PlayerId, SoakWorld.Hireling, HirelingRole.Porter, 30, true)));
         var continuous = w.RoundTrip(sim, "start");
         var resumed = w.Load(setup, "start");
         var rng = new Random(seed);

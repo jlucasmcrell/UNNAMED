@@ -28,14 +28,14 @@ public sealed class OfflineSoakTests(ITestOutputHelper output)
             Combat = setup.Combat with { Spawns = setup.Combat.Spawns.Add(new SpawnSite("spawn.soak.wolf", firstNode.XMm, firstNode.ZMm + 1900, 0,
                 ImmutableArray.Create(new SpawnMember("creature.beast.wolf_grey", "pack_hunter"))) { RespawnTicks = 2 * day }) },
         };
-        var site = setup.Layout.Npcs.First(n => setup.Social.Npcs[n.NpcId].Hireling is not null);
-        var npc = setup.Social.Npcs[site.NpcId];
-        var role = npc.Hireling!.Roles.First();
+        // The hireling is a resident who hires on (WP12b): vendors and quest givers never do.
+        var site = setup.NpcLife.Routines[SoakWorld.Hireling].Anchors.Values.First();
+        var role = HirelingRole.Porter;
         // Deplete a node, expire an effect and a contract, and let the real markets settle.
         var node = setup.Layout.Nodes.First();
         var initial = w.New((ulong)seed, setup, r => SoakWorld.Place(SoakWorld.Fund(r, 20_000), setup, node.XMm, node.ZMm)
             .WithEffects(new[] { new ActiveEffect("effect.weakened", 1, 5 * day, 5 * day) })
-            .WithCompanions(new[] { new CompanionRecord(site.NpcId, CompanionOrder.Wait, CompanionCondition.Up,
+            .WithCompanions(new[] { new CompanionRecord(SoakWorld.Hireling, CompanionOrder.Wait, CompanionCondition.Up,
                 site.XMm, site.ZMm, 0, 60) { Membership = PartyMembership.Hireling,
                 Contract = new HirelingContract(role, 7, 8, PartyRules.WageOnly) { Purse = 8 } } }));
         var visible = initial.Nodes.First(n => n.Name == node.Name);
