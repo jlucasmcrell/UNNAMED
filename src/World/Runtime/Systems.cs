@@ -658,7 +658,11 @@ internal sealed class SpaceSystem
 
         var (x, z, traversal) = portals.Enter(command.PortalKey);
         _context.State.SetSpace(_owner, portal.Space, traversal);
-        _context.Dispatch(new Relocate(new Body(x, _context.Setup.Layout.Space.Terrain.HeightAtMm(x, z), z, body.FacingMdeg)));
+        var arrival = new Body(x, _context.Setup.SpaceFor(portal.Space).Terrain.HeightAtMm(x, z), z, body.FacingMdeg);
+        _context.Dispatch(new Relocate(arrival));
+        // The party follows through the door: a follower left behind would be in a space the player has
+        // left, and every rule about who can see and reach whom now depends on sharing it.
+        _context.Dispatch(new ArriveWithParty(arrival));
         return null;
     }
 
@@ -690,9 +694,11 @@ internal sealed class SpaceSystem
             return "There is no way out from here";
 
         _context.State.SetSpace(_owner, SpaceId.Exterior, SpaceTraversal.None);
-        _context.Dispatch(new Relocate(new Body(portal.ExteriorXMm,
-            _context.Setup.Layout.Space.Terrain.HeightAtMm(portal.ExteriorXMm, portal.ExteriorZMm),
-            portal.ExteriorZMm, body.FacingMdeg)));
+        var out_ = new Body(portal.ExteriorXMm,
+            _context.Setup.SpaceFor(SpaceId.Exterior).Terrain.HeightAtMm(portal.ExteriorXMm, portal.ExteriorZMm),
+            portal.ExteriorZMm, body.FacingMdeg);
+        _context.Dispatch(new Relocate(out_));
+        _context.Dispatch(new ArriveWithParty(out_));
         return null;
     }
 

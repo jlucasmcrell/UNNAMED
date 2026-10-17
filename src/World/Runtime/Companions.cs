@@ -153,7 +153,7 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
             if (!State.Npcs.TryGetValue(record.NpcId, out var npc) || BodyOf(npc.Definition, record.Membership) is not { } profile || Tuning is null
                 || AttackOf(profile) is not { } attack)
                 continue;
-            var terrain = _context.Setup.Layout.Space.Terrain;
+            var terrain = _context.Setup.SpaceFor(State.Space).Terrain;
             _context.Dispatch(new PlaceNpc(record.NpcId, new Body(record.XMm, terrain.HeightAtMm(record.XMm, record.ZMm), record.ZMm, record.FacingMdeg)));
             State.SetCompanion(_owner, new CompanionState(record.NpcId, profile, attack, record.Order, record.Condition, record.Health)
             {
@@ -266,7 +266,7 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
     /// </summary>
     public string? Handle(ArriveWithParty command)
     {
-        var terrain = _context.Setup.Layout.Space.Terrain;
+        var terrain = _context.Setup.SpaceFor(State.Space).Terrain;
         int place = 0;
         foreach (var c in State.Companions.Values.Where(c => c.Order == CompanionOrder.Follow && c.Condition == CompanionCondition.Up).ToList())
         {
@@ -455,7 +455,7 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
         var player = State.Body;
         var obstacles = Obstacles(c.NpcId);
         long radius = _context.Setup.Movement.BodyRadiusMm;
-        var space = _context.Setup.Layout.Space;
+        var space = _context.Setup.SpaceFor(State.Space);
         (long X, long Z)? spot = null;
         int from = c.Trail.Length;
         for (int i = c.Trail.Length - 1; i >= 0 && spot is null; i--)
@@ -481,7 +481,7 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
     /// <summary>The first point on a ring round a place, starting from a facing and going round in eighths, where a body fits in sight of it.</summary>
     private (long X, long Z)? Ring(Body around, long startMdeg, long radiusMm, IReadOnlyList<Blocker> obstacles)
     {
-        var space = _context.Setup.Layout.Space;
+        var space = _context.Setup.SpaceFor(State.Space);
         long body = _context.Setup.Movement.BodyRadiusMm;
         for (int i = 0; i < 8; i++)
         {
@@ -681,7 +681,7 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
             return from;
         var intent = new MoveIntent((int)Math.Round(dx / length * MoveIntent.FullDeflection), (int)Math.Round(dz / length * MoveIntent.FullDeflection), gait,
             CombatRules.FacingTowards(from.XMm, from.ZMm, toXMm, toZMm));
-        return Kinematics.Step(from, intent, _context.Setup.Movement, _context.Setup.Layout.Space, Obstacles(npc.Definition.Id), TickMs);
+        return Kinematics.Step(from, intent, _context.Setup.Movement, _context.Setup.SpaceFor(State.Space), Obstacles(npc.Definition.Id), TickMs);
     }
 
     /// <summary>What a companion's body cannot pass: closed doors, standing barriers, creatures alive, the character, and other people.</summary>
@@ -712,7 +712,7 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
     }
 
     private bool Walled(double x0, double z0, double x1, double z1) =>
-        _context.Setup.Layout.Space.Blockers.Concat(_context.ClosedDoors()).Any(b => b.Crosses(x0, z0, x1, z1));
+        _context.Setup.SpaceFor(State.Space).Blockers.Concat(_context.ClosedDoors()).Any(b => b.Crosses(x0, z0, x1, z1));
 
     /// <summary>The body turned towards a facing by at most 360 degrees a second, as NPCs turn.</summary>
     private Body Turn(Body body, int towardMdeg)
