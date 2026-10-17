@@ -47,8 +47,15 @@ def lock(action):
                    capture_output=True, text=True)
 
 
-lock("acquire")
-print(f"  lock acquired by: {OWNER}")
+# A caller that already holds the GPU lock runs this with BARROWWORKS_SKIP_LOCK=1. Without it the tool asks for
+# the lock itself, which deadlocks against a holder inside this same batch - and a batch that waited on itself sat
+# for forty minutes producing nothing. BARROWWORKS_ONLY=Name,Name limits the run to those rooms.
+if os.environ.get("BARROWWORKS_SKIP_LOCK") == "1":
+    print(f"  running under the caller's lock (this tool did not acquire one)")
+else:
+    lock("acquire")
+    print(f"  lock acquired by: {OWNER}")
+ROOMS = [r for r in ROOMS if not os.environ.get("BARROWWORKS_ONLY") or r[0] in os.environ["BARROWWORKS_ONLY"].split(",")]
 started = time.time()
 done, failed = [], []
 try:
@@ -90,8 +97,11 @@ try:
             failed.append(name)
             print(f"  {name:24} NO FRAMES  {took:5.0f}s  (see {log})")
 finally:
-    lock("release")
-    print(f"  lock released")
+    # Only release what this run took. gpu_lock.ps1 matches the owner by its first word, so a release from
+    # here while running under a caller lock would drop THAT lock mid-render - which it did once.
+    if os.environ.get("BARROWWORKS_SKIP_LOCK") != "1":
+        lock("release")
+        print(f"  lock released")
 
 print(f"\n  {len(done)} of {len(ROOMS)} rooms photographed in {(time.time()-started)/60:.1f} min")
 if failed:
