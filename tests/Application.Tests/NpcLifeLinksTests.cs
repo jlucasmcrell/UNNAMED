@@ -345,6 +345,27 @@ public class NpcLifeLinksTests
         Assert.All(said, m => Assert.Contains(m.Params["place"], new[] { "Ashen Hollow", "Cairnwold", "the wilds" }));
     }
 
+    /// <summary>DeepSeek's corpus as shipped: the residents say its lines, each about their own town or the wilds, and the named never do.</summary>
+    [Fact]
+    public void TheShippedCorpus_IsSaidByTheResidents()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        Assert.True(session.Setup.Chat.Corpus.Length >= 3_000, $"{session.Setup.Chat.Corpus.Length} corpus lines");
+        var setup = session.Setup with
+        {
+            Chat = session.Setup.Chat with { Rules = session.Setup.Chat.Rules with { LocalChancePercent = 100, WorldChancePercent = 100, HistoryMessages = 100_000 } },
+        };
+        var arena = Open(session, setup);
+        arena.Tick((int)(3 * Hour));
+        var residents = arena.Simulation.Npcs.Where(n => n.Resident).Select(n => n.InstanceId).ToHashSet();
+        var keys = session.Setup.Chat.Corpus.Select(l => l.Key).ToHashSet(StringComparer.Ordinal);
+        var said = arena.Simulation.Chat.Where(m => keys.Contains(m.LineKey)).ToList();
+        _output.WriteLine($"{said.Count} corpus lines said in three hours");
+        Assert.True(said.Count >= 3, $"only {said.Count} corpus lines said");
+        Assert.All(said, m => Assert.Contains(m.Speaker!, residents));
+    }
+
     // ── tiers around observers ──────────────────────────────────────────────
 
     [Fact]
