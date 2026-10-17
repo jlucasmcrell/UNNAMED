@@ -2,7 +2,7 @@
 // No Godot references - pure C#
 //
 // The exact player shape schemas 21 and 22 wrote: written by the 20 -> 21 step and read by the 22 -> 23 step; the schema-21 and -22 fixtures
-// pin it. Its parts that schema 23 did not change are the current DTOs (InventoryDto, ProgressionDto, DiscoveryDto, EquipmentDto, EffectDto,
+// pin it. Its stacks are V23.Inventory; its parts that schema 23 did not change are the current DTOs (ProgressionDto, DiscoveryDto, EquipmentDto, EffectDto,
 // RelationshipDto, ConversationDto, QuestDto, CompanionDto, PostureDto, WaystoneDto, DeedDto, IdentityDto, FactionLedgerDto,
 // PartyLedgerDto); the step that next changes one of those must freeze a copy of it first. Schema 23 left the other sections alone.
 
@@ -19,7 +19,7 @@ public sealed class Player
     [Key("y_mm")] public long YMm { get; set; }
     [Key("z_mm")] public long ZMm { get; set; }
     [Key("appearance_seed")] public ulong AppearanceSeed { get; set; }
-    [Key("inventory")] public InventoryDto[] Inventory { get; set; } = Array.Empty<InventoryDto>();
+    [Key("inventory")] public V23.Inventory[] Inventory { get; set; } = Array.Empty<V23.Inventory>();
     [Key("progression")] public ProgressionDto? Progression { get; set; }
     [Key("facing_mdeg")] public int? FacingMdeg { get; set; }
     [Key("discoveries")] public DiscoveryDto[]? Discoveries { get; set; }

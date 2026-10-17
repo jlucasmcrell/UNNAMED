@@ -317,6 +317,10 @@ public class HistoricalFixtureTests
             Assert.Equal(schema >= 19 ? (2, new NotableRecord("Iron Sword", ProvenanceKind.Crafted, "recipe.fixture.sword", 2_000) { Maker = "Aelin" }) : (0, null),
                 (blade.Quality, blade.Notable));
         }
+        // Schema 24's wear (WP3b): the carried sword has taken 40 points, still fine; the chest's masterwork blade 5. Before it, nothing was worn.
+        Assert.Equal(schema >= 24 ? new ItemWear(40, 1) : null, carried.Wear);
+        if (chest is not null)
+            Assert.Equal(schema >= 24 ? new ItemWear(5, 2) : null, chest.Items.Single(i => i.DefId == "item.weapon.iron_sword").Wear);
         // Schema 22's economy (WP14): the vale's market on day 3 with four draughts on the road, and its trader's purse. Before it, a save
         // held no economy: the markets start at their targets when the world does.
         var economy = loaded.World.Economy;

@@ -345,6 +345,17 @@ public sealed class InventoryDto
 
     /// <summary>From schema 19: a notable instance's record, or null for an ordinary stack.</summary>
     [Key("notable")] public NotableDto? Notable { get; set; }
+
+    /// <summary>From schema 24: its wear, or null when it is unworn at its made quality.</summary>
+    [Key("wear")] public WearDto? Wear { get; set; }
+}
+
+/// <summary>A stack's wear (schema 24; WP3b): the points taken, and the quality it was made at.</summary>
+[MessagePackObject]
+public sealed class WearDto
+{
+    [Key("points")] public int Points { get; set; }
+    [Key("made_quality")] public int MadeQuality { get; set; }
 }
 
 /// <summary>A notable instance's record (schema 19): name, provenance, the maker's mark when made, familiarity.</summary>
@@ -543,6 +554,9 @@ public sealed class ContainerItemDto
 
     /// <summary>From schema 19: a notable instance's record, or null.</summary>
     [Key("notable")] public NotableDto? Notable { get; set; }
+
+    /// <summary>From schema 24: its wear, or null.</summary>
+    [Key("wear")] public WearDto? Wear { get; set; }
 }
 
 [MessagePackObject]
@@ -562,6 +576,9 @@ public sealed class CreatedDto
 
     /// <summary>From schema 19: a notable instance's record, or null.</summary>
     [Key("notable")] public NotableDto? Notable { get; set; }
+
+    /// <summary>From schema 24: its wear, or null.</summary>
+    [Key("wear")] public WearDto? Wear { get; set; }
 }
 
 [MessagePackObject]
@@ -619,7 +636,7 @@ public static class SectionCodec
         ZMm = player.ZMm,
         AppearanceSeed = player.AppearanceSeed,
         Inventory = player.Inventory
-            .Select(e => new InventoryDto { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality, Notable = NotableToDto(e.Notable) })
+            .Select(e => new InventoryDto { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality, Notable = NotableToDto(e.Notable), Wear = WearToDto(e.Wear) })
             .ToArray(),
         Progression = ProgressionCodec.ToDto(player.Progression),
         FacingMdeg = player.FacingMdeg,
@@ -722,6 +739,17 @@ public static class SectionCodec
         var q => throw new FormatException($"{what} has quality {q}, which is not -1, 0, 1 or 2"),
     };
 
+    private static WearDto? WearToDto(ItemWear? wear) => wear is null ? null : new WearDto { Points = wear.Points, MadeQuality = wear.MadeQuality };
+
+    /// <summary>A stack's saved wear (schema 24), in range, or null for an unworn stack.</summary>
+    private static ItemWear? WearOf(WearDto? dto, string what)
+    {
+        if (dto is null)
+            return null;
+        var wear = new ItemWear(dto.Points, dto.MadeQuality);
+        return wear.IsValid ? wear : throw new FormatException($"{what} has invalid wear ({dto.Points} points, made at {dto.MadeQuality})");
+    }
+
     private static NotableDto? NotableToDto(NotableRecord? notable) => notable is null ? null : new NotableDto
     {
         Name = notable.Name,
@@ -777,7 +805,7 @@ public static class SectionCodec
         if (posture.AirMs < 0 || (!posture.Airborne && posture.AirMs != 0))
             throw new FormatException($"player posture has air_ms {posture.AirMs} while {(posture.Airborne ? "airborne" : "on the ground")}");
         return new PlayerRecord(EntityId.Parse(dto.InstanceId), dto.Name, dto.XMm, dto.YMm, dto.ZMm, dto.AppearanceSeed,
-            dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count) { Quality = QualityOf(e.Quality, $"carried {e.ItemId}"), Notable = NotableOf(e.Notable, $"carried {e.ItemId}") }),
+            dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count) { Quality = QualityOf(e.Quality, $"carried {e.ItemId}"), Notable = NotableOf(e.Notable, $"carried {e.ItemId}"), Wear = WearOf(e.Wear, $"carried {e.ItemId}") }),
             ProgressionCodec.FromDto(progression), facing,
             discoveries.Select(d => new DiscoveryRecord(d.LocationId, DiscoveryMethods.Parse(d.Method), d.Tick)),
             equipment.Select(e => KeyValuePair.Create(EquipSlots.Parse(e.Slot), EntityId.Parse(e.ItemId))), currency,
@@ -910,6 +938,7 @@ public static class SectionCodec
                 Count = c.Count,
                 Quality = c.Quality,
                 Notable = NotableToDto(c.Notable),
+                Wear = WearToDto(c.Wear),
             }).ToArray(),
             Baselines = baselines.Select(kv => new CellBaselineDto { CellKey = kv.Key, BaselineHash = kv.Value }).ToArray(),
             Containers = snapshot.Containers.Select(c => new ContainerDto
@@ -917,7 +946,7 @@ public static class SectionCodec
                 Key = c.Key,
                 InstanceId = c.InstanceId.Value,
                 HostCell = c.HostCell,
-                Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId.Value, DefId = i.DefId, Count = i.Count, Quality = i.Quality, Notable = NotableToDto(i.Notable) }).ToArray(),
+                Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId.Value, DefId = i.DefId, Count = i.Count, Quality = i.Quality, Notable = NotableToDto(i.Notable), Wear = WearToDto(i.Wear) }).ToArray(),
             }).ToArray(),
             Creatures = snapshot.Creatures.Select(c => new CreatureDto
             {
@@ -996,12 +1025,13 @@ public static class SectionCodec
                 Count = c.Count ?? throw new FormatException($"created instance {c.InstanceId} has no count (required from schema 6)"),
                 Quality = QualityOf(c.Quality, $"created instance {c.InstanceId}"),
                 Notable = NotableOf(c.Notable, $"created instance {c.InstanceId}"),
+                Wear = WearOf(c.Wear, $"created instance {c.InstanceId}"),
             })
             .ToImmutableArray();
         var containers = (section.Containers ?? throw new FormatException("entities.msgpack has no containers list (required from schema 6)"))
             .Select(c => new ContainerRecord(
                 c.Key, EntityId.Parse(c.InstanceId), c.HostCell,
-                c.Items.Select(i => new ContainerItem(EntityId.Parse(i.ItemId), i.DefId, i.Count) { Quality = QualityOf(i.Quality, $"{c.Key} item {i.ItemId}"), Notable = NotableOf(i.Notable, $"{c.Key} item {i.ItemId}") })
+                c.Items.Select(i => new ContainerItem(EntityId.Parse(i.ItemId), i.DefId, i.Count) { Quality = QualityOf(i.Quality, $"{c.Key} item {i.ItemId}"), Notable = NotableOf(i.Notable, $"{c.Key} item {i.ItemId}"), Wear = WearOf(i.Wear, $"{c.Key} item {i.ItemId}") })
                     .ToImmutableArray(),
                 baselines.GetValueOrDefault(c.HostCell)))
             .ToImmutableArray();

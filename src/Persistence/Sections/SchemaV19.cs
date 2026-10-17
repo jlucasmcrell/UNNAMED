@@ -2,7 +2,7 @@
 // No Godot references - pure C#
 //
 // The exact player shape schema 19 wrote: written by the 18 -> 19 step and read by the 19 -> 20 step; the schema-19 fixture pins it. Its
-// companions are V20.Companion; its parts that schema 20 did not change are the current DTOs (InventoryDto, ProgressionDto, DiscoveryDto,
+// companions are V20.Companion and its stacks V23.Inventory; its parts that schema 20 did not change are the current DTOs (ProgressionDto, DiscoveryDto,
 // EquipmentDto, EffectDto, RelationshipDto, ConversationDto, QuestDto, PostureDto, WaystoneDto, DeedDto, IdentityDto); the step that next
 // changes one of those must freeze a copy of it first. Schema 20 left the other sections alone.
 
@@ -19,7 +19,7 @@ public sealed class Player
     [Key("y_mm")] public long YMm { get; set; }
     [Key("z_mm")] public long ZMm { get; set; }
     [Key("appearance_seed")] public ulong AppearanceSeed { get; set; }
-    [Key("inventory")] public InventoryDto[] Inventory { get; set; } = Array.Empty<InventoryDto>();
+    [Key("inventory")] public V23.Inventory[] Inventory { get; set; } = Array.Empty<V23.Inventory>();
     [Key("progression")] public ProgressionDto? Progression { get; set; }
     [Key("facing_mdeg")] public int? FacingMdeg { get; set; }
     [Key("discoveries")] public DiscoveryDto[]? Discoveries { get; set; }

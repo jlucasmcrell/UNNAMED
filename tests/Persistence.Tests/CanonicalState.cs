@@ -59,6 +59,7 @@ internal static class CanonicalState
                 json.WriteNumber("count", entry.Count);
                 json.WriteNumber("quality", entry.Quality);
                 WriteNotable(json, entry.Notable);
+                WriteWear(json, entry.Wear);
                 json.WriteEndObject();
             }
             json.WriteEndArray();
@@ -365,6 +366,7 @@ internal static class CanonicalState
                 json.WriteNumber("count", created.Count);
                 json.WriteNumber("quality", created.Quality);
                 WriteNotable(json, created.Notable);
+                WriteWear(json, created.Wear);
                 json.WriteString("baseline_hash", created.BaselineHash);
                 json.WriteEndObject();
             }
@@ -387,6 +389,7 @@ internal static class CanonicalState
                     json.WriteNumber("count", item.Count);
                     json.WriteNumber("quality", item.Quality);
                     WriteNotable(json, item.Notable);
+                    WriteWear(json, item.Wear);
                     json.WriteEndObject();
                 }
                 json.WriteEndArray();
@@ -504,6 +507,20 @@ internal static class CanonicalState
     }
 
     /// <summary>The progression record (schema 4), every field, in canonical order.</summary>
+    /// <summary>A stack's wear (schema 24): null for an unworn stack.</summary>
+    private static void WriteWear(Utf8JsonWriter json, UNNAMED.Domain.Items.ItemWear? wear)
+    {
+        if (wear is null)
+        {
+            json.WriteNull("wear");
+            return;
+        }
+        json.WriteStartObject("wear");
+        json.WriteNumber("points", wear.Points);
+        json.WriteNumber("made_quality", wear.MadeQuality);
+        json.WriteEndObject();
+    }
+
     /// <summary>A stack's notable record (schema 19): null for an ordinary stack.</summary>
     private static void WriteNotable(Utf8JsonWriter json, UNNAMED.Domain.Items.NotableRecord? notable)
     {

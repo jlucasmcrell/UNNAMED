@@ -38,6 +38,8 @@ public class GameSaveTests
         (new Regex(@"^\$\.player\.Identity$"), """{"Pronouns":"They","PeopleId":"people.veth","BodyPresetId":"body.default","CallId":null}"""),
         // Schema 19: every stack may carry a notable record; none before.
         (new Regex(@"^\$\.(player\.Inventory|world\.Created|world\.Containers\[\d+\]\.Items)\[\d+\]\.Notable$"), "null"),
+        // Schema 24 (WP3b): every stack may carry its wear; nothing was worn before.
+        (new Regex(@"^\$\.(player\.Inventory|world\.Created|world\.Containers\[\d+\]\.Items)\[\d+\]\.Wear$"), "null"),
         // Schema 20: no faction was ever told anything - the empty ledger.
         (new Regex(@"^\$\.player\.Factions$"), """{"NextActSeq":1,"Acts":[],"Knowledge":[],"Standing":[]}"""),
         // Schema 21 (WP15a): every party member was a companion, aggressive, keeping to the leash, with no contract; no one was recovering
@@ -89,11 +91,13 @@ public class GameSaveTests
         Assert.True(creatureRecords > 0, "the M6 save holds no creature records");
         int stacks = differences.Count(d => d.Contains(".Notable: ", StringComparison.Ordinal));
         Assert.True(stacks >= expected["player"]!["Inventory"]!.AsArray().Count, "every carried stack gains its (empty) notable record");
+        Assert.Equal(stacks, differences.Count(d => d.Contains(".Wear: ", StringComparison.Ordinal)));   // and its (empty) wear, schema 24
         // The posture and digest, four fields a record, the noises, the Waystones, the deeds, the identity, each stack's notable record,
         // the faction ledger, and the economy and merchants.
         int members = expected["player"]!["Companions"]!.AsArray().Count;
-        // ... and, schema 21, four fields each party member and the party's ledger; schema 23, the quick bar and its cleared record.
-        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 1 + 2 + 4 * members + 1 + 2, differences.Count);
+        // ... and, schema 21, four fields each party member and the party's ledger; schema 23, the quick bar and its cleared record;
+        // and, schema 24, each stack's (empty) wear.
+        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 1 + 2 + 4 * members + 1 + 2 + stacks, differences.Count);
 
         // And it plays on: a fixed stretch of ticks, then a walk to the Ashen Waystone, with no observer failing, no body inside anything,
         // Tavar still at the character's side and every quest still answering the debugger.

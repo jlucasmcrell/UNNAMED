@@ -85,6 +85,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | The warden is in Aelin's hire: a crafter on a ten-day contract at 7 a day, three days served with the last unpaid, 21 coin earned, set to `recipe.alchemy.salve_minor` at `station.fixture_hearth` with two `item.potion.healing_draught` handed over; defensive, off the leash, protecting the injured. No one is recovering or fallen | player companions, party ledger | Schema 21 (WP15a, the party). The draught is **renamed** to `item.potion.minor_healing` in the contract's supply. The fixture pack has one NPC and the warden is in the party, so the ledger is empty; the round-trip and completeness tests fill it. v1-v20 migrate every companion to a `companion`, `aggressive`, keeping to the leash, with no contract, and to an empty ledger; a schema-21 companion without its membership, stance or tactics, or a player without the ledger, is corrupt, not defaulted |
 | `market.fixture.vale` on day 3: 14 `item.potion.minor_healing` and 2 `item.weapon.iron_sword` in stock, 3 draughts the character sold it remembered, and 4 more on `road.fixture.track` from `market.fixture.ford`, arriving day 4; `merchant.fixture.trader`'s purse 75, restocked on day 2, shelf drawn on day 1, traded with | entities `economy`, `merchants` | Schema 22 (WP14, the living economy). The fixture pack has no markets: the records are kept as they are in the save, and content reconciles them when a world starts. v1-v21 migrate to no economy (the markets start at their targets) and no merchant record; a schema-22 section without its merchants list is corrupt, not defaulted |
 | Aelin's quick bar holds `spell.ember.firebolt` on key 4, and she took `item.potion.healing_draught` off key 1 on purpose; the other slots are empty | player quick bar | Schema 23 (the quick bar, WP9). Both are **renamed** by the current pack (`spell.ember.bolt`, `item.potion.minor_healing`): the renames must reach the slots and the cleared record. v1-v22 migrate to an empty bar with nothing cleared, which what the character carries and knows fills once the world runs; a schema-23 player without its bar is corrupt, not defaulted |
+| The carried sword has taken 40 points of wear - not worn out, so still fine (made fine); the chest's masterwork blade 5 (made masterwork) | player inventory, changed container | Schema 24 (WP3b, durability). Wear is optional on a stack, so v1-v23 migrate to none: nothing was worn |
 
 ## Provenance
 
@@ -112,6 +113,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `v21/` | The WP15a party schema-21 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 | `v22/` | The WP14 living-economy schema-22 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 | `v23/` | The WP9 quick-bar schema-23 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
+| `v24/` | The WP3b durability schema-24 writer | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 
 The one-off addition to `7ff4c57`'s probe that wrote `v1/`. It is not compiled into this build, since
 that build's world API no longer exists:

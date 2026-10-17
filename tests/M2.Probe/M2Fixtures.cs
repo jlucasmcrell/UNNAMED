@@ -127,6 +127,8 @@ public static class M2Fixtures
                     Quality = 1,
                     // Schema 19 (WP3a): the sword carries a notable record - given as the cull's reward, grown a little familiar.
                     Notable = new NotableRecord("Iron Sword", ProvenanceKind.Given, "quest.fixture.cull", 3_500) { Familiarity = 2, Uses = 1 },
+                    // Schema 24 (WP3b): it has taken 40 points of wear - not yet worn out, so still fine.
+                    Wear = new ItemWear(40, 1),
                 },
                 new InventoryEntry(EntityId.Create(EntityKind.Item, 1_700_000_000_002, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 2 }),
                     "item.potion.healing_draught", 3),
@@ -281,6 +283,8 @@ public static class M2Fixtures
                 {
                     Quality = 2,
                     Notable = new NotableRecord("Iron Sword", ProvenanceKind.Crafted, "recipe.fixture.sword", 2_000) { Maker = "Aelin" },
+                    // Schema 24 (WP3b): a little worn where it lies.
+                    Wear = new ItemWear(5, 2),
                 },
                 new ContainerItem(potions, "item.potion.healing_draught", 4) { Quality = -1 })));   // schema 9: crude
             // Schema 8: spawners' creatures that left their baseline - one alive, moved and wounded; one a corpse half

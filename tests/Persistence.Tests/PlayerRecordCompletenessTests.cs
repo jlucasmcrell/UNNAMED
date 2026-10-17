@@ -39,6 +39,8 @@ public class PlayerRecordCompletenessTests
             // A masterwork with its maker's mark (schema 19).
             Quality = 2,
             Notable = new Domain.Items.NotableRecord("Fixture Vest", Domain.Items.ProvenanceKind.Crafted, "recipe.fixture.vest", 4_200) { Maker = "Aelin", Uses = 2 },
+            // Worn a little (schema 24).
+            Wear = new Domain.Items.ItemWear(12, 2),
         };
         var progression = player.Progression with
         {
@@ -160,6 +162,7 @@ public class PlayerRecordCompletenessTests
         ["player.companions[].condition"] = "up or downed decides the health (0 when downed) and the downed tick (0 when up)",
         ["player.companions[].contract"] = "a whole contract, present exactly on a hireling (schema 21); each of its fields is perturbed where one is present",
         ["player.inventory[].notable"] = "a whole record, absent on an ordinary stack; each of its fields is perturbed where one is present",
+        ["player.inventory[].wear"] = "a whole record, absent on an unworn stack; each of its fields is perturbed where one is present",
         ["player.posture.airborne"] = "in the air or not decides the air time (0 on the ground)",
     };
 
