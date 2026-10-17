@@ -358,6 +358,7 @@ Each migration is a pure function `SaveDocument(n) → SaveDocument(n+1)`, regis
 | 9 -> 10 | The player gains relationships and conversation memory (M4). An older save has neither: there was no one to talk to before M4 |
 | 10 -> 11 | The player gains quests (M5). An older save has none: there were no quests before M5 |
 | 13 -> 14 | Every creature record gains its continuation, and the entities section its pending sounds (the Phase-1 technical audit, L-06). An older save kept none of it: its creatures resume free of any cooldown, stagger or immunity, and nothing waits to be heard |
+| 20 -> 21 | Each companion gains why they travel with the character (`companion`, `hireling`, `temporary_ally`), a stance, standing rules and - a hireling - a contract; the player gains the party's ledger: companions recovering at home from a grave wound, and hirelings who died (WP15a; DN9). An older save's party were all companions, aggressive, keeping to the leash, and no one was recovering or fallen |
 
 **Historical fixtures (M2b §11).** Every schema version that has shipped has a committed fixture written by that version's own writer (`tests/Persistence.Tests/Fixtures/`, policy in its README). CI loads every fixture under the current code, and migrates every one through the commit path, to its committed expected current state. A schema bump without a fixture, a chain step, or an updated expectation fails CI.
 

@@ -159,6 +159,34 @@ internal static class CanonicalState
                     json.WriteNumberValue(mark.ZMm);
                 }
                 json.WriteEndArray();
+                // Schema 21 (WP15a): why they travel with the character, how they fight, and a hireling's contract.
+                json.WriteString("membership", PartyKeys.Key(companion.Membership));
+                json.WriteString("stance", PartyKeys.Key(companion.Stance));
+                json.WriteStartObject("tactics");
+                json.WriteBoolean("keep_to_leash", companion.Tactics.KeepToLeash);
+                json.WriteBoolean("protect_injured", companion.Tactics.ProtectInjured);
+                json.WriteBoolean("hold_healing", companion.Tactics.HoldHealing);
+                json.WriteEndObject();
+                if (companion.Contract is { } contract)
+                {
+                    json.WriteStartObject("contract");
+                    json.WriteString("role", PartyKeys.Key(contract.Role));
+                    json.WriteNumber("days", contract.Days);
+                    json.WriteNumber("daily_wage", contract.DailyWage);
+                    json.WriteString("loot_rule", contract.LootRule);
+                    json.WriteNumber("days_served", contract.DaysServed);
+                    json.WriteNumber("unpaid_days", contract.UnpaidDays);
+                    json.WriteNumber("purse", contract.Purse);
+                    if (contract.WorkSite is { } site) json.WriteString("work_site", site); else json.WriteNull("work_site");
+                    if (contract.RecipeId is { } recipe) json.WriteString("recipe_id", recipe); else json.WriteNull("recipe_id");
+                    json.WriteStartObject("supply");
+                    foreach (var (item, count) in contract.Supply)
+                        json.WriteNumber(item, count);
+                    json.WriteEndObject();
+                    json.WriteEndObject();
+                }
+                else
+                    json.WriteNull("contract");
                 json.WriteEndObject();
             }
             json.WriteEndArray();
@@ -247,6 +275,22 @@ internal static class CanonicalState
             foreach (var row in player.Factions.Standing)
                 json.WriteNumber(row.FactionId, row.Points);
             json.WriteEndObject();
+            json.WriteEndObject();
+            // Schema 21 (WP15a): the party's ledger - who is recovering at home, and who has fallen.
+            json.WriteStartObject("party");
+            json.WriteStartArray("recovering");
+            foreach (var recovery in player.Party.Recovering)
+            {
+                json.WriteStartObject();
+                json.WriteString("npc_id", recovery.NpcId);
+                json.WriteNumber("until_tick", recovery.UntilTick);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
+            json.WriteStartArray("fallen");
+            foreach (string fallen in player.Party.Fallen)
+                json.WriteStringValue(fallen);
+            json.WriteEndArray();
             json.WriteEndObject();
             json.WriteEndObject();
 

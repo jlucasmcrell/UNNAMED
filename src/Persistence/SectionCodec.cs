@@ -86,6 +86,12 @@ public sealed class PlayerDto
 
     /// <summary>Required from schema 20. The 19 -> 20 step gives older saves the empty ledger: there was no faction to tell before WP6.</summary>
     [Key("factions")] public FactionLedgerDto? Factions { get; set; }
+
+    /// <summary>
+    /// Required from schema 21 (WP15a): companions recovering from a grave wound, and hirelings who died in the character's service. The
+    /// 20 -> 21 step gives older saves none: no one could be wounded away or die in the party before.
+    /// </summary>
+    [Key("party")] public PartyLedgerDto? Party { get; set; }
 }
 
 /// <summary>The character's faction ledger (schema 20): the acts logged, what each faction knows of them, and the standing each holds.</summary>
@@ -130,6 +136,53 @@ public sealed class FactionStandingDto
 {
     [Key("faction")] public string Faction { get; set; } = "";
     [Key("points")] public int Points { get; set; }
+}
+
+/// <summary>Who is recovering at home, until when, and who has fallen (schema 21).</summary>
+[MessagePackObject]
+public sealed class PartyLedgerDto
+{
+    [Key("recovering")] public RecoveryDto[] Recovering { get; set; } = Array.Empty<RecoveryDto>();
+    [Key("fallen")] public string[] Fallen { get; set; } = Array.Empty<string>();
+}
+
+[MessagePackObject]
+public sealed class RecoveryDto
+{
+    [Key("npc_id")] public string NpcId { get; set; } = "";
+    [Key("until_tick")] public long UntilTick { get; set; }
+}
+
+/// <summary>A party member's standing rules (schema 21).</summary>
+[MessagePackObject]
+public sealed class TacticsDto
+{
+    [Key("keep_to_leash")] public bool KeepToLeash { get; set; }
+    [Key("protect_injured")] public bool ProtectInjured { get; set; }
+    [Key("hold_healing")] public bool HoldHealing { get; set; }
+}
+
+/// <summary>A hireling's contract, and how it stands (schema 21).</summary>
+[MessagePackObject]
+public sealed class ContractDto
+{
+    [Key("role")] public string Role { get; set; } = "";
+    [Key("days")] public int Days { get; set; }
+    [Key("daily_wage")] public long DailyWage { get; set; }
+    [Key("loot_rule")] public string LootRule { get; set; } = "";
+    [Key("days_served")] public int DaysServed { get; set; }
+    [Key("unpaid_days")] public int UnpaidDays { get; set; }
+    [Key("purse")] public long Purse { get; set; }
+    [Key("work_site")] public string? WorkSite { get; set; }
+    [Key("recipe_id")] public string? RecipeId { get; set; }
+    [Key("supply")] public SupplyDto[] Supply { get; set; } = Array.Empty<SupplyDto>();
+}
+
+[MessagePackObject]
+public sealed class SupplyDto
+{
+    [Key("item_id")] public string ItemId { get; set; } = "";
+    [Key("count")] public int Count { get; set; }
 }
 
 /// <summary>How many times the character has done one deed, and when last (schema 16).</summary>
@@ -188,6 +241,18 @@ public sealed class CompanionDto
 
     /// <summary>The trail being walked, as x, z pairs in millimetres.</summary>
     [Key("trail_mm")] public long[] TrailMm { get; set; } = Array.Empty<long>();
+
+    /// <summary>Required from schema 21 (WP15a): companion, hireling or temporary_ally. The 20 -> 21 step makes every older one a companion.</summary>
+    [Key("membership")] public string? Membership { get; set; }
+
+    /// <summary>Required from schema 21: aggressive, defensive or passive. The 20 -> 21 step gives aggressive, the behaviour as built.</summary>
+    [Key("stance")] public string? Stance { get; set; }
+
+    /// <summary>Required from schema 21. The 20 -> 21 step gives the leash kept and nothing else.</summary>
+    [Key("tactics")] public TacticsDto? Tactics { get; set; }
+
+    /// <summary>From schema 21: a hireling's contract; absent for everyone else.</summary>
+    [Key("contract")] public ContractDto? Contract { get; set; }
 }
 
 [MessagePackObject]
@@ -530,6 +595,22 @@ public static class SectionCodec
                 StuckTicks = c.StuckTicks,
                 LastCombatTick = c.LastCombatTick,
                 TrailMm = c.Trail.SelectMany(m => new[] { m.XMm, m.ZMm }).ToArray(),
+                Membership = PartyKeys.Key(c.Membership),
+                Stance = PartyKeys.Key(c.Stance),
+                Tactics = new TacticsDto { KeepToLeash = c.Tactics.KeepToLeash, ProtectInjured = c.Tactics.ProtectInjured, HoldHealing = c.Tactics.HoldHealing },
+                Contract = c.Contract is not { } k ? null : new ContractDto
+                {
+                    Role = PartyKeys.Key(k.Role),
+                    Days = k.Days,
+                    DailyWage = k.DailyWage,
+                    LootRule = k.LootRule,
+                    DaysServed = k.DaysServed,
+                    UnpaidDays = k.UnpaidDays,
+                    Purse = k.Purse,
+                    WorkSite = k.WorkSite,
+                    RecipeId = k.RecipeId,
+                    Supply = k.Supply.Select(kv => new SupplyDto { ItemId = kv.Key, Count = kv.Value }).ToArray(),
+                },
             })
             .ToArray(),
         Posture = new PostureDto { Stance = StanceKeys.Key(player.Posture.Stance), Airborne = player.Posture.Airborne, AirMs = player.Posture.AirMs },
@@ -553,6 +634,11 @@ public static class SectionCodec
                 Knower = k.Knower, Act = k.Act, Identity = k.Identity, Source = k.Source, Via = k.Via, Tick = k.Tick, Delta = k.Delta,
             }).ToArray(),
             Standing = player.Factions.Standing.Select(st => new FactionStandingDto { Faction = st.FactionId, Points = st.Points }).ToArray(),
+        },
+        Party = new PartyLedgerDto
+        {
+            Recovering = player.Party.Recovering.Select(r => new RecoveryDto { NpcId = r.NpcId, UntilTick = r.UntilTick }).ToArray(),
+            Fallen = player.Party.Fallen.ToArray(),
         },
     }, Options);
 
@@ -608,6 +694,7 @@ public static class SectionCodec
         var deeds = dto.Deeds ?? throw new FormatException("player.msgpack has no deed tallies (required from schema 16)");
         var identity = dto.Identity ?? throw new FormatException("player.msgpack has no identity (required from schema 17)");
         var factions = dto.Factions ?? throw new FormatException("player.msgpack has no faction ledger (required from schema 20)");
+        var party = dto.Party ?? throw new FormatException("player.msgpack has no party ledger (required from schema 21)");
         var pronouns = PronounKeys.Parse(identity.Pronouns) ?? throw new FormatException($"player identity has pronouns '{identity.Pronouns}'");
         var stance = posture.Stance switch
         {
@@ -644,6 +731,7 @@ public static class SectionCodec
                 factions.Acts.Select(a => new ActRecord(a.Seq, a.Kind, a.Subject, a.Cell, a.XMm, a.ZMm, a.Tick)).ToImmutableArray(),
                 factions.Knowledge.Select(k => new FactionKnowledge(k.Knower, k.Act, k.Identity, k.Source, k.Via, k.Tick, k.Delta)).ToImmutableArray(),
                 factions.Standing.Select(st => new FactionStanding(st.Faction, st.Points)).ToImmutableArray()),
+            Party = new PartyLedger(party.Recovering.Select(r => new RecoveryRecord(r.NpcId, r.UntilTick)).ToImmutableArray(), party.Fallen.ToImmutableArray()),
         };
     }
 
@@ -660,6 +748,23 @@ public static class SectionCodec
             StuckTicks = c.StuckTicks,
             LastCombatTick = c.LastCombatTick,
             Trail = Enumerable.Range(0, c.TrailMm.Length / 2).Select(i => new TrailMark(c.TrailMm[2 * i], c.TrailMm[2 * i + 1])).ToImmutableArray(),
+            Membership = PartyKeys.ParseMembership(c.Membership ?? throw new FormatException($"companion {c.NpcId} has no membership (required from schema 21)"))
+                ?? throw new FormatException($"companion {c.NpcId} has membership '{c.Membership}'"),
+            Stance = PartyKeys.ParseStance(c.Stance ?? throw new FormatException($"companion {c.NpcId} has no stance (required from schema 21)"))
+                ?? throw new FormatException($"companion {c.NpcId} has stance '{c.Stance}'"),
+            Tactics = c.Tactics is { } t
+                ? new PartyTactics(t.KeepToLeash, t.ProtectInjured, t.HoldHealing)
+                : throw new FormatException($"companion {c.NpcId} has no tactics (required from schema 21)"),
+            Contract = c.Contract is not { } k ? null : new HirelingContract(
+                PartyKeys.ParseRole(k.Role) ?? throw new FormatException($"companion {c.NpcId}'s contract has role '{k.Role}'"), k.Days, k.DailyWage, k.LootRule)
+            {
+                DaysServed = k.DaysServed,
+                UnpaidDays = k.UnpaidDays,
+                Purse = k.Purse,
+                WorkSite = k.WorkSite,
+                RecipeId = k.RecipeId,
+                Supply = k.Supply.ToImmutableSortedDictionary(i => i.ItemId, i => i.Count, StringComparer.Ordinal),
+            },
         };
     }
 

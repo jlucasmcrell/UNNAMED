@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain.Character;
+using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.M2Probe;
@@ -76,7 +77,7 @@ public class MigrationTests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.Equal(18, report.Steps.Count);
+        Assert.Equal(19, report.Steps.Count);
         Assert.StartsWith("schema 2 -> 3:", report.Steps[0]);
         Assert.StartsWith("schema 3 -> 4:", report.Steps[1]);
         Assert.StartsWith("schema 4 -> 5:", report.Steps[2]);
@@ -95,6 +96,7 @@ public class MigrationTests
         Assert.StartsWith("schema 17 -> 18:", report.Steps[15]);
         Assert.StartsWith("schema 18 -> 19:", report.Steps[16]);
         Assert.StartsWith("schema 19 -> 20:", report.Steps[17]);
+        Assert.StartsWith("schema 20 -> 21:", report.Steps[18]);
         var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Player)));
         Assert.Equal(0x32599743E39279EFUL, player.AppearanceSeed);   // Reference/worldgen_v2_reference.py
         Assert.Equal(PlayerRecord.DerivedAppearanceSeed(player.Id), player.AppearanceSeed);
@@ -109,7 +111,7 @@ public class MigrationTests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.Equal(new[] { "schema 3 -> 4:", "schema 4 -> 5:", "schema 5 -> 6:", "schema 6 -> 7:", "schema 7 -> 8:", "schema 8 -> 9:", "schema 9 -> 10", "schema 10 -> 1", "schema 11 -> 1", "schema 12 -> 1", "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2" },
+        Assert.Equal(new[] { "schema 3 -> 4:", "schema 4 -> 5:", "schema 5 -> 6:", "schema 6 -> 7:", "schema 7 -> 8:", "schema 8 -> 9:", "schema 9 -> 10", "schema 10 -> 1", "schema 11 -> 1", "schema 12 -> 1", "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2", "schema 20 -> 2" },
             report.Steps.Select(s => s[..14]));
         var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Player)));
         Assert.Equal(CharacterProgression.Empty.Digest, player.Progression.Digest);
@@ -129,7 +131,7 @@ public class MigrationTests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.Equal(new[] { "schema 4 -> 5:", "schema 5 -> 6:", "schema 6 -> 7:", "schema 7 -> 8:", "schema 8 -> 9:", "schema 9 -> 10", "schema 10 -> 1", "schema 11 -> 1", "schema 12 -> 1", "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2" },
+        Assert.Equal(new[] { "schema 4 -> 5:", "schema 5 -> 6:", "schema 6 -> 7:", "schema 7 -> 8:", "schema 8 -> 9:", "schema 9 -> 10", "schema 10 -> 1", "schema 11 -> 1", "schema 12 -> 1", "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2", "schema 20 -> 2" },
             report.Steps.Select(s => s[..14]));
         var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Player)));
         Assert.Equal(0, player.FacingMdeg);
@@ -147,7 +149,7 @@ public class MigrationTests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.Equal(new[] { "schema 5 -> 6:", "schema 6 -> 7:", "schema 7 -> 8:", "schema 8 -> 9:", "schema 9 -> 10", "schema 10 -> 1", "schema 11 -> 1", "schema 12 -> 1", "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2" }, report.Steps.Select(s => s[..14]));
+        Assert.Equal(new[] { "schema 5 -> 6:", "schema 6 -> 7:", "schema 7 -> 8:", "schema 8 -> 9:", "schema 9 -> 10", "schema 10 -> 1", "schema 11 -> 1", "schema 12 -> 1", "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2", "schema 20 -> 2" }, report.Steps.Select(s => s[..14]));
         string slot = store.SlotPath(SaveSlots.Quick);
         var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(slot, SaveFormat.Player)));
         Assert.Empty(player.Equipment);
@@ -167,7 +169,7 @@ public class MigrationTests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.Equal(new[] { "schema 6 -> 7:", "schema 7 -> 8:", "schema 8 -> 9:", "schema 9 -> 10", "schema 10 -> 1", "schema 11 -> 1", "schema 12 -> 1", "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2" }, report.Steps.Select(s => s[..14]));
+        Assert.Equal(new[] { "schema 6 -> 7:", "schema 7 -> 8:", "schema 8 -> 9:", "schema 9 -> 10", "schema 10 -> 1", "schema 11 -> 1", "schema 12 -> 1", "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2", "schema 20 -> 2" }, report.Steps.Select(s => s[..14]));
         var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Player)));
         Assert.Empty(player.Effects);
         Assert.Equal(40, player.Currency);   // everything schema 6 held is kept
@@ -183,7 +185,7 @@ public class MigrationTests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.Equal(new[] { "schema 7 -> 8:", "schema 8 -> 9:", "schema 9 -> 10", "schema 10 -> 1", "schema 11 -> 1", "schema 12 -> 1", "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2" }, report.Steps.Select(s => s[..14]));
+        Assert.Equal(new[] { "schema 7 -> 8:", "schema 8 -> 9:", "schema 9 -> 10", "schema 10 -> 1", "schema 11 -> 1", "schema 12 -> 1", "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2", "schema 20 -> 2" }, report.Steps.Select(s => s[..14]));
         var (_, created, containers, creatures, _) = SectionCodec.DecodeEntitySection(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Entities)));
         Assert.Empty(creatures);
         Assert.Equal(3, Assert.Single(created, c => c.DefId == "item.potion.minor_healing").Count);   // everything schema 7 held is kept
@@ -199,7 +201,7 @@ public class MigrationTests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.Equal(new[] { "schema 8 -> 9:", "schema 9 -> 10", "schema 10 -> 1", "schema 11 -> 1", "schema 12 -> 1", "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2" }, report.Steps.Select(s => s[..14]));
+        Assert.Equal(new[] { "schema 8 -> 9:", "schema 9 -> 10", "schema 10 -> 1", "schema 11 -> 1", "schema 12 -> 1", "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2", "schema 20 -> 2" }, report.Steps.Select(s => s[..14]));
         string slot = store.SlotPath(SaveSlots.Quick);
         var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(slot, SaveFormat.Player)));
         var (_, created, containers, creatures, _) = SectionCodec.DecodeEntitySection(File.ReadAllBytes(Path.Combine(slot, SaveFormat.Entities)));
@@ -219,7 +221,7 @@ public class MigrationTests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.Equal(new[] { "schema 9 -> 10", "schema 10 -> 1", "schema 11 -> 1", "schema 12 -> 1", "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2" }, report.Steps.Select(s => s[..14]));
+        Assert.Equal(new[] { "schema 9 -> 10", "schema 10 -> 1", "schema 11 -> 1", "schema 12 -> 1", "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2", "schema 20 -> 2" }, report.Steps.Select(s => s[..14]));
         var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Player)));
         Assert.Empty(player.Relationships);
         Assert.Empty(player.Conversations);
@@ -235,7 +237,7 @@ public class MigrationTests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.Equal(new[] { "schema 10 -> 1", "schema 11 -> 1", "schema 12 -> 1", "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2" }, report.Steps.Select(s => s[..14]));
+        Assert.Equal(new[] { "schema 10 -> 1", "schema 11 -> 1", "schema 12 -> 1", "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2", "schema 20 -> 2" }, report.Steps.Select(s => s[..14]));
         var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Player)));
         Assert.Empty(player.Quests);
         Assert.Equal(2, player.Relationships.Length);   // everything schema 10 held is kept
@@ -251,7 +253,7 @@ public class MigrationTests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.Equal(new[] { "schema 11 -> 1", "schema 12 -> 1", "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2" }, report.Steps.Select(s => s[..14]));
+        Assert.Equal(new[] { "schema 11 -> 1", "schema 12 -> 1", "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2", "schema 20 -> 2" }, report.Steps.Select(s => s[..14]));
         var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Player)));
         Assert.Empty(player.Companions);
         Assert.Equal(2, player.Quests.Length);   // everything schema 11 held is kept
@@ -267,7 +269,7 @@ public class MigrationTests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.Equal(new[] { "schema 12 -> 1", "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2" }, report.Steps.Select(s => s[..14]));
+        Assert.Equal(new[] { "schema 12 -> 1", "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2", "schema 20 -> 2" }, report.Steps.Select(s => s[..14]));
         var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Player)));
         Assert.Equal(Posture.Grounded, player.Posture);
         Assert.Single(player.Companions);   // everything schema 12 held is kept
@@ -293,7 +295,7 @@ public class MigrationTests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.Equal(new[] { "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2" }, report.Steps.Select(s => s[..14]));
+        Assert.Equal(new[] { "schema 13 -> 1", "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2", "schema 20 -> 2" }, report.Steps.Select(s => s[..14]));
         var (_, _, containers, creatures, noises) =
             SectionCodec.DecodeEntitySection(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Entities)));
         Assert.Equal(new[] { "spawn.fixture.den#0", "spawn.fixture.den#1", "spawn.fixture.ridge#0" }, creatures.Select(c => c.Key));
@@ -329,7 +331,7 @@ public class MigrationTests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.Equal(new[] { "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2" }, report.Steps.Select(s => s[..14]));
+        Assert.Equal(new[] { "schema 14 -> 1", "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2", "schema 20 -> 2" }, report.Steps.Select(s => s[..14]));
         var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Player)));
         Assert.Empty(player.Waystones);
         Assert.Null(player.ReturnPoint);   // the region's spawn, as before Waystone travel
@@ -348,7 +350,7 @@ public class MigrationTests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.Equal(new[] { "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2" }, report.Steps.Select(s => s[..14]));
+        Assert.Equal(new[] { "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2", "schema 20 -> 2" }, report.Steps.Select(s => s[..14]));
         var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Player)));
         Assert.Equal("Aelin", player.Name);
         Assert.Equal(new CharacterIdentity(Pronouns.They, "people.veth", "body.default", null), player.Identity);
@@ -379,7 +381,7 @@ public class MigrationTests
 
         var loaded = store.Load(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.Equal(new[] { "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2" }, loaded.Report.Steps.Select(s => s[..14]));
+        Assert.Equal(new[] { "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2", "schema 20 -> 2" }, loaded.Report.Steps.Select(s => s[..14]));
         Assert.Equal("Wanderer", loaded.Player.Name);
         Assert.Null(loaded.Player.Identity.CallId);
         Assert.Equal(CharacterIdentity.BeforeTheCreator, loaded.Player.Identity);
@@ -438,13 +440,13 @@ public class MigrationTests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.Equal(new[] { "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2" }, report.Steps.Select(s => s[..14]));
+        Assert.Equal(new[] { "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2", "schema 20 -> 2" }, report.Steps.Select(s => s[..14]));
         var manifest = SectionCodec.DecodeManifest(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Manifest)));
         // The absence a login measures runs from when the save was taken, not from when it was migrated.
         Assert.Equal("2026-10-16T23:24:26.000Z", manifest.SavedUtc);
         Assert.Empty(manifest.AwayLog);
         Assert.Equal(0, manifest.WorldTimeAdvancedTicks);
-        Assert.Equal(20, manifest.SchemaVersion);
+        Assert.Equal(21, manifest.SchemaVersion);
     }
 
     [Fact]
@@ -470,7 +472,7 @@ public class MigrationTests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.Equal(new[] { "schema 18 -> 1", "schema 19 -> 2" }, report.Steps.Select(s => s[..14]));
+        Assert.Equal(new[] { "schema 18 -> 1", "schema 19 -> 2", "schema 20 -> 2" }, report.Steps.Select(s => s[..14]));
         string slot = store.SlotPath(SaveSlots.Quick);
         var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(slot, SaveFormat.Player)));
         var (_, created, containers, _, _) = SectionCodec.DecodeEntitySection(File.ReadAllBytes(Path.Combine(slot, SaveFormat.Entities)));
@@ -481,6 +483,45 @@ public class MigrationTests
         Assert.Equal("waystone.fixture.ford", player.ReturnPoint);
         Assert.Equal(3, player.Deeds.Length);
         Assert.Equal("call.scholar", player.Identity.CallId);
+    }
+
+    // ── the party, schema 20 -> 21 (WP15a) ───────────────────────────────────
+
+    [Fact]
+    public void Schema20To21_MakesEveryoneInThePartyACompanion_AggressiveOnTheLeash_AndGivesTheLedgerNoOne()
+    {
+        using var profile = Fixtures.Copy(20);
+        var store = new SaveStore(profile.Root);
+        var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
+
+        Assert.StartsWith("schema 20 -> 21:", Assert.Single(report.Steps));
+        var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Player)));
+        var warden = Assert.Single(player.Companions);
+        Assert.Equal((PartyMembership.Companion, CompanionStance.Aggressive, PartyTactics.Default, (HirelingContract?)null),
+            (warden.Membership, warden.Stance, warden.Tactics, warden.Contract));
+        Assert.Equal((64, 2, 3), (warden.Health, warden.StuckTicks, warden.Trail.Length));   // everything schema 20 held is kept
+        Assert.Equal(PartyLedger.Empty, player.Party);
+        Assert.NotNull(player.Inventory.Single(e => e.ItemId == M2Fixtures.Historical.SwordId).Notable);
+    }
+
+    [Fact]
+    public void ASchema21CompanionWithoutItsMembership_OrAPlayerWithoutTheLedger_IsCorrupt()
+    {
+        var dto = MessagePack.MessagePackSerializer.Deserialize<PlayerDto>(
+            SectionCodec.EncodePlayer(M2Fixtures.Historical.Player()), MessagePack.MessagePackSerializerOptions.Standard);
+        dto.Companions![0].Membership = null;
+        var bytes = MessagePack.MessagePackSerializer.Serialize(dto, MessagePack.MessagePackSerializerOptions.Standard);
+        Assert.Contains("membership", Assert.Throws<FormatException>(() => SectionCodec.DecodePlayer(bytes)).Message);
+
+        dto.Companions![0].Membership = "hireling";
+        dto.Party = null;
+        bytes = MessagePack.MessagePackSerializer.Serialize(dto, MessagePack.MessagePackSerializerOptions.Standard);
+        Assert.Contains("party ledger", Assert.Throws<FormatException>(() => SectionCodec.DecodePlayer(bytes)).Message);
+
+        dto.Party = new PartyLedgerDto();
+        dto.Companions![0].Contract!.Role = "cook";
+        bytes = MessagePack.MessagePackSerializer.Serialize(dto, MessagePack.MessagePackSerializerOptions.Standard);
+        Assert.Contains("role 'cook'", Assert.Throws<FormatException>(() => SectionCodec.DecodePlayer(bytes)).Message);
     }
 
     [Fact]
@@ -508,7 +549,8 @@ public class MigrationTests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.StartsWith("schema 19 -> 20:", Assert.Single(report.Steps));
+        Assert.Equal(new[] { "schema 19 -> 2", "schema 20 -> 2" }, report.Steps.Select(s => s[..14]));
+        Assert.StartsWith("schema 19 -> 20: the player gains a faction ledger", report.Steps[0]);
         var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Player)));
         Assert.Equal(UNNAMED.Domain.Factions.FactionLedger.Empty, player.Factions);
         Assert.NotNull(player.Inventory.Single(e => e.ItemId == M2Fixtures.Historical.SwordId).Notable);   // everything schema 19 held is kept
@@ -550,7 +592,7 @@ public class MigrationTests
         var store = new SaveStore(profile.Root);
         var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
 
-        Assert.Equal(new[] { "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2" }, report.Steps.Select(s => s[..14]));
+        Assert.Equal(new[] { "schema 15 -> 1", "schema 16 -> 1", "schema 17 -> 1", "schema 18 -> 1", "schema 19 -> 2", "schema 20 -> 2" }, report.Steps.Select(s => s[..14]));
         var player = SectionCodec.DecodePlayer(File.ReadAllBytes(Path.Combine(store.SlotPath(SaveSlots.Quick), SaveFormat.Player)));
         Assert.Empty(player.Deeds);
         Assert.Equal(2, player.Waystones.Length);   // everything schema 15 held is kept
@@ -700,7 +742,7 @@ public class MigrationTests
     {
         var loaded = LoadFixture(1, Fixtures.Context(new Registry()));
 
-        Assert.Equal(19, loaded.Report.Steps.Count);
+        Assert.Equal(20, loaded.Report.Steps.Count);
         Assert.StartsWith("schema 1 -> 2:", loaded.Report.Steps[0]);
         Assert.StartsWith("schema 2 -> 3:", loaded.Report.Steps[1]);
         Assert.StartsWith("schema 3 -> 4:", loaded.Report.Steps[2]);
@@ -720,6 +762,7 @@ public class MigrationTests
         Assert.StartsWith("schema 17 -> 18:", loaded.Report.Steps[16]);
         Assert.StartsWith("schema 18 -> 19:", loaded.Report.Steps[17]);
         Assert.StartsWith("schema 19 -> 20:", loaded.Report.Steps[18]);
+        Assert.StartsWith("schema 20 -> 21:", loaded.Report.Steps[19]);
         Assert.Equal(File.ReadAllText(Fixtures.Expected(1)).Replace("\r\n", "\n"), CanonicalState.Render(loaded));
     }
 
@@ -737,7 +780,7 @@ public class MigrationTests
     {
         var context = Fixtures.Context(new Registry()) with { Migrations = ImmutableArray.Create<SchemaMigration>(new SchemaV1ToV2()) };
 
-        Assert.Contains("no registered migration chain from schema 1 to schema 20", Assert.Single(RefuseFixture(1, context).Report.Blockers));
+        Assert.Contains("no registered migration chain from schema 1 to schema 21", Assert.Single(RefuseFixture(1, context).Report.Blockers));
     }
 
     // ── created persistent instances (schema 3) ─────────────────────────────

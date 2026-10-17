@@ -163,6 +163,21 @@ public static class M2Fixtures
                     StuckTicks = 2,
                     LastCombatTick = 4_950,
                     Trail = ImmutableArray.Create(new TrailMark(149_250, -41_000), new TrailMark(149_750, -40_750), new TrailMark(150_250, -40_125)),
+                    // Schema 21 (WP15a): the warden is in Aelin's hire, a crafter on a ten-day contract at 7 a day - three days served, the
+                    // last one unpaid, 21 coin earned - set to the salve at the fixture hearth with two healing draughts handed over; defensive,
+                    // off the leash, protecting the injured. The draught is under the name it had then.
+                    Membership = PartyMembership.Hireling,
+                    Stance = CompanionStance.Defensive,
+                    Tactics = new PartyTactics(KeepToLeash: false, ProtectInjured: true, HoldHealing: false),
+                    Contract = new HirelingContract(HirelingRole.Crafter, 10, 7, PartyRules.WageOnly)
+                    {
+                        DaysServed = 3,
+                        UnpaidDays = 1,
+                        Purse = 21,
+                        WorkSite = "station.fixture_hearth",
+                        RecipeId = "recipe.alchemy.salve_minor",
+                        Supply = ImmutableSortedDictionary.Create<string, int>(StringComparer.Ordinal).Add("item.potion.healing_draught", 2),
+                    },
                 },
             })
         {

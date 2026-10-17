@@ -359,12 +359,41 @@ internal static class SaveLoader
                 quests[id] = resolved;
         }
 
-        // Companions (schema 12): a companion whose NPC was removed goes with it; two records that resolve to one NPC keep the first.
+        // Companions (schema 12): a companion whose NPC was removed goes with it; two records that resolve to one NPC keep the first. A
+        // hireling's contract (schema 20) names a recipe and the materials they were handed: a removed recipe leaves them with no work, and
+        // removed materials are lost; two that resolve to one are summed.
         var companions = new SortedDictionary<string, CompanionRecord>(StringComparer.Ordinal);
         foreach (var companion in player.Companions)
         {
-            if (Resolve(companion.NpcId, "player companion") is { } id)
-                companions.TryAdd(id, companion with { NpcId = id });
+            if (Resolve(companion.NpcId, "player companion") is not { } id)
+                continue;
+            var contract = companion.Contract;
+            if (contract is not null)
+            {
+                string? recipe = contract.RecipeId is { } r ? Resolve(r, "player companion (contract recipe)") : null;
+                var supply = ImmutableSortedDictionary.Create<string, int>(StringComparer.Ordinal);
+                foreach (var (item, count) in contract.Supply)
+                {
+                    if (Resolve(item, "player companion (contract supply)") is { } current)
+                        supply = supply.SetItem(current, (int)Math.Min(int.MaxValue, (long)supply.GetValueOrDefault(current) + count));
+                }
+                contract = contract with { RecipeId = recipe, WorkSite = recipe is null && contract.RecipeId is not null ? null : contract.WorkSite, Supply = supply };
+            }
+            companions.TryAdd(id, companion with { NpcId = id, Contract = contract });
+        }
+
+        // The party's ledger (schema 20): someone recovering or fallen whose NPC was removed goes with them; a party member is never also in it.
+        var recovering = new SortedDictionary<string, RecoveryRecord>(StringComparer.Ordinal);
+        foreach (var recovery in player.Party.Recovering)
+        {
+            if (Resolve(recovery.NpcId, "player party (recovering)") is { } id && !companions.ContainsKey(id))
+                recovering.TryAdd(id, recovery with { NpcId = id });
+        }
+        var fallen = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (string npc in player.Party.Fallen)
+        {
+            if (Resolve(npc, "player party (fallen)") is { } id && !companions.ContainsKey(id) && !recovering.ContainsKey(id))
+                fallen.Add(id);
         }
 
         // Deeds (schema 16): a deed whose subject or NPC was removed goes with it; two tallies that resolve to one are summed, keeping
@@ -412,9 +441,12 @@ internal static class SaveLoader
         var factions = new FactionLedger(ledger.NextActSeq, acts.ToImmutableArray(), knowledge.Values.ToImmutableArray(),
             standing.Where(kv => kv.Value != 0).Select(kv => new FactionStanding(kv.Key, kv.Value)).ToImmutableArray());
 
-        return (player.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values).WithEffects(effects.Values)
-                .WithSocial(relationships.Values, conversations.Values).WithQuests(quests.Values).WithCompanions(companions.Values)
-                .WithDeeds(deeds.Values).WithFactions(factions),
+
+        // The party ledger is set aside while the party is rewritten: a rename may bring the two together, which the record refuses.
+        var rewritten = player with { Party = PartyLedger.Empty };
+        rewritten = rewritten.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values).WithEffects(effects.Values)
+            .WithSocial(relationships.Values, conversations.Values).WithQuests(quests.Values).WithCompanions(companions.Values);
+        return (rewritten.WithDeeds(deeds.Values).WithFactions(factions) with { Party = new PartyLedger(recovering.Values.ToImmutableArray(), fallen.ToImmutableArray()) },
             new DeltaSnapshot(cells, entities.ToImmutable())
             {
                 Created = created.ToImmutable(), Containers = containers, Creatures = creatures.ToImmutable(), Noises = noises.ToImmutable(),

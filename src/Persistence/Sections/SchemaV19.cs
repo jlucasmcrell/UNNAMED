@@ -2,9 +2,9 @@
 // No Godot references - pure C#
 //
 // The exact player shape schema 19 wrote: written by the 18 -> 19 step and read by the 19 -> 20 step; the schema-19 fixture pins it. Its
-// parts that schema 20 did not change are the current DTOs (InventoryDto, ProgressionDto, DiscoveryDto, EquipmentDto, EffectDto,
-// RelationshipDto, ConversationDto, QuestDto, CompanionDto, PostureDto, WaystoneDto, DeedDto, IdentityDto); the step that next changes one
-// of those must freeze a copy of it first. Schema 20 left the other sections alone.
+// companions are V20.Companion; its parts that schema 20 did not change are the current DTOs (InventoryDto, ProgressionDto, DiscoveryDto,
+// EquipmentDto, EffectDto, RelationshipDto, ConversationDto, QuestDto, PostureDto, WaystoneDto, DeedDto, IdentityDto); the step that next
+// changes one of those must freeze a copy of it first. Schema 20 left the other sections alone.
 
 using MessagePack;
 
@@ -29,7 +29,7 @@ public sealed class Player
     [Key("relationships")] public RelationshipDto[]? Relationships { get; set; }
     [Key("conversations")] public ConversationDto[]? Conversations { get; set; }
     [Key("quests")] public QuestDto[]? Quests { get; set; }
-    [Key("companions")] public CompanionDto[]? Companions { get; set; }
+    [Key("companions")] public V20.Companion[]? Companions { get; set; }
     [Key("posture")] public PostureDto? Posture { get; set; }
     [Key("waystones")] public WaystoneDto[]? Waystones { get; set; }
     [Key("return_point")] public string? ReturnPoint { get; set; }

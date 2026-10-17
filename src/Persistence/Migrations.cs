@@ -26,6 +26,7 @@ using V15 = UNNAMED.Persistence.Sections.V15;
 using V16 = UNNAMED.Persistence.Sections.V16;
 using V18 = UNNAMED.Persistence.Sections.V18;
 using V19 = UNNAMED.Persistence.Sections.V19;
+using V20 = UNNAMED.Persistence.Sections.V20;
 
 namespace UNNAMED.Persistence;
 
@@ -92,7 +93,8 @@ public static class SchemaMigrations
         new SchemaV16ToV17(),
         new SchemaV17ToV18(),
         new SchemaV18ToV19(),
-        new SchemaV19ToV20());
+        new SchemaV19ToV20(),
+        new SchemaV20ToV21());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -712,7 +714,7 @@ public sealed class SchemaV11ToV12 : SchemaMigration
                 Relationships = old.Relationships,
                 Conversations = old.Conversations,
                 Quests = old.Quests,
-                Companions = Array.Empty<CompanionDto>(),
+                Companions = Array.Empty<V20.Companion>(),
             }, options);
         }
         document.Manifest["schema_version"] = To;
@@ -1075,7 +1077,7 @@ public sealed class SchemaV19ToV20 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V19.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V20.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -1102,6 +1104,74 @@ public sealed class SchemaV19ToV20 : SchemaMigration
                 Identity = old.Identity,
                 // Literal, not FactionLedger.Empty: a step is a fixed function of the schema it reads.
                 Factions = new FactionLedgerDto { NextActSeq = 1 },
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 20 to 21 (WP15a, the party): each companion gains why they travel with the character (companion, hireling or temporary ally), a
+/// stance, standing rules and - a hireling - a contract; the player gains the party's ledger of who is recovering from a grave wound and
+/// who has fallen. Before it, everyone in the party was a companion, aggressive, keeping to the leash, and no one had been wounded away or
+/// had died.
+/// </summary>
+public sealed class SchemaV20ToV21 : SchemaMigration
+{
+    public override int From => 20;
+
+    public override string Summary => "schema 20 -> 21: companions gain membership, stance and tactics; the player gains the party ledger (none before)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V20.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions?.Select(c => new CompanionDto
+                {
+                    NpcId = c.NpcId,
+                    Order = c.Order,
+                    Condition = c.Condition,
+                    XMm = c.XMm,
+                    ZMm = c.ZMm,
+                    FacingMdeg = c.FacingMdeg,
+                    Health = c.Health,
+                    DownedTick = c.DownedTick,
+                    StuckTicks = c.StuckTicks,
+                    LastCombatTick = c.LastCombatTick,
+                    TrailMm = c.TrailMm,
+                    Membership = "companion",
+                    Stance = "aggressive",
+                    Tactics = new TacticsDto { KeepToLeash = true },
+                }).ToArray(),
+                Posture = old.Posture,
+                Waystones = old.Waystones,
+                ReturnPoint = old.ReturnPoint,
+                RoadsWalked = old.RoadsWalked,
+                Deeds = old.Deeds,
+                Identity = old.Identity,
+                Factions = old.Factions,
+                Party = new PartyLedgerDto(),
             }, options);
         }
         document.Manifest["schema_version"] = To;

@@ -241,6 +241,16 @@ public class HistoricalFixtureTests
             Assert.Equal(("npc.fixture.warden_sera", CompanionOrder.Follow, CompanionCondition.Up, 64), (warden.NpcId, warden.Order, warden.Condition, warden.Health));
             Assert.Equal((148_750L, -41_500L, 45_000, 2, 4_950L), (warden.XMm, warden.ZMm, warden.FacingMdeg, warden.StuckTicks, warden.LastCombatTick));
             Assert.Equal(new[] { new TrailMark(149_250, -41_000), new TrailMark(149_750, -40_750), new TrailMark(150_250, -40_125) }, warden.Trail);
+            // Schema 21's party (WP15a): the warden is in Aelin's hire, a crafter at the hearth, the draughts handed over renamed on load;
+            // before it, everyone in the party was a companion, aggressive and keeping to the leash.
+            Assert.Equal(schema >= 21
+                    ? (PartyMembership.Hireling, CompanionStance.Defensive, new PartyTactics(false, true, false), new HirelingContract(HirelingRole.Crafter, 10, 7, PartyRules.WageOnly)
+                    {
+                        DaysServed = 3, UnpaidDays = 1, Purse = 21, WorkSite = "station.fixture_hearth", RecipeId = "recipe.alchemy.salve_minor",
+                        Supply = ImmutableSortedDictionary.Create<string, int>(StringComparer.Ordinal).Add("item.potion.minor_healing", 2),
+                    })
+                    : (PartyMembership.Companion, CompanionStance.Aggressive, PartyTactics.Default, (HirelingContract?)null),
+                (warden.Membership, warden.Stance, warden.Tactics, warden.Contract));
         }
         else
         {
@@ -277,6 +287,8 @@ public class HistoricalFixtureTests
                 : new CharacterIdentity(Pronouns.They, "people.veth", "body.default", null),
             loaded.Player.Identity);
         Assert.Equal("Aelin", loaded.Player.Name);
+        // Schema 21's ledger: no one recovering or fallen - the fixture pack has one NPC, and the warden is in the party.
+        Assert.Equal(PartyLedger.Empty, loaded.Player.Party);
         // Schema 18's persistent clock (WP11): saved at a known moment after a login that caught up a game day and a quarter; before it, the
         // moment the save was taken is its build_timestamp, to the second, and no login had caught anything up.
         if (schema >= 18)
@@ -314,9 +326,18 @@ public class HistoricalFixtureTests
             loaded.Player.Factions);
 
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);
-        // v4 names the potion twice - held, and first produced - and the report counts each occurrence.
+        // v4 names the potion twice - held, and first produced - and the report counts each occurrence; v21 a third time, in the
+        // warden's contract supply.
         var aliases = schema switch
         {
+            >= 21 => new[]
+            {
+                "creature.beast.ash_hound -> creature.beast.ash_ember_hound x4", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",
+                "effect.weakness -> effect.weakened", "faction.fixture.wardens -> faction.fixture.keepers x2",
+                "item.potion.healing_draught -> item.potion.minor_healing x7", "location.wolf_den -> location.den_mouth",
+                "npc.fixture.warden -> npc.fixture.warden_sera x5", "quest.fixture.errand -> quest.fixture.wardens_errand",
+                "spell.ember.firebolt -> spell.ember.bolt",
+            },
             >= 20 => new[]
             {
                 "creature.beast.ash_hound -> creature.beast.ash_ember_hound x4", "dialogue.fixture.warden -> dialogue.fixture.warden_sera",

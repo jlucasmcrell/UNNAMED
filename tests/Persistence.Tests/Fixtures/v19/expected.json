@@ -228,7 +228,15 @@
           -40750,
           150250,
           -40125
-        ]
+        ],
+        "membership": "companion",
+        "stance": "aggressive",
+        "tactics": {
+          "keep_to_leash": true,
+          "protect_injured": false,
+          "hold_healing": false
+        },
+        "contract": null
       }
     ],
     "posture": {
@@ -289,6 +297,10 @@
       "acts": [],
       "knowledge": [],
       "standing": {}
+    },
+    "party": {
+      "recovering": [],
+      "fallen": []
     }
   },
   "cells": [

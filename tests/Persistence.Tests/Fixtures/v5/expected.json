@@ -138,6 +138,10 @@
       "acts": [],
       "knowledge": [],
       "standing": {}
+    },
+    "party": {
+      "recovering": [],
+      "fallen": []
     }
   },
   "cells": [
