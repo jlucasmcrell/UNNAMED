@@ -542,13 +542,8 @@ public partial class InventoryPanel : CanvasLayer
     }
 
     /// <summary>What the open trader would pay for one of these, or null when they do not buy it.</summary>
-    private static long? SellPrice(Simulation simulation, string npcId, string defId)
-    {
-        var items = simulation.Setup.Items;
-        return simulation.Wares(npcId) is { } wares && items.Merchants.TryGetValue(wares.MerchantId, out var merchant) && items.Catalog.Find(defId) is { } item
-            ? items.Pricing.SellPrice(item, merchant)
-            : null;
-    }
+    /// <summary>What the trader pays for one now: their town's price, less what it remembers the character selling it (WP14).</summary>
+    private static long? SellPrice(Simulation simulation, string npcId, string defId) => simulation.Offer(npcId, defId);
 
     private void Submit(GameCommand command) => _session.Submit(command);
 
