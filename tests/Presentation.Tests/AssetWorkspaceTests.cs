@@ -12,6 +12,9 @@ public sealed class AssetWorkspaceTests
         {
             string primary = Workspace("primary"), old = Workspace("assets"), environment = Workspace("old-environment");
             Assert.Equal(primary, AssetWorkspace.Find(null, environment, home));
+            string fallback = Directory.CreateDirectory(Path.Combine(home, "fallback")).FullName;
+            Assert.Equal(fallback, AssetWorkspace.PackagedFallback(primary));
+            Assert.Null(AssetWorkspace.PackagedFallback(environment));
             Assert.Equal(environment, AssetWorkspace.Find(environment, null, home));
             Directory.Delete(primary, true);
             Assert.Equal(environment, AssetWorkspace.Find(null, environment, home));

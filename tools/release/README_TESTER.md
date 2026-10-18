@@ -8,7 +8,7 @@ Thank you for testing. This is an early, unfinished playtest of Otherreach, a si
 2. Double-click **PLAY.bat**. It runs the game at 2560 x 1440 on High (your display may limit the window size).
 3. For a 4K display with a strong graphics card, use **PLAY Ultra 4K.bat** instead: Ultra at 3840 x 2160, which needs more graphics memory.
 
-Do not start Otherreach.exe directly; the launchers set up the world and assets. You need Windows 10 or 11 (64-bit) and a Vulkan-capable dedicated graphics card. Nothing else needs installing.
+You can also start **Otherreach.exe** directly. It loads the packaged world and approved characters without extra arguments; the launchers choose the display settings above. You need Windows 10 or 11 (64-bit) and a Vulkan-capable dedicated graphics card. Nothing else needs installing.
 
 **Windows SmartScreen:** the game is not code-signed, so Windows may show "Windows protected your PC". Click **More info**, then **Run anyway**.
 

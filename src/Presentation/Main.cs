@@ -358,9 +358,7 @@ public partial class Main : Node3D
         // region root carries the region's art and is small, the depot holds every body the pipeline has generated. The owner's
         // ruling is to use what already exists, and a generated rig that is on disk but not copied into a region is exactly that.
         Art.ArtLibrary.FallbackRoot = _options.GetValueOrDefault("--asset-fallback")
-            ?? (Directory.Exists(Path.Combine(Path.GetDirectoryName(contentRoot)!, "primary"))
-                && Directory.Exists(Path.Combine(Path.GetDirectoryName(contentRoot)!, "fallback"))
-                ? Path.Combine(Path.GetDirectoryName(contentRoot)!, "fallback") : null)
+            ?? AssetWorkspace.PackagedFallback(_assets.Root)
             ?? System.Environment.GetEnvironmentVariable("UNNAMED_ASSET_FALLBACK")
             ?? SiblingDepot(_assets.Root);
         if (Art.ArtLibrary.FallbackRoot is { } fallback && !Directory.Exists(fallback))
@@ -384,7 +382,7 @@ public partial class Main : Node3D
         string? regionBindings = region == BarrowworksRegion
             ? Path.Combine(contentRoot, "_art_bindings_barrowworks.json")
             : _options.GetValueOrDefault("--bindings-overlay")
-                ?? (File.Exists(Path.Combine(contentRoot, "_art_bindings.json"))
+                ?? (!_options.ContainsKey("--asset-root") && File.Exists(Path.Combine(contentRoot, "_art_bindings.json"))
                     ? Path.Combine(contentRoot, "_art_bindings.json") : null)
                 ?? (_assets.Root is { } artRoot ? Path.Combine(artRoot, "bindings.json") : null);
         if (regionBindings is not null && System.IO.File.Exists(regionBindings))
