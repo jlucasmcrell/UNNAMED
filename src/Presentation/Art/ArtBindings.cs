@@ -111,6 +111,8 @@ public sealed record PersonArt(string Model, string Hand, string? OffHand, IRead
 
     /// <summary>The garments worn over the body (rigged asset IDs, each with its <c>_garment.json</c>; <see cref="Outfit"/>), or none.</summary>
     public IReadOnlyList<string> Outfit { get; init; } = Array.Empty<string>();
+    /// <summary>The approved body fit shared by this identity's clothes; null uses its own model.</summary>
+    public string? OutfitBody { get; init; }
     /// <summary>Item garments and combined <c>set:chest|legs</c> outfits. Empty set slots mean unequipped.</summary>
     public IReadOnlyDictionary<string, string[]> EquipmentOutfits { get; init; } = new Dictionary<string, string[]>();
 }
@@ -377,7 +379,7 @@ public sealed class ArtBindings
                 People = root.TryGetProperty("people", out var people)
                     ? people.EnumerateObject().ToDictionary(p => p.Name, p => OptionClips(root, p.Name, new PersonArt(Text(p.Value, "model")!,
                         Text(p.Value, "hand") ?? "hand_r", Text(p.Value, "off_hand"), Strings(p.Value, "clips"), Grip(p.Value, "grip"), Grip(p.Value, "off_grip"))
-                        { Outfit = List(p.Value, "outfit") ?? Array.Empty<string>(), EquipmentOutfits = EquipmentOutfits(p.Value) }),
+                        { Outfit = List(p.Value, "outfit") ?? Array.Empty<string>(), OutfitBody = Text(p.Value, "outfit_body"), EquipmentOutfits = EquipmentOutfits(p.Value) }),
                         StringComparer.Ordinal)
                     : new Dictionary<string, PersonArt>(),
                 Bodies = root.TryGetProperty("player_bodies", out var bodies) ? PlayerBodies.Read(bodies) : PlayerBodies.None,
@@ -501,6 +503,7 @@ public sealed class ArtBindings
                 Grip = Grip(over, "grip") ?? look.Grip,
                 OffGrip = Grip(over, "off_grip") ?? look.OffGrip,
                 Outfit = List(over, "outfit") ?? look.Outfit,
+                OutfitBody = Text(over, "outfit_body") ?? look.OutfitBody,
                 EquipmentOutfits = over.TryGetProperty("equipment_outfits", out _) ? EquipmentOutfits(over) : look.EquipmentOutfits,
             };
         }

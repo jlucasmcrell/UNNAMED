@@ -406,7 +406,7 @@ public partial class AnimationSheet : Node3D
             model.Position = new Vector3(0, 0, -_profileModels.Count * 10);
             AddChild(model);
             CorrectiveJoints.Load(_art, person.Model, model.Skeleton);
-            Outfit.Dress(_art, model, person.Model, person.Outfit);
+            Outfit.Dress(_art, model, person.OutfitBody ?? person.Model, person.Outfit);
             CharacterMaterials.ShareLodBox(model.Skeleton);
             _profileModels.Add((model, state));
             for (int phase = 0; phase < 12; phase++)
