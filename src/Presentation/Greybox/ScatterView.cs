@@ -705,6 +705,21 @@ public partial class ScatterView : Node3D
             level.Free();
             if (merged.GetSurfaceCount() == 0)
                 break;
+            // Surface merging above copies only the close-up arrays, losing the importer's LODs.
+            // Regenerate after transforming into model space so each instanced plant keeps its
+            // original near mesh, material and placement, with projected-error indices further out.
+            if (System.Environment.GetEnvironmentVariable("UNNAMED_RUNTIME_MESH_LODS") != "0")
+            {
+                using var importer = new ImporterMesh();
+                for (int s = 0; s < merged.GetSurfaceCount(); s++)
+                {
+                    using var arrays = merged.SurfaceGetArrays(s);
+                    importer.AddSurface(Mesh.PrimitiveType.Triangles, arrays, material: merged.SurfaceGetMaterial(s));
+                }
+                using var boneTransforms = new Godot.Collections.Array();
+                importer.GenerateLods(60, 0, boneTransforms);
+                merged = importer.GetMesh();
+            }
             // Shader displacement is invisible to CPU culling. Grow only wind-deformed model bounds, in model
             // space so each MultiMesh instance's existing rotation/scale also transforms this finite padding.
             if (kind.Wind)
