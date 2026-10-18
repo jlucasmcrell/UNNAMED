@@ -7,12 +7,9 @@ using Godot;
 namespace UNNAMED.Presentation.Art;
 
 /// <summary>
-/// An outfit: garments refitted onto a body by the character pipeline (asset_work/metahuman/tools/bl_garment.py), each a rigged model on
-/// the same game skeleton with a sidecar <c>&lt;id&gt;_garment.json</c> giving its layer (CHARACTER_ANIMATION_STRATEGY.md 4.3: 1 under-layer
-/// to 6 cloak) and <c>hides_mask</c>, the body regions it covers as bits of the region IDs. Its meshes join the body's skeleton; the body,
-/// and every garment on a lower layer, then drop the triangles of the regions an outer garment covers (region_mask.gdshaderinc), so
-/// neither can poke through it whatever the pose. A garment with loose parts names the skeleton's cloth chains it is weighted to
-/// (<c>chains</c>: prefix to stiffness, drag and gravity); only those chains spring, round capsules on the legs (memo 4.3 rule 7).
+/// Authored clothing sets, each on the native body skeleton. A sidecar's <c>hide_regions</c> names whole body-part meshes hidden while
+/// that set is worn. Layered clothing is combined at authoring time. Legacy <c>hides_mask</c> remains for older assets. Loose parts
+/// name their native spring chains in <c>chains</c> (prefix to stiffness, drag and gravity).
 /// A garment is baked per body (<c>&lt;garment&gt;__&lt;body&gt;</c>, WP17: authored once, the body's build carried into it at build time):
 /// a figure wears the variant baked for its own body, and a garment with no variant for that body is not worn rather than worn clipping.
 /// An outfit may list garments for several bodies (a shirt for each body type): each figure wears those baked for its own.
@@ -31,16 +28,9 @@ public static partial class Outfit
             child.Free();
         foreach (var mesh in figure.Skeleton.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
         {
-            if (mesh.HasMeta(UnmaskedMesh))
-            {
-                var morphs = Enumerable.Range(0, mesh.GetBlendShapeCount()).Select(mesh.GetBlendShapeValue).ToArray();
-                mesh.Mesh = mesh.GetMeta(UnmaskedMesh).AsGodotObject() as Mesh;
-                mesh.RemoveMeta(UnmaskedMesh);
-                for (int shape = 0; shape < morphs.Length; shape++)
-                    mesh.SetBlendShapeValue(shape, morphs[shape]);
-            }
+            if (BodyRegion(mesh) is not null)
+                mesh.Visible = true;
             mesh.SetInstanceShaderParameter("region_hidden_mask", 0);
-            mesh.SetInstanceShaderParameter("source_hidden_mask", 0);
         }
     }
 
@@ -53,7 +43,8 @@ public static partial class Outfit
         if (garments.Count == 0)
             return 0;
         var skin = figure.Skeleton.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>().ToList();
-        var worn = new List<(List<MeshInstance3D> Meshes, int Layer, int Hides, int SourceHides)>();
+        var worn = new List<(List<MeshInstance3D> Meshes, int Layer, int Hides)>();
+        var hiddenRegions = new HashSet<string>(StringComparer.Ordinal);
         var baked = garments.Select(g => PlayerBodies.Garment(g, body)).Distinct()
             .Select(id => (Id: id, Spec: art.RiggedFile(id, id + "_garment.json"))).Where(g => g.Spec is not null).ToList();
         if (baked.Count == 0)
@@ -65,9 +56,9 @@ public static partial class Outfit
             using var json = JsonDocument.Parse(File.ReadAllText(spec!));
             int layer = json.RootElement.GetProperty("layer").GetInt32();
             int hides = json.RootElement.GetProperty("hides_mask").GetInt32();
-            int sourceHides = json.RootElement.TryGetProperty("occlusion_mask", out var sourceMask) ? sourceMask.GetInt32() : 0;
-            if (sourceHides is < 0 or > 1023)
-                throw new InvalidDataException($"{spec}: occlusion_mask must fit the ten exact UV bits");
+            if (json.RootElement.TryGetProperty("hide_regions", out var regions))
+                foreach (var region in regions.EnumerateArray())
+                    hiddenRegions.Add(region.GetString()!);
             CharacterMaterials.ApplyLods(model);
             var sourceSkeleton = ArtLibrary.Find<Skeleton3D>(model);
             var namedSkins = new Dictionary<Skin, Skin>();
@@ -114,28 +105,36 @@ public static partial class Outfit
                 }
             }
             model.Free();
-            worn.Add((meshes, layer, hides, sourceHides));
+            worn.Add((meshes, layer, hides));
         }
         int all = worn.Aggregate(0, (mask, g) => mask | g.Hides);
-        int allSources = worn.Aggregate(0, (mask, g) => mask | g.SourceHides);
         foreach (var mesh in skin)
         {
-            MaskMesh(mesh, all, allSources);
+            if (BodyRegion(mesh) is { } region)
+                mesh.Visible = !hiddenRegions.Contains(region);
             mesh.SetInstanceShaderParameter("region_hidden_mask", all);
-            mesh.SetInstanceShaderParameter("source_hidden_mask", allSources);
         }
-        foreach (var (meshes, layer, _, _) in worn)
+        foreach (var (meshes, layer, _) in worn)
         {
             int over = worn.Where(g => g.Layer > layer).Aggregate(0, (mask, g) => mask | g.Hides);
-            int overSources = worn.Where(g => g.Layer > layer).Aggregate(0, (mask, g) => mask | g.SourceHides);
             foreach (var mesh in meshes)
             {
-                MaskMesh(mesh, over, overSources);
                 mesh.SetInstanceShaderParameter("region_hidden_mask", over);
-                mesh.SetInstanceShaderParameter("source_hidden_mask", overSources);
             }
         }
         return worn.Count;
+    }
+
+    // These are separate meshes authored once, not a runtime triangle mask.
+    private static string? BodyRegion(MeshInstance3D mesh)
+    {
+        string name = mesh.Name.ToString();
+        int at = name.LastIndexOf("__region_", StringComparison.Ordinal);
+        if (at < 0)
+            return null;
+        string region = name[(at + 9)..];
+        int lod = region.IndexOf("_LOD", StringComparison.Ordinal);
+        return (lod < 0 ? region : region[..lod]).Replace("_shadow", "", StringComparison.Ordinal);
     }
 
     // Colliders the loose cloth swings round, each between two body joints. The skeleton keeps UE's joint frames - a limb

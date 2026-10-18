@@ -20,7 +20,6 @@ void vertex() {
 }
 
 void fragment() {
-	// glTF double-sided cloth keeps its inside folds visible and lit from the inside.
 	if (!FRONT_FACING) {
 		NORMAL = -NORMAL;
 	}

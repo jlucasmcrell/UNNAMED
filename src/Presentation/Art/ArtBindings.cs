@@ -111,7 +111,7 @@ public sealed record PersonArt(string Model, string Hand, string? OffHand, IRead
 
     /// <summary>The garments worn over the body (rigged asset IDs, each with its <c>_garment.json</c>; <see cref="Outfit"/>), or none.</summary>
     public IReadOnlyList<string> Outfit { get; init; } = Array.Empty<string>();
-    /// <summary>Optional item definition to modular garment IDs, over the permanent Outfit underlayers.</summary>
+    /// <summary>Item garments and combined <c>set:chest|legs</c> outfits. Empty set slots mean unequipped.</summary>
     public IReadOnlyDictionary<string, string[]> EquipmentOutfits { get; init; } = new Dictionary<string, string[]>();
 }
 

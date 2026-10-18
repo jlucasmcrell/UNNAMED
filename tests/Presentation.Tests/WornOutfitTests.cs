@@ -5,6 +5,19 @@ namespace UNNAMED.Presentation.Tests;
 public class WornOutfitTests
 {
     [Fact]
+    public void LayeredBodySetReplacesLooseLayers_WhileOtherEquipmentRemainsIndependent()
+    {
+        var equipment=new Dictionary<string,string[]>
+        {
+            ["set:vest|trousers"]=new[]{"combined_vest_trousers"},
+            ["set:|"]=new[]{"linen_base"},
+            ["boots"]=new[]{"boots"}
+        };
+        Assert.Equal(new[]{"combined_vest_trousers","boots"},
+            new WornOutfit(Chest:"vest",Legs:"trousers",Feet:"boots").Garments(new[]{"retired_loose_shirt"},equipment));
+        Assert.Equal(new[]{"linen_base"},new WornOutfit().Garments(new[]{"retired_loose_shirt"},equipment));
+    }
+    [Fact]
     public void ChangingFeetAndHeadSelectsThoseItems_AndUnequippingRemovesTheirGarments()
     {
         var equipment = new Dictionary<string, string[]>

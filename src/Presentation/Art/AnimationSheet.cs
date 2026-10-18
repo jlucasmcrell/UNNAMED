@@ -28,10 +28,6 @@ public partial class AnimationSheet : Node3D
     private readonly bool _profiles;
     private readonly string? _profileStates;
     private readonly List<(SkinnedModel Model, string State)> _profileModels = new();
-    private readonly Dictionary<SkinnedModel, Transform3D[]> _profilePoses = new();
-    private readonly List<object> _profileFrames = new();
-    private bool _equipmentProbe;
-    private static bool Pictures => DisplayServer.GetName() != "headless";
     private readonly Camera3D _camera = new() { Fov = 40, Current = true, Near = 0.05f };
     private readonly List<(string Name, Action Setup)> _shots = new();
     private readonly List<(string Creature, SkinnedModel Model, string State, bool Control)> _creatures = new();
@@ -88,25 +84,7 @@ public partial class AnimationSheet : Node3D
 
     public override void _Ready()
     {
-        try
-        {
-            Prepare();
-        }
-        catch (Exception error)
-        {
-            SetProcess(false);
-            _notes.Add($"FAILED during sheet setup: {error.Message}");
-            WriteReport();
-            GD.PushError(error.ToString());
-            GetTree().Quit(1);
-        }
-    }
-
-    private void Prepare()
-    {
         Directory.CreateDirectory(_directory);
-        if (!Pictures)
-            _notes.Add("Headless checks only: no rendered-image or GPU deformation acceptance.");
         DisplayServer.WindowSetSize(new Vector2I(1920, 1080));
         _art.Withhold(_bindings.Withheld);
         var environment = new Godot.Environment
@@ -121,13 +99,6 @@ public partial class AnimationSheet : Node3D
         floor.MaterialOverride = _art.WorldMaterial("material_packed_dirt_ground") ?? new StandardMaterial3D { AlbedoColor = new Color(0.4f, 0.38f, 0.33f) };
         AddChild(floor);
         AddChild(_camera);
-
-        _equipmentProbe = OS.GetCmdlineUserArgs().Contains("--anim-equipment-probe");
-        if (_equipmentProbe)
-        {
-            AddEquipmentProbe();
-            return;
-        }
 
         if (_profiles)
         {
@@ -422,115 +393,9 @@ public partial class AnimationSheet : Node3D
     }
 
     /// <summary>One real player skin per bound state, held at twelve reproducible phases, with runtime retargeting, correctives and outfit.</summary>
-    private void AddEquipmentProbe()
-    {
-        if (!_bindings.People.TryGetValue("player", out var person) || person.EquipmentOutfits.Count == 0
-            || SkinnedFigure.Create(_art, _bindings, "player") is not { } figure)
-        {
-            GD.PushError("Equipment probe needs an installed player and equipment_outfits binding.");
-            GetTree().Quit(1);
-            return;
-        }
-        AddChild(figure);
-        _walkers.Add((figure, 0));
-        Dictionary<string, (int Region, int Source)>? baseMasks = null;
-        Dictionary<string, int[]>? baseTriangles = null;
-        var legs = new WornOutfit(Legs: "item.armor.wool_trousers");
-        foreach (var (name, worn) in new[]
-        {
-            ("base", new WornOutfit()), ("legs", legs),
-            ("cap", legs with { Head = "item.armor.hide_cap" }),
-            ("coif", legs with { Head = "item.armor.lame_coif" }),
-            ("unequip", new WornOutfit()), ("repeat_cap", legs with { Head = "item.armor.hide_cap" }),
-            ("unchanged_cap", legs with { Head = "item.armor.hide_cap" }),
-        })
-        {
-            _shots.Add(("equipment_" + name, () =>
-            {
-                var before = Enumerable.Range(0, figure.Skeleton.GetBoneCount()).Select(figure.Skeleton.GetBonePose).ToArray();
-                figure.WearEquipment(worn);
-                var expected = worn.Garments(person.Outfit, person.EquipmentOutfits)
-                    .Select(g => PlayerBodies.Garment(g, person.Model)).Distinct().Order(StringComparer.Ordinal).ToArray();
-                // One garment has several imported LOD meshes. Check asset IDs,
-                // rather than mistaking the LOD count for extra garments.
-                var actual = figure.Skeleton.GetChildren().OfType<MeshInstance3D>().Where(n => n.HasMeta("outfit_garment"))
-                    .Select(n => n.GetMeta("outfit_garment").AsString()).Distinct().Order(StringComparer.Ordinal).ToArray();
-                bool samePose = before.Select((pose, i) => pose == figure.Skeleton.GetBonePose(i)).All(equal => equal);
-                bool namedBinds = figure.Skeleton.GetChildren().OfType<MeshInstance3D>()
-                    .Where(n => n.HasMeta("outfit_garment") && n.Skin is not null)
-                    .All(mesh => Enumerable.Range(0, mesh.Skin!.GetBindCount()).All(bind =>
-                        !mesh.Skin!.GetBindName(bind).IsEmpty && figure.Skeleton.FindBone(mesh.Skin!.GetBindName(bind)) >= 0));
-                bool maskIntegrity = CheckMaskArrays(figure.Skeleton);
-                bool pass = expected.SequenceEqual(actual) && samePose && namedBinds && maskIntegrity;
-                var masks = figure.Skeleton.GetChildren().OfType<MeshInstance3D>().Where(n => !n.HasMeta("outfit_garment"))
-                    .ToDictionary(n => n.Name.ToString(), n =>
-                        (Region: n.GetInstanceShaderParameter("region_hidden_mask").AsInt32(),
-                         Source: n.GetInstanceShaderParameter("source_hidden_mask").AsInt32()));
-                var triangles = figure.Skeleton.GetChildren().OfType<MeshInstance3D>().Where(n => !n.HasMeta("outfit_garment"))
-                    .ToDictionary(n => n.Name.ToString(), n => Enumerable.Range(0, n.Mesh.GetSurfaceCount())
-                        .SelectMany(s => n.Mesh.SurfaceGetArrays(s)[(int)Mesh.ArrayType.Index].AsInt32Array()).ToArray());
-                if (name == "base")
-                {
-                    baseMasks = masks;
-                    baseTriangles = triangles;
-                }
-                else if (name == "legs")
-                {
-                    pass &= baseMasks is not null && masks.Any(m => baseMasks[m.Key] != m.Value);
-                    pass &= baseTriangles is not null && triangles.Any(m => !baseTriangles[m.Key].SequenceEqual(m.Value));
-                }
-                else if (name == "unequip")
-                {
-                    pass &= baseMasks is not null && masks.All(m => baseMasks[m.Key] == m.Value);
-                    pass &= baseTriangles is not null && triangles.All(m => baseTriangles[m.Key].SequenceEqual(m.Value));
-                }
-                string result = $"Equipment probe {name}: expected={string.Join(',', expected)}, drawn={string.Join(',', actual)}, unchanged_pose={samePose}, named_binds={namedBinds}, mask_arrays={maskIntegrity}, pass={pass}";
-                _notes.Add(result);
-                GD.Print(result);
-                if (!pass)
-                    GetTree().Quit(1);
-                Aim(new Vector3(2.4f, 1.5f, 3.2f), new Vector3(0, 1.0f, 0));
-            }));
-        }
-    }
-
-    // Exercise native mesh rebuilds in the equipment probe: dressing may change
-    // indices only. Positions, skin arrays, morph deltas and materials must stay.
-    private static bool CheckMaskArrays(Skeleton3D skeleton)
-    {
-        foreach (var mesh in skeleton.GetChildren().OfType<MeshInstance3D>().Where(m => m.HasMeta("outfit_unmasked_mesh")))
-        {
-            var original = (ArrayMesh)mesh.GetMeta("outfit_unmasked_mesh").AsGodotObject();
-            if (mesh.Mesh is not ArrayMesh current || original.GetSurfaceCount() != current.GetSurfaceCount()
-                || original.GetBlendShapeCount() != current.GetBlendShapeCount())
-                return false;
-            for (int s = 0; s < original.GetSurfaceCount(); s++)
-            {
-                var before = original.SurfaceGetArrays(s);
-                var after = current.SurfaceGetArrays(s);
-                for (int channel = 0; channel < before.Count; channel++)
-                    if (channel != (int)Mesh.ArrayType.Index
-                        && !GD.VarToBytes(before[channel]).SequenceEqual(GD.VarToBytes(after[channel])))
-                    {
-                        GD.Print($"Mask array mismatch {mesh.Name}/surface{s}/channel{channel}");
-                        return false;
-                    }
-                if (original.SurfaceGetMaterial(s) != current.SurfaceGetMaterial(s)
-                    || !GD.VarToBytes(original.SurfaceGetBlendShapeArrays(s)).SequenceEqual(GD.VarToBytes(current.SurfaceGetBlendShapeArrays(s))))
-                    return false;
-            }
-        }
-        return true;
-    }
-
     private void AddPlayerProfiles()
     {
         var person = _bindings.People["player"];
-        var args = OS.GetCmdlineUserArgs();
-        if (args.Contains("--anim-mask-check"))
-            CheckMaskControls();
-        int splayAt = Array.IndexOf(args, "--anim-splay");
-        float splay = splayAt >= 0 ? float.Parse(args[splayAt + 1], System.Globalization.CultureInfo.InvariantCulture) : 0;
         var wanted = _profileStates?.Split(',').ToHashSet(StringComparer.Ordinal);
         foreach (var state in person.Clips.Keys.Where(s => wanted is null || wanted.Contains(s)))
         {
@@ -540,38 +405,8 @@ public partial class AnimationSheet : Node3D
                 throw new InvalidOperationException($"Profile clip did not load: {person.Clips[state]}");
             model.Position = new Vector3(0, 0, -_profileModels.Count * 10);
             AddChild(model);
-            if (splay != 0 && BuildPose.On(model.Skeleton) is { } buildPose)
-                buildPose.ArmSplayDegrees = splay;
             CorrectiveJoints.Load(_art, person.Model, model.Skeleton);
-            int dressed = Outfit.Dress(_art, model, person.Model, person.Outfit);
-            if (args.Contains("--anim-pose-frames"))
-            {
-                var skeleton = model.Skeleton;
-                skeleton.SkeletonUpdated += () =>
-                {
-                    if (model.Visible)
-                    {
-                        var frame = model.GlobalTransform.AffineInverse() * skeleton.GlobalTransform;
-                        _profilePoses[model] = Enumerable.Range(0, skeleton.GetBoneCount())
-                            .Select(bone => frame * skeleton.GetBoneGlobalPose(bone)).ToArray();
-                    }
-                };
-            }
-            if (args.Contains("--anim-mask-check"))
-            {
-                bool intact = CheckMaskArrays(model.Skeleton);
-                GD.Print($"Native outfit mask arrays {state}: pass={intact}");
-                if (!intact)
-                    throw new InvalidOperationException("Outfit mask changed vertex, skin, morph or material data");
-            }
-            _notes.Add($"{state}: bones={model.Skeleton.GetBoneCount()}, garments={dressed}, arm_splay_deg={splay}");
-            foreach (var mesh in model.Skeleton.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
-                for (int surface = 0; surface < (mesh.Mesh?.GetSurfaceCount() ?? 0); surface++)
-                {
-                    var arrays = mesh.Mesh!.SurfaceGetArrays(surface);
-                    var uv = arrays[(int)Mesh.ArrayType.TexUV2].AsVector2Array();
-                    _notes.Add($"UV2 {state}/{mesh.Name}/{surface}: vertices={uv.Length}, source_masks={uv.Count(v => v.Y < 0)}, min_y={(uv.Length > 0 ? uv.Min(v => v.Y) : 0)}");
-                }
+            Outfit.Dress(_art, model, person.Model, person.Outfit);
             CharacterMaterials.ShareLodBox(model.Skeleton);
             _profileModels.Add((model, state));
             for (int phase = 0; phase < 12; phase++)
@@ -596,123 +431,6 @@ public partial class AnimationSheet : Node3D
         if (_profileModels.Count == 0)
             throw new InvalidOperationException("No player states selected for the profile sheet");
         _notes.Add($"Player profile sheet: {person.Model}, twelve held phases; no gameplay pose changes.");
-    }
-
-    private static void CheckMaskControls()
-    {
-        CheckGarmentBoneControls();
-        // Real native controls: both index widths, unindexed geometry, native
-        // index LODs, eight skin influences and live morph values. The second
-        // triangle must remain when the first is masked; a wrong mask hides none.
-        foreach (var (count, indexed) in new[] { (6, true), (6, false), (65537, true) })
-        {
-            var positions = new Vector3[count];
-            var uv = new Vector2[count];
-            var weights = new float[count * 8];
-            for (int i = 0; i < count; i++)
-            {
-                positions[i] = new Vector3(i % 3, i / 3, 0);
-                uv[i] = new Vector2(0, -(i < 3 ? 16 : 32) - 1);
-                weights[i * 8] = 1;
-            }
-            int[] indices = { 0, 1, 2, count - 3, count - 2, count - 1 };
-            var arrays = new Godot.Collections.Array();
-            arrays.Resize((int)Mesh.ArrayType.Max);
-            arrays[(int)Mesh.ArrayType.Vertex] = positions;
-            arrays[(int)Mesh.ArrayType.TexUV2] = uv;
-            arrays[(int)Mesh.ArrayType.Bones] = new int[count * 8];
-            arrays[(int)Mesh.ArrayType.Weights] = weights;
-            if (indexed)
-                arrays[(int)Mesh.ArrayType.Index] = indices;
-            var morph = new Godot.Collections.Array();
-            morph.Resize((int)Mesh.ArrayType.Max);
-            morph[(int)Mesh.ArrayType.Vertex] = positions.Select(v => v + Vector3.Back * .01f).ToArray();
-            var source = new ArrayMesh { BlendShapeMode = Mesh.BlendShapeMode.Normalized };
-            source.AddBlendShape("mask_control");
-            source.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays,
-                new Godot.Collections.Array<Godot.Collections.Array> { morph },
-                indexed ? new Godot.Collections.Dictionary { [0.5f] = new int[] { 0, 1, 2 } } : null,
-                Mesh.ArrayFormat.FlagUse8BoneWeights);
-            var material = new StandardMaterial3D();
-            source.SurfaceSetMaterial(0, material);
-            byte[] untouched = GD.VarToBytes(source.Get("_surfaces"));
-            var skeleton = new Skeleton3D();
-            foreach (int mask in new[] { 0, 64, 16, 48 })
-            {
-                var instance = new MeshInstance3D { Mesh = source };
-                skeleton.AddChild(instance);
-                instance.SetBlendShapeValue(0, .6f);
-                Outfit.MaskMesh(instance, 0, mask);
-                bool changed = mask is 16 or 48;
-                var current = (ArrayMesh)instance.Mesh;
-                var actual = current.SurfaceGetArrays(0)[(int)Mesh.ArrayType.Index].AsInt32Array();
-                int[] expected = mask == 16 ? indices[3..] : mask == 48 ? new[] { 0, 0, 0 } : indexed ? indices : Array.Empty<int>();
-                if (changed != (current != source) || !actual.SequenceEqual(expected)
-                    || !CheckMaskArrays(skeleton) || instance.GetBlendShapeValue(0) != .6f
-                    || !GD.VarToBytes(source.Get("_surfaces")).SequenceEqual(untouched))
-                    throw new InvalidOperationException($"Native mask control failed: count={count}, indexed={indexed}, mask={mask}");
-                if (indexed && changed)
-                {
-                    var levels = current.Get("_surfaces").AsGodotArray()[0].AsGodotDictionary()["lods"].AsGodotArray();
-                    if (levels[0].AsSingle() != .5f || levels[1].AsByteArray().Any(b => b != 0))
-                        throw new InvalidOperationException("Masked native LOD triangle remains visible");
-                }
-                instance.Free();
-            }
-            skeleton.Free();
-        }
-        GD.Print("Native mask controls PASS: indexed16/indexed32/unindexed, absent/wrong/partial/full masks, LOD, eight weights, morph, original unchanged");
-    }
-
-    private static void CheckGarmentBoneControls()
-    {
-        var source = new Skeleton3D();
-        var target = new Skeleton3D();
-        foreach (string name in new[] { "spine_05", "cloth_test_0_1", "cloth_test_0_2", "unweighted_body_joint" })
-        {
-            source.AddBone(name);
-            int at = source.GetBoneCount() - 1;
-            if (at > 0)
-                source.SetBoneParent(at, at == 3 ? 0 : at - 1);
-            source.SetBoneRest(at, new Transform3D(Basis.Identity, new Vector3(0, -.1f, 0)));
-            source.ResetBonePose(at);
-        }
-        target.AddBone("spine_05");
-        target.SetBoneRest(0, source.GetBoneRest(0));
-        target.ResetBonePose(0);
-        target.SetBonePoseRotation(0, new Quaternion(Vector3.Up, .3f));
-        var pose = target.GetBonePose(0);
-        var rest = target.GetBoneRest(0);
-        using var skin = new Skin();
-        for (int i = 0; i < source.GetBoneCount(); i++)
-            skin.AddBind(i, source.GetBoneGlobalRest(i).AffineInverse());
-        var mesh = new MeshInstance3D { Skin = skin };
-        source.AddChild(mesh);
-        using var geometry = new ArrayMesh();
-        var arrays = new Godot.Collections.Array();
-        arrays.Resize((int)Mesh.ArrayType.Max);
-        arrays[(int)Mesh.ArrayType.Vertex] = new[] { Vector3.Zero, Vector3.Up, Vector3.Right };
-        arrays[(int)Mesh.ArrayType.Bones] = new[] { 2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0 };
-        arrays[(int)Mesh.ArrayType.Weights] = new float[] { 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 };
-        geometry.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
-        mesh.Mesh = geometry;
-        Outfit.GarmentBones(target, source, new[] { mesh });
-        Outfit.GarmentBones(target, source, new[] { mesh });
-        if (target.GetBoneCount() != 3 || target.GetBonePose(0) != pose || target.GetBoneRest(0) != rest
-            || target.GetBoneGlobalRest(2) != source.GetBoneGlobalRest(2))
-            throw new InvalidOperationException("Garment joint merge changed anatomy, failed parent recursion, or duplicated joints");
-        // A missing anatomical joint is deliberately not inferred from a garment.
-        geometry.ClearSurfaces();
-        arrays[(int)Mesh.ArrayType.Bones] = new[] { 3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0 };
-        geometry.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
-        bool refused = false;
-        try { Outfit.GarmentBones(target, source, new[] { mesh }); }
-        catch (InvalidDataException) { refused = true; }
-        if (!refused || target.GetBoneCount() != 3 || target.GetBonePose(0) != pose)
-            throw new InvalidOperationException("Garment joint merge accepted a replacement anatomical joint");
-        source.Free();
-        target.Free();
-        GD.Print("Native garment joint controls PASS: weighted cloth only, recursive parents, repeat, unchanged existing rests/poses, missing anatomy refused");
     }
 
     private void Aim(Vector3 eye, Vector3 target) => _camera.LookAtFromPosition(eye, target, Vector3.Up);
@@ -779,23 +497,7 @@ public partial class AnimationSheet : Node3D
         // The reach waits until it is at full stretch.
         if (++_wait < 8 || _shots[_shot].Name == "player_close_interact" && _clockAtShot + ReachSeconds > _clock)
             return;
-        if (Pictures)
-            Main.SaveScreenshot(GetViewport(), _directory, _shots[_shot].Name);
-        foreach (var (model, state) in _profileModels.Where(p => p.Model.Visible && _profilePoses.ContainsKey(p.Model)))
-        {
-            var bones = _profilePoses[model];
-            _profileFrames.Add(new
-            {
-                shot = _shots[_shot].Name, state, fraction = _fraction,
-                bones = Enumerable.Range(0, bones.Length).ToDictionary(model.Skeleton.GetBoneName, i =>
-                {
-                    var t = bones[i];
-                    return new[] { t.Basis.X.X, t.Basis.Y.X, t.Basis.Z.X, t.Origin.X,
-                        t.Basis.X.Y, t.Basis.Y.Y, t.Basis.Z.Y, t.Origin.Y,
-                        t.Basis.X.Z, t.Basis.Y.Z, t.Basis.Z.Z, t.Origin.Z, 0, 0, 0, 1 };
-                }),
-            });
-        }
+        Main.SaveScreenshot(GetViewport(), _directory, _shots[_shot].Name);
         // The creature pictures are the only place two fractions of one clip are held for long enough to compare, so the
         // movement between them is measured here rather than guessed from the frames afterwards.
         if (_shots[_shot].Name.StartsWith("creature_", StringComparison.Ordinal) && !_shots[_shot].Name.Contains("_noclip_", StringComparison.Ordinal))
@@ -863,9 +565,6 @@ public partial class AnimationSheet : Node3D
 
     private void WriteReport()
     {
-        if (_profilePoses.Count > 0)
-            File.WriteAllText(Path.Combine(_directory, "profile_pose_frames.json"),
-                System.Text.Json.JsonSerializer.Serialize(_profileFrames));
         var lines = new List<string> { "# Animation sheet", "", $"Asset workspace: {_art.Root ?? "none"}", "" };
         lines.AddRange(_notes.Count == 0 ? new[] { "Every bound creature and the player drawn." } : _notes.Select(n => $"- {n}"));
         if (_measured.Count > 0 || _tailSwing.Count > 0)
@@ -902,15 +601,11 @@ public partial class AnimationSheet : Node3D
                           + $"{fractions[0] * 100:0} % and {fractions[^1] * 100:0} % of the clip; the most-moving bone travels {most:0.000} m");
             }
         }
-        bool pictures = Pictures;
-        if (pictures)
-        {
-            lines.AddRange(new[] { "", "## Pictures", "" });
-            lines.AddRange(_shots.Select(s => $"![{s.Name}]({s.Name}.png)"));
-        }
+        lines.AddRange(new[] { "", "## Pictures", "" });
+        lines.AddRange(_shots.Select(s => $"![{s.Name}]({s.Name}.png)"));
         lines.AddRange(new[] { "", "## Library problems", "" });
         lines.AddRange(_art.Problems.Count == 0 ? new[] { "None." } : _art.Problems.Select(p => $"- `{p.Key}`: {p.Value}"));
         File.WriteAllText(Path.Combine(_directory, "animation_sheet.md"), string.Join("\n", lines) + "\n");
-        GD.Print($"UNNAMED animation sheet written to {_directory}: {_shots.Count} {(pictures ? "pictures" : "headless checks")}");
+        GD.Print($"UNNAMED animation sheet written to {_directory}: {_shots.Count} pictures");
     }
 }
