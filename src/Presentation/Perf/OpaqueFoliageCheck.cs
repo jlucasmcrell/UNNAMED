@@ -15,6 +15,7 @@ public partial class OpaqueFoliageCheck : Node3D
     {
         try
         {
+            WindField.Register();
             var kind = ScatterRules.Parse("""{"kinds":{"grass":{"mesh":"model:veg_gen_grass_test","max_per_m2":1,"stiffness":2}}}""").Kinds.Single();
             using var pixels = Image.CreateEmpty(8, 8, false, Image.Format.Rgba8);
             for (int y = 0; y < 8; y++)
@@ -25,6 +26,13 @@ public partial class OpaqueFoliageCheck : Node3D
             ShaderMaterial Make(BaseMaterial3D? material, ScatterKind? rules = null) => (ShaderMaterial)view.Foliage(material, rules ?? kind, 2, true, cache);
             var solid = Make(source);
             Require(solid.Shader.Code.Contains("#define OPAQUE_FOLIAGE"), "Opaque texture kept the cutout shader");
+            Require(!solid.Shader.Code.Contains("#define OTHERWORLD"), "A kind without effects kept the otherworld shader layer");
+            var still = Make(source, kind with { Wind = false });
+            var unthinned = (ShaderMaterial)view.Foliage(source, kind with { Wind = false }, 2, false, cache);
+            Require(still.Shader.Code.Contains("#define STATIC_FOLIAGE") && still.GetShaderParameter("plant_height").AsSingle() == 0
+                && still.Shader.GetInstanceId() != solid.Shader.GetInstanceId(), "Static kind reused the wind shader or retained motion");
+            Require(unthinned.Shader.Code.Contains("#define NO_FOLIAGE_THINNING")
+                && unthinned.Shader.GetInstanceId() != still.Shader.GetInstanceId(), "Unthinned kind reused the fade shader");
             Require(solid.GetShaderParameter("plant_height").AsSingle() == 2 && solid.GetShaderParameter("stiffness").AsSingle() == 2
                 && solid.GetShaderParameter("thin_to").AsSingle() > 0, "Wind or thinning parameters changed");
             var texture = (Texture2D)solid.GetShaderParameter("albedo_tex");
@@ -45,6 +53,10 @@ public partial class OpaqueFoliageCheck : Node3D
             Require(independent.Shader.GetInstanceId() != solid.Shader.GetInstanceId(), "Worlds share mutable shader cache");
             var mineral = Make(source, kind with { Otherflora = new Otherflora(0, null, 0, 0, 0, null, false, new[] { .1f, .2f, .3f }, 0, null) });
             Require(mineral.Shader.Code.Contains("#define OPAQUE_FOLIAGE") && mineral.Shader.Code.Contains("#define OW_MINERAL"), "Mineral shader variant lost");
+            var staticMineral = Make(source, kind with { Wind = false,
+                Otherflora = new Otherflora(0, null, 0, 0, 0, null, false, new[] { .1f, .2f, .3f }, 0, null) });
+            Require(staticMineral.Shader.GetInstanceId() == mineral.Shader.GetInstanceId()
+                && !staticMineral.Shader.Code.Contains("#define STATIC_FOLIAGE"), "Active effects left the original arithmetic path");
             view.Free(); other.Free();
             GD.Print("OPAQUE FOLIAGE CHECK PASS: opacity, coverage bytes, wind/thinning, cutouts, unknown textures, mineral variant and world isolation");
             GetTree().Quit();

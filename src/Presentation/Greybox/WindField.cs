@@ -184,7 +184,6 @@ uniform float ow_late = 0.0;
 uniform vec3 ow_glow = vec3(0.0);
 uniform bool ow_glow_green = false;
 varying float strange;
-varying flat vec2 hue_turn;
 #ifdef OW_MINERAL
 uniform vec3 ow_vein = vec3(0.0);
 uniform float ow_vein_on = 0.0;
@@ -220,20 +219,22 @@ void vertex() {
     float tall = plant_height * sqrt(scale2);
     float h = clamp(COLOR.r, 0.0, 1.0);
     float phase = fract(sin(dot(origin.xz, vec2(12.9898, 78.233))) * 43758.5453);
+#ifndef STATIC_FOLIAGE
     float wind_time = TIME;   // see TreeShader: the motion vectors need TIME
+#endif
 #ifdef OTHERWORLD
     // The place's strangeness (ScatterView puts it in the custom data's alpha), each plant its own share of it, so a stand is not
     // wrong all at once.
     strange = clamp(INSTANCE_CUSTOM.a * otherworld_mix.x * (0.6 + 0.8 * fract(phase * 7.31)), 0.0, 1.0);
-    // The angle is constant throughout each plant. Avoid repeating trig in every shaded fragment.
-    float hue_angle = radians(-ow_hue * strange);
-    hue_turn = vec2(cos(hue_angle), sin(hue_angle));
 #ifdef OW_MINERAL
     ow_place = VERTEX * sqrt(scale2) + origin * 0.37;
 #endif
     // A breath late: up to 1.6 s behind the gust its neighbours answer.
+#ifndef STATIC_FOLIAGE
     wind_time -= ow_late * strange * 1.6;
 #endif
+#endif
+#ifndef STATIC_FOLIAGE
     float gust = 0.5 + 0.5 * sin(wind_time * 212.0 * CYCLE - dot(origin.xz, wind.xz) * 0.045);
     float sway = sin(wind_time * 917.0 * CYCLE + phase * 6.2832) * 0.65 + sin(wind_time * 1776.0 * CYCLE + phase * 11.0 + COLOR.g * 3.0) * 0.35;
     float amount = wind.w * mix(1.0, 0.35 + 1.3 * gust, wind_gust) * h * h / max(stiffness, 0.05);
@@ -243,12 +244,15 @@ void vertex() {
     // The bend is in the world; the plant is turned and uniformly scaled: carry it back into the model's space.
     VERTEX += transpose(basis) * bend / scale2;
     VERTEX.y -= amount * amount * 0.08 * plant_height;
+#endif
+#ifndef NO_FOLIAGE_THINNING
     if (thin_to > 0.0) {
         float keep = 1.0 - smoothstep(thin_from, thin_to, distance(origin, CAMERA_POSITION_WORLD));
         if (fract(sin(dot(origin.xz, vec2(41.37, 17.91))) * 23421.631) >= keep) {
             VERTEX = vec3(0.0);   // every vertex on the origin: the plant draws nothing
         }
     }
+#endif
 }
 
 void fragment() {
@@ -257,9 +261,7 @@ void fragment() {
 #ifdef OTHERWORLD
     float lift = 0.0;
     if (strange > 0.0) {
-        vec3 axis = vec3(0.57735);
-        colour = max(colour * hue_turn.x + cross(axis, colour) * hue_turn.y
-            + axis * dot(axis, colour) * (1.0 - hue_turn.x), vec3(0.0));
+        colour = max(otherworld_hue(colour, ow_hue * strange), vec3(0.0));
         float l = dot(colour, vec3(0.2126, 0.7152, 0.0722));
         colour = mix(colour, vec3(0.80, 0.78, 0.72) * (0.55 + l), ow_pale * strange);
         colour *= mix(vec3(1.0), vec3(0.78, 0.9, 1.0), ow_sheen * strange);

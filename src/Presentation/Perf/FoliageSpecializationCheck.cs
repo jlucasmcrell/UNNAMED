@@ -4,7 +4,7 @@ using UNNAMED.Presentation.Greybox;
 namespace UNNAMED.Presentation.Perf;
 
 // Native pixel comparison against the pre-change shader supplied by the caller.
-public partial class WindHueCheck : Node
+public partial class FoliageSpecializationCheck : Node
 {
     public override async void _Ready()
     {
@@ -15,17 +15,22 @@ public partial class WindHueCheck : Node
             RenderingServer.GlobalShaderParameterSet("otherworld_mix", new Vector4(.7f, .4f, .1f, .5f));
             string old = System.IO.File.ReadAllText(OS.GetEnvironment("UNNAMED_OLD_FOLIAGE_SHADER"));
             string current = WindField.FoliageShader;
-            for (int variant = 0; variant < 4; variant++)
+            bool differences = false;
+            for (int variant = 0; variant < 16; variant++)
             {
-                bool opaque = variant % 2 == 1, mineral = variant >= 2;
-                string Code(string code)
+                bool opaque = (variant & 1) != 0, noWind = (variant & 2) != 0, noOtherworld = (variant & 4) != 0, noThin = (variant & 8) != 0;
+                bool mineral = !noOtherworld && noWind;
+                string Code(string code, bool specialized)
                 {
                     code = code.Replace("TIME", "12.345");
                     if (opaque) code = "#define OPAQUE_FOLIAGE\n" + code;
-                    return code.Replace("shader_type spatial;", "shader_type spatial;\n#define OTHERWORLD" + (mineral ? "\n#define OW_MINERAL" : ""));
+                    if (!noOtherworld || !specialized) code = code.Replace("shader_type spatial;", "shader_type spatial;\n#define OTHERWORLD" + (mineral ? "\n#define OW_MINERAL" : ""));
+                    if (specialized && noOtherworld && noWind) code = "#define STATIC_FOLIAGE\n" + code;
+                    if (specialized && noOtherworld && noThin) code = "#define NO_FOLIAGE_THINNING\n" + code;
+                    return code;
                 }
-                var a = View(Code(old));
-                var b = View(Code(current));
+                var a = View(Code(old, false), noWind, noOtherworld, noThin, mineral);
+                var b = View(Code(current, true), noWind, noOtherworld, noThin, mineral);
                 for (int frame = 0; frame < 8; frame++)
                     await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
@@ -34,8 +39,8 @@ public partial class WindHueCheck : Node
                 var p = before.GetData(); var q = after.GetData();
                 int max = p.Zip(q, (x, y) => Math.Abs(x - y)).Max();
                 int changed = p.Zip(q, (x, y) => x != y).Count(x => x);
-                GD.Print($"WindHueCheck variant={variant}: max channel delta={max}, changed={changed}/{p.Length}");
-                if (max > 1) throw new Exception("Moving hue trigonometry changed the rendered field");
+                GD.Print($"FoliageSpecializationCheck variant={variant}: max channel delta={max}, changed={changed}/{p.Length}");
+                if (max > 1) differences = true;
                 // Positive control: this field must contain plants rather than two blank images.
                 if (p.Distinct().Count() < 16) throw new Exception("Blank comparison image");
                 string output = OS.GetEnvironment("UNNAMED_WIND_CHECK_OUT");
@@ -47,12 +52,13 @@ public partial class WindHueCheck : Node
                 }
                 RemoveChild(a); a.QueueFree(); RemoveChild(b); b.QueueFree();
             }
-            GD.Print("WindHueCheck PASS"); GetTree().Quit();
+            if (differences) throw new Exception("Shader specialization changed the rendered field; all failed images retained");
+            GD.Print("FoliageSpecializationCheck PASS"); GetTree().Quit();
         }
         catch (Exception e) { GD.PrintErr(e); GetTree().Quit(1); }
     }
 
-    private SubViewport View(string code)
+    private SubViewport View(string code, bool noWind, bool noOtherworld, bool noThin, bool mineral)
     {
         var viewport = new SubViewport { Size = new Vector2I(512, 512), OwnWorld3D = true,
             RenderTargetUpdateMode = SubViewport.UpdateMode.Always };
@@ -68,8 +74,14 @@ public partial class WindHueCheck : Node
         image.Fill(new Color(.3f, .6f, .2f));
         var material = new ShaderMaterial { Shader = new Shader { Code = code } };
         material.SetShaderParameter("albedo_tex", ImageTexture.CreateFromImage(image));
-        material.SetShaderParameter("ow_hue", -40f);
-        material.SetShaderParameter("thin_from", 20f); material.SetShaderParameter("thin_to", 40f);
+        material.SetShaderParameter("ow_hue", noOtherworld ? 0f : -40f);
+        if (noWind) { material.SetShaderParameter("plant_height", 0f); material.SetShaderParameter("flutter", 0f); }
+        if (mineral) {
+            material.SetShaderParameter("ow_vein_on", 1f); material.SetShaderParameter("ow_vein", new Vector3(.1f,.2f,.3f));
+            material.SetShaderParameter("ow_lichen_on", 1f); material.SetShaderParameter("ow_lichen", new Vector3(.2f,.4f,.3f));
+            material.SetShaderParameter("ow_iridescence", .5f);
+        }
+        material.SetShaderParameter("thin_from", 20f); material.SetShaderParameter("thin_to", noThin ? 0f : 40f);
         var mesh = new BoxMesh { Size = new Vector3(.18f, 1, .18f), Material = material };
         var mm = new MultiMesh { TransformFormat = MultiMesh.TransformFormatEnum.Transform3D,
             UseCustomData = true, Mesh = mesh, InstanceCount = 1600 };

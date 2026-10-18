@@ -764,10 +764,17 @@ public partial class ScatterView : Node3D
         }
         // Fully opaque source maps pass every existing alpha test (including the coverage mips).
         // Keep RGB, normals, wind and thinning; let depth/shadow passes omit the needless fragment alpha fetch.
-        if (!_plantShaders.TryGetValue((mineral, opaque), out var shader))
+        bool otherworld = kind.Otherflora is not null && Otherworld.Strength > 0;
+        // Keep effect-bearing materials on the original arithmetic path. In particular,
+        // removing zero wind operations changes the active mineral pattern on this backend.
+        bool compileWind = kind.Wind || otherworld, compileThinning = thins || otherworld;
+        var shaderKey = (mineral, opaque, otherworld, compileWind, compileThinning);
+        if (!_plantShaders.TryGetValue(shaderKey, out var shader))
         {
             string code = opaque ? "#define OPAQUE_FOLIAGE\n" + WindField.FoliageShader : WindField.FoliageShader;
-            _plantShaders[(mineral, opaque)] = shader = new Shader { Code = Otherworld.Variant(code, mineral: mineral) };
+            if (!compileWind) code = "#define STATIC_FOLIAGE\n" + code;
+            if (!compileThinning) code = "#define NO_FOLIAGE_THINNING\n" + code;
+            _plantShaders[shaderKey] = shader = new Shader { Code = otherworld ? Otherworld.Variant(code, mineral: mineral) : code };
         }
         var material = new ShaderMaterial { Shader = shader };
         if (coverage is not null) material.SetShaderParameter("albedo_tex", coverage);
@@ -849,7 +856,7 @@ public partial class ScatterView : Node3D
         return material;
     }
 
-    private readonly Dictionary<(bool Mineral, bool Opaque), Shader> _plantShaders = new();
+    private readonly Dictionary<(bool Mineral, bool Opaque, bool Otherworld, bool Wind, bool Thins), Shader> _plantShaders = new();
 
     private static Mesh[] Meshes(ArtLibrary art, ScatterKind kind)
     {
