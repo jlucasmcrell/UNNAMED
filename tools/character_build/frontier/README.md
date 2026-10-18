@@ -36,7 +36,8 @@ Review 7 accepted the standard8 transfer and fit but rejected its garment
 sources. The replacement sources are a licensed sewn leather jerkin and
 trousers, a linen shirt with real sleeves, an open-face hood, shaped leather
 boots, and a short wool mantle draped once over the base outfit with Blender
-cloth. The mantle uses the underlying garment's skin weights. Scanned CC0
+cloth. The mantle uses primary torso and clavicle binding after Data Transfer;
+skin corrective and twist helpers are removed from its weights. Scanned CC0
 leather and wool use normal and roughness maps; the source pack's seam trim is
 preserved. The old second-skin shirt author has been retired.
 
@@ -47,12 +48,26 @@ Source authors run in this order on feminine Average: `bl_source_garments.py`
 external source library and save editable blends and provenance beside each
 source. They do not download, alter bodies, or fit other bodies.
 
+Review 8 accepted those shapes and fit, and required a source material finish.
+`bl_finish_source_materials.py -- --source-root <accepted-veth_f-snapshot>
+--output-root <finished-veth_f-folder>` preserves the input snapshot and saves
+the finish separately. Run it with Blender. It bakes the blue dye out of the
+scanned linen, assigns brown-leather PBR to boots and scanned blackened-iron
+PBR with UVs to the lames, lowers the rear hood peak, and binds
+the accepted mantle drape to primary torso/shoulder joints. Inspect the finished
+feminine Average source in
+the game, copy it into `sources/fits/veth_f`, then use the same transfer
+command below. No per-fit material or shape correction is part of that pass.
+
 To transfer the entire wardrobe after source acceptance:
 
 ```powershell
 & tools/character_build/frontier/process_frontier_outfit.ps1 -Parts base_shirt,trousers,vest,gloves,boots,standing_cap,lamework_jack,lame_coif,lame_sabatons,cloak
 ```
 
-The mantle goes last so its weights follow the transferred vest and sleeves.
+The mantle goes last: Data Transfer uses the transferred vest, then the same
+primary torso/shoulder filter is applied for each fit. The jerkin source uses
+Blender smooth Mask for its concealed linen armhole seam; it avoids the
+ragged boundary produced by deleting whole faces.
 Visual acceptance remains pending until all four native motion sheets pass.
 No numerical clipping gate replaces looking at the rendered outfit.

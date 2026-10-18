@@ -11,6 +11,8 @@ each feminine Average garment. Approved MetaHuman bodies remain unchanged.
 | Linen shirt and sleeves | Elvaerwyn, `Elvs_Male_shirt_untucked_bd1`, MakeHuman community library | CC BY, as stated in the original OBJ and MHClO; no version inferred |
 | Open-face hood | Donitz, `Monk_s_robe_hood`, MakeHuman community library | CC0, as stated in both source headers |
 | Leather surface | ambientCG `Leather014`, albedo, roughness and OpenGL normal | CC0 |
+| Boot leather surface | Poly Haven `brown_leather`, albedo, ARM and OpenGL normal | CC0 |
+| Oiled/blackened iron surface | ambientCG `Metal013`, albedo, roughness, metalness and OpenGL normal | CC0 |
 | Linen and wool surfaces | Poly Haven `rough_linen` and `poly_wool_herringbone` | CC0 |
 | Glove source, short mantle panels and three sets of metal lames | Rift Studios | First-party geometry; scanned surfaces credited above |
 
@@ -19,8 +21,17 @@ join and waist/cuff finishing; scanned PBR surfaces with the source leather
 pack's registered seam normals. The other three fits use the same Surface
 Deform and Data Transfer command. The mantle is a short original panel pattern
 draped once with native Blender cloth over the body and vest, then thickened
-with Solidify and skinned to follow its underlying clothing. The hood has
+with Solidify and bound to primary torso/shoulder joints after native
+Data Transfer. Skin corrective/twist helper weights are excluded from the
+mantle. The linen armhole uses a native smooth Mask and a concealed seam. The hood has
 thickness and covers the scalp. No body deformation is part of garment fitting.
+
+The `rough_linen` photograph is blue; its dye is neutralised in the baked
+albedo to produce oatmeal linen while preserving the photographed weave.
+Iron is desaturated and roughness is clamped to 0.56–0.60. Its horizontal
+lames remain geometry; vertical seams are narrowed to remove the checker-like
+read. The hood's rear peak falls towards the shoulders. Review 8's accepted
+fit remains the source for these changes.
 
 The lamework jack, coif and sabatons use new rigid metal lames over the new
 jerkin, hood and boots. Each plate has one standard skeletal attachment; the

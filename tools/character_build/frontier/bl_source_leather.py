@@ -104,20 +104,25 @@ if part=='vest':
  matrix=shirt.matrix_world.copy();shirt.parent=None;shirt.matrix_world=matrix
  shirt.data.transform(shirt.matrix_world);shirt.matrix_world=Matrix.Identity(4)
  for modifier in list(shirt.modifiers):shirt.modifiers.remove(modifier)
+ # Native smooth Mask interpolates the armhole boundary instead of deleting
+ # whole triangles at the threshold. Keep the existing source sleeve shape.
  weights=arm_weights(shirt)
- edit=bmesh.new();edit.from_mesh(shirt.data)
- inner=[f for f in edit.faces if sum(weights[v.index] for v in f.verts)/len(f.verts)<.35]
- bmesh.ops.delete(edit,geom=inner,context='FACES')
- bmesh.ops.delete(edit,geom=[v for v in edit.verts if not v.link_faces],context='VERTS')
- boundary=[v for v in edit.verts if v.co.z>1.24 and any(e.is_boundary for e in v.link_edges)]
- for _ in range(3):bmesh.ops.smooth_vert(edit,verts=boundary,factor=.5,use_axis_x=True,use_axis_y=True,use_axis_z=True)
- edit.verts.index_update();indices=[v.index for v in boundary]
- edit.to_mesh(shirt.data);edit.free()
- if indices:
-  active(shirt);group=shirt.vertex_groups.new(name='Sewn armhole seam');group.add(indices,1,'REPLACE')
-  wrap=shirt.modifiers.new('Standard armhole seam tuck','SHRINKWRAP');wrap.target=objects[0]
-  wrap.wrap_method='NEAREST_SURFACEPOINT';wrap.wrap_mode='ON_SURFACE';wrap.offset=-.008;wrap.vertex_group=group.name
-  bpy.ops.object.modifier_apply(modifier=wrap.name);shirt.vertex_groups.remove(shirt.vertex_groups['Sewn armhole seam'])
+ group=shirt.vertex_groups.new(name='Sleeves under jerkin')
+ for index,weight in enumerate(weights):group.add([index],min(1,weight),'REPLACE')
+ active(shirt);mask=shirt.modifiers.new('Smooth sewn sleeve boundary','MASK')
+ mask.vertex_group=group.name;mask.threshold=.35;mask.use_smooth=True
+ bpy.ops.object.modifier_apply(modifier=mask.name)
+ edit=bmesh.new();edit.from_mesh(shirt.data);edit.verts.index_update()
+ sleeve_group=shirt.vertex_groups['Sleeves under jerkin'].index
+ deform=edit.verts.layers.deform.active
+ seam=[v.index for v in edit.verts if any(e.is_boundary for e in v.link_edges) and v[deform].get(sleeve_group,0)<.36]
+ edit.free()
+ group=shirt.vertex_groups.new(name='Sewn armhole seam');group.add(seam,1,'REPLACE')
+ wrap=shirt.modifiers.new('Sleeve head seam inside jerkin','SHRINKWRAP');wrap.target=objects[0]
+ wrap.wrap_method='NEAREST_SURFACEPOINT';wrap.wrap_mode='ON_SURFACE';wrap.offset=-.006;wrap.vertex_group=group.name
+ bpy.ops.object.modifier_apply(modifier=wrap.name)
+ shirt.vertex_groups.remove(shirt.vertex_groups['Sewn armhole seam'])
+ shirt.vertex_groups.remove(shirt.vertex_groups['Sleeves under jerkin'])
  objects.append(shirt)
 for obj in objects:
  obj.vertex_groups.clear()

@@ -102,6 +102,9 @@ for part in parts:
         weights.object=weight_source;weights.use_vert_data=True;weights.data_types_verts={'VGROUP_WEIGHTS'}
         weights.vert_mapping='POLYINTERP_NEAREST';weights.layers_vgroup_select_src='ALL';weights.layers_vgroup_select_dst='NAME'
         bpy.ops.object.modifier_apply(modifier=weights.name)
+    if part=='cloak' and not spring_cloak:
+        from native_clothing import bind_mantle_torso
+        bind_mantle_torso(garment,target_arm)
     if part in ('standing_cap','lame_coif'):
         garment.vertex_groups.clear();group=garment.vertex_groups.new(name='head')
         group.add(list(range(len(garment.data.vertices))),1,'REPLACE')
