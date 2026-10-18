@@ -551,6 +551,17 @@ public partial class SettingsPanel : CanvasLayer
             bars.AddChild(Toggle("interface.bar." + (bar + 1), $"Show bar {bar + 1}", "Stacked above the main bar, or at the right edge.", (ui.BarsShown & bit) != 0,
                 on => Profile(p => p with { Interface = p.Interface with { BarsShown = on ? p.Interface.BarsShown | bit : p.Interface.BarsShown & ~bit } })));
         }
+        for (int bar = 0; bar < UNNAMED.Domain.Progression.QuickBar.Bars; bar++)
+        {
+            int index = bar;
+            bars.AddChild(Slider("interface.bar_scale." + (bar + 1), $"Bar {bar + 1} size", "How large this bar's slots are drawn, from 75 to 150 % of the usual.",
+                75, 150, 5, ui.BarScales[bar] * 100, v => $"{v:0} %", v => Profile(p =>
+                {
+                    var scales = (float[])p.Interface.BarScales.Clone();
+                    scales[index] = (float)(v / 100);
+                    return p with { Interface = p.Interface with { BarScales = scales } };
+                })));
+        }
         bars.AddChild(Toggle("interface.bars_side", "Further bars at the right edge", "As columns, instead of stacked above the main bar.", ui.BarsAtSide,
             on => Profile(p => p with { Interface = p.Interface with { BarsAtSide = on } })));
         bars.AddChild(Toggle("interface.bars_locked", "Lock the bars", "Nothing can be dragged onto, off or between slots.", ui.BarsLocked,

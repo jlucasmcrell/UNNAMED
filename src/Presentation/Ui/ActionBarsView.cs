@@ -128,7 +128,7 @@ public sealed partial class ActionBarsView : Control
     public void Set(ImmutableArray<ImmutableArray<ActionSlotView>> views, int page)
     {
         var ui = SettingsStore.Current.Profile.Interface;
-        string signature = $"{page}|{ui.BarsShown}|{ui.BarsAtSide}|{ui.BarsLocked}|{HudStyle.TextScale}|{(int)GetViewportRect().Size.X}|" + string.Join("/", views.Select((bar, b) =>
+        string signature = $"{page}|{ui.BarsShown}|{ui.BarsAtSide}|{ui.BarsLocked}|{string.Join(",", ui.BarScales)}|{HudStyle.TextScale}|{(int)GetViewportRect().Size.X}|" + string.Join("/", views.Select((bar, b) =>
             b == page || b > 0 && (ui.BarsShown >> (b - 1) & 1) == 1
                 ? string.Join(",", bar.Select(s => $"{s.Id}:{s.Key}:{s.Note}:{s.Ready}:{s.CooldownSeconds}:{s.Active}:{s.Name}"))
                 : ""));
@@ -213,8 +213,10 @@ public sealed partial class ActionBarsView : Control
         row.AddThemeConstantOverride("separation", (int)Gap);
         row.MouseFilter = MouseFilterEnum.Ignore;
         var slots = bar < _views.Length ? _views[bar] : ImmutableArray<ActionSlotView>.Empty;
+        // Each bar's own scale (Settings, Interface: 75 to 150 %), over the one slot size, shrunk with the rest when the width is short.
+        float size = Math.Max(24f, _slot * SettingsStore.Current.Profile.Interface.BarScales[Math.Clamp(bar, 0, QuickBar.Bars - 1)]);
         foreach (var view in slots)
-            row.AddChild(new ActionSlot(this, view, keys, _slot));
+            row.AddChild(new ActionSlot(this, view, keys, size));
         return row;
     }
 
