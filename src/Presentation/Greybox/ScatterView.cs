@@ -725,7 +725,8 @@ public partial class ScatterView : Node3D
                 importer.GenerateLods(60, 0, boneTransforms);
                 if (OS.GetEnvironment("UNNAMED_LOAD_REPORT") == "1")
                     GD.Print($"UNNAMED scatter mesh LODs: {id} level {meshes.Count}, {Enumerable.Range(0, importer.GetSurfaceCount()).Sum(importer.GetSurfaceLodCount)} index levels");
-                merged = importer.GetMesh();
+                merged = System.Environment.GetEnvironmentVariable("UNNAMED_RUNTIME_INDEX_CACHE") == "1"
+                    ? IndexCacheMesh.Optimize(importer, alphaTestedShader: true).GetMesh() : importer.GetMesh();
             }
             // Shader displacement is invisible to CPU culling. Grow only wind-deformed model bounds, in model
             // space so each MultiMesh instance's existing rotation/scale also transforms this finite padding.
