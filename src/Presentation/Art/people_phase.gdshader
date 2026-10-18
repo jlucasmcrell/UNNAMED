@@ -28,13 +28,10 @@ void fragment() {
         ALPHA = 0.018 + registration * 0.035;
         ROUGHNESS = 0.8;
     } else {
-        float memory = sin(dot(local_point, vec3(43.0, 57.0, 29.0)) + TIME * 0.17)
-            + sin(dot(local_point, vec3(-37.0, 31.0, 47.0))) * 0.7;
-        float missing = smoothstep(-0.4, 0.45, memory);
         float feet = smoothstep(0.015, 0.23, local_point.y);
+        float edge = smoothstep(0.0, 0.42, abs(dot(normalize(NORMAL), normalize(VIEW))));
         ALBEDO = mix(vec3(0.19, 0.22, 0.26), texture(base_map, UV).rgb * base_colour.rgb, 0.45);
-        ALPHA = missing * feet * 0.66;
-        if (head_surface) { ALPHA = max(ALPHA, 0.5); }
+        ALPHA = feet * mix(0.06, head_surface ? 0.48 : 0.38, edge);
         ROUGHNESS = 1.0;
         SPECULAR = 0.0;
     }
