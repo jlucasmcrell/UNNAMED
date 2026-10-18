@@ -453,7 +453,11 @@ public partial class AnimationSheet : Node3D
                 var actual = figure.Skeleton.GetChildren().OfType<MeshInstance3D>().Where(n => n.HasMeta("outfit_garment"))
                     .Select(n => n.GetMeta("outfit_garment").AsString()).Distinct().Order(StringComparer.Ordinal).ToArray();
                 bool samePose = before.Select((pose, i) => pose == figure.Skeleton.GetBonePose(i)).All(equal => equal);
-                bool pass = expected.SequenceEqual(actual) && samePose;
+                bool namedBinds = figure.Skeleton.GetChildren().OfType<MeshInstance3D>()
+                    .Where(n => n.HasMeta("outfit_garment") && n.Skin is not null)
+                    .All(mesh => Enumerable.Range(0, mesh.Skin!.GetBindCount()).All(bind =>
+                        !mesh.Skin!.GetBindName(bind).IsEmpty && figure.Skeleton.FindBone(mesh.Skin!.GetBindName(bind)) >= 0));
+                bool pass = expected.SequenceEqual(actual) && samePose && namedBinds;
                 var masks = figure.Skeleton.GetChildren().OfType<MeshInstance3D>().Where(n => !n.HasMeta("outfit_garment"))
                     .ToDictionary(n => n.Name.ToString(), n =>
                         (Region: n.GetInstanceShaderParameter("region_hidden_mask").AsInt32(),
@@ -464,7 +468,7 @@ public partial class AnimationSheet : Node3D
                     pass &= baseMasks is not null && masks.Any(m => baseMasks[m.Key] != m.Value);
                 else if (name == "unequip")
                     pass &= baseMasks is not null && masks.All(m => baseMasks[m.Key] == m.Value);
-                string result = $"Equipment probe {name}: expected={string.Join(',', expected)}, drawn={string.Join(',', actual)}, unchanged_pose={samePose}, pass={pass}";
+                string result = $"Equipment probe {name}: expected={string.Join(',', expected)}, drawn={string.Join(',', actual)}, unchanged_pose={samePose}, named_binds={namedBinds}, pass={pass}";
                 _notes.Add(result);
                 GD.Print(result);
                 if (!pass)

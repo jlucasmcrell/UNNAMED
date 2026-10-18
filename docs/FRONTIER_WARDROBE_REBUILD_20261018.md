@@ -26,9 +26,18 @@ under the owner's subsequent standard-pipeline ruling.
 
 The active private root is `D:\Otherreach_Scratch\frontier_native_20261018`.
 Exact copies of the approved Creator characters are inputs; no body sculpt,
-conform, measurement or cloud request is used. Native outfit preview and export
-leave the source body's geometry digest unchanged. Native body/head removal
-settings explicitly use zero shrink distance.
+conform, measurement or cloud request is used. The conforming base-mesh digest
+stays unchanged through native preview/build. This alone does not prove that
+the built output matches an approved variant. Native body/head removal settings
+explicitly use zero shrink distance.
+
+An independent comparison of actual FBX output against the original approved
+body passes for the masculine average: all 341 native joint positions match,
+and every retained dressed-body vertex matches exactly. The feminine Lean
+control FAILS this stronger check (16.863 mm joint mismatch, 10.406 mm maximum
+nearest surface mismatch). That output is rejected. The next native resize
+control must take the actual approved mesh as its fixed reference; the body
+must never be changed to make this output fit.
 
 The supplied Epic default outfit successfully produced a fitted clothing
 skeletal mesh. Full optimized character assembly subsequently failed in the
@@ -88,11 +97,12 @@ wing-channel comparison are also not implemented by these item definitions.
 - Engine lint: 426 definitions, zero errors after adding the three items/recipes.
 - Focused content rerun: 36 pass, zero failures after extending the explicit
   recipe-catalogue pin for the three new recipes.
-- Latest completed full serial invocation: 1791 pass, three stale recipe/catalogue
-  expectation failures, three existing long skips. All three expectations are
-  corrected and pass individually (combined coverage 1794 passes). A clean full
-  invocation is running; full-suite pass is not yet claimed. The prior AsyncSave
-  cleanup case passed unchanged in the latest serial invocation.
+- Full default Release invocation at `c07be313`: 1794 pass, zero failures,
+  three existing long skips. This follows corrections to three recipe/catalogue
+  expectations and a flaky chat-test assumption: one real hunt template omits
+  the meeting place. The test now checks the stored anchor and all used slots
+  across all 40 real hunt variants. No chat/game behaviour changed. The previous
+  AsyncSave cleanup case also passes unchanged.
 - Three private mask-boundary regressions pass: drawn cut-edge endpoints,
   midpoint-only hole, and UV-seam welding/natural boundaries. This checks the
   diagnostic, not garment acceptance.
@@ -120,6 +130,14 @@ garment asset IDs (not the number of imported LOD meshes), proves current bone
 poses remain identical, and checks the body mask changes on equip and returns
 to its original value on unequip. Headless reports contain checks, not images.
 GPU/native visual and complete wardrobe acceptance remain pending.
+
+Modular meshes now use Godot's named skin binds when they join the body. Bone
+numbering can differ between native exports; inverse bind matrices and current
+body poses are retained. Shared skins are converted once per loaded garment.
+The native headless equipment probe additionally verifies every garment bind
+names an existing body joint. All seven cases pass; Debug Presentation245 and
+the renderer build pass. The full `c07be313` invocation predates this later
+renderer change, so it is not presented as validation of that change.
 
 No zero-clipping claim, shared C integration, performance acceptance or release
 candidate is ready yet.

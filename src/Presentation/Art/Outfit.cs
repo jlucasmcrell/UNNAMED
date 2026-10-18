@@ -63,9 +63,34 @@ public static partial class Outfit
             if (json.RootElement.TryGetProperty("chains", out var chains))
                 Springs(figure.Skeleton, id, chains);
             CharacterMaterials.ApplyLods(model);
+            var sourceSkeleton = ArtLibrary.Find<Skeleton3D>(model);
+            var namedSkins = new Dictionary<Skin, Skin>();
             var meshes = model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>().ToList();
             foreach (var mesh in meshes)
             {
+                // Modular exports can number the same bones differently. Godot's
+                // named binds keep the native joint identity when the mesh moves.
+                if (mesh.Skin is { } sourceSkin)
+                {
+                    if (!namedSkins.TryGetValue(sourceSkin, out var named))
+                    {
+                        named = new Skin();
+                        for (int bind = 0; bind < sourceSkin.GetBindCount(); bind++)
+                        {
+                            var name = sourceSkin.GetBindName(bind);
+                            if (name.IsEmpty)
+                            {
+                                int bone = sourceSkin.GetBindBone(bind);
+                                if (sourceSkeleton is null || bone < 0 || bone >= sourceSkeleton.GetBoneCount())
+                                    throw new InvalidDataException($"{id}: skin bind {bind} has no source joint");
+                                name = sourceSkeleton.GetBoneName(bone);
+                            }
+                            named.AddNamedBind(name, sourceSkin.GetBindPose(bind));
+                        }
+                        namedSkins.Add(sourceSkin, named);
+                    }
+                    mesh.Skin = named;
+                }
                 mesh.Owner = null;
                 mesh.GetParent().RemoveChild(mesh);
                 figure.Skeleton.AddChild(mesh);
