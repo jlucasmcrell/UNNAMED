@@ -1,6 +1,6 @@
 # Frontier performance
 
-Base: `b809f3ae`, schema 30. Baseline preparation; no rendering optimizations or performance pass claimed yet.
+Base: `b809f3ae`, schema 30. Profiling and rendering corrections in progress; no performance pass claimed.
 
 ## Benchmark
 
@@ -97,4 +97,48 @@ captures stay archived separately and do not establish the post-warm-up hitch ga
 The loader-only pilot missed duplicated fence pieces and rigged LODs (294 wrong shadow states).
 Registration now watches actual scene instances, including later spawns, after construction/Ready.
 The culler also preserves external first-person/FoldEcho shadow-mode changes and releases freed
-instances. The full-High live-scene pilot is pending; no completed coverage or FPS pass is claimed.
+instances. Full-High drain pilots are complete; full location coverage remains in progress.
+
+## Full native Terrain3D results in progress
+
+Evidence root: `D:\Otherreach_Scratch\frontier`. These use native Terrain3D, High/default Sky3D,
+1920 x 1080 on BEAST's RTX 3090. Earlier fallback-ground runs are excluded. Concurrent work is
+recorded in `cpu_load.csv`; these are separate from the pending owner-gated idle option-off A/B.
+
+| Baseline location | Lowest heading average FPS | Lowest heading 1% low FPS | Result |
+|---|---:|---:|---|
+| Ashen waystation | 30.7 | 28.4 | Fail |
+| Ashen lodge | 31.2 | 17.3 | Fail |
+| Cairnwold village | 24.1 | 22.1 | Fail |
+| Cairnwold lodge | 25.0 | 16.0 | Fail |
+
+Each location retains eight headings and strict over-33-ms counts in the raw frame data. The drain's
+full-native unmodified baseline still needs recapture: the batch had passed that point before its
+fallback-ground evidence was rejected. The modified diagnostic below is not a substitute baseline.
+
+Drain diagnostic `trial/drain_runtime_mesh_lods`, source `e8a6aaf9`, combines:
+
+- Shadow bands expanded across the complete authored fade/hysteresis interval: **10,781 bands,
+  zero incorrect states** in the captured live scene.
+- Native transform notifications replacing repeated bounds polling. Mean shadow-culling CPU
+  time falls from 6.418 ms in the preceding diagnostic to 1.372 ms (p99 1.980 ms).
+  `res://Perf/ShadowLodsCheck.tscn` checks parent movement before polling, camera changes,
+  shadow-only modes, unchanged visibility/GI, late spawns and disposal.
+- Godot's built-in projected-error LOD generation for large static runtime GLTF imports.
+  Runtime loading bypasses editor LOD generation. Near geometry/materials remain authored;
+  skins, blend shapes and animation imports are excluded. Generation adds 8.433 seconds over
+  149 imports at startup in this run; the largest single import takes 1.009 seconds.
+
+This detailed GPU profile, not final unprofiled acceptance, reaches 31.5 FPS in its slowest heading
+and still fails. Point-light shadows are about 0.5 ms; opaque/depth/directional geometry remains costly.
+Scatter's surface merge copies near arrays and discards imported LOD indices. A follow-up regenerates
+LODs after that merge, retaining plant placements, materials and wind bounds; rendered validation is pending.
+
+An early alpha-discard shader experiment showed no material gain and was reverted. A recurring
+approximately 50-ms simulation callback remains unassigned. Benchmark-only `slow_simulation.csv`
+records ticks, autosave activity and GC pause time; no ticks or samples are removed to hide it.
+`process_phases.csv` records callback work, observed in the following wall interval, not exact GPU alignment.
+
+On integration, bump the later Barrowworks native scene cache format and rebuild into a new owned
+asset root. Older cached scenes lack generated LOD indices and bypass the importer. Never rewrite
+the immutable shared primary or its junctioned texture cache.
