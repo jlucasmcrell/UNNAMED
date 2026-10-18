@@ -102,6 +102,12 @@ public class PlayerRecordCompletenessTests
                 Attack = new AttackRecord("item.weapon.iron_sword", 4_200, ImmutableArray.Create(
                     EntityId.Create(EntityKind.Creature, 1_700_000_000_101, new byte[] { 7, 7, 7, 7, 7, 7, 7, 7, 7, 1 }),
                     EntityId.Create(EntityKind.Creature, 1_700_000_000_102, new byte[] { 7, 7, 7, 7, 7, 7, 7, 7, 7, 2 }))),
+                // An experiment that hinted and one that came to nothing (schema 31).
+                Findings = ImmutableArray.Create(
+                    new Domain.Crafting.Finding(
+                        Domain.Crafting.FindingKind.Nothing, "station.fixture_hearth", "hearth", null, ImmutableArray<string>.Empty, 4_600),
+                    new Domain.Crafting.Finding(
+                        Domain.Crafting.FindingKind.Hint, "station.fixture_hearth", "hearth", "recipe.alchemy.salve_minor", ImmutableArray.Create("item.potion.minor_healing"), 4_800)),
             };
     }
 

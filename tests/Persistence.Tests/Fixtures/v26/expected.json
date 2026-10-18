@@ -419,7 +419,8 @@
     ],
     "attack": null,
     "space_id": "",
-    "space_traversal": null
+    "space_traversal": null,
+    "findings": []
   },
   "cells": [
     {

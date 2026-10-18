@@ -35,6 +35,7 @@ using V25 = UNNAMED.Persistence.Sections.V25;
 using V26 = UNNAMED.Persistence.Sections.V26;
 using V28 = UNNAMED.Persistence.Sections.V28;
 using V29 = UNNAMED.Persistence.Sections.V29;
+using V30 = UNNAMED.Persistence.Sections.V30;
 
 namespace UNNAMED.Persistence;
 
@@ -111,7 +112,8 @@ public static class SchemaMigrations
         new SchemaV26ToV27(),
         new SchemaV27ToV28(),
         new SchemaV28ToV29(),
-        new SchemaV29ToV30());
+        new SchemaV29ToV30(),
+        new SchemaV30ToV31());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -1593,7 +1595,7 @@ public sealed class SchemaV29ToV30 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V29.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V30.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -1643,6 +1645,63 @@ public sealed class SchemaV29ToV30 : SchemaMigration
                 Attack = old.Attack,
                 SpaceId = "",
                 SpaceTraversal = null,
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 30 to 31 (UI progression F): the player keeps its Findings, what each experiment at a station taught. No save before it recorded
+/// one, so every older player has none. Every older field is copied one by one, since the frozen shape and the live DTO are different
+/// types.
+/// </summary>
+public sealed class SchemaV30ToV31 : SchemaMigration
+{
+    public override int From => 30;
+
+    public override string Summary => "schema 30 -> 31: the player keeps its Findings (none before)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V30.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions,
+                Posture = old.Posture,
+                Waystones = old.Waystones,
+                ReturnPoint = old.ReturnPoint,
+                RoadsWalked = old.RoadsWalked,
+                Deeds = old.Deeds,
+                Identity = old.Identity,
+                Factions = old.Factions,
+                Party = old.Party,
+                QuickBar = old.QuickBar,
+                PartySheets = old.PartySheets,
+                Attack = old.Attack,
+                SpaceId = old.SpaceId,
+                SpaceTraversal = old.SpaceTraversal,
+                Findings = Array.Empty<FindingDto>(),
             }, options);
         }
         document.Manifest["schema_version"] = To;
