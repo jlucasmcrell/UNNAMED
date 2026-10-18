@@ -1060,30 +1060,30 @@
  },
  "weapons": {
   "item.weapon.rusted_sword": {
-   "model": "weapon_arming_sword",
+   "model": "weapon_real_arming_sword",
    "family": "sword",
    "note": "The playable prototype manifest's rusted_sword slot."
   },
   "item.weapon.hunting_bow": {
-   "model": "weapon_yew_longbow_warbow",
+   "model": "weapon_real_longbow",
    "family": "bow",
    "hand": "off_hand",
    "note": "The manifest's hunting_bow slot."
   },
   "item.weapon.haldas_bow": {
-   "model": "weapon_yew_longbow_warbow",
+   "model": "weapon_real_longbow",
    "family": "bow",
    "hand": "off_hand",
    "note": "Halda's Bow draws as the hunting bow until it has its own model."
   },
   "item.weapon.march_spear": {
-   "model": "weapon_boar_spear_hunting",
+   "model": "weapon_real_hunting_spear",
    "family": "polearm",
    "note": "The manifest's polearm family (weapon_march_spear has no grip socket)."
   }
  },
  "companion_weapon": {
-  "model": "weapon_boar_spear_hunting",
+  "model": "weapon_real_hunting_spear",
   "family": "polearm"
  },
  "projectiles": {
