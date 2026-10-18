@@ -619,9 +619,15 @@ public sealed class ArtLibrary
         using var document = parsed?.Document ?? new GltfDocument();
         using var state = parsed?.State ?? new GltfState();
         var error = parsed?.Error ?? document.AppendFromFile(path, state);
-        if (error != Error.Ok || document.GenerateScene(state) is not Node3D root)
+        if (error != Error.Ok)
         {
             Problem(id, $"the glTF would not load ({error})");
+            return null;
+        }
+        GenerateStaticMeshLods(state, id);
+        if (document.GenerateScene(state) is not Node3D root)
+        {
+            Problem(id, "the glTF did not produce a 3D scene");
             return null;
         }
         // Each texture by its image's index in the file, for the texture cache.
@@ -661,6 +667,43 @@ public sealed class ArtLibrary
             GD.Print($"UNNAMED native scene built: {native}");
         }
         return packed;
+    }
+
+    // Runtime GLTF loading bypasses the editor's mesh-LOD generation. Keep the authored
+    // close-up mesh and materials; let Godot select index LODs by projected error in each pass.
+    private static void GenerateStaticMeshLods(GltfState state, string id)
+    {
+        if (System.Environment.GetEnvironmentVariable("UNNAMED_RUNTIME_MESH_LODS") == "0"
+            || id.StartsWith("anim.", StringComparison.Ordinal)) return;
+        var skins = state.GetSkins();
+        bool skinned = skins.Count > 0;
+        ((Godot.Collections.Array)skins).Dispose();
+        if (skinned) return;
+        ulong started = Time.GetTicksUsec();
+        int generated = 0;
+        var meshes = state.GetMeshes();
+        foreach (var entry in meshes)
+        {
+            var mesh = entry.Mesh;
+            if (mesh is null || mesh.GetBlendShapeCount() > 0) continue;
+            long indices = 0;
+            bool existing = false;
+            for (int surface = 0; surface < mesh.GetSurfaceCount(); surface++)
+            {
+                existing |= mesh.GetSurfaceLodCount(surface) > 0;
+                using var arrays = mesh.GetSurfaceArrays(surface);
+                indices += arrays[(int)Mesh.ArrayType.Index].VariantType == Variant.Type.Nil
+                    ? arrays[(int)Mesh.ArrayType.Vertex].AsVector3Array().Length
+                    : arrays[(int)Mesh.ArrayType.Index].AsInt32Array().Length;
+            }
+            if (existing || indices < 30_000) continue; // Small props/scatter already have authored bands.
+            using var boneTransforms = new Godot.Collections.Array();
+            mesh.GenerateLods(60, 0, boneTransforms);
+            generated++;
+        }
+        ((Godot.Collections.Array)meshes).Dispose();
+        if (generated > 0 && OS.GetEnvironment("UNNAMED_LOAD_REPORT") == "1")
+            GD.Print($"UNNAMED runtime mesh LODs: {id}, {generated} static meshes in {(Time.GetTicksUsec() - started) / 1000.0:0.0} ms");
     }
 
     /// <summary>
