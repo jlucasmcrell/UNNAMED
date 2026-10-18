@@ -562,7 +562,7 @@ public partial class Main : Node3D
         {
             SizeForCapture();
             _hud.Visible = false;
-            _skyShots = new SkyShots(_session, _controller, _camera, Path.GetFullPath(skyShots));
+            _skyShots = new SkyShots(_session, _controller, _camera, Path.GetFullPath(skyShots), _flags.Contains("--sky-calendar-only"));
         }
         else if (_options.TryGetValue("--frontier-perf", out string? frontierPerf))
         {
