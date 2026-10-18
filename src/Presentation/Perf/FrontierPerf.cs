@@ -138,6 +138,11 @@ public sealed class FrontierPerf
                 };
             }).ToArray();
         File.WriteAllText(Path.Combine(Directory, "geometry.json"), JsonSerializer.Serialize(meshes));
+        var occluders = _viewport.GetTree().CurrentScene.FindChildren("*", nameof(OccluderInstance3D), true, false)
+            .OfType<OccluderInstance3D>().Select(n => new { path = n.GetPath().ToString(), n.Visible,
+                vertices = n.Occluder?.GetVertices().Length, indices = n.Occluder?.GetIndices().Length }).ToArray();
+        File.WriteAllText(Path.Combine(Directory, "occlusion.json"), JsonSerializer.Serialize(new
+            { enabled = _viewport.UseOcclusionCulling, occluders }));
         var lights = _viewport.GetTree().CurrentScene.FindChildren("*", "Light3D", true, false).OfType<Light3D>().Select(light => new
         {
             path = light.GetPath().ToString(), type = light.GetClass().ToString(),

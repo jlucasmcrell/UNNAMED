@@ -906,6 +906,7 @@ public partial class Main : Node3D
         AddChild(_hits);
         _hits.Bind(_assets.Root);
         _shadowLods.Watch(this);
+        GetViewport().UseOcclusionCulling = System.Environment.GetEnvironmentVariable("UNNAMED_BUILDING_OCCLUSION") != "0";
         if (_avatar is Avatar glowing && _magicEffects.HasCastCharge)
             glowing.WorkingGlow = false;
     }

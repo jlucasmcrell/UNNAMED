@@ -643,6 +643,7 @@ public sealed class ArtLibrary
         }
         ((Godot.Collections.Array)loaded).Dispose();
         Filter(root, path, images);
+        AddBuildingOccluders(root, id);
         var packed = new PackedScene();
         error = packed.Pack(root);
         root.Free();
@@ -667,6 +668,42 @@ public sealed class ArtLibrary
             GD.Print($"UNNAMED native scene built: {native}");
         }
         return packed;
+    }
+
+    private static void AddBuildingOccluders(Node3D root, string id)
+    {
+        if (!id.StartsWith("bld_", StringComparison.Ordinal)
+            || id.EndsWith("_lod1", StringComparison.Ordinal) || id.EndsWith("_lod2", StringComparison.Ordinal) || id.EndsWith("_lod3", StringComparison.Ordinal)
+            || System.Environment.GetEnvironmentVariable("UNNAMED_BUILDING_OCCLUSION") == "0"
+            || root.FindChildren("*", nameof(AnimationPlayer), true, false).Count > 0) return;
+        foreach (var node in root.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+        {
+            if (!node.Visible || node.Skin is not null || node.Mesh is not ArrayMesh mesh) continue;
+            var vertices = new List<Vector3>();
+            var indices = new List<int>();
+            for (int s = 0; s < mesh.GetSurfaceCount(); s++)
+            {
+                // Use the actual opaque triangles, preserving window/door holes. Alpha-tested,
+                // transparent and custom-shader surfaces cannot be trusted as solid occluders.
+                if (mesh.SurfaceGetPrimitiveType(s) != Mesh.PrimitiveType.Triangles
+                    || node.GetActiveMaterial(s) is not BaseMaterial3D { Transparency: BaseMaterial3D.TransparencyEnum.Disabled } material
+                    || material.NoDepthTest || material.DepthDrawMode == BaseMaterial3D.DepthDrawModeEnum.Disabled) continue;
+                using var arrays = mesh.SurfaceGetArrays(s);
+                var points = arrays[(int)Mesh.ArrayType.Vertex].AsVector3Array();
+                int offset = vertices.Count;
+                vertices.AddRange(points);
+                if (arrays[(int)Mesh.ArrayType.Index].VariantType == Variant.Type.Nil)
+                    for (int i = 0; i < points.Length; i++) indices.Add(offset + i);
+                else
+                    foreach (int i in arrays[(int)Mesh.ArrayType.Index].AsInt32Array()) indices.Add(offset + i);
+            }
+            if (indices.Count == 0) continue;
+            var shape = new ArrayOccluder3D();
+            shape.SetArrays(vertices.ToArray(), indices.ToArray());
+            var occluder = new OccluderInstance3D { Name = "OpaqueBuildingOccluder", Occluder = shape };
+            node.AddChild(occluder);
+            occluder.Owner = root; // It must survive PackedScene.Pack/Instantiate, like the imported mesh.
+        }
     }
 
     // Runtime GLTF loading bypasses the editor's mesh-LOD generation. Keep the authored
