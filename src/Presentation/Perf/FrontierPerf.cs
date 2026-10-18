@@ -112,6 +112,8 @@ public sealed class FrontierPerf
                     visible_in_tree = node.IsVisibleInTree(), shadows = node.CastShadow.ToString(), gi = node.GIMode.ToString(),
                     authored_shadows = node.HasMeta("shadow_lod_original") ? node.GetMeta("shadow_lod_original").AsString() : node.CastShadow.ToString(),
                     range_begin = node.VisibilityRangeBegin, range_end = node.VisibilityRangeEnd,
+                    range_begin_margin = node.VisibilityRangeBeginMargin, range_end_margin = node.VisibilityRangeEndMargin,
+                    fade_mode = node.VisibilityRangeFadeMode.ToString(),
                     bounds_min = new[] { bounds.Position.X, bounds.Position.Y, bounds.Position.Z },
                     bounds_size = new[] { bounds.Size.X, bounds.Size.Y, bounds.Size.Z },
                     distance_to_camera = bounds.GetCenter().DistanceTo(_camera.Camera.GlobalPosition),

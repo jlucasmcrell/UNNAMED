@@ -2,7 +2,7 @@ using Godot;
 
 namespace UNNAMED.Presentation.Art;
 
-/// <summary>Point-shadow culling ignores visibility ranges. Mirror the authored hard bands
+/// <summary>Point-shadow culling ignores visibility ranges. Mirror the authored bands
 /// in CastShadow, leaving node visibility and static GI geometry alone.</summary>
 public sealed class ShadowLods
 {
@@ -48,11 +48,12 @@ public sealed class ShadowLods
                 || node.GetViewport() != _root.GetViewport() || !_root.IsAncestorOf(node)
                 || node.CastShadow == GeometryInstance3D.ShadowCastingSetting.Off
                 || node.VisibilityRangeBegin == 0 && node.VisibilityRangeEnd == 0
-                || node.VisibilityRangeFadeMode != GeometryInstance3D.VisibilityRangeFadeModeEnum.Disabled
                 || !_known.Add(node.GetInstanceId())) continue;
             var bounds = node.CustomAabb.Size == Vector3.Zero ? node.GetAabb() : node.CustomAabb;
-            _bands.Add(new Band(node, bounds.GetCenter(), node.VisibilityRangeBegin * node.VisibilityRangeBegin,
-                node.VisibilityRangeEnd * node.VisibilityRangeEnd));
+            // Keep both levels throughout the complete authored fade/hysteresis interval.
+            float begin = Math.Max(0, node.VisibilityRangeBegin - node.VisibilityRangeBeginMargin);
+            float end = node.VisibilityRangeEnd > 0 ? node.VisibilityRangeEnd + node.VisibilityRangeEndMargin : 0;
+            _bands.Add(new Band(node, bounds.GetCenter(), begin * begin, end * end));
             node.SetMeta("shadow_lod_original", node.CastShadow.ToString());
         }
         _pending.Clear();

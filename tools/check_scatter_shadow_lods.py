@@ -17,12 +17,12 @@ def check(rows):
             continue
         checked += 1
         distance = band["distance_to_camera"]
-        expected = distance >= band["range_begin"] and (
-            not band["range_end"] or distance < band["range_end"])
+        begin = max(0, band["range_begin"] - band.get("range_begin_margin", 0))
+        end = band["range_end"] + band.get("range_end_margin", 0) if band["range_end"] else 0
+        expected = distance >= begin and (not end or distance < end)
         actual = band["shadows"] != "Off"
         # Floating-point squaring/transform rounding at the native boundary is insignificant.
-        boundary = abs(distance - band["range_begin"]) < 0.0001 or (
-            band["range_end"] and abs(distance - band["range_end"]) < 0.0001)
+        boundary = abs(distance - begin) < 0.0001 or (end and abs(distance - end) < 0.0001)
         if actual != expected and not boundary:
             failures.append(f'{band["path"]}, d={distance:.3f}, '
                             f'band={band["range_begin"]}..{band["range_end"]}, '
