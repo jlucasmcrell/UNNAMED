@@ -81,7 +81,7 @@ render_mode cull_back, depth_draw_opaque;
 global uniform vec4 wind;
 global uniform float wind_gust;
 // ow_late is a breath-late sway: the gust that crosses the ground reaches this tree seconds after its neighbours (Old Late).
-uniform float ow_late = 0.0;
+instance uniform float ow_late = 0.0;
 #ifdef OTHERWORLD" + Otherworld.FieldGlsl + @"
 // Otherworld (Otherworld.Variant), at full strangeness: the leaves turn toward blue-green, the bark's shade toward violet.
 uniform float ow_hue = -40.0;
@@ -93,6 +93,8 @@ const float CYCLE = 6.28318530718 / 3600.0;
 uniform sampler2D albedo_tex : source_color, filter_linear_mipmap_anisotropic;
 uniform bool has_albedo = false;
 uniform vec4 albedo_colour : source_color = vec4(1.0);
+instance uniform vec4 tree_tint : source_color = vec4(1.0);
+uniform bool use_instance_tint = false;
 uniform sampler2D normal_tex : hint_normal, filter_linear_mipmap_anisotropic;
 uniform bool has_normal = false;
 uniform sampler2D roughness_tex : hint_default_white, filter_linear_mipmap_anisotropic;
@@ -100,8 +102,8 @@ uniform bool has_roughness = false;
 uniform float roughness_value = 0.9;
 uniform bool foliage = false;
 uniform float alpha_cut = 0.5;
-uniform float tree_height = 13.0;
-uniform float stiffness = 1.0;
+instance uniform float tree_height = 13.0;
+instance uniform float stiffness = 1.0;
 
 void vertex() {
     vec3 origin = (MODEL_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
@@ -130,7 +132,8 @@ void vertex() {
 
 void fragment() {
     vec4 a = has_albedo ? texture(albedo_tex, UV) : vec4(1.0);
-    ALBEDO = a.rgb * albedo_colour.rgb;
+    vec4 colour = albedo_colour * (use_instance_tint ? tree_tint : vec4(1.0));
+    ALBEDO = a.rgb * colour.rgb;
 #ifdef OTHERWORLD
     if (strange > 0.0) {
         float l = dot(ALBEDO, vec3(0.2126, 0.7152, 0.0722));
@@ -139,7 +142,7 @@ void fragment() {
     }
 #endif
     if (foliage) {
-        ALPHA = a.a * albedo_colour.a;
+        ALPHA = a.a * colour.a;
         ALPHA_SCISSOR_THRESHOLD = alpha_cut;
         // A LEAF TRANSMITS LIGHT, AND THE LEAVES THAT MOST NEED IT ARE THE ONES FACING AWAY. Measured: a birch crown
     // rendered at mean luma 92 against 145 as authored, while albedo, texture and per-instance tint all arrived
