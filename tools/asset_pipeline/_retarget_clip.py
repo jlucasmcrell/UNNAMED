@@ -477,7 +477,9 @@ class Retarget:
             return W
         mid = np.mean([W[self.src.index[n]][:3, 3] for n in self.mid_src], axis=0)
         if self._pin_ref is None:
-            self._pin_ref = mid
+            # the source's REST position, not the clip's first frame: a take captured away from the capture origin (the Rokoko sword
+            # takes start 1.3-1.9 m out) otherwise keeps that offset on every frame and the body stands that far from its own feet
+            self._pin_ref = self.mid_s0
         d = (mid - self._pin_ref) * self.pin_hips
         d[1] = 0.0
         out = []

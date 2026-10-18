@@ -572,8 +572,8 @@
      "sword_block": "player.mh.sword_block_mc",
      "bow_ready": "player.mh.bow_ready_mc",
      "bow_draw": "player.mh.bow_draw_mc",
-     "spear_ready": "player.mh.spear_ready",
-     "spear_thrust": "player.mh.spear_thrust",
+     "spear_ready": "player.mh.spear_ready_mc",
+     "spear_thrust": "player.mh.spear_thrust_mc",
      "cast": "player.mh.cast",
      "hit": "player.mh.hit_mc",
      "death": "player.mh.death_mc"
@@ -612,8 +612,8 @@
      "sword_block": "player.mh.sword_block_mc",
      "bow_ready": "player.mh.bow_ready_mc",
      "bow_draw": "player.mh.bow_draw_mc",
-     "spear_ready": "player.mh.spear_ready",
-     "spear_thrust": "player.mh.spear_thrust",
+     "spear_ready": "player.mh.spear_ready_mc",
+     "spear_thrust": "player.mh.spear_thrust_mc",
      "cast": "player.mh.cast",
      "hit": "player.mh.hit_mc",
      "death": "player.mh.death_mc"

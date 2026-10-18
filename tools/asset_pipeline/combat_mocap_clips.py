@@ -29,7 +29,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 BLENDER = r"C:\Program Files\Blender Foundation\Blender 5.2\blender.exe"
 DEPOT = r"C:\Otherreach_Recovery\Otherreach_Playtest_RESTORE_20261015b\primary"
 PROD_TARGET = os.path.join(DEPOT, "rigged", "pc_veth_m_body_c", "pc_veth_m_body_c_rigged.glb")
-MH_TARGET = r"C:\Otherreach_Recovery\asset_work\metahuman\work\assembled\mh_veth_m\mh_veth_m_rigged.glb"
+# the rig the game ships (game_ws fallback, 2026-10-16): the later work\assembled rig carries corrective joints the maps do not declare
+MH_TARGET = r"C:\Otherreach_Recovery\asset_work\metahuman\game_ws\fallback\rigged\mh_veth_m\mh_veth_m_rigged.glb"
 CUTS = r"D:\Otherreach_Scratch\anim\src2\cuts"
 ROKOKO = r"D:\Otherreach_Depot\Rokoko_Free_263\Rokoko Studio (Mocap)"
 MIXAMO = r"D:\Otherreach_Depot\Mixamo_20261017"
