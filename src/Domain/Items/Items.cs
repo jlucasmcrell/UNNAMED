@@ -341,6 +341,12 @@ public sealed record ItemDefinition(
 
     /// <summary>How it is repaired at a station (WP3b); null when no station repairs it.</summary>
     public RepairSpec? Repair { get; init; }
+
+    /// <summary>What a bag is, for an item that is one (stack_max 1); null for everything else. A bag is equipped into a bag slot.</summary>
+    public BagSpec? Bag { get; init; }
+
+    /// <summary>The kind of thing it is for a specialised bag to take (<see cref="PackKinds"/>); null takes the default, material for a material.</summary>
+    public string? PackKind { get; init; }
 }
 
 /// <summary>The item definitions content defines, by ID.</summary>
@@ -373,6 +379,9 @@ public sealed record InventoryRules(int StackSlots, long CarryBaseGrams, long Ca
 
     /// <summary>The laden band (WP3b, D4).</summary>
     public LadenRules Laden { get; init; } = LadenRules.Default;
+
+    /// <summary>Bags and the stash (owner request, 2026-10-18).</summary>
+    public BagRules Bags { get; init; } = BagRules.Default;
 
     public long CarryLimitGrams(CharacterProgression progression, ProgressionRules rules) =>
         CarryBaseGrams + CarryGramsPerMight * ProgressionEngine.AttributeValue(progression, CharacterAttribute.Might, rules);

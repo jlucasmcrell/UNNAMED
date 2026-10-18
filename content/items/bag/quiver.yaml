@@ -1,0 +1,15 @@
+id: item.bag.quiver
+kind: item
+schema: 1
+display_key: item.bag.quiver.name
+tags: [item]
+name: Quiver
+notes: "A hide quiver that holds arrows and nothing else - four stacks of them."
+category: bag
+stack_max: 1
+weight: 0.4
+value_base: 25
+rarity: common
+bag:
+  slots: 4
+  accepts: [ammo]

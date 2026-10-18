@@ -6,6 +6,7 @@ tags: [item]
 name: Rough Arrow
 notes: Stacks of 20, spent on firing (PROTOTYPE.md §4.2). Its category is misc - the bow names its ammunition.
 category: misc
+pack_kind: ammo   # rides in a quiver
 stack_max: 20
 weight: 0.05
 value_base: 1

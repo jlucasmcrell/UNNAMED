@@ -178,6 +178,7 @@ internal sealed class RuntimeState
         QuickBar = player.QuickBar;
         ExtraBars = player.ExtraBars;
         GearSets = player.GearSets;
+        Bags = player.Bags;
         QuickBarCleared = player.QuickBarCleared.ToImmutableSortedSet(StringComparer.Ordinal);
         PartySheets = player.PartySheets.ToImmutableSortedDictionary(p => p.NpcId, p => p, StringComparer.Ordinal);
         Findings = player.Findings;
@@ -228,6 +229,9 @@ internal sealed class RuntimeState
 
     /// <summary>The character's gear sets, by place.</summary>
     public ImmutableArray<GearSet> GearSets { get; private set; }
+
+    /// <summary>The bags equipped in the bag slots: the carried bag in each, or null (schema 33). Owned with the inventory.</summary>
+    public ImmutableArray<EntityId?> Bags { get; private set; }
 
     /// <summary>The six action bars, the quick bar first.</summary>
     public ImmutableArray<ImmutableArray<string?>> ActionBars => ExtraBars.Insert(0, QuickBar);
@@ -435,6 +439,14 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.PlayerInventory);
         Inventory = inventory.OrderBy(e => e.ItemId.Value, StringComparer.Ordinal).ToImmutableArray();
+    }
+
+    public void SetBags(SliceOwner owner, ImmutableArray<EntityId?> bags)
+    {
+        Require(owner, StateSlice.PlayerInventory);
+        if (bags.Length != UNNAMED.Domain.Items.PackLimits.BagSlots)
+            throw new InvalidOperationException("The pack has a fixed number of bag slots");
+        Bags = bags;
     }
 
     public void SetCurrency(SliceOwner owner, long currency)

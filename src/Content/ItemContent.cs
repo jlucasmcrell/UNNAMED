@@ -70,6 +70,12 @@ public static class ItemContent
             if (rules.Laden.BandPercent is < 1 or > 99 || rules.Laden.SprintDrainPercent < 100 || rules.Laden.DodgeCostPercent < 100)
                 throw new FormatException("config.inventory laden: band_percent in [1, 99], and the sprint drain and dodge cost at least 100 (percent of usual)");
         }
+        if (map.GetValueOrDefault("bags") is Dictionary<object, object> bags)
+        {
+            rules = rules with { Bags = new BagRules(Int(bags, "slots_per_quality_step"), Grams(bags, "stash_pull_radius_m")) };
+            if (rules.Bags.SlotsPerQualityStep is < 0 or > 4 || rules.Bags.StashPullRadiusMm < 0)
+                throw new FormatException("config.inventory bags: slots_per_quality_step in [0, 4] and a stash_pull_radius_m of at least 0");
+        }
         if (rules.StackSlots < 1 || rules.CarryBaseGrams < 0 || rules.CarryGramsPerMight < 0)
             throw new FormatException("config.inventory needs at least one stack slot and non-negative carry weights");
         if (rules.FamiliarityUsesPerStep.Length != NotableRecord.MaxFamiliarity || rules.FamiliarityUsesPerStep.Any(n => n < 1))
@@ -168,6 +174,22 @@ public static class ItemContent
         {
             throw new FormatException($"{id}: something that wears gives its repair (station, skill_ref, item_ref): a worn-out piece is never lost for want of one");
         }
+        // Bags and the kinds a specialised bag takes (owner request, 2026-10-18).
+        BagSpec? bag = null;
+        if (map.GetValueOrDefault("bag") is Dictionary<object, object> bagMap)
+        {
+            var accepts = bagMap.ContainsKey("accepts") ? List(bagMap, "accepts").Select(v => v.ToString()!).ToImmutableArray() : ImmutableArray<string>.Empty;
+            bag = new BagSpec(Int(bagMap, "slots"), accepts);
+            if (bag.Slots is < 1 or > 40 || category != "bag" || stackMax != 1 || accepts.Any(k => !PackKinds.All.Contains(k)) || accepts.Distinct().Count() != accepts.Length)
+                throw new FormatException($"{id}: a bag is category bag, stack_max 1, with 1 to 40 slots and, if specialised, only {string.Join(", ", PackKinds.All)}");
+        }
+        else if (category == "bag")
+        {
+            throw new FormatException($"{id}: a bag item gives its bag (slots, and accepts for a specialised bag)");
+        }
+        string? packKind = map.GetValueOrDefault("pack_kind") as string;
+        if (packKind is not null && !PackKinds.All.Contains(packKind))
+            throw new FormatException($"{id}: pack_kind {packKind} is not one of {string.Join(", ", PackKinds.All)}");
         return new ItemDefinition(id, category, stackMax, Grams(map, "weight"), Long(map, "value_base"),
             rarity, Flag(map, "no_drop"), Flag(map, "no_sell"), slot, Requirements(id, map), weapon,
             map.ContainsKey("armor_value") ? Int(map, "armor_value") : 0)
@@ -178,6 +200,8 @@ public static class ItemContent
             StealthPenalty = stealth,
             DurabilityMax = durability,
             Repair = repair,
+            Bag = bag,
+            PackKind = packKind,
         };
     }
 

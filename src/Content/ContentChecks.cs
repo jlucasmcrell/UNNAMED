@@ -227,7 +227,7 @@ public static class ContentChecks
 /// </summary>
 internal static class PhaseOneSchemas
 {
-    private static readonly string[] Categories = { "weapon", "armor", "consumable", "material", "tool", "book", "quest_item", "container", "currency", "misc" };
+    private static readonly string[] Categories = { "weapon", "armor", "consumable", "material", "tool", "book", "quest_item", "container", "currency", "misc", "bag" };
     private static readonly string[] Rarities = { "common", "uncommon", "rare", "epic", "legendary", "artifact" };
     private static readonly string[] DamageTypes = { "physical_slash", "physical_pierce", "physical_blunt", "fire", "frost", "shock", "arcane", "holy", "necrotic", "poison" };
     private static readonly string[] Hands = { "one", "two", "offhand" };

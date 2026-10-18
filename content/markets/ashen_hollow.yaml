@@ -12,6 +12,9 @@ trade_links:
 goods:
   # target, [min, max]: the stock it settles toward and never leaves; production, consumption, imports: per game day; elasticity: k in the price formula
   - { item_ref: item.ammo.arrow_rough, target: 120, min: 20, max: 300, production: 20, consumption: 20, elasticity: 0.6 }
+  - { item_ref: item.bag.quiver, target: 1, min: 0, max: 3, elasticity: 0.3 }
+  - { item_ref: item.bag.herb_pouch, target: 1, min: 0, max: 3, elasticity: 0.3 }
+  - { item_ref: item.bag.satchel, target: 1, min: 0, max: 3, elasticity: 0.3 }
   - { item_ref: item.consumable.salve_minor, target: 8, min: 2, max: 20, production: 2, consumption: 2, imports: 1, elasticity: 0.8 }   # an essential: brought in while short
   - { item_ref: item.material.iron_ingot, target: 20, min: 4, max: 60, production: 4, consumption: 2, elasticity: 0.6 }   # the road smith's iron; the surplus goes east
   - { item_ref: item.material.wolf_hide, target: 10, min: 0, max: 40, consumption: 1, elasticity: 0.5 }   # none made here: Cairnwold's come in by the road

@@ -1,0 +1,16 @@
+id: recipe.outfitting.herb_pouch
+kind: recipe
+schema: 1
+display_key: recipe.outfitting.herb_pouch.name
+tags: [recipe]
+name: Herb Pouch
+notes: "One small pelt and bog-cotton, the way Sel carries her herbs. A finer make has more slots."
+station: workbench
+skill_ref: skill.survival
+complexity: 2
+inputs:
+  - { item_ref: item.material.small_hide, count: 1 }
+  - { item_ref: item.material.bog_cotton, count: 1 }
+outputs:
+  - { item_ref: item.bag.herb_pouch, count: 1, quality_roll: true, masterwork_possible: true }
+xp_award: { xp: 15 }       # level XP for the first only (AG-7)

@@ -1,0 +1,16 @@
+id: recipe.outfitting.quiver
+kind: recipe
+schema: 1
+display_key: recipe.outfitting.quiver.name
+tags: [recipe]
+name: Quiver
+notes: "Two small pelts and a feather's worth of fletching glue and thread. A finer make has more slots."
+station: workbench
+skill_ref: skill.survival
+complexity: 3
+inputs:
+  - { item_ref: item.material.small_hide, count: 2 }
+  - { item_ref: item.material.feathers, count: 1 }
+outputs:
+  - { item_ref: item.bag.quiver, count: 1, quality_roll: true, masterwork_possible: true }
+xp_award: { xp: 15 }       # level XP for the first only (AG-7)

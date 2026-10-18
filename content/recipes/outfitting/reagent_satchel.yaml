@@ -1,0 +1,17 @@
+id: recipe.outfitting.reagent_satchel
+kind: recipe
+schema: 1
+display_key: recipe.outfitting.reagent_satchel.name
+tags: [recipe]
+name: Reagent Satchel
+notes: "A deer hide and a small pelt with many pockets sewn in, for the makings of a bench. A finer make has more slots."
+station: workbench
+skill_ref: skill.survival
+complexity: 4
+inputs:
+  - { item_ref: item.material.deer_hide, count: 2 }
+  - { item_ref: item.material.small_hide, count: 1 }
+  - { item_ref: item.material.bog_cotton, count: 2 }
+outputs:
+  - { item_ref: item.bag.reagent_satchel, count: 1, quality_roll: true, masterwork_possible: true }
+xp_award: { xp: 15 }       # level XP for the first only (AG-7)

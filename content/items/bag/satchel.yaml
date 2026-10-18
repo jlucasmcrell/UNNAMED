@@ -1,0 +1,14 @@
+id: item.bag.satchel
+kind: item
+schema: 1
+display_key: item.bag.satchel.name
+tags: [item]
+name: Hide Satchel
+notes: "A plain hide satchel buckled on at the hip: six more slots for anything. It adds room, not strength - what it holds still weighs what it weighs."
+category: bag
+stack_max: 1
+weight: 0.6
+value_base: 30
+rarity: common
+bag:
+  slots: 6

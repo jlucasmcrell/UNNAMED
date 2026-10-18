@@ -6,6 +6,7 @@ tags: [item]
 name: Boneleaf
 notes: A pale, stiff leaf that grows only round the Foldscar - one of the 'wrong' plants Sel collects (canon WORLD_MATERIALS). Its veins run the wrong way.
 category: material
+pack_kind: herb   # a herb pouch takes it; so does the reagent satchel
 stack_max: 20
 weight: 0.05
 value_base: 6

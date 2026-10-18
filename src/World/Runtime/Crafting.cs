@@ -186,6 +186,9 @@ internal sealed class CraftingSystem
         _maker = maker;
     }
 
+    /// <summary>What a stash holds now: crafting works from the stashes in its station's settlement as well as from the pack.</summary>
+    public Func<ContainerSite, ContainerView> Contents { get; init; } = site => new ContainerView(site, null, ImmutableArray<ItemView>.Empty);
+
     private CraftingSetup Setup => _context.Setup.Crafting;
     private RuntimeState State => _context.State;
 
@@ -209,16 +212,26 @@ internal sealed class CraftingSystem
             return $"no {recipe.StationKind} in reach";
 
         var takes = ImmutableArray.CreateBuilder<StackTake>();
+        var stashTakes = ImmutableArray.CreateBuilder<StashTake>();
+        var stashes = _context.StashesFor(station).Select(site => (Site: site, Items: Contents(site).Items)).ToList();
         int weakest = recipe.Inputs.IsEmpty ? Quality.Standard : Quality.Fine;
         foreach (var input in recipe.Inputs)
         {
             int left = input.Count;
-            foreach (var stack in State.Inventory.Where(e => e.DefId == input.ItemId && !State.Equipment.ContainsValue(e.ItemId))
-                         .OrderByDescending(e => e.Quality).ThenBy(e => e.ItemId.Value, StringComparer.Ordinal))
+            // The best make first, wherever it lies; at the same make what is carried goes before what is stashed.
+            var sources = State.Inventory.Where(e => e.DefId == input.ItemId && !State.Equipment.ContainsValue(e.ItemId) && !State.Bags.Contains(e.ItemId))
+                .Select(e => (Quality: e.Quality, Stashed: false, Key: "", Id: e.ItemId.Value, e.Count))
+                .Concat(stashes.SelectMany(s => s.Items.Where(i => i.DefId == input.ItemId && i.Ref.Length > 0 && !i.Ref.Contains('#'))
+                    .Select(i => (i.Quality, Stashed: true, Key: s.Site.Key, Id: i.Ref, i.Count))))
+                .OrderByDescending(x => x.Quality).ThenBy(x => x.Stashed).ThenBy(x => x.Key, StringComparer.Ordinal).ThenBy(x => x.Id, StringComparer.Ordinal);
+            foreach (var source in sources)
             {
-                int take = Math.Min(left, stack.Count);
-                takes.Add(new StackTake(stack.ItemId, take));
-                weakest = Math.Min(weakest, stack.Quality);
+                int take = Math.Min(left, source.Count);
+                if (source.Stashed)
+                    stashTakes.Add(new StashTake(source.Key, source.Id, take));
+                else
+                    takes.Add(new StackTake(EntityId.Parse(source.Id), take));
+                weakest = Math.Min(weakest, source.Quality);
                 left -= take;
                 if (left == 0)
                     break;
@@ -237,6 +250,7 @@ internal sealed class CraftingSystem
             quality = CraftingRules.Masterwork(quality, recipe.MasterworkPossible, station.Grade, Setup.Constants, channel.UInt64(1) / SampleScale);
         var exchange = new ExchangeItems(takes.ToImmutable(), recipe.OutputItemId, recipe.OutputCount, quality)
         {
+            StashTakes = stashTakes.ToImmutable(),
             Origin = new NotableOrigin(Domain.Items.ProvenanceKind.Crafted, recipe.Id, _maker),
         };
         if (_context.Dispatch(exchange) is { } refused)

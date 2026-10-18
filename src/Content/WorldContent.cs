@@ -340,6 +340,7 @@ public static class WorldContent
                 var container = new ContainerSite(Text(site, "key"), Text(site, "loot_ref"), cx, cz, Int(site, "stack_slots"))
                 {
                     EmptyFlag = site.GetValueOrDefault("flag_ref") as string,
+                    Stash = site.ContainsKey("stash") && bool.Parse(site["stash"].ToString()!),
                 };
                 Check(container.EmptyFlag is null || flags.ContainsKey(container.EmptyFlag), "WLD009", $"{container.Key}: flag_ref must name a world flag");
                 Check(container.Key.StartsWith("container.", StringComparison.Ordinal), "WLD009", $"container key '{container.Key}' must start with 'container.'");

@@ -18,7 +18,9 @@ public static partial class Names
     /// says only "thing": the HUD coherence note's "Work at the pce 0000000002vx1t…", which a caller avoids by naming the definition.
     /// </summary>
     public static string Place(string key) =>
-        key.StartsWith("door.", StringComparison.Ordinal) ? Words(key["door.".Length..]) + " door" : Words(key);
+        key.StartsWith("door.", StringComparison.Ordinal) ? Words(key["door.".Length..]) + " door"
+        : key.StartsWith("container.stash.", StringComparison.Ordinal) ? "stash at " + Words(key)
+        : Words(key);
 
     /// <summary>
     /// An ID as lower-case words: its last dotted part, without a short leading area code (<c>cw_</c>) or the numbers that tell copies

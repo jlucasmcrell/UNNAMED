@@ -360,6 +360,7 @@ doors:
 containers:
   - { key: container.den_cache, loot_ref: loot.den_cache, position_m: [112, 189], stack_slots: 12 }        # the den, Charwood's north-west corner
   - { key: container.waystation_chest, loot_ref: loot.waystation_chest, position_m: [38, 137], stack_slots: 12 }   # bible §5's storage chest
+  - { key: container.stash.waystation, loot_ref: loot.stash_empty, position_m: [40, 137], stack_slots: 60, stash: true }   # the character's stash beside the storage chest; the workbench, forge and cookfire work from it
   - { key: container.merchant_cart, loot_ref: loot.merchant_cart, position_m: [157, 160.2], stack_slots: 8 }  # bible §6: the bow at the cart
 # The waystation's people (M4): each named NPC where they stand, and which way they face (0 = +Z, clockwise towards +X).
 npcs:
