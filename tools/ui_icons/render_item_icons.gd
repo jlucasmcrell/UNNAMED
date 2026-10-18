@@ -59,6 +59,20 @@ func _initialize() -> void:
 		var tilt := Basis(Vector3(0, 0, 1), deg_to_rad(40.0))
 		var to_x := Basis(Quaternion(axis, Vector3.RIGHT))
 		model.basis = tilt * Basis(Vector3.RIGHT, deg_to_rad(spin)) * to_x
+		# a flat thing (a folded hide, a page, a key) seen edge-on is a stick: turn its thinnest side to the camera instead
+		var size := aabb.size
+		var shortest := size.min_axis_index()
+		if size[shortest] < 0.3 * size[longest]:
+			var cols := [Vector3.ZERO, Vector3.ZERO, Vector3.ZERO]
+			var mid := 3 - longest - shortest
+			cols[longest] = Vector3.RIGHT
+			cols[mid] = Vector3.UP
+			cols[shortest] = Vector3.BACK
+			var flat := Basis(cols[0], cols[1], cols[2])
+			if flat.determinant() < 0.0:
+				cols[mid] = Vector3.DOWN
+				flat = Basis(cols[0], cols[1], cols[2])
+			model.basis = Basis(Vector3(0, 0, 1), deg_to_rad(30.0)) * Basis(Vector3.RIGHT, deg_to_rad(-35.0)) * flat
 		var b2 := _bounds(model)
 		model.position = -(b2.get_center())
 		var radius := b2.size.length() * 0.5

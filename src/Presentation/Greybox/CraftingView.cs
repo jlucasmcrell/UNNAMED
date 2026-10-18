@@ -59,7 +59,7 @@ public partial class CraftingView : Node3D
                 coverage.Fallback("node", site.NodeDefId + ":ready", look?.Model is { } id ? $"{_art.Why(id) ?? "not drawn"}: {shape}" : $"no binding: {shape}", look?.Model);
             }
             // And its spent look: the stumps of a cut stand, a worked-out seam.
-            if (look?.Spent is { } spentId && Art.Fitting.Site(_art, new Art.Placement(spentId), Vector3.Zero) is { } worked)
+            if (look?.Spent is { } spentId && Art.Fitting.Site(_art, new Art.Placement(spentId, Scale: look.Scale, Tint: look.SpentTint), Vector3.Zero) is { } worked)
             {
                 spent.Free();
                 spent = worked;

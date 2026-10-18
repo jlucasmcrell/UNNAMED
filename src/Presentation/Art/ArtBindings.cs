@@ -19,13 +19,16 @@ public static class LightDefaults
 /// <summary>
 /// How a model is placed for the thing it stands for, always at its authored size (see <c>art_bindings.json</c>'s comment): a node's
 /// <see cref="Spent"/> look beside its ready one, a station's <see cref="Beside"/> model at <see cref="BesideOffset"/> and its
-/// <see cref="Light"/>, a building's lights inside it (<see cref="Lights"/>).
+/// <see cref="Light"/>, a building's lights inside it (<see cref="Lights"/>). <see cref="Scale"/> enlarges a model too small to be seen or
+/// reached at its authored size (a story relic the size of a marble), stated in the binding; <see cref="Tint"/> (and <see cref="SpentTint"/>
+/// for a node's spent look) multiplies the model's own albedo, a cheap retexture that edits no source file.
 /// </summary>
 public sealed record Placement(string? Model, string Fit = "none", string? Surface = null, string? Material = null, bool Hidden = false,
     bool HideReady = false, string? Beside = null, Vector3 Offset = default, string? Sound = null, string? Spent = null,
     Vector3 BesideOffset = default, LightSpec? Light = null, IReadOnlyList<LightSpec>? Lights = null,
     Vector3? SurfaceTint = null, Vector3? Glow = null, float GlowEnergy = 0, float Wind = 0,
-    IReadOnlyList<(string Recipe, Vector3 At)>? Emitters = null, float YawSpread = 0, float LateS = 0);
+    IReadOnlyList<(string Recipe, Vector3 At)>? Emitters = null, float YawSpread = 0, float LateS = 0,
+    float Scale = 1, Vector3? Tint = null, Vector3? SpentTint = null);
 
 /// <summary>
 /// A light that is presentation data, not a coordinate in code: where it stands relative to what it lights (a station's feet, a building's
@@ -147,6 +150,8 @@ public sealed class ArtBindings
     public IReadOnlyDictionary<string, Placement> Nodes { get; private init; } = new Dictionary<string, Placement>();
     public IReadOnlyDictionary<string, Placement> Stations { get; private init; } = new Dictionary<string, Placement>();
     public Placement? GroundItem { get; private init; }
+    /// <summary>A dropped item's own look by item ID (<c>ground_items</c>); an item without one is drawn as <see cref="GroundItem"/>.</summary>
+    public IReadOnlyDictionary<string, Placement> GroundItems { get; private init; } = new Dictionary<string, Placement>();
     public IReadOnlyDictionary<string, CreatureArt> Creatures { get; private init; } = new Dictionary<string, CreatureArt>();
     public IReadOnlyDictionary<string, PersonArt> People { get; private init; } = new Dictionary<string, PersonArt>();
 
@@ -242,6 +247,11 @@ public sealed class ArtBindings
             yield return model;
         if (GroundItem?.Model is { } item)
             yield return item;
+        foreach (var drop in GroundItems.Values)
+        {
+            if (drop.Model is { } dropped)
+                yield return dropped;
+        }
     }
 
     public static ArtBindings Load(string resourcePath)
@@ -347,6 +357,7 @@ public sealed class ArtBindings
                 Nodes = Looks(root, "nodes"),
                 Stations = Looks(root, "stations"),
                 GroundItem = root.TryGetProperty("ground_item", out var ground) ? Look(ground) : null,
+                GroundItems = Looks(root, "ground_items"),
                 Creatures = root.TryGetProperty("creatures", out var creatures)
                     ? creatures.EnumerateObject().ToDictionary(c => c.Name, c => new CreatureArt(Text(c.Value, "model")!,
                         new[] { "idle", "walk", "run", "attack", "hit", "death" }.ToDictionary(s => s, s => $"{Text(c.Value, "clips")}.{s}"),
@@ -494,7 +505,9 @@ public sealed class ArtBindings
             ? emitters.EnumerateArray().Where(x => Text(x, "recipe") is not null && x.TryGetProperty("at", out _))
                 .Select(x => (Text(x, "recipe")!, Vector(x.GetProperty("at")))).ToList()
             : null,
-        Number(e, "yaw_spread", 0), Number(e, "late_s", 0));
+        Number(e, "yaw_spread", 0), Number(e, "late_s", 0),
+        Number(e, "scale", 1), e.TryGetProperty("tint", out var tinted) ? Vector(tinted) : null,
+        e.TryGetProperty("spent_tint", out var spentTint) ? Vector(spentTint) : null);
 
     private static bool Flag(JsonElement e, string name) =>
         e.ValueKind == JsonValueKind.Object && e.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.True;

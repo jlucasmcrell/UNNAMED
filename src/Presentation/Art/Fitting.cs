@@ -164,10 +164,37 @@ public static class Fitting
         if (look.Model is null || art.ModelWithLods(look.Model) is not { } model)
             return null;
         var bounds = ArtGallery.Bounds(model);
-        model.Position = new Vector3(-bounds.GetCenter().X, -bounds.Position.Y, -bounds.GetCenter().Z);
+        // A binding's stated scale (a relic the size of a marble) is about the model's own centre and foot, so the body a caller adds to the
+        // returned root is not scaled with it.
+        float scale = look.Scale > 0 ? look.Scale : 1;
+        model.Scale = Vector3.One * scale;
+        model.Position = new Vector3(-bounds.GetCenter().X, -bounds.Position.Y, -bounds.GetCenter().Z) * scale;
+        if (look.Tint is { } tint)
+            Tinted(model, new Color(tint.X, tint.Y, tint.Z));
         var root = new Node3D { Position = feet + look.Offset, Rotation = new Vector3(0, yawRadians, 0) };
         root.AddChild(model);
         return root;
+    }
+
+    /// <summary>
+    /// Multiplies every surface's albedo by <paramref name="tint"/> through a per-instance material override (the ash-grey of an ashbloom, the
+    /// scorch of a spent one): the shared mesh and the source file are untouched, and a surface that is not a standard material keeps its own.
+    /// </summary>
+    public static void Tinted(Node model, Color tint)
+    {
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
+        {
+            if (mesh.Mesh is not { } shape)
+                continue;
+            for (int surface = 0; surface < shape.GetSurfaceCount(); surface++)
+            {
+                if ((mesh.GetSurfaceOverrideMaterial(surface) ?? shape.SurfaceGetMaterial(surface)) is not BaseMaterial3D source)
+                    continue;
+                var worn = (BaseMaterial3D)source.Duplicate();
+                worn.AlbedoColor = source.AlbedoColor * tint;
+                mesh.SetSurfaceOverrideMaterial(surface, worn);
+            }
+        }
     }
 
     /// <summary>
