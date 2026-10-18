@@ -1,22 +1,26 @@
 // UNNAMED Presentation - Credits: who made the game, and the notices and licences of everything it is built with (PJ02 §5.1)
-// Godot presentation only (D-11): it reads the notices that ship beside the game; nothing here holds game state
+// Godot presentation only (D-11): it reads the credits data that ships with the content; nothing here holds game state
 
 using Godot;
+using UNNAMED.Content;
 
 namespace UNNAMED.Presentation.Ui;
 
 /// <summary>
-/// The maker first, then the release's <c>THIRD_PARTY_NOTICES/NOTICE.txt</c> as it ships - the engine and runtime, the assets used under
-/// licence with their credits, and the use of AI - each "== heading" a section, and every licence file in the folder named, with a way to
-/// open the folder. The notices are read where the game finds them (beside an exported build; the release payload in the repository),
-/// never rewritten here, so the screen cannot drift from what ships.
+/// The studio line first, then every group of <c>content/credits.yaml</c> as it is written there: the third-party attributions in the
+/// form each licence requires, the code notices and the AI disclosure; then every licence file in the notices folder named, with a way
+/// to open the folder. The words are data (<see cref="CreditsContent"/>), never written here, so the screen cannot drift from the file.
+/// The page scrolls, and its words are <see cref="UiKit"/>'s, so they follow the text size, the interface scale and high contrast.
 /// </summary>
 public partial class CreditsPanel : CanvasLayer
 {
     private Sheet _sheet = null!;
 
-    /// <summary>The folder holding <c>NOTICE.txt</c> and the licence files.</summary>
+    /// <summary>The folder holding the licence files.</summary>
     public string Folder { get; set; } = string.Empty;
+
+    /// <summary><c>credits.yaml</c>, in the content root.</summary>
+    public string CreditsFile { get; set; } = string.Empty;
 
     /// <summary>Back to wherever Credits was opened from.</summary>
     public Action? Closed { get; set; }
@@ -50,46 +54,37 @@ public partial class CreditsPanel : CanvasLayer
         var back = UiKit.Action("Back", () => Callable.From(() => Closed?.Invoke()).CallDeferred(), UiKit.Kind.Primary, id: "credits.back");
         back.SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin;
         _sheet.Body.AddChild(back);
-        var maker = UiKit.Section("Otherreach");
-        maker.AddChild(UiKit.Words(TitleScreen.Maker, 24, HudStyle.Bone, HudStyle.Strong));
-        _sheet.Body.AddChild(maker);
-
-        string notice = System.IO.Path.Combine(Folder, "NOTICE.txt");
-        if (!File.Exists(notice))
+        CreditsContent? credits = null;
+        try
         {
-            _sheet.Body.AddChild(UiKit.Callout(HudStyle.Wound, $"The notices are missing: {notice} was not found."));
+            credits = CreditsContent.Load(CreditsFile);
         }
-        else
+        catch (Exception e) when (e is IOException or InvalidDataException or YamlDotNet.Core.YamlException)
         {
-            VBoxContainer? section = null;
-            foreach (string raw in File.ReadAllLines(notice))
+            _sheet.Body.AddChild(UiKit.Callout(HudStyle.Wound, $"The credits are missing: {CreditsFile} could not be read ({e.Message})."));
+        }
+        if (credits is not null)
+        {
+            var maker = UiKit.Section("Otherreach");
+            maker.AddChild(UiKit.Words(credits.Studio, 24, HudStyle.Bone, HudStyle.Strong));
+            if (credits.StudioNote.Length > 0)
+                maker.AddChild(UiKit.Words(credits.StudioNote, 17, HudStyle.Bone));
+            _sheet.Body.AddChild(maker);
+            foreach (var group in credits.Sections)
             {
-                string line = raw.TrimEnd();
-                if (line.StartsWith("== ", StringComparison.Ordinal))
+                var section = UiKit.Section(group.Title, group.Note);
+                section.AddThemeConstantOverride("separation", 6);
+                foreach (var entry in group.Entries)
                 {
-                    section = UiKit.Section(line[3..]);
-                    section.AddThemeConstantOverride("separation", 6);
-                    _sheet.Body.AddChild(section);
-                    continue;
+                    section.AddChild(UiKit.Words(entry.Text, 17, HudStyle.Bone));
+                    foreach (string line in entry.Lines)
+                        section.AddChild(Indented(UiKit.Words(line, 17, HudStyle.Ash)));
                 }
-                if (line.Length == 0)
-                    continue;
-                // The file's opening lines, before any heading, introduce it.
-                var parent = section ?? _sheet.Body;
-                bool item = line.StartsWith("- ", StringComparison.Ordinal) || line.StartsWith("  ", StringComparison.Ordinal);
-                var words = UiKit.Words(line.TrimStart(), 17, item ? HudStyle.Ash : HudStyle.Bone);
-                if (item)
-                {
-                    var indent = new MarginContainer();
-                    indent.AddThemeConstantOverride("margin_left", 20);
-                    indent.AddChild(words);
-                    parent.AddChild(indent);
-                }
-                else
-                {
-                    parent.AddChild(words);
-                }
+                _sheet.Body.AddChild(section);
             }
+        }
+        if (Directory.Exists(Folder))
+        {
             var licences = UiKit.Section("Licence texts", "in full, beside the game");
             licences.AddChild(UiKit.Words(string.Join(" · ", Directory.EnumerateFiles(Folder).Select(System.IO.Path.GetFileName)
                 .Where(f => f != "NOTICE.txt").OrderBy(f => f, StringComparer.OrdinalIgnoreCase)), 16, HudStyle.Ash));
@@ -99,5 +94,13 @@ public partial class CreditsPanel : CanvasLayer
             licences.AddChild(open);
             _sheet.Body.AddChild(licences);
         }
+    }
+
+    private static MarginContainer Indented(Control child)
+    {
+        var indent = new MarginContainer();
+        indent.AddThemeConstantOverride("margin_left", 20);
+        indent.AddChild(child);
+        return indent;
     }
 }
