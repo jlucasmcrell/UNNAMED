@@ -394,7 +394,7 @@ public partial class Main : Node3D
         _art.Coverage.Allow(CoverageAllowlist());
         _scatterRules = ScatterRules(_assets.Root, _options.GetValueOrDefault("--scatter-rules"));
         GD.Print($"UNNAMED renderer: {RenderingServer.GetVideoAdapterName()} ({RenderingServer.GetCurrentRenderingMethod()}); MSAA 3D "
-                 + $"{ProjectSettings.GetSetting("rendering/anti_aliasing/quality/msaa_3d")}, TAA {ProjectSettings.GetSetting("rendering/anti_aliasing/quality/use_taa")}, "
+                 + $"{GetViewport().Msaa3D}, TAA {GetViewport().UseTaa}, "
                  + $"anisotropy {ProjectSettings.GetSetting("rendering/textures/default_filters/anisotropic_filtering_level")}, directional shadow atlas "
                  + $"{ProjectSettings.GetSetting("rendering/lights_and_shadows/directional_shadow/size")}, soft shadows "
                  + $"{ProjectSettings.GetSetting("rendering/lights_and_shadows/directional_shadow/soft_shadow_filter_quality")}");
