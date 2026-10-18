@@ -13,9 +13,10 @@ namespace UNNAMED.Application.Tests;
 
 public class BarrowworksGateTests
 {
-    // The snapshot's content/_art_bindings.json, line endings normalised: bytes this branch may not change.
-    // A hash rather than a copy, so the guard costs nothing to carry and any edit at all fails it.
-    private const string SnapshotOverlaySha256 = "abab28ffd0be4e05634fb0e9b074ed51591b83f0cc29962605f4662c3baa5e36";
+    // The integrated frontier overlay, line endings normalised. Refreshed for worker/real-weapons fcefe41d:
+    // exactly five approved weapon model references changed; no Barrowworks bindings entered the shipped overlay.
+    // Keep the full-file guard: any other edit still fails, alongside the semantic option-off checks below.
+    private const string SnapshotOverlaySha256 = "b6820f63a9d16e4ce20eda5689a509a25f016e8fa7f55590cfec5c13f6a20de5";
 
     private static string Overlay => Path.Combine(Harness.RepoRoot(), "content", "_art_bindings.json");
 
@@ -28,7 +29,7 @@ public class BarrowworksGateTests
     }
 
     [Fact]
-    public void TheShippedOverlay_IsByteForByteTheSnapshots()
+    public void TheShippedOverlay_MatchesTheIntegratedFrontierSnapshot()
     {
         Assert.True(File.Exists(Overlay), $"missing {Overlay}");
         Assert.Equal(SnapshotOverlaySha256, NormalisedHash(Overlay));
