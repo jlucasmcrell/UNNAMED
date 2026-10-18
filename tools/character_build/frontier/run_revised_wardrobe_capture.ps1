@@ -4,7 +4,7 @@ $root='D:\Otherreach_Scratch\frontier_native_20261018'
 $candidate="$root\$Candidate"
 $owner="codex approved-wardrobe-$Tag"
 Get-FileHash -LiteralPath 'C:\Otherreach_Build\posture_native_20261018\src\Presentation\.godot\mono\temp\bin\Debug\UNNAMED.Presentation.dll' | Export-Csv "$root\$($Tag)_runtime.csv" -NoTypeInformation
-Get-ChildItem -LiteralPath "$candidate\primary\rigged" -Recurse -File -Filter '*_rigged.glb' | Get-FileHash | Export-Csv "$root\$($Tag)_inputs.csv" -NoTypeInformation
+Get-ChildItem -LiteralPath "$candidate\primary\rigged" -Directory | Where-Object { $_.Name -eq $Fit -or $_.Name.EndsWith("__$Fit") } | ForEach-Object { Get-ChildItem -LiteralPath $_.FullName -Recurse -File -Filter '*_rigged.glb' } | Get-FileHash | Export-Csv "$root\$($Tag)_inputs.csv" -NoTypeInformation
 $player=if($Fit -match 'veth_f') {'metahuman_f'} else {'metahuman_m'}
 $expected=36*$States.Count
 $statesArgument=$States -join ','

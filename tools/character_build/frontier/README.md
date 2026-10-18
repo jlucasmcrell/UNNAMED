@@ -10,7 +10,7 @@ From PowerShell, run the three rung-3 pieces with one command:
 & tools/character_build/frontier/process_frontier_outfit.ps1
 ```
 
-The command uses native Blender Surface Deform to carry the source onto the
+The command uses native Blender Mesh Deform wrap to carry the source onto the
 other three approved fits, then native Data Transfer for skin weights. Native
 UV correspondence restores vertex order where glTF reordered seam vertices.
 Disconnected lames retain one rigid attachment; headwear follows the head.

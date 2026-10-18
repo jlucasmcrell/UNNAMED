@@ -5,6 +5,7 @@ joint frames are taken from the approved avatar, never fitted in the other direc
 """
 from pathlib import Path
 import copy
+import re
 import hashlib
 import json
 import sys
@@ -118,7 +119,7 @@ for part,base,layer,source,hidden in entries:
     asset=base+'__'+body_id
     for node in garment.doc['nodes']:
         if node.get('name','').startswith(base):
-            node['name']=node['name'].replace(base,asset,1)
+            node['name']=re.sub(r'(_LOD[1-3])\.\d+$',r'\1',node['name']).replace(base,asset,1)
     garment.doc['buffers'][0]['byteLength']=len(garment.bin)
     assert garment.bin[:len(old_bytes)]==old_bytes,'Original garment vertex/weight/texture bytes changed'
     dest=root/'game_candidate/primary/rigged'/asset
@@ -129,7 +130,7 @@ for part,base,layer,source,hidden in entries:
     metadata={'schema_version':'1','id':asset,'asset_id':asset,'body':body_id,'layer':layer,'hides':[],'hides_mask':0,
               'hide_regions':hidden,
               'chains':{'cloth_cape':{'stiffness':.8,'drag':.5,'gravity':.8,'radius':.075}} if part=='cloak' and any(n.get('name','').startswith('cloth_cape') for n in garment.doc['nodes']) else {},
-              'provenance':{'construction':'Authored once on feminine Average; native Surface Deform and Data Transfer; fixed approved bodies; source PBR preserved',
+              'provenance':{'construction':'Authored once on feminine Average; native Mesh Deform wrap and Data Transfer; fixed approved bodies; source PBR preserved',
                             'fixed_body_sha256':body_hash,'source':str(source)},
               'acceptance':'PENDING: personally viewed turnaround and run'}
     (dest/(asset+'_garment.json')).write_text(json.dumps(metadata,indent=2))

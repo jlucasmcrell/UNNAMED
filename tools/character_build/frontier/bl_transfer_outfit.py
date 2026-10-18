@@ -1,4 +1,4 @@
-"""Standard Surface Deform shape transfer and native Data Transfer skin weights."""
+"""Native volumetric wrap and standard Data Transfer skin weights."""
 import bpy,bmesh,json,sys,hashlib
 from pathlib import Path
 from mathutils import Matrix
@@ -16,7 +16,7 @@ for part in parts:
     digest=hashlib.sha256(source.read_bytes()).hexdigest()
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=str(root/'approved_clothing_sources/veth_f.glb'))
-    cage=approved_surface('veth_f');cage.name='SurfaceDeform base cage'
+    cage=approved_surface('veth_f');cage.name='Native wrap reference cage'
     cage.shape_key_clear()
     for mod in list(cage.modifiers):cage.modifiers.remove(mod)
     cage.data.transform(cage.matrix_world);cage.matrix_world=Matrix.Identity(4)
@@ -55,16 +55,28 @@ for part in parts:
             aligned.append(min(candidates,key=lambda p:(p-vertex.co).length_squared))
         target_positions=aligned
         print('RESTORED_NATIVE_UV_VERTEX_ORDER',fit,flush=True)
+    # Native closed volumetric wrap cage; approved source/target avatars stay read-only.
+    edit=bmesh.new();index_layer=edit.verts.layers.int.new('native_vertex')
+    for vertex in cage.data.vertices:
+        point=edit.verts.new(vertex.co);point[index_layer]=vertex.index
+    bmesh.ops.convex_hull(edit,input=list(edit.verts),use_existing_faces=False)
+    bmesh.ops.delete(edit,geom=[v for v in edit.verts if not v.link_faces],context='VERTS')
+    edit.verts.index_update()
+    target_positions=[target_positions[v[index_layer]].copy() for v in edit.verts]
+    edit.to_mesh(cage.data);edit.free();cage.data.update()
+    padding=cage.modifiers.new('Wrap cage clearance','DISPLACE');padding.strength=.2;padding.mid_level=0
     old=set(bpy.data.objects);bpy.ops.import_scene.gltf(filepath=str(source))
     garment=next(o for o in set(bpy.data.objects)-old if o.type=='MESH' and o.name==base)
     source_arm=next(o for o in set(bpy.data.objects)-old if o.type=='ARMATURE')
+    for extra in list(set(bpy.data.objects)-old):
+        if extra.type=='MESH' and extra!=garment:bpy.data.objects.remove(extra,do_unlink=True)
     matrix=garment.matrix_world.copy();garment.parent=None;garment.matrix_world=matrix
     garment.shape_key_clear()
     for mod in list(garment.modifiers):garment.modifiers.remove(mod)
     bpy.ops.object.select_all(action='DESELECT');garment.select_set(True);bpy.context.view_layer.objects.active=garment
-    wrap=garment.modifiers.new('Native Surface Deform body fit','SURFACE_DEFORM');wrap.target=cage
-    bpy.ops.object.surfacedeform_bind(modifier=wrap.name)
-    if not wrap.is_bound:raise RuntimeError('Native Surface Deform failed to bind')
+    wrap=garment.modifiers.new('Native volumetric body wrap','MESH_DEFORM');wrap.object=cage;wrap.precision=5
+    bpy.ops.object.meshdeform_bind(modifier=wrap.name)
+    if not wrap.is_bound:raise RuntimeError('Native Mesh Deform wrap failed to bind')
     for vertex,point in zip(cage.data.vertices,target_positions):vertex.co=point
     cage.data.update();bpy.context.view_layer.update()
     bpy.ops.object.modifier_apply(modifier=wrap.name)
@@ -134,6 +146,7 @@ for part in parts:
     lods=[]
     for level,ratio in ((1,.65),(2,.4),(3,.25)):
         lod=garment.copy();lod.data=garment.data.copy();lod.name=base+f'_LOD{level}';bpy.context.collection.objects.link(lod)
+        assert lod.name==base+f'_LOD{level}', 'Target LOD name collided with an imported mesh'
         bpy.context.view_layer.objects.active=lod
         dec=lod.modifiers.new('Native clothing LOD','DECIMATE');dec.ratio=ratio;dec.delimit={'MATERIAL'}
         bpy.ops.object.modifier_apply(modifier=dec.name);lods.append(lod)
@@ -145,6 +158,6 @@ for part in parts:
     bpy.ops.wm.save_as_mainfile(filepath=str(out/(base+'.blend')))
     assert hashlib.sha256(source.read_bytes()).hexdigest()==digest
     (out/'source.json').write_text(json.dumps({'source':str(source),'sha256':digest,'authored_on':'veth_f',
-        'target':fit,'shape_transfer':'Blender Surface Deform','skin_transfer':'Blender Data Transfer',
+        'target':fit,'shape_transfer':'Blender Mesh Deform volumetric wrap','skin_transfer':'Blender Data Transfer',
         'body_edits':False,'acceptance':'PENDING visible turnaround/run review'},indent=2))
     print('AUTO_TRANSFERRED',part,fit,flush=True)

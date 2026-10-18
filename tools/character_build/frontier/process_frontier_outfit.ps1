@@ -18,13 +18,16 @@ if($LASTEXITCODE -ne 0){throw 'Body region staging failed'}
 foreach($fit in $Fits) {
     if($fit -ne 'veth_f') {
         & $blender --background --threads 2 --factory-startup --python-exit-code 1 --python $PSScriptRoot\bl_transfer_outfit.py -- $fit @Parts *> "$root\auto_transfer_$fit.log"
-        if($LASTEXITCODE -ne 0){throw "Surface transfer failed:$fit"}
+        if($LASTEXITCODE -ne 0){throw "Native wrap transfer failed:$fit"}
     }
     $env:OTHERREACH_CLOTHING_BODY=$fit
     python $PSScriptRoot\stage_approved_garments.py $fit
     if($LASTEXITCODE -ne 0){throw "Source staging failed:$fit"}
+    # Loose gloves/mantle are not inputs to the combined torso/head/foot sets.
+    if(@($Parts | Where-Object { $_ -notin @('gloves','cloak') }).Count -gt 0 -or !(Test-Path "$root\combined_sources\$fit\frontier_linen_trousers_set_native.glb")) {
     & $blender --background --threads 2 --factory-startup --python-exit-code 1 --python $PSScriptRoot\bl_combine_frontier_sets.py *> "$root\auto_combined_$fit.log"
     if($LASTEXITCODE -ne 0){throw "Combined set bake failed:$fit"}
+    }
     python $PSScriptRoot\stage_approved_garments.py $fit
     if($LASTEXITCODE -ne 0){throw "Combined staging failed:$fit"}
     python $PSScriptRoot\stage_region_outfits.py "mh_$fit"
