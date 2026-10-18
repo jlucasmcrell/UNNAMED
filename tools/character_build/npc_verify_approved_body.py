@@ -15,8 +15,8 @@ for folder in sorted((w/'approved_models').iterdir()):
  assert j['skins'][0]==orig['skins'][0]
  assert j['accessors'][:len(orig['accessors'])]==orig['accessors']
  assert j['bufferViews'][:len(orig['bufferViews'])]==orig['bufferViews']
- assert j['meshes'][:4]==orig['meshes'][:4]
- assert j['materials'][0]==orig['materials'][0]
+ from gltf_active_resources import body_resources
+ assert body_resources(j)==body_resources(orig)
  assert [{k:v for k,v in n.items()if k!='children'}for n in [j['nodes'][i] for i in orig['skins'][0]['joints']]]==[{k:v for k,v in n.items()if k!='children'}for n in [orig['nodes'][i] for i in orig['skins'][0]['joints']]]
  active=set()
  def visit(i):

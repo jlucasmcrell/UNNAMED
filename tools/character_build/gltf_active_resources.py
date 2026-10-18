@@ -31,3 +31,13 @@ def prune(doc):
  images=keep('images',{t['source']for t in doc['textures']if 'source'in t})
  for t in doc['textures']:
   if 'source'in t:t['source']=images[t['source']]
+
+
+def body_resources(doc):
+ """Compare named body LODs with their material contents after resource pruning."""
+ bodies=[]
+ for mesh in doc['meshes']:
+  if mesh.get('name','').startswith(('mh_veth_m_body','mh_veth_f_body')):
+   bodies.append({**mesh,'primitives':[{**p,'material':doc['materials'][p['material']]} for p in mesh['primitives']]})
+ assert len(bodies)==4, 'Expected four approved body LODs'
+ return sorted(bodies,key=lambda m:m['name'])

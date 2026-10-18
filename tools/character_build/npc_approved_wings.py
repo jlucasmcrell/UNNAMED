@@ -121,8 +121,8 @@ assert j['meshes'][:len(original['meshes'])]==original['meshes']
 assert bin[:len(bb)]==bb
 from gltf_active_resources import prune
 prune(j)
-assert j['meshes'][:4]==original['meshes'][:4]
-assert j['materials'][0]==original['materials'][0]
+from gltf_active_resources import body_resources
+assert body_resources(j)==body_resources(original)
 jb=json.dumps(j,separators=(',',':')).encode();jb+=b' '*((-len(jb))%4);bin+=b'\0'*((-len(bin))%4)
 out=w/'approved_wing_models'/('mh_'+args.id);out.mkdir(parents=True,exist_ok=True)
 p=out/('mh_'+args.id+'_rigged.glb');p.write_bytes(struct.pack('<III',0x46546c67,2,28+len(jb)+len(bin))+struct.pack('<II',len(jb),0x4e4f534a)+jb+struct.pack('<II',len(bin),0x004e4942)+bin)

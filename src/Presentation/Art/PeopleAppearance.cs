@@ -7,6 +7,10 @@ public static class PeopleAppearance
 {
     public static void Apply(Node model, string? people, ArtLibrary art, string modelId)
     {
+        // The approved body master also carries the player's beard. Native NPC identities use their own grooms.
+        if (modelId.StartsWith("mh_npc_", StringComparison.Ordinal) || modelId.StartsWith("mh_resident_", StringComparison.Ordinal))
+            foreach (var mesh in model.FindChildren("mh_veth_m_beard*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+                mesh.Visible = false;
         ApplyBodyColour(model, art, modelId);
         if (people is null or "people.veth" or "people.kal")
             return;

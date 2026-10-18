@@ -55,6 +55,16 @@ Images are reviewed visually, including head/body colour, shoulders, torso/hip/l
 
 Run the solution build, test projects, content lint/xref, connected route, playthrough and save/relaunch for integration evidence. Final character acceptance is a clean turnaround and run viewed by eye. Do not add per-triangle clothing coverage or numerical clipping gates. Results and outstanding visual failures belong in the dated review report; successful internal checks do not establish visual acceptance.
 
+## Playtest review — 18 October 2026
+
+PR #25 covers eight named NPCs, 48 resident appearances and generated adventurers through 26 native identity models. The private package is `D:/Otherreach_Scratch/npc_metahuman_exactbody_20261018/primary`; its `manifests/npc_approved_bodies.json` records sources and file hashes. Paired images/report are posted to `C:/Otherreach_External_Assets/CODEX_PROGRESS.md`. Only base layers are enabled pending main wardrobe publication.
+
+All 26 original body buffers, skin/binds, named body LODs/materials, joint transforms and player corrective companions pass provenance checks. Body verification resolves body meshes by name: the masculine master stores beard meshes before its body. The player's inherited beard is hidden on NPC identities, which retain their native identity grooms; player grooming is unchanged.
+
+Release build passes. Presentation 243 / Architecture 23 pass; content lint covers 421 definitions with zero errors, xref passes. Connected route passed 8,205 ticks with both town crossings and matching save/load digest. Playthrough completed every beat, six quests and Tavar recruitment. Standalone relaunch restored 5,290 fields with zero differences, then completed combat/death/respawn checks. Full tests ran 1,790 passed / three failed / three existing skips; the held-autosave timeout passed isolated, missing hunt meeting text was fixed and passed focused checks, and the expected overlay snapshot was semantically reviewed/refreshed and passed. This is not one all-green full-suite invocation.
+
+Known playtest visual limitation: world contact shadows can make correctly grounded figures appear lifted. Native terrain markers aligned with the soles; final-pose samples were within 7 mm of terrain. Lower shadow bias did not resolve that cue. No lighting change, guessed body offset or diagnostic probe code was promoted. Kera shape/wings are approved; remaining face/surface art and proposed stature values await review. No merge or shared asset-root switch is implied by this report.
+
 ## Credits
 
 MetaHuman bodies, native faces and grooms: Epic Games, UE5.8 in-editor MetaHuman Creator; retain the project's existing UE notices. Accepted run: VanillaLoop, *Free Sample Animation Set*, Fab Standard, as recorded in the unchanged clip metadata. Other player clips retain their individual source records (including Fab/Quaternius/Rokoko).
