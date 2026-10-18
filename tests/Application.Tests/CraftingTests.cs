@@ -223,7 +223,9 @@ public class CraftingTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         var hearth = At(session, AtHearth, r => Carrying(r, Stack(Ore, 3)));
-        var untouched = hearth.Simulation.Player.Inventory.Where(e => e.DefId != Ore).ToList();
+        // Where a stack lies in the pack (schema 33) is the pack's to settle: the stacks are compared as they are, wherever they lie.
+        InventoryEntry Unplaced(InventoryEntry e) => e with { Bag = 0, Slot = -1 };
+        var untouched = hearth.Simulation.Player.Inventory.Where(e => e.DefId != Ore).Select(Unplaced).ToList();
         var crafted = hearth.Record<ItemCrafted>();
 
         Assert.Null(hearth.Submit(new CraftCommand(hearth.Player, BilletRecipe)));
@@ -231,7 +233,7 @@ public class CraftingTests
         Assert.Equal((2, 1), (Carried(hearth, Ore), Carried(hearth, Billet)));   // PROTOTYPE.md C13
         var made = Assert.Single(crafted);
         Assert.Equal((BilletRecipe, Billet, 1), (made.RecipeId, made.ItemId, made.Count));
-        Assert.Equal(untouched, hearth.Simulation.Player.Inventory.Where(e => e.DefId is not (Ore or Billet)).ToList());
+        Assert.Equal(untouched, hearth.Simulation.Player.Inventory.Where(e => e.DefId is not (Ore or Billet)).Select(Unplaced).ToList());
 
         var anvil = At(session, AtAnvil, r => Carrying(r, Stack(Billet, 1), Stack(Haft, 2)));
         Assert.Null(anvil.Submit(new CraftCommand(anvil.Player, SpearRecipe)));

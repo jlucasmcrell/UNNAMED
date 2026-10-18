@@ -576,7 +576,7 @@ public class NpcTests
         var session = Harness.Boot(profile);
         var arena = At(session, AtKera, r => With(r, 1000));
         int stacks = arena.Simulation.Wares(Kera)!.Wares.Length;
-        Assert.Equal(5, stacks);
+        Assert.Equal(8, stacks);   // arrows, the bow, the salves, and since inventory organisation a quiver, a herb pouch and a satchel
         for (int i = 0; i < stacks; i++)
         {
             var ware = arena.Simulation.Wares(Kera)!.Wares[0];

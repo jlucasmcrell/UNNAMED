@@ -162,12 +162,12 @@ public sealed record SortRow(string Id, string Category, string Name, long Value
 
 public static class PackSorting
 {
-    private static readonly string[] TypeOrder = { "weapon", "armor", "bag", "tool", "consumable", "book", "material", "trinket", "misc", "quest_item" };
+    private static readonly ImmutableArray<string> TypeOrder = ImmutableArray.Create("weapon", "armor", "bag", "tool", "consumable", "book", "material", "trinket", "misc", "quest_item");
 
     /// <summary>The order a sort puts stacks in. Ties fall to the name, the finer quality, then the identity: the same pack always sorts the same way.</summary>
     public static ImmutableArray<string> Order(IEnumerable<SortRow> rows, PackSort sort)
     {
-        int Rank(string category) => Array.IndexOf(TypeOrder, category) is var i and >= 0 ? i : TypeOrder.Length;
+        int Rank(string category) => TypeOrder.IndexOf(category) is var i and >= 0 ? i : TypeOrder.Length;
         IOrderedEnumerable<SortRow> ordered = sort switch
         {
             PackSort.Name => rows.OrderBy(r => r.Name, StringComparer.OrdinalIgnoreCase),

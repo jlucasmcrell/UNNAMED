@@ -141,6 +141,7 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.TradeRefusal),   // why a merchant is not trading now, for the trade column (WP12)
             nameof(UNNAMED.World.Runtime.Simulation.TeachRefusal),   // why a teacher is not teaching now, for WP9's trainers (WP12)
             nameof(UNNAMED.World.Runtime.Simulation.IsHireable),   // whether someone can be hired now, derived from town roles, for the hire prompt (WP12b)
+            nameof(UNNAMED.World.Runtime.Simulation.StashesAt),   // the stashes in a crafting station's settlement and what they hold, for the recipe inputs' sources (inventory organisation)
         };
         var exposed = typeof(UNNAMED.World.Runtime.Simulation)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
