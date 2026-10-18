@@ -132,8 +132,9 @@ public class AdventurerWorldTests
         // differ, so only their lives are compared.
         using var a = new CanonicalHasher();
         using var b = new CanonicalHasher();
-        away.World.Adventurers!.AddTo(a);
-        running.World.Adventurers!.AddTo(b);
+        // Bodies too are what a running world's sight leaves standing (they come and go only out of it), so not compared.
+        (away.World.Adventurers! with { Bodies = ImmutableSortedDictionary<string, AdventurerBody>.Empty }).AddTo(a);
+        (running.World.Adventurers! with { Bodies = ImmutableSortedDictionary<string, AdventurerBody>.Empty }).AddTo(b);
         Assert.Equal(a.Finish(), b.Finish());
     }
 
