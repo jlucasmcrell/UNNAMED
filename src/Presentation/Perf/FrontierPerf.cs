@@ -19,6 +19,7 @@ public sealed class FrontierPerf
     private readonly FrameStats _stats;
     private readonly Viewport _viewport;
     private readonly StringBuilder _renderCounts = new("segment,observed_frame,draw_calls,primitives,objects\n");
+    private readonly StringBuilder _processPhases = new("observed_frame,segment,phase,ms\n");
     private readonly long _startTick;
     private ulong _lastUsec;
     private double _elapsed;
@@ -49,6 +50,10 @@ public sealed class FrontierPerf
     }
 
     public void Screenshot() => _stats.SkipNext();
+
+    // Work in this callback contributes to the next monotonic interval, not an asserted GPU frame.
+    public void Phase(string phase, ulong started) => _processPhases.Append(CultureInfo.InvariantCulture,
+        $"{_stats.Count - 1},{_stats.Segment},{phase},{(Time.GetTicksUsec() - started) / 1000.0:0.###}\n");
 
     public string? Update()
     {
@@ -93,6 +98,7 @@ public sealed class FrontierPerf
     public void Write()
     {
         File.WriteAllText(Path.Combine(Directory, "render_counts.csv"), _renderCounts.ToString());
+        File.WriteAllText(Path.Combine(Directory, "process_phases.csv"), _processPhases.ToString());
         // An inventory, not a visibility claim: shadow cameras and MultiMesh bounds can submit
         // geometry outside the player camera. Keep the authored ranges and bounds to investigate it.
         var meshes = _viewport.GetTree().CurrentScene.FindChildren("*", "GeometryInstance3D", true, false)

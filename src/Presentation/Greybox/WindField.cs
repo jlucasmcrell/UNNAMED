@@ -130,6 +130,8 @@ void vertex() {
 
 void fragment() {
     vec4 a = has_albedo ? texture(albedo_tex, UV) : vec4(1.0);
+    // Same alpha test as below, before hue/PBR work on transparent leaf texels.
+    if (foliage && a.a * albedo_colour.a < alpha_cut) discard;
     ALBEDO = a.rgb * albedo_colour.rgb;
 #ifdef OTHERWORLD
     if (strange > 0.0) {
@@ -246,6 +248,8 @@ void vertex() {
 
 void fragment() {
     vec4 a = texture(albedo_tex, UV);
+    // Keep the authored cutoff; reject already-invisible texels before palette/PBR work.
+    if (a.a < alpha_cut) discard;
     vec3 colour = a.rgb * tint;
 #ifdef OTHERWORLD
     float lift = 0.0;

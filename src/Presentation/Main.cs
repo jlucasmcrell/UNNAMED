@@ -1158,10 +1158,12 @@ public partial class Main : Node3D
         // The smoke and the playthrough run one tick per frame: the smoke finishes in a fraction of real time, and the playthrough is
         // the same run every time, whatever the frame rate.
         ulong sessionStarted = _barrowworksReview is null ? 0 : Time.GetTicksUsec();
+        ulong simulationStarted = _frontierPerf is null ? 0 : Time.GetTicksUsec();
         var frame = _session.Frame(_smoke is not null || _connectedCheck is not null || (_barrowworksReview is not null && !_realtime) || (_play is not null && !_realtime) || _delta is not null || _survey is not null || _audit is not null || _auditAb is not null
             ? _session.TickSeconds : delta);
         _barrowworksReview?.Phase("simulation", sessionStarted);
         _ticksLastFrame = frame.TicksRun;
+        _frontierPerf?.Phase("simulation", simulationStarted);
         bool outside = _session.Simulation!.PlayerInExterior;
         if (outside != _wasOutside)
         {
@@ -1197,9 +1199,10 @@ public partial class Main : Node3D
             GD.PushError($"UNNAMED {(save.Auto ? "autosave" : "save")} to {save.Slot} failed: {failed}");
             _hud.Toast(save.Auto ? $"Autosave failed: {failed} It is tried again shortly. The log: {LogPath}" : $"Save failed: {failed} (the log: {LogPath})", 8);
         }
-        ulong drawStarted = _barrowworksReview is null ? 0 : Time.GetTicksUsec();
+        ulong drawStarted = _barrowworksReview is null && _frontierPerf is null ? 0 : Time.GetTicksUsec();
         Draw(frame.Alpha, delta);
         _barrowworksReview?.Phase("presentation", drawStarted);
+        _frontierPerf?.Phase("drawing", drawStarted);
         UpdateMouse();
         _stats?.Record(delta);
         if (_perf is { ScreenshotDue: true })
@@ -1360,8 +1363,10 @@ public partial class Main : Node3D
         _music.Update(feet, delta);
         Probe("music");
         _crafting.Refresh(simulation.Nodes);
+        ulong npcsStarted = _frontierPerf is null ? 0 : Time.GetTicksUsec();
         _npcs.Draw(simulation, delta, _session.TickSeconds);
         Probe("crafting/NPCs");
+        _frontierPerf?.Phase("npcs", npcsStarted);
         LogStates(simulation, delta, speed);
         _camera.Follow(_shots?.Viewpoint ?? _avatar.Position, delta);
         _avatar.SetFirstPerson(_camera.EffectiveDistance < 0.4f);
@@ -1369,7 +1374,9 @@ public partial class Main : Node3D
         _talkCamera.Frame(simulation.Conversation is { } talk && !_camera.IsFirstPerson ? _npcs.HeadOf(talk.NpcId) : null,
             _avatar.Head, _camera.Camera, delta);
         Probe("camera/state log");
+        ulong shadowsStarted = _frontierPerf is null ? 0 : Time.GetTicksUsec();
         if (GetViewport().GetCamera3D() is { } shadowEye) _shadowLods.Update(shadowEye.GlobalPosition);
+        _frontierPerf?.Phase("shadow_lods", shadowsStarted);
         DrawHud(simulation, combat, posture, alpha, delta);
         Probe("HUD");
     }
