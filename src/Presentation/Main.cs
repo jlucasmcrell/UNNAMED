@@ -532,7 +532,9 @@ public partial class Main : Node3D
             // the frame rate is the display's and the session follows the frame's clock (under Movie Maker's fixed rate, as repeatable).
             _realtime = _flags.Contains("--realtime");
             if (!_realtime)
-                Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
+                // Headless acceptance still runs exactly one fixed simulation tick per script frame;
+                // it needs no display pacing or GPU readback.
+                Engine.MaxFps = DisplayServer.GetName() == "headless" ? 0 : (int)Math.Round(1 / _session.TickSeconds);
             _play = new Playthrough(_session, _controller, _camera, _dialogue, Path.GetFullPath(playthrough), verify, _continued, ScreenByName);
         }
         else if (_options.TryGetValue("--delta-shots", out string? deltaShots))
@@ -1473,6 +1475,8 @@ public partial class Main : Node3D
     public static void SaveScreenshot(Viewport viewport, string directory, string name)
     {
         Directory.CreateDirectory(directory);
+        if (DisplayServer.GetName() == "headless")
+            return;
         viewport.GetTexture().GetImage().SavePng(Path.Combine(directory, name + ".png"));
     }
 
