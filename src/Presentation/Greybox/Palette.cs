@@ -265,6 +265,11 @@ void fragment() {
                 System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float pixels)
                 && pixels is > 1 and <= 8)
                 mesh.LodBias = 1 / pixels;
+            if (float.TryParse(System.Environment.GetEnvironmentVariable("UNNAMED_TREE_SHADOW_LOD_PIXELS"),
+                System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float shadowPixels)
+                && shadowPixels is > 1 and <= 16 && mesh.Mesh is ArrayMesh array
+                && Enumerable.Range(0, array.GetSurfaceCount()).Sum(array.SurfaceGetArrayIndexLen) >= 30_000)
+                Art.TreeShadowProxy.Add(mesh, shadowPixels);
         }
     }
 
