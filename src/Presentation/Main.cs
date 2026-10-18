@@ -1305,9 +1305,8 @@ public partial class Main : Node3D
         _avatar.Hold(combat.Weapon.Source == "unarmed" ? null : combat.Weapon.Source);
         string? Worn(EquipSlot slot) => simulation.Player.Equipment.TryGetValue(slot, out var id)
             ? simulation.Player.Inventory.FirstOrDefault(e => e.ItemId == id)?.DefId : null;
-        // The figure's outfit variant: the chest item, with "_cap" when a head item is worn too (hide_vest_cap).
-        string? chest = Worn(EquipSlot.Chest), head = Worn(EquipSlot.Head);
-        _avatar.Wear(chest is not null && head is not null ? $"{chest}_cap" : chest ?? head);
+        _avatar.WearEquipment(new Art.WornOutfit(Worn(EquipSlot.Chest), Worn(EquipSlot.Head), Worn(EquipSlot.Feet),
+            Worn(EquipSlot.Hands), Worn(EquipSlot.Legs), Worn(EquipSlot.Cloak)));
         var posture = simulation.Posture;
         _avatar.SetPosture(posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched, posture.Airborne);
         _avatar.Pose(feet, PlayerController.FacingRadians(predicted.FacingMdeg), speed, delta);

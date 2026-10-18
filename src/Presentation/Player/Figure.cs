@@ -54,6 +54,8 @@ public abstract partial class Figure : Node3D
     {
     }
 
+    public virtual void WearEquipment(Art.WornOutfit worn) => Wear(worn.LegacyVariant);
+
     /// <summary>The line this person is saying now, or null (a face that can speak shows it).</summary>
     public virtual void Say(string? line)
     {

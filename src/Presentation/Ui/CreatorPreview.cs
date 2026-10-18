@@ -97,10 +97,10 @@ public sealed partial class CreatorPreview : TextureRect
 
     /// <summary>
     /// Draw this body: <paramref name="model"/> on the player's binding (null: the greybox mannequin, as the game would), its arms at the
-    /// build's <paramref name="armSplay"/>, wearing the outfit for <paramref name="chest"/> (an item ID, or the base clothes). A body already
+    /// build's <paramref name="armSplay"/>, wearing <paramref name="worn"/>. A body already
     /// drawn once this session is shown again without loading.
     /// </summary>
-    public void Show(string? model, float armSplay, string? chest)
+    public void Show(string? model, float armSplay, WornOutfit worn)
     {
         string key = model ?? "";
         if (!_figures.TryGetValue(key, out var figure))
@@ -116,7 +116,7 @@ public sealed partial class CreatorPreview : TextureRect
         _figure = figure;
         if (_poses[figure] is { } pose)
             pose.ArmSplayDegrees = armSplay;
-        figure.Wear(chest);
+        figure.WearEquipment(worn);
     }
 
     /// <summary>Turn the body by an angle, in radians.</summary>

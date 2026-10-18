@@ -28,6 +28,7 @@ public partial class AnimationSheet : Node3D
     private readonly bool _profiles;
     private readonly string? _profileStates;
     private readonly List<(SkinnedModel Model, string State)> _profileModels = new();
+    private bool _equipmentProbe;
     private readonly Camera3D _camera = new() { Fov = 40, Current = true, Near = 0.05f };
     private readonly List<(string Name, Action Setup)> _shots = new();
     private readonly List<(string Creature, SkinnedModel Model, string State, bool Control)> _creatures = new();
@@ -99,6 +100,13 @@ public partial class AnimationSheet : Node3D
         floor.MaterialOverride = _art.WorldMaterial("material_packed_dirt_ground") ?? new StandardMaterial3D { AlbedoColor = new Color(0.4f, 0.38f, 0.33f) };
         AddChild(floor);
         AddChild(_camera);
+
+        _equipmentProbe = OS.GetCmdlineUserArgs().Contains("--anim-equipment-probe");
+        if (_equipmentProbe)
+        {
+            AddEquipmentProbe();
+            return;
+        }
 
         if (_profiles)
         {
@@ -393,6 +401,60 @@ public partial class AnimationSheet : Node3D
     }
 
     /// <summary>One real player skin per bound state, held at twelve reproducible phases, with runtime retargeting, correctives and outfit.</summary>
+    private void AddEquipmentProbe()
+    {
+        if (!_bindings.People.TryGetValue("player", out var person) || person.EquipmentOutfits.Count == 0
+            || SkinnedFigure.Create(_art, _bindings, "player") is not { } figure)
+        {
+            GD.PushError("Equipment probe needs an installed player and equipment_outfits binding.");
+            GetTree().Quit(1);
+            return;
+        }
+        AddChild(figure);
+        _walkers.Add((figure, 0));
+        Dictionary<string, (int Region, int Source)>? baseMasks = null;
+        var legs = new WornOutfit(Legs: "item.armor.wool_trousers");
+        foreach (var (name, worn) in new[]
+        {
+            ("base", new WornOutfit()), ("legs", legs),
+            ("cap", legs with { Head = "item.armor.hide_cap" }),
+            ("coif", legs with { Head = "item.armor.lame_coif" }),
+            ("unequip", new WornOutfit()), ("repeat_cap", legs with { Head = "item.armor.hide_cap" }),
+            ("unchanged_cap", legs with { Head = "item.armor.hide_cap" }),
+        })
+        {
+            _shots.Add(("equipment_" + name, () =>
+            {
+                var before = Enumerable.Range(0, figure.Skeleton.GetBoneCount()).Select(figure.Skeleton.GetBonePose).ToArray();
+                figure.WearEquipment(worn);
+                var expected = worn.Garments(person.Outfit, person.EquipmentOutfits)
+                    .Select(g => PlayerBodies.Garment(g, person.Model)).Distinct().Order(StringComparer.Ordinal).ToArray();
+                // One garment has several imported LOD meshes. Check asset IDs,
+                // rather than mistaking the LOD count for extra garments.
+                var actual = figure.Skeleton.GetChildren().OfType<MeshInstance3D>().Where(n => n.HasMeta("outfit_garment"))
+                    .Select(n => n.GetMeta("outfit_garment").AsString()).Distinct().Order(StringComparer.Ordinal).ToArray();
+                bool samePose = before.Select((pose, i) => pose == figure.Skeleton.GetBonePose(i)).All(equal => equal);
+                bool pass = expected.SequenceEqual(actual) && samePose;
+                var masks = figure.Skeleton.GetChildren().OfType<MeshInstance3D>().Where(n => !n.HasMeta("outfit_garment"))
+                    .ToDictionary(n => n.Name.ToString(), n =>
+                        (Region: n.GetInstanceShaderParameter("region_hidden_mask").AsInt32(),
+                         Source: n.GetInstanceShaderParameter("source_hidden_mask").AsInt32()));
+                if (name == "base")
+                    baseMasks = masks;
+                else if (name == "legs")
+                    pass &= baseMasks is not null && masks.Any(m => baseMasks[m.Key] != m.Value);
+                else if (name == "unequip")
+                    pass &= baseMasks is not null && masks.All(m => baseMasks[m.Key] == m.Value);
+                string result = $"Equipment probe {name}: expected={string.Join(',', expected)}, drawn={string.Join(',', actual)}, unchanged_pose={samePose}, pass={pass}";
+                _notes.Add(result);
+                GD.Print(result);
+                if (!pass)
+                    GetTree().Quit(1);
+                Aim(new Vector3(2.4f, 1.5f, 3.2f), new Vector3(0, 1.0f, 0));
+            }));
+        }
+    }
+
     private void AddPlayerProfiles()
     {
         var person = _bindings.People["player"];
@@ -510,7 +572,8 @@ public partial class AnimationSheet : Node3D
         // The reach waits until it is at full stretch.
         if (++_wait < 8 || _shots[_shot].Name == "player_close_interact" && _clockAtShot + ReachSeconds > _clock)
             return;
-        Main.SaveScreenshot(GetViewport(), _directory, _shots[_shot].Name);
+        if (!_equipmentProbe || DisplayServer.GetName() != "headless")
+            Main.SaveScreenshot(GetViewport(), _directory, _shots[_shot].Name);
         // The creature pictures are the only place two fractions of one clip are held for long enough to compare, so the
         // movement between them is measured here rather than guessed from the frames afterwards.
         if (_shots[_shot].Name.StartsWith("creature_", StringComparison.Ordinal) && !_shots[_shot].Name.Contains("_noclip_", StringComparison.Ordinal))
@@ -614,11 +677,15 @@ public partial class AnimationSheet : Node3D
                           + $"{fractions[0] * 100:0} % and {fractions[^1] * 100:0} % of the clip; the most-moving bone travels {most:0.000} m");
             }
         }
-        lines.AddRange(new[] { "", "## Pictures", "" });
-        lines.AddRange(_shots.Select(s => $"![{s.Name}]({s.Name}.png)"));
+        bool pictures = !_equipmentProbe || DisplayServer.GetName() != "headless";
+        if (pictures)
+        {
+            lines.AddRange(new[] { "", "## Pictures", "" });
+            lines.AddRange(_shots.Select(s => $"![{s.Name}]({s.Name}.png)"));
+        }
         lines.AddRange(new[] { "", "## Library problems", "" });
         lines.AddRange(_art.Problems.Count == 0 ? new[] { "None." } : _art.Problems.Select(p => $"- `{p.Key}`: {p.Value}"));
         File.WriteAllText(Path.Combine(_directory, "animation_sheet.md"), string.Join("\n", lines) + "\n");
-        GD.Print($"UNNAMED animation sheet written to {_directory}: {_shots.Count} pictures");
+        GD.Print($"UNNAMED animation sheet written to {_directory}: {_shots.Count} {(pictures ? "pictures" : "headless checks")}");
     }
 }

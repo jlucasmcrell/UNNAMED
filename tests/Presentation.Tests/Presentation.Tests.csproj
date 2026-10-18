@@ -36,6 +36,7 @@
     <Compile Include="..\..\src\Presentation\Settings\ClientPrefs.cs" Link="Linked\ClientPrefs.cs" />
     <Compile Include="..\..\src\Presentation\Diagnostics\CrashLog.cs" Link="Linked\CrashLog.cs" />
     <Compile Include="..\..\src\Presentation\Art\PlayerBodies.cs" Link="Linked\PlayerBodies.cs" />
+    <Compile Include="..\..\src\Presentation\Art\WornOutfit.cs" Link="Linked\WornOutfit.cs" />
     <Compile Include="..\..\src\Presentation\Ui\CreatorDraft.cs" Link="Linked\CreatorDraft.cs" />
   </ItemGroup>
 

@@ -23,6 +23,8 @@ public sealed partial class SkinnedFigure : Figure
     private PostureModifier? _posture;
     private ArtLibrary _art = null!;
     private ArtBindings _bindings = null!;
+    private PersonArt _person = null!;
+    private WornOutfit? _worn;
     private BoneAttachment3D? _hand;
     private BoneAttachment3D? _offHand;
     private Node3D? _held;
@@ -54,6 +56,7 @@ public sealed partial class SkinnedFigure : Figure
         if (SkinnedModel.Create(art, person.Model, person.Clips, personId) is not { } model)
             return null;
         var figure = new SkinnedFigure { Name = personId, _model = model, _art = art, _bindings = bindings, _paces = person.Paces, _phases = person.Phases };
+        figure._person = person;
         figure.AddChild(model);
         var posture = new PostureModifier();
         if (posture.Bind(model.Skeleton, "pelvis", new[] { "thigh_l", "thigh_r" }, new[] { "calf_l", "calf_r" })
@@ -189,6 +192,22 @@ public sealed partial class SkinnedFigure : Figure
 
     public override void Wear(string? chestItemDefId) =>
         _model.SetOutfit(chestItemDefId is null ? "base" : chestItemDefId[(chestItemDefId.LastIndexOf('.') + 1)..]);
+
+    public override void WearEquipment(WornOutfit worn)
+    {
+        if (_person.EquipmentOutfits.Count == 0)
+        {
+            base.WearEquipment(worn);
+            return;
+        }
+        if (_worn == worn)
+            return;
+        _worn = worn;
+        Outfit.Clear(_model);
+        Outfit.Dress(_art, _model, _person.Model, worn.Garments(_person.Outfit, _person.EquipmentOutfits));
+        CharacterMaterials.ShareLodBox(_model.Skeleton);
+        KeepLast(_model.Skeleton);
+    }
 
     /// <summary>The weapon for an item definition on its hand bone (the bindings' <c>weapons</c>), or empty hands.</summary>
     public override void Hold(string? itemDefId)

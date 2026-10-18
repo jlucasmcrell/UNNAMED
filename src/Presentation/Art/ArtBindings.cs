@@ -111,6 +111,8 @@ public sealed record PersonArt(string Model, string Hand, string? OffHand, IRead
 
     /// <summary>The garments worn over the body (rigged asset IDs, each with its <c>_garment.json</c>; <see cref="Outfit"/>), or none.</summary>
     public IReadOnlyList<string> Outfit { get; init; } = Array.Empty<string>();
+    /// <summary>Optional item definition to modular garment IDs, over the permanent Outfit underlayers.</summary>
+    public IReadOnlyDictionary<string, string[]> EquipmentOutfits { get; init; } = new Dictionary<string, string[]>();
 }
 
 /// <summary>A weapon held in the hand: its model (held by its own grip socket), its family, and whether the off hand holds it.</summary>
@@ -375,7 +377,7 @@ public sealed class ArtBindings
                 People = root.TryGetProperty("people", out var people)
                     ? people.EnumerateObject().ToDictionary(p => p.Name, p => OptionClips(root, p.Name, new PersonArt(Text(p.Value, "model")!,
                         Text(p.Value, "hand") ?? "hand_r", Text(p.Value, "off_hand"), Strings(p.Value, "clips"), Grip(p.Value, "grip"), Grip(p.Value, "off_grip"))
-                        { Outfit = List(p.Value, "outfit") ?? Array.Empty<string>() }),
+                        { Outfit = List(p.Value, "outfit") ?? Array.Empty<string>(), EquipmentOutfits = EquipmentOutfits(p.Value) }),
                         StringComparer.Ordinal)
                     : new Dictionary<string, PersonArt>(),
                 Bodies = root.TryGetProperty("player_bodies", out var bodies) ? PlayerBodies.Read(bodies) : PlayerBodies.None,
@@ -499,10 +501,17 @@ public sealed class ArtBindings
                 Grip = Grip(over, "grip") ?? look.Grip,
                 OffGrip = Grip(over, "off_grip") ?? look.OffGrip,
                 Outfit = List(over, "outfit") ?? look.Outfit,
+                EquipmentOutfits = over.TryGetProperty("equipment_outfits", out _) ? EquipmentOutfits(over) : look.EquipmentOutfits,
             };
         }
         return look;
     }
+
+    private static Dictionary<string, string[]> EquipmentOutfits(JsonElement e) =>
+        e.TryGetProperty("equipment_outfits", out var outfits)
+            ? outfits.EnumerateObject().ToDictionary(p => p.Name,
+                p => p.Value.EnumerateArray().Select(v => v.GetString()!).ToArray(), StringComparer.Ordinal)
+            : new Dictionary<string, string[]>(StringComparer.Ordinal);
 
     private static Placement Look(JsonElement e) => new(
         Text(e, "model"), Text(e, "fit") ?? "none", Text(e, "surface"), Text(e, "material"), Flag(e, "hidden"), Flag(e, "hide_ready"),

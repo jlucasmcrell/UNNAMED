@@ -70,10 +70,21 @@ wing-channel comparison are also not implemented by these item definitions.
   still an undetailed construction candidate. These are rest views, not motion
   or art acceptance.
 
-The current MetaHuman path dresses a static `PersonArt.Outfit`; its `Wear` method
-only selects embedded legacy material variants. It does not yet select modular
-garments for the equipped item IDs. The crafted jack/feet/head demonstrations
-therefore also need presentation equipment wiring before this task is complete.
+Optional `PersonArt.equipment_outfits` now maps equipped item IDs to modular
+garments, over the permanent `outfit` underlayer. Main and the creator pass all
+six worn armour slots. Definitions without the new map keep their legacy
+variant behaviour. Changing equipment removes only owned garment meshes/springs,
+resets body masks, and dresses the new pieces without replacing the body or its
+current pose. No live binding enables this until its art passes.
+
+Release build succeeds; 245 Presentation tests and 23 Architecture tests pass.
+The native headless `--anim-sheet <dir> --anim-equipment-probe` checks seven
+selections: base, legs, cap, coif over cap, unequip, re-equip and unchanged repeat.
+All seven pass using private unaccepted diagnostic assets. It compares actual
+garment asset IDs (not the number of imported LOD meshes), proves current bone
+poses remain identical, and checks the body mask changes on equip and returns
+to its original value on unequip. Headless reports contain checks, not images.
+GPU/native visual and complete wardrobe acceptance remain pending.
 
 No zero-clipping claim, shared C integration, performance acceptance or release
 candidate is ready yet.

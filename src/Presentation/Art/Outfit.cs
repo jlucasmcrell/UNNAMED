@@ -22,6 +22,19 @@ public static partial class Outfit
     private const string ClothShaderPath = "res://Art/cloth.gdshader";
     private static Shader? _cloth;
     private static readonly Dictionary<BaseMaterial3D.CullModeEnum, Shader> ClothCullShaders = new();
+    private const string OwnedGarment = "outfit_garment";
+
+    /// <summary>Remove only meshes/springs installed by Dress, retaining the body, pose and animation player.</summary>
+    public static void Clear(SkinnedModel figure)
+    {
+        foreach (var child in figure.Skeleton.GetChildren().Where(n => n.HasMeta(OwnedGarment)).ToList())
+            child.Free();
+        foreach (var mesh in figure.Skeleton.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
+        {
+            mesh.SetInstanceShaderParameter("region_hidden_mask", 0);
+            mesh.SetInstanceShaderParameter("source_hidden_mask", 0);
+        }
+    }
 
     /// <summary>
     /// Dress <paramref name="figure"/>, drawn with the model <paramref name="body"/>, in <paramref name="garments"/> (rigged asset IDs, each
@@ -58,6 +71,7 @@ public static partial class Outfit
                 figure.Skeleton.AddChild(mesh);
                 mesh.Transform = Transform3D.Identity;
                 mesh.Skeleton = new NodePath("..");
+                mesh.SetMeta(OwnedGarment, id);
                 for (int s = 0; s < mesh.Mesh.GetSurfaceCount(); s++)
                 {
                     if (Cloth(mesh.Mesh.SurfaceGetMaterial(s)) is { } cloth)
@@ -109,6 +123,7 @@ public static partial class Outfit
         if (settings.Count == 0)
             return;
         var springs = new SpringBoneSimulator3D { Name = "Springs." + garment };
+        springs.SetMeta(OwnedGarment, true);
         skeleton.AddChild(springs);
         springs.SetSettingCount(settings.Count);
         for (int i = 0; i < settings.Count; i++)

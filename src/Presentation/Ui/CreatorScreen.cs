@@ -274,21 +274,21 @@ public partial class CreatorScreen : CanvasLayer
     private void ShowBody()
     {
         var body = OfferedBodies().FirstOrDefault(o => o.Id == Draft.BodyPresetId);
-        string? chest = Outfit(Draft.CallId);
-        string shown = $"{body?.Model}|{body?.Body.ArmSplayDegrees}|{chest}";
+        var worn = Outfit(Draft.CallId);
+        string shown = $"{body?.Model}|{body?.Body.ArmSplayDegrees}|{worn}";
         if (shown == _shownBody)
             return;
         _shownBody = shown;
-        _preview.Show(body?.Model, body?.Body.ArmSplayDegrees ?? 0, chest);
+        _preview.Show(body?.Model, body?.Body.ArmSplayDegrees ?? 0, worn);
     }
 
-    /// <summary>What the body wears for a Call's kit, by the game's own rule (Main): the chest item, "_cap" with a head item, else the head item.</summary>
-    private string? Outfit(string? callId)
+    /// <summary>Every worn armour slot in the Call's actual starting kit, using the same selection as Main.</summary>
+    private WornOutfit Outfit(string? callId)
     {
         var lines = Kit(callId).Where(k => k.Equip).ToList();
         string? Worn(EquipSlot slot) => lines.FirstOrDefault(k => _session.Setup.Items.Catalog.Get(k.ItemId).Slot == slot)?.ItemId;
-        string? chest = Worn(EquipSlot.Chest), head = Worn(EquipSlot.Head);
-        return chest is not null && head is not null ? $"{chest}_cap" : chest ?? head;
+        return new WornOutfit(Worn(EquipSlot.Chest), Worn(EquipSlot.Head), Worn(EquipSlot.Feet),
+            Worn(EquipSlot.Hands), Worn(EquipSlot.Legs), Worn(EquipSlot.Cloak));
     }
 
     /// <summary>Everything a new character carries: the common kit, then the Call's.</summary>
