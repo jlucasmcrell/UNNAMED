@@ -25,7 +25,8 @@ GameSession runs its normal 20 Hz clock; creatures, NPCs, weather, economy and a
 A defeated character makes the run fail rather than silently disabling combat.
 
 Eight gameplay camera headings, 45 degrees apart, cover the gaps between cardinal views. Each has a
-12-second observation after warm-up: 10 seconds initially, 3 seconds after subsequent turns. Warm-up
+12-second observation after warm-up: retain the first two boot intervals (the first Draw creates NPC
+figures), then 10 rendered seconds initially, 3 seconds after subsequent turns excluding readback. Warm-up
 samples remain in separately named segments. `frames.csv` retains monotonic frame intervals, including
 long stalls the engine delta might clamp. The existing screenshot readback exclusion is the only
 dropped sample. Initial content loading precedes this benchmark and must be reported separately.
@@ -79,3 +80,7 @@ camera turns across band edges. Detailed GPU profiling needs a larger timestamp-
 engine default of 256. The controller uses a temporary, removed-on-exit override of
 `debug/settings/profiler/max_timestamp_query_elements=16384`. A capture that overflowed 256 is invalid
 and retained separately. Normal FPS runs do not enable the detailed GPU profiler.
+
+The original protocol let the blocking first NPC Draw consume all ten seconds of initial warm-up
+in two frames. This was corrected in the harness for **both** baseline and candidate. Original v1
+captures stay archived separately and do not establish the post-warm-up hitch gate.

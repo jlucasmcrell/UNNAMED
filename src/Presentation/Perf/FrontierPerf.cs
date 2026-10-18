@@ -62,7 +62,11 @@ public sealed class FrontierPerf
             _renderCounts.Append(CultureInfo.InvariantCulture,
                 $"{_stats.Segment},{_stats.Count - 1},{Performance.GetMonitor(Performance.Monitor.RenderTotalDrawCallsInFrame)}," +
                 $"{Performance.GetMonitor(Performance.Monitor.RenderTotalPrimitivesInFrame)},{Performance.GetMonitor(Performance.Monitor.RenderTotalObjectsInFrame)}\n");
-        _elapsed += seconds;
+        // The first Draw creates the NPC figures and can take longer than the entire
+        // warm-up. Retain those two boot intervals, then warm for ten rendered seconds.
+        // Screenshot readback must not consume the next heading's warm-up either.
+        if (_heading == 0 && _warming && _stats.Count <= 2) _elapsed = 0;
+        else if (_stats.Count > before) _elapsed += seconds;
         _camera.Yaw = _heading * Mathf.Tau / HeadingCount;
         _camera.Pitch = -.12f;
         _camera.TargetDistance = 3.5f;
@@ -127,7 +131,7 @@ public sealed class FrontierPerf
         {
             ["route"] = "One fresh frontier fixture, eight gameplay camera headings; no relocation after new game",
             ["clock"] = "Normal GameSession.Frame(delta), 20 Hz simulation; monotonic measured frame intervals",
-            ["warmup"] = "10 seconds first heading; 3 seconds after each turn. Warmup segments retained separately",
+            ["warmup"] = "Retain two boot intervals, then 10 seconds first heading; 3 seconds after each turn excluding screenshot readback. Warmup segments retained separately",
             ["capture"] = "12 seconds per heading; only the frame after screenshot readback is excluded",
             ["tier"] = VisualOptions.Tier,
             ["visual_options"] = string.Join(",", VisualOptions.All.OrderBy(v => v.Key, StringComparer.Ordinal).Select(v => $"{v.Key}={v.Value}")),
