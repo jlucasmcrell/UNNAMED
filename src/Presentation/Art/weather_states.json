@@ -1,33 +1,63 @@
 {
-  "comment": [
-    "Weather as presentation (Phase B, B5): what each state does to Sky3D (its node: 'sky3d'; its dome: 'dome' - property names as Sky3D",
-    "2.1 declares them), to the environment's fog (fog_scale multiplies the depth and volumetric fog densities) and to the world wind",
-    "(wind: [strength, gust], 0-1); 'environment' sets the world environment's own properties. 'all' applies under every state: the",
-    "sunset's horizon light less orange (Sky3D's defaults read as over-saturated), and a night you can see by - a brighter moon, and",
-    "over half the night's ambient from a cool moonlit colour rather than the black sky (Sky3D's night_sky_contribution). There is no weather in the simulation yet: a run picks a state with",
-    "--visual weather=<state> (fair by default); a domain weather is a coordination item."
-  ],
+  "comment": ["Live WP7 regional fronts. SkyWeatherView blends absolute profiles over ten game minutes, including load within a transition.", "clouds controls the active Sunshine compositor; dome controls the alternate Sky3D layer. Wind drives vegetation and both cloud layers.", "Fold weather remains reserved. clear/storm/snow are visual diagnostics only; WP7 selects fair/overcast/rain/fog/wind."],
   "all": {
-    "sky3d": { "moon_energy": 0.6, "night_sky_contribution": 0.45 },
-    "dome": { "sun_horizon_light_color": [0.98, 0.68, 0.5], "atm_horizon_light_tint": [0.94, 0.74, 0.62] },
-    "environment": { "ambient_light_color": [0.2, 0.25, 0.36] }
+    "sky3d": {"moon_energy": 0.6, "night_sky_contribution": 0.45},
+    "dome": {"sun_horizon_light_color": [0.98, 0.68, 0.5], "atm_horizon_light_tint": [0.94, 0.74, 0.62]},
+    "environment": {"ambient_light_color": [0.2, 0.25, 0.36]}
   },
   "states": {
-    "fair": {},
+    "fair": {
+      "clouds": {"clouds_coverage": 0.726, "clouds_density": 1.0, "atmospheric_density": 0.5},
+      "fog_scale": 1.0,
+      "wind": [0.35, 0.55]
+    },
     "clear": {
-      "sky3d": { "sun_energy": 1.1 },
-      "dome": { "cumulus_coverage": 0.3, "cirrus_coverage": 0.35 },
-      "fog_scale": 0.6, "wind": [0.2, 0.4]
+      "sky3d": {"sun_energy": 1.1},
+      "dome": {"cumulus_coverage": 0.3, "cirrus_coverage": 0.35},
+      "fog_scale": 0.6,
+      "wind": [0.2, 0.4],
+      "clouds": {"clouds_coverage": 0.3, "clouds_density": 0.8, "atmospheric_density": 0.35}
     },
     "overcast": {
-      "sky3d": { "sun_energy": 0.35, "sun_shadow_opacity": 0.35, "ambient_energy": 1.25 },
-      "dome": { "cumulus_coverage": 0.97, "cumulus_intensity": 0.35, "cumulus_absorption": 3.2, "cirrus_coverage": 0.85, "atm_day_tint": [0.72, 0.76, 0.8] },
-      "fog_scale": 2.2, "wind": [0.5, 0.7]
+      "sky3d": {"sun_energy": 0.35, "sun_shadow_opacity": 0.35, "ambient_energy": 1.25},
+      "dome": {"cumulus_coverage": 0.97, "cumulus_intensity": 0.35, "cumulus_absorption": 3.2, "cirrus_coverage": 0.85, "atm_day_tint": [0.72, 0.76, 0.8]},
+      "fog_scale": 2.2,
+      "wind": [0.5, 0.7],
+      "clouds": {"clouds_coverage": 0.96, "clouds_density": 1.55, "atmospheric_density": 0.8}
     },
     "storm": {
-      "sky3d": { "sun_energy": 0.15, "sun_shadow_opacity": 0.15, "ambient_energy": 1.0 },
-      "dome": { "cumulus_coverage": 1.0, "cumulus_intensity": 0.2, "cumulus_absorption": 4.5, "cirrus_coverage": 1.0, "atm_day_tint": [0.55, 0.6, 0.65] },
-      "fog_scale": 3.2, "wind": [0.85, 0.9]
+      "sky3d": {"sun_energy": 0.15, "sun_shadow_opacity": 0.15, "ambient_energy": 1.0},
+      "dome": {"cumulus_coverage": 1.0, "cumulus_intensity": 0.2, "cumulus_absorption": 4.5, "cirrus_coverage": 1.0, "atm_day_tint": [0.55, 0.6, 0.65]},
+      "fog_scale": 3.2,
+      "wind": [0.85, 0.9],
+      "clouds": {"clouds_coverage": 1.0, "clouds_density": 2.1, "atmospheric_density": 1.0}
+    },
+    "rain": {
+      "sky3d": {"sun_energy": 0.3, "sun_shadow_opacity": 0.3, "ambient_energy": 1.15},
+      "dome": {"cumulus_coverage": 0.98, "cumulus_intensity": 0.3, "cumulus_absorption": 3.5, "cirrus_coverage": 0.9, "atm_day_tint": [0.67, 0.72, 0.78]},
+      "clouds": {"clouds_coverage": 0.98, "clouds_density": 1.7, "atmospheric_density": 0.9},
+      "fog_scale": 2.7,
+      "wind": [0.55, 0.75]
+    },
+    "fog": {
+      "sky3d": {"sun_energy": 0.55, "sun_shadow_opacity": 0.5},
+      "dome": {"cumulus_coverage": 0.85, "cirrus_coverage": 0.8, "atm_day_tint": [0.8, 0.83, 0.86]},
+      "clouds": {"clouds_coverage": 0.85, "clouds_density": 1.1, "atmospheric_density": 1.0},
+      "fog_scale": 9.0,
+      "wind": [0.12, 0.2]
+    },
+    "wind": {
+      "sky3d": {"sun_energy": 1.05},
+      "dome": {"cumulus_coverage": 0.55, "cirrus_coverage": 0.6},
+      "clouds": {"clouds_coverage": 0.55, "clouds_density": 0.9, "atmospheric_density": 0.45},
+      "fog_scale": 0.85,
+      "wind": [0.85, 0.95]
+    },
+    "snow": {
+      "sky3d": {"sun_energy": 0.45},
+      "clouds": {"clouds_coverage": 0.9, "clouds_density": 1.5, "atmospheric_density": 0.85},
+      "fog_scale": 3.0,
+      "wind": [0.3, 0.4]
     }
   }
 }

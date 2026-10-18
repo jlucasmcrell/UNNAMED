@@ -16,7 +16,15 @@ public partial class AtmosphereView : Node3D
 {
     public const string ResourcePath = "res://Art/atmosphere.json";
 
-    private sealed record Follower(GpuParticles3D Particles, Vector3 Offset, HashSet<string>? Grounds);
+    private sealed record Follower(GpuParticles3D Particles, Vector3 Offset, HashSet<string>? Grounds,
+        HashSet<string>? Weathers, bool DayOnly, bool NightOnly, float WindResponse)
+    {
+        public float Amount = -1;
+        public bool Active;
+        public readonly ParticleProcessMaterial? WindMaterial = Particles.ProcessMaterial as ParticleProcessMaterial;
+        public readonly Vector3 Gravity = (Particles.ProcessMaterial as ParticleProcessMaterial)?.Gravity ?? Vector3.Zero;
+        public Vector3 AppliedGravity;
+    }
 
     private readonly List<Follower> _followers = new();
     private GroundField _ground = null!;
@@ -28,17 +36,14 @@ public partial class AtmosphereView : Node3D
         if (!Godot.FileAccess.FileExists(ResourcePath))
             return 0;
         using var json = JsonDocument.Parse(Godot.FileAccess.GetFileAsString(ResourcePath));
-        string weather = VisualOptions.Weather ?? "fair";
         int built = 0;
         foreach (var e in json.RootElement.GetProperty("emitters").EnumerateArray())
         {
             string recipe = e.GetProperty("recipe").GetString()!;
-            if (e.TryGetProperty("weather", out var w) && !w.EnumerateArray().Any(x => x.GetString() == weather))
-                continue;
-            if (e.TryGetProperty("day_only", out var day) && day.ValueKind == JsonValueKind.True && SkyView.DaylightNow < 0.5f)
-                continue;
-            if (e.TryGetProperty("night_only", out var night) && night.ValueKind == JsonValueKind.True && SkyView.DaylightNow >= 0.5f)
-                continue;
+            var weathers = e.TryGetProperty("weather", out var w)
+                ? w.EnumerateArray().Select(x => x.GetString()!).ToHashSet(StringComparer.Ordinal) : null;
+            bool dayOnly = e.TryGetProperty("day_only", out var day) && day.ValueKind == JsonValueKind.True;
+            bool nightOnly = e.TryGetProperty("night_only", out var night) && night.ValueKind == JsonValueKind.True;
             // The otherworld concepts' air (Greybox/Otherworld.cs): drawn only when a concept is on.
             if (e.TryGetProperty("otherworld", out var other) && other.ValueKind == JsonValueKind.True && Otherworld.Strength <= 0)
                 continue;
@@ -65,10 +70,11 @@ public partial class AtmosphereView : Node3D
             var grounds = e.TryGetProperty("grounds", out var g) ? g.EnumerateArray().Select(x => x.GetString()!).ToHashSet(StringComparer.Ordinal) : null;
             particles.Emitting = false;
             AddChild(particles);
-            _followers.Add(new Follower(particles, offset, grounds));
+            float windResponse = e.TryGetProperty("wind_response", out var response) ? response.GetSingle() : 0;
+            _followers.Add(new Follower(particles, offset, grounds, weathers, dayOnly, nightOnly, windResponse));
             built++;
         }
-        GD.Print($"UNNAMED atmosphere: {built} emitters under {weather} weather");
+        GD.Print($"UNNAMED atmosphere: {built} emitters, gated by live WP7 weather and daylight");
         return built;
     }
 
@@ -77,10 +83,27 @@ public partial class AtmosphereView : Node3D
         if (_followers.Count == 0 || GetViewport().GetCamera3D() is not { } camera)
             return;
         var eye = camera.GlobalPosition;
+        var weather = SkyView.Weather;
+        bool outside = IsVisibleInTree();
         foreach (var follower in _followers)
         {
             follower.Particles.GlobalPosition = eye + follower.Offset;
-            follower.Particles.Emitting = follower.Grounds is null || OnGround(eye, follower.Grounds);
+            if (follower.WindResponse > 0 && follower.WindMaterial is { } material)
+            {
+                var gravity = follower.Gravity + WindField.Direction * (WindField.Strength * follower.WindResponse);
+                if (gravity != follower.AppliedGravity) { follower.AppliedGravity = gravity; material.Gravity = gravity; }
+            }
+            float amount = follower.Weathers is null ? 1 : 0;
+            if (follower.Weathers is { } allowed)
+                foreach (string state in allowed) amount += weather.Amount(state);
+            amount *= follower.DayOnly ? SkyView.DaylightLevel : follower.NightOnly ? 1 - SkyView.DaylightLevel : 1;
+            bool active = outside && amount > .001f && (follower.Grounds is null || OnGround(eye, follower.Grounds));
+            if (amount != follower.Amount)
+            {
+                follower.Amount = amount;
+                follower.Particles.AmountRatio = Mathf.Clamp(amount, 0, 1);
+            }
+            if (active != follower.Active) { follower.Active = active; follower.Particles.Emitting = active; }
         }
     }
 

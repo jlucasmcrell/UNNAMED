@@ -31,7 +31,7 @@ public sealed partial class FoldEcho : Node3D
     private Figure? _shadow;
     private StandardMaterial3D? _ghost;
     private DirectionalLight3D? _sun;
-    private bool _sunSought;
+    private double _nextLightCheck;
     private readonly Queue<(double T, Vector3 Feet, float Facing, float Speed)> _trail = new();
     private double _clock;
     private double? _releasedAt;
@@ -107,11 +107,10 @@ public sealed partial class FoldEcho : Node3D
     /// <summary>Across the sun's light on the ground (so the shadow is seen to stand off the feet, not merely lengthen); else the body's side.</summary>
     private Vector3 Aside(Vector3 fallback)
     {
-        if (!_sunSought)
+        if (_clock >= _nextLightCheck)
         {
-            _sunSought = true;
-            _sun = GetTree().Root.FindChildren("*", nameof(DirectionalLight3D), true, false).OfType<DirectionalLight3D>()
-                .Where(l => l.Visible).OrderByDescending(l => l.LightEnergy).FirstOrDefault();
+            _nextLightCheck = _clock + .25;
+            _sun = SkyView.KeyLight;
         }
         if (_sun is null || !IsInstanceValid(_sun))
             return fallback;

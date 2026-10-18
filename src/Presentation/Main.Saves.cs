@@ -51,7 +51,7 @@ public partial class Main
         _camera.Yaw = PlayerController.FacingRadians(body.FacingMdeg) + Mathf.Pi;
         _lastFeet = HollowView.ToGodot(body.XMm, body.YMm, body.ZMm);
         // The ground scatter is this world's: placed from its seed (the same seed again keeps what is placed).
-        _scatter.Build(_session.Simulation!.World.WorldSeed);
+        _scatter.Build(_session.Simulation!.World.WorldSeed, new Vector2(_lastFeet.X, _lastFeet.Z));
     }
 
     private void PrepareNavigationQueries()

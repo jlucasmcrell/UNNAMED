@@ -367,7 +367,7 @@ public sealed class VisualAudit
             }
             var scatter = _root.GetNodeOrNull<Greybox.ScatterView>("Scatter");
             if (_scatterAb) scatter?.SetResidencyModeForCapture(ScatterArms[_scatterStep] is "B" or "B2");
-            scatter?.PrepareResidencyForCapture(eye);
+            scatter?.PrepareResidency(eye);
         }
         if (++_wait < SettleFrames)
             return;

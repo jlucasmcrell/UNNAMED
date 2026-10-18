@@ -31,6 +31,7 @@
     <Compile Include="..\..\src\Presentation\Ui\NameWords.cs" Link="Linked\NameWords.cs" />
     <Compile Include="..\..\src\Presentation\Ui\TravelWords.cs" Link="Linked\TravelWords.cs" />
     <Compile Include="..\..\src\Presentation\Ui\CalendarWords.cs" Link="Linked\CalendarWords.cs" />
+    <Compile Include="..\..\src\Presentation\Greybox\SkyCycle.cs" Link="Linked\SkyCycle.cs" />
     <Compile Include="..\..\src\Presentation\Greybox\TerrainOcclusionGrid.cs" Link="Linked\TerrainOcclusionGrid.cs" />
     <Compile Include="..\..\src\Presentation\Ui\AwayWords.cs" Link="Linked\AwayWords.cs" />
     <Compile Include="..\..\src\Presentation\Ui\StandingWords.cs" Link="Linked\StandingWords.cs" />

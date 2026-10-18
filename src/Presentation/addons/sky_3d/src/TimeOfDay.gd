@@ -358,7 +358,22 @@ func get_current_time_utc0() -> float:
 	return current_time - utc
 
 
+var _world_calendar_day: float = NAN
+
+# The authoritative WP7 calendar supplies orbital time; normal addon users keep its date path.
+func set_world_clock(hour: float, astronomy_day: float) -> void:
+	if _world_calendar_day == astronomy_day and current_time == hour:
+		return
+	_world_calendar_day = astronomy_day
+	if current_time != hour:
+		current_time = hour
+	else:
+		_update_celestial_coords()
+
+
 func _get_time_scale() -> float:
+	if not is_nan(_world_calendar_day):
+		return _world_calendar_day
 	# All divisions must be integer divisions, see: https://stjarnhimlen.se/comp/ppcomp.html#3
 	var leap_term: int = int(7 * int((year + int((month + 9) / 12))) / 4)
 	var century_term: int = int(3 * int((int((year + int((month - 9) / 7))) / 100) + 1) / 4)

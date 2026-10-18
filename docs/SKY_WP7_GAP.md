@@ -5,7 +5,7 @@ The simulation already publishes `Simulation.Weather`, `Simulation.Calendar` and
 seed, region and tick, including offline catch-up. No saved presentation state is
 needed.
 
-## Current connections
+## Original connections (before this change)
 
 - Main supplies the world-start hour and tick/day rate to SkyView. Sky3D's own clock
   is disabled; the moving hour controls sun, air and night fill.
@@ -44,4 +44,18 @@ Do not add a mystery-solving cosmic event or make reserved Fold weather active.
 
 Proof needs same-place weather sequences, a day/night sequence, seasonal and moon
 comparisons, a save/reload mid-transition check, and a post-sky performance rerun.
-This audit is preparation only; it is not an implementation or acceptance claim.
+## Implementation checkpoint
+
+SkyCycle now projects the continuous WP7 date into Sky3D's astronomical day,
+including the Reckoning boundary and Hollow Day. SkyWeatherView reads adjacent
+regional fronts and applies absolute profiles with a tick-based smoothstep over
+ten game minutes. Both cloud renderers, fog and shared wind receive the blend.
+Atmosphere and ambient-life followers now respond during play rather than only
+at scene construction. The existing moon imagery and restrained Foldscar effects
+are retained; additional moon periods (28/42 days) are artistic tuning, not canon.
+
+The pure clock/blend checks and native SkyClockCheck pass, including repeatable
+mid-transition seeks, fog baseline restoration, seasonal sun movement and night
+key-light selection. SkyShots supplies weather, full-day, seasonal and moon-date
+sequences in the real scene. Rendered review and post-sky performance acceptance
+remain outstanding. This checkpoint is not an acceptance claim.

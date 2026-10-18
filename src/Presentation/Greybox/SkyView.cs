@@ -1,9 +1,9 @@
 // UNNAMED Presentation - the sky, sun and moon when Phase B's sky systems draw them (B0.3): Sky3D (MIT, TokisanGames, v2.1.0) or an HDRI
-// Godot presentation only (D-11): the hour is an input, never kept here; the simulation holds no clock yet, so the sky holds a fixed hour
-// unless a harness sets one (--visual hour=H)
+// Godot presentation only (D-11): the WP7 clock, calendar and regional fronts drive one-way presentation inputs.
 
 using System.Text.Json.Nodes;
 using Godot;
+using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Presentation.Greybox;
 
@@ -51,6 +51,8 @@ public static class SkyView
         };
         parent.AddChild(sky);
         _sky = sky;   // the clock Advance() drives each frame; null-checked there, so an HDRI run is unaffected
+        _clockHour = _loggedHour = float.NaN;
+        _airDay = double.NaN;
         return sky;
     }
 
@@ -75,7 +77,7 @@ public static class SkyView
     // writes two environment properties and looks up one child node.
     private const float AirStepHours = 0.01f;
 
-    private static float _airHour = float.NaN;
+    private static double _airDay = double.NaN;
 
     /// <summary>The sun's elevation in degrees, as Sky3D's own dome has it: 90 less its angle from the zenith.</summary>
     private static float SunAltitude(WorldEnvironment sky)
@@ -200,6 +202,22 @@ public static class SkyView
     // The sun crosses 7.5 degrees a minute at that rate, which is plainly visible while walking.
     private static Node? _sky;
 
+    /// <summary>The actual world key at this hour, excluding lights in creator/preview viewports.</summary>
+    public static DirectionalLight3D? KeyLight
+    {
+        get
+        {
+            if (_sky is not WorldEnvironment sky || !GodotObject.IsInstanceValid(sky)) return null;
+            DirectionalLight3D? strongest = null;
+            foreach (var candidate in new[] { sky.Get("sun").AsGodotObject() as DirectionalLight3D,
+                         sky.Get("moon").AsGodotObject() as DirectionalLight3D,
+                         sky.GetNodeOrNull<DirectionalLight3D>(NightFillName) })
+                if (candidate is not null && GodotObject.IsInstanceValid(candidate) && candidate.IsVisibleInTree()
+                    && (strongest is null || candidate.LightEnergy > strongest.LightEnergy)) strongest = candidate;
+            return strongest;
+        }
+    }
+
     /// <summary>The hour the sky is showing: the world clock when a run has one, else the fixed --visual hour.</summary>
     public static float Hour => IsFinite(_clockHour) ? _clockHour : VisualOptions.Hour ?? ClockAtWorldStart;
 
@@ -211,11 +229,16 @@ public static class SkyView
     /// Advance the sky to the world clock. Called once a frame by the frame loop with the simulation's tick;
     /// does nothing when the run's sky is not Sky3D (an HDRI sky has no clock to move) or before it is built.
     /// </summary>
-    public static void Advance(double worldTick, double ticksPerDay)
+    public static SkyWeatherBlend Weather => _sky is WorldEnvironment sky && GodotObject.IsInstanceValid(sky)
+        ? sky.GetNodeOrNull<SkyWeatherView>("WorldWeather")?.Current ?? new("fair", "fair", 1) : new("fair", "fair", 1);
+
+    public static void Advance(Simulation simulation, long? projectionTick = null)
     {
-        if (_sky is not WorldEnvironment sky || !GodotObject.IsInstanceValid(sky) || ticksPerDay <= 0)
+        if (_sky is not WorldEnvironment sky || !GodotObject.IsInstanceValid(sky))
             return;
-        double day = worldTick / ticksPerDay;
+        long worldTick = projectionTick ?? simulation.WorldTick;
+        long ticksPerDay = simulation.Setup.Clock.TicksPerDay;
+        var cycle = SkyCycle.At(worldTick, simulation.Setup.Clock, simulation.Setup.Calendar);
         // THE DAY STARTS AT THE WORLD CLOCK'S READING AT TICK 0 (ClockAtWorldStart, from config.time), not at
         // midnight, which would open every run in darkness. The clock advances from there, and 48 real minutes
         // later it has been through a night - the same hours the creatures rest by.
@@ -232,9 +255,11 @@ public static class SkyView
         // A/B whose arms come from separate runs needs this pinned on BOTH of them.
         _clockHour = VisualOptions.Hour is { } pinned
             ? pinned
-            : (float)((ClockAtWorldStart + (day - Math.Floor(day)) * 24.0) % 24.0);
+            : (float)cycle.Hour;
         // Sky3D recomputes its sun and moon from this when it is set; TimeOfDay is its own name for the hour.
-        sky.Set("current_time", _clockHour);
+        if (sky.Get("tod").AsGodotObject() is { } tod)
+            tod.Call("set_world_clock", _clockHour, cycle.AstronomyDay);
+        sky.GetNodeOrNull<SkyWeatherView>("WorldWeather")?.Advance(simulation, worldTick);
         // AND THE AIR FOLLOWS THE SAME CLOCK. The line above is where the sun is; this is what the air is made of, and
         // until now only the first half of the atmosphere ran per frame. Configure wrote the fog light colour, the
         // volumetric fog's ambient and the night fill ONCE, from sky.Ready, so in a live run they were pinned to the
@@ -243,13 +268,13 @@ public static class SkyView
         // read 0.70, and fog_light_color was still exactly (0.6600, 0.6800, 0.7000) with volumetric_fog_ambient_inject
         // still 0.3500 and NightFill never created at all; at 18.00 h the sun was 8 degrees UNDER the horizon and every
         // one of those numbers was unchanged. Half the atmosphere was on the world clock and half was on the boot.
-        if (float.IsNaN(_airHour) || Math.Abs(_clockHour - _airHour) >= AirStepHours)
+        if (sky.Environment is not null && (double.IsNaN(_airDay) || Math.Abs(cycle.Day - _airDay) >= AirStepHours / 24.0))
         {
-            _airHour = _clockHour;
+            _airDay = cycle.Day;
             ApplyAir(sky, SunAltitude(sky));
         }
         if (sky.Environment is { } air)
-            CelestialView.Advance(_clockHour, _daylightLevel, air);
+            CelestialView.Advance(_clockHour, _daylightLevel, air, cycle.Day);
         // Logged a quarter of a game hour apart, which is every 30 real seconds at time.yaml's rate: the only way
         // to tell a running clock from a stopped one from outside the process, and the thing that was wrong.
         if (Math.Abs(_clockHour - _loggedHour) >= 0.25f || float.IsNaN(_loggedHour))
@@ -306,7 +331,6 @@ public static class SkyView
             sun.LightAngularDistance = classicSun.LightAngularDistance;
         }
         // The weather (B5): Sky3D's clouds and light, the fog's density and the wind, by the run's state.
-        WeatherStates.Apply(sky, VisualOptions.Weather ?? "fair");
         // The air at the hour the sky was built at. Advance() applies the same thing as the clock runs, from the same
         // function, so a locked run and a running one cannot drift apart - and this call is here as well as there
         // because a run whose world never ticks (a sky with no simulation behind it) still has to have air.
@@ -323,6 +347,9 @@ public static class SkyView
             else
                 GD.PushWarning("UNNAMED clouds: " + cloudsWhy);
         }
+        var weather = new SkyWeatherView { Name = "WorldWeather" };
+        sky.AddChild(weather);
+        weather.Bind(sky);
         GD.Print($"UNNAMED sky: Sky3D {sky.Get("version")} at {Hour:0.00} h, its clock DRIVEN FROM THE WORLD CLOCK " +
                  $"(is_day {sky.Call("is_day")}, sun altitude "
                  + $"{altitude:0.0}, daylight {daylight:0.00})");

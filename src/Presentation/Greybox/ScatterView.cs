@@ -150,10 +150,15 @@ public partial class ScatterView : Node3D
     }
 
     /// <summary>Place the scatter for a world (its seed); the same seed again keeps what is placed.</summary>
-    public void Build(ulong worldSeed)
+    public void Build(ulong worldSeed, Vector2? initialFocus = null)
     {
+        if (initialFocus is { } focus) _residencySpawn = focus;
         if (_builtFor == worldSeed || _kinds.Count == 0)
+        {
+            if (_residentMode && _builtFor == worldSeed && initialFocus is { } at)
+                PrepareResidency(new Vector3(at.X, 0, at.Y));
             return;
+        }
         _builtFor = worldSeed;
         foreach (var child in GetChildren())
         {

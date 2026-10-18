@@ -59,7 +59,7 @@ public static class CelestialView
     private static Texture2D? Load(string file) => ResourceLoader.Exists(Dir + file) ? GD.Load<Texture2D>(Dir + file) : null;
 
     /// <summary>Once a frame from the sky clock: the look's fixed set-up when the option changes, then what moves with the hour.</summary>
-    public static void Advance(float hour, float daylight, Godot.Environment environment)
+    public static void Advance(float hour, float daylight, Godot.Environment environment, double worldDay = 0)
     {
         if (_material is null || !GodotObject.IsInstanceValid(_material))
             return;
@@ -77,13 +77,13 @@ public static class CelestialView
             case "giant":
                 // The giant stays put (the world turns once per orbit, facing it); the moons cross slowly with the clock.
                 Set("or_giant_spin", hour * Mathf.Tau / 10.4f);
-                Set("or_moon1_dir", Toward(236f + (hour - 12f) * 0.9f, 38f));
-                Set("or_moon2_dir", Toward(52f + (hour - 12f) * 1.6f, 31f));
+                Set("or_moon1_dir", Moon(236f, 38f, 28));
+                Set("or_moon2_dir", Moon(52f, 31f, 42));
                 break;
             case "arc":
             case "mix":
-                Set("or_moon1_dir", Toward(70f + (hour - 12f) * 0.9f, 24f));
-                Set("or_moon2_dir", Toward(205f + (hour - 12f) * 1.4f, 47f));
+                Set("or_moon1_dir", Moon(70f, 24f, 28));
+                Set("or_moon2_dir", Moon(205f, 47f, 42));
                 if (look == "mix")
                     Galaxy(toSun, 70f);
                 break;
@@ -91,10 +91,15 @@ public static class CelestialView
                 // A distant companion of the sun: it rides the sun's own daily circle about the pole, seven hours behind it.
                 Set("or_star_dir", new Quaternion(Pole, Mathf.DegToRad(-105f)) * toSun);
                 Galaxy(toSun, 25f);
-                Set("or_moon1_dir", Toward(130f + (hour - 12f) * 0.9f, 33f));
-                Set("or_moon2_dir", Toward(300f + (hour - 12f) * 1.3f, 22f));
+                Set("or_moon1_dir", Moon(130f, 33f, 28));
+                Set("or_moon2_dir", Moon(300f, 22f, 42));
                 break;
         }
+        // Unnamed presentation orbit tunings, not new canon periods or a cause for the Foldscar.
+        // The shader lights the real surface normal from or_sun, so phase follows orbital separation.
+        Vector3 Moon(float bearing, float elevation, double period) =>
+            new Quaternion(Pole, Mathf.DegToRad((hour - 12) * 15 - (float)(worldDay % period / period) * 360))
+            * Toward(bearing, elevation);
     }
 
     /// <summary>
