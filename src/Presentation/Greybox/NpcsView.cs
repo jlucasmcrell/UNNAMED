@@ -147,6 +147,7 @@ public partial class NpcsView : Node3D
     }
 
     private const float BarkReach = Audio.VoiceRules.BarkFullM;
+    private const float BarkPixelSize = 0.0035f, BarkSizeFullM = 4f, BarkNearestM = 1.2f;
 
     /// <summary>Who says barks aloud when their recording exists (WP5); none in a run without sound.</summary>
     public Audio.VoicePlayer? Voice { get; set; }
@@ -166,7 +167,7 @@ public partial class NpcsView : Node3D
         {
             var label = new Label3D
             {
-                Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, FontSize = 40, OutlineSize = 10, PixelSize = 0.0035f, Width = 520,
+                Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, FontSize = 40, OutlineSize = 10, PixelSize = BarkPixelSize, Width = 520,
                 AutowrapMode = TextServer.AutowrapMode.WordSmart, Visible = false,
             };
             AddChild(label);
@@ -205,6 +206,12 @@ public partial class NpcsView : Node3D
         bark.Label.Modulate = new Color(1, 1, 1, alpha);
         bark.Label.OutlineModulate = new Color(0, 0, 0, alpha);
         bark.Label.GlobalPosition = head + Vector3.Up * 0.45f;
+        // A world-space line must never loom over the HUD: its apparent size stops growing at BarkSizeFullM, and it goes when the camera is on top of it.
+        float seen = GetViewport().GetCamera3D() is { } eye ? eye.GlobalPosition.DistanceTo(bark.Label.GlobalPosition) : BarkSizeFullM;
+        bark.Label.PixelSize = BarkPixelSize * Math.Min(1f, seen / BarkSizeFullM);
+        // Nor does it show through a management screen: the sheet holds the picture.
+        if (seen < BarkNearestM || GetTree().GetNodesInGroup(Ui.UiKit.SheetGroup).OfType<CanvasLayer>().Any(l => l.Visible))
+            bark.Label.Visible = false;
         if (bark.Voice is { Playing: true } voice && voice.Stream == bark.Line)
             voice.GlobalPosition = head;   // a speaker who walks on - a companion following - takes their voice along
         return bark.Label.Text;

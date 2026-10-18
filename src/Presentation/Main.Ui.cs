@@ -365,15 +365,19 @@ public partial class Main
                 break;
             case "inventory":
                 OpenInventory(null);
+                PackShotNotices();
                 break;
             case "inventory_stash":
                 OpenInventory("container.stash.waystation");
+                PackShotNotices();
                 break;
             case "inventory_station":
                 OpenStation("station.hollow.workbench");
+                PackShotNotices();
                 break;
             case "inventory_trade":
                 OpenTrade("npc.ashen_hollow.kera_voss");
+                PackShotNotices();
                 break;
             case "journal":
                 Show(_journal);
@@ -691,6 +695,9 @@ public partial class Main
     {
         if (!_inventory.Visible || _inventory.Anchor is not { } anchor)
             return;
+        // The pictures of the stash, station and trader screens open them from wherever the harness stands (they would close at once out of reach).
+        if (_flags.Contains("--pack-shots") && _shots is not null)
+            return;
         // A corpse searched bare is gone with what it held: the panel opened for it goes too, not back to the pack (the owner's first playtest).
         if (_inventory.OpenContainer is { } open && _session.Simulation!.Containers.All(c => c.Site.Key != open))
         {
@@ -700,6 +707,13 @@ public partial class Main
         long reach = _session.Setup.Items.Inventory.ReachMm + (_inventory.OpenTrader is not null ? _session.Setup.Movement.BodyRadiusMm : 0);
         if (Math.Sqrt(Math.Pow(anchor.XMm - _controller.Authoritative.XMm, 2) + Math.Pow(anchor.ZMm - _controller.Authoritative.ZMm, 2)) > reach)
             CloseInventory();
+    }
+
+    /// <summary>The pack pictures show a hint and a toast over the open screen, as play does, so a layout that collapses them is seen.</summary>
+    private void PackShotNotices()
+    {
+        _hintLine?.Show("The world went on while you were away, as it always will. The away log says what changed.");
+        _hud.Toast("Skill: One-hand Blade 4", 6);
     }
 
     private void OpenInventory(string? container)

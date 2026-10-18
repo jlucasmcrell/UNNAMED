@@ -995,7 +995,7 @@ public partial class HudView : Control
         if (reading)
         {
             words.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-            words.CustomMinimumSize = new Vector2(Math.Clamp(GetViewportRect().Size.X - 120, 1, 560), 0);
+            words.CustomMinimumSize = new Vector2(HudLayoutRules.ReadingWidth(GetViewportRect().Size.X, 120, 560, 18), 0);
         }
         row.AddChild(words);
         box.AddChild(row);

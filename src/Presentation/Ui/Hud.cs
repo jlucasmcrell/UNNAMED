@@ -428,7 +428,7 @@ public partial class Hud : CanvasLayer
         if (reading)
         {
             label.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-            label.CustomMinimumSize = new Vector2(Math.Clamp(GetViewport().GetVisibleRect().Size.X - 80, 1, 600), 0);
+            label.CustomMinimumSize = new Vector2(HudLayoutRules.ReadingWidth(GetViewport().GetVisibleRect().Size.X, 80, 600, 20), 0);
         }
         label.HorizontalAlignment = HorizontalAlignment.Center;
         _toasts.AddChild(label);

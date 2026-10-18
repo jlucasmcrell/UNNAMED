@@ -22,6 +22,9 @@ public partial class HintLine : CanvasLayer
     /// <summary>The line's foot above the screen's with no prompt showing, its half width, and its distance from what it keeps clear of.</summary>
     private const float Foot = 150, HalfWidth = 360, Gap = 12;
 
+    /// <summary>The narrowest the line may be (about twelve characters of text and its margins at the smallest size): it never wraps a letter to a line.</summary>
+    public const float MinWidth = 320;
+
     private readonly Queue<string> _queue = new();
     private PanelContainer _panel = null!;
     private Label _words = null!;
@@ -38,7 +41,7 @@ public partial class HintLine : CanvasLayer
             OffsetLeft = -HalfWidth, OffsetRight = HalfWidth,
             GrowHorizontal = Control.GrowDirection.Both, GrowVertical = Control.GrowDirection.Begin,
             MouseFilter = Control.MouseFilterEnum.Ignore,
-            Visible = false,
+            Visible = false, CustomMinimumSize = new Vector2(MinWidth, 0),
         };
         _panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat
         {
@@ -86,7 +89,9 @@ public partial class HintLine : CanvasLayer
         if (!_panel.Visible)
             return;
         // While the HUD has stepped aside for a screen at an enlarged interface there is no room for the line: it waits, its time held.
-        if (GetTree().Root.FindChild("HudView", true, false) is HudView { Aside: true })
+        // Nor does it sit over a management screen (the hint is guidance for play, and would cut across the sheet's rows): it waits, its time held.
+        if (GetTree().Root.FindChild("HudView", true, false) is HudView { Aside: true }
+            || GetTree().GetNodesInGroup(UiKit.SheetGroup).OfType<CanvasLayer>().Any(l => l.Visible))
         {
             _panel.Modulate = Colors.Transparent;
             return;
@@ -124,6 +129,7 @@ public partial class HintLine : CanvasLayer
                     right = Math.Min(right, rect.Position.X - Gap);
             }
         }
+        (left, right) = HudLayoutRules.Span(left, right, centre - HalfWidth, centre + HalfWidth, MinWidth);   // no room beside the panels: overlap rather than collapse
         _panel.OffsetLeft = left - centre;
         _panel.OffsetRight = right - centre;
     }
