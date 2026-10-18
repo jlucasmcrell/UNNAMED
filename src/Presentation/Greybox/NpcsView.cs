@@ -16,6 +16,7 @@ public partial class NpcsView : Node3D
 {
     private readonly Dictionary<string, Figure> _figures = new(StringComparer.Ordinal);
     private readonly Dictionary<string, GaitSpeed> _gaits = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string> _instances = new(StringComparer.Ordinal);
     private FoldEcho? _echo;
     private bool _echoTried;
     private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
@@ -49,14 +50,22 @@ public partial class NpcsView : Node3D
         if (PlayerHead.GetParent() is null)
             AddChild(PlayerHead);
         PlayerHead.GlobalPosition = HollowView.ToGodot(simulation.Player.Body.XMm, simulation.Player.Body.YMm, simulation.Player.Body.ZMm) + new Vector3(0, 1.6f, 0);
-        foreach (var npc in simulation.Npcs)
+        var people = simulation.Npcs;
+        var present = people.Select(n => n.Id).ToHashSet(StringComparer.Ordinal);
+        foreach (string id in _figures.Keys.Where(id => !present.Contains(id)).ToArray())
+            Forget(id);
+        foreach (var npc in people)
         {
+            string instance = npc.InstanceId.ToString();
+            if (_instances.TryGetValue(npc.Id, out var previous) && previous != instance)
+                Forget(npc.Id);
             if (npc.Space != simulation.ActiveLayout.SpaceId && !_figures.ContainsKey(npc.Id))
                 continue;
             if (!_figures.TryGetValue(npc.Id, out var figure))
             {
-                var body = Art.SkinnedFigure.Create(_art, _bindings, npc.Id);
-                string? model = _bindings.People.GetValueOrDefault(npc.Id)?.Model;
+                var appearance = _bindings.Person(npc.Id, npc.PeopleId, instance);
+                var body = Art.SkinnedFigure.Create(_art, _bindings, npc.Id, appearance: appearance);
+                string? model = appearance?.Model;
                 if (body is not null)
                     _art.Coverage.Resolved("person", npc.Id, model!);
                 else
@@ -65,6 +74,7 @@ public partial class NpcsView : Node3D
                 figure.Name = npc.Id;
                 AddChild(figure);
                 _figures[npc.Id] = figure;
+                _instances[npc.Id] = instance;
                 // WHERE THE BODY ACTUALLY IS. Coverage.Resolved above fires when the FIGURE IS CREATED, not when it
                 // is on screen, so "person 5 requested 5 resolved" was never evidence that anybody was visible - and
                 // two village frames with all four NPCs in front of the camera showed none of them. If their Y is
@@ -131,6 +141,25 @@ public partial class NpcsView : Node3D
             }
             if (!figure.SetDowned(npc.Downed) && npc.Downed)
                 figure.Rotation = new Vector3(-Mathf.Pi / 2, figure.Rotation.Y, 0);
+        }
+    }
+
+    private void Forget(string id)
+    {
+        if (_figures.Remove(id, out var departed))
+        {
+            RemoveChild(departed);
+            departed.QueueFree();
+        }
+        _instances.Remove(id);
+        _gaits.Remove(id);
+        _looks.Remove(id);
+        _eyes.Remove(id);
+        if (_barks.Remove(id, out var bark))
+        {
+            bark.Label.QueueFree();
+            if (bark.Voice is { Playing: true } voice && voice.Stream == bark.Line)
+                voice.Stop();
         }
     }
 

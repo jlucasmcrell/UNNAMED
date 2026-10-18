@@ -1,0 +1,15 @@
+id: people.ondrek
+kind: people
+schema: 1
+display_key: people.ondrek.name
+tags: [people]
+name: Ondrek
+notes: Non-playable resident registration required by the owner NPC_BODIES brief. Visual identity follows direction/extensions/RACES.md section 8 and STONE_QUESTION.md. The descriptive resident names below are PROPOSED working labels, not a canon naming language or established named characters. No playable body, attribute or magic rules are added here.
+playable: false
+suggest_names:
+  - Basalt Reader
+  - Slate Keeper
+  - Flint Mason
+  - Gneiss Bearer
+  - Quartz Reader
+  - Shale Keeper

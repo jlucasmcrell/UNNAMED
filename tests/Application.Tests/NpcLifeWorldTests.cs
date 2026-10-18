@@ -45,14 +45,14 @@ public class NpcLifeWorldTests
         Assert.Equal(8, lives.Count(l => !l.Resident));
         Assert.Equal(6, lives.Count(l => l.Resident && l.Settlement == "ashen_hollow"));
         Assert.Equal(6, lives.Count(l => l.Resident && l.Settlement == "cairnwold"));
-        var names = session.Setup.Character.Peoples["people.veth"].Names;
         foreach (var town in lives.Where(l => l.Resident).GroupBy(l => l.Settlement))
         {
-            Assert.All(town, l => Assert.Contains(l.Name, names.Names));
             Assert.Equal(town.Count(), town.Select(l => l.Name).Distinct().Count());
         }
         var residents = arena.Simulation.Npcs.Where(n => n.Resident).ToList();
         Assert.Equal(12, residents.Count);
+        Assert.Equal(2, residents.Count(r => r.PeopleId == "people.ondrek"));
+        Assert.All(residents, r => Assert.Contains(r.Name, session.Setup.Character.Peoples[r.PeopleId!].Names.Names));
         Assert.Equal(12, residents.Select(n => n.InstanceId).Distinct().Count());
         Assert.All(residents, r => Assert.True(arena.Simulation.World.Registry.Exists(r.InstanceId)));
     }

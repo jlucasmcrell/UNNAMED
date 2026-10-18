@@ -89,6 +89,8 @@ public class AdventurerWorldTests
         Assert.All(adventurers, a => Assert.True(a.InTown));
         var bodies = simulation.Npcs.Where(n => n.Role == "adventurer").ToList();
         Assert.Equal(8, bodies.Count);
+        Assert.All(bodies, b => Assert.Equal(simulation.World.Adventurers!.Agents[b.Id].PeopleId, b.PeopleId));
+        Assert.All(bodies, b => Assert.NotNull(b.PeopleId));
         Assert.All(bodies, b => Assert.True(simulation.World.Registry.Exists(b.InstanceId)));
         Assert.Equal(adventurers.Select(a => a.InstanceId).OrderBy(i => i.Value), bodies.Select(b => b.InstanceId).OrderBy(i => i.Value));
     }

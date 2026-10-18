@@ -1,0 +1,36 @@
+{
+  "id": "resident_siann_04",
+  "sex": "m",
+  "preset": "Cameron",
+  "role": "Resident 04/6: native Cameron identity, Siann ageless physical maturity",
+  "source": "Native Creator identity npc_tavar_orr; RACES.md:217-218 physical maturity in late teens. Approved body anatomy unchanged.",
+  "grooms": {
+    "hair": "Hair_S_Casual",
+    "eyebrows": "Eyebrows_M_Natural"
+  },
+  "provenance": {
+    "tool": "UE 5.8 in-editor Creator native face/groom sources; original approved player body resources copied intact; Godot player clips and correctives.",
+    "status": "candidate; complete image, clothing, motion, world and owner review gates required",
+    "archive_rule": "Retain source recipes and every exported candidate; never overwrite 20261015b"
+  },
+  "people": "people.siann",
+  "groom_colours": {
+    "hair": [
+      0.72,
+      0.73,
+      0.79
+    ],
+    "eyebrows": [
+      0.42,
+      0.41,
+      0.48
+    ]
+  },
+  "required_people_finish": "Opal skin, silver-lavender surface traces, lavender iris with bright inner ring; age-appropriate pale hair. Uniform petite stature; unchanged approved anatomy.",
+  "active": true,
+  "approved_body": "mh_veth_m",
+  "uniform_scale": 0.88,
+  "body_rule": "OWNER 2026-10-18: approved body anatomy/proportions unchanged; uniform whole-body scale only; clothing fits body.",
+  "shared_source": "npc_tavar_orr",
+  "body_source": "Copy mh_veth_m_rigged.glb and corrective tables from approved player root; do not export, reconstruct or solve a new body."
+}

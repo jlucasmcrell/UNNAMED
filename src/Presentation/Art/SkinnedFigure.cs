@@ -44,16 +44,20 @@ public sealed partial class SkinnedFigure : Figure
     public override string? ClipState => _model.Current;
 
     /// <summary>The bound person's skinned figure (<c>player</c> or an NPC's ID), or null when the bindings or the asset lack it.</summary>
-    public static SkinnedFigure? Create(ArtLibrary art, ArtBindings bindings, string personId, string? body = null)
+    public static SkinnedFigure? Create(ArtLibrary art, ArtBindings bindings, string personId, string? body = null, PersonArt? appearance = null)
     {
-        if (!bindings.People.TryGetValue(personId, out var person))
+        var person = appearance ?? bindings.People.GetValueOrDefault(personId);
+        if (person is null)
             return null;
         // Another body on the same binding (the creator's, WP2): the same rig family, so the clips, hands and grips hold.
         if (body is not null)
             person = person with { Model = body };
         if (SkinnedModel.Create(art, person.Model, person.Clips, personId) is not { } model)
             return null;
-        var figure = new SkinnedFigure { Name = personId, _model = model, _art = art, _bindings = bindings, _paces = person.Paces, _phases = person.Phases };
+        if (!float.IsFinite(person.UniformScale) || person.UniformScale <= 0)
+            throw new InvalidDataException($"Invalid uniform stature for {personId}");
+        model.Scale = Vector3.One * person.UniformScale;
+        var figure = new SkinnedFigure { Name = personId, _model = model, _art = art, _bindings = bindings, _paces = person.Paces, _phases = person.Phases, _uniformScale = person.UniformScale };
         figure.AddChild(model);
         var posture = new PostureModifier();
         if (posture.Bind(model.Skeleton, "pelvis", new[] { "thigh_l", "thigh_r" }, new[] { "calf_l", "calf_r" })
@@ -91,6 +95,7 @@ public sealed partial class SkinnedFigure : Figure
         // the figure's owner adds once this returns.
         CorrectiveJoints.Load(art, person.Model, model.Skeleton);
         Outfit.Dress(art, model, person.Model, person.Outfit);
+        PeopleAppearance.Apply(model, person.PeopleId, art, person.Model);
         CharacterMaterials.ShareLodBox(model.Skeleton);
         Callable.From(() => KeepLast(model.Skeleton)).CallDeferred();
         return figure;
@@ -319,8 +324,9 @@ public sealed partial class SkinnedFigure : Figure
     }
 
     /// <summary>The pace a gait clip was authored at: the bindings' (a retargeted clip's own), or the game's clips' default.</summary>
-    private float Pace(string state, float fallback) => _paces.GetValueOrDefault(state, fallback);
+    private float Pace(string state, float fallback) => _paces.GetValueOrDefault(state, fallback) * _uniformScale;
 
+    private float _uniformScale = 1;
     private IReadOnlyDictionary<string, float> _paces = new Dictionary<string, float>();
     private IReadOnlyDictionary<string, float[]> _phases = new Dictionary<string, float[]>();
 

@@ -1,0 +1,41 @@
+{
+  "id": "npc_sel_arien",
+  "sex": "f",
+  "preset": "Asha",
+  "role": "ageless young face",
+  "source": "Owner NPC_BODIES brief and NPC_PERSONALITY_BIBLE.md; approved body mh_veth_f; retired body dimensions are not a target.",
+  "grooms": {
+    "hair": "Hair_S_LowPonytail",
+    "eyebrows": "Eyebrows_M_Natural"
+  },
+  "provenance": {
+    "tool": "UE 5.8 in-editor Creator native face/groom sources; original approved player body resources copied intact; Godot player clips and correctives.",
+    "status": "candidate; complete image, clothing, motion, world and owner review gates required",
+    "archive_rule": "Retain source recipes and every exported candidate; never overwrite 20261015b"
+  },
+  "people": "people.siann",
+  "groom_colours": {
+    "hair": [
+      0.8,
+      0.78,
+      0.74
+    ]
+  },
+  "existing_identity": {
+    "skin": "onlytheghosts_young_eurasian_female",
+    "hair": "braid01",
+    "hair_tint": [
+      0.8,
+      0.78,
+      0.74
+    ],
+    "iris": "ice"
+  },
+  "active": true,
+  "approved_body": "mh_veth_f",
+  "uniform_scale": 0.88,
+  "body_rule": "OWNER 2026-10-18: approved body anatomy/proportions unchanged; uniform whole-body scale only; clothing fits body.",
+  "npc_ref": "npc.ashen_hollow.sel_arien",
+  "required_people_finish": "Opal skin, silver-lavender surface traces, lavender iris with bright inner ring; age-appropriate pale hair. Uniform petite stature; unchanged approved anatomy.",
+  "body_source": "Copy mh_veth_f_rigged.glb and corrective tables from approved player root; do not export, reconstruct or solve a new body."
+}

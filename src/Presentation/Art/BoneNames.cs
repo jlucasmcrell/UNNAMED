@@ -32,7 +32,7 @@ public static class BoneNames
             map[$"upper_arm.{mpfb}"] = new[] { $"upper_arm.{mpfb}", $"upperarm_{ue}" };
             map[$"forearm.{mpfb}"] = new[] { $"forearm.{mpfb}", $"lowerarm_{ue}" };
             map[$"hand.{mpfb}"] = new[] { $"hand.{mpfb}", $"hand_{ue}" };
-            map[$"eye.{mpfb}"] = new[] { $"eye.{mpfb}", $"FACIAL_{mpfb}_Eye" };
+            map[$"eye.{mpfb}"] = new[] { $"identity_FACIAL_{mpfb}_Eye", $"eye.{mpfb}", $"FACIAL_{mpfb}_Eye" };
             map[$"SOCK_hand.{mpfb}"] = new[] { $"SOCK_hand.{mpfb}", $"SOCK_hand_{ue}" };
             foreach (string finger in new[] { "thumb", "index", "middle", "ring", "pinky" })
             {
