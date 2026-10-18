@@ -1,0 +1,13 @@
+id: item.bag.satchel
+kind: item
+schema: 1
+display_key: item.bag.satchel.name
+tags: [fixture]
+notes: Historical-fixture content for the save migration tests. Not game content.
+category: bag
+stack_max: 1
+weight: 0.6
+value_base: 30
+rarity: common
+bag:
+  slots: 6

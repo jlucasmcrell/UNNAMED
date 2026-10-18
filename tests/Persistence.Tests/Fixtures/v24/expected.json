@@ -439,6 +439,30 @@
       ]
     ],
     "gear_sets": [],
+    "pack": {
+      "bags": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "stacks": [
+        {
+          "item_id": "itm_01HF7YAT01144GJ289144GJ281",
+          "bag": 0,
+          "slot": -1,
+          "locked": false,
+          "junk": false
+        },
+        {
+          "item_id": "itm_01HF7YAT02144GJ289144GJ282",
+          "bag": 0,
+          "slot": -1,
+          "locked": false,
+          "junk": false
+        }
+      ]
+    },
     "findings": []
   },
   "cells": [

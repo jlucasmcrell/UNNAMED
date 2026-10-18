@@ -37,7 +37,7 @@ public static class M2Fixtures
     public static readonly IReadOnlyList<string> DefinitionIds = new[]
     {
         "creature.beast.deer", "creature.beast.wolf_grey",
-        "item.potion.heal_dangling", "item.weapon.iron_sword",
+        "item.bag.satchel", "item.potion.heal_dangling", "item.weapon.iron_sword",
         "world.door.barn_open", "world.door.cellar_open", "world.lever.mill_gate",
     };
 
@@ -130,9 +130,17 @@ public static class M2Fixtures
                     Notable = new NotableRecord("Iron Sword", ProvenanceKind.Given, "quest.fixture.cull", 3_500) { Familiarity = 2, Uses = 1 },
                     // Schema 24 (WP3b): it has taken 40 points of wear - not yet worn out, so still fine.
                     Wear = new ItemWear(40, 1),
+                    // Schema 33 (inventory organisation): it lies in the backpack's first slot and is locked against sorting and selling.
+                    Bag = 0, Slot = 0, Locked = true,
                 },
                 new InventoryEntry(EntityId.Create(EntityKind.Item, 1_700_000_000_002, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 2 }),
-                    "item.potion.healing_draught", 3),
+                    "item.potion.healing_draught", 3)
+                {
+                    // Schema 33: three draughts in the backpack's fourth slot, marked as junk.
+                    Bag = 0, Slot = 3, Junk = true,
+                },
+                // Schema 33: a satchel worn in the second bag slot (it lies in no slot of any bag).
+                new InventoryEntry(BagId, "item.bag.satchel", 1) { Bag = -1, Slot = -1 },
             },
             Progression(),
             facingMdeg: 123_456,
@@ -237,6 +245,8 @@ public static class M2Fixtures
             ExtraBars = ImmutableArray.Create(
                 ImmutableArray.Create<string?>("item.potion.minor_healing", null, null, null, null, null, null, null, null, null, null, "spell.ember.bolt"),
                 Domain.Progression.QuickBar.Empty, Domain.Progression.QuickBar.Empty, Domain.Progression.QuickBar.Empty, Domain.Progression.QuickBar.Empty),
+            // Schema 33 (inventory organisation): the satchel in the second of the four bag slots.
+            Bags = ImmutableArray.Create<EntityId?>(null, BagId, null, null),
             GearSets = ImmutableArray.Create(new GearSet(1, "Sword and board",
                 ImmutableArray.Create(new GearSetItem(EquipSlot.MainHand, SwordId, "item.weapon.iron_sword")))),
             // Schema 31 (UI progression F): what two experiments at the fixture hearth taught - one that came to nothing, one that hinted.
@@ -246,6 +256,8 @@ public static class M2Fixtures
                 new Finding(FindingKind.Hint, "station.fixture_hearth", "hearth",
                     "recipe.alchemy.salve_minor", ImmutableArray.Create("item.potion.minor_healing"), 4_800)),
         };
+
+        public static readonly EntityId BagId = EntityId.Create(EntityKind.Item, 1_700_000_000_003, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 3 });
 
         public static readonly EntityId SwordId = EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 });
 
@@ -443,7 +455,7 @@ public static class M2Fixtures
         private static EntityId Creature(byte n) => EntityId.Create(EntityKind.Creature, 1_700_000_000_100 + n, new byte[] { 7, 7, 7, 7, 7, 7, 7, 7, 7, n });
 
         public const string CurrentContentVersion = "0.2.9";
-        public const string CurrentContentHash = "sha256:c4892c92c6e2fd41f08ea5da5ff27914a035183a2503c6e3f0c8c360cb846b75";
+        public const string CurrentContentHash = "sha256:020b7c4c4fa05ec746d0383eb45aa06a1e4377e98342639260603e2557327ace";
 
         /// <summary>
         /// Fixtures/content (0.2.0) as a content identity, for the probe, which does not load content
@@ -456,7 +468,7 @@ public static class M2Fixtures
                 "config.base_speeds", "config.factions", "config.simulation_tiers",
                 "creature.beast.ash_ember_hound", "creature.beast.deer", "creature.beast.wolf_grey", "dialogue.fixture.warden_sera",
                 "effect.bleeding", "effect.weakened", "faction.fixture.keepers",
-                "item.potion.minor_healing",
+                "item.bag.satchel", "item.potion.minor_healing",
                 "item.weapon.iron_sword",
                 "location.den_mouth", "npc.fixture.warden_sera", "quest.fixture.cull", "quest.fixture.wardens_errand", "recipe.alchemy.salve_minor",
                 "region.fixture_vale", "skill.athletics",

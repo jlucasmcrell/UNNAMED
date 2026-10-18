@@ -136,6 +136,34 @@ public sealed class PlayerDto
 
     /// <summary>Required from schema 32 (gear sets): the character's saved outfits, by place. The 31 -> 32 step gives older saves none.</summary>
     [Key("gear_sets")] public GearSetDto[]? GearSets { get; set; }
+
+    /// <summary>
+    /// Required from schema 33 (inventory organisation): where each carried stack lies and the four bag slots. The 32 -> 33 step leaves every
+    /// stack unplaced (the pack places them on load) and the bag slots empty.
+    /// </summary>
+    [Key("pack")] public PackDto? Pack { get; set; }
+}
+
+/// <summary>The pack (schema 33): the bag in each of the four bag slots (an instance ID, or nil for an empty slot) and one record for each carried stack.</summary>
+[MessagePackObject]
+public sealed class PackDto
+{
+    [Key("bags")] public string?[] Bags { get; set; } = Array.Empty<string?>();
+    [Key("stacks")] public PackStackDto[] Stacks { get; set; } = Array.Empty<PackStackDto>();
+}
+
+/// <summary>
+/// Where a carried stack lies (schema 33): its bag (0 the backpack, 1 to 4 a bag slot, -1 for a bag worn in a bag slot), its slot in it (-1 when it
+/// has none yet), and whether it is locked against sorting and selling or marked as junk.
+/// </summary>
+[MessagePackObject]
+public sealed class PackStackDto
+{
+    [Key("item_id")] public string ItemId { get; set; } = "";
+    [Key("bag")] public int Bag { get; set; }
+    [Key("slot")] public int Slot { get; set; }
+    [Key("locked")] public bool Locked { get; set; }
+    [Key("junk")] public bool Junk { get; set; }
 }
 
 /// <summary>A gear set (schema 32): its place (1 to 10), its name and the pieces it wears.</summary>
@@ -983,6 +1011,11 @@ public static class SectionCodec
             : new AttackDto { Source = attack.Source, StartTick = attack.StartTick, Struck = attack.Struck.Select(e => e.Value).ToArray() },
         SpaceId = player.SpaceId,
         SpaceTraversal = player.SpaceTraversal,
+        Pack = new PackDto
+        {
+            Bags = player.Bags.Select(b => b?.Value).ToArray(),
+            Stacks = player.Inventory.Select(e => new PackStackDto { ItemId = e.ItemId.Value, Bag = e.Bag, Slot = e.Slot, Locked = e.Locked, Junk = e.Junk }).ToArray(),
+        },
         ExtraBars = player.ExtraBars.Select(bar => bar.ToArray()).ToArray(),
         GearSets = player.GearSets.Select(g => new GearSetDto
         {
@@ -1065,6 +1098,15 @@ public static class SectionCodec
         var findings = dto.Findings ?? throw new FormatException("player.msgpack has no findings (required from schema 31)");
         var extraBars = dto.ExtraBars ?? throw new FormatException("player.msgpack has no further action bars (required from schema 32)");
         var gearSets = dto.GearSets ?? throw new FormatException("player.msgpack has no gear sets (required from schema 32)");
+        var pack = dto.Pack ?? throw new FormatException("player.msgpack has no pack (required from schema 33)");
+        var placed = pack.Stacks.GroupBy(p => p.ItemId, StringComparer.Ordinal).ToDictionary(g => g.Key, g => g.Count() == 1 ? g.Single()
+            : throw new FormatException($"the pack places {g.Key} more than once"), StringComparer.Ordinal);
+        if (pack.Bags.Length != Domain.Items.PackLimits.BagSlots || placed.Count != dto.Inventory.Length || dto.Inventory.Any(e => !placed.ContainsKey(e.ItemId)))
+            throw new FormatException($"the pack has {Domain.Items.PackLimits.BagSlots} bag slots and exactly one record for each carried stack");
+        var wornBags = pack.Bags.Where(b => b is not null).Select(b => b!).ToList();
+        if (wornBags.Distinct(StringComparer.Ordinal).Count() != wornBags.Count || wornBags.Any(b => !placed.TryGetValue(b, out var at) || at.Bag != -1)
+            || placed.Values.Count(p => p.Bag == -1) != wornBags.Count || placed.Values.Any(p => p.Bag is < -1 or > Domain.Items.PackLimits.BagSlots || p.Slot < -1))
+            throw new FormatException("the pack's bag slots hold carried stacks that lie in no bag, each once, and every other stack lies in the backpack or a bag slot");
         var sheets = dto.PartySheets ?? throw new FormatException("player.msgpack has no party sheets (required from schema 25)");
         var pronouns = PronounKeys.Parse(identity.Pronouns) ?? throw new FormatException($"player identity has pronouns '{identity.Pronouns}'");
         var stance = posture.Stance switch
@@ -1075,7 +1117,11 @@ public static class SectionCodec
         if (posture.AirMs < 0 || (!posture.Airborne && posture.AirMs != 0))
             throw new FormatException($"player posture has air_ms {posture.AirMs} while {(posture.Airborne ? "airborne" : "on the ground")}");
         return new PlayerRecord(EntityId.Parse(dto.InstanceId), dto.Name, dto.XMm, dto.YMm, dto.ZMm, dto.AppearanceSeed,
-            dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count) { Quality = QualityOf(e.Quality, $"carried {e.ItemId}"), Notable = NotableOf(e.Notable, $"carried {e.ItemId}"), Wear = WearOf(e.Wear, $"carried {e.ItemId}") }),
+            dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count)
+            {
+                Quality = QualityOf(e.Quality, $"carried {e.ItemId}"), Notable = NotableOf(e.Notable, $"carried {e.ItemId}"), Wear = WearOf(e.Wear, $"carried {e.ItemId}"),
+                Bag = placed[e.ItemId].Bag, Slot = placed[e.ItemId].Slot, Locked = placed[e.ItemId].Locked, Junk = placed[e.ItemId].Junk,
+            }),
             ProgressionCodec.FromDto(progression), facing,
             discoveries.Select(d => new DiscoveryRecord(d.LocationId, DiscoveryMethods.Parse(d.Method), d.Tick)),
             equipment.Select(e => KeyValuePair.Create(EquipSlots.Parse(e.Slot), EntityId.Parse(e.ItemId))), currency,
@@ -1115,6 +1161,7 @@ public static class SectionCodec
             SpaceId = SpaceId.Parse(spaceId).ToString(),
             SpaceTraversal = dto.SpaceTraversal,
             ExtraBars = extraBars.Select(bar => bar.ToImmutableArray()).ToImmutableArray(),
+            Bags = pack.Bags.Select(b => b is null ? (EntityId?)null : EntityId.Parse(b)).ToImmutableArray(),
             GearSets = gearSets.Select(g => new GearSet(g.Index, g.Name,
                 g.Items.Select(i => new GearSetItem(EquipSlots.Parse(i.Slot), EntityId.Parse(i.Item), i.Def)).ToImmutableArray())).ToImmutableArray(),
             Findings = findings.Select(f => new Finding(FindingKeys.Parse(f.Kind) ?? throw new FormatException($"a finding at {f.Station} is '{f.Kind}'"),

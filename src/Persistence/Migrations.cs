@@ -37,6 +37,7 @@ using V28 = UNNAMED.Persistence.Sections.V28;
 using V29 = UNNAMED.Persistence.Sections.V29;
 using V30 = UNNAMED.Persistence.Sections.V30;
 using V31 = UNNAMED.Persistence.Sections.V31;
+using V32 = UNNAMED.Persistence.Sections.V32;
 
 namespace UNNAMED.Persistence;
 
@@ -115,7 +116,8 @@ public static class SchemaMigrations
         new SchemaV28ToV29(),
         new SchemaV29ToV30(),
         new SchemaV30ToV31(),
-        new SchemaV31ToV32());
+        new SchemaV31ToV32(),
+        new SchemaV32ToV33());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -1731,7 +1733,7 @@ public sealed class SchemaV31ToV32 : SchemaMigration
             var bar = old.QuickBar ?? throw new FormatException("player.msgpack has no quick bar (required from schema 23)");
             var slots = new string?[12];
             Array.Copy(bar.Slots, slots, Math.Min(bar.Slots.Length, slots.Length));
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V32.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -1767,6 +1769,71 @@ public sealed class SchemaV31ToV32 : SchemaMigration
                 Findings = old.Findings,
                 ExtraBars = Enumerable.Range(0, 5).Select(_ => new string?[12]).ToArray(),
                 GearSets = Array.Empty<GearSetDto>(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 32 to 33 (inventory organisation): the pack. Every carried stack is left unplaced - the pack places each where its kind goes when
+/// the world starts, in identity order - and unlocked and not marked as junk; the four bag slots are empty, since no save before it held a bag.
+/// Every older field is copied one by one, since the frozen shape and the live DTO are different types.
+/// </summary>
+public sealed class SchemaV32ToV33 : SchemaMigration
+{
+    public override int From => 32;
+
+    public override string Summary => "schema 32 -> 33: the pack - every carried stack unplaced, none locked or marked as junk, the four bag slots empty";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V32.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions,
+                Posture = old.Posture,
+                Waystones = old.Waystones,
+                ReturnPoint = old.ReturnPoint,
+                RoadsWalked = old.RoadsWalked,
+                Deeds = old.Deeds,
+                Identity = old.Identity,
+                Factions = old.Factions,
+                Party = old.Party,
+                QuickBar = old.QuickBar,
+                PartySheets = old.PartySheets,
+                Attack = old.Attack,
+                SpaceId = old.SpaceId,
+                SpaceTraversal = old.SpaceTraversal,
+                Findings = old.Findings,
+                ExtraBars = old.ExtraBars,
+                GearSets = old.GearSets,
+                // Literal sizes, not the domain's: a step is a fixed function of the schema it reads. Bag 0 is the backpack, slot -1 none yet.
+                Pack = new PackDto
+                {
+                    Bags = new string?[4],
+                    Stacks = old.Inventory.Select(e => new PackStackDto { ItemId = e.ItemId, Bag = 0, Slot = -1, Locked = false, Junk = false }).ToArray(),
+                },
             }, options);
         }
         document.Manifest["schema_version"] = To;
