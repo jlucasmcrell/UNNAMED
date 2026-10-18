@@ -83,7 +83,8 @@ public sealed class ArtLibrary
     private readonly string? _sceneCachePrefix;
     private readonly bool _buildSceneCache;
     private readonly string? _nativeSceneRoot;
-    private const string SceneCacheFormat = "v6"; // Runtime index LODs, opaque occluders and position-only depth meshes.
+    private static string SceneCacheFormat => System.Environment.GetEnvironmentVariable("UNNAMED_ROCK_OCCLUSION") == "1"
+        ? "v7-rock-occlusion-pilot" : "v6";
     private readonly TextureCache? _interiorBuildCache;
 
     public ArtLibrary(string? root, bool useTextureCache = false, string? sceneCachePrefix = null, bool buildSceneCache = false)
@@ -643,7 +644,7 @@ public sealed class ArtLibrary
         }
         ((Godot.Collections.Array)loaded).Dispose();
         Filter(root, path, images);
-        AddBuildingOccluders(root, id);
+        AddOpaqueOccluders(root, id);
         var packed = new PackedScene();
         error = packed.Pack(root);
         root.Free();
@@ -670,9 +671,11 @@ public sealed class ArtLibrary
         return packed;
     }
 
-    private static void AddBuildingOccluders(Node3D root, string id)
+    private static void AddOpaqueOccluders(Node3D root, string id)
     {
-        if (!id.StartsWith("bld_", StringComparison.Ordinal)
+        bool rock = System.Environment.GetEnvironmentVariable("UNNAMED_ROCK_OCCLUSION") == "1"
+            && id is "env_ph_coastal_cliff_01" or "env_ph_coast_rocks_01";
+        if ((!id.StartsWith("bld_", StringComparison.Ordinal) && !rock)
             || id.EndsWith("_lod1", StringComparison.Ordinal) || id.EndsWith("_lod2", StringComparison.Ordinal) || id.EndsWith("_lod3", StringComparison.Ordinal)
             || System.Environment.GetEnvironmentVariable("UNNAMED_BUILDING_OCCLUSION") == "0"
             || root.FindChildren("*", nameof(AnimationPlayer), true, false).Count > 0) return;
@@ -688,6 +691,9 @@ public sealed class ArtLibrary
                 if (mesh.SurfaceGetPrimitiveType(s) != Mesh.PrimitiveType.Triangles
                     || node.GetActiveMaterial(s) is not BaseMaterial3D { Transparency: BaseMaterial3D.TransparencyEnum.Disabled } material
                     || material.NoDepthTest || material.DepthDrawMode == BaseMaterial3D.DepthDrawModeEnum.Disabled) continue;
+                // These scanned surfaces are open. Occluders are two-sided, so only
+                // their authored two-sided opaque surfaces are safe from either view.
+                if (rock && material.CullMode != BaseMaterial3D.CullModeEnum.Disabled) continue;
                 using var arrays = mesh.SurfaceGetArrays(s);
                 var points = arrays[(int)Mesh.ArrayType.Vertex].AsVector3Array();
                 int offset = vertices.Count;
@@ -700,7 +706,7 @@ public sealed class ArtLibrary
             if (indices.Count == 0) continue;
             var shape = new ArrayOccluder3D();
             shape.SetArrays(vertices.ToArray(), indices.ToArray());
-            var occluder = new OccluderInstance3D { Name = "OpaqueBuildingOccluder", Occluder = shape };
+            var occluder = new OccluderInstance3D { Name = rock ? "OpaqueRockOccluder" : "OpaqueBuildingOccluder", Occluder = shape };
             node.AddChild(occluder);
             occluder.Owner = root; // It must survive PackedScene.Pack/Instantiate, like the imported mesh.
         }
