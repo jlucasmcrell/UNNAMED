@@ -364,6 +364,26 @@ internal static class CanonicalState
                 json.WriteString("space_traversal", traversal);
             else
                 json.WriteNull("space_traversal");
+            // Schema 31 (UI progression F): what each experiment at a station taught, oldest first.
+            json.WriteStartArray("findings");
+            foreach (var finding in player.Findings)
+            {
+                json.WriteStartObject();
+                json.WriteString("kind", UNNAMED.Domain.Crafting.FindingKeys.Key(finding.Kind));
+                json.WriteString("station", finding.StationKey);
+                json.WriteString("station_kind", finding.StationKind);
+                if (finding.RecipeId is { } recipe)
+                    json.WriteString("recipe", recipe);
+                else
+                    json.WriteNull("recipe");
+                json.WriteStartArray("materials");
+                foreach (string material in finding.Materials)
+                    json.WriteStringValue(material);
+                json.WriteEndArray();
+                json.WriteNumber("tick", finding.Tick);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
             json.WriteEndObject();
 
             json.WriteStartArray("cells");

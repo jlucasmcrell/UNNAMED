@@ -4,6 +4,7 @@ using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Items;
@@ -231,6 +232,12 @@ public static class M2Fixtures
             // Schema 27 (the soak's W4-SAVE-01): a swing of the sword in hand under way, begun at tick 4 995, that has struck the first
             // den wolf already.
             Attack = new AttackRecord("item.weapon.iron_sword", 4_995, ImmutableArray.Create(Creature(1))),
+            // Schema 31 (UI progression F): what two experiments at the fixture hearth taught - one that came to nothing, one that hinted.
+            Findings = ImmutableArray.Create(
+                new Finding(FindingKind.Nothing, "station.fixture_hearth", "hearth", null,
+                    ImmutableArray<string>.Empty, 4_600),
+                new Finding(FindingKind.Hint, "station.fixture_hearth", "hearth",
+                    "recipe.alchemy.salve_minor", ImmutableArray.Create("item.potion.minor_healing"), 4_800)),
         };
 
         public static readonly EntityId SwordId = EntityId.Create(EntityKind.Item, 1_700_000_000_001, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 1 });

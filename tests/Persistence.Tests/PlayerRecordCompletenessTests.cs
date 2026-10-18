@@ -102,10 +102,50 @@ public class PlayerRecordCompletenessTests
                 Attack = new AttackRecord("item.weapon.iron_sword", 4_200, ImmutableArray.Create(
                     EntityId.Create(EntityKind.Creature, 1_700_000_000_101, new byte[] { 7, 7, 7, 7, 7, 7, 7, 7, 7, 1 }),
                     EntityId.Create(EntityKind.Creature, 1_700_000_000_102, new byte[] { 7, 7, 7, 7, 7, 7, 7, 7, 7, 2 }))),
+                // An experiment that hinted and one that came to nothing (schema 31).
+                Findings = ImmutableArray.Create(
+                    new Domain.Crafting.Finding(
+                        Domain.Crafting.FindingKind.Nothing, "station.fixture_hearth", "hearth", null, ImmutableArray<string>.Empty, 4_600),
+                    new Domain.Crafting.Finding(
+                        Domain.Crafting.FindingKind.Hint, "station.fixture_hearth", "hearth", "recipe.alchemy.salve_minor", ImmutableArray.Create("item.potion.minor_healing"), 4_800)),
             };
     }
 
     private static EntityId Item(byte n) => EntityId.Create(EntityKind.Item, 1_700_000_000_000 + n, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, n });
+
+    [Fact]
+    public void CopyHelpers_PreserveThePlayersSpaceAndFindings()
+    {
+        var full = Full();
+        PlayerRecord[] copies =
+        [
+            full.WithInventory(full.Inventory), full.WithProgression(full.Progression),
+            full.WithDiscoveries(full.Discoveries), full.WithEffects(full.Effects),
+            full.WithSocial(full.Relationships, full.Conversations), full.WithQuests(full.Quests),
+            full.WithCompanions(full.Companions), full.WithDeeds(full.Deeds), full.WithFactions(full.Factions),
+        ];
+        foreach (var copy in copies)
+        {
+            Assert.Equal(full.SpaceId, copy.SpaceId);
+            Assert.Equal(full.SpaceTraversal, copy.SpaceTraversal);
+            Assert.Equal(full.Findings, copy.Findings);
+            Assert.Equal(full.Digest, copy.Digest);
+        }
+    }
+
+    [Fact]
+    public void LoadingThroughDefinitionResolution_PreservesTheReturnPortal()
+    {
+        using var profile = new TempProfile();
+        var store = new SaveStore(profile.Root);
+        var player = M2Fixtures.Player("Brannoc").WithSpace("space.fixture.ring", "portal.fixture.mouth");
+        var world = M2Fixtures.NewWorld(new UNNAMED.EntityRegistry.EntityRegistry());
+        store.Save(M2Fixtures.Slot, SaveDocuments.Capture(world, player, M2Fixtures.Content(), worldTick: 123, playtimeSeconds: 0));
+        var loaded = store.Load(M2Fixtures.Slot, M2Fixtures.Context(new UNNAMED.EntityRegistry.EntityRegistry(), M2Fixtures.Content("sha256:" + new string('a', 64))));
+        Assert.Equal(player.SpaceId, loaded.Player.SpaceId);
+        Assert.Equal(player.SpaceTraversal, loaded.Player.SpaceTraversal);
+        Assert.Equal(player.Digest, loaded.Player.Digest);
+    }
 
     [Fact]
     public void TheSample_FillsEveryFieldOfThePlayer()

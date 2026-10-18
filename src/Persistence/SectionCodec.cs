@@ -9,6 +9,7 @@ using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Items;
@@ -120,6 +121,24 @@ public sealed class PlayerDto
 
     /// <summary>From schema 30: the portal the body came into its space by, or null in the exterior.</summary>
     [Key("space_traversal")] public string? SpaceTraversal { get; set; }
+
+    /// <summary>
+    /// Required from schema 31 (UI progression F): what the character's experiments at stations taught, oldest first. The 30 -> 31 step gives
+    /// older saves none: nothing recorded what an experiment came to before.
+    /// </summary>
+    [Key("findings")] public FindingDto[]? Findings { get; set; }
+}
+
+/// <summary>A Finding (schema 31): what came of it, where, about which recipe, with which carried items, and when.</summary>
+[MessagePackObject]
+public sealed class FindingDto
+{
+    [Key("kind")] public string Kind { get; set; } = "";
+    [Key("station")] public string Station { get; set; } = "";
+    [Key("station_kind")] public string StationKind { get; set; } = "";
+    [Key("recipe")] public string? Recipe { get; set; }
+    [Key("materials")] public string[] Materials { get; set; } = Array.Empty<string>();
+    [Key("tick")] public long Tick { get; set; }
 }
 
 /// <summary>An attack under way (schema 27): what makes the blow, the tick it began, and the creatures it has struck.</summary>
@@ -937,6 +956,11 @@ public static class SectionCodec
             : new AttackDto { Source = attack.Source, StartTick = attack.StartTick, Struck = attack.Struck.Select(e => e.Value).ToArray() },
         SpaceId = player.SpaceId,
         SpaceTraversal = player.SpaceTraversal,
+        Findings = player.Findings.Select(f => new FindingDto
+        {
+            Kind = FindingKeys.Key(f.Kind), Station = f.StationKey, StationKind = f.StationKind, Recipe = f.RecipeId,
+            Materials = f.Materials.ToArray(), Tick = f.Tick,
+        }).ToArray(),
     }, Options);
 
     /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard, fine or (schema 19) masterwork.</summary>
@@ -1005,6 +1029,7 @@ public static class SectionCodec
         var party = dto.Party ?? throw new FormatException("player.msgpack has no party ledger (required from schema 21)");
         var quickBar = dto.QuickBar ?? throw new FormatException("player.msgpack has no quick bar (required from schema 23)");
         var spaceId = dto.SpaceId ?? throw new FormatException("player.msgpack has no space (required from schema 30)");
+        var findings = dto.Findings ?? throw new FormatException("player.msgpack has no findings (required from schema 31)");
         var sheets = dto.PartySheets ?? throw new FormatException("player.msgpack has no party sheets (required from schema 25)");
         var pronouns = PronounKeys.Parse(identity.Pronouns) ?? throw new FormatException($"player identity has pronouns '{identity.Pronouns}'");
         var stance = posture.Stance switch
@@ -1054,6 +1079,8 @@ public static class SectionCodec
                 : new AttackRecord(attack.Source, attack.StartTick, attack.Struck.Select(EntityId.Parse).ToImmutableArray()),
             SpaceId = SpaceId.Parse(spaceId).ToString(),
             SpaceTraversal = dto.SpaceTraversal,
+            Findings = findings.Select(f => new Finding(FindingKeys.Parse(f.Kind) ?? throw new FormatException($"a finding at {f.Station} is '{f.Kind}'"),
+                f.Station, f.StationKind, f.Recipe, f.Materials.ToImmutableArray(), f.Tick)).ToImmutableArray(),
         };
     }
 

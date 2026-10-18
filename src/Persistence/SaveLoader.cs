@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using MessagePack;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Economy;
@@ -497,6 +498,21 @@ internal static class SaveLoader
         if (attack is not null && UNNAMED.Domain.DefinitionId.IsValid(attack.Source))
             attack = Resolve(attack.Source, "player attack under way") is { } source ? attack with { Source = source } : null;
 
+        // Findings (schema 31): one whose recipe was removed goes with it; a carried item that was removed leaves the others. Two that resolve
+        // to the same question are one.
+        var findings = new List<Finding>();
+        foreach (var finding in player.Findings)
+        {
+            string? recipe = null;
+            if (finding.RecipeId is not null && (recipe = Resolve(finding.RecipeId, $"player finding ({finding.Key})")) is null)
+                continue;
+            var materials = finding.Materials.Select(m => Resolve(m, $"player finding ({finding.Key}) material")).OfType<string>()
+                .Distinct(StringComparer.Ordinal).OrderBy(m => m, StringComparer.Ordinal).ToImmutableArray();
+            var resolved = finding with { RecipeId = recipe, Materials = materials };
+            if (findings.All(f => f.Key != resolved.Key))
+                findings.Add(resolved);
+        }
+
         // The party ledger is set aside while the party is rewritten: a rename may bring the two together, which the record refuses.
         var rewritten = player with { Party = PartyLedger.Empty, PartySheets = ImmutableArray<PartySheet>.Empty };
         rewritten = rewritten.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values).WithEffects(effects.Values)
@@ -507,6 +523,7 @@ internal static class SaveLoader
                 QuickBar = bar.ToImmutable(), QuickBarCleared = cleared.ToImmutableArray(),
                 PartySheets = sheets.Values.ToImmutableArray(),
                 Attack = attack,
+                Findings = findings.ToImmutableArray(),
             },
             new DeltaSnapshot(cells, entities.ToImmutable())
             {
