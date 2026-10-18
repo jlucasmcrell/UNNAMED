@@ -739,15 +739,35 @@ public partial class ScatterView : Node3D
         return height * (0.5f * amount + MathF.Sqrt(2f) * 0.35f * 0.05f + 0.08f * amount * amount);
     }
 
-    private static Material Foliage(BaseMaterial3D? source, ScatterKind kind, float height, bool thins, Dictionary<string, Texture2D> albedos)
+    internal Material Foliage(BaseMaterial3D? source, ScatterKind kind, float height, bool thins, Dictionary<string, Texture2D> albedos)
     {
         bool mineral = kind.Otherflora is { Vein: not null } or { Lichen: not null };
-        var material = new ShaderMaterial
+        Texture2D? coverage = null;
+        bool opaque = false;
+        if (source?.AlbedoTexture is { } albedo && albedo.GetImage() is { } image)
         {
-            Shader = mineral
-                ? _mineralShader ??= new Shader { Code = Otherworld.Variant(WindField.FoliageShader, mineral: true) }
-                : _foliageShader ??= new Shader { Code = Otherworld.Variant(WindField.FoliageShader) },
-        };
+            if (image.IsCompressed())
+                image.Decompress();
+            image.ClearMipmaps();
+            image.Convert(Image.Format.Rgba8);
+            opaque = image.DetectAlpha() == Image.AlphaMode.None
+                && source.GetMeta("otherreach_source_transparency", (int)source.Transparency).AsInt32() == (int)BaseMaterial3D.TransparencyEnum.Disabled
+                && System.Environment.GetEnvironmentVariable("UNNAMED_OPAQUE_FOLIAGE") != "0";
+            string key = Convert.ToHexString(System.Security.Cryptography.SHA1.HashData(image.GetData()));
+            if (!albedos.TryGetValue(key, out coverage))
+                albedos[key] = coverage = ImageTexture.CreateFromImage(ImageMips.Coverage(image, 0.4f));
+        }
+        // Fully opaque source maps pass every existing alpha test (including the coverage mips).
+        // Keep RGB, normals, wind and thinning; let depth/shadow passes omit the needless fragment alpha fetch.
+        if (!_plantShaders.TryGetValue((mineral, opaque), out var shader))
+        {
+            string code = opaque ? "#define OPAQUE_FOLIAGE\n" + WindField.FoliageShader : WindField.FoliageShader;
+            _plantShaders[(mineral, opaque)] = shader = new Shader { Code = Otherworld.Variant(code, mineral: mineral) };
+        }
+        var material = new ShaderMaterial { Shader = shader };
+        if (coverage is not null) material.SetShaderParameter("albedo_tex", coverage);
+        if (opaque && OS.GetEnvironment("UNNAMED_LOAD_REPORT") == "1")
+            GD.Print($"UNNAMED scatter opaque pass: {kind.Name}");
         material.SetShaderParameter("plant_height", height);
         material.SetShaderParameter("stiffness", kind.Stiffness);
         // THE GROUND COVER'S EDGE IS A DENSITY, NOT A RING. A chunk's band ends all at once, so a kind used to stop in a hard
@@ -810,17 +830,6 @@ public partial class ScatterView : Node3D
                 material.SetShaderParameter("ow_lichen_on", 1f);
             }
         }
-        if (source?.AlbedoTexture is { } albedo && albedo.GetImage() is { } image)
-        {
-            if (image.IsCompressed())
-                image.Decompress();
-            image.ClearMipmaps();
-            image.Convert(Image.Format.Rgba8);
-            string key = Convert.ToHexString(System.Security.Cryptography.SHA1.HashData(image.GetData()));
-            if (!albedos.TryGetValue(key, out var coverage))
-                albedos[key] = coverage = ImageTexture.CreateFromImage(ImageMips.Coverage(image, 0.4f));
-            material.SetShaderParameter("albedo_tex", coverage);
-        }
         if (source is { NormalEnabled: true, NormalTexture: { } normal })
         {
             material.SetShaderParameter("normal_tex", normal);
@@ -835,8 +844,7 @@ public partial class ScatterView : Node3D
         return material;
     }
 
-    private static Shader? _foliageShader;
-    private static Shader? _mineralShader;
+    private readonly Dictionary<(bool Mineral, bool Opaque), Shader> _plantShaders = new();
 
     private static Mesh[] Meshes(ArtLibrary art, ScatterKind kind)
     {

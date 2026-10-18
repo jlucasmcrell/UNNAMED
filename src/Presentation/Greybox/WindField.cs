@@ -277,8 +277,10 @@ void fragment() {
     }
 #endif
     ALBEDO = colour;
+#ifndef OPAQUE_FOLIAGE
     ALPHA = a.a;
     ALPHA_SCISSOR_THRESHOLD = alpha_cut;
+#endif
     if (has_arm) {
         vec3 arm = texture(arm_tex, UV).rgb;
         // NO AO FROM THE FILE. ArtLibrary refuses to draw a model's baked occlusion - the generated and scanned
