@@ -101,7 +101,9 @@ public sealed class ShadowLods
         for (int i = _bands.Count - 1; i >= 0; i--)
         {
             var band = _bands[i];
-            if (!GodotObject.IsInstanceValid(band.Node)) { _known.Remove(band.Id); _bands.RemoveAt(i); continue; }
+            // The watcher's ExitTree runs before an in-tree node can be freed. Active bands
+            // need only managed distance arithmetic; reserve native lifetime polls for detached bands.
+            if (!band.InTree && !GodotObject.IsInstanceValid(band.Node)) { _known.Remove(band.Id); _bands.RemoveAt(i); continue; }
             Apply(band);
         }
     }
