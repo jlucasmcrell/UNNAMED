@@ -180,3 +180,48 @@ stand at a safe nearby point in both arms, capture an unmodified full-native dra
 compare isolated Release arms, and measure diagnostic scatter/ravine masks before selecting
 further fixes. Component masks are explicitly labelled diagnostic-only and cannot pass acceptance.
 The official historical idle 3x Barrowworks option-off A/B remains pending the owner's quiet-window go.
+
+## Release and component checks, 2026-10-18 01:29
+
+The frozen unmodified Release drain baseline (`before_release/drain_safe_release_baseline`)
+completes all eight headings. Its worst average is 16.8 FPS, worst mean GPU time 47.259 ms.
+The frozen `8d42e423` Release candidate (`after_release/drain_safe_optimized_candidate`)
+reaches 37.5 FPS, a 29.4 FPS worst 1% low and 25.707 ms worst mean GPU time. This remains a failure.
+These are separate from the earlier Debug/editor arms; CPU load is retained with each capture.
+
+The corrected Debug/editor component diagnostics are verified against their saved scene inventory:
+
+| Mask (diagnostic only) | Descendant meshes | Visible descendants | Worst mean GPU |
+|---|---:|---:|---:|
+| Scatter | 19,784 | 0 | 17.798 ms |
+| Ravine dressing | 2,132 | 0 | 23.349 ms |
+
+The preceding normal Debug/editor tree-sharing pilot measures 25.798 ms. Scatter's exclusion
+changes the submitted primitive counter little despite its large GPU cost, so shading/overdraw
+needs investigation alongside geometry. These contended diagnostics are not acceptance runs.
+The original `drain_diagnostic_no_scatter` run was ineffective: the CLI value-option parser ignored
+the new argument. It is explicitly invalidated for component attribution. The corrected parser
+and an external requested/actual/visible-mesh check prevent that run from being counted as a mask.
+
+Separate rendering thread mode stalled during model setup. A five-second managed trace was
+retained and only the matching test game stopped; the existing safe mode remains in use.
+The native terrain minimum-filter occluder prototype overshoots a synthetic source heightfield
+by 6.1 cm, so no terrain occluder was added to production.
+
+Per-world creature phase/current-leg channel reuse passes 77 focused creature/Barrowworks checks.
+The new continuation regression reloads fresh caches repeatedly across leg boundaries; removing
+leg invalidation makes it fail. The loaded full Release run records 1,730 passes, one existing
+60-creature timing failure and three existing long-run skips. That timing check passes alone at
+1.315 ms/tick; the original failure is retained. The complete suite is being rerun with
+`-m:1 -- xUnit.ParallelizeTestCollections=false xUnit.MaxParallelThreads=1`, without changing assertions.
+
+Read-only route preview during loading exercises first-use planner/follower compilation using
+disposable scratch, no simulation commands or ticks, and no persisted route. Native smoke passes:
+1,090 frames, tick 1,286, identical save/load digest. Effective viewport AA is now reported rather
+than the project's pre-override defaults; High's existing TAA-only setting is unchanged.
+
+The `5c8787af` opaque-foliage pilot preserves source RGB/coverage mip bytes, wind, thinning and
+cutout materials. Only proven opaque source textures select the shader without an alpha test.
+Shader caches are per scatter view. Native opacity/mip/wind/cutout/mineral/isolation checks and
+all 223 Presentation tests pass; rendered timing and paired-view review are pending.
+An isolated two-pixel native LOD trial is also queued; the shipping threshold remains one pixel.
