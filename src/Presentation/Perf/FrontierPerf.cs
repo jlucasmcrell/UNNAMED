@@ -19,7 +19,8 @@ public sealed class FrontierPerf
     private readonly FrameStats _stats;
     private readonly Viewport _viewport;
     private readonly string? _diagnosticHide;
-    private readonly StringBuilder _renderCounts = new("segment,observed_frame,draw_calls,primitives,objects\n");
+    private readonly StringBuilder _renderCounts = new("segment,observed_frame,draw_calls,primitives,objects,gc_pause_ms\n");
+    private long _lastGcPause = GC.GetTotalPauseDuration().Ticks;
     private readonly StringBuilder _processPhases = new("observed_frame,segment,phase,ms\n");
     private readonly StringBuilder _slowSimulation = new("observed_frame,segment,ms,world_tick,ticks_run,autosave_taken,gc_pause_ms\n");
     private readonly long _startTick;
@@ -87,10 +88,13 @@ public sealed class FrontierPerf
         _lastUsec = now;
         int before = _stats.Count;
         _stats.Record(seconds); // Monotonic interval, including stalls that the engine's delta may clamp.
+        long pause = GC.GetTotalPauseDuration().Ticks;
+        double gcMs = (pause - _lastGcPause) / (double)TimeSpan.TicksPerMillisecond;
+        _lastGcPause = pause;
         if (_stats.Count > before)
             _renderCounts.Append(CultureInfo.InvariantCulture,
                 $"{_stats.Segment},{_stats.Count - 1},{Performance.GetMonitor(Performance.Monitor.RenderTotalDrawCallsInFrame)}," +
-                $"{Performance.GetMonitor(Performance.Monitor.RenderTotalPrimitivesInFrame)},{Performance.GetMonitor(Performance.Monitor.RenderTotalObjectsInFrame)}\n");
+                $"{Performance.GetMonitor(Performance.Monitor.RenderTotalPrimitivesInFrame)},{Performance.GetMonitor(Performance.Monitor.RenderTotalObjectsInFrame)},{gcMs:0.###}\n");
         // The first Draw creates the NPC figures and can take longer than the entire
         // warm-up. Retain those two boot intervals, then warm for ten rendered seconds.
         // Screenshot readback must not consume the next heading's warm-up either.
@@ -157,6 +161,12 @@ public sealed class FrontierPerf
                 vertices = n.Occluder?.GetVertices().Length, indices = n.Occluder?.GetIndices().Length }).ToArray();
         File.WriteAllText(Path.Combine(Directory, "occlusion.json"), JsonSerializer.Serialize(new
             { enabled = _viewport.UseOcclusionCulling, occluders }));
+        var scatter = _viewport.GetTree().CurrentScene.GetNodeOrNull<Greybox.ScatterView>("Scatter");
+        File.WriteAllText(Path.Combine(Directory, "scatter_residency.json"), JsonSerializer.Serialize(new
+        {
+            enabled = scatter?.ResidencyEnabled, ready = scatter?.ResidencyReady,
+            worst_chunk_ms = scatter?.WorstChunkMs, counts = scatter?.Counts,
+        }));
         var lights = _viewport.GetTree().CurrentScene.FindChildren("*", "Light3D", true, false).OfType<Light3D>().Select(light => new
         {
             path = light.GetPath().ToString(), type = light.GetClass().ToString(),
@@ -177,6 +187,7 @@ public sealed class FrontierPerf
             ["actual_taa"] = _viewport.UseTaa.ToString(),
             ["actual_screen_space_aa"] = _viewport.ScreenSpaceAA.ToString(),
             ["actual_render_scale"] = _viewport.Scaling3DScale.ToString(CultureInfo.InvariantCulture),
+            ["actual_mesh_lod_threshold"] = _viewport.MeshLodThreshold.ToString(CultureInfo.InvariantCulture),
             ["visual_options"] = string.Join(",", VisualOptions.All.OrderBy(v => v.Key, StringComparer.Ordinal).Select(v => $"{v.Key}={v.Value}")),
             ["region"] = _session.Setup.Layout.Id,
             ["seed"] = _session.Simulation!.World.WorldSeed.ToString(CultureInfo.InvariantCulture),
