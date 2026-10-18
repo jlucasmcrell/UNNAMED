@@ -21,8 +21,12 @@ for fit in args.fits or ['mh_veth_f','mh_veth_m','mh_veth_f_lean','mh_veth_m_lea
     glb=Glb(source);original=bytes(glb.bin)
     for node in list(glb.doc['nodes']):
         name=node.get('name','');base=name.split('_LOD')[0]
-        if base.endswith(('_hair','_hair_group')):
-            node['name']=base+'__region_hair'+name[len(base):]
+        if base.endswith(('_hair','_hair_group')) and 'mesh' in node:
+            # Keep every original node name/pose; the child carries visibility.
+            child={'name':base+'__region_hair'+name[len(base):],'mesh':node.pop('mesh')}
+            for key in ('skin','weights'):
+                if key in node:child[key]=node.pop(key)
+            node.setdefault('children',[]).append(len(glb.doc['nodes']));glb.doc['nodes'].append(child)
             continue
         if 'mesh' not in node or not base.endswith(('_body','_head','_shadow')):continue
         mesh=glb.doc['meshes'][node['mesh']];by_region={}
