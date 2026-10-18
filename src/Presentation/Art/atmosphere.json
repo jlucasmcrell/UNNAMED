@@ -6,7 +6,7 @@
     "lists the states it runs in (omitted: all); day_only: only while the sun is up. Nothing here is simulated or saved.",
     "Asset overhaul 2026-10-14: weather states rain (light rain), storm (heavy rain), fog and snow (--visual weather=<state>).",
     "night_only: only while the sun is down; otherworld: only under --visual otherworld=subtle|bold (Greybox/Otherworld.cs).",
-    "Weather/day/night gates are evaluated live. wind_response is horizontal acceleration per unit of the shared world wind."
+    "Weather/day/night gates are evaluated live. requires_sky stops precipitation beneath physical roofs. wind_response is horizontal acceleration per unit of the shared world wind."
   ],
   "emitters": [
     { "recipe": "ash_motes", "wind_response": 1, "follow": "camera", "offset": [0, 2.5, 0], "grounds": ["material_marsh_grass_turf"], "weather": ["fair", "clear", "overcast", "fog", "wind"],
@@ -15,10 +15,10 @@
       "note": "The waystation's meadow and the Cairnwold moor in sunlight." },
     { "recipe": "leaves_falling", "wind_response": 3, "follow": "camera", "offset": [0, 9, 0], "grounds": ["cw_forest_floor"], "weather": ["fair", "clear", "overcast", "rain", "wind"],
       "note": "Under the birch flanks: a leaf now and then." },
-    { "recipe": "rain_light", "wind_response": 5, "follow": "camera", "offset": [0, 12, 0], "weather": ["rain"] },
-    { "recipe": "rain", "wind_response": 8, "follow": "camera", "offset": [0, 14, 0], "weather": ["storm"] },
+    { "recipe": "rain_light", "requires_sky": true, "wind_response": 5, "follow": "camera", "offset": [0, 12, 0], "weather": ["rain"] },
+    { "recipe": "rain", "requires_sky": true, "wind_response": 8, "follow": "camera", "offset": [0, 14, 0], "weather": ["storm"] },
     { "recipe": "fog_bank", "wind_response": 0.3, "follow": "camera", "offset": [0, 0.5, 0], "weather": ["fog"] },
-    { "recipe": "snow", "wind_response": 3, "follow": "camera", "offset": [0, 10, 0], "weather": ["snow"] },
+    { "recipe": "snow", "requires_sky": true, "wind_response": 3, "follow": "camera", "offset": [0, 10, 0], "weather": ["snow"] },
     { "recipe": "river_mist", "at": "ravine_rivers", "note": "Mist over the river on the ravine floors." },
     { "recipe": "fold_spores", "follow": "camera", "offset": [0, 1.8, 0], "grounds": ["material_churned_wet_mud", "cw_mud_wet", "cw_heather"], "weather": ["fair", "clear", "overcast", "fog"], "otherworld": true,
       "note": "Otherworld concept: pale spores rising slowly round the Foldscar and over the wet moor, day and night." },

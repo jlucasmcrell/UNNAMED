@@ -17,7 +17,7 @@ public partial class AtmosphereView : Node3D
     public const string ResourcePath = "res://Art/atmosphere.json";
 
     private sealed record Follower(GpuParticles3D Particles, Vector3 Offset, HashSet<string>? Grounds,
-        HashSet<string>? Weathers, bool DayOnly, bool NightOnly, float WindResponse)
+        HashSet<string>? Weathers, bool DayOnly, bool NightOnly, float WindResponse, bool RequiresSky)
     {
         public float Amount = -1;
         public bool Active;
@@ -28,6 +28,9 @@ public partial class AtmosphereView : Node3D
 
     private readonly List<Follower> _followers = new();
     private GroundField _ground = null!;
+    private RayCast3D? _shelter;
+    public bool PrecipitationSheltered => _shelter?.IsColliding() == true;
+    public bool PrecipitationActive => _followers.Any(f => f.RequiresSky && f.Active);
 
     /// <summary>Build the run's emitters (none when the file is missing or no recipe builds); returns how many.</summary>
     public int Build(ParticleRecipes recipes, GroundField ground, Func<float, float, float> scenery)
@@ -71,8 +74,15 @@ public partial class AtmosphereView : Node3D
             particles.Emitting = false;
             AddChild(particles);
             float windResponse = e.TryGetProperty("wind_response", out var response) ? response.GetSingle() : 0;
-            _followers.Add(new Follower(particles, offset, grounds, weathers, dayOnly, nightOnly, windResponse));
+            bool requiresSky = e.TryGetProperty("requires_sky", out var exposed) && exposed.GetBoolean();
+            _followers.Add(new Follower(particles, offset, grounds, weathers, dayOnly, nightOnly, windResponse, requiresSky));
             built++;
+        }
+        if (_shelter is null && _followers.Any(f => f.RequiresSky))
+        {
+            _shelter = new RayCast3D { Name = "WeatherShelter", TargetPosition = Vector3.Up * 32,
+                CollisionMask = HollowView.CameraCollisionLayer, HitFromInside = true, Enabled = true };
+            AddChild(_shelter);
         }
         GD.Print($"UNNAMED atmosphere: {built} emitters, gated by live WP7 weather and daylight");
         return built;
@@ -85,6 +95,7 @@ public partial class AtmosphereView : Node3D
         var eye = camera.GlobalPosition;
         var weather = SkyView.Weather;
         bool outside = IsVisibleInTree();
+        if (_shelter is not null) { _shelter.GlobalPosition = eye; _shelter.Enabled = outside; }
         foreach (var follower in _followers)
         {
             follower.Particles.GlobalPosition = eye + follower.Offset;
@@ -97,13 +108,20 @@ public partial class AtmosphereView : Node3D
             if (follower.Weathers is { } allowed)
                 foreach (string state in allowed) amount += weather.Amount(state);
             amount *= follower.DayOnly ? SkyView.DaylightLevel : follower.NightOnly ? 1 - SkyView.DaylightLevel : 1;
-            bool active = outside && amount > .001f && (follower.Grounds is null || OnGround(eye, follower.Grounds));
+            bool active = outside && amount > .001f && (!follower.RequiresSky || !PrecipitationSheltered)
+                && (follower.Grounds is null || OnGround(eye, follower.Grounds));
             if (amount != follower.Amount)
             {
                 follower.Amount = amount;
                 follower.Particles.AmountRatio = Mathf.Clamp(amount, 0, 1);
             }
-            if (active != follower.Active) { follower.Active = active; follower.Particles.Emitting = active; }
+            if (active != follower.Active)
+            {
+                follower.Active = active;
+                follower.Particles.Emitting = active;
+                // Existing world-space drops would otherwise fall through the roof until their lifetime ends.
+                if (follower.RequiresSky) follower.Particles.Visible = active;
+            }
         }
     }
 
@@ -122,3 +140,4 @@ public partial class AtmosphereView : Node3D
         return share >= 0.5f;
     }
 }
+
