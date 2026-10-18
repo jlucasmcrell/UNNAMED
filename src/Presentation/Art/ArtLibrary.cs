@@ -83,6 +83,8 @@ public sealed class ArtLibrary
     private readonly string? _sceneCachePrefix;
     private readonly bool _buildSceneCache;
     private readonly string? _nativeSceneRoot;
+    private const string SceneCacheFormat = "v5";
+    private readonly TextureCache? _interiorBuildCache;
 
     public ArtLibrary(string? root, bool useTextureCache = false, string? sceneCachePrefix = null, bool buildSceneCache = false)
     {
@@ -90,11 +92,16 @@ public sealed class ArtLibrary
         _sceneCachePrefix = sceneCachePrefix;
         _buildSceneCache = buildSceneCache;
         _nativeSceneRoot = sceneCachePrefix is not null && FallbackRoot is not null
-            ? Path.Combine(FallbackRoot, "barrowworks_native", Engine.GetVersionInfo()["string"].AsString()) : null;
+            ? Path.Combine(FallbackRoot, "barrowworks_native", Engine.GetVersionInfo()["string"].AsString(), SceneCacheFormat) : null;
         Cache = new TextureCache(useTextureCache || VisualOptions.All.GetValueOrDefault("textures") == "cache" || BuildTextureCache ? root : null, BuildTextureCache,
             _nativeSceneRoot is not null ? Path.Combine(_nativeSceneRoot, "textures") : null, buildSceneCache);
         PackedTerrainCache = useTextureCache && FallbackRoot is not null
             ? new TextureCache(Path.Combine(FallbackRoot, "barrowworks_terrain"), false) : null;
+        // Build-only cache in the owned depot, never its primary texture-cache junction. Normal play loads the
+        // shared BC7 resources referenced by the native scenes; no extra texture dictionary retains the interior.
+        _interiorBuildCache = buildSceneCache && _nativeSceneRoot is not null && FallbackRoot is not null
+            ? new TextureCache(Path.Combine(FallbackRoot, "barrowworks_materials"), true,
+                Path.Combine(_nativeSceneRoot, "textures"), true) : null;
     }
 
     /// <summary>Set by <c>--texture-cache</c> (editor binary): every texture this run loads is compressed into the cache (Phase B, B1).</summary>
@@ -587,11 +594,16 @@ public sealed class ArtLibrary
             return null;
         }
         ulong started = Time.GetTicksUsec();
-        string? stamp = _nativeSceneRoot is not null && _sceneCachePrefix is not null && id.StartsWith(_sceneCachePrefix, StringComparison.Ordinal)
-            ? "v4 " + Engine.GetVersionInfo()["string"].AsString() + " "
-              + Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(path))) : null;
+        string? stamp = null;
+        if (_nativeSceneRoot is not null && _sceneCachePrefix is not null && id.StartsWith(_sceneCachePrefix, StringComparison.Ordinal))
+        {
+            // Keep the full-source proof without allocating every GLB on the large-object heap at portal entry.
+            using var source = File.OpenRead(path);
+            stamp = SceneCacheFormat + " " + Engine.GetVersionInfo()["string"].AsString() + " "
+                + Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(source));
+        }
         string native = _nativeSceneRoot is null ? "" : Path.Combine(_nativeSceneRoot, "scenes", Path.GetRelativePath(WorkspaceOf(path), path) + ".scn").Replace('\\', '/');
-        if (stamp is not null && !_buildSceneCache && File.Exists(native) && File.Exists(native + ".sha256")
+        if (stamp is not null && File.Exists(native) && File.Exists(native + ".sha256")
             && File.ReadAllText(native + ".sha256") == stamp
             && ResourceLoader.Load<PackedScene>(native, cacheMode: ResourceLoader.CacheMode.Ignore) is { } cached)
         {
@@ -896,7 +908,9 @@ public sealed class ArtLibrary
                             continue;
                         // The cache's compressed, shared copy (Phase B, B1), when the run uses the cache and has (or is building) one.
                         if (images.TryGetValue(texture.GetInstanceId(), out int index)
-                            && Cache.For(TextureCache.Key(relative, index), path, texture.GetImage, Role(material, param)) is { } cached)
+                            && (Cache.For(TextureCache.Key(relative, index), path, texture.GetImage, Role(material, param))
+                                ?? (assetId.StartsWith("bw_codex_", StringComparison.Ordinal)
+                                    ? _interiorBuildCache?.For(TextureCache.Key(relative, index), path, texture.GetImage, Role(material, param)) : null)) is { } cached)
                         {
                             swapped[texture.GetInstanceId()] = cached;
                             material.SetTexture(param, cached);

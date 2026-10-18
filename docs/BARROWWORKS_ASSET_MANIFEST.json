@@ -1511,472 +1511,6 @@
       "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
     },
     {
-      "asset_id": "bw_codex_measure",
-      "category": "prop",
-      "source": "Licensed source modules; manual assembly and first-party paper/type.",
-      "sources": [
-        "DanStudios Lost Temple: Fab Standard Personal",
-        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
-      ],
-      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true,
-      "sha256": "cf5316bfce8df4db5006ffe6432eff326da4f866041586a639bf056a4fc878a7",
-      "source_urls": [
-        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
-      ],
-      "boiler_source": {
-        "asset_id": "bw_codex_boiler",
-        "name": "bw_codex_boiler",
-        "category": "prop",
-        "source": "D:\\Otherreach_Scratch\\barrowworks\\codex\\sources\\ScottishMaritimeMuseum__Boiler_from_the_puffer_VIC_32\\scene.gltf",
-        "source_file": "scene.gltf",
-        "source_sha256": "468c9e4e2cbc306bcd11898d141b5d641cf7d7ad0c33a3fd86fc79b57c69148c",
-        "source_bytes": 9989,
-        "source_files": [
-          {
-            "path": "textures\\Material_21_baseColor.png",
-            "sha256": "2f9df06c58126b80efc888d610bb79bb6f4afaee498d1e727b118a080f62b103",
-            "bytes": 64864600
-          },
-          {
-            "path": "textures\\Material_21_normal.png",
-            "sha256": "2037b12b59ceef5a96a3807ccb26b2e1e35a6eaa34b91a95e59734173cd361db",
-            "bytes": 16293853
-          }
-        ],
-        "source_url": "https://sketchfab.com/3d-models/884ed11e38054aa48a3db1d9025c881d",
-        "pack": "other",
-        "licence": "CC0 1.0",
-        "licence_evidence": "C:\\Otherreach_External_Assets\\Sketchfab_20261016\\ScottishMaritimeMuseum__Boiler_from_the_puffer_VIC_32\\LICENCE.txt",
-        "built_by": "tools/asset_pipeline/convert_asset.py (Blender 5.2.2 LTS)",
-        "built": "2026-10-17 09:37:03",
-        "command": "--source D:\\Otherreach_Scratch\\barrowworks\\codex\\sources\\ScottishMaritimeMuseum__Boiler_from_the_puffer_VIC_32\\scene.gltf --asset-id bw_codex_boiler --mesh default --target-height 1.5 --max-tris 60000 --res 2048 --save-blend --out D:\\Otherreach_Depot\\barrowworks_codex\\ready --work D:\\Otherreach_Scratch\\barrowworks\\codex\\convert --licence CC0 1.0 --licence-evidence C:\\Otherreach_External_Assets\\Sketchfab_20261016\\ScottishMaritimeMuseum__Boiler_from_the_puffer_VIC_32\\LICENCE.txt --source-url https://sketchfab.com/3d-models/884ed11e38054aa48a3db1d9025c881d",
-        "triangles": 59999,
-        "source_triangles": 199587,
-        "transform": {
-          "dimensions_m": {
-            "x": 0.8059,
-            "y": 1.4999,
-            "z": 0.8002
-          },
-          "min": [
-            -0.4029,
-            0.0002,
-            -0.4001
-          ],
-          "max": [
-            0.403,
-            1.5001,
-            0.4001
-          ],
-          "source_dimensions_m": [
-            2.5046,
-            2.4874,
-            4.6619
-          ],
-          "scale_factor": 0.321756,
-          "rescaled_by": "target_height",
-          "yaw_deg": 0.0,
-          "units": "metres, 1 unit = 1 m, no node scale",
-          "glb_up_axis": "+Y",
-          "glb_forward_axis": "+Z (Blender -Y)",
-          "glb_axes": "Y-up, one node, transforms applied, no residual scale or rotation",
-          "glb_origin": "footprint centre, base on the ground plane (min Y = 0)"
-        },
-        "materials": [
-          "MAT_bw_codex_boiler_0"
-        ],
-        "material_records": [
-          {
-            "slot": 0,
-            "source_material": "Material_21",
-            "native_px": 8192,
-            "lod0_px": [
-              2048,
-              2048
-            ],
-            "cutout": false,
-            "channels": {
-              "base": "image",
-              "alpha": "const",
-              "rough": "const",
-              "metal": "const",
-              "ao": "const",
-              "normal": "image"
-            }
-          }
-        ],
-        "textures": [
-          {
-            "name": "bw_codex_boiler_m0_normal",
-            "px": [
-              2048,
-              2048
-            ],
-            "format": "jpeg",
-            "bytes": 764391
-          },
-          {
-            "name": "bw_codex_boiler_m0_orm",
-            "px": [
-              2048,
-              2048
-            ],
-            "format": "jpeg",
-            "bytes": 66180
-          },
-          {
-            "name": "bw_codex_boiler_m0_basecolor",
-            "px": [
-              2048,
-              2048
-            ],
-            "format": "jpeg",
-            "bytes": 718787
-          }
-        ],
-        "texture_resolution": 2048,
-        "native_texture_resolution": 8192,
-        "orm": "one image per material bound to occlusionTexture and metallicRoughnessTexture (R=AO, G=roughness, B=metallic)",
-        "orm_shared": true,
-        "lod_method": "Blender collapse decimate of the welded LOD0 at the stated ratio; textures halved per level, all levels textured",
-        "lod_status": "present",
-        "lods": {
-          "bw_codex_boiler_lod1": {
-            "ratio": 0.5,
-            "path": "bw_codex_boiler_lod1.glb",
-            "triangles": 29999,
-            "texture_px": [
-              1024,
-              1024
-            ],
-            "orm_shared": true,
-            "materials": [
-              "MAT_bw_codex_boiler_0_lod1"
-            ]
-          },
-          "bw_codex_boiler_lod2": {
-            "ratio": 0.2,
-            "path": "bw_codex_boiler_lod2.glb",
-            "triangles": 11999,
-            "texture_px": [
-              512,
-              512
-            ],
-            "orm_shared": true,
-            "materials": [
-              "MAT_bw_codex_boiler_0_lod2"
-            ]
-          }
-        },
-        "collision_status": "none",
-        "collision": {
-          "mode": "none"
-        },
-        "collision_note": "ArtLibrary never reads _collision_* files; the game sizes blockers from the mesh footprint (ArtLibrary.TurnedFootprint). Proxies are written only when asked for.",
-        "rigged": false,
-        "sockets": [],
-        "outputs": [
-          {
-            "file": "bw_codex_boiler.glb",
-            "bytes": 3086592,
-            "sha256": "1b70555b101f43aa48fa9ed4455a51f42f5d333633ef19b7d70271bc9d27a9dd"
-          },
-          {
-            "file": "bw_codex_boiler_lod1.glb",
-            "bytes": 1214724,
-            "sha256": "90a1a6bc4a5f5ca02d73c5630f58c7f54d4f9a092187320027e18e0aeb18c20a"
-          },
-          {
-            "file": "bw_codex_boiler_lod2.glb",
-            "bytes": 508940,
-            "sha256": "0800a86c9e9eb3c80678ebcca72c80e23883fa1a74a395af6e8382694c8f3bcf"
-          }
-        ],
-        "status": "export_ready",
-        "game_integration": "NOT PROMOTED",
-        "visual_acceptance": "UNREVIEWED",
-        "notes": ""
-      },
-      "rough_wood_source": {
-        "id": "cw_timber_beam",
-        "built_for": "CAIRNWOLD",
-        "source": "Poly Haven (https://polyhaven.com)",
-        "source_asset": "rough_wood",
-        "source_page": "https://polyhaven.com/a/rough_wood",
-        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-        "download_urls": {
-          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
-          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
-        },
-        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
-        "licence_url": "https://polyhaven.com/license",
-        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
-        "shippable": true,
-        "resolution": 4096,
-        "maps": {
-          "basecolor": {
-            "file": "cw_timber_beam_basecolor.jpg",
-            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
-            "bytes": 8069907
-          },
-          "normal": {
-            "file": "cw_timber_beam_normal.jpg",
-            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
-            "bytes": 7089554
-          },
-          "orm": {
-            "file": "cw_timber_beam_orm.jpg",
-            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
-            "bytes": 2365401
-          }
-        },
-        "orm_means": {
-          "occlusion": 0.7809,
-          "roughness": 0.5096,
-          "metallic": 0.005
-        },
-        "transform": "none - both sources ship glTF-shaped maps"
-      },
-      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
-    },
-    {
-      "asset_id": "bw_codex_measure_running",
-      "category": "prop",
-      "source": "Licensed source modules; manual assembly and first-party paper/type.",
-      "sources": [
-        "DanStudios Lost Temple: Fab Standard Personal",
-        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
-      ],
-      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true,
-      "sha256": "982202ac45520345dbec3594e37228bd866299a77681d778250094fe03b1abd2",
-      "source_urls": [
-        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
-      ],
-      "boiler_source": {
-        "asset_id": "bw_codex_boiler",
-        "name": "bw_codex_boiler",
-        "category": "prop",
-        "source": "D:\\Otherreach_Scratch\\barrowworks\\codex\\sources\\ScottishMaritimeMuseum__Boiler_from_the_puffer_VIC_32\\scene.gltf",
-        "source_file": "scene.gltf",
-        "source_sha256": "468c9e4e2cbc306bcd11898d141b5d641cf7d7ad0c33a3fd86fc79b57c69148c",
-        "source_bytes": 9989,
-        "source_files": [
-          {
-            "path": "textures\\Material_21_baseColor.png",
-            "sha256": "2f9df06c58126b80efc888d610bb79bb6f4afaee498d1e727b118a080f62b103",
-            "bytes": 64864600
-          },
-          {
-            "path": "textures\\Material_21_normal.png",
-            "sha256": "2037b12b59ceef5a96a3807ccb26b2e1e35a6eaa34b91a95e59734173cd361db",
-            "bytes": 16293853
-          }
-        ],
-        "source_url": "https://sketchfab.com/3d-models/884ed11e38054aa48a3db1d9025c881d",
-        "pack": "other",
-        "licence": "CC0 1.0",
-        "licence_evidence": "C:\\Otherreach_External_Assets\\Sketchfab_20261016\\ScottishMaritimeMuseum__Boiler_from_the_puffer_VIC_32\\LICENCE.txt",
-        "built_by": "tools/asset_pipeline/convert_asset.py (Blender 5.2.2 LTS)",
-        "built": "2026-10-17 09:37:03",
-        "command": "--source D:\\Otherreach_Scratch\\barrowworks\\codex\\sources\\ScottishMaritimeMuseum__Boiler_from_the_puffer_VIC_32\\scene.gltf --asset-id bw_codex_boiler --mesh default --target-height 1.5 --max-tris 60000 --res 2048 --save-blend --out D:\\Otherreach_Depot\\barrowworks_codex\\ready --work D:\\Otherreach_Scratch\\barrowworks\\codex\\convert --licence CC0 1.0 --licence-evidence C:\\Otherreach_External_Assets\\Sketchfab_20261016\\ScottishMaritimeMuseum__Boiler_from_the_puffer_VIC_32\\LICENCE.txt --source-url https://sketchfab.com/3d-models/884ed11e38054aa48a3db1d9025c881d",
-        "triangles": 59999,
-        "source_triangles": 199587,
-        "transform": {
-          "dimensions_m": {
-            "x": 0.8059,
-            "y": 1.4999,
-            "z": 0.8002
-          },
-          "min": [
-            -0.4029,
-            0.0002,
-            -0.4001
-          ],
-          "max": [
-            0.403,
-            1.5001,
-            0.4001
-          ],
-          "source_dimensions_m": [
-            2.5046,
-            2.4874,
-            4.6619
-          ],
-          "scale_factor": 0.321756,
-          "rescaled_by": "target_height",
-          "yaw_deg": 0.0,
-          "units": "metres, 1 unit = 1 m, no node scale",
-          "glb_up_axis": "+Y",
-          "glb_forward_axis": "+Z (Blender -Y)",
-          "glb_axes": "Y-up, one node, transforms applied, no residual scale or rotation",
-          "glb_origin": "footprint centre, base on the ground plane (min Y = 0)"
-        },
-        "materials": [
-          "MAT_bw_codex_boiler_0"
-        ],
-        "material_records": [
-          {
-            "slot": 0,
-            "source_material": "Material_21",
-            "native_px": 8192,
-            "lod0_px": [
-              2048,
-              2048
-            ],
-            "cutout": false,
-            "channels": {
-              "base": "image",
-              "alpha": "const",
-              "rough": "const",
-              "metal": "const",
-              "ao": "const",
-              "normal": "image"
-            }
-          }
-        ],
-        "textures": [
-          {
-            "name": "bw_codex_boiler_m0_normal",
-            "px": [
-              2048,
-              2048
-            ],
-            "format": "jpeg",
-            "bytes": 764391
-          },
-          {
-            "name": "bw_codex_boiler_m0_orm",
-            "px": [
-              2048,
-              2048
-            ],
-            "format": "jpeg",
-            "bytes": 66180
-          },
-          {
-            "name": "bw_codex_boiler_m0_basecolor",
-            "px": [
-              2048,
-              2048
-            ],
-            "format": "jpeg",
-            "bytes": 718787
-          }
-        ],
-        "texture_resolution": 2048,
-        "native_texture_resolution": 8192,
-        "orm": "one image per material bound to occlusionTexture and metallicRoughnessTexture (R=AO, G=roughness, B=metallic)",
-        "orm_shared": true,
-        "lod_method": "Blender collapse decimate of the welded LOD0 at the stated ratio; textures halved per level, all levels textured",
-        "lod_status": "present",
-        "lods": {
-          "bw_codex_boiler_lod1": {
-            "ratio": 0.5,
-            "path": "bw_codex_boiler_lod1.glb",
-            "triangles": 29999,
-            "texture_px": [
-              1024,
-              1024
-            ],
-            "orm_shared": true,
-            "materials": [
-              "MAT_bw_codex_boiler_0_lod1"
-            ]
-          },
-          "bw_codex_boiler_lod2": {
-            "ratio": 0.2,
-            "path": "bw_codex_boiler_lod2.glb",
-            "triangles": 11999,
-            "texture_px": [
-              512,
-              512
-            ],
-            "orm_shared": true,
-            "materials": [
-              "MAT_bw_codex_boiler_0_lod2"
-            ]
-          }
-        },
-        "collision_status": "none",
-        "collision": {
-          "mode": "none"
-        },
-        "collision_note": "ArtLibrary never reads _collision_* files; the game sizes blockers from the mesh footprint (ArtLibrary.TurnedFootprint). Proxies are written only when asked for.",
-        "rigged": false,
-        "sockets": [],
-        "outputs": [
-          {
-            "file": "bw_codex_boiler.glb",
-            "bytes": 3086592,
-            "sha256": "1b70555b101f43aa48fa9ed4455a51f42f5d333633ef19b7d70271bc9d27a9dd"
-          },
-          {
-            "file": "bw_codex_boiler_lod1.glb",
-            "bytes": 1214724,
-            "sha256": "90a1a6bc4a5f5ca02d73c5630f58c7f54d4f9a092187320027e18e0aeb18c20a"
-          },
-          {
-            "file": "bw_codex_boiler_lod2.glb",
-            "bytes": 508940,
-            "sha256": "0800a86c9e9eb3c80678ebcca72c80e23883fa1a74a395af6e8382694c8f3bcf"
-          }
-        ],
-        "status": "export_ready",
-        "game_integration": "NOT PROMOTED",
-        "visual_acceptance": "UNREVIEWED",
-        "notes": ""
-      },
-      "rough_wood_source": {
-        "id": "cw_timber_beam",
-        "built_for": "CAIRNWOLD",
-        "source": "Poly Haven (https://polyhaven.com)",
-        "source_asset": "rough_wood",
-        "source_page": "https://polyhaven.com/a/rough_wood",
-        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-        "download_urls": {
-          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
-          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
-        },
-        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
-        "licence_url": "https://polyhaven.com/license",
-        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
-        "shippable": true,
-        "resolution": 4096,
-        "maps": {
-          "basecolor": {
-            "file": "cw_timber_beam_basecolor.jpg",
-            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
-            "bytes": 8069907
-          },
-          "normal": {
-            "file": "cw_timber_beam_normal.jpg",
-            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
-            "bytes": 7089554
-          },
-          "orm": {
-            "file": "cw_timber_beam_orm.jpg",
-            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
-            "bytes": 2365401
-          }
-        },
-        "orm_means": {
-          "occlusion": 0.7809,
-          "roughness": 0.5096,
-          "metallic": 0.005
-        },
-        "transform": "none - both sources ship glTF-shaped maps"
-      },
-      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
-    },
-    {
       "asset_id": "bw_codex_measure_dismantled",
       "category": "prop",
       "source": "Licensed source modules; manual assembly and first-party paper/type.",
@@ -1988,298 +1522,6 @@
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "shippable": true,
       "sha256": "d07010d534de5a28cb48f13b705c4d6f5da8c38ac760a7723837c3d89af1b07a",
-      "source_urls": [
-        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
-      ],
-      "boiler_source": {
-        "asset_id": "bw_codex_boiler",
-        "name": "bw_codex_boiler",
-        "category": "prop",
-        "source": "D:\\Otherreach_Scratch\\barrowworks\\codex\\sources\\ScottishMaritimeMuseum__Boiler_from_the_puffer_VIC_32\\scene.gltf",
-        "source_file": "scene.gltf",
-        "source_sha256": "468c9e4e2cbc306bcd11898d141b5d641cf7d7ad0c33a3fd86fc79b57c69148c",
-        "source_bytes": 9989,
-        "source_files": [
-          {
-            "path": "textures\\Material_21_baseColor.png",
-            "sha256": "2f9df06c58126b80efc888d610bb79bb6f4afaee498d1e727b118a080f62b103",
-            "bytes": 64864600
-          },
-          {
-            "path": "textures\\Material_21_normal.png",
-            "sha256": "2037b12b59ceef5a96a3807ccb26b2e1e35a6eaa34b91a95e59734173cd361db",
-            "bytes": 16293853
-          }
-        ],
-        "source_url": "https://sketchfab.com/3d-models/884ed11e38054aa48a3db1d9025c881d",
-        "pack": "other",
-        "licence": "CC0 1.0",
-        "licence_evidence": "C:\\Otherreach_External_Assets\\Sketchfab_20261016\\ScottishMaritimeMuseum__Boiler_from_the_puffer_VIC_32\\LICENCE.txt",
-        "built_by": "tools/asset_pipeline/convert_asset.py (Blender 5.2.2 LTS)",
-        "built": "2026-10-17 09:37:03",
-        "command": "--source D:\\Otherreach_Scratch\\barrowworks\\codex\\sources\\ScottishMaritimeMuseum__Boiler_from_the_puffer_VIC_32\\scene.gltf --asset-id bw_codex_boiler --mesh default --target-height 1.5 --max-tris 60000 --res 2048 --save-blend --out D:\\Otherreach_Depot\\barrowworks_codex\\ready --work D:\\Otherreach_Scratch\\barrowworks\\codex\\convert --licence CC0 1.0 --licence-evidence C:\\Otherreach_External_Assets\\Sketchfab_20261016\\ScottishMaritimeMuseum__Boiler_from_the_puffer_VIC_32\\LICENCE.txt --source-url https://sketchfab.com/3d-models/884ed11e38054aa48a3db1d9025c881d",
-        "triangles": 59999,
-        "source_triangles": 199587,
-        "transform": {
-          "dimensions_m": {
-            "x": 0.8059,
-            "y": 1.4999,
-            "z": 0.8002
-          },
-          "min": [
-            -0.4029,
-            0.0002,
-            -0.4001
-          ],
-          "max": [
-            0.403,
-            1.5001,
-            0.4001
-          ],
-          "source_dimensions_m": [
-            2.5046,
-            2.4874,
-            4.6619
-          ],
-          "scale_factor": 0.321756,
-          "rescaled_by": "target_height",
-          "yaw_deg": 0.0,
-          "units": "metres, 1 unit = 1 m, no node scale",
-          "glb_up_axis": "+Y",
-          "glb_forward_axis": "+Z (Blender -Y)",
-          "glb_axes": "Y-up, one node, transforms applied, no residual scale or rotation",
-          "glb_origin": "footprint centre, base on the ground plane (min Y = 0)"
-        },
-        "materials": [
-          "MAT_bw_codex_boiler_0"
-        ],
-        "material_records": [
-          {
-            "slot": 0,
-            "source_material": "Material_21",
-            "native_px": 8192,
-            "lod0_px": [
-              2048,
-              2048
-            ],
-            "cutout": false,
-            "channels": {
-              "base": "image",
-              "alpha": "const",
-              "rough": "const",
-              "metal": "const",
-              "ao": "const",
-              "normal": "image"
-            }
-          }
-        ],
-        "textures": [
-          {
-            "name": "bw_codex_boiler_m0_normal",
-            "px": [
-              2048,
-              2048
-            ],
-            "format": "jpeg",
-            "bytes": 764391
-          },
-          {
-            "name": "bw_codex_boiler_m0_orm",
-            "px": [
-              2048,
-              2048
-            ],
-            "format": "jpeg",
-            "bytes": 66180
-          },
-          {
-            "name": "bw_codex_boiler_m0_basecolor",
-            "px": [
-              2048,
-              2048
-            ],
-            "format": "jpeg",
-            "bytes": 718787
-          }
-        ],
-        "texture_resolution": 2048,
-        "native_texture_resolution": 8192,
-        "orm": "one image per material bound to occlusionTexture and metallicRoughnessTexture (R=AO, G=roughness, B=metallic)",
-        "orm_shared": true,
-        "lod_method": "Blender collapse decimate of the welded LOD0 at the stated ratio; textures halved per level, all levels textured",
-        "lod_status": "present",
-        "lods": {
-          "bw_codex_boiler_lod1": {
-            "ratio": 0.5,
-            "path": "bw_codex_boiler_lod1.glb",
-            "triangles": 29999,
-            "texture_px": [
-              1024,
-              1024
-            ],
-            "orm_shared": true,
-            "materials": [
-              "MAT_bw_codex_boiler_0_lod1"
-            ]
-          },
-          "bw_codex_boiler_lod2": {
-            "ratio": 0.2,
-            "path": "bw_codex_boiler_lod2.glb",
-            "triangles": 11999,
-            "texture_px": [
-              512,
-              512
-            ],
-            "orm_shared": true,
-            "materials": [
-              "MAT_bw_codex_boiler_0_lod2"
-            ]
-          }
-        },
-        "collision_status": "none",
-        "collision": {
-          "mode": "none"
-        },
-        "collision_note": "ArtLibrary never reads _collision_* files; the game sizes blockers from the mesh footprint (ArtLibrary.TurnedFootprint). Proxies are written only when asked for.",
-        "rigged": false,
-        "sockets": [],
-        "outputs": [
-          {
-            "file": "bw_codex_boiler.glb",
-            "bytes": 3086592,
-            "sha256": "1b70555b101f43aa48fa9ed4455a51f42f5d333633ef19b7d70271bc9d27a9dd"
-          },
-          {
-            "file": "bw_codex_boiler_lod1.glb",
-            "bytes": 1214724,
-            "sha256": "90a1a6bc4a5f5ca02d73c5630f58c7f54d4f9a092187320027e18e0aeb18c20a"
-          },
-          {
-            "file": "bw_codex_boiler_lod2.glb",
-            "bytes": 508940,
-            "sha256": "0800a86c9e9eb3c80678ebcca72c80e23883fa1a74a395af6e8382694c8f3bcf"
-          }
-        ],
-        "status": "export_ready",
-        "game_integration": "NOT PROMOTED",
-        "visual_acceptance": "UNREVIEWED",
-        "notes": ""
-      },
-      "rough_wood_source": {
-        "id": "cw_timber_beam",
-        "built_for": "CAIRNWOLD",
-        "source": "Poly Haven (https://polyhaven.com)",
-        "source_asset": "rough_wood",
-        "source_page": "https://polyhaven.com/a/rough_wood",
-        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-        "download_urls": {
-          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
-          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
-        },
-        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
-        "licence_url": "https://polyhaven.com/license",
-        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
-        "shippable": true,
-        "resolution": 4096,
-        "maps": {
-          "basecolor": {
-            "file": "cw_timber_beam_basecolor.jpg",
-            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
-            "bytes": 8069907
-          },
-          "normal": {
-            "file": "cw_timber_beam_normal.jpg",
-            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
-            "bytes": 7089554
-          },
-          "orm": {
-            "file": "cw_timber_beam_orm.jpg",
-            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
-            "bytes": 2365401
-          }
-        },
-        "orm_means": {
-          "occlusion": 0.7809,
-          "roughness": 0.5096,
-          "metallic": 0.005
-        },
-        "transform": "none - both sources ship glTF-shaped maps"
-      },
-      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
-    },
-    {
-      "asset_id": "bw_codex_preserve_control",
-      "category": "prop",
-      "source": "Licensed source modules; manual assembly and first-party paper/type.",
-      "sources": [
-        "DanStudios Lost Temple: Fab Standard Personal",
-        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
-      ],
-      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true,
-      "sha256": "2e4cc6ea79c2207f05c30d79c7a329093afe0d2d57a93d7de867f1bd7319a405",
-      "source_urls": [
-        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
-      ],
-      "rough_wood_source": {
-        "id": "cw_timber_beam",
-        "built_for": "CAIRNWOLD",
-        "source": "Poly Haven (https://polyhaven.com)",
-        "source_asset": "rough_wood",
-        "source_page": "https://polyhaven.com/a/rough_wood",
-        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-        "download_urls": {
-          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
-          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
-        },
-        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
-        "licence_url": "https://polyhaven.com/license",
-        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
-        "shippable": true,
-        "resolution": 4096,
-        "maps": {
-          "basecolor": {
-            "file": "cw_timber_beam_basecolor.jpg",
-            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
-            "bytes": 8069907
-          },
-          "normal": {
-            "file": "cw_timber_beam_normal.jpg",
-            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
-            "bytes": 7089554
-          },
-          "orm": {
-            "file": "cw_timber_beam_orm.jpg",
-            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
-            "bytes": 2365401
-          }
-        },
-        "orm_means": {
-          "occlusion": 0.7809,
-          "roughness": 0.5096,
-          "metallic": 0.005
-        },
-        "transform": "none - both sources ship glTF-shaped maps"
-      },
-      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
-    },
-    {
-      "asset_id": "bw_codex_dismantle_control",
-      "category": "prop",
-      "source": "Licensed source modules; manual assembly and first-party paper/type.",
-      "sources": [
-        "DanStudios Lost Temple: Fab Standard Personal",
-        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
-      ],
-      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true,
-      "sha256": "04da2995ec743601489acf8b694be4f7889696f79e02c94b4a67897830b45cdb",
       "source_urls": [
         "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
         "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
@@ -2977,6 +2219,246 @@
       "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
     },
     {
+      "asset_id": "bw_codex_measure",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "First-party regulator geometry",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0",
+        "Poly Haven Rough Wood: CC0"
+      ],
+      "modifications": "Hand-built timber/iron regulator, open spur gears, guide beam, opposed jaws, gauge column and rivets; owned CC-BY pipe/valve meshes and wear textures; CC0 timber. No AI meshes.",
+      "licence_evidence": "C:\\Otherreach_External_Assets\\Sketchfab_20261016\\SLASH-RENDAR__Old_Industrial_Pipe_Pack_PBR\\LICENCE.txt",
+      "shippable": true,
+      "triangles": 16716,
+      "sha256": "ed4d68d16da6da6eaed91d60cb26f664edb8d081ddaea8bb6de9fad436812b98",
+      "source_urls": [
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ],
+      "rough_wood_source": {
+        "id": "cw_timber_beam",
+        "built_for": "CAIRNWOLD",
+        "source": "Poly Haven (https://polyhaven.com)",
+        "source_asset": "rough_wood",
+        "source_page": "https://polyhaven.com/a/rough_wood",
+        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+        "download_urls": {
+          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
+          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
+        },
+        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+        "licence_url": "https://polyhaven.com/license",
+        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
+        "shippable": true,
+        "resolution": 4096,
+        "maps": {
+          "basecolor": {
+            "file": "cw_timber_beam_basecolor.jpg",
+            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
+            "bytes": 8069907
+          },
+          "normal": {
+            "file": "cw_timber_beam_normal.jpg",
+            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
+            "bytes": 7089554
+          },
+          "orm": {
+            "file": "cw_timber_beam_orm.jpg",
+            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
+            "bytes": 2365401
+          }
+        },
+        "orm_means": {
+          "occlusion": 0.7809,
+          "roughness": 0.5096,
+          "metallic": 0.005
+        },
+        "transform": "none - both sources ship glTF-shaped maps"
+      },
+      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
+    },
+    {
+      "asset_id": "bw_codex_measure_running",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "First-party regulator geometry",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0",
+        "Poly Haven Rough Wood: CC0"
+      ],
+      "modifications": "Hand-built timber/iron regulator, open spur gears, guide beam, opposed jaws, gauge column and rivets; owned CC-BY pipe/valve meshes and wear textures; CC0 timber. No AI meshes.",
+      "licence_evidence": "C:\\Otherreach_External_Assets\\Sketchfab_20261016\\SLASH-RENDAR__Old_Industrial_Pipe_Pack_PBR\\LICENCE.txt",
+      "shippable": true,
+      "triangles": 16716,
+      "sha256": "f57756398839fff577a16e5d88449236df7e327f919ddfe62fea1ed0cba7551d",
+      "source_urls": [
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ],
+      "rough_wood_source": {
+        "id": "cw_timber_beam",
+        "built_for": "CAIRNWOLD",
+        "source": "Poly Haven (https://polyhaven.com)",
+        "source_asset": "rough_wood",
+        "source_page": "https://polyhaven.com/a/rough_wood",
+        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+        "download_urls": {
+          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
+          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
+        },
+        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+        "licence_url": "https://polyhaven.com/license",
+        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
+        "shippable": true,
+        "resolution": 4096,
+        "maps": {
+          "basecolor": {
+            "file": "cw_timber_beam_basecolor.jpg",
+            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
+            "bytes": 8069907
+          },
+          "normal": {
+            "file": "cw_timber_beam_normal.jpg",
+            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
+            "bytes": 7089554
+          },
+          "orm": {
+            "file": "cw_timber_beam_orm.jpg",
+            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
+            "bytes": 2365401
+          }
+        },
+        "orm_means": {
+          "occlusion": 0.7809,
+          "roughness": 0.5096,
+          "metallic": 0.005
+        },
+        "transform": "none - both sources ship glTF-shaped maps"
+      },
+      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
+    },
+    {
+      "asset_id": "bw_codex_preserve_control",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "First-party regulator geometry",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0",
+        "Poly Haven Rough Wood: CC0"
+      ],
+      "modifications": "Hand-built timber/iron regulator, open spur gears, guide beam, opposed jaws, gauge column and rivets; owned CC-BY pipe/valve meshes and wear textures; CC0 timber. No AI meshes.",
+      "licence_evidence": "C:\\Otherreach_External_Assets\\Sketchfab_20261016\\SLASH-RENDAR__Old_Industrial_Pipe_Pack_PBR\\LICENCE.txt",
+      "shippable": true,
+      "triangles": 1064,
+      "sha256": "5822bdf223185ec42bde9731880a4684f639dc8eb11d6749c0f3c02c659ef2af",
+      "source_urls": [
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ],
+      "rough_wood_source": {
+        "id": "cw_timber_beam",
+        "built_for": "CAIRNWOLD",
+        "source": "Poly Haven (https://polyhaven.com)",
+        "source_asset": "rough_wood",
+        "source_page": "https://polyhaven.com/a/rough_wood",
+        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+        "download_urls": {
+          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
+          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
+        },
+        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+        "licence_url": "https://polyhaven.com/license",
+        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
+        "shippable": true,
+        "resolution": 4096,
+        "maps": {
+          "basecolor": {
+            "file": "cw_timber_beam_basecolor.jpg",
+            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
+            "bytes": 8069907
+          },
+          "normal": {
+            "file": "cw_timber_beam_normal.jpg",
+            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
+            "bytes": 7089554
+          },
+          "orm": {
+            "file": "cw_timber_beam_orm.jpg",
+            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
+            "bytes": 2365401
+          }
+        },
+        "orm_means": {
+          "occlusion": 0.7809,
+          "roughness": 0.5096,
+          "metallic": 0.005
+        },
+        "transform": "none - both sources ship glTF-shaped maps"
+      },
+      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
+    },
+    {
+      "asset_id": "bw_codex_dismantle_control",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "First-party regulator geometry",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0",
+        "Poly Haven Rough Wood: CC0"
+      ],
+      "modifications": "Hand-built timber/iron regulator, open spur gears, guide beam, opposed jaws, gauge column and rivets; owned CC-BY pipe/valve meshes and wear textures; CC0 timber. No AI meshes.",
+      "licence_evidence": "C:\\Otherreach_External_Assets\\Sketchfab_20261016\\SLASH-RENDAR__Old_Industrial_Pipe_Pack_PBR\\LICENCE.txt",
+      "shippable": true,
+      "triangles": 1064,
+      "sha256": "0f59ea4bfdb014fdcf3655d037796d033733384dec5957a04d467773fd1336a1",
+      "source_urls": [
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ],
+      "rough_wood_source": {
+        "id": "cw_timber_beam",
+        "built_for": "CAIRNWOLD",
+        "source": "Poly Haven (https://polyhaven.com)",
+        "source_asset": "rough_wood",
+        "source_page": "https://polyhaven.com/a/rough_wood",
+        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+        "download_urls": {
+          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
+          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
+        },
+        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+        "licence_url": "https://polyhaven.com/license",
+        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
+        "shippable": true,
+        "resolution": 4096,
+        "maps": {
+          "basecolor": {
+            "file": "cw_timber_beam_basecolor.jpg",
+            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
+            "bytes": 8069907
+          },
+          "normal": {
+            "file": "cw_timber_beam_normal.jpg",
+            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
+            "bytes": 7089554
+          },
+          "orm": {
+            "file": "cw_timber_beam_orm.jpg",
+            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
+            "bytes": 2365401
+          }
+        },
+        "orm_means": {
+          "occlusion": 0.7809,
+          "roughness": 0.5096,
+          "metallic": 0.005
+        },
+        "transform": "none - both sources ship glTF-shaped maps"
+      },
+      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
+    },
+    {
       "asset_id": "bw_codex_entrance_threshold",
       "category": "prop",
       "source": "Licensed source modules; manual assembly and first-party paper/type.",
@@ -2984,39 +2466,423 @@
         "DanStudios Lost Temple: Fab Standard Personal",
         "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
       ],
-      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "modifications": "Terrain-following eroded cut ridge; frontier ground height and world-tiled CC0 soil/grass top atlas, repeated UVs on exposed soil cuts, buried toe and fixed portal-mouth origin.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "shippable": true,
-      "sha256": "5fabcfd4db08c2e1bdd023d09593b5a7e91ae1dffead9f6b206df99fefd087c3",
+      "triangles": 126586,
+      "terrain_materials": [
+        "ter_ph_grass_ground",
+        "ter_ph_brown_mud_03",
+        "ter_ph_river_small_rocks"
+      ],
+      "grass_source": {
+        "asset_id": "flora_ph_grass_medium_c",
+        "name": "flora_ph_grass_medium_c",
+        "category": "foliage",
+        "source": "C:\\Otherreach_External_Assets\\PolyHaven\\models\\grass_medium_01\\grass_medium_01_4k.gltf",
+        "source_file": "grass_medium_01_4k.gltf",
+        "source_sha256": "dae3df5024a4d9e91b2d33fceab035d637b06660b5c0109c89cbfea707ee375f",
+        "source_bytes": 27110,
+        "source_files": [
+          {
+            "path": "grass_medium_01_diff_4k.jpg",
+            "sha256": "c15c8876a5e2bbee3b2af2d0ad9a0b1db1fb215870e525b56b41a2c82370ab8b",
+            "bytes": 3505106
+          },
+          {
+            "path": "grass_medium_01_nor_gl_4k.jpg",
+            "sha256": "fc89808178d9119d61916c1815caa94a7f0f7690c881be665e11282fd7c86007",
+            "bytes": 13029348
+          },
+          {
+            "path": "grass_medium_01_arm_4k.jpg",
+            "sha256": "dbd3159795534ad228a85850951ae5ca45dc70f29c4b47244e2c18d9dfe81ad0",
+            "bytes": 7482258
+          }
+        ],
+        "source_url": "https://polyhaven.com/a/grass_medium_01",
+        "pack": "Poly Haven",
+        "licence": "CC0 1.0 Universal (Public Domain Dedication) - Poly Haven",
+        "licence_url": "https://polyhaven.com/license",
+        "licence_evidence": "polyhaven.com/license: all Poly Haven assets are CC0",
+        "modification": "permitted (CC0 waives all rights)",
+        "built_by": "asset_work/vegetation/tools/convert_veg.py (from tools/asset_pipeline/convert_asset.py) (Blender 5.2.2 LTS)",
+        "built": "2026-10-15 03:23:33",
+        "command": "--out C:\\Otherreach_Recovery\\asset_work\\vegetation\\ready --work C:\\Otherreach_Recovery\\asset_work\\vegetation\\_work --preview --asset-id flora_ph_grass_medium_c --source C:/Otherreach_External_Assets/PolyHaven/models/grass_medium_01/grass_medium_01_4k.gltf --source-url https://polyhaven.com/a/grass_medium_01 --mesh grass_medium_01_large_a --res 2048 --category foliage --max-tris 3000 --impostor on --impostor-px 256 --albedo-gain 1.15,1.35,1.2",
+        "triangles": 3175,
+        "source_triangles": 6422,
+        "transform": {
+          "dimensions_m": {
+            "x": 0.317,
+            "y": 0.1467,
+            "z": 0.3266
+          },
+          "min": [
+            -0.1585,
+            -0.0,
+            -0.1633
+          ],
+          "max": [
+            0.1585,
+            0.1467,
+            0.1633
+          ],
+          "source_dimensions_m": [
+            0.317,
+            0.3266,
+            0.1467
+          ],
+          "scale_factor": 1.0,
+          "rescaled_by": "source units",
+          "yaw_deg": 0.0,
+          "units": "metres, 1 unit = 1 m, no node scale",
+          "glb_up_axis": "+Y",
+          "glb_forward_axis": "+Z (Blender -Y)",
+          "glb_axes": "Y-up, one node, transforms applied, no residual scale or rotation",
+          "glb_origin": "footprint centre, base on the ground plane (min Y = 0)"
+        },
+        "materials": [
+          "MAT_flora_ph_grass_medium_c_0"
+        ],
+        "material_records": [
+          {
+            "slot": 0,
+            "source_material": "grass_medium_01",
+            "native_px": 4096,
+            "lod0_px": [
+              2048,
+              2048
+            ],
+            "cutout": true,
+            "channels": {
+              "base": "image",
+              "alpha": "image",
+              "rough": "image",
+              "metal": "image",
+              "ao": "image",
+              "normal": "image"
+            }
+          }
+        ],
+        "textures": [
+          {
+            "name": "flora_ph_grass_medium_c_m0_normal",
+            "px": [
+              2048,
+              2048
+            ],
+            "format": "jpeg",
+            "bytes": 1652320
+          },
+          {
+            "name": "flora_ph_grass_medium_c_m0_orm",
+            "px": [
+              2048,
+              2048
+            ],
+            "format": "jpeg",
+            "bytes": 924578
+          },
+          {
+            "name": "flora_ph_grass_medium_c_m0_basecolor",
+            "px": [
+              2048,
+              2048
+            ],
+            "format": "png",
+            "bytes": 3744814
+          }
+        ],
+        "texture_resolution": 2048,
+        "native_texture_resolution": 4096,
+        "orm": "one image per material bound to occlusionTexture and metallicRoughnessTexture (R=AO, G=roughness, B=metallic)",
+        "orm_shared": true,
+        "lod_method": "card-aware: cut-out islands (leaf/needle/blade cards) thinned whole and grown to keep coverage, solid (bark) part welded and collapse-decimated, small solid islands dropped at lod2; last level a crossed-plane impostor rendered from LOD0; textures halved per level, all levels textured",
+        "parts": {
+          "lod0": {
+            "card_tris": [
+              6422,
+              3175
+            ],
+            "card_islands": [
+              311,
+              149
+            ],
+            "card_keep": 0.4671
+          },
+          "lod1": {
+            "card_tris": [
+              3175,
+              1868
+            ],
+            "card_islands": [
+              149,
+              85
+            ],
+            "card_keep": 0.55
+          },
+          "lod2": {
+            "card_tris": [
+              3175,
+              810
+            ],
+            "card_islands": [
+              149,
+              37
+            ],
+            "card_keep": 0.25
+          }
+        },
+        "albedo_gain_srgb": "1.15,1.35,1.2",
+        "impostor": {
+          "planes_deg": [
+            0,
+            45,
+            90,
+            135
+          ],
+          "views": 8,
+          "cell_px": 256,
+          "atlas_px": [
+            1024,
+            512
+          ],
+          "half_widths_m": [
+            0.159,
+            0.189,
+            0.163,
+            0.206
+          ],
+          "height_m": 0.147,
+          "albedo": "Cycles emission render of the base colours x (0.25 + 0.55 x sky visibility)",
+          "normal": "camera-space normals as OpenGL tangent space, flattened 40 % in XY"
+        },
+        "wind_colours": "COLOR_0 R = height fraction, G = phase per island (ScatterView foliage shader)",
+        "lod_status": "present",
+        "lods": {
+          "flora_ph_grass_medium_c_lod1": {
+            "ratio": 0.5,
+            "path": "flora_ph_grass_medium_c_lod1.glb",
+            "card_keep": 0.55,
+            "triangles": 1868,
+            "texture_px": [
+              1024,
+              1024
+            ],
+            "orm_shared": true,
+            "materials": [
+              "MAT_flora_ph_grass_medium_c_0_lod1"
+            ]
+          },
+          "flora_ph_grass_medium_c_lod2": {
+            "ratio": 0.2,
+            "path": "flora_ph_grass_medium_c_lod2.glb",
+            "card_keep": 0.25,
+            "triangles": 810,
+            "texture_px": [
+              512,
+              512
+            ],
+            "orm_shared": true,
+            "materials": [
+              "MAT_flora_ph_grass_medium_c_0_lod2"
+            ]
+          },
+          "flora_ph_grass_medium_c_lod3": {
+            "ratio": null,
+            "path": "flora_ph_grass_medium_c_lod3.glb",
+            "impostor": true,
+            "triangles": 16,
+            "texture_px": [
+              1024,
+              512
+            ],
+            "orm_shared": true,
+            "materials": [
+              "MAT_flora_ph_grass_medium_c_impostor"
+            ]
+          }
+        },
+        "collision_status": "none",
+        "collision": {
+          "mode": "none"
+        },
+        "collision_note": "ArtLibrary never reads _collision_* files; the game sizes blockers from the mesh footprint (ArtLibrary.TurnedFootprint). Proxies are written only when asked for.",
+        "rigged": false,
+        "sockets": [],
+        "outputs": [
+          {
+            "file": "flora_ph_grass_medium_c.glb",
+            "bytes": 6482224,
+            "sha256": "064484b3c6a76fa2cc59263b1c5d56f592a920274f2899e4c45b6192292c330d"
+          },
+          {
+            "file": "flora_ph_grass_medium_c_lod1.glb",
+            "bytes": 1991916,
+            "sha256": "bd3473dc5a968924750814fcbbde56bbb27be738c71c5c12d84118c8c7a41078"
+          },
+          {
+            "file": "flora_ph_grass_medium_c_lod2.glb",
+            "bytes": 603380,
+            "sha256": "b78f7b1a0f201d280f9b36ec32bb21e94dd7dae56511d804c3c14076f8604835"
+          },
+          {
+            "file": "flora_ph_grass_medium_c_lod3.glb",
+            "bytes": 586756,
+            "sha256": "a74f5e518920a92fa5777dd8a5377bc07976f9e49178284d2de4a4d079c254a4"
+          }
+        ],
+        "status": "export_ready",
+        "game_integration": "NOT PROMOTED",
+        "visual_acceptance": "UNREVIEWED",
+        "notes": ""
+      },
+      "terrain_anchor_m": [
+        438.0,
+        663.0
+      ],
+      "terrain_source_sha256_lf": "5e252e70943f4faf5f03ff320c9fbf2dc1250bb203aa1ab81ce98b608c7efa7c",
+      "sha256": "d2d9d691827f23497666c91814293ba6a7354488f16eddbab7a9c737ae6a3fde",
       "source_urls": [
         "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
         "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4",
         "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5"
       ],
-      "berm_surface_source": {
-        "id": "cw_rock_ground",
-        "built_for": "CAIRNWOLD",
-        "source_folder": "polyhaven__rock_ground",
-        "source_store": "G:\\Otherreach\\external-assets\\assets\\materials",
-        "source_url": "https://polyhaven.com",
-        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
-        "licence_text_sha256": "cd9628ae4c9470847401479e821542c2ee1fa2b7e6093dfcf47a133d7a45fd9b",
-        "shippable": true,
-        "maps": {
-          "basecolor": {
-            "file": "cw_rock_ground_basecolor.jpg",
-            "sha256": "1bd796dcfb07bf473732f53ade9bd6c27f56df5150f6f120b9aeb5994884cce7"
+      "terrain_surface_sources": [
+        {
+          "id": "ter_ph_grass_ground",
+          "source": "Poly Haven (https://polyhaven.com)",
+          "source_asset": "grass_ground",
+          "source_page": "https://polyhaven.com/a/grass_ground",
+          "source_url": "https://polyhaven.com/a/grass_ground",
+          "authors": {
+            "Charlotte Baglioni": "All"
           },
-          "normal": {
-            "file": "cw_rock_ground_normal.jpg",
-            "sha256": "ddbff689451fd5ef8a88dacc596b23ccad5a3651a19d86e37282e40553152bca"
+          "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+          "licence_url": "https://polyhaven.com/license",
+          "shippable": true,
+          "resolution": 4096,
+          "source_files": {
+            "grass_ground_diff_4k.jpg": "a8bca0397c9e21d3bd3fe133b7bf912c0a3a0f3ef791d5779cbfcb729db0998a",
+            "grass_ground_nor_gl_4k.jpg": "f7c89e09273625a5b7b1acece98e339f7ea27ef34c45736e86008e6556d5dbad",
+            "grass_ground_arm_4k.jpg": "0ac242b4f764962bbe355c7e048e6221131a5809459503a9a10a8156591d506c",
+            "grass_ground_disp_4k.png": "45388dd604e4a99146f258aaaa06278906172fc21787fe6cc3921faef90393a0"
           },
-          "orm": {
-            "file": "cw_rock_ground_orm.jpg",
-            "sha256": "0e4b5508d78811658179b9abd8b088738819b612e9bebb92d20ccc80a3407b5d"
-          }
+          "maps": {
+            "ter_ph_grass_ground_albedo_height.png": {
+              "sha256": "97b580c1e6e6536de0551cb71da5227057ef98918cd0f96a6d8c6d7690d341ce",
+              "bytes": 44894768
+            },
+            "ter_ph_grass_ground_normal_rough.png": {
+              "sha256": "9656b393c35fa7a97048288fb0873ba43921e02058bd9a08edfc6dc5ba416ec4",
+              "bytes": 53627115
+            },
+            "ter_ph_grass_ground_basecolor.jpg": {
+              "sha256": "3da82d4f5c5352196221d977e464ed40751fd92434cd4a4c7d3e1c85f0b7b899",
+              "bytes": 10615802
+            },
+            "ter_ph_grass_ground_normal.jpg": {
+              "sha256": "46af97727fd3b5ffe94e982faee1ead90c57ef2f72c5418f1303c2c1d9986ab4",
+              "bytes": 19723272
+            },
+            "ter_ph_grass_ground_orm.jpg": {
+              "sha256": "919014c2df2837235bfb3ac70bc65e1b808ab165dcecbf8f6357bc54b407c7fe",
+              "bytes": 10977277
+            }
+          },
+          "transform": "colour and OpenGL normal resampled to 4096 only if not native; AO/rough/metal packed to ORM; terrain packs: albedo+height (displacement), normal+roughness; PNG RGBA8 / JPEG q95 4:4:4",
+          "built_by": "asset_work/rocks_terrain/_scripts/pack_layer.py"
+        },
+        {
+          "id": "ter_ph_brown_mud_03",
+          "source": "Poly Haven (https://polyhaven.com)",
+          "source_asset": "brown_mud_03",
+          "source_page": "https://polyhaven.com/a/brown_mud_03",
+          "source_url": "https://polyhaven.com/a/brown_mud_03",
+          "authors": {
+            "Rob Tuytel": "All"
+          },
+          "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+          "licence_url": "https://polyhaven.com/license",
+          "shippable": true,
+          "resolution": 4096,
+          "source_files": {
+            "brown_mud_03_diff_4k.jpg": "7a013916fc0b03c65bda800cf8666453d96dc0bc876f91ca55f3a7cc7e64a50c",
+            "brown_mud_03_nor_gl_4k.jpg": "6995762560e4310c94db7aee166ca4f26989e73650cabc4892aca4e30961fa76",
+            "brown_mud_03_arm_4k.jpg": "fbb3a1509879238b8680ac34eec97eed785410a9052592b403cb62251867a1d9",
+            "brown_mud_03_disp_4k.png": "77be225439cefbdd44603d8d56c4719e63f1d9c56eb735d1c8ac30c01eb88ced"
+          },
+          "maps": {
+            "ter_ph_brown_mud_03_albedo_height.png": {
+              "sha256": "260ef063beb15577875f522e70c72a8e750bf20d0d244c86058f1ebca69159f9",
+              "bytes": 32537367
+            },
+            "ter_ph_brown_mud_03_normal_rough.png": {
+              "sha256": "148c165046b9fa1846be02f6139f51318c3b8d85f6d57362450c458582586607",
+              "bytes": 41125692
+            },
+            "ter_ph_brown_mud_03_basecolor.jpg": {
+              "sha256": "73c7eab79be1e7be4d8c6921caf11f3757b19e5ff9bf9c11c08aa5f8ec14c7ed",
+              "bytes": 8526116
+            },
+            "ter_ph_brown_mud_03_normal.jpg": {
+              "sha256": "3388b2ab0c086ee7ca834ea35a30ca9fa67404687b7287328ef5b2fd45492ece",
+              "bytes": 11483378
+            },
+            "ter_ph_brown_mud_03_orm.jpg": {
+              "sha256": "976d5719f170aece4b6883db86386fdd3f9edd1750327943be3a35072f9406c7",
+              "bytes": 8993633
+            }
+          },
+          "transform": "colour and OpenGL normal resampled to 4096 only if not native; AO/rough/metal packed to ORM; terrain packs: albedo+height (displacement), normal+roughness; PNG RGBA8 / JPEG q95 4:4:4",
+          "built_by": "asset_work/rocks_terrain/_scripts/pack_layer.py"
+        },
+        {
+          "id": "ter_ph_river_small_rocks",
+          "source": "Poly Haven (https://polyhaven.com)",
+          "source_asset": "river_small_rocks",
+          "source_page": "https://polyhaven.com/a/river_small_rocks",
+          "source_url": "https://polyhaven.com/a/river_small_rocks",
+          "authors": {
+            "Rob Tuytel": "Photography, Processing",
+            "Rico Cilliers": "Minor adjustment"
+          },
+          "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+          "licence_url": "https://polyhaven.com/license",
+          "shippable": true,
+          "resolution": 4096,
+          "source_files": {
+            "river_small_rocks_diff_4k.jpg": "b147d868f87a48c93b1a459b06cd8924a02fb72ba4b4d267d2b0f36e05571b77",
+            "river_small_rocks_nor_gl_4k.jpg": "3a875bb984f0c7dbb50671ad6facc530017ea646180ed2acb30e37440312077c",
+            "river_small_rocks_arm_4k.jpg": "f3561591b4c4e444200d9598acca0d75f68cfa90715e9c90b85869cf99f31bbb",
+            "river_small_rocks_disp_4k.png": "4078972a3b5ab3b51feaacf1a231cc46465ed039062e4142cc3ced6d2ae81e0b"
+          },
+          "maps": {
+            "ter_ph_river_small_rocks_albedo_height.png": {
+              "sha256": "c4d959a9485dae04f2517612e77c3b76317b6bbf92df06db5de43f41e7f1d6bb",
+              "bytes": 33411279
+            },
+            "ter_ph_river_small_rocks_normal_rough.png": {
+              "sha256": "d3658265679cf779aec7ea48e3d59fb4b7c1579828b59e1edd9a8929d9028521",
+              "bytes": 43366423
+            },
+            "ter_ph_river_small_rocks_basecolor.jpg": {
+              "sha256": "9743315ad1801def43a7e1e80e76c66c80ab8628e6559711d4a034cbd0598cbe",
+              "bytes": 9622859
+            },
+            "ter_ph_river_small_rocks_normal.jpg": {
+              "sha256": "92a2d72ccadfb8af0767a6b2b2513802af0ff9c755b505d0ce5edee33176f87f",
+              "bytes": 13116952
+            },
+            "ter_ph_river_small_rocks_orm.jpg": {
+              "sha256": "63b0d75c777ce16dcc180be12c38bce2a8dbf068ee7792c06733f0efc62f134c",
+              "bytes": 7879972
+            }
+          },
+          "transform": "colour and OpenGL normal resampled to 4096 only if not native; AO/rough/metal packed to ORM; terrain packs: albedo+height (displacement), normal+roughness; PNG RGBA8 / JPEG q95 4:4:4",
+          "built_by": "asset_work/rocks_terrain/_scripts/pack_layer.py"
         }
-      },
+      ],
       "rough_wood_source": {
         "id": "cw_timber_beam",
         "built_for": "CAIRNWOLD",
@@ -3068,39 +2934,423 @@
         "DanStudios Lost Temple: Fab Standard Personal",
         "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
       ],
-      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "modifications": "Terrain-following eroded cut ridge; frontier ground height and world-tiled CC0 soil/grass top atlas, repeated UVs on exposed soil cuts, buried toe and fixed portal-mouth origin.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "shippable": true,
-      "sha256": "9ed0072c60297f2596fd18dcf926b60febce2755d1fa118a45cf6c954f2fc05a",
+      "triangles": 108203,
+      "terrain_materials": [
+        "ter_ph_grass_ground",
+        "ter_ph_brown_mud_03",
+        "ter_ph_river_small_rocks"
+      ],
+      "grass_source": {
+        "asset_id": "flora_ph_grass_medium_c",
+        "name": "flora_ph_grass_medium_c",
+        "category": "foliage",
+        "source": "C:\\Otherreach_External_Assets\\PolyHaven\\models\\grass_medium_01\\grass_medium_01_4k.gltf",
+        "source_file": "grass_medium_01_4k.gltf",
+        "source_sha256": "dae3df5024a4d9e91b2d33fceab035d637b06660b5c0109c89cbfea707ee375f",
+        "source_bytes": 27110,
+        "source_files": [
+          {
+            "path": "grass_medium_01_diff_4k.jpg",
+            "sha256": "c15c8876a5e2bbee3b2af2d0ad9a0b1db1fb215870e525b56b41a2c82370ab8b",
+            "bytes": 3505106
+          },
+          {
+            "path": "grass_medium_01_nor_gl_4k.jpg",
+            "sha256": "fc89808178d9119d61916c1815caa94a7f0f7690c881be665e11282fd7c86007",
+            "bytes": 13029348
+          },
+          {
+            "path": "grass_medium_01_arm_4k.jpg",
+            "sha256": "dbd3159795534ad228a85850951ae5ca45dc70f29c4b47244e2c18d9dfe81ad0",
+            "bytes": 7482258
+          }
+        ],
+        "source_url": "https://polyhaven.com/a/grass_medium_01",
+        "pack": "Poly Haven",
+        "licence": "CC0 1.0 Universal (Public Domain Dedication) - Poly Haven",
+        "licence_url": "https://polyhaven.com/license",
+        "licence_evidence": "polyhaven.com/license: all Poly Haven assets are CC0",
+        "modification": "permitted (CC0 waives all rights)",
+        "built_by": "asset_work/vegetation/tools/convert_veg.py (from tools/asset_pipeline/convert_asset.py) (Blender 5.2.2 LTS)",
+        "built": "2026-10-15 03:23:33",
+        "command": "--out C:\\Otherreach_Recovery\\asset_work\\vegetation\\ready --work C:\\Otherreach_Recovery\\asset_work\\vegetation\\_work --preview --asset-id flora_ph_grass_medium_c --source C:/Otherreach_External_Assets/PolyHaven/models/grass_medium_01/grass_medium_01_4k.gltf --source-url https://polyhaven.com/a/grass_medium_01 --mesh grass_medium_01_large_a --res 2048 --category foliage --max-tris 3000 --impostor on --impostor-px 256 --albedo-gain 1.15,1.35,1.2",
+        "triangles": 3175,
+        "source_triangles": 6422,
+        "transform": {
+          "dimensions_m": {
+            "x": 0.317,
+            "y": 0.1467,
+            "z": 0.3266
+          },
+          "min": [
+            -0.1585,
+            -0.0,
+            -0.1633
+          ],
+          "max": [
+            0.1585,
+            0.1467,
+            0.1633
+          ],
+          "source_dimensions_m": [
+            0.317,
+            0.3266,
+            0.1467
+          ],
+          "scale_factor": 1.0,
+          "rescaled_by": "source units",
+          "yaw_deg": 0.0,
+          "units": "metres, 1 unit = 1 m, no node scale",
+          "glb_up_axis": "+Y",
+          "glb_forward_axis": "+Z (Blender -Y)",
+          "glb_axes": "Y-up, one node, transforms applied, no residual scale or rotation",
+          "glb_origin": "footprint centre, base on the ground plane (min Y = 0)"
+        },
+        "materials": [
+          "MAT_flora_ph_grass_medium_c_0"
+        ],
+        "material_records": [
+          {
+            "slot": 0,
+            "source_material": "grass_medium_01",
+            "native_px": 4096,
+            "lod0_px": [
+              2048,
+              2048
+            ],
+            "cutout": true,
+            "channels": {
+              "base": "image",
+              "alpha": "image",
+              "rough": "image",
+              "metal": "image",
+              "ao": "image",
+              "normal": "image"
+            }
+          }
+        ],
+        "textures": [
+          {
+            "name": "flora_ph_grass_medium_c_m0_normal",
+            "px": [
+              2048,
+              2048
+            ],
+            "format": "jpeg",
+            "bytes": 1652320
+          },
+          {
+            "name": "flora_ph_grass_medium_c_m0_orm",
+            "px": [
+              2048,
+              2048
+            ],
+            "format": "jpeg",
+            "bytes": 924578
+          },
+          {
+            "name": "flora_ph_grass_medium_c_m0_basecolor",
+            "px": [
+              2048,
+              2048
+            ],
+            "format": "png",
+            "bytes": 3744814
+          }
+        ],
+        "texture_resolution": 2048,
+        "native_texture_resolution": 4096,
+        "orm": "one image per material bound to occlusionTexture and metallicRoughnessTexture (R=AO, G=roughness, B=metallic)",
+        "orm_shared": true,
+        "lod_method": "card-aware: cut-out islands (leaf/needle/blade cards) thinned whole and grown to keep coverage, solid (bark) part welded and collapse-decimated, small solid islands dropped at lod2; last level a crossed-plane impostor rendered from LOD0; textures halved per level, all levels textured",
+        "parts": {
+          "lod0": {
+            "card_tris": [
+              6422,
+              3175
+            ],
+            "card_islands": [
+              311,
+              149
+            ],
+            "card_keep": 0.4671
+          },
+          "lod1": {
+            "card_tris": [
+              3175,
+              1868
+            ],
+            "card_islands": [
+              149,
+              85
+            ],
+            "card_keep": 0.55
+          },
+          "lod2": {
+            "card_tris": [
+              3175,
+              810
+            ],
+            "card_islands": [
+              149,
+              37
+            ],
+            "card_keep": 0.25
+          }
+        },
+        "albedo_gain_srgb": "1.15,1.35,1.2",
+        "impostor": {
+          "planes_deg": [
+            0,
+            45,
+            90,
+            135
+          ],
+          "views": 8,
+          "cell_px": 256,
+          "atlas_px": [
+            1024,
+            512
+          ],
+          "half_widths_m": [
+            0.159,
+            0.189,
+            0.163,
+            0.206
+          ],
+          "height_m": 0.147,
+          "albedo": "Cycles emission render of the base colours x (0.25 + 0.55 x sky visibility)",
+          "normal": "camera-space normals as OpenGL tangent space, flattened 40 % in XY"
+        },
+        "wind_colours": "COLOR_0 R = height fraction, G = phase per island (ScatterView foliage shader)",
+        "lod_status": "present",
+        "lods": {
+          "flora_ph_grass_medium_c_lod1": {
+            "ratio": 0.5,
+            "path": "flora_ph_grass_medium_c_lod1.glb",
+            "card_keep": 0.55,
+            "triangles": 1868,
+            "texture_px": [
+              1024,
+              1024
+            ],
+            "orm_shared": true,
+            "materials": [
+              "MAT_flora_ph_grass_medium_c_0_lod1"
+            ]
+          },
+          "flora_ph_grass_medium_c_lod2": {
+            "ratio": 0.2,
+            "path": "flora_ph_grass_medium_c_lod2.glb",
+            "card_keep": 0.25,
+            "triangles": 810,
+            "texture_px": [
+              512,
+              512
+            ],
+            "orm_shared": true,
+            "materials": [
+              "MAT_flora_ph_grass_medium_c_0_lod2"
+            ]
+          },
+          "flora_ph_grass_medium_c_lod3": {
+            "ratio": null,
+            "path": "flora_ph_grass_medium_c_lod3.glb",
+            "impostor": true,
+            "triangles": 16,
+            "texture_px": [
+              1024,
+              512
+            ],
+            "orm_shared": true,
+            "materials": [
+              "MAT_flora_ph_grass_medium_c_impostor"
+            ]
+          }
+        },
+        "collision_status": "none",
+        "collision": {
+          "mode": "none"
+        },
+        "collision_note": "ArtLibrary never reads _collision_* files; the game sizes blockers from the mesh footprint (ArtLibrary.TurnedFootprint). Proxies are written only when asked for.",
+        "rigged": false,
+        "sockets": [],
+        "outputs": [
+          {
+            "file": "flora_ph_grass_medium_c.glb",
+            "bytes": 6482224,
+            "sha256": "064484b3c6a76fa2cc59263b1c5d56f592a920274f2899e4c45b6192292c330d"
+          },
+          {
+            "file": "flora_ph_grass_medium_c_lod1.glb",
+            "bytes": 1991916,
+            "sha256": "bd3473dc5a968924750814fcbbde56bbb27be738c71c5c12d84118c8c7a41078"
+          },
+          {
+            "file": "flora_ph_grass_medium_c_lod2.glb",
+            "bytes": 603380,
+            "sha256": "b78f7b1a0f201d280f9b36ec32bb21e94dd7dae56511d804c3c14076f8604835"
+          },
+          {
+            "file": "flora_ph_grass_medium_c_lod3.glb",
+            "bytes": 586756,
+            "sha256": "a74f5e518920a92fa5777dd8a5377bc07976f9e49178284d2de4a4d079c254a4"
+          }
+        ],
+        "status": "export_ready",
+        "game_integration": "NOT PROMOTED",
+        "visual_acceptance": "UNREVIEWED",
+        "notes": ""
+      },
+      "terrain_anchor_m": [
+        1050.0,
+        770.0
+      ],
+      "terrain_source_sha256_lf": "5e252e70943f4faf5f03ff320c9fbf2dc1250bb203aa1ab81ce98b608c7efa7c",
+      "sha256": "8361d80574e0cdecd814e06d4d0e24f3a24f4080bcfdc3112205338630bd36bd",
       "source_urls": [
         "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
         "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4",
         "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5"
       ],
-      "berm_surface_source": {
-        "id": "cw_rock_ground",
-        "built_for": "CAIRNWOLD",
-        "source_folder": "polyhaven__rock_ground",
-        "source_store": "G:\\Otherreach\\external-assets\\assets\\materials",
-        "source_url": "https://polyhaven.com",
-        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
-        "licence_text_sha256": "cd9628ae4c9470847401479e821542c2ee1fa2b7e6093dfcf47a133d7a45fd9b",
-        "shippable": true,
-        "maps": {
-          "basecolor": {
-            "file": "cw_rock_ground_basecolor.jpg",
-            "sha256": "1bd796dcfb07bf473732f53ade9bd6c27f56df5150f6f120b9aeb5994884cce7"
+      "terrain_surface_sources": [
+        {
+          "id": "ter_ph_grass_ground",
+          "source": "Poly Haven (https://polyhaven.com)",
+          "source_asset": "grass_ground",
+          "source_page": "https://polyhaven.com/a/grass_ground",
+          "source_url": "https://polyhaven.com/a/grass_ground",
+          "authors": {
+            "Charlotte Baglioni": "All"
           },
-          "normal": {
-            "file": "cw_rock_ground_normal.jpg",
-            "sha256": "ddbff689451fd5ef8a88dacc596b23ccad5a3651a19d86e37282e40553152bca"
+          "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+          "licence_url": "https://polyhaven.com/license",
+          "shippable": true,
+          "resolution": 4096,
+          "source_files": {
+            "grass_ground_diff_4k.jpg": "a8bca0397c9e21d3bd3fe133b7bf912c0a3a0f3ef791d5779cbfcb729db0998a",
+            "grass_ground_nor_gl_4k.jpg": "f7c89e09273625a5b7b1acece98e339f7ea27ef34c45736e86008e6556d5dbad",
+            "grass_ground_arm_4k.jpg": "0ac242b4f764962bbe355c7e048e6221131a5809459503a9a10a8156591d506c",
+            "grass_ground_disp_4k.png": "45388dd604e4a99146f258aaaa06278906172fc21787fe6cc3921faef90393a0"
           },
-          "orm": {
-            "file": "cw_rock_ground_orm.jpg",
-            "sha256": "0e4b5508d78811658179b9abd8b088738819b612e9bebb92d20ccc80a3407b5d"
-          }
+          "maps": {
+            "ter_ph_grass_ground_albedo_height.png": {
+              "sha256": "97b580c1e6e6536de0551cb71da5227057ef98918cd0f96a6d8c6d7690d341ce",
+              "bytes": 44894768
+            },
+            "ter_ph_grass_ground_normal_rough.png": {
+              "sha256": "9656b393c35fa7a97048288fb0873ba43921e02058bd9a08edfc6dc5ba416ec4",
+              "bytes": 53627115
+            },
+            "ter_ph_grass_ground_basecolor.jpg": {
+              "sha256": "3da82d4f5c5352196221d977e464ed40751fd92434cd4a4c7d3e1c85f0b7b899",
+              "bytes": 10615802
+            },
+            "ter_ph_grass_ground_normal.jpg": {
+              "sha256": "46af97727fd3b5ffe94e982faee1ead90c57ef2f72c5418f1303c2c1d9986ab4",
+              "bytes": 19723272
+            },
+            "ter_ph_grass_ground_orm.jpg": {
+              "sha256": "919014c2df2837235bfb3ac70bc65e1b808ab165dcecbf8f6357bc54b407c7fe",
+              "bytes": 10977277
+            }
+          },
+          "transform": "colour and OpenGL normal resampled to 4096 only if not native; AO/rough/metal packed to ORM; terrain packs: albedo+height (displacement), normal+roughness; PNG RGBA8 / JPEG q95 4:4:4",
+          "built_by": "asset_work/rocks_terrain/_scripts/pack_layer.py"
+        },
+        {
+          "id": "ter_ph_brown_mud_03",
+          "source": "Poly Haven (https://polyhaven.com)",
+          "source_asset": "brown_mud_03",
+          "source_page": "https://polyhaven.com/a/brown_mud_03",
+          "source_url": "https://polyhaven.com/a/brown_mud_03",
+          "authors": {
+            "Rob Tuytel": "All"
+          },
+          "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+          "licence_url": "https://polyhaven.com/license",
+          "shippable": true,
+          "resolution": 4096,
+          "source_files": {
+            "brown_mud_03_diff_4k.jpg": "7a013916fc0b03c65bda800cf8666453d96dc0bc876f91ca55f3a7cc7e64a50c",
+            "brown_mud_03_nor_gl_4k.jpg": "6995762560e4310c94db7aee166ca4f26989e73650cabc4892aca4e30961fa76",
+            "brown_mud_03_arm_4k.jpg": "fbb3a1509879238b8680ac34eec97eed785410a9052592b403cb62251867a1d9",
+            "brown_mud_03_disp_4k.png": "77be225439cefbdd44603d8d56c4719e63f1d9c56eb735d1c8ac30c01eb88ced"
+          },
+          "maps": {
+            "ter_ph_brown_mud_03_albedo_height.png": {
+              "sha256": "260ef063beb15577875f522e70c72a8e750bf20d0d244c86058f1ebca69159f9",
+              "bytes": 32537367
+            },
+            "ter_ph_brown_mud_03_normal_rough.png": {
+              "sha256": "148c165046b9fa1846be02f6139f51318c3b8d85f6d57362450c458582586607",
+              "bytes": 41125692
+            },
+            "ter_ph_brown_mud_03_basecolor.jpg": {
+              "sha256": "73c7eab79be1e7be4d8c6921caf11f3757b19e5ff9bf9c11c08aa5f8ec14c7ed",
+              "bytes": 8526116
+            },
+            "ter_ph_brown_mud_03_normal.jpg": {
+              "sha256": "3388b2ab0c086ee7ca834ea35a30ca9fa67404687b7287328ef5b2fd45492ece",
+              "bytes": 11483378
+            },
+            "ter_ph_brown_mud_03_orm.jpg": {
+              "sha256": "976d5719f170aece4b6883db86386fdd3f9edd1750327943be3a35072f9406c7",
+              "bytes": 8993633
+            }
+          },
+          "transform": "colour and OpenGL normal resampled to 4096 only if not native; AO/rough/metal packed to ORM; terrain packs: albedo+height (displacement), normal+roughness; PNG RGBA8 / JPEG q95 4:4:4",
+          "built_by": "asset_work/rocks_terrain/_scripts/pack_layer.py"
+        },
+        {
+          "id": "ter_ph_river_small_rocks",
+          "source": "Poly Haven (https://polyhaven.com)",
+          "source_asset": "river_small_rocks",
+          "source_page": "https://polyhaven.com/a/river_small_rocks",
+          "source_url": "https://polyhaven.com/a/river_small_rocks",
+          "authors": {
+            "Rob Tuytel": "Photography, Processing",
+            "Rico Cilliers": "Minor adjustment"
+          },
+          "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+          "licence_url": "https://polyhaven.com/license",
+          "shippable": true,
+          "resolution": 4096,
+          "source_files": {
+            "river_small_rocks_diff_4k.jpg": "b147d868f87a48c93b1a459b06cd8924a02fb72ba4b4d267d2b0f36e05571b77",
+            "river_small_rocks_nor_gl_4k.jpg": "3a875bb984f0c7dbb50671ad6facc530017ea646180ed2acb30e37440312077c",
+            "river_small_rocks_arm_4k.jpg": "f3561591b4c4e444200d9598acca0d75f68cfa90715e9c90b85869cf99f31bbb",
+            "river_small_rocks_disp_4k.png": "4078972a3b5ab3b51feaacf1a231cc46465ed039062e4142cc3ced6d2ae81e0b"
+          },
+          "maps": {
+            "ter_ph_river_small_rocks_albedo_height.png": {
+              "sha256": "c4d959a9485dae04f2517612e77c3b76317b6bbf92df06db5de43f41e7f1d6bb",
+              "bytes": 33411279
+            },
+            "ter_ph_river_small_rocks_normal_rough.png": {
+              "sha256": "d3658265679cf779aec7ea48e3d59fb4b7c1579828b59e1edd9a8929d9028521",
+              "bytes": 43366423
+            },
+            "ter_ph_river_small_rocks_basecolor.jpg": {
+              "sha256": "9743315ad1801def43a7e1e80e76c66c80ab8628e6559711d4a034cbd0598cbe",
+              "bytes": 9622859
+            },
+            "ter_ph_river_small_rocks_normal.jpg": {
+              "sha256": "92a2d72ccadfb8af0767a6b2b2513802af0ff9c755b505d0ce5edee33176f87f",
+              "bytes": 13116952
+            },
+            "ter_ph_river_small_rocks_orm.jpg": {
+              "sha256": "63b0d75c777ce16dcc180be12c38bce2a8dbf068ee7792c06733f0efc62f134c",
+              "bytes": 7879972
+            }
+          },
+          "transform": "colour and OpenGL normal resampled to 4096 only if not native; AO/rough/metal packed to ORM; terrain packs: albedo+height (displacement), normal+roughness; PNG RGBA8 / JPEG q95 4:4:4",
+          "built_by": "asset_work/rocks_terrain/_scripts/pack_layer.py"
         }
-      },
+      ],
       "rough_wood_source": {
         "id": "cw_timber_beam",
         "built_for": "CAIRNWOLD",

@@ -209,6 +209,15 @@ public partial class SoundBank : Node
         return player;
     }
 
+    /// <summary>Warm existing streams without playing, consuming variation choices or marking them as played.</summary>
+    public void Prepare(string? family)
+    {
+        if (family is null) return;
+        if (_sounds.TryGetValue(family, out var single)) Stream(single);
+        else if (_families.TryGetValue(family, out var members))
+            foreach (string id in members) Stream(_sounds[id]);
+    }
+
     /// <summary>A variation of a family (other than the last) as a stream, for a player of the caller's own - the score's decks.</summary>
     public AudioStream? Take(string family)
     {
@@ -257,6 +266,8 @@ public partial class SoundBank : Node
     {
         if (_streams.TryGetValue(sound.Id, out var cached))
             return cached;
+        bool report = OS.GetEnvironment("UNNAMED_LOAD_REPORT") == "1";
+        ulong started = report ? Time.GetTicksUsec() : 0;
         AudioStream? stream = null;
         if (File.Exists(sound.File) && sound.File.EndsWith(".ogg", StringComparison.OrdinalIgnoreCase))
         {
@@ -285,6 +296,7 @@ public partial class SoundBank : Node
             _errors[sound.Id] = File.Exists(sound.File) ? "the file would not load" : $"no file at {sound.File}";
         }
         _streams[sound.Id] = stream;
+        if (report) GD.Print($"UNNAMED audio stream: {sound.Id} {(Time.GetTicksUsec() - started) / 1000.0:0.0} ms");
         return stream;
     }
 }

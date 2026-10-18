@@ -10,9 +10,12 @@ func _initialize():
             assert(FileAccess.get_sha256(record.file) == record.sha256, record.file)
     var first = ""
     var custodian = ""
+    var interior_samples = []
     for record in manifest.outputs:
         if record.file.ends_with("bld_fab_cw_house_01.glb.scn"): first = record.file
         if record.file.ends_with("bw_codex_custodian_rigged.glb.scn"): custodian = record.file
+        if record.file.ends_with("bw_codex_room_12.glb.scn") or record.file.ends_with("bw_codex_entrance_drain.glb.scn"):
+            interior_samples.append(record.file)
     assert(not first.is_empty() and not custodian.is_empty())
     var a = ResourceLoader.load(first, "PackedScene", ResourceLoader.CACHE_MODE_IGNORE).instantiate()
     var b = ResourceLoader.load(first, "PackedScene", ResourceLoader.CACHE_MODE_IGNORE).instantiate()
@@ -29,12 +32,34 @@ func _initialize():
     var rig = ResourceLoader.load(custodian, "PackedScene", ResourceLoader.CACHE_MODE_IGNORE).instantiate()
     var skeletons = rig.find_children("*", "Skeleton3D", true, false)
     assert(skeletons.size() == 1 and skeletons[0].get_bone_count() == 11)
+    assert(interior_samples.size() == 2)
+    var compressed_maps = compressed_material_maps(rig)
+    for path in interior_samples:
+        var specimen = ResourceLoader.load(path, "PackedScene", ResourceLoader.CACHE_MODE_IGNORE).instantiate()
+        compressed_maps += compressed_material_maps(specimen)
+        specimen.free()
     a.free(); b.free(); rig.free()
-    print("BARROWWORKS_NATIVE_CACHE_PASS scenes=", manifest.outputs.size(), " textures=", manifest.shared_textures.size(), " shared_across_independent_scenes=", shared, " custodian_joints=11")
+    print("BARROWWORKS_NATIVE_CACHE_PASS scenes=", manifest.outputs.size(), " textures=", manifest.shared_textures.size(), " shared_across_independent_scenes=", shared, " custodian_joints=11 compressed_interior_maps=", compressed_maps)
     _passed = true
 
 func _finish():
     quit(0 if _passed else 1)
+
+func compressed_material_maps(root):
+    var count = 0
+    for mesh in root.find_children("*", "MeshInstance3D", true, false):
+        if mesh.mesh == null: continue
+        for surface in mesh.mesh.get_surface_count():
+            var material = mesh.mesh.surface_get_material(surface)
+            if not material is BaseMaterial3D: continue
+            for slot in BaseMaterial3D.TEXTURE_MAX:
+                var texture = material.get_texture(slot)
+                if texture == null: continue
+                assert(not texture.resource_path.is_empty(), mesh.name)
+                assert(texture.get_image().is_compressed(), texture.resource_path)
+                count += 1
+    assert(count > 0, root.name)
+    return count
 
 func textures(root):
     var found = {}

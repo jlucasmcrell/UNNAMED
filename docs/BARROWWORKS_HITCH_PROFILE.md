@@ -157,3 +157,98 @@ prevent claiming the enablement hitch gate passes.
 Final GPU leases were released normally. Release/Debug builds have zero errors; existing presentation
 warnings and the previously observed font/CanvasItem/texture shutdown warnings remain visible in logs.
 No save schema was renumbered, no merge performed, and the ring remains disabled by default.
+
+## Review 6: drain view belongs to the frontier
+
+At (1050,770), High / Forward+ / 1920x1050 on BEAST's RTX 3090, two fresh launches used
+the same ten-second drain-camera fixture with `--gpu-profile`. Neither entered the ring.
+These are spatial diagnostics, not the pending idle revision A/B study.
+
+| Flag | Last 100 frame mean ms | GPU mean ms | Render CPU mean ms |
+|---|---:|---:|---:|
+| barrowworks=0 | 43.209 | 42.707 | 10.878 |
+| barrowworks=1 (review-5 art/cache) | 39.995 | 39.496 | 11.087 |
+
+The final native GPU-profile window reports these dominant passes (off / on, milliseconds):
+omni-light shadows 15.925 / 14.901; opaque 10.612 / 9.689; GI + depth pre-pass 7.034 / 6.042;
+GI + directional/spot shadows 6.739 / 6.668. Parallel pass labels are preserved; do not interpret
+these as independent additive CPU costs. Post-processing is much smaller (SSAO about .109,
+SSIL .237-.239, TAA .168-.219 ms). Both logs retain all warmup and initial compilation data.
+The table deliberately identifies a steady tail rather than advertising the boot-contaminated
+aggregate as FPS. No timing thresholds/exclusions changed.
+
+The expensive exterior view is reproduced **with Barrowworks disabled**, without either entrance
+or any interior. It is a base frontier rendering issue. This branch does not modify frontier lights,
+shadows, scatter or rendering tiers to fix it. These sequential runs do not establish an option-on
+speedup or an idle revision regression result. The useful conclusion is that a portal or entrance
+is not required for the approximately 40 ms cost. Investigate the frontier's shadow/opaque workload
+separately. Evidence: `review6_drain_0` / `review6_drain_1`, their raw frames and `--gpu-profile` logs.
+Reproduction uses `BARROWWORKS_REVIEW_RETURN_BASELINE=1`, the regular review arguments, and flag 0/1.
+
+## Review 6: cache, art and sound-path follow-up (2026-10-17)
+
+The ring remains disabled. These are contended observations on BEAST's RTX 3090, High with the
+explicit HDRI override, 1920 x 1050, normal fixed 20 Hz. They do not establish an idle A/B speedup.
+Asset boot precedes the capture; first portal entry and return remain in the samples. Screenshot
+readback is the existing sole skipped sample. No timing gate or exclusion was relaxed.
+
+| Capture | Frames / seconds | Average / 1% low FPS | GPU mean / p95 ms | Renderer peak MiB | Frames >33.333 ms |
+|---|---:|---:|---:|---:|---:|
+| Review 5 `review5_shared_high` | 46,105 / 290.47 | 158.7 / 22.8 | 5.303 / 8.141 | 10,565.3 | 119 |
+| Review 6 before sound fix `review6_final_high` | 39,189 / 291.96 | 134.2 / 19.1 | 5.189 / 7.544 | 9,824.2 | 143 |
+| Review 6 sound fix `review6_audio_uv_high` | 36,869 / 285.65 | 129.1 / 23.0 | 5.198 / 7.526 | 9,827.3 | 123 |
+
+The last run also has 123 frames strictly over 33 ms. Sampled WDDM peaks: 9,889.5 MiB dedicated,
+460.1 MiB shared; CPU samples span 40-88%. Before the sound fix CPU samples spanned 45-100%.
+The GPU-p95 and memory subtargets are met on this machine/package; the hitch/1%-low gates are not.
+The full route above precedes the final entrance-fringe burial adjustment; its two entrance GLBs
+and manifests are retained in `review6_before_fringe`. All thirteen interior meshes are unchanged
+by that final adjustment. Final entrance images are checked separately.
+
+### Entry
+
+The sound-fix run records **5,704.532 ms** first entry: scene build 2,640.3 ms, existing audio-bed
+preparation 90.3 ms and visual prewarm 2,855 ms (the remaining transition work is still included).
+The contended preceding run was 8,917.121 ms (build 4,942.4; prewarm 3,768 ms); review 5 was
+9,688.099 ms. These timings are not a controlled comparison. V5 native scenes remove the inline
+RGBA copies of the owned interior maps. Full-source SHA-256 proofs now use a stream instead of
+allocating whole GLBs on the large-object heap. The entry no longer records the previous eight
+managed gen2 collections. There is still a substantial synchronous load; it is not hidden.
+
+### Court and return
+
+The old unassigned court spike is narrowed to `SoundEvents.Update`: **121.368 ms** in a
+128.543 ms frame. Interior coordinates had been selecting legacy exterior cell ambience. The
+space check now suppresses those exterior beds/details inside, preferring the existing declared
+room tone when available. The recovered pack lacks `amb.interior.room_tone.01`, so the existing
+entry bed is retained; loading inside resolves the real exterior portal anchor. No audio source or
+mapping was edited. Existing room/return beds are decoded in entry preparation without consuming
+variation choices or falsely marking streams as played.
+
+In the sound-fix run no court sound spike recurs. `SoundEvents.Update` has no post-entry probe above
+19.066 ms. The bog bed is logged as decoded at entry (89.7 ms), rather than first decoded at return.
+Return sound processing falls from 85.690 to 19.066 ms in these observations.
+
+Return still records **185.146 ms wall / 182.317 ms viewport GPU**, with another 74.804 ms boundary
+sample. Exit projection is 114.383 ms; these are overlapping observations, not additive costs. The
+remaining GPU return cause is not assigned to a specific pass by this capture. Pipeline counters
+still add four draw/six specialization variants followed by two/three. It remains a failing gate.
+
+There are six pre-exit hitches including entry, and 117 at/after the drain-return marker. Of the
+other five pre-exit samples: 44.727 ms immediately after entry; 37.400 ms unassigned; 57.734 ms near
+a gen0 collection; 36.003 ms near a 24.004 ms simulation probe; and 41.339 ms including the harness's
+31.630 ms return-path search. None was dropped from the count. The steady exterior cost is the
+separately reproduced option-off frontier issue above.
+
+### Diagnostic limits and outstanding evidence
+
+`review6_full_profile` is an earlier diagnostic, not the acceptance run: forced draws exhausted the
+engine's default 256 timestamp slots, and its raw viewport counters contain invalid unsigned-wrap
+values. Those means must not be used as GPU/CPU evidence. The normal run above omits `--gpu-profile`.
+The later fresh-drain `review6_drain_timestamps` tests the raw timestamp helper without forced draws:
+six capture records, three with completed timestamp data (237 markers); early empty records are kept.
+Observed sample/render-frame IDs are preserved separately. They are not guaranteed to be identical.
+
+The official three interleaved idle option-off revision pairs remain **pending the owner's quiet-window
+go**. None of these contended captures substitutes for them. No frontier light, shadow, scatter or
+render-tier fix was made on this feature branch; that work is the next queue item.

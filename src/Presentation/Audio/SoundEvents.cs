@@ -491,9 +491,21 @@ public partial class SoundEvents : Node
     private void Ambience(Vector3 feet, double delta)
     {
         string cell = CellKey.OfWorld(feet.X, feet.Z).ToString();
-        var sounds = _bindings.CellSounds.GetValueOrDefault(cell);
+        // Interior metres are local to their space, not coordinates in the frontier's legacy cells.
+        bool interior = !_session.Simulation!.ActiveLayout.IsOutdoors;
+        var sounds = interior ? null : _bindings.CellSounds.GetValueOrDefault(cell);
         // Inside a building its room tone replaces the cell's bed; the cell's details still come through the walls.
-        _bed = _bindings.InteriorBed is { } room && Indoors(feet) ? room : sounds?.Bed;
+        if (interior)
+        {
+            if (_bindings.InteriorBed is { } room && _bank.Has(room)) _bed = room;
+            // The recovered pack may lack the declared room tone. Retain the entry bed, or recover its
+            // actual exterior anchor on load, rather than treating local metres as another outdoor cell.
+            else if (_bed is null && _session.Setup.Layout.Portals.Portals.FirstOrDefault(
+                         p => p.Space == _session.Simulation.ActiveLayout.SpaceId) is { } portal)
+                _bed = _bindings.CellSounds.GetValueOrDefault(CellKey.OfWorld(
+                    portal.ExteriorXMm / 1000.0, portal.ExteriorZMm / 1000.0).ToString())?.Bed;
+        }
+        else _bed = _bindings.InteriorBed is { } room && Indoors(feet) ? room : sounds?.Bed;
         if (_bed is not null && !_beds.ContainsKey(_bed) && _bank.Loop(_bed) is { } started)
             _beds[_bed] = started;
         float step = (float)(delta / BedFadeSeconds);

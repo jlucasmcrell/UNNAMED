@@ -288,7 +288,8 @@ public partial class Main : Node3D
         // change - its region file, its cells and its bindings are the whole of it.
         string region = _options.GetValueOrDefault("--region") ?? "region.starting_frontier";
         var shotStart = VisualOptions.Barrowworks && region == BarrowworksRegion ? ShotStart() : null;
-        if (VisualOptions.Barrowworks && _options.ContainsKey("--barrowworks-review"))
+        if (_options.ContainsKey("--barrowworks-review") && (VisualOptions.Barrowworks
+            || OS.GetEnvironment("BARROWWORKS_REVIEW_RETURN_BASELINE") == "1"))
             shotStart = OS.GetEnvironment("BARROWWORKS_REVIEW_RETURN_BASELINE") == "1"
                 ? (1_050_000, 770_000) : (438_000, 664_000);
         // Bad content refuses to start, naming every file (ARCHITECTURE.md §8.1); so does a profile another copy of the game holds.
@@ -539,7 +540,8 @@ public partial class Main : Node3D
             Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
             _delta = new DeltaShots(_session, _controller, _camera, _inventory, _dialogue, _character, _help, _projectiles, Path.GetFullPath(deltaShots), _assets.Root);
         }
-        else if (VisualOptions.Barrowworks && _options.TryGetValue("--barrowworks-review", out string? review))
+        else if (_options.TryGetValue("--barrowworks-review", out string? review) && (VisualOptions.Barrowworks
+            || OS.GetEnvironment("BARROWWORKS_REVIEW_RETURN_BASELINE") == "1"))
         {
             SizeForCapture();
             _realtime = _flags.Contains("--realtime");
@@ -636,6 +638,7 @@ public partial class Main : Node3D
     {
         if (_interior is not null || _session.Setup.Interior is not { } ring || _interiorBindings is not { } bindings)
             return;
+        ulong started = Time.GetTicksUsec();
         _interior = new HollowView { Name = "Barrowworks" };
         _interior.Bind(_art, bindings, new GroundField(ring, bindings, _scatterRules));
         AddChild(_interior);
@@ -652,6 +655,8 @@ public partial class Main : Node3D
                 GD.Print($"BARROWWORKS door projection: {site.Key} open={open}");
             }
         }
+        if (OS.GetEnvironment("UNNAMED_LOAD_REPORT") == "1")
+            GD.Print($"UNNAMED interior build: {(Time.GetTicksUsec() - started) / 1000.0:0.0} ms");
     }
 
     /// <summary>
@@ -693,6 +698,18 @@ public partial class Main : Node3D
             _creatures = new CreaturesView { Name = "InteriorCreatures" };
             _creatures.Bind(_art, bindings);
             _interior!.AddChild(_creatures);
+            if (_sounds is not null && IsInstanceValid(_sounds))
+            {
+                ulong audioStarted = Time.GetTicksUsec();
+                _sounds.Prepare(_bindings.InteriorBed);
+                foreach (var portal in _session.Setup.Layout.Portals.Portals)
+                {
+                    string cell = UNNAMED.World.CellKey.OfWorld(portal.ExteriorXMm / 1000.0, portal.ExteriorZMm / 1000.0).ToString();
+                    _sounds.Prepare(_bindings.CellSounds.GetValueOrDefault(cell)?.Bed);
+                }
+                if (OS.GetEnvironment("UNNAMED_LOAD_REPORT") == "1")
+                    GD.Print($"UNNAMED portal audio preparation: {(Time.GetTicksUsec() - audioStarted) / 1000.0:0.0} ms");
+            }
             PrewarmPortal();
         }
         if (outside && _interior is not null)
@@ -719,6 +736,7 @@ public partial class Main : Node3D
         _interior.AddChild(bursts);
         void Draw(Vector3 at, Vector3 target, Godot.Environment? light)
         {
+            ulong drawStarted = Time.GetTicksUsec();
             camera.Environment = light;
             camera.GlobalPosition = at;
             camera.LookAt(target);
@@ -726,6 +744,8 @@ public partial class Main : Node3D
             camera.ForceUpdateTransform();
             _avatar.ForceUpdateTransform();
             for (int i = 0; i < 3; i++) RenderingServer.ForceDraw(false, 1.0 / 60);
+            if (OS.GetEnvironment("UNNAMED_LOAD_REPORT") == "1")
+                GD.Print($"UNNAMED portal draw at {at}: {(Time.GetTicksUsec() - drawStarted) / 1000.0:0.0} ms");
         }
         try
         {
@@ -1035,8 +1055,13 @@ public partial class Main : Node3D
         }
         else if (_barrowworksReview is not null)
         {
+            ulong reviewStarted = Time.GetTicksUsec();
             _barrowworksReview.RecordFrame(delta);
-            switch (_barrowworksReview.Update())
+            _barrowworksReview.Phase("sample collection", reviewStarted);
+            reviewStarted = Time.GetTicksUsec();
+            string? reviewShot = _barrowworksReview.Update();
+            _barrowworksReview.Phase("driver", reviewStarted);
+            switch (reviewShot)
             {
                 case "done":
                     _barrowworksReview.WriteTiming();
@@ -1094,14 +1119,18 @@ public partial class Main : Node3D
 
         // The smoke and the playthrough run one tick per frame: the smoke finishes in a fraction of real time, and the playthrough is
         // the same run every time, whatever the frame rate.
+        ulong sessionStarted = _barrowworksReview is null ? 0 : Time.GetTicksUsec();
         var frame = _session.Frame(_smoke is not null || _connectedCheck is not null || (_barrowworksReview is not null && !_realtime) || (_play is not null && !_realtime) || _delta is not null || _survey is not null || _audit is not null || _auditAb is not null
             ? _session.TickSeconds : delta);
+        _barrowworksReview?.Phase("simulation", sessionStarted);
         _ticksLastFrame = frame.TicksRun;
         bool outside = _session.Simulation!.PlayerInExterior;
         if (outside != _wasOutside)
         {
             _wasOutside = outside;
+            ulong transitionStarted = _barrowworksReview is null ? 0 : Time.GetTicksUsec();
             ShowSpace(outside);
+            _barrowworksReview?.Phase(outside ? "exit projections" : "entry projections", transitionStarted);
             _autorun = false;
         }
         if (_stats is not null || _barrowworksReview is not null)
@@ -1130,7 +1159,9 @@ public partial class Main : Node3D
             GD.PushError($"UNNAMED {(save.Auto ? "autosave" : "save")} to {save.Slot} failed: {failed}");
             _hud.Toast(save.Auto ? $"Autosave failed: {failed} It is tried again shortly. The log: {LogPath}" : $"Save failed: {failed} (the log: {LogPath})", 8);
         }
+        ulong drawStarted = _barrowworksReview is null ? 0 : Time.GetTicksUsec();
         Draw(frame.Alpha, delta);
+        _barrowworksReview?.Phase("presentation", drawStarted);
         UpdateMouse();
         _stats?.Record(delta);
         if (_perf is { ScreenshotDue: true })
@@ -1213,6 +1244,13 @@ public partial class Main : Node3D
 
     private void Draw(double alpha, double delta)
     {
+        ulong phaseStart = _barrowworksReview is null ? 0 : Time.GetTicksUsec();
+        void Probe(string phase)
+        {
+            if (_barrowworksReview is null) return;
+            _barrowworksReview.Phase(phase, phaseStart);
+            phaseStart = Time.GetTicksUsec();
+        }
         var predicted = _controller.Predict(alpha);
         var feet = HollowView.ToGodot(predicted.XMm, predicted.YMm, predicted.ZMm);
         // The stride's speed: the predicted body's movement this frame, eased. A tick boundary snaps the prediction back to zero
@@ -1269,23 +1307,31 @@ public partial class Main : Node3D
         _avatar.SetPosture(posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched, posture.Airborne);
         _avatar.Pose(feet, PlayerController.FacingRadians(predicted.FacingMdeg), speed, delta);
         _camera.Crouch = _avatar.Crouch;
+        Probe("avatar/world");
         _creatures.Draw(simulation, alpha, delta);
+        Probe("creatures");
         _magicEffects.Draw(_avatar, combat.Casting, combat.Phase,
             combat.Effects.Select(e => (e.EffectId, Math.Max(0, e.ExpiresTick - simulation.WorldTick) * _session.TickSeconds)),
             combat.Strain / (double)Math.Max(1, combat.StrainTolerance), delta);
+        Probe("magic effects");
         _soundEvents.SetStation(_inventory.OpenStation?.Kind);
         _soundEvents.Update(feet, speed, simulation.Posture.Airborne, combat.Strain / (double)Math.Max(1, combat.StrainTolerance),
             _inventory.OpenContainer, Screen is not null, delta);
+        Probe("sound events");
         _music.Update(feet, delta);
+        Probe("music");
         _crafting.Refresh(simulation.Nodes);
         _npcs.Draw(simulation, delta, _session.TickSeconds);
+        Probe("crafting/NPCs");
         LogStates(simulation, delta, speed);
         _camera.Follow(_shots?.Viewpoint ?? _avatar.Position, delta);
         _avatar.SetFirstPerson(_camera.EffectiveDistance < 0.4f);
         // A conversation frames the speaker's face over the character's shoulder (not in first person).
         _talkCamera.Frame(simulation.Conversation is { } talk && !_camera.IsFirstPerson ? _npcs.HeadOf(talk.NpcId) : null,
             _avatar.Head, _camera.Camera, delta);
+        Probe("camera/state log");
         DrawHud(simulation, combat, posture, alpha, delta);
+        Probe("HUD");
     }
 
     /// <summary>How far the body is through its combat phase, from the simulation's own phase lengths, for the pose.</summary>

@@ -1,10 +1,10 @@
 # Barrowworks: current implementation, art and verification
 
 The dungeon remains opt-in (`--visual barrowworks=1`). Run from `region.starting_frontier` through
-the real portal. No schema number, historical fixture, audio source or audio manifest changed in this revision.
-Claude owns schema renumbering and integration conflicts against the advancing base.
+the real portal. No schema number, historical fixture, audio clip or audio mapping manifest changed in this revision.
+This feature-branch revision does not renumber persistence. Integration onto the advancing base is a separate queue item.
 
-## Review 5 rendering and art
+## Review 6 rendering and art
 
 Interior geometry/textures are loaded on portal entry and its cached model resources are released after
 leaving, after views/creatures/items have switched back. No simulation state or save schema is changed.
@@ -37,24 +37,33 @@ zero-mm agreement with domain ground; this optimization does not select the terr
 
 Native scene derivatives avoid temporary RGBA uploads before the cache swaps in BC7 textures.
 Build with `--build-scene-cache` added to the headless real-portal review command below, then omit that
-flag for play. The owned depot holds `barrowworks_native/<Godot version>/scenes/` and `textures/`;
+flag for play. The owned depot holds `barrowworks_native/<Godot version>/v5/scenes/` and `v5/textures/`;
 the primary package remains read-only. All currently used model/clip scenes opt in while the ring is
 enabled. Shared `.dds.res` textures retain their BC7 data and are external references reused across
 models/LODs. Root scenes load independently; their immutable texture dependencies share the loader's
 cache. Missing/stale native scenes use the original GLB. Scene stamps contain full source SHA-256,
-Godot version and cache-format revision (currently v4, unrelated to save schema). Transient clip scenes
+Godot version and cache-format revision (currently v5, unrelated to save schema). Transient clip scenes
 are disposed after copying animation/rest data, rather than waiting for finalization with their meshes.
+
+The v5 builder also compresses the owned `bw_codex_` maps into the physical
+`barrowworks_materials/texture_cache/` directory. The depot's root `texture_cache` is a junction to the
+primary package and must never be used as a build destination. Earlier native scenes held inline,
+uncompressed copies of the interior maps: the headworks scene alone was 22.35 MB. Its v5 scene is
+1.94 MB, with shared compressed dependencies. The additional texture-cache object exists only in
+`--build-scene-cache`; ordinary play retains no extra dictionary of interior textures. A matching
+source/version stamp is reused during incremental builds too, so an entrance iteration rebuilds its
+changed scenes instead of all 602. Distribute the generated v5 texture dependencies with the scenes.
 
 External resource references are absolute: **rebuild this cache after relocating the asset depot**.
 Relative external references outside `res://` failed the engine reload check, so they are not shipped as
 working portability support. Keep the signed source DDS cache and source GLBs available for validation
 and fallback. No native resources/source binaries are committed. Rebuild after art/filter/engine changes,
 then run `python tools/manifest_barrowworks_assets.py`; the scene-cache manifest records 602 scenes and
-1,454 shared textures for this package. Reload checks confirm compressed texture data and shared texture
+1,594 shared textures for this package. Reload checks confirm compressed texture data and shared texture
 instance identity. Run the integrity check (from PowerShell at the repository root):
 `godot --headless --path src/Presentation --script (Resolve-Path tools/check_barrowworks_native_cache.gd)`.
 It checks every cached file digest, independently loaded model texture identity/compression and the
-Custodian's eleven joints, and exits nonzero on a failed assertion. Different-resolution LOD images
+Custodian's eleven joints, plus every texture slot on the sampled R12/drain models, and exits nonzero on a failed assertion. Different-resolution LOD images
 remain distinct. The normal High run must verify actual memory/timing with this full cache.
 
 Exterior creature figures are retained, hidden and stopped while indoors, then their interpolation is
@@ -62,21 +71,34 @@ placed at the current authoritative bodies on return. Loading/new game resets bo
 figures belong to the interior scene and are freed with it. This preserves exterior rendering resources
 across the transition without retaining interior models after exit.
 
+Cell ambience also respects the interior space: local room coordinates must not select the frontier's
+legacy outdoor beds or details. The declared room tone is preferred when present. The recovered pack
+currently lacks `amb.interior.room_tone.01`, so the entry bed is retained; loading inside recovers the
+actual exterior portal anchor for that fallback. Entry preparation decodes the available declared bed
+and the two exterior portal-cell beds without playing, consuming variation choices or
+marking sounds as played. This preparation is included in the entry stall and logged separately;
+`UNNAMED_LOAD_REPORT=1` also records cold stream IDs and load times. Audio files and mappings are
+unchanged. These preparations never run with the ring disabled.
+
 All eight former masonry-grid rooms now use the approved rock relief. Wash/drain troughs contain water;
 sorting bins, chutes and tables, the Still Bay's real scanned boiler/condenser, and dense ledger shelves
-make the functions visible. The headworks is one cast bed, drive/flywheel, boiler housing, sliding gauge
-and register assembly. Reading papers carry worn raster writing from the existing copy; boards use
+make the functions visible. The headworks is an open timber/iron trestle with meshing gears, keyed bearings,
+graduated guide rails, opposed jaws, a gauge column and governor. Its working face points into the room. The scanned
+pipe surfaces retain wear with modern paint desaturated to aged iron; the red stone control plinths are gone. Reading papers carry worn raster writing from the existing copy; boards use
 Poly Haven Rough Wood (CC0). Roof materials are rough dielectrics, closing the metallic white streaks;
 solid backing closes R09. The lantern glass has a real GLB tint/alpha and no emission.
 
-Blackvein spoil and Sinking Moss mouths are inset into textured sloping berms, with different rubble,
-soil and drain water/reeds. Their model origin is the real portal mouth, not the asymmetric berm centre.
+Blackvein spoil and Sinking Moss mouths are cut into asymmetric, eroded ridges that follow the frontier
+height grid at their current anchors. A single opaque atlas blends the frontier CC0 grass, mud and gravel maps
+at their world-space tile scales, with merged real CC0 grass tufts, rubble and drain water/reeds. Their model origin is the real portal mouth, not the asymmetric berm centre.
+Toe quads and buried skirts close the eroded edges. Exposed vertical cuts use repeated mud UVs rather
+than stretching the top atlas down a cliff face; the grass roots follow the same surface offset.
 These art landforms do not decide OQ-11's provisional overland placements. The Custodian has a cast
 register/brass graduations, measuring jaws, rusted iron and a front key plus rim. Its review portrait
 waits for the whole death clip, from outside the body. Readings wrap within the screen and replace the
 previous reading; ordinary exterior notices keep their existing behavior.
 
-Room LOD maps are 512/256/128; fixture maps are capped at 512, the authored body at 1024. Clip GLBs now
+Room LOD maps are 512/256/128; fixture maps are capped at 512, entrance terrain atlases at 2048, the authored body at 1024. Clip GLBs now
 carry only their skeleton and keyed tracks (11-20 KB each), retaining all eleven joints instead of
 embedding another 20 MB armored mesh/atlas in each of eight animation files.
 
@@ -224,6 +246,18 @@ headless traversal. `BARROWWORKS_REVIEW_LIMIT` supports a short preview.
 `UNNAMED_LOAD_REPORT=1` logs timed file loads. FrameStats events correlate path-search costs, shader
 pipeline compilations and managed collections with frames; screenshots use the existing exclusion of
 only the next sample. Initial loading is separate. Timing claims must state whether the 1% low passes.
+Review-only phase probes separate scene construction, forced warm-up draws, simulation, avatar,
+creatures, effects, audio, NPCs, camera and HUD costs. Their 5 ms reporting threshold does not change
+the existing frame/hitch gates or exclusions. For raw RenderingDevice timestamps, add engine
+`--gpu-profile` before `--` and game flag `--capture-gpu-stages` after it. `gpu_frames.json` preserves
+both observed sample and delayed render-frame IDs; these are not guaranteed to identify the same
+frame. Forced draws can exhaust the engine's default timestamp pool, making render counters invalid;
+keep such a diagnostic separate from the normal acceptance run and retain its raw data.
+
+For the fresh exterior comparison, set `BARROWWORKS_REVIEW_RETURN_BASELINE=1` and run the same review
+command with `barrowworks=0`, then `1`, to stand at (1050,770) without entering the ring. Each run
+retains boot/first-draw warm-up and then observes ten seconds; compare the steady tail explicitly.
+This fixture alone permits the review driver with option off; ordinary option-off launches are unchanged.
 
 ## Review 4 baseline verification (historical)
 
@@ -353,3 +387,34 @@ warnings and the previously observed font/CanvasItem/texture shutdown warnings r
 No save schema was renumbered, no merge performed, and the ring remains disabled by default.
 
 Final rebuild totals: Release solution 49 warnings / zero errors; Debug Presentation with rebuilt dependencies 42 warnings / zero errors (39 Presentation warnings plus three existing Content warnings). Final Presentation 127/127 and Architecture 18/18 pass. Earlier 39-warning totals were incremental builds; logs are retained.
+
+## Review 6 verification
+
+- Release solution build and Debug presentation build: 0 errors; existing warnings remain.
+- Full Release suite after the stream/ambience fix: **1,361 passed, 0 failed, 0 skipped**. Presentation
+  **127** and Architecture **18** pass again after the missing-room-tone fallback adjustment.
+- Content lint with `--engine-lint`: **339 definitions, 0 errors**; xref exits 0.
+- Headless connected route: **PASS**, both crossings in one region, **8,205 ticks**, save/load digest matches.
+- Native integrity: **602 scenes, 1,594 shared compressed textures, 13 shared albedo identities, 11
+  Custodian joints, 116 compressed texture bindings** on the sampled R12/drain models; exits 0.
+- `review6_audio_uv_high`: normal 20 Hz frontier entry, all thirteen rooms, ordinary-command solo fight,
+  headworks and drain return pass. All thirteen room images were inspected. GPU p95 7.526 ms;
+  renderer peak 9,827.3 MiB; sampled WDDM peak 9,889.5 MiB dedicated and 460.1 MiB shared. This is a
+  contended observation, not an idle regression result or an enabling pass.
+- Final perimeter-only art refinement: checked separately in `review6_fringe_threshold` and
+  `review6_fringe_drain`, both exit 0, both final entrance images inspected. Their source meshes are
+  126,586 and 108,203 triangles. The full-route timing above predates this final fringe/grass adjustment;
+  the thirteen interior models and audio code are unchanged. The previous entrance GLBs/manifests
+  are retained in `review6_before_fringe` for that timing observation.
+
+The machine is an open iron/timber regulator; both entrances are eroded terrain-following cuts using
+frontier soil/grass maps. No generative mesh service was used. Six generated asset GLBs changed; the
+shared primary package remains untouched. Authoritative simulation, persistence schema and historical fixtures are unchanged.
+
+The enabling gate still fails: the first entry is 5.70 s, the return is 185 ms (182 ms viewport GPU),
+and 123 recorded frames exceed 33 ms. Six are before the drain return including entry, 117 at/after it.
+The court's 121 ms sound-update stall does not recur; the remaining return GPU cause is not attributed
+by that run. The option-off drain view independently reproduces the approximately 40 ms frontier cost.
+See `BARROWWORKS_HITCH_PROFILE.md` for raw-run names, limits, detailed phases and all retained hitches.
+The official three interleaved idle option-off revision pairs remain pending the owner's quiet-window go.
+Barrowworks stays disabled. Frontier performance proceeds on its separate queue branch.
