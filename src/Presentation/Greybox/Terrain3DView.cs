@@ -259,6 +259,8 @@ public static class Terrain3DView
         var data = (GodotObject)terrain.Get("data");
         data.Call("import_images", new Godot.Collections.Array { height, control, colour }, new Vector3(origin.X, 0, origin.Y), 0.0f, 1.0f);
         GD.Print($"UNNAMED terrain3d: {regions}x{regions} regions of {RegionSize} m from {origin}; " + Check(data, grid, ground));
+        if (OS.GetEnvironment("UNNAMED_TERRAIN_OCCLUSION") == "1")
+            AddTerrainOccluder(parent, terrain, height, control, origin);
         // B0.2: real rock over the north ravine, on the same scenery surface this renderer draws (never read back from it).
         int rocks = RavineDressing.Dress(parent, art, ground.Region, (x, z) => SceneryHeight(ground, x, z), art.Coverage);
         GD.Print($"UNNAMED terrain3d: {rocks} rock pieces dress the north ravine");
@@ -268,6 +270,34 @@ public static class Terrain3DView
         else if (waterWhy is not null)
             art.Coverage.Fallback("water", "ravine_river", waterWhy);
         return terrain;
+    }
+
+    private static void AddTerrainOccluder(Node3D parent, Node3D terrain, Image height, Image control, Vector2 origin)
+    {
+        // A hole invalidates the solid-ground proof. Fail open, including for future authored cuts.
+        byte[] controls = control.GetData();
+        for (int i = 0; i < controls.Length; i += sizeof(uint))
+            if ((BitConverter.ToUInt32(controls, i) & 4u) != 0) return;
+        byte[] bytes = height.GetData();
+        var values = System.Runtime.InteropServices.MemoryMarshal.Cast<byte, float>(bytes);
+        var grid = TerrainOcclusionGrid.Build(values, height.GetWidth(), height.GetHeight(), terrain.Get("mesh_lods").AsInt32());
+        if (grid is null) return;
+        var vertices = new Vector3[grid.Columns * grid.Rows];
+        for (int z = 0; z < grid.Rows; z++)
+        for (int x = 0; x < grid.Columns; x++)
+            vertices[z * grid.Columns + x] = new Vector3(origin.X + grid.Inset + x * grid.Step,
+                grid.Heights[z * grid.Columns + x], origin.Y + grid.Inset + z * grid.Step);
+        var indices = new List<int>((grid.Columns - 1) * (grid.Rows - 1) * 6);
+        for (int z = 0; z < grid.Rows - 1; z++)
+        for (int x = 0; x < grid.Columns - 1; x++)
+        {
+            int a = z * grid.Columns + x, b = a + 1, c = a + grid.Columns, d = c + 1;
+            indices.AddRange(new[] { a, c, b, b, c, d });
+        }
+        var occluder = new ArrayOccluder3D();
+        occluder.SetArrays(vertices, indices.ToArray());
+        parent.AddChild(new OccluderInstance3D { Name = "ConservativeTerrainOccluder", Occluder = occluder });
+        GD.Print($"UNNAMED terrain occlusion PILOT: {vertices.Length} vertices, {indices.Count / 3} triangles, full clipmap/morph support below imported heights");
     }
 
     /// <summary>The imported area's corner: whole regions, one region beyond the walkable region's south-west corner.</summary>

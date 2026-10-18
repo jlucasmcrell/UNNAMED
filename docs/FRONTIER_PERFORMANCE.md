@@ -244,3 +244,7 @@ cutout materials. Only proven opaque source textures select the shader without a
 Shader caches are per scatter view. Native opacity/mip/wind/cutout/mineral/isolation checks and
 all 223 Presentation tests pass; rendered timing and paired-view review are pending.
 An isolated two-pixel native LOD trial is also queued; the shipping threshold remains one pixel.
+
+## Conservative terrain occlusion pilot
+
+Opt-in only: UNNAMED_TERRAIN_OCCLUSION=1. The height-image lower envelope includes the complete coarsest clipmap/morph support plus each adjacent occluder cell, with a50mm safety inset. It refuses unknown/NaN heights, holes and undersized images. It does not alter visible terrain, placements, materials or density. Native Terrain3D mesh_lods=7 verified; all native bakedLOD0-6 pass332486 edge/interior probes on a field containing one-texel pits/peaks (worst occluder-minus-native height -0.049999237m). The pure conservative-support regression also passes. Earlier native minimum-filter bake remains rejected/archived. Rendered speed and all-view quality remain UNMEASURED; pilot not enabled by default.
