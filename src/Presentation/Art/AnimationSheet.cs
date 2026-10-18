@@ -396,6 +396,9 @@ public partial class AnimationSheet : Node3D
     private void AddPlayerProfiles()
     {
         var person = _bindings.People["player"];
+        var args = OS.GetCmdlineUserArgs();
+        int splayAt = Array.IndexOf(args, "--anim-splay");
+        float splay = splayAt >= 0 ? float.Parse(args[splayAt + 1], System.Globalization.CultureInfo.InvariantCulture) : 0;
         var wanted = _profileStates?.Split(',').ToHashSet(StringComparer.Ordinal);
         foreach (var state in person.Clips.Keys.Where(s => wanted is null || wanted.Contains(s)))
         {
@@ -405,8 +408,18 @@ public partial class AnimationSheet : Node3D
                 throw new InvalidOperationException($"Profile clip did not load: {person.Clips[state]}");
             model.Position = new Vector3(0, 0, -_profileModels.Count * 10);
             AddChild(model);
+            if (splay != 0 && BuildPose.On(model.Skeleton) is { } buildPose)
+                buildPose.ArmSplayDegrees = splay;
             CorrectiveJoints.Load(_art, person.Model, model.Skeleton);
-            Outfit.Dress(_art, model, person.Model, person.Outfit);
+            int dressed = Outfit.Dress(_art, model, person.Model, person.Outfit);
+            _notes.Add($"{state}: garments={dressed}, arm_splay_deg={splay}");
+            foreach (var mesh in model.Skeleton.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
+                for (int surface = 0; surface < (mesh.Mesh?.GetSurfaceCount() ?? 0); surface++)
+                {
+                    var arrays = mesh.Mesh!.SurfaceGetArrays(surface);
+                    var uv = arrays[(int)Mesh.ArrayType.TexUV2].AsVector2Array();
+                    _notes.Add($"UV2 {state}/{mesh.Name}/{surface}: vertices={uv.Length}, source_masks={uv.Count(v => v.Y < 0)}, min_y={(uv.Length > 0 ? uv.Min(v => v.Y) : 0)}");
+                }
             CharacterMaterials.ShareLodBox(model.Skeleton);
             _profileModels.Add((model, state));
             for (int phase = 0; phase < 12; phase++)

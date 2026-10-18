@@ -31,7 +31,7 @@ public static partial class Outfit
         if (garments.Count == 0)
             return 0;
         var skin = figure.Skeleton.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>().ToList();
-        var worn = new List<(List<MeshInstance3D> Meshes, int Layer, int Hides)>();
+        var worn = new List<(List<MeshInstance3D> Meshes, int Layer, int Hides, int SourceHides)>();
         var baked = garments.Select(g => PlayerBodies.Garment(g, body)).Distinct()
             .Select(id => (Id: id, Spec: art.RiggedFile(id, id + "_garment.json"))).Where(g => g.Spec is not null).ToList();
         if (baked.Count == 0)
@@ -43,6 +43,9 @@ public static partial class Outfit
             using var json = JsonDocument.Parse(File.ReadAllText(spec!));
             int layer = json.RootElement.GetProperty("layer").GetInt32();
             int hides = json.RootElement.GetProperty("hides_mask").GetInt32();
+            int sourceHides = json.RootElement.TryGetProperty("occlusion_mask", out var sourceMask) ? sourceMask.GetInt32() : 0;
+            if (sourceHides is < 0 or > 1023)
+                throw new InvalidDataException($"{spec}: occlusion_mask must fit the ten exact UV bits");
             if (json.RootElement.TryGetProperty("chains", out var chains))
                 Springs(figure.Skeleton, id, chains);
             CharacterMaterials.ApplyLods(model);
@@ -61,16 +64,24 @@ public static partial class Outfit
                 }
             }
             model.Free();
-            worn.Add((meshes, layer, hides));
+            worn.Add((meshes, layer, hides, sourceHides));
         }
         int all = worn.Aggregate(0, (mask, g) => mask | g.Hides);
+        int allSources = worn.Aggregate(0, (mask, g) => mask | g.SourceHides);
         foreach (var mesh in skin)
+        {
             mesh.SetInstanceShaderParameter("region_hidden_mask", all);
-        foreach (var (meshes, layer, _) in worn)
+            mesh.SetInstanceShaderParameter("source_hidden_mask", allSources);
+        }
+        foreach (var (meshes, layer, _, _) in worn)
         {
             int over = worn.Where(g => g.Layer > layer).Aggregate(0, (mask, g) => mask | g.Hides);
+            int overSources = worn.Where(g => g.Layer > layer).Aggregate(0, (mask, g) => mask | g.SourceHides);
             foreach (var mesh in meshes)
+            {
                 mesh.SetInstanceShaderParameter("region_hidden_mask", over);
+                mesh.SetInstanceShaderParameter("source_hidden_mask", overSources);
+            }
         }
         return worn.Count;
     }
