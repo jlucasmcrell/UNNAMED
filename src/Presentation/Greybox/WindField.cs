@@ -184,6 +184,7 @@ uniform float ow_late = 0.0;
 uniform vec3 ow_glow = vec3(0.0);
 uniform bool ow_glow_green = false;
 varying float strange;
+varying flat vec2 hue_turn;
 #ifdef OW_MINERAL
 uniform vec3 ow_vein = vec3(0.0);
 uniform float ow_vein_on = 0.0;
@@ -224,6 +225,9 @@ void vertex() {
     // The place's strangeness (ScatterView puts it in the custom data's alpha), each plant its own share of it, so a stand is not
     // wrong all at once.
     strange = clamp(INSTANCE_CUSTOM.a * otherworld_mix.x * (0.6 + 0.8 * fract(phase * 7.31)), 0.0, 1.0);
+    // The angle is constant throughout each plant. Avoid repeating trig in every shaded fragment.
+    float hue_angle = radians(-ow_hue * strange);
+    hue_turn = vec2(cos(hue_angle), sin(hue_angle));
 #ifdef OW_MINERAL
     ow_place = VERTEX * sqrt(scale2) + origin * 0.37;
 #endif
@@ -253,7 +257,9 @@ void fragment() {
 #ifdef OTHERWORLD
     float lift = 0.0;
     if (strange > 0.0) {
-        colour = max(otherworld_hue(colour, ow_hue * strange), vec3(0.0));
+        vec3 axis = vec3(0.57735);
+        colour = max(colour * hue_turn.x + cross(axis, colour) * hue_turn.y
+            + axis * dot(axis, colour) * (1.0 - hue_turn.x), vec3(0.0));
         float l = dot(colour, vec3(0.2126, 0.7152, 0.0722));
         colour = mix(colour, vec3(0.80, 0.78, 0.72) * (0.55 + l), ow_pale * strange);
         colour *= mix(vec3(1.0), vec3(0.78, 0.9, 1.0), ow_sheen * strange);
