@@ -90,6 +90,9 @@ public partial class AnimationSheet : Node3D
         var environment = new Godot.Environment
         {
             BackgroundMode = Godot.Environment.BGMode.Color, BackgroundColor = new Color(0.62f, 0.66f, 0.70f),
+            // PBR metal needs a reflection source, as in the creator and exterior.
+            Sky = new Sky { SkyMaterial = new ProceduralSkyMaterial() },
+            ReflectedLightSource = Godot.Environment.ReflectionSource.Sky,
             AmbientLightSource = Godot.Environment.AmbientSource.Color, AmbientLightColor = new Color(0.6f, 0.62f, 0.66f), AmbientLightEnergy = 0.7f,
             TonemapMode = Godot.Environment.ToneMapper.Agx, SsaoEnabled = true,
         };
