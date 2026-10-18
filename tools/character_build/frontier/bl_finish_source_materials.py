@@ -1,6 +1,6 @@
 """Finish garment-source PBR and the hood/mantle on feminine Average, then transfer once."""
 import argparse,shutil
-import bpy,bmesh,json,os,sys,hashlib
+import bpy,bmesh,json,os,sys,hashlib,math
 import numpy as np
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).parent))
@@ -107,6 +107,11 @@ for part,base in PARTS.items():
  if part=='cloak':
   # Preserve the accepted drape; remove the skin-helper deformation field.
   bind_mantle_torso(obj,arm)
+  # Source pattern ease at the outer panels; retain the neck opening height.
+  # Every other fit inherits this one source through the same native wrap.
+  for vertex in obj.data.vertices:
+   allowance=max(0,min(1,(math.hypot(vertex.co.x,vertex.co.y-.012)-.12)/.14))
+   vertex.co.x*=1.10;vertex.co.y=.012+(vertex.co.y-.012)*1.10;vertex.co.z+=.055*allowance
  materials={}
  for i,old in enumerate(obj.data.materials):
   kind='oatmeal_linen' if 'linen' in old.name else ('brown_boot_leather' if part=='boots' else ('blackened_iron' if 'lamework_metal' in old.name else None))
@@ -131,7 +136,7 @@ for part,base in PARTS.items():
  assert hashlib.sha256(src.read_bytes()).hexdigest()==before
  original=json.loads((part_source/'source.json').read_text())
  original.update(source_accepted_shape=str(src),source_accepted_shape_sha256=before,
-  review8_finish='PBR colour/ARM channels, rear hood fall, primary torso/shoulder mantle binding',
+  review8_finish='PBR colour/ARM channels, rear hood fall, primary torso/shoulder mantle binding with outer-panel run allowance',
   acceptance='PENDING four-fit native review9',body_edits=False)
  (out/'source.json').write_text(json.dumps(original,indent=2))
  print('REVIEW8_SOURCE_FINISH',part,flush=True)

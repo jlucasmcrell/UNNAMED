@@ -54,7 +54,8 @@ Review 8 accepted those shapes and fit, and required a source material finish.
 the finish separately. Run it with Blender. It bakes the blue dye out of the
 scanned linen, assigns brown-leather PBR to boots and scanned blackened-iron
 PBR with UVs to the lames, lowers the rear hood peak, and binds
-the accepted mantle drape to primary torso/shoulder joints. Inspect the finished
+the mantle drape to primary torso/shoulder joints and gives its outer panels
+source-pattern clearance for the run, retaining the neck opening height. Inspect the finished
 feminine Average source in
 the game, copy it into `sources/fits/veth_f`, then use the same transfer
 command below. No per-fit material or shape correction is part of that pass.
