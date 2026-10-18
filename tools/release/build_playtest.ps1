@@ -87,6 +87,8 @@ Set-Content "$game\VERSION.txt" "build $Label`ncommit $sha" -Encoding ascii
 New-Item -ItemType Directory -Force "$game\saves" | Out-Null
 
 "--- verify"
+python "$here\approved_player_bodies.py" $game --verify
+if ($LASTEXITCODE -ne 0) { throw 'Approved body verification failed; do not ship this package' }
 foreach ($required in 'Otherreach.exe', 'PLAY.bat', 'PLAY Ultra 4K.bat', 'README.md', 'connected_route.json', 'THIRD_PARTY_NOTICES', 'content\_art_bindings.json', 'content\_scatter_rules.json', 'primary\bindings.json', 'fallback\ready') {
     if (-not (Test-Path "$game\$required")) { throw "assembled folder lacks $required" }
 }
