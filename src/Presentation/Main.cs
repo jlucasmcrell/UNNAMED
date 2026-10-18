@@ -266,6 +266,7 @@ public partial class Main : Node3D
             AddChild(new Art.AnimationSheet(new Art.ArtLibrary(catalog.Root),
                 Art.ArtBindings.LoadWithOverlay(Art.ArtBindings.ResourcePath, _options.GetValueOrDefault("--bindings-overlay")), Path.GetFullPath(sheet),
                 _flags.Contains("--anim-profiles"), _options.GetValueOrDefault("--anim-states")));
+            SetProcess(false); // This sheet owns the frame loop; front-end input actions have not been bound.
             return;
         }
 
