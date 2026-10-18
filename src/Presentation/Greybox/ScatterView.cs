@@ -381,18 +381,15 @@ public partial class ScatterView : Node3D
         // the levels' meshes differ in size (the impostor is narrower than the clump), so the bands did not meet: at a
         // band's edge a whole chunk drew in two levels, or in none for one to three frames - grass and its shadow
         // blinking out while walking. Measured on 2026-10-03: 15 gaps and 8 doubled frames on one walk, none with this.
-        if (bands.Count > 1)
+        if (bands.Count > 0)
         {
             var box = bands.Skip(1).Aggregate(bands[0].Multimesh.GetAabb(), (b, n) => b.Merge(n.Multimesh.GetAabb()));
             foreach (var band in bands)
                 band.CustomAabb = box;
             // Point-light shadow culling does not apply GeometryInstance visibility ranges:
             // both near bands otherwise cast, even hundreds of metres from the player.
-            // Match the existing camera LOD explicitly; keep every placement and shadow setting.
-            if (kind.Rules.Shadows && !_residentMode && ShadowLodsEnabled)
-                _shadowLods.Add(new ShadowLod(bands.ToArray(), box.GetCenter(),
-                    bands.Select(b => b.VisibilityRangeBegin * b.VisibilityRangeBegin).ToArray(),
-                    Reach(kind.Rules) * Reach(kind.Rules)));
+            // Match the existing camera LOD explicitly, without removing geometry from GI.
+            if (kind.Rules.Shadows && !_residentMode) _shadowLods.Add(bands);
         }
     }
 

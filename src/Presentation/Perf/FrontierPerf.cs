@@ -104,12 +104,13 @@ public sealed class FrontierPerf
                 long triangles = mesh is ArrayMesh array
                     ? Enumerable.Range(0, array.GetSurfaceCount()).Where(i => array.SurfaceGetPrimitiveType(i) == Mesh.PrimitiveType.Triangles)
                         .Sum(i => (long)Math.Max(array.SurfaceGetArrayIndexLen(i), array.SurfaceGetArrayLen(i)) / 3) : 0;
-                Aabb bounds = node.GlobalTransform * node.GetAabb();
+                Aabb bounds = node.GlobalTransform * (node.CustomAabb.Size == Vector3.Zero ? node.GetAabb() : node.CustomAabb);
                 return new
                 {
                     path = node.GetPath().ToString(), mesh = mesh?.ResourcePath, surfaces = mesh?.GetSurfaceCount(),
                     triangles_per_instance = triangles, instances, source_triangles = triangles * instances,
                     visible_in_tree = node.IsVisibleInTree(), shadows = node.CastShadow.ToString(), gi = node.GIMode.ToString(),
+                    authored_shadows = node.HasMeta("shadow_lod_original") ? node.GetMeta("shadow_lod_original").AsString() : node.CastShadow.ToString(),
                     range_begin = node.VisibilityRangeBegin, range_end = node.VisibilityRangeEnd,
                     bounds_min = new[] { bounds.Position.X, bounds.Position.Y, bounds.Position.Z },
                     bounds_size = new[] { bounds.Size.X, bounds.Size.Y, bounds.Size.Z },

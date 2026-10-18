@@ -64,9 +64,12 @@ defeated the character. Its samples are retained; the clear fixture completes al
 Godot's point-shadow cull checks instance visibility but does not check the visibility ranges used by
 the main camera and directional shadows (`servers/rendering/renderer_scene_cull.cpp`, cube-shadow
 loop). Consequently both casting near LODs can be submitted to distant village lamps simultaneously.
-The candidate correction explicitly selects the existing camera-distance band for casting scatter.
-It keeps all placements, densities, meshes, materials, ranges and shadow settings. Non-casting scatter
-and static GI geometry are unchanged. `UNNAMED_SHADOW_LODS=0` restores the old submission for diagnosis.
+The first scatter-only pilot passed all 1,738 visibility groups and improved the worst view from
+20.3 to 25.9 FPS, removing about 117 million submitted primitives; it remains far below the target.
+The correction now mirrors the existing hard camera-distance bands in **CastShadow** for both static
+models and scatter. It keeps placements, density, meshes, materials, ranges and node visibility;
+static GI geometry stays present. The authored shadow mode returns inside its band. Non-casting
+geometry is unchanged. `UNNAMED_SHADOW_LODS=0` restores the old submission for diagnosis.
 No acceptance pass is claimed until the full before/after sweep and visual inspection finish.
 
 Check the actual captured visibility states with:

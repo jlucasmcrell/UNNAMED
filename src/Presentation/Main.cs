@@ -1366,6 +1366,7 @@ public partial class Main : Node3D
         _talkCamera.Frame(simulation.Conversation is { } talk && !_camera.IsFirstPerson ? _npcs.HeadOf(talk.NpcId) : null,
             _avatar.Head, _camera.Camera, delta);
         Probe("camera/state log");
+        if (GetViewport().GetCamera3D() is { } shadowEye) _art.UpdateShadowLods(shadowEye.GlobalPosition);
         DrawHud(simulation, combat, posture, alpha, delta);
         Probe("HUD");
     }
