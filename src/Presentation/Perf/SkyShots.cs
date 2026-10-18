@@ -20,6 +20,7 @@ public sealed class SkyShots
     private readonly CameraRig _camera;
     private readonly Camera3D _skyCamera;
     private readonly bool _calendarOnly;
+    private readonly bool _weatherOnly = System.Environment.GetEnvironmentVariable("UNNAMED_SKY_WEATHER_ONLY") == "1";
     private int _index, _frames;
     private double _elapsed;
     public string Directory { get; }
@@ -51,6 +52,7 @@ public sealed class SkyShots
             _samples.Add(new Sample($"weather_{key}_noon", Math.Max(tick, start + transition)));
         }
         if (!calendarOnly && found.Count != 5) throw new InvalidOperationException("Sky study did not find every WP7 weather state");
+        if (_weatherOnly && !calendarOnly) return;
         for (int hour = 0; hour <= 24; hour += 2)
             _samples.Add(new Sample($"day_{hour:00}", clock.TickOfHour(clock.HoursPerDay + hour)));
         for (int season = 0; season < 4; season++)
@@ -85,7 +87,10 @@ public sealed class SkyShots
         if (_elapsed < 2 || _frames < 30) return null;
         var sample = _samples[_index];
         var sim = _session.Simulation!;
-        _observations.Add(new { sample.Name, projection_tick = sample.Tick, real_world_tick = sim.WorldTick,
+        var eye = _camera.GetViewport().GetCamera3D()!.GlobalPosition;
+        var air = _camera.GetTree().CurrentScene.GetNodeOrNull<AtmosphereView>("Hollow/Atmosphere");
+        _observations.Add(new { camera_position = new[] { eye.X, eye.Y, eye.Z },
+            precipitation = air is null ? null : new { sheltered = air.PrecipitationSheltered, active = air.PrecipitationActive }, sample.Name, projection_tick = sample.Tick, real_world_tick = sim.WorldTick,
             date = Calendar.Of(sample.Tick, sim.Setup.Clock, sim.Setup.Calendar),
             cycle = SkyCycle.At(sample.Tick, sim.Setup.Clock, sim.Setup.Calendar), blend = SkyView.Weather,
             wind = new { direction = new[] { WindField.Direction.X, WindField.Direction.Z }, WindField.Strength, WindField.Gust },
@@ -97,7 +102,7 @@ public sealed class SkyShots
     public void Write() => File.WriteAllText(Path.Combine(Directory, "sky_study.json"), JsonSerializer.Serialize(new
     {
         purpose = "Presentation-only WP7 projections; simulation state was never replaced by preview dates",
-        calendar_only = _calendarOnly, calendar_weather_override = VisualOptions.Weather,
+        weather_only = _weatherOnly && !_calendarOnly, calendar_only = _calendarOnly, calendar_weather_override = VisualOptions.Weather,
         camera_note = "Moon study (and calendar-only mode): camera 30 m over the same feet, 80-degree FOV; no camera collisions",
         samples = _observations,
     }, new JsonSerializerOptions { WriteIndented = true }));

@@ -75,6 +75,16 @@ they are foreground particles, not additional celestial bodies. Original files
 and `sky_study.json` retain every projection tick and diagnostic condition.
 
 The native 1,090-frame headless smoke passes with an identical save/load digest;
-content lint and xref pass. Full serial tests and post-sky performance acceptance
-remain outstanding. The latest drain captures still fail the performance target;
+content lint and xref pass. The full serial WP7 checkpoint suite passed 1,799 tests
+with no failures and three existing long-run skips. Latest presentation/architecture
+checks pass (246/23); post-sky performance acceptance remains outstanding. The latest drain captures still fail the performance target;
 this checkpoint is not integration or playtest-wide acceptance.
+
+
+Roofed spaces: camera-following rain and snow now use one native upward ray on the
+camera collision layer. A roof suppresses emission and hides already-live drops
+that would otherwise fall through it. Native roof/outdoor/hidden/layer controls
+pass. This is camera-local shelter gating, not world-wide particle collision;
+rain outside a window is not separately simulated. A weather-only SkyShots mode
+records the actual camera position and shelter/emission state for an interior
+review. The new in-game lodge sequence is still pending.
