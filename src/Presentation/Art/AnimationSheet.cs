@@ -29,6 +29,7 @@ public partial class AnimationSheet : Node3D
     private readonly string? _profileStates;
     private readonly List<(SkinnedModel Model, string State)> _profileModels = new();
     private bool _equipmentProbe;
+    private static bool Pictures => DisplayServer.GetName() != "headless";
     private readonly Camera3D _camera = new() { Fov = 40, Current = true, Near = 0.05f };
     private readonly List<(string Name, Action Setup)> _shots = new();
     private readonly List<(string Creature, SkinnedModel Model, string State, bool Control)> _creatures = new();
@@ -85,7 +86,25 @@ public partial class AnimationSheet : Node3D
 
     public override void _Ready()
     {
+        try
+        {
+            Prepare();
+        }
+        catch (Exception error)
+        {
+            SetProcess(false);
+            _notes.Add($"FAILED during sheet setup: {error.Message}");
+            WriteReport();
+            GD.PushError(error.ToString());
+            GetTree().Quit(1);
+        }
+    }
+
+    private void Prepare()
+    {
         Directory.CreateDirectory(_directory);
+        if (!Pictures)
+            _notes.Add("Headless checks only: no rendered-image or GPU deformation acceptance.");
         DisplayServer.WindowSetSize(new Vector2I(1920, 1080));
         _art.Withhold(_bindings.Withheld);
         var environment = new Godot.Environment
@@ -474,7 +493,7 @@ public partial class AnimationSheet : Node3D
                 buildPose.ArmSplayDegrees = splay;
             CorrectiveJoints.Load(_art, person.Model, model.Skeleton);
             int dressed = Outfit.Dress(_art, model, person.Model, person.Outfit);
-            _notes.Add($"{state}: garments={dressed}, arm_splay_deg={splay}");
+            _notes.Add($"{state}: bones={model.Skeleton.GetBoneCount()}, garments={dressed}, arm_splay_deg={splay}");
             foreach (var mesh in model.Skeleton.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
                 for (int surface = 0; surface < (mesh.Mesh?.GetSurfaceCount() ?? 0); surface++)
                 {
@@ -572,7 +591,7 @@ public partial class AnimationSheet : Node3D
         // The reach waits until it is at full stretch.
         if (++_wait < 8 || _shots[_shot].Name == "player_close_interact" && _clockAtShot + ReachSeconds > _clock)
             return;
-        if (!_equipmentProbe || DisplayServer.GetName() != "headless")
+        if (Pictures)
             Main.SaveScreenshot(GetViewport(), _directory, _shots[_shot].Name);
         // The creature pictures are the only place two fractions of one clip are held for long enough to compare, so the
         // movement between them is measured here rather than guessed from the frames afterwards.
@@ -677,7 +696,7 @@ public partial class AnimationSheet : Node3D
                           + $"{fractions[0] * 100:0} % and {fractions[^1] * 100:0} % of the clip; the most-moving bone travels {most:0.000} m");
             }
         }
-        bool pictures = !_equipmentProbe || DisplayServer.GetName() != "headless";
+        bool pictures = Pictures;
         if (pictures)
         {
             lines.AddRange(new[] { "", "## Pictures", "" });

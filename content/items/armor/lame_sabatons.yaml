@@ -4,7 +4,8 @@ schema: 1
 display_key: item.armor.lame_sabatons.name
 tags: [item]
 name: Lame Sabatons
-notes: "Owner-accepted rung 3 (ARMOUR_TIERS_DESIGN.md section 4). Overlapping iron lames over sealed boots, articulated at the ankle and toes. WP3b repairs the whole item; individual lame wear is not implemented. Art acceptance pending."
+# Owner-accepted playtest rung 3, ARMOUR_TIERS_DESIGN.md section 4. Whole-item WP3b repair; per-lame repair deferred.
+notes: Short overlapping iron lames over sealed boots. The ankle stays free to bend.
 category: armor
 item_class: ordinary
 stack_max: 1

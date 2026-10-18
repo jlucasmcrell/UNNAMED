@@ -4,7 +4,8 @@ schema: 1
 display_key: item.armor.lamework_jack.name
 tags: [item]
 name: Lamework Jack
-notes: "Owner-accepted rung 3 (ARMOUR_TIERS_DESIGN.md section 4). Small iron lames on a flexible backing over the sealed vest. WP3b repairs the whole item; individual lame wear is not implemented. Art acceptance pending."
+# Owner-accepted playtest rung 3, ARMOUR_TIERS_DESIGN.md section 4. Whole-item WP3b repair; per-lame repair deferred.
+notes: Small iron lames on a flexible backing over a sealed vest. Each row moves with the one beneath.
 category: armor
 item_class: ordinary
 stack_max: 1
