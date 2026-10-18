@@ -26,6 +26,7 @@ BUILDS = [b["id"] for b in json.load(open(os.path.join(HERE, "builds.json")))["b
 ap = argparse.ArgumentParser()
 ap.add_argument("root")
 ap.add_argument("--dry-run", action="store_true")
+ap.add_argument("--bodies-only", action="store_true", help="Install approved bodies only; omit stale garment bakes and old clips")
 a = ap.parse_args()
 manifest_path = os.path.join(a.root, "manifests", "wp17_bodies.json")
 ours = set(json.load(open(manifest_path))["installed"]) if os.path.exists(manifest_path) else set()
@@ -36,7 +37,7 @@ def suffix(build):
 
 
 items = []   # (source path, path under the root)
-for base in ("pc_veth_m_body_c", "pc_veth_f"):
+for base in (() if a.bodies_only else ("pc_veth_m_body_c", "pc_veth_f")):
     for build in BUILDS:
         asset = base + suffix(build)
         if asset == "pc_veth_m_body_c":
@@ -50,11 +51,11 @@ for sex in ("m", "f"):
         for path in glob.glob(os.path.join(src, "**", "*"), recursive=True):
             if os.path.isfile(path) and not path.endswith((".blend", ".blend1")):
                 items.append((path, os.path.join("rigged", asset, os.path.relpath(path, src))))
-        for garment in glob.glob(os.path.join(MH, "work", "drape", "rigged", f"player_*_{sex}__{asset}")):
+        for garment in ([] if a.bodies_only else glob.glob(os.path.join(MH, "work", "drape", "rigged", f"player_*_{sex}__{asset}"))):
             for path in glob.glob(os.path.join(garment, "*")):
                 items.append((path, os.path.join("rigged", os.path.basename(garment), os.path.basename(path))))
 clips = os.path.join(MH, "work", "clips_veth", "animation")
-for path in glob.glob(os.path.join(clips, "ready", "player", "anim.player.mh.*.glb")) + glob.glob(os.path.join(clips, "clips", "anim.player.mh.*.json")):
+for path in ([] if a.bodies_only else glob.glob(os.path.join(clips, "ready", "player", "anim.player.mh.*.glb")) + glob.glob(os.path.join(clips, "clips", "anim.player.mh.*.json"))):
     items.append((path, os.path.join("animation", os.path.relpath(path, clips))))
 
 missing = [s for s, _ in items if not os.path.exists(s)]
@@ -82,6 +83,7 @@ record = {"package": "WP17 bodies and garments that follow the body (tools/chara
                        "mh_veth_*": "MetaHuman (UE 5.8 in-editor Creator; UE EULA): never fed to generative AI, training or AI judges",
                        "player_*__mh_veth_*": "own garments (GarmentCode MIT patterns, CC0 fabrics) and CC0 MakeHuman boots; see each _garment.json",
                        "anim.player.mh.*": "Quaternius UAL1 (CC0) baked on mh_veth_m"},
-          "installed": sorted(d.replace("\\", "/") for _, d in items)}
+          "bodies_only": a.bodies_only,
+          "installed": sorted(ours | {d.replace("\\", "/") for _, d in items})}
 json.dump(record, open(manifest_path, "w"), indent=1)
 print("INSTALLED", len(items), "files; record", manifest_path)
