@@ -3225,21 +3225,21 @@
   },
   "weapons": {
     "item.weapon.rusted_sword": {
-      "model": "weapon_bp_rusted_sword",
+      "model": "weapon_real_arming_sword",
       "family": "sword"
     },
     "item.weapon.hunting_bow": {
-      "model": "weapon_bp_hunting_bow",
+      "model": "weapon_real_longbow",
       "family": "bow",
       "hand": "off_hand"
     },
     "item.weapon.haldas_bow": {
-      "model": "weapon_bp_hunting_bow",
+      "model": "weapon_real_longbow",
       "family": "bow",
       "hand": "off_hand"
     },
     "item.weapon.march_spear": {
-      "model": "weapon_bp_march_spear",
+      "model": "weapon_real_hunting_spear",
       "family": "polearm"
     }
   },
@@ -3401,7 +3401,7 @@
     }
   },
   "companion_weapon": {
-    "model": "weapon_bp_march_spear",
+    "model": "weapon_real_hunting_spear",
     "family": "polearm"
   },
   "projectiles": {
