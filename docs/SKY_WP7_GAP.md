@@ -87,4 +87,4 @@ that would otherwise fall through it. Native roof/outdoor/hidden/layer controls
 pass. This is camera-local shelter gating, not world-wide particle collision;
 rain outside a window is not separately simulated. A weather-only SkyShots mode
 records the actual camera position and shelter/emission state for an interior
-review. The new in-game lodge sequence is still pending.
+review. The first lodge sequence exposed missing Cairnwold roof groups; the region overlay now includes every existing rendered building group. The repeated 20-shot native lodge sequence (`lodge_roof_groups_fixed`) reports sheltered=true and active=false throughout. The rain-noon image was personally inspected: the roofed room is dry. Outdoor precipitation remains covered by the earlier weather sequence and native positive control.

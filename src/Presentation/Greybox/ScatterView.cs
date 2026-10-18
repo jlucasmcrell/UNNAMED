@@ -333,6 +333,11 @@ public partial class ScatterView : Node3D
     private void AddLevels(Kind kind, List<(Transform3D T, Color C, int Form)> placed, int cx, int cz, Mesh[]? levelsOwner = null)
     {
         var from = kind.Rules.LodsM ?? new[] { 0f, 8f, 20f, 40f };
+        // Diagnostic only: compare the authored grass meshes at nearer bands, retaining every placement.
+        if (kind.Rules.Name == "moor_grass" && float.TryParse(System.Environment.GetEnvironmentVariable("UNNAMED_GRASS_LOD_DISTANCE"),
+            System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float distance)
+            && distance is >= 0.25f and < 1)
+            from = from.Select(m => m * distance).ToArray();
         var chain = levelsOwner ?? kind.Meshes;
         int levels = Math.Min(chain.Length, from.Count);
         var bands = new List<MultiMeshInstance3D>(levels);
