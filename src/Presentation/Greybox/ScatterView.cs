@@ -192,6 +192,8 @@ public partial class ScatterView : Node3D
             }
             _counts[kind.Rules.Name] = total;
         }
+        if (System.Environment.GetEnvironmentVariable("UNNAMED_SCATTER_BATCH") == "1")
+            ScatterBatch.Build(this);
         BuildMs = Math.Round((Time.GetTicksUsec() - started) / 1000.0, 1);
         GD.Print($"UNNAMED scatter: {string.Join(", ", _counts.Select(c => $"{c.Value} {c.Key}"))} placed for world seed {worldSeed:x16} in {BuildMs} ms");
         if (System.Environment.GetEnvironmentVariable("UNNAMED_SCATTER_CENSUS") is { Length: > 0 })
@@ -379,6 +381,8 @@ public partial class ScatterView : Node3D
                 VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Disabled,
             };
             AddChild(band);
+            if (System.Environment.GetEnvironmentVariable("UNNAMED_SCATTER_BATCH") == "1")
+                band.SetMeta(ScatterBatch.GridKey, new Vector3I(cx, cz, level));
             bands.Add(band);
         }
         // ONE BOX FOR EVERY BAND. Godot measures a node's visibility range to the centre of that node's own bounds, and
