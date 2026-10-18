@@ -88,6 +88,9 @@ public class PlayerRecordCompletenessTests
                 Party = new PartyLedger(ImmutableArray.Create(new RecoveryRecord("npc.fixture.healer", 9_000)), ImmutableArray.Create("npc.fixture.porter")),
                 // A slot in use and something cleared off the bar (schema 23).
                 QuickBar = ImmutableArray.Create<string?>("item.potion.minor_healing", null, null, "spell.ember.bolt", null, null, null, null, null, null, null, "gearset.set_2"),
+                // The weapon family held, and a layout for it (the main bar itself) and for bare hands (schema 34).
+                HeldFamily = "skill.one_hand_blade",
+                FamilyBars = ImmutableSortedDictionary.Create<string, ImmutableArray<string?>>(StringComparer.Ordinal).Add("skill.one_hand_blade", ImmutableArray.Create<string?>("item.potion.minor_healing", null, null, "spell.ember.bolt", null, null, null, null, null, null, null, "gearset.set_2")).Add("unarmed", QuickBar.Empty.SetItem(0, "item.potion.minor_healing")),
                 // The further bars and a gear set that wears two pieces, one of them the vest (schema 32).
                 ExtraBars = ImmutableArray.Create(QuickBar.Empty.SetItem(5, "spell.ember.bolt"), QuickBar.Empty, QuickBar.Empty.SetItem(11, "item.potion.minor_healing"), QuickBar.Empty, QuickBar.Empty),
                 // The satchel worn in a bag slot, and the vest in the second slot of the backpack (schema 33).
@@ -138,6 +141,8 @@ public class PlayerRecordCompletenessTests
             Assert.Equal(full.SpaceTraversal, copy.SpaceTraversal);
             Assert.Equal(full.Findings, copy.Findings);
             Assert.Equal(full.ExtraBars, copy.ExtraBars);
+            Assert.Equal(full.HeldFamily, copy.HeldFamily);
+            Assert.Equal(full.FamilyBars, copy.FamilyBars);
             Assert.Equal(full.GearSets, copy.GearSets);
             Assert.Equal(full.Digest, copy.Digest);
         }

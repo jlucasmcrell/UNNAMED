@@ -475,6 +475,9 @@ internal static class SaveLoader
         }
         var bar = ResolveBar(player.QuickBar, "quick bar").ToBuilder();
         var extraBars = player.ExtraBars.Select((b, i) => ResolveBar(b, $"action bar {i + 2}")).ToImmutableArray();
+        // The main bar's layout for each weapon family (schema 34) passes the same way; the held family's is the main bar, as resolved.
+        var familyBars = player.FamilyBars.ToImmutableSortedDictionary(f => f.Key,
+            f => f.Key == player.HeldFamily ? bar.ToImmutable() : ResolveBar(f.Value, $"weapon family {f.Key} layout"), StringComparer.Ordinal);
         // Gear sets (schema 32): a piece whose item definition was removed leaves the set; the instance it names is the pack's to keep or not.
         var gearSets = player.GearSets.Select(set => set with
         {
@@ -534,7 +537,7 @@ internal static class SaveLoader
         return (rewritten.WithDeeds(deeds.Values).WithFactions(factions) with
             {
                 Party = new PartyLedger(recovering.Values.ToImmutableArray(), fallen.ToImmutableArray()),
-                QuickBar = bar.ToImmutable(), QuickBarCleared = cleared.ToImmutableArray(), ExtraBars = extraBars, GearSets = gearSets,
+                QuickBar = bar.ToImmutable(), QuickBarCleared = cleared.ToImmutableArray(), ExtraBars = extraBars, HeldFamily = player.HeldFamily, FamilyBars = familyBars, GearSets = gearSets,
                 PartySheets = sheets.Values.ToImmutableArray(),
                 Attack = attack,
                 Findings = findings.ToImmutableArray(),

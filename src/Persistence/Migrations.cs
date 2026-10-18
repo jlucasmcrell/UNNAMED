@@ -38,6 +38,7 @@ using V29 = UNNAMED.Persistence.Sections.V29;
 using V30 = UNNAMED.Persistence.Sections.V30;
 using V31 = UNNAMED.Persistence.Sections.V31;
 using V32 = UNNAMED.Persistence.Sections.V32;
+using V33 = UNNAMED.Persistence.Sections.V33;
 
 namespace UNNAMED.Persistence;
 
@@ -117,7 +118,8 @@ public static class SchemaMigrations
         new SchemaV29ToV30(),
         new SchemaV30ToV31(),
         new SchemaV31ToV32(),
-        new SchemaV32ToV33());
+        new SchemaV32ToV33(),
+        new SchemaV33ToV34());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -1793,7 +1795,7 @@ public sealed class SchemaV32ToV33 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V32.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V33.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -1834,6 +1836,69 @@ public sealed class SchemaV32ToV33 : SchemaMigration
                     Bags = new string?[4],
                     Stacks = old.Inventory.Select(e => new PackStackDto { ItemId = e.ItemId, Bag = 0, Slot = -1, Locked = false, Junk = false }).ToArray(),
                 },
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 33 to 34 (before testers): the main bar's layout per weapon family, and "focus my target". No family is held yet and none has a layout:
+/// the first tick of a world adopts the family in the main hand, so the character's one bar becomes the layout of the weapon they hold; no
+/// companion has the tactic on. Every older field is copied one by one, since the frozen shape and the live DTO are different types.
+/// </summary>
+public sealed class SchemaV33ToV34 : SchemaMigration
+{
+    public override int From => 33;
+
+    public override string Summary => "schema 33 -> 34: the main bar per weapon family - none held yet (the first tick adopts the weapon in hand, taking the bar as its layout) - and no companion on 'focus my target'";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V33.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions,
+                Posture = old.Posture,
+                Waystones = old.Waystones,
+                ReturnPoint = old.ReturnPoint,
+                RoadsWalked = old.RoadsWalked,
+                Deeds = old.Deeds,
+                Identity = old.Identity,
+                Factions = old.Factions,
+                Party = old.Party,
+                QuickBar = old.QuickBar,
+                PartySheets = old.PartySheets,
+                Attack = old.Attack,
+                SpaceId = old.SpaceId,
+                SpaceTraversal = old.SpaceTraversal,
+                Findings = old.Findings,
+                ExtraBars = old.ExtraBars,
+                GearSets = old.GearSets,
+                Pack = old.Pack,
+                HeldFamily = "",
+                FamilyBars = Array.Empty<FamilyBarDto>(),
+                FocusTargets = Array.Empty<string>(),
             }, options);
         }
         document.Manifest["schema_version"] = To;

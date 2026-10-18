@@ -538,32 +538,32 @@ public sealed record PlayerRecord
         var held = entries.Select(e => e.ItemId).ToHashSet();
         // An equipped item whose entry the pass dropped is unequipped with it, never left dangling.
         return new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, entries, Progression, FacingMdeg, Discoveries,
-            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack, Findings = Findings, SpaceId = SpaceId, SpaceTraversal = SpaceTraversal, ExtraBars = ExtraBars, GearSets = GearSets, Bags = Bags.Select(b => b is { } id && held.Contains(id) ? b : null).ToImmutableArray() };
+            Equipment.Where(kv => held.Contains(kv.Value)), Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack, Findings = Findings, SpaceId = SpaceId, SpaceTraversal = SpaceTraversal, ExtraBars = ExtraBars, HeldFamily = HeldFamily, FamilyBars = FamilyBars, GearSets = GearSets, Bags = Bags.Select(b => b is { } id && held.Contains(id) ? b : null).ToImmutableArray() };
     }
 
     /// <summary>The same player with different progression (schema 4; the definition-ID pass rewrites its IDs too).</summary>
     public PlayerRecord WithProgression(CharacterProgression progression) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack, Findings = Findings, SpaceId = SpaceId, SpaceTraversal = SpaceTraversal, ExtraBars = ExtraBars, GearSets = GearSets, Bags = Bags };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack, Findings = Findings, SpaceId = SpaceId, SpaceTraversal = SpaceTraversal, ExtraBars = ExtraBars, HeldFamily = HeldFamily, FamilyBars = FamilyBars, GearSets = GearSets, Bags = Bags };
 
     /// <summary>The same player with different discovery records (schema 5; the definition-ID pass rewrites their location IDs).</summary>
     public PlayerRecord WithDiscoveries(IEnumerable<DiscoveryRecord> discoveries) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack, Findings = Findings, SpaceId = SpaceId, SpaceTraversal = SpaceTraversal, ExtraBars = ExtraBars, GearSets = GearSets, Bags = Bags };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack, Findings = Findings, SpaceId = SpaceId, SpaceTraversal = SpaceTraversal, ExtraBars = ExtraBars, HeldFamily = HeldFamily, FamilyBars = FamilyBars, GearSets = GearSets, Bags = Bags };
 
     /// <summary>The same player with different active effects (schema 7; the definition-ID pass rewrites their effect IDs).</summary>
     public PlayerRecord WithEffects(IEnumerable<ActiveEffect> effects) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack, Findings = Findings, SpaceId = SpaceId, SpaceTraversal = SpaceTraversal, ExtraBars = ExtraBars, GearSets = GearSets, Bags = Bags };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack, Findings = Findings, SpaceId = SpaceId, SpaceTraversal = SpaceTraversal, ExtraBars = ExtraBars, HeldFamily = HeldFamily, FamilyBars = FamilyBars, GearSets = GearSets, Bags = Bags };
 
     /// <summary>The same player with different relationships and conversation memory (schema 10; the definition-ID pass rewrites their IDs).</summary>
     public PlayerRecord WithSocial(IEnumerable<RelationshipValue> relationships, IEnumerable<ConversationMemory> conversations) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, relationships, conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack, Findings = Findings, SpaceId = SpaceId, SpaceTraversal = SpaceTraversal, ExtraBars = ExtraBars, GearSets = GearSets, Bags = Bags };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, relationships, conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack, Findings = Findings, SpaceId = SpaceId, SpaceTraversal = SpaceTraversal, ExtraBars = ExtraBars, HeldFamily = HeldFamily, FamilyBars = FamilyBars, GearSets = GearSets, Bags = Bags };
 
     /// <summary>The same player with different quests (schema 11; the definition-ID pass rewrites their quest IDs).</summary>
     public PlayerRecord WithQuests(IEnumerable<QuestState> quests) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack, Findings = Findings, SpaceId = SpaceId, SpaceTraversal = SpaceTraversal, ExtraBars = ExtraBars, GearSets = GearSets, Bags = Bags };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack, Findings = Findings, SpaceId = SpaceId, SpaceTraversal = SpaceTraversal, ExtraBars = ExtraBars, HeldFamily = HeldFamily, FamilyBars = FamilyBars, GearSets = GearSets, Bags = Bags };
 
     /// <summary>The same player with different companions (schema 12; the definition-ID pass rewrites their NPC IDs).</summary>
     public PlayerRecord WithCompanions(IEnumerable<CompanionRecord> companions) =>
-        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack, Findings = Findings, SpaceId = SpaceId, SpaceTraversal = SpaceTraversal, ExtraBars = ExtraBars, GearSets = GearSets, Bags = Bags };
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, Currency, Effects, Relationships, Conversations, Quests, companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack, Findings = Findings, SpaceId = SpaceId, SpaceTraversal = SpaceTraversal, ExtraBars = ExtraBars, HeldFamily = HeldFamily, FamilyBars = FamilyBars, GearSets = GearSets, Bags = Bags };
 
     public EntityId Id { get; }
     public string Name { get; }
@@ -930,6 +930,17 @@ public sealed record PlayerRecord
                 foreach (var bar in ExtraBars)
                     foreach (string? slot in bar)
                         h.Add(slot ?? "-");
+            }
+            // The main bar's layouts per weapon family (schema 34), likewise only when a family is held or has a layout.
+            if (HeldFamily.Length > 0 || FamilyBars.Count > 0)
+            {
+                h.Add("family-bars").Add(HeldFamily);
+                foreach (var (family, layout) in FamilyBars)
+                {
+                    h.Add(family);
+                    foreach (string? slot in layout)
+                        h.Add(slot ?? "-");
+                }
             }
             if (Bags.Any(b => b is not null) || Inventory.Any(e => e.Bag != 0 || e.Slot != -1 || e.Locked || e.Junk))
             {

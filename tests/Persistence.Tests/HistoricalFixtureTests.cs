@@ -244,7 +244,7 @@ public class HistoricalFixtureTests
             // Schema 21's party (WP15a): the warden is in Aelin's hire, a crafter at the hearth, the draughts handed over renamed on load;
             // before it, everyone in the party was a companion, aggressive and keeping to the leash.
             Assert.Equal(schema >= 21
-                    ? (PartyMembership.Hireling, CompanionStance.Defensive, new PartyTactics(false, true, false), new HirelingContract(HirelingRole.Crafter, 10, 7, PartyRules.WageOnly)
+                    ? (PartyMembership.Hireling, CompanionStance.Defensive, new PartyTactics(false, true, false, FocusTarget: schema >= 34), new HirelingContract(HirelingRole.Crafter, 10, 7, PartyRules.WageOnly)
                     {
                         DaysServed = 3, UnpaidDays = 1, Purse = 21, WorkSite = "station.fixture_hearth", RecipeId = "recipe.alchemy.salve_minor",
                         Supply = ImmutableSortedDictionary.Create<string, int>(StringComparer.Ordinal).Add("item.potion.minor_healing", 2),

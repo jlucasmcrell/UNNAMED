@@ -240,7 +240,8 @@
         "tactics": {
           "keep_to_leash": false,
           "protect_injured": true,
-          "hold_healing": false
+          "hold_healing": false,
+          "focus_target": false
         },
         "contract": {
           "role": "crafter",
@@ -503,6 +504,8 @@
       ]
     ],
     "gear_sets": [],
+    "held_family": "",
+    "family_bars": [],
     "pack": {
       "bags": [
         null,
