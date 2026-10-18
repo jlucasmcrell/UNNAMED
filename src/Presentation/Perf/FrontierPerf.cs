@@ -18,6 +18,7 @@ public sealed class FrontierPerf
     private readonly CameraRig _camera;
     private readonly FrameStats _stats;
     private readonly Viewport _viewport;
+    private readonly string? _diagnosticHide;
     private readonly StringBuilder _renderCounts = new("segment,observed_frame,draw_calls,primitives,objects\n");
     private readonly StringBuilder _processPhases = new("observed_frame,segment,phase,ms\n");
     private readonly StringBuilder _slowSimulation = new("observed_frame,segment,ms,world_tick,ticks_run,autosave_taken,gc_pause_ms\n");
@@ -39,10 +40,23 @@ public sealed class FrontierPerf
         return ((long)Math.Round(x * 1000), (long)Math.Round(z * 1000));
     }
 
-    public FrontierPerf(GameSession session, PlayerController controller, CameraRig camera, Viewport viewport, string directory)
+    public FrontierPerf(GameSession session, PlayerController controller, CameraRig camera, Viewport viewport, string directory, string? diagnosticHide = null)
     {
         _session = session; _controller = controller; _camera = camera;
         _viewport = viewport;
+        _diagnosticHide = diagnosticHide;
+        if (diagnosticHide is not null)
+        {
+            string path = diagnosticHide switch
+            {
+                "scatter" => "Scatter", "ravine" => "Hollow/RavineDressing",
+                _ => throw new ArgumentException("--frontier-hide supports scatter or ravine, for diagnosis only"),
+            };
+            var hidden = viewport.GetTree().CurrentScene.GetNodeOrNull<Node3D>(path)
+                ?? throw new InvalidOperationException($"Diagnostic component not found: {path}");
+            hidden.Visible = false;
+            GD.Print($"FRONTIER DIAGNOSTIC ONLY: hidden {diagnosticHide}; this run cannot pass acceptance");
+        }
         Directory = directory;
         System.IO.Directory.CreateDirectory(directory);
         _stats = new FrameStats(viewport) { Segment = "warmup_yaw_000" };
@@ -163,7 +177,9 @@ public sealed class FrontierPerf
             ["region"] = _session.Setup.Layout.Id,
             ["seed"] = _session.Simulation!.World.WorldSeed.ToString(CultureInfo.InvariantCulture),
             ["ticks"] = $"{_startTick}..{_session.Simulation.WorldTick}",
-            ["result"] = _session.Simulation.Combat.Defeated ? "FAILED: character defeated" : "complete",
+            ["diagnostic_hide"] = _diagnosticHide ?? "none",
+            ["result"] = _session.Simulation.Combat.Defeated ? "FAILED: character defeated"
+                : _diagnosticHide is not null ? $"DIAGNOSTIC ONLY: hidden {_diagnosticHide}" : "complete",
         });
     }
 }

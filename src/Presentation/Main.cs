@@ -562,7 +562,8 @@ public partial class Main : Node3D
             SizeForCapture();
             Engine.MaxFps = 0;
             DisplayServer.WindowSetVsyncMode(DisplayServer.VSyncMode.Disabled);
-            _frontierPerf = new FrontierPerf(_session, _controller, _camera, GetViewport(), Path.GetFullPath(frontierPerf));
+            _frontierPerf = new FrontierPerf(_session, _controller, _camera, GetViewport(), Path.GetFullPath(frontierPerf),
+                _options.GetValueOrDefault("--frontier-hide"));
         }
         else if (_options.TryGetValue("--shot", out string? shotSpec))
         {
