@@ -31,6 +31,14 @@ public static partial class Outfit
             child.Free();
         foreach (var mesh in figure.Skeleton.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
         {
+            if (mesh.HasMeta(UnmaskedMesh))
+            {
+                var morphs = Enumerable.Range(0, mesh.GetBlendShapeCount()).Select(mesh.GetBlendShapeValue).ToArray();
+                mesh.Mesh = mesh.GetMeta(UnmaskedMesh).AsGodotObject() as Mesh;
+                mesh.RemoveMeta(UnmaskedMesh);
+                for (int shape = 0; shape < morphs.Length; shape++)
+                    mesh.SetBlendShapeValue(shape, morphs[shape]);
+            }
             mesh.SetInstanceShaderParameter("region_hidden_mask", 0);
             mesh.SetInstanceShaderParameter("source_hidden_mask", 0);
         }
@@ -60,12 +68,14 @@ public static partial class Outfit
             int sourceHides = json.RootElement.TryGetProperty("occlusion_mask", out var sourceMask) ? sourceMask.GetInt32() : 0;
             if (sourceHides is < 0 or > 1023)
                 throw new InvalidDataException($"{spec}: occlusion_mask must fit the ten exact UV bits");
-            if (json.RootElement.TryGetProperty("chains", out var chains))
-                Springs(figure.Skeleton, id, chains);
             CharacterMaterials.ApplyLods(model);
             var sourceSkeleton = ArtLibrary.Find<Skeleton3D>(model);
             var namedSkins = new Dictionary<Skin, Skin>();
             var meshes = model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>().ToList();
+            if (sourceSkeleton is not null)
+                GarmentBones(figure.Skeleton, sourceSkeleton, meshes);
+            if (json.RootElement.TryGetProperty("chains", out var chains))
+                Springs(figure.Skeleton, id, chains);
             foreach (var mesh in meshes)
             {
                 // Modular exports can number the same bones differently. Godot's
@@ -110,6 +120,7 @@ public static partial class Outfit
         int allSources = worn.Aggregate(0, (mask, g) => mask | g.SourceHides);
         foreach (var mesh in skin)
         {
+            MaskMesh(mesh, all, allSources);
             mesh.SetInstanceShaderParameter("region_hidden_mask", all);
             mesh.SetInstanceShaderParameter("source_hidden_mask", allSources);
         }
@@ -119,6 +130,7 @@ public static partial class Outfit
             int overSources = worn.Where(g => g.Layer > layer).Aggregate(0, (mask, g) => mask | g.SourceHides);
             foreach (var mesh in meshes)
             {
+                MaskMesh(mesh, over, overSources);
                 mesh.SetInstanceShaderParameter("region_hidden_mask", over);
                 mesh.SetInstanceShaderParameter("source_hidden_mask", overSources);
             }
@@ -126,10 +138,16 @@ public static partial class Outfit
         return worn.Count;
     }
 
-    // Colliders the loose cloth swings round, each from a leg bone to its child joint. The skeleton keeps UE's joint frames - a limb
+    // Colliders the loose cloth swings round, each between two body joints. The skeleton keeps UE's joint frames - a limb
     // runs along -X on the left and +X on the right - so each capsule is built from the rest offset to the child, not a fixed axis.
-    private static readonly (string Bone, string Child, float Radius)[] LegCapsules =
-        { ("thigh_l", "calf_l", 0.085f), ("thigh_r", "calf_r", 0.085f), ("calf_l", "foot_l", 0.06f), ("calf_r", "foot_r", 0.06f) };
+    private static readonly (string Bone, string Child, float Radius)[] ClothCapsules =
+    {
+        ("thigh_l", "calf_l", 0.10f), ("thigh_r", "calf_r", 0.10f),
+        ("calf_l", "foot_l", 0.075f), ("calf_r", "foot_r", 0.075f),
+        ("pelvis", "spine_03", 0.165f), ("spine_03", "spine_05", 0.165f),
+        ("upperarm_l", "lowerarm_l", 0.055f), ("upperarm_r", "lowerarm_r", 0.055f),
+        ("lowerarm_l", "hand_l", 0.045f), ("lowerarm_r", "hand_r", 0.045f),
+    };
 
     /// <summary>One spring simulator for a garment's chains: every chain of the skeleton whose bones are <c>&lt;prefix&gt;[_n]_&lt;k&gt;</c>.</summary>
     private static void Springs(Skeleton3D skeleton, string garment, JsonElement chains)
@@ -159,17 +177,18 @@ public static partial class Outfit
             springs.SetStiffness(i, (float)spec.GetProperty("stiffness").GetDouble());
             springs.SetDrag(i, (float)spec.GetProperty("drag").GetDouble());
             springs.SetGravity(i, (float)spec.GetProperty("gravity").GetDouble());
-            springs.SetRadius(i, 0.02f);
+            springs.SetRadius(i, spec.TryGetProperty("radius", out var radius) ? radius.GetSingle() : 0.02f);
             springs.SetEnableAllChildCollisions(i, true);
         }
         if (OS.GetEnvironment("UNNAMED_SPRING_PROBE") == "1")
             springs.AddChild(new SpringProbe { Chains = settings.Select(c => c.End).ToArray() });
-        foreach (var (bone, child, radius) in LegCapsules)
+        foreach (var (bone, child, radius) in ClothCapsules)
         {
             int at = skeleton.FindBone(child);
             if (skeleton.FindBone(bone) < 0 || at < 0)
                 continue;
-            var along = skeleton.GetBoneRest(at).Origin;
+            var along = (skeleton.GetBoneGlobalRest(skeleton.FindBone(bone)).AffineInverse()
+                * skeleton.GetBoneGlobalRest(at)).Origin;
             springs.AddChild(new SpringBoneCollisionCapsule3D
             {
                 BoneName = bone, Radius = radius, Height = along.Length() + 2 * radius, PositionOffset = along / 2,
