@@ -1,5 +1,6 @@
 {
   "comment": "CAIRNWOLD's own art, layered over the shared bindings: the game merges this file onto art_bindings.json key by key, so the HUD, the icons, the effect sheets and the audio beds are the ones every region uses and only the world is this region's. A structure_prefixes key matches every placement whose id starts with it and picks one of its models per placement, which is how 90 birches share two trees. A building_walls key instead GATHERS every placement under it into one building, which is how Ashen Hollow builds a longhouse from four thin wall runs - so each cottage here has a key of its own.",
+  "roof_groups": ["longhouse", "forge", "cw_smithy", "cw_granary", "cw_longhouse", "cw_house_05", "cw_house_01", "cw_house_02", "cw_house_04", "cw_house_06", "cw_house_03", "cw_house_07"],
   "structure_prefixes": {
     "cw_birch_": {
       "models": [
