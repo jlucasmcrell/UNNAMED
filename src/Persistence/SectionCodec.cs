@@ -127,6 +127,33 @@ public sealed class PlayerDto
     /// older saves none: nothing recorded what an experiment came to before.
     /// </summary>
     [Key("findings")] public FindingDto[]? Findings { get; set; }
+
+    /// <summary>
+    /// Required from schema 32 (action bars): action bars 2 to 6, five bars of twelve slots, each a definition ID or nil. The first bar is
+    /// <see cref="QuickBar"/>, widened to twelve slots at 32. The 31 -> 32 step gives older saves five empty bars.
+    /// </summary>
+    [Key("extra_bars")] public string?[][]? ExtraBars { get; set; }
+
+    /// <summary>Required from schema 32 (gear sets): the character's saved outfits, by place. The 31 -> 32 step gives older saves none.</summary>
+    [Key("gear_sets")] public GearSetDto[]? GearSets { get; set; }
+}
+
+/// <summary>A gear set (schema 32): its place (1 to 10), its name and the pieces it wears.</summary>
+[MessagePackObject]
+public sealed class GearSetDto
+{
+    [Key("index")] public int Index { get; set; }
+    [Key("name")] public string Name { get; set; } = "";
+    [Key("items")] public GearSetItemDto[] Items { get; set; } = Array.Empty<GearSetItemDto>();
+}
+
+/// <summary>A piece of a gear set: the equipment slot, the item's instance ID and its definition.</summary>
+[MessagePackObject]
+public sealed class GearSetItemDto
+{
+    [Key("slot")] public string Slot { get; set; } = "";
+    [Key("item")] public string Item { get; set; } = "";
+    [Key("def")] public string Def { get; set; } = "";
 }
 
 /// <summary>A Finding (schema 31): what came of it, where, about which recipe, with which carried items, and when.</summary>
@@ -956,6 +983,12 @@ public static class SectionCodec
             : new AttackDto { Source = attack.Source, StartTick = attack.StartTick, Struck = attack.Struck.Select(e => e.Value).ToArray() },
         SpaceId = player.SpaceId,
         SpaceTraversal = player.SpaceTraversal,
+        ExtraBars = player.ExtraBars.Select(bar => bar.ToArray()).ToArray(),
+        GearSets = player.GearSets.Select(g => new GearSetDto
+        {
+            Index = g.Index, Name = g.Name,
+            Items = g.Items.Select(i => new GearSetItemDto { Slot = EquipSlots.Key(i.Slot), Item = i.Item.Value, Def = i.DefId }).ToArray(),
+        }).ToArray(),
         Findings = player.Findings.Select(f => new FindingDto
         {
             Kind = FindingKeys.Key(f.Kind), Station = f.StationKey, StationKind = f.StationKind, Recipe = f.RecipeId,
@@ -1030,6 +1063,8 @@ public static class SectionCodec
         var quickBar = dto.QuickBar ?? throw new FormatException("player.msgpack has no quick bar (required from schema 23)");
         var spaceId = dto.SpaceId ?? throw new FormatException("player.msgpack has no space (required from schema 30)");
         var findings = dto.Findings ?? throw new FormatException("player.msgpack has no findings (required from schema 31)");
+        var extraBars = dto.ExtraBars ?? throw new FormatException("player.msgpack has no further action bars (required from schema 32)");
+        var gearSets = dto.GearSets ?? throw new FormatException("player.msgpack has no gear sets (required from schema 32)");
         var sheets = dto.PartySheets ?? throw new FormatException("player.msgpack has no party sheets (required from schema 25)");
         var pronouns = PronounKeys.Parse(identity.Pronouns) ?? throw new FormatException($"player identity has pronouns '{identity.Pronouns}'");
         var stance = posture.Stance switch
@@ -1079,6 +1114,9 @@ public static class SectionCodec
                 : new AttackRecord(attack.Source, attack.StartTick, attack.Struck.Select(EntityId.Parse).ToImmutableArray()),
             SpaceId = SpaceId.Parse(spaceId).ToString(),
             SpaceTraversal = dto.SpaceTraversal,
+            ExtraBars = extraBars.Select(bar => bar.ToImmutableArray()).ToImmutableArray(),
+            GearSets = gearSets.Select(g => new GearSet(g.Index, g.Name,
+                g.Items.Select(i => new GearSetItem(EquipSlots.Parse(i.Slot), EntityId.Parse(i.Item), i.Def)).ToImmutableArray())).ToImmutableArray(),
             Findings = findings.Select(f => new Finding(FindingKeys.Parse(f.Kind) ?? throw new FormatException($"a finding at {f.Station} is '{f.Kind}'"),
                 f.Station, f.StationKind, f.Recipe, f.Materials.ToImmutableArray(), f.Tick)).ToImmutableArray(),
         };

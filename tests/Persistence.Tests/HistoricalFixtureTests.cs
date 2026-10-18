@@ -291,7 +291,24 @@ public class HistoricalFixtureTests
         Assert.Equal(PartyLedger.Empty, loaded.Player.Party);
         // Schema 23's quick bar (WP9): the firebolt on key 4 and the draught cleared off the bar, both under their current names; before
         // it, an empty bar with nothing cleared, which what she carries and knows fills once she is in the world.
-        Assert.Equal(schema >= 23 ? new string?[] { null, null, null, "spell.ember.bolt", null, null, null, null } : new string?[8], loaded.Player.QuickBar);
+        // Schema 32 widened it to twelve slots - an older bar keeps its eight where they were - and the writer put a gear-set switch on key 9.
+        Assert.Equal(schema >= 23 ? new string?[] { null, null, null, "spell.ember.bolt", null, null, null, null, schema >= 32 ? "gearset.set_1" : null, null, null, null } : new string?[12],
+            loaded.Player.QuickBar);
+        // Schema 32's further action bars and gear sets: the second bar holds the draught and the bolt, the sword is kept as an outfit; before it, five empty bars, no set.
+        Assert.Equal(schema >= 32
+                ? new string?[] { "item.potion.minor_healing", null, null, null, null, null, null, null, null, null, null, "spell.ember.bolt" }
+                : new string?[12], loaded.Player.ExtraBars[0]);
+        Assert.All(loaded.Player.ExtraBars.Skip(1), bar => Assert.All(bar, slot => Assert.Null(slot)));
+        if (schema >= 32)
+        {
+            var set = Assert.Single(loaded.Player.GearSets);
+            Assert.Equal((1, "Sword and board"), (set.Index, set.Name));
+            Assert.Equal(new GearSetItem(EquipSlot.MainHand, M2Fixtures.Historical.SwordId, "item.weapon.iron_sword"), Assert.Single(set.Items));
+        }
+        else
+        {
+            Assert.Empty(loaded.Player.GearSets);
+        }
         Assert.Equal(schema >= 23 ? new[] { "item.potion.minor_healing" } : Array.Empty<string>(), loaded.Player.QuickBarCleared);
         // Schema 18's persistent clock (WP11): saved at a known moment after a login that caught up a game day and a quarter; before it, the
         // moment the save was taken is its build_timestamp, to the second, and no login had caught anything up.

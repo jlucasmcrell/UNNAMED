@@ -209,7 +209,8 @@ public static class M2Fixtures
                 ImmutableArray.Create(new FactionStanding("faction.fixture.wardens", 100))),
             // Schema 23 (the quick bar, WP9): the firebolt on key 4, and the draught taken off key 1 on purpose - both renamed by the
             // current pack, so the renames must reach the bar and what was cleared off it.
-            QuickBar = ImmutableArray.Create<string?>(null, null, null, "spell.ember.firebolt", null, null, null, null),
+            // Schema 32 (action bars): twelve slots, the firebolt on key 4 as before and a switch to the first gear set on key 9.
+            QuickBar = ImmutableArray.Create<string?>(null, null, null, "spell.ember.firebolt", null, null, null, null, "gearset.set_1", null, null, null),
             QuickBarCleared = ImmutableArray.Create("item.potion.healing_draught"),
             // Schema 25 (WP15b): the warden's sheet - level 2 with 40 XP toward 3, one-hand blade 4 - wearing a sword Aelin loaned her in
             // the main hand, and keeping a healing draught of her own. The draught under the name it had then.
@@ -232,6 +233,12 @@ public static class M2Fixtures
             // Schema 27 (the soak's W4-SAVE-01): a swing of the sword in hand under way, begun at tick 4 995, that has struck the first
             // den wolf already.
             Attack = new AttackRecord("item.weapon.iron_sword", 4_995, ImmutableArray.Create(Creature(1))),
+            // Schema 32 (action bars and gear sets): the second bar holds the draught and the firebolt, and the sword is kept as an outfit.
+            ExtraBars = ImmutableArray.Create(
+                ImmutableArray.Create<string?>("item.potion.minor_healing", null, null, null, null, null, null, null, null, null, null, "spell.ember.bolt"),
+                Domain.Progression.QuickBar.Empty, Domain.Progression.QuickBar.Empty, Domain.Progression.QuickBar.Empty, Domain.Progression.QuickBar.Empty),
+            GearSets = ImmutableArray.Create(new GearSet(1, "Sword and board",
+                ImmutableArray.Create(new GearSetItem(EquipSlot.MainHand, SwordId, "item.weapon.iron_sword")))),
             // Schema 31 (UI progression F): what two experiments at the fixture hearth taught - one that came to nothing, one that hinted.
             Findings = ImmutableArray.Create(
                 new Finding(FindingKind.Nothing, "station.fixture_hearth", "hearth", null,

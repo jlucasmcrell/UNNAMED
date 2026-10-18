@@ -364,6 +364,40 @@ internal static class CanonicalState
                 json.WriteString("space_traversal", traversal);
             else
                 json.WriteNull("space_traversal");
+            // Schema 32 (action bars and gear sets): the five further bars, and the character's gear sets by place.
+            json.WriteStartArray("extra_bars");
+            foreach (var extra in player.ExtraBars)
+            {
+                json.WriteStartArray();
+                foreach (string? slot in extra)
+                {
+                    if (slot is null)
+                        json.WriteNullValue();
+                    else
+                        json.WriteStringValue(slot);
+                }
+                json.WriteEndArray();
+            }
+            json.WriteEndArray();
+            json.WriteStartArray("gear_sets");
+            foreach (var set in player.GearSets)
+            {
+                json.WriteStartObject();
+                json.WriteNumber("index", set.Index);
+                json.WriteString("name", set.Name);
+                json.WriteStartArray("items");
+                foreach (var item in set.Items)
+                {
+                    json.WriteStartObject();
+                    json.WriteString("slot", UNNAMED.Domain.Items.EquipSlots.Key(item.Slot));
+                    json.WriteString("item", item.Item.Value);
+                    json.WriteString("def", item.DefId);
+                    json.WriteEndObject();
+                }
+                json.WriteEndArray();
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
             // Schema 31 (UI progression F): what each experiment at a station taught, oldest first.
             json.WriteStartArray("findings");
             foreach (var finding in player.Findings)
