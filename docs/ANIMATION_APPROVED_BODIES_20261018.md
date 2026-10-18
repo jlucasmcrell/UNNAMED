@@ -35,7 +35,9 @@ Repeat the rendered sheet with `player=metahuman_m`. Each state is held at twelv
 
 ## Validation status
 
-Release Presentation build: zero errors. Presentation tests: 243 passed. Real-asset retarget invariants: both sexes, twelve phases passed. Native sheets and an original UE RigLogic pose reference are queued behind the rendered integration playthrough; visual acceptance remains pending.
+Release Presentation build: zero errors. Presentation tests: 243 passed. Real-asset retarget invariants: both sexes, twelve phases passed. Native profile sheets PASS: 108 pictures per sex (idle/walk/run, twelve phases, side/front/back), personally reviewed including all side phases. Clean captures have no script/input errors. Source actor upper-arm directions agree within 0.016 degrees on both sexes; the accepted stride and shoulders are preserved. Five UE RigLogic reference poses per sex (341 joints each) agree with the corresponding game core joint frames within 0.001 mm, including neck base and shoulder joints. Full default suite is running separately on frozen e1a98456 (the final C# runtime); later changes only affect the offline bake/check/docs.
 
 Private evidence: `D:\Otherreach_Scratch\body_posture_20261018`. Integration A's assets remain in `D:\Otherreach_Scratch\integration_20261018\assetbase`.
 
+
+Final run stage is locomotion_headchain_167, installed last over locomotion_final_167. All30 rebaked clip GLBs/records and source-map hashes are audited. Earlier neck-only captures are retained for comparison; they are superseded by shots/m and shots/f. New installed root: D:\Otherreach_Scratch\body_posture_20261018\assetbase (independent copies).
