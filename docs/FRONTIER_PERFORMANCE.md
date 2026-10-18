@@ -142,3 +142,41 @@ records ticks, autosave activity and GC pause time; no ticks or samples are remo
 On integration, bump the later Barrowworks native scene cache format and rebuild into a new owned
 asset root. Older cached scenes lack generated LOD indices and bypass the importer. Never rewrite
 the immutable shared primary or its junctioned texture cache.
+
+## Follow-up measurements, 2026-10-18 00:24
+
+This remains an unfinished performance branch. No location has passed the full owner gate.
+Original Debug-runtime captures and isolated optimized Release captures are separate arms;
+do not combine their timings. Both use native Terrain3D, High, 1920x1080 and the default Sky3D.
+
+The normal unprofiled drain pilot `drain_queries_prepared` reaches 34.3 FPS in its worst heading
+(mean GPU 26.374 ms). Navigation-grid preparation removes a first-use grid build from the live
+tick; immutable site lookup and creature-view reuse reduce repeated scans and allocation.
+The tick-1200 callback measures 26.118 ms with no GC pause there, still too costly. No sample,
+simulation tick or threshold is removed. Per-loader display-name caching reuses only the same
+YAML source and falls back to the parser after a source change.
+
+The tree-material pilot `drain_shared_tree_materials`, source `8d42e423`, reaches 37.5 FPS in
+its worst heading, with a 28.4 FPS 1% low and mean GPU 25.798 ms. Compared with the preceding
+drain pilot, that heading's draw calls fall from 9,405 to 8,066 while submitted primitives remain
+53.51 million. White-source wind materials share resources and keep tint, height, stiffness and
+OldLate as instance parameters; non-white factors retain their original colour product.
+This modest gain does not meet the performance target.
+
+The Cairnwold lodge pilot `cairnwold_lodge_opaque_occlusion`, source `d31df5f6`, reaches only
+34.8 FPS in its worst heading, versus the original baseline's 25.0 FPS. This comparison includes
+the preceding rendering fixes, so it does not isolate occlusion's contribution. Twelve occluders
+contain 508,963 exact opaque triangles. All eight screenshots have been inspected: the open
+door and window openings remain intact. The pilot still fails its lows and hitch gate.
+
+The latest core Release suite at `d31df5f6` passes 1,730 tests, with zero failures and three existing
+long-run skips. Rendering-only tree sharing additionally passes all 223 Presentation tests and
+the native two-tree material check. Release content lint loads 410 definitions with zero errors;
+xref exits zero. Optimized candidate smoke passes with an identical save/load digest.
+Historical fixture bytes remain unchanged. These checks are not a rendering acceptance pass.
+
+Remaining measurements: complete the frontier baseline sweep, repeat the defeated Blackvein
+stand at a safe nearby point in both arms, capture an unmodified full-native drain baseline,
+compare isolated Release arms, and measure diagnostic scatter/ravine masks before selecting
+further fixes. Component masks are explicitly labelled diagnostic-only and cannot pass acceptance.
+The official historical idle 3x Barrowworks option-off A/B remains pending the owner's quiet-window go.
