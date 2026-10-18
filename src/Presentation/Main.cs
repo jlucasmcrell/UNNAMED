@@ -102,6 +102,9 @@ public partial class Main : Node3D
     /// <summary>Where the body was last frame, for auto-run's blocked check.</summary>
     private (long X, long Z)? _autoRunFrom;
 
+    /// <summary>A harness is holding the compass on a picture: the frame leaves its marks alone.</summary>
+    private bool _compassPreview;
+
     /// <summary>Whether the player was in the exterior last frame, so entering or leaving a space is noticed.</summary>
     private bool _wasOutside = true;
 

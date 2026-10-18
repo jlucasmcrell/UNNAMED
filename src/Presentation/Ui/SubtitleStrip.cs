@@ -50,7 +50,7 @@ public sealed partial class SubtitleStrip : Control
         Foot = (GetParent()?.GetNodeOrNull<ActionBarsView>("ActionBars")?.Height ?? 160) + 8;
         var ui = SettingsStore.Current.Profile.Interface;
         var lines = ui.Subtitles ? _model.Lines(_clock) : Array.Empty<Caption>();
-        string signature = $"{ui.SubtitleSize}|{ui.SubtitleBackground}|{HudStyle.TextScale}|{(int)Foot}|{string.Join("/", lines.Select(l => SubtitleModel.Words(l)))}";
+        string signature = $"{(int)GetViewportRect().Size.Y}|{ui.SubtitleSize}|{ui.SubtitleBackground}|{HudStyle.TextScale}|{(int)Foot}|{string.Join("/", lines.Select(l => SubtitleModel.Words(l)))}";
         _rows.OffsetBottom = -Foot;
         if (signature == _shown)
             return;
@@ -63,7 +63,7 @@ public sealed partial class SubtitleStrip : Control
         float maxWidth = Math.Min(GetViewportRect().Size.X * 0.7f, 1100f);
         foreach (var caption in lines)
         {
-            int size = SubtitleModel.FontSize(20, HudStyle.TextScale, ui.SubtitleSize);
+            int size = SubtitleModel.FontSize(20, HudStyle.TextScale, ui.SubtitleSize, GetViewportRect().Size.Y);
             var row = new PanelContainer { SizeFlagsHorizontal = SizeFlags.ShrinkCenter, MouseFilter = MouseFilterEnum.Ignore };
             var box = new StyleBoxFlat { ContentMarginLeft = 14, ContentMarginRight = 14, ContentMarginTop = 4, ContentMarginBottom = 4 };
             box.BgColor = ui.SubtitleBackground switch

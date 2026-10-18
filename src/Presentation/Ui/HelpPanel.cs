@@ -34,6 +34,8 @@ public partial class HelpPanel : CanvasLayer
                 ("Guard, or aim the bow", new[] { "guard" }), ("Dodge", new[] { "dodge" }), ("Use a salve", new[] { "use" }),
                 ("Use a quick slot: an item, a formula", new[] { "quick_1", "quick_12" }),
                 ("Take all, from a container", new[] { "take_all" }),
+                ("Page the main bar (hold, then 1 to 6)", new[] { "bar_modifier" }),
+                ("Skip a line, or hold to fast-forward", new[] { "dialogue_skip" }),
             }),
         },
         new[]

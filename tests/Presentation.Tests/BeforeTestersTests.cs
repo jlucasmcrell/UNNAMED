@@ -218,7 +218,10 @@ public class BeforeTestersTests
     {
         Assert.Equal(20, SubtitleModel.FontSize(20, 1, 1));
         Assert.Equal(25, SubtitleModel.FontSize(20, 1, 1.25));
-        Assert.Equal(80, SubtitleModel.FontSize(20, 2, 2));   // 200 % text and the largest subtitles
+        // 200 % text and the largest subtitles would be 80 px: held to what three wrapped lines can take of a third of the screen, however short the screen.
+        Assert.Equal(46, SubtitleModel.FontSize(20, 2, 2));
+        Assert.Equal(23, SubtitleModel.FontSize(20, 2, 2, screenHeight: 540));   // 200 % interface scale: a 540-line screen
+        Assert.Equal(16, SubtitleModel.FontSize(20, 1, 1, screenHeight: 200));   // never under 16
         Assert.All(InterfacePrefs.SubtitleSizes, s => Assert.True(s >= 1));
     }
 

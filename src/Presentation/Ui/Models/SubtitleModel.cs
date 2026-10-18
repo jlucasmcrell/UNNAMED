@@ -57,6 +57,15 @@ public sealed class SubtitleModel
     /// </summary>
     public static string Words(Caption caption) => caption.Speaker.Length == 0 ? caption.Text : $"{caption.Speaker.ToUpperInvariant()}: {caption.Text}";
 
-    /// <summary>The font size a caption is set at: the base size times the player's text size and the subtitle size.</summary>
-    public static int FontSize(int baseSize, double textSize, double subtitleSize) => (int)Math.Round(baseSize * Math.Max(1, textSize) * subtitleSize);
+    /// <summary>
+    /// The font size a caption is set at: the base size times the player's text size and the subtitle size, but never so large that the
+    /// <see cref="MaxLines"/> lines, each wrapped to two, could stand taller than a third of the screen (<paramref name="screenHeight"/>, in interface pixels) - at an
+    /// enlarged interface the screen is short, and captions that cover it are no captions. Never under 16.
+    /// </summary>
+    public static int FontSize(int baseSize, double textSize, double subtitleSize, double screenHeight = 1080)
+    {
+        int wanted = (int)Math.Round(baseSize * Math.Max(1, textSize) * subtitleSize);
+        int room = (int)(screenHeight / 3 / (MaxLines * 2 * 1.3));   // each of the lines may wrap to two
+        return Math.Max(16, Math.Min(wanted, room));
+    }
 }

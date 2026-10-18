@@ -5,6 +5,7 @@ using Godot;
 using UNNAMED.Persistence;
 using UNNAMED.Presentation.Settings;
 using UNNAMED.Presentation.Ui;
+using UNNAMED.Presentation.Ui.Models;
 using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Presentation;
@@ -311,6 +312,8 @@ public partial class Main
     {
         if (name != "escape")
             CloseScreens();
+        if (name != "compass")
+            _compassPreview = false;
         // "large_<screen>": that screen at the largest text and interface scale, in high contrast; "text_<screen>" at the largest text in
         // high contrast, the interface scale as it was (in memory only: a harness writes no preferences). Any other name puts them back.
         string? prefix = name.StartsWith("large_", StringComparison.Ordinal) ? "large_" : name.StartsWith("text_", StringComparison.Ordinal) ? "text_" : null;
@@ -322,7 +325,7 @@ public partial class Main
             if (_beforeLarge is { Profile.Interface: var ui })
                 SettingsStore.Set(_beforeLarge with
                 {
-                    Profile = _beforeLarge.Profile with { Interface = ui with { UiScale = prefix == "large_" ? 1.5f : ui.UiScale, TextSize = 2f, HighContrast = true } },
+                    Profile = _beforeLarge.Profile with { Interface = ui with { UiScale = prefix == "large_" ? 2f : ui.UiScale, TextSize = 2f, HighContrast = true } },
                 });
             _enlarged = prefix;
         }
@@ -358,6 +361,18 @@ public partial class Main
             case "bars_side":
                 // The action bars, pictured with two further bars shown, a gear set kept and its switch on the main bar (a harness preview).
                 BarsPreview(atSide: name == "bars_side");
+                break;
+            case "compass":
+                // The compass with both marks, held on a picture (a preview: no quest points there).
+                _compassPreview = true;
+                _hud.SetMarker(35);
+                _hud.SetNearestMarker(250);
+                _hud.SetMarkerWords(CompassMarkerModel.Words(new CompassMark("Renn Vale", 120, 35), new CompassMark("Sel Arien", 40, 250)));
+                break;
+            case "subtitles":
+                // Two captions as a bark and a spoken line show them (a preview: nobody speaks).
+                _hud.Say("Renn Vale", "Traveller. A bed, a meal, directions. Start with whichever keeps you upright.", 30);
+                _hud.Say("Kera Voss", "Mind the anvil, it bites.", 30);
                 break;
             case "announce_skill":
                 // The skill-up notice, pictured without waiting for a skill to rise (a preview: nothing is awarded).
