@@ -1,5 +1,22 @@
 # Frontier performance
 
+## Owner performance lock-in, 2026-10-18
+
+The owner waived the 60 FPS gate and directed a performance-only integration.
+`perf/locked` retains the proven pre-sky frontier work through `b185ea07`, plus
+native pixel-proven inactive-effect/absent-map shader specialization and the
+frame observer correction. WP7 sky/weather/calendar and every subsequent
+terrain/residency/batching/tree-shadow/quality experiment are excluded from this
+branch. Sky stays private until a separate comparison establishes no frame-time
+cost; it cannot delay this performance lock-in.
+
+High retains full vegetation density/reach, the original shadow atlas/filter,
+four sun cascades and original cloud resolution. No resolution reduction or
+hidden components. Save schema and fixture bytes are unchanged. The existing
+integration build, full tests, lint/xref and native functional/visual checks are
+still required. Report measured per-location results honestly; FPS below the
+former threshold is no longer a reason to reopen tuning.
+
 Base: `b809f3ae`, schema 30. Profiling and rendering corrections in progress; no performance pass claimed.
 
 ## Resume on schema 31 (2026-10-18)

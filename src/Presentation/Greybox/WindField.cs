@@ -219,7 +219,9 @@ void vertex() {
     float tall = plant_height * sqrt(scale2);
     float h = clamp(COLOR.r, 0.0, 1.0);
     float phase = fract(sin(dot(origin.xz, vec2(12.9898, 78.233))) * 43758.5453);
+#ifndef STATIC_FOLIAGE
     float wind_time = TIME;   // see TreeShader: the motion vectors need TIME
+#endif
 #ifdef OTHERWORLD
     // The place's strangeness (ScatterView puts it in the custom data's alpha), each plant its own share of it, so a stand is not
     // wrong all at once.
@@ -228,8 +230,11 @@ void vertex() {
     ow_place = VERTEX * sqrt(scale2) + origin * 0.37;
 #endif
     // A breath late: up to 1.6 s behind the gust its neighbours answer.
+#ifndef STATIC_FOLIAGE
     wind_time -= ow_late * strange * 1.6;
 #endif
+#endif
+#ifndef STATIC_FOLIAGE
     float gust = 0.5 + 0.5 * sin(wind_time * 212.0 * CYCLE - dot(origin.xz, wind.xz) * 0.045);
     float sway = sin(wind_time * 917.0 * CYCLE + phase * 6.2832) * 0.65 + sin(wind_time * 1776.0 * CYCLE + phase * 11.0 + COLOR.g * 3.0) * 0.35;
     float amount = wind.w * mix(1.0, 0.35 + 1.3 * gust, wind_gust) * h * h / max(stiffness, 0.05);
@@ -239,12 +244,15 @@ void vertex() {
     // The bend is in the world; the plant is turned and uniformly scaled: carry it back into the model's space.
     VERTEX += transpose(basis) * bend / scale2;
     VERTEX.y -= amount * amount * 0.08 * plant_height;
+#endif
+#ifndef NO_FOLIAGE_THINNING
     if (thin_to > 0.0) {
         float keep = 1.0 - smoothstep(thin_from, thin_to, distance(origin, CAMERA_POSITION_WORLD));
         if (fract(sin(dot(origin.xz, vec2(41.37, 17.91))) * 23421.631) >= keep) {
             VERTEX = vec3(0.0);   // every vertex on the origin: the plant draws nothing
         }
     }
+#endif
 }
 
 void fragment() {
@@ -281,6 +289,7 @@ void fragment() {
     ALPHA = a.a;
     ALPHA_SCISSOR_THRESHOLD = alpha_cut;
 #endif
+#ifndef NO_FOLIAGE_ARM_MAP
     if (has_arm) {
         vec3 arm = texture(arm_tex, UV).rgb;
         // NO AO FROM THE FILE. ArtLibrary refuses to draw a model's baked occlusion - the generated and scanned
@@ -291,7 +300,9 @@ void fragment() {
         // 54.3 when these clumps replaced cards. The renderer's own occlusion does contact shading instead.
         AO = 1.0;
         ROUGHNESS = arm.g;
-    } else {
+    } else
+#endif
+    {
         ROUGHNESS = roughness_value;
     }
     SPECULAR = 0.3;
@@ -310,9 +321,11 @@ void fragment() {
 #endif
     }
 #endif
+#ifndef NO_FOLIAGE_NORMAL_MAP
     if (has_normal) {
         NORMAL_MAP = texture(normal_tex, UV).rgb;
     }
+#endif
     if (upright_normals && !FRONT_FACING) {
         NORMAL = -NORMAL;
     }
