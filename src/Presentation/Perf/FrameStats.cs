@@ -65,9 +65,10 @@ public sealed class FrameStats
             _skipNext = false;
             return;
         }
-        // The process working set is expensive to read; twice a second is plenty for a peak.
+        // Environment.WorkingSet uses the direct memory counter. Process.WorkingSet64
+        // cost 9.5 ms/read on BEAST and made the harness inject periodic frame spikes.
         if (_frame++ % 30 == 0)
-            _workingSetBytes = System.Diagnostics.Process.GetCurrentProcess().WorkingSet64;
+            _workingSetBytes = System.Environment.WorkingSet;
         _samples.Add(new Sample(
             Segment,
             delta * 1000,
