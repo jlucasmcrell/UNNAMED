@@ -133,7 +133,7 @@ public sealed class FrameStats
             ["minimum_fps"] = Math.Round(1000.0 / ms[^1], 1),
             ["frame_ms"] = Distribution(ms),
             ["frames_within_16_7_ms_percent"] = Math.Round(100.0 * ms.Count(v => v <= 1000.0 / 60) / ms.Count, 2),
-            ["hitches_over_33_ms"] = ms.Count(v => v > 1000.0 / 30),
+            ["hitches_over_33_ms"] = ms.Count(v => v > 33.0),
             ["hitches_over_twice_median"] = ms.Count(v => v > 2 * median),
             ["process_ms_worst_each_second"] = worstProcessEachSecond.Count > 0 ? Distribution(worstProcessEachSecond) : new Dictionary<string, double>(),
             ["render_cpu_ms"] = Distribution(frames.Select(f => f.RenderCpuMs).OrderBy(v => v).ToList()),
@@ -142,6 +142,7 @@ public sealed class FrameStats
             ["working_set_peak_mb"] = Math.Round(Mb(frames.Max(f => f.WorkingSetBytes)), 1),
             ["vram_peak_mb"] = Math.Round(Mb(frames.Max(f => f.VramBytes)), 1),
             ["sustained_60_fps_by_one_percent_low"] = Low(0.01) >= 60,
+            ["playtest_frame_budget_met"] = frames.Count / duration >= 60 && Low(.01) >= 45 && ms[^1] <= 33.0,
         };
     }
 

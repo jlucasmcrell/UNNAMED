@@ -194,6 +194,7 @@ public sealed class FrontierPerf
             ["clock"] = "Normal GameSession.Frame(delta), 20 Hz simulation; monotonic measured frame intervals",
             ["warmup"] = "Retain two boot intervals, then 10 seconds first heading; 3 seconds after each turn excluding screenshot readback. Warmup segments retained separately",
             ["capture"] = "12 seconds per heading; only the frame after screenshot readback is excluded",
+            ["acceptance_targets"] = "Every steady segment: average >=60 fps, 1% low >=45 fps, every retained frame <=33.0 ms; diagnostic exclusions never qualify",
             ["tier"] = VisualOptions.Tier,
             ["actual_msaa_3d"] = _viewport.Msaa3D.ToString(),
             ["actual_taa"] = _viewport.UseTaa.ToString(),

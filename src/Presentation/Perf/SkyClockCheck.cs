@@ -51,6 +51,14 @@ public partial class SkyClockCheck : Node3D
             SkyView.Advance(sim, mid);
             if (SkyView.Weather != blend || fog != air.FogDensity || energy != sky.Get("sun_energy").AsSingle() || wind != WindField.Strength)
                 throw new Exception("Mid-front reload/seek depends on rendered history");
+            RemoveChild(sky); sky.QueueFree();
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            air = new Godot.Environment { FogEnabled = true, FogDensity = .01f, VolumetricFogDensity = .02f };
+            sky = SkyView.BuildSky3D(this, air, new DirectionalLight3D(), out why) ?? throw new Exception(why);
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            SkyView.Advance(sim, mid);
+            if (SkyView.Weather != blend || fog != air.FogDensity || energy != sky.Get("sun_energy").AsSingle() || wind != WindField.Strength)
+                throw new Exception("Fresh sky at the same mid-front tick differs from the live sky");
             float Altitude(long day)
             {
                 SkyView.Advance(sim, clock.TickOfHour(day * clock.HoursPerDay + 12));
@@ -69,7 +77,7 @@ public partial class SkyClockCheck : Node3D
             SkyView.Advance(sim, samples[WeatherState.Fair]);
             if (Math.Abs(air.FogDensity - .01f) > .000001) throw new Exception("Fog compounded instead of restoring baseline");
             if (sim.WorldTick != 0) throw new Exception("Sky projection advanced the simulation");
-            GD.Print("SKY CLOCK CHECK PASS: all WP7 states, mid-front reload, season, absolute fog, world night key, world tick unchanged");
+            GD.Print("SKY CLOCK CHECK PASS: all WP7 states, mid-front seek and fresh sky rebuild, season, absolute fog, world night key, world tick unchanged");
             GetTree().Quit();
         }
         catch (Exception e) { GD.PushError(e.ToString()); GetTree().Quit(1); }

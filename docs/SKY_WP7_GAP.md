@@ -44,6 +44,7 @@ Do not add a mystery-solving cosmic event or make reserved Fold weather active.
 
 Proof needs same-place weather sequences, a day/night sequence, seasonal and moon
 comparisons, a save/reload mid-transition check, and a post-sky performance rerun.
+
 ## Implementation checkpoint
 
 SkyCycle now projects the continuous WP7 date into Sky3D's astronomical day,
@@ -57,5 +58,23 @@ are retained; additional moon periods (28/42 days) are artistic tuning, not cano
 The pure clock/blend checks and native SkyClockCheck pass, including repeatable
 mid-transition seeks, fog baseline restoration, seasonal sun movement and night
 key-light selection. SkyShots supplies weather, full-day, seasonal and moon-date
-sequences in the real scene. Rendered review and post-sky performance acceptance
-remain outstanding. This checkpoint is not an acceptance claim.
+sequences in the real scene.
+
+Rendered review: `D:\Otherreach_Scratch\frontier\sky\sky_d2fd8427` has 69 full-feature
+High/native-1080p screenshots. All five live weather types are visibly distinct:
+fair clears to blue, overcast darkens and softens the light, fog loses distant
+contrast, rain adds falling streaks, and wind changes cloud/vegetation movement.
+The full day progresses through dawn, daylight, dusk and a readable dark night.
+The original ground-level moon views were obstructed by scenery, so
+`D:\Otherreach_Scratch\frontier\sky\calendar_d80a9039` adds 57 calendar study shots
+with a clearly labelled camera 30 m above the same feet, fair weather pinned,
+ambient animals disabled, four bearings and a zenith view. These show changing
+moon discs and positions, the retained ring, galaxy and aurora, and continuous
+Hollow Day/Reckoning dates. Atmospheric moss lights remain in those study views;
+they are foreground particles, not additional celestial bodies. Original files
+and `sky_study.json` retain every projection tick and diagnostic condition.
+
+The native 1,090-frame headless smoke passes with an identical save/load digest;
+content lint and xref pass. Full serial tests and post-sky performance acceptance
+remain outstanding. The latest drain captures still fail the performance target;
+this checkpoint is not integration or playtest-wide acceptance.
