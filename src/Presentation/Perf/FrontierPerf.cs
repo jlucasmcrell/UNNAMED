@@ -20,6 +20,7 @@ public sealed class FrontierPerf
     private readonly Viewport _viewport;
     private readonly StringBuilder _renderCounts = new("segment,observed_frame,draw_calls,primitives,objects\n");
     private readonly StringBuilder _processPhases = new("observed_frame,segment,phase,ms\n");
+    private readonly StringBuilder _slowSimulation = new("observed_frame,segment,ms,world_tick,ticks_run,autosave_taken,gc_pause_ms\n");
     private readonly long _startTick;
     private ulong _lastUsec;
     private double _elapsed;
@@ -54,6 +55,15 @@ public sealed class FrontierPerf
     // Work in this callback contributes to the next monotonic interval, not an asserted GPU frame.
     public void Phase(string phase, ulong started) => _processPhases.Append(CultureInfo.InvariantCulture,
         $"{_stats.Count - 1},{_stats.Segment},{phase},{(Time.GetTicksUsec() - started) / 1000.0:0.###}\n");
+
+    public void SimulationPhase(ulong started, FrameResult frame, long gcPauseTicks)
+    {
+        double ms = (Time.GetTicksUsec() - started) / 1000.0;
+        Phase("simulation", started);
+        if (ms > 10)
+            _slowSimulation.Append(CultureInfo.InvariantCulture,
+                $"{_stats.Count - 1},{_stats.Segment},{ms:0.###},{_session.Simulation!.WorldTick},{frame.TicksRun},{frame.AutosaveTaken},{(GC.GetTotalPauseDuration().Ticks - gcPauseTicks) / (double)TimeSpan.TicksPerMillisecond:0.###}\n");
+    }
 
     public string? Update()
     {
@@ -99,6 +109,7 @@ public sealed class FrontierPerf
     {
         File.WriteAllText(Path.Combine(Directory, "render_counts.csv"), _renderCounts.ToString());
         File.WriteAllText(Path.Combine(Directory, "process_phases.csv"), _processPhases.ToString());
+        File.WriteAllText(Path.Combine(Directory, "slow_simulation.csv"), _slowSimulation.ToString());
         // An inventory, not a visibility claim: shadow cameras and MultiMesh bounds can submit
         // geometry outside the player camera. Keep the authored ranges and bounds to investigate it.
         var meshes = _viewport.GetTree().CurrentScene.FindChildren("*", "GeometryInstance3D", true, false)

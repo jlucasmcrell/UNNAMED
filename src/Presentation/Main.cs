@@ -1159,11 +1159,12 @@ public partial class Main : Node3D
         // the same run every time, whatever the frame rate.
         ulong sessionStarted = _barrowworksReview is null ? 0 : Time.GetTicksUsec();
         ulong simulationStarted = _frontierPerf is null ? 0 : Time.GetTicksUsec();
+        long gcPauseTicks = _frontierPerf is null ? 0 : GC.GetTotalPauseDuration().Ticks;
         var frame = _session.Frame(_smoke is not null || _connectedCheck is not null || (_barrowworksReview is not null && !_realtime) || (_play is not null && !_realtime) || _delta is not null || _survey is not null || _audit is not null || _auditAb is not null
             ? _session.TickSeconds : delta);
         _barrowworksReview?.Phase("simulation", sessionStarted);
         _ticksLastFrame = frame.TicksRun;
-        _frontierPerf?.Phase("simulation", simulationStarted);
+        _frontierPerf?.SimulationPhase(simulationStarted, frame, gcPauseTicks);
         bool outside = _session.Simulation!.PlayerInExterior;
         if (outside != _wasOutside)
         {
