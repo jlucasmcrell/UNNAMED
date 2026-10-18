@@ -297,7 +297,8 @@ public sealed class VisualAudit
         }
         if (shot.Near is { } near)
         {
-            var figure = _root.GetNodeOrNull(near.Under)?.GetChildren().OfType<Node3D>()
+            var group = _root.GetNodeOrNull(near.Under);
+            var figure = group is Art.SkinnedFigure person ? person : group?.GetChildren().OfType<Node3D>()
                 .MinBy(n => new Vector2(n.GlobalPosition.X - near.X, n.GlobalPosition.Z - near.Z).LengthSquared());
             if (figure is null)
                 throw new InvalidOperationException($"{shot.Name}: nothing under {near.Under}");
