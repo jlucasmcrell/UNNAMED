@@ -229,6 +229,9 @@ public partial class InventoryPanel : CanvasLayer
             if (definition is not null && WearWords.Chip(entry.Wear, definition.DurabilityMax) is { } wear)
                 row.Root.AddChild(UiKit.Chip(wear));
             bool usable = simulation.Setup.Combat.UseEffects.ContainsKey(entry.DefId);
+            // A usable thing is dragged from its row onto an action bar's slot.
+            if (usable)
+                ActionBarsView.Source(row.Root, entry.DefId, Names.Of(_session, entry.DefId));
             int q = quick.IndexOf(entry.DefId);
             if (q >= 0)
                 row.Root.AddChild(new HudView.KeyCap(HelpPanel.Key($"quick_{q + 1}"), 16));

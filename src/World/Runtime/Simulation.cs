@@ -236,6 +236,7 @@ public sealed class Simulation
     private readonly MarketSystem _markets;
     private readonly MerchantSystem _merchants;
     private readonly QuickBarSystem _quickBar;
+    private readonly GearSetSystem _gearSets;
     private readonly TeachingSystem _teaching;
     private readonly DurabilitySystem _durability;
     private readonly LadenSystem _laden;
@@ -332,6 +333,9 @@ public sealed class Simulation
         _weather = new WeatherSystem(_context, _state.Claim(nameof(WeatherSystem), StateSlice.Weather), new CellKey(_cells[0].Region, 0, 0));
         _factions = new FactionSystem(_context, _state.Claim(nameof(FactionSystem), StateSlice.Factions));
         _quickBar = new QuickBarSystem(_context, _state.Claim(nameof(QuickBarSystem), StateSlice.QuickBar), player.Id);
+        _gearSets = new GearSetSystem(_context, _state.Claim(nameof(GearSetSystem), StateSlice.GearSets), player.Id,
+            (command, tick) => _equipment.Handle(command, tick), (command, tick) => _equipment.Handle(command, tick),
+            () => _state.PlayerCombat.Action.PhaseAt(WorldTick, setup.Combat.Constants).Phase != CombatPhase.Idle || _creatures.Views().Any(c => c.Alive && c.Hostile));
         _teaching = new TeachingSystem(_context, player.Id, _dialogue.FactsOf, _npcs);
         _durability = new DurabilitySystem(_context, player.Id);
         _durability.Listen(bus);
@@ -605,6 +609,15 @@ public sealed class Simulation
     /// <summary>The eight quick slots (WP9): each empty, or the item, formula or technique it uses.</summary>
     public ImmutableArray<string?> QuickBar => _state.QuickBar;
 
+    /// <summary>The six action bars, the quick bar first, each twelve slots.</summary>
+    public ImmutableArray<ImmutableArray<string?>> ActionBars => _state.ActionBars;
+
+    /// <summary>The character's saved gear sets, by place.</summary>
+    public ImmutableArray<GearSet> GearSets => _state.GearSets;
+
+    /// <summary>A change of gear under way, or null.</summary>
+    public GearSwapView? GearSwap => _gearSets.Swap;
+
     /// <summary>What the character's experiments taught, oldest first (UI progression F).</summary>
     public ImmutableArray<Finding> Findings => _state.Findings;
 
@@ -784,6 +797,10 @@ public sealed class Simulation
                 BeginStoryCommand begin => _quests.Handle(begin, WorldTick),
                 ClaimBountyCommand claim => _quests.Handle(claim, WorldTick),
                 AssignQuickSlotCommand assign => _quickBar.Handle(assign, WorldTick),
+                SaveGearSetCommand save => _gearSets.Handle(save, WorldTick),
+                DeleteGearSetCommand delete => _gearSets.Handle(delete, WorldTick),
+                SwapGearSetCommand swap => _gearSets.Handle(swap, WorldTick),
+                CancelGearSwapCommand cancel => _gearSets.Handle(cancel, WorldTick),
                 RepairCommand repair => _durability.Handle(repair, WorldTick),
                 MerchantRepairCommand repair => _trade.Handle(repair, WorldTick),
                 JoinGroupCommand join => _lfg.Handle(join, WorldTick),
@@ -830,6 +847,7 @@ public sealed class Simulation
             _adventurers.Tick(tick);
             _markets.Tick(tick);
             _quickBar.Tick(tick);
+            _gearSets.Tick(tick);
             _lfg.Tick(tick);
             _chat.Tick(tick);
             _clock.Tick();
@@ -905,6 +923,8 @@ public sealed class Simulation
             Party = _companions.Ledger(),
             QuickBar = _state.QuickBar,
             QuickBarCleared = _state.QuickBarCleared.ToImmutableArray(),
+            ExtraBars = _state.ExtraBars,
+            GearSets = _state.GearSets,
             PartySheets = _sheets.Records(),
             Attack = _combat.AttackUnderWay(),
             Findings = _state.Findings,

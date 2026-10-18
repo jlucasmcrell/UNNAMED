@@ -7,11 +7,14 @@ using UNNAMED.Domain.Progression;
 
 namespace UNNAMED.World.Runtime;
 
-/// <summary>Put a usable item, a known formula or a known technique on a quick slot (0-7), or clear the slot (null).</summary>
-public sealed record AssignQuickSlotCommand(EntityId Actor, int Slot, string? DefinitionId) : GameCommand(Actor);
+/// <summary>
+/// Put a usable item, a known formula, a known technique or a saved gear set's switch on a slot (0-11) of an action bar (<see cref="Bar"/>, 0-5;
+/// 0 is the quick bar), or clear the slot (null).
+/// </summary>
+public sealed record AssignQuickSlotCommand(EntityId Actor, int Slot, string? DefinitionId, int Bar = 0) : GameCommand(Actor);
 
-/// <summary>A quick slot now holds <see cref="DefinitionId"/>, or nothing.</summary>
-public sealed record QuickSlotAssigned(int Slot, string? DefinitionId, long Tick);
+/// <summary>A slot of an action bar (the quick bar is 0) now holds <see cref="DefinitionId"/>, or nothing.</summary>
+public sealed record QuickSlotAssigned(int Slot, string? DefinitionId, long Tick, int Bar = 0);
 
 /// <summary>
 /// Owns: <see cref="StateSlice.QuickBar"/>. The player assigns the slots. What comes to hand is offered a free slot as it does: a usable
@@ -44,21 +47,25 @@ internal sealed class QuickBarSystem
     {
         if (command.Actor != _player)
             return $"unknown actor {command.Actor}";
+        if (command.Bar is < 0 or >= QuickBar.Bars)
+            return $"there is no action bar {command.Bar + 1}";
         if (command.Slot is < 0 or >= QuickBar.Slots)
-            return $"there is no quick slot {command.Slot + 1}";
+            return $"there is no slot {command.Slot + 1} on action bar {command.Bar + 1}";
         if (command.DefinitionId is { } id && Refusal(id) is { } refused)
             return refused;
-        var bar = QuickBar.Assign(State.QuickBar, command.Slot, command.DefinitionId);
-        if (bar.SequenceEqual(State.QuickBar))
+        var was = State.ActionBars[command.Bar];
+        var bar = QuickBar.Assign(was, command.Slot, command.DefinitionId);
+        if (bar.SequenceEqual(was))
             return null;
-        var was = State.QuickBar;
-        State.SetQuickBar(_owner, bar);
-        // What left the bar was cleared on purpose (a swap keeps both on it); what is on it now is not.
-        State.SetQuickBarCleared(_owner, State.QuickBarCleared.Union(was.OfType<string>()).Except(bar.OfType<string>()));
+        State.SetActionBar(_owner, command.Bar, bar);
+        // What left every bar was cleared on purpose (a swap keeps both on it); what is on one now is not.
+        var onBars = State.ActionBars.SelectMany(b => b).OfType<string>().ToHashSet(StringComparer.Ordinal);
+        State.SetQuickBarCleared(_owner, State.QuickBarCleared.Union(was.OfType<string>()).Where(id => !onBars.Contains(id) && !QuickBar.TryGearSet(id, out _))
+            .ToImmutableSortedSet(StringComparer.Ordinal));
         for (int slot = 0; slot < QuickBar.Slots; slot++)
         {
             if (bar[slot] != was[slot])
-                _context.Events.Publish(new QuickSlotAssigned(slot, bar[slot], tick));
+                _context.Events.Publish(new QuickSlotAssigned(slot, bar[slot], tick, command.Bar));
         }
         return null;
     }
@@ -67,7 +74,9 @@ internal sealed class QuickBarSystem
     private string? Refusal(string id)
     {
         if (!QuickBar.CanHold(id))
-            return $"{id} cannot go on the quick bar";
+            return $"{id} cannot go on an action bar";
+        if (QuickBar.TryGearSet(id, out int set))
+            return State.GearSets.Any(g => g.Index == set) ? null : $"there is no gear set {set}";
         if (id.StartsWith("item.", StringComparison.Ordinal))
             return _context.Setup.Combat.UseEffects.ContainsKey(id) ? null : $"{id} has no use";
         return ProgressionEngine.Knows(State.Progression, id) ? null : $"{id} is not known";
@@ -94,7 +103,7 @@ internal sealed class QuickBarSystem
             State.SetQuickBarCleared(_owner, State.QuickBarCleared.Except(dropped));
         foreach (var (id, order) in carried.Select(id => (id, QuickBar.ItemOrder)).Concat(workings.Select(id => (id, QuickBar.WorkingOrder))))
         {
-            if (!_offered.Add(id) || State.QuickBar.Contains(id) || State.QuickBarCleared.Contains(id))
+            if (!_offered.Add(id) || State.ActionBars.Any(b => b.Contains(id)) || State.QuickBarCleared.Contains(id))
                 continue;
             int slot = QuickBar.FreeSlot(State.QuickBar, order);
             if (slot < 0)

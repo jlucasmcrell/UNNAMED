@@ -102,8 +102,11 @@ public enum StateSlice
 
     /// <summary>The merchants' purses and restocks (S-36; WP14). In the world delta.</summary>
     Merchants,
-    /// <summary>What is on each of the eight quick slots (WP9).</summary>
+    /// <summary>What is on each slot of the six action bars (WP9; the quick bar is the first).</summary>
     QuickBar,
+
+    /// <summary>The character's saved gear sets (named outfits of the equipment). Saved with the player.</summary>
+    GearSets,
 
     /// <summary>Each past or present party member's progression, gear and belongings (WP15b). Saved with the player.</summary>
     PartySheets,
@@ -173,6 +176,8 @@ internal sealed class RuntimeState
         Recovering = player.Party.Recovering.ToImmutableSortedDictionary(r => r.NpcId, r => r.UntilTick, StringComparer.Ordinal);
         Fallen = player.Party.Fallen.ToImmutableSortedSet(StringComparer.Ordinal);
         QuickBar = player.QuickBar;
+        ExtraBars = player.ExtraBars;
+        GearSets = player.GearSets;
         QuickBarCleared = player.QuickBarCleared.ToImmutableSortedSet(StringComparer.Ordinal);
         PartySheets = player.PartySheets.ToImmutableSortedDictionary(p => p.NpcId, p => p, StringComparer.Ordinal);
         Findings = player.Findings;
@@ -217,6 +222,15 @@ internal sealed class RuntimeState
     /// <summary>Hirelings who died in the character's service (DN9; part of the companions' slice): never put back in the world.</summary>
     public ImmutableSortedSet<string> Fallen { get; private set; }
     public ImmutableArray<string?> QuickBar { get; private set; }
+
+    /// <summary>Action bars 2 to 6 (part of the quick bar's slice).</summary>
+    public ImmutableArray<ImmutableArray<string?>> ExtraBars { get; private set; }
+
+    /// <summary>The character's gear sets, by place.</summary>
+    public ImmutableArray<GearSet> GearSets { get; private set; }
+
+    /// <summary>The six action bars, the quick bar first.</summary>
+    public ImmutableArray<ImmutableArray<string?>> ActionBars => ExtraBars.Insert(0, QuickBar);
 
     /// <summary>What the player cleared off the quick bar on purpose (part of the quick bar's slice): not offered a slot while held.</summary>
     public ImmutableSortedSet<string> QuickBarCleared { get; private set; }
@@ -322,7 +336,7 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.QuickBar);
         if (!Domain.Progression.QuickBar.IsValid(bar))
-            throw new InvalidOperationException("A quick bar is eight slots, each empty or holding one item, formula or technique once");
+            throw new InvalidOperationException("A quick bar is twelve slots, each empty or holding one item, formula, technique or gear-set switch once");
         QuickBar = bar;
     }
 
@@ -330,6 +344,28 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Findings);
         Findings = findings;
+    }
+
+    /// <summary>Replace action bar <paramref name="bar"/> (0 to 5; 0 is the quick bar).</summary>
+    public void SetActionBar(SliceOwner owner, int bar, ImmutableArray<string?> slots)
+    {
+        if (bar == 0)
+        {
+            SetQuickBar(owner, slots);
+            return;
+        }
+        Require(owner, StateSlice.QuickBar);
+        if (bar is < 0 or >= Domain.Progression.QuickBar.Bars || !Domain.Progression.QuickBar.IsValid(slots))
+            throw new InvalidOperationException("An action bar is twelve slots, each empty or holding one item, formula, technique or gear-set switch once");
+        ExtraBars = ExtraBars.SetItem(bar - 1, slots);
+    }
+
+    public void SetGearSets(SliceOwner owner, ImmutableArray<GearSet> sets)
+    {
+        Require(owner, StateSlice.GearSets);
+        if (!GearSetRules.IsValid(sets))
+            throw new InvalidOperationException("Gear sets are at most ten, each place once, named, wearing each slot and item once");
+        GearSets = sets;
     }
 
     public void SetQuickBarCleared(SliceOwner owner, ImmutableSortedSet<string> cleared)

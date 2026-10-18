@@ -126,6 +126,42 @@ public class ClientPrefsTests
     }
 
     [Fact]
+    public void ThePageKeys_ShareTheDigitsAndShiftWithSlotsAndSprint_ButTwoSlotsOnOneKeyConflict()
+    {
+        // Shift pages the bar with 1 to 6 held: the digit is a slot's key and a page's, Shift is the sprint and the page modifier - no conflicts.
+        var map = new Dictionary<string, string[]>
+        {
+            ["quick_1"] = new[] { "key:49" }, ["bar_page_1"] = new[] { "key:49" }, ["sprint"] = new[] { "key:4194325" },
+            ["bar_modifier"] = new[] { "key:4194325" }, ["bar_scroll_modifier"] = new[] { "key:4194328" }, ["gear_set_1"] = Array.Empty<string>(),
+        };
+        Assert.Empty(Binding.Conflicts(map));
+        // But a slot moved onto another slot's key, or a page onto another page's, is one.
+        map["quick_2"] = new[] { "key:49" };
+        Assert.Equal(new[] { "quick_1", "quick_2" }, Assert.Single(Binding.Conflicts(map)).Actions);
+        map["quick_2"] = new[] { "key:50" };
+        map["bar_page_2"] = new[] { "key:49" };
+        Assert.Equal(new[] { "bar_page_1", "bar_page_2" }, Assert.Single(Binding.Conflicts(map)).Actions);
+    }
+
+    [Fact]
+    public void BarPrefs_RoundTrip_AndOnlyTheFiveFurtherBarsCanBeShown()
+    {
+        var prefs = new ClientPrefs { Profile = new ProfilePrefs { Interface = new InterfacePrefs { BarsLocked = true, BarsShown = 0b100101, BarsAtSide = true } } };
+        var back = ClientPrefs.FromJson(prefs.ToJson()).Normalised().Profile.Interface;
+        Assert.True(back.BarsLocked);
+        Assert.True(back.BarsAtSide);
+        Assert.Equal(0b00101, back.BarsShown);
+    }
+
+    [Fact]
+    public void ThePageWraps_AroundTheSixBars()
+    {
+        Assert.Equal(5, UNNAMED.Presentation.Ui.ActionBarModel.Page(0, -1));
+        Assert.Equal(0, UNNAMED.Presentation.Ui.ActionBarModel.Page(5, 1));
+        Assert.Equal(3, UNNAMED.Presentation.Ui.ActionBarModel.Page(1, 2));
+    }
+
+    [Fact]
     public void TheNumberKeys_AnswerInAConversation_AndUseQuickSlotsOutsideOne()
     {
         // Two contexts, no conflict (PJ03 §7) - but Escape is live in both, so a reply on it would be one.

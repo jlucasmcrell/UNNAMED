@@ -76,6 +76,8 @@ public partial class CharacterPanel : CanvasLayer
                            string.Join(",", view.Equipment.Select(kv => $"{kv.Key}:{kv.Value}")) + "|" +
                            string.Join(",", view.Inventory.Where(e => e.Wear is not null).Select(e => $"{e.ItemId}:{e.Wear!.Points}")) + "|" +
                            string.Join(",", simulation.Combat.Effects.Select(e => $"{e.EffectId}x{e.Stacks}")) + $"|{simulation.Combat.Strained}|" +
+                           string.Join(",", ActionBarModel.GearSets(simulation, id => id).Select(g => $"{g.Index}:{g.Name}:{g.Pieces}:{string.Join('+', g.Missing)}:{g.Worn}:{g.Swapping}")) +
+                           $"|{view.Inventory.Length}|{simulation.GearSwap?.DueTick}|" +
                            string.Join(",", _weighing.Select(kv => $"{kv.Key}{kv.Value}"));
         if (signature == _drawn)
             return;
@@ -304,6 +306,7 @@ public partial class CharacterPanel : CanvasLayer
         if (view.Equipment.IsEmpty)
             worn.AddChild(UiKit.Quiet("Nothing - bare hands and what you stand in."));
         column.AddChild(worn);
+        column.AddChild(GearSetsSection(view));
 
         var practised = UiKit.Section("Practised", "skills grow by use");
         foreach (var (id, skill) in view.Progression.Skills.OrderByDescending(s => s.Value.Level).ThenBy(s => s.Key, StringComparer.Ordinal).Take(4))
@@ -347,6 +350,82 @@ public partial class CharacterPanel : CanvasLayer
         column.AddChild(known);
         return column;
     }
+
+    private string _setName = string.Empty;
+    private bool _nameFocused;
+
+    /// <summary>
+    /// The gear sets (up to ten): what is worn kept under a name, and put back on with a switch that takes a moment - longer in a fight. A
+    /// set whose pieces are no longer carried says which, and puts on the rest. A row can be dragged onto an action bar to switch from it.
+    /// </summary>
+    private Control GearSetsSection(PlayerView view)
+    {
+        var session = _session!;
+        var simulation = session.Simulation!;
+        var section = UiKit.Section("Gear sets", $"a switch takes {GearSetRules.CalmSeconds:0} s, {GearSetRules.CombatSeconds:0} s in a fight");
+        var rows = ActionBarModel.GearSets(simulation, id => Names.Of(session, id));
+        if (rows.IsEmpty)
+            section.AddChild(UiKit.Quiet("None kept. Dress as you like, name it, and keep it."));
+        var player = simulation.PlayerId;
+        foreach (var row in rows)
+        {
+            var line = new HBoxContainer();
+            line.AddThemeConstantOverride("separation", 8);
+            var name = UiKit.Words(row.Name, 18);
+            name.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+            line.AddChild(name);
+            line.AddChild(UiKit.Caption($"Set {row.Index}"));
+            if (row.Swapping)
+                line.AddChild(UiKit.Chip("Changing", HudStyle.Ember));
+            else if (row.Worn)
+                line.AddChild(UiKit.Chip("Worn", HudStyle.Lichen));
+            else
+            {
+                int index = row.Index;
+                line.AddChild(UiKit.Action("Switch", () => session.Submit(new SwapGearSetCommand(player, index)), compact: true, id: $"gearset/{index}/switch"));
+            }
+            int at = row.Index;
+            line.AddChild(UiKit.Action("Update", () => session.Submit(new SaveGearSetCommand(player, at, row.Name)), compact: true, id: $"gearset/{at}/update"));
+            line.AddChild(UiKit.Action("Delete", () => session.Submit(new DeleteGearSetCommand(player, at)), compact: true, id: $"gearset/{at}/delete"));
+            ActionBarsView.Source(line, UNNAMED.Domain.Progression.QuickBar.GearSetId(row.Index), row.Name);
+            section.AddChild(line);
+            if (!row.Complete)
+                section.AddChild(UiKit.Words($"Not carried: {string.Join(", ", row.Missing)}", 16, HudStyle.Wound));
+        }
+        if (simulation.GearSwap is { } swap)
+            section.AddChild(UiKit.Words($"Changing gear: done in {Math.Max(0, swap.DueTick - simulation.WorldTick) * session.TickSeconds:0.0} s", 16, HudStyle.Ember));
+        var entry = new HBoxContainer();
+        entry.AddThemeConstantOverride("separation", 8);
+        var edit = new LineEdit { PlaceholderText = "Name this set", Text = _setName, MaxLength = GearSetRules.MaxNameLength, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        edit.TextChanged += text => _setName = text;
+        edit.FocusEntered += () => _nameFocused = true;
+        edit.FocusExited += () => _nameFocused = false;
+        entry.AddChild(edit);
+        entry.AddChild(UiKit.Action("Keep what I wear", () =>
+        {
+            string? clean = GearSetRules.CleanName(_setName);
+            int index = rows.FirstOrDefault(r => r.Name == clean)?.Index ?? Enumerable.Range(1, GearSetRules.MaxSets).FirstOrDefault(i => rows.All(r => r.Index != i));
+            if (clean is null)
+                _lastWords = "Give the set a name first.";
+            else if (index == 0)
+                _lastWords = "All ten places are used: update or delete one.";
+            else
+            {
+                session.Submit(new SaveGearSetCommand(player, index, clean));
+                _setName = string.Empty;
+                _lastWords = null;
+            }
+            _drawn = string.Empty;
+        }, compact: true, id: "gearset/new"));
+        section.AddChild(entry);
+        if (_lastWords is { } words)
+            section.AddChild(UiKit.Words(words, 16, HudStyle.Wound));
+        if (_nameFocused)
+            Callable.From(() => edit.GrabFocus()).CallDeferred();
+        return section;
+    }
+
+    private string? _lastWords;
 
     /// <summary>
     /// Every equipment slot as a tile, two rows of five in the slots' own order: what is worn in its own icon and bright frame, an empty

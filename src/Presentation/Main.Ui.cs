@@ -39,6 +39,13 @@ public partial class Main
         _skills = new SkillsPanel { Name = "Skills", Assign = AssignQuickSlot, NearStation = () => _inventory.OpenStation?.Kind };
         _skills.Bind(_session);
         AddChild(_skills);
+        if (_hud.Bars is { } bars)
+        {
+            // The bars only ask: every change is a command, and the world keeps running while they are edited.
+            bars.Assign = AssignActionSlot;
+            bars.Use = UseActionSlot;
+            bars.PageTo = page => _barPage = page;
+        }
         _help = new HelpPanel { Name = "Help", DeveloperKeys = _developer, Files = $"Saves: {profile}\nThe log, to send with a problem report: {LogPath}" };
         GD.Print($"UNNAMED files: saves in {profile}; the log at {LogPath}");
         AddChild(_help);
@@ -347,6 +354,11 @@ public partial class Main
             case "skills_map":
                 ShowSkills(SkillsPanel.Map);
                 break;
+            case "bars":
+            case "bars_side":
+                // The action bars, pictured with two further bars shown, a gear set kept and its switch on the main bar (a harness preview).
+                BarsPreview(atSide: name == "bars_side");
+                break;
             case "announce_skill":
                 // The skill-up notice, pictured without waiting for a skill to rise (a preview: nothing is awarded).
                 _hud.Toast("Skill: One-hand Blade 4", 3);
@@ -401,6 +413,29 @@ public partial class Main
                 // "settings" opens its first page, "settings_controls" that page.
                 _settings.Open(name.Length > 9 ? name[9..] : "display");
                 break;
+        }
+    }
+
+    /// <summary>
+    /// The harness's picture of the action bars: bars 2 and 3 shown (stacked above the main bar, or at the right edge), the worn set kept as
+    /// gear set 1 and switched to from slot 9, and a few things put on the second bar - every change the way the player makes it, by command.
+    /// </summary>
+    private void BarsPreview(bool atSide)
+    {
+        var prefs = SettingsStore.Current;
+        SettingsStore.Set(prefs with { Profile = prefs.Profile with { Interface = prefs.Profile.Interface with { BarsShown = 0b00011, BarsAtSide = atSide } } });
+        if (_session.Simulation is not { } simulation)
+            return;
+        var player = simulation.PlayerId;
+        if (simulation.GearSets.IsEmpty)
+        {
+            _session.Submit(new SaveGearSetCommand(player, 1, "Field kit"));
+            _session.Submit(new AssignQuickSlotCommand(player, 8, UNNAMED.Domain.Progression.QuickBar.GearSetId(1)));
+            int slot = 0;
+            foreach (string id in simulation.QuickBar.OfType<string>().Where(i => !UNNAMED.Domain.Progression.QuickBar.TryGearSet(i, out _)).Take(3))
+                _session.Submit(new AssignQuickSlotCommand(player, slot++, id, 1));
+            foreach (string id in simulation.Player.Progression.Known.Keys.Where(k => _session.Setup.Techniques.ContainsKey(k) || _session.Setup.Magic.Formulas.ContainsKey(k)).Take(4))
+                _session.Submit(new AssignQuickSlotCommand(player, slot++, id, 2));
         }
     }
 
@@ -540,10 +575,20 @@ public partial class Main
     }
 
     /// <summary>A quick slot given something to use, or cleared: the command, as the Skills screen and the inventory ask for it (WP9).</summary>
-    private void AssignQuickSlot(int slot, string? id)
+    private void AssignQuickSlot(int slot, string? id) => AssignActionSlot(0, slot, id);
+
+    /// <summary>A slot of any of the six bars given something to use, or cleared (the bars' drag and drop, and the right click).</summary>
+    private void AssignActionSlot(int bar, int slot, string? id)
     {
         if (_session.Simulation is { } simulation)
-            _session.Submit(new AssignQuickSlotCommand(simulation.PlayerId, slot, id));
+            _session.Submit(new AssignQuickSlotCommand(simulation.PlayerId, slot, id, bar));
+    }
+
+    /// <summary>A bar's slot clicked: used as its key would use it.</summary>
+    private void UseActionSlot(int bar, int slot)
+    {
+        if (_session.Simulation is { } simulation && simulation.ActionBars[bar][slot] is { } id)
+            UseQuickSlot(slot, id, captured: true);
     }
 
     /// <summary>The Waystone panel, at the stone the character stands at.</summary>

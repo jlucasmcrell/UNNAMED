@@ -487,24 +487,8 @@ public partial class SkillsPanel : CanvasLayer
     }
 
     /// <summary>What the evaluator needs of the character now: pools, the weapon family in hand, what is carried, the station open, the waits.</summary>
-    private AvailabilityContext Context(Simulation simulation)
-    {
-        var session = _session!;
-        var view = simulation.Player;
-        var progression = view.Progression;
-        string? held = null, heldName = null;
-        if (view.Equipment.TryGetValue(EquipSlot.MainHand, out var hand) && view.Inventory.FirstOrDefault(e => e.ItemId == hand) is { } entry
-            && session.Setup.Items.Catalog.Find(entry.DefId) is { Weapon.SkillId: { } skill })
-        {
-            held = skill;
-            heldName = Names.Of(session, entry.DefId);
-        }
-        return new AvailabilityContext(id => ProgressionEngine.SkillLevel(progression, id),
-            progression.Pools.Stamina ?? (int)view.Stats.StaminaMax, progression.Pools.Focus ?? (int)view.Stats.FocusMax, progression.Pools.Strain,
-            (int)view.Stats.StrainTolerance, progression.Pools.Health ?? (int)view.Stats.HealthMax, held, heldName,
-            id => view.Inventory.Where(e => e.DefId == id).Sum(e => e.Count), NearStation?.Invoke(),
-            id => (simulation.TechniqueCooldown(id) + 19) / 20, key => Names.Of(session, key));
-    }
+    private AvailabilityContext Context(Simulation simulation) =>
+        ActionBarModel.Context(simulation, key => Names.Of(_session!, key), NearStation?.Invoke());
 
     /// <summary>
     /// An availability as the row shows it: the word as a chip, the first reason beside it, and - on a detail card - the checklist of what
@@ -548,6 +532,9 @@ public partial class SkillsPanel : CanvasLayer
         from.VerticalAlignment = VerticalAlignment.Center;
         row.Root.AddChild(from);
         card.AddChild(row.Root);
+        // Dragged onto an action bar's slot, to put it there.
+        if (ActionBarsView.CanDrag(id))
+            ActionBarsView.Source(row.Root, id, Names.Of(_session!, id));
         return card;
     }
 

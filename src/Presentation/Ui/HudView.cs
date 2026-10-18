@@ -14,14 +14,7 @@ public sealed record HudSheet(
     string Name, int Level, bool LevelCapped, long Xp, long XpToNext, long XpDebt, string? PointKey, bool Crouched,
     long Focus, long FocusMax, long Strain, long StrainTolerance, long Resonance,
     string Wielded, string? WieldedId, bool Guarding, long Coin, int Armor, double CarriedKg, double CarryLimitKg, string InventoryKey,
-    string? Casting, bool Strained, IReadOnlyList<HudQuick> Quick);
-
-/// <summary>
-/// A quick slot of the eight (WP9; the owner's first playtest: "quick bars ... for things like the minor salve"): its key, what is on it
-/// and its note - how many are carried, or a formula's Focus - dim when none is carried, lit while its formula is being worked. An empty
-/// ID is an empty slot, drawn as its key and an empty pouch while any slot holds something.
-/// </summary>
-public readonly record struct HudQuick(string Key, string Id, string Note, bool Spent, bool Active);
+    string? Casting, bool Strained);
 
 /// <summary>
 /// The production HUD (visual option <c>hud=production</c>, which every quality tier selects). It shows what the classic HUD shows, at
@@ -50,11 +43,6 @@ public partial class HudView : Control
     // What steps aside for a sheet at a large interface (the plate and companions, the bottom-left panel, the log, the tracked quest),
     // and what stays in their place: health and stamina, so a screen never hides that the character is being hurt.
     private readonly Control _besides = new() { MouseFilter = MouseFilterEnum.Ignore };
-    private readonly PanelContainer _vitals = new();
-    private readonly Gauge _vitalHealth = new(HudStyle.HealthFill, new Vector2(PoolWidth, 12));
-    private readonly Gauge _vitalStamina = new(HudStyle.StaminaFill, new Vector2(PoolWidth, 8));
-    private readonly Label _vitalHealthValue = PoolValue();
-    private readonly Label _vitalStaminaValue = PoolValue();
     private bool _aside;
     private bool _sheetOpen;
     private bool _conversing;
@@ -87,12 +75,12 @@ public partial class HudView : Control
     private string _companionText = string.Empty;
     private string? _companionIcon;
 
-    // Bottom left: the effects, the formula being worked, the quick bar and the pools.
+    // Bottom left: the effects and the formula being worked. The vitals and the action bars are the bottom centre's (ActionBarsView).
     private readonly PanelContainer _lowerLeft = new();
+
+    /// <summary>The action bars, at the bottom centre, with the vitals above the main bar.</summary>
+    public ActionBarsView Bars { get; } = new() { Name = "ActionBars" };
     private readonly HFlowContainer _effects = new();
-    private readonly VBoxContainer _bar = new();
-    private readonly HBoxContainer _quick = new();
-    private string _quickKeys = string.Empty;
     private string _effectText = string.Empty;
     private string _effectKeys = string.Empty;
     private readonly HBoxContainer _casting = new();
@@ -172,6 +160,8 @@ public partial class HudView : Control
         BuildPromptAndLog();
         BuildMiddle();
         Quiet(this);
+        // After Quiet: the bars take the pointer when it is free, which is what dragging onto them needs.
+        AddChild(Bars);
     }
 
     private void BuildTopLeft()
@@ -263,8 +253,8 @@ public partial class HudView : Control
     }
 
     /// <summary>
-    /// The bottom-left panel: the active effects, the formulas on their keys, and the pools. Kept short (under 205 px with one row of
-    /// effects, so from about y 843 down) because a full pack's inventory list reaches down to y 838 over this corner.
+    /// The bottom-left panel: the active effects and the formula being worked, shown only while there are any. The pools stand with the
+    /// action bars at the bottom centre. Kept short because a full pack's inventory list reaches down to y 838 over this corner.
     /// </summary>
     private void BuildBottomLeft()
     {
@@ -308,45 +298,32 @@ public partial class HudView : Control
         _casting.Visible = false;
         rows.AddChild(_casting);
 
-        // The quick bar (WP9): eight slots on their keys, what each holds and its count or cost; a rule under it.
-        _bar.AddThemeConstantOverride("separation", 4);
-        _quick.AddThemeConstantOverride("separation", 6);
-        _bar.AddChild(_quick);
-        _bar.AddChild(HudStyle.Rule(3));
-        _bar.Visible = false;
-        rows.AddChild(_bar);
-
-        var pools = new GridContainer { Columns = 4 };
-        pools.AddThemeConstantOverride("h_separation", 9);
-        pools.AddThemeConstantOverride("v_separation", 2);
-        PoolRow(pools, "health", PoolName("Health"), _health, _healthValue);
-        PoolRow(pools, "stamina", PoolName("Stamina"), _stamina, _staminaValue);
-        PoolRow(pools, "focus", PoolName("Focus"), _focus, _focusValue);
-        PoolRow(pools, "strained", _strainName, _strain, _strainValue);
-        PoolRow(pools, "resonance", PoolName("Resonance"), new Control(), _resonanceValue);
-        rows.AddChild(pools);
+        // The pools stand with the action bars at the bottom centre (the vitals sit above the main bar, as they do in most such games), in two
+        // blocks: health and stamina, then focus, strain and resonance.
+        var vitals = new PanelContainer { SizeFlagsHorizontal = SizeFlags.ShrinkCenter };
+        vitals.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(12, 5));
+        var blocks = new HBoxContainer();
+        blocks.AddThemeConstantOverride("separation", 28);
+        var body = new GridContainer { Columns = 4 };
+        body.AddThemeConstantOverride("h_separation", 9);
+        body.AddThemeConstantOverride("v_separation", 2);
+        var magic = new GridContainer { Columns = 4 };
+        magic.AddThemeConstantOverride("h_separation", 9);
+        magic.AddThemeConstantOverride("v_separation", 2);
+        PoolRow(body, "health", PoolName("Health"), _health, _healthValue);
+        PoolRow(body, "stamina", PoolName("Stamina"), _stamina, _staminaValue);
+        PoolRow(magic, "focus", PoolName("Focus"), _focus, _focusValue);
+        PoolRow(magic, "strained", _strainName, _strain, _strainValue);
+        PoolRow(magic, "resonance", PoolName("Resonance"), new Control(), _resonanceValue);
+        blocks.AddChild(body);
+        blocks.AddChild(magic);
+        vitals.AddChild(blocks);
+        Quiet(vitals);
+        Bars.VitalsHost.AddChild(vitals);
 
         panel.AddChild(rows);
+        panel.Visible = false;
         column.AddChild(panel);
-
-        _vitals.AnchorTop = _vitals.AnchorBottom = 1;
-        _vitals.OffsetLeft = _vitals.OffsetRight = Margin;
-        _vitals.OffsetTop = _vitals.OffsetBottom = -Margin;
-        _vitals.GrowVertical = GrowDirection.Begin;
-        _vitals.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(12, 6));
-        var vitals = new GridContainer { Columns = 3 };
-        vitals.AddThemeConstantOverride("h_separation", 9);
-        vitals.AddThemeConstantOverride("v_separation", 2);
-        foreach (var (name, gauge, value) in new[] { ("Health", _vitalHealth, _vitalHealthValue), ("Stamina", _vitalStamina, _vitalStaminaValue) })
-        {
-            vitals.AddChild(PoolName(name));
-            gauge.SizeFlagsVertical = SizeFlags.ShrinkCenter;
-            vitals.AddChild(gauge);
-            vitals.AddChild(value);
-        }
-        _vitals.AddChild(vitals);
-        _vitals.Visible = false;
-        AddChild(_vitals);
     }
 
     /// <summary>An enlarged interface: a canvas under the reference's 1080 lines, or text set larger. The HUD then steps aside for screens.</summary>
@@ -379,7 +356,6 @@ public partial class HudView : Control
             return;
         _aside = aside;
         _besides.Visible = !aside;
-        _vitals.Visible = aside;
         _tracker.Visible = _trackerWanted && !aside;
     }
 
@@ -571,18 +547,14 @@ public partial class HudView : Control
     /// </summary>
     public IEnumerable<Rect2> Intrusions()
     {
-        if (_aside)
-        {
-            // From its minimum size: the panel was shown this frame and has not been laid out yet.
-            var vitals = _vitals.GetCombinedMinimumSize();
-            yield return new Rect2(Margin, Size.Y - Margin - vitals.Y, vitals.X, vitals.Y);
-        }
         if (_companions.IsVisibleInTree())
             yield return _companions.GetGlobalRect();
         if (_tracker.IsVisibleInTree())
             yield return _tracker.GetGlobalRect();
         if (_lowerLeft.IsVisibleInTree())
             yield return _lowerLeft.GetGlobalRect();
+        foreach (var rect in Bars.Rects())
+            yield return rect;
         if (_log.IsVisibleInTree())
             yield return _log.GetGlobalRect();
     }
@@ -699,12 +671,13 @@ public partial class HudView : Control
     public void UseIcons(HudIcons icons)
     {
         _icons = icons;
+        Bars.Icons = icons;
         foreach (var (key, icon) in _poolIcons)
         {
             icon.Texture = icons.For(key);
             icon.Visible = icon.Texture is not null;
         }
-        _quickKeys = _effectKeys = string.Empty;
+        _effectKeys = string.Empty;
         _companionIcon = null;
         _weaponId = null;
     }
@@ -753,43 +726,8 @@ public partial class HudView : Control
         }
 
         _casting.Visible = sheet.Casting is not null;
+        _lowerLeft.Visible = _casting.Visible || _effects.Visible;
         _castingName.Text = sheet.Casting ?? string.Empty;
-        SetQuick(sheet.Quick);
-    }
-
-    /// <summary>
-    /// The quick bar (WP9): eight slots on their keys - the framed icon with its key on the corner and its note under it (how many are
-    /// carried, or a formula's Focus) - lit while its formula is worked, dim when none of it is left. Shown once anything is on it.
-    /// </summary>
-    private void SetQuick(IReadOnlyList<HudQuick> quick)
-    {
-        string keys = string.Join("|", quick.Select(q => $"{q.Key}:{q.Id}:{q.Note}:{q.Spent}:{q.Active}"));
-        if (keys == _quickKeys)
-            return;
-        _quickKeys = keys;
-        foreach (var child in _quick.GetChildren())
-            child.QueueFree();
-        foreach (var slot in quick)
-        {
-            var unit = new VBoxContainer();
-            unit.AddThemeConstantOverride("separation", 0);
-            var holder = new Control { CustomMinimumSize = new Vector2(38, 38) };
-            // An empty slot is its bare frame: the pouch icon read as something carried once eight slots stood in a row.
-            var frame = HudStyle.IconSlot(slot.Id.Length == 0 ? null : _icons.For(slot.Id), 34, active: slot.Active);
-            frame.Position = new Vector2(2, 0);
-            if (slot.Id.Length == 0 || slot.Spent)
-                frame.Modulate = new Color(1, 1, 1, slot.Id.Length == 0 ? 0.45f : 0.6f);
-            holder.AddChild(frame);
-            holder.AddChild(new KeyCap(slot.Key, 16) { Position = new Vector2(-4, 20) });
-            unit.AddChild(holder);
-            var note = HudStyle.Text(HudStyle.Caps, 16, slot.Spent ? HudStyle.Wound : HudStyle.Muted, caps: true).Say(slot.Note);
-            note.HorizontalAlignment = HorizontalAlignment.Center;
-            note.CustomMinimumSize = new Vector2(42, 0);
-            unit.AddChild(note);
-            _quick.AddChild(unit);
-            Quiet(unit);
-        }
-        _bar.Visible = quick.Any(q => q.Id.Length > 0);
     }
 
     public void SetVitals(int health, int maxHealth, int stamina, int maxStamina)
@@ -798,10 +736,6 @@ public partial class HudView : Control
         _stamina.Set(stamina, maxStamina);
         _healthValue.Text = $"{health} / {maxHealth}";
         _staminaValue.Text = $"{stamina} / {maxStamina}";
-        _vitalHealth.Set(health, maxHealth);
-        _vitalStamina.Set(stamina, maxStamina);
-        _vitalHealthValue.Text = _healthValue.Text;
-        _vitalStaminaValue.Text = _staminaValue.Text;
     }
 
     /// <summary>Focus, and Strain against its tolerance: once Strained the gauge turns red and hatched, and its name says so.</summary>
@@ -850,6 +784,7 @@ public partial class HudView : Control
             Quiet(chip);
         }
         _effects.Visible = parts.Length > 0;
+        _lowerLeft.Visible = _casting.Visible || _effects.Visible;
     }
 
     public void SetTarget(string? name, int health, int maxHealth)
@@ -1080,6 +1015,8 @@ public partial class HudView : Control
     public override void _Process(double delta)
     {
         _clock += delta;
+        // The prompt keeps above the vitals and the bars, however many of them are shown.
+        _prompt.OffsetTop = _prompt.OffsetBottom = -(Bars.Height + 14);
         AnimateBanner(delta);
         if (_death.Visible && _clock >= _deathUntil)
             _death.Visible = false;

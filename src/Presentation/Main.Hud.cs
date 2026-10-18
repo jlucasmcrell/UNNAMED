@@ -1,6 +1,7 @@
 // UNNAMED Presentation - Main's HUD: what it shows each frame, from the simulation's state (D-11)
 // Godot presentation only: this file renders state and submits commands; it never writes state.
 
+using System.Collections.Immutable;
 using Godot;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Crafting;
@@ -82,8 +83,8 @@ public partial class Main
             pools.Focus ?? stats.FocusMax, stats.FocusMax, pools.Strain, stats.StrainTolerance, stats.Resonance,
             Names.Item(_session, combat.Weapon.Source, Wielded(view)?.Quality ?? 0), combat.Weapon.Source, combat.Blocking, view.Currency, view.Armor,
             view.CarriedGrams / 1000.0, view.CarryLimitGrams / 1000.0, HelpPanel.Key("inventory"),
-            combat.Casting is { } worked ? Names.Of(_session, worked) : null, combat.Strained,
-            QuickSlots(simulation, combat.Casting)));
+            combat.Casting is { } worked ? Names.Of(_session, worked) : null, combat.Strained));
+        DrawActionBars(simulation, combat.Casting);
         if (Target(simulation) is { } target)
             _hud.SetTarget(Names.Of(_session, target.DefId), target.Health, target.MaxHealth);
         else
@@ -190,24 +191,21 @@ public partial class Main
     }
 
     /// <summary>
-    /// The eight quick slots on their keys (WP9): what is on each - an item with how many are carried, a formula with its Focus and lit
-    /// while it is worked, a technique with its stamina, or the seconds left and dim while it cools - or an empty ID for an empty one.
+    /// The action bars (WP9; the owner's request for bars that never cap what a character can use): the page the main row shows, and every
+    /// bar the player has shown, each slot as the one availability evaluator reads it - a formula's Focus, a technique's Stamina and wait, an
+    /// item's count, a gear set's missing pieces.
     /// </summary>
-    private List<HudQuick> QuickSlots(Simulation simulation, string? casting)
+    /// <summary>A key as a slot's corner shows it: the punctuation keys as themselves, not their names.</summary>
+    private static string KeyWord(string key) => key switch { "Minus" => "-", "Equal" => "=", "Quoteleft" => "~", _ => key };
+
+    private void DrawActionBars(Simulation simulation, string? casting)
     {
-        var bar = simulation.QuickBar;
-        var inventory = simulation.Player.Inventory;
-        return QuickKeys.Select((key, i) => bar[i] switch
-        {
-            null => new HudQuick(HelpPanel.Key(key), string.Empty, string.Empty, false, false),
-            var id when _session.Setup.Magic.Formulas.TryGetValue(id, out var formula) =>
-                new HudQuick(HelpPanel.Key(key), id, $"{formula.FocusCost}F", false, id == casting),
-            var id when _session.Setup.Techniques.TryGetValue(id, out var technique) && simulation.TechniqueCooldown(id) is var cooling =>
-                cooling > 0 ? new HudQuick(HelpPanel.Key(key), id, $"{Math.Ceiling(cooling * _session.TickSeconds)}s", true, false)
-                    : new HudQuick(HelpPanel.Key(key), id, $"{technique.StaminaCost}S", false, false),
-            var id when id.StartsWith("item.", StringComparison.Ordinal) && inventory.Where(e => e.DefId == id).Sum(e => e.Count) is var count =>
-                new HudQuick(HelpPanel.Key(key), id, $"×{count}", count == 0, false),
-            var id => new HudQuick(HelpPanel.Key(key), id, string.Empty, false, false),
-        }).ToList();
+        if (_hud.Bars is not { } bars)
+            return;
+        string? station = _inventory.OpenStation?.Kind;
+        var views = Enumerable.Range(0, UNNAMED.Domain.Progression.QuickBar.Bars).Select(bar =>
+            ActionBarModel.Slots(simulation, bar, key => Names.Of(_session, key),
+                (b, slot) => b == _barPage ? KeyWord(HelpPanel.Key(QuickKeys[slot])) : "", station, casting)).ToImmutableArray();
+        bars.Set(views, _barPage);
     }
 }
