@@ -1,0 +1,10 @@
+id: hint.station_storage
+kind: hint
+schema: 1
+display_key: hint.station_storage.text
+tags: [hint]
+notes: "PROPOSED. New system: crafting from storage."
+category: crafting
+trigger: station_opened
+order: 1
+text: "A station reaches into your bag and your stash alike. You need not be carrying it to work with it."

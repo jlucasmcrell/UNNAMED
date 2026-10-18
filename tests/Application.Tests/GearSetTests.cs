@@ -13,7 +13,7 @@ namespace UNNAMED.Application.Tests;
 /// </summary>
 public class GearSetTests
 {
-    private const string Bow = "item.weapon.hunting_bow", Salve = "item.consumable.salve_minor";
+    private const string Cap = "item.armor.hide_cap", Bow = "item.weapon.hunting_bow", Salve = "item.consumable.salve_minor";
     private static readonly (double X, double Z) Ground = (120, 60);
 
     private static Arena Open(GameSession session, params InventoryEntry[] extra) =>
@@ -109,4 +109,108 @@ public class GearSetTests
         Assert.Null(arena.Submit(new AssignQuickSlotCommand(arena.Player, 11, null, Bar: 2)));
         Assert.All(arena.Simulation.ActionBars[2], s => Assert.Null(s));
     }
-}
+
+    private static EntityId Worn(Arena arena, EquipSlot slot) => arena.Simulation.Player.Equipment[slot];
+
+    [Fact]
+    public void InAFight_ASwitchChangesTheHandsOnly_ArmourStaysAndIsNotQueued_AndTheTimeIsTheCombatOne()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Arena.OpenCreatures(session, session.Setup, Ground, 0, new[] { (Arena.Wolf, Ground.X + 1.3, Ground.Z, "pack_hunter") },
+            r => new PlayerRecord(r.Id, r.Name, r.XMm, r.YMm, r.ZMm, r.AppearanceSeed, r.Inventory.Concat(new[] { Arena.Stack(Bow, 1), Arena.Stack(Cap, 1) }), r.Progression, r.FacingMdeg,
+                r.Discoveries, r.Equipment, r.Currency, r.Effects));
+        var sword = Worn(arena, EquipSlot.MainHand);
+        Assert.Null(arena.Submit(new EquipCommand(arena.Player, Id(arena, Cap))));
+        arena.Tick();
+        var head = Worn(arena, EquipSlot.Head);
+        Assert.Null(arena.Submit(new SaveGearSetCommand(arena.Player, 1, "Blade and cap")));
+        var done = arena.Record<GearSwapped>();
+        arena.Tick();
+        arena.Face(arena.Creature());
+        arena.Tick();
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
+        for (int i = 0; i < 300 && !arena.Simulation.Creatures.Any(c => c.Hostile); i++)
+            arena.Tick();
+        Assert.Contains(arena.Simulation.Creatures, c => c.Hostile);
+        arena.Tick(30);
+        Assert.Null(arena.Submit(new EquipCommand(arena.Player, Id(arena, Bow))));
+        Assert.Null(arena.Submit(new UnequipCommand(arena.Player, EquipSlot.Head)));
+        Assert.Contains(arena.Simulation.Creatures, c => c.Hostile);
+
+        Assert.Null(arena.Submit(new SwapGearSetCommand(arena.Player, 1)));
+        var swap = arena.Simulation.GearSwap!;
+        Assert.True(swap.InCombat);
+        Assert.Equal(GearSetRules.SwapTicks(true, arena.Simulation.Setup.TickMilliseconds), swap.DueTick - swap.StartTick);
+        arena.Tick((int)(swap.DueTick - swap.StartTick) + 2);
+
+        var swapped = Assert.Single(done);
+        Assert.True(swapped.ArmourKept);
+        Assert.Equal(sword, Worn(arena, EquipSlot.MainHand));
+        Assert.False(arena.Simulation.Player.Equipment.ContainsKey(EquipSlot.Head), "the cap was put on in a fight");
+        Assert.DoesNotContain(EquipSlot.Head, swapped.Changed);
+        // Not queued: nothing puts it on afterwards either.
+        arena.Tick(80);
+        Assert.False(arena.Simulation.Player.Equipment.ContainsKey(EquipSlot.Head));
+        Assert.Contains(arena.Simulation.Player.Inventory, e => e.ItemId == head);
+    }
+
+    [Fact]
+    public void OutOfAFight_TheSameSwitchPutsTheArmourOnToo()
+    {
+        using var profile = new TempProfile();
+        var arena = Open(Harness.Boot(profile), Arena.Stack(Bow, 1), Arena.Stack(Cap, 1));
+        Assert.Null(arena.Submit(new EquipCommand(arena.Player, Id(arena, Cap))));
+        arena.Tick();
+        var head = Worn(arena, EquipSlot.Head);
+        Assert.Null(arena.Submit(new SaveGearSetCommand(arena.Player, 1, "Blade and cap")));
+        Assert.Null(arena.Submit(new EquipCommand(arena.Player, Id(arena, Bow))));
+        Assert.Null(arena.Submit(new UnequipCommand(arena.Player, EquipSlot.Head)));
+        var done = arena.Record<GearSwapped>();
+        Assert.Null(arena.Submit(new SwapGearSetCommand(arena.Player, 1)));
+        Assert.False(arena.Simulation.GearSwap!.InCombat);
+        arena.Tick(60);
+        Assert.False(Assert.Single(done).ArmourKept);
+        Assert.Equal(head, Worn(arena, EquipSlot.Head));
+    }
+
+    [Fact]
+    public void TheMainBar_FollowsTheWeaponInHand_EachFamilyKeepsItsOwnLayout_AndAFirstTimeFamilyCopiesTheBar()
+    {
+        using var profile = new TempProfile();
+        var arena = Open(Harness.Boot(profile), Arena.Stack(Bow, 1));
+        arena.Tick();
+        string bladeFamily = arena.Simulation.HeldFamily;
+        Assert.True(WeaponFamilies.IsValid(bladeFamily), bladeFamily);
+        Assert.Equal(arena.Simulation.QuickBar, arena.Simulation.FamilyBars[bladeFamily]);
+
+        Assert.Null(arena.Submit(new AssignQuickSlotCommand(arena.Player, 10, Salve)));
+        var blade = arena.Simulation.QuickBar;
+        Assert.Equal(Salve, blade[10]);
+
+        // A bow in hand: the archery layout, a copy of what showed - until it is edited.
+        var sword = Worn(arena, EquipSlot.MainHand);
+        Assert.Null(arena.Submit(new EquipCommand(arena.Player, Id(arena, Bow))));
+        arena.Tick();
+        Assert.NotEqual(bladeFamily, arena.Simulation.HeldFamily);
+        Assert.Equal(blade, arena.Simulation.QuickBar);
+        Assert.Null(arena.Submit(new AssignQuickSlotCommand(arena.Player, 10, null)));
+        Assert.Null(arena.Submit(new AssignQuickSlotCommand(arena.Player, 11, Salve)));
+        var bow = arena.Simulation.QuickBar;
+        Assert.Equal(Salve, bow[11]);
+        Assert.Equal(bow, arena.Simulation.FamilyBars[arena.Simulation.HeldFamily]);
+
+        // Bare hands: another first time, another copy.
+        Assert.Null(arena.Submit(new UnequipCommand(arena.Player, EquipSlot.MainHand)));
+        arena.Tick();
+        Assert.Equal(WeaponFamilies.Unarmed, arena.Simulation.HeldFamily);
+        Assert.Equal(bow, arena.Simulation.QuickBar);
+
+        // Back to the sword: its own layout, untouched by the bow's edits; and the bow's is kept for next time.
+        Assert.Null(arena.Submit(new EquipCommand(arena.Player, sword)));
+        arena.Tick();
+        Assert.Equal(bladeFamily, arena.Simulation.HeldFamily);
+        Assert.Equal(blade, arena.Simulation.QuickBar);
+        Assert.Equal(bow, arena.Simulation.FamilyBars.Single(f => f.Key != bladeFamily && f.Key != WeaponFamilies.Unarmed).Value);
+        Assert.Equal(3, arena.Simulation.FamilyBars.Count);
+    }}

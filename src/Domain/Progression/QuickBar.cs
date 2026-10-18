@@ -6,6 +6,26 @@ using System.Collections.Immutable;
 namespace UNNAMED.Domain.Progression;
 
 /// <summary>
+/// The weapon families the main bar keeps a layout for (canon 26 §8, "bar sets by held item"): bare hands, and each weapon family the
+/// game defines - a weapon's skill (<c>skill.*</c>), the discipline its blows train.
+/// </summary>
+public static class WeaponFamilies
+{
+    public const string Unarmed = "unarmed";
+
+    /// <summary>The family of a weapon whose definition names no skill.</summary>
+    public const string Other = "other";
+
+    public static ImmutableSortedDictionary<string, ImmutableArray<string?>> None { get; } =
+        ImmutableSortedDictionary.Create<string, ImmutableArray<string?>>(StringComparer.Ordinal);
+
+    public static bool IsValid(string family) => family is Unarmed or Other || DefinitionId.IsValid(family) && family.StartsWith("skill.", StringComparison.Ordinal);
+
+    /// <summary>The family of what is in the main hand: the weapon's skill, <see cref="Other"/> for one with none, <see cref="Unarmed"/> for bare hands.</summary>
+    public static string Of(bool armed, string? skillId) => !armed ? Unarmed : skillId is not null && IsValid(skillId) ? skillId : Other;
+}
+
+/// <summary>
 /// An action bar's shape and rules (the first of six is the quick bar of schema 23, widened from eight slots to twelve at schema 32). A slot
 /// is empty (null) or holds what it uses, by definition ID: a usable item (<c>item.*</c>, the first carried stack of it), a known formula
 /// (<c>spell.*</c>), a known technique (<c>ability.*</c>) or a gear-set switch (<c>gearset.set_N</c>, N = 1 to 10). A thing is on one bar at

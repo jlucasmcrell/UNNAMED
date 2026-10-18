@@ -87,7 +87,20 @@ public partial class Main : Node3D
     private MapPanel _map = null!;
 
     /// <summary>Autorun (the owner's second-play brief §23): on, the character goes forward until a key, a screen or a death stops them.</summary>
-    private bool _autorun;
+    private readonly Ui.Models.AutoRunRules _autoRun = new();
+
+    private bool _autorun
+    {
+        get => _autoRun.On;
+        set
+        {
+            if (!value)
+                _autoRun.Stop();
+        }
+    }
+
+    /// <summary>Where the body was last frame, for auto-run's blocked check.</summary>
+    private (long X, long Z)? _autoRunFrom;
 
     /// <summary>Whether the player was in the exterior last frame, so entering or leaving a space is noticed.</summary>
     private bool _wasOutside = true;
@@ -465,6 +478,7 @@ public partial class Main : Node3D
         _voice.Load(_assets.Root);
         AddChild(_voice);
         _npcs.Voice = _voice;
+        _npcs.Said = (npcId, text, seconds) => _hud.Say(Names.Of(_session, npcId), text, seconds);
         _projectiles.Arrived = _soundEvents.Arrived;
         GD.Print(_sounds.Count > 0 ? $"UNNAMED audio: {_sounds.Count} sounds from {Audio.SoundBank.Manifest}" : "UNNAMED audio: no sound set - silent");
         _controller = new PlayerController(_session);

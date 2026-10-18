@@ -47,11 +47,17 @@ public static class HintTriggers
     public const string AwaySheet = "away_sheet";
     public const string HireOffered = "hire_offered";
     public const string PriceChanged = "price_changed";
+    public const string BarOpened = "bar_opened";
+    public const string StashOpened = "stash_opened";
+    public const string TrainerOpened = "trainer_opened";
+    public const string ItemWorn = "item_worn";
+    public const string ChatOpened = "chat_opened";
+    public const string ReputationOpened = "reputation_opened";
 
     public static readonly ImmutableSortedSet<string> All = ImmutableSortedSet.Create(StringComparer.Ordinal,
         NewGame, PromptShown, CreatureEngaged, HitTaken, HealthLow, PlayerDowned, PlayerDied, CreatureKilled, ItemPickedUp, OverLimit,
         QuestStarted, LevelUp, SkillPracticed, NodeGathered, StationOpened, TradeOpened, StoneTouched, FormulaLearned, CompanionRecruited,
-        CompanionDowned, AwaySheet, HireOffered, PriceChanged);
+        CompanionDowned, AwaySheet, HireOffered, PriceChanged, BarOpened, StashOpened, TrainerOpened, ItemWorn, ChatOpened, ReputationOpened);
 }
 
 public static partial class HintRules

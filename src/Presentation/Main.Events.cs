@@ -7,6 +7,7 @@ using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Crafting;
 using UNNAMED.Presentation.Greybox;
+using UNNAMED.Presentation.Settings;
 using UNNAMED.Presentation.Ui;
 using UNNAMED.World.Runtime;
 
@@ -31,20 +32,25 @@ public partial class Main
     /// <summary>The last reply given, and when: what a hand-over in the same tick was for.</summary>
     private (string NpcId, long Tick)? _reply;
 
+    /// <summary>A notice of a kind the player may switch off (Settings, Notices): shown unless that kind is hidden.</summary>
+    private void Notice(NoticeKind kind, string text, double seconds = 4) => _hud.Toast(text, seconds, kind: kind);
+
     private void Subscribe()
     {
         _session.Subscribe<EncounterRestarted>(e => _hud.Toast(e.Loaded
             ? "Active boss encounters restart when loaded. You return outside the court with your saved resources."
             : "The Custodian disengages. The court falls quiet.", 7));
         // Gear sets: a switch takes time, so it says it has begun, and then what it did - and never what it could not, which it names.
-        _session.Subscribe<GearSetSaved>(e => _hud.Toast($"Kept {e.Name} as gear set {e.Index}", 2));
-        _session.Subscribe<GearSetDeleted>(e => _hud.Toast($"Gear set {e.Index} deleted", 2));
-        _session.Subscribe<GearSwapStarted>(e => _hud.Toast($"Changing gear... {(e.DueTick - e.Tick) * _session.TickSeconds:0.#} s{(e.InCombat ? " (slower in a fight)" : "")}", 2));
-        _session.Subscribe<GearSwapCancelled>(e => _hud.Toast($"Gear change stopped: {e.Why}", 3));
+        _session.Subscribe<GearSetSaved>(e => Notice(NoticeKind.Gear, $"Kept {e.Name} as gear set {e.Index}", 2));
+        _session.Subscribe<GearSetDeleted>(e => Notice(NoticeKind.Gear, $"Gear set {e.Index} deleted", 2));
+        _session.Subscribe<GearSwapStarted>(e => Notice(NoticeKind.Gear, $"Changing gear... {(e.DueTick - e.Tick) * _session.TickSeconds:0.#} s{(e.InCombat ? " (slower in a fight)" : "")}", 2));
+        _session.Subscribe<GearSwapCancelled>(e => Notice(NoticeKind.Gear, $"Gear change stopped: {e.Why}", 3));
         _session.Subscribe<GearSwapped>(e =>
         {
             string name = _session.Simulation?.GearSets.FirstOrDefault(g => g.Index == e.Index)?.Name ?? $"set {e.Index}";
-            _hud.Toast($"Wearing {name}", 2);
+            Notice(NoticeKind.Gear, $"Wearing {name}", 2);
+            if (e.ArmourKept)
+                Notice(NoticeKind.Gear, UNNAMED.Domain.Items.GearSetRules.ArmourStays, 3);
             if (!e.Missing.IsEmpty)
                 _hud.Toast($"Not carried: {string.Join(", ", e.Missing.Select(i => Names.Of(_session, i.DefId)))}", 4);
             foreach (var (item, why) in e.Refused)
@@ -85,19 +91,19 @@ public partial class Main
             _hollow.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers, inPlay: true);
             _interior?.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers, inPlay: true);
         });
-        _session.Subscribe<LocationDiscovered>(e => _hud.Toast($"Discovered: {Names.Of(_session, e.LocationId)}"));
+        _session.Subscribe<LocationDiscovered>(e => Notice(NoticeKind.Discovery, $"Discovered: {Names.Of(_session, e.LocationId)}"));
         // Companions (M6): joined, told, downed, helped up, fallen back to the Waystone.
-        _session.Subscribe<CompanionRecruited>(e => _hud.Toast($"{Names.Of(_session, e.NpcId)} joins you"));
-        _session.Subscribe<CompanionOrdered>(e => _hud.Toast($"{Names.Of(_session, e.NpcId)}: {(e.Order == CompanionOrder.Follow ? "following" : "waiting")}", 2));
+        _session.Subscribe<CompanionRecruited>(e => Notice(NoticeKind.Party, $"{Names.Of(_session, e.NpcId)} joins you"));
+        _session.Subscribe<CompanionOrdered>(e => Notice(NoticeKind.Party, $"{Names.Of(_session, e.NpcId)}: {(e.Order == CompanionOrder.Follow ? "following" : "waiting")}", 2));
         _session.Subscribe<CompanionDowned>(e => _hud.Toast($"{Names.Of(_session, e.NpcId)} is down - reach them and press {HelpPanel.Key("interact")}", 6));
-        _session.Subscribe<CompanionRevived>(e => _hud.Toast($"{Names.Of(_session, e.NpcId)} is back on their feet"));
-        _session.Subscribe<CompanionFell>(e => _hud.Toast($"{Names.Of(_session, e.NpcId)} fell, and will be waiting at the Ashen Waystone", 6));
+        _session.Subscribe<CompanionRevived>(e => Notice(NoticeKind.Party, $"{Names.Of(_session, e.NpcId)} is back on their feet"));
+        _session.Subscribe<CompanionFell>(e => Notice(NoticeKind.Party, $"{Names.Of(_session, e.NpcId)} fell, and will be waiting at the Ashen Waystone", 6));
         // What the award did: what is left once the XP debt took its share, and that share (the Phase-1 technical audit, L-12).
         _session.Subscribe<ExperienceGained>(e =>
         {
             long kept = e.Awarded - e.Repaid;
             string xp = e.Repaid == 0 ? $"+{e.Awarded} XP" : kept > 0 ? $"+{kept} XP, {e.Repaid} to the XP debt" : $"{e.Repaid} XP to the XP debt";
-            _hud.Toast(xp, 3);
+            Notice(NoticeKind.Progress, xp, 3);
             if (e.LevelsGained > 0)
                 _hud.Announce("Level up", $"Level {e.Level}", HudStyle.Ember, ("A point to spend on the character sheet", HelpPanel.Key("character")));
         });
@@ -115,12 +121,12 @@ public partial class Main
         // The owner's M6 playtest: a take-all's tally, a point spent, and every shot drawn along the path it took.
         _session.Subscribe<TookAll>(e =>
         {
-            _hud.Toast(e.Left == 0 ? $"Took everything ({e.Taken})" : $"Took {e.Taken}; {e.Left} left - {e.Why}", 3);
+            Notice(NoticeKind.Items, e.Left == 0 ? $"Took everything ({e.Taken})" : $"Took {e.Taken}; {e.Left} left - {e.Why}", 3);
             // Emptied, the loot is done: the panel closes rather than leaving the pack open behind it (the owner's first playtest).
             if (e.Left == 0 && _inventory.OpenContainer == e.ContainerKey)
                 CloseInventory();
         });
-        _session.Subscribe<AttributeSpent>(e => _hud.Toast($"{char.ToUpperInvariant(UNNAMED.Domain.Progression.ProgressionKeys.Key(e.Attribute)[0])}" +
+        _session.Subscribe<AttributeSpent>(e => Notice(NoticeKind.Progress, $"{char.ToUpperInvariant(UNNAMED.Domain.Progression.ProgressionKeys.Key(e.Attribute)[0])}" +
             $"{UNNAMED.Domain.Progression.ProgressionKeys.Key(e.Attribute)[1..]} {e.Value}", 3));
         _session.Subscribe<ShotLoosed>(Shot);
         _session.Subscribe<ItemMoved>(e =>
@@ -133,7 +139,7 @@ public partial class Main
         _session.Subscribe<QuickSlotAssigned>(_ => _inventory.Refresh());
         // The pack was laid out again (a sort, a bag, a lock, a mark): the inventory draws it again; junk sold says what it made.
         _session.Subscribe<PackOrganised>(_ => _inventory.Refresh());
-        _session.Subscribe<JunkSold>(e => _hud.Toast($"Sold {e.Stacks} junk stack{(e.Stacks == 1 ? "" : "s")} for {e.Price}", 3));
+        _session.Subscribe<JunkSold>(e => Notice(NoticeKind.Items, $"Sold {e.Stacks} junk stack{(e.Stacks == 1 ? "" : "s")} for {e.Price}", 3));
         _session.Subscribe<ItemEquipped>(_ => _inventory.Refresh());
         _session.Subscribe<ItemUnequipped>(_ => _inventory.Refresh());
         _session.Subscribe<NodeGathered>(e =>
@@ -142,12 +148,12 @@ public partial class Main
             string spent = !e.Spent ? ""
                 : _session.Setup.Crafting.Nodes[e.NodeDefId].Respawn == Respawn.None ? $" - the {Names.Of(_session, e.NodeDefId)} is worked out"
                 : $" - nothing more until the {Names.Of(_session, e.NodeDefId)} grows back";
-            _hud.Toast($"+{e.Count} {Names.Of(_session, e.ItemId)}{spent}", 3);
+            Notice(NoticeKind.Items, $"+{e.Count} {Names.Of(_session, e.ItemId)}{spent}", 3);
         });
         _session.Subscribe<ItemCrafted>(e =>
         {
             _inventory.Refresh();
-            _hud.Toast($"Made {Names.Item(_session, e.ItemId, e.Quality)}{(e.Count > 1 ? $" x{e.Count}" : "")}", 3);
+            Notice(NoticeKind.Items, $"Made {Names.Item(_session, e.ItemId, e.Quality)}{(e.Count > 1 ? $" x{e.Count}" : "")}", 3);
         });
         _session.Subscribe<FindingRecorded>(e =>
         {
@@ -236,12 +242,12 @@ public partial class Main
         _session.Subscribe<ItemBought>(e =>
         {
             _inventory.Refresh();
-            _hud.Toast($"Bought {Names.Of(_session, e.ItemId)}{(e.Count > 1 ? $" x{e.Count}" : "")} for {e.Price}", 3);
+            Notice(NoticeKind.Items, $"Bought {Names.Of(_session, e.ItemId)}{(e.Count > 1 ? $" x{e.Count}" : "")} for {e.Price}", 3);
         });
         _session.Subscribe<ItemSold>(e =>
         {
             _inventory.Refresh();
-            _hud.Toast($"Sold {Names.Of(_session, e.ItemId)}{(e.Count > 1 ? $" x{e.Count}" : "")} for {e.Price}", 3);
+            Notice(NoticeKind.Items, $"Sold {Names.Of(_session, e.ItemId)}{(e.Count > 1 ? $" x{e.Count}" : "")} for {e.Price}", 3);
         });
         _session.Subscribe<RelationshipChanged>(e =>
             _hud.Log($"{Names.Of(_session, e.NpcId)}: {e.Dimension} {(e.To >= e.From ? "+" : "")}{e.To - e.From}"));
@@ -262,6 +268,9 @@ public partial class Main
             if (_session.Simulation!.Companions.FirstOrDefault(c => c.InstanceId == e.Attacker) is { } companion)
                 _npcs.Strike(companion.NpcId);
             // A blow on the character: what a working left on the body answers where it came from (the ward's shell rings there).
+            // A solid blow jolts the view (Settings, Camera: camera shake scales or removes it).
+            if (e.Target == _session.Simulation!.PlayerId && !e.Dodged && !e.Blocked && e.Damage > 0)
+                _camera.Kick(Math.Min(1f, e.Damage / 25f));
             if (e.Target == _session.Simulation!.PlayerId && !e.Dodged
                 && _session.Simulation!.Creatures.FirstOrDefault(c => c.Id == e.Attacker) is { } attacker)
                 _magicEffects.Struck(HollowView.ToGodot(attacker.Body.XMm, attacker.Body.YMm, attacker.Body.ZMm) + new Vector3(0, 0.9f, 0));
@@ -307,7 +316,7 @@ public partial class Main
         _session.Subscribe<CastFizzled>(e => _hud.Log($"Your {Name(e.FormulaId)} fizzles (+{e.Strain} Strain)"));
         _session.Subscribe<CastInterrupted>(e => _hud.Log($"Your {Name(e.FormulaId)} is broken off ({e.Reason})"));
         _session.Subscribe<StrainBacklash>(e => _hud.Log($"Strain backlash: -{e.Damage} health"));
-        _session.Subscribe<TechniqueLearned>(e => _hud.Toast($"Learned {Name(e.DefinitionId)}", 4));
+        _session.Subscribe<TechniqueLearned>(e => Notice(NoticeKind.Progress, $"Learned {Name(e.DefinitionId)}", 4));
         _session.Subscribe<EffectApplied>(e =>
         {
             if (e.Target == _session.Simulation!.PlayerId)
@@ -321,9 +330,9 @@ public partial class Main
                 _hud.Log($"{Name(e.SkillId)} +{e.Xp} XP (level {e.Level})");
             // A skill risen by use is told quietly (WP9, O4): its name and the level it reached, and the skill-up sound.
             if (e.LevelsGained > 0)
-                _hud.Toast($"Skill: {Name(e.SkillId)} {e.Level}", 3);
+                Notice(NoticeKind.Progress, $"Skill: {Name(e.SkillId)} {e.Level}", 3);
         });
-        _session.Subscribe<ItemUsed>(e => _hud.Toast(e.EffectId is null ? $"Read {Name(e.DefId)}" : $"Used {Name(e.DefId)}", 2));
+        _session.Subscribe<ItemUsed>(e => Notice(NoticeKind.Items, e.EffectId is null ? $"Read {Name(e.DefId)}" : $"Used {Name(e.DefId)}", 2));
         _session.Subscribe<ItemConsumed>(_ => _inventory.Refresh());
         // Downed with a hand near (OD-13 = B): who will help the character up, and when they are up.
         _session.Subscribe<PlayerDowned>(e =>
@@ -331,7 +340,7 @@ public partial class Main
             _autorun = false;
             _hud.Toast($"You are down - {Names.Of(_session, e.HandNpcId)} will help you up", 6);
         });
-        _session.Subscribe<PlayerRevived>(e => _hud.Toast($"{Names.Of(_session, e.NpcId)} helps you up", 4));
+        _session.Subscribe<PlayerRevived>(e => Notice(NoticeKind.Party, $"{Names.Of(_session, e.NpcId)} helps you up", 4));
         _session.Subscribe<PlayerDied>(e =>
         {
             string recap = string.Join("\n", e.Recap.Select(r =>

@@ -1,0 +1,10 @@
+﻿id: hint.auto_run
+kind: hint
+schema: 1
+display_key: hint.auto_run.text
+tags: [hint]
+notes: "Owner ruling 2026-10-18 (auto-run on the tilde key). Full only: the movement category's order-0 hint is the one Light keeps."
+category: movement
+trigger: new_game
+order: 3
+text: "{key:auto_run} runs forward on its own; forward, back or the key again stops it. Steer with the mouse; sprint still works."

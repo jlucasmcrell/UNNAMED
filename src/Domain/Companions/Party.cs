@@ -39,10 +39,13 @@ public enum HirelingRole
 /// ally, and keep healing items for allies below 30%. The last has nothing to act on until party members carry items (WP15b); it is
 /// kept, and saved, so the rule a player set is there when they do.
 /// </summary>
-public sealed record PartyTactics(bool KeepToLeash, bool ProtectInjured, bool HoldHealing)
+public sealed record PartyTactics(bool KeepToLeash, bool ProtectInjured, bool HoldHealing, bool FocusTarget = false)
 {
     /// <summary>What a newcomer follows: the leash kept, nothing else asked of them - the companion's behaviour as built.</summary>
     public static readonly PartyTactics Default = new(true, false, false);
+
+    /// <summary>"Focus my target": the creature the character struck this recently (10 s at the 20 Hz tick) is the one a companion goes for first.</summary>
+    public const int FocusWindowTicks = 200;
 
     /// <summary>An ally below this share of their health is injured, for <see cref="ProtectInjured"/> and <see cref="HoldHealing"/>.</summary>
     public const int InjuredPercent = 30;

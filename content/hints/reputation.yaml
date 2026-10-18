@@ -1,0 +1,10 @@
+id: hint.reputation
+kind: hint
+schema: 1
+display_key: hint.reputation.text
+tags: [hint]
+notes: "PROPOSED. Needs the reputation_opened trigger (see ONBOARDING_CONTENT.md 2.2)."
+category: identity
+trigger: reputation_opened
+order: 0
+text: "Reputation is kept per faction, and moves when you act for one or against it. It is not a score; it is a memory."

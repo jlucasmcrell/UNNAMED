@@ -3,8 +3,8 @@ kind: hint
 schema: 1
 display_key: hint.looting.text
 tags: [hint]
-notes: WP10 guidance (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.10 O1). Mechanics only, no lore; shown once, never modal.
-category: items
+notes: "Existing."
+category: combat
 trigger: creature_killed
 order: 0
 text: "A body can be searched with {key:interact}. In its panel, {key:take_all} takes everything."

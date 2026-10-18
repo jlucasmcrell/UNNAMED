@@ -36,6 +36,12 @@ public static class VoiceRules
     /// <summary>Whether a line's words show: always without a voice, and with one while subtitles are on.</summary>
     public static bool ShowWords(bool voiced, bool subtitles) => !voiced || subtitles;
 
+    /// <summary>
+    /// Whether a bark's words stand over the speaker's head. While subtitles are on the captions carry them (with the speaker's name, so a
+    /// line from behind the camera is read too); with subtitles off, a line without a voice still shows overhead - it would otherwise be lost.
+    /// </summary>
+    public static bool ShowOverhead(bool voiced, bool subtitles) => !voiced && !subtitles;
+
     /// <summary>The music's duck after <paramref name="seconds"/> more: towards <see cref="DuckDb"/> while a voice speaks, back to 0 after.</summary>
     public static float Duck(float currentDb, bool speaking, double seconds)
     {

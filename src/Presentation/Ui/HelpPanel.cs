@@ -21,7 +21,7 @@ public partial class HelpPanel : CanvasLayer
             {
                 ("Move", new[] { "move_forward", "move_left", "move_back", "move_right" }), ("Sprint", new[] { "sprint" }),
                 ("Walk", new[] { "walk" }), ("Jump", new[] { "jump" }), ("Crouch", new[] { "crouch" }),
-                ("Autorun, on or off", new[] { "autorun" }),
+                ("Autorun, on or off", new[] { "auto_run" }),
             }),
             ("Looking", new[]
             {
@@ -98,6 +98,15 @@ public partial class HelpPanel : CanvasLayer
             columns.AddChild(column);
         }
         _sheet.Body.AddChild(columns);
+        // The three things a new player must be told, shown here when asked for rather than as a panel in the way (the world does not stop).
+        var world = UiKit.Section("How this world works", "three things that are not what other games do", tone: HudStyle.Brass);
+        foreach (var explainer in Models.Explainers.All)
+        {
+            world.AddChild(UiKit.Words(explainer.Title, 18, HudStyle.Ember));
+            foreach (string paragraph in explainer.Paragraphs)
+                world.AddChild(UiKit.Words(paragraph, 16, HudStyle.Bone));
+        }
+        _sheet.Body.AddChild(world);
         if (Files.Length > 0)
         {
             var support = UiKit.Section("Support", "what a tester sends with a problem report");

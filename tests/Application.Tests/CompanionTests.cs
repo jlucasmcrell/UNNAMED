@@ -464,4 +464,28 @@ public class CompanionTests
         Assert.Empty(arena.Simulation.Companions);
         Assert.Empty(arena.Simulation.CaptureRecord().Companions);
     }
-}
+
+    /// <summary>"Focus my target": with the tactic on, the companion's first blow goes to what the character struck, not to what is nearest the companion.</summary>
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void FocusMyTarget_SendsTheCompanionAtWhatTheCharacterStruck(bool focus)
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        // The character faces a wolf a step to the north; Tavar stands to the east beside the other wolf, which is the nearer to him.
+        var tavar = Joined(74, 149) with { Tactics = new PartyTactics(true, false, false, focus) };
+        var arena = With(session, (70, 150), tavar, new[] { (Arena.Wolf, 70.0, 148.6, "sentinel"), (Arena.Wolf, 75.5, 149.0, "sentinel") });
+        var north = arena.Simulation.Creatures.OrderBy(c => Math.Abs(c.Body.XMm - arena.Simulation.Player.Body.XMm)).First();
+        var hits = arena.Record<HitResolved>();
+        arena.Tick();
+        arena.Face(north);
+        arena.Tick();
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
+        for (int i = 0; i < 120 && !hits.Any(h => h.Attacker == Him(arena).InstanceId); i++)
+            arena.Tick();
+        var first = hits.FirstOrDefault(h => h.Attacker == Him(arena).InstanceId);
+        Assert.NotNull(first);
+        Assert.True(hits.Any(h => h.Attacker == arena.Player && h.Target == north.Id), "the character never struck the wolf to the north");
+        Assert.Equal(focus, first.Target == north.Id);
+    }}

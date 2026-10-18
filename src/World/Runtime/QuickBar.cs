@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 
 namespace UNNAMED.World.Runtime;
@@ -15,6 +16,9 @@ public sealed record AssignQuickSlotCommand(EntityId Actor, int Slot, string? De
 
 /// <summary>A slot of an action bar (the quick bar is 0) now holds <see cref="DefinitionId"/>, or nothing.</summary>
 public sealed record QuickSlotAssigned(int Slot, string? DefinitionId, long Tick, int Bar = 0);
+
+/// <summary>The held weapon's family changed, and the main bar now shows <see cref="Family"/>'s layout.</summary>
+public sealed record MainBarFollowedWeapon(string Family, long Tick);
 
 /// <summary>
 /// Owns: <see cref="StateSlice.QuickBar"/>. The player assigns the slots. What comes to hand is offered a free slot as it does: a usable
@@ -57,7 +61,10 @@ internal sealed class QuickBarSystem
         var bar = QuickBar.Assign(was, command.Slot, command.DefinitionId);
         if (bar.SequenceEqual(was))
             return null;
-        State.SetActionBar(_owner, command.Bar, bar);
+        if (command.Bar == 0)
+            SetMain(bar);
+        else
+            State.SetActionBar(_owner, command.Bar, bar);
         // What left every bar was cleared on purpose (a swap keeps both on it); what is on one now is not.
         var onBars = State.ActionBars.SelectMany(b => b).OfType<string>().ToHashSet(StringComparer.Ordinal);
         State.SetQuickBarCleared(_owner, State.QuickBarCleared.Union(was.OfType<string>()).Where(id => !onBars.Contains(id) && !QuickBar.TryGearSet(id, out _))
@@ -68,6 +75,42 @@ internal sealed class QuickBarSystem
                 _context.Events.Publish(new QuickSlotAssigned(slot, bar[slot], tick, command.Bar));
         }
         return null;
+    }
+
+    /// <summary>The main bar set to <paramref name="bar"/>: it is the held family's layout, so that layout is kept with it.</summary>
+    private void SetMain(ImmutableArray<string?> bar) =>
+        State.SetMainBar(_owner, State.HeldFamily, bar, State.HeldFamily.Length > 0 ? State.FamilyBars.SetItem(State.HeldFamily, bar) : State.FamilyBars);
+
+    /// <summary>The family of what is in the main hand: the weapon's skill, or bare hands.</summary>
+    private string CurrentFamily()
+    {
+        if (!State.Equipment.TryGetValue(EquipSlot.MainHand, out var held))
+            return WeaponFamilies.Unarmed;
+        string? def = State.Inventory.FirstOrDefault(e => e.ItemId == held)?.DefId;
+        var weapon = def is null ? null : _context.Setup.Items.Catalog.Find(def)?.Weapon;
+        return WeaponFamilies.Of(weapon is not null, weapon?.SkillId);
+    }
+
+    /// <summary>
+    /// The main bar follows the weapon in hand (canon 26 §8; the owner, 2026-10-18): a change of held family keeps the layout that was showing
+    /// under the old family and shows the new family's - which, the first time it is held, is a copy of the layout showing. The first tick of a
+    /// character saved without this adopts the family held, so their bar becomes that family's layout.
+    /// </summary>
+    private void FollowTheWeapon(long tick)
+    {
+        string family = CurrentFamily();
+        if (family == State.HeldFamily)
+            return;
+        var families = State.HeldFamily.Length > 0 ? State.FamilyBars.SetItem(State.HeldFamily, State.QuickBar) : State.FamilyBars;
+        var was = State.QuickBar;
+        var bar = families.TryGetValue(family, out var kept) ? kept : was;
+        State.SetMainBar(_owner, family, bar, families.SetItem(family, bar));
+        for (int slot = 0; slot < QuickBar.Slots; slot++)
+        {
+            if (bar[slot] != was[slot])
+                _context.Events.Publish(new QuickSlotAssigned(slot, bar[slot], tick));
+        }
+        _context.Events.Publish(new MainBarFollowedWeapon(family, tick));
     }
 
     /// <summary>Why <paramref name="id"/> cannot go on the bar, or null: an item needs a use, a formula or technique must be known.</summary>
@@ -85,6 +128,7 @@ internal sealed class QuickBarSystem
     /// <summary>Offer a free slot to whatever came to hand since the last tick; reads the pack and the knowledge record, never writes them.</summary>
     public void Tick(long tick)
     {
+        FollowTheWeapon(tick);
         if (State.Inventory == _inventory && State.Progression.Known == _known)
             return;
         _inventory = State.Inventory;
@@ -103,12 +147,12 @@ internal sealed class QuickBarSystem
             State.SetQuickBarCleared(_owner, State.QuickBarCleared.Except(dropped));
         foreach (var (id, order) in carried.Select(id => (id, QuickBar.ItemOrder)).Concat(workings.Select(id => (id, QuickBar.WorkingOrder))))
         {
-            if (!_offered.Add(id) || State.ActionBars.Any(b => b.Contains(id)) || State.QuickBarCleared.Contains(id))
+            if (!_offered.Add(id) || State.ActionBars.Any(b => b.Contains(id)) || State.FamilyBars.Values.Any(b => b.Contains(id)) || State.QuickBarCleared.Contains(id))
                 continue;
             int slot = QuickBar.FreeSlot(State.QuickBar, order);
             if (slot < 0)
                 continue;
-            State.SetQuickBar(_owner, State.QuickBar.SetItem(slot, id));
+            SetMain(State.QuickBar.SetItem(slot, id));
             _context.Events.Publish(new QuickSlotAssigned(slot, id, tick));
         }
     }

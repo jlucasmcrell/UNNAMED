@@ -349,6 +349,10 @@ public partial class Hud : CanvasLayer
     /// <summary>The compass's mark for the tracked beat, as a bearing in degrees clockwise from north; null hides it.</summary>
     public void SetMarker(float? bearingDegrees) => _compass.SetMarker(bearingDegrees);
 
+    public void SetNearestMarker(float? bearingDegrees) => _compass.SetNearest(bearingDegrees);
+
+    public void SetMarkerWords(string words) => _compass.SetMarkWords(words);
+
     /// <summary>The pipeline's compass dial, when the asset workspace has one.</summary>
     public void UseCompassDial(Texture2D? dial) => _compass.UseDial(dial);
 
@@ -401,8 +405,14 @@ public partial class Hud : CanvasLayer
 
     public void Reading(string text) => Toast(text, 12, reading: true);
 
-    public void Toast(string text, double seconds = 4, bool reading = false)
+    /// <summary>A line is being said (a bark, ambient talk): captioned with who says it while subtitles are on.</summary>
+    public void Say(string speaker, string text, double spokenSeconds = 0) => _view?.Subtitles.Say(speaker, text, spokenSeconds);
+
+    public void Toast(string text, double seconds = 4, bool reading = false, Settings.NoticeKind kind = Settings.NoticeKind.None)
     {
+        // A kind the player has switched off (Settings, Notices) is not shown; what is not of a kind - quests, danger, errors - always is.
+        if (!Settings.SettingsStore.Current.Profile.Interface.Shows(kind))
+            return;
         // Settings' notice duration (Interface): short, normal, long or longer.
         seconds *= Settings.SettingsStore.Current.Profile.Interface.NoticeDuration;
         if (_view is not null)

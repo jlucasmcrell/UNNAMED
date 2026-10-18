@@ -1,0 +1,10 @@
+id: hint.companions_mend
+kind: hint
+schema: 1
+display_key: hint.companions_mend.text
+tags: [hint]
+notes: "PROPOSED. Companion approval and progression."
+category: party
+trigger: companion_recruited
+order: 1
+text: "A named companion who cannot get up goes home to mend, and comes back. They are not lost to you."

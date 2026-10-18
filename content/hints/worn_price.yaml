@@ -1,0 +1,10 @@
+id: hint.worn_price
+kind: hint
+schema: 1
+display_key: hint.worn_price.text
+tags: [hint]
+notes: "PROPOSED. Durability-adjacent; pairs with the item_worn hint."
+category: economy
+trigger: trade_opened
+order: 1
+text: "A worn thing is worth less than a fresh one. You can see the difference before you agree to it."

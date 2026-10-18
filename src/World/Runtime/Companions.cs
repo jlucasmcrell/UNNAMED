@@ -555,6 +555,10 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
         bool InPlay(CreatureState x, long within) =>
             x.Alive && x.Site.Space == npc.Space && TierOf(x.Body) == SimulationTier.A && Distance(body.XMm, body.ZMm, x.Body.XMm, x.Body.ZMm) <= within
             && (!leashed || Distance(player.XMm, player.ZMm, x.Body.XMm, x.Body.ZMm) <= tuning.LeashMm);
+        // Focusing the character's target: what the character struck last goes first - before the creature already being fought, wherever the nearest is.
+        if (c.Tactics.FocusTarget && !State.PlayerCombat.Defeated && PlayerFocus?.Invoke() is { } focus && State.Creatures.TryGetValue(focus, out var focused)
+            && focused.Mind == CreatureMind.Engaged && InPlay(focused, radius) && !Walled(body.XMm, body.ZMm, focused.Body.XMm, focused.Body.ZMm))
+            return focused;
         if (c.TargetKey is { } key && State.Creatures.TryGetValue(key, out var current) && InPlay(current, radius * 3 / 2))
             return current;
         if (State.PlayerCombat.Defeated)

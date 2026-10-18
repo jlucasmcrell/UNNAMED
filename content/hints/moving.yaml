@@ -1,10 +1,16 @@
+# ONBOARDING_HINTS.yaml - draft hints for the onboarding pass.
+# Shape matches content/hints/*.yaml exactly: one document per hint, split on '---'.
+# Every text is under 140 characters (the code allows 160; see ONBOARDING_CONTENT.md 0).
+# 'category' groups hints for Light guidance, which shows only the FIRST of each category,
+# so the order-0 hint of every category is the one that must survive Light.
+
 id: hint.moving
 kind: hint
 schema: 1
 display_key: hint.moving.text
 tags: [hint]
-notes: WP10 guidance (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.10 O1). Mechanics only, no lore; shown once, never modal.
+notes: "Existing, tightened to fit the 140-character limit the brief sets. Light-guidance hint for movement."
 category: movement
 trigger: new_game
 order: 0
-text: "{key:move_forward} {key:move_left} {key:move_back} {key:move_right} move. Hold {key:sprint} to sprint; {key:jump} jumps and {key:crouch} crouches."
+text: "{key:move_forward} {key:move_left} {key:move_back} {key:move_right} move. {key:sprint} sprints, {key:jump} jumps, {key:crouch} crouches."

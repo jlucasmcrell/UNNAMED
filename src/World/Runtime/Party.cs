@@ -138,6 +138,9 @@ internal sealed partial class CompanionSystem
     /// </summary>
     public Func<string, string?>? Unhireable { get; init; }
 
+    /// <summary>The creature the character struck most recently, within <see cref="PartyTactics.FocusWindowTicks"/> of now, or null: what "focus my target" follows.</summary>
+    public Func<string?>? PlayerFocus { get; init; }
+
     /// <summary>Why someone cannot join the party now, or null: the party is full, or they are still recovering from a grave wound.</summary>
     private string? Joinable(NpcDefinition definition)
     {

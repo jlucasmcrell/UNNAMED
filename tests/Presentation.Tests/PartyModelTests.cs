@@ -122,7 +122,8 @@ public class PartyModelTests
     {
         Assert.Equal("Keep out of fights", PartyModel.StanceWord(CompanionStance.Passive));
         var tactics = PartyModel.Tactics(PartyTactics.Default);
-        Assert.Equal(new[] { true, false, false }, tactics.Select(t => t.On));
+        Assert.Equal(new[] { true, false, false, false }, tactics.Select(t => t.On));   // stay close, focus my target, protect the injured, save healing
+        Assert.Equal(PartyTactics.Default with { FocusTarget = true }, PartyModel.Toggled(PartyTactics.Default, "focus"));
         Assert.Equal(PartyTactics.Default with { ProtectInjured = true }, PartyModel.Toggled(PartyTactics.Default, "injured"));
         Assert.Equal(PartyTactics.Default with { KeepToLeash = false }, PartyModel.Toggled(PartyTactics.Default, "leash"));
         Assert.Equal(PartyTactics.Default, PartyModel.Toggled(PartyTactics.Default, "unknown"));
