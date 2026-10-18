@@ -25,6 +25,9 @@ public partial class AnimationSheet : Node3D
     private readonly ArtLibrary _art;
     private readonly ArtBindings _bindings;
     private readonly string _directory;
+    private readonly bool _profiles;
+    private readonly string? _profileStates;
+    private readonly List<(SkinnedModel Model, string State)> _profileModels = new();
     private readonly Camera3D _camera = new() { Fov = 40, Current = true, Near = 0.05f };
     private readonly List<(string Name, Action Setup)> _shots = new();
     private readonly List<(string Creature, SkinnedModel Model, string State, bool Control)> _creatures = new();
@@ -70,11 +73,13 @@ public partial class AnimationSheet : Node3D
     /// <summary>How far into a reach (its clip is 1.4 s) its picture is taken: the middle of its hold at full stretch.</summary>
     private const double ReachSeconds = 0.7;
 
-    public AnimationSheet(ArtLibrary art, ArtBindings bindings, string directory)
+    public AnimationSheet(ArtLibrary art, ArtBindings bindings, string directory, bool profiles = false, string? profileStates = null)
     {
         _art = art;
         _bindings = bindings;
         _directory = directory;
+        _profiles = profiles;
+        _profileStates = profileStates;
     }
 
     public override void _Ready()
@@ -94,6 +99,12 @@ public partial class AnimationSheet : Node3D
         floor.MaterialOverride = _art.WorldMaterial("material_packed_dirt_ground") ?? new StandardMaterial3D { AlbedoColor = new Color(0.4f, 0.38f, 0.33f) };
         AddChild(floor);
         AddChild(_camera);
+
+        if (_profiles)
+        {
+            AddPlayerProfiles();
+            return;
+        }
 
         // The creatures: a row each, six states along +X, facing a little towards the camera.
         float z = 0;
@@ -381,6 +392,45 @@ public partial class AnimationSheet : Node3D
         }
     }
 
+    /// <summary>One real player skin per bound state, held at twelve reproducible phases, with runtime retargeting, correctives and outfit.</summary>
+    private void AddPlayerProfiles()
+    {
+        var person = _bindings.People["player"];
+        var wanted = _profileStates?.Split(',').ToHashSet(StringComparer.Ordinal);
+        foreach (var state in person.Clips.Keys.Where(s => wanted is null || wanted.Contains(s)))
+        {
+            var model = SkinnedModel.Create(_art, person.Model, person.Clips)
+                ?? throw new InvalidOperationException($"Profile body did not load: {person.Model}");
+            if (!model.Has(state))
+                throw new InvalidOperationException($"Profile clip did not load: {person.Clips[state]}");
+            model.Position = new Vector3(0, 0, -_profileModels.Count * 10);
+            AddChild(model);
+            CorrectiveJoints.Load(_art, person.Model, model.Skeleton);
+            Outfit.Dress(_art, model, person.Model, person.Outfit);
+            CharacterMaterials.ShareLodBox(model.Skeleton);
+            _profileModels.Add((model, state));
+            for (int phase = 0; phase < 12; phase++)
+            {
+                float fraction = phase / 12f;
+                foreach (string view in new[] { "side", "front", "back" })
+                {
+                    var direction = view == "side" ? Vector3.Right : view == "front" ? Vector3.Back : Vector3.Forward;
+                    _shots.Add(($"{person.Model}_{state}_{phase:00}_{view}", () =>
+                    {
+                        _fraction = fraction;
+                        _camera.Projection = Camera3D.ProjectionType.Orthogonal;
+                        _camera.Size = 2.15f;
+                        var target = model.Position + Vector3.Up * 1.05f;
+                        Aim(target + direction * 3, target);
+                    }));
+                }
+            }
+        }
+        if (_profileModels.Count == 0)
+            throw new InvalidOperationException("No player states selected for the profile sheet");
+        _notes.Add($"Player profile sheet: {person.Model}, twelve held phases; no gameplay pose changes.");
+    }
+
     private void Aim(Vector3 eye, Vector3 target) => _camera.LookAtFromPosition(eye, target, Vector3.Up);
 
     /// <summary>
@@ -408,6 +458,8 @@ public partial class AnimationSheet : Node3D
             model.Hold(state, _fraction, 0);
         foreach (var (model, state, fraction) in _held)
             model.Hold(state, fraction, 0);
+        foreach (var (model, state) in _profileModels)
+            model.Hold(state, _fraction, 0);
         foreach (var (figure, speed) in _walkers)
             figure.Pose(figure.Position, 0, speed, delta);
         // Swung side to side and turned with it, fast enough that a springy tail trails.

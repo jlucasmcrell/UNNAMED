@@ -92,9 +92,10 @@ def main():
     p.add_argument("--out", required=True)
     p.add_argument("--only", default="")
     p.add_argument("--rigs", default="prod,mh,mh_combat")
+    p.add_argument("--mh-target", default=MH_TARGET)
     a = p.parse_args()
     only = set(filter(None, a.only.split(",")))
-    targets = {"prod": PROD_TARGET, "mh": MH_TARGET}
+    targets = {"prod": PROD_TARGET, "mh": a.mh_target}
     jobs = []
     for rig in a.rigs.split(","):
         if rig == "mh_combat":

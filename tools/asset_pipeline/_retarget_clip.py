@@ -281,6 +281,8 @@ class Scene:
 class Retarget:
     def __init__(self, source, target, bmap, scale_mode="legs", stance="rest", narrow=1.0):
         self.src, self.tgt, self.map = source, target, bmap
+        self.neck_pose_radians = 0.0
+        self.neck_pose = None
         self.S0 = source.world(source.local())
         self.T0 = target.world(target.local())
         self.bones = [n for n in (target.names[i] for i in target.order) if n in target.joints]
@@ -550,6 +552,43 @@ class Retarget:
         world[foot] = compose(world[foot][:3, :3], end)
         return max(dist - (a + b), 0.0)
 
+    def calibrate_neck_pose(self, tracks):
+        """One retarget-pose offset: match the take's mean cervical direction to the target bind pose about body up.
+
+        The source's stride, torso, shoulder and neck motion remain; this removes a sustained head-forward posture from a take.
+        It changes no body vertices/rest joints and uses no hand-authored frame corrections or runtime modifier.
+        """
+        required = ("neck_01", "neck_02", "head")
+        if any(b not in self.bones for b in required):
+            raise ValueError("--neutral-neck needs the MetaHuman neck_01/neck_02/head chain")
+        self.neck_pose_radians = 0.0
+        forward = np.cross(self.lat_t_axis, np.array([0.0, 1.0, 0.0]))
+        up = np.array([0.0, 1.0, 0.0])
+        rest = self.tgt.pos(self.T0, "head") - self.tgt.pos(self.T0, "neck_01")
+        target_pitch = math.atan2(float(rest @ forward), float(rest @ up))
+        angles = []
+        for phase in range(12):
+            pose, _, _, _ = self.frame(tracks, Scene.duration(tracks) * phase / 12, "inplace", "fk")
+            locals_ = self.tgt.local()
+            for bone, local in pose.items():
+                locals_[self.tgt.index[bone]] = local
+            worlds = self.tgt.world(locals_)
+            hips_motion = self.tgt.rot(worlds, self.hips) @ self.tgt.rot(self.T0, self.hips).T
+            across = hips_motion @ self.lat_t_axis
+            across[1] = 0
+            across /= np.linalg.norm(across)
+            heading = np.cross(across, up)
+            direction = self.tgt.pos(worlds, "head") - self.tgt.pos(worlds, "neck_01")
+            if np.linalg.norm(direction) < 0.01:
+                raise ValueError("Cannot calibrate a degenerate neck/head chain")
+            angles.append(math.atan2(float(direction @ heading), float(direction @ up)))
+        mean_pitch = math.atan2(sum(math.sin(a) for a in angles), sum(math.cos(a) for a in angles))
+        self.neck_pose_radians = (target_pitch - mean_pitch + math.pi) % (2 * math.pi) - math.pi
+        self.neck_pose = {"frame": "body_yaw", "samples": 12, "keep_source_gaze": True,
+                          "take_mean_deg": round(math.degrees(mean_pitch), 4),
+                          "target_bind_deg": round(math.degrees(target_pitch), 4),
+                          "offset_deg": round(math.degrees(self.neck_pose_radians), 4)}
+
     def frame(self, tracks, time, root_mode="keep", feet="ik"):
         """Target joint locals (glTF node matrices, by name) at `time`, plus the root travel."""
         B, dR, dp = self.source_body(tracks, time)
@@ -571,6 +610,12 @@ class Retarget:
                 R = self.Q @ R_virtual @ self.Q.T @ tgt.rot(self.T0, b)
             else:
                 R = ortho(world[p][:3, :3] @ ortho(Lr[:3, :3])) if p else tgt.rot(self.T0, b)
+            if self.neck_pose_radians and b in ("neck_01", "neck_02"):
+                hips_motion = ortho(world[self.hips][:3, :3]) @ tgt.rot(self.T0, self.hips).T
+                across = hips_motion @ self.lat_t_axis
+                across[1] = 0
+                across /= np.linalg.norm(across)
+                R = axis_angle(across, self.neck_pose_radians) @ R
             if p is None:                       # the root: at rest in the body frame
                 P = tgt.pos(self.T0, b)
             elif b == self.hips:
@@ -729,6 +774,7 @@ def parse_args():
                    help="ik: ankles follow the source ankles' scaled travel (no slide); fk: rotations only")
     p.add_argument("--stance", choices=("rest", "source"), default="rest",
                    help="rest: ankles travel from the target's rest stance; source: the source's step width (feet=ik)")
+    p.add_argument("--neutral-neck", action="store_true", help="calibrate one cervical retarget-pose offset from the take's mean posture to the target bind pose; preserve source gaze and all body/stride motion")
     p.add_argument("--pin-hips", type=float, default=0.0,
                    help="fraction (0-1) of the hips' sideways and fore-aft walk-off from the first frame taken off the whole body "
                         "(a stepping strike steps in place)")
@@ -839,6 +885,8 @@ def main():
         fps = args.fps or round(Scene.key_rate(tracks))
         rt = Retarget(source, target, bmap, args.scale, args.stance, args.stance_narrow)
         rt.pin_hips = args.pin_hips
+        if args.neutral_neck:
+            rt.calibrate_neck_pose(tracks)
         times, frames, travel = rt.run(tracks, fps, args.root, args.feet)
         loop_closure_deg = close_loop(frames, times, args.loop_blend) if args.loop and args.loop_blend > 0 else 0.0
 
@@ -903,6 +951,7 @@ def main():
                           "(T-pose to A-pose); hips anchored at the thigh midpoint; ankles on the "
                           "source ankles' scaled travel (two-bone IK) when feet=ik",
                 "fps": fps,
+                **({"neck_retarget_pose": rt.neck_pose} if rt.neck_pose else {}),
                 "scale": round(float(rt.k), 5),
                 "scale_mode": args.scale,
                 "scale_legs": round(float(rt.scale_legs), 5),

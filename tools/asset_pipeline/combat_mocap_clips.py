@@ -29,8 +29,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 BLENDER = r"C:\Program Files\Blender Foundation\Blender 5.2\blender.exe"
 DEPOT = r"C:\Otherreach_Recovery\Otherreach_Playtest_RESTORE_20261015b\primary"
 PROD_TARGET = os.path.join(DEPOT, "rigged", "pc_veth_m_body_c", "pc_veth_m_body_c_rigged.glb")
-# the rig the game ships (game_ws fallback, 2026-10-16): the later work\assembled rig carries corrective joints the maps do not declare
-MH_TARGET = r"C:\Otherreach_Recovery\asset_work\metahuman\game_ws\fallback\rigged\mh_veth_m\mh_veth_m_rigged.glb"
+# Current approved 167-joint body; every MetaHuman map declares its runtime-driven helpers.
+MH_TARGET = r"C:\Otherreach_Recovery\asset_work\metahuman\work\assembled\mh_veth_m\mh_veth_m_rigged.glb"
 CUTS = r"D:\Otherreach_Scratch\anim\src2\cuts"
 ROKOKO = r"D:\Otherreach_Depot\Rokoko_Free_263\Rokoko Studio (Mocap)"
 MIXAMO = r"D:\Otherreach_Depot\Mixamo_20261017"
@@ -137,6 +137,7 @@ def main():
     p.add_argument("--out", required=True)
     p.add_argument("--only", default="")
     p.add_argument("--rigs", default="prod,mh")
+    p.add_argument("--mh-target", default=MH_TARGET)
     p.add_argument("--cut-only", action="store_true")
     p.add_argument("--recut", action="store_true")
     a = p.parse_args()
@@ -151,6 +152,8 @@ def main():
             continue
         for rig in a.rigs.split(","):
             tag, key, target = RIGS[rig]
+            if rig == "mh":
+                target = a.mh_target
             anim_id = f"player.{tag}.{st}_mc"
             map_name = f"{family}_{key}.json" if family in ("ue5_manny", "mixamo_rig") else f"{family}_{key}.json"
             cmd = [BLENDER, "--background", "--factory-startup", "--python", os.path.join(HERE, "_retarget_clip.py"), "--",

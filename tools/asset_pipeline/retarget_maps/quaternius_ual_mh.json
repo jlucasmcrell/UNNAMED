@@ -1,6 +1,6 @@
 {
  "map_version": 1,
- "target_rig": "MetaHuman game skeleton (asset_work/metahuman bl_assemble.py: 145 joints, UE5 names, A-pose rest; mh_veth_m / mh_veth_f)",
+ "target_rig": "MetaHuman game skeleton, 167 joints including corrective roots; current assembled Veth body",
  "target_hips": "pelvis",
  "target_lateral": [
   "thigh_l",
@@ -570,6 +570,72 @@
    "source": null
   },
   "thigh_twist_02_r": {
+   "source": null
+  },
+  "calf_correctiveRoot_l": {
+   "source": null
+  },
+  "calf_correctiveRoot_r": {
+   "source": null
+  },
+  "clavicle_out_l": {
+   "source": null
+  },
+  "clavicle_out_r": {
+   "source": null
+  },
+  "clavicle_pec_l": {
+   "source": null
+  },
+  "clavicle_pec_r": {
+   "source": null
+  },
+  "clavicle_scap_l": {
+   "source": null
+  },
+  "clavicle_scap_r": {
+   "source": null
+  },
+  "lowerarm_correctiveRoot_l": {
+   "source": null
+  },
+  "lowerarm_correctiveRoot_r": {
+   "source": null
+  },
+  "spine_04_latissimus_l": {
+   "source": null
+  },
+  "spine_04_latissimus_r": {
+   "source": null
+  },
+  "thigh_correctiveRoot_l": {
+   "source": null
+  },
+  "thigh_correctiveRoot_r": {
+   "source": null
+  },
+  "upperarm_bck_l": {
+   "source": null
+  },
+  "upperarm_bck_r": {
+   "source": null
+  },
+  "upperarm_correctiveRoot_l": {
+   "source": null
+  },
+  "upperarm_correctiveRoot_r": {
+   "source": null
+  },
+  "upperarm_fwd_l": {
+   "source": null
+  },
+  "upperarm_fwd_r": {
+   "source": null
+  },
+  "upperarm_in_l": {
+   "source": null
+  },
+  "upperarm_in_r": {
    "source": null
   }
  },

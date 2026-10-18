@@ -81,6 +81,9 @@ def main():
                "--clip-type", "idle" if anim_id.startswith("npc.") else "move", "--category", category,
                "--loop-blend", str(blend), "--assets", a.out, "--tag", "fab_mocap",
                "--notes", f"{key} ({why}), retargeted in place with the source's step width (--stance source)."]
+        # Keep the owner's accepted jog, including its stride/torso/shoulders/gaze. Calibrate only the cervical retarget pose.
+        if rig == "mh" and anim_id.endswith(".run"):
+            cmd += ["--neutral-neck"]
         run = subprocess.run(cmd, capture_output=True, text=True)
         result = [ln for ln in run.stdout.splitlines() if ln.startswith("RETARGET_RESULT ")]
         if run.returncode or not result:

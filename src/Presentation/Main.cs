@@ -264,7 +264,8 @@ public partial class Main : Node3D
         {
             var catalog = AssetCatalog.Load(_options.GetValueOrDefault("--asset-root"), Home());
             AddChild(new Art.AnimationSheet(new Art.ArtLibrary(catalog.Root),
-                Art.ArtBindings.LoadWithOverlay(Art.ArtBindings.ResourcePath, _options.GetValueOrDefault("--bindings-overlay")), Path.GetFullPath(sheet)));
+                Art.ArtBindings.LoadWithOverlay(Art.ArtBindings.ResourcePath, _options.GetValueOrDefault("--bindings-overlay")), Path.GetFullPath(sheet),
+                _flags.Contains("--anim-profiles"), _options.GetValueOrDefault("--anim-states")));
             return;
         }
 
@@ -1516,7 +1517,7 @@ public partial class Main : Node3D
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
-                    or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review"
+                    or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review" or "--anim-states"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else
