@@ -167,6 +167,7 @@ public partial class DialoguePanel : CanvasLayer
     private static void StyleReply(Button button, int number)
     {
         button.AddThemeFontOverride("font", HudStyle.Body);
+        button.SetMeta(HudStyle.DesignedSize, 18);   // so a change of text size reaches an open row (UiKit.Restyle)
         button.AddThemeFontSizeOverride("font_size", HudStyle.Sized(18));
         foreach (string state in new[] { "font_color", "font_hover_color", "font_focus_color", "font_hover_pressed_color" })
             button.AddThemeColorOverride(state, HudStyle.Bone);

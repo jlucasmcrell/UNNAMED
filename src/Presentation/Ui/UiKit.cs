@@ -507,6 +507,9 @@ public static partial class UiKit
                 case Label label when label.HasMeta(HudStyle.DesignedSize):
                     label.AddThemeFontSizeOverride("font_size", HudStyle.Sized(label.GetMeta(HudStyle.DesignedSize).AsInt32()));
                     break;
+                case Button button when button.HasMeta(HudStyle.DesignedSize):   // a conversation's open reply rows
+                    button.AddThemeFontSizeOverride("font_size", HudStyle.Sized(button.GetMeta(HudStyle.DesignedSize).AsInt32()));
+                    break;
             }
         }
     }
