@@ -12,7 +12,7 @@ public sealed record Flipbook(Texture2D Atlas, int Columns, int Rows, int Frames
 /// <summary>
 /// The asset pipeline's Phase-1 art, read through its own interfaces and never copied into this public repository: the icon manifest
 /// (<c>manifests/ui_icons.json</c>, an icon's sprite by its ID) and the effect manifest (<c>manifests/magic_vfx.json</c>, a flipbook by
-/// its ID). The workspace is <c>--asset-root</c>, else <c>UNNAMED_ASSET_ROOT</c>, else the repository's own untracked <c>assets/</c>.
+/// its ID). The workspace is <c>--asset-root</c>, else the packaged <c>primary/</c>, else <c>UNNAMED_ASSET_ROOT</c>, else untracked <c>assets/</c>.
 /// Without one - a fresh clone, CI - every caller draws its greybox instead.
 /// </summary>
 public sealed class AssetCatalog
@@ -47,8 +47,8 @@ public sealed class AssetCatalog
 
     public static AssetCatalog Load(string? explicitRoot, string repositoryRoot)
     {
-        string? root = new[] { explicitRoot, System.Environment.GetEnvironmentVariable("UNNAMED_ASSET_ROOT"), Path.Combine(repositoryRoot, "assets") }
-            .FirstOrDefault(r => !string.IsNullOrWhiteSpace(r) && File.Exists(Path.Combine(r, "manifests", "ui_icons.json")));
+        string? root = AssetWorkspace.Find(explicitRoot,
+            System.Environment.GetEnvironmentVariable("UNNAMED_ASSET_ROOT"), repositoryRoot);
         if (root is null)
             return Empty;
         var catalog = new AssetCatalog(Path.GetFullPath(root));
