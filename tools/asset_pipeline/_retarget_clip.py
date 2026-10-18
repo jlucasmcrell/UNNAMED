@@ -555,7 +555,7 @@ class Retarget:
     def calibrate_neck_pose(self, tracks):
         """One retarget-pose offset: match the take's mean cervical direction to the target bind pose about body up.
 
-        The source's stride, torso, shoulder and neck motion remain; this removes a sustained head-forward posture from a take.
+        The source's stride, torso, shoulder and cervical/head motion remain; this removes a sustained head-forward posture from a take.
         It changes no body vertices/rest joints and uses no hand-authored frame corrections or runtime modifier.
         """
         required = ("neck_01", "neck_02", "head")
@@ -584,7 +584,7 @@ class Retarget:
             angles.append(math.atan2(float(direction @ heading), float(direction @ up)))
         mean_pitch = math.atan2(sum(math.sin(a) for a in angles), sum(math.cos(a) for a in angles))
         self.neck_pose_radians = (target_pitch - mean_pitch + math.pi) % (2 * math.pi) - math.pi
-        self.neck_pose = {"frame": "body_yaw", "samples": 12, "keep_source_gaze": True,
+        self.neck_pose = {"frame": "body_yaw", "samples": 12, "head_follows_neck": True,
                           "take_mean_deg": round(math.degrees(mean_pitch), 4),
                           "target_bind_deg": round(math.degrees(target_pitch), 4),
                           "offset_deg": round(math.degrees(self.neck_pose_radians), 4)}
@@ -610,7 +610,7 @@ class Retarget:
                 R = self.Q @ R_virtual @ self.Q.T @ tgt.rot(self.T0, b)
             else:
                 R = ortho(world[p][:3, :3] @ ortho(Lr[:3, :3])) if p else tgt.rot(self.T0, b)
-            if self.neck_pose_radians and b in ("neck_01", "neck_02"):
+            if self.neck_pose_radians and b in ("neck_01", "neck_02", "head"):
                 hips_motion = ortho(world[self.hips][:3, :3]) @ tgt.rot(self.T0, self.hips).T
                 across = hips_motion @ self.lat_t_axis
                 across[1] = 0
@@ -774,7 +774,7 @@ def parse_args():
                    help="ik: ankles follow the source ankles' scaled travel (no slide); fk: rotations only")
     p.add_argument("--stance", choices=("rest", "source"), default="rest",
                    help="rest: ankles travel from the target's rest stance; source: the source's step width (feet=ik)")
-    p.add_argument("--neutral-neck", action="store_true", help="calibrate one cervical retarget-pose offset from the take's mean posture to the target bind pose; preserve source gaze and all body/stride motion")
+    p.add_argument("--neutral-neck", action="store_true", help="calibrate one cervical retarget-pose offset from the take's mean posture to the target bind pose; preserve relative cervical/head motion and all body/stride motion")
     p.add_argument("--pin-hips", type=float, default=0.0,
                    help="fraction (0-1) of the hips' sideways and fore-aft walk-off from the first frame taken off the whole body "
                         "(a stepping strike steps in place)")
