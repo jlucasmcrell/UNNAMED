@@ -27,12 +27,24 @@ internal sealed record AwardExperience(XpAward Award) : InternalCommand;
 /// <summary>What systems share: the state, the rules, the event bus, and the internal command route.</summary>
 internal sealed class SystemContext
 {
+    private readonly Dictionary<object, SpaceId> _siteSpaces = new();
+
     public SystemContext(RuntimeState state, SimulationSetup setup, IEventBus events, Func<InternalCommand, string?> dispatch)
     {
         State = state;
         Setup = setup;
         Events = events;
         Dispatch = dispatch;
+        // Layouts are immutable for this context. Resolve authored sites once, preserving the
+        // first matching layout, instead of rescanning every space for every collision probe.
+        void Register<T>(Func<RegionLayout, IEnumerable<T>> sites) where T : notnull
+        {
+            foreach (var (layout, site) in setup.Sites(sites))
+                _siteSpaces.TryAdd(site, layout.SpaceId);
+        }
+        Register(l => l.Doors);
+        Register(l => l.Switches);
+        Register(l => l.Barriers);
     }
 
     public RuntimeState State { get; }
@@ -52,12 +64,11 @@ internal sealed class SystemContext
     /// The space this layout's sites stand in. Every authored site's cell is resolved in it, so a door's flag and
     /// the quest that reads that flag are always the same cell (review B2).
     /// </summary>
-    private SpaceId SpaceOf<T>(T site, Func<RegionLayout, IEnumerable<T>> sites) =>
-        Setup.Sites(sites).FirstOrDefault(p => EqualityComparer<T>.Default.Equals(p.Site, site)).Layout?.SpaceId ?? Setup.Layout.SpaceId;
+    private SpaceId SpaceOf(object site) => _siteSpaces.GetValueOrDefault(site, Setup.Layout.SpaceId);
 
-    public bool IsOpen(DoorSite door) => State.World.GetFlag(Simulation.CellOf(SpaceOf(door, l => l.Doors), door), door.FlagId) != 0;
+    public bool IsOpen(DoorSite door) => State.World.GetFlag(Simulation.CellOf(SpaceOf(door), door), door.FlagId) != 0;
 
-    public bool IsSet(SwitchSite site) => State.World.GetFlag(Simulation.CellOf(SpaceOf(site, l => l.Switches), site), site.FlagId) != 0;
+    public bool IsSet(SwitchSite site) => State.World.GetFlag(Simulation.CellOf(SpaceOf(site), site), site.FlagId) != 0;
 
     internal const string InteriorTicksFlag = "world.space.elapsed_ticks";
 
@@ -75,9 +86,9 @@ internal sealed class SystemContext
             && State.World.GetFlag(CellOfSite(home.SpaceId, place.XMm, place.ZMm), requirement.FlagId) != 0;
 
     public bool Excluded(SwitchSite site) => !site.Excludes.IsDefaultOrEmpty
-        && site.Excludes.Any(flag => State.World.GetFlag(Simulation.CellOf(SpaceOf(site, l => l.Switches), site), flag) != 0);
+        && site.Excludes.Any(flag => State.World.GetFlag(Simulation.CellOf(SpaceOf(site), site), flag) != 0);
 
-    public bool IsLifted(BarrierSite barrier) => State.World.GetFlag(Simulation.CellOf(SpaceOf(barrier, l => l.Barriers), barrier), barrier.FlagId) != 0;
+    public bool IsLifted(BarrierSite barrier) => State.World.GetFlag(Simulation.CellOf(SpaceOf(barrier), barrier), barrier.FlagId) != 0;
 
     /// <summary>
     /// The cell a body stands in, in the space it is in (M8 D10). A cell is where a flag, a delta and an
@@ -146,8 +157,18 @@ internal sealed class SystemContext
         Math.Sqrt(Math.Pow(body.XMm - State.Body.XMm, 2) + Math.Pow(body.ZMm - State.Body.ZMm, 2));
 
     /// <summary>A wall, a structure or a closed door lies across the line between two points.</summary>
-    public bool Walled(long x0, long z0, long x1, long z1) =>
-        Setup.SpaceFor(State.Space).Blockers.Concat(ClosedDoors()).Where(b => State.Space.IsExterior || b.ClearanceMm < 1800).Any(b => b.Crosses(x0, z0, x1, z1));
+    public bool Walled(long x0, long z0, long x1, long z1)
+    {
+        bool Blocks(Blocker b) => (State.Space.IsExterior || b.ClearanceMm < 1800) && b.Crosses(x0, z0, x1, z1);
+        foreach (var blocker in Setup.SpaceFor(State.Space).Blockers)
+            if (Blocks(blocker)) return true;
+        var layout = Setup.LayoutFor(State.Space);
+        foreach (var door in layout.Doors)
+            if (!IsOpen(door) && Blocks(door.ClosedFootprint)) return true;
+        foreach (var barrier in layout.Barriers)
+            if (!IsLifted(barrier) && Blocks(barrier.Footprint)) return true;
+        return false;
+    }
 
     /// <summary>An NPC the character can speak to: within a hand's reach, and not through a wall (the Phase-1 technical audit, L-09).</summary>
     public bool InTalkReach(NpcState npc) =>

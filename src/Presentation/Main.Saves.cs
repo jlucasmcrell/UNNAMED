@@ -23,6 +23,9 @@ public partial class Main
     /// <summary>After a new game or a load: the only moments presentation copies the whole state.</summary>
     private void Resync()
     {
+        // A first NPC route otherwise builds this derived grid during play (~40 ms on BEAST).
+        // Prepare it with the rest of a new/loaded world's views, before handing over control.
+        _ = _session.Simulation!.Navigation.Grid;
         _controller.Resync();
         _creatures.Reset();
         if (_creatures != _exteriorCreatures) _exteriorCreatures.Reset();
