@@ -155,6 +155,7 @@ public sealed class FrontierPerf
                 {
                     path = node.GetPath().ToString(), mesh = mesh?.ResourcePath, surfaces = mesh?.GetSurfaceCount(),
                     triangles_per_instance = triangles, instances, source_triangles = triangles * instances,
+                    lod_bias = node.LodBias,
                     visible_in_tree = node.IsVisibleInTree(), shadows = node.CastShadow.ToString(), gi = node.GIMode.ToString(),
                     authored_shadows = node.HasMeta("shadow_lod_original") ? node.GetMeta("shadow_lod_original").AsString() : node.CastShadow.ToString(),
                     range_begin = node.VisibilityRangeBegin, range_end = node.VisibilityRangeEnd,

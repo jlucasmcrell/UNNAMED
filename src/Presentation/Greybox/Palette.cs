@@ -259,6 +259,12 @@ void fragment() {
             mesh.SetInstanceShaderParameter("tree_height", height);
             mesh.SetInstanceShaderParameter("stiffness", stiffness);
             mesh.SetInstanceShaderParameter("ow_late", 0f);
+            // Diagnostic only: measure tree index LODs separately from ground cover.
+            // Coarser projected error can thin crowns, so this stays opt-in pending image review.
+            if (float.TryParse(System.Environment.GetEnvironmentVariable("UNNAMED_TREE_LOD_PIXELS"),
+                System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float pixels)
+                && pixels is > 1 and <= 8)
+                mesh.LodBias = 1 / pixels;
         }
     }
 
