@@ -168,7 +168,9 @@ public class QuestContentTests
 
     [Fact]
     public void WhatTheItemIsMadeInto_MustBeCountedAllTheWayDown() =>
-        Assert.Contains(ErrorsWith(Quest1, "or_item_refs: [item.material.iron_ingot, item.weapon.march_spear]", "or_item_refs: [item.material.iron_ingot]", FiniteSpoil,
+        // Count the new armour routes so this deliberately missing route is still the March Spear.
+        Assert.Contains(ErrorsWith(Quest1, "or_item_refs: [item.material.iron_ingot, item.weapon.march_spear]",
+                "or_item_refs: [item.material.iron_ingot, item.armor.lame_coif, item.armor.lame_sabatons, item.armor.lamework_jack]", FiniteSpoil,
                 ("spawns/hollow/iron_shelf_armour.yaml", "kind: timer", "kind: none"), ("spawns/moor/barrow_sentinel.yaml", "kind: timer", "kind: none")),
             e => e.Code == "QST001" && e.Message.Contains("nothing renews item.material.iron_ingot, and recipe.smithing.march_spear makes it into item.weapon.march_spear",
                 StringComparison.Ordinal));
