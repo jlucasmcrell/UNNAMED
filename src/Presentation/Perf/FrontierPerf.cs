@@ -47,7 +47,7 @@ public sealed class FrontierPerf
     {
         _session = session; _controller = controller; _camera = camera;
         _viewport = viewport;
-        if (System.Environment.GetEnvironmentVariable("UNNAMED_FRONTIER_SWEEP") is "1" or "shadows")
+        if (System.Environment.GetEnvironmentVariable("UNNAMED_FRONTIER_SWEEP") is "1" or "shadows" or "scatter")
         {
             _breakdown = new FrontierBreakdown(viewport.GetTree().CurrentScene);
             _breakdown.Apply(0);
@@ -196,6 +196,7 @@ public sealed class FrontierPerf
             ["warmup"] = "Retain two boot intervals, then 10 seconds first heading; 3 seconds after each turn excluding screenshot readback. Warmup segments retained separately",
             ["capture"] = "12 seconds per heading; only the frame after screenshot readback is excluded",
             ["acceptance_targets"] = "Every steady segment: average >=60 fps, 1% low >=45 fps, every retained frame <=33.0 ms; diagnostic exclusions never qualify",
+            ["primitive_counter_caveat"] = "Engine-reported counts, not true instanced submissions: Godot ed1daf0bf omits the MultiMesh instance multiplier in its index-LOD counting path (render_forward_clustered.cpp:995-1017)",
             ["tier"] = VisualOptions.Tier,
             ["actual_msaa_3d"] = _viewport.Msaa3D.ToString(),
             ["actual_taa"] = _viewport.UseTaa.ToString(),

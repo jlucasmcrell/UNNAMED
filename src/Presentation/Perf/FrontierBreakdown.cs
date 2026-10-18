@@ -10,17 +10,21 @@ public sealed class FrontierBreakdown
     private readonly (CompositorEffect Effect, bool Enabled)[] _effects;
     private static readonly string[] Names = ["baseline", "no_scatter", "no_trees", "no_terrain", "no_shadows", "no_clouds", "no_vegetation", "baseline_again"];
     private static readonly string[] ShadowNames = ["baseline_original", "atlas4096_ultra", "atlas4096_high", "atlas4096_medium", "atlas8192_high", "atlas2048_high", "no_shadows_verified", "baseline_again"];
+    private static readonly string[] ScatterNames = ["baseline", "no_grass", "no_heather", "no_ferns_nettles", "no_gravel", "no_saplings", "no_flowers_sorrel", "baseline_again"];
     private readonly bool _shadowSweep = System.Environment.GetEnvironmentVariable("UNNAMED_FRONTIER_SWEEP") == "shadows";
+    private readonly bool _scatterSweep = System.Environment.GetEnvironmentVariable("UNNAMED_FRONTIER_SWEEP") == "scatter";
+    private readonly (MultiMeshInstance3D Node, bool Visible)[] _scatterKinds;
     private readonly int _atlasSize;
     private readonly RenderingServer.ShadowQuality _filter;
     private readonly RenderingServer.ShadowQuality _positionalFilter;
     private readonly bool _depth16;
     private bool _hideShadows, _shadowControlLogged;
-    public string Name(int index) => (_shadowSweep ? ShadowNames : Names)[index];
+    public string Name(int index) => (_shadowSweep ? ShadowNames : _scatterSweep ? ScatterNames : Names)[index];
 
     public FrontierBreakdown(Node root)
     {
         _scatter = [(root.GetNode<Node3D>("Scatter"), root.GetNode<Node3D>("Scatter").Visible)];
+        _scatterKinds = root.GetNode("Scatter").GetChildren().OfType<MultiMeshInstance3D>().Select(n => (n, n.Visible)).ToArray();
         _trees = root.GetNode<Node3D>("Hollow").FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>()
             .Where(m => m.Mesh is not null && Enumerable.Range(0, m.Mesh.GetSurfaceCount())
                 .Any(s => m.GetActiveMaterial(s) is ShaderMaterial { Shader: { } shader }
@@ -49,9 +53,22 @@ public sealed class FrontierBreakdown
         foreach (var (node, visible) in _scatter.Concat(_trees).Concat(_terrain)) node.Visible = visible;
         foreach (var (light, shadows) in _lights) if (GodotObject.IsInstanceValid(light)) light.ShadowEnabled = shadows;
         foreach (var (effect, enabled) in _effects) effect.Enabled = enabled;
-        _hideShadows = _shadowSweep ? index == 6 : index == 4;
+        foreach (var (node, visible) in _scatterKinds) node.Visible = visible;
+        _hideShadows = _shadowSweep ? index == 6 : !_scatterSweep && index == 4;
         _shadowControlLogged = false;
-        if (_shadowSweep)
+        if (_scatterSweep)
+        {
+            string[] kinds = index switch
+            {
+                1 => ["moor_grass_"], 2 => ["heather_"], 3 => ["ferns_", "nettles_"],
+                4 => ["gravel_"], 5 => ["saplings_"], 6 => ["wildflowers_", "sorrel_"], _ => [],
+            };
+            int hidden = 0;
+            foreach (var (node, _) in _scatterKinds)
+                if (kinds.Any(prefix => node.Name.ToString().StartsWith(prefix, StringComparison.Ordinal))) { node.Visible = false; hidden++; }
+            GD.Print($"FRONTIER DIAGNOSTIC scatter groups: {Name(index)}, {hidden} hidden nodes");
+        }
+        else if (_shadowSweep)
         {
             var (size, filter) = index switch
             {
