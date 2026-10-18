@@ -47,7 +47,7 @@ public sealed class FrontierPerf
     {
         _session = session; _controller = controller; _camera = camera;
         _viewport = viewport;
-        if (System.Environment.GetEnvironmentVariable("UNNAMED_FRONTIER_SWEEP") == "1")
+        if (System.Environment.GetEnvironmentVariable("UNNAMED_FRONTIER_SWEEP") is "1" or "shadows")
         {
             _breakdown = new FrontierBreakdown(viewport.GetTree().CurrentScene);
             _breakdown.Apply(0);
