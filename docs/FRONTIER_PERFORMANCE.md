@@ -2,6 +2,25 @@
 
 Base: `b809f3ae`, schema 30. Profiling and rendering corrections in progress; no performance pass claimed.
 
+## Resume on schema 31 (2026-10-18)
+
+Rebased onto shared `d43b6dbf` at `1864bf0a`. Release build, 243 Presentation
+checks, 23 Architecture checks and the native shadow-band/tree-material/opaque-
+foliage regressions pass. The full default suite and new GPU profiles are pending.
+Shared refs have not been advanced by this lane.
+
+Runtime GLTF imports also lacked a position-only shadow/depth mesh. The new path
+welds **uploaded** positions (including import quantization), retaining every
+triangle and winding, material surface order and generated index LOD. Godot chooses
+this mesh only when a depth/shadow material needs no other vertex attributes;
+skinned and morph imports are excluded. `UNNAMED_STATIC_SHADOW_MESH=0` controls the
+experiment. Native synthetic coverage verifies visible UVs, exact triangles,
+shadow LODs, skinned exclusion and idempotence. All 461,824 coastal-cliff triangles
+and all four fir surfaces match their visible positions exactly. This is a
+bandwidth optimization, not triangle decimation; rendered benefit is unmeasured.
+Native scene cache v6 separates this import path, index LODs and occluders from
+the old v5 bakes. Existing asset roots and old caches remain untouched.
+
 ## Benchmark
 
 Build Presentation in Debug for the installed Godot editor runtime. Acquire the shared GPU lease before

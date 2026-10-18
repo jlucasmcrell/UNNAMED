@@ -83,7 +83,7 @@ public sealed class ArtLibrary
     private readonly string? _sceneCachePrefix;
     private readonly bool _buildSceneCache;
     private readonly string? _nativeSceneRoot;
-    private const string SceneCacheFormat = "v5";
+    private const string SceneCacheFormat = "v6"; // Runtime index LODs, opaque occluders and position-only depth meshes.
     private readonly TextureCache? _interiorBuildCache;
 
     public ArtLibrary(string? root, bool useTextureCache = false, string? sceneCachePrefix = null, bool buildSceneCache = false)
@@ -733,10 +733,14 @@ public sealed class ArtLibrary
                     ? arrays[(int)Mesh.ArrayType.Vertex].AsVector3Array().Length
                     : arrays[(int)Mesh.ArrayType.Index].AsInt32Array().Length;
             }
-            if (existing || indices < 30_000) continue; // Small props/scatter already have authored bands.
-            using var boneTransforms = new Godot.Collections.Array();
-            mesh.GenerateLods(60, 0, boneTransforms);
-            generated++;
+            if (!existing && indices >= 30_000)
+            {
+                using var boneTransforms = new Godot.Collections.Array();
+                mesh.GenerateLods(60, 0, boneTransforms);
+                generated++;
+            }
+            if (System.Environment.GetEnvironmentVariable("UNNAMED_STATIC_SHADOW_MESH") != "0")
+                StaticShadowMesh.Build(mesh);
         }
         ((Godot.Collections.Array)meshes).Dispose();
         if (generated > 0 && OS.GetEnvironment("UNNAMED_LOAD_REPORT") == "1")
