@@ -16,6 +16,7 @@ import datetime
 import glob
 import json
 import os
+import re
 import shutil
 
 MH = r"C:\Otherreach_Recovery\asset_work\metahuman"
@@ -77,6 +78,27 @@ for src, dst in items:
     if os.path.exists(target):
         os.remove(target)   # a root mirrored by hard links: replace the file, never write through to the package it links to
     shutil.copy2(src, target)
+
+# Creator builds share textures, but each exported material and URI carries its own body ID.
+# Older variant generation hard-linked this sidecar and left every build naming the last one.
+# Re-express the installed copy only; never write through to an assembled source or package.
+for sex in ("m", "f"):
+    for build in BUILDS:
+        asset = f"mh_veth_{sex}" + suffix(build)
+        folder = os.path.join(a.root, "rigged", asset)
+        params = os.path.join(folder, "eye_shader", "eye_shader_params.json")
+        if not os.path.exists(params):
+            continue
+        text = open(params, encoding="utf-8").read()
+        text = re.sub(r"mh_veth_[mf](?:_(?:very_lean|very_heavy|lean|heavy))?(?=_eye)", asset, text)
+        data = json.loads(text)
+        for material in data["materials"].values():
+            for key in ("sclera", "iris", "sclera_normal", "iris_normal", "heightmap"):
+                if key in material and not os.path.isfile(os.path.join(folder, material[key])):
+                    raise SystemExit(f"Eye map missing for {asset}: {material[key]}")
+        with open(params + ".tmp", "w", encoding="utf-8") as f:
+            f.write(text)
+        os.replace(params + ".tmp", params)
 record = {"package": "WP17 bodies and garments that follow the body (tools/character_build/install_bodies.py)",
           "installed_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
           "licences": {"pc_veth_*": "MPFB 2 / MakeHuman CC0 base and assets (see each _meta.json components); Poly Haven CC0 fabrics",
