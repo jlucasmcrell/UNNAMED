@@ -1,6 +1,9 @@
 """WP17 step 6: install the body builds and their baked garments into a playtest asset root (a package's `primary`), additively.
 
-python install_bodies.py <asset root> [--dry-run]
+python install_bodies.py <asset root> [--dry-run] [--bodies-only]
+
+--bodies-only installs only the approved assembled MetaHuman bodies. Garments and legacy clips are omitted;
+install the staged animation sets separately with locomotion_install.py. Use a new private asset root.
 
 Installs, under <root>/rigged/:
   * production (MPFB, asset_work/characters/ready): pc_veth_f (the female body the package lacked, now with its opaque base layer) and
@@ -106,6 +109,7 @@ record = {"package": "WP17 bodies and garments that follow the body (tools/chara
                        "player_*__mh_veth_*": "own garments (GarmentCode MIT patterns, CC0 fabrics) and CC0 MakeHuman boots; see each _garment.json",
                        "anim.player.mh.*": "Quaternius UAL1 (CC0) baked on mh_veth_m"},
           "bodies_only": a.bodies_only,
-          "installed": sorted(ours | {d.replace("\\", "/") for _, d in items})}
+          "installed": sorted({d for d in ours if os.path.isfile(os.path.join(a.root, d))}
+                              | {d.replace("\\", "/") for _, d in items})}
 json.dump(record, open(manifest_path, "w"), indent=1)
 print("INSTALLED", len(items), "files; record", manifest_path)
