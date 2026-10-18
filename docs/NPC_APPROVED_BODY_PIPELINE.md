@@ -1,6 +1,6 @@
 # NPCs and residents on the approved MetaHuman bodies
 
-Owner ruling, 2026-10-18: preserve the approved anatomy. Use uniform whole-model stature only. Native Creator muscularity is permitted for Kal/Ondrek but unused in this build. Clothing must fit the body; only main-chat published passing garments may be bound. Until publication, retain the approved player's original base layer.
+Owner ruling, 2026-10-18: preserve the approved anatomy. Use uniform whole-model stature only. Native Creator muscularity is permitted for Kal/Ondrek but unused in this build. Only main-chat published passing garments may be bound. Follow the owner's simplified wardrobe method: combined authored outfit sets and whole standard body-region visibility, with native fitted Creator output used as-is where it fits. NPCs have no separate clothing/fitting pipeline. Until publication, retain the approved player's original base layer.
 
 The former pipeline rebuilt each NPC's body and omitted the player's runtime corrective companion. This implementation copies the actual approved masculine/feminine body resources and corrective tables instead. Native Creator faces/grooms supply identity; their extra facial joints are appended. The body is never re-exported through Blender. Native identity eye joints are separate from the original player's facial eye helpers. `BoneNames` selects the identity eyes for look-at when present.
 
@@ -53,7 +53,7 @@ Use `--anim-profiles --anim-person <binding>` for twelve phases, four views. `--
 
 Images are reviewed visually, including head/body colour, shoulders, torso/hip/limb contours, native eyes/expressions and wing placement. Geometry assertions do not substitute for looking. In-world captures use the real NPC view, including posture, foot planting, face driver and head/eye look-at. Paired images are posted to the shared `CODEX_PROGRESS.md` before merging. Kera's body shape and symmetric wings are owner-approved; this does not constitute blanket face, wardrobe or roster approval.
 
-The private build must pass the solution build, all test projects, content lint/xref, the connected route, playthrough and save/relaunch. Acceptance results and outstanding image failures belong in the dated review report, not inferred from these tools succeeding.
+Run the solution build, test projects, content lint/xref, connected route, playthrough and save/relaunch for integration evidence. Final character acceptance is a clean turnaround and run viewed by eye. Do not add per-triangle clothing coverage or numerical clipping gates. Results and outstanding visual failures belong in the dated review report; successful internal checks do not establish visual acceptance.
 
 ## Credits
 
