@@ -3605,7 +3605,7 @@
         "walk": "walk",
         "run": "run"
       },
-      "note": "WildMesh SK_FemaleDeer (replaces the blocked 100 MODELS Doe). Silent: no deer recording on disk.",
+      "note": "WildMesh SK_FemaleDeer from the Animated Animals Realistic Pack (Unity) with the 100 MODELS FemaleDeer texture; replaces the blocked 100 MODELS Doe (RDR2-named textures). Not from BONUS 50 Static Animals or Animated Animals 1.0. Silent: no deer recording on disk.",
       "otherfauna": {
         "shader": {
           "hue_shift": -6,
