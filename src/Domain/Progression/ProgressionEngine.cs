@@ -253,10 +253,13 @@ public static class ProgressionEngine
         return new DeathResult(progression with { XpDebt = debt }, debt - progression.XpDebt);
     }
 
-    public static int AttributeValue(CharacterProgression progression, CharacterAttribute attribute, ProgressionRules rules) =>
-        rules.AttributeBase
-        + progression.Allocation.GetValueOrDefault(attribute)
-        + progression.Grants.Where(g => g.Attribute == attribute).Sum(g => g.Amount);
+    public static int AttributeValue(CharacterProgression progression, CharacterAttribute attribute, ProgressionRules rules)
+    {
+        int grants = 0;
+        foreach (var grant in progression.Grants)
+            if (grant.Attribute == attribute) grants = checked(grants + grant.Amount); // Same overflow behavior as Sum.
+        return rules.AttributeBase + progression.Allocation.GetValueOrDefault(attribute) + grants;
+    }
 
     public static DerivedStats Derive(CharacterProgression progression, ProgressionRules rules)
     {

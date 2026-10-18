@@ -87,6 +87,23 @@ public class CreatureTests
     // ── perception ──────────────────────────────────────────────────────────
 
     [Fact]
+    public void CreatureViews_KeepEarlierSnapshotsAndRefreshAfterCombat()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Place(session, (120, 60), 0, (Arena.Wolf, 120, 62, "sentinel"));
+        var before = Only(arena);
+        int health = before.Health;
+        arena.Face(before);
+        arena.Tick();
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
+        arena.Tick(arena.Simulation.Combat.Weapon.TotalTicks + 1);
+        Assert.True(Only(arena).Health < health);
+        Assert.Equal(health, before.Health);
+        Assert.Equal(CreatureMind.Unaware, before.Mind);
+    }
+
+    [Fact]
     public void AWalkBehindAWolf_GoesUnheard_ButASprintIsHeard()
     {
         using var profile = new TempProfile();

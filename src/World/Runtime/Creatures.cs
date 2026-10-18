@@ -160,6 +160,10 @@ internal sealed class CreatureSystem : IAbstractAdvance
     private sealed record TickSpace(Blocker[] Walls, Blocker[] Doors, Blocker[] People,
         Blocker[] CompanionBodies, NpcState[] Companions);
     private readonly Dictionary<SpaceId, TickSpace> _tickSpaces = new();
+    private ImmutableSortedDictionary<string, CreatureState>? _viewSource;
+    private ImmutableArray<CreatureView> _views;
+    private long _viewTick;
+    private SpaceId _viewSpace;
 
     // Doors and people cannot move during this system's tick. Snapshot each space once, not once per creature/query.
     private TickSpace Obstacles(SpaceId space)
@@ -1157,12 +1161,20 @@ internal sealed class CreatureSystem : IAbstractAdvance
         return Math.Sqrt(dx * dx + dz * dz);
     }
 
-    public ImmutableArray<CreatureView> Views() =>
-        State.Creatures.Values.Where(c => c.Site.Space == State.Space).Select(c =>
+    public ImmutableArray<CreatureView> Views()
+    {
+        // The source dictionary and its records are immutable. A command replacing a creature
+        // invalidates this even between ticks; phase/sleep and space changes have their own keys.
+        var source = State.Creatures;
+        long tick = State.WorldTick;
+        var space = State.Space;
+        if (ReferenceEquals(source, _viewSource) && tick == _viewTick && space == _viewSpace)
+            return _views;
+        var views = source.Values.Where(c => c.Site.Space == space).Select(c =>
         {
-            var (phase, left) = c.Action.PhaseAt(State.WorldTick, C);
+            var (phase, left) = c.Action.PhaseAt(tick, C);
             return new CreatureView(c.Id, c.Key, c.Definition.Id, c.Role.Id, c.Body, c.Health, c.Definition.MaxHealth, phase, left, c.Condition,
-                c.Mind, c.Awareness, Asleep(c, State.WorldTick))
+                c.Mind, c.Awareness, Asleep(c, tick))
             {
                 Generation = c.Generation, Peaceful = c.Role.Peaceful,
                 AttackSource = c.Definition.CloseAttack is not null ? c.Action.Attack?.Source : null,
@@ -1176,4 +1188,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 } : 0,
             };
         }).ToImmutableArray();
+        _viewSource = source;
+        _viewTick = tick;
+        _viewSpace = space;
+        return _views = views;
+    }
 }

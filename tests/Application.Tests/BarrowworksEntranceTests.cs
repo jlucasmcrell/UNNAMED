@@ -81,6 +81,26 @@ public class BarrowworksEntranceTests
     }
 
     [Fact]
+    public void CreatureViews_FollowSpaceChangesWithoutATick()
+    {
+        using var profile = new TempProfile();
+        var session = Boot(profile, gated: true);
+        var (ox, oz) = Harness.HollowOf(session.Setup);
+        var arena = Arena.OpenWith(session, session.Setup, (ThresholdAt.X - ox, ThresholdAt.Z - oz), 0, [], keepSpawns: true);
+        var simulation = arena.Simulation;
+        long tick = simulation.WorldTick;
+        var exterior = simulation.Creatures;
+        Assert.NotEmpty(exterior);
+        Assert.Null(arena.Submit(new EnterSpaceCommand(simulation.PlayerId, Threshold)));
+        var interior = simulation.Creatures;
+        Assert.NotEmpty(interior);
+        Assert.DoesNotContain(interior, c => exterior.Any(e => e.Id == c.Id));
+        Assert.Null(arena.Submit(new LeaveSpaceCommand(simulation.PlayerId)));
+        Assert.Equal(exterior.Select(c => c.Id), simulation.Creatures.Select(c => c.Id));
+        Assert.Equal(tick, simulation.WorldTick);
+    }
+
+    [Fact]
     public void EachEntrance_LeavesToItsOwnAnchor()
     {
         // The design's named failure, now through real content rather than a test fixture.
