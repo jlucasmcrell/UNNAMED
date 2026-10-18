@@ -4,6 +4,14 @@ namespace UNNAMED.Presentation.Greybox;
 
 public partial class ScatterView
 {
+    // 0 restores the old point-shadow submission for a same-build diagnostic comparison.
+    private static bool ShadowLodsEnabled => System.Environment.GetEnvironmentVariable("UNNAMED_SHADOW_LODS") != "0";
+    private sealed record ShadowLod(MultiMeshInstance3D[] Bands, Vector3 Centre, float[] FromSquared, float EndSquared)
+    {
+        public int Active = -2;
+    }
+    private readonly List<ShadowLod> _shadowLods = new();
+
     // Explicit experiment only. The default remains the existing whole-region renderer.
     private bool _residentMode = System.Environment.GetEnvironmentVariable("UNNAMED_SCATTER_RESIDENCY") == "1";
     private sealed record ResidentGrid(float[] X, float[] Z, float Chunk, float Reach);
@@ -45,8 +53,21 @@ public partial class ScatterView
 
     public override void _Process(double delta)
     {
-        if (!_residentMode || _builtFor is not { } seed || GetViewport().GetCamera3D() is not { } camera)
+        if (_builtFor is not { } seed || GetViewport().GetCamera3D() is not { } camera)
             return;
+        var eye = ToLocal(camera.GlobalPosition);
+        foreach (var lod in _shadowLods)
+        {
+            float distanceSquared = eye.DistanceSquaredTo(lod.Centre);
+            int next = -1;
+            if (distanceSquared <= lod.EndSquared)
+                for (int i = lod.Bands.Length - 1; i >= 0; i--)
+                    if (distanceSquared >= lod.FromSquared[i]) { next = i; break; }
+            if (next == lod.Active) continue;
+            for (int i = 0; i < lod.Bands.Length; i++) lod.Bands[i].Visible = i == next;
+            lod.Active = next;
+        }
+        if (!_residentMode) return;
         var focus = new Vector2(camera.GlobalPosition.X, camera.GlobalPosition.Z);
         if (_plannedFocus is null || focus.DistanceSquaredTo(_plannedFocus.Value) >= 16)
             PlanResidents(focus);

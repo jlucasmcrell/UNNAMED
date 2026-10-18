@@ -50,3 +50,32 @@ same before and after each change. Record before/after per place and inspect the
 High target: sustained 60 FPS, 1% low at least 45 FPS and no frames over 33 ms after warm-up. Preserve
 the raw counters and report strict over-33-ms counts as well as FrameStats' existing over-33.333-ms
 counter. Do not hide loading stalls or relax either target. Report any visual tradeoff explicitly.
+
+## First finding: point-light shadows ignore the scatter's distance bands
+
+The complete drain-area profile at (1065,790), High/default Sky3D, measured 20.3–24.2 FPS facing
+the settlement. The source-mesh inventory contains 4,109 out-of-range casting scatter nodes carrying
+535 million source triangles. This inventory is potential geometry, **not** a per-frame submission count.
+The native GPU profiler identifies point-light shadows as a major cost; the normal draw counters reach
+241 million primitives in the worst direction. The first (1050,770) run was incomplete because wolves
+defeated the character. Its samples are retained; the clear fixture completes all eight headings.
+
+Godot's point-shadow cull checks instance visibility but does not check the visibility ranges used by
+the main camera and directional shadows (`servers/rendering/renderer_scene_cull.cpp`, cube-shadow
+loop). Consequently both casting near LODs can be submitted to distant village lamps simultaneously.
+The candidate correction explicitly selects the existing camera-distance band for casting scatter.
+It keeps all placements, densities, meshes, materials, ranges and shadow settings. Non-casting scatter
+and static GI geometry are unchanged. `UNNAMED_SHADOW_LODS=0` restores the old submission for diagnosis.
+No acceptance pass is claimed until the full before/after sweep and visual inspection finish.
+
+Check the actual captured visibility states with:
+
+```text
+python tools/check_scatter_shadow_lods.py <capture>/geometry.json
+```
+
+This fails against the original scene inventory and must pass against the correction, including
+camera turns across band edges. Detailed GPU profiling needs a larger timestamp-query pool than the
+engine default of 256. The controller uses a temporary, removed-on-exit override of
+`debug/settings/profiler/max_timestamp_query_elements=16384`. A capture that overflowed 256 is invalid
+and retained separately. Normal FPS runs do not enable the detailed GPU profiler.
