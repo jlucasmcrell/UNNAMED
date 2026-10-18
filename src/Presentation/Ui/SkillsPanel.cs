@@ -107,7 +107,7 @@ public partial class SkillsPanel : CanvasLayer
             UiKit.Select(row, id == _selected);
         // The chosen row in view, though the list scrolls: a known view opened by name sits below the roster.
         if (_rows.TryGetValue(_selected, out var chosen))
-            Callable.From(() => { if (IsInstanceValid(chosen)) _panes.ListScroll.EnsureControlVisible(chosen); }).CallDeferred();
+            Callable.From(() => { if (IsInstanceValid(chosen) && _panes.ListScroll.IsAncestorOf(chosen)) _panes.ListScroll.EnsureControlVisible(chosen); }).CallDeferred();
         UiKit.Clear(_panes.Detail);
         _panes.DetailScroll.ScrollVertical = 0;
         switch (_selected)
