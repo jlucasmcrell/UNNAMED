@@ -129,7 +129,7 @@ public sealed partial class FoldEcho : Node3D
     private static void SetBodyShadow(Figure body, bool casts)
     {
         foreach (var mesh in Meshes(body))
-            mesh.CastShadow = casts ? GeometryInstance3D.ShadowCastingSetting.On : GeometryInstance3D.ShadowCastingSetting.Off;
+            Art.ShadowLods.SetMode(mesh, casts ? GeometryInstance3D.ShadowCastingSetting.On : GeometryInstance3D.ShadowCastingSetting.Off);
     }
 
     private static IEnumerable<MeshInstance3D> Meshes(Node node)

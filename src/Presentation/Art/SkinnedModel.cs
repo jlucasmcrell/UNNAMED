@@ -217,7 +217,7 @@ public sealed partial class SkinnedModel : Node3D
             // What rides on a bone (a held weapon: its model's meshes sit below the model's own root) stays drawn.
             if (OnBone(mesh))
                 continue;
-            mesh.CastShadow = shadowOnly ? GeometryInstance3D.ShadowCastingSetting.ShadowsOnly : GeometryInstance3D.ShadowCastingSetting.On;
+            ShadowLods.SetMode(mesh, shadowOnly ? GeometryInstance3D.ShadowCastingSetting.ShadowsOnly : GeometryInstance3D.ShadowCastingSetting.On);
         }
     }
 

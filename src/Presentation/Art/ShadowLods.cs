@@ -11,12 +11,24 @@ public sealed class ShadowLods
         public ulong Id = Node.GetInstanceId();
         public GeometryInstance3D.ShadowCastingSetting Original = Node.CastShadow;
         public GeometryInstance3D.ShadowCastingSetting Applied = Node.CastShadow;
+        public Vector3 WorldCentre;
+        public bool InTree;
+        public ShadowLodBounds? Bounds;
     }
     private readonly List<Band> _bands = new();
     private readonly List<GeometryInstance3D> _pending = new();
     private readonly HashSet<ulong> _known = new();
     private Node? _root;
     private SceneTree? _tree;
+    private Vector3 _eye;
+
+    // Callers changing a body's authored shadow mode must preserve the distance-band mask.
+    public static void SetMode(GeometryInstance3D node, GeometryInstance3D.ShadowCastingSetting mode)
+    {
+        if (node.HasMeta("shadow_lod_bounds") && node.GetMeta("shadow_lod_bounds").AsGodotObject() is ShadowLodBounds bounds
+            && GodotObject.IsInstanceValid(bounds)) bounds.ChangeMode?.Invoke(mode);
+        else node.CastShadow = mode;
+    }
 
     public void Watch(Node root)
     {
@@ -31,6 +43,20 @@ public sealed class ShadowLods
     {
         if (_tree is not null) _tree.NodeAdded -= Added;
         _tree = null; _root = null;
+        foreach (var band in _bands)
+        {
+            if (GodotObject.IsInstanceValid(band.Node))
+            {
+                band.Node.CastShadow = band.Original;
+                band.Node.RemoveMeta("shadow_lod_bounds");
+                band.Node.RemoveMeta("shadow_lod_original");
+            }
+            if (GodotObject.IsInstanceValid(band.Bounds))
+            {
+                band.Bounds!.Changed = null; band.Bounds.InTree = null; band.Bounds.ChangeMode = null;
+                band.Bounds.Free();
+            }
+        }
         _bands.Clear(); _pending.Clear(); _known.Clear();
     }
 
@@ -41,6 +67,7 @@ public sealed class ShadowLods
 
     public void Update(Vector3 eye)
     {
+        _eye = eye;
         // Ready/construction must finish first. Includes duplicated pieces, rigged LODs and later spawns.
         foreach (var node in _pending)
         {
@@ -53,28 +80,40 @@ public sealed class ShadowLods
             // Keep both levels throughout the complete authored fade/hysteresis interval.
             float begin = Math.Max(0, node.VisibilityRangeBegin - node.VisibilityRangeBeginMargin);
             float end = node.VisibilityRangeEnd > 0 ? node.VisibilityRangeEnd + node.VisibilityRangeEndMargin : 0;
-            _bands.Add(new Band(node, bounds.GetCenter(), begin * begin, end * end));
+            var band = new Band(node, bounds.GetCenter(), begin * begin, end * end);
+            var watcher = new ShadowLodBounds { Name = "ShadowLodBounds" };
+            band.Bounds = watcher;
+            watcher.InTree = active => band.InTree = active;
+            watcher.Changed = transform => { band.WorldCentre = transform * band.Centre; Apply(band); };
+            watcher.ChangeMode = mode =>
+            {
+                if (band.Original == mode) return;
+                band.Original = mode;
+                node.SetMeta("shadow_lod_original", mode.ToString());
+                Apply(band);
+            };
+            _bands.Add(band);
             node.SetMeta("shadow_lod_original", node.CastShadow.ToString());
+            node.SetMeta("shadow_lod_bounds", watcher);
+            node.AddChild(watcher);
         }
         _pending.Clear();
         for (int i = _bands.Count - 1; i >= 0; i--)
         {
             var band = _bands[i];
             if (!GodotObject.IsInstanceValid(band.Node)) { _known.Remove(band.Id); _bands.RemoveAt(i); continue; }
-            if (!band.Node.IsInsideTree()) continue;
-            var current = band.Node.CastShadow;
-            // First-person/FoldEcho may change the authored mode. Do not restore a visible body.
-            if (current != band.Applied)
-            {
-                band.Original = current;
-                band.Node.SetMeta("shadow_lod_original", current.ToString());
-            }
-            float distanceSquared = eye.DistanceSquaredTo(band.Node.GlobalTransform * band.Centre);
-            bool casting = distanceSquared >= band.BeginSquared
-                && (band.EndSquared == 0 || distanceSquared < band.EndSquared);
-            var next = casting ? band.Original : GeometryInstance3D.ShadowCastingSetting.Off;
-            if (next != current) band.Node.CastShadow = next;
-            band.Applied = next;
+            Apply(band);
         }
+    }
+
+    private void Apply(Band band)
+    {
+        if (!band.InTree) return;
+        float distanceSquared = _eye.DistanceSquaredTo(band.WorldCentre);
+        bool casting = distanceSquared >= band.BeginSquared && (band.EndSquared == 0 || distanceSquared < band.EndSquared);
+        var next = casting ? band.Original : GeometryInstance3D.ShadowCastingSetting.Off;
+        if (next == band.Applied) return;
+        band.Node.CastShadow = next;
+        band.Applied = next;
     }
 }
