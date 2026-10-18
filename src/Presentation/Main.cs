@@ -100,6 +100,7 @@ public partial class Main : Node3D
     private UiShots? _shots;
     private BarrowworksReview? _barrowworksReview;
     private FrontierPerf? _frontierPerf;
+    private readonly Art.ShadowLods _shadowLods = new();
     private Showcase? _showcase;
     private Playthrough? _play;
 
@@ -904,6 +905,7 @@ public partial class Main : Node3D
         _hits = new Art.HitImpacts { Name = "HitImpacts" };
         AddChild(_hits);
         _hits.Bind(_assets.Root);
+        _shadowLods.Watch(this);
         if (_avatar is Avatar glowing && _magicEffects.HasCastCharge)
             glowing.WorkingGlow = false;
     }
@@ -1237,6 +1239,7 @@ public partial class Main : Node3D
     /// <summary>What the run heard, for the harnesses: how much of the sound set played, and any family the mapping asked for that the set lacks.</summary>
     public override void _ExitTree()
     {
+        _shadowLods.Unwatch();
         // Quitting while a save is being written finishes it first (P-01); its commit is atomic even if it were cut off.
         if (_session is not null && !_session.WaitForSaves(TimeSpan.FromSeconds(10)))
             GD.PushWarning("UNNAMED: a save was still being written after 10 s at quit; the previous save stands until the next boot finishes it");
@@ -1366,7 +1369,7 @@ public partial class Main : Node3D
         _talkCamera.Frame(simulation.Conversation is { } talk && !_camera.IsFirstPerson ? _npcs.HeadOf(talk.NpcId) : null,
             _avatar.Head, _camera.Camera, delta);
         Probe("camera/state log");
-        if (GetViewport().GetCamera3D() is { } shadowEye) _art.UpdateShadowLods(shadowEye.GlobalPosition);
+        if (GetViewport().GetCamera3D() is { } shadowEye) _shadowLods.Update(shadowEye.GlobalPosition);
         DrawHud(simulation, combat, posture, alpha, delta);
         Probe("HUD");
     }

@@ -48,8 +48,6 @@ public sealed record LoadCost(int Scenes, double SceneMs, int ModelTextures, dou
 /// </summary>
 public sealed class ArtLibrary
 {
-    private readonly ShadowLods _shadowLods = new();
-    public void UpdateShadowLods(Vector3 eye) => _shadowLods.Update(eye);
     private readonly Dictionary<string, PackedScene?> _scenes = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Animation?> _clips = new(StringComparer.Ordinal);
     private readonly Dictionary<string, SkeletonRest?> _clipRests = new(StringComparer.Ordinal);
@@ -407,7 +405,6 @@ public sealed class ArtLibrary
                     : GeometryInstance3D.VisibilityRangeFadeModeEnum.Disabled;
             }
         }
-        _shadowLods.Add(root.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>());
         return root;
     }
 

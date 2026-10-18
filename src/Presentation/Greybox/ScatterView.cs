@@ -163,7 +163,6 @@ public partial class ScatterView : Node3D
             child.QueueFree();
         }
         _counts.Clear();
-        _shadowLods.Clear();
         ulong started = Time.GetTicksUsec();
         if (_residentMode)
         {
@@ -386,10 +385,6 @@ public partial class ScatterView : Node3D
             var box = bands.Skip(1).Aggregate(bands[0].Multimesh.GetAabb(), (b, n) => b.Merge(n.Multimesh.GetAabb()));
             foreach (var band in bands)
                 band.CustomAabb = box;
-            // Point-light shadow culling does not apply GeometryInstance visibility ranges:
-            // both near bands otherwise cast, even hundreds of metres from the player.
-            // Match the existing camera LOD explicitly, without removing geometry from GI.
-            if (kind.Rules.Shadows && !_residentMode) _shadowLods.Add(bands);
         }
     }
 

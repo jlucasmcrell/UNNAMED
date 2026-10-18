@@ -4,7 +4,6 @@ namespace UNNAMED.Presentation.Greybox;
 
 public partial class ScatterView
 {
-    private readonly Art.ShadowLods _shadowLods = new();
 
     // Explicit experiment only. The default remains the existing whole-region renderer.
     private bool _residentMode = System.Environment.GetEnvironmentVariable("UNNAMED_SCATTER_RESIDENCY") == "1";
@@ -49,7 +48,6 @@ public partial class ScatterView
     {
         if (_builtFor is not { } seed || GetViewport().GetCamera3D() is not { } camera)
             return;
-        _shadowLods.Update(camera.GlobalPosition);
         if (!_residentMode) return;
         var focus = new Vector2(camera.GlobalPosition.X, camera.GlobalPosition.Z);
         if (_plannedFocus is null || focus.DistanceSquaredTo(_plannedFocus.Value) >= 16)
