@@ -192,8 +192,6 @@ public partial class ScatterView : Node3D
             }
             _counts[kind.Rules.Name] = total;
         }
-        if (System.Environment.GetEnvironmentVariable("UNNAMED_SCATTER_BATCH") == "1")
-            ScatterBatch.Build(this);
         BuildMs = Math.Round((Time.GetTicksUsec() - started) / 1000.0, 1);
         GD.Print($"UNNAMED scatter: {string.Join(", ", _counts.Select(c => $"{c.Value} {c.Key}"))} placed for world seed {worldSeed:x16} in {BuildMs} ms");
         if (System.Environment.GetEnvironmentVariable("UNNAMED_SCATTER_CENSUS") is { Length: > 0 })
@@ -381,8 +379,6 @@ public partial class ScatterView : Node3D
                 VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Disabled,
             };
             AddChild(band);
-            if (System.Environment.GetEnvironmentVariable("UNNAMED_SCATTER_BATCH") == "1")
-                band.SetMeta(ScatterBatch.GridKey, new Vector3I(cx, cz, level));
             bands.Add(band);
         }
         // ONE BOX FOR EVERY BAND. Godot measures a node's visibility range to the centre of that node's own bounds, and
@@ -729,8 +725,7 @@ public partial class ScatterView : Node3D
                 importer.GenerateLods(60, 0, boneTransforms);
                 if (OS.GetEnvironment("UNNAMED_LOAD_REPORT") == "1")
                     GD.Print($"UNNAMED scatter mesh LODs: {id} level {meshes.Count}, {Enumerable.Range(0, importer.GetSurfaceCount()).Sum(importer.GetSurfaceLodCount)} index levels");
-                merged = System.Environment.GetEnvironmentVariable("UNNAMED_RUNTIME_INDEX_CACHE") == "1"
-                    ? IndexCacheMesh.Optimize(importer, alphaTestedShader: true).GetMesh() : importer.GetMesh();
+                merged = importer.GetMesh();
             }
             // Shader displacement is invisible to CPU culling. Grow only wind-deformed model bounds, in model
             // space so each MultiMesh instance's existing rotation/scale also transforms this finite padding.

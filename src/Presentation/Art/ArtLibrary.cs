@@ -83,8 +83,7 @@ public sealed class ArtLibrary
     private readonly string? _sceneCachePrefix;
     private readonly bool _buildSceneCache;
     private readonly string? _nativeSceneRoot;
-    private static string SceneCacheFormat => System.Environment.GetEnvironmentVariable("UNNAMED_RUNTIME_INDEX_CACHE") == "1"
-        ? "v7-index-cache-pilot" : "v6";
+    private const string SceneCacheFormat = "v6"; // Runtime index LODs, opaque occluders and position-only depth meshes.
     private readonly TextureCache? _interiorBuildCache;
 
     public ArtLibrary(string? root, bool useTextureCache = false, string? sceneCachePrefix = null, bool buildSceneCache = false)
@@ -740,8 +739,6 @@ public sealed class ArtLibrary
                 mesh.GenerateLods(60, 0, boneTransforms);
                 generated++;
             }
-            if (System.Environment.GetEnvironmentVariable("UNNAMED_RUNTIME_INDEX_CACHE") == "1")
-                entry.Mesh = mesh = IndexCacheMesh.Optimize(mesh);
             if (System.Environment.GetEnvironmentVariable("UNNAMED_STATIC_SHADOW_MESH") != "0")
                 StaticShadowMesh.Build(mesh);
         }

@@ -209,10 +209,6 @@ uniform bool upright_normals = false;
 // Metres from the camera over which the plants drop out one by one (ScatterView: the outer part of the kind's reach); 0 keeps all.
 uniform float thin_from = 0.0;
 uniform float thin_to = 0.0;
-#ifdef SCATTER_BATCH
-uniform vec3 scatter_centres[4];
-uniform vec2 scatter_band;
-#endif
 varying vec3 tint;
 
 void vertex() {
@@ -227,11 +223,7 @@ void vertex() {
 #ifdef OTHERWORLD
     // The place's strangeness (ScatterView puts it in the custom data's alpha), each plant its own share of it, so a stand is not
     // wrong all at once.
-    float field_share = INSTANCE_CUSTOM.a;
-#ifdef SCATTER_BATCH
-    field_share = fract(field_share) * 2.0;
-#endif
-    strange = clamp(field_share * otherworld_mix.x * (0.6 + 0.8 * fract(phase * 7.31)), 0.0, 1.0);
+    strange = clamp(INSTANCE_CUSTOM.a * otherworld_mix.x * (0.6 + 0.8 * fract(phase * 7.31)), 0.0, 1.0);
 #ifdef OW_MINERAL
     ow_place = VERTEX * sqrt(scale2) + origin * 0.37;
 #endif
@@ -253,13 +245,6 @@ void vertex() {
             VERTEX = vec3(0.0);   // every vertex on the origin: the plant draws nothing
         }
     }
-#ifdef SCATTER_BATCH
-    vec3 centre = scatter_centres[int(floor(INSTANCE_CUSTOM.a))];
-    float chunk_distance = distance(centre, CAMERA_POSITION_WORLD);
-    if (chunk_distance < scatter_band.x || (scatter_band.y > 0.0 && chunk_distance >= scatter_band.y)) {
-        VERTEX = vec3(0.0);
-    }
-#endif
 }
 
 void fragment() {
