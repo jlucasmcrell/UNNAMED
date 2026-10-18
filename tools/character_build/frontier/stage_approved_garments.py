@@ -128,8 +128,8 @@ for part,base,layer,source,hidden in entries:
         hidden=REGIONS[part]
     metadata={'schema_version':'1','id':asset,'asset_id':asset,'body':body_id,'layer':layer,'hides':[],'hides_mask':0,
               'hide_regions':hidden,
-              'chains':{'cloth_cape':{'stiffness':.8,'drag':.5,'gravity':.8,'radius':.04}} if part=='cloak' else {},
-              'provenance':{'construction':'New per-body cut/last/lame meshes and standard skin transfer; no old garment warping',
+              'chains':{'cloth_cape':{'stiffness':.8,'drag':.5,'gravity':.8,'radius':.075}} if part=='cloak' and any(n.get('name','').startswith('cloth_cape') for n in garment.doc['nodes']) else {},
+              'provenance':{'construction':'Authored once on feminine Average; native Surface Deform and Data Transfer; fixed approved bodies; source PBR preserved',
                             'fixed_body_sha256':body_hash,'source':str(source)},
               'acceptance':'PENDING: personally viewed turnaround and run'}
     (dest/(asset+'_garment.json')).write_text(json.dumps(metadata,indent=2))

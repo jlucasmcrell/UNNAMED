@@ -7,5 +7,5 @@ REGIONS={
     'standing_cap':['hair'],
     'lame_coif':['hair'],
     'lame_sabatons':['feet'],
-    'vest':[], 'lamework_jack':[], 'cloak':[],
+    'vest':['torso','upper_arms','forearms'], 'lamework_jack':[], 'cloak':[],
 }

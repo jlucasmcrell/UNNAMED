@@ -1,6 +1,12 @@
 """Native authoring cleanup and real opening tags; no fitting/drape solver."""
 import bpy,bmesh
 
+def arm_weights(obj):
+    """Native skin groups distinguish sleeves from torso, including new seam vertices."""
+    groups={g.index for g in obj.vertex_groups if g.name.startswith(
+        ('upperarm','lowerarm','hand','index','middle','ring','pinky','thumb','wrist'))}
+    return [sum(g.weight for g in v.groups if g.group in groups) for v in obj.data.vertices]
+
 def approved_surface(fit):
     """Read-only authoring copies of BOTH native skin sections, including the head's neck/shoulders."""
     copies=[]

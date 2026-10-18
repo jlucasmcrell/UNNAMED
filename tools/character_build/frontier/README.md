@@ -32,6 +32,27 @@ The BEAST workspace uses Blender 5.2, Godot 4.7.2 and
 bindings. The native capture uses the frozen `posture_native_20261018` project.
 Build its runtime before a capture if engine code changes.
 
-The current shirt is still awaiting visual acceptance. Earlier torn or
-skin-breaking sheets remain rejected. No numerical clipping gate replaces
-looking at the rendered outfit.
+Review 7 accepted the standard8 transfer and fit but rejected its garment
+sources. The replacement sources are a licensed sewn leather jerkin and
+trousers, a linen shirt with real sleeves, an open-face hood, shaped leather
+boots, and a short wool mantle draped once over the base outfit with Blender
+cloth. The mantle uses the underlying garment's skin weights. Scanned CC0
+leather and wool use normal and roughness maps; the source pack's seam trim is
+preserved. The old second-skin shirt author has been retired.
+
+Source authors run in this order on feminine Average: `bl_source_garments.py`
+(`base_shirt`, `standing_cap`, `boots`), `bl_source_leather.py` (`vest`,
+`trousers`), then `bl_source_garments.py cloak`, `bl_source_gloves.py`, and
+`bl_source_lames.py` for each of the three rung-3 pieces. These use the held
+external source library and save editable blends and provenance beside each
+source. They do not download, alter bodies, or fit other bodies.
+
+To transfer the entire wardrobe after source acceptance:
+
+```powershell
+& tools/character_build/frontier/process_frontier_outfit.ps1 -Parts base_shirt,trousers,vest,gloves,boots,standing_cap,lamework_jack,lame_coif,lame_sabatons,cloak
+```
+
+The mantle goes last so its weights follow the transferred vest and sleeves.
+Visual acceptance remains pending until all four native motion sheets pass.
+No numerical clipping gate replaces looking at the rendered outfit.

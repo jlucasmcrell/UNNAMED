@@ -9,7 +9,8 @@ args=sys.argv[sys.argv.index('--')+1:];fit=args[0];parts=args[1:]
 assert fit in ('veth_m','veth_f_lean','veth_m_lean')
 bases={'base_shirt':'frontier_linen_shirt','trousers':'frontier_wool_trousers','vest':'frontier_sealed_vest',
  'gloves':'frontier_smith_gloves','boots':'frontier_sealed_boots','standing_cap':'frontier_standing_cap',
- 'lame_coif':'frontier_lame_coif','lamework_jack':'frontier_lamework_jack','lame_sabatons':'frontier_lame_sabatons'}
+ 'lame_coif':'frontier_lame_coif','lamework_jack':'frontier_lamework_jack','lame_sabatons':'frontier_lame_sabatons',
+ 'cloak':'frontier_wool_cloak'}
 for part in parts:
     base=bases[part];source=root/'sources/fits/veth_f'/part/(base+'_native.glb')
     digest=hashlib.sha256(source.read_bytes()).hexdigest()
@@ -36,7 +37,11 @@ for part in parts:
             for loop in obj.data.loops:
                 point=obj.data.uv_layers[0].data[loop.index].uv
                 uv[loop.vertex_index].add((round(point.x,5),round(point.y,5)))
-            return [(i>=body_count,tuple(sorted(value))) for i,value in enumerate(uv)]
+            neighbours=[set() for _ in obj.data.vertices]
+            for edge in obj.data.edges:
+                a,b=edge.vertices
+                neighbours[a].update(uv[b]);neighbours[b].update(uv[a])
+            return [(i>=body_count,tuple(sorted(value)),tuple(sorted(neighbours[i]))) for i,value in enumerate(uv)]
         source_keys=uv_keys(cage,len(bpy.data.objects['native_veth_f_body'].data.vertices))
         target_keys=uv_keys(target,len(bpy.data.objects['native_'+fit+'_body'].data.vertices))
         lookup={}
@@ -52,6 +57,7 @@ for part in parts:
         print('RESTORED_NATIVE_UV_VERTEX_ORDER',fit,flush=True)
     old=set(bpy.data.objects);bpy.ops.import_scene.gltf(filepath=str(source))
     garment=next(o for o in set(bpy.data.objects)-old if o.type=='MESH' and o.name==base)
+    source_arm=next(o for o in set(bpy.data.objects)-old if o.type=='ARMATURE')
     matrix=garment.matrix_world.copy();garment.parent=None;garment.matrix_world=matrix
     garment.shape_key_clear()
     for mod in list(garment.modifiers):garment.modifiers.remove(mod)
@@ -62,12 +68,40 @@ for part in parts:
     for vertex,point in zip(cage.data.vertices,target_positions):vertex.co=point
     cage.data.update();bpy.context.view_layer.update()
     bpy.ops.object.modifier_apply(modifier=wrap.name)
-    garment.vertex_groups.clear()
-    for group in target.vertex_groups:garment.vertex_groups.new(name=group.name)
-    weights=garment.modifiers.new('Native body Data Transfer weights','DATA_TRANSFER')
-    weights.object=target;weights.use_vert_data=True;weights.data_types_verts={'VGROUP_WEIGHTS'}
-    weights.vert_mapping='POLYINTERP_NEAREST';weights.layers_vgroup_select_src='ALL';weights.layers_vgroup_select_dst='NAME'
-    bpy.ops.object.modifier_apply(modifier=weights.name)
+    spring_cloak=part=='cloak' and any(b.name.startswith('cloth_') for b in source_arm.data.bones)
+    if spring_cloak:
+        # A loose garment keeps its authored spring-chain weights. Retarget its
+        # own rig's parent rest to the approved body; never edit that body rig.
+        anchor='spine_05'
+        delta=(target_arm.matrix_world@target_arm.data.bones[anchor].matrix_local)@(source_arm.matrix_world@source_arm.data.bones[anchor].matrix_local).inverted()
+        original={bone.name:(bone.matrix_local.copy(),bone.length) for bone in source_arm.data.bones}
+        bpy.context.view_layer.objects.active=source_arm;bpy.ops.object.mode_set(mode='EDIT')
+        for bone in source_arm.data.edit_bones:
+            if bone.name in target_arm.data.bones:
+                native=target_arm.data.bones[bone.name]
+                bone.matrix=source_arm.matrix_world.inverted()@target_arm.matrix_world@native.matrix_local
+                bone.length=native.length
+            else:
+                if not bone.name.startswith('cloth_'):raise RuntimeError('Unrecognised garment-owned bone')
+                bone.matrix=source_arm.matrix_world.inverted()@delta@source_arm.matrix_world@original[bone.name][0]
+                bone.length=original[bone.name][1]
+        bpy.ops.object.mode_set(mode='OBJECT');bpy.context.view_layer.objects.active=garment
+        target_arm=source_arm
+    else:
+        weight_source=target
+        if part=='cloak':
+            under_path=root/'sources/fits'/fit/'vest/frontier_sealed_vest_native.glb'
+            if under_path.exists():
+                before_under=set(bpy.data.objects);bpy.ops.import_scene.gltf(filepath=str(under_path))
+                weight_source=next(o for o in set(bpy.data.objects)-before_under if o.type=='MESH' and o.name=='frontier_sealed_vest')
+                for modifier in list(weight_source.modifiers):weight_source.modifiers.remove(modifier)
+                bpy.context.view_layer.objects.active=garment
+        garment.vertex_groups.clear()
+        for group in weight_source.vertex_groups:garment.vertex_groups.new(name=group.name)
+        weights=garment.modifiers.new('Native body Data Transfer weights','DATA_TRANSFER')
+        weights.object=weight_source;weights.use_vert_data=True;weights.data_types_verts={'VGROUP_WEIGHTS'}
+        weights.vert_mapping='POLYINTERP_NEAREST';weights.layers_vgroup_select_src='ALL';weights.layers_vgroup_select_dst='NAME'
+        bpy.ops.object.modifier_apply(modifier=weights.name)
     if part in ('standing_cap','lame_coif'):
         garment.vertex_groups.clear();group=garment.vertex_groups.new(name='head')
         group.add(list(range(len(garment.data.vertices))),1,'REPLACE')

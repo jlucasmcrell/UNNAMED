@@ -1,10 +1,10 @@
-"""Author ordinary combined outfit meshes with native Boolean hidden-surface cuts, one skin per set."""
-import bpy,hashlib,json,os,sys
+"""Bake layered source outfits with native waist seams, retaining source PBR materials."""
+import bpy,bmesh,hashlib,json,os,sys
 from pathlib import Path
 from mathutils import Vector
-from mathutils.bvhtree import BVHTree
+
 sys.path.insert(0,str(Path(__file__).parent))
-from native_clothing import approved_surface
+from native_clothing import approved_surface,arm_weights
 from frontier_region_masks import REGIONS
 root=Path(r'D:\Otherreach_Scratch\frontier_native_20261018')
 fit=os.environ.get('OTHERREACH_CLOTHING_BODY','veth_f');body_id='mh_'+fit
@@ -13,12 +13,6 @@ bases={'linen':'frontier_linen_shirt','trousers':'frontier_wool_trousers','vest'
        'boots':'frontier_sealed_boots','sabatons':'frontier_lame_sabatons','gloves':'frontier_smith_gloves','cloak':'frontier_wool_cloak'}
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=str(root/'approved_clothing_sources'/(fit+'.glb')))
-reference=[bpy.data.objects['native_'+fit+'_'+part] for part in ('body','head')]
-verts=[];faces=[]
-for obj in reference:
-    offset=len(verts);verts.extend(obj.matrix_world@v.co for v in obj.data.vertices)
-    faces.extend(tuple(offset+i for i in p.vertices) for p in obj.data.polygons)
-body_bvh=BVHTree.FromPolygons(verts,faces)
 arm=next(o for o in bpy.data.objects if o.type=='ARMATURE')
 body_target=approved_surface(fit)
 # Reference shapes are read only and never exported as clothing.
@@ -51,49 +45,39 @@ def copy_part(key):
     original=sources[key];obj=original.copy();obj.data=original.data.copy()
     bpy.context.collection.objects.link(obj);obj.hide_set(False);return obj
 
-def cut_volume(outer):
-    # Select the outer side of the new shell, then use Blender's native closed
-    # Solidify volume for a regular Boolean clothing cut. No pose/ray gate.
-    points=[outer.matrix_world@v.co for v in outer.data.vertices]
+def tuck_waist(inner,trousers):
+    # A normal author-time waist seam; never cut sleeves with a torso volume.
+    edit=bmesh.new();edit.from_mesh(inner.data)
+    arms=arm_weights(inner)
     selected=[]
-    for p in outer.data.polygons:
-        near=body_bvh.find_nearest(outer.matrix_world@p.center)
-        normal=(outer.matrix_world.to_3x3()@p.normal).normalized()
-        if near[1] is not None and normal.dot(near[1])>.3:selected.append(tuple(p.vertices))
-    mesh=bpy.data.meshes.new('Hidden cloth cut volume');mesh.from_pydata(points,[],selected);mesh.update()
-    obj=bpy.data.objects.new(mesh.name,mesh);bpy.context.collection.objects.link(obj);active(obj)
-    solid=obj.modifiers.new('Native inward cut volume','SOLIDIFY');solid.thickness=.060;solid.offset=-1
-    solid.use_even_offset=True;bpy.ops.object.modifier_apply(modifier=solid.name)
-    bevel=obj.modifiers.new('Retain cloth overlap at outer edges','BEVEL');bevel.width=.012;bevel.segments=2
-    bevel.limit_method='ANGLE';bevel.angle_limit=.6
-    bpy.ops.object.modifier_apply(modifier=bevel.name)
-    return obj
-
-def subtract(inner,volume):
-    active(inner);mod=inner.modifiers.new('Remove permanently hidden inner cloth','BOOLEAN')
-    mod.operation='DIFFERENCE';mod.solver='FLOAT';mod.object=volume
-    bpy.ops.object.modifier_move_up(modifier=mod.name)
-    bpy.ops.object.modifier_apply(modifier=mod.name)
-
-def leather(material):
-    if not material.use_nodes:return
-    tree=material.node_tree;shader=tree.nodes.get('Principled BSDF')
-    if shader is None:return
-    name=material.name
-    if name.startswith(('frontier_oiled_leather','frontier_dark_leather')) and not material.get('scan_attached'):
-        image=tree.nodes.new('ShaderNodeTexImage')
-        image.image=bpy.data.images.load(r'C:\Otherreach_External_Assets\PolyHaven\textures\brown_leather\brown_leather_albedo_4k.jpg',check_existing=True)
-        tree.links.new(image.outputs['Color'],shader.inputs['Base Color'])
-        material['scan_attached']=True
-    elif name.startswith('frontier_linen_shirt'):
-        shader.inputs['Base Color'].default_value=(.31,.28,.20,1)
-    elif name.startswith('frontier_wool_trousers'):
-        shader.inputs['Base Color'].default_value=(.13,.15,.12,1)
+    for face in edit.faces:
+        if sum(arms[v.index] for v in face.verts)/len(face.verts)<.35:selected.append(face)
+    geom=set(selected)
+    for face in selected:geom.update(face.edges);geom.update(face.verts)
+    pelvis=(arm.matrix_world@arm.data.bones['pelvis'].head_local).z
+    point=inner.matrix_world.inverted()@Vector((0,0,pelvis+.18))
+    normal=inner.matrix_world.to_3x3().transposed()@Vector((0,0,1))
+    bmesh.ops.bisect_plane(edit,geom=list(geom),plane_co=point,plane_no=normal,dist=1e-6,clear_inner=True)
+    edit.to_mesh(inner.data);edit.free()
+    # Tuck the seam inside the trouser waist. A vertical overlap alone leaves
+    # the shirt outside the trousers; this native modifier makes a real tuck.
+    torso=[i for i,weight in enumerate(arm_weights(inner)) if weight<.35]
+    group=inner.vertex_groups.new(name='tucked_waist')
+    for i in torso:
+        z=(inner.matrix_world@inner.data.vertices[i].co).z
+        weight=1-min(1,max(0,(z-pelvis-.20)/.03))
+        if weight:group.add([i],weight,'REPLACE')
+    active(inner)
+    wrap=inner.modifiers.new('Native trouser waist tuck','SHRINKWRAP')
+    wrap.target=trousers;wrap.wrap_method='NEAREST_SURFACEPOINT';wrap.wrap_mode='ON_SURFACE';wrap.offset=-.004
+    wrap.vertex_group=group.name
+    bpy.ops.object.modifier_move_up(modifier=wrap.name);bpy.ops.object.modifier_apply(modifier=wrap.name)
+    inner.vertex_groups.remove(inner.vertex_groups['tucked_waist'])
 
 sets=[]
 for chest in ('linen','vest','jack'):
     for pants in (False,True):
-        keys=['linen']+(['trousers'] if pants else [])+(['vest'] if chest!='linen' else [])+(['jack'] if chest=='jack' else [])
+        keys=[('linen' if chest=='linen' else 'vest')]+(['trousers'] if pants else [])+(['jack'] if chest=='jack' else [])
         sets.append(('frontier_'+chest+('_trousers' if pants else '')+'_set',keys,
                      REGIONS['base_shirt']+(REGIONS['trousers'] if pants else [])))
 sets.extend([('frontier_cap_coif_set',['cap','coif'],['hair']),
@@ -103,12 +87,8 @@ out=root/'combined_sources'/fit;out.mkdir(parents=True,exist_ok=True)
 reports=[]
 for base,keys,hidden in sets:
     objects={key:copy_part(key) for key in keys}
-    for outer,inners in [('trousers',['linen'])]:
-        if outer not in objects:continue
-        volume=cut_volume(objects[outer])
-        for key in inners:
-            if key in objects:subtract(objects[key],volume)
-        bpy.data.objects.remove(volume,do_unlink=True)
+    if 'trousers' in objects and 'linen' in objects:
+        tuck_waist(objects['linen'],objects['trousers'])
     if 'linen' in objects and 'trousers' not in objects:
         # Free-hanging hem rather than the tucked variant; native displacement
         # acts on this garment only. The underlying approved hips stay drawn.
@@ -139,7 +119,7 @@ for base,keys,hidden in sets:
         transfer.vertex_group=selected.name
         bpy.ops.object.modifier_move_up(modifier=transfer.name);bpy.ops.object.modifier_apply(modifier=transfer.name)
         combined.vertex_groups.remove(combined.vertex_groups['finished_cloth_binding'])
-    for material in combined.data.materials:leather(material)
+
     lods=[]
     for level,ratio in ((1,.65),(2,.4),(3,.25)):
         lod=combined.copy();lod.data=combined.data.copy();lod.name=base+f'_LOD{level}'
@@ -150,7 +130,7 @@ for base,keys,hidden in sets:
     for obj in [combined,*lods,arm]:obj.select_set(True)
     bpy.ops.export_scene.gltf(filepath=str(out/(base+'_native.glb')),export_format='GLB',use_selection=True,
         export_skins=True,export_def_bones=False,export_influence_nb=8,export_animations=False)
-    (out/(base+'.json')).write_text(json.dumps({'hide_regions':hidden,'source_parts':keys,'construction':'Native Boolean hidden-surface cuts; one combined skinned outfit mesh with4LODs'},indent=2))
+    (out/(base+'.json')).write_text(json.dumps({'hide_regions':hidden,'source_parts':keys,'construction':'One stitched surface and native waist seam; one combined skinned outfit mesh with4LODs'},indent=2))
     reports.append({'set':base,'parts':keys,'hide_regions':hidden,'vertices':len(combined.data.vertices)})
     for obj in [combined,*lods]:obj.hide_set(True)
 bpy.ops.wm.save_as_mainfile(filepath=str(out/'frontier_combined_sets.blend'))

@@ -11,7 +11,7 @@ sheet=Image.new('RGB',(1250,1650),'#333333')
 draw=ImageDraw.Draw(sheet)
 for i,path in enumerate(files):
     pic=Image.open(path).convert('RGB')
-    pic=pic.crop((730,180,1190,1080))
+    pic=pic.crop((730,60,1190,1080))
     pic.thumbnail((250,520))
     x=(i%5)*250; y=(i//5)*550
     sheet.paste(pic,(x+(250-pic.width)//2,y+24))
