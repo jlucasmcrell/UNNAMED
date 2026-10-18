@@ -89,6 +89,31 @@ public sealed class FrontierPerf
     public void Write()
     {
         File.WriteAllText(Path.Combine(Directory, "render_counts.csv"), _renderCounts.ToString());
+        // An inventory, not a visibility claim: shadow cameras and MultiMesh bounds can submit
+        // geometry outside the player camera. Keep the authored ranges and bounds to investigate it.
+        var meshes = _viewport.GetTree().CurrentScene.FindChildren("*", "GeometryInstance3D", true, false)
+            .OfType<GeometryInstance3D>().Select(node =>
+            {
+                Mesh? mesh = (node as MeshInstance3D)?.Mesh ?? (node as MultiMeshInstance3D)?.Multimesh?.Mesh;
+                int instances = node is MultiMeshInstance3D { Multimesh: { } multi }
+                    ? (multi.VisibleInstanceCount < 0 ? multi.InstanceCount : multi.VisibleInstanceCount) : 1;
+                long triangles = mesh is ArrayMesh array
+                    ? Enumerable.Range(0, array.GetSurfaceCount()).Where(i => array.SurfaceGetPrimitiveType(i) == Mesh.PrimitiveType.Triangles)
+                        .Sum(i => (long)Math.Max(array.SurfaceGetArrayIndexLen(i), array.SurfaceGetArrayLen(i)) / 3) : 0;
+                Aabb bounds = node.GlobalTransform * node.GetAabb();
+                return new
+                {
+                    path = node.GetPath().ToString(), mesh = mesh?.ResourcePath, surfaces = mesh?.GetSurfaceCount(),
+                    triangles_per_instance = triangles, instances, source_triangles = triangles * instances,
+                    visible_in_tree = node.IsVisibleInTree(), shadows = node.CastShadow.ToString(), gi = node.GIMode.ToString(),
+                    range_begin = node.VisibilityRangeBegin, range_end = node.VisibilityRangeEnd,
+                    bounds_min = new[] { bounds.Position.X, bounds.Position.Y, bounds.Position.Z },
+                    bounds_size = new[] { bounds.Size.X, bounds.Size.Y, bounds.Size.Z },
+                    distance_to_camera = bounds.GetCenter().DistanceTo(_camera.Camera.GlobalPosition),
+                    viewport = node.GetViewport().GetPath().ToString(),
+                };
+            }).ToArray();
+        File.WriteAllText(Path.Combine(Directory, "geometry.json"), JsonSerializer.Serialize(meshes));
         var lights = _viewport.GetTree().CurrentScene.FindChildren("*", "Light3D", true, false).OfType<Light3D>().Select(light => new
         {
             path = light.GetPath().ToString(), type = light.GetClass().ToString(),
