@@ -21,6 +21,7 @@ public static partial class Outfit
 {
     private const string ClothShaderPath = "res://Art/cloth.gdshader";
     private static Shader? _cloth;
+    private static readonly Dictionary<BaseMaterial3D.CullModeEnum, Shader> ClothCullShaders = new();
 
     /// <summary>
     /// Dress <paramref name="figure"/>, drawn with the model <paramref name="body"/>, in <paramref name="garments"/> (rigged asset IDs, each
@@ -170,7 +171,17 @@ public static partial class Outfit
         if (source is not BaseMaterial3D imported)
             return null;
         _cloth ??= GD.Load<Shader>(ClothShaderPath);
-        var m = new ShaderMaterial { ResourceName = imported.ResourceName, Shader = _cloth };
+        var shader = _cloth;
+        if (imported.CullMode != BaseMaterial3D.CullModeEnum.Back)
+        {
+            if (!ClothCullShaders.TryGetValue(imported.CullMode, out shader))
+            {
+                string cull = imported.CullMode == BaseMaterial3D.CullModeEnum.Front ? "cull_front" : "cull_disabled";
+                shader = new Shader { Code = _cloth.Code.Replace("cull_back", cull, StringComparison.Ordinal) };
+                ClothCullShaders.Add(imported.CullMode, shader);
+            }
+        }
+        var m = new ShaderMaterial { ResourceName = imported.ResourceName, Shader = shader };
         m.SetShaderParameter("albedo", imported.AlbedoColor);
         m.SetShaderParameter("roughness", imported.Roughness);
         m.SetShaderParameter("metallic", imported.Metallic);
