@@ -99,6 +99,7 @@ public partial class Main : Node3D
     private InputCheck? _inputCheck;
     private UiShots? _shots;
     private BarrowworksReview? _barrowworksReview;
+    private FrontierPerf? _frontierPerf;
     private Showcase? _showcase;
     private Playthrough? _play;
 
@@ -277,7 +278,7 @@ public partial class Main : Node3D
             : _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf")
               || (_options.ContainsKey("--ui-shots") && !_flags.Contains("--ui-shots-continue"))
               || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check") || _options.ContainsKey("--survey")
-              || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review")
+              || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
               || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
               || (_options.ContainsKey("--showcase") && !_options.ContainsKey("--profile"))
               || (_options.ContainsKey("--front-shots") && !_options.ContainsKey("--profile"))
@@ -295,6 +296,9 @@ public partial class Main : Node3D
             || OS.GetEnvironment("BARROWWORKS_REVIEW_RETURN_BASELINE") == "1"))
             shotStart = OS.GetEnvironment("BARROWWORKS_REVIEW_RETURN_BASELINE") == "1"
                 ? (1_050_000, 770_000) : (438_000, 664_000);
+        if (_options.ContainsKey("--frontier-perf"))
+            shotStart = FrontierPerf.ParsePoint(_options.GetValueOrDefault("--frontier-point")
+                ?? throw new ArgumentException("--frontier-perf requires --frontier-point x,z"));
         // Bad content refuses to start, naming every file (ARCHITECTURE.md §8.1); so does a profile another copy of the game holds.
         // The Barrowworks switch is read here, once, and passed down: it is parsed as --visual (this layer's own
         // options) but what it gates is content the simulation holds, so GameOptions carries it (M8 D10). Off
@@ -316,7 +320,7 @@ public partial class Main : Node3D
         bool scripted = playthrough is not null || _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf")
                         || _options.ContainsKey("--ui-shots")
                         || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check") || _options.ContainsKey("--survey")
-                        || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review")
+                        || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
                         || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
                         || _options.ContainsKey("--showcase");
         // No run of a harness takes the mouse - but the input check, which checks who has it.
@@ -341,7 +345,7 @@ public partial class Main : Node3D
                           || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
                           || _options.ContainsKey("--survey")
                           || _options.ContainsKey("--connected-check")
-                          || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review")
+                          || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
                           || _flags.Contains("--perf")
                           || _options.ContainsKey("--resume-shots");
         if (scripted && !verify && !showcaseContinues)
@@ -551,6 +555,13 @@ public partial class Main : Node3D
             SizeForCapture();
             _realtime = _flags.Contains("--realtime");
             _barrowworksReview = new BarrowworksReview(_session, _controller, _camera, Path.GetFullPath(review), _realtime);
+        }
+        else if (_options.TryGetValue("--frontier-perf", out string? frontierPerf))
+        {
+            SizeForCapture();
+            Engine.MaxFps = 0;
+            DisplayServer.WindowSetVsyncMode(DisplayServer.VSyncMode.Disabled);
+            _frontierPerf = new FrontierPerf(_session, _controller, _camera, GetViewport(), Path.GetFullPath(frontierPerf));
         }
         else if (_options.TryGetValue("--shot", out string? shotSpec))
         {
@@ -1087,6 +1098,26 @@ public partial class Main : Node3D
                     break;
             }
         }
+        else if (_frontierPerf is not null)
+        {
+            string? result = _frontierPerf.Update();
+            switch (result)
+            {
+                case "done":
+                case "failed":
+                    _frontierPerf.Write();
+                    WriteReports(_frontierPerf.Directory, "frontier-rendering-benchmark");
+                    GetTree().Quit(result == "done" ? 0 : 1);
+                    return;
+                case { } shot:
+                    if (DisplayServer.GetName() != "headless")
+                    {
+                        _frontierPerf.Screenshot();
+                        SaveScreenshot(_frontierPerf.Directory, shot);
+                    }
+                    break;
+            }
+        }
         else if (_survey is not null)
         {
             switch (_survey.Update())
@@ -1518,7 +1549,7 @@ public partial class Main : Node3D
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
-                    or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review" or "--anim-states"
+                    or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else
