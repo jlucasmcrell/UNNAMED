@@ -266,7 +266,7 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
         if (Current is not { } state || Clock.Day(toTick) <= state.Day)
             return;
         LiveTo(Clock.Day(toTick), log);
-        Bodies(toTick, force: false);
+        Bodies(toTick, force: true);
     }
 
     private void LiveTo(long day, AdvanceLog? log)
@@ -505,7 +505,9 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
 
     /// <summary>
     /// Bodies come and go: an adventurer in town or with the party has one, at their lodge; one out, dead or retired has none. A body is made
-    /// or taken away only where the character cannot see it (tier A never); at a load (<paramref name="force"/>) every one that should be is made.
+    /// or taken away only where the character cannot see it (tier A never). With <paramref name="force"/> - a load, or the character's absence, when nothing is
+    /// in sight - the bodies are exactly those wanted at <paramref name="tick"/>, whatever stood before: the tier of a cell is whatever the last step left, so
+    /// bodies that came and went by it would depend on where an absence was cut.
     /// </summary>
     private void Bodies(long tick, bool force)
     {
@@ -515,7 +517,17 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
         {
             bool wanted = a.Party is not null || InTown(a, tick);
             bool has = State.Npcs.ContainsKey(a.Key);
-            if (wanted == has || State.Companions.ContainsKey(a.Key) || !setup.Settlements.TryGetValue(a.At, out var town))
+            if (State.Companions.ContainsKey(a.Key) || !setup.Settlements.TryGetValue(a.At, out var town))
+                continue;
+            // One who went to another town stands at that lodge, not the one whose body they left: a body at the wrong lodge is moved where
+            // it cannot be seen, so a body made at once and one kept through the absence end in the same place.
+            if (wanted && has && a.Party is null && (force || TierAt(State.Npcs[a.Key].Body.XMm, State.Npcs[a.Key].Body.ZMm) != SimulationTier.A)
+                && SiteOf(a, town) is var site && (State.Npcs[a.Key].Body.XMm, State.Npcs[a.Key].Body.ZMm) != (site.XMm, site.ZMm))
+            {
+                _context.Dispatch(new RemoveNpc(a.Key, tick) { KeepIdentity = true });
+                has = false;
+            }
+            if (wanted == has)
                 continue;
             if (wanted)
             {
@@ -523,14 +535,14 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
                     continue;
                 _context.Dispatch(new EmbodyNpc(Definition(a), InstanceIdOf(a.Key), SiteOf(a, town)));
             }
-            else if (TierAt(State.Npcs[a.Key].Body.XMm, State.Npcs[a.Key].Body.ZMm) != SimulationTier.A)
+            else if (force || TierAt(State.Npcs[a.Key].Body.XMm, State.Npcs[a.Key].Body.ZMm) != SimulationTier.A)
                 _context.Dispatch(new RemoveNpc(a.Key, tick) { KeepIdentity = true });
         }
         // Those no longer living their lives here - dead, retired - leave their body only out of sight.
         foreach (var npc in State.Npcs.Values.Where(n => n.Definition.Role == Role && !state.Agents.ContainsKey(n.Definition.Id)
                      && !State.Companions.ContainsKey(n.Definition.Id)).ToList())
         {
-            if (TierAt(npc.Body.XMm, npc.Body.ZMm) != SimulationTier.A)
+            if (force || TierAt(npc.Body.XMm, npc.Body.ZMm) != SimulationTier.A)
                 _context.Dispatch(new RemoveNpc(npc.Definition.Id, tick));
         }
         // What stands now, for a save to stand again.

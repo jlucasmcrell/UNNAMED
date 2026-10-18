@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Social;
+using UNNAMED.Domain.Spatial;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
 using Xunit.Abstractions;
@@ -325,4 +326,42 @@ public class AdventurerWorldTests
             Assert.Equal(World(once, bodies: false), World(chunked, bodies: false));
         }
     }
+
+    [Fact]
+    public void AnAbsence_WithTheCharacterAtTheCairnwoldLodge_InAnyPieces_LeavesTheSameBodies()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        Simulation Stood(bool tick)
+        {
+            var arena = Arena.OpenCreatures(session, session.Setup, (session.Setup.Layout.Spawn.XMm / 1000.0, session.Setup.Layout.Spawn.ZMm / 1000.0), 0,
+                Array.Empty<(string, double, double, string)>(), null, seed: 42, keepSpawns: true, origin: (0, 0));
+            var lodge = session.Setup.Adventurers!.Settlements["cairnwold"];
+            long x = lodge.LodgeXMm - 1_500, z = lodge.LodgeZMm - 1_500;
+            Assert.Null(arena.Simulation.Submit(new Relocate(new Body(x, arena.Simulation.Setup.Layout.Space.Terrain.HeightAtMm(x, z), z, 0))));
+            if (tick)
+                arena.Tick(10);
+            return arena.Simulation;
+        }
+        foreach (bool tick in new[] { false, true })
+            foreach (long tail in new[] { 4_321L, 9 * Hour + 77, 12 * Hour, 15 * Hour + 5, 19 * Hour, 22 * Hour + 900 })
+            {
+                long total = 6 * Day + tail;
+                var once = Stood(tick);
+                once.Advance(total);
+                foreach (var pieces in new[]
+                         {
+                             new long[] { 1, total - 1 }, new long[] { Hour, total - Hour }, new long[] { Day / 2, Day, total - Day - Day / 2 },
+                             new long[] { Day + 17, 0, Day - 5, total - 2 * Day - 12 }, new long[] { Hour, Hour, Hour, Hour, total - 4 * Hour },
+                         })
+                {
+                    var chunked = Stood(tick);
+                    foreach (long piece in pieces)
+                        chunked.Advance(piece);
+                    Assert.True(World(once) == World(chunked), $"tick {tick} tail {tail} pieces {string.Join(',', pieces)}{Environment.NewLine}once:    {Bodies(once)}{Environment.NewLine}chunked: {Bodies(chunked)}");
+                }
+            }
+    }
+
+    private static string Bodies(Simulation s) => string.Join(" ", s.World.Adventurers!.Bodies.Select(b => $"{b.Key}@{b.Value.XMm}")) + " | " + string.Join(" ", s.World.Adventurers!.Agents.Values.Select(a => $"{a.Key}:{a.Plan.Goal}/{a.Condition}"));
 }
