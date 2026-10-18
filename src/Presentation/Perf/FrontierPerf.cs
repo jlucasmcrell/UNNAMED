@@ -19,6 +19,8 @@ public sealed class FrontierPerf
     private readonly FrameStats _stats;
     private readonly Viewport _viewport;
     private readonly string? _diagnosticHide;
+    private readonly FrontierBreakdown? _breakdown;
+    private string Label => _breakdown?.Name(_heading) ?? $"yaw_{_heading * HeadingDegrees:000}";
     private readonly StringBuilder _renderCounts = new("segment,observed_frame,draw_calls,primitives,objects,gc_pause_ms\n");
     private long _lastGcPause = GC.GetTotalPauseDuration().Ticks;
     private readonly StringBuilder _processPhases = new("observed_frame,segment,phase,ms\n");
@@ -45,7 +47,12 @@ public sealed class FrontierPerf
     {
         _session = session; _controller = controller; _camera = camera;
         _viewport = viewport;
-        _diagnosticHide = diagnosticHide;
+        if (System.Environment.GetEnvironmentVariable("UNNAMED_FRONTIER_SWEEP") == "1")
+        {
+            _breakdown = new FrontierBreakdown(viewport.GetTree().CurrentScene);
+            _breakdown.Apply(0);
+        }
+        _diagnosticHide = diagnosticHide ?? (_breakdown is null ? null : "component_sweep");
         if (diagnosticHide is not null)
         {
             string path = diagnosticHide switch
@@ -60,7 +67,7 @@ public sealed class FrontierPerf
         }
         Directory = directory;
         System.IO.Directory.CreateDirectory(directory);
-        _stats = new FrameStats(viewport) { Segment = "warmup_yaw_000" };
+        _stats = new FrameStats(viewport) { Segment = $"warmup_{Label}" };
         _startTick = session.Simulation!.WorldTick;
         _lastUsec = Time.GetTicksUsec();
     }
@@ -100,7 +107,7 @@ public sealed class FrontierPerf
         // Screenshot readback must not consume the next heading's warm-up either.
         if (_heading == 0 && _warming && _stats.Count <= 2) _elapsed = 0;
         else if (_stats.Count > before) _elapsed += seconds;
-        _camera.Yaw = _heading * Mathf.Tau / HeadingCount;
+        _camera.Yaw = _breakdown is null ? _heading * Mathf.Tau / HeadingCount : Mathf.Pi / 4;
         _camera.Pitch = -.12f;
         _camera.TargetDistance = 3.5f;
         _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
@@ -109,17 +116,21 @@ public sealed class FrontierPerf
         {
             if (_elapsed < (_heading == 0 ? FirstWarmupSeconds : TurnWarmupSeconds)) return null;
             _warming = false; _elapsed = 0;
-            _stats.Segment = $"capture_yaw_{_heading * HeadingDegrees:000}";
+            _stats.Segment = $"capture_{Label}";
             _stats.Mark($"steady observation starts at tick {_session.Simulation.WorldTick}");
             return null;
         }
         if (_elapsed < CaptureSeconds) return null;
-        string shot = $"yaw_{_heading * HeadingDegrees:000}";
+        string shot = Label;
         var body = _controller.Authoritative;
         _stats.Mark($"{shot}: tick {_session.Simulation.WorldTick}, body {body.XMm},{body.YMm},{body.ZMm}");
         _finished = ++_heading == HeadingCount;
         _warming = true; _elapsed = 0;
-        if (!_finished) _stats.Segment = $"warmup_yaw_{_heading * HeadingDegrees:000}";
+        if (!_finished)
+        {
+            _breakdown?.Apply(_heading);
+            _stats.Segment = $"warmup_{Label}";
+        }
         return shot;
     }
 
@@ -178,7 +189,8 @@ public sealed class FrontierPerf
         File.WriteAllText(Path.Combine(Directory, "lights.json"), JsonSerializer.Serialize(lights, new JsonSerializerOptions { WriteIndented = true }));
         _stats.Write(Directory, new Dictionary<string, string>
         {
-            ["route"] = "One fresh frontier fixture, eight gameplay camera headings; no relocation after new game",
+            ["route"] = _breakdown is null ? "One fresh frontier fixture, eight gameplay camera headings; no relocation after new game"
+                : "DIAGNOSTIC component sweep at yaw 045; components restored before every stage, baseline repeated last",
             ["clock"] = "Normal GameSession.Frame(delta), 20 Hz simulation; monotonic measured frame intervals",
             ["warmup"] = "Retain two boot intervals, then 10 seconds first heading; 3 seconds after each turn excluding screenshot readback. Warmup segments retained separately",
             ["capture"] = "12 seconds per heading; only the frame after screenshot readback is excluded",
