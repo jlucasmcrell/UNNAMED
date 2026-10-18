@@ -45,7 +45,15 @@ public class ChatTests
         Assert.Equal("region.starting_frontier", post.RegionId);
         string words = arena.Simulation.ChatText(post)!;
         Assert.DoesNotContain("{", words);
-        Assert.Contains("Long Lodge", words);
+        Assert.Equal("the Long Lodge", post.Params["anchor"]);
+        // The template varies with this NPC's generated identity. Some intentionally
+        // omit the meeting place; every slot a selected template does use must render.
+        foreach (var template in session.Setup.Chat.TemplatesFor("lfg.hunt"))
+        {
+            string alternative = arena.Simulation.ChatText(post with { LineKey = template.Key })!;
+            Assert.DoesNotContain("{", alternative);
+            Assert.All(template.Slots, slot => Assert.Contains(post.Params[slot], alternative));
+        }
         Assert.Equal(("Brannoc", "08:30"), (post.Params["speaker"], post.Params["depart_time"]));   // an hour after the world starts, at 07:30 (config.time)
         var offer = Assert.Single(arena.Simulation.GroupOffers);
         Assert.Equal((npc, false, 5 + Hour), (offer.Npc, offer.Joined, offer.DepartTick));
