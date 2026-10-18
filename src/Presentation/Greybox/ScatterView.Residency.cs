@@ -48,6 +48,7 @@ public partial class ScatterView
     {
         if (_builtFor is not { } seed || GetViewport().GetCamera3D() is not { } camera)
             return;
+        UpdateDrawBatches(camera.GlobalPosition);
         if (!_residentMode || !IsVisibleInTree()) return;
         var focus = new Vector2(camera.GlobalPosition.X, camera.GlobalPosition.Z);
         if (_plannedFocus is null || focus.DistanceSquaredTo(_plannedFocus.Value) >= 16)

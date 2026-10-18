@@ -160,6 +160,7 @@ public partial class ScatterView : Node3D
             return;
         }
         _builtFor = worldSeed;
+        _drawBatches.Clear();
         foreach (var child in GetChildren())
         {
             if (child == _wind)
@@ -390,6 +391,7 @@ public partial class ScatterView : Node3D
             var box = bands.Skip(1).Aggregate(bands[0].Multimesh.GetAabb(), (b, n) => b.Merge(n.Multimesh.GetAabb()));
             foreach (var band in bands)
                 band.CustomAabb = box;
+            AddDrawBatchBands(bands, placed);
         }
     }
 
