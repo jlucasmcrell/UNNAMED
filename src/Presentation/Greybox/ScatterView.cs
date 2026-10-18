@@ -718,6 +718,8 @@ public partial class ScatterView : Node3D
                 }
                 using var boneTransforms = new Godot.Collections.Array();
                 importer.GenerateLods(60, 0, boneTransforms);
+                if (OS.GetEnvironment("UNNAMED_LOAD_REPORT") == "1")
+                    GD.Print($"UNNAMED scatter mesh LODs: {id} level {meshes.Count}, {Enumerable.Range(0, importer.GetSurfaceCount()).Sum(importer.GetSurfaceLodCount)} index levels");
                 merged = importer.GetMesh();
             }
             // Shader displacement is invisible to CPU culling. Grow only wind-deformed model bounds, in model
