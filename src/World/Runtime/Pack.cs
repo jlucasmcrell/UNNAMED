@@ -104,7 +104,7 @@ internal sealed partial class InventorySystem
         ImmutableArray<EntityId?> bagsIn, Func<PackItem, bool>? keeps = null, IReadOnlyList<string>? order = null)
     {
         var bags = CleanBags(entries, bagsIn);
-        var worn = bags.Where(b => b is not null).Select(b => b!.Value).ToHashSet();
+        var worn = bags.OfType<EntityId>().ToHashSet();
         var placement = PackRules.Place(entries.Where(e => !worn.Contains(e.ItemId)).Select(PackItemOf), ContainersOf(entries, bags), keeps, order);
         var placed = entries.Select(e =>
             worn.Contains(e.ItemId) ? e with { Bag = -1, Slot = -1 }
@@ -135,7 +135,7 @@ internal sealed partial class InventorySystem
         if (needed == 0)
             return null;
         var bags = CleanBags(entries, State.Bags);
-        var worn = bags.Where(b => b is not null).Select(b => b!.Value).ToHashSet();
+        var worn = bags.OfType<EntityId>().ToHashSet();
         var carried = entries.Where(e => !worn.Contains(e.ItemId)).Select(PackItemOf);
         return PackRules.Fits(carried, Enumerable.Repeat(PackKinds.Of(definition), needed).ToList(), ContainersOf(entries, bags))
             ? null
