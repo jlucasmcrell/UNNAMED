@@ -3,6 +3,7 @@
 
 using Godot;
 using UNNAMED.Domain.Character;
+using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
 using UNNAMED.Presentation.Greybox;
 using UNNAMED.Presentation.Player;
@@ -25,7 +26,7 @@ public partial class Main
     {
         // A first NPC route otherwise builds this derived grid during play (~40 ms on BEAST).
         // Prepare it with the rest of a new/loaded world's views, before handing over control.
-        _ = _session.Simulation!.Navigation.Grid;
+        PrepareNavigationQueries();
         _controller.Resync();
         _creatures.Reset();
         if (_creatures != _exteriorCreatures) _exteriorCreatures.Reset();
@@ -51,6 +52,28 @@ public partial class Main
         _lastFeet = HollowView.ToGodot(body.XMm, body.YMm, body.ZMm);
         // The ground scatter is this world's: placed from its seed (the same seed again keeps what is placed).
         _scatter.Build(_session.Simulation!.World.WorldSeed);
+    }
+
+    private void PrepareNavigationQueries()
+    {
+        var navigation = _session.Simulation!.Navigation;
+        var config = _session.Setup.Navigation;
+        var gates = navigation.Gates.ToDictionary(g => g.Key, g => g.Open, StringComparer.Ordinal);
+        var query = new NavQuery(navigation.Grid, gate => gates.GetValueOrDefault(gate.GateKey ?? ""), config, new NavScratch(), null);
+        var agent = new NavAgent(config.PersonClass, true);
+        var spawn = _session.Setup.Layout.Spawn;
+        var from = new NavPoint(spawn.XMm, spawn.ZMm);
+        long radius = config.Classes[config.PersonClass].RadiusMm;
+        if (!NavSearch.Standable(navigation.Grid, agent, query.IsGateOpen, from, radius)) return;
+        // The first scheduled walk also JITs the planner/follower. Exercise their ordinary read-only preview
+        // before control starts, using disposable scratch and no counters, commands, routes or ticks in the world.
+        foreach (var (dx, dz) in new[] { (1_000L, 0L), (-1_000L, 0L), (0L, 1_000L), (0L, -1_000L) })
+        {
+            var to = new NavPoint(from.XMm + dx, from.ZMm + dz);
+            if (!NavSearch.Standable(navigation.Grid, agent, query.IsGateOpen, to, radius)) continue;
+            _ = NavFollower.Next(query, agent, NavRoute.None, from, to, 0, _session.Simulation.WorldTick, _session.Setup.Movement.InteractReachMm);
+            break;
+        }
     }
 
     /// <summary>
