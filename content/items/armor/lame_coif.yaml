@@ -1,0 +1,17 @@
+id: item.armor.lame_coif
+kind: item.armor
+schema: 1
+display_key: item.armor.lame_coif.name
+tags: [item]
+name: Lame Coif
+notes: "Owner-accepted rung 3 (ARMOUR_TIERS_DESIGN.md section 4). An open-faced iron headpiece over the standing cap; the face remains visible. WP3b repairs the whole item; individual lame wear is not implemented. Art acceptance pending."
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 1.8
+value_base: 40
+slot: head
+armor_value: 5
+material_class: plate
+durability_max: 400
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 8, item_ref: item.material.iron_ingot }

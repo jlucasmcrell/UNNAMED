@@ -1,5 +1,11 @@
 # Outfit v8 refit — work in progress
 
+**Superseded construction approach (owner, 2026-10-18).** All old garment
+warping trials below are rejected/private and stopped. Continue with new
+construction directly on fixed approved bodies; see
+`FRONTIER_WARDROBE_REBUILD_20261018.md`. The separate perf/sky lane now owns
+frontier work. No wardrobe acceptance is implied by the renderer checks below.
+
 The owner ordered A integration, B approved-body motion, C zero-clipping outfits,
 then D frontier performance and the unpublished release candidate. A/B are shared
 at `d43b6dbf`. C is isolated; frontier remains paused at `ad21d492`.

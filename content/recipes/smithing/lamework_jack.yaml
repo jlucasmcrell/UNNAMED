@@ -1,0 +1,16 @@
+id: recipe.smithing.lamework_jack
+kind: recipe
+schema: 1
+display_key: recipe.smithing.lamework_jack.name
+tags: [recipe]
+name: Lamework Jack
+notes: "Kera's rung-3 lesson. Small iron lames on a flexible backing over the sealed vest. The starting piece becomes part of the finished item in its existing equipment slot."
+station: anvil
+skill_ref: skill.smithing
+complexity: 18
+inputs:
+  - { item_ref: item.material.iron_ingot, count: 3 }
+  - { item_ref: item.armor.hide_vest, count: 1 }
+outputs:
+  - { item_ref: item.armor.lamework_jack, count: 1, quality_roll: true }
+xp_award: { xp: 50 }

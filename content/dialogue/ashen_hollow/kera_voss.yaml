@@ -30,6 +30,14 @@ nodes:
   again:
     text: "Back, and all your fingers still on. That's a good start."
     choices:
+      - id: lamework
+        text: "Can you teach me to make armour?"
+        conditions:
+          - { kind: visited, node: lesson }
+          - { kind: visited, node: lamework, not: true }
+        consequences:
+          - { command: teach, refs: [recipe.smithing.lamework_jack, recipe.smithing.lame_coif, recipe.smithing.lame_sabatons] }
+        next: lamework
       - id: teach
         text: "Teach me the forge."
         conditions: [{ kind: visited, node: lesson, not: true }]
@@ -348,6 +356,12 @@ nodes:
     - id: back
       text: I'll keep looking.
       next: again
+  lamework:
+    text: "Small lames, new iron. A jack over your vest, a coif that leaves your face out, and sabatons over your boots. Let each lame move with its neighbour. If your ankle can't bend, you've made an expensive bucket."
+    choices:
+      - id: back
+        text: "I'll try it at the anvil."
+        next: again
 barks:
   - { text: "Ha! Look at that weld. I'm talking to the hinge, not you." }
   - { text: "Hand me the - no. Never mind. Wings are quicker." }

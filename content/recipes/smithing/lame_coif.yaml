@@ -1,0 +1,16 @@
+id: recipe.smithing.lame_coif
+kind: recipe
+schema: 1
+display_key: recipe.smithing.lame_coif.name
+tags: [recipe]
+name: Lame Coif
+notes: "Kera's rung-3 lesson. An open-faced iron headpiece over the standing cap; the face remains visible. The starting piece becomes part of the finished item in its existing equipment slot."
+station: anvil
+skill_ref: skill.smithing
+complexity: 12
+inputs:
+  - { item_ref: item.material.iron_ingot, count: 1 }
+  - { item_ref: item.armor.hide_cap, count: 1 }
+outputs:
+  - { item_ref: item.armor.lame_coif, count: 1, quality_roll: true }
+xp_award: { xp: 35 }

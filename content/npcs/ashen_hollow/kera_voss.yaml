@@ -19,6 +19,9 @@ teaches:
   - { kind: recipe, recipe_ref: recipe.fletching.arrows, by_dialogue: true }
   - { kind: recipe, recipe_ref: recipe.fletching.hunting_bow, by_dialogue: true }
   - { kind: recipe, recipe_ref: recipe.fletching.hunting_bow_silk, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.smithing.lamework_jack, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.smithing.lame_coif, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.smithing.lame_sabatons, by_dialogue: true }
   # The Barrowworks wedge: only where the ring can be reached (its portal seeds the flag), as Kera's ring replies are.
   - kind: recipe
     recipe_ref: recipe.smithing.fitting_wedge

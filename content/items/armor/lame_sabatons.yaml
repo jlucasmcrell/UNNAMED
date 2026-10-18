@@ -1,0 +1,17 @@
+id: item.armor.lame_sabatons
+kind: item.armor
+schema: 1
+display_key: item.armor.lame_sabatons.name
+tags: [item]
+name: Lame Sabatons
+notes: "Owner-accepted rung 3 (ARMOUR_TIERS_DESIGN.md section 4). Overlapping iron lames over sealed boots, articulated at the ankle and toes. WP3b repairs the whole item; individual lame wear is not implemented. Art acceptance pending."
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 1.9
+value_base: 45
+slot: feet
+armor_value: 4
+material_class: plate
+durability_max: 450
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 8, item_ref: item.material.iron_ingot }
