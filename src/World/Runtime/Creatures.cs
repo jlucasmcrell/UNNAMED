@@ -164,6 +164,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
     private ImmutableArray<CreatureView> _views;
     private long _viewTick;
     private SpaceId _viewSpace;
+    // Derived only, per world: spawn-member keys stay the same across generations. Keep one channel per member, not per leg.
+    private readonly Dictionary<string, ulong> _phaseHashes = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, (ulong Seed, CellKey Cell, long Leg, RngChannel Channel)> _wanderChannels = new(StringComparer.Ordinal);
 
     // Doors and people cannot move during this system's tick. Snapshot each space once, not once per creature/query.
     private TickSpace Obstacles(SpaceId space)
@@ -608,17 +611,29 @@ internal sealed class CreatureSystem : IAbstractAdvance
         long leg = (tick + Offset(c.Key, WanderLegTicks)) / WanderLegTicks;
         // The creature's own space, not the player's: keyed on the player's, every exterior creature's stream changed
         // the moment the character walked through a door (review 3, B8).
-        var channel = RngChannel.Open(State.World.WorldSeed, CellKey.OfInterior(c.Site.Space, aroundX / 1000.0, aroundZ / 1000.0), "wander", $"{c.Key}@{leg}");
+        var cell = CellKey.OfInterior(c.Site.Space, aroundX / 1000.0, aroundZ / 1000.0);
+        ulong seed = State.World.WorldSeed;
+        if (!_wanderChannels.TryGetValue(c.Key, out var cached) || cached.Seed != seed || cached.Cell != cell || cached.Leg != leg)
+        {
+            cached = (seed, cell, leg, RngChannel.Open(seed, cell, "wander", $"{c.Key}@{leg}"));
+            _wanderChannels[c.Key] = cached;
+        }
+        var channel = cached.Channel;
         double angle = channel.UInt64(0) / SampleScale * 2 * Math.PI, distance = Math.Sqrt(channel.UInt64(1) / SampleScale) * radius;
         long x = aroundX + (long)Math.Round(Math.Sin(angle) * distance), z = aroundZ + (long)Math.Round(Math.Cos(angle) * distance);
         return Arrived(c, x, z) ? c : c with { Body = Move(c, x, z, Gait.Walk) };
     }
 
     /// <summary>A stable per-creature phase, so a spawner's creatures do not all set off on the same tick.</summary>
-    private static long Offset(string key, long period)
+    private long Offset(string key, long period)
     {
-        using var h = new CanonicalHasher();
-        return (long)(BitConverter.ToUInt64(h.Add("unnamed.creature-phase/v1").Add(key).FinishBytes(), 0) % (ulong)period);
+        if (!_phaseHashes.TryGetValue(key, out ulong hash))
+        {
+            using var h = new CanonicalHasher();
+            hash = BitConverter.ToUInt64(h.Add("unnamed.creature-phase/v1").Add(key).FinishBytes(), 0);
+            _phaseHashes[key] = hash;
+        }
+        return (long)(hash % (ulong)period);
     }
 
     /// <summary>

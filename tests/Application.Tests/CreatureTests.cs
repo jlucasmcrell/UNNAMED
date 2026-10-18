@@ -219,6 +219,35 @@ public class CreatureTests
     // ── roles ───────────────────────────────────────────────────────────────
 
     [Fact]
+    public void WanderingAcrossLegs_WithWarmOrFreshRandomChannels_ContinuesIdentically()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Place(session, (120, 20), 0, (Arena.Wolf, 120, 80, "stray"), (Arena.Wolf, 135, 80, "stray"));
+        arena.Tick(47); // Warm the phase and current-leg channels before saving between leg boundaries.
+        var store = new SaveStore(profile.Root);
+        Simulation Reload()
+        {
+            store.Save(SaveSlots.Manual("wander"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(),
+                session.Content, arena.Simulation.WorldTick, 0));
+            var loaded = store.Load(SaveSlots.Manual("wander"), new LoadContext(session.Generator, session.Content, new Registry()));
+            return Simulation.Start(arena.Simulation.Setup, loaded.Player, loaded.World, loaded.Manifest.WorldTick, new EventBus());
+        }
+        var cold = Reload();
+        var start = arena.Simulation.Creatures.Select(c => c.Body).ToArray();
+        for (int i = 0; i < 360; i++)
+        {
+            // Refresh again after the original leg: two equally stale caches must not mask a missing leg invalidation.
+            if (i > 0 && i % 61 == 0) cold = Reload();
+            arena.Tick();
+            cold.Step();
+            Assert.Equal(arena.Simulation.Creatures.Select(c => c.Body), cold.Creatures.Select(c => c.Body));
+            if (i % 120 == 0) Assert.Equal(arena.Simulation.StateDigest(), cold.StateDigest());
+        }
+        Assert.NotEqual(start, arena.Simulation.Creatures.Select(c => c.Body).ToArray());
+    }
+
+    [Fact]
     public void AStrayKeepsItsDistance_Unhurt_AndRunsWhenBadlyHurt()
     {
         using var profile = new TempProfile();
