@@ -54,6 +54,12 @@ counter. Do not hide loading stalls or relax either target. Report any visual tr
 
 ## First finding: point-light shadows ignore the scatter's distance bands
 
+**Environment correction:** the early isolated project lacked Terrain3D's native DLLs and
+silently drew fallback ground. Every capture below through `drain_all_shadow_lods` is retained
+as a **fallback-ground diagnostic only**, not full-High acceptance. Exact shipped DLLs were
+restored and SHA256 matched in baseline and candidate. The controller now requires a native
+Terrain3D preflight and rejects runtime terrain fallback. The full-High sweep is being rerun.
+
 The complete drain-area profile at (1065,790), High/default Sky3D, measured 20.3–24.2 FPS facing
 the settlement. The source-mesh inventory contains 4,109 out-of-range casting scatter nodes carrying
 535 million source triangles. This inventory is potential geometry, **not** a per-frame submission count.
@@ -87,3 +93,8 @@ and retained separately. Normal FPS runs do not enable the detailed GPU profiler
 The original protocol let the blocking first NPC Draw consume all ten seconds of initial warm-up
 in two frames. This was corrected in the harness for **both** baseline and candidate. Original v1
 captures stay archived separately and do not establish the post-warm-up hitch gate.
+
+The loader-only pilot missed duplicated fence pieces and rigged LODs (294 wrong shadow states).
+Registration now watches actual scene instances, including later spawns, after construction/Ready.
+The culler also preserves external first-person/FoldEcho shadow-mode changes and releases freed
+instances. The full-High live-scene pilot is pending; no completed coverage or FPS pass is claimed.
