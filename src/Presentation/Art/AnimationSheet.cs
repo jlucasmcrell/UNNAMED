@@ -417,6 +417,8 @@ public partial class AnimationSheet : Node3D
                     var direction = view == "side" ? Vector3.Right : view == "front" ? Vector3.Back : Vector3.Forward;
                     _shots.Add(($"{person.Model}_{state}_{phase:00}_{view}", () =>
                     {
+                        foreach (var other in _profileModels)
+                            other.Model.Visible = other.Model == model;
                         _fraction = fraction;
                         _camera.Projection = Camera3D.ProjectionType.Orthogonal;
                         _camera.Size = 2.15f;
