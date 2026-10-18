@@ -263,6 +263,17 @@ public static class Durability
         return Math.Max(1, offer * (100L * item.DurabilityMax - rules.MerchantFeePercent * points) / (100L * item.DurabilityMax));
     }
 
+    /// <summary>
+    /// What a trader asks for a worn piece on their shelf: the same share-worn drop <see cref="SalePrice"/> makes, but never by more than the
+    /// fee a trader's repair would charge for that wear, so buying a worn piece and mending it never costs less than buying it whole.
+    /// </summary>
+    public static long ShelfPrice(long ask, ItemDefinition item, ItemWear? wear, DurabilityRules rules)
+    {
+        if (ask <= 0 || item.DurabilityMax <= 0 || wear is null || wear.Points <= 0)
+            return ask;
+        return Math.Max(Math.Max(1, ask - MerchantFee(item, wear, rules)), SalePrice(ask, item, wear, rules));
+    }
+
     private static (int, ItemWear?) Normal(int quality, ItemWear wear) => (quality, wear.Points == 0 && quality == wear.MadeQuality ? null : wear);
 }
 

@@ -92,7 +92,7 @@ internal sealed class TradeSystem
             return $"{npc.Definition.Name} has no such ware";
         if (command.Count < 1 || command.Count > ware.Count)
             return $"{npc.Definition.Name} has {ware.Count} of it";
-        long price = AskFor(merchant, ware.DefId) * command.Count;
+        long price = ShelfAsk(merchant, ware.DefId, ware.Wear) * command.Count;
         if (price > State.Currency)
             return $"not enough coin: {price} asked, {State.Currency} carried";
         if (_context.Dispatch(new Trade(new MoveItemCommand(_player, ware.Ref, ItemPlace.In(merchant.Id), ItemPlace.Carried, command.Count), -price)) is { } failed)
@@ -177,7 +177,7 @@ internal sealed class TradeSystem
             return null;
         string? market = MarketOf(merchant);
         return new WaresView(npcId, merchant.Id, _contents(site).Items
-            .Select(i => new WareView(i.Ref, i.DefId, i.Count, i.Quality, AskFor(merchant, i.DefId)) { Trend = Math.Sign(_markets.Factor(market, i.DefId) - 1000), Wear = i.Wear })
+            .Select(i => new WareView(i.Ref, i.DefId, i.Count, i.Quality, ShelfAsk(merchant, i.DefId, i.Wear)) { Trend = Math.Sign(_markets.Factor(market, i.DefId) - 1000), Wear = i.Wear })
             .ToImmutableArray())
         {
             Purse = _merchants.Purse(merchant.Id),
@@ -196,6 +196,10 @@ internal sealed class TradeSystem
     private long AskFor(Merchant merchant, string itemId) =>
         EconomyEngine.Ask(Items.Catalog.Get(itemId).ValueBase, merchant.Stock.FirstOrDefault(s => s.ItemId == itemId)?.PriceBias ?? 1.0,
             _markets.Factor(MarketOf(merchant), itemId));
+
+    /// <summary>What a trader asks for one piece as it stands on the shelf: less when it is worn (the same curve their offers use).</summary>
+    private long ShelfAsk(Merchant merchant, string itemId, ItemWear? wear) =>
+        Durability.ShelfPrice(AskFor(merchant, itemId), Items.Catalog.Get(itemId), wear, Items.Inventory.Durability);
 
     /// <summary>What a trader pays for one, or null when they do not buy it (S-36: always below what they ask); less for a worn piece (WP3b).</summary>
     private long? OfferFor(Merchant merchant, string itemId, ItemWear? wear)

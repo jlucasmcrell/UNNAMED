@@ -81,6 +81,30 @@ public class DurabilityRuleTests
             }
     }
 
+    private static readonly ItemDefinition Dear = Sword with { ValueBase = 3_000 };
+    private static readonly DurabilityRules Config = DurabilityRules.Default with { MerchantFeePercent = 40 };
+
+    [Theory]
+    [InlineData(3_000, 0, 3_000)]
+    [InlineData(3_000, 5, 2_400)]    // half worn: a fifth off
+    [InlineData(3_000, 10, 1_800)]   // fully worn: the 40% drop the sell side makes
+    public void AWornPiece_OnAShelf_CostsLess_ByTheSameCurve(long ask, int points, long expected) =>
+        Assert.Equal(expected, Durability.ShelfPrice(ask, Dear, new ItemWear(points, Quality.Standard), Config));
+
+    [Fact]
+    public void BuyingAWornPiece_AndMendingIt_NeverCostsLessThanBuyingItWhole()
+    {
+        var rules = Config;
+        for (long ask = 1; ask <= 2 * Dear.ValueBase; ask += 7)
+            for (int points = 1; points <= Dear.DurabilityMax; points++)
+            {
+                var wear = new ItemWear(points, Quality.Standard);
+                long shelf = Durability.ShelfPrice(ask, Dear, wear, rules);
+                Assert.InRange(shelf, 1, ask);
+                Assert.True(shelf + Durability.MerchantFee(Dear, wear, rules) >= ask, $"ask {ask}, wear {points}: worn {shelf} + mend is cheaper");
+            }
+    }
+
     [Fact]
     public void ThePieceWithoutDurability_SellsAtTheOffer() =>
         Assert.Equal(7, Durability.SalePrice(7, Sword with { DurabilityMax = 0 }, new ItemWear(3, Quality.Standard), DurabilityRules.Default));
