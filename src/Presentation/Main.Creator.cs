@@ -108,6 +108,23 @@ public partial class Main
     {
         if (_session.Simulation is not { } simulation)
             return;
+        if (MHCharacters.MetaHumanFigure.Available)
+        {
+            string nativeModel = MHCharacters.MetaHumanFigure.PlayerModel(simulation.Player.Identity.BodyPresetId);
+            if (nativeModel != _avatarModel && MHCharacters.MetaHumanFigure.Create(_art, _bindings, "player", nativeModel) is { } native)
+            {
+                var feet = _avatar.Position;
+                _avatar.QueueFree();
+                _avatar = native;
+                _avatar.Name = "Player";
+                AddChild(_avatar);
+                _avatar.Position = feet;
+                _avatarModel = nativeModel;
+                _avatarPose = null;
+                _art.Coverage.Resolved("person", "player", nativeModel);
+            }
+            return;
+        }
         // A character made before the creator (and every harness's) keeps the body the run was bound with.
         string preset = simulation.Player.Identity.BodyPresetId;
         var body = _session.Characters.Bodies.GetValueOrDefault(preset);

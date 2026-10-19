@@ -64,13 +64,14 @@ public partial class NpcsView : Node3D
             if (!_figures.TryGetValue(npc.Id, out var figure))
             {
                 var appearance = _bindings.Person(npc.Id, npc.PeopleId, instance);
-                var body = Art.SkinnedFigure.Create(_art, _bindings, npc.Id, appearance: appearance);
-                string? model = appearance?.Model;
-                if (body is not null)
+                var native = MHCharacters.MetaHumanFigure.Create(_art, _bindings, npc.Id);
+                var body = native is null ? Art.SkinnedFigure.Create(_art, _bindings, npc.Id, appearance: appearance) : null;
+                string? model = native is not null ? "mh:" + native.CharacterId : appearance?.Model;
+                if (native is not null || body is not null)
                     _art.Coverage.Resolved("person", npc.Id, model!);
                 else
                     _art.Coverage.Fallback("person", npc.Id, model is null ? "no binding: the greybox mannequin" : $"{_art.Why(model) ?? "not drawn"}: the greybox mannequin", model);
-                figure = (Figure?)body ?? new Avatar { Clothing = Clothes(npc.Id) };
+                figure = (Figure?)native ?? body ?? (Figure)new Avatar { Clothing = Clothes(npc.Id) };
                 figure.Name = npc.Id;
                 AddChild(figure);
                 _figures[npc.Id] = figure;

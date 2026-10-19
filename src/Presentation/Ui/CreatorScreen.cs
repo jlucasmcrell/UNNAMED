@@ -248,6 +248,12 @@ public partial class CreatorScreen : CanvasLayer
     /// </summary>
     private List<Offered> OfferedBodies()
     {
+        if (MHCharacters.MetaHumanFigure.Available)
+            return new[] { (Id: "body.veth_f.average", Name: "Ada"), (Id: "body.veth_m.average", Name: "Mateo") }
+                .Select(choice => _session.Characters.Bodies.TryGetValue(choice.Id, out var preset)
+                    ? new Offered(preset with { TypeLabel = choice.Name, BuildLabel = choice.Name }, MHCharacters.MetaHumanFigure.PlayerModel(choice.Id), true)
+                    : throw new InvalidDataException($"Missing native creator identity {choice.Id}"))
+                .ToList();
         var bodies = _bindings.Bodies;
         bool Installed(string model) => _art.RiggedFile(model, model + "_rigged.glb") is not null;
         var typeOrder = bodies.Types.Select(t => t.Type).ToList();

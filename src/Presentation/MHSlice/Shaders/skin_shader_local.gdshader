@@ -12,6 +12,10 @@ and is built upon https://github.com/RustyRoboticsBV/GodotStandardLightShader
 shader_type spatial;
 render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
 
+// MetaHuman Body Hidden Face Map. Default off preserves the undressed slice.
+uniform bool use_hidden_face_map = false;
+uniform sampler2D hidden_face_map : hint_default_black, filter_nearest, repeat_disable;
+
 group_uniforms albedo;
 uniform vec4 albedo : source_color = vec4(1.);
 uniform sampler2D texture_albedo : source_color, filter_linear_mipmap, repeat_enable;
@@ -120,6 +124,7 @@ float ScreenSpaceDither12(vec2 vScreenPos, float time){
 	return fract(vDither / 53.2);
 }
 void fragment() {
+	if (use_hidden_face_map && texture(hidden_face_map, fract(UV)).r > 0.5) { discard; }
 	vec2 base_uv = UV;
 	TBN = mat3(TANGENT, -BINORMAL, NORMAL);
 

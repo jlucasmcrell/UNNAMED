@@ -888,7 +888,13 @@ public partial class Main : Node3D
             cardsOff: grassMode != "cards", bladesOnly: grassMode == "blades");
         AddChild(_scatter);
         string? body = _bindings.People.GetValueOrDefault("player")?.Model;
-        if (Art.SkinnedFigure.Create(_art, _bindings, "player") is { } skinned)
+        if (MHCharacters.MetaHumanFigure.Create(_art, _bindings, "player") is { } native)
+        {
+            _avatar = native;
+            _avatarModel = "mh:mateo";
+            _art.Coverage.Resolved("person", "player", _avatarModel);
+        }
+        else if (Art.SkinnedFigure.Create(_art, _bindings, "player") is { } skinned)
         {
             _avatar = skinned;
             _avatarModel = body;

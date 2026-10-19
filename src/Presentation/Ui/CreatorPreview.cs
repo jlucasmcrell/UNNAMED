@@ -105,7 +105,7 @@ public sealed partial class CreatorPreview : TextureRect
         string key = model ?? "";
         if (!_figures.TryGetValue(key, out var figure))
         {
-            figure = model is not null && SkinnedFigure.Create(_art, _bindings, "player", model) is { } skinned ? skinned : new Avatar();
+            figure = (Figure?)MHCharacters.MetaHumanFigure.Create(_art, _bindings, "player", model) ?? (model is not null && SkinnedFigure.Create(_art, _bindings, "player", model) is { } skinned ? skinned : new Avatar());
             figure.Name = model ?? "Greybox";
             _turntable.AddChild(figure);
             _figures[key] = figure;
