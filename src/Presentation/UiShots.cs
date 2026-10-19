@@ -112,7 +112,7 @@ public sealed class UiShots
     /// </summary>
     private static readonly string[] Screens = (System.Environment.GetCommandLineArgs().Contains("--pack-shots") ? PackScreens : Array.Empty<string>()).Concat(new[]
     {
-        "bars", "subtitles", "large_subtitles", "compass", "", "bars_side", "", "menu", "character", "skills", "skills_formulas", "skills_recipes", "skills_map", "journal", "effects", "party", "chat", "chat_groups", "reputation", "away", "map",
+        "hud_stack", "scale_hud_stack", "large_hud_stack", "bars", "scale_hud_stack_bars", "large_hud_stack_bars", "subtitles", "large_subtitles", "compass", "", "bars_side", "", "menu", "character", "skills", "skills_formulas", "skills_recipes", "skills_map", "journal", "effects", "party", "chat", "chat_groups", "reputation", "away", "map",
         "large_menu", "large_reputation", "large_away", "large_map", "large_party", "large_chat", "text_menu", "text_reputation", "text_away", "text_map", "text_party", "text_chat", "help", "saves",
         "settings", "settings_audio", "settings_controls", "settings_camera", "settings_interface", "credits", "",
         "announce", "announce_skill", "menu_character", "escape", "",

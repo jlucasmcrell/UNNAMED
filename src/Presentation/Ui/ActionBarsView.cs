@@ -53,6 +53,12 @@ public sealed partial class ActionBarsView : Control
     /// <summary>How tall the whole stack stands from the bottom edge, so the interaction prompt can keep above it.</summary>
     public float Height => _dock.Size.Y + HudView.Margin;
 
+    /// <summary>The size the dock takes (the bars and the vitals), for the HUD's regions.</summary>
+    public Vector2 DockSize => _dock.Size;
+
+    /// <summary>How wide the further bars are at the right edge, or 0 when they are not there.</summary>
+    public float SideWidth => _side.IsVisibleInTree() && _side.GetChildCount() > 0 ? _side.Size.X : 0;
+
     /// <summary>The rectangles the bars take, for screens that keep clear of the HUD.</summary>
     public IEnumerable<Rect2> Rects()
     {
@@ -339,14 +345,24 @@ public sealed partial class ActionBarsView : Control
             holder.AddChild(frame);
             // What the slot holds, said in the middle: a gear set's place, or - with no picture bound - its name in short, so a slot is never a bare
             // frame holding something. The corner labels sit around it, never over it.
-            string? centre = view.Kind == ActionSlotKind.GearSet ? view.Note.Replace("Set ", "")
-                : picture is null && !view.Empty ? (view.Name.Length > 4 ? view.Name[..4] : view.Name) : null;
-            if (centre is not null)
+            if (view.Kind == ActionSlotKind.GearSet)
             {
-                var words = HudStyle.Text(HudStyle.Caps, 16, view.Kind == ActionSlotKind.GearSet ? HudStyle.Brass : HudStyle.Ash, caps: true).Say(centre);
+                var words = HudStyle.Text(HudStyle.Caps, 16, HudStyle.Brass, caps: true).Say(view.Note.Replace("Set ", ""));
                 words.CustomMinimumSize = new Vector2(size, size);
                 words.HorizontalAlignment = HorizontalAlignment.Center;
                 words.VerticalAlignment = VerticalAlignment.Center;
+                words.MouseFilter = MouseFilterEnum.Ignore;
+                holder.AddChild(words);
+            }
+            else if (picture is null && !view.Empty)
+            {
+                // A short name with no picture to stand for it: small, at the foot's left, clear of the key at the top right and the count at the bottom right.
+                int letters = size < 40 ? 3 : 4;
+                var words = HudStyle.Text(HudStyle.Caps, 11, HudStyle.Ash, caps: true).Say(view.Name.Length > letters ? view.Name[..letters] : view.Name);
+                words.CustomMinimumSize = new Vector2(size - 3, size - 1);
+                words.Position = new Vector2(3, 1);
+                words.HorizontalAlignment = HorizontalAlignment.Left;
+                words.VerticalAlignment = VerticalAlignment.Bottom;
                 words.MouseFilter = MouseFilterEnum.Ignore;
                 holder.AddChild(words);
             }

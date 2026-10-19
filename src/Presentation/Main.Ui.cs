@@ -316,8 +316,10 @@ public partial class Main
         if (name != "compass")
             _compassPreview = false;
         // "large_<screen>": that screen at the largest text and interface scale, in high contrast; "text_<screen>" at the largest text in
-        // high contrast, the interface scale as it was (in memory only: a harness writes no preferences). Any other name puts them back.
-        string? prefix = name.StartsWith("large_", StringComparison.Ordinal) ? "large_" : name.StartsWith("text_", StringComparison.Ordinal) ? "text_" : null;
+        // high contrast, the interface scale as it was; "scale_<screen>": the interface at 200 % with the text as it was (in memory only: a harness
+        // writes no preferences). Any other name puts them back.
+        string? prefix = name.StartsWith("large_", StringComparison.Ordinal) ? "large_" : name.StartsWith("text_", StringComparison.Ordinal) ? "text_"
+            : name.StartsWith("scale_", StringComparison.Ordinal) ? "scale_" : null;
         if (prefix != _enlarged)
         {
             if (_beforeLarge is not null)
@@ -326,7 +328,7 @@ public partial class Main
             if (_beforeLarge is { Profile.Interface: var ui })
                 SettingsStore.Set(_beforeLarge with
                 {
-                    Profile = _beforeLarge.Profile with { Interface = ui with { UiScale = prefix == "large_" ? 2f : ui.UiScale, TextSize = 2f, HighContrast = true } },
+                    Profile = _beforeLarge.Profile with { Interface = ui with { UiScale = prefix is "large_" or "scale_" ? 2f : ui.UiScale, TextSize = prefix == "scale_" ? ui.TextSize : 2f, HighContrast = prefix != "scale_" || ui.HighContrast } },
                 });
             _enlarged = prefix;
         }
@@ -374,6 +376,24 @@ public partial class Main
                 // Two captions as a bark and a spoken line show them (a preview: nobody speaks).
                 _hud.Say("Renn Vale", "Traveller. A bed, a meal, directions. Start with whichever keeps you upright.", 30);
                 _hud.Say("Kera Voss", "Mind the anvil, it bites.", 30);
+                break;
+            case "hud_stack":
+            case "hud_stack_bars":
+                // Everything that crowds the HUD at once: three captions, the tracked quest and notices, and with "_bars" two further bars (a preview: nobody speaks).
+                if (name.EndsWith("_bars", StringComparison.Ordinal))
+                    BarsPreview(atSide: false);
+                _hud.Say("Renn Vale", "Traveller. A bed, a meal, directions. Start with whichever keeps you upright.", 60);
+                _hud.Say("Kera Voss", "Mind the anvil, it bites.", 60);
+                _hud.Say("Renn Vale", "The road in from the east is quiet this week; the boar in the wallow is not.", 60);
+                // The notices wait a moment so they are laid out at the interface size this name has just set.
+                // (the same words again while they show are one notice, so each picture's differ by a trailing space.)
+                string room = new(' ', ++_stackShots);
+                GetTree().CreateTimer(0.1).Timeout += () =>
+                {
+                    _hud.Toast("Discovered: Ashen Hollow Waystation" + room, 60);
+                    _hud.Toast("Done: Follow the road down to the waystation." + room, 60);
+                    _hud.Toast("Kept Field kit as gear set 1" + room, 60);
+                };
                 break;
             case "announce_skill":
                 // The skill-up notice, pictured without waiting for a skill to rise (a preview: nothing is awarded).
@@ -477,6 +497,7 @@ public partial class Main
         }
     }
 
+    private int _stackShots;
     private ClientPrefs? _beforeLarge;
     private string? _enlarged;
 

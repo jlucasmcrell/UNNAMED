@@ -19,22 +19,44 @@ public sealed partial class SubtitleStrip : Control
     private double _clock;
     private string _shown = string.Empty;
 
+    private readonly Control _clip = new() { ClipContents = true, MouseFilter = MouseFilterEnum.Ignore };
+    private int _size = 16;
+    private bool _any;
+
     public override void _Ready()
     {
         MouseFilter = MouseFilterEnum.Ignore;
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        _rows.AnchorLeft = 0.5f;
-        _rows.AnchorRight = 0.5f;
-        _rows.AnchorTop = _rows.AnchorBottom = 1;
-        _rows.GrowHorizontal = GrowDirection.Both;
-        _rows.GrowVertical = GrowDirection.Begin;
         _rows.AddThemeConstantOverride("separation", 4);
         _rows.MouseFilter = MouseFilterEnum.Ignore;
-        AddChild(_rows);
+        _clip.AddChild(_rows);
+        AddChild(_clip);
     }
 
-    /// <summary>Where the strip's foot stands above the bottom edge: clear of the action bars.</summary>
-    public float Foot { get; private set; } = 200;
+    /// <summary>How tall the band is wanted now: what the captions on screen take, never more than three lines of them; nothing when none show.</summary>
+    public float WantedHeight => _any ? Math.Min(_rows.GetCombinedMinimumSize().Y, SubtitleModel.BandHeight(_size)) : 0;
+
+    /// <summary>
+    /// Stand the captions in their band (<see cref="HudRegions.Subtitles"/>): the newest line at its foot, an older one scrolling off the top
+    /// when the lines are too many to fit.
+    /// </summary>
+    public void Place(Region band)
+    {
+        _clip.Position = new Vector2(band.X, band.Y);
+        _clip.Size = new Vector2(band.Width, band.Height);
+        _rows.Size = new Vector2(band.Width, 0);
+        // A caption that cannot stand whole in the band is not drawn in part: the oldest go first.
+        float used = 0;
+        var captions = _rows.GetChildren().Cast<Control>().ToList();
+        for (int i = captions.Count - 1; i >= 0; i--)
+        {
+            float height = captions[i].GetCombinedMinimumSize().Y;
+            captions[i].Visible = used + height <= band.Height + 0.5f || i == captions.Count - 1;
+            used += height + 4;
+        }
+        _rows.Size = new Vector2(band.Width, 0);
+        _rows.Position = new Vector2(0, band.Height - _rows.Size.Y);
+    }
 
     /// <summary>A line is being said (a bark within hearing, a spoken line): shown while subtitles are on.</summary>
     public void Say(string speaker, string text, double spokenSeconds = 0)
@@ -47,14 +69,13 @@ public sealed partial class SubtitleStrip : Control
     public override void _Process(double delta)
     {
         _clock += delta;
-        Foot = (GetParent()?.GetNodeOrNull<ActionBarsView>("ActionBars")?.Height ?? 160) + 8;
         var ui = SettingsStore.Current.Profile.Interface;
         var lines = ui.Subtitles ? _model.Lines(_clock) : Array.Empty<Caption>();
-        string signature = $"{(int)GetViewportRect().Size.Y}|{ui.SubtitleSize}|{ui.SubtitleBackground}|{HudStyle.TextScale}|{(int)Foot}|{string.Join("/", lines.Select(l => SubtitleModel.Words(l)))}";
-        _rows.OffsetBottom = -Foot;
+        string signature = $"{(int)GetViewportRect().Size.Y}|{ui.SubtitleSize}|{ui.SubtitleBackground}|{HudStyle.TextScale}|{string.Join("/", lines.Select(l => SubtitleModel.Words(l)))}";
         if (signature == _shown)
             return;
         _shown = signature;
+        _any = lines.Count > 0;
         foreach (var child in _rows.GetChildren())
         {
             _rows.RemoveChild(child);
@@ -63,7 +84,7 @@ public sealed partial class SubtitleStrip : Control
         float maxWidth = Math.Min(GetViewportRect().Size.X * 0.7f, 1100f);
         foreach (var caption in lines)
         {
-            int size = SubtitleModel.FontSize(20, HudStyle.TextScale, ui.SubtitleSize, GetViewportRect().Size.Y);
+            int size = _size = SubtitleModel.FontSize(20, HudStyle.TextScale, ui.SubtitleSize, GetViewportRect().Size.Y);
             var row = new PanelContainer { SizeFlagsHorizontal = SizeFlags.ShrinkCenter, MouseFilter = MouseFilterEnum.Ignore };
             var box = new StyleBoxFlat { ContentMarginLeft = 14, ContentMarginRight = 14, ContentMarginTop = 4, ContentMarginBottom = 4 };
             box.BgColor = ui.SubtitleBackground switch

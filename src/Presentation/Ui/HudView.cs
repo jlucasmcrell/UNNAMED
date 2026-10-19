@@ -48,6 +48,20 @@ public partial class HudView : Control
     private bool _conversing;
     private bool _trackerWanted;
 
+    // The regions (HudRegions): the top left and the right column are clipped to theirs, which stand clear of the dock and the subtitle band.
+    private readonly Control _leftClip = new() { ClipContents = true, MouseFilter = MouseFilterEnum.Ignore };
+    private readonly VBoxContainer _leftColumn = new();
+    private readonly VBoxContainer _plateBody = new();
+    private readonly Control _bottomLeftClip = new() { ClipContents = true, MouseFilter = MouseFilterEnum.Ignore };
+    private readonly VBoxContainer _bottomLeftColumn = new();
+    private readonly Control _bottomRightClip = new() { ClipContents = true, MouseFilter = MouseFilterEnum.Ignore };
+    private bool _chatWanted;
+    private readonly Control _rightClip = new() { ClipContents = true, MouseFilter = MouseFilterEnum.Ignore };
+    private readonly VBoxContainer _rightColumn = new();
+    private readonly Control _trackerHold = new() { ClipContents = true, MouseFilter = MouseFilterEnum.Ignore };
+    private const float RightColumnTop = 150;
+    private const float ToastGap = 4;
+
     // Top left: the character plate.
     private readonly Label _name = HudStyle.Text(HudStyle.Caps, 23, HudStyle.Bone, caps: true);
     private readonly Label _level = HudStyle.Text(HudStyle.Caps, 17, HudStyle.Ember, caps: true);
@@ -172,9 +186,10 @@ public partial class HudView : Control
     {
         // Compact - three short rows ending above y 108 - because the journal, character sheet and Field Guide open at y 110-140 over
         // this corner, where the classic status text ended at y 105.
-        var column = new VBoxContainer { Position = new Vector2(Margin, 16) };
+        var column = _leftColumn;
         column.AddThemeConstantOverride("separation", 8);
-        _besides.AddChild(column);
+        _leftClip.AddChild(column);
+        _besides.AddChild(_leftClip);
 
         var plate = new PanelContainer { CustomMinimumSize = new Vector2(420, 0) };
         plate.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(14, 5));
@@ -216,6 +231,7 @@ public partial class HudView : Control
         rows.AddChild(title);
 
         // Experience: the bar across the plate, its numbers at the end.
+        _plateBody.AddThemeConstantOverride("separation", 2);
         _xpRow.AddThemeConstantOverride("separation", 8);
         _xp.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         _xp.SizeFlagsVertical = SizeFlags.ShrinkCenter;
@@ -225,11 +241,11 @@ public partial class HudView : Control
         xp.SizeFlagsVertical = SizeFlags.Fill;
         _xpRow.AddChild(xp);
         _xpRow.AddChild(_xpValue);
-        rows.AddChild(_xpRow);
+        _plateBody.AddChild(_xpRow);
 
         // What is in hand, and what is carried.
-        var gear = new HBoxContainer();
-        gear.AddThemeConstantOverride("separation", 10);
+        var gear = new HFlowContainer();
+        gear.AddThemeConstantOverride("h_separation", 10);
         _weaponSlot.Visible = false;
         _weaponSlot.SizeFlagsVertical = SizeFlags.ShrinkCenter;
         gear.AddChild(_weaponSlot);
@@ -244,7 +260,8 @@ public partial class HudView : Control
         gear.AddChild(Pair("Coin", _coin));
         gear.AddChild(Pair("Armor", _armor));
         gear.AddChild(Pair("Carrying", _carrying));
-        rows.AddChild(gear);
+        _plateBody.AddChild(gear);
+        rows.AddChild(_plateBody);
 
         plate.AddChild(rows);
         column.AddChild(plate);
@@ -262,12 +279,9 @@ public partial class HudView : Control
     /// </summary>
     private void BuildBottomLeft()
     {
-        var column = new VBoxContainer
-        {
-            AnchorTop = 1, AnchorBottom = 1, OffsetLeft = Margin, OffsetRight = Margin, OffsetTop = -Margin, OffsetBottom = -Margin,
-            GrowVertical = GrowDirection.Begin,
-        };
-        _besides.AddChild(column);
+        var column = _bottomLeftColumn;
+        _bottomLeftClip.AddChild(column);
+        _besides.AddChild(_bottomLeftClip);
 
         _chat.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(12, 6, quiet: true));
         _chat.CustomMinimumSize = new Vector2(420, 0);
@@ -559,7 +573,7 @@ public partial class HudView : Control
         if (_companions.IsVisibleInTree())
             yield return _companions.GetGlobalRect();
         if (_tracker.IsVisibleInTree())
-            yield return _tracker.GetGlobalRect();
+            yield return _tracker.GetGlobalRect().Intersection(_trackerHold.GetGlobalRect());
         if (_lowerLeft.IsVisibleInTree())
             yield return _lowerLeft.GetGlobalRect();
         foreach (var rect in Bars.Rects())
@@ -575,14 +589,10 @@ public partial class HudView : Control
     /// </summary>
     private void BuildTracker()
     {
-        var column = new VBoxContainer
-        {
-            AnchorLeft = 1, AnchorRight = 1, OffsetLeft = -Margin, OffsetRight = -Margin, OffsetTop = 150, OffsetBottom = 150,
-            GrowHorizontal = GrowDirection.Begin,
-        };
+        var column = _rightColumn;
         column.AddThemeConstantOverride("separation", 10);
-        AddChild(column);
-        _tracker.SizeFlagsHorizontal = SizeFlags.ShrinkEnd;
+        _rightClip.AddChild(column);
+        AddChild(_rightClip);
         _tracker.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(14, 9));
         var rows = new VBoxContainer();
         rows.AddThemeConstantOverride("separation", 5);
@@ -591,8 +601,9 @@ public partial class HudView : Control
         rows.AddChild(_objectives);
         _tracker.AddChild(rows);
         _tracker.Visible = false;
-        column.AddChild(_tracker);
-        _toasts.AddThemeConstantOverride("separation", 4);
+        _trackerHold.AddChild(_tracker);
+        column.AddChild(_trackerHold);
+        _toasts.AddThemeConstantOverride("separation", (int)ToastGap);
         column.AddChild(_toasts);
     }
 
@@ -620,10 +631,6 @@ public partial class HudView : Control
         _prompt.Visible = false;
         AddChild(_prompt);
 
-        _log.AnchorLeft = _log.AnchorRight = _log.AnchorTop = _log.AnchorBottom = 1;
-        _log.OffsetLeft = _log.OffsetRight = -Margin;
-        _log.OffsetTop = _log.OffsetBottom = -Margin;
-        _log.GrowHorizontal = _log.GrowVertical = GrowDirection.Begin;
         _log.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(12, 7, quiet: true));
         var lines = new VBoxContainer();
         lines.AddThemeConstantOverride("separation", 1);
@@ -636,7 +643,8 @@ public partial class HudView : Control
         }
         _log.AddChild(lines);
         _log.Visible = false;
-        _besides.AddChild(_log);
+        _bottomRightClip.AddChild(_log);
+        _besides.AddChild(_bottomRightClip);
     }
 
     private void BuildMiddle()
@@ -888,7 +896,8 @@ public partial class HudView : Control
             _chatLines[i].Visible = i < shown.Count;
             _chatLines[i].Text = i < shown.Count ? shown[i] : string.Empty;
         }
-        _chat.Visible = shown.Count > 0;
+        _chatWanted = shown.Count > 0;
+        _chat.Visible = _chatWanted;
     }
 
     public void SetCrosshair(bool visible) => _crosshair.Visible = visible;
@@ -1004,10 +1013,17 @@ public partial class HudView : Control
         }
         bool xp = rest.StartsWith('+') && rest.Contains(" XP", StringComparison.Ordinal);
         var words = HudStyle.Text(HudStyle.Strong, 18, xp ? HudStyle.Brass : HudStyle.Bone).Say(rest);
+        // The notices stand in the right column, at most two-fifths of the screen wide: a longer notice wraps.
+        float room = Math.Max(HudLayoutRules.MinWidth(18), GetViewportRect().Size.X * 0.4f - 70 - (kind is null ? 0 : HudStyle.Caps.GetStringSize(kind, HorizontalAlignment.Left, -1, HudStyle.Sized(16)).X));
         if (reading)
         {
             words.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-            words.CustomMinimumSize = new Vector2(HudLayoutRules.ReadingWidth(GetViewportRect().Size.X, 120, 560, 18), 0);
+            words.CustomMinimumSize = new Vector2(HudLayoutRules.ReadingWidth(GetViewportRect().Size.X, 120, Math.Min(560, room), 18), 0);
+        }
+        else if (HudStyle.Strong.GetStringSize(rest, HorizontalAlignment.Left, -1, HudStyle.Sized(18)).X > room)
+        {
+            words.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+            words.CustomMinimumSize = new Vector2(room, 0);
         }
         row.AddChild(words);
         box.AddChild(row);
@@ -1029,6 +1045,7 @@ public partial class HudView : Control
         _clock += delta;
         // The prompt keeps above the vitals and the bars, however many of them are shown.
         _prompt.OffsetTop = _prompt.OffsetBottom = -(Bars.Height + 14);
+        PlaceRegions();
         AnimateBanner(delta);
         if (_death.Visible && _clock >= _deathUntil)
             _death.Visible = false;
@@ -1043,6 +1060,72 @@ public partial class HudView : Control
             box.QueueFree();
             _live.RemoveAt(i);
         }
+    }
+
+    /// <summary>
+    /// Stand the status, the right column and the subtitle band in their regions (<see cref="HudRegions"/>) every frame. The tracker takes what
+    /// the notices leave and is clipped to it; a notice that no longer fits, the oldest first, waits out of sight until there is room.
+    /// </summary>
+    private void PlaceRegions()
+    {
+        _objectives.Visible = true;
+        _tracker.ResetSize();
+        var trackerSize = _tracker.GetCombinedMinimumSize();
+        _objectives.Visible = false;
+        float titleHeight = _tracker.GetCombinedMinimumSize().Y;
+        float trackerWanted = _tracker.Visible ? trackerSize.Y : 0;
+        float toastsWanted = _live.Sum(t => t.Box.GetCombinedMinimumSize().Y + ToastGap) - (_live.Count > 0 ? ToastGap : 0);
+        float columnWidth = Math.Max(_rightColumn.GetCombinedMinimumSize().X, trackerSize.X);
+        float columnWanted = trackerWanted + toastsWanted + (trackerWanted > 0 && toastsWanted > 0 ? 10 : 0);
+        _plateBody.Visible = true;
+        var leftMin = _leftColumn.GetCombinedMinimumSize();
+        var dock = Bars.DockSize;
+        var regions = HudRegions.Of(Size.X, Size.Y, (dock.X, dock.Y), Subtitles.WantedHeight, (leftMin.X, leftMin.Y), (columnWidth, RightColumnTop - HudRegions.RightTop + columnWanted), Bars.SideWidth);
+        Subtitles.Place(regions.Subtitles);
+
+        _leftClip.Position = new Vector2(regions.TopLeft.X, regions.TopLeft.Y);
+        _leftClip.Size = new Vector2(regions.TopLeft.Width, regions.TopLeft.Height);
+        // Too little room for the whole plate and it shows its name row alone.
+        _plateBody.Visible = regions.TopLeft.Height >= leftMin.Y;
+        _leftColumn.Size = new Vector2(regions.TopLeft.Width, 0);
+
+        float room = Math.Max(0, regions.TopRight.Bottom - RightColumnTop);
+        float toastsKept = Math.Min(toastsWanted, room / 2);
+        float trackerRoom = Math.Max(0, room - (toastsKept > 0 ? toastsKept + 10 : 0));
+        // Too little room for the whole of it and the tracker shrinks to its title; too little for that and it waits.
+        bool whole = trackerRoom >= trackerSize.Y;
+        _objectives.Visible = whole;
+        _tracker.ResetSize();
+        _trackerHold.Visible = whole || trackerRoom >= titleHeight;
+        _trackerHold.CustomMinimumSize = new Vector2(trackerSize.X, whole ? trackerSize.Y : titleHeight);
+        _tracker.Position = new Vector2(_trackerHold.Size.X - _tracker.Size.X, 0);
+        float toastRoom = room - (_trackerHold.Visible && _tracker.Visible ? _trackerHold.CustomMinimumSize.Y + 10 : 0);
+        float used = 0;
+        for (int i = _live.Count - 1; i >= 0; i--)
+        {
+            float height = _live[i].Box.GetCombinedMinimumSize().Y;
+            _live[i].Box.Visible = used + height <= toastRoom + 0.5f;
+            used += height + ToastGap;
+        }
+        _rightClip.Position = new Vector2(regions.TopRight.X, RightColumnTop);
+        _rightClip.Size = new Vector2(regions.TopRight.Width, room);
+        _rightColumn.Size = new Vector2(regions.TopRight.Width, 0);
+
+        // Beside the dock: the chat feed narrows to the room and waits when there is none; the combat log shows only when it fits whole.
+        _bottomLeftClip.Position = new Vector2(regions.BottomLeft.X, regions.BottomLeft.Y);
+        _bottomLeftClip.Size = new Vector2(regions.BottomLeft.Width, regions.BottomLeft.Height);
+        float chatWidth = Math.Min(420, regions.BottomLeft.Width);
+        _chat.Visible = _chatWanted && chatWidth >= 160;
+        _chat.CustomMinimumSize = new Vector2(chatWidth, 0);
+        foreach (var line in _chatLines)
+            line.CustomMinimumSize = new Vector2(Math.Max(0, chatWidth - 24), 0);
+        _bottomLeftColumn.Size = new Vector2(regions.BottomLeft.Width, 0);
+        _bottomLeftColumn.Position = new Vector2(0, regions.BottomLeft.Height - _bottomLeftColumn.Size.Y);
+        _bottomRightClip.Position = new Vector2(regions.BottomRight.X, regions.BottomRight.Y);
+        _bottomRightClip.Size = new Vector2(regions.BottomRight.Width, regions.BottomRight.Height);
+        _log.ResetSize();
+        _bottomRightClip.Visible = _log.GetCombinedMinimumSize().X <= regions.BottomRight.Width;
+        _log.Position = new Vector2(regions.BottomRight.Width - _log.Size.X, regions.BottomRight.Height - _log.Size.Y);
     }
 
     private static Label PoolName(string name)
