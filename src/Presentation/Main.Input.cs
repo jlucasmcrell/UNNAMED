@@ -101,6 +101,7 @@ public partial class Main
                 if (Input.IsActionJustPressed($"reply_{n}"))
                     _dialogue.AnswerNumber(n);
             }
+            _dialogue.Skip(Input.IsActionPressed("dialogue_skip"), Input.IsActionJustPressed("dialogue_skip"), GetProcessDeltaTime());
             if (Input.IsActionJustPressed("release_mouse"))
                 _dialogue.Leave();
         }
@@ -182,15 +183,18 @@ public partial class Main
         // A sprint pressed on ends where the running does.
         if (stick == Vector2.Zero && !_autorun)
             _toggled["sprint"] = false;
-        // Autorun: the key turns it on and off, and stepping back turns it off; while on, the character goes forward, still steered by
-        // the camera and the side keys, at whatever gait is held.
-        if (Input.IsActionJustPressed("autorun"))
-        {
-            _autorun = !_autorun;
-            _hud.Toast(_autorun ? $"Autorun - [{HelpPanel.Key("autorun")}] or a step back stops it" : "Autorun off", 2);
-        }
-        if (Input.IsActionPressed("move_back"))
-            _autorun = false;
+        // Auto-run (the owner, 2026-10-18): the key starts it; forward or back, or the key again, cancels it; strafing and the camera leave it
+        // running, and the gait held (Shift) still applies. Death or downing, a conversation and a blocked way stop it (AutoRunRules).
+        var at = _controller.Authoritative;
+        double moved = _autoRunFrom is { } from ? Math.Sqrt(Math.Pow(at.XMm - from.X, 2) + Math.Pow(at.ZMm - from.Z, 2)) / 1000.0 : 0;
+        _autoRunFrom = (at.XMm, at.ZMm);
+        bool wasOn = _autoRun.On;
+        string? stopped = _autoRun.Step(new Ui.Models.AutoRunFrame(Input.IsActionJustPressed("auto_run"), Input.IsActionJustPressed("move_forward"),
+            Input.IsActionPressed("move_back"), _session.Simulation!.Combat.Defeated, false, GetProcessDeltaTime(), moved));
+        if (stopped is not null)
+            _hud.Toast(stopped, 2);
+        else if (_autoRun.On && !wasOn)
+            _hud.Toast($"Autorun - [{HelpPanel.Key("auto_run")}], forward or back stops it", 2);
         if (_autorun)
             stick = new Vector2(stick.X, 1);
 
@@ -337,10 +341,11 @@ public partial class Main
         Bind("map", Key.M);
         Bind("chat", Key.T);
         Bind("party", Key.O);
-        Bind("autorun", Key.Quoteleft);   // the owner's second-play brief §23: autorun on tilde
+        Bind("auto_run", Key.Quoteleft);   // the owner's brief §23 and ruling 2026-10-18: auto-run on the tilde key
         Bind("quicksave", Key.F5);
         Bind("saves", Key.L);
         Bind("release_mouse", Key.Escape);
+        Bind("dialogue_skip", Key.Space, Key.Enter);   // in a conversation: silence the line and go on (held: fast-forward); Space jumps in play
         Bind("inventory", Key.Tab, Key.I);
         Bind("dodge", Key.C);
         Bind("use", Key.H);
@@ -351,10 +356,10 @@ public partial class Main
         Key[] slotKeys = { Key.Key1, Key.Key2, Key.Key3, Key.Key4, Key.Key5, Key.Key6, Key.Key7, Key.Key8, Key.Key9, Key.Key0, Key.Minus, Key.Equal };
         for (int i = 0; i < QuickKeys.Length; i++)
             Bind(QuickKeys[i], slotKeys[i]);
-        // Shift (the sprint key, held beside them) and 1 to 6 page the bar; Alt and the wheel do the same. Gear sets have no default key.
+        // Ctrl and 1 to 6 page the bar (Shift stays sprint only); Alt and the wheel do the same, and so do the main bar's own arrows. Gear sets have no default key.
         for (int i = 0; i < BarPageKeys.Length; i++)
             Bind(BarPageKeys[i], Key.Key1 + i);
-        Bind("bar_modifier", Key.Shift);
+        Bind("bar_modifier", Key.Ctrl);   // Ctrl and 1 to 6 page the main bar (the owner, 2026-10-18); Shift stays sprint only
         Bind("bar_scroll_modifier", Key.Alt);
         foreach (string action in GearSetKeys)
             Bind(action);

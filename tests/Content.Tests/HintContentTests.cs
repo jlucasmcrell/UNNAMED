@@ -13,13 +13,13 @@ public class HintContentTests
     }
 
     [Fact]
-    public void TheGamesHints_Build_AboutTwenty_EachToItsOwnMoment()
+    public void TheGamesHints_Build_TheOnboardingPack_EachToItsOwnMoment()
     {
         var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
         Assert.DoesNotContain(loader.Errors, e => e.Code == "HNT001");
         var hints = HintContent.Build(loader);
 
-        Assert.InRange(hints.Count, 18, 30);
+        Assert.InRange(hints.Count, 43, 60);   // DeepSeek's pack: 43 hints (25 existing, 18 proposed), plus the owner's auto-run hint
         Assert.All(hints.Values, h => Assert.Contains(h.Trigger, HintTriggers.All));
         Assert.All(hints.Values, h => Assert.Null(HintRules.Problem(h.Text)));
         // The new systems' moments (§2.10): the away sheet, hiring, party commands and prices moving.
@@ -27,8 +27,57 @@ public class HintContentTests
             Assert.Contains(hints.Values, h => h.Trigger == trigger);
         Assert.Contains("companion_order", HintRules.Actions(hints["hint.party"].Text));
         // What a new game shows first: how to move, then where every key is listed.
-        Assert.Equal(new[] { "hint.moving", "hint.help" },
+        Assert.Equal(new[] { "hint.moving", "hint.help", "hint.calls", "hint.auto_run" },
             hints.Values.Where(h => h.Trigger == HintTriggers.NewGame).OrderBy(h => h.Order).Select(h => h.Id));
+    }
+
+    [Fact]
+    public void TheSixNewMoments_HaveHints_AndTheThreeNewCategoriesExist()
+    {
+        var hints = HintContent.Build(Load(Path.Combine(RepoPaths.Root(), "content")));
+        foreach (string trigger in new[] { HintTriggers.BarOpened, HintTriggers.StashOpened, HintTriggers.TrainerOpened, HintTriggers.ItemWorn, HintTriggers.ChatOpened,
+                     HintTriggers.ReputationOpened })
+        {
+            Assert.Contains(trigger, HintTriggers.All);
+            Assert.Contains(hints.Values, h => h.Trigger == trigger);
+        }
+        foreach (string category in new[] { "social", "hiring", "identity" })
+            Assert.Contains(hints.Values, h => h.Category == category);
+        Assert.Equal(HintTriggers.All.Count, 29);
+    }
+
+    [Fact]
+    public void LightGuidance_ShowsTheOrderZeroHintOfEachCategory_AndNoOtherOfTheSameCategory()
+    {
+        var hints = HintContent.Build(Load(Path.Combine(RepoPaths.Root(), "content"))).Values.ToList();
+        // Play through every moment in turn on Light: what is shown is the first hint of each category that comes round, then no more of that category.
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var shown = new List<HintDefinition>();
+        for (int round = 0; round < 6; round++)
+        {
+            foreach (string trigger in HintTriggers.All)
+            {
+                while (HintRules.Pick(hints, trigger, seen, HintDepth.FirstOfEachCategory) is { } hint)
+                {
+                    seen.Add(hint.Id);
+                    shown.Add(hint);
+                }
+            }
+        }
+        Assert.Equal(shown.Select(h => h.Category).Distinct().Count(), shown.Count);   // one a category
+        Assert.Equal(hints.Select(h => h.Category).Distinct().Count(), shown.Count);   // every category has one
+        // The movement hint a new game opens with is the movement category's first, so Light keeps it.
+        Assert.Contains(shown, h => h.Id == "hint.moving");
+        Assert.DoesNotContain(shown, h => h.Id == "hint.auto_run");   // the auto-run hint is Full only
+    }
+
+    [Fact]
+    public void EveryHint_FitsTheBrief_AndTheAutoRunHintNamesItsKey()
+    {
+        var hints = HintContent.Build(Load(Path.Combine(RepoPaths.Root(), "content")));
+        Assert.All(hints.Values, h => Assert.True(h.Text.Length <= 140, $"{h.Id} is {h.Text.Length} characters"));
+        Assert.Contains("auto_run", HintRules.Actions(hints["hint.auto_run"].Text));
+        Assert.Equal("movement", hints["hint.auto_run"].Category);
     }
 
     [Theory]

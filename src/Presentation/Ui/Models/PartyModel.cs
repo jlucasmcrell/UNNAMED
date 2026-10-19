@@ -158,9 +158,10 @@ public static class PartyModel
         _ => stance.ToString(),
     };
 
-    /// <summary>The three standing tactics as toggles: what each says, and whether it is on.</summary>
+    /// <summary>The standing tactics as toggles: what each says, and whether it is on.</summary>
     public static ImmutableArray<(string Key, string Words, bool On)> Tactics(PartyTactics tactics) => ImmutableArray.Create(
         ("leash", "Stay close to me", tactics.KeepToLeash),
+        ("focus", "Focus my target", tactics.FocusTarget),
         ("injured", "Protect the injured", tactics.ProtectInjured),
         ("healing", "Save healing for when it is needed", tactics.HoldHealing));
 
@@ -168,6 +169,7 @@ public static class PartyModel
     public static PartyTactics Toggled(PartyTactics tactics, string key) => key switch
     {
         "leash" => tactics with { KeepToLeash = !tactics.KeepToLeash },
+        "focus" => tactics with { FocusTarget = !tactics.FocusTarget },
         "injured" => tactics with { ProtectInjured = !tactics.ProtectInjured },
         "healing" => tactics with { HoldHealing = !tactics.HoldHealing },
         _ => tactics,

@@ -1,0 +1,10 @@
+id: hint.adventurers
+kind: hint
+schema: 1
+display_key: hint.adventurers.text
+tags: [hint]
+notes: "PROPOSED. New system: adventurer posts."
+category: hiring
+trigger: hire_offered
+order: 2
+text: "Adventurers keep their own days: they set out, they come back, and the board says where they stand."

@@ -74,10 +74,9 @@ public class CraftingContentTests
             "recipe.herbal.salve_ember", "recipe.herbal.salve_ember_boneleaf", "recipe.herbal.salve_minor", "recipe.herbal.salve_minor_ashbloom",
             "recipe.leatherwork.cloak", "recipe.leatherwork.hide_boots", "recipe.leatherwork.hide_cap", "recipe.leatherwork.hide_cap_fellhorn",
             "recipe.leatherwork.hide_vest", "recipe.leatherwork.hide_vest_barrowback", "recipe.leatherwork.smith_gloves", "recipe.leatherwork.timber_shield",
-            "recipe.leatherwork.wool_trousers", "recipe.outfitting.herb_pouch", "recipe.outfitting.pack_large",
-            "recipe.outfitting.quiver", "recipe.outfitting.reagent_satchel", "recipe.outfitting.satchel",
-            "recipe.smithing.fitting_wedge", "recipe.smithing.iron_billet", "recipe.smithing.lame_coif",
-            "recipe.smithing.lame_sabatons", "recipe.smithing.lamework_jack", "recipe.smithing.march_spear",
+            "recipe.leatherwork.wool_trousers", "recipe.outfitting.herb_pouch", "recipe.outfitting.pack_large", "recipe.outfitting.quiver",
+            "recipe.outfitting.reagent_satchel", "recipe.outfitting.satchel", "recipe.smithing.fitting_wedge", "recipe.smithing.iron_billet",
+            "recipe.smithing.lame_coif", "recipe.smithing.lame_sabatons", "recipe.smithing.lamework_jack", "recipe.smithing.march_spear",
             "recipe.smithing.torch",
         }, crafting.Recipes.Keys);
         Assert.Equal(("workbench", 12), (crafting.Recipes["recipe.fletching.arrows"].StationKind, crafting.Recipes["recipe.fletching.arrows"].OutputCount));

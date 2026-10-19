@@ -1,0 +1,10 @@
+id: hint.stash
+kind: hint
+schema: 1
+display_key: hint.stash.text
+tags: [hint]
+notes: "PROPOSED. New system: the stash and crafting from storage. Needs stash_opened for its own hint. Moved from over_limit to stash_opened (ONBOARDING_CONTENT 2.2 names the stash for that moment; the draft table had it on over_limit)."
+category: items
+trigger: stash_opened
+order: 0
+text: "A stash at a settlement keeps what you cannot carry. What is in it can be used at a station without hauling it out."

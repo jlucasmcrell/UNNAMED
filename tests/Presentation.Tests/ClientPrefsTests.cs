@@ -89,7 +89,7 @@ public class ClientPrefsTests
         Assert.Equal(1f, prefs.Profile.Audio.Master);
         Assert.Equal(110f, prefs.Profile.Camera.Fov);
         Assert.Equal(0.2f, prefs.Profile.Camera.Sensitivity);
-        Assert.Equal(1.5f, prefs.Profile.Interface.UiScale);
+        Assert.Equal(2f, prefs.Profile.Interface.UiScale);   // 200 % is the most (canon 26)
         Assert.Equal(1f, prefs.Profile.Interface.TextSize);
         Assert.Equal(1, prefs.Profile.Interface.NoticeDuration);
         Assert.Equal(new[] { "key:70", "mouse:1" }, prefs.Profile.Controls.Bindings["jump"]);

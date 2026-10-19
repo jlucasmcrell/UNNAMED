@@ -442,8 +442,13 @@ public partial class InventoryPanel : CanvasLayer
         _details.AddChild(line);
     }
 
+    /// <summary>A stash was shown (the hint that names it waits on this).</summary>
+    public Action? StashShown { get; set; }
+
     private void ShowContainer(Simulation simulation, string open, ContainerView view)
     {
+        if (view.Site.Stash)
+            StashShown?.Invoke();
         var head = UiKit.Section(view.Site.Stash ? $"Your {Names.Place(_session, open)}" : Names.Place(_session, open), $"{view.Items.Length} / {view.Site.StackSlots} stacks");
         _contextHead.AddChild(head);
         if (view.Items.Length == 0)
@@ -652,12 +657,12 @@ public partial class InventoryPanel : CanvasLayer
             foreach (var (attribute, minimum) in item.Requirements.Attributes)
             {
                 int value = ProgressionEngine.AttributeValue(player.Progression, attribute, setup.Progression);
-                Fact($"Needs {ProgressionKeys.Key(attribute)}", $"{minimum}", value >= minimum ? HudStyle.Lichen : HudStyle.Wound);
+                Fact($"Needs {ProgressionKeys.Key(attribute)}", Models.ColourWords.Needs(minimum, value), value >= minimum ? HudStyle.Lichen : HudStyle.Wound);
             }
             foreach (var (skill, minimum) in item.Requirements.Skills)
             {
                 int level = ProgressionEngine.SkillLevel(player.Progression, skill);
-                Fact($"Needs {Names.Of(_session, skill)}", $"{minimum}", level >= minimum ? HudStyle.Lichen : HudStyle.Wound);
+                Fact($"Needs {Names.Of(_session, skill)}", Models.ColourWords.Needs(minimum, level), level >= minimum ? HudStyle.Lichen : HudStyle.Wound);
             }
         }
         if (quality == Quality.Masterwork)

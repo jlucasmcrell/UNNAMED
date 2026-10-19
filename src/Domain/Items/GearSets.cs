@@ -16,7 +16,8 @@ public sealed record GearSet(int Index, string Name, ImmutableArray<GearSetItem>
 /// <param name="Unequip">Slots worn now that the set wears empty, hands first.</param>
 /// <param name="Equip">Pieces of the set that are carried and not worn in their slot, main hand first.</param>
 /// <param name="Missing">Pieces of the set that are not carried: shown to the player, never conjured, and their slots left as they are.</param>
-public sealed record GearSwapPlan(ImmutableArray<EquipSlot> Unequip, ImmutableArray<GearSetItem> Equip, ImmutableArray<GearSetItem> Missing)
+/// <param name="ArmourKept">The switch was made in a fight: only the hands change, and the set's armour pieces were left as they are.</param>
+public sealed record GearSwapPlan(ImmutableArray<EquipSlot> Unequip, ImmutableArray<GearSetItem> Equip, ImmutableArray<GearSetItem> Missing, bool ArmourKept = false)
 {
     /// <summary>The switch would change what is worn.</summary>
     public bool Changes => !Unequip.IsEmpty || !Equip.IsEmpty;
@@ -32,6 +33,12 @@ public static class GearSetRules
     public const double CalmSeconds = 2.0;
 
     public const double CombatSeconds = 4.0;
+
+    /// <summary>What a switch in a fight changes (the owner, 2026-10-18): the hands only. Armour stays on; there is no ammunition slot - arrows are carried.</summary>
+    public static bool ChangesInAFight(EquipSlot slot) => slot is EquipSlot.MainHand or EquipSlot.OffHand;
+
+    /// <summary>The short line said when a switch in a fight left the armour alone.</summary>
+    public const string ArmourStays = "Armour stays on in a fight";
 
     /// <summary>A name as kept: trimmed and single-spaced, 1 to 24 characters, no control characters; null when it is not one.</summary>
     public static string? CleanName(string? name)
@@ -69,22 +76,28 @@ public static class GearSetRules
     /// What switching to <paramref name="set"/> does: what is worn and not in the set comes off; what the set wears and is carried goes on;
     /// what the set wears and is not carried is missing, and what is worn in its slot stays.
     /// </summary>
-    public static GearSwapPlan Plan(GearSet set, IReadOnlyDictionary<EquipSlot, EntityId> worn, Func<EntityId, bool> carried)
+    public static GearSwapPlan Plan(GearSet set, IReadOnlyDictionary<EquipSlot, EntityId> worn, Func<EntityId, bool> carried, bool inAFight = false)
     {
         var wanted = set.Items.ToDictionary(i => i.Slot);
-        var unequip = worn.Keys.Where(slot => !wanted.ContainsKey(slot)).OrderBy(SlotOrder).ToImmutableArray();
+        var unequip = worn.Keys.Where(slot => !wanted.ContainsKey(slot) && (!inAFight || ChangesInAFight(slot))).OrderBy(SlotOrder).ToImmutableArray();
         var equip = ImmutableArray.CreateBuilder<GearSetItem>();
         var missing = ImmutableArray.CreateBuilder<GearSetItem>();
+        bool kept = inAFight && worn.Keys.Any(slot => !wanted.ContainsKey(slot) && !ChangesInAFight(slot));
         foreach (var item in set.Items.OrderBy(i => SlotOrder(i.Slot)))
         {
             if (worn.TryGetValue(item.Slot, out var current) && current == item.Item)
                 continue;
+            if (inAFight && !ChangesInAFight(item.Slot))
+            {
+                kept = true;   // skipped, not queued
+                continue;
+            }
             if (carried(item.Item))
                 equip.Add(item);
             else
                 missing.Add(item);
         }
-        return new GearSwapPlan(unequip, equip.ToImmutable(), missing.ToImmutable());
+        return new GearSwapPlan(unequip, equip.ToImmutable(), missing.ToImmutable(), kept);
     }
 
     /// <summary>Hands before the rest, main hand first: a two-hander named in the main hand clears the off hand as it goes on.</summary>

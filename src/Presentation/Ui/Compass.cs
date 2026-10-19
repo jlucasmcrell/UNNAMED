@@ -7,9 +7,10 @@ namespace UNNAMED.Presentation.Ui;
 
 /// <summary>
 /// Heading only (content bible §22: "prefer a simple compass/heading cue over an omniscient minimap"): a dial that turns so its north
-/// points north, the cardinal letters on it, a fixed mark for where the view faces, and the bearing in words and degrees. It shows one
-/// place only (WP4): a diamond on the face toward the tracked quest's current beat, while the character knows where that is - never a
-/// creature, container or resource, and there is no minimap. The dial is the asset pipeline's <c>ui.hud.compass</c> when the workspace is present -
+/// points north, the cardinal letters on it, a fixed mark for where the view faces, and the bearing in words and degrees. It shows two
+/// places at most: a diamond on the face toward the tracked quest's current beat and a ring toward the nearest objective of any other quest,
+/// while the character knows where they are - each named in words and metres under the dial - never a creature, container or resource, and
+/// there is no minimap. The dial is the asset pipeline's <c>ui.hud.compass</c> when the workspace is present -
 /// its face, cut out of the icon's painted background - and a drawn one otherwise.
 /// </summary>
 public partial class Compass : Control
@@ -22,6 +23,7 @@ public partial class Compass : Control
     private readonly Marks _marks = new();
     private readonly Label _bearing = new() { HorizontalAlignment = HorizontalAlignment.Center };
     private float _heading = float.NaN;
+    private readonly Label _markWords = new() { AutowrapMode = TextServer.AutowrapMode.Off };
 
     /// <summary>The production HUD's dial (set before it enters the tree): an iron bezel with ticks, and the HUD's type and ember.</summary>
     public bool Styled { get; set; }
@@ -61,6 +63,34 @@ public partial class Compass : Control
             _bearing.AddThemeStyleboxOverride("normal", HudStyle.PanelBox(6, 0));
         }
         AddChild(_bearing);
+        // The marks in words under the bearing, so a diamond or a ring never stands alone.
+        _markWords.Position = new Vector2(Diameter / 2 - 90, Diameter + 34);
+        _markWords.HorizontalAlignment = HorizontalAlignment.Center;
+        _markWords.CustomMinimumSize = new Vector2(180, 0);
+        _markWords.AddThemeFontSizeOverride("font_size", 16);
+        _markWords.AddThemeColorOverride("font_color", Styled ? HudStyle.Bone : Colors.White);
+        _markWords.AddThemeColorOverride("font_outline_color", Colors.Black);
+        _markWords.AddThemeConstantOverride("outline_size", 4);
+        if (Styled)
+            _markWords.AddThemeFontOverride("font", HudStyle.Body);
+        AddChild(_markWords);
+    }
+
+    /// <summary>The nearest other objective's bearing (a ring on the face); null hides it.</summary>
+    public void SetNearest(float? bearingDegrees)
+    {
+        float? radians = bearingDegrees is { } b ? Mathf.DegToRad(Mathf.PosMod(b, 360f)) : null;
+        if (radians == _marks.Nearest || radians is { } r && _marks.Nearest is { } m && Mathf.Abs(Mathf.AngleDifference(r, m)) < 0.002f)
+            return;
+        _marks.Nearest = radians;
+        _marks.QueueRedraw();
+    }
+
+    /// <summary>The two marks named in words under the compass ("Quest: Renn, 120 m"); empty hides the lines.</summary>
+    public void SetMarkWords(string words)
+    {
+        if (_markWords.Text != words)
+            _markWords.Text = words;
     }
 
     /// <summary>Use the pipeline's dial: its face (the round, needle-up part of the icon) cut out of the picture around it.</summary>
@@ -111,6 +141,9 @@ public partial class Compass : Control
         /// <summary>The tracked beat's bearing in radians clockwise from north, or null.</summary>
         public float? Marker { get; set; }
 
+        /// <summary>The nearest other objective's bearing in radians, or null: drawn as a ring, where the tracked beat is a diamond.</summary>
+        public float? Nearest { get; set; }
+
         public override void _Draw()
         {
             var centre = Size / 2;
@@ -152,6 +185,12 @@ public partial class Compass : Control
                 var diamond = new[] { at + new Vector2(0, -6), at + new Vector2(5, 0), at + new Vector2(0, 6), at + new Vector2(-5, 0) };
                 DrawColoredPolygon(diamond, Styled ? HudStyle.Ember : new Color(0.95f, 0.85f, 0.4f));
                 DrawPolyline(diamond.Append(diamond[0]).ToArray(), new Color(0.02f, 0.02f, 0.02f, 0.9f), 1.5f, true);
+            }
+            if (Nearest is { } near)
+            {
+                var at = centre + Vector2.Up.Rotated(Turn + near) * (radius * 0.45f);
+                DrawArc(at, 5, 0, Mathf.Tau, 16, new Color(0.02f, 0.02f, 0.02f, 0.9f), 4, true);
+                DrawArc(at, 5, 0, Mathf.Tau, 16, Styled ? HudStyle.Bone : new Color(0.9f, 0.9f, 0.9f), 2, true);
             }
             // The view's mark: fixed at the top, where the camera faces.
             DrawColoredPolygon(new[] { centre + new Vector2(-6, -radius - 7), centre + new Vector2(6, -radius - 7), centre + new Vector2(0, -radius + 3) },

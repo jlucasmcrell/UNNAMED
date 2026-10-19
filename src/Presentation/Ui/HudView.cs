@@ -31,7 +31,7 @@ public partial class HudView : Control
     /// <summary>The safe-area margin from every screen edge, in the 1920 x 1080 layout.</summary>
     public const float Margin = 28;
 
-    private const float PoolWidth = 232;
+    private const float PoolWidth = 118;
     private const float LogWidth = 452;
     private static readonly Regex Keyed = new(@"^\[([^\]]+)\] (.+)$", RegexOptions.Compiled);
     private static readonly Regex Companion = new(@"^(.*?)\s+\[([^\]]+)\] (.+)$", RegexOptions.Compiled);
@@ -80,13 +80,16 @@ public partial class HudView : Control
 
     /// <summary>The action bars, at the bottom centre, with the vitals above the main bar.</summary>
     public ActionBarsView Bars { get; } = new() { Name = "ActionBars" };
+
+    /// <summary>What is being said, as captions with the speaker, above the action bars.</summary>
+    public SubtitleStrip Subtitles { get; } = new() { Name = "Subtitles" };
     private readonly HFlowContainer _effects = new();
     private string _effectText = string.Empty;
     private string _effectKeys = string.Empty;
     private readonly HBoxContainer _casting = new();
     private readonly Label _castingName = HudStyle.Text(HudStyle.Strong, 16, HudStyle.Bone);
     private readonly Dictionary<string, TextureRect> _poolIcons = new(StringComparer.Ordinal);
-    private readonly Gauge _health = new(HudStyle.HealthFill, new Vector2(PoolWidth, 12));
+    private readonly Gauge _health = new(HudStyle.HealthFill, new Vector2(PoolWidth, 10));
     private readonly Gauge _stamina = new(HudStyle.StaminaFill, new Vector2(PoolWidth, 8));
     private readonly Gauge _focus = new(HudStyle.FocusFill, new Vector2(PoolWidth, 8));
     private readonly Gauge _strain = new(HudStyle.StrainFill, new Vector2(PoolWidth, 8));
@@ -160,6 +163,7 @@ public partial class HudView : Control
         BuildPromptAndLog();
         BuildMiddle();
         Quiet(this);
+        AddChild(Subtitles);
         // After Quiet: the bars take the pointer when it is free, which is what dragging onto them needs.
         AddChild(Bars);
     }
@@ -301,15 +305,16 @@ public partial class HudView : Control
         // The pools stand with the action bars at the bottom centre (the vitals sit above the main bar, as they do in most such games), in two
         // blocks: health and stamina, then focus, strain and resonance.
         var vitals = new PanelContainer { SizeFlagsHorizontal = SizeFlags.ShrinkCenter };
-        vitals.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(12, 5));
-        var blocks = new HBoxContainer();
-        blocks.AddThemeConstantOverride("separation", 28);
-        var body = new GridContainer { Columns = 4 };
-        body.AddThemeConstantOverride("h_separation", 9);
-        body.AddThemeConstantOverride("v_separation", 2);
-        var magic = new GridContainer { Columns = 4 };
-        magic.AddThemeConstantOverride("h_separation", 9);
-        magic.AddThemeConstantOverride("v_separation", 2);
+        vitals.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(10, 2));
+        // Slim: the body's two pools on one row, and the working pools on a second that shows only while they matter.
+        var blocks = new VBoxContainer();
+        blocks.AddThemeConstantOverride("separation", 1);
+        var body = new HBoxContainer();
+        body.AddThemeConstantOverride("separation", 16);
+        _magicRow = new HBoxContainer();
+        _magicRow.AddThemeConstantOverride("separation", 16);
+        var magic = _magicRow;
+        magic.Visible = false;
         PoolRow(body, "health", PoolName("Health"), _health, _healthValue);
         PoolRow(body, "stamina", PoolName("Stamina"), _stamina, _staminaValue);
         PoolRow(magic, "focus", PoolName("Focus"), _focus, _focusValue);
@@ -359,7 +364,9 @@ public partial class HudView : Control
         _tracker.Visible = _trackerWanted && !aside;
     }
 
-    private void PoolRow(GridContainer grid, string key, Label name, Control gauge, Label value)
+    private HBoxContainer? _magicRow;
+
+    private void PoolRow(BoxContainer grid, string key, Label name, Control gauge, Label value)
     {
         var icon = new TextureRect
         {
@@ -372,9 +379,11 @@ public partial class HudView : Control
         var cell = new Control { CustomMinimumSize = new Vector2(18, 18), SizeFlagsVertical = SizeFlags.ShrinkCenter };
         cell.AddChild(icon);
         grid.AddChild(cell);
+        name.CustomMinimumSize = Vector2.Zero;
         grid.AddChild(name);
         gauge.SizeFlagsVertical = SizeFlags.ShrinkCenter;
         grid.AddChild(gauge);
+        value.CustomMinimumSize = new Vector2(key == "resonance" ? 0 : 70, 0);
         grid.AddChild(value);
     }
 
@@ -744,6 +753,9 @@ public partial class HudView : Control
         _focus.Set(focus, Math.Max(1, maxFocus));
         _strain.Set(strain, Math.Max(1, tolerance));
         _strain.Mark(strained ? HudStyle.StrainedFill : HudStyle.StrainFill, strained);
+        // The working pools take a row only while they matter: focus spent, strain held, or strained.
+        if (_magicRow is not null)
+            _magicRow.Visible = maxFocus > 0 && (focus < maxFocus || strain > 0 || strained);
     }
 
     /// <summary>The active effects (their text as the HUD writes it, "Weakened 60s   Bleeding x3 5s"), each a chip with its icon.</summary>
@@ -995,7 +1007,7 @@ public partial class HudView : Control
         if (reading)
         {
             words.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-            words.CustomMinimumSize = new Vector2(Math.Clamp(GetViewportRect().Size.X - 120, 1, 560), 0);
+            words.CustomMinimumSize = new Vector2(HudLayoutRules.ReadingWidth(GetViewportRect().Size.X, 120, 560, 18), 0);
         }
         row.AddChild(words);
         box.AddChild(row);

@@ -5,6 +5,7 @@ using Godot;
 using UNNAMED.Persistence;
 using UNNAMED.Presentation.Settings;
 using UNNAMED.Presentation.Ui;
+using UNNAMED.Presentation.Ui.Models;
 using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Presentation;
@@ -312,6 +313,8 @@ public partial class Main
     {
         if (name != "escape")
             CloseScreens();
+        if (name != "compass")
+            _compassPreview = false;
         // "large_<screen>": that screen at the largest text and interface scale, in high contrast; "text_<screen>" at the largest text in
         // high contrast, the interface scale as it was (in memory only: a harness writes no preferences). Any other name puts them back.
         string? prefix = name.StartsWith("large_", StringComparison.Ordinal) ? "large_" : name.StartsWith("text_", StringComparison.Ordinal) ? "text_" : null;
@@ -323,7 +326,7 @@ public partial class Main
             if (_beforeLarge is { Profile.Interface: var ui })
                 SettingsStore.Set(_beforeLarge with
                 {
-                    Profile = _beforeLarge.Profile with { Interface = ui with { UiScale = prefix == "large_" ? 1.5f : ui.UiScale, TextSize = 2f, HighContrast = true } },
+                    Profile = _beforeLarge.Profile with { Interface = ui with { UiScale = prefix == "large_" ? 2f : ui.UiScale, TextSize = 2f, HighContrast = true } },
                 });
             _enlarged = prefix;
         }
@@ -360,12 +363,37 @@ public partial class Main
                 // The action bars, pictured with two further bars shown, a gear set kept and its switch on the main bar (a harness preview).
                 BarsPreview(atSide: name == "bars_side");
                 break;
+            case "compass":
+                // The compass with both marks, held on a picture (a preview: no quest points there).
+                _compassPreview = true;
+                _hud.SetMarker(35);
+                _hud.SetNearestMarker(250);
+                _hud.SetMarkerWords(CompassMarkerModel.Words(new CompassMark("Renn Vale", 120, 35), new CompassMark("Sel Arien", 40, 250)));
+                break;
+            case "subtitles":
+                // Two captions as a bark and a spoken line show them (a preview: nobody speaks).
+                _hud.Say("Renn Vale", "Traveller. A bed, a meal, directions. Start with whichever keeps you upright.", 30);
+                _hud.Say("Kera Voss", "Mind the anvil, it bites.", 30);
+                break;
             case "announce_skill":
                 // The skill-up notice, pictured without waiting for a skill to rise (a preview: nothing is awarded).
                 _hud.Toast("Skill: One-hand Blade 4", 3);
                 break;
             case "inventory":
                 OpenInventory(null);
+                PackShotNotices();
+                break;
+            case "inventory_stash":
+                OpenInventory("container.stash.waystation");
+                PackShotNotices();
+                break;
+            case "inventory_station":
+                OpenStation("station.hollow.workbench");
+                PackShotNotices();
+                break;
+            case "inventory_trade":
+                OpenTrade("npc.ashen_hollow.kera_voss");
+                PackShotNotices();
                 break;
             case "inventory_stash":
                 OpenInventory("container.stash.waystation");
@@ -692,6 +720,9 @@ public partial class Main
     {
         if (!_inventory.Visible || _inventory.Anchor is not { } anchor)
             return;
+        // The pictures of the stash, station and trader screens open them from wherever the harness stands (they would close at once out of reach).
+        if (_flags.Contains("--pack-shots") && _shots is not null)
+            return;
         // A corpse searched bare is gone with what it held: the panel opened for it goes too, not back to the pack (the owner's first playtest).
         if (_inventory.OpenContainer is { } open && _session.Simulation!.Containers.All(c => c.Site.Key != open))
         {
@@ -701,6 +732,13 @@ public partial class Main
         long reach = _session.Setup.Items.Inventory.ReachMm + (_inventory.OpenTrader is not null ? _session.Setup.Movement.BodyRadiusMm : 0);
         if (Math.Sqrt(Math.Pow(anchor.XMm - _controller.Authoritative.XMm, 2) + Math.Pow(anchor.ZMm - _controller.Authoritative.ZMm, 2)) > reach)
             CloseInventory();
+    }
+
+    /// <summary>The pack pictures show a hint and a toast over the open screen, as play does, so a layout that collapses them is seen.</summary>
+    private void PackShotNotices()
+    {
+        _hintLine?.Show("The world went on while you were away, as it always will. The away log says what changed.");
+        _hud.Toast("Skill: One-hand Blade 4", 6);
     }
 
     private void OpenInventory(string? container)

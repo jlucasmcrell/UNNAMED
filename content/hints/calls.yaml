@@ -1,0 +1,10 @@
+id: hint.calls
+kind: hint
+schema: 1
+display_key: hint.calls.text
+tags: [hint]
+notes: "PROPOSED. New system: Calls. Needs no new trigger (fires at new_game, order 2: the doc's table; the draft file said 0, which clashes with the movement hint at the same trigger and order)."
+category: identity
+trigger: new_game
+order: 2
+text: "Your Call is what you did before the road. People will recognise it in you before they know your name."

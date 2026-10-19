@@ -157,6 +157,15 @@ internal sealed class CreatureSystem : IAbstractAdvance
     private readonly EntityId _player;
     private readonly Func<MoveIntent> _intent;
     private long _graceUntil;
+
+    // The creature the character struck last and when: transient (a load starts with none), read by a party's "focus my target".
+    private string? _focusKey;
+    private long _focusTick;
+
+    /// <summary>The creature the character struck within the focus window before <paramref name="tick"/>, still alive, or null.</summary>
+    public string? PlayerFocus(long tick) =>
+        _focusKey is { } key && tick - _focusTick <= PartyTactics.FocusWindowTicks && State.Creatures.TryGetValue(key, out var struck) && struck.Alive ? key : null;
+
     private sealed record TickSpace(Blocker[] Walls, Blocker[] Doors, Blocker[] People,
         Blocker[] CompanionBodies, NpcState[] Companions);
     private readonly Dictionary<SpaceId, TickSpace> _tickSpaces = new();
@@ -834,6 +843,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
         bool longer = phase == CombatPhase.Staggered && left >= C.StaggerTicks;
         // It knows where the blow came from: the character, or the companion who struck it (M6).
         var attacker = command.Attacker ?? _player;
+        if (command.Attacker is null)
+            (_focusKey, _focusTick) = (c.Key, tick);
         var (fromX, fromZ) = command.Attacker is null ? (State.Body.XMm, State.Body.ZMm) : (command.FromXMm, command.FromZMm);
         var wounded = c with
         {

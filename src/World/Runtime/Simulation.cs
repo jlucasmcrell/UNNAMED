@@ -320,7 +320,7 @@ public sealed class Simulation
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests), player.Id);
         _quests.Listen(bus);
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions,
-            new NpcPartyLife(Dispatch, _npcs.Lives, life)) { Unhireable = key => _adventurers.HireRefusal(key) ?? _npcs.HireRefusal(key) };
+            new NpcPartyLife(Dispatch, _npcs.Lives, life)) { Unhireable = key => _adventurers.HireRefusal(key) ?? _npcs.HireRefusal(key), PlayerFocus = () => _creatures.PlayerFocus(WorldTick) };
         _sheets = new PartySheetSystem(_context, _state.Claim(nameof(PartySheetSystem), StateSlice.PartySheets), player.Id);
         _sheets.Listen(bus);
         _spaces = new SpaceSystem(_context, _state.Claim(nameof(SpaceSystem), StateSlice.PlayerSpace), player.Id);
@@ -614,6 +614,11 @@ public sealed class Simulation
 
     /// <summary>The six action bars, the quick bar first, each twelve slots.</summary>
     public ImmutableArray<ImmutableArray<string?>> ActionBars => _state.ActionBars;
+
+    /// <summary>The weapon family whose layout the main bar shows ("" before the first tick adopts the one held), and the layout of each family held so far.</summary>
+    public string HeldFamily => _state.HeldFamily;
+
+    public ImmutableSortedDictionary<string, ImmutableArray<string?>> FamilyBars => _state.FamilyBars;
 
     /// <summary>The character's saved gear sets, by place.</summary>
     public ImmutableArray<GearSet> GearSets => _state.GearSets;
@@ -942,6 +947,8 @@ public sealed class Simulation
             QuickBar = _state.QuickBar,
             QuickBarCleared = _state.QuickBarCleared.ToImmutableArray(),
             ExtraBars = _state.ExtraBars,
+            HeldFamily = _state.HeldFamily,
+            FamilyBars = _state.FamilyBars,
             GearSets = _state.GearSets,
             Bags = _state.Bags,
             PartySheets = _sheets.Records(),

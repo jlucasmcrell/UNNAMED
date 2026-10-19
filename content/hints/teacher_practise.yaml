@@ -1,0 +1,10 @@
+id: hint.teacher_practise
+kind: hint
+schema: 1
+display_key: hint.teacher_practise.text
+tags: [hint]
+notes: "PROPOSED. Trainers and the Learn column."
+category: progression
+trigger: skill_practiced
+order: 1
+text: "A teacher can show you what to practise, not do the practising. What you learn from them, you still have to use."

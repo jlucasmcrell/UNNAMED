@@ -142,6 +142,26 @@ public sealed class PlayerDto
     /// stack unplaced (the pack places them on load) and the bag slots empty.
     /// </summary>
     [Key("pack")] public PackDto? Pack { get; set; }
+
+    /// <summary>
+    /// Required from schema 34 (before testers): the weapon family whose layout the main bar shows - bare hands or a weapon skill - or empty when
+    /// none has been adopted yet. The 33 -> 34 step gives older saves none: the first tick adopts the weapon in hand and its layout is the bar.
+    /// </summary>
+    [Key("held_family")] public string? HeldFamily { get; set; }
+
+    /// <summary>Required from schema 34: the main bar's layout for each family held so far, by family. The held family's is the main bar itself.</summary>
+    [Key("family_bars")] public FamilyBarDto[]? FamilyBars { get; set; }
+
+    /// <summary>Required from schema 34: the companions "focus my target" is on for, by NPC. Kept beside the party's tactics, which are unchanged.</summary>
+    [Key("focus_targets")] public string[]? FocusTargets { get; set; }
+}
+
+/// <summary>One weapon family's layout of the main bar (schema 34): the family, and twelve slots, each a definition ID or nil.</summary>
+[MessagePackObject]
+public sealed class FamilyBarDto
+{
+    [Key("family")] public string Family { get; set; } = "";
+    [Key("slots")] public string?[] Slots { get; set; } = Array.Empty<string?>();
 }
 
 /// <summary>The pack (schema 33): the bag in each of the four bag slots (an instance ID, or nil for an empty slot) and one record for each carried stack.</summary>
@@ -1017,6 +1037,9 @@ public static class SectionCodec
             Stacks = player.Inventory.Select(e => new PackStackDto { ItemId = e.ItemId.Value, Bag = e.Bag, Slot = e.Slot, Locked = e.Locked, Junk = e.Junk }).ToArray(),
         },
         ExtraBars = player.ExtraBars.Select(bar => bar.ToArray()).ToArray(),
+        HeldFamily = player.HeldFamily,
+        FamilyBars = player.FamilyBars.Select(f => new FamilyBarDto { Family = f.Key, Slots = f.Value.ToArray() }).ToArray(),
+        FocusTargets = player.Companions.Where(c => c.Tactics.FocusTarget).Select(c => c.NpcId).Order(StringComparer.Ordinal).ToArray(),
         GearSets = player.GearSets.Select(g => new GearSetDto
         {
             Index = g.Index, Name = g.Name,
@@ -1099,6 +1122,22 @@ public static class SectionCodec
         var extraBars = dto.ExtraBars ?? throw new FormatException("player.msgpack has no further action bars (required from schema 32)");
         var gearSets = dto.GearSets ?? throw new FormatException("player.msgpack has no gear sets (required from schema 32)");
         var pack = dto.Pack ?? throw new FormatException("player.msgpack has no pack (required from schema 33)");
+        string heldFamily = dto.HeldFamily ?? throw new FormatException("player.msgpack has no held weapon family (required from schema 34)");
+        var familyBars = dto.FamilyBars ?? throw new FormatException("player.msgpack has no family layouts (required from schema 34)");
+        var focusTargets = dto.FocusTargets ?? throw new FormatException("player.msgpack has no focus targets (required from schema 34)");
+        if (heldFamily.Length > 0 && !Domain.Progression.WeaponFamilies.IsValid(heldFamily))
+            throw new FormatException($"the held weapon family is '{heldFamily}'");
+        foreach (var family in familyBars)
+        {
+            if (!Domain.Progression.WeaponFamilies.IsValid(family.Family) || family.Slots.Length != Domain.Progression.QuickBar.Slots)
+                throw new FormatException($"a family layout is '{family.Family}' with {family.Slots.Length} slots (twelve slots under a weapon family)");
+        }
+        if (familyBars.Select(f => f.Family).Distinct(StringComparer.Ordinal).Count() != familyBars.Length)
+            throw new FormatException("a weapon family has two layouts");
+        if (heldFamily.Length > 0 && familyBars.All(f => f.Family != heldFamily))
+            throw new FormatException($"the held family '{heldFamily}' has no layout");
+        if (focusTargets.Any(t => companions.All(c => c.NpcId != t)) || focusTargets.Distinct(StringComparer.Ordinal).Count() != focusTargets.Length)
+            throw new FormatException("a focus target names someone who is not a party member, or twice");
         var placed = pack.Stacks.GroupBy(p => p.ItemId, StringComparer.Ordinal).ToDictionary(g => g.Key, g => g.Count() == 1 ? g.Single()
             : throw new FormatException($"the pack places {g.Key} more than once"), StringComparer.Ordinal);
         if (pack.Bags.Length != Domain.Items.PackLimits.BagSlots || placed.Count != dto.Inventory.Length || dto.Inventory.Any(e => !placed.ContainsKey(e.ItemId)))
@@ -1116,7 +1155,7 @@ public static class SectionCodec
         };
         if (posture.AirMs < 0 || (!posture.Airborne && posture.AirMs != 0))
             throw new FormatException($"player posture has air_ms {posture.AirMs} while {(posture.Airborne ? "airborne" : "on the ground")}");
-        return new PlayerRecord(EntityId.Parse(dto.InstanceId), dto.Name, dto.XMm, dto.YMm, dto.ZMm, dto.AppearanceSeed,
+        var record = new PlayerRecord(EntityId.Parse(dto.InstanceId), dto.Name, dto.XMm, dto.YMm, dto.ZMm, dto.AppearanceSeed,
             dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count)
             {
                 Quality = QualityOf(e.Quality, $"carried {e.ItemId}"), Notable = NotableOf(e.Notable, $"carried {e.ItemId}"), Wear = WearOf(e.Wear, $"carried {e.ItemId}"),
@@ -1134,7 +1173,7 @@ public static class SectionCodec
                 q.Objectives.Select(o => new ObjectiveState(o.Id,
                     QuestKeys.ParseObjective(o.Status) ?? throw new FormatException($"objective {o.Id} of {q.QuestId} has status '{o.Status}'"),
                     o.ActivatedTick, o.EndedTick, o.Progress)).ToImmutableArray())),
-            companions.Select(Companion))
+            companions.Select(Companion).Select(c => focusTargets.Contains(c.NpcId) ? c with { Tactics = c.Tactics with { FocusTarget = true } } : c))
         {
             Posture = new Posture(stance, posture.Airborne, posture.AirMs),
             Waystones = waystones.Select(w => new WaystoneRecord(w.Stone, w.Region,
@@ -1161,12 +1200,18 @@ public static class SectionCodec
             SpaceId = SpaceId.Parse(spaceId).ToString(),
             SpaceTraversal = dto.SpaceTraversal,
             ExtraBars = extraBars.Select(bar => bar.ToImmutableArray()).ToImmutableArray(),
+            HeldFamily = heldFamily,
+            FamilyBars = familyBars.ToImmutableSortedDictionary(f => f.Family, f => f.Slots.ToImmutableArray(), StringComparer.Ordinal),
             Bags = pack.Bags.Select(b => b is null ? (EntityId?)null : EntityId.Parse(b)).ToImmutableArray(),
             GearSets = gearSets.Select(g => new GearSet(g.Index, g.Name,
                 g.Items.Select(i => new GearSetItem(EquipSlots.Parse(i.Slot), EntityId.Parse(i.Item), i.Def)).ToImmutableArray())).ToImmutableArray(),
             Findings = findings.Select(f => new Finding(FindingKeys.Parse(f.Kind) ?? throw new FormatException($"a finding at {f.Station} is '{f.Kind}'"),
                 f.Station, f.StationKind, f.Recipe, f.Materials.ToImmutableArray(), f.Tick)).ToImmutableArray(),
         };
+        // The held family's layout is the main bar itself: a save that has them differ is corrupt, not repaired.
+        if (heldFamily.Length > 0 && !record.FamilyBars[heldFamily].SequenceEqual(record.QuickBar))
+            throw new FormatException($"the held family '{heldFamily}' has a layout that is not the main bar");
+        return record;
     }
 
     private static InventoryDto StackToDto(InventoryEntry e) =>

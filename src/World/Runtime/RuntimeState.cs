@@ -180,6 +180,8 @@ internal sealed class RuntimeState
         GearSets = player.GearSets;
         Bags = player.Bags;
         QuickBarCleared = player.QuickBarCleared.ToImmutableSortedSet(StringComparer.Ordinal);
+        HeldFamily = player.HeldFamily;
+        FamilyBars = player.FamilyBars;
         PartySheets = player.PartySheets.ToImmutableSortedDictionary(p => p.NpcId, p => p, StringComparer.Ordinal);
         Findings = player.Findings;
     }
@@ -232,6 +234,12 @@ internal sealed class RuntimeState
 
     /// <summary>The bags equipped in the bag slots: the carried bag in each, or null (schema 33). Owned with the inventory.</summary>
     public ImmutableArray<EntityId?> Bags { get; private set; }
+
+    /// <summary>The weapon family whose layout the main bar shows ("" until the first tick adopts the one held) - part of the quick bar's slice (schema 34).</summary>
+    public string HeldFamily { get; private set; } = "";
+
+    /// <summary>The main bar's layout for each family held so far; the held family's is the main bar itself (schema 34).</summary>
+    public ImmutableSortedDictionary<string, ImmutableArray<string?>> FamilyBars { get; private set; } = Domain.Progression.WeaponFamilies.None;
 
     /// <summary>The six action bars, the quick bar first.</summary>
     public ImmutableArray<ImmutableArray<string?>> ActionBars => ExtraBars.Insert(0, QuickBar);
@@ -370,6 +378,16 @@ internal sealed class RuntimeState
         if (!GearSetRules.IsValid(sets))
             throw new InvalidOperationException("Gear sets are at most ten, each place once, named, wearing each slot and item once");
         GearSets = sets;
+    }
+
+    /// <summary>The main bar and its per-family layouts together: the held family, and every family's layout (the held one's is <paramref name="bar"/>).</summary>
+    public void SetMainBar(SliceOwner owner, string family, ImmutableArray<string?> bar, ImmutableSortedDictionary<string, ImmutableArray<string?>> families)
+    {
+        Require(owner, StateSlice.QuickBar);
+        if (family.Length > 0 && !Domain.Progression.WeaponFamilies.IsValid(family) || !Domain.Progression.QuickBar.IsValid(bar)
+            || families.Any(f => !Domain.Progression.WeaponFamilies.IsValid(f.Key) || !Domain.Progression.QuickBar.IsValid(f.Value)))
+            throw new InvalidOperationException("The main bar and each family's layout are twelve valid slots under a valid family");
+        (HeldFamily, QuickBar, FamilyBars) = (family, bar, families);
     }
 
     public void SetQuickBarCleared(SliceOwner owner, ImmutableSortedSet<string> cleared)

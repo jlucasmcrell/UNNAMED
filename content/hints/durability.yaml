@@ -1,0 +1,10 @@
+id: hint.durability
+kind: hint
+schema: 1
+display_key: hint.durability.text
+tags: [hint]
+notes: "PROPOSED. Trigger item_worn does NOT exist - see ONBOARDING_CONTENT.md 2.2."
+category: items
+trigger: item_worn
+order: 0
+text: "Things wear as you use them. Repair costs coin and needs someone who can; a worn thing sells for less."

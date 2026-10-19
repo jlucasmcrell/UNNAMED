@@ -172,6 +172,7 @@ internal static class CanonicalState
                 json.WriteBoolean("keep_to_leash", companion.Tactics.KeepToLeash);
                 json.WriteBoolean("protect_injured", companion.Tactics.ProtectInjured);
                 json.WriteBoolean("hold_healing", companion.Tactics.HoldHealing);
+                json.WriteBoolean("focus_target", companion.Tactics.FocusTarget);   // schema 34
                 json.WriteEndObject();
                 if (companion.Contract is { } contract)
                 {
@@ -393,6 +394,25 @@ internal static class CanonicalState
                     json.WriteString("item", item.Item.Value);
                     json.WriteString("def", item.DefId);
                     json.WriteEndObject();
+                }
+                json.WriteEndArray();
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
+            // Schema 34 (before testers): the weapon family whose layout the main bar shows, and each family's layout.
+            json.WriteString("held_family", player.HeldFamily);
+            json.WriteStartArray("family_bars");
+            foreach (var (family, layout) in player.FamilyBars)
+            {
+                json.WriteStartObject();
+                json.WriteString("family", family);
+                json.WriteStartArray("slots");
+                foreach (string? slot in layout)
+                {
+                    if (slot is null)
+                        json.WriteNullValue();
+                    else
+                        json.WriteStringValue(slot);
                 }
                 json.WriteEndArray();
                 json.WriteEndObject();

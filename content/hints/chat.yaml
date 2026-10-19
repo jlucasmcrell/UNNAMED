@@ -1,0 +1,10 @@
+id: hint.chat
+kind: hint
+schema: 1
+display_key: hint.chat.text
+tags: [hint]
+notes: "PROPOSED. New system: chat and LFG. Needs the chat_opened trigger."
+category: social
+trigger: chat_opened
+order: 0
+text: "Chat can show everything, only what is about play, or nothing. It is never saved; only your choice of it is."

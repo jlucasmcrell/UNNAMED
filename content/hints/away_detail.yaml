@@ -1,0 +1,10 @@
+id: hint.away_detail
+kind: hint
+schema: 1
+display_key: hint.away_detail.text
+tags: [hint]
+notes: "PROPOSED. Full only."
+category: world
+trigger: away_sheet
+order: 1
+text: "Nothing about the road waited for you: prices moved, work finished, people went out. Read the log, then look around."

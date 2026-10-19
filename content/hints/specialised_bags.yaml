@@ -1,0 +1,10 @@
+id: hint.specialised_bags
+kind: hint
+schema: 1
+display_key: hint.specialised_bags.text
+tags: [hint]
+notes: "PROPOSED. New system: specialised bags."
+category: items
+trigger: item_picked_up
+order: 1
+text: "A bag only carries what it is for. A herb bag will not take a sword, and a sword will not fit a quiver."

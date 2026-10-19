@@ -42,8 +42,36 @@ public partial class FirstLaunchPanel : CanvasLayer
         var answers = new HBoxContainer();
         answers.AddThemeConstantOverride("separation", 12);
         answers.AddChild(UiKit.Action("Use recommended settings", () => Finish(recommended: true), UiKit.Kind.Primary, id: "first.recommended"));
-        answers.AddChild(UiKit.Action("Done, with these", () => Finish(recommended: false), id: "first.done"));
+        answers.AddChild(UiKit.Action("Open the road", () => Finish(recommended: false), id: "first.done"));
         _sheet.Body.AddChild(answers);
+
+        // The words of ONBOARDING_CONTENT §1: four settings that change how the game reads, and the one fact about it that is not what a
+        // player of other games expects.
+        var before = UiKit.Section("Before you go out", "Four things worth setting. The rest can wait until you need it.");
+        var ui0 = SettingsStore.Current.Profile.Interface;
+        float[] textSizes = { 1f, 1.25f, 1.5f };
+        before.AddChild(SettingsPanel.Choice("first.before.text", "Text size", "How large words are drawn, over the interface's own size.",
+            new[] { "As it comes", "Larger", "Largest" }, Array.IndexOf(textSizes, textSizes.OrderBy(s => Math.Abs(s - ui0.TextSize)).First()),
+            i => Profile(p => p with { Interface = p.Interface with { TextSize = textSizes[i] } }), Redraw));
+        before.AddChild(SettingsPanel.Choice("first.before.subtitles", "Subtitles", "Everything spoken, written along the bottom.",
+            new[] { "On", "Off" }, ui0.Subtitles ? 0 : 1, i => Profile(p => p with { Interface = p.Interface with { Subtitles = i == 0 } })));
+        var visions = Enum.GetValues<ColourVision>();
+        before.AddChild(SettingsPanel.Choice("first.before.colour", "Colours", "Tell the game which colours you can tell apart, and it will lean on the others.",
+            new[] { "No change", "Red and green, first kind", "Red and green, second kind", "Blue and yellow" }, Array.IndexOf(visions, ui0.ColourVision),
+            i => Profile(p => p with { Interface = p.Interface with { ColourVision = visions[i] } }), Redraw));
+        before.AddChild(SettingsPanel.Choice("first.before.controls", "Controls", "Keys are read by where they sit, not by the letter printed on them.",
+            ControlPresets.Names.Select(ControlPresets.Label).ToArray(), Array.IndexOf(ControlPresets.Names, ControlPresets.Of(SettingsStore.Current.Profile.Controls)),
+            i =>
+            {
+                Profile(p => p with { Controls = ControlPresets.Apply(p.Controls, ControlPresets.Names[i]) });
+                SettingsStore.ApplyBindings();
+            }));
+        var guidance = Enum.GetValues<Guidance>();
+        before.AddChild(SettingsPanel.Choice("first.before.guidance", "Guidance", "How much the game tells you as it goes.",
+            new[] { "Tell me everything, once", "Only what I cannot work out", "Nothing - I will find it" }, Array.IndexOf(guidance, ui0.Guidance),
+            i => Profile(p => p with { Interface = p.Interface with { Guidance = guidance[i] } })));
+        before.AddChild(UiKit.Words("The world does not stop for a menu. Neither does it stop for you to read: open a sheet somewhere quiet, and keep one eye on the road.", 16, HudStyle.Brass));
+        _sheet.Body.AddChild(before);
 
         var presets = UiKit.Section("Comfort", "any of them, together; each says what it changed");
         var grid = new GridContainer { Columns = 2 };
@@ -66,7 +94,7 @@ public partial class FirstLaunchPanel : CanvasLayer
 
         var prefs = SettingsStore.Current;
         var picture = UiKit.Section("Text and picture");
-        float[] scales = { 0.75f, 0.9f, 1f, 1.1f, 1.25f, 1.5f };
+        float[] scales = { 0.75f, 0.9f, 1f, 1.1f, 1.25f, 1.5f, 1.75f, 2f };
         picture.AddChild(SettingsPanel.Choice("first.scale", "Interface size", "Everything on screen but the world. Set for this window's size.",
             scales.Select(s => $"{s * 100:0} %").ToArray(), Array.IndexOf(scales, scales.OrderBy(s => Math.Abs(s - prefs.Profile.Interface.UiScale)).First()),
             i => Profile(p => p with { Interface = p.Interface with { UiScale = scales[i] } }), Redraw));

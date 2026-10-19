@@ -1,0 +1,10 @@
+id: hint.trainers
+kind: hint
+schema: 1
+display_key: hint.trainers.text
+tags: [hint]
+notes: "PROPOSED. Trigger trainer_opened does NOT exist - see ONBOARDING_CONTENT.md 2.2."
+category: progression
+trigger: trainer_opened
+order: 0
+text: "A trainer's Learn column says what a lesson gives you before you pay for it. A teacher in your hire does not teach."

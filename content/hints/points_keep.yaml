@@ -1,0 +1,10 @@
+id: hint.points_keep
+kind: hint
+schema: 1
+display_key: hint.points_keep.text
+tags: [hint]
+notes: "PROPOSED. Full only."
+category: progression
+trigger: level_up
+order: 1
+text: "Nothing is wasted by choosing late. Points keep, and a point you have not spent is not a point you have lost."

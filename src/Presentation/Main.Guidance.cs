@@ -13,6 +13,7 @@ public partial class Main
     private const double LowHealthShare = 0.3;
 
     private HintLine? _hintLine;
+    private bool _chatWas, _reputationWas, _trainerWas;
 
     /// <summary>Moments with nothing left to show at this guidance level: asked no more each frame until the settings change.</summary>
     private readonly HashSet<string> _hintless = new(StringComparer.Ordinal);
@@ -94,6 +95,13 @@ public partial class Main
             if (_session.Setup.Magic.Formulas.ContainsKey(e.DefinitionId))
                 Hint(HintTriggers.FormulaLearned);
         });
+        _session.Subscribe<ItemEquipped>(e =>
+        {
+            if (e.Actor == player())
+                Hint(HintTriggers.ItemWorn);
+        });
+        _inventory.StashShown = () => Hint(HintTriggers.StashOpened);
+        _hud.Bars.Touched = () => Hint(HintTriggers.BarOpened);
         _session.Subscribe<CompanionRecruited>(_ => Hint(HintTriggers.CompanionRecruited));
         _session.Subscribe<CompanionDowned>(_ => Hint(HintTriggers.CompanionDowned));
         _session.Subscribe<ServiceOpened>(e =>
@@ -102,6 +110,7 @@ public partial class Main
                 Hint(HintTriggers.TradeOpened);
         });
         // hire_offered is named when the hiring sheet opens (Main.Party.cs). Still to come: price_changed (WP14's markets), when it lands.
+        // bar_opened, stash_opened and item_worn above; chat_opened, reputation_opened and trainer_opened are screens opening (GuidanceFrame).
     }
 
     /// <summary>The moments a frame shows rather than an event: a prompt up, health low, the pack full, a station open.</summary>
@@ -117,5 +126,15 @@ public partial class Main
             Hint(HintTriggers.OverLimit);
         if (_inventory.OpenStation is not null)
             Hint(HintTriggers.StationOpened);
+        // Screens that name a moment as they open: a rising edge, so it is named once a time, not every frame.
+        bool chat = _chat.Visible, reputation = _reputation.Visible;
+        bool trainer = _learn.Visible && simulation.Conversation is { } talk && simulation.Teaching(talk.NpcId) is { Lessons.IsEmpty: false };
+        if (chat && !_chatWas)
+            Hint(HintTriggers.ChatOpened);
+        if (reputation && !_reputationWas)
+            Hint(HintTriggers.ReputationOpened);
+        if (trainer && !_trainerWas)
+            Hint(HintTriggers.TrainerOpened);
+        (_chatWas, _reputationWas, _trainerWas) = (chat, reputation, trainer);
     }
 }

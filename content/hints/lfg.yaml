@@ -1,0 +1,10 @@
+id: hint.lfg
+kind: hint
+schema: 1
+display_key: hint.lfg.text
+tags: [hint]
+notes: "PROPOSED. Full only. Needs the chat_opened trigger."
+category: social
+trigger: chat_opened
+order: 1
+text: "Looking for company: the board lists who is setting out and where they mean to go."

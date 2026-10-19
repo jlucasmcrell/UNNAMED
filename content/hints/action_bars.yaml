@@ -1,0 +1,10 @@
+id: hint.action_bars
+kind: hint
+schema: 1
+display_key: hint.action_bars.text
+tags: [hint]
+notes: "PROPOSED. Trigger bar_opened does NOT exist - see ONBOARDING_CONTENT.md 2.2."
+category: items
+trigger: bar_opened
+order: 0
+text: "{key:quick_1} to {key:quick_12} use the main bar; {key:bar_modifier} with {key:bar_page_1} pages it. A gear set swaps what you wear at once."

@@ -162,6 +162,7 @@ public partial class JournalPanel : CanvasLayer
         var title = HudStyle.Text(HudStyle.Caps, 30, HudStyle.Bone, caps: true);
         title.Text = quest.Title;
         title.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        title.CustomMinimumSize = new Vector2(HudLayoutRules.MinWidth(30), 0);
         title.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         top.AddChild(title);
         top.AddChild(quest.Status switch

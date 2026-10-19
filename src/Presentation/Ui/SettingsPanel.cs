@@ -28,7 +28,7 @@ public partial class SettingsPanel : CanvasLayer
     private static readonly Dictionary<string, string> ActionWords = new(StringComparer.Ordinal)
     {
         ["move_forward"] = "Move forward", ["move_back"] = "Move back", ["move_left"] = "Move left", ["move_right"] = "Move right",
-        ["sprint"] = "Sprint", ["walk"] = "Walk", ["jump"] = "Jump", ["crouch"] = "Crouch", ["autorun"] = "Autorun",
+        ["sprint"] = "Sprint", ["walk"] = "Walk", ["jump"] = "Jump", ["crouch"] = "Crouch", ["auto_run"] = "Auto-run",
         ["interact"] = "Open, take, talk, work", ["attack"] = "Attack, shoot", ["guard"] = "Guard, aim the bow", ["dodge"] = "Dodge",
         ["use"] = "Use a salve", ["quick_1"] = "Quick slot 1", ["quick_2"] = "Quick slot 2", ["quick_3"] = "Quick slot 3", ["quick_4"] = "Quick slot 4",
         ["quick_5"] = "Quick slot 5", ["quick_6"] = "Quick slot 6", ["quick_7"] = "Quick slot 7", ["quick_8"] = "Quick slot 8", ["quick_9"] = "Quick slot 9", ["quick_10"] = "Quick slot 10",
@@ -41,7 +41,7 @@ public partial class SettingsPanel : CanvasLayer
         ["companion_order"] = "Companions: follow or wait", ["first_person"] = "First person, and back", ["shoulder_swap"] = "Change shoulder",
         ["inventory"] = "Inventory", ["character"] = "Character", ["skills"] = "Skills", ["journal"] = "Journal", ["map"] = "Map", ["party"] = "Party", ["chat"] = "Chat", ["help"] = "Controls and help",
         ["saves"] = "Saves", ["quicksave"] = "Save now",
-        ["reply_1"] = "Answer 1", ["reply_2"] = "Answer 2", ["reply_3"] = "Answer 3", ["reply_4"] = "Answer 4", ["reply_5"] = "Answer 5",
+        ["dialogue_skip"] = "Skip a line, or hold to fast-forward", ["reply_1"] = "Answer 1", ["reply_2"] = "Answer 2", ["reply_3"] = "Answer 3", ["reply_4"] = "Answer 4", ["reply_5"] = "Answer 5",
         ["reply_6"] = "Answer 6", ["reply_7"] = "Answer 7", ["reply_8"] = "Answer 8", ["reply_9"] = "Answer 9",
     };
 
@@ -512,10 +512,12 @@ public partial class SettingsPanel : CanvasLayer
         page.AddChild(Slider("camera.fov", "Field of view", "How wide the view is, top to bottom. Wider shows more and moves faster.",
             60, 110, 1, camera.Fov, v => $"{v:0}°", v => Profile(p => p with { Camera = p.Camera with { Fov = (float)v } })));
         var comfort = Page("Comfort", "every camera effect has a zero");
-        comfort.AddChild(Slider("camera.shake", "Camera shake", "How much any shake is felt. Nothing shakes the camera yet; this is kept for when it does.",
+        comfort.AddChild(Slider("camera.shake", "Camera shake", "A solid blow on you jolts the view; this scales the jolt, and 0 is none.",
             0, 100, 5, camera.Shake * 100, v => $"{v:0} %", v => Profile(p => p with { Camera = p.Camera with { Shake = (float)(v / 100) } })));
-        comfort.AddChild(Slider("camera.bob", "Head bob", "How much the view sways with the step. Nothing sways it yet; this is kept for when it does.",
+        comfort.AddChild(Slider("camera.bob", "Head bob", "How much the view sways with the step in first person; 0 is a steady eye.",
             0, 100, 5, camera.Bob * 100, v => $"{v:0} %", v => Profile(p => p with { Camera = p.Camera with { Bob = (float)(v / 100) } })));
+        comfort.AddChild(Toggle("camera.blur", "Motion blur", "Smearing the picture when the view moves. Off unless you choose it. No blur is drawn yet; this is kept for when it is.",
+            camera.MotionBlur, on => Profile(p => p with { Camera = p.Camera with { MotionBlur = on } })));
         comfort.AddChild(Toggle("camera.flashes", "Reduce flashes", "A burst of light from a working or an impact reaches a third of its brightness.",
             camera.ReduceFlashes, on => Profile(p => p with { Camera = p.Camera with { ReduceFlashes = on } })));
         Reset("camera.reset", () => Profile(p => p with { Camera = new CameraPrefs() }));
@@ -526,7 +528,7 @@ public partial class SettingsPanel : CanvasLayer
     private void Interface(InterfacePrefs ui)
     {
         var page = Page("Interface", "size, contrast and colour");
-        float[] scales = { 0.75f, 0.9f, 1f, 1.1f, 1.25f, 1.5f };
+        float[] scales = { 0.75f, 0.9f, 1f, 1.1f, 1.25f, 1.5f, 1.75f, 2f };
         page.AddChild(Choice("interface.scale", "Interface size", "Everything on screen but the world: the HUD and every screen.",
             scales.Select(s => $"{s * 100:0} %").ToArray(), Nearest(scales, ui.UiScale),
             i => Profile(p => p with { Interface = p.Interface with { UiScale = scales[i] } }), Redraw));
@@ -542,12 +544,53 @@ public partial class SettingsPanel : CanvasLayer
             i => Profile(p => p with { Interface = p.Interface with { ColourVision = visions[i] } }), Redraw));
         page.AddChild(Swatches());
 
+        var bars = Page("Action bars", "the main bar is always shown");
+        for (int bar = 1; bar < UNNAMED.Domain.Progression.QuickBar.Bars; bar++)
+        {
+            int bit = 1 << (bar - 1);
+            bars.AddChild(Toggle("interface.bar." + (bar + 1), $"Show bar {bar + 1}", "Stacked above the main bar, or at the right edge.", (ui.BarsShown & bit) != 0,
+                on => Profile(p => p with { Interface = p.Interface with { BarsShown = on ? p.Interface.BarsShown | bit : p.Interface.BarsShown & ~bit } })));
+        }
+        for (int bar = 0; bar < UNNAMED.Domain.Progression.QuickBar.Bars; bar++)
+        {
+            int index = bar;
+            bars.AddChild(Slider("interface.bar_scale." + (bar + 1), $"Bar {bar + 1} size", "How large this bar's slots are drawn, from 75 to 150 % of the usual.",
+                75, 150, 5, ui.BarScales[bar] * 100, v => $"{v:0} %", v => Profile(p =>
+                {
+                    var scales = (float[])p.Interface.BarScales.Clone();
+                    scales[index] = (float)(v / 100);
+                    return p with { Interface = p.Interface with { BarScales = scales } };
+                })));
+        }
+        bars.AddChild(Toggle("interface.bars_side", "Further bars at the right edge", "As columns, instead of stacked above the main bar.", ui.BarsAtSide,
+            on => Profile(p => p with { Interface = p.Interface with { BarsAtSide = on } })));
+        bars.AddChild(Toggle("interface.bars_locked", "Lock the bars", "Nothing can be dragged onto, off or between slots.", ui.BarsLocked,
+            on => Profile(p => p with { Interface = p.Interface with { BarsLocked = on } })));
+
         var reading = Page("Notices and guidance");
         reading.AddChild(Choice("interface.notices", "Notices stay", "How long a notice at the side of the screen stays up.",
             new[] { "Short", "Normal", "Long", "Longer" }, Array.IndexOf(InterfacePrefs.NoticeSeconds, ui.NoticeDuration),
             i => Profile(p => p with { Interface = p.Interface with { NoticeDuration = InterfacePrefs.NoticeSeconds[i] } })));
-        reading.AddChild(Toggle("interface.subtitles", "Subtitles", "Spoken lines shown as words, with who is speaking.", ui.Subtitles,
-            on => Profile(p => p with { Interface = p.Interface with { Subtitles = on } })));
+        reading.AddChild(Toggle("interface.subtitles", "Subtitles", "Every line said aloud or in passing, captioned along the foot with who is speaking.", ui.Subtitles,
+            on => Profile(p => p with { Interface = p.Interface with { Subtitles = on } }), Redraw));
+        reading.AddChild(Choice("interface.subtitle_size", "Subtitle size", "The captions' size, over the text size.",
+            new[] { "Normal", "Larger", "Large", "Largest" }, Array.IndexOf(InterfacePrefs.SubtitleSizes, ui.SubtitleSize),
+            i => Profile(p => p with { Interface = p.Interface with { SubtitleSize = InterfacePrefs.SubtitleSizes[i] } })));
+        var backgrounds = Enum.GetValues<SubtitleBackground>();
+        reading.AddChild(Choice("interface.subtitle_background", "Subtitle background", "What sits behind the captions: an outline only, a dim band, or a solid panel.",
+            new[] { "None", "Dim", "Solid" }, Array.IndexOf(backgrounds, ui.SubtitleBackground),
+            i => Profile(p => p with { Interface = p.Interface with { SubtitleBackground = backgrounds[i] } })));
+        foreach (var (kind, name, about) in new[]
+        {
+            (NoticeKind.Discovery, "Discoveries", "Places found and roads walked."), (NoticeKind.Items, "Items", "What you pick up, use or spend."),
+            (NoticeKind.Progress, "Progress", "Skills practised, levels and points."), (NoticeKind.Party, "Party", "Companions and hirelings joining, helped up or orders."),
+            (NoticeKind.Gear, "Gear", "Gear sets and what is worn."), (NoticeKind.World, "World", "Time, weather and what went on while you were away."),
+        })
+        {
+            var k = kind;
+            reading.AddChild(Toggle("interface.notice." + k.ToString().ToLowerInvariant(), "Show notices: " + name, about, ui.Shows(k),
+                on => Profile(p => p with { Interface = p.Interface with { HiddenNotices = on ? p.Interface.HiddenNotices & ~(int)k : p.Interface.HiddenNotices | (int)k } })));
+        }
         var guidance = Enum.GetValues<Guidance>();
         reading.AddChild(Choice("interface.guidance", "Guidance", "Full shows every hint; Light only the first of each kind; Off none.",
             new[] { "Full", "Light", "Off" }, Array.IndexOf(guidance, ui.Guidance),

@@ -9,6 +9,7 @@ using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Presentation.Player;
 using UNNAMED.Presentation.Ui;
+using UNNAMED.Presentation.Ui.Models;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
 
@@ -92,7 +93,17 @@ public partial class Main
         var quests = simulation.Quests;
         string? tracked = simulation.TrackedQuest(_journal.Tracked);
         _hud.SetTracker(JournalPanel.Tracker(quests, tracked));
-        _hud.SetMarker(Bearing(tracked is null ? null : simulation.Marker(tracked)));
+        if (_compassPreview)
+            goto afterCompass;   // a harness is holding the compass on a picture
+        var body0 = _controller.Authoritative;
+        string MarkName(QuestMarker m) => m.Kind == UNNAMED.Domain.Quests.TargetKind.Location ? Names.Of(_session, m.Label) : m.Label;
+        var trackedMark = CompassMarkerModel.Mark(tracked is null ? null : simulation.Marker(tracked), body0.XMm, body0.ZMm, MarkName);
+        var nearestMark = CompassMarkerModel.Nearest(quests.Where(q => q.Status == UNNAMED.Domain.Quests.QuestStatus.Active).Select(q => simulation.Marker(q.Id)),
+            tracked is null ? null : simulation.Marker(tracked), body0.XMm, body0.ZMm, MarkName);
+        _hud.SetMarker(trackedMark?.BearingDegrees);
+        _hud.SetNearestMarker(nearestMark?.BearingDegrees);
+        _hud.SetMarkerWords(CompassMarkerModel.Words(trackedMark, nearestMark));
+    afterCompass:
         _hud.SetCompanions(string.Join("\n", simulation.Companions.Select(c =>
             $"{c.Name} - {c.Doing}, {c.Standing}" +
             (c.FallsAtTick is { } falls ? $" - falls in {Math.Max(0, falls - simulation.WorldTick) * _session.TickSeconds:0} s unless helped up" : "") +

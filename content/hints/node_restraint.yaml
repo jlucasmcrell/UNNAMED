@@ -1,0 +1,10 @@
+id: hint.node_restraint
+kind: hint
+schema: 1
+display_key: hint.node_restraint.text
+tags: [hint]
+notes: "PROPOSED. Full only."
+category: crafting
+trigger: node_gathered
+order: 1
+text: "Some things are worth leaving. A node picked clean teaches you nothing about the next one."

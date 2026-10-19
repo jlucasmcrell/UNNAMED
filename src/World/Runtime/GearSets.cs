@@ -33,7 +33,9 @@ public sealed record GearSwapRefusal(GearSetItem Item, string Why);
 /// A switch was carried out. <see cref="Missing"/> are the set's pieces that were not carried and <see cref="Refused"/> those the equipment's
 /// own rules refused (a requirement not met, the hands busy), each with its reason; their slots were left as they were.
 /// </summary>
-public sealed record GearSwapped(int Index, ImmutableArray<EquipSlot> Changed, ImmutableArray<GearSetItem> Missing, ImmutableArray<GearSwapRefusal> Refused, long Tick);
+/// <see cref="ArmourKept"/>: it was a fight, so only the weapon and the off hand were changed and the armour pieces were skipped, not queued.
+public sealed record GearSwapped(int Index, ImmutableArray<EquipSlot> Changed, ImmutableArray<GearSetItem> Missing, ImmutableArray<GearSwapRefusal> Refused, long Tick,
+    bool ArmourKept = false);
 
 public sealed record GearSwapCancelled(int Index, string Why, long Tick);
 
@@ -112,10 +114,11 @@ internal sealed class GearSetSystem
             return "already changing gear";
         if (State.PlayerCombat.Defeated)
             return "cannot change gear now";
-        var plan = GearSetRules.Plan(set, State.Equipment, item => DefOf(item) is not null);
-        if (!plan.Changes)
-            return plan.Missing.IsEmpty ? $"{set.Name} is already worn" : $"{set.Name}: nothing it wears is carried";
         bool inCombat = _fighting();
+        var plan = GearSetRules.Plan(set, State.Equipment, item => DefOf(item) is not null, inCombat);
+        if (!plan.Changes)
+            return plan.ArmourKept ? $"{GearSetRules.ArmourStays}: {set.Name} changes nothing in the hands"
+                : plan.Missing.IsEmpty ? $"{set.Name} is already worn" : $"{set.Name}: nothing it wears is carried";
         long due = tick + GearSetRules.SwapTicks(inCombat, _context.Setup.TickMilliseconds);
         _swap = new GearSwapView(set.Index, tick, due, inCombat);
         _context.Events.Publish(new GearSwapStarted(set.Index, due, inCombat, tick));
@@ -156,7 +159,7 @@ internal sealed class GearSetSystem
             return;
         }
         _swap = null;
-        var plan = GearSetRules.Plan(set, State.Equipment, item => DefOf(item) is not null);
+        var plan = GearSetRules.Plan(set, State.Equipment, item => DefOf(item) is not null, swap.InCombat);
         var changed = ImmutableArray.CreateBuilder<EquipSlot>();
         var refused = ImmutableArray.CreateBuilder<GearSwapRefusal>();
         foreach (var slot in plan.Unequip)
@@ -171,6 +174,6 @@ internal sealed class GearSetSystem
             else
                 changed.Add(item.Slot);
         }
-        _context.Events.Publish(new GearSwapped(set.Index, changed.ToImmutable(), plan.Missing, refused.ToImmutable(), tick));
+        _context.Events.Publish(new GearSwapped(set.Index, changed.ToImmutable(), plan.Missing, refused.ToImmutable(), tick, plan.ArmourKept));
     }
 }

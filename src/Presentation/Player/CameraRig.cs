@@ -66,7 +66,22 @@ public partial class CameraRig : Node3D
         Sensitivity = CameraPrefs.BaseSensitivity * prefs.Sensitivity;
         InvertY = prefs.InvertY;
         Camera.Fov = prefs.Fov;
+        _shakeScale = prefs.Shake;
+        _bobScale = prefs.Bob;
     }
+
+    // Comfort (Settings, Camera): how much of a shake and of a head bob is felt, 0 to 1.
+    private float _shakeScale = 1f, _bobScale = 1f;
+    private float _shake, _bobPhase, _clock;
+    private Vector3? _lastFeet;
+
+    /// <summary>A blow landed on the character: the view jolts by <paramref name="strength"/> (0-1), scaled by the shake setting, and settles.</summary>
+    public void Kick(float strength) => _shake = Mathf.Max(_shake, Mathf.Clamp(strength, 0, 1));
+
+    /// <summary>How far the eye is moved this frame by a shake and a first-person bob, in metres: nothing at all when both settings are 0.</summary>
+    public static Vector3 Disturbance(float shake, float shakeScale, float bobPhase, float bobScale, float stride, float clock) =>
+        new Vector3(Mathf.Sin(clock * 57f), Mathf.Cos(clock * 43f), 0) * shake * shakeScale * 0.05f
+        + new Vector3(0, Mathf.Sin(bobPhase), 0) * bobScale * stride * 0.035f;
 
     public bool IsFirstPerson => TargetDistance <= FirstPersonBelow;
 
@@ -127,7 +142,14 @@ public partial class CameraRig : Node3D
         float side = Side switch { Shoulder.Right => 1f, Shoulder.Left => -1f, _ => 0f };
         _shoulder = Mathf.Lerp(_shoulder, side * ShoulderOffset * Mathf.Clamp(Distance / 2f, 0, 1), blend);
 
-        Position = feet + new Vector3(0, Mathf.Lerp(Avatar.EyeHeight, CrouchedEyeHeight, Crouch), 0);
+        // Head bob: only at the eye (first person), by how fast the body is going; a shake decays by itself.
+        _clock += (float)delta;
+        float speed = _lastFeet is { } before && delta > 0 ? new Vector2(feet.X - before.X, feet.Z - before.Z).Length() / (float)delta : 0;
+        _lastFeet = feet;
+        _bobPhase += speed * 2.2f * (float)delta;
+        _shake = Mathf.Max(0, _shake - 3.5f * (float)delta);
+        float stride = IsFirstPerson ? Mathf.Clamp(speed / 6f, 0, 1) : 0;
+        Position = feet + new Vector3(0, Mathf.Lerp(Avatar.EyeHeight, CrouchedEyeHeight, Crouch), 0) + Disturbance(_shake, _shakeScale, _bobPhase, _bobScale, stride, _clock);
         Rotation = new Vector3(0, Yaw, 0);
         // In first person the eye sits just ahead of the head's centre, so looking down shows the torso, not the neck.
         float forward = Mathf.Clamp(1f - Distance / FirstPersonBelow, 0, 1) * 0.1f;

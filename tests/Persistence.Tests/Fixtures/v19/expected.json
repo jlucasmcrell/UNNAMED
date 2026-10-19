@@ -237,7 +237,8 @@
         "tactics": {
           "keep_to_leash": true,
           "protect_injured": false,
-          "hold_healing": false
+          "hold_healing": false,
+          "focus_target": false
         },
         "contract": null
       }
@@ -399,6 +400,8 @@
       ]
     ],
     "gear_sets": [],
+    "held_family": "",
+    "family_bars": [],
     "pack": {
       "bags": [
         null,

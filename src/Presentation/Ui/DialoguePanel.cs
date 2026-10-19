@@ -257,6 +257,25 @@ public partial class DialoguePanel : CanvasLayer
             ((StyleBoxFlat)button.GetThemeStylebox(state)).ContentMarginRight = 24 + chips.GetCombinedMinimumSize().X;
     }
 
+    private readonly Models.DialogueSkipRules _skip = new();
+
+    /// <summary>
+    /// The skip key, a frame of it (tap: silence the line and go on when there is one plain way on; held: fast-forward through lone replies).
+    /// Never picks between replies, and never takes one that does something - a quest, a hire, an exchange.
+    /// </summary>
+    public void Skip(bool pressed, bool justPressed, double seconds)
+    {
+        if (_session.Simulation?.Conversation is not { } view)
+            return;
+        var lone = view.Replies.Length == 1 ? Choice(view, view.Replies[0].Id) : null;
+        bool plain = view.Replies.Length == 1 && (lone is null || lone.Consequences.Length == 0);
+        var step = _skip.Step(pressed, justPressed, seconds, view.Replies.Length, plain);
+        if (step.Hush)
+            Voice?.Hush();
+        if (step.Advance)
+            Answer(view.Replies[0].Id);
+    }
+
     /// <summary>Give a reply by its number on screen (keys 1 to 9).</summary>
     public void AnswerNumber(int number)
     {

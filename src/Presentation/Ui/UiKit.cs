@@ -134,6 +134,9 @@ public static partial class UiKit
         ShadowColor = new Color(0, 0, 0, 0.35f), ShadowSize = 12,
     };
 
+    /// <summary>The group every management screen's layer joins, so the floating hint can stand aside while one is open.</summary>
+    public const string SheetGroup = "sheet_layer";
+
     /// <summary>
     /// A management screen's frame on <paramref name="layer"/>: the scrim, the sheet in the band, the title bar with the screen's
     /// own key and <c>[ESC] CLOSE</c>, the ticked rule, an optional hint and the body. With <paramref name="scrolls"/> the body
@@ -170,6 +173,7 @@ public static partial class UiKit
         label.Text = text;
         label.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         label.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        label.CustomMinimumSize = new Vector2(HudLayoutRules.MinWidth(size), 0);
         return label;
     }
 
@@ -257,6 +261,7 @@ public static partial class UiKit
         var title = HudStyle.Text(HudStyle.Strong, 18, nameColor ?? HudStyle.Bone);
         title.Text = name;
         title.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        title.CustomMinimumSize = new Vector2(HudLayoutRules.MinWidth(18), 0);
         middle.AddChild(title);
         var line = Words(secondary, 16, HudStyle.Ash);
         line.Visible = secondary.Length > 0;
@@ -650,6 +655,7 @@ public sealed class Sheet
         Panel.AddChild(column);
         Root.AddChild(Panel);
         layer.AddChild(Root);
+        layer.AddToGroup(UiKit.SheetGroup);
         Shape(width);
         Keys();
         layer.VisibilityChanged += () =>

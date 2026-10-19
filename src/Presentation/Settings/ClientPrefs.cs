@@ -218,6 +218,9 @@ public sealed record ControlPrefs
         ["sprint"] = false, ["walk"] = false, ["crouch"] = true, ["guard"] = false,
     };
 
+    /// <summary>An action renamed after players could have bound it, by its old name: a file that names the old one is read as the new.</summary>
+    public static readonly IReadOnlyDictionary<string, string> RenamedActions = new Dictionary<string, string>(StringComparer.Ordinal) { ["autorun"] = "auto_run" };
+
     public Dictionary<string, string[]> Bindings { get; init; } = new(StringComparer.Ordinal);
 
     /// <summary>The toggleable actions set to press on, press off; the others are held.</summary>
@@ -229,7 +232,7 @@ public sealed record ControlPrefs
     public ControlPrefs Normalised() => this with
     {
         Bindings = (Bindings ?? new()).Where(b => b.Key.Length > 0 && b.Value is not null)
-            .ToDictionary(b => b.Key, b => b.Value.Where(Binding.IsValid).Distinct(StringComparer.Ordinal).Take(Binding.PerAction).ToArray(), StringComparer.Ordinal),
+            .ToDictionary(b => RenamedActions.GetValueOrDefault(b.Key, b.Key), b => b.Value.Where(Binding.IsValid).Distinct(StringComparer.Ordinal).Take(Binding.PerAction).ToArray(), StringComparer.Ordinal),
         Toggles = (Toggles ?? new()).Where(t => Toggleable.ContainsKey(t.Key)).ToDictionary(t => t.Key, t => t.Value, StringComparer.Ordinal),
     };
 }
@@ -257,6 +260,9 @@ public sealed record CameraPrefs
     /// <summary>Flashes held down: a burst of light reaches at most a third of its brightness (PJ03 §6.3).</summary>
     public bool ReduceFlashes { get; init; }
 
+    /// <summary>Motion blur, off unless chosen. No blur is drawn yet (the engine has none built in); this is the switch it will read, as shake and bob are.</summary>
+    public bool MotionBlur { get; init; }
+
     public CameraPrefs Normalised() => this with
     {
         Sensitivity = Math.Clamp(float.IsFinite(Sensitivity) ? Sensitivity : 1f, 0.2f, 4f),
@@ -267,6 +273,23 @@ public sealed record CameraPrefs
 }
 
 public enum ColourVision { None, Protanopia, Deuteranopia, Tritanopia }
+
+/// <summary>What sits behind subtitle words: nothing but an outline, a dim band, or a solid panel.</summary>
+public enum SubtitleBackground { None, Dim, Solid }
+
+/// <summary>The kinds of notice a player may switch off (Settings, Notices): what a toast is about. Quest and safety notices are not here - they cannot be hidden.</summary>
+[Flags]
+public enum NoticeKind
+{
+    None = 0,
+    Discovery = 1,
+    Items = 2,
+    Progress = 4,
+    Party = 8,
+    Gear = 16,
+    World = 32,
+    All = Discovery | Items | Progress | Party | Gear | World,
+}
 
 public enum Guidance { Full, Light, Off }
 
@@ -281,7 +304,7 @@ public sealed record InterfacePrefs
 {
     public static readonly double[] NoticeSeconds = { 0.75, 1, 1.5, 2.5 };
 
-    /// <summary>The whole interface's size (0.75-1.5).</summary>
+    /// <summary>The whole interface's size (0.75-2).</summary>
     public float UiScale { get; init; } = 1f;
 
     /// <summary>The size of words, over the interface's (1-2).</summary>
@@ -294,6 +317,22 @@ public sealed record InterfacePrefs
     public double NoticeDuration { get; init; } = 1;
 
     public bool Subtitles { get; init; } = true;
+
+    /// <summary>The subtitles' size over the text size (1, 1.25, 1.5, 2).</summary>
+    public double SubtitleSize { get; init; } = 1.25;
+
+    public SubtitleBackground SubtitleBackground { get; init; } = SubtitleBackground.Dim;
+
+    /// <summary>The kinds of notice not shown (<see cref="NoticeKind"/>, as bits); none by default.</summary>
+    public int HiddenNotices { get; init; }
+
+    /// <summary>The scale of each of the six action bars, 75-150 % (1 as built); bar 1 first. Only the shown bars use theirs.</summary>
+    public float[] BarScales { get; init; } = { 1f, 1f, 1f, 1f, 1f, 1f };
+
+    public static readonly double[] SubtitleSizes = { 1, 1.25, 1.5, 2 };
+
+    public bool Shows(NoticeKind kind) => kind == NoticeKind.None || (HiddenNotices & (int)kind) == 0;
+
     public Guidance Guidance { get; init; } = Guidance.Full;
 
     /// <summary>What chat shows (WP16); on by default. Chat itself is never saved: this only filters what is shown.</summary>
@@ -313,7 +352,11 @@ public sealed record InterfacePrefs
 
     public InterfacePrefs Normalised() => this with
     {
-        UiScale = Math.Clamp(float.IsFinite(UiScale) ? UiScale : 1f, 0.75f, 1.5f),
+        UiScale = Math.Clamp(float.IsFinite(UiScale) ? UiScale : 1f, 0.75f, 2f),
+        SubtitleSize = Array.IndexOf(SubtitleSizes, SubtitleSize) >= 0 ? SubtitleSize : 1.25,
+        SubtitleBackground = Enum.IsDefined(SubtitleBackground) ? SubtitleBackground : SubtitleBackground.Dim,
+        HiddenNotices = HiddenNotices & (int)NoticeKind.All,
+        BarScales = Enumerable.Range(0, 6).Select(i => BarScales is not null && i < BarScales.Length && float.IsFinite(BarScales[i]) ? Math.Clamp(BarScales[i], 0.75f, 1.5f) : 1f).ToArray(),
         TextSize = Math.Clamp(float.IsFinite(TextSize) ? TextSize : 1f, 1f, 2f),
         ColourVision = Enum.IsDefined(ColourVision) ? ColourVision : ColourVision.None,
         NoticeDuration = Array.IndexOf(NoticeSeconds, NoticeDuration) >= 0 ? NoticeDuration : 1,
@@ -322,6 +365,51 @@ public sealed record InterfacePrefs
         Chat = Enum.IsDefined(Chat) ? Chat : ChatSetting.On,
         SeenHints = (SeenHints ?? Array.Empty<string>()).Where(h => !string.IsNullOrEmpty(h)).Distinct(StringComparer.Ordinal).ToArray(),
     };
+}
+
+/// <summary>
+/// The first-launch "Controls" choice (ONBOARDING_CONTENT §1): which keys walk the character. Keys are read by where they sit, so these are
+/// physical positions, as the preferences keep them (the engine's key codes: W 87, A 65, S 83, D 68; the arrows 4194320 up, 4194322 down,
+/// 4194319 left, 4194321 right). <c>custom</c> leaves the bindings as they are, for Settings to set.
+/// </summary>
+public static class ControlPresets
+{
+    public static readonly string[] Names = { "wasd", "arrows", "custom" };
+
+    private static readonly string[] Moves = { "move_forward", "move_left", "move_back", "move_right" };
+    private static readonly string[] Wasd = { "key:87", "key:65", "key:83", "key:68" };
+    private static readonly string[] Arrows = { "key:4194320", "key:4194319", "key:4194322", "key:4194321" };
+
+    public static string Label(string preset) => preset switch
+    {
+        "wasd" => "W A S D",
+        "arrows" => "Arrow keys",
+        _ => "I will set my own in Settings",
+    };
+
+    /// <summary>The controls with the four movement actions on <paramref name="preset"/>'s keys; every other binding stays as it was.</summary>
+    public static ControlPrefs Apply(ControlPrefs controls, string preset)
+    {
+        string[]? keys = preset switch { "wasd" => Wasd, "arrows" => Arrows, _ => null };
+        if (keys is null)
+            return controls;
+        var bindings = new Dictionary<string, string[]>(controls.Bindings, StringComparer.Ordinal);
+        for (int i = 0; i < Moves.Length; i++)
+            bindings[Moves[i]] = new[] { keys[i] };
+        return controls with { Bindings = bindings };
+    }
+
+    /// <summary>The preset the movement bindings stand on, or <c>custom</c>: with none set the defaults (W A S D and the arrows together) are not one of them.</summary>
+    public static string Of(ControlPrefs controls)
+    {
+        foreach (string preset in new[] { "wasd", "arrows" })
+        {
+            var keys = preset == "wasd" ? Wasd : Arrows;
+            if (Moves.Select((m, i) => controls.Bindings.TryGetValue(m, out var b) && b.Length == 1 && b[0] == keys[i]).All(x => x))
+                return preset;
+        }
+        return "custom";
+    }
 }
 
 /// <summary>
@@ -377,6 +465,8 @@ public static class Binding
         _ when action.StartsWith("bar_page_", StringComparison.Ordinal) => new[] { "bar page" },
         "bar_modifier" or "bar_scroll_modifier" => new[] { "bar modifier" },
         "release_mouse" => new[] { "play", "conversation" },
+        // Skipping a line is a conversation's key: Space jumps in play and skips in a conversation, which is two contexts and no conflict.
+        "dialogue_skip" => new[] { "conversation" },
         _ => new[] { "play" },
     };
 

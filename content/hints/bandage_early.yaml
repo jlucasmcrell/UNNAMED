@@ -1,0 +1,10 @@
+id: hint.bandage_early
+kind: hint
+schema: 1
+display_key: hint.bandage_early.text
+tags: [hint]
+notes: "PROPOSED. Full only."
+category: survival
+trigger: health_low
+order: 1
+text: "Bandage before you are hurt again, not after. A wound carried into the next fight is how most people lose one."

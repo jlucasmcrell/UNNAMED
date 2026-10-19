@@ -180,7 +180,7 @@ public static class M2Fixtures
                     // off the leash, protecting the injured. The draught is under the name it had then.
                     Membership = PartyMembership.Hireling,
                     Stance = CompanionStance.Defensive,
-                    Tactics = new PartyTactics(KeepToLeash: false, ProtectInjured: true, HoldHealing: false),
+                    Tactics = new PartyTactics(KeepToLeash: false, ProtectInjured: true, HoldHealing: false, FocusTarget: true),   // schema 34: focus my target
                     Contract = new HirelingContract(HirelingRole.Crafter, 10, 7, PartyRules.WageOnly)
                     {
                         DaysServed = 3,
@@ -245,6 +245,12 @@ public static class M2Fixtures
             ExtraBars = ImmutableArray.Create(
                 ImmutableArray.Create<string?>("item.potion.minor_healing", null, null, null, null, null, null, null, null, null, null, "spell.ember.bolt"),
                 Domain.Progression.QuickBar.Empty, Domain.Progression.QuickBar.Empty, Domain.Progression.QuickBar.Empty, Domain.Progression.QuickBar.Empty),
+            // Schema 34 (before testers): the main bar follows the weapon in hand - the sword's family holds the bar as it stands, and bare hands
+            // keep a layout of their own (the draught on the first key).
+            HeldFamily = "skill.one_hand_blade",
+            FamilyBars = ImmutableSortedDictionary.Create<string, ImmutableArray<string?>>(StringComparer.Ordinal)
+                .Add("skill.one_hand_blade", ImmutableArray.Create<string?>(null, null, null, "spell.ember.firebolt", null, null, null, null, "gearset.set_1", null, null, null))
+                .Add("unarmed", ImmutableArray.Create<string?>("item.potion.minor_healing", null, null, null, null, null, null, null, null, null, null, null)),
             // Schema 33 (inventory organisation): the satchel in the second of the four bag slots.
             Bags = ImmutableArray.Create<EntityId?>(null, BagId, null, null),
             GearSets = ImmutableArray.Create(new GearSet(1, "Sword and board",
