@@ -101,6 +101,9 @@ public class ContentLoader
             // Skip underscore-prefixed files (meta files)
             if (fileName.StartsWith("_"))
                 continue;
+            // The credits are display data for the Credits screen, not a definition (CreditsContent reads them).
+            if (string.Equals(fileName, "credits.yaml", StringComparison.OrdinalIgnoreCase))
+                continue;
                 
             bool fileSuccess = LoadRootLevelFile(filePath);
             if (!fileSuccess)

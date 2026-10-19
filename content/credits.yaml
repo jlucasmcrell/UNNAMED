@@ -1,0 +1,223 @@
+# OTHERREACH credits: the Credits screen reads this file (src/Presentation/Ui/CreditsPanel.cs); nothing on that screen is written in code.
+# Source of truth for what to credit: ASSET_REBUILD/LICENCE_LEDGER_20261017.md. The ledger row id is in `ledger` (the maintainer's key; not shown).
+#
+# studio:  the first line of the screen.
+# sections: shown in this order. Each has a title and entries. An entry is `text` (shown verbatim: the form its licence requires) and
+#           optionally `lines` (indented lines under it) and `url`.
+#   binds:   model-id prefixes (a prefix ends in "_"), or exact ids, from the art bindings that this entry credits. Content.Tests
+#            fails when a model the game binds matches no entry here and is not under `first_party`.
+#   ledger:  ledger ids this entry covers.
+# first_party: model-id prefixes built in house (own geometry with CC0 textures, credited under the Poly Haven / ambientCG lines) or
+#           made with the AI tools named in the disclosure. Not a third-party source, so they need no entry of their own.
+#
+# Source-of-truth note: the entries are the CREDITS_DRAFT.md text; "Pending, if adopted" items of the draft are in only once they are bound.
+
+studio: "Rift Studios — J.L. McRell"
+studio_note: "OTHERREACH is made by Rift Studios — J.L. McRell."
+
+first_party:
+  # Procedural and hand-built geometry (props, pieces, stations, doors, trees, rocks, buildings made for CAIRNWOLD).
+  - prop_bp_
+  - piece_bp_
+  - piece_timber_
+  - station_bp_
+  - node_bp_
+  - node_iron_
+  - landmark_bp_
+  - landmark_ashen_
+  - landmark_foldscar_
+  - landmark_quiet_
+  - door_cw_
+  - door_ah_
+  - cw_
+  - building_
+  - forge_shed
+  - longhouse
+  - container_chest_
+  - weapon_real_hunting_spear
+  - weapon_real_longbow
+  - prop_arrow_
+  - prop_blacksmith_
+  - prop_blocked_
+  - prop_canvas_
+  - prop_cart_
+  - prop_forge_
+  - prop_iron_
+  - prop_long_
+  - prop_woundmoss_
+  - flora_ash_
+  - flora_boneleaf_
+  - flora_cattail_
+  - flora_dead_
+  - flora_fallen_
+  - flora_oak_
+  - flora_pine_
+  - flora_young_
+  - rock_den_
+  - rock_iron_
+  - rock_outcrop_
+  - rock_rim_
+  # The characters: MPFB / MakeHuman CC0 bodies, with the CC BY garments credited below.
+  - npc_
+  - kera_voss
+  - renn_vale
+  - sel_arien
+  - tavar_orr
+  - player_veth_
+  - pc_veth_
+  - af_
+  # Image-to-3D creatures (TRELLIS, Pixal3D), disclosed under "Use of AI".
+  - creature_animated_
+  - creature_ash_
+  - creature_bone_
+  - creature_bristleback_
+  - creature_cave_
+  - creature_frost_
+
+sections:
+  - id: art
+    title: "Art and environment"
+    entries:
+      - ledger: [A-F01, A-F02]
+        binds: [bld_fab_, door_fab_]
+        text: "Buildings, fences, gates and village kit pieces: Medieval Lake Village Environment by DanStudios, and Old Windmills Modular by LAYA DESIGN, used under the Fab Standard License."
+      - ledger: [A-F05, A-F07, A-F08]
+        binds: [bw_codex_]
+        text: "The Barrowworks interior kit: Lost Temple Environment by DanStudios and Ancient Mayan Ruins by Meshingun Studio, used under the Fab Standard License."
+      - ledger: [A-F03]
+        text: "Hearth and forge fire effects: Fire FX VDB by SHOGUN GAMES, used under the Fab Standard License."
+      - ledger: [A-C01, A-C02]
+        binds: [weapon_real_arming_sword, prop_cos_, rock_cos_, flora_cos_, container_cos_, fence_cos_, wall_cos_, landmark_cos_]
+        text: "Photographed props, trees, rocks, the arming sword and materials: Cosmos Premium by Leartes (cosmos.leartesstudios.com)."
+      - ledger: [A-P01]
+        binds: [cw_boulder_, cw_rock_face_, cw_gravel_stone_, cw_dandelion, cw_sorrel, cw_fern_, cw_nettle_, prop_ph_, rock_ph_, flora_ph_, landmark_ph_, env_ph_, veg_ph_]
+        text: "Rocks, plants, terrain textures and sky HDRIs: Poly Haven (polyhaven.com), CC0."
+      - ledger: [A-P02]
+        text: "Surface textures: ambientCG (ambientcg.com), CC0."
+      - ledger: [A-B01]
+        binds: [flora_bk_, flora_old_]
+        text: "Trees: free assets from BlenderKit, including the Ceiba Tree by Jordi Se-Cam (blenderkit.com)."
+      - ledger: [A-K01, A-U01]
+        text: "Particle and smoke textures: Kenney (kenney.nl), CC0; Unity Labs VFX image sequences, CC0."
+      - ledger: [A-SK01]
+        text: "Old Industrial Pipe Pack (PBR) by SLASH-RENDAR, CC BY 4.0, modified. https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      - ledger: [A-S01]
+        text: "The Milky Way panorama: ESO/S. Brunier (eso0932a), CC BY 4.0, https://creativecommons.org/licenses/by/4.0/, used in original and modified forms."
+      - ledger: [A-S02]
+        text: "Pinwheel Galaxy (M101, heic0602a): ESA/Hubble & NASA; Hubble data K.D. Kuntz, F. Bresolin, J. Trauger, J. Mould, Y.-H. Chu; CFHT/J.-C. Cuillandre/Coelum; NOAO/AURA/NSF G. Jacoby, B. Bohannan, M. Hanna. CC BY 4.0, modified. https://esahubble.org/images/heic0602a/"
+      - ledger: [A-S03]
+        text: "Planetary maps: NASA/JPL/Space Science Institute (PIA07782, PIA06175, PIA12814); NASA/JPL-Caltech/Space Science Institute (PIA14928, PIA14931). Public domain."
+      - ledger: [A-F10, A-C02]
+        text: "Foldscar heart and core stones: Monolith Megastructure (Fab) and Cosmos Premium."
+
+  - id: creatures
+    title: "Creatures"
+    entries:
+      - ledger: [A-W01]
+        binds: [creature_wm_]
+        text: "Creature models and animations: WildMesh 3D (UNITY Animated Animals Realistic Pack; 100 MODELS), used under the WildMesh Standard licence."
+
+  - id: characters
+    title: "Characters"
+    entries:
+      - ledger: [P01, C33]
+        text: "Character bodies: MPFB2 and the MakeHuman community base assets, CC0."
+      - ledger: [P12]
+        binds: [mh_veth_]
+        text: "Characters created with MetaHuman. Unreal® Engine, Copyright (c) Epic Games, Inc. Unreal and its logo are Epic Games trademarks."
+      - ledger: [C29]
+        text: "Skin shader: HumanShaders by MatMADNESS, MIT and CC BY 4.0, https://github.com/matmadness/HumanShaders."
+      - ledger: [P02]
+        text: "Clothing and hair, modified and refitted for our characters, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/):"
+        lines:
+          - "\"elvs_male_boho_top1\", \"elvs_mens_apron1\", \"elvs_ruffle_sleeve_peasant_blouse_1\", \"elvs_scruffy_beard1\", \"elvs_braid_bun\" and \"elvs_keylth_hair\" by Elvaerwyn"
+          - "\"punkduck_medieval_dress\" by punkduck"
+          - "\"Leather Pants\" by MaciekG, http://www.makehumancommunity.org/clothes/leather_pants.html"
+          - "\"Riding Boots\" by punkduck, http://www.makehumancommunity.org/clothes/riding_boots.html"
+
+  - id: animation
+    title: "Animation"
+    entries:
+      - ledger: [AN01, AN02, A-Q01]
+        text: "Player and creature motion clips: Quaternius Universal Animation Library (CC0); KayKit Character Animations by Kay Lousberg (CC0)."
+      - ledger: [AN03]
+        text: "Motion capture data obtained from mocap.cs.cmu.edu. The database was created with funding from NSF EIA-0196217."
+      - ledger: [AN04]
+        text: "Animations from Mixamo (Adobe), used under the Mixamo terms."
+      - ledger: [AN05]
+        text: "Motion capture assets by Rokoko (rokoko.com)."
+      - ledger: [AN06]
+        text: "Walking, running and idle motion capture: Sample Animation Pack and VanillaLoop, used under the Fab Standard License."
+
+  - id: audio
+    title: "Audio"
+    entries:
+      - ledger: [AU01, AU02, AU03, AU04]
+        text: "Sound effects and ambience recorded and layered from: Sonniss #GameAudioGDC Bundle (2024 and 2026), Leartes Cosmos Premium sounds, and Kenney Impact Sounds (CC0)."
+      - ledger: [AU05]
+        text: "Some sound effects, ambience and the interim music were generated locally with Stable Audio (Stability AI)."
+      - ledger: [AU05]
+        text: "Powered by Stability AI. This Stability AI Model is licensed under the Stability AI Community License, Copyright (c) Stability AI Ltd. All Rights Reserved. https://stability.ai/community-license-agreement"
+
+  - id: code
+    title: "Code and tools"
+    entries:
+      - ledger: [C01]
+        text: "Godot Engine, Copyright (c) 2014-present Godot Engine contributors; Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur. https://godotengine.org"
+      - ledger: [C02]
+        text: "Microsoft .NET runtime, Copyright (c) .NET Foundation and Contributors."
+      - ledger: [C06]
+        text: "Terrain3D, Cory Petkovsek, Roope Palmroos and Contributors"
+      - ledger: [C07]
+        text: "Sky3D, Cory Petkovsek and Contributors, J. Cuéllar (MoonMap, GPoSM)"
+      - ledger: [C08]
+        text: "TerraBrush, spimort"
+      - ledger: [C09]
+        text: "SunshineClouds2, David House (Bonkahe)"
+      - ledger: [C10]
+        text: "GodotSteam, GP Garcia, Chris Ridenour and Contributors"
+      - ledger: [C12]
+        text: "COGITO, Philip Drobar (Phazorknight), which in turn credits Kenney, Quaternius, Nathan Hoad and Bryce Dixon"
+      - ledger: [C13]
+        text: "Phantom Camera, Marcus Skov"
+      - ledger: [C14]
+        text: "GodotGAS, Matthew Janes (YulRun.Dev)"
+      - ledger: [C15]
+        text: "Health, HitBoxes, HurtBoxes, David Clutter"
+      - ledger: [C16]
+        text: "Input Helper, Nathan Hoad"
+      - ledger: [C17]
+        text: "QuickAudio, Bryce Dixon"
+      - ledger: [C18]
+        text: "Lit, Shawn Deprey (Fading Lantern Games)"
+      - ledger: [C19]
+        text: "Plant Generator, Vilém Janota"
+      - ledger: [C20]
+        text: "Ragdoll Generator, Manik Sharma"
+      - ledger: [C21]
+        text: "SimpleGrassTextured, IcterusGames"
+      - ledger: [C22]
+        text: "Sprouty Dialogs, Camila Rapu Honores"
+      - ledger: [C30]
+        text: "Godot VFX Library"
+      - ledger: [C03, C04]
+        text: "MessagePack for C#, YamlDotNet"
+      - ledger: [F01, F02, F03, F04]
+        text: "Fonts: Barlow and Barlow Condensed, Montserrat, Nunito, Outfit, under the SIL Open Font License 1.1"
+
+  - id: notices
+    title: "Licence notices"
+    note: "Full licence texts ship in the game's THIRD_PARTY_NOTICES folder."
+    entries:
+      - text: "MIT licence: Godot Engine, .NET runtime, MessagePack for C#, YamlDotNet, Terrain3D, Sky3D, TerraBrush, SunshineClouds2, GodotSteam, COGITO, Phantom Camera, GodotGAS, Health/HitBoxes/HurtBoxes, Input Helper, QuickAudio, Lit, Plant Generator, Ragdoll Generator, SimpleGrassTextured, Sprouty Dialogs, Godot VFX Library, HumanShaders, MoonMap."
+      - text: "\"Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction ... The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\" Each copyright line is in its own file."
+      - text: "Creative Commons Attribution 4.0 International: https://creativecommons.org/licenses/by/4.0/"
+      - text: "Creative Commons CC0 1.0 Universal: https://creativecommons.org/publicdomain/zero/1.0/"
+      - text: "SIL Open Font License 1.1: https://openfontlicense.org"
+      - text: "Stability AI Community License: https://stability.ai/community-license-agreement"
+
+  - id: ai
+    title: "Use of AI in this game"
+    entries:
+      - ledger: [G01, G02, G03, AU05]
+        text: "Some content was made with generative AI tools run locally: sound effects, ambience and interim music (Stable Audio); 27 3D models including five creatures (image-to-3D, TRELLIS and Pixal3D); interface icons (Z-Image Turbo); magic effect flipbooks. There is no AI-generated voice acting. The recorded sound libraries and the Fab, Cosmos and WildMesh assets were not fed to any AI model."

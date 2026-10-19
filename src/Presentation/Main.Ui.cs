@@ -61,7 +61,7 @@ public partial class Main
         AddChild(_map);
         _settings = new SettingsPanel { Name = "Settings" };
         AddChild(_settings);
-        _credits = new CreditsPanel { Name = "Credits", Folder = NoticesFolder() };
+        _credits = new CreditsPanel { Name = "Credits", Folder = NoticesFolder(), CreditsFile = Path.Combine(_session.Options.ContentRoot, "credits.yaml") };
         AddChild(_credits);
         BuildPlayerScreens();
         _menu = new SystemMenuPanel
@@ -258,10 +258,11 @@ public partial class Main
         new("The world", "Journal", "journal", "panel.journal", FromMenu(() => Show(_journal))),
         new("The world", "Map", "map", "panel.map", FromMenu(() => Show(_map))),
         new("The world", "Party", "party", "panel.companions", FromMenu(() => ShowParty(null))),
-        new("The world", "Chat", "chat", null, FromMenu(() => _chat.Open())),
-        new("The world", "Reputation", null, null, FromMenu(() => Show(_reputation))),
+        new("The world", "Chat", "chat", "panel.chat", FromMenu(() => _chat.Open())),
+        new("The world", "Reputation", null, "panel.reputation", FromMenu(() => Show(_reputation))),
         new("System", "Save and load", "saves", "panel.saves", FromMenu(() => _saves.OpenInGame())),
         new("System", "Settings", null, "panel.settings", FromMenu(() => _settings.Open())),
+        new("System", "Credits", null, "panel.credits", FromMenu(() => _credits.Visible = true)),
         new("System", "Controls and help", "help", "panel.help", FromMenu(_help.Toggle)),
     };
 
