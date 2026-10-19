@@ -82,6 +82,8 @@ for part in parts:
         padding=cage.modifiers.new('Wrap cage clearance','DISPLACE');padding.strength=.2;padding.mid_level=0
     old=set(bpy.data.objects);bpy.ops.import_scene.gltf(filepath=str(source))
     garment=next(o for o in set(bpy.data.objects)-old if o.type=='MESH' and o.name==base)
+    rigid_attachments=([garment.vertex_groups[v.groups[0].group].name for v in garment.data.vertices]
+                       if part in ('lamework_jack','lame_sabatons') else None)
     source_arm=next(o for o in set(bpy.data.objects)-old if o.type=='ARMATURE')
     for extra in list(set(bpy.data.objects)-old):
         if extra.type=='MESH' and extra!=garment:bpy.data.objects.remove(extra,do_unlink=True)
@@ -118,6 +120,12 @@ for part in parts:
                 bone.length=original[bone.name][1]
         bpy.ops.object.mode_set(mode='OBJECT');bpy.context.view_layer.objects.active=garment
         target_arm=source_arm
+    elif part in ('lamework_jack','lame_sabatons'):
+        # Mesh Deform keeps vertex order and both family rigs share bone names.
+        # Keep authored rigid plate attachments; nearest-body weights can attach
+        # a torso plate to the upper arm beside it and lift it during a run.
+        assert all(len(vertex.groups)==1 and abs(vertex.groups[0].weight-1)<1e-6 for vertex in garment.data.vertices)
+        assert all(group.name in target_arm.data.bones for group in garment.vertex_groups)
     else:
         weight_source=target
         if part=='cloak':
@@ -160,6 +168,8 @@ for part in parts:
             group=max(totals,key=totals.get)
             for old_group in garment.vertex_groups:old_group.remove(patch)
             garment.vertex_groups[group].add(patch,1,'REPLACE')
+    if rigid_attachments is not None:
+        assert [garment.vertex_groups[v.groups[0].group].name for v in garment.data.vertices]==rigid_attachments, 'Rigid plate attachments changed during family transfer'
     skin=garment.modifiers.new('Approved target skeleton','ARMATURE');skin.object=target_arm
     matrix=garment.matrix_world.copy();garment.parent=target_arm;garment.matrix_world=matrix
     lods=[]
@@ -177,6 +187,7 @@ for part in parts:
     bpy.ops.wm.save_as_mainfile(filepath=str(out/(base+'.blend')))
     assert hashlib.sha256(source.read_bytes()).hexdigest()==digest
     (out/'source.json').write_text(json.dumps({'source':str(source),'sha256':digest,'authored_on':source_fit,
-        'target':fit,'shape_transfer':'Blender Surface Deform' if surface_wrap else 'Blender Mesh Deform volumetric wrap','skin_transfer':'Blender Data Transfer',
+        'target':fit,'shape_transfer':'Blender Surface Deform' if surface_wrap else 'Blender Mesh Deform volumetric wrap',
+        'skin_transfer':'authored rigid plate attachments, unchanged bone names' if rigid_attachments is not None else 'Blender Data Transfer',
         'body_edits':False,'acceptance':'PENDING visible turnaround/run review'},indent=2))
     print('AUTO_TRANSFERRED',part,fit,flush=True)

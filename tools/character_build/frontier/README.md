@@ -16,8 +16,10 @@ From PowerShell, run the three rung-3 pieces with one command:
 The command stages feminine Average, masculine Average, feminine Lean, then
 masculine Lean. Native Surface Deform handles structured cloth within a family;
 native Mesh Deform handles loose pieces. Native Data Transfer supplies skin
-weights. UV, neighbour and material correspondence restores reordered seams.
-Disconnected lames retain one rigid attachment; headwear follows the head.
+weights for fabric. UV, neighbour and material correspondence restores reordered
+seams. Disconnected lames retain their authored rigid joint attachments across
+the shared family rig; the pass asserts those attachments remain unchanged.
+Headwear follows the head.
 People's stature remains uniform whole-body scale and needs no garment variant.
 
 `frontier_region_masks.py` is the fixed slot-region table. Whole hidden body
