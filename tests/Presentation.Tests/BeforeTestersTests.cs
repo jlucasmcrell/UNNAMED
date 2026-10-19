@@ -9,6 +9,31 @@ namespace UNNAMED.Presentation.Tests;
 /// <summary>The "before outside testers" gaps: the keys and settings that persist, auto-run, subtitles, dialogue skip, the compass's two marks, first-launch controls, and words for colour.</summary>
 public class BeforeTestersTests
 {
+    [Theory]
+    [InlineData("src/Presentation/Art/art_bindings.json")]
+    [InlineData("content/_art_bindings.json")]
+    public void DefaultPlayerLayers_KeepTheAcceptedTrousersWhenNoLegArmourIsEquipped(string relativePath)
+    {
+        using var document = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(RepoRoot(), relativePath)));
+        int checkedPlayers = 0;
+        void Check(System.Text.Json.JsonElement node)
+        {
+            if (node.ValueKind != System.Text.Json.JsonValueKind.Object) return;
+            foreach (var property in node.EnumerateObject())
+            {
+                if (property.Name == "player" && property.Value.TryGetProperty("equipment_outfits", out var outfits))
+                {
+                    foreach (string key in new[] { "set:|", "set:item.armor.hide_vest|", "set:item.armor.lamework_jack|" })
+                        Assert.Contains("_trousers_set__", outfits.GetProperty(key)[0].GetString()!);
+                    checkedPlayers++;
+                }
+                Check(property.Value);
+            }
+        }
+        Check(document.RootElement);
+        Assert.True(checkedPlayers >= 4, $"Only {checkedPlayers} player fits checked in {relativePath}");
+    }
+
     private static string RepoRoot()
     {
         string? dir = AppContext.BaseDirectory;
