@@ -2,6 +2,7 @@
 import bpy,bmesh,hashlib,json,sys,os
 from pathlib import Path
 from mathutils import Matrix,Vector
+from mathutils.bvhtree import BVHTree
 sys.path.insert(0,str(Path(__file__).parent))
 from native_clothing import approved_surface,arm_weights
 root=Path(r'D:\Otherreach_Scratch\frontier_native_20261018')
@@ -105,6 +106,19 @@ for obj in objects:
  for face in obj.data.polygons:face.material_index=0;face.use_smooth=True
  # Retain the source UV atlas: its sewn border/stitch trim is registered to it.
 if part=='vest':
+ # Use only the leather's outward shell as the lining's sewing reference.
+ # Its Solidify inner faces have reversed normals and invert a negative offset.
+ surface=objects[0].copy();surface.data=objects[0].data.copy();bpy.context.collection.objects.link(surface)
+ body_bvh=BVHTree.FromPolygons([body.matrix_world@v.co for v in body.data.vertices],
+  [tuple(p.vertices) for p in body.data.polygons])
+ edit=bmesh.new();edit.from_mesh(surface.data);edit.normal_update()
+ inward=[]
+ for face in edit.faces:
+  _,normal,_,_=body_bvh.find_nearest(surface.matrix_world@face.calc_center_median())
+  if normal is None or (surface.matrix_world.to_3x3()@face.normal).dot(normal)<=0:inward.append(face)
+ bmesh.ops.delete(edit,geom=inward,context='FACES')
+ bmesh.ops.delete(edit,geom=[v for v in edit.verts if not v.link_faces],context='VERTS')
+ edit.to_mesh(surface.data);edit.free()
  old=set(bpy.data.objects);bpy.ops.import_scene.gltf(filepath=str(root/os.environ.get('OTHERREACH_SOURCE_SET','sources/fits')/fit/'base_shirt/frontier_linen_shirt_native.glb'))
  shirt=next(o for o in set(bpy.data.objects)-old if o.type=='MESH' and o.name=='frontier_linen_shirt')
  matrix=shirt.matrix_world.copy();shirt.parent=None;shirt.matrix_world=matrix
@@ -120,12 +134,13 @@ if part=='vest':
   start=arm.matrix_world@arm.data.bones['upperarm_'+side].head_local
   direction=arm.matrix_world@(arm.data.bones['lowerarm_'+side].head_local)-start
   fraction=(vertex.co-start).dot(direction)/direction.length_squared
-  value=max(max(0,1-weight/.3),max(0,min(1,(.45-fraction)/.20)))
+  value=max(max(0,1-weight/.3),max(0,min(1,(.60-fraction)/.20)))
   if value:group.add([index],value,'REPLACE')
  active(shirt);wrap=shirt.modifiers.new('Native concealed lining fit','SHRINKWRAP')
- wrap.target=objects[0];wrap.wrap_method='NEAREST_SURFACEPOINT';wrap.wrap_mode='ABOVE_SURFACE';wrap.offset=-.008
+ wrap.target=surface;wrap.wrap_method='NEAREST_SURFACEPOINT';wrap.wrap_mode='ABOVE_SURFACE';wrap.offset=-.012
  wrap.vertex_group=group.name;name=group.name;bpy.ops.object.modifier_apply(modifier=wrap.name)
  shirt.vertex_groups.remove(shirt.vertex_groups[name])
+ bpy.data.objects.remove(surface,do_unlink=True)
  # The lining ends inside the belt; never clip the cuffs with this torso cut.
  edit=bmesh.new();edit.from_mesh(shirt.data);edit.verts.index_update()
  selected=[face for face in edit.faces if sum(weights[v.index] for v in face.verts)/len(face.verts)<.3]
