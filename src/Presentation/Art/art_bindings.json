@@ -62,15 +62,9 @@
  "people_by_visual_option": {
   "people=production": {
    "player": {
-    "model": "player_veth_wanderer_prod",
-    "note": "Phase B (character fidelity): the player's production mesh - the reconstruction's enclosed inner shell removed, a face-priority atlas at 4096 with the concept's own pixels projected on (tools/asset_pipeline/charprod)."
-   }
-  },
-  "people=standard": {
-   "player": {
-    "model": "player_veth_wanderer_std",
-    "hand": "SOCK_hand.R",
-    "off_hand": "SOCK_hand.L",
+    "model": "mh_veth_m",
+    "hand": "SOCK_hand_r",
+    "off_hand": "SOCK_hand_l",
     "grip": {
      "at": [
       0,
@@ -78,9 +72,9 @@
       0
      ],
      "primary": [
-      0,
-      1,
-      0
+      -0.26,
+      0.87,
+      -0.42
      ],
      "secondary": [
       0,
@@ -105,7 +99,131 @@
       1
      ]
     },
-    "note": "Phase B demo: the player on the character standard (tools/asset_pipeline/charstd/characters/player_veth_wanderer.json), outfit variants base / hide_vest; held items on the rig's SOCK_hand grip frames (Y along the knuckles pinky to index, Z into the palm)."
+    "note": "Approved native MetaHuman body; garments authored once on feminine Average and transferred with native wrap and skin weights. Body shapes and the accepted run are unchanged.",
+    "outfit": [
+     "frontier_linen_set__mh_veth_m"
+    ],
+    "equipment_outfits": {
+     "set:|": [
+      "frontier_linen_set__mh_veth_m"
+     ],
+     "set:|item.armor.wool_trousers": [
+      "frontier_linen_trousers_set__mh_veth_m"
+     ],
+     "set:item.armor.hide_vest|": [
+      "frontier_vest_set__mh_veth_m"
+     ],
+     "set:item.armor.hide_vest|item.armor.wool_trousers": [
+      "frontier_vest_trousers_set__mh_veth_m"
+     ],
+     "set:item.armor.lamework_jack|": [
+      "frontier_jack_set__mh_veth_m"
+     ],
+     "set:item.armor.lamework_jack|item.armor.wool_trousers": [
+      "frontier_jack_trousers_set__mh_veth_m"
+     ],
+     "item.armor.hide_cap": [
+      "frontier_standing_cap__mh_veth_m"
+     ],
+     "item.armor.lame_coif": [
+      "frontier_cap_coif_set__mh_veth_m"
+     ],
+     "item.armor.hide_boots": [
+      "frontier_sealed_boots__mh_veth_m"
+     ],
+     "item.armor.lame_sabatons": [
+      "frontier_boots_sabatons_set__mh_veth_m"
+     ],
+     "item.armor.smith_gloves": [
+      "frontier_smith_gloves__mh_veth_m"
+     ],
+     "item.armor.cloak": [
+      "frontier_wool_cloak__mh_veth_m"
+     ]
+    }
+   }
+  },
+  "people=standard": {
+   "player": {
+    "model": "mh_veth_m",
+    "hand": "SOCK_hand_r",
+    "off_hand": "SOCK_hand_l",
+    "grip": {
+     "at": [
+      0,
+      0,
+      0
+     ],
+     "primary": [
+      -0.26,
+      0.87,
+      -0.42
+     ],
+     "secondary": [
+      0,
+      0,
+      1
+     ]
+    },
+    "off_grip": {
+     "at": [
+      0,
+      0,
+      0
+     ],
+     "primary": [
+      0,
+      1,
+      0
+     ],
+     "secondary": [
+      0,
+      0,
+      1
+     ]
+    },
+    "note": "Approved native MetaHuman body; garments authored once on feminine Average and transferred with native wrap and skin weights. Body shapes and the accepted run are unchanged.",
+    "outfit": [
+     "frontier_linen_set__mh_veth_m"
+    ],
+    "equipment_outfits": {
+     "set:|": [
+      "frontier_linen_set__mh_veth_m"
+     ],
+     "set:|item.armor.wool_trousers": [
+      "frontier_linen_trousers_set__mh_veth_m"
+     ],
+     "set:item.armor.hide_vest|": [
+      "frontier_vest_set__mh_veth_m"
+     ],
+     "set:item.armor.hide_vest|item.armor.wool_trousers": [
+      "frontier_vest_trousers_set__mh_veth_m"
+     ],
+     "set:item.armor.lamework_jack|": [
+      "frontier_jack_set__mh_veth_m"
+     ],
+     "set:item.armor.lamework_jack|item.armor.wool_trousers": [
+      "frontier_jack_trousers_set__mh_veth_m"
+     ],
+     "item.armor.hide_cap": [
+      "frontier_standing_cap__mh_veth_m"
+     ],
+     "item.armor.lame_coif": [
+      "frontier_cap_coif_set__mh_veth_m"
+     ],
+     "item.armor.hide_boots": [
+      "frontier_sealed_boots__mh_veth_m"
+     ],
+     "item.armor.lame_sabatons": [
+      "frontier_boots_sabatons_set__mh_veth_m"
+     ],
+     "item.armor.smith_gloves": [
+      "frontier_smith_gloves__mh_veth_m"
+     ],
+     "item.armor.cloak": [
+      "frontier_wool_cloak__mh_veth_m"
+     ]
+    }
    }
   },
   "player=metahuman_m": {
@@ -147,7 +265,48 @@
       1
      ]
     },
-    "note": "MetaHuman mh_veth_m (UE 5.8 in-editor Creator; UE EULA, never used to build, train or test AI), unclothed, on the shared UE5-mannequin game skeleton; Phase 1 smoke clips player.mh.* (UAL1, CC0) baked on mh_veth_m, carried rest-relative."
+    "note": "Approved native MetaHuman body; garments authored once on feminine Average and transferred with native wrap and skin weights. Body shapes and the accepted run are unchanged.",
+    "outfit": [
+     "frontier_linen_set__mh_veth_m"
+    ],
+    "equipment_outfits": {
+     "set:|": [
+      "frontier_linen_set__mh_veth_m"
+     ],
+     "set:|item.armor.wool_trousers": [
+      "frontier_linen_trousers_set__mh_veth_m"
+     ],
+     "set:item.armor.hide_vest|": [
+      "frontier_vest_set__mh_veth_m"
+     ],
+     "set:item.armor.hide_vest|item.armor.wool_trousers": [
+      "frontier_vest_trousers_set__mh_veth_m"
+     ],
+     "set:item.armor.lamework_jack|": [
+      "frontier_jack_set__mh_veth_m"
+     ],
+     "set:item.armor.lamework_jack|item.armor.wool_trousers": [
+      "frontier_jack_trousers_set__mh_veth_m"
+     ],
+     "item.armor.hide_cap": [
+      "frontier_standing_cap__mh_veth_m"
+     ],
+     "item.armor.lame_coif": [
+      "frontier_cap_coif_set__mh_veth_m"
+     ],
+     "item.armor.hide_boots": [
+      "frontier_sealed_boots__mh_veth_m"
+     ],
+     "item.armor.lame_sabatons": [
+      "frontier_boots_sabatons_set__mh_veth_m"
+     ],
+     "item.armor.smith_gloves": [
+      "frontier_smith_gloves__mh_veth_m"
+     ],
+     "item.armor.cloak": [
+      "frontier_wool_cloak__mh_veth_m"
+     ]
+    }
    }
   },
   "player=metahuman_f": {
@@ -189,152 +348,170 @@
       1
      ]
     },
-    "note": "MetaHuman mh_veth_f (UE 5.8 in-editor Creator; UE EULA, never used to build, train or test AI), unclothed, on the shared UE5-mannequin game skeleton; Phase 1 smoke clips player.mh.* (UAL1, CC0) baked on mh_veth_m, carried rest-relative."
+    "note": "Approved native MetaHuman body; garments authored once on feminine Average and transferred with native wrap and skin weights. Body shapes and the accepted run are unchanged.",
+    "outfit": [
+     "frontier_linen_set__mh_veth_f"
+    ],
+    "equipment_outfits": {
+     "set:|": [
+      "frontier_linen_set__mh_veth_f"
+     ],
+     "set:|item.armor.wool_trousers": [
+      "frontier_linen_trousers_set__mh_veth_f"
+     ],
+     "set:item.armor.hide_vest|": [
+      "frontier_vest_set__mh_veth_f"
+     ],
+     "set:item.armor.hide_vest|item.armor.wool_trousers": [
+      "frontier_vest_trousers_set__mh_veth_f"
+     ],
+     "set:item.armor.lamework_jack|": [
+      "frontier_jack_set__mh_veth_f"
+     ],
+     "set:item.armor.lamework_jack|item.armor.wool_trousers": [
+      "frontier_jack_trousers_set__mh_veth_f"
+     ],
+     "item.armor.hide_cap": [
+      "frontier_standing_cap__mh_veth_f"
+     ],
+     "item.armor.lame_coif": [
+      "frontier_cap_coif_set__mh_veth_f"
+     ],
+     "item.armor.hide_boots": [
+      "frontier_sealed_boots__mh_veth_f"
+     ],
+     "item.armor.lame_sabatons": [
+      "frontier_boots_sabatons_set__mh_veth_f"
+     ],
+     "item.armor.smith_gloves": [
+      "frontier_smith_gloves__mh_veth_f"
+     ],
+     "item.armor.cloak": [
+      "frontier_wool_cloak__mh_veth_f"
+     ]
+    }
    }
   }
  },
  "people_clips_by_visual_option": {
   "clips=ext": {
    "player": {
-    "note": "Phase B (B12): the player's locomotion from the retargeted Quaternius UAL clips (CC0, realistic proportions; the KayKit clips flared the arms), with KayKit's hit, death and reach; run and every weapon state stay procedural (the weapon grips are calibrated to them). Each gait plays at its measured pace. review/retarget/B12_CATALOGUE.md.",
     "clips": {
-     "idle": "player.veth_wanderer.ext_idle_ual",
-     "walk": "player.veth_wanderer.ext_walk_ual",
-     "sprint": "player.veth_wanderer.ext_sprint_ual",
-     "crouch_idle": "player.veth_wanderer.ext_crouch_idle_ual",
-     "crouch_walk": "player.veth_wanderer.ext_crouch_walk_ual",
-     "hit": "player.veth_wanderer.ext_hit",
-     "death": "player.veth_wanderer.ext_death",
-     "interact": "player.veth_wanderer.ext_interact"
+     "idle": "player.mh.idle",
+     "walk": "player.mh.walk",
+     "run": "player.mh.run",
+     "sprint": "player.mh.sprint",
+     "crouch_idle": "player.mh.crouch_idle",
+     "crouch_walk": "player.mh.crouch_walk",
+     "jump_start": "player.mh.jump_start",
+     "fall": "player.mh.fall",
+     "land": "player.mh.land",
+     "interact": "player.mh.interact",
+     "stop": "player.mh.idle",
+     "turn": "player.mh.idle",
+     "talk": "player.mh.talk",
+     "sword_ready": "player.mh.sword_ready",
+     "sword_attack": "player.mh.sword_attack_1_mc",
+     "sword_attack_1": "player.mh.sword_attack_1_mc",
+     "sword_attack_2": "player.mh.sword_attack_2_mc",
+     "sword_attack_3": "player.mh.sword_attack_3_mc",
+     "sword_attack_4": "player.mh.sword_attack_4_mc",
+     "sword_block": "player.mh.sword_block_mc",
+     "bow_ready": "player.mh.bow_ready_mc",
+     "bow_draw": "player.mh.bow_draw_mc",
+     "spear_ready": "player.mh.spear_ready_mc",
+     "spear_thrust": "player.mh.spear_thrust_mc",
+     "cast": "player.mh.cast",
+     "hit": "player.mh.hit_mc",
+     "death": "player.mh.death_mc"
     },
     "paces": {
-     "walk": 0.96,
-     "sprint": 2.92,
-     "crouch_walk": 0.75
-    }
+     "walk": 1.2956,
+     "run": 2.9581,
+     "sprint": 6.1264,
+     "crouch_walk": 1.0662
+    },
+    "note": "MetaHuman mh_veth_m (UE 5.8 in-editor Creator; UE EULA, never used to build, train or test AI), unclothed, on the shared UE5-mannequin game skeleton; walk/run/sprint player.mh.* are Fab motion capture (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py) baked on mh_veth_m; since 2026-10-17 (tools/asset_pipeline/stance_clips.py) idle and talk are Fab mocap (Sample Animation Pack Unarmed_Idle_01 and Gesture_01: narrow stance, open hands), sword_ready Rokoko mocap (SwordIdleMedium: the sword held low, arms hanging), and every combat state has its own clip on this skeleton (the production rig's UAL/KayKit takes, retargeted) - before, those states fell through to player.cw_player.*, whose bone names this skeleton lacks, and the body stood in its bind pose with the arms out; crouch, jump, fall, land and interact stay the Phase 1 smoke clips (UAL1, CC0); all carried rest-relative. Paces are the clips' root speed on mh_veth_m."
    }
   },
   "people=production": {
    "player": {
-    "note": "Phase B (character fidelity): the player's locomotion retargeted onto the production rig (tools/asset_pipeline/retarget_maps/quaternius_ual_prod.json) - the Quaternius UAL clips (CC0) one-to-one, fingers, three spine bones and toes included; the rest as under clips=ext (by bone name).",
     "clips": {
-     "idle": "player.veth_wanderer_prod.idle",
-     "walk": "player.veth_wanderer_prod.walk",
-     "run": "player.veth_wanderer_prod.run_cmu3517",
-     "sprint": "player.veth_wanderer_prod.sprint_cmu12707",
-     "crouch_idle": "player.veth_wanderer_prod.crouch_idle",
-     "crouch_walk": "player.veth_wanderer_prod.crouch_walk",
-     "jump_start": "player.veth_wanderer_prod.jump_start",
-     "fall": "player.veth_wanderer_prod.fall",
-     "land": "player.veth_wanderer_prod.land",
-     "sword_ready": "player.veth_wanderer_prod.sword_ready",
-     "sword_attack_1": "player.veth_wanderer_prod.sword_attack_1",
-     "sword_attack_2": "player.veth_wanderer_prod.sword_attack_2",
-     "sword_attack_3": "player.veth_wanderer_prod.sword_attack_3",
-     "sword_attack_4": "player.veth_wanderer_prod.sword_attack_4",
-     "sword_block": "player.veth_wanderer_prod.sword_block",
-     "stop": "player.veth_wanderer_prod.stop",
-     "turn": "player.veth_wanderer_prod.turn"
+     "idle": "player.mh.idle",
+     "walk": "player.mh.walk",
+     "run": "player.mh.run",
+     "sprint": "player.mh.sprint",
+     "crouch_idle": "player.mh.crouch_idle",
+     "crouch_walk": "player.mh.crouch_walk",
+     "jump_start": "player.mh.jump_start",
+     "fall": "player.mh.fall",
+     "land": "player.mh.land",
+     "interact": "player.mh.interact",
+     "stop": "player.mh.idle",
+     "turn": "player.mh.idle",
+     "talk": "player.mh.talk",
+     "sword_ready": "player.mh.sword_ready",
+     "sword_attack": "player.mh.sword_attack_1_mc",
+     "sword_attack_1": "player.mh.sword_attack_1_mc",
+     "sword_attack_2": "player.mh.sword_attack_2_mc",
+     "sword_attack_3": "player.mh.sword_attack_3_mc",
+     "sword_attack_4": "player.mh.sword_attack_4_mc",
+     "sword_block": "player.mh.sword_block_mc",
+     "bow_ready": "player.mh.bow_ready_mc",
+     "bow_draw": "player.mh.bow_draw_mc",
+     "spear_ready": "player.mh.spear_ready_mc",
+     "spear_thrust": "player.mh.spear_thrust_mc",
+     "cast": "player.mh.cast",
+     "hit": "player.mh.hit_mc",
+     "death": "player.mh.death_mc"
     },
-    "remediation_note": "Phase B remediation (H03/H05): run and sprint are CMU mocap cycles (rancidmilk FBX, commercial use allowed) cut and retargeted by charprod2/cmu_cycle.py; the four sword attacks, ready stance and block are UAL1/UAL2 (CC0). Paces are each clip's measured foot-contact speed on this rig (charprod2/clip_pace.py); phases are each attack's measured swing window (charprod2/clip_marks.py). MEASURED 2026-09-29 (docs/phase_b/RUN_CYCLE_FOLLOWUP.md): run is 2.35 on the installed 0.6333 s GLB and 2.373 on the PRE-TRIM 0.9667 s GLB (recovered from the packaged build Otherreach_PhaseB_GraphicsOverhaul_2026-09-27_56948b1 under UNNAMED_HISTORY, sha256 3a7fbca255f678a0). The trim did NOT change this clip's pace - 2.373 to 2.350 is 1.0%, inside one keyframe of measurement error - so the 'stale pace' the previous round diagnosed was never stale. The 3.34 that stood here was DERIVED from a cadence a reviewer preferred, not measured, and is wrong as a pace by 42%; it would have played the clip at 0.95x against a clip whose own lock rate is 1.35x, i.e. it would have replaced one slide with a larger one in the other direction. It is replaced by the measurement. The run's 3.00 -> 4.29 footfalls/s change across the trim is a SHORTER CLIP (0.9667 -> 0.6333 s), not a stale pace. sprint stays 3.47: clip_pace.py reads 9.311 on the trimmed sprint GLB, but that is a tool artefact - a sprinting foot passes through its own lowest point mid-swing at ~17 m/s, so the 2 cm contact band catches swing frames and the median lands between clusters (stance ~3.45, transition ~8.8, swing ~17.0 at 120 fps). On the pre-trim sprint the same tool reads 3.473, and the trimmed clip's own stance plateau is 3.42-3.49, so 3.47 is right.",
     "paces": {
-     "walk": 0.79,
-     "run": 2.35,
-     "sprint": 3.47,
-     "crouch_walk": 0.59
+     "walk": 1.2956,
+     "run": 2.9581,
+     "sprint": 6.1264,
+     "crouch_walk": 1.0662
     },
-    "phases": {
-     "sword_attack_1": [
-      0.22,
-      0.31,
-      0.8
-     ],
-     "sword_attack_2": [
-      0.4,
-      0.7,
-      1.0
-     ],
-     "sword_attack_3": [
-      0.42,
-      0.58,
-      1.0
-     ],
-     "sword_attack_4": [
-      0.29,
-      0.34,
-      0.7
-     ],
-     "sword_block": [
-      0.1,
-      0.5,
-      1.0
-     ]
-    }
+    "note": "MetaHuman mh_veth_m (UE 5.8 in-editor Creator; UE EULA, never used to build, train or test AI), unclothed, on the shared UE5-mannequin game skeleton; walk/run/sprint player.mh.* are Fab motion capture (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py) baked on mh_veth_m; since 2026-10-17 (tools/asset_pipeline/stance_clips.py) idle and talk are Fab mocap (Sample Animation Pack Unarmed_Idle_01 and Gesture_01: narrow stance, open hands), sword_ready Rokoko mocap (SwordIdleMedium: the sword held low, arms hanging), and every combat state has its own clip on this skeleton (the production rig's UAL/KayKit takes, retargeted) - before, those states fell through to player.cw_player.*, whose bone names this skeleton lacks, and the body stood in its bind pose with the arms out; crouch, jump, fall, land and interact stay the Phase 1 smoke clips (UAL1, CC0); all carried rest-relative. Paces are the clips' root speed on mh_veth_m."
    }
   },
   "people=standard": {
    "player": {
     "clips": {
-     "idle": "player.veth_wanderer_std.idle",
-     "walk": "player.veth_wanderer_std.walk_cmu1622",
-     "run": "player.veth_wanderer_std.run_cmu3517",
-     "sprint": "player.veth_wanderer_std.sprint_cmu12707",
-     "crouch_idle": "player.veth_wanderer_std.crouch_idle",
-     "crouch_walk": "player.veth_wanderer_std.crouch_sneak_arms",
-     "jump_start": "player.veth_wanderer_std.jump_start",
-     "fall": "player.veth_wanderer_std.fall",
-     "land": "player.veth_wanderer_std.land",
-     "sword_ready": "player.veth_wanderer_std.sword_ual2_guard",
-     "sword_attack_1": "player.veth_wanderer_std.sword_cut_1",
-     "sword_attack_2": "player.veth_wanderer_std.sword_cut_2",
-     "sword_attack_3": "player.veth_wanderer_std.sword_cut_3",
-     "sword_attack_4": "player.veth_wanderer_std.sword_cut_4",
-     "sword_block": "player.veth_wanderer_std.sword_guard_block",
-     "bow_ready": "player.veth_wanderer_std.bow_ready",
-     "bow_draw": "player.veth_wanderer_std.bow_draw",
-     "spear_ready": "player.veth_wanderer_std.spear_ready",
-     "spear_thrust_1": "player.veth_wanderer_std.spear_thrust",
-     "spear_thrust_2": "player.veth_wanderer_std.spear_slice",
-     "cast": "player.veth_wanderer_std.cast",
-     "hit": "player.veth_wanderer_std.hit",
-     "death": "player.veth_wanderer_std.death",
-     "interact": "player.veth_wanderer_std.interact",
-     "talk": "player.veth_wanderer_std.talk"
+     "idle": "player.mh.idle",
+     "walk": "player.mh.walk",
+     "run": "player.mh.run",
+     "sprint": "player.mh.sprint",
+     "crouch_idle": "player.mh.crouch_idle",
+     "crouch_walk": "player.mh.crouch_walk",
+     "jump_start": "player.mh.jump_start",
+     "fall": "player.mh.fall",
+     "land": "player.mh.land",
+     "interact": "player.mh.interact",
+     "stop": "player.mh.idle",
+     "turn": "player.mh.idle",
+     "talk": "player.mh.talk",
+     "sword_ready": "player.mh.sword_ready",
+     "sword_attack": "player.mh.sword_attack_1_mc",
+     "sword_attack_1": "player.mh.sword_attack_1_mc",
+     "sword_attack_2": "player.mh.sword_attack_2_mc",
+     "sword_attack_3": "player.mh.sword_attack_3_mc",
+     "sword_attack_4": "player.mh.sword_attack_4_mc",
+     "sword_block": "player.mh.sword_block_mc",
+     "bow_ready": "player.mh.bow_ready_mc",
+     "bow_draw": "player.mh.bow_draw_mc",
+     "spear_ready": "player.mh.spear_ready_mc",
+     "spear_thrust": "player.mh.spear_thrust_mc",
+     "cast": "player.mh.cast",
+     "hit": "player.mh.hit_mc",
+     "death": "player.mh.death_mc"
     },
     "paces": {
-     "walk": 1.616,
-     "run": 2.975,
-     "sprint": 4.207,
-     "crouch_walk": 1.463
+     "walk": 1.2956,
+     "run": 2.9581,
+     "sprint": 6.1264,
+     "crouch_walk": 1.0662
     },
-    "phases": {
-     "sword_attack_1": [
-      0.22,
-      0.31,
-      0.8
-     ],
-     "sword_attack_2": [
-      0.4,
-      0.7,
-      1.0
-     ],
-     "sword_attack_3": [
-      0.42,
-      0.58,
-      1.0
-     ],
-     "sword_attack_4": [
-      0.29,
-      0.34,
-      0.7
-     ],
-     "sword_block": [
-      0.1,
-      0.5,
-      1.0
-     ]
-    },
-    "note": "charstd/retarget_set.py, clip_plans/player.json: CMU gaits (walk 16_22, run 35_17, sprint 127_07), KayKit sneak as the crouched walk (1.61 m/s), sword set: UAL2 upright guard, UAL1/UAL2 cuts and block eased halfway toward it (clip_blend.py), jump, hit, death, interact, talk, one-hand cast; KayKit bow and two-hand stab/slice. Paces measured on the rig (clip_pace_stance.py)."
+    "note": "MetaHuman mh_veth_m (UE 5.8 in-editor Creator; UE EULA, never used to build, train or test AI), unclothed, on the shared UE5-mannequin game skeleton; walk/run/sprint player.mh.* are Fab motion capture (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py) baked on mh_veth_m; since 2026-10-17 (tools/asset_pipeline/stance_clips.py) idle and talk are Fab mocap (Sample Animation Pack Unarmed_Idle_01 and Gesture_01: narrow stance, open hands), sword_ready Rokoko mocap (SwordIdleMedium: the sword held low, arms hanging), and every combat state has its own clip on this skeleton (the production rig's UAL/KayKit takes, retargeted) - before, those states fell through to player.cw_player.*, whose bone names this skeleton lacks, and the body stood in its bind pose with the arms out; crouch, jump, fall, land and interact stay the Phase 1 smoke clips (UAL1, CC0); all carried rest-relative. Paces are the clips' root speed on mh_veth_m."
    }
   },
   "player=metahuman_m": {
@@ -764,62 +941,119 @@
  },
  "people": {
   "player": {
-   "model": "player_veth_wanderer",
-   "note": "The Wanderer (Phase A): a clothed Veth reconstructed from its bind-pose concept, the 20-bone humanoid rig fitted to it and the person plan's clips baked on that rig (_make_creature_motion.py --plan person: arms measured from hanging, blows and guards on SkinnedFigure's phase map). The rig has no hand sockets, so the grips are the fists: 'grip' holds a sword or spear across the right fist 20 deg from the thumb toward the fingers, a blade's flat to the palm; 'off_grip' stands the bow along the left thumb, its back along the fingers.",
-   "hand": "hand.R",
-   "off_hand": "hand.L",
+   "model": "mh_veth_m",
+   "hand": "SOCK_hand_r",
+   "off_hand": "SOCK_hand_l",
    "grip": {
     "at": [
-     0.0096,
-     0.0714,
-     -0.0097
+     0,
+     0,
+     0
     ],
     "primary": [
-     -0.3129,
-     0.2586,
-     -0.9139
+     -0.26,
+     0.87,
+     -0.42
     ],
     "secondary": [
-     0.9488,
-     0.0407,
-     -0.3133
+     0,
+     0,
+     1
     ]
    },
    "off_grip": {
     "at": [
-     -0.0094,
-     0.072,
-     -0.0104
+     0,
+     0,
+     0
     ],
     "primary": [
-     0.3212,
-     -0.0942,
-     -0.9423
+     0,
+     1,
+     0
     ],
     "secondary": [
-     0.0664,
-     0.9948,
-     -0.0768
+     0,
+     0,
+     1
+    ]
+   },
+   "note": "Approved native MetaHuman body; garments authored once on feminine Average and transferred with native wrap and skin weights. Body shapes and the accepted run are unchanged.",
+   "outfit": [
+    "frontier_linen_set__mh_veth_m"
+   ],
+   "equipment_outfits": {
+    "set:|": [
+     "frontier_linen_set__mh_veth_m"
+    ],
+    "set:|item.armor.wool_trousers": [
+     "frontier_linen_trousers_set__mh_veth_m"
+    ],
+    "set:item.armor.hide_vest|": [
+     "frontier_vest_set__mh_veth_m"
+    ],
+    "set:item.armor.hide_vest|item.armor.wool_trousers": [
+     "frontier_vest_trousers_set__mh_veth_m"
+    ],
+    "set:item.armor.lamework_jack|": [
+     "frontier_jack_set__mh_veth_m"
+    ],
+    "set:item.armor.lamework_jack|item.armor.wool_trousers": [
+     "frontier_jack_trousers_set__mh_veth_m"
+    ],
+    "item.armor.hide_cap": [
+     "frontier_standing_cap__mh_veth_m"
+    ],
+    "item.armor.lame_coif": [
+     "frontier_cap_coif_set__mh_veth_m"
+    ],
+    "item.armor.hide_boots": [
+     "frontier_sealed_boots__mh_veth_m"
+    ],
+    "item.armor.lame_sabatons": [
+     "frontier_boots_sabatons_set__mh_veth_m"
+    ],
+    "item.armor.smith_gloves": [
+     "frontier_smith_gloves__mh_veth_m"
+    ],
+    "item.armor.cloak": [
+     "frontier_wool_cloak__mh_veth_m"
     ]
    },
    "clips": {
-    "idle": "player.veth_wanderer.idle",
-    "walk": "player.veth_wanderer.walk",
-    "run": "player.veth_wanderer.run",
-    "sprint": "player.veth_wanderer.sprint",
-    "sword_ready": "player.veth_wanderer.sword_ready",
-    "sword_attack": "player.veth_wanderer.sword_attack",
-    "sword_block": "player.veth_wanderer.sword_block",
-    "bow_ready": "player.veth_wanderer.bow_ready",
-    "bow_draw": "player.veth_wanderer.bow_draw",
-    "spear_ready": "player.veth_wanderer.spear_ready",
-    "spear_thrust": "player.veth_wanderer.spear_thrust",
-    "cast": "player.veth_wanderer.cast",
-    "hit": "player.veth_wanderer.hit",
-    "death": "player.veth_wanderer.death",
-    "interact": "player.veth_wanderer.interact",
-    "crouch_idle": "player.veth_wanderer.crouch_idle",
-    "crouch_walk": "player.veth_wanderer.crouch_walk"
+    "idle": "player.mh.idle",
+    "walk": "player.mh.walk",
+    "run": "player.mh.run",
+    "sprint": "player.mh.sprint",
+    "crouch_idle": "player.mh.crouch_idle",
+    "crouch_walk": "player.mh.crouch_walk",
+    "jump_start": "player.mh.jump_start",
+    "fall": "player.mh.fall",
+    "land": "player.mh.land",
+    "interact": "player.mh.interact",
+    "stop": "player.mh.idle",
+    "turn": "player.mh.idle",
+    "talk": "player.mh.talk",
+    "sword_ready": "player.mh.sword_ready",
+    "sword_attack": "player.mh.sword_attack_1_mc",
+    "sword_attack_1": "player.mh.sword_attack_1_mc",
+    "sword_attack_2": "player.mh.sword_attack_2_mc",
+    "sword_attack_3": "player.mh.sword_attack_3_mc",
+    "sword_attack_4": "player.mh.sword_attack_4_mc",
+    "sword_block": "player.mh.sword_block_mc",
+    "bow_ready": "player.mh.bow_ready_mc",
+    "bow_draw": "player.mh.bow_draw_mc",
+    "spear_ready": "player.mh.spear_ready_mc",
+    "spear_thrust": "player.mh.spear_thrust_mc",
+    "cast": "player.mh.cast",
+    "hit": "player.mh.hit_mc",
+    "death": "player.mh.death_mc"
+   },
+   "paces": {
+    "walk": 1.2956,
+    "run": 2.9581,
+    "sprint": 6.1264,
+    "crouch_walk": 1.0662
    }
   },
   "npc.cairnwold.berrin_garth": {
@@ -862,7 +1096,10 @@
    "model": "mh_npc_berrin_garth",
    "people_ref": "people.veth",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -898,7 +1135,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "npc.cairnwold.durn_skell": {
    "hand": "SOCK_hand_r",
@@ -940,7 +1178,10 @@
    "model": "mh_npc_durn_skell",
    "people_ref": "people.veth",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -976,7 +1217,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "npc.ashen_hollow.kera_voss": {
    "hand": "SOCK_hand_r",
@@ -1018,7 +1260,11 @@
    "model": "mh_npc_kera_voss",
    "people_ref": "people.kal",
    "uniform_scale": 0.9,
-   "outfit": [],
+   "outfit": [
+    "frontier_vest_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f",
+    "frontier_smith_gloves__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -1054,7 +1300,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "npc.cairnwold.mara_ling": {
    "hand": "SOCK_hand_r",
@@ -1096,7 +1343,10 @@
    "model": "mh_npc_mara_ling",
    "people_ref": "people.veth",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -1132,7 +1382,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "npc.ashen_hollow.renn_vale": {
    "hand": "SOCK_hand_r",
@@ -1174,7 +1425,10 @@
    "model": "mh_npc_renn_vale",
    "people_ref": "people.veth",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -1210,7 +1464,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "npc.ashen_hollow.sel_arien": {
    "hand": "SOCK_hand_r",
@@ -1252,7 +1507,10 @@
    "model": "mh_npc_sel_arien",
    "people_ref": "people.siann",
    "uniform_scale": 0.88,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -1288,7 +1546,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "npc.cairnwold.tam_crowden": {
    "hand": "SOCK_hand_r",
@@ -1330,7 +1589,10 @@
    "model": "mh_npc_tam_crowden",
    "people_ref": "people.veth",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -1366,7 +1628,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "npc.ashen_hollow.tavar_orr": {
    "hand": "SOCK_hand_r",
@@ -1408,7 +1671,10 @@
    "model": "mh_npc_tavar_orr",
    "people_ref": "people.orenth",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -1444,7 +1710,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.constructed.01": {
    "hand": "SOCK_hand_r",
@@ -1486,7 +1753,10 @@
    "model": "mh_resident_veth_01",
    "people_ref": "people.constructed",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -1522,7 +1792,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.constructed.02": {
    "hand": "SOCK_hand_r",
@@ -1564,7 +1835,10 @@
    "model": "mh_resident_veth_02",
    "people_ref": "people.constructed",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -1600,7 +1874,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.constructed.03": {
    "hand": "SOCK_hand_r",
@@ -1642,7 +1917,10 @@
    "model": "mh_resident_veth_03",
    "people_ref": "people.constructed",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -1678,7 +1956,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.constructed.04": {
    "hand": "SOCK_hand_r",
@@ -1720,7 +1999,10 @@
    "model": "mh_resident_veth_04",
    "people_ref": "people.constructed",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -1756,7 +2038,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.constructed.05": {
    "hand": "SOCK_hand_r",
@@ -1798,7 +2081,10 @@
    "model": "mh_resident_veth_05",
    "people_ref": "people.constructed",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -1834,7 +2120,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.constructed.06": {
    "hand": "SOCK_hand_r",
@@ -1876,7 +2163,10 @@
    "model": "mh_resident_veth_06",
    "people_ref": "people.constructed",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -1912,7 +2202,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.kal.01": {
    "hand": "SOCK_hand_r",
@@ -1954,7 +2245,10 @@
    "model": "mh_resident_kal_01",
    "people_ref": "people.kal",
    "uniform_scale": 0.9,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -1990,7 +2284,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.kal.02": {
    "hand": "SOCK_hand_r",
@@ -2032,7 +2327,10 @@
    "model": "mh_resident_kal_02",
    "people_ref": "people.kal",
    "uniform_scale": 0.9,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -2068,7 +2366,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.kal.03": {
    "hand": "SOCK_hand_r",
@@ -2110,7 +2409,10 @@
    "model": "mh_resident_kal_03",
    "people_ref": "people.kal",
    "uniform_scale": 0.9,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -2146,7 +2448,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.kal.04": {
    "hand": "SOCK_hand_r",
@@ -2188,7 +2491,10 @@
    "model": "mh_resident_kal_04",
    "people_ref": "people.kal",
    "uniform_scale": 0.9,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -2224,7 +2530,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.kal.05": {
    "hand": "SOCK_hand_r",
@@ -2266,7 +2573,10 @@
    "model": "mh_resident_kal_05",
    "people_ref": "people.kal",
    "uniform_scale": 0.9,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -2302,7 +2612,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.kal.06": {
    "hand": "SOCK_hand_r",
@@ -2344,7 +2655,10 @@
    "model": "mh_resident_kal_06",
    "people_ref": "people.kal",
    "uniform_scale": 0.9,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -2380,7 +2694,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.mor.01": {
    "hand": "SOCK_hand_r",
@@ -2422,7 +2737,10 @@
    "model": "mh_resident_veth_01",
    "people_ref": "people.mor",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -2458,7 +2776,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.mor.02": {
    "hand": "SOCK_hand_r",
@@ -2500,7 +2819,10 @@
    "model": "mh_resident_veth_02",
    "people_ref": "people.mor",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -2536,7 +2858,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.mor.03": {
    "hand": "SOCK_hand_r",
@@ -2578,7 +2901,10 @@
    "model": "mh_resident_veth_03",
    "people_ref": "people.mor",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -2614,7 +2940,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.mor.04": {
    "hand": "SOCK_hand_r",
@@ -2656,7 +2983,10 @@
    "model": "mh_resident_veth_04",
    "people_ref": "people.mor",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -2692,7 +3022,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.mor.05": {
    "hand": "SOCK_hand_r",
@@ -2734,7 +3065,10 @@
    "model": "mh_resident_veth_05",
    "people_ref": "people.mor",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -2770,7 +3104,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.mor.06": {
    "hand": "SOCK_hand_r",
@@ -2812,7 +3147,10 @@
    "model": "mh_resident_veth_06",
    "people_ref": "people.mor",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -2848,7 +3186,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.ondrek.01": {
    "hand": "SOCK_hand_r",
@@ -2890,7 +3229,10 @@
    "model": "mh_resident_veth_01",
    "people_ref": "people.ondrek",
    "uniform_scale": 1.35,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -2926,7 +3268,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.ondrek.02": {
    "hand": "SOCK_hand_r",
@@ -2968,7 +3311,10 @@
    "model": "mh_resident_veth_02",
    "people_ref": "people.ondrek",
    "uniform_scale": 1.35,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -3004,7 +3350,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.ondrek.03": {
    "hand": "SOCK_hand_r",
@@ -3046,7 +3393,10 @@
    "model": "mh_resident_veth_03",
    "people_ref": "people.ondrek",
    "uniform_scale": 1.35,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -3082,7 +3432,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.ondrek.04": {
    "hand": "SOCK_hand_r",
@@ -3124,7 +3475,10 @@
    "model": "mh_resident_veth_04",
    "people_ref": "people.ondrek",
    "uniform_scale": 1.35,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -3160,7 +3514,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.ondrek.05": {
    "hand": "SOCK_hand_r",
@@ -3202,7 +3557,10 @@
    "model": "mh_resident_veth_05",
    "people_ref": "people.ondrek",
    "uniform_scale": 1.35,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -3238,7 +3596,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.ondrek.06": {
    "hand": "SOCK_hand_r",
@@ -3280,7 +3639,10 @@
    "model": "mh_resident_veth_06",
    "people_ref": "people.ondrek",
    "uniform_scale": 1.35,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -3316,7 +3678,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.orenth.01": {
    "hand": "SOCK_hand_r",
@@ -3358,7 +3721,10 @@
    "model": "mh_resident_veth_01",
    "people_ref": "people.orenth",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -3394,7 +3760,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.orenth.02": {
    "hand": "SOCK_hand_r",
@@ -3436,7 +3803,10 @@
    "model": "mh_resident_veth_02",
    "people_ref": "people.orenth",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -3472,7 +3842,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.orenth.03": {
    "hand": "SOCK_hand_r",
@@ -3514,7 +3885,10 @@
    "model": "mh_resident_veth_03",
    "people_ref": "people.orenth",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -3550,7 +3924,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.orenth.04": {
    "hand": "SOCK_hand_r",
@@ -3592,7 +3967,10 @@
    "model": "mh_resident_veth_04",
    "people_ref": "people.orenth",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -3628,7 +4006,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.orenth.05": {
    "hand": "SOCK_hand_r",
@@ -3670,7 +4049,10 @@
    "model": "mh_resident_veth_05",
    "people_ref": "people.orenth",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -3706,7 +4088,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.orenth.06": {
    "hand": "SOCK_hand_r",
@@ -3748,7 +4131,10 @@
    "model": "mh_resident_veth_06",
    "people_ref": "people.orenth",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -3784,7 +4170,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.siann.01": {
    "hand": "SOCK_hand_r",
@@ -3826,7 +4213,10 @@
    "model": "mh_resident_siann_01",
    "people_ref": "people.siann",
    "uniform_scale": 0.88,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -3862,7 +4252,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.siann.02": {
    "hand": "SOCK_hand_r",
@@ -3904,7 +4295,10 @@
    "model": "mh_resident_siann_02",
    "people_ref": "people.siann",
    "uniform_scale": 0.88,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -3940,7 +4334,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.siann.03": {
    "hand": "SOCK_hand_r",
@@ -3982,7 +4377,10 @@
    "model": "mh_resident_siann_03",
    "people_ref": "people.siann",
    "uniform_scale": 0.88,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -4018,7 +4416,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.siann.04": {
    "hand": "SOCK_hand_r",
@@ -4060,7 +4459,10 @@
    "model": "mh_resident_siann_04",
    "people_ref": "people.siann",
    "uniform_scale": 0.88,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -4096,7 +4498,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.siann.05": {
    "hand": "SOCK_hand_r",
@@ -4138,7 +4541,10 @@
    "model": "mh_resident_siann_05",
    "people_ref": "people.siann",
    "uniform_scale": 0.88,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -4174,7 +4580,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.siann.06": {
    "hand": "SOCK_hand_r",
@@ -4216,7 +4623,10 @@
    "model": "mh_resident_siann_06",
    "people_ref": "people.siann",
    "uniform_scale": 0.88,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -4252,7 +4662,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.vaskaal.01": {
    "hand": "SOCK_hand_r",
@@ -4294,7 +4705,10 @@
    "model": "mh_resident_veth_01",
    "people_ref": "people.vaskaal",
    "uniform_scale": 1.29,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -4330,7 +4744,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.vaskaal.02": {
    "hand": "SOCK_hand_r",
@@ -4372,7 +4787,10 @@
    "model": "mh_resident_veth_02",
    "people_ref": "people.vaskaal",
    "uniform_scale": 1.29,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -4408,7 +4826,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.vaskaal.03": {
    "hand": "SOCK_hand_r",
@@ -4450,7 +4869,10 @@
    "model": "mh_resident_veth_03",
    "people_ref": "people.vaskaal",
    "uniform_scale": 1.29,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -4486,7 +4908,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.vaskaal.04": {
    "hand": "SOCK_hand_r",
@@ -4528,7 +4951,10 @@
    "model": "mh_resident_veth_04",
    "people_ref": "people.vaskaal",
    "uniform_scale": 1.29,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -4564,7 +4990,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.vaskaal.05": {
    "hand": "SOCK_hand_r",
@@ -4606,7 +5033,10 @@
    "model": "mh_resident_veth_05",
    "people_ref": "people.vaskaal",
    "uniform_scale": 1.29,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -4642,7 +5072,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.vaskaal.06": {
    "hand": "SOCK_hand_r",
@@ -4684,7 +5115,10 @@
    "model": "mh_resident_veth_06",
    "people_ref": "people.vaskaal",
    "uniform_scale": 1.29,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -4720,7 +5154,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.veth.01": {
    "hand": "SOCK_hand_r",
@@ -4762,7 +5197,10 @@
    "model": "mh_resident_veth_01",
    "people_ref": "people.veth",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -4798,7 +5236,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.veth.02": {
    "hand": "SOCK_hand_r",
@@ -4840,7 +5279,10 @@
    "model": "mh_resident_veth_02",
    "people_ref": "people.veth",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -4876,7 +5318,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.veth.03": {
    "hand": "SOCK_hand_r",
@@ -4918,7 +5361,10 @@
    "model": "mh_resident_veth_03",
    "people_ref": "people.veth",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_f",
+    "frontier_sealed_boots__mh_veth_f"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -4954,7 +5400,8 @@
     "sprint": 5.7206,
     "crouch_walk": 0.9956
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_f"
   },
   "resident.veth.04": {
    "hand": "SOCK_hand_r",
@@ -4996,7 +5443,10 @@
    "model": "mh_resident_veth_04",
    "people_ref": "people.veth",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -5032,7 +5482,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.veth.05": {
    "hand": "SOCK_hand_r",
@@ -5074,7 +5525,10 @@
    "model": "mh_resident_veth_05",
    "people_ref": "people.veth",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -5110,7 +5564,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   },
   "resident.veth.06": {
    "hand": "SOCK_hand_r",
@@ -5152,7 +5607,10 @@
    "model": "mh_resident_veth_06",
    "people_ref": "people.veth",
    "uniform_scale": 1.0,
-   "outfit": [],
+   "outfit": [
+    "frontier_linen_trousers_set__mh_veth_m",
+    "frontier_sealed_boots__mh_veth_m"
+   ],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -5188,7 +5646,8 @@
     "sprint": 6.1264,
     "crouch_walk": 1.0662
    },
-   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass."
+   "note": "Exact approved player body skin, geometry, binds and corrective tables; native Creator identity. Uniform stature only. Original player clips. Base layer pending published wardrobe pass.",
+   "outfit_body": "mh_veth_m"
   }
  },
  "weapons": {
@@ -5353,7 +5812,10 @@
   "panel.journal": "ui.panel.journal",
   "panel.map": "ui.panel.map",
   "panel.waystones": "ui.panel.waystones",
-  "travel.return_point": "ui.travel.return_point"
+  "travel.return_point": "ui.travel.return_point",
+  "item.armor.lamework_jack": "ui.item.lamework_jack",
+  "item.armor.lame_coif": "ui.item.lame_coif",
+  "item.armor.lame_sabatons": "ui.item.lame_sabatons"
  },
  "effects": {
   "cast_charge": "vfx.magic.cast_charge",

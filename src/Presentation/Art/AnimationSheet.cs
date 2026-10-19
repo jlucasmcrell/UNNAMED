@@ -106,8 +106,6 @@ public partial class AnimationSheet : Node3D
             Sky = new Sky { SkyMaterial = new ProceduralSkyMaterial() },
             ReflectedLightSource = Godot.Environment.ReflectionSource.Sky,
             AmbientLightSource = Godot.Environment.AmbientSource.Color, AmbientLightColor = new Color(0.6f, 0.62f, 0.66f), AmbientLightEnergy = 0.7f,
-            Sky = new Sky { SkyMaterial = new ProceduralSkyMaterial() },
-            ReflectedLightSource = Godot.Environment.ReflectionSource.Sky,
             TonemapMode = Godot.Environment.ToneMapper.Agx, SsaoEnabled = true,
         };
         AddChild(new WorldEnvironment { Environment = environment });

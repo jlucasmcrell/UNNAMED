@@ -2852,9 +2852,9 @@
   },
   "people": {
     "player": {
-      "model": "pc_veth_m_body_c",
-      "hand": "SOCK_hand.R",
-      "off_hand": "SOCK_hand.L",
+      "model": "mh_veth_m",
+      "hand": "SOCK_hand_r",
+      "off_hand": "SOCK_hand_l",
       "grip": {
         "at": [
           0,
@@ -2889,15 +2889,91 @@
           1
         ]
       },
-      "note": "Characters overhaul 2026-10-14: male Veth body C - OWNER CHOSE C (2026-10-15). Outfit variants base / hide_vest / hide_cap / hide_vest_cap. Same production skeleton and sockets as v9, so the player.cw_player clips play unchanged."
+      "note": "Approved native MetaHuman body; garments authored once on feminine Average and transferred with native wrap and skin weights. Body shapes and the accepted run are unchanged.",
+      "outfit": [
+        "frontier_linen_set__mh_veth_m"
+      ],
+      "equipment_outfits": {
+        "set:|": [
+          "frontier_linen_set__mh_veth_m"
+        ],
+        "set:|item.armor.wool_trousers": [
+          "frontier_linen_trousers_set__mh_veth_m"
+        ],
+        "set:item.armor.hide_vest|": [
+          "frontier_vest_set__mh_veth_m"
+        ],
+        "set:item.armor.hide_vest|item.armor.wool_trousers": [
+          "frontier_vest_trousers_set__mh_veth_m"
+        ],
+        "set:item.armor.lamework_jack|": [
+          "frontier_jack_set__mh_veth_m"
+        ],
+        "set:item.armor.lamework_jack|item.armor.wool_trousers": [
+          "frontier_jack_trousers_set__mh_veth_m"
+        ],
+        "item.armor.hide_cap": [
+          "frontier_standing_cap__mh_veth_m"
+        ],
+        "item.armor.lame_coif": [
+          "frontier_cap_coif_set__mh_veth_m"
+        ],
+        "item.armor.hide_boots": [
+          "frontier_sealed_boots__mh_veth_m"
+        ],
+        "item.armor.lame_sabatons": [
+          "frontier_boots_sabatons_set__mh_veth_m"
+        ],
+        "item.armor.smith_gloves": [
+          "frontier_smith_gloves__mh_veth_m"
+        ],
+        "item.armor.cloak": [
+          "frontier_wool_cloak__mh_veth_m"
+        ]
+      },
+      "clips": {
+        "idle": "player.mh.idle",
+        "walk": "player.mh.walk",
+        "run": "player.mh.run",
+        "sprint": "player.mh.sprint",
+        "crouch_idle": "player.mh.crouch_idle",
+        "crouch_walk": "player.mh.crouch_walk",
+        "jump_start": "player.mh.jump_start",
+        "fall": "player.mh.fall",
+        "land": "player.mh.land",
+        "interact": "player.mh.interact",
+        "stop": "player.mh.idle",
+        "turn": "player.mh.idle",
+        "talk": "player.mh.talk",
+        "sword_ready": "player.mh.sword_ready",
+        "sword_attack": "player.mh.sword_attack_1_mc",
+        "sword_attack_1": "player.mh.sword_attack_1_mc",
+        "sword_attack_2": "player.mh.sword_attack_2_mc",
+        "sword_attack_3": "player.mh.sword_attack_3_mc",
+        "sword_attack_4": "player.mh.sword_attack_4_mc",
+        "sword_block": "player.mh.sword_block_mc",
+        "bow_ready": "player.mh.bow_ready_mc",
+        "bow_draw": "player.mh.bow_draw_mc",
+        "spear_ready": "player.mh.spear_ready_mc",
+        "spear_thrust": "player.mh.spear_thrust_mc",
+        "cast": "player.mh.cast",
+        "hit": "player.mh.hit_mc",
+        "death": "player.mh.death_mc"
+      },
+      "paces": {
+        "walk": 1.2956,
+        "run": 2.9581,
+        "sprint": 6.1264,
+        "crouch_walk": 1.0662
+      }
     }
   },
   "people_by_visual_option": {
     "people=production": {
       "player": {
-        "model": "pc_veth_m_body_c",
-        "hand": "SOCK_hand.R",
-        "off_hand": "SOCK_hand.L",
+        "model": "mh_veth_m",
+        "hand": "SOCK_hand_r",
+        "off_hand": "SOCK_hand_l",
         "grip": {
           "at": [
             0,
@@ -2932,87 +3008,376 @@
             1
           ]
         },
-        "note": "Characters overhaul 2026-10-14: male Veth body C - OWNER CHOSE C (2026-10-15). Outfit variants base / hide_vest / hide_cap / hide_vest_cap. Same production skeleton and sockets as v9, so the player.cw_player clips play unchanged."
+        "note": "Approved native MetaHuman body; garments authored once on feminine Average and transferred with native wrap and skin weights. Body shapes and the accepted run are unchanged.",
+        "outfit": [
+          "frontier_linen_set__mh_veth_m"
+        ],
+        "equipment_outfits": {
+          "set:|": [
+            "frontier_linen_set__mh_veth_m"
+          ],
+          "set:|item.armor.wool_trousers": [
+            "frontier_linen_trousers_set__mh_veth_m"
+          ],
+          "set:item.armor.hide_vest|": [
+            "frontier_vest_set__mh_veth_m"
+          ],
+          "set:item.armor.hide_vest|item.armor.wool_trousers": [
+            "frontier_vest_trousers_set__mh_veth_m"
+          ],
+          "set:item.armor.lamework_jack|": [
+            "frontier_jack_set__mh_veth_m"
+          ],
+          "set:item.armor.lamework_jack|item.armor.wool_trousers": [
+            "frontier_jack_trousers_set__mh_veth_m"
+          ],
+          "item.armor.hide_cap": [
+            "frontier_standing_cap__mh_veth_m"
+          ],
+          "item.armor.lame_coif": [
+            "frontier_cap_coif_set__mh_veth_m"
+          ],
+          "item.armor.hide_boots": [
+            "frontier_sealed_boots__mh_veth_m"
+          ],
+          "item.armor.lame_sabatons": [
+            "frontier_boots_sabatons_set__mh_veth_m"
+          ],
+          "item.armor.smith_gloves": [
+            "frontier_smith_gloves__mh_veth_m"
+          ],
+          "item.armor.cloak": [
+            "frontier_wool_cloak__mh_veth_m"
+          ]
+        }
+      }
+    },
+    "player=metahuman_m": {
+      "player": {
+        "model": "mh_veth_m",
+        "hand": "SOCK_hand_r",
+        "off_hand": "SOCK_hand_l",
+        "grip": {
+          "at": [
+            0,
+            0,
+            0
+          ],
+          "primary": [
+            -0.26,
+            0.87,
+            -0.42
+          ],
+          "secondary": [
+            0,
+            0,
+            1
+          ]
+        },
+        "off_grip": {
+          "at": [
+            0,
+            0,
+            0
+          ],
+          "primary": [
+            0,
+            1,
+            0
+          ],
+          "secondary": [
+            0,
+            0,
+            1
+          ]
+        },
+        "note": "Approved native MetaHuman body; garments authored once on feminine Average and transferred with native wrap and skin weights. Body shapes and the accepted run are unchanged.",
+        "outfit": [
+          "frontier_linen_set__mh_veth_m"
+        ],
+        "equipment_outfits": {
+          "set:|": [
+            "frontier_linen_set__mh_veth_m"
+          ],
+          "set:|item.armor.wool_trousers": [
+            "frontier_linen_trousers_set__mh_veth_m"
+          ],
+          "set:item.armor.hide_vest|": [
+            "frontier_vest_set__mh_veth_m"
+          ],
+          "set:item.armor.hide_vest|item.armor.wool_trousers": [
+            "frontier_vest_trousers_set__mh_veth_m"
+          ],
+          "set:item.armor.lamework_jack|": [
+            "frontier_jack_set__mh_veth_m"
+          ],
+          "set:item.armor.lamework_jack|item.armor.wool_trousers": [
+            "frontier_jack_trousers_set__mh_veth_m"
+          ],
+          "item.armor.hide_cap": [
+            "frontier_standing_cap__mh_veth_m"
+          ],
+          "item.armor.lame_coif": [
+            "frontier_cap_coif_set__mh_veth_m"
+          ],
+          "item.armor.hide_boots": [
+            "frontier_sealed_boots__mh_veth_m"
+          ],
+          "item.armor.lame_sabatons": [
+            "frontier_boots_sabatons_set__mh_veth_m"
+          ],
+          "item.armor.smith_gloves": [
+            "frontier_smith_gloves__mh_veth_m"
+          ],
+          "item.armor.cloak": [
+            "frontier_wool_cloak__mh_veth_m"
+          ]
+        }
+      }
+    },
+    "player=metahuman_f": {
+      "player": {
+        "model": "mh_veth_f",
+        "hand": "SOCK_hand_r",
+        "off_hand": "SOCK_hand_l",
+        "grip": {
+          "at": [
+            0,
+            0,
+            0
+          ],
+          "primary": [
+            -0.26,
+            0.87,
+            -0.42
+          ],
+          "secondary": [
+            0,
+            0,
+            1
+          ]
+        },
+        "off_grip": {
+          "at": [
+            0,
+            0,
+            0
+          ],
+          "primary": [
+            0,
+            1,
+            0
+          ],
+          "secondary": [
+            0,
+            0,
+            1
+          ]
+        },
+        "note": "Approved native MetaHuman body; garments authored once on feminine Average and transferred with native wrap and skin weights. Body shapes and the accepted run are unchanged.",
+        "outfit": [
+          "frontier_linen_set__mh_veth_f"
+        ],
+        "equipment_outfits": {
+          "set:|": [
+            "frontier_linen_set__mh_veth_f"
+          ],
+          "set:|item.armor.wool_trousers": [
+            "frontier_linen_trousers_set__mh_veth_f"
+          ],
+          "set:item.armor.hide_vest|": [
+            "frontier_vest_set__mh_veth_f"
+          ],
+          "set:item.armor.hide_vest|item.armor.wool_trousers": [
+            "frontier_vest_trousers_set__mh_veth_f"
+          ],
+          "set:item.armor.lamework_jack|": [
+            "frontier_jack_set__mh_veth_f"
+          ],
+          "set:item.armor.lamework_jack|item.armor.wool_trousers": [
+            "frontier_jack_trousers_set__mh_veth_f"
+          ],
+          "item.armor.hide_cap": [
+            "frontier_standing_cap__mh_veth_f"
+          ],
+          "item.armor.lame_coif": [
+            "frontier_cap_coif_set__mh_veth_f"
+          ],
+          "item.armor.hide_boots": [
+            "frontier_sealed_boots__mh_veth_f"
+          ],
+          "item.armor.lame_sabatons": [
+            "frontier_boots_sabatons_set__mh_veth_f"
+          ],
+          "item.armor.smith_gloves": [
+            "frontier_smith_gloves__mh_veth_f"
+          ],
+          "item.armor.cloak": [
+            "frontier_wool_cloak__mh_veth_f"
+          ]
+        }
       }
     }
   },
   "people_clips_by_visual_option": {
     "clips=ext": {
       "player": {
-        "note": "CAIRNWOLD's own clip set, retargeted from Quaternius UAL1 and KayKit (both CC0). turn and stop are synthesised from the CC0 walk and labelled as such in their records. walk/run/sprint are Fab motion capture since 2026-10-16 (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py, --stance source); idle (Sample Animation Pack Unarmed_Idle_01), talk (Unarmed_Gesture_01) and sword_ready (Rokoko SwordIdleMedium) are motion capture since 2026-10-17 (tools/asset_pipeline/stance_clips.py: narrow stance, open hands, the drawn sword held low); paces are the clips' root speed on pc_veth_m_body_c, an NPC's scaled by its hips height.",
         "clips": {
-          "idle": "player.cw_player.idle",
-          "walk": "player.cw_player.walk",
-          "run": "player.cw_player.run",
-          "sprint": "player.cw_player.sprint",
-          "turn": "player.cw_player.turn",
-          "stop": "player.cw_player.stop",
-          "crouch_idle": "player.cw_player.crouch_idle",
-          "crouch_walk": "player.cw_player.crouch_walk",
-          "jump_start": "player.cw_player.jump_start",
-          "fall": "player.cw_player.fall",
-          "land": "player.cw_player.land",
-          "sword_ready": "player.cw_player.sword_ready",
-          "sword_attack": "player.cw_player.sword_attack_1_mc",
-          "sword_attack_1": "player.cw_player.sword_attack_1_mc",
-          "sword_attack_2": "player.cw_player.sword_attack_2_mc",
-          "sword_attack_3": "player.cw_player.sword_attack_3_mc",
-          "sword_attack_4": "player.cw_player.sword_attack_4_mc",
-          "sword_block": "player.cw_player.sword_block_mc",
-          "bow_ready": "player.cw_player.bow_ready_mc",
-          "bow_draw": "player.cw_player.bow_draw_mc",
-          "spear_ready": "player.cw_player.spear_ready_mc",
-          "spear_thrust": "player.cw_player.spear_thrust_mc",
-          "cast": "player.cw_player.cast",
-          "hit": "player.cw_player.hit_mc",
-          "death": "player.cw_player.death_mc",
-          "interact": "player.cw_player.interact",
-          "talk": "player.cw_player.talk"
+          "idle": "player.mh.idle",
+          "walk": "player.mh.walk",
+          "run": "player.mh.run",
+          "sprint": "player.mh.sprint",
+          "crouch_idle": "player.mh.crouch_idle",
+          "crouch_walk": "player.mh.crouch_walk",
+          "jump_start": "player.mh.jump_start",
+          "fall": "player.mh.fall",
+          "land": "player.mh.land",
+          "interact": "player.mh.interact",
+          "stop": "player.mh.idle",
+          "turn": "player.mh.idle",
+          "talk": "player.mh.talk",
+          "sword_ready": "player.mh.sword_ready",
+          "sword_attack": "player.mh.sword_attack_1_mc",
+          "sword_attack_1": "player.mh.sword_attack_1_mc",
+          "sword_attack_2": "player.mh.sword_attack_2_mc",
+          "sword_attack_3": "player.mh.sword_attack_3_mc",
+          "sword_attack_4": "player.mh.sword_attack_4_mc",
+          "sword_block": "player.mh.sword_block_mc",
+          "bow_ready": "player.mh.bow_ready_mc",
+          "bow_draw": "player.mh.bow_draw_mc",
+          "spear_ready": "player.mh.spear_ready_mc",
+          "spear_thrust": "player.mh.spear_thrust_mc",
+          "cast": "player.mh.cast",
+          "hit": "player.mh.hit_mc",
+          "death": "player.mh.death_mc"
         },
         "paces": {
-          "walk": 1.2908,
-          "run": 2.9471,
-          "sprint": 6.1034
-        }
+          "walk": 1.2956,
+          "run": 2.9581,
+          "sprint": 6.1264,
+          "crouch_walk": 1.0662
+        },
+        "note": "MetaHuman mh_veth_m (UE 5.8 in-editor Creator; UE EULA, never used to build, train or test AI), unclothed, on the shared UE5-mannequin game skeleton; walk/run/sprint player.mh.* are Fab motion capture (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py) baked on mh_veth_m; since 2026-10-17 (tools/asset_pipeline/stance_clips.py) idle and talk are Fab mocap (Sample Animation Pack Unarmed_Idle_01 and Gesture_01: narrow stance, open hands), sword_ready Rokoko mocap (SwordIdleMedium: the sword held low, arms hanging), and every combat state has its own clip on this skeleton (the production rig's UAL/KayKit takes, retargeted) - before, those states fell through to player.cw_player.*, whose bone names this skeleton lacks, and the body stood in its bind pose with the arms out; crouch, jump, fall, land and interact stay the Phase 1 smoke clips (UAL1, CC0); all carried rest-relative. Paces are the clips' root speed on mh_veth_m."
       }
     },
     "people=production": {
       "player": {
         "clips": {
-          "idle": "player.cw_player.idle",
-          "walk": "player.cw_player.walk",
-          "run": "player.cw_player.run",
-          "sprint": "player.cw_player.sprint",
-          "turn": "player.cw_player.turn",
-          "stop": "player.cw_player.stop",
-          "crouch_idle": "player.cw_player.crouch_idle",
-          "crouch_walk": "player.cw_player.crouch_walk",
-          "jump_start": "player.cw_player.jump_start",
-          "fall": "player.cw_player.fall",
-          "land": "player.cw_player.land",
-          "sword_ready": "player.cw_player.sword_ready",
-          "sword_attack": "player.cw_player.sword_attack_1_mc",
-          "sword_attack_1": "player.cw_player.sword_attack_1_mc",
-          "sword_attack_2": "player.cw_player.sword_attack_2_mc",
-          "sword_attack_3": "player.cw_player.sword_attack_3_mc",
-          "sword_attack_4": "player.cw_player.sword_attack_4_mc",
-          "sword_block": "player.cw_player.sword_block_mc",
-          "bow_ready": "player.cw_player.bow_ready_mc",
-          "bow_draw": "player.cw_player.bow_draw_mc",
-          "spear_ready": "player.cw_player.spear_ready_mc",
-          "spear_thrust": "player.cw_player.spear_thrust_mc",
-          "cast": "player.cw_player.cast",
-          "hit": "player.cw_player.hit_mc",
-          "death": "player.cw_player.death_mc",
-          "interact": "player.cw_player.interact",
-          "talk": "player.cw_player.talk"
+          "idle": "player.mh.idle",
+          "walk": "player.mh.walk",
+          "run": "player.mh.run",
+          "sprint": "player.mh.sprint",
+          "crouch_idle": "player.mh.crouch_idle",
+          "crouch_walk": "player.mh.crouch_walk",
+          "jump_start": "player.mh.jump_start",
+          "fall": "player.mh.fall",
+          "land": "player.mh.land",
+          "interact": "player.mh.interact",
+          "stop": "player.mh.idle",
+          "turn": "player.mh.idle",
+          "talk": "player.mh.talk",
+          "sword_ready": "player.mh.sword_ready",
+          "sword_attack": "player.mh.sword_attack_1_mc",
+          "sword_attack_1": "player.mh.sword_attack_1_mc",
+          "sword_attack_2": "player.mh.sword_attack_2_mc",
+          "sword_attack_3": "player.mh.sword_attack_3_mc",
+          "sword_attack_4": "player.mh.sword_attack_4_mc",
+          "sword_block": "player.mh.sword_block_mc",
+          "bow_ready": "player.mh.bow_ready_mc",
+          "bow_draw": "player.mh.bow_draw_mc",
+          "spear_ready": "player.mh.spear_ready_mc",
+          "spear_thrust": "player.mh.spear_thrust_mc",
+          "cast": "player.mh.cast",
+          "hit": "player.mh.hit_mc",
+          "death": "player.mh.death_mc"
         },
-        "note": "CAIRNWOLD's own clip set, retargeted onto cw_player from Quaternius UAL1 and KayKit (both CC0). Every state the shared bindings ask for is answered by a clip on this region's own rig, so nothing here falls through to the Phase-B names any more. walk/run/sprint are Fab motion capture since 2026-10-16 (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py, --stance source); idle (Sample Animation Pack Unarmed_Idle_01), talk (Unarmed_Gesture_01) and sword_ready (Rokoko SwordIdleMedium) are motion capture since 2026-10-17 (tools/asset_pipeline/stance_clips.py: narrow stance, open hands, the drawn sword held low); paces are the clips' root speed on pc_veth_m_body_c, an NPC's scaled by its hips height.",
         "paces": {
-          "walk": 1.2908,
-          "run": 2.9471,
-          "sprint": 6.1034
-        }
+          "walk": 1.2956,
+          "run": 2.9581,
+          "sprint": 6.1264,
+          "crouch_walk": 1.0662
+        },
+        "note": "MetaHuman mh_veth_m (UE 5.8 in-editor Creator; UE EULA, never used to build, train or test AI), unclothed, on the shared UE5-mannequin game skeleton; walk/run/sprint player.mh.* are Fab motion capture (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py) baked on mh_veth_m; since 2026-10-17 (tools/asset_pipeline/stance_clips.py) idle and talk are Fab mocap (Sample Animation Pack Unarmed_Idle_01 and Gesture_01: narrow stance, open hands), sword_ready Rokoko mocap (SwordIdleMedium: the sword held low, arms hanging), and every combat state has its own clip on this skeleton (the production rig's UAL/KayKit takes, retargeted) - before, those states fell through to player.cw_player.*, whose bone names this skeleton lacks, and the body stood in its bind pose with the arms out; crouch, jump, fall, land and interact stay the Phase 1 smoke clips (UAL1, CC0); all carried rest-relative. Paces are the clips' root speed on mh_veth_m."
+      }
+    },
+    "player=metahuman_m": {
+      "player": {
+        "clips": {
+          "idle": "player.mh.idle",
+          "walk": "player.mh.walk",
+          "run": "player.mh.run",
+          "sprint": "player.mh.sprint",
+          "crouch_idle": "player.mh.crouch_idle",
+          "crouch_walk": "player.mh.crouch_walk",
+          "jump_start": "player.mh.jump_start",
+          "fall": "player.mh.fall",
+          "land": "player.mh.land",
+          "interact": "player.mh.interact",
+          "stop": "player.mh.idle",
+          "turn": "player.mh.idle",
+          "talk": "player.mh.talk",
+          "sword_ready": "player.mh.sword_ready",
+          "sword_attack": "player.mh.sword_attack_1_mc",
+          "sword_attack_1": "player.mh.sword_attack_1_mc",
+          "sword_attack_2": "player.mh.sword_attack_2_mc",
+          "sword_attack_3": "player.mh.sword_attack_3_mc",
+          "sword_attack_4": "player.mh.sword_attack_4_mc",
+          "sword_block": "player.mh.sword_block_mc",
+          "bow_ready": "player.mh.bow_ready_mc",
+          "bow_draw": "player.mh.bow_draw_mc",
+          "spear_ready": "player.mh.spear_ready_mc",
+          "spear_thrust": "player.mh.spear_thrust_mc",
+          "cast": "player.mh.cast",
+          "hit": "player.mh.hit_mc",
+          "death": "player.mh.death_mc"
+        },
+        "paces": {
+          "walk": 1.2956,
+          "run": 2.9581,
+          "sprint": 6.1264,
+          "crouch_walk": 1.0662
+        },
+        "note": "MetaHuman mh_veth_m (UE 5.8 in-editor Creator; UE EULA, never used to build, train or test AI), unclothed, on the shared UE5-mannequin game skeleton; walk/run/sprint player.mh.* are Fab motion capture (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py) baked on mh_veth_m; since 2026-10-17 (tools/asset_pipeline/stance_clips.py) idle and talk are Fab mocap (Sample Animation Pack Unarmed_Idle_01 and Gesture_01: narrow stance, open hands), sword_ready Rokoko mocap (SwordIdleMedium: the sword held low, arms hanging), and every combat state has its own clip on this skeleton (the production rig's UAL/KayKit takes, retargeted) - before, those states fell through to player.cw_player.*, whose bone names this skeleton lacks, and the body stood in its bind pose with the arms out; crouch, jump, fall, land and interact stay the Phase 1 smoke clips (UAL1, CC0); all carried rest-relative. Paces are the clips' root speed on mh_veth_m."
+      }
+    },
+    "player=metahuman_f": {
+      "player": {
+        "clips": {
+          "idle": "player.mh.idle",
+          "walk": "player.mh.walk",
+          "run": "player.mh.run",
+          "sprint": "player.mh.sprint",
+          "crouch_idle": "player.mh.crouch_idle",
+          "crouch_walk": "player.mh.crouch_walk",
+          "jump_start": "player.mh.jump_start",
+          "fall": "player.mh.fall",
+          "land": "player.mh.land",
+          "interact": "player.mh.interact",
+          "stop": "player.mh.idle",
+          "turn": "player.mh.idle",
+          "talk": "player.mh.talk",
+          "sword_ready": "player.mh.sword_ready",
+          "sword_attack": "player.mh.sword_attack_1_mc",
+          "sword_attack_1": "player.mh.sword_attack_1_mc",
+          "sword_attack_2": "player.mh.sword_attack_2_mc",
+          "sword_attack_3": "player.mh.sword_attack_3_mc",
+          "sword_attack_4": "player.mh.sword_attack_4_mc",
+          "sword_block": "player.mh.sword_block_mc",
+          "bow_ready": "player.mh.bow_ready_mc",
+          "bow_draw": "player.mh.bow_draw_mc",
+          "spear_ready": "player.mh.spear_ready_mc",
+          "spear_thrust": "player.mh.spear_thrust_mc",
+          "cast": "player.mh.cast",
+          "hit": "player.mh.hit_mc",
+          "death": "player.mh.death_mc"
+        },
+        "paces": {
+          "walk": 1.2098,
+          "run": 2.7622,
+          "sprint": 5.7206,
+          "crouch_walk": 0.9956
+        },
+        "note": "MetaHuman mh_veth_f (UE 5.8 in-editor Creator; UE EULA, never used to build, train or test AI), unclothed, on the shared UE5-mannequin game skeleton; walk/run/sprint player.mh.* are Fab motion capture (Sample Animation Pack walk, VanillaLoop jog and run; tools/asset_pipeline/locomotion_fab.py) baked on mh_veth_m; since 2026-10-17 (tools/asset_pipeline/stance_clips.py) idle and talk are Fab mocap (Sample Animation Pack Unarmed_Idle_01 and Gesture_01: narrow stance, open hands), sword_ready Rokoko mocap (SwordIdleMedium: the sword held low, arms hanging), and every combat state has its own clip on this skeleton (the production rig's UAL/KayKit takes, retargeted) - before, those states fell through to player.cw_player.*, whose bone names this skeleton lacks, and the body stood in its bind pose with the arms out; crouch, jump, fall, land and interact stay the Phase 1 smoke clips (UAL1, CC0); all carried rest-relative. Paces are the clips' root speed on mh_veth_m x the hips-height ratio 0.9135 / 0.9783."
       }
     }
   },
@@ -3998,5 +4363,10 @@
       "model": "item_tome_set",
       "note": "Poly Haven CC0 book set stands in for a single tome."
     }
+  },
+  "icons": {
+    "item.armor.lamework_jack": "ui.item.lamework_jack",
+    "item.armor.lame_coif": "ui.item.lame_coif",
+    "item.armor.lame_sabatons": "ui.item.lame_sabatons"
   }
 }

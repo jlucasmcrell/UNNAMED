@@ -16,6 +16,33 @@ studio: "Rift Studios — J.L. McRell"
 studio_note: "OTHERREACH is made by Rift Studios — J.L. McRell."
 
 first_party:
+  # Native first-party props (tools/p0_bind/stage_p0_assets.py).
+  - barrowback_hide_folded
+  - deer_hide_folded
+  - fellhorn_hide_folded
+  - small_hide_folded
+  - wolf_hide_folded
+  - brass_key
+  - cinder_sac
+  - glass_marble
+  - hide_boots_pair
+  - iron_billet
+  - iron_ingot
+  - lantern_ledger
+  - larder_snare_ready
+  - larder_snare_sprung
+  - pelt_snare_ready
+  - pelt_snare_sprung
+  - quench_trough
+  - smith_bellows
+  - smith_tongs
+  - spider_silk_hank
+  - stopped_watch
+  - timber_shield_equipped
+  - unreadable_page
+  - wolf_fang
+  - workbench
+  - drying_herb_bundle
   # Procedural and hand-built geometry (props, pieces, stations, doors, trees, rocks, buildings made for CAIRNWOLD).
   - prop_bp_
   - piece_bp_
@@ -90,7 +117,7 @@ sections:
         binds: [weapon_real_arming_sword, prop_cos_, rock_cos_, flora_cos_, container_cos_, fence_cos_, wall_cos_, landmark_cos_]
         text: "Photographed props, trees, rocks, the arming sword and materials: Cosmos Premium by Leartes (cosmos.leartesstudios.com)."
       - ledger: [A-P01]
-        binds: [cw_boulder_, cw_rock_face_, cw_gravel_stone_, cw_dandelion, cw_sorrel, cw_fern_, cw_nettle_, prop_ph_, rock_ph_, flora_ph_, landmark_ph_, env_ph_, veg_ph_]
+        binds: [cw_boulder_, cw_rock_face_, cw_gravel_stone_, cw_dandelion, cw_sorrel, cw_fern_, cw_nettle_, prop_ph_, rock_ph_, flora_ph_, landmark_ph_, env_ph_, veg_ph_, flora_ashbloom, flora_woundmoss, flora_woundmoss_bare, flora_bog_cotton, flora_bog_cotton_spent, flora_young_ash_stand, item_water_flask, item_salve_minor, item_salve_ember, item_tome_set]
         text: "Rocks, plants, terrain textures and sky HDRIs: Poly Haven (polyhaven.com), CC0."
       - ledger: [A-P02]
         text: "Surface textures: ambientCG (ambientcg.com), CC0."
@@ -110,9 +137,35 @@ sections:
       - ledger: [A-F10, A-C02]
         text: "Foldscar heart and core stones: Monolith Megastructure (Fab) and Cosmos Premium."
 
+  - id: frontier_wardrobe
+    title: "Frontier wardrobe"
+    entries:
+      - binds: [frontier_]
+        text: "Frontier garments, modified, fitted and combined for Otherreach:"
+        lines:
+          - "Leather Armor by Giovani França and Medieval Leather Boots by Polary Studios, BlenderKit Royalty Free License."
+          - "Men's Shirt Untucked (mens_shirt_untuck_elvbhp1f) by Elvaerwyn, MakeHuman Community, CC BY (version unspecified in the held source notice)."
+          - "Monk's Hood by Donitz, MakeHuman Community, CC0; hood pattern adapted for the lame coif."
+          - "Photographic linen, wool and leather from Poly Haven; leather and iron surfaces from ambientCG, CC0. Lame geometry authored for Otherreach."
+        url: "https://www.blenderkit.com/asset-gallery-detail/eb56ba5c-92b0-47db-ad3e-5fa00a5eb077/"
+      - text: "Bag icons rendered from Leather Pouch by Chris Copple, BlenderKit Royalty Free License; category badges added for Otherreach."
+        url: "https://www.blenderkit.com/asset-gallery-detail/014edba8-2163-4762-8534-025c671f3082/"
+      - binds: [item_torch]
+        text: "Basic 3D Torch by cough-e, OpenGameArt, CC0; converted for Otherreach."
+        url: "https://opengameart.org/content/basic-3d-torch"
+
   - id: creatures
     title: "Creatures"
     entries:
+      - binds: [creature_playtest_bone_walker]
+        text: "Cursed Undead Soldier Rig by DM-913, CC BY 4.0. Modified bone/rag surfaces, removed glowing eyeball, converted and retargeted for Otherreach."
+        url: "https://www.fab.com/listings/cf236a92-88d9-4f0d-af10-d4f878560b39"
+      - binds: [creature_playtest_empty_armour]
+        text: "Armored Guard Knight Rig by DM-913, CC BY 4.0. Modified empty/open helm, aged iron and gauntlet slam for Otherreach."
+        url: "https://www.fab.com/listings/dfc7d8fe-6b8d-476c-876a-7574dbe023d4"
+      - binds: [creature_playtest_cave_spider]
+        text: "Nephila pilipes spider by huangyuanqiang, CC BY 4.0. Converted, scaled, retimed and given additional animation states for Otherreach."
+        url: "https://www.fab.com/listings/4265106f-e4d6-4b82-88ab-5f54c359e77c"
       - ledger: [A-W01]
         binds: [creature_wm_]
         text: "Creature models and animations: WildMesh 3D (UNITY Animated Animals Realistic Pack; 100 MODELS), used under the WildMesh Standard licence."
@@ -123,7 +176,7 @@ sections:
       - ledger: [P01, C33]
         text: "Character bodies: MPFB2 and the MakeHuman community base assets, CC0."
       - ledger: [P12]
-        binds: [mh_veth_]
+        binds: [mh_veth_, mh_npc_, mh_resident_]
         text: "Characters created with MetaHuman. Unreal® Engine, Copyright (c) Epic Games, Inc. Unreal and its logo are Epic Games trademarks."
       - ledger: [C29]
         text: "Skin shader: HumanShaders by MatMADNESS, MIT and CC BY 4.0, https://github.com/matmadness/HumanShaders."
