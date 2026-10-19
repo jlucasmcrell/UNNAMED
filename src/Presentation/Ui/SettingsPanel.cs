@@ -516,8 +516,6 @@ public partial class SettingsPanel : CanvasLayer
             0, 100, 5, camera.Shake * 100, v => $"{v:0} %", v => Profile(p => p with { Camera = p.Camera with { Shake = (float)(v / 100) } })));
         comfort.AddChild(Slider("camera.bob", "Head bob", "How much the view sways with the step in first person; 0 is a steady eye.",
             0, 100, 5, camera.Bob * 100, v => $"{v:0} %", v => Profile(p => p with { Camera = p.Camera with { Bob = (float)(v / 100) } })));
-        comfort.AddChild(Toggle("camera.blur", "Motion blur", "Smearing the picture when the view moves. Off unless you choose it. No blur is drawn yet; this is kept for when it is.",
-            camera.MotionBlur, on => Profile(p => p with { Camera = p.Camera with { MotionBlur = on } })));
         comfort.AddChild(Toggle("camera.flashes", "Reduce flashes", "A burst of light from a working or an impact reaches a third of its brightness.",
             camera.ReduceFlashes, on => Profile(p => p with { Camera = p.Camera with { ReduceFlashes = on } })));
         Reset("camera.reset", () => Profile(p => p with { Camera = new CameraPrefs() }));

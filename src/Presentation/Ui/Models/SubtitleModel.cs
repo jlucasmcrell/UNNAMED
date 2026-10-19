@@ -68,4 +68,7 @@ public sealed class SubtitleModel
         int room = (int)(screenHeight / 3 / (MaxLines * 2 * 1.3));   // each of the lines may wrap to two
         return Math.Max(16, Math.Min(wanted, room));
     }
+
+    /// <summary>The band the captions stand in, in interface pixels: <see cref="MaxLines"/> captions of one line at <paramref name="fontSize"/>, with their padding and gaps. A longer caption wraps and the oldest line scrolls off the top.</summary>
+    public static float BandHeight(int fontSize) => MaxLines * (fontSize * 1.3f + 8) + (MaxLines - 1) * 4;
 }

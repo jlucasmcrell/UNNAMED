@@ -15,6 +15,9 @@ item's status is `worker_tasks/logs/23_before_testers_report.md`; this page is w
 - **Subtitles**: a caption strip above the action bars carries every bark and ambient line with the speaker in capitals, a size (Normal to Largest over the
   text size, held to what three wrapped lines can take of a third of the screen) and a background (none, dim, solid). Conversation lines keep the dialogue
   panel, which names its speaker. With subtitles off an unvoiced bark still shows over the speaker's head.
+  The strip stands in a band over the dock, at most three captions high; an older caption that no longer fits goes first. The HUD keeps named regions
+  (`HudRegions`: status at the top left, compass, tracker and notices at the top right, the dock, the subtitle band, the chat feed and combat log beside
+  the dock) that never meet, at any interface size from 75 to 200 %: the tracker shrinks to its title and notices wait when the room is short.
 - **Colour never alone**: harm/aid, ready/refused, done/failed, requirement met/unmet and the compass marks each carry a word or a different shape
   (`ColourWords.Needs`: "10 - met", "10 - you have 7"; the compass names its marks in words and metres).
 - **200 %**: text size goes to 200 % and the interface size to 200 %; the dock shrinks its slots to fit; the UI-shot pass pictures every screen at both.
@@ -22,7 +25,7 @@ item's status is `worker_tasks/logs/23_before_testers_report.md`; this page is w
 ## Settings
 One file (`user://client_prefs.json`), one screen, applied at once, kept across sessions, never pausing anything: window mode, resolution, vsync, frame cap,
 tier and dials, render scale and brightness; five volume buses plus the interface bus; look, field of view, camera shake (a solid blow on the character
-jolts the view), head bob (first person) and motion blur (off; no blur is drawn yet, so the switch is kept for it); interface and text size, contrast,
+jolts the view), head bob (first person; motion blur is not offered until a blur is drawn); interface and text size, contrast,
 colour vision, notices (how long, and which kinds show: discoveries, items, progress, party, gear, world), subtitles, guidance, chat, the action bars
 (each of bars 2 to 6 on or off, at the right edge, locked, a size slider each).
 

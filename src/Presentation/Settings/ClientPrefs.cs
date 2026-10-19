@@ -260,7 +260,7 @@ public sealed record CameraPrefs
     /// <summary>Flashes held down: a burst of light reaches at most a third of its brightness (PJ03 §6.3).</summary>
     public bool ReduceFlashes { get; init; }
 
-    /// <summary>Motion blur, off unless chosen. No blur is drawn yet (the engine has none built in); this is the switch it will read, as shake and bob are.</summary>
+    /// <summary>Motion blur, off unless chosen. No blur is drawn yet (the engine has none built in), so Settings does not offer the switch; it is kept so a saved value still loads.</summary>
     public bool MotionBlur { get; init; }
 
     public CameraPrefs Normalised() => this with
