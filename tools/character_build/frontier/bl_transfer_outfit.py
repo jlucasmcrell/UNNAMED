@@ -83,7 +83,7 @@ for part in parts:
     old=set(bpy.data.objects);bpy.ops.import_scene.gltf(filepath=str(source))
     garment=next(o for o in set(bpy.data.objects)-old if o.type=='MESH' and o.name==base)
     rigid_attachments=([garment.vertex_groups[v.groups[0].group].name for v in garment.data.vertices]
-                       if part in ('lamework_jack','lame_sabatons') else None)
+                       if part=='lamework_jack' else None)
     source_arm=next(o for o in set(bpy.data.objects)-old if o.type=='ARMATURE')
     for extra in list(set(bpy.data.objects)-old):
         if extra.type=='MESH' and extra!=garment:bpy.data.objects.remove(extra,do_unlink=True)
@@ -120,7 +120,7 @@ for part in parts:
                 bone.length=original[bone.name][1]
         bpy.ops.object.mode_set(mode='OBJECT');bpy.context.view_layer.objects.active=garment
         target_arm=source_arm
-    elif part in ('lamework_jack','lame_sabatons'):
+    elif part=='lamework_jack':
         # Mesh Deform keeps vertex order and both family rigs share bone names.
         # Keep authored rigid plate attachments; nearest-body weights can attach
         # a torso plate to the upper arm beside it and lift it during a run.
