@@ -22,6 +22,13 @@ public partial class Main
             case InputEventMouseMotion motion when Input.MouseMode == Input.MouseModeEnum.Captured && !Modal:
                 _camera.Look(motion.Relative);
                 break;
+            // The scroll modifier (Alt) and the wheel page the main bar instead of zooming.
+            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelUp } when !Modal && Input.IsActionPressed("bar_scroll_modifier"):
+                _barPage = ActionBarModel.Page(_barPage, -1);
+                break;
+            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelDown } when !Modal && Input.IsActionPressed("bar_scroll_modifier"):
+                _barPage = ActionBarModel.Page(_barPage, 1);
+                break;
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelUp } when !Modal:
                 _camera.Zoom(-0.35f);
                 break;
@@ -193,8 +200,15 @@ public partial class Main
         bool holding = captured && Engaged("guard");
         bool swing = captured && Input.IsActionJustPressed("attack");
         // The quick bar (WP9): a slot's key uses what is on it - an item, or a formula or technique worked where the camera looks, like a swing (M3e).
-        int slot = Array.FindIndex(QuickKeys, key => Input.IsActionJustPressed(key));
-        string? quick = slot >= 0 ? _session.Simulation!.QuickBar[slot] : null;
+        // The page keys first: the page modifier held with 1 to 6 pages the main bar, and the digit is then not a slot's.
+        int page = Input.IsActionPressed("bar_modifier") ? Array.FindIndex(BarPageKeys, key => Input.IsActionJustPressed(key)) : -1;
+        if (page >= 0)
+            _barPage = page;
+        int slot = page >= 0 ? -1 : Array.FindIndex(QuickKeys, key => Input.IsActionJustPressed(key));
+        string? quick = slot >= 0 ? _session.Simulation!.ActionBars[_barPage][slot] : null;
+        int gear = Array.FindIndex(GearSetKeys, key => Input.IsActionJustPressed(key));
+        if (gear >= 0)
+            _session.Submit(new SwapGearSetCommand(_session.Simulation!.PlayerId, gear + 1));
         bool working = captured && quick is not null && (_session.Setup.Magic.Formulas.ContainsKey(quick) || _session.Setup.Techniques.ContainsKey(quick));
         _controller.Steer(_camera, stick, gait, faceCamera: holding || swing || working || combat.Phase == CombatPhase.Windup);
         if (swing)
@@ -276,7 +290,9 @@ public partial class Main
     private void UseQuickSlot(int slot, string? id, bool captured)
     {
         if (id is null)
-            _hud.Toast($"Quick slot {HelpPanel.Key(QuickKeys[slot])} is empty - put something on it from Skills [{HelpPanel.Key("skills")}] or the inventory", 3);
+            _hud.Toast($"Slot {HelpPanel.Key(QuickKeys[slot])} on bar {_barPage + 1} is empty - put something on it from Skills [{HelpPanel.Key("skills")}] or the inventory", 3);
+        else if (UNNAMED.Domain.Progression.QuickBar.TryGearSet(id, out int set))
+            _session.Submit(new SwapGearSetCommand(_session.Simulation!.PlayerId, set));
         else if (_session.Setup.Magic.Formulas.ContainsKey(id))
         {
             if (captured)
@@ -331,8 +347,17 @@ public partial class Main
         Bind("companion_order", Key.G);   // follow or wait (content bible §9: no radial menu)
         for (int n = 1; n <= 9; n++)
             Bind($"reply_{n}", Key.Key1 + n - 1);   // in a conversation, the number keys answer
+        // Outside a conversation the digits are the main bar's slots (WP9; PJ09): 1 to 9, 0, - and =.
+        Key[] slotKeys = { Key.Key1, Key.Key2, Key.Key3, Key.Key4, Key.Key5, Key.Key6, Key.Key7, Key.Key8, Key.Key9, Key.Key0, Key.Minus, Key.Equal };
         for (int i = 0; i < QuickKeys.Length; i++)
-            Bind(QuickKeys[i], Key.Key1 + i);   // outside one, 1 to 8 are the quick bar (WP9; PJ09)
+            Bind(QuickKeys[i], slotKeys[i]);
+        // Shift (the sprint key, held beside them) and 1 to 6 page the bar; Alt and the wheel do the same. Gear sets have no default key.
+        for (int i = 0; i < BarPageKeys.Length; i++)
+            Bind(BarPageKeys[i], Key.Key1 + i);
+        Bind("bar_modifier", Key.Shift);
+        Bind("bar_scroll_modifier", Key.Alt);
+        foreach (string action in GearSetKeys)
+            Bind(action);
         foreach (var (action, button) in new[] { ("attack", MouseButton.Left), ("guard", MouseButton.Right) })
         {
             if (!InputMap.HasAction(action))

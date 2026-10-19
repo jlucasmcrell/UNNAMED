@@ -460,12 +460,26 @@ internal static class SaveLoader
 
         // The quick bar (schema 23): a slot whose item, formula or technique was removed is emptied, and two that resolve to one keep the
         // first; what was cleared off the bar stays cleared under its current ID, unless it is on the bar.
-        var bar = player.QuickBar.ToBuilder();
-        for (int slot = 0; slot < bar.Count; slot++)
+        // The action bars (schema 32) pass the same way, one bar at a time; a gear-set switch names no definition and passes as it is.
+        ImmutableArray<string?> ResolveBar(ImmutableArray<string?> slots, string label)
         {
-            if (bar[slot] is { } held && Resolve(held, $"quick slot {slot + 1}") is var id)
-                bar[slot] = id is not null && bar.Take(slot).All(earlier => earlier != id) ? id : null;
+            var resolved = slots.ToBuilder();
+            for (int slot = 0; slot < resolved.Count; slot++)
+            {
+                if (resolved[slot] is not { } held || UNNAMED.Domain.Progression.QuickBar.TryGearSet(held, out _))
+                    continue;
+                string? id = Resolve(held, $"{label} slot {slot + 1}");
+                resolved[slot] = id is not null && resolved.Take(slot).All(earlier => earlier != id) ? id : null;
+            }
+            return resolved.ToImmutable();
         }
+        var bar = ResolveBar(player.QuickBar, "quick bar").ToBuilder();
+        var extraBars = player.ExtraBars.Select((b, i) => ResolveBar(b, $"action bar {i + 2}")).ToImmutableArray();
+        // Gear sets (schema 32): a piece whose item definition was removed leaves the set; the instance it names is the pack's to keep or not.
+        var gearSets = player.GearSets.Select(set => set with
+        {
+            Items = set.Items.Select(i => Resolve(i.DefId, $"gear set {set.Index} piece") is { } def ? i with { DefId = def } : null).OfType<UNNAMED.Domain.Items.GearSetItem>().ToImmutableArray(),
+        }).ToImmutableArray();
         var cleared = new SortedSet<string>(StringComparer.Ordinal);
         foreach (string off in player.QuickBarCleared)
         {
@@ -520,7 +534,7 @@ internal static class SaveLoader
         return (rewritten.WithDeeds(deeds.Values).WithFactions(factions) with
             {
                 Party = new PartyLedger(recovering.Values.ToImmutableArray(), fallen.ToImmutableArray()),
-                QuickBar = bar.ToImmutable(), QuickBarCleared = cleared.ToImmutableArray(),
+                QuickBar = bar.ToImmutable(), QuickBarCleared = cleared.ToImmutableArray(), ExtraBars = extraBars, GearSets = gearSets,
                 PartySheets = sheets.Values.ToImmutableArray(),
                 Attack = attack,
                 Findings = findings.ToImmutableArray(),

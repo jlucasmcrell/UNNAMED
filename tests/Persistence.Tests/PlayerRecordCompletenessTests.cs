@@ -86,7 +86,12 @@ public class PlayerRecordCompletenessTests
                 // Someone recovering from a grave wound, and a hireling who fell (schema 21).
                 Party = new PartyLedger(ImmutableArray.Create(new RecoveryRecord("npc.fixture.healer", 9_000)), ImmutableArray.Create("npc.fixture.porter")),
                 // A slot in use and something cleared off the bar (schema 23).
-                QuickBar = ImmutableArray.Create<string?>("item.potion.minor_healing", null, null, "spell.ember.bolt", null, null, null, null),
+                QuickBar = ImmutableArray.Create<string?>("item.potion.minor_healing", null, null, "spell.ember.bolt", null, null, null, null, null, null, null, "gearset.set_2"),
+                // The further bars and a gear set that wears two pieces, one of them the vest (schema 32).
+                ExtraBars = ImmutableArray.Create(QuickBar.Empty.SetItem(5, "spell.ember.bolt"), QuickBar.Empty, QuickBar.Empty.SetItem(11, "item.potion.minor_healing"), QuickBar.Empty, QuickBar.Empty),
+                GearSets = ImmutableArray.Create(new GearSet(2, "Vest and sword", ImmutableArray.Create(
+                    new GearSetItem(EquipSlot.MainHand, player.Equipment[EquipSlot.MainHand], "item.weapon.iron_sword"),
+                    new GearSetItem(EquipSlot.Chest, vest.ItemId, "item.armor.fixture_vest")))),
                 QuickBarCleared = ImmutableArray.Create("item.food.roast_meat"),
                 // A party member's sheet in every field: a filled progression, a gift and a loan worn, a notable thing of their own (schema 25).
                 PartySheets = ImmutableArray.Create(new PartySheet("npc.fixture.scout", progression)
@@ -129,6 +134,8 @@ public class PlayerRecordCompletenessTests
             Assert.Equal(full.SpaceId, copy.SpaceId);
             Assert.Equal(full.SpaceTraversal, copy.SpaceTraversal);
             Assert.Equal(full.Findings, copy.Findings);
+            Assert.Equal(full.ExtraBars, copy.ExtraBars);
+            Assert.Equal(full.GearSets, copy.GearSets);
             Assert.Equal(full.Digest, copy.Digest);
         }
     }

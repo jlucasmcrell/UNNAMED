@@ -6,7 +6,7 @@ using UNNAMED.World.Runtime;
 namespace UNNAMED.Application.Tests;
 
 /// <summary>
-/// WP9: the eight-slot quick bar over the game's own content. What comes to hand is offered a free slot - an item on keys 1 to 3 first, a
+/// WP9: the quick bar (the first of six bars, twelve slots) over the game's own content. What comes to hand is offered a free slot - an item on keys 1 to 3 first, a
 /// formula on keys 4 to 8 first - and the player moves, swaps and clears slots through the one command; nothing else writes the bar.
 /// </summary>
 public class QuickBarTests
@@ -39,11 +39,11 @@ public class QuickBarTests
         var arena = Open(Harness.Boot(profile), WithPrimer);
         var assigned = arena.Record<QuickSlotAssigned>();
         arena.Tick();
-        Assert.Equal(new string?[] { Salve, null, null, null, null, null, null, null }, arena.Simulation.QuickBar);
+        Assert.Equal(new string?[] { Salve, null, null, null, null, null, null, null, null, null, null, null }, arena.Simulation.QuickBar);
 
         Read(arena);
 
-        Assert.Equal(new string?[] { Salve, null, null, Bolt, Ward, Thread, null, null }, arena.Simulation.QuickBar);
+        Assert.Equal(new string?[] { Salve, null, null, Bolt, Ward, Thread, null, null, null, null, null, null }, arena.Simulation.QuickBar);
         Assert.Equal(new[] { (0, Salve), (3, Bolt), (4, Ward), (5, Thread) }, assigned.Select(a => (a.Slot, a.DefinitionId!)));
     }
 
@@ -56,11 +56,11 @@ public class QuickBarTests
         Read(arena);
 
         Assert.Null(arena.Submit(new AssignQuickSlotCommand(arena.Player, 0, Ward)));
-        Assert.Equal(new string?[] { Ward, null, null, Bolt, Salve, Thread, null, null }, arena.Simulation.QuickBar);
+        Assert.Equal(new string?[] { Ward, null, null, Bolt, Salve, Thread, null, null, null, null, null, null }, arena.Simulation.QuickBar);
         Assert.Null(arena.Submit(new AssignQuickSlotCommand(arena.Player, 7, Bolt)));
-        Assert.Equal(new string?[] { Ward, null, null, null, Salve, Thread, null, Bolt }, arena.Simulation.QuickBar);
+        Assert.Equal(new string?[] { Ward, null, null, null, Salve, Thread, null, Bolt, null, null, null, null }, arena.Simulation.QuickBar);
         Assert.Null(arena.Submit(new AssignQuickSlotCommand(arena.Player, 5, null)));
-        Assert.Equal(new string?[] { Ward, null, null, null, Salve, null, null, Bolt }, arena.Simulation.QuickBar);
+        Assert.Equal(new string?[] { Ward, null, null, null, Salve, null, null, Bolt, null, null, null, null }, arena.Simulation.QuickBar);
 
         // Cleared, a formula that is still known is not put back while the character plays on.
         arena.Tick(20);
@@ -76,9 +76,9 @@ public class QuickBarTests
 
         Assert.Equal($"{Bolt} is not known", arena.Submit(new AssignQuickSlotCommand(arena.Player, 3, Bolt)));
         Assert.Equal("item.weapon.rusted_sword has no use", arena.Submit(new AssignQuickSlotCommand(arena.Player, 3, "item.weapon.rusted_sword")));
-        Assert.Equal("recipe.smithing.iron_billet cannot go on the quick bar", arena.Submit(new AssignQuickSlotCommand(arena.Player, 3, "recipe.smithing.iron_billet")));
-        Assert.Equal("there is no quick slot 9", arena.Submit(new AssignQuickSlotCommand(arena.Player, 8, Salve)));
-        Assert.Equal(new string?[] { Salve, null, null, null, null, null, null, null }, arena.Simulation.QuickBar);
+        Assert.Equal("recipe.smithing.iron_billet cannot go on an action bar", arena.Submit(new AssignQuickSlotCommand(arena.Player, 3, "recipe.smithing.iron_billet")));
+        Assert.Equal("there is no slot 13 on action bar 1", arena.Submit(new AssignQuickSlotCommand(arena.Player, 12, Salve)));
+        Assert.Equal(new string?[] { Salve, null, null, null, null, null, null, null, null, null, null, null }, arena.Simulation.QuickBar);
     }
 
     [Fact]

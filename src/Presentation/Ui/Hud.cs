@@ -318,6 +318,9 @@ public partial class Hud : CanvasLayer
     /// <summary>The status as values (the same moment's <see cref="SetStatus"/>): what the production HUD lays out; classic prints the text.</summary>
     public void SetSheet(HudSheet sheet) => _view?.SetSheet(sheet);
 
+    /// <summary>The action bars of the production HUD; null in the classic one, whose keys still work.</summary>
+    public ActionBarsView? Bars => _view?.Bars;
+
     public void SetPrompt(string? text, string? context = null)
     {
         if (_view is not null)

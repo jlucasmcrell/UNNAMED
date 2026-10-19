@@ -32,7 +32,7 @@ public partial class HelpPanel : CanvasLayer
             {
                 ("Open, take, talk, work, help up", new[] { "interact" }), ("Attack, or shoot the bow", new[] { "attack" }),
                 ("Guard, or aim the bow", new[] { "guard" }), ("Dodge", new[] { "dodge" }), ("Use a salve", new[] { "use" }),
-                ("Use a quick slot: an item, a formula", new[] { "quick_1", "quick_8" }),
+                ("Use a quick slot: an item, a formula", new[] { "quick_1", "quick_12" }),
                 ("Take all, from a container", new[] { "take_all" }),
             }),
         },

@@ -36,6 +36,7 @@ using V26 = UNNAMED.Persistence.Sections.V26;
 using V28 = UNNAMED.Persistence.Sections.V28;
 using V29 = UNNAMED.Persistence.Sections.V29;
 using V30 = UNNAMED.Persistence.Sections.V30;
+using V31 = UNNAMED.Persistence.Sections.V31;
 
 namespace UNNAMED.Persistence;
 
@@ -113,7 +114,8 @@ public static class SchemaMigrations
         new SchemaV27ToV28(),
         new SchemaV28ToV29(),
         new SchemaV29ToV30(),
-        new SchemaV30ToV31());
+        new SchemaV30ToV31(),
+        new SchemaV31ToV32());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -1669,7 +1671,7 @@ public sealed class SchemaV30ToV31 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V30.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V31.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -1702,6 +1704,69 @@ public sealed class SchemaV30ToV31 : SchemaMigration
                 SpaceId = old.SpaceId,
                 SpaceTraversal = old.SpaceTraversal,
                 Findings = Array.Empty<FindingDto>(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 31 to 32 (action bars and gear sets): the quick bar becomes the first of six action bars of twelve slots - its eight slots keep
+/// their places and the four new ones are empty, what was cleared off it stays cleared - and the other five bars start empty. No save
+/// before it kept a gear set. Every older field is copied one by one, since the frozen shape and the live DTO are different types.
+/// </summary>
+public sealed class SchemaV31ToV32 : SchemaMigration
+{
+    public override int From => 31;
+
+    public override string Summary => "schema 31 -> 32: the quick bar becomes the first of six twelve-slot action bars, and the character keeps gear sets (none before)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V31.Player>(player, options);
+            var bar = old.QuickBar ?? throw new FormatException("player.msgpack has no quick bar (required from schema 23)");
+            var slots = new string?[12];
+            Array.Copy(bar.Slots, slots, Math.Min(bar.Slots.Length, slots.Length));
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions,
+                Posture = old.Posture,
+                Waystones = old.Waystones,
+                ReturnPoint = old.ReturnPoint,
+                RoadsWalked = old.RoadsWalked,
+                Deeds = old.Deeds,
+                Identity = old.Identity,
+                Factions = old.Factions,
+                Party = old.Party,
+                // Literal sizes, not the domain's: a step is a fixed function of the schema it reads.
+                QuickBar = new QuickBarDto { Slots = slots, Cleared = bar.Cleared },
+                PartySheets = old.PartySheets,
+                Attack = old.Attack,
+                SpaceId = old.SpaceId,
+                SpaceTraversal = old.SpaceTraversal,
+                Findings = old.Findings,
+                ExtraBars = Enumerable.Range(0, 5).Select(_ => new string?[12]).ToArray(),
+                GearSets = Array.Empty<GearSetDto>(),
             }, options);
         }
         document.Manifest["schema_version"] = To;

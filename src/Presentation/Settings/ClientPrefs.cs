@@ -299,6 +299,15 @@ public sealed record InterfacePrefs
     /// <summary>What chat shows (WP16); on by default. Chat itself is never saved: this only filters what is shown.</summary>
     public ChatSetting Chat { get; init; } = ChatSetting.On;
 
+    /// <summary>The action bars locked: nothing can be dragged onto, off or between their slots until they are unlocked.</summary>
+    public bool BarsLocked { get; init; }
+
+    /// <summary>Which of action bars 2 to 6 are shown, one bit each (bit 0 is bar 2); the main bar is always shown.</summary>
+    public int BarsShown { get; init; }
+
+    /// <summary>The shown further bars stand at the right edge, as columns, instead of stacked above the main bar.</summary>
+    public bool BarsAtSide { get; init; }
+
     /// <summary>The hints this player has seen; "Reset hints" empties it so every hint shows again.</summary>
     public string[] SeenHints { get; init; } = Array.Empty<string>();
 
@@ -309,6 +318,7 @@ public sealed record InterfacePrefs
         ColourVision = Enum.IsDefined(ColourVision) ? ColourVision : ColourVision.None,
         NoticeDuration = Array.IndexOf(NoticeSeconds, NoticeDuration) >= 0 ? NoticeDuration : 1,
         Guidance = Enum.IsDefined(Guidance) ? Guidance : Guidance.Full,
+        BarsShown = BarsShown & 0b11111,
         Chat = Enum.IsDefined(Chat) ? Chat : ChatSetting.On,
         SeenHints = (SeenHints ?? Array.Empty<string>()).Where(h => !string.IsNullOrEmpty(h)).Distinct(StringComparer.Ordinal).ToArray(),
     };
@@ -362,6 +372,10 @@ public static class Binding
     public static IEnumerable<string> Contexts(string action) => action switch
     {
         _ when action.StartsWith("reply_", StringComparison.Ordinal) => new[] { "conversation" },
+        // A bar page's key is pressed with the page modifier held, and the modifiers are held beside other keys: each is its own context, so the
+        // number key that uses a slot may also page a bar, and Shift may also sprint.
+        _ when action.StartsWith("bar_page_", StringComparison.Ordinal) => new[] { "bar page" },
+        "bar_modifier" or "bar_scroll_modifier" => new[] { "bar modifier" },
         "release_mouse" => new[] { "play", "conversation" },
         _ => new[] { "play" },
     };

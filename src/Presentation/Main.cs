@@ -30,8 +30,16 @@ namespace UNNAMED.Presentation;
 /// </summary>
 public partial class Main : Node3D
 {
-    /// <summary>Input actions for the eight quick slots (WP9), on 1 to 8 by default: items, formulas and techniques alike.</summary>
+    /// <summary>Input actions for the twelve slots of the main bar (WP9), on 1 to 9, 0, - and = by default: items, formulas, techniques and gear sets alike.</summary>
     private static readonly string[] QuickKeys = Enumerable.Range(1, UNNAMED.Domain.Progression.QuickBar.Slots).Select(n => $"quick_{n}").ToArray();
+
+    /// <summary>Input actions that page the main bar to one of the six (held with the page modifier, Shift by default), and those that switch to a gear set.</summary>
+    private static readonly string[] BarPageKeys = Enumerable.Range(1, UNNAMED.Domain.Progression.QuickBar.Bars).Select(n => $"bar_page_{n}").ToArray();
+
+    private static readonly string[] GearSetKeys = Enumerable.Range(1, UNNAMED.Domain.Progression.QuickBar.GearSets).Select(n => $"gear_set_{n}").ToArray();
+
+    /// <summary>The bar the main row shows (0 to 5). Not saved: a session starts on the first.</summary>
+    private int _barPage;
 
     private readonly HashSet<string> _flags = new(StringComparer.Ordinal);
 

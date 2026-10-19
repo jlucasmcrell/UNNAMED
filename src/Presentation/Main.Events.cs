@@ -36,6 +36,20 @@ public partial class Main
         _session.Subscribe<EncounterRestarted>(e => _hud.Toast(e.Loaded
             ? "Active boss encounters restart when loaded. You return outside the court with your saved resources."
             : "The Custodian disengages. The court falls quiet.", 7));
+        // Gear sets: a switch takes time, so it says it has begun, and then what it did - and never what it could not, which it names.
+        _session.Subscribe<GearSetSaved>(e => _hud.Toast($"Kept {e.Name} as gear set {e.Index}", 2));
+        _session.Subscribe<GearSetDeleted>(e => _hud.Toast($"Gear set {e.Index} deleted", 2));
+        _session.Subscribe<GearSwapStarted>(e => _hud.Toast($"Changing gear... {(e.DueTick - e.Tick) * _session.TickSeconds:0.#} s{(e.InCombat ? " (slower in a fight)" : "")}", 2));
+        _session.Subscribe<GearSwapCancelled>(e => _hud.Toast($"Gear change stopped: {e.Why}", 3));
+        _session.Subscribe<GearSwapped>(e =>
+        {
+            string name = _session.Simulation?.GearSets.FirstOrDefault(g => g.Index == e.Index)?.Name ?? $"set {e.Index}";
+            _hud.Toast($"Wearing {name}", 2);
+            if (!e.Missing.IsEmpty)
+                _hud.Toast($"Not carried: {string.Join(", ", e.Missing.Select(i => Names.Of(_session, i.DefId)))}", 4);
+            foreach (var (item, why) in e.Refused)
+                _hud.Toast($"{Names.Of(_session, item.DefId)}: {why}", 4);
+        });
         _session.Subscribe<BodyMoved>(_controller.OnBodyMoved);
         _session.Subscribe<PlayerRespawned>(_controller.OnRespawned);
         // Waystones (S-38): what a hand on a stone found, a return point chosen, and a journey's arrival with the time it took.
@@ -90,7 +104,8 @@ public partial class Main
         _session.Subscribe<CommandRejected>(e =>
         {
             if (e.Command is InteractCommand or MoveItemCommand or EquipCommand or UnequipCommand or GatherCommand or CraftCommand or TakeAllCommand
-                or SpendAttributeCommand or TouchStoneCommand or BindStoneCommand or TravelCommand)
+                or SpendAttributeCommand or TouchStoneCommand or BindStoneCommand or TravelCommand
+                or SaveGearSetCommand or DeleteGearSetCommand or SwapGearSetCommand or CancelGearSwapCommand)
                 _hud.Toast(e.Reason, 3);
             // A jump or a stand refused under the beam says why; one refused mid-action or in the air stays quiet.
             if (e.Command is JumpCommand or CrouchCommand && e.Reason == "no room to stand")
