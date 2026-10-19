@@ -37,6 +37,9 @@ public partial class Main
                 && simulation.ActiveLayout.Doors.Any(d => d.Key == door.Key && d.StaysOpen)
                 => $"The {Names.Place(_session, door.Key, door.DefId)} is latched open.",
             { Kind: FocusKind.Door } door => $"[{HelpPanel.Key("interact")}] {(_controller.IsOpen(door.Key) ? "Close" : "Open")} the {Names.Place(_session, door.Key, door.DefId)}",
+            { Kind: FocusKind.Container } pickup when simulation.ActiveLayout.Containers.Any(c => PlayerController.IsPickup(c) && c.Key == pickup.Key)
+                && simulation.Containers.First(c => c.Site.Key == pickup.Key).Items.FirstOrDefault() is { } lying
+                => $"[{HelpPanel.Key("interact")}] Pick up {Names.Of(_session, lying.DefId)}",
             { Kind: FocusKind.Container } container => container.DefId == container.Key
                 ? $"[{HelpPanel.Key("interact")}] Open the {Names.Place(_session, container.Key, container.DefId)}"
                 : $"[{HelpPanel.Key("interact")}] Search the {Names.Of(_session, container.DefId)}",

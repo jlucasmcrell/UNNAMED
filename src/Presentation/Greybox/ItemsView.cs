@@ -55,7 +55,7 @@ public partial class ItemsView : Node3D
                 model.AddChild(body);
                 AddChild(model);
                 _containers[site.Key] = model;
-                if (site.EmptyFlag is not null)
+                if (Player.PlayerController.IsPickup(site))
                     _pickups[site.Key] = model;
                 _art.Coverage.Resolved("container", site.Key, look.Model!);
                 continue;
@@ -67,7 +67,7 @@ public partial class ItemsView : Node3D
             chest.Position = feet + new Vector3(0, size.Y / 2, 0);
             AddChild(chest);
             _containers[site.Key] = chest;
-            if (site.EmptyFlag is not null)
+            if (Player.PlayerController.IsPickup(site))
                 _pickups[site.Key] = chest;
         }
     }
@@ -77,7 +77,7 @@ public partial class ItemsView : Node3D
 
     public void Refresh(Simulation simulation)
     {
-        foreach (var container in simulation.Containers.Where(c => c.Site.EmptyFlag is not null))
+        foreach (var container in simulation.Containers.Where(c => Player.PlayerController.IsPickup(c.Site)))
             if (_pickups.TryGetValue(container.Site.Key, out var model))
                 model.Visible = !container.Items.IsEmpty;
         foreach (var child in _ground.GetChildren())

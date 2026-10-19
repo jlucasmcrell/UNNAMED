@@ -68,6 +68,7 @@ public partial class Main : Node3D
     private CraftingView _crafting = null!;
     private NpcsView _npcs = null!;
     private InventoryPanel _inventory = null!;
+    private LootPanel _loot = null!;
     private DialoguePanel _dialogue = null!;
     private JournalPanel _journal = null!;
     private QuestDebugPanel _questDebug = null!;
@@ -214,6 +215,8 @@ public partial class Main : Node3D
     private StreamWriter? _stateLog;
     private double _stateClock;
 
+    private Ui.LoadingScreen? _loading;
+
     public override void _Ready()
     {
         // An exception nothing catches is written to a local crash file, and the next launch's title says so (WP10; never sent anywhere).
@@ -243,6 +246,7 @@ public partial class Main : Node3D
     /// <summary>The game cannot start: the log gets everything, the player a window saying why and where the log is; then it quits.</summary>
     private void CannotStart(string why, Exception e)
     {
+        _loading?.End();
         GD.PushError($"UNNAMED cannot start: {e}");
         if (DisplayServer.GetName() != "headless")
             OS.Alert($"Otherreach cannot start.\n\n{why}\n\nThe log, with the details: {LogPath}", "Otherreach");
@@ -257,6 +261,8 @@ public partial class Main : Node3D
         _developer = OS.IsDebugBuild() || _flags.Contains("--dev");
         bool harness = _flags.Any(f => f != "--dev") || _options.Keys.Any(k => k is not ("--asset-root" or "--asset-fallback" or "--content-root" or "--profile" or "--visual" or "--region" or "--bindings-overlay" or "--scatter-rules" or "--menu-escape"));
         _escapeToMenu = _options.GetValueOrDefault("--menu-escape") == "back";
+        if (!harness && DisplayServer.GetName() != "headless")
+            _loading = new Ui.LoadingScreen(GetViewport());
         Settings.SettingsStore.Load(persist: !harness);
         if (harness)
         {
@@ -333,6 +339,7 @@ public partial class Main : Node3D
         if (_options.ContainsKey("--frontier-perf"))
             shotStart = FrontierPerf.ParsePoint(_options.GetValueOrDefault("--frontier-point")
                 ?? throw new ArgumentException("--frontier-perf requires --frontier-point x,z"));
+        _loading?.Stage("Reading the content and the saves", 0.03);
         // Bad content refuses to start, naming every file (ARCHITECTURE.md §8.1); so does a profile another copy of the game holds.
         // The Barrowworks switch is read here, once, and passed down: it is parsed as --visual (this layer's own
         // options) but what it gates is content the simulation holds, so GameOptions carries it (M8 D10). Off
@@ -387,6 +394,7 @@ public partial class Main : Node3D
         GD.Print($"UNNAMED boot: content {_session.Content.Version} ({_session.Content.Hash[..19]}...), region {_session.Setup.Layout.Id}, " +
                  $"{_session.Setup.Layout.CellKeys.Length} cells");
 
+        _loading?.Stage("Finding the art", 0.08);
         _assets = AssetCatalog.Load(_options.GetValueOrDefault("--asset-root"), Path.GetDirectoryName(contentRoot)!);
         GD.Print(_assets.Root is { } art ? $"UNNAMED assets: HUD and effect art from {art}" : "UNNAMED assets: no asset workspace - greybox HUD and effects");
         if (_assets.Problems.Count > 0)
@@ -442,6 +450,7 @@ public partial class Main : Node3D
             : harness ? null : ProjectSettings.GlobalizePath(LoadOrderPath);
         if (loadOrder is not null)
             Prefetch(loadOrder);
+        _loading?.Stage("Building the world", 0.12);
         int before = GetChildCount();
         ulong building = Time.GetTicksMsec();
         try
@@ -477,6 +486,7 @@ public partial class Main : Node3D
             GD.Print($"UNNAMED texture cache: {_art.Cache.Hits} textures from the cache, {_art.Cache.Added} added, {_art.Cache.Failed} failed; "
                      + $"{_art.Cache.CompressedBytes / 1048576.0:0.0} MB compressed");
         _art.Cache.Save();
+        _loading?.Stage("Loading the sounds", 0.86);
         // The player's mix; a harness run keeps the defaults so its captures stay comparable.
         Settings.SettingsStore.ApplyAudio();
         _sounds = new Audio.SoundBank { Name = "Sounds" };
@@ -503,6 +513,7 @@ public partial class Main : Node3D
         GD.Print(_sounds.Count > 0 ? $"UNNAMED audio: {_sounds.Count} sounds from {Audio.SoundBank.Manifest}" : "UNNAMED audio: no sound set - silent");
         _controller = new PlayerController(_session);
         _controller.Reached += () => _avatar.Interact();
+        _loading?.Stage("Building the screens", 0.92);
         BuildPanels(profile);
         Subscribe();
         DefineInput();
@@ -527,6 +538,7 @@ public partial class Main : Node3D
                 ? $"UNNAMED start screen: Continue would load {next.Slot} ({next.Copy}); {choice.Saves.Length} saves in {profile}"
                 : $"UNNAMED start screen: no save to continue; {choice.Saves.Length} saves in {profile}");
             _hud.Visible = false;   // no world yet: nothing to show but the choice
+            _loading?.Stage("Opening the start screen", 0.96);
             OpenFrontEnd();
             _music.Title(true);
             // Phase B: behind the choice, a slow establishing shot over the hollow instead of whatever the game camera faces.
@@ -536,8 +548,10 @@ public partial class Main : Node3D
                     Offset = region == "region.starting_frontier" ? new Vector2(400, 600) : Vector2.Zero };
                 AddChild(_startCamera);
                 // The ground's scatter of the world a new game will be (Main.Creator), so the shot is not bare earth and Begin finds it placed.
+                _loading?.Stage("Planting the land", 0.98);
                 _scatter.Build(NextWorldSeed);
             }
+            _loading?.End();
             return;
         }
         else
@@ -871,12 +885,15 @@ public partial class Main : Node3D
     {
         var layout = _session.Setup.Layout;
         ulong started = Time.GetTicksMsec();
+        _loading?.Stage("Shaping the ground", 0.14);
         _ground = new GroundField(layout, _bindings, _scatterRules);
         _groundMs = Time.GetTicksMsec() - started;
         _hollow = new HollowView { Name = "Hollow" };
         _hollow.Bind(_art, _bindings, _ground);
         AddChild(_hollow);
+        _loading?.Stage("Raising the terrain and buildings", 0.2);
         _hollow.Build(layout);
+        _loading?.Stage("Building the interiors", 0.6);
         BuildInterior();
         // What grows and lies on the ground (Phase A, the visual audit's V3): placed once a world, and so its seed, is known (Resync).
         _scatter = new ScatterView { Name = "Scatter" };
@@ -887,6 +904,7 @@ public partial class Main : Node3D
         _scatter.Bind(_art, _ground, _scatterRules, layout, _bindings.BuildingPrefixes,
             cardsOff: grassMode != "cards", bladesOnly: grassMode == "blades");
         AddChild(_scatter);
+        _loading?.Stage("Dressing the player", 0.66);
         string? body = _bindings.People.GetValueOrDefault("player")?.Model;
         if (MHCharacters.MetaHumanFigure.Create(_art, _bindings, "player") is { } native)
         {
@@ -918,6 +936,7 @@ public partial class Main : Node3D
         AddChild(_talkCamera);
         _hud = new Hud { Name = "Hud" };
         AddChild(_hud);
+        _loading?.Stage("Placing items and creatures", 0.72);
         _items = new ItemsView { Name = "Items" };
         _items.Bind(_art, _bindings);
         AddChild(_items);
@@ -930,6 +949,7 @@ public partial class Main : Node3D
         _crafting.Bind(_art, _bindings);
         AddChild(_crafting);
         _crafting.Build(_session.Setup.Layout);
+        _loading?.Stage("Bringing in the people", 0.78);
         _npcs = new NpcsView { Name = "Npcs", Ground = VisualOptions.BodyModifiers ? _ground.Height : null };
         _npcs.Bind(_art, _bindings);
         if (_session.Setup.Interior is not null && VisualOptions.BodyModifiers)
@@ -1403,7 +1423,7 @@ public partial class Main : Node3D
         Probe("magic effects");
         _soundEvents.SetStation(_inventory.OpenStation?.Kind);
         _soundEvents.Update(feet, speed, simulation.Posture.Airborne, combat.Strain / (double)Math.Max(1, combat.StrainTolerance),
-            _inventory.OpenContainer, Screen is not null, delta);
+            _loot.OpenContainer ?? _inventory.OpenContainer, Screen is not null, delta);
         Probe("sound events");
         _music.Update(feet, delta);
         Probe("music");

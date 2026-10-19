@@ -88,7 +88,7 @@ public partial class Main
             return;
         var combat = _session.Simulation!.Combat;
         bool modal = Modal;
-        bool looting = _inventory.Visible && _inventory.Anchor is not null && _inventory.OpenStation is null &&
+        bool looting = _loot.Visible || _inventory.Visible && _inventory.Anchor is not null && _inventory.OpenStation is null &&
                        _inventory.OpenTrader is null && !_dialogue.Visible;
 
         // A conversation's keys (the number keys answer, Escape walks away - M4); then Escape and the screens' own keys (the Field
@@ -130,7 +130,9 @@ public partial class Main
             if (Input.IsActionJustPressed("saves"))
                 Toggle(_saves, () => _saves.OpenInGame());
         }
-        if (Input.IsActionJustPressed("take_all") && _inventory.Visible)
+        if (Input.IsActionJustPressed("take_all") && _loot.Visible)
+            _loot.TakeAll();
+        else if (Input.IsActionJustPressed("take_all") && _inventory.Visible)
             _inventory.TakeAll();
         if (looting && Input.IsActionJustPressed("interact"))
             CloseInventory();
@@ -145,7 +147,7 @@ public partial class Main
         {
             _autorun = false;
             // Loot stays within reach: walking is allowed, while other panels and gameplay actions remain blocked.
-            var lootStick = looting && _inventory.Visible ? new Vector2(
+            var lootStick = looting ? new Vector2(
                 Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
                 Input.GetActionStrength("move_forward") - Input.GetActionStrength("move_back")) : Vector2.Zero;
             _controller.Steer(_camera, lootStick, ReadGait());
@@ -237,6 +239,10 @@ public partial class Main
                 case FocusKind.Door:
                 case FocusKind.Portal:
                     _controller.Interact(focus.Key);
+                    break;
+                case FocusKind.Container when _session.Simulation!.ActiveLayout.Containers.Any(c => PlayerController.IsPickup(c) && c.Key == focus.Key):
+                    _session.Submit(new TakeAllCommand(_session.Simulation!.PlayerId, focus.Key));
+                    _avatar.Interact();
                     break;
                 case FocusKind.Container:
                     OpenInventory(focus.Key);
