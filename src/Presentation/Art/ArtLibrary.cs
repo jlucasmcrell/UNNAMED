@@ -76,6 +76,7 @@ public sealed class ArtLibrary
     private sealed record Parsed(GltfDocument Document, GltfState State, Error Error);
 
     private readonly Dictionary<string, TaskCompletionSource<Parsed>> _ahead = new(StringComparer.OrdinalIgnoreCase);
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<string, byte> _claimed = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<string> _loadOrder = new();
     private SemaphoreSlim? _window;
     private readonly CancellationTokenSource _prefetchEnded = new();
@@ -770,6 +771,11 @@ public sealed class ArtLibrary
                     done.TrySetCanceled();
                     continue;
                 }
+                if (!_claimed.TryAdd(path, 0))
+                {
+                    window.Release();      // the build asked for it first and parsed it in place
+                    continue;
+                }
                 _ = Task.Run(() =>
                 {
                     var document = new GltfDocument();
@@ -793,6 +799,10 @@ public sealed class ArtLibrary
     private Parsed? Take(string path)
     {
         if (!_ahead.Remove(path, out var pending))
+            return null;
+        // A file the workers have not reached is parsed in place: waiting for it while the window is full of files this boot never
+        // asks for (the last boot's order differs) would block the main thread for ever.
+        if (_claimed.TryAdd(path, 0))
             return null;
         try
         {
