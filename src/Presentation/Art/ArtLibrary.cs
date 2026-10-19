@@ -48,6 +48,9 @@ public sealed record LoadCost(int Scenes, double SceneMs, int ModelTextures, dou
 /// </summary>
 public sealed class ArtLibrary
 {
+    /// <summary>Immutable native scenes/textures shared within this world's MetaHuman instances.</summary>
+    public Godot.Collections.Dictionary MetaHumanResources { get; } = new();
+
     private readonly Dictionary<string, PackedScene?> _scenes = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Animation?> _clips = new(StringComparer.Ordinal);
     private readonly Dictionary<string, SkeletonRest?> _clipRests = new(StringComparer.Ordinal);

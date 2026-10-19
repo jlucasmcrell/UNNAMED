@@ -15,6 +15,7 @@ public sealed partial class MetaHumanFigure : Figure
     public static string PlayerModel(string? preset) => preset?.Contains("veth_f", StringComparison.Ordinal) == true ? "mh:ada" : "mh:mateo";
     private Node3D _native = null!;
     private Godot.Collections.Dictionary _configuration = new();
+    private Godot.Collections.Dictionary _resources = new();
     private bool _crouched;
     private CombatStance _stance = CombatStance.AtRest;
     private ArtLibrary _art = null!;
@@ -43,7 +44,7 @@ public sealed partial class MetaHumanFigure : Figure
         }
         var characters = catalog["characters"].AsGodotDictionary();
         if (!characters.ContainsKey(id)) throw new InvalidDataException($"Missing MetaHuman catalog entry {id}");
-        return new MetaHumanFigure { CharacterId = id, _configuration = characters[id].AsGodotDictionary(), _art = art, _bindings = bindings };
+        return new MetaHumanFigure { CharacterId = id, _configuration = characters[id].AsGodotDictionary(), _resources = ReferenceEquals(art, ArtLibrary.Empty) ? new() : art.MetaHumanResources, _art = art, _bindings = bindings };
     }
 
     public override void _Ready()
@@ -51,7 +52,7 @@ public sealed partial class MetaHumanFigure : Figure
         _native = GD.Load<GDScript>("res://MHCharacters/NativeCharacter.gd").New().As<Node3D>();
         _native.Name = "Native";
         AddChild(_native);
-        if (!_native.Call("configure", AssetRoot, _configuration).AsBool())
+        if (!_native.Call("configure", AssetRoot, _configuration, _resources).AsBool())
             throw new InvalidDataException($"Native MetaHuman {CharacterId} failed to load");
         var skeleton = _native.Call("body_skeleton").As<Skeleton3D>();
         _hand = new BoneAttachment3D { BoneName = "hand_r" };

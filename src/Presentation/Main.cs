@@ -232,6 +232,7 @@ public partial class Main : Node3D
                 return;
             }
             Start();
+            InstallMetaHumanReview();
         }
         catch (Exception e)
         {
@@ -669,6 +670,10 @@ public partial class Main : Node3D
         if (!File.Exists(path))
             return;
         var order = File.ReadAllLines(path);
+        // A previous package's absolute load order can still name the discarded character rigs.
+        // Native figures own their cache; other rigged assets load on demand when actually used.
+        if (MHCharacters.MetaHumanFigure.Available)
+            order = order.Where(p => !p.Replace('\\', '/').Contains("/rigged/", StringComparison.OrdinalIgnoreCase)).ToArray();
         int ahead = Math.Clamp(System.Environment.ProcessorCount / 2, 2, 8);
         _art.Prefetch(order, ahead);
         GD.Print($"UNNAMED load: {order.Length} model files parsed ahead on {ahead} workers, in the last boot's order");
@@ -985,6 +990,7 @@ public partial class Main : Node3D
             CreatorShots(creatorShots);
         if (_session?.Simulation is null)
         {
+            TickMetaHumanReview();
             ReadFrontInput();
             return;
         }
@@ -1276,6 +1282,7 @@ public partial class Main : Node3D
             SaveScreenshot(_perfOut, _perf.SegmentName);
             _stats!.SkipNext();
         }
+        TickMetaHumanReview();
     }
 
     /// <summary>

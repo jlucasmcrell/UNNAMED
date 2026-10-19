@@ -5,7 +5,7 @@ const SKIN_SHADER = preload("../MHSlice/Shaders/skin_shader_local.gdshader")
 const EYE_SHADER = preload("../MHSlice/Shaders/eye_shader_local.gdshader")
 const HAIR_SHADER = preload("../MHSlice/Shaders/hair_card.gdshader")
 const HAIR_BACKING_SHADER = preload("../MHSlice/Shaders/hair_backing.gdshader")
-var _textures: Dictionary = {}
+var _shared: Dictionary = {}
 var _source := ""
 var _sex := ""
 var _config: Dictionary
@@ -24,19 +24,20 @@ func _all(node: Node, cls: String) -> Array:
 	return result
 
 func _texture(path: String) -> Texture2D:
-	if _textures.has(path): return _textures[path]
+	var limit: int = _config.get("max_texture_size", 4096)
+	var key := "texture|" + _asset_path(path) + "|" + str(limit)
+	if _shared.has(key): return _shared[key]
 	var img := Image.load_from_file(_asset_path(path))
 	if img == null or img.is_empty():
 		_load_failed = true
 		push_error("Required native texture missing: "+path)
 		return null
-	var limit: int = _config.get("max_texture_size", 4096)
 	if max(img.get_width(), img.get_height()) > limit:
 		var ratio: float = float(limit) / maxi(img.get_width(), img.get_height())
 		img.resize(maxi(1, roundi(img.get_width() * ratio)), maxi(1, roundi(img.get_height() * ratio)), Image.INTERPOLATE_LANCZOS)
 	img.generate_mipmaps()
 	var texture := ImageTexture.create_from_image(img)
-	_textures[path] = texture
+	_shared[key] = texture
 	return texture
 
 func _asset_path(path: String) -> String:
@@ -120,7 +121,30 @@ func _face_material(name_: String) -> Material:
 		return eye
 	return null
 
-func configure(source: String, config: Dictionary) -> bool:
+func _load_model(path: String, named_binds: bool = false) -> Node3D:
+	var key := "scene|" + path + "|" + str(named_binds)
+	if _shared.has(key): return (_shared[key] as PackedScene).instantiate() as Node3D
+	var document := GLTFDocument.new()
+	var state := GLTFState.new()
+	var flags := GLTFDocument.IMPORT_FLAG_FORCE_DISABLE_MESH_COMPRESSION
+	if named_binds: flags |= GLTFDocument.IMPORT_FLAG_USE_NAMED_SKIN_BINDS
+	if document.append_from_file(path, state, flags) != OK:
+		push_error("Required native GLB failed to load: " + path)
+		return null
+	var model := document.generate_scene(state)
+	var packed := PackedScene.new()
+	var error := packed.pack(model)
+	model.free()
+	if error != OK:
+		push_error("Native scene could not pack: " + path)
+		return null
+	_shared[key] = packed
+	return packed.instantiate() as Node3D
+
+func configure(source: String, config: Dictionary, shared: Dictionary = {}) -> bool:
+	_shared = shared
+	_load_failed = false
+	_body_meshes.clear()
 	_source = source.replace("\\", "/").trim_suffix("/") + "/"
 	_config = config
 	_sex = config.sex
@@ -131,19 +155,15 @@ func configure(source: String, config: Dictionary) -> bool:
 		remove_child(_root)
 		_root.queue_free()
 	_root = Node3D.new()
+	_root.position.y = .0105 if config.get("shells", "") != "" else 0.0
 	add_child(_root)
 	for part in ["body","head"]:
 		var path: String = _source + config[part]
 		if not FileAccess.file_exists(path):
 			push_error("Required MetaHuman mesh missing: " + path)
 			return false
-		var doc := GLTFDocument.new()
-		var state := GLTFState.new()
-		var err := doc.append_from_file(path,state,GLTFDocument.IMPORT_FLAG_FORCE_DISABLE_MESH_COMPRESSION)
-		if err != OK:
-			push_error("Native GLB failed to load: " + path)
-			return false
-		var model := doc.generate_scene(state) as Node3D
+		var model := _load_model(path)
+		if model == null: return false
 		_root.add_child(model)
 		var skels := _all(model,"Skeleton3D")
 		if skels.size() != 1:
@@ -161,6 +181,13 @@ func configure(source: String, config: Dictionary) -> bool:
 			for s in range(mi.mesh.get_surface_count()):
 				var original := mi.mesh.surface_get_material(s)
 				var name_lower := original.resource_name.to_lower() if original else ""
+				if part == "head" and _config.has("face_surface_roles"):
+					var roles: Array = _config.face_surface_roles
+					if roles.size() != mi.mesh.get_surface_count():
+						push_error("Native reference face table differs from imported surfaces: " + str(config.id))
+						return false
+					# ibrews release.gd fixed surface table; never infer these roles from UE names.
+					name_lower = {"skin":"face_skin", "teeth":"teeth", "hide":"hide", "eyeR":"eyer_", "eyeL":"eyel_", "lashes":"eyelashes"}[roles[s]]
 				if part == "body" or "graytexture_head" in name_lower or "face_skin" in name_lower:
 					mi.set_surface_override_material(s,skin)
 				elif "hide" in name_lower:
@@ -189,13 +216,8 @@ func _load_grooms() -> bool:
 	var manifest: Dictionary=JSON.parse_string(FileAccess.get_file_as_string(manifest_path))
 	for card in manifest.get("cards",[]):
 		if card.sex!=_sex:continue
-		var doc:=GLTFDocument.new()
-		var state:=GLTFState.new()
-		var error := doc.append_from_file(_asset_path(card.glb),state,GLTFDocument.IMPORT_FLAG_FORCE_DISABLE_MESH_COMPRESSION)
-		if error!=OK:
-			push_error("Native groom load failed: "+card.glb)
-			return false
-		var model:=doc.generate_scene(state) as Node3D
+		var model := _load_model(_asset_path(card.glb))
+		if model == null: return false
 		var attachment:=BoneAttachment3D.new()
 		attachment.bone_name="head"
 		_face.add_child(attachment)
@@ -262,16 +284,16 @@ func _load_garments() -> bool:
 		"pants.glb": [["default", "Pants_Leather_baseColor.png", "Pants_Leather_normal.png", .28]],
 		"hood.glb": [["default", "Hood_BaseColor.png", "Hood_Normal.png", .45]],
 	}
+	var shell_id: String = _config.get("shells", "")
+	if not shell_id.is_empty():
+		plans["shell/" + shell_id + "_boots.glb"] = []
+		plans["shell/" + shell_id + "_gloves.glb"] = []
 	var garments: Array[MeshInstance3D] = []
 	for file_name in plans:
 		if file_name == "hood.glb" and not _config.get("hood", true): continue
-		var document := GLTFDocument.new()
-		var state := GLTFState.new()
 		var path: String = _source + "wardrobe/" + file_name
-		if document.append_from_file(path, state, GLTFDocument.IMPORT_FLAG_FORCE_DISABLE_MESH_COMPRESSION | GLTFDocument.IMPORT_FLAG_USE_NAMED_SKIN_BINDS) != OK:
-			push_error("Required accepted garment missing: " + path)
-			return false
-		var model := document.generate_scene(state)
+		var model := _load_model(path, true)
+		if model == null: return false
 		_root.add_child(model)
 		for mesh: MeshInstance3D in _all(model, "MeshInstance3D"):
 			if mesh.skin == null:
@@ -287,6 +309,11 @@ func _load_garments() -> bool:
 				return false
 			for surface in mesh.mesh.get_surface_count():
 				var original := mesh.mesh.surface_get_material(surface)
+				if file_name.begins_with("shell/"):
+					if not original is StandardMaterial3D or original.albedo_texture == null or original.normal_texture == null:
+						push_error("Required accepted shell textures missing: " + file_name)
+						return false
+					continue
 				var label := original.resource_name.to_lower() if original else ""
 				var option: Array = plans[file_name][0]
 				for candidate in plans[file_name]:

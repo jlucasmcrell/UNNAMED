@@ -10,7 +10,13 @@ try:
  assemblies=json.loads((root/'evidence/npc_assembly.json').read_text())
  sub=unreal.get_editor_subsystem(unreal.SkeletalMeshEditorSubsystem)
  start=int(os.environ.get('OTHERREACH_MH_NPC_START','0'));count=int(os.environ.get('OTHERREACH_MH_NPC_COUNT','2'))
- for row in prep['characters'][start:start+count]:
+ selected=prep['characters'][start:start+count]
+ # Bring already exported characters up to the same native LOD candidate evidence.
+ completed={c['id'] for c in assemblies['characters']}
+ for row in prep['characters']:
+  previous=next((c for c in state['characters'] if c['id']==row['id']),None)
+  if row not in selected and row['id'] in completed and previous and not any(x['part']=='head_candidate_1' for x in previous['exports']):selected.append(row)
+ for row in selected:
   id=row['id'];save('EXPORTING',current=id)
   source=next(c for c in sources['characters'] if c['id']==id)
   assembly=next(c for c in assemblies['characters'] if c['id']==id)
@@ -18,7 +24,7 @@ try:
   candidates=[unreal.load_asset(m['path']) for m in assembly['meshes'] if '/Face/' in m['path'] and 'FaceMesh' in m['path']]
   if len(candidates)!=1:raise RuntimeError(('Expected native assembled semantic face',id,[x['path'] for x in assembly['meshes']]))
   head=candidates[0];exports=[]
-  for part,mesh,lod in [('body',body,1),('head',head,2)]:
+  for part,mesh,lod in [('body',body,1),('head',head,0),('head_candidate_1',head,1),('head_candidate_2',head,2)]:
    available=sub.get_lod_count(mesh)
    if available<=lod:raise RuntimeError(('Requested native LOD unavailable',id,part,lod,available))
    out=root/'glb/epic'/id;out.mkdir(parents=True,exist_ok=True)
@@ -32,7 +38,7 @@ try:
    component=unreal.new_object(unreal.SkeletalMeshComponent);component.set_skeletal_mesh_asset(mesh)
    names=[component.get_bone_name(i) for i in range(component.get_num_bones())]
    native_bones=[dict(name=str(n),parent=str(component.get_parent_bone(n))) for n in names]
-   exports.append(dict(part=part,path=str(filename),asset=mesh.get_path_name(),native_lod=lod,available_lods=available,bones=native_bones,bone_count=len(names),skin_joints=[len(s['joints']) for s in gltf.get('skins',[])],materials=[m.get('name','') for m in gltf.get('materials',[])]))
+   exports.append(dict(part=part,path=str(filename),asset=mesh.get_path_name(),native_lod=lod,native_pipeline='UE Optimized High' if mesh==head else 'Geometry Export',available_lods=available,bones=native_bones,bone_count=len(names),skin_joints=[len(s['joints']) for s in gltf.get('skins',[])],materials=[m.get('name','') for m in gltf.get('materials',[])]))
   state['characters']=[c for c in state['characters'] if c['id']!=id]+[dict(id=id,exports=exports)]
   save('EXPORTED',current=id)
  save('BATCH_DONE')
