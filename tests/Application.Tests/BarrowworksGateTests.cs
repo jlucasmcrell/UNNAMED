@@ -13,10 +13,9 @@ namespace UNNAMED.Application.Tests;
 
 public class BarrowworksGateTests
 {
-    // The integrated frontier overlay, line endings normalised. Refreshed for the approved NPC migration:
-    // only eight retired NPC entries and their visual overrides were removed; player/world values remain intact.
-    // Keep the full-file guard: any other edit still fails, alongside the semantic option-off checks below.
-    private const string SnapshotOverlaySha256 = "afc7a7b31ee0ddd2c7d82c4a359fd20f06feb6d91755742e08a72ed759e75d50";
+    // Integrated frontier overlay: approved NPC migration, P0 props/weapons and three enemy bindings.
+    // Keep the full-file guard, alongside the semantic option-off checks below; line endings are normalised.
+    private const string SnapshotOverlaySha256 = "8718c2d3ae55e222a5f74c26dbd6699efd33294295a879ebce77604145f7b919";
 
     private static string Overlay => Path.Combine(Harness.RepoRoot(), "content", "_art_bindings.json");
 
