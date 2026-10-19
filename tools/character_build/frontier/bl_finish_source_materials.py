@@ -80,7 +80,7 @@ for part,base in PARTS.items():
   if other.type=='MESH' and other!=obj:bpy.data.objects.remove(other,do_unlink=True)
  active(obj)
  for mod in list(obj.modifiers):obj.modifiers.remove(mod)
- if part in ('standing_cap','lame_coif'):
+ if part=='standing_cap':
   # Keep crown/face clearance. Only the rear, high peak falls towards the shoulders.
   inverse=obj.matrix_world.inverted()
   for v in obj.data.vertices:
@@ -88,7 +88,7 @@ for part,base in PARTS.items():
    t=max(0,min(1,(p.y-.025)/.10))*max(0,min(1,(p.z-1.55)/.085))
    p.y+=.065*t;p.z-=.105*t
    v.co=inverse@p
- if part in ('lamework_jack','lame_coif'):
+ if part=='lamework_jack':
   # Close the conspicuous vertical two-millimetre gaps, keeping horizontal
   # lame overlaps. The accepted backing/clearance and silhouette stay intact.
   edit=bmesh.new();edit.from_mesh(obj.data);remaining=set(edit.verts)

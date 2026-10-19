@@ -72,3 +72,11 @@ Blender smooth Mask for its concealed linen armhole seam; it avoids the
 ragged boundary produced by deleting whole faces.
 Visual acceptance remains pending until all four native motion sheets pass.
 No numerical clipping gate replaces looking at the rendered outfit.
+
+The coif's plates use the same CC0 outer hood pattern and finished rear peak,
+formed into connected native plate hulls before thickness. They are not cut
+from the solidified cloth or independently warped after the hood finish.
+After authoring a new coif, finish its PBR with `ONLY_PART=lame_coif` and
+`bl_finish_source_materials.py`, then run the same `-Parts lame_coif` transfer.
+The source snapshot must contain the full feminine Average wardrobe; finish
+into a separate directory, then copy that finished piece into the source root.
