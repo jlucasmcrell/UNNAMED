@@ -581,7 +581,7 @@ public class ContentLoaderTests
                 "node.trap.larder_snare", "node.trap.pelt_snare", "node.wood.ash_stand", "node.wood.deadfall",
                 "npc.ashen_hollow.kera_voss", "npc.ashen_hollow.renn_vale", "npc.ashen_hollow.sel_arien", "npc.ashen_hollow.tavar_orr",
                 "npc.cairnwold.berrin_garth", "npc.cairnwold.durn_skell", "npc.cairnwold.mara_ling", "npc.cairnwold.tam_crowden",
-                "people.veth", "piece.door.timber", "piece.doorway.timber", "piece.pad.timber",
+                "people.ondrek", "people.veth", "piece.door.timber", "piece.doorway.timber", "piece.pad.timber",
                 "piece.roof.timber", "piece.station.anvil", "piece.storage.chest", "piece.wall.timber",
                 "quest.ashen_hollow.end_of_playtest", "quest.ashen_hollow.haldas_tally", "quest.ashen_hollow.iron_under_ash", "quest.ashen_hollow.three_quiet_stones",
                 "quest.barrowworks.unfinished_measure", "quest.bounty.crag_walker", "quest.bounty.crossing_timber", "quest.bounty.lodge_supplies",

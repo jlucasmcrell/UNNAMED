@@ -1,0 +1,41 @@
+{
+  "id": "npc_berrin_garth",
+  "sex": "m",
+  "preset": "Jorge",
+  "role": "elder lodge keeper",
+  "source": "Owner NPC_BODIES brief and NPC_PERSONALITY_BIBLE.md; approved body mh_veth_m; retired body dimensions are not a target.",
+  "grooms": {
+    "hair": "Hair_S_Casual",
+    "eyebrows": "Eyebrows_M_Natural"
+  },
+  "provenance": {
+    "tool": "UE 5.8 in-editor Creator native face/groom sources; original approved player body resources copied intact; Godot player clips and correctives.",
+    "status": "candidate; complete image, clothing, motion, world and owner review gates required",
+    "archive_rule": "Retain source recipes and every exported candidate; never overwrite 20261015b"
+  },
+  "people": "people.veth",
+  "groom_colours": {
+    "hair": [
+      0.62,
+      0.6,
+      0.57
+    ]
+  },
+  "existing_identity": {
+    "skin": "old_caucasian_male",
+    "hair": "short04",
+    "hair_tint": [
+      0.62,
+      0.6,
+      0.57
+    ],
+    "iris": "blue"
+  },
+  "active": true,
+  "approved_body": "mh_veth_m",
+  "uniform_scale": 1.0,
+  "body_rule": "OWNER 2026-10-18: approved body anatomy/proportions unchanged; uniform whole-body scale only; clothing fits body.",
+  "npc_ref": "npc.cairnwold.berrin_garth",
+  "required_people_finish": "Baseline Veth; unchanged approved anatomy and standard native MetaHuman surfaces.",
+  "body_source": "Copy mh_veth_m_rigged.glb and corrective tables from approved player root; do not export, reconstruct or solve a new body."
+}

@@ -57,6 +57,24 @@ public class NpcLifeLinksTests
 
     private static NpcLifeRecord LifeOf(Simulation simulation, string key) => simulation.World.NpcLife!.Npcs[key];
 
+    [Fact]
+    public void ResidentAppearanceIdentity_ComesFromItsPeopleAndInstance_AndSurvivesSaveLoad()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var start = Open(session).Simulation;
+        var residents = start.Npcs.Where(n => n.Resident).OrderBy(n => n.Id).ToArray();
+        Assert.NotEmpty(residents);
+        Assert.All(residents, n => Assert.Equal(start.Setup.NpcLife.Routines[n.Id].PeopleId, n.PeopleId));
+        Assert.All(residents, n => Assert.NotNull(n.PeopleId));
+        var store = new SaveStore(profile.Root);
+        store.Save(SaveSlots.Manual("appearances"), SaveDocuments.Capture(start.World, start.CaptureRecord(), session.Content, start.WorldTick, 0));
+        var loaded = store.Load(SaveSlots.Manual("appearances"), new LoadContext(session.Generator, session.Content, new Registry()));
+        var restored = Simulation.Start(start.Setup, loaded.Player, loaded.World, loaded.Manifest.WorldTick, new EventBus());
+        Assert.Equal(residents.Select(n => (n.Id, n.InstanceId, n.PeopleId)),
+            restored.Npcs.Where(n => n.Resident).OrderBy(n => n.Id).Select(n => (n.Id, n.InstanceId, n.PeopleId)));
+    }
+
     // ── roles and hireability ───────────────────────────────────────────────
 
     [Fact]

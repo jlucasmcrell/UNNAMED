@@ -1,0 +1,31 @@
+{
+  "id": "resident_kal_05",
+  "sex": "m",
+  "preset": "Kelvin",
+  "role": "Resident face 05/6 (Kelvin); unchanged approved anatomy, uniform stature for people.kal",
+  "source": "Owner NPC_BODIES brief and NPC_PERSONALITY_BIBLE.md; approved body mh_veth_m; retired body dimensions are not a target. Shared Creator face source resident_veth_05; face is one of six distinct presets per people; no body reshape.",
+  "grooms": {
+    "hair": "Hair_S_Casual",
+    "eyebrows": "Eyebrows_M_Natural"
+  },
+  "provenance": {
+    "tool": "UE 5.8 in-editor Creator native face/groom sources; original approved player body resources copied intact; Godot player clips and correctives.",
+    "status": "candidate; complete image, clothing, motion, world and owner review gates required",
+    "archive_rule": "Retain source recipes and every exported candidate; never overwrite 20261015b"
+  },
+  "people": "people.kal",
+  "groom_colours": {
+    "hair": [
+      0.035,
+      0.022,
+      0.014
+    ]
+  },
+  "required_people_finish": "Uniformly scaled approved anatomy; folded dorsal wings with a fitted harness. Optional native muscularity unused. No independent proportion edits.",
+  "active": true,
+  "approved_body": "mh_veth_m",
+  "uniform_scale": 0.9,
+  "body_rule": "OWNER 2026-10-18: approved body anatomy/proportions unchanged; uniform whole-body scale only; clothing fits body.",
+  "shared_source": "resident_veth_05",
+  "body_source": "Copy mh_veth_m_rigged.glb and corrective tables from approved player root; do not export, reconstruct or solve a new body."
+}

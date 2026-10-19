@@ -53,7 +53,7 @@ public class CharacterContentTests
         Assert.DoesNotContain(loader.Errors, e => e.Code == "CHR001");
         var setup = CharacterContent.Build(loader);
 
-        var veth = Assert.Single(setup.Peoples.Values);
+        var veth = Assert.Single(setup.Peoples.Values.Where(p => p.Playable));
         Assert.Equal(("people.veth", true), (veth.Id, veth.Playable));
         Assert.Contains("Wenna Lind", veth.Names.Names);
 

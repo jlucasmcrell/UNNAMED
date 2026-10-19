@@ -265,9 +265,11 @@ public partial class Main : Node3D
         if (_options.TryGetValue("--anim-sheet", out string? sheet))
         {
             var catalog = AssetCatalog.Load(_options.GetValueOrDefault("--asset-root"), Home());
+            if (_options.GetValueOrDefault("--asset-fallback") is { } sheetFallback && Directory.Exists(sheetFallback))
+                Art.ArtLibrary.FallbackRoot = sheetFallback;
             AddChild(new Art.AnimationSheet(new Art.ArtLibrary(catalog.Root),
                 Art.ArtBindings.LoadWithOverlay(Art.ArtBindings.ResourcePath, _options.GetValueOrDefault("--bindings-overlay")), Path.GetFullPath(sheet),
-                _flags.Contains("--anim-profiles"), _options.GetValueOrDefault("--anim-states")));
+                _flags.Contains("--anim-profiles"), _options.GetValueOrDefault("--anim-states"), _options.GetValueOrDefault("--anim-person") ?? "player", (_flags.Contains("--anim-faces") || _flags.Contains("--anim-faces-only")), _options.GetValueOrDefault("--anim-compare"), _flags.Contains("--anim-faces-only"), _options.GetValueOrDefault("--anim-phase")));
             SetProcess(false); // This sheet owns the frame loop; front-end input actions have not been bound.
             return;
         }
@@ -1566,6 +1568,7 @@ public partial class Main : Node3D
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
+                    or "--anim-person" or "--anim-compare" or "--anim-phase"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

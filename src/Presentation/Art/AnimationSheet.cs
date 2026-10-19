@@ -27,6 +27,12 @@ public partial class AnimationSheet : Node3D
     private readonly string _directory;
     private readonly bool _profiles;
     private readonly string? _profileStates;
+    private readonly string _profilePerson;
+    private readonly bool _profileFaces;
+    private readonly string? _profileCompare;
+    private readonly bool _profileFacesOnly;
+    private readonly int? _profilePhase;
+    private Action? _profileFaceAim;
     private readonly List<(SkinnedModel Model, string State)> _profileModels = new();
     private readonly Camera3D _camera = new() { Fov = 40, Current = true, Near = 0.05f };
     private readonly List<(string Name, Action Setup)> _shots = new();
@@ -73,13 +79,19 @@ public partial class AnimationSheet : Node3D
     /// <summary>How far into a reach (its clip is 1.4 s) its picture is taken: the middle of its hold at full stretch.</summary>
     private const double ReachSeconds = 0.7;
 
-    public AnimationSheet(ArtLibrary art, ArtBindings bindings, string directory, bool profiles = false, string? profileStates = null)
+    public AnimationSheet(ArtLibrary art, ArtBindings bindings, string directory, bool profiles = false, string? profileStates = null, string profilePerson = "player", bool profileFaces = false, string? profileCompare = null, bool profileFacesOnly = false, string? profilePhase = null)
     {
         _art = art;
         _bindings = bindings;
         _directory = directory;
         _profiles = profiles;
         _profileStates = profileStates;
+        _profilePerson = profilePerson;
+        _profileFaces = profileFaces;
+        _profileCompare = profileCompare;
+        _profileFacesOnly = profileFacesOnly;
+        _profilePhase = profilePhase is null ? null : int.Parse(profilePhase);
+        if (_profilePhase is < 0 or > 11) throw new ArgumentOutOfRangeException(nameof(profilePhase));
     }
 
     public override void _Ready()
@@ -94,6 +106,8 @@ public partial class AnimationSheet : Node3D
             Sky = new Sky { SkyMaterial = new ProceduralSkyMaterial() },
             ReflectedLightSource = Godot.Environment.ReflectionSource.Sky,
             AmbientLightSource = Godot.Environment.AmbientSource.Color, AmbientLightColor = new Color(0.6f, 0.62f, 0.66f), AmbientLightEnergy = 0.7f,
+            Sky = new Sky { SkyMaterial = new ProceduralSkyMaterial() },
+            ReflectedLightSource = Godot.Environment.ReflectionSource.Sky,
             TonemapMode = Godot.Environment.ToneMapper.Agx, SsaoEnabled = true,
         };
         AddChild(new WorldEnvironment { Environment = environment });
@@ -398,42 +412,153 @@ public partial class AnimationSheet : Node3D
     /// <summary>One real player skin per bound state, held at twelve reproducible phases, with runtime retargeting, correctives and outfit.</summary>
     private void AddPlayerProfiles()
     {
-        var person = _bindings.People["player"];
+        if (_profileCompare is not null)
+        {
+            AddPairedProfiles(_profileCompare);
+            return;
+        }
+        var person = _bindings.People[_profilePerson];
         var wanted = _profileStates?.Split(',').ToHashSet(StringComparer.Ordinal);
         foreach (var state in person.Clips.Keys.Where(s => wanted is null || wanted.Contains(s)))
         {
             var model = SkinnedModel.Create(_art, person.Model, person.Clips)
                 ?? throw new InvalidOperationException($"Profile body did not load: {person.Model}");
+            model.Scale = Vector3.One * person.UniformScale;
             if (!model.Has(state))
                 throw new InvalidOperationException($"Profile clip did not load: {person.Clips[state]}");
             model.Position = new Vector3(0, 0, -_profileModels.Count * 10);
             AddChild(model);
             CorrectiveJoints.Load(_art, person.Model, model.Skeleton);
             Outfit.Dress(_art, model, person.OutfitBody ?? person.Model, person.Outfit);
+            PeopleAppearance.Apply(model, person.PeopleId, _art, person.Model);
             CharacterMaterials.ShareLodBox(model.Skeleton);
             _profileModels.Add((model, state));
-            for (int phase = 0; phase < 12; phase++)
+            for (int phase = 0; !_profileFacesOnly && phase < 12; phase++)
             {
+                if (_profilePhase is { } selected && phase != selected) continue;
                 float fraction = phase / 12f;
-                foreach (string view in new[] { "side", "front", "back" })
+                foreach (string view in _profilePerson == "player" ? new[] { "side", "front", "back" } : new[] { "side", "front", "back", "three" })
                 {
-                    var direction = view == "side" ? Vector3.Right : view == "front" ? Vector3.Back : Vector3.Forward;
+                    var direction = view == "side" ? Vector3.Right : view == "front" ? Vector3.Back
+                        : view == "three" ? new Vector3(.574f, 0, .819f) : Vector3.Forward;
                     _shots.Add(($"{person.Model}_{state}_{phase:00}_{view}", () =>
                     {
                         foreach (var other in _profileModels)
                             other.Model.Visible = other.Model == model;
+                        if (_profileFaces) SetProfileExpression(model, "neutral");
+                        _profileFaceAim = null;
                         _fraction = fraction;
                         _camera.Projection = Camera3D.ProjectionType.Orthogonal;
-                        _camera.Size = 2.15f;
-                        var target = model.Position + Vector3.Up * 1.05f;
+                        _camera.Size = 2.15f * person.UniformScale;
+                        var target = model.Position + Vector3.Up * (1.05f * person.UniformScale);
                         Aim(target + direction * 3, target);
+                    }));
+                }
+            }
+            if (_profileFaces && model.Skeleton.FindBone("head") is int head and >= 0)
+            {
+                foreach (string expression in new[] { "neutral", "blink", "speech", "smile" })
+                foreach (string view in new[] { "front", "three", "side" })
+                {
+                    var direction = view == "side" ? Vector3.Right : view == "front" ? Vector3.Back : new Vector3(.574f, 0, .819f);
+                    _shots.Add(($"{person.Model}_{state}_face_{expression}_{view}", () =>
+                    {
+                        foreach (var other in _profileModels)
+                            other.Model.Visible = other.Model == model;
+                        SetProfileExpression(model, expression);
+                        _fraction = 0;
+                        _camera.Projection = Camera3D.ProjectionType.Orthogonal;
+                        _camera.Size = .65f * person.UniformScale;
+                        _profileFaceAim = () =>
+                        {
+                            var target = model.Skeleton.GlobalTransform * model.Skeleton.GetBoneGlobalPose(head).Origin
+                                + Vector3.Up * (.10f * person.UniformScale);
+                            Aim(target + direction * 3, target);
+                        };
+                        _profileFaceAim();
                     }));
                 }
             }
         }
         if (_profileModels.Count == 0)
             throw new InvalidOperationException("No player states selected for the profile sheet");
-        _notes.Add($"Player profile sheet: {person.Model}, twelve held phases; no gameplay pose changes.");
+        _notes.Add($"Profile sheet: {_profilePerson} / {person.Model}, twelve held phases; no gameplay pose changes.");
+    }
+
+    // A direct renderer comparison: identical scale, clip fraction, view and corrective loading.
+    private void AddPairedProfiles(string referenceId)
+    {
+        var person = _bindings.People[_profilePerson];
+        var reference = _bindings.People[referenceId];
+        var wanted = _profileStates?.Split(',').ToHashSet(StringComparer.Ordinal);
+        var label = new Label { Position = new Vector2(90, 30), Text = $"LEFT: {referenceId} / approved Average     RIGHT: {_profilePerson}     Both scale 1.0" };
+        label.AddThemeFontSizeOverride("font_size", 24);
+        label.AddThemeColorOverride("font_color", new Color(.08f, .08f, .08f));
+        AddChild(label);
+        foreach (string state in person.Clips.Keys.Where(s => wanted is null || wanted.Contains(s)))
+        {
+            SkinnedModel Load(PersonArt appearance)
+            {
+                var model = SkinnedModel.Create(_art, appearance.Model, appearance.Clips)
+                    ?? throw new InvalidOperationException($"Paired body did not load: {appearance.Model}");
+                if (!model.Has(state)) throw new InvalidOperationException($"Paired clip missing: {state}");
+                model.Scale = Vector3.One;
+                AddChild(model);
+                if (CorrectiveJoints.Load(_art, appearance.Model, model.Skeleton) is null)
+                    throw new InvalidOperationException($"Paired approved-body corrective companion missing: {appearance.Model}");
+                Outfit.Dress(_art, model, appearance.OutfitBody ?? appearance.Model, appearance.Outfit);
+                PeopleAppearance.Apply(model, appearance.PeopleId, _art, appearance.Model);
+                CharacterMaterials.ShareLodBox(model.Skeleton);
+                _profileModels.Add((model, state));
+                return model;
+            }
+            var current = Load(person);
+            var baseline = Load(reference);
+            foreach (int phase in new[] { state == "idle" ? 0 : 3 })
+            foreach (string view in new[] { "front", "side", "three" })
+            {
+                float fraction = phase / 12f;
+                _shots.Add(($"pair_{person.Model}_{state}_{phase:00}_{view}", () =>
+                {
+                    foreach (var other in _profileModels)
+                        other.Model.Visible = other.Model == current || other.Model == baseline;
+                    _profileFaceAim = null;
+                    _fraction = fraction;
+                    var direction = view == "front" ? Vector3.Back : view == "side" ? Vector3.Right : new Vector3(1, 0, 1).Normalized();
+                    var right = new Vector3(direction.Z, 0, -direction.X);
+                    current.Position = right * .60f;
+                    baseline.Position = right * -.60f;
+                    _camera.Projection = Camera3D.ProjectionType.Orthogonal;
+                    _camera.Size = 2.3f;
+                    var target = Vector3.Up * 1.05f;
+                    Aim(target + direction * 3, target);
+                }));
+            }
+        }
+        if (_profileModels.Count == 0) throw new InvalidOperationException("No paired states selected");
+        _notes.Add($"Paired profiles: {referenceId} left; {_profilePerson} right; scale 1.0; original corrective tables loaded on both.");
+    }
+
+    private static void SetProfileExpression(SkinnedModel model, string expression)
+    {
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
+        {
+            if (mesh.Mesh is not ArrayMesh array) continue;
+            for (int i = 0; i < array.GetBlendShapeCount(); i++)
+            {
+                string name = array.GetBlendShapeName(i);
+                float value = expression switch
+                {
+                    "blink" when name is "eyeBlinkLeft" or "eyeBlinkRight" => 1,
+                    "speech" when name == "jawOpen" => .6f,
+                    "speech" when name == "mouthFunnel" => .4f,
+                    "speech" when name == "jawOpen_mouthFunnel" => .24f,
+                    "smile" when name is "mouthSmileLeft" or "mouthSmileRight" => .8f,
+                    _ => 0
+                };
+                mesh.SetBlendShapeValue(i, value);
+            }
+        }
     }
 
     private void Aim(Vector3 eye, Vector3 target) => _camera.LookAtFromPosition(eye, target, Vector3.Up);
@@ -465,6 +590,7 @@ public partial class AnimationSheet : Node3D
             model.Hold(state, fraction, 0);
         foreach (var (model, state) in _profileModels)
             model.Hold(state, _fraction, 0);
+        _profileFaceAim?.Invoke();
         foreach (var (figure, speed) in _walkers)
             figure.Pose(figure.Position, 0, speed, delta);
         // Swung side to side and turned with it, fast enough that a springy tail trails.

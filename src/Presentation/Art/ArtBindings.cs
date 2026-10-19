@@ -103,6 +103,10 @@ public sealed record CreatureArt(string Model, IReadOnlyDictionary<string, strin
 public sealed record PersonArt(string Model, string Hand, string? OffHand, IReadOnlyDictionary<string, string> Clips, Transform3D? Grip,
     Transform3D? OffGrip)
 {
+    /// <summary>The authored visual people, for skin/eye response and restrained phase effects.</summary>
+    public string? PeopleId { get; init; }
+    /// <summary>Uniform whole-body stature; never a per-axis or per-bone proportion change.</summary>
+    public float UniformScale { get; init; } = 1f;
     /// <summary>The pace (m/s) each gait clip was authored at, where it is not the game's own (walk 1.4, run 3.2, sprint 5, crouched 1.6).</summary>
     public IReadOnlyDictionary<string, float> Paces { get; init; } = new Dictionary<string, float>();
 
@@ -169,6 +173,22 @@ public sealed class ArtBindings
     public IReadOnlyDictionary<string, Placement> GroundItems { get; private init; } = new Dictionary<string, Placement>();
     public IReadOnlyDictionary<string, CreatureArt> Creatures { get; private init; } = new Dictionary<string, CreatureArt>();
     public IReadOnlyDictionary<string, PersonArt> People { get; private init; } = new Dictionary<string, PersonArt>();
+
+    /// <summary>Authored person bindings available to residents of each people.</summary>
+    public IReadOnlyDictionary<string, IReadOnlyList<string>> ResidentPeople { get; private init; } = new Dictionary<string, IReadOnlyList<string>>();
+
+    /// <summary>A named binding, or a resident's stable variant selected from their instance (which changes with each arrival).</summary>
+    public PersonArt? Person(string id, string? peopleId, string instance)
+    {
+        if (People.TryGetValue(id, out var named))
+            return named;
+        if (!ResidentPeople.TryGetValue(peopleId ?? "people.veth", out var variants) || variants.Count == 0)
+            return null;
+        uint hash = 2166136261;
+        foreach (char c in instance)
+            hash = unchecked((hash ^ c) * 16777619);
+        return People.GetValueOrDefault(variants[(int)(hash % (uint)variants.Count)]);
+    }
 
     /// <summary>The bodies the character creator offers (<c>player_bodies</c>, WP2), each drawn on the player's binding.</summary>
     public PlayerBodies Bodies { get; private init; } = PlayerBodies.None;
@@ -390,10 +410,22 @@ public sealed class ArtBindings
                 People = root.TryGetProperty("people", out var people)
                     ? people.EnumerateObject().ToDictionary(p => p.Name, p => OptionClips(root, p.Name, new PersonArt(Text(p.Value, "model")!,
                         Text(p.Value, "hand") ?? "hand_r", Text(p.Value, "off_hand"), Strings(p.Value, "clips"), Grip(p.Value, "grip"), Grip(p.Value, "off_grip"))
-                        { Outfit = List(p.Value, "outfit") ?? Array.Empty<string>(), OutfitBody = Text(p.Value, "outfit_body"), EquipmentOutfits = EquipmentOutfits(p.Value) }),
+                        {
+                            Outfit = List(p.Value, "outfit") ?? Array.Empty<string>(),
+                            OutfitBody = Text(p.Value, "outfit_body"), EquipmentOutfits = EquipmentOutfits(p.Value),
+                            PeopleId = Text(p.Value, "people_ref"),
+                            UniformScale = p.Value.TryGetProperty("uniform_scale", out var stature) ? stature.GetSingle() : 1f,
+                            Paces = p.Value.TryGetProperty("paces", out var personPaces)
+                                ? personPaces.EnumerateObject().ToDictionary(v => v.Name, v => v.Value.GetSingle(), StringComparer.Ordinal)
+                                : new Dictionary<string, float>(),
+                        }),
                         StringComparer.Ordinal)
                     : new Dictionary<string, PersonArt>(),
                 Bodies = root.TryGetProperty("player_bodies", out var bodies) ? PlayerBodies.Read(bodies) : PlayerBodies.None,
+                ResidentPeople = root.TryGetProperty("resident_people", out var residentPeople)
+                    ? residentPeople.EnumerateObject().ToDictionary(p => p.Name,
+                        p => (IReadOnlyList<string>)p.Value.EnumerateArray().Select(v => v.GetString()!).ToArray(), StringComparer.Ordinal)
+                    : new Dictionary<string, IReadOnlyList<string>>(),
                 Weapons = root.TryGetProperty("weapons", out var weapons)
                     ? weapons.EnumerateObject().ToDictionary(w => w.Name, w => Weapon(w.Value), StringComparer.Ordinal)
                     : new Dictionary<string, WeaponArt>(),

@@ -13,7 +13,7 @@ lines:
   - { key: lfg.hunt.05, use: lfg.hunt, ai_generated: false, text: "{purpose} has been seen near {destination}. Waiting at {anchor} until {depart_time}. Bring a bow if you have one." }
   - { key: lfg.hunt.06, use: lfg.hunt, ai_generated: false, text: "After {purpose} at {destination}. I'm at {anchor} now and gone by {depart_time}." }
   - { key: lfg.hunt.07, use: lfg.hunt, ai_generated: false, text: "Hunt going out to {destination} this morning. {purpose}. Meet at {anchor}, no later than {depart_time}." }
-  - { key: lfg.hunt.08, use: lfg.hunt, ai_generated: false, text: "Who wants {purpose}? It's at {destination} and it's had a good week of not being hunted." }
+  - { key: lfg.hunt.08, use: lfg.hunt, ai_generated: false, text: "Who wants {purpose}? It's at {destination} and it's had a good week of not being hunted. {anchor}, {depart_time}." }
   - { key: lfg.hunt.09, use: lfg.hunt, ai_generated: false, text: "{anchor} at {depart_time}, then {destination}. Come armed and come early." }
   - { key: lfg.hunt.10, use: lfg.hunt, ai_generated: false, text: "Tracking {purpose} from {destination} back toward {anchor}. Walk with me from {depart_time}." }
   - { key: lfg.hunt.11, use: lfg.hunt, ai_generated: false, text: "Going out for {purpose}. {destination}, from {anchor}, at {depart_time}. Room for one more on the trail." }
@@ -36,7 +36,7 @@ lines:
   - { key: lfg.hunt.28, use: lfg.hunt, ai_generated: false, text: "Want to bring in {purpose} from {destination}? I'm at {anchor} and I leave at {depart_time}." }
   - { key: lfg.hunt.29, use: lfg.hunt, ai_generated: false, text: "Going after {purpose}. It's near {destination} and it's had a night to get clever. {anchor}, {depart_time}." }
   - { key: lfg.hunt.30, use: lfg.hunt, ai_generated: false, text: "Hunt leaving {anchor} at {depart_time} for {destination}. Bring a bow and a knife and leave the rest behind." }
-  - { key: lfg.hunt.31, use: lfg.hunt, ai_generated: false, text: "I'm going out to {destination} for {purpose} at {depart_time}. A companion who keeps quiet is worth two who don't." }
+  - { key: lfg.hunt.31, use: lfg.hunt, ai_generated: false, text: "I'm going out to {destination} for {purpose} at {depart_time}. A companion who keeps quiet is worth two who don't. {anchor}." }
   - { key: lfg.hunt.32, use: lfg.hunt, ai_generated: false, text: "For {purpose} at {destination}, from {anchor} at {depart_time}. Don't come if you can't keep up." }
   - { key: lfg.hunt.33, use: lfg.hunt, ai_generated: false, text: "{purpose}. {destination}. {anchor} at {depart_time}. That's the whole of it." }
   - { key: lfg.hunt.34, use: lfg.hunt, ai_generated: false, text: "Going to try for {purpose} by {destination}. Anyone at {anchor} by {depart_time} comes along." }

@@ -1,0 +1,31 @@
+{
+  "id": "resident_mor_02",
+  "sex": "f",
+  "preset": "Lani",
+  "role": "Resident face 02/6 (Lani); unchanged approved anatomy, uniform stature for people.mor",
+  "source": "Owner NPC_BODIES brief and NPC_PERSONALITY_BIBLE.md; approved body mh_veth_f; retired body dimensions are not a target. Shared Creator face source resident_veth_02; face is one of six distinct presets per people; no body reshape.",
+  "grooms": {
+    "hair": "Hair_S_LowPonytail",
+    "eyebrows": "Eyebrows_M_Natural"
+  },
+  "provenance": {
+    "tool": "UE 5.8 in-editor Creator native face/groom sources; original approved player body resources copied intact; Godot player clips and correctives.",
+    "status": "candidate; complete image, clothing, motion, world and owner review gates required",
+    "archive_rule": "Retain source recipes and every exported candidate; never overwrite 20261015b"
+  },
+  "people": "people.mor",
+  "groom_colours": {
+    "hair": [
+      0.16,
+      0.08,
+      0.035
+    ]
+  },
+  "required_people_finish": "Remembered, incomplete ghostlike surface response; unchanged approved anatomy, no vertex displacement.",
+  "active": true,
+  "approved_body": "mh_veth_f",
+  "uniform_scale": 1.0,
+  "body_rule": "OWNER 2026-10-18: approved body anatomy/proportions unchanged; uniform whole-body scale only; clothing fits body.",
+  "shared_source": "resident_veth_02",
+  "body_source": "Copy mh_veth_f_rigged.glb and corrective tables from approved player root; do not export, reconstruct or solve a new body."
+}

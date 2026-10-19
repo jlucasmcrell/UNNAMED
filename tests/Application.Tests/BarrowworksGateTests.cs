@@ -13,10 +13,10 @@ namespace UNNAMED.Application.Tests;
 
 public class BarrowworksGateTests
 {
-    // The integrated frontier overlay, line endings normalised. Refreshed for worker/real-weapons fcefe41d:
-    // exactly five approved weapon model references changed; no Barrowworks bindings entered the shipped overlay.
+    // The integrated frontier overlay, line endings normalised. Refreshed for the approved NPC migration:
+    // only eight retired NPC entries and their visual overrides were removed; player/world values remain intact.
     // Keep the full-file guard: any other edit still fails, alongside the semantic option-off checks below.
-    private const string SnapshotOverlaySha256 = "b6820f63a9d16e4ce20eda5689a509a25f016e8fa7f55590cfec5c13f6a20de5";
+    private const string SnapshotOverlaySha256 = "afc7a7b31ee0ddd2c7d82c4a359fd20f06feb6d91755742e08a72ed759e75d50";
 
     private static string Overlay => Path.Combine(Harness.RepoRoot(), "content", "_art_bindings.json");
 
