@@ -79,8 +79,8 @@ func _texture(path: String) -> Texture2D:
 func _asset_path(path: String) -> String:
 	var normalized := path.replace("\\","/")
 	var original := "D:/Otherreach_Scratch/mh_slice_20261019/"
-	if normalized.begins_with(original):return _source+normalized.trim_prefix(original)
 	if normalized.begins_with(_source):return normalized
+	if normalized.begins_with(original):return _source+normalized.trim_prefix(original)
 	assert(not normalized.is_absolute_path(),"Slice asset is outside its selected source bundle")
 	return _source+normalized
 
