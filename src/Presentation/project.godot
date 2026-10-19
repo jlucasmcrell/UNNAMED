@@ -24,7 +24,6 @@ CogitoSceneManager="*res://addons/cogito/SceneManagement/cogito_scene_manager.gd
 CogitoQuestManager="*res://addons/cogito/QuestSystem/cogito_quest_manager.gd"
 MenuTemplateManager="*res://addons/cogito/EasyMenus/Nodes/menu_template_manager.tscn"
 GameplayCueManager="*res://addons/GodotGAS/managers/gameplay_cue_manager.gd"
-_mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 
 [display]
 
@@ -39,7 +38,6 @@ project/assembly_name="UNNAMED.Presentation"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/godot_ai/plugin.cfg")
 
 [rendering]
 

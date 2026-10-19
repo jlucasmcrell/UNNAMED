@@ -1,0 +1,5 @@
+Upstream: https://github.com/ibrews/MetaHumanGodot
+Commit: 7538874f7a669e3e5b3e1708983ca2e401da727e
+verify_pipeline_upstream.gd is copied unchanged. Its original character.glb / character_explainer.glb baselines are NOT this slice's acceptance results. Adapted slice runner must retain the two native skeleton, ARKit sentinel, animation and groom checks and add G1 boundary measurement. Original MIT license accompanies this copy.
+
+Eye iris-depth mask: matmadness/HumanShaders commit95a54cff4a9165993914143ca9047a5f5d029bce, HumanShaders/Resources/Eye/eye_iris_parallax.png, unchanged. MatMADNESS, MIT / CC BY4.0, https://github.com/matmadness/HumanShaders . The skin and eye shader attribution/license is retained under Shaders/. No demo head models are used.

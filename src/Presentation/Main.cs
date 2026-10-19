@@ -221,6 +221,13 @@ public partial class Main : Node3D
         // Whatever stops the game starting is said to the player, with where the log is, rather than leaving a blank window (M-07).
         try
         {
+            // Isolated fresh-character lane: enter before content/art boot can load retired character outputs.
+            if (OS.GetCmdlineUserArgs().Contains("--mh-slice", StringComparer.Ordinal))
+            {
+                SetProcess(false);
+                GetTree().CallDeferred(SceneTree.MethodName.ChangeSceneToFile, "res://MHSlice/Slice.tscn");
+                return;
+            }
             Start();
         }
         catch (Exception e)
