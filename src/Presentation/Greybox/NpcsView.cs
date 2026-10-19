@@ -113,7 +113,9 @@ public partial class NpcsView : Node3D
             if (simulation.Companions.Any(c => c.NpcId == npc.Id) && GetViewport().GetCamera3D() is { } camera)
             {
                 var chest = feet + Vector3.Up * 1.2f;
-                figure.Visible = camera.GlobalPosition.DistanceTo(chest) >= 1.2f;
+                // Include the figure's upper-body reach: a centre-only 1.2 m
+                // cutoff still leaves the head/outline filling the foreground.
+                figure.Visible = camera.GlobalPosition.DistanceTo(chest) >= 2.5f;
             }
             if (npc.Id == FoldEcho.Held && figure is Art.SkinnedFigure && VisualOptions.BodyModifiers)
             {
