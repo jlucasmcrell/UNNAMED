@@ -1,0 +1,2584 @@
+{
+  "base_commit": "4c6bbe1136b9a779448ea5ed35061b4487ad615f",
+  "review": "CLAUDE_REVIEW_BARROWWORKS_ART3.md, rounds 1, 4, 6, 8 and 12; correction to round 12",
+  "assets": [
+    {
+      "source_key": "production_original_walker_detailed",
+      "asset_id": "bw_codex_custodian",
+      "category": "custodian",
+      "lods": [
+        {
+          "animations": [
+            "anim.creature.bw_codex_custodian.death",
+            "anim.creature.bw_codex_custodian.fall",
+            "anim.creature.bw_codex_custodian.grasp",
+            "anim.creature.bw_codex_custodian.hit",
+            "anim.creature.bw_codex_custodian.idle",
+            "anim.creature.bw_codex_custodian.run",
+            "anim.creature.bw_codex_custodian.sweep",
+            "anim.creature.bw_codex_custodian.walk"
+          ],
+          "joints": 11,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_original_walker_detailed\\production_original_walker_detailed_LOD0.glb",
+          "level": 0,
+          "triangles": 24800,
+          "sha256": "485472ddd4ac7131d6ab3b380655519e7485f5b8526ea5b634965550dfac09c4",
+          "bytes": 34656508
+        },
+        {
+          "animations": [
+            "anim.creature.bw_codex_custodian.death",
+            "anim.creature.bw_codex_custodian.fall",
+            "anim.creature.bw_codex_custodian.grasp",
+            "anim.creature.bw_codex_custodian.hit",
+            "anim.creature.bw_codex_custodian.idle",
+            "anim.creature.bw_codex_custodian.run",
+            "anim.creature.bw_codex_custodian.sweep",
+            "anim.creature.bw_codex_custodian.walk"
+          ],
+          "joints": 11,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_original_walker_detailed\\production_original_walker_detailed_LOD1.glb",
+          "level": 1,
+          "triangles": 12400,
+          "sha256": "a6ed5b697563f925e13a18594f7332afdb155c54f2894aae83b10c13070fa3d6",
+          "bytes": 32904572
+        },
+        {
+          "animations": [
+            "anim.creature.bw_codex_custodian.death",
+            "anim.creature.bw_codex_custodian.fall",
+            "anim.creature.bw_codex_custodian.grasp",
+            "anim.creature.bw_codex_custodian.hit",
+            "anim.creature.bw_codex_custodian.idle",
+            "anim.creature.bw_codex_custodian.run",
+            "anim.creature.bw_codex_custodian.sweep",
+            "anim.creature.bw_codex_custodian.walk"
+          ],
+          "joints": 11,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_original_walker_detailed\\production_original_walker_detailed_LOD2.glb",
+          "level": 2,
+          "triangles": 4959,
+          "sha256": "1fcc8bf3036683f09d74ba7e044f72969871026f495349d79ff3df92331902b3",
+          "bytes": 31946104
+        }
+      ],
+      "sources": [
+        {
+          "file": "D:\\Otherreach_Depot\\barrowworks_codex\\rigged\\bw_codex_custodian\\bw_codex_custodian_rigged.glb",
+          "sha256": "d5caa39e17bb8428c13d2da5c04480d2c7696356b79f46686ceeabb435393e15",
+          "selection": null
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Licenses\\photographic_derivatives.json",
+          "sha256": "7fb3635b959dec5e0ce4d62c8674d191ee75f075ebac078a1378a92dbc856008"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\cast_iron_dark_photo_provenance.json",
+          "sha256": "806aece41ad145dd12eb19e943d555456f9f426a19f22b7f1017f3f581ac22e8"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Aged_Tool_Brass\\provenance.json",
+          "sha256": "5e82d2e3215319367a3c6bfc081277fe72310c4bed912b0235cca559aa42036d"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Sourced_BlenderKit_20261018\\tools\\steam_pressure_gauge_7e1e57\\steam_pressure_gauge_7e1e57.glb",
+          "sha256": "6e93261c610a219dd1eb55ed1d41e2012f17dab2f9575968ac7f985873e96b9a",
+          "selection": null,
+          "credits_file": "C:\\Otherreach_External_Assets\\Sourced_BlenderKit_20261018\\tools\\steam_pressure_gauge_7e1e57\\credits.txt",
+          "credits_sha256": "d3760c12ee8fc0868be220708602d6a079ae4b8fd8966f362f6662a5d0f80334",
+          "credits": "Name: Steam Pressure Gauge\nAuthor: The Doctor By Design \nSource: BlenderKit\nAsset page: https://www.blenderkit.com/asset-gallery-detail/7e1e577c-c664-476c-b67c-1fd64be6b0df/\nAsset id: 7e1e577c-c664-476c-b67c-1fd64be6b0df\nLicence: royalty_free (BlenderKit royalty-free, commercial use allowed)\nDownloaded: 2026-10-18 via the BlenderKit add-on (owner login)\n"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Sourced_BlenderKit_20261018\\tools\\steam_pressure_gauge_7e1e57\\steam_pressure_gauge_7e1e57.glb",
+          "sha256": "6e93261c610a219dd1eb55ed1d41e2012f17dab2f9575968ac7f985873e96b9a",
+          "selection": null,
+          "credits_file": "C:\\Otherreach_External_Assets\\Sourced_BlenderKit_20261018\\tools\\steam_pressure_gauge_7e1e57\\credits.txt",
+          "credits_sha256": "d3760c12ee8fc0868be220708602d6a079ae4b8fd8966f362f6662a5d0f80334",
+          "credits": "Name: Steam Pressure Gauge\nAuthor: The Doctor By Design \nSource: BlenderKit\nAsset page: https://www.blenderkit.com/asset-gallery-detail/7e1e577c-c664-476c-b67c-1fd64be6b0df/\nAsset id: 7e1e577c-c664-476c-b67c-1fd64be6b0df\nLicence: royalty_free (BlenderKit royalty-free, commercial use allowed)\nDownloaded: 2026-10-18 via the BlenderKit add-on (owner login)\n"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Sourced_BlenderKit_20261018\\tools\\steam_pressure_gauge_7e1e57\\steam_pressure_gauge_7e1e57.glb",
+          "sha256": "6e93261c610a219dd1eb55ed1d41e2012f17dab2f9575968ac7f985873e96b9a",
+          "selection": null,
+          "credits_file": "C:\\Otherreach_External_Assets\\Sourced_BlenderKit_20261018\\tools\\steam_pressure_gauge_7e1e57\\credits.txt",
+          "credits_sha256": "d3760c12ee8fc0868be220708602d6a079ae4b8fd8966f362f6662a5d0f80334",
+          "credits": "Name: Steam Pressure Gauge\nAuthor: The Doctor By Design \nSource: BlenderKit\nAsset page: https://www.blenderkit.com/asset-gallery-detail/7e1e577c-c664-476c-b67c-1fd64be6b0df/\nAsset id: 7e1e577c-c664-476c-b67c-1fd64be6b0df\nLicence: royalty_free (BlenderKit royalty-free, commercial use allowed)\nDownloaded: 2026-10-18 via the BlenderKit add-on (owner login)\n"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round6 - COMPLETE"
+    },
+    {
+      "source_key": "production_r12_embedded_headworks",
+      "asset_id": "bw_codex_measure_running",
+      "category": "headworks",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_r12_embedded_headworks\\production_r12_embedded_headworks_LOD0.glb",
+          "level": 0,
+          "triangles": 129083,
+          "sha256": "838095748bd3f30375175ffeb1a993d152f4b01801823486f4aaa5623c77a169",
+          "bytes": 93751260
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_r12_embedded_headworks\\production_r12_embedded_headworks_LOD1.glb",
+          "level": 1,
+          "triangles": 64539,
+          "sha256": "8de11c210c8cf2dfd079b642852c8eedb020444524b117b9cb7c8c7ea0f37795",
+          "bytes": 88263556
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_r12_embedded_headworks\\production_r12_embedded_headworks_LOD2.glb",
+          "level": 2,
+          "triangles": 25704,
+          "sha256": "abed962897d2fdd18001625a92f30686401a07b62cac2dc64dcfb17134e68aec",
+          "bytes": 85465812
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Licenses\\photographic_derivatives.json",
+          "sha256": "7fb3635b959dec5e0ce4d62c8674d191ee75f075ebac078a1378a92dbc856008"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\cast_iron_dark_photo_provenance.json",
+          "sha256": "806aece41ad145dd12eb19e943d555456f9f426a19f22b7f1017f3f581ac22e8"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_scanned_wall_1\\production_scanned_wall_1_LOD0.glb",
+          "sha256": "c7850dc10cae5d284a59ebcd9db4ab54ec65f3265a05221b228e277399dc1bf1",
+          "selection": null
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\antique_gas_boiler\\antique_gas_boiler.blend",
+          "sha256": "4d23ed207a81cee09ebfcefc58075012da541b8857d6c2f95b64d3c55f8a4a41",
+          "selection": null,
+          "title": "Antique Gas Boiler",
+          "author": "The Doctor By Design ",
+          "license": "royalty_free",
+          "metadata": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\antique_gas_boiler\\publisher_metadata.json",
+          "metadata_sha256": "5bc30370399656d6565f7709fb6aa3583115b029f711e541cdd4df5784cc3573"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\dial_calipers\\dial_calipers.blend",
+          "sha256": "f6ceae73e94f65dda46c00b21b79abec960fec0f27dde9bd505b1f5b1b3ef65a",
+          "selection": null,
+          "title": "Dial Calipers",
+          "author": "FriskyTater ",
+          "license": "royalty_free",
+          "metadata": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\dial_calipers\\publisher_metadata.json",
+          "metadata_sha256": "ec27aee2abc5e31da80608acae80e0a237ee86f6d63ade99b60bd0f92b962b3d"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Sourced_BlenderKit_20261018\\tools\\steam_pressure_gauge_7e1e57\\steam_pressure_gauge_7e1e57.glb",
+          "sha256": "6e93261c610a219dd1eb55ed1d41e2012f17dab2f9575968ac7f985873e96b9a",
+          "selection": null,
+          "credits_file": "C:\\Otherreach_External_Assets\\Sourced_BlenderKit_20261018\\tools\\steam_pressure_gauge_7e1e57\\credits.txt",
+          "credits_sha256": "d3760c12ee8fc0868be220708602d6a079ae4b8fd8966f362f6662a5d0f80334",
+          "credits": "Name: Steam Pressure Gauge\nAuthor: The Doctor By Design \nSource: BlenderKit\nAsset page: https://www.blenderkit.com/asset-gallery-detail/7e1e577c-c664-476c-b67c-1fd64be6b0df/\nAsset id: 7e1e577c-c664-476c-b67c-1fd64be6b0df\nLicence: royalty_free (BlenderKit royalty-free, commercial use allowed)\nDownloaded: 2026-10-18 via the BlenderKit add-on (owner login)\n"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Sourced_BlenderKit_20261018\\tools\\steam_pressure_gauge_7e1e57\\steam_pressure_gauge_7e1e57.glb",
+          "sha256": "6e93261c610a219dd1eb55ed1d41e2012f17dab2f9575968ac7f985873e96b9a",
+          "selection": null,
+          "credits_file": "C:\\Otherreach_External_Assets\\Sourced_BlenderKit_20261018\\tools\\steam_pressure_gauge_7e1e57\\credits.txt",
+          "credits_sha256": "d3760c12ee8fc0868be220708602d6a079ae4b8fd8966f362f6662a5d0f80334",
+          "credits": "Name: Steam Pressure Gauge\nAuthor: The Doctor By Design \nSource: BlenderKit\nAsset page: https://www.blenderkit.com/asset-gallery-detail/7e1e577c-c664-476c-b67c-1fd64be6b0df/\nAsset id: 7e1e577c-c664-476c-b67c-1fd64be6b0df\nLicence: royalty_free (BlenderKit royalty-free, commercial use allowed)\nDownloaded: 2026-10-18 via the BlenderKit add-on (owner login)\n"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Sourced_BlenderKit_20261018\\tools\\steam_pressure_gauge_7e1e57\\steam_pressure_gauge_7e1e57.glb",
+          "sha256": "6e93261c610a219dd1eb55ed1d41e2012f17dab2f9575968ac7f985873e96b9a",
+          "selection": null,
+          "credits_file": "C:\\Otherreach_External_Assets\\Sourced_BlenderKit_20261018\\tools\\steam_pressure_gauge_7e1e57\\credits.txt",
+          "credits_sha256": "d3760c12ee8fc0868be220708602d6a079ae4b8fd8966f362f6662a5d0f80334",
+          "credits": "Name: Steam Pressure Gauge\nAuthor: The Doctor By Design \nSource: BlenderKit\nAsset page: https://www.blenderkit.com/asset-gallery-detail/7e1e577c-c664-476c-b67c-1fd64be6b0df/\nAsset id: 7e1e577c-c664-476c-b67c-1fd64be6b0df\nLicence: royalty_free (BlenderKit royalty-free, commercial use allowed)\nDownloaded: 2026-10-18 via the BlenderKit add-on (owner login)\n"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\modular_pipes\\modular_pipes.blend",
+          "sha256": "9ad1b4d1d759e6519197c569b11ab6b49fa82cbfb0a1956dafdbc8ac6b3c4853",
+          "selection": "_metal",
+          "title": "Modular Pipes",
+          "author": {
+            "Kuutti Siitonen": "All"
+          },
+          "license": "CC0-1.0",
+          "metadata": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Licenses\\PolyHaven\\modular_pipes.json",
+          "metadata_sha256": "2e7b6f8f6bbe28feb5e92a3485d3ff41e511608bafd4c4a8e65be57ec64defbc"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Copper_Photo_Tile\\provenance.json",
+          "sha256": "cd5c861af00d25049fcabf549af8a6869d2de371be884239174baa652740cd26",
+          "license": "CC0-1.0",
+          "author": "Rico Cilliers / Poly Haven"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round4 - COMPLETE"
+    },
+    {
+      "source_key": "production_threshold_adit",
+      "asset_id": "bw_codex_entrance_threshold",
+      "category": "entrances",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_threshold_adit\\production_threshold_adit_LOD0.glb",
+          "level": 0,
+          "triangles": 288683,
+          "sha256": "2d9648cd56b5cbca4a06a885ee2afe00fa3f7ec351f28627032a1b8082e0ca36",
+          "bytes": 229631516
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_threshold_adit\\production_threshold_adit_LOD1.glb",
+          "level": 1,
+          "triangles": 144340,
+          "sha256": "ba3458c9db8cd0c3d375531df5565ca7d9c8483ce4ec222687213e86f5c3ab9c",
+          "bytes": 225149620
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_threshold_adit\\production_threshold_adit_LOD2.glb",
+          "level": 2,
+          "triangles": 57683,
+          "sha256": "ee85996c9b209117ceb87582760ea7067dad71a26e59d4adaa944842a439d710",
+          "bytes": 222341396
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\Accepted_Entrance_R7\\production_threshold_adit_accepted_core.glb",
+          "sha256": "91378d0ef4e2338033cea4973b20ea1b8cb9fc5dc48ee80c1116e1a3cbedf690",
+          "selection": null,
+          "credits_file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\Accepted_Entrance_R7\\credits.txt",
+          "credits_sha256": "0cfd5d264a24350e413823a02e05dc482a3a2c4af87038dce882253fc983c5ce",
+          "credits": "Otherreach assembly, accepted tunnel and portal components from ART3 round7. Source licenses/credits unchanged: scanned stone and Poly Haven photographic materials, Joris LM oak-log photoscan under BlenderKit royalty-free terms. Full source manifests and original packed scenes preserved in Production_Revision/Archive/Entrances_R7_Accepted_Core_Before_Berm and Licenses/source_credits.json. Private source library; do not relicense third-party art."
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\Accepted_Entrance_R7\\provenance.json",
+          "sha256": "3d8e83f5ddcd04b8442c62639979053b9a9f006b8575f993103bb922f3d62fd1",
+          "accepted_review": "ART3 round7 tunnel interiors and portal facade"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Berm_R7\\provenance.json",
+          "sha256": "9c94f5dcd7c3d82ddd6d76bf1f6d845fb16101df8648e8da55db87b0ae80de57",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\ambientCG_Grass001\\provenance.json",
+          "sha256": "6efa98ef551ae112eb3f4700f413db3cb98c5c8e0c9cb87197c858b9ae9e31f3",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\leafy_grass_2k\\provenance.json",
+          "sha256": "cca32e7d7c8995d655acc5a7a95a30f0239368f4876e63eecb1c93682e280f99",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\boulder_01_2k\\provenance.json",
+          "sha256": "f64a5f6b16c4d90b956a85488203587c1d3e12da088066623846edb59c8bf6d9",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\PolyHaven\\textures\\brown_mud_03\\provenance.json",
+          "sha256": "9cb83c1cbe5e674be7b91a3a067e9d0b0611acac99dff109f9dcb00b12fdf370",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Licenses\\PolyHaven\\bark_brown_02.json",
+          "sha256": "18583dfd468a367e9dd58bbcb9783d4b7d6d097352b0f55687b8e7a79a521927",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\boulder_01_2k\\boulder_01_2k.gltf",
+          "sha256": "52d118b56748a18509e4ec0075d07b254d72a0401793f22363c0bb3a682e7361",
+          "selection": null,
+          "title": "Boulder 01",
+          "author": null,
+          "license": null,
+          "metadata": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\boulder_01_2k\\publisher_metadata.json",
+          "metadata_sha256": "4c6ce75893312bb9189ee68a479441aac4772dfb2172285f1c7427c7257827dc"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Sourced_DS_20261018\\polyhaven\\grass_bermuda_01\\grass_bermuda_01_1k.gltf",
+          "sha256": "a1e5bb7fcf33721dc4844d7acacab80759fccec659f1ea643f8701afc542e207",
+          "selection": null,
+          "author": {
+            "Rico Cilliers": "All"
+          },
+          "license": "CC0-1.0",
+          "metadata": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Licenses\\PolyHaven\\grass_bermuda_01.json"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Berm_R7\\Grass\\provenance.json",
+          "sha256": "fed221d93b4a0b5da34fda1d8825cd9305ccb358b0245fa3fc7cfc106f30b36c",
+          "license": "CC0-1.0",
+          "author": "Rico Cilliers / Poly Haven"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\DressingDecals\\provenance.json",
+          "sha256": "196445417590880a6ce3e3e01398976cca262c2f6f03f90aa4f828509cdd6438"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round8 - COMPLETE"
+    },
+    {
+      "source_key": "production_drain_adit",
+      "asset_id": "bw_codex_entrance_drain",
+      "category": "entrances",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_drain_adit\\production_drain_adit_LOD0.glb",
+          "level": 0,
+          "triangles": 290750,
+          "sha256": "4936960f627299b441a8459c71d904b74e76ac6bade7b5f0222d83a90d399160",
+          "bytes": 257351360
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_drain_adit\\production_drain_adit_LOD1.glb",
+          "level": 1,
+          "triangles": 145375,
+          "sha256": "723ae0e0c5d88b23f278d2c9e19ef36e92bab39fb51ea0285526b008bc7ae5a5",
+          "bytes": 253728896
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_drain_adit\\production_drain_adit_LOD2.glb",
+          "level": 2,
+          "triangles": 58097,
+          "sha256": "893bde3ad3b822d6b2b4f516278ad2e320d0275088a60c0bcafe61b447ae7123",
+          "bytes": 251523464
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\Accepted_Entrance_R7\\production_drain_adit_accepted_core.glb",
+          "sha256": "6c749ed078be181d311b30a7e034dfe56834fb43af7f13f42e32a4cb65f4fba9",
+          "selection": null,
+          "credits_file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\Accepted_Entrance_R7\\credits.txt",
+          "credits_sha256": "0cfd5d264a24350e413823a02e05dc482a3a2c4af87038dce882253fc983c5ce",
+          "credits": "Otherreach assembly, accepted tunnel and portal components from ART3 round7. Source licenses/credits unchanged: scanned stone and Poly Haven photographic materials, Joris LM oak-log photoscan under BlenderKit royalty-free terms. Full source manifests and original packed scenes preserved in Production_Revision/Archive/Entrances_R7_Accepted_Core_Before_Berm and Licenses/source_credits.json. Private source library; do not relicense third-party art."
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\Accepted_Entrance_R7\\provenance.json",
+          "sha256": "3d8e83f5ddcd04b8442c62639979053b9a9f006b8575f993103bb922f3d62fd1",
+          "accepted_review": "ART3 round7 tunnel interiors and portal facade"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Berm_R7\\provenance.json",
+          "sha256": "9c94f5dcd7c3d82ddd6d76bf1f6d845fb16101df8648e8da55db87b0ae80de57",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\ambientCG_Grass001\\provenance.json",
+          "sha256": "6efa98ef551ae112eb3f4700f413db3cb98c5c8e0c9cb87197c858b9ae9e31f3",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\leafy_grass_2k\\provenance.json",
+          "sha256": "cca32e7d7c8995d655acc5a7a95a30f0239368f4876e63eecb1c93682e280f99",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\boulder_01_2k\\provenance.json",
+          "sha256": "f64a5f6b16c4d90b956a85488203587c1d3e12da088066623846edb59c8bf6d9",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\PolyHaven\\textures\\brown_mud_03\\provenance.json",
+          "sha256": "9cb83c1cbe5e674be7b91a3a067e9d0b0611acac99dff109f9dcb00b12fdf370",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Licenses\\PolyHaven\\bark_brown_02.json",
+          "sha256": "18583dfd468a367e9dd58bbcb9783d4b7d6d097352b0f55687b8e7a79a521927",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\boulder_01_2k\\boulder_01_2k.gltf",
+          "sha256": "52d118b56748a18509e4ec0075d07b254d72a0401793f22363c0bb3a682e7361",
+          "selection": null,
+          "title": "Boulder 01",
+          "author": null,
+          "license": null,
+          "metadata": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\boulder_01_2k\\publisher_metadata.json",
+          "metadata_sha256": "4c6ce75893312bb9189ee68a479441aac4772dfb2172285f1c7427c7257827dc"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Sourced_DS_20261018\\polyhaven\\grass_bermuda_01\\grass_bermuda_01_1k.gltf",
+          "sha256": "a1e5bb7fcf33721dc4844d7acacab80759fccec659f1ea643f8701afc542e207",
+          "selection": null,
+          "author": {
+            "Rico Cilliers": "All"
+          },
+          "license": "CC0-1.0",
+          "metadata": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Licenses\\PolyHaven\\grass_bermuda_01.json"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Berm_R7\\Grass\\provenance.json",
+          "sha256": "fed221d93b4a0b5da34fda1d8825cd9305ccb358b0245fa3fc7cfc106f30b36c",
+          "license": "CC0-1.0",
+          "author": "Rico Cilliers / Poly Haven"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\DressingDecals\\provenance.json",
+          "sha256": "196445417590880a6ce3e3e01398976cca262c2f6f03f90aa4f828509cdd6438"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round8 - COMPLETE"
+    },
+    {
+      "source_key": "production_photographic_floor",
+      "asset_id": "bw_codex_art3_photographic_floor",
+      "category": "masonry",
+      "lods": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_photographic_floor\\production_photographic_floor_LOD0.glb",
+          "level": 0,
+          "triangles": 32768,
+          "sha256": "4b3683190d8c8ecba50a549256201dcab0d0f774b528bce2c6a27403aaae4208",
+          "bytes": 18623180
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_photographic_floor\\production_photographic_floor_LOD1.glb",
+          "level": 1,
+          "triangles": 16383,
+          "sha256": "5c3e3d52de739ced94123a29f4dbea4734ee762578d1a728c0b917a4c113252a",
+          "bytes": 18009032
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_photographic_floor\\production_photographic_floor_LOD2.glb",
+          "level": 2,
+          "triangles": 6553,
+          "sha256": "53896a463aad7f390e2d984ec318e347b642242bf7fa35b9debabc6f7a06a3a5",
+          "bytes": 17008672
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\PolyHaven\\textures\\monastery_stone_floor",
+          "provenance": "C:\\Otherreach_External_Assets\\PolyHaven\\textures\\monastery_stone_floor\\provenance.json",
+          "license": "CC0-1.0"
+        }
+      ],
+      "source_review_status": "ACCEPTED"
+    },
+    {
+      "source_key": "production_continuous_vault",
+      "asset_id": "bw_codex_art3_continuous_vault",
+      "category": "masonry",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_continuous_vault\\production_continuous_vault_LOD0.glb",
+          "level": 0,
+          "triangles": 50176,
+          "sha256": "e819e2d649590a8c4b12441231445f8a074c22168059698e487c98dddec7d2d6",
+          "bytes": 43927084
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_continuous_vault\\production_continuous_vault_LOD1.glb",
+          "level": 1,
+          "triangles": 25088,
+          "sha256": "d39e62ee032634d6dc77a905eedd49c0651692559ac382fe0df2c202e6ed2c87",
+          "bytes": 43394732
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_continuous_vault\\production_continuous_vault_LOD2.glb",
+          "level": 2,
+          "triangles": 10034,
+          "sha256": "d55d8fb3c8416bc47517e29d7acc355e7567a2fcb9981720a5ef1c40679fae3a",
+          "bytes": 43035824
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\PolyHaven\\textures\\castle_wall_slates",
+          "license": "CC0-1.0",
+          "publisher": "Poly Haven",
+          "url": "https://polyhaven.com/a/castle_wall_slates",
+          "method": "Photographic colour, roughness, normal and actual height displacement on clean continuous structural shell"
+        }
+      ],
+      "source_review_status": "Vault intrados acceptable; exterior restricted to buried placement"
+    },
+    {
+      "source_key": "production_scanned_wall_1",
+      "asset_id": "bw_codex_art3_scanned_wall_1",
+      "category": "masonry",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_scanned_wall_1\\production_scanned_wall_1_LOD0.glb",
+          "level": 0,
+          "triangles": 73220,
+          "sha256": "c7850dc10cae5d284a59ebcd9db4ab54ec65f3265a05221b228e277399dc1bf1",
+          "bytes": 36825188
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_scanned_wall_1\\production_scanned_wall_1_LOD1.glb",
+          "level": 1,
+          "triangles": 36609,
+          "sha256": "3b9311df753f3caab074e2937daf5b98fe5237dd51143f157fe1b8a6f8cf42e3",
+          "bytes": 35436676
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_scanned_wall_1\\production_scanned_wall_1_LOD2.glb",
+          "level": 2,
+          "triangles": 14642,
+          "sha256": "6d7e073cee965b43db3371d1bf31f6ea8c073805936b7ad3f85ca640bc5b1d1b",
+          "bytes": 34576144
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Recessed_Lime_Wall\\provenance.json",
+          "sha256": "b2fa16629d939b2480ea16e691ae97f8bf6421e7c11e9a2a6634f845e0cced62",
+          "license": "CC0-1.0",
+          "author": "Charlotte Baglioni / Poly Haven",
+          "review": "Replaces the Review3 rejected raised mortar scan; photograph-derived lime recessed18mm, roughness.94"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_fort_arch\\production_fort_arch_LOD0.glb",
+          "sha256": "54af31c95ef5cbf95a6652c4d6783eee03fb4fa5b85c11ee71471d9c3bd9bb2a",
+          "selection": null
+        }
+      ],
+      "source_review_status": "Recessed mortar and coping revision awaiting review"
+    },
+    {
+      "source_key": "production_scanned_wall_2",
+      "asset_id": "bw_codex_art3_scanned_wall_2",
+      "category": "masonry",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_scanned_wall_2\\production_scanned_wall_2_LOD0.glb",
+          "level": 0,
+          "triangles": 73220,
+          "sha256": "bdd4b15ef729c4e62e9bdce899637ed357b75e9331db6538fb10ae4164f2dd21",
+          "bytes": 36825188
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_scanned_wall_2\\production_scanned_wall_2_LOD1.glb",
+          "level": 1,
+          "triangles": 36609,
+          "sha256": "3fa2e4de31b08a0c33418b3b4b49a128ec7205112df420120a65c0b9aa2d7e93",
+          "bytes": 35426500
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_scanned_wall_2\\production_scanned_wall_2_LOD2.glb",
+          "level": 2,
+          "triangles": 14642,
+          "sha256": "61127879ad59685f6c9aefd94fe3626d02203982bb94977fef402e8ccb702b68",
+          "bytes": 34573072
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Recessed_Lime_Wall\\provenance.json",
+          "sha256": "b2fa16629d939b2480ea16e691ae97f8bf6421e7c11e9a2a6634f845e0cced62",
+          "license": "CC0-1.0",
+          "author": "Charlotte Baglioni / Poly Haven",
+          "review": "Replaces the Review3 rejected raised mortar scan; photograph-derived lime recessed18mm, roughness.94"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_fort_arch\\production_fort_arch_LOD0.glb",
+          "sha256": "54af31c95ef5cbf95a6652c4d6783eee03fb4fa5b85c11ee71471d9c3bd9bb2a",
+          "selection": null
+        }
+      ],
+      "source_review_status": "Recessed mortar and coping revision awaiting review"
+    },
+    {
+      "source_key": "production_scanned_wall_3",
+      "asset_id": "bw_codex_art3_scanned_wall_3",
+      "category": "masonry",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_scanned_wall_3\\production_scanned_wall_3_LOD0.glb",
+          "level": 0,
+          "triangles": 73220,
+          "sha256": "166943333398b6e360a30ac39af47495fffdda0de10d411f74d646f262b81eea",
+          "bytes": 36825184
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_scanned_wall_3\\production_scanned_wall_3_LOD1.glb",
+          "level": 1,
+          "triangles": 36609,
+          "sha256": "885f0f93cd63aa341c8181d5565eaee8972827811152e0195dcedad65c239ed6",
+          "bytes": 35434304
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_scanned_wall_3\\production_scanned_wall_3_LOD2.glb",
+          "level": 2,
+          "triangles": 14642,
+          "sha256": "9217db3e161f70c1952544c633f73a86409bc1b5d2185f80e659646ac320ed09",
+          "bytes": 34578896
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Recessed_Lime_Wall\\provenance.json",
+          "sha256": "b2fa16629d939b2480ea16e691ae97f8bf6421e7c11e9a2a6634f845e0cced62",
+          "license": "CC0-1.0",
+          "author": "Charlotte Baglioni / Poly Haven",
+          "review": "Replaces the Review3 rejected raised mortar scan; photograph-derived lime recessed18mm, roughness.94"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_fort_arch\\production_fort_arch_LOD0.glb",
+          "sha256": "54af31c95ef5cbf95a6652c4d6783eee03fb4fa5b85c11ee71471d9c3bd9bb2a",
+          "selection": null
+        }
+      ],
+      "source_review_status": "Recessed mortar and coping revision awaiting review"
+    },
+    {
+      "source_key": "production_scanned_corner",
+      "asset_id": "bw_codex_art3_scanned_corner",
+      "category": "masonry",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_scanned_corner\\production_scanned_corner_LOD0.glb",
+          "level": 0,
+          "triangles": 146445,
+          "sha256": "21b2bff50a7da9c276eb86bdfabbf65e808539692bb0f7774b8b884779010776",
+          "bytes": 39698092
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_scanned_corner\\production_scanned_corner_LOD1.glb",
+          "level": 1,
+          "triangles": 73222,
+          "sha256": "fa549887a25adcfc055fc6ba9eb1b6f4c75be91584f4206ec17c5765453271ab",
+          "bytes": 36923460
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_scanned_corner\\production_scanned_corner_LOD2.glb",
+          "level": 2,
+          "triangles": 29288,
+          "sha256": "fe3497dc401835a7a0ea1d60b0ed0db191c391d680cecc7ec7d8e28c23dca9b1",
+          "bytes": 35203372
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Recessed_Lime_Wall\\provenance.json",
+          "sha256": "b2fa16629d939b2480ea16e691ae97f8bf6421e7c11e9a2a6634f845e0cced62",
+          "license": "CC0-1.0",
+          "author": "Charlotte Baglioni / Poly Haven",
+          "review": "Replaces the Review3 rejected raised mortar scan; photograph-derived lime recessed18mm, roughness.94"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_fort_arch\\production_fort_arch_LOD0.glb",
+          "sha256": "54af31c95ef5cbf95a6652c4d6783eee03fb4fa5b85c11ee71471d9c3bd9bb2a",
+          "selection": null
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Recessed_Lime_Wall\\provenance.json",
+          "sha256": "b2fa16629d939b2480ea16e691ae97f8bf6421e7c11e9a2a6634f845e0cced62",
+          "license": "CC0-1.0",
+          "author": "Charlotte Baglioni / Poly Haven",
+          "review": "Replaces the Review3 rejected raised mortar scan; photograph-derived lime recessed18mm, roughness.94"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_fort_arch\\production_fort_arch_LOD0.glb",
+          "sha256": "54af31c95ef5cbf95a6652c4d6783eee03fb4fa5b85c11ee71471d9c3bd9bb2a",
+          "selection": null
+        }
+      ],
+      "source_review_status": "Recessed mortar and coping revision awaiting review"
+    },
+    {
+      "source_key": "production_lantern_hanging",
+      "asset_id": "bw_codex_art3_lantern_hanging",
+      "category": "lantern",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_lantern_hanging\\production_lantern_hanging_LOD0.glb",
+          "level": 0,
+          "triangles": 8481,
+          "sha256": "11d34a0fdfb08d8fad60301e934d95798f2c1124c78ad9e0913715f1415b2989",
+          "bytes": 22441856
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_lantern_hanging\\production_lantern_hanging_LOD1.glb",
+          "level": 1,
+          "triangles": 4239,
+          "sha256": "d6de9c353f464713f3edc45b9068c960540894a6afe173f3b9d507004a558a66",
+          "bytes": 22324340
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_lantern_hanging\\production_lantern_hanging_LOD2.glb",
+          "level": 2,
+          "triangles": 1695,
+          "sha256": "cdae0572f0e1a7eedfbdef8af696acd35b192306dce6f700c6e5a4e3187b09b6",
+          "bytes": 22242436
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\wooden_lantern_01\\wooden_lantern_01.blend",
+          "sha256": "8d1c7e17edfa8d47f7b2a08461dca4c83193565d440e4daf39718e12bc97c636",
+          "selection": null,
+          "title": "Wooden Lantern 01",
+          "author": "Poly Haven ",
+          "license": "cc_zero",
+          "metadata": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\wooden_lantern_01\\publisher_metadata.json",
+          "metadata_sha256": "66624c52c272b6093aa3594c38fc6a319ee3aa05197a1e06b5374449fbdf55b7"
+        }
+      ],
+      "source_review_status": "Lantern appearance accepted; bracket/scale refinement pending review"
+    },
+    {
+      "source_key": "production_lantern_standing",
+      "asset_id": "bw_codex_art3_lantern_standing",
+      "category": "lantern",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_lantern_standing\\production_lantern_standing_LOD0.glb",
+          "level": 0,
+          "triangles": 34062,
+          "sha256": "9c2e208aea58460772a26a116075db322d16ed39828ba89e7eb287b1d539b733",
+          "bytes": 25966180
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_lantern_standing\\production_lantern_standing_LOD1.glb",
+          "level": 1,
+          "triangles": 17031,
+          "sha256": "4e97208a7632c9a65696d5ca7e7df4cbc4daa9e2a37ee9c4947da5696b3291f5",
+          "bytes": 25551916
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_lantern_standing\\production_lantern_standing_LOD2.glb",
+          "level": 2,
+          "triangles": 6811,
+          "sha256": "64b6d3d816fc482b3fdc9429ddb20b931b607264c02c6c579090b0e4e8b98fd6",
+          "bytes": 25294872
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\lantern_01\\lantern_01.blend",
+          "sha256": "e319b8f93ebb75fdadd04b51c9731d59aa6d01be4111967027b1576d23c5f32c",
+          "selection": null,
+          "title": "Lantern 01",
+          "author": "Poly Haven ",
+          "license": "cc_zero",
+          "metadata": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\lantern_01\\publisher_metadata.json",
+          "metadata_sha256": "08133d14113a5f2e6087d1e1b5bc8f4f008374f7f1a4f4165d741010cab443f9"
+        }
+      ],
+      "source_review_status": "Lantern appearance accepted; bracket/scale refinement pending review"
+    },
+    {
+      "source_key": "production_lantern_wall",
+      "asset_id": "bw_codex_art3_lantern_wall",
+      "category": "lantern",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_lantern_wall\\production_lantern_wall_LOD0.glb",
+          "level": 0,
+          "triangles": 35946,
+          "sha256": "9ee84c0f2b4980da1a4bcdfd51d6f06c9932f15835093d568b7554dd3dcfa12a",
+          "bytes": 32110892
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_lantern_wall\\production_lantern_wall_LOD1.glb",
+          "level": 1,
+          "triangles": 17973,
+          "sha256": "64d15540d6ae7cd1b4e30df704314046b463b539e3fda619a9391ed563c98f28",
+          "bytes": 31578464
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_lantern_wall\\production_lantern_wall_LOD2.glb",
+          "level": 2,
+          "triangles": 7188,
+          "sha256": "0d28d2f1d9d47c2532be4a425c3574f98e36f0ce979dd214191960986bb8cb1e",
+          "bytes": 31234528
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\lantern_01\\lantern_01.blend",
+          "sha256": "e319b8f93ebb75fdadd04b51c9731d59aa6d01be4111967027b1576d23c5f32c",
+          "selection": null,
+          "title": "Lantern 01",
+          "author": "Poly Haven ",
+          "license": "cc_zero",
+          "metadata": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\lantern_01\\publisher_metadata.json",
+          "metadata_sha256": "08133d14113a5f2e6087d1e1b5bc8f4f008374f7f1a4f4165d741010cab443f9"
+        }
+      ],
+      "source_review_status": "Lantern appearance accepted; bracket/scale refinement pending review"
+    },
+    {
+      "source_key": "production_reading_02",
+      "asset_id": "bw_codex_art3_reading_02",
+      "category": "readings",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_02\\production_reading_02_LOD0.glb",
+          "level": 0,
+          "triangles": 6592,
+          "sha256": "921dfdaf5befb48213831feafea51aaa901a864522aa26e87bd8e117512fd2be",
+          "bytes": 12038548
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_02\\production_reading_02_LOD1.glb",
+          "level": 1,
+          "triangles": 3296,
+          "sha256": "bc602ce28d7665d6c985b24b905d04bc49ee0f800202e766b94c5a793802811f",
+          "bytes": 11985976
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_02\\production_reading_02_LOD2.glb",
+          "level": 2,
+          "triangles": 1318,
+          "sha256": "97184a7f42e8917da9449993654fdc274d0dd7e2b1e25a0f50325afd9d55bd2a",
+          "bytes": 11942456
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Readings_Context_Polish\\provenance.json",
+          "sha256": "671992526dfd05561ff50ede8f93ce983f5cda12f1197cd61964f92d27cb3047",
+          "license": "CC0-1.0 paper; Otherreach text/layout"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\Blender\\reading_notice_board.blend",
+          "sha256": "c3a91735297d524362738775c9fbcd362c731810eb5a6aff88bc821d457aa7f4",
+          "selection": "Unreadable page"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\ambientCG_Paper001\\provenance.json",
+          "sha256": "0d75b36128e9a51e059edc3ab164d842baf49c377b871ad692e32448af23d120",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\readings_text_and_pages.json",
+          "sha256": "831e8d7cf883ecbd4a31f94c565f0764b6d42b28c94906e2b5d48ba9f0614ae5"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\manifest.json",
+          "note": "Approved P0/P1 original models reused; source library originals remain unchanged"
+        }
+      ],
+      "source_review_status": "PRODUCTION CANDIDATE - OWNER REVIEW REQUIRED - NOT SHIPPING ACCEPTED"
+    },
+    {
+      "source_key": "production_reading_03",
+      "asset_id": "bw_codex_art3_reading_03",
+      "category": "readings",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_03\\production_reading_03_LOD0.glb",
+          "level": 0,
+          "triangles": 6592,
+          "sha256": "0f89eed86ed0a9f4d66383f24ed58f292529adfa7a5d46d2013d7cad579fb80a",
+          "bytes": 12038348
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_03\\production_reading_03_LOD1.glb",
+          "level": 1,
+          "triangles": 3296,
+          "sha256": "634772ec95ad8ef1e38df6850b4f559a744905a322fdd492f8a9d31e80736d5f",
+          "bytes": 11985768
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_03\\production_reading_03_LOD2.glb",
+          "level": 2,
+          "triangles": 1318,
+          "sha256": "3f25dbe42ec57739ac716b297015dbeda15651e9f697adb62f97f993d9a03c68",
+          "bytes": 11942256
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Readings_Context_Polish\\provenance.json",
+          "sha256": "671992526dfd05561ff50ede8f93ce983f5cda12f1197cd61964f92d27cb3047",
+          "license": "CC0-1.0 paper; Otherreach text/layout"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\Blender\\reading_notice_board.blend",
+          "sha256": "c3a91735297d524362738775c9fbcd362c731810eb5a6aff88bc821d457aa7f4",
+          "selection": "Unreadable page"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\ambientCG_Paper001\\provenance.json",
+          "sha256": "0d75b36128e9a51e059edc3ab164d842baf49c377b871ad692e32448af23d120",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\readings_text_and_pages.json",
+          "sha256": "831e8d7cf883ecbd4a31f94c565f0764b6d42b28c94906e2b5d48ba9f0614ae5"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\manifest.json",
+          "note": "Approved P0/P1 original models reused; source library originals remain unchanged"
+        }
+      ],
+      "source_review_status": "PRODUCTION CANDIDATE - OWNER REVIEW REQUIRED - NOT SHIPPING ACCEPTED"
+    },
+    {
+      "source_key": "production_reading_05",
+      "asset_id": "bw_codex_art3_reading_05",
+      "category": "readings",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_05\\production_reading_05_LOD0.glb",
+          "level": 0,
+          "triangles": 6592,
+          "sha256": "766b1ea36e2d446b46f15b341b822faa7f5c6d058071f5fe55a96ddd16898ff9",
+          "bytes": 12049316
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_05\\production_reading_05_LOD1.glb",
+          "level": 1,
+          "triangles": 3296,
+          "sha256": "0617ef8d31c55eee7a8408d39f95dc072f76bcaebb34fa64644e87c806591351",
+          "bytes": 11996744
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_05\\production_reading_05_LOD2.glb",
+          "level": 2,
+          "triangles": 1318,
+          "sha256": "a23a2126a20c9ec30bfe4f9d5bd2e15e9376831a0f134010c4f91380d1dbde4f",
+          "bytes": 11953224
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Readings_Context_Polish\\provenance.json",
+          "sha256": "671992526dfd05561ff50ede8f93ce983f5cda12f1197cd61964f92d27cb3047",
+          "license": "CC0-1.0 paper; Otherreach text/layout"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\Blender\\reading_notice_board.blend",
+          "sha256": "c3a91735297d524362738775c9fbcd362c731810eb5a6aff88bc821d457aa7f4",
+          "selection": "Unreadable page"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\ambientCG_Paper001\\provenance.json",
+          "sha256": "0d75b36128e9a51e059edc3ab164d842baf49c377b871ad692e32448af23d120",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\readings_text_and_pages.json",
+          "sha256": "831e8d7cf883ecbd4a31f94c565f0764b6d42b28c94906e2b5d48ba9f0614ae5"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\manifest.json",
+          "note": "Approved P0/P1 original models reused; source library originals remain unchanged"
+        }
+      ],
+      "source_review_status": "PRODUCTION CANDIDATE - OWNER REVIEW REQUIRED - NOT SHIPPING ACCEPTED"
+    },
+    {
+      "source_key": "production_reading_06",
+      "asset_id": "bw_codex_art3_reading_06",
+      "category": "readings",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_06\\production_reading_06_LOD0.glb",
+          "level": 0,
+          "triangles": 6592,
+          "sha256": "0a36af07fbe02c317a845f48a91b2b890bc4c5f141659dd4f0f8c262e1079a70",
+          "bytes": 12047784
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_06\\production_reading_06_LOD1.glb",
+          "level": 1,
+          "triangles": 3296,
+          "sha256": "68e2712fb8031e2a6a8489346d78554f2a1fd411206ceb71d74902283a8eb5e6",
+          "bytes": 11995212
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_06\\production_reading_06_LOD2.glb",
+          "level": 2,
+          "triangles": 1318,
+          "sha256": "de3f55e5467da579632f59906c3e4fc878a072b69763c98afa27a6edbbeb8c09",
+          "bytes": 11951692
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Readings_Context_Polish\\provenance.json",
+          "sha256": "671992526dfd05561ff50ede8f93ce983f5cda12f1197cd61964f92d27cb3047",
+          "license": "CC0-1.0 paper; Otherreach text/layout"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\Blender\\reading_notice_board.blend",
+          "sha256": "c3a91735297d524362738775c9fbcd362c731810eb5a6aff88bc821d457aa7f4",
+          "selection": "Unreadable page"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\ambientCG_Paper001\\provenance.json",
+          "sha256": "0d75b36128e9a51e059edc3ab164d842baf49c377b871ad692e32448af23d120",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\readings_text_and_pages.json",
+          "sha256": "831e8d7cf883ecbd4a31f94c565f0764b6d42b28c94906e2b5d48ba9f0614ae5"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\manifest.json",
+          "note": "Approved P0/P1 original models reused; source library originals remain unchanged"
+        }
+      ],
+      "source_review_status": "PRODUCTION CANDIDATE - OWNER REVIEW REQUIRED - NOT SHIPPING ACCEPTED"
+    },
+    {
+      "source_key": "production_reading_07",
+      "asset_id": "bw_codex_art3_reading_07",
+      "category": "readings",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_07\\production_reading_07_LOD0.glb",
+          "level": 0,
+          "triangles": 6592,
+          "sha256": "4186e6679edc5bc8d778f8a817888eed56ba358b7c755ae40ec818e135e8b9f0",
+          "bytes": 11997656
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_07\\production_reading_07_LOD1.glb",
+          "level": 1,
+          "triangles": 3296,
+          "sha256": "4dadbf6937dd26e32dc03da3d0601297defe373981221c6ee13784170a0b610d",
+          "bytes": 11945084
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_07\\production_reading_07_LOD2.glb",
+          "level": 2,
+          "triangles": 1318,
+          "sha256": "c9a8ee36cac3530a14b4b40ce8e79487db277c49619ac700c06e223958d47e96",
+          "bytes": 11901564
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Readings_Context_Polish\\provenance.json",
+          "sha256": "671992526dfd05561ff50ede8f93ce983f5cda12f1197cd61964f92d27cb3047",
+          "license": "CC0-1.0 paper; Otherreach text/layout"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\Blender\\reading_notice_board.blend",
+          "sha256": "c3a91735297d524362738775c9fbcd362c731810eb5a6aff88bc821d457aa7f4",
+          "selection": "Unreadable page"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\ambientCG_Paper001\\provenance.json",
+          "sha256": "0d75b36128e9a51e059edc3ab164d842baf49c377b871ad692e32448af23d120",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\readings_text_and_pages.json",
+          "sha256": "831e8d7cf883ecbd4a31f94c565f0764b6d42b28c94906e2b5d48ba9f0614ae5"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\manifest.json",
+          "note": "Approved P0/P1 original models reused; source library originals remain unchanged"
+        }
+      ],
+      "source_review_status": "PRODUCTION CANDIDATE - OWNER REVIEW REQUIRED - NOT SHIPPING ACCEPTED"
+    },
+    {
+      "source_key": "production_reading_08",
+      "asset_id": "bw_codex_art3_reading_08",
+      "category": "readings",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_08\\production_reading_08_LOD0.glb",
+          "level": 0,
+          "triangles": 6592,
+          "sha256": "bbcc303168ff8b09722597ee3783b13c0ca6794bb441bd5061b60996379dcd87",
+          "bytes": 12010748
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_08\\production_reading_08_LOD1.glb",
+          "level": 1,
+          "triangles": 3296,
+          "sha256": "280a7e7b18047bfa0c08c8d8e9980fc81a33570bea929df2c04a24011e7b0084",
+          "bytes": 11958176
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_08\\production_reading_08_LOD2.glb",
+          "level": 2,
+          "triangles": 1318,
+          "sha256": "577cf65aecc37751332abfe2f7fb2f6f216b888f88ba46440d0575597c9c8a01",
+          "bytes": 11914656
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Readings_Context_Polish\\provenance.json",
+          "sha256": "671992526dfd05561ff50ede8f93ce983f5cda12f1197cd61964f92d27cb3047",
+          "license": "CC0-1.0 paper; Otherreach text/layout"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\Blender\\reading_notice_board.blend",
+          "sha256": "c3a91735297d524362738775c9fbcd362c731810eb5a6aff88bc821d457aa7f4",
+          "selection": "Unreadable page"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\ambientCG_Paper001\\provenance.json",
+          "sha256": "0d75b36128e9a51e059edc3ab164d842baf49c377b871ad692e32448af23d120",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\readings_text_and_pages.json",
+          "sha256": "831e8d7cf883ecbd4a31f94c565f0764b6d42b28c94906e2b5d48ba9f0614ae5"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\manifest.json",
+          "note": "Approved P0/P1 original models reused; source library originals remain unchanged"
+        }
+      ],
+      "source_review_status": "PRODUCTION CANDIDATE - OWNER REVIEW REQUIRED - NOT SHIPPING ACCEPTED"
+    },
+    {
+      "source_key": "production_wet_boot_prints",
+      "asset_id": "bw_codex_art3_wet_boot_prints",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_wet_boot_prints\\production_wet_boot_prints_LOD0.glb",
+          "level": 0,
+          "triangles": 16,
+          "sha256": "adb40c8a839b34e0810e2ec3bdbc37c12554f2fbf7af74cfb78f47d56580944b",
+          "bytes": 1638208
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_wet_boot_prints\\production_wet_boot_prints_LOD1.glb",
+          "level": 1,
+          "triangles": 8,
+          "sha256": "c8da8984878d0375cb48d8b7dd91faf499068866691a8945e07cd71a6dc539a4",
+          "bytes": 1637644
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_wet_boot_prints\\production_wet_boot_prints_LOD2.glb",
+          "level": 2,
+          "triangles": 3,
+          "sha256": "cbfc61a3615bc55627d55c57007976c95516694b0fc2441ebf02d6f688831f2c",
+          "bytes": 1637320
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\DressingDecals\\provenance.json",
+          "sha256": "196445417590880a6ce3e3e01398976cca262c2f6f03f90aa4f828509cdd6438"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\wet_prints_spec.json",
+          "sha256": "23c1a46904cc0eb1ccc78194e03f4dda8e357da331b86257c1db4c5bf7033035",
+          "author": "Otherreach project",
+          "method": "Conventional authored geometry, line masks and licensed photography"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_silt_line",
+      "asset_id": "bw_codex_art3_silt_line",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_silt_line\\production_silt_line_LOD0.glb",
+          "level": 0,
+          "triangles": 4,
+          "sha256": "00b9b68d3793740c4186157fde57d8a5adddc1e5a0648fed3509215cfd86759f",
+          "bytes": 560804
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_silt_line\\production_silt_line_LOD1.glb",
+          "level": 1,
+          "triangles": 2,
+          "sha256": "c8db7fe3258e05a525a35344e364b01207413abe4dcacc70cb24d7c57a375622",
+          "bytes": 560660
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_silt_line\\production_silt_line_LOD2.glb",
+          "level": 2,
+          "triangles": 2,
+          "sha256": "c8db7fe3258e05a525a35344e364b01207413abe4dcacc70cb24d7c57a375622",
+          "bytes": 560660
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\DressingDecals\\provenance.json",
+          "sha256": "196445417590880a6ce3e3e01398976cca262c2f6f03f90aa4f828509cdd6438"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\silt_line_spec.json",
+          "sha256": "49bc40ecc64525384c559b2e8a630993f5d5553576892390b1a63bb802de7b31",
+          "author": "Otherreach project",
+          "method": "Conventional authored geometry, line masks and licensed photography"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_web_anchors",
+      "asset_id": "bw_codex_art3_web_anchors",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_web_anchors\\production_web_anchors_LOD0.glb",
+          "level": 0,
+          "triangles": 996,
+          "sha256": "e2635638dcf11af071cdb7ab2d517c4b4432ea1a063aa476a40432d98f18efa3",
+          "bytes": 119852
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_web_anchors\\production_web_anchors_LOD1.glb",
+          "level": 1,
+          "triangles": 498,
+          "sha256": "f29af97866c7e86a06d5051e821456588ff2a81b070c95b15ab91165b37eb1d2",
+          "bytes": 107776
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_web_anchors\\production_web_anchors_LOD2.glb",
+          "level": 2,
+          "triangles": 198,
+          "sha256": "61d066ca88ce50845e9f8ec079acbaa80f63280e842a965be4e957f3b5170732",
+          "bytes": 100500
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\DressingDecals\\provenance.json",
+          "sha256": "196445417590880a6ce3e3e01398976cca262c2f6f03f90aa4f828509cdd6438"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\web_anchor_spec.json",
+          "sha256": "a7b28af7737002575848f53a08577f2ddfb5d125cfa189b003a270129a7dab40",
+          "author": "Otherreach project",
+          "method": "Conventional authored geometry, line masks and licensed photography"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_web_heavy",
+      "asset_id": "bw_codex_art3_web_heavy",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_web_heavy\\production_web_heavy_LOD0.glb",
+          "level": 0,
+          "triangles": 998,
+          "sha256": "ea8d3a74728063c9a8b5b7ff1649981f47482c8e9031c5fe72f986d9f185ea34",
+          "bytes": 120028
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_web_heavy\\production_web_heavy_LOD1.glb",
+          "level": 1,
+          "triangles": 498,
+          "sha256": "516f4b9d49d744d1443eb270e8b247edff27df04360f426e701332462d681702",
+          "bytes": 107908
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_web_heavy\\production_web_heavy_LOD2.glb",
+          "level": 2,
+          "triangles": 198,
+          "sha256": "d4cdb12a12409c3ebdf274d32a3952cf0cc288ba4848d3ce4174af1ba1c1c83b",
+          "bytes": 100568
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\DressingDecals\\provenance.json",
+          "sha256": "196445417590880a6ce3e3e01398976cca262c2f6f03f90aa4f828509cdd6438"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\web_heavy_spec.json",
+          "sha256": "354215276b508994a82f4d2e4aae107b715e9a8754ceaf987af661acbd518258",
+          "author": "Otherreach project",
+          "method": "Conventional authored geometry, line masks and licensed photography"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_dry_walkway_edge",
+      "asset_id": "bw_codex_art3_dry_walkway_edge",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_dry_walkway_edge\\production_dry_walkway_edge_LOD0.glb",
+          "level": 0,
+          "triangles": 2,
+          "sha256": "a309f4ebb3b6b1bf78b8eca52689884fd5be675de82940182484136a915bec56",
+          "bytes": 464432
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_dry_walkway_edge\\production_dry_walkway_edge_LOD1.glb",
+          "level": 1,
+          "triangles": 2,
+          "sha256": "a309f4ebb3b6b1bf78b8eca52689884fd5be675de82940182484136a915bec56",
+          "bytes": 464432
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_dry_walkway_edge\\production_dry_walkway_edge_LOD2.glb",
+          "level": 2,
+          "triangles": 2,
+          "sha256": "a309f4ebb3b6b1bf78b8eca52689884fd5be675de82940182484136a915bec56",
+          "bytes": 464432
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\DressingDecals\\provenance.json",
+          "sha256": "196445417590880a6ce3e3e01398976cca262c2f6f03f90aa4f828509cdd6438"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\dry_walkway_spec.json",
+          "sha256": "6ac183ece894eae9cb696306ddc5f7e59c9eb0d9c5892be0c5fcad8d29516a34",
+          "author": "Otherreach project",
+          "method": "Conventional authored geometry, line masks and licensed photography"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_limbeck_still",
+      "asset_id": "bw_codex_art3_limbeck_still",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_limbeck_still\\production_limbeck_still_LOD0.glb",
+          "level": 0,
+          "triangles": 25244,
+          "sha256": "479d6fdf0cf8b737c612346f12202b69a22f7ba17b3efce6ad563107ba3a56f9",
+          "bytes": 36150372
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_limbeck_still\\production_limbeck_still_LOD1.glb",
+          "level": 1,
+          "triangles": 12622,
+          "sha256": "4e06ee0aab780463096f619c7ecf91a20f5c2171d17723af33577922d1a207fb",
+          "bytes": 35523984
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_limbeck_still\\production_limbeck_still_LOD2.glb",
+          "level": 2,
+          "triangles": 5047,
+          "sha256": "1bc7b2a1f0d8b26b53b204233465a3d464d86e58c173f0b787581ddaf3c2d8bc",
+          "bytes": 35218432
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Copper_Photo_Tile\\provenance.json",
+          "sha256": "cd5c861af00d25049fcabf549af8a6869d2de371be884239174baa652740cd26",
+          "license": "CC0-1.0",
+          "author": "Rico Cilliers / Poly Haven"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\brass_pot_02\\brass_pot_02.blend",
+          "sha256": "130ce364c76539811f0e25c9c401d9ba43edc621c34816b827f8001a79014a9d",
+          "selection": null,
+          "title": "Brass Pot 02",
+          "author": "Poly Haven ",
+          "license": "cc_zero",
+          "metadata": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\brass_pot_02\\publisher_metadata.json",
+          "metadata_sha256": "3c8fc8dcde6ca30cce28cdd047d6f253c1219a8e519b8024c2b9fdf4a3e406e9"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\brass_pot_02\\brass_pot_02.blend",
+          "sha256": "130ce364c76539811f0e25c9c401d9ba43edc621c34816b827f8001a79014a9d",
+          "selection": null,
+          "title": "Brass Pot 02",
+          "author": "Poly Haven ",
+          "license": "cc_zero",
+          "metadata": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\brass_pot_02\\publisher_metadata.json",
+          "metadata_sha256": "3c8fc8dcde6ca30cce28cdd047d6f253c1219a8e519b8024c2b9fdf4a3e406e9"
+        },
+        {
+          "author": "Otherreach project",
+          "method": "Round9: hand-authored firebox and solid oak cooperage with held photographic PBR; sourced copper pots; immersed worm, floor-seated receiver. No generative tools.",
+          "scale": "Metres; pot bottom0.36, firebox top0.39; tub1.21m high; receiver bottom0.0",
+          "photographic_wood": "C:\\Otherreach_External_Assets\\Modelled_20261018\\Materials\\medieval_wood"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_reading_04",
+      "asset_id": "bw_codex_art3_reading_04",
+      "category": "readings",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_04\\production_reading_04_LOD0.glb",
+          "level": 0,
+          "triangles": 2484,
+          "sha256": "0a3b510b7ed675bfe5851faa9c0c675c9c6ce6d13aafcad0e067b147d49ee64c",
+          "bytes": 16987216
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_04\\production_reading_04_LOD1.glb",
+          "level": 1,
+          "triangles": 1242,
+          "sha256": "3ffdca979a42f0779048fd096c8179b2fa9f1ba50e18cdf2a7f8677c78b341cb",
+          "bytes": 16926624
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_04\\production_reading_04_LOD2.glb",
+          "level": 2,
+          "triangles": 496,
+          "sha256": "89a9d812b045f4bd2944ae4b1444cbaa92ce38fd07042a7f410b19d6a56d461a",
+          "bytes": 16860704
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\Blender\\lantern_ledger.blend",
+          "sha256": "20ff688087262d503398c86fdbeb26d791545dc09f59bd7066aba684af6088ab",
+          "selection": null
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\ambientCG_Paper001\\provenance.json",
+          "sha256": "0d75b36128e9a51e059edc3ab164d842baf49c377b871ad692e32448af23d120",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\readings_text_and_pages.json",
+          "sha256": "831e8d7cf883ecbd4a31f94c565f0764b6d42b28c94906e2b5d48ba9f0614ae5"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\manifest.json",
+          "note": "Approved P0/P1 original models reused; source library originals remain unchanged"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_court_ring_markings",
+      "asset_id": "bw_codex_art3_court_ring_markings",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_court_ring_markings\\production_court_ring_markings_LOD0.glb",
+          "level": 0,
+          "triangles": 9216,
+          "sha256": "aba9bcbbeabae728ae98bdf348bb5069f6c18957670e354550ce6e1e1404fd18",
+          "bytes": 987820
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_court_ring_markings\\production_court_ring_markings_LOD1.glb",
+          "level": 1,
+          "triangles": 4608,
+          "sha256": "f1f1d6a1280000894486c5e2c88dd0b18b5a546c19d50fb3588f6965bf3cccae",
+          "bytes": 803240
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_court_ring_markings\\production_court_ring_markings_LOD2.glb",
+          "level": 2,
+          "triangles": 1842,
+          "sha256": "2453c33e9ed442abb0e1c56a2c8cabaede3f5bf33124e8dc928d2ad7fddd8eca",
+          "bytes": 668200
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Copper_Photo_Tile\\provenance.json",
+          "sha256": "cd5c861af00d25049fcabf549af8a6869d2de371be884239174baa652740cd26",
+          "license": "CC0-1.0",
+          "author": "Rico Cilliers / Poly Haven"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\room_dressing_source_audit.json",
+          "note": "DS specifies radii4/8/11m, not diameters; 45mm brass marking strips, no flashing floor or runtime telegraph logic"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_stand_down_plate",
+      "asset_id": "bw_codex_art3_stand_down_plate",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_stand_down_plate\\production_stand_down_plate_LOD0.glb",
+          "level": 0,
+          "triangles": 588,
+          "sha256": "e1e4100d253f23bb1cdbff24ec2f8c26b31487bbd45f022f5aabbb78a9d9dd1d",
+          "bytes": 527796
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_stand_down_plate\\production_stand_down_plate_LOD1.glb",
+          "level": 1,
+          "triangles": 294,
+          "sha256": "ff73c0d5c9f9934535b2a8d74bad21c717eb47ccbe1b35a4b2d73d9bdbae9aa9",
+          "bytes": 509644
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_stand_down_plate\\production_stand_down_plate_LOD2.glb",
+          "level": 2,
+          "triangles": 116,
+          "sha256": "dfd8eb6736cf2d902db59b74508088bb803082899f6c44a438ceeece6b75b8c1",
+          "bytes": 492252
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Copper_Photo_Tile\\provenance.json",
+          "sha256": "cd5c861af00d25049fcabf549af8a6869d2de371be884239174baa652740cd26",
+          "license": "CC0-1.0",
+          "author": "Rico Cilliers / Poly Haven"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\stand_down_plate_spec.json",
+          "sha256": "34f8e254c4515e834d50c03b1cea8177f06551572cabda7115d246bc8602647a",
+          "author": "Otherreach project",
+          "method": "Conventional authored geometry, line masks and licensed photography"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_screened_slot",
+      "asset_id": "bw_codex_art3_screened_slot",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_screened_slot\\production_screened_slot_LOD0.glb",
+          "level": 0,
+          "triangles": 29876,
+          "sha256": "b6e0d40f19f404837aa1baa30c8cfb4b2e9160fea247b775909c577f0d1adf6b",
+          "bytes": 42450112
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_screened_slot\\production_screened_slot_LOD1.glb",
+          "level": 1,
+          "triangles": 14937,
+          "sha256": "64a25fd1f2d0eeba3003b0477ebab03dfce4bec6a328786750b89a7b4745a847",
+          "bytes": 41934504
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_screened_slot\\production_screened_slot_LOD2.glb",
+          "level": 2,
+          "triangles": 5974,
+          "sha256": "6a7f3e05422879122f850334b095c35a25aa90219d7a63747954ab595793e3eb",
+          "bytes": 41653076
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_scanned_wall_3\\production_scanned_wall_3_LOD0.glb",
+          "sha256": "166943333398b6e360a30ac39af47495fffdda0de10d411f74d646f262b81eea",
+          "selection": null
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_scanned_wall_3\\production_scanned_wall_3_LOD0.glb",
+          "sha256": "166943333398b6e360a30ac39af47495fffdda0de10d411f74d646f262b81eea",
+          "selection": null
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_scanned_wall_3\\production_scanned_wall_3_LOD0.glb",
+          "sha256": "166943333398b6e360a30ac39af47495fffdda0de10d411f74d646f262b81eea",
+          "selection": null
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_scanned_wall_3\\production_scanned_wall_3_LOD0.glb",
+          "sha256": "166943333398b6e360a30ac39af47495fffdda0de10d411f74d646f262b81eea",
+          "selection": null
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\screened_slot_spec.json",
+          "sha256": "06d1280fffee8b5e413075b177b6cec9bd7c1c1d674412c8d5ed066b0c5060fe",
+          "author": "Otherreach project",
+          "method": "Conventional authored geometry, line masks and licensed photography"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_court_lamp_truss",
+      "asset_id": "bw_codex_art3_court_lamp_truss",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_court_lamp_truss\\production_court_lamp_truss_LOD0.glb",
+          "level": 0,
+          "triangles": 17330,
+          "sha256": "4b947a5b1c4e550f57d3b4934300c23498ed64acb082ede5abc51c2074035e47",
+          "bytes": 30171404
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_court_lamp_truss\\production_court_lamp_truss_LOD1.glb",
+          "level": 1,
+          "triangles": 8665,
+          "sha256": "647e890ad0bbea7179fe2cb7738ac9f7a5ab8d577f6efe83b72285f5bbe9de95",
+          "bytes": 29969440
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_court_lamp_truss\\production_court_lamp_truss_LOD2.glb",
+          "level": 2,
+          "triangles": 3465,
+          "sha256": "e614547f46c04f22574a20b4529c4e3791a66ffd9c3d62b350ba02e734f36ae5",
+          "bytes": 29803036
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_lantern_hanging\\production_lantern_hanging_LOD0.glb",
+          "sha256": "11d34a0fdfb08d8fad60301e934d95798f2c1124c78ad9e0913715f1415b2989",
+          "selection": null
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_lantern_hanging\\production_lantern_hanging_LOD0.glb",
+          "sha256": "11d34a0fdfb08d8fad60301e934d95798f2c1124c78ad9e0913715f1415b2989",
+          "selection": null
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\court_lamp_truss_spec.json",
+          "sha256": "1f206ffe3397353c4f86ca2fcf9e2b5c54c8e1f3e95e2b47c4400b1ecdf43591",
+          "author": "Otherreach project",
+          "method": "Conventional authored geometry, line masks and licensed photography"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_slow_strike_hammer",
+      "asset_id": "bw_codex_art3_slow_strike_hammer",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [
+            "barrowworks_slow_strike_6s"
+          ],
+          "joints": 2,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_slow_strike_hammer\\production_slow_strike_hammer_LOD0.glb",
+          "level": 0,
+          "triangles": 2144,
+          "sha256": "a28006c90aa7e75c30caf77978967f4477ac00fd26ebd18b31468f8ff659779d",
+          "bytes": 9503452
+        },
+        {
+          "animations": [
+            "barrowworks_slow_strike_6s"
+          ],
+          "joints": 2,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_slow_strike_hammer\\production_slow_strike_hammer_LOD1.glb",
+          "level": 1,
+          "triangles": 1072,
+          "sha256": "8e84216ac0ffd6427602bc80fb98d6e7c0d51d2375fea1296f9992ca262f1909",
+          "bytes": 9378376
+        },
+        {
+          "animations": [
+            "barrowworks_slow_strike_6s"
+          ],
+          "joints": 2,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_slow_strike_hammer\\production_slow_strike_hammer_LOD2.glb",
+          "level": 2,
+          "triangles": 428,
+          "sha256": "7ab881ad4623d3a43e1ceb4809a1109255854e4edee8ad6a2e44b7313984c2b1",
+          "bytes": 9288884
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\Materials\\medieval_wood\\maps.json",
+          "sha256": "1b72a72e01966adb394c0faa2c434abdb461c55895df6581851469659125f47e",
+          "note": "Approved photographic P0 oak. ARM green roughness restored; metric UV1024px/m, source256x1024 covers0.25x1m."
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Copper_Photo_Tile\\provenance.json",
+          "sha256": "cd5c861af00d25049fcabf549af8a6869d2de371be884239174baa652740cd26",
+          "license": "CC0-1.0",
+          "author": "Rico Cilliers / Poly Haven"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\slow_strike_hammer_spec.json",
+          "sha256": "63a0224a7df9c8257b7b68d9474586d80313faebac0c737e302f22f0ed9af422",
+          "author": "Otherreach project",
+          "method": "Conventional authored geometry, line masks and licensed photography"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_mixed_fasteners",
+      "asset_id": "bw_codex_art3_mixed_fasteners",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_mixed_fasteners\\production_mixed_fasteners_LOD0.glb",
+          "level": 0,
+          "triangles": 16648,
+          "sha256": "250fda122964d3550ee3fde7fecbafeefaf3ab535fe7ce42f2a9d822631160ed",
+          "bytes": 9219608
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_mixed_fasteners\\production_mixed_fasteners_LOD1.glb",
+          "level": 1,
+          "triangles": 8324,
+          "sha256": "28a55744d01240ac3a6deb242f206f0f2076616392ad252f766de5e01fcdbb2d",
+          "bytes": 8919380
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_mixed_fasteners\\production_mixed_fasteners_LOD2.glb",
+          "level": 2,
+          "triangles": 3328,
+          "sha256": "b60a05c78997ad74b8afc34ee805af9faac3c1b60a55b3ed4b6566680547ae58",
+          "bytes": 8598628
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\Materials\\medieval_wood\\maps.json",
+          "sha256": "1b72a72e01966adb394c0faa2c434abdb461c55895df6581851469659125f47e",
+          "note": "Approved photographic P0 oak. ARM green roughness restored; metric UV1024px/m, source256x1024 covers0.25x1m."
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\cast_iron_dark_photo_provenance.json",
+          "sha256": "806aece41ad145dd12eb19e943d555456f9f426a19f22b7f1017f3f581ac22e8"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\fastener_crate_r10_construction.json",
+          "sha256": "cb268e68ea9ec091eb32c8b1347a20052eb6cc3ee043adb04d3cfa3e82049a45",
+          "author": "Otherreach project",
+          "method": "Conventional authored geometry, line masks and licensed photography"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\mixed_fasteners_spec.json",
+          "sha256": "a16382b54ce2e9d1f49bdcdccf2ecef75b719a4c457455ce5cca34982fca1b37",
+          "author": "Otherreach project",
+          "method": "Conventional authored geometry, line masks and licensed photography"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_dust_shaft",
+      "asset_id": "bw_codex_art3_dust_shaft",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_dust_shaft\\production_dust_shaft_LOD0.glb",
+          "level": 0,
+          "triangles": 444,
+          "sha256": "bfd2d8a4641f4c86a343be6b7b5b42c2d510fa9018e141daa13fd404643c2e41",
+          "bytes": 53136
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_dust_shaft\\production_dust_shaft_LOD1.glb",
+          "level": 1,
+          "triangles": 222,
+          "sha256": "7753fed61a8c671ecfea865247c621927b5d827d1fec408f7dec53fa8ed19c59",
+          "bytes": 30484
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_dust_shaft\\production_dust_shaft_LOD2.glb",
+          "level": 2,
+          "triangles": 81,
+          "sha256": "12b2efca58376978d600dff0ef6fa7086a9e4b5bd4dae24ddf7b1c888a80ae9c",
+          "bytes": 16100
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\DressingDecals\\provenance.json",
+          "sha256": "196445417590880a6ce3e3e01398976cca262c2f6f03f90aa4f828509cdd6438"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\dust_shaft_spec.json",
+          "sha256": "04b45c1e74eaf96e6b34924e1ee7536af3340344f95679d72b4baeeae19be4eb",
+          "author": "Otherreach project",
+          "method": "Conventional authored geometry, line masks and licensed photography"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_handhold_wear",
+      "asset_id": "bw_codex_art3_handhold_wear",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_handhold_wear\\production_handhold_wear_LOD0.glb",
+          "level": 0,
+          "triangles": 72,
+          "sha256": "ffe87c80e6d1eeef22542321c4025b18aa8c57f6c6dd8f666dac0a1439492b2d",
+          "bytes": 7483624
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_handhold_wear\\production_handhold_wear_LOD1.glb",
+          "level": 1,
+          "triangles": 36,
+          "sha256": "8b53aedc09a3d54073ff5b097766dbbced228ce8977216094b7cc615d7131d14",
+          "bytes": 7482600
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_handhold_wear\\production_handhold_wear_LOD2.glb",
+          "level": 2,
+          "triangles": 14,
+          "sha256": "50455c0f2bd6eb6296328173598cb2fcfb6e0ff1ed86ce75dd532d302a1c8ba1",
+          "bytes": 7481472
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\cast_iron_dark_photo_provenance.json",
+          "sha256": "806aece41ad145dd12eb19e943d555456f9f426a19f22b7f1017f3f581ac22e8"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\handhold_wear_spec.json",
+          "sha256": "fdf044e934d39383ed2b852d858d7c946544055147f30799e496cf3234631a5f",
+          "author": "Otherreach project",
+          "method": "Conventional authored geometry, line masks and licensed photography"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_low_sorting_tray",
+      "asset_id": "bw_codex_art3_low_sorting_tray",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_low_sorting_tray\\production_low_sorting_tray_LOD0.glb",
+          "level": 0,
+          "triangles": 11876,
+          "sha256": "b418307b26221115b432e4a8ebda56bc9e7f919b2cdf602a314e92966899a938",
+          "bytes": 54949540
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_low_sorting_tray\\production_low_sorting_tray_LOD1.glb",
+          "level": 1,
+          "triangles": 5938,
+          "sha256": "423c81e04a342210418c7a1ff6e2e01b1146bfefb1d03ed896d67029cfa5626d",
+          "bytes": 54549924
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_low_sorting_tray\\production_low_sorting_tray_LOD2.glb",
+          "level": 2,
+          "triangles": 2374,
+          "sha256": "64c7482ed858f6cba7bbd78a0a69760c47b1c245791ddef030d00ab8cd79cd86",
+          "bytes": 54224944
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\Materials\\medieval_wood\\maps.json",
+          "sha256": "1b72a72e01966adb394c0faa2c434abdb461c55895df6581851469659125f47e",
+          "note": "Approved photographic P0 oak. ARM green roughness restored; metric UV1024px/m, source256x1024 covers0.25x1m."
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\cast_iron_dark_photo_provenance.json",
+          "sha256": "806aece41ad145dd12eb19e943d555456f9f426a19f22b7f1017f3f581ac22e8"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\PolyHaven\\textures\\lichen_rock\\provenance.json",
+          "sha256": "7bf9c641115a7d36577bfc87f553cbcb6ed5d6c1a72b6fde2a309ae32824c734",
+          "license": "CC0-1.0",
+          "physical_texture_coverage_m": [
+            2,
+            2
+          ]
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\low_sorting_tray_r10_spec.json",
+          "sha256": "71a666483cd5e4a63f057244245e72fe3bea39b4bafe850b1868a2a68c67d2d5",
+          "author": "Otherreach project",
+          "method": "Conventional authored geometry, line masks and licensed photography"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_wash_water",
+      "asset_id": "bw_codex_art3_wash_water",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_wash_water\\production_wash_water_LOD0.glb",
+          "level": 0,
+          "triangles": 38,
+          "sha256": "78f23519bbf62a3e381af5adaf7206a6c3e9d43e322d557f6e5b584551756903",
+          "bytes": 41232
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_wash_water\\production_wash_water_LOD1.glb",
+          "level": 1,
+          "triangles": 18,
+          "sha256": "ef5c4e8b1f834c508c47b48b43894769bc246712759c902aa12653511f9bffdb",
+          "bytes": 40276
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_wash_water\\production_wash_water_LOD2.glb",
+          "level": 2,
+          "triangles": 6,
+          "sha256": "b3701155932906f1418ba7c49d45c8ac8f7863a2c2042ba25fbebddb7a1b5771",
+          "bytes": 39068
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Room_Dressing\\calm_water_normal_provenance.json",
+          "sha256": "eb10859acebf8d69399d3578a0ba035ab0b2af6e6a595c0c265e5792e2c40c00",
+          "author": "Otherreach project"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\water_wash_spec.json",
+          "sha256": "aa04bf2d4658593d6cf7b27d16d9a6a890bd62d6797306265f404eaf9d0f0aa4",
+          "author": "Otherreach project",
+          "method": "Conventional authored geometry, line masks and licensed photography"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_sump_water",
+      "asset_id": "bw_codex_art3_sump_water",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_sump_water\\production_sump_water_LOD0.glb",
+          "level": 0,
+          "triangles": 38,
+          "sha256": "cfee04df2a11a94a13a0c68efcaf99a721628ea892f8ab23b02dd51cbd05f830",
+          "bytes": 41248
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_sump_water\\production_sump_water_LOD1.glb",
+          "level": 1,
+          "triangles": 18,
+          "sha256": "e1abaaab8d20ea4850f17afcb42af03014513d65fddd06fa5864e474ea4b5852",
+          "bytes": 40296
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_sump_water\\production_sump_water_LOD2.glb",
+          "level": 2,
+          "triangles": 6,
+          "sha256": "73ce30d8619db4e8a5023d947b29f6507681e38551bb1e4f1e8c2238f2f9878c",
+          "bytes": 39088
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Room_Dressing\\calm_water_normal_provenance.json",
+          "sha256": "eb10859acebf8d69399d3578a0ba035ab0b2af6e6a595c0c265e5792e2c40c00",
+          "author": "Otherreach project"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Reports\\water_sump_spec.json",
+          "sha256": "2b86a01e278b115abb7211b8d7919cfe50a664c9fed94123094115ff3e4fa289",
+          "author": "Otherreach project",
+          "method": "Conventional authored geometry, line masks and licensed photography"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_wash_header_low",
+      "asset_id": "bw_codex_art3_wash_header_low",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_wash_header_low\\production_wash_header_low_LOD0.glb",
+          "level": 0,
+          "triangles": 17940,
+          "sha256": "60ac7439b0ab3e1782bbe195d19bf1faf39f321b30ea02e88b03063cd67adf8f",
+          "bytes": 8082508
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_wash_header_low\\production_wash_header_low_LOD1.glb",
+          "level": 1,
+          "triangles": 8970,
+          "sha256": "f7e9b4a9d2513df5354d31ae76476f28de19f1860e51e0a806ce0c2b2633f9c1",
+          "bytes": 7804140
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_wash_header_low\\production_wash_header_low_LOD2.glb",
+          "level": 2,
+          "triangles": 3588,
+          "sha256": "1a3de76d81f0455feaf118e3f99ae0d5d070990993e65591e97380c418eb7c04",
+          "bytes": 7619236
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Licenses\\photographic_derivatives.json",
+          "sha256": "7fb3635b959dec5e0ce4d62c8674d191ee75f075ebac078a1378a92dbc856008",
+          "license": "CC0-1.0",
+          "author": "Rob Tuytel / Poly Haven"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\cast_iron_dark_photo_provenance.json",
+          "sha256": "806aece41ad145dd12eb19e943d555456f9f426a19f22b7f1017f3f581ac22e8",
+          "license": "CC0-1.0"
+        },
+        {
+          "author": "Otherreach project",
+          "method": "R03: low0.4m wash header, actual hollow feed/elbow/nozzle mouths, chamfered bolted unions, blind end and forged bearing brackets; licensed photographic iron. Replaces legacy large plain tubes. Original source retained as design reference.",
+          "physical_height_m": 0.4,
+          "nozzles": 6,
+          "feed": "Vertical riser continues into floor plumbing; removable blind end closes opposite header end"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_hanging_tally_rack",
+      "asset_id": "bw_codex_art3_hanging_tally_rack",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_hanging_tally_rack\\production_hanging_tally_rack_LOD0.glb",
+          "level": 0,
+          "triangles": 4272,
+          "sha256": "53db5f7c0167c3e2e2592d261d8a55635ff9c5a33cfec2db1ac3f0edb522b7d5",
+          "bytes": 8722092
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_hanging_tally_rack\\production_hanging_tally_rack_LOD1.glb",
+          "level": 1,
+          "triangles": 2136,
+          "sha256": "08a65c9b74611547c2926661e5e758cbde565af557b75decfec513edacdea5ab",
+          "bytes": 8561740
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_hanging_tally_rack\\production_hanging_tally_rack_LOD2.glb",
+          "level": 2,
+          "triangles": 854,
+          "sha256": "e6c1a642d07fb31ff10d0e928881d5be95526dba35e31c0e979b5f2b259cc6c8",
+          "bytes": 8453672
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Licenses\\photographic_derivatives.json",
+          "sha256": "7fb3635b959dec5e0ce4d62c8674d191ee75f075ebac078a1378a92dbc856008",
+          "license": "CC0-1.0",
+          "author": "Rob Tuytel / Poly Haven"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\cast_iron_dark_photo_provenance.json",
+          "sha256": "806aece41ad145dd12eb19e943d555456f9f426a19f22b7f1017f3f581ac22e8",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\Materials\\medieval_wood\\maps.json",
+          "sha256": "1b72a72e01966adb394c0faa2c434abdb461c55895df6581851469659125f47e",
+          "note": "Approved photographic P0 oak. ARM green roughness restored; metric UV1024px/m, source256x1024 covers0.25x1m."
+        },
+        {
+          "author": "Otherreach project",
+          "method": "R02: real oak rail/stiles, five scored hanging boards with visible iron loops/hooks. Replaces jars in the repurposed source role; empty north shelf remains empty per canon. No generative tools."
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_return_notice_stand",
+      "asset_id": "bw_codex_art3_return_notice_stand",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_return_notice_stand\\production_return_notice_stand_LOD0.glb",
+          "level": 0,
+          "triangles": 2040,
+          "sha256": "a0713276bd681b8f41c6e00a38a1fa4dd81406e8b04c4062a642740d6db22283",
+          "bytes": 20119456
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_return_notice_stand\\production_return_notice_stand_LOD1.glb",
+          "level": 1,
+          "triangles": 1020,
+          "sha256": "13b0b7aefc1687f3ec7aa880afaa6017799282eac9c382cb5c7920317522cc72",
+          "bytes": 20058976
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_return_notice_stand\\production_return_notice_stand_LOD2.glb",
+          "level": 2,
+          "triangles": 408,
+          "sha256": "49240d7c6a7fde55eaeadcfd1a760e1bd94f17dc8a4218a503a3205a50ddafe2",
+          "bytes": 20000148
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Blender\\production_reading_01.blend",
+          "sha256": "10f0c64be36836b3e1254d96098695f07b93729323ff2d5f900f4c1a2fd694d6",
+          "selection": null
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\Materials\\medieval_wood\\maps.json",
+          "sha256": "1b72a72e01966adb394c0faa2c434abdb461c55895df6581851469659125f47e",
+          "note": "Approved photographic P0 oak. ARM green roughness restored; metric UV1024px/m, source256x1024 covers0.25x1m."
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Room_Dressing\\service_notices_provenance.json",
+          "sha256": "da0229f2c236cceac58264407f3e31c683608f2630cfa211bf95f13184ac5797",
+          "license": "CC0-1.0 paper; Otherreach text/layout"
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_arena_warning_placard",
+      "asset_id": "bw_codex_art3_arena_warning_placard",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_arena_warning_placard\\production_arena_warning_placard_LOD0.glb",
+          "level": 0,
+          "triangles": 1048,
+          "sha256": "257221c7fdbb515bf3ca805aecaf470de0221b01b885a9997a3d411193459a9e",
+          "bytes": 20031504
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_arena_warning_placard\\production_arena_warning_placard_LOD1.glb",
+          "level": 1,
+          "triangles": 524,
+          "sha256": "3532d3586b32d0583b52066091a2f37a204bb51a605cdcd2407f195938a28f46",
+          "bytes": 19991912
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_arena_warning_placard\\production_arena_warning_placard_LOD2.glb",
+          "level": 2,
+          "triangles": 209,
+          "sha256": "26ef07e19451dd448e07b22e50c68eb6f477096803cbe34ddd861103df30e2f0",
+          "bytes": 19970340
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\Materials\\medieval_wood\\maps.json",
+          "sha256": "1b72a72e01966adb394c0faa2c434abdb461c55895df6581851469659125f47e",
+          "note": "Approved photographic P0 oak. ARM green roughness restored; metric UV1024px/m, source256x1024 covers0.25x1m."
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Room_Dressing\\service_notices_provenance.json",
+          "sha256": "da0229f2c236cceac58264407f3e31c683608f2630cfa211bf95f13184ac5797",
+          "license": "CC0-1.0 paper; Otherreach text/layout"
+        },
+        {
+          "author": "Otherreach project",
+          "method": "R10 warning: paired metric-grain oak boards with two lightly curled complete paper leaves and through fixing pins. Entire supplied wording retained legibly."
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_reading_01",
+      "asset_id": "bw_codex_art3_reading_01",
+      "category": "readings",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_01\\production_reading_01_LOD0.glb",
+          "level": 0,
+          "triangles": 2040,
+          "sha256": "807da57db8f34ff1537f7bcff224b87e07cdcabfe45d1fd3cc103ae79cd819b8",
+          "bytes": 20435112
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_01\\production_reading_01_LOD1.glb",
+          "level": 1,
+          "triangles": 1019,
+          "sha256": "272bc5308565b40b000e022b4da7142c400090de9aed39adb9cea65cd7450872",
+          "bytes": 20391268
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_reading_01\\production_reading_01_LOD2.glb",
+          "level": 2,
+          "triangles": 407,
+          "sha256": "def968828f918d2eb3c04202da66cbb370602218b8810844eb51e6b2ebcef40f",
+          "bytes": 20337524
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\Blender\\reading_notice_board.blend",
+          "sha256": "c3a91735297d524362738775c9fbcd362c731810eb5a6aff88bc821d457aa7f4",
+          "selection": null
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\Materials\\medieval_wood\\maps.json",
+          "sha256": "1b72a72e01966adb394c0faa2c434abdb461c55895df6581851469659125f47e",
+          "note": "Approved photographic P0 oak. ARM green roughness restored; metric UV1024px/m, source256x1024 covers0.25x1m."
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Room_Dressing\\service_notices_provenance.json",
+          "sha256": "da0229f2c236cceac58264407f3e31c683608f2630cfa211bf95f13184ac5797",
+          "license": "CC0-1.0 paper; Otherreach text/layout"
+        }
+      ],
+      "source_review_status": "PRODUCTION CANDIDATE - OWNER REVIEW REQUIRED - NOT SHIPPING ACCEPTED"
+    },
+    {
+      "source_key": "production_intake_ledger",
+      "asset_id": "bw_codex_art3_intake_ledger",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_intake_ledger\\production_intake_ledger_LOD0.glb",
+          "level": 0,
+          "triangles": 2388,
+          "sha256": "d71909b04e37aa10b1fe38136449643836bdd3e8a6763a0e4e15fe658cc39001",
+          "bytes": 16837172
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_intake_ledger\\production_intake_ledger_LOD1.glb",
+          "level": 1,
+          "triangles": 1194,
+          "sha256": "d5c9cfd7fcb633963b8440a582e719a22d00945a1a8bff6ea3be1a487d46840c",
+          "bytes": 16735468
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_intake_ledger\\production_intake_ledger_LOD2.glb",
+          "level": 2,
+          "triangles": 476,
+          "sha256": "d5b0a9ed3d6eefb4daa288697563c7e9833e45326fb25c2d575a8123a4583cb8",
+          "bytes": 16671564
+        }
+      ],
+      "sources": [
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Blender\\production_reading_04.blend",
+          "sha256": "6f7624ebec1c63cbfa0d49dff26e5a99228392b574dbf0c60d10f2380edce353",
+          "selection": null
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Room_Dressing\\intake_pages_provenance.json",
+          "sha256": "331ab89803c5cc40dc835703d3261c038d621a1b7eb1478026c13cd84656b75d",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\Blender\\lantern_ledger.blend",
+          "sha256": "20ff688087262d503398c86fdbeb26d791545dc09f59bd7066aba684af6088ab",
+          "selection": null
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Sources\\ambientCG_Paper001\\provenance.json",
+          "sha256": "0d75b36128e9a51e059edc3ab164d842baf49c377b871ad692e32448af23d120",
+          "license": "CC0-1.0"
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\manifest.json",
+          "note": "Approved P0/P1 original models reused; source library originals remain unchanged"
+        },
+        {
+          "author": "Otherreach project",
+          "method": "Ambient open intake book: original worn boards, recessed spine and paper geometry; ruled aged pages replace the separate K3/BlindStore text. No invented entries or gameplay binding."
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    },
+    {
+      "source_key": "production_measuring_unit",
+      "asset_id": "bw_codex_art3_measuring_unit",
+      "category": "dressing",
+      "lods": [
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_measuring_unit\\production_measuring_unit_LOD0.glb",
+          "level": 0,
+          "triangles": 20568,
+          "sha256": "eefeae7bfafcf026acaafc6569c6244c9d2fe73a6c3abf321883fb941dd3577c",
+          "bytes": 10230276
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_measuring_unit\\production_measuring_unit_LOD1.glb",
+          "level": 1,
+          "triangles": 10283,
+          "sha256": "e9a11dc64eae703961f8bf0a3bcb96a4099dd492c750442eb2dacc3ec787c605",
+          "bytes": 9577380
+        },
+        {
+          "animations": [],
+          "joints": 0,
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Models\\production_measuring_unit\\production_measuring_unit_LOD2.glb",
+          "level": 2,
+          "triangles": 4112,
+          "sha256": "3d9c07eb445b9dbdb691ed5ee608579e325e9665d1d53a2b19a86263c3954cfe",
+          "bytes": 9114364
+        }
+      ],
+      "sources": [
+        {
+          "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_measure\\bw_codex_measure.glb",
+          "sha256": "ed4d68d16da6da6eaed91d60cb26f664edb8d081ddaea8bb6de9fad436812b98",
+          "selection": null
+        },
+        {
+          "file": "D:\\Otherreach_Depot\\barrowworks_codex\\ready\\bw_codex_measure\\bw_codex_measure_meta.json",
+          "sha256": "47b639d089f99a051ae5ff1004bbeb74a10dd9d22d84171b06d294a1d25cb75a",
+          "metadata": {
+            "asset_id": "bw_codex_measure",
+            "category": "prop",
+            "source": "Licensed source modules; manual assembly and first-party paper/type.",
+            "sources": [
+              "First-party regulator geometry",
+              "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0",
+              "Poly Haven Rough Wood: CC0"
+            ],
+            "modifications": "Hand-built timber/iron regulator, open spur gears, guide beam, opposed jaws, gauge column and rivets; owned CC-BY pipe/valve meshes and wear textures; CC0 timber. No AI meshes.",
+            "licence_evidence": "C:\\Otherreach_External_Assets\\Sketchfab_20261016\\SLASH-RENDAR__Old_Industrial_Pipe_Pack_PBR\\LICENCE.txt",
+            "shippable": true,
+            "triangles": 16716
+          }
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Modelled_20261018\\Materials\\medieval_wood\\maps.json",
+          "sha256": "1b72a72e01966adb394c0faa2c434abdb461c55895df6581851469659125f47e",
+          "note": "Approved photographic P0 oak. ARM green roughness restored; metric UV1024px/m, source256x1024 covers0.25x1m."
+        },
+        {
+          "file": "C:\\Otherreach_External_Assets\\Barrowworks_Art_20261018\\Production_Revision\\Materials\\Room_Dressing\\brass_hardware_provenance.json",
+          "sha256": "f2a3f94ee2a6906d323755f3b118a710622e2e8559be1c486a6469026c58d11b",
+          "license": "CC0-1.0"
+        },
+        {
+          "author": "Otherreach project",
+          "method": "R10 mechanical support pass: gear-centre axles and cast pillow blocks, governor bearings and pivot pins, jaw guide and hinge pins, gauge saddles, valve spindle and through bolts; original mechanism retained."
+        },
+        {
+          "author": "Otherreach project",
+          "method": "Measuring-machine derivative: original123-part mechanism retained; native flat1pixel brown brass replaced with photographed metallic brass, individual oak members retain lengthwise grain including braces; worked arrises added. Original source files unchanged."
+        }
+      ],
+      "source_review_status": "OWNER/CLAUDE ACCEPTED - ART3 round12 - COMPLETE"
+    }
+  ],
+  "room_composites_installed": false,
+  "enable_gates_passed": false
+}

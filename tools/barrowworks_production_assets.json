@@ -1,0 +1,26 @@
+{
+  "base_commit": "4c6bbe1136b9a779448ea5ed35061b4487ad615f",
+  "review": "CLAUDE_REVIEW_BARROWWORKS_ART3.md, rounds 1, 4, 6, 8 and 12; correction to round 12",
+  "art_root": "C:/Otherreach_External_Assets/Barrowworks_Art_20261018/Production_Revision",
+  "source_workspace": "D:/Otherreach_Depot/barrowworks_codex",
+  "destination_workspace": "D:/Otherreach_Depot/barrowworks_enable_20261019",
+  "core": {
+    "production_original_walker_detailed": "bw_codex_custodian",
+    "production_r12_embedded_headworks": "bw_codex_measure_running",
+    "production_threshold_adit": "bw_codex_entrance_threshold",
+    "production_drain_adit": "bw_codex_entrance_drain"
+  },
+  "architecture": [
+    "production_photographic_floor",
+    "production_continuous_vault",
+    "production_scanned_wall_1",
+    "production_scanned_wall_2",
+    "production_scanned_wall_3",
+    "production_scanned_corner",
+    "production_lantern_hanging",
+    "production_lantern_standing",
+    "production_lantern_wall"
+  ],
+  "dressing_acceptance": "Reports/DRESSING_ACCEPTED_R12.json",
+  "excluded": "production_dressing_rXX composites remain review candidates. Do not install them automatically. Accepted standalone pieces remain eligible; room arrangements still need in-engine review."
+}

@@ -4,6 +4,11 @@ var _passed = false
 func _initialize():
     _finish.call_deferred()
     var manifest_path = ProjectSettings.globalize_path("res://").path_join("../../docs/BARROWWORKS_SCENE_CACHE.json").simplify_path()
+    var args = OS.get_cmdline_user_args()
+    var option = args.find("--manifest")
+    if option >= 0:
+        assert(option + 1 < args.size(), "--manifest requires a path")
+        manifest_path = args[option + 1]
     var manifest = JSON.parse_string(FileAccess.get_file_as_string(manifest_path))
     for group in [manifest.outputs, manifest.shared_textures]:
         for record in group:
@@ -12,7 +17,9 @@ func _initialize():
     var custodian = ""
     var interior_samples = []
     for record in manifest.outputs:
-        if record.file.ends_with("bld_fab_cw_house_01.glb.scn"): first = record.file
+        # The new accepted exterior need not request that retired house model.
+        # Two independent instances of an actual interior prove texture sharing.
+        if record.file.ends_with("bw_codex_room_12.glb.scn"): first = record.file
         if record.file.ends_with("bw_codex_custodian_rigged.glb.scn"): custodian = record.file
         if record.file.ends_with("bw_codex_room_12.glb.scn") or record.file.ends_with("bw_codex_entrance_drain.glb.scn"):
             interior_samples.append(record.file)
