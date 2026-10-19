@@ -4,6 +4,7 @@ const LeaderPose = preload("LeaderPose.gd")
 const SKIN_SHADER = preload("Shaders/skin_shader_local.gdshader")
 const EYE_SHADER = preload("Shaders/eye_shader_local.gdshader")
 const HAIR_SHADER = preload("Shaders/hair_card.gdshader")
+const HAIR_BACKING_SHADER = preload("Shaders/hair_backing.gdshader")
 const SeamProbe = preload("Tests/SeamProbe.gd")
 const Measurements = preload("Tests/Measurements.gd")
 var _root: Node3D
@@ -245,13 +246,30 @@ func _load_grooms() -> void:
 		material.shader=HAIR_SHADER
 		material.set_shader_parameter("coverage_atlas",_texture(card.coverage))
 		material.set_shader_parameter("use_red_mask",true)
-		material.set_shader_parameter("alpha_threshold",.08 if "Eyebrows" in card.name else .333)
+		material.set_shader_parameter("alpha_threshold",.08 if "Eyebrows" in card.name else .07)
+		material.set_shader_parameter("root_darkening",.42)
+		material.set_shader_parameter("roughness_val",.72)
+		material.set_shader_parameter("specular_val",.12)
 		var rgba: Array=card.hair_color
 		material.set_shader_parameter("hair_color",Color(rgba[0],rgba[1],rgba[2],rgba[3]))
 		for mi in _all(model,"MeshInstance3D"):
 			mi.add_to_group("mh_facial_grooms")
 			for i in mi.get_blend_shape_count():mi.set_blend_shape_value(i,0)
 			for surface in mi.mesh.get_surface_count():mi.set_surface_override_material(surface,material)
+			if String(card.name).begins_with("Hair_"):
+				# Same native card mesh, inset backing pass from the working Godot reference.
+				var backing_material := ShaderMaterial.new()
+				backing_material.shader=HAIR_BACKING_SHADER
+				backing_material.set_shader_parameter("coverage_atlas",_texture(card.coverage))
+				backing_material.set_shader_parameter("use_red_mask",true)
+				backing_material.set_shader_parameter("hair_color",Color(rgba[0],rgba[1],rgba[2],rgba[3]).darkened(.25))
+				backing_material.set_shader_parameter("cutoff",.035)
+				backing_material.set_shader_parameter("inset",.009)
+				var backing := MeshInstance3D.new()
+				backing.mesh=mi.mesh
+				backing.transform=mi.transform
+				for surface in mi.mesh.get_surface_count():backing.set_surface_override_material(surface,backing_material)
+				mi.add_sibling(backing)
 
 func _camera_pose() -> void:
 	_camera.projection=Camera3D.PROJECTION_PERSPECTIVE
