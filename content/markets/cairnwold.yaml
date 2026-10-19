@@ -13,3 +13,5 @@ goods:
   - { item_ref: item.material.iron_ingot, target: 10, min: 0, max: 30, consumption: 2, elasticity: 0.6 }   # none made here any more
   - { item_ref: item.armor.hide_vest, target: 1, min: 0, max: 3, elasticity: 0.3 }   # Durn makes one again when his is sold
   - { item_ref: item.armor.hide_cap, target: 1, min: 0, max: 3, elasticity: 0.3 }
+  - { item_ref: item.bag.satchel, target: 2, min: 0, max: 4, elasticity: 0.3 }   # Durn stitches another when his are sold
+  - { item_ref: item.bag.reagent_satchel, target: 1, min: 0, max: 3, elasticity: 0.3 }

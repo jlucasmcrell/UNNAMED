@@ -112,6 +112,8 @@ internal sealed class TradeSystem
             return $"{command.Item} is not carried";
         if (command.Count < 1 || command.Count > entry.Count)
             return $"only {entry.Count} carried";
+        if (entry.Locked)
+            return $"{entry.DefId} is locked: unlock it to sell it";
         if (OfferFor(merchant, entry.DefId, entry.Wear) is not { } each)
             return $"{npc.Definition.Name} does not buy that";
         if (each == 0)
@@ -125,6 +127,35 @@ internal sealed class TradeSystem
         if (MarketOf(merchant) is { } market)
             _context.Dispatch(new MarketTrade(market, entry.DefId, 0, command.Count));
         _context.Events.Publish(new ItemSold(npc.Definition.Id, entry.DefId, command.Count, price, tick));
+        return null;
+    }
+
+    /// <summary>
+    /// Sell every stack marked as junk that this trader buys, one sale each by the same rules as selling it by hand: a locked stack, one worn or
+    /// one they would pay nothing for stays. Sells what it can; refused, with the first reason, only when nothing could be sold.
+    /// </summary>
+    public string? Handle(SellJunkCommand command, long tick)
+    {
+        if (Trader(command.Actor, command.NpcId, out _, out _) is { } refused)
+            return refused;
+        var junk = State.Inventory.Where(e => e.Junk && !e.Locked).OrderBy(e => e.ItemId.Value, StringComparer.Ordinal).ToList();
+        if (junk.Count == 0)
+            return "nothing is marked as junk (or what is, is locked)";
+        int sold = 0;
+        long coin = State.Currency;
+        string? why = null;
+        foreach (var entry in junk)
+        {
+            if (State.Equipment.ContainsValue(entry.ItemId) || State.Bags.Contains(entry.ItemId))
+                continue;
+            if (Handle(new SellCommand(command.Actor, command.NpcId, entry.ItemId, entry.Count), tick) is { } problem)
+                why ??= problem;
+            else
+                sold++;
+        }
+        if (sold == 0)
+            return why ?? "nothing marked as junk could be sold";
+        _context.Events.Publish(new JunkSold(command.NpcId, sold, State.Currency - coin, tick));
         return null;
     }
 

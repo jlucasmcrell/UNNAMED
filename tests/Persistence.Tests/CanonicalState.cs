@@ -398,6 +398,30 @@ internal static class CanonicalState
                 json.WriteEndObject();
             }
             json.WriteEndArray();
+            // Schema 33 (inventory organisation): the four bag slots, and where each carried stack lies and whether it is locked or junk.
+            json.WriteStartObject("pack");
+            json.WriteStartArray("bags");
+            foreach (var bag in player.Bags)
+            {
+                if (bag is { } worn)
+                    json.WriteStringValue(worn.Value);
+                else
+                    json.WriteNullValue();
+            }
+            json.WriteEndArray();
+            json.WriteStartArray("stacks");
+            foreach (var entry in player.Inventory)
+            {
+                json.WriteStartObject();
+                json.WriteString("item_id", entry.ItemId.Value);
+                json.WriteNumber("bag", entry.Bag);
+                json.WriteNumber("slot", entry.Slot);
+                json.WriteBoolean("locked", entry.Locked);
+                json.WriteBoolean("junk", entry.Junk);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
+            json.WriteEndObject();
             // Schema 31 (UI progression F): what each experiment at a station taught, oldest first.
             json.WriteStartArray("findings");
             foreach (var finding in player.Findings)

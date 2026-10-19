@@ -23,6 +23,12 @@ laden:
   band_percent: 80
   sprint_drain_percent: 150
   dodge_cost_percent: 125
+# Bags (owner request, 2026-10-18): the backpack is stack_slots above; four bag slots beside it take a bag each. A bag adds slots, never carrying
+# capacity - its weight counts and the laden band is unchanged. A finer or cruder bag has this many slots more or fewer per step of quality.
+# A stash chest also feeds a crafting station within stash_pull_radius_m of it (the same settlement).
+bags:
+  slots_per_quality_step: 1
+  stash_pull_radius_m: 60
 starting_items:
   - { item_ref: item.weapon.rusted_sword, count: 1, equip: true }
   - { item_ref: item.consumable.salve_minor, count: 1 }

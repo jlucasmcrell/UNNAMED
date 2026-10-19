@@ -6,6 +6,7 @@ tags: [item]
 name: Ashbloom
 notes: Gathered by the stream.
 category: material
+pack_kind: herb   # a herb pouch takes it; so does the reagent satchel
 stack_max: 20
 weight: 0.05
 value_base: 3

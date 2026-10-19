@@ -2,6 +2,7 @@
 // Godot presentation only: every button submits a command; nothing here changes state (D-11)
 
 using Godot;
+using System.Collections.Immutable;
 using UNNAMED.Application;
 using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Items;
@@ -34,6 +35,16 @@ public partial class InventoryPanel : CanvasLayer
     /// <summary>What the laden band means now, under the totals while laden or at the limit (D4).</summary>
     private readonly Label _laden = UiKit.Words(string.Empty, 16, HudStyle.Brass);
     private readonly VBoxContainer _details = new();
+    /// <summary>The bag bar: the backpack and each bag slot with how full it is.</summary>
+    private readonly VBoxContainer _bags = new();
+    /// <summary>The category tabs, drawn again with the pack; the search and the sort buttons beside them live as long as the panel.</summary>
+    private readonly VBoxContainer _tabsRow = new();
+    private readonly LineEdit _searchEdit = new() { PlaceholderText = "Search the pack", ClearButtonEnabled = true, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+    private readonly Button _sellJunk = UiKit.Action("Sell junk", () => { }, compact: true, id: "pack/sell_junk");
+    private Action? _sellJunkPressed;
+    private PackTab _tab = PackTab.All;
+    private string _search = string.Empty;
+    private bool _searchFocused;
     private Sheet _sheet = null!;
     private GameSession _session = null!;
     private PlayerController _controller = null!;
@@ -84,6 +95,9 @@ public partial class InventoryPanel : CanvasLayer
         _sheet.Body.AddChild(_totals);
         _laden.Visible = false;
         _sheet.Body.AddChild(_laden);
+        _bags.AddThemeConstantOverride("separation", 6);
+        _sheet.Body.AddChild(_bags);
+        _sheet.Body.AddChild(Toolbar());
 
         var columns = new HBoxContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill };
         columns.AddThemeConstantOverride("separation", 24);
@@ -115,6 +129,41 @@ public partial class InventoryPanel : CanvasLayer
             if (UiKit.FocusedId(_sheet.Root) is null)
                 UiKit.FirstFocusable(_sheet.Root)?.GrabFocus();
         });
+    }
+
+    /// <summary>
+    /// The tabs (all, gear, consumables, materials, quest), the search and the four sorts, over the pack. The search box and the sort buttons are
+    /// built once so typing is not interrupted by a redraw; the tabs are drawn again with the pack.
+    /// </summary>
+    private Control Toolbar()
+    {
+        var bar = new VBoxContainer();
+        bar.AddThemeConstantOverride("separation", 6);
+        bar.AddChild(_tabsRow);
+        var find = new HBoxContainer();
+        find.AddThemeConstantOverride("separation", 8);
+        _searchEdit.TextChanged += text =>
+        {
+            _search = text;
+            Refresh();
+        };
+        _searchEdit.FocusEntered += () => _searchFocused = true;
+        _searchEdit.FocusExited += () => _searchFocused = false;
+        UiKit.Id(_searchEdit, "pack/search");
+        find.AddChild(_searchEdit);
+        find.AddChild(UiKit.Caption("Sort"));
+        foreach (var sort in Enum.GetValues<PackSort>())
+        {
+            var order = sort;
+            string word = PackSorts.Key(order);
+            find.AddChild(UiKit.Action(char.ToUpperInvariant(word[0]) + word[1..], () => Submit(new SortPackCommand(_session.Simulation!.PlayerId, order)),
+                compact: true, id: $"pack/sort/{word}"));
+        }
+        _sellJunk.Visible = false;
+        _sellJunk.Pressed += () => _sellJunkPressed?.Invoke();
+        find.AddChild(_sellJunk);
+        bar.AddChild(find);
+        return bar;
     }
 
     public void Open(string? container)
@@ -183,6 +232,11 @@ public partial class InventoryPanel : CanvasLayer
         Fill(simulation);
         Details(simulation);
         Callable.From(FitLists).CallDeferred();
+        if (_searchFocused)
+        {
+            Callable.From(() => _searchEdit.GrabFocus()).CallDeferred();
+            return;
+        }
         if (focused is not null && !UiKit.Refocus(_sheet.Root, focused))
             UiKit.FirstFocusable(_sheet.Root)?.GrabFocus();
     }
@@ -205,66 +259,40 @@ public partial class InventoryPanel : CanvasLayer
         _laden.Text = LoadWords.Sentence(player.CarriedGrams, player.CarryLimitGrams, laden);
         _laden.AddThemeColorOverride("font_color", band is { Tone: WordTone.Refusal } ? HudStyle.Wound : HudStyle.Brass);
         _totals.AddChild(carried);
-        _totals.AddChild(UiKit.Stat("Stacks", $"{player.Inventory.Length} / {simulation.Setup.Items.Inventory.StackSlots}", null, 18));
+        var pack = simulation.Pack;
+        _totals.AddChild(UiKit.Stat("Stacks", $"{pack.Used} / {pack.Capacity}", null, 18));
         _totals.AddChild(UiKit.Stat("Coin", $"{player.Currency}", HudStyle.Brass, 18));
         _totals.AddChild(UiKit.Stat("Armour", $"{player.Armor}", null, 18));
 
+        DrawBags(simulation, pack);
         UiKit.Clear(_carried);
         var quick = simulation.QuickBar;
-        var worn = player.Inventory.Where(e => player.Equipment.ContainsValue(e.ItemId));
-        var rest = player.Inventory.Where(e => !player.Equipment.ContainsValue(e.ItemId))
-            .OrderBy(e => Names.Of(_session, e.DefId), StringComparer.Ordinal);
         if (player.Inventory.IsEmpty)
             _carried.AddChild(UiKit.EmptyState("Carrying nothing", "Your pack is empty."));
-        foreach (var entry in worn.Concat(rest))
+        var sections = PackModel.Sections(pack, catalog, e => Names.Of(_session, e.DefId), BagName, _tab, _search);
+        bool narrowed = _tab != PackTab.All || !string.IsNullOrWhiteSpace(_search);
+        foreach (var section in sections)
         {
-            var definition = catalog.Find(entry.DefId);
-            var slot = player.Equipment.FirstOrDefault(kv => kv.Value == entry.ItemId);
-            bool equipped = player.Equipment.ContainsValue(entry.ItemId);
-            string id = entry.ItemId.Value;
-            var row = ItemRow(id, entry.DefId, entry.Quality, entry.Count, "");
-            if (equipped)
-                row.Root.AddChild(UiKit.Chip(Names.Slot(slot.Key), HudStyle.Iron, HudStyle.Bone));
-            // Durability (WP3b, D5): a worn piece says so on its row; a sound one keeps the row quiet.
-            if (definition is not null && WearWords.Chip(entry.Wear, definition.DurabilityMax) is { } wear)
-                row.Root.AddChild(UiKit.Chip(wear));
-            bool usable = simulation.Setup.Combat.UseEffects.ContainsKey(entry.DefId);
-            // A usable thing is dragged from its row onto an action bar's slot.
-            if (usable)
-                ActionBarsView.Source(row.Root, entry.DefId, Names.Of(_session, entry.DefId));
-            int q = quick.IndexOf(entry.DefId);
-            if (q >= 0)
-                row.Root.AddChild(new HudView.KeyCap(HelpPanel.Key($"quick_{q + 1}"), 16));
-            // The quick bar (WP9): a usable thing goes on its first free slot - key 1 first - or comes off it; the Skills screen moves it.
-            if (usable && Assign is { } assign && !quick.IsDefault)
+            if (section.Used == 0 && !narrowed && sections.Length > 1)
             {
-                string defId = entry.DefId;
-                int free = UNNAMED.Domain.Progression.QuickBar.FreeSlot(quick, UNNAMED.Domain.Progression.QuickBar.ItemOrder);
-                row.Root.AddChild(q >= 0 ? Button(id, "Off the bar", () => assign(q, null))
-                    : Button(id, "To the bar", () => assign(free >= 0 ? free : 0, defId)));
+                _carried.AddChild(UiKit.Section(section.Title, $"{section.Fill} · empty"));
+                continue;
             }
-            if (definition?.Slot is not null)
-            {
-                row.Root.AddChild(Button(id, equipped ? "Unequip" : "Equip", () => Submit(equipped
-                    ? new UnequipCommand(simulation.PlayerId, slot.Key)
-                    : new EquipCommand(simulation.PlayerId, entry.ItemId))));
-            }
-            if (usable)
-                row.Root.AddChild(Button(id, "Use", () => Submit(new UseItemCommand(simulation.PlayerId, entry.ItemId))));
-            if (simulation.Setup.Magic.Teaches.ContainsKey(entry.DefId))
-                row.Root.AddChild(Button(id, "Read", () => Submit(new UseItemCommand(simulation.PlayerId, entry.ItemId))));
-            // Remains take nothing in: the world takes a body away with whatever lies in it.
-            if (OpenContainer is { } key && !simulation.Creatures.Any(c => c.Condition == CreatureCondition.Corpse && c.CorpseKey == key))
-                row.Root.AddChild(Button(id, "Put", () => Submit(new MoveItemCommand(simulation.PlayerId, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.In(key), entry.Count))));
-            if (OpenTrader is { } trader && SellPrice(simulation, trader, entry.DefId, entry.Wear) is { } each && each > 0 && !equipped)
-            {
-                row.Root.AddChild(Button(id, $"Sell {each * entry.Count}", () => Submit(new SellCommand(simulation.PlayerId, trader, entry.ItemId, entry.Count))));
-                if (entry.Count > 1)
-                    row.Root.AddChild(Button(id, $"Sell 1 ({each})", () => Submit(new SellCommand(simulation.PlayerId, trader, entry.ItemId, 1))));
-            }
-            row.Root.AddChild(Button(id, "Drop", () => Submit(new MoveItemCommand(simulation.PlayerId, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.Ground, entry.Count)),
-                UiKit.Kind.Destructive));
-            _carried.AddChild(row.Root);
+            _carried.AddChild(UiKit.Section(section.Title, section.Detail.Length == 0 ? section.Fill : $"{section.Detail} · {section.Fill}"));
+            if (section.Rows.IsEmpty && section.Used > 0)
+                _carried.AddChild(UiKit.Quiet("Nothing here matches."));
+            foreach (var entry in section.Rows)
+                _carried.AddChild(CarriedRow(simulation, catalog, quick, entry));
+        }
+        if (!pack.Unplaced.IsEmpty)
+            _carried.AddChild(UiKit.Words($"{pack.Unplaced.Length} stack(s) have no slot: drop something or put a bag in a bag slot.", 16, HudStyle.Wound));
+        _sellJunk.Visible = OpenTrader is not null;
+        if (OpenTrader is { } seller)
+        {
+            int junk = player.Inventory.Count(e => e.Junk && !e.Locked && !player.Equipment.ContainsValue(e.ItemId) && SellPrice(simulation, seller, e.DefId, e.Wear) is > 0);
+            _sellJunk.Text = junk > 0 ? $"Sell junk ({junk})" : "Sell junk";
+            _sellJunk.Disabled = junk == 0;
+            _sellJunkPressed = () => Submit(new SellJunkCommand(simulation.PlayerId, seller));
         }
 
         UiKit.Clear(_contextHead);
@@ -277,9 +305,146 @@ public partial class InventoryPanel : CanvasLayer
             ShowContainer(simulation, open, view);
     }
 
+    private string BagName(string defId) => Names.Of(_session, defId);
+
+    /// <summary>The tabs, then the bag bar: the backpack, and each of the four bag slots with its bag and how full it is, or empty.</summary>
+    private void DrawBags(Simulation simulation, PackView pack)
+    {
+        UiKit.Clear(_tabsRow);
+        var tabs = Enum.GetValues<PackTab>();
+        _tabsRow.AddChild(UiKit.Segments("pack/tab", tabs.Select(PackTabs.Label).ToList(), Array.IndexOf(tabs, _tab), i =>
+        {
+            _tab = tabs[i];
+            Refresh();
+        }, compact: true));
+        UiKit.Clear(_bags);
+        var line = new HFlowContainer();
+        line.AddThemeConstantOverride("h_separation", 10);
+        line.AddThemeConstantOverride("v_separation", 6);
+        line.AddChild(UiKit.Chip($"Backpack {pack.Containers[0].Stacks.Length}/{pack.Containers[0].Capacity}", HudStyle.Iron, HudStyle.Bone));
+        for (int slot = 1; slot <= PackLimits.BagSlots; slot++)
+        {
+            int at = slot;
+            var held = pack.Containers.FirstOrDefault(c => c.Bag == slot);
+            var box = new HBoxContainer();
+            box.AddThemeConstantOverride("separation", 4);
+            box.AddChild(UiKit.Chip($"{slot}: {PackModel.SlotLine(pack, slot, BagName)}", held is null ? HudStyle.Iron : held.Stacks.Length >= held.Capacity ? HudStyle.Brass : HudStyle.Lichen,
+                held is null ? HudStyle.Ash : null));
+            if (held is not null)
+                box.AddChild(UiKit.Action("Take out", () => Submit(new UnequipBagCommand(simulation.PlayerId, at)), compact: true, id: $"bag/{slot}/out"));
+            line.AddChild(box);
+        }
+        _bags.AddChild(line);
+    }
+
+    /// <summary>One carried stack's row: its buttons, its marks (equipped, locked, junk) and the places it can be put or sold.</summary>
+    private Control CarriedRow(Simulation simulation, ItemCatalog catalog, ImmutableArray<string?> quick, InventoryEntry entry)
+    {
+        var player = simulation.Player;
+        var definition = catalog.Find(entry.DefId);
+        var slot = player.Equipment.FirstOrDefault(kv => kv.Value == entry.ItemId);
+        bool equipped = player.Equipment.ContainsValue(entry.ItemId);
+        string id = entry.ItemId.Value;
+        var row = ItemRow(id, entry.DefId, entry.Quality, entry.Count, "");
+        if (equipped)
+            row.Root.AddChild(UiKit.Chip(Names.Slot(slot.Key), HudStyle.Iron, HudStyle.Bone));
+        if (entry.Locked)
+            row.Root.AddChild(UiKit.Chip("Locked", HudStyle.Brass));
+        if (entry.Junk)
+            row.Root.AddChild(UiKit.Chip("Junk", HudStyle.Wound));
+        // Durability (WP3b, D5): a worn piece says so on its row; a sound one keeps the row quiet.
+        if (definition is not null && WearWords.Chip(entry.Wear, definition.DurabilityMax) is { } wear)
+            row.Root.AddChild(UiKit.Chip(wear));
+        bool usable = simulation.Setup.Combat.UseEffects.ContainsKey(entry.DefId);
+        // A usable thing is dragged from its row onto an action bar's slot.
+        if (usable)
+            ActionBarsView.Source(row.Root, entry.DefId, Names.Of(_session, entry.DefId));
+        int q = quick.IndexOf(entry.DefId);
+        if (q >= 0)
+            row.Root.AddChild(new HudView.KeyCap(HelpPanel.Key($"quick_{q + 1}"), 16));
+        // The quick bar (WP9): a usable thing goes on its first free slot - key 1 first - or comes off it; the Skills screen moves it.
+        if (usable && Assign is { } assign && !quick.IsDefault)
+        {
+            string defId = entry.DefId;
+            int free = UNNAMED.Domain.Progression.QuickBar.FreeSlot(quick, UNNAMED.Domain.Progression.QuickBar.ItemOrder);
+            row.Root.AddChild(q >= 0 ? Button(id, "Off the bar", () => assign(q, null))
+                : Button(id, "To the bar", () => assign(free >= 0 ? free : 0, defId)));
+        }
+        if (definition?.Slot is not null)
+        {
+            row.Root.AddChild(Button(id, equipped ? "Unequip" : "Equip", () => Submit(equipped
+                ? new UnequipCommand(simulation.PlayerId, slot.Key)
+                : new EquipCommand(simulation.PlayerId, entry.ItemId))));
+        }
+        // A bag goes into the first empty bag slot; it adds slots and nothing else.
+        if (definition?.Bag is not null)
+        {
+            int emptySlot = PackModel.FirstEmptySlot(simulation.Pack);
+            var put = Button(id, "Equip bag", () => Submit(new EquipBagCommand(simulation.PlayerId, entry.ItemId, emptySlot)));
+            put.Disabled = emptySlot == 0;
+            row.Root.AddChild(put);
+        }
+        if (usable)
+            row.Root.AddChild(Button(id, "Use", () => Submit(new UseItemCommand(simulation.PlayerId, entry.ItemId))));
+        if (simulation.Setup.Magic.Teaches.ContainsKey(entry.DefId))
+            row.Root.AddChild(Button(id, "Read", () => Submit(new UseItemCommand(simulation.PlayerId, entry.ItemId))));
+        // Remains take nothing in: the world takes a body away with whatever lies in it.
+        if (OpenContainer is { } key && !simulation.Creatures.Any(c => c.Condition == CreatureCondition.Corpse && c.CorpseKey == key))
+            row.Root.AddChild(Button(id, "Put", () => Submit(new MoveItemCommand(simulation.PlayerId, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.In(key), entry.Count))));
+        if (OpenTrader is { } trader && SellPrice(simulation, trader, entry.DefId, entry.Wear) is { } each && each > 0 && !equipped)
+        {
+            var sellAll = Button(id, $"Sell {each * entry.Count}", () => Submit(new SellCommand(simulation.PlayerId, trader, entry.ItemId, entry.Count)));
+            sellAll.Disabled = entry.Locked;
+            row.Root.AddChild(sellAll);
+            if (entry.Count > 1)
+            {
+                var sellOne = Button(id, $"Sell 1 ({each})", () => Submit(new SellCommand(simulation.PlayerId, trader, entry.ItemId, 1)));
+                sellOne.Disabled = entry.Locked;
+                row.Root.AddChild(sellOne);
+            }
+        }
+        row.Root.AddChild(Button(id, "Drop", () => Submit(new MoveItemCommand(simulation.PlayerId, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.Ground, entry.Count)),
+            UiKit.Kind.Destructive));
+        return row.Root;
+    }
+
+    /// <summary>
+    /// What can be done to the chosen carried stack to keep the pack in order: lock it against sorting and selling, mark it as junk, split it,
+    /// merge it into another stack of its kind, or move it to the next bag that takes it.
+    /// </summary>
+    private void Organise(Simulation simulation, InventoryEntry entry)
+    {
+        var player = simulation.PlayerId;
+        string id = entry.ItemId.Value;
+        var line = new HFlowContainer();
+        line.AddThemeConstantOverride("h_separation", 8);
+        line.AddThemeConstantOverride("v_separation", 6);
+        line.AddChild(Button(id, entry.Locked ? "Unlock" : "Lock", () => Submit(new LockStackCommand(player, entry.ItemId, !entry.Locked))));
+        line.AddChild(Button(id, entry.Junk ? "Not junk" : "Mark as junk", () => Submit(new MarkJunkCommand(player, entry.ItemId, !entry.Junk))));
+        var definition = simulation.Setup.Items.Catalog.Find(entry.DefId);
+        var carried = simulation.Player.Inventory;
+        if (entry.Count > 1)
+            line.AddChild(Button(id, $"Split {entry.Count / 2}", () => Submit(new MoveItemCommand(player, id, ItemPlace.Carried, ItemPlace.Carried, entry.Count / 2))));
+        if (definition is not null && carried.Any(e => e.ItemId != entry.ItemId && e.DefId == entry.DefId && e.Quality == entry.Quality && e.Junk == entry.Junk
+                && e.Count < definition.StackMax && !simulation.Player.Equipment.ContainsValue(e.ItemId)))
+            line.AddChild(Button(id, "Merge", () => Submit(new MoveItemCommand(player, id, ItemPlace.Carried, ItemPlace.Carried, entry.Count))));
+        var pack = simulation.Pack;
+        string? kind = definition is null ? null : PackKinds.Of(definition);
+        var here = pack.Holding(entry.ItemId);
+        var next = pack.Containers.Where(c => c.Bag != here?.Bag && c.Takes(kind) && c.Stacks.Length < c.Capacity)
+            .OrderBy(c => c.Bag <= (here?.Bag ?? -1) ? 1 : 0).ThenBy(c => c.Bag).FirstOrDefault();
+        if (next is not null && here is not null)
+        {
+            int free = Enumerable.Range(0, next.Capacity).First(i => next.Stacks.All(s => s.Slot != i));
+            string where = next.IsBackpack ? "the backpack" : BagName(next.BagDefId!);
+            line.AddChild(Button(id, $"Move to {where}", () => Submit(new PlaceStackCommand(player, entry.ItemId, next.Bag, free))));
+        }
+        _details.AddChild(line);
+    }
+
     private void ShowContainer(Simulation simulation, string open, ContainerView view)
     {
-        var head = UiKit.Section(Names.Place(_session, open), $"{view.Items.Length} / {view.Site.StackSlots} stacks");
+        var head = UiKit.Section(view.Site.Stash ? $"Your {Names.Place(_session, open)}" : Names.Place(_session, open), $"{view.Items.Length} / {view.Site.StackSlots} stacks");
         _contextHead.AddChild(head);
         if (view.Items.Length == 0)
         {
@@ -330,12 +495,19 @@ public partial class InventoryPanel : CanvasLayer
             experiment.AddChild(attempt);
             _contextHead.AddChild(experiment);
         }
-        int Carried(string defId) => player.Inventory.Where(e => e.DefId == defId && !player.Equipment.ContainsValue(e.ItemId)).Sum(e => e.Count);
+        // A station works from what is carried (in any bag) and from the stashes in its settlement (the quality-of-life rule: no need to fetch).
+        var pack = simulation.Pack;
+        var stashes = simulation.StashesAt(station);
+        var stashed = stashes.SelectMany(st => st.Items).ToList();
+        var worn = player.Equipment.Values.ToList();
+        InputSupply Supply(RecipeInput input) => PackModel.Supply(input.ItemId, input.Count, pack, stashed, worn, c => BagName(c.BagDefId!));
+        if (!stashes.IsEmpty)
+            _contextHead.AddChild(UiKit.Words($"Also working from your stash here ({stashed.Sum(i => i.Count)} items).", 16, HudStyle.Brass));
         foreach (var recipe in recipes)
         {
             var row = ItemRow("r:" + recipe.Id, recipe.OutputItemId, Quality.Standard, recipe.OutputCount, "");
             row.Root.AddChild(UiKit.Chip($"Complexity {recipe.Complexity}", HudStyle.Iron, HudStyle.Ash));
-            var short_ = recipe.Inputs.Where(i => Carried(i.ItemId) < i.Count).ToList();
+            var short_ = recipe.Inputs.Where(i => !Supply(i).Enough).ToList();
             var make = Button("r:" + recipe.Id, "Make", () => Submit(new CraftCommand(simulation.PlayerId, recipe.Id)), UiKit.Kind.Primary);
             make.Disabled = short_.Count > 0;
             row.Root.AddChild(make);
@@ -344,9 +516,9 @@ public partial class InventoryPanel : CanvasLayer
             inputs.AddThemeConstantOverride("v_separation", 4);
             foreach (var input in recipe.Inputs)
             {
-                int have = Carried(input.ItemId);
-                var tone = have >= input.Count ? HudStyle.Lichen : HudStyle.Wound;
-                inputs.AddChild(UiKit.Chip($"{input.Count} {Names.Of(_session, input.ItemId)} · have {have}", tone));
+                var supply = Supply(input);
+                var tone = supply.Source switch { SupplySource.Short => HudStyle.Wound, SupplySource.Carried => HudStyle.Lichen, _ => HudStyle.Brass };
+                inputs.AddChild(UiKit.Chip($"{input.Count} {Names.Of(_session, input.ItemId)} · {supply.Label}", tone));
             }
             var block = new VBoxContainer();
             block.AddThemeConstantOverride("separation", 4);
@@ -510,6 +682,10 @@ public partial class InventoryPanel : CanvasLayer
             notes.Add(($"Familiarity {new string('●', notable.Familiarity)}{new string('○', NotableRecord.MaxFamiliarity - notable.Familiarity)}", HudStyle.Brass, null));
         }
         _details.AddChild(grid);
+        if (_chosen is not null && simulation.Player.Inventory.FirstOrDefault(e => e.ItemId.Value == _chosen) is { } carriedEntry && !simulation.Player.Bags.Contains(carriedEntry.ItemId))
+            Organise(simulation, carriedEntry);
+        if (item?.Bag is { } bagSpec)
+            notes.Add(($"A bag: {setup.Items.Inventory.Bags.Capacity(bagSpec, quality)} slots at this make, {(bagSpec.IsSpecialised ? "takes " + PackModel.AcceptsWords(bagSpec.Accepts) : "takes anything")}. It adds room, not carrying strength.", HudStyle.Ash, null));
         foreach (var (text, tone, icon) in notes)
         {
             if (icon is null || !_icons.Binds(icon))

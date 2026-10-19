@@ -1,0 +1,17 @@
+id: recipe.outfitting.pack_large
+kind: recipe
+schema: 1
+display_key: recipe.outfitting.pack_large.name
+tags: [recipe]
+name: Hide Pack
+notes: "A wolf hide for the frame and three deer hides for the body, sewn into a proper pack. A finer make has more slots."
+station: workbench
+skill_ref: skill.survival
+complexity: 5
+inputs:
+  - { item_ref: item.material.wolf_hide, count: 1 }
+  - { item_ref: item.material.deer_hide, count: 3 }
+  - { item_ref: item.material.bog_cotton, count: 2 }
+outputs:
+  - { item_ref: item.bag.pack_large, count: 1, quality_roll: true, masterwork_possible: true }
+xp_award: { xp: 15 }       # level XP for the first only (AG-7)

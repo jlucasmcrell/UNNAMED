@@ -1,0 +1,15 @@
+id: item.bag.herb_pouch
+kind: item
+schema: 1
+display_key: item.bag.herb_pouch.name
+tags: [item]
+name: Herb Pouch
+notes: "A soft pouch for gathered herbs and nothing else, kept apart so they do not crush or taint the rest."
+category: bag
+stack_max: 1
+weight: 0.3
+value_base: 25
+rarity: common
+bag:
+  slots: 8
+  accepts: [herb]

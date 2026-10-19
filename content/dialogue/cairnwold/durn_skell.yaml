@@ -154,6 +154,12 @@ nodes:
         consequences:
           - { command: teach, refs: [recipe.leatherwork.hide_vest_barrowback, recipe.leatherwork.hide_cap_fellhorn] }
         next: heavy_hide_lesson
+      - id: bags
+        text: "Can you show me how to make a bag? I carry too much loose."
+        conditions: [{ kind: visited, node: bag_lesson, not: true }]
+        consequences:
+          - { command: teach, refs: [recipe.outfitting.satchel, recipe.outfitting.pack_large, recipe.outfitting.reagent_satchel, recipe.outfitting.quiver, recipe.outfitting.herb_pouch] }
+        next: bag_lesson
       - id: back
         text: "Not now."
         next: again
@@ -182,6 +188,14 @@ nodes:
     choices:
       - id: back
         text: "Fewer seams."
+        next: again
+  bag_lesson:
+    text: "He turns a deer hide over, finds the seam he wants, and lays it flat. \"Two hides and thread. Satchel.\" A heavier fold. \"Wolf for the frame. Pack.\" He taps the bench. \"A pocket for each kind of thing: herbs, makings, arrows. Sorted, it weighs the same. You find it faster.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "Sorted. Weighs the same."
         next: again
   hide_lesson:
     text: "He hands you a hide without looking. \"Wolf and a small pelt. Cap.\" Another. \"Two wolves, one deer. Vest.\" He points at the bench. \"There. Not my anvil.\""

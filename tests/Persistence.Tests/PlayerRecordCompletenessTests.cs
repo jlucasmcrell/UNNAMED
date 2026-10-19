@@ -34,8 +34,9 @@ public class PlayerRecordCompletenessTests
     private static PlayerRecord Full()
     {
         var player = M2Fixtures.Historical.Player();
-        var vest = new InventoryEntry(EntityId.Create(EntityKind.Item, 1_700_000_000_003, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 3 }), "item.armor.fixture_vest", 1)
+        var vest = new InventoryEntry(Item(12), "item.armor.fixture_vest", 1)
         {
+            Bag = 0, Slot = 1,
             // A masterwork with its maker's mark (schema 19).
             Quality = 2,
             Notable = new Domain.Items.NotableRecord("Fixture Vest", Domain.Items.ProvenanceKind.Crafted, "recipe.fixture.vest", 4_200) { Maker = "Aelin", Uses = 2 },
@@ -89,6 +90,8 @@ public class PlayerRecordCompletenessTests
                 QuickBar = ImmutableArray.Create<string?>("item.potion.minor_healing", null, null, "spell.ember.bolt", null, null, null, null, null, null, null, "gearset.set_2"),
                 // The further bars and a gear set that wears two pieces, one of them the vest (schema 32).
                 ExtraBars = ImmutableArray.Create(QuickBar.Empty.SetItem(5, "spell.ember.bolt"), QuickBar.Empty, QuickBar.Empty.SetItem(11, "item.potion.minor_healing"), QuickBar.Empty, QuickBar.Empty),
+                // The satchel worn in a bag slot, and the vest in the second slot of the backpack (schema 33).
+                Bags = player.Bags,
                 GearSets = ImmutableArray.Create(new GearSet(2, "Vest and sword", ImmutableArray.Create(
                     new GearSetItem(EquipSlot.MainHand, player.Equipment[EquipSlot.MainHand], "item.weapon.iron_sword"),
                     new GearSetItem(EquipSlot.Chest, vest.ItemId, "item.armor.fixture_vest")))),
@@ -288,6 +291,9 @@ public class PlayerRecordCompletenessTests
 
     // ── the record's fields ─────────────────────────────────────────────────
 
+    /// <summary>Where a stack lies in the character's pack (schema 33): a party member's things lie in no bag of the character's, and are saved without it.</summary>
+    private static readonly HashSet<string> Placement = new(StringComparer.Ordinal) { "Bag", "Slot", "Locked", "Junk" };
+
     private static readonly HashSet<string> Computed = new(StringComparer.Ordinal) { "Digest", "EqualityContract" };
 
     /// <summary>Every leaf field under a value, by path, and whether any instance of it in the sample holds something other than its default.</summary>
@@ -326,7 +332,7 @@ public class PlayerRecordCompletenessTests
         }
         seen[path] = true;   // an optional record (a stack's notable record, schema 19) held by some instance
         foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                     .Where(p => p.GetIndexParameters().Length == 0 && !Computed.Contains(p.Name)))
+                     .Where(p => p.GetIndexParameters().Length == 0 && !Computed.Contains(p.Name) && !(type == typeof(InventoryEntry) && path.Contains("PartySheets") && Placement.Contains(p.Name))))
             Walk(property.GetValue(value), property.PropertyType, $"{path}.{property.Name}", seen);
     }
 

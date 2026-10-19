@@ -1,0 +1,15 @@
+id: item.bag.reagent_satchel
+kind: item
+schema: 1
+display_key: item.bag.reagent_satchel.name
+tags: [item]
+name: Reagent Satchel
+notes: "A satchel in waxed hide with a dozen small pockets, for crafting materials and herbs only. Twice the room of a plain satchel for the same weight, because it holds one kind of thing."
+category: bag
+stack_max: 1
+weight: 0.8
+value_base: 45
+rarity: common
+bag:
+  slots: 12
+  accepts: [material, herb]

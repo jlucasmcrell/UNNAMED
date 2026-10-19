@@ -19,6 +19,11 @@ teaches:
   - { kind: recipe, recipe_ref: recipe.leatherwork.hide_vest, by_dialogue: true }
   - { kind: recipe, recipe_ref: recipe.leatherwork.hide_vest_barrowback, by_dialogue: true }
   - { kind: recipe, recipe_ref: recipe.leatherwork.hide_cap_fellhorn, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.outfitting.satchel, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.outfitting.pack_large, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.outfitting.reagent_satchel, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.outfitting.quiver, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.outfitting.herb_pouch, by_dialogue: true }
   - kind: technique
     ability_ref: ability.polearm.long_thrust
     fee: 25

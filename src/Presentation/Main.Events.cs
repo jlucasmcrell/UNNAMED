@@ -105,7 +105,8 @@ public partial class Main
         {
             if (e.Command is InteractCommand or MoveItemCommand or EquipCommand or UnequipCommand or GatherCommand or CraftCommand or TakeAllCommand
                 or SpendAttributeCommand or TouchStoneCommand or BindStoneCommand or TravelCommand
-                or SaveGearSetCommand or DeleteGearSetCommand or SwapGearSetCommand or CancelGearSwapCommand)
+                or SaveGearSetCommand or DeleteGearSetCommand or SwapGearSetCommand or CancelGearSwapCommand
+                or EquipBagCommand or UnequipBagCommand or PlaceStackCommand or SortPackCommand or MarkJunkCommand or LockStackCommand or SellJunkCommand)
                 _hud.Toast(e.Reason, 3);
             // A jump or a stand refused under the beam says why; one refused mid-action or in the air stays quiet.
             if (e.Command is JumpCommand or CrouchCommand && e.Reason == "no room to stand")
@@ -130,6 +131,9 @@ public partial class Main
                 _items.Refresh(_session.Simulation!);
         });
         _session.Subscribe<QuickSlotAssigned>(_ => _inventory.Refresh());
+        // The pack was laid out again (a sort, a bag, a lock, a mark): the inventory draws it again; junk sold says what it made.
+        _session.Subscribe<PackOrganised>(_ => _inventory.Refresh());
+        _session.Subscribe<JunkSold>(e => _hud.Toast($"Sold {e.Stacks} junk stack{(e.Stacks == 1 ? "" : "s")} for {e.Price}", 3));
         _session.Subscribe<ItemEquipped>(_ => _inventory.Refresh());
         _session.Subscribe<ItemUnequipped>(_ => _inventory.Refresh());
         _session.Subscribe<NodeGathered>(e =>

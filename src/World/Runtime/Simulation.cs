@@ -180,6 +180,9 @@ public sealed record PlayerView(
 {
     /// <summary>Pronouns, people, body preset and Call, as the creator made them: what presentation draws and words the character by.</summary>
     public CharacterIdentity Identity { get; init; } = CharacterIdentity.BeforeTheCreator;
+
+    /// <summary>The bag in each bag slot (the carried bag's identity), or null for an empty slot.</summary>
+    public ImmutableArray<EntityId?> Bags { get; init; } = ImmutableArray<EntityId?>.Empty;
 }
 
 /// <summary>A door and whether it is open.</summary>
@@ -302,7 +305,7 @@ public sealed class Simulation
         _effects = new StatusEffectSystem(_context, _state.Claim(nameof(StatusEffectSystem), StateSlice.Effects), player.Id);
         _travel = new TravelSystem(_context, _state.Claim(nameof(TravelSystem), StateSlice.Waystones), player.Id);
         _gathering = new GatheringSystem(_context, _state.Claim(nameof(GatheringSystem), StateSlice.Nodes), player.Id);
-        _crafting = new CraftingSystem(_context, _state.Claim(nameof(CraftingSystem), StateSlice.Findings), player.Id, player.Name);
+        _crafting = new CraftingSystem(_context, _state.Claim(nameof(CraftingSystem), StateSlice.Findings), player.Id, player.Name) { Contents = site => _inventory.View(site) };
         _navigation = new WorldNavigation(_context);
         _npcs = new NpcSystem(_context, _state.Claim(nameof(NpcSystem), StateSlice.Npcs, StateSlice.NpcLife), _navigation, _tiers.Observers,
             () => _movement.Effective);
@@ -512,7 +515,7 @@ public sealed class Simulation
     public PlayerView Player => new(_identity.Id, _identity.Name, _state.Body, _movement.Intent, _state.Progression,
         ProgressionEngine.Derive(_state.Progression, Setup.Progression), _state.Discoveries.Values.ToImmutableArray(),
         _state.Inventory, _state.Equipment, _state.Currency, _inventory.CarriedGrams(),
-        _inventory.CarryLimitGrams(), _equipment.Armor()) { Identity = _identity.Identity };
+        _inventory.CarryLimitGrams(), _equipment.Armor()) { Identity = _identity.Identity, Bags = _state.Bags };
 
     /// <summary>Every authored container and what it holds now.</summary>
     public ImmutableArray<ContainerView> Containers =>
@@ -673,6 +676,14 @@ public sealed class Simulation
     /// <summary>A trader's wares at their prices; null when that NPC does not trade (M4).</summary>
     public WaresView? Wares(string npcId) => _trade.View(npcId);
 
+    /// <summary>The pack as it lies now: the backpack and each bag with its stacks by slot.</summary>
+    public PackView Pack => _inventory.Pack();
+
+    /// <summary>The stashes in a crafting station's settlement and what each holds, nearest the station first: what the station also works from.</summary>
+    public ImmutableArray<ContainerView> StashesAt(StationSite station) =>
+        _context.StashesFor(station).OrderBy(s => Math.Pow(s.XMm - station.XMm, 2) + Math.Pow(s.ZMm - station.ZMm, 2)).ThenBy(s => s.Key, StringComparer.Ordinal)
+            .Select(_inventory.View).ToImmutableArray();
+
     /// <summary>What a trader would pay for one of an item now (WP14); null when they do not trade, or do not buy it.</summary>
     public long? Offer(string npcId, string itemId, ItemWear? wear = null) => _trade.Offer(npcId, itemId, wear);
 
@@ -763,6 +774,13 @@ public sealed class Simulation
                 EnterSpaceCommand enter => _spaces.Enter(enter),
                 LeaveSpaceCommand leave => _spaces.Leave(leave),
                 MoveItemCommand item => _inventory.Handle(item, WorldTick),
+                EquipBagCommand equipBag => _inventory.Handle(equipBag, WorldTick),
+                UnequipBagCommand unequipBag => _inventory.Handle(unequipBag, WorldTick),
+                PlaceStackCommand place => _inventory.Handle(place, WorldTick),
+                SortPackCommand sort => _inventory.Handle(sort, WorldTick),
+                MarkJunkCommand junk => _inventory.Handle(junk, WorldTick),
+                LockStackCommand locked => _inventory.Handle(locked, WorldTick),
+                SellJunkCommand sellJunk => _trade.Handle(sellJunk, WorldTick),
                 EquipCommand equip => _equipment.Handle(equip, WorldTick),
                 UnequipCommand unequip => _equipment.Handle(unequip, WorldTick),
                 AttackCommand attack => _combat.Handle(attack, WorldTick),
@@ -925,6 +943,7 @@ public sealed class Simulation
             QuickBarCleared = _state.QuickBarCleared.ToImmutableArray(),
             ExtraBars = _state.ExtraBars,
             GearSets = _state.GearSets,
+            Bags = _state.Bags,
             PartySheets = _sheets.Records(),
             Attack = _combat.AttackUnderWay(),
             Findings = _state.Findings,

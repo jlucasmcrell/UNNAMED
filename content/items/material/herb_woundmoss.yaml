@@ -6,6 +6,7 @@ tags: [item]
 name: Woundmoss
 notes: Old-forest moss off the north side of trees (canon WORLD_MATERIALS) - packed into a cut, it stops the bleeding; with lint, a salve.
 category: material
+pack_kind: herb   # a herb pouch takes it; so does the reagent satchel
 stack_max: 20
 weight: 0.05
 value_base: 3

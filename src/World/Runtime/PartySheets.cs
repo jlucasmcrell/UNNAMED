@@ -206,7 +206,7 @@ internal sealed class PartySheetSystem : IAbstractAdvance
         }
         State.SetPartySheet(_owner, sheet with
         {
-            Gear = gear.SetItem(slot, new PartyGear(entry, command.Loan)),
+            Gear = gear.SetItem(slot, new PartyGear(entry with { Bag = 0, Slot = -1, Locked = false, Junk = false }, command.Loan)),
             Belongings = belongings.OrderBy(e => e.ItemId.Value, StringComparer.Ordinal).ToImmutableArray(),
         });
         _context.Events.Publish(new PartyGearChanged(command.NpcId, slot, entry.DefId, command.Loan, tick));

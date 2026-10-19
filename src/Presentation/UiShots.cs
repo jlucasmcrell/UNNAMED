@@ -101,16 +101,23 @@ public sealed class UiShots
     private int _learnSizes;
 
     /// <summary>
+    /// The inventory's own screens (inventory organisation), pictured first with <c>--pack-shots</c> over a profile's save (<c>--ui-shots-continue</c>
+    /// with <c>--profile</c>) that stands the character where each is in reach: the pack, a stash, a bench working from the stash, a trader.
+    /// </summary>
+    private static readonly string[] PackScreens = { "inventory", "inventory_stash", "inventory_station", "inventory_trade", "" };
+
+    /// <summary>
     /// The management screens pictured first, each opened by name through Main (the Field Instrument UI); "" closes them. Then a screen
     /// chosen on the System Menu, and Escape pressed on it: back to play, or back to the menu with <c>--menu-escape back</c>.
     /// </summary>
-    private static readonly string[] Screens =
+    private static readonly string[] Screens = (System.Environment.GetCommandLineArgs().Contains("--pack-shots") ? PackScreens : Array.Empty<string>()).Concat(new[]
     {
         "bars", "", "bars_side", "", "menu", "character", "skills", "skills_formulas", "skills_recipes", "skills_map", "journal", "effects", "party", "chat", "chat_groups", "reputation", "away", "map",
         "large_menu", "large_reputation", "large_away", "large_map", "large_party", "large_chat", "text_menu", "text_reputation", "text_away", "text_map", "text_party", "text_chat", "help", "saves",
         "settings", "settings_audio", "settings_controls", "settings_camera", "settings_interface", "credits", "",
         "announce", "announce_skill", "menu_character", "escape", "",
-    };
+    }).ToArray();
+
 
     /// <summary>
     /// The screens pictured again once the route has filled them ("late_&lt;after&gt;_&lt;screen&gt;"): after the ward (an effect on, what is

@@ -129,6 +129,12 @@ internal sealed class SystemContext
         ?? State.Creatures.Values.FirstOrDefault(c => c.CorpseKey == site.Key)?.Site.Space
         ?? Setup.Layout.SpaceId;
 
+    /// <summary>The stashes a crafting station works from: those in its settlement, within the stash pull radius, in the station's own space.</summary>
+    public IEnumerable<ContainerSite> StashesFor(StationSite station) =>
+        Setup.Sites(l => l.Containers).Where(p => p.Layout.SpaceId == State.Space && p.Site.Stash
+                && Math.Sqrt(Math.Pow(p.Site.XMm - station.XMm, 2) + Math.Pow(p.Site.ZMm - station.ZMm, 2)) <= Setup.Items.Inventory.Bags.StashPullRadiusMm)
+            .Select(p => p.Site).OrderBy(c => c.Key, StringComparer.Ordinal);
+
     /// <summary>How many stacks a trader's wares hold (M4).</summary>
     public const int WaresStackSlots = 48;
 

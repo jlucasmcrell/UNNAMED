@@ -1,0 +1,14 @@
+id: item.bag.pack_large
+kind: item
+schema: 1
+display_key: item.bag.pack_large.name
+tags: [item]
+name: Hide Pack
+notes: "A big stitched pack of deer and wolf hide: ten more slots for anything. A bag adds room, never carrying strength."
+category: bag
+stack_max: 1
+weight: 1.2
+value_base: 70
+rarity: common
+bag:
+  slots: 10

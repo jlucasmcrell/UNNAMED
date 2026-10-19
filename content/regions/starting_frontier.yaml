@@ -147343,6 +147343,20 @@ containers:
   - 438
   - 737
   stack_slots: 12
+- key: container.stash.waystation
+  loot_ref: loot.stash_empty
+  position_m:
+  - 440
+  - 737
+  stack_slots: 60
+  stash: true
+- key: container.stash.cairnwold
+  loot_ref: loot.stash_empty
+  position_m:
+  - 953.0
+  - 653.5
+  stack_slots: 60
+  stash: true
 - key: container.merchant_cart
   loot_ref: loot.merchant_cart
   position_m:

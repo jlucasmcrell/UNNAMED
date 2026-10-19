@@ -1,0 +1,7 @@
+id: loot.stash_empty
+kind: loot
+schema: 1
+display_key: loot.stash_empty.name
+tags: [loot]
+notes: "A stash starts empty: it holds only what the character puts in it (owner request, 2026-10-18)."
+rolls: 0

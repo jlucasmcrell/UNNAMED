@@ -92,6 +92,13 @@ public sealed record ContainerSite(string Key, string LootTableId, long XMm, lon
     public string? EmptyFlag { get; init; }
     /// <summary>A body's: the level of the creature it was, which its drops roll their quality by (DCP:662). Null for an authored container.</summary>
     public int? DropLevel { get; init; }
+
+    /// <summary>
+    /// The character's own stash (owner request, 2026-10-18): a chest the character keeps things in. A crafting station in its settlement
+    /// (within <c>config.inventory bags stash_pull_radius_m</c>) works from what it holds as well as from what is carried.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool Stash { get; init; }
 }
 
 /// <summary>

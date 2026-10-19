@@ -9,6 +9,9 @@ stock:
   - { item_ref: item.ammo.arrow_rough, count: 60, price_bias: 1.0 }
   - { item_ref: item.weapon.hunting_bow, count: 1, price_bias: 1.0 }   # she teaches the bow; this one is hers
   - { item_ref: item.consumable.salve_minor, count: 3, price_bias: 1.0 }
-buys_tags: [material, consumable, weapon, armor, misc]
+  - { item_ref: item.bag.quiver, count: 1, price_bias: 1.0 }          # arrows ride in their own bag (owner request)
+  - { item_ref: item.bag.herb_pouch, count: 1, price_bias: 1.0 }
+  - { item_ref: item.bag.satchel, count: 1, price_bias: 1.0 }
+buys_tags: [material, consumable, weapon, armor, misc, bag]
 gold_reserve: [60, 400]   # her purse (WP14): the floor each restock brings it back to, and the most it holds
 restock_min: 1            # game days between restocks: her shelf is drawn again from Ashen Hollow's market   # Phase 1 matches these against the item category

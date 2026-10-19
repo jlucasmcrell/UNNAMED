@@ -11,6 +11,8 @@ stock:
   - { item_ref: item.material.wolf_hide, count: 3, price_bias: 1.0 }
   - { item_ref: item.material.deer_hide, count: 2, price_bias: 1.0 }
   - { item_ref: item.material.ash_haft, count: 2, price_bias: 1.0 }
-buys_tags: [material, consumable, weapon, armor, misc]
+  - { item_ref: item.bag.satchel, count: 2, price_bias: 1.0 }          # his hide bags, so the pack grows without a bench (owner request: bags can be bought or crafted)
+  - { item_ref: item.bag.reagent_satchel, count: 1, price_bias: 1.0 }
+buys_tags: [material, consumable, weapon, armor, misc, bag]
 gold_reserve: [40, 250]   # a village smith's purse (WP14)
 restock_min: 1
