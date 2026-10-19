@@ -581,6 +581,19 @@ RENDERS = {
     "march_spear": ("ui.item.march_spear", "Hunting spear, rendered from its in-game model weapon_real_hunting_spear."),
 }
 
+# Rendered from the staged P0 models (tools/p0_bind/stage_p0_assets.py): icon id -> staged model, so the tile shows what the item drops as.
+P0_RENDERS = {
+    "wolf_hide": ("wolf_hide_folded", "Wolf hide"), "deer_hide": ("deer_hide_folded", "Deer hide"), "small_hide": ("small_hide_folded", "Small hide"),
+    "fellhorn_hide": ("fellhorn_hide_folded", "Fellhorn hide"), "barrowback_hide": ("barrowback_hide_folded", "Barrowback hide"),
+    "hide_boots": ("hide_boots_pair", "Hide boots"), "timber_shield": ("timber_shield_equipped", "Timber shield"),
+    "cinder_sac": ("cinder_sac", "Cinder sac"), "iron_ingot": ("iron_ingot", "Iron ingot"), "spider_silk": ("spider_silk_hank", "Spider silk hank"),
+    "wolf_fang": ("wolf_fang", "Wolf fang"), "torch": ("item_torch", "Torch"), "water_flask": ("item_water_flask", "Water flask"),
+    "salve_ember": ("item_salve_ember", "Ember salve pot"), "brass_key": ("brass_key", "Brass key"), "glass_marble": ("glass_marble", "Glass marble"),
+    "lantern_ledger": ("lantern_ledger", "Lantern ledger"), "stopped_watch": ("stopped_watch", "Stopped watch"), "unreadable_page": ("unreadable_page", "Unreadable page"),
+}
+for _icon, (_model, _what) in P0_RENDERS.items():
+    RENDERS["p0_" + _icon] = ("ui.item." + _icon, f"{_what}, rendered from its in-game model {_model}.")
+
 
 def fit_render(path):
     """A transparent model render, cropped to its pixels and scaled to fill most of the tile."""

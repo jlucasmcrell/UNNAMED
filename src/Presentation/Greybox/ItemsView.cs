@@ -87,7 +87,9 @@ public partial class ItemsView : Node3D
         foreach (var item in simulation.WorldItems)
         {
             var feet = new Vector3(item.XMm / 1000f, terrain.HeightAtMm(item.XMm, item.ZMm) / 1000f, item.ZMm / 1000f);
-            if (_bindings.GroundItem is { } look && Art.Fitting.Site(_art, look, feet) is { } model)
+            // The item's own look where the bindings give one (a hide, a boot, an ingot), else the shared sack.
+            var drop = _bindings.GroundItems.GetValueOrDefault(item.DefId) ?? _bindings.GroundItem;
+            if (drop is { } look && Art.Fitting.Site(_art, look, feet) is { } model)
             {
                 model.Name = item.Id.Value;
                 _ground.AddChild(model);
@@ -95,8 +97,8 @@ public partial class ItemsView : Node3D
                 _art.Coverage.Resolved("ground_item", item.DefId, look.Model!);
                 continue;
             }
-            _art.Coverage.Fallback("ground_item", item.DefId, _bindings.GroundItem?.Model is { } id ? $"{_art.Why(id) ?? "not drawn"}: a small crate" : "no binding: a small crate",
-                _bindings.GroundItem?.Model);
+            _art.Coverage.Fallback("ground_item", item.DefId, drop?.Model is { } id ? $"{_art.Why(id) ?? "not drawn"}: a small crate" : "no binding: a small crate",
+                drop?.Model);
             var crate = new MeshInstance3D
             {
                 Name = item.Id.Value,
