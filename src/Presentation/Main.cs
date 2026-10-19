@@ -68,6 +68,7 @@ public partial class Main : Node3D
     private CraftingView _crafting = null!;
     private NpcsView _npcs = null!;
     private InventoryPanel _inventory = null!;
+    private LootPanel _loot = null!;
     private DialoguePanel _dialogue = null!;
     private JournalPanel _journal = null!;
     private QuestDebugPanel _questDebug = null!;
@@ -1409,7 +1410,7 @@ public partial class Main : Node3D
         Probe("magic effects");
         _soundEvents.SetStation(_inventory.OpenStation?.Kind);
         _soundEvents.Update(feet, speed, simulation.Posture.Airborne, combat.Strain / (double)Math.Max(1, combat.StrainTolerance),
-            _inventory.OpenContainer, Screen is not null, delta);
+            _loot.OpenContainer ?? _inventory.OpenContainer, Screen is not null, delta);
         Probe("sound events");
         _music.Update(feet, delta);
         Probe("music");

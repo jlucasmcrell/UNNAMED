@@ -125,7 +125,7 @@ public partial class Main
             if (!_session.Simulation!.ActiveLayout.Containers.Any(c => PlayerController.IsPickup(c) && c.Key == e.ContainerKey))
                 Notice(NoticeKind.Items, e.Left == 0 ? $"Took everything ({e.Taken})" : $"Took {e.Taken}; {e.Left} left - {e.Why}", 3);
             // Emptied, the loot is done: the panel closes rather than leaving the pack open behind it (the owner's first playtest).
-            if (e.Left == 0 && _inventory.OpenContainer == e.ContainerKey)
+            if (e.Left == 0 && (_inventory.OpenContainer == e.ContainerKey || _loot.OpenContainer == e.ContainerKey))
                 CloseInventory();
         });
         _session.Subscribe<AttributeSpent>(e => Notice(NoticeKind.Progress, $"{char.ToUpperInvariant(UNNAMED.Domain.Progression.ProgressionKeys.Key(e.Attribute)[0])}" +
@@ -134,6 +134,7 @@ public partial class Main
         _session.Subscribe<ItemMoved>(e =>
         {
             _inventory.Refresh();
+            _loot.Refresh();
             if (e.To.Kind == PlaceKind.Inventory && (e.From.Kind == PlaceKind.Ground
                 || _session.Simulation!.ActiveLayout.Containers.Any(c => PlayerController.IsPickup(c) && c.Key == e.From.ContainerKey)))
                 Notice(NoticeKind.Items, $"Picked up {Names.Of(_session, e.DefId)}{(e.Count > 1 ? $" x{e.Count}" : "")}", 3);

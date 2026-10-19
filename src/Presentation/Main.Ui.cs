@@ -26,6 +26,9 @@ public partial class Main
         _inventory = new InventoryPanel { Name = "Inventory", Assign = AssignQuickSlot };
         _inventory.Bind(_session, _controller);
         AddChild(_inventory);
+        _loot = new LootPanel { Name = "Loot" };
+        _loot.Bind(_session);
+        AddChild(_loot);
         _dialogue = new DialoguePanel { Name = "Dialogue" };
         _dialogue.Voice = _voice;
         _dialogue.Bind(_session);
@@ -284,7 +287,7 @@ public partial class Main
 
     /// <summary>The management screen open, if any: one at a time.</summary>
     private CanvasLayer? Screen =>
-        new CanvasLayer[] { _menu, _inventory, _character, _skills, _journal, _effectsPanel, _companionsPanel, _reputation, _awaySheet, _waystones, _map, _settings, _credits, _help, _saves, _chat, _hire }
+        new CanvasLayer[] { _menu, _inventory, _loot, _character, _skills, _journal, _effectsPanel, _companionsPanel, _reputation, _awaySheet, _waystones, _map, _settings, _credits, _help, _saves, _chat, _hire }
             .FirstOrDefault(s => s.Visible);
 
     /// <summary>Close whatever management screen is open, back to play.</summary>
@@ -730,6 +733,13 @@ public partial class Main
     /// </summary>
     private void KeepContainerInReach()
     {
+        if (_loot.Visible && _loot.Anchor is { } lootAt)
+        {
+            if (_session.Simulation!.Containers.All(c => c.Site.Key != _loot.OpenContainer)
+                || Math.Sqrt(Math.Pow(lootAt.XMm - _controller.Authoritative.XMm, 2) + Math.Pow(lootAt.ZMm - _controller.Authoritative.ZMm, 2)) > _session.Setup.Items.Inventory.ReachMm)
+                CloseInventory();
+            return;
+        }
         if (!_inventory.Visible || _inventory.Anchor is not { } anchor)
             return;
         // The pictures of the stash, station and trader screens open them from wherever the harness stands (they would close at once out of reach).
@@ -755,7 +765,10 @@ public partial class Main
 
     private void OpenInventory(string? container)
     {
-        _inventory.Open(container);
+        if (container is not null && _session.Simulation!.Containers.FirstOrDefault(c => c.Site.Key == container) is { Site.Stash: false })
+            _loot.Open(container);
+        else
+            _inventory.Open(container);
     }
 
     private void OpenTrade(string npcId)
@@ -770,6 +783,7 @@ public partial class Main
 
     private void CloseInventory()
     {
+        _loot.Close();
         _inventory.Close();
     }
 }
