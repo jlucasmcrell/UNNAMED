@@ -415,15 +415,6 @@ public partial class Main
                 OpenTrade("npc.ashen_hollow.kera_voss");
                 PackShotNotices();
                 break;
-            case "inventory_stash":
-                OpenInventory("container.stash.waystation");
-                break;
-            case "inventory_station":
-                OpenStation("station.hollow.workbench");
-                break;
-            case "inventory_trade":
-                OpenTrade("npc.ashen_hollow.kera_voss");
-                break;
             case "journal":
                 Show(_journal);
                 break;
