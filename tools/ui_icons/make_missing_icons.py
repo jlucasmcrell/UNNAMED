@@ -112,7 +112,7 @@ class Canvas:
         self.d.ellipse(((x - r) * U, (y - r) * U, (x + r) * U, (y + r) * U), fill=fill)
 
 
-def tile(draw_icon, bgtone=0):
+def tile(draw_icon, bgtone=0, overlay=None):
     """The opaque grey tile with the soft floor shadow, and the drawing on it."""
     base = Image.new("RGBA", (S, S))
     px = base.load()
@@ -124,7 +124,10 @@ def tile(draw_icon, bgtone=0):
     ImageDraw.Draw(shadow).ellipse((20 * U, 80 * U, 80 * U, 90 * U), fill=(0, 0, 0, 110))
     base.alpha_composite(shadow.filter(ImageFilter.GaussianBlur(14)))
     c = Canvas()
-    draw_icon(c)
+    if overlay is not None:
+        c.img.alpha_composite(overlay)
+    else:
+        draw_icon(c)
     # a faint dark halo behind the drawing lifts it off the tile
     halo = Image.new("RGBA", (S, S))
     halo.putalpha(c.img.getchannel("A").filter(ImageFilter.GaussianBlur(10)).point(lambda a: int(a * 0.45)))
@@ -501,7 +504,42 @@ def panel_credits(c):
 
 
 # the icon id -> (art binding key, drawing, what it is, note)
+def skill_bow(c):
+    c.line([(30, 14), (22, 50), (30, 86)], WOOD[0], 6, 1.8)
+    c.line([(30, 14), (30, 86)], PAPER[2], 1.2, 0.0, cap=False)
+    c.line([(30, 50), (82, 50)], WOOD[2], 2.6, 1.0)
+    c.poly([(82, 44), (92, 50), (82, 56)], IRON[0], 1.6)
+    c.poly([(30, 46), (22, 42), (28, 50), (22, 58), (30, 54)], PAPER[0], 1.2)
+
+
+def skill_polearm(c):
+    c.line([(18, 86), (72, 28)], WOOD[0], 5, 1.8)
+    c.poly([(66, 34), (80, 8), (90, 30), (80, 40)], IRON[0], 1.8)
+    c.shine([(70, 32), (80, 14), (82, 30)], IRON[1] + (200,))
+    c.line([(60, 40), (74, 44)], DARKIRON[0], 3, 1.0)
+
+
+def effect_fed(c):
+    c.ellipse((16, 52, 84, 86), WOOD[0], 2.2)
+    c.ellipse((22, 54, 78, 72), HIDE[1], 1.2)
+    c.poly([(30, 56), (44, 30), (60, 34), (70, 56)], (176, 104, 58), 2.0, True)
+    c.shine([(38, 52), (46, 38), (54, 40)], (255, 255, 255, 90))
+    c.line([(40, 24), (44, 12)], BONE[2], 1.6, 0.0)
+    c.line([(54, 26), (58, 14)], BONE[2], 1.6, 0.0)
+
+
+def effect_ember_mending(c):
+    c.poly([(50, 10), (72, 44), (64, 78), (50, 90), (36, 78), (28, 44)], EMBER[0], 2.2, True)
+    c.poly([(50, 36), (60, 58), (50, 80), (40, 58)], EMBER[1], 1.0, True)
+    c.line([(50, 50), (50, 72)], BONE[1], 2.4, 0.0)
+    c.line([(40, 61), (60, 61)], BONE[1], 2.4, 0.0)
+
+
 ICONS = {
+    "ui.skill.bow": ("skill.bow", skill_bow, "Bow skill."),
+    "ui.skill.polearm": ("skill.polearm", skill_polearm, "Polearm skill."),
+    "ui.status.fed": ("effect.fed", effect_fed, "Fed effect."),
+    "ui.status.ember_mending": ("effect.ember_mending", effect_ember_mending, "Ember mending effect."),
     "ui.item.cloak": ("item.armor.cloak", cloak, "Travelling cloak."),
     "ui.item.hide_boots": ("item.armor.hide_boots", hide_boots, "Hide boots."),
     "ui.item.smith_gloves": ("item.armor.smith_gloves", smith_gloves, "Smith's gloves."),
@@ -537,9 +575,28 @@ ICONS = {
 }
 
 
+RENDERS = {
+    "rusted_sword": ("ui.item.rusted_sword", "Arming sword, rendered from its in-game model weapon_real_arming_sword."),
+    "hunting_bow": ("ui.item.hunting_bow", "Longbow, rendered from its in-game model weapon_real_longbow (also Halda's Bow)."),
+    "march_spear": ("ui.item.march_spear", "Hunting spear, rendered from its in-game model weapon_real_hunting_spear."),
+}
+
+
+def fit_render(path):
+    """A transparent model render, cropped to its pixels and scaled to fill most of the tile."""
+    im = Image.open(path).convert("RGBA")
+    im = im.crop(im.getchannel("A").getbbox())
+    k = 0.86 * S / max(im.size)
+    im = im.resize((max(1, int(im.width * k)), max(1, int(im.height * k))), Image.LANCZOS)
+    out = Image.new("RGBA", (S, S))
+    out.alpha_composite(im, ((S - im.width) // 2, (S - im.height) // 2))
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True)
+    ap.add_argument("--renders", help="a folder of transparent model renders (render_item_icons.gd): <name>.png -> RENDERS[name]")
     ap.add_argument("--install", help="an asset root: merge the icons into its ui/icons and manifests/ui_icons.json")
     args = ap.parse_args()
     icons_dir = os.path.join(args.out, "ui", "icons")
@@ -547,9 +604,14 @@ def main():
     entries = {}
     sheet_cols = 8
     rows = math.ceil(len(ICONS) / sheet_cols)
+    jobs = [(icon_id, note, draw, None, "hand-drawn vector") for icon_id, (_key, draw, note) in ICONS.items()]
+    if args.renders:
+        for name, (icon_id, note) in RENDERS.items():
+            jobs.append((icon_id, note, None, fit_render(os.path.join(args.renders, name + ".png")), "render of the owned model"))
+    rows = math.ceil(len(jobs) / sheet_cols)
     sheet = Image.new("RGB", (sheet_cols * 256, rows * 256), (40, 40, 40))
-    for n, (icon_id, (_key, draw, note)) in enumerate(ICONS.items()):
-        img = tile(draw)
+    for n, (icon_id, note, draw, overlay, how) in enumerate(jobs):
+        img = tile(draw, overlay=overlay)
         stem = "ui_" + icon_id[3:].replace(".", "_")
         big = img.resize((256, 256), Image.LANCZOS)
         small = img.resize((128, 128), Image.LANCZOS)
@@ -557,9 +619,9 @@ def main():
         small.save(os.path.join(icons_dir, stem + "_128.png"))
         sheet.paste(big, ((n % sheet_cols) * 256, (n // sheet_cols) * 256))
         entries[icon_id] = {
-            "slot": icon_id, "concept": "hand_drawn_vector_" + stem[3:], "source": "hand-drawn",
+            "slot": icon_id, "concept": ("render_" if overlay is not None else "hand_drawn_vector_") + stem[3:], "source": "model-render" if overlay is not None else "hand-drawn",
             "sprite": f"ui/icons/{stem}_128.png", "sprite_px": 128, "master": f"ui/icons/{stem}_256.png", "master_px": 256,
-            "alpha": "none", "note": note + " Hand-drawn vector (tools/ui_icons/make_missing_icons.py); no generative AI.",
+            "alpha": "none", "note": note + f" {how} (tools/ui_icons); no generative AI.",
         }
     sheet.save(os.path.join(args.out, "contact_sheet.png"))
     with open(os.path.join(args.out, "ui_icons_additions.json"), "w", encoding="utf-8") as f:
