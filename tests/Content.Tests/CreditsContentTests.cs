@@ -19,6 +19,20 @@ public class CreditsContentTests
 
     private static CreditsContent Credits => CreditsContent.Load(Path.Combine(Repo, "content", "credits.yaml"));
 
+    [Fact]
+    public void BothDisclosuresNameAmbientChatAndGeneratedImageTextures()
+    {
+        string screen = string.Join("\n", Credits.Entries.Select(e => e.Text));
+        string notice = File.ReadAllText(Path.Combine(Repo, "tools", "release", "payload", "THIRD_PARTY_NOTICES", "NOTICE.txt"));
+        foreach (string text in new[] { screen, notice })
+        {
+            Assert.Contains("3,000", text);
+            Assert.Contains("DeepSeek", text);
+            Assert.Contains("AI-generated image textures", text);
+            Assert.Contains("no AI-generated voice acting", text);
+        }
+    }
+
     private static readonly string[] BindingFiles =
     {
         Path.Combine("content", "_art_bindings.json"),

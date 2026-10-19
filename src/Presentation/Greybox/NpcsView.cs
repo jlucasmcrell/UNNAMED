@@ -108,6 +108,13 @@ public partial class NpcsView : Node3D
             figure.SetTalking(npc.Talking);
             figure.Say(simulation.Conversation is { } talk && talk.NpcId == npc.Id ? talk.Text : Bark(simulation, npc, figure, feet, delta));
             figure.Pose(feet, PlayerController.FacingRadians(npc.Body.FacingMdeg), speed, delta);
+            // Hide an intervening companion as a whole (including their outline/weapon). Keep
+            // posing while hidden so they resume at the current gait when the camera moves away.
+            if (simulation.Companions.Any(c => c.NpcId == npc.Id) && GetViewport().GetCamera3D() is { } camera)
+            {
+                var chest = feet + Vector3.Up * 1.2f;
+                figure.Visible = camera.GlobalPosition.DistanceTo(chest) >= 1.2f;
+            }
             if (npc.Id == FoldEcho.Held && figure is Art.SkinnedFigure && VisualOptions.BodyModifiers)
             {
                 // Held by the fold: the restrained doubling and delayed shadow while its barrier stands (M03).

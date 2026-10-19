@@ -290,13 +290,11 @@ public partial class Main
         _session.Subscribe<HitResolved>(e =>
         {
             var player = _session.Simulation!.PlayerId;
-            string how = (e.Critical ? ", critical" : "") + (e.Blocked ? ", blocked" : "") + (e.Staggered ? ", staggered" : "");
-            if (e.Attacker == player)
-                _hud.Log($"You hit the {Name(CreatureDef(e.Target))} ({BodyRegions.Key(e.Region)}) for {e.Damage}{how}");
-            else if (e.Dodged)
-                _hud.Log($"You dodge the {Name(e.AttackerDefId)}'s {Name(e.Source).ToLowerInvariant()}");
-            else
-                _hud.Log($"The {Name(e.AttackerDefId)}'s {Name(e.Source).ToLowerInvariant()} hits your {BodyRegions.Key(e.Region)} for {e.Damage}{how}");
+            // NPCs and creatures also exchange blows. Only a player target is "your torso".
+            bool namedAttacker = _session.Simulation.Npcs.Any(n => n.InstanceId == e.Attacker);
+            var targetNpc = _session.Simulation.Npcs.FirstOrDefault(n => n.InstanceId == e.Target);
+            _hud.Log(Ui.Models.CombatWords.Hit(e, player, Name(e.AttackerDefId), namedAttacker,
+                Name(targetNpc?.Id ?? CreatureDef(e.Target)), Name(e.Source), targetNpc is not null));
         });
         _session.Subscribe<AttackMissed>(e =>
         {

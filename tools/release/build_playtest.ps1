@@ -50,6 +50,17 @@ Robo "$ExportWorktree\content" "$game\content" '/XF *.before_* _forest_patch_pro
 
 "--- primary"
 Robo "$AssetBase\primary" "$game\primary"
+# The obsolete sapling's opaque branch cards are a playtest visual blocker.
+# It has no canon/quest dependency: omit this scatter kind rather than repair it.
+$scatterPath = "$game\primary\scatter_rules.json"
+if (Test-Path $scatterPath) {
+    $scatter = Get-Content $scatterPath -Raw | ConvertFrom-Json
+    if ($scatter.kinds.saplings.mesh -eq 'model:flora_young_ash_stand') {
+        $scatter.kinds.PSObject.Properties.Remove('saplings')
+        [IO.File]::WriteAllText($scatterPath, ($scatter | ConvertTo-Json -Depth 30), (New-Object Text.UTF8Encoding $false))
+        'Omitted obsolete opaque-card sapling scatter.'
+    }
+}
 
 "--- fallback"
 # Only ArtLibrary reads the fallback, through ready\, rigged\, animation\ready\ and materials\ (and their texture_cache). Audio, clips, manifests,

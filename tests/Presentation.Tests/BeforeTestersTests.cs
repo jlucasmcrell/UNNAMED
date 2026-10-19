@@ -25,6 +25,16 @@ public class BeforeTestersTests
                 {
                     foreach (string key in new[] { "set:|", "set:item.armor.hide_vest|", "set:item.armor.lamework_jack|" })
                         Assert.Contains(key == "set:|" ? "frontier_vest_trousers_set__" : "_trousers_set__", outfits.GetProperty(key)[0].GetString()!);
+                    var equipment = outfits.EnumerateObject().ToDictionary(p => p.Name,
+                        p => p.Value.EnumerateArray().Select(v => v.GetString()!).ToArray());
+                    var defaults = new Art.WornOutfit().Garments(Array.Empty<string>(), equipment);
+                    Assert.Contains(equipment["item.armor.hide_boots"][0], defaults);
+                    Assert.Contains("frontier_vest_trousers_set__", defaults[0]);
+                    var armour = new Art.WornOutfit(Chest: "item.armor.lamework_jack", Feet: "item.armor.lame_sabatons")
+                        .Garments(Array.Empty<string>(), equipment);
+                    Assert.Contains(equipment["item.armor.lame_sabatons"][0], armour);
+                    Assert.DoesNotContain(equipment["default:feet"][0], armour);
+                    Assert.Equal(defaults, new Art.WornOutfit().Garments(Array.Empty<string>(), equipment));
                     checkedPlayers++;
                 }
                 Check(property.Value);

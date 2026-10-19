@@ -4,19 +4,25 @@
 # - steps proved by existing tests (source "tests") PASS when every named test class or method ran and passed;
 # - steps that need eyes (source "human", "stale", "shot") are listed with why; "shot" steps are looked at in the --ui-shots pass the run's notes name.
 # Exit code 1 when a step FAILs for a reason that is not a recorded bug (BUG-n in its reason).
-param([string]$Report = (Join-Path ([IO.Path]::GetTempPath()) "unnamed_acceptance_report.txt"), [switch]$NoBuild)
+param([string]$Report = (Join-Path ([IO.Path]::GetTempPath()) "unnamed_acceptance_report.txt"), [switch]$NoBuild,
+    [ValidateSet('Debug','Release')][string]$Configuration = 'Release', [string]$GameRoot)
 
 $sec = [string][char]0xA7
 $repo = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 Set-Location $repo
 $work = Join-Path ([IO.Path]::GetTempPath()) ("unnamed-acceptance-" + [Guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Force $work | Out-Null
-if (-not $NoBuild) { dotnet build src/UNNAMED.sln | Out-Null; if ($LASTEXITCODE -ne 0) { throw "build failed" } }
+if ($GameRoot) {
+    if (!(Test-Path "$GameRoot\content\credits.yaml") -or !(Test-Path "$GameRoot\THIRD_PARTY_NOTICES\NOTICE.txt")) { throw 'GameRoot lacks packaged content or notices' }
+    $env:UNNAMED_ACCEPTANCE_GAME_ROOT = (Resolve-Path $GameRoot).Path
+} else { Remove-Item Env:UNNAMED_ACCEPTANCE_GAME_ROOT -ErrorAction SilentlyContinue }
+if (-not $NoBuild) { dotnet build src/UNNAMED.sln -c $Configuration | Out-Null; if ($LASTEXITCODE -ne 0) { throw "build failed" } }
 
 # 1. the walkthrough
 $walkReport = Join-Path $work "walk.txt"
 $env:UNNAMED_ACCEPTANCE_REPORT = $walkReport
-dotnet test tests/Application.Tests --no-build --filter "FullyQualifiedName~Acceptance" --logger "trx;LogFileName=$work\walk.trx" | Out-Null
+dotnet test tests/Application.Tests -c $Configuration --no-build --filter "FullyQualifiedName~Acceptance" --logger "trx;LogFileName=$work\walk.trx" | Out-Null
+if ($LASTEXITCODE -ne 0) { throw "acceptance walkthrough failed (see $work\walk.trx)" }
 $walk = @{}
 if (Test-Path $walkReport) {
     foreach ($line in Get-Content $walkReport) { if ($line -match '^\[§(\d+\.\d+[a-z]?)\] (.*)$') { $walk[$Matches[1]] = $Matches[2] } }
@@ -32,7 +38,7 @@ $outcomes = @{}
 foreach ($project in ($covering.Values | Sort-Object -Unique)) {
     $names = $covering.Keys | Where-Object { $_ -like "$project|*" } | ForEach-Object { "FullyQualifiedName~" + ($_ -split '\|', 2)[1] }
     $trx = Join-Path $work "$project.trx"
-    dotnet test "tests/$project" --no-build --filter ($names -join '|') --logger "trx;LogFileName=$trx" | Out-Null
+    dotnet test "tests/$project" -c $Configuration --no-build --filter ($names -join '|') --logger "trx;LogFileName=$trx" | Out-Null
     if (Test-Path $trx) {
         $xml = [xml](Get-Content $trx)
         foreach ($r in $xml.TestRun.Results.UnitTestResult) { $outcomes[$project + "|" + $r.testName] = $r.outcome }

@@ -44,11 +44,14 @@ public partial class ShadowLodsCheck : Node3D
                     break;
                 case 2:
                     _lods.Update(new Vector3(20, 0, 0));
-                    Require(_near.CastShadow == GeometryInstance3D.ShadowCastingSetting.On && _far.CastShadow == GeometryInstance3D.ShadowCastingSetting.Off, "Camera change");
+                    Require(_near.CastShadow == GeometryInstance3D.ShadowCastingSetting.On, "Camera change");
+                    Require(_far.CastShadow == GeometryInstance3D.ShadowCastingSetting.ShadowsOnly && _far.Layers == 0,
+                        "Out-of-band shadow proxy became visible colour geometry");
                     _holder.Position = Vector3.Zero;
                     break;
                 case 3:
                     Require(_far.CastShadow == GeometryInstance3D.ShadowCastingSetting.ShadowsOnly, "Shadow-only mode lost after moving back into range");
+                    Require(_far.Layers == 1, "Shadow proxy layers not restored in range");
                     Require(_near.Visible && _near.GIMode == GeometryInstance3D.GIModeEnum.Static, "Visibility/GI changed");
                     _far.QueueFree();
                     _spawn = Cube(0, 10); _spawn.Position = new Vector3(20, 0, 0); AddChild(_spawn);

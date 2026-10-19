@@ -1043,8 +1043,6 @@ public partial class HudView : Control
     public override void _Process(double delta)
     {
         _clock += delta;
-        // The prompt keeps above the vitals and the bars, however many of them are shown.
-        _prompt.OffsetTop = _prompt.OffsetBottom = -(Bars.Height + 14);
         PlaceRegions();
         AnimateBanner(delta);
         if (_death.Visible && _clock >= _deathUntil)
@@ -1082,6 +1080,7 @@ public partial class HudView : Control
         var dock = Bars.DockSize;
         var regions = HudRegions.Of(Size.X, Size.Y, (dock.X, dock.Y), Subtitles.WantedHeight, (leftMin.X, leftMin.Y), (columnWidth, RightColumnTop - HudRegions.RightTop + columnWanted), Bars.SideWidth);
         Subtitles.Place(regions.Subtitles);
+        _prompt.OffsetTop = _prompt.OffsetBottom = regions.PromptBottom - Size.Y;
 
         _leftClip.Position = new Vector2(regions.TopLeft.X, regions.TopLeft.Y);
         _leftClip.Size = new Vector2(regions.TopLeft.Width, regions.TopLeft.Height);

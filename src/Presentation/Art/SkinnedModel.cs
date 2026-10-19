@@ -217,6 +217,11 @@ public sealed partial class SkinnedModel : Node3D
             // What rides on a bone (a held weapon: its model's meshes sit below the model's own root) stays drawn.
             if (OnBone(mesh))
                 continue;
+            // The merged low-detail body is a shadow caster, never a visible outfit.
+            // Promoting it to On when leaving first person covers the real garments
+            // once its distance band starts (the apparent short-sleeved default).
+            if (mesh.Name.ToString().EndsWith("_shadow", StringComparison.Ordinal))
+                continue;
             ShadowLods.SetMode(mesh, shadowOnly ? GeometryInstance3D.ShadowCastingSetting.ShadowsOnly : GeometryInstance3D.ShadowCastingSetting.On);
         }
     }

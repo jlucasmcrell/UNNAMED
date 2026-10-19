@@ -87,4 +87,17 @@ public class HudRegionsTests
         Assert.True(quiet.TopRight.Height > shown.TopRight.Height);
         Assert.Equal(0f, quiet.Subtitles.Height);
     }
+
+    [Theory]
+    [MemberData(nameof(Screens))]
+    public void TheTwoLineInteractionPromptEndsAboveCaptionsAndBars(int pixelsWide, int pixelsHigh, float scale)
+    {
+        foreach (var (text, crowded) in new[] { (1f, false), (2f, true) })
+        {
+            var r = Place(pixelsWide, pixelsHigh, scale, text, crowded);
+            var prompt = new Region(r.Dock.X, r.PromptBottom - 64, r.Dock.Width, 64);
+            Assert.False(prompt.Intersects(r.Subtitles));
+            Assert.False(prompt.Intersects(r.Dock));
+        }
+    }
 }

@@ -11,6 +11,7 @@ public sealed class ShadowLods
         public ulong Id = Node.GetInstanceId();
         public GeometryInstance3D.ShadowCastingSetting Original = Node.CastShadow;
         public GeometryInstance3D.ShadowCastingSetting Applied = Node.CastShadow;
+        public uint Layers = Node.Layers;
         public Vector3 WorldCentre;
         public bool InTree;
         public ShadowLodBounds? Bounds;
@@ -48,6 +49,7 @@ public sealed class ShadowLods
             if (GodotObject.IsInstanceValid(band.Node))
             {
                 band.Node.CastShadow = band.Original;
+                band.Node.Layers = band.Layers;
                 band.Node.RemoveMeta("shadow_lod_bounds");
                 band.Node.RemoveMeta("shadow_lod_original");
             }
@@ -113,7 +115,12 @@ public sealed class ShadowLods
         if (!band.InTree) return;
         float distanceSquared = _eye.DistanceSquaredTo(band.WorldCentre);
         bool casting = distanceSquared >= band.BeginSquared && (band.EndSquared == 0 || distanceSquared < band.EndSquared);
-        var next = casting ? band.Original : GeometryInstance3D.ShadowCastingSetting.Off;
+        // Off makes a ShadowsOnly proxy visible in the colour pass. Keep its mode
+        // and exclude it from every camera/light layer while outside its band.
+        bool proxy = band.Original == GeometryInstance3D.ShadowCastingSetting.ShadowsOnly;
+        uint layers = proxy && !casting ? 0u : band.Layers;
+        if (band.Node.Layers != layers) band.Node.Layers = layers;
+        var next = proxy || casting ? band.Original : GeometryInstance3D.ShadowCastingSetting.Off;
         if (next == band.Applied) return;
         band.Node.CastShadow = next;
         band.Applied = next;

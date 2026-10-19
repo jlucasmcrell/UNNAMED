@@ -104,6 +104,7 @@
      "frontier_vest_trousers_set__mh_veth_m"
     ],
     "equipment_outfits": {
+      "default:feet": ["frontier_sealed_boots__mh_veth_m"],
      "set:|": [
       "frontier_vest_trousers_set__mh_veth_m"
      ],
@@ -185,6 +186,7 @@
      "frontier_vest_trousers_set__mh_veth_m"
     ],
     "equipment_outfits": {
+      "default:feet": ["frontier_sealed_boots__mh_veth_m"],
      "set:|": [
       "frontier_vest_trousers_set__mh_veth_m"
      ],
@@ -266,6 +268,7 @@
      "frontier_vest_trousers_set__mh_veth_m"
     ],
     "equipment_outfits": {
+      "default:feet": ["frontier_sealed_boots__mh_veth_m"],
      "set:|": [
       "frontier_vest_trousers_set__mh_veth_m"
      ],
@@ -347,6 +350,7 @@
      "frontier_vest_trousers_set__mh_veth_f"
     ],
     "equipment_outfits": {
+      "default:feet": ["frontier_sealed_boots__mh_veth_f"],
      "set:|": [
       "frontier_vest_trousers_set__mh_veth_f"
      ],
@@ -975,6 +979,7 @@
     "frontier_vest_trousers_set__mh_veth_m"
    ],
    "equipment_outfits": {
+     "default:feet": ["frontier_sealed_boots__mh_veth_m"],
     "set:|": [
      "frontier_vest_trousers_set__mh_veth_m"
     ],

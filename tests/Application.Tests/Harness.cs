@@ -74,7 +74,8 @@ internal static class Harness
     /// </summary>
     public static GameSession Boot(TempProfile profile, string? regionId = null, bool barrowworks = false)
     {
-        var options = new GameOptions(Path.Combine(RepoRoot(), "content"), profile.Root);
+        string root = Environment.GetEnvironmentVariable("UNNAMED_ACCEPTANCE_GAME_ROOT") ?? RepoRoot();
+        var options = new GameOptions(Path.Combine(root, "content"), profile.Root);
         if (regionId is not null)
             options = options with { RegionId = regionId };
         if (barrowworks)

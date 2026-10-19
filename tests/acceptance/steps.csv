@@ -4,7 +4,7 @@ id,class,source,note
 0.3,HUMAN,human,The first launch (shader build) needs the packaged build on a real GPU.
 0.4,HUMAN,human,The second launch's speed is a performance judgement.
 1.1,AUTO-HEADLESS,walk,
-1.2,NOT AUTOMATED,stale,The checklist step cannot be run: the creator has no Face step (owner scoping D3; the creator's steps are body / Call / name / pronouns / start).
+1.2,HUMAN,human,Confirm body / Call / name / pronouns / start with no Face step (owner decision D3).
 1.3,HUMAN,human,Seams at the neck / shoulders / wrists need eyes on the rotating body.
 1.4,AUTO-HEADLESS,walk,
 1.5,AUTO-HEADLESS,walk,

@@ -209,7 +209,10 @@ public sealed partial class SkinnedFigure : Figure
             return;
         _worn = worn;
         Outfit.Clear(_model);
-        Outfit.Dress(_art, _model, _person.OutfitBody ?? _person.Model, worn.Garments(_person.Outfit, _person.EquipmentOutfits));
+        var garments = worn.Garments(_person.Outfit, _person.EquipmentOutfits);
+        int dressed = Outfit.Dress(_art, _model, _person.OutfitBody ?? _person.Model, garments);
+        if (OS.GetEnvironment("UNNAMED_OUTFIT_REPORT") == "1")
+            GD.Print($"UNNAMED outfit: {_person.Model} chest={worn.Chest ?? "default"} feet={worn.Feet ?? "default"} loaded={dressed}/{garments.Count} [{string.Join(", ", garments)}]");
         CharacterMaterials.ShareLodBox(_model.Skeleton);
         KeepLast(_model.Skeleton);
     }

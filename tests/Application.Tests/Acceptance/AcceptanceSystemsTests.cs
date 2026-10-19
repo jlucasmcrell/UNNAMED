@@ -235,6 +235,8 @@ public partial class AcceptanceWalkthroughTests
 
         // ── §17, §18 credits and the disclosure ────────────────────────────────────
         string notice = System.IO.Path.Combine(Harness.RepoRoot(), "tools", "release", "payload", "THIRD_PARTY_NOTICES", "NOTICE.txt");
+        if (Environment.GetEnvironmentVariable("UNNAMED_ACCEPTANCE_GAME_ROOT") is { Length: > 0 } game)
+            notice = System.IO.Path.Combine(game, "THIRD_PARTY_NOTICES", "NOTICE.txt");
         Step("17.1", () =>
         {
             string text = File.ReadAllText(notice);
@@ -260,7 +262,7 @@ public partial class AcceptanceWalkthroughTests
             string disclosure = text[at..];
             bool chatterIsAi = run.Sim.Setup.Chat.Corpus.Any(l => l.AiGenerated);
             That(chatterIsAi, "no chat line is flagged AI-generated, so the checklist's premise does not hold");
-            That(disclosure.Contains("chat", StringComparison.OrdinalIgnoreCase) || disclosure.Contains("ambient", StringComparison.OrdinalIgnoreCase),
+            That(disclosure.Contains("chat", StringComparison.OrdinalIgnoreCase),
                 "the disclosure does not mention the AI-written ambient chat lines (content/chatter: every corpus line is ai_generated: true)");
             That(disclosure.Contains("icon", StringComparison.OrdinalIgnoreCase), "the disclosure does not mention the AI-made icons");
             return "the disclosure names chat lines and icons";
@@ -290,12 +292,4 @@ public partial class AcceptanceWalkthroughTests
 
     private string? adventurerId;
 
-    static AcceptanceWalkthroughTests()
-    {
-        // Real faults the walkthrough found: reported as FAIL in the report, and left for the owner to route (the walkthrough changes no game code).
-        KnownBugs["4.5"] = "BUG-1: the rung-3 lamework is not in this build";
-        KnownBugs["4.6"] = "BUG-1: the rung-3 lamework is not in this build";
-        KnownBugs["18.1"] = "BUG-2: the AI disclosure omits the AI-written ambient chat lines";
-        KnownBugs["18.2"] = "BUG-3: the AI disclosure does not mention textures (the checklist says some are AI-made); needs the ledger's word";
-    }
 }

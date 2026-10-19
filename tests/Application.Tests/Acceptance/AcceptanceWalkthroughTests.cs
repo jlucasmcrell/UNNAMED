@@ -45,7 +45,8 @@ public partial class AcceptanceWalkthroughTests
 
         public Run()
         {
-            Session = GameSession.Boot(new GameOptions(System.IO.Path.Combine(Harness.RepoRoot(), "content"), _profile.Root) { Clock = () => Now });
+            string root = Environment.GetEnvironmentVariable("UNNAMED_ACCEPTANCE_GAME_ROOT") ?? Harness.RepoRoot();
+            Session = GameSession.Boot(new GameOptions(System.IO.Path.Combine(root, "content"), _profile.Root) { Clock = () => Now });
             Session.Subscribe<CommandRejected>(Rejections.Add);
         }
 

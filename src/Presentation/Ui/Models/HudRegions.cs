@@ -31,6 +31,9 @@ public readonly record struct HudRegions(Region TopLeft, Region TopRight, Region
     /// <summary>Where the compass starts at the top right; the tracker column is under it.</summary>
     public const float RightTop = 22;
 
+    /// <summary>The interaction prompt ends above both captions and the action dock.</summary>
+    public float PromptBottom => Math.Min(Dock.Y, Subtitles.Y) - Gap;
+
     private const float LeftTop = 16;
 
     /// <summary>
