@@ -24,7 +24,7 @@ public class BeforeTestersTests
                 if (property.Name == "player" && property.Value.TryGetProperty("equipment_outfits", out var outfits))
                 {
                     foreach (string key in new[] { "set:|", "set:item.armor.hide_vest|", "set:item.armor.lamework_jack|" })
-                        Assert.Contains("_trousers_set__", outfits.GetProperty(key)[0].GetString()!);
+                        Assert.Contains(key == "set:|" ? "frontier_vest_trousers_set__" : "_trousers_set__", outfits.GetProperty(key)[0].GetString()!);
                     checkedPlayers++;
                 }
                 Check(property.Value);
