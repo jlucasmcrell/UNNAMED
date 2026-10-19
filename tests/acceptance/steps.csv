@@ -1,0 +1,97 @@
+id,class,source,note
+0.1,HUMAN,human,Extracting the setup ZIP on a clean machine is a packaging check.
+0.2,HUMAN,human,Setup.cmd on a clean machine is a packaging check.
+0.3,HUMAN,human,The first launch (shader build) needs the packaged build on a real GPU.
+0.4,HUMAN,human,The second launch's speed is a performance judgement.
+1.1,AUTO-HEADLESS,walk,
+1.2,NOT AUTOMATED,stale,The checklist step cannot be run: the creator has no Face step (owner scoping D3; the creator's steps are body / Call / name / pronouns / start).
+1.3,HUMAN,human,Seams at the neck / shoulders / wrists need eyes on the rotating body.
+1.4,AUTO-HEADLESS,walk,
+1.5,AUTO-HEADLESS,walk,
+1.6,AUTO-HEADLESS,walk,
+2.1,AUTO-HEADLESS,walk,
+2.2,AUTO-HEADLESS,walk,
+2.3,AUTO-HEADLESS,tests,Application.Tests:ActOneStoryTests|Application.Tests:StoryFrameworkTests|Application.Tests:QuestTests
+2.4,AUTO-HEADLESS,tests,Application.Tests:ActOneStoryTests|Application.Tests:CairnwoldQuestTests|Application.Tests:StoryFrameworkTests
+2.5,AUTO-HEADLESS,walk,
+2.6,AUTO-HEADLESS,walk,
+2.7,AUTO-HEADLESS,tests,Application.Tests:KeraOfferTests
+3.1,AUTO-HEADLESS,walk,
+3.2,AUTO-HEADLESS,walk,
+3.3,AUTO-HEADLESS,walk,
+3.4,AUTO-HEADLESS,walk,
+3.5,AUTO-HEADLESS,walk,
+3.6,AUTO-HEADLESS,walk,
+4.1,AUTO-HEADLESS,walk,
+4.2,AUTO-HEADLESS,walk,
+4.3,AUTO-HEADLESS,walk,
+4.4,AUTO-HEADLESS,walk,
+4.5,AUTO-HEADLESS,walk,
+4.6,AUTO-HEADLESS,walk,
+4.7,HUMAN,human,Clipping at joints is a visual judgement (and there is no lamework to wear: see 4.5).
+5.1,AUTO-HEADLESS,tests,Application.Tests:DurabilityTests
+5.2,AUTO-HEADLESS,tests,Application.Tests:DurabilityTests
+5.3,AUTO-HEADLESS,tests,Application.Tests:DurabilityTests
+5.4,AUTO-HEADLESS,tests,Application.Tests:DurabilityTests|Application.Tests:DurabilitySaveTests
+6.1,AUTO-HEADLESS,walk,
+6.2,AUTO-HEADLESS,walk,
+6.3,AUTO-HEADLESS,walk,
+6.4,AUTO-HEADLESS,walk,
+6.5,AUTO-HEADLESS,tests,Application.Tests:TeachingTests.ATeacherInTheCharactersHire_DoesNotTeach
+7.1,AUTO-HEADLESS,walk,
+7.2,AUTO-HEADLESS,tests,Application.Tests:CombatTests.TheSword_KillsAWolf_AndOnlyEffectiveBlowsTrainTheBlade|Domain.Tests:SkillAndTechniqueTests
+7.3,AUTO-HEADLESS,tests,Domain.Tests:AvailabilityTests
+7.4,AUTO-HEADLESS,tests,Application.Tests:TeachingTests.PowerStrike_IsTheSwordsOwnBlow_Changed_AndComesReadyAfterItsCooldown|Application.Tests:TeachingTests.PowerStrike_LandsUnderItsOwnName_AndTrainsTheBlade|Application.Tests:QuickBarTests
+7.5,AUTO-SHOT,shot,screen_skills.png and screen_skills_formulas.png show the unpractised rows.
+8.1,AUTO-HEADLESS,walk,
+8.2,AUTO-HEADLESS,walk,
+8.3,AUTO-HEADLESS,walk,
+8.4,AUTO-HEADLESS,tests,Presentation.Tests:ContextModelTests|Presentation.Tests:HireModelTests
+8.5,AUTO-HEADLESS,walk,
+9.1,AUTO-HEADLESS,walk,
+9.2,AUTO-HEADLESS,walk,
+9.3,AUTO-HEADLESS,tests,Application.Tests:CompanionApprovalTests
+9.4,AUTO-HEADLESS,tests,Application.Tests:CompanionApprovalTests
+9.5,AUTO-HEADLESS,tests,Application.Tests:SpaceCompanionTests|Application.Tests:CompanionTests
+10.1,AUTO-HEADLESS,tests,Application.Tests:ChatTests.TheChatSetting_KeepsAll_OnlyPlay_OrNothing|Presentation.Tests:ChatModelTests
+10.2,AUTO-HEADLESS,tests,Application.Tests:ChatTests.AnOffer_IsPostedOnWorld_JoinedWithSlashJoin_AndTheGroupSetsOutFromTheMeetingPlace|Presentation.Tests:ChatModelTests
+10.3,AUTO-HEADLESS,tests,Application.Tests:ChatTests.AnOffer_IsPostedOnWorld_JoinedWithSlashJoin_AndTheGroupSetsOutFromTheMeetingPlace|Application.Tests:ChatTests.AnNpcsNextOffer_PostedAsTheirLastOneLeaves_IsOpened
+10.4,AUTO-HEADLESS,walk,
+11.1,AUTO-HEADLESS,walk,
+11.2,AUTO-HEADLESS,walk,
+11.3,AUTO-HEADLESS,tests,Application.Tests:DurabilityTests.ATrader_PaysLessForAWornPiece_AndMendingItToSellItNeverGains
+11.4,AUTO-HEADLESS,tests,Application.Tests:EconomyTests
+11.5,AUTO-HEADLESS,walk,
+12.1,AUTO-HEADLESS,walk,
+12.2,AUTO-HEADLESS,walk,
+12.3,AUTO-HEADLESS,tests,Application.Tests:WeatherTests|Application.Tests:EconomyTests.TheMarkets_SettleADay_OnTheTickThatCrossesMidnight
+12.4,AUTO-HEADLESS,walk,
+13.1,AUTO-HEADLESS,walk,
+13.2,AUTO-HEADLESS,tests,Application.Tests:FactionTests.AMembersQuest_PaysStanding_AndAQuestCanWaitOnIt|Presentation.Tests:StandingWordsTests
+13.3,AUTO-HEADLESS,tests,Domain.Tests:FactionRulesTests
+14.1,AUTO-HEADLESS,walk,
+14.2,HUMAN,human,A real hour away is simulated by the session clock in 14.3; the wait itself is the owner's.
+14.3,AUTO-HEADLESS,walk,
+14.4,AUTO-HEADLESS,walk,
+14.5,AUTO-HEADLESS,tests,Application.Tests:PartyTests.AHireling_KeepsWorking_AndIsPaid_WhileTheCharacterIsAway|Application.Tests:AdventurerWorldTests
+15.1,AUTO-SHOT,shot,Layout rules hold at 75 to 200 % (Presentation.Tests:HudRegionsTests); the 200 % frames show nothing falling off the screen.
+15.2,AUTO-SHOT,shot,Layout rules hold at 75 to 200 % (Presentation.Tests:HudRegionsTests).
+15.3,AUTO-SHOT,shot,Layout rules (Presentation.Tests:HudLayoutRulesTests) and the large_ / text_ frames.
+15.4,AUTO-SHOT,shot,Layout rules (Presentation.Tests:HudLayoutRulesTests|Presentation.Tests:HudRegionsTests) and the large_ frames.
+15.5,AUTO-SHOT,shot,Presentation.Tests:BeforeTestersTests plus the high-contrast frames.
+15.6,AUTO-SHOT,shot,Presentation.Tests:BeforeTestersTests plus the settings_interface frame.
+15.7,AUTO-HEADLESS,tests,Presentation.Tests:ClientPrefsTests|Presentation.Tests:BeforeTestersTests
+16.1,AUTO-HEADLESS,walk,
+16.2,AUTO-HEADLESS,walk,
+16.3,AUTO-HEADLESS,tests,Application.Tests:SpaceTransitionTests|Application.Tests:BarrowworksPersistenceTests
+16.4,AUTO-HEADLESS,walk,
+17.1,AUTO-HEADLESS,walk,
+17.2,AUTO-HEADLESS,walk,
+17.3,AUTO-SHOT,shot,screen_credits.png shows the page and its Back.
+18.1,AUTO-HEADLESS,walk,
+18.2,AUTO-HEADLESS,walk,
+19.1,HUMAN,human,Framerate at the drain is a performance judgement.
+19.2,HUMAN,human,Framerate and late streaming at Cairnwold are a performance judgement.
+19.3,HUMAN,human,Framerate at the lodge and whether it stands on a cookfire ring need eyes.
+20.1,AUTO-HEADLESS,walk,
+20.2,HUMAN,human,Collecting fault lines is the owner's.
