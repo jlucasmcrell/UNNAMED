@@ -121,9 +121,18 @@ public static class WorldContent
     /// <summary>Display names: every definition's <c>name</c> field, where it has one (DATA_MODEL.md §4.18 places do).</summary>
     public static IReadOnlyDictionary<string, string> DisplayNames(ContentLoader loader) =>
         loader.Definitions.Values
-            .Select(d => (d.Id, Name: Read(d.YamlSource).GetValueOrDefault("name") as string))
+            .Select(d => (d.Id, Name: DisplayName(loader, d)))
             .Where(d => !string.IsNullOrWhiteSpace(d.Name))
             .ToDictionary(d => d.Id, d => d.Name!, StringComparer.Ordinal);
+
+    private static string? DisplayName(ContentLoader loader, ContentEnvelope definition)
+    {
+        if (loader.NameHeaders.TryGetValue(definition.Id, out var header) && header.Source == definition.YamlSource)
+            return header.Name;
+        string? name = Read(definition.YamlSource).GetValueOrDefault("name") as string;
+        loader.NameHeaders[definition.Id] = (definition.YamlSource, name);
+        return name;
+    }
 
     /// <summary>The fixed domain tick in milliseconds, from <c>config.time</c>'s <c>ticks_per_second</c>.</summary>
     public static int TickMilliseconds(ContentLoader loader)

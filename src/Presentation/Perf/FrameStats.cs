@@ -19,6 +19,7 @@ public sealed class FrameStats
     private readonly List<Sample> _samples = new();
     private readonly List<(string Segment, double Ms)> _worstProcess = new();
     private readonly Rid _viewport;
+    private readonly bool _renderTimes = System.Environment.GetEnvironmentVariable("UNNAMED_FRAME_RENDER_TIMES") != "0";
     private long _workingSetBytes;
     private int _frame;
     private bool _skipNext;
@@ -28,7 +29,7 @@ public sealed class FrameStats
     public FrameStats(Viewport viewport)
     {
         _viewport = viewport.GetViewportRid();
-        RenderingServer.ViewportSetMeasureRenderTime(_viewport, true);
+        RenderingServer.ViewportSetMeasureRenderTime(_viewport, _renderTimes);
     }
 
     public string Segment { get; set; } = "default";
@@ -65,15 +66,16 @@ public sealed class FrameStats
             _skipNext = false;
             return;
         }
-        // The process working set is expensive to read; twice a second is plenty for a peak.
+        // Environment.WorkingSet uses the direct memory counter. Process.WorkingSet64
+        // cost 9.5 ms/read on BEAST and made the harness inject periodic frame spikes.
         if (_frame++ % 30 == 0)
-            _workingSetBytes = System.Diagnostics.Process.GetCurrentProcess().WorkingSet64;
+            _workingSetBytes = System.Environment.WorkingSet;
         _samples.Add(new Sample(
             Segment,
             delta * 1000,
             processMs,
-            RenderingServer.ViewportGetMeasuredRenderTimeCpu(_viewport),
-            RenderingServer.ViewportGetMeasuredRenderTimeGpu(_viewport),
+            _renderTimes ? RenderingServer.ViewportGetMeasuredRenderTimeCpu(_viewport) : 0,
+            _renderTimes ? RenderingServer.ViewportGetMeasuredRenderTimeGpu(_viewport) : 0,
             (long)Performance.GetMonitor(Performance.Monitor.MemoryStatic),
             _workingSetBytes,
             (long)Performance.GetMonitor(Performance.Monitor.RenderVideoMemUsed)));
@@ -87,8 +89,10 @@ public sealed class FrameStats
         for (int i = 0; i < _samples.Count; i++)
         {
             var s = _samples[i];
+            string cpu = _renderTimes ? s.RenderCpuMs.ToString("0.###", CultureInfo.InvariantCulture) : "";
+            string gpu = _renderTimes ? s.RenderGpuMs.ToString("0.###", CultureInfo.InvariantCulture) : "";
             csv.Append(CultureInfo.InvariantCulture,
-                $"{s.Segment},{i},{s.FrameMs:0.###},{s.ProcessMs:0.###},{s.RenderCpuMs:0.###},{s.RenderGpuMs:0.###},{Mb(s.StaticBytes):0.#},{Mb(s.WorkingSetBytes):0.#},{Mb(s.VramBytes):0.#}\n");
+                $"{s.Segment},{i},{s.FrameMs:0.###},{s.ProcessMs:0.###},{cpu},{gpu},{Mb(s.StaticBytes):0.#},{Mb(s.WorkingSetBytes):0.#},{Mb(s.VramBytes):0.#}\n");
         }
         File.WriteAllText(Path.Combine(directory, "frames.csv"), csv.ToString());
 
@@ -96,6 +100,8 @@ public sealed class FrameStats
         {
             ["machine"] = Machine(),
             ["notes"] = notes,
+            ["instrumentation"] = new { render_time_queries = _renderTimes, memory_sampler = "Environment.WorkingSet every 30 retained frames",
+                raw_wall_clock_every_frame = true },
             ["events"] = _events.Select(e => new Dictionary<string, object>
             {
                 ["frame"] = e.Frame,
@@ -113,7 +119,7 @@ public sealed class FrameStats
         return json;
     }
 
-    private static Dictionary<string, object> Summarise(List<Sample> frames, List<double> worstProcessEachSecond)
+    private Dictionary<string, object> Summarise(List<Sample> frames, List<double> worstProcessEachSecond)
     {
         var ms = frames.Select(f => f.FrameMs).OrderBy(v => v).ToList();
         double median = Percentile(ms, 50);
@@ -133,15 +139,16 @@ public sealed class FrameStats
             ["minimum_fps"] = Math.Round(1000.0 / ms[^1], 1),
             ["frame_ms"] = Distribution(ms),
             ["frames_within_16_7_ms_percent"] = Math.Round(100.0 * ms.Count(v => v <= 1000.0 / 60) / ms.Count, 2),
-            ["hitches_over_33_ms"] = ms.Count(v => v > 1000.0 / 30),
+            ["hitches_over_33_ms"] = ms.Count(v => v > 33.0),
             ["hitches_over_twice_median"] = ms.Count(v => v > 2 * median),
             ["process_ms_worst_each_second"] = worstProcessEachSecond.Count > 0 ? Distribution(worstProcessEachSecond) : new Dictionary<string, double>(),
-            ["render_cpu_ms"] = Distribution(frames.Select(f => f.RenderCpuMs).OrderBy(v => v).ToList()),
-            ["render_gpu_ms"] = Distribution(frames.Select(f => f.RenderGpuMs).OrderBy(v => v).ToList()),
+            ["render_cpu_ms"] = _renderTimes ? Distribution(frames.Select(f => f.RenderCpuMs).OrderBy(v => v).ToList()) : new Dictionary<string, double>(),
+            ["render_gpu_ms"] = _renderTimes ? Distribution(frames.Select(f => f.RenderGpuMs).OrderBy(v => v).ToList()) : new Dictionary<string, double>(),
             ["static_memory_peak_mb"] = Math.Round(Mb(frames.Max(f => f.StaticBytes)), 1),
             ["working_set_peak_mb"] = Math.Round(Mb(frames.Max(f => f.WorkingSetBytes)), 1),
             ["vram_peak_mb"] = Math.Round(Mb(frames.Max(f => f.VramBytes)), 1),
             ["sustained_60_fps_by_one_percent_low"] = Low(0.01) >= 60,
+            ["playtest_frame_budget_met"] = frames.Count / duration >= 60 && Low(.01) >= 45 && ms[^1] <= 33.0,
         };
     }
 

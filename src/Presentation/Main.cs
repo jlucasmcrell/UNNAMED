@@ -99,6 +99,8 @@ public partial class Main : Node3D
     private InputCheck? _inputCheck;
     private UiShots? _shots;
     private BarrowworksReview? _barrowworksReview;
+    private FrontierPerf? _frontierPerf;
+    private readonly Art.ShadowLods _shadowLods = new();
     private Showcase? _showcase;
     private Playthrough? _play;
 
@@ -277,7 +279,7 @@ public partial class Main : Node3D
             : _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf")
               || (_options.ContainsKey("--ui-shots") && !_flags.Contains("--ui-shots-continue"))
               || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check") || _options.ContainsKey("--survey")
-              || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review")
+              || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
               || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
               || (_options.ContainsKey("--showcase") && !_options.ContainsKey("--profile"))
               || (_options.ContainsKey("--front-shots") && !_options.ContainsKey("--profile"))
@@ -295,6 +297,9 @@ public partial class Main : Node3D
             || OS.GetEnvironment("BARROWWORKS_REVIEW_RETURN_BASELINE") == "1"))
             shotStart = OS.GetEnvironment("BARROWWORKS_REVIEW_RETURN_BASELINE") == "1"
                 ? (1_050_000, 770_000) : (438_000, 664_000);
+        if (_options.ContainsKey("--frontier-perf"))
+            shotStart = FrontierPerf.ParsePoint(_options.GetValueOrDefault("--frontier-point")
+                ?? throw new ArgumentException("--frontier-perf requires --frontier-point x,z"));
         // Bad content refuses to start, naming every file (ARCHITECTURE.md §8.1); so does a profile another copy of the game holds.
         // The Barrowworks switch is read here, once, and passed down: it is parsed as --visual (this layer's own
         // options) but what it gates is content the simulation holds, so GameOptions carries it (M8 D10). Off
@@ -316,7 +321,7 @@ public partial class Main : Node3D
         bool scripted = playthrough is not null || _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf")
                         || _options.ContainsKey("--ui-shots")
                         || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check") || _options.ContainsKey("--survey")
-                        || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review")
+                        || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
                         || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
                         || _options.ContainsKey("--showcase");
         // No run of a harness takes the mouse - but the input check, which checks who has it.
@@ -341,7 +346,7 @@ public partial class Main : Node3D
                           || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
                           || _options.ContainsKey("--survey")
                           || _options.ContainsKey("--connected-check")
-                          || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review")
+                          || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
                           || _flags.Contains("--perf")
                           || _options.ContainsKey("--resume-shots");
         if (scripted && !verify && !showcaseContinues)
@@ -392,7 +397,7 @@ public partial class Main : Node3D
         _art.Coverage.Allow(CoverageAllowlist());
         _scatterRules = ScatterRules(_assets.Root, _options.GetValueOrDefault("--scatter-rules"));
         GD.Print($"UNNAMED renderer: {RenderingServer.GetVideoAdapterName()} ({RenderingServer.GetCurrentRenderingMethod()}); MSAA 3D "
-                 + $"{ProjectSettings.GetSetting("rendering/anti_aliasing/quality/msaa_3d")}, TAA {ProjectSettings.GetSetting("rendering/anti_aliasing/quality/use_taa")}, "
+                 + $"{GetViewport().Msaa3D}, TAA {GetViewport().UseTaa}, "
                  + $"anisotropy {ProjectSettings.GetSetting("rendering/textures/default_filters/anisotropic_filtering_level")}, directional shadow atlas "
                  + $"{ProjectSettings.GetSetting("rendering/lights_and_shadows/directional_shadow/size")}, soft shadows "
                  + $"{ProjectSettings.GetSetting("rendering/lights_and_shadows/directional_shadow/soft_shadow_filter_quality")}");
@@ -554,6 +559,14 @@ public partial class Main : Node3D
             SizeForCapture();
             _realtime = _flags.Contains("--realtime");
             _barrowworksReview = new BarrowworksReview(_session, _controller, _camera, Path.GetFullPath(review), _realtime);
+        }
+        else if (_options.TryGetValue("--frontier-perf", out string? frontierPerf))
+        {
+            SizeForCapture();
+            Engine.MaxFps = 0;
+            DisplayServer.WindowSetVsyncMode(DisplayServer.VSyncMode.Disabled);
+            _frontierPerf = new FrontierPerf(_session, _controller, _camera, GetViewport(), Path.GetFullPath(frontierPerf),
+                _options.GetValueOrDefault("--frontier-hide"));
         }
         else if (_options.TryGetValue("--shot", out string? shotSpec))
         {
@@ -896,6 +909,8 @@ public partial class Main : Node3D
         _hits = new Art.HitImpacts { Name = "HitImpacts" };
         AddChild(_hits);
         _hits.Bind(_assets.Root);
+        _shadowLods.Watch(this);
+        GetViewport().UseOcclusionCulling = System.Environment.GetEnvironmentVariable("UNNAMED_BUILDING_OCCLUSION") != "0";
         if (_avatar is Avatar glowing && _magicEffects.HasCastCharge)
             glowing.WorkingGlow = false;
     }
@@ -1090,6 +1105,26 @@ public partial class Main : Node3D
                     break;
             }
         }
+        else if (_frontierPerf is not null)
+        {
+            string? result = _frontierPerf.Update();
+            switch (result)
+            {
+                case "done":
+                case "failed":
+                    _frontierPerf.Write();
+                    WriteReports(_frontierPerf.Directory, "frontier-rendering-benchmark");
+                    GetTree().Quit(result == "done" ? 0 : 1);
+                    return;
+                case { } shot:
+                    if (DisplayServer.GetName() != "headless")
+                    {
+                        _frontierPerf.Screenshot();
+                        SaveScreenshot(_frontierPerf.Directory, shot);
+                    }
+                    break;
+            }
+        }
         else if (_survey is not null)
         {
             switch (_survey.Update())
@@ -1128,10 +1163,13 @@ public partial class Main : Node3D
         // The smoke and the playthrough run one tick per frame: the smoke finishes in a fraction of real time, and the playthrough is
         // the same run every time, whatever the frame rate.
         ulong sessionStarted = _barrowworksReview is null ? 0 : Time.GetTicksUsec();
+        ulong simulationStarted = _frontierPerf is null ? 0 : Time.GetTicksUsec();
+        long gcPauseTicks = _frontierPerf is null ? 0 : GC.GetTotalPauseDuration().Ticks;
         var frame = _session.Frame(_smoke is not null || _connectedCheck is not null || (_barrowworksReview is not null && !_realtime) || (_play is not null && !_realtime) || _delta is not null || _survey is not null || _audit is not null || _auditAb is not null
             ? _session.TickSeconds : delta);
         _barrowworksReview?.Phase("simulation", sessionStarted);
         _ticksLastFrame = frame.TicksRun;
+        _frontierPerf?.SimulationPhase(simulationStarted, frame, gcPauseTicks);
         bool outside = _session.Simulation!.PlayerInExterior;
         if (outside != _wasOutside)
         {
@@ -1167,9 +1205,10 @@ public partial class Main : Node3D
             GD.PushError($"UNNAMED {(save.Auto ? "autosave" : "save")} to {save.Slot} failed: {failed}");
             _hud.Toast(save.Auto ? $"Autosave failed: {failed} It is tried again shortly. The log: {LogPath}" : $"Save failed: {failed} (the log: {LogPath})", 8);
         }
-        ulong drawStarted = _barrowworksReview is null ? 0 : Time.GetTicksUsec();
+        ulong drawStarted = _barrowworksReview is null && _frontierPerf is null ? 0 : Time.GetTicksUsec();
         Draw(frame.Alpha, delta);
         _barrowworksReview?.Phase("presentation", drawStarted);
+        _frontierPerf?.Phase("drawing", drawStarted);
         UpdateMouse();
         _stats?.Record(delta);
         if (_perf is { ScreenshotDue: true })
@@ -1209,6 +1248,7 @@ public partial class Main : Node3D
     /// <summary>What the run heard, for the harnesses: how much of the sound set played, and any family the mapping asked for that the set lacks.</summary>
     public override void _ExitTree()
     {
+        _shadowLods.Unwatch();
         // Quitting while a save is being written finishes it first (P-01); its commit is atomic even if it were cut off.
         if (_session is not null && !_session.WaitForSaves(TimeSpan.FromSeconds(10)))
             GD.PushWarning("UNNAMED: a save was still being written after 10 s at quit; the previous save stands until the next boot finishes it");
@@ -1328,8 +1368,10 @@ public partial class Main : Node3D
         _music.Update(feet, delta);
         Probe("music");
         _crafting.Refresh(simulation.Nodes);
+        ulong npcsStarted = _frontierPerf is null ? 0 : Time.GetTicksUsec();
         _npcs.Draw(simulation, delta, _session.TickSeconds);
         Probe("crafting/NPCs");
+        _frontierPerf?.Phase("npcs", npcsStarted);
         LogStates(simulation, delta, speed);
         _camera.Follow(_shots?.Viewpoint ?? _avatar.Position, delta);
         _avatar.SetFirstPerson(_camera.EffectiveDistance < 0.4f);
@@ -1337,6 +1379,9 @@ public partial class Main : Node3D
         _talkCamera.Frame(simulation.Conversation is { } talk && !_camera.IsFirstPerson ? _npcs.HeadOf(talk.NpcId) : null,
             _avatar.Head, _camera.Camera, delta);
         Probe("camera/state log");
+        ulong shadowsStarted = _frontierPerf is null ? 0 : Time.GetTicksUsec();
+        if (GetViewport().GetCamera3D() is { } shadowEye) _shadowLods.Update(shadowEye.GlobalPosition);
+        _frontierPerf?.Phase("shadow_lods", shadowsStarted);
         DrawHud(simulation, combat, posture, alpha, delta);
         Probe("HUD");
     }
@@ -1520,7 +1565,7 @@ public partial class Main : Node3D
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
-                    or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review" or "--anim-states"
+                    or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

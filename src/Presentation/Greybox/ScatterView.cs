@@ -380,7 +380,7 @@ public partial class ScatterView : Node3D
         // the levels' meshes differ in size (the impostor is narrower than the clump), so the bands did not meet: at a
         // band's edge a whole chunk drew in two levels, or in none for one to three frames - grass and its shadow
         // blinking out while walking. Measured on 2026-10-03: 15 gaps and 8 doubled frames on one walk, none with this.
-        if (bands.Count > 1)
+        if (bands.Count > 0)
         {
             var box = bands.Skip(1).Aggregate(bands[0].Multimesh.GetAabb(), (b, n) => b.Merge(n.Multimesh.GetAabb()));
             foreach (var band in bands)
@@ -705,6 +705,23 @@ public partial class ScatterView : Node3D
             level.Free();
             if (merged.GetSurfaceCount() == 0)
                 break;
+            // Surface merging above copies only the close-up arrays, losing the importer's LODs.
+            // Regenerate after transforming into model space so each instanced plant keeps its
+            // original near mesh, material and placement, with projected-error indices further out.
+            if (System.Environment.GetEnvironmentVariable("UNNAMED_RUNTIME_MESH_LODS") != "0")
+            {
+                using var importer = new ImporterMesh();
+                for (int s = 0; s < merged.GetSurfaceCount(); s++)
+                {
+                    using var arrays = merged.SurfaceGetArrays(s);
+                    importer.AddSurface(Mesh.PrimitiveType.Triangles, arrays, material: merged.SurfaceGetMaterial(s));
+                }
+                using var boneTransforms = new Godot.Collections.Array();
+                importer.GenerateLods(60, 0, boneTransforms);
+                if (OS.GetEnvironment("UNNAMED_LOAD_REPORT") == "1")
+                    GD.Print($"UNNAMED scatter mesh LODs: {id} level {meshes.Count}, {Enumerable.Range(0, importer.GetSurfaceCount()).Sum(importer.GetSurfaceLodCount)} index levels");
+                merged = importer.GetMesh();
+            }
             // Shader displacement is invisible to CPU culling. Grow only wind-deformed model bounds, in model
             // space so each MultiMesh instance's existing rotation/scale also transforms this finite padding.
             if (kind.Wind)
@@ -722,15 +739,46 @@ public partial class ScatterView : Node3D
         return height * (0.5f * amount + MathF.Sqrt(2f) * 0.35f * 0.05f + 0.08f * amount * amount);
     }
 
-    private static Material Foliage(BaseMaterial3D? source, ScatterKind kind, float height, bool thins, Dictionary<string, Texture2D> albedos)
+    internal Material Foliage(BaseMaterial3D? source, ScatterKind kind, float height, bool thins, Dictionary<string, Texture2D> albedos)
     {
         bool mineral = kind.Otherflora is { Vein: not null } or { Lichen: not null };
-        var material = new ShaderMaterial
+        Texture2D? coverage = null;
+        bool opaque = false;
+        if (source?.AlbedoTexture is { } albedo && albedo.GetImage() is { } image)
         {
-            Shader = mineral
-                ? _mineralShader ??= new Shader { Code = Otherworld.Variant(WindField.FoliageShader, mineral: true) }
-                : _foliageShader ??= new Shader { Code = Otherworld.Variant(WindField.FoliageShader) },
-        };
+            if (image.IsCompressed())
+                image.Decompress();
+            image.ClearMipmaps();
+            image.Convert(Image.Format.Rgba8);
+            opaque = image.DetectAlpha() == Image.AlphaMode.None
+                && source.GetMeta("otherreach_source_transparency", (int)source.Transparency).AsInt32() == (int)BaseMaterial3D.TransparencyEnum.Disabled
+                && System.Environment.GetEnvironmentVariable("UNNAMED_OPAQUE_FOLIAGE") != "0";
+            string key = Convert.ToHexString(System.Security.Cryptography.SHA1.HashData(image.GetData()));
+            if (!albedos.TryGetValue(key, out coverage))
+                albedos[key] = coverage = ImageTexture.CreateFromImage(ImageMips.Coverage(image, 0.4f));
+        }
+        // Fully opaque source maps pass every existing alpha test (including the coverage mips).
+        // Keep RGB, normals, wind and thinning; let depth/shadow passes omit the needless fragment alpha fetch.
+        bool otherworld = kind.Otherflora is not null && Otherworld.Strength > 0;
+        // Keep effect-bearing materials on the original arithmetic path. In particular,
+        // removing zero wind operations changes the active mineral pattern on this backend.
+        bool compileWind = kind.Wind || otherworld, compileThinning = thins || otherworld;
+        bool compileNormal = otherworld || source is { NormalEnabled: true, NormalTexture: not null };
+        bool compileArm = otherworld || source?.RoughnessTexture is not null;
+        var shaderKey = (mineral, opaque, otherworld, compileWind, compileThinning, compileNormal, compileArm);
+        if (!_plantShaders.TryGetValue(shaderKey, out var shader))
+        {
+            string code = opaque ? "#define OPAQUE_FOLIAGE\n" + WindField.FoliageShader : WindField.FoliageShader;
+            if (!compileWind) code = "#define STATIC_FOLIAGE\n" + code;
+            if (!compileThinning) code = "#define NO_FOLIAGE_THINNING\n" + code;
+            if (!compileNormal) code = "#define NO_FOLIAGE_NORMAL_MAP\n" + code;
+            if (!compileArm) code = "#define NO_FOLIAGE_ARM_MAP\n" + code;
+            _plantShaders[shaderKey] = shader = new Shader { Code = otherworld ? Otherworld.Variant(code, mineral: mineral) : code };
+        }
+        var material = new ShaderMaterial { Shader = shader };
+        if (coverage is not null) material.SetShaderParameter("albedo_tex", coverage);
+        if (opaque && OS.GetEnvironment("UNNAMED_LOAD_REPORT") == "1")
+            GD.Print($"UNNAMED scatter opaque pass: {kind.Name}");
         material.SetShaderParameter("plant_height", height);
         material.SetShaderParameter("stiffness", kind.Stiffness);
         // THE GROUND COVER'S EDGE IS A DENSITY, NOT A RING. A chunk's band ends all at once, so a kind used to stop in a hard
@@ -793,17 +841,6 @@ public partial class ScatterView : Node3D
                 material.SetShaderParameter("ow_lichen_on", 1f);
             }
         }
-        if (source?.AlbedoTexture is { } albedo && albedo.GetImage() is { } image)
-        {
-            if (image.IsCompressed())
-                image.Decompress();
-            image.ClearMipmaps();
-            image.Convert(Image.Format.Rgba8);
-            string key = Convert.ToHexString(System.Security.Cryptography.SHA1.HashData(image.GetData()));
-            if (!albedos.TryGetValue(key, out var coverage))
-                albedos[key] = coverage = ImageTexture.CreateFromImage(ImageMips.Coverage(image, 0.4f));
-            material.SetShaderParameter("albedo_tex", coverage);
-        }
         if (source is { NormalEnabled: true, NormalTexture: { } normal })
         {
             material.SetShaderParameter("normal_tex", normal);
@@ -818,8 +855,7 @@ public partial class ScatterView : Node3D
         return material;
     }
 
-    private static Shader? _foliageShader;
-    private static Shader? _mineralShader;
+    private readonly Dictionary<(bool Mineral, bool Opaque, bool Otherworld, bool Wind, bool Thins, bool Normal, bool Arm), Shader> _plantShaders = new();
 
     private static Mesh[] Meshes(ArtLibrary art, ScatterKind kind)
     {

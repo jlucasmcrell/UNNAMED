@@ -1,0 +1,47 @@
+# WP7 living-sky audit (2026-10-18)
+
+The simulation already publishes `Simulation.Weather`, `Simulation.Calendar` and
+`SimulationSetup.Clock/Calendar`. These are deterministic functions of the world
+seed, region and tick, including offline catch-up. No saved presentation state is
+needed.
+
+## Current connections
+
+- Main supplies the world-start hour and tick/day rate to SkyView. Sky3D's own clock
+  is disabled; the moving hour controls sun, air and night fill.
+- SkyView applies `weather_states.json` once at Ready, using only `--visual weather`
+  or fair. WP7 fronts never reach that call. Only clear/overcast/storm have authored
+  profiles; WP7 rain/fog/wind have none, and Fold remains reserved.
+- The default Sunshine compositor replaces Sky3D's flat clouds. Its coverage,
+  density and wind keep the resource/driver defaults, so changing Sky3D cumulus
+  coverage alone cannot change the clouds the player actually sees.
+- AtmosphereView filters particle recipes by weather/day/night while building.
+  Emitters excluded then cannot appear later. Followers subsequently check only
+  ground type, so included pollen and rain do not follow later day/weather changes.
+- Sky3D TimeOfDay keeps its default Gregorian date. The hour repeats the same sun
+  declination and first moon orbit every day. CelestialView's additional two moons
+  also repeat positions by hour, without calendar days.
+- The accepted daytime ring and nighttime galaxy/aurora already exist. Preserve
+  them, their source imagery and their visual language.
+- FoldscarRegister and FoldEcho already draw restrained doubling, delayed shadows,
+  activation and faint post-activation light from the real barrier/switch state.
+  They must continue following the moving sun. No source establishes a recurring
+  Hollow Day explosion, eclipse, Fold weather, or explanation for the Foldscar.
+
+## Required correction
+
+Read the current and preceding front from the simulation, blending by elapsed
+world ticks at the front boundary. Loading within that transition must reproduce
+the same blend without requiring a previous rendered frame. Apply absolute
+profiles against a captured environment baseline, avoiding compounded fog scales.
+Drive both cloud renderers and vegetation/particle wind. Build camera emitters
+once, then gate emission by the live weather, daylight, ground and exterior state.
+
+Map the continuous WP7 day (including Hollow Day) into the sun's seasonal cycle
+and moon phase/orbits. Keep numbered dates in the HUD and the existing three moon
+textures; any unestablished orbital periods are presentation tuning, not new lore.
+Do not add a mystery-solving cosmic event or make reserved Fold weather active.
+
+Proof needs same-place weather sequences, a day/night sequence, seasonal and moon
+comparisons, a save/reload mid-transition check, and a post-sky performance rerun.
+This audit is preparation only; it is not an implementation or acceptance claim.

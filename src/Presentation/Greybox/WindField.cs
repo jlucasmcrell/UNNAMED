@@ -81,7 +81,7 @@ render_mode cull_back, depth_draw_opaque;
 global uniform vec4 wind;
 global uniform float wind_gust;
 // ow_late is a breath-late sway: the gust that crosses the ground reaches this tree seconds after its neighbours (Old Late).
-uniform float ow_late = 0.0;
+instance uniform float ow_late = 0.0;
 #ifdef OTHERWORLD" + Otherworld.FieldGlsl + @"
 // Otherworld (Otherworld.Variant), at full strangeness: the leaves turn toward blue-green, the bark's shade toward violet.
 uniform float ow_hue = -40.0;
@@ -93,6 +93,8 @@ const float CYCLE = 6.28318530718 / 3600.0;
 uniform sampler2D albedo_tex : source_color, filter_linear_mipmap_anisotropic;
 uniform bool has_albedo = false;
 uniform vec4 albedo_colour : source_color = vec4(1.0);
+instance uniform vec4 tree_tint : source_color = vec4(1.0);
+uniform bool use_instance_tint = false;
 uniform sampler2D normal_tex : hint_normal, filter_linear_mipmap_anisotropic;
 uniform bool has_normal = false;
 uniform sampler2D roughness_tex : hint_default_white, filter_linear_mipmap_anisotropic;
@@ -100,8 +102,8 @@ uniform bool has_roughness = false;
 uniform float roughness_value = 0.9;
 uniform bool foliage = false;
 uniform float alpha_cut = 0.5;
-uniform float tree_height = 13.0;
-uniform float stiffness = 1.0;
+instance uniform float tree_height = 13.0;
+instance uniform float stiffness = 1.0;
 
 void vertex() {
     vec3 origin = (MODEL_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
@@ -130,7 +132,8 @@ void vertex() {
 
 void fragment() {
     vec4 a = has_albedo ? texture(albedo_tex, UV) : vec4(1.0);
-    ALBEDO = a.rgb * albedo_colour.rgb;
+    vec4 colour = albedo_colour * (use_instance_tint ? tree_tint : vec4(1.0));
+    ALBEDO = a.rgb * colour.rgb;
 #ifdef OTHERWORLD
     if (strange > 0.0) {
         float l = dot(ALBEDO, vec3(0.2126, 0.7152, 0.0722));
@@ -139,7 +142,7 @@ void fragment() {
     }
 #endif
     if (foliage) {
-        ALPHA = a.a * albedo_colour.a;
+        ALPHA = a.a * colour.a;
         ALPHA_SCISSOR_THRESHOLD = alpha_cut;
         // A LEAF TRANSMITS LIGHT, AND THE LEAVES THAT MOST NEED IT ARE THE ONES FACING AWAY. Measured: a birch crown
     // rendered at mean luma 92 against 145 as authored, while albedo, texture and per-instance tint all arrived
@@ -216,7 +219,9 @@ void vertex() {
     float tall = plant_height * sqrt(scale2);
     float h = clamp(COLOR.r, 0.0, 1.0);
     float phase = fract(sin(dot(origin.xz, vec2(12.9898, 78.233))) * 43758.5453);
+#ifndef STATIC_FOLIAGE
     float wind_time = TIME;   // see TreeShader: the motion vectors need TIME
+#endif
 #ifdef OTHERWORLD
     // The place's strangeness (ScatterView puts it in the custom data's alpha), each plant its own share of it, so a stand is not
     // wrong all at once.
@@ -225,8 +230,11 @@ void vertex() {
     ow_place = VERTEX * sqrt(scale2) + origin * 0.37;
 #endif
     // A breath late: up to 1.6 s behind the gust its neighbours answer.
+#ifndef STATIC_FOLIAGE
     wind_time -= ow_late * strange * 1.6;
 #endif
+#endif
+#ifndef STATIC_FOLIAGE
     float gust = 0.5 + 0.5 * sin(wind_time * 212.0 * CYCLE - dot(origin.xz, wind.xz) * 0.045);
     float sway = sin(wind_time * 917.0 * CYCLE + phase * 6.2832) * 0.65 + sin(wind_time * 1776.0 * CYCLE + phase * 11.0 + COLOR.g * 3.0) * 0.35;
     float amount = wind.w * mix(1.0, 0.35 + 1.3 * gust, wind_gust) * h * h / max(stiffness, 0.05);
@@ -236,12 +244,15 @@ void vertex() {
     // The bend is in the world; the plant is turned and uniformly scaled: carry it back into the model's space.
     VERTEX += transpose(basis) * bend / scale2;
     VERTEX.y -= amount * amount * 0.08 * plant_height;
+#endif
+#ifndef NO_FOLIAGE_THINNING
     if (thin_to > 0.0) {
         float keep = 1.0 - smoothstep(thin_from, thin_to, distance(origin, CAMERA_POSITION_WORLD));
         if (fract(sin(dot(origin.xz, vec2(41.37, 17.91))) * 23421.631) >= keep) {
             VERTEX = vec3(0.0);   // every vertex on the origin: the plant draws nothing
         }
     }
+#endif
 }
 
 void fragment() {
@@ -274,8 +285,11 @@ void fragment() {
     }
 #endif
     ALBEDO = colour;
+#ifndef OPAQUE_FOLIAGE
     ALPHA = a.a;
     ALPHA_SCISSOR_THRESHOLD = alpha_cut;
+#endif
+#ifndef NO_FOLIAGE_ARM_MAP
     if (has_arm) {
         vec3 arm = texture(arm_tex, UV).rgb;
         // NO AO FROM THE FILE. ArtLibrary refuses to draw a model's baked occlusion - the generated and scanned
@@ -286,7 +300,9 @@ void fragment() {
         // 54.3 when these clumps replaced cards. The renderer's own occlusion does contact shading instead.
         AO = 1.0;
         ROUGHNESS = arm.g;
-    } else {
+    } else
+#endif
+    {
         ROUGHNESS = roughness_value;
     }
     SPECULAR = 0.3;
@@ -305,9 +321,11 @@ void fragment() {
 #endif
     }
 #endif
+#ifndef NO_FOLIAGE_NORMAL_MAP
     if (has_normal) {
         NORMAL_MAP = texture(normal_tex, UV).rgb;
     }
+#endif
     if (upright_normals && !FRONT_FACING) {
         NORMAL = -NORMAL;
     }

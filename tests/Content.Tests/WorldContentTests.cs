@@ -13,6 +13,25 @@ public class WorldContentTests
         return loader;
     }
 
+    [Fact]
+    public void DisplayNames_MatchTheSourceAndFollowSourceEdits()
+    {
+        var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
+        var yaml = new YamlDotNet.Serialization.DeserializerBuilder().Build();
+        var expected = loader.Definitions.Values
+            .Select(d => (d.Id, Name: yaml.Deserialize<Dictionary<object, object>>(d.YamlSource!).GetValueOrDefault("name") as string))
+            .Where(d => !string.IsNullOrWhiteSpace(d.Name)).ToDictionary(d => d.Id, d => d.Name!);
+        Assert.Equal(expected.OrderBy(p => p.Key), WorldContent.DisplayNames(loader).OrderBy(p => p.Key));
+
+        var changed = loader.Definitions.Values.First(d => expected.ContainsKey(d.Id));
+        changed.YamlSource = "name: 'Changed name'\nnested: {name: 'Not the display name'}\n";
+        Assert.Equal("Changed name", WorldContent.DisplayNames(loader)[changed.Id]);
+        changed.YamlSource = "name: null\n";
+        Assert.DoesNotContain(changed.Id, WorldContent.DisplayNames(loader).Keys);
+        changed.YamlSource = "nested: {name: 'Not the display name'}\n";
+        Assert.DoesNotContain(changed.Id, WorldContent.DisplayNames(loader).Keys);
+    }
+
     /// <summary>A copy of the game's content with one file edited, in a directory removed afterwards.</summary>
     private sealed class EditedContent : IDisposable
     {

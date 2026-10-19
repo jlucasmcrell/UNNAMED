@@ -228,24 +228,37 @@ void fragment() {
                 if (mesh.GetActiveMaterial(s) is not BaseMaterial3D own)
                     continue;
                 bool foliage = own.Transparency is BaseMaterial3D.TransparencyEnum.AlphaScissor or BaseMaterial3D.TransparencyEnum.AlphaHash;
-                var shader = foliage
-                    ? _leafShader ??= new Shader { Code = Otherworld.Variant(WindField.TreeShader.Replace("cull_back", "cull_disabled")) }
-                    : _treeShader ??= new Shader { Code = Otherworld.Variant(WindField.TreeShader) };
-                var tree = new ShaderMaterial { Shader = shader };
-                tree.SetShaderParameter("albedo_tex", own.AlbedoTexture);
-                tree.SetShaderParameter("has_albedo", own.AlbedoTexture is not null);
-                tree.SetShaderParameter("albedo_colour", own.AlbedoColor * tint);
-                tree.SetShaderParameter("normal_tex", own.NormalTexture);
-                tree.SetShaderParameter("has_normal", own is { NormalEnabled: true, NormalTexture: not null });
-                tree.SetShaderParameter("roughness_tex", own.RoughnessTexture);
-                tree.SetShaderParameter("has_roughness", own.RoughnessTexture is not null);
-                tree.SetShaderParameter("roughness_value", own.Roughness);
-                tree.SetShaderParameter("foliage", foliage);
-                tree.SetShaderParameter("alpha_cut", own.AlphaScissorThreshold);
-                tree.SetShaderParameter("tree_height", height);
-                tree.SetShaderParameter("stiffness", stiffness);
+                // White source factors can move their exact tint to instance data without changing
+                // source_color conversion. Keep the original product for non-white source factors.
+                bool shared = own.AlbedoColor == Colors.White
+                    && System.Environment.GetEnvironmentVariable("UNNAMED_TREE_MATERIALS") != "0";
+                var tree = shared && own.HasMeta("otherreach_wind_white_material")
+                    ? own.GetMeta("otherreach_wind_white_material").AsGodotObject() as ShaderMaterial : null;
+                if (tree is null)
+                {
+                    var shader = foliage
+                        ? _leafShader ??= new Shader { Code = Otherworld.Variant(WindField.TreeShader.Replace("cull_back", "cull_disabled")) }
+                        : _treeShader ??= new Shader { Code = Otherworld.Variant(WindField.TreeShader) };
+                    tree = new ShaderMaterial { Shader = shader };
+                    tree.SetShaderParameter("albedo_tex", own.AlbedoTexture);
+                    tree.SetShaderParameter("has_albedo", own.AlbedoTexture is not null);
+                    tree.SetShaderParameter("albedo_colour", shared ? Colors.White : own.AlbedoColor * tint);
+                    tree.SetShaderParameter("use_instance_tint", shared);
+                    tree.SetShaderParameter("normal_tex", own.NormalTexture);
+                    tree.SetShaderParameter("has_normal", own is { NormalEnabled: true, NormalTexture: not null });
+                    tree.SetShaderParameter("roughness_tex", own.RoughnessTexture);
+                    tree.SetShaderParameter("has_roughness", own.RoughnessTexture is not null);
+                    tree.SetShaderParameter("roughness_value", own.Roughness);
+                    tree.SetShaderParameter("foliage", foliage);
+                    tree.SetShaderParameter("alpha_cut", own.AlphaScissorThreshold);
+                    if (shared) own.SetMeta("otherreach_wind_white_material", tree);
+                }
                 mesh.SetSurfaceOverrideMaterial(s, tree);
             }
+            mesh.SetInstanceShaderParameter("tree_tint", tint);
+            mesh.SetInstanceShaderParameter("tree_height", height);
+            mesh.SetInstanceShaderParameter("stiffness", stiffness);
+            mesh.SetInstanceShaderParameter("ow_late", 0f);
         }
     }
 
@@ -254,8 +267,7 @@ void fragment() {
     {
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
         {
-            for (int s = 0; s < mesh.GetSurfaceOverrideMaterialCount(); s++)
-                (mesh.GetSurfaceOverrideMaterial(s) as ShaderMaterial)?.SetShaderParameter("ow_late", seconds);
+            mesh.SetInstanceShaderParameter("ow_late", seconds);
         }
     }
 

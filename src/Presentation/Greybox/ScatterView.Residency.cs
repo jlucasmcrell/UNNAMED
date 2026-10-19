@@ -4,6 +4,7 @@ namespace UNNAMED.Presentation.Greybox;
 
 public partial class ScatterView
 {
+
     // Explicit experiment only. The default remains the existing whole-region renderer.
     private bool _residentMode = System.Environment.GetEnvironmentVariable("UNNAMED_SCATTER_RESIDENCY") == "1";
     private sealed record ResidentGrid(float[] X, float[] Z, float Chunk, float Reach);
@@ -45,8 +46,9 @@ public partial class ScatterView
 
     public override void _Process(double delta)
     {
-        if (!_residentMode || _builtFor is not { } seed || GetViewport().GetCamera3D() is not { } camera)
+        if (_builtFor is not { } seed || GetViewport().GetCamera3D() is not { } camera)
             return;
+        if (!_residentMode) return;
         var focus = new Vector2(camera.GlobalPosition.X, camera.GlobalPosition.Z);
         if (_plannedFocus is null || focus.DistanceSquaredTo(_plannedFocus.Value) >= 16)
             PlanResidents(focus);

@@ -21,6 +21,8 @@ public class ContentLoader
         RegexOptions.Compiled);
     
     private readonly Dictionary<string, ContentEnvelope> _definitions = new Dictionary<string, ContentEnvelope>();
+    // Derived headers belong to this load, not a global cache or the envelope's record equality.
+    internal Dictionary<string, (string? Source, string? Name)> NameHeaders { get; } = new(StringComparer.Ordinal);
     private readonly List<ValidationError> _errors = new List<ValidationError>();
     private readonly DuplicateIdTracker _duplicateIdTracker = new DuplicateIdTracker();
     private readonly CrossReferenceValidator _crossReferenceValidator = new CrossReferenceValidator();

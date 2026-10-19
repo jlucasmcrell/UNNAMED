@@ -79,6 +79,7 @@ global uniform vec4 otherworld_calm;
 global uniform vec4 otherworld_fold;
 global uniform vec4 otherworld_mix;
 float otherworld_at(vec3 p) {
+    if (otherworld_mix.x == 0.0) return 0.0;
     float calm = min(distance(p.xz, otherworld_calm.xy), distance(p.xz, otherworld_calm.zw));
     float open = mix(otherworld_mix.z, otherworld_mix.w, smoothstep(45.0, 170.0, calm));
     float fold = 1.0 - smoothstep(otherworld_fold.z, otherworld_fold.w, distance(p.xz, otherworld_fold.xy));
