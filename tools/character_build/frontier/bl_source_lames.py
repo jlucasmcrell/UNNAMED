@@ -11,6 +11,8 @@ import bpy
 import bmesh
 from mathutils import Vector, Matrix
 from mathutils.bvhtree import BVHTree
+sys.path.insert(0,str(Path(__file__).parent))
+from native_clothing import round_hood_crown
 
 root = Path(r'D:\Otherreach_Scratch\frontier_native_20261018')
 args = sys.argv[sys.argv.index('--') + 1:]
@@ -18,16 +20,16 @@ piece = args[0]
 assert piece in ('lamework_jack', 'lame_sabatons','lame_coif')
 backing = {'lamework_jack':'vest','lame_sabatons':'boots','lame_coif':'standing_cap'}[piece]
 backing_asset = 'frontier_standing_cap' if piece=='lame_coif' else 'frontier_sealed_' + backing
-assert os.environ.get('OTHERREACH_CLOTHING_BODY','veth_f')=='veth_f', 'Author sources once on feminine Average'
-fit = native = 'veth_f'
-output = root / os.environ.get('OTHERREACH_SOURCE_SET','sources/fits') / 'veth_f'
+fit = native = os.environ.get('OTHERREACH_SOURCE_BODY','veth_f')
+assert fit in ('veth_f','veth_m'), 'Author once per Average body family'
+output = root / os.environ.get('OTHERREACH_SOURCE_SET','sources/fits') / fit
 source = output / backing / (backing_asset + '_native.glb')
 before = hashlib.sha256(source.read_bytes()).hexdigest()
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=str(source))
 arm = next(o for o in bpy.data.objects if o.type == 'ARMATURE')
 cloth = bpy.data.objects[backing_asset]
-bpy.ops.import_scene.gltf(filepath=str(root / 'approved_clothing_sources' / 'veth_f.glb'))
+bpy.ops.import_scene.gltf(filepath=str(root / 'approved_clothing_sources' / (fit+'.glb')))
 body = bpy.data.objects['native_' + native + ('_head' if piece=='lame_coif' else '_body')]
 body_bvh = BVHTree.FromPolygons([body.matrix_world @ v.co for v in body.data.vertices],
                                 [tuple(p.vertices) for p in body.data.polygons])
@@ -40,8 +42,7 @@ if piece == 'lame_coif':
     pattern.data.transform(pattern.matrix_world);pattern.matrix_world=Matrix.Identity(4)
     for vertex in pattern.data.vertices:
         point=vertex.co.copy();vertex.co=Vector((point.x*.122,point.y*.104+.002,point.z*.105+.731))
-        t=max(0,min(1,(vertex.co.y-.025)/.10))*max(0,min(1,(vertex.co.z-1.55)/.085))
-        vertex.co.y+=.065*t;vertex.co.z-=.105*t
+    round_hood_crown(pattern,body)
     pattern.data.update()
     bpy.context.view_layer.objects.active=pattern
     clearance=pattern.modifiers.new('Outer pattern stand-off','DISPLACE')
@@ -75,14 +76,14 @@ panels = []
 specs = []
 if piece in ('lamework_jack','lame_coif'):
     torso_top=(arm.matrix_world @ arm.data.bones['upperarm_l'].head_local).z-.055
-    width=.04 if piece=='lame_coif' else .05
-    for x in range(math.floor(min(p.x for p in positions) / width), math.ceil(max(p.x for p in positions) / width)):
-        for z in range(math.floor(min(p.z for p in positions) / .03), math.ceil(max(p.z for p in positions) / .03)):
-            if piece=='lamework_jack' and (z+1)*.03>torso_top:
-                continue  # Leather shoulder bridges carry the jack; no plates spanning the armholes.
-            if piece=='lame_coif' and z*.03<1.46:continue
-            specs.append((x * width + .001, (x + 1) * width - .001,
-                          z * .03 + .001, (z + 1) * .03 - .001, 0))
+    # Overlapping curved horizontal lames; square convex tiles looked quilted.
+    xmin=min(p.x for p in positions)-.001;xmax=max(p.x for p in positions)+.001
+    step=.025 if piece=='lame_coif' else .035
+    for row in range(math.floor(min(p.z for p in positions)/step),math.ceil(max(p.z for p in positions)/step)):
+        zmin=row*step;zmax=zmin+step+.005
+        if piece=='lamework_jack' and zmax>torso_top:continue
+        if piece=='lame_coif' and zmin<1.46:continue
+        specs.append((xmin,xmax,zmin,zmax,0))
 else:
     for side, sign in (('l', 1), ('r', -1)):
         foot = arm.matrix_world @ arm.data.bones['foot_' + side].head_local
@@ -113,22 +114,6 @@ for number, spec in enumerate(specs):
         edit.free()
         continue
     bmesh.ops.delete(edit, geom=[v for v in edit.verts if not v.link_faces], context='VERTS')
-    if piece == 'lame_coif':
-        # Form each disconnected tile separately, never across the face opening.
-        remaining=set(edit.verts);components=[]
-        while remaining:
-            todo=[remaining.pop()];component=set(todo)
-            while todo:
-                vertex=todo.pop()
-                for edge in vertex.link_edges:
-                    neighbour=edge.other_vert(vertex)
-                    if neighbour in remaining:
-                        remaining.remove(neighbour);component.add(neighbour);todo.append(neighbour)
-            components.append(component)
-        bmesh.ops.delete(edit,geom=list(edit.faces),context='FACES_ONLY')
-        for component in components:
-            bmesh.ops.convex_hull(edit,input=list(component),use_existing_faces=False)
-        bmesh.ops.delete(edit,geom=[v for v in edit.verts if not v.link_faces],context='VERTS')
     center = sum((v.co for v in edit.verts), Vector()) / len(edit.verts)
     if piece == 'lamework_jack':
         bone = min(('spine_01', 'spine_02', 'spine_03', 'spine_04', 'spine_05'),
@@ -149,7 +134,13 @@ for number, spec in enumerate(specs):
         density = obj.modifiers.new('Rigid plate surface density', 'DECIMATE')
         density.ratio = max(.2, 20 / len(obj.data.vertices))
         bpy.ops.object.modifier_apply(modifier=density.name)
-    if piece != 'lame_coif':
+    if piece == 'lame_coif':
+        # Shingle the lower lames over the upper ones. Coplanar overlapping
+        # strips hide the plate edges and can flicker like a texture grid.
+        lap = obj.modifiers.new('Physical lame overlap', 'DISPLACE')
+        lap.strength = (len(specs)-number)*.0015;lap.mid_level = 0
+        bpy.ops.object.modifier_apply(modifier=lap.name)
+    else:
         clearance = obj.modifiers.new('Backing clearance', 'DISPLACE')
         clearance.strength = 0 if piece=='lame_coif' else .0035
         clearance.mid_level = 0
@@ -221,7 +212,7 @@ bpy.ops.export_scene.gltf(filepath=str(out / (obj.name + '_native.glb')), export
 bpy.ops.wm.save_as_mainfile(filepath=str(out / (obj.name + '.blend')))
 assert hashlib.sha256(source.read_bytes()).hexdigest() == before
 (out / 'source.json').write_text(json.dumps({'backing': str(source), 'sha256': before, 'lames': len(panels),
-    'rigid_weights': True, 'body_edits': False, 'nominal_backing_clearance_m': .012 if piece=='lame_coif' else .0035,
-    **({'outer_pattern':str(pattern_source),'outer_pattern_sha256':hashlib.sha256(pattern_source.read_bytes()).hexdigest(),'forming':'native connected plate hulls from the hood outer pattern'} if piece=='lame_coif' else {}),
+    'rigid_weights': True, 'body_edits': False, 'authoring_fit':fit,'nominal_backing_clearance_m': .012 if piece=='lame_coif' else .0035,
+    **({'outer_pattern':str(pattern_source),'outer_pattern_sha256':hashlib.sha256(pattern_source.read_bytes()).hexdigest(),'forming':'overlapping horizontal lames retaining the hood outer contour'} if piece=='lame_coif' else {}),
     'status': 'UNACCEPTED: inter-layer clearance, animation, all-body fit, art and LOD gates pending'}, indent=2))
 print('NATIVE_LAME_SOURCE', piece, len(panels), len(obj.data.vertices))

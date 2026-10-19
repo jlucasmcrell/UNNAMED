@@ -12,18 +12,29 @@ bases={'base_shirt':'frontier_linen_shirt','trousers':'frontier_wool_trousers','
  'lame_coif':'frontier_lame_coif','lamework_jack':'frontier_lamework_jack','lame_sabatons':'frontier_lame_sabatons',
  'cloak':'frontier_wool_cloak'}
 for part in parts:
-    base=bases[part];source=root/'sources/fits/veth_f'/part/(base+'_native.glb')
+    base=bases[part]
+    if fit=='veth_m' and part in ('base_shirt','trousers','vest','lamework_jack'):
+        source=root/'sources/fits/veth_m'/part/(base+'_native.glb')
+        assert source.exists(), f'Author the masculine Average {part} source first'
+        assert json.loads((source.parent/'source.json').read_text(encoding='utf-8'))['authoring_fit']=='veth_m', 'Do not reuse a feminine-volume transfer as a masculine source'
+        print('RETAINED_MASCULINE_SOURCE',part,flush=True)
+        continue
+    source_fit='veth_m' if fit=='veth_m_lean' else 'veth_f'
+    source=root/'sources/fits'/source_fit/part/(base+'_native.glb')
     digest=hashlib.sha256(source.read_bytes()).hexdigest()
     bpy.ops.wm.read_factory_settings(use_empty=True)
-    bpy.ops.import_scene.gltf(filepath=str(root/'approved_clothing_sources/veth_f.glb'))
-    cage=approved_surface('veth_f');cage.name='Native wrap reference cage'
+    bpy.ops.import_scene.gltf(filepath=str(root/'approved_clothing_sources'/(source_fit+'.glb')))
+    # The structured jerkin needs local surface correspondence; a convex volume
+    # retains the source chest silhouette. Include the native clothing reference.
+    surface_wrap=part in ('base_shirt','trousers','vest') and fit.endswith('_lean')
+    cage=approved_surface(source_fit, include_outfit=surface_wrap);cage.name='Native wrap reference cage'
     cage.shape_key_clear()
     for mod in list(cage.modifiers):cage.modifiers.remove(mod)
     cage.data.transform(cage.matrix_world);cage.matrix_world=Matrix.Identity(4)
     old=set(bpy.data.objects)
     bpy.ops.import_scene.gltf(filepath=str(root/'approved_clothing_sources'/(fit+'.glb')))
     target_arm=next(o for o in set(bpy.data.objects)-old if o.type=='ARMATURE')
-    target=approved_surface(fit);target.shape_key_clear()
+    target=approved_surface(fit, include_outfit=surface_wrap);target.shape_key_clear()
     for mod in list(target.modifiers):target.modifiers.remove(mod)
     target.data.transform(target.matrix_world);target.matrix_world=Matrix.Identity(4)
     assert len(cage.data.vertices)==len(target.data.vertices),f'{fit}: native cage topology differs'
@@ -37,12 +48,15 @@ for part in parts:
             for loop in obj.data.loops:
                 point=obj.data.uv_layers[0].data[loop.index].uv
                 uv[loop.vertex_index].add((round(point.x,5),round(point.y,5)))
+            materials=[set() for _ in obj.data.vertices]
+            for polygon in obj.data.polygons:
+                for index in polygon.vertices:materials[index].add(polygon.material_index)
             neighbours=[set() for _ in obj.data.vertices]
             for edge in obj.data.edges:
                 a,b=edge.vertices
                 neighbours[a].update(uv[b]);neighbours[b].update(uv[a])
-            return [(i>=body_count,tuple(sorted(value)),tuple(sorted(neighbours[i]))) for i,value in enumerate(uv)]
-        source_keys=uv_keys(cage,len(bpy.data.objects['native_veth_f_body'].data.vertices))
+            return [(i>=body_count,tuple(sorted(value)),tuple(sorted(neighbours[i])),tuple(sorted(materials[i]))) for i,value in enumerate(uv)]
+        source_keys=uv_keys(cage,len(bpy.data.objects['native_'+source_fit+'_body'].data.vertices))
         target_keys=uv_keys(target,len(bpy.data.objects['native_'+fit+'_body'].data.vertices))
         lookup={}
         for key,vertex in zip(target_keys,target.data.vertices):lookup.setdefault(key,[]).append(vertex.co.copy())
@@ -56,15 +70,16 @@ for part in parts:
         target_positions=aligned
         print('RESTORED_NATIVE_UV_VERTEX_ORDER',fit,flush=True)
     # Native closed volumetric wrap cage; approved source/target avatars stay read-only.
-    edit=bmesh.new();index_layer=edit.verts.layers.int.new('native_vertex')
-    for vertex in cage.data.vertices:
-        point=edit.verts.new(vertex.co);point[index_layer]=vertex.index
-    bmesh.ops.convex_hull(edit,input=list(edit.verts),use_existing_faces=False)
-    bmesh.ops.delete(edit,geom=[v for v in edit.verts if not v.link_faces],context='VERTS')
-    edit.verts.index_update()
-    target_positions=[target_positions[v[index_layer]].copy() for v in edit.verts]
-    edit.to_mesh(cage.data);edit.free();cage.data.update()
-    padding=cage.modifiers.new('Wrap cage clearance','DISPLACE');padding.strength=.2;padding.mid_level=0
+    if not surface_wrap:
+        edit=bmesh.new();index_layer=edit.verts.layers.int.new('native_vertex')
+        for vertex in cage.data.vertices:
+            point=edit.verts.new(vertex.co);point[index_layer]=vertex.index
+        bmesh.ops.convex_hull(edit,input=list(edit.verts),use_existing_faces=False)
+        bmesh.ops.delete(edit,geom=[v for v in edit.verts if not v.link_faces],context='VERTS')
+        edit.verts.index_update()
+        target_positions=[target_positions[v[index_layer]].copy() for v in edit.verts]
+        edit.to_mesh(cage.data);edit.free();cage.data.update()
+        padding=cage.modifiers.new('Wrap cage clearance','DISPLACE');padding.strength=.2;padding.mid_level=0
     old=set(bpy.data.objects);bpy.ops.import_scene.gltf(filepath=str(source))
     garment=next(o for o in set(bpy.data.objects)-old if o.type=='MESH' and o.name==base)
     source_arm=next(o for o in set(bpy.data.objects)-old if o.type=='ARMATURE')
@@ -74,9 +89,13 @@ for part in parts:
     garment.shape_key_clear()
     for mod in list(garment.modifiers):garment.modifiers.remove(mod)
     bpy.ops.object.select_all(action='DESELECT');garment.select_set(True);bpy.context.view_layer.objects.active=garment
-    wrap=garment.modifiers.new('Native volumetric body wrap','MESH_DEFORM');wrap.object=cage;wrap.precision=5
-    bpy.ops.object.meshdeform_bind(modifier=wrap.name)
-    if not wrap.is_bound:raise RuntimeError('Native Mesh Deform wrap failed to bind')
+    if surface_wrap:
+        wrap=garment.modifiers.new('Native clothing surface wrap','SURFACE_DEFORM');wrap.target=cage
+        bpy.ops.object.surfacedeform_bind(modifier=wrap.name)
+    else:
+        wrap=garment.modifiers.new('Native volumetric body wrap','MESH_DEFORM');wrap.object=cage;wrap.precision=5
+        bpy.ops.object.meshdeform_bind(modifier=wrap.name)
+    if not wrap.is_bound:raise RuntimeError('Native garment wrap failed to bind')
     for vertex,point in zip(cage.data.vertices,target_positions):vertex.co=point
     cage.data.update();bpy.context.view_layer.update()
     bpy.ops.object.modifier_apply(modifier=wrap.name)
@@ -157,7 +176,7 @@ for part in parts:
         export_skins=True,export_def_bones=False,export_influence_nb=8,export_animations=False)
     bpy.ops.wm.save_as_mainfile(filepath=str(out/(base+'.blend')))
     assert hashlib.sha256(source.read_bytes()).hexdigest()==digest
-    (out/'source.json').write_text(json.dumps({'source':str(source),'sha256':digest,'authored_on':'veth_f',
-        'target':fit,'shape_transfer':'Blender Mesh Deform volumetric wrap','skin_transfer':'Blender Data Transfer',
+    (out/'source.json').write_text(json.dumps({'source':str(source),'sha256':digest,'authored_on':source_fit,
+        'target':fit,'shape_transfer':'Blender Surface Deform' if surface_wrap else 'Blender Mesh Deform volumetric wrap','skin_transfer':'Blender Data Transfer',
         'body_edits':False,'acceptance':'PENDING visible turnaround/run review'},indent=2))
     print('AUTO_TRANSFERRED',part,fit,flush=True)

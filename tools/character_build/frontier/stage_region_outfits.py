@@ -9,7 +9,7 @@ fits=sys.argv[1:] or ['mh_veth_f']
 for fit in fits:
     def garment(name):return 'frontier_'+name+'__'+fit
     names=['linen_set','linen_trousers_set','vest_set','vest_trousers_set','jack_set','jack_trousers_set',
-           'cap_coif_set','boots_sabatons_set','jack_item','standing_cap','sealed_boots','smith_gloves','wool_cloak']
+           'cap_coif_set','boots_sabatons_set','jack_item','standing_cap','sealed_boots','smith_gloves']
     for name in names:
         aid=garment(name);shutil.copytree(source/'rigged'/aid,primary/'rigged'/aid,dirs_exist_ok=True)
     maps={}
@@ -17,12 +17,14 @@ for fit in fits:
         for legs in ('','item.armor.wool_trousers'):
             maps[f'set:{chest}|{legs}']=[garment(label+('_trousers' if legs else '')+'_set')]
     for item,mesh in [('hide_cap','standing_cap'),('lame_coif','cap_coif_set'),('hide_boots','sealed_boots'),
-                      ('lame_sabatons','boots_sabatons_set'),('smith_gloves','smith_gloves'),('cloak','wool_cloak')]:
+                      ('lame_sabatons','boots_sabatons_set'),('smith_gloves','smith_gloves')]:
         maps['item.armor.'+item]=[garment(mesh)]
+    # Owner's early review10: remove the slab mantle from playtest visuals.
+    maps['item.armor.cloak']=[]
     for variant,bodyset,head,feet in [('frontier','vest_trousers_set','standing_cap','sealed_boots'),
                                      ('armour','jack_trousers_set','cap_coif_set','boots_sabatons_set'),
                                      ('base','linen_set',None,None)]:
-        outfit=[garment(bodyset)]+([garment(head),garment(feet),garment('smith_gloves'),garment('wool_cloak')] if head else [])
+        outfit=[garment(bodyset)]+([garment(head),garment(feet),garment('smith_gloves')] if head else [])
         look={'model':fit,'outfit':outfit,'equipment_outfits':maps}
         options={key:{'player':look} for key in ('player=metahuman_m','player=metahuman_f')}
         (candidate/f'bindings_{fit}_{variant}.json').write_text(json.dumps({'people_by_visual_option':options},indent=2))

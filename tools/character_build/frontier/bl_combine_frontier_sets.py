@@ -85,7 +85,10 @@ sets.extend([('frontier_cap_coif_set',['cap','coif'],['hair']),
              ('frontier_jack_item',['vest','jack'],[])])
 out=root/'combined_sources'/fit;out.mkdir(parents=True,exist_ok=True)
 reports=[]
+aliases={'base_shirt':'linen','standing_cap':'cap','lame_coif':'coif','lamework_jack':'jack','lame_sabatons':'sabatons'}
+changed={aliases.get(part,part) for part in json.loads(os.environ.get('OTHERREACH_COMBINE_PARTS','[]'))}
 for base,keys,hidden in sets:
+    if changed and not changed.intersection(keys):continue
     objects={key:copy_part(key) for key in keys}
     if 'trousers' in objects and 'linen' in objects:
         tuck_waist(objects['linen'],objects['trousers'])
@@ -133,6 +136,10 @@ for base,keys,hidden in sets:
     (out/(base+'.json')).write_text(json.dumps({'hide_regions':hidden,'source_parts':keys,'construction':'One stitched surface and native waist seam; one combined skinned outfit mesh with4LODs'},indent=2))
     reports.append({'set':base,'parts':keys,'hide_regions':hidden,'vertices':len(combined.data.vertices)})
     for obj in [combined,*lods]:obj.hide_set(True)
-bpy.ops.wm.save_as_mainfile(filepath=str(out/'frontier_combined_sets.blend'))
-(out/'sources.json').write_text(json.dumps({'body':body_id,'source_hashes':source_hashes,'sets':reports},indent=2))
-print('COMBINED_FRONTIER_SETS',fit,len(sets))
+blend='frontier_combined_sets' if not changed else 'frontier_combined_'+'_'.join(sorted(changed))
+bpy.ops.wm.save_as_mainfile(filepath=str(out/(blend+'.blend')))
+previous=json.loads((out/'sources.json').read_text())['sets'] if (out/'sources.json').exists() else []
+records={row['set']:row for row in previous}
+records.update({row['set']:row for row in reports})
+(out/'sources.json').write_text(json.dumps({'body':body_id,'source_hashes':source_hashes,'sets':list(records.values())},indent=2))
+print('COMBINED_FRONTIER_SETS',fit,len(reports))

@@ -2889,7 +2889,7 @@
           1
         ]
       },
-      "note": "Approved native MetaHuman body; garments authored once on feminine Average and transferred with native wrap and skin weights. Body shapes and the accepted run are unchanged.",
+      "note": "Approved native MetaHuman body; structured garments authored once per masculine/feminine Average family and transferred within that family with native wrap and skin weights. Body shapes and the accepted run are unchanged.",
       "outfit": [
         "frontier_linen_set__mh_veth_m"
       ],
@@ -2927,9 +2927,7 @@
         "item.armor.smith_gloves": [
           "frontier_smith_gloves__mh_veth_m"
         ],
-        "item.armor.cloak": [
-          "frontier_wool_cloak__mh_veth_m"
-        ]
+        "item.armor.cloak": []
       },
       "clips": {
         "idle": "player.mh.idle",
@@ -3008,7 +3006,7 @@
             1
           ]
         },
-        "note": "Approved native MetaHuman body; garments authored once on feminine Average and transferred with native wrap and skin weights. Body shapes and the accepted run are unchanged.",
+        "note": "Approved native MetaHuman body; structured garments authored once per masculine/feminine Average family and transferred within that family with native wrap and skin weights. Body shapes and the accepted run are unchanged.",
         "outfit": [
           "frontier_linen_set__mh_veth_m"
         ],
@@ -3046,9 +3044,7 @@
           "item.armor.smith_gloves": [
             "frontier_smith_gloves__mh_veth_m"
           ],
-          "item.armor.cloak": [
-            "frontier_wool_cloak__mh_veth_m"
-          ]
+          "item.armor.cloak": []
         }
       }
     },
@@ -3091,7 +3087,7 @@
             1
           ]
         },
-        "note": "Approved native MetaHuman body; garments authored once on feminine Average and transferred with native wrap and skin weights. Body shapes and the accepted run are unchanged.",
+        "note": "Approved native MetaHuman body; structured garments authored once per masculine/feminine Average family and transferred within that family with native wrap and skin weights. Body shapes and the accepted run are unchanged.",
         "outfit": [
           "frontier_linen_set__mh_veth_m"
         ],
@@ -3129,9 +3125,7 @@
           "item.armor.smith_gloves": [
             "frontier_smith_gloves__mh_veth_m"
           ],
-          "item.armor.cloak": [
-            "frontier_wool_cloak__mh_veth_m"
-          ]
+          "item.armor.cloak": []
         }
       }
     },
@@ -3174,7 +3168,7 @@
             1
           ]
         },
-        "note": "Approved native MetaHuman body; garments authored once on feminine Average and transferred with native wrap and skin weights. Body shapes and the accepted run are unchanged.",
+        "note": "Approved native MetaHuman body; structured garments authored once per masculine/feminine Average family and transferred within that family with native wrap and skin weights. Body shapes and the accepted run are unchanged.",
         "outfit": [
           "frontier_linen_set__mh_veth_f"
         ],
@@ -3212,9 +3206,7 @@
           "item.armor.smith_gloves": [
             "frontier_smith_gloves__mh_veth_f"
           ],
-          "item.armor.cloak": [
-            "frontier_wool_cloak__mh_veth_f"
-          ]
+          "item.armor.cloak": []
         }
       }
     }

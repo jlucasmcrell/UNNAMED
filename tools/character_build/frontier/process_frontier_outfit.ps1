@@ -3,7 +3,7 @@ param(
     [switch]$NoRender,
     [string]$Tag='standard5',
     [string]$Candidate='region_candidate5',
-    [string[]]$Fits=@('veth_f','veth_m_lean','veth_m','veth_f_lean')
+    [string[]]$Fits=@('veth_f','veth_m','veth_f_lean','veth_m_lean')
 )
 $ErrorActionPreference='Stop'
 $root='D:\Otherreach_Scratch\frontier_native_20261018'
@@ -25,6 +25,7 @@ foreach($fit in $Fits) {
     if($LASTEXITCODE -ne 0){throw "Source staging failed:$fit"}
     # Loose gloves/mantle are not inputs to the combined torso/head/foot sets.
     if(@($Parts | Where-Object { $_ -notin @('gloves','cloak') }).Count -gt 0 -or !(Test-Path "$root\combined_sources\$fit\frontier_linen_trousers_set_native.glb")) {
+    $env:OTHERREACH_COMBINE_PARTS=if(Test-Path "$root\combined_sources\$fit\frontier_linen_trousers_set_native.glb") { ConvertTo-Json -InputObject @($Parts) -Compress } else { '[]' }
     & $blender --background --threads 2 --factory-startup --python-exit-code 1 --python $PSScriptRoot\bl_combine_frontier_sets.py *> "$root\auto_combined_$fit.log"
     if($LASTEXITCODE -ne 0){throw "Combined set bake failed:$fit"}
     }

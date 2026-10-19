@@ -1,17 +1,19 @@
-"""Fit the licensed leather pack once on feminine Average; no body edits."""
+"""Fit the licensed leather pack once per Average body family; no body edits."""
 import bpy,bmesh,hashlib,json,sys,os
 from pathlib import Path
 from mathutils import Matrix,Vector
-from mathutils.bvhtree import BVHTree
 sys.path.insert(0,str(Path(__file__).parent))
 from native_clothing import approved_surface,arm_weights
 root=Path(r'D:\Otherreach_Scratch\frontier_native_20261018')
 source=next((root/'licensed_sources/leather_armor_eb56ba5c').glob('*.blend'))
 part=sys.argv[sys.argv.index('--')+1];assert part in ('vest','trousers')
 base='frontier_sealed_vest' if part=='vest' else 'frontier_wool_trousers'
+fit=os.environ.get('OTHERREACH_SOURCE_BODY','veth_f')
+assert fit in ('veth_f','veth_m'), 'Author one Average source per body family'
+family_scale=1.126 if fit=='veth_m' else 1.0
 bpy.ops.wm.read_factory_settings(use_empty=True)
-bpy.ops.import_scene.gltf(filepath=str(root/'approved_clothing_sources/veth_f.glb'))
-arm=next(o for o in bpy.data.objects if o.type=='ARMATURE');body=approved_surface('veth_f')
+bpy.ops.import_scene.gltf(filepath=str(root/'approved_clothing_sources'/(fit+'.glb')))
+arm=next(o for o in bpy.data.objects if o.type=='ARMATURE');body=approved_surface(fit)
 names=['Vest','Vest Detail','Colllar Metal','Belt','Belt Metal buckle']+[f'Botton {n:02}' for n in range(1,7)] if part=='vest' else ['Pants','Pants Lace']
 def active(obj):
  bpy.ops.object.select_all(action='DESELECT');obj.select_set(True);bpy.context.view_layer.objects.active=obj
@@ -29,7 +31,7 @@ for obj in loaded.objects:
  for v in obj.data.vertices:
   p=v.co.copy()
   v.co=Vector((p.x*.72,p.y*.78-.035,p.z*.55+.63)) if part=='vest' else Vector((p.x*1.05,p.y*.8-.035,p.z*1.20+.12))
-  if part=='vest' and v.co.y<-.02:
+  if part=='vest' and fit=='veth_f' and v.co.y<-.02:
    # A stiffened front panel bridges the source's pectoral hollows. This edits
    # the garment once, including its closures, never the approved body.
    front=min(1,max(0,(-v.co.y-.02)/.04))
@@ -39,10 +41,14 @@ for obj in loaded.objects:
    panel=-.175+.05*(abs(v.co.x)/.20)**4+(v.co.y+.13)*.03
    if obj.name!='Vest':panel-=.002
    v.co.y=v.co.y*(1-t)+panel*t
+  v.co*=family_scale
+  if part=='vest' and fit=='veth_m':v.co.x*=1.30
   if part=='trousers':
-   waist=min(1,max(0,(v.co.z-1.01)/.08))
-   v.co.x*=1-.4*waist;v.co.y=-.02+(v.co.y+.02)*(1-.30*waist)
-   cuff=min(1,max(0,(.25-v.co.z)/.12))
+   waist=min(1,max(0,(v.co.z-1.01*family_scale)/(.08*family_scale)))
+   waist_inset=.25 if fit=='veth_m' else .4
+   depth_inset=.22 if fit=='veth_m' else .30
+   v.co.x*=1-waist_inset*waist;v.co.y=-.02*family_scale+(v.co.y+.02*family_scale)*(1-depth_inset*waist)
+   cuff=min(1,max(0,(.25*family_scale-v.co.z)/(.12*family_scale)))
    ankle=arm.matrix_world@arm.data.bones['foot_'+('l' if v.co.x>0 else 'r')].head_local
    v.co.x=v.co.x*(1-cuff)+(ankle.x+(v.co.x-ankle.x)*.50)*cuff
    v.co.y=v.co.y*(1-cuff)+(ankle.y+(v.co.y-ankle.y)*.45)*cuff
@@ -99,30 +105,39 @@ for obj in objects:
  for face in obj.data.polygons:face.material_index=0;face.use_smooth=True
  # Retain the source UV atlas: its sewn border/stitch trim is registered to it.
 if part=='vest':
- old=set(bpy.data.objects);bpy.ops.import_scene.gltf(filepath=str(root/os.environ.get('OTHERREACH_SOURCE_SET','sources/fits')/'veth_f/base_shirt/frontier_linen_shirt_native.glb'))
+ old=set(bpy.data.objects);bpy.ops.import_scene.gltf(filepath=str(root/os.environ.get('OTHERREACH_SOURCE_SET','sources/fits')/fit/'base_shirt/frontier_linen_shirt_native.glb'))
  shirt=next(o for o in set(bpy.data.objects)-old if o.type=='MESH' and o.name=='frontier_linen_shirt')
  matrix=shirt.matrix_world.copy();shirt.parent=None;shirt.matrix_world=matrix
  shirt.data.transform(shirt.matrix_world);shirt.matrix_world=Matrix.Identity(4)
  for modifier in list(shirt.modifiers):shirt.modifiers.remove(modifier)
- # Native smooth Mask interpolates the armhole boundary instead of deleting
- # whole triangles at the threshold. Keep the existing source sleeve shape.
+ # Keep a complete lining under the open armholes. Fit only its concealed
+ # torso inside the leather; the licensed loose sleeves keep their volume.
  weights=arm_weights(shirt)
- group=shirt.vertex_groups.new(name='Sleeves under jerkin')
- for index,weight in enumerate(weights):group.add([index],min(1,weight),'REPLACE')
- active(shirt);mask=shirt.modifiers.new('Smooth sewn sleeve boundary','MASK')
- mask.vertex_group=group.name;mask.threshold=.35;mask.use_smooth=True
- bpy.ops.object.modifier_apply(modifier=mask.name)
+ group=shirt.vertex_groups.new(name='Concealed shirt torso')
+ for index,weight in enumerate(weights):
+  vertex=shirt.data.vertices[index]
+  side='l' if vertex.co.x>0 else 'r'
+  start=arm.matrix_world@arm.data.bones['upperarm_'+side].head_local
+  direction=arm.matrix_world@(arm.data.bones['lowerarm_'+side].head_local)-start
+  fraction=(vertex.co-start).dot(direction)/direction.length_squared
+  value=max(max(0,1-weight/.3),max(0,min(1,(.45-fraction)/.20)))
+  if value:group.add([index],value,'REPLACE')
+ active(shirt);wrap=shirt.modifiers.new('Native concealed lining fit','SHRINKWRAP')
+ wrap.target=objects[0];wrap.wrap_method='NEAREST_SURFACEPOINT';wrap.wrap_mode='ABOVE_SURFACE';wrap.offset=-.008
+ wrap.vertex_group=group.name;name=group.name;bpy.ops.object.modifier_apply(modifier=wrap.name)
+ shirt.vertex_groups.remove(shirt.vertex_groups[name])
+ # The lining ends inside the belt; never clip the cuffs with this torso cut.
  edit=bmesh.new();edit.from_mesh(shirt.data);edit.verts.index_update()
- sleeve_group=shirt.vertex_groups['Sleeves under jerkin'].index
- deform=edit.verts.layers.deform.active
- seam=[v.index for v in edit.verts if any(e.is_boundary for e in v.link_edges) and v[deform].get(sleeve_group,0)<.36]
- edit.free()
- group=shirt.vertex_groups.new(name='Sewn armhole seam');group.add(seam,1,'REPLACE')
- wrap=shirt.modifiers.new('Sleeve head seam inside jerkin','SHRINKWRAP');wrap.target=objects[0]
- wrap.wrap_method='NEAREST_SURFACEPOINT';wrap.wrap_mode='ON_SURFACE';wrap.offset=-.006;wrap.vertex_group=group.name
- bpy.ops.object.modifier_apply(modifier=wrap.name)
- shirt.vertex_groups.remove(shirt.vertex_groups['Sewn armhole seam'])
- shirt.vertex_groups.remove(shirt.vertex_groups['Sleeves under jerkin'])
+ selected=[face for face in edit.faces if sum(weights[v.index] for v in face.verts)/len(face.verts)<.3]
+ geom=set(selected)
+ for face in selected:geom.update(face.edges);geom.update(face.verts)
+ pelvis=(arm.matrix_world@arm.data.bones['pelvis'].head_local).z
+ bmesh.ops.bisect_plane(edit,geom=list(geom),plane_co=Vector((0,0,pelvis+.19)),
+  plane_no=Vector((0,0,1)),dist=1e-6,clear_inner=True)
+ collar=max(v.co.z for v in objects[0].data.vertices)-.06
+ bmesh.ops.bisect_plane(edit,geom=list(edit.verts)+list(edit.edges)+list(edit.faces),
+  plane_co=Vector((0,0,collar)),plane_no=Vector((0,0,1)),dist=1e-6,clear_outer=True)
+ edit.to_mesh(shirt.data);edit.free()
  objects.append(shirt)
 for obj in objects:
  obj.vertex_groups.clear()
@@ -140,13 +155,13 @@ for level,ratio in [(1,.65),(2,.4),(3,.25)]:
  dec=lod.modifiers.new('Native LOD','DECIMATE');dec.ratio=ratio;dec.delimit={'MATERIAL'};bpy.ops.object.modifier_apply(modifier=dec.name);lods.append(lod)
 active(obj)
 for item in [arm,*lods]:item.select_set(True)
-out=root/os.environ.get('OTHERREACH_SOURCE_SET','sources/fits')/'veth_f'/part;out.mkdir(parents=True,exist_ok=True)
+out=root/os.environ.get('OTHERREACH_SOURCE_SET','sources/fits')/fit/part;out.mkdir(parents=True,exist_ok=True)
 bpy.ops.export_scene.gltf(filepath=str(out/(base+'_native.glb')),export_format='GLB',use_selection=True,export_skins=True,
  export_def_bones=False,export_influence_nb=8,export_animations=False)
 bpy.ops.wm.save_as_mainfile(filepath=str(out/(base+'.blend')))
 (out/'source.json').write_text(json.dumps({'source':str(source),'source_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),
  'licence':'BlenderKit royalty-free; Giovani França','asset_id':'eb56ba5c-92b0-47db-ad3e-5fa00a5eb077',
  'materials':'ambientCG Leather014 and Poly Haven wool; CC0 scans, OpenGL normal and roughness',
- 'authoring_fit':'veth_f','construction':'Licensed sewn garment fitted once, layered source joined, native Data Transfer',
+ 'authoring_fit':fit,'construction':'Licensed sewn garment fitted once per body family, layered source joined, native Data Transfer',
  'body_edits':False,'acceptance':'PENDING source and motion review'},indent=2))
 print('LICENSED_PACK_SOURCE_FIT',part,flush=True)

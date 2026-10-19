@@ -1,4 +1,4 @@
-"""Finish garment-source PBR and the hood/mantle on feminine Average, then transfer once."""
+"""Finish each Average family's source PBR before its automatic Lean transfer."""
 import argparse,shutil
 import bpy,bmesh,json,os,sys,hashlib,math
 import numpy as np
@@ -13,12 +13,13 @@ PARTS={'base_shirt':'frontier_linen_shirt','vest':'frontier_sealed_vest','boots'
 parser=argparse.ArgumentParser()
 parser.add_argument('--source-root',required=True,type=Path)
 parser.add_argument('--output-root',required=True,type=Path)
+parser.add_argument('--parts',nargs='+',choices=PARTS)
 args=parser.parse_args(sys.argv[sys.argv.index('--')+1:])
 SOURCE=args.source_root.resolve(strict=True)
 OUT=args.output_root.resolve()
 assert SOURCE!=OUT, 'Keep the source snapshot; finish into a separate directory'
 for unchanged in ('trousers','gloves'):
- shutil.copytree(SOURCE/unchanged,OUT/unchanged,dirs_exist_ok=True)
+ if (SOURCE/unchanged).exists():shutil.copytree(SOURCE/unchanged,OUT/unchanged,dirs_exist_ok=True)
 
 def active(obj):
  bpy.ops.object.select_all(action='DESELECT');obj.select_set(True);bpy.context.view_layer.objects.active=obj
@@ -33,8 +34,8 @@ def picture(path,linear=False,transform=None):
   image.pixels.foreach_set(pixels.ravel())
  image.pack();return image
 
-def pbr(kind):
- mat=bpy.data.materials.new('frontier_lamework_metal_blackened' if kind=='blackened_iron' else 'frontier_'+kind+'_pbr');mat.use_nodes=True;mat.use_backface_culling=False
+def pbr(kind,coif=False):
+ mat=bpy.data.materials.new('frontier_lamework_metal_oiled' if kind=='blackened_iron' else 'frontier_'+kind+'_pbr');mat.use_nodes=True;mat.use_backface_culling=False
  mat['scan_attached']=True
  nodes=mat.node_tree.nodes;links=mat.node_tree.links;shader=nodes.get('Principled BSDF')
  if kind=='oatmeal_linen':
@@ -50,13 +51,13 @@ def pbr(kind):
  else:
   directory=LIB/'Sourced_CC0_20261018/cloth_rope_leather_metal/Metal013/2K-JPG'
   colour=directory/'Metal013_2K-JPG_Color.jpg';normal=directory/'Metal013_2K-JPG_NormalGL.jpg';rough=directory/'Metal013_2K-JPG_Roughness.jpg'
-  tint=lambda rgb:(.08+.22*(rgb@np.array([.2126,.7152,.0722],dtype=np.float32)))[:,None]*np.array([.98,.99,1.],dtype=np.float32)
+  tint=lambda rgb:(.22+.35*(rgb@np.array([.2126,.7152,.0722],dtype=np.float32)))[:,None]*np.array([.95,.97,1.],dtype=np.float32)
   strength=.18
  texture=nodes.new('ShaderNodeTexImage');texture.image=picture(colour,transform=tint)
  links.new(texture.outputs['Color'],shader.inputs['Base Color'])
  texture=nodes.new('ShaderNodeTexImage')
  if kind=='blackened_iron':
-  texture.image=picture(rough,True,lambda rgb:np.clip(rgb,.56,.60))
+  texture.image=picture(rough,True,lambda rgb:np.clip(.65+.2*rgb,.72,.84) if coif else np.clip(rgb,.56,.60))
   links.new(texture.outputs['Color'],shader.inputs['Roughness'])
   metal=nodes.new('ShaderNodeTexImage');metal.image=picture(directory/'Metal013_2K-JPG_Metalness.jpg',True,lambda rgb:np.clip(rgb,.85,1.))
   links.new(metal.outputs['Color'],shader.inputs['Metallic'])
@@ -71,6 +72,7 @@ def pbr(kind):
  return mat
 
 for part,base in PARTS.items():
+ if args.parts and part not in args.parts:continue
  bpy.ops.wm.read_factory_settings(use_empty=True)
  part_source=SOURCE/part
  src=part_source/(base+'_native.glb');before=hashlib.sha256(src.read_bytes()).hexdigest()
@@ -80,14 +82,6 @@ for part,base in PARTS.items():
   if other.type=='MESH' and other!=obj:bpy.data.objects.remove(other,do_unlink=True)
  active(obj)
  for mod in list(obj.modifiers):obj.modifiers.remove(mod)
- if part=='standing_cap':
-  # Keep crown/face clearance. Only the rear, high peak falls towards the shoulders.
-  inverse=obj.matrix_world.inverted()
-  for v in obj.data.vertices:
-   p=obj.matrix_world@v.co
-   t=max(0,min(1,(p.y-.025)/.10))*max(0,min(1,(p.z-1.55)/.085))
-   p.y+=.065*t;p.z-=.105*t
-   v.co=inverse@p
  if part=='lamework_jack':
   # Close the conspicuous vertical two-millimetre gaps, keeping horizontal
   # lame overlaps. The accepted backing/clearance and silhouette stay intact.
@@ -107,16 +101,11 @@ for part,base in PARTS.items():
  if part=='cloak':
   # Preserve the accepted drape; remove the skin-helper deformation field.
   bind_mantle_torso(obj,arm)
-  # Source pattern ease at the outer panels; retain the neck opening height.
-  # Every other fit inherits this one source through the same native wrap.
-  for vertex in obj.data.vertices:
-   allowance=max(0,min(1,(math.hypot(vertex.co.x,vertex.co.y-.012)-.12)/.14))
-   vertex.co.x*=1.10;vertex.co.y=.012+(vertex.co.y-.012)*1.10;vertex.co.z+=.055*allowance
  materials={}
  for i,old in enumerate(obj.data.materials):
   kind='oatmeal_linen' if 'linen' in old.name else ('brown_boot_leather' if part=='boots' else ('blackened_iron' if 'lamework_metal' in old.name else None))
   if kind:
-   if kind not in materials:materials[kind]=pbr(kind)
+   if kind not in materials:materials[kind]=pbr(kind,coif=part=='lame_coif')
    obj.data.materials[i]=materials[kind]
  if part in ('lamework_jack','lame_coif','lame_sabatons'):
   active(obj);bpy.ops.object.mode_set(mode='EDIT');bpy.ops.mesh.select_all(action='SELECT')
@@ -135,8 +124,8 @@ for part,base in PARTS.items():
  bpy.ops.wm.save_as_mainfile(filepath=str(out/(base+'.blend')))
  assert hashlib.sha256(src.read_bytes()).hexdigest()==before
  original=json.loads((part_source/'source.json').read_text())
- original.update(source_accepted_shape=str(src),source_accepted_shape_sha256=before,
-  review8_finish='PBR colour/ARM channels, rear hood fall, primary torso/shoulder mantle binding with outer-panel run allowance',
-  acceptance='PENDING four-fit native review9',body_edits=False)
+ original.update(source_shape=str(src),source_shape_sha256=before,
+  source_finish='Scanned PBR channels; rounded hood; hanging mantle bound to primary spine bones',
+  acceptance='PENDING four-fit native review10',body_edits=False)
  (out/'source.json').write_text(json.dumps(original,indent=2))
- print('REVIEW8_SOURCE_FINISH',part,flush=True)
+ print('SOURCE_FINISH',part,flush=True)

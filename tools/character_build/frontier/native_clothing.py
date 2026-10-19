@@ -7,11 +7,11 @@ def arm_weights(obj):
         ('upperarm','lowerarm','hand','index','middle','ring','pinky','thumb','wrist'))}
     return [sum(g.weight for g in v.groups if g.group in groups) for v in obj.data.vertices]
 
-def approved_surface(fit):
+def approved_surface(fit, include_outfit=False):
     """Read-only authoring copies of BOTH native skin sections, including the head's neck/shoulders."""
     copies=[]
     bpy.ops.object.select_all(action='DESELECT')
-    for suffix in ('body','head'):
+    for suffix in (('body','head','outfit') if include_outfit else ('body','head')):
         original=bpy.data.objects['native_'+fit+'_'+suffix]
         duplicate=original.copy();duplicate.data=original.data.copy()
         duplicate.name='fitting_surface_'+suffix
@@ -54,5 +54,47 @@ def _bind_primary(obj, arm, allowed, affected=None):
 
 
 def bind_mantle_torso(obj, arm):
-    """A short mantle follows primary torso/shoulder bones, not skin corrective helpers."""
-    _bind_primary(obj,arm,{'spine_01','spine_02','spine_03','spine_04','spine_05','clavicle_l','clavicle_r','neck_01'})
+    """The hanging mantle follows the spine, so arm lifts cannot flare its hem."""
+    _bind_primary(obj,arm,{'spine_01','spine_02','spine_03','spine_04','spine_05','neck_01'})
+
+def round_hood_crown(obj, head):
+    """Native source-pattern wrap rounds the peak before adding cloth thickness."""
+    top=max((head.matrix_world@v.co).z for v in head.data.vertices)
+    rear=max((head.matrix_world@v.co).y for v in head.data.vertices if (head.matrix_world@v.co).z>top-.16)
+    # The pointed excess is behind the cranium, not necessarily above it.
+    # Fold only that source-pattern tip down, then keep it outside the head.
+    tail=obj.vertex_groups.new(name='Fallen rear hood tip');tail_name=tail.name
+    for vertex in obj.data.vertices:
+        point=obj.matrix_world@vertex.co
+        weight=max(0,min(1,(point.y-rear-.015)/.08))*max(0,min(1,(point.z-top+.15)/.06))
+        if weight:tail.add([vertex.index],weight,'REPLACE')
+    bpy.ops.object.select_all(action='DESELECT');obj.select_set(True);bpy.context.view_layer.objects.active=obj
+    drop=obj.modifiers.new('Native rear tip fall','DISPLACE');drop.direction='Z';drop.strength=-.18;drop.mid_level=0;drop.vertex_group=tail_name
+    bpy.ops.object.modifier_apply(modifier=drop.name)
+    outside=obj.modifiers.new('Fold outside approved head','SHRINKWRAP');outside.target=head
+    outside.wrap_method='NEAREST_SURFACEPOINT';outside.wrap_mode='OUTSIDE';outside.offset=.025;outside.vertex_group=tail_name
+    bpy.ops.object.modifier_apply(modifier=outside.name)
+    obj.vertex_groups.remove(obj.vertex_groups[tail_name])
+    group=obj.vertex_groups.new(name='Rounded source hood crown')
+    for vertex in obj.data.vertices:
+        z=(obj.matrix_world@vertex.co).z
+        weight=max(0,min(1,(z-top-.01)/.06))
+        if weight:group.add([vertex.index],weight,'REPLACE')
+    bpy.ops.object.select_all(action='DESELECT');obj.select_set(True);bpy.context.view_layer.objects.active=obj
+    wrap=obj.modifiers.new('Native rounded crown','SHRINKWRAP');wrap.target=head
+    wrap.wrap_method='NEAREST_SURFACEPOINT';wrap.wrap_mode='ON_SURFACE';wrap.offset=.04;wrap.vertex_group=group.name
+    group_name=group.name
+    bpy.ops.object.modifier_apply(modifier=wrap.name)
+    if obj.vertex_groups.get(group_name):obj.vertex_groups.remove(obj.vertex_groups[group_name])
+    # Ear recesses make the open head mesh unsuitable as an outside test.
+    # A native convex collision envelope covers its outermost skin points.
+    edit=bmesh.new()
+    for vertex in head.data.vertices:edit.verts.new(head.matrix_world@vertex.co)
+    bmesh.ops.convex_hull(edit,input=list(edit.verts),use_existing_faces=False)
+    bmesh.ops.delete(edit,geom=[v for v in edit.verts if not v.link_faces],context='VERTS')
+    mesh=bpy.data.meshes.new('Read-only head clearance envelope');edit.to_mesh(mesh);edit.free()
+    envelope=bpy.data.objects.new(mesh.name,mesh);bpy.context.collection.objects.link(envelope)
+    clearance=obj.modifiers.new('Native hood ear clearance','SHRINKWRAP');clearance.target=envelope
+    clearance.wrap_method='NEAREST_SURFACEPOINT';clearance.wrap_mode='OUTSIDE';clearance.offset=.018
+    bpy.ops.object.modifier_apply(modifier=clearance.name)
+    bpy.data.objects.remove(envelope,do_unlink=True);bpy.data.meshes.remove(mesh)

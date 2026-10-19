@@ -1,4 +1,4 @@
-"""Fit licensed source garments ONCE on feminine Average; native cloth bake.
+"""Fit licensed source garments once per Average body family.
 
 No game garment or approved body is edited. Other fits use the existing transfer.
 """
@@ -6,7 +6,7 @@ import bpy,bmesh,hashlib,json,math,sys,os
 from pathlib import Path
 from mathutils import Vector,Matrix
 sys.path.insert(0,str(Path(__file__).parent))
-from native_clothing import approved_surface,weld
+from native_clothing import approved_surface,round_hood_crown
 
 ROOT=Path(r'D:\Otherreach_Scratch\frontier_native_20261018')
 LIB=Path(r'C:\Otherreach_External_Assets')
@@ -14,14 +14,17 @@ part=sys.argv[sys.argv.index('--')+1]
 BASE={'base_shirt':'frontier_linen_shirt',
       'standing_cap':'frontier_standing_cap','boots':'frontier_sealed_boots',
       'cloak':'frontier_wool_cloak'}[part]
-OUT=ROOT/os.environ.get('OTHERREACH_SOURCE_SET','sources/fits')/'veth_f'/part
+fit=os.environ.get('OTHERREACH_SOURCE_BODY','veth_f')
+assert fit in ('veth_f','veth_m'), 'Author one Average source per body family'
+family_scale=1.126 if fit=='veth_m' else 1.0
+OUT=ROOT/os.environ.get('OTHERREACH_SOURCE_SET','sources/fits')/fit/part
 OUT.mkdir(parents=True,exist_ok=True)
-approved=ROOT/'approved_clothing_sources/veth_f.glb'
+approved=ROOT/'approved_clothing_sources'/(fit+'.glb')
 digest=hashlib.sha256(approved.read_bytes()).hexdigest()
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=str(approved))
 arm=next(o for o in bpy.data.objects if o.type=='ARMATURE')
-body=approved_surface('veth_f');body.shape_key_clear()
+body=approved_surface(fit);body.shape_key_clear()
 for mod in list(body.modifiers):body.modifiers.remove(mod)
 body.data.transform(body.matrix_world);body.matrix_world=Matrix.Identity(4)
 refs=set(bpy.data.objects)
@@ -75,55 +78,6 @@ def import_obj(path):
  obj.data.transform(obj.matrix_world);obj.matrix_world=Matrix.Identity(4)
  return obj
 
-def drape(obj,pinned,frames=40):
- """Native Blender cloth, one source bake; not a run-time clothing system."""
- active(body)
- # A read-only collision copy with native weld/decimation, not a changed body.
- weld(body);dec=body.modifiers.new('Authoring collision surface','DECIMATE');dec.ratio=.18;apply(body,dec)
- col=body.modifiers.new('Approved body cloth collision','COLLISION')
- body.collision.thickness_outer=.008;body.collision.thickness_inner=.002;body.collision.use_culling=False
- if part=='cloak':
-  # Outermost clothing is draped over the actual underlying source set.
-  # A body-only collider lets voluminous sleeves emerge through a mantle.
-  path=ROOT/os.environ.get('OTHERREACH_SOURCE_SET','sources/fits')/'veth_f/vest/frontier_sealed_vest_native.glb'
-  old=set(bpy.data.objects);bpy.ops.import_scene.gltf(filepath=str(path))
-  under=next(o for o in set(bpy.data.objects)-old if o.type=='MESH' and o.name=='frontier_sealed_vest')
-  matrix=under.matrix_world.copy();under.parent=None;under.matrix_world=matrix
-  for modifier in list(under.modifiers):under.modifiers.remove(modifier)
-  under.modifiers.new('Underlying sewn clothing collision','COLLISION')
-  under.collision.thickness_outer=.008;under.collision.thickness_inner=.002;under.collision.use_culling=False
-  # The import's other LODs are references only, never source output.
-  for extra in set(bpy.data.objects)-old:extra.hide_render=True
-  global weight_surface
-  weight_surface=under
- active(obj);weld(obj)
- if part=='base_shirt':
-  dec=obj.modifiers.new('Single source drape density','DECIMATE');dec.ratio=.45;apply(obj,dec)
- else:
-  sub=obj.modifiers.new('Pattern drape resolution','SUBSURF');sub.subdivision_type='SIMPLE';sub.levels=1;apply(obj,sub)
- pins=obj.vertex_groups.new(name='Sewn support')
- for v in obj.data.vertices:
-  weight=pinned(v.co)
-  if weight:pins.add([v.index],weight,'REPLACE')
- cloth=obj.modifiers.new('Source garment cloth drape','CLOTH')
- cloth.settings.quality=8;cloth.settings.mass=.22
- cloth.settings.tension_stiffness=24;cloth.settings.compression_stiffness=24
- cloth.settings.shear_stiffness=35;cloth.settings.bending_stiffness=5 if part=='cloak' else .8
- cloth.settings.vertex_group_mass=pins.name;cloth.settings.pin_stiffness=1
- cloth.collision_settings.use_collision=True;cloth.collision_settings.distance_min=.008
- cloth.collision_settings.collision_quality=4
- cloth.collision_settings.use_self_collision=part!='base_shirt';cloth.collision_settings.self_distance_min=.006
- cloth.point_cache.frame_start=1;cloth.point_cache.frame_end=frames
- for frame in range(1,frames+1):
-  bpy.context.scene.frame_set(frame)
-  # Evaluating each frame is required for the native cache in background mode.
-  obj.evaluated_get(bpy.context.evaluated_depsgraph_get()).to_mesh_clear()
-  if frame%10==0:print('DRAPE',part,frame,flush=True)
- apply(obj,cloth);obj.vertex_groups.remove(obj.vertex_groups['Sewn support'])
- body.modifiers.remove(col)
- smooth=obj.modifiers.new('Sewn panel finish','SMOOTH');smooth.factor=.25;smooth.iterations=2;apply(obj,smooth)
- shell(obj,.004 if part=='cloak' else .0025)
-
 source=None;licence=None
 if part=='base_shirt':
  source=LIB/'MakeHuman/community/clothes/1800_Elvs_Male_shirt_untucked_bd1/mens_shirt_untuck_elvbhp1f.obj'
@@ -135,6 +89,12 @@ if part=='base_shirt':
   sleeve=max(0,min(1,(abs(v.co.x)-.20)/.23))
   v.co.y+=.055*sleeve
   v.co.z-=.100*sleeve
+  v.co*=family_scale
+  if fit=='veth_m':
+   side='l' if v.co.x>0 else 'r'
+   along=arm.matrix_world.to_3x3()@(arm.data.bones['hand_'+side].head_local-arm.data.bones['lowerarm_'+side].head_local)
+   cuff=max(0,min(1,(abs(v.co.x)-.40*family_scale)/(.09*family_scale)))
+   v.co+=along.normalized()*.035*cuff
  # This licensed shirt already has sewn panels, collar, buttons and hem.
  # Keep its garment volume; do not simulate detached buttons as free cloth.
  shell(obj,.002)
@@ -146,6 +106,7 @@ elif part=='standing_cap':
  obj=import_obj(source)
  for v in obj.data.vertices:
   p=v.co.copy();v.co=Vector((p.x*.122,p.y*.104+.002,p.z*.105+.731))
+ round_hood_crown(obj,bpy.data.objects['native_'+fit+'_head'])
  shell(obj,.004)
  obj.data.materials.clear();obj.data.materials.append(scan('frontier_hood_wool','poly_wool_herringbone',(.65,.60,.52)))
  uv_scan(obj)
@@ -167,24 +128,45 @@ elif part=='boots':
 elif part=='cloak':
  licence='Original panel pattern; scanned Poly Haven wool CC0'
  verts=[];faces=[];segments=32;rings=10
- # Short shoulder mantle: shaped panels, neck support and a real scalloped hem.
+ # Open-front short back mantle. Its hem hangs beside the back, leaving the
+ # moving arms free instead of making a wide umbrella over their sleeves.
  for row in range(rings):
   t=row/(rings-1)
   for j in range(segments):
-   a=2*math.pi*j/segments
-   x=(.083+.34*t)*math.cos(a)
-   y=.012+(.075+.25*t)*math.sin(a)
-   # Begin above the shoulders; starting within a layered outfit makes a cloth
-   # solver eject/bunch the pattern instead of draping it over the garment.
-   z=1.427+.035*t+.004*math.sin(a*4)*t
+   a=math.pi/6+(2*math.pi/3)*j/(segments-1)
+   x=(.23+.02*t)*math.cos(a)
+   y=.02+(.08+.05*t)*math.sin(a)
+   # A short hanging back panel, with no horizontal shoulder wings. Its
+   # authored rest shape is supported by the spine rather than moving arms.
+   z=1.43-.05*abs(math.cos(a))-.24*t+.004*math.sin(a*4)*t
    verts.append((x,y,z))
  for row in range(rings-1):
-  for j in range(segments):
-   k=row*segments+j;n=row*segments+(j+1)%segments
-   faces.append((k,n,n+segments,k+segments))
+  for j in range(segments-1):
+   k=row*segments+j;n=k+1
+   faces.append((k,k+segments,n+segments,n))
  mesh=bpy.data.meshes.new('Shoulder mantle panels');mesh.from_pydata(verts,[],faces);mesh.update()
  obj=bpy.data.objects.new('Shoulder mantle',mesh);bpy.context.collection.objects.link(obj)
- drape(obj,lambda p:1 if math.hypot(p.x/.083,(p.y-.012)/.075)<1.12 else 0,40)
+ active(obj)
+ sub=obj.modifiers.new('Sewn back panel resolution','SUBSURF');sub.levels=1;apply(obj,sub)
+ clearance=obj.modifiers.new('Native back panel clearance','SHRINKWRAP')
+ clearance.target=body;clearance.wrap_method='NEAREST_SURFACEPOINT';clearance.wrap_mode='OUTSIDE';clearance.offset=.035
+ apply(obj,clearance)
+ # Sew the top edge to the actual jerkin; the lower panel keeps its hanging
+ # rest shape. This closes the gap without binding the hem to the arms.
+ old=set(bpy.data.objects)
+ path=ROOT/os.environ.get('OTHERREACH_SOURCE_SET','sources/fits')/fit/'vest/frontier_sealed_vest_native.glb'
+ bpy.ops.import_scene.gltf(filepath=str(path))
+ under=next(o for o in set(bpy.data.objects)-old if o.type=='MESH' and o.name=='frontier_sealed_vest')
+ group=obj.vertex_groups.new(name='Sewn mantle collar')
+ for vertex in obj.data.vertices:
+  weight=max(0,min(1,(vertex.co.z-1.35)/.04))
+  if weight:group.add([vertex.index],weight,'REPLACE')
+ active(obj);collar=obj.modifiers.new('Native sewn mantle collar','SHRINKWRAP')
+ collar.target=under;collar.wrap_method='NEAREST_SURFACEPOINT';collar.wrap_mode='OUTSIDE_SURFACE'
+ collar.offset=.008;collar.vertex_group=group.name
+ name=group.name;apply(obj,collar);obj.vertex_groups.remove(obj.vertex_groups[name])
+ for extra in set(bpy.data.objects)-old:bpy.data.objects.remove(extra,do_unlink=True)
+ shell(obj,.004)
  obj.data.materials.append(scan('frontier_mantle_wool','poly_wool_herringbone',(.65,.60,.52)))
  uv_scan(obj)
 
@@ -195,7 +177,7 @@ for poly in obj.data.polygons:
 obj.vertex_groups.clear()
 if part=='standing_cap':obj.vertex_groups.new(name='head').add(list(range(len(obj.data.vertices))),1,'REPLACE')
 else:
- target=globals().get('weight_surface',body)
+ target=body
  for group in target.vertex_groups:obj.vertex_groups.new(name=group.name)
  dt=obj.modifiers.new('Standard approved skin binding','DATA_TRANSFER');dt.object=target
  dt.use_vert_data=True;dt.data_types_verts={'VGROUP_WEIGHTS'};dt.vert_mapping='POLYINTERP_NEAREST'
@@ -216,7 +198,7 @@ for lod in lods:lod.hide_render=True
 bpy.ops.wm.save_as_mainfile(filepath=str(OUT/(BASE+'.blend')))
 assert hashlib.sha256(approved.read_bytes()).hexdigest()==digest
 provenance={'source':str(source),'licence':licence,'source_sha256':hashlib.sha256(source.read_bytes()).hexdigest() if source else None,
- 'approved_body_sha256':digest,'authoring_fit':'veth_f','body_edits':False,
+ 'approved_body_sha256':digest,'authoring_fit':fit,'body_edits':False,
  'construction':'Licensed sewn source or original short mantle; Solidify and standard skin binding',
  'acceptance':'PENDING player-visible review; not transferred to other fits'}
 (OUT/'source.json').write_text(json.dumps(provenance,indent=2))
