@@ -20,6 +20,7 @@ Single-player open-world fantasy RPG: full-body third-person / over-the-shoulder
 - Build: `dotnet build src/UNNAMED.sln`
 - Test: `dotnet test src/UNNAMED.sln` (runs every test project, including Persistence.Tests)
 - One test: `dotnet test tests/<Project>.Tests --filter "FullyQualifiedName~<TestName>"`
+- Playtest acceptance (the checklist's automated steps, one line each): `powershell -ExecutionPolicy Bypass -File testscceptance\Run-Acceptance.ps1`; the walkthrough alone is `dotnet test tests/Application.Tests --filter "FullyQualifiedName~Acceptance"` (report beside the test assembly or at `UNNAMED_ACCEPTANCE_REPORT`)
 - Content lint: build Content in Release, then `dotnet exec src/Content/bin/Release/net8.0/UNNAMED.Content.dll lint --content-root content --verbose` (a space, not `=`: the tool ignores `--content-root=...` and lints `./content`)
 - Save tool: `dotnet src/SaveTool/bin/Debug/net8.0/UNNAMED.SaveTool.dll save:migrate --dry-run <save-dir> --content-root <dir> --worldgen <profile.json>` (also `save:migrate` and `save:inspect`)
 
