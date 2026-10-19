@@ -229,7 +229,11 @@ func _load_grooms() -> void:
 		if card.sex!=_sex:continue
 		var doc:=GLTFDocument.new()
 		var state:=GLTFState.new()
-		assert(doc.append_from_file(_asset_path(card.glb),state,GLTFDocument.IMPORT_FLAG_FORCE_DISABLE_MESH_COMPRESSION)==OK)
+		var error := doc.append_from_file(_asset_path(card.glb),state,GLTFDocument.IMPORT_FLAG_FORCE_DISABLE_MESH_COMPRESSION)
+		if error!=OK:
+			push_error("Native groom load failed: "+card.glb)
+			get_tree().quit(1)
+			return
 		var model:=doc.generate_scene(state) as Node3D
 		var attachment:=BoneAttachment3D.new()
 		attachment.bone_name="head"
@@ -458,7 +462,7 @@ func _owner_evidence() -> void:
 				await RenderingServer.frame_post_draw
 				await RenderingServer.frame_post_draw
 				var filename: String=sex+"_"+area+"_"+view[0]+".png"
-				assert(get_viewport().get_texture().get_image().save_png(directory+"/"+filename)==OK)
+				if not _capture(directory+"/"+filename):return
 				captures.append(filename)
 		_set_area("face")
 		_view_angle=0
@@ -469,13 +473,21 @@ func _owner_evidence() -> void:
 		await RenderingServer.frame_post_draw
 		await RenderingServer.frame_post_draw
 		var filename: String=sex+"_teeth_jawOpen.png"
-		assert(get_viewport().get_texture().get_image().save_png(directory+"/"+filename)==OK)
+		if not _capture(directory+"/"+filename):return
 		captures.append(filename)
 	var report := {"executable":OS.get_executable_path(),"packaged":not OS.has_feature("editor"),"asset_root":_source,"captures":captures,"owner_approval":"pending","clothing":"paused; native base underwear"}
 	var file := FileAccess.open(directory+"/capture_manifest.json",FileAccess.WRITE)
 	file.store_string(JSON.stringify(report,"  "))
 	print("OWNER_CAPTURE_COMPLETE ",JSON.stringify(report))
 	get_tree().quit()
+
+func _capture(path: String) -> bool:
+	var error := get_viewport().get_texture().get_image().save_png(path)
+	if error!=OK:
+		push_error("Screenshot save failed: "+path)
+		get_tree().quit(1)
+		return false
+	return true
 
 func _audit_weights(mi: MeshInstance3D) -> Dictionary:
 	var eight_count := 0
