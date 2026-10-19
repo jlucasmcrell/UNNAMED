@@ -169,6 +169,8 @@ public sealed class PlayerController
     /// What the player means to use: within reach of the body (the rule the simulation applies), and the one the camera
     /// faces most directly. In first person it must be roughly under the crosshair.
     /// </summary>
+    public static bool IsPickup(ContainerSite site) => site.StackSlots == 1 && site.DropLevel is null;
+
     public Focus? FocusOn(CameraRig camera)
     {
         var simulation = _session.Simulation!;
@@ -179,7 +181,7 @@ public sealed class PlayerController
             candidates.Add((new Focus(FocusKind.Door, door.Key, door.FlagId, door.ClosedFootprint.CenterXMm, door.ClosedFootprint.CenterZMm),
                 door.ClosedFootprint.DistanceTo(Authoritative.XMm, Authoritative.ZMm) - doorReach));
         }
-        foreach (var site in simulation.Containers.Select(c => c.Site).Where(s =>
+        foreach (var site in simulation.Containers.Where(c => !(IsPickup(c.Site) && c.Items.IsEmpty)).Select(c => c.Site).Where(s =>
                      simulation.ActiveLayout.Containers.Contains(s) || simulation.Creatures.Any(c => c.CorpseKey == s.Key)))
         {
             // A corpse is searched like a chest, and named for the creature it was.

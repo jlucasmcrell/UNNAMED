@@ -7,6 +7,7 @@ using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Crafting;
 using UNNAMED.Presentation.Greybox;
+using UNNAMED.Presentation.Player;
 using UNNAMED.Presentation.Settings;
 using UNNAMED.Presentation.Ui;
 using UNNAMED.World.Runtime;
@@ -121,7 +122,8 @@ public partial class Main
         // The owner's M6 playtest: a take-all's tally, a point spent, and every shot drawn along the path it took.
         _session.Subscribe<TookAll>(e =>
         {
-            Notice(NoticeKind.Items, e.Left == 0 ? $"Took everything ({e.Taken})" : $"Took {e.Taken}; {e.Left} left - {e.Why}", 3);
+            if (!_session.Simulation!.ActiveLayout.Containers.Any(c => PlayerController.IsPickup(c) && c.Key == e.ContainerKey))
+                Notice(NoticeKind.Items, e.Left == 0 ? $"Took everything ({e.Taken})" : $"Took {e.Taken}; {e.Left} left - {e.Why}", 3);
             // Emptied, the loot is done: the panel closes rather than leaving the pack open behind it (the owner's first playtest).
             if (e.Left == 0 && _inventory.OpenContainer == e.ContainerKey)
                 CloseInventory();
@@ -132,8 +134,11 @@ public partial class Main
         _session.Subscribe<ItemMoved>(e =>
         {
             _inventory.Refresh();
+            if (e.To.Kind == PlaceKind.Inventory && (e.From.Kind == PlaceKind.Ground
+                || _session.Simulation!.ActiveLayout.Containers.Any(c => PlayerController.IsPickup(c) && c.Key == e.From.ContainerKey)))
+                Notice(NoticeKind.Items, $"Picked up {Names.Of(_session, e.DefId)}{(e.Count > 1 ? $" x{e.Count}" : "")}", 3);
             if (e.From.Kind == PlaceKind.Ground || e.To.Kind == PlaceKind.Ground
-                || _session.Simulation!.ActiveLayout.Containers.Any(c => c.EmptyFlag is not null && c.Key == e.From.ContainerKey))
+                || _session.Simulation!.ActiveLayout.Containers.Any(c => PlayerController.IsPickup(c) && c.Key == e.From.ContainerKey))
                 _items.Refresh(_session.Simulation!);
         });
         _session.Subscribe<QuickSlotAssigned>(_ => _inventory.Refresh());

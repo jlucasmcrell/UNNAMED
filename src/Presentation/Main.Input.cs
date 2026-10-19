@@ -238,6 +238,10 @@ public partial class Main
                 case FocusKind.Portal:
                     _controller.Interact(focus.Key);
                     break;
+                case FocusKind.Container when _session.Simulation!.ActiveLayout.Containers.Any(c => PlayerController.IsPickup(c) && c.Key == focus.Key):
+                    _session.Submit(new TakeAllCommand(_session.Simulation!.PlayerId, focus.Key));
+                    _avatar.Interact();
+                    break;
                 case FocusKind.Container:
                     OpenInventory(focus.Key);
                     break;
