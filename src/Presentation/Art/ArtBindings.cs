@@ -525,12 +525,18 @@ public sealed class ArtBindings
             foreach (var model in root.GetProperty("models").EnumerateArray())
             {
                 if (Text(model, "id") is { } id && Number(model, "height_m", 0f) > 0.01f)
-                    models.Add(new MpfbModel(id, Text(model, "sex") ?? "any", Number(model, "height_m", 0f)));
+                    models.Add(new MpfbModel(id, Text(model, "sex") ?? "m", Number(model, "height_m", 0f)));
             }
             if (models.Count == 0)
             {
                 GD.PushError($"UNNAMED art: {MpfbCastPath} lists no body of a usable height; the people stay as bound");
                 return null;
+            }
+            // A cast with one sex and not the other leaves those people on their bound bodies without saying so.
+            foreach (string sex in new[] { "f", "m" })
+            {
+                if (!models.Any(m => m.Sex == sex))
+                    GD.PushError($"UNNAMED art: {MpfbCastPath} lists no body of sex '{sex}'; those people stay as bound");
             }
             return (models.ToArray(), feminine, masculine);
         }
@@ -548,7 +554,7 @@ public sealed class ArtBindings
     private static (MpfbModel Body, float Scale)? MpfbBodyFor(string person, bool feminine,
         (MpfbModel[] Models, float Feminine, float Masculine) cast)
     {
-        var usable = cast.Models.Where(m => m.Sex == "any" || m.Sex == (feminine ? "f" : "m")).ToArray();
+        var usable = cast.Models.Where(m => m.Sex == (feminine ? "f" : "m")).ToArray();
         if (usable.Length == 0)
             return null;
         uint hash = 2166136261;

@@ -1,11 +1,11 @@
 {
-  "comment": "The MPFB comparison's bodies (--visual people=mpfb). Five MakeHuman exports staged as rigged/mpfb_<id>/mpfb_<id>_rigged.glb; each person keeps the sex, stature variation and clip set its own binding gives it, and only the body changes. height_m is the exported file's measured overall height, used to bring every body to the stature its binding already had so the comparison is of fidelity, not of size. sex any serves both.",
+  "comment": "The MPFB comparison's bodies (--visual people=mpfb). Five MakeHuman exports staged as rigged/mpfb_<id>/mpfb_<id>_rigged.glb; each person keeps the sex, stature variation and clip set its own binding gives it, and only the body changes. height_m is the exported file's measured overall height, used to bring every body to the stature its binding already had so the comparison is of fidelity, not of size. A body must state its sex: the variant armour is a male build (it carries mhair02, and its 2.423 m body is the big male morph), and a body that served both sexes made the two players land on the same model, so --autostart-body could not change the player's body at all.",
   "stature_m": { "f": 1.692, "m": 1.918 },
   "models": [
     { "id": "mpfb_fem_armour",  "sex": "f", "height_m": 1.629 },
     { "id": "mpfb_fem_lt",      "sex": "f", "height_m": 1.629 },
     { "id": "mpfb_male_armour", "sex": "m", "height_m": 1.778 },
     { "id": "mpfb_male_lt",     "sex": "m", "height_m": 1.778 },
-    { "id": "mpfb_var_armour",  "sex": "any", "height_m": 2.450 }
+    { "id": "mpfb_var_armour",  "sex": "m", "height_m": 2.450 }
   ]
 }
