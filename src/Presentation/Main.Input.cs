@@ -266,6 +266,7 @@ public partial class Main
                     if (_session.Simulation!.Waystones.Any(w => w.Site.Key == focus.Key && w.Known))
                     {
                         WaystoneResponse(focus.Key, true);
+                        _soundEvents.WaystoneUse(focus.Key);
                         Show(_waystones, focus.Key);
                     }
                     else

@@ -169,7 +169,7 @@ public partial class Main
             _inventory.CraftGlint(e.ItemId, e.Quality);
             if (_inventory.OpenStation is { } station)
                 _successEffects.Craft((_crafting.Station(station.Key)?.GlobalPosition ?? _avatar.GlobalPosition) + Vector3.Up * .8f,
-                    _bindings.Stations.GetValueOrDefault(station.Kind)?.Sound == "anvil", e.Quality);
+                    _bindings.Stations.GetValueOrDefault(station.Kind)?.Sound is "anvil" or "forge", e.Quality);
             Notice(NoticeKind.Items, $"Made {Names.Item(_session, e.ItemId, e.Quality)}{(e.Count > 1 ? $" x{e.Count}" : "")}", 3);
         });
         _session.Subscribe<FindingRecorded>(e =>

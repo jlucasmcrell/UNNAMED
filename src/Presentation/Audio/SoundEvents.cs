@@ -288,7 +288,7 @@ public partial class SoundEvents : Node
                     break;
             }
         });
-        s.Subscribe<ItemCrafted>(_ =>
+        s.Subscribe<ItemCrafted>(e =>
         {
             // craft_hit() at an anvil (a few blows), or the station's own work (the cookfire's sizzle, the bench), then craft_complete().
             string? sound = _openStation is { } station ? _bindings.Stations.GetValueOrDefault(station)?.Sound : null;
@@ -296,6 +296,8 @@ public partial class SoundEvents : Node
             for (int i = 0; anvil && i < 3; i++)
                 _bank.Play("sfx.crafting.anvil.strike", _feet, 0.4 * i);
             bool worked = !anvil && sound is not null && _bank.Play($"sfx.crafting.{sound}", _feet);
+            if (!anvil && !worked && new[] { "hide", "leather", "cloth", "wool" }.Any(e.ItemId.Contains))
+                _bank.Play("sfx.player.gear.cloth", _feet);
             _bank.Play("sfx.crafting.complete", _feet, anvil ? 1.3 : worked ? 1.0 : 0);
         });
         s.Subscribe<ItemConsumed>(e =>
@@ -357,10 +359,14 @@ public partial class SoundEvents : Node
             if (!e.Dodged && !e.Blocked && e.Damage > 0 && e.HealthAfter > 0 && Companion(e.Target) is not null && Where(e.Target) is { } at)
                 _bank.Play("sfx.party.hurt", Chest(at), 0.04);
         });
-        s.Subscribe<StoneTouched>(e => _bank.Play("sfx.travel.waystone.touch", StoneAt(e.StoneKey)));
-        s.Subscribe<ReturnPointBound>(e => PlayOr("sfx.travel.waystone.bind", "sfx.ui.select", StoneAt(e.StoneKey)));
-        s.Subscribe<PlayerTravelled>(e => _bank.Play("sfx.travel.waystone.arrive", Chest(Feet(e.Arrival))));
+        s.Subscribe<StoneTouched>(e => WaystoneUse(e.StoneKey));
+        s.Subscribe<ReturnPointBound>(e => PlayOr("sfx.travel.waystone.bind", "sfx.magic.mending_thread.resolve", StoneAt(e.StoneKey)));
+        s.Subscribe<PlayerTravelled>(e => PlayOr("sfx.travel.waystone.arrive", "sfx.magic.mending_thread.resolve", Chest(Feet(e.Arrival))));
     }
+
+    // The delivered set has no dedicated Waystone sounds yet. Reuse its short restorative chime,
+    // keeping the missing family visible in coverage; never silently leave the interaction mute.
+    public void WaystoneUse(string key) => PlayOr("sfx.travel.waystone.touch", "sfx.magic.mending_thread.resolve", StoneAt(key));
 
     /// <summary>A family, or a stand-in the set has when it lacks that one. Whether either played.</summary>
     private bool PlayOr(string family, string fallback, Vector3? at) => _bank.Play(family, at) || _bank.Play(fallback, at);

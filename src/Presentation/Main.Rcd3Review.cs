@@ -206,15 +206,20 @@ public partial class Main
             var at = _avatar.GlobalPosition;
             camera.GlobalPosition = at + new Vector3(2,2,3);camera.LookAt(at+Vector3.Up*.7f);
             _successEffects.Waystone(at+Vector3.Left,at,false);
+            _soundEvents.WaystoneUse(_session.Setup.Layout.Waystones.First().Key); // Labelled audio audition; no authoritative travel command.
             _hud.Announce("Waystone attuned","Ashen Waystone",HudStyle.Lichen);
             await Rcd3Wait(.35);await Rcd3Shot(directory,"fixture_waystone");await Rcd3Wait(1.8);
             _hud.Announce("Quest complete","Presentation fixture",HudStyle.Brass);
             _hud.AnnounceMore("Quest complete","Presentation fixture","+40 XP · +10 coin (fixture)");
             _hud.SuccessGlow(HudStyle.Brass);
+            _sounds.Play("sfx.ui.quest_complete");
             await Rcd3Wait(.25);await Rcd3Shot(directory,"fixture_quest");await Rcd3Wait(1.8);
             _successEffects.Craft(at+Vector3.Up*.8f,true,2);
+            _sounds.Play("sfx.crafting.anvil.strike",at+Vector3.Up*.8f);
+            _sounds.Play("sfx.crafting.complete",at+Vector3.Up*.8f,.3);
             await Rcd3Wait(.2);await Rcd3Shot(directory,"fixture_craft");
             evidence.Add(new { feedback_fixture="Rendering only; no quest, Waystone or crafting state mutated. Actual event subscriptions require playthrough." });
+            evidence.Add(new { audio_audition_resolved = _sounds.Resolved.ToArray(), audio_errors = _sounds.Errors });
         }
         // Walk to Kera through the existing navigation and command path, then inspect actual offered replies.
         _rcd3Driving = true;
