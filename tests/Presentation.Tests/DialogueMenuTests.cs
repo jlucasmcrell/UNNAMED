@@ -25,9 +25,27 @@ public class DialogueMenuTests
     }
 
     [Fact]
-    public void AShortList_ShowsFlat_InTheContentsOrder()
+    public void QuestArrivalStaysOutsideAsk_AndUnreadTopicsComeFirst()
+    {
+        var replies = new[] { Reply("read"), Reply("advance"), Reply("new", "q", new StartQuestConsequence("quest.a")),
+            Reply("unread"), Reply("more"), Reply("extra"), Reply("bye", null) };
+        DialogueMenu.Group Rank(string id) => id == "advance" ? DialogueMenu.Group.QuestAdvance : DialogueMenu.Classify(replies.First(r => r.Item1 == id).Item2);
+        bool Read(string id) => id == "read";
+        Assert.Equal(new[] { "advance", "new", DialogueMenu.Ask, "bye" }, DialogueMenu.Top(replies, Rank, Read));
+        Assert.Equal(new[] { "unread", "more", "extra", "read", DialogueMenu.Back }, DialogueMenu.Topics(replies, Rank, Read));
+    }
+
+    [Fact]
+    public void WorldFlagAndDeedRepliesAreNeverFolded()
+    {
+        Assert.Equal(DialogueMenu.Group.QuestAdvance, DialogueMenu.Classify(Reply("flag", "n", new SetWorldFlagConsequence("world.test", 1)).Item2));
+        Assert.Equal(DialogueMenu.Group.QuestAdvance, DialogueMenu.Classify(Reply("act", "n", new ReportActConsequence("help", "a")).Item2));
+    }
+
+    [Fact]
+    public void AShortList_StillPutsServicesBeforeLore()
     {
         var replies = new List<(string, DialogueChoice?)> { Reply("a"), Reply("trade", null, new OpenServiceConsequence("trade")), Reply("bye", null) };
-        Assert.Equal(new[] { "a", "trade", "bye" }, DialogueMenu.Top(replies));
+        Assert.Equal(new[] { "trade", "a", "bye" }, DialogueMenu.Top(replies));
     }
 }

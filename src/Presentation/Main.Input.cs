@@ -29,10 +29,10 @@ public partial class Main
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelDown } when !Modal && Input.IsActionPressed("bar_scroll_modifier"):
                 _barPage = ActionBarModel.Page(_barPage, 1);
                 break;
-            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelUp } when !Modal:
+            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelUp } when !Modal && Input.MouseMode == Input.MouseModeEnum.Captured:
                 _camera.Zoom(-0.35f);
                 break;
-            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelDown } when !Modal:
+            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelDown } when !Modal && Input.MouseMode == Input.MouseModeEnum.Captured:
                 _camera.Zoom(0.35f);
                 break;
         }
@@ -46,7 +46,7 @@ public partial class Main
     {
         if (_scripted || DisplayServer.GetName() == "headless")
             return;
-        var wanted = Modal ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Captured;
+        var wanted = Modal || Input.IsActionPressed("free_cursor") ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Captured;
         if (Input.MouseMode != wanted)
             Input.MouseMode = wanted;
     }
@@ -351,6 +351,7 @@ public partial class Main
         Bind("quicksave", Key.F5);
         Bind("saves", Key.L);
         Bind("release_mouse", Key.Escape);
+        Bind("free_cursor", Key.Z); // Hold only; Alt remains action-bar scrolling.
         Bind("dialogue_skip", Key.Space, Key.Enter);   // in a conversation: silence the line and go on (held: fast-forward); Space jumps in play
         Bind("inventory", Key.Tab, Key.I);
         Bind("dodge", Key.C);

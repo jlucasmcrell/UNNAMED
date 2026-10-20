@@ -38,6 +38,7 @@ public partial class SettingsPanel : CanvasLayer
         ["bar_modifier"] = "Bar page key (hold with 1 to 6)", ["bar_scroll_modifier"] = "Bar scroll key (hold and turn the wheel)",
         ["gear_set_1"] = "Gear set 1", ["gear_set_2"] = "Gear set 2", ["gear_set_3"] = "Gear set 3", ["gear_set_4"] = "Gear set 4", ["gear_set_5"] = "Gear set 5",
         ["gear_set_6"] = "Gear set 6", ["gear_set_7"] = "Gear set 7", ["gear_set_8"] = "Gear set 8", ["gear_set_9"] = "Gear set 9", ["gear_set_10"] = "Gear set 10",
+        ["free_cursor"] = "Free cursor (hold)",
         ["companion_order"] = "Companions: follow or wait", ["first_person"] = "First person, and back", ["shoulder_swap"] = "Change shoulder",
         ["inventory"] = "Inventory", ["character"] = "Character", ["skills"] = "Skills", ["journal"] = "Journal", ["map"] = "Map", ["party"] = "Party", ["chat"] = "Chat", ["help"] = "Controls and help",
         ["saves"] = "Saves", ["quicksave"] = "Save now",

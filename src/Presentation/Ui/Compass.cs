@@ -17,6 +17,10 @@ public partial class Compass : Control
 {
     public const float Diameter = 84f;
 
+    // Include the bearing AND both objective lines; the dial's own minimum size excludes them.
+    public float OccupiedBottom => GlobalPosition.Y + Math.Max(_bearing.Position.Y + _bearing.Size.Y,
+        string.IsNullOrEmpty(_markWords.Text) ? 0 : _markWords.Position.Y + _markWords.GetCombinedMinimumSize().Y);
+
     private static readonly string[] Points = { "N", "NE", "E", "SE", "S", "SW", "W", "NW" };
 
     private readonly TextureRect _dial = new() { ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.Scale };

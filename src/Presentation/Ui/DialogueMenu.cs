@@ -18,16 +18,18 @@ public static class DialogueMenu
     /// <summary>At most this many replies show flat; more fold their topics into the Ask entry.</summary>
     public const int FlatMost = 6;
 
-    private enum Group { Quest, Trade, Learn, Service, Topic, Close }
+    public enum Group { QuestAdvance, QuestOffer, Trade, Learn, Service, Topic, Close }
 
-    private static Group Classify(DialogueChoice? choice)
+    public static Group Classify(DialogueChoice? choice)
     {
         if (choice is null)
             return Group.Topic;
         var consequences = choice.Consequences;
-        if (consequences.Any(c => c is StartQuestConsequence or TransferItemConsequence)
+        if (consequences.Any(c => c is TransferItemConsequence or SetWorldFlagConsequence or ReportActConsequence)
             || choice.Conditions.Any(c => c is QuestStateCondition { Negated: false, State: "active" or "satisfied" }))
-            return Group.Quest;
+            return Group.QuestAdvance;
+        if (consequences.Any(c => c is StartQuestConsequence))
+            return Group.QuestOffer;
         if (consequences.Any(c => c is OpenServiceConsequence))
             return Group.Trade;
         if (consequences.Any(c => c is TeachConsequence))
@@ -38,11 +40,11 @@ public static class DialogueMenu
     }
 
     /// <summary>The reply ids on the top level, in order; the Ask entry stands where the topics were folded away.</summary>
-    public static ImmutableArray<string> Top(IReadOnlyList<(string Id, DialogueChoice? Choice)> replies)
+    public static ImmutableArray<string> Top(IReadOnlyList<(string Id, DialogueChoice? Choice)> replies, Func<string, Group>? importance = null, Func<string, bool>? read = null)
     {
+        var grouped = replies.Select(r => (r.Id, Group: importance?.Invoke(r.Id) ?? Classify(r.Choice))).ToList();
         if (replies.Count <= FlatMost)
-            return replies.Select(r => r.Id).ToImmutableArray();
-        var grouped = replies.Select(r => (r.Id, Group: Classify(r.Choice))).ToList();
+            return grouped.OrderBy(r => r.Group).ThenBy(r => read?.Invoke(r.Id) == true).Select(r => r.Id).ToImmutableArray();
         var top = grouped.Where(r => r.Group is not (Group.Topic or Group.Close)).OrderBy(r => r.Group).Select(r => r.Id).ToList();
         if (grouped.Any(r => r.Group == Group.Topic))
             top.Add(Ask);
@@ -51,6 +53,6 @@ public static class DialogueMenu
     }
 
     /// <summary>The topic ids behind the Ask entry, in the content's order, then Back.</summary>
-    public static ImmutableArray<string> Topics(IReadOnlyList<(string Id, DialogueChoice? Choice)> replies) =>
-        replies.Where(r => Classify(r.Choice) == Group.Topic).Select(r => r.Id).Append(Back).ToImmutableArray();
+    public static ImmutableArray<string> Topics(IReadOnlyList<(string Id, DialogueChoice? Choice)> replies, Func<string, Group>? importance = null, Func<string, bool>? read = null) =>
+        replies.Where(r => (importance?.Invoke(r.Id) ?? Classify(r.Choice)) == Group.Topic).OrderBy(r => read?.Invoke(r.Id) == true).Select(r => r.Id).Append(Back).ToImmutableArray();
 }

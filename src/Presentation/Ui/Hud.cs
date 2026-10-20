@@ -448,6 +448,8 @@ public partial class Hud : CanvasLayer
 
     public override void _Process(double delta)
     {
+        if (_view is not null)
+            _view.CompassBottom = (_view.GetGlobalTransform().AffineInverse() * new Vector2(0, _compass.OccupiedBottom)).Y;
         _clock += delta;
         _fade.Color = _fade.Color with { A = Mathf.MoveToward(_fade.Color.A, _fadeTarget, (float)delta) };
         if (_death.Visible && _clock >= _deathUntil)

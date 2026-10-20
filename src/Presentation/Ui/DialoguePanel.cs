@@ -4,6 +4,7 @@
 using Godot;
 using UNNAMED.Application;
 using UNNAMED.Domain.Social;
+using UNNAMED.Domain.Quests;
 using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Presentation.Ui;
@@ -136,9 +137,13 @@ public partial class DialoguePanel : CanvasLayer
             _asking = false;
         }
         var offered = view.Replies.Select(r => (r.Id, Choice: Choice(view, r.Id))).ToList();
-        var shown = (_asking ? DialogueMenu.Topics(offered) : DialogueMenu.Top(offered)).Select(id => id switch
+        var importance = offered.ToDictionary(r => r.Id, r => Importance(view, r.Choice));
+        DialogueMenu.Group Rank(string id) => importance[id];
+        bool Read(string id) => offered.First(r => r.Id == id).Choice?.Next is { } next && _session.Simulation.DialogueVisited(view.DialogueId, next);
+        int unread = offered.Count(r => Rank(r.Id) == DialogueMenu.Group.Topic && !Read(r.Id));
+        var shown = (_asking ? DialogueMenu.Topics(offered, Rank, Read) : DialogueMenu.Top(offered, Rank, Read)).Select(id => id switch
         {
-            DialogueMenu.Ask => new ReplyView(id, "Ask about..."),
+            DialogueMenu.Ask => new ReplyView(id, unread > 0 ? $"Ask about... ({unread} unread)" : "Ask about..."),
             DialogueMenu.Back => new ReplyView(id, "Back"),
             _ => view.Replies.First(r => r.Id == id),
         }).ToList();
@@ -153,12 +158,41 @@ public partial class DialoguePanel : CanvasLayer
             {
                 StyleReply(button, i + 1);
                 Tag(button, Choice(view, reply.Id));
+                if (importance.GetValueOrDefault(reply.Id) is DialogueMenu.Group.QuestAdvance)
+                    button.Text = "◆ " + button.Text;
             }
             string id = reply.Id;
             button.Pressed += () => Answer(id);
             _replies.AddChild(button);
         }
         _scroll.CustomMinimumSize = new Vector2(0, Math.Min(_replies.GetCombinedMinimumSize().Y, RepliesHeight));
+    }
+
+    // A reply may advance a quest merely by arriving at a line; it need not carry a consequence.
+    private DialogueMenu.Group Importance(ConversationView view, DialogueChoice? choice)
+    {
+        var rank = DialogueMenu.Classify(choice);
+        if (choice is null) return rank;
+        foreach (var quest in _session.Simulation!.Quests.Where(q => q.Status == QuestStatus.Active))
+        {
+            var definition = _session.Setup.Quests.Quests[quest.Id];
+            foreach (var objective in quest.Objectives.Where(o => o.Status == ObjectiveStatus.Active))
+            {
+                bool advances = definition.Objectives[objective.Id].Condition switch
+                {
+                    TalkTo talk => talk.DialogueId == view.DialogueId && choice.Next is { } next && talk.Nodes.Contains(next),
+                    ChoiceGiven given => given.DialogueId == view.DialogueId && given.NodeId == view.NodeId && given.ChoiceId == choice.Id,
+                    WorldStateObjective flag => choice.Consequences.OfType<SetWorldFlagConsequence>().Any(c => c.FlagId == flag.FlagId),
+                    _ => false,
+                };
+                if (advances) return DialogueMenu.Group.QuestAdvance;
+            }
+        }
+        if (rank == DialogueMenu.Group.Topic && choice.Next is { } target &&
+            _session.Setup.Social.Dialogues[view.DialogueId].Nodes.TryGetValue(target, out var node) &&
+            node.Choices.Any(c => c.Consequences.Any(effect => effect is StartQuestConsequence)))
+            return DialogueMenu.Group.QuestOffer;
+        return rank;
     }
 
     private void Style(PanelContainer panel, VBoxContainer column)
