@@ -36,6 +36,11 @@ window/stretch/aspect="expand"
 
 project/assembly_name="UNNAMED.Presentation"
 
+[editor]
+
+; Avoid the observed Windows font-import race during clean packaging.
+import/use_multiple_threads=false
+
 [editor_plugins]
 
 
