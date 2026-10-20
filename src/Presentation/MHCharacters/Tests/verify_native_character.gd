@@ -13,6 +13,9 @@ func _check(condition: bool, message: String) -> void:
 		push_error(message)
 
 func _verify() -> void:
+	var job := OS.get_environment("OTHERREACH_PIPELINE_ROOT").replace("\\", "/").trim_suffix("/")
+	assert(job.is_absolute_path() and not job.to_lower().begins_with("d:/otherreach_scratch/mh_playtest_20261019"), "Set a fresh absolute pipeline job for verification output")
+	DirAccess.make_dir_recursive_absolute(job + "/evidence")
 	var source := OS.get_environment("OTHERREACH_MH_CHARACTERS_ROOT").replace("\\", "/").trim_suffix("/") + "/"
 	var catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(source + "catalog.json"))
 	var shared := {}
@@ -101,7 +104,7 @@ func _verify() -> void:
 			measured[-1]["rest_pelvis_height_m"] = rest_height
 		actor.queue_free()
 		await process_frame
-	var report := FileAccess.open(source + "evidence/godot_rest_measurements.json", FileAccess.WRITE)
+	var report := FileAccess.open(job + "/evidence/godot_rest_measurements.json", FileAccess.WRITE)
 	report.store_string(JSON.stringify(measured, "  "))
 	report.close()
 	print("MH_NATIVE_CHARACTER_CHECK failures=%d %s" % [failures.size(), failures])

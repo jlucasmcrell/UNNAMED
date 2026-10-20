@@ -16,6 +16,7 @@ var _body: Skeleton3D
 var _face: Skeleton3D
 var _sync: Node
 var _animator: AnimationPlayer
+var _weapon_grip: SkeletonModifier3D
 var _body_meshes: Array[MeshInstance3D] = []
 var _load_failed := false
 var _seam_cache: Dictionary = {}
@@ -161,6 +162,7 @@ func configure(source: String, config: Dictionary, shared: Dictionary = {}) -> b
 	_body = null
 	_face = null
 	_animator=null
+	_weapon_grip=null
 	_current_clip = ""
 	if is_instance_valid(_root):
 		remove_child(_root)
@@ -216,9 +218,33 @@ func configure(source: String, config: Dictionary, shared: Dictionary = {}) -> b
 	if not _load_grooms(): return false
 	if not _load_garments(): return false
 	if not _load_animation_library(): return false
+	if not _load_weapon_grip(): return false
 	if _load_failed: return false
 	print("MH_CHARACTER id=%s body_bones=%d face_bones=%d native_bind=true ik=false" % [config.id, _body.get_bone_count(), _face.get_bone_count()])
 	return true
+
+func _load_weapon_grip() -> bool:
+	if not _config.has("right_hand_grip"): return true
+	var data: Dictionary=JSON.parse_string(FileAccess.get_file_as_string(_source+_config.right_hand_grip))
+	if data.get("native_body_sha256","")!=FileAccess.get_sha256(_source+_config.body):
+		push_error("Weapon grip belongs to another native body");return false
+	var rotations := {}
+	for name_: String in data.rotations:
+		var pieces := name_.split("_")
+		if pieces.size()!=3 or not pieces[0] in ["thumb","index","middle","ring","pinky"] or not pieces[1] in ["01","02","03"] or pieces[2]!="r":
+			push_error("Weapon grip must contain only the fifteen right digit joints");return false
+		var index := _body.find_bone(name_)
+		if index<0:return false
+		var q: Array=data.rotations[name_]
+		rotations[index]=Quaternion(q[0],q[1],q[2],q[3]).normalized()
+	if rotations.size()!=15:return false
+	_weapon_grip=preload("WeaponGrip.gd").new()
+	_weapon_grip.rotations=rotations
+	_body.add_child(_weapon_grip)
+	return true
+
+func set_weapon_grip(equipped: bool) -> void:
+	if _weapon_grip: _weapon_grip.equipped=equipped
 
 func _load_grooms() -> bool:
 	var manifest_path: String = _source+_config.groom_manifest
@@ -457,6 +483,7 @@ func _load_garments() -> bool:
 		if model == null: return false
 		_root.add_child(model)
 		for mesh: MeshInstance3D in _all(model, "MeshInstance3D"):
+			mesh.set_meta("mh_garment_piece",file_name)
 			if mesh.skin == null:
 				push_error("Garment has no native skin: " + file_name)
 				return false

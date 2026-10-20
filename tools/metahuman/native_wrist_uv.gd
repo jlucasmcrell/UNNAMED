@@ -3,6 +3,9 @@ const Native = preload("res://MHCharacters/NativeCharacter.gd")
 func _initialize(): call_deferred("collect")
 func collect():
  var source: String=OS.get_environment("OTHERREACH_MH_CHARACTERS_ROOT").replace("\\","/").trim_suffix("/")+"/"
+ var job: String=OS.get_environment("OTHERREACH_PIPELINE_ROOT").replace("\\","/").trim_suffix("/")
+ if not job.is_absolute_path():push_error("Set an absolute OTHERREACH_PIPELINE_ROOT");quit(2);return
+ DirAccess.make_dir_recursive_absolute(job+"/evidence")
  var catalog: Dictionary=JSON.parse_string(FileAccess.get_file_as_string(source+"catalog.json"))
  var rows := [];var shared := {}
  for id in catalog.characters:
@@ -43,7 +46,7 @@ func collect():
   file.store_string(JSON.stringify({"character":id,"triangles":revealed,"method":"Native hand/finger skin-bind majority plus 8cm wrist coverage; buffers read-only"}));file.close()
   rows.append({"id":id,"native_hand_triangles":revealed.size()})
   actor.queue_free();await process_frame
- var file:=FileAccess.open(source+"evidence/native_hands_wrists.json",FileAccess.WRITE)
+ var file:=FileAccess.open(job+"/evidence/native_hands_wrists.json",FileAccess.WRITE)
  file.store_string(JSON.stringify(rows,"  "));file.close()
  print("NATIVE_HAND_UV_DONE ",rows)
  quit()

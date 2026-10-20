@@ -46,4 +46,4 @@ for id,c in catalog['characters'].items():
   if c.get('hood',True):paths.append('wardrobe/'+c.get('garment_directory','')+'hood.glb')
   records.append(dict(id=id,variant=variant,mask=relative,hidden_triangles=len(data['triangles']),covered_leg_triangles=len(legs['triangles']),waist_cutoff_m=legs['waist_cutoff_m'],native_hand_triangles=len(hands['triangles']),previously_hidden_hand_pixels=before,hidden_hand_pixels_after=0,native_body_modified=False,source_sha256={p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in paths}))
   print(id,variant,'native hands restored; hidden-hand pixels = 0')
-(root/'masks/native_hands_boots_manifest.json').write_text(json.dumps(records,indent=2))
+(_pipeline_root()/'evidence/native_hands_boots_manifest.json').write_text(json.dumps(records,indent=2))

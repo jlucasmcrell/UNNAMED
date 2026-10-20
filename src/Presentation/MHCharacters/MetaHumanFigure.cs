@@ -137,11 +137,16 @@ public sealed partial class MetaHumanFigure : Figure
         _equipped = weapon;
         _held?.QueueFree();
         _held = null;
+        _native.Call("set_weapon_grip", false);
         if (weapon is null) return;
         var hand = weapon.OffHand ? _offHand : _hand;
         if (hand is null) return;
         _held = HeldWeapon.Mount(_art, weapon.Model, weapon.OffHand ? _offGrip : _grip);
-        if (_held is not null) hand.AddChild(_held);
+        if (_held is not null)
+        {
+            hand.AddChild(_held);
+            _native.Call("set_weapon_grip", !weapon.OffHand && weapon.Family == "sword");
+        }
     }
 
     private static Transform3D NativeGrip(Skeleton3D skeleton, string side)
@@ -166,7 +171,7 @@ public sealed partial class MetaHumanFigure : Figure
     }
 
     // The existing game's phase/gait selection, feeding only Epic-retargeted native clips.
-    // No rest fixer, procedural pose, finger modifier or body IK runs on this figure.
+    // A separate authored right-hand grip blends only while a sword is held.
     private void Animate(float speed, double delta)
     {
         if (!Has("idle")) return;

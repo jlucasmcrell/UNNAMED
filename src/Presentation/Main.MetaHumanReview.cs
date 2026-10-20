@@ -69,7 +69,8 @@ public partial class Main
             assets = MetaHumanFigure.AssetRoot, settings = "Normal launch: loaded owner client_prefs; no harness defaults",
         }, new JsonSerializerOptions { WriteIndented = true }));
         _mhReviewNext = Time.GetTicksMsec() + 3000;
-        if (System.Environment.GetEnvironmentVariable("OTHERREACH_WORLD_LIGHTING_DIAGNOSTIC") == "1"
+        if ((System.Environment.GetEnvironmentVariable("OTHERREACH_WORLD_LIGHTING_DIAGNOSTIC") == "1"
+            || System.Environment.GetEnvironmentVariable("OTHERREACH_MH_OWNER_FIXES_DIAGNOSTIC") == "1")
             && System.Environment.GetEnvironmentVariable("OTHERREACH_LIGHTING_FAST") == "1")
         {
             OpenCreator();
@@ -150,6 +151,33 @@ public partial class Main
         }
         if (_session.Simulation is not { } simulation)
             throw new InvalidOperationException("Native review has no world after Begin");
+        if (_mhReviewStep == 7 && System.Environment.GetEnvironmentVariable("OTHERREACH_MH_OWNER_FIXES_DIAGNOSTIC") == "1")
+        {
+            var source = _camera.Camera;
+            var camera = new Camera3D { Fov = source.Fov, Near = source.Near, Far = source.Far, CullMask = source.CullMask, Attributes = source.Attributes, Environment = source.Environment };
+            AddChild(camera);
+            source.GetNode<OmniLight3D>("CharacterFill").Reparent(camera, false);
+            camera.MakeCurrent();
+            _scatter.Visible = false; // Staged close-ups; not a gameplay change.
+            _avatar.Visible = false; // The staged figure occupies the same inspection point.
+            var figures = new Godot.Collections.Array<MetaHumanFigure>();
+            foreach (string id in new[] { "ada", "mateo" })
+            {
+                var figure = MetaHumanFigure.Create(_art, _bindings, "player", "mh:" + id)
+                    ?? throw new InvalidOperationException("Missing owner-fix review character");
+                AddChild(figure);
+                var feet = new Vector3(430, _ground.Height(430, 758) + .35f, 758);
+                figure.Pose(feet, 0, 0, 0);
+                figure.Hold("item.weapon.rusted_sword");
+                figure.Visible = false;
+                figures.Add(figure);
+            }
+            var diagnostic = (Node)GD.Load<GDScript>("res://MHCharacters/Tests/OwnerFixesReview.gd").New();
+            AddChild(diagnostic);
+            diagnostic.CallDeferred("run", figures, camera, _mhReviewDirectory);
+            _mhReviewDirectory = null;
+            return;
+        }
         if (_mhReviewStep == 7 && System.Environment.GetEnvironmentVariable("OTHERREACH_WORLD_LIGHTING_DIAGNOSTIC") == "1")
         {
             var diagnostic = (Node)GD.Load<GDScript>("res://capture_tools/world_lighting_probe.gd").New();
