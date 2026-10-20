@@ -139,6 +139,21 @@ public partial class Main
             throw new InvalidOperationException("Native review has no world after Begin");
         if (_mhReviewStep == 7)
         {
+            // Optional headroom measurement, matching FrontierPerf. Capture pacing and saved preferences stay unchanged.
+            if (System.Environment.GetEnvironmentVariable("OTHERREACH_MH_PERF_UNCAPPED") == "1")
+            {
+                string pacingPath = Path.Combine(_mhReviewDirectory, $"pacing_{_mhPerfPhase}.json");
+                int beforeCap = Engine.MaxFps;
+                string beforeVsync = DisplayServer.WindowGetVsyncMode().ToString();
+                Engine.MaxFps = 0;
+                DisplayServer.WindowSetVsyncMode(DisplayServer.VSyncMode.Disabled);
+                File.WriteAllText(pacingPath, JsonSerializer.Serialize(new
+                {
+                    beforeCap, beforeVsync, engineMaxFps = Engine.MaxFps,
+                    vsync = DisplayServer.WindowGetVsyncMode().ToString(), simulationTickSeconds = _session.TickSeconds,
+                    mode = "Normal creator Begin path; owner visual preferences; FrontierPerf-style uncapped headroom; no capture branch",
+                }, new JsonSerializerOptions { WriteIndented = true }));
+            }
             // Start warming after the first real world Draw has created all native NPCs.
             _mhReviewNext = Time.GetTicksMsec() + 10000;
             _mhReviewStep = 8;
@@ -166,6 +181,8 @@ public partial class Main
                 ["npc_presentation_count"] = people.Length.ToString(), ["camera_transform"] = _camera.Camera.GlobalTransform.ToString(), ["vsync"] = DisplayServer.WindowGetVsyncMode().ToString(),
                 ["world"] = "Normal new game in starting area; simulation and native NPCs running; no capture readbacks during measurement",
                 ["npc_performance_stage"] = _npcs.PerformanceStage.ToString(),
+                ["engine_max_fps"] = Engine.MaxFps.ToString(), ["simulation_tick_seconds"] = _session.TickSeconds.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                ["uncapped_headroom"] = (System.Environment.GetEnvironmentVariable("OTHERREACH_MH_PERF_UNCAPPED") == "1").ToString(),
             });
             SaveMetaHumanMaterialAudit(_mhPerfSequence || _mhPerfSweep ? $"world_{_mhPerfPhase}" : "world");
             if (_mhPerfSweep)
