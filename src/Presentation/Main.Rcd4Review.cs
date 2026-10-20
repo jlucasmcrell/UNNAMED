@@ -21,9 +21,13 @@ public partial class Main
         if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_TREE_SHAPES") == "1")
         {
             var bands = _scatter.FindChildren("saplings_*", "MultiMeshInstance3D", true, false).OfType<MultiMeshInstance3D>().ToArray();
-            var subject = bands.Where(m => m.Name.ToString().EndsWith("_lod0",StringComparison.Ordinal))
-                .OrderBy(m => (m.GlobalTransform*m.CustomAabb.GetCenter()).DistanceSquaredTo(_avatar.GlobalPosition)).First();
-            var plant = subject.GlobalTransform*subject.Multimesh.GetInstanceTransform(0).Origin;
+            // Fix the world instance, independent of a changed LOD chain's shared bounds.
+            var reference = new Vector3(422.56113f,8.494504f,756.07996f);
+            var plant = bands.Where(m => m.Name.ToString().EndsWith("_lod0",StringComparison.Ordinal))
+                .SelectMany(m => Enumerable.Range(0,m.Multimesh.InstanceCount)
+                    .Select(i => m.GlobalTransform*m.Multimesh.GetInstanceTransform(i).Origin))
+                .OrderBy(p => p.DistanceSquaredTo(reference)).First();
+            if (plant.DistanceTo(reference) > .01f) throw new InvalidOperationException("Sapling fixture world instance changed");
             foreach (float bias in new[] { 1f, 1024f })
             {
                 foreach (var band in bands) band.LodBias=bias;

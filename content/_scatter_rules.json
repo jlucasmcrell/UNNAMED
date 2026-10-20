@@ -1462,6 +1462,7 @@
     },
     "saplings": {
       "mesh": "model:flora_ph_sapling_stand",
+      "lods_m": [0, 35],
       "max_per_m2": 0.02,
       "chunk_m": 14,
       "size": [
