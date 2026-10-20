@@ -235,6 +235,7 @@ public partial class Main : Node3D
             Start();
             InstallMetaHumanReview();
             InstallMpfbComparison();
+            InstallDsShots();
         }
         catch (Exception e)
         {
@@ -335,7 +336,7 @@ public partial class Main : Node3D
               || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
               || (_options.ContainsKey("--showcase") && !_options.ContainsKey("--profile"))
               || (_options.ContainsKey("--front-shots") && !_options.ContainsKey("--profile"))
-              || _options.ContainsKey("--creator-shots")
+              || _options.ContainsKey("--creator-shots") || _options.ContainsKey("--ds-shots")
             ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
             : _options.GetValueOrDefault("--profile") is { } chosen ? Path.GetFullPath(chosen)
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
@@ -349,6 +350,8 @@ public partial class Main : Node3D
             || OS.GetEnvironment("BARROWWORKS_REVIEW_RETURN_BASELINE") == "1"))
             shotStart = OS.GetEnvironment("BARROWWORKS_REVIEW_RETURN_BASELINE") == "1"
                 ? (1_050_000, 770_000) : (438_000, 664_000);
+        if (_options.ContainsKey("--ds-shots"))
+            shotStart = DsShotsStart;
         if (_options.ContainsKey("--frontier-perf"))
             shotStart = FrontierPerf.ParsePoint(_options.GetValueOrDefault("--frontier-point")
                 ?? throw new ArgumentException("--frontier-perf requires --frontier-point x,z"));
@@ -1320,6 +1323,7 @@ public partial class Main : Node3D
         }
         TickMetaHumanReview();
         TickMpfbComparison();
+        TickDsShots();
     }
 
     /// <summary>
@@ -1454,6 +1458,10 @@ public partial class Main : Node3D
             ? simulation.Player.Inventory.FirstOrDefault(e => e.ItemId == id)?.DefId : null;
         _avatar.WearEquipment(new Art.WornOutfit(Worn(EquipSlot.Chest), Worn(EquipSlot.Head), Worn(EquipSlot.Feet),
             Worn(EquipSlot.Hands), Worn(EquipSlot.Legs), Worn(EquipSlot.Cloak)));
+        // A torch in the off hand is a real light, from its own content, and not only a number in a tooltip (finding 25).
+        _avatar.LightInOffHand(Worn(EquipSlot.OffHand) is { } offhand
+            ? _session.Setup.Items.Catalog.Find(offhand)?.LightRadiusMm ?? 0
+            : 0);
         var posture = simulation.Posture;
         _avatar.SetPosture(posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched, posture.Airborne);
         _avatar.SetMovementDirection(new Vector3(_controller.Intent.DirXPermille, 0, _controller.Intent.DirZPermille));
@@ -1671,7 +1679,7 @@ public partial class Main : Node3D
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
-                    or "--mpfb-shots"
+                    or "--mpfb-shots" or "--ds-shots"
                     or "--anim-person" or "--anim-compare" or "--anim-phase"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];

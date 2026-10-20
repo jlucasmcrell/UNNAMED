@@ -111,17 +111,22 @@ public class ItemizationTests
         Assert.Equal(new[] { "item.material.bog_cotton", "item.material.wolf_hide" }, found.Materials);
     }
 
+    /// <summary>
+    /// The torch is worn in the off hand - and since owner finding 25 it is a starting recipe, so it is made without being found first. That
+    /// leaves the forge's experiment pool empty while the torch is its only candidate; the fix for that is more forge recipes, not hiding the
+    /// light the owner asked to be able to make on day one.
+    /// </summary>
     [Fact]
-    public void TheForge_TeachesTheTorch_WhichIsWornInTheOffHand_AndShowsTheCharacter()
+    public void TheTorch_IsAKnownStarterRecipe_WornInTheOffHand_AndShownByTheCharacter()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         var arena = At(session, AtHearth, r => Carrying(r, Stack("item.material.timber", 2), Stack("item.material.bog_cotton", 2)));
 
-        Assert.Null(arena.Submit(new ExperimentCommand(arena.Player, Hearth)));
         Assert.True(Knows(arena, Torch));
+        Assert.Equal(LearningSource.StartingPackage, arena.Simulation.Player.Progression.Known[Torch].Source);
         Assert.Null(arena.Submit(new CraftCommand(arena.Player, Torch)));
-        var torch = arena.Simulation.Player.Inventory.Single(e => e.DefId == "item.tool.torch");
+        var torch = arena.Simulation.Player.Inventory.Last(e => e.DefId == "item.tool.torch");
         Assert.Null(arena.Submit(new EquipCommand(arena.Player, torch.ItemId)));
         Assert.Equal(torch.ItemId, arena.Simulation.Player.Equipment[EquipSlot.OffHand]);
     }

@@ -432,6 +432,8 @@ public sealed class Simulation
     private static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, CallDefinition? call, ulong appearanceSeed,
         Body? start = null, long? atXMm = null, long? atZMm = null)
     {
+        // The one recipe every character starts knowing: the off-hand torch (owner finding 25).
+        const string StartingTorchRecipe = "recipe.smithing.torch";
         var spawn = start ?? setup.Layout.Spawn;
         // A capture opens the character where it asked to rather than walking him there, which in the Barrowworks
         // measured about a quarter of an hour per room (plan P2h). Null is the chosen start, so ordinary runs are
@@ -451,9 +453,14 @@ public sealed class Simulation
         var contact = call is null
             ? Array.Empty<RelationshipValue>()
             : new[] { new RelationshipValue(call.Contact.NpcId, "trust", call.Contact.Trust) };
+        var progression = ProgressionEngine.Create(call is null ? setup.Progression : setup.Progression with { StartingPackage = setup.Progression.StartingPackage.With(call.Package) });
+        // Owner finding 25: the torch is craftable from the first day, because a light that cannot be made before the first night is not a
+        // choice. It is granted here and not in the starting package's techniques because the config-only content lint (Content.Tests) holds
+        // a starting technique to what that copy defines, and no recipe is defined in a config-only copy.
+        progression = ProgressionEngine.Learn(progression,
+            new TechniqueLearning(StartingTorchRecipe, LearningSource.StartingPackage, 0)).Progression;
         return new PlayerRecord(id, name, xMm, spawn.YMm, zMm, appearanceSeed, kit.Select(k => k.Entry),
-            ProgressionEngine.Create(call is null ? setup.Progression : setup.Progression with { StartingPackage = setup.Progression.StartingPackage.With(call.Package) }),
-            spawn.FacingMdeg, equipment: equipment, relationships: contact);
+            progression, spawn.FacingMdeg, equipment: equipment, relationships: contact);
     }
 
     /// <summary>The cell a door stands in, in the space its layout stands in: its flag lives in that cell's delta.</summary>

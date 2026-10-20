@@ -149,6 +149,7 @@ public sealed partial class MetaHumanFigure : Figure
     public override Vector3? Head => IsInsideTree() ? _native.Call("bone_position", "head").AsVector3() + Vector3.Up * .06f : null;
     public override Vector3? Foot(string side) => IsInsideTree() ? _native.Call("bone_position", side == "L" ? "foot_l" : "foot_r").AsVector3() : null;
     public override Vector3? CastPoint => _hand?.GlobalPosition;
+    public override void LightInOffHand(long radiusMm) => HandLight.Show(_offHand, radiusMm);
     public override void Hold(string? itemDefId)
     {
         if (_heldId == itemDefId) return;

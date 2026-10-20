@@ -166,7 +166,8 @@ public class PackTests
         Assert.Equal(3, Bag(arena, 1).Stacks.Length);
         Assert.Equal(24, Bag(arena, 0).Stacks.Length);
         var refused = arena.Submit(new UnequipBagCommand(arena.Player, 1));
-        Assert.Equal("item.bag.quiver holds more than the rest of the pack has room for: 4 stack(s) would not fit", refused);
+        // Five now that the torch is in the starting kit (owner finding 25): the kit takes the slot the pack used to have free.
+        Assert.Equal("item.bag.quiver holds more than the rest of the pack has room for: 5 stack(s) would not fit", refused);
         Assert.Equal(3, Bag(arena, 1).Stacks.Length);                                  // nothing changed
         Assert.Equal(Id(arena, Quiver), arena.Simulation.Pack.BagSlots[0]);
     }

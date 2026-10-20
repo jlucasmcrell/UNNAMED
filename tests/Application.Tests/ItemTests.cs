@@ -68,10 +68,11 @@ public class ItemTests
         var session = Harness.Boot(profile);
         var player = session.NewGame(Harness.Named("Wanderer"), seed: 42).Player;
 
-        // Content bible §14: the sword in hand and a simple restorative; the bow is found at the cart, the spear is made.
-        Assert.Equal(new[] { "item.consumable.salve_minor", "item.story.folded_note", "item.tool.water_flask", "item.weapon.rusted_sword" }, player.Inventory.Select(e => e.DefId).Order());
+        // Content bible §14: the sword in hand and a simple restorative; the bow is found at the cart, the spear is made. The torch joins
+        // the kit (owner finding 25) so the first night is a choice rather than a wall.
+        Assert.Equal(new[] { "item.consumable.salve_minor", "item.story.folded_note", "item.tool.torch", "item.tool.water_flask", "item.weapon.rusted_sword" }, player.Inventory.Select(e => e.DefId).Order());
         Assert.Equal(Carried(session.Simulation!, "item.weapon.rusted_sword").ItemId, player.Equipment[EquipSlot.MainHand]);
-        Assert.Equal(3_710, player.CarriedGrams);
+        Assert.Equal(4_310, player.CarriedGrams);
         Assert.Equal(50_000, player.CarryLimitGrams);   // 30 kg + 2 kg per point of Might (10)
     }
 

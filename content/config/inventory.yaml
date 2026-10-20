@@ -33,4 +33,5 @@ starting_items:
   - { item_ref: item.weapon.rusted_sword, count: 1, equip: true }
   - { item_ref: item.consumable.salve_minor, count: 1 }
   - { item_ref: item.tool.water_flask, count: 1 }
+  - { item_ref: item.tool.torch, count: 1 }   # owner finding 25: a light from the start, so the dark is a choice
   - { item_ref: item.story.folded_note, count: 1 } # M2; no skills, attributes or equipment

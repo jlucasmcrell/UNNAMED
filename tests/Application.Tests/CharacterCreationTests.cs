@@ -101,7 +101,8 @@ public class CharacterCreationTests
         Assert.Equal(CharacterIdentity.BeforeTheCreator, record.Identity);
         Assert.Empty(record.Progression.Grants);
         Assert.Empty(record.Relationships);
-        Assert.Equal(new[] { "item.consumable.salve_minor", "item.story.folded_note", "item.tool.water_flask", "item.weapon.rusted_sword" },
+        // The torch joins the kit (owner finding 25): a light that cannot be made before the first night is not a choice.
+        Assert.Equal(new[] { "item.consumable.salve_minor", "item.story.folded_note", "item.tool.torch", "item.tool.water_flask", "item.weapon.rusted_sword" },
             record.Inventory.Select(e => e.DefId).Order(StringComparer.Ordinal));
     }
 
