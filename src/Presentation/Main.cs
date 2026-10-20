@@ -673,7 +673,12 @@ public partial class Main : Node3D
         // A previous package's absolute load order can still name the discarded character rigs.
         // Native figures own their cache; other rigged assets load on demand when actually used.
         if (MHCharacters.MetaHumanFigure.Available)
-            order = order.Where(p => !p.Replace('\\', '/').Contains("/rigged/", StringComparison.OrdinalIgnoreCase)).ToArray();
+        {
+            var roots = new[] { _assets.Root, Art.ArtLibrary.FallbackRoot }.Where(r => !string.IsNullOrWhiteSpace(r))
+                .Select(r => Path.GetFullPath(r!).TrimEnd('\\', '/') + Path.DirectorySeparatorChar).ToArray();
+            order = order.Where(p => roots.Any(r => p.StartsWith(r, StringComparison.OrdinalIgnoreCase))
+                && !p.Replace('\\', '/').Contains("/rigged/", StringComparison.OrdinalIgnoreCase)).ToArray();
+        }
         int ahead = Math.Clamp(System.Environment.ProcessorCount / 2, 2, 8);
         _art.Prefetch(order, ahead);
         GD.Print($"UNNAMED load: {order.Length} model files parsed ahead on {ahead} workers, in the last boot's order");

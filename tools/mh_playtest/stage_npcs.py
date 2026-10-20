@@ -12,6 +12,9 @@ styles=[
  ('elder',[.57,.61,.63],True,True),('villager',[.69,.73,.54],False,False),
  ('traveller',[.57,.65,.57],True,True),('steward',[.63,.48,.40],True,False),
  ('labourer',[.76,.65,.50],False,False),('elder',[.62,.62,.60],True,True)]
+dyes={'oatmeal':[.82,.76,.62],'madder':[.66,.24,.16],'woad':[.26,.34,.52],'walnut':[.42,.28,.16],'saffron':[.80,.62,.20],'charcoal':[.22,.22,.24]}
+# DeepSeek npc_variants.gd period-dye palette; each NPC keeps its own approved part combination.
+families=['saffron','madder','woad','walnut','charcoal','oatmeal','woad','madder','oatmeal','walnut']
 required=['Body_Basecolor.png','Body_Normal.png','Body_SRMF.png','Head_Basecolor.png','Head_Normal.png','Head_SRMF.png','Teeth_Color.png','Teeth_Normal.png','Eyes_Color.png','Eyes_Normal.png','Eyelashes_Color.png']
 for i,c in enumerate(prep['characters']):
  id=c['id'];dest=runtime/'npc'/id
@@ -26,10 +29,12 @@ for i,c in enumerate(prep['characters']):
  parts={x['part']:x for x in exported['exports']}
  archetype,tint,vest,hood=styles[i]
  variant='shirt_'+('vest_' if vest else '')+'pants'+('_hood' if hood else '')+'_shells'
- catalog['characters'][id]=dict(id=id,shells=id,sex=c['sex'],body=f'npc/{id}/body.glb',head=f'npc/{id}/head.glb',maps=f'npc/{id}/Maps/',eye_manifest=f'npc/{id}/eyes.json',groom_manifest=f'npc/{id}/grooms.json',tint=tint,vest=vest,hood=hood,hidden_mask=f'masks/{id}_{variant}.png',body_lod=parts['body']['native_lod'],face_lod=parts['head']['native_lod'],body_bones=parts['body']['bone_count'],face_bones=parts['head']['bone_count'],face_pipeline="UE Optimized High (native reduced LOD set)",face_surface_roles=face_roles,max_texture_size=2048,archetype=archetype,preset=c['preset'],age_intent=c['age_intent'])
+ config=dict(id=id,shells=id,dye_family=families[i],dye_color=dyes[families[i]],sex=c['sex'],body=f'npc/{id}/body.glb',head=f'npc/{id}/head.glb',maps=f'npc/{id}/Maps/',eye_manifest=f'npc/{id}/eyes.json',groom_manifest=f'npc/{id}/grooms.json',tint=tint,vest=vest,hood=hood,hidden_mask=f'masks/{id}_{variant}.png',body_lod=parts['body']['native_lod'],face_lod=parts['head']['native_lod'],body_bones=parts['body']['bone_count'],face_bones=parts['head']['bone_count'],face_pipeline="UE Optimized High (native reduced LOD set)",face_surface_roles=face_roles,max_texture_size=2048,archetype=archetype,preset=c['preset'],age_intent=c['age_intent'])
+ catalog['characters'].setdefault(id,{}).update(config)
  catalog['npcs']=[x['id'] for x in prep['characters'] if x['id'] in catalog['characters']]
 # Preserve established characters' presentation categories; the simulation/content remain unchanged.
 assignments={'npc.ashen_hollow.renn_vale':'10_Walter','npc.ashen_hollow.kera_voss':'04_Sunita','npc.ashen_hollow.sel_arien':'03_Grace','npc.ashen_hollow.tavar_orr':'07_Kelvin','npc.cairnwold.berrin_garth':'08_Dominic','npc.cairnwold.durn_skell':'09_Orlando','npc.cairnwold.mara_ling':'02_Zuri','npc.cairnwold.tam_crowden':'06_Trey'}
 catalog['assignments']={k:v for k,v in assignments.items() if v in catalog['npcs']}
+if (root/'evidence/ue_npc_measurements.json').exists():shutil.copy2(root/'evidence/ue_npc_measurements.json',runtime/'evidence/ue_npc_measurements.json')
 (runtime/'catalog.json').write_text(json.dumps(catalog,indent=2))
 print('STAGED_NATIVE_NPCS',catalog['npcs'])

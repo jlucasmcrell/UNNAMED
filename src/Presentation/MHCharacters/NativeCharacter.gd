@@ -5,6 +5,8 @@ const SKIN_SHADER = preload("../MHSlice/Shaders/skin_shader_local.gdshader")
 const EYE_SHADER = preload("../MHSlice/Shaders/eye_shader_local.gdshader")
 const HAIR_SHADER = preload("../MHSlice/Shaders/hair_card.gdshader")
 const HAIR_BACKING_SHADER = preload("../MHSlice/Shaders/hair_backing.gdshader")
+const SeamProbe = preload("../MHSlice/Tests/SeamProbe.gd")
+const Measurements = preload("../MHSlice/Tests/Measurements.gd")
 var _shared: Dictionary = {}
 var _source := ""
 var _sex := ""
@@ -16,6 +18,8 @@ var _sync: Node
 var _animator: AnimationPlayer
 var _body_meshes: Array[MeshInstance3D] = []
 var _load_failed := false
+var _seam_cache: Dictionary = {}
+var _current_clip := ""
 
 func _all(node: Node, cls: String) -> Array:
 	var result := []
@@ -144,6 +148,7 @@ func _load_model(path: String, named_binds: bool = false) -> Node3D:
 func configure(source: String, config: Dictionary, shared: Dictionary = {}) -> bool:
 	_shared = shared
 	_load_failed = false
+	_seam_cache.clear()
 	_body_meshes.clear()
 	_source = source.replace("\\", "/").trim_suffix("/") + "/"
 	_config = config
@@ -151,6 +156,7 @@ func configure(source: String, config: Dictionary, shared: Dictionary = {}) -> b
 	_body = null
 	_face = null
 	_animator=null
+	_current_clip = ""
 	if is_instance_valid(_root):
 		remove_child(_root)
 		_root.queue_free()
@@ -204,6 +210,7 @@ func configure(source: String, config: Dictionary, shared: Dictionary = {}) -> b
 	_root.add_child(_sync)
 	if not _load_grooms(): return false
 	if not _load_garments(): return false
+	if not _load_animation_library(): return false
 	if _load_failed: return false
 	print("MH_CHARACTER id=%s body_bones=%d face_bones=%d native_bind=true ik=false" % [config.id, _body.get_bone_count(), _face.get_bone_count()])
 	return true
@@ -258,6 +265,110 @@ func _load_grooms() -> bool:
 func body_skeleton() -> Skeleton3D:
 	return _body
 
+func _load_animation_library() -> bool:
+	if not _config.has("animation_library"): return true
+	var path: String = _source + _config.animation_library
+	if not FileAccess.file_exists(path):
+		push_error("Required native UE AnimationLibrary missing: " + path)
+		return false
+	var key := "animation_library|" + path
+	if not _shared.has(key): _shared[key] = ResourceLoader.load(path, "AnimationLibrary", ResourceLoader.CACHE_MODE_IGNORE)
+	var library := _shared[key] as AnimationLibrary
+	if library == null or library.get_meta("native_body_sha256", "") != FileAccess.get_sha256(_source + _config.body):
+		push_error("AnimationLibrary does not match this unchanged native body: " + str(_config.id))
+		return false
+	for clip in library.get_animation_list():
+		var animation := library.get_animation(clip)
+		for track in animation.get_track_count():
+			var target := animation.track_get_path(track)
+			if target.get_concatenated_names() != "." or target.get_subname_count() != 1 or _body.find_bone(target.get_subname(0)) < 0:
+				push_error("Animation track is outside the native body: " + str(target))
+				return false
+	for imported in _all(_root, "AnimationPlayer"): imported.queue_free()
+	_animator = AnimationPlayer.new()
+	_animator.name = "NativeClips"
+	_body.add_child(_animator)
+	_animator.root_node = NodePath("..")
+	_animator.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
+	_animator.add_animation_library("", library)
+	return true
+
+func has_clip(state: String) -> bool:
+	return _animator != null and _animator.has_animation(state)
+
+func clip_length(state: String) -> float:
+	return _animator.get_animation(state).length if has_clip(state) else 0.0
+
+func clip_state() -> String:
+	return _current_clip if not _current_clip.is_empty() else "base pose (native UE animation pending)"
+
+func play_clip(state: String, blend: float = .2, rate: float = 1.0, restart: bool = false) -> bool:
+	if not has_clip(state): return false
+	_animator.speed_scale = rate
+	if _current_clip == state and not restart: return true
+	_current_clip = state
+	_animator.play(state, blend)
+	if restart: _animator.seek(0.0, true)
+	return true
+
+func hold_clip(state: String, through: float, blend: float = .1) -> bool:
+	if not play_clip(state, blend): return false
+	# Same running-clock seek as SkinnedModel.Hold, so the crossfade can advance.
+	_animator.speed_scale = 1.0
+	_animator.seek(clampf(through, 0.0, 1.0) * clip_length(state), true)
+	return true
+
+func advance_animation(delta: float) -> void:
+	if _animator != null: _animator.advance(delta)
+
+func sample_clip(state: String, seconds: float) -> bool:
+	if not play_clip(state, 0.0, 1.0, true): return false
+	_animator.seek(clampf(seconds, 0.0, clip_length(state)), true)
+	_animator.advance(0.0)
+	_sync.apply_leader_pose()
+	return true
+
+func native_metrics() -> Dictionary:
+	# Same read-only boundary/GPU-pose measurement as the accepted slice; native skin only.
+	var body_mesh: MeshInstance3D = _body_meshes[0]
+	var head_mesh: MeshInstance3D
+	var skin_surface := -1
+	var largest := 0
+	for mesh: MeshInstance3D in _all(_face, "MeshInstance3D"):
+		if mesh.skin == null or mesh.skeleton.is_empty() or mesh.get_node(mesh.skeleton) != _face: continue
+		for surface in mesh.mesh.get_surface_count():
+			var material := mesh.mesh.surface_get_material(surface)
+			var label := material.resource_name.to_lower() if material else ""
+			if "face_skin" not in label and "graytexture_head" not in label: continue
+			var count: int = mesh.mesh.surface_get_arrays(surface)[Mesh.ARRAY_VERTEX].size()
+			if count > largest:
+				largest = count
+				head_mesh = mesh
+				skin_surface = surface
+	assert(head_mesh != null and skin_surface >= 0)
+	if _seam_cache.is_empty():
+		var body_loops := SeamProbe.boundary_loops(body_mesh, 0)
+		var head_loops := SeamProbe.boundary_loops(head_mesh, skin_surface)
+		assert(not body_loops.is_empty() and not head_loops.is_empty())
+		var bi := 0
+		for i in body_loops.size():
+			if SeamProbe.center(SeamProbe.points(body_mesh, 0, body_loops[i], false)).y > SeamProbe.center(SeamProbe.points(body_mesh, 0, body_loops[bi], false)).y: bi = i
+		var center := SeamProbe.center(SeamProbe.points(body_mesh, 0, body_loops[bi], false))
+		var hi := 0
+		for i in head_loops.size():
+			if SeamProbe.center(SeamProbe.points(head_mesh, skin_surface, head_loops[i], false)).distance_to(center) < SeamProbe.center(SeamProbe.points(head_mesh, skin_surface, head_loops[hi], false)).distance_to(center): hi = i
+		var bp := SeamProbe.points(body_mesh, 0, body_loops[bi], false)
+		var hp := SeamProbe.points(head_mesh, skin_surface, head_loops[hi], false)
+		var points := PackedVector3Array()
+		for mesh in [body_mesh, head_mesh]:
+			var to_local: Transform3D = _root.global_transform.affine_inverse() * mesh.global_transform
+			for surface in mesh.mesh.get_surface_count():
+				for vertex: Vector3 in mesh.mesh.surface_get_arrays(surface)[Mesh.ARRAY_VERTEX]: points.append(to_local * vertex)
+		_seam_cache = {"body": body_loops[bi], "head": head_loops[hi], "forward": SeamProbe.pair_nearest(bp, hp), "reverse": SeamProbe.pair_nearest(hp, bp), "measurements_m": Measurements.measure(points)}
+	var bp := SeamProbe.points(body_mesh, 0, _seam_cache.body, true)
+	var hp := SeamProbe.points(head_mesh, skin_surface, _seam_cache.head, true)
+	return {"character": _config.id, "body_boundary_vertices": bp.size(), "head_boundary_vertices": hp.size(), "max_boundary_distance_mm": 1000.0 * maxf(SeamProbe.max_distance(bp, hp, _seam_cache.forward), SeamProbe.max_distance(hp, bp, _seam_cache.reverse)), "measurements_m": _seam_cache.measurements_m, "native_body_resource_unchanged": body_mesh.mesh == body_mesh.get_meta("native_source_mesh"), "body_bones": _body.get_bone_count(), "face_bones": _face.get_bone_count(), "shared_bones": _sync._pairs.size(), "runtime_body_ik": false}
+
 func set_shadow_only(enabled: bool) -> void:
 	for mesh in _all(self, "MeshInstance3D"):
 		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY if enabled else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
@@ -268,13 +379,15 @@ func bone_position(bone_name: String) -> Vector3:
 
 func _cloth_material(option: Array) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
-	material.albedo_texture = _texture("wardrobe/cloth/" + option[1])
+	var variants: Dictionary = _config.get("cloth_albedos", {})
+	material.albedo_texture = _texture(variants.get(option[1], "wardrobe/cloth/" + option[1]))
 	material.normal_texture = _texture("wardrobe/cloth/" + option[2])
 	material.normal_enabled = true
 	material.normal_scale = option[3]
 	material.metallic = 0.0
-	material.roughness = .68
-	var tint: Array = _config.get("tint", [1.0, 1.0, 1.0])
+	material.roughness = .72 if _config.has("dye_color") else .68
+	# Offline recolouring preserves the author fabric/leather detail and distinct garment colours.
+	var tint: Array = [1.0, 1.0, 1.0] if not variants.is_empty() else _config.get("tint", [1.0, 1.0, 1.0])
 	material.albedo_color = Color(tint[0], tint[1], tint[2])
 	return material
 

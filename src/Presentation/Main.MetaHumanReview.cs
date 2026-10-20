@@ -108,16 +108,21 @@ public partial class Main
         }
         if (_session.Simulation is not { } simulation)
             throw new InvalidOperationException("Native review has no world after Begin");
-        _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
         if (_mhReviewStep == 7)
         {
-            _mhReviewStats = new FrameStats(GetViewport()) { Segment = "starting_area_owner_settings" };
-            _mhReviewLast = Time.GetTicksUsec();
+            // Start warming after the first real world Draw has created all native NPCs.
+            _mhReviewNext = Time.GetTicksMsec() + 10000;
             _mhReviewStep = 8;
             return;
         }
         if (_mhReviewStep == 8)
         {
+            if (_mhReviewStats is null)
+            {
+                _mhReviewStats = new FrameStats(GetViewport()) { Segment = "starting_area_owner_settings" };
+                _mhReviewLast = Time.GetTicksUsec();
+                return;
+            }
             ulong now = Time.GetTicksUsec();
             double seconds = (now - _mhReviewLast) / 1_000_000.0;
             _mhReviewLast = now;
@@ -155,8 +160,9 @@ public partial class Main
         }
         var shot = _mhReviewShots[_mhReviewShot];
         var native = shot.Figure.GetNode<Node3D>("Native");
-        Vector3 aim = native.Call("bone_position", shot.Bone == "full" ? "pelvis" : shot.Bone).AsVector3();
-        if (shot.Bone is "head" or "hairline") aim += Vector3.Up * .10f;
+        shot.Figure.SetFirstPerson(false);
+        Vector3 aim = native.Call("bone_position", shot.Bone == "full" ? "pelvis" : shot.Bone == "hairline" ? "head" : shot.Bone).AsVector3();
+        if (shot.Bone is "head" or "hairline") aim += Vector3.Up * (shot.Bone == "hairline" ? .15f : .10f);
         var direction = shot.Figure.GlobalBasis.Z.Rotated(Vector3.Up, shot.Yaw).Normalized();
         _camera.Camera.GlobalPosition = aim + direction * shot.Distance + Vector3.Up * (shot.Bone == "full" ? .10f : .025f);
         _camera.Camera.LookAt(aim);
@@ -168,17 +174,17 @@ public partial class Main
             person = shot.Person, character = shot.Figure.CharacterId, bone = shot.Bone, clip = shot.Figure.ClipState,
             actorPosition = shot.Figure.GlobalPosition.ToString(), cameraPosition = _camera.Camera.GlobalPosition.ToString(),
             worldTick = simulation.WorldTick, camera = "Normal game world and lighting; diagnostic camera only",
-        }, () => { _mhReviewShot++; _mhReviewSeconds = 0; }, 0);
+        }, () => { _mhReviewShot++; _mhReviewSeconds = 0; }, 0, () => Godot.Json.Stringify(native.Call("native_metrics")));
     }
 
     private void AddMetaHumanReviewShots(MetaHumanFigure figure, string person)
     {
-        foreach (var (bone, distance) in new[] { ("full", 3.0f), ("head", .48f), ("neck_01", .36f), ("upperarm_l", .48f), ("hand_l", .38f), ("foot_l", .48f) })
+        foreach (var (bone, distance) in new[] { ("full", 3.0f), ("head", .48f), ("hairline", .34f), ("neck_01", .36f), ("upperarm_l", .48f), ("hand_l", .38f), ("foot_l", .48f) })
             foreach (float yaw in new[] { 0f, Mathf.Pi / 2 })
                 _mhReviewShots.Add((figure, person, bone, distance, yaw));
     }
 
-    private async void CaptureMetaHumanReview(string name, object details, Action then, ulong waitMs)
+    private async void CaptureMetaHumanReview(string name, object details, Action then, ulong waitMs, Func<string>? nativeMetrics = null)
     {
         _mhReviewBusy = true;
         try
@@ -186,6 +192,7 @@ public partial class Main
             await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
             SaveScreenshot(_mhReviewDirectory!, name);
             File.WriteAllText(Path.Combine(_mhReviewDirectory!, name + ".json"), JsonSerializer.Serialize(details, new JsonSerializerOptions { WriteIndented = true }));
+            if (nativeMetrics is not null) File.WriteAllText(Path.Combine(_mhReviewDirectory!, name + ".native.json"), nativeMetrics());
             GD.Print("MH_NORMAL_GAME_REVIEW frame " + name);
             then();
             _mhReviewNext = Time.GetTicksMsec() + waitMs;

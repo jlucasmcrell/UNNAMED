@@ -11,7 +11,16 @@ for($index=$StartIndex;$index -le $EndIndex;$index++){
  $env:OTHERREACH_MH_NPC_START=[string]$index
  $env:OTHERREACH_MH_NPC_COUNT='1'
  $env:OTHERREACH_MH_NPC_ASSEMBLE='1'
+ for($attempt=1;$attempt -le 3;$attempt++){
+  try {
  & $guard -Executable 'C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor-Cmd.exe' -JobArguments @('D:\Otherreach_Scratch\mh_slice_20261019\OtherreachMHSlice\OtherreachMHSlice.uproject','-unattended','-nosplash','-nosound',"-ExecutePythonScript=$root\scripts\cloud_export_npcs.py") -Log "$root\evidence\npc_$($id)_guard.log" -Gpu -Job "npc-$id"
+   break
+  }catch{
+   if($_.ToString() -notmatch 'gpu.queue' -or $attempt -eq 3){throw}
+   Add-Content -LiteralPath $progress -Value "`r`nBLOCKED transient: mh-playtest GPU queue file sharing error before $id acquire; retrying the documented lock after5s. No UE job launched and no foreign lease touched."
+   Start-Sleep -Seconds 5
+  }
+ }
  foreach($stage in @('npc_cloud_export','npc_assembly','npc_glb_export','npc_material_groom_export')){
   $state=Get-Content -LiteralPath "$root\evidence\$stage.json" -Raw | ConvertFrom-Json
   if(-not ($state.characters | Where-Object {$_.id -eq $id})){Add-Content -LiteralPath $progress -Value "`r`nBLOCKED: mh-playtest $id native stage $stage incomplete; inspect $root\evidence\$stage.json. No gate claimed."; throw "$id $stage incomplete"}

@@ -100,6 +100,8 @@ public partial class NpcsView : Node3D
             // A companion carries their own weapon (M6: the March Spear, from their NPC definition's companion block).
             if (figure is Art.SkinnedFigure skinned)
                 skinned.Equip(simulation.Companions.Any(c => c.NpcId == npc.Id) ? _bindings.CompanionWeapon : null);
+            else if (figure is MHCharacters.MetaHumanFigure nativeFigure)
+                nativeFigure.Equip(simulation.Companions.Any(c => c.NpcId == npc.Id) ? _bindings.CompanionWeapon : null);
             // How fast the body is going, for the stride, and where to draw it between the simulation's steps (GaitSpeed, H04).
             if (!_gaits.TryGetValue(npc.Id, out var gait))
                 _gaits[npc.Id] = gait = new GaitSpeed();

@@ -42,6 +42,10 @@ try:
   state['characters']=[c for c in state['characters'] if c['id']!=id]+[dict(id=id,exports=exports)]
   save('EXPORTED',current=id)
  save('BATCH_DONE')
+ if os.environ.get('OTHERREACH_MH_NPC_ASSEMBLE')=='1':
+  import runpy
+  runpy.run_path(str(root/'scripts/measure_npc_sources.py'),run_name='__main__')
+  runpy.run_path(str(root/'scripts/probe_etta_lods.py'),run_name='__main__')
 except Exception:save('FAILED',error=traceback.format_exc())
 finally:
  if os.environ.get('OTHERREACH_MH_NPC_ASSEMBLE')!='1':unreal.SystemLibrary.quit_editor()

@@ -2,6 +2,7 @@ extends SceneTree
 ## Run with OTHERREACH_MH_CHARACTERS_ROOT pointing to the staged runtime bundle.
 const NativeCharacter = preload("../NativeCharacter.gd")
 var failures: Array[String] = []
+var measured: Array = []
 
 func _initialize() -> void:
 	call_deferred("_verify")
@@ -65,7 +66,31 @@ func _verify() -> void:
 				_check(actor._body.find_bone(mesh.skin.get_bind_name(bind)) >= 0, id + " unmatched garment bind")
 		_check(garments >= ((3 if catalog.characters[id].get("hood", true) else 2) + (2 if catalog.characters[id].get("shells", "") != "" else 0)), id + " accepted clothing missing")
 		_check(actor._sync._pairs.size() == 32, id + " shared head/body sync changed")
+		var points := PackedVector3Array()
+		var native_meshes: Array = actor._body_meshes.duplicate()
+		for mesh: MeshInstance3D in actor._all(actor._face, "MeshInstance3D"):
+			if mesh.skin != null and not mesh.skeleton.is_empty() and mesh.get_node(mesh.skeleton) == actor._face: native_meshes.append(mesh)
+		for mesh: MeshInstance3D in native_meshes:
+			var local: Transform3D = actor._root.global_transform.affine_inverse() * mesh.global_transform
+			for surface in mesh.mesh.get_surface_count():
+				for vertex: Vector3 in mesh.mesh.surface_get_arrays(surface)[Mesh.ARRAY_VERTEX]: points.append(local * vertex)
+		var dimensions: Dictionary = actor.Measurements.measure(points)
+		var file_name := "ue_source_measurements.json" if id in ["ada", "mateo"] else "ue_npc_measurements.json"
+		var baseline := {}
+		if FileAccess.file_exists(source + "evidence/" + file_name):
+			var ue: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(source + "evidence/" + file_name))
+			for row in ue.characters:
+				if id in ["ada", "mateo"] and row.get("sex", "") == catalog.characters[id].sex: baseline = row.measurements_m
+				elif row.get("id", "") == id: baseline = row.selected_lod_measurements_m
+		var errors := {}
+		for key in baseline:
+			errors[key] = 100.0 * absf(dimensions[key] - baseline[key]) / baseline[key]
+			_check(errors[key] <= .5, id + " native UE/Godot proportion drift: " + key + " " + str(errors[key]) + "%")
+		measured.append({"id": id, "measurements_m": dimensions, "ue_measurements_m": baseline, "errors_percent": errors, "rendered_gate_pending": true})
 		actor.queue_free()
 		await process_frame
+	var report := FileAccess.open(source + "evidence/godot_rest_measurements.json", FileAccess.WRITE)
+	report.store_string(JSON.stringify(measured, "  "))
+	report.close()
 	print("MH_NATIVE_CHARACTER_CHECK failures=%d %s" % [failures.size(), failures])
 	quit(0 if failures.is_empty() else 1)

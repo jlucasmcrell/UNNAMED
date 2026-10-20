@@ -1,6 +1,7 @@
 using Godot;
 using UNNAMED.Presentation.Player;
 using UNNAMED.Presentation.Art;
+using UNNAMED.World.Runtime;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -16,16 +17,22 @@ public sealed partial class MetaHumanFigure : Figure
     private Node3D _native = null!;
     private Godot.Collections.Dictionary _configuration = new();
     private Godot.Collections.Dictionary _resources = new();
-    private bool _crouched;
+    private bool _crouched, _airborne, _talking, _downed, _wasAirborne;
+    private double _airTime, _landing, _reaching, _striking;
+    private string _gait = "walk", _attack = "sword_attack_1";
+    private int _attackTurn;
+    private CombatPhase _lastPhase = CombatPhase.Idle;
     private CombatStance _stance = CombatStance.AtRest;
     private ArtLibrary _art = null!;
     private ArtBindings _bindings = null!;
-    private BoneAttachment3D? _hand;
+    private BoneAttachment3D? _hand, _offHand;
+    private Transform3D _grip, _offGrip;
+    private WeaponArt? _equipped;
     private Node3D? _held;
     private string? _heldId;
     public string CharacterId { get; private set; } = "";
     public override float Crouch => _crouched ? 1 : 0;
-    public override string ClipState => "idle (animation handoff pending)";
+    public override string ClipState => _native is not null ? _native.Call("clip_state").AsString() : "native base pose";
 
     public static MetaHumanFigure? Create(ArtLibrary art, ArtBindings bindings, string personId, string? model = null)
     {
@@ -57,30 +64,158 @@ public sealed partial class MetaHumanFigure : Figure
         var skeleton = _native.Call("body_skeleton").As<Skeleton3D>();
         _hand = new BoneAttachment3D { BoneName = "hand_r" };
         skeleton.AddChild(_hand);
+        _offHand = new BoneAttachment3D { BoneName = "hand_l" };
+        skeleton.AddChild(_offHand);
+        _grip = NativeGrip(skeleton, "r");
+        _offGrip = NativeGrip(skeleton, "l");
     }
 
     public override void SetStance(CombatStance stance) => _stance = stance;
-    public override void SetPosture(bool crouched, bool airborne) => _crouched = crouched;
+    public override void SetPosture(bool crouched, bool airborne) { _crouched = crouched; _airborne = airborne; }
+    public override void SetTalking(bool talking) => _talking = talking;
+    public override bool SetDowned(bool downed) { _downed = downed; return Has("death"); }
+    public override void Strike() => _striking = .001;
+    public override void Interact() => _reaching = .001;
     public override void SetFirstPerson(bool firstPerson) => _native.Call("set_shadow_only", firstPerson);
     public override void Pose(Vector3 feet, float facingRadians, float speedMetresPerSecond, double delta)
     {
         Position = feet;
         Rotation = new Vector3(0, facingRadians, 0);
-        // Idle only until the reviewed native AnimationLibrary is handed over. No procedural rig edits.
+        Animate(speedMetresPerSecond, delta);
+        _native.Call("advance_animation", delta);
     }
     public override Vector3? Head => IsInsideTree() ? _native.Call("bone_position", "head").AsVector3() + Vector3.Up * .06f : null;
     public override Vector3? Foot(string side) => IsInsideTree() ? _native.Call("bone_position", side == "L" ? "foot_l" : "foot_r").AsVector3() : null;
     public override Vector3? CastPoint => _hand?.GlobalPosition;
     public override void Hold(string? itemDefId)
     {
-        if (_heldId == itemDefId || _hand is null) return;
+        if (_heldId == itemDefId) return;
         _heldId = itemDefId;
+        Equip(itemDefId is null ? null : _bindings.Weapons.GetValueOrDefault(itemDefId));
+    }
+
+    public void Equip(WeaponArt? weapon)
+    {
+        if (_equipped == weapon && (weapon is null || _held is not null)) return;
+        _equipped = weapon;
         _held?.QueueFree();
         _held = null;
-        if (itemDefId is not null && _bindings.Weapons.GetValueOrDefault(itemDefId) is { } weapon)
-        {
-            _held = HeldWeapon.Mount(_art, weapon.Model, Transform3D.Identity);
-            if (_held is not null) _hand.AddChild(_held);
-        }
+        if (weapon is null) return;
+        var hand = weapon.OffHand ? _offHand : _hand;
+        if (hand is null) return;
+        _held = HeldWeapon.Mount(_art, weapon.Model, weapon.OffHand ? _offGrip : _grip);
+        if (_held is not null) hand.AddChild(_held);
     }
+
+    private static Transform3D NativeGrip(Skeleton3D skeleton, string side)
+    {
+        // A rigid socket in the native hand's space, using its own palm landmarks.
+        // Reads rest transforms only; creates no bones and changes no pose/rest/bind data.
+        var hand = skeleton.GetBoneGlobalRest(skeleton.FindBone("hand_" + side)).AffineInverse();
+        Vector3 Point(string bone) => hand * skeleton.GetBoneGlobalRest(skeleton.FindBone(bone + "_" + side)).Origin;
+        var middle = Point("middle_01");
+        return HeldWeapon.Frame(middle * .7f, Point("index_01") - Point("pinky_01"), middle);
+    }
+
+    private bool Has(string state) => _native is not null && _native.Call("has_clip", state).AsBool();
+    private double Length(string state) => _native.Call("clip_length", state).AsDouble();
+    private void Play(string state, float blend = .2f, float rate = 1, bool restart = false) => _native.Call("play_clip", state, blend, rate, restart);
+    private void HoldClip(string state, float through, float blend = .1f) => _native.Call("hold_clip", state, through, blend);
+    private float Pace(string state, float fallback)
+    {
+        if (_configuration.TryGetValue("animation_paces", out var value) && value.AsGodotDictionary().TryGetValue(state, out var pace))
+            return Math.Max(.1f, pace.AsSingle());
+        return fallback;
+    }
+
+    // The existing game's phase/gait selection, feeding only Epic-retargeted native clips.
+    // No rest fixer, procedural pose, finger modifier or body IK runs on this figure.
+    private void Animate(float speed, double delta)
+    {
+        if (!Has("idle")) return;
+        if (_downed) { Play("death", .25f); return; }
+        if (_striking > 0)
+        {
+            _striking += delta;
+            if (_striking < Length("attack") && Has("attack")) { Play("attack", .1f); return; }
+            _striking = 0;
+        }
+        string? action = _stance switch
+        {
+            { Casting: true } => "cast",
+            { Holds: Held.Sword } => "sword_attack",
+            { Holds: Held.Spear } => "spear_thrust",
+            { Holds: Held.Bow } => "bow_draw",
+            _ => null,
+        };
+        if (_stance.Phase == CombatPhase.Windup && _lastPhase != CombatPhase.Windup && action is not null)
+        {
+            var variants = new List<string>();
+            for (int i = 1; Has($"{action}_{i}"); i++) variants.Add($"{action}_{i}");
+            _attack = variants.Count == 0 ? action : variants[_attackTurn++ % variants.Count];
+        }
+        _lastPhase = _stance.Phase;
+        string? clip = action is not null && _attack.StartsWith(action, StringComparison.Ordinal) ? _attack : action;
+        float t = Mathf.Clamp(_stance.Progress, 0, 1);
+        float through = _stance.Phase switch
+        {
+            CombatPhase.Windup => .45f * t,
+            CombatPhase.Active => .45f + .25f * t,
+            CombatPhase.Recovery => .7f + .3f * t,
+            _ => -1,
+        };
+        if (through >= 0 && clip is not null && Has(clip)) { HoldClip(clip, through); return; }
+        if (_stance.Phase == CombatPhase.Staggered && Has("hit")) { Play("hit", .1f); return; }
+        if (_stance.Guarding && _stance.Phase == CombatPhase.Idle)
+        {
+            string guard = _stance.Holds == Held.Bow ? "bow_ready" : _stance.Holds == Held.Spear ? "spear_ready" : "sword_block";
+            if (Has(guard)) { HoldClip(guard, .5f, .15f); return; }
+        }
+        if (_airborne && Has("fall"))
+        {
+            _airTime = _wasAirborne ? _airTime + delta : 0;
+            _wasAirborne = true;
+            if (_airTime < .22 && Has("jump_start")) Play("jump_start", .08f, 1, _airTime == 0);
+            else Play("fall", .15f);
+            return;
+        }
+        if (_wasAirborne) { _wasAirborne = false; _landing = Has("land") ? .001 : 0; }
+        if (_landing > 0)
+        {
+            _landing += delta;
+            if (_landing < Math.Min(.6, Length("land")) && speed < 1.5f) { Play("land", .08f, 1, _landing - delta <= .001); return; }
+            _landing = 0;
+        }
+        if (_reaching > 0)
+        {
+            _reaching += delta;
+            if (_reaching < Length("interact") && speed < .25f && Has("interact")) { Play("interact", .15f, 1, _reaching - delta <= .001); return; }
+            _reaching = 0;
+        }
+        if (_talking && speed < .3f && Has("talk")) { Play("talk", .3f); return; }
+        if (_crouched && Has("crouch_idle"))
+        {
+            if (speed > .25f && Has("crouch_walk")) Play("crouch_walk", .25f, Mathf.Clamp(speed / Pace("crouch_walk", 1.6f), .35f, 2.2f));
+            else Play("crouch_idle", .3f);
+            return;
+        }
+        if (speed > .25f && Has("walk"))
+        {
+            _gait = _gait switch
+            {
+                "sprint" when speed < 4 => speed < 2 ? "walk" : "run",
+                "run" when speed > 4.4f && Has("sprint") => "sprint",
+                "run" when speed < 2 => "walk",
+                "walk" when speed > 4.4f && Has("sprint") => "sprint",
+                "walk" when speed > 2.4f && Has("run") => "run",
+                _ => _gait,
+            };
+            Play(_gait, .2f, Mathf.Clamp(speed / Pace(_gait, _gait switch { "sprint" => 5, "run" => 3.2f, _ => 1.4f }), .35f, 2.2f));
+            return;
+        }
+        _gait = "walk";
+        string ready = _stance.Holds switch { Held.Sword => "sword_ready", Held.Spear => "spear_ready", Held.Bow => "bow_ready", _ => "idle" };
+        Play(Has(ready) ? ready : "idle", .3f);
+    }
+
 }
