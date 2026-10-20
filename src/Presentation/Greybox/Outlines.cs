@@ -92,7 +92,7 @@ void fragment() { ALBEDO = vec3(0.0); ALPHA = 0.0; }
         if (_materials.TryGetValue(tone, out var made))
             return made;
         var colour = tone == OutlineTone.Focus ? HudStyle.Ember : HudStyle.Brass;
-        float alpha = _contrast ? .9f : tone == OutlineTone.Focus ? .28f : .14f;
+        float alpha = _contrast ? .9f : tone == OutlineTone.Focus ? .5f : .14f;
         float pixels = (tone == OutlineTone.Focus ? 1f : .75f) * (_contrast ? 1.6f : 1f);
         var material = new ShaderMaterial { Shader = _shader };
         material.SetShaderParameter("tone", new Color(colour, alpha));
