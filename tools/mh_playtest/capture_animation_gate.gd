@@ -87,7 +87,8 @@ func capture() -> void:
      var target:=bounds.get_center();var distance:=maxf(3.7,maxf(bounds.size.y,bounds.size.x/.8889)*1.12/(2.0*tan(deg_to_rad(17.5))))+bounds.size.z*.5
      if view!="full":
       var rig:Skeleton3D=native._body if index==0 else source_rig
-      var bone:="upperarm_l" if view=="shoulder" else ("pelvis" if rig.find_bone("pelvis")>=0 else "hips")
+      var bone:=("upperarm_l" if rig.find_bone("upperarm_l")>=0 else "upperarm.l") if view=="shoulder" else ("pelvis" if rig.find_bone("pelvis")>=0 else "hips")
+      if rig.find_bone(bone)<0:push_error("Source camera bone missing: "+bone);quit(9);return
       target=rig.to_global(rig.get_bone_global_pose(rig.find_bone(bone)).origin)+Vector3(0,-.08 if view=="shoulder" else .02,0)
       distance=1.6 if view=="shoulder" else 1.4
      cameras[index].position=target+Vector3(0,0,distance);cameras[index].look_at(target)
