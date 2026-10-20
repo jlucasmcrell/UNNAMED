@@ -93,7 +93,7 @@ void fragment() { ALBEDO = vec3(0.0); ALPHA = 0.0; }
             return made;
         var colour = tone == OutlineTone.Focus ? HudStyle.Ember : HudStyle.Brass;
         float alpha = _contrast ? .9f : tone == OutlineTone.Focus ? .5f : .14f;
-        float pixels = (tone == OutlineTone.Focus ? 1f : .75f) * (_contrast ? 1.6f : 1f);
+        float pixels = (tone == OutlineTone.Focus ? 1.5f : .75f) * (_contrast ? 1.6f : 1f);
         var material = new ShaderMaterial { Shader = _shader };
         material.SetShaderParameter("tone", new Color(colour, alpha));
         material.SetShaderParameter("pixels", pixels);
@@ -103,7 +103,8 @@ void fragment() { ALBEDO = vec3(0.0); ALPHA = 0.0; }
 
     private static IEnumerable<GeometryInstance3D> Meshes(Node root)
     {
-        if (root is GeometryInstance3D geometry and (MeshInstance3D or CsgShape3D) && geometry.IsVisibleInTree())
+        if (root is GeometryInstance3D geometry and (MeshInstance3D or CsgShape3D) && geometry.IsVisibleInTree()
+            && geometry.CastShadow != GeometryInstance3D.ShadowCastingSetting.ShadowsOnly)
             yield return geometry;
         foreach (var child in root.GetChildren())
         {

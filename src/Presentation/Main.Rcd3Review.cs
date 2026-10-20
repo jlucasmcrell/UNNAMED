@@ -36,6 +36,34 @@ public partial class Main
             AddChild(camera);
             source.GetNode<OmniLight3D>("CharacterFill").Reparent(camera, false);
             camera.MakeCurrent();
+            if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_WORLD") == "1")
+            {
+                await RunRcd4WorldReview(directory, camera);
+                GetTree().Quit();
+                return;
+            }
+            if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_HOVER") == "1")
+            {
+                SetProcess(false);
+                var outline = new Outlines();
+                var target = _npcs.GetChildren().OfType<Figure>().Where(f => f.IsVisibleInTree())
+                    .OrderBy(f => f.GlobalPosition.DistanceSquaredTo(_avatar.GlobalPosition)).First();
+                foreach (float distance in new[] { 3f, 6f, 10f })
+                {
+                    var aim = target.GlobalPosition + Vector3.Up;
+                    camera.GlobalPosition = aim + target.GlobalBasis.Z * distance + Vector3.Up * .2f;
+                    camera.LookAt(aim);
+                    outline.Show(Array.Empty<(Node3D?, OutlineTone)>(), false);
+                    await Rcd3Wait(.4);
+                    await Rcd3Shot(directory, $"rim_{distance:0}_off");
+                    outline.Show(new[] { ((Node3D?)target, OutlineTone.Focus) }, false);
+                    await Rcd3Wait(.4);
+                    await Rcd3Shot(directory, $"rim_{distance:0}_on");
+                }
+                File.WriteAllText(Path.Combine(directory, "complete.json"), "{\"fixture\":\"Frozen actual NPC, normal-distance hover pairs\"}");
+                GetTree().Quit();
+                return;
+            }
             var actions = new (string Name, string[] Keys, double Seconds)[] {
                 ("idle", [], .7), ("walk", ["move_forward", "walk"], 1.2),
                 ("forward_left", ["move_forward", "move_left"], 1.1), ("forward_right", ["move_forward", "move_right"], 1.1),
@@ -86,8 +114,8 @@ public partial class Main
     }
     private async Task Rcd3Wait(double seconds)
     {
-        double elapsed = 0;
-        while (elapsed < seconds) { await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame); elapsed += GetProcessDeltaTime(); }
+        ulong until = Time.GetTicksMsec() + (ulong)Math.Ceiling(seconds * 1000);
+        while (Time.GetTicksMsec() < until) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
     }
     private async Task Rcd3Shot(string directory, string name)
     {
@@ -177,6 +205,7 @@ public partial class Main
         await Rcd3Wait(.3);
         await Rcd3Shot(directory, "hover_off");
         outline.Show(new[] { ((Node3D?)_avatar, OutlineTone.Focus) }, false);
+        await Rcd3Wait(.2); // Allow the overlay's transparent passes to reach the rendered frame.
         await Rcd3Shot(directory, "hover_on");
         outline.Show(Array.Empty<(Node3D?, OutlineTone)>(), false);
         // Real HUD controls, with a labelled two-bearing text fixture. No quest/save state is changed.
