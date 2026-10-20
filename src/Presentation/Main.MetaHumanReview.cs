@@ -271,8 +271,9 @@ public partial class Main
         _scatter.Visible = bone == "full"; // Close-up camera only: remove foliage occlusion after the full-world FPS pass.
         Vector3 aim = native.Call("bone_position", bone == "full" ? "pelvis" : bone == "head" ? "FACIAL_C_Nose" : bone == "hairline" ? "head" : bone).AsVector3();
         if (bone == "hairline") aim += Vector3.Up * .07f;
+        if (bone == "foot_l") aim -= Vector3.Up * .05f;
         var direction = figure.GlobalBasis.Z.Rotated(Vector3.Up, yaw).Normalized();
-        float rise = bone == "full" ? .55f : bone == "head" ? -.10f : bone == "foot_l" ? .08f : .025f;
+        float rise = bone == "full" ? 1.55f : bone == "head" ? (yaw == 0 ? -.10f : .045f) : bone == "foot_l" ? .08f : .025f;
         _camera.Camera.GlobalPosition = aim + direction * distance + Vector3.Up * rise;
         _camera.Camera.LookAt(aim);
     }
@@ -324,7 +325,7 @@ public partial class Main
 
     private void AddMetaHumanReviewShots(MetaHumanFigure figure, string person)
     {
-        foreach (var (bone, distance) in new[] { ("full", 3.0f), ("head", .48f), ("hairline", .34f), ("neck_01", .36f), ("upperarm_l", .48f), ("hand_l", .38f), ("foot_l", .48f) })
+        foreach (var (bone, distance) in new[] { ("full", 3.0f), ("head", .48f), ("hairline", .34f), ("neck_01", .36f), ("upperarm_l", .48f), ("hand_l", .38f), ("foot_l", .70f) })
             foreach (float yaw in new[] { 0f, Mathf.Pi / 2 })
                 _mhReviewShots.Add((figure, person, bone, distance, yaw));
     }
