@@ -150,6 +150,18 @@ public partial class Main
             AddChild(_mhDetailCamera);
             _mhDetailCamera.MakeCurrent();
             source.GetNode<OmniLight3D>("CharacterFill").Reparent(_mhDetailCamera, false);
+            if (System.Environment.GetEnvironmentVariable("OTHERREACH_MH_EXTREMITIES_DIAGNOSTIC") == "1")
+            {
+                // Bare/native and dressed source comparisons in this packaged world, without a perf phase.
+                _scatter.Visible = false;
+                var diagnostic = (Node3D)GD.Load<GDScript>("res://MHCharacters/Tests/ExtremitiesReview.gd").New();
+                AddChild(diagnostic);
+                Vector3 feet = _avatar.Position + Vector3.Right * 5;
+                feet.Y = _ground.Height(feet.X, feet.Z);
+                diagnostic.CallDeferred("run", MetaHumanFigure.AssetRoot, _mhReviewDirectory, _mhDetailCamera, feet);
+                _mhReviewDirectory = null;
+                return;
+            }
             foreach (string id in new[] { "ada", "mateo" })
             {
                 var figure = MetaHumanFigure.Create(_art, _bindings, "player", "mh:" + id)
