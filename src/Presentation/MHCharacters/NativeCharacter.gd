@@ -398,6 +398,10 @@ func _load_garments() -> bool:
 		"hood.glb": [["default", "Hood_BaseColor.png", "Hood_Normal.png", .45]],
 	}
 	var shell_id: String = _config.get("shells", "")
+	var trousers_path: String = _config.get("trousers_path", "")
+	if not trousers_path.is_empty():
+		plans.erase("pants.glb")
+		plans[trousers_path] = []
 	if not shell_id.is_empty():
 		plans["shell/" + shell_id + "_boots.glb"] = []
 		plans["shell/" + shell_id + "_gloves.glb"] = []
@@ -426,6 +430,11 @@ func _load_garments() -> bool:
 					if not original is StandardMaterial3D or original.albedo_texture == null or original.normal_texture == null:
 						push_error("Required accepted shell textures missing: " + file_name)
 						return false
+					if file_name == trousers_path and _config.has("trousers_albedo"):
+						var cloth := original.duplicate() as StandardMaterial3D
+						cloth.albedo_texture = _texture(_config.trousers_albedo)
+						cloth.albedo_color = Color.WHITE
+						mesh.set_surface_override_material(surface, cloth)
 					continue
 				var label := original.resource_name.to_lower() if original else ""
 				var option: Array = plans[file_name][0]

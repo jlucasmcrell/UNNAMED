@@ -7,8 +7,12 @@ $held=$false
 if(Test-Path -LiteralPath $flag){throw 'Owner playing; job deferred'}
 try {
  if($Gpu){
-  & powershell.exe -NoProfile -ExecutionPolicy Bypass -File 'C:\Otherreach_Recovery\gpu_lock.ps1' acquire $lease
-  if($LASTEXITCODE -ne 0){throw 'Documented GPU acquire failed'}
+  for($attempt=1;$attempt -le 3;$attempt++){
+   & powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$PSScriptRoot\invoke_gpu_lock.ps1" acquire $lease
+   if($LASTEXITCODE -eq 0){break}
+   if($attempt -eq 3){throw 'Documented GPU acquire failed after3 attempts'}
+   Start-Sleep -Seconds 5
+  }
   $held=$true
  }
  if(Test-Path -LiteralPath $flag){throw 'Owner playing; job deferred after acquire'}

@@ -95,5 +95,5 @@ func build() -> void:
  for old in previous.characters:
   if not old.id in selected:records.append(old)
  file=FileAccess.open(evidence_path,FileAccess.WRITE);file.store_string(JSON.stringify({"status":"DONE","characters":records},"  "));file.close()
- print("MH_NATIVE_ANIMATION_LIBRARIES_DONE characters=",records.size())
+ print("MH_NATIVE_ANIMATION_LIBRARIES_DONE characters=",selected.size())
  quit()

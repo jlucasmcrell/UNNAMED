@@ -4,6 +4,8 @@ $guard='D:\Otherreach_Scratch\mh_slice_20261019\scripts\run_guarded.ps1'
 $catalog=Get-Content -LiteralPath "$root\runtime\catalog.json" -Raw|ConvertFrom-Json
 $groups=@('ada,mateo',($catalog.npcs[0..1] -join ','),($catalog.npcs[2..3] -join ','),($catalog.npcs[4..5] -join ','),($catalog.npcs[6..7] -join ','),($catalog.npcs[8..9] -join ','))
 foreach($group in $groups){
+ $prior=Get-Content -LiteralPath "$root\evidence\ue_native_animations.json" -Raw|ConvertFrom-Json
+ if(@($group.Split(',')|Where-Object {$id=$_;-not ($prior.characters|Where-Object {$_.id -eq $id -and $_.complete -and @($_.clips).Count -ge 26})}).Count -eq 0){Write-Output "UE_NATIVE_ANIMATION_ALREADY_EXPORTED $group";continue}
  for($second=0;$second -lt 61;$second++){if(Test-Path -LiteralPath 'C:\Otherreach_Recovery\OWNER_PLAYING.flag'){throw 'Owner playing; deferred'};Start-Sleep -Seconds 1}
  if((Get-PSDrive C).Free/1GB -lt 190){throw 'C free space floor reached'}
  $env:OTHERREACH_MH_ANIM_PROBE='0';$env:OTHERREACH_MH_ANIM_CHARACTERS=$group
