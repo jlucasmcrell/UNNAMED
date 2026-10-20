@@ -13,7 +13,13 @@ public sealed partial class MetaHumanFigure : Figure
     public const uint FillLayer = 1u << 19;
     public static string AssetRoot => System.Environment.GetEnvironmentVariable("OTHERREACH_MH_CHARACTERS_ROOT")
         ?? System.IO.Path.Combine(System.IO.Path.GetDirectoryName(OS.GetExecutablePath())!, "mh_characters");
-    public static bool Available => System.IO.File.Exists(System.IO.Path.Combine(AssetRoot, "catalog.json"));
+    /// <summary>
+    /// The native bundle is installed AND this run draws MetaHumans. <c>--visual people=mpfb</c> draws the MakeHuman comparison cast
+    /// instead, and every site that prefers a native body here already falls back to the rigged <see cref="Art.SkinnedFigure"/> when
+    /// there is none - which is what draws the people when the MetaHuman bundle is not installed at all.
+    /// </summary>
+    public static bool Available => VisualOptions.People != "mpfb"
+        && System.IO.File.Exists(System.IO.Path.Combine(AssetRoot, "catalog.json"));
     public static string PlayerModel(string? preset) => preset?.Contains("veth_f", StringComparison.Ordinal) == true ? "mh:ada" : "mh:mateo";
     private Node3D _native = null!;
     private Godot.Collections.Dictionary _configuration = new();

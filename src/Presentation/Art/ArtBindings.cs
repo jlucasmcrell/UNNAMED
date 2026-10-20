@@ -407,7 +407,7 @@ public sealed class ArtBindings
                         },
                         StringComparer.Ordinal)
                     : new Dictionary<string, CreatureArt>(),
-                People = root.TryGetProperty("people", out var people)
+                People = MpfbCast(root.TryGetProperty("people", out var people)
                     ? people.EnumerateObject().ToDictionary(p => p.Name, p => OptionClips(root, p.Name, new PersonArt(Text(p.Value, "model")!,
                         Text(p.Value, "hand") ?? "hand_r", Text(p.Value, "off_hand"), Strings(p.Value, "clips"), Grip(p.Value, "grip"), Grip(p.Value, "off_grip"))
                         {
@@ -420,8 +420,8 @@ public sealed class ArtBindings
                                 : new Dictionary<string, float>(),
                         }),
                         StringComparer.Ordinal)
-                    : new Dictionary<string, PersonArt>(),
-                Bodies = root.TryGetProperty("player_bodies", out var bodies) ? PlayerBodies.Read(bodies) : PlayerBodies.None,
+                    : new Dictionary<string, PersonArt>()),
+                Bodies = MpfbBodies(root.TryGetProperty("player_bodies", out var bodies) ? PlayerBodies.Read(bodies) : PlayerBodies.None),
                 ResidentPeople = root.TryGetProperty("resident_people", out var residentPeople)
                     ? residentPeople.EnumerateObject().ToDictionary(p => p.Name,
                         p => (IReadOnlyList<string>)p.Value.EnumerateArray().Select(v => v.GetString()!).ToArray(), StringComparer.Ordinal)
@@ -494,6 +494,127 @@ public sealed class ArtBindings
             GD.PushWarning($"UNNAMED art: the bindings document could not be read ({e.Message}); drawing greybox");
             return Empty;
         }
+    }
+
+    /// <summary>Where the comparison's bodies and statures are stated.</summary>
+    private const string MpfbCastPath = "res://Art/mpfb_cast.json";
+
+    private sealed record MpfbModel(string Id, string Sex, float Height);
+
+    /// <summary>The cast's bodies and the stature each sex is drawn at, or null when this run draws the bound cast.</summary>
+    private static (MpfbModel[] Models, float Feminine, float Masculine)? MpfbCastFile()
+    {
+        if (VisualOptions.People != "mpfb")
+            return null;
+        if (!Godot.FileAccess.FileExists(MpfbCastPath))
+        {
+            GD.PushError($"UNNAMED art: people=mpfb but {MpfbCastPath} is missing; the people stay as bound");
+            return null;
+        }
+        try
+        {
+            using var json = JsonDocument.Parse(Godot.FileAccess.GetFileAsString(MpfbCastPath));
+            var root = json.RootElement;
+            float feminine = 1.692f, masculine = 1.918f;
+            if (root.TryGetProperty("stature_m", out var stature))
+            {
+                feminine = Number(stature, "f", feminine);
+                masculine = Number(stature, "m", masculine);
+            }
+            var models = new List<MpfbModel>();
+            foreach (var model in root.GetProperty("models").EnumerateArray())
+            {
+                if (Text(model, "id") is { } id && Number(model, "height_m", 0f) > 0.01f)
+                    models.Add(new MpfbModel(id, Text(model, "sex") ?? "any", Number(model, "height_m", 0f)));
+            }
+            if (models.Count == 0)
+            {
+                GD.PushError($"UNNAMED art: {MpfbCastPath} lists no body of a usable height; the people stay as bound");
+                return null;
+            }
+            return (models.ToArray(), feminine, masculine);
+        }
+        catch (Exception e) when (e is JsonException or KeyNotFoundException or InvalidOperationException)
+        {
+            GD.PushError($"UNNAMED art: {MpfbCastPath} cannot be read ({e.Message}); the people stay as bound");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// The body <paramref name="person"/> wears and the stature to draw it at: one of the cast's bodies of that sex, by the same hash the
+    /// bindings' other per-ID choices use, so a resident keeps its body across a restart.
+    /// </summary>
+    private static (MpfbModel Body, float Scale)? MpfbBodyFor(string person, bool feminine,
+        (MpfbModel[] Models, float Feminine, float Masculine) cast)
+    {
+        var usable = cast.Models.Where(m => m.Sex == "any" || m.Sex == (feminine ? "f" : "m")).ToArray();
+        if (usable.Length == 0)
+            return null;
+        uint hash = 2166136261;
+        foreach (char c in person)
+            hash = (hash ^ c) * 16777619;
+        var body = usable[(int)(hash % (uint)usable.Length)];
+        return (body, (feminine ? cast.Feminine : cast.Masculine) / body.Height);
+    }
+
+    /// <summary>
+    /// <c>--visual people=mpfb</c>: every bound person keeps its identity - its clips, its people, its stature relative to the rest of the
+    /// cast - and only its body becomes one of the five MakeHuman exports (<see cref="MpfbCastPath"/>). The exports are rigged on
+    /// UE-mannequin bone names, the family the clip set is authored on, so <see cref="ArtLibrary.Retarget"/> plays them by name as it
+    /// plays any other body. Three things the MetaHuman binding assumes do not hold and are dropped rather than left to misfire: the
+    /// exports wear their own garments (so a bound outfit would be fitted over them), they state no <c>SOCK_</c> equipment socket (so the
+    /// hands are the hand bones themselves and no grip frame is claimed), and each was exported at its own height (so the stature is
+    /// divided back to what the binding had, keeping a resident's 0.9 as a 0.9).
+    /// </summary>
+    private static Dictionary<string, PersonArt> MpfbCast(Dictionary<string, PersonArt> people)
+    {
+        if (MpfbCastFile() is not { } cast)
+            return people;
+        int swapped = 0;
+        foreach (string person in people.Keys.ToArray())
+        {
+            var look = people[person];
+            // The sex the binding already gives this person: its approved body's name is the only place it is stated.
+            bool feminine = (look.OutfitBody ?? look.Model).EndsWith("_f", StringComparison.Ordinal);
+            if (MpfbBodyFor(person, feminine, cast) is not { } worn)
+                continue;
+            people[person] = look with
+            {
+                Model = worn.Body.Id,
+                Hand = "hand_r",
+                OffHand = "hand_l",
+                Grip = null,
+                OffGrip = null,
+                Outfit = Array.Empty<string>(),
+                OutfitBody = null,
+                EquipmentOutfits = new Dictionary<string, string[]>(),
+                UniformScale = look.UniformScale * worn.Scale,
+            };
+            swapped++;
+        }
+        GD.Print($"UNNAMED art: people=mpfb, {swapped} of {people.Count} people on {cast.Models.Length} MakeHuman bodies");
+        return people;
+    }
+
+    /// <summary>
+    /// The bodies the creator offers, over the comparison cast: a <c>body.veth_f</c> preset is drawn as the comparison's feminine body
+    /// and <c>body.veth_m</c> as its masculine one, so the creator's choice and the cast agree instead of the creator's body map putting
+    /// a MetaHuman body back on the player after the cast named a MakeHuman one. A preset's own build (<c>…_heavy</c>) is not installed
+    /// for these bodies, so it draws the body the run was bound with, as a preset this build does not have always does.
+    /// </summary>
+    private static PlayerBodies MpfbBodies(PlayerBodies bodies)
+    {
+        if (MpfbCastFile() is not { } cast || bodies.Types.Count == 0)
+            return bodies;
+        var types = new List<BodyModels>();
+        foreach (var type in bodies.Types)
+        {
+            types.Add(MpfbBodyFor("player", type.Type.EndsWith("_f", StringComparison.Ordinal), cast) is { } worn
+                ? new BodyModels(type.Type, new[] { worn.Body.Id })
+                : type);
+        }
+        return new PlayerBodies(types, bodies.Default, bodies.BaseBuild);
     }
 
     /// <summary>

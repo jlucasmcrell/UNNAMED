@@ -29,7 +29,7 @@ public static class VisualOptions
         ["hooks"] = new[] { "none", "on" },
         ["body"] = new[] { "none", "modifiers" },
         ["clips"] = new[] { "procedural", "ext" },    // ext: the player moves with the retargeted pack clips (B12's catalogue)     // modifiers: feet planted on the ground, NPCs' heads turning to the player (B0.4 / B12)          // on: the environmental audio hooks (res://Art/audio_hooks.json)           // on: ambient life - birds, butterflies, fireflies (presentation only, B10)  // recipes: the particle recipes stand in for the flat flipbooks (B0.7 / B11)           // on: the trees (and every model bound with a wind stiffness) sway on the world wind  // a preset of the others (RenderTiers: the environment's cost)
-        ["people"] = new[] { "phase_a", "production", "standard" },  // production: the character-fidelity pass's models; standard: the character standard (charstd) demo cast
+        ["people"] = new[] { "phase_a", "production", "standard", "mpfb" },  // production: the character-fidelity pass's models; standard: the character standard (charstd) demo cast
         // The player is a MetaHuman on the shared UE5-mannequin skeleton: the owner's blend bodies mh_veth_m / mh_veth_f, bound before the
         // creator chooses one. The MPFB player is retired (owner 2026-10-17).
         ["player"] = new[] { "metahuman_m", "metahuman_f" },
@@ -179,6 +179,9 @@ public static class VisualOptions
     public static string AntiAliasing => Values["aa"];
     public static string Celestial => Values["celestial"];
     public static string Otherworld => Values["otherworld"];
+
+    /// <summary>Which cast the people are drawn with; <c>mpfb</c> is the MakeHuman comparison build's.</summary>
+    public static string People => Values["people"];
 
     /// <summary>
     /// Whether this run includes the Barrowworks (<c>--visual barrowworks=1</c>). Read once at startup and
