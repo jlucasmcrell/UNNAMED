@@ -3,6 +3,9 @@ const Native=preload("res://MHCharacters/NativeCharacter.gd")
 func _initialize():call_deferred("run")
 func run():
  var source: String=OS.get_environment("OTHERREACH_MH_CHARACTERS_ROOT").replace("\\","/").trim_suffix("/")+"/"
+ var job: String=OS.get_environment("OTHERREACH_PIPELINE_ROOT").replace("\\","/").trim_suffix("/")
+ if not job.is_absolute_path():push_error("Set an absolute OTHERREACH_PIPELINE_ROOT");quit(2);return
+ DirAccess.make_dir_recursive_absolute(job+"/evidence")
  var catalog: Dictionary=JSON.parse_string(FileAccess.get_file_as_string(source+"catalog.json"))
  var rows:=[]
  for id in catalog.characters:
@@ -29,5 +32,5 @@ func run():
   file.store_string(JSON.stringify(record));file.close()
   rows.append({"id":id,"covered_triangles":triangles.size(),"waist_cutoff_m":waist})
   actor.queue_free();await process_frame
- var file:=FileAccess.open(source+"evidence/covered_legs_uv.json",FileAccess.WRITE)
+ var file:=FileAccess.open(job+"/evidence/covered_legs_uv.json",FileAccess.WRITE)
  file.store_string(JSON.stringify(rows,"  "));file.close();print("COVERED_LEGS_UV_DONE ",rows.size());quit()

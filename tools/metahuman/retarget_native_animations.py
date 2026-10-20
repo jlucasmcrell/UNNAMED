@@ -6,7 +6,8 @@ from pipeline_paths import pipeline_root as _pipeline_root
 import unreal,json,traceback,os,struct,re
 from pathlib import Path
 root=Path((_pipeline_root().as_posix() + ''))
-out=root/'evidence/ue_native_animations_extremities.json'
+grip_mode=os.environ.get('OTHERREACH_MH_HAND_GRIP')=='1'
+out=root/'evidence'/('ue_native_weapon_grips.json' if grip_mode else 'ue_native_animations_extremities.json')
 state=json.loads(out.read_text()) if out.exists() else {'characters':[]}
 def save(**kw):
  if kw.get('status')!='FAILED':state.pop('error',None)
@@ -32,11 +33,12 @@ try:
  'bow_ready':('kaykit_ranged','Ranged_Bow_Aiming_Idle'),'bow_draw':('kaykit_ranged','Ranged_Bow_Draw'),
  'bow_release':('kaykit_ranged','Ranged_Bow_Release'),'pick_up':('kaykit_general','PickUp'),
  'dodge':('kaykit_move','Dodge_Backward')}
- if os.environ.get('OTHERREACH_MH_ANIM_PROBE')=='1':clips={k:clips[k] for k in ['idle','walk','sword_attack_1']}
+ if grip_mode:clips={'weapon_grip':('ual1','Sword_Idle')}
+ elif os.environ.get('OTHERREACH_MH_ANIM_PROBE')=='1':clips={k:clips[k] for k in ['idle','walk','sword_attack_1']}
  catalog=json.loads((root/'runtime/catalog.json').read_text())
  npc=json.loads((root/'evidence/npc_glb_export.json').read_text())
  selected=os.environ.get('OTHERREACH_MH_ANIM_CHARACTERS','ada').split(',')
- tools=unreal.AssetToolsHelpers.get_asset_tools();package='/Game/MHPlaytest/'+re.sub('[^A-Za-z0-9_]','_',root.name)+'_Retarget'
+ tools=unreal.AssetToolsHelpers.get_asset_tools();package='/Game/MHPlaytest/'+re.sub('[^A-Za-z0-9_]','_',root.name)+('_RightGrip_Retarget' if grip_mode else '_Retarget')
  rig_sources={};mesh_sources={};animations={};source_prefixes={}
  for source in sources['sources']:
   id=source['id']
@@ -72,10 +74,13 @@ try:
   excluded=[]
   for chain in list(target_ctrl.get_retarget_chains()):
    start=str(target_ctrl.get_retarget_chain_start_bone(chain.chain_name)).lower()
-   if any(token in start for token in ['thumb','index','middle','ring','pinky']):
+   finger=any(token in start for token in ['thumb','index','middle','ring','pinky'])
+   keep_right_digit=grip_mode and start.endswith('_r') and 'metacarpal' not in start
+   if finger and not keep_right_digit:
     excluded.append(str(chain.chain_name));assert target_ctrl.remove_retarget_chain(chain.chain_name)
-  assert len(excluded) in (0,18),('Unexpected partial finger exclusion',id,excluded)
-  assert not any(any(token in str(target_ctrl.get_retarget_chain_start_bone(c.chain_name)).lower() for token in ['thumb','index','middle','ring','pinky']) for c in target_ctrl.get_retarget_chains()),'Finger chain remains mapped'
+  assert len(excluded) in (0,13 if grip_mode else 18),('Unexpected partial finger exclusion',id,excluded)
+  remaining_fingers=[str(target_ctrl.get_retarget_chain_start_bone(c.chain_name)).lower() for c in target_ctrl.get_retarget_chains() if any(token in str(target_ctrl.get_retarget_chain_start_bone(c.chain_name)).lower() for token in ['thumb','index','middle','ring','pinky'])]
+  assert (len(remaining_fingers)==5 and all(n.endswith('_r') and 'metacarpal' not in n for n in remaining_fingers)) if grip_mode else not remaining_fingers,('Unexpected finger mapping',remaining_fingers)
   save(excluded_finger_chains=excluded)
   assert target_ctrl.set_root_motion_bone('root')
   unreal.EditorAssetLibrary.save_asset(target_rig.get_path_name())
@@ -96,7 +101,7 @@ try:
    ctrl.auto_map_chains(unreal.AutoMapChainType.FUZZY,True)
    ctrl.auto_align_all_bones(unreal.RetargetSourceOrTarget.TARGET)
    component=unreal.new_object(unreal.SkeletalMeshComponent);component.set_skeletal_mesh_asset(body)
-   finger_bones=[component.get_bone_name(i) for i in range(component.get_num_bones()) if any(token in str(component.get_bone_name(i)).lower() for token in ['thumb','index','middle','ring','pinky'])]
+   finger_bones=[component.get_bone_name(i) for i in range(component.get_num_bones()) if any(token in str(component.get_bone_name(i)).lower() for token in ['thumb','index','middle','ring','pinky']) and not (grip_mode and str(component.get_bone_name(i)).lower().endswith('_r') and 'metacarpal' not in str(component.get_bone_name(i)).lower())]
    ctrl.reset_retarget_pose(ctrl.get_current_retarget_pose_name(unreal.RetargetSourceOrTarget.TARGET),finger_bones+['foot_l','ball_l','foot_r','ball_r'],unreal.RetargetSourceOrTarget.TARGET)
    unreal.EditorAssetLibrary.save_asset(rtg.get_path_name())
    selected_anims={}
@@ -119,7 +124,7 @@ try:
     opts=unreal.GLTFExportOptions();opts.bake_material_inputs=unreal.GLTFMaterialBakeMode.DISABLED
     opts.export_vertex_skin_weights=True;opts.export_morph_targets=False;opts.export_animation_sequences=True;opts.export_preview_mesh=True
     opts.export_uniform_scale=.01;opts.default_level_of_detail=catalog['characters'][id].get('body_lod',0);opts.use_mesh_quantization=False
-    folder=root/'animations/epic_extremities'/id;folder.mkdir(parents=True,exist_ok=True)
+    folder=root/'animations'/('epic_weapon_grips' if grip_mode else 'epic_extremities')/id;folder.mkdir(parents=True,exist_ok=True)
     path=folder/(logical+'.glb')
     task=unreal.AssetExportTask();task.object=anim;task.filename=str(path);task.automated=True;task.prompt=False;task.replace_identical=True;task.options=opts
     assert unreal.Exporter.run_asset_export_task(task),('Native animation export failed',logical)

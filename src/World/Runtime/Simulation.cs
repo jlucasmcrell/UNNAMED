@@ -666,6 +666,9 @@ public sealed class Simulation
     /// <summary>The conversation open now, if any (M4).</summary>
     public ConversationView? Conversation => _dialogue.View();
 
+    /// <summary>Read-only dialogue history for the presentation's unread-topic badge.</summary>
+    public bool DialogueVisited(string dialogueId, string nodeId) => _dialogue.Visited(dialogueId, nodeId);
+
     /// <summary>
     /// What an NPC could say in passing now (their barks whose conditions hold), each with its line ID (E-10); presentation picks one and
     /// when, and voices it when its recording exists.

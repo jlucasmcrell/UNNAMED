@@ -6,6 +6,9 @@ func _initialize() -> void: call_deferred("bake")
 func bake() -> void:
  if DisplayServer.get_name()=="headless":push_error("Posed clothing masks require a real renderer");quit(2);return
  var source := OS.get_environment("OTHERREACH_MH_CHARACTERS_ROOT").replace("\\","/").trim_suffix("/")+"/"
+ var job: String=OS.get_environment("OTHERREACH_PIPELINE_ROOT").replace("\\","/").trim_suffix("/")
+ if not job.is_absolute_path():push_error("Set an absolute OTHERREACH_PIPELINE_ROOT");quit(2);return
+ DirAccess.make_dir_recursive_absolute(job+"/evidence")
  var catalog: Dictionary=JSON.parse_string(FileAccess.get_file_as_string(source+"catalog.json"))
  var shared := {};var records := []
  for id in catalog.characters:
@@ -66,7 +69,7 @@ func bake() -> void:
   print("MH_POSED_MASK id=%s hidden=%d total=%d native_body_unchanged=true" % [id,hidden_uv.size(),total])
   actor.queue_free()
   await process_frame
- var file:=FileAccess.open(source+"evidence/posed_masks.json",FileAccess.WRITE)
+ var file:=FileAccess.open(job+"/evidence/posed_masks.json",FileAccess.WRITE)
  file.store_string(JSON.stringify({"status":"DONE","characters":records,"renderer":RenderingServer.get_current_rendering_method()},"  "));file.close()
  print("MH_POSED_MASKS_DONE characters=",records.size())
  quit()

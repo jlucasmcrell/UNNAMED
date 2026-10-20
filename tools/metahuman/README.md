@@ -39,3 +39,9 @@ Export committed source with export_playtest.ps1 through run_guarded.ps1 -Gpu. I
 Normal gameplay including --autostart uses owner machine.FrameCap. Only deterministic playthrough/delta-shots/--shot/--survey branches cap to simulation tick; leave them intact. No performance jobs now.
 
 CPU validation: python test_pipeline_paths.py; Python compilation; PowerShell Parser.ParseFile; Godot --headless --check-only --script against an imported project. These checks do not rerun the asset pipeline.
+
+## Equipped sword grip (2026-10-20)
+
+The312 locomotion/combat clips keep both hands at native relaxed rest. For a weapon hand, set OTHERREACH_MH_HAND_GRIP=1 and OTHERREACH_MH_ANIM_CHARACTERS to selected native ids when running retarget_native_animations.py: a separate Epic-retargeted Sword_Idle export retains five right-digit chains, excludes the left digits and metacarpals, and writes evidence/ue_native_weapon_grips.json. Run clean_native_animations.py with OTHERREACH_MH_ANIM_MANIFEST=ue_native_weapon_grips.json, then extract_native_weapon_grips.gd. The extractor verifies every342-bone parent/rest against the selected accepted body and saves only15 right-digit rotations, a native-body SHA256 and provenance to runtime/hand_grips/<id>.json. It never writes the accepted animation libraries. Runtime WeaponGrip.gd uses Godot SkeletonModifier3D to blend this authored pose after animation while a right-hand sword is equipped; unequip releases it. Left hand and native rest/binds/buffers remain untouched. Review actual HeldWeapon socket views, not just an empty fist.
+
+For a fresh runtime overlay, place writable outfit masks in an owned physical directory and update hidden_mask in its copied catalog. Mask UV/raster summaries now write to the job's evidence directory, not a potentially shared runtime/evidence directory. Never write through junctions to the delivered runtime.

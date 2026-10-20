@@ -59,7 +59,8 @@ public partial class HudView : Control
     private readonly Control _rightClip = new() { ClipContents = true, MouseFilter = MouseFilterEnum.Ignore };
     private readonly VBoxContainer _rightColumn = new();
     private readonly Control _trackerHold = new() { ClipContents = true, MouseFilter = MouseFilterEnum.Ignore };
-    private const float RightColumnTop = 150;
+    public float CompassBottom { get; set; } = 150;
+    private float RightColumnTop => CompassBottom + HudRegions.Gap;
     private const float ToastGap = 4;
 
     // Top left: the character plate.
