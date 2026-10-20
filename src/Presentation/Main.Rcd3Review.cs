@@ -131,6 +131,8 @@ public partial class Main
         foreach (var figure in faces.Take(3))
         {
             SetProcess(false);
+            bool grassWasVisible = _scatter.Visible;
+            _scatter.Visible = false; // Labelled extremity fixture; keep grass from hiding the toes.
             var skeleton = figure.FindChildren("*", nameof(Skeleton3D), true, false).OfType<Skeleton3D>()
                 .Where(s => s.FindBone("foot_l") >= 0 || s.FindBone("foot.L") >= 0)
                 .OrderByDescending(s => s.GetBoneCount()).FirstOrDefault();
@@ -146,6 +148,9 @@ public partial class Main
                     await Rcd3Wait(.12);
                     await Rcd3Shot(directory, figure.Name + "_gate_" + shot.Name);
                 }
+            _scatter.Visible = grassWasVisible;
+            evidence.Add(new { extremity_fixture = figure.Name.ToString(), grass_hidden_for_closeups_only = true,
+                model = figure == _avatar ? _bindings.People.GetValueOrDefault("player")?.Model : null });
             SetProcess(true);
         }
         camera.Fov = _camera.Camera.Fov;

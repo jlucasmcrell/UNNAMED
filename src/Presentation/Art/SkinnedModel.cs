@@ -80,7 +80,8 @@ public sealed partial class SkinnedModel : Node3D
             if (owner is not null)
                 art.Coverage.Resolved("clip", $"{owner}:{state}", clipId);
         }
-        if (VisualOptions.People == "mpfb") figure.ComparisonClips(assetId, library, skeletonPath);
+        if (VisualOptions.People == "mpfb" && assetId.StartsWith("mpfb_", StringComparison.Ordinal))
+            figure.ComparisonClips(assetId, library, skeletonPath);
         player.AddAnimationLibrary("", library);
         figure._player = player;
         // Keep the opt-in interior's local player continuous through space changes; NPC visibility throttling remains.
