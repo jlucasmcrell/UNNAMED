@@ -90,6 +90,12 @@ public partial class Main
         var faces = new[] { _avatar }.Concat(_npcs.GetChildren().OfType<Figure>())
             .Where(f => f.IsVisibleInTree()).GroupBy(f => f is MetaHumanFigure mh ? mh.CharacterId : f.Name.ToString()).Select(g => g.First()).ToArray();
         // A live world interval proves independent activity choices; no performance measurement.
+        if (faces.Skip(1).OrderBy(f => f.GlobalPosition.DistanceSquaredTo(_avatar.GlobalPosition)).FirstOrDefault() is { } idleSubject)
+        {
+            var aim = idleSubject.GlobalPosition + Vector3.Up;
+            camera.GlobalPosition = aim + new Vector3(4,1.5f,5);
+            camera.LookAt(aim); // Observe NPCs on screen so the existing off-screen pause does not suppress their idle pool.
+        }
         for (int second = 0; second <= 20; second += 5)
         {
             evidence.Add(new { idle_second = second, figures = faces.Select(f => new { name = f.Name.ToString(), clip = f.ClipState }).ToArray() });
