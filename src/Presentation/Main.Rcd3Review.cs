@@ -132,6 +132,7 @@ public partial class Main
         {
             SetProcess(false);
             var skeleton = figure.FindChildren("*", nameof(Skeleton3D), true, false).OfType<Skeleton3D>()
+                .Where(s => s.FindBone("foot_l") >= 0 || s.FindBone("foot.L") >= 0)
                 .OrderByDescending(s => s.GetBoneCount()).FirstOrDefault();
             if (skeleton is not null)
                 foreach (var shot in MpfbShotList)
