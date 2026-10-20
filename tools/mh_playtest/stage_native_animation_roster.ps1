@@ -1,3 +1,4 @@
+param([string]$Manifest='ue_native_animations_rootfix.json',[string]$StampPrefix='animation_rootfix_staged_')
 $ErrorActionPreference='Stop'
 $root='D:\Otherreach_Scratch\mh_playtest_20261019'
 $guard='D:\Otherreach_Scratch\mh_slice_20261019\scripts\run_guarded.ps1'
@@ -5,13 +6,14 @@ $godot='C:\Otherreach_Worker\tools\godot_4_7_2_net8_0_31\godot\Godot_v4.7.2-stab
 $deadline=(Get-Date).AddHours(2)
 while($true){
  if(Test-Path -LiteralPath 'C:\Otherreach_Recovery\OWNER_PLAYING.flag'){throw 'Owner playing; staging deferred'}
- try{$state=Get-Content -LiteralPath "$root\evidence\ue_native_animations.json" -Raw|ConvertFrom-Json}catch{Start-Sleep -Seconds 5;continue}
+ try{$state=Get-Content -LiteralPath "$root\evidence\$Manifest" -Raw|ConvertFrom-Json}catch{Start-Sleep -Seconds 5;continue}
  $count=0
  foreach($row in $state.characters){
-  $id=$row.id;$checkpoint="$root\evidence\animation_staged_$id.json"
+  $id=$row.id;$checkpoint="$root\evidence\$StampPrefix$id.json"
   if(Test-Path -LiteralPath $checkpoint){$count++;continue}
   if(-not $row.complete -or @($row.clips).Count -lt 26){continue}
-  & $guard -Executable 'C:\Program Files\Blender Foundation\Blender 5.2\blender.exe' -JobArguments @('--background','--factory-startup','--threads','4','--python-exit-code','2','--python',"$root\scripts\clean_native_animations.py",'--',$id) -Log "$root\evidence\clean_animations_$id.log" -Job "native-animation-$id-bridge"
+  $env:OTHERREACH_MH_ANIM_MANIFEST=$Manifest
+  & $guard -Executable 'C:\Program Files\Blender Foundation\Blender 5.2\blender.exe' -JobArguments @('--background','--factory-startup','--threads','4','--python-exit-code','2','--python',"$root\scripts\clean_native_animations.py",'--',$id) -Log "$root\evidence\$($StampPrefix)clean_$id.log" -Job "native-animation-$id-bridge"
   $clean=Get-Content -LiteralPath "$root\evidence\clean_animations_$id.json" -Raw|ConvertFrom-Json
   if($clean.status -ne 'DONE' -or @($clean.clips).Count -lt 26){throw "Native animation bridge incomplete $id"}
   $env:OTHERREACH_MH_ANIM_CHARACTERS=$id

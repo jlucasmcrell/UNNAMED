@@ -40,13 +40,15 @@ func capture() -> void:
    if not mesh in native._body_meshes:mesh.visible=false
    else:
     for surface in mesh.mesh.get_surface_count():mesh.get_surface_override_material(surface).set_shader_parameter("use_hidden_face_map",false)
- var exports:Dictionary=JSON.parse_string(FileAccess.get_file_as_string(folder+"evidence/ue_native_animations.json"))
+ var manifest:=OS.get_environment("OTHERREACH_MH_ANIM_MANIFEST")
+ if manifest.is_empty():manifest="ue_native_animations_rootfix.json"
+ var exports:Dictionary=JSON.parse_string(FileAccess.get_file_as_string(folder+"evidence/"+manifest))
  var record:Dictionary
  for row in exports.characters:
   if row.id==id:record=row
  var sources:Dictionary=JSON.parse_string(FileAccess.get_file_as_string(folder+"evidence/ue_animation_sources.json"))
  var only:=OS.get_environment("OTHERREACH_MH_GATE_CLIPS").split(",",false)
- var out:=folder+"evidence/animation_gate/"+id+("_unclothed" if unclothed else "")+("_rest" if rest_only else "")+"/";DirAccess.make_dir_recursive_absolute(out)
+ var out:=folder+"evidence/animation_gate/"+id+OS.get_environment("OTHERREACH_MH_GATE_SUFFIX")+("_unclothed" if unclothed else "")+("_rest" if rest_only else "")+"/";DirAccess.make_dir_recursive_absolute(out)
  var rows:=[];var current_source:Node;var current_path:=""
  for clip in record.clips:
   if not only.is_empty() and not clip.logical in only:continue
@@ -73,11 +75,22 @@ func capture() -> void:
    var seconds:float=clip.seconds*fraction
    if not rest_only and not native.sample_clip(clip.logical,seconds):quit(7);return
    player.play(names[0],0);player.seek(seconds,true);player.advance(0)
+   var source_rig:Skeleton3D=all(current_source,"Skeleton3D")[0]
+   var bounds:=AABB();var started:=false
+   for rig:Skeleton3D in [native._body,source_rig]:
+    for bone in rig.get_bone_count():
+     var point:Vector3=rig.to_global(rig.get_bone_global_pose(bone).origin)
+     if not started:bounds=AABB(point,Vector3.ZERO);started=true
+     else:bounds=bounds.expand(point)
    for view in ["full","shoulder","hips"]:
-    var target:=Vector3(0,.9,0);var distance:=3.7
-    if view=="shoulder":target=Vector3(0,1.4,0);distance=2.0
-    if view=="hips":target=Vector3(0,.85,0);distance=1.65
-    for camera in cameras:camera.position=target+Vector3(0,0,distance);camera.look_at(target)
+    for index in cameras.size():
+     var target:=bounds.get_center();var distance:=maxf(3.7,maxf(bounds.size.y,bounds.size.x/.8889)*1.12/(2.0*tan(deg_to_rad(17.5))))+bounds.size.z*.5
+     if view!="full":
+      var rig:Skeleton3D=native._body if index==0 else source_rig
+      var bone:="upperarm_l" if view=="shoulder" else ("pelvis" if rig.find_bone("pelvis")>=0 else "hips")
+      target=rig.to_global(rig.get_bone_global_pose(rig.find_bone(bone)).origin)+Vector3(0,-.08 if view=="shoulder" else .02,0)
+      distance=1.6 if view=="shoulder" else 1.4
+     cameras[index].position=target+Vector3(0,0,distance);cameras[index].look_at(target)
     labels[0].text="%s · native MH%s\n%s  %.3fs · %s"%[id," REST DIAGNOSTIC" if rest_only else " Epic-retargeted",clip.logical,seconds,view]
     labels[1].text="Original %s\n%s  %.3fs · %s"%[original.id,source_name,seconds,view]
     await process_frame;await process_frame;await RenderingServer.frame_post_draw

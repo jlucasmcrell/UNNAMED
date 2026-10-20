@@ -2,7 +2,7 @@
 import unreal,json,traceback,os,struct
 from pathlib import Path
 root=Path('D:/Otherreach_Scratch/mh_playtest_20261019')
-out=root/'evidence/ue_native_animations.json'
+out=root/'evidence/ue_native_animations_rootfix.json'
 state=json.loads(out.read_text()) if out.exists() else {'characters':[]}
 def save(**kw):
  if kw.get('status')!='FAILED':state.pop('error',None)
@@ -32,7 +32,7 @@ try:
  catalog=json.loads((root/'runtime/catalog.json').read_text())
  npc=json.loads((root/'evidence/npc_glb_export.json').read_text())
  selected=os.environ.get('OTHERREACH_MH_ANIM_CHARACTERS','ada').split(',')
- tools=unreal.AssetToolsHelpers.get_asset_tools();package='/Game/MHPlaytest/Retarget'
+ tools=unreal.AssetToolsHelpers.get_asset_tools();package='/Game/MHPlaytest/RetargetRootFix'
  rig_sources={};mesh_sources={};animations={};source_prefixes={}
  for source in sources['sources']:
   id=source['id']
@@ -51,6 +51,7 @@ try:
    for name,start,end in [('Root','root','root'),('Spine','spine','chest'),('Head','head','head'),('LeftArm','upperarm_l','hand_l'),('RightArm','upperarm_r','hand_r'),('LeftLeg','upperleg_l','toes_l'),('RightLeg','upperleg_r','toes_r')]:
     ctrl.add_retarget_chain(name,start,end,'None')
   assert len(ctrl.get_retarget_chains())>=7,('Source template not recognized',id,str(auto),chains(ctrl))
+  assert ctrl.set_root_motion_bone('root')
   unreal.EditorAssetLibrary.save_asset(rig.get_path_name())
   rig_sources[id]=rig
   animations[id]={x['name']:unreal.load_asset(x['asset']) for x in source['assets'] if x['kind']=='animation'}
@@ -62,6 +63,9 @@ try:
   target_path=package+'/'+id;target_rig_path=target_path+'/IK_Target'
   target_rig=unreal.load_asset(target_rig_path) if unreal.EditorAssetLibrary.does_asset_exist(target_rig_path) else tools.duplicate_asset('IK_Target',target_path,unreal.load_asset('/MetaHumanCharacter/Animation/Retargeting/IK_MH_IKRig'))
   target_ctrl=unreal.IKRigController.get_controller(target_rig);assert target_ctrl.set_skeletal_mesh(body)
+  save(target_root_motion_before=str(target_ctrl.get_root_motion_bone()),target_pelvis=str(target_ctrl.get_retarget_root()))
+  assert target_ctrl.set_root_motion_bone('root')
+  unreal.EditorAssetLibrary.save_asset(target_rig.get_path_name())
   record=next((c for c in state['characters'] if c['id']==id),None)
   if record is None:record=dict(id=id,body=body.get_path_name(),clips=[]);state['characters'].append(record)
   for source_id,source_rig in rig_sources.items():
@@ -73,7 +77,10 @@ try:
    ctrl.set_ik_rig(unreal.RetargetSourceOrTarget.TARGET,target_rig)
    ctrl.set_preview_mesh(unreal.RetargetSourceOrTarget.SOURCE,mesh_sources[source_id])
    ctrl.set_preview_mesh(unreal.RetargetSourceOrTarget.TARGET,body)
-   ctrl.add_default_ops();ctrl.auto_map_chains(unreal.AutoMapChainType.FUZZY,True)
+   while ctrl.get_num_retarget_ops()>0:ctrl.remove_retarget_op(ctrl.get_num_retarget_ops()-1)
+   ctrl.add_default_ops()
+   for index in range(ctrl.get_num_retarget_ops()):ctrl.run_op_initial_setup(index)
+   ctrl.auto_map_chains(unreal.AutoMapChainType.FUZZY,True)
    ctrl.auto_align_all_bones(unreal.RetargetSourceOrTarget.TARGET)
    unreal.EditorAssetLibrary.save_asset(rtg.get_path_name())
    selected_anims={}
@@ -96,7 +103,7 @@ try:
     opts=unreal.GLTFExportOptions();opts.bake_material_inputs=unreal.GLTFMaterialBakeMode.DISABLED
     opts.export_vertex_skin_weights=True;opts.export_morph_targets=False;opts.export_animation_sequences=True;opts.export_preview_mesh=True
     opts.export_uniform_scale=.01;opts.default_level_of_detail=catalog['characters'][id].get('body_lod',0);opts.use_mesh_quantization=False
-    folder=root/'animations/epic'/id;folder.mkdir(parents=True,exist_ok=True)
+    folder=root/'animations/epic_rootfix'/id;folder.mkdir(parents=True,exist_ok=True)
     path=folder/(logical+'.glb')
     task=unreal.AssetExportTask();task.object=anim;task.filename=str(path);task.automated=True;task.prompt=False;task.replace_identical=True;task.options=opts
     assert unreal.Exporter.run_asset_export_task(task),('Native animation export failed',logical)

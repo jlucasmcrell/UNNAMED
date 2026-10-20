@@ -5,7 +5,7 @@ $godot='C:\Otherreach_Worker\tools\godot_4_7_2_net8_0_31\godot\Godot_v4.7.2-stab
 $deadline=(Get-Date).AddMinutes(8)
 while($true){
  if(Test-Path -LiteralPath 'C:\Otherreach_Recovery\OWNER_PLAYING.flag'){throw 'Owner playing; sample deferred'}
- $state=Get-Content -LiteralPath "$root\evidence\ue_native_animations.json" -Raw|ConvertFrom-Json
+ $state=Get-Content -LiteralPath "$root\evidence\ue_native_animations_rootfix.json" -Raw|ConvertFrom-Json
  if($state.status -eq 'DONE' -and @($state.characters[0].clips).Count -ge 3){break}
  if((Get-Date) -gt $deadline){throw 'Native UE sample not ready; inspect checkpoint'}
  Start-Sleep -Seconds 5

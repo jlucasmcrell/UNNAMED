@@ -987,6 +987,7 @@ public partial class Main : Node3D
 
     public override void _Process(double delta)
     {
+        ApplyMetaHumanReviewInputs();
         if (_options.GetValueOrDefault("--resume-shots") is { } resumeShots && _session is not null)
             ResumeShots(resumeShots);
         if (_options.GetValueOrDefault("--front-shots") is { } frontShots && _session is not null)

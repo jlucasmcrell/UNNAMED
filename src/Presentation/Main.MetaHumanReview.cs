@@ -19,6 +19,10 @@ public partial class Main
     private FrameStats? _mhReviewStats;
     private double _mhReviewSeconds;
     private readonly List<(MetaHumanFigure Figure, string Person, string Bone, float Distance, float Yaw)> _mhReviewShots = new();
+    private (string Name, string[] Buttons, double Seconds, string Expected)[] _mhReviewActions = [];
+    private int _mhReviewAction;
+    private bool _mhReviewActionActive, _mhReviewButtonsApplied;
+    private double _mhReviewActionSeconds;
 
     private void InstallMetaHumanReview()
     {
@@ -27,6 +31,21 @@ public partial class Main
         if (!MetaHumanFigure.Available || DisplayServer.GetName() == "headless")
             throw new InvalidOperationException("MetaHuman review requires the native bundle and a real renderer");
         _mhReviewDirectory = Path.GetFullPath(directory);
+        bool crouchToggle = SettingsStore.Current.Profile.Controls.IsToggle("crouch");
+        _mhReviewActions = [
+            ("walk", ["move_forward", "walk"], 1.1, "walk"),
+            ("run", ["move_forward"], .9, "run"),
+            ("sprint", ["move_forward", "sprint"], 1.0, "sprint"),
+            ("stop", [], .5, "sword_ready|idle"),
+            ("crouch_idle", ["crouch"], .6, "crouch_idle"),
+            ("crouch_walk", crouchToggle ? ["move_forward", "walk"] : ["move_forward", "walk", "crouch"], .8, "crouch_walk"),
+            ("stand", crouchToggle ? ["crouch"] : [], .5, "sword_ready|idle"),
+            ("jump", ["jump"], .28, "jump_start|fall"),
+            ("recover", [], 1.2, "sword_ready|idle"),
+            ("sword_attack", ["attack"], .25, "sword_attack"),
+            ("attack_recover", [], 1.5, "sword_ready|idle"),
+            ("block", ["guard"], .4, "sword_block"),
+        ];
         Directory.CreateDirectory(_mhReviewDirectory);
         File.WriteAllText(Path.Combine(_mhReviewDirectory, "client_prefs_loaded.json"), SettingsStore.Current.ToJson());
         File.WriteAllText(Path.Combine(_mhReviewDirectory, "launch.json"), JsonSerializer.Serialize(new
@@ -148,9 +167,16 @@ public partial class Main
         }
         if (_mhReviewShot >= _mhReviewShots.Count)
         {
+            if (_mhReviewAction < _mhReviewActions.Length)
+            {
+                AdvanceMetaHumanReviewAction(simulation.WorldTick);
+                return;
+            }
+            ReleaseMetaHumanReviewButtons();
             File.WriteAllText(Path.Combine(_mhReviewDirectory, "complete.json"), JsonSerializer.Serialize(new
             {
                 status = "CAPTURED_REQUIRES_FRAME_REVIEW_AND_OWNER_APPROVAL", worldShots = _mhReviewShot,
+                normalInputChecks = _mhReviewAction,
                 player = ((MetaHumanFigure)_avatar).CharacterId, npcs = _npcs.States().Select(n => n.Id).ToArray(),
             }, new JsonSerializerOptions { WriteIndented = true }));
             GD.Print("MH_NORMAL_GAME_REVIEW CAPTURED " + _mhReviewDirectory);
@@ -160,12 +186,7 @@ public partial class Main
         }
         var shot = _mhReviewShots[_mhReviewShot];
         var native = shot.Figure.GetNode<Node3D>("Native");
-        shot.Figure.SetFirstPerson(false);
-        Vector3 aim = native.Call("bone_position", shot.Bone == "full" ? "pelvis" : shot.Bone == "hairline" ? "head" : shot.Bone).AsVector3();
-        if (shot.Bone is "head" or "hairline") aim += Vector3.Up * (shot.Bone == "hairline" ? .15f : .10f);
-        var direction = shot.Figure.GlobalBasis.Z.Rotated(Vector3.Up, shot.Yaw).Normalized();
-        _camera.Camera.GlobalPosition = aim + direction * shot.Distance + Vector3.Up * (shot.Bone == "full" ? .10f : .025f);
-        _camera.Camera.LookAt(aim);
+        FrameMetaHumanReview(shot.Figure, shot.Bone, shot.Distance, shot.Yaw);
         _mhReviewSeconds += GetProcessDeltaTime();
         if (_mhReviewSeconds < 1.2) return;
         string name = $"{_mhReviewShot + 10:00}_{shot.Person}_{shot.Figure.CharacterId}_{shot.Bone}_{(shot.Yaw == 0 ? "front" : "side")}";
@@ -175,6 +196,63 @@ public partial class Main
             actorPosition = shot.Figure.GlobalPosition.ToString(), cameraPosition = _camera.Camera.GlobalPosition.ToString(),
             worldTick = simulation.WorldTick, camera = "Normal game world and lighting; diagnostic camera only",
         }, () => { _mhReviewShot++; _mhReviewSeconds = 0; }, 0, () => Godot.Json.Stringify(native.Call("native_metrics")));
+    }
+
+    private void FrameMetaHumanReview(MetaHumanFigure figure, string bone, float distance, float yaw)
+    {
+        figure.SetFirstPerson(false);
+        var native = figure.GetNode<Node3D>("Native");
+        Vector3 aim = native.Call("bone_position", bone == "full" ? "pelvis" : bone == "hairline" ? "head" : bone).AsVector3();
+        if (bone == "hairline") aim += Vector3.Up * .07f;
+        var direction = figure.GlobalBasis.Z.Rotated(Vector3.Up, yaw).Normalized();
+        float rise = bone == "full" ? .55f : bone == "foot_l" ? .65f : .025f;
+        _camera.Camera.GlobalPosition = aim + direction * distance + Vector3.Up * rise;
+        _camera.Camera.LookAt(aim);
+    }
+
+    // Inject before ReadInput so just-pressed actions are read on their actual engine frame.
+    private void ApplyMetaHumanReviewInputs()
+    {
+        if (_mhReviewDirectory is null || !_mhReviewActionActive || _mhReviewButtonsApplied) return;
+        ReleaseMetaHumanReviewButtons();
+        Input.MouseMode = Input.MouseModeEnum.Captured;
+        foreach (string action in _mhReviewActions[_mhReviewAction].Buttons) Input.ActionPress(action);
+        _mhReviewButtonsApplied = true;
+    }
+
+    private void ReleaseMetaHumanReviewButtons()
+    {
+        foreach (string action in _mhReviewActions.SelectMany(a => a.Buttons).Distinct()) Input.ActionRelease(action);
+    }
+
+    private void AdvanceMetaHumanReviewAction(long worldTick)
+    {
+        if (!_mhReviewActionActive)
+        {
+            _mhReviewActionActive = true;
+            _mhReviewButtonsApplied = false;
+            _mhReviewActionSeconds = 0;
+            return;
+        }
+        if (!_mhReviewButtonsApplied) return;
+        var player = (MetaHumanFigure)_avatar;
+        FrameMetaHumanReview(player, "full", 3.0f, 0);
+        _mhReviewActionSeconds += GetProcessDeltaTime();
+        var action = _mhReviewActions[_mhReviewAction];
+        if (_mhReviewActionSeconds < action.Seconds) return;
+        string actual = player.ClipState;
+        bool matches = action.Expected.Split('|').Any(expected => actual.StartsWith(expected, StringComparison.Ordinal));
+        ReleaseMetaHumanReviewButtons();
+        CaptureMetaHumanReview($"{80 + _mhReviewAction:00}_input_{action.Name}", new
+        {
+            normalInput = true, buttons = action.Buttons, expectedClip = action.Expected, actualClip = actual,
+            matches, worldTick, actorPosition = player.GlobalPosition.ToString(),
+        }, () =>
+        {
+            _mhReviewAction++;
+            _mhReviewActionActive = false;
+            if (!matches) throw new InvalidOperationException($"Normal {action.Name} input played {actual}; expected {action.Expected}");
+        }, 0, () => Godot.Json.Stringify(player.GetNode<Node3D>("Native").Call("native_metrics")));
     }
 
     private void AddMetaHumanReviewShots(MetaHumanFigure figure, string person)

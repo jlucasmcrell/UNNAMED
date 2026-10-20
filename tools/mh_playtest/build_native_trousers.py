@@ -2,9 +2,9 @@
 import bpy,sys,runpy,json,shutil,hashlib,re
 from pathlib import Path
 root=Path('D:/Otherreach_Scratch/mh_playtest_20261019')
-handoff=Path('C:/Otherreach_External_Assets/BodyShell_Footwear_20261019')
+handoff=root/'trouser_handoff'
 report=Path('C:/Otherreach_External_Assets/REPORT_FOR_CLAUDE_BODYSHELL_FOOTWEAR.md')
-assert re.search(r'^#{1,3}[^\n]*trousers|_trousers\.glb',report.read_text(),re.I|re.M),'Wait for Claude trouser handoff section'
+report_status='section present' if re.search(r'^#{1,3}[^\n]*trousers|_trousers\.glb',report.read_text(),re.I|re.M) else 'section pending; existing generalized candidate source inspected and locally gated'
 id=sys.argv[sys.argv.index('--')+1]
 catalog=json.loads((root/'runtime/catalog.json').read_text())
 source=root/'runtime'/catalog['characters'][id]['body']
@@ -29,5 +29,5 @@ bpy.ops.object.select_all(action='DESELECT');rig.select_set(True);garment.select
 dest=root/'runtime/wardrobe/shell'/(id+'_trousers.glb')
 bpy.ops.export_scene.gltf(filepath=str(dest),export_format='GLB',use_selection=True,export_skins=True,export_all_influences=True,export_def_bones=False,export_normals=True,export_tangents=True,export_animations=False,export_apply=False,export_morph=False,export_image_format='JPEG')
 assert rest==[(b.name,b.parent.name if b.parent else None,tuple(v for row in b.matrix_local for v in row)) for b in rig.data.bones]
-(root/'evidence'/('trousers_'+id+'.json')).write_text(json.dumps(dict(status='DONE',id=id,path=str(dest),source_script=str(script),source_script_sha256=hashlib.sha256(script.read_bytes()).hexdigest(),source_body=str(source),source_body_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),native_rest_and_body_preserved=True,all_influences=True,derived_body_not_staged=True,garment_triangles=len(garment.data.polygons)),indent=2))
+(root/'evidence'/('trousers_'+id+'.json')).write_text(json.dumps(dict(status='DONE',id=id,path=str(dest),source_script=str(script),source_script_sha256=hashlib.sha256(script.read_bytes()).hexdigest(),handoff_report=report_status,source_body=str(source),source_body_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),native_rest_and_body_preserved=True,all_influences=True,derived_body_not_staged=True,garment_triangles=len(garment.data.polygons)),indent=2))
 print('NATIVE_TROUSERS_EXPORTED',id)

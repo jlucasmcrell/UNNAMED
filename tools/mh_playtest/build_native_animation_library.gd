@@ -62,6 +62,14 @@ func build() -> void:
    if players.size()!=1:push_error("Missing native animation player");quit(7);return
    var player: AnimationPlayer=players[0];var names := player.get_animation_list();names.remove_at(names.find("RESET")) if names.has("RESET") else 0
    if names.size()!=1:push_error("Expected exactly one native animation "+str(names));quit(8);return
+   if clip.logical=="idle":
+    player.callback_mode_process=AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
+    player.play(names[0],0);player.seek(player.get_animation(names[0]).length*.5,true);player.advance(0)
+    var pelvis:=rig.find_bone("pelvis")
+    var rest_height:=rig.get_bone_global_rest(pelvis).origin.y
+    var idle_height:=rig.get_bone_global_pose(pelvis).origin.y
+    if idle_height<=rest_height*.5:push_error("Idle pelvis collapsed to root; set UE root-motion bone=root separately from pelvis");quit(12);return
+    reports.append({"idle_pelvis_height_m":idle_height,"rest_pelvis_height_m":rest_height})
    if clip.logical in ["walk","run","sprint","crouch_walk"]:
     player.callback_mode_process=AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
     var pace:=measure_pace(player,rig,names[0])

@@ -87,6 +87,14 @@ func _verify() -> void:
 			errors[key] = 100.0 * absf(dimensions[key] - baseline[key]) / baseline[key]
 			_check(errors[key] <= .5, id + " native UE/Godot proportion drift: " + key + " " + str(errors[key]) + "%")
 		measured.append({"id": id, "measurements_m": dimensions, "ue_measurements_m": baseline, "errors_percent": errors, "rendered_gate_pending": true})
+		if actor.has_clip("idle"):
+			_check(actor.sample_clip("idle", actor.clip_length("idle") * .5), id + " native idle sample failed")
+			var pelvis := actor._body.find_bone("pelvis")
+			var rest_height := actor._body.get_bone_global_rest(pelvis).origin.y
+			var idle_height := actor._body.get_bone_global_pose(pelvis).origin.y
+			_check(idle_height > rest_height * .5, id + " idle pelvis collapsed to root; check UE root-motion bone separately from retarget pelvis")
+			measured[-1]["idle_pelvis_height_m"] = idle_height
+			measured[-1]["rest_pelvis_height_m"] = rest_height
 		actor.queue_free()
 		await process_frame
 	var report := FileAccess.open(source + "evidence/godot_rest_measurements.json", FileAccess.WRITE)

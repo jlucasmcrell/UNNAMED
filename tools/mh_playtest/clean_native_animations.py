@@ -1,9 +1,10 @@
 """Same documented Blender glTF bridge as native bodies; preserve every native joint and rest."""
-import bpy,json,sys,struct,hashlib
+import bpy,json,sys,struct,hashlib,os
 from pathlib import Path
 root=Path('D:/Otherreach_Scratch/mh_playtest_20261019')
 id=sys.argv[sys.argv.index('--')+1]
-record=next(c for c in json.loads((root/'evidence/ue_native_animations.json').read_text())['characters'] if c['id']==id)
+manifest=root/'evidence'/os.environ.get('OTHERREACH_MH_ANIM_MANIFEST','ue_native_animations_rootfix.json')
+record=next(c for c in json.loads(manifest.read_text())['characters'] if c['id']==id)
 folder=root/'animations/clean'/id;folder.mkdir(parents=True,exist_ok=True)
 rows=[]
 for clip in record['clips']:

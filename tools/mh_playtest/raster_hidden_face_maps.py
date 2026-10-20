@@ -26,7 +26,7 @@ for id,c in catalog['characters'].items():
  image=rasterize(data['triangles'])
  if image.getextrema()!=(0,255):raise RuntimeError('Empty/full hidden map '+id)
  image.save(path,optimize=True)
- source_hashes={p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in [c['body'],'wardrobe/chest.glb','wardrobe/pants.glb']+(['wardrobe/hood.glb'] if c.get('hood',True) else [])+(['wardrobe/shell/'+c['shells']+'_'+part+'.glb' for part in ['boots','gloves']] if c.get('shells') else [])}
+ source_hashes={p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in [c['body'],'wardrobe/chest.glb','wardrobe/'+c.get('trousers_path','pants.glb')]+(['wardrobe/hood.glb'] if c.get('hood',True) else [])+(['wardrobe/shell/'+c['shells']+'_'+part+'.glb' for part in ['boots','gloves']] if c.get('shells') else [])}
  row=dict(id=id,path=str(path),triangles=len(data['triangles']),resolution=2048,uv_origin='native Godot mesh UV; Image row V',source_sha256=source_hashes,config=c,native_buffers_modified=False)
  records.append(row);print(id,'hidden triangles',row['triangles'],'mask bytes',path.stat().st_size)
 (root/'masks/bake_manifest.json').write_text(json.dumps(records,indent=2))
