@@ -20,6 +20,8 @@ public sealed partial class SkinnedFigure : Figure
 
     /// <summary>The body's skeleton, for the skeleton modifiers (Phase B's foot planting and look-at).</summary>
     public Skeleton3D Skeleton => _model.Skeleton;
+    public string ModelId => _person.Model;
+    public float StatureScale => _uniformScale;
     private PostureModifier? _posture;
     private ArtLibrary _art = null!;
     private ArtBindings _bindings = null!;
@@ -61,7 +63,7 @@ public sealed partial class SkinnedFigure : Figure
             return null;
         // Another body on the same binding (the creator's, WP2): the same rig family, so the clips, hands and grips hold.
         if (body is not null)
-            person = person with { Model = body };
+            person = person with { Model = body, UniformScale = ArtBindings.ComparisonBodyScale(person.Model, body, person.UniformScale) };
         if (SkinnedModel.Create(art, person.Model, person.Clips, personId) is not { } model)
             return null;
         if (!float.IsFinite(person.UniformScale) || person.UniformScale <= 0)

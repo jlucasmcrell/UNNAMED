@@ -20,6 +20,16 @@ public partial class Main
         var rows = new List<object>();
         try
         {
+            if (_avatar is SkinnedFigure comparison && VisualOptions.People == "mpfb")
+            {
+                using var cast = JsonDocument.Parse(Godot.FileAccess.GetFileAsString("res://Art/mpfb_cast.json"));
+                var model = cast.RootElement.GetProperty("models").EnumerateArray().Single(m => m.GetProperty("id").GetString() == comparison.ModelId);
+                string sex = model.GetProperty("sex").GetString()!;
+                float expectedHeight = cast.RootElement.GetProperty("stature_m").GetProperty(sex).GetSingle();
+                float drawnHeight = comparison.StatureScale * model.GetProperty("height_m").GetSingle();
+                if (Math.Abs(drawnHeight - expectedHeight) > .01f) throw new InvalidOperationException("Comparison creator retained the previous body's scale");
+                File.WriteAllText(Path.Combine(directory,"comparison_stature.json"),JsonSerializer.Serialize(new { model = comparison.ModelId, sex, expectedHeight, drawnHeight, scale = comparison.StatureScale }));
+            }
             var source = _camera.Camera;
             var camera = new Camera3D { Fov = source.Fov, Near = source.Near, Far = source.Far, CullMask = source.CullMask,
                 Attributes = source.Attributes, Environment = source.Environment };
@@ -156,7 +166,7 @@ public partial class Main
                 }
             _scatter.Visible = grassWasVisible;
             evidence.Add(new { extremity_fixture = figure.Name.ToString(), grass_hidden_for_closeups_only = true,
-                model = figure == _avatar ? _bindings.People.GetValueOrDefault("player")?.Model : null });
+                model = (figure as SkinnedFigure)?.ModelId, uniform_scale = (figure as SkinnedFigure)?.StatureScale });
             SetProcess(true);
         }
         camera.Fov = _camera.Camera.Fov;

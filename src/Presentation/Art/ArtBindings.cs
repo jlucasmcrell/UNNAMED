@@ -564,6 +564,17 @@ public sealed class ArtBindings
         return (body, (feminine ? cast.Feminine : cast.Masculine) / body.Height);
     }
 
+    /// <summary>A creator body swap replaces model-height compensation, keeping only the person's stature variation.</summary>
+    public static float ComparisonBodyScale(string fromModel, string toModel, float current)
+    {
+        if (MpfbCastFile() is not { } cast) return current;
+        var from = cast.Models.FirstOrDefault(m => m.Id == fromModel);
+        var to = cast.Models.FirstOrDefault(m => m.Id == toModel);
+        if (from is null || to is null) return current;
+        float Expected(MpfbModel model) => (model.Sex == "f" ? cast.Feminine : cast.Masculine) / model.Height;
+        return current / Expected(from) * Expected(to);
+    }
+
     /// <summary>
     /// <c>--visual people=mpfb</c>: every bound person keeps its identity - its clips, its people, its stature relative to the rest of the
     /// cast - and only its body becomes one of the five MakeHuman exports (<see cref="MpfbCastPath"/>). The exports are rigged on
