@@ -175,6 +175,7 @@ public partial class Main
                 return;
             }
             ReleaseMetaHumanReviewButtons();
+            _scatter.Visible = true;
             File.WriteAllText(Path.Combine(_mhReviewDirectory, "complete.json"), JsonSerializer.Serialize(new
             {
                 status = "CAPTURED_REQUIRES_FRAME_REVIEW_AND_OWNER_APPROVAL", worldShots = _mhReviewShot,
@@ -197,6 +198,7 @@ public partial class Main
             person = shot.Person, character = shot.Figure.CharacterId, bone = shot.Bone, clip = shot.Figure.ClipState,
             actorPosition = shot.Figure.GlobalPosition.ToString(), cameraPosition = _camera.Camera.GlobalPosition.ToString(),
             worldTick = simulation.WorldTick, camera = "Normal game world and lighting; diagnostic camera only",
+            scatterVisible = shot.Bone == "full", closeupFoliageHiddenAfterPerformancePass = shot.Bone != "full",
         }, () => { _mhReviewShot++; _mhReviewSeconds = 0; }, 0, () => Godot.Json.Stringify(native.Call("native_metrics")));
     }
 
@@ -204,10 +206,11 @@ public partial class Main
     {
         figure.SetFirstPerson(false);
         var native = figure.GetNode<Node3D>("Native");
-        Vector3 aim = native.Call("bone_position", bone == "full" ? "pelvis" : bone == "hairline" ? "head" : bone).AsVector3();
+        _scatter.Visible = bone == "full"; // Close-up camera only: remove foliage occlusion after the full-world FPS pass.
+        Vector3 aim = native.Call("bone_position", bone == "full" ? "pelvis" : bone == "head" ? "FACIAL_C_Nose" : bone == "hairline" ? "head" : bone).AsVector3();
         if (bone == "hairline") aim += Vector3.Up * .07f;
         var direction = figure.GlobalBasis.Z.Rotated(Vector3.Up, yaw).Normalized();
-        float rise = bone == "full" ? .55f : bone == "foot_l" ? .65f : .025f;
+        float rise = bone == "full" ? .55f : bone == "head" ? -.10f : bone == "foot_l" ? .08f : .025f;
         _camera.Camera.GlobalPosition = aim + direction * distance + Vector3.Up * rise;
         _camera.Camera.LookAt(aim);
     }

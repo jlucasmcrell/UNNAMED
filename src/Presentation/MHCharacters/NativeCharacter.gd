@@ -375,7 +375,9 @@ func set_shadow_only(enabled: bool) -> void:
 
 func bone_position(bone_name: String) -> Vector3:
 	var index := _body.find_bone(bone_name)
-	return _body.to_global(_body.get_bone_global_pose(index).origin) if index >= 0 else global_position
+	if index >= 0: return _body.to_global(_body.get_bone_global_pose(index).origin)
+	index = _face.find_bone(bone_name)
+	return _face.to_global(_face.get_bone_global_pose(index).origin) if index >= 0 else global_position
 
 func _cloth_material(option: Array) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
