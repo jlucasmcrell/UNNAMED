@@ -4,18 +4,23 @@ var root = AppContext.BaseDirectory;
 var evidence = Path.Combine(root, "evidence");
 Directory.CreateDirectory(evidence);
 var ownerFlag = @"C:\Otherreach_Recovery\OWNER_PLAYING.flag";
-var lockScript = @"C:\Otherreach_Recovery\gpu_lock.ps1";
+var lockScript = Path.Combine(root, "invoke_gpu_lock.ps1");
 var lease = "codex-mh-slice mh-characters-playtest";
 Process? game = null;
 bool held = false;
 Task<string>? output = null, errors = null;
 void Lock(string action)
 {
-    var command = new ProcessStartInfo("powershell.exe") { UseShellExecute = false, CreateNoWindow = true };
-    foreach (var arg in new[] { "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", lockScript, action, lease }) command.ArgumentList.Add(arg);
-    using var job = Process.Start(command)!;
-    job.WaitForExit();
-    if (job.ExitCode != 0) throw new Exception("GPU lock " + action + " failed");
+    for (int attempt = 1; attempt <= 3; attempt++)
+    {
+        var command = new ProcessStartInfo("powershell.exe") { UseShellExecute = false, CreateNoWindow = true };
+        foreach (var arg in new[] { "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", lockScript, action, lease }) command.ArgumentList.Add(arg);
+        using var job = Process.Start(command)!;
+        job.WaitForExit();
+        if (job.ExitCode == 0) return;
+        if (attempt < 3) Thread.Sleep(5000);
+    }
+    throw new Exception("GPU lock " + action + " failed after three attempts");
 }
 try
 {

@@ -6,4 +6,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>PlayOtherreachMH</AssemblyName>
   </PropertyGroup>
+  <ItemGroup>
+    <Content Include="../invoke_gpu_lock.ps1" Link="invoke_gpu_lock.ps1" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>
