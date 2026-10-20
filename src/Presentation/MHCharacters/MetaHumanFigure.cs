@@ -30,6 +30,10 @@ public sealed partial class MetaHumanFigure : Figure
     private WeaponArt? _equipped;
     private Node3D? _held;
     private string? _heldId;
+    private bool _npc;
+    private int _npcPerformanceStage;
+    private double _pendingAnimation;
+    private VisibleOnScreenNotifier3D? _onScreen;
     public string CharacterId { get; private set; } = "";
     public override float Crouch => _crouched ? 1 : 0;
     public override string ClipState => _native is not null ? _native.Call("clip_state").AsString() : "native base pose";
@@ -61,6 +65,12 @@ public sealed partial class MetaHumanFigure : Figure
         AddChild(_native);
         if (!_native.Call("configure", AssetRoot, _configuration, _resources).AsBool())
             throw new InvalidDataException($"Native MetaHuman {CharacterId} failed to load");
+        if (_npc)
+        {
+            _onScreen = new VisibleOnScreenNotifier3D { Aabb = new Aabb(-1, -.2f, -1, 2, 2.6f, 2) };
+            AddChild(_onScreen);
+            _native.Call("configure_npc_performance", _npcPerformanceStage);
+        }
         var skeleton = _native.Call("body_skeleton").As<Skeleton3D>();
         _hand = new BoneAttachment3D { BoneName = "hand_r" };
         skeleton.AddChild(_hand);
@@ -81,8 +91,29 @@ public sealed partial class MetaHumanFigure : Figure
     {
         Position = feet;
         Rotation = new Vector3(0, facingRadians, 0);
+        if (_npc && GetViewport().GetCamera3D() is { } camera)
+        {
+            float distance = camera.GlobalPosition.DistanceTo(GlobalPosition + Vector3.Up);
+            _native.Call("update_npc_shadows", distance);
+            if (_npcPerformanceStage >= 2)
+            {
+                _pendingAnimation += delta;
+                if (distance > 102 || !IsVisibleInTree() || _onScreen?.IsOnScreen() != true) return;
+                double interval = distance < 8 ? 1.0 / 30 : distance < 20 ? 1.0 / 15 : 1.0 / 5;
+                if (_pendingAnimation < interval) return;
+                delta = Math.Min(_pendingAnimation, .25);
+                _pendingAnimation = 0;
+            }
+        }
         Animate(speedMetresPerSecond, delta);
         _native.Call("advance_animation", delta);
+    }
+    public void ConfigureNpcPerformance(int stage)
+    {
+        _npc = true;
+        _npcPerformanceStage = stage;
+        _pendingAnimation = 0;
+        if (_native is not null) _native.Call("configure_npc_performance", stage);
     }
     public override Vector3? Head => IsInsideTree() ? _native.Call("bone_position", "head").AsVector3() + Vector3.Up * .06f : null;
     public override Vector3? Foot(string side) => IsInsideTree() ? _native.Call("bone_position", side == "L" ? "foot_l" : "foot_r").AsVector3() : null;

@@ -15,6 +15,13 @@ namespace UNNAMED.Presentation.Greybox;
 public partial class NpcsView : Node3D
 {
     public bool SuppressPresentationForBenchmark { get; set; }
+    private int _performanceStage = System.Environment.GetEnvironmentVariable("OTHERREACH_MH_PERF_SWEEP") == "1" ? 0 : 4;
+    public int PerformanceStage => _performanceStage;
+    public void SetPerformanceStage(int stage)
+    {
+        _performanceStage = stage;
+        foreach (var native in _figures.Values.OfType<MHCharacters.MetaHumanFigure>()) native.ConfigureNpcPerformance(stage);
+    }
     private readonly Dictionary<string, Figure> _figures = new(StringComparer.Ordinal);
     private readonly Dictionary<string, GaitSpeed> _gaits = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _instances = new(StringComparer.Ordinal);
@@ -67,6 +74,7 @@ public partial class NpcsView : Node3D
             {
                 var appearance = _bindings.Person(npc.Id, npc.PeopleId, instance);
                 var native = MHCharacters.MetaHumanFigure.Create(_art, _bindings, npc.Id);
+                native?.ConfigureNpcPerformance(_performanceStage);
                 var body = native is null ? Art.SkinnedFigure.Create(_art, _bindings, npc.Id, appearance: appearance) : null;
                 string? model = native is not null ? "mh:" + native.CharacterId : appearance?.Model;
                 if (native is not null || body is not null)

@@ -7,6 +7,8 @@ class_name MHSliceLeaderPose
 @export var body: Skeleton3D
 @export var face: Skeleton3D
 var _pairs: Array = []
+var animation_driven := false
+var update_pending := true
 
 func _ready() -> void:
 	process_priority = 100
@@ -25,7 +27,9 @@ func _ready() -> void:
 	print("[mh-slice] leader-pose shared bones: %d" % _pairs.size())
 
 func _process(_delta: float) -> void:
-	apply_leader_pose()
+	if not animation_driven or update_pending:
+		apply_leader_pose()
+		update_pending = false
 
 func apply_leader_pose() -> void:
 	var pfg_cache := {}

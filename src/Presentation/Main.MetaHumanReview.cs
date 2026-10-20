@@ -25,6 +25,8 @@ public partial class Main
     private double _mhReviewActionSeconds;
     private bool _mhPerfSequence;
     private int _mhPerfPhase;
+    private bool _mhPerfSweep;
+    private static readonly string[] MhPerfNames = ["baseline_28npc", "visibility_ranges", "animation_lod", "shadows", "groom_range"];
 
     private void InstallMetaHumanReview()
     {
@@ -34,6 +36,7 @@ public partial class Main
             throw new InvalidOperationException("MetaHuman review requires the native bundle and a real renderer");
         _mhReviewDirectory = Path.GetFullPath(directory);
         _mhPerfSequence = System.Environment.GetEnvironmentVariable("OTHERREACH_MH_PERF_SEQUENCE") == "1";
+        _mhPerfSweep = System.Environment.GetEnvironmentVariable("OTHERREACH_MH_PERF_SWEEP") == "1";
         _npcs.SuppressPresentationForBenchmark = _mhPerfSequence;
         bool crouchToggle = SettingsStore.Current.Profile.Controls.IsToggle("crouch");
         _mhReviewActions = [
@@ -155,14 +158,41 @@ public partial class Main
             _mhReviewStats!.Record(seconds);
             if (_mhReviewSeconds < 60) return;
             var people = _npcs.States().Select(n => new { n.Id, n.State, n.Speed }).ToArray();
-            _mhReviewStats.Write(Path.Combine(_mhReviewDirectory, _mhPerfSequence ? $"performance_{(_mhPerfPhase == 0 ? "0npc" : "28npc")}" : "performance"), new Dictionary<string, string>
+            _mhReviewStats.Write(Path.Combine(_mhReviewDirectory, _mhPerfSweep ? $"performance_{_mhPerfPhase}_{MhPerfNames[_mhPerfPhase]}" : _mhPerfSequence ? $"performance_{(_mhPerfPhase == 0 ? "0npc" : "28npc")}" : "performance"), new Dictionary<string, string>
             {
                 ["settings"] = SettingsStore.Current.ToJson(), ["viewport"] = GetViewport().GetVisibleRect().Size.ToString(),
                 ["npcs"] = JsonSerializer.Serialize(people), ["simulation_npc_count"] = simulation.Npcs.Count().ToString(),
                 ["npc_presentation_count"] = people.Length.ToString(), ["camera_transform"] = _camera.Camera.GlobalTransform.ToString(), ["vsync"] = DisplayServer.WindowGetVsyncMode().ToString(),
                 ["world"] = "Normal new game in starting area; simulation and native NPCs running; no capture readbacks during measurement",
+                ["npc_performance_stage"] = _npcs.PerformanceStage.ToString(),
             });
-            SaveMetaHumanMaterialAudit(_mhPerfSequence ? $"world_{_mhPerfPhase}" : "world");
+            SaveMetaHumanMaterialAudit(_mhPerfSequence || _mhPerfSweep ? $"world_{_mhPerfPhase}" : "world");
+            if (_mhPerfSweep)
+            {
+                int phase = _mhPerfPhase;
+                CaptureMetaHumanReview($"benchmark_{phase}_{MhPerfNames[phase]}", new
+                {
+                    stage = phase, description = MhPerfNames[phase], presentedNpcs = people.Length,
+                    camera = _camera.Camera.GlobalTransform.ToString(), foliage = "Normal owner settings",
+                }, () =>
+                {
+                    if (phase < 4)
+                    {
+                        _mhPerfPhase++;
+                        _npcs.SetPerformanceStage(_mhPerfPhase);
+                        _mhReviewStats = null;
+                        _mhReviewSeconds = 0;
+                        _mhReviewStep = 7;
+                    }
+                    else
+                    {
+                        File.WriteAllText(Path.Combine(_mhReviewDirectory!, "complete.json"), "{\"status\":\"PERFORMANCE_SWEEP_COMPLETE\",\"phases\":[0,1,2,3,4]}");
+                        _mhReviewDirectory = null;
+                        GetTree().Quit();
+                    }
+                }, 0);
+                return;
+            }
             if (_mhPerfSequence)
             {
                 int phase = _mhPerfPhase;
@@ -310,6 +340,21 @@ public partial class Main
             rows.Add(row);
         }
         File.WriteAllText(Path.Combine(_mhReviewDirectory!, name + ".materials.json"), Godot.Json.Stringify(rows, "  "));
+        var environments = GetTree().Root.FindChildren("*", "WorldEnvironment", true, false).OfType<WorldEnvironment>()
+            .Where(node => node.Environment is not null).Select(node => new
+            {
+                path = node.GetPath().ToString(), ambientSource = node.Environment.AmbientLightSource.ToString(),
+                ambientEnergy = node.Environment.AmbientLightEnergy, skyContribution = node.Environment.AmbientLightSkyContribution,
+                sdfgi = node.Environment.SdfgiEnabled, sdfgiEnergy = node.Environment.SdfgiEnergy,
+                skyLight = node.Environment.SdfgiReadSkyLight, exposure = node.Environment.TonemapExposure,
+                tonemap = node.Environment.TonemapMode.ToString(),
+            });
+        var lights = GetTree().Root.FindChildren("*", "Light3D", true, false).OfType<Light3D>().Select(node => new
+        {
+            path = node.GetPath().ToString(), visible = node.IsVisibleInTree(), energy = node.LightEnergy,
+            colour = node.LightColor.ToString(), shadows = node.ShadowEnabled, transform = node.GlobalTransform.ToString(),
+        });
+        File.WriteAllText(Path.Combine(_mhReviewDirectory!, name + ".lighting.json"), JsonSerializer.Serialize(new { environments, lights }, new JsonSerializerOptions { WriteIndented = true }));
     }
 
     private async void CaptureMetaHumanReview(string name, object details, Action then, ulong waitMs, Func<string>? nativeMetrics = null)

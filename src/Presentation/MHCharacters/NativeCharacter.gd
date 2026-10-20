@@ -20,6 +20,11 @@ var _body_meshes: Array[MeshInstance3D] = []
 var _load_failed := false
 var _seam_cache: Dictionary = {}
 var _current_clip := ""
+var _npc_stage := -1
+var _npc_meshes: Array[MeshInstance3D] = []
+var _npc_grooms: Array[MeshInstance3D] = []
+var _npc_head_meshes: Array[MeshInstance3D] = []
+var _npc_near_shadow := false
 
 func _all(node: Node, cls: String) -> Array:
 	var result := []
@@ -255,6 +260,7 @@ func _load_grooms() -> bool:
 				backing_material.set_shader_parameter("cutoff",.035)
 				backing_material.set_shader_parameter("inset",.009)
 				var backing := MeshInstance3D.new()
+				backing.add_to_group("mh_facial_grooms")
 				backing.mesh=mi.mesh
 				backing.transform=mi.transform
 				for surface in mi.mesh.get_surface_count():backing.set_surface_override_material(surface,backing_material)
@@ -320,7 +326,39 @@ func hold_clip(state: String, through: float, blend: float = .1) -> bool:
 
 func advance_animation(delta: float) -> void:
 	if _animator != null: _animator.advance(delta)
+	if _npc_stage >= 2:
+		_sync.update_pending = true
 
+func configure_npc_performance(stage: int) -> void:
+	# Native LODs and per-instance visibility only: no mesh buffers, rest or binds change.
+	if _npc_stage < 0:
+		for mesh: MeshInstance3D in _all(_root, "MeshInstance3D"):
+			_npc_meshes.append(mesh)
+			if mesh.is_in_group("mh_facial_grooms"): _npc_grooms.append(mesh)
+			elif mesh.skin != null and mesh.get_node_or_null(mesh.skeleton) == _face: _npc_head_meshes.append(mesh)
+	_npc_stage = stage
+	for mesh in _npc_meshes:
+		mesh.visibility_range_end = 100.0 if stage >= 1 else 0.0
+		mesh.visibility_range_end_margin = 2.0 if stage >= 1 else 0.0
+	for mesh in _npc_head_meshes:
+		mesh.visibility_range_end = 40.0 if stage >= 1 else 0.0
+		mesh.visibility_range_end_margin = .1 if stage >= 1 else 0.0
+	for mesh in _npc_grooms:
+		mesh.visibility_range_end = 18.0 if stage >= 4 else (40.0 if stage >= 1 else 0.0)
+	_sync.animation_driven = stage >= 2
+	_sync.update_pending = true
+	_npc_near_shadow = false
+	update_npc_shadows(0.0)
+
+func update_npc_shadows(distance: float) -> void:
+	if _npc_stage < 0: return
+	var near := distance < 20.0 or _npc_stage < 3
+	if near == _npc_near_shadow: return
+	_npc_near_shadow = near
+	for mesh in _npc_meshes:
+		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if near else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	for mesh in _npc_grooms:
+		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF if _npc_stage >= 3 else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 func sample_clip(state: String, seconds: float) -> bool:
 	if not play_clip(state, 0.0, 1.0, true): return false
 	_animator.seek(clampf(seconds, 0.0, clip_length(state)), true)
