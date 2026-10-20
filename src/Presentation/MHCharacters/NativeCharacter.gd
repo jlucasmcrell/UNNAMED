@@ -330,7 +330,7 @@ func advance_animation(delta: float) -> void:
 		_sync.update_pending = true
 
 func configure_npc_performance(stage: int) -> void:
-	# Native LODs and per-instance visibility only: no mesh buffers, rest or binds change.
+	# Per-instance visibility only: no native mesh buffers, rest or binds change.
 	if _npc_stage < 0:
 		for mesh: MeshInstance3D in _all(_root, "MeshInstance3D"):
 			_npc_meshes.append(mesh)

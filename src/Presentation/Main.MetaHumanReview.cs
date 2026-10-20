@@ -354,7 +354,9 @@ public partial class Main
             path = node.GetPath().ToString(), visible = node.IsVisibleInTree(), energy = node.LightEnergy,
             colour = node.LightColor.ToString(), shadows = node.ShadowEnabled, transform = node.GlobalTransform.ToString(),
         });
-        File.WriteAllText(Path.Combine(_mhReviewDirectory!, name + ".lighting.json"), JsonSerializer.Serialize(new { environments, lights }, new JsonSerializerOptions { WriteIndented = true }));
+        var viewports = GetTree().Root.FindChildren("*", "SubViewport", true, false).OfType<SubViewport>()
+            .Select(node => new { path = node.GetPath().ToString(), updateMode = node.RenderTargetUpdateMode.ToString(), processMode = node.ProcessMode.ToString() });
+        File.WriteAllText(Path.Combine(_mhReviewDirectory!, name + ".lighting.json"), JsonSerializer.Serialize(new { environments, lights, viewports }, new JsonSerializerOptions { WriteIndented = true }));
     }
 
     private async void CaptureMetaHumanReview(string name, object details, Action then, ulong waitMs, Func<string>? nativeMetrics = null)

@@ -204,6 +204,9 @@ public sealed partial class CreatorPreview : TextureRect
     {
         // The set is drawn only while the creator shows it.
         var mode = IsVisibleInTree() ? SubViewport.UpdateMode.Always : SubViewport.UpdateMode.Disabled;
+        var processing = mode == SubViewport.UpdateMode.Disabled ? ProcessModeEnum.Disabled : ProcessModeEnum.Inherit;
+        if (_viewport.ProcessMode != processing)
+            _viewport.ProcessMode = processing;
         if (_viewport.RenderTargetUpdateMode != mode)
             _viewport.RenderTargetUpdateMode = mode;
         if (mode == SubViewport.UpdateMode.Disabled || _figure is null)

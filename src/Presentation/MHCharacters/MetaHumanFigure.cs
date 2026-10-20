@@ -70,6 +70,8 @@ public sealed partial class MetaHumanFigure : Figure
             _onScreen = new VisibleOnScreenNotifier3D { Aabb = new Aabb(-1, -.2f, -1, 2, 2.6f, 2) };
             AddChild(_onScreen);
             _native.Call("configure_npc_performance", _npcPerformanceStage);
+            Play("idle", 0);
+            _native.Call("advance_animation", 0.0);
         }
         var skeleton = _native.Call("body_skeleton").As<Skeleton3D>();
         _hand = new BoneAttachment3D { BoneName = "hand_r" };
