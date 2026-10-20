@@ -89,10 +89,10 @@ public partial class Main
             view.CarriedGrams / 1000.0, view.CarryLimitGrams / 1000.0, HelpPanel.Key("inventory"),
             combat.Casting is { } worked ? Names.Of(_session, worked) : null, combat.Strained));
         DrawActionBars(simulation, combat.Casting);
-        if (Target(simulation) is { } target)
-            _hud.SetTarget(Names.Of(_session, target.DefId), target.Health, target.MaxHealth);
-        else
-            _hud.SetTarget(null, 0, 0);
+        _hud.SetTarget(Target(simulation) is { } target
+            ? new TargetPlate(Names.Of(_session, target.DefId), target.Level, target.Health, target.MaxHealth, target.Threat,
+                target.Temperament, target.Hostile, target.Huntable)
+            : null);
         var quests = simulation.Quests;
         string? tracked = simulation.TrackedQuest(_journal.Tracked);
         _hud.SetTracker(JournalPanel.Tracker(quests, tracked));

@@ -131,6 +131,7 @@ public static class CombatContent
             WanderMm = Metres("wander_m"),
             CallsForHelp = map.GetValueOrDefault("calls_for_help") as string == "true",
             AnswersCalls = map.GetValueOrDefault("answers_calls") as string == "true",
+            CallMm = Metres("call_m"),
             KeepDistanceMm = Metres("keep_distance_m"),
             StrikeWithinMm = Metres("strike_within_m"),
             FleeBelowPercent = map.ContainsKey("flee_below_percent") ? Int(map, "flee_below_percent") : 0,

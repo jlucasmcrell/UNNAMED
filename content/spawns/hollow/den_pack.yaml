@@ -6,8 +6,16 @@ tags:
 - spawn
 notes: PROTOTYPE.md §4.1's den pack of four (§5 step 7) - a guardian at the mouth
   that howls, two hunters that answer, and one asleep further in. They do not return.
+  The den's leader joins them (owner finding 29) - the four are the pack, and the alpha
+  is what makes it a den. Its howl carries 70 m rather than the ordinary 45, so the
+  east pack beyond the rocks answers it too (config.creature_behaviour den_alpha).
 region_ref: region.starting_frontier
 creatures:
+- creature_ref: creature.beast.wolf_grey_alpha
+  count:
+  - 1
+  - 1
+  role: den_alpha
 - creature_ref: creature.beast.wolf_grey
   count:
   - 1

@@ -266,17 +266,19 @@ public partial class Hud : CanvasLayer
     }
 
     /// <summary>The creature the character is fighting or facing, or nothing.</summary>
-    public void SetTarget(string? name, int health, int maxHealth)
+    public void SetTarget(TargetPlate? plate)
     {
         if (_view is not null)
         {
-            _view.SetTarget(name, health, maxHealth);
+            _view.SetTarget(plate);
             return;
         }
-        _targetName.Visible = _target.Visible = name is not null;
-        _targetName.Text = name ?? string.Empty;
-        _target.MaxValue = Math.Max(1, maxHealth);
-        _target.Value = health;
+        _targetName.Visible = plate is not null;
+        _target.Visible = plate is { ShowBar: true };
+        _targetName.Text = plate?.Name ?? string.Empty;
+        _targetName.Modulate = plate is { } read ? TargetTone.Of(read.Threat) : Colors.White;
+        _target.MaxValue = Math.Max(1, plate?.MaxHealth ?? 1);
+        _target.Value = plate?.Health ?? 0;
     }
 
     public void Log(string line)

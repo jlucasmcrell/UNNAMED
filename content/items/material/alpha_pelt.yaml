@@ -1,0 +1,12 @@
+id: item.material.alpha_pelt
+kind: item
+schema: 1
+display_key: item.material.alpha_pelt.name
+tags: [item]
+name: Alpha Pelt
+notes: The den leader's hide (owner finding 29) - heavier and greyer than a wolf's, and the only one of its kind until the den has a new leader. Notable rather than ordinary because a trophy's worth is where it came from, and this one came off a named animal.
+category: material
+item_class: notable
+stack_max: 1
+weight: 2.2
+value_base: 25
