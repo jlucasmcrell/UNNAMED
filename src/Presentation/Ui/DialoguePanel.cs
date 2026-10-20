@@ -16,7 +16,7 @@ namespace UNNAMED.Presentation.Ui;
 public partial class DialoguePanel : CanvasLayer
 {
     private readonly Label _speaker = new();
-    private readonly Label _line = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(760, 0) };
+    private readonly Label _line = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth - 40, 0) };
     private readonly VBoxContainer _replies = new();
     private GameSession _session = null!;
 
@@ -46,10 +46,10 @@ public partial class DialoguePanel : CanvasLayer
         // Held to the bottom of the screen and grown upwards, so a long line or a long list of replies never runs off it (M-06).
         var panel = _panel = new PanelContainer
         {
-            CustomMinimumSize = new Vector2(800, 0),
-            AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 1, AnchorBottom = 1,
-            OffsetLeft = -400, OffsetRight = 400, OffsetTop = -80, OffsetBottom = -80,
-            GrowHorizontal = Control.GrowDirection.Both, GrowVertical = Control.GrowDirection.Begin,
+            CustomMinimumSize = new Vector2(PanelWidth, 0),
+            AnchorLeft = 1, AnchorRight = 1, AnchorTop = 1, AnchorBottom = 1,
+            OffsetLeft = -(PanelWidth + 40), OffsetRight = -40, OffsetTop = -80, OffsetBottom = -80,
+            GrowHorizontal = Control.GrowDirection.Begin, GrowVertical = Control.GrowDirection.Begin,
         };
         var column = new VBoxContainer();
         column.AddThemeConstantOverride("separation", 10);
@@ -67,7 +67,15 @@ public partial class DialoguePanel : CanvasLayer
     }
 
     /// <summary>The replies scroll past this height (M-06): nine long ones stay on the screen.</summary>
-    private const float RepliesHeight = 420;
+    private const float RepliesHeight = 300;
+
+    /// <summary>The panel stands at the right edge, so the speaker in the middle of the screen stays in view.</summary>
+    private const float PanelWidth = 560;
+
+    /// <summary>Whether the topic questions are showing in place of the top level; a new line starts at the top level again.</summary>
+    private bool _asking;
+
+    private string? _askingAt;
 
     /// <summary>
     /// Its foot as built, raised above whatever the HUD keeps beside it once it has stepped aside at an enlarged interface (health and stamina),
@@ -121,12 +129,26 @@ public partial class DialoguePanel : CanvasLayer
             _replies.RemoveChild(child);   // now, so the list's height is its new replies'
             child.QueueFree();
         }
-        Replies = view.Replies.Select(r => r.Id).ToList();
-        for (int i = 0; i < view.Replies.Length; i++)
+        string at = $"{view.DialogueId}/{view.NodeId}";
+        if (at != _askingAt)
         {
-            var reply = view.Replies[i];
+            _askingAt = at;
+            _asking = false;
+        }
+        var offered = view.Replies.Select(r => (r.Id, Choice: Choice(view, r.Id))).ToList();
+        var shown = (_asking ? DialogueMenu.Topics(offered) : DialogueMenu.Top(offered)).Select(id => id switch
+        {
+            DialogueMenu.Ask => new ReplyView(id, "Ask about..."),
+            DialogueMenu.Back => new ReplyView(id, "Back"),
+            _ => view.Replies.First(r => r.Id == id),
+        }).ToList();
+        Replies = shown.Select(r => r.Id).ToList();
+        for (int i = 0; i < shown.Count; i++)
+        {
+            var reply = shown[i];
             var button = new Button { Text = _styled ? reply.Text : $"{i + 1}. {reply.Text}", Alignment = HorizontalAlignment.Left, FocusMode = Control.FocusModeEnum.None };
             button.AddThemeFontSizeOverride("font_size", 17);
+            button.AutowrapMode = TextServer.AutowrapMode.WordSmart;
             if (_styled)
             {
                 StyleReply(button, i + 1);
@@ -143,9 +165,9 @@ public partial class DialoguePanel : CanvasLayer
     {
         panel.Theme = HudStyle.Theme;
         panel.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(22, 16));
-        panel.CustomMinimumSize = new Vector2(820, 0);
-        panel.OffsetLeft = -410;
-        panel.OffsetRight = 410;
+        panel.CustomMinimumSize = new Vector2(PanelWidth, 0);
+        panel.OffsetLeft = -(PanelWidth + 40);
+        panel.OffsetRight = -40;
         panel.OffsetTop = panel.OffsetBottom = -72;
         column.AddThemeConstantOverride("separation", 9);
         _speaker.Uppercase = true;
@@ -158,7 +180,7 @@ public partial class DialoguePanel : CanvasLayer
         _line.SetMeta(HudStyle.DesignedSize, 19);
         _line.AddThemeFontSizeOverride("font_size", HudStyle.Sized(19));
         _line.AddThemeConstantOverride("line_spacing", 4);
-        _line.CustomMinimumSize = new Vector2(776, 0);
+        _line.CustomMinimumSize = new Vector2(PanelWidth - 44, 0);
         _replies.AddThemeConstantOverride("separation", 4);
         column.AddChild(HudStyle.Rule(2));
     }
@@ -283,7 +305,16 @@ public partial class DialoguePanel : CanvasLayer
             Answer(Replies[number - 1]);
     }
 
-    public void Answer(string replyId) => _session.Submit(new ChooseCommand(_session.Simulation!.PlayerId, replyId));
+    public void Answer(string replyId)
+    {
+        if (replyId is DialogueMenu.Ask or DialogueMenu.Back)
+        {
+            _asking = replyId == DialogueMenu.Ask;
+            Refresh();
+            return;
+        }
+        _session.Submit(new ChooseCommand(_session.Simulation!.PlayerId, replyId));
+    }
 
     public void Leave() => _session.Submit(new LeaveCommand(_session.Simulation!.PlayerId));
 }
