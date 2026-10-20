@@ -52,7 +52,9 @@ public class CharacterCreationTests
         // Skills: two at 15, and nothing else started.
         Assert.Equal(call.Package.Skills.Keys, record.Progression.Skills.Where(s => s.Value.Level > 0).Select(s => s.Key));
         Assert.All(call.Package.Skills.Keys, skill => Assert.Equal(CallDefinition.SkillLevel, record.Progression.Skills[skill].Level));
-        Assert.Empty(record.Progression.Known);   // a Call teaches nothing: formulas and recipes come from people and books
+        // A Call teaches nothing: formulas and recipes come from people and books. The one exception is the starting package's own - the
+        // off-hand torch is craftable from the first day (owner finding 25) - so this still fails if a Call ever teaches a recipe.
+        Assert.Equal(new[] { "recipe.smithing.torch" }, record.Progression.Known.Keys);
         // Kit: the common kit, plus the Call's, worn where it says.
         var expected = plain.Inventory.Select(e => (e.DefId, e.Count)).Concat(call.Kit.Select(k => (k.ItemId, k.Count))).OrderBy(e => e.Item1).ThenBy(e => e.Item2);
         Assert.Equal(expected, record.Inventory.Select(e => (e.DefId, e.Count)).OrderBy(e => e.DefId).ThenBy(e => e.Count));

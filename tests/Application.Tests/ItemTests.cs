@@ -249,8 +249,8 @@ public class ItemTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        // A limit of exactly what the starting kit weighs: anything more is too heavy.
-        var (simulation, bus) = Custom(session, items => items with { Inventory = items.Inventory with { CarryBaseGrams = 3_710, CarryGramsPerMight = 0 } });
+        // A limit of exactly what the starting kit weighs - the torch included (owner finding 25): anything more is too heavy.
+        var (simulation, bus) = Custom(session, items => items with { Inventory = items.Inventory with { CarryBaseGrams = 4_310, CarryGramsPerMight = 0 } });
         var rejected = new List<CommandRejected>();
         bus.Subscribe<CommandRejected>(rejected.Add);
         Walk(simulation, ToTheDenCache);
@@ -260,7 +260,7 @@ public class ItemTests
         simulation.DrainCommands();
 
         Assert.Contains("too heavy", Assert.Single(rejected).Reason);
-        Assert.Equal(4, simulation.Player.Inventory.Length);
+        Assert.Equal(5, simulation.Player.Inventory.Length);
         Assert.Null(simulation.World.Container(Den));   // the refusal did not even give the cache its identities
     }
 
