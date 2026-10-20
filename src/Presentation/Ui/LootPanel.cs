@@ -18,12 +18,15 @@ public partial class LootPanel : CanvasLayer
     private readonly VBoxContainer _rows = new();
     private readonly VBoxContainer _head = new();
     private GameSession _session = null!;
+    private HudIcons _icons = HudIcons.None;
 
     public string? OpenContainer { get; private set; }
 
     public (long XMm, long ZMm)? Anchor { get; private set; }
 
     public void Bind(GameSession session) => _session = session;
+
+    public void UseIcons(HudIcons icons) => _icons = icons;
 
     public override void _Ready()
     {
@@ -44,7 +47,8 @@ public partial class LootPanel : CanvasLayer
         panel.AddChild(column);
         column.AddChild(_head);
         var scroll = UiKit.Scroll();
-        scroll.CustomMinimumSize = new Vector2(0, 0);
+        // Without a floor the panel shrinks to its head and buttons and the list gets no height at all.
+        scroll.CustomMinimumSize = new Vector2(0, 300);
         _rows.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         _rows.AddThemeConstantOverride("separation", 4);
         scroll.AddChild(_rows);
@@ -92,14 +96,13 @@ public partial class LootPanel : CanvasLayer
             _rows.AddChild(UiKit.Quiet("Nothing left in it."));
         foreach (var item in view.Items)
         {
-            var row = new HBoxContainer();
-            row.AddThemeConstantOverride("separation", 8);
-            var name = UiKit.Words($"{Names.Item(_session, item.DefId, item.Quality)}{(item.Count > 1 ? $" x{item.Count}" : "")}", 18);
-            name.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            row.AddChild(name);
-            row.AddChild(UiKit.Action("Take", () => _session.Submit(new MoveItemCommand(simulation.PlayerId, item.Ref, ItemPlace.In(key), ItemPlace.Carried, item.Count)),
-                compact: true, id: $"loot/{item.Ref}"));
-            _rows.AddChild(row);
+            var def = simulation.Setup.Items.Catalog.Find(item.DefId);
+            var row = UiKit.ListRow($"loot/{item.Ref}", Names.Item(_session, item.DefId, item.Quality), LootModel.Count(item.Count), height: 44,
+                left: HudStyle.IconSlot(_icons.Binds(item.DefId) ? _icons.For(item.DefId) : null, 32));
+            row.Button.Pressed += () => _session.Submit(new MoveItemCommand(simulation.PlayerId, item.Ref, ItemPlace.In(key), ItemPlace.Carried, item.Count));
+            if (def is not null)
+                row.Right.AddChild(UiKit.Words(LootModel.Weight(def.WeightGrams, item.Count), 16, HudStyle.Ash));
+            _rows.AddChild(row.Button);
         }
     }
 }
