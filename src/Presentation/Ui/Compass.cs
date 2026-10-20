@@ -27,7 +27,7 @@ public partial class Compass : Control
     private readonly Marks _marks = new();
     private readonly Label _bearing = new() { HorizontalAlignment = HorizontalAlignment.Center };
     private float _heading = float.NaN;
-    private readonly Label _markWords = new() { AutowrapMode = TextServer.AutowrapMode.Off };
+    private readonly Label _markWords = new() { Name = "QuestBearings", AutowrapMode = TextServer.AutowrapMode.WordSmart };
 
     /// <summary>The production HUD's dial (set before it enters the tree): an iron bezel with ticks, and the HUD's type and ember.</summary>
     public bool Styled { get; set; }
@@ -68,9 +68,10 @@ public partial class Compass : Control
         }
         AddChild(_bearing);
         // The marks in words under the bearing, so a diamond or a ring never stands alone.
-        _markWords.Position = new Vector2(Diameter / 2 - 90, Diameter + 34);
-        _markWords.HorizontalAlignment = HorizontalAlignment.Center;
-        _markWords.CustomMinimumSize = new Vector2(180, 0);
+        _markWords.Position = new Vector2(Diameter - 340, Diameter + 34);
+        _markWords.HorizontalAlignment = HorizontalAlignment.Right;
+        _markWords.CustomMinimumSize = new Vector2(340, 0);
+        _markWords.Size = new Vector2(340, 0);
         _markWords.AddThemeFontSizeOverride("font_size", 16);
         _markWords.AddThemeColorOverride("font_color", Styled ? HudStyle.Bone : Colors.White);
         _markWords.AddThemeColorOverride("font_outline_color", Colors.Black);

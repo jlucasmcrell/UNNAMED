@@ -41,7 +41,8 @@ func build() -> void:
   var target := load_glb(runtime+config.body);root.add_child(target)
   var target_rig: Skeleton3D=all(target,"Skeleton3D")[0]
   var manifest: Dictionary=JSON.parse_string(FileAccess.get_file_as_string(folder+"evidence/clean_extremities_"+id+".json"))
-  var library := AnimationLibrary.new()
+  var append := OS.get_environment("OTHERREACH_MH_ANIM_APPEND") == "1"
+  var library := (ResourceLoader.load(runtime+config.animation_library,"AnimationLibrary",ResourceLoader.CACHE_MODE_IGNORE).duplicate(true) as AnimationLibrary) if append else AnimationLibrary.new()
   var reports := [];var paces:={}
   for clip in manifest.clips:
    var source := load_glb(clip.path);root.add_child(source)
@@ -70,7 +71,7 @@ func build() -> void:
     var idle_height:=rig.get_bone_global_pose(pelvis).origin.y
     if idle_height<=rest_height*.5:push_error("Idle pelvis collapsed to root; set UE root-motion bone=root separately from pelvis");quit(12);return
     reports.append({"idle_pelvis_height_m":idle_height,"rest_pelvis_height_m":rest_height})
-   if clip.logical in ["walk","run","sprint","crouch_walk"]:
+   if clip.logical in ["walk","run","sprint","crouch_walk","strafe_left","strafe_right","walk_back"]:
     player.callback_mode_process=AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
     var pace:=measure_pace(player,rig,names[0])
     if pace.metres_per_second<=.05:push_error("No measurable native gait pace "+id+" "+clip.logical);quit(11);return
@@ -92,16 +93,18 @@ func build() -> void:
      finger_worst=maxf(finger_worst,rad_to_deg(rest_rotation.angle_to(actual_rotation)))
    if finger_worst>.1:push_error("Excluded fingers not at native relaxed rest: "+id+" "+clip.logical+" "+str(finger_worst));quit(13);return
    reports.append({"clip":clip.logical,"excluded_fingers_max_rest_angle_degrees":finger_worst})
-   animation.loop_mode=Animation.LOOP_LINEAR if clip.logical in ["idle","walk","run","sprint","crouch_idle","crouch_walk","fall","sword_ready","sword_block","talk","spear_ready","bow_ready"] else Animation.LOOP_NONE
+   animation.loop_mode=Animation.LOOP_LINEAR if clip.logical in ["idle","walk","run","sprint","crouch_idle","crouch_walk","fall","sword_ready","sword_block","talk","spear_ready","bow_ready","strafe_left","strafe_right","walk_back","idle_foldarms","idle_look"] else Animation.LOOP_NONE
+   if library.has_animation(clip.logical): library.remove_animation(clip.logical)
    library.add_animation(clip.logical,animation)
    reports.append({"clip":clip.logical,"tracks":animation.get_track_count(),"seconds":animation.length,"max_rest_position_difference_m":worst})
    source.queue_free();await process_frame
   for pair in [["crouch_move","crouch_walk"],["block","sword_block"],["hit_react","hit"],["talk_idle","talk"],["attack","sword_attack_1"]]:
-   if library.has_animation(pair[1]):library.add_animation(pair[0],library.get_animation(pair[1]))
+   if library.has_animation(pair[1]) and not library.has_animation(pair[0]):library.add_animation(pair[0],library.get_animation(pair[1]))
   library.set_meta("native_body_sha256",FileAccess.get_sha256(runtime+config.body))
   library.set_meta("route","Epic IK Retargeter -> native GLTFExporter -> documented Blender bridge; no Godot retarget")
-  DirAccess.make_dir_recursive_absolute(runtime+"animations_extremities")
-  var path := "animations_extremities/"+id+".res"
+  var library_folder := "animations_rcd3" if append else "animations_extremities"
+  DirAccess.make_dir_recursive_absolute(runtime+library_folder)
+  var path := library_folder+"/"+id+".res"
   if ResourceSaver.save(library,runtime+path)!=OK:push_error("Native AnimationLibrary save failed");quit(10);return
   config.animation_library=path
   var existing_paces:Dictionary=config.get("animation_paces",{})

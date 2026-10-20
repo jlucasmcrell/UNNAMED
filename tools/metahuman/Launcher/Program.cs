@@ -44,11 +44,15 @@ try
     start.Environment["OTHERREACH_MH_CHARACTERS_ROOT"] = Path.Combine(root, "mh_characters");
     start.Environment["UNNAMED_SCATTER_RESIDENCY"] = "0";
     start.Environment["UNNAMED_LOD_STIPPLE"] = "0";
+    string optionFile = Path.Combine(root, "characters.option");
+    string people = File.Exists(optionFile) && File.ReadAllText(optionFile).Trim() == "mpfb" ? "mpfb" : "production";
+    string profile = review && Environment.GetEnvironmentVariable("OTHERREACH_MH_REVIEW_PROFILE") is { Length: > 0 } reviewProfile
+        ? Path.GetFullPath(reviewProfile) : Path.Combine(root, "saves");
     // Normal launch preserves the owner's client_prefs, including window size and render tier.
     foreach (var arg in new[] { "--", "--region", "region.starting_frontier", "--content-root", Path.Combine(root, "content"),
         "--bindings-overlay", Path.Combine(root, "content", "_art_bindings.json"), "--asset-root", Path.Combine(root, "primary"),
         "--asset-fallback", Path.Combine(root, "fallback"), "--scatter-rules", Path.Combine(root, "content", "_scatter_rules.json"),
-        "--profile", Path.Combine(root, "saves"), "--visual", "terrain=terrain3d,sky=sky3d,people=production,foldscar=proof,body=none" +
+        "--profile", profile, "--visual", $"terrain=terrain3d,sky=sky3d,people={people},foldscar=proof,body=none" +
             (start.Environment.TryGetValue("OTHERREACH_MH_REVIEW_HOUR", out var hour) && hour == "12" ? ",hour=12" : "") }) start.ArgumentList.Add(arg);
     game = Process.Start(start)!;
     File.AppendAllText(Path.Combine(evidence, "launcher.log"), $"{DateTimeOffset.Now:o} launcher={Environment.ProcessPath} launcher_pid={Environment.ProcessId} game_pid={game.Id} asset_root={start.Environment["OTHERREACH_MH_CHARACTERS_ROOT"]}\n");

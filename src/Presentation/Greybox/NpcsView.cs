@@ -118,9 +118,11 @@ public partial class NpcsView : Node3D
             var feet = gait.Sample(HollowView.ToGodot(npc.Body.XMm, npc.Body.YMm, npc.Body.ZMm), delta, tickSeconds);
             float speed = gait.Speed;
             figure.SetStance(CombatStance.AtRest);
+            figure.SetIdleRole(npc.Role);
             figure.SetTalking(npc.Talking);
             figure.Say(simulation.Conversation is { } talk && talk.NpcId == npc.Id ? talk.Text : Bark(simulation, npc, figure, feet, delta));
             figure.Pose(feet, PlayerController.FacingRadians(npc.Body.FacingMdeg), speed, delta);
+            figure.SetGaze(feet.DistanceSquaredTo(PlayerHead.GlobalPosition) < 64 ? PlayerHead.GlobalPosition : null);
             // Hide an intervening companion as a whole (including their outline/weapon). Keep
             // posing while hidden so they resume at the current gait when the camera moves away.
             if (simulation.Companions.Any(c => c.NpcId == npc.Id) && GetViewport().GetCamera3D() is { } camera)

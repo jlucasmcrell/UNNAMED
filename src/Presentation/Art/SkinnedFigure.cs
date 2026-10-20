@@ -38,6 +38,14 @@ public sealed partial class SkinnedFigure : Figure
     private float _crouch;
     private float _tuck;
     private float _yaw;
+    private Vector3 _moveDirection;
+    private Vector3 _previousPosition;
+    private bool _posed, _hasDirection;
+    private IdleVariety _idles = null!;
+    private string? _idleRole;
+    public override void SetIdleRole(string? role) => _idleRole = role;
+    public override void SetGaze(Vector3? target) => _face?.Gaze(target is { } at && Head is { } head ? GlobalBasis.Inverse() * (at - head).Normalized() : null);
+    public override void SetMovementDirection(Vector3 direction) { if (direction.LengthSquared() > .001f) _moveDirection = direction.Normalized(); _hasDirection = true; }
     private double _striking;
     private double _reaching;
 
@@ -59,8 +67,10 @@ public sealed partial class SkinnedFigure : Figure
         if (!float.IsFinite(person.UniformScale) || person.UniformScale <= 0)
             throw new InvalidDataException($"Invalid uniform stature for {personId}");
         model.Scale = Vector3.One * person.UniformScale;
-        var figure = new SkinnedFigure { Name = personId, _model = model, _art = art, _bindings = bindings, _paces = person.Paces, _phases = person.Phases, _uniformScale = person.UniformScale };
+        var figure = new SkinnedFigure { Name = personId, _model = model, _art = art, _bindings = bindings, _paces = model.MotionPaces ?? person.Paces, _phases = person.Phases, _uniformScale = person.UniformScale };
         figure._person = person;
+        figure._idles = new IdleVariety(personId);
+        model.IdleStartPhase = figure._idles.StartPhase;
         figure.AddChild(model);
         var posture = new PostureModifier();
         if (posture.Bind(model.Skeleton, "pelvis", new[] { "thigh_l", "thigh_r" }, new[] { "calf_l", "calf_r" })
@@ -124,6 +134,19 @@ public sealed partial class SkinnedFigure : Figure
         if (bone >= 0 && model.FindChild("SOCK_" + hand, true, false) is Node3D node && node.GetParent() is BoneAttachment3D attachment
             && attachment.BoneName == hand)
             return node.Transform;
+        // The comparison rig has named native fingers but no equipment socket. Use its own
+        // palm landmarks, exactly as the MetaHuman grip frame does; no rest or bind changes.
+        if (VisualOptions.People == "mpfb" && bone >= 0)
+        {
+            string side = BoneNames.Side(hand).ToLowerInvariant();
+            var inverse = skeleton.GetBoneGlobalRest(bone).AffineInverse();
+            Vector3 Point(string name) => inverse * skeleton.GetBoneGlobalRest(skeleton.FindBone(name + "_" + side)).Origin;
+            if (new[] { "middle_01", "index_01", "pinky_01" }.All(n => skeleton.FindBone(n + "_" + side) >= 0))
+            {
+                var middle = Point("middle_01");
+                return HeldWeapon.Frame(middle * .7f, Point("index_01") - Point("pinky_01"), middle);
+            }
+        }
         return null;
     }
 
@@ -249,6 +272,7 @@ public sealed partial class SkinnedFigure : Figure
         model.Name = "Held";
         bone.AddChild(model);
         _held = model;
+        if (VisualOptions.People == "mpfb") _held.Scale /= _uniformScale; // Keep the same world-sized weapon on a normalized comparison body.
         _haft = weapon.Family == "polearm" && !off ? Haft(model) : null;
         Relax();
     }
@@ -324,12 +348,18 @@ public sealed partial class SkinnedFigure : Figure
 
     public override void Pose(Vector3 feet, float facingRadians, float speedMetresPerSecond, double delta)
     {
+        if (!_hasDirection && _posed && delta > 0) _moveDirection = (feet - _previousPosition).Normalized();
+        _previousPosition = feet;
+        if (!_posed) _yaw = facingRadians;
+        _posed = true;
         // Standing, a turn of more than about 20 degrees is made at a walking body's pace rather than snapped round (an in-place walk
         // cycle here slid the feet: measured, tools/visual_review/foot_slide.py).
         float behind = Mathf.Abs(Mathf.AngleDifference(_yaw, facingRadians));
         _turning = speedMetresPerSecond < 0.25f && (behind > 0.35f || (_turning && behind > 0.08f));
         float follow = _turning ? 6f : 14f;
-        _yaw = Mathf.LerpAngle(_yaw, facingRadians, 1f - Mathf.Exp(-follow * (float)delta));
+        _yaw = VisualOptions.People == "mpfb"
+            ? _yaw + Mathf.Clamp(Mathf.AngleDifference(_yaw, facingRadians), -6f * (float)delta, 6f * (float)delta)
+            : Mathf.LerpAngle(_yaw, facingRadians, 1f - Mathf.Exp(-follow * (float)delta));
         Rotation = new Vector3(0, _yaw, 0);
         Position = feet;
         _crouch = Mathf.MoveToward(_crouch, _crouched ? 1f : 0f, (float)delta * 5f);
@@ -404,6 +434,7 @@ public sealed partial class SkinnedFigure : Figure
     private void Animate(float speed, double delta)
     {
         var m = _model;
+        if (speed > .25f || _downed || _talking || _airborne || (_stance.Holds != Held.Nothing || _equipped is not null)) _idles.Interrupt();
         if (_waking is { } waking)
         {
             if (m.Has("get_up"))
@@ -528,6 +559,8 @@ public sealed partial class SkinnedFigure : Figure
         // holds until the speed has clearly left it: accelerating or slowing through a threshold never flicks between two clips.
         if (speed > 0.25f && m.Has("walk"))
         {
+            var local = GlobalBasis.Inverse() * _moveDirection * speed;
+            if (m.MoveBlend(new Vector2(local.X, local.Z), delta, _paces, _uniformScale)) return;
             _gait = _gait switch
             {
                 "sprint" when speed < 4.0f => speed < 2.0f ? "walk" : "run",
@@ -579,6 +612,6 @@ public sealed partial class SkinnedFigure : Figure
             m.Play(ready, 0.3f);
             return;
         }
-        m.Play("idle", 0.3f);
+        m.Play(_equipped is null ? _idles.Step(delta, _idleRole, m.Has, m.Length) : "idle", .4f);
     }
 }

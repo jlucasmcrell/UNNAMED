@@ -37,6 +37,17 @@ public sealed partial class MetaHumanFigure : Figure
     private WeaponArt? _equipped;
     private Node3D? _held;
     private string? _heldId;
+    private FaceDriver? _faceDriver;
+    private IdleVariety _idles = null!;
+    private string? _idleRole;
+    private string _identity = "";
+    public override void Say(string? line) => _faceDriver?.Say(line);
+    public override void SetIdleRole(string? role) => _idleRole = role;
+    public override void SetGaze(Vector3? target) => _faceDriver?.Gaze(target is { } at && Head is { } head ? GlobalBasis.Inverse() * (at - head).Normalized() : null);
+    private Vector3 _moveDirection;
+    private bool _hasDirection, _posed;
+    private Vector3 _lastPosition;
+    public override void SetMovementDirection(Vector3 worldDirection) { if (worldDirection.LengthSquared() > .001f) _moveDirection = worldDirection.Normalized(); _hasDirection = true; }
     private bool _npc;
     private int _npcPerformanceStage;
     private double _pendingAnimation;
@@ -62,7 +73,7 @@ public sealed partial class MetaHumanFigure : Figure
         }
         var characters = catalog["characters"].AsGodotDictionary();
         if (!characters.ContainsKey(id)) throw new InvalidDataException($"Missing MetaHuman catalog entry {id}");
-        return new MetaHumanFigure { CharacterId = id, _configuration = characters[id].AsGodotDictionary(), _resources = ReferenceEquals(art, ArtLibrary.Empty) ? new() : art.MetaHumanResources, _art = art, _bindings = bindings };
+        return new MetaHumanFigure { _identity = personId, CharacterId = id, _configuration = characters[id].AsGodotDictionary(), _resources = ReferenceEquals(art, ArtLibrary.Empty) ? new() : art.MetaHumanResources, _art = art, _bindings = bindings };
     }
 
     public override void _Ready()
@@ -72,6 +83,9 @@ public sealed partial class MetaHumanFigure : Figure
         AddChild(_native);
         if (!_native.Call("configure", AssetRoot, _configuration, _resources).AsBool())
             throw new InvalidDataException($"Native MetaHuman {CharacterId} failed to load");
+        _idles = new IdleVariety(_identity);
+        _faceDriver = FaceDriver.Attach(_native, _identity);
+        if (_faceDriver is not null) AddChild(_faceDriver);
         // Include new/replaced players and NPCs without changing native mesh buffers or materials.
         foreach (var mesh in _native.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>())
             mesh.Layers |= FillLayer;
@@ -81,7 +95,7 @@ public sealed partial class MetaHumanFigure : Figure
             AddChild(_onScreen);
             _native.Call("configure_npc_performance", _npcPerformanceStage);
             Play("idle", 0);
-            _native.Call("advance_animation", 0.0);
+            _native.Call("advance_animation", _idles.StartPhase * Length("idle"));
         }
         var skeleton = _native.Call("body_skeleton").As<Skeleton3D>();
         _hand = new BoneAttachment3D { BoneName = "hand_r" };
@@ -101,8 +115,13 @@ public sealed partial class MetaHumanFigure : Figure
     public override void SetFirstPerson(bool firstPerson) => _native.Call("set_shadow_only", firstPerson);
     public override void Pose(Vector3 feet, float facingRadians, float speedMetresPerSecond, double delta)
     {
+        if (!_hasDirection && _posed && delta > 0)
+            _moveDirection = (feet - _lastPosition).Normalized();
+        _lastPosition = feet;
         Position = feet;
-        Rotation = new Vector3(0, facingRadians, 0);
+        float turn = _posed ? Mathf.Clamp(Mathf.AngleDifference(Rotation.Y, facingRadians), -6f * (float)delta, 6f * (float)delta) : facingRadians;
+        Rotation = new Vector3(0, _posed ? Rotation.Y + turn : facingRadians, 0);
+        _posed = true;
         if (_npc && GetViewport().GetCamera3D() is { } camera)
         {
             float distance = camera.GlobalPosition.DistanceTo(GlobalPosition + Vector3.Up);
@@ -181,6 +200,7 @@ public sealed partial class MetaHumanFigure : Figure
     private void Animate(float speed, double delta)
     {
         if (!Has("idle")) return;
+        if (speed > .25f || _downed || _talking || _airborne || (_stance.Holds != Held.Nothing || _equipped is not null)) _idles.Interrupt();
         if (_downed) { Play("death", .25f); return; }
         if (_striking > 0)
         {
@@ -250,21 +270,16 @@ public sealed partial class MetaHumanFigure : Figure
         }
         if (speed > .25f && Has("walk"))
         {
-            _gait = _gait switch
-            {
-                "sprint" when speed < 4 => speed < 2 ? "walk" : "run",
-                "run" when speed > 4.4f && Has("sprint") => "sprint",
-                "run" when speed < 2 => "walk",
-                "walk" when speed > 4.4f && Has("sprint") => "sprint",
-                "walk" when speed > 2.4f && Has("run") => "run",
-                _ => _gait,
-            };
-            Play(_gait, .2f, Mathf.Clamp(speed / Pace(_gait, _gait switch { "sprint" => 5, "run" => 3.2f, _ => 1.4f }), .35f, 2.2f));
+            var local = GlobalBasis.Inverse() * _moveDirection * speed;
+            if (_native.Call("move_blend", new Vector2(local.X, local.Z), delta).AsBool()) return;
+            string gait = speed > 2.2f && Has("run") ? "run" : "walk";
+            Play(gait, .25f, speed / Pace(gait, gait == "walk" ? 1.4f : 3.2f));
             return;
         }
         _gait = "walk";
         string ready = _stance.Holds switch { Held.Sword => "sword_ready", Held.Spear => "spear_ready", Held.Bow => "bow_ready", _ => "idle" };
-        Play(Has(ready) ? ready : "idle", .3f);
+        if (ready == "idle" && _equipped is null) ready = _idles.Step(delta, _idleRole, Has, Length);
+        Play(Has(ready) ? ready : "idle", .4f);
     }
 
 }

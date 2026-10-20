@@ -265,7 +265,9 @@ public partial class Main : Node3D
             OS.SetEnvironment("UNNAMED_LOD_STIPPLE", "0");
             GD.Print("UNNAMED direct EXE: using packaged PLAY defaults");
         }
-        ParseArguments(Ui.Models.PlaytestLaunchDefaults.Resolve(arguments, Home(), OS.HasFeature("template")));
+        string optionFile = Path.Combine(Home(), "characters.option");
+        string packagedPeople = directPlaytest && File.Exists(optionFile) ? File.ReadAllText(optionFile).Trim() : "production";
+        ParseArguments(Ui.Models.PlaytestLaunchDefaults.Resolve(arguments, Home(), OS.HasFeature("template"), packagedPeople));
         // A player's run plays with the player's settings (the window, the tier they chose, the dials); a harness run never reads or
         // writes them (its numbers stay comparable).
         _developer = OS.IsDebugBuild() || _flags.Contains("--dev");
@@ -1451,6 +1453,7 @@ public partial class Main : Node3D
             Worn(EquipSlot.Hands), Worn(EquipSlot.Legs), Worn(EquipSlot.Cloak)));
         var posture = simulation.Posture;
         _avatar.SetPosture(posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched, posture.Airborne);
+        _avatar.SetMovementDirection(new Vector3(_controller.Intent.DirXPermille, 0, _controller.Intent.DirZPermille));
         _avatar.Pose(feet, PlayerController.FacingRadians(predicted.FacingMdeg), speed, delta);
         _camera.Crouch = _avatar.Crouch;
         Probe("avatar/world");

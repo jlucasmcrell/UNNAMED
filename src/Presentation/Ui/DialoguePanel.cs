@@ -182,6 +182,8 @@ public partial class DialoguePanel : CanvasLayer
                 {
                     TalkTo talk => talk.DialogueId == view.DialogueId && choice.Next is { } next && talk.Nodes.Contains(next),
                     ChoiceGiven given => given.DialogueId == view.DialogueId && given.NodeId == view.NodeId && given.ChoiceId == choice.Id,
+                    RelationshipValueObjective relation => choice.Consequences.OfType<RelationshipEventConsequence>().Any(c => c.NpcId == relation.NpcId && c.Dimension == relation.Dimension),
+                    CompanionPresent companion => companion.NpcId == view.NpcId && choice.Consequences.Any(c => c is RecruitCompanionConsequence),
                     WorldStateObjective flag => choice.Consequences.OfType<SetWorldFlagConsequence>().Any(c => c.FlagId == flag.FlagId),
                     _ => false,
                 };

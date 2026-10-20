@@ -36,7 +36,7 @@ public partial class Main
     {
         if (System.Environment.GetEnvironmentVariable("OTHERREACH_MH_REVIEW_OUT") is not { Length: > 0 } directory)
             return;
-        if (!MetaHumanFigure.Available || DisplayServer.GetName() == "headless")
+        if ((!MetaHumanFigure.Available && VisualOptions.People != "mpfb") || DisplayServer.GetName() == "headless")
             throw new InvalidOperationException("MetaHuman review requires the native bundle and a real renderer");
         _mhReviewDirectory = Path.GetFullPath(directory);
         _mhFootwearPreview = System.Environment.GetEnvironmentVariable("OTHERREACH_MH_FOOTWEAR_PREVIEW") == "1";
@@ -70,11 +70,13 @@ public partial class Main
         }, new JsonSerializerOptions { WriteIndented = true }));
         _mhReviewNext = Time.GetTicksMsec() + 3000;
         if ((System.Environment.GetEnvironmentVariable("OTHERREACH_WORLD_LIGHTING_DIAGNOSTIC") == "1"
-            || System.Environment.GetEnvironmentVariable("OTHERREACH_MH_OWNER_FIXES_DIAGNOSTIC") == "1")
+            || System.Environment.GetEnvironmentVariable("OTHERREACH_MH_OWNER_FIXES_DIAGNOSTIC") == "1"
+            || System.Environment.GetEnvironmentVariable("OTHERREACH_RCD3_REVIEW") == "1")
             && System.Environment.GetEnvironmentVariable("OTHERREACH_LIGHTING_FAST") == "1")
         {
             OpenCreator();
-            _creator.Use(_creator.Draft with { Name = "Ada", BodyPresetId = "body.veth_f.average", Start = StartPoint.Waystone });
+            bool feminine = System.Environment.GetEnvironmentVariable("OTHERREACH_MH_REVIEW_PLAYER") != "mateo";
+            _creator.Use(_creator.Draft with { Name = feminine ? "Ada" : "Mateo", BodyPresetId = feminine ? "body.veth_f.average" : "body.veth_m.average", Pronouns = feminine ? Pronouns.She : Pronouns.He, Start = StartPoint.Waystone });
             if (!_creator.PressBegin()) throw new InvalidOperationException("Lighting diagnostic Begin refused");
             _mhReviewStep = 7;
             _mhReviewNext = Time.GetTicksMsec() + 10000;
@@ -151,6 +153,12 @@ public partial class Main
         }
         if (_session.Simulation is not { } simulation)
             throw new InvalidOperationException("Native review has no world after Begin");
+        if (_mhReviewStep == 7 && System.Environment.GetEnvironmentVariable("OTHERREACH_RCD3_REVIEW") == "1")
+        {
+            _mhReviewBusy = true;
+            RunRcd3Review(_mhReviewDirectory);
+            return;
+        }
         if (_mhReviewStep == 7 && System.Environment.GetEnvironmentVariable("OTHERREACH_MH_OWNER_FIXES_DIAGNOSTIC") == "1")
         {
             var source = _camera.Camera;

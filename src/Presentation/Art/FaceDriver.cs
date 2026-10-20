@@ -27,11 +27,16 @@ public sealed partial class FaceDriver : Node
     private float _peak;
     private double _peakAt = -1;
     private readonly Dictionary<string, float> _arkit = new(StringComparer.Ordinal);
-    private double _since;
+    private double _since, _gazeIn, _expressionTime;
+    private Vector2 _saccade;
+    private Vector3? _gaze;
+    public void Gaze(Vector3? localDirection) => _gaze = localDirection;
+    public float BlinkWeight => _weights.GetValueOrDefault("eyeBlinkLeft");
+    public float JawWeight => _weights.GetValueOrDefault("jawOpen");
 
     private static readonly string[] Channels =
     {
-        "eyeBlinkLeft", "eyeBlinkRight", "jawOpen", "mouthClose", "browInnerUp", "viseme_sil", "viseme_PP", "viseme_FF", "viseme_TH",
+        "eyeBlinkLeft", "eyeBlinkRight", "eyeSquintLeft", "eyeSquintRight", "eyeLookInLeft", "eyeLookOutLeft", "eyeLookInRight", "eyeLookOutRight", "eyeLookUpLeft", "eyeLookUpRight", "eyeLookDownLeft", "eyeLookDownRight", "browDownLeft", "browDownRight", "mouthSmileLeft", "mouthSmileRight", "jawOpen", "mouthClose", "browInnerUp", "viseme_sil", "viseme_PP", "viseme_FF", "viseme_TH",
         "viseme_DD", "viseme_kk", "viseme_CH", "viseme_SS", "viseme_nn", "viseme_RR", "viseme_aa", "viseme_E", "viseme_I", "viseme_O",
         "viseme_U",
     };
@@ -150,8 +155,11 @@ public sealed partial class FaceDriver : Node
 
     public override void _Process(double delta)
     {
+        if (_meshes.Count == 0 || !_meshes.Any(m => GodotObject.IsInstanceValid(m.Mesh) && m.Mesh.IsVisibleInTree())) return;
+        if (GetViewport().GetCamera3D() is { } camera && camera.GlobalPosition.DistanceSquaredTo(_meshes[0].Mesh.GlobalPosition) > 625) return;
         foreach (string channel in Channels)
             _targets[channel] = 0;
+        RestAndGaze(delta);
         Blink(delta);
         Speak(delta);
         // Visemes and the jaw ease in and out (about 60 ms): the mouth moves between shapes, never snaps.
@@ -178,7 +186,7 @@ public sealed partial class FaceDriver : Node
             {
                 if (channel.StartsWith("combo:", StringComparison.Ordinal))
                     continue;
-                float value = channel.StartsWith("arkit:", StringComparison.Ordinal) ? _arkit.GetValueOrDefault(channel[6..]) : _weights.GetValueOrDefault(channel);
+                float value = channel.StartsWith("arkit:", StringComparison.Ordinal) ? _arkit.GetValueOrDefault(channel[6..]) + _weights.GetValueOrDefault(channel[6..]) : _weights.GetValueOrDefault(channel);
                 // mouthClose is both a channel and part of the PP blend on such a face.
                 if (channel == "mouthClose" && !index.ContainsKey("viseme_PP"))
                     value += _arkit.GetValueOrDefault("mouthClose");
@@ -199,7 +207,7 @@ public sealed partial class FaceDriver : Node
         // about it is read off the weight instead of inferred from pixels: every 5 s, the peak eyeBlink weight since the last line.
         _peak = Mathf.Max(_peak, _weights.GetValueOrDefault("eyeBlinkLeft"));
         _since += delta;
-        if (_since >= 5)
+        if (_since >= 5 && System.Environment.GetEnvironmentVariable("OTHERREACH_RCD3_REVIEW") == "1")
         {
             GD.Print($"UNNAMED face: {_seed} peak eyeBlink {_peak:0.000} over {_since:0.0}s ({_meshes.Count} mesh(es))");
             _peak = 0;
@@ -207,14 +215,39 @@ public sealed partial class FaceDriver : Node
         }
     }
 
+    private void RestAndGaze(double delta)
+    {
+        _expressionTime += delta;
+        _gazeIn -= delta;
+        if (_gazeIn <= 0)
+        {
+            _saccade = new Vector2(_random.RandfRange(-.07f, .07f), _random.RandfRange(-.035f, .035f));
+            _gazeIn = _random.RandfRange(.4f, 1.8f);
+        }
+        var look = _saccade;
+        if (_gaze is { Z: > .2f } gaze)
+            look += new Vector2(Mathf.Clamp(Mathf.Atan2(gaze.X, gaze.Z) / .65f, -.45f, .45f),
+                Mathf.Clamp(Mathf.Atan2(gaze.Y, gaze.Z) / .5f, -.3f, .3f));
+        _targets["eyeLookOutLeft"] = _targets["eyeLookInRight"] = Math.Max(0, look.X);
+        _targets["eyeLookInLeft"] = _targets["eyeLookOutRight"] = Math.Max(0, -look.X);
+        _targets["eyeLookUpLeft"] = _targets["eyeLookUpRight"] = Math.Max(0, look.Y);
+        _targets["eyeLookDownLeft"] = _targets["eyeLookDownRight"] = Math.Max(0, -look.Y);
+        // A slight lid rest removes the constant wide-eyed expression. Blinks take precedence.
+        _targets["eyeSquintLeft"] = _targets["eyeSquintRight"] = .07f;
+        _targets["eyeBlinkLeft"] = _targets["eyeBlinkRight"] = .035f;
+        float expression = .02f + .015f * Mathf.Sin((float)_expressionTime * .37f);
+        _targets["browDownLeft"] = _targets["browDownRight"] = expression;
+        _targets["mouthSmileLeft"] = _targets["mouthSmileRight"] = _line is null ? expression * .5f : 0;
+    }
+
     private void Blink(double delta)
     {
         if (_blinking >= 0)
         {
             _blinking += delta;
-            float closed = (float)Math.Clamp(1 - Math.Abs(_blinking - 0.07) / 0.07, 0, 1);
+            float closed = (float)Math.Clamp(_blinking < .045 ? _blinking / .045 : _blinking < .095 ? 1 : 1 - (_blinking - .095) / .075, 0, 1);
             _targets["eyeBlinkLeft"] = _targets["eyeBlinkRight"] = closed;
-            if (_blinking > 0.16)
+            if (_blinking > .19)
             {
                 _blinking = -1;
                 // Mostly every few seconds, now and then a quick double blink.

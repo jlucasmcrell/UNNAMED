@@ -12,6 +12,10 @@ namespace UNNAMED.Presentation.Player;
 public abstract partial class Figure : Node3D
 {
     /// <summary>How far into a crouch the body is drawn, 0 standing to 1 crouched.</summary>
+    public virtual void SetGaze(Vector3? worldTarget) { }
+    public virtual void SetIdleRole(string? role) { }
+    public virtual void SetMovementDirection(Vector3 worldDirection) { }
+
     public abstract float Crouch { get; }
 
     /// <summary>What the body is doing in combat this frame.</summary>

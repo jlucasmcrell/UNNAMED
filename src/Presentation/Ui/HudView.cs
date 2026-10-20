@@ -124,7 +124,7 @@ public partial class HudView : Control
     private readonly List<(Control Box, string Text, double Expires)> _live = new();
 
     // Top right, under the compass: the tracked quest.
-    private readonly PanelContainer _tracker = new();
+    private readonly PanelContainer _tracker = new() { Name = "QuestTracker" };
     private readonly Label _trackerTitle = HudStyle.Text(HudStyle.Caps, 17, HudStyle.Ember);
     private readonly VBoxContainer _objectives = new();
     private string _trackerText = string.Empty;

@@ -7,7 +7,8 @@ import unreal,json,traceback,os,struct,re
 from pathlib import Path
 root=Path((_pipeline_root().as_posix() + ''))
 grip_mode=os.environ.get('OTHERREACH_MH_HAND_GRIP')=='1'
-out=root/'evidence'/('ue_native_weapon_grips.json' if grip_mode else 'ue_native_animations_extremities.json')
+extra_mode=os.environ.get('OTHERREACH_MH_RCD3_CLIPS')=='1'
+out=root/'evidence'/('ue_native_animations_rcd3.json' if extra_mode else 'ue_native_weapon_grips.json' if grip_mode else 'ue_native_animations_extremities.json')
 state=json.loads(out.read_text()) if out.exists() else {'characters':[]}
 def save(**kw):
  if kw.get('status')!='FAILED':state.pop('error',None)
@@ -33,7 +34,8 @@ try:
  'bow_ready':('kaykit_ranged','Ranged_Bow_Aiming_Idle'),'bow_draw':('kaykit_ranged','Ranged_Bow_Draw'),
  'bow_release':('kaykit_ranged','Ranged_Bow_Release'),'pick_up':('kaykit_general','PickUp'),
  'dodge':('kaykit_move','Dodge_Backward')}
- if grip_mode:clips={'weapon_grip':('ual1','Sword_Idle')}
+ if extra_mode:clips={'strafe_left':('kaykit_move','Running_Strafe_Left'),'strafe_right':('kaykit_move','Running_Strafe_Right'),'walk_back':('kaykit_move','Walking_Backwards'),'idle_foldarms':('ual2','Idle_FoldArms_Loop'),'idle_shift':('ual2','Idle_No_Loop'),'idle_look':('kaykit_general','Idle_B')}
+ elif grip_mode:clips={'weapon_grip':('ual1','Sword_Idle')}
  elif os.environ.get('OTHERREACH_MH_ANIM_PROBE')=='1':clips={k:clips[k] for k in ['idle','walk','sword_attack_1']}
  catalog=json.loads((root/'runtime/catalog.json').read_text())
  npc=json.loads((root/'evidence/npc_glb_export.json').read_text())

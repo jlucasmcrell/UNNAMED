@@ -13,6 +13,11 @@ namespace UNNAMED.Presentation.Art;
 public sealed partial class SkinnedModel : Node3D
 {
     private readonly HashSet<string> _states = new(StringComparer.Ordinal);
+    public double IdleStartPhase { get; set; }
+    private bool _idlePhaseStarted;
+    private Node? _locomotion;
+    public IReadOnlyDictionary<string, float>? MotionPaces { get; private set; }
+    private Godot.Collections.Dictionary _contacts = new();
     private AnimationPlayer _player = null!;
 
     public Skeleton3D Skeleton { get; private set; } = null!;
@@ -75,6 +80,7 @@ public sealed partial class SkinnedModel : Node3D
             if (owner is not null)
                 art.Coverage.Resolved("clip", $"{owner}:{state}", clipId);
         }
+        if (VisualOptions.People == "mpfb") figure.ComparisonClips(assetId, library, skeletonPath);
         player.AddAnimationLibrary("", library);
         figure._player = player;
         // Keep the opt-in interior's local player continuous through space changes; NPC visibility throttling remains.
@@ -83,6 +89,59 @@ public sealed partial class SkinnedModel : Node3D
         figure.FindOutfits(model);
         figure.SetOutfit("base");
         return figure;
+    }
+
+    // The comparison keeps its existing ArtLibrary retarget route. ONLY MPFB receives these rest-relative
+    // copies; native MetaHumans continue to use their own audited Epic-retargeted tracks without this step.
+    private void ComparisonClips(string assetId, AnimationLibrary library, string skeletonPath)
+    {
+        string root = MHCharacters.MetaHumanFigure.AssetRoot;
+        string catalogPath = System.IO.Path.Combine(root, "catalog.json");
+        if (!System.IO.File.Exists(catalogPath)) return;
+        var catalog = Json.ParseString(System.IO.File.ReadAllText(catalogPath)).AsGodotDictionary();
+        string id = assetId.Contains("fem", StringComparison.Ordinal) ? "ada" : "mateo";
+        var configuration = catalog["characters"].AsGodotDictionary()[id].AsGodotDictionary();
+        var native = ResourceLoader.Load<AnimationLibrary>(System.IO.Path.Combine(root, configuration["animation_library"].AsString()));
+        if (native is null) return;
+        if (native.GetMeta("native_body_sha256").AsString() != Godot.FileAccess.GetSha256(System.IO.Path.Combine(root, configuration["body"].AsString())))
+            throw new InvalidDataException("Comparison motion source body hash differs from its native library");
+        var document = new GltfDocument(); var state = new GltfState();
+        if (document.AppendFromFile(System.IO.Path.Combine(root, configuration["body"].AsString()), state) != Error.Ok)
+            throw new InvalidDataException("Comparison source body could not be read");
+        var source = document.GenerateScene(state);
+        try
+        {
+            var rig = ArtLibrary.Find<Skeleton3D>(source) ?? throw new InvalidDataException("Comparison source skeleton missing");
+            var from = SkeletonRest.Of(rig);
+            float scale = SkeletonRest.Of(Skeleton).Height / from.Height;
+            foreach (string clip in native.GetAnimationList())
+            {
+                if (library.HasAnimation(clip)) library.RemoveAnimation(clip);
+                library.AddAnimation(clip, ArtLibrary.Retarget(native.GetAnimation(clip), skeletonPath, Skeleton,
+                    native.GetAnimation(clip).LoopMode != Animation.LoopModeEnum.None, from));
+                _states.Add(clip);
+            }
+            MotionPaces = configuration["animation_paces"].AsGodotDictionary().ToDictionary(p => p.Key.AsString(), p => p.Value.AsSingle() * scale);
+            if (configuration.TryGetValue("animation_phases", out var phases)) _contacts = phases.AsGodotDictionary();
+            GD.Print($"UNNAMED MPFB motion: {assetId} {native.GetAnimationList().Count} common Epic clips, existing rest-relative route; native target skeleton unchanged");
+        }
+        finally { source.Free(); }
+    }
+
+    public bool MoveBlend(Vector2 velocity, double delta, IReadOnlyDictionary<string, float> paces, float scale)
+    {
+        if (VisualOptions.People != "mpfb" || !Has("strafe_left")) return false;
+        if (_locomotion is null)
+        {
+            _locomotion = GD.Load<GDScript>("res://Art/LocomotionBlend.gd").New().As<Node>();
+            AddChild(_locomotion);
+            var measured = new Godot.Collections.Dictionary();
+            foreach (var (name, pace) in paces) measured[name] = pace * scale;
+            if (!_locomotion.Call("configure", _player, measured, _throttled, _contacts).AsBool()) return false;
+        }
+        bool moving = _locomotion.Call("move", velocity, delta).AsBool();
+        if (moving) Current = "locomotion_2d";
+        return moving;
     }
 
     // Outfit variants (charstd export_character.py): a surface whose material is named "<variants>::<material>" shows only under those
@@ -160,7 +219,8 @@ public sealed partial class SkinnedModel : Node3D
             return;
         double step = Math.Min(_owed, 0.25);
         _owed = 0;
-        _player.Advance(step);
+        if (_locomotion?.Get("active").AsBool() == true) _locomotion.Call("advance", step);
+        else _player.Advance(step);
         Skeleton.Advance(step);
     }
 
@@ -171,11 +231,17 @@ public sealed partial class SkinnedModel : Node3D
     {
         if (!_states.Contains(state))
             return;
+        if (_locomotion?.Call("stop").AsBool() == true) Current = null;
         _player.SpeedScale = speed;
         if (Current == state && !restart)
             return;
         Current = state;
         _player.Play(state, blend);
+        if (!_idlePhaseStarted && state == "idle")
+        {
+            _idlePhaseStarted = true;
+            _player.Seek(IdleStartPhase * Length("idle"), true);
+        }
         if (restart)
             _player.Seek(0, true);
     }
@@ -188,6 +254,7 @@ public sealed partial class SkinnedModel : Node3D
     {
         if (!_states.Contains(state))
             return;
+        if (_locomotion?.Call("stop").AsBool() == true) Current = null;
         if (Current != state)
         {
             Current = state;

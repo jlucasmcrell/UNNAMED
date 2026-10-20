@@ -15,6 +15,7 @@ var _root: Node3D
 var _body: Skeleton3D
 var _face: Skeleton3D
 var _sync: Node
+var _locomotion: Node
 var _animator: AnimationPlayer
 var _weapon_grip: SkeletonModifier3D
 var _body_meshes: Array[MeshInstance3D] = []
@@ -177,6 +178,8 @@ func configure(source: String, config: Dictionary, shared: Dictionary = {}) -> b
 			return false
 		var model := _load_model(path)
 		if model == null: return false
+		if part == "head" and config.has("head_expression_mesh"):
+			if not _install_face_expressions(model, _source + config.head_expression_mesh): return false
 		_root.add_child(model)
 		var skels := _all(model,"Skeleton3D")
 		if skels.size() != 1:
@@ -221,6 +224,70 @@ func configure(source: String, config: Dictionary, shared: Dictionary = {}) -> b
 	if not _load_weapon_grip(): return false
 	if _load_failed: return false
 	print("MH_CHARACTER id=%s body_bones=%d face_bones=%d native_bind=true ik=false" % [config.id, _body.get_bone_count(), _face.get_bone_count()])
+	return true
+
+func _install_face_expressions(model: Node, path: String) -> bool:
+	# Only expression targets are added. The original imported face Skeleton3D and Skin are
+	# retained verbatim; the body never enters this path. No skeletal retarget or rebind.
+	var expressions := _load_model(path)
+	if expressions == null: return false
+	var targets := _all(model,"MeshInstance3D")
+	var sources := _all(expressions,"MeshInstance3D")
+	assert(targets.size() == 1 and sources.size() == 1)
+	var target: MeshInstance3D = targets[0]
+	var original: ArrayMesh = target.mesh
+	var shapes: ArrayMesh = sources[0].mesh
+	assert(shapes.get_surface_count() == original.get_surface_count() and shapes.get_blend_shape_count() == 51)
+	if DisplayServer.get_name() == "headless":
+		# Dummy renderer cannot update/read back packed vertex buffers. Keep the original
+		# native head for logic-only smoke runs; facial buffer proof always uses Forward+.
+		expressions.free()
+		return true
+	var cache_key := "face_expression_mesh|"+path
+	if _shared.has(cache_key):
+		target.set_meta("native_face_base_mesh",original)
+		target.set_meta("native_face_skin",target.skin)
+		target.mesh = _shared[cache_key]
+		expressions.free()
+		return true
+	var result := ArrayMesh.new()
+	result.blend_shape_mode = shapes.blend_shape_mode
+	for shape in shapes.get_blend_shape_count(): result.add_blend_shape(shapes.get_blend_shape_name(shape))
+	for surface in original.get_surface_count():
+		var base := original.surface_get_arrays(surface)
+		var exported := shapes.surface_get_arrays(surface)
+		var morphs := shapes.surface_get_blend_shape_arrays(surface)
+		assert(base[Mesh.ARRAY_VERTEX].size() == exported[Mesh.ARRAY_VERTEX].size())
+		# The accepted surface/vertex/UV layout is retained. The helper's sub-2-micron
+		# float export roundoff is used only for delta correspondence, never installed as geometry.
+		assert(base[Mesh.ARRAY_TEX_UV] == exported[Mesh.ARRAY_TEX_UV],"Expression UV layout differs from native head")
+		for vertex in base[Mesh.ARRAY_VERTEX].size():
+			assert(base[Mesh.ARRAY_VERTEX][vertex].distance_to(exported[Mesh.ARRAY_VERTEX][vertex]) < .000002,"Expression topology differs from native head")
+		if result.blend_shape_mode == Mesh.BLEND_SHAPE_MODE_NORMALIZED:
+			for morph in morphs:
+				for attribute in [Mesh.ARRAY_VERTEX,Mesh.ARRAY_NORMAL,Mesh.ARRAY_TANGENT]:
+					if morph[attribute] == null or base[attribute] == null: continue
+					for vertex in morph[attribute].size(): morph[attribute][vertex] += base[attribute][vertex] - exported[attribute][vertex]
+		var flags := original.surface_get_format(surface)
+		result.add_surface_from_arrays(original.surface_get_primitive_type(surface),base,morphs,{},flags)
+		result.surface_set_material(surface,original.surface_get_material(surface))
+		# Godot's normal/tangent packing is not round-trip idempotent. Preserve the original
+		# base vertex buffer byte-for-byte using its documented ArrayMesh buffer API.
+		var raw := RenderingServer.mesh_get_surface(original.get_rid(),surface)
+		var made := RenderingServer.mesh_get_surface(result.get_rid(),surface)
+		assert(raw.format == made.format and raw.vertex_data.size() == made.vertex_data.size())
+		result.surface_update_vertex_region(surface,0,raw.vertex_data)
+		made = RenderingServer.mesh_get_surface(result.get_rid(),surface)
+		for field in ["vertex_data","attribute_data","skin_data","index_data"]:
+			assert(raw.get(field) == made.get(field),"Native face base buffer differs: "+field)
+		var kept := result.surface_get_arrays(surface)
+		for attribute in [Mesh.ARRAY_VERTEX,Mesh.ARRAY_NORMAL,Mesh.ARRAY_TANGENT,Mesh.ARRAY_BONES,Mesh.ARRAY_WEIGHTS]:
+			assert(base[attribute] == kept[attribute],"Native head base array changed while adding expressions: "+str(attribute))
+	target.set_meta("native_face_base_mesh",original)
+	target.set_meta("native_face_skin",target.skin)
+	target.mesh = result
+	_shared[cache_key] = result
+	expressions.free()
 	return true
 
 func _load_weapon_grip() -> bool:
@@ -323,6 +390,9 @@ func _load_animation_library() -> bool:
 	_animator.root_node = NodePath("..")
 	_animator.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
 	_animator.add_animation_library("", library)
+	_locomotion = load("res://Art/LocomotionBlend.gd").new()
+	_body.add_child(_locomotion)
+	_locomotion.configure(_animator, _config.get("animation_paces", {}), true, _config.get("animation_phases", {}))
 	return true
 
 func has_clip(state: String) -> bool:
@@ -336,6 +406,7 @@ func clip_state() -> String:
 
 func play_clip(state: String, blend: float = .2, rate: float = 1.0, restart: bool = false) -> bool:
 	if not has_clip(state): return false
+	if _locomotion != null and _locomotion.stop(): _current_clip = ""
 	_animator.speed_scale = rate
 	if _current_clip == state and not restart: return true
 	_current_clip = state
@@ -350,8 +421,14 @@ func hold_clip(state: String, through: float, blend: float = .1) -> bool:
 	_animator.seek(clampf(through, 0.0, 1.0) * clip_length(state), true)
 	return true
 
+func move_blend(velocity: Vector2, delta: float) -> bool:
+	if _locomotion == null or not _locomotion.move(velocity, delta): return false
+	_current_clip = "locomotion_2d"
+	return true
+
 func advance_animation(delta: float) -> void:
-	if _animator != null: _animator.advance(delta)
+	if _locomotion != null and _locomotion.active: _locomotion.advance(delta)
+	elif _animator != null: _animator.advance(delta)
 	if _npc_stage >= 2:
 		_sync.update_pending = true
 

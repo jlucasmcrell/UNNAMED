@@ -84,7 +84,7 @@ public partial class Main
     private void ReadInput()
     {
         // A key being bound in Settings is the binding: it opens no screen and moves no one.
-        if (_settings.Capturing)
+        if (_settings.Capturing || _rcd3Driving)
             return;
         var combat = _session.Simulation!.Combat;
         bool modal = Modal;
@@ -216,7 +216,7 @@ public partial class Main
         if (gear >= 0)
             _session.Submit(new SwapGearSetCommand(_session.Simulation!.PlayerId, gear + 1));
         bool working = captured && quick is not null && (_session.Setup.Magic.Formulas.ContainsKey(quick) || _session.Setup.Techniques.ContainsKey(quick));
-        _controller.Steer(_camera, stick, gait, faceCamera: holding || swing || working || combat.Phase == CombatPhase.Windup);
+        _controller.Steer(_camera, stick, gait, faceCamera: _avatar is MHCharacters.MetaHumanFigure || VisualOptions.People == "mpfb" || holding || swing || working || combat.Phase == CombatPhase.Windup);
         if (swing)
             _controller.Attack();
         if (slot >= 0)

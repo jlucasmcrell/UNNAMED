@@ -7,7 +7,7 @@ namespace UNNAMED.Presentation.Tests;
 public class HudRegionsTests
 {
     public static IEnumerable<object[]> Screens() =>
-        from size in new[] { (1280, 720), (1920, 1080), (2560, 1440) }
+        from size in new[] { (1280, 720), (1920, 1080), (2560, 1440), (3840, 2160) }
         from scale in new[] { 0.75f, 1f, 1.5f, 2f }
         select new object[] { size.Item1, size.Item2, scale };
 

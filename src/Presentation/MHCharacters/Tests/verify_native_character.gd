@@ -31,9 +31,20 @@ func _verify() -> void:
 				surfaces.append({"arrays": mesh.mesh.surface_get_arrays(surface).duplicate(true), "raw": RenderingServer.mesh_get_surface(mesh.mesh.get_rid(), surface)})
 			expected.append(surfaces)
 		untouched.free()
-		_check(actor.configure(source, catalog.characters[id], shared), "Native character load: " + id)
+		if not actor.configure(source, catalog.characters[id], shared):
+			_check(false, "Native character load: " + id)
+			quit(1); return
 		await process_frame
 		_check(actor._body.get_bone_count() == int(catalog.characters[id].get("body_bones", 342)), id + " native body rig changed")
+		for face_mesh: MeshInstance3D in actor._all(actor._face, "MeshInstance3D"):
+			if not face_mesh.has_meta("native_face_base_mesh"): continue
+			_check(face_mesh.skin == face_mesh.get_meta("native_face_skin"),id+" native facial skin was rebound")
+			var face_base: Mesh = face_mesh.get_meta("native_face_base_mesh")
+			for surface in face_base.get_surface_count():
+				var before_face := RenderingServer.mesh_get_surface(face_base.get_rid(),surface)
+				var after_face := RenderingServer.mesh_get_surface(face_mesh.mesh.get_rid(),surface)
+				for field in ["vertex_data","attribute_data","skin_data","index_data"]:
+					_check(before_face.get(field) == after_face.get(field),id+" native face base buffer changed: "+field)
 		_check(actor._face.get_bone_count() == int(catalog.characters[id].get("face_bones", 875)), id + " native face rig changed")
 		var mesh_index := 0
 		for body in actor._body_meshes:

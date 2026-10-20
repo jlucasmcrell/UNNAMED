@@ -21,6 +21,14 @@ public class PlaytestLaunchDefaultsTests
     }
 
     [Fact]
+    public void ComparisonPackageUsesTheSameDefaultsAndItsOwnCharacterFlag()
+    {
+        var args = PlaytestLaunchDefaults.Resolve([], "comparison", true, "mpfb");
+        Assert.Contains("tier=high,terrain=terrain3d,sky=sky3d,people=mpfb,foldscar=proof,body=none", args);
+        Assert.Contains(Path.Combine("comparison", "primary"), args);
+    }
+
+    [Fact]
     public void ExplicitArgumentsAndEditorBootArePreserved()
     {
         string[] explicitArgs = ["--smoke", "--content-root", "custom content"];

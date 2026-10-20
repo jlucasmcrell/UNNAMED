@@ -3,7 +3,7 @@ namespace UNNAMED.Presentation.Ui.Models;
 /// <summary>A packaged EXE opened directly uses the same local payload as PLAY.bat.</summary>
 public static class PlaytestLaunchDefaults
 {
-    public static string[] Resolve(string[] arguments, string directory, bool exported) =>
+    public static string[] Resolve(string[] arguments, string directory, bool exported, string people = "production") =>
         !exported || arguments.Length != 0 ? arguments :
         [
             "--region", "region.starting_frontier",
@@ -13,6 +13,6 @@ public static class PlaytestLaunchDefaults
             "--asset-fallback", Path.Combine(directory, "fallback"),
             "--scatter-rules", Path.Combine(directory, "content", "_scatter_rules.json"),
             "--profile", Path.Combine(directory, "saves"),
-            "--visual", "tier=high,terrain=terrain3d,sky=sky3d,people=production,foldscar=proof,body=none",
+            "--visual", $"tier=high,terrain=terrain3d,sky=sky3d,people={(people == "mpfb" ? "mpfb" : "production")},foldscar=proof,body=none",
         ];
 }
