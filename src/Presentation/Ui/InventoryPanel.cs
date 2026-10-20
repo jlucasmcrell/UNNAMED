@@ -790,7 +790,19 @@ public partial class InventoryPanel : CanvasLayer
             (count > 1 ? $"  ×{count}" : ""), secondary);
         row.Root.MouseFilter = Control.MouseFilterEnum.Pass;
         row.Root.MouseEntered += () => Choose(id);
+        row.Root.SetMeta("item_definition", defId);
         return row;
+    }
+
+    public void CraftGlint(string itemId, int quality)
+    {
+        foreach (var row in FindChildren("*", nameof(Control), true, false).OfType<Control>()
+                     .Where(c => c.HasMeta("item_definition") && c.GetMeta("item_definition").AsString() == itemId))
+        {
+            float peak = Settings.SettingsStore.Current.Profile.Camera.ReduceFlashes ? 1.08f : 1.2f + Math.Clamp(quality,0,2) * .1f;
+            row.Modulate = new Color(peak, peak, 1);
+            row.CreateTween().TweenProperty(row, "modulate", Colors.White, 1.2).SetTrans(Tween.TransitionType.Sine);
+        }
     }
 
     /// <summary>A compact row button that chooses its row's item when it takes the focus.</summary>

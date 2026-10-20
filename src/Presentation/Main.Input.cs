@@ -264,7 +264,10 @@ public partial class Main
                     break;
                 case FocusKind.Waystone:
                     if (_session.Simulation!.Waystones.Any(w => w.Site.Key == focus.Key && w.Known))
+                    {
+                        WaystoneResponse(focus.Key, true);
                         Show(_waystones, focus.Key);
+                    }
                     else
                         _controller.TouchStone(focus.Key);
                     break;

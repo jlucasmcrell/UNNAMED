@@ -450,6 +450,12 @@ public partial class HudView : Control
         rows.AddChild(_bannerLines);
         _banner.AddChild(rows);
         _banner.Visible = false;
+        _banner.MouseFilter = MouseFilterEnum.Stop;
+        _banner.GuiInput += input =>
+        {
+            if (input is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } && _announcements.Count > 0)
+                _bannerSince = BannerHold + BannerOut;
+        };
         AddChild(_banner);
     }
 
@@ -488,7 +494,7 @@ public partial class HudView : Control
         if (_announcements[0] != announcement)
             return;
         _bannerLines.AddChild(BannerLine(text, key));
-        _bannerSince = Math.Min(_bannerSince, BannerHold - 1.5);
+        _bannerSince = Math.Min(_bannerSince, BannerHold - 1.0);
     }
 
     private void ShowBanner()
@@ -539,7 +545,24 @@ public partial class HudView : Control
     }
 
     private const float BannerTop = 92;
-    private const double BannerHold = 4.5, BannerIn = 0.3, BannerOut = 0.8;
+    private double BannerHold => _announcements.Count > 0 && _announcements[0].Kind is "Waystone" or "Waystone attuned" or "Quest complete" ? 1.6 : 4.5;
+    private const double BannerIn = 0.2, BannerOut = 0.4;
+
+    public void SuccessGlow(Color tone)
+    {
+        var edge = new ColorRect { MouseFilter = Control.MouseFilterEnum.Ignore, Color = tone,
+            Material = new ShaderMaterial { Shader = new Shader { Code = @"
+shader_type canvas_item;
+void fragment() {
+    float edge = 1.0 - smoothstep(0.0, 0.045, min(min(UV.x,1.0-UV.x),min(UV.y,1.0-UV.y)));
+    COLOR = vec4(COLOR.rgb, COLOR.a * edge * 0.09);
+}" } } };
+        edge.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+        AddChild(edge);
+        if (Settings.SettingsStore.Current.Profile.Camera.ReduceFlashes) edge.Modulate = new Color(1,1,1,.3f);
+        var fade = edge.CreateTween(); fade.TweenProperty(edge,"modulate:a",0f,1.6);
+        fade.TweenCallback(Callable.From(edge.QueueFree));
+    }
 
     private void AnimateBanner(double delta)
     {

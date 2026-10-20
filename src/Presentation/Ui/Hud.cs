@@ -400,6 +400,7 @@ public partial class Hud : CanvasLayer
 
     /// <summary>Add what the moment brought to its announcement while it still shows.</summary>
     public void AnnounceMore(string kind, string title, string text) => _view?.AnnounceMore(kind, title, text);
+    public void SuccessGlow(Color tone) => _view?.SuccessGlow(tone);
 
     private Label? _reading;
 

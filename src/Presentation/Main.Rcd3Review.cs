@@ -128,6 +128,25 @@ public partial class Main
             else evidence.Add(new { face = id, driver = false, reason = "No expression morphs or facial joints in this export; no fabricated blink/jaw" });
             SetProcess(true);
         }
+        foreach (var figure in faces.Take(3))
+        {
+            SetProcess(false);
+            var skeleton = figure.FindChildren("*", nameof(Skeleton3D), true, false).OfType<Skeleton3D>()
+                .OrderByDescending(s => s.GetBoneCount()).FirstOrDefault();
+            if (skeleton is not null)
+                foreach (var shot in MpfbShotList)
+                {
+                    int bone = shot.Bones.Select(skeleton.FindBone).FirstOrDefault(index => index >= 0, -1);
+                    if (bone < 0) continue;
+                    var aim = skeleton.ToGlobal(skeleton.GetBoneGlobalPose(bone).Origin) + Vector3.Up * shot.AimRise;
+                    camera.Fov = 40;
+                    camera.GlobalPosition = aim + figure.GlobalBasis.Z.Rotated(Vector3.Up,shot.Yaw) * shot.Distance;
+                    camera.LookAt(aim);
+                    await Rcd3Wait(.12);
+                    await Rcd3Shot(directory, figure.Name + "_gate_" + shot.Name);
+                }
+            SetProcess(true);
+        }
         camera.Fov = _camera.Camera.Fov;
         var outline = new Outlines();
         var lookAt = _avatar.GlobalPosition + Vector3.Up;
@@ -159,6 +178,22 @@ public partial class Main
             await Rcd3Shot(directory, $"hud_{size.X}x{size.Y}");
         }
         _hud.SetMarkerWords(oldWords); window.Size = originalSize; window.Mode = originalMode; SetProcess(true);
+        if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD3_FEEDBACK") == "1")
+        {
+            camera.Fov = _camera.Camera.Fov;
+            var at = _avatar.GlobalPosition;
+            camera.GlobalPosition = at + new Vector3(2,2,3);camera.LookAt(at+Vector3.Up*.7f);
+            _successEffects.Waystone(at+Vector3.Left,at,false);
+            _hud.Announce("Waystone attuned","Ashen Waystone",HudStyle.Lichen);
+            await Rcd3Wait(.35);await Rcd3Shot(directory,"fixture_waystone");await Rcd3Wait(1.8);
+            _hud.Announce("Quest complete","Presentation fixture",HudStyle.Brass);
+            _hud.AnnounceMore("Quest complete","Presentation fixture","+40 XP · +10 coin (fixture)");
+            _hud.SuccessGlow(HudStyle.Brass);
+            await Rcd3Wait(.25);await Rcd3Shot(directory,"fixture_quest");await Rcd3Wait(1.8);
+            _successEffects.Craft(at+Vector3.Up*.8f,true,2);
+            await Rcd3Wait(.2);await Rcd3Shot(directory,"fixture_craft");
+            evidence.Add(new { feedback_fixture="Rendering only; no quest, Waystone or crafting state mutated. Actual event subscriptions require playthrough." });
+        }
         // Walk to Kera through the existing navigation and command path, then inspect actual offered replies.
         _rcd3Driving = true;
         var simulation = _session.Simulation!;

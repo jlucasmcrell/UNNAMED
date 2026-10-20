@@ -267,7 +267,13 @@ func _install_face_expressions(model: Node, path: String) -> bool:
 			for morph in morphs:
 				for attribute in [Mesh.ARRAY_VERTEX,Mesh.ARRAY_NORMAL,Mesh.ARRAY_TANGENT]:
 					if morph[attribute] == null or base[attribute] == null: continue
-					for vertex in morph[attribute].size(): morph[attribute][vertex] += base[attribute][vertex] - exported[attribute][vertex]
+					# Packed arrays copy on write. Keep the array local instead of copying it
+					# through the nested Array index once per vertex during world startup.
+					var values = morph[attribute]
+					var accepted = base[attribute]
+					var helper = exported[attribute]
+					for vertex in values.size(): values[vertex] += accepted[vertex] - helper[vertex]
+					morph[attribute] = values
 		var flags := original.surface_get_format(surface)
 		result.add_surface_from_arrays(original.surface_get_primitive_type(surface),base,morphs,{},flags)
 		result.surface_set_material(surface,original.surface_get_material(surface))

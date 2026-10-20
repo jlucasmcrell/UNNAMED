@@ -6,6 +6,7 @@ using Godot;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Crafting;
+using UNNAMED.Domain.Spatial;
 using UNNAMED.Presentation.Greybox;
 using UNNAMED.Presentation.Player;
 using UNNAMED.Presentation.Settings;
@@ -63,14 +64,20 @@ public partial class Main
         _session.Subscribe<StoneTouched>(e =>
         {
             _hud.Toast(e.Text, 7);
+            WaystoneResponse(e.StoneKey, false);
             Show(_waystones, e.StoneKey);
         });
-        _session.Subscribe<ReturnPointBound>(e => _hud.Toast($"The {StoneName(e.StoneKey)} is your return point. When you fall, you come back here.", 5));
+        _session.Subscribe<ReturnPointBound>(e =>
+        {
+            _hud.Toast($"The {StoneName(e.StoneKey)} is your return point. When you fall, you come back here.", 5);
+            WaystoneResponse(e.StoneKey, true);
+        });
         _session.Subscribe<PlayerTravelled>(e =>
         {
             _controller.OnTravelled(e);
             _autorun = false;
             CloseScreens();
+            WaystoneResponse(e.ToKey, true);
             _hud.Toast($"The {StoneName(e.ToKey)}. {TravelWords.Journey(e.Cost.WalkTicks, TicksPerDay).Replace("You arrive the moment you leave", "You arrived the moment you left").Replace("would take", "would have taken")}", 7);
         });        _session.Subscribe<DoorToggled>(e =>
         {
@@ -159,6 +166,10 @@ public partial class Main
         _session.Subscribe<ItemCrafted>(e =>
         {
             _inventory.Refresh();
+            _inventory.CraftGlint(e.ItemId, e.Quality);
+            if (_inventory.OpenStation is { } station)
+                _successEffects.Craft((_crafting.Station(station.Key)?.GlobalPosition ?? _avatar.GlobalPosition) + Vector3.Up * .8f,
+                    _bindings.Stations.GetValueOrDefault(station.Kind)?.Sound == "anvil", e.Quality);
             Notice(NoticeKind.Items, $"Made {Names.Item(_session, e.ItemId, e.Quality)}{(e.Count > 1 ? $" x{e.Count}" : "")}", 3);
         });
         _session.Subscribe<FindingRecorded>(e =>
@@ -207,7 +218,11 @@ public partial class Main
             if (_session.Simulation!.Quests.FirstOrDefault(q => q.Id == e.QuestId)?.Status == Domain.Quests.QuestStatus.Active)
                 _hud.Toast($"Done: {Step(e.QuestId, e.ObjectiveId)}", 3);
         });
-        _session.Subscribe<QuestCompleted>(e => _hud.Announce("Quest complete", Title(e.QuestId), HudStyle.Brass));
+        _session.Subscribe<QuestCompleted>(e =>
+        {
+            _hud.Announce("Quest complete", Title(e.QuestId), HudStyle.Brass);
+            _hud.SuccessGlow(HudStyle.Brass);
+        });
         _session.Subscribe<QuestFailed>(e => _hud.Toast($"Quest failed: {Title(e.QuestId)}", 6));
         // XP, a technique and a relationship already speak for themselves (their own toast or log line); coin and goods do not.
         _session.Subscribe<RewardGranted>(e =>
@@ -364,6 +379,16 @@ public partial class Main
     }
 
     private string StoneName(string key) => _session.Setup.Layout.FindWaystone(key)?.Name ?? key;
+
+    private void WaystoneResponse(string key, bool repeat)
+    {
+        if (_session.Setup.Layout.FindWaystone(key) is not { } site) return;
+        var (x,z) = Footprints.Center(site.Body);
+        var at = new Vector3(x/1000f, _session.Setup.Layout.Space.Terrain.HeightAtMm(x,z)/1000f, z/1000f);
+        _successEffects.Waystone(at, _avatar.GlobalPosition, repeat);
+        _camera.Kick(.025f);
+        _hud.Announce(repeat ? "Waystone" : "Waystone attuned", StoneName(key), HudStyle.Lichen);
+    }
 
     private string CreatureDef(Domain.EntityId id) =>
         _session.Simulation!.Creatures.FirstOrDefault(c => c.Id == id)?.DefId ?? "creature";

@@ -111,6 +111,7 @@ public partial class Main : Node3D
 
     private ProjectilesView _projectiles = null!;
     private Art.MagicEffects _magicEffects = null!;
+    private Art.SuccessEffects _successEffects = null!;
     private Art.HitImpacts _hits = null!;
     private Audio.SoundBank _sounds = null!;
     private Audio.SoundEvents _soundEvents = null!;
@@ -1006,6 +1007,8 @@ public partial class Main : Node3D
         _hits = new Art.HitImpacts { Name = "HitImpacts" };
         AddChild(_hits);
         _hits.Bind(_assets.Root);
+        _successEffects = new Art.SuccessEffects { Name = "SuccessEffects" };
+        AddChild(_successEffects);
         _shadowLods.Watch(this);
         GetViewport().UseOcclusionCulling = System.Environment.GetEnvironmentVariable("UNNAMED_BUILDING_OCCLUSION") != "0";
         if (_avatar is Avatar glowing && _magicEffects.HasCastCharge)
