@@ -58,13 +58,17 @@ func _verify() -> void:
 		for required in semantic:
 			_check(semantic[required], id + " native face lacks required material surface: " + required)
 		var garments := 0
+		var footwear := 0
 		for mesh: MeshInstance3D in actor._all(actor._body, "MeshInstance3D"):
 			if mesh in actor._body_meshes: continue
 			garments += 1
+			if mesh.has_meta("native_rigged_footwear"): footwear += 1
+			_check(not "glove" in str(mesh.name).to_lower(), id + " rejected shell gloves still attached")
 			_check(mesh.get_node(mesh.skeleton) == actor._body, id + " garment has a different skeleton")
 			for bind in mesh.skin.get_bind_count():
 				_check(actor._body.find_bone(mesh.skin.get_bind_name(bind)) >= 0, id + " unmatched garment bind")
-		_check(garments >= ((3 if catalog.characters[id].get("hood", true) else 2) + (2 if catalog.characters[id].get("shells", "") != "" else 0)), id + " accepted clothing missing")
+		_check(garments >= ((3 if catalog.characters[id].get("hood", true) else 2) + 1), id + " accepted clothing missing")
+		_check(footwear > 0, id + " native rigged boots missing")
 		_check(actor._sync._pairs.size() == 32, id + " shared head/body sync changed")
 		var points := PackedVector3Array()
 		var native_meshes: Array = actor._body_meshes.duplicate()

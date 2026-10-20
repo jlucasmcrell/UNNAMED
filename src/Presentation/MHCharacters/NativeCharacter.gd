@@ -439,18 +439,20 @@ func _load_garments() -> bool:
 		"pants.glb": [["default", "Pants_Leather_baseColor.png", "Pants_Leather_normal.png", .28]],
 		"hood.glb": [["default", "Hood_BaseColor.png", "Hood_Normal.png", .45]],
 	}
-	var shell_id: String = _config.get("shells", "")
+	var boots_path: String = _config.get("boots_path", "")
 	var trousers_path: String = _config.get("trousers_path", "")
 	if not trousers_path.is_empty():
 		plans.erase("pants.glb")
 		plans[trousers_path] = []
-	if not shell_id.is_empty():
-		plans["shell/" + shell_id + "_boots.glb"] = []
-		plans["shell/" + shell_id + "_gloves.glb"] = []
+	if boots_path.is_empty():
+		push_error("Required native rigged footwear missing: " + str(_config.id))
+		return false
+	plans[boots_path] = [] # Native hands remain visible; no shell gloves or shell boots.
 	var garments: Array[MeshInstance3D] = []
 	for file_name in plans:
 		if file_name == "hood.glb" and not _config.get("hood", true): continue
-		var path: String = _source + "wardrobe/" + file_name
+		var relative: String = _config.get("garment_directory", "") + file_name if file_name in ["chest.glb", "pants.glb", "hood.glb"] else file_name
+		var path: String = _source + "wardrobe/" + relative
 		var model := _load_model(path, true)
 		if model == null: return false
 		_root.add_child(model)
@@ -468,6 +470,13 @@ func _load_garments() -> bool:
 				return false
 			for surface in mesh.mesh.get_surface_count():
 				var original := mesh.mesh.surface_get_material(surface)
+				if file_name == boots_path:
+					if not original is StandardMaterial3D or original.albedo_texture == null or original.normal_texture == null:
+						push_error("Rigged footwear requires its authored textures: " + file_name)
+						return false
+					mesh.set_surface_override_material(surface, original)
+					mesh.set_meta("native_rigged_footwear", file_name)
+					continue
 				if file_name.begins_with("shell/"):
 					if not original is StandardMaterial3D or original.albedo_texture == null or original.normal_texture == null:
 						push_error("Required accepted shell textures missing: " + file_name)

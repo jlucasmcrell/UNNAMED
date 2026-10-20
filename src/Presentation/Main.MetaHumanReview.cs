@@ -27,6 +27,9 @@ public partial class Main
     private bool _mhPerfSequence;
     private int _mhPerfPhase;
     private bool _mhPerfSweep;
+    private bool _mhFootwearPreview;
+    private Camera3D? _mhDetailCamera;
+    private readonly List<MetaHumanFigure> _mhFootwearFigures = [];
     private static readonly string[] MhPerfNames = ["baseline_28npc", "visibility_ranges", "animation_lod", "shadows", "groom_range"];
 
     private void InstallMetaHumanReview()
@@ -36,6 +39,7 @@ public partial class Main
         if (!MetaHumanFigure.Available || DisplayServer.GetName() == "headless")
             throw new InvalidOperationException("MetaHuman review requires the native bundle and a real renderer");
         _mhReviewDirectory = Path.GetFullPath(directory);
+        _mhFootwearPreview = System.Environment.GetEnvironmentVariable("OTHERREACH_MH_FOOTWEAR_PREVIEW") == "1";
         _mhPerfSequence = System.Environment.GetEnvironmentVariable("OTHERREACH_MH_PERF_SEQUENCE") == "1";
         _mhPerfSweep = System.Environment.GetEnvironmentVariable("OTHERREACH_MH_PERF_SWEEP") == "1";
         _npcs.SuppressPresentationForBenchmark = _mhPerfSequence;
@@ -137,6 +141,34 @@ public partial class Main
         }
         if (_session.Simulation is not { } simulation)
             throw new InvalidOperationException("Native review has no world after Begin");
+        if (_mhReviewStep == 7 && _mhFootwearPreview)
+        {
+            // Owner's footwear close-ups in the normal game world; no FPS measurement or pacing changes.
+            _mhReviewActions = [];
+            var source = _camera.Camera;
+            _mhDetailCamera = new Camera3D { Name = "FootwearAuditCamera", Fov = source.Fov, Near = source.Near, Far = source.Far, CullMask = source.CullMask, Attributes = source.Attributes, Environment = source.Environment };
+            AddChild(_mhDetailCamera);
+            _mhDetailCamera.MakeCurrent();
+            source.GetNode<OmniLight3D>("CharacterFill").Reparent(_mhDetailCamera, false);
+            foreach (string id in new[] { "ada", "mateo" })
+            {
+                var figure = MetaHumanFigure.Create(_art, _bindings, "player", "mh:" + id)
+                    ?? throw new InvalidOperationException("Missing footwear review character");
+                figure.Name = $"Review_{id}_leather";
+                AddChild(figure);
+                figure.Visible = false;
+                _mhFootwearFigures.Add(figure);
+                Vector3 feet = _avatar.Position + Vector3.Right * 5;
+                feet.Y = _ground.Height(feet.X, feet.Z);
+                figure.Pose(feet, 0, 0, 0);
+                foreach (var (bone, distance) in new[] { ("full", 3.8f), ("hand_l", .4f), ("hand_r", .4f), ("foot_l", .65f), ("foot_r", .65f), ("pelvis", .95f) })
+                    foreach (float yaw in new[] { 0f, Mathf.Pi / 2 })
+                        _mhReviewShots.Add((figure, $"{id}_leather", bone, distance, yaw));
+                foreach (float yaw in new[] { 0f, Mathf.Pi / 2 })
+                    _mhReviewShots.Add((figure, $"{id}_leather_walk", "foot_l", .65f, yaw));
+            }
+            _mhReviewStep = 9;
+        }
         if (_mhReviewStep == 7)
         {
             // Optional headroom measurement, matching FrontierPerf. Capture pacing and saved preferences stay unchanged.
@@ -260,6 +292,7 @@ public partial class Main
             {
                 status = "CAPTURED_REQUIRES_FRAME_REVIEW_AND_OWNER_APPROVAL", worldShots = _mhReviewShot,
                 normalInputChecks = _mhReviewAction,
+                footwearPreview = _mhFootwearPreview, fpsMeasured = !_mhFootwearPreview,
                 player = ((MetaHumanFigure)_avatar).CharacterId, npcs = _npcs.States().Select(n => n.Id).ToArray(),
             }, new JsonSerializerOptions { WriteIndented = true }));
             GD.Print("MH_NORMAL_GAME_REVIEW CAPTURED " + _mhReviewDirectory);
@@ -269,6 +302,11 @@ public partial class Main
         }
         var shot = _mhReviewShots[_mhReviewShot];
         var native = shot.Figure.GetNode<Node3D>("Native");
+        if (_mhFootwearPreview)
+        {
+            foreach (var figure in _mhFootwearFigures) figure.Visible = figure == shot.Figure;
+            native.Call("sample_clip", shot.Person.EndsWith("_walk", StringComparison.Ordinal) ? "walk" : "idle", .5);
+        }
         FrameMetaHumanReview(shot.Figure, shot.Bone, shot.Distance, shot.Yaw);
         _mhReviewSeconds += GetProcessDeltaTime();
         if (_mhReviewSeconds < 1.2) return;
@@ -276,9 +314,9 @@ public partial class Main
         CaptureMetaHumanReview(name, new
         {
             person = shot.Person, character = shot.Figure.CharacterId, bone = shot.Bone, clip = shot.Figure.ClipState,
-            actorPosition = shot.Figure.GlobalPosition.ToString(), cameraPosition = _camera.Camera.GlobalPosition.ToString(),
+            actorPosition = shot.Figure.GlobalPosition.ToString(), cameraPosition = (_mhDetailCamera ?? _camera.Camera).GlobalPosition.ToString(),
             worldTick = simulation.WorldTick, camera = "Normal game world and lighting; diagnostic camera only",
-            scatterVisible = shot.Bone == "full", closeupFoliageHiddenAfterPerformancePass = shot.Bone != "full",
+            scatterVisible = _scatter.Visible, closeupFoliageHiddenAfterPerformancePass = !_mhFootwearPreview && shot.Bone != "full", footwearPreview = _mhFootwearPreview,
         }, () => { _mhReviewShot++; _mhReviewSeconds = 0; }, 0, () => Godot.Json.Stringify(native.Call("native_metrics")));
     }
 
@@ -286,14 +324,15 @@ public partial class Main
     {
         figure.SetFirstPerson(false);
         var native = figure.GetNode<Node3D>("Native");
-        _scatter.Visible = bone == "full"; // Close-up camera only: remove foliage occlusion after the full-world FPS pass.
+        _scatter.Visible = bone == "full" && !_mhFootwearPreview; // Diagnostic close-ups keep the grass out of the camera.
         Vector3 aim = native.Call("bone_position", bone == "full" ? "pelvis" : bone == "head" ? "FACIAL_C_Nose" : bone == "hairline" ? "head" : bone).AsVector3();
         if (bone == "hairline") aim += Vector3.Up * .07f;
-        if (bone == "foot_l") aim -= Vector3.Up * .05f;
+        if (bone.StartsWith("foot_", StringComparison.Ordinal)) aim -= Vector3.Up * .05f;
         var direction = figure.GlobalBasis.Z.Rotated(Vector3.Up, yaw).Normalized();
-        float rise = bone == "full" ? 1.55f : bone == "head" ? (yaw == 0 ? -.10f : .045f) : bone == "foot_l" ? .08f : .025f;
+        float rise = bone == "full" ? 1.55f : bone == "head" ? (yaw == 0 ? -.10f : .045f) : bone.StartsWith("foot_", StringComparison.Ordinal) ? .08f : .025f;
         _camera.Camera.GlobalPosition = aim + direction * distance + Vector3.Up * rise;
         _camera.Camera.LookAt(aim);
+        if (_mhDetailCamera is not null) _mhDetailCamera.GlobalTransform = _camera.Camera.GlobalTransform;
     }
 
     // Inject before ReadInput so just-pressed actions are read on their actual engine frame.
