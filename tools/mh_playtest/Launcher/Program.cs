@@ -38,7 +38,8 @@ try
     foreach (var arg in new[] { "--", "--region", "region.starting_frontier", "--content-root", Path.Combine(root, "content"),
         "--bindings-overlay", Path.Combine(root, "content", "_art_bindings.json"), "--asset-root", Path.Combine(root, "primary"),
         "--asset-fallback", Path.Combine(root, "fallback"), "--scatter-rules", Path.Combine(root, "content", "_scatter_rules.json"),
-        "--profile", Path.Combine(root, "saves"), "--visual", "terrain=terrain3d,sky=sky3d,people=production,foldscar=proof,body=none" }) start.ArgumentList.Add(arg);
+        "--profile", Path.Combine(root, "saves"), "--visual", "terrain=terrain3d,sky=sky3d,people=production,foldscar=proof,body=none" +
+            (start.Environment.TryGetValue("OTHERREACH_MH_REVIEW_HOUR", out var hour) && hour == "12" ? ",hour=12" : "") }) start.ArgumentList.Add(arg);
     game = Process.Start(start)!;
     File.AppendAllText(Path.Combine(evidence, "launcher.log"), $"{DateTimeOffset.Now:o} launcher={Environment.ProcessPath} launcher_pid={Environment.ProcessId} game_pid={game.Id} asset_root={start.Environment["OTHERREACH_MH_CHARACTERS_ROOT"]}\n");
     output = game.StandardOutput.ReadToEndAsync(); errors = game.StandardError.ReadToEndAsync();
