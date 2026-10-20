@@ -330,6 +330,7 @@ public partial class ScatterView : Node3D
         var from = kind.Rules.LodsM ?? new[] { 0f, 8f, 20f, 40f };
         var chain = levelsOwner ?? kind.Meshes;
         int levels = Math.Min(chain.Length, from.Count);
+        bool fade = OS.GetEnvironment("UNNAMED_LOD_STIPPLE") == "1";
         var bands = new List<MultiMeshInstance3D>(levels);
         for (int level = 0; level < levels; level++)
         {
@@ -356,22 +357,19 @@ public partial class ScatterView : Node3D
                 // lods_m mean anything, and it is why changing fade_m from 34 to 12 moved nothing (17.6 vs 18.2):
                 // a number nothing reads cannot have an effect.
                 // Metres, not squared: the card path below sets VisibilityRangeEnd = FadeM the same way.
-                VisibilityRangeBegin = begin, VisibilityRangeEnd = level + 1 < levels ? MathF.BitDecrement(end) : end,
+                VisibilityRangeBegin = begin, VisibilityRangeEnd = !fade && level + 1 < levels ? MathF.BitDecrement(end) : end,
+                VisibilityRangeBeginMargin = fade ? begin * .1f : 0,
+                VisibilityRangeEndMargin = fade ? end * .1f : 0,
                 // Far foliage cards must not cast slabs, so a casting kind casts from its two near levels only - unless the
                 // rules say `far_shadows` (a rock, a sapling stand: solid and still), whose shadow must not switch off at
                 // the third level's edge while the thing itself stays drawn (the ash stand's shadow popping onto a wall).
-                CastShadow = kind.Rules.Shadows && (level < 2 || kind.Rules.FarShadows)
+                CastShadow = kind.Rules.Shadows && (level < 2 || kind.Rules.FarShadows) && !chain[level].HasMeta("otherreach_impostor")
                     ? GeometryInstance3D.ShadowCastingSetting.On : GeometryInstance3D.ShadowCastingSetting.Off,
                 GIMode = GeometryInstance3D.GIModeEnum.Disabled,
-                // NO FADE MODE. VisibilityRangeFadeMode.Self fades by stippling the surface - and on an
-                // ALPHA-SCISSOR material a stipple that falls below the scissor threshold does not fade, it
-                // TOGGLES: the instance is drawn, then not, then drawn, frame to frame. That is the owner's
-                // report - "a lot of assets seem to blink, even close up - blades of grass, tree leaves and
-                // limbs, rocks, especially while you are walking around; they go black and come back, draw and
-                // undraw" - and walking is worst because that is when instances cross the band and the stipple
-                // changes. Keep the existing hard switch; distinct LOD geometry can still pop, which this
-                // culling/shadow repair does not address.
-                VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Disabled,
+                // Ground cover keeps its existing per-plant thinning by default.
+                // The explicit fade comparison also exercises native chunk cross-fading.
+                VisibilityRangeFadeMode = fade ? GeometryInstance3D.VisibilityRangeFadeModeEnum.Self
+                    : GeometryInstance3D.VisibilityRangeFadeModeEnum.Disabled,
             };
             AddChild(band);
             bands.Add(band);
@@ -665,6 +663,9 @@ public partial class ScatterView : Node3D
         float height = 0;
         foreach (var level in levels)
         {
+            bool impostor = level.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>()
+                .Any(m => m.Mesh is not null && Enumerable.Range(0, m.Mesh.GetSurfaceCount()).Any(s =>
+                    m.GetActiveMaterial(s)?.ResourceName.Contains("impostor", StringComparison.OrdinalIgnoreCase) == true));
             // The outer part of the reach thins plant by plant (FoliageShader's thin_from/thin_to) on the levels that cast no
             // shadow: the shadow pass sees the light's camera, so a thinned caster would lose its shadow at the wrong distance.
             bool thins = !kind.Shadows || meshes.Count >= 2 && !kind.FarShadows;
@@ -726,6 +727,7 @@ public partial class ScatterView : Node3D
             // space so each MultiMesh instance's existing rotation/scale also transforms this finite padding.
             if (kind.Wind)
                 merged.CustomAabb = merged.GetAabb().Grow(WindCullMargin(height, kind.Stiffness));
+            if (impostor) merged.SetMeta("otherreach_impostor", true);
             meshes.Add(merged);
         }
         return meshes.ToArray();

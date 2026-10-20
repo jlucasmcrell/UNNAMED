@@ -367,10 +367,10 @@ public sealed class ArtLibrary
         if (OS.GetEnvironment("UNNAMED_LOD_REPORT") == "1")
             GD.Print($"UNNAMED lod: {id} size={size:0.00} m levels={all.Count} ladder={(tree ? "tree" : "generic")} "
                 + $"switch=[{string.Join(", ", from.Take(all.Count).Select(f => f.ToString("0.#")))}] m");
-        // UNNAMED_LOD_STIPPLE=1 restores the old dithered cross-fade, so the change can be measured against itself
-        // on one build rather than argued about. The project already gates diagnostics this way
-        // (UNNAMED_TERRAIN_AUTOSHADER, UNNAMED_TERRAIN_MARKOUTSIDE, UNNAMED_DUMP_TERRAIN). Default is the hard switch.
-        bool stipple = OS.GetEnvironment("UNNAMED_LOD_STIPPLE") == "1";
+        // Tree silhouettes cross-fade through the authored bands. Explicit 0 retains the
+        // hard-switch comparison; 1 also enables the diagnostic on other model families.
+        string fadeOption = OS.GetEnvironment("UNNAMED_LOD_STIPPLE");
+        bool stipple = fadeOption == "1" || tree && fadeOption != "0";
         // ONE BOX FOR EVERY SURFACE OF EVERY LEVEL. Godot measures each mesh's visibility range to the centre of that mesh's own
         // bounds, and a tree's trunk, crown and impostor centre metres apart, so at a switch distance one surface had changed level
         // and another had not: a crown drawn twice or not at all, its shadow with it, for as long as the camera stood in that gap.
@@ -381,27 +381,18 @@ public sealed class ArtLibrary
             float begin = from[i], end = i + 1 < all.Count ? from[i + 1] : 0f;
             foreach (var mesh in all[i].FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
             {
+                // An eight-view impostor represents the colour silhouette, not solid branches.
+                // Its crossed sheets must not enter shadow maps or static GI as opaque slabs.
+                if (Enumerable.Range(0, mesh.Mesh.GetSurfaceCount()).Any(s =>
+                    mesh.GetActiveMaterial(s)?.ResourceName.Contains("impostor", StringComparison.OrdinalIgnoreCase) == true))
+                {
+                    mesh.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
+                    mesh.GIMode = GeometryInstance3D.GIModeEnum.Disabled;
+                }
                 mesh.CustomAabb = Relative(all[i], mesh).AffineInverse() * shared;
                 mesh.VisibilityRangeBegin = begin;
                 mesh.VisibilityRangeEnd = !stipple && end > 0 ? MathF.BitDecrement(end) : end;
-                // NO STIPPLE FADE, AND NO MARGINS - the same change ScatterView already carries, applied to every other
-                // model in the library. VisibilityRangeFadeMode.Self fades by DITHERING the surface, and on an
-                // ALPHA-SCISSOR material a stipple that falls below the scissor threshold does not fade, it TOGGLES:
-                // the instance is drawn, then not, then drawn, frame to frame. That is the owner's report verbatim -
-                // "blades of grass, tree leaves and limbs, rocks ... they go black and come back, draw and undraw,
-                // especially while you are walking around" - and this path covers the trees, leaves, limbs and rocks,
-                // which the scatter path never did. Walking is worst because that is when instances cross a band and
-                // the stipple changes.
-                //
-                // THE MARGINS WERE THE SECOND HALF OF IT. BeginMargin and EndMargin at 10 percent of the switch
-                // distance mean BOTH adjacent levels are drawn across the whole overlap band - two copies of the same
-                // tree at once - and the dither pattern that separates them is in SCREEN space, so it crawls as the
-                // camera moves. That is a flicker generator even on opaque materials. With no fade mode the margins
-                // mean nothing, so they are gone rather than left to imply a cross-fade that no longer happens.
-                //
-                // A hard switch costs nothing here: the levels are the same asset at the same distance, so the swap is
-                // invisible, while a dither can never be. Proven on the scatter layer first, where setting the band
-                // took the pinned world from 8.5/14.7/12.9/18.2 fps to 52.6/57.0/58.3/71.0.
+                // Adjacent levels share the same native fade interval.
                 mesh.VisibilityRangeBeginMargin = stipple && begin > 0 ? 0.1f * begin : 0;
                 mesh.VisibilityRangeEndMargin = stipple && end > 0 ? 0.1f * end : 0;
                 mesh.VisibilityRangeFadeMode = stipple

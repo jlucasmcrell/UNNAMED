@@ -59,6 +59,12 @@ public partial class ShadowLodsCheck : Node3D
                 case 4:
                     _lods.Update(new Vector3(20, 0, 0));
                     Require(_spawn!.HasMeta("shadow_lod_bounds") && _spawn.CastShadow == GeometryInstance3D.ShadowCastingSetting.On, "Late spawn not registered");
+                    _holder.Visible = false;
+                    _lods.Update(Vector3.Zero);
+                    Require(_near.CastShadow == GeometryInstance3D.ShadowCastingSetting.Off, "Hidden parent still casts");
+                    _holder.Visible = true;
+                    _lods.Update(Vector3.Zero);
+                    Require(_near.CastShadow == GeometryInstance3D.ShadowCastingSetting.On, "Shown parent did not regain casting");
                     _lods.Unwatch();
                     Require(_near.CastShadow == GeometryInstance3D.ShadowCastingSetting.On && !_near.HasMeta("shadow_lod_bounds"), "Unwatch did not restore/release");
                     GD.Print("SHADOW LOD CHECK PASS: transforms, camera, shadow-only, GI, spawn, disposal");

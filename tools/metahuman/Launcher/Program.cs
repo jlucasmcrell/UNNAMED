@@ -43,7 +43,6 @@ try
     };
     start.Environment["OTHERREACH_MH_CHARACTERS_ROOT"] = Path.Combine(root, "mh_characters");
     start.Environment["UNNAMED_SCATTER_RESIDENCY"] = "0";
-    start.Environment["UNNAMED_LOD_STIPPLE"] = "0";
     string optionFile = Path.Combine(root, "characters.option");
     string people = File.Exists(optionFile) && File.ReadAllText(optionFile).Trim() == "mpfb" ? "mpfb" : "production";
     string profile = review && Environment.GetEnvironmentVariable("OTHERREACH_MH_REVIEW_PROFILE") is { Length: > 0 } reviewProfile

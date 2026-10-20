@@ -11,12 +11,37 @@ public partial class Main
     {
         SetProcess(false);
         var rows = new List<object>();
+        Vector3 At(float x,float rise,float z) => new(x,
+            _session.Setup.Layout.Space.Terrain.HeightAtMm((long)(x*1000),(long)(z*1000))/1000f+rise,z);
         var trees = _hollow.FindChildren("*", "Node3D", true, false).OfType<Node3D>()
             .Where(n => n.Name.ToString().StartsWith("cw_birch_", StringComparison.Ordinal)
                 || n.Name.ToString().StartsWith("tree_", StringComparison.Ordinal)).ToArray();
         File.WriteAllText(Path.Combine(directory,"tree_nodes.json"), JsonSerializer.Serialize(trees.Select(t => new {
             name=t.Name.ToString(), position=t.GlobalPosition.ToString(), bounds=Art.ArtGallery.Bounds(t).ToString() })));
-        foreach (var tree in trees.OrderBy(t => t.GlobalPosition.DistanceSquaredTo(_avatar.GlobalPosition)).Take(2))
+        if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_TREE_SHAPES") == "1")
+        {
+            var bands = _scatter.FindChildren("saplings_*", "MultiMeshInstance3D", true, false).OfType<MultiMeshInstance3D>().ToArray();
+            var subject = bands.Where(m => m.Name.ToString().EndsWith("_lod0",StringComparison.Ordinal))
+                .OrderBy(m => (m.GlobalTransform*m.CustomAabb.GetCenter()).DistanceSquaredTo(_avatar.GlobalPosition)).First();
+            var plant = subject.GlobalTransform*subject.Multimesh.GetInstanceTransform(0).Origin;
+            foreach (float bias in new[] { 1f, 1024f })
+            {
+                foreach (var band in bands) band.LodBias=bias;
+                foreach (float distance in new[] { 5f,12f,22f,42f })
+                {
+                    var aim=plant+Vector3.Up;
+                    camera.GlobalPosition=aim+new Vector3(distance*.3f,.6f,distance*.954f);camera.LookAt(aim);
+                    _shadowLods.Update(camera.GlobalPosition);
+                    await Rcd3Wait(.4);
+                    string name=$"sapling_bias{bias:0}_{distance:0}m";
+                    await Rcd3Shot(directory,name);
+                    rows.Add(new { name,plant=plant.ToString(),eye=camera.GlobalPosition.ToString(),bias,
+                        note="Actual scatter plant; only automatic mesh LOD bias changes; authored distance bands retained" });
+                }
+            }
+        }
+        foreach (var tree in trees.OrderBy(t => t.GlobalPosition.DistanceSquaredTo(_avatar.GlobalPosition))
+            .Take(System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_TREE_SHAPES") == "1" ? 0 : 2))
         {
             var bounds = Art.ArtGallery.Bounds(tree);
             var aim = tree.ToGlobal(bounds.GetCenter());
@@ -50,10 +75,10 @@ public partial class Main
             }
         }
         foreach (var shot in new[] {
-            ("old_late_before", new Vector3(680,23,805),new Vector3(650,18,765)),
-            ("old_late_roots_before",new Vector3(666,5,779),new Vector3(650,3,765)),
-            ("den_gorge_before",new Vector3(512,11,794),new Vector3(512,-5,830)),
-            ("tavar_before",new Vector3(551,5,651),new Vector3(545,3.5f,642)) })
+            ("old_late_before", At(680,23,790),At(650,25,765)),
+            ("old_late_roots_before",At(666,2,779),At(650,2,765)),
+            ("den_gorge_before",At(535,2,799.5f),At(512,-20,824)),
+            ("tavar_before",At(551,2,651),At(545,1,642)) })
         {
             camera.GlobalPosition=shot.Item2;camera.LookAt(shot.Item3);
             _shadowLods.Update(camera.GlobalPosition);

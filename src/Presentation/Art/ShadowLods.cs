@@ -114,7 +114,8 @@ public sealed class ShadowLods
     {
         if (!band.InTree) return;
         float distanceSquared = _eye.DistanceSquaredTo(band.WorldCentre);
-        bool casting = distanceSquared >= band.BeginSquared && (band.EndSquared == 0 || distanceSquared < band.EndSquared);
+        bool casting = band.Node.IsVisibleInTree() && distanceSquared >= band.BeginSquared
+            && (band.EndSquared == 0 || distanceSquared < band.EndSquared);
         // Off makes a ShadowsOnly proxy visible in the colour pass. Keep its mode
         // and exclude it from every camera/light layer while outside its band.
         bool proxy = band.Original == GeometryInstance3D.ShadowCastingSetting.ShadowsOnly;
