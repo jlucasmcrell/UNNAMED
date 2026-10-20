@@ -109,6 +109,9 @@ public sealed partial class SkinnedFigure : Figure
         CorrectiveJoints.Load(art, person.Model, model.Skeleton);
         Outfit.Dress(art, model, person.OutfitBody ?? person.Model, person.Outfit);
         PeopleAppearance.Apply(model, person.PeopleId, art, person.Model);
+        if (VisualOptions.People == "mpfb")
+            foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+                mesh.Layers |= MHCharacters.MetaHumanFigure.FillLayer;
         CharacterMaterials.ShareLodBox(model.Skeleton);
         Callable.From(() => KeepLast(model.Skeleton)).CallDeferred();
         return figure;

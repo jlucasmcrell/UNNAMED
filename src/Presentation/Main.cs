@@ -956,7 +956,7 @@ public partial class Main : Node3D
         AddChild(_avatar);
         _camera = new CameraRig { Name = "CameraRig" };
         AddChild(_camera);
-        if (MHCharacters.MetaHumanFigure.Available)
+        if (MHCharacters.MetaHumanFigure.Available || VisualOptions.People == "mpfb")
         {
             var fill = new OmniLight3D
             {
