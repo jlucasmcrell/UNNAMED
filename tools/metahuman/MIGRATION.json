@@ -1,0 +1,179 @@
+{
+  "from_directory": "tools/mh_playtest",
+  "canonical": "tools/metahuman",
+  "job_root_environment": "OTHERREACH_PIPELINE_ROOT",
+  "ported": [
+    {
+      "file": "assemble_npcs.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "audit_native_roster.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "build_native_trousers.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "build_npc_shells.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "build_npc_shells_lod0.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "clean_native_animations.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "clean_npc_body_lod0.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "clean_npc_gltf.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "clean_relaxed_animations.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "cloud_export_npcs.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "export_npc_body_lod0.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "export_npc_glb.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "export_npc_materials_grooms.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "export_shells_all_weights.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "inspect_native_animation_channels.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "measure_npc_sources.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "measure_npc_sources_lod0.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "prepare_npcs.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "prepare_ue_animation_sources.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "probe_etta_lods.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "probe_npc_sources.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "raster_hidden_face_maps.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "raster_native_hands_masks.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "retarget_native_animations.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "retarget_native_extremities.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "retarget_relaxed_hands.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "stage_direction_hose.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "stage_native_trousers.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "stage_npcs.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "stage_npc_recolours.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "stage_release_wardrobe.py",
+      "job_root_literals": 1
+    },
+    {
+      "file": "build_native_animation_library.gd",
+      "job_root_literals": 1
+    },
+    {
+      "file": "build_relaxed_animation_library.gd",
+      "job_root_literals": 1
+    },
+    {
+      "file": "capture_animation_gate.gd",
+      "job_root_literals": 1
+    },
+    {
+      "file": "build_trouser_roster.ps1",
+      "job_root_literals": 1
+    },
+    {
+      "file": "export_native_animation_roster.ps1",
+      "job_root_literals": 1
+    },
+    {
+      "file": "export_remaining_npcs.ps1",
+      "job_root_literals": 1
+    },
+    {
+      "file": "rebind_hose_all.ps1",
+      "job_root_literals": 1
+    },
+    {
+      "file": "run_dressed_release_gates.ps1",
+      "job_root_literals": 1
+    },
+    {
+      "file": "run_full_animation_gate.ps1",
+      "job_root_literals": 1
+    },
+    {
+      "file": "run_native_animation_sample.ps1",
+      "job_root_literals": 1
+    },
+    {
+      "file": "stage_exported_npcs.ps1",
+      "job_root_literals": 1
+    },
+    {
+      "file": "stage_native_animation_roster.ps1",
+      "job_root_literals": 1
+    }
+  ]
+}
