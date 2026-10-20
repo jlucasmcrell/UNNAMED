@@ -219,14 +219,33 @@ public partial class HollowView : Node3D
             mesh.Visible = false;
     }
 
-    public void SetDoor(string key, bool open)
+    /// <summary>How long a door takes to swing from shut to open or back.</summary>
+    private const double DoorSwingSeconds = 0.5;
+
+    private readonly Dictionary<string, Tween> _swings = new(StringComparer.Ordinal);
+
+    /// <summary>Put a door open or shut. <paramref name="swing"/>: it just happened in play, so the hinge turns over half a second (the camera collider turns with it).</summary>
+    public void SetDoor(string key, bool open, bool swing = false)
     {
-        if (_doors.TryGetValue(key, out var door))
+        if (!_doors.TryGetValue(key, out var door))
+            return;
+        if (_swings.Remove(key, out var running))
+            running.Kill();
+        void Turn(float degrees)
         {
-            door.Hinge.RotationDegrees = new Vector3(0, open ? door.OpenDegrees : 0, 0);
+            door.Hinge.RotationDegrees = new Vector3(0, degrees, 0);
             if (door.Leaf is not null)
                 door.Leaf.RotationDegrees = door.Hinge.RotationDegrees;
         }
+        float to = open ? door.OpenDegrees : 0;
+        if (!swing || !IsInsideTree())
+        {
+            Turn(to);
+            return;
+        }
+        var tween = CreateTween().SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
+        tween.TweenMethod(Callable.From<float>(Turn), door.Hinge.RotationDegrees.Y, to, DoorSwingSeconds);
+        _swings[key] = tween;
     }
 
     public bool? DoorShownOpen(string key) => _doors.TryGetValue(key, out var door)

@@ -75,8 +75,8 @@ public partial class Main
         });        _session.Subscribe<DoorToggled>(e =>
         {
             _controller.OnDoorToggled(e);
-            _hollow.SetDoor(e.DoorKey, e.Open);
-            _interior?.SetDoor(e.DoorKey, e.Open);
+            _hollow.SetDoor(e.DoorKey, e.Open, swing: true);
+            _interior?.SetDoor(e.DoorKey, e.Open, swing: true);
         });
         // Switches and barriers (M6): what a switch did, and every flag change shown as it now stands.
         _session.Subscribe<SwitchSet>(e =>

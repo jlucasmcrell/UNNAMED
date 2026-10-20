@@ -92,6 +92,7 @@ public partial class Main
         var icons = new HudIcons(_assets, _bindings.Icons, _art.Coverage);
         _hud.UseIcons(icons);
         _inventory.UseIcons(icons);
+        _loot.UseIcons(icons);
         _character.UseIcons(icons);
         _skills.UseIcons(icons);
         _effectsPanel.UseIcons(icons);
