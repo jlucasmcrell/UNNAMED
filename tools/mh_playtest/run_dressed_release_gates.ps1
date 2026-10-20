@@ -7,11 +7,10 @@ $env:OTHERREACH_MH_BAKE_MASKS='0'
 function Render([string]$Script,[string]$Log,[switch]$Headless){
  $jobArgs=@('--path',$project,'--script',$Script)
  if($Headless){$jobArgs=@('--headless')+$jobArgs}
- $process=Start-Process -FilePath $godot -ArgumentList $jobArgs -WindowStyle Hidden -PassThru -RedirectStandardOutput $Log -RedirectStandardError ($Log+'.stderr')
- $process.WaitForExit()
+ $process=Start-Process -FilePath $godot -ArgumentList $jobArgs -WindowStyle Hidden -Wait -PassThru -RedirectStandardOutput $Log -RedirectStandardError ($Log+'.stderr')
  if($process.ExitCode -ne 0){throw "Godot gate exit $($process.ExitCode): $Script"}
 }
-Render "$root\scripts\bake_posed_hidden_maps.gd" "$root\evidence\devonlux_final_masks.log"
+if(-not (Test-Path -LiteralPath "$root\evidence\devonlux_final_masks.log") -or -not (Select-String -LiteralPath "$root\evidence\devonlux_final_masks.log" -SimpleMatch "MH_POSED_MASKS_DONE characters=12")){Render "$root\scripts\bake_posed_hidden_maps.gd" "$root\evidence\devonlux_final_masks.log"}
 python "$root\scripts\raster_hidden_face_maps.py"
 if($LASTEXITCODE -ne 0){throw 'Mask raster failed'}
 Render "$project\MHCharacters\Tests\verify_native_character.gd" "$root\evidence\devonlux_final_native_verify.log" -Headless
