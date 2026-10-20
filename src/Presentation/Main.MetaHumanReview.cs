@@ -23,6 +23,7 @@ public partial class Main
     private int _mhReviewAction;
     private bool _mhReviewActionActive, _mhReviewButtonsApplied;
     private double _mhReviewActionSeconds;
+    private int _mhReviewActionFrames;
     private bool _mhPerfSequence;
     private int _mhPerfPhase;
     private bool _mhPerfSweep;
@@ -300,11 +301,15 @@ public partial class Main
             _mhReviewActionActive = true;
             _mhReviewButtonsApplied = false;
             _mhReviewActionSeconds = 0;
+            _mhReviewActionFrames = 0;
             return;
         }
         if (!_mhReviewButtonsApplied) return;
         var player = (MetaHumanFigure)_avatar;
         FrameMetaHumanReview(player, "full", 3.0f, 0);
+        // The first delta can contain the previous screenshot/GPU skin readback stall.
+        // Let input reach an ordinary rendered frame before timing its held duration.
+        if (++_mhReviewActionFrames == 1) return;
         _mhReviewActionSeconds += GetProcessDeltaTime();
         var action = _mhReviewActions[_mhReviewAction];
         if (_mhReviewActionSeconds < action.Seconds) return;
@@ -314,7 +319,8 @@ public partial class Main
         CaptureMetaHumanReview($"{80 + _mhReviewAction:00}_input_{action.Name}", new
         {
             normalInput = true, buttons = action.Buttons, expectedClip = action.Expected, actualClip = actual,
-            matches, worldTick, actorPosition = player.GlobalPosition.ToString(),
+            matches, worldTick, actorPosition = player.GlobalPosition.ToString(), rawSpeed = _rawSpeed,
+            measuredFrames = _mhReviewActionFrames - 1, activeSeconds = _mhReviewActionSeconds,
         }, () =>
         {
             _mhReviewAction++;
@@ -377,6 +383,7 @@ public partial class Main
         catch (Exception error)
         {
             GD.PushError("Native game review failed: " + error);
+            if (_mhReviewDirectory is { } directory) File.WriteAllText(Path.Combine(directory, "failed.txt"), error.ToString());
             GetTree().Quit(3);
         }
         finally { _mhReviewBusy = false; }
