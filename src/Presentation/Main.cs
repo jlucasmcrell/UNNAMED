@@ -553,6 +553,8 @@ public partial class Main : Node3D
                 _scatter.Build(NextWorldSeed);
             }
             _loading?.End();
+            if (_flags.Contains("--autostart") || _flags.Any(f => f.StartsWith("--autostart-body=")))
+                Callable.From(AutoStart).CallDeferred();
             return;
         }
         else
@@ -1645,6 +1647,14 @@ public partial class Main : Node3D
             else
                 _flags.Add(arguments[i]);
         }
+    }
+
+    /// <summary>--autostart[-body=N]: a developer's way past the title and the creator, through the same Begin.</summary>
+    private void AutoStart()
+    {
+        int body = _flags.FirstOrDefault(f => f.StartsWith("--autostart-body=")) is { } flag && int.TryParse(flag["--autostart-body=".Length..], out int index) ? index : 0;
+        if (!_creator.BeginQuick(body))
+            GD.PushError("UNNAMED autostart: Begin was refused");
     }
 
     private double Seconds() =>

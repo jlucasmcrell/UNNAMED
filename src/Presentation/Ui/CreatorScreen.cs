@@ -213,6 +213,14 @@ public partial class CreatorScreen : CanvasLayer
         return true;
     }
 
+    /// <summary>Begin with the default draft and the installed body at this index (--autostart); the index is clamped to the bodies offered.</summary>
+    public bool BeginQuick(int body)
+    {
+        var installed = OfferedBodies().Where(o => o.Installed).ToList();
+        _draft = Draft with { Name = SuggestedName(), BodyPresetId = installed.Count > 0 ? installed[Math.Clamp(body, 0, installed.Count - 1)].Id : DefaultBody(), Start = StartPoint.Waystone };
+        return PressBegin();
+    }
+
     private void GoBack()
     {
         if (Step == CreatorStep.People)
