@@ -4,12 +4,15 @@ func run(asset_root: String, out: String, camera: Camera3D, feet: Vector3):
  var source: String=asset_root.replace("\\","/").trim_suffix("/")+"/"
  DirAccess.make_dir_recursive_absolute(out)
  var catalog: Dictionary=JSON.parse_string(FileAccess.get_file_as_string(source+"catalog.json"))
+ feet+=Vector3.UP*.35 # Staged inspection clears terrain; normal player placement is unchanged.
  var rows:=[]
  for id in ["ada","mateo"]:
   var actor:=Native.new();add_child(actor)
   if not actor.configure(source,catalog.characters[id],{}):get_tree().quit(2);return
+  for mesh: MeshInstance3D in actor._all(actor,"MeshInstance3D"):mesh.layers|=1<<19 # Same character fill layer as MetaHumanFigure.
   var model=actor._load_model(source+"review_source/UAL1_Standard.glb",true)
   add_child(model);model.visible=false
+  for mesh: MeshInstance3D in actor._all(model,"MeshInstance3D"):mesh.layers|=1<<19
   actor.position=feet;model.position=feet
   var rig: Skeleton3D=actor._all(model,"Skeleton3D")[0]
   var player: AnimationPlayer=actor._all(model,"AnimationPlayer")[0]
@@ -49,5 +52,5 @@ func run(asset_root: String, out: String, camera: Camera3D, feet: Vector3):
    rows.append(record)
   model.queue_free();actor.queue_free();await get_tree().process_frame
  var file:=FileAccess.open(out+"/complete.json",FileAccess.WRITE)
- file.store_string(JSON.stringify({"status":"DIAGNOSTIC_NOT_ACCEPTED","executable":OS.get_executable_path(),"native_body_buffers_modified":false,"world":"Normal packaged game world and lighting; diagnostic cameras; foliage hidden; no performance measurement","rows":rows},"  "));file.close()
+ file.store_string(JSON.stringify({"status":"DIAGNOSTIC_NOT_ACCEPTED","executable":OS.get_executable_path(),"native_body_buffers_modified":false,"world":"Normal packaged game world and lighting; standard character fill0.24; diagnostic cameras; figures raised35cm to clear terrain; foliage hidden; no performance measurement","rows":rows},"  "));file.close()
  get_tree().quit()
