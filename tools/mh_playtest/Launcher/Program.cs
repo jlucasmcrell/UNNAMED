@@ -5,7 +5,10 @@ var evidence = Path.Combine(root, "evidence");
 Directory.CreateDirectory(evidence);
 var ownerFlag = @"C:\Otherreach_Recovery\OWNER_PLAYING.flag";
 var lockScript = Path.Combine(root, "invoke_gpu_lock.ps1");
-var lease = "codex-mh-slice mh-characters-playtest";
+bool review = !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("OTHERREACH_MH_REVIEW_OUT"));
+var lease = review ? "codex-mh-slice mh-characters-playtest" : "owner-mh-playtest manual-playtest";
+var ownerMarker = "MetaHuman playtest launcher " + Environment.ProcessId;
+bool ownerFlagHeld = false;
 Process? game = null;
 bool held = false;
 Task<string>? output = null, errors = null;
@@ -26,8 +29,15 @@ try
 {
     if (File.Exists(ownerFlag)) throw new Exception("Owner playing; launch deferred");
     if (!File.Exists(Path.Combine(root, "mh_characters", "catalog.json"))) throw new FileNotFoundException("MetaHuman runtime bundle is missing");
+    if (!review)
+    {
+        using var flag = new FileStream(ownerFlag, FileMode.CreateNew, FileAccess.Write, FileShare.Read);
+        using var writer = new StreamWriter(flag);
+        writer.Write(ownerMarker);
+        ownerFlagHeld = true;
+    }
     Lock("acquire"); held = true;
-    if (File.Exists(ownerFlag)) throw new Exception("Owner playing; launch deferred after acquire");
+    if (review && File.Exists(ownerFlag)) throw new Exception("Owner playing; launch deferred after acquire");
     var start = new ProcessStartInfo(Path.Combine(root, "Otherreach.exe")) {
         WorkingDirectory = root, UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true
     };
@@ -46,9 +56,9 @@ try
     var timer = Stopwatch.StartNew();
     while (!game.WaitForExit(1000))
     {
-        if (File.Exists(ownerFlag)) throw new Exception("Owner playing; stopping owned review");
-        if (timer.Elapsed.TotalSeconds > 1080) throw new Exception("GPU review lease time limit");
-        if (timer.Elapsed.TotalSeconds > 540 && File.Exists(@"C:\Otherreach_Recovery\gpu.queue") && File.ReadAllLines(@"C:\Otherreach_Recovery\gpu.queue").Any(x => !string.IsNullOrWhiteSpace(x))) throw new Exception("Yielding GPU to queued lane");
+        if (review && File.Exists(ownerFlag)) throw new Exception("Owner playing; stopping owned review");
+        if (review && timer.Elapsed.TotalSeconds > 1080) throw new Exception("GPU review lease time limit");
+        if (review && timer.Elapsed.TotalSeconds > 540 && File.Exists(@"C:\Otherreach_Recovery\gpu.queue") && File.ReadAllLines(@"C:\Otherreach_Recovery\gpu.queue").Any(x => !string.IsNullOrWhiteSpace(x))) throw new Exception("Yielding GPU to queued lane");
     }
     Environment.ExitCode = game.ExitCode;
 }
@@ -62,6 +72,10 @@ finally
     if (game is { HasExited: false }) { game.Kill(entireProcessTree: true); game.WaitForExit(); }
     if (output is not null) File.WriteAllText(Path.Combine(evidence, "packaged_run.log"), output.GetAwaiter().GetResult());
     if (errors is not null) File.WriteAllText(Path.Combine(evidence, "packaged_run.stderr"), errors.GetAwaiter().GetResult());
-    if (held) Lock("release");
-    game?.Dispose();
+    try { if (held) Lock("release"); }
+    finally
+    {
+        if (ownerFlagHeld && File.Exists(ownerFlag) && File.ReadAllText(ownerFlag) == ownerMarker) File.Delete(ownerFlag);
+        game?.Dispose();
+    }
 }
