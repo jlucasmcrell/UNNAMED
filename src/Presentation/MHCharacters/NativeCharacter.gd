@@ -382,7 +382,9 @@ func bone_position(bone_name: String) -> Vector3:
 func _cloth_material(option: Array) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	var variants: Dictionary = _config.get("cloth_albedos", {})
-	material.albedo_texture = _texture(variants.get(option[1], "wardrobe/cloth/" + option[1]))
+	var albedo_path: String = variants.get(option[1], "wardrobe/cloth/" + option[1])
+	material.albedo_texture = _texture(albedo_path)
+	material.set_meta("source_albedo_path", _asset_path(albedo_path))
 	material.normal_texture = _texture("wardrobe/cloth/" + option[2])
 	material.normal_enabled = true
 	material.normal_scale = option[3]
@@ -509,3 +511,14 @@ func _bake_hidden_face_uv(garments: Array[MeshInstance3D]) -> void:
 	file.store_string(JSON.stringify({"character": _config.id, "triangles": hidden_uv, "radius_metres": radius}))
 	file.close()
 	print("MH_HIDDEN_FACE_MAP triangles=%d file=%s native_mesh_untouched=true" % [hidden_uv.size(), path])
+
+func material_audit() -> Dictionary:
+	var rows := []
+	for mesh: MeshInstance3D in _all(self,"MeshInstance3D"):
+		if mesh.mesh == null: continue
+		for surface in mesh.mesh.get_surface_count():
+			var material := mesh.get_active_material(surface)
+			if not material is StandardMaterial3D or not material.has_meta("source_albedo_path"): continue
+			var path: String = material.get_meta("source_albedo_path")
+			rows.append({"mesh":str(get_path_to(mesh)),"surface":surface,"type":"StandardMaterial3D","albedo_path":path,"source_image_sha256":FileAccess.get_sha256(path),"albedo_color":[material.albedo_color.r,material.albedo_color.g,material.albedo_color.b,material.albedo_color.a],"albedo_texture_force_srgb":material.albedo_texture_force_srgb,"uses_standard_source_color_sampler":true,"vertex_color_use_as_albedo":material.vertex_color_use_as_albedo,"ao_enabled":material.ao_enabled,"uv1_scale":str(material.uv1_scale),"texture_instance_id":material.albedo_texture.get_instance_id()})
+	return {"character":_config.id,"config_tint":_config.get("tint",[]),"config_cloth_albedos":_config.get("cloth_albedos",{}),"materials":rows}

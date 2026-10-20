@@ -23,6 +23,8 @@ public partial class Main
     private int _mhReviewAction;
     private bool _mhReviewActionActive, _mhReviewButtonsApplied;
     private double _mhReviewActionSeconds;
+    private bool _mhPerfSequence;
+    private int _mhPerfPhase;
 
     private void InstallMetaHumanReview()
     {
@@ -31,6 +33,8 @@ public partial class Main
         if (!MetaHumanFigure.Available || DisplayServer.GetName() == "headless")
             throw new InvalidOperationException("MetaHuman review requires the native bundle and a real renderer");
         _mhReviewDirectory = Path.GetFullPath(directory);
+        _mhPerfSequence = System.Environment.GetEnvironmentVariable("OTHERREACH_MH_PERF_SEQUENCE") == "1";
+        _npcs.SuppressPresentationForBenchmark = _mhPerfSequence;
         bool crouchToggle = SettingsStore.Current.Profile.Controls.IsToggle("crouch");
         _mhReviewActions = [
             ("walk", ["move_forward", "walk"], 1.1, "walk"),
@@ -151,12 +155,40 @@ public partial class Main
             _mhReviewStats!.Record(seconds);
             if (_mhReviewSeconds < 60) return;
             var people = _npcs.States().Select(n => new { n.Id, n.State, n.Speed }).ToArray();
-            _mhReviewStats.Write(Path.Combine(_mhReviewDirectory, "performance"), new Dictionary<string, string>
+            _mhReviewStats.Write(Path.Combine(_mhReviewDirectory, _mhPerfSequence ? $"performance_{(_mhPerfPhase == 0 ? "0npc" : "28npc")}" : "performance"), new Dictionary<string, string>
             {
                 ["settings"] = SettingsStore.Current.ToJson(), ["viewport"] = GetViewport().GetVisibleRect().Size.ToString(),
-                ["npcs"] = JsonSerializer.Serialize(people), ["vsync"] = DisplayServer.WindowGetVsyncMode().ToString(),
+                ["npcs"] = JsonSerializer.Serialize(people), ["simulation_npc_count"] = simulation.Npcs.Count().ToString(),
+                ["npc_presentation_count"] = people.Length.ToString(), ["camera_transform"] = _camera.Camera.GlobalTransform.ToString(), ["vsync"] = DisplayServer.WindowGetVsyncMode().ToString(),
                 ["world"] = "Normal new game in starting area; simulation and native NPCs running; no capture readbacks during measurement",
             });
+            SaveMetaHumanMaterialAudit(_mhPerfSequence ? $"world_{_mhPerfPhase}" : "world");
+            if (_mhPerfSequence)
+            {
+                int phase = _mhPerfPhase;
+                CaptureMetaHumanReview($"benchmark_{(phase == 0 ? "0npc" : "28npc")}", new
+                {
+                    presentedNpcs = people.Length, simulatedNpcs = simulation.Npcs.Count(),
+                    camera = _camera.Camera.GlobalTransform.ToString(), foliage = "Normal owner density; no capture exclusions",
+                }, () =>
+                {
+                    if (phase == 0)
+                    {
+                        _npcs.SuppressPresentationForBenchmark = false;
+                        _mhPerfPhase = 1;
+                        _mhReviewStats = null;
+                        _mhReviewSeconds = 0;
+                        _mhReviewStep = 7;
+                    }
+                    else
+                    {
+                        File.WriteAllText(Path.Combine(_mhReviewDirectory!, "complete.json"), "{\"status\":\"BASELINE_SEQUENCE_COMPLETE\",\"phases\":[0,28]}");
+                        _mhReviewDirectory = null;
+                        GetTree().Quit();
+                    }
+                }, 0);
+                return;
+            }
             if (_avatar is not MetaHumanFigure player) throw new InvalidOperationException("Player is not a native MetaHuman");
             var actors = people.Select(n => (Id: n.Id, Figure: _npcs.FigureOf(n.Id) as MetaHumanFigure))
                 .Where(n => n.Figure is not null && n.Figure.Visible)
@@ -267,6 +299,19 @@ public partial class Main
                 _mhReviewShots.Add((figure, person, bone, distance, yaw));
     }
 
+    private void SaveMetaHumanMaterialAudit(string name)
+    {
+        var rows = new Godot.Collections.Array<Godot.Collections.Dictionary>();
+        foreach (Node native in GetTree().Root.FindChildren("Native", "Node3D", true, false))
+        {
+            if (!native.HasMethod("material_audit")) continue;
+            var row = native.Call("material_audit").AsGodotDictionary();
+            row["node_path"] = native.GetPath().ToString();
+            rows.Add(row);
+        }
+        File.WriteAllText(Path.Combine(_mhReviewDirectory!, name + ".materials.json"), Godot.Json.Stringify(rows, "  "));
+    }
+
     private async void CaptureMetaHumanReview(string name, object details, Action then, ulong waitMs, Func<string>? nativeMetrics = null)
     {
         _mhReviewBusy = true;
@@ -274,6 +319,7 @@ public partial class Main
         {
             await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
             SaveScreenshot(_mhReviewDirectory!, name);
+            if (name is "03_creator_ada_face" or "05_creator_mateo_face") SaveMetaHumanMaterialAudit(name);
             File.WriteAllText(Path.Combine(_mhReviewDirectory!, name + ".json"), JsonSerializer.Serialize(details, new JsonSerializerOptions { WriteIndented = true }));
             if (nativeMetrics is not null) File.WriteAllText(Path.Combine(_mhReviewDirectory!, name + ".native.json"), nativeMetrics());
             GD.Print("MH_NORMAL_GAME_REVIEW frame " + name);

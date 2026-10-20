@@ -14,6 +14,7 @@ namespace UNNAMED.Presentation.Greybox;
 /// </summary>
 public partial class NpcsView : Node3D
 {
+    public bool SuppressPresentationForBenchmark { get; set; }
     private readonly Dictionary<string, Figure> _figures = new(StringComparer.Ordinal);
     private readonly Dictionary<string, GaitSpeed> _gaits = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _instances = new(StringComparer.Ordinal);
@@ -47,6 +48,7 @@ public partial class NpcsView : Node3D
 
     public void Draw(Simulation simulation, double delta, double tickSeconds)
     {
+        if (SuppressPresentationForBenchmark) return;
         if (PlayerHead.GetParent() is null)
             AddChild(PlayerHead);
         PlayerHead.GlobalPosition = HollowView.ToGodot(simulation.Player.Body.XMm, simulation.Player.Body.YMm, simulation.Player.Body.ZMm) + new Vector3(0, 1.6f, 0);
