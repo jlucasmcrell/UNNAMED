@@ -87,7 +87,7 @@ public sealed class ArtLibrary
     private readonly string? _sceneCachePrefix;
     private readonly bool _buildSceneCache;
     private readonly string? _nativeSceneRoot;
-    private const string SceneCacheFormat = "v6"; // Runtime index LODs, opaque occluders and position-only depth meshes.
+    private const string SceneCacheFormat = "v7"; // Original geometry casts shadows; invalidate custom position-only proxies in v6.
     private readonly TextureCache? _interiorBuildCache;
 
     public ArtLibrary(string? root, bool useTextureCache = false, string? sceneCachePrefix = null, bool buildSceneCache = false)
@@ -564,8 +564,20 @@ public sealed class ArtLibrary
         }
         if (scene?.Instantiate() is not Node3D node)
             return null;
+        UseOriginalShadowGeometry(node); // Also covers native cached scenes.
         Use(id);
         return node;
+    }
+
+    private static void UseOriginalShadowGeometry(Node3D root)
+    {
+        // A generated position-only proxy on the forge shed casts a false region-wide
+        // shadow although its CPU triangles match. Keep normal shadow casting, using
+        // the visible static mesh. Godot may generate another proxy during GenerateScene.
+        foreach (var node in root.FindChildren("*", nameof(MeshInstance3D), true, false)
+                     .OfType<MeshInstance3D>().Prepend(root as MeshInstance3D).OfType<MeshInstance3D>())
+            if (node.Skin is null && node.Mesh is ArrayMesh { ShadowMesh: not null } mesh)
+                mesh.ShadowMesh = null;
     }
 
     /// <summary>Release a departed space's cached model resources after its scene instances have been freed.</summary>
@@ -647,6 +659,7 @@ public sealed class ArtLibrary
         }
         ((Godot.Collections.Array)loaded).Dispose();
         Filter(root, path, images);
+        UseOriginalShadowGeometry(root); // Before packing/saving any new native cache.
         AddBuildingOccluders(root, id);
         var packed = new PackedScene();
         error = packed.Pack(root);
@@ -743,8 +756,10 @@ public sealed class ArtLibrary
                 mesh.GenerateLods(60, 0, boneTransforms);
                 generated++;
             }
-            if (System.Environment.GetEnvironmentVariable("UNNAMED_STATIC_SHADOW_MESH") != "0")
-                StaticShadowMesh.Build(mesh);
+            // Use Godot's original mesh for depth and shadows. The custom welded
+            // proxy produced a view-dependent shadow over the region from the
+            // forge shed despite passing CPU topology checks. Keep casting and
+            // authored materials intact; never substitute that proxy on import.
         }
         ((Godot.Collections.Array)meshes).Dispose();
         if (generated > 0 && OS.GetEnvironment("UNNAMED_LOAD_REPORT") == "1")

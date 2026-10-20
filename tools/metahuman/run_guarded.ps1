@@ -1,4 +1,4 @@
-param([Parameter(Mandatory)][string]$Executable,[Parameter(Mandatory)][string[]]$JobArguments,[Parameter(Mandatory)][string]$Log,[switch]$Gpu,[string]$Job='native-job',[int]$LimitSeconds=1080)
+param([Parameter(Mandatory)][string]$Executable,[Parameter(Mandatory)][string[]]$JobArguments,[Parameter(Mandatory)][string]$Log,[switch]$Gpu,[switch]$VisibleWindow,[string]$Job='native-job',[int]$LimitSeconds=1080)
 $ErrorActionPreference='Stop'
 $flag='C:\Otherreach_Recovery\OWNER_PLAYING.flag'
 $lease='codex-mh-slice '+$Job
@@ -16,7 +16,8 @@ try {
   $held=$true
  }
  if(Test-Path -LiteralPath $flag){throw 'Owner playing; job deferred after acquire'}
- $owned=Start-Process -FilePath $Executable -ArgumentList $JobArguments -WindowStyle Hidden -PassThru -RedirectStandardOutput $Log -RedirectStandardError ($Log+'.stderr')
+ $owned=Start-Process -FilePath $Executable -ArgumentList $JobArguments -WindowStyle $(if($VisibleWindow){'Normal'}else{'Hidden'}) -PassThru -RedirectStandardOutput $Log -RedirectStandardError ($Log+'.stderr')
+ $null=$owned.Handle # Keep the Windows handle so ExitCode survives process termination.
  $started=Get-Date
  while(-not $owned.HasExited){
   if(Test-Path -LiteralPath $flag){throw 'Owner playing; stopping owned job'}
@@ -26,6 +27,7 @@ try {
   Start-Sleep -Seconds 2
   $owned.Refresh()
  }
+ $owned.WaitForExit()
  "Owned process finished: $($owned.ExitCode)"
  if($owned.ExitCode -ne 0){throw "Owned process failed: $($owned.ExitCode)"}
 }finally{

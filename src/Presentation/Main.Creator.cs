@@ -33,6 +33,9 @@ public partial class Main
     {
         get
         {
+            if (System.Environment.GetEnvironmentVariable("OTHERREACH_WORLD_LIGHTING_DIAGNOSTIC") == "1"
+                && ulong.TryParse(System.Environment.GetEnvironmentVariable("OTHERREACH_LIGHTING_SEED"), out ulong diagnosticSeed) && diagnosticSeed != 0)
+                return _nextWorld = diagnosticSeed;
             var random = new RandomNumberGenerator();
             random.Randomize();
             while (_nextWorld == 0)

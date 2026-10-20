@@ -261,3 +261,9 @@ cutout materials. Only proven opaque source textures select the shader without a
 Shader caches are per scatter view. Native opacity/mip/wind/cutout/mineral/isolation checks and
 all 223 Presentation tests pass; rendered timing and paired-view review are pending.
 An isolated two-pixel native LOD trial is also queued; the shipping threshold remains one pixel.
+
+## 2026-10-20: custom shadow proxies retired
+
+Owner playtest reproduced near-black daylight. Rendered caster bisection isolated the forge shed LOD0. Clearing only its ArrayMesh.ShadowMesh restored daylight while its original geometry continued casting; restoring the generated proxy restored the false shadow. Disabling automatic index LODs or normal bias did not fix it. CPU topology equality therefore was insufficient validation for this optimization.
+
+Runtime imports now use original geometry for depth/shadow rendering. Static proxies are explicitly cleared after GenerateScene and cached instantiation, since removing the custom builder alone still left a generated proxy. The custom builder and its misleading topology-only acceptance scene are removed. Cache format v7 rejects v6 scenes carrying those proxies. Sunlight, ambient, GI, fog, authored geometry/materials and shadow casting remain unchanged. Rendered same-camera controls and the five-location owner protocol live in the 2026-10-20 world-darkness evidence. This is a correctness fix; performance work remains stopped.

@@ -69,6 +69,15 @@ public partial class Main
             assets = MetaHumanFigure.AssetRoot, settings = "Normal launch: loaded owner client_prefs; no harness defaults",
         }, new JsonSerializerOptions { WriteIndented = true }));
         _mhReviewNext = Time.GetTicksMsec() + 3000;
+        if (System.Environment.GetEnvironmentVariable("OTHERREACH_WORLD_LIGHTING_DIAGNOSTIC") == "1"
+            && System.Environment.GetEnvironmentVariable("OTHERREACH_LIGHTING_FAST") == "1")
+        {
+            OpenCreator();
+            _creator.Use(_creator.Draft with { Name = "Ada", BodyPresetId = "body.veth_f.average", Start = StartPoint.Waystone });
+            if (!_creator.PressBegin()) throw new InvalidOperationException("Lighting diagnostic Begin refused");
+            _mhReviewStep = 7;
+            _mhReviewNext = Time.GetTicksMsec() + 10000;
+        }
         GD.Print("MH_NORMAL_GAME_REVIEW installed " + _mhReviewDirectory);
     }
 
@@ -141,6 +150,17 @@ public partial class Main
         }
         if (_session.Simulation is not { } simulation)
             throw new InvalidOperationException("Native review has no world after Begin");
+        if (_mhReviewStep == 7 && System.Environment.GetEnvironmentVariable("OTHERREACH_WORLD_LIGHTING_DIAGNOSTIC") == "1")
+        {
+            var diagnostic = (Node)GD.Load<GDScript>("res://capture_tools/world_lighting_probe.gd").New();
+            AddChild(diagnostic);
+            var positions = new Godot.Collections.Array<Godot.Collections.Dictionary>();
+            foreach (var (pointName, x, z) in new[] { ("spawn", 430f, 758f), ("lit_edge_provisional", 480f, 758f), ("blackvein", 438f, 666f), ("ember_hound", 528f, 750f), ("out_200m", 630f, 758f) })
+                positions.Add(new Godot.Collections.Dictionary { ["name"] = pointName, ["position"] = new Vector3(x, _ground.Height(x, z) + 1.7f, z) });
+            diagnostic.CallDeferred("run", this, _camera.Camera, _mhReviewDirectory, positions, _avatar);
+            _mhReviewDirectory = null;
+            return;
+        }
         if (_mhReviewStep == 7 && _mhFootwearPreview)
         {
             // Owner's footwear close-ups in the normal game world; no FPS measurement or pacing changes.
