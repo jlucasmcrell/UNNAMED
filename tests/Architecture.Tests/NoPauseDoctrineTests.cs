@@ -29,6 +29,7 @@ public class NoPauseDoctrineTests
         [Path.Combine("Greybox", "CreaturesView.cs")] = ("ProcessModeEnum.Disabled", "a creature's figure out of view stops animating; the creature runs on in the simulation"),
         [Path.Combine("Greybox", "PerchedRavens.cs")] = ("ProcessModeEnum.Disabled", "a perched raven not shown stops its idle; ravens are scenery"),
         ["VisualAudit.cs"] = ("TimeScale", "the visual audit's capture harness freezes a frame to photograph it; it never runs in play"),
+        [Path.Combine("Ui", "CreatorPreview.cs")] = ("ProcessModeEnum.Disabled", "a hidden creator preview stops rendering and animating; the world simulation keeps running"),
     };
 
     [Fact]

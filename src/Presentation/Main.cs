@@ -256,7 +256,15 @@ public partial class Main : Node3D
 
     private void Start()
     {
-        ParseArguments(OS.GetCmdlineUserArgs());
+        string[] arguments = OS.GetCmdlineUserArgs();
+        bool directPlaytest = OS.HasFeature("template") && arguments.Length == 0;
+        if (directPlaytest)
+        {
+            OS.SetEnvironment("UNNAMED_SCATTER_RESIDENCY", "0");
+            OS.SetEnvironment("UNNAMED_LOD_STIPPLE", "0");
+            GD.Print("UNNAMED direct EXE: using packaged PLAY defaults");
+        }
+        ParseArguments(Ui.Models.PlaytestLaunchDefaults.Resolve(arguments, Home(), OS.HasFeature("template")));
         // A player's run plays with the player's settings (the window, the tier they chose, the dials); a harness run never reads or
         // writes them (its numbers stay comparable).
         _developer = OS.IsDebugBuild() || _flags.Contains("--dev");
@@ -944,6 +952,20 @@ public partial class Main : Node3D
         AddChild(_avatar);
         _camera = new CameraRig { Name = "CameraRig" };
         AddChild(_camera);
+        if (MHCharacters.MetaHumanFigure.Available)
+        {
+            var fill = new OmniLight3D
+            {
+                Name = "CharacterFill", OmniRange = 10, OmniAttenuation = .5f,
+                LightEnergy = .24f, LightColor = new Color(.93f, .96f, 1),
+                LightCullMask = MHCharacters.MetaHumanFigure.FillLayer,
+                LightIndirectEnergy = 0, LightVolumetricFogEnergy = 0, LightSpecular = 0,
+                ShadowEnabled = false, Position = new Vector3(0, .3f, 0),
+            };
+            fill.Set("light_bake_mode", 0);
+            _camera.Camera.AddChild(fill);
+            GD.Print("UNNAMED character fill: 0.24; character layer only; world ambient unchanged");
+        }
         _talkCamera = new TalkCamera { Name = "TalkCamera" };
         AddChild(_talkCamera);
         _hud = new Hud { Name = "Hud" };

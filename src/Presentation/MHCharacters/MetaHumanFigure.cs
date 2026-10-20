@@ -10,6 +10,7 @@ namespace UNNAMED.Presentation.MHCharacters;
 /// <summary>Native MetaHuman presentation. Simulation still owns movement and equipment.</summary>
 public sealed partial class MetaHumanFigure : Figure
 {
+    public const uint FillLayer = 1u << 19;
     public static string AssetRoot => System.Environment.GetEnvironmentVariable("OTHERREACH_MH_CHARACTERS_ROOT")
         ?? System.IO.Path.Combine(System.IO.Path.GetDirectoryName(OS.GetExecutablePath())!, "mh_characters");
     public static bool Available => System.IO.File.Exists(System.IO.Path.Combine(AssetRoot, "catalog.json"));
@@ -65,6 +66,9 @@ public sealed partial class MetaHumanFigure : Figure
         AddChild(_native);
         if (!_native.Call("configure", AssetRoot, _configuration, _resources).AsBool())
             throw new InvalidDataException($"Native MetaHuman {CharacterId} failed to load");
+        // Include new/replaced players and NPCs without changing native mesh buffers or materials.
+        foreach (var mesh in _native.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>())
+            mesh.Layers |= FillLayer;
         if (_npc)
         {
             _onScreen = new VisibleOnScreenNotifier3D { Aabb = new Aabb(-1, -.2f, -1, 2, 2.6f, 2) };
