@@ -19,6 +19,19 @@ func run() -> void:
  var rows := []
  for id in ["ada","mateo"]:
   var actor := Native.new();root.add_child(actor);assert(actor.configure(source,catalog.characters[id],{}))
+  if OS.get_environment("OTHERREACH_MH_CLOTHING_STRESS")=="1":
+   for clip in actor._animator.get_animation_list():
+    if clip in ["crouch_move","block","hit_react","talk_idle","attack","RESET"]:continue
+    for fraction in [.15,.5,.85]:
+     actor.sample_clip(clip,actor.clip_length(clip)*fraction);actor._animator.pause()
+     var focus: Vector3=actor.bone_position("pelvis")-Vector3.UP*.1
+     for yaw in [0,90,180,270]:
+      camera.position=focus+Vector3(sin(deg_to_rad(yaw))*.9,.02,cos(deg_to_rad(yaw))*.9);camera.look_at(focus)
+      for frame in 3:await RenderingServer.frame_post_draw
+      var filename: String=id+"_"+clip+"_t"+str(roundi(fraction*100))+"_y"+str(yaw)+".png"
+      root.get_texture().get_image().save_png(out+"/"+filename)
+      rows.append({"id":id,"clip":clip,"fraction":fraction,"yaw":yaw,"file":filename,"camera":str(camera.position),"mask":catalog.characters[id].hidden_mask})
+   actor.queue_free();await process_frame;continue
   actor.sample_clip("crouch_idle",.5);actor._animator.pause()
   var aim: Vector3=actor.bone_position("pelvis")-Vector3.UP*.10
   camera.position=aim+Vector3(0,.02,-.85);camera.look_at(aim)
