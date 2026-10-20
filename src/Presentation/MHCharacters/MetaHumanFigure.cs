@@ -165,6 +165,7 @@ public sealed partial class MetaHumanFigure : Figure
             _ => -1,
         };
         if (through >= 0 && clip is not null && Has(clip)) { HoldClip(clip, through); return; }
+        if (_stance.Phase == CombatPhase.Dodge && Has("dodge")) { HoldClip("dodge", t, .08f); return; }
         if (_stance.Phase == CombatPhase.Staggered && Has("hit")) { Play("hit", .1f); return; }
         if (_stance.Guarding && _stance.Phase == CombatPhase.Idle)
         {

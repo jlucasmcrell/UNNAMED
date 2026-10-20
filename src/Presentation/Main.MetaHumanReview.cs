@@ -45,6 +45,8 @@ public partial class Main
             ("sword_attack", ["attack"], .25, "sword_attack"),
             ("attack_recover", [], 1.5, "sword_ready|idle"),
             ("block", ["guard"], .4, "sword_block"),
+            ("unblock", [], .3, "sword_ready|idle"),
+            ("dodge", ["dodge"], .15, "dodge"),
         ];
         Directory.CreateDirectory(_mhReviewDirectory);
         File.WriteAllText(Path.Combine(_mhReviewDirectory, "client_prefs_loaded.json"), SettingsStore.Current.ToJson());
