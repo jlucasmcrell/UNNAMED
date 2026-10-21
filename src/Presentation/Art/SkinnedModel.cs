@@ -68,8 +68,7 @@ public sealed partial class SkinnedModel : Node3D
         var library = new AnimationLibrary();
         foreach (var (state, clipId) in clips)
         {
-            if(VisualOptions.People=="mpfb" && assetId.StartsWith("mpfb_",StringComparison.Ordinal)
-                && state is "crouch_idle" or "crouch_walk" or "crouch_move") continue;
+            if (VisualOptions.People == "mpfb" && assetId.StartsWith("mpfb_", StringComparison.Ordinal)) continue;
             if (art.Clip(clipId) is not { } clip)
             {
                 if (owner is not null)
@@ -83,7 +82,7 @@ public sealed partial class SkinnedModel : Node3D
                 art.Coverage.Resolved("clip", $"{owner}:{state}", clipId);
         }
         if (VisualOptions.People == "mpfb" && assetId.StartsWith("mpfb_", StringComparison.Ordinal))
-            figure.ComparisonClips(assetId, library, skeletonPath);
+            figure.ComparisonClips(assetId, library, skeletonPath, art.RiggedFile(assetId, assetId + "_rigged.glb"));
         player.AddAnimationLibrary("", library);
         figure._player = player;
         // Keep the opt-in interior's local player continuous through space changes; NPC visibility throttling remains.
@@ -94,56 +93,28 @@ public sealed partial class SkinnedModel : Node3D
         return figure;
     }
 
-    // The comparison keeps its existing ArtLibrary retarget route. ONLY MPFB receives these rest-relative
-    // copies; native MetaHumans continue to use their own audited Epic-retargeted tracks without this step.
-    private void ComparisonClips(string assetId, AnimationLibrary library, string skeletonPath)
+    // Every clip is baked in Epic onto this exact original MPFB rig. Copy node paths only.
+    private void ComparisonClips(string assetId, AnimationLibrary library, string skeletonPath, string? bodyPath)
     {
-        string root = MHCharacters.MetaHumanFigure.AssetRoot;
-        string catalogPath = System.IO.Path.Combine(root, "catalog.json");
-        if (!System.IO.File.Exists(catalogPath)) return;
-        var catalog = Json.ParseString(System.IO.File.ReadAllText(catalogPath)).AsGodotDictionary();
-        string id = assetId.Contains("fem", StringComparison.Ordinal) ? "ada" : "mateo";
-        var configuration = catalog["characters"].AsGodotDictionary()[id].AsGodotDictionary();
-        var native = ResourceLoader.Load<AnimationLibrary>(System.IO.Path.Combine(root, configuration["animation_library"].AsString()));
-        if (native is null) return;
-        if (native.GetMeta("native_body_sha256").AsString() != Godot.FileAccess.GetSha256(System.IO.Path.Combine(root, configuration["body"].AsString())))
-            throw new InvalidDataException("Comparison motion source body hash differs from its native library");
-        var document = new GltfDocument(); var state = new GltfState();
-        if (document.AppendFromFile(System.IO.Path.Combine(root, configuration["body"].AsString()), state) != Error.Ok)
-            throw new InvalidDataException("Comparison source body could not be read");
-        var source = document.GenerateScene(state);
-        try
+        var motion = GD.Load<AnimationLibrary>($"res://Art/MPFBMotion/{assetId}_motion.res")
+            ?? throw new InvalidDataException("MPFB motion library missing: " + assetId);
+        if (bodyPath is null || motion.GetMeta("target_body_sha256").AsString() != Godot.FileAccess.GetSha256(bodyPath))
+            throw new InvalidDataException("MPFB motion library target body differs: " + assetId);
+        foreach (string clip in motion.GetAnimationList())
         {
-            var rig = ArtLibrary.Find<Skeleton3D>(source) ?? throw new InvalidDataException("Comparison source skeleton missing");
-            var from = SkeletonRest.Of(rig);
-            float scale = SkeletonRest.Of(Skeleton).Height / from.Height;
-            foreach (string clip in native.GetAnimationList())
+            var animation = (Animation)motion.GetAnimation(clip).Duplicate();
+            for (int track = 0; track < animation.GetTrackCount(); track++)
             {
-                if(clip is "crouch_idle" or "crouch_walk" or "crouch_move") continue;
-                if (library.HasAnimation(clip)) library.RemoveAnimation(clip);
-                library.AddAnimation(clip, ArtLibrary.Retarget(native.GetAnimation(clip), skeletonPath, Skeleton,
-                    native.GetAnimation(clip).LoopMode != Animation.LoopModeEnum.None, from));
-                _states.Add(clip);
+                string bone = animation.TrackGetPath(track).GetSubName(0);
+                if (Skeleton.FindBone(bone) < 0) throw new InvalidDataException("MPFB motion bone missing: " + bone);
+                animation.TrackSetPath(track, new NodePath($"{skeletonPath}:{bone}"));
             }
-            // Offline Epic IK Retargeter output on this exact 53-bone target rig.
-            // Relocate node paths only: preserve every target-space animation key.
-            var posture=GD.Load<AnimationLibrary>($"res://Art/MPFBPosture/{assetId}_posture.res")
-                ?? throw new InvalidDataException("MPFB posture library missing: "+assetId);
-            foreach(string clip in new[]{"crouch_idle","crouch_walk","crouch_move"})
-            {
-                if(library.HasAnimation(clip)) library.RemoveAnimation(clip);
-                var animation=(Animation)posture.GetAnimation(clip=="crouch_move"?"crouch_walk":clip).Duplicate();
-                for(int track=0;track<animation.GetTrackCount();track++)
-                    animation.TrackSetPath(track,new NodePath($"{skeletonPath}:{animation.TrackGetPath(track).GetSubName(0)}"));
-                library.AddAnimation(clip,animation);
-                _states.Add(clip);
-            }
-            GD.Print($"UNNAMED MPFB posture: {assetId} offline Epic IK Retargeter, direct target tracks; no Godot posture retarget");
-            MotionPaces = configuration["animation_paces"].AsGodotDictionary().ToDictionary(p => p.Key.AsString(), p => p.Value.AsSingle() * scale);
-            if (configuration.TryGetValue("animation_phases", out var phases)) _contacts = phases.AsGodotDictionary();
-            GD.Print($"UNNAMED MPFB motion: {assetId} {native.GetAnimationList().Count} common Epic clips, existing rest-relative route; native target skeleton unchanged");
+            library.AddAnimation(clip, animation);
+            _states.Add(clip);
         }
-        finally { source.Free(); }
+        MotionPaces = motion.GetMeta("motion_paces").AsGodotDictionary().ToDictionary(p => p.Key.AsString(), p => p.Value.AsSingle());
+        _contacts = motion.GetMeta("motion_phases").AsGodotDictionary();
+        GD.Print($"UNNAMED MPFB motion: {assetId}, {motion.GetAnimationList().Count} direct Epic target clips; no runtime retarget");
     }
 
     public bool MoveBlend(Vector2 velocity, double delta, IReadOnlyDictionary<string, float> paces, float scale)
