@@ -6,28 +6,41 @@ namespace UNNAMED.Presentation;
 
 public partial class Main
 {
-    // Opt-in evidence for spec 15 (owner finding 15): the inn and the adventurers' day, photographed at four hours from three viewpoints.
-    // The clock is advanced through the world's own offline-advance step - the same step an absence takes - so nothing here writes simulation
-    // state by hand, and the bodies standing in the frames are the ones the adventurers' own schedule placed.
+    // Opt-in evidence for spec 15 (owner finding 15): the inn and the adventurers' day, photographed at four hours from three viewpoints,
+    // plus the departure at the gate and the notice board open. The clock is advanced through the world's own offline-advance step - the same
+    // step an absence takes - so nothing here writes simulation state by hand, and the bodies standing in the frames are the ones the
+    // adventurers' own schedule placed. The captures are of the SECOND day: the world opens at 07:30 on day one, half an hour before the
+    // departure hour, and a fresh world plans no day before its first midnight - a day of bodies standing about in the inn is exactly what the
+    // owner complained of, and not what the routine is.
     private const string InnShotsOption = "--inn-shots";
 
     private static readonly int[] InnShotsHours = { 8, 13, 19, 23 };
 
-    /// <summary>The three viewpoints: the square (inn and forge from the road side), the inn's common room, and the gate at the road out.</summary>
-    private static readonly (string Name, Vector3 Eye, Vector3 Look)[] InnShotsViews =
+    /// <summary>The day the frames are taken on (the world's first midnight has been crossed, so the day is planned).</summary>
+    private const int InnShotsDay = 1;
+
+    /// <summary>Five minutes before the departure hour: the party is at the gate, walking out.</summary>
+    private const int InnShotsDepartureMinute = 7 * 60 + 55;
+
+    /// <summary>The steps: the departure, the four hours, and the board. Each hour step shoots every view.</summary>
+    private const int InnShotsSteps = 1 + 4 + 1;
+
+    /// <summary>
+    /// The three viewpoints, out where the things are, in metres on the region's own ground: the square from the open side of the longhouse
+    /// looking back at its east door, the common room from just inside that door, and the gate from the road outside it looking back into the
+    /// hamlet. Heights are ABOVE THE GROUND the camera stands on - the region's ground is some fifteen metres up, so a camera placed at a
+    /// fixed world height is under the terrain, which is what the first attempts photographed.
+    /// </summary>
+    private static readonly (string Name, float EyeX, float EyeZ, float EyeUp, float LookX, float LookZ, float LookUp)[] InnShotsViews =
     {
-        ("square", new Vector3(444, 9, 761), new Vector3(452, 2, 747)),
-        ("inn", new Vector3(449.4f, 2.4f, 727.0f), new Vector3(438, 1.3f, 727.5f)),
-        ("gate", new Vector3(457, 3.2f, 741.5f), new Vector3(466, 1.4f, 748.5f)),
+        ("square", 456.0f, 734.0f, 1.65f, 448.0f, 727.0f, 1.4f),
+        ("inn", 449.9f, 727.4f, 1.65f, 440.0f, 728.0f, 1.2f),
+        ("gate", 470.0f, 752.0f, 1.65f, 463.0f, 746.0f, 1.3f),
     };
 
     private string? _innShotsDirectory;
     private ulong _innNext;
-    private int _innStep = -1;
-    private double _innTicksPerHour;
-    private double _innHour;
-
-    /// <summary>A step is in flight: a step awaits the frames, so the loop must not start the next one over the top of it.</summary>
+    private int _innStep;
     private bool _innBusy;
 
     private void InstallInnShots()
@@ -36,14 +49,12 @@ public partial class Main
             return;
         _innShotsDirectory = Path.GetFullPath(directory);
         Directory.CreateDirectory(_innShotsDirectory);
-        var clock = _session.Setup.Clock;
-        _innTicksPerHour = (double)clock.TicksPerDay / clock.HoursPerDay;
         _innNext = Time.GetTicksMsec() + 2500;
         _rcd3Driving = true;
         GD.Print("INN_SHOTS installed " + _innShotsDirectory);
     }
 
-    /// <summary>Driven from the main loop: one hour is advanced and photographed per step, so each step stays a frame's work.</summary>
+    /// <summary>Driven from the main loop: one step is advanced and photographed at a time, and the loop waits for it.</summary>
     private void TickInnShots()
     {
         if (_innShotsDirectory is null || _innBusy || Time.GetTicksMsec() < _innNext)
@@ -59,6 +70,12 @@ public partial class Main
         {
             await OneStep();
         }
+        catch (Exception error)
+        {
+            GD.PushError("INN_SHOTS failed: " + error);
+            File.WriteAllText(Path.Combine(_innShotsDirectory!, "failed.txt"), error.ToString());
+            GetTree().Quit(3);
+        }
         finally
         {
             _innBusy = false;
@@ -67,45 +84,101 @@ public partial class Main
 
     private async Task OneStep()
     {
-        _innStep++;
-        if (_innStep >= InnShotsHours.Length)
+        int step = _innStep++;
+        if (step >= InnShotsSteps)
         {
             File.WriteAllText(Path.Combine(_innShotsDirectory!, "complete.json"),
-                JsonSerializer.Serialize(new { hours = InnShotsHours, views = InnShotsViews.Select(v => v.Name).ToArray() },
-                    new JsonSerializerOptions { WriteIndented = true }));
+                JsonSerializer.Serialize(new { day = InnShotsDay, hours = InnShotsHours, departure_minute = InnShotsDepartureMinute,
+                    views = InnShotsViews.Select(v => v.Name).ToArray() }, new JsonSerializerOptions { WriteIndented = true }));
             GetTree().Quit();
             return;
         }
-        var camera = _camera.Camera;
+        var simulation = _session.Simulation!;
+        bool hud = _hud.Visible;
         SetProcess(false);                       // nothing moves the camera out from under the shot
-        var clock = _session.Setup.Clock;
-        long nowHour = clock.Hour(_session.Simulation!.WorldTick);
-        long nowOfDay = nowHour % clock.HoursPerDay;
-        _innHour = nowOfDay;
-        // The captures are of hours, so they are taken at the first tick of one - 08:00, not 08:30 - by the world's own advance.
-        long ahead = (InnShotsHours[_innStep] - nowOfDay + clock.HoursPerDay) % clock.HoursPerDay;
-        if (ahead == 0)
-            ahead = clock.HoursPerDay;
-        // A jump is the world's own advance (no re-entrancy risk: the harness holds no command), so midnight-crossing work - the adventurers'
-        // day, their outcomes, the markets - happens exactly as it does while the character is away.
-        long wake = clock.TickOfHour(nowHour + ahead);
-        _session.Simulation.Advance(wake - _session.Simulation.WorldTick);
-        _innHour = clock.Hour(_session.Simulation.WorldTick) % clock.HoursPerDay;
-        // Let the views and the light catch up with the new hour, then hold the camera where the shot wants it.
-        SetProcess(true);
-        await Rcd3Wait(0.8);
-        SetProcess(false);
-        foreach (var (name, eye, look) in InnShotsViews)
+        try
         {
-            camera.GlobalPosition = eye;
-            camera.LookAt(look);
-            await Rcd3Wait(0.3);
-            await Rcd3Shot(_innShotsDirectory!, $"h{InnShotsHours[_innStep]:00}_{name}");
-            GD.Print($"INN_SHOTS h{InnShotsHours[_innStep]:00}_{name}");
+            _hud.Visible = false;
+            if (step == 0)
+            {
+                AdvanceTo(InnShotsDepartureMinute);
+                await Shot("h0755_departure", InnShotsViews.First(v => v.Name == "gate"));
+                await Occupants("07:55");
+                return;
+            }
+            if (step <= InnShotsHours.Length)
+            {
+                int hour = InnShotsHours[step - 1];
+                AdvanceTo(hour * 60);
+                foreach (var view in InnShotsViews)
+                    await Shot($"h{hour:00}", view);
+                await Occupants($"{hour:00}:00");
+                return;
+            }
+            // The board, open, over the common room it hangs in.
+            AdvanceTo(8 * 60);
+            _noticeBoard.Open("station.ah_notice_board");
+            await Rcd3Wait(0.5);
+            await Shot("board", InnShotsViews.First(v => v.Name == "inn"));
+            _noticeBoard.Close();
+            await Occupants("08:00");
         }
-        File.AppendAllText(Path.Combine(_innShotsDirectory!, "inn_shots.jsonl"),
-            JsonSerializer.Serialize(new { hour = InnShotsHours[_innStep], world_hour = clock.Hour(_session.Simulation!.WorldTick) % clock.HoursPerDay })
+        finally
+        {
+            _hud.Visible = hud;
+            SetProcess(true);
+        }
+    }
+
+    /// <summary>The first tick of a minute of the capture day, by the world's own advance - the same catch-up an absence takes.</summary>
+    private void AdvanceTo(int minuteOfDay)
+    {
+        var simulation = _session.Simulation!;
+        var clock = _session.Setup.Clock;
+        long ticksPerMinute = clock.TicksPerDay / (clock.HoursPerDay * 60L);
+        long target = InnShotsDay * clock.TicksPerDay - clock.StartTicks + minuteOfDay * ticksPerMinute;
+        if (target > simulation.WorldTick)
+            simulation.Advance(target - simulation.WorldTick);
+    }
+
+    private async Task Shot(string prefix, (string Name, float EyeX, float EyeZ, float EyeUp, float LookX, float LookZ, float LookUp) view)
+    {
+        // Eye and target stand on the ground under them: the region's ground is ~15 m up, so a fixed world height is under the terrain.
+        var eye = new Vector3(view.EyeX, _ground.Height(view.EyeX, view.EyeZ) + view.EyeUp, view.EyeZ);
+        var look = new Vector3(view.LookX, _ground.Height(view.LookX, view.LookZ) + view.LookUp, view.LookZ);
+        _camera.Camera.GlobalPosition = eye;
+        _camera.Camera.LookAt(look);
+        await Rcd3Wait(0.3);
+        await Rcd3Shot(_innShotsDirectory!, $"{prefix}_{view.Name}");
+        GD.Print($"INN_SHOTS {prefix}_{view.Name} from {eye} looking at {look}");
+    }
+
+    /// <summary>
+    /// Who is in the inn at this hour, as a line beside the frames: every body within twenty metres of the door, its role, and whether it
+    /// stands at a bed or in the common room. The room's population is the owner's complaint, so the frames say who the crowd is.
+    /// </summary>
+    private async Task Occupants(string when)
+    {
+        var simulation = _session.Simulation!;
+        var inn = _session.Setup.Adventurers!.Settlements["ashen_hollow"].Inn!;
+        long Distance(long ax, long az, long bx, long bz)
+        {
+            long dx = ax - bx, dz = az - bz;
+            return (long)Math.Sqrt(dx * dx + dz * dz);
+        }
+        var near = simulation.Npcs
+            .Where(n => Distance(n.Body.XMm, n.Body.ZMm, inn.Door.XMm, inn.Door.ZMm) < 20_000)
+            .Select(n => new
+            {
+                id = n.Id,
+                role = n.Role,
+                at_bed = inn.Beds.Any(b => Distance(n.Body.XMm, n.Body.ZMm, b.XMm, b.ZMm) < 1_500),
+                in_room = inn.Seats.Append(inn.Board).Append(inn.Hearth).Any(p => Distance(n.Body.XMm, n.Body.ZMm, p.XMm, p.ZMm) < 1_500),
+            })
+            .ToList();
+        File.AppendAllText(Path.Combine(_innShotsDirectory!, "occupants.jsonl"),
+            JsonSerializer.Serialize(new { when, day = _session.Setup.Clock.Day(simulation.WorldTick), count = near.Count, bodies = near })
             + System.Environment.NewLine);
-        SetProcess(true);
+        await Rcd3Wait(0.05);
     }
 }

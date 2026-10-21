@@ -403,7 +403,9 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
     private AdventurerDay Day(long day)
     {
         var setup = Setup!;
-        long tick = Math.Max(0, day * Clock.TicksPerDay - Clock.StartTicks);
+        // The day's first tick, which is before the world's own on the first day (the clock opens at 07:30): clamped to nothing, day zero's
+        // plans would be authored 07:30 late and the first departure would be the afternoon's.
+        long tick = day * Clock.TicksPerDay - Clock.StartTicks;
         var channel = RngChannel.Open(State.World.WorldSeed, RegionCell, "adventurers", $"day@{day}");
         var catalog = _context.Setup.Items.Catalog;
         var economy = _context.Setup.Economy;
@@ -861,7 +863,8 @@ internal static class InnDay
         var seat = Pick(inn.Seats, slot);
         if (injured)
             return bed;
-        if (departTick > 0 && tick >= departTick - inn.WalkMinutes * ticksPerMinute && tick < departTick)
+        // The departure hour itself is spent at the gate: the walk out is the last thing the character sees of them before they are gone.
+        if (departTick > 0 && tick >= departTick - inn.WalkMinutes * ticksPerMinute && tick <= departTick)
             return inn.Gate;
         if (returnTick > 0 && tick >= returnTick && tick < returnTick + inn.ReturnWalkMinutes * ticksPerMinute)
             return inn.Gate;
