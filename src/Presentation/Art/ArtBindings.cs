@@ -565,10 +565,12 @@ public sealed class ArtBindings
         (MpfbModel[] Models, float Feminine, float Masculine) cast)
     {
         var named = ReadNamedCharacters();
-        if (named.TryGetValue(person, out var identity))
+        // A named identity names the body it wears by id. A cast that does not carry that id - the Human Generator arm
+        // has two bodies and no named ones - falls through to the hash below rather than failing the whole document,
+        // which is what Single() did: the arm drew greybox instead of a person.
+        if (named.TryGetValue(person, out var identity) && cast.Models.FirstOrDefault(m => m.Id == identity.Mpfb) is { } chosen)
         {
-            var chosen = cast.Models.Single(m => m.Id == identity.Mpfb);
-            if (chosen.Sex != (feminine ? "f" : "m")) throw new InvalidDataException("Named MPFB identity sex differs: " + person);
+            if (chosen.Sex != (feminine ? "f" : "m")) throw new InvalidDataException("Named comparison identity sex differs: " + person);
             return (chosen, (feminine ? cast.Feminine : cast.Masculine) / chosen.Height);
         }
         var reserved = named.Values.Select(n => n.Mpfb).ToHashSet(StringComparer.Ordinal);
