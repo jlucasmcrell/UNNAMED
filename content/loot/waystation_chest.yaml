@@ -3,9 +3,10 @@ kind: loot
 schema: 1
 display_key: loot.waystation_chest.name
 tags: [loot]
-notes: "The waystation's storage chest (content bible §5) - all static. Dried ashbloom from the bog, a start on Sel's salves before the player has found the patches."
+notes: "The waystation's storage chest (content bible §5) - all static. Dried ashbloom from the bog, a start on Sel's salves before the player has found the patches, and two torches so the first night out is a choice rather than a wall (owner finding 25)."
 rolls: 0
 guaranteed:
   - { item_ref: item.consumable.salve_minor, count_range: [1, 1] }
   - { item_ref: item.ammo.arrow_rough, count_range: [6, 6] }
   - { item_ref: item.material.herb_ashbloom, count_range: [2, 2] }
+  - { item_ref: item.tool.torch, count_range: [2, 2] }

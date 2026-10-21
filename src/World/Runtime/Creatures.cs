@@ -58,6 +58,18 @@ public sealed record CreatureView(EntityId Id, string Key, string DefId, string 
 
     /// <summary>Its role never starts a fight (wildlife, the grazers).</summary>
     public bool Peaceful { get; init; }
+
+    /// <summary>Its level (<c>level_band</c> in its content; one level per creature in Phase 1).</summary>
+    public int Level { get; init; }
+
+    /// <summary>It holds a loot table, so there is something in killing it (finding 24's "can be hunted").</summary>
+    public bool Huntable { get; init; }
+
+    /// <summary>What it does when it notices the character: passive, neutral until struck, or hostile.</summary>
+    public Temperament Temperament { get; init; }
+
+    /// <summary>How it reads against the character's own level (finding 24): the nameplate's colour and word.</summary>
+    public Threat Threat { get; init; }
 }
 
 public sealed record CreatureNoticed(EntityId Creature, string Key, CreatureMind Mind, long Tick);
@@ -521,7 +533,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         if (mind == CreatureMind.Engaged && c.Role.CallsForHelp && !c.HasCalled)
         {
             next = next with { HasCalled = true };
-            Sound(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.CallMm, Call: true, CallerKind: c.Definition.Id));
+            Sound(new Noise(c.Body.XMm, c.Body.ZMm, Math.Max(Setup.Noise.CallMm, c.Role.CallMm), Call: true, CallerKind: c.Definition.Id));
             _context.Events.Publish(new CreatureCalled(c.Id, c.Key, c.Body.XMm, c.Body.ZMm, tick));
         }
         if (mind is CreatureMind.Unaware or CreatureMind.Returning)
@@ -1203,6 +1215,10 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 c.Mind, c.Awareness, Asleep(c, tick))
             {
                 Generation = c.Generation, Peaceful = c.Role.Peaceful,
+                Level = c.Definition.Level,
+                Huntable = c.Definition.LootTableId is not null,
+                Temperament = TemperamentRules.Of(c.Role.Peaceful, c.Role.AnswersCalls, c.Mind == CreatureMind.Engaged),
+                Threat = ThreatRules.Of(c.Definition.Level, State.Progression.Level),
                 AttackSource = c.Definition.CloseAttack is not null ? c.Action.Attack?.Source : null,
                 PhaseDurationTicks = c.Definition.CloseAttack is not null && c.Action.Attack is { } attack ? phase switch
                 {

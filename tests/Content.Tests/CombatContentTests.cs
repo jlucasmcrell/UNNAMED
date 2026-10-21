@@ -89,12 +89,13 @@ public class CombatContentTests
         var strays = spawns["spawn.hollow.valley_strays"];
         Assert.Equal((2, 518_000L, 728_000L, 24_000L), (strays.Members.Length, strays.XMm, strays.ZMm, strays.RespawnTicks));
         Assert.All(strays.Members, m => Assert.Equal("stray", m.RoleId));
-        Assert.Equal(new[] { "den_guardian", "pack_hunter", "pack_hunter", "sleeper" }, spawns["spawn.hollow.den_pack"].Members.Select(m => m.RoleId));
+        // The den's leader joins the four (owner finding 29): the pack, plus the animal that makes it a den.
+        Assert.Equal(new[] { "den_alpha", "den_guardian", "pack_hunter", "pack_hunter", "sleeper" }, spawns["spawn.hollow.den_pack"].Members.Select(m => m.RoleId));
         Assert.Equal((24_000L, 3), (spawns["spawn.hollow.east_pack"].RespawnTicks, spawns["spawn.hollow.east_pack"].Route.Length));   // back after 20 minutes
         Assert.Equal(new[]
         {
-            "ambusher", "den_guardian", "herd", "herd_shy", "hunter", "night_walker", "pack_hunter", "prowler", "roamer", "sentinel", "skittish", "sleeper",
-            "stray", "territorial", "wildlife", "yard_fowl",
+            "ambusher", "den_alpha", "den_guardian", "herd", "herd_shy", "hunter", "night_walker", "pack_hunter", "prowler", "roamer", "sentinel",
+            "skittish", "sleeper", "stray", "territorial", "wildlife", "yard_fowl",
         }, setup.Roles.Keys);
 
         // The content bible's five archetypes, each a creature of its own with its own body and blow (§10) - and the start area's wildlife
@@ -103,7 +104,8 @@ public class CombatContentTests
             {
                 "creature.beast.ash_ember_hound", "creature.beast.bristleback_boar", "creature.beast.buck", "creature.beast.cave_hunting_spider",
                 "creature.beast.chicken", "creature.beast.doe", "creature.beast.rabbit", "creature.beast.red_fox", "creature.beast.rooster",
-                "creature.beast.wolf_grey", "creature.construct.animated_armour", "creature.construct.ring_custodian",
+                "creature.beast.wolf_grey", "creature.beast.wolf_grey_alpha", "creature.construct.animated_armour",
+                "creature.construct.ring_custodian",
                 "creature.grazer.barrowback", "creature.grazer.fellhorn", "creature.undead.bone_walker_husk",
             }, setup.Creatures.Keys);
         var barrowback = setup.Creatures["creature.grazer.barrowback"];

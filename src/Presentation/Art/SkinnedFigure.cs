@@ -211,6 +211,8 @@ public sealed partial class SkinnedFigure : Figure
 
     public override Vector3? CastPoint => _hand is { } hand && hand.IsInsideTree() ? hand.GlobalPosition : null;
 
+    public override void LightInOffHand(long radiusMm) => HandLight.Show(_offHand, radiusMm);
+
     private FaceDriver? _face;
 
     public override void Say(string? line) => _face?.Say(line);

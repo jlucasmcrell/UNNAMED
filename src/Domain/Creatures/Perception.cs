@@ -56,6 +56,12 @@ public sealed record CreatureRole(string Id, UnawareBehaviour Unaware)
     /// <summary>It howls when it first finds a target, and packmates in earshot come.</summary>
     public bool CallsForHelp { get; init; }
 
+    /// <summary>
+    /// How far this role's call carries, when the kind's ordinary call (<see cref="NoiseRules.CallMm"/>) is not enough: a den leader's howl
+    /// reaches the packs beyond its own (owner finding 29). Zero uses the ordinary call.
+    /// </summary>
+    public long CallMm { get; init; }
+
     public bool AnswersCalls { get; init; }
 
     /// <summary>A wary role keeps this far from its target, closing to strike only inside <see cref="StrikeWithinMm"/> or once wounded.</summary>

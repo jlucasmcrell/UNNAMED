@@ -118,6 +118,7 @@ public class ItemizationTests
         var session = Harness.Boot(profile);
         var arena = At(session, AtHearth, r => Carrying(r, Stack("item.material.timber", 2), Stack("item.material.bog_cotton", 2)));
 
+        Assert.False(Knows(arena, Torch)); // Owner ruling: discover the recipe; it is not a starting grant.
         Assert.Null(arena.Submit(new ExperimentCommand(arena.Player, Hearth)));
         Assert.True(Knows(arena, Torch));
         Assert.Null(arena.Submit(new CraftCommand(arena.Player, Torch)));

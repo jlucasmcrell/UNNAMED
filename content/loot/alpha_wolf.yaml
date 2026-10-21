@@ -1,0 +1,11 @@
+id: loot.alpha_wolf
+kind: loot
+schema: 1
+display_key: loot.alpha_wolf.name
+tags: [loot]
+notes: The den leader's drops (owner finding 29) - a trophy, not a purse. The pelt is a real material and the fang is a trinket, so the kill is remembered in the inventory rather than counted in coin.
+rolls: 0
+entries:
+  - { item_ref: item.material.raw_meat, chance: 0.90, count_range: [2, 3] }
+  - { item_ref: item.material.alpha_pelt, chance: 1.00, count_range: [1, 1] }
+  - { item_ref: item.trinket.alpha_fang, chance: 1.00, count_range: [1, 1] }

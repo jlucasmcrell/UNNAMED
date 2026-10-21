@@ -1,0 +1,13 @@
+id: item.trinket.alpha_fang
+kind: item
+schema: 1
+display_key: item.trinket.alpha_fang.name
+tags: [item]
+name: Alpha Fang
+notes: The den leader's fang, kept (owner finding 29). A trophy first - it is what says the den has a new leader - and a trinket second, on the amulet slot like the wolf fang it is a heavier version of. Its bonus is not authored yet; the drop is the point of it.
+category: misc
+item_class: notable
+stack_max: 1
+weight: 0.08
+value_base: 40
+equip_slot: amulet

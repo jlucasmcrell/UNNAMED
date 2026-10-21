@@ -76,6 +76,14 @@ public abstract partial class Figure : Node3D
     {
     }
 
+    /// <summary>
+    /// The light carried in the off hand, by its radius in millimetres, or 0 for none: a lit torch lights the ground it is carried over
+    /// (finding 25). A figure that cannot hang a light from a hand bone shows nothing.
+    /// </summary>
+    public virtual void LightInOffHand(long radiusMm)
+    {
+    }
+
     /// <summary>Where a working gathers in the casting hand, in world space, or null when this figure has no casting hand to show.</summary>
     public virtual Vector3? CastPoint => null;
 

@@ -119,6 +119,7 @@ public partial class HudView : Control
     // Top centre: the target, then the notices.
     private readonly PanelContainer _targetBox = new();
     private readonly Label _targetName = HudStyle.Text(HudStyle.Caps, 18, HudStyle.Bone, caps: true);
+    private readonly Label _targetMeta = HudStyle.Text(HudStyle.Body, 15, HudStyle.Ash);
     private readonly Gauge _target = new(HudStyle.HealthFill, new Vector2(320, 9));
     private readonly VBoxContainer _toasts = new();
     private readonly List<(Control Box, string Text, double Expires)> _live = new();
@@ -411,7 +412,9 @@ public partial class HudView : Control
         var rows = new VBoxContainer();
         rows.AddThemeConstantOverride("separation", 5);
         _targetName.HorizontalAlignment = HorizontalAlignment.Center;
+        _targetMeta.HorizontalAlignment = HorizontalAlignment.Center;
         rows.AddChild(_targetName);
+        rows.AddChild(_targetMeta);
         rows.AddChild(_target);
         _targetBox.AddChild(rows);
         _targetBox.Visible = false;
@@ -831,11 +834,21 @@ void fragment() {
         _lowerLeft.Visible = _casting.Visible || _effects.Visible;
     }
 
-    public void SetTarget(string? name, int health, int maxHealth)
+    /// <summary>
+    /// The plate over the creature in front of the character: its name in the colour of how the fight would go, one line saying its level,
+    /// that colour's word, what it will do and whether it can be hunted - and a health bar only once it is fighting (finding 24: before the
+    /// fight the bar told the player nothing, because at full health it always reads the same).
+    /// </summary>
+    public void SetTarget(TargetPlate? plate)
     {
-        _targetBox.Visible = name is not null;
-        _targetName.Text = name ?? string.Empty;
-        _target.Set(health, Math.Max(1, maxHealth));
+        _targetBox.Visible = plate is not null;
+        if (plate is not { } read)
+            return;
+        _targetName.Text = read.Name;
+        _targetName.AddThemeColorOverride("font_color", TargetTone.Of(read.Threat));
+        _targetMeta.Text = read.Meta;
+        _target.Visible = read.ShowBar;
+        _target.Set(read.Health, Math.Max(1, read.MaxHealth));
     }
 
     public void Log(string line)

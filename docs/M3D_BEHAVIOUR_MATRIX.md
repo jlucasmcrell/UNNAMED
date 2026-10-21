@@ -39,6 +39,7 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 | Role | At rest | Territory m | Calls for help | Answers calls | Keeps off m | Flees below | Also |
 |---|---|---|---|---|---|---|---|
 | ambusher | hold | 14 | no | no | - | - | goes for a footfall in its territory |
+| den_alpha | hold | 18 | yes | yes | - | - | - |
 | den_guardian | hold | 16 | yes | yes | - | - | - |
 | herd | wander | - | yes | yes | - | - | wanders 18 m |
 | herd_shy | wander | - | yes | yes | - | 40% | wanders 14 m |
@@ -73,7 +74,7 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 | spawn.hollow.charwood_deer | (612, 718) | Timber Hind as skittish x2, Timber Stag as skittish | after 30.0 min |
 | spawn.hollow.charwood_fox | (590, 700) | Lantern Fox as wildlife | after 30.0 min |
 | spawn.hollow.charwood_hound | (528, 750) | Ash Ember Hound as hunter | after 30.0 min |
-| spawn.hollow.den_pack | (512, 784) | Grey Wolf as den_guardian, Grey Wolf as pack_hunter x2, Grey Wolf as sleeper | no |
+| spawn.hollow.den_pack | (512, 784) | Grey Alpha as den_alpha, Grey Wolf as den_guardian, Grey Wolf as pack_hunter x2, Grey Wolf as sleeper | no |
 | spawn.hollow.east_pack | (588, 780) | Grey Wolf as roamer x2 | after 20.0 min |
 | spawn.hollow.foldscar_barrowbacks | (588, 618) | Barrowback as herd x3 | after 60.0 min |
 | spawn.hollow.foldscar_fellhorns | (645, 625) | Fellhorn as herd_shy x4 | after 60.0 min |

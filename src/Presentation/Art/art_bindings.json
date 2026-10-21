@@ -904,7 +904,15 @@
     "run": "move_heavy"
    }
   },
-  "creature.beast.wolf_grey": {
+  "creature.beast.wolf_grey_alpha": {
+      "model": "creature_frost_wolf",
+      "clips": "creature.frost_wolf",
+      "voice": "ash_ember_hound",
+      "flesh": "flesh",
+      "steps": { "walk": "walk", "run": "run" },
+      "note": "The den leader (owner finding 29) is the grey wolf's own model at its own size: the view scales a creature by its body_radius_m, so the alpha's 0.58 m against the pack's 0.45 draws it 1.29x. A distinct coat would need a separate model and is left to character art."
+    },
+    "creature.beast.wolf_grey": {
    "model": "creature_frost_wolf",
    "clips": "creature.frost_wolf",
    "voice": "ash_ember_hound",
@@ -5693,6 +5701,7 @@
   "item.material.iron_ore": "ui.item.iron_ore",
   "item.material.raw_meat": "ui.item.raw_meat",
   "item.material.wolf_hide": "ui.item.wolf_hide",
+    "item.material.alpha_pelt": "ui.item.wolf_hide",
   "item.quest.halda_token": "ui.item.halda_token",
   "item.tome.field_notes": "ui.item.resonance_primer",
   "item.tome.resonance_primer": "ui.item.resonance_primer",
@@ -5703,6 +5712,7 @@
   "item.bag.quiver": "ui.item.quiver",
   "item.bag.herb_pouch": "ui.item.herb_pouch",
   "item.trinket.wolf_fang": "ui.item.wolf_fang",
+    "item.trinket.alpha_fang": "ui.item.wolf_fang",
   "spell.force.impulse_bolt": "ui.formula.impulse_bolt",
   "spell.warding.brace_ward": "ui.formula.brace_ward",
   "spell.vital.mending_thread": "ui.formula.mending_thread",
