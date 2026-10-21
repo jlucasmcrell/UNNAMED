@@ -6,6 +6,7 @@ using Godot;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Crafting;
+using UNNAMED.Domain.Knowledge;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Presentation.Greybox;
 using UNNAMED.Presentation.Player;
@@ -100,6 +101,27 @@ public partial class Main
             _interior?.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers, inPlay: true);
         });
         _session.Subscribe<LocationDiscovered>(e => Notice(NoticeKind.Discovery, $"Discovered: {Names.Of(_session, e.LocationId)}"));
+        // Lore (spec 41): a landmark the character has walked into raises the banner, with the journal key that reads what the place has to
+        // say; a page found any other way - told, read, opened by a quest - is a line. Nothing pauses for either.
+        _session.Subscribe<LorePageUnlocked>(e =>
+        {
+            string title = _session.Setup.Lore.GetValueOrDefault(e.EntryId)?.Title ?? Names.Of(_session, e.EntryId);
+            if (e.Source == LoreSourceKind.Visited)
+            {
+                _loreOffered = e.EntryId;
+                _hud.Announce("Landmark discovered", title, HudStyle.Brass, ("Read what is written there", HelpPanel.Key("journal")));
+            }
+            else
+            {
+                Notice(NoticeKind.Discovery, $"Lore: {title}", 3);
+            }
+        });
+        // Something written, read where it stands: it opens on its own panel at the page it was read at.
+        _session.Subscribe<LoreReadableRead>(e =>
+        {
+            var site = _session.Simulation!.ActiveLayout.Readables.FirstOrDefault(r => r.Key == e.Key);
+            Show(_reading, e.EntryId, site is { Page: > 0 } ? site.Page : 1);
+        });
         // Companions (M6): joined, told, downed, helped up, fallen back to the Waystone.
         _session.Subscribe<CompanionRecruited>(e => Notice(NoticeKind.Party, $"{Names.Of(_session, e.NpcId)} joins you"));
         _session.Subscribe<CompanionOrdered>(e => Notice(NoticeKind.Party, $"{Names.Of(_session, e.NpcId)}: {(e.Order == CompanionOrder.Follow ? "following" : "waiting")}", 2));

@@ -251,6 +251,9 @@ internal sealed class DialogueSystem : IDialogueFacts
             case RentRoomConsequence room:
                 _context.Dispatch(new RentRoom(open.NpcId, room.Hour));
                 break;
+            case TellLoreConsequence told:
+                _context.Dispatch(new TellLore(_player, told.EntryId, open.DialogueId));
+                break;
         }
     }
 

@@ -29,6 +29,12 @@ public sealed record SwitchSet(EntityId Actor, string SwitchKey, long Tick);
 
 public sealed record LocationDiscovered(string LocationId, DiscoveryMethod Method, long Tick);
 
+/// <summary>A page of lore was filed (spec 41): which entry and page, and the discovery that opened it.</summary>
+public sealed record LorePageUnlocked(string EntryId, int Page, UNNAMED.Domain.Knowledge.LoreSourceKind Source, string SourceRef, long Tick);
+
+/// <summary>Something in the world was read: the readable's key, and the entry its content names.</summary>
+public sealed record LoreReadableRead(string Key, string EntryId, long Tick);
+
 public sealed record ExperienceGained(XpSource Source, long Awarded, long Repaid, int LevelsGained, int Level, long Tick);
 
 public sealed record CellTierChanged(string CellKey, SimulationTier From, SimulationTier To, long Tick);

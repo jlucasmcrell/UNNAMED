@@ -3,6 +3,7 @@
 
 using Godot;
 using UNNAMED.Application;
+using UNNAMED.Domain.Knowledge;
 using UNNAMED.Domain.Quests;
 using UNNAMED.World.Runtime;
 
@@ -19,11 +20,18 @@ public partial class JournalPanel : CanvasLayer
     private const string Recent = "page.recent";
     private const string Board = "page.board";
     private const string NotesPage = "page.notes";
+    private const string LorePage = "page.lore";
 
     private Sheet _sheet = null!;
     private string? _chosen;
     private string _drawn = string.Empty;
     private LineEdit? _note;
+
+    /// <summary>The lore entry the Lore tab has open, or null for the first one the character has a page of.</summary>
+    private string? _loreEntry;
+
+    /// <summary>The world tick the journal was last read at: a page found after it is marked unread (spec 41 §3).</summary>
+    private long _loreSeenTick;
 
     /// <summary>The quest the player chose to track, or null: the tracker then follows the main story, else the first active quest.</summary>
     public string? Tracked { get; private set; }
@@ -45,6 +53,17 @@ public partial class JournalPanel : CanvasLayer
     /// <summary>Whether the notes' text field has the keys: the screens' own keys wait while the player writes.</summary>
     public bool Typing => Visible && _note is { } note && IsInstanceValid(note) && note.HasFocus();
 
+    /// <summary>
+    /// Open the journal on the Lore tab at one entry: what the landmark banner's prompt takes the character to. The pages it shows are the
+    /// ones the discovery filed, so the banner's own page is there when the journal draws.
+    /// </summary>
+    public void OpenLore(string entryId)
+    {
+        _chosen = LorePage;
+        _loreEntry = entryId;
+        _drawn = string.Empty;
+    }
+
     public void Refresh(GameSession session)
     {
         if (!Visible || session.Simulation is not { } simulation || session.Journal is not { } journal)
@@ -53,12 +72,15 @@ public partial class JournalPanel : CanvasLayer
         var bounties = simulation.Bounties;
         var notes = session.Notes?.All ?? System.Collections.Immutable.ImmutableArray<JournalNote>.Empty;
         string? tracked = simulation.TrackedQuest(Tracked);
-        if (_chosen is null || _chosen is not (Recent or Board or NotesPage) && quests.All(q => q.Id != _chosen))
+        var lore = session.Setup.Lore;
+        var pages = simulation.Lore;
+        if (_chosen is null || _chosen is not (Recent or Board or NotesPage or LorePage) && quests.All(q => q.Id != _chosen))
             _chosen = tracked ?? quests.FirstOrDefault()?.Id ?? Recent;
-        string signature = _chosen + "|" + tracked + "|" + string.Join("|", quests.Select(q =>
+        string signature = _chosen + "|" + _loreEntry + "|" + tracked + "|" + string.Join("|", quests.Select(q =>
                 $"{q.Id}:{q.Status}:{q.LostTo}:" + string.Join(",", q.Objectives.Select(o => $"{o.Id}{o.Status}{o.Progress}"))))
             + "|" + string.Join("|", journal.Recent.Select(e => $"{e.Tick}{e.Text}")) + "|" + string.Join("|", bounties.Select(b => $"{b.QuestId}{b.Standing}{b.ClaimantId}{AgainMinutes(b, session)}"))
-            + "|" + string.Join("|", notes.Select(n => n.Text));
+            + "|" + string.Join("|", notes.Select(n => n.Text))
+            + "|" + string.Join("|", pages.Select(p => $"{p.EntryId}#{p.Page}@{p.Tick}"));
         if (signature == _drawn)
             return;
         _drawn = signature;
@@ -107,6 +129,15 @@ public partial class JournalPanel : CanvasLayer
         var written = UiKit.ListRow(NotesPage, "Notes", notes.IsEmpty ? "" : notes[^1].Text);
         written.Right.AddChild(UiKit.Chip(notes.Length.ToString(), HudStyle.Iron, HudStyle.Brass));
         Row(panes.List, written.Button, NotesPage, session);
+        var known = pages.Select(p => p.EntryId).Distinct(StringComparer.Ordinal).Count();
+        var unread = lore.Keys.Where(entry => pages.Any(p => p.EntryId == entry && p.Tick > _loreSeenTick)).ToHashSet(StringComparer.Ordinal);
+        var loreRow = UiKit.ListRow(LorePage, "Lore", lore.Count == 0 ? "" : $"{known} of {lore.Count} things known");
+        if (unread.Count > 0)
+            loreRow.Right.AddChild(UiKit.Chip(unread.Count.ToString(), HudStyle.Ember, HudStyle.Bone));
+        Row(panes.List, loreRow.Button, LorePage, session);
+        // The Lore tab's own list: what the character has a page of, under the journal's headings (spec 41 §3).
+        if (_chosen == LorePage)
+            LoreList(panes.List, lore, pages, unread, session);
 
         switch (_chosen)
         {
@@ -119,6 +150,9 @@ public partial class JournalPanel : CanvasLayer
             case NotesPage:
                 NotesDetail(panes.Detail, notes, session);
                 break;
+            case LorePage:
+                LoreDetail(panes.Detail, lore, pages, unread, session);
+                break;
             default:
                 if (quests.FirstOrDefault(q => q.Id == _chosen) is { } chosen)
                     Detail(panes.Detail, chosen, chosen.Id == tracked, session);
@@ -126,6 +160,115 @@ public partial class JournalPanel : CanvasLayer
         }
         if (!UiKit.Refocus(_sheet.Root, focused ?? _chosen))
             UiKit.FirstFocusable(_sheet.Root)?.GrabFocus();
+        // Read is read: a page found from here on is unread until the journal is opened again.
+        _loreSeenTick = simulation.WorldTick;
+    }
+
+    /// <summary>
+    /// The Lore tab's list: the headings that have something under them, and under each the things the character knows, each with its page
+    /// count ("Old Late 1/3") so a missing page says there is more to find, and a dot when a page arrived since the journal was last read.
+    /// </summary>
+    private void LoreList(VBoxContainer list, System.Collections.Immutable.ImmutableSortedDictionary<string, LoreEntryDefinition> lore,
+        System.Collections.Immutable.ImmutableArray<LorePageRecord> pages, HashSet<string> unread, GameSession session)
+    {
+        list.AddChild(UiKit.Caption("Lore", HudStyle.Brass));
+        if (_loreEntry is null || !lore.ContainsKey(_loreEntry))
+            _loreEntry = lore.Keys.FirstOrDefault(entry => pages.Any(p => p.EntryId == entry));
+        foreach (var category in LoreCategories.All)
+        {
+            var under = lore.Values.Where(e => e.Category == category && pages.Any(p => p.EntryId == e.Id)).ToList();
+            if (under.Count == 0)
+                continue;
+            list.AddChild(UiKit.Caption(CategoryWords(category), HudStyle.Ash, 14));
+            foreach (var entry in under)
+            {
+                int found = pages.Count(p => p.EntryId == entry.Id);
+                var row = UiKit.ListRow(entry.Id, entry.Title, "", nameColor: HudStyle.Bone);
+                if (unread.Contains(entry.Id))
+                    row.Right.AddChild(UiKit.Chip("new", HudStyle.Ember, HudStyle.Bone));
+                row.Right.AddChild(UiKit.Chip($"{found}/{entry.PageCount}", HudStyle.Iron,
+                    found == entry.PageCount ? HudStyle.Lichen : HudStyle.Brass));
+                UiKit.Select(row.Button, entry.Id == _loreEntry);
+                string id = entry.Id;
+                row.Button.FocusEntered += () => PickLore(id, session);
+                row.Button.Pressed += () => PickLore(id, session);
+                list.AddChild(row.Button);
+            }
+        }
+        if (_loreEntry is null)
+            list.AddChild(UiKit.Quiet("Nothing yet. The world is out there."));
+    }
+
+    /// <summary>The chosen entry: what it is, how many of its pages the character has, and the pages themselves in order. A page not found is
+    /// a line saying so - the count above it is the hint that there is more.</summary>
+    private void LoreDetail(VBoxContainer detail, System.Collections.Immutable.ImmutableSortedDictionary<string, LoreEntryDefinition> lore,
+        System.Collections.Immutable.ImmutableArray<LorePageRecord> pages, HashSet<string> unread, GameSession session)
+    {
+        if (_loreEntry is null || !lore.TryGetValue(_loreEntry, out var entry))
+        {
+            detail.AddChild(UiKit.Quiet("Nothing here yet. Walk, look, and ask."));
+            return;
+        }
+        int found = PagesOf(entry, pages);
+        var head = new VBoxContainer();
+        head.AddThemeConstantOverride("separation", 8);
+        var top = new HBoxContainer();
+        top.AddThemeConstantOverride("separation", 12);
+        var title = HudStyle.Text(HudStyle.Caps, 30, HudStyle.Bone, caps: true);
+        title.Text = entry.Title;
+        title.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        title.CustomMinimumSize = new Vector2(HudLayoutRules.MinWidth(30), 0);
+        title.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        top.AddChild(title);
+        top.AddChild(UiKit.Chip(CategoryWords(entry.Category), HudStyle.Iron, HudStyle.Ash));
+        top.AddChild(UiKit.Chip($"{found} of {entry.PageCount} pages", found == entry.PageCount ? HudStyle.Lichen : HudStyle.Brass));
+        head.AddChild(top);
+        head.AddChild(UiKit.Words(found == entry.PageCount
+            ? "All of it. What you have is what anyone here has."
+            : "Pages you have not found are still out there, in a place, a thing, or somebody's telling.", 16, HudStyle.Ash));
+        detail.AddChild(head);
+        foreach (var page in entry.Pages)
+        {
+            var record = pages.FirstOrDefault(p => p.EntryId == entry.Id && p.Page == page.Page);
+            var section = UiKit.Section($"Page {page.Page}");
+            section.AddThemeConstantOverride("separation", 6);
+            if (record is null)
+            {
+                section.AddChild(UiKit.Quiet("Not yet found."));
+            }
+            else
+            {
+                section.AddChild(UiKit.Words(page.Text, 18));
+                section.AddChild(UiKit.Quiet($"Found {When(session, record.Tick)} - {LoreSources.Key(record.Source)}"));
+            }
+            detail.AddChild(section);
+        }
+    }
+
+    private static int PagesOf(LoreEntryDefinition entry, System.Collections.Immutable.ImmutableArray<LorePageRecord> pages) =>
+        pages.Count(p => p.EntryId == entry.Id);
+
+    private static string CategoryWords(LoreCategory category) => category switch
+    {
+        LoreCategory.Places => "Places",
+        LoreCategory.Peoples => "Peoples",
+        LoreCategory.Creatures => "Creatures",
+        LoreCategory.History => "History",
+        _ => "Faith",
+    };
+
+    /// <summary>An in-world "how long ago" for a page's line: the journal's Recent counts in game time as the world does.</summary>
+    private static string When(GameSession session, long tick) =>
+        session.Simulation is { } simulation
+            ? $"{(Math.Max(0, simulation.WorldTick - tick) * session.TickSeconds / 60):0} min ago"
+            : "since";
+
+    private void PickLore(string id, GameSession session)
+    {
+        if (_loreEntry == id)
+            return;
+        _loreEntry = id;
+        Callable.From(() => Refresh(session)).CallDeferred();
     }
 
     private void Row(VBoxContainer list, Button button, string id, GameSession session)

@@ -341,6 +341,14 @@ public static class ContentKindRegistry
             IdPrefix: "body"
         );
 
+        // 35. lore - one thing the world can be known by: its heading, its pages, and the discoveries that open them (spec 41)
+        kinds["lore"] = new ContentKindDefinition(
+            Kind: "lore",
+            FullKind: "lore",
+            Directory: "lore",
+            IdPrefix: "lore"
+        );
+
         _kinds = kinds;
         
         // Build directory lookup (first occurrence only to avoid duplicates)

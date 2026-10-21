@@ -1,0 +1,41 @@
+id: lore.quiet_folk
+kind: lore
+schema: 1
+display_key: lore.quiet_folk.title
+tags: [lore, peoples]
+title: The Quiet-folk
+category: peoples
+notes: "The Quiet-folk, in three pages, and the owner's question 1 answered with them (spec 41): the waystation's belief, the carving at Old Late's foot which is the only thing anybody has to look at, and the Survey's correction - there is no record of a people, only stones and a habit of naming them. Canon - the Old Late location note (\"the Quiet-folk landmark giant\"), Sel Arien's eleven contradictory lines in the Record, and the Foldscar's three stones. No new fact about the Quiet-folk is invented here; the last page says so out loud."
+pages:
+  - page: 1
+    text: >
+      Ask at the waystation and the answer comes easily. The Quiet-folk raised the standing stones and crowned
+      the giant, and went away, and left no writing anybody can read, and that is why the stones are quiet and
+      the people are gone. The story explains several things at once and costs nothing to hold. It is told the
+      way weather is described: to fill a silence, not to settle anything. Renn Vale tells it and says plainly
+      that he was told it, and Kera Voss will argue about the stonework of it for an hour without ever naming a
+      Quiet-folk that she has met, or a thing they are said to have made other than the stones under her feet.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.renn_vale }
+  - page: 2
+    text: >
+      What there is to look at. At the foot of Old Late a dressed panel has been cut into the stone, the height
+      of a person's shoulder from the ground, and it carries marks rather than letters - worn hollows in rows,
+      some of them cut deeper than the rest. Travellers have carved their own names around the edge of it for
+      as long as anyone has kept a book, which is a habit that has cost the Survey more than one argument. The
+      marks were not made by the same hands as the names. They were not made by any hand anybody here can name.
+      Sel Arien has copied the shapes and refuses to guess at the words, on the grounds that not reading
+      something is not evidence that it says nothing.
+    sources:
+      - { how: inspected, ref: readable.old_late_carving }
+  - page: 3
+    text: >
+      The correction, and it is a plain one. Nobody has ever found a Quiet-folk. The Record has eleven lines on
+      the Foldscar and four of them contradict the other seven, and not one line about a people who cut stone
+      and left. What the Survey can actually measure is this: the giant and the three Quiet Stones are one
+      stone, dressed by one set of tools. That is all. The name Quiet-folk is a habit, kept because the stones
+      are quiet and somebody had to be blamed for them, in the same way the giant is called Old Late. Sel does
+      not use the name in her notes. She writes "the stones" and lets the silence be a fact about the stones
+      rather than about a people who are not in the record.
+    sources:
+      - { how: quest, ref: quest.ashen_hollow.three_quiet_stones }

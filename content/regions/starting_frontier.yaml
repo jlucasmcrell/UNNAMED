@@ -147762,6 +147762,25 @@ barriers:
   height_m: 2.6
   prompt: Tavar Orr, half a breath out of true - your hand stops short of him
 
+# Readables (spec 41): what is written down, where it stands, and the lore entry reading it files. A page names one page of an entry; a
+# book (no page) opens every page of its entry the character has not read. Both are read from where a switch is worked.
+readables:
+  # The dressed panel at the foot of Old Late, on the south side, where a reader can stand (the giant is a circle of 4.5 m).
+  - key: readable.old_late_carving
+    lore_ref: lore.quiet_folk
+    page: 2
+    name: carved panel
+    verb: Read
+    circle_m: [650, 770.2, 0.7]
+    height_m: 1.4
+  # Sel Arien's survey record, on her table east of the lodge (the table is the box beside her at 474.6, 721.3).
+  - key: readable.sel_field_record
+    lore_ref: lore.blackvein
+    name: survey record
+    verb: Read
+    circle_m: [474.6, 721.4, 0.7]
+    height_m: 0.9
+
 # The Barrowworks' two entrances (M8 D10, P2). Both lead into the one interior, and each remembers which was
 # used, so leaving returns a body to the anchor it came in by rather than to a single shared vector.
 #

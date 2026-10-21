@@ -49,6 +49,9 @@ public partial class Main
             { Kind: FocusKind.Npc } npc when DownedCompanion(npc.Key) is not null => $"[{HelpPanel.Key("interact")}] {ContextModel.Prompt(Facts(simulation, npc.Key))}",
             { Kind: FocusKind.Npc } npc => simulation.Conversation?.NpcId == npc.Key ? null : $"[{HelpPanel.Key("interact")}] {ContextModel.Prompt(Facts(simulation, npc.Key))}",
             { Kind: FocusKind.Switch } site => simulation.ActiveLayout.FindSwitch(site.Key) is { } s ? $"[{HelpPanel.Key("interact")}] {s.Verb} the {s.Name}" : null,
+            { Kind: FocusKind.Readable } written => simulation.ActiveLayout.Readables.FirstOrDefault(r => r.Key == written.Key) is { } r
+                ? $"[{HelpPanel.Key("interact")}] {r.Verb} the {r.Name}"
+                : null,
             { Kind: FocusKind.Portal } portal => $"[{HelpPanel.Key("interact")}] {(simulation.PlayerInExterior ? "Enter the Barrowworks" : "Return to the frontier")}",
             { Kind: FocusKind.Waystone } stone => simulation.Waystones.First(w => w.Site.Key == stone.Key) is var w && w.Known
                 ? $"[{HelpPanel.Key("interact")}] The {w.Site.Name}: Waystones you know"

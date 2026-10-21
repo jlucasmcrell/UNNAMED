@@ -21,6 +21,7 @@ public enum FocusKind
     Barrier,
     Waystone,
     Portal,
+    Readable,
 }
 
 /// <summary>
@@ -213,6 +214,12 @@ public sealed class PlayerController
         {
             var (x, z) = Footprints.Center(view.Site.Body);
             candidates.Add((new Focus(FocusKind.Waystone, view.Site.Key, view.Site.Key, x, z), view.Site.Body.DistanceTo(Authoritative.XMm, Authoritative.ZMm) - doorReach));
+        }
+        // Something written - a carved panel, a book - is read from where a switch is worked (spec 41).
+        foreach (var readable in simulation.ActiveLayout.Readables)
+        {
+            var (x, z) = Footprints.Center(readable.Body);
+            candidates.Add((new Focus(FocusKind.Readable, readable.Key, readable.EntryId, x, z), readable.Body.DistanceTo(Authoritative.XMm, Authoritative.ZMm) - doorReach));
         }
         // A portal: the door out of the exterior, or out of the space the body is in. It stands at its own anchor -
         // the exterior's while the body is outside, the interior's while it is in - so the same gesture works both

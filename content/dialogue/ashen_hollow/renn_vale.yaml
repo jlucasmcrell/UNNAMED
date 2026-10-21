@@ -78,6 +78,18 @@ nodes:
           - { kind: quest_state, quest_ref: quest.ashen_hollow.end_of_playtest, is: not_started }
         consequences: [{ command: start_quest, quest_ref: quest.ashen_hollow.end_of_playtest }]
         next: farewell
+      # Spec 41: what the waystation believes about the stone down the road, and about the folk it blames for it. Both tell a page of the
+      # journal. The Quiet-folk page is the belief; the Survey's last page corrects it once the Foldscar is quiet.
+      - id: ask_old_late
+        text: "Tell me about Old Late."
+        conditions: [{ kind: visited, node: tell_old_late, not: true }]
+        consequences: [{ command: tell_lore, lore_ref: lore.old_late }]
+        next: tell_old_late
+      - id: ask_quiet_folk
+        text: "Tell me about the Quiet-folk."
+        conditions: [{ kind: visited, node: tell_quiet_folk, not: true }]
+        consequences: [{ command: tell_lore, lore_ref: lore.quiet_folk }]
+        next: tell_quiet_folk
       - id: leave
         text: "Nothing for now."
       - id: story_begin_accounts
@@ -122,6 +134,22 @@ nodes:
         consequences:
         - command: start_quest
           quest_ref: quest.main.road_east
+  tell_old_late:
+    text: "\"The giant down the east road. Nobody here cut it and nobody here remembers it arriving, so we tell it instead.\" He sets his cloth down. \"The Quiet-folk raised it as a marker, before the road was a road. Crowned it, left it to hold the crossing, walked on. That's the version. I was told it, I've told it a hundred times, and I'll tell you honestly that I cannot name who told me first.\" He shrugs. \"Ask Sel. She'll give you a measurement instead of a story, and you can decide which one you'd rather carry.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "I'll walk out and look at it."
+        next: again
+  tell_quiet_folk:
+    text: "\"The ones who raised the stones, in the version I was told: gone, and no writing of theirs that anybody can read, and that is supposed to explain why the stones are quiet.\" He stops, and something in his face is careful. \"I'll say this much for free, because you'll hear the rest of it at the forge. It's a good story for a fire. It is not a thing I have ever been able to point at.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "Then I'll ask Sel what she can point at."
+        next: again
   farewell:
     text: "He opens the book, finds your line and reads it back to himself. \"Blackvein. The Foldscar. Durn's seam. Mara's bog.\" He looks up. \"Most of my guests manage the privy.\" He turns the book round and holds out the pen. \"That's this stretch of the road. Berrin knows the Rim Stone's rite; wake it before you head east. Write yourself in properly: name, road, where you're bound. And thank you. The roofs are dry, the stones are quiet and nobody I liked got eaten. I'll call that a season.\""
     once: true

@@ -463,6 +463,26 @@ public static class WorldContent
             }
             Check(barriers.Select(b => b.Key).Distinct(StringComparer.Ordinal).Count() == barriers.Count, "WLD014", "two barriers share a key");
 
+            // Readables (spec 41): something written, standing where it can be read. Each names the lore entry it files - one page of it, or
+            // the whole book (page 0) - and stands on its own footprint, so the reach to it is the reach to a switch.
+            var readables = ImmutableArray.CreateBuilder<ReadableSite>();
+            foreach (var (entry, i) in (map.ContainsKey("readables") ? List(map, "readables") : new List<object>()).Select((r, i) => (r, i)))
+            {
+                var site = entry as Dictionary<object, object> ?? throw new FormatException($"readables[{i}] must be a map");
+                string key = Text(site, "key");
+                string entryRef = Text(site, "lore_ref");
+                int page = site.ContainsKey("page") ? Int(site, "page") : 0;
+                var readable = new ReadableSite(key, entryRef, page, Blocker(new Dictionary<object, object>(site) { ["id"] = key }),
+                    Text(site, "name"), Text(site, "verb"));
+                Check(key.StartsWith("readable.", StringComparison.Ordinal), "WLD016", $"readable key '{key}' must start with 'readable.'");
+                Check(loader.Definitions.TryGetValue(entryRef, out var written) && written.Kind == "lore", "WLD016",
+                    $"{key} names '{entryRef}', which is not a lore entry this pack has");
+                Check(page >= 0, "WLD016", $"{key} names page {page}; a page is 1 or more, and 0 is the whole book");
+                readables.Add(readable);
+            }
+            Check(readables.Select(r => r.Key).Distinct(StringComparer.Ordinal).Count() == readables.Count, "WLD016", "two readables share a key");
+            Check(readables.Select(r => r.Body).All(b => b is CircleBlocker or BoxBlocker), "WLD016", "a readable stands on a circle_m or a box_m");
+
             // Portals (M8 D10): the ways into an interior space. A region may declare them whenever its
             // entrances are authored; whether they are registered at all is the run's decision, and the gate
             // that makes it is in GameSession, not here.
@@ -569,6 +589,7 @@ public static class WorldContent
                 Npcs = npcs.ToImmutable(),
                 Switches = switches.ToImmutable(),
                 Barriers = barriers.ToImmutable(),
+                Readables = readables.ToImmutable(),
                 // The space this region's coordinates belong to: the exterior for the world's regions, its own
                 // for an interior (M8 D10). Everything derived from a site in this layout follows it.
                 SpaceId = spaceId,

@@ -118,7 +118,15 @@ public partial class Main
             if (Input.IsActionJustPressed("skills"))
                 Toggle(_skills, () => ShowSkills(null));
             if (Input.IsActionJustPressed("journal"))
+            {
+                // A landmark banner still standing offers its page: the journal opens on it (spec 41 §2).
+                if (_loreOffered is { } offered)
+                {
+                    _journal.OpenLore(offered);
+                    _loreOffered = null;
+                }
                 Toggle(_journal, () => Show(_journal));
+            }
             if (Input.IsActionJustPressed("map"))
                 Toggle(_map, () => Show(_map));
             if (Input.IsActionJustPressed("chat"))
@@ -262,6 +270,7 @@ public partial class Main
                     Approach(focus.Key);
                     break;
                 case FocusKind.Switch:
+                case FocusKind.Readable:
                     _controller.Interact(focus.Key);
                     break;
                 case FocusKind.Waystone:

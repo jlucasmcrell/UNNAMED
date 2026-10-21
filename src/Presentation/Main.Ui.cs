@@ -35,6 +35,9 @@ public partial class Main
         AddChild(_dialogue);
         _journal = new JournalPanel { Name = "Journal" };
         AddChild(_journal);
+        _reading = new ReadingPanel { Name = "Reading" };
+        _reading.Bind(_session);
+        AddChild(_reading);
         _questDebug = new QuestDebugPanel { Name = "QuestDebug" };
         AddChild(_questDebug);
         _character = new CharacterPanel { Name = "Character", AllSkills = () => ShowSkills(null) };
@@ -291,7 +294,7 @@ public partial class Main
 
     /// <summary>The management screen open, if any: one at a time.</summary>
     private CanvasLayer? Screen =>
-        new CanvasLayer[] { _menu, _inventory, _loot, _character, _skills, _journal, _effectsPanel, _companionsPanel, _reputation, _awaySheet, _waystones, _map, _settings, _credits, _help, _saves, _chat, _hire }
+        new CanvasLayer[] { _menu, _inventory, _loot, _character, _skills, _journal, _reading, _effectsPanel, _companionsPanel, _reputation, _awaySheet, _waystones, _map, _settings, _credits, _help, _saves, _chat, _hire }
             .FirstOrDefault(s => s.Visible);
 
     /// <summary>Close whatever management screen is open, back to play.</summary>
@@ -660,6 +663,13 @@ public partial class Main
     {
         CloseScreens();
         panel.Open(stationKey);
+    }
+
+    /// <summary>Something written, open at the page just read (spec 41).</summary>
+    private void Show(ReadingPanel panel, string entryId, int page)
+    {
+        CloseScreens();
+        panel.Open(entryId, page);
     }
 
     /// <summary>Open a screen in place of whatever was open: a destination replaces the menu, and a screen's own key replaces another.</summary>

@@ -22,6 +22,10 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
     /// <summary>Items, loot tables, carrying rules and the starting kit (M3b).</summary>
     public ItemSetup Items { get; init; } = ItemSetup.Empty;
 
+    /// <summary>The lore entries, by ID (spec 41): what a discovery opens, and the words a page is read by.</summary>
+    public ImmutableSortedDictionary<string, UNNAMED.Domain.Knowledge.LoreEntryDefinition> Lore { get; init; } =
+        ImmutableSortedDictionary<string, UNNAMED.Domain.Knowledge.LoreEntryDefinition>.Empty;
+
     /// <summary>Combat constants, status effects, creatures and where they stand (M3c).</summary>
     public CombatSetup Combat { get; init; } = CombatSetup.Empty;
 
@@ -223,6 +227,7 @@ public sealed class Simulation
     private readonly DeathSystem _death;
     private readonly GatheringSystem _gathering;
     private readonly CraftingSystem _crafting;
+    private readonly LoreSystem _lore;
     private readonly NpcSystem _npcs;
     private readonly WorldNavigation _navigation;
     private readonly RelationshipSystem _relationships;
@@ -306,6 +311,8 @@ public sealed class Simulation
         _travel = new TravelSystem(_context, _state.Claim(nameof(TravelSystem), StateSlice.Waystones), player.Id);
         _gathering = new GatheringSystem(_context, _state.Claim(nameof(GatheringSystem), StateSlice.Nodes), player.Id);
         _crafting = new CraftingSystem(_context, _state.Claim(nameof(CraftingSystem), StateSlice.Findings), player.Id, player.Name) { Contents = site => _inventory.View(site) };
+        _lore = new LoreSystem(_context, _state.Claim(nameof(LoreSystem), StateSlice.Lore), player.Id);
+        _lore.Listen(bus);
         _navigation = new WorldNavigation(_context);
         _npcs = new NpcSystem(_context, _state.Claim(nameof(NpcSystem), StateSlice.Npcs, StateSlice.NpcLife), _navigation, _tiers.Observers,
             () => _movement.Effective);
@@ -633,6 +640,9 @@ public sealed class Simulation
 
     /// <summary>What the character's experiments taught, oldest first (UI progression F).</summary>
     public ImmutableArray<Finding> Findings => _state.Findings;
+
+    /// <summary>The lore pages the character has found, in entry and page order (spec 41).</summary>
+    public ImmutableArray<UNNAMED.Domain.Knowledge.LorePageRecord> Lore => _state.Lore;
 
     /// <summary>The character's companions (M6): the whole party - companions, hirelings and allies (WP15a).</summary>
     public ImmutableArray<CompanionView> Companions => _companions.Views();
@@ -994,6 +1004,7 @@ public sealed class Simulation
             PartySheets = _sheets.Records(),
             Attack = _combat.AttackUnderWay(),
             Findings = _state.Findings,
+            Lore = _state.Lore,
         };
     }
 
@@ -1055,6 +1066,9 @@ public sealed class Simulation
     {
         SetWorldFlag set => _flags.Handle(set, Now),
         AwardExperience award => _progression.Handle(award),
+        UnlockLore unlock => _lore.Handle(unlock, Now),
+        ReadLore read => _lore.Handle(read, Now),
+        TellLore tellLore => _lore.Handle(tellLore, Now),
         ChangePools pools => _progression.Handle(pools),
         PracticeSkill practice => _progression.Handle(practice),
         LearnTechnique learn => _progression.Handle(learn),

@@ -258,6 +258,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Navigation = NavigationContent.Build(loader),
             NpcLife = NpcLifeContent.Build(loader, options.RegionId),
             Adventurers = AdventurerContent.Build(loader),
+            Lore = LoreContent.Build(loader),
             Spaces = spaces,
             Layouts = layouts,
         };

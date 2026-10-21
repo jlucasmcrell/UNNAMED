@@ -44,6 +44,7 @@ public static class ContentChecks
         ["market_ref"] = new[] { "market" }, // a town market (WP14)
         ["piece_ref"] = new[] { "piece" },   // a building piece a teacher teaches (WP9)
         ["people_ref"] = new[] { "people" }, // a role slot's residents' people (WP12), a body's people (WP17)
+        ["lore_ref"] = new[] { "lore" },     // the lore entry something written files, or a reply tells of (spec 41)
     };
 
     /// <summary>§4 fields that are references although they predate the <c>_ref</c> naming convention.</summary>

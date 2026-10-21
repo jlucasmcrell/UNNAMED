@@ -88,6 +88,12 @@ nodes:
         conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, order: wait }]
         consequences: [{ command: order_companion, order: follow }]
         next: following
+      # Spec 41: what the fold was, from the only person who has been inside one. He tells it plainly; he does not perform it.
+      - id: ask_the_fold
+        text: "Tell me about the fold - what it was like, in there."
+        conditions: [{ kind: visited, node: tell_the_fold, not: true }]
+        consequences: [{ command: tell_lore, lore_ref: lore.tavar_and_the_fold }]
+        next: tell_the_fold
       - id: leave
         text: "Take a moment. I'll see you at the waystation."
         conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, not: true }]
@@ -100,6 +106,14 @@ nodes:
         consequences:
         - command: start_quest
           quest_ref: quest.main.wrong_side
+  tell_the_fold:
+    text: "\"Nothing hurt,\" he says, and takes his time about it. \"That's the part nobody expects. I walked in after a chain and I did not walk out, and it stopped being an afternoon. The others went on having one. I could see the rise from where I stood and nobody on it could get a hand to me - a hand's width short, every time.\" He turns his cup around. \"It wasn't another place. It was this place, a breath out of step, and I was in the step. If I'd called it a place I think I'd have made it one.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "I'm glad it's quiet."
+        next: again
   ledger:
     text: "\"Three days, give or take. Cheap, for a crossing I never meant to make.\" He pats a coat pocket; something in it is the shape of a small book. \"We keep a ledger - what each crossing took. I'll put it under 'things I've lost', between my mother's name and a very good knife.\" He smiles as if that were the joke, and not the list."
     choices:

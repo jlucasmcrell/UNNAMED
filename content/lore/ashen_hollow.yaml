@@ -1,0 +1,30 @@
+id: lore.ashen_hollow
+kind: lore
+schema: 1
+display_key: lore.ashen_hollow.title
+tags: [lore, places]
+title: Ashen Hollow
+category: places
+notes: "The waystation, in two pages (spec 41 §5): walking into it, and the steward's own account of what it is for. Its canon is content/regions/ashen_hollow.yaml (the lodge, the forge, the waystone, the well, the chest) and Renn Vale's greeting lines; nothing here is a new fact about the place."
+pages:
+  - page: 1
+    text: >
+      The road comes down off the ridge into a hollow with one longhouse, one forge and one standing stone, and
+      the smoke of the forge is the first thing anyone sees of it. A new traveller arrives beside the Ashen
+      Waystone on the road in, facing the door. Everything the hollow has is in reach of the road: the lodge on
+      the south side, Kera's smithy up by the stone, the well between them, a chest by the door for what people
+      leave. Past the survey table east of the lodge the ground falls away into the quarry on one side and the
+      woods on the other, and that is the whole of the settlement. It is a frontier stop and it does not pretend
+      to be a village.
+    sources:
+      - { how: visited, ref: location.outpost }
+  - page: 2
+    text: >
+      The steward's account, Renn Vale's, for anyone who asks what this place is: a stop on the old road between
+      the quarry and the woods - a bed, a meal and a roof, in that order of reliability. The book by the door has
+      every guest's name in it, their road and where they were bound, and he will read a line back to you if you
+      think you have been misremembered. He keeps the roofs dry and the stone quiet and counts a season good if
+      nobody he liked got eaten. When he says the hollow has not yet thought of anything to do about the Foldscar,
+      he means that he has, and that there is nothing in the waystation's hands to do it with.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.renn_vale }

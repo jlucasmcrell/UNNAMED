@@ -99,6 +99,12 @@ nodes:
           - { kind: world_state, flag_ref: world.barrowworks.headworks_dismantled, location_ref: location.barrowworks.headworks, min: 1 }
           - { kind: visited, node: barrowworks_report, not: true }
         next: barrowworks_report
+      # Spec 41: the beasts on this road, and what she wants them for. The page is hers; the herblore is a thing she says and will not write down.
+      - id: ask_hounds
+        text: "Tell me about the ember hounds."
+        conditions: [{ kind: visited, node: tell_hounds, not: true }]
+        consequences: [{ command: tell_lore, lore_ref: lore.ember_hounds }]
+        next: tell_hounds
       - id: leave
         text: "Another time."
       - id: story_grazers
@@ -229,6 +235,14 @@ nodes:
         text: "I'll remember."
         next: again
 # Said in passing, unprompted, when the character comes near (the bark patch): each line while its conditions hold.
+  tell_hounds:
+    text: "\"The hound. Fast, and it does not tire, and it does not circle - it comes and it keeps coming.\" She is writing while she talks. \"The bite is the part that kills people. Ember-hot: no guard turns it and no armour takes it, so don't answer it with the thing you were taught to answer a bite with. Watch for the tell and be somewhere else when it lands.\" She looks up. \"And bring me the cinder sac. Not for the kill. For what it does in a salve. I'll tell you, and you'll want to know why, and the honest answer is that I don't.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "I'll bring you one."
+        next: again
   survey:
     text: "Yes. Two things, in order of how much I want them. Woundmoss from the Charwood patch - two handfuls; I'm comparing it with last season's and the difference worries me, about two chances in three. And boneleaf from the Foldscar's edge, if you'll go nearer the ring than I will. Note which way the veins run. Exactly. They shouldn't run the way they do."
     choices:

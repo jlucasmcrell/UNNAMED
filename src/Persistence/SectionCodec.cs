@@ -13,6 +13,7 @@ using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Items;
+using UNNAMED.Domain.Knowledge;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
@@ -154,6 +155,12 @@ public sealed class PlayerDto
 
     /// <summary>Required from schema 34: the companions "focus my target" is on for, by NPC. Kept beside the party's tactics, which are unchanged.</summary>
     [Key("focus_targets")] public string[]? FocusTargets { get; set; }
+
+    /// <summary>
+    /// Required from schema 35 (lore): the journal pages the character has unlocked, in entry and page order. The 34 -> 35 step gives older saves
+    /// none: nothing recorded what a page came from before.
+    /// </summary>
+    [Key("lore")] public LorePageDto[]? Lore { get; set; }
 }
 
 /// <summary>One weapon family's layout of the main bar (schema 34): the family, and twelve slots, each a definition ID or nil.</summary>
@@ -213,6 +220,17 @@ public sealed class FindingDto
     [Key("station_kind")] public string StationKind { get; set; } = "";
     [Key("recipe")] public string? Recipe { get; set; }
     [Key("materials")] public string[] Materials { get; set; } = Array.Empty<string>();
+    [Key("tick")] public long Tick { get; set; }
+}
+
+/// <summary>A lore page (schema 35): which entry and page, what opened it, and when.</summary>
+[MessagePackObject]
+public sealed class LorePageDto
+{
+    [Key("entry")] public string Entry { get; set; } = "";
+    [Key("page")] public int Page { get; set; }
+    [Key("how")] public string How { get; set; } = "";
+    [Key("source")] public string Source { get; set; } = "";
     [Key("tick")] public long Tick { get; set; }
 }
 
@@ -1050,6 +1068,10 @@ public static class SectionCodec
             Kind = FindingKeys.Key(f.Kind), Station = f.StationKey, StationKind = f.StationKind, Recipe = f.RecipeId,
             Materials = f.Materials.ToArray(), Tick = f.Tick,
         }).ToArray(),
+        Lore = player.Lore.Select(p => new LorePageDto
+        {
+            Entry = p.EntryId, Page = p.Page, How = LoreSources.Key(p.Source), Source = p.SourceRef, Tick = p.Tick,
+        }).ToArray(),
     }, Options);
 
     /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard, fine or (schema 19) masterwork.</summary>
@@ -1125,6 +1147,7 @@ public static class SectionCodec
         string heldFamily = dto.HeldFamily ?? throw new FormatException("player.msgpack has no held weapon family (required from schema 34)");
         var familyBars = dto.FamilyBars ?? throw new FormatException("player.msgpack has no family layouts (required from schema 34)");
         var focusTargets = dto.FocusTargets ?? throw new FormatException("player.msgpack has no focus targets (required from schema 34)");
+        var lore = dto.Lore ?? throw new FormatException("player.msgpack has no lore pages (required from schema 35)");
         if (heldFamily.Length > 0 && !Domain.Progression.WeaponFamilies.IsValid(heldFamily))
             throw new FormatException($"the held weapon family is '{heldFamily}'");
         foreach (var family in familyBars)
@@ -1207,6 +1230,9 @@ public static class SectionCodec
                 g.Items.Select(i => new GearSetItem(EquipSlots.Parse(i.Slot), EntityId.Parse(i.Item), i.Def)).ToImmutableArray())).ToImmutableArray(),
             Findings = findings.Select(f => new Finding(FindingKeys.Parse(f.Kind) ?? throw new FormatException($"a finding at {f.Station} is '{f.Kind}'"),
                 f.Station, f.StationKind, f.Recipe, f.Materials.ToImmutableArray(), f.Tick)).ToImmutableArray(),
+            Lore = lore.Select(p => new LorePageRecord(p.Entry, p.Page,
+                LoreSources.Parse(p.How) ?? throw new FormatException($"a lore page of {p.Entry} was opened by '{p.How}'"),
+                p.Source, p.Tick)).ToImmutableArray(),
         };
         // The held family's layout is the main bar itself: a save that has them differ is corrupt, not repaired.
         if (heldFamily.Length > 0 && !record.FamilyBars[heldFamily].SequenceEqual(record.QuickBar))

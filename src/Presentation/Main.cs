@@ -71,6 +71,10 @@ public partial class Main : Node3D
     private LootPanel _loot = null!;
     private DialoguePanel _dialogue = null!;
     private JournalPanel _journal = null!;
+    private ReadingPanel _reading = null!;
+
+    /// <summary>The lore entry a landmark banner is offering to read: the journal key opens the journal on it (spec 41).</summary>
+    private string? _loreOffered;
     private QuestDebugPanel _questDebug = null!;
     private CharacterPanel _character = null!;
     private HelpPanel _help = null!;
@@ -241,6 +245,7 @@ public partial class Main : Node3D
             InstallDsShots();
             InstallInnShots();
             InstallInnRoom();
+            InstallLoreShots();
         }
         catch (Exception e)
         {
@@ -343,6 +348,7 @@ public partial class Main : Node3D
               || (_options.ContainsKey("--front-shots") && !_options.ContainsKey("--profile"))
               || _options.ContainsKey("--creator-shots") || (_options.ContainsKey("--ds-shots") && !_options.ContainsKey("--profile"))
               || _options.ContainsKey("--inn-shots")
+              || _options.ContainsKey("--lore-shots")
             ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
             : _options.GetValueOrDefault("--profile") is { } chosen ? Path.GetFullPath(chosen)
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
@@ -392,7 +398,7 @@ public partial class Main : Node3D
                         || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check") || _options.ContainsKey("--survey")
                         || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
                         || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
-                        || _options.ContainsKey("--showcase") || _options.ContainsKey("--inn-shots");
+                        || _options.ContainsKey("--showcase") || _options.ContainsKey("--inn-shots") || _options.ContainsKey("--lore-shots");
         // No run of a harness takes the mouse - but the input check, which checks who has it.
         _scripted = (scripted && !_flags.Contains("--input-check")) || _options.ContainsKey("--resume-shots");
         // A scripted run plays one world from its start - the acceptance playthrough a fixed one, so it is the same run every time (M6).
@@ -1351,6 +1357,7 @@ public partial class Main : Node3D
         TickDsShots();
         TickInnShots();
         TickInnRoom();
+        TickLoreShots();
     }
 
     /// <summary>
@@ -1708,7 +1715,7 @@ public partial class Main : Node3D
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
-                    or "--mpfb-shots" or "--ds-shots" or "--inn-shots"
+                    or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots"
                     or "--anim-person" or "--anim-compare" or "--anim-phase"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];

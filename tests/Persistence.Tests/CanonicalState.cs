@@ -462,6 +462,19 @@ internal static class CanonicalState
                 json.WriteEndObject();
             }
             json.WriteEndArray();
+            // Schema 35 (lore): the journal pages the character has unlocked, in entry and page order.
+            json.WriteStartArray("lore");
+            foreach (var page in player.Lore)
+            {
+                json.WriteStartObject();
+                json.WriteString("entry", page.EntryId);
+                json.WriteNumber("page", page.Page);
+                json.WriteString("how", UNNAMED.Domain.Knowledge.LoreSources.Key(page.Source));
+                json.WriteString("source", page.SourceRef);
+                json.WriteNumber("tick", page.Tick);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
             json.WriteEndObject();
 
             json.WriteStartArray("cells");
