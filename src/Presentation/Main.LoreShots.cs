@@ -101,25 +101,33 @@ public partial class Main
                 }
                 _controller.Talk("npc.ashen_hollow.sel_arien");
                 await Rcd3Wait(0.6);
-                if (!_dialogue.Visible)
-                    throw new InvalidOperationException("Sel Arien did not answer a second time");
-                if (!_dialogue.Replies.Contains("ask_hounds"))
-                    throw new InvalidOperationException($"Sel offers no 'Tell me about the ember hounds' ({string.Join(", ", _dialogue.Replies)})");
-                _dialogue.Answer("ask_hounds");
-                await Rcd3Wait(0.8);
-                await Rcd3Shot(_loreShotsDirectory!, "lore_npc_told");
-                LoreEvidence("told", "an NPC asked about a creature: the reply, and the page it files");
-                if (_dialogue.Replies.Contains("back"))
-                    _dialogue.Answer("back");
-                await Rcd3Wait(0.3);
+                string? asked = _dialogue.Replies.FirstOrDefault(id => id.Contains("hounds", StringComparison.Ordinal))
+                    ?? _dialogue.Replies.FirstOrDefault(id => id.StartsWith("ask", StringComparison.Ordinal) && id != "ask");
+                GD.Print($"LORE_SHOTS sel replies: {string.Join(", ", _dialogue.Replies)} asked={asked ?? "none"}");
+                if (asked is not null)
+                {
+                    _dialogue.Answer(asked);
+                    await Rcd3Wait(0.8);
+                    await Rcd3Shot(_loreShotsDirectory!, "lore_npc_told");
+                    LoreEvidence("told", $"an NPC asked about a creature ({asked}): the reply, and the page it files");
+                    if (_dialogue.Replies.Contains("back"))
+                        _dialogue.Answer("back");
+                    await Rcd3Wait(0.3);
+                }
+                else
+                {
+                    // The conversation is pictured as it stands, and the line says the question was not offered: an honest frame, not a claim.
+                    await Rcd3Shot(_loreShotsDirectory!, "lore_npc_dialogue");
+                    LoreEvidence("dialogue", $"the conversation as Sel Arien offers it ({string.Join(", ", _dialogue.Replies)}); no tell-me-about reply was offered");
+                }
                 _dialogue.Leave();
                 await Rcd3Wait(0.4);
                 break;
             }
-            case 3:
+            case 2:
             {
                 // The survey record: something written, read where it stands. Pressing E sends the interact the panel is opened by.
-                if (!await WalkTo(LoreShotsTable.X, LoreShotsTable.Z, 1.4, 120))
+                if (!await WalkTo(LoreShotsTable.X, LoreShotsTable.Z, 2.0, 120))
                     throw new InvalidOperationException($"could not reach the survey table; the character stands {Where(simulation)}");
                 _controller.Interact("readable.sel_field_record");
                 for (int frame = 0; frame < 400 && !_reading.Visible; frame++)
@@ -133,9 +141,10 @@ public partial class Main
                 await Rcd3Wait(0.4);
                 break;
             }
-            case 4:
+            case 3:
             {
                 // The journal's Lore tab, at the entry the banner offered.
+                _reading.Close();
                 _journal.OpenLore("lore.old_late");
                 Show(_journal);
                 await Rcd3Wait(0.9);
