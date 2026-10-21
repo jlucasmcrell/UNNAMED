@@ -5,6 +5,13 @@ namespace UNNAMED.Presentation.Art;
 
 public static class PeopleAppearance
 {
+    public static void EnsureSex(Node model, string? sex)
+    {
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+            for (Node? at = mesh; at is not null && at != model; at = at.GetParent())
+                if (!Ui.Models.CharacterSex.AllowsGroom(sex, at.Name.ToString())) { mesh.Visible = false; break; }
+    }
+
     public static void Apply(Node model, string? people, ArtLibrary art, string modelId)
     {
         // The approved body master also carries the player's beard. Native NPC identities use their own grooms.

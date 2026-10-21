@@ -1,5 +1,6 @@
 id: npc.cairnwold.berrin_garth
 kind: npc
+sex: m
 schema: 1
 display_key: npc.cairnwold.berrin_garth.name
 tags: [npc]

@@ -72,10 +72,12 @@ public partial class NpcsView : Node3D
                 continue;
             if (!_figures.TryGetValue(npc.Id, out var figure))
             {
-                var appearance = _bindings.Person(npc.Id, npc.PeopleId, instance);
-                var native = MHCharacters.MetaHumanFigure.Create(_art, _bindings, npc.Id);
+                string? sex = simulation.Setup.Social.Npcs.GetValueOrDefault(npc.Id)?.Sex;
+                var appearance = _bindings.Person(npc.Id, npc.PeopleId, instance, sex);
+                var native = MHCharacters.MetaHumanFigure.Create(_art, _bindings, npc.Id, sex: sex);
                 native?.ConfigureNpcPerformance(_performanceStage);
                 var body = native is null ? Art.SkinnedFigure.Create(_art, _bindings, npc.Id, appearance: appearance) : null;
+                if (body is not null) Art.PeopleAppearance.EnsureSex(body, sex);
                 string? model = native is not null ? "mh:" + native.CharacterId : appearance?.Model;
                 if (native is not null || body is not null)
                     _art.Coverage.Resolved("person", npc.Id, model!);

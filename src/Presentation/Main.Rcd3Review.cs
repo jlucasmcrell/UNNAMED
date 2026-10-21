@@ -36,6 +36,12 @@ public partial class Main
             AddChild(camera);
             source.GetNode<OmniLight3D>("CharacterFill").Reparent(camera, false);
             camera.MakeCurrent();
+            if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD6_NAMED_FACES") == "1")
+            {
+                await RunRcd6NamedFacesReview(directory, camera);
+                GetTree().Quit();
+                return;
+            }
             if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD6_MPFB_MOTION") == "1")
             {
                 await RunRcd6MpfbMotionReview(directory, camera);

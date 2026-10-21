@@ -1,5 +1,6 @@
 id: npc.cairnwold.mara_ling
 kind: npc
+sex: f
 schema: 1
 display_key: npc.cairnwold.mara_ling.name
 tags: [npc]

@@ -41,6 +41,7 @@ public sealed partial class MetaHumanFigure : Figure
     private IdleVariety _idles = null!;
     private string? _idleRole;
     private string _identity = "";
+    private string? _sex;
     public override void Say(string? line) => _faceDriver?.Say(line);
     public override void SetIdleRole(string? role) => _idleRole = role;
     public override void SetGaze(Vector3? target) => _faceDriver?.Gaze(target is { } at && Head is { } head ? GlobalBasis.Inverse() * (at - head).Normalized() : null);
@@ -56,7 +57,7 @@ public sealed partial class MetaHumanFigure : Figure
     public override float Crouch => _crouched ? 1 : 0;
     public override string ClipState => _native is not null ? _native.Call("clip_state").AsString() : "native base pose";
 
-    public static MetaHumanFigure? Create(ArtLibrary art, ArtBindings bindings, string personId, string? model = null)
+    public static MetaHumanFigure? Create(ArtLibrary art, ArtBindings bindings, string personId, string? model = null, string? sex = null)
     {
         if (!Available) return null;
         var catalog = Json.ParseString(System.IO.File.ReadAllText(System.IO.Path.Combine(AssetRoot, "catalog.json"))).AsGodotDictionary();
@@ -65,15 +66,17 @@ public sealed partial class MetaHumanFigure : Figure
         else if (personId == "player") id = "mateo";
         else
         {
-            var npcs = catalog["npcs"].AsGodotArray();
-            if (npcs.Count == 0) throw new InvalidDataException("MetaHuman NPC roster is empty");
+            var entries = catalog["characters"].AsGodotDictionary();
+            var npcs = catalog["npcs"].AsGodotArray().Select(v => v.AsString())
+                .Where(key => Ui.Models.CharacterSex.Matches(sex, entries[key].AsGodotDictionary()["sex"].AsString())).ToArray();
+            if (npcs.Length == 0) throw new InvalidDataException("MetaHuman NPC roster is empty");
             var assignments = catalog.ContainsKey("assignments") ? catalog["assignments"].AsGodotDictionary() : new();
-            id = assignments.ContainsKey(personId) ? assignments[personId].AsString()
-                : npcs[(int)(System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(SHA256.HashData(Encoding.UTF8.GetBytes(personId))) % (uint)npcs.Count)].AsString();
+            id = assignments.ContainsKey(personId) && npcs.Contains(assignments[personId].AsString()) ? assignments[personId].AsString()
+                : npcs[(int)(System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(SHA256.HashData(Encoding.UTF8.GetBytes(personId))) % (uint)npcs.Length)];
         }
         var characters = catalog["characters"].AsGodotDictionary();
         if (!characters.ContainsKey(id)) throw new InvalidDataException($"Missing MetaHuman catalog entry {id}");
-        return new MetaHumanFigure { _identity = personId, CharacterId = id, _configuration = characters[id].AsGodotDictionary(), _resources = ReferenceEquals(art, ArtLibrary.Empty) ? new() : art.MetaHumanResources, _art = art, _bindings = bindings };
+        return new MetaHumanFigure { _sex = sex, _identity = personId, CharacterId = id, _configuration = characters[id].AsGodotDictionary(), _resources = ReferenceEquals(art, ArtLibrary.Empty) ? new() : art.MetaHumanResources, _art = art, _bindings = bindings };
     }
 
     public override void _Ready()
@@ -83,6 +86,7 @@ public sealed partial class MetaHumanFigure : Figure
         AddChild(_native);
         if (!_native.Call("configure", AssetRoot, _configuration, _resources).AsBool())
             throw new InvalidDataException($"Native MetaHuman {CharacterId} failed to load");
+        PeopleAppearance.EnsureSex(_native, _sex);
         _idles = new IdleVariety(_identity);
         _faceDriver = FaceDriver.Attach(_native, _identity);
         if (_faceDriver is not null) AddChild(_faceDriver);

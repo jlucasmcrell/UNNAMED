@@ -1,5 +1,6 @@
 id: npc.ashen_hollow.kera_voss
 kind: npc
+sex: f
 schema: 1
 display_key: npc.ashen_hollow.kera_voss.name
 tags: [npc]

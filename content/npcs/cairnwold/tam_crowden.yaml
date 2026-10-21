@@ -1,5 +1,6 @@
 id: npc.cairnwold.tam_crowden
 kind: npc
+sex: f
 schema: 1
 display_key: npc.cairnwold.tam_crowden.name
 tags: [npc]

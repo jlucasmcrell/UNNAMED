@@ -43,6 +43,20 @@ public class SocialContentTests
         Assert.Contains(loader.Errors, e => e.Code == "SOC001" && e.Message.Contains(mentions, StringComparison.Ordinal));
     }
 
+    [Theory]
+    [InlineData("sex: f\n", "")]
+    [InlineData("sex: f", "sex: unknown")]
+    public void NamedNpcsRequireAuthoredSex(string from, string to) =>
+        AssertRefused("npcs/cairnwold/tam_crowden.yaml", from, to, "named NPC sex must be f or m");
+
+    [Fact]
+    public void NamedNpcSexMatchesCanonicalPronouns()
+    {
+        var npcs = SocialContent.BuildNpcs(Load(Path.Combine(RepoPaths.Root(), "content")));
+        foreach (var npc in npcs.Values)
+            Assert.Equal(new[] { "kera_voss", "sel_arien", "mara_ling", "tam_crowden" }.Any(n => npc.Id.EndsWith(n, StringComparison.Ordinal)) ? "f" : "m", npc.Sex);
+    }
+
     [Fact]
     public void TheHollowAndCairnwold_AreEightNamedNpcs_EachWithAConversation()
     {

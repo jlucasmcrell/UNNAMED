@@ -131,6 +131,8 @@ public static class SocialContent
         {
             var map = Read(definition.YamlSource);
             string id = definition.Id;
+            string sex = map.GetValueOrDefault("sex") as string ?? "";
+            if (sex is not ("f" or "m")) throw new FormatException($"{id}: named NPC sex must be f or m");
             string role = Text(map, "role");
             if (!Roles.Contains(role))
                 throw new FormatException($"{id}: role '{role}' is not one of DATA_MODEL.md §4.5's ({string.Join(", ", Roles)})");
@@ -154,6 +156,7 @@ public static class SocialContent
                 throw new FormatException($"{id}: someone who joins as a companion is never also hired (a companion is wounded where a hireling dies)");
             return new NpcDefinition(id, Text(map, "name"), role, services, merchant, map.GetValueOrDefault("dialogue_ref") as string)
             {
+                Sex = sex,
                 Companion = map.ContainsKey("companion") ? Profile(id, Map(map, "companion"), loader) : null,
                 FactionId = map.GetValueOrDefault("faction_ref") is string faction ? Defined(loader, faction, "faction", id) : null,
                 Hireling = map.ContainsKey("hireling") ? HireProfile(id, Map(map, "hireling"), loader) : null,

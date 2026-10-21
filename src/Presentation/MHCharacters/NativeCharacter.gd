@@ -329,6 +329,7 @@ func _load_grooms() -> bool:
 		if card.sex!=_sex:continue
 		var model := _load_model(_asset_path(card.glb))
 		if model == null: return false
+		model.name=card.name
 		var attachment:=BoneAttachment3D.new()
 		attachment.bone_name="head"
 		_face.add_child(attachment)

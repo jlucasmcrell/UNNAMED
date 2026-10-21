@@ -1,5 +1,6 @@
 id: npc.cairnwold.durn_skell
 kind: npc
+sex: m
 schema: 1
 display_key: npc.cairnwold.durn_skell.name
 tags: [npc]

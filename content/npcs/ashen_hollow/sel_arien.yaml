@@ -1,5 +1,6 @@
 id: npc.ashen_hollow.sel_arien
 kind: npc
+sex: f
 schema: 1
 display_key: npc.ashen_hollow.sel_arien.name
 tags: [npc]

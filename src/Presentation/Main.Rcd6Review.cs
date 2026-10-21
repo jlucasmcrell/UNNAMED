@@ -62,4 +62,56 @@ public partial class Main
         File.WriteAllText(Path.Combine(directory, "motion.json"), JsonSerializer.Serialize(rows, new JsonSerializerOptions { WriteIndented = true }));
         File.WriteAllText(Path.Combine(directory, "complete.json"), JsonSerializer.Serialize(new { status = "CAPTURED_REQUIRES_CLAUDE_REVIEW", frames = rows.Count }));
     }
+    private async Task RunRcd6NamedFacesReview(string directory, Camera3D camera)
+    {
+        var simulation = _session.Simulation ?? throw new InvalidOperationException("World missing");
+        var stage = _avatar.GlobalPosition;
+        SetProcess(false);
+        _scatter.Visible = false;
+        camera.Fov = 32;
+        var rows = new List<object>();
+        foreach (var definition in simulation.Setup.Social.Npcs.Values)
+        {
+            var figure = _npcs.FigureOf(definition.Id) as Figure ?? throw new InvalidOperationException("Named figure missing: " + definition.Id);
+            foreach (var other in _npcs.GetChildren().OfType<Figure>().Append(_avatar)) other.Visible = other == figure;
+            figure.GlobalPosition = stage;
+            figure.Rotation = Vector3.Zero;
+            figure.SetFirstPerson(false);
+            string model;
+            if (figure is MHCharacters.MetaHumanFigure native)
+            {
+                model = native.CharacterId;
+                var actor = native.GetNode<Node>("Native");
+                actor.Call("configure_npc_performance", 0);
+                actor.Call("sample_clip", "idle", .5);
+            }
+            else if (figure is SkinnedFigure comparison)
+            {
+                model = comparison.ModelId;
+                var body = comparison.GetChildren().OfType<SkinnedModel>().Single();
+                body.SetProcess(false);
+                var animator = body.GetNode<AnimationPlayer>("Clips");
+                animator.CallbackModeProcess = AnimationMixer.AnimationCallbackModeProcess.Manual;
+                animator.Play("idle", 0);animator.Seek(.5, true);animator.Advance(0);
+            }
+            else throw new InvalidOperationException("Named character has no real body: " + definition.Id);
+            PeopleAppearance.EnsureSex(figure, definition.Sex);
+            var aim = figure.Head ?? throw new InvalidOperationException("Named head missing");
+            camera.GlobalPosition = aim + Vector3.Back * .72f + Vector3.Up * .02f;
+            camera.LookAt(aim);
+            await Rcd3Wait(.25);
+            string name = definition.Id.Split('.').Last();
+            await Rcd3Shot(directory, name);
+            var visibleGrooms = figure.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>()
+                .Where(m => m.IsVisibleInTree()).Select(m => m.Name.ToString() + " " + m.GetParent().Name).ToArray();
+            if (visibleGrooms.Any(n => !Ui.Models.CharacterSex.AllowsGroom(definition.Sex, n)))
+                throw new InvalidOperationException("Female character has a visible beard: " + definition.Id);
+            rows.Add(new { definition.Id, definition.Name, definition.Sex, model, visibleGrooms, frame = name + ".png",
+                fixture = "Normal-world named figure; pose-only clear-ground face framing; no gameplay state changes" });
+        }
+        if (rows.Count != 8) throw new InvalidOperationException("Expected all eight named NPCs");
+        File.WriteAllText(Path.Combine(directory, "faces.json"), JsonSerializer.Serialize(rows, new JsonSerializerOptions { WriteIndented = true }));
+        File.WriteAllText(Path.Combine(directory, "complete.json"), JsonSerializer.Serialize(new { status = "CAPTURED_REQUIRES_CLAUDE_REVIEW", people = VisualOptions.People, frames = rows.Count }));
+    }
+
 }

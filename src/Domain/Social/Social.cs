@@ -10,6 +10,9 @@ namespace UNNAMED.Domain.Social;
 /// <summary>A named NPC as the simulation uses it (DATA_MODEL.md §4.5, Phase 1's subset): who they are, their role, what they offer.</summary>
 public sealed record NpcDefinition(string Id, string Name, string Role, ImmutableArray<string> Services, string? MerchantId, string? DialogueId)
 {
+    /// <summary>Authored sex for named-body and groom selection; generated residents may omit it.</summary>
+    public string? Sex { get; init; }
+
     /// <summary>Set for an NPC who can join the character (M6): how they fight.</summary>
     public CompanionProfile? Companion { get; init; }
 

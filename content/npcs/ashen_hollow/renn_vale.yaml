@@ -1,5 +1,6 @@
 id: npc.ashen_hollow.renn_vale
 kind: npc
+sex: m
 schema: 1
 display_key: npc.ashen_hollow.renn_vale.name
 tags: [npc]

@@ -179,10 +179,14 @@ public sealed class ArtBindings
     public IReadOnlyDictionary<string, IReadOnlyList<string>> ResidentPeople { get; private init; } = new Dictionary<string, IReadOnlyList<string>>();
 
     /// <summary>A named binding, or a resident's stable variant selected from their instance (which changes with each arrival).</summary>
-    public PersonArt? Person(string id, string? peopleId, string instance)
+    public PersonArt? Person(string id, string? peopleId, string instance, string? sex = null)
     {
         if (People.TryGetValue(id, out var named))
+        {
+            if (sex is not null && MpfbCastFile() is { } cast && MpfbBodyFor(id, sex == "f", cast) is { } worn)
+                return named with { Model = worn.Body.Id, UniformScale = ComparisonBodyScale(named.Model, worn.Body.Id, named.UniformScale) };
             return named;
+        }
         if (!ResidentPeople.TryGetValue(peopleId ?? "people.veth", out var variants) || variants.Count == 0)
             return null;
         uint hash = 2166136261;
