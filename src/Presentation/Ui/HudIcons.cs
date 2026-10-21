@@ -30,6 +30,8 @@ public sealed class HudIcons
     {
         if (key is null)
             return null;
+        if (CoatingIcon(key) is { } coating)
+            return GD.Load<Texture2D>("res://Art/Icons/coating_" + coating + ".svg");
         if (!_map.TryGetValue(key, out string? id))
         {
             _coverage?.Fallback("icon", key, "no icon bound: its text stands alone, or an empty tile");
@@ -44,7 +46,16 @@ public sealed class HudIcons
     }
 
     /// <summary>Whether a key has an icon bound at all: asking <see cref="For"/> about one that has none is recorded as a fallback.</summary>
-    public bool Binds(string? key) => key is not null && _map.ContainsKey(key);
+    public bool Binds(string? key) => key is not null && (CoatingIcon(key) is not null || _map.ContainsKey(key));
+
+    private static string? CoatingIcon(string key) => key switch
+    {
+        "item.consumable.poison_flask" or "effect.coating_venom" => "venom",
+        "item.consumable.sleep_coating" or "effect.coating_sleep" => "sleep",
+        "item.consumable.paralyse_coating" or "effect.coating_paralyse" => "paralyse",
+        "item.consumable.snarebind_resin" or "effect.coating_root" => "root",
+        _ => null,
+    };
 
     /// <summary>An icon tile of a size, or an empty space of that size when there is no icon (so rows stay aligned).</summary>
     public Control Tile(string? key, float size)

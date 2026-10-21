@@ -193,6 +193,7 @@ public class StealthTests
         Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
         arena.Tick(30);
         Assert.Contains(poisoned, e => e.EffectId == "effect.venom");
+        Assert.True(Only(arena).Poisoned);
     }
 
     // ── control effects ────────────────────────────────────────────────────
@@ -221,6 +222,9 @@ public class StealthTests
         arena.Tick(30);
         Assert.Contains(applied, e => e.Target == Only(arena).Id && e.EffectId == "effect." + effect);
         Assert.DoesNotContain(applied, e => e.EffectId == "effect.venom");
+        Assert.Equal(effect == "root", Only(arena).Rooted);
+        Assert.Equal(effect == "paralyse", Only(arena).Paralysed);
+        Assert.Equal(effect == "sleep", Only(arena).Asleep);
     }
 
     [Fact]

@@ -354,11 +354,11 @@ public sealed partial class ActionBarsView : Control
                 words.MouseFilter = MouseFilterEnum.Ignore;
                 holder.AddChild(words);
             }
-            else if (picture is null && !view.Empty)
+            else if ((picture is null || view.CoatingLabel is not null) && !view.Empty)
             {
                 // A short name with no picture to stand for it: small, at the foot's left, clear of the key at the top right and the count at the bottom right.
                 int letters = size < 40 ? 3 : 4;
-                var words = HudStyle.Text(HudStyle.Caps, 11, HudStyle.Ash, caps: true).Say(view.Name.Length > letters ? view.Name[..letters] : view.Name);
+                var words = HudStyle.Text(HudStyle.Caps, 11, HudStyle.Ash, caps: true).Say(view.CoatingLabel ?? (view.Name.Length > letters ? view.Name[..letters] : view.Name));
                 words.CustomMinimumSize = new Vector2(size - 3, size - 1);
                 words.Position = new Vector2(3, 1);
                 words.HorizontalAlignment = HorizontalAlignment.Left;

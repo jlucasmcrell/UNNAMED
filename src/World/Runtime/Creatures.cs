@@ -43,6 +43,8 @@ public sealed record CreatureView(EntityId Id, string Key, string DefId, string 
     CombatPhase Phase, int PhaseTicksLeft, CreatureCondition Condition, CreatureMind Mind, int Awareness, bool Asleep)
 {
     public bool Rooted { get; init; }
+    public bool Paralysed { get; init; }
+    public bool Poisoned { get; init; }
     // Presentation's sampled clip, part of the deliberately transient blow (as Phase/PhaseTicksLeft are in StateDump).
     [System.Text.Json.Serialization.JsonIgnore]
     public string? AttackSource { get; init; }
@@ -1263,6 +1265,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
             {
                 Generation = c.Generation, Peaceful = c.Role.Peaceful,
                 Rooted = c.Alive && _context.ControlOn(c.Id) == ControlKind.Roots,
+                Paralysed = c.Alive && State.Effects.GetValueOrDefault(c.Id, ImmutableArray<ActiveEffect>.Empty).Any(e => e.EffectId == "effect.paralyse"),
+                Poisoned = c.Alive && State.Effects.GetValueOrDefault(c.Id, ImmutableArray<ActiveEffect>.Empty).Any(e => e.EffectId == "effect.venom"),
                 Level = c.Definition.Level,
                 Huntable = c.Definition.LootTableId is not null,
                 Temperament = TemperamentRules.Of(c.Role.Peaceful, c.Role.AnswersCalls, c.Mind == CreatureMind.Engaged),

@@ -343,7 +343,13 @@ public partial class Main
         _session.Subscribe<TechniqueLearned>(e => Notice(NoticeKind.Progress, $"Learned {Name(e.DefinitionId)}", 4));
         _session.Subscribe<EffectApplied>(e =>
         {
-            if (e.Target == _session.Simulation!.PlayerId)
+            if (e.Target != _session.Simulation!.PlayerId) return;
+            if (_session.Setup.Combat.Effects.GetValueOrDefault(e.EffectId)?.AppliesOnHit is not null)
+            {
+                string? item = _session.Setup.Combat.UseEffects.FirstOrDefault(pair => pair.Value == e.EffectId).Key;
+                _hud.Log($"You coat your blade with {Name(item ?? e.EffectId)}");
+            }
+            else
                 _hud.Log($"You are {Name(e.EffectId).ToLowerInvariant()}{(e.Stacks > 1 ? $" (x{e.Stacks})" : "")}");
         });
         _session.Subscribe<GuardBroken>(_ => _hud.Toast("Guard broken - no stamina behind it", 2));

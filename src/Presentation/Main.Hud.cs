@@ -91,7 +91,9 @@ public partial class Main
         DrawActionBars(simulation, combat.Casting);
         _hud.SetTarget(Target(simulation) is { } target
             ? new TargetPlate(Names.Of(_session, target.DefId), target.Level, target.Health, target.MaxHealth, target.Threat,
-                target.Temperament, target.Hostile, target.Huntable, target.Rooted ? "ROOTED" : "")
+                target.Temperament, target.Hostile, target.Huntable,
+                string.Join(" / ", new[] { target.Rooted ? "ROOTED" : null, target.Paralysed ? "PARALYSED" : null,
+                    target.Asleep ? "ASLEEP" : null, target.Poisoned ? "POISONED" : null }.Where(s => s is not null)))
             : null);
         // The nearest few bodies and what each has actually noticed (STEALTH §20): the indicator shows the number, never a hidden flag.
         var awarenessRules = _session.Setup.Combat.Awareness;

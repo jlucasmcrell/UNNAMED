@@ -20,6 +20,7 @@ public partial class CreaturesView : Node3D
 {
     private readonly Dictionary<EntityId, CreatureBody> _figures = new();
     private readonly Dictionary<EntityId,Node3D> _roots = new();
+    private readonly Dictionary<EntityId,Node3D> _crackles = new();
     private long _tick = -1;
     private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
     private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
@@ -77,6 +78,17 @@ public partial class CreaturesView : Node3D
                 roots.GlobalPosition=feet;roots.Visible=creature.Rooted;
                 if(!creature.Rooted){roots.QueueFree();_roots.Remove(creature.Id);}
             }
+            if (creature.Paralysed && !_crackles.ContainsKey(creature.Id))
+            {
+                var crackle = ParalysisCrackle(simulation.Setup.Combat.Creatures[creature.DefId].RadiusMm / 1000f);
+                AddChild(crackle); _crackles[creature.Id] = crackle;
+            }
+            if (_crackles.TryGetValue(creature.Id, out var held))
+            {
+                held.GlobalPosition = feet;
+                held.Scale = Vector3.One * (1 + .025f * Mathf.Sin(Time.GetTicksMsec() * .018f));
+                if (!creature.Paralysed) { held.QueueFree(); _crackles.Remove(creature.Id); }
+            }
             if (eye is { } at && feet.DistanceSquaredTo(at) >= reach * reach)
             {
                 // Still where it stands, for anything that asks where a creature is drawn.
@@ -96,9 +108,32 @@ public partial class CreaturesView : Node3D
             {
                 _figures[id].QueueFree();
                 if(_roots.Remove(id,out var roots))roots.QueueFree();
+                if(_crackles.Remove(id,out var crackle))crackle.QueueFree();
                 _figures.Remove(id);
             }
         }
+    }
+
+    private static Node3D ParalysisCrackle(float radius)
+    {
+        var mesh = new ImmediateMesh();
+        mesh.SurfaceBegin(Mesh.PrimitiveType.Lines);
+        for (int strand = 0; strand < 8; strand++)
+        for (int step = 0; step < 5; step++)
+        {
+            Vector3 Point(int i)
+            {
+                float angle = strand * Mathf.Tau / 8 + (i % 2 == 0 ? -.12f : .12f);
+                return new Vector3(Mathf.Cos(angle) * radius * 1.25f, .08f + i * .18f, Mathf.Sin(angle) * radius * 1.25f);
+            }
+            mesh.SurfaceAddVertex(Point(step)); mesh.SurfaceAddVertex(Point(step + 1));
+        }
+        mesh.SurfaceEnd();
+        return new MeshInstance3D { Name = "ParalysisCrackle", Mesh = mesh,
+            CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+            MaterialOverride = new StandardMaterial3D { ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
+                AlbedoColor = new Color(1, .85f, .24f, .7f), Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+                EmissionEnabled = true, Emission = new Color(1, .75f, .1f), EmissionEnergyMultiplier = 1.4f } };
     }
 
     private const float CullBaseM = 72f, CullPerRadiusM = 120f;
@@ -145,6 +180,8 @@ public partial class CreaturesView : Node3D
         foreach (var figure in _figures.Values)
             figure.QueueFree();
         _figures.Clear();
+        foreach (var cue in _roots.Values.Concat(_crackles.Values)) cue.QueueFree();
+        _roots.Clear(); _crackles.Clear();
         _tick = -1;
     }
 }
@@ -377,6 +414,7 @@ internal sealed partial class CreatureFigure : CreatureBody
             part.MaterialOverride = creature.Phase == CombatPhase.Windup ? Tell : hide;
         _eyes.MaterialOverride = creature.Hostile ? Eyes : Calm;
         Mark(creature);
+        if (creature.Paralysed) return;
         if (creature.Asleep)
         {
             // Asleep it lies down, legs folded under (a walker sits slumped).

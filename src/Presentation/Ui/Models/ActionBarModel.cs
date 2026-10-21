@@ -21,6 +21,14 @@ public sealed record ActionSlotView(int Bar, int Slot, string Id, ActionSlotKind
     string? Reason, int CooldownSeconds, bool Active)
 {
     public bool Empty => Kind == ActionSlotKind.Empty;
+    public string? CoatingLabel => Id switch
+    {
+        "item.consumable.poison_flask" => "VEN",
+        "item.consumable.sleep_coating" => "SLP",
+        "item.consumable.paralyse_coating" => "PAR",
+        "item.consumable.snarebind_resin" => "ROOT",
+        _ => null,
+    };
 
     /// <summary>A mark for the availability that is not a colour: none when ready, a dot for a wait, a bar for a want.</summary>
     public string Shape => Ready ? "" : CooldownSeconds > 0 ? "…" : "–";

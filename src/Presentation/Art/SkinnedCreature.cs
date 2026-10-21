@@ -127,6 +127,11 @@ public sealed partial class SkinnedCreature : CreatureBody
             return;
         }
         Mark(creature);
+        if (creature.Paralysed)
+        {
+            _model.Hold("idle", .25f, 0);
+            return;
+        }
         if (creature.Phase != _phase || creature.AttackSource != _attackSource)
         {
             _phase = creature.Phase;
