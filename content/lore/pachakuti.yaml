@@ -1,0 +1,28 @@
+id: lore.pachakuti
+kind: lore
+schema: 1
+display_key: lore.pachakuti.title
+tags: [lore, history]
+title: The Pachakuti
+category: history
+notes: "What a Pachakuti is and what it does to each people, from docs/MYTHOLOGY.md, The Pachakuti. The surveyor's account, told by Sel Arien and set down in the entry's own book; the cause is left unnamed because canon leaves it unnamed."
+pages:
+  - page: 1
+    text: >
+      A Pachakuti is the turn between one Pacha and the next: the moment one whole reality moves over into
+      another. It is not a natural thing, and it does not come on a schedule. Something causes it, and no one
+      can say what. Sel Arien will not put a guess where the cause belongs. She writes the word, then leaves the
+      space after it open, because the honest answer to what turns the worlds is that nobody knows, and a guess
+      written down too soon begins to be read as a fact.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }
+  - page: 2
+    text: >
+      What the turn does to a person depends on what the person is, and the book lists it by people. The Veth
+      pass through, changed in ways that read as a knack. The Kal set to stone at once, and for good. The Siann
+      pass through and remember all of it. The Orenth cross by choice, at a price they choose. The Mor are
+      unmade, and made again on the far side if they can hold together. The Constructed are copied, the
+      original believed left behind to go on. The Vaskaal are not touched; they were never in the Pacha to begin
+      with.
+    sources:
+      - { how: inspected, ref: readable.pachakuti }

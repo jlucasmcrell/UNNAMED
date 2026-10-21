@@ -71,6 +71,11 @@ nodes:
       - id: work
         text: "Is there anything you're short of?"
         next: work
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_the_gorge
+        text: "Tell me about the gorge"
+        next: tell_the_gorge
+
       - id: leave
         text: "Just passing."
   tell_gorge:
@@ -201,6 +206,14 @@ nodes:
       - id: back
         text: "Turn it."
         next: again
+  tell_the_gorge:
+    text: "Tam Crowden counts what comes off the moor, and the gorge is on her tally because it is where the counting gets dangerous. Two hunting spiders den in the cut, deep in past the lip, and they take their game by the ground rather than by sight: walking is safe and running is not, and the ground they claim is the ground above the water. They are at the end of a walk rather than on the way to anything, which is the only reason more people have not met them. Tam counts everyone up the west end of the village and knows exactly how many have gone up the north slope, because her sister Halda went up it after the wolves and did not come down, and the tally has been short by one ever since."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.the_gorge }]
+        next: again
+
 barks:
   - { text: "Fourteen, fifteen... sixteen? Sixteen. Hm." }
   - { text: "In, and out, and in. Good. Good." }

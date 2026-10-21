@@ -1,0 +1,28 @@
+id: lore.the_siann_missing_page
+kind: lore
+schema: 1
+display_key: lore.the_siann_missing_page.title
+tags: [lore, faith]
+title: The Siann Missing Page
+category: faith
+notes: "The Siann's oldest record begins mid-sentence and the oldest Siann keep the missing page closed, from docs/MYTHOLOGY.md, Siann. The record is read, and Sel Arien's telling is graded as to what she will and will not say."
+pages:
+  - page: 1
+    text: >
+      The oldest page of the Siann's Record does not begin at a beginning. It begins in the middle of a sentence,
+      after the last Pachakuti, and the writing simply starts there, as though the world came on while the hand
+      that kept the record was asleep. There is no heading, and no first word that can be called a first word,
+      and the surveyor has looked. What came before the sentence is missing, and the page is not torn; it is
+      whole, and it starts in the middle, which is the part that will not sit right.
+    sources:
+      - { how: inspected, ref: readable.the_siann_missing_page }
+  - page: 2
+    text: >
+      Ask a Siann what the missing part said, and the answer is a long one about something else. Sel Arien will
+      confirm that the record begins mid-sentence, and grade that as a certainty, and then she will not go
+      further. The oldest Siann know what is gone from the front of it, and they have kept that page closed for
+      centuries, because to open it would be to admit that the Record, the whole standing of their people, set on
+      exact testimony, begins with a gap they have known about and never once reported. That is the finding, and
+      the surveyor leaves it where it stands.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }

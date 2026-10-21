@@ -1,0 +1,31 @@
+id: lore.siann
+kind: lore
+schema: 1
+display_key: lore.siann.title
+tags: [lore, peoples]
+title: The Siann
+category: peoples
+notes: "Written from docs/MYTHOLOGY.md §Siann and docs/RACES.md §3 — native, they believe they woke after the last Pachakuti, reach maturity in their late teens and then stop, white hair the only age signal, the Record as testimony-obsession and the missing page kept shut. In-world, page 1 is a scholar's page (readable.siann) and page 2 is Sel Arien's own telling (dialogue.ashen_hollow.sel_arien)."
+pages:
+  - page: 1
+    text: >
+      The Siann are the long view. They reach their full growth in their late teens and then simply stop, so a
+      Siann of twenty and a Siann of four hundred stand side by side and the face will not tell them apart; the
+      hair is the only honest sign, and the older the Siann the whiter it runs, to floor-length white that may mark
+      a young adult or may mark four centuries. Their minds keep the same trick, learning slowly and never quite
+      ceasing. What they have in place of a creation story is the Record — a testimony kept so exactly that a Siann
+      who misremembers is ruined — and the oldest of them know the Record begins too late, that something is missing
+      from its front, and they have kept that page shut for centuries rather than admit the gap.
+    sources:
+      - { how: inspected, ref: readable.siann }
+  - page: 2
+    text: >
+      Sel Arien, the archivist who keeps her books at the survey table east of the lodge, is the Siann habit made
+      flesh. The Record holds eleven lines on the Foldscar, and four of them contradict the other seven, so she
+      grades her own guesses and says none of them aloud at better than one chance in three. She came out here for
+      a season. That was thirty-one years ago, and when Tavar Orr tells her it was a long season, she answers only
+      that it felt recent. She will take your account of a thing and forbid you to improve it, because to her the
+      word, exactly as given, is the whole of what a witness is worth. That is the Siann way in one scholar: time
+      spent like a surplus, and testimony held like the only thing that cannot be bought back.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }

@@ -1,0 +1,30 @@
+id: lore.fellhorn
+kind: lore
+schema: 1
+display_key: lore.fellhorn.title
+tags: [lore, creatures]
+title: The Fellhorn
+category: creatures
+notes: "Written from content/creatures/grazer/fellhorn.yaml (humped, horned, about 1.9 m, fold bleed like the barrowback, in a herd of its own on the high ground north of the Foldscar, passive, stands with the herd when one is struck, breaks when badly hurt) and content/loot/fellhorn.yaml and content/items/material/fellhorn_hide.yaml (meat and hide). In-world, both pages are what studying the beast teaches (creature.grazer.fellhorn)."
+pages:
+  - page: 1
+    text: >
+      The fellhorn is the smaller of the fold-bleed grazers, a humped, horned beast standing not much taller than a
+      tall man, and it keeps to its own herd on the high ground north of the Foldscar. Like the barrowback it wants
+      no quarrel: it grazes and lets a person pass, and only when one of the herd is struck does it stand, shoulder
+      to shoulder with the rest, rather than scatter. Unlike the barrowback it will break when it is badly hurt —
+      run, and stop being a problem, once it understands the day has turned against it. It turns better than its big
+      cousin, so getting round it is less of an answer, and a hunter who misses the first honest blow is chasing a
+      thing that no longer wants to be caught.
+    sources:
+      - { how: studied, ref: creature.grazer.fellhorn }
+  - page: 2
+    text: >
+      What a fellhorn is worth is plainer and safer than a barrowback. Brought down it gives meat and, most times, a
+      hide with the hump's thick hair still on it, which the tanners turn into caps and vests — the hides are bought,
+      worked and worn, and the demand for them is steady rather than scarce. Because it breaks and runs, a fellhorn
+      is the grazer a lone hunter can take without a month of meat riding on the answer; the risk is only that the
+      herd is watching, and that a struck herd stands. A careful hunter takes the one at the edge, waits for the herd
+      to move off, and does not wound what it means to leave.
+    sources:
+      - { how: studied, ref: creature.grazer.fellhorn }

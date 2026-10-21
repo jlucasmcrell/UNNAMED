@@ -1,0 +1,30 @@
+id: lore.mor
+kind: lore
+schema: 1
+display_key: lore.mor.title
+tags: [lore, peoples]
+title: The Mor
+category: peoples
+notes: "Written from docs/MYTHOLOGY.md §Mor and docs/RACES.md §5 — natives of the Lost Pacha, what remains is not a body, necromancy a Mor discipline in origin, the schism between those who would recover the Lost Pacha and those who would avenge it, the world killed deliberately as their belief. In-world, both pages are one book (readable.mor), because no Mor stands in the frontier to be asked."
+pages:
+  - page: 1
+    text: >
+      What remains of the Mor is not a body. They were people of the Lost Pacha, a world that was destroyed, or
+      unravelled, or never finished, and what crossed into this one is something like a person with no fixed form
+      and no weight and no reflection it can rely on. They hold that their world was killed, deliberately, and that
+      they are the evidence; their faith is not worship but the finding out of who did it, and their schism runs
+      between those who would recover the Lost Pacha and those who would avenge it. They are here only because this
+      world tolerates them, a guest in every place. Necromancy began with them, and it is not a trick they learned
+      but what they are, done deliberately.
+    sources:
+      - { how: inspected, ref: readable.mor }
+  - page: 2
+    text: >
+      To meet a Mor is to be reminded how much of a person is ordinarily the body. A Mor cannot be disarmed, because
+      it carries nothing, and cannot open a door, because it has no hands, and it works on the world through will,
+      which is exhausting. What it can do is remember: a Mor can carry a memory intact across a transition because
+      there is no body for the crossing to take it from. That is why a Mor in a village is a sign that someone
+      there is dead and has not finished. They are patient in ways living things are not, and the honest among them
+      understand that restoring their world would unmake this one, and have not decided what they think of that.
+    sources:
+      - { how: inspected, ref: readable.mor }

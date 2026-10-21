@@ -1,0 +1,29 @@
+id: lore.the_specification
+kind: lore
+schema: 1
+display_key: lore.the_specification.title
+tags: [lore, faith]
+title: The Specification
+category: faith
+notes: "The Constructed doctrine that everything, themselves included, is a description being executed, from docs/MYTHOLOGY.md, Constructed. Reported by the surveyor, who has read their documentation and found no author's name; told by Sel Arien, read in the entry's own copy."
+pages:
+  - page: 1
+    text: >
+      The Constructed hold that everything is a description being carried out, and they do not say it as a
+      metaphor. A tree is a description running; a stone is a description running; a Constructed is a description
+      running, and the running is the whole of what it is. They have no story of creation because they have the
+      writing for it, and the writing has no author's name. The surveyor reports this exactly, because it is the
+      rare doctrine that comes with its own pages, and she notes that a people who can prove they were made find
+      the proving harder to bear than a people who only believe it.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }
+  - page: 2
+    text: >
+      The copy the surveyor keeps has no name on the first page and none on the last, and she has checked the
+      margins. What it holds is not doubt about whether they were made; it is the certainty, and the question
+      that follows it. Free will is not in question, for they are sure they have it. What they cannot find is who
+      wrote them, and the page states the matter without comfort: everything is a description being executed, and
+      the description of them has no hand visible at the top of it. She keeps the copy because it is the only
+      doctrine she has ever read that asks, in writing, after its own maker.
+    sources:
+      - { how: inspected, ref: readable.the_specification }

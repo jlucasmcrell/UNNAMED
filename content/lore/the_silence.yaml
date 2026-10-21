@@ -1,0 +1,38 @@
+id: lore.the_silence
+kind: lore
+schema: 1
+display_key: lore.the_silence.title
+tags: [lore, faith]
+title: The Silence
+category: faith
+notes: "Every people's account of what came before the last Pachakuti, from docs/MYTHOLOGY.md, The Silence. A surveyor's comparison in three pages - the accounts, the Siann's absence of one, and the surveyor's own reading, which she flags as unconfirmable; told by Sel Arien, read in the entry's own book."
+pages:
+  - page: 1
+    text: >
+      The stories of what came before the last Pachakuti, and none of them agree. The Veth say the world ended.
+      The Kal say it was made, and then left, the maker gone and the work standing. The Orenth say a door was
+      left open. The Mor say their world was killed. The Constructed say theirs was written, and that the writing
+      is still being read. Sel Arien has heard all five and writes none of them as fact, because no two of them
+      agree, and a surveyor who picks one on the strength of a story well kept has stopped surveying.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }
+  - page: 2
+    text: >
+      The Siann have no account of before at all, and the book treats that absence as itself a finding. Their
+      oldest record does not begin with a beginning; it begins with waking, as though the world came on while the
+      hand that kept it was asleep. Where the other peoples each hold a story of the turn, the Siann hold a gap
+      where the story should be, and they have made a whole people's standing out of telling exactly what they
+      saw. The surveyor notes that the one people with no story of before is the one people whose word is trusted
+      above all others, and writes nothing further.
+    sources:
+      - { how: inspected, ref: readable.the_silence }
+  - page: 3
+    text: >
+      The surveyor's own reading, written at the foot and flagged as unconfirmable, because it cannot be checked
+      and she will not let it pass for fact. All five stories may be one event, seen from five different Pacha,
+      each account true of the side it was seen from. And the Siann, who keep no story of before, may know this,
+      because they were there, and have never said so. She leaves the page there. A reading that cannot be
+      confirmed is a guess, however cleanly it fits, and she has graded enough of her own guesses to know the
+      difference.
+    sources:
+      - { how: inspected, ref: readable.the_silence }

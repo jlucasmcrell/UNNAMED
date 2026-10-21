@@ -86,6 +86,21 @@ nodes:
       - id: ask_quiet_folk
         text: "Tell me about the Quiet-folk."
         next: tell_quiet_folk
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_ashen_hollow
+        text: "Tell me about ashen hollow"
+        next: tell_ashen_hollow
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_veth
+        text: "Tell me about the veth"
+        next: tell_veth
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_wayhold
+        text: "Tell me about the wayhold"
+        next: tell_wayhold
+
       - id: leave
         text: "Nothing for now."
       - id: story_begin_accounts
@@ -357,6 +372,30 @@ nodes:
     - id: back
       text: I'll keep looking.
       next: again
+  tell_ashen_hollow:
+    text: "The steward's account, Renn Vale's, for anyone who asks what this place is: a stop on the old road between the quarry and the woods - a bed, a meal and a roof, in that order of reliability. The book by the door has every guest's name in it, their road and where they were bound, and he will read a line back to you if you think you have been misremembered. He keeps the roofs dry and the stone quiet and counts a season good if nobody he liked got eaten. When he says the hollow has not yet thought of anything to do about the Foldscar, he means that he has, and that there is nothing in the waystation's hands to do it with."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.ashen_hollow }]
+        next: again
+
+  tell_veth:
+    text: "The steward of the waystation puts it in his own words, to anyone who writes a name in his book. We Veth keep things, he says — roads, promises, people who turn up. He does not call it faith and he does not need to: keeping is the act itself, a duty carried the way another people carries a prayer. The book by his door holds every guest's name and road, and he will read a line back to you if you think you have been misremembered. That is the whole of his people's religion in one ledger, and it asks nothing of the dead and nothing of any maker. It only asks that the thing be written, and that the writing be kept."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.veth }]
+        next: again
+
+  tell_wayhold:
+    text: "The steward explains how it runs, in his deadpan, to anyone who asks after the notices. The Wayhold posts what the road needs, and he reads it out, since half the road cannot; three wolves off the road and the Wayhold pays, six lengths of timber and so does he, out of the same purse, and it all goes back up in the morning whether anyone has done the work or not. When he pays, he is careful to say it is from the Wayhold and not from him — he only holds the purse. And when the accounts go east, the roadwarden at the Vessmere stone is the one who takes the Wayhold's letter, keep it dry. The order, in short, is the road's memory and the road's hand."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.wayhold }]
+        next: again
+
 barks:
   - { text: "Bed, meal, roof. Two out of three today. I won't say which." }
   - { text: "Mind the step. Kera fixed it. Kera says." }

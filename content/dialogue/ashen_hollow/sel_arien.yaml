@@ -103,6 +103,76 @@ nodes:
       - id: ask_hounds
         text: "Tell me about the ember hounds."
         next: tell_hounds
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_ember_hounds
+        text: "Tell me about ember hounds"
+        next: tell_ember_hounds
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_otherfold
+        text: "Tell me about otherfolds"
+        next: tell_otherfold
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_othergate
+        text: "Tell me about othergates"
+        next: tell_othergate
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_otherway
+        text: "Tell me about otherways"
+        next: tell_otherway
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_pacha
+        text: "Tell me about the pacha"
+        next: tell_pacha
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_pachakuti
+        text: "Tell me about the pachakuti"
+        next: tell_pachakuti
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_siann
+        text: "Tell me about the siann"
+        next: tell_siann
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_the_last_pachakuti
+        text: "Tell me about the last pachakuti"
+        next: tell_the_last_pachakuti
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_the_other
+        text: "Tell me about the other"
+        next: tell_the_other
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_the_siann_missing_page
+        text: "Tell me about the siann missing page"
+        next: tell_the_siann_missing_page
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_the_silence
+        text: "Tell me about the silence"
+        next: tell_the_silence
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_the_specification
+        text: "Tell me about the specification"
+        next: tell_the_specification
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_the_substrate
+        text: "Tell me about the substrate"
+        next: tell_the_substrate
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_the_veil
+        text: "Tell me about the veil"
+        next: tell_the_veil
+
       - id: leave
         text: "Another time."
       - id: story_grazers
@@ -427,6 +497,118 @@ nodes:
     - id: back
       text: I'll keep looking.
       next: again
+  tell_ember_hounds:
+    text: "What the cinder sacs are for, in Sel Arien's own words, given with the door shut even though there is no one to hear. Work one into a finished salve over a fire and the mending runs twice as fast. She has no idea why. She has tried it eleven times and it has worked eleven times, and she still will not put it in the Record until she knows the reason, so it is not a secret - it is unfinished. That distinction matters to her more than the salve does. A thing that works and cannot say why is a thing to be kept carefully and not written down as knowledge, and the same rule she applies to the stones she will not name a people for applies to the cinders she is happy to use."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.ember_hounds }]
+        next: again
+
+  tell_otherfold:
+    text: "An Otherfold is a bend in the ordinary shape of space and time, and it is the least strange thing the surveyor has a word for, which she says is the worrying part. A fold can join two far places. It can join two eras. It can join two realities. It can put a room inside itself so the inside is larger than the outside. It can shorten a road for a while, then let the road go back to its real length. Some folds rise on their own, and some are pinned in place on purpose, and some come undone."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.otherfold }]
+        next: again
+
+  tell_othergate:
+    text: "An Othergate is the mouth of a road that runs through the Other, and it is a word for the opening rather than for any one shape of opening. Some rise on their own. Some are made. Some are a natural thing that has been steadied and kept. They do not look alike, and the surveyor says that anyone who tells you to know a gate by its shape has only ever seen one. An arch, a standing stone, a mirror, a well, a root, a ruin, a place where the ground simply stops being ground; any of these has been a gate somewhere."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.othergate }]
+        next: again
+
+  tell_otherway:
+    text: "An Otherway is a road that runs through the Other, and the surveyor's first rule about them is that they do not lead where a road leads. Some are steady and mapped. Some change what they lead to while they are being walked. Some open only under a condition, or to a key, or to a knowing, or to a rite. Some are safe to the far end, and some hold a hazard between the mouth and the end. Some will carry a cart and a companion, and some will carry one person and nothing more."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.otherway }]
+        next: again
+
+  tell_pacha:
+    text: "A Pacha is the whole of a place and its time: its space, its matter, its history and its laws, taken together as one thing. Sel Arien sets it out the way she sets out a measure. It is not a world, and not a plane, and not a dimension; a world is a thing that sits inside a Pacha, the way a room sits inside a house. Ask her for more and she will say the word matters because people keep using it wrongly, and that she keeps the word apart so the reading does not drift. One Pacha is not a part of a larger one."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.pacha }]
+        next: again
+
+  tell_pachakuti:
+    text: "A Pachakuti is the turn between one Pacha and the next: the moment one whole reality moves over into another. It is not a natural thing, and it does not come on a schedule. Something causes it, and no one can say what. Sel Arien will not put a guess where the cause belongs. She writes the word, then leaves the space after it open, because the honest answer to what turns the worlds is that nobody knows, and a guess written down too soon begins to be read as a fact."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.pachakuti }]
+        next: again
+
+  tell_siann:
+    text: "Sel Arien, the archivist who keeps her books at the survey table east of the lodge, is the Siann habit made flesh. The Record holds eleven lines on the Foldscar, and four of them contradict the other seven, so she grades her own guesses and says none of them aloud at better than one chance in three. She came out here for a season. That was thirty-one years ago, and when Tavar Orr tells her it was a long season, she answers only that it felt recent. She will take your account of a thing and forbid you to improve it, because to her the word, exactly as given, is the whole of what a witness is worth. That is the Siann way in one scholar: time spent like a surplus, and testimony held like the only thing that cannot be bought back."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.siann }]
+        next: again
+
+  tell_the_last_pachakuti:
+    text: "Every people's account of itself hangs on the last Pachakuti, and the surveyor keeps the record of what the turn left behind in each of them. The Veth came through changed, quicker to learn and quicker to forget. The Kal were fixed to stone where the turn caught them, and a Kal caught when a world turns does not die; they set, all the way through. The Siann came through with no account of before, their oldest writing beginning after the turn, in the middle of a sentence. The turn is the hinge the whole of it swings on."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.the_last_pachakuti }]
+        next: again
+
+  tell_the_other:
+    text: "The Other is the name the surveyor keeps for what stands behind ordinary reality, and she will not give it a shape. It may be a layer outside the world, or the space between places, or the space between times, or the structure through which distance and time can fold, or a gathering of places and times that cannot be reached. It may be several different things that people have wrongly put under one word. What she will say plainly is that no one people holds the whole of it, and that anyone who tells you otherwise is selling something."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.the_other }]
+        next: again
+
+  tell_the_siann_missing_page:
+    text: "Ask a Siann what the missing part said, and the answer is a long one about something else. Sel Arien will confirm that the record begins mid-sentence, and grade that as a certainty, and then she will not go further. The oldest Siann know what is gone from the front of it, and they have kept that page closed for centuries, because to open it would be to admit that the Record, the whole standing of their people, set on exact testimony, begins with a gap they have known about and never once reported. That is the finding, and the surveyor leaves it where it stands."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.the_siann_missing_page }]
+        next: again
+
+  tell_the_silence:
+    text: "The stories of what came before the last Pachakuti, and none of them agree. The Veth say the world ended. The Kal say it was made, and then left, the maker gone and the work standing. The Orenth say a door was left open. The Mor say their world was killed. The Constructed say theirs was written, and that the writing is still being read. Sel Arien has heard all five and writes none of them as fact, because no two of them agree, and a surveyor who picks one on the strength of a story well kept has stopped surveying."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.the_silence }]
+        next: again
+
+  tell_the_specification:
+    text: "The Constructed hold that everything is a description being carried out, and they do not say it as a metaphor. A tree is a description running; a stone is a description running; a Constructed is a description running, and the running is the whole of what it is. They have no story of creation because they have the writing for it, and the writing has no author's name. The surveyor reports this exactly, because it is the rare doctrine that comes with its own pages, and she notes that a people who can prove they were made find the proving harder to bear than a people who only believe it."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.the_specification }]
+        next: again
+
+  tell_the_substrate:
+    text: "The Vaskaal did not come through a Pacha. They came around them, across whatever it is that holds one Pacha apart from the next. Sel Arien records the crossing, then records what they will say about the space itself, which is almost nothing. They crossed it, and they are alive, and no one native to a Pacha is known to have done the same, because nothing native to that space is known to live in it. The surveyor has written the word substrate in the margin and left it there, unclaimed by anyone else."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.the_substrate }]
+        next: again
+
+  tell_the_veil:
+    text: "The Veil is the name for the seam where ordinary reality gives onto the Other, and the surveyor is careful about the word. It need not be a skin or a wall. In some places it runs thin on its own. Old events have worn it. Magic pulls at it. Gates worked too often have frayed it. In a few places it has been pierced on purpose, or pinned open. Sel Arien treats the Veil as a line she can read rather than a thing she can see, and she warns against asking the word to be more solid than the fact."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.the_veil }]
+        next: again
+
 barks:
   - { text: "Two chances in three. No - three in five. Hm." }
   - { text: "Don't mind me. I'm measuring the stones' shadows. They're late." }

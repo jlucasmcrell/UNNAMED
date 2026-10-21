@@ -1,0 +1,31 @@
+id: lore.orenth
+kind: lore
+schema: 1
+display_key: lore.orenth.title
+tags: [lore, peoples]
+title: The Orenth
+category: peoples
+notes: "Written from docs/MYTHOLOGY.md §Orenth and docs/RACES.md §4 — descendants of the Found Pacha's colonists, the only people who cross between Pachas deliberately, each crossing costing memory or years, no homeland, the ledger of costs, the older walkers diminished. In-world, page 1 is a scholar's page (readable.orenth) and page 2 is Tavar Orr's own telling (dialogue.ashen_hollow.tavar_orr)."
+pages:
+  - page: 1
+    text: >
+      The Orenth are the walkers, and they are the only people who step between one Pacha and another on purpose.
+      They do not travel through the space between; they step sideways, borrowing for a moment the properties of a
+      place next to this one, and come out elsewhere. The cost is never nothing and never refunded: each crossing
+      takes memory or years, sometimes a sense they cannot afterwards name, and the oldest and most skilled walkers
+      are also the most hollowed, their edges doubled and their shadows slow. They have no homeland, because the
+      knowledge of which world their line began in is the first thing a crossing takes. Their law is a ledger of
+      costs, kept so no walker is ever asked to give more than they can cover.
+    sources:
+      - { how: inspected, ref: readable.orenth }
+  - page: 2
+    text: >
+      Tavar Orr, the guide Sel Arien hires for her surveys, carries the ledger the way another man carries a purse.
+      Three days in the fold, he says, and for him it was one long afternoon — cheap, for a crossing he never meant
+      to make. He will write it down, he says, under things he has lost, between his mother's name and a very good
+      knife, and he smiles as if that were the joke and not the list. The man lost time and does not pretend it
+      cost him nothing; he only keeps the account, because an Orenth who does not keep the account is an Orenth
+      who will one day be asked for more than he has left. His shadow keeps up with him now, which is how the
+      waystation knows he is whole enough to walk.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.tavar_orr }

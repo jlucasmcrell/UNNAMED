@@ -1,0 +1,27 @@
+id: lore.the_kal_afterlife
+kind: lore
+schema: 1
+display_key: lore.the_kal_afterlife.title
+tags: [lore, faith]
+title: The Kal Afterlife
+category: faith
+notes: "That to die well is to be ready to be made into something else, and that the stone is the person waiting, from docs/MYTHOLOGY.md, Kal. The smith's account; told by Kera Voss, read in the entry's own inscription."
+pages:
+  - page: 1
+    text: >
+      To be Kal is to be a thing that was well made, and Kera Voss says the rest follows from that one fact. To
+      die well is to be ready to be made into something else. Not to end; to be handed over. The body that was a
+      smith becomes the iron, becomes the tool, becomes the next hand that takes it up, and none of that is a
+      failure. She says it the way another people might say a blessing, and then she goes back to the fire,
+      because the fire is where the handing-over already happens.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.kera_voss }
+  - page: 2
+    text: >
+      The inscription gives the reason the stone is sacred, and it is not reverence for a relic. The stone is the
+      person, waiting. A cut block of Kal stone is not a thing that remembers; it is a person between uses, and
+      the Kal will not have it weighed and priced as mere stuff. The words do not describe a heaven, or a hell,
+      or a going-away. They describe a bench, and work waiting to be taken up again, and a maker who will
+      recognise the piece when it comes back around.
+    sources:
+      - { how: inspected, ref: readable.the_kal_afterlife }

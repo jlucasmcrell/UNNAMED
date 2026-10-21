@@ -1,0 +1,28 @@
+id: lore.otherfold
+kind: lore
+schema: 1
+display_key: lore.otherfold.title
+tags: [lore, history]
+title: Otherfolds
+category: history
+notes: "A distortion in normal space-time, from docs/OTHERREACH_COSMOLOGY.md, section 4 Otherfolds. A lexicon entry on what a fold is and does; told by Sel Arien, read in the entry's own book."
+pages:
+  - page: 1
+    text: >
+      An Otherfold is a bend in the ordinary shape of space and time, and it is the least strange thing the
+      surveyor has a word for, which she says is the worrying part. A fold can join two far places. It can join
+      two eras. It can join two realities. It can put a room inside itself so the inside is larger than the
+      outside. It can shorten a road for a while, then let the road go back to its real length. Some folds rise
+      on their own, and some are pinned in place on purpose, and some come undone.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }
+  - page: 2
+    text: >
+      The book keeps the warning that follows from the word. A fold does not announce itself, and the ground on
+      either side looks like ground. The surveyor's rule is to measure twice where the road looks straight but
+      the miles will not add up, because a place where distance has been folded is a place where distance can be
+      folded again, and not always by the same hand. She notes that the one word covers a thing that rose on its
+      own and a thing that was made, and that the difference matters less to a person standing in one than it
+      does to whoever made it.
+    sources:
+      - { how: inspected, ref: readable.otherfold }

@@ -1,0 +1,28 @@
+id: lore.othergate
+kind: lore
+schema: 1
+display_key: lore.othergate.title
+tags: [lore, history]
+title: Othergates
+category: history
+notes: "Entrances into Otherways and Otherfolds, from docs/OTHERREACH_COSMOLOGY.md, section 8 Othergates. A lexicon entry on how a gate reads and that none of them look alike; told by Sel Arien, read in the entry's own book."
+pages:
+  - page: 1
+    text: >
+      An Othergate is the mouth of a road that runs through the Other, and it is a word for the opening rather
+      than for any one shape of opening. Some rise on their own. Some are made. Some are a natural thing that has
+      been steadied and kept. They do not look alike, and the surveyor says that anyone who tells you to know a
+      gate by its shape has only ever seen one. An arch, a standing stone, a mirror, a well, a root, a ruin, a
+      place where the ground simply stops being ground; any of these has been a gate somewhere.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }
+  - page: 2
+    text: >
+      The book's warning is that a gate is a door that someone made, or that someone found and chose to use, and
+      both kinds can be left standing after the one who used them is gone. It lists the forms the surveyor has
+      on record and marks none of them as the true form. What makes a thing a gate, the entry says, is that it
+      opens; what it looks like while it is shut is weather. Some become gates only under a condition, and the
+      book keeps a space for those, because a stone that is only a door at certain times is the kind of door that
+      is hard to see until it is too late.
+    sources:
+      - { how: inspected, ref: readable.othergate }

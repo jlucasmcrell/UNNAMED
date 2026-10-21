@@ -1,0 +1,29 @@
+id: lore.the_other
+kind: lore
+schema: 1
+display_key: lore.the_other.title
+tags: [lore, history]
+title: The Other
+category: history
+notes: "The setting's central unknown, from docs/OTHERREACH_COSMOLOGY.md, section 2 The Other. A lexicon entry that refuses to settle what the Other is, because canon holds that no one culture has the whole of it; told by Sel Arien, read in the entry's own book."
+pages:
+  - page: 1
+    text: >
+      The Other is the name the surveyor keeps for what stands behind ordinary reality, and she will not give it
+      a shape. It may be a layer outside the world, or the space between places, or the space between times, or
+      the structure through which distance and time can fold, or a gathering of places and times that cannot be
+      reached. It may be several different things that people have wrongly put under one word. What she will say
+      plainly is that no one people holds the whole of it, and that anyone who tells you otherwise is selling
+      something.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }
+  - page: 2
+    text: >
+      The book sets the same unknown beside the words different people use for it. A scholar speaks of how the
+      world is put together. A keeper of a shrine speaks of a boundary the divine set. A healer of the old sort
+      speaks of roots that join far places underground. A worker of the dead says death loosens a person's hold
+      on place and time. A traveller only says that some roads are wrong. The book lists these without choosing
+      among them, and notes that each explains something the others do not, and that none of them explains
+      everything.
+    sources:
+      - { how: inspected, ref: readable.the_other }

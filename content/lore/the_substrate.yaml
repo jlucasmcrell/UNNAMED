@@ -1,0 +1,27 @@
+id: lore.the_substrate
+kind: lore
+schema: 1
+display_key: lore.the_substrate.title
+tags: [lore, history]
+title: The Substrate
+category: history
+notes: "The space between Pachas, from docs/MYTHOLOGY.md, Vaskaal. A surveyor's note on the Vaskaal's own claim - they crossed it, they say it is not empty, and they will say no more; told by Sel Arien, read in the entry's own book."
+pages:
+  - page: 1
+    text: >
+      The Vaskaal did not come through a Pacha. They came around them, across whatever it is that holds one
+      Pacha apart from the next. Sel Arien records the crossing, then records what they will say about the space
+      itself, which is almost nothing. They crossed it, and they are alive, and no one native to a Pacha is known
+      to have done the same, because nothing native to that space is known to live in it. The surveyor has
+      written the word substrate in the margin and left it there, unclaimed by anyone else.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }
+  - page: 2
+    text: >
+      The claim, as the Vaskaal gave it and would not expand. The substrate is not empty. That is the whole of
+      what they will say, and the book sets it down without ornament, because ornament would be a guess dressed
+      as a finding. Ask again and they will not say what it holds; the ones who would say more are the ones who
+      cannot. Sel Arien has copied the sentence into the Record and refuses to put a second sentence after it,
+      on the grounds that a single true line is worth more than a page of what a person wishes were true.
+    sources:
+      - { how: inspected, ref: readable.the_substrate }
