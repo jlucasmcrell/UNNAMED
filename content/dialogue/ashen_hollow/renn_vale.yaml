@@ -82,12 +82,10 @@ nodes:
       # journal. The Quiet-folk page is the belief; the Survey's last page corrects it once the Foldscar is quiet.
       - id: ask_old_late
         text: "Tell me about Old Late."
-        conditions: [{ kind: visited, node: tell_old_late, not: true }]
         consequences: [{ command: tell_lore, lore_ref: lore.old_late }]
         next: tell_old_late
       - id: ask_quiet_folk
         text: "Tell me about the Quiet-folk."
-        conditions: [{ kind: visited, node: tell_quiet_folk, not: true }]
         consequences: [{ command: tell_lore, lore_ref: lore.quiet_folk }]
         next: tell_quiet_folk
       - id: leave

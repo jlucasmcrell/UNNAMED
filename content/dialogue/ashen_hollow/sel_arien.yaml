@@ -102,7 +102,6 @@ nodes:
       # Spec 41: the beasts on this road, and what she wants them for. The page is hers; the herblore is a thing she says and will not write down.
       - id: ask_hounds
         text: "Tell me about the ember hounds."
-        conditions: [{ kind: visited, node: tell_hounds, not: true }]
         consequences: [{ command: tell_lore, lore_ref: lore.ember_hounds }]
         next: tell_hounds
       - id: leave
