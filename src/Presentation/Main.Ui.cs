@@ -67,6 +67,9 @@ public partial class Main
         _waystones = new WaystonePanel { Name = "Waystones" };
         _waystones.Bind(_session, _controller);
         AddChild(_waystones);
+        _noticeBoard = new NoticeBoardPanel { Name = "NoticeBoard" };
+        _noticeBoard.Bind(_session);
+        AddChild(_noticeBoard);
         _map = new MapPanel { Name = "Map" };
         _map.Bind(_session);
         AddChild(_map);
@@ -652,6 +655,13 @@ public partial class Main
         panel.Open(stoneKey);
     }
 
+    /// <summary>The inn's notice board, at the board the character stands at (spec 15).</summary>
+    private void Show(NoticeBoardPanel panel, string stationKey)
+    {
+        CloseScreens();
+        panel.Open(stationKey);
+    }
+
     /// <summary>Open a screen in place of whatever was open: a destination replaces the menu, and a screen's own key replaces another.</summary>
     private void Show(CanvasLayer screen)
     {
@@ -779,7 +789,11 @@ public partial class Main
 
     private void OpenStation(string key)
     {
-        _inventory.OpenAt(_session.Setup.Layout.Stations.Single(s => s.Key == key));
+        var station = _session.Setup.Layout.Stations.Single(s => s.Key == key);
+        if (station.Kind == NoticeBoardPanel.Kind)
+            Show(_noticeBoard, key);
+        else
+            _inventory.OpenAt(station);
     }
 
     private void CloseInventory()

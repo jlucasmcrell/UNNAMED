@@ -85,6 +85,7 @@ public partial class Main : Node3D
     private AwaySheet _awaySheet = null!;
     private CompanionsPanel _companionsPanel = null!;
     private WaystonePanel _waystones = null!;
+    private NoticeBoardPanel _noticeBoard = null!;
     private MapPanel _map = null!;
 
     /// <summary>Autorun (the owner's second-play brief §23): on, the character goes forward until a key, a screen or a death stops them.</summary>

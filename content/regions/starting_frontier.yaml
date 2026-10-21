@@ -147701,6 +147701,12 @@ stations:
   position_m:
   - 447.0
   - 736.5
+# Spec 15 (owner finding 15): the inn's notice board, read where it hangs - the contracts and who is out.
+- key: station.ah_notice_board
+  kind: notice_board
+  position_m:
+  - 450.3
+  - 726.3
 - key: station.cairnwold.workbench
   kind: workbench
   position_m:
