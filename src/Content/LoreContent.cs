@@ -43,7 +43,28 @@ public static class LoreContent
                     throw new FormatException($"{source.Ref} is the readable of both {other} and {entry.Id}");
                 else
                     claimed[source.Ref] = entry.Id;
+        // A voice that tells a page is the world's voice too: the lines of the nodes that tell it are read for the same leak.
+        if (check)
+            foreach (var dialogueId in entries.Values.SelectMany(e => e.Pages).SelectMany(p => p.Sources)
+                         .Where(s => s.Kind == LoreSourceKind.Told).Select(s => s.Ref).Distinct(StringComparer.Ordinal))
+                Told(loader, dialogueId);
         return entries;
+    }
+
+    /// <summary>The lines of a conversation that tell a page: each one is read for the trade's words, like a page.</summary>
+    private static void Told(ContentLoader loader, string dialogueId)
+    {
+        var map = Read(loader.Definitions[dialogueId].YamlSource);
+        if (map.GetValueOrDefault("nodes") is not Dictionary<object, object> nodes)
+            return;
+        foreach (var (key, node) in nodes)
+        {
+            if (node is not Dictionary<object, object> body)
+                continue;
+            foreach (var (field, value) in body)
+                if (value is string line && LoreRules.Leak(line) is { } leaked)
+                    throw new FormatException($"{dialogueId} node {key}'s {field} reads '{leaked}', which is the trade's word and not the teller's");
+        }
     }
 
     private static LoreEntryDefinition Entry(ContentLoader loader, ContentEnvelope definition, bool check)
@@ -88,6 +109,9 @@ public static class LoreContent
             }
             if (sources.Count == 0)
                 throw new FormatException($"{id} page {number} can never be found: nothing opens it");
+            // The words a reader meets are the world's, never the notes': no page says prototype, player, design or quest.
+            if (LoreRules.Leak(text) is { } leaked)
+                throw new FormatException($"{id} page {number} reads '{leaked}', which is the trade's word for the thing and not the world's");
             pages.Add(new LorePageDefinition(number, text, sources.ToImmutableArray()));
         }
         if (pages.Count == 0)

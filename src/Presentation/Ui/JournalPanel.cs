@@ -91,6 +91,13 @@ public partial class JournalPanel : CanvasLayer
         var panes = UiKit.ListDetail();
         _sheet.Body.AddChild(panes.Root);
 
+        // The Lore tab is open: its own list comes first, so the tab is what the journal shows and the first row it focuses is one of
+        // its own (the journal takes focus on being shown, and a row that takes it selects itself).
+        var loreKnown = pages.Select(p => p.EntryId).Distinct(StringComparer.Ordinal).Count();
+        var unread = lore.Keys.Where(entry => pages.Any(p => p.EntryId == entry && p.Tick > _loreSeenTick)).ToHashSet(StringComparer.Ordinal);
+        if (_chosen == LorePage)
+            LoreList(panes.List, lore, pages, unread, session);
+
         foreach (var (track, heading, none) in new[]
                  {
                      (QuestTrack.Main, "The story so far", "No one has asked anything of you yet."), (QuestTrack.Side, "Side quests", "None taken up."),
@@ -129,16 +136,10 @@ public partial class JournalPanel : CanvasLayer
         var written = UiKit.ListRow(NotesPage, "Notes", notes.IsEmpty ? "" : notes[^1].Text);
         written.Right.AddChild(UiKit.Chip(notes.Length.ToString(), HudStyle.Iron, HudStyle.Brass));
         Row(panes.List, written.Button, NotesPage, session);
-        var known = pages.Select(p => p.EntryId).Distinct(StringComparer.Ordinal).Count();
-        var unread = lore.Keys.Where(entry => pages.Any(p => p.EntryId == entry && p.Tick > _loreSeenTick)).ToHashSet(StringComparer.Ordinal);
-        var loreRow = UiKit.ListRow(LorePage, "Lore", lore.Count == 0 ? "" : $"{known} of {lore.Count} things known");
+        var loreRow = UiKit.ListRow(LorePage, "Lore", lore.Count == 0 ? "" : $"{loreKnown} of {lore.Count} things known");
         if (unread.Count > 0)
             loreRow.Right.AddChild(UiKit.Chip(unread.Count.ToString(), HudStyle.Ember, HudStyle.Bone));
         Row(panes.List, loreRow.Button, LorePage, session);
-        // The Lore tab's own list: what the character has a page of, under the journal's headings (spec 41 §3).
-        if (_chosen == LorePage)
-            LoreList(panes.List, lore, pages, unread, session);
-
         switch (_chosen)
         {
             case Recent:

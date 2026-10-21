@@ -478,6 +478,11 @@ public static class WorldContent
                 Check(loader.Definitions.TryGetValue(entryRef, out var written) && written.Kind == "lore", "WLD016",
                     $"{key} names '{entryRef}', which is not a lore entry this pack has");
                 Check(page >= 0, "WLD016", $"{key} names page {page}; a page is 1 or more, and 0 is the whole book");
+                // What is written in the world is read in the world's words (spec 41, owner ruling): no prompt says prototype or design.
+                Check(UNNAMED.Domain.Knowledge.LoreRules.Leak(readable.Name) is null, "WLD016",
+                    $"{key}'s name reads '{UNNAMED.Domain.Knowledge.LoreRules.Leak(readable.Name)}', which is the trade's word and not the world's");
+                Check(UNNAMED.Domain.Knowledge.LoreRules.Leak(readable.Verb) is null, "WLD016",
+                    $"{key}'s verb reads '{UNNAMED.Domain.Knowledge.LoreRules.Leak(readable.Verb)}', which is the trade's word and not the world's");
                 readables.Add(readable);
             }
             Check(readables.Select(r => r.Key).Distinct(StringComparer.Ordinal).Count() == readables.Count, "WLD016", "two readables share a key");

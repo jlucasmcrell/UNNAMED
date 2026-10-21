@@ -1,4 +1,4 @@
-﻿// UNNAMED Presentation - the lore system's capture pass (spec 41, owner finding 41)
+// UNNAMED Presentation - the lore system's capture pass (spec 41, owner finding 41)
 // Godot presentation only: it drives the world through the game's own commands and photographs what it shows (D-11)
 
 using Godot;
@@ -101,13 +101,23 @@ public partial class Main
                 }
                 _controller.Talk("npc.ashen_hollow.sel_arien");
                 await Rcd3Wait(0.6);
+                // "Ask" opens the list of things she will talk about: the topics live behind it, so it is opened before the topic is looked
+                // for. Each step is printed, so a run says exactly which list it stood in.
+                string? ask = _dialogue.Replies.FirstOrDefault(id => id.EndsWith("ask", StringComparison.Ordinal));
+                GD.Print($"LORE_SHOTS sel replies: {string.Join(", ", _dialogue.Replies)}");
+                if (ask is not null && !_dialogue.Replies.Any(id => id.Contains("hounds", StringComparison.Ordinal)))
+                {
+                    _dialogue.Answer(ask);
+                    await Rcd3Wait(0.7);
+                    GD.Print($"LORE_SHOTS sel topics: {string.Join(", ", _dialogue.Replies)}");
+                }
                 string? asked = _dialogue.Replies.FirstOrDefault(id => id.Contains("hounds", StringComparison.Ordinal))
-                    ?? _dialogue.Replies.FirstOrDefault(id => id.StartsWith("ask", StringComparison.Ordinal) && id != "ask");
-                GD.Print($"LORE_SHOTS sel replies: {string.Join(", ", _dialogue.Replies)} asked={asked ?? "none"}");
+                    ?? _dialogue.Replies.FirstOrDefault(id => id.Contains("ask_", StringComparison.Ordinal));
+                GD.Print($"LORE_SHOTS sel asked={asked ?? "none"}");
                 if (asked is not null)
                 {
                     _dialogue.Answer(asked);
-                    await Rcd3Wait(0.8);
+                    await Rcd3Wait(0.9);
                     await Rcd3Shot(_loreShotsDirectory!, "lore_npc_told");
                     LoreEvidence("told", $"an NPC asked about a creature ({asked}): the reply, and the page it files");
                     if (_dialogue.Replies.Contains("back"))

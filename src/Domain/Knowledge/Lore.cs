@@ -134,4 +134,37 @@ public static class LoreRules
 
     public static int WordCount(string text) =>
         text.Split(new[] { ' ', '\t', '\r', '\n', '\u2014' }, StringSplitOptions.RemoveEmptyEntries).Length;
+
+    /// <summary>
+    /// Words that never reach the character's eyes: they are the trade's words for the thing being made, not the world's words for itself
+    /// (spec 41, owner ruling 2026-10-21). A page, a telling or something written in the world that uses one is a leak of the notes it was
+    /// written from, and the lint refuses it.
+    /// </summary>
+    public static readonly ImmutableArray<string> BannedWords = ImmutableArray.Create(
+        "prototype", "slice", "playtest", "playtester", "playtesting", "player", "protagonist", "design", "designer", "developer", "spec",
+        "alpha", "beta", "debug", "build", "placeholder", "greybox", "gameplay", "mechanic", "mechanics", "implementation", "implements",
+        "communicates", "signals", "indicates", "represents", "symbolises", "symbolizes", "content", "canon", "narrative", "arc", "quest",
+        "questline", "spawn", "spawns", "respawn", "tutorial", "level", "levels", "xp", "loot", "stats", "hitbox", "scripted", "cinematic",
+        "asset", "assets", "region", "cell", "biome", "faction", "npc", "npc's", "mob", "aggro", "buff", "debuff", "cooldown", "ui", "hud");
+
+    /// <summary>The first word of the trade a reader would meet in this text, or null. Matched whole and ignoring case.</summary>
+    public static string? Leak(string text)
+    {
+        foreach (string word in BannedWords)
+        {
+            int at = text.IndexOf(word, StringComparison.OrdinalIgnoreCase);
+            while (at >= 0)
+            {
+                bool before = at == 0 || !char.IsLetter(text[at - 1]);
+                int after = at + word.Length;
+                bool end = after >= text.Length || !char.IsLetterOrDigit(text[after]);
+                // "level" is in the list for "the level of the water" abuse, but "level" inside "levels of stone" is the same word: the
+                // check is on the whole word only, never on a fragment of a longer one.
+                if (before && end)
+                    return word;
+                at = text.IndexOf(word, at + 1, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+        return null;
+    }
 }
