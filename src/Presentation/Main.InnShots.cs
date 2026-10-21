@@ -27,6 +27,9 @@ public partial class Main
     private double _innTicksPerHour;
     private double _innHour;
 
+    /// <summary>A step is in flight: a step awaits the frames, so the loop must not start the next one over the top of it.</summary>
+    private bool _innBusy;
+
     private void InstallInnShots()
     {
         if (_options.GetValueOrDefault(InnShotsOption) is not { Length: > 0 } directory)
@@ -43,13 +46,26 @@ public partial class Main
     /// <summary>Driven from the main loop: one hour is advanced and photographed per step, so each step stays a frame's work.</summary>
     private void TickInnShots()
     {
-        if (_innShotsDirectory is null || Time.GetTicksMsec() < _innNext)
+        if (_innShotsDirectory is null || _innBusy || Time.GetTicksMsec() < _innNext)
             return;
         _innNext = Time.GetTicksMsec() + 400;
+        _innBusy = true;
         _ = StepInnShots();
     }
 
     private async Task StepInnShots()
+    {
+        try
+        {
+            await OneStep();
+        }
+        finally
+        {
+            _innBusy = false;
+        }
+    }
+
+    private async Task OneStep()
     {
         _innStep++;
         if (_innStep >= InnShotsHours.Length)
@@ -63,14 +79,18 @@ public partial class Main
         var camera = _camera.Camera;
         SetProcess(false);                       // nothing moves the camera out from under the shot
         var clock = _session.Setup.Clock;
-        _innHour = clock.Hour(_session.Simulation!.WorldTick) % clock.HoursPerDay;
-        double target = InnShotsHours[_innStep];
-        double ahead = target - _innHour;
-        if (ahead <= 0)
-            ahead += clock.HoursPerDay;
+        long nowHour = clock.Hour(_session.Simulation!.WorldTick);
+        long nowOfDay = nowHour % clock.HoursPerDay;
+        _innHour = nowOfDay;
+        // The captures are of hours, so they are taken at the first tick of one - 08:00, not 08:30 - by the world's own advance.
+        long ahead = (InnShotsHours[_innStep] - nowOfDay + clock.HoursPerDay) % clock.HoursPerDay;
+        if (ahead == 0)
+            ahead = clock.HoursPerDay;
         // A jump is the world's own advance (no re-entrancy risk: the harness holds no command), so midnight-crossing work - the adventurers'
         // day, their outcomes, the markets - happens exactly as it does while the character is away.
-        _session.Simulation.Advance((long)Math.Max(1, Math.Round(ahead * _innTicksPerHour)));
+        long wake = clock.TickOfHour(nowHour + ahead);
+        _session.Simulation.Advance(wake - _session.Simulation.WorldTick);
+        _innHour = clock.Hour(_session.Simulation.WorldTick) % clock.HoursPerDay;
         // Let the views and the light catch up with the new hour, then hold the camera where the shot wants it.
         SetProcess(true);
         await Rcd3Wait(0.8);
