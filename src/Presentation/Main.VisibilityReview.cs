@@ -12,6 +12,11 @@ public partial class Main
         // Use the real gameplay camera, spring arm and shadow/cell updates.
         diagnostic.GetNode<OmniLight3D>("CharacterFill").Reparent(_camera.Camera, false);
         var camera = _camera.Camera;camera.MakeCurrent();
+        if(System.Environment.GetEnvironmentVariable("OTHERREACH_VISIBILITY_REALTIME_ROUTE")=="1")
+        {
+            await RunRcd6RealtimeRoute(directory);
+            return;
+        }
         _rcd3Driving = true;
         _camera.TargetDistance = 3.5f;_camera.Pitch = -.18f;
         var simulation = _session.Simulation ?? throw new InvalidOperationException("World missing");
