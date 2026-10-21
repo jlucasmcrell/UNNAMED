@@ -368,6 +368,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
         _tickSpaces.Clear();
         var noises = (InGrace(tick) ? Enumerable.Empty<Noise>() : PlayerNoises()).Concat(State.World.Noises).ToList();
         State.SetNoises(_owner, ImmutableArray<Noise>.Empty);
+        _stealthLevel = ProgressionEngine.SkillLevel(State.Progression, "skill.stealth");
+        PracticeStealth(tick);
         foreach (string key in State.Creatures.Keys.ToList())
         {
             var creature = State.Creatures[key];
@@ -416,8 +418,38 @@ internal sealed class CreatureSystem : IAbstractAdvance
         var (phase, _) = combat.Action.PhaseAt(State.WorldTick + 1, C);
         if (combat.Action.Kind == ActionKind.Attack && phase is CombatPhase.Windup or CombatPhase.Active)
             radius = Math.Max(radius, sound.SwingMm);
+        // A stealthy character makes less of every sound (finding 26: -15/30/45% of the effective radius by rank).
+        if (radius > 0)
+            radius = Math.Max(1, (long)Math.Round(radius * StealthNoiseFactor(), MidpointRounding.AwayFromZero));
         if (radius > 0)
             yield return new Noise(body.XMm, body.ZMm, radius);
+    }
+
+    /// <summary>
+    /// The character's stealth level, read once a tick (finding 26: the skill levels with use) rather than once per creature per tick - the
+    /// awareness factor is asked for by every body that can see the character, and offline catch-up ticks thousands of them.
+    /// </summary>
+    private int _stealthLevel;
+
+    private double StealthNoiseFactor() => StealthRules.NoiseFactor(_stealthLevel);
+
+    private double StealthAwarenessFactor() => StealthRules.AwarenessFactor(_stealthLevel);
+
+    private const long StealthPracticeTicks = 60;
+    private long _nextStealthPractice;
+
+    /// <summary>
+    /// The skill levels with use (finding 26, PROGRESSION.md §4.2): moving crouched while nothing has noticed the character is practice, one
+    /// use every few seconds rather than one a tick. Its harder uses - a takedown, a body left unaware - are practiced where they happen.
+    /// </summary>
+    private void PracticeStealth(long tick)
+    {
+        if (tick < _nextStealthPractice || State.PlayerCombat.Defeated || State.Posture.Stance != Stance.Crouched || !_intent().IsMoving)
+            return;
+        if (State.Creatures.Values.Any(c => c.Alive && c.Mind == CreatureMind.Engaged && c.Site.Space == State.Space))
+            return;
+        _nextStealthPractice = tick + StealthPracticeTicks;
+        _context.Dispatch(new PracticeSkill(new SkillPractice("skill.stealth", 1, PracticeOutcome.Success, tick)));
     }
 
     private CreatureState Live(CreatureState c, long tick, List<Noise> noises)
@@ -459,7 +491,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
         bool target = c.Site.Space == State.Space && !State.PlayerCombat.Defeated && !InGrace(tick);
         bool asleep = Asleep(c, tick);
         double? seen = !asleep && target ? Perception.Sees(c.Body, senses, player.XMm, player.ZMm, Walls(c)) : null;
-        int awareness = Perception.Accrue(c.Awareness, seen, senses.SightMm, rules, TickMs);
+        // The character's stealth rank slows how fast a sighting registers (finding 26) - it never stops it (§20: no hidden flag).
+        int awareness = Perception.Accrue(c.Awareness, seen, senses.SightMm, rules, TickMs, StealthAwarenessFactor());
         var next = c with { Awareness = awareness };
         if (seen is not null)
             next = next with { Knows = true, KnownXMm = player.XMm, KnownZMm = player.ZMm, LastSeenTick = tick };
@@ -549,6 +582,19 @@ internal sealed class CreatureSystem : IAbstractAdvance
     // ── acting ──────────────────────────────────────────────────────────────
 
     private CreatureState Act(CreatureState c, long tick)
+    {
+        // A controlled body (STEALTH §14): paralysed or asleep it does nothing at all; rooted it keeps its feet but still turns, calls and
+        // strikes. One rule at the one place a creature acts, so a control effect cannot be forgotten by a behaviour.
+        var control = _context.ControlOn(c.Id);
+        if (control == ControlKind.Incapacitates)
+            return c with { Action = ActionState.Idle };
+        var acted = ActFree(c, tick);
+        return control == ControlKind.Roots
+            ? acted with { Body = acted.Body with { XMm = c.Body.XMm, YMm = c.Body.YMm, ZMm = c.Body.ZMm } }
+            : acted;
+    }
+
+    private CreatureState ActFree(CreatureState c, long tick)
     {
         var player = State.Body;
         switch (c.Mind)
@@ -874,6 +920,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         if (mind != c.Mind)
             _context.Events.Publish(new CreatureNoticed(c.Id, c.Key, mind, tick));
         wounded = wounded with { Mind = mind };
+        // A wound wakes a sleeper (effect.sleep's own rule): the body does not stay down through being stabbed.
+        if (hit.Final > 0)
+            _context.Dispatch(new RemoveEffect(c.Id, "effect.sleep"));
         Sound(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.BlowMm));
         _context.Events.Publish(new HitResolved(attacker, command.AttackerDefId ?? "player", c.Id, command.Source, hit.Region, hit.Final, hit.Critical,
             hit.Blocked, hit.Dodged, staggered, health, tick));

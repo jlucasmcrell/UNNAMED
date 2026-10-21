@@ -105,6 +105,9 @@ public sealed class PlayerController
 
     public void Attack() => _session.Submit(new AttackCommand(_session.Simulation!.PlayerId));
 
+    /// <summary>A knife into a creature that has not noticed the character (STEALTH §12): the simulation decides reach and whether it lives.</summary>
+    public void Takedown() => _session.Submit(new TakedownCommand(_session.Simulation!.PlayerId));
+
     /// <summary>Jump (the owner's M6 playtest): the simulation decides whether there is room, and the arc.</summary>
     public void Jump() => _session.Submit(new JumpCommand(_session.Simulation!.PlayerId));
 

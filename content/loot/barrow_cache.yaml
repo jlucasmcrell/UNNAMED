@@ -10,3 +10,5 @@ guaranteed:
   - { item_ref: item.consumable.salve_minor, count_range: [2, 2] }
   - { item_ref: item.ammo.arrow_rough, count_range: [10, 10] }
   - { item_ref: item.material.boneleaf, count_range: [2, 2] }
+  - { item_ref: item.weapon.iron_dagger, count_range: [1, 1] }
+  - { item_ref: item.consumable.poison_flask, count_range: [2, 2] }

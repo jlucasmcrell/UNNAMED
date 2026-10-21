@@ -93,6 +93,17 @@ public partial class Main
             ? new TargetPlate(Names.Of(_session, target.DefId), target.Level, target.Health, target.MaxHealth, target.Threat,
                 target.Temperament, target.Hostile, target.Huntable)
             : null);
+        // The nearest few bodies and what each has actually noticed (STEALTH §20): the indicator shows the number, never a hidden flag.
+        var awarenessRules = _session.Setup.Combat.Awareness;
+        var playerBody = _controller.Authoritative;
+        double Nearness(CreatureView c) => Math.Sqrt(Math.Pow(c.Body.XMm - playerBody.XMm, 2) + Math.Pow(c.Body.ZMm - playerBody.ZMm, 2));
+        _hud.SetAwareness(simulation.Creatures
+            .Where(c => c.Alive && Nearness(c) < 30_000)
+            .OrderBy(Nearness)
+            .Take(AwarenessMeter.Rows)
+            .Select(c => new AwarenessCue(Names.Of(_session, c.DefId), c.Awareness, awarenessRules.HeardNoise, awarenessRules.Suspicious,
+                UNNAMED.Domain.Creatures.Perception.Full, c.Mind == CreatureMind.Engaged))
+            .ToList());
         var quests = simulation.Quests;
         string? tracked = simulation.TrackedQuest(_journal.Tracked);
         _hud.SetTracker(JournalPanel.Tracker(quests, tracked));

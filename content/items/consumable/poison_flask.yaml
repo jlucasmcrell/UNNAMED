@@ -1,0 +1,13 @@
+id: item.consumable.poison_flask
+kind: item
+schema: 1
+display_key: item.consumable.poison_flask.name
+tags: [item]
+name: Poison Flask
+notes: Bog-cotton tar and a spider's venom sac, wiped along a blade (owner finding 27). The alchemy half of the assassin path - using it coats the weapon (effect.coating_venom) for about two minutes, and every wounding blow in that time puts effect.venom on what it hits. Crafting it needs an alchemy station, which content does not have yet, so for now it is found.
+category: consumable
+stack_max: 3
+weight: 0.15
+value_base: 30
+rarity: common
+use: { effect_ref: effect.coating_venom, consume: true }

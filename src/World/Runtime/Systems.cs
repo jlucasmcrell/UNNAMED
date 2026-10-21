@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Domain.Travel;
@@ -53,6 +54,25 @@ internal sealed class SystemContext
 
     /// <summary>Route an internal command to its owner; null when accepted, otherwise the reason.</summary>
     public Func<InternalCommand, string?> Dispatch { get; }
+
+    /// <summary>
+    /// What the effects on a body deny it (STEALTH §14's control effects): nothing, its feet, or its actions. The strongest effect on it
+    /// wins, so a sleeper under a root is asleep. Read wherever movement or a blow is about to happen, which is what makes "rooted" and
+    /// "paralysed" one rule rather than a special case per system.
+    /// </summary>
+    public ControlKind ControlOn(EntityId body)
+    {
+        if (State.Effects.Count == 0)
+            return ControlKind.None;
+        var kind = ControlKind.None;
+        foreach (var active in State.Effects.GetValueOrDefault(body, ImmutableArray<ActiveEffect>.Empty))
+        {
+            var control = Setup.Combat.Effects.GetValueOrDefault(active.EffectId)?.Control ?? ControlKind.None;
+            if (control > kind)
+                kind = control;
+        }
+        return kind;
+    }
 
     /// <summary>
     /// The name of an actor the world knows that is no NPC body - an adventurer out on a ground (WP13) - by instance ID; null for none. A
@@ -332,7 +352,8 @@ internal sealed class MovementSystem
         var rules = _context.Setup.Movement;
         var intent = Intent;
         var (phase, _) = combat.Action.PhaseAt(tick, constants);
-        if (combat.Defeated || phase == CombatPhase.Staggered || (phase == CombatPhase.Recovery && combat.Action.Kind == ActionKind.Dodge))
+        if (combat.Defeated || phase == CombatPhase.Staggered || (phase == CombatPhase.Recovery && combat.Action.Kind == ActionKind.Dodge)
+            || _context.ControlOn(_player) != ControlKind.None)
         {
             intent = MoveIntent.Idle(from.FacingMdeg);
         }

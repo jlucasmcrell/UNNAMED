@@ -381,6 +381,9 @@ internal sealed partial class CombatSystem
         var combat = State.PlayerCombat;
         if (Busy(combat.Action, tick) is { } busy)
             return busy;
+        // A paralysed or sleeping body does not swing (STEALTH §14's control effects reach the character too).
+        if (_context.ControlOn(_player) == ControlKind.Incapacitates)
+            return "you cannot move";
         var attack = PlayerAttack();
         if (attack.Ranged && attack.AmmoDefId is { } ammo && !State.Inventory.Any(e => e.DefId == ammo))
             return $"no {ammo} to shoot";
@@ -493,7 +496,7 @@ internal sealed partial class CombatSystem
         int windup = Math.Max(1, (int)Math.Round(total * constants.WindupPercent / 100.0, MidpointRounding.AwayFromZero));
         int active = Math.Max(1, (int)Math.Round(total * constants.ActivePercent / 100.0, MidpointRounding.AwayFromZero));
         return new AttackProfile(defId, weapon.DamageMin, weapon.DamageMax, weapon.DamageType, weapon.ReachMm, windup, active,
-            Math.Max(0, total - windup - active), stamina) { SkillId = weapon.SkillId };
+            Math.Max(0, total - windup - active), stamina) { SkillId = weapon.SkillId, SneakMultiplier = weapon.SneakMultiplier };
     }
 
     private int Ticks(int milliseconds) => (int)Math.Round((double)milliseconds / TickMs, MidpointRounding.AwayFromZero);
@@ -629,7 +632,7 @@ internal sealed partial class CombatSystem
         var definition = creature.Definition;
         var defense = new DefenseProfile(definition.MaxHealth, WithBonus(definition.Armor, EffectRules.ArmorBonus(EffectsOf(creature.Id), Setup.Effects)),
             definition.Resistances, Blocking: false, Dodging: false);
-        var strike = PlayerStrike(attack);
+        var strike = SneakStrike(creature, attack, PlayerStrike(attack));
         // A weak point open from behind is where a blow from behind lands (COMBAT §19): position, not luck.
         if (definition.WeakPoint is { FromBehind: true } weak && Behind(creature.Body, State.Body))
             strike = strike with { ForcedRegion = weak.Region };
@@ -639,6 +642,10 @@ internal sealed partial class CombatSystem
         bool alive = State.Creatures.Values.Any(c => c.Id == creature.Id && c.Alive);
         if (result.EffectApplied && attack.OnHitEffect is { } effect && alive)
             _context.Dispatch(new ApplyEffect(creature.Id, effect));
+        // A coated blade puts its poison into what it wounds (owner finding 27): the coating is an effect on the character that names the
+        // effect it delivers, so alchemy adds content rather than a second damage path.
+        if (result.Final > 0 && alive && Coating() is { } poison)
+            _context.Dispatch(new ApplyEffect(creature.Id, poison));
         // Weapon skill only from effective contribution: a blow that wounded something that fights back (ROADMAP.md M3c).
         if (attack.SkillId is { } skill && result.Final > 0)
         {
@@ -659,6 +666,63 @@ internal sealed partial class CombatSystem
             return false;
         double facing = body.FacingMdeg / 1000.0 * Math.PI / 180;
         return (dx * Math.Sin(facing) + dz * Math.Cos(facing)) / length < Math.Cos(110 * Math.PI / 180);
+    }
+
+    /// <summary>
+    /// The strike a blow resolves as against this creature: a target that has not noticed the character takes the weapon's sneak multiplier
+    /// (STEALTH §12 - the dagger class's own number), applied before armour so that armour still decides. A target that has noticed the
+    /// character takes the ordinary blow.
+    /// </summary>
+    private Strike SneakStrike(CreatureState creature, AttackProfile attack, Strike strike) =>
+        StealthRules.Unaware(creature.Awareness, Setup.Awareness)
+            ? strike with { DamageMultiplier = strike.DamageMultiplier * StealthRules.SneakMultiplier(attack, true) }
+            : strike;
+
+    /// <summary>What the character's coated weapon delivers on a wound, or null when nothing is coated (owner finding 27).</summary>
+    private string? Coating() =>
+        EffectsOf(_player).Select(e => Setup.Effects.GetValueOrDefault(e.EffectId)?.AppliesOnHit).FirstOrDefault(e => e is not null);
+
+    /// <summary>
+    /// A takedown (STEALTH §12-§14; owner finding 27): a dagger, a body that has not noticed the character, and a vital aimed at - the head
+    /// from behind, the torso from inside reach. It goes through the one combat resolver at a forced vital with the weapon's sneak
+    /// multiplier, so what decides is armour and what the blade reaches, never a flag on the creature: mail, a thick skull, redundant anatomy
+    /// or a ward leaves a live body that is now wounded, angry and facing the character.
+    /// </summary>
+    public string? Handle(TakedownCommand command, long tick)
+    {
+        if (command.Actor != _player)
+            return $"unknown actor {command.Actor}";
+        if (State.PlayerCombat.Defeated)
+            return "dead";
+        if (Busy(State.PlayerCombat.Action, tick) is { } busy)
+            return busy;
+        var attack = PlayerAttack();
+        if (!StealthRules.IsDagger(attack))
+            return "a takedown needs a dagger";
+        var body = State.Body;
+        // Inside reach: the blade's length, a step, and the target's own body.
+        var nearest = State.Creatures.Values
+            .Where(c => c.Alive && c.Site.Space == State.Space)
+            .Select(c => (Creature: c, Distance: Math.Sqrt(Math.Pow(c.Body.XMm - body.XMm, 2) + Math.Pow(c.Body.ZMm - body.ZMm, 2))))
+            .Where(t => t.Distance <= attack.ReachMm + 1_500 + t.Creature.Definition.RadiusMm)
+            .OrderBy(t => t.Distance)
+            .Select(t => (CreatureState?)t.Creature)
+            .FirstOrDefault();
+        if (nearest is not { } creature)
+            return "nothing within reach of the blade";
+        if (!StealthRules.Unaware(creature.Awareness, Setup.Awareness))
+            return "it has noticed you";
+        var definition = creature.Definition;
+        var defense = new DefenseProfile(definition.MaxHealth, WithBonus(definition.Armor, EffectRules.ArmorBonus(EffectsOf(creature.Id), Setup.Effects)),
+            definition.Resistances, Blocking: false, Dodging: false);
+        var fromBehind = Behind(creature.Body, body);
+        var outcome = TakedownRules.Resolve(PlayerStrike(attack), defense, C, creature.Health, fromBehind,
+            Random("takedown", creature.Key, creature.Body, tick));
+        State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick });
+        _context.Dispatch(new WoundCreature(creature.Id, outcome.Hit, attack.Source));
+        // A takedown is the skill's own practice: the killing of an unaware body is what stealth is for (finding 26: it levels with use).
+        _context.Dispatch(new PracticeSkill(new SkillPractice("skill.stealth", definition.Level, PracticeOutcome.Success, tick)));
+        return null;
     }
 
     /// <summary>What the player brings to a blow: Might for physical blows, effects such as weakness, and skill passives.</summary>

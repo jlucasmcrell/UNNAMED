@@ -126,6 +126,7 @@ public static class ItemContent
                 AttackMs = map.ContainsKey("attack_speed") ? (int)Math.Round(1000 / Number(map, "attack_speed"), MidpointRounding.AwayFromZero) : 0,
                 DrawMs = map.ContainsKey("draw_time") ? (int)Grams(map, "draw_time") : 0,
                 StaminaCost = map.ContainsKey("stamina_cost") ? Int(map, "stamina_cost") : null,
+                SneakMultiplier = map.ContainsKey("sneak_multiplier") ? Number(map, "sneak_multiplier") : 1.0,
             };
             if (weapon.AttackMs <= 0 && weapon.DrawMs <= 0)
                 throw new FormatException($"{id}: a weapon gives attack_speed (melee) or draw_time (ranged)");

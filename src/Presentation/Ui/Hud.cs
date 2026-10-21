@@ -47,6 +47,7 @@ public partial class Hud : CanvasLayer
     private readonly Queue<string> _logLines = new();
     private readonly Compass _compass = new();
     private readonly Reticle _reticle = new();
+    private readonly AwarenessMeter _awareness = new();
     private readonly PanelContainer _death = new();
     private readonly Label _deathText = Text(20);
     private double _deathUntil;
@@ -66,6 +67,11 @@ public partial class Hud : CanvasLayer
         _fade.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         fadeLayer.AddChild(_fade);
         AddChild(fadeLayer);
+        // The awareness indicator belongs to both HUD styles (STEALTH §20): it is state a stealthy player reads constantly, so it sits on the
+        // left edge where neither the classic sheet nor the production columns put anything.
+        _awareness.SetAnchorsPreset(Control.LayoutPreset.CenterLeft);
+        _awareness.Position = new Vector2(24, -150);
+        AddChild(_awareness);
         if (_production)
         {
             ReadyProduction();
@@ -264,6 +270,11 @@ public partial class Hud : CanvasLayer
         foreach (string key in keys.Where(k => _icons.For(k) is not null))
             _effectIcons.AddChild(_icons.Tile(key, 26));
     }
+
+    /// <summary>
+    /// The awareness of the nearest few creatures (STEALTH §20): an arc each, filled with the real number, never an "invisible" light.
+    /// </summary>
+    public void SetAwareness(IReadOnlyList<AwarenessCue> cues) => _awareness.Set(cues);
 
     /// <summary>The creature the character is fighting or facing, or nothing.</summary>
     public void SetTarget(TargetPlate? plate)

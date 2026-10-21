@@ -298,6 +298,12 @@ public sealed record WeaponStats(int DamageMin, int DamageMax, string DamageType
     /// <summary>Stamina per attack, from <c>stamina_cost</c>; null takes the combat default.</summary>
     public int? StaminaCost { get; init; }
 
+    /// <summary>
+    /// What a blow from this weapon multiplies by on a target that has not noticed the attacker, from <c>sneak_multiplier</c>: the dagger
+    /// class's own number (STEALTH §12). 1.0 is every other weapon, so a sneak attack with a sword is just a sword blow.
+    /// </summary>
+    public double SneakMultiplier { get; init; } = 1.0;
+
     public bool Ranged => DrawMs > 0;
 }
 

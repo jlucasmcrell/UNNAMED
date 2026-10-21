@@ -100,6 +100,12 @@ public sealed record AttackProfile(
     /// <summary>A working's blow (M3e): Resonance, not Might, gives it its force.</summary>
     public bool Magic { get; init; }
 
+    /// <summary>
+    /// What this blow multiplies by when the target has not noticed the attacker (STEALTH §12): the dagger class's own number, applied
+    /// before armour so the armour still decides. 1.0 - the default - is every other weapon.
+    /// </summary>
+    public double SneakMultiplier { get; init; } = 1.0;
+
     public bool IsCharge => ChargeSpeedMmPerSecond > 0;
 
     public int TotalTicks => WindupTicks + ActiveTicks + RecoveryTicks;
@@ -302,6 +308,19 @@ public enum StackPolicy
     StackIntensity,
 }
 
+/// <summary>What a control effect takes from the body it is on (STEALTH §14: sleep, root, paralysis are conditions, not immunities).</summary>
+public enum ControlKind
+{
+    /// <summary>Not a control effect.</summary>
+    None,
+
+    /// <summary>Its feet: it cannot move, but it still sees, hears and strikes.</summary>
+    Roots,
+
+    /// <summary>Its actions: it cannot move or strike - asleep, or paralysed.</summary>
+    Incapacitates,
+}
+
 /// <summary>
 /// A status effect definition (DATA_MODEL.md §4.8) in ticks. Modifiers are the Phase-1 stat set: damage dealt and
 /// stamina regeneration multiply, armor adds.
@@ -323,6 +342,15 @@ public sealed record EffectDefinition(
 
     /// <summary>DATA_MODEL.md §4.8 <c>immunity_tags</c>: a body carrying any of these does not take the effect (no blood, no bleeding).</summary>
     public ImmutableSortedSet<string> ImmuneTags { get; init; } = ImmutableSortedSet<string>.Empty;
+
+    /// <summary>
+    /// What the effect takes away from the body it is on (STEALTH §14, the assassin's control effects): nothing, its feet, or its
+    /// actions. A controlled body is not made "immune" to a takedown - it simply cannot move or strike back while it lasts.
+    /// </summary>
+    public ControlKind Control { get; init; }
+
+    /// <summary>An effect this one puts on a body the bearer wounds: a poison coating is the effect on the wielder that says so.</summary>
+    public string? AppliesOnHit { get; init; }
 }
 
 /// <summary>An effect on a body. Deadlines are absolute world ticks, so a save between ticks loses nothing (SYSTEMS.md S-04, S-11).</summary>
@@ -330,12 +358,18 @@ public sealed record ActiveEffect(string EffectId, int Stacks, long ExpiresTick,
 
 public static class EffectRules
 {
-    /// <summary>One more application: the duration restarts, and a stacking effect gains a stack up to its maximum.</summary>
+    /// <summary>
+    /// One more application: the duration restarts, and a stacking effect gains a stack up to its maximum. A control effect
+    /// (<see cref="ControlKind"/>) shrinks with each stack - half, then a quarter - which is the diminishing return STEALTH §14 asks for:
+    /// a body that has just been put down resists being put down again, and the resistance lives in the effect it already carries rather
+    /// than in a second counter that would have to be saved.
+    /// </summary>
     public static ImmutableArray<ActiveEffect> Apply(ImmutableArray<ActiveEffect> effects, EffectDefinition definition, long now)
     {
         var existing = effects.FirstOrDefault(e => e.EffectId == definition.Id);
         int stacks = existing is null ? 1 : definition.Stacking == StackPolicy.StackIntensity ? Math.Min(definition.MaxStacks, existing.Stacks + 1) : existing.Stacks;
-        var applied = new ActiveEffect(definition.Id, stacks, now + definition.DurationTicks,
+        int duration = definition.Control == ControlKind.None ? definition.DurationTicks : Math.Max(1, definition.DurationTicks >> Math.Max(0, stacks - 1));
+        var applied = new ActiveEffect(definition.Id, stacks, now + duration,
             existing?.NextTickAt ?? now + Math.Max(1, definition.TickIntervalTicks));
         return Sorted((existing is null ? effects : effects.Remove(existing)).Add(applied));
     }

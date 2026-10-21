@@ -792,6 +792,7 @@ public sealed class Simulation
                 EquipCommand equip => _equipment.Handle(equip, WorldTick),
                 UnequipCommand unequip => _equipment.Handle(unequip, WorldTick),
                 AttackCommand attack => _combat.Handle(attack, WorldTick),
+                TakedownCommand takedown => _combat.Handle(takedown, WorldTick),
                 BlockCommand block => _combat.Handle(block, WorldTick),
                 DodgeCommand dodge => _laden.Dodge(() => _combat.Handle(dodge, WorldTick)),
                 CastCommand cast => _combat.Handle(cast, WorldTick),
