@@ -1,5 +1,5 @@
 """MPFB documented detail targets/MHCLO fitting/Export Copy; original 53-bone rigs retained."""
-import bpy, addon_utils, json, os, sys, runpy, hashlib, time, traceback
+import bpy, addon_utils, json, os, sys, runpy, hashlib, time, traceback, shutil
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).parent))
 from pipeline_paths import pipeline_root
@@ -44,6 +44,11 @@ try:
   export_report=root/(recipe['id']+'_export.json')
   sys.argv=['export_gltf.py','--','--blend',str(blend),'--outglb',str(output),'--report',str(export_report)]
   runpy.run_path(str(Path(__file__).with_name('export_mpfb_named_copy.py')),run_name='__main__')
+  # Publish only our new variant directories, before the target-hash library is staged.
+  target=root.parent/'shared_fallback'/'rigged'/recipe['id'];target.mkdir(parents=True,exist_ok=True)
+  assert not target.is_junction() and not target.is_symlink() and target.resolve().is_relative_to(root.parent.resolve()),target
+  shutil.copy2(output,target/output.name)
+  assert hashlib.sha256(output.read_bytes()).digest()==hashlib.sha256((target/output.name).read_bytes()).digest()
   row=dict(recipe,complete=True,path=str(output),source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),sha256=hashlib.sha256(output.read_bytes()).hexdigest(),minutes=(time.monotonic()-started)/60,skeleton_before=before,original_skeleton_unchanged=True,hair_license='CC0 MakeHuman system assets, Data Collection AB/Joel Palmius/Jonas Hauquier')
   state['characters'].append(row);save(status='CHARACTER_DONE',current=recipe['id'])
  save(status='DONE')

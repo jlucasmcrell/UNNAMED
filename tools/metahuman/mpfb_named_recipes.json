@@ -76,7 +76,7 @@
     "sex": "f",
     "base": "mpfb_fem_lt",
     "height_m": 1.629,
-    "hair": "ponytail01",
+    "hair": "bob02",
     "hair_rgb": [
       0.08,
       0.035,
@@ -147,7 +147,7 @@
     "sex": "m",
     "base": "mpfb_male_lt",
     "height_m": 1.778,
-    "hair": "short03",
+    "hair": "short04",
     "hair_rgb": [
       0.7,
       0.68,
@@ -172,7 +172,7 @@
     "sex": "m",
     "base": "mpfb_male_lt",
     "height_m": 1.778,
-    "hair": "short01",
+    "hair": "short02",
     "hair_rgb": [
       0.22,
       0.065,
