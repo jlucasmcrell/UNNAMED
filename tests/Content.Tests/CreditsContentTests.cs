@@ -101,7 +101,7 @@ public class CreditsContentTests
     [InlineData("WildMesh", "WildMesh")]
     [InlineData("HumanShaders", "HumanShaders")]
     [InlineData("Sketchfab", "sketchfab.com")]
-    [InlineData("Stable Audio", "Stability AI")]
+    [InlineData("Stable Audio", "stability.ai/community-license-agreement")]
     [InlineData("Godot", "Godot Engine")]
     public void ASourceNamedInTheBindingsOrTheLedgerHasItsCreditLine(string source, string credited)
     {

@@ -183,9 +183,9 @@ public partial class Main
         }
         long since = simulation.WorldTick - (long)(ChatFeedSeconds / _session.TickSeconds);
         var recent = simulation.Chat.Where(m => m.Tick >= since);
-        var rows = ChatModel.Rows(recent, ChatTab.All, setting, simulation.ChatText, key => simulation.Setup.Chat.Line(key),
+        var rows = ChatModel.Rows(recent, ChatTab.All, setting, simulation.ChatText,
             id => ChatPanel.Person(simulation, id), simulation.Setup.Clock, 4);
-        _hud.SetChat(rows.Select(r => (r.Speaker is null ? r.Text : $"{r.Speaker}: {r.Text}") + (r.AiGenerated ? " (AI)" : "")).ToList());
+        _hud.SetChat(rows.Select(r => r.Speaker is null ? r.Text : $"{r.Speaker}: {r.Text}").ToList());
     }
 
     /// <summary>The party, hiring, teaching and offers in the log and the notices: what was refused, and what was agreed.</summary>

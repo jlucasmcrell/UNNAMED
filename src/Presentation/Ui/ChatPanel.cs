@@ -1,5 +1,5 @@
 // UNNAMED Presentation - the chat window: the channels on tabs, the owner's chatter setting, offers to set out together with Join and Ask,
-// and the disclosure of AI-written lines (WP16)
+// with offers to set out together (WP16)
 // Godot presentation only: Join submits the command; Ask and the setting change nothing in the world (D-11)
 
 using Godot;
@@ -13,8 +13,8 @@ namespace UNNAMED.Presentation.Ui;
 /// <summary>
 /// Chat (T), a STANDARD sheet: tabs for every channel and the group board, the chatter setting as three segments (All, Play-relevant
 /// only, Off - the same setting as Settings, Interface), then the rows newest last: the time, the channel, who said it and the words,
-/// an AI chip on a line written with AI. An offer to set out together carries Join and Ask on its row and on the board; Ask shows the
-/// offer's facts to the character alone. The disclosure stays under the title. The world runs on under it, as under every screen.
+/// An offer to set out together carries Join and Ask on its row and on the board; Ask shows the
+/// offer's facts to the character alone. The world runs on under it, as under every screen.
 /// </summary>
 public partial class ChatPanel : CanvasLayer
 {
@@ -35,7 +35,6 @@ public partial class ChatPanel : CanvasLayer
     {
         Visible = false;
         _sheet = UiKit.Sheet(this, "Chat", "chat");
-        _sheet.SetHint(ChatModel.AiDisclosure);
         _sheet.OnShown(() =>
         {
             _drawn = string.Empty;
@@ -110,7 +109,7 @@ public partial class ChatPanel : CanvasLayer
             return;
         }
         var offers = simulation.GroupOffers;
-        var rows = ChatModel.Rows(simulation.Chat, _tab, setting, simulation.ChatText, key => simulation.Setup.Chat.Line(key), id => Person(simulation, id),
+        var rows = ChatModel.Rows(simulation.Chat, _tab, setting, simulation.ChatText, id => Person(simulation, id),
             simulation.Setup.Clock, Most);
         if (rows.IsEmpty)
         {
@@ -124,7 +123,7 @@ public partial class ChatPanel : CanvasLayer
         Callable.From(() => { if (_sheet.Scroll is { } scroll) scroll.ScrollVertical = (int)scroll.GetVScrollBar().MaxValue; }).CallDeferred();
     }
 
-    /// <summary>One message: time and channel at the left, who and what in the middle, the AI chip, and an open offer's Join and Ask.</summary>
+    /// <summary>One message: time and channel at the left, who and what in the middle, an open offer's Join and Ask.</summary>
     private Control Line(Simulation simulation, ChatRow row, LfgOfferView? offer)
     {
         var column = new VBoxContainer();
@@ -141,12 +140,6 @@ public partial class ChatPanel : CanvasLayer
         line.AddChild(channel);
         var words = UiKit.Words(row.Speaker is null ? row.Text : $"{row.Speaker}: {row.Text}", 17, row.Channel == ChatChannel.System ? HudStyle.Ash : HudStyle.Bone);
         line.AddChild(words);
-        if (row.AiGenerated)
-        {
-            var ai = UiKit.Chip("AI", HudStyle.Iron, HudStyle.Muted);
-            ai.SizeFlagsVertical = Control.SizeFlags.ShrinkBegin;
-            line.AddChild(ai);
-        }
         column.AddChild(line);
         if (offer is not null)
             column.AddChild(Actions(simulation, offer, indent: 148));

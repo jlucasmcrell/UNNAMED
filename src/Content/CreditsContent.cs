@@ -12,7 +12,7 @@ public sealed record CreditSection(string Id, string Title, string Note, IReadOn
 
 /// <summary>
 /// <c>content/credits.yaml</c>: the studio line first, then the third-party attributions in the form each licence requires, the code
-/// notices and the AI disclosure, as data. The Credits screen draws nothing that is not here; <see cref="Credit"/> is how a bound
+/// notices, as data. The Credits screen draws nothing that is not here; <see cref="Credit"/> is how a bound
 /// model finds its entry, so a test can fail a build that binds a source nobody credits.
 /// </summary>
 public sealed class CreditsContent
@@ -20,7 +20,7 @@ public sealed class CreditsContent
     public string Studio { get; }
     public string StudioNote { get; }
     public IReadOnlyList<CreditSection> Sections { get; }
-    /// <summary>Model-id prefixes (or ids) built in house, or made with the AI tools the disclosure names: no third-party entry needed.</summary>
+    /// <summary>Model-id prefixes (or ids) built in house, or made with the tools the source ledger names: no third-party entry needed.</summary>
     public IReadOnlyList<string> FirstParty { get; }
 
     private CreditsContent(string studio, string studioNote, IReadOnlyList<CreditSection> sections, IReadOnlyList<string> firstParty)

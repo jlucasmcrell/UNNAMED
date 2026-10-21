@@ -6,7 +6,7 @@ using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Presentation.Tests;
 
-/// <summary>The chat window (WP16): tabs, the owner's chatter setting (all, play-relevant only, off), the group board and the AI disclosure.</summary>
+/// <summary>The chat window (WP16): tabs, the owner's chatter setting (all, play-relevant only, off), the group board without provenance decorations.</summary>
 public class ChatModelTests
 {
     // A day of 57,600 ticks: 40 ticks a game minute.
@@ -35,7 +35,6 @@ public class ChatModelTests
     private static ImmutableArray<ChatRow> Rows(ChatTab tab, ChatSetting setting, int most = 50) =>
         ChatModel.Rows(Heard, tab, setting,
             m => ChatText.Render(new[] { Ambient, Offer, Joined }.First(l => l.Key == m.LineKey).Text, m.Params),
-            key => new[] { Ambient, Offer, Joined }.FirstOrDefault(l => l.Key == key),
             id => id == Kester ? "Kester Vale-of-Stones" : null, Clock, most);
 
     [Fact]
@@ -72,14 +71,13 @@ public class ChatModelTests
     }
 
     [Fact]
-    public void AnAiLine_IsMarked_AndTheWindowDisclosesIt_OnlyWhileOneIsShown()
+    public void AmbientContentProvenance_DoesNotReachPlayerVisibleRows()
     {
+        Assert.True(Ambient.AiGenerated); // retained for non-visible corpus validation
         var all = Rows(ChatTab.All, ChatSetting.On);
-        Assert.True(all[0].AiGenerated);
-        Assert.False(all[1].AiGenerated);
-        Assert.True(ChatModel.Discloses(all));
-        Assert.False(ChatModel.Discloses(Rows(ChatTab.All, ChatSetting.PlayRelevantOnly)));   // offers and the system are hand-written
-        Assert.Contains("generative AI", ChatModel.AiDisclosure);
+        Assert.Equal("Cold today.", all[0].Text);
+        Assert.DoesNotContain("AiGenerated", System.Text.Json.JsonSerializer.Serialize(all));
+        Assert.DoesNotContain("(AI)", string.Join(" ", all.Select(row => row.Text)));
     }
 
     [Fact]
@@ -90,7 +88,7 @@ public class ChatModelTests
     public void AMessageWhoseLineIsGone_IsLeftOut_NeverShownAsAKey()
     {
         var gone = Said(Bram, ChatChannel.World, new ChatLine("lfg.gone.01", "x", ChatChannel.World), 10, true);
-        var rows = ChatModel.Rows(new[] { gone }, ChatTab.All, ChatSetting.On, _ => null, _ => null, _ => null, Clock, 10);
+        var rows = ChatModel.Rows(new[] { gone }, ChatTab.All, ChatSetting.On, _ => null, _ => null, Clock, 10);
         Assert.Empty(rows);
     }
 

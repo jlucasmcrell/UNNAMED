@@ -13,10 +13,10 @@ public enum ChatTab { All, World, Local, Party, System, Groups }
 
 /// <summary>
 /// One message as the chat window lists it: when, where, who (their instance, for the actions on an offer, and their name), the words,
-/// and whether it is about play or was written with AI.
+/// and whether it is about play.
 /// </summary>
 public sealed record ChatRow(long Tick, string Time, ChatChannel Channel, string ChannelWord, EntityId? SpeakerId, string? Speaker, string Text, bool PlayRelevant,
-    bool AiGenerated, string LineKey);
+    string LineKey);
 
 /// <summary>
 /// An open offer to set out together, as the group board lists it: who, what for and where, where to meet and when they leave (a clock
@@ -29,13 +29,6 @@ public sealed record GroupPost(EntityId Npc, string Who, string What, string Whe
 
 public static class ChatModel
 {
-    /// <summary>
-    /// The disclosure the chat window carries (WP16; the chatter schema's <c>ai_generated</c>): which lines were written with generative AI.
-    /// The ambient corpus is; offers, news and system lines are hand-written. Every AI line is also marked on its row.
-    /// </summary>
-    public const string AiDisclosure =
-        "Some ambient talk on World and Local was written with the help of generative AI; those lines are marked AI. Offers to set out together, news and system lines are hand-written.";
-
     /// <summary>The chat setting as World's filter reads it (the members match in order; a mapping, never a cast).</summary>
     public static ChatMode Mode(ChatSetting setting) => setting switch
     {
@@ -89,7 +82,7 @@ public static class ChatModel
     /// than shown as a key. The speaker is their name now, or the name the line was said with; the system has none.
     /// </summary>
     public static ImmutableArray<ChatRow> Rows(IEnumerable<ChatMessage> heard, ChatTab tab, ChatSetting setting, Func<ChatMessage, string?> text,
-        Func<string, ChatLine?> line, Func<EntityId, string?> name, WorldClock clock, int most)
+        Func<EntityId, string?> name, WorldClock clock, int most)
     {
         var mode = Mode(setting);
         var rows = new List<ChatRow>();
@@ -101,7 +94,7 @@ public static class ChatModel
                 ? null
                 : name(message.Speaker) ?? message.Params.GetValueOrDefault("speaker");
             rows.Add(new ChatRow(message.Tick, Clock(message.Tick, clock), message.Channel, ChannelWord(message.Channel), message.Speaker, speaker, words,
-                message.PlayRelevant, line(message.LineKey)?.AiGenerated ?? false, message.LineKey));
+                message.PlayRelevant, message.LineKey));
         }
         return rows.OrderBy(r => r.Tick).Skip(Math.Max(0, rows.Count - most)).ToImmutableArray();
     }
@@ -114,9 +107,6 @@ public static class ChatModel
         row.Channel == ChatChannel.World && row.SpeakerId is { } speaker && row.LineKey.StartsWith("lfg.", StringComparison.Ordinal)
             ? offers.FirstOrDefault(o => o.Npc == speaker && o.PostedTick == row.Tick)
             : null;
-
-    /// <summary>Whether any row shown was written with AI: the window then keeps its disclosure in view, above the rows.</summary>
-    public static bool Discloses(IEnumerable<ChatRow> rows) => rows.Any(r => r.AiGenerated);
 
     /// <summary>
     /// The group board: every open offer, soonest first, with Join refused as the simulation refuses it - once they have left (an answered
