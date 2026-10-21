@@ -26,3 +26,13 @@ Godot documents that visibility ranges use the batch AABB centre: https://docs.g
 Use `UNNAMED_RUNTIME_MESH_LODS=0` with the plant candidate OFF as a separate generated-index-LOD isolation test. The earlier `scatter_single_lod` arm freezes one authored mesh level but retains generated index LODs, so it does not freeze all geometry detail.
 
 Source desktop captures should pass `-StopIfFlagExists C:\Otherreach_Recovery\OWNER_PLAYING.flag` so a new owner session ends capture promptly. Do not use this for an automated normal-launcher test whose launcher owns that same flag; coordinate that test explicitly.
+
+## Window capture without reserving the desktop
+
+`record_game.ps1 -GraphicsCapture -WindowTitle '^Otherreach - unique-test-name$'` uses FFmpeg's documented `gfxcapture` input, hardware-frame download and software H264 encoding. Run the recorder with PowerShell 7 so the filter argument remains intact. This mode requires a build of FFmpeg that includes `gfxcapture`; it was verified with FFmpeg 9.0.2 on Windows. Keep the existing default recorder path for other capture setups.
+
+This captures the named game window even while another application occupies the desktop. It does not send OS input or require exclusive foreground control. Give every test a unique window title and verify a short recorded pilot before releasing the route's ready handshake. Reject recordings of grey frames or the wrong application. Preserve variable-frame-rate presentation timestamps when extracting frames or aligning soundtrack audio; frame index divided by average frame rate is not an accurate timestamp.
+
+The software encoder avoids the unsuccessful WGC/NVENC interop attempt; do not treat that earlier crash as a game rendering result. Capture overhead means these videos are visual evidence, not performance benchmarks.
+
+Post `CODEX SCREEN IN USE` before actual desktop UI interaction and `CODEX SCREEN FREE` immediately after releasing it. A background window recording alone does not reserve the desktop. If the owner reports a persistent control overlay, stop UI use, reset the Computer Use JavaScript session, and report whether release is verified; do not equate lack of input with the overlay being hidden. GPU ownership and the owner play flag remain separate requirements. Official filter documentation: https://ffmpeg.org/ffmpeg-filters.html#gfxcapture .
