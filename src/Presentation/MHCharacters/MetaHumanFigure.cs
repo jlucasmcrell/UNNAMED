@@ -71,12 +71,16 @@ public sealed partial class MetaHumanFigure : Figure
                 .Where(key => Ui.Models.CharacterSex.Matches(sex, entries[key].AsGodotDictionary()["sex"].AsString())).ToArray();
             if (npcs.Length == 0) throw new InvalidDataException("MetaHuman NPC roster is empty");
             var assignments = catalog.ContainsKey("assignments") ? catalog["assignments"].AsGodotDictionary() : new();
-            id = assignments.ContainsKey(personId) && npcs.Contains(assignments[personId].AsString()) ? assignments[personId].AsString()
+            if (bindings.NamedCharacters.TryGetValue(personId, out var named) && !npcs.Contains(named.Native))
+                throw new InvalidDataException("Named native identity has the wrong sex: " + personId);
+            id = named is not null ? named.Native : assignments.ContainsKey(personId) && npcs.Contains(assignments[personId].AsString()) ? assignments[personId].AsString()
                 : npcs[(int)(System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(SHA256.HashData(Encoding.UTF8.GetBytes(personId))) % (uint)npcs.Length)];
         }
         var characters = catalog["characters"].AsGodotDictionary();
         if (!characters.ContainsKey(id)) throw new InvalidDataException($"Missing MetaHuman catalog entry {id}");
-        return new MetaHumanFigure { _sex = sex, _identity = personId, CharacterId = id, _configuration = characters[id].AsGodotDictionary(), _resources = ReferenceEquals(art, ArtLibrary.Empty) ? new() : art.MetaHumanResources, _art = art, _bindings = bindings };
+        var configuration = characters[id].AsGodotDictionary();
+        if (bindings.NamedCharacters.TryGetValue(personId, out var look) && look.Hood is { } hood) configuration["hood"] = hood;
+        return new MetaHumanFigure { _sex = sex, _identity = personId, CharacterId = id, _configuration = configuration, _resources = ReferenceEquals(art, ArtLibrary.Empty) ? new() : art.MetaHumanResources, _art = art, _bindings = bindings };
     }
 
     public override void _Ready()

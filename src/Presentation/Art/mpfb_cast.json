@@ -1,11 +1,94 @@
 {
-  "comment": "The MPFB comparison's bodies (--visual people=mpfb). Five MakeHuman exports staged as rigged/mpfb_<id>/mpfb_<id>_rigged.glb; each person keeps the sex, stature variation and clip set its own binding gives it, and only the body changes. height_m is the exported file's measured overall height, used to bring every body to the stature its binding already had so the comparison is of fidelity, not of size. A body must state its sex: the variant armour is a male build (it carries mhair02, and its 2.423 m body is the big male morph), and a body that served both sexes made the two players land on the same model, so --autostart-body could not change the player's body at all.",
-  "stature_m": { "f": 1.692, "m": 1.918 },
+  "comment": "Original player bodies retained; ten distinct NPC variants use documented MPFB face targets and fitted system hair over unchanged original game-engine rigs. Named identities are explicit and unique in named_character_cast.json.",
+  "stature_m": {
+    "f": 1.692,
+    "m": 1.918
+  },
   "models": [
-    { "id": "mpfb_fem_armour",  "sex": "f", "height_m": 1.629 },
-    { "id": "mpfb_fem_lt",      "sex": "f", "height_m": 1.629 },
-    { "id": "mpfb_male_armour", "sex": "m", "height_m": 1.778 },
-    { "id": "mpfb_male_lt",     "sex": "m", "height_m": 1.778 },
-    { "id": "mpfb_var_armour",  "sex": "m", "height_m": 2.450 }
+    {
+      "id": "mpfb_fem_armour",
+      "sex": "f",
+      "height_m": 1.629
+    },
+    {
+      "id": "mpfb_fem_lt",
+      "sex": "f",
+      "height_m": 1.629
+    },
+    {
+      "id": "mpfb_male_armour",
+      "sex": "m",
+      "height_m": 1.778
+    },
+    {
+      "id": "mpfb_male_lt",
+      "sex": "m",
+      "height_m": 1.778
+    },
+    {
+      "id": "mpfb_var_armour",
+      "sex": "m",
+      "height_m": 2.45
+    },
+    {
+      "id": "mpfb_named_kera_voss",
+      "sex": "f",
+      "height_m": 1.629,
+      "npc_only": true
+    },
+    {
+      "id": "mpfb_named_sel_arien",
+      "sex": "f",
+      "height_m": 1.629,
+      "npc_only": true
+    },
+    {
+      "id": "mpfb_named_mara_ling",
+      "sex": "f",
+      "height_m": 1.629,
+      "npc_only": true
+    },
+    {
+      "id": "mpfb_named_tam_crowden",
+      "sex": "f",
+      "height_m": 1.629,
+      "npc_only": true
+    },
+    {
+      "id": "mpfb_named_renn_vale",
+      "sex": "m",
+      "height_m": 1.778,
+      "npc_only": true
+    },
+    {
+      "id": "mpfb_named_tavar_orr",
+      "sex": "m",
+      "height_m": 1.778,
+      "npc_only": true
+    },
+    {
+      "id": "mpfb_named_berrin_garth",
+      "sex": "m",
+      "height_m": 1.778,
+      "npc_only": true
+    },
+    {
+      "id": "mpfb_named_durn_skell",
+      "sex": "m",
+      "height_m": 1.778,
+      "npc_only": true
+    },
+    {
+      "id": "mpfb_resident_f_01",
+      "sex": "f",
+      "height_m": 1.629,
+      "npc_only": true
+    },
+    {
+      "id": "mpfb_resident_m_01",
+      "sex": "m",
+      "height_m": 1.778,
+      "npc_only": true
+    }
   ]
 }

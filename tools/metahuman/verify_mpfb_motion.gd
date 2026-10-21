@@ -9,8 +9,16 @@ func find_type(node:Node,type:String)->Node:
 func verify():
  var folder=OS.get_environment("OTHERREACH_PIPELINE_ROOT").replace("\\","/")
  var report=[]
+ var cases=[]
  for id in ["mpfb_fem_armour","mpfb_fem_lt","mpfb_male_armour","mpfb_male_lt","mpfb_var_armour"]:
-  var path="D:/Otherreach_Scratch/rcd3_20261020/shared_fallback/rigged/"+id+"/"+id+"_rigged.glb"
+  cases.append({"id":id,"path":"D:/Otherreach_Scratch/rcd3_20261020/shared_fallback/rigged/"+id+"/"+id+"_rigged.glb"})
+ if FileAccess.file_exists(folder+"/mpfb_named/build.json"):
+  var variants=JSON.parse_string(FileAccess.get_file_as_string(folder+"/mpfb_named/build.json"))
+  assert(variants.status=="DONE")
+  for row in variants.characters:cases.append({"id":row.id,"path":row.path})
+ for item in cases:
+  var id=item.id
+  var path=item.path
   var doc=GLTFDocument.new();var state=GLTFState.new();assert(doc.append_from_file(path,state)==OK)
   var actor=doc.generate_scene(state);root.add_child(actor)
   var rig:Skeleton3D=find_type(actor,"Skeleton3D")

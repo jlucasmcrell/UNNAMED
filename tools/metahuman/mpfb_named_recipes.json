@@ -1,0 +1,239 @@
+[
+  {
+    "id": "mpfb_named_kera_voss",
+    "npc": "npc.ashen_hollow.kera_voss",
+    "sex": "f",
+    "base": "mpfb_fem_lt",
+    "height_m": 1.629,
+    "hair": "short04",
+    "hair_rgb": [
+      0.11,
+      0.035,
+      0.012
+    ],
+    "skin_rgb": [
+      0.84,
+      0.66,
+      0.53
+    ],
+    "targets": {
+      "chin-bones-incr": 0.5,
+      "nose-width1-incr": 0.32,
+      "head-age-incr": 0.3
+    }
+  },
+  {
+    "id": "mpfb_named_sel_arien",
+    "npc": "npc.ashen_hollow.sel_arien",
+    "sex": "f",
+    "base": "mpfb_fem_lt",
+    "height_m": 1.629,
+    "hair": "braid01",
+    "hair_rgb": [
+      0.28,
+      0.095,
+      0.025
+    ],
+    "skin_rgb": [
+      0.98,
+      0.92,
+      0.85
+    ],
+    "targets": {
+      "nose-width2-decr": 0.5,
+      "chin-width-decr": 0.4,
+      "head-age-incr": 0.25
+    }
+  },
+  {
+    "id": "mpfb_named_mara_ling",
+    "npc": "npc.cairnwold.mara_ling",
+    "sex": "f",
+    "base": "mpfb_fem_lt",
+    "height_m": 1.629,
+    "hair": "long01",
+    "hair_rgb": [
+      0.02,
+      0.012,
+      0.008
+    ],
+    "skin_rgb": [
+      0.48,
+      0.3,
+      0.2
+    ],
+    "targets": {
+      "nose-width1-incr": 0.5,
+      "mouth-upperlip-volume-incr": 0.55,
+      "mouth-lowerlip-volume-incr": 0.55,
+      "l-cheek-bones-incr": 0.5,
+      "r-cheek-bones-incr": 0.5
+    }
+  },
+  {
+    "id": "mpfb_named_tam_crowden",
+    "npc": "npc.cairnwold.tam_crowden",
+    "sex": "f",
+    "base": "mpfb_fem_lt",
+    "height_m": 1.629,
+    "hair": "ponytail01",
+    "hair_rgb": [
+      0.08,
+      0.035,
+      0.018
+    ],
+    "skin_rgb": [
+      0.85,
+      0.75,
+      0.63
+    ],
+    "targets": {
+      "nose-hump-incr": 0.45,
+      "head-age-incr": 0.55,
+      "chin-prominent-incr": 0.3,
+      "mouth-upperlip-volume-decr": 0.25
+    }
+  },
+  {
+    "id": "mpfb_named_renn_vale",
+    "npc": "npc.ashen_hollow.renn_vale",
+    "sex": "m",
+    "base": "mpfb_male_lt",
+    "height_m": 1.778,
+    "hair": "short04",
+    "hair_rgb": [
+      0.45,
+      0.4,
+      0.35
+    ],
+    "skin_rgb": [
+      0.86,
+      0.74,
+      0.63
+    ],
+    "targets": {
+      "head-age-incr": 0.65,
+      "nose-hump-incr": 0.6,
+      "chin-prominent-incr": 0.4
+    }
+  },
+  {
+    "id": "mpfb_named_tavar_orr",
+    "npc": "npc.ashen_hollow.tavar_orr",
+    "sex": "m",
+    "base": "mpfb_male_lt",
+    "height_m": 1.778,
+    "hair": "short02",
+    "hair_rgb": [
+      0.025,
+      0.014,
+      0.008
+    ],
+    "skin_rgb": [
+      0.67,
+      0.48,
+      0.34
+    ],
+    "targets": {
+      "head-age-incr": 0.05,
+      "nose-hump-decr": 0.3,
+      "chin-bones-incr": 0.15,
+      "mouth-lowerlip-volume-incr": 0.4
+    }
+  },
+  {
+    "id": "mpfb_named_berrin_garth",
+    "npc": "npc.cairnwold.berrin_garth",
+    "sex": "m",
+    "base": "mpfb_male_lt",
+    "height_m": 1.778,
+    "hair": "short03",
+    "hair_rgb": [
+      0.7,
+      0.68,
+      0.63
+    ],
+    "skin_rgb": [
+      0.93,
+      0.82,
+      0.74
+    ],
+    "targets": {
+      "head-age-incr": 0.9,
+      "nose-width1-incr": 0.4,
+      "chin-bones-incr": 0.05,
+      "l-cheek-bones-incr": 0.05,
+      "r-cheek-bones-incr": 0.05
+    }
+  },
+  {
+    "id": "mpfb_named_durn_skell",
+    "npc": "npc.cairnwold.durn_skell",
+    "sex": "m",
+    "base": "mpfb_male_lt",
+    "height_m": 1.778,
+    "hair": "short01",
+    "hair_rgb": [
+      0.22,
+      0.065,
+      0.018
+    ],
+    "skin_rgb": [
+      0.83,
+      0.64,
+      0.51
+    ],
+    "targets": {
+      "head-age-incr": 0.45,
+      "chin-bones-incr": 0.7,
+      "nose-width1-incr": 0.55,
+      "chin-cleft-incr": 0.5
+    }
+  },
+  {
+    "id": "mpfb_resident_f_01",
+    "npc": null,
+    "sex": "f",
+    "base": "mpfb_fem_lt",
+    "height_m": 1.629,
+    "hair": "bob01",
+    "hair_rgb": [
+      0.3,
+      0.09,
+      0.018
+    ],
+    "skin_rgb": [
+      0.94,
+      0.8,
+      0.72
+    ],
+    "targets": {
+      "nose-hump-incr": 0.2,
+      "chin-prominent-incr": 0.45,
+      "head-age-incr": 0.6
+    }
+  },
+  {
+    "id": "mpfb_resident_m_01",
+    "npc": null,
+    "sex": "m",
+    "base": "mpfb_male_lt",
+    "height_m": 1.778,
+    "hair": "short02",
+    "hair_rgb": [
+      0.07,
+      0.028,
+      0.012
+    ],
+    "skin_rgb": [
+      0.6,
+      0.43,
+      0.3
+    ],
+    "targets": {
+      "nose-hump-decr": 0.4,
+      "chin-width-decr": 0.35,
+      "head-age-incr": 0.3
+    }
+  }
+]

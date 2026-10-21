@@ -1,0 +1,35 @@
+{
+  "npc.ashen_hollow.kera_voss": {
+    "native": "04_Sunita",
+    "mpfb": "mpfb_named_kera_voss"
+  },
+  "npc.ashen_hollow.renn_vale": {
+    "native": "10_Walter",
+    "mpfb": "mpfb_named_renn_vale"
+  },
+  "npc.ashen_hollow.sel_arien": {
+    "native": "03_Grace",
+    "mpfb": "mpfb_named_sel_arien"
+  },
+  "npc.ashen_hollow.tavar_orr": {
+    "native": "07_Kelvin",
+    "mpfb": "mpfb_named_tavar_orr"
+  },
+  "npc.cairnwold.berrin_garth": {
+    "native": "08_Dominic",
+    "mpfb": "mpfb_named_berrin_garth"
+  },
+  "npc.cairnwold.durn_skell": {
+    "native": "09_Orlando",
+    "mpfb": "mpfb_named_durn_skell"
+  },
+  "npc.cairnwold.mara_ling": {
+    "native": "02_Zuri",
+    "mpfb": "mpfb_named_mara_ling"
+  },
+  "npc.cairnwold.tam_crowden": {
+    "native": "05_Etta",
+    "mpfb": "mpfb_named_tam_crowden",
+    "hood": false
+  }
+}

@@ -173,6 +173,7 @@ public sealed class ArtBindings
     /// <summary>A dropped item's own look by item ID (<c>ground_items</c>); an item without one is drawn as <see cref="GroundItem"/>.</summary>
     public IReadOnlyDictionary<string, Placement> GroundItems { get; private init; } = new Dictionary<string, Placement>();
     public IReadOnlyDictionary<string, CreatureArt> Creatures { get; private init; } = new Dictionary<string, CreatureArt>();
+    public IReadOnlyDictionary<string, Ui.Models.NamedCharacterLook> NamedCharacters { get; private init; } = new Dictionary<string, Ui.Models.NamedCharacterLook>();
     public IReadOnlyDictionary<string, PersonArt> People { get; private init; } = new Dictionary<string, PersonArt>();
 
     /// <summary>Authored person bindings available to residents of each people.</summary>
@@ -412,6 +413,7 @@ public sealed class ArtBindings
                         },
                         StringComparer.Ordinal)
                     : new Dictionary<string, CreatureArt>(),
+                NamedCharacters = ReadNamedCharacters(),
                 People = MpfbCast(root.TryGetProperty("people", out var people)
                     ? people.EnumerateObject().ToDictionary(p => p.Name, p => OptionClips(root, p.Name, new PersonArt(Text(p.Value, "model")!,
                         Text(p.Value, "hand") ?? "hand_r", Text(p.Value, "off_hand"), Strings(p.Value, "clips"), Grip(p.Value, "grip"), Grip(p.Value, "off_grip"))
@@ -504,7 +506,10 @@ public sealed class ArtBindings
     /// <summary>Where the comparison's bodies and statures are stated.</summary>
     private const string MpfbCastPath = "res://Art/mpfb_cast.json";
 
-    private sealed record MpfbModel(string Id, string Sex, float Height);
+    private static IReadOnlyDictionary<string, Ui.Models.NamedCharacterLook> ReadNamedCharacters() =>
+        Ui.Models.NamedCharacterCast.Read(Godot.FileAccess.GetFileAsString("res://Art/named_character_cast.json"));
+
+    private sealed record MpfbModel(string Id, string Sex, float Height, bool NpcOnly);
 
     /// <summary>The cast's bodies and the stature each sex is drawn at, or null when this run draws the bound cast.</summary>
     private static (MpfbModel[] Models, float Feminine, float Masculine)? MpfbCastFile()
@@ -530,7 +535,7 @@ public sealed class ArtBindings
             foreach (var model in root.GetProperty("models").EnumerateArray())
             {
                 if (Text(model, "id") is { } id && Number(model, "height_m", 0f) > 0.01f)
-                    models.Add(new MpfbModel(id, Text(model, "sex") ?? "m", Number(model, "height_m", 0f)));
+                    models.Add(new MpfbModel(id, Text(model, "sex") ?? "m", Number(model, "height_m", 0f), model.TryGetProperty("npc_only", out var npcOnly) && npcOnly.GetBoolean()));
             }
             if (models.Count == 0)
             {
@@ -559,7 +564,15 @@ public sealed class ArtBindings
     private static (MpfbModel Body, float Scale)? MpfbBodyFor(string person, bool feminine,
         (MpfbModel[] Models, float Feminine, float Masculine) cast)
     {
-        var usable = cast.Models.Where(m => m.Sex == (feminine ? "f" : "m")).ToArray();
+        var named = ReadNamedCharacters();
+        if (named.TryGetValue(person, out var identity))
+        {
+            var chosen = cast.Models.Single(m => m.Id == identity.Mpfb);
+            if (chosen.Sex != (feminine ? "f" : "m")) throw new InvalidDataException("Named MPFB identity sex differs: " + person);
+            return (chosen, (feminine ? cast.Feminine : cast.Masculine) / chosen.Height);
+        }
+        var reserved = named.Values.Select(n => n.Mpfb).ToHashSet(StringComparer.Ordinal);
+        var usable = cast.Models.Where(m => m.Sex == (feminine ? "f" : "m") && !reserved.Contains(m.Id) && (person != "player" || !m.NpcOnly)).ToArray();
         if (usable.Length == 0)
             return null;
         uint hash = 2166136261;
