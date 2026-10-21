@@ -276,12 +276,11 @@ public sealed partial class SkinnedFigure : Figure
                 ? "the rig has no such hand bone: the hand is empty" : "no grip frame bound and no hand socket in the rig: the hand is empty", weapon.Model);
             return;
         }
-        if (HeldWeapon.Mount(_art, weapon.Model, grip) is not { } model)
+        if (HeldWeapon.Mount(_art, weapon.Model, grip, VisualOptions.People == "mpfb" ? 1 / _uniformScale : 1) is not { } model)
             return;
         model.Name = "Held";
         bone.AddChild(model);
         _held = model;
-        if (VisualOptions.People == "mpfb") _held.Scale /= _uniformScale; // Keep the same world-sized weapon on a normalized comparison body.
         _haft = weapon.Family == "polearm" && !off ? Haft(model) : null;
         Relax();
     }

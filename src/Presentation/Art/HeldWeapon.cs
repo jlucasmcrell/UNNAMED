@@ -24,7 +24,7 @@ public static class HeldWeapon
     }
 
     /// <summary>The weapon <paramref name="modelId"/> with its grip socket on <paramref name="grip"/>; null without the model or the socket.</summary>
-    public static Node3D? Mount(ArtLibrary art, string modelId, Transform3D grip)
+    public static Node3D? Mount(ArtLibrary art, string modelId, Transform3D grip, float scale = 1)
     {
         if (art.Model(modelId) is not { } model)
         {
@@ -38,7 +38,10 @@ public static class HeldWeapon
             model.Free();
             return null;
         }
-        model.Transform = grip * ArtLibrary.Relative(model, socket).AffineInverse();
+        // Scale around the equipment socket. Scaling the mounted root afterwards
+        // displaces an off-origin socket and pushes the handle through the hand.
+        model.Transform = grip * new Transform3D(Basis.FromScale(Vector3.One * scale), Vector3.Zero)
+            * ArtLibrary.Relative(model, socket).AffineInverse();
         art.Coverage.Resolved("weapon", modelId, modelId);
         return model;
     }
