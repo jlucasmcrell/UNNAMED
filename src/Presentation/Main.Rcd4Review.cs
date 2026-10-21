@@ -148,6 +148,20 @@ public partial class Main
         var figure=(Player.Figure)_npcs.FigureOf(Greybox.FoldEcho.Held)!;
         string? heldClip=figure.ClipState;
         string? nativeMetrics=figure.GetNodeOrNull<Node>("Native")?.Call("native_metrics").ToString();
+        object? mpfbPosture=null;
+        if(figure is Art.SkinnedFigure comparison)
+        {
+            var rig=comparison.Skeleton;
+            float Height(string bone)=>(rig.GlobalTransform*rig.GetBoneGlobalPose(rig.FindBone(bone)).Origin).Y-centre.Y;
+            float Rest(string bone)=>(rig.GlobalBasis*rig.GetBoneGlobalRest(rig.FindBone(bone)).Origin).Y;
+            float pelvis=Height("pelvis"),restPelvis=Rest("pelvis");
+            float soleL=Height("foot_l")-Rest("foot_l"),soleR=Height("foot_r")-Rest("foot_r");
+            float toeL=Height("ball_l")-Rest("ball_l"),toeR=Height("ball_r")-Rest("ball_r");
+            float contact=Math.Min(Math.Min(soleL,soleR),Math.Min(toeL,toeR));
+            mpfbPosture=new {model=comparison.ModelId,pelvis,rest_pelvis=restPelvis,knee_l=Height("calf_l"),knee_r=Height("calf_r"),sole_l=soleL,sole_r=soleR,toe_l=toeL,toe_r=toeR,contact};
+            if(pelvis>restPelvis*.75f || Math.Abs(contact)>.015f)
+                throw new InvalidOperationException("MPFB captive is not lowered and grounded: "+JsonSerializer.Serialize(mpfbPosture));
+        }
         float restingEnergy=decal.EmissionEnergy;
         // Explicit presentation-only fixtures of proximity and release. The saved barrier stays closed.
         _hollow.SetWardPlayer(centre+Vector3.Back*3.5f);await Rcd3Wait(.15);
@@ -164,7 +178,7 @@ public partial class Main
         await Rcd3Shot(directory,"tavar_freed_pose_visual_fixture");
         File.WriteAllText(Path.Combine(directory,"tavar_review.json"),JsonSerializer.Serialize(new {
             held_clip=heldClip, released_clip=figure.ClipState,shots, npc_suppressed=_npcs.SuppressPresentationForBenchmark,
-            native_metrics=nativeMetrics,resting_decal_energy=restingEnergy,touch_decal_energy=touchedEnergy,
+            native_metrics=nativeMetrics,mpfb_posture=mpfbPosture,resting_decal_energy=restingEnergy,touch_decal_energy=touchedEnergy,
             released_light_energy=light.LightEnergy,released_motes_visible=motes.Visible,
             barrier_still_standing=simulation.Barriers.Single(b=>b.Site.Key==Greybox.FoldEcho.Barrier).Standing,
             note="Held views are real NPC state. Touch/release are labelled presentation-only previews; simulation barrier and quest unchanged." }));

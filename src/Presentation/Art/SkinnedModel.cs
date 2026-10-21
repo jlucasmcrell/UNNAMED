@@ -68,6 +68,8 @@ public sealed partial class SkinnedModel : Node3D
         var library = new AnimationLibrary();
         foreach (var (state, clipId) in clips)
         {
+            if(VisualOptions.People=="mpfb" && assetId.StartsWith("mpfb_",StringComparison.Ordinal)
+                && state is "crouch_idle" or "crouch_walk" or "crouch_move") continue;
             if (art.Clip(clipId) is not { } clip)
             {
                 if (owner is not null)
@@ -117,11 +119,26 @@ public sealed partial class SkinnedModel : Node3D
             float scale = SkeletonRest.Of(Skeleton).Height / from.Height;
             foreach (string clip in native.GetAnimationList())
             {
+                if(clip is "crouch_idle" or "crouch_walk" or "crouch_move") continue;
                 if (library.HasAnimation(clip)) library.RemoveAnimation(clip);
                 library.AddAnimation(clip, ArtLibrary.Retarget(native.GetAnimation(clip), skeletonPath, Skeleton,
                     native.GetAnimation(clip).LoopMode != Animation.LoopModeEnum.None, from));
                 _states.Add(clip);
             }
+            // Offline Epic IK Retargeter output on this exact 53-bone target rig.
+            // Relocate node paths only: preserve every target-space animation key.
+            var posture=GD.Load<AnimationLibrary>($"res://Art/MPFBPosture/{assetId}_posture.res")
+                ?? throw new InvalidDataException("MPFB posture library missing: "+assetId);
+            foreach(string clip in new[]{"crouch_idle","crouch_walk","crouch_move"})
+            {
+                if(library.HasAnimation(clip)) library.RemoveAnimation(clip);
+                var animation=(Animation)posture.GetAnimation(clip=="crouch_move"?"crouch_walk":clip).Duplicate();
+                for(int track=0;track<animation.GetTrackCount();track++)
+                    animation.TrackSetPath(track,new NodePath($"{skeletonPath}:{animation.TrackGetPath(track).GetSubName(0)}"));
+                library.AddAnimation(clip,animation);
+                _states.Add(clip);
+            }
+            GD.Print($"UNNAMED MPFB posture: {assetId} offline Epic IK Retargeter, direct target tracks; no Godot posture retarget");
             MotionPaces = configuration["animation_paces"].AsGodotDictionary().ToDictionary(p => p.Key.AsString(), p => p.Value.AsSingle() * scale);
             if (configuration.TryGetValue("animation_phases", out var phases)) _contacts = phases.AsGodotDictionary();
             GD.Print($"UNNAMED MPFB motion: {assetId} {native.GetAnimationList().Count} common Epic clips, existing rest-relative route; native target skeleton unchanged");

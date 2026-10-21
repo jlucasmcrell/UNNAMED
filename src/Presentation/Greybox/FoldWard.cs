@@ -63,11 +63,13 @@ public sealed partial class FoldWard : Node3D
         for(int y=0;y<32;y++) for(int x=0;x<32;x++)
         {
             float r=new Vector2((x-15.5f)/16,(y-15.5f)/16).Length();
-            glow.SetPixel(x,y,new Color(.55f,.8f,1,Mathf.Pow(Mathf.Max(0,1-r),2)));
+            float strength=Mathf.Pow(Mathf.Max(0,1-r),2);
+            glow.SetPixel(x,y,new Color(.55f*strength,.8f*strength,strength,strength));
         }
+        var moteTexture=ImageTexture.CreateFromImage(glow);
         ward._moteMaterial=new StandardMaterial3D { ShadingMode=BaseMaterial3D.ShadingModeEnum.Unshaded,
             Transparency=BaseMaterial3D.TransparencyEnum.Alpha,BlendMode=BaseMaterial3D.BlendModeEnum.Add,
-            BillboardMode=BaseMaterial3D.BillboardModeEnum.Particles,AlbedoTexture=ImageTexture.CreateFromImage(glow),
+            BillboardMode=BaseMaterial3D.BillboardModeEnum.Particles,AlbedoTexture=moteTexture,EmissionTexture=moteTexture,
             AlbedoColor=new Color(3,3,3,1),VertexColorUseAsAlbedo=true,EmissionEnabled=true,
             Emission=new Color(.3f,.65f,1),EmissionEnergyMultiplier=3 };
         ward._motes=new GpuParticles3D { Name="DriftingWardMotes", Amount=80,Lifetime=7,Preprocess=7,
