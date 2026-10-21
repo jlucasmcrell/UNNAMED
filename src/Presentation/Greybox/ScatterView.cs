@@ -383,6 +383,21 @@ public partial class ScatterView : Node3D
             var box = bands.Skip(1).Aggregate(bands[0].Multimesh.GetAabb(), (b, n) => b.Merge(n.Multimesh.GetAabb()));
             foreach (var band in bands)
                 band.CustomAabb = box;
+            if (!kind.Rules.Shadows && OS.GetEnvironment("UNNAMED_SCATTER_PLANT_LOD") == "1")
+            {
+                // Visibility ranges measure the batch centre, whereas the shader measures each plant.
+                // Keep the coarse batch alive until every plant has left its shader band.
+                var basis = bands[0].GlobalBasis;var centre = box.GetCenter();
+                float radius = placed.Max(p => (basis * (p.Item1.Origin - centre)).Length()) + .05f;
+                for (int i = 0; i < bands.Count; i++)
+                {
+                    var band = bands[i];
+                    var guard = PlantLodBands.Guard(band.VisibilityRangeBegin, band.VisibilityRangeEnd, radius, i == bands.Count - 1);
+                    band.VisibilityRangeBegin = guard.Begin;band.VisibilityRangeEnd = guard.End;
+                    band.VisibilityRangeBeginMargin = 0;band.VisibilityRangeEndMargin = 0;
+                    band.VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Disabled;
+                }
+            }
         }
     }
 
@@ -711,7 +726,8 @@ public partial class ScatterView : Node3D
             // Surface merging above copies only the close-up arrays, losing the importer's LODs.
             // Regenerate after transforming into model space so each instanced plant keeps its
             // original near mesh, material and placement, with projected-error indices further out.
-            if (System.Environment.GetEnvironmentVariable("UNNAMED_RUNTIME_MESH_LODS") != "0")
+            if (System.Environment.GetEnvironmentVariable("UNNAMED_RUNTIME_MESH_LODS") != "0" &&
+                !(!kind.Shadows && OS.GetEnvironment("UNNAMED_SCATTER_PLANT_LOD") == "1"))
             {
                 using var importer = new ImporterMesh();
                 for (int s = 0; s < merged.GetSurfaceCount(); s++)
@@ -731,6 +747,18 @@ public partial class ScatterView : Node3D
                 merged.CustomAabb = merged.GetAabb().Grow(WindCullMargin(height, kind.Stiffness));
             if (impostor) merged.SetMeta("otherreach_impostor", true);
             meshes.Add(merged);
+        }
+        if (!kind.Shadows && OS.GetEnvironment("UNNAMED_SCATTER_PLANT_LOD") == "1")
+        {
+            var starts = kind.LodsM ?? new[] { 0f, 8f, 20f, 40f };
+            int count = Math.Min(meshes.Count, starts.Count);
+            for (int i = 0; i < count; i++)
+                for (int surface = 0; surface < meshes[i].GetSurfaceCount(); surface++)
+                    if (meshes[i].SurfaceGetMaterial(surface) is ShaderMaterial material)
+                    {
+                        material.SetShaderParameter("plant_lod_begin", starts[i]);
+                        material.SetShaderParameter("plant_lod_end", i + 1 < count ? starts[i + 1] : 0f);
+                    }
         }
         return meshes.ToArray();
     }

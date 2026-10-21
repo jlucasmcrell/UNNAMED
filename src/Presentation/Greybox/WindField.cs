@@ -209,6 +209,9 @@ uniform bool upright_normals = false;
 // Metres from the camera over which the plants drop out one by one (ScatterView: the outer part of the kind's reach); 0 keeps all.
 uniform float thin_from = 0.0;
 uniform float thin_to = 0.0;
+// Opt-in per-plant LOD selection. Negative begin preserves the existing renderer.
+uniform float plant_lod_begin = -1.0;
+uniform float plant_lod_end = 0.0;
 varying vec3 tint;
 
 void vertex() {
@@ -246,6 +249,17 @@ void vertex() {
     VERTEX.y -= amount * amount * 0.08 * plant_height;
 #endif
 #ifndef NO_FOLIAGE_THINNING
+    if (plant_lod_begin >= 0.0) {
+        float plant_distance = distance(origin, CAMERA_POSITION_WORLD);
+        // The same origin/hash on adjacent mesh levels makes selection complementary.
+        float variation = phase * 2.0 - 1.0;
+        float begin = plant_lod_begin + variation * min(1.0, plant_lod_begin * 0.1);
+        float end = plant_lod_end + variation * min(1.0, plant_lod_end * 0.1);
+        if ((plant_lod_begin > 0.0 && plant_distance < begin) ||
+                (plant_lod_end > 0.0 && plant_distance >= end)) {
+            VERTEX = vec3(0.0);
+        }
+    }
     if (thin_to > 0.0) {
         float keep = 1.0 - smoothstep(thin_from, thin_to, distance(origin, CAMERA_POSITION_WORLD));
         if (fract(sin(dot(origin.xz, vec2(41.37, 17.91))) * 23421.631) >= keep) {

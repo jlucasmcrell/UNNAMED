@@ -72,6 +72,7 @@ public partial class Main
             directional_lights=FindChildren("*",nameof(DirectionalLight3D),true,false).OfType<DirectionalLight3D>()
                 .Select(n=>new{path=n.GetPath().ToString(),shadows=n.ShadowEnabled,n.Visible}),
             lod_environment=OS.GetEnvironment("UNNAMED_LOD_STIPPLE"),
+            runtime_mesh_lods=OS.GetEnvironment("UNNAMED_RUNTIME_MESH_LODS"),plant_lod=OS.GetEnvironment("UNNAMED_SCATTER_PLANT_LOD"),
             evidence="SOURCE DIAGNOSTIC, not unchanged packaged RCd5. Real-time normal controller/pacing; no screenshots during route."}));
         ulong waitUntil=Time.GetTicksMsec()+120000;
         while(!File.Exists(Path.Combine(directory,"recording.started")))

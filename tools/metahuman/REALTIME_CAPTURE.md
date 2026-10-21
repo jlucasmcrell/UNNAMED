@@ -16,3 +16,13 @@ A second-stage coherent-cell list requires at least four connected tiles of the 
 
 The scatter_single_lod diagnostic selects ONLY the nearest existing band of each common-AABB/instance-count family and extends it to that family's original reach; every other band is hidden. This isolates geometry swaps without drawing all levels simultaneously. It can cost substantially more GPU work and is not a shipping proposal. Names are not reliable family keys because Godot renames duplicate form nodes. The ready receipt records visible scatter nodes, environment GI state and directional-light shadow state.
 
+
+## Opt-in candidate for batch-wide foliage switches
+
+`UNNAMED_SCATTER_PLANT_LOD=1` is a review candidate, OFF by default. Shadowless model foliage selects its authored mesh level per plant using the same world-origin hash on adjoining levels. Whole-cell visibility bands become conservative guards expanded by the actual placement radius and transition width; the existing per-plant far density fade remains unchanged. Redundant generated index LODs are omitted on those plants so another whole-batch mesh swap cannot undo per-plant selection. Shadow-casting kinds, characters, native binds and character materials remain on their existing path.
+
+Godot documents that visibility ranges use the batch AABB centre: https://docs.godotengine.org/en/stable/tutorials/3d/visibility_ranges.html . Applying a 6 m boundary to an 8 m-wide batch can switch a plant ~2.2 m from the camera. `PlantLodBandsTests` checks the old-cutoff counterexample and 120,000 independent points against the coarse guard contract. This proves conservative range coverage; it is not a claim of zero visually confirmed cell pops. The full real-time video and Claude review remain mandatory.
+
+Use `UNNAMED_RUNTIME_MESH_LODS=0` with the plant candidate OFF as a separate generated-index-LOD isolation test. The earlier `scatter_single_lod` arm freezes one authored mesh level but retains generated index LODs, so it does not freeze all geometry detail.
+
+Source desktop captures should pass `-StopIfFlagExists C:\Otherreach_Recovery\OWNER_PLAYING.flag` so a new owner session ends capture promptly. Do not use this for an automated normal-launcher test whose launcher owns that same flag; coordinate that test explicitly.
