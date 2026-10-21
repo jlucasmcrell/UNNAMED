@@ -12,6 +12,11 @@ public partial class Main
     {
         _rcd3Driving=true;
         var simulation=_session.Simulation ?? throw new InvalidOperationException("World missing");
+        // A review can be scheduled while the boot canvas still covers the world.
+        // Never spend part of the requested route behind the loading screen.
+        while(GetViewport().Disable3D)await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+        ulong warm=Time.GetTicksMsec()+2000;
+        while(Time.GetTicksMsec()<warm)await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
         string arm=OS.GetEnvironment("OTHERREACH_VISIBILITY_ARM");
         var scatter=_scatter.FindChildren("*",nameof(MultiMeshInstance3D),true,false).OfType<MultiMeshInstance3D>().ToArray();
         foreach(var n in scatter)
@@ -54,6 +59,7 @@ public partial class Main
             await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
         }
         ulong start=Time.GetTicksMsec();
+        bool failed=false;
         try
         {
             // Ashen Hollow approach, forest verge, eastern road, Cairnwold entry.
@@ -83,6 +89,21 @@ public partial class Main
             }
             File.WriteAllText(Path.Combine(directory,"route_complete.json"),JsonSerializer.Serialize(new{frame,seconds=(Time.GetTicksMsec()-start)/1000.0,arm}));
         }
-        finally{_controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);_rcd3Driving=false;trace.Flush();}
+        catch(Exception error)
+        {
+            failed=true;
+            File.WriteAllText(Path.Combine(directory,"route_failed.txt"),error.ToString());
+            throw;
+        }
+        finally
+        {
+            _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);_rcd3Driving=false;trace.Flush();
+            File.WriteAllText(Path.Combine(directory,"recording.finished"),DateTimeOffset.Now.ToString("o"));
+            // Keep the game foreground until desktop capture has closed, including failure paths.
+            ulong stopDeadline=Time.GetTicksMsec()+10000;
+            while(!File.Exists(Path.Combine(directory,"recording.stopped")) && Time.GetTicksMsec()<stopDeadline)
+                await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+            if(failed)GetTree().Quit(1);
+        }
     }
 }

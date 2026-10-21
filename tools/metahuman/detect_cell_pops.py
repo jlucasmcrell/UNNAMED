@@ -9,6 +9,38 @@ import cv2
 import numpy as np
 
 
+def coherent_cells(rows):
+    """Second-stage cell candidates: connected tiles with the same brightness polarity."""
+    frames = {}
+    for row in rows:
+        if abs(float(row["luma_delta"])) >= 12 and float(row["changed"]) >= .4:
+            frames.setdefault(int(row["frame"]), []).append(row)
+    candidates = []
+    for frame, tiles in frames.items():
+        for polarity in (-1, 1):
+            remaining = {(int(t["tile_x"]), int(t["tile_y"])): t for t in tiles
+                         if float(t["luma_delta"]) * polarity > 0}
+            while remaining:
+                seed = next(iter(remaining))
+                stack, component = [seed], []
+                while stack:
+                    x, y = stack.pop()
+                    tile = remaining.pop((x, y), None)
+                    if tile is None:
+                        continue
+                    component.append(tile)
+                    stack.extend([(x-1, y), (x+1, y), (x, y-1), (x, y+1)])
+                xs = [int(t["tile_x"]) for t in component]
+                ys = [int(t["tile_y"]) for t in component]
+                width, height = max(xs)-min(xs)+1, max(ys)-min(ys)+1
+                occupancy = len(component) / (width * height)
+                if len(component) >= 4 and width >= 2 and height >= 2 and occupancy >= .6:
+                    candidates.append(dict(frame=frame, seconds=float(component[0]["seconds"]),
+                                           bbox=[min(xs), min(ys), width, height], tiles=len(component),
+                                           polarity=polarity, occupancy=round(occupancy, 3)))
+    return candidates
+
+
 def scan(video, out, threshold=18.0, fraction=.32, stride=2):
     out.mkdir(parents=True, exist_ok=True)
     capture = cv2.VideoCapture(str(video))
@@ -76,7 +108,9 @@ def scan(video, out, threshold=18.0, fraction=.32, stride=2):
         writer.writeheader()
         writer.writerows(rows)
     # Group adjacent times into candidate events; never call them confirmed cell pops.
-    times = sorted(set(r["seconds"] for r in rows))
+    cells = coherent_cells(rows)
+    (out / "cell_candidates.json").write_text(json.dumps(cells, indent=2), encoding="utf-8")
+    times = sorted(set(r["seconds"] for r in cells))
     events = []
     for t in times:
         if not events or t - events[-1][1] > .5:
@@ -85,7 +119,8 @@ def scan(video, out, threshold=18.0, fraction=.32, stride=2):
             events[-1][1] = t
     report = dict(video=str(video.resolve()), fps=fps, decoded_frames=index, grid=[32, 32],
                   analysis_size=[640, 360], stride=stride, threshold=threshold, fraction=fraction,
-                  candidate_tile_flags=len(rows), candidate_events=events,
+                  candidate_tile_flags=len(rows), coherent_cell_frames=len(times), candidate_events=events,
+                  cell_filter="Same-polarity luma delta >=12, changed fraction >=.4; >=4 connected tiles, bbox >=2x2, occupancy >=.6.",
                   confirmed_cell_pops=None,
                   interpretation="Candidate flags require video review; optical flow, wind, lighting and disocclusion can produce false positives.")
     (out / "detector.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
