@@ -572,7 +572,7 @@ public class ContentLoaderTests
                 "location.barrowworks.r11_measuring_court", "location.barrowworks.r13_inspection_bay", "location.barrowworks.service_vestibule", "location.blackvein_cut",
                 "location.cairnwold.ash_stand", "location.cairnwold.iron_seam", "location.cairnwold.lodge", "location.cairnwold.the_bog",
                 "location.cairnwold.the_crags", "location.cairnwold.the_gorge", "location.cairnwold.village", "location.den_mouth",
-                "location.foldscar", "location.herb_patch", "location.outpost", "location.road.basin_rim",
+                "location.foldscar", "location.herb_patch", "location.old_late", "location.outpost", "location.road.basin_rim",
                 "location.road.lantern_shrine", "location.road.overturned_wain", "location.road.sunk_barrow", "location.ruined_cart",
                 "loot.animated_armour", "loot.ash_ember_hound", "loot.barrow_cache", "loot.barrowback",
                 "loot.barrowworks.archive_crate", "loot.barrowworks.codex_fragment", "loot.barrowworks.lantern_foot", "loot.bone_walker_husk",

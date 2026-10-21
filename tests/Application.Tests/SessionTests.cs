@@ -26,7 +26,7 @@ public class SessionTests
             {
                 "location.blackvein_cut", "location.cairnwold.ash_stand", "location.cairnwold.iron_seam", "location.cairnwold.lodge", "location.cairnwold.the_bog",
                 "location.cairnwold.the_crags", "location.cairnwold.the_gorge", "location.cairnwold.village", "location.den_mouth", "location.foldscar",
-                "location.herb_patch", "location.outpost", "location.road.basin_rim", "location.road.lantern_shrine", "location.road.overturned_wain",
+                "location.herb_patch", "location.old_late", "location.outpost", "location.road.basin_rim", "location.road.lantern_shrine", "location.road.overturned_wain",
                 "location.road.sunk_barrow", "location.ruined_cart",
             }, layout.Locations.Select(l => l.Id));
         Assert.Equal((400_000L, 600_000L, 1_100_000L, 800_000L), (layout.Space.MinXMm, layout.Space.MinZMm, layout.Space.MaxXMm, layout.Space.MaxZMm));

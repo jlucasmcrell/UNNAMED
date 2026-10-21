@@ -1,5 +1,6 @@
 using Godot;
 using System.Text.Json;
+using UNNAMED.Domain.Spatial;
 
 namespace UNNAMED.Presentation;
 
@@ -45,7 +46,8 @@ public partial class Main
             }
         }
         foreach (var tree in trees.OrderBy(t => t.GlobalPosition.DistanceSquaredTo(_avatar.GlobalPosition))
-            .Take(System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_TREE_SHAPES") == "1" ? 0 : 2))
+            .Take(System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_TREE_SHAPES") == "1"
+                || System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_ROOT_WALK") == "1" ? 0 : 2))
         {
             var bounds = Art.ArtGallery.Bounds(tree);
             var aim = tree.ToGlobal(bounds.GetCenter());
@@ -79,17 +81,74 @@ public partial class Main
             }
         }
         foreach (var shot in new[] {
-            ("old_late_before", At(680,23,790),At(650,25,765)),
-            ("old_late_roots_before",At(666,2,779),At(650,2,765)),
-            ("den_gorge_before",At(535,2,799.5f),At(512,-20,824)),
-            ("tavar_before",At(551,2,651),At(545,1,642)) })
+            ("old_late_full", At(680,23,790),At(650,25,765)),
+            ("old_late_roots",At(666,2,779),At(650,2,765)),
+            ("den_gorge",At(535,2,799.5f),At(512,-20,824)),
+            ("tavar",At(551,2,651),At(545,1,642)) })
         {
             camera.GlobalPosition=shot.Item2;camera.LookAt(shot.Item3);
             _shadowLods.Update(camera.GlobalPosition);
             await Rcd3Wait(.5);await Rcd3Shot(directory,shot.Item1);
             rows.Add(new { name=shot.Item1, eye=shot.Item2.ToString(), target=shot.Item3.ToString(), npc_suppressed_fixture=true });
         }
+        if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_ROOT_WALK") == "1")
+            await Rcd4RootWalk(directory,camera);
         File.WriteAllText(Path.Combine(directory,"world_review.json"),JsonSerializer.Serialize(rows,new JsonSerializerOptions{WriteIndented=true}));
         File.WriteAllText(Path.Combine(directory,"complete.json"),"{\"fixture\":\"Scenery A/B; NPC presentation suppressed; no world state writes\"}");
+    }
+
+    private async Task Rcd4RootWalk(string directory,Camera3D camera)
+    {
+        var simulation=_session.Simulation!;var space=simulation.ActiveLayout.Space;
+        var surface=space.WalkableSurfaces.Single();
+        var points=Enumerable.Range(0,surface.Rows).SelectMany(z=>Enumerable.Range(0,surface.Columns).Select(x=>
+            (X:surface.OriginXMm+x*surface.SpacingMm,Z:surface.OriginZMm+z*surface.SpacingMm)));
+        var neighbours=new[] {(-250L,-250L),(0L,-250L),(250L,-250L),(-250L,0L),(0L,0L),(250L,0L),(-250L,250L),(0L,250L),(250L,250L)};
+        var goal=points.Where(p=>Math.Pow(p.X-650000,2)+Math.Pow(p.Z-765000,2)>36000000)
+            .Where(p=>space.HeightAtMm(p.X,p.Z)-space.Terrain.HeightAtMm(p.X,p.Z)>600)
+            .Where(p=>neighbours.Max(n=>space.HeightAtMm(p.X+n.Item1,p.Z+n.Item2))
+                -neighbours.Min(n=>space.HeightAtMm(p.X+n.Item1,p.Z+n.Item2))<250)
+            .OrderByDescending(p=>space.HeightAtMm(p.X,p.Z)-space.Terrain.HeightAtMm(p.X,p.Z)).First();
+        var destination=new Body(goal.X,space.HeightAtMm(goal.X,goal.Z),goal.Z,0);
+        // Local navigation windows, around the village and south of the occupied wolf den.
+        var anchors=new[] { (440000L,755000L),(465000L,755000L),(495000L,755000L),
+            (525000L,755000L),(555000L,755000L),(585000L,755000L),(615000L,755000L),(goal.X,goal.Z) };
+        var path=new List<(double X,double Z)>();var from=_controller.Authoritative;
+        foreach(var anchor in anchors)
+        {
+            var to=new Body(anchor.Item1,space.HeightAtMm(anchor.Item1,anchor.Item2),anchor.Item2,0);
+            path.AddRange(Playthrough.WayTo(simulation,from,to,standOff:0));from=to;
+        }
+        var route=path.ToArray();
+        int waypoint=0,shots=0;float maxRise=0;ulong start=Time.GetTicksMsec(),lastShot=0;
+        _rcd3Driving=true;SetProcess(true);
+        while(waypoint<route.Length && Time.GetTicksMsec()-start<140000)
+        {
+            await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+            var body=_controller.Authoritative;var point=route[waypoint];
+            var toward=new Vector3((float)(point.X-body.XMm/1000.0),0,(float)(point.Z-body.ZMm/1000.0));
+            if(toward.Length()<.12f){waypoint++;continue;}
+            _controller.SteerWorld(toward.Normalized(),toward.Length()<1 ? Gait.Walk : Gait.Run,_camera);
+            var outward=(_avatar.GlobalPosition-new Vector3(650,_avatar.GlobalPosition.Y,765)).Normalized();
+            var eye=_avatar.GlobalPosition+outward*6+Vector3.Up*3;
+            eye.Y=Math.Max(eye.Y,space.HeightAtMm((long)(eye.X*1000),(long)(eye.Z*1000))/1000f+2);
+            camera.GlobalPosition=eye;camera.LookAt(_avatar.GlobalPosition+Vector3.Up);
+            _shadowLods.Update(eye);
+            float rise=(body.YMm-space.Terrain.HeightAtMm(body.XMm,body.ZMm))/1000f;maxRise=Math.Max(maxRise,rise);
+            if(rise>.4f && shots<3 && Time.GetTicksMsec()-lastShot>800)
+            { await Rcd3Shot(directory,$"old_late_climb_{++shots}");lastShot=Time.GetTicksMsec(); }
+        }
+        _controller.SteerWorld(Vector3.Zero,Gait.Run,_camera);await Rcd3Wait(1);
+        await Rcd3Shot(directory,"old_late_standing");
+        var feet=_controller.Authoritative;
+        bool known=simulation.Map.Places.Any(p=>p.LocationId=="location.old_late");
+        File.WriteAllText(Path.Combine(directory,"root_walk.json"),JsonSerializer.Serialize(new {
+            destination,feet,waypoint,waypoints=route.Length,max_rise_m=maxRise,known,
+            support_y_mm=space.HeightAtMm(feet.XMm,feet.ZMm),
+            native_metrics=_avatar.GetNodeOrNull<Node>("Native")?.Call("native_metrics").ToString(),
+            proof="Actual controller movement and simulation collision; no actor teleport or authoritative state writes" },new JsonSerializerOptions{WriteIndented=true}));
+        if(maxRise<.4f || !known) throw new InvalidOperationException("Old Late walk did not prove root support and discovery");
+        Show(_map);await Rcd3Wait(.3);await Rcd3Shot(directory,"old_late_discovery_map");
+        _rcd3Driving=false;SetProcess(false);
     }
 }

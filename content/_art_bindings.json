@@ -1796,6 +1796,7 @@
     },
     "old_late": {
       "model": "flora_old_late",
+      "ground_sink_m": 4.0,
       "material": "wood",
       "wind": 3.0,
       "late_s": 1.5,

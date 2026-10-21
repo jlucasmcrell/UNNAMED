@@ -101,7 +101,20 @@ public sealed record MovementRules(long BaseSpeedMmPerSecond, int WalkPercent, i
 }
 
 /// <summary>The static walkable space of a region: its movement bounds, its terrain, and what stands on it.</summary>
-public sealed record WalkSpace(long MinXMm, long MinZMm, long MaxXMm, long MaxZMm, TerrainGrid Terrain, ImmutableArray<Blocker> Blockers);
+public sealed record WalkSpace(long MinXMm, long MinZMm, long MaxXMm, long MaxZMm, TerrainGrid Terrain, ImmutableArray<Blocker> Blockers)
+{
+    /// <summary>Authored prop tops: walking and prediction share the same bounded support height fields.</summary>
+    public ImmutableArray<TerrainGrid> WalkableSurfaces { get; init; } = ImmutableArray<TerrainGrid>.Empty;
+
+    public long HeightAtMm(long xMm, long zMm)
+    {
+        long height = Terrain.HeightAtMm(xMm,zMm);
+        foreach (var surface in WalkableSurfaces)
+            if (xMm >= surface.OriginXMm && xMm <= surface.MaxXMm && zMm >= surface.OriginZMm && zMm <= surface.MaxZMm)
+                height = Math.Max(height,surface.HeightAtMm(xMm,zMm));
+        return height;
+    }
+}
 
 /// <summary>
 /// The one movement function. The movement system integrates the player with it every tick, and
@@ -156,7 +169,7 @@ public static class Kinematics
         var next = posture.Airborne && airTo < rules.AirtimeMs ? posture with { AirMs = airTo } : posture with { Airborne = false, AirMs = 0 };
         long qx = (long)Math.Round(x, MidpointRounding.AwayFromZero);
         long qz = (long)Math.Round(z, MidpointRounding.AwayFromZero);
-        return (new Body(qx, space.Terrain.HeightAtMm(qx, qz) + rules.LiftMm(next.AirMs), qz, intent.FacingMdeg), next);
+        return (new Body(qx, space.HeightAtMm(qx, qz) + rules.LiftMm(next.AirMs), qz, intent.FacingMdeg), next);
     }
 
     /// <summary>

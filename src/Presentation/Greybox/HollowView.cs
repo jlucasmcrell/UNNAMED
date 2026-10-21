@@ -107,6 +107,21 @@ public partial class HollowView : Node3D
         }
         foreach (var door in layout.Doors)
             AddChild(BuildDoor(door, layout, terrain));
+        // Camera collision uses the same sampled prop tops as authoritative walking.
+        foreach (var surface in layout.Space.WalkableSurfaces)
+        {
+            var faces = new List<Vector3>();float step=surface.SpacingMm/1000f;
+            Vector3 Point(int x,int z) => new(x*step,surface.HeightAt(x,z)/1000f,z*step);
+            for(int z=0;z<surface.Rows-1;z++) for(int x=0;x<surface.Columns-1;x++)
+            {
+                var a=Point(x,z);var b=Point(x+1,z);var c=Point(x,z+1);var d=Point(x+1,z+1);
+                faces.AddRange(new[] {a,c,d,a,d,b});
+            }
+            var shape=new ConcavePolygonShape3D();shape.SetFaces(faces.ToArray());
+            var collider=new StaticBody3D { Name="WalkablePropSurface", CollisionLayer=1,CollisionMask=0,
+                Position=new Vector3(surface.OriginXMm/1000f,0,surface.OriginZMm/1000f) };
+            collider.AddChild(new CollisionShape3D { Shape=shape });AddChild(collider);
+        }
         // Phase B VFX lane: the Foldscar's stones, heart and fold come back into register as they are set (FoldscarRegister).
         if (VisualOptions.Recipes)
         {

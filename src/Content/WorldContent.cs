@@ -553,7 +553,13 @@ public static class WorldContent
                 opening = new Body(openingX, terrain.HeightAtMm(openingX, openingZ), openingZ, (int)openingMdeg);
             }
 
-            var space = new WalkSpace(minX, minZ, maxX, maxZ, terrain, structures);
+            var supports = map.ContainsKey("walkable_surfaces") ? List(map,"walkable_surfaces")
+                .Select(s => BuildTerrain(s as Dictionary<object,object> ?? throw new FormatException("walkable_surfaces entries must be terrain grids")))
+                .ToImmutableArray() : ImmutableArray<TerrainGrid>.Empty;
+            foreach (var surface in supports)
+                Check(surface.OriginXMm >= minX && surface.OriginZMm >= minZ && surface.MaxXMm <= maxX && surface.MaxZMm <= maxZ,
+                    "WLD003", "walkable surfaces must lie within the region bounds");
+            var space = new WalkSpace(minX, minZ, maxX, maxZ, terrain, structures) { WalkableSurfaces = supports };
             var layout = new RegionLayout(regionId, cells.Select(c => c.ToString()).ToImmutableArray(), space, doors.ToImmutable(),
                 locations.ToImmutable(), new Body(spawnX, terrain.HeightAtMm(spawnX, spawnZ), spawnZ, (int)facingMdeg), regionGeneration)
             {

@@ -118,7 +118,7 @@ public sealed class Playthrough
     /// on the side the way arrives from. Someone asleep or at home stands in a row inside the longhouse: walked at in a straight line
     /// they are a wall away, and from the wrong side the row pens the character short of talk reach. With no way found, the straight line.
     /// </summary>
-    internal static (double X, double Z)[] WayTo(Simulation simulation, Body from, Body to)
+    internal static (double X, double Z)[] WayTo(Simulation simulation, Body from, Body to, double standOff = 1.3)
     {
         var navigation = simulation.Navigation;
         var config = simulation.Setup.Navigation;
@@ -131,7 +131,7 @@ public sealed class Playthrough
         var last = corners.Length > 0 ? corners[^1] : new NavPoint(from.XMm, from.ZMm);
         double dx = last.XMm - to.XMm, dz = last.ZMm - to.ZMm, length = Math.Max(1, Math.Sqrt(dx * dx + dz * dz));
         return corners.Select(c => (c.XMm / 1000.0, c.ZMm / 1000.0))
-            .Append((to.XMm / 1000.0 + dx / length * 1.3, to.ZMm / 1000.0 + dz / length * 1.3)).ToArray();
+            .Append((to.XMm / 1000.0 + dx / length * standOff, to.ZMm / 1000.0 + dz / length * standOff)).ToArray();
     }
 
     private (double X, double Z)[]? _way;

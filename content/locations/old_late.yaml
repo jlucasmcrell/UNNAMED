@@ -1,0 +1,13 @@
+id: location.old_late
+kind: location
+schema: 1
+display_key: location.old_late.name
+tags: [location, landmark]
+name: Old Late
+notes: The Quiet-folk landmark giant; its crown answers the wind a breath late. E7.
+region_ref: region.starting_frontier
+anchor: { world: [650, 0, 765] }
+kind_of_place: landmark
+discovery: { methods: [visited], radius_m: 28, xp: 25 }
+map: { reveals_radius_m: 45, marker: landmark }
+fast_travel: { node: false }

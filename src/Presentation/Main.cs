@@ -917,6 +917,9 @@ public partial class Main : Node3D
         AddChild(_hollow);
         _loading?.Stage("Raising the terrain and buildings", 0.2);
         _hollow.Build(layout);
+        if (layout.Locations.FirstOrDefault(l => l.Id == "location.old_late") is { } late)
+            _hollow.AddChild(new LandmarkName { Name="OldLateName",Text=Names.Of(_session,late.Id),
+                Position=new Vector3(late.XMm/1000f,layout.Space.Terrain.HeightAtMm(late.XMm,late.ZMm)/1000f+4,late.ZMm/1000f) });
         _loading?.Stage("Building the interiors", 0.6);
         BuildInterior();
         // What grows and lies on the ground (Phase A, the visual audit's V3): placed once a world, and so its seed, is known (Resync).
@@ -1479,7 +1482,8 @@ public partial class Main : Node3D
         _frontierPerf?.Phase("npcs", npcsStarted);
         LogStates(simulation, delta, speed);
         _camera.Follow(_shots?.Viewpoint ?? _avatar.Position, delta);
-        _avatar.SetFirstPerson(_camera.EffectiveDistance < 0.4f);
+        bool reviewCamera = _mhReviewDirectory is not null && GetViewport().GetCamera3D() != _camera.Camera;
+        _avatar.SetFirstPerson(!reviewCamera && _camera.EffectiveDistance < 0.4f);
         // A conversation frames the speaker's face over the character's shoulder (not in first person).
         _talkCamera.Frame(simulation.Conversation is { } talk && !_camera.IsFirstPerson ? _npcs.HeadOf(talk.NpcId) : null,
             _avatar.Head, _camera.Camera, delta);
