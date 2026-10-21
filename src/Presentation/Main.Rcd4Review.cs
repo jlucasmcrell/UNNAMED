@@ -11,6 +11,13 @@ public partial class Main
     private async Task RunRcd4WorldReview(string directory, Camera3D camera)
     {
         SetProcess(false);
+        if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_TAVAR_ONLY") == "1")
+        {
+            if (_npcs.SuppressPresentationForBenchmark) throw new InvalidOperationException("Tavar gate requires NPCs");
+            await Rcd4Tavar(directory,camera);
+            File.WriteAllText(Path.Combine(directory,"complete.json"),"{\"tavar_gate\":true,\"npc_suppressed\":false}");
+            return;
+        }
         var rows = new List<object>();
         Vector3 At(float x,float rise,float z) => new(x,
             _session.Setup.Layout.Space.Terrain.HeightAtMm((long)(x*1000),(long)(z*1000))/1000f+rise,z);
@@ -85,8 +92,7 @@ public partial class Main
             ("old_late_full", At(680,23,790),At(650,25,765)),
             ("old_late_roots",At(666,2,779),At(650,2,765)),
             ("den_gorge",At(535,2,799.5f),At(512,-20,824)),
-            ("den_gorge_floor",At(535,2,799.5f),At(535,-18,817)),
-            ("tavar",At(551,2,651),At(545,1,642)) })
+            ("den_gorge_floor",At(535,2,799.5f),At(535,-18,817)) })
         {
             camera.GlobalPosition=shot.Item2;camera.LookAt(shot.Item3);
             _shadowLods.Update(camera.GlobalPosition);
@@ -122,29 +128,48 @@ public partial class Main
         var simulation=_session.Simulation!;
         var held=simulation.Npcs.Single(n=>n.Id==Greybox.FoldEcho.Held);
         var centre=Greybox.HollowView.ToGodot(held.Body.XMm,held.Body.YMm,held.Body.ZMm);
-        foreach(float distance in new[] {20f,10f,5f})
+        var ward=(Node3D?)_hollow.FindChild("WardRunes",true,false)
+            ?? throw new InvalidOperationException("Tavar ward missing");
+        var decal=ward.GetNode<Decal>("EmissiveRuneDecal");
+        var motes=ward.GetNode<GpuParticles3D>("DriftingWardMotes");
+        var light=ward.GetNode<OmniLight3D>("WardSoftLight");
+        var shots=new List<object>();
+        foreach(float distance in new[] {30f,20f,10f,5f})
         {
-            camera.GlobalPosition=centre+new Vector3(distance*.35f,2.5f,distance*.94f);
-            camera.LookAt(centre+Vector3.Up);
+            camera.GlobalPosition=centre+new Vector3(-distance*.3f,distance*.12f+1.6f,distance*.954f);
+            camera.LookAt(centre+Vector3.Up*.8f);
             for(int i=0;i<25;i++) { _npcs.Draw(simulation,.04,_session.TickSeconds); await Rcd3Wait(.04); }
             _shadowLods.Update(camera.GlobalPosition);
             await Rcd3Shot(directory,$"tavar_held_{distance:0}m");
+            if(distance==10) await Rcd3Shot(directory,"tavar");
+            shots.Add(new {distance,eye=camera.GlobalPosition.ToString(),target=(centre+Vector3.Up*.8f).ToString(),
+                decal_energy=decal.EmissionEnergy,motes=motes.Amount,soft_light_energy=light.LightEnergy });
         }
         var figure=(Player.Figure)_npcs.FigureOf(Greybox.FoldEcho.Held)!;
         string? heldClip=figure.ClipState;
+        string? nativeMetrics=figure.GetNodeOrNull<Node>("Native")?.Call("native_metrics").ToString();
+        float restingEnergy=decal.EmissionEnergy;
         // Explicit presentation-only fixtures of proximity and release. The saved barrier stays closed.
         _hollow.SetWardPlayer(centre+Vector3.Back*3.5f);await Rcd3Wait(.15);
+        float touchedEnergy=decal.EmissionEnergy;
         await Rcd3Shot(directory,"tavar_touch_visual_fixture");
         var released=simulation.Barriers.Select(b=>b.Site.Key==Greybox.FoldEcho.Barrier ? b with {Standing=false} : b).ToArray();
         _hollow.SetFlags(simulation.Switches,released,inPlay:true);
         await Rcd3Wait(.8);await Rcd3Shot(directory,"tavar_release_visual_fixture");
+        await Rcd3Wait(2.5);
+        if(light.LightEnergy>.001f || motes.Visible || decal.EmissionEnergy>.001f)
+            throw new InvalidOperationException("Ward effects survived release");
         figure.SetPosture(false,false);
         for(int i=0;i<35;i++) { figure.Pose(centre,Player.PlayerController.FacingRadians(held.Body.FacingMdeg),0,.04);await Rcd3Wait(.04); }
         await Rcd3Shot(directory,"tavar_freed_pose_visual_fixture");
         File.WriteAllText(Path.Combine(directory,"tavar_review.json"),JsonSerializer.Serialize(new {
-            held_clip=heldClip, released_clip=figure.ClipState, barrier_still_standing=simulation.Barriers.Single(b=>b.Site.Key==Greybox.FoldEcho.Barrier).Standing,
+            held_clip=heldClip, released_clip=figure.ClipState,shots, npc_suppressed=_npcs.SuppressPresentationForBenchmark,
+            native_metrics=nativeMetrics,resting_decal_energy=restingEnergy,touch_decal_energy=touchedEnergy,
+            released_light_energy=light.LightEnergy,released_motes_visible=motes.Visible,
+            barrier_still_standing=simulation.Barriers.Single(b=>b.Site.Key==Greybox.FoldEcho.Barrier).Standing,
             note="Held views are real NPC state. Touch/release are labelled presentation-only previews; simulation barrier and quest unchanged." }));
         if(heldClip!="crouch_idle") throw new InvalidOperationException("Tavar captive clip not selected");
+        if(touchedEnergy<=restingEnergy) throw new InvalidOperationException("Ward proximity pulse did not brighten");
     }
 
     private async Task Rcd4RootWalk(string directory,Camera3D camera)

@@ -171,10 +171,10 @@ void fragment() {
     colour = mix(colour, vec3(0.50, 0.57, 0.80), clamp(edge * 0.65 + contact * 0.55, 0.0, 0.7));
     float pulse = .75 + .25 * sin(TIME * 2.5 - h * 5.0);
     float bands = pow(.5 + .5 * sin(h * 28.0 - TIME * .7 + ragged * 3.0), 12.0);
-    vec3 light = vec3(.33,.53,.95) * (edge * .75 + contact * 1.5 + motes + bands * .18) * (pulse + reaction * 1.8 + proximity * .25);
+    vec3 light = vec3(.25,.6,1.0) * (edge * .9 + contact * 2.0 + motes * 2.0 + bands * .45) * (pulse + reaction * 1.8 + proximity * .25);
     ALBEDO = colour + light;
-    EMISSION = light * 1.8;
-    ALPHA = clamp(body * top * foot * held * .38 + (edge * .65 * foot + contact * .65 + motes * .6 * foot + bands * .10 * foot) * top + reaction * .16 * top * foot, 0.0, .85) * presence;
+    EMISSION = light * 3.0;
+    ALPHA = clamp(body * top * foot * held * .14 + (edge * .55 * foot + contact * .7 + motes * .6 * foot + bands * .2 * foot) * top + reaction * .12 * top * foot, 0.0, .75) * presence;
 }
 ",
         },

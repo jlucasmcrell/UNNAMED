@@ -777,7 +777,8 @@ public partial class HollowView : Node3D
         float height = barrier.Footprint.HeightMm / 1000f;
         Mesh mesh = barrier.Footprint switch
         {
-            CircleBlocker circle => new CylinderMesh { TopRadius = circle.RadiusMm / 1000f, BottomRadius = circle.RadiusMm / 1000f, Height = height },
+            CircleBlocker circle => new CylinderMesh { TopRadius = circle.RadiusMm / 1000f, BottomRadius = circle.RadiusMm / 1000f,
+                Height = height,RadialSegments=96,CapTop=false,CapBottom=false },
             BoxBlocker box => new BoxMesh { Size = new Vector3((box.MaxXMm - box.MinXMm) / 1000f, height, (box.MaxZMm - box.MinZMm) / 1000f) },
             _ => throw new ArgumentOutOfRangeException(nameof(barrier), barrier.Footprint.GetType().Name, "Unknown blocker shape"),
         };
