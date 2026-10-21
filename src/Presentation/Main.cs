@@ -237,6 +237,7 @@ public partial class Main : Node3D
             InstallMpfbComparison();
             InstallDsShots();
             InstallInnShots();
+            InstallInnRoom();
         }
         catch (Exception e)
         {
@@ -1337,6 +1338,7 @@ public partial class Main : Node3D
         TickMpfbComparison();
         TickDsShots();
         TickInnShots();
+        TickInnRoom();
     }
 
     /// <summary>

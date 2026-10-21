@@ -30,7 +30,8 @@ public static class AdventurerContent
     {
         if (row.GetValueOrDefault("inn") is not Dictionary<object, object> map)
             return null;
-        var hours = map.GetValueOrDefault("hours") as Dictionary<object, object> ?? new Dictionary<object, object>();
+        var hours = map.GetValueOrDefault("hours") as Dictionary<object, object>
+            ?? throw new FormatException($"{id}'s inn names its hours, under the inn: a room's day is not the defaults");
         long Mm(object? value, string what) => (long)Math.Round(double.Parse(value as string
             ?? throw new FormatException($"{id}'s inn {what} holds numbers"), NumberStyles.Float, CultureInfo.InvariantCulture) * 1000,
             MidpointRounding.AwayFromZero);
@@ -52,12 +53,15 @@ public static class AdventurerContent
         return new InnPlaces(At(Map1("door"), "door"), At(Map1("keeper"), "keeper"), At(Map1("board"), "board"), At(Map1("hearth"), "hearth"),
             seats, beds, At(Map1("gate"), "gate"))
         {
-            SleepFromHour = hours.Count == 0 ? 22 : (int)Number(hours, "sleep_from"),
-            BreakfastFromHour = hours.Count == 0 ? 6 : (int)Number(hours, "breakfast_from"),
-            BoardFromHour = hours.Count == 0 ? 7 : (int)Number(hours, "board_from"),
-            WalkMinutes = hours.Count == 0 ? 30 : (int)Number(hours, "walk_minutes"),
-            ReturnWalkMinutes = hours.Count == 0 ? 30 : (int)Number(hours, "return_walk_minutes"),
-            ReturnHours = hours.Count == 0 ? 9 : (int)Number(hours, "return_hours"),
+            SleepFromHour = (int)Number(hours, "sleep_from"),
+            BreakfastFromHour = (int)Number(hours, "breakfast_from"),
+            BoardFromHour = (int)Number(hours, "board_from"),
+            WalkMinutes = (int)Number(hours, "walk_minutes"),
+            ReturnWalkMinutes = (int)Number(hours, "return_walk_minutes"),
+            ReturnHours = (int)Number(hours, "return_hours"),
+            RoomCoin = map.ContainsKey("room_coin") ? (long)Number(map, "room_coin") : 5,
+            KeeperId = map.GetValueOrDefault("keeper_npc_ref") as string
+                ?? throw new FormatException($"{id}'s inn names its keeper: no one else lets its rooms"),
         };
     }
     public static IReadOnlyList<ValidationError> Validate(ContentLoader loader)

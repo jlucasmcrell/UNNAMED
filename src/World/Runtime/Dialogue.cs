@@ -248,6 +248,9 @@ internal sealed class DialogueSystem : IDialogueFacts
             case ReportActConsequence report:
                 _context.Dispatch(new ReportAct(report.Kind, report.Subject, open.NpcId));
                 break;
+            case RentRoomConsequence room:
+                _context.Dispatch(new RentRoom(open.NpcId, room.Hour));
+                break;
         }
     }
 

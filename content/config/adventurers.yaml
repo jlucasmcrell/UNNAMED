@@ -64,6 +64,8 @@ settlements:
         - [437.9, 727.85]                                       # bed 02
         - [437.9, 729.95]                                       # bed 03
       gate: { position_m: [464, 748], facing_deg: 90 }          # where the Old East Road leaves the hamlet
+      room_coin: 5                                              # what a bed for the night costs the character, paid to the keeper (spec 15)
+      keeper_npc_ref: npc.ashen_hollow.renn_vale                    # the one who keeps the inn, and the only voice that lets its rooms
       # The inn's hours: the game clock, and the walk windows that make the day's leaving and coming back visible. They live under the inn,
       # where the content reads them - authored beside it, they were silently the defaults.
       hours:

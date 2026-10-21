@@ -29,6 +29,10 @@ nodes:
       - id: work
         text: "Who needs a hand?"
         next: work
+      # Spec 15: the room - a bed to the hour the character asks for, the world going on while they sleep, and a save to wake into.
+      - id: bed
+        text: "Have you a bed for the night?"
+        next: bed
       - id: iron
         text: "I've been down in Blackvein Cut."
         conditions:
@@ -143,6 +147,20 @@ nodes:
     choices:
       - id: back
         text: "I'll ask them."
+        next: again
+  bed:
+    text: "Bed's five coin, paid to me and not to the road. The door's bolted from inside and nothing gets in but the weather. Say an hour and I'll have you up at it - the world won't wait, but it doesn't need you for it."
+    choices:
+      - id: take
+        text: "I'll take it. The sixth hour."
+        consequences:
+          - { command: rent_room, hour: 6 }
+      - id: take_late
+        text: "I'll take it. The eighth hour."
+        consequences:
+          - { command: rent_room, hour: 8 }
+      - id: not_tonight
+        text: "Not tonight."
         next: again
   shelf_news:
     text: "And came back carrying ore. Then you've met what walks down there and you're still breathing, which puts you ahead of a fair few of my guests. Kera will want that iron. She'll also want to tell you what's wrong with it."
