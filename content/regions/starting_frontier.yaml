@@ -142203,6 +142203,30 @@ structures:
   - 448.0
   - 730.42
   height_m: 0.22
+  # Spec 15 (owner finding 15): the inn board - one board, contracts, bounties and who is out - by the door a body comes in at.
+- id: ah_furn_inn_board
+  box_m:
+  - 450.15
+  - 725.6
+  - 450.45
+  - 727.0
+  height_m: 1.8
+  clearance_m: 0.5
+  # The gateposts where the Old East Road leaves the hamlet (464, 748): the party is seen walking out between them, and back in.
+- id: ah_gate_post_south
+  box_m:
+  - 463.6
+  - 746.9
+  - 464.0
+  - 747.3
+  height_m: 2.2
+- id: ah_gate_post_north
+  box_m:
+  - 463.6
+  - 748.7
+  - 464.0
+  - 749.1
+  height_m: 2.2
 - id: cw_house_01_west
   box_m:
   - 945.0

@@ -1736,6 +1736,18 @@
       "model": "prop_ph_stone_fire_pit",
       "material": "stone"
     },
+    "ah_furn_inn_board": {
+      "model": "prop_bp_hurdle_wattle",
+      "material": "wood"
+    },
+    "ah_gate_post_south": {
+      "model": "prop_bp_lantern_post",
+      "material": "wood"
+    },
+    "ah_gate_post_north": {
+      "model": "prop_bp_lantern_post",
+      "material": "wood"
+    },
     "rock_well": {
       "model": "prop_bp_well_ah",
       "material": "wood"

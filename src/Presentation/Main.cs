@@ -236,6 +236,7 @@ public partial class Main : Node3D
             InstallMetaHumanReview();
             InstallMpfbComparison();
             InstallDsShots();
+            InstallInnShots();
         }
         catch (Exception e)
         {
@@ -1335,6 +1336,7 @@ public partial class Main : Node3D
         TickMetaHumanReview();
         TickMpfbComparison();
         TickDsShots();
+        TickInnShots();
     }
 
     /// <summary>

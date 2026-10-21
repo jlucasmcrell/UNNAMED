@@ -157,6 +157,16 @@ internal sealed partial class NpcSystem
     }
 
     /// <summary>A body for someone the region does not place (WP13: an adventurer at their lodge), with their own instance.</summary>
+    /// <summary>Where a body in the world is headed now (spec 15): its place at the inn, by the hour. The mover walks it there.</summary>
+    public string? Handle(SiteNpc command)
+    {
+        if (!State.Npcs.TryGetValue(command.Key, out var npc))
+            return $"{command.Key} has no body";
+        if (npc.Site == command.Site)
+            return null;
+        State.SetNpc(_owner, npc with { Site = command.Site });
+        return null;
+    }
     public string? Handle(EmbodyNpc command)
     {
         if (State.Fallen.Contains(command.Definition.Id))
@@ -199,6 +209,7 @@ internal sealed partial class NpcSystem
     {
         TickLives(tick);
         TickBodies(tick, SimulationTier.A);
+        WalkAdventurers(tick);
         string? talking = State.Conversation?.NpcId;
         var player = State.Body;
         foreach (var npc in State.Npcs.Values.Where(n => !State.Companions.ContainsKey(n.Definition.Id)))

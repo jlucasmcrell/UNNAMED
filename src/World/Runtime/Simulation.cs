@@ -1088,6 +1088,7 @@ public sealed class Simulation
         AdoptSheet adopt => _sheets.Handle(adopt),
         ReleaseSheet release => _sheets.Handle(release),
         EmbodyNpc embody => _npcs.Handle(embody),
+                SiteNpc site => _npcs.Handle(site),
         SettleRetiree retiree => _npcs.Handle(retiree),
         AdventurerPartyChanged changed => _adventurers.Handle(changed),
         ShareBounty share => _adventurers.Handle(share, Now),
