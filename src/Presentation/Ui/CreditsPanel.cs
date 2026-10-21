@@ -8,7 +8,7 @@ namespace UNNAMED.Presentation.Ui;
 
 /// <summary>
 /// The studio line first, then every group of <c>content/credits.yaml</c> as it is written there: the third-party attributions in the
-/// form each licence requires, the code notices; then every licence file in the notices folder named, with a way
+/// form each licence requires, the code notices and the AI disclosure; then every licence file in the notices folder named, with a way
 /// to open the folder. The words are data (<see cref="CreditsContent"/>), never written here, so the screen cannot drift from the file.
 /// The page scrolls, and its words are <see cref="UiKit"/>'s, so they follow the text size, the interface scale and high contrast.
 /// </summary>
