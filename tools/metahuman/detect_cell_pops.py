@@ -19,6 +19,7 @@ def scan(video, out, threshold=18.0, fraction=.32, stride=2):
     previous = None
     rows = []
     index = 0
+    maximum_frame_std = 0.0
     yy, xx = np.mgrid[:360, :640].astype(np.float32)
     while True:
         ok, frame = capture.read()
@@ -29,6 +30,7 @@ def scan(video, out, threshold=18.0, fraction=.32, stride=2):
             continue
         timestamp = capture.get(cv2.CAP_PROP_POS_MSEC) / 1000
         gray = cv2.cvtColor(cv2.resize(frame, (640, 360)), cv2.COLOR_BGR2GRAY)
+        maximum_frame_std = max(maximum_frame_std, float(gray.std()))
         if previous is not None:
             # Backward optical flow warps the preceding image into current space.
             backward = flow.calc(gray, previous, None)
@@ -63,6 +65,11 @@ def scan(video, out, threshold=18.0, fraction=.32, stride=2):
                                          luma_delta=round(mean_delta, 3), edge_delta=round(edge_delta, 4)))
         previous = gray
     capture.release()
+    if maximum_frame_std < 2:
+        (out / "INVALID_CAPTURE.json").write_text(json.dumps({"video": str(video),
+            "reason": "No textured game image: blank/grey capture cannot establish zero pops.",
+            "maximum_frame_std": maximum_frame_std}), encoding="utf-8")
+        raise ValueError("Rejected blank/grey recording; no valid pop count")
     fields = ["frame", "seconds", "tile_x", "tile_y", "changed", "luma_delta", "edge_delta"]
     with (out / "flagged_tiles.csv").open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fields)
