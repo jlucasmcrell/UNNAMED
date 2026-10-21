@@ -29,13 +29,6 @@ public sealed record GroupPost(EntityId Npc, string Who, string What, string Whe
 
 public static class ChatModel
 {
-    /// <summary>
-    /// The disclosure the chat window carries (WP16; the chatter schema's <c>ai_generated</c>): which lines were written with generative AI.
-    /// The ambient corpus is; offers, news and system lines are hand-written. Every AI line is also marked on its row.
-    /// </summary>
-    public const string AiDisclosure =
-        "Some ambient talk on World and Local was written with the help of generative AI; those lines are marked AI. Offers to set out together, news and system lines are hand-written.";
-
     /// <summary>The chat setting as World's filter reads it (the members match in order; a mapping, never a cast).</summary>
     public static ChatMode Mode(ChatSetting setting) => setting switch
     {
@@ -114,9 +107,6 @@ public static class ChatModel
         row.Channel == ChatChannel.World && row.SpeakerId is { } speaker && row.LineKey.StartsWith("lfg.", StringComparison.Ordinal)
             ? offers.FirstOrDefault(o => o.Npc == speaker && o.PostedTick == row.Tick)
             : null;
-
-    /// <summary>Whether any row shown was written with AI: the window then keeps its disclosure in view, above the rows.</summary>
-    public static bool Discloses(IEnumerable<ChatRow> rows) => rows.Any(r => r.AiGenerated);
 
     /// <summary>
     /// The group board: every open offer, soonest first, with Join refused as the simulation refuses it - once they have left (an answered

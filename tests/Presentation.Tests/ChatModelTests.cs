@@ -72,14 +72,15 @@ public class ChatModelTests
     }
 
     [Fact]
-    public void AnAiLine_IsMarked_AndTheWindowDisclosesIt_OnlyWhileOneIsShown()
+    public void AiWrittenLines_CarryTheFact_AndNothingInTheWindowSaysSo()
     {
+        // Owner ruling, 2026-10-21: never show "(AI)" or any AI label in player-visible text. The fact stays on the row for content and for
+        // the tools; the window shows the line as the line, and discloses nothing.
         var all = Rows(ChatTab.All, ChatSetting.On);
         Assert.True(all[0].AiGenerated);
         Assert.False(all[1].AiGenerated);
-        Assert.True(ChatModel.Discloses(all));
-        Assert.False(ChatModel.Discloses(Rows(ChatTab.All, ChatSetting.PlayRelevantOnly)));   // offers and the system are hand-written
-        Assert.Contains("generative AI", ChatModel.AiDisclosure);
+        Assert.All(all, row => Assert.DoesNotContain("AI", row.Text, StringComparison.Ordinal));
+        Assert.All(all, row => Assert.DoesNotContain("AI", row.Speaker ?? "", StringComparison.Ordinal));
     }
 
     [Fact]

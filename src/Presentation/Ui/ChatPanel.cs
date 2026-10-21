@@ -35,7 +35,6 @@ public partial class ChatPanel : CanvasLayer
     {
         Visible = false;
         _sheet = UiKit.Sheet(this, "Chat", "chat");
-        _sheet.SetHint(ChatModel.AiDisclosure);
         _sheet.OnShown(() =>
         {
             _drawn = string.Empty;
@@ -141,12 +140,6 @@ public partial class ChatPanel : CanvasLayer
         line.AddChild(channel);
         var words = UiKit.Words(row.Speaker is null ? row.Text : $"{row.Speaker}: {row.Text}", 17, row.Channel == ChatChannel.System ? HudStyle.Ash : HudStyle.Bone);
         line.AddChild(words);
-        if (row.AiGenerated)
-        {
-            var ai = UiKit.Chip("AI", HudStyle.Iron, HudStyle.Muted);
-            ai.SizeFlagsVertical = Control.SizeFlags.ShrinkBegin;
-            line.AddChild(ai);
-        }
         column.AddChild(line);
         if (offer is not null)
             column.AddChild(Actions(simulation, offer, indent: 148));
