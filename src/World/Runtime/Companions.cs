@@ -788,7 +788,8 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
             ? CombatSystem.AttackOf(profile.WeaponId, weapon, C, TickMs)
             : null;
 
-    private string Name(string npcId) => State.Npcs.TryGetValue(npcId, out var npc) ? npc.Definition.Name : npcId;
+    private string Name(string npcId) =>
+        State.Npcs.TryGetValue(npcId, out var npc) ? npc.Definition.Name : NameOf?.Invoke(npcId) ?? npcId;
 
     private void Place(NpcState npc, Body body, SpaceId? space = null)
     {

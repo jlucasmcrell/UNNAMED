@@ -85,6 +85,9 @@ public partial class Main : Node3D
     private AwaySheet _awaySheet = null!;
     private CompanionsPanel _companionsPanel = null!;
     private WaystonePanel _waystones = null!;
+    private NoticeBoardPanel _noticeBoard = null!;
+    /// <summary>The inn captures hold the camera where the shot wants it; the rig must not pull it back to the character.</summary>
+    private bool _innFreeCamera;
     private MapPanel _map = null!;
 
     /// <summary>Autorun (the owner's second-play brief §23): on, the character goes forward until a key, a screen or a death stops them.</summary>
@@ -236,6 +239,8 @@ public partial class Main : Node3D
             InstallMetaHumanReview();
             InstallMpfbComparison();
             InstallDsShots();
+            InstallInnShots();
+            InstallInnRoom();
         }
         catch (Exception e)
         {
@@ -337,6 +342,7 @@ public partial class Main : Node3D
               || (_options.ContainsKey("--showcase") && !_options.ContainsKey("--profile"))
               || (_options.ContainsKey("--front-shots") && !_options.ContainsKey("--profile"))
               || _options.ContainsKey("--creator-shots") || (_options.ContainsKey("--ds-shots") && !_options.ContainsKey("--profile"))
+              || _options.ContainsKey("--inn-shots")
             ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
             : _options.GetValueOrDefault("--profile") is { } chosen ? Path.GetFullPath(chosen)
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
@@ -355,6 +361,10 @@ public partial class Main : Node3D
                 ? (1_050_000, 770_000) : (438_000, 664_000);
         if (_options.ContainsKey("--ds-shots"))
             shotStart = DsShotsStart;
+        // The inn's captures stand the character at the inn's board, where the day finds the adventurers (spec 15), so the bodies in the
+        // frames are in the character's own tier rather than whatever the region's spawn leaves them.
+        if (_options.ContainsKey("--inn-shots"))
+            shotStart = (448_600, 727_000);
         if (_options.ContainsKey("--frontier-perf"))
             shotStart = FrontierPerf.ParsePoint(_options.GetValueOrDefault("--frontier-point")
                 ?? throw new ArgumentException("--frontier-perf requires --frontier-point x,z"));
@@ -382,7 +392,7 @@ public partial class Main : Node3D
                         || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check") || _options.ContainsKey("--survey")
                         || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
                         || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
-                        || _options.ContainsKey("--showcase");
+                        || _options.ContainsKey("--showcase") || _options.ContainsKey("--inn-shots");
         // No run of a harness takes the mouse - but the input check, which checks who has it.
         _scripted = (scripted && !_flags.Contains("--input-check")) || _options.ContainsKey("--resume-shots");
         // A scripted run plays one world from its start - the acceptance playthrough a fixed one, so it is the same run every time (M6).
@@ -407,6 +417,7 @@ public partial class Main : Node3D
                           || _options.ContainsKey("--connected-check")
                           || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
                           || _flags.Contains("--perf")
+                          || _options.ContainsKey("--inn-shots")
                           || _options.ContainsKey("--resume-shots");
         if (scripted && !verify && !showcaseContinues)
             _session.NewGame(DefaultCharacter, fixedWorld ? Playthrough.Seed : 0);
@@ -1338,6 +1349,8 @@ public partial class Main : Node3D
         TickMetaHumanReview();
         TickMpfbComparison();
         TickDsShots();
+        TickInnShots();
+        TickInnRoom();
     }
 
     /// <summary>
@@ -1501,7 +1514,7 @@ public partial class Main : Node3D
         Probe("crafting/NPCs");
         _frontierPerf?.Phase("npcs", npcsStarted);
         LogStates(simulation, delta, speed);
-        _camera.Follow(_shots?.Viewpoint ?? _avatar.Position, delta);
+        if (!_innFreeCamera) _camera.Follow(_shots?.Viewpoint ?? _avatar.Position, delta);
         bool reviewCamera = _mhReviewDirectory is not null && GetViewport().GetCamera3D() != _camera.Camera;
         _avatar.SetFirstPerson(!reviewCamera && _camera.EffectiveDistance < 0.4f);
         // A conversation frames the speaker's face over the character's shoulder (not in first person).
@@ -1695,7 +1708,7 @@ public partial class Main : Node3D
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
-                    or "--mpfb-shots" or "--ds-shots"
+                    or "--mpfb-shots" or "--ds-shots" or "--inn-shots"
                     or "--anim-person" or "--anim-compare" or "--anim-phase"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];

@@ -128,6 +128,11 @@ public partial class Main
             case FocusKind.Item when _session.Setup.Items.Catalog.Find(focus.DefId) is { } item:
                 long count = simulation.WorldItems.FirstOrDefault(i => i.Id.Value == focus.Key)?.Count ?? 1;
                 return ContextModel.Item(item.WeightGrams * count, player.CarriedGrams, player.CarryLimitGrams, _session.Setup.Items.Inventory.Laden);
+            case FocusKind.Station when focus.DefId == NoticeBoardPanel.Kind:
+                return NoticeBoardModel.Hint(
+                    NoticeBoardModel.Contracts(simulation.Bounties, simulation.PlayerId,
+                        id => _session.Setup.Quests.Quests.GetValueOrDefault(id), id => Names.Of(_session, id)),
+                    NoticeBoardModel.Away(simulation.Adventurers, id => Names.Of(_session, id)));
             case FocusKind.Station:
                 var made = _session.Setup.Crafting.Recipes.Values.Where(r => r.StationKind == focus.DefId).ToList();
                 return ContextModel.Station(made.Count(r => player.Progression.Known.ContainsKey(r.Id)), made.Count);

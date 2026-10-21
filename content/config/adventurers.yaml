@@ -46,6 +46,35 @@ settlements:
     market_ref: market.ashen_hollow
     smith_merchant_ref: merchant.ashen_hollow.kera_voss
     lodge: { position_m: [460, 752], facing_deg: 0 }   # off the outpost's ways through: the row stood across the path from the spawn to the forge
+    target: 3                           # spec 15 default 1: three in the hamlet (the owner's dial, on; the rules keep four at Cairnwold)
+    # Spec 15 (owner finding 15): Renn Vale's waystation IS the inn, and these are its places - measured off the props the region already
+    # places (beds 01-03, tables 01-02, stools 01-03, the hearth, the east door) so a body sits ON a stool and sleeps IN a bed rather than
+    # beside one. Hours are the game clock; the walk windows are how long they are seen walking to and from the gate.
+    inn:
+      door: { position_m: [450.6, 728.0], facing_deg: 270 }     # inside the east doorway, facing back into the room
+      keeper: { position_m: [441.0, 725.3], facing_deg: 90 }    # the counter end of table 01, facing the room and the door
+      board: { position_m: [449.6, 727.0], facing_deg: 90 }     # at the notice board, west of the door
+      hearth: { position_m: [447.2, 728.6], facing_deg: 350 }   # warming at the fire in the north-east corner
+      seats:
+        - { position_m: [442.77, 726.27], facing_deg: 180 }     # stool 01, facing its table
+        - { position_m: [443.97, 726.27], facing_deg: 180 }     # stool 02
+        - { position_m: [441.67, 725.27], facing_deg: 0 }       # stool 03
+      beds:
+        - [437.9, 725.75]                                       # bed 01, stood beside (a body at a bed stands at its side, not in it)
+        - [437.9, 727.85]                                       # bed 02
+        - [437.9, 729.95]                                       # bed 03
+      gate: { position_m: [464, 748], facing_deg: 90 }          # where the Old East Road leaves the hamlet
+      room_coin: 5                                              # what a bed for the night costs the character, paid to the keeper (spec 15)
+      keeper_npc_ref: npc.ashen_hollow.renn_vale                    # the one who keeps the inn, and the only voice that lets its rooms
+      # The inn's hours: the game clock, and the walk windows that make the day's leaving and coming back visible. They live under the inn,
+      # where the content reads them - authored beside it, they were silently the defaults.
+      hours:
+        sleep_from: 22              # asleep at their bed from this hour
+        breakfast_from: 6           # up and at the tables from this hour
+        board_from: 7               # at the notice board from this hour, forming up
+        walk_minutes: 20            # seen walking to the gate over this long before they leave at the LFG hour (the world starts at 07:30, so they are still at the board then)
+        return_walk_minutes: 30     # and back in from the gate over this long when they return
+        return_hours: 9             # out for this many hours: away at 08:00, back at 17:00
     grounds:
       - spawn.hollow.valley_strays
       - spawn.hollow.east_pack

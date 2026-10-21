@@ -157,6 +157,16 @@ internal sealed partial class NpcSystem
     }
 
     /// <summary>A body for someone the region does not place (WP13: an adventurer at their lodge), with their own instance.</summary>
+    /// <summary>Where a body in the world is headed now (spec 15): its place at the inn, by the hour. The mover walks it there.</summary>
+    public string? Handle(SiteNpc command)
+    {
+        if (!State.Npcs.TryGetValue(command.Key, out var npc))
+            return $"{command.Key} has no body";
+        if (npc.Site == command.Site)
+            return null;
+        State.SetNpc(_owner, npc with { Site = command.Site });
+        return null;
+    }
     public string? Handle(EmbodyNpc command)
     {
         if (State.Fallen.Contains(command.Definition.Id))
@@ -164,7 +174,13 @@ internal sealed partial class NpcSystem
         if (!State.World.Registry.Exists(command.InstanceId))
             State.World.Registry.CreateEntity(DefinitionId.Parse(command.Definition.Id), command.InstanceId);
         var site = command.Site;
-        State.SetNpc(_owner, new NpcState(command.Definition, command.InstanceId, site, BodyAt(site.XMm, site.ZMm, site.FacingMdeg)));
+        State.SetNpc(_owner, new NpcState(command.Definition, command.InstanceId, site, BodyAt(site.XMm, site.ZMm, site.FacingMdeg))
+        {
+            // The body is put where it stands, in the LAYOUT's own space id: the state's space may still be the exterior sentinel rather than
+            // the region layout's id, and a view compares those ids directly - so a body embodied here carried a space no view matched, and
+            // was drawn nowhere. An adventurer at the gate on their departure hour was in the simulation and absent from the gate (spec 15).
+            Space = _context.Setup.LayoutFor(State.Space).SpaceId,
+        });
         return null;
     }
 
@@ -199,6 +215,7 @@ internal sealed partial class NpcSystem
     {
         TickLives(tick);
         TickBodies(tick, SimulationTier.A);
+        WalkAdventurers(tick);
         string? talking = State.Conversation?.NpcId;
         var player = State.Body;
         foreach (var npc in State.Npcs.Values.Where(n => !State.Companions.ContainsKey(n.Definition.Id)))

@@ -138,6 +138,12 @@ internal sealed partial class CompanionSystem
     /// </summary>
     public Func<string, string?>? Unhireable { get; init; }
 
+    /// <summary>
+    /// The name the world knows someone by when no body of theirs stands here - an adventurer out on their day, whose place on the board is
+    /// still theirs - or null for a key nobody knows. Null: the key itself is all there is to name them by.
+    /// </summary>
+    public Func<string, string?>? NameOf { get; init; }
+
     /// <summary>The creature the character struck most recently, within <see cref="PartyTactics.FocusWindowTicks"/> of now, or null: what "focus my target" follows.</summary>
     public Func<string?>? PlayerFocus { get; init; }
 
@@ -159,7 +165,7 @@ internal sealed partial class CompanionSystem
         if (State.PlayerCombat.Defeated)
             return "dead";
         if (!State.Npcs.TryGetValue(command.NpcId, out var npc))
-            return $"there is no one called {command.NpcId} here";
+            return Refusal(command.NpcId, command.Role, command.Days);
         if (!_context.InTalkReach(npc))
             return $"{npc.Definition.Name} is out of reach";
         if (!command.AcceptsRisk)
@@ -179,8 +185,10 @@ internal sealed partial class CompanionSystem
 
     private string? Refusal(string npcId, HirelingRole role, int days)
     {
+        // One the world knows but who has no body here is refused in the life simulation's own words, under the name it knows them by: an
+        // adventurer out on their day is out, which is a refusal a bodyless key should still be able to read.
         if (!State.Npcs.TryGetValue(npcId, out var npc))
-            return $"there is no one called {npcId} here";
+            return Unhireable?.Invoke(npcId) is { } away ? $"{Name(npcId)} {away}" : $"there is no one called {npcId} here";
         if (State.Companions.ContainsKey(npcId))
             return $"{npc.Definition.Name} is already with you";
         if (Unhireable?.Invoke(npcId) is { } unhireable)

@@ -11,5 +11,5 @@ role: porter
 roles: [porter]           # WP12b: town roles (config.npc_life); hireability is derived from them
 work_hours: [7, 19]
 anchors:
-  home: { position_m: [441, 725.6], facing_deg: 0 }
+  home: { position_m: [447.5, 733.4], facing_deg: 0 }
   work: { position_m: [476, 731], facing_deg: 90 }

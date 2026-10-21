@@ -37,6 +37,25 @@ internal sealed partial class NpcSystem
     /// <summary>Tier B moves once every this many ticks (2 Hz at 20 Hz, §2.13).</summary>
     public const int RegionalEveryTicks = 10;
 
+    /// <summary>
+    /// Adventurers walk to the place their day gives them (spec 15, the owner's inn): they have no life record, so the mover's own tier-A step is
+    /// taken for them here. A body is never placed from one seat to the next; the walk is the same one a resident walks to their work.
+    /// </summary>
+    private void WalkAdventurers(long tick)
+    {
+        string? talking = State.Conversation?.NpcId;
+        foreach (var npc in State.Npcs.Values.Where(n => n.Definition.Role == AdventurerSystem.Role && n.Definition.Id != talking
+                     && !State.Companions.ContainsKey(n.Definition.Id)).ToList())
+        {
+            if ((npc.Body.XMm, npc.Body.ZMm) == (npc.Site.XMm, npc.Site.ZMm))
+                continue;
+            var goal = new NavPoint(npc.Site.XMm, npc.Site.ZMm);
+            var (moved, _) = Walk(npc, goal, goal);
+            if (moved != npc.Body)
+                State.SetNpc(_owner, npc with { Body = moved });
+        }
+    }
+
 
     private int TickMs => _context.Setup.TickMilliseconds;
 

@@ -11,7 +11,7 @@ role: hunter
 roles: [hunter]           # WP12b: town roles (config.npc_life); hireability is derived from them
 work_hours: [7, 19]
 anchors:
-  home: { position_m: [439, 725.6], facing_deg: 0 }
+  home: { position_m: [439.5, 733.4], facing_deg: 0 }
   work: { position_m: [500, 745], facing_deg: 90 }
 trip:                  # WP12b: now and then they set out, and ask along whoever will come (LFG in world chat)
   purpose: hunt

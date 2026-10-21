@@ -89,6 +89,12 @@ internal sealed record ReleaseSheet(string NpcId) : InternalCommand;
 /// <summary>To <see cref="NpcSystem"/>: a body for someone the region does not place - an adventurer at their lodge.</summary>
 internal sealed record EmbodyNpc(NpcDefinition Definition, EntityId InstanceId, NpcSite Site) : InternalCommand;
 
+/// <summary>
+/// To <see cref="NpcSystem"/>: where a body that is already in the world is headed now - an adventurer's bed, a seat, the board, the gate at
+/// the hour their day turns (spec 15). The mover walks them there; nothing is placed.
+/// </summary>
+internal sealed record SiteNpc(string Key, NpcSite Site) : InternalCommand;
+
 /// <summary>To <see cref="NpcSystem"/>: a retiring adventurer takes an open role slot in their settlement, if one stands open (§2.13).</summary>
 internal sealed record SettleRetiree(string Settlement, string Name, long Tick) : InternalCommand;
 
@@ -245,7 +251,7 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
             _context.Dispatch(new EmbodyNpc(definition, InstanceIdOf(key), new NpcSite(key, body.XMm, body.ZMm, body.FacingMdeg)));
         }
         foreach (var a in state.Agents.Values.Where(a => a.Party is not null && !State.Npcs.ContainsKey(a.Key) && setup.Settlements.ContainsKey(a.At)))
-            _context.Dispatch(new EmbodyNpc(Definition(a), InstanceIdOf(a.Key), SiteOf(a, setup.Settlements[a.At])));
+            _context.Dispatch(new EmbodyNpc(Definition(a), InstanceIdOf(a.Key), SiteAt(a, setup.Settlements[a.At], State.WorldTick)));
     }
 
     /// <summary>One tick: a midnight crossed lives the day; then bodies come and go at the lodge, out of sight only.</summary>
@@ -263,9 +269,12 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
     /// </summary>
     public void Advance(long fromTick, long toTick, AdvanceLog log)
     {
-        if (Current is not { } state || Clock.Day(toTick) <= state.Day)
+        if (Current is not { } state)
             return;
-        LiveTo(Clock.Day(toTick), log);
+        if (Clock.Day(toTick) > state.Day)
+            LiveTo(Clock.Day(toTick), log);
+        // Bodies come and go by the hour too (spec 15: away at the departure hour, back at the return hour), so an absence that crosses no
+        // midnight still leaves exactly the bodies a run to the same tick would.
         Bodies(toTick, force: true);
     }
 
@@ -394,7 +403,9 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
     private AdventurerDay Day(long day)
     {
         var setup = Setup!;
-        long tick = Math.Max(0, day * Clock.TicksPerDay - Clock.StartTicks);
+        // The day's first tick, which is before the world's own on the first day (the clock opens at 07:30): clamped to nothing, day zero's
+        // plans would be authored 07:30 late and the first departure would be the afternoon's.
+        long tick = day * Clock.TicksPerDay - Clock.StartTicks;
         var channel = RngChannel.Open(State.World.WorldSeed, RegionCell, "adventurers", $"day@{day}");
         var catalog = _context.Setup.Items.Catalog;
         var economy = _context.Setup.Economy;
@@ -499,9 +510,25 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
 
     // ── bodies at the lodge ─────────────────────────────────────────────────
 
-    /// <summary>Whether an adventurer stands at their lodge now: injured, resting, or not yet left for the day's work.</summary>
+    /// <summary>
+    /// Whether an adventurer stands in town now: injured, resting, or not yet left for the day's work - and back again once the day's hours out
+    /// are done (spec 15: away at the departure hour, home for the evening at <see cref="InnPlaces.ReturnHours"/> after it). The day's outcome is
+    /// still read at the next midnight; this only decides whether a body is there to be seen.
+    /// </summary>
     private bool InTown(AdventurerRecord a, long tick) =>
-        a.Condition == AdventurerCondition.Injured || !AdventurerGoals.Out(a.Plan.Goal) || a.Plan.Day != Clock.Day(tick) || tick < a.Plan.DepartTick;
+        a.Condition == AdventurerCondition.Injured || !AdventurerGoals.Out(a.Plan.Goal) || a.Plan.Day != Clock.Day(tick)
+        // The departure tick is still theirs: the company that answered the offer forms up with them there and walks out with them (the bodies
+        // go at the tick after, which is the first tick they are not in town).
+        || tick <= a.Plan.DepartTick
+        || (ReturnTick(a) is { } back && tick >= back);
+
+    /// <summary>When today's day out ends, in ticks: the departure hour plus the inn's return hours. Null for a plan with no departure.</summary>
+    private long? ReturnTick(AdventurerRecord a)
+    {
+        if (a.Plan.DepartTick <= 0 || Setup is not { } setup || !setup.Settlements.TryGetValue(a.At, out var town) || town.Inn is not { } inn)
+            return null;
+        return a.Plan.DepartTick + inn.ReturnHours * (Clock.TicksPerDay / Clock.HoursPerDay);
+    }
 
     /// <summary>
     /// Bodies come and go: an adventurer in town or with the party has one, at their lodge; one out, dead or retired has none. A body is made
@@ -519,10 +546,20 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
             bool has = State.Npcs.ContainsKey(a.Key);
             if (State.Companions.ContainsKey(a.Key) || !setup.Settlements.TryGetValue(a.At, out var town))
                 continue;
+            // At an inn (spec 15) the body's place is the inn's own answer for the hour - their bed, a seat, the board, the hearth, the gate - so
+            // presence is legible: an empty bed and an empty seat say who is out. A body goes when they walk out of the gate, wherever the tier
+            // leaves them: tier A never reaches a settlement 150 m across, and a body that stood at the gate all day is the row again.
+            // While the world runs, a place is where the mover walks the body to. Over an absence or a load there is nothing in sight to walk it
+            // in front of, so the body is put there instead: where it stood before is then not part of what an absence was cut through.
+            if (town.Inn is not null && wanted && has && a.Party is null && !force)
+            {
+                _context.Dispatch(new SiteNpc(a.Key, SiteAt(a, town, tick)));
+                continue;
+            }
             // One who went to another town stands at that lodge, not the one whose body they left: a body at the wrong lodge is moved where
             // it cannot be seen, so a body made at once and one kept through the absence end in the same place.
             if (wanted && has && a.Party is null && (force || TierAt(State.Npcs[a.Key].Body.XMm, State.Npcs[a.Key].Body.ZMm) != SimulationTier.A)
-                && SiteOf(a, town) is var site && (State.Npcs[a.Key].Body.XMm, State.Npcs[a.Key].Body.ZMm) != (site.XMm, site.ZMm))
+                && SiteAt(a, town, tick) is var site && (State.Npcs[a.Key].Body.XMm, State.Npcs[a.Key].Body.ZMm) != (site.XMm, site.ZMm))
             {
                 _context.Dispatch(new RemoveNpc(a.Key, tick) { KeepIdentity = true });
                 has = false;
@@ -531,11 +568,11 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
                 continue;
             if (wanted)
             {
-                if (State.Fallen.Contains(a.Key) || (!force && TierAt(town.LodgeXMm, town.LodgeZMm) == SimulationTier.A))
+                if (State.Fallen.Contains(a.Key) || (!force && town.Inn is null && TierAt(town.LodgeXMm, town.LodgeZMm) == SimulationTier.A))
                     continue;
-                _context.Dispatch(new EmbodyNpc(Definition(a), InstanceIdOf(a.Key), SiteOf(a, town)));
+                _context.Dispatch(new EmbodyNpc(Definition(a), InstanceIdOf(a.Key), SiteAt(a, town, tick)));
             }
-            else if (force || TierAt(State.Npcs[a.Key].Body.XMm, State.Npcs[a.Key].Body.ZMm) != SimulationTier.A)
+            else if (town.Inn is not null || force || TierAt(State.Npcs[a.Key].Body.XMm, State.Npcs[a.Key].Body.ZMm) != SimulationTier.A)
                 _context.Dispatch(new RemoveNpc(a.Key, tick) { KeepIdentity = true });
         }
         // Those no longer living their lives here - dead, retired - leave their body only out of sight.
@@ -558,15 +595,27 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
     private NpcDefinition Definition(AdventurerRecord a) =>
         new(a.Key, a.Name, Role, ImmutableArray<string>.Empty, null, null) { Hireling = Setup!.Hire, Companion = Setup.Hire.Body };
 
-    /// <summary>Their place at the lodge: in a row across it, by slot.</summary>
-    private static NpcSite SiteOf(AdventurerRecord a, AdventurerSettlement town)
+    /// <summary>
+    /// Where this adventurer is headed now: at a settlement with an inn, the place the hour gives them there (spec 15); elsewhere the old row across
+    /// the lodge, by slot. Only a body in town has one - one who is out has none to place.
+    /// </summary>
+    private NpcSite SiteAt(AdventurerRecord a, AdventurerSettlement town, long tick)
     {
-        int number = int.TryParse(a.Slot[(a.Slot.LastIndexOf('_') + 1)..], out int n) ? n : 1;
-        long offset = ((number - 1) % 6 - 2) * LodgeSpacingMm;
+        int slot = SlotOf(a);
+        if (town.Inn is { } inn)
+        {
+            var place = InnDay.PlaceAt(inn, slot, Clock.MinuteOfDay(tick) / 60, tick, a.Plan.DepartTick, ReturnTick(a) ?? 0,
+                Math.Max(1, Clock.TicksPerDay / (Clock.HoursPerDay * 60L)), a.Condition == AdventurerCondition.Injured);
+            return new NpcSite(a.Key, place.XMm, place.ZMm, place.FacingMdeg);
+        }
+        long offset = ((slot - 1) % 6 - 2) * LodgeSpacingMm;
         double facing = town.LodgeFacingMdeg / 1000.0 * Math.PI / 180;
         long x = town.LodgeXMm + (long)Math.Round(Math.Cos(facing) * offset), z = town.LodgeZMm - (long)Math.Round(Math.Sin(facing) * offset);
         return new NpcSite(a.Key, x, z, town.LodgeFacingMdeg);
     }
+
+    /// <summary>The slot's number, from its key: <c>adv_ashen_hollow_2</c> is the second.</summary>
+    private static int SlotOf(AdventurerRecord a) => int.TryParse(a.Slot[(a.Slot.LastIndexOf('_') + 1)..], out int n) ? n : 1;
 
     // ── the party ───────────────────────────────────────────────────────────
 
@@ -690,6 +739,9 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
     /// <summary>An adventurer's name by their instance ID - a claimant on a board - or null for anyone else.</summary>
     public string? NameOf(string instanceId) => Current?.Agents.Values.FirstOrDefault(a => InstanceIdOf(a.Key).Value == instanceId)?.Name;
 
+    /// <summary>An adventurer's name by their key, for a refusal about one who has no body standing here to be named by; null for anyone else.</summary>
+    public string? NameOfKey(string key) => Agent(key)?.Name;
+
     public ImmutableArray<AdventurerView> Views()
     {
         if (Current is not { } state)
@@ -708,7 +760,8 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
 
     /// <summary>
     /// The SettingOuts adventurers post (the WP12 contract, read by tick): each one asking for company today whose post falls in
-    /// (<paramref name="fromTick"/>, <paramref name="toTick"/>], waiting at their lodge until they leave. A pure read of the world.
+    /// (<paramref name="fromTick"/>, <paramref name="toTick"/>], waiting at the place their town keeps for them until they leave. A pure read
+    /// of the world.
     /// </summary>
     public IEnumerable<SettingOut> Between(long fromTick, long toTick)
     {
@@ -721,8 +774,10 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
                 continue;
             var (purpose, purposeName, destination) = Words(a);
             string anchor = town.LocationId ?? town.Id;
+            // An inn is where they are found (spec 15): the offer goes up where they are forming up, and that is the place to be at the
+            // departure hour - the walk to the gate is theirs. A settlement without an inn keeps its lodge point.
             yield return new SettingOut(InstanceIdOf(a.Key), a.Name, purpose, purposeName, destination, anchor, setup.Names.GetValueOrDefault(anchor, town.Id),
-                town.LodgeXMm, town.LodgeZMm, a.Plan.DepartTick, a.Plan.PostTick);
+                town.Inn?.Board.XMm ?? town.LodgeXMm, town.Inn?.Board.ZMm ?? town.LodgeZMm, a.Plan.DepartTick, a.Plan.PostTick);
         }
     }
 
@@ -784,4 +839,64 @@ internal sealed class CombinedSettingOuts : ISettingOutSource
 
     public IEnumerable<SettingOut> Between(long fromTick, long toTick) =>
         _sources.SelectMany(s => s.Between(fromTick, toTick)).OrderBy(s => s.Tick).ThenBy(s => s.Npc).ToList();
+}
+
+/// <summary>
+/// The day at the inn (spec 15, owner finding 15): where an adventurer is at an hour, from their bed to a seat, the board, the hearth and the
+/// gate they are seen walking out of. It answers with a place and nothing else - the mover walks the body, so a change of place is never a
+/// teleport, and the walk out of the gate and back in is the same walk as a resident's to their work.
+/// </summary>
+internal static class InnDay
+{
+    /// <summary>The bed, seat or fire this adventurer uses, by slot: two never share one.</summary>
+    private static InnPlace Pick(ImmutableArray<InnPlace> places, int slot) => places[(slot - 1) % places.Length];
+
+    /// <summary>A stride between the bodies leaving the gate: the step from the door to the gate, one behind the other, slot by slot.</summary>
+    private const long FileStrideMm = 800;
+
+    /// <summary>
+    /// The gate in single file: the first slot at the gate itself, each next one a stride further out along the way from the door, so the
+    /// party reads as walking out and no two of them ever stand in the same place.
+    /// </summary>
+    private static InnPlace InFile(InnPlace gate, InnPlace door, int slot)
+    {
+        double dx = gate.XMm - door.XMm, dz = gate.ZMm - door.ZMm;
+        double length = Math.Sqrt(dx * dx + dz * dz);
+        if (length < 1)
+            return gate;
+        double step = FileStrideMm * (slot - 1) / length;
+        return gate with { XMm = gate.XMm + (long)Math.Round(dx * step), ZMm = gate.ZMm + (long)Math.Round(dz * step) };
+    }
+
+    /// <summary>
+    /// Where they are headed at this minute of the day. Injured, they stay in bed; in the last <see cref="InnPlaces.WalkMinutes"/> before the
+    /// departure hour they are at the gate (walking out); from the return hour for <see cref="InnPlaces.ReturnWalkMinutes"/> they are at the gate
+    /// again (walking in); and otherwise the hour decides between bed, table, board and fire.
+    /// </summary>
+    public static InnPlace PlaceAt(InnPlaces inn, int slot, int hourOfDay, long tick, long departTick, long returnTick, long ticksPerMinute,
+        bool injured)
+    {
+        var bed = Pick(inn.Beds, slot);
+        var seat = Pick(inn.Seats, slot);
+        if (injured)
+            return bed;
+        // The departure hour itself is spent at the gate: the walk out is the last thing the character sees of them before they are gone.
+        // The gate is one place, so the party leaves it in file - each a stride behind the one ahead, along the way out - rather than three
+        // bodies standing in the same spot.
+        if (departTick > 0 && tick >= departTick - inn.WalkMinutes * ticksPerMinute && tick <= departTick)
+            return InFile(inn.Gate, inn.Door, slot);
+        if (returnTick > 0 && tick >= returnTick && tick < returnTick + inn.ReturnWalkMinutes * ticksPerMinute)
+            return InFile(inn.Gate, inn.Door, slot);
+        int minute = hourOfDay * 60;
+        int sleep = inn.SleepFromHour * 60, breakfast = inn.BreakfastFromHour * 60, board = inn.BoardFromHour * 60;
+        bool night = sleep > breakfast ? minute >= sleep || minute < breakfast : minute >= sleep && minute < breakfast;
+        if (night)
+            return bed;
+        if (returnTick > 0 && tick >= returnTick)
+            return slot % 2 == 0 ? inn.Hearth : seat;   // the evening: seats and the fire
+        if (minute < board)
+            return seat;                                // breakfast at the tables
+        // The morning: one reads the board, the others sharpen by the fire and wait at the tables - never a row at one spot.
+        return slot % 3 == 1 ? inn.Board : slot % 3 == 2 ? inn.Hearth : seat;
+    }
 }

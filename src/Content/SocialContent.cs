@@ -29,7 +29,7 @@ public static class SocialContent
 
     private static readonly string[] Consequences =
         { "transfer_item", "teach", "set_world_flag", "record_relationship_event", "open_service", "start_quest", "recruit_companion", "order_companion",
-          "report_act", "hire_hireling", "dismiss_companion" };
+          "report_act", "hire_hireling", "dismiss_companion", "rent_room" };
 
     public static IReadOnlyList<ValidationError> Validate(ContentLoader loader)
     {
@@ -371,6 +371,9 @@ public static class SocialContent
                     Positive(map, "days", 1))
                 : throw new FormatException($"{at}: hire_hireling needs risk_stated: true - the reply says the hireling can die (DN9)"),
             "dismiss_companion" => new DismissCompanionConsequence(),
+            "rent_room" => new RentRoomConsequence(LongOr(map, "hour", -1) is var hour and >= 0 and <= 23
+                ? (int)hour
+                : throw new FormatException($"{at}: rent_room names an hour of the day, 0 to 23")),
             "order_companion" => new OrderCompanionConsequence(Order(Text(map, "order"), at)),
             "report_act" => ReportAct(at, map, loader),
             "add_reputation" => throw new FormatException($"{at}: add_reputation is refused: standing moves only when a member is told of an act (WP6)"),

@@ -188,7 +188,7 @@ public class AdventurerTests
     }
 
     [Fact]
-    public void AnInjury_KeepsThemAtTheLodge_UntilItHeals()
+    public void AnInjury_KeepsThemAtTheInn_UntilItHeals()
     {
         var hurt = Rules(target: 1, row: new OutcomeRow(-99, 0, 100, 0));
         var (state, _) = Live(Begin(hurt), hurt, 2);

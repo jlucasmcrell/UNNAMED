@@ -44,6 +44,7 @@ public partial class Main
                 ? $"[{HelpPanel.Key("interact")}] Open the {Names.Place(_session, container.Key, container.DefId)}"
                 : $"[{HelpPanel.Key("interact")}] Search the {Names.Of(_session, container.DefId)}",
             { Kind: FocusKind.Node } node => NodePrompt(simulation, node),
+            { Kind: FocusKind.Station } board when board.DefId == NoticeBoardPanel.Kind => $"[{HelpPanel.Key("interact")}] Read the notice board",
             { Kind: FocusKind.Station } station => $"[{HelpPanel.Key("interact")}] Work at the {Names.Place(_session, station.Key, station.DefId)}",
             { Kind: FocusKind.Npc } npc when DownedCompanion(npc.Key) is not null => $"[{HelpPanel.Key("interact")}] {ContextModel.Prompt(Facts(simulation, npc.Key))}",
             { Kind: FocusKind.Npc } npc => simulation.Conversation?.NpcId == npc.Key ? null : $"[{HelpPanel.Key("interact")}] {ContextModel.Prompt(Facts(simulation, npc.Key))}",

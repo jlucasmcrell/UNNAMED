@@ -151,12 +151,53 @@ public sealed record AdventurerBody(string Name, long XMm, long ZMm, int FacingM
 /// <summary>One row of the outcome table (DN2): from a margin of power over danger up to the next row's, the chance in percent of each end.</summary>
 public sealed record OutcomeRow(int MarginAtLeast, int DeathPercent, int InjuryPercent, int SuccessPercent);
 
+/// <summary>A place on the ground and which way a body faces there: an inn's seat, a bed, the board, the gate.</summary>
+public sealed record InnPlace(long XMm, long ZMm, int FacingMdeg);
+
+/// <summary>
+/// The inn's places and hours (spec 15, owner finding 15): the waystation's room, where the adventurers sleep, eat, wait at the board, warm
+/// themselves, and the gate they are seen walking out of. Null for a settlement without an inn - its adventurers keep the old row at the lodge.
+/// </summary>
+public sealed record InnPlaces(InnPlace Door, InnPlace Keeper, InnPlace Board, InnPlace Hearth, ImmutableArray<InnPlace> Seats,
+    ImmutableArray<InnPlace> Beds, InnPlace Gate)
+{
+    /// <summary>Asleep at their own bed from this hour.</summary>
+    public int SleepFromHour { get; init; } = 22;
+
+    /// <summary>Up and at the tables from this hour.</summary>
+    public int BreakfastFromHour { get; init; } = 6;
+
+    /// <summary>At the notice board from this hour, forming up for the day.</summary>
+    public int BoardFromHour { get; init; } = 7;
+
+    /// <summary>How long they are seen walking to the gate before the departure hour.</summary>
+    public int WalkMinutes { get; init; } = 30;
+
+    /// <summary>How long they are seen walking in from the gate when they come back.</summary>
+    public int ReturnWalkMinutes { get; init; } = 30;
+
+    /// <summary>Out for this many hours: away at the departure hour, back at that hour plus this.</summary>
+    public int ReturnHours { get; init; } = 9;
+
+    /// <summary>What a room for the night costs (spec 15): coin paid to the keeper, who wakes the character at the hour they ask for.</summary>
+    public long RoomCoin { get; init; } = 5;
+
+    /// <summary>The one who keeps the inn and lets its rooms - the only voice that can. Empty: nobody lets a room here.</summary>
+    public string KeeperId { get; init; } = "";
+}
+
 /// <summary>A settlement adventurers are based at: its market, the merchant who takes commissions, where they lodge, and its hunting grounds.</summary>
 public sealed record AdventurerSettlement(string Id, string MarketId, string? SmithMerchantId, long LodgeXMm, long LodgeZMm, int LodgeFacingMdeg,
     ImmutableArray<string> Grounds)
 {
     /// <summary>The place they lodge at, whose name words where they wait (a LFG post's anchor); null for none.</summary>
     public string? LocationId { get; init; }
+
+    /// <summary>How many this settlement keeps, when it differs from the rules' target (spec 15: three in the hamlet).</summary>
+    public int? Target { get; init; }
+
+    /// <summary>The inn they keep, whose places their day happens at; null for a settlement that only has a lodge point.</summary>
+    public InnPlaces? Inn { get; init; }
 }
 
 /// <summary>A road between two settlements, walked in a day (the Old East Road; no Waystones in the abstract).</summary>
@@ -358,7 +399,7 @@ public static class AdventurerEngine
         var names = agents.Values.Select(a => a.Name).ToHashSet(StringComparer.Ordinal);
         foreach (var settlement in day.Settlements.Values)
         {
-            for (int n = 1; n <= rules.TargetPerSettlement; n++)
+            for (int n = 1; n <= (settlement.Target ?? rules.TargetPerSettlement); n++)
             {
                 string slot = SlotKey(settlement.Id, n);
                 if (agents.Values.Any(a => a.Slot == slot) || vacancies.ContainsKey(slot))

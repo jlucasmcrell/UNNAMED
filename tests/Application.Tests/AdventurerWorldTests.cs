@@ -10,7 +10,8 @@ using Xunit.Abstractions;
 namespace UNNAMED.Application.Tests;
 
 /// <summary>
-/// WP13: NPC adventurers over the game's own content (SYSTEMS_COMPLETENESS_PLAN §2.13) - four in each town, living their days by the canon
+/// WP13: NPC adventurers over the game's own content (SYSTEMS_COMPLETENESS_PLAN §2.13) - as many in each town as the config keeps (spec 15's
+/// dial: three in the hamlet, four at the cairnwold), living their days by the canon
 /// goal chain and the fixed outcome table (DN2), taking competitive bounties first, culling creatures, trading at the markets, levelling on
 /// the character's curve, dying and being replaced (DN4, DN5), hired with their level and gear, grouping up from LFG posts, and the world
 /// going on while the character is away (T-22).
@@ -39,9 +40,9 @@ public class AdventurerWorldTests
     private const string Wolves = "quest.bounty.road_wolves";
 
     /// <summary>A place in region metres, a hand's reach from the Ashen lodge's first body (config.adventurers: the lodge at (460, 752), facing_deg 0).</summary>
-    private static readonly (double X, double Z) AtLodge = (457.6, 750.8);
+    private static readonly (double X, double Z) AtLodge = (448.6, 727.0);   // at the inn's notice board (spec 15: the lodge row is gone; this is where they are at 07:30)
 
-    internal static Arena AtTheLodge(GameSession session, long coin = 0, ulong seed = 42) =>
+    internal static Arena AtTheInn(GameSession session, long coin = 0, ulong seed = 42) =>
         Arena.OpenCreatures(session, session.Setup, AtLodge, 90, Array.Empty<(string, double, double, string)>(),
             r => new PlayerRecord(r.Id, r.Name, r.XMm, r.YMm, r.ZMm, r.AppearanceSeed, r.Inventory, r.Progression, r.FacingMdeg, r.Discoveries, r.Equipment, coin),
             seed: seed, keepSpawns: true, origin: Harness.Region);
@@ -70,25 +71,27 @@ public class AdventurerWorldTests
     }
 
     [Fact]
-    public void TheRegion_KeepsFourAdventurersInEachTown_NamedFromTheirPeople_AtLevelsOneToFive()
+    public void TheRegion_KeepsWhatEachSettlementIsSetTo_NamedFromTheirPeople_AtLevelsOneToFive()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         var simulation = AtSpawn(session).Simulation;
         var adventurers = simulation.Adventurers;
-        Assert.Equal(8, adventurers.Length);
-        Assert.Equal(4, adventurers.Count(a => a.Settlement == "ashen_hollow"));
+        // Spec 15 default 1 and the owner's dial, on in config.adventurers: three in the hamlet, four at the cairnwold - not the rules' four
+        // everywhere.
+        Assert.Equal(7, adventurers.Length);
+        Assert.Equal(3, adventurers.Count(a => a.Settlement == "ashen_hollow"));
         Assert.Equal(4, adventurers.Count(a => a.Settlement == "cairnwold"));
         var names = session.Setup.Character.Peoples["people.veth"].Names.Names;
         Assert.All(adventurers, a => Assert.Contains(a.Name, names));
-        Assert.Equal(8, adventurers.Select(a => a.Name).Distinct().Count());
+        Assert.Equal(7, adventurers.Select(a => a.Name).Distinct().Count());
         Assert.DoesNotContain(adventurers, a => simulation.Lives.Any(l => l.Name == a.Name));
         Assert.All(adventurers, a => Assert.InRange(a.Level, 1, 5));
         Assert.All(adventurers, a => Assert.Contains("item.weapon.rusted_sword", a.Gear));
         // Each stands at their lodge, a body the world knows, and can be hired (WP15a).
         Assert.All(adventurers, a => Assert.True(a.InTown));
         var bodies = simulation.Npcs.Where(n => n.Role == "adventurer").ToList();
-        Assert.Equal(8, bodies.Count);
+        Assert.Equal(7, bodies.Count);
         Assert.All(bodies, b => Assert.Equal(simulation.World.Adventurers!.Agents[b.Id].PeopleId, b.PeopleId));
         Assert.All(bodies, b => Assert.NotNull(b.PeopleId));
         Assert.All(bodies, b => Assert.True(simulation.World.Registry.Exists(b.InstanceId)));
@@ -165,7 +168,7 @@ public class AdventurerWorldTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = AtTheLodge(session, coin: 50);
+        var arena = AtTheInn(session, coin: 50);
         var adventurer = arena.Simulation.Adventurers.Single(a => a.Key == "npc.adventurer.ashen_hollow.slot_1_g0");
         var hireability = arena.Record<HireabilityChanged>();
         Assert.True(arena.Simulation.Hiring.Hireability(adventurer.Key)!.Hireable);
@@ -204,7 +207,7 @@ public class AdventurerWorldTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = AtTheLodge(session, coin: 50);
+        var arena = AtTheInn(session, coin: 50);
         const string key = "npc.adventurer.ashen_hollow.slot_1_g0";
         Assert.Null(arena.Submit(new HireCommand(arena.Player, key, HirelingRole.Guard, 3, AcceptsRisk: true)));
         var died = arena.Record<AdventurerDied>();
@@ -218,7 +221,7 @@ public class AdventurerWorldTests
         Assert.True(arena.Simulation.World.Adventurers!.Vacancies.ContainsKey("ashen_hollow.slot_1"));
         arena.Simulation.Advance(8 * Day);
         Assert.Contains(arena.Simulation.Adventurers, a => a.Key == "npc.adventurer.ashen_hollow.slot_1_g1");
-        Assert.Equal(8, arena.Simulation.Adventurers.Length);
+        Assert.Equal(7, arena.Simulation.Adventurers.Length);
     }
 
     [Fact]
@@ -226,7 +229,7 @@ public class AdventurerWorldTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = AtTheLodge(session);
+        var arena = AtTheInn(session);
         var sim = arena.Simulation;
         // Day by day until someone at the Ashen lodge asks for company.
         SettingOut? offer = null;
@@ -267,7 +270,7 @@ public class AdventurerWorldTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = AtTheLodge(session, coin: 50);
+        var arena = AtTheInn(session, coin: 50);
         const string key = "npc.adventurer.ashen_hollow.slot_1_g0";
         Assert.True(arena.Simulation.IsHireable(key));
         Assert.Equal(new[] { "adventurer" }, arena.Simulation.Hiring.Hireability(key)!.Roles);
@@ -284,7 +287,7 @@ public class AdventurerWorldTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = AtTheLodge(session, coin: 50);
+        var arena = AtTheInn(session, coin: 50);
         var sim = arena.Simulation;
         AdventurerRecord? gone = null;
         for (int d = 0; d < 20 && gone is null; d++)
@@ -296,10 +299,11 @@ public class AdventurerWorldTests
             if (leaving is null)
                 continue;
             sim.Advance(leaving.Plan.DepartTick - sim.WorldTick + 1);
-            if (sim.Npcs.Any(n => n.Id == leaving.Key))
+            if (!sim.Npcs.Any(n => n.Id == leaving.Key))
                 gone = leaving;
         }
         Assert.NotNull(gone);
+        // Spec 15: one who is out has no body at all now - the bed is unmade and the seat empty, which is what makes the hire refusal read.
         Assert.False(sim.IsHireable(gone!.Key));
         Assert.Equal("is out", sim.Hiring.Hireability(gone.Key)!.Refusal);
         Assert.Equal($"{gone.Name} is out", arena.Submit(new HireCommand(arena.Player, gone.Key, HirelingRole.Guard, 3, AcceptsRisk: true)));
@@ -313,7 +317,7 @@ public class AdventurerWorldTests
         const string key = "npc.adventurer.ashen_hollow.slot_1_g0";
         Simulation Hired()
         {
-            var arena = AtTheLodge(session, coin: 200);
+            var arena = AtTheInn(session, coin: 200);
             Assert.Null(arena.Submit(new HireCommand(arena.Player, key, HirelingRole.Guard, 2, AcceptsRisk: true)));
             return arena.Simulation;
         }

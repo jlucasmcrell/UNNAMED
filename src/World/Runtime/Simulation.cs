@@ -320,7 +320,12 @@ public sealed class Simulation
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests), player.Id);
         _quests.Listen(bus);
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions,
-            new NpcPartyLife(Dispatch, _npcs.Lives, life)) { Unhireable = key => _adventurers.HireRefusal(key) ?? _npcs.HireRefusal(key), PlayerFocus = () => _creatures.PlayerFocus(WorldTick) };
+            new NpcPartyLife(Dispatch, _npcs.Lives, life))
+        {
+            Unhireable = key => _adventurers.HireRefusal(key) ?? _npcs.HireRefusal(key),
+            NameOf = key => _adventurers.NameOfKey(key),
+            PlayerFocus = () => _creatures.PlayerFocus(WorldTick),
+        };
         _sheets = new PartySheetSystem(_context, _state.Claim(nameof(PartySheetSystem), StateSlice.PartySheets), player.Id);
         _sheets.Listen(bus);
         _spaces = new SpaceSystem(_context, _state.Claim(nameof(SpaceSystem), StateSlice.PlayerSpace), player.Id);
@@ -914,6 +919,37 @@ public sealed class Simulation
     }
 
     /// <summary>
+    /// A room for the night (spec 15): the keeper's own town keeps the inn, the room costs what that inn asks, and the sleep is the world's
+    /// own advance to the hour the character asked to be woken at - the same catch-up an absence takes, so the adventurers' trips, the
+    /// markets and the boards come out of it exactly as they would have while they were away. Nothing else changes: a room is a safe place to
+    /// stop, not a cure.
+    /// </summary>
+    private string? RentRoom(RentRoom command)
+    {
+        if (_state.World.NpcLife is not { } lives || !lives.Npcs.TryGetValue(command.KeeperId, out var lived)
+            || !Setup.NpcLife.Routines.TryGetValue(lived.RoutineId, out var routine) || routine.Settlement is not { } settlement)
+            return "no one keeps a room here";
+        if (!Setup.Adventurers.Settlements.TryGetValue(settlement, out var town) || town.Inn is not { } inn)
+            return "there is no room to let here";
+        if (inn.KeeperId != command.KeeperId)
+            return "no one keeps a room here";
+        if (command.Hour is < 0 or > 23)
+            return "a room is let until an hour of the day";
+        if (inn.RoomCoin > _state.Currency)
+            return $"not enough coin: the room is {inn.RoomCoin}, {_state.Currency} carried";
+        if (Dispatch(new SpendCurrency(inn.RoomCoin)) is { } refused)
+            return refused;
+        long nowHour = Setup.Clock.Hour(WorldTick);
+        long ahead = ((command.Hour - nowHour % Setup.Clock.HoursPerDay) % Setup.Clock.HoursPerDay + Setup.Clock.HoursPerDay) % Setup.Clock.HoursPerDay;
+        long wake = Setup.Clock.TickOfHour(nowHour + (ahead == 0 ? Setup.Clock.HoursPerDay : ahead));
+        Advance(wake - WorldTick);
+        _context.Events.Publish(new RoomRented(command.KeeperId,
+            _state.Npcs.TryGetValue(command.KeeperId, out var keeper) ? keeper.Definition.Name : command.KeeperId,
+            settlement, command.Hour, wake, inn.RoomCoin, WorldTick));
+        return null;
+    }
+
+    /// <summary>
     /// The login grace (§2.12 item 6): for config.time's <c>login_grace_seconds</c> from now, creatures neither see nor hear the character,
     /// so nothing that came back while they were away is upon them before the world is on screen. Not saved: every login starts its own.
     /// </summary>
@@ -1089,9 +1125,11 @@ public sealed class Simulation
         AdoptSheet adopt => _sheets.Handle(adopt),
         ReleaseSheet release => _sheets.Handle(release),
         EmbodyNpc embody => _npcs.Handle(embody),
+                SiteNpc site => _npcs.Handle(site),
         SettleRetiree retiree => _npcs.Handle(retiree),
         AdventurerPartyChanged changed => _adventurers.Handle(changed),
         ShareBounty share => _adventurers.Handle(share, Now),
+        RentRoom rent => RentRoom(rent),
         _ => throw new InvalidOperationException($"No system handles {command.GetType().Name}"),
     };
 }

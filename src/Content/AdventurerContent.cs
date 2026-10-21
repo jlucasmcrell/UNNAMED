@@ -22,6 +22,48 @@ public static class AdventurerContent
 {
     public const string ConfigId = "config.adventurers";
 
+    /// <summary>
+    /// A settlement's inn (spec 15): its places and its hours, or null for a settlement that only has a lodge point. Every place is metres on
+    /// the region's own ground, so a body sits on a stool rather than beside one; the hours are the game clock.
+    /// </summary>
+    private static InnPlaces? Inn(Dictionary<object, object> row, string id)
+    {
+        if (row.GetValueOrDefault("inn") is not Dictionary<object, object> map)
+            return null;
+        var hours = map.GetValueOrDefault("hours") as Dictionary<object, object>
+            ?? throw new FormatException($"{id}'s inn names its hours, under the inn: a room's day is not the defaults");
+        long Mm(object? value, string what) => (long)Math.Round(double.Parse(value as string
+            ?? throw new FormatException($"{id}'s inn {what} holds numbers"), NumberStyles.Float, CultureInfo.InvariantCulture) * 1000,
+            MidpointRounding.AwayFromZero);
+        InnPlace At(Dictionary<object, object> place, string what)
+        {
+            var at = List(place, "position_m");
+            if (at.Count != 2)
+                throw new FormatException($"{id}'s inn {what} position_m is [x, z]");
+            return new InnPlace(Mm(at[0], what), Mm(at[1], what), (int)Math.Round(Number(place, "facing_deg") * 1000, MidpointRounding.AwayFromZero));
+        }
+        Dictionary<object, object> Map1(string key) => Map(map, key);
+        var seats = Rows(map, "seats", id).Select(s => At(s, "seat")).ToImmutableArray();
+        var beds = (map.GetValueOrDefault("beds") as List<object> ?? throw new FormatException($"{id}'s inn names its beds"))
+            .Select(b => b as List<object> ?? throw new FormatException($"{id}'s inn beds are [x, z] pairs"))
+            .Select(b => b.Count == 2 ? new InnPlace(Mm(b[0], "bed"), Mm(b[1], "bed"), 0) : throw new FormatException($"{id}'s inn beds are [x, z] pairs"))
+            .ToImmutableArray();
+        if (seats.IsEmpty || beds.IsEmpty)
+            throw new FormatException($"{id}'s inn needs at least one seat and one bed");
+        return new InnPlaces(At(Map1("door"), "door"), At(Map1("keeper"), "keeper"), At(Map1("board"), "board"), At(Map1("hearth"), "hearth"),
+            seats, beds, At(Map1("gate"), "gate"))
+        {
+            SleepFromHour = (int)Number(hours, "sleep_from"),
+            BreakfastFromHour = (int)Number(hours, "breakfast_from"),
+            BoardFromHour = (int)Number(hours, "board_from"),
+            WalkMinutes = (int)Number(hours, "walk_minutes"),
+            ReturnWalkMinutes = (int)Number(hours, "return_walk_minutes"),
+            ReturnHours = (int)Number(hours, "return_hours"),
+            RoomCoin = map.ContainsKey("room_coin") ? (long)Number(map, "room_coin") : 5,
+            KeeperId = map.GetValueOrDefault("keeper_npc_ref") as string
+                ?? throw new FormatException($"{id}'s inn names its keeper: no one else lets its rooms"),
+        };
+    }
     public static IReadOnlyList<ValidationError> Validate(ContentLoader loader)
     {
         var errors = new List<ValidationError>();
@@ -157,7 +199,12 @@ public static class AdventurerContent
             var grounds = (row.GetValueOrDefault("grounds") as List<object> ?? new List<object>())
                 .Select(g => g as string ?? throw new FormatException($"{id}'s grounds list spawner IDs")).ToImmutableArray();
             return new AdventurerSettlement(id, Text(row, "market_ref"), row.GetValueOrDefault("smith_merchant_ref") as string, Metres(0), Metres(1),
-                ((facing % 360_000) + 360_000) % 360_000, grounds) { LocationId = row.GetValueOrDefault("location_ref") as string };
+                ((facing % 360_000) + 360_000) % 360_000, grounds)
+            {
+                LocationId = row.GetValueOrDefault("location_ref") as string,
+                Target = row.ContainsKey("target") ? (int)Number(row, "target") : null,
+                Inn = Inn(row, id),
+            };
         }).ToList();
         if (settlements.Select(s => s.Id).Distinct(StringComparer.Ordinal).Count() != settlements.Count)
             throw new FormatException("each settlement is named once");
