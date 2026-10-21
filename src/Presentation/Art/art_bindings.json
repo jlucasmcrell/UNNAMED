@@ -5654,6 +5654,11 @@
   }
  },
  "weapons": {
+  "item.weapon.iron_dagger": {
+   "model": "weapon_cc0_dagger",
+   "family": "sword",
+   "note": "CC0 Poly Haven dagger by Sofia Pahaoja; standard grip socket and one-handed blade clips."
+  },
   "item.weapon.rusted_sword": {
    "model": "weapon_real_arming_sword",
    "family": "sword",

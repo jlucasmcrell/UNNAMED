@@ -286,6 +286,11 @@ public partial class Main
         // A companion's blow lands as it strikes: their figure plays its attack (the Phase-1 asset integration).
         _session.Subscribe<HitResolved>(e =>
         {
+            // Takedowns resolve immediately, outside the ordinary windup/active phases.
+            // The actual hit event drives the same existing blade feedback in both casts.
+            var simulation=_session.Simulation!;
+            if(e.Attacker==simulation.PlayerId && simulation.Combat.Phase==CombatPhase.Idle
+                && StealthRules.IsDagger(simulation.Combat.Weapon)) _avatar?.Strike();
             if (_session.Simulation!.Companions.FirstOrDefault(c => c.InstanceId == e.Attacker) is { } companion)
                 _npcs.Strike(companion.NpcId);
             // A blow on the character: what a working left on the body answers where it came from (the ward's shell rings there).

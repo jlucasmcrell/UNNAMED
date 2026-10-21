@@ -346,6 +346,9 @@ public partial class Main : Node3D
         // change - its region file, its cells and its bindings are the whole of it.
         string region = _options.GetValueOrDefault("--region") ?? "region.starting_frontier";
         var shotStart = VisualOptions.Barrowworks && region == BarrowworksRegion ? ShotStart() : null;
+        if (OS.GetEnvironment("OTHERREACH_RCD5_STEALTH") == "1"
+            && File.Exists(Path.Combine(contentRoot,"RCD5_REVIEW_FIXTURE.txt")))
+            shotStart = (600_000,755_000);
         if (_options.ContainsKey("--barrowworks-review") && (VisualOptions.Barrowworks
             || OS.GetEnvironment("BARROWWORKS_REVIEW_RETURN_BASELINE") == "1"))
             shotStart = OS.GetEnvironment("BARROWWORKS_REVIEW_RETURN_BASELINE") == "1"
