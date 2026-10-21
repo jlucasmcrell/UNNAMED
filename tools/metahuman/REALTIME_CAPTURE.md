@@ -13,3 +13,6 @@ Run `python detect_cell_pops.py video.mp4 output-directory --ffmpeg <ffmpeg.exe>
 For desktop capture, pass `-StopSignal <review directory>/recording.finished` and `-StoppedSignal <review directory>/recording.stopped`. The game holds its final frame until the recorder closes, so another application is not included when the game exits. Preserve failed routes as diagnostics; they do not pass the gate. The driver waits for boot Disable3D to clear and two warm seconds before signalling ready.
 
 A second-stage coherent-cell list requires at least four connected tiles of the same brightness polarity (absolute signed luma delta >=12, changed fraction >=.4, bounding box >=2x2 and occupancy >=.6). Raw flags remain available. This prioritises review; it does not prove a cell pop or justify suppressing observed defects.
+
+The scatter_single_lod diagnostic selects ONLY the nearest existing band of each common-AABB/instance-count family and extends it to that family's original reach; every other band is hidden. This isolates geometry swaps without drawing all levels simultaneously. It can cost substantially more GPU work and is not a shipping proposal. Names are not reliable family keys because Godot renames duplicate form nodes. The ready receipt records visible scatter nodes, environment GI state and directional-light shadow state.
+

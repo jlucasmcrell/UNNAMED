@@ -19,6 +19,23 @@ public partial class Main
         while(Time.GetTicksMsec()<warm)await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
         string arm=OS.GetEnvironment("OTHERREACH_VISIBILITY_ARM");
         var scatter=_scatter.FindChildren("*",nameof(MultiMeshInstance3D),true,false).OfType<MultiMeshInstance3D>().ToArray();
+        if(arm=="scatter_single_lod")
+        {
+            // Hold geometry constant without the invalid all-LODs-at-once experiment.
+            // Godot renames duplicate form names; the existing common band AABB is the reliable family key.
+            foreach(var family in scatter.Where(n=>n.CustomAabb.Size.LengthSquared()>0)
+                .GroupBy(n=>(n.CustomAabb,n.Multimesh.InstanceCount)))
+            {
+                float reach=family.Max(n=>n.VisibilityRangeEnd);
+                var chosen=family.OrderBy(n=>n.VisibilityRangeBegin).First();
+                foreach(var n in family)
+                {
+                    bool near=n==chosen;
+                    n.Visible=near;
+                    if(near){n.VisibilityRangeBegin=0;n.VisibilityRangeEnd=reach;}
+                }
+            }
+        }
         foreach(var n in scatter)
         {
             if(arm=="scatter_self_fade")
@@ -49,7 +66,11 @@ public partial class Main
         trace.WriteLine("frame,ms,player_x,player_z,camera_x,camera_y,camera_z,yaw,frame_cap,draw_calls");
         int frame=0;
         File.WriteAllText(Path.Combine(directory,"record_ready.json"),JsonSerializer.Serialize(new{
-            arm,scatter_cells=scatter.Length,residency=_scatter.ResidencyEnabled,max_fps=Engine.MaxFps,
+            arm,scatter_cells=scatter.Length,visible_scatter_nodes=scatter.Count(n=>n.Visible),residency=_scatter.ResidencyEnabled,max_fps=Engine.MaxFps,
+            environments=FindChildren("*",nameof(WorldEnvironment),true,false).OfType<WorldEnvironment>()
+                .Select(n=>new{path=n.GetPath().ToString(),sdfgi=n.Environment?.SdfgiEnabled}),
+            directional_lights=FindChildren("*",nameof(DirectionalLight3D),true,false).OfType<DirectionalLight3D>()
+                .Select(n=>new{path=n.GetPath().ToString(),shadows=n.ShadowEnabled,n.Visible}),
             lod_environment=OS.GetEnvironment("UNNAMED_LOD_STIPPLE"),
             evidence="SOURCE DIAGNOSTIC, not unchanged packaged RCd5. Real-time normal controller/pacing; no screenshots during route."}));
         ulong waitUntil=Time.GetTicksMsec()+120000;
