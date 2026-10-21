@@ -28,7 +28,14 @@ void Lock(string action)
 try
 {
     if (File.Exists(ownerFlag)) throw new Exception("Owner playing; launch deferred");
-    if (!File.Exists(Path.Combine(root, "mh_characters", "catalog.json"))) throw new FileNotFoundException("MetaHuman runtime bundle is missing");
+    // Which cast this package draws, from the one option file beside the exe. A comparison arm (mpfb, humgen) draws none
+    // of the MetaHuman bundle - MetaHumanFigure.Available is false for those runs by design - so it does not have to
+    // ship 342-joint bodies it will never draw.
+    string optionFile = Path.Combine(root, "characters.option");
+    string cast = File.Exists(optionFile) ? File.ReadAllText(optionFile).Trim() : "";
+    string people = cast is "mpfb" or "humgen" ? cast : "production";
+    if (people == "production" && !File.Exists(Path.Combine(root, "mh_characters", "catalog.json")))
+        throw new FileNotFoundException("MetaHuman runtime bundle is missing");
     if (!review)
     {
         using var flag = new FileStream(ownerFlag, FileMode.CreateNew, FileAccess.Write, FileShare.Read);
@@ -43,8 +50,6 @@ try
     };
     start.Environment["OTHERREACH_MH_CHARACTERS_ROOT"] = Path.Combine(root, "mh_characters");
     start.Environment["UNNAMED_SCATTER_RESIDENCY"] = "0";
-    string optionFile = Path.Combine(root, "characters.option");
-    string people = File.Exists(optionFile) && File.ReadAllText(optionFile).Trim() == "mpfb" ? "mpfb" : "production";
     string profile = review && Environment.GetEnvironmentVariable("OTHERREACH_MH_REVIEW_PROFILE") is { Length: > 0 } reviewProfile
         ? Path.GetFullPath(reviewProfile) : Path.Combine(root, "saves");
     // Normal launch preserves the owner's client_prefs, including window size and render tier.
@@ -82,3 +87,4 @@ finally
         game?.Dispose();
     }
 }
+
