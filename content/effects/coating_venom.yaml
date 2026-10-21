@@ -1,0 +1,14 @@
+id: effect.coating_venom
+kind: effect
+schema: 1
+display_key: effect.coating_venom.name
+tags: [effect]
+name: Venom-Coated Blade
+notes: Poison as a coating rather than a fourth kind of instant effect (owner finding 27; spec 25-27 §27). While it lasts, every blade blow that wounds puts the venom on the target instead of poisoning being a spell in its own right - which is why it is an effect on the wielder, and why alchemy is where the flask comes from.
+category: coating
+stack_policy: refresh
+max_stacks: 1
+duration_min: 60.0         # game minutes (config.time): about two minutes of fighting
+tick_interval_min: 0
+applies_on_hit: effect.venom
+dispel_category: none

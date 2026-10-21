@@ -147,14 +147,15 @@ public static class Perception
 
     /// <summary>
     /// One tick of sight: a target seen at the edge of range raises awareness slowly, one seen close raises it fast
-    /// (STEALTH §3); nothing seen lets it fade.
+    /// (STEALTH §3); nothing seen lets it fade. <paramref name="gain"/> scales how fast a sighting registers - the stealth skill's rank
+    /// makes the character harder to notice (owner finding 26), never invisible: the number still rises, only slower.
     /// </summary>
-    public static int Accrue(int awareness, double? seenAtMm, long sightMm, AwarenessRules rules, int tickMs)
+    public static int Accrue(int awareness, double? seenAtMm, long sightMm, AwarenessRules rules, int tickMs, double gain = 1.0)
     {
         if (seenAtMm is not { } distance)
             return Math.Max(0, awareness - Math.Max(1, rules.DecayPerSecond * tickMs / 1000));
         double closeness = 1 - Math.Clamp(distance / Math.Max(1, sightMm), 0, 1);
         double perSecond = rules.SightPerSecondAtRange + (rules.SightPerSecondClose - rules.SightPerSecondAtRange) * closeness;
-        return Math.Min(Full, awareness + Math.Max(1, (int)Math.Round(perSecond * tickMs / 1000.0, MidpointRounding.AwayFromZero)));
+        return Math.Min(Full, awareness + Math.Max(1, (int)Math.Round(perSecond * gain * tickMs / 1000.0, MidpointRounding.AwayFromZero)));
     }
 }

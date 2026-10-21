@@ -1,0 +1,14 @@
+id: effect.paralyse
+kind: effect
+schema: 1
+display_key: effect.paralyse.name
+tags: [effect]
+name: Paralysed
+notes: A short, total loss of the body (owner finding 27) - no movement and no blow. Shorter than sleep and harder to keep on, because it is the stronger of the two. Half the time on each reapplication.
+category: debuff
+stack_policy: stack_intensity
+max_stacks: 3
+duration_min: 1.5          # game minutes (config.time): about 3 s
+tick_interval_min: 0
+control: incapacitates
+dispel_category: none

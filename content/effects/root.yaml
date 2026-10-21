@@ -1,0 +1,14 @@
+id: effect.root
+kind: effect
+schema: 1
+display_key: effect.root.name
+tags: [effect]
+name: Rooted
+notes: Its feet are held, and nothing else (owner finding 27). It still sees, hears, calls its pack and strikes anything in reach - which makes it different from paralysis and worth having. Half the time on each reapplication.
+category: debuff
+stack_policy: stack_intensity
+max_stacks: 3
+duration_min: 3.0          # game minutes (config.time): about 6 s
+tick_interval_min: 0
+control: roots
+dispel_category: none

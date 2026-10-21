@@ -276,7 +276,17 @@ public static class CombatContent
                     var (t, op) => throw new FormatException($"{id}: modifier {t} {op} is not built in Phase 1 ({string.Join(", ", Stats)})"),
                 };
             }
-            return effect with { ImmuneTags = Tags(map, "immunity_tags") };
+            return effect with
+            {
+                ImmuneTags = Tags(map, "immunity_tags"),
+                Control = map.ContainsKey("control") ? Text(map, "control") switch
+                {
+                    "roots" => ControlKind.Roots,
+                    "incapacitates" => ControlKind.Incapacitates,
+                    var other => throw new FormatException($"{id}: control '{other}' is not built (roots, incapacitates)"),
+                } : ControlKind.None,
+                AppliesOnHit = map.ContainsKey("applies_on_hit") ? Text(map, "applies_on_hit") : null,
+            };
         }).ToImmutableSortedDictionary(e => e.Id, e => e, StringComparer.Ordinal);
     }
 

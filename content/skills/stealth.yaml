@@ -1,0 +1,9 @@
+id: skill.stealth
+kind: skill
+schema: 1
+display_key: skill.stealth.name
+tags: [skill]
+name: Stealth
+family: world
+notes: The information skill (STEALTH_DETECTION_AND_THREAT.md §20; owner finding 26). Ranks at levels 1, 4 and 8 - minus 15/30/45% effective noise radius and -10% per rank to how fast a creature's awareness of the character rises. It adds no damage - stealth works by preventing or manipulating information, not by a hidden damage ladder (PROGRESSION.md line 388's cap structure forbids re-opening it as a stealth power axis).
+teaches: "Moving without being noticed - keeping low, keeping quiet, and being where a thing is not looking. A walk through an empty wood teaches nothing."

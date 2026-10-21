@@ -1,0 +1,15 @@
+id: effect.sleep
+kind: effect
+schema: 1
+display_key: effect.sleep.name
+tags: [effect]
+name: Sleep
+notes: A sleeper put down without a fight (owner finding 27; STEALTH §14). It cannot move or strike while it lasts, and any wound breaks it - the body wakes fighting. Undead and constructs have no sleep to take. Applying it again before it wears off gives half the time, then a quarter (EffectRules' control diminishing return), so a body is not put down twice in a row forever.
+category: debuff
+stack_policy: stack_intensity
+max_stacks: 3
+duration_min: 5.0          # game minutes (config.time): about 10 s
+tick_interval_min: 0
+control: incapacitates
+dispel_category: none
+immunity_tags: [undead, construct]
