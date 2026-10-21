@@ -46,7 +46,7 @@ settlements:
     market_ref: market.ashen_hollow
     smith_merchant_ref: merchant.ashen_hollow.kera_voss
     lodge: { position_m: [460, 752], facing_deg: 0 }   # off the outpost's ways through: the row stood across the path from the spawn to the forge
-    # target: 3                           # spec 15 default 1 (three in the hamlet). Kept at the rules' 4 for this slice: the adventurer tests pin four per town, and sizing is the owner's dial - uncomment to flip it.
+    target: 3                           # spec 15 default 1: three in the hamlet (the owner's dial, on; the rules keep four at Cairnwold)
     # Spec 15 (owner finding 15): Renn Vale's waystation IS the inn, and these are its places - measured off the props the region already
     # places (beds 01-03, tables 01-02, stools 01-03, the hearth, the east door) so a body sits ON a stool and sleeps IN a bed rather than
     # beside one. Hours are the game clock; the walk windows are how long they are seen walking to and from the gate.
@@ -64,13 +64,15 @@ settlements:
         - [437.9, 727.85]                                       # bed 02
         - [437.9, 729.95]                                       # bed 03
       gate: { position_m: [464, 748], facing_deg: 90 }          # where the Old East Road leaves the hamlet
-    hours:
-      sleep_from: 22                # asleep at their bed from this hour
-      breakfast_from: 6             # up and at the tables from this hour
-      board_from: 7                 # at the notice board from this hour, forming up
-      walk_minutes: 20              # seen walking to the gate over this long before they leave at the LFG hour (the world starts at 07:30, so they are still at the board then)
-      return_walk_minutes: 30       # and back in from the gate over this long when they return
-      return_hours: 9               # out for this many hours: away at 08:00, back at 17:00
+      # The inn's hours: the game clock, and the walk windows that make the day's leaving and coming back visible. They live under the inn,
+      # where the content reads them - authored beside it, they were silently the defaults.
+      hours:
+        sleep_from: 22              # asleep at their bed from this hour
+        breakfast_from: 6           # up and at the tables from this hour
+        board_from: 7               # at the notice board from this hour, forming up
+        walk_minutes: 20            # seen walking to the gate over this long before they leave at the LFG hour (the world starts at 07:30, so they are still at the board then)
+        return_walk_minutes: 30     # and back in from the gate over this long when they return
+        return_hours: 9             # out for this many hours: away at 08:00, back at 17:00
     grounds:
       - spawn.hollow.valley_strays
       - spawn.hollow.east_pack
