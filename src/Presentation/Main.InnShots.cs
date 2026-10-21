@@ -33,9 +33,9 @@ public partial class Main
     /// </summary>
     private static readonly (string Name, float EyeX, float EyeZ, float EyeUp, float LookX, float LookZ, float LookUp)[] InnShotsViews =
     {
-        ("square", 456.0f, 734.0f, 1.65f, 448.0f, 727.0f, 1.4f),
+        ("square", 457.0f, 733.5f, 1.65f, 449.5f, 727.5f, 1.4f),
         ("inn", 449.9f, 727.4f, 1.65f, 440.0f, 728.0f, 1.2f),
-        ("gate", 470.0f, 752.0f, 1.65f, 463.0f, 746.0f, 1.3f),
+        ("gate", 470.0f, 753.0f, 1.65f, 458.0f, 741.0f, 1.3f),
     };
 
     private string? _innShotsDirectory;
@@ -143,14 +143,25 @@ public partial class Main
 
     private async Task Shot(string prefix, (string Name, float EyeX, float EyeZ, float EyeUp, float LookX, float LookZ, float LookUp) view)
     {
-        // Eye and target stand on the ground under them: the region's ground is ~15 m up, so a fixed world height is under the terrain.
+        // Eye and target stand on the ground under them: the region's ground is several metres up, so a fixed world height is under the terrain.
         var eye = new Vector3(view.EyeX, _ground.Height(view.EyeX, view.EyeZ) + view.EyeUp, view.EyeZ);
         var look = new Vector3(view.LookX, _ground.Height(view.LookX, view.LookZ) + view.LookUp, view.LookZ);
+        // The rig puts the camera back on the character every frame it draws, so the placement is held - not set once - for the frames the
+        // shot is taken over, and applied again on the frame the picture is taken from.
+        for (int frame = 0; frame < 8; frame++)
+        {
+            _camera.Camera.GlobalPosition = eye;
+            _camera.Camera.LookAt(look);
+            _camera.Camera.MakeCurrent();
+            await Rcd3Wait(0.05);
+        }
         _camera.Camera.GlobalPosition = eye;
         _camera.Camera.LookAt(look);
-        await Rcd3Wait(0.3);
+        _camera.Camera.MakeCurrent();
+        var drawn = GetViewport().GetCamera3D();
+        GD.Print($"INN_SHOTS {prefix}_{view.Name} from {eye} looking at {look}; drawn from {drawn?.Name.ToString() ?? "none"} at " +
+                 $"{drawn?.GlobalPosition.ToString() ?? "-"}");
         await Rcd3Shot(_innShotsDirectory!, $"{prefix}_{view.Name}");
-        GD.Print($"INN_SHOTS {prefix}_{view.Name} from {eye} looking at {look}");
     }
 
     /// <summary>
