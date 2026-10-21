@@ -851,6 +851,23 @@ internal static class InnDay
     /// <summary>The bed, seat or fire this adventurer uses, by slot: two never share one.</summary>
     private static InnPlace Pick(ImmutableArray<InnPlace> places, int slot) => places[(slot - 1) % places.Length];
 
+    /// <summary>A stride between the bodies leaving the gate: the step from the door to the gate, one behind the other, slot by slot.</summary>
+    private const long FileStrideMm = 800;
+
+    /// <summary>
+    /// The gate in single file: the first slot at the gate itself, each next one a stride further out along the way from the door, so the
+    /// party reads as walking out and no two of them ever stand in the same place.
+    /// </summary>
+    private static InnPlace InFile(InnPlace gate, InnPlace door, int slot)
+    {
+        double dx = gate.XMm - door.XMm, dz = gate.ZMm - door.ZMm;
+        double length = Math.Sqrt(dx * dx + dz * dz);
+        if (length < 1)
+            return gate;
+        double step = FileStrideMm * (slot - 1) / length;
+        return gate with { XMm = gate.XMm + (long)Math.Round(dx * step), ZMm = gate.ZMm + (long)Math.Round(dz * step) };
+    }
+
     /// <summary>
     /// Where they are headed at this minute of the day. Injured, they stay in bed; in the last <see cref="InnPlaces.WalkMinutes"/> before the
     /// departure hour they are at the gate (walking out); from the return hour for <see cref="InnPlaces.ReturnWalkMinutes"/> they are at the gate
@@ -864,10 +881,12 @@ internal static class InnDay
         if (injured)
             return bed;
         // The departure hour itself is spent at the gate: the walk out is the last thing the character sees of them before they are gone.
+        // The gate is one place, so the party leaves it in file - each a stride behind the one ahead, along the way out - rather than three
+        // bodies standing in the same spot.
         if (departTick > 0 && tick >= departTick - inn.WalkMinutes * ticksPerMinute && tick <= departTick)
-            return inn.Gate;
+            return InFile(inn.Gate, inn.Door, slot);
         if (returnTick > 0 && tick >= returnTick && tick < returnTick + inn.ReturnWalkMinutes * ticksPerMinute)
-            return inn.Gate;
+            return InFile(inn.Gate, inn.Door, slot);
         int minute = hourOfDay * 60;
         int sleep = inn.SleepFromHour * 60, breakfast = inn.BreakfastFromHour * 60, board = inn.BoardFromHour * 60;
         bool night = sleep > breakfast ? minute >= sleep || minute < breakfast : minute >= sleep && minute < breakfast;
