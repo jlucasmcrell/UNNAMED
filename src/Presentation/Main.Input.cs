@@ -229,6 +229,8 @@ public partial class Main
             var wish = stick.LengthSquared() > 0.01f ? stick.Normalized() : Vector2.Zero;
             _controller.Dodge(_camera.GroundForward * wish.Y + _camera.GroundRight * wish.X);
         }
+        if (captured && Input.IsActionJustPressed("takedown"))
+            _controller.Takedown();
         if (Input.IsActionJustPressed("use") && !_controller.UseConsumable())
             _hud.Toast("Nothing to use", 2);
 
@@ -359,6 +361,7 @@ public partial class Main
         Bind("dialogue_skip", Key.Space, Key.Enter);   // in a conversation: silence the line and go on (held: fast-forward); Space jumps in play
         Bind("inventory", Key.Tab, Key.I);
         Bind("dodge", Key.C);
+        Bind("takedown", Key.F);          // a knife into a body that has not noticed the character (STEALTH §12)
         Bind("use", Key.H);
         Bind("companion_order", Key.G);   // follow or wait (content bible §9: no radial menu)
         for (int n = 1; n <= 9; n++)
