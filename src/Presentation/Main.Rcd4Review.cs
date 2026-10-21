@@ -96,6 +96,20 @@ public partial class Main
         }
         if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_KEEP_NPCS") == "1")
             await Rcd4Tavar(directory,camera);
+        foreach(string id in new[]{"creature.beast.wolf_grey","creature.beast.wolf_grey_alpha"})
+        {
+            var wolf=_session.Simulation!.Creatures.FirstOrDefault(c=>c.Alive && c.DefId==id && c.Key.StartsWith("spawn.hollow.den_pack#",StringComparison.Ordinal));
+            if(wolf is null) throw new InvalidOperationException("Den creature missing: "+id);
+            var aim=Greybox.HollowView.ToGodot(wolf.Body.XMm,wolf.Body.YMm,wolf.Body.ZMm)+Vector3.Up*.7f;
+            camera.GlobalPosition=At(512,2,775);camera.LookAt(aim);
+            _creatures.Draw(_session.Simulation,1,.04);
+            _hud.SetTarget(new Ui.TargetPlate(Ui.Names.Of(_session,wolf.DefId),wolf.Level,wolf.Health,wolf.MaxHealth,wolf.Threat,
+                wolf.Temperament,wolf.Hostile,wolf.Huntable));
+            _shadowLods.Update(camera.GlobalPosition);await Rcd3Wait(.3);
+            await Rcd3Shot(directory,id.EndsWith("alpha",StringComparison.Ordinal)?"alpha_plate_focus_fixture":"wolf_plate_focus_fixture");
+            rows.Add(new { creature=id,level=wolf.Level,threat=wolf.Threat.ToString(),
+                fixture="Manual presentation focus using actual creature state; automatic combat target selection unchanged" });
+        }
         if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_ROOT_WALK") == "1")
             await Rcd4RootWalk(directory,camera);
         File.WriteAllText(Path.Combine(directory,"world_review.json"),JsonSerializer.Serialize(rows,new JsonSerializerOptions{WriteIndented=true}));

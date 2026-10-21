@@ -22,6 +22,7 @@ public partial class Main
     private double _dsDelta;
     private ulong _dsStatusAt;
     private readonly Queue<(double X,double Z)> _dsRoute = new();
+    private bool _dsTorchBeforeDen;
     private double _dsSettle;
 
     private void InstallDsShots()
@@ -85,7 +86,7 @@ public partial class Main
                 {
                     var from=player;
                     foreach(var anchor in new[] {(430000L,738500L),(430000L,755000L),(455000L,755000L),
-                        (480000L,755000L),(505000L,755000L),(536000L,752000L)})
+                        (480000L,755000L),(505000L,765000L)})
                     {
                         var goal=new Body(anchor.Item1,simulation.ActiveLayout.Space.Terrain.HeightAtMm(anchor.Item1,anchor.Item2),anchor.Item2,0);
                         foreach(var point in Playthrough.WayTo(simulation,from,goal,standOff:0)) _dsRoute.Enqueue(point);
@@ -94,7 +95,17 @@ public partial class Main
                 }
                 var next=_dsRoute.Peek();
                 var toward=new Vector3((float)(next.X-player.XMm/1000.0),0,(float)(next.Z-player.ZMm/1000.0));
-                if(toward.Length()<.4f) { _dsRoute.Dequeue();if(_dsRoute.Count==0)_dsStep=0; }
+                if(toward.Length()<.4f)
+                {
+                    _dsRoute.Dequeue();
+                    if(!_dsTorchBeforeDen && next.X==480 && next.Z==755)
+                    {
+                        _dsTorchBeforeDen=true;_dsStep=2;_dsSettle=0;
+                        _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);
+                        _camera.Yaw=-1.1f;_camera.Pitch=-.35f;_camera.TargetDistance=4;
+                    }
+                    else if(_dsRoute.Count==0)_dsStep=0;
+                }
                 else _controller.SteerWorld(toward.Normalized(),Gait.Run,_camera);
                 _dsNext=Time.GetTicksMsec()+16;return;
             }
@@ -120,7 +131,7 @@ public partial class Main
                 if (_dsSettle < 0.6)
                     return;
                 _dsSettle = 0;
-                Shot($"den_alpha_plate", alpha, "the plate over a den that has not noticed the character: name, level, threat, disposition, no bar");
+                Shot("den_approach_plate", Target(simulation), "Actual automatic target plate on approaching the den; subject is the HUD's selected creature");
                 _dsStep = 1;
                 _dsNext = Time.GetTicksMsec() + 100;
                 return;
@@ -131,16 +142,24 @@ public partial class Main
                 var engaged = creatures.Where(c => c.Alive && c.Hostile).OrderBy(Away).FirstOrDefault();
                 if (engaged is null)
                 {
+                    if(Alpha() is { } alpha && Away(alpha)>7000)
+                    {
+                        var toward=new Vector3((alpha.Body.XMm-player.XMm)/1000f,0,(alpha.Body.ZMm-player.ZMm)/1000f);
+                        _controller.SteerWorld(toward.Normalized(),Gait.Walk,_camera);
+                    }
                     _dsNext = Time.GetTicksMsec() + 100;
                     return;
                 }
+                _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);
                 _dsSettle += _dsDelta;
                 if (_dsSettle < 0.6)
                     return;
                 _dsSettle = 0;
-                Shot("den_engaged_plate", engaged, "the plate while the pack fights: the health bar is shown only once it is engaged");
-                _dsStep = 2;
-                _dsNext = Time.GetTicksMsec() + 100;
+                Shot("den_engaged_plate", Target(simulation), "Actual automatic target plate during engagement");
+                File.WriteAllText(Path.Combine(_dsShotsDirectory!,"complete.json"),JsonSerializer.Serialize(new {
+                    status="DS_SHOTS_CAPTURED_REQUIRES_CLAUDE_REVIEW", people=VisualOptions.People,
+                    hour=_session.ClockAtWorldStartHours, shots=new[]{"torch_off","torch_on","den_approach_plate","den_engaged_plate"} }));
+                GD.Print("DS_SHOTS complete "+_dsShotsDirectory);_dsShotsDirectory=null;GetTree().Quit();
                 return;
             }
             // The torch, in the off hand and out of it, from the same framing: the light is the difference.
@@ -150,7 +169,7 @@ public partial class Main
                 if (_dsSettle < 0.6)
                     return;
                 _dsSettle = 0;
-                Shot("torch_off", Alpha(), "the off hand empty: no light of the character's own");
+                Shot("torch_off", Target(simulation), "Open-road comparison before combat; off hand empty");
                 Equip();
                 _dsStep = 3;
                 _dsNext = Time.GetTicksMsec() + 100;
@@ -162,7 +181,7 @@ public partial class Main
                 if (_dsSettle < 1.2)
                     return;
                 _dsSettle = 0;
-                Shot("torch_on", Alpha(), "the torch equipped in the off hand: an OmniLight at its content's light_radius");
+                Shot("torch_on", Target(simulation), "Same open-road camera before combat; found torch equipped");
                 var light = _avatar.FindChild("OffHandLight", true, false) as OmniLight3D;
                 File.WriteAllText(Path.Combine(_dsShotsDirectory!, "torch_light.json"), JsonSerializer.Serialize(new
                 {
@@ -171,20 +190,13 @@ public partial class Main
                     range_m = light?.OmniRange,
                     energy = light?.LightEnergy,
                     shadows = light?.ShadowEnabled,
+                    light_world = light?.GlobalPosition.ToString(), player_feet = _avatar.GlobalPosition.ToString(),
                     item = "item.tool.torch",
                     light_radius_in_content_m = 8,
                     note = light is null ? "NO LIGHT NODE: the torch is equipped but nothing was attached to the off hand" : "attached to the off hand's bone attachment",
                 }, new JsonSerializerOptions { WriteIndented = true }));
-                File.WriteAllText(Path.Combine(_dsShotsDirectory!, "complete.json"), JsonSerializer.Serialize(new
-                {
-                    status = "DS_SHOTS_CAPTURED_REQUIRES_CLAUDE_REVIEW",
-                    people = VisualOptions.People,
-                    hour = _session.ClockAtWorldStartHours,
-                    shots = new[] { "den_alpha_plate", "den_engaged_plate", "torch_off", "torch_on" },
-                }, new JsonSerializerOptions { WriteIndented = true }));
-                GD.Print("DS_SHOTS complete " + _dsShotsDirectory);
-                _dsShotsDirectory = null;
-                GetTree().Quit();
+                if(light is null || light.OmniRange!=8) throw new InvalidOperationException("Found torch did not create its 8m light");
+                _dsStep=-1;_dsNext=Time.GetTicksMsec()+100;
                 return;
             }
         }
@@ -209,6 +221,7 @@ public partial class Main
         File.WriteAllText(Path.Combine(_dsShotsDirectory!, name + ".json"), JsonSerializer.Serialize(new
         {
             note,
+            camera=_camera.Camera.GlobalPosition.ToString(), player=_session.Simulation!.Player.Body,
             subject = subject is null ? null : new
             {
                 def = subject.DefId, level = subject.Level, threat = subject.Threat.ToString(), threatWord = UNNAMED.Domain.Creatures.ThreatRules.Word(subject.Threat),
