@@ -269,9 +269,12 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
     /// </summary>
     public void Advance(long fromTick, long toTick, AdvanceLog log)
     {
-        if (Current is not { } state || Clock.Day(toTick) <= state.Day)
+        if (Current is not { } state)
             return;
-        LiveTo(Clock.Day(toTick), log);
+        if (Clock.Day(toTick) > state.Day)
+            LiveTo(Clock.Day(toTick), log);
+        // Bodies come and go by the hour too (spec 15: away at the departure hour, back at the return hour), so an absence that crosses no
+        // midnight still leaves exactly the bodies a run to the same tick would.
         Bodies(toTick, force: true);
     }
 
@@ -512,9 +515,9 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
     /// </summary>
     private bool InTown(AdventurerRecord a, long tick) =>
         a.Condition == AdventurerCondition.Injured || !AdventurerGoals.Out(a.Plan.Goal) || a.Plan.Day != Clock.Day(tick)
-        // The minute the group forms is spent in town: a company that answers the offer before the departure hour meets them there, and a body
-        // that vanished on the hour would leave the meeting with nobody to meet.
-        || tick < a.Plan.DepartTick + Math.Max(1, Clock.TicksPerDay / (Clock.HoursPerDay * 6))
+        // The departure tick is still theirs: the company that answered the offer forms up with them there and walks out with them (the bodies
+        // go at the tick after, which is the first tick they are not in town).
+        || tick <= a.Plan.DepartTick
         || (ReturnTick(a) is { } back && tick >= back);
 
     /// <summary>When today's day out ends, in ticks: the departure hour plus the inn's return hours. Null for a plan with no departure.</summary>
@@ -544,7 +547,9 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
             // At an inn (spec 15) the body's place is the inn's own answer for the hour - their bed, a seat, the board, the hearth, the gate - so
             // presence is legible: an empty bed and an empty seat say who is out. A body goes when they walk out of the gate, wherever the tier
             // leaves them: tier A never reaches a settlement 150 m across, and a body that stood at the gate all day is the row again.
-            if (town.Inn is not null && wanted && has && a.Party is null)
+            // While the world runs, a place is where the mover walks the body to. Over an absence or a load there is nothing in sight to walk it
+            // in front of, so the body is put there instead: where it stood before is then not part of what an absence was cut through.
+            if (town.Inn is not null && wanted && has && a.Party is null && !force)
             {
                 _context.Dispatch(new SiteNpc(a.Key, SiteAt(a, town, tick)));
                 continue;
@@ -732,6 +737,9 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
     /// <summary>An adventurer's name by their instance ID - a claimant on a board - or null for anyone else.</summary>
     public string? NameOf(string instanceId) => Current?.Agents.Values.FirstOrDefault(a => InstanceIdOf(a.Key).Value == instanceId)?.Name;
 
+    /// <summary>An adventurer's name by their key, for a refusal about one who has no body standing here to be named by; null for anyone else.</summary>
+    public string? NameOfKey(string key) => Agent(key)?.Name;
+
     public ImmutableArray<AdventurerView> Views()
     {
         if (Current is not { } state)
@@ -750,7 +758,8 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
 
     /// <summary>
     /// The SettingOuts adventurers post (the WP12 contract, read by tick): each one asking for company today whose post falls in
-    /// (<paramref name="fromTick"/>, <paramref name="toTick"/>], waiting at their lodge until they leave. A pure read of the world.
+    /// (<paramref name="fromTick"/>, <paramref name="toTick"/>], waiting at the place their town keeps for them until they leave. A pure read
+    /// of the world.
     /// </summary>
     public IEnumerable<SettingOut> Between(long fromTick, long toTick)
     {
@@ -763,8 +772,10 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
                 continue;
             var (purpose, purposeName, destination) = Words(a);
             string anchor = town.LocationId ?? town.Id;
+            // An inn is where they are found (spec 15): the offer goes up where they are forming up, and that is the place to be at the
+            // departure hour - the walk to the gate is theirs. A settlement without an inn keeps its lodge point.
             yield return new SettingOut(InstanceIdOf(a.Key), a.Name, purpose, purposeName, destination, anchor, setup.Names.GetValueOrDefault(anchor, town.Id),
-                town.LodgeXMm, town.LodgeZMm, a.Plan.DepartTick, a.Plan.PostTick);
+                town.Inn?.Board.XMm ?? town.LodgeXMm, town.Inn?.Board.ZMm ?? town.LodgeZMm, a.Plan.DepartTick, a.Plan.PostTick);
         }
     }
 

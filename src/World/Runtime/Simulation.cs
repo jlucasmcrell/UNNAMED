@@ -320,7 +320,12 @@ public sealed class Simulation
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests), player.Id);
         _quests.Listen(bus);
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions,
-            new NpcPartyLife(Dispatch, _npcs.Lives, life)) { Unhireable = key => _adventurers.HireRefusal(key) ?? _npcs.HireRefusal(key), PlayerFocus = () => _creatures.PlayerFocus(WorldTick) };
+            new NpcPartyLife(Dispatch, _npcs.Lives, life))
+        {
+            Unhireable = key => _adventurers.HireRefusal(key) ?? _npcs.HireRefusal(key),
+            NameOf = key => _adventurers.NameOfKey(key),
+            PlayerFocus = () => _creatures.PlayerFocus(WorldTick),
+        };
         _sheets = new PartySheetSystem(_context, _state.Claim(nameof(PartySheetSystem), StateSlice.PartySheets), player.Id);
         _sheets.Listen(bus);
         _spaces = new SpaceSystem(_context, _state.Claim(nameof(SpaceSystem), StateSlice.PlayerSpace), player.Id);
