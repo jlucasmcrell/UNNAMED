@@ -1,5 +1,6 @@
 using Godot;
 using System.Text.Json;
+using UNNAMED.Presentation.Player;
 using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Presentation;
@@ -20,7 +21,7 @@ public partial class Main
     private const int InnShotsDay = 1;
 
     /// <summary>Five minutes before the departure hour: the party is at the gate, walking out.</summary>
-    private const int InnShotsDepartureMinute = 7 * 60 + 55;
+    private const int InnShotsDepartureMinute = 7 * 60 + 50;
 
     /// <summary>The steps: the departure, the four hours, and the board. Each hour step shoots every view.</summary>
     private const int InnShotsSteps = 1 + 4 + 1;
@@ -33,9 +34,9 @@ public partial class Main
     /// </summary>
     private static readonly (string Name, float EyeX, float EyeZ, float EyeUp, float LookX, float LookZ, float LookUp)[] InnShotsViews =
     {
-        ("square", 457.0f, 733.5f, 1.65f, 449.5f, 727.5f, 1.4f),
-        ("inn", 449.9f, 727.4f, 1.65f, 440.0f, 728.0f, 1.2f),
-        ("gate", 470.0f, 753.0f, 1.65f, 458.0f, 741.0f, 1.3f),
+        ("square", 461.0f, 734.0f, 1.75f, 449.0f, 728.5f, 1.35f),
+        ("inn", 444.5f, 726.6f, 1.65f, 437.5f, 726.2f, 1.0f),
+        ("gate", 467.5f, 751.5f, 1.65f, 463.9f, 748.7f, 1.2f),
     };
 
     private string? _innShotsDirectory;
@@ -51,6 +52,7 @@ public partial class Main
         Directory.CreateDirectory(_innShotsDirectory);
         _innNext = Time.GetTicksMsec() + 2500;
         _rcd3Driving = true;
+        _innFreeCamera = true;   // the rig keeps its hands off the camera while the frames are being taken
         GD.Print("INN_SHOTS installed " + _innShotsDirectory);
     }
 
@@ -95,7 +97,9 @@ public partial class Main
         }
         var simulation = _session.Simulation!;
         bool hud = _hud.Visible;
-        SetProcess(false);                       // nothing moves the camera out from under the shot
+        // The world keeps drawing while a shot is taken - the NPC figures only catch up with their bodies in the frame pass, so stopping it
+        // left them standing where they had been an hour before ("nothing at the gate" was this, not the schedule). The rig keeps its hands
+        // off the camera for the same frames (_innFreeCamera).
         try
         {
             _hud.Visible = false;
@@ -104,6 +108,7 @@ public partial class Main
                 AdvanceTo(InnShotsDepartureMinute);
                 await Shot("h0755_departure", InnShotsViews.First(v => v.Name == "gate"));
                 await Occupants("07:55");
+                AdventurerBodies("07:50");
                 return;
             }
             if (step <= InnShotsHours.Length)
@@ -126,7 +131,6 @@ public partial class Main
         finally
         {
             _hud.Visible = hud;
-            SetProcess(true);
         }
     }
 
@@ -146,15 +150,17 @@ public partial class Main
         // Eye and target stand on the ground under them: the region's ground is several metres up, so a fixed world height is under the terrain.
         var eye = new Vector3(view.EyeX, _ground.Height(view.EyeX, view.EyeZ) + view.EyeUp, view.EyeZ);
         var look = new Vector3(view.LookX, _ground.Height(view.LookX, view.LookZ) + view.LookUp, view.LookZ);
-        // The rig puts the camera back on the character every frame it draws, so the placement is held - not set once - for the frames the
-        // shot is taken over, and applied again on the frame the picture is taken from.
+        // The rig puts the camera back on the character every frame it draws, and the character's own body would otherwise stand in the
+        // middle of the shot: the placement is held - not set once - across the frames the shot is taken over, and the avatar kept out of them.
         for (int frame = 0; frame < 8; frame++)
         {
+            _avatar.Visible = false;
             _camera.Camera.GlobalPosition = eye;
             _camera.Camera.LookAt(look);
             _camera.Camera.MakeCurrent();
             await Rcd3Wait(0.05);
         }
+        _avatar.Visible = false;
         _camera.Camera.GlobalPosition = eye;
         _camera.Camera.LookAt(look);
         _camera.Camera.MakeCurrent();
@@ -162,6 +168,27 @@ public partial class Main
         GD.Print($"INN_SHOTS {prefix}_{view.Name} from {eye} looking at {look}; drawn from {drawn?.Name.ToString() ?? "none"} at " +
                  $"{drawn?.GlobalPosition.ToString() ?? "-"}");
         await Rcd3Shot(_innShotsDirectory!, $"{prefix}_{view.Name}");
+    }
+
+    /// <summary>
+    /// Where each adventurer of the town actually is when the shutter opens: the simulation's body, the head the world draws for it (or none),
+    /// and whether that figure is in the tree and visible. A body the simulation holds and no view draws is invisible to the player as well -
+    /// which is exactly what an empty gate at the departure hour is.
+    /// </summary>
+    private void AdventurerBodies(string when)
+    {
+        var simulation = _session.Simulation!;
+        var figures = _npcs.GetChildren().OfType<Figure>().ToList();
+        foreach (var adventurer in simulation.Adventurers.Where(a => a.Key.Contains("ashen_hollow", StringComparison.Ordinal)))
+        {
+            var view = simulation.Npcs.FirstOrDefault(n => n.Id == adventurer.Key);
+            var head = _npcs.HeadOf(adventurer.Key);
+            var figure = figures.FirstOrDefault(f => f.Name.ToString().Contains(adventurer.Key, StringComparison.Ordinal));
+            GD.Print($"INN_BODIES {when} {adventurer.Key} inTown={adventurer.InTown} sim={(view is null ? "none" : $"{view.Body.XMm},{view.Body.ZMm}")} space={(view is null ? "-" : view.Space.ToString())} active={simulation.ActiveLayout.SpaceId} " +
+                     $"head={(head is { } h ? $"{h.X:0.0},{h.Y:0.0},{h.Z:0.0}" : "none")} " +
+                     $"figure={(figure is null ? "none" : $"{figure.GlobalPosition.X:0.0},{figure.GlobalPosition.Z:0.0} visible={figure.Visible} inTree={figure.IsVisibleInTree()}")} " +
+                     $"figuresInTree={figures.Count(f => f.IsVisibleInTree())}");
+        }
     }
 
     /// <summary>

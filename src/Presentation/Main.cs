@@ -86,6 +86,8 @@ public partial class Main : Node3D
     private CompanionsPanel _companionsPanel = null!;
     private WaystonePanel _waystones = null!;
     private NoticeBoardPanel _noticeBoard = null!;
+    /// <summary>The inn captures hold the camera where the shot wants it; the rig must not pull it back to the character.</summary>
+    private bool _innFreeCamera;
     private MapPanel _map = null!;
 
     /// <summary>Autorun (the owner's second-play brief §23): on, the character goes forward until a key, a screen or a death stops them.</summary>
@@ -1509,7 +1511,7 @@ public partial class Main : Node3D
         Probe("crafting/NPCs");
         _frontierPerf?.Phase("npcs", npcsStarted);
         LogStates(simulation, delta, speed);
-        _camera.Follow(_shots?.Viewpoint ?? _avatar.Position, delta);
+        if (!_innFreeCamera) _camera.Follow(_shots?.Viewpoint ?? _avatar.Position, delta);
         bool reviewCamera = _mhReviewDirectory is not null && GetViewport().GetCamera3D() != _camera.Camera;
         _avatar.SetFirstPerson(!reviewCamera && _camera.EffectiveDistance < 0.4f);
         // A conversation frames the speaker's face over the character's shoulder (not in first person).

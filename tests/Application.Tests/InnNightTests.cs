@@ -44,19 +44,21 @@ public class InnNightTests
         var arena = AdventurerWorldTests.AtTheInn(session);
         var simulation = arena.Simulation;
         var inn = session.Setup.Adventurers!.Settlements["ashen_hollow"].Inn!;
-        // 08:00 is 1,200 ticks after the world opens at 07:30.
-        simulation.Advance(1_200);
-        Assert.Equal(8, session.Setup.Clock.MinuteOfDay(simulation.WorldTick) / 60);
+        // The first day is the world's own half day (it opens at 07:30 and plans nothing before its first midnight), so the departure hour is
+        // the second day's: tick 58,400 is 07:50, five minutes before the gate walk ends and the day's work begins.
+        simulation.Advance(58_400);
+        Assert.Equal(7, session.Setup.Clock.MinuteOfDay(simulation.WorldTick) / 60);
         var atTheHour = simulation.Npcs.Where(n => n.Role == "adventurer" && n.Id.Contains("ashen_hollow")).ToList();
         Assert.NotEmpty(atTheHour);
         // The departure hour is spent at the gate - the walk out is what the character sees of them going.
         Assert.All(atTheHour, b => Assert.True(
             Distance(b.Body.XMm, b.Body.ZMm, inn.Gate.XMm, inn.Gate.ZMm) < 2_000,
-            $"{b.Id} is at {b.Body.XMm},{b.Body.ZMm} at 08:00; the gate is {inn.Gate.XMm},{inn.Gate.ZMm}; " +
+            $"{b.Id} is at {b.Body.XMm},{b.Body.ZMm} at 07:50; the gate is {inn.Gate.XMm},{inn.Gate.ZMm}; " +
             $"plan day {simulation.World.Adventurers!.Agents[b.Id].Plan.Day} depart {simulation.World.Adventurers!.Agents[b.Id].Plan.DepartTick} " +
             $"tick {simulation.WorldTick}"));
-        // The tick after, they are out: no body at all.
-        simulation.Advance(1);
+        // The departure hour over, they are out: no body at all.
+        for (int tick = 0; tick < 3_000 && atTheHour.Any(b => simulation.Npcs.Any(n => n.Id == b.Id)); tick++)
+            simulation.Advance(1);
         var gone = simulation.Adventurers.Where(a => !a.InTown && a.Party is null).Select(a => a.Key).ToHashSet(StringComparer.Ordinal);
         Assert.NotEmpty(gone);
         Assert.DoesNotContain(simulation.Npcs, n => n.Role == "adventurer" && gone.Contains(n.Id));
