@@ -1,4 +1,4 @@
-// UNNAMED Presentation - the lore system's capture pass (spec 41, owner finding 41)
+﻿// UNNAMED Presentation - the lore system's capture pass (spec 41, owner finding 41)
 // Godot presentation only: it drives the world through the game's own commands and photographs what it shows (D-11)
 
 using Godot;
@@ -87,10 +87,11 @@ public partial class Main
             }
             case 1:
             {
-                // Renn Vale, asked: the two pages only he tells.
-                if (!await Approach("npc.ashen_hollow.renn_vale", 2.6, 90))
-                    throw new InvalidOperationException($"could not reach Renn Vale; the character stands {Where(simulation)}");
-                _controller.Talk("npc.ashen_hollow.renn_vale");
+                // Sel Arien, asked about the hounds. She keeps her survey table in the open east of the lodge, so the walk is across open
+                // ground: the steward is behind a door and a harness that walks at a wall learns nothing.
+                if (!await Approach("npc.ashen_hollow.sel_arien", 3.0, 150))
+                    throw new InvalidOperationException($"could not reach Sel Arien; the character stands {Where(simulation)}");
+                _controller.Talk("npc.ashen_hollow.sel_arien");
                 await Rcd3Wait(0.6);
                 // A first meeting greets once; leave it and come back, so the conversation is the one that offers the questions.
                 if (_dialogue.Visible)
@@ -98,48 +99,19 @@ public partial class Main
                     _dialogue.Answer("leave");
                     await Rcd3Wait(0.5);
                 }
-                _controller.Talk("npc.ashen_hollow.renn_vale");
+                _controller.Talk("npc.ashen_hollow.sel_arien");
                 await Rcd3Wait(0.6);
                 if (!_dialogue.Visible)
-                    throw new InvalidOperationException("Renn Vale did not answer a second time");
-                if (!_dialogue.Replies.Contains("ask_old_late"))
-                    throw new InvalidOperationException($"Renn offers no 'Tell me about Old Late' ({string.Join(", ", _dialogue.Replies)})");
-                _dialogue.Answer("ask_old_late");
+                    throw new InvalidOperationException("Sel Arien did not answer a second time");
+                if (!_dialogue.Replies.Contains("ask_hounds"))
+                    throw new InvalidOperationException($"Sel offers no 'Tell me about the ember hounds' ({string.Join(", ", _dialogue.Replies)})");
+                _dialogue.Answer("ask_hounds");
                 await Rcd3Wait(0.8);
                 await Rcd3Shot(_loreShotsDirectory!, "lore_npc_told");
-                LoreEvidence("told", "an NPC asked about a landmark: the reply, and the page it files");
-                _dialogue.Answer("back");
-                await Rcd3Wait(0.4);
-                _dialogue.Answer("ask_quiet_folk");
-                await Rcd3Wait(0.6);
-                _dialogue.Answer("back");
+                LoreEvidence("told", "an NPC asked about a creature: the reply, and the page it files");
+                if (_dialogue.Replies.Contains("back"))
+                    _dialogue.Answer("back");
                 await Rcd3Wait(0.3);
-                _dialogue.Leave();
-                await Rcd3Wait(0.4);
-                break;
-            }
-            case 2:
-            {
-                // Sel Arien, asked about the hounds: the creature's second page, so the journal has three headings.
-                if (!await Approach("npc.ashen_hollow.sel_arien", 3.0, 120))
-                    throw new InvalidOperationException($"could not reach Sel Arien; the character stands {Where(simulation)}");
-                _controller.Talk("npc.ashen_hollow.sel_arien");
-                await Rcd3Wait(0.6);
-                if (_dialogue.Visible)
-                {
-                    _dialogue.Answer("leave");
-                    await Rcd3Wait(0.5);
-                }
-                _controller.Talk("npc.ashen_hollow.sel_arien");
-                await Rcd3Wait(0.6);
-                if (_dialogue.Visible && _dialogue.Replies.Contains("ask_hounds"))
-                {
-                    _dialogue.Answer("ask_hounds");
-                    await Rcd3Wait(0.6);
-                    if (_dialogue.Replies.Contains("back"))
-                        _dialogue.Answer("back");
-                    await Rcd3Wait(0.3);
-                }
                 _dialogue.Leave();
                 await Rcd3Wait(0.4);
                 break;
