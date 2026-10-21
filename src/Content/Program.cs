@@ -44,6 +44,8 @@ public static class Program
                 return ContentCliApp.LintContent(contentRoot, format);
             case "chatter-coverage":
                 return ContentCliApp.ChatterCoverage(contentRoot);
+            case "lore-coverage":
+                return ContentCliApp.LoreCoverage(contentRoot);
             case "schema-dump":
                 return ContentCliApp.SchemaDump(contentRoot, format);
             case "xref":

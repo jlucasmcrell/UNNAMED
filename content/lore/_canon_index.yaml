@@ -1,0 +1,765 @@
+version: 1
+concepts:
+- id: canon.pacha
+  name: Pacha
+  kind: cosmology
+  status: missing
+  fact: A Pacha is a complete reality - space, time, matter, history and physical law considered as one thing, not a world, plane or dimension.
+  source: docs/MYTHOLOGY.md §What a Pacha is
+- id: canon.pachakuti
+  name: Pachakuti
+  kind: cosmology
+  status: missing
+  fact: A Pachakuti is a transition between Pachas, not natural and not scheduled, caused by something nobody can name.
+  source: docs/MYTHOLOGY.md §The Pachakuti
+- id: canon.last_pachakuti
+  name: The last Pachakuti
+  kind: history
+  status: missing
+  fact: Every people's origin account hangs on the last Pachakuti - the transition that changed the Veth, fixed the Kal to stone, and left the Siann with no account of before.
+  source: docs/MYTHOLOGY.md §The Silence
+- id: canon.this_pacha
+  name: This Pacha
+  kind: cosmology
+  status: missing
+  fact: The setting itself is a Pacha that has no name in common use, which the text marks as telling.
+  source: docs/MYTHOLOGY.md §Known Pachas
+- id: canon.first_pacha
+  name: The First Pacha
+  kind: cosmology
+  status: missing
+  fact: The First Pacha is the oldest remembered Pacha, with no surviving people native to it, and the Mor believe they are its remnant.
+  source: docs/MYTHOLOGY.md §Known Pachas
+- id: canon.found_pacha
+  name: The Found Pacha
+  kind: cosmology
+  status: missing
+  fact: The Found Pacha was discovered intact and empty and was colonised, and the Orenth are its descendants and will not discuss it.
+  source: docs/MYTHOLOGY.md §Known Pachas
+- id: canon.written_pacha
+  name: The Written Pacha
+  kind: cosmology
+  status: missing
+  fact: The Written Pacha was designed and constructed rather than arisen and left running after its authors ended, and the Constructed are its natives.
+  source: docs/MYTHOLOGY.md §Known Pachas
+- id: canon.lost_pacha
+  name: The Lost Pacha
+  kind: cosmology
+  status: missing
+  fact: The Lost Pacha was destroyed, unravelled or never completed, and the Mor are what remains of its people.
+  source: docs/MYTHOLOGY.md §Known Pachas
+- id: canon.the_other
+  name: The Other
+  kind: cosmology
+  status: missing
+  fact: The Other is the setting's central cosmological unknown - a layer, medium or structure beyond ordinary reality that no single culture is said to explain completely.
+  source: docs/OTHERREACH_COSMOLOGY.md §2 The Other
+- id: canon.the_veil
+  name: The Veil
+  kind: cosmology
+  status: missing
+  fact: The Veil is the perceived boundary between ordinary reality and the Other, need not be a literal membrane, and may be thin or damaged in places.
+  source: docs/OTHERREACH_COSMOLOGY.md §3 The Veil
+- id: canon.otherfold
+  name: Otherfold
+  kind: cosmology
+  status: missing
+  fact: An Otherfold is a distortion in normal space-time that can connect distant places, eras or realities.
+  source: docs/OTHERREACH_COSMOLOGY.md §4 Otherfolds
+- id: canon.otherway
+  name: Otherway
+  kind: cosmology
+  status: missing
+  fact: Otherways are traversable routes associated with the Other, some stable and mapped, some changing destination, some gated by conditions.
+  source: docs/OTHERREACH_COSMOLOGY.md §5 Otherways
+- id: canon.othergate
+  name: Othergate
+  kind: cosmology
+  status: missing
+  fact: Othergates are natural, constructed or stabilised entrances into Otherways or Otherfolds, and need not all look alike.
+  source: docs/OTHERREACH_COSMOLOGY.md §8 Othergates
+- id: canon.otherwhere
+  name: Otherwhere
+  kind: cosmology
+  status: missing
+  fact: Otherwhere describes displacement outside ordinary geography - another place, world, reality, or a region that does not map onto normal space.
+  source: docs/OTHERREACH_COSMOLOGY.md §6 Otherwhere
+- id: canon.otherwhen
+  name: Otherwhen
+  kind: cosmology
+  status: missing
+  fact: Otherwhen describes displacement outside ordinary chronology, so that when becomes a destination as where normally is.
+  source: docs/OTHERREACH_COSMOLOGY.md §7 Otherwhen
+- id: canon.otherborn
+  name: Otherborn
+  kind: cosmology
+  status: missing
+  fact: Otherborn describes beings whose origin is fundamentally connected to the Other, and Sel Arien treats the player as one - Otherborn carry odd things.
+  source: docs/OTHERREACH_COSMOLOGY.md §10 Otherborn; content/dialogue/ashen_hollow/sel_arien.yaml story_catalog
+- id: canon.othermarked
+  name: Othermarked
+  kind: cosmology
+  status: missing
+  fact: An Othermarked person was not necessarily born connected to the Other but was permanently changed by later exposure to it.
+  source: docs/OTHERREACH_COSMOLOGY.md §11 Othermarked
+- id: canon.otherwrought
+  name: Otherwrought
+  kind: cosmology
+  status: missing
+  fact: Otherwrought describes objects deliberately made using materials, forces, knowledge or techniques associated with the Other.
+  source: docs/OTHERREACH_COSMOLOGY.md §12 Otherwrought
+- id: canon.otherfall
+  name: The Otherfall
+  kind: history
+  status: missing
+  fact: The Otherfall is a strong candidate name for a foundational historical catastrophe whose exact event is left undecided, and which may be a later name for several events.
+  source: docs/OTHERREACH_COSMOLOGY.md §14 The Otherfall
+- id: canon.otherhome
+  name: Otherhome
+  kind: place
+  status: missing
+  fact: Otherhome is the leading candidate for the main central or starting city, marked strong candidate rather than immutable canon.
+  source: docs/OTHERREACH_COSMOLOGY.md §9 Otherhome
+- id: canon.otherreach
+  name: Otherreach
+  kind: cosmology
+  status: missing
+  fact: Otherreach is the game title and may exist in-world as a dangerous frontier, the extent of the Other's influence, or a region changed by the Otherfall.
+  source: docs/OTHERREACH_COSMOLOGY.md §15 Otherreach as an In-World Term
+- id: canon.substrate
+  name: The substrate
+  kind: cosmology
+  status: missing
+  fact: The Vaskaal crossed the space between Pachas - the substrate that contains them - and say the substrate is not empty, and will not say more.
+  source: docs/MYTHOLOGY.md §Vaskaal
+  in_world_voice: claim (Vaskaal's own account)
+- id: canon.fold_bleed
+  name: Fold bleed
+  kind: other
+  status: missing
+  fact: Fold bleed is the canon term for the grazers barrowback and fellhorn, and the plant boneleaf, which appear only near the Foldscar.
+  source: content/creatures/grazer/barrowback.yaml notes; content/creatures/grazer/fellhorn.yaml notes; content/items/material/boneleaf.yaml notes
+- id: canon.leakwild
+  name: Leakwild
+  kind: other
+  status: missing
+  fact: Leakwild is the local word Sel Arien uses for small birds and yellow flowers whose names the player may supply instead - the name does not explain how they came here.
+  source: content/dialogue/ashen_hollow/sel_arien.yaml story_species_robin
+- id: canon.resonance
+  name: Resonance and Strain
+  kind: other
+  status: missing
+  fact: Magic runs on Resonance and Strain, not a universal mana, and past a caster's tolerance a working draws on the body instead.
+  source: docs/PHASE1_ASHEN_HOLLOW_PLAYABLE_CONTENT_BIBLE.md §13; content/dialogue/ashen_hollow/sel_arien.yaml strain
+- id: canon.three_domains
+  name: Force, Warding and Vital
+  kind: other
+  status: missing
+  fact: The slice teaches three small domains - Force, Warding and Vital - through the formulas Impulse Bolt, Brace Ward and Mending Thread.
+  source: docs/PHASE1_ASHEN_HOLLOW_PLAYABLE_CONTENT_BIBLE.md §13; content/spells/force/impulse_bolt.yaml
+- id: canon.the_record
+  name: The Record
+  kind: other
+  status: missing
+  fact: The Record is the Siann's testimony-obsessed institution, and its eleven lines on the Foldscar are the source, four of which contradict the other seven.
+  source: docs/MYTHOLOGY.md §Siann; content/dialogue/ashen_hollow/sel_arien.yaml personal
+- id: canon.the_silence
+  name: The Silence
+  kind: myth
+  status: missing
+  fact: Every people has a story about what came before the last Pachakuti and no two agree - the Veth say the world ended, the Kal say it was made and abandoned, the Orenth say a door was left open, and
+    the Mor say their world was killed.
+  source: docs/MYTHOLOGY.md §The Silence
+- id: canon.kal_maker
+  name: The Kal's maker
+  kind: myth
+  status: missing
+  fact: The Kal believe they were made deliberately by a craftsman whose name is lost, and that a maker who finishes and leaves is competent, not cruel.
+  source: docs/MYTHOLOGY.md §Kal
+  in_world_voice: belief (Kal theology)
+- id: canon.kal_afterlife
+  name: The Kal afterlife
+  kind: myth
+  status: missing
+  fact: The Kal hold that to die well is to be ready to be made into something else, and that stone is sacred as the person waiting.
+  source: docs/MYTHOLOGY.md §Kal
+  in_world_voice: belief (Kal theology)
+- id: canon.siann_missing_page
+  name: The Siann missing page
+  kind: myth
+  status: missing
+  fact: The Siann's oldest records begin mid-sentence after the last Pachakuti, and the oldest living Siann know what is missing from the front and have kept the page closed for centuries.
+  source: docs/MYTHOLOGY.md §Siann
+- id: canon.specification
+  name: The specification
+  kind: myth
+  status: missing
+  fact: The Constructed doctrine is the specification - that everything including themselves is a description being executed - and their documentation has no author's name.
+  source: docs/MYTHOLOGY.md §Constructed
+  in_world_voice: belief (Constructed doctrine)
+- id: canon.mor_schism
+  name: The Mor schism
+  kind: myth
+  status: missing
+  fact: The Mor believe their world was killed deliberately, and their schism is between those who want to recover the Lost Pacha and those who want to avenge it.
+  source: docs/MYTHOLOGY.md §Mor
+  in_world_voice: belief (Mor theology)
+- id: canon.veth_keeping
+  name: Veth keeping
+  kind: myth
+  status: missing
+  fact: The Veth have no creation myth, and their sacred act is keeping - records, lineages, oaths and the continuity of ordinary life - while their heresy is the claim of descent.
+  source: docs/MYTHOLOGY.md §Veth
+- id: canon.vaskaal_no_myth
+  name: The Vaskaal and Pacha
+  kind: myth
+  status: missing
+  fact: The Vaskaal have documented history rather than mythology and regard Pacha as weather - an impartial phenomenon dangerous to be caught in.
+  source: docs/MYTHOLOGY.md §Vaskaal
+- id: canon.ondrek_record
+  name: The Ondrek record
+  kind: myth
+  status: missing
+  fact: The Ondrek have no creation account and their doctrine is the record - what is known is stone, what is stone is known, and anything else is opinion.
+  source: docs/MYTHOLOGY.md §Ondrek
+  in_world_voice: belief (Ondrek doctrine)
+- id: canon.veth
+  name: Veth
+  kind: people
+  status: missing
+  fact: The Veth are the touched lineage, native to this Pacha and changed by the last Pachakuti to learn faster and forget quicker, and they are the setting's majority and its road-builders.
+  source: docs/MYTHOLOGY.md §Veth; docs/RACES.md §1 Veth
+- id: canon.kal
+  name: Kal
+  kind: people
+  status: missing
+  fact: The Kal are the calcified, native and older than the last Pachakuti, with large folding dorsal wings, and a Kal caught in a Pachakuti does not die - it sets to stone.
+  source: docs/MYTHOLOGY.md §Kal; docs/RACES.md §2 Kal
+- id: canon.siann
+  name: Siann
+  kind: people
+  status: missing
+  fact: The Siann are the long view - native people who believe they woke after the last Pachakuti, reach maturity in their late teens and then stop, and their white hair is the only age signal.
+  source: docs/MYTHOLOGY.md §Siann; docs/RACES.md §3 Siann
+- id: canon.orenth
+  name: Orenth
+  kind: people
+  status: missing
+  fact: The Orenth are the walkers, descendants of the Found Pacha's colonists, the only people who cross between Pachas deliberately, and each crossing costs them memory or years.
+  source: docs/MYTHOLOGY.md §Orenth; docs/RACES.md §4 Orenth
+- id: canon.mor
+  name: Mor
+  kind: people
+  status: missing
+  fact: The Mor are the stolen - remnants of the Lost Pacha who persist as something like a person without a body, and necromancy is a Mor discipline in origin.
+  source: docs/MYTHOLOGY.md §Mor; docs/RACES.md §5 Mor
+- id: canon.constructed
+  name: Constructed
+  kind: people
+  status: missing
+  fact: The Constructed are the written - natives of the built Written Pacha, who read as seamless liquid chrome with solid black eyes and can prove they were made, which they find unbearable.
+  source: docs/MYTHOLOGY.md §Constructed; docs/RACES.md §6 Constructed
+- id: canon.vaskaal
+  name: Vaskaal
+  kind: people
+  status: missing
+  fact: The Vaskaal are the void-farers, aliens who came around the Pachas rather than through one, stand 2.2 to 2.5 metres, have no magic at all, and carry technology that is better rather than enchanted.
+  source: docs/MYTHOLOGY.md §Vaskaal; docs/RACES.md §7 Vaskaal
+- id: canon.ondrek
+  name: Ondrek
+  kind: people
+  status: missing
+  fact: The Ondrek are thinking stone - the only race that reads raw material as memory - at war with the Kal over the Kal stone, and quietly ending.
+  source: docs/MYTHOLOGY.md §Ondrek; docs/RACES.md §8 Ondrek
+- id: canon.quiet_folk
+  name: The Quiet-folk
+  kind: people
+  status: covered
+  covered_by:
+  - lore.quiet_folk
+  fact: The Quiet-folk are a waystation habit of naming whoever raised Old Late and the Quiet Stones, but no such people are in the Record - only one stone, dressed by one set of tools.
+  source: content/lore/quiet_folk.yaml
+- id: canon.ashen_hollow
+  name: Ashen Hollow
+  kind: place
+  status: covered
+  covered_by:
+  - lore.ashen_hollow
+  fact: Ashen Hollow is the frontier waystation of one longhouse, one forge and one standing stone on the old road between the quarry and the woods.
+  source: content/lore/ashen_hollow.yaml; content/regions/ashen_hollow.yaml notes
+- id: canon.ashen_waystone
+  name: The Ashen Waystone
+  kind: place
+  status: missing
+  fact: The Ashen Waystone is the standing stone beside which a new character starts, and returning at it is the slice's death and respawn fiction.
+  source: docs/PHASE1_ASHEN_HOLLOW_PLAYABLE_CONTENT_BIBLE.md §5, §18; content/regions/ashen_hollow.yaml spawn
+- id: canon.waystones
+  name: Waystones
+  kind: other
+  status: missing
+  fact: Waystones are an old network of travellers' stones, of which the Ashen Waystone, the Rim Stone and the Vessmere stone are instances.
+  source: content/calls/wayfarer.yaml description; content/dialogue/cairnwold/berrin_garth.yaml rim_stone
+- id: canon.charwood_verge
+  name: Charwood Verge
+  kind: place
+  status: missing
+  fact: Charwood Verge is the north-east cell of the slice - open woodland with the ruined cart, the ash stand and the wolves' den.
+  source: docs/PHASE1_ASHEN_HOLLOW_PLAYABLE_CONTENT_BIBLE.md §6
+- id: canon.blackvein_cut
+  name: Blackvein Cut
+  kind: place
+  status: covered
+  covered_by:
+  - lore.blackvein
+  fact: Blackvein Cut is a shallow abandoned iron quarry whose floor seam runs into a blocked shaft walled by a person who wanted it shut.
+  source: content/lore/blackvein.yaml
+- id: canon.foldscar
+  name: The Foldscar
+  kind: place
+  status: covered
+  covered_by:
+  - lore.tavar_and_the_fold
+  fact: The Foldscar is a basin of three Quiet Stones round a heart that is not quite there, where sound and shadow arrive late, and it goes quiet once the stones are turned square and the heart steadied.
+  source: content/lore/tavar_and_the_fold.yaml; content/regions/ashen_hollow.yaml switches
+- id: canon.old_late
+  name: Old Late
+  kind: place
+  status: covered
+  covered_by:
+  - lore.old_late
+  fact: Old Late is a dressed stone giant east of the waystation whose crown answers the wind a breath late, cut from the same stone as the three Quiet Stones.
+  source: content/lore/old_late.yaml
+- id: canon.the_gorge
+  name: The Gorge
+  kind: place
+  status: covered
+  covered_by:
+  - lore.the_gorge
+  fact: The Gorge, also called the Outfall, is the cut on the basin's eastern lip where the water leaves and whose edge is the highest ground a person can walk to.
+  source: content/lore/the_gorge.yaml; content/locations/cairnwold/the_gorge.yaml
+- id: canon.cairnwold
+  name: Cairnwold
+  kind: place
+  status: missing
+  fact: Cairnwold is the second settlement of the starting frontier - a village on the dry south-west rise with a lodge, seven houses, a smithy, a well, a staddle granary and drystone walls.
+  source: content/locations/cairnwold/village.yaml notes
+- id: canon.long_lodge
+  name: The Long Lodge
+  kind: place
+  status: missing
+  fact: The Long Lodge is Cairnwold's communal hall of eighteen metres under one slate roof, kept by Berrin Garth, where the village keeps its books and the Resonance Primer.
+  source: content/locations/cairnwold/lodge.yaml notes; content/dialogue/cairnwold/berrin_garth.yaml primer
+- id: canon.sinking_moss
+  name: The Sinking Moss
+  kind: place
+  status: missing
+  fact: The Sinking Moss is the low wet north-east corner of the basin that cannot drain, and it is where the moss lights appear some nights and where Mara Ling traces the failing water.
+  source: content/locations/cairnwold/the_bog.yaml notes; content/dialogue/cairnwold/mara_ling.yaml
+- id: canon.south_crags
+  name: The South Crags
+  kind: place
+  status: missing
+  fact: The South Crags are a single row of outcrops along the basin's south edge, and Berrin holds that somebody or something put them there - it was not the village.
+  source: content/locations/cairnwold/the_crags.yaml notes; content/dialogue/cairnwold/berrin_garth.yaml older
+- id: canon.south_crag_seam
+  name: The South Crag Seam
+  kind: place
+  status: missing
+  fact: The South Crag Seam is Cairnwold's own iron, worked for three generations of Skells, and it is finite - three strikes and it is worked out, with no second seam in the basin.
+  source: content/locations/cairnwold/iron_seam.yaml notes; content/dialogue/cairnwold/durn_skell.yaml seam
+- id: canon.north_ash_stand
+  name: The North Ash Stand
+  kind: place
+  status: missing
+  fact: The North Ash Stand is where the basin's ash grows for hafts, so every tool in the village comes from it.
+  source: content/locations/cairnwold/ash_stand.yaml notes
+- id: canon.the_rim
+  name: The Rim
+  kind: place
+  status: missing
+  fact: The Rim is the cliff top where the road meets the drop into Cairnwold's basin, holding the Rim Stone and a watch-fire someone keeps.
+  source: content/locations/road/basin_rim.yaml notes
+- id: canon.rim_stone
+  name: The Rim Stone
+  kind: place
+  status: missing
+  fact: The Rim Stone is a cold Waystone on the Rim, woken by the rite Old Corra left in the lodge book - three hands and a name.
+  source: content/dialogue/cairnwold/berrin_garth.yaml rim_stone; content/quests/main/road_east.yaml
+- id: canon.lantern_shrine
+  name: The Lantern Shrine
+  kind: place
+  status: missing
+  fact: The Lantern Shrine is a roadside stone and lit post where travellers leave what they can spare, and the Wayhold keeps the lantern filled.
+  source: content/locations/road/lantern_shrine.yaml notes
+- id: canon.overturned_wain
+  name: The Overturned Wain
+  kind: place
+  status: missing
+  fact: The Overturned Wain is a cart on its side at the road's edge whose driver did not come back for it.
+  source: content/locations/road/overturned_wain.yaml notes
+- id: canon.sunk_barrow
+  name: The Sunk Barrow
+  kind: place
+  status: missing
+  fact: The Sunk Barrow is a broken ring of beams round a stone cist on the high ground north of the road, kept by two husks, and its cist still holds grave goods.
+  source: content/locations/road/sunk_barrow.yaml notes
+- id: canon.wolves_den
+  name: The Wolves' Den
+  kind: place
+  status: missing
+  fact: The Wolves' Den is a notch in the rock in Charwood's north-west corner that was Halda Crowden's cache before the wolves took it.
+  source: content/locations/den_mouth.yaml notes; content/quests/ashen_hollow/haldas_tally.yaml notes
+- id: canon.ruined_cart
+  name: The Ruined Cart
+  kind: place
+  status: missing
+  fact: The Ruined Cart is the damaged merchant cart in Charwood where the hunting bow lies.
+  source: content/locations/ruined_cart.yaml notes
+- id: canon.barrowworks
+  name: The Barrowworks
+  kind: place
+  status: missing
+  fact: The Barrowworks is a sealed service ring of thirteen rooms under the Ashen Hollow hill, built to gauge something and never finished, with its readings still cut into the walls.
+  source: content/regions/barrowworks.yaml notes; content/quests/barrowworks/unfinished_measure.yaml summary
+- id: canon.the_measure
+  name: The Measure
+  kind: history
+  status: missing
+  fact: The Measure is the headworks' beam of fitted segments the ring was built to gauge, and it is still true, made to outlast the works that built it.
+  source: content/regions/barrowworks.yaml switch.barrowworks.headworks_preserve
+- id: canon.vessmere
+  name: Vessmere
+  kind: place
+  status: missing
+  fact: Vessmere is a place beyond the playable slice, named as the far end of the road - the roadwarden at the Vessmere stone takes the Wayhold account.
+  source: content/quests/main/three_accounts.yaml o_wayhold; content/dialogue/ashen_hollow/renn_vale.yaml story_wayhold
+- id: canon.otherhome_marches
+  name: Otherhome Marches
+  kind: place
+  status: missing
+  fact: Otherhome Marches is named as the larger future region of which the prototype is a slice.
+  source: docs/PHASE1_ASHEN_HOLLOW_PLAYABLE_CONTENT_BIBLE.md header
+- id: canon.ash_ember_hound
+  name: Ash Ember Hound
+  kind: creature
+  status: covered
+  covered_by:
+  - lore.ember_hounds
+  fact: The ash ember hound is a fast predator that outruns a sprint and whose ember-hot lunging bite no guard or armour takes, and its corpse holds a cinder sac.
+  source: content/creatures/beast/ash_ember_hound.yaml notes
+- id: canon.bristleback_boar
+  name: Bristleback Boar
+  kind: creature
+  status: missing
+  fact: The bristleback boar is a charging brute that lowers its head and runs straight and cannot turn, defending its wallow and ignoring those who leave it be.
+  source: content/creatures/beast/bristleback_boar.yaml notes
+- id: canon.cave_hunting_spider
+  name: Cave Hunting Spider
+  kind: creature
+  status: partly
+  covered_by:
+  - lore.the_gorge
+  fact: The cave hunting spider is a near-blind ambush hunter that feels every footfall rather than seeing, never leaves its lair, and takes its game by the ground - a walker passes, a runner is taken.
+  source: content/creatures/beast/cave_hunting_spider.yaml notes
+- id: canon.grey_wolf
+  name: Grey Wolf
+  kind: creature
+  status: missing
+  fact: The grey wolf is dangerous in a pack by numbers and bleeding rather than by a health pool, and its den holds Halda Crowden's cache.
+  source: content/creatures/beast/wolf_grey.yaml notes
+- id: canon.grey_alpha
+  name: Grey Alpha
+  kind: creature
+  status: missing
+  fact: The grey alpha is the den's leader, the wolf's own archetype one level up, deliberately not a health pool, with a heavier neck and a scarred hide.
+  source: content/creatures/beast/wolf_grey_alpha.yaml notes
+- id: canon.animated_armour
+  name: Animated Armour
+  kind: creature
+  status: missing
+  fact: The animated armour is an armoured heavy whose plate takes most of a blow from the front while the open back of its helm takes all of one from behind, and it is slow, heavy and bloodless.
+  source: content/creatures/construct/animated_armour.yaml notes
+- id: canon.ring_custodian
+  name: Ring Custodian
+  kind: creature
+  status: missing
+  fact: The Ring Custodian is the service ring's own keeper, a machine still waiting for a reading that stopped coming, slow to turn and open at the back where the index mechanism runs.
+  source: content/creatures/construct/ring_custodian.yaml notes
+- id: canon.bone_walker_husk
+  name: Bone Walker Husk
+  kind: creature
+  status: missing
+  fact: The bone walker husk is a slow undead with the longest reach in the hollow, whose arrows pass through bone and which has no blood to lose.
+  source: content/creatures/undead/bone_walker_husk.yaml notes
+- id: canon.barrowback
+  name: Barrowback
+  kind: creature
+  status: missing
+  fact: The barrowback is a tusked, shaggy fold-bleed grazer about 3.6 metres at the withers, met near the Foldscar and nowhere else, and a brought-down one is a real fight and a month of meat.
+  source: content/creatures/grazer/barrowback.yaml notes
+- id: canon.fellhorn
+  name: Fellhorn
+  kind: creature
+  status: missing
+  fact: The fellhorn is the humped, horned fold-bleed grazer of about 1.9 metres, in a herd of its own on the high ground north of the Foldscar.
+  source: content/creatures/grazer/fellhorn.yaml notes
+- id: canon.crag_walker
+  name: The Crag Walker
+  kind: creature
+  status: missing
+  fact: The crag walker is what Durn names for whatever walks the foot of the south crags at night, and any bone-walker husk put down counts toward it.
+  source: content/quests/bounty/crag_walker.yaml notes; content/dialogue/cairnwold/durn_skell.yaml where
+- id: canon.cinder_sac
+  name: Cinder Sac
+  kind: material
+  status: covered
+  covered_by:
+  - lore.ember_hounds
+  fact: The cinder sac is an ember hound's fire gland, warm long after the beast is not, and worked into a finished salve it makes the mending run twice as fast - though Sel will not say why, because she
+    does not know.
+  source: content/items/material/cinder_sac.yaml notes; content/lore/ember_hounds.yaml
+- id: canon.iron
+  name: Iron
+  kind: material
+  status: partly
+  covered_by:
+  - lore.blackvein
+  fact: Iron is worked from seams at Blackvein Cut and Cairnwold's south crags, and both seams are finite - the seam a person should not waste.
+  source: content/lore/blackvein.yaml; content/locations/cairnwold/iron_seam.yaml notes
+- id: canon.woundmoss
+  name: Woundmoss
+  kind: material
+  status: missing
+  fact: Woundmoss is old-forest moss from the north side of trees that stops bleeding packed into a cut, and Sel compares each season's growth and finds it thinning.
+  source: content/items/material/herb_woundmoss.yaml notes; content/dialogue/ashen_hollow/sel_arien.yaml moss_paid
+- id: canon.boneleaf
+  name: Boneleaf
+  kind: material
+  status: missing
+  fact: Boneleaf is a pale, stiff leaf that grows only round the Foldscar, and its veins run the wrong way - outward from the tip.
+  source: content/items/material/boneleaf.yaml notes; content/dialogue/ashen_hollow/sel_arien.yaml boneleaf_paid
+- id: canon.ashbloom
+  name: Ashbloom
+  kind: material
+  status: missing
+  fact: Ashbloom is the grey-leafed plant that grows where the ground is wettest, and a sound plant proves the trouble in Mara Ling's water is deeper than the plant reaches.
+  source: content/items/material/herb_ashbloom.yaml notes; content/dialogue/cairnwold/mara_ling.yaml told
+- id: canon.bog_cotton
+  name: Bog Cotton
+  kind: material
+  status: missing
+  fact: Bog cotton is the white head of the cotton grass in the Sinking Moss, spun for a bowstring or used as lint for a dressing.
+  source: content/items/material/bog_cotton.yaml notes
+- id: canon.spider_silk
+  name: Spider Silk
+  kind: material
+  status: missing
+  fact: Spider silk is a hunting spider's dragline, tough enough that Kera keeps some for lashings, and it strings a bow better than cotton grass.
+  source: content/items/material/spider_silk.yaml notes; content/dialogue/ashen_hollow/kera_voss.yaml silk_string
+- id: canon.wayhold
+  name: The Wayhold
+  kind: faction
+  status: missing
+  fact: The Wayhold is the faction of Renn Vale and Kera Voss, whose chapter at Ashen Hollow keeps the road stop and posts the road's bounties, and it keeps the Lantern Shrine's lantern filled.
+  source: content/factions/ashen_hollow/wayhold.yaml notes; content/dialogue/ashen_hollow/renn_vale.yaml notices
+- id: canon.long_survey
+  name: The Long Survey
+  kind: faction
+  status: partly
+  covered_by:
+  - lore.old_late
+  - lore.blackvein
+  - lore.quiet_folk
+  fact: The Long Survey is the faction of Sel Arien that surveys the Foldscar and the old workings, wants the Quiet Stones set right, and holds its findings only as far as the evidence reaches.
+  source: content/factions/ashen_hollow/long_survey.yaml notes
+- id: canon.order_of_the_lantern
+  name: The Order of the Lantern
+  kind: faction
+  status: partly
+  covered_by:
+  - lore.blackvein
+  fact: The Order of the Lantern is named in a Blackvein ledger fragment in connection with the sealed face and a lantern-forge east, with no statement about what the Lantern held.
+  source: content/items/quest/lantern_ledger.yaml notes; content/lore/blackvein.yaml
+- id: canon.renn_vale
+  name: Renn Vale
+  kind: other
+  status: partly
+  covered_by:
+  - lore.ashen_hollow
+  - lore.old_late
+  - lore.quiet_folk
+  fact: Renn Vale is the Veth steward of the waystation who keeps the book of travellers and reads the road's notices, and who tells the Quiet-folk tale while naming it as only what he was told.
+  source: content/npcs/ashen_hollow/renn_vale.yaml notes; content/dialogue/ashen_hollow/renn_vale.yaml
+- id: canon.kera_voss
+  name: Kera Voss
+  kind: other
+  status: partly
+  covered_by:
+  - lore.ashen_hollow
+  - lore.blackvein
+  - lore.quiet_folk
+  fact: Kera Voss is the Kal smith of the waystation who judges everything by how well it is made and will not go near the Foldscar because a Kal caught when a world turns sets to stone.
+  source: content/npcs/ashen_hollow/kera_voss.yaml notes; content/dialogue/ashen_hollow/kera_voss.yaml foldscar
+- id: canon.sel_arien
+  name: Sel Arien
+  kind: other
+  status: partly
+  covered_by:
+  - lore.ember_hounds
+  - lore.old_late
+  - lore.quiet_folk
+  - lore.blackvein
+  - lore.tavar_and_the_fold
+  fact: Sel Arien is the Siann archivist and surveyor who grades her own guesses, keeps the Record, and came for a season thirty-one years ago.
+  source: content/npcs/ashen_hollow/sel_arien.yaml notes; content/dialogue/ashen_hollow/sel_arien.yaml personal
+- id: canon.tavar_orr
+  name: Tavar Orr
+  kind: other
+  status: covered
+  covered_by:
+  - lore.tavar_and_the_fold
+  fact: Tavar Orr is the Orenth guide and first companion, caught in the Foldscar until its heart was steadied, who keeps the Orenth ledger of what each crossing cost.
+  source: content/npcs/ashen_hollow/tavar_orr.yaml notes; content/dialogue/ashen_hollow/tavar_orr.yaml ledger
+- id: canon.berrin_garth
+  name: Berrin Garth
+  kind: other
+  status: missing
+  fact: Berrin Garth keeps the long lodge and is Cairnwold's memory - who built the walls, why the granary stands on staddles, and what in the basin is older than the village.
+  source: content/npcs/cairnwold/berrin_garth.yaml notes
+- id: canon.durn_skell
+  name: Durn Skell
+  kind: other
+  status: missing
+  fact: Durn Skell is Cairnwold's smith, who works the south crag seam his father and grandfather worked, and is watching Cairnwold's own iron run out.
+  source: content/npcs/cairnwold/durn_skell.yaml notes; content/dialogue/cairnwold/durn_skell.yaml seam
+- id: canon.mara_ling
+  name: Mara Ling
+  kind: other
+  status: missing
+  fact: Mara Ling keeps the village well, noticed the water going wrong, and holds that the trouble is not the well but deeper than the ashbloom reaches.
+  source: content/npcs/cairnwold/mara_ling.yaml notes; content/dialogue/cairnwold/mara_ling.yaml told
+- id: canon.tam_crowden
+  name: Tam Crowden
+  kind: other
+  status: partly
+  covered_by:
+  - lore.the_gorge
+  fact: Tam Crowden holds the staddle granary at the west end of Cairnwold and counts everyone up the west road because her sister Halda went up the north slope and did not come down.
+  source: content/npcs/cairnwold/tam_crowden.yaml notes; content/dialogue/cairnwold/tam_crowden.yaml count
+- id: canon.halda_crowden
+  name: Halda Crowden
+  kind: history
+  status: missing
+  fact: Halda Crowden ran the trapline on the north slope before the wolves took the den and died up there two winters back, leaving a tally notched to thirty-one hides and a bow of ash and horn.
+  source: content/quests/ashen_hollow/haldas_tally.yaml notes; content/dialogue/cairnwold/tam_crowden.yaml halda
+- id: canon.wenna
+  name: Wenna
+  kind: history
+  status: missing
+  fact: Wenna was the last of Cairnwold who could make sense of the Resonance Primer's shelf, and it has stayed shut since she was buried.
+  source: content/dialogue/cairnwold/berrin_garth.yaml primer
+- id: canon.old_corra
+  name: Old Corra
+  kind: history
+  status: missing
+  fact: Old Corra left the Rim Stone's rite in the lodge book - three hands and a name - and wrote nothing else on it for forty years.
+  source: content/dialogue/cairnwold/berrin_garth.yaml rim_stone
+- id: canon.keeper_daun
+  name: Keeper Daun
+  kind: other
+  status: missing
+  fact: Keeper Daun is the person Sel Arien names to receive the Survey account carried east.
+  source: content/quests/main/three_accounts.yaml o_survey; content/dialogue/ashen_hollow/renn_vale.yaml story_survey
+- id: canon.factor_ilesa
+  name: Factor Ilesa
+  kind: other
+  status: missing
+  fact: Factor Ilesa is the person Berrin Garth knows to receive Cairnwold's account carried east.
+  source: content/quests/main/three_accounts.yaml o_cairnwold; content/dialogue/ashen_hollow/renn_vale.yaml story_cairnwold
+- id: canon.moss_lights
+  name: The Moss Lights
+  kind: other
+  status: missing
+  fact: The moss lights are lights over the standing water of the Sinking Moss on some nights that will not keep still to be counted and do not add up when they do.
+  source: content/quests/main/moss_lights.yaml summary; content/dialogue/cairnwold/tam_crowden.yaml moor
+- id: canon.tavars_afternoon
+  name: Tavar's afternoon
+  kind: history
+  status: missing
+  fact: Tavar's three days in the fold read to him as one long afternoon, and its timing is disputed against the older bleed records, which the quests leave unresolved.
+  source: content/quests/main/wrong_side.yaml summary; content/dialogue/ashen_hollow/tavar_orr.yaml caught
+- id: canon.folded_note
+  name: The Folded Note
+  kind: history
+  status: missing
+  fact: The Folded Note is a worn note naming Berrin Garth at Cairnwold whose missing name remains missing, and it does not assign the player a past.
+  source: content/items/quest/folded_note.yaml notes; content/quests/main/folded_note.yaml summary
+- id: canon.otherborn_relics
+  name: The Otherborn relics
+  kind: other
+  status: missing
+  fact: The stopped watch, brass key, glass marble and unreadable page are start-area relics of unconfirmed origin that Sel catalogues as things Otherborn carry.
+  source: content/items/trinket/stopped_watch.yaml notes; content/dialogue/ashen_hollow/sel_arien.yaml story_catalog
+gaps:
+- concept: canon.pachakuti
+  what_canon_leaves_open: What caused the last Pachakuti - canon states it is caused by something nobody knows.
+  source: docs/MYTHOLOGY.md §The Pachakuti
+- concept: canon.siann_missing_page
+  what_canon_leaves_open: What the Siann saw before the last Pachakuti and will not say.
+  source: docs/MYTHOLOGY.md §Siann
+- concept: canon.found_pacha
+  what_canon_leaves_open: What the Orenth found in the Found Pacha and why it was empty.
+  source: docs/MYTHOLOGY.md §Orenth
+- concept: canon.lost_pacha
+  what_canon_leaves_open: Who killed the Lost Pacha, and whether the Mor are right that someone did.
+  source: docs/MYTHOLOGY.md §Mor
+- concept: canon.substrate
+  what_canon_leaves_open: What the substrate contains - the Vaskaal say it is not empty and will not say more.
+  source: docs/MYTHOLOGY.md §Vaskaal
+- concept: canon.quiet_folk
+  what_canon_leaves_open: Whether the Quiet-folk existed at all, or only stones and a habit of naming them.
+  source: content/lore/quiet_folk.yaml
+- concept: canon.old_late
+  what_canon_leaves_open: Who cut Old Late and the three Quiet Stones, and why one was crowned at a crossing while three were set in a ring.
+  source: content/lore/old_late.yaml
+- concept: canon.foldscar
+  what_canon_leaves_open: What the three Quiet Stones were for - holding something shut or holding it still - and who turned them out of line.
+  source: content/dialogue/ashen_hollow/tavar_orr.yaml stones
+- concept: canon.order_of_the_lantern
+  what_canon_leaves_open: The Order of the Lantern's purpose, the date of the Blackvein closure, and whether the ledger's last entry was followed.
+  source: content/quests/main/closed_seam.yaml summary
+- concept: canon.barrowworks
+  what_canon_leaves_open: What the thirteen-room ring was built to gauge, and what stopped the measuring.
+  source: content/quests/barrowworks/unfinished_measure.yaml summary
+- concept: canon.south_crags
+  what_canon_leaves_open: Who or what laid the crag line along the basin's south edge.
+  source: content/dialogue/cairnwold/berrin_garth.yaml older
+- concept: canon.moss_lights
+  what_canon_leaves_open: What the moss lights are - canon gives observations and two old entries, not an explanation.
+  source: content/quests/main/moss_lights.yaml summary
+- concept: canon.mara_ling
+  what_canon_leaves_open: Why the well runs brown - canon says the trouble is deeper than the plant reaches and stops there.
+  source: content/quests/cairnwold/what_the_bog_kept.yaml notes
+- concept: canon.tavars_afternoon
+  what_canon_leaves_open: The true sequence of Tavar's afternoon, the first grazer record and the older bleed - no source gives the order.
+  source: content/quests/main/wrong_side.yaml summary
+- concept: canon.folded_note
+  what_canon_leaves_open: The name rubbed off the folded note, and who rubbed it away.
+  source: content/quests/main/folded_note.yaml summary
+- concept: canon.halda_crowden
+  what_canon_leaves_open: How and where exactly Halda died on the north slope, beyond that she did not come down.
+  source: content/quests/ashen_hollow/haldas_tally.yaml notes
+- concept: canon.otherfall
+  what_canon_leaves_open: Whether the Otherfall was one event or several, and whether Otherhome's founders originated in this world.
+  source: docs/OTHERREACH_COSMOLOGY.md §39 Open Questions
+- concept: canon.otherborn
+  what_canon_leaves_open: Whether Otherborn is one specific people or a broad category, and whether the player begins Otherborn.
+  source: docs/OTHERREACH_COSMOLOGY.md §39 Open Questions
+- concept: canon.kal
+  what_canon_leaves_open: Whether the Kal's low-gravity ancestral origin for their wings is canon, and how much true flight remains possible.
+  source: docs/RACES.md §2 Kal
+- concept: canon.constructed
+  what_canon_leaves_open: Who wrote the Written Pacha and whether there is a mind behind the Constructed, or only text.
+  source: docs/MYTHOLOGY.md §Constructed
+note: Ids are the lore entries on disk. A concept is covered when an entry carries it, partly when an entry touches it, missing when canon has it and no entry does. Mined from the docs and the content notes;
+  facts are canon's, never inferred.
