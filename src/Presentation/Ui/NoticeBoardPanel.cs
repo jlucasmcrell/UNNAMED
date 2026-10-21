@@ -67,9 +67,10 @@ public partial class NoticeBoardPanel : CanvasLayer
             Close();
             return;
         }
-        var contracts = NoticeBoardModel.Contracts(simulation.Bounties, simulation.PlayerId);
+        var contracts = NoticeBoardModel.Contracts(simulation.Bounties, simulation.PlayerId,
+            id => _session.Setup.Quests.Quests.GetValueOrDefault(id), id => Names.Of(_session, id));
         var away = NoticeBoardModel.Away(simulation.Adventurers, id => Names.Of(_session, id));
-        string signature = $"{simulation.WorldTick}|{string.Join(",", contracts.Select(c => $"{c.Title}:{c.Standing}"))}|" +
+        string signature = $"{simulation.WorldTick}|{string.Join(",", contracts.Select(c => $"{c.Title}:{c.Facts}:{c.Taken}"))}|" +
                            string.Join(",", away.Select(a => $"{a.Name}:{a.Doing}"));
         if (signature == _drawn)
             return;
@@ -87,11 +88,17 @@ public partial class NoticeBoardPanel : CanvasLayer
         System.Collections.Immutable.ImmutableArray<NoticeAway> away)
     {
         UiKit.Clear(_sheet.Body);
-        var work = UiKit.Section("Work posted", "a competitive bounty goes to whoever finishes it first");
+        // The rules of the board are said once, in its header; each line carries the facts of its own contract.
+        var work = UiKit.Section("Work posted", "A competitive bounty goes to whoever finishes it first. Yours is yours until it is done.");
         if (contracts.IsEmpty)
             work.AddChild(UiKit.EmptyState("Nothing posted", "Renn pins what comes in, and nothing has come in."));
         foreach (var contract in contracts)
-            work.AddChild(UiKit.Row(null, contract.Title, contract.Standing, contract.Open ? HudStyle.Bone : HudStyle.Ash).Root);
+        {
+            var row = UiKit.Row(null, contract.Title, contract.Facts, contract.Open ? HudStyle.Bone : HudStyle.Ash);
+            if (contract.Taken is { } taken)
+                row.Root.AddChild(UiKit.Chip(taken, contract.Open ? HudStyle.Lichen : HudStyle.Iron, HudStyle.Ash));
+            work.AddChild(row.Root);
+        }
         _sheet.Body.AddChild(work);
 
         var outOnTheirDay = UiKit.Section("Out on their day", "the beds that are unmade and the seats that are empty");
