@@ -39,9 +39,9 @@ public class AdventurerWorldTests
     private const string Wolves = "quest.bounty.road_wolves";
 
     /// <summary>A place in region metres, a hand's reach from the Ashen lodge's first body (config.adventurers: the lodge at (460, 752), facing_deg 0).</summary>
-    private static readonly (double X, double Z) AtLodge = (457.6, 750.8);
+    private static readonly (double X, double Z) AtLodge = (448.6, 727.0);   // at the inn's notice board (spec 15: the lodge row is gone; this is where they are at 07:30)
 
-    internal static Arena AtTheLodge(GameSession session, long coin = 0, ulong seed = 42) =>
+    internal static Arena AtTheInn(GameSession session, long coin = 0, ulong seed = 42) =>
         Arena.OpenCreatures(session, session.Setup, AtLodge, 90, Array.Empty<(string, double, double, string)>(),
             r => new PlayerRecord(r.Id, r.Name, r.XMm, r.YMm, r.ZMm, r.AppearanceSeed, r.Inventory, r.Progression, r.FacingMdeg, r.Discoveries, r.Equipment, coin),
             seed: seed, keepSpawns: true, origin: Harness.Region);
@@ -165,7 +165,7 @@ public class AdventurerWorldTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = AtTheLodge(session, coin: 50);
+        var arena = AtTheInn(session, coin: 50);
         var adventurer = arena.Simulation.Adventurers.Single(a => a.Key == "npc.adventurer.ashen_hollow.slot_1_g0");
         var hireability = arena.Record<HireabilityChanged>();
         Assert.True(arena.Simulation.Hiring.Hireability(adventurer.Key)!.Hireable);
@@ -204,7 +204,7 @@ public class AdventurerWorldTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = AtTheLodge(session, coin: 50);
+        var arena = AtTheInn(session, coin: 50);
         const string key = "npc.adventurer.ashen_hollow.slot_1_g0";
         Assert.Null(arena.Submit(new HireCommand(arena.Player, key, HirelingRole.Guard, 3, AcceptsRisk: true)));
         var died = arena.Record<AdventurerDied>();
@@ -226,7 +226,7 @@ public class AdventurerWorldTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = AtTheLodge(session);
+        var arena = AtTheInn(session);
         var sim = arena.Simulation;
         // Day by day until someone at the Ashen lodge asks for company.
         SettingOut? offer = null;
@@ -267,7 +267,7 @@ public class AdventurerWorldTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = AtTheLodge(session, coin: 50);
+        var arena = AtTheInn(session, coin: 50);
         const string key = "npc.adventurer.ashen_hollow.slot_1_g0";
         Assert.True(arena.Simulation.IsHireable(key));
         Assert.Equal(new[] { "adventurer" }, arena.Simulation.Hiring.Hireability(key)!.Roles);
@@ -284,7 +284,7 @@ public class AdventurerWorldTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = AtTheLodge(session, coin: 50);
+        var arena = AtTheInn(session, coin: 50);
         var sim = arena.Simulation;
         AdventurerRecord? gone = null;
         for (int d = 0; d < 20 && gone is null; d++)
@@ -296,10 +296,11 @@ public class AdventurerWorldTests
             if (leaving is null)
                 continue;
             sim.Advance(leaving.Plan.DepartTick - sim.WorldTick + 1);
-            if (sim.Npcs.Any(n => n.Id == leaving.Key))
+            if (!sim.Npcs.Any(n => n.Id == leaving.Key))
                 gone = leaving;
         }
         Assert.NotNull(gone);
+        // Spec 15: one who is out has no body at all now - the bed is unmade and the seat empty, which is what makes the hire refusal read.
         Assert.False(sim.IsHireable(gone!.Key));
         Assert.Equal("is out", sim.Hiring.Hireability(gone.Key)!.Refusal);
         Assert.Equal($"{gone.Name} is out", arena.Submit(new HireCommand(arena.Player, gone.Key, HirelingRole.Guard, 3, AcceptsRisk: true)));
@@ -313,7 +314,7 @@ public class AdventurerWorldTests
         const string key = "npc.adventurer.ashen_hollow.slot_1_g0";
         Simulation Hired()
         {
-            var arena = AtTheLodge(session, coin: 200);
+            var arena = AtTheInn(session, coin: 200);
             Assert.Null(arena.Submit(new HireCommand(arena.Player, key, HirelingRole.Guard, 2, AcceptsRisk: true)));
             return arena.Simulation;
         }

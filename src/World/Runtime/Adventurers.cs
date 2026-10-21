@@ -511,7 +511,10 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
     /// still read at the next midnight; this only decides whether a body is there to be seen.
     /// </summary>
     private bool InTown(AdventurerRecord a, long tick) =>
-        a.Condition == AdventurerCondition.Injured || !AdventurerGoals.Out(a.Plan.Goal) || a.Plan.Day != Clock.Day(tick) || tick < a.Plan.DepartTick
+        a.Condition == AdventurerCondition.Injured || !AdventurerGoals.Out(a.Plan.Goal) || a.Plan.Day != Clock.Day(tick)
+        // The minute the group forms is spent in town: a company that answers the offer before the departure hour meets them there, and a body
+        // that vanished on the hour would leave the meeting with nobody to meet.
+        || tick < a.Plan.DepartTick + Math.Max(1, Clock.TicksPerDay / (Clock.HoursPerDay * 6))
         || (ReturnTick(a) is { } back && tick >= back);
 
     /// <summary>When today's day out ends, in ticks: the departure hour plus the inn's return hours. Null for a plan with no departure.</summary>

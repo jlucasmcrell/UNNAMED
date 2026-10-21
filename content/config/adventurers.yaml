@@ -68,7 +68,7 @@ settlements:
       sleep_from: 22                # asleep at their bed from this hour
       breakfast_from: 6             # up and at the tables from this hour
       board_from: 7                 # at the notice board from this hour, forming up
-      walk_minutes: 30              # seen walking to the gate over this long before they leave at the LFG hour
+      walk_minutes: 20              # seen walking to the gate over this long before they leave at the LFG hour (the world starts at 07:30, so they are still at the board then)
       return_walk_minutes: 30       # and back in from the gate over this long when they return
       return_hours: 9               # out for this many hours: away at 08:00, back at 17:00
     grounds:

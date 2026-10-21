@@ -16,7 +16,7 @@ public class AdventurerSaveTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = AdventurerWorldTests.AtTheLodge(session, coin: 50);
+        var arena = AdventurerWorldTests.AtTheInn(session, coin: 50);
         var simulation = arena.Simulation;
         simulation.Advance(4 * Day + 777);
         // One of them is hired, with their sheet in the character's save.
