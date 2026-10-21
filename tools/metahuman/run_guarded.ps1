@@ -17,6 +17,7 @@ try {
  }
  if(Test-Path -LiteralPath $flag){throw 'Owner playing; job deferred after acquire'}
  $owned=Start-Process -FilePath $Executable -ArgumentList $JobArguments -WindowStyle $(if($VisibleWindow){'Normal'}else{'Hidden'}) -PassThru -RedirectStandardOutput $Log -RedirectStandardError ($Log+'.stderr')
+ [pscustomobject]@{pid=$owned.Id;started=$owned.StartTime.ToString('o');job=$Job;gpu=[bool]$Gpu}|ConvertTo-Json|Set-Content -LiteralPath ($Log+'.process.json')
  $null=$owned.Handle # Keep the Windows handle so ExitCode survives process termination.
  $started=Get-Date
  while(-not $owned.HasExited){

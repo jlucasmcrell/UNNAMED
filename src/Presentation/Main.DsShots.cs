@@ -20,6 +20,7 @@ public partial class Main
     private ulong _dsNext;
     private ulong _dsLast;
     private double _dsDelta;
+    private ulong _dsStatusAt;
     private readonly Queue<(double X,double Z)> _dsRoute = new();
     private double _dsSettle;
 
@@ -56,6 +57,14 @@ public partial class Main
         var creatures = simulation.Creatures;
         CreatureView? Alpha() => creatures.FirstOrDefault(c => c.Alive && c.DefId == "creature.beast.wolf_grey_alpha");
         var player = simulation.Player.Body;
+        if(Time.GetTicksMsec()>_dsStatusAt)
+        {
+            _dsStatusAt=Time.GetTicksMsec()+2000;
+            File.WriteAllText(Path.Combine(_dsShotsDirectory!,"status.json"),JsonSerializer.Serialize(new {
+                stage=_dsStep,player,route=_dsRoute.Count,alpha=Alpha()?.Body,
+                torch=simulation.Player.Inventory.Any(i=>i.DefId=="item.tool.torch"),tick=simulation.WorldTick }));
+            GD.Print($"DS_SHOTS stage={_dsStep} feet={player.XMm},{player.ZMm} route={_dsRoute.Count} alpha={Alpha()?.DefId ?? "absent"}");
+        }
         double Away(CreatureView c) => Math.Sqrt(Math.Pow(c.Body.XMm - player.XMm, 2) + Math.Pow(c.Body.ZMm - player.ZMm, 2));
 
         switch (_dsStep)
@@ -74,8 +83,14 @@ public partial class Main
                     throw new InvalidOperationException("Normal chest take was refused");
                 if(_dsRoute.Count==0)
                 {
-                    var goal=new Body(536000,simulation.ActiveLayout.Space.Terrain.HeightAtMm(536000,752000),752000,0);
-                    foreach(var point in Playthrough.WayTo(simulation,player,goal,standOff:0)) _dsRoute.Enqueue(point);
+                    var from=player;
+                    foreach(var anchor in new[] {(430000L,738500L),(430000L,755000L),(455000L,755000L),
+                        (480000L,755000L),(505000L,755000L),(536000L,752000L)})
+                    {
+                        var goal=new Body(anchor.Item1,simulation.ActiveLayout.Space.Terrain.HeightAtMm(anchor.Item1,anchor.Item2),anchor.Item2,0);
+                        foreach(var point in Playthrough.WayTo(simulation,from,goal,standOff:0)) _dsRoute.Enqueue(point);
+                        from=goal;
+                    }
                 }
                 var next=_dsRoute.Peek();
                 var toward=new Vector3((float)(next.X-player.XMm/1000.0),0,(float)(next.Z-player.ZMm/1000.0));
