@@ -286,7 +286,7 @@ public partial class Hud : CanvasLayer
         }
         _targetName.Visible = plate is not null;
         _target.Visible = plate is { ShowBar: true };
-        _targetName.Text = plate?.Name ?? string.Empty;
+        _targetName.Text = plate is { } status ? status.Name + (status.Status.Length>0 ? " · " + status.Status : "") : string.Empty;
         _targetName.Modulate = plate is { } read ? TargetTone.Of(read.Threat) : Colors.White;
         _target.MaxValue = Math.Max(1, plate?.MaxHealth ?? 1);
         _target.Value = plate?.Health ?? 0;

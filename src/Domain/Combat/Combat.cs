@@ -164,6 +164,8 @@ public sealed record CombatConstants
 public sealed record Strike(AttackProfile Attack, double DamageMultiplier, int CritPercent, double StaggerPower)
 {
     public BodyRegion? ForcedRegion { get; init; }
+    /// <summary>A qualifying dagger ambush executes through this same resolver (owner ruling, RC d5).</summary>
+    public bool Execution { get; init; }
 }
 
 /// <summary>What stands between the blow and the body. Armor is coverage: each region has its own (COMBAT §11).</summary>
@@ -217,6 +219,7 @@ public static class CombatRules
         // instead of rounding away. A blow that lands always wounds: there is no immunity by numbers (COMBAT §32).
         double whole = Math.Floor(damage);
         int final = roll > 0 ? Math.Max(1, (int)whole + (random(4) < damage - whole ? 1 : 0)) : 0;
+        if (strike.Execution) final = Math.Max(final, defense.MaxHealth);
         bool staggered = !blocked && impact * strike.StaggerPower * 100 >= (double)defense.MaxHealth * constants.StaggerThresholdPercent;
         bool effect = attack.OnHitEffect is not null && !blocked && random(3) * 100 < attack.OnHitEffectPercent;
         return new HitResult(region, (int)Math.Round(impact, MidpointRounding.AwayFromZero), final, critical, blocked, false, staggered, effect);

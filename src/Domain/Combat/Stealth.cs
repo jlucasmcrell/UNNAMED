@@ -41,13 +41,14 @@ public static class StealthRules
 public sealed record TakedownResult(HitResult Hit, BodyRegion Region, bool Killed);
 
 /// <summary>
-/// An unaware target taken from behind or inside reach (§12, §13): the result is an armour-and-vital check, not a damage multiplier.
-/// It resolves through the one combat resolver, at a forced vital region, with the weapon's sneak multiplier - so a throat, a light
-/// skull or a pierced heart kills, and mail, a thick skull, redundant anatomy or a ward leaves a live enemy who turns round (§14: no
-/// body is made "immune" to stealth; some are simply built so the knife does not reach anything that matters).
+/// A qualifying rear dagger ambush executes an unaware non-boss at Even threat or below (owner RC d5 ruling).
+/// Other attempts retain the armour/vital result. Both resolve through the one combat resolver.
 /// </summary>
 public static class TakedownRules
 {
+    // "Even" uses the same threat band as the plate: the reviewed level-2 wolf vs level-1 Ada is Even.
+    public static bool Executes(bool dagger, bool unaware, bool fromBehind, Threat threat, bool boss) =>
+        dagger && unaware && fromBehind && threat <= Threat.Even && !boss;
     /// <summary>The vital a takedown aims at: the head from behind, the torso from inside reach (COMBAT §19's weak points).</summary>
     public static BodyRegion Vital(bool fromBehind) => fromBehind ? BodyRegion.Head : BodyRegion.Torso;
 

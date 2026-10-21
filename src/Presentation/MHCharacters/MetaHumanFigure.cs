@@ -98,6 +98,9 @@ public sealed partial class MetaHumanFigure : Figure
             _native.Call("advance_animation", _idles.StartPhase * Length("idle"));
         }
         var skeleton = _native.Call("body_skeleton").As<Skeleton3D>();
+        _crouchHead=new CrouchHeadLift { Facing=this,Influence=0 };
+        skeleton.AddChild(_crouchHead);
+        skeleton.SkeletonUpdated += () => { if(_crouchHead.Influence>0) _native.Call("sync_modified_pose"); };
         _hand = new BoneAttachment3D { BoneName = "hand_r" };
         skeleton.AddChild(_hand);
         _offHand = new BoneAttachment3D { BoneName = "hand_l" };
@@ -113,6 +116,7 @@ public sealed partial class MetaHumanFigure : Figure
     public override void Strike() => _striking = .001;
     public override void Interact() => _reaching = .001;
     public override void SetFirstPerson(bool firstPerson) => _native.Call("set_shadow_only", firstPerson);
+    private CrouchHeadLift _crouchHead=null!;
     public override void Pose(Vector3 feet, float facingRadians, float speedMetresPerSecond, double delta)
     {
         if (!_hasDirection && _posed && delta > 0)
@@ -138,6 +142,7 @@ public sealed partial class MetaHumanFigure : Figure
         }
         Animate(speedMetresPerSecond, delta);
         _native.Call("advance_animation", delta);
+        _crouchHead.Crouched=_crouched && ClipState is "crouch_idle" or "crouch_walk" or "crouch_move";
     }
     public void ConfigureNpcPerformance(int stage)
     {

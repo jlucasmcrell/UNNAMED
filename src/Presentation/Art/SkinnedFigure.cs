@@ -74,6 +74,8 @@ public sealed partial class SkinnedFigure : Figure
         figure._idles = new IdleVariety(personId);
         model.IdleStartPhase = figure._idles.StartPhase;
         figure.AddChild(model);
+        figure._crouchHead=new CrouchHeadLift { Facing=figure,Influence=0 };
+        model.Skeleton.AddChild(figure._crouchHead);
         var posture = new PostureModifier();
         if (posture.Bind(model.Skeleton, "pelvis", new[] { "thigh_l", "thigh_r" }, new[] { "calf_l", "calf_r" })
             || posture.Bind(model.Skeleton, "hips", new[] { "thigh.L", "thigh.R" }, new[] { "shin.L", "shin.R" }))
@@ -353,6 +355,7 @@ public sealed partial class SkinnedFigure : Figure
         _haftPole!.GlobalPosition = at + GlobalTransform.Basis.X * (0.5f * _offSide) + Vector3.Down * 0.6f;
     }
 
+    private CrouchHeadLift _crouchHead=null!;
     public override void Pose(Vector3 feet, float facingRadians, float speedMetresPerSecond, double delta)
     {
         if (!_hasDirection && _posed && delta > 0) _moveDirection = (feet - _previousPosition).Normalized();
@@ -372,6 +375,7 @@ public sealed partial class SkinnedFigure : Figure
         _crouch = Mathf.MoveToward(_crouch, _crouched ? 1f : 0f, (float)delta * 5f);
         _tuck = Mathf.MoveToward(_tuck, _airborne ? 1f : 0f, (float)delta * 8f);
         Animate(speedMetresPerSecond, delta);
+        _crouchHead.Crouched=_crouched && _model.Current is "crouch_idle" or "crouch_walk" or "crouch_move";
         HoldTheHaft(delta);
         if (_posture is not null)
         {

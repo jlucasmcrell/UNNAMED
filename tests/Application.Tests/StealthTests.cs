@@ -90,7 +90,7 @@ public class StealthTests
     // ── a dagger, and the takedown it makes possible ────────────────────────
 
     [Fact]
-    public void ATakedown_OnABodyThatHasNotNoticed_KillsIt_OrTurnsIt()
+    public void ATakedown_FromBehindAnUnawareEvenWolf_ExecutesIt()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
@@ -104,9 +104,8 @@ public class StealthTests
         Assert.Null(arena.Submit(new TakedownCommand(arena.Player)));
         arena.Tick(2);
         var after = Only(arena);
-        Assert.True(!after.Alive || after.Health < before, "the knife must reach something: a vital, or at least the body");
-        if (after.Alive)
-            Assert.Equal(CreatureMind.Engaged, after.Mind);
+        Assert.False(after.Alive);
+        Assert.Equal(0,after.Health);
     }
 
     [Fact]
@@ -220,5 +219,29 @@ public class StealthTests
         var rooted = Only(arena).Body;
         arena.Tick(30);
         Assert.Equal((rooted.XMm, rooted.ZMm), (Only(arena).Body.XMm, Only(arena).Body.ZMm));
+    }
+
+    [Fact]
+    public void Root_CancelsACharge_AndHoldsEveryTickUntilExpiry()
+    {
+        using var profile=new TempProfile();var session=Harness.Boot(profile);
+        var boar=(120.0,80.0);const string id="creature.beast.bristleback_boar";
+        double facing=FacingOf(session,boar,id,"sentinel");
+        var arena=Armed(session,Along(boar,facing,5),FacingDeg(facing+Math.PI),Dagger,
+            creatures:(id,boar.Item1,boar.Item2,"sentinel"));
+        for(int i=0;i<100&&Only(arena).Phase!=CombatPhase.Windup;i++)arena.Tick(1);
+        Assert.Equal(CombatPhase.Windup,Only(arena).Phase);
+        var before=Only(arena).Body;
+        var applied=arena.Record<EffectApplied>();
+        Assert.Null(arena.Simulation.Submit(new ApplyEffect(Only(arena).Id,"effect.root")));
+        arena.Tick(1);
+        Assert.True(Only(arena).Rooted);
+        long expiry=applied.Single(e=>e.EffectId=="effect.root").ExpiresTick;
+        while(arena.Simulation.WorldTick<expiry-1)
+        {
+            arena.Tick(1);var held=Only(arena);
+            Assert.Equal((before.XMm,before.ZMm),(held.Body.XMm,held.Body.ZMm));
+        }
+        arena.Tick(2);Assert.False(Only(arena).Rooted);
     }
 }

@@ -438,6 +438,10 @@ func advance_animation(delta: float) -> void:
 	if _npc_stage >= 2:
 		_sync.update_pending = true
 
+func sync_modified_pose() -> void:
+	# SkeletonUpdated runs after additive animation modifiers, before the native face is rendered.
+	_sync.apply_leader_pose()
+
 func configure_npc_performance(stage: int) -> void:
 	# Per-instance visibility only: no native mesh buffers, rest or binds change.
 	if _npc_stage < 0:

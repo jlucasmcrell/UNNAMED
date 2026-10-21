@@ -844,7 +844,7 @@ void fragment() {
         _targetBox.Visible = plate is not null;
         if (plate is not { } read)
             return;
-        _targetName.Text = read.Name;
+        _targetName.Text = read.Name + (read.Status.Length>0 ? " · " + read.Status : "");
         _targetName.AddThemeColorOverride("font_color", TargetTone.Of(read.Threat));
         _targetMeta.Text = read.Meta;
         _target.Visible = read.ShowBar;

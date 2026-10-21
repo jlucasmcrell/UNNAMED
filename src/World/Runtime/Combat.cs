@@ -684,9 +684,8 @@ internal sealed partial class CombatSystem
 
     /// <summary>
     /// A takedown (STEALTH §12-§14; owner finding 27): a dagger, a body that has not noticed the character, and a vital aimed at - the head
-    /// from behind, the torso from inside reach. It goes through the one combat resolver at a forced vital with the weapon's sneak
-    /// multiplier, so what decides is armour and what the blade reaches, never a flag on the creature: mail, a thick skull, redundant anatomy
-    /// or a ward leaves a live body that is now wounded, angry and facing the character.
+    /// from behind, the torso from inside reach. The owner's RC d5 ruling executes a rear ambush at Even threat or below, except bosses.
+    /// Higher-level and frontal attempts retain the normal vital/armour outcome through the same combat resolver.
     /// </summary>
     public string? Handle(TakedownCommand command, long tick)
     {
@@ -716,7 +715,9 @@ internal sealed partial class CombatSystem
         var defense = new DefenseProfile(definition.MaxHealth, WithBonus(definition.Armor, EffectRules.ArmorBonus(EffectsOf(creature.Id), Setup.Effects)),
             definition.Resistances, Blocking: false, Dodging: false);
         var fromBehind = Behind(creature.Body, body);
-        var outcome = TakedownRules.Resolve(PlayerStrike(attack), defense, C, creature.Health, fromBehind,
+        bool execution = TakedownRules.Executes(true, true, fromBehind,
+            ThreatRules.Of(definition.Level, State.Progression.Level), definition.Tags.Contains("boss") || creature.Site.Recovery is not null);
+        var outcome = TakedownRules.Resolve(PlayerStrike(attack) with { Execution = execution }, defense, C, creature.Health, fromBehind,
             Random("takedown", creature.Key, creature.Body, tick));
         State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick });
         _context.Dispatch(new WoundCreature(creature.Id, outcome.Hit, attack.Source));

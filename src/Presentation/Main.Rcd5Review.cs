@@ -33,6 +33,8 @@ public partial class Main
             native=_avatar.GetNodeOrNull<Node>("Native")?.Call("native_metrics").ToString() };
         void Frame(CreatureView c)
         {
+            var direction=Pos(c.Body)-Pos(sim.Player.Body);
+            _camera.Yaw=Mathf.Atan2(-direction.X,-direction.Z);
             var aim=(Pos(c.Body)+_avatar.GlobalPosition)*.5f+Vector3.Up*.8f;
             camera.Fov=55;camera.GlobalPosition=aim+new Vector3(2.8f,2.1f,4.5f);camera.LookAt(aim);
         }
@@ -61,14 +63,31 @@ public partial class Main
             _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);
             if((Pos(sim.Player.Body)-goal).LengthSquared()>2)throw new InvalidOperationException("Review route failed: "+sim.Player.Body);
         }
+        async Task<Vector3> Rear(Func<CreatureView> target,double seconds=30)
+        {
+            var c=target();float yaw=PlayerController.FacingRadians(c.Body.FacingMdeg);
+            var forward=new Vector3(Mathf.Sin(yaw),0,Mathf.Cos(yaw));
+            var near=Pos(sim.Player.Body)-Pos(c.Body);near.Y=0;near=near.Normalized();
+            float angle=Mathf.Atan2(near.X,near.Z),goalAngle=Mathf.Atan2(-forward.X,-forward.Z);
+            await Move(Pos(c.Body)+near*5,target,seconds);
+            float turn=Mathf.AngleDifference(angle,goalAngle);
+            for(int arc=1;arc<=4;arc++)
+            {
+                float a=angle+turn*arc/4;
+                await Move(Pos(c.Body)+new Vector3(Mathf.Sin(a),0,Mathf.Cos(a))*5,target);
+            }
+            await Move(Pos(c.Body)-forward*4,target);
+            return forward;
+        }
         try
         {
-            var wolf=Wolf();float yaw=PlayerController.FacingRadians(wolf.Body.FacingMdeg);
-            var forward=new Vector3(Mathf.Sin(yaw),0,Mathf.Cos(yaw));
-            await Move(Pos(wolf.Body)-forward*4,Wolf);
+            var forward=await Rear(Wolf);
             Frame(Wolf());await Rcd3Wait(.4);
             rows.Add(new {stage="crouched_sneak",state=Snapshot(Wolf())});
             await Rcd3Shot(directory,"crouched_sneak");
+            var head=_avatar.Head??_avatar.GlobalPosition+Vector3.Up;
+            camera.Fov=40;camera.GlobalPosition=head+_avatar.GlobalBasis.Z*1.9f+Vector3.Up*.35f;camera.LookAt(head);
+            await Rcd3Wait(.15);await Rcd3Shot(directory,"crouch_head");
             await Move(Pos(Wolf().Body)-forward*2.7f,Wolf,shot:"crouched_moving");
             var before=Wolf();rows.Add(new {stage="before_takedown",state=Snapshot(before)});
             _controller.Takedown();await Rcd3Wait(.18);Frame(Wolf());
@@ -77,6 +96,16 @@ public partial class Main
             await Rcd3Shot(directory,"takedown_result");
             if(!hits.Any(h=>h.Attacker==sim.PlayerId&&h.Target==before.Id&&h.Damage>0))
                 throw new InvalidOperationException("No real takedown wound");
+            if(Wolf().Alive)throw new InvalidOperationException("Qualifying even-target ambush did not execute");
+            // Circle outside hearing; the higher-level sleeper then honestly resists the same F command.
+            var high=Boar();var highForward=await Rear(Boar,65);
+            await Move(Pos(high.Body)-highForward*2.7f,Boar);
+            rows.Add(new {stage="before_higher_resist",state=Snapshot(Boar())});
+            _controller.Takedown();await Rcd3Wait(.18);Frame(Boar());
+            await Rcd3Shot(directory,"higher_resist_strike");await Rcd3Wait(.4);
+            rows.Add(new {stage="higher_resist",state=Snapshot(Boar())});
+            await Rcd3Shot(directory,"higher_resist");
+            if(!Boar().Alive||Boar().Health>=high.Health)throw new InvalidOperationException("Higher target did not honestly resist");
             _controller.Crouch(false);
             var flask=sim.Player.Inventory.Single(i=>i.DefId=="item.consumable.poison_flask");
             _session.Submit(new UseItemCommand(sim.PlayerId,flask.ItemId));await Rcd3Wait(.3);
@@ -99,20 +128,35 @@ public partial class Main
             _hud.Toast("REVIEW FIXTURE: Root applied — feet held; turning and strikes remain possible.",6);
             var rooted=Boar();Frame(rooted);await Rcd3Shot(directory,"rooted_start");
             long startTick=sim.WorldTick;
+            var playerBefore=sim.Player.Body;
             _controller.SteerWorld((Pos(sim.Player.Body)-Pos(rooted.Body)).Normalized(),Gait.Walk,_camera);
             await Rcd3Wait(2);_controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);Frame(Boar());
             var after=Boar();
             long drift=Math.Abs(after.Body.XMm-rooted.Body.XMm)+Math.Abs(after.Body.ZMm-rooted.Body.ZMm);
-            rows.Add(new {stage="rooted_2s",startTick,endTick=sim.WorldTick,root.ExpiresTick,drift_mm=drift,before=rooted,after});
+            rows.Add(new {stage="rooted_2s",startTick,endTick=sim.WorldTick,root.ExpiresTick,drift_mm=drift,before=rooted,after,
+                playerBefore,playerAfter=sim.Player.Body});
             await Rcd3Shot(directory,"rooted_2s");
             if(drift>1||sim.WorldTick>=root.ExpiresTick)throw new InvalidOperationException("Root hold assertion failed");
+            long separatedAt=sim.WorldTick;
+            await Rcd3Wait(.8);
+            float separation=(Pos(sim.Player.Body)-Pos(Boar().Body)).Length();
+            int outsideHits=hits.Count(h=>h.Attacker==boar.Id&&h.Target==sim.PlayerId&&h.Tick>separatedAt);
+            _hud.Toast($"REVIEW: Root holds — 0 mm movement; Ada {separation:0.0} m away, {outsideHits} hits after withdrawal.",3);
+            await Rcd3Wait(.1);Frame(Boar());await Rcd3Shot(directory,"rooted_away");
+            rows.Add(new {stage="rooted_away",separatedAt,tick=sim.WorldTick,separation_m=separation,outsideHits,state=Snapshot(Boar())});
+            if(outsideHits!=0)throw new InvalidOperationException("Rooted creature hit Ada after withdrawal");
             while(sim.WorldTick<root.ExpiresTick+25)
+            {
+                var held=Boar();
+                if(held.Rooted && (held.Body.XMm!=rooted.Body.XMm||held.Body.ZMm!=rooted.Body.ZMm))
+                    throw new InvalidOperationException("Root moved during an action phase");
                 await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+            }
             rows.Add(new {stage="after_root_expired",state=Snapshot(Boar())});
             Frame(Boar());await Rcd3Shot(directory,"root_expired");
             File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {
                 status="LIVE_COMMAND_GATES_PASS_REQUIRES_CLAUDE_REVIEW",people=VisualOptions.People,
-                fixture="Fresh review content only: dagger/flask boot kit, sleeper wolf, sentinel boar, coating delivers root. Owner content unchanged."}));
+                fixture="Fresh review content only: dagger/flask boot kit, sleeper wolf, higher-level sleeper boar, coating delivers root. Owner content unchanged."}));
         }
         finally
         {

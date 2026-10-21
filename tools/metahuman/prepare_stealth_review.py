@@ -17,9 +17,9 @@ for p in (dest/'spawns').rglob('*.yaml'):
     if key=='spawn.hollow.valley_strays':
         d['creatures']=[dict(creature_ref='creature.beast.wolf_grey',count=[1,1],role='sleeper')];xy=[610,755];d['level_band']=[2,2]
     elif key=='spawn.hollow.boar_wallow':
-        d['creatures']=[dict(creature_ref='creature.beast.bristleback_boar',count=[1,1],role='sentinel')];xy=[624,755]
+        d['creatures']=[dict(creature_ref='creature.beast.bristleback_boar',count=[1,1],role='sleeper')];xy=[575,755]
     else:xy=[1100+index*3,1100]
     d['at']={'position_m':xy,'radius_m':0}
     p.write_text(yaml.safe_dump(d,sort_keys=False),encoding='utf-8')
-(dest/'RCD5_REVIEW_FIXTURE.txt').write_text('ISOLATED REVIEW ONLY. Ordinary commands; dagger/flask boot kit; sleeper wolf at610,755; sentinel boar624,755; existing coating delivers root. NOT owner content.\n',encoding='utf-8')
+(dest/'RCD5_REVIEW_FIXTURE.txt').write_text('ISOLATED REVIEW ONLY. Ordinary commands; dagger/flask boot kit; sleeper wolf at610,755; higher-level sleeper boar575,755; existing coating delivers root. NOT owner content.\n',encoding='utf-8')
 print(dest)

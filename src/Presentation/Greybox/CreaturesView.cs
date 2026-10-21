@@ -19,6 +19,7 @@ namespace UNNAMED.Presentation.Greybox;
 public partial class CreaturesView : Node3D
 {
     private readonly Dictionary<EntityId, CreatureBody> _figures = new();
+    private readonly Dictionary<EntityId,Node3D> _roots = new();
     private long _tick = -1;
     private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
     private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
@@ -66,6 +67,16 @@ public partial class CreaturesView : Node3D
             // Far off, a body is neither drawn nor animated; a bigger animal carries further (a hen 90 m, a barrowback 240 m).
             float reach = CullBaseM + simulation.Setup.Combat.Creatures[creature.DefId].RadiusMm / 1000f * CullPerRadiusM;
             var feet = HollowView.ToGodot(creature.Body.XMm, creature.Body.YMm, creature.Body.ZMm);
+            if(creature.Rooted && !_roots.ContainsKey(creature.Id))
+            {
+                var vines=RootVines.Create(simulation.Setup.Combat.Creatures[creature.DefId].RadiusMm/1000f);
+                AddChild(vines);_roots[creature.Id]=vines;
+            }
+            if(_roots.TryGetValue(creature.Id,out var roots))
+            {
+                roots.GlobalPosition=feet;roots.Visible=creature.Rooted;
+                if(!creature.Rooted){roots.QueueFree();_roots.Remove(creature.Id);}
+            }
             if (eye is { } at && feet.DistanceSquaredTo(at) >= reach * reach)
             {
                 // Still where it stands, for anything that asks where a creature is drawn.
@@ -84,6 +95,7 @@ public partial class CreaturesView : Node3D
             foreach (var id in _figures.Keys.Where(id => !live.Contains(id)).ToList())
             {
                 _figures[id].QueueFree();
+                if(_roots.Remove(id,out var roots))roots.QueueFree();
                 _figures.Remove(id);
             }
         }

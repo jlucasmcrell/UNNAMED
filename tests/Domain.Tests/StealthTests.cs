@@ -11,6 +11,23 @@ namespace UNNAMED.Domain.Tests;
 /// </summary>
 public class StealthTests
 {
+    [Theory]
+    [InlineData(true,true,true,Threat.Even,false,true)]
+    [InlineData(true,true,true,Threat.Easy,false,true)]
+    [InlineData(true,true,true,Threat.Hard,false,false)]
+    [InlineData(true,true,true,Threat.Even,true,false)]
+    [InlineData(true,false,true,Threat.Even,false,false)]
+    [InlineData(true,true,false,Threat.Even,false,false)]
+    [InlineData(false,true,true,Threat.Even,false,false)]
+    public void ExecutionRequiresTheAmbushCircumstances(bool dagger,bool unaware,bool behind,Threat threat,bool boss,bool kill) =>
+        Assert.Equal(kill,TakedownRules.Executes(dagger,unaware,behind,threat,boss));
+
+    [Fact]
+    public void AQualifyingExecution_KillsThroughArmourInTheOneResolver()
+    {
+        var result=TakedownRules.Resolve(new Strike(Dagger(),1,0,1) { Execution=true },Mailed(health:60),Constants,60,true,_=>.5);
+        Assert.True(result.Killed);Assert.True(result.Hit.Final>=60);
+    }
     private static readonly CombatConstants Constants = new()
     {
         RegionWeights = new Dictionary<BodyRegion, int> { [BodyRegion.Head] = 10, [BodyRegion.Torso] = 90 }.ToImmutableSortedDictionary(),

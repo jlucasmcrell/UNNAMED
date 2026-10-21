@@ -42,6 +42,7 @@ public sealed record EncounterRestarted(string SpawnKey, bool Loaded, long Tick)
 public sealed record CreatureView(EntityId Id, string Key, string DefId, string RoleId, Body Body, int Health, int MaxHealth,
     CombatPhase Phase, int PhaseTicksLeft, CreatureCondition Condition, CreatureMind Mind, int Awareness, bool Asleep)
 {
+    public bool Rooted { get; init; }
     // Presentation's sampled clip, part of the deliberately transient blow (as Phase/PhaseTicksLeft are in StateDump).
     [System.Text.Json.Serialization.JsonIgnore]
     public string? AttackSource { get; init; }
@@ -460,6 +461,13 @@ internal sealed class CreatureSystem : IAbstractAdvance
         if (c.Action.Kind != ActionKind.Idle && phase == CombatPhase.Idle)
             c = c with { Action = ActionState.Idle };
         c = Perceive(c, tick, noises);
+        var control = _context.ControlOn(c.Id);
+        if (control == ControlKind.Incapacitates) return c with { Action = ActionState.Idle };
+        if (control == ControlKind.Roots && c.Action.Kind == ActionKind.Charge)
+        {
+            c = c with { Action = ActionState.Idle };
+            phase = CombatPhase.Idle;
+        }
         var next = phase switch
         {
             CombatPhase.Staggered or CombatPhase.Recovery => c,
@@ -468,6 +476,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
             CombatPhase.Active => Strike(c, tick),
             _ => Act(c, tick),
         };
+        if (control == ControlKind.Roots)
+            next = next with { Body = next.Body with { XMm=c.Body.XMm, YMm=c.Body.YMm, ZMm=c.Body.ZMm } };
         // Acting changes its mind too - it arrives, gives up, gets home; those are announced like what it perceives.
         if (next.Mind != c.Mind)
             _context.Events.Publish(new CreatureNoticed(next.Id, next.Key, next.Mind, tick));
@@ -582,19 +592,6 @@ internal sealed class CreatureSystem : IAbstractAdvance
     // ── acting ──────────────────────────────────────────────────────────────
 
     private CreatureState Act(CreatureState c, long tick)
-    {
-        // A controlled body (STEALTH §14): paralysed or asleep it does nothing at all; rooted it keeps its feet but still turns, calls and
-        // strikes. One rule at the one place a creature acts, so a control effect cannot be forgotten by a behaviour.
-        var control = _context.ControlOn(c.Id);
-        if (control == ControlKind.Incapacitates)
-            return c with { Action = ActionState.Idle };
-        var acted = ActFree(c, tick);
-        return control == ControlKind.Roots
-            ? acted with { Body = acted.Body with { XMm = c.Body.XMm, YMm = c.Body.YMm, ZMm = c.Body.ZMm } }
-            : acted;
-    }
-
-    private CreatureState ActFree(CreatureState c, long tick)
     {
         var player = State.Body;
         switch (c.Mind)
@@ -743,7 +740,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         bool seesTarget = tick == c.LastSeenTick;
 
         // A charge opens from range, committed to its line: only at a target it can see, and not too often - and only at the character.
-        if (c.Definition.Charge is { } charge && foe.Companion is null && seesTarget && clear && tick >= c.NextChargeTick
+        if (_context.ControlOn(c.Id) != ControlKind.Roots && c.Definition.Charge is { } charge && foe.Companion is null && seesTarget && clear && tick >= c.NextChargeTick
             && distance >= charge.ChargeMinRangeMm && distance <= charge.ReachMm)
         {
             var (dx, dz) = Direction(c.Body, player.XMm, player.ZMm);
@@ -858,7 +855,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         // land again on the next (the Phase-1 technical audit, L-23).
         bool spent = !action.Struck.IsEmpty;
         // A lunge carries the body forward through the active window, stopping at whatever is in the way.
-        if (attack.LungeMm > 0 && !spent)
+        if (attack.LungeMm > 0 && !spent && _context.ControlOn(c.Id) != ControlKind.Roots)
         {
             var rules = new MovementRules(attack.LungeMm * 1000 / Math.Max(1, attack.ActiveTicks * TickMs), 50, 100, c.Definition.RadiusMm, 0);
             var intent = new MoveIntent((int)Math.Round(Math.Sin(c.Body.FacingMdeg / 1000.0 * Math.PI / 180) * 1000),
@@ -1264,6 +1261,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 c.Mind, c.Awareness, Asleep(c, tick))
             {
                 Generation = c.Generation, Peaceful = c.Role.Peaceful,
+                Rooted = c.Alive && _context.ControlOn(c.Id) == ControlKind.Roots,
                 Level = c.Definition.Level,
                 Huntable = c.Definition.LootTableId is not null,
                 Temperament = TemperamentRules.Of(c.Role.Peaceful, c.Role.AnswersCalls, c.Mind == CreatureMind.Engaged),
