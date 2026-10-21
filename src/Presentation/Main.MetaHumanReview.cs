@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using Godot;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Spatial;
@@ -40,7 +40,7 @@ public partial class Main
             return;
         if (System.Environment.GetEnvironmentVariable("OTHERREACH_MH_REVIEW_OUT") is not { Length: > 0 } directory)
             return;
-        if ((!MetaHumanFigure.Available && VisualOptions.People != "mpfb") || DisplayServer.GetName() == "headless")
+        if ((!MetaHumanFigure.Available && VisualOptions.ComparisonCast is null) || DisplayServer.GetName() == "headless")
             throw new InvalidOperationException("MetaHuman review requires the native bundle and a real renderer");
         _mhReviewDirectory = Path.GetFullPath(directory);
         _mhFootwearPreview = System.Environment.GetEnvironmentVariable("OTHERREACH_MH_FOOTWEAR_PREVIEW") == "1";
@@ -528,3 +528,4 @@ public partial class Main
         finally { _mhReviewBusy = false; }
     }
 }
+

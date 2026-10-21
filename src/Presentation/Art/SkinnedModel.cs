@@ -71,7 +71,7 @@ public sealed partial class SkinnedModel : Node3D
         var library = new AnimationLibrary();
         foreach (var (state, clipId) in clips)
         {
-            if (VisualOptions.People == "mpfb" && assetId.StartsWith("mpfb_", StringComparison.Ordinal)) continue;
+            if (IsComparisonBody(assetId)) continue;
             if (art.Clip(clipId) is not { } clip)
             {
                 if (owner is not null)
@@ -84,7 +84,7 @@ public sealed partial class SkinnedModel : Node3D
             if (owner is not null)
                 art.Coverage.Resolved("clip", $"{owner}:{state}", clipId);
         }
-        if (VisualOptions.People == "mpfb" && assetId.StartsWith("mpfb_", StringComparison.Ordinal))
+        if (IsComparisonBody(assetId))
             figure.ComparisonClips(assetId, library, skeletonPath, art.RiggedFile(assetId, assetId + "_rigged.glb"));
         player.AddAnimationLibrary("", library);
         figure._player = player;
@@ -102,22 +102,32 @@ public sealed partial class SkinnedModel : Node3D
         return figure;
     }
 
-    // Every clip is baked in Epic onto this exact original MPFB rig. Copy node paths only.
+    /// <summary>Whether this body is a comparison cast's export, which brings its own clips and no bound outfit.</summary>
+    private static bool IsComparisonBody(string assetId) =>
+        VisualOptions.ComparisonBodyPrefix is { } prefix && assetId.StartsWith(prefix, StringComparison.Ordinal);
+
+    /// <summary>Where each comparison cast's offline motion libraries live, by cast id.</summary>
+    private static string ComparisonMotionFolder => VisualOptions.ComparisonCast == "humgen" ? "HumGenMotion" : "MPFBMotion";
+
+    // Every clip in these libraries was retargeted onto this exact body offline; only node paths are copied here.
     private void ComparisonClips(string assetId, AnimationLibrary library, string skeletonPath, string? bodyPath)
     {
-        // Reviewed mocap stays in the installed character payload, outside the public source repository.
+        // Reviewed mocap stays in the installed character payload, outside the public source repository; a comparison cast
+        // whose clips were baked into the repository (the HumGen arm) reads its own folder instead.
         string externalMotion = System.IO.Path.Combine(UNNAMED.Presentation.MHCharacters.MetaHumanFigure.AssetRoot, "mocap_motion", assetId + "_motion.res");
-        var motion = GD.Load<AnimationLibrary>(System.IO.File.Exists(externalMotion) ? externalMotion : $"res://Art/MPFBMotion/{assetId}_motion.res")
-            ?? throw new InvalidDataException("MPFB motion library missing: " + assetId);
+        var motion = GD.Load<AnimationLibrary>(System.IO.File.Exists(externalMotion)
+                ? externalMotion
+                : $"res://Art/{ComparisonMotionFolder}/{assetId}_motion.res")
+            ?? throw new InvalidDataException("comparison motion library missing: " + assetId);
         if (bodyPath is null || motion.GetMeta("target_body_sha256").AsString() != Godot.FileAccess.GetSha256(bodyPath))
-            throw new InvalidDataException("MPFB motion library target body differs: " + assetId);
+            throw new InvalidDataException("comparison motion library target body differs: " + assetId);
         foreach (string clip in motion.GetAnimationList())
         {
             var animation = (Animation)motion.GetAnimation(clip).Duplicate();
             for (int track = 0; track < animation.GetTrackCount(); track++)
             {
                 string bone = animation.TrackGetPath(track).GetSubName(0);
-                if (Skeleton.FindBone(bone) < 0) throw new InvalidDataException("MPFB motion bone missing: " + bone);
+                if (Skeleton.FindBone(bone) < 0) throw new InvalidDataException("comparison motion bone missing: " + bone);
                 animation.TrackSetPath(track, new NodePath($"{skeletonPath}:{bone}"));
             }
             library.AddAnimation(clip, animation);
@@ -148,12 +158,12 @@ public sealed partial class SkinnedModel : Node3D
                 }
             WeaponGrip = rotations;
         }
-        GD.Print($"UNNAMED MPFB motion: {assetId}, {motion.GetAnimationList().Count} direct Epic target clips; no runtime retarget");
+        GD.Print($"UNNAMED {VisualOptions.ComparisonCast} motion: {assetId}, {motion.GetAnimationList().Count} offline target clips; no runtime retarget");
     }
 
     public bool MoveBlend(Vector2 velocity, double delta, IReadOnlyDictionary<string, float> paces, float scale)
     {
-        if (VisualOptions.People != "mpfb" || !Has("strafe_left")) return false;
+        if (!IsComparisonBody(Name) || !Has("strafe_left")) return false;
         if (_locomotion is null)
         {
             _locomotion = GD.Load<GDScript>("res://Art/LocomotionBlend.gd").New().As<Node>();
@@ -326,3 +336,4 @@ public sealed partial class SkinnedModel : Node3D
         return false;
     }
 }
+

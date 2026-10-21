@@ -1,0 +1,19 @@
+{
+  "comment": "The Human Generator arm of the character comparison (owner brief 2026-10-21). Two trial bodies stand in for the whole cast: `humgen_m` is the trial's one real preset with its `Male` shape key at 1 and `humgen_f` the same preset with it at 0, the shared mesh's feminine base. Both are exported by Blender's own glTF exporter (the trial's Process tab and HG_Export pack are absent) with the 51 ARKit-named FACS blend shapes kept, bones renamed onto UE-mannequin names and a Root bone at the origin. Their heights are the exported GLBs' own, measured at 1.765 m each; `stature_m` is the MetaHuman stature the comparison draws each sex at, exactly as mpfb_cast.json states it, so the arm is judged on fidelity rather than on size.",
+  "stature_m": {
+    "f": 1.692,
+    "m": 1.918
+  },
+  "models": [
+    {
+      "id": "humgen_m",
+      "sex": "m",
+      "height_m": 1.765
+    },
+    {
+      "id": "humgen_f",
+      "sex": "f",
+      "height_m": 1.766
+    }
+  ]
+}

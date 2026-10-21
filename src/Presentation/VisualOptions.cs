@@ -1,4 +1,4 @@
-// UNNAMED Presentation - the visual overhaul's switches: which presentation systems draw this run (Phase B)
+﻿// UNNAMED Presentation - the visual overhaul's switches: which presentation systems draw this run (Phase B)
 // Godot presentation only: every option chooses how the game is drawn, never what the simulation holds (D-11)
 
 using Godot;
@@ -29,7 +29,7 @@ public static class VisualOptions
         ["hooks"] = new[] { "none", "on" },
         ["body"] = new[] { "none", "modifiers" },
         ["clips"] = new[] { "procedural", "ext" },    // ext: the player moves with the retargeted pack clips (B12's catalogue)     // modifiers: feet planted on the ground, NPCs' heads turning to the player (B0.4 / B12)          // on: the environmental audio hooks (res://Art/audio_hooks.json)           // on: ambient life - birds, butterflies, fireflies (presentation only, B10)  // recipes: the particle recipes stand in for the flat flipbooks (B0.7 / B11)           // on: the trees (and every model bound with a wind stiffness) sway on the world wind  // a preset of the others (RenderTiers: the environment's cost)
-        ["people"] = new[] { "phase_a", "production", "standard", "mpfb" },  // production: the character-fidelity pass's models; standard: the character standard (charstd) demo cast
+        ["people"] = new[] { "phase_a", "production", "standard", "mpfb", "humgen" },  // production: the character-fidelity pass's models; standard: the character standard (charstd) demo cast
         // The player is a MetaHuman on the shared UE5-mannequin skeleton: the owner's blend bodies mh_veth_m / mh_veth_f, bound before the
         // creator chooses one. The MPFB player is retired (owner 2026-10-17).
         ["player"] = new[] { "metahuman_m", "metahuman_f" },
@@ -180,8 +180,19 @@ public static class VisualOptions
     public static string Celestial => Values["celestial"];
     public static string Otherworld => Values["otherworld"];
 
-    /// <summary>Which cast the people are drawn with; <c>mpfb</c> is the MakeHuman comparison build's.</summary>
+    /// <summary>Which cast the people are drawn with; <c>mpfb</c> and <c>humgen</c> are the comparison builds' casts.</summary>
     public static string People => Values["people"];
+
+    /// <summary>
+    /// The comparison cast this run draws, or null for the production cast: <c>mpfb</c> (the MakeHuman arm)
+    /// or <c>humgen</c> (the Human Generator arm). Each names its own cast table, its own offline motion
+    /// libraries and its own body exports, so everything keyed on "a comparison cast is drawn" reads this
+    /// rather than listing the two names at each site.
+    /// </summary>
+    public static string? ComparisonCast => People is "mpfb" or "humgen" ? People : null;
+
+    /// <summary>The model-id prefix a comparison cast's bodies carry (<c>mpfb_</c>, <c>humgen_</c>), or null for the production cast.</summary>
+    public static string? ComparisonBodyPrefix => ComparisonCast is { } cast ? cast + "_" : null;
 
     /// <summary>
     /// Whether this run includes the Barrowworks (<c>--visual barrowworks=1</c>). Read once at startup and
@@ -285,3 +296,4 @@ public static class VisualOptions
         GD.Print($"UNNAMED visual: {string.Join(", ", Values.Select(kv => $"{kv.Key}={kv.Value}"))}");
     }
 }
+

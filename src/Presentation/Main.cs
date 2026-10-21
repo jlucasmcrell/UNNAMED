@@ -1,4 +1,4 @@
-// UNNAMED Presentation - boot, the frame loop, and input (ARCHITECTURE.md §2, §8.1; D-11)
+﻿// UNNAMED Presentation - boot, the frame loop, and input (ARCHITECTURE.md Â§2, Â§8.1; D-11)
 // Godot presentation only: this file renders state and submits commands; it never writes state.
 
 using Godot;
@@ -94,7 +94,7 @@ public partial class Main : Node3D
     private bool _innFreeCamera;
     private MapPanel _map = null!;
 
-    /// <summary>Autorun (the owner's second-play brief §23): on, the character goes forward until a key, a screen or a death stops them.</summary>
+    /// <summary>Autorun (the owner's second-play brief Â§23): on, the character goes forward until a key, a screen or a death stops them.</summary>
     private readonly Ui.Models.AutoRunRules _autoRun = new();
 
     private bool _autorun
@@ -377,7 +377,7 @@ public partial class Main : Node3D
             shotStart = FrontierPerf.ParsePoint(_options.GetValueOrDefault("--frontier-point")
                 ?? throw new ArgumentException("--frontier-perf requires --frontier-point x,z"));
         _loading?.Stage("Reading the content and the saves", 0.03);
-        // Bad content refuses to start, naming every file (ARCHITECTURE.md §8.1); so does a profile another copy of the game holds.
+        // Bad content refuses to start, naming every file (ARCHITECTURE.md Â§8.1); so does a profile another copy of the game holds.
         // The Barrowworks switch is read here, once, and passed down: it is parsed as --visual (this layer's own
         // options) but what it gates is content the simulation holds, so GameOptions carries it (M8 D10). Off
         // unless asked for, so a normal launch is the launch it always was.
@@ -994,7 +994,7 @@ public partial class Main : Node3D
         AddChild(_avatar);
         _camera = new CameraRig { Name = "CameraRig" };
         AddChild(_camera);
-        if (MHCharacters.MetaHumanFigure.Available || VisualOptions.People == "mpfb")
+        if (MHCharacters.MetaHumanFigure.Available || VisualOptions.ComparisonCast is not null)
         {
             var fill = new OmniLight3D
             {
@@ -1750,3 +1750,4 @@ public partial class Main : Node3D
     private static string DefaultPerfOut(string name) =>
         Path.Combine(OS.GetUserDataDir(), "perf", $"{name}-{DateTime.UtcNow:yyyyMMdd-HHmmss}");
 }
+

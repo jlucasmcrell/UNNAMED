@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 using UNNAMED.Presentation.Player;
 using UNNAMED.Presentation.Art;
 using UNNAMED.World.Runtime;
@@ -19,7 +19,7 @@ public sealed partial class MetaHumanFigure : Figure
     /// instead, and every site that prefers a native body here already falls back to the rigged <see cref="Art.SkinnedFigure"/> when
     /// there is none - which is what draws the people when the MetaHuman bundle is not installed at all.
     /// </summary>
-    public static bool Available => VisualOptions.People != "mpfb"
+    public static bool Available => VisualOptions.ComparisonCast is null
         && System.IO.File.Exists(System.IO.Path.Combine(AssetRoot, "catalog.json"));
     public static string PlayerModel(string? preset) => preset?.Contains("veth_f", StringComparison.Ordinal) == true ? "mh:ada" : "mh:mateo";
     private Node3D _native = null!;
@@ -325,3 +325,4 @@ public sealed partial class MetaHumanFigure : Figure
     }
 
 }
+
