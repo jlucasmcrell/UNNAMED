@@ -137,6 +137,24 @@ public class StealthTests
     }
 
     [Fact]
+    public void AppliedSleep_AllowsATakedownAttempt_EvenAfterTheTargetNoticedYou()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var wolf = (120.0, 80.0);
+        double facing = FacingOf(session, wolf);
+        var arena = Armed(session, Along(wolf, facing, 1.4), FacingDeg(facing + Math.PI), Dagger,
+            creatures: (Arena.Wolf, wolf.Item1, wolf.Item2, "pack_hunter"));
+        arena.Tick(30);
+        Assert.True(Only(arena).Awareness >= session.Setup.Combat.Awareness.Suspicious);
+        Assert.Null(arena.Simulation.Submit(new ApplyEffect(Only(arena).Id, "effect.sleep")));
+        arena.Tick(1);
+        Assert.True(Only(arena).Asleep);
+        Assert.Null(arena.Submit(new TakedownCommand(arena.Player)));
+        // Frontal position still follows the ordinary vital check rather than the rear execution rule.
+    }
+
+    [Fact]
     public void AnArmouredBody_LivesThroughATakedown_AndTurnsOnTheKnife()
     {
         using var profile = new TempProfile();
@@ -178,6 +196,32 @@ public class StealthTests
     }
 
     // ── control effects ────────────────────────────────────────────────────
+
+    [Theory]
+    [InlineData("snarebind_resin", "root")]
+    [InlineData("sleep_coating", "sleep")]
+    [InlineData("paralyse_coating", "paralyse")]
+    public void NewCoatings_ReplaceVenom_ConsumeOne_AndDeliverOnAWound(string item, string effect)
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var wolf = (120.0, 80.0);
+        double facing = FacingOf(session, wolf);
+        var arena = Armed(session, Along(wolf, facing, 1.4), FacingDeg(facing + Math.PI), Dagger,
+            spare: "item.consumable." + item, creatures: (Arena.Wolf, wolf.Item1, wolf.Item2, "pack_hunter"));
+        arena.Tick(2);
+        Assert.Null(arena.Simulation.Submit(new ApplyEffect(arena.Player, "effect.coating_venom")));
+        var flask = arena.Simulation.Player.Inventory.Single(e => e.DefId == "item.consumable." + item);
+        var applied = arena.Record<EffectApplied>();
+        Assert.Null(arena.Submit(new UseItemCommand(arena.Player, flask.ItemId)));
+        Assert.Equal(flask.Count - 1, arena.Simulation.Player.Inventory.Single(e => e.ItemId == flask.ItemId).Count);
+        Assert.DoesNotContain(arena.Simulation.Combat.Effects, e => e.EffectId == "effect.coating_venom");
+        Assert.Contains(arena.Simulation.Combat.Effects, e => e.EffectId == "effect.coating_" + effect);
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
+        arena.Tick(30);
+        Assert.Contains(applied, e => e.Target == Only(arena).Id && e.EffectId == "effect." + effect);
+        Assert.DoesNotContain(applied, e => e.EffectId == "effect.venom");
+    }
 
     [Fact]
     public void ASleepingBody_TakesNoTurn_AndAWoundWakesIt()

@@ -18,6 +18,22 @@ public class ItemizationContentTests
 
     private static ContentLoader Game() => Load(Path.Combine(RepoPaths.Root(), "content"));
 
+    [Fact]
+    public void AllFourControlAndPoisonDeliveries_AreGuaranteedNormalLoot_NotStartingItems()
+    {
+        var content = Game();
+        var loot = ItemContent.BuildLootTables(content);
+        var starting = ItemContent.BuildStartingKit(content);
+        foreach (string item in new[] { "poison_flask", "snarebind_resin", "sleep_coating", "paralyse_coating" })
+        {
+            string id = "item.consumable." + item;
+            Assert.Contains(loot["loot.merchant_cart"].Guaranteed, e => e.ItemId == id);
+            Assert.Contains(loot["loot.barrow_cache"].Guaranteed, e => e.ItemId == id);
+            Assert.DoesNotContain(starting, e => e.ItemId == id);
+        }
+    }
+
+
     /// <summary>A copy of the game's content with one file edited, in a directory removed afterwards.</summary>
     private sealed class EditedContent : IDisposable
     {

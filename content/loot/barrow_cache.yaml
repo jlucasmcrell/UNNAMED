@@ -12,3 +12,6 @@ guaranteed:
   - { item_ref: item.material.boneleaf, count_range: [2, 2] }
   - { item_ref: item.weapon.iron_dagger, count_range: [1, 1] }
   - { item_ref: item.consumable.poison_flask, count_range: [2, 2] }
+  - { item_ref: item.consumable.snarebind_resin, count_range: [2, 2] }
+  - { item_ref: item.consumable.sleep_coating, count_range: [2, 2] }
+  - { item_ref: item.consumable.paralyse_coating, count_range: [2, 2] }

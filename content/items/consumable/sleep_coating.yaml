@@ -1,0 +1,13 @@
+id: item.consumable.sleep_coating
+kind: item
+schema: 1
+display_key: item.consumable.sleep_coating.name
+tags: [item]
+name: Sleep Coating
+notes: "Use to coat your blade for about two minutes, replacing its previous coating. Wounding blows deliver the effect. Puts a living target to sleep for about ten seconds. A subsequent wound wakes it. Undead and constructs are immune. Found among the Sunk Barrow cache's abandoned supplies."
+category: consumable
+stack_max: 3
+weight: 0.15
+value_base: 30
+rarity: common
+use: { effect_ref: effect.coating_sleep, consume: true }

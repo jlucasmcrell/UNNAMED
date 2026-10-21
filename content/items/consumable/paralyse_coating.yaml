@@ -1,0 +1,13 @@
+id: item.consumable.paralyse_coating
+kind: item
+schema: 1
+display_key: item.consumable.paralyse_coating.name
+tags: [item]
+name: Paralysing Coating
+notes: "Use to coat your blade for about two minutes, replacing its previous coating. Wounding blows deliver the effect. Stops the target moving and attacking for about three seconds. Found among the Sunk Barrow cache's abandoned supplies."
+category: consumable
+stack_max: 3
+weight: 0.15
+value_base: 30
+rarity: common
+use: { effect_ref: effect.coating_paralyse, consume: true }

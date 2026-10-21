@@ -633,7 +633,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
     /// <summary>Asleep: a sleeper at rest, or a creature that keeps hours lying up in its resting time - blind, and hearing less.</summary>
     private bool Asleep(CreatureState c, long tick) =>
-        c.Mind == CreatureMind.Unaware && (c.Role.Unaware == UnawareBehaviour.Sleep || Resting(c.Role, tick));
+        _context.State.Effects.GetValueOrDefault(c.Id, ImmutableArray<ActiveEffect>.Empty).Any(e => e.EffectId == "effect.sleep")
+        || c.Mind == CreatureMind.Unaware && (c.Role.Unaware == UnawareBehaviour.Sleep || Resting(c.Role, tick));
 
     private bool Resting(CreatureRole role, long tick) => role.Rests != RestTime.Never && Setup.Hours is { } hours
         && hours.IsNight(tick) == (role.Rests == RestTime.Night);

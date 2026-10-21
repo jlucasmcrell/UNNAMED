@@ -1,0 +1,13 @@
+id: item.consumable.snarebind_resin
+kind: item
+schema: 1
+display_key: item.consumable.snarebind_resin.name
+tags: [item]
+name: Snarebind Resin
+notes: "Use to coat your blade for about two minutes, replacing its previous coating. Wounding blows deliver the effect. Holds the target's feet for about six seconds; it can still turn and attack within reach. Found among the Sunk Barrow cache's abandoned supplies."
+category: consumable
+stack_max: 3
+weight: 0.15
+value_base: 30
+rarity: common
+use: { effect_ref: effect.coating_root, consume: true }

@@ -1,0 +1,14 @@
+id: effect.coating_root
+kind: effect
+schema: 1
+display_key: effect.coating_root.name
+tags: [effect]
+name: Snarebind Resin Blade
+notes: A blade coating. Replaces the previous coating; wounding blows deliver the existing root effect.
+category: coating
+stack_policy: refresh
+max_stacks: 1
+duration_min: 60.0
+tick_interval_min: 0
+applies_on_hit: effect.root
+dispel_category: none

@@ -709,7 +709,7 @@ internal sealed partial class CombatSystem
             .FirstOrDefault();
         if (nearest is not { } creature)
             return "nothing within reach of the blade";
-        if (!StealthRules.Unaware(creature.Awareness, Setup.Awareness))
+        if (!StealthRules.Unaware(creature.Awareness, Setup.Awareness) && !EffectsOf(creature.Id).Any(e => e.EffectId == "effect.sleep"))
             return "it has noticed you";
         var definition = creature.Definition;
         var defense = new DefenseProfile(definition.MaxHealth, WithBonus(definition.Armor, EffectRules.ArmorBonus(EffectsOf(creature.Id), Setup.Effects)),
@@ -1111,6 +1111,13 @@ internal sealed class StatusEffectSystem : IAbstractAdvance
         if (_context.State.Creatures.Values.FirstOrDefault(c => c.Id == command.Target) is { } creature && definition.ImmuneTags.Overlaps(creature.Definition.Tags))
             return $"{creature.Definition.Id} is immune to {definition.Id}";
         var current = _context.State.Effects.GetValueOrDefault(command.Target, ImmutableArray<ActiveEffect>.Empty);
+        // A blade has one coating: replacing it must not leave delivery dependent on effect ordering.
+        if (definition.AppliesOnHit is not null)
+        {
+            foreach (var old in current.Where(e => e.EffectId != definition.Id && Definitions.GetValueOrDefault(e.EffectId)?.AppliesOnHit is not null))
+                _context.Events.Publish(new EffectExpired(command.Target, old.EffectId, tick));
+            current = current.RemoveAll(e => e.EffectId != definition.Id && Definitions.GetValueOrDefault(e.EffectId)?.AppliesOnHit is not null);
+        }
         var next = EffectRules.Apply(current, definition, tick);
         _context.State.SetEffects(_owner, command.Target, next);
         var applied = next.Single(e => e.EffectId == definition.Id);

@@ -147380,7 +147380,7 @@ containers:
   position_m:
   - 846.5
   - 631.0
-  stack_slots: 8
+  stack_slots: 12
 - key: container.road.wain_load
   loot_ref: loot.wain_load
   position_m:

@@ -36,6 +36,12 @@ public partial class Main
             AddChild(camera);
             source.GetNode<OmniLight3D>("CharacterFill").Reparent(camera, false);
             camera.MakeCurrent();
+            if (System.Environment.GetEnvironmentVariable("OTHERREACH_EFFECT_DELIVERY_REVIEW") == "1")
+            {
+                await RunEffectDeliveryReview(directory, camera);
+                GetTree().Quit();
+                return;
+            }
             if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD5_STEALTH") == "1")
             {
                 await RunRcd5StealthReview(directory, camera);
