@@ -602,7 +602,7 @@ public static class Terrain3DView
     }
 
     /// <summary>
-    /// Beyond the edge (scenery): the ravine on the west, north and east - a sheer drop from the edge to a floor about 32 m down, a gulf,
+    /// Beyond the edge (scenery): the ravine on the west, north and east - a sheer drop from the edge to a floor about 25 m below the den lip, a gulf,
     /// then a far face rising to ridges - and to the south a cliff rising from the edge to hills. Continuous with the domain at the edge.
     /// </summary>
     private static float Outside(GroundField ground, float x, float z, FastNoiseLite noise)
@@ -615,7 +615,7 @@ public static class Terrain3DView
         float n2 = noise.GetNoise2D(x * 3.1f + 500, z * 3.1f - 300);
         // The south side (z below the region) rises; the other three fall into the ravine. Corners blend by direction.
         float south = z < region.Position.Y ? GroundField.SmoothStep(0.2f, 0.8f, (region.Position.Y - z) / MathF.Max(d, 1e-3f)) : 0f;
-        float floor = -31f + n2 * 1.2f;
+        float floor = -17f + n2 * 1.2f;
         float ravine;
         if (d < 2f)
             ravine = edge - d * 0.35f;                                      // a soft lip: the playable edge never meets the sheer drop
