@@ -617,10 +617,10 @@ public static class Terrain3DView
         float south = z < region.Position.Y ? GroundField.SmoothStep(0.2f, 0.8f, (region.Position.Y - z) / MathF.Max(d, 1e-3f)) : 0f;
         float floor = -17f + n2 * 1.2f;
         float ravine;
-        if (d < 2f)
+        if (d < .5f)
             ravine = edge - d * 0.35f;                                      // a soft lip: the playable edge never meets the sheer drop
         else if (d < 8f)
-            ravine = Mathf.Lerp(edge - 0.7f, floor, GroundField.SmoothStep(2f, 8f, d) * 0.7f + (d - 2f) / 6f * 0.3f);
+            ravine = Mathf.Lerp(edge - .175f, floor, GroundField.SmoothStep(.5f, 8f, d) * 0.7f + (d - .5f) / 7.5f * 0.3f);
         else if (d < 26f)
             ravine = floor;
         else if (d < 40f)

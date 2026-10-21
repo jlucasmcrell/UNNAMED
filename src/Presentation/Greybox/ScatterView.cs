@@ -590,7 +590,9 @@ public partial class ScatterView : Node3D
             var b = door.ClosedFootprint;
             Stamp(_box, 3f, Rect(b.MinXMm, b.MinZMm, b.MaxXMm, b.MaxZMm));
         }
-        foreach (var circle in circles)
+        // The authored ward needs bare ground for its runes and captive, including after release.
+        foreach (var circle in circles.Concat(layout.Barriers.Where(b=>b.Key==FoldEcho.Barrier)
+                     .Select(b=>b.Footprint).OfType<CircleBlocker>()))
         {
             var centre = new Vector2(circle.CenterXMm / 1000f, circle.CenterZMm / 1000f);
             Stamp(_circle, 3f, centre, circle.RadiusMm / 1000f);

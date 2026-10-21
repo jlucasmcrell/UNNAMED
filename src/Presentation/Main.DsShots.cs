@@ -12,15 +12,16 @@ public partial class Main
     // Opt-in evidence for the owner's findings 24 (the nameplate), 25 (the torch as a real light) and 29 (the alpha wolf), taken through the
     // running game's normal simulation, camera and HUD. The only things submitted are the same commands the player's own input sends.
     private const string DsShotsOption = "--ds-shots";
-    // Where a capture stands the character: forty metres south-east of the den mouth (spawn.hollow.den_pack at 512, 784 m), outside the
-    // pack's sight so the first frame is of a den that has not noticed him.
-    private static readonly (long X, long Z) DsShotsStart = (536_000, 752_000);
+    // Find the chest torch through a normal loot command, then walk to the den. No starting grant.
+    private static readonly (long X, long Z) DsShotsStart = (438_000, 738_500);
 
     private string? _dsShotsDirectory;
-    private int _dsStep;
+    private int _dsStep = -2;
     private ulong _dsNext;
+    private ulong _dsLast;
+    private double _dsDelta;
+    private readonly Queue<(double X,double Z)> _dsRoute = new();
     private double _dsSettle;
-    private string _dsFrame = "approach";
 
     private void InstallDsShots()
     {
@@ -29,6 +30,8 @@ public partial class Main
         _dsShotsDirectory = Path.GetFullPath(directory);
         Directory.CreateDirectory(_dsShotsDirectory);
         _dsNext = Time.GetTicksMsec() + 3000;
+        _dsLast = _dsNext;
+        _rcd3Driving = true;
         GD.Print("DS_SHOTS installed " + _dsShotsDirectory);
     }
 
@@ -36,6 +39,7 @@ public partial class Main
     {
         if (_dsShotsDirectory is null || Time.GetTicksMsec() < _dsNext)
             return;
+        ulong now=Time.GetTicksMsec();_dsDelta=(now-_dsLast)/1000.0;_dsLast=now;
         try { AdvanceDsShots(); }
         catch (Exception error)
         {
@@ -56,6 +60,29 @@ public partial class Main
 
         switch (_dsStep)
         {
+            case -2:
+            {
+                var box=simulation.Containers.Single(c=>c.Site.Key=="container.waystation_chest");
+                var torch=box.Items.FirstOrDefault(i=>i.DefId=="item.tool.torch")
+                    ?? throw new InvalidOperationException("Chest torch missing");
+                _session.Submit(new MoveItemCommand(simulation.PlayerId,torch.Ref,ItemPlace.In(box.Site.Key),ItemPlace.Carried,1));
+                _dsStep=-1;_dsNext=Time.GetTicksMsec()+200;return;
+            }
+            case -1:
+            {
+                if(!simulation.Player.Inventory.Any(i=>i.DefId=="item.tool.torch"))
+                    throw new InvalidOperationException("Normal chest take was refused");
+                if(_dsRoute.Count==0)
+                {
+                    var goal=new Body(536000,simulation.ActiveLayout.Space.Terrain.HeightAtMm(536000,752000),752000,0);
+                    foreach(var point in Playthrough.WayTo(simulation,player,goal,standOff:0)) _dsRoute.Enqueue(point);
+                }
+                var next=_dsRoute.Peek();
+                var toward=new Vector3((float)(next.X-player.XMm/1000.0),0,(float)(next.Z-player.ZMm/1000.0));
+                if(toward.Length()<.4f) { _dsRoute.Dequeue();if(_dsRoute.Count==0)_dsStep=0; }
+                else _controller.SteerWorld(toward.Normalized(),Gait.Run,_camera);
+                _dsNext=Time.GetTicksMsec()+16;return;
+            }
             // Walk at the den until the alpha is close enough to read, then hold still: the plate is drawn by the normal HUD.
             case 0:
             {
@@ -74,7 +101,7 @@ public partial class Main
                     return;
                 }
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
-                _dsSettle += GetProcessDeltaTime();
+                _dsSettle += _dsDelta;
                 if (_dsSettle < 0.6)
                     return;
                 _dsSettle = 0;
@@ -92,7 +119,7 @@ public partial class Main
                     _dsNext = Time.GetTicksMsec() + 100;
                     return;
                 }
-                _dsSettle += GetProcessDeltaTime();
+                _dsSettle += _dsDelta;
                 if (_dsSettle < 0.6)
                     return;
                 _dsSettle = 0;
@@ -104,7 +131,7 @@ public partial class Main
             // The torch, in the off hand and out of it, from the same framing: the light is the difference.
             case 2:
             {
-                _dsSettle += GetProcessDeltaTime();
+                _dsSettle += _dsDelta;
                 if (_dsSettle < 0.6)
                     return;
                 _dsSettle = 0;
@@ -116,7 +143,7 @@ public partial class Main
             }
             case 3:
             {
-                _dsSettle += GetProcessDeltaTime();
+                _dsSettle += _dsDelta;
                 if (_dsSettle < 1.2)
                     return;
                 _dsSettle = 0;

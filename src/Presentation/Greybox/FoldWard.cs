@@ -7,6 +7,7 @@ namespace UNNAMED.Presentation.Greybox;
 public sealed partial class FoldWard : Node3D
 {
     private ShaderMaterial _wall = null!, _ring = null!;
+    private StandardMaterial3D _crown = null!;
     private float _radius;
     private double _clock, _pulseAt = -10;
     private bool _near, _touch;
@@ -35,6 +36,13 @@ public sealed partial class FoldWard : Node3D
         }
         ward.AddChild(new MeshInstance3D { Name="GroundRuneRing", Mesh=surface.Commit(), MaterialOverride=ward._ring,
             CastShadow=GeometryInstance3D.ShadowCastingSetting.Off,GIMode=GeometryInstance3D.GIModeEnum.Disabled });
+        ward._crown = new StandardMaterial3D { ShadingMode=BaseMaterial3D.ShadingModeEnum.Unshaded,
+            Transparency=BaseMaterial3D.TransparencyEnum.Alpha, AlbedoColor=new Color(.3f,.55f,1,.65f),
+            EmissionEnabled=true,Emission=new Color(.3f,.55f,1),EmissionEnergyMultiplier=1.8f };
+        ward.AddChild(new MeshInstance3D { Name="FoldBoundaryCrown",
+            Mesh=new TorusMesh { InnerRadius=ward._radius-.025f,OuterRadius=ward._radius+.025f,Rings=96,RingSegments=8 },
+            Position=Vector3.Up*(circle.HeightMm/2000f),MaterialOverride=ward._crown,
+            CastShadow=GeometryInstance3D.ShadowCastingSetting.Off,GIMode=GeometryInstance3D.GIModeEnum.Disabled });
         return ward;
     }
 
@@ -51,6 +59,8 @@ public sealed partial class FoldWard : Node3D
         _wall.SetShaderParameter("proximity",proximity);
         _ring.SetShaderParameter("presence",_wall.GetShaderParameter("presence"));
         _ring.SetShaderParameter("reaction",reaction);
+        float presence=_wall.GetShaderParameter("presence").AsSingle();
+        _crown.AlbedoColor=_crown.AlbedoColor with { A=presence*(.55f+.2f*Mathf.Sin((float)_clock*2.5f)+reaction*.2f) };
     }
 
     private const string RingCode = @"
