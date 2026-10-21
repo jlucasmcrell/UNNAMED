@@ -47,7 +47,8 @@ public partial class Main
         }
         foreach (var tree in trees.OrderBy(t => t.GlobalPosition.DistanceSquaredTo(_avatar.GlobalPosition))
             .Take(System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_TREE_SHAPES") == "1"
-                || System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_ROOT_WALK") == "1" ? 0 : 2))
+                || System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_ROOT_WALK") == "1"
+                || System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_SCENERY_ONLY") == "1" ? 0 : 2))
         {
             var bounds = Art.ArtGallery.Bounds(tree);
             var aim = tree.ToGlobal(bounds.GetCenter());
@@ -84,17 +85,52 @@ public partial class Main
             ("old_late_full", At(680,23,790),At(650,25,765)),
             ("old_late_roots",At(666,2,779),At(650,2,765)),
             ("den_gorge",At(535,2,799.5f),At(512,-20,824)),
+            ("den_gorge_floor",At(535,2,799.5f),At(535,-18,817)),
             ("tavar",At(551,2,651),At(545,1,642)) })
         {
             camera.GlobalPosition=shot.Item2;camera.LookAt(shot.Item3);
             _shadowLods.Update(camera.GlobalPosition);
             await Rcd3Wait(.5);await Rcd3Shot(directory,shot.Item1);
-            rows.Add(new { name=shot.Item1, eye=shot.Item2.ToString(), target=shot.Item3.ToString(), npc_suppressed_fixture=true });
+            rows.Add(new { name=shot.Item1, eye=shot.Item2.ToString(), target=shot.Item3.ToString(),
+                npc_suppressed_fixture=_npcs.SuppressPresentationForBenchmark });
         }
+        if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_KEEP_NPCS") == "1")
+            await Rcd4Tavar(directory,camera);
         if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_ROOT_WALK") == "1")
             await Rcd4RootWalk(directory,camera);
         File.WriteAllText(Path.Combine(directory,"world_review.json"),JsonSerializer.Serialize(rows,new JsonSerializerOptions{WriteIndented=true}));
-        File.WriteAllText(Path.Combine(directory,"complete.json"),"{\"fixture\":\"Scenery A/B; NPC presentation suppressed; no world state writes\"}");
+        File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {
+            fixture="Scenery review; no authoritative state writes", npc_suppressed=_npcs.SuppressPresentationForBenchmark }));
+    }
+
+    private async Task Rcd4Tavar(string directory,Camera3D camera)
+    {
+        var simulation=_session.Simulation!;
+        var held=simulation.Npcs.Single(n=>n.Id==Greybox.FoldEcho.Held);
+        var centre=Greybox.HollowView.ToGodot(held.Body.XMm,held.Body.YMm,held.Body.ZMm);
+        foreach(float distance in new[] {20f,10f,5f})
+        {
+            camera.GlobalPosition=centre+new Vector3(distance*.35f,2.5f,distance*.94f);
+            camera.LookAt(centre+Vector3.Up);
+            for(int i=0;i<25;i++) { _npcs.Draw(simulation,.04,_session.TickSeconds); await Rcd3Wait(.04); }
+            _shadowLods.Update(camera.GlobalPosition);
+            await Rcd3Shot(directory,$"tavar_held_{distance:0}m");
+        }
+        var figure=(Player.Figure)_npcs.FigureOf(Greybox.FoldEcho.Held)!;
+        string? heldClip=figure.ClipState;
+        // Explicit presentation-only fixtures of proximity and release. The saved barrier stays closed.
+        _hollow.SetWardPlayer(centre+Vector3.Back*3.5f);await Rcd3Wait(.15);
+        await Rcd3Shot(directory,"tavar_touch_visual_fixture");
+        var released=simulation.Barriers.Select(b=>b.Site.Key==Greybox.FoldEcho.Barrier ? b with {Standing=false} : b).ToArray();
+        _hollow.SetFlags(simulation.Switches,released,inPlay:true);
+        await Rcd3Wait(.8);await Rcd3Shot(directory,"tavar_release_visual_fixture");
+        figure.SetPosture(false,false);
+        for(int i=0;i<35;i++) { figure.Pose(centre,Player.PlayerController.FacingRadians(held.Body.FacingMdeg),0,.04);await Rcd3Wait(.04); }
+        await Rcd3Shot(directory,"tavar_freed_pose_visual_fixture");
+        File.WriteAllText(Path.Combine(directory,"tavar_review.json"),JsonSerializer.Serialize(new {
+            held_clip=heldClip, released_clip=figure.ClipState, barrier_still_standing=simulation.Barriers.Single(b=>b.Site.Key==Greybox.FoldEcho.Barrier).Standing,
+            note="Held views are real NPC state. Touch/release are labelled presentation-only previews; simulation barrier and quest unchanged." }));
+        if(heldClip!="crouch_idle") throw new InvalidOperationException("Tavar captive clip not selected");
     }
 
     private async Task Rcd4RootWalk(string directory,Camera3D camera)

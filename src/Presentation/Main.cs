@@ -509,7 +509,15 @@ public partial class Main : Node3D
         AddChild(_sounds);
         // Phase B: the environmental audio hooks (wind, rain, the river, insects...), silent until their audio exists.
         if (VisualOptions.All.GetValueOrDefault("hooks") == "on" && _ground is not null)
-            AddChild(new Audio.AmbientAudio(_sounds, _ground));
+            AddChild(new Audio.AmbientAudio(_sounds, _ground) { FoldGain = at =>
+            {
+                var simulation = _session.Simulation;
+                var fold = simulation?.Barriers.FirstOrDefault(b => b.Site.Key == FoldEcho.Barrier && b.Standing);
+                if (fold is null || simulation!.ActiveLayout.SpaceId != _session.Setup.Layout.SpaceId) return 0;
+                var (x,z) = Footprints.Center(fold.Site.Footprint);
+                float distance = new Vector2(at.X-x/1000f,at.Z-z/1000f).Length();
+                return Mathf.Clamp(1-(distance-3)/14,0,1);
+            } });
         _soundEvents = new Audio.SoundEvents { Name = "SoundEvents" };
         AddChild(_soundEvents);
         _soundEvents.Bind(_session, _bindings, _sounds, _ground);
@@ -1470,6 +1478,7 @@ public partial class Main : Node3D
             combat.Strain / (double)Math.Max(1, combat.StrainTolerance), delta);
         Probe("magic effects");
         _soundEvents.SetStation(_inventory.OpenStation?.Kind);
+        _hollow.SetWardPlayer(feet);
         _soundEvents.Update(feet, speed, simulation.Posture.Airborne, combat.Strain / (double)Math.Max(1, combat.StrainTolerance),
             _loot.OpenContainer ?? _inventory.OpenContainer, Screen is not null, delta);
         Probe("sound events");

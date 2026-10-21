@@ -37,6 +37,7 @@ public partial class AmbientAudio : Node
     private readonly GroundField _ground;
     private readonly RandomNumberGenerator _random = new() { Seed = 0x50A1D };
     private double _clock;
+    public Func<Vector3, float>? FoldGain { get; init; }
 
     /// <summary>The hooks whose audio is not in the sound set yet (hook: audio ID).</summary>
     public IReadOnlyList<string> Awaiting { get; }
@@ -93,13 +94,21 @@ public partial class AmbientAudio : Node
             bool on = (hook.Weathers is null || hook.Weathers.Contains(weather)) && !(hook.DayOnly && !day) && !(hook.NightOnly && day)
                       && (hook.Grounds is null || OnGround(at, hook.Grounds)) && (hook.NearRavine <= 0 || RavineDistance(at) <= hook.NearRavine);
             float gain = hook.Gain * (hook.ByWind ? Math.Clamp(WindField.Strength * 1.6f, 0f, 1f) : 1f);
+            if (hook.Name == "anomaly_fold" && FoldGain is not null)
+            {
+                // The ward's existing loop belongs to its barrier, not every muddy patch.
+                gain *= FoldGain(at);
+                on = gain > 0;
+                gain *= .85f + .15f * Mathf.Sin((float)_clock * 2.5f);
+            }
             if (hook.Loop)
             {
                 hook.Player ??= _bank.Loop(hook.Id);
                 if (hook.Player is null)
                     continue;
                 float current = Mathf.DbToLinear(hook.Player.VolumeDb);
-                hook.Player.VolumeDb = Mathf.LinearToDb(Math.Max(0.0001f, Mathf.MoveToward(current, on ? gain : 0f, (float)delta * 0.4f)));
+                hook.Player.VolumeDb = Mathf.LinearToDb(Math.Max(0.0001f, hook.Name == "anomaly_fold" && !on ? 0f
+                    : Mathf.MoveToward(current, on ? gain : 0f, (float)delta * 0.4f)));
             }
             else if (on && _clock >= hook.Next)
             {

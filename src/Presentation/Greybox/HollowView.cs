@@ -302,6 +302,8 @@ public partial class HollowView : Node3D
     }
 
     private FoldscarRegister? _register;
+    private FoldWard? _ward;
+    public void SetWardPlayer(Vector3 feet) { if (_ward is not null) _ward.PlayerFeet = feet; }
 
     public bool DebugVisible
     {
@@ -783,11 +785,18 @@ public partial class HollowView : Node3D
         {
             Name = barrier.Key,
             Mesh = mesh,
-            MaterialOverride = VisualOptions.Foldscar == "proof" ? Palette.FoldscarFold : Palette.FoldscarBarrier,
+            MaterialOverride = barrier.Key == FoldEcho.Barrier || VisualOptions.Foldscar == "proof" ? Palette.FoldscarFold : Palette.FoldscarBarrier,
             Position = new Vector3(x / 1000f, terrain.HeightAtMm(x, z) / 1000f + height / 2, z / 1000f),
+            CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+            GIMode = GeometryInstance3D.GIModeEnum.Disabled,
         };
         _barriers[barrier.Key] = node;
         _register?.AddFold(barrier, node);
+        if (barrier.Key == FoldEcho.Barrier && barrier.Footprint is CircleBlocker wardCircle)
+        {
+            _ward = FoldWard.Build(node, wardCircle, terrain);
+            node.AddChild(_ward);
+        }
         return node;
     }
 

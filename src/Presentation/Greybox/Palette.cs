@@ -121,6 +121,8 @@ uniform sampler2D screen_tex : hint_screen_texture, filter_linear_mipmap;
 uniform float height_m = 2.6;
 uniform float warp_amount = 0.010;
 uniform float doubling = 0.010;
+uniform float reaction = 0.0;
+uniform float proximity = 0.0;
 // The Phase B VFX lane's release (FoldscarRegister): the doubled view closing into register, then the whole thinning away.
 uniform float in_register = 0.0;
 uniform float presence = 1.0;
@@ -167,8 +169,11 @@ void fragment() {
     float edge = pow(1.0 - facing, 2.2);
     float contact = 1.0 - smoothstep(0.01, 0.035, h);
     colour = mix(colour, vec3(0.50, 0.57, 0.80), clamp(edge * 0.65 + contact * 0.55, 0.0, 0.7));
-    ALBEDO = colour;
-    ALPHA = clamp(body * top * foot * held + (edge * 0.35 * foot + contact * 0.20 + motes * 0.35 * foot) * top, 0.0, 1.0) * presence;
+    float pulse = .75 + .25 * sin(TIME * 2.5 - h * 5.0);
+    float bands = pow(.5 + .5 * sin(h * 28.0 - TIME * .7 + ragged * 3.0), 12.0);
+    vec3 light = vec3(.33,.53,.95) * (edge * .75 + contact * 1.5 + motes + bands * .18) * (pulse + reaction * 1.8 + proximity * .25);
+    ALBEDO = colour + light;
+    ALPHA = clamp(body * top * foot * held * .38 + (edge * .65 * foot + contact * .65 + motes * .6 * foot + bands * .10 * foot) * top + reaction * .16 * top * foot, 0.0, .85) * presence;
 }
 ",
         },

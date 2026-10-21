@@ -119,7 +119,9 @@ public partial class NpcsView : Node3D
             float speed = gait.Speed;
             figure.SetStance(CombatStance.AtRest);
             figure.SetIdleRole(npc.Role);
-            figure.SetTalking(npc.Talking);
+            bool held = npc.Id == FoldEcho.Held && simulation.Barriers.Any(b => b.Site.Key == FoldEcho.Barrier && b.Standing);
+            figure.SetPosture(held, false);
+            figure.SetTalking(npc.Talking && !held);
             figure.Say(simulation.Conversation is { } talk && talk.NpcId == npc.Id ? talk.Text : Bark(simulation, npc, figure, feet, delta));
             figure.Pose(feet, PlayerController.FacingRadians(npc.Body.FacingMdeg), speed, delta);
             figure.SetGaze(feet.DistanceSquaredTo(PlayerHead.GlobalPosition) < 64 ? PlayerHead.GlobalPosition : null);
