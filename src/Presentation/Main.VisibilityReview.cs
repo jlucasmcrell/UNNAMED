@@ -11,7 +11,6 @@ public partial class Main
     {
         // Use the real gameplay camera, spring arm and shadow/cell updates.
         diagnostic.GetNode<OmniLight3D>("CharacterFill").Reparent(_camera.Camera, false);
-        diagnostic.QueueFree();
         var camera = _camera.Camera;camera.MakeCurrent();
         _rcd3Driving = true;
         _camera.TargetDistance = 3.5f;_camera.Pitch = -.18f;
@@ -26,7 +25,8 @@ public partial class Main
         if(System.Environment.GetEnvironmentVariable("OTHERREACH_VISIBILITY_MOTION_ONLY")=="1")
         {
             await Rcd6MotionCullingGate(directory,camera);
-            var faces=Path.Combine(directory,"hair_faces");Directory.CreateDirectory(faces);await RunRcd6NamedFacesReview(faces,camera);
+            camera.GetNode<OmniLight3D>("CharacterFill").Reparent(diagnostic,false);diagnostic.MakeCurrent();
+            var faces=Path.Combine(directory,"hair_faces");Directory.CreateDirectory(faces);await RunRcd6NamedFacesReview(faces,diagnostic);
             File.WriteAllText(Path.Combine(directory,"complete.json"),"{\"status\":\"MOTION_DIAGNOSTIC_REQUIRES_REVIEW\"}");return;
         }
         var allGeometry = new Node[] { _hollow, _scatter }.SelectMany(n => n.FindChildren("*", nameof(GeometryInstance3D), true, false))
@@ -174,7 +174,7 @@ public partial class Main
         {
             viewport.UseOcclusionCulling=culling;
             for(int i=0;i<occluders.Length;i++)occluders[i].Visible=culling&&enabled[i];
-            _camera.Yaw=0;await Rcd3Wait(.6);
+            _camera.Yaw=0;for(int warm=0;warm<12;warm++)await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
             for(int i=0;i<60;i++)
             {
                 _camera.Yaw=i*Mathf.Tau/60;
