@@ -3653,6 +3653,23 @@
     "model": "prop_bp_haversack"
   },
   "creatures": {
+    "creature.beast.hound_pup": {
+      "model": "creature_wm_ember_hound",
+      "clips": "creature.creature_wm_ember_hound",
+      "voice": "grey_wolf",
+      "flesh": "flesh",
+      "steps": {
+        "walk": "walk",
+        "run": "run"
+      },
+      "otherfauna": {
+        "scale": [
+          0.42,
+          0.5
+        ]
+      },
+      "note": "A pup of the Ashen Hollow hound until a young model exists: the ember hound drawn at 0.42-0.5 of its size, so the animal bought off Kera's shelf is a body at heel rather than a greybox slab hidden by the grass (spec 43)."
+    },
     "creature.beast.wolf_grey": {
       "model": "creature_wm_grey_wolf_b",
       "clips": "creature.creature_wm_grey_wolf_b",
