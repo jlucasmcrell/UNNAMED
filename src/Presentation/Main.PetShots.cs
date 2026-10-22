@@ -127,16 +127,16 @@ public partial class Main
                 // The stall, and the hound on the shelf: the reliable route of spec 43. The walk is over the region's own navigation - the
                 // road between the wain and the hollow bends, and a straight line to it walks into the Foldscar.
                 var kera = simulation.Npcs.First(n => n.Id == Kera);
-                // Kera works her anvil inside the forge shed, and its door is shut at the start of a world: the navigation cannot route through a
-                // shut door, and the shed's other three sides are wall. The way in is the door itself - waited at from outside, opened, and only
-                // then is she a walk away (Playthrough.ToTheForgeDoor brings a character along the road to this same spot).
-                if (simulation.Doors.FirstOrDefault(d => d.Site.Key == "door.forge_shed") is { Open: false })
+                // She works inside a building, and a shut door is a wall to the navigation: the way in is the door nearest her own body - waited
+                // at from outside, opened, and only then is she a walk away.
+                if (simulation.Doors.OrderBy(d => DoorGap(d, kera.Body)).FirstOrDefault(d => !d.Open) is { } door)
                 {
-                    await GoTo(new Body(451_800, kera.Body.YMm, 741_200, 0), 1.4, 180);
-                    _controller.Interact("door.forge_shed");
+                    var box = door.Site.ClosedFootprint;
+                    await ApproachPoint((box.MinXMm + box.MaxXMm) / 2000.0, (box.MinZMm + box.MaxZMm) / 2000.0, 1.3, 150);
+                    _controller.Interact(door.Site.Key);
                     await Rcd3Wait(1.0);
-                    GD.Print($"PET_SHOTS forge door: open {simulation.Doors.First(d => d.Site.Key == "door.forge_shed").Open}, " +
-                        $"{PetWhere(simulation)}");
+                    GD.Print($"PET_SHOTS door {door.Site.Key} (nearest to her): open " +
+                        $"{simulation.Doors.First(d => d.Site.Key == door.Site.Key).Open}, {PetWhere(simulation)}");
                 }
                 await GoTo(kera.Body, 1.0, 300);
                 await Rcd3Shot(_petShotsDirectory!, "pets_hollow");
@@ -343,6 +343,14 @@ public partial class Main
             _inventory.OpenTrade(Kera);
         GD.Print($"PET_SHOTS stall: talk reach {_controller.InTalkReach(simulation.Npcs.First(n => n.Id == Kera))}, " +
             $"wares {simulation.Wares(Kera)?.Wares.Length ?? 0}, panel {_inventory.OpenTrader ?? "shut"}");
+    }
+
+    /// <summary>How far a door stands from a body, measured from the middle of the door it shuts.</summary>
+    private static double DoorGap(UNNAMED.World.Runtime.DoorView door, Body body)
+    {
+        var box = door.Site.ClosedFootprint;
+        double x = (box.MinXMm + box.MaxXMm) / 2.0, z = (box.MinZMm + box.MaxZMm) / 2.0;
+        return Math.Sqrt(Math.Pow(x - body.XMm, 2) + Math.Pow(z - body.ZMm, 2));
     }
 
     /// <summary>What Kera asks for the pup, or null when her shelf has none.</summary>
