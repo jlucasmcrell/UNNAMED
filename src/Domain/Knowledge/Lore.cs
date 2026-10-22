@@ -1,4 +1,4 @@
-// UNNAMED Domain - lore: what the character has come to know, and the pages a thing is known by (spec 41; MAPS_CARTOGRAPHY_AND_WORLD_KNOWLEDGE.md Â§3)
+﻿// UNNAMED Domain - lore: what the character has come to know, and the pages a thing is known by (spec 41; MAPS_CARTOGRAPHY_AND_WORLD_KNOWLEDGE.md Ã‚Â§3)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -6,7 +6,7 @@ using UNNAMED.Domain;
 
 namespace UNNAMED.Domain.Knowledge;
 
-/// <summary>The journal's headings: what a page can be about (spec 41 Â§3).</summary>
+/// <summary>The journal's headings: what a page can be about (spec 41 Ã‚Â§3).</summary>
 public enum LoreCategory
 {
     Places,
@@ -44,7 +44,7 @@ public static class LoreCategories
 }
 
 /// <summary>
-/// How a page is learnt (spec 41 Â§2): a place walked into, an object read, an NPC asked, a quest finished, or a creature met. The kind is
+/// How a page is learnt (spec 41 Ã‚Â§2): a place walked into, an object read, an NPC asked, a quest finished, or a creature met. The kind is
 /// the way the world reports it; <see cref="LoreSource.Ref"/> is what it names - a location's ID, a readable's key, the dialogue's ID,
 /// a quest's ID, or a creature's definition ID.
 /// </summary>
@@ -90,7 +90,8 @@ public sealed record LorePageDefinition(int Page, string Text, ImmutableArray<Lo
 /// A lore entry (content kind <c>lore</c>): one thing the character can come to know about, under one heading, in pages that are found one
 /// at a time. An entry's page count is what the journal's "Old Late 1/3" counts, so a page nobody has found is still a hint that there is more.
 /// </summary>
-public sealed record LoreEntryDefinition(string Id, string Title, LoreCategory Category, ImmutableArray<LorePageDefinition> Pages)
+public sealed record LoreEntryDefinition(string Id, string Title, LoreCategory Category, ImmutableArray<LorePageDefinition> Pages,
+    string Plate = "")
 {
     public int PageCount => Pages.Length;
 
@@ -109,7 +110,7 @@ public sealed record LorePageRecord(string EntryId, int Page, LoreSourceKind Sou
 
 public static class LoreRules
 {
-    /// <summary>The page a page of prose must be within, in words, so a page fits the reading panel (spec 41 Â§1: 60-150).</summary>
+    /// <summary>The page a page of prose must be within, in words, so a page fits the reading panel (spec 41 Ã‚Â§1: 60-150).</summary>
     public const int MinWords = 40;
     public const int MaxWords = 190;
 
@@ -178,6 +179,18 @@ public static class LoreRules
         var entry = entries.Values.FirstOrDefault(e =>
             e.Pages.Any(p => p.Sources.Any(s => s.Kind == LoreSourceKind.Studied && s.Ref == creatureId)));
         return entry is null ? "" : Opening(entry, pages.Where(r => r.EntryId == entry.Id).ToList());
+    }
+
+    /// <summary>
+    /// The one line a hunter can act on about a beast whose page is known: its entry's plate line, and nothing at all when no page of it is
+    /// known. The line is authored per beast, not cut from a page - a page is prose and a plate is a tactic (spec 41, owner ruling 2026-10-22).
+    /// </summary>
+    public static string Plate(ImmutableSortedDictionary<string, LoreEntryDefinition> entries, ImmutableArray<LorePageRecord> pages,
+        string creatureId)
+    {
+        var entry = entries.Values.FirstOrDefault(e =>
+            e.Pages.Any(p => p.Sources.Any(s => s.Kind == LoreSourceKind.Studied && s.Ref == creatureId)));
+        return entry is null || pages.All(r => r.EntryId != entry.Id) ? "" : entry.Plate;
     }
 
     /// <summary>The opening of the most recently found page: what a character has to read when the day stops.</summary>

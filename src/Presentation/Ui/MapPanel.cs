@@ -196,9 +196,10 @@ public partial class MapPanel : CanvasLayer
                 DrawRect(new Rect2(at - new Vector2(2.5f, 2.5f), new Vector2(5, 5)), HudStyle.Bone);
                 Label(at, name.ToUpperInvariant(), HudStyle.Bone);
                 // The note is what the journal holds about the place: its entry and how much of it is known (spec 41, map notes). It sits a
-                // line below the name, clear of the name's own box, because a label that overlaps one already drawn is dropped.
+                // line below and clear of the pin, because the character's own arrow stands on the pin and the label drawer drops any label
+                // that overlaps one already drawn.
                 if (_notes.TryGetValue(place.LocationId, out string? note))
-                    Label(at + new Vector2(0, 26), note, HudStyle.Ash);
+                    Label(at + new Vector2(20, 26), note, HudStyle.Ash);
             }
 
             // Where the character stands, and which way they face (0 is north, +Z; clockwise towards east, +X).

@@ -1,26 +1,27 @@
-id: lore.barrowback
+﻿id: lore.barrowback
 kind: lore
 schema: 1
 display_key: lore.barrowback.title
 tags: [lore, creatures]
 title: The Barrowback
 category: creatures
+plate: "Passive until struck; then the herd is one animal. Break from the herd or be trampled."
 notes: "Written from content/creatures/grazer/barrowback.yaml (tusked, shaggy, about 3.6 m at the withers, fold bleed, met near the Foldscar and nowhere else, passive but the herd defends as one, slow to turn, a real fight and a month of meat) and content/loot/barrowback.yaml and content/items/material/barrowback_hide.yaml (more meat than one person can carry, the fleece, nobody has worked one, Durn pays anyway). In-world, both pages are what studying the beast teaches (creature.grazer.barrowback). Page 3 is the two records of the first grazer (readable.barrowback_ii)."
 pages:
   - page: 1
     text: >
-      The barrowback is the great grazer of the Foldscar's edge, and it is not found anywhere else in the country —
+      The barrowback is the great grazer of the Foldscar's edge, and it is not found anywhere else in the country â€”
       a fold-bleed beast, tusked and shaggy, that stands near four metres at the shoulder, its hide a mat of fleece
       over something like bark. It is a grazer and wants no quarrel, and it will let a person pass; the danger is
       the herd, because when one of them is struck the herd answers as one, and a barrowback brought down is a real
-      fight before it is anything else. It cannot turn quickly, which is the whole of the trick — a hunter gets
+      fight before it is anything else. It cannot turn quickly, which is the whole of the trick â€” a hunter gets
       round it and keeps round it, and does not stand where a tusk sweep or a charge has room to land.
     sources:
       - { how: studied, ref: creature.grazer.barrowback }
   - page: 2
     text: >
       What a barrowback is worth, to anyone with the nerve to try it. Brought down, it is more meat than one person
-      can carry — a month of it, by the way the road reckons — and its back carries a fleece and hide the tanners of
+      can carry â€” a month of it, by the way the road reckons â€” and its back carries a fleece and hide the tanners of
       both settlements have not yet learned to work; Durn Skell pays for the hide anyway, because a thing that big
       and that scarce is worth keeping against the day somebody works out how to cut it. The hide alone is heavy
       work to carry and heavier to cure. No one hunts a barrowback for the joy of it. The herd decides whether you

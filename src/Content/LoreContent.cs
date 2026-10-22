@@ -118,7 +118,24 @@ public static class LoreContent
             throw new FormatException($"{id} has no pages");
         if (!pages.Select(p => p.Page).OrderBy(p => p).SequenceEqual(Enumerable.Range(1, pages.Count)))
             throw new FormatException($"{id} numbers its pages {string.Join(", ", pages.Select(p => p.Page))}; they must run 1 to {pages.Count}");
-        return new LoreEntryDefinition(id, title, category, pages.OrderBy(p => p.Page).ToImmutableArray());
+        return new LoreEntryDefinition(id, title, category, pages.OrderBy(p => p.Page).ToImmutableArray(), Plate(id, map));
+    }
+
+    /// <summary>
+    /// The one line the target plate says about a beast: a tactic or a weakness a hunter can act on, in the world's voice, ninety characters at
+    /// most (spec 41, owner ruling 2026-10-22). An entry with no plate line has nothing to say when its beast is in front of the character.
+    /// </summary>
+    private static string Plate(string id, Dictionary<object, object> map)
+    {
+        // Optional: an entry with no plate line simply has nothing to say when its beast is in front of the character.
+        string plate = map.GetValueOrDefault("plate") is string raw ? raw.Trim() : "";
+        if (plate.Length == 0)
+            return "";
+        if (plate.Length > 90)
+            throw new FormatException($"{id} plate is {plate.Length} characters; the plate holds ninety");
+        if (LoreRules.Leak(plate) is { } leaked)
+            throw new FormatException($"{id} plate reads '{leaked}', which is the trade's word and not the world's");
+        return plate;
     }
 
     /// <summary>That what a page names is a thing this pack has, so a page cannot be authored against nothing.</summary>

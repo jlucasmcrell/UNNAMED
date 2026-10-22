@@ -5,6 +5,7 @@ display_key: lore.fellhorn.title
 tags: [lore, creatures]
 title: The Fellhorn
 category: creatures
+plate: "Passive, and stands with the herd. Hurt it badly and it breaks â€” that is the way in."
 notes: "Written from content/creatures/grazer/fellhorn.yaml (humped, horned, about 1.9 m, fold bleed like the barrowback, in a herd of its own on the high ground north of the Foldscar, passive, stands with the herd when one is struck, breaks when badly hurt) and content/loot/fellhorn.yaml and content/items/material/fellhorn_hide.yaml (meat and hide). In-world, both pages are what studying the beast teaches (creature.grazer.fellhorn). Page 3 is the fold-bleed note (readable.fellhorn_ii)."
 pages:
   - page: 1
