@@ -1720,7 +1720,7 @@ public partial class Main : Node3D
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
-                    or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots"
+                    or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"
                     or "--anim-person" or "--anim-compare" or "--anim-phase"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
