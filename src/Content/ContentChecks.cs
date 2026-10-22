@@ -304,7 +304,9 @@ internal static class PhaseOneSchemas
         f.Number("pools.focus", required: false, min: 0);
         f.KeysOf("attributes", Attributes);
         f.OneOf("tier_hint", Tiers, required: false);
-        f.Require(f.Text("tameable") is null or "false", "tameable", "taming is deferred: false everywhere in Phase 1-2");
+        // Spec 43: a kind can be tamed out of the wild. The flag is a plain yes or no, and PET001 holds the rest - a tameable body
+        // names the pet it becomes and what it takes.
+        f.Require(f.Text("tameable") is null or "true" or "false", "tameable", "tameable is true or false");
     }
 
     /// <summary>Typed reads of one definition's fields that report what is wrong where it is wrong.</summary>

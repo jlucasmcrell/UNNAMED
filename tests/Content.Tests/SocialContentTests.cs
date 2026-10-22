@@ -257,7 +257,7 @@ public class SocialContentTests
         Assert.Empty(loader.Errors);
         var rules = SocialContent.BuildPartyRules(loader)!;
 
-        Assert.Equal((3, 1, 2, 4, 1, 30), (rules.MaxMembers, rules.GraceDays, rules.GraveWoundDaysMin, rules.GraveWoundDaysMax, rules.ContractDaysMin, rules.ContractDaysMax));
+        Assert.Equal((4, 1, 2, 4, 1, 30), (rules.MaxMembers, rules.GraceDays, rules.GraveWoundDaysMin, rules.GraveWoundDaysMax, rules.ContractDaysMin, rules.ContractDaysMax));
         Assert.Equal(new[] { HirelingRole.Guard, HirelingRole.Porter, HirelingRole.Gatherer, HirelingRole.Crafter }, rules.Roles.Keys);
         Assert.All(rules.Roles.Values, t => Assert.InRange(t.DailyWage, 4, 8));   // DN11's first proposal
         Assert.Equal(new RoleTerms(4, 30_000, 0, 0, CompanionStance.Passive), rules.Roles[HirelingRole.Porter]);

@@ -1,0 +1,38 @@
+id: config.pets
+kind: config
+schema: 1
+display_key: config.pets.name
+tags: [config]
+notes: >-
+  Pets (spec 43, owner rulings 2026-10-21): an animal taken out of the wild with the right food and a steady approach, or raised
+  from a pup, which fights beside the character, takes orders, and learns its own skills by use. It is never killed: at no health
+  it goes home badly wounded, mends, and is collected again. The party cap is deliberately NOT here - config.party's max_members
+  is the one number, and a pet and a companion take the same slot (owner ruling 2). Encounter scaling (ruling 5) is here because
+  the party it scales encounters to is the party the pets are in. Every number is provisional, for playtests to tune.
+tame:
+  base_percent: 15             # the odds before anything else is counted
+  per_handling_level: 4        # points per level of the Handling skill, which levels with use
+  unnoticed_percent: 20        # the approach worked: it never knew
+  wounded_percent: 15          # under half health: weaker, and slower to run
+  over_level_percent: -15      # per level the creature has over the character (a tameable at or below, per spec)
+  max_percent: 90              # a wild thing is never certain
+  channel_s: 2.5               # the hold-to-calm offer: damage or being spotted breaks it
+  temperament_percent:         # the animal's own nature, named on its creature's pet block
+    wary: 0
+    bold: -10
+    skittish: 15
+skills:
+  level_uses: [3, 8, 15]       # a pet's own skill reaches 2, 3 and 4 at these uses; the ladder ends at 4
+lure:
+  radius_m: 12                 # the creature is drawn from inside this of the pet
+  travel_m: 18                 # and led no further than this from where it stood
+  resist_per_level: 6          # percent a creature's own level takes off the lure
+  min_percent: 20              # a lure can always fail, and never certainly does
+  immunity_s: 90               # one that has been led ignores the next lure for this long (enemies learn)
+retire:
+  wound_days_min: 1            # owner ruling 1: badly wounded, home to mend, collected again
+  wound_days_max: 2
+encounter:
+  percent_per_point: 15        # per point of party worth (a follower is one, each level past the first a quarter)
+  max_percent: 165             # so a full party of four meets up to 165% of the authored fight
+  level_per_percent: 0.035     # and a level per 28 points over the authored one
