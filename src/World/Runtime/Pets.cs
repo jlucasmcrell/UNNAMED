@@ -362,11 +362,17 @@ internal sealed partial class PetSystem : IAbstractAdvance
             return "no such pet";
         if (!pet.Up)
             return $"{pet.Name} is not here to feed";
+        // It eats from the hand: at the character's side, the same reach an offer needs. A pet that has wandered or been left on guard is called
+        // back first.
+        if (Distance(State.Body, pet.Body) > OfferReachMm)
+            return $"{pet.Name} is too far to feed: call it to you first";
         if (State.Inventory.FirstOrDefault(e => e.ItemId == command.Item) is not { } entry)
             return "you are not carrying that";
         if (!pet.Species.Eats(entry.DefId))
             return $"{pet.Name} will not eat that";
         int bond = Math.Min(PetBond.Max, pet.Bond + 3);
+        // The food goes down the animal, not into the pack: an item that is eaten is eaten (the same rule as an offer's).
+        _context.Dispatch(new ConsumeItem(entry.DefId, 1));
         State.SetPet(_owner, pet with { Bond = bond, LastFedTick = tick });
         _context.Events.Publish(new PetFed(pet.Id, bond, tick));
         return null;

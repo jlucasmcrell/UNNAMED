@@ -131,9 +131,20 @@ public partial class Main
             }
             case 3:
             {
-                // Back to the character, then one of them pulled out of the pack: the pet takes one creature and brings it.
-                OrderPet(PetOrder.Follow);
-                await Rcd3Wait(4.0);
+                // The lure: the pet is sent to a place near the pack and draws one creature out of it - the control skill doing the work a
+                // fight would otherwise cost.
+                OpenPetOrders();
+                await Rcd3Wait(0.8);
+                OrderPet(PetOrder.LureToHere);
+                await Rcd3Wait(10.0);
+                await Rcd3Shot(_petShotsDirectory!, "pets_lure");
+                PetEvidence("lure", string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Doing}, {p.Standing}")) +
+                    $" | engaged: {simulation.Creatures.Count(c => c.Hostile)}");
+                break;
+            }
+            case 4:
+            {
+                // One pulled out of the pack: the pet takes one creature and brings it back to the character.
                 OpenPetOrders();
                 await Rcd3Wait(0.8);
                 OrderPet(PetOrder.Pull);
@@ -144,18 +155,31 @@ public partial class Main
                     $" | creatures engaged: {simulation.Creatures.Count(c => c.Hostile)}");
                 break;
             }
-            case 4:
+            case 5:
             {
-                // The fight it pulled: the animal bites what is fighting the party, and is bitten back for it. A pet is never killed - at no
-                // health it goes home badly wounded (owner ruling 1), and the HUD says for how long.
-                for (int swing = 0; swing < 40 && simulation.Creatures.Any(c => c.Hostile); swing++)
+                // The fight: the animal bites what is fighting the party and is bitten back. A pet is never killed - at no health it goes home
+                // badly wounded (owner ruling 1) and the HUD says for how long.
+                for (int round = 0; round < 60 && simulation.Pets.Any(p => p.Condition == PetCondition.Up); round++)
                 {
-                    _controller.Attack();
-                    await Rcd3Wait(0.7);
+                    if (simulation.Creatures.Any(c => c.Hostile))
+                        _controller.Attack();
+                    await Rcd3Wait(0.6);
                 }
                 await Rcd3Wait(2.0);
-                await Rcd3Shot(_petShotsDirectory!, "pets_fight");
+                await Rcd3Shot(_petShotsDirectory!, "pets_wounded_home");
                 PetEvidence("fight", string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Doing}, {p.Standing} {p.Health}/{p.MaxHealth}")));
+                break;
+            }
+            case 6:
+            {
+                // Home badly wounded: the record stays and the days are counted, not a death (owner ruling 1). The character is told where it is
+                // and when it can be collected.
+                var home = simulation.Pets.FirstOrDefault(p => p.Condition == PetCondition.Wounded);
+                PetEvidence("wounded home", home is null
+                    ? "no animal was wounded in this pass"
+                    : $"{home.Name}: {home.Standing}, home until tick {home.HomeUntilTick}, strength {simulation.PartyStrength}");
+                await Rcd3Wait(2.0);
+                await Rcd3Shot(_petShotsDirectory!, "pets_after_the_fight");
                 break;
             }
             default:

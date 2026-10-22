@@ -164,6 +164,40 @@ public class PetTests
     }
 
     [Fact]
+    public void FeedingAnAnimalAtTheCharactersSide_CostsTheFood_AndBuildsTheBond()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var pet = Hound(70.0, 152.0);
+        var arena = ArenaWith(session, r => r
+            .WithPets(ImmutableArray.Create(pet))
+            .WithInventory(r.Inventory.Add(Arena.Stack(Meat, 2)).Add(Arena.Stack("item.material.iron_ore", 1))));
+        var fed = arena.Record<PetFed>();
+        var meat = arena.Simulation.Player.Inventory.First(e => e.DefId == Meat);
+
+        Assert.Null(arena.Submit(new FeedPetCommand(arena.Player, pet.Id, meat.ItemId)));
+        var once = arena.Simulation.Pets.Single();
+        Assert.Equal(PetBond.Tamed + 3, once.Bond);
+        // The food is eaten, not put back: it came out of the pack (the bug Codex found - the bond rose and the meat stayed).
+        Assert.Equal(1, arena.Simulation.Player.Inventory.First(e => e.DefId == Meat).Count);
+        Assert.Single(fed);
+
+        // What it will not eat is refused, and the pack is untouched for it.
+        var ore = arena.Simulation.Player.Inventory.First(e => e.DefId == "item.material.iron_ore");
+        Assert.Contains("will not eat", arena.Submit(new FeedPetCommand(arena.Player, pet.Id, ore.ItemId)));
+        Assert.Equal(1, arena.Simulation.Player.Inventory.First(e => e.DefId == "item.material.iron_ore").Count);
+
+        // Out of reach is out of reach: it eats from the hand, so a pet left on guard is called back first.
+        var far = Hound(700.0, 1_000.0);
+        var distant = ArenaWith(session, r => r
+            .WithPets(ImmutableArray.Create(far))
+            .WithInventory(r.Inventory.Add(Arena.Stack(Meat, 1))));
+        var carried = distant.Simulation.Player.Inventory.First(e => e.DefId == Meat);
+        Assert.Contains("too far", distant.Submit(new FeedPetCommand(distant.Player, far.Id, carried.ItemId)));
+        Assert.Equal(1, distant.Simulation.Player.Inventory.First(e => e.DefId == Meat).Count);
+    }
+
+    [Fact]
     public void APetThatFights_IsStruckBack_AndAtNoHealthGoesHomeRatherThanDying()
     {
         using var profile = new TempProfile();
