@@ -18,6 +18,7 @@ public class PetTests
     private const string Wolf = "creature.beast.wolf_grey";
     private const string Pup = "creature.beast.hound_pup";
     private const string Meat = "item.material.raw_meat";
+    private const string Kera = "npc.ashen_hollow.kera_voss";
 
     /// <summary>An open stretch east of the smithy, clear of everything (the companion tests' own ground).</summary>
     private static readonly (double X, double Z) Open = (70, 152);
@@ -119,6 +120,41 @@ public class PetTests
         // The lead is not carried any more, and the bond a pup is raised with is a different animal from one taken off the hill.
         Assert.DoesNotContain(arena.Simulation.Player.Inventory, e => e.DefId == "item.misc.hound_pup");
         Assert.Equal(PetBond.Tamed, pet.Bond);
+    }
+
+    [Fact]
+    public void ThePup_IsBoughtOffKerasShelf_WithWhatTheRoadGave()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        // The reliable route of spec 43 has to be open on the first evening: a character carrying only the overturned wain's load walks to
+        // the stall, sells it, and buys the pup. Kera trades at her own anchor in her own hours (routine.ashen_hollow.kera_voss), so the walk
+        // matters as much as the prices.
+        var arena = Arena.OpenCreatures(session, session.Setup, (61.6, 139.6), 0, Array.Empty<(string, double, double, string)>(),
+            r => r.WithInventory(r.Inventory.Add(Arena.Stack("item.material.timber", 6)).Add(Arena.Stack("item.material.small_hide", 2))));
+        Assert.True(arena.WalkTo(61.6, 139.6), "the character could not walk to the stall");
+        Assert.Null(arena.Simulation.TradeRefusal(Kera));
+
+        // What she buys is what the pup is bought with: the load's hides and the character's own salve. Timber is worth nothing to her (two
+        // coin at the forty percent a merchant pays) and the water flask is a tool, which she does not buy at all. What is asserted is that a
+        // first-evening character CAN buy it - which is what makes spec 43's reliable route reliable.
+        var refusals = new List<string>();
+        foreach (var entry in arena.Simulation.Player.Inventory
+                     .Where(e => e.DefId is "item.material.small_hide" or "item.consumable.salve_minor").ToArray())
+            if (arena.Submit(new SellCommand(arena.Player, Kera, entry.ItemId, entry.Count)) is { } why)
+                refusals.Add($"{entry.DefId} x{entry.Count}: {why}");
+        Assert.True(refusals.Count == 0, string.Join(" | ", refusals) + $" (purse {arena.Simulation.Player.Currency})");
+        Assert.Equal(11, arena.Simulation.Player.Currency);
+        Assert.True(arena.Simulation.Wares(Kera)!.Purse is >= 11, $"her purse is {arena.Simulation.Wares(Kera)!.Purse}");
+
+        var pup = Assert.Single(arena.Simulation.Wares(Kera)!.Wares.Where(w => w.ItemId == "item.misc.hound_pup"));
+        Assert.True(arena.Simulation.Player.Currency >= pup.Price,
+            $"the load sold for {arena.Simulation.Player.Currency}, the pup asks {pup.Price}");
+        Assert.Null(arena.Submit(new BuyCommand(arena.Player, Kera, pup.Ref, 1)));
+        // And it is the character's to take in.
+        var lead = Assert.Single(arena.Simulation.Player.Inventory.Where(e => e.DefId == "item.misc.hound_pup"));
+        Assert.Null(arena.Submit(new AdoptPetCommand(arena.Player, lead.ItemId)));
+        Assert.Single(arena.Simulation.Pets);
     }
 
     [Fact]

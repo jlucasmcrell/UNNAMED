@@ -27,6 +27,7 @@ public partial class Main
     private const double OfferWithinMetres = 3.2;
 
     private string? _petShotsDirectory;
+    private string? _petRefusal;
     private ulong _petNext;
     private ulong _petBeat;
     private int _petStep;
@@ -42,6 +43,13 @@ public partial class Main
         _petNext = Time.GetTicksMsec() + 2600;
         // The harness has the controller: ReadInput leaves the body alone while this stands, so the steering below moves it.
         _rcd3Driving = true;
+        // A command the world refuses is answered nowhere the log can see it (the panels toast it), and a refused trade looks exactly like one
+        // that has not landed yet: the reason is printed here, and kept, so the walking in above knows whether the world took its command.
+        _session.Subscribe<CommandRejected>(rejected =>
+        {
+            _petRefusal = rejected.Reason;
+            GD.Print($"PET_SHOTS refused {rejected.Command.GetType().Name}: {rejected.Reason}");
+        });
         GD.Print("PET_SHOTS installed " + _petShotsDirectory);
     }
 
@@ -76,6 +84,8 @@ public partial class Main
         {
             GD.PushError("PET_SHOTS failed: " + error);
             File.WriteAllText(Path.Combine(_petShotsDirectory!, "failed.txt"), error.ToString());
+            // Nothing after a failed scene: the pass stops here rather than driving a run that is already being torn down.
+            _petShotsDirectory = null;
             CaptureQuit.At(this, 3);
         }
         finally
@@ -117,40 +127,64 @@ public partial class Main
                 // The stall, and the hound on the shelf: the reliable route of spec 43. The walk is over the region's own navigation - the
                 // road between the wain and the hollow bends, and a straight line to it walks into the Foldscar.
                 var kera = simulation.Npcs.First(n => n.Id == Kera);
-                await GoTo(kera.Body, 2.0, 240);
+                // Kera works her anvil inside the forge shed, and its door is shut at the start of a world: the navigation cannot route through a
+                // shut door, and the shed's other three sides are wall. The way in is the door itself - waited at from outside, opened, and only
+                // then is she a walk away (Playthrough.ToTheForgeDoor brings a character along the road to this same spot).
+                if (simulation.Doors.FirstOrDefault(d => d.Site.Key == "door.forge_shed") is { Open: false })
+                {
+                    await GoTo(new Body(451_800, kera.Body.YMm, 741_200, 0), 1.4, 180);
+                    _controller.Interact("door.forge_shed");
+                    await Rcd3Wait(1.0);
+                    GD.Print($"PET_SHOTS forge door: open {simulation.Doors.First(d => d.Site.Key == "door.forge_shed").Open}, " +
+                        $"{PetWhere(simulation)}");
+                }
+                await GoTo(kera.Body, 1.0, 300);
                 await Rcd3Shot(_petShotsDirectory!, "pets_hollow");
+                // Her counter is close work, and the trade's reach is the simulation's 1.6 m, not the conversation prompt's. What stands between
+                // the road and her (the anvil she works at) is solid, so the last metres are walked round her: a ring of standpoints, each tried
+                // until the world itself takes a command.
+                for (int side = 0; side < 8; side++)
+                {
+                    double round = side * Math.PI / 4;
+                    await ApproachPoint((kera.Body.XMm + Math.Sin(round) * 1_100) / 1000.0,
+                        (kera.Body.ZMm + Math.Cos(round) * 1_100) / 1000.0, 0.4, 8);
+                    _petRefusal = null;
+                    _controller.Talk(Kera);
+                    await Rcd3Wait(0.5);
+                    if (_petRefusal is null)
+                        break;
+                    GD.Print($"PET_SHOTS not at her counter yet ({_petRefusal}); {PetWhere(simulation)}");
+                }
+                GD.Print($"PET_SHOTS at her counter: {_petRefusal ?? "the world took the command"}, purse {simulation.Player.Currency}");
                 Trade(simulation);
                 await Rcd3Wait(1.2);
                 await Rcd3Shot(_petShotsDirectory!, "pets_stall");
                 PetEvidence("stall", $"at Kera's shelf with {simulation.Player.Currency} coin: {Carried(simulation)}");
-                // What the road gave, sold for the pup: the load's timber and hides first, then the flask, and only then the salve. What a
-                // broke traveller does, in the game's own trade commands.
-                foreach (string selling in new[] { "item.material.timber", "item.material.small_hide", "item.tool.water_flask", "item.consumable.salve_minor" })
-                {
-                    if (PupPrice(simulation) is not { } ask || simulation.Player.Currency >= ask)
-                        break;
+                // What the road gave, sold for the pup: the load's hides, then the character's own salve - a broke traveller's kit. The timber is
+                // worth nothing to her (two coin at the forty percent a merchant pays) and the flask is a tool she does not buy at all.
+                foreach (string selling in new[] { "item.material.small_hide", "item.consumable.salve_minor" })
                     await SellAll(simulation, selling);
-                }
                 await Rcd3Shot(_petShotsDirectory!, "pets_sold");
                 var bought = await BuyPup(simulation);
                 await Rcd3Shot(_petShotsDirectory!, "pets_pup_bought");
-                PetEvidence("buy a pup", $"{bought}; purse {simulation.Player.Currency}");
+                PetEvidence("buy a pup", $"{bought ?? "not bought"}; purse {simulation.Player.Currency}");
+                // A run that could not buy it still has the wolf to tame and the fight to show: the pass says so and carries on rather than
+                // stopping with half the beats unrecorded.
                 if (bought is null)
-                    throw new InvalidOperationException("the pup was not bought: " + (PupPrice(simulation)?.ToString() ?? "she has none"));
+                    GD.Print($"PET_SHOTS: no pup this run - {PupPrice(simulation)} asked, {simulation.Player.Currency} carried");
                 // In the pack, and then taken in: the animal that is already the character's.
                 if (simulation.Player.Inventory.FirstOrDefault(e => e.DefId == PupItem) is { } lead)
                 {
                     _session.Submit(new AdoptPetCommand(simulation.PlayerId, lead.ItemId));
                     await Rcd3Wait(1.0);
-                    _inventory.Close();
-                    await Rcd3Wait(0.6);
                     await Rcd3Shot(_petShotsDirectory!, "pets_pup");
                 }
-                PetEvidence("the pup adopted", string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Order}, {p.Standing}, {p.Health}/{p.MaxHealth}, bond {p.Bond}")));
                 // The food for the offer, bought while the shelf is open and the coin is still in hand.
                 await BuyMeat(simulation);
                 _inventory.Close();
-                PetEvidence("food", $"carrying {Carried(simulation)}, purse {simulation.Player.Currency}");
+                PetEvidence("the party", $"{simulation.Pets.Length} animal(s): " +
+                    string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Order}, {p.Standing}, {p.Health}/{p.MaxHealth}, bond {p.Bond}")) +
+                    $"; carrying {Carried(simulation)}, purse {simulation.Player.Currency}");
                 break;
             }
             case 2:
@@ -172,7 +206,12 @@ public partial class Main
             case 3:
             {
                 // "Wait here", with the ground marker: the list comes up, the ring is laid out ahead, and the animal holds the spot while the
-                // character walks away from it.
+                // character walks away from it. With no animal in the party the pass says so and moves on rather than standing about.
+                if (!simulation.Pets.Any(p => p.Condition == PetCondition.Up))
+                {
+                    PetEvidence("wait here", "no animal is with the party: nothing to order");
+                    break;
+                }
                 OpenPetOrders();
                 await Rcd3Wait(1.2);
                 await Rcd3Shot(_petShotsDirectory!, "pets_marker");
@@ -222,10 +261,18 @@ public partial class Main
             }
             case 6:
             {
-                // The fight: the animal bites what fights the party and is bitten back, until one of the animals is down. A pet is never
-                // killed - at no health it goes home badly wounded (owner ruling 1) and the HUD says for how long.
+                // The fight: the animal goes for what the character strikes and is bitten back for it, until one of the animals is down. It has
+                // to be IN the fight to be hurt - an animal that was only pulled and then walks at heel takes no more blows. A pet is never
+                // killed: at no health it goes home badly wounded (owner ruling 1) and the HUD says for how long.
                 for (int round = 0; round < 90 && simulation.Pets.All(p => p.Condition == PetCondition.Up); round++)
                 {
+                    bool withAnimal = simulation.Pets.Any(p => p.Condition == PetCondition.Up);
+                    if (withAnimal && (round % 12 == 0 || simulation.Pets.All(p => p.Order != PetOrder.AttackTarget)))
+                    {
+                        OpenPetOrders();
+                        await Rcd3Wait(0.6);
+                        await Obey(PetOrder.AttackTarget, 3);
+                    }
                     if (NearestHostile(simulation) is { } foe)
                         await GoTo(foe.Body, 2.5, 6);
                     _controller.Attack();
@@ -263,18 +310,24 @@ public partial class Main
 
     // ── the player's own hands: walking, trading, ordering ───────────────────
 
-    /// <summary>Walk to a body over the region's navigation, steering each frame: false when it is not reached in time.</summary>
+    /// <summary>
+    /// Walk to a body over the region's navigation, steering each frame, and finish at the body itself: a trade needs the character at the
+    /// counter (interact reach is 1.6 m), not on the road outside it. The corners on the way only have to be passed; each gets its own slice of
+    /// the time so one awkward corner cannot eat the walk. False when it is not reached in time.
+    /// </summary>
     private async Task<bool> GoTo(Body target, double withinMetres, double maxSeconds)
     {
         var simulation = _session.Simulation!;
         double deadline = Time.GetTicksMsec() + maxSeconds * 1000;
         var route = Playthrough.WayTo(simulation, simulation.Player.Body, target, withinMetres);
-        foreach (var (x, z) in route)
+        for (int i = 0; i < route.Length; i++)
         {
+            var (x, z) = route[i];
             double left = deadline - Time.GetTicksMsec();
             if (left <= 200)
                 return false;
-            if (!await ApproachPoint(x, z, 1.6, left / 1000))
+            bool last = i == route.Length - 1;
+            if (!await ApproachPoint(x, z, last ? 1.1 : 1.5, (last ? left : Math.Min(left, 45_000)) / 1000))
                 return false;
         }
         return true;
@@ -346,9 +399,11 @@ public partial class Main
     {
         for (int attempt = 0; attempt < tries; attempt++)
         {
+            if (!_session.Simulation!.Pets.Any(p => p.Condition == PetCondition.Up))
+                return false;
             OrderPet(order);
             await Rcd3Wait(0.9);
-            if (_session.Simulation!.Pets.Any(p => p.Condition == PetCondition.Up && p.Order == order))
+            if (_session.Simulation.Pets.Any(p => p.Condition == PetCondition.Up && p.Order == order))
                 return true;
             OpenPetOrders();
             await Rcd3Wait(0.5);
