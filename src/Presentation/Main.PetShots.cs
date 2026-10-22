@@ -112,8 +112,12 @@ public partial class Main
                 PetEvidence("start", $"the character stands {PetWhere(simulation)}; queued {_petFrame} frames; purse {simulation.Player.Currency}");
                 await Rcd3Shot(_petShotsDirectory!, "pets_start");
                 var wain = simulation.Containers.FirstOrDefault(c => c.Site.Key == "container.road.wain_load");
-                if (wain is null)
-                    throw new InvalidOperationException("there is no wain to search here");
+                if (wain is null || Distance(new Body(wain.Site.XMm, 0, wain.Site.ZMm, 0), simulation.Player.Body) > 6_000)
+                {
+                    // A capture that starts at the stall has no wain to search, and needs none: the shelf sells the meat the offer takes.
+                    PetEvidence("start", $"the wain is not at hand ({PetWhere(simulation)}); the stall's own meat will do");
+                    break;
+                }
                 _session.Submit(new TakeAllCommand(simulation.PlayerId, wain.Site.Key));
                 await Rcd3Wait(1.2);
                 await Rcd3Shot(_petShotsDirectory!, "pets_meat");
@@ -129,11 +133,18 @@ public partial class Main
                 var kera = simulation.Npcs.First(n => n.Id == Kera);
                 // She works inside the forge shed, and a shut door is a wall to the navigation: the way in is the door nearest her own body,
                 // walked to over the region's own routes (a straight line to it runs into the shed) and opened. The door itself is fine - a player
-                // standing at it opens it (InteractionAndDiscoveryTests.TheForgeShedDoor_OpensForAPlayerStandingAtIt).
-                if (simulation.Doors.OrderBy(d => DoorGap(d, kera.Body)).FirstOrDefault(d => !d.Open) is { } door)
+                // standing at it opens it (InteractionAndDiscoveryTests.TheForgeShedDoor_OpensForAPlayerStandingAtIt). A capture that begins at
+                // her counter skips all of it.
+                if (!_controller.InTalkReach(kera)
+                    && simulation.Doors.OrderBy(d => DoorGap(d, kera.Body)).FirstOrDefault(d => !d.Open) is { } door)
                 {
                     var box = door.Site.ClosedFootprint;
-                    await GoTo(new Body((box.MinXMm + box.MaxXMm) / 2, kera.Body.YMm, (box.MinZMm + box.MaxZMm) / 2, 0), 1.2, 240);
+                    // The point OUTSIDE the door, not the door itself: the middle of a shut door is a wall, and the navigation cannot plan a walk
+                    // to a place nobody can stand in. The forge is entered from its west side (Playthrough.ToTheForgeDoor walks in from there).
+                    var outside = new Body(box.MinXMm - 800, kera.Body.YMm, (box.MinZMm + box.MaxZMm) / 2, 0);
+                    await GoTo(outside, 1.0, 240);
+                    if (!await ApproachPoint(outside.XMm / 1000.0, outside.ZMm / 1000.0, 1.0, 20))
+                        GD.Print($"PET_SHOTS: could not get to the outside of {door.Site.Key}; the character stands {PetWhere(simulation)}");
                     _controller.Interact(door.Site.Key);
                     await Rcd3Wait(1.0);
                     GD.Print($"PET_SHOTS door {door.Site.Key} (nearest to her): open " +
@@ -143,8 +154,11 @@ public partial class Main
                 await Rcd3Shot(_petShotsDirectory!, "pets_hollow");
                 // Her counter is close work, and the trade's reach is the simulation's 1.6 m, not the conversation prompt's. What stands between
                 // the road and her (the anvil she works at) is solid, so the last metres are walked round her: a ring of standpoints, each tried
-                // until the world itself takes a command.
-                for (int side = 0; side < 8; side++)
+                // until the world itself takes a command. A capture that begins at her counter is already there and takes the first one.
+                _petRefusal = null;
+                _controller.Talk(Kera);
+                await Rcd3Wait(0.5);
+                for (int side = 0; side < 8 && _petRefusal is not null; side++)
                 {
                     double round = side * Math.PI / 4;
                     await ApproachPoint((kera.Body.XMm + Math.Sin(round) * 1_100) / 1000.0,
@@ -196,7 +210,7 @@ public partial class Main
                 _controller.Crouch(true);
                 await Rcd3Wait(0.6);
                 await Rcd3Shot(_petShotsDirectory!, "pets_creeping");
-                bool tamed = await Tame(180);
+                bool tamed = await Tame(90);
                 _controller.Crouch(false);
                 PetEvidence("tame", $"{(tamed ? "the offer took" : "no animal was taken")}: " +
                     string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Order}, {p.Standing}, {p.Health}/{p.MaxHealth}, bond {p.Bond}")));
@@ -226,12 +240,13 @@ public partial class Main
             }
             case 4:
             {
-                // A fight to work on: the wolves are roused by the character's own blade - the party engages one, which is what a lure and a
-                // pull both act on (an animal draws off an enemy already fighting the party, it does not start the fight).
-                for (int round = 0; round < 30 && !simulation.Creatures.Any(c => c.Hostile); round++)
+                // A fight to work on: the pack is walked to ONCE and roused by the character's own blade - the party engages one, which is what a
+                // lure and a pull both act on (an animal draws off an enemy already fighting the party, it does not start the fight). Walking at it
+                // a slice at a time is what ran the pass out of time before.
+                if (NearestWolf(simulation) is { } pack)
+                    await GoTo(pack.Body, 6.0, 110);
+                for (int round = 0; round < 16 && !simulation.Creatures.Any(c => c.Hostile); round++)
                 {
-                    if (NearestWolf(simulation) is { } wolf)
-                        await GoTo(wolf.Body, 4.0, 30);
                     _controller.Attack();
                     await Rcd3Wait(0.8);
                 }
