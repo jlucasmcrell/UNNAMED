@@ -43,6 +43,10 @@ ALIAS = {
     "foldscar": "lore.tavar_and_the_fold",
     "kal_maker": "lore.the_kals_maker",
     "south_crags": "lore.the_crags",
+    # An epilogue is the same story's last page, so it answers for the story's own concept rather than one of its own.
+    "iron_under_ash": "lore.iron_under_ash_after",
+    "three_quiet_stones": "lore.three_quiet_stones_after",
+    "what_the_bog_kept": "lore.what_the_bog_kept_after",
 }
 
 

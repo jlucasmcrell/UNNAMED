@@ -1,0 +1,28 @@
+id: lore.iron
+kind: lore
+schema: 1
+display_key: lore.iron.title
+tags: [lore, creatures]
+title: Iron
+category: creatures
+notes: "Written from content/lore/blackvein.yaml and content/locations/cairnwold/iron_seam.yaml (both seams finite), content/items/material/iron_ore.yaml and iron_ingot.yaml, and Durn Skell's own lines on the crag seam (content/dialogue/cairnwold/durn_skell.yaml). In-world, page 1 is the ore handled (readable.iron) and page 2 is Durn's telling."
+pages:
+  - page: 1
+    text: >
+      Iron comes out of two seams, and both are running out. The first is at Blackvein Cut, the old quarry south
+      of the waystation, where the seam runs along the west face of the floor. The second is in the south crags
+      behind Cairnwold, where three generations of Skells have worked the same face. Raw ore is struck from the
+      seam and smelted into a billet at the forge, and a billet and a straight ash haft make a spear. What matters
+      is not how iron is worked, which any smith can show, but that the seams are finite. A loose lump in the
+      spoil will come back day after day. The seam will not.
+    sources:
+      - { how: inspected, ref: readable.iron }
+  - page: 2
+    text: >
+      Durn Skell works the Cairnwold seam and counts it in strikes. Three, he says, or four, and then it is done.
+      His father took iron off that face, and his father before him, and after him the village buys its iron off
+      the road. There is no second seam in the basin, and he does not say it sadly, only as a fact a smith keeps
+      track of. Do not waste them, he says, and then the hammer comes down again, and the counting goes on. He
+      works while he talks, and he is watching the last of the village's own iron run out.
+    sources:
+      - { how: told, ref: dialogue.cairnwold.durn_skell }

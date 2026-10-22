@@ -157,6 +157,21 @@ nodes:
         text: "Tell me about the kal"
         next: tell_kal_p2
 
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_bog_cotton_p2
+        text: "Tell me about bog cotton"
+        next: tell_bog_cotton_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_iron_under_ash_after_p2
+        text: "Tell me about iron under ash"
+        next: tell_iron_under_ash_after_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_spider_silk_p2
+        text: "Tell me about spider silk"
+        next: tell_spider_silk_p2
+
       - id: leave
         text: "Nothing today."
       - id: story_cut
@@ -412,6 +427,30 @@ nodes:
       - id: back
         text: "I will remember it."
         consequences: [{ command: tell_lore, lore_ref: lore.kal }]
+        next: again
+
+  tell_bog_cotton_p2:
+    text: "Kera Voss will show you the bow on her bench and tell you to spin the string from the cotton grass in Cairnwold's moss. Spin it, she says, or do not, and find out why you should. It serves in the dry, and that is the honest word for it, and it is the string a bow is first strung with. Ask her what serves better in the wet and she will reach for the grey thread on the nail behind her bellows, and the answer will turn out to be a spider's."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.bog_cotton }]
+        next: again
+
+  tell_iron_under_ash_after_p2:
+    text: "Kera Voss will tell you the rule she keeps for everything that comes out of the forge: do not blame the iron, it is always the hands. She says it after she has sighted down the shaft and rapped the socket, and she means it as both a judgement and a kindness. The seam is finite and she is not, she says, and that is the whole of the smith's arithmetic. A thing made well lasts, and the making is the part that is yours. She will not say made well about her own cousins, and she said it about the spear, and that is the whole of what the job earned."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.iron_under_ash_after }]
+        next: again
+
+  tell_spider_silk_p2:
+    text: "Kera Voss reaches for a hank of grey thread off the nail behind her bellows and calls it by its proper name. Dragline, she says, and she lashes handles with it. Two strands, twisted, waxed, and it is better than cotton grass, and it does not sulk in the wet. Then she says the part that matters: you have to take it off the spider first, and the spider has views. She says it with the air of a smith who respects anything that must be taken before it can be worked."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.spider_silk }]
         next: again
 
 barks:

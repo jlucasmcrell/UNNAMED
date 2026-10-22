@@ -188,6 +188,21 @@ nodes:
         text: "Tell me about the siann missing page"
         next: tell_the_siann_missing_page_p2
 
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_boneleaf_p2
+        text: "Tell me about boneleaf"
+        next: tell_boneleaf_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_cinder_sac_p2
+        text: "Tell me about cinder sac"
+        next: tell_cinder_sac_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_woundmoss_p2
+        text: "Tell me about woundmoss"
+        next: tell_woundmoss_p2
+
       - id: leave
         text: "Another time."
       - id: story_grazers
@@ -646,6 +661,30 @@ nodes:
       - id: back
         text: "I will remember it."
         consequences: [{ command: tell_lore, lore_ref: lore.the_siann_missing_page }]
+        next: again
+
+  tell_boneleaf_p2:
+    text: "Sel Arien wants the leaves, and she wants you to note which way the veins run, exactly. They should not run the way they do, she says, and when the leaf comes back with its veins running outward from the tip she says it as if it were expected and still not true. I will write it down, she says, and nobody will read it, and it will still be true. That is the shape of the thing: a plant that grows only at the Foldscar and keeps whatever it knows in the wrong way its veins lie, and a surveyor who will record the fact and leave the meaning alone."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.boneleaf }]
+        next: again
+
+  tell_cinder_sac_p2:
+    text: "Sel Arien buys the sacs, and if you press her for the reason she will shut the door even though no one is near, and tell you. Work one into a finished salve over the fire and the mending runs twice as fast. She has no idea why. She has tried it eleven times and it has worked eleven times, and she still will not write it down until she knows the reason, so it is not a secret but a thing unfinished. A thing that works and cannot say why is kept carefully and not called knowledge. That is the rule she keeps for the sacs, the same rule she keeps for the stones she will not name a people for."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.cinder_sac }]
+        next: again
+
+  tell_woundmoss_p2:
+    text: "Sel Arien asks for two handfuls and no washing, and she will tell you why with the exactness she keeps for a measure. She is comparing this season's moss with last season's, and the difference worries her. It is thinner than it was, and recently so, and to her that is the part worth writing down. Washing it would change it, she says, and then she would be measuring you and not the moss. The moss still stops the bleeding. What she cannot say is how much longer it will, and she will not guess."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.woundmoss }]
         next: again
 
 barks:

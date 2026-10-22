@@ -1,0 +1,28 @@
+id: lore.woundmoss
+kind: lore
+schema: 1
+display_key: lore.woundmoss.title
+tags: [lore, creatures]
+title: Woundmoss
+category: creatures
+notes: "Written from content/items/material/herb_woundmoss.yaml and content/nodes/herb/woundmoss.yaml (old-forest moss off the north side of the trunks, packed into a cut, gathered unwashed), with Sel Arien's comparison of this season's growth (content/dialogue/ashen_hollow/sel_arien.yaml). In-world, page 1 is the moss handled (readable.woundmoss) and page 2 is Sel's telling."
+pages:
+  - page: 1
+    text: >
+      Woundmoss is old-forest moss, taken from the north side of the trunks where the shade lies, and it is the
+      thing a traveller wants in a pack when a cut is open and the walk home is long. Packed into a wound it stops
+      the bleeding, and worked down over a fire with a pinch of cotton-grass lint it becomes a salve that holds
+      the flesh together until a bone can be set. It is gathered unwashed, because washing it changes it, and the
+      whole point of the stuff is that it be taken exactly as it grew. A handful a day comes off the shaded trunks
+      and the birch flanks.
+    sources:
+      - { how: inspected, ref: readable.woundmoss }
+  - page: 2
+    text: >
+      Sel Arien asks for two handfuls and no washing, and she will tell you why with the exactness she keeps for a
+      measure. She is comparing this season's moss with last season's, and the difference worries her. It is
+      thinner than it was, and recently so, and to her that is the part worth writing down. Washing it would change
+      it, she says, and then she would be measuring you and not the moss. The moss still stops the bleeding. What
+      she cannot say is how much longer it will, and she will not guess.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }

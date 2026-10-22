@@ -1,0 +1,27 @@
+id: lore.ashbloom
+kind: lore
+schema: 1
+display_key: lore.ashbloom.title
+tags: [lore, creatures]
+title: Ashbloom
+category: creatures
+notes: "Written from content/items/material/herb_ashbloom.yaml and content/nodes/firstplay/ashbloom.yaml (the grey-leafed plant that grows where the ground is wettest), with Mara Ling's reading of the plant against the water (content/dialogue/cairnwold/mara_ling.yaml). In-world, page 1 is the plant handled (readable.ashbloom) and page 2 is Mara's telling."
+pages:
+  - page: 1
+    text: >
+      Ashbloom is the grey-leafed plant that grows where the ground is wettest, in the low moss that never drains,
+      and it is the herb Mara Ling sends for when she wants to know whether the trouble is in the plant or under
+      it. Root, stem and leaf, all of it grey, and a sound plant is a sound plant all the way down. It grows back
+      where it was picked, a bloom a day at the wet edge. It is not a cure for the water. It is the water's
+      witness, and that is a different thing.
+    sources:
+      - { how: inspected, ref: readable.ashbloom }
+  - page: 2
+    text: >
+      Mara Ling keeps the well, and she will split an ashbloom with her thumbnail before you have let go of it.
+      Root, stem and leaf, all grey, all exactly as they have always been, and that is the answer she did not want.
+      So the plant is well and the water is not, she says, which means it comes from deeper than the plant reaches.
+      She drops the pieces in the bucket and hates being right. The bloom told her the trouble is not in the wet
+      ground she can see, and it told her nothing else.
+    sources:
+      - { how: told, ref: dialogue.cairnwold.mara_ling }

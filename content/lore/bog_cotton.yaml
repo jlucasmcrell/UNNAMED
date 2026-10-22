@@ -1,0 +1,27 @@
+id: lore.bog_cotton
+kind: lore
+schema: 1
+display_key: lore.bog_cotton.title
+tags: [lore, creatures]
+title: Bog Cotton
+category: creatures
+notes: "Written from content/items/material/bog_cotton.yaml and content/nodes/fibre/bog_cotton.yaml (the white heads of the cotton grass in the Sinking Moss, spun for a bowstring or lint for a dressing), with Kera Voss's word on the string (content/dialogue/ashen_hollow/kera_voss.yaml). In-world, page 1 is the cotton handled (readable.bog_cotton) and page 2 is Kera's telling."
+pages:
+  - page: 1
+    text: >
+      Bog cotton is the white head of the cotton grass that grows on the wet edge of the Sinking Moss, and it is
+      two things in one. Spun and twisted it makes a bowstring; teased out it makes the lint that binds a salve or
+      a dressing. It is light, a handful weighs almost nothing, and it grows wherever the ground will sink if you
+      stand still to admire it. The heads are pulled a day at a time and come away clean in the hand. It is the
+      stuff that turns a length of ash and a strip of hide into a bow.
+    sources:
+      - { how: inspected, ref: readable.bog_cotton }
+  - page: 2
+    text: >
+      Kera Voss will show you the bow on her bench and tell you to spin the string from the cotton grass in
+      Cairnwold's moss. Spin it, she says, or do not, and find out why you should. It serves in the dry, and that
+      is the honest word for it, and it is the string a bow is first strung with. Ask her what serves better in
+      the wet and she will reach for the grey thread on the nail behind her bellows, and the answer will turn out
+      to be a spider's.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.kera_voss }

@@ -1,0 +1,27 @@
+id: lore.spider_silk
+kind: lore
+schema: 1
+display_key: lore.spider_silk.title
+tags: [lore, creatures]
+title: Spider Silk
+category: creatures
+notes: "Written from content/items/material/spider_silk.yaml (a hunting spider's dragline, tough enough that Kera keeps some for lashings, a bowstring better than cotton grass), with Kera Voss's own line on the dragline (content/dialogue/ashen_hollow/kera_voss.yaml). In-world, page 1 is the silk handled (readable.spider_silk) and page 2 is Kera's telling."
+pages:
+  - page: 1
+    text: >
+      Spider silk is the dragline of the cave hunting spider, a grey thread as strong for its weight as anything a
+      traveller carries, and it is taken off the spider rather than off a bush. Kera Voss keeps some for lashings,
+      and two strands twisted and waxed string a bow better than cotton grass, and hold up in the wet where the
+      grass will not. It is gathered where the spider dens, on the ground it claims at the Foldscar's edge and in
+      the cut above the water, and it is not gathered without earning it.
+    sources:
+      - { how: inspected, ref: readable.spider_silk }
+  - page: 2
+    text: >
+      Kera Voss reaches for a hank of grey thread off the nail behind her bellows and calls it by its proper name.
+      Dragline, she says, and she lashes handles with it. Two strands, twisted, waxed, and it is better than cotton
+      grass, and it does not sulk in the wet. Then she says the part that matters: you have to take it off the
+      spider first, and the spider has views. She says it with the air of a smith who respects anything that must
+      be taken before it can be worked.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.kera_voss }

@@ -114,6 +114,11 @@ nodes:
         text: "Tell me about tavar and the fold"
         next: tell_tavar_and_the_fold_p2
 
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_three_quiet_stones_after_p2
+        text: "Tell me about the three quiet stones"
+        next: tell_three_quiet_stones_after_p2
+
       - id: leave
         text: "Take a moment. I'll see you at the waystation."
         conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, not: true }]
@@ -218,6 +223,14 @@ nodes:
       - id: back
         text: "I will remember it."
         consequences: [{ command: tell_lore, lore_ref: lore.tavar_and_the_fold }]
+        next: again
+
+  tell_three_quiet_stones_after_p2:
+    text: "Tavar Orr will tell you the stones were holding something shut or holding something still, and that he could not say which, and that somebody turned them out of line before anyone now living ever came out here. Not me, he says, and then he checks himself, and adds that he would remember, probably. Three days for Sel, he says, and one long afternoon for him, where everything arrived a breath late and his voice came from the wrong side. He keeps the cost in a little book, under things he has lost. The walk out is the part that does not go in it."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.three_quiet_stones_after }]
         next: again
 
 barks:

@@ -1,0 +1,28 @@
+id: lore.boneleaf
+kind: lore
+schema: 1
+display_key: lore.boneleaf.title
+tags: [lore, creatures]
+title: Boneleaf
+category: creatures
+notes: "Written from content/items/material/boneleaf.yaml and content/nodes/herb/boneleaf.yaml (a pale stiff leaf, grows only round the Foldscar, veins running the wrong way), with Sel Arien's note on the veins (content/dialogue/ashen_hollow/sel_arien.yaml). In-world, page 1 is the leaf handled (readable.boneleaf) and page 2 is Sel's telling."
+pages:
+  - page: 1
+    text: >
+      Boneleaf grows only around the Foldscar, a pale stiff leaf on low bushes at the ring's edge, and it is a
+      plant a careful hand reads before it picks. The veins run the wrong way, outward from the tip, and that is
+      the first thing anyone notices and the first thing nobody can account for. It is one of the plants Sel Arien
+      collects and calls wrong, not because it is useless but because it should not be the way it is. It grows on
+      the spider's ground, so it is not gathered without a look over the shoulder.
+    sources:
+      - { how: inspected, ref: readable.boneleaf }
+  - page: 2
+    text: >
+      Sel Arien wants the leaves, and she wants you to note which way the veins run, exactly. They should not run
+      the way they do, she says, and when the leaf comes back with its veins running outward from the tip she says
+      it as if it were expected and still not true. I will write it down, she says, and nobody will read it, and
+      it will still be true. That is the shape of the thing: a plant that grows only at the Foldscar and keeps
+      whatever it knows in the wrong way its veins lie, and a surveyor who will record the fact and leave the
+      meaning alone.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }

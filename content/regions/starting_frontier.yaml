@@ -147765,6 +147765,55 @@ barriers:
 # Readables (spec 41): what is written down, where it stands, and the lore entry reading it files. A page names one page of an entry; a
 # book (no page) opens every page of its entry the character has not read. Both are read from where a switch is worked.
 readables:
+  - key: readable.ashbloom
+    lore_ref: lore.ashbloom
+    page: 1
+    name: the Ashbloom on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 717.8, 0.6]
+    height_m: 0.9
+  - key: readable.bog_cotton
+    lore_ref: lore.bog_cotton
+    page: 1
+    name: the Bog Cotton on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 718.6, 0.6]
+    height_m: 0.9
+  - key: readable.boneleaf
+    lore_ref: lore.boneleaf
+    page: 1
+    name: the Boneleaf on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 719.5, 0.6]
+    height_m: 0.9
+  - key: readable.cinder_sac
+    lore_ref: lore.cinder_sac
+    page: 1
+    name: the Cinder Sac on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 720.3, 0.6]
+    height_m: 0.9
+  - key: readable.iron
+    lore_ref: lore.iron
+    page: 1
+    name: the Iron on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 721.2, 0.6]
+    height_m: 0.9
+  - key: readable.spider_silk
+    lore_ref: lore.spider_silk
+    page: 1
+    name: the Spider Silk on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 722.0, 0.6]
+    height_m: 0.9
+  - key: readable.woundmoss
+    lore_ref: lore.woundmoss
+    page: 1
+    name: the Woundmoss on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 717.8, 0.6]
+    height_m: 0.9
   - key: readable.barrowback_ii
     lore_ref: lore.barrowback
     page: 3

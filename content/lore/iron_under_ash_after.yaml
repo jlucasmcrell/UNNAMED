@@ -1,0 +1,29 @@
+id: lore.iron_under_ash_after
+kind: lore
+schema: 1
+display_key: lore.iron_under_ash_after.title
+tags: [lore, history]
+title: Iron Under Ash
+category: history
+notes: "Written from content/quests/ashen_hollow/iron_under_ash.yaml (Kera's job of taking a newcomer through ore to a finished spear) and Kera Voss's forge lines (content/dialogue/ashen_hollow/kera_voss.yaml). In-world, page 1 is the page the finished job leaves in the journal (quest.ashen_hollow.iron_under_ash) and page 2 is Kera's telling."
+pages:
+  - page: 1
+    text: >
+      Kera Voss set out to make a smith, and what came back from Blackvein Cut is a spear, forged at the anvil
+      from a billet and a straight ash haft, and judged the way she judges everything, which is by how well it is
+      made. That is what changed: a spear that was not bought, and a smith who looked at it and told the truth
+      about it. What did not settle is the iron itself. The seam at Blackvein is still finite, and no spear made
+      from it makes the seam any deeper or the road any shorter. The work taught a pair of hands to make a thing.
+      It did not teach the cut to grow.
+    sources:
+      - { how: quest, ref: quest.ashen_hollow.iron_under_ash }
+  - page: 2
+    text: >
+      Kera Voss will tell you the rule she keeps for everything that comes out of the forge: do not blame the
+      iron, it is always the hands. She says it after she has sighted down the shaft and rapped the socket, and
+      she means it as both a judgement and a kindness. The seam is finite and she is not, she says, and that is
+      the whole of the smith's arithmetic. A thing made well lasts, and the making is the part that is yours. She
+      will not say made well about her own cousins, and she said it about the spear, and that is the whole of what
+      the job earned.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.kera_voss }
