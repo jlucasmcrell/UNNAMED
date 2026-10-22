@@ -38,6 +38,7 @@ public partial class Main
             camera.MakeCurrent();
             if(OS.GetEnvironment("OTHERREACH_RCD6_INVENTORY_REVIEW")=="1")
             {
+                camera.GlobalTransform=source.GlobalTransform;
                 if(OS.GetEnvironment("OTHERREACH_RCD6_UI_WITH_AWAY")=="1")await RunAwayReview(directory,complete:false);
                 await RunInventoryReview(directory,camera);GetTree().Quit();return;
             }

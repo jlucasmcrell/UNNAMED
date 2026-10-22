@@ -130,6 +130,7 @@ public partial class InventoryPanel : CanvasLayer
         _sheet.Body.AddChild(columns);
         foreach (var list in new Control[] { _carried, _container, _contextHead })
             list.MinimumSizeChanged += () => Callable.From(FitLists).CallDeferred();
+        _sheet.Panel.Resized += () => Callable.From(FitLists).CallDeferred();
         _sheet.OnShown(() =>
         {
             if (UiKit.FocusedId(_sheet.Root) is null)
@@ -783,7 +784,10 @@ public partial class InventoryPanel : CanvasLayer
     /// </summary>
     private void FitLists()
     {
-        float room = _sheet.Room - 150;
+        // Totals, bag slots and filters have variable height. Measure their actual
+        // laid-out space instead of subtracting a fixed chrome estimate.
+        float chrome=_carriedScroll.GlobalPosition.Y-_sheet.Panel.GlobalPosition.Y;
+        float room=Math.Max(0,_sheet.Room-chrome-UiKit.Padding);
         // Reserve the same detail strip for every item. Hover never changes the list's height or scroll.
         float detailHeight=Math.Clamp(room*.35f,140,240);
         _detailScroll.CustomMinimumSize=new Vector2(0,detailHeight);

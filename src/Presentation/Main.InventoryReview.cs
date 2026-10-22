@@ -12,7 +12,7 @@ public partial class Main
     {
         string label=Path.GetFileName(directory);
         DisplayServer.WindowSetTitle("Otherreach - "+label);
-        var pixels=GetViewport().GetTexture().GetSize();
+        var pixels=DisplayServer.WindowGetSize();
         File.WriteAllText(Path.Combine(directory,name+".wgc_request.json"),JsonSerializer.Serialize(new {
             name,window_title="^Otherreach - "+System.Text.RegularExpressions.Regex.Escape(label)+"$",width=pixels.X,height=pixels.Y }));
         ulong deadline=Time.GetTicksMsec()+45000;
@@ -34,7 +34,7 @@ public partial class Main
         void Frame()
         {var aim=_avatar.GlobalPosition+Vector3.Up;camera.GlobalPosition=aim+new Vector3(2,1.5f,3);camera.LookAt(aim);camera.MakeCurrent();}
         void PixelSize(Vector2I expected)
-        {if(GetViewport().GetTexture().GetSize()!=expected)throw new InvalidDataException("Requested UI pixel size was not applied");}
+        {if(DisplayServer.WindowGetSize()!=expected)throw new InvalidDataException("Requested UI pixel size was not applied");}
         async Task Press(string id)
         {
             var root=UiKit.SheetOf(_companionsPanel)!.Root;
@@ -48,6 +48,9 @@ public partial class Main
             CloseScreens();_inventory.Open(null);await Rcd3Wait(2);PixelSize(size);Frame();
             var list=(ScrollContainer)_inventory.FindChild("PackListViewport",true,false);
             var details=(ScrollContainer)_inventory.FindChild("ItemDetailViewport",true,false);
+            var sheetFrame=UiKit.SheetOf(_inventory)!;
+            var panel=sheetFrame.Panel.GetGlobalRect();
+            if(panel.Size.Y>sheetFrame.Room+1)throw new InvalidDataException("Inventory extends outside its reserved HUD band");
             var bounds=list.GetGlobalRect();int scroll=list.ScrollVertical;
             var rows=_inventory.FindChildren("*",nameof(Control),true,false).OfType<Control>().Where(c=>c.HasMeta("item_definition")).Take(2).ToArray();
             if(rows.Length<2)throw new InvalidDataException("Inventory gate requires two real carried items");
@@ -60,7 +63,7 @@ public partial class Main
             }
             var worn=sim.Player.Equipment.Values.ToHashSet();
             if(sim.Pack.Containers.SelectMany(c=>c.Stacks).Any(e=>worn.Contains(e.ItemId)))throw new InvalidDataException("Worn gear still appears in pack");
-            evidence.Add(new {stage="inventory",width=size.X,height=size.Y,pack_rect=bounds.ToString(),details_rect=details.GetGlobalRect().ToString(),scroll,
+            evidence.Add(new {stage="inventory",width=size.X,height=size.Y,panel_rect=panel.ToString(),reserved_height=sheetFrame.Room,pack_rect=bounds.ToString(),details_rect=details.GetGlobalRect().ToString(),scroll,
                 pack_used=sim.Pack.Used,worn=worn.Count,weight=sim.Player.CarriedGrams,body=_avatarModel,tick=sim.WorldTick});
         }
         if(OS.GetEnvironment("OTHERREACH_RCD6_EXISTING_PARTY_UI")=="1")

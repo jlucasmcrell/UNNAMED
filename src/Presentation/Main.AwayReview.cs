@@ -24,9 +24,8 @@ public partial class Main
             DisplayServer.WindowSetSize(size);
             _awaySheet.Show(summary);
             await Rcd3Wait(.5);
-            using(var image=GetViewport().GetTexture().GetImage())
-                if(image.GetWidth()!=size.X || image.GetHeight()!=size.Y)
-                    throw new InvalidDataException("Away frame size did not match the requested window: "+image.GetSize());
+            if(DisplayServer.WindowGetSize()!=size)
+                throw new InvalidDataException("Away window size did not match requested client pixels: "+DisplayServer.WindowGetSize());
             await Rcd3Shot(directory,"away_"+size.Y+"_summary");
             var expand=_awaySheet.FindChildren("*",nameof(Button),true,false).OfType<Button>()
                 .SingleOrDefault(b=>b.Text.StartsWith("Show all events",StringComparison.Ordinal));

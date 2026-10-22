@@ -25,7 +25,8 @@ public partial class AwaySheet : CanvasLayer
     public override void _Ready()
     {
         Visible = false;
-        _sheet = UiKit.Sheet(this, "While you were away", null, UiKit.Small);
+        _sheet = UiKit.Sheet(this, "While you were away", null, UiKit.Small, scrolls:false);
+        _sheet.Shape(UiKit.Small,dense:true);
         _sheet.SetHint("The world went on without you.");
         _sheet.OnShown(() => _done?.GrabFocus());
     }
@@ -45,15 +46,20 @@ public partial class AwaySheet : CanvasLayer
         head.AddChild(UiKit.Words(summary.Head, 20, HudStyle.Bone));
         head.AddChild(UiKit.Words(summary.Now, 17, HudStyle.Ash));
         _sheet.Body.AddChild(head);
+        // Only the event list scrolls. Focusing the footer must not hide the time away.
+        var scroll=UiKit.Scroll();
+        var events=new VBoxContainer {SizeFlagsHorizontal=Control.SizeFlags.ExpandFill};
+        events.AddThemeConstantOverride("separation",16);
+        scroll.AddChild(events);_sheet.Body.AddChild(scroll);
         if (groups.IsEmpty)
-            _sheet.Body.AddChild(UiKit.Quiet("Nothing you would know of changed."));
+            events.AddChild(UiKit.Quiet("Nothing you would know of changed."));
         foreach (var group in groups)
         {
             var section = UiKit.Section(group.Heading);
             section.AddThemeConstantOverride("separation", 6);
             foreach (string line in group.Lines)
                 section.AddChild(UiKit.Words(line, 18, HudStyle.Bone));
-            _sheet.Body.AddChild(section);
+            events.AddChild(section);
         }
         int total=summary.DetailGroups.Sum(g=>g.Lines.Length);
         if(total>summary.Groups.Sum(g=>g.Lines.Length))
