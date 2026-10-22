@@ -8,6 +8,9 @@ notes: A young hound on a lead, bought at the Ashen Hollow's stall - spec 43's r
 category: misc
 stack_max: 1
 weight: 4.0
-value_base: 60
+# 60 was three alpha trophies: a first-evening character carries 0 coin, and the sell ratio is 40%, so spec 43's "reliable route" was
+# unreachable until a day of hunting. A litter pup the drover could not keep is worth about a wolf's hide (8) - cheap, and buyable out
+# of the overturned wain's load before the first fight. Provisional, like the rest of the economy.
+value_base: 10
 item_class: notable
 pet_creature: creature.beast.hound_pup   # the animal it becomes when the character takes it in
