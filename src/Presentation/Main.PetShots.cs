@@ -76,22 +76,27 @@ public partial class Main
         {
             case 0:
             {
-                // The hound comes from the wild with meat and a steady hand: first the meat. A hare on the open ground between the yard and
-                // the den is the hunt's other half - the character's own sword, its own corpse, and the pack's own table.
+                // The hound comes from the wild with meat and a steady hand: first the meat, out of the overturned wain the road left. The
+                // loot is the world's own - the character's hands on a container, nothing granted.
                 await Rcd3Wait(1.5);
                 PetEvidence("start", $"the character stands {PetWhere(simulation)}; queued {_petFrame} frames; packets {simulation.Pets.Length} animals");
                 await Rcd3Shot(_petShotsDirectory!, "pets_start");
-                if (!await Hunt(150))
-                    throw new InvalidOperationException($"no hare was killed for its meat; the character stands {PetWhere(simulation)}");
+                var wain = simulation.Containers.FirstOrDefault(c => c.Site.Key == "container.road.wain_load");
+                if (wain is null)
+                    throw new InvalidOperationException("there is no wain to search here");
+                _session.Submit(new InteractCommand(simulation.PlayerId, wain.Site.Key));
+                await Rcd3Wait(0.6);
+                _session.Submit(new TakeAllCommand(simulation.PlayerId, wain.Site.Key));
+                await Rcd3Wait(1.2);
                 await Rcd3Shot(_petShotsDirectory!, "pets_meat");
-                PetEvidence("meat", $"a hare killed and searched: {Carried(simulation)}");
+                PetEvidence("meat", $"the wain searched: {Carried(simulation)}");
                 break;
             }
             case 1:
             {
                 // The den's sleeper: creep up on it crouched, offer the meat, and hold. Nothing in the world is written by this - the offer,
                 // the channel, the odds and the roll are the pet system's own.
-                if (!await ApproachPoint(512, 780, 6.0, 120))
+                if (!await ApproachPoint(520, 730, 7.0, 300))
                     throw new InvalidOperationException($"could not reach the den; the character stands {PetWhere(simulation)}");
                 _controller.Crouch(true);
                 await Rcd3Wait(0.6);
@@ -156,56 +161,6 @@ public partial class Main
                 GetTree().Quit(0);
                 break;
         }
-    }
-
-    // ── the animal, out of the wild ─────────────────────────────────────────
-
-    /// <summary>
-    /// Hunt the nearest hare: steer to it, swing when it is in reach, and search the corpse. True when the character has meat.
-    /// </summary>
-    private async Task<bool> Hunt(double maxSeconds)
-    {
-        var simulation = _session.Simulation!;
-        double deadline = Time.GetTicksMsec() + maxSeconds * 1000;
-        while (Time.GetTicksMsec() < deadline)
-        {
-            if (Meat(simulation) > 0)
-                return true;
-            var hare = simulation.Creatures.Where(c => c.Alive && c.DefId == "creature.beast.rabbit")
-                .OrderBy(c => Distance(c.Body, simulation.Player.Body)).FirstOrDefault();
-            if (hare is null)
-            {
-                // Nothing to hunt here: search what is already lying down.
-                await SearchNearby();
-                return Meat(simulation) > 0;
-            }
-            var body = simulation.Player.Body;
-            double distance = Distance(hare.Body, body);
-            if (distance <= 2.2)
-            {
-                _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera);
-                _controller.Attack();
-                await Rcd3Wait(0.5);
-                if (!simulation.Creatures.Any(c => c.Alive && c.Key == hare.Key))
-                    await SearchNearby();
-                continue;
-            }
-            var to = new Vector3((hare.Body.XMm - body.XMm) / 1000f, 0, (hare.Body.ZMm - body.ZMm) / 1000f);
-            _camera.Yaw = Mathf.Atan2(-to.X, -to.Z);
-            _controller.SteerWorld(to.Normalized(), Gait.Sprint, _camera, faceCamera: true);
-            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        }
-        await SearchNearby();
-        return Meat(simulation) > 0;
-    }
-
-    /// <summary>Search every corpse within reach: what the hunt leaves is the character's.</summary>
-    private async Task SearchNearby()
-    {
-        var simulation = _session.Simulation!;
-        foreach (var corpse in simulation.Creatures.Where(c => !c.Alive && c.CorpseKey.Length > 0).ToList())
-            _session.Submit(new TakeAllCommand(simulation.PlayerId, corpse.CorpseKey));
-        await Rcd3Wait(0.8);
     }
 
     private static int Meat(Simulation simulation) =>
