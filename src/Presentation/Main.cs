@@ -392,6 +392,9 @@ public partial class Main : Node3D
             // Barrowworks (plan P2h). Absent, the region's own spawn is used and nothing changes.
             StartXMm = shotStart?.X,
             StartZMm = shotStart?.Z,
+            // A capture that has to show a purchase is given a purse: the same fixture door as the place to stand, at new game, and never a
+            // player's run (its option is not in PlaytestLaunchDefaults).
+            StartCurrency = long.TryParse(_options.GetValueOrDefault("--purse"), out long purse) && purse > 0 ? purse : 0,
         });
         SkyView.ClockAtWorldStart = (float)_session.ClockAtWorldStartHours;
         _session.SubscriberFailed += SubscriberFailed;
@@ -1728,7 +1731,7 @@ public partial class Main : Node3D
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
-                    or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--stand" or "--shot-out" or "--watch-shots" or "--watch-every"
+                    or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--stand" or "--purse" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
                     or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"

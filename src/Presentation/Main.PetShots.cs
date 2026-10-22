@@ -127,12 +127,13 @@ public partial class Main
                 // The stall, and the hound on the shelf: the reliable route of spec 43. The walk is over the region's own navigation - the
                 // road between the wain and the hollow bends, and a straight line to it walks into the Foldscar.
                 var kera = simulation.Npcs.First(n => n.Id == Kera);
-                // She works inside a building, and a shut door is a wall to the navigation: the way in is the door nearest her own body - waited
-                // at from outside, opened, and only then is she a walk away.
+                // She works inside the forge shed, and a shut door is a wall to the navigation: the way in is the door nearest her own body,
+                // walked to over the region's own routes (a straight line to it runs into the shed) and opened. The door itself is fine - a player
+                // standing at it opens it (InteractionAndDiscoveryTests.TheForgeShedDoor_OpensForAPlayerStandingAtIt).
                 if (simulation.Doors.OrderBy(d => DoorGap(d, kera.Body)).FirstOrDefault(d => !d.Open) is { } door)
                 {
                     var box = door.Site.ClosedFootprint;
-                    await ApproachPoint((box.MinXMm + box.MaxXMm) / 2000.0, (box.MinZMm + box.MaxZMm) / 2000.0, 1.3, 150);
+                    await GoTo(new Body((box.MinXMm + box.MaxXMm) / 2, kera.Body.YMm, (box.MinZMm + box.MaxZMm) / 2, 0), 1.2, 240);
                     _controller.Interact(door.Site.Key);
                     await Rcd3Wait(1.0);
                     GD.Print($"PET_SHOTS door {door.Site.Key} (nearest to her): open " +
@@ -160,10 +161,10 @@ public partial class Main
                 await Rcd3Wait(1.2);
                 await Rcd3Shot(_petShotsDirectory!, "pets_stall");
                 PetEvidence("stall", $"at Kera's shelf with {simulation.Player.Currency} coin: {Carried(simulation)}");
-                // What the road gave, sold for the pup: the load's hides, then the character's own salve - a broke traveller's kit. The timber is
-                // worth nothing to her (two coin at the forty percent a merchant pays) and the flask is a tool she does not buy at all.
-                foreach (string selling in new[] { "item.material.small_hide", "item.consumable.salve_minor" })
-                    await SellAll(simulation, selling);
+                // A sale, so the stall is seen working: the load's hides are what she pays for (the timber is worth nothing to her at the forty
+                // percent a merchant pays, and the flask is a tool she does not buy). The rest of the purse is the capture's own fixture - a
+                // character with coin in hand - because the pup is priced at 60 by content and a first-evening character carries none.
+                await SellAll(simulation, "item.material.small_hide");
                 await Rcd3Shot(_petShotsDirectory!, "pets_sold");
                 var bought = await BuyPup(simulation);
                 await Rcd3Shot(_petShotsDirectory!, "pets_pup_bought");

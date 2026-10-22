@@ -123,38 +123,50 @@ public class PetTests
     }
 
     [Fact]
-    public void ThePup_IsBoughtOffKerasShelf_WithWhatTheRoadGave()
+    public void ThePup_IsBoughtOffKerasShelf_AndTakenIn()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        // The reliable route of spec 43 has to be open on the first evening: a character carrying only the overturned wain's load walks to
-        // the stall, sells it, and buys the pup. Kera trades at her own anchor in her own hours (routine.ashen_hollow.kera_voss), so the walk
-        // matters as much as the prices.
+        // Spec 43's buy route, over the game's own prices: her shelf, her hours and her anchor. The purse is the FIXTURE - a character with coin
+        // in hand, which is what a player who has sold anything at all has - because the pup's price is content's (60) and a capture that has to
+        // show the purchase is given a purse rather than the item being made cheap.
         var arena = Arena.OpenCreatures(session, session.Setup, (61.6, 139.6), 0, Array.Empty<(string, double, double, string)>(),
-            r => r.WithInventory(r.Inventory.Add(Arena.Stack("item.material.timber", 6)).Add(Arena.Stack("item.material.small_hide", 2))));
+            r => r.WithCurrency(200));
         Assert.True(arena.WalkTo(61.6, 139.6), "the character could not walk to the stall");
         Assert.Null(arena.Simulation.TradeRefusal(Kera));
 
-        // What she buys is what the pup is bought with: the load's hides and the character's own salve. Timber is worth nothing to her (two
-        // coin at the forty percent a merchant pays) and the water flask is a tool, which she does not buy at all. What is asserted is that a
-        // first-evening character CAN buy it - which is what makes spec 43's reliable route reliable.
-        var refusals = new List<string>();
-        foreach (var entry in arena.Simulation.Player.Inventory
-                     .Where(e => e.DefId is "item.material.small_hide" or "item.consumable.salve_minor").ToArray())
-            if (arena.Submit(new SellCommand(arena.Player, Kera, entry.ItemId, entry.Count)) is { } why)
-                refusals.Add($"{entry.DefId} x{entry.Count}: {why}");
-        Assert.True(refusals.Count == 0, string.Join(" | ", refusals) + $" (purse {arena.Simulation.Player.Currency})");
-        Assert.Equal(11, arena.Simulation.Player.Currency);
-        Assert.True(arena.Simulation.Wares(Kera)!.Purse is >= 11, $"her purse is {arena.Simulation.Wares(Kera)!.Purse}");
-
         var pup = Assert.Single(arena.Simulation.Wares(Kera)!.Wares.Where(w => w.ItemId == "item.misc.hound_pup"));
-        Assert.True(arena.Simulation.Player.Currency >= pup.Price,
-            $"the load sold for {arena.Simulation.Player.Currency}, the pup asks {pup.Price}");
+        Assert.Equal(60, pup.Price);
         Assert.Null(arena.Submit(new BuyCommand(arena.Player, Kera, pup.Ref, 1)));
+        Assert.Equal(140, arena.Simulation.Player.Currency);
+
         // And it is the character's to take in.
         var lead = Assert.Single(arena.Simulation.Player.Inventory.Where(e => e.DefId == "item.misc.hound_pup"));
         Assert.Null(arena.Submit(new AdoptPetCommand(arena.Player, lead.ItemId)));
-        Assert.Single(arena.Simulation.Pets);
+        var pet = Assert.Single(arena.Simulation.Pets);
+        Assert.Equal((Pup, PetCondition.Up), (pet.CreatureId, pet.Condition));
+    }
+
+    [Fact]
+    public void WhatTheWainGave_IsWhatTheStallBuys()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        // The other half of the buy route, priced by her own shelf: of the overturned wain's load, the hides are what she pays for; the timber is
+        // worth nothing to her at the forty percent a merchant pays, and the water flask is a tool she does not buy at all.
+        var arena = Arena.OpenCreatures(session, session.Setup, (61.6, 139.6), 0, Array.Empty<(string, double, double, string)>(),
+            r => r.WithInventory(r.Inventory.Add(Arena.Stack("item.material.timber", 6)).Add(Arena.Stack("item.material.small_hide", 2))));
+        Assert.True(arena.WalkTo(61.6, 139.6), "the character could not walk to the stall");
+
+        var refusals = new List<string>();
+        foreach (var entry in arena.Simulation.Player.Inventory
+                     .Where(e => e.DefId is "item.material.timber" or "item.material.small_hide").ToArray())
+            if (arena.Submit(new SellCommand(arena.Player, Kera, entry.ItemId, entry.Count)) is { } why)
+                refusals.Add($"{entry.DefId}: {why}");
+        var refused = Assert.Single(refusals);
+        Assert.Contains("timber", refused);
+        Assert.Contains("nothing for that", refused);
+        Assert.Equal(4, arena.Simulation.Player.Currency);
     }
 
     [Fact]

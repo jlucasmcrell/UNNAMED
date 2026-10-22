@@ -46,6 +46,13 @@ public sealed record GameOptions(string ContentRoot, string ProfileRoot)
     /// <inheritdoc cref="StartXMm"/>
     public long? StartZMm { get; init; }
 
+    /// <summary>
+    /// What a capture's new character carries in coin; 0 - a player's own opening, as it always was - unless a capture fixture asks for
+    /// more. A capture that has to show a purchase (spec 43's hound pup is 60 coin, and a first-evening character carries none) is given a
+    /// purse here, at new game, rather than by changing the price of what it buys.
+    /// </summary>
+    public long StartCurrency { get; init; }
+
     /// <summary>Where the session reads the real time: the wall clock unless a test gives another (WP11).</summary>
     public Func<DateTimeOffset>? Clock { get; init; }
 }
@@ -361,6 +368,8 @@ public sealed class GameSession : IDomainEvents, IDisposable
         var id = EntityId.NewId(EntityKind.Character);
         var player = Simulation.NewCharacter(Setup, id, spec, PlayerRecord.DerivedAppearanceSeed(id),
             Options.StartXMm, Options.StartZMm);
+        if (Options.StartCurrency > 0)
+            player = player.WithCurrency(Options.StartCurrency);
         var world = new WorldDelta(Generator, seed, new Registry());
         var simulation = Simulation.Start(Setup, player, world, 0, _bus);
         _character = id.Value;   // a save of the last character still being written goes to that character's folder: Queue kept it
