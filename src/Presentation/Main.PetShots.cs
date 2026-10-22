@@ -238,7 +238,7 @@ public partial class Main
                 _controller.Crouch(true);
                 await Rcd3Wait(0.6);
                 await PetStill("pets_creeping", FindTameable(simulation)?.Body);
-                bool tamed = await Tame(90);
+                bool tamed = await Tame(150);
                 _controller.Crouch(false);
                 PetEvidence("tame", $"{(tamed ? "the offer took" : "no animal was taken")}: " +
                     string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Order}, {p.Standing}, {p.Health}/{p.MaxHealth}, bond {p.Bond}")));
@@ -562,11 +562,14 @@ public partial class Main
                 continue;
             }
             // Crept up on from BEHIND and crouched: an animal that has not seen the character is worth twenty points of the offer's odds, and one
-            // that has seen it breaks the channel outright (measured: "the offer broke: it saw you", 15% before and 35-50% with stealth).
+            // that has seen it breaks the channel outright (measured: "the offer broke: it saw you", 15% before and 35-50% with stealth). The
+            // behind point is a straight-line hope at this range, so the wolf itself is walked to over the region's routes when it does not work -
+            // two runs reached the den and made no offer at all because the straight line to its back never arrived.
             _controller.Crouch(true);
             double heading = prey.Body.FacingMdeg / 1000.0 * Math.PI / 180;
-            await ApproachPoint((prey.Body.XMm - Math.Sin(heading) * OfferWithinMetres * 1000) / 1000.0,
-                (prey.Body.ZMm - Math.Cos(heading) * OfferWithinMetres * 1000) / 1000.0, 0.7, 45);
+            if (!await ApproachPoint((prey.Body.XMm - Math.Sin(heading) * OfferWithinMetres * 1000) / 1000.0,
+                    (prey.Body.ZMm - Math.Cos(heading) * OfferWithinMetres * 1000) / 1000.0, 2.0, 30))
+                await GoTo(prey.Body, OfferWithinMetres - 0.2, 60);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         }
         return Taken();
