@@ -38,6 +38,23 @@ public class InteractionAndDiscoveryTests
     }
 
     [Fact]
+    public void TheForgeShedDoor_OpensForAPlayerStandingAtIt_SoTheSmithInsideIsReachable()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        // Ashen Hollow's smith works her anvil inside the forge shed and the door stands shut at the start of a world: if a player standing at
+        // it cannot open it, she cannot be reached at all (her shop, the recipes and the hound pup all sit behind it). The character is placed at
+        // the door rather than walked to it, so what is under test is the door's own rule - the reach, the latch side and any requirement.
+        var arena = Arena.OpenCreatures(session, session.Setup, (52.4, 142.0), 0, Array.Empty<(string, double, double, string)>());
+        var door = arena.Simulation.Doors.Single(d => d.Site.Key == "door.forge_shed");
+        Assert.False(door.Open);
+
+        Assert.Null(arena.Submit(new InteractCommand(arena.Player, "door.forge_shed")));
+
+        Assert.True(arena.Simulation.Doors.Single(d => d.Site.Key == "door.forge_shed").Open);
+    }
+
+    [Fact]
     public void ADoorOutOfReach_IsRejected_MeasuredFromTheBody()
     {
         using var profile = new TempProfile();
