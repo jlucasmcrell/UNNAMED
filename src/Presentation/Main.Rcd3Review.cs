@@ -36,6 +36,10 @@ public partial class Main
             AddChild(camera);
             source.GetNode<OmniLight3D>("CharacterFill").Reparent(camera, false);
             camera.MakeCurrent();
+            if (OS.GetEnvironment("OTHERREACH_RCD6_AWAY")=="1")
+            {
+                await RunAwayReview(directory);GetTree().Quit();return;
+            }
             if (OS.GetEnvironment("OTHERREACH_RCD6_FURNITURE")=="1")
             {
                 await RunFurnitureReview(directory,camera);

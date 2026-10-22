@@ -28,14 +28,14 @@ public class AwayWordsTests
         AwayWords.Of(0, ticks, lines, capped, Clock, Rules, Name);
 
     [Fact]
-    public void TheHead_TellsTheDays_AndTheTallies()
+    public void TheHead_TellsTheAbsenceInDaysAndHours()
     {
-        Assert.Equal("16 days passed while you were away: a tally and 2 days.", Of(Days(16), false).Head);
-        Assert.Equal("3 days passed while you were away.", Of(Days(3), false).Head);
-        Assert.Equal("1 day passed while you were away.", Of(Days(1), false).Head);
-        Assert.Equal("5 hours passed while you were away.", Of(Clock.TicksPerDay * 5 / 24, false).Head);
-        Assert.Equal("28 days passed while you were away: 2 tallies.", Of(Days(28), false).Head);
-        Assert.Equal("183 days passed while you were away: a whole Reckoning. You were gone longer than that; the world went on no further.",
+        Assert.Equal("You were away 16 days.", Of(Days(16), false).Head);
+        Assert.Equal("You were away 3 days.", Of(Days(3), false).Head);
+        Assert.Equal("You were away 1 day.", Of(Days(1), false).Head);
+        Assert.Equal("You were away 5 hours.", Of(Clock.TicksPerDay * 5 / 24, false).Head);
+        Assert.Equal("You were away 28 days.", Of(Days(28), false).Head);
+        Assert.Equal("You were away 183 days. The world advanced no further than this.",
             Of(Days(Rules.DaysPerReckoning), true).Head);
     }
 
@@ -60,16 +60,16 @@ public class AwayWordsTests
             new AdvanceLine(at, "respawn.creature", "creature.ridge_wolf"),
             new AdvanceLine(at, AdvanceKinds.WeatherNow, "rain"));
 
-        Assert.Equal(new[] { AwayWords.Weather, AwayWords.Prices, AwayWords.Party, AwayWords.Respawns, AwayWords.Notable },
+        Assert.Equal(new[] { AwayWords.Party, AwayWords.Prices, AwayWords.Weather, AwayWords.Respawns, AwayWords.Notable },
             summary.Groups.Select(g => g.Key));
-        Assert.Equal("Your hirelings and wages", summary.Groups.Single(g => g.Key == AwayWords.Party).Heading);
-        Assert.Equal(new[] { "The weather now: rain." }, summary.Groups[0].Lines);
+        Assert.Equal("Your companions", summary.Groups.Single(g => g.Key == AwayWords.Party).Heading);
+        Assert.Equal(new[] { "The weather now: rain." }, summary.Groups.Single(g=>g.Key==AwayWords.Weather).Lines);
         Assert.Equal(new[]
         {
             "Iron ingot costs more at the Ashen Hollow market: up 12% on its usual price.",
             "The Ashen Hollow market is short of wolf hide.",
         }, summary.Groups[1].Lines);
-        Assert.Equal(new[] { "You paid Bram 6 coin in wages." }, summary.Groups[2].Lines);
+        Assert.Equal(new[] { "You paid Bram 6 coin in wages." }, summary.Groups.Single(g=>g.Key==AwayWords.Party).Lines);
         Assert.Equal(new[] { "Well fed wore off." }, summary.Groups[4].Lines);
         Assert.True(summary.WorthShowing);
     }
@@ -133,7 +133,7 @@ public class AwayWordsTests
         long minutes = Clock.TicksPerDay / 24 / 2;
         Assert.False(Of(minutes, false, new AdvanceLine(minutes, AdvanceKinds.WeatherNow, "fair")).WorthShowing);
         Assert.True(Of(minutes, false, new AdvanceLine(minutes, PartyAdvanceKinds.WagesPaid, "npc.ashen_hollow.bram", 1)).WorthShowing);
-        Assert.Equal("Less than an hour passed while you were away.", Of(minutes, false).Head);
+        Assert.Equal("You were away less than an hour.", Of(minutes, false).Head);
     }
 
     [Fact]
@@ -143,6 +143,52 @@ public class AwayWordsTests
         var summary = Of(at, false,
             new AdvanceLine(at, PartyAdvanceKinds.WagesPaid, "npc.ashen_hollow.bram", 2),
             new AdvanceLine(at, AdvanceKinds.WeatherNow, "fog"));
-        Assert.Equal(new[] { "1 day passed while you were away.", "The weather now: fog.", "You paid Bram 2 coin in wages." }, summary.JournalLines);
+        Assert.Equal(new[] { "You were away 1 day.", "You paid Bram 2 coin in wages.", "The weather now: fog." }, summary.JournalLines);
+    }
+
+    [Fact]
+    public void TheDigest_HasAHumanDuration_NamedNews_CollapsedClaims_AndNoSlotIds()
+    {
+        string Display(string id)=>id switch { "quest.den"=>"Blackvein Den", "location.inn"=>"Ashen Hollow", "creature.hound"=>"Ash Ember Hound", _=>id };
+        var lines=Enumerable.Range(0,3).Select(i=>new AdvanceLine(i,AdventurerAdvanceKinds.Claimed,"quest.den|adventurer.slot_g") {
+            ActorName="Brenna Holt",PlaceId="location.inn",SubjectId="quest.den" }).Append(
+            new AdvanceLine(9,AdventurerAdvanceKinds.Arrived,"adventurer.slot_k") { ActorName="Kell Marrow",PlaceId="location.inn",Level=3 }).ToArray();
+        var summary=AwayWords.Of(0,Days(2)+Clock.TicksPerDay*6/24,lines,false,Clock,Rules,Display);
+        Assert.Equal("You were away 2 days, 6 hours.",summary.Head);
+        Assert.Contains("Brenna Holt claimed 3 contracts at Ashen Hollow.",summary.Groups.SelectMany(g=>g.Lines));
+        Assert.Contains("A new adventurer, Kell Marrow (level 3), arrived at Ashen Hollow.",summary.Groups.SelectMany(g=>g.Lines));
+        Assert.Contains("Brenna Holt took the “Blackvein Den” contract at Ashen Hollow.",summary.DetailGroups.SelectMany(g=>g.Lines));
+        foreach(string text in summary.JournalLines.Concat(summary.Groups.SelectMany(g=>g.Lines)))
+            Assert.DoesNotMatch(@"(?i)\bslot\s+\w|\b[a-z_]+\.[a-z0-9_.]+|\b[a-z]{3}_[0-9a-hjkmnp-tv-z]{26}",text);
+        Assert.DoesNotContain("Slot",AwayWords.Line(new AdvanceLine(1,AdventurerAdvanceKinds.Died,"slot.g"),id=>"Slot g"));
+    }
+
+    [Fact]
+    public void ANewResident_IsNamedInsteadOfTheirVacatedRoleSlot()
+    {
+        string Display(string id)=>id=="location.inn" ? "Ashen Hollow" : "Slot g";
+        Assert.Equal("Sella Ashcombe arrived at Ashen Hollow.",AwayWords.Line(
+            new AdvanceLine(0,NpcAdvanceKinds.Arrived,"npc.slot.g") { ActorName="Sella Ashcombe",PlaceId="location.inn" },Display));
+        Assert.Equal("A new resident arrived.",AwayWords.Line(new AdvanceLine(0,NpcAdvanceKinds.Arrived,"npc.slot.g"),Display));
+    }
+
+    [Fact]
+    public void ThePreview_StopsAtTwelveLines_AndAllDetailsRemainAvailable()
+    {
+        var lines=Enumerable.Range(0,20).Select(i=>new AdvanceLine(i,AdventurerAdvanceKinds.Arrived,"slot."+i) {
+            ActorName="Traveller "+i,PlaceId="inn",Level=1 }).ToArray();
+        var summary=Of(Days(2),false,lines);
+        Assert.Equal(12,summary.Groups.Sum(g=>g.Lines.Length));
+        Assert.Equal(20,summary.DetailGroups.Sum(g=>g.Lines.Length));
+        Assert.Equal(21,summary.JournalLines.Count());
+    }
+
+    [Fact]
+    public void WagesAcrossSeveralDays_AreOneSummary_AndKeepTheOriginalDetails()
+    {
+        var summary=Of(Days(2),false,new AdvanceLine(1,PartyAdvanceKinds.WagesPaid,"npc.ashen_hollow.bram",5),
+            new AdvanceLine(2,PartyAdvanceKinds.WagesPaid,"npc.ashen_hollow.bram",5));
+        Assert.Equal("You paid Bram 10 coin in wages.",Assert.Single(summary.Groups.SelectMany(g=>g.Lines)));
+        Assert.Equal(2,summary.DetailGroups.Sum(g=>g.Lines.Length));
     }
 }

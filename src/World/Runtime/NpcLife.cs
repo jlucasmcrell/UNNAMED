@@ -164,7 +164,9 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
                 arrivals++;
                 var routine = Life.Routines[npc.RoutineId];
                 _context.Events.Publish(new NpcArrived(npc.Key, npc.Name ?? routine.Role, routine.Role, tick));
-                log?.Add(new AdvanceLine(tick, NpcAdvanceKinds.Arrived, npc.Key));
+                var town=_context.Setup.Adventurers.Settlements.GetValueOrDefault(routine.Settlement);
+                log?.Add(new AdvanceLine(tick, NpcAdvanceKinds.Arrived, npc.Key) {
+                    ActorName=npc.Name,PlaceId=town?.LocationId ?? town?.MarketId });
             }
             if (!publish)
                 continue;

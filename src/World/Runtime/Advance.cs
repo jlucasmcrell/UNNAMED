@@ -18,7 +18,15 @@ public interface IAbstractAdvance
 }
 
 /// <summary>One thing that happened while the character was away: what kind of thing, what it concerns, and how much.</summary>
-public sealed record AdvanceLine(long Tick, string Kind, string Ref, long Amount = 1);
+public sealed record AdvanceLine(long Tick, string Kind, string Ref, long Amount = 1)
+{
+    // Transient facts for the away digest. Names survive a procedural slot changing hands;
+    // definition IDs remain IDs here and become words only in presentation. Not saved state.
+    public string? ActorName { get; init; }
+    public string? PlaceId { get; init; }
+    public string? SubjectId { get; init; }
+    public int? Level { get; init; }
+}
 
 /// <summary>The kinds of <see cref="AdvanceLine"/> the systems write. Presentation words them; the domain does not.</summary>
 public static class AdvanceKinds

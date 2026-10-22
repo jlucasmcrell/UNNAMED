@@ -120,6 +120,27 @@ public class AdventurerWorldTests
     }
 
     [Fact]
+    public void AwayClaims_CaptureTheActualAdventurerNamesAndPlaces()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var simulation = AtSpawn(session).Simulation;
+        var lines = simulation.Advance(9 * Day).Lines
+            .Where(l => l.Kind is AdventurerAdvanceKinds.Arrived or AdventurerAdvanceKinds.Claimed
+                or AdventurerAdvanceKinds.Died or AdventurerAdvanceKinds.Retired).ToArray();
+        Assert.NotEmpty(lines);
+        Assert.Contains(lines, l => l.Kind == AdventurerAdvanceKinds.Claimed);
+        Assert.All(lines, line =>
+        {
+            Assert.False(string.IsNullOrWhiteSpace(line.ActorName));
+            Assert.DoesNotContain("slot", line.ActorName!, StringComparison.OrdinalIgnoreCase);
+            Assert.False(string.IsNullOrWhiteSpace(line.PlaceId));
+            if (line.Kind == AdventurerAdvanceKinds.Arrived) Assert.InRange(line.Level!.Value, 1, 100);
+            if (line.Kind == AdventurerAdvanceKinds.Claimed) Assert.NotNull(line.SubjectId);
+        });
+    }
+
+    [Fact]
     public void TheWorldRunning_AndTheWorldAway_LiveTheSameDays()
     {
         using var profile = new TempProfile();

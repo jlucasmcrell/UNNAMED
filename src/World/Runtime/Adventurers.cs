@@ -300,6 +300,16 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
         var setup = Setup!;
         long day = Clock.Day(tick);
         string NameOf(string key) => Current!.Agents.GetValueOrDefault(key)?.Name ?? before.Agents.GetValueOrDefault(key)?.Name ?? key;
+        string? Home(string? settlement) => settlement is not null && setup.Settlements.TryGetValue(settlement, out var town) ? town.LocationId ?? town.MarketId : null;
+        string? GroundPlace(string? key)
+        {
+            var site=_context.Setup.Combat.Spawns.FirstOrDefault(s=>s.Key==key);
+            if(site is null)return null;
+            var place=_context.Setup.Layout.Locations.Where(l=>setup.Names.ContainsKey(l.Id))
+                .OrderBy(l=>(double)(l.XMm-site.XMm)*(l.XMm-site.XMm)+(double)(l.ZMm-site.ZMm)*(l.ZMm-site.ZMm))
+                .ThenBy(l=>l.Id,StringComparer.Ordinal).FirstOrDefault();
+            return place?.Id;
+        }
         foreach (var h in happenings)
         {
             switch (h.Kind)
@@ -307,11 +317,14 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
                 case AdventurerEngine.Arrived:
                     var a = Current!.Agents[h.Key];
                     _context.Events.Publish(new AdventurerArrived(h.Key, a.Name, a.Settlement, a.Level, tick));
-                    log?.Add(new AdvanceLine(tick, AdventurerAdvanceKinds.Arrived, h.Key));
+                    log?.Add(new AdvanceLine(tick, AdventurerAdvanceKinds.Arrived, h.Key) { ActorName=a.Name,PlaceId=Home(a.Settlement),Level=a.Level });
                     break;
                 case AdventurerEngine.Died:
                     _context.Events.Publish(new AdventurerDied(h.Key, NameOf(h.Key), h.Ref ?? "", tick));
-                    log?.Add(new AdvanceLine(tick, AdventurerAdvanceKinds.Died, h.Key));
+                    log?.Add(new AdvanceLine(tick, AdventurerAdvanceKinds.Died, h.Key) {
+                        ActorName=before.Agents.GetValueOrDefault(h.Key)?.Name ?? NameOf(h.Key),
+                        PlaceId=GroundPlace(h.Ref) ?? Home(h.Settlement),
+                        SubjectId=h.Ref is not null && Grounds.TryGetValue(h.Ref,out var ground) ? ground.CreatureId : null });
                     break;
                 case AdventurerEngine.Injured:
                     _context.Events.Publish(new AdventurerInjured(h.Key, NameOf(h.Key), day + h.Amount, tick));
@@ -319,11 +332,13 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
                 case AdventurerEngine.Retired:
                     bool settled = _context.Dispatch(new SettleRetiree(h.Settlement!, h.Ref!, tick)) is null;
                     _context.Events.Publish(new AdventurerRetired(h.Key, NameOf(h.Key), h.Settlement!, settled, tick));
-                    log?.Add(new AdvanceLine(tick, AdventurerAdvanceKinds.Retired, h.Key));
+                    log?.Add(new AdvanceLine(tick, AdventurerAdvanceKinds.Retired, h.Key) { ActorName=NameOf(h.Key),PlaceId=Home(h.Settlement) });
                     break;
                 case AdventurerEngine.Claimed:
                     if (_context.Dispatch(new ClaimBounty(InstanceIdOf(h.Key), h.Ref!, tick)) is null)
-                        log?.Add(new AdvanceLine(tick, AdventurerAdvanceKinds.Claimed, $"{h.Ref}|{h.Key}", h.Coin));
+                        log?.Add(new AdvanceLine(tick, AdventurerAdvanceKinds.Claimed, $"{h.Ref}|{h.Key}", h.Coin) {
+                            ActorName=NameOf(h.Key),SubjectId=h.Ref,
+                            PlaceId=Home(before.Agents.GetValueOrDefault(h.Key)?.At ?? Current!.Agents.GetValueOrDefault(h.Key)?.At) });
                     break;
                 case AdventurerEngine.Culled:
                     _context.Dispatch(new CullCreatures(h.Ref!, (int)h.Amount, tick));
