@@ -242,7 +242,7 @@ internal sealed partial class PetSystem : IAbstractAdvance
     }
 
     /// <summary>What is saved of the party's animals: each one's body, condition, order, health, bond, skills and home clock.</summary>
-    public ImmutableArray<PetRecord> Records() => State.Pets.Values
+    public ImmutableArray<PetRecord> Records() => Setup.Species.IsEmpty ? _saved : State.Pets.Values
         .OrderBy(p => p.Key, StringComparer.Ordinal)
         .Select(p => new PetRecord(p.Id, p.Species.CreatureId, p.Name, p.Species.Role, p.Order, p.Condition,
             p.Body.XMm, p.Body.ZMm, p.Body.FacingMdeg, p.Health, p.Bond, p.Skills)

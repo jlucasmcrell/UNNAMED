@@ -387,6 +387,8 @@ public partial class Main : Node3D
             LockProfile = true,
             RegionId = region,
             Barrowworks = VisualOptions.Barrowworks,
+            // RC d6 ships accepted companion work; pets remain an explicit development review.
+            EnablePets = _options.ContainsKey(PetShotsOption) || OS.GetEnvironment("OTHERREACH_PETS_REVIEW") == "1",
             // A --shot names a place to stand, so the session opens the player there instead of making the
             // capture walk him across the region - which measured about a quarter of an hour per room in the
             // Barrowworks (plan P2h). Absent, the region's own spawn is used and nothing changes.

@@ -40,6 +40,9 @@ public sealed record GameOptions(string ContentRoot, string ProfileRoot)
     /// </summary>
     public bool Barrowworks { get; init; }
 
+    /// <summary>Candidate pet mechanics may be excluded by the playtest frontend while review is pending.</summary>
+    public bool EnablePets { get; init; } = true;
+
     /// <summary>Where a capture stands a new character; null uses the region's spawn, as every ordinary run does.</summary>
     public long? StartXMm { get; init; }
 
@@ -228,12 +231,18 @@ public sealed class GameSession : IDomainEvents, IDisposable
                 spaces = spaces.SetItem(portal.Space, inner.Space);
         }
 
+        var catalog = ItemContent.BuildCatalog(loader);
+        var merchants = ItemContent.BuildMerchants(loader);
+        if (!options.EnablePets)
+            merchants = merchants.ToImmutableSortedDictionary(p => p.Key,
+                p => p.Value with { Stock = p.Value.Stock.Where(s => catalog.Find(s.ItemId)?.PetCreature is null).ToImmutableArray() }, StringComparer.Ordinal);
+
         var setup = new SimulationSetup(layout, movement, ProgressionContent.BuildRules(loader),
             WorldContent.BuildTiers(loader), WorldContent.TickMilliseconds(loader))
         {
-            Items = new ItemSetup(ItemContent.BuildCatalog(loader), ItemContent.BuildLootTables(loader),
+            Items = new ItemSetup(catalog, ItemContent.BuildLootTables(loader),
                 ItemContent.BuildInventoryRules(loader, movement.InteractReachMm), ItemContent.BuildStartingKit(loader),
-                ItemContent.BuildPricing(loader), ItemContent.BuildMerchants(loader)),
+                ItemContent.BuildPricing(loader), merchants),
             // The region's spawns carry the region's space, and the ring's carry the ring's, so a creature is
             // only ever seen, struck or advanced in the space it stands in (B1).
             Combat = CoLoadSpawns(CombatContent.Build(loader, options.RegionId, layout.SpaceId), loader, layout, inner),
@@ -260,7 +269,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Adventurers = AdventurerContent.Build(loader),
             Lore = LoreContent.Build(loader),
             // Pets (spec 43): the taming rules and the species a creature is a pet as; null in a pack with none.
-            Pets = PetContent.BuildSpecies(loader) is { Count: > 0 } species
+            Pets = options.EnablePets && PetContent.BuildSpecies(loader) is { Count: > 0 } species
                 ? new UNNAMED.Domain.Pets.PetSetup(PetContent.BuildRules(loader), species)
                 : null,
             Spaces = spaces,
