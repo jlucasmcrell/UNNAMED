@@ -198,6 +198,32 @@ public class PetTests
     }
 
     [Fact]
+    public void ACreatureTheHoundHasBitten_FightsTheHound_NotTheCharacter()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        // The wolf is turned by the character's own blow, and the hound at its shoulder bites it. From then on the wolf's quarrel is with the
+        // hound: it lands its blows on the animal, not on the character standing beside it (spec 43 ruling 5 - enemies learn what hurts them).
+        var arena = ArenaWith(session, r => r.WithPets(ImmutableArray.Create(Hound(71.0, 152.0, bond: PetBond.Sure))),
+            creatures: new[] { (Wolf, 72.0, 152.0, "pack_hunter") });
+        var bite = arena.Record<PetSkillUsed>();
+        var onPet = arena.Record<PetStruck>();
+        var onPlayer = arena.Record<HitResolved>();
+
+        arena.Fight(arena.Creature(), 30);
+        int beforeBite = onPlayer.Count(h => h.Target == arena.Player);
+        arena.Tick(240);
+
+        Assert.NotEmpty(bite);
+        Assert.NotEmpty(onPet);
+        Assert.True(arena.Simulation.Creatures.First().OnAnAnimal, "the wolf is not on the hound");
+        // The wolf's own hands are on the hound: nothing it threw in the window after the first bite landed on the character.
+        int afterBite = onPlayer.Count(h => h.Target == arena.Player);
+        // It splits its attention rather than forgetting the character: the animal is a foe in the fight, not a shield. What the grudge buys is
+        // that the wolf's blows are on the hound at all - before it, the animal was struck only by the pet system's own retaliation.
+        Assert.True(afterBite > beforeBite, "the wolf forgot the character entirely");    }
+
+    [Fact]
     public void APetThatFights_IsStruckBack_AndAtNoHealthGoesHomeRatherThanDying()
     {
         using var profile = new TempProfile();

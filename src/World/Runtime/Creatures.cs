@@ -55,6 +55,9 @@ public sealed record CreatureView(EntityId Id, string Key, string DefId, string 
 
     public bool Hostile => Mind == CreatureMind.Engaged;
 
+    /// <summary>It is fighting an animal of the party rather than the character: what bit it, while the grudge lasts.</summary>
+    public bool OnAnAnimal { get; init; }
+
     /// <summary>What a <see cref="MoveItemCommand"/> names the body by while it lies there.</summary>
     public string CorpseKey => CreatureSystem.CorpseKeyOf(Key, Generation);
 
@@ -124,6 +127,15 @@ internal sealed record CreatureState(
     /// only, like a blow in progress - a lure is a working of the moment, not a fact about the animal.
     /// </summary>
     public long DrawnUntil { get; init; }
+
+    /// <summary>
+    /// The animal that savaged it, and until when (spec 43 ruling 5, "enemies learn"): a creature struck by a pet turns on the pet for a few
+    /// seconds rather than on the archer behind it - so a hound that bites a wolf is a hound the wolf fights. Transient, like a blow in
+    /// progress: a load starts with no grudge, and the creature's own wounds are what it remembers.
+    /// </summary>
+    public EntityId? ProvokedBy { get; init; }
+
+    public long ProvokedUntil { get; init; }
 
     /// <summary>
     /// How much of an encounter this body is (spec 43 ruling 5): 100 is exactly as authored, and a party's presence scales what a
@@ -226,6 +238,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
     /// <summary>Whether a spawn slot's animal has been taken as a pet, so it does not stand in the wild again (spec 43's taming).</summary>
     public Func<string, bool>? TamedAway { get; set; }
+
+    /// <summary>The animals on their feet, as bodies a creature can turn on: the other half of what a fight is about (spec 43 ruling 5).</summary>
+    public Func<ImmutableArray<(Body Body, EntityId Id)>>? PetsOnFeet { get; set; }
 
     private EncounterScale ScaleOf() => Scale?.Invoke() ?? EncounterScale.Authored;
 
@@ -980,6 +995,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
             KnownXMm = fromX,
             KnownZMm = fromZ,
             LastSeenTick = tick,
+            // A blow from a pet is a grudge: what bit it is what it goes for (spec 43 ruling 5).
+            ProvokedBy = command.Attacker is { Kind: EntityKind.Summon } bite ? bite : c.ProvokedBy,
+            ProvokedUntil = command.Attacker is { Kind: EntityKind.Summon } ? tick + C.OutOfCombatTicks : c.ProvokedUntil,
         };
         // It felt the wound: it is on its attacker now, or running from it.
         var mind = Frightened(wounded) ? CreatureMind.Fleeing : CreatureMind.Engaged;
@@ -1310,8 +1328,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
     }
 
     /// <summary>
-    /// Whom an engaged creature goes for (M6): the character - or a companion on their feet standing nearer to it by more than a step,
-    /// in reach of it, as the one in its way. It is the character it perceives and hunts; a companion is fought because they are there.
+    /// Whom an engaged creature goes for (M6, spec 43 ruling 5): the character - or whoever of the party is on their feet and standing nearer,
+    /// a companion or an animal. The one that savaged it comes first while the grudge lasts: a wolf a hound has bitten fights the hound, not
+    /// the archer behind it.
     /// </summary>
     private (Body Body, EntityId Id, string? Companion) Foe(CreatureState c)
     {
@@ -1324,6 +1343,13 @@ internal sealed class CreatureSystem : IAbstractAdvance
             double toCompanion = Distance(c.Body.XMm, c.Body.ZMm, npc.Body.XMm, npc.Body.ZMm);
             if (toCompanion + FoeMarginMm < toPlayer && toCompanion + FoeMarginMm < Distance(c.Body.XMm, c.Body.ZMm, foe.Item1.XMm, foe.Item1.ZMm))
                 foe = (npc.Body, npc.InstanceId, npc.Definition.Id);
+        }
+        foreach (var (body, id) in PetsOnFeet?.Invoke() ?? ImmutableArray<(Body Body, EntityId Id)>.Empty)
+        {
+            bool grudge = c.ProvokedBy == id && State.WorldTick < c.ProvokedUntil;
+            if (grudge || Distance(c.Body.XMm, c.Body.ZMm, body.XMm, body.ZMm) + FoeMarginMm
+                    < Distance(c.Body.XMm, c.Body.ZMm, foe.Item1.XMm, foe.Item1.ZMm))
+                foe = (body, id, null);
         }
         return foe;
     }
@@ -1392,6 +1418,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 Paralysed = c.Alive && State.Effects.GetValueOrDefault(c.Id, ImmutableArray<ActiveEffect>.Empty).Any(e => e.EffectId == "effect.paralyse"),
                 Poisoned = c.Alive && State.Effects.GetValueOrDefault(c.Id, ImmutableArray<ActiveEffect>.Empty).Any(e => e.EffectId == "effect.venom"),
                 Level = c.Definition.Level + c.LevelBonus,
+                OnAnAnimal = c.ProvokedBy is { } provoked && tick < c.ProvokedUntil && PetsOnFeet?.Invoke().Any(p => p.Id == provoked) == true,
                 Huntable = c.Definition.LootTableId is not null,
                 Temperament = TemperamentRules.Of(c.Role.Peaceful, c.Role.AnswersCalls, c.Mind == CreatureMind.Engaged),
                 Threat = ThreatRules.Of(c.Definition.Level + c.LevelBonus, State.Progression.Level),
