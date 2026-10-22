@@ -5,7 +5,7 @@ display_key: lore.siann.title
 tags: [lore, peoples]
 title: The Siann
 category: peoples
-notes: "Written from docs/MYTHOLOGY.md §Siann and docs/RACES.md §3 — native, they believe they woke after the last Pachakuti, reach maturity in their late teens and then stop, white hair the only age signal, the Record as testimony-obsession and the missing page kept shut. In-world, page 1 is a scholar's page (readable.siann) and page 2 is Sel Arien's own telling (dialogue.ashen_hollow.sel_arien)."
+notes: "Written from docs/MYTHOLOGY.md §Siann and docs/RACES.md §3 — native, they believe they woke after the last Pachakuti, reach maturity in their late teens and then stop, white hair the only age signal, the Record as testimony-obsession and the missing page kept shut. In-world, page 1 is a scholar's page (readable.siann) and page 2 is Sel Arien's own telling (dialogue.ashen_hollow.sel_arien). Page 3 is the Vaskaal's reading of them (readable.siann_ii)."
 pages:
   - page: 1
     text: >
@@ -29,3 +29,13 @@ pages:
       spent like a surplus, and testimony held like the only thing that cannot be bought back.
     sources:
       - { how: told, ref: dialogue.ashen_hollow.sel_arien }
+  - page: 3
+    text: >
+      The one people who do not read them as the long view. Everywhere else a Siann is the elder, four centuries
+      in an eighteen-year face, trusted with history and trusted with nothing else. The Vaskaal treat a Siann as
+      a young thing, and the Siann find it unbearable. The void-farers keep their own long record, and against it
+      a people who have kept testimony for four hundred years are still new. Sel Arien, who grades every guess,
+      has no grade for it. It is a small, clean reversal: the setting's memory, read as a child by the one people
+      who can describe the last turn from outside.
+    sources:
+      - { how: inspected, ref: readable.siann_ii }

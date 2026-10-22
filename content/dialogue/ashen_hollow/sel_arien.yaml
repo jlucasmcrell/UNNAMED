@@ -173,6 +173,21 @@ nodes:
         text: "Tell me about the veil"
         next: tell_the_veil
 
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_ember_hounds_p2
+        text: "Tell me about ember hounds"
+        next: tell_ember_hounds_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_siann_p2
+        text: "Tell me about the siann"
+        next: tell_siann_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_the_siann_missing_page_p2
+        text: "Tell me about the siann missing page"
+        next: tell_the_siann_missing_page_p2
+
       - id: leave
         text: "Another time."
       - id: story_grazers
@@ -607,6 +622,30 @@ nodes:
       - id: back
         text: "I will remember it."
         consequences: [{ command: tell_lore, lore_ref: lore.the_veil }]
+        next: again
+
+  tell_ember_hounds_p2:
+    text: "What the cinder sacs are for, in Sel Arien's own words, given with the door shut even though there is no one to hear. Work one into a finished salve over a fire and the mending runs twice as fast. She has no idea why. She has tried it eleven times and it has worked eleven times, and she still will not put it in the Record until she knows the reason, so it is not a secret - it is unfinished. That distinction matters to her more than the salve does. A thing that works and cannot say why is a thing to be kept carefully and not written down as knowledge, and the same rule she applies to the stones she will not name a people for applies to the cinders she is happy to use."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.ember_hounds }]
+        next: again
+
+  tell_siann_p2:
+    text: "Sel Arien, the archivist who keeps her books at the survey table east of the lodge, is the Siann habit made flesh. The Record holds eleven lines on the Foldscar, and four of them contradict the other seven, so she grades her own guesses and says none of them aloud at better than one chance in three. She came out here for a season. That was thirty-one years ago, and when Tavar Orr tells her it was a long season, she answers only that it felt recent. She will take your account of a thing and forbid you to improve it, because to her the word, exactly as given, is the whole of what a witness is worth. That is the Siann way in one scholar: time spent like a surplus, and testimony held like the only thing that cannot be bought back."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.siann }]
+        next: again
+
+  tell_the_siann_missing_page_p2:
+    text: "Ask a Siann what the missing part said, and the answer is a long one about something else. Sel Arien will confirm that the record begins mid-sentence, and grade that as a certainty, and then she will not go further. The oldest Siann know what is gone from the front of it, and they have kept that page closed for centuries, because to open it would be to admit that the Record, the whole standing of their people, set on exact testimony, begins with a gap they have known about and never once reported. That is the finding, and the surveyor leaves it where it stands."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.the_siann_missing_page }]
         next: again
 
 barks:

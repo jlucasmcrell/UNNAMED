@@ -81,10 +81,12 @@ def main():
             continue
         path = candidate[0]
         text = path.read_text(encoding="utf-8")
-        choice_id = f"ask_{entry.split('.')[-1]}"
+        # A second telling of the same entry, or a second page of it, is its own question: the page is in the name.
+        slug = entry.split(".")[-1]
+        choice_id = f"ask_{slug}" if page == 1 else f"ask_{slug}_p{page}"
         if f"- id: {choice_id}" in text:
             continue
-        node_id = f"tell_{entry.split('.')[-1]}"
+        node_id = f"tell_{slug}" if page == 1 else f"tell_{slug}_p{page}"
         # The reply goes on the node the player returns to, before its leave.
         again = text.find("\n  again:")
         if again < 0:

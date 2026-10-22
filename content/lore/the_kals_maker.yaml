@@ -5,7 +5,7 @@ display_key: lore.the_kals_maker.title
 tags: [lore, faith]
 title: The Kal's Maker
 category: faith
-notes: "The Kal's workshop theology of a maker whose name is lost, from docs/MYTHOLOGY.md, Kal. Written as the smith's account at the forge - Kera Voss's telling - and the entry's own inscription; a maker who finishes and leaves is competent, not cruel."
+notes: "The Kal's workshop theology of a maker whose name is lost, from docs/MYTHOLOGY.md, Kal. Written as the smith's account at the forge - Kera Voss's telling - and the entry's own inscription; a maker who finishes and leaves is competent, not cruel. Page 3 is the Constructed's counter (readable.the_kals_maker_ii)."
 pages:
   - page: 1
     text: >
@@ -27,3 +27,13 @@ pages:
       herself, the same thing: made well.
     sources:
       - { how: inspected, ref: readable.the_kals_maker }
+  - page: 3
+    text: >
+      The other people who know what being made is, and their account does not match the smith's. The Kal hold
+      that a maker who finishes and leaves is competent, and the absence of a name does not trouble them. The
+      Constructed hold the opposite: they can prove they were made, and the proof names no hand at the top, and
+      the absence is the one thing they cannot bear. A proof of making, they say, is not a name, and may not be a
+      mind at all. The Kal's comfort and the Constructed's wound are the same fact looked at from two sides, and
+      neither account reaches the other.
+    sources:
+      - { how: inspected, ref: readable.the_kals_maker_ii }

@@ -5,7 +5,7 @@ display_key: lore.ondrek.title
 tags: [lore, peoples]
 title: The Ondrek
 category: peoples
-notes: "Written from docs/MYTHOLOGY.md §Ondrek and docs/RACES.md §8 — thinking stone, the only people who read raw material as memory, at war with the Kal over the Kal stone, quietly ending, no creation account, the record as doctrine. In-world, both pages are one book (readable.ondrek), because no Ondrek stands in the frontier to be asked."
+notes: "Written from docs/MYTHOLOGY.md §Ondrek and docs/RACES.md §8 — thinking stone, the only people who read raw material as memory, at war with the Kal over the Kal stone, quietly ending, no creation account, the record as doctrine. In-world, both pages are one book (readable.ondrek), because no Ondrek stands in the frontier to be asked. Page 3 is the Ondrek's position (readable.ondrek_ii)."
 pages:
   - page: 1
     text: >
@@ -28,3 +28,13 @@ pages:
       may be another people's graves.
     sources:
       - { how: inspected, ref: readable.ondrek }
+  - page: 3
+    text: >
+      The Ondrek's position, in their own words, and it is not what the Kal report. The Kal call the quarrel a
+      desecration and stop there. The Ondrek call it an argument, and their side of it is this: they do not know
+      whether the stone they take was ever Kal, and the Kal do not know either, and the Kal have chosen certainty
+      over looking. They say the stone is not worthless to them; it is relatives, and the only medium that has
+      ever carried memory, and their people are ending and have nowhere else to look. Neither claim is settled.
+      Both sides are sincere.
+    sources:
+      - { how: inspected, ref: readable.ondrek_ii }

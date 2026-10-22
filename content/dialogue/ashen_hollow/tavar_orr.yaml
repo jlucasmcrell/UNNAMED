@@ -104,6 +104,16 @@ nodes:
         text: "Tell me about tavar and the fold"
         next: tell_tavar_and_the_fold
 
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_orenth_p2
+        text: "Tell me about the orenth"
+        next: tell_orenth_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_tavar_and_the_fold_p2
+        text: "Tell me about tavar and the fold"
+        next: tell_tavar_and_the_fold_p2
+
       - id: leave
         text: "Take a moment. I'll see you at the waystation."
         conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, not: true }]
@@ -187,6 +197,22 @@ nodes:
         next: again
 
   tell_tavar_and_the_fold:
+    text: "Tavar Orr's account, given afterwards, plainly and without performance. He walked in among the stones for a dropped chain and did not walk out. From the rise he could be seen standing; from the rise he could not be reached, and a hand stopped a hand's width short of him. His voice came from the wrong side. He says the worst of it was that nothing hurt and nothing hurried: the afternoon simply did not end, and the others went on having one. He does not describe the fold as another place. He says it was this place, standing a breath out of step, and that he was in it, and that the sun kept going over."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.tavar_and_the_fold }]
+        next: again
+
+  tell_orenth_p2:
+    text: "Tavar Orr, the guide Sel Arien hires for her surveys, carries the ledger the way another man carries a purse. Three days in the fold, he says, and for him it was one long afternoon — cheap, for a crossing he never meant to make. He will write it down, he says, under things he has lost, between his mother's name and a very good knife, and he smiles as if that were the joke and not the list. The man lost time and does not pretend it cost him nothing; he only keeps the account, because an Orenth who does not keep the account is an Orenth who will one day be asked for more than he has left. His shadow keeps up with him now, which is how the waystation knows he is whole enough to walk."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.orenth }]
+        next: again
+
+  tell_tavar_and_the_fold_p2:
     text: "Tavar Orr's account, given afterwards, plainly and without performance. He walked in among the stones for a dropped chain and did not walk out. From the rise he could be seen standing; from the rise he could not be reached, and a hand stopped a hand's width short of him. His voice came from the wrong side. He says the worst of it was that nothing hurt and nothing hurried: the afternoon simply did not end, and the others went on having one. He does not describe the fold as another place. He says it was this place, standing a breath out of step, and that he was in it, and that the sun kept going over."
     choices:
       - id: back

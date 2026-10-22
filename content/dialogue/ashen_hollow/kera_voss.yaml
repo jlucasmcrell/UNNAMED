@@ -152,6 +152,11 @@ nodes:
         text: "Tell me about the kal's maker"
         next: tell_the_kals_maker
 
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_kal_p2
+        text: "Tell me about the kal"
+        next: tell_kal_p2
+
       - id: leave
         text: "Nothing today."
       - id: story_cut
@@ -399,6 +404,14 @@ nodes:
       - id: back
         text: "I will remember it."
         consequences: [{ command: tell_lore, lore_ref: lore.the_kals_maker }]
+        next: again
+
+  tell_kal_p2:
+    text: "The smith Kera Voss says it plainly, over her own hammer. Ask about the wings and she will tell you they fold, that they are not for flying — not in this air, and not with her supper in her — and that they are good for coming down off a roof slow. Ask her about the Foldscar and the warmth goes out of her. A Kal caught when a world turns does not die, she says; it sets, stone all the way through, standing where it stood, and the ring out there is a world half-turning all day long. She will make you anything you like to carry out to it. She will not carry herself. That is the whole of the Kal condition in two answers: a people who hold their dead as stone, and who know exactly what a turn would make of them."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.kal }]
         next: again
 
 barks:

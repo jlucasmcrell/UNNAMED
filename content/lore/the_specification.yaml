@@ -5,7 +5,7 @@ display_key: lore.the_specification.title
 tags: [lore, faith]
 title: The Specification
 category: faith
-notes: "The Constructed doctrine that everything, themselves included, is a description being executed, from docs/MYTHOLOGY.md, Constructed. Reported by the surveyor, who has read their documentation and found no author's name; told by Sel Arien, read in the entry's own copy."
+notes: "The Constructed doctrine that everything, themselves included, is a description being executed, from docs/MYTHOLOGY.md, Constructed. Reported by the surveyor, who has read their documentation and found no author's name; told by Sel Arien, read in the entry's own copy. Page 3 is what the writing can and cannot settle (readable.the_specification_ii)."
 pages:
   - page: 1
     text: >
@@ -27,3 +27,13 @@ pages:
       doctrine she has ever read that asks, in writing, after its own maker.
     sources:
       - { how: inspected, ref: readable.the_specification }
+  - page: 3
+    text: >
+      What can be established, and what cannot. That the Constructed were made is settled: they can prove it.
+      That the writing runs and has no author's name is settled too, and it is all the writing there is. What
+      cannot be settled is whether there is a mind behind it at all, or only text, a description with no hand at
+      the top of it, still running. The Constructed are certain they have their own will; they cannot locate the
+      hand that wrote them, and the writing offers no answer, only the question. That is where the matter rests,
+      and they find the resting harder to bear than the asking.
+    sources:
+      - { how: inspected, ref: readable.the_specification_ii }

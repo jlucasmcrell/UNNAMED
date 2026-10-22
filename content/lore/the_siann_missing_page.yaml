@@ -5,7 +5,7 @@ display_key: lore.the_siann_missing_page.title
 tags: [lore, faith]
 title: The Siann Missing Page
 category: faith
-notes: "The Siann's oldest record begins mid-sentence and the oldest Siann keep the missing page closed, from docs/MYTHOLOGY.md, Siann. The record is read, and Sel Arien's telling is graded as to what she will and will not say."
+notes: "The Siann's oldest record begins mid-sentence and the oldest Siann keep the missing page closed, from docs/MYTHOLOGY.md, Siann. The record is read, and Sel Arien's telling is graded as to what she will and will not say. Page 3 is the rumour of the shut page (readable.the_siann_missing_page_ii)."
 pages:
   - page: 1
     text: >
@@ -26,3 +26,13 @@ pages:
       the surveyor leaves it where it stands.
     sources:
       - { how: told, ref: dialogue.ashen_hollow.sel_arien }
+  - page: 3
+    text: >
+      What the rumour says, and the rumour is older than anyone who tells it. The Siann hold that their Record
+      begins after the last turn, mid-sentence, and that the missing part is kept shut by the oldest of them. The
+      rumour holds that the page is not lost but closed, and that what it says is the one thing their standing
+      cannot admit: that they did not merely survive the turn, that they witnessed it, that they were made by it.
+      No Siann will confirm it and no Siann will deny it. The page stays shut, and the two tellings stand a
+      hand's width apart and do not touch.
+    sources:
+      - { how: inspected, ref: readable.the_siann_missing_page_ii }

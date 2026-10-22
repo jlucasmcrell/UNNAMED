@@ -42,6 +42,7 @@ ALIAS = {
     "ash_ember_hound": "lore.ember_hounds",
     "foldscar": "lore.tavar_and_the_fold",
     "kal_maker": "lore.the_kals_maker",
+    "south_crags": "lore.the_crags",
 }
 
 

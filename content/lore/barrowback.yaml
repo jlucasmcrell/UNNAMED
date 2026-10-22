@@ -5,7 +5,7 @@ display_key: lore.barrowback.title
 tags: [lore, creatures]
 title: The Barrowback
 category: creatures
-notes: "Written from content/creatures/grazer/barrowback.yaml (tusked, shaggy, about 3.6 m at the withers, fold bleed, met near the Foldscar and nowhere else, passive but the herd defends as one, slow to turn, a real fight and a month of meat) and content/loot/barrowback.yaml and content/items/material/barrowback_hide.yaml (more meat than one person can carry, the fleece, nobody has worked one, Durn pays anyway). In-world, both pages are what studying the beast teaches (creature.grazer.barrowback)."
+notes: "Written from content/creatures/grazer/barrowback.yaml (tusked, shaggy, about 3.6 m at the withers, fold bleed, met near the Foldscar and nowhere else, passive but the herd defends as one, slow to turn, a real fight and a month of meat) and content/loot/barrowback.yaml and content/items/material/barrowback_hide.yaml (more meat than one person can carry, the fleece, nobody has worked one, Durn pays anyway). In-world, both pages are what studying the beast teaches (creature.grazer.barrowback). Page 3 is the two records of the first grazer (readable.barrowback_ii)."
 pages:
   - page: 1
     text: >
@@ -27,3 +27,13 @@ pages:
       leave with the meat or with your life, and the herd does not bargain.
     sources:
       - { how: studied, ref: creature.grazer.barrowback }
+  - page: 3
+    text: >
+      Two records, and they do not agree. Sel Arien places the first grazer record in the same week as Tavar
+      Orr's long afternoon in the fold, and writes it as the first. Berrin Garth's lodge book has an older bleed
+      recorded, the same great shaggy thing met on the Foldscar's edge, written down long before. Set side by
+      side, the two entries give no sequence, and neither gives a cause. The surveyor will not stretch one record
+      over the gap, and the lodge keeper will not rub out his older line to make the story tidier. When the
+      barrowback first came to the Foldscar's edge, and why only there, stays unwritten.
+    sources:
+      - { how: inspected, ref: readable.barrowback_ii }

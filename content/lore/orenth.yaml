@@ -5,7 +5,7 @@ display_key: lore.orenth.title
 tags: [lore, peoples]
 title: The Orenth
 category: peoples
-notes: "Written from docs/MYTHOLOGY.md §Orenth and docs/RACES.md §4 — descendants of the Found Pacha's colonists, the only people who cross between Pachas deliberately, each crossing costing memory or years, no homeland, the ledger of costs, the older walkers diminished. In-world, page 1 is a scholar's page (readable.orenth) and page 2 is Tavar Orr's own telling (dialogue.ashen_hollow.tavar_orr)."
+notes: "Written from docs/MYTHOLOGY.md §Orenth and docs/RACES.md §4 — descendants of the Found Pacha's colonists, the only people who cross between Pachas deliberately, each crossing costing memory or years, no homeland, the ledger of costs, the older walkers diminished. In-world, page 1 is a scholar's page (readable.orenth) and page 2 is Tavar Orr's own telling (dialogue.ashen_hollow.tavar_orr). Page 3 is the Mor and Kal's reception of their account (readable.orenth_ii)."
 pages:
   - page: 1
     text: >
@@ -29,3 +29,13 @@ pages:
       waystation knows he is whole enough to walk.
     sources:
       - { how: told, ref: dialogue.ashen_hollow.tavar_orr }
+  - page: 3
+    text: >
+      How the other peoples take it, and they do not take it well. The Orenth are the only people whose account
+      of themselves has no making in it, no creator, no maker, only departure and arrival. The Mor find that
+      obscene: a people with no hand over them is a people who cannot be accounted for. The Kal find it
+      unanswerable: a thing that was never shaped and never finished leaves nothing for a smith to judge. The
+      Orenth do not argue the point. They keep their ledger of crossings and go on walking, and the two peoples
+      who most need a maker are left with a door the walkers will not discuss.
+    sources:
+      - { how: inspected, ref: readable.orenth_ii }

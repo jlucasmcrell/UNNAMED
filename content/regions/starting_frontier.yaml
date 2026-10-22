@@ -147765,6 +147765,132 @@ barriers:
 # Readables (spec 41): what is written down, where it stands, and the lore entry reading it files. A page names one page of an entry; a
 # book (no page) opens every page of its entry the character has not read. Both are read from where a switch is worked.
 readables:
+  - key: readable.barrowback_ii
+    lore_ref: lore.barrowback
+    page: 3
+    name: the The Barrowback on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 717.8, 0.6]
+    height_m: 0.9
+  - key: readable.fellhorn_ii
+    lore_ref: lore.fellhorn
+    page: 3
+    name: the The Fellhorn on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 718.6, 0.6]
+    height_m: 0.9
+  - key: readable.kal_ii
+    lore_ref: lore.kal
+    page: 3
+    name: the The Kal on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 719.5, 0.6]
+    height_m: 0.9
+  - key: readable.mor_ii
+    lore_ref: lore.mor
+    page: 3
+    name: the The Mor on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 720.3, 0.6]
+    height_m: 0.9
+  - key: readable.ondrek_ii
+    lore_ref: lore.ondrek
+    page: 3
+    name: the The Ondrek on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 721.2, 0.6]
+    height_m: 0.9
+  - key: readable.orenth_ii
+    lore_ref: lore.orenth
+    page: 3
+    name: the The Orenth on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 722.0, 0.6]
+    height_m: 0.9
+  - key: readable.pacha_ii
+    lore_ref: lore.pacha
+    page: 3
+    name: the The Pacha on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 717.8, 0.6]
+    height_m: 0.9
+  - key: readable.pachakuti_ii
+    lore_ref: lore.pachakuti
+    page: 3
+    name: the The Pachakuti on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 718.6, 0.6]
+    height_m: 0.9
+  - key: readable.ruined_cart_ii
+    lore_ref: lore.ruined_cart
+    page: 2
+    name: the The Ruined Cart on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 719.5, 0.6]
+    height_m: 0.9
+  - key: readable.siann_ii
+    lore_ref: lore.siann
+    page: 3
+    name: the The Siann on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 720.3, 0.6]
+    height_m: 0.9
+  - key: readable.sunk_barrow_ii
+    lore_ref: lore.sunk_barrow
+    page: 2
+    name: the The Sunk Barrow on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 721.2, 0.6]
+    height_m: 0.9
+  - key: readable.the_kal_afterlife_ii
+    lore_ref: lore.the_kal_afterlife
+    page: 3
+    name: the The Kal Afterlife on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 722.0, 0.6]
+    height_m: 0.9
+  - key: readable.the_kals_maker_ii
+    lore_ref: lore.the_kals_maker
+    page: 3
+    name: the The Kal's Maker on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 717.8, 0.6]
+    height_m: 0.9
+  - key: readable.the_last_pachakuti_ii
+    lore_ref: lore.the_last_pachakuti
+    page: 3
+    name: the The Last Pachakuti on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 718.6, 0.6]
+    height_m: 0.9
+  - key: readable.the_siann_missing_page_ii
+    lore_ref: lore.the_siann_missing_page
+    page: 3
+    name: the The Siann Missing Page on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 719.5, 0.6]
+    height_m: 0.9
+  - key: readable.the_specification_ii
+    lore_ref: lore.the_specification
+    page: 3
+    name: the The Specification on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 720.3, 0.6]
+    height_m: 0.9
+  - key: readable.vaskaal_ii
+    lore_ref: lore.vaskaal
+    page: 3
+    name: the The Vaskaal on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 721.2, 0.6]
+    height_m: 0.9
+  - key: readable.veth_ii
+    lore_ref: lore.veth
+    page: 3
+    name: the The Veth on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 722.0, 0.6]
+    height_m: 0.9
   - key: readable.barrowworks
     lore_ref: lore.barrowworks
     page: 2

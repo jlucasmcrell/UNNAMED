@@ -1,0 +1,28 @@
+id: lore.sunk_barrow
+kind: lore
+schema: 1
+display_key: lore.sunk_barrow.title
+tags: [lore, places]
+title: The Sunk Barrow
+category: places
+notes: "Written from content/locations/road/sunk_barrow.yaml (the broken ring of beams round a stone cist on the high ground north of the road), content/spawns/road/barrow_husks.yaml (the two husks that keep it) and content/loot/barrow_cache.yaml (the grave goods still in the cist). In-world, page 1 is the barrow walked up to (location.road.sunk_barrow) and page 2 is a note on its cist (readable.sunk_barrow_ii), since no keeper speaks of it."
+pages:
+  - page: 1
+    text: >
+      On the high ground north of the road there is a barrow, and it is sunk as if the ground has been taking it
+      back a little each year. What is left is a ring of standing beams, broken in places, and two boulders, set
+      round a stone cist. Two husks keep the place - one stands at the cist, one walks the ring of stones, slow
+      and patient and without any blood to lose. A traveller on the road sees the ring against the sky and keeps
+      to the road side. The ring keeps to itself, and the husks keep to the ring.
+    sources:
+      - { how: visited, ref: location.road.sunk_barrow }
+  - page: 2
+    text: >
+      A note on the barrow's cist, set down after a look that was not dared further. The stone lid is still on
+      and the cist still holds its grave goods - iron, salves, arrows and a small blade, and leaves of boneleaf
+      that grow only near the Foldscar. Nobody has dared lift them, and beside the laid goods is what the last
+      person to try dropped and did not stay to pick up. The two husks do not take from the cist; they keep it,
+      one standing, one walking the ring. Whatever is buried here has been waiting a long time, and is in no hurry
+      to be visited.
+    sources:
+      - { how: inspected, ref: readable.sunk_barrow_ii }

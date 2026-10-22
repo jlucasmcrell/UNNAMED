@@ -5,7 +5,7 @@ display_key: lore.the_kal_afterlife.title
 tags: [lore, faith]
 title: The Kal Afterlife
 category: faith
-notes: "That to die well is to be ready to be made into something else, and that the stone is the person waiting, from docs/MYTHOLOGY.md, Kal. The smith's account; told by Kera Voss, read in the entry's own inscription."
+notes: "That to die well is to be ready to be made into something else, and that the stone is the person waiting, from docs/MYTHOLOGY.md, Kal. The smith's account; told by Kera Voss, read in the entry's own inscription. Page 3 is the Ondrek's account (readable.the_kal_afterlife_ii)."
 pages:
   - page: 1
     text: >
@@ -25,3 +25,13 @@ pages:
       recognise the piece when it comes back around.
     sources:
       - { how: inspected, ref: readable.the_kal_afterlife }
+  - page: 3
+    text: >
+      The Ondrek's account, and it is the one the Kal will not hear. The Kal hold that the stone is the person,
+      waiting, between uses, ready to be made into something else. The Ondrek hold that the stone has already
+      woken, and that they are it: they say they are what the Kal become. The Kal call that a lie told to justify
+      a quarry. The Ondrek answer that they do not know, and that the Kal do not know either, and that the Kal
+      have chosen certainty over looking. Both claims stand on the same stone. The stone itself has not said which
+      of them it is.
+    sources:
+      - { how: inspected, ref: readable.the_kal_afterlife_ii }

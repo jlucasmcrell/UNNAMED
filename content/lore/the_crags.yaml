@@ -1,0 +1,28 @@
+id: lore.the_crags
+kind: lore
+schema: 1
+display_key: lore.the_crags.title
+tags: [lore, places]
+title: The South Crags
+category: places
+notes: "Written from content/locations/cairnwold/the_crags.yaml (the crag line along the basin's south edge, one row not a scatter) and content/locations/cairnwold/iron_seam.yaml, with the seam and the walker from content/dialogue/cairnwold/durn_skell.yaml. In-world, page 1 is the crag line walked up to (location.cairnwold.the_crags) and page 2 is Durn Skell's telling of the seam and what walks the line at night."
+pages:
+  - page: 1
+    text: >
+      Along the basin's south edge runs a single row of outcrops - not a scatter of stones but a line, the whole
+      width of the basin, and it is what makes the basin a basin. They stand three to five metres high and the
+      row runs too true to be the weather's doing, one after another. At the far west end of the line the face of
+      one crag shows black where iron has been taken from it, and the ground at its foot is littered with the
+      leavings of the village's smithing. East of the seam the stone is rotten and comes away in the hand. Nothing
+      about the line is new.
+    sources:
+      - { how: visited, ref: location.cairnwold.the_crags }
+  - page: 2
+    text: >
+      Durn Skell works the seam at the crags' west end, and he says it in few words. Iron, our own: three good
+      strikes, then it is done, so do not waste them. His father took iron off that face, and his father before
+      him, and after Durn the village buys its iron off the road - there is no second seam in the basin. And
+      something walks the foot of the crags at night, he says, east of the seam where the stone is rotten. It does
+      not hurry. Neither, he adds, do you.
+    sources:
+      - { how: told, ref: dialogue.cairnwold.durn_skell }

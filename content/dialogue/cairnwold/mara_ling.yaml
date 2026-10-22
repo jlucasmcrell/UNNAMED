@@ -52,6 +52,11 @@ nodes:
         text: "What grows up on the moor?"
         conditions: [{ kind: visited, node: herbs, not: true }]
         next: herbs
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_sinking_moss_p2
+        text: "Tell me about the sinking moss"
+        next: tell_sinking_moss_p2
+
       - id: leave
         text: "Later."
       - id: story_lights
@@ -122,6 +127,14 @@ nodes:
     - id: back
       text: I'll keep looking.
       next: again
+  tell_sinking_moss_p2:
+    text: "Mara Ling keeps the well, and she will tell you the trouble is not the well. The water comes from the north-east, from the low ground and the moss that never drains, and this spring it has come up brown at the end of the rope. She asks for three ashbloom from the wettest ground, and splits the first with her thumbnail - root, stem and leaf all grey, all exactly as they have always been. So the plant is well and the water is not, which means it comes from deeper than the plant reaches. She hates being right, and she says so."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.sinking_moss }]
+        next: again
+
 barks:
   - { text: "Brown again. Of course it is." }
   - { text: "Everyone says the well. Everyone's wrong." }

@@ -5,7 +5,7 @@ display_key: lore.vaskaal.title
 tags: [lore, peoples]
 title: The Vaskaal
 category: peoples
-notes: "Written from docs/MYTHOLOGY.md §Vaskaal and docs/RACES.md §7 — the void-farers who came around the Pachas rather than through one, 2.2 to 2.5 metres tall, no magic at all, technology that is better rather than enchanted, documented history rather than mythology, Pacha as weather, the substrate not empty and not discussed. In-world, both pages are one book (readable.vaskaal), because no Vaskaal stands in the frontier to be asked."
+notes: "Written from docs/MYTHOLOGY.md §Vaskaal and docs/RACES.md §7 — the void-farers who came around the Pachas rather than through one, 2.2 to 2.5 metres tall, no magic at all, technology that is better rather than enchanted, documented history rather than mythology, Pacha as weather, the substrate not empty and not discussed. In-world, both pages are one book (readable.vaskaal), because no Vaskaal stands in the frontier to be asked. Page 3 is their own unsettled account (readable.vaskaal_ii)."
 pages:
   - page: 1
     text: >
@@ -29,3 +29,13 @@ pages:
       would are the ones who cannot.
     sources:
       - { how: inspected, ref: readable.vaskaal }
+  - page: 3
+    text: >
+      What even the Vaskaal argue among themselves, and it is not settled. Some say they are a single
+      expedition; some say the descendants of one, and their own command is still deciding which. What they call
+      their ship, others call a wreck, and others a fortress, and all three words have been said of the same
+      hull. Their first mission is not discussed, and their politics turns entirely on whether to leave. The one
+      people every other people cannot explain cannot agree among themselves about what they are, which is, in
+      its way, the only thing about them that reads like the rest of the world.
+    sources:
+      - { how: inspected, ref: readable.vaskaal_ii }

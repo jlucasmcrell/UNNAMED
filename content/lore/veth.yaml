@@ -5,7 +5,7 @@ display_key: lore.veth.title
 tags: [lore, peoples]
 title: The Veth
 category: peoples
-notes: "Written from docs/MYTHOLOGY.md §Veth and docs/RACES.md §1 — native to this Pacha, changed by the last Pachakuti to learn faster and forget quicker, the majority and the road-builders, whose sacred act is keeping and whose heresy is the claim of descent. In-world, page 1 is a scholar's page (readable.veth) and page 2 is Renn Vale's own telling (dialogue.ashen_hollow.renn_vale)."
+notes: "Written from docs/MYTHOLOGY.md §Veth and docs/RACES.md §1 — native to this Pacha, changed by the last Pachakuti to learn faster and forget quicker, the majority and the road-builders, whose sacred act is keeping and whose heresy is the claim of descent. In-world, page 1 is a scholar's page (readable.veth) and page 2 is Renn Vale's own telling (dialogue.ashen_hollow.renn_vale). Page 3 is the rumour of arrival (readable.veth_ii)."
 pages:
   - page: 1
     text: >
@@ -28,3 +28,14 @@ pages:
       maker. It only asks that the thing be written, and that the writing be kept.
     sources:
       - { how: told, ref: dialogue.ashen_hollow.renn_vale }
+  - page: 3
+    text: >
+      The other telling, and it is not the Veth's own. The Veth hold they were always here, native to this
+      Pacha, changed by the last turn and never moved by it. There is a rumour, kept low and never written in the
+      lodge book, that they were not always the majority, that they arrived, and then rewrote the account so it
+      looked as if the country had always been theirs. It is unfalsifiable, like their own heresy of descent, and
+      it has the same shape: a people who keep everything in writing, accused of having written themselves a
+      beginning. Renn Vale does not tell it. The book by his door does not carry it. It persists anyway, in the
+      margins, where the records are not.
+    sources:
+      - { how: inspected, ref: readable.veth_ii }

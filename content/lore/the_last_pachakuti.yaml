@@ -5,7 +5,7 @@ display_key: lore.the_last_pachakuti.title
 tags: [lore, history]
 title: The Last Pachakuti
 category: history
-notes: "The transition every people's origin account hangs on, from docs/MYTHOLOGY.md, The Pachakuti and The Silence. A surveyor's account of what the last turn did to the peoples; told by Sel Arien, read in the entry's own book, and the cause left unnamed as canon leaves it."
+notes: "The transition every people's origin account hangs on, from docs/MYTHOLOGY.md, The Pachakuti and The Silence. A surveyor's account of what the last turn did to the peoples; told by Sel Arien, read in the entry's own book, and the cause left unnamed as canon leaves it. Page 3 is the Vaskaal's outside record (readable.the_last_pachakuti_ii)."
 pages:
   - page: 1
     text: >
@@ -25,3 +25,13 @@ pages:
       and the surveyor holds that the honest place to end it.
     sources:
       - { how: inspected, ref: readable.the_last_pachakuti }
+  - page: 3
+    text: >
+      The one people who were not in it, and their account sits outside the hinge. Every people's story hangs on
+      the last Pachakuti, and no two agree on what came before. The Vaskaal do not tell a story; they keep a
+      record, and they can say what the world was like before the last turn and after it, from outside, and mean
+      it plainly. The turn that is every native people's hinge is, to them, weather they watched pass. Their
+      record does not name a cause and does not need one. The hinge, they say, is only a door the sky went
+      through, and they were never in the room.
+    sources:
+      - { how: inspected, ref: readable.the_last_pachakuti_ii }

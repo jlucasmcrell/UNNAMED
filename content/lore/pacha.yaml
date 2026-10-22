@@ -5,7 +5,7 @@ display_key: lore.pacha.title
 tags: [lore, history]
 title: The Pacha
 category: history
-notes: "What a Pacha is and how many are remembered, from docs/MYTHOLOGY.md, What a Pacha is and Known Pachas. Written as the surveyor's lexicon, in Sel Arien's voice - the told page is hers and the read page is the entry's own book; the setting's Pacha is left unnamed, as canon leaves it."
+notes: "What a Pacha is and how many are remembered, from docs/MYTHOLOGY.md, What a Pacha is and Known Pachas. Written as the surveyor's lexicon, in Sel Arien's voice - the told page is hers and the read page is the entry's own book; the setting's Pacha is left unnamed, as canon leaves it. Page 3 is the Vaskaal's own record (readable.pacha_ii), the contradicting count."
 pages:
   - page: 1
     text: >
@@ -25,3 +25,13 @@ pages:
       a person does not name the room they live in.
     sources:
       - { how: inspected, ref: readable.pacha }
+  - page: 3
+    text: >
+      The Vaskaal's own record, and it parts from the surveyor's count on the first line. Sel Arien writes five
+      Pachas, remembered. The Vaskaal write that the number is wrong, and will not give the right one. Ask them
+      how many, and they answer that counting them is how a person dies. They crossed the space that holds the
+      Pachas; they have seen enough of them to know a count is a thing people die making. So the void-farers'
+      ledger keeps no number where the surveyor keeps five, and the two books sit side by side on the same shelf,
+      each one sure the other has stopped reading too soon.
+    sources:
+      - { how: inspected, ref: readable.pacha_ii }

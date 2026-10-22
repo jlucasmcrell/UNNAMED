@@ -5,7 +5,7 @@ display_key: lore.fellhorn.title
 tags: [lore, creatures]
 title: The Fellhorn
 category: creatures
-notes: "Written from content/creatures/grazer/fellhorn.yaml (humped, horned, about 1.9 m, fold bleed like the barrowback, in a herd of its own on the high ground north of the Foldscar, passive, stands with the herd when one is struck, breaks when badly hurt) and content/loot/fellhorn.yaml and content/items/material/fellhorn_hide.yaml (meat and hide). In-world, both pages are what studying the beast teaches (creature.grazer.fellhorn)."
+notes: "Written from content/creatures/grazer/fellhorn.yaml (humped, horned, about 1.9 m, fold bleed like the barrowback, in a herd of its own on the high ground north of the Foldscar, passive, stands with the herd when one is struck, breaks when badly hurt) and content/loot/fellhorn.yaml and content/items/material/fellhorn_hide.yaml (meat and hide). In-world, both pages are what studying the beast teaches (creature.grazer.fellhorn). Page 3 is the fold-bleed note (readable.fellhorn_ii)."
 pages:
   - page: 1
     text: >
@@ -28,3 +28,13 @@ pages:
       to move off, and does not wound what it means to leave.
     sources:
       - { how: studied, ref: creature.grazer.fellhorn }
+  - page: 3
+    text: >
+      What can be established, and it is not much more than a place. The fellhorn is found only near the
+      Foldscar, on the high ground north of it, in a herd of its own, and nowhere else in the country. It shares
+      that with the barrowback and with the boneleaf, whose veins run the wrong way. The three are called fold
+      bleed, and the name is only a name for where they are found, not for why. No reading has settled why the
+      Foldscar's edge alone carries them, or what the fold lets through that the rest of the country will not.
+      The herd grazes on, and the question grazes beside it, unanswered.
+    sources:
+      - { how: inspected, ref: readable.fellhorn_ii }

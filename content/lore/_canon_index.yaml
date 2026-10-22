@@ -398,15 +398,19 @@ concepts:
 - id: canon.sinking_moss
   name: The Sinking Moss
   kind: place
-  status: missing
+  status: covered
   fact: The Sinking Moss is the low wet north-east corner of the basin that cannot drain, and it is where the moss lights appear some nights and where Mara Ling traces the failing water.
   source: content/locations/cairnwold/the_bog.yaml notes; content/dialogue/cairnwold/mara_ling.yaml
+  covered_by:
+  - lore.sinking_moss
 - id: canon.south_crags
   name: The South Crags
   kind: place
-  status: missing
+  status: covered
   fact: The South Crags are a single row of outcrops along the basin's south edge, and Berrin holds that somebody or something put them there - it was not the village.
   source: content/locations/cairnwold/the_crags.yaml notes; content/dialogue/cairnwold/berrin_garth.yaml older
+  covered_by:
+  - lore.the_crags
 - id: canon.south_crag_seam
   name: The South Crag Seam
   kind: place
@@ -428,9 +432,11 @@ concepts:
 - id: canon.rim_stone
   name: The Rim Stone
   kind: place
-  status: missing
+  status: covered
   fact: The Rim Stone is a cold Waystone on the Rim, woken by the rite Old Corra left in the lodge book - three hands and a name.
   source: content/dialogue/cairnwold/berrin_garth.yaml rim_stone; content/quests/main/road_east.yaml
+  covered_by:
+  - lore.rim_stone
 - id: canon.lantern_shrine
   name: The Lantern Shrine
   kind: place
@@ -446,21 +452,27 @@ concepts:
 - id: canon.sunk_barrow
   name: The Sunk Barrow
   kind: place
-  status: missing
+  status: covered
   fact: The Sunk Barrow is a broken ring of beams round a stone cist on the high ground north of the road, kept by two husks, and its cist still holds grave goods.
   source: content/locations/road/sunk_barrow.yaml notes
+  covered_by:
+  - lore.sunk_barrow
 - id: canon.wolves_den
   name: The Wolves' Den
   kind: place
-  status: missing
+  status: covered
   fact: The Wolves' Den is a notch in the rock in Charwood's north-west corner that was Halda Crowden's cache before the wolves took it.
   source: content/locations/den_mouth.yaml notes; content/quests/ashen_hollow/haldas_tally.yaml notes
+  covered_by:
+  - lore.wolves_den
 - id: canon.ruined_cart
   name: The Ruined Cart
   kind: place
-  status: missing
+  status: covered
   fact: The Ruined Cart is the damaged merchant cart in Charwood where the hunting bow lies.
   source: content/locations/ruined_cart.yaml notes
+  covered_by:
+  - lore.ruined_cart
 - id: canon.barrowworks
   name: The Barrowworks
   kind: place

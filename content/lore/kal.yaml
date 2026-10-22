@@ -5,7 +5,7 @@ display_key: lore.kal.title
 tags: [lore, peoples]
 title: The Kal
 category: peoples
-notes: "Written from docs/MYTHOLOGY.md §Kal and docs/RACES.md §2 — native and older than the last Pachakuti, large folding dorsal wings, made deliberately by a craftsman whose name is lost, the afterlife as a return to material and the stone as the person waiting, a Kal caught in a turn sets to stone. In-world, page 1 is a scholar's page (readable.kal) and page 2 is Kera Voss's own telling (dialogue.ashen_hollow.kera_voss)."
+notes: "Written from docs/MYTHOLOGY.md §Kal and docs/RACES.md §2 — native and older than the last Pachakuti, large folding dorsal wings, made deliberately by a craftsman whose name is lost, the afterlife as a return to material and the stone as the person waiting, a Kal caught in a turn sets to stone. In-world, page 1 is a scholar's page (readable.kal) and page 2 is Kera Voss's own telling (dialogue.ashen_hollow.kera_voss). Page 3 is a scholar's note on the wings (readable.kal_ii)."
 pages:
   - page: 1
     text: >
@@ -30,3 +30,13 @@ pages:
       dead as stone, and who know exactly what a turn would make of them.
     sources:
       - { how: told, ref: dialogue.ashen_hollow.kera_voss }
+  - page: 3
+    text: >
+      A scholar's note, and it does not settle what the smith holds. The Kal say they were made, deliberately, by
+      a craftsman whose name is lost, and the wings are theirs to explain or not. A scholar who has measured the
+      wings notes that they are the shape of a thinner sky, the span of a body meant for air that held it better,
+      and that the Kal's maker-tale neither needs the wings nor denies that reading. The smith does not ask after
+      it, and the scholar does not press her. What the wings were for, and whether a hand made them or a
+      different sky shaped them, is left open, because no measure taken in this air can say.
+    sources:
+      - { how: inspected, ref: readable.kal_ii }
