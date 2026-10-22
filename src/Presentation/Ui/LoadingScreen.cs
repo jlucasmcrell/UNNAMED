@@ -28,6 +28,12 @@ public sealed class LoadingScreen
     private bool _warned;
     private bool _ended;
 
+    /// <summary>
+    /// Quiet text under the bar: the opening of the page the character last read, once the world and its content exist (spec 41, loading
+    /// snippet). Empty until something is worth saying, and for a first game, where there is nothing read yet.
+    /// </summary>
+    private string _note = string.Empty;
+
     public LoadingScreen(Viewport viewport)
     {
         _viewport = viewport;
@@ -54,6 +60,19 @@ public sealed class LoadingScreen
             _warned = false;
         }
         GD.Print($"UNNAMED load stage: {stage} ({fraction * 100:0}%) at {_clock.Elapsed.TotalSeconds:0.0} s");
+        Paint();
+        RenderingServer.ForceDraw();
+    }
+
+    /// <summary>Quiet text under the bar, painted from the next stage on. Set once the world and its content exist.</summary>
+    public void Note(string note)
+    {
+        lock (_gate)
+        {
+            if (_ended || _note == note)
+                return;
+            _note = note;
+        }
         Paint();
         RenderingServer.ForceDraw();
     }
@@ -86,16 +105,20 @@ public sealed class LoadingScreen
         heading.DrawString(_canvas, new Vector2(0, size.Y * 0.4f), "OTHERREACH", HorizontalAlignment.Center, size.X, (int)(64 * scale), HudStyle.Bone);
         double fraction;
         string stage;
+        string note;
         lock (_gate)
         {
             fraction = _fraction;
             stage = _stage;
+            note = _note;
         }
         RenderingServer.CanvasItemAddRect(_canvas, new Rect2(left - 2, top - 2, barWidth + 4, barHeight + 4), HudStyle.Iron);
         RenderingServer.CanvasItemAddRect(_canvas, new Rect2(left, top, barWidth, barHeight), HudStyle.Track);
         RenderingServer.CanvasItemAddRect(_canvas, new Rect2(left, top, (float)(barWidth * Math.Clamp(fraction, 0, 1)), barHeight), HudStyle.Brass);
         body.DrawString(_canvas, new Vector2(left, top + 36 * scale), stage, HorizontalAlignment.Left, barWidth, (int)(22 * scale), HudStyle.Ash);
         body.DrawString(_canvas, new Vector2(left, top + 36 * scale), $"{fraction * 100:0}%", HorizontalAlignment.Right, barWidth, (int)(22 * scale), HudStyle.Muted);
+        if (note.Length > 0)
+            body.DrawString(_canvas, new Vector2(left, top + 84 * scale), note, HorizontalAlignment.Center, barWidth, (int)(20 * scale), HudStyle.Brass);
     }
 
     private void Watch()

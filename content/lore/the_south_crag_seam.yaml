@@ -1,0 +1,28 @@
+id: lore.the_south_crag_seam
+kind: lore
+schema: 1
+display_key: lore.the_south_crag_seam.title
+tags: [lore, places]
+title: The South Crag Seam
+category: places
+notes: "Cairnwold's own iron seam in the south crags, from content/locations/cairnwold/iron_seam.yaml notes and Durn Skell's directions and count (content/dialogue/cairnwold/durn_skell.yaml where, seam). In-world, page 1 is the seam walked up to (location.cairnwold.iron_seam) and page 2 is the smith's account kept in the book (readable.the_south_crag_seam_ii)."
+pages:
+  - page: 1
+    text: >
+      The South Crag Seam is Cairnwold's own iron, a face of ore cut into the crags along the basin's south edge, and
+      it is the reason the village has a smithy at all. It is a small thing, as seams go, and it is nearly spent.
+      Three strikes, and it is worked out, and there is no second seam anywhere in the basin to take its place. When
+      it is gone, the village's iron comes off the road like everything else, and the smithy goes from a place that
+      works its own stone to a place that works what others have brought.
+    sources:
+      - { how: visited, ref: location.cairnwold.iron_seam }
+  - page: 2
+    text: >
+      The way to it is south, past the last wall, and then along the crags until the face goes black. The west end is
+      the good stone; east of it the rock is rotten and comes away in the hand, and the smith will tell you to leave
+      that end be. Something walks the foot of the crags at night, and the village gives the line a wide way after
+      dark. Three generations of Skells have taken iron off that face, father to son, and the counting of the strikes
+      has passed down with the hammer. After the last one, there will be nothing of theirs left to strike.
+    reveals: location.cairnwold.iron_seam
+    sources:
+      - { how: inspected, ref: readable.the_south_crag_seam_ii }

@@ -1,0 +1,27 @@
+id: lore.otherborn
+kind: lore
+schema: 1
+display_key: lore.otherborn.title
+tags: [lore, history]
+title: Otherborn
+category: history
+notes: "Beings whose origin is tied to the Other, from docs/OTHERREACH_COSMOLOGY.md §10 Otherborn and Sel Arien's cataloguing of a stranger's odd belongings (content/dialogue/ashen_hollow/sel_arien.yaml story_catalog). Page 1 is the book's entry (readable.otherborn), page 2 is Sel's spoken rule (dialogue.ashen_hollow.sel_arien)."
+pages:
+  - page: 1
+    text: >
+      Otherborn names a being whose origin is tied to the Other, and the word is broad on purpose. It takes in one
+      born in another world, one descended from people carried through an Otherway, one born in a place the Other has
+      changed, one from a line that first came through the Other long ago. The word carries more than a fact of
+      birth. In one country the Otherborn are honoured, in another feared, in a third taken for cursed, and in some
+      places so ordinary that nobody remarks on it.
+    sources:
+      - { how: inspected, ref: readable.otherborn }
+  - page: 2
+    text: >
+      The archivist has a rule for the word, and she states it over a stranger's odd belongings. Otherborn carry odd
+      things, she says, and you are not the first. She will take a stopped watch, a brass key, a glass marble, an
+      unreadable page, and she will write down what you call each of them, and she will not improve the account with
+      an invented origin. The object does not establish where it came from, she says. That is an observation, and she
+      will not let it become more than that.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }

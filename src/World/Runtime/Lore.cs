@@ -10,7 +10,7 @@ namespace UNNAMED.World.Runtime;
 
 /// <summary>
 /// Owns: <see cref="StateSlice.Lore"/>. One discovery opens the pages that name it - a landmark walked into, an object read, an NPC asked,
-/// a quest finished, a creature met - and each page found is worth the discovery XP the way a landmark is (spec 41 §4). A page already found
+/// a quest finished, a creature met - and each page found is worth the discovery XP the way a landmark is (spec 41 Â§4). A page already found
 /// opens nothing and earns nothing, so the same road walked twice is not a second harvest.
 /// </summary>
 internal sealed class LoreSystem
@@ -92,5 +92,14 @@ internal sealed class LoreSystem
         _context.State.SetLore(_owner, _context.State.Lore.Add(new LorePageRecord(entry.Id, page.Page, source, sourceRef, tick)));
         _context.Events.Publish(new LorePageUnlocked(entry.Id, page.Page, source, sourceRef, tick));
         _context.Dispatch(new AwardExperience(new XpAward(XpSource.Discovery, PageXp, tick)));
+        if (page.TellsOfAPlace)
+            Told(page);
     }
+
+    /// <summary>
+    /// A page that says where something is asks the discovery system to put it on the map as told (spec 41;
+    /// MAPS_CARTOGRAPHY_AND_WORLD_KNOWLEDGE.md §6: the job did not change, the knowledge did). The write belongs to the system that owns
+    /// discoveries, so being told cannot raise a landmark banner, meet an objective, or pay discovery XP: those belong to having gone.
+    /// </summary>
+    private void Told(LorePageDefinition page) => _context.Dispatch(new TellOfPlace(page.Reveals));
 }

@@ -203,6 +203,41 @@ nodes:
         text: "Tell me about woundmoss"
         next: tell_woundmoss_p2
 
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_otherborn_p2
+        text: "Tell me about otherborn"
+        next: tell_otherborn_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_othermarked_p2
+        text: "Tell me about othermarked"
+        next: tell_othermarked_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_otherwhen_p2
+        text: "Tell me about otherwhen"
+        next: tell_otherwhen_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_otherwhere_p2
+        text: "Tell me about otherwhere"
+        next: tell_otherwhere_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_otherwrought_p2
+        text: "Tell me about otherwrought"
+        next: tell_otherwrought_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_long_survey
+        text: "Tell me about the long survey"
+        next: tell_long_survey
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_long_survey_p2
+        text: "Tell me about the long survey"
+        next: tell_long_survey_p2
+
       - id: leave
         text: "Another time."
       - id: story_grazers
@@ -685,6 +720,62 @@ nodes:
       - id: back
         text: "I will remember it."
         consequences: [{ command: tell_lore, lore_ref: lore.woundmoss }]
+        next: again
+
+  tell_otherborn_p2:
+    text: "The archivist has a rule for the word, and she states it over a stranger's odd belongings. Otherborn carry odd things, she says, and you are not the first. She will take a stopped watch, a brass key, a glass marble, an unreadable page, and she will write down what you call each of them, and she will not improve the account with an invented origin. The object does not establish where it came from, she says. That is an observation, and she will not let it become more than that."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.otherborn }]
+        next: again
+
+  tell_othermarked_p2:
+    text: "The surveyor keeps the two words as a surveyor keeps two measures, and she will correct anyone who runs them together. Born to it is one thing, she says; marked by it is another, and the one says where a person came from while the other says what the world did to them on the way. She will not say which is the heavier thing to carry, because she has records of both and no scale that weighs them against each other. She writes the distinction, and leaves the pity out."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.othermarked }]
+        next: again
+
+  tell_otherwhen_p2:
+    text: "The surveyor warns that a road which stops leading anywhere has a twin that stops leading anywhen, and the twin is the harder one to spot, because a person can see that the country is wrong but not that the hour is. Ask her how far back or forward, and she will say the question is already wrong: the far side of an Otherwhen is not a date but a place, stood at the wrong end of the year. She has no account of what it is like there. She will tell you exactly that, and nothing more."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.otherwhen }]
+        next: again
+
+  tell_otherwhere_p2:
+    text: "The surveyor keeps the word for the moment a road stops being a road, and she says it plainly: a gate that leads somewhere is one thing, and a gate that leads elsewhere is another. That gate does not lead north, she will tell you; it leads Otherwhere. She will not say what is on the far side, because she has not stood there, and a surveyor who fills the far side in from a guess has stopped measuring. The word is the whole of what she knows, and she will not let it carry more than that."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.otherwhere }]
+        next: again
+
+  tell_otherwrought_p2:
+    text: "The surveyor will tell you how to know one when you hold it, and it is not by any glow or mark. An Otherwrought thing is not a common object with a spell laid over it, she says; it is a thing made from the wrong side of the seam, and it shows in the way it sits in the hand and the way it answers work. She has handled a few, and she will not pretend they were easy. What she will not do is tell you where the rest of them are, because that would be a guess, and guesses are not for the Record."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.otherwrought }]
+        next: again
+
+  tell_long_survey:
+    text: "The Long Survey is Sel Arien's work, and its seat is the survey table at the waystation, where she watches the Foldscar and the old workings around it. It surveys what nobody has properly surveyed: the Foldscar, three standing stones around something that is no longer there or never was, and the sealed ring under the hill. What it wants is the Quiet Stones set right — turned square to the ring, the heart steadied last — because a thing measured wrong can be put right, and a thing never measured cannot. It is a patient work, and a work of years; she came for a season, thirty-one years ago."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.long_survey }]
+        next: again
+
+  tell_long_survey_p2:
+    text: "The Survey holds its findings only as far as the evidence reaches, and Sel Arien is the living proof of the rule. She grades her own guesses and says none of them aloud at better than one chance in three, and she will not put a thing in the Record until she knows why it works — eleven times tried and eleven times worked, and still unwritten, because a fact without a reason is not finished. Where the evidence stops, she stops: the heading names an order, and she will not say the ledger's last entry was followed, because the records are not all in yet. Do not fill the gaps with a better story, she says, and the Survey does not."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.long_survey }]
         next: again
 
 barks:

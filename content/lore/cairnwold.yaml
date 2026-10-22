@@ -27,5 +27,6 @@ pages:
       at the crag line on the south edge — put there by somebody, or something, and not by the village — and the cut
       in the east where the beck leaves, which is only water and time. We built between the two, he says, walled it,
       and called it home.
+    reveals: location.cairnwold.village
     sources:
       - { how: told, ref: dialogue.cairnwold.berrin_garth }

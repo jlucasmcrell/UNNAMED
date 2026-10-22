@@ -1,0 +1,27 @@
+id: lore.othermarked
+kind: lore
+schema: 1
+display_key: lore.othermarked.title
+tags: [lore, history]
+title: Othermarked
+category: history
+notes: "A person changed permanently by later exposure to the Other, from docs/OTHERREACH_COSMOLOGY.md §11 Othermarked. The surveyor's lexicon; page 1 is the book's entry (readable.othermarked) and page 2 is Sel Arien's spoken gloss (dialogue.ashen_hollow.sel_arien)."
+pages:
+  - page: 1
+    text: >
+      An Othermarked person was not necessarily born tied to the Other at all. They were changed later, and
+      permanently, by touching it or being touched by it. The word keeps the two apart, and the difference is the
+      whole of it: the Otherborn come from the Other, and the Othermarked were altered by it after. What the change
+      leaves is not the same from one person to the next - a mark on the skin, a different grip on workings, a sense
+      for the folds, a memory of time that will not stay in order.
+    sources:
+      - { how: inspected, ref: readable.othermarked }
+  - page: 2
+    text: >
+      The surveyor keeps the two words as a surveyor keeps two measures, and she will correct anyone who runs them
+      together. Born to it is one thing, she says; marked by it is another, and the one says where a person came from
+      while the other says what the world did to them on the way. She will not say which is the heavier thing to
+      carry, because she has records of both and no scale that weighs them against each other. She writes the
+      distinction, and leaves the pity out.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }

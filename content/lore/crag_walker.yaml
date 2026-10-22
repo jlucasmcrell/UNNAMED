@@ -1,0 +1,28 @@
+id: lore.crag_walker
+kind: lore
+schema: 1
+display_key: lore.crag_walker.title
+tags: [lore, creatures]
+title: The Crag Walker
+category: creatures
+plate: "It is what the crags make of a body. Slow, long reach: step inside the windup."
+notes: "Written from content/quests/bounty/crag_walker.yaml (Durn's night bounty: whatever walks the foot of the south crags, any bone-walker husk counts) and Durn Skell's lines (content/dialogue/cairnwold/durn_skell.yaml). In-world, page 1 is Durn's telling (dialogue.cairnwold.durn_skell) and page 2 is what studying the husk teaches (creature.undead.bone_walker_husk)."
+pages:
+  - page: 1
+    text: >
+      The crag walker is Durn Skell's name for whatever walks the foot of the south crags after dark, and he will
+      not describe it beyond a few words: east of the seam, at the foot of the crags, where the stone is rotten. It
+      does not hurry, he says. A traveller going up there should leave it be — unless they mean to put it down, in
+      which case he says go after dark and take a light. He pays for whatever walks that line at night, and he
+      counts any bone-walker husk put down toward it, so the name is the work, not the beast.
+    sources:
+      - { how: told, ref: dialogue.cairnwold.durn_skell }
+  - page: 2
+    text: >
+      What answers the name is a bone-walker husk: a slow dead thing with the longest reach in the hollow, whose
+      arrows pass through bone and which has no blood to lose. It walks at a pace a living man can outpace and turns
+      stiffly, so the danger is the reach, and the dark, and the number of them strung along the rotten stretch —
+      never the speed. One alone is nothing to a careful pair of hands. What makes the crags worth avoiding after
+      dark is that the line does not empty; another is always walking where the last was put down.
+    sources:
+      - { how: studied, ref: creature.undead.bone_walker_husk }

@@ -119,6 +119,11 @@ nodes:
         text: "Tell me about the three quiet stones"
         next: tell_three_quiet_stones_after_p2
 
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_tavars_afternoon
+        text: "Tell me about tavar's afternoon"
+        next: tell_tavars_afternoon
+
       - id: leave
         text: "Take a moment. I'll see you at the waystation."
         conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, not: true }]
@@ -231,6 +236,14 @@ nodes:
       - id: back
         text: "I will remember it."
         consequences: [{ command: tell_lore, lore_ref: lore.three_quiet_stones_after }]
+        next: again
+
+  tell_tavars_afternoon:
+    text: "Three days, Sel Arien will say, and for Tavar Orr it was one long afternoon. He walked in among the Quiet Stones for a dropped chain and did not walk out, and everything in there arrived a breath late: he could see the waystation smoke, and he heard the traveller coming from the wrong side. The light was there the hour the ridge was crossed, and the afternoon simply did not end while the others went on having one. He keeps it in the ledger as three days, give or take — cheap, he says, for a crossing he never meant to make."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.tavars_afternoon }]
         next: again
 
 barks:

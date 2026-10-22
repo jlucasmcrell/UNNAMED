@@ -1,0 +1,30 @@
+id: lore.bristleback_boar
+kind: lore
+schema: 1
+display_key: lore.bristleback_boar.title
+tags: [lore, creatures]
+title: The Bristleback Boar
+category: creatures
+plate: "It lowers its head and cannot turn. Step aside, or put a rock in its way."
+notes: "Written from content/creatures/beast/bristleback_boar.yaml (a charging brute that lowers its head, runs straight and cannot turn, defends its wallow and ignores those who leave it be) and content/loot/bristleback_boar.yaml (always meat). In-world, both pages are what studying the boar teaches (creature.beast.bristleback_boar)."
+pages:
+  - page: 1
+    text: >
+      The bristleback boar is a charging brute, and it does not circle or stalk. It lowers its head and runs
+      straight at whatever has roused it, and once it is moving it cannot turn — a thing that runs in a line,
+      however fast. Step aside and it thunders past and must gather itself before it comes again. It defends its
+      wallow, and it leaves alone anyone who leaves it alone; most of the trouble comes from a traveller who
+      walked into the wrong patch of ground and startled it. Its back is a mat of bristle, and that bristle turns
+      a glancing cut better than hide ought to.
+    sources:
+      - { how: studied, ref: creature.beast.bristleback_boar }
+  - page: 2
+    text: >
+      A bristleback brought down is meat, and that is the whole of what it is worth to a pair of hands — a
+      carcass of it, enough for the pot and then some. It is not a beast you hunt for anything else. The trick a
+      hunter should know is the ground: put something solid between yourself and its straight line and it will
+      spend its charge against the stone instead of against you, and then it is winded and slow to gather. It is
+      quick in a line and slow to turn, so never stand where the line can reach you. Leave its wallow alone and
+      it will cost you nothing at all.
+    sources:
+      - { how: studied, ref: creature.beast.bristleback_boar }

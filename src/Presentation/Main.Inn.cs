@@ -19,6 +19,14 @@ public partial class Main
         _slept = null;
         int minute = _session.Setup.Clock.MinuteOfDay(room.WakeTick);
         _hud.Toast($"You sleep at {room.KeeperName}'s, {room.Coin} coin paid. Up at {minute / 60:00}:{minute % 60:00}, and the road still there.", 6);
+        // A bed and an hour to spare is when a reader takes up what they last found (spec 41, rest snippet): the newest page, in its own
+        // words, and nothing when the journal is empty.
+        if (LatestPage() is { Length: > 0 } read)
+            _hud.Toast(read, 10);
         _session.SaveInBackground(SaveSlots.Quick);
     }
+
+    /// <summary>The opening of the most recently found lore page: what the character has to read before sleeping.</summary>
+    private string LatestPage() =>
+        _session.Simulation is { } simulation ? UNNAMED.Domain.Knowledge.LoreRules.Latest(_session.Setup.Lore, simulation.Lore) : "";
 }

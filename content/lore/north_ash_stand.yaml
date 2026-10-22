@@ -1,0 +1,29 @@
+id: lore.north_ash_stand
+kind: lore
+schema: 1
+display_key: lore.north_ash_stand.title
+tags: [lore, places]
+title: The North Ash Stand
+category: places
+notes: "Written from content/locations/cairnwold/ash_stand.yaml (the ash stand in the north of the basin; ash is what a haft is made of, so every tool in the village comes from here) and Durn Skell's forge line (content/dialogue/cairnwold/durn_skell.yaml). In-world, page 1 is the stand walked into (location.cairnwold.ash_stand) and page 2 is Durn's telling (dialogue.cairnwold.durn_skell)."
+pages:
+  - page: 1
+    text: >
+      The North Ash Stand is the grove of ash where the basin's ground rises to the north, and it is the reason
+      every tool in the village comes from one place. Ash is what a haft is made of, and there is nowhere else in
+      the basin that grows it, so every axe and spear and hammer in the village is swung on wood cut here. The trees
+      grow straight and grey, and the stand is kept rather than cleared; nobody takes more than the hafts need,
+      because the stand is the village's grip on its own tools. A traveller walking it goes quiet, as people do in a
+      place that is being saved.
+    sources:
+      - { how: visited, ref: location.cairnwold.ash_stand }
+  - page: 2
+    text: >
+      Durn Skell points north from the anvil and names the stand in a few words: ash, where the ground rises, for
+      the haft. He sends a smith there for the wood the same way he sends them to the crags for the iron, and he
+      counts it the same way — a thing that must last, and must not be wasted. The haft is the part the hand
+      remembers, he would say, and a bad haft breaks the work before the iron ever will. So the stand is not scenery
+      to him; it is the other half of every tool he has ever put into a pair of hands.
+    reveals: location.cairnwold.ash_stand
+    sources:
+      - { how: told, ref: dialogue.cairnwold.durn_skell }

@@ -24,5 +24,6 @@ pages:
       person to try dropped and did not stay to pick up. The two husks do not take from the cist; they keep it,
       one standing, one walking the ring. Whatever is buried here has been waiting a long time, and is in no hurry
       to be visited.
+    reveals: location.road.sunk_barrow
     sources:
       - { how: inspected, ref: readable.sunk_barrow_ii }

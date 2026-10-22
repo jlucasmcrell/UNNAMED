@@ -1,0 +1,27 @@
+id: lore.the_ondrek_record
+kind: lore
+schema: 1
+display_key: lore.the_ondrek_record.title
+tags: [lore, faith]
+title: The Ondrek Record
+category: faith
+notes: "The Ondrek's refusal of any creation account and their doctrine that the record is all there is to know, from docs/MYTHOLOGY.md §Ondrek. In-world, both pages are one book (readable.the_ondrek_record), because no Ondrek stands in the frontier to be asked."
+pages:
+  - page: 1
+    text: >
+      The Ondrek keep no account of their own beginning, and they do not miss one. They simply are, and then they
+      stop being, and that is the whole of the story they will allow. Their doctrine is the record: what is known is
+      stone, what is stone is known, and a thing that is neither is opinion. Ask them for a tale of how they came to
+      be, and they will hand you a stone and wait, because to them the question and the answer are the same object,
+      and it is already in the room.
+    sources:
+      - { how: inspected, ref: readable.the_ondrek_record }
+  - page: 2
+    text: >
+      They do not know why they come to be, and they do not know why they are ending, and they have built a whole
+      tradition of thought around the refusal to pretend otherwise. An Ondrek scholar who invents an answer is
+      disgraced, not because the answer is wrong but because it is a lie dressed as knowledge. What they have in
+      place of a beginning is the record itself, kept the way a wall is kept, and they would sooner see a gap in it
+      than fill the gap with a guess.
+    sources:
+      - { how: inspected, ref: readable.the_ondrek_record_ii }

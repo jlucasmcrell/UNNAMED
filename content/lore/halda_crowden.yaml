@@ -1,0 +1,27 @@
+id: lore.halda_crowden
+kind: lore
+schema: 1
+display_key: lore.halda_crowden.title
+tags: [lore, history]
+title: Halda Crowden
+category: history
+notes: "Written from content/quests/ashen_hollow/haldas_tally.yaml, Tam Crowden's telling (content/dialogue/cairnwold/tam_crowden.yaml) and Renn Vale's (content/dialogue/ashen_hollow/renn_vale.yaml). In-world, page 1 is Tam's telling (dialogue.cairnwold.tam_crowden) and page 2 is Renn's (dialogue.ashen_hollow.renn_vale)."
+pages:
+  - page: 1
+    text: >
+      Halda Crowden trapped the north slope, and she counted her work the way her sister counts everything: a hand's
+      length of horn, notched once for every hide, thirty-one of them, so nobody could argue her count. She ran the
+      line before the wolves took the den, and the notch in the rock was her cache before it was theirs. Two winters
+      back she went up the north slope after the wolves and did not come down, and Tam counted her out. What came
+      home instead was the tally, and Tam keeps it now where it gets counted, between the sacks.
+    sources:
+      - { how: told, ref: dialogue.cairnwold.tam_crowden }
+  - page: 2
+    text: >
+      Renn Vale knew her from the book: Halda, the north slope, bound for her snares, two winters back, and nobody
+      has written the other half. When the tally is carried to him he reads it without needing to turn it over twice
+      — a trapper's tally, notched for every hide — and he sets the choice down plainly: take it home to Tam, or keep
+      it and walk Halda's line, because the snares are still out on the slope and they do not know she is gone.
+      Either is honest, he says. Only one of them is kind. Her bow, ash and horn, still sits on the third peg.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.renn_vale }

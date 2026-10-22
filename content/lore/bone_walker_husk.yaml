@@ -5,6 +5,7 @@ display_key: lore.bone_walker_husk.title
 tags: [lore, creatures]
 title: The Bone Walker Husk
 category: creatures
+plate: "Long reach, long windup: step inside it. Arrows pass through bone, so close."
 notes: "Written from content/creatures/undead/bone_walker_husk.yaml (slow, longest reach in the hollow behind a long readable windup, arrows pass through bone, no blood to lose, a walk a person can outpace) and content/quests/bounty/crag_walker.yaml and content/loot/bone_walker_husk.yaml (what it still carries, and the crag walker bounty any husk counts toward). In-world, both pages are what studying the dead thing teaches (creature.undead.bone_walker_husk)."
 pages:
   - page: 1

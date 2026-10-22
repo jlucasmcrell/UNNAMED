@@ -1,0 +1,27 @@
+id: lore.tavars_afternoon
+kind: lore
+schema: 1
+display_key: lore.tavars_afternoon.title
+tags: [lore, history]
+title: Tavar's Afternoon
+category: history
+notes: "Written from content/quests/main/wrong_side.yaml (Tavar places his afternoon near the arrival; Sel places the first grazer record in the same week; neither gives the sequence) and Tavar Orr's and Renn Vale's lines. In-world, page 1 is Tavar's telling (dialogue.ashen_hollow.tavar_orr) and page 2 is Renn's (dialogue.ashen_hollow.renn_vale)."
+pages:
+  - page: 1
+    text: >
+      Three days, Sel Arien will say, and for Tavar Orr it was one long afternoon. He walked in among the Quiet
+      Stones for a dropped chain and did not walk out, and everything in there arrived a breath late: he could see
+      the waystation smoke, and he heard the traveller coming from the wrong side. The light was there the hour the
+      ridge was crossed, and the afternoon simply did not end while the others went on having one. He keeps it in
+      the ledger as three days, give or take — cheap, he says, for a crossing he never meant to make.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.tavar_orr }
+  - page: 2
+    text: >
+      The timing will not settle. Tavar places his long afternoon at the hour the traveller crossed the ridge, and
+      Berrin Garth's lodge book has an older record in it that does not fit that week. Keep both dates, Renn says,
+      because neither tells him what started this one. The accounts do not line up, and no one will force them: not
+      the surveyor, who will not stretch one record over the gap, and not the steward, who will not rub one out to
+      make the story tidier. So the afternoon stays where Tavar put it, and the older record stays older.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.renn_vale }

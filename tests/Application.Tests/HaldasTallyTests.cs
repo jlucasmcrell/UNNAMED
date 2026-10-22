@@ -48,7 +48,12 @@ public class HaldasTallyTests
 
     private static ConversationView Now(Arena arena) => arena.Simulation.Conversation ?? throw new InvalidOperationException("no conversation");
 
-    private static string[] Replies(Arena arena) => Now(arena).Replies.Select(r => r.Id).ToArray();
+    /// <summary>
+    /// The replies at the node the conversation stands on, without the lore's "tell me about" questions: those are content, they grow as entries
+    /// are written, and this test is about the tally and the lines that were always there. Spec 41 keeps its own tests for the lore.
+    /// </summary>
+    private static string[] Replies(Arena arena) =>
+        Now(arena).Replies.Select(r => r.Id).Where(id => !id.StartsWith("ask_", System.StringComparison.Ordinal)).ToArray();
 
     /// <summary>Open a conversation past a spent greeting, at its again-line.</summary>
     private static void TalkAgain(Arena arena, string npc)
@@ -95,12 +100,12 @@ public class HaldasTallyTests
 
         var empty = At(AtRenn, session);
         TalkAgain(empty, Renn);
-        Assert.Equal(new[] { "place", "work", "bed", "notices", "ask_old_late", "ask_quiet_folk", "ask_ashen_hollow", "ask_veth", "ask_wayhold", "ask_ashen_hollow_p2", "ask_old_late_p2", "ask_veth_p2", "ask_wayhold_p2", "leave", "story_begin_accounts", "story_note" }, Replies(empty));
+        Assert.Equal(new[] { "place", "work", "bed", "notices", "leave", "story_begin_accounts", "story_note" }, Replies(empty));
         Assert.Empty(empty.Simulation.Quests.Where(q => q.Id == Quest));
 
         var bearer = At(AtRenn, session, r => Carrying(r, Token));
         TalkAgain(bearer, Renn);
-        Assert.Equal(new[] { "place", "work", "bed", "tally", "notices", "ask_old_late", "ask_quiet_folk", "ask_ashen_hollow", "ask_veth", "ask_wayhold", "ask_ashen_hollow_p2", "ask_old_late_p2", "ask_veth_p2", "ask_wayhold_p2", "leave", "story_begin_accounts", "story_note" }, Replies(bearer));
+        Assert.Equal(new[] { "place", "work", "bed", "tally", "notices", "leave", "story_begin_accounts", "story_note" }, Replies(bearer));
         Assert.Null(Say(bearer, "tally"));
         bearer.Tick();
 
@@ -207,7 +212,7 @@ public class HaldasTallyTests
         Assert.Equal((ObjectiveStatus.Satisfied, ObjectiveStatus.Closed), (Objective(arena, "o_keep"), Objective(arena, "o_return")));
         // Kept: the tally stays in the pack, he no longer asks about it, and he will talk about her line instead.
         Assert.Equal(1, Carried(arena, Token));
-        Assert.Equal(new[] { "place", "work", "bed", "trapline", "notices", "ask_old_late", "ask_quiet_folk", "ask_ashen_hollow", "ask_veth", "ask_wayhold", "ask_ashen_hollow_p2", "ask_old_late_p2", "ask_veth_p2", "ask_wayhold_p2", "leave", "story_begin_accounts", "story_note" }, Replies(arena));
+        Assert.Equal(new[] { "place", "work", "bed", "trapline", "notices", "leave", "story_begin_accounts", "story_note" }, Replies(arena));
         Assert.Contains("North slope. Before breakfast, Halda said. I wrote it down.", arena.Simulation.Barks(Renn).Select(b => b.Text));
         Assert.Null(arena.Submit(new LeaveCommand(arena.Player)));
 

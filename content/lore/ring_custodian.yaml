@@ -1,0 +1,29 @@
+id: lore.ring_custodian
+kind: lore
+schema: 1
+display_key: lore.ring_custodian.title
+tags: [lore, creatures]
+title: The Ring Custodian
+category: creatures
+plate: "Slow to turn: stay behind it. The housing's back is open where the index runs."
+notes: "Written from content/creatures/construct/ring_custodian.yaml (the service ring's keeper, a machine still waiting for a reading that stopped coming, open at the back where the index mechanism runs) and content/loot/ring_custodian.yaml (its own metal, and the reading it still held). In-world, both pages are what studying the keeper teaches (creature.construct.ring_custodian)."
+pages:
+  - page: 1
+    text: >
+      The ring custodian is the service ring's own keeper, and it is not a man in armour but a machine still waiting
+      for a reading that stopped coming. It stands in the measuring court where the ring was built to gauge something
+      and never finished, and it has kept the court ever since. Its plate turns a blow from the front and sides, but
+      the back of its housing is open where the index mechanism runs, and that is where it comes apart. It has three
+      ways of striking — a long sweep, an overhead fall, and a short grasp — and each is announced before it lands, so
+      a careful body can read the tell and be elsewhere.
+    sources:
+      - { how: studied, ref: creature.construct.ring_custodian }
+  - page: 2
+    text: >
+      It is bloodless and slow to turn, slower than any living thing that wears armour, and it will not chase far
+      past its own court; the whole of the fight is to stay behind it. What it leaves when it comes apart is its own
+      metal — bars of iron and raw ore — and whatever reading it was still holding when the work stopped. That is the
+      strange part: a machine that outlived the job it was built to do, still standing watch over a measure nobody
+      has finished taking. A hunter who finds it knows they are somewhere the old work never let go.
+    sources:
+      - { how: studied, ref: creature.construct.ring_custodian }

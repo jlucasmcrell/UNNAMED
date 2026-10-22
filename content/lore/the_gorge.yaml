@@ -26,5 +26,6 @@ pages:
       more people have not met them. Tam counts everyone up the west end of the village and knows exactly how
       many have gone up the north slope, because her sister Halda went up it after the wolves and did not come
       down, and the tally has been short by one ever since.
+    reveals: location.cairnwold.the_gorge
     sources:
       - { how: told, ref: dialogue.cairnwold.tam_crowden }

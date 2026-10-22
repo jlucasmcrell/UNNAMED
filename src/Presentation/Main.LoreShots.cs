@@ -164,6 +164,28 @@ public partial class Main
                 await Rcd3Wait(0.3);
                 break;
             }
+            case 4:
+            {
+                // The map, with its note: what the journal holds about the ground the character has walked (spec 41, map notes).
+                Show(_map);
+                await Rcd3Wait(0.9);
+                await Rcd3Shot(_loreShotsDirectory!, "lore_map");
+                LoreEvidence("map", "the map over Ashen Hollow, with the journal's note under the place it holds a page about");
+                CloseScreens();
+                await Rcd3Wait(0.3);
+                break;
+            }
+            case 5:
+            {
+                // The bestiary (spec 41): a beast whose page is known, and what the plate says about it. The hound hunts the Charwood's edge,
+                // and page 2 of its entry is already filed by Sel Arien's telling, so the plate has something to say as soon as it is in front
+                // of the character. The walk is long and the hound comes to the character, so the shot waits on the plate rather than a clock.
+                await WalkTo(524, 750, 8.0, 150);
+                await Rcd3Wait(2.2);
+                await Rcd3Shot(_loreShotsDirectory!, "lore_bestiary");
+                LoreEvidence("bestiary", "the target plate over an ash ember hound whose page the character knows");
+                break;
+            }
             default:
             {
                 File.WriteAllText(Path.Combine(_loreShotsDirectory!, "complete.json"),

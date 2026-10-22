@@ -1,0 +1,29 @@
+id: lore.long_survey
+kind: lore
+schema: 1
+display_key: lore.long_survey.title
+tags: [lore, peoples]
+title: The Long Survey
+category: peoples
+notes: "Written from content/factions/ashen_hollow/long_survey.yaml (Sel Arien's survey of the Foldscar and the old workings, wanting the Quiet Stones set right) and Sel Arien's own lines (content/dialogue/ashen_hollow/sel_arien.yaml: she grades her own guesses and holds findings only as far as the evidence reaches). In-world, both pages are Sel's telling (dialogue.ashen_hollow.sel_arien)."
+pages:
+  - page: 1
+    text: >
+      The Long Survey is Sel Arien's work, and its seat is the survey table at the waystation, where she watches the
+      Foldscar and the old workings around it. It surveys what nobody has properly surveyed: the Foldscar, three
+      standing stones around something that is no longer there or never was, and the sealed ring under the hill. What
+      it wants is the Quiet Stones set right — turned square to the ring, the heart steadied last — because a thing
+      measured wrong can be put right, and a thing never measured cannot. It is a patient work, and a work of years;
+      she came for a season, thirty-one years ago.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }
+  - page: 2
+    text: >
+      The Survey holds its findings only as far as the evidence reaches, and Sel Arien is the living proof of the
+      rule. She grades her own guesses and says none of them aloud at better than one chance in three, and she will
+      not put a thing in the Record until she knows why it works — eleven times tried and eleven times worked, and
+      still unwritten, because a fact without a reason is not finished. Where the evidence stops, she stops: the
+      heading names an order, and she will not say the ledger's last entry was followed, because the records are not
+      all in yet. Do not fill the gaps with a better story, she says, and the Survey does not.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }

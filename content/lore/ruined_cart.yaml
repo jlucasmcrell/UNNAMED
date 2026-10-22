@@ -24,5 +24,6 @@ pages:
       hunt, and it has lain long enough that the wrappings have gone soft but not long enough that the iron has
       turned. There is no name on the cart and no mark of who drove it, and nothing here says why it stopped. It
       is a cart the wood has kept, and the bow in it is good.
+    reveals: location.ruined_cart
     sources:
       - { how: inspected, ref: readable.ruined_cart_ii }

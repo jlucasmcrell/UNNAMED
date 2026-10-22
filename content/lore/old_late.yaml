@@ -25,6 +25,7 @@ pages:
       there was shelter in the hollow and no road worth taking east of the quarry. It is a good story to hear
       at a fire and Renn tells it well, and he is careful to say that it is only what he was told. He cannot
       name who told him. Nobody in the waystation claims to have been the one.
+    reveals: location.old_late
     sources:
       - { how: told, ref: dialogue.ashen_hollow.renn_vale }
   - page: 3

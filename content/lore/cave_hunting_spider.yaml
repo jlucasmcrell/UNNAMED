@@ -1,0 +1,30 @@
+id: lore.cave_hunting_spider
+kind: lore
+schema: 1
+display_key: lore.cave_hunting_spider.title
+tags: [lore, creatures]
+title: The Cave Hunting Spider
+category: creatures
+plate: "Near-blind, and it feels every footfall. Walk, do not run, and it loses you."
+notes: "Written from content/creatures/beast/cave_hunting_spider.yaml (a near-blind ambush hunter that feels every footfall, never leaves its lair, and takes its game by the ground) and content/loot/cave_hunting_spider.yaml (its silk). In-world, both pages are what studying the spider teaches (creature.beast.cave_hunting_spider)."
+pages:
+  - page: 1
+    text: >
+      The cave hunting spider is an ambush hunter that does not hunt by sight. It is near blind, and it feels every
+      footfall that comes near its lair; a walker passes it, and a runner is taken, because to it a run is a blow
+      struck on the ground. It never leaves its lair, so a traveller who knows where the lair lies can always go
+      round it. That is the whole of its danger and the whole of its mercy: it is not on the road, and it does not
+      come to the road. It waits where the ground is its own, and it takes whatever is fool enough to come to it at
+      a run.
+    sources:
+      - { how: studied, ref: creature.beast.cave_hunting_spider }
+  - page: 2
+    text: >
+      What the spider is worth is its silk, and nothing else. The dragline it leaves and carries is tough enough
+      that a smith keeps some for lashings, and it will string a bow better than cotton grass; its corpse holds it
+      until it is searched. A hunter who wants the silk does not fight the spider for it — the spider is best taken
+      by the ground it lives on, walked past and left, or put down from a distance it cannot feel. The lair never
+      moves, which is the only reason the silk is worth the risk. Where the ground runs wet and close, walk, and
+      the spider will not know you were there.
+    sources:
+      - { how: studied, ref: creature.beast.cave_hunting_spider }

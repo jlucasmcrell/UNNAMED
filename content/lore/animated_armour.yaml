@@ -1,0 +1,30 @@
+id: lore.animated_armour
+kind: lore
+schema: 1
+display_key: lore.animated_armour.title
+tags: [lore, creatures]
+title: The Animated Armour
+category: creatures
+plate: "Plate turns a blow from the front. The open back of the helm takes all of one."
+notes: "Written from content/creatures/construct/animated_armour.yaml (a slow, heavy, bloodless armoured thing whose plate takes most of a blow from the front, whose open helm takes all of one from behind, and whose visor narrows its sight) and content/loot/animated_armour.yaml (sometimes a usable bar of iron). In-world, both pages are what studying the armour teaches (creature.construct.animated_armour)."
+pages:
+  - page: 1
+    text: >
+      The animated armour is a heavy, armoured thing that moves slow and does not bleed. Its plate turns most of
+      a blow away from the front — a wall of iron walking — but the back of its helm is open, and a stroke that
+      lands there lands whole, with nothing under it to soak the force. It does not tire, because there is nothing
+      inside it to tire. Its only eyes are the slit of the visor, and that slit narrows what it can see. It turns
+      the way a heavy body turns, in a wide slow swing, and that is the whole of fighting it: get round behind it
+      and stay there.
+    sources:
+      - { how: studied, ref: creature.construct.animated_armour }
+  - page: 2
+    text: >
+      When it is finally brought down there is no meat and no hide, because it was never a living thing; what a
+      pair of hands takes from a still armour is its iron, and sometimes a bar of it still sound enough to carry to
+      a forge. It is slow to put down and slow to pay, and the pay is the iron itself rather than anything warm. A
+      hunter who fights one for the value of it is working the wrong way round: the work is the point, and the iron
+      is what is left after. Do not stand where its front faces you, and do not mistake it for a man in armour. It
+      is not.
+    sources:
+      - { how: studied, ref: creature.construct.animated_armour }

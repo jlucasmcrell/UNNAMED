@@ -27,5 +27,6 @@ pages:
       dated the day the works stopped, and the number on it is not a reading at all but the width of the gap between
       what the ring gauged and what it was meant to. The keeper of the ring still stands waiting in the court for a
       reading that stopped coming. That is all the works will say about itself; the rest it keeps.
+    reveals: location.barrowworks.headworks
     sources:
       - { how: inspected, ref: readable.barrowworks }

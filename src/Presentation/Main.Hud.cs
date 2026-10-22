@@ -1,4 +1,4 @@
-// UNNAMED Presentation - Main's HUD: what it shows each frame, from the simulation's state (D-11)
+﻿// UNNAMED Presentation - Main's HUD: what it shows each frame, from the simulation's state (D-11)
 // Godot presentation only: this file renders state and submits commands; it never writes state.
 
 using System.Collections.Immutable;
@@ -101,7 +101,7 @@ public partial class Main
                     target.Asleep ? "ASLEEP" : null, target.Poisoned ? "POISONED" : null }.Where(s => s is not null)),
                 Bestiary(simulation, target.DefId))
             : null);
-    // The nearest few bodies and what each has actually noticed (STEALTH §20): the indicator shows the number, never a hidden flag.
+    // The nearest few bodies and what each has actually noticed (STEALTH Â§20): the indicator shows the number, never a hidden flag.
         var awarenessRules = _session.Setup.Combat.Awareness;
         var playerBody = _controller.Authoritative;
         double Nearness(CreatureView c) => Math.Sqrt(Math.Pow(c.Body.XMm - playerBody.XMm, 2) + Math.Pow(c.Body.ZMm - playerBody.ZMm, 2));
@@ -214,16 +214,8 @@ public partial class Main
     /// the lore content's own - nothing is composed here - so the plate can only say what the journal already holds, and says nothing at all
     /// about a beast nobody has studied.
     /// </summary>
-    private string Bestiary(Simulation simulation, string defId)
-    {
-        var entry = _session.Setup.Lore.Values.FirstOrDefault(e =>
-            e.Pages.Any(p => p.Sources.Any(s => s.Kind == LoreSourceKind.Studied && s.Ref == defId)));
-        if (entry is null || simulation.Lore.FirstOrDefault(r => r.EntryId == entry.Id) is not { } found)
-            return "";
-        string text = entry.PageAt(found.Page)?.Text ?? "";
-        int stop = text.IndexOf(". ", StringComparison.Ordinal);
-        return stop > 40 ? text[..(stop + 1)] : text;
-    }
+    private string Bestiary(Simulation simulation, string defId) =>
+        LoreRules.Plate(_session.Setup.Lore, simulation.Lore, defId);
 
     /// <summary>The creature to show: the nearest one hunting the character, or the nearest living one the camera faces.</summary>
     private CreatureView? Target(Simulation simulation)

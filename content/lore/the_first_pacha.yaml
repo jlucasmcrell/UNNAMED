@@ -1,0 +1,27 @@
+id: lore.the_first_pacha
+kind: lore
+schema: 1
+display_key: lore.the_first_pacha.title
+tags: [lore, history]
+title: The First Pacha
+category: history
+notes: "The oldest remembered Pacha, from docs/MYTHOLOGY.md §Known Pachas. The surveyor's lexicon; page 1 is the book's entry (readable.the_first_pacha) and page 2 is the Mor's claim kept as belief (readable.the_first_pacha_ii)."
+pages:
+  - page: 1
+    text: >
+      The First Pacha is the oldest world anyone remembers, and the word first is a claim about memory rather than
+      about the world itself. No surviving people are native to it. Whatever lived there is gone, and left no one who
+      can say what it was like from the inside. Its actual nature is unknown, which has never once stopped anyone
+      from claiming to know it. The record keeps the claim and the fact apart, and the fact is only this: it was
+      first, and it is gone.
+    sources:
+      - { how: inspected, ref: readable.the_first_pacha }
+  - page: 2
+    text: >
+      The Mor hold that they are the remnant of the First Pacha, and the book keeps that where it belongs - as a
+      belief, held by them, and not as something the record can stand behind. It sits uneasily beside the other thing
+      the Mor say, that their world was the Lost Pacha, and the book does not try to make the two fit. A people who
+      carry a grief can claim more than one home for it. The record writes down what they claim, and leaves the
+      settling of it to whoever can prove a beginning.
+    sources:
+      - { how: inspected, ref: readable.the_first_pacha_ii }
