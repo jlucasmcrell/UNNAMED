@@ -951,9 +951,6 @@ public partial class Main : Node3D
         AddChild(_hollow);
         _loading?.Stage("Raising the terrain and buildings", 0.2);
         _hollow.Build(layout);
-        if (layout.Locations.FirstOrDefault(l => l.Id == "location.old_late") is { } late)
-            _hollow.AddChild(new LandmarkName { Name="OldLateName",Text=Names.Of(_session,late.Id),
-                Position=new Vector3(late.XMm/1000f,layout.Space.Terrain.HeightAtMm(late.XMm,late.ZMm)/1000f+4,late.ZMm/1000f) });
         _loading?.Stage("Building the interiors", 0.6);
         BuildInterior();
         // What grows and lies on the ground (Phase A, the visual audit's V3): placed once a world, and so its seed, is known (Resync).

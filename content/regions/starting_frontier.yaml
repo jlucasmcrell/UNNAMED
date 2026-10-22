@@ -141161,10 +141161,12 @@ structures:
   - 631
   - 0.9
   height_m: 2.8
+# Trunk centre measured from native static mesh sections, not the canopy bounds.
+# Compensating art offset preserves every accepted world-space vertex/root support.
 - id: old_late
   circle_m:
-  - 650
-  - 765
+  - 647.5
+  - 766.4
   - 4.5
   height_m: 58.0
 - id: rock_foldscar_heart

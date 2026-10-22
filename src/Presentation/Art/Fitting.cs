@@ -128,8 +128,9 @@ public static class Fitting
         root.Position = clearance > 0
             ? new Vector3(cx / 1000f, terrain.HeightAtMm(cx, cz) / 1000f + clearance, cz / 1000f)
             : new Vector3(cx / 1000f, LowestUnder(terrain, blocker), cz / 1000f);
-        // Sink the visible model; authored support data remains in world coordinates.
-        foreach (var holder in root.GetChildren().OfType<Node3D>()) holder.Position += Vector3.Down * look.GroundSinkM;
+        // The visible-model offset can align an authored collider with the actual trunk
+        // while preserving the accepted mesh position and world-space support data.
+        foreach (var holder in root.GetChildren().OfType<Node3D>()) holder.Position += look.Offset + Vector3.Down * look.GroundSinkM;
         return root;
     }
 
