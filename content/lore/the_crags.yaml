@@ -24,5 +24,6 @@ pages:
       him, and after Durn the village buys its iron off the road - there is no second seam in the basin. And
       something walks the foot of the crags at night, he says, east of the seam where the stone is rotten. It does
       not hurry. Neither, he adds, do you.
+    reveals: location.cairnwold.the_crags
     sources:
       - { how: told, ref: dialogue.cairnwold.durn_skell }

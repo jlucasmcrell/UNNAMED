@@ -23,5 +23,6 @@ pages:
       notch in the rock was Halda's cache before it was theirs. Two winters back she went up after the wolves and
       did not come down, and Tam counted her out. What came home instead was a hand's length of horn, notched once
       for every hide, thirty-one of them. She keeps it where it gets counted.
+    reveals: location.den_mouth
     sources:
       - { how: told, ref: dialogue.cairnwold.tam_crowden }

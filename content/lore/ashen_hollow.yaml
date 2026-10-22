@@ -26,5 +26,6 @@ pages:
       think you have been misremembered. He keeps the roofs dry and the stone quiet and counts a season good if
       nobody he liked got eaten. When he says the hollow has not yet thought of anything to do about the Foldscar,
       he means that he has, and that there is nothing in the waystation's hands to do it with.
+    reveals: location.outpost
     sources:
       - { how: told, ref: dialogue.ashen_hollow.renn_vale }

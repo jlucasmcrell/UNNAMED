@@ -23,5 +23,6 @@ pages:
       that end be. Something walks the foot of the crags at night, and the village gives the line a wide way after
       dark. Three generations of Skells have taken iron off that face, father to son, and the counting of the strikes
       has passed down with the hammer. After the last one, there will be nothing of theirs left to strike.
+    reveals: location.cairnwold.iron_seam
     sources:
       - { how: inspected, ref: readable.the_south_crag_seam_ii }

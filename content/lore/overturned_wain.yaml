@@ -24,5 +24,6 @@ pages:
       man who loads a cart that way means to use it. Nothing is broken that could not be mended, and nothing is
       taken that a thief would have taken. The wain is simply there, on its side, and the road keeps its distance
       from it the way a road does from a thing with no one to mind it.
+    reveals: location.road.overturned_wain
     sources:
       - { how: inspected, ref: readable.overturned_wain_ii }

@@ -1,4 +1,4 @@
-// UNNAMED World - lore: the pages a character finds, and what finding one is worth (spec 41; owner finding 41)
+﻿// UNNAMED World - lore: the pages a character finds, and what finding one is worth (spec 41; owner finding 41)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -10,7 +10,7 @@ namespace UNNAMED.World.Runtime;
 
 /// <summary>
 /// Owns: <see cref="StateSlice.Lore"/>. One discovery opens the pages that name it - a landmark walked into, an object read, an NPC asked,
-/// a quest finished, a creature met - and each page found is worth the discovery XP the way a landmark is (spec 41 §4). A page already found
+/// a quest finished, a creature met - and each page found is worth the discovery XP the way a landmark is (spec 41 Â§4). A page already found
 /// opens nothing and earns nothing, so the same road walked twice is not a second harvest.
 /// </summary>
 internal sealed class LoreSystem
@@ -92,5 +92,20 @@ internal sealed class LoreSystem
         _context.State.SetLore(_owner, _context.State.Lore.Add(new LorePageRecord(entry.Id, page.Page, source, sourceRef, tick)));
         _context.Events.Publish(new LorePageUnlocked(entry.Id, page.Page, source, sourceRef, tick));
         _context.Dispatch(new AwardExperience(new XpAward(XpSource.Discovery, PageXp, tick)));
+        Told(page, tick);
+    }
+
+    /// <summary>
+    /// A page that says where something is puts it on the map as told (spec 41; MAPS_CARTOGRAPHY_AND_WORLD_KNOWLEDGE.md Â§6: the job did not
+    /// change, the knowledge did). It is not a visit: no landmark banner is raised and no objective is met, because the character has been told,
+    /// not gone. The discovery record is the one the map already reads, so a save keeps it without a new shape.
+    /// </summary>
+    private void Told(LorePageDefinition page, long tick)
+    {
+        if (!page.TellsOfAPlace || _context.State.Discoveries.ContainsKey(page.Reveals))
+            return;
+        if (_context.Setup.Layout.Locations.All(place => place.Id != page.Reveals))
+            return;
+        _context.State.AddDiscovery(_owner, new DiscoveryRecord(page.Reveals, DiscoveryMethod.Told, tick));
     }
 }

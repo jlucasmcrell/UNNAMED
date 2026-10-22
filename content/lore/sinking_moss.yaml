@@ -24,5 +24,6 @@ pages:
       thumbnail - root, stem and leaf all grey, all exactly as they have always been. So the plant is well and
       the water is not, which means it comes from deeper than the plant reaches. She hates being right, and she
       says so.
+    reveals: location.cairnwold.the_bog
     sources:
       - { how: told, ref: dialogue.cairnwold.mara_ling }

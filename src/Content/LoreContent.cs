@@ -112,13 +112,27 @@ public static class LoreContent
             // The words a reader meets are the world's, never the notes': no page says prototype, player, design or quest.
             if (LoreRules.Leak(text) is { } leaked)
                 throw new FormatException($"{id} page {number} reads '{leaked}', which is the trade's word for the thing and not the world's");
-            pages.Add(new LorePageDefinition(number, text, sources.ToImmutableArray()));
+            pages.Add(new LorePageDefinition(number, text, sources.ToImmutableArray(), Reveals(loader, id, number, pageMap)));
         }
         if (pages.Count == 0)
             throw new FormatException($"{id} has no pages");
         if (!pages.Select(p => p.Page).OrderBy(p => p).SequenceEqual(Enumerable.Range(1, pages.Count)))
             throw new FormatException($"{id} numbers its pages {string.Join(", ", pages.Select(p => p.Page))}; they must run 1 to {pages.Count}");
         return new LoreEntryDefinition(id, title, category, pages.OrderBy(p => p.Page).ToImmutableArray(), Plate(id, map));
+    }
+
+    /// <summary>
+    /// The place a page tells the reader how to find, if any (spec 41; MAPS_CARTOGRAPHY_AND_WORLD_KNOWLEDGE.md §6). Optional, and a page may
+    /// only name a place the pack has: a page that puts a place on the map must point at that place.
+    /// </summary>
+    private static string Reveals(ContentLoader loader, string id, int number, Dictionary<object, object> page)
+    {
+        if (page.GetValueOrDefault("reveals") is not string place || place.Trim().Length == 0)
+            return "";
+        place = place.Trim();
+        if (!loader.Definitions.ContainsKey(place))
+            throw new FormatException($"{id} page {number} tells of {place}, which is not a thing this pack has");
+        return place;
     }
 
     /// <summary>

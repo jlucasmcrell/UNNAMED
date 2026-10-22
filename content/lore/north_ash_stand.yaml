@@ -24,5 +24,6 @@ pages:
       counts it the same way — a thing that must last, and must not be wasted. The haft is the part the hand
       remembers, he would say, and a bad haft breaks the work before the iron ever will. So the stand is not scenery
       to him; it is the other half of every tool he has ever put into a pair of hands.
+    reveals: location.cairnwold.ash_stand
     sources:
       - { how: told, ref: dialogue.cairnwold.durn_skell }

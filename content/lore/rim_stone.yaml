@@ -24,5 +24,6 @@ pages:
       another word on it for forty years. The rite is simple: three times with the flat of the hand, one after
       another, and then you tell the stone its name, as if reminding it. Nobody in the village has tried it in his
       time. Nobody here, he says, has ever wanted to be anywhere it went.
+    reveals: location.road.basin_rim
     sources:
       - { how: told, ref: dialogue.cairnwold.berrin_garth }

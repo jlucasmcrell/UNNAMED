@@ -23,5 +23,6 @@ pages:
       Primer, three small workings, and the door has stayed shut since they buried Wenna, the last of the village who
       could make sense of what was in it. Berrin Garth keeps the lodge and the book, and he holds that a book on a
       shelf is a promise nobody is keeping, which is why he hands the primer over rather than let it sit.
+    reveals: location.cairnwold.lodge
     sources:
       - { how: inspected, ref: readable.the_long_lodge_ii }

@@ -23,5 +23,6 @@ pages:
       temple's: nothing is owed, nothing is asked, and the gifts are not watched. What you leave is for the road, and
       what you take was left for you, and neither act is recorded anywhere. The shrine is only a stone and a light,
       and the point of it is that both are left where a stranger can use them.
+    reveals: location.road.lantern_shrine
     sources:
       - { how: inspected, ref: readable.the_lantern_shrine_ii }

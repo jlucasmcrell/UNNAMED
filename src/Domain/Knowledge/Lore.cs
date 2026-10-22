@@ -84,7 +84,14 @@ public static class LoreSources
 public sealed record LoreSource(LoreSourceKind Kind, string Ref);
 
 /// <summary>One page of an entry: its words, and every discovery that opens it.</summary>
-public sealed record LorePageDefinition(int Page, string Text, ImmutableArray<LoreSource> Sources);
+public sealed record LorePageDefinition(int Page, string Text, ImmutableArray<LoreSource> Sources, string Reveals = "")
+{
+    /// <summary>
+    /// A place this page tells the reader how to find (spec 41; MAPS_CARTOGRAPHY_AND_WORLD_KNOWLEDGE.md §6: the quest did not change, knowledge
+    /// did). It puts the place on the map as told, and never counts as having been there.
+    /// </summary>
+    public bool TellsOfAPlace => Reveals.Length > 0;
+}
 
 /// <summary>
 /// A lore entry (content kind <c>lore</c>): one thing the character can come to know about, under one heading, in pages that are found one
