@@ -73,16 +73,24 @@ public class PetTests
     }
 
     [Fact]
-    public void AnAnimalBeyondTheCharacter_IsNotReachedFor_AndOneThatSeesYou_BreaksTheOffer()
+    public void AnAnimalOneLevelAbove_IsStillReachedFor_AndOneThatSeesYou_BreaksTheOffer()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        // A hunting wolf at the character's own level band is level 2; the character here is level 1.
+        // A hunting wolf at the character's own level band is level 2; the character here is level 1, so it is one level above and the odds
+        // already say what that costs (config.pets tame.over_level) rather than the offer being refused: the hollow's own wolf is tameable
+        // from the first evening. Two levels above is a fight, not a taming.
         var arena = ArenaWith(session, r => r.WithInventory(r.Inventory.Add(Arena.Stack(Meat, 4))),
-            creatures: new[] { (Wolf, 74.0, 152.0, "sleeper") });
-        Assert.True(arena.WalkTo(72.0, 152.0));
+            creatures: new[] { (Wolf, 73.0, 152.0, "sleeper") });
         var wolf = arena.Creature();
-        Assert.Contains("beyond you", arena.Submit(new TameCommand(arena.Player, wolf.Id, Meat)));
+        Assert.Null(arena.Submit(new TameCommand(arena.Player, wolf.Id, Meat)));
+        Assert.NotNull(arena.Simulation.TameOf(wolf.Id));
+
+        // The den's leader is not food's work: the alpha is level 3 and carries no pet block, so it is refused for what it is - content says
+        // which animals an offer reaches at all, and the level wall past one above the character is read in the odds test at the domain edge.
+        var far = ArenaWith(session, r => r.WithInventory(r.Inventory.Add(Arena.Stack(Meat, 4))),
+            creatures: new[] { ("creature.beast.wolf_grey_alpha", 76.0, 152.0, "sleeper") });
+        Assert.Contains("not an animal you can tame", far.Submit(new TameCommand(far.Player, far.Creature().Id, Meat)));
 
         // At level 2 and near it, a roused animal is not offered anything: the approach is the whole of the taming.
         var roused = ArenaWith(session, Able, creatures: new[] { (Wolf, 72.0, 152.0, "pack_hunter") });
