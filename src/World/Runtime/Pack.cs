@@ -104,7 +104,7 @@ internal sealed partial class InventorySystem
         ImmutableArray<EntityId?> bagsIn, Func<PackItem, bool>? keeps = null, IReadOnlyList<string>? order = null)
     {
         var bags = CleanBags(entries, bagsIn);
-        var worn = bags.OfType<EntityId>().ToHashSet();
+        var worn = bags.OfType<EntityId>().Concat(State.Equipment.Values).ToHashSet();
         var placement = PackRules.Place(entries.Where(e => !worn.Contains(e.ItemId)).Select(PackItemOf), ContainersOf(entries, bags), keeps, order);
         var placed = entries.Select(e =>
             worn.Contains(e.ItemId) ? e with { Bag = -1, Slot = -1 }
@@ -135,12 +135,23 @@ internal sealed partial class InventorySystem
         if (needed == 0)
             return null;
         var bags = CleanBags(entries, State.Bags);
-        var worn = bags.OfType<EntityId>().ToHashSet();
+        var worn = bags.OfType<EntityId>().Concat(State.Equipment.Values).ToHashSet();
         var carried = entries.Where(e => !worn.Contains(e.ItemId)).Select(PackItemOf);
         return PackRules.Fits(carried, Enumerable.Repeat(PackKinds.Of(definition), needed).ToList(), ContainersOf(entries, bags))
             ? null
             : $"no room: {needed} more stack(s) would not fit in the pack";
     }
+
+    public string? Handle(CheckEquipmentPack command)
+    {
+        var bags=CleanBags(State.Inventory,State.Bags);
+        var worn=bags.OfType<EntityId>().Concat(command.Equipment.Values).ToHashSet();
+        var placement=PackRules.Place(State.Inventory.Where(e=>!worn.Contains(e.ItemId)).Select(PackItemOf),ContainersOf(State.Inventory,bags));
+        return placement.Unplaced.IsEmpty ? null : "no room in your pack for the unequipped item";
+    }
+
+    public string? Handle(RepackInventory command)
+    { Commit(State.Inventory);return null; }
 
     /// <summary>The pack as it lies now, read without changing anything.</summary>
     public PackView Pack()

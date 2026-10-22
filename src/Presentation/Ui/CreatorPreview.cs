@@ -49,6 +49,9 @@ public sealed partial class CreatorPreview : TextureRect
     /// <summary>The light in use, by its index in <see cref="Lights"/>.</summary>
     public int Light { get; private set; }
 
+    /// <summary>A contained inventory preview uses its own bounds and a centred lens.</summary>
+    public bool Centered {get;init;}
+
     public void Bind(ArtLibrary art, ArtBindings bindings)
     {
         _art = art;
@@ -100,7 +103,7 @@ public sealed partial class CreatorPreview : TextureRect
     /// build's <paramref name="armSplay"/>, wearing <paramref name="worn"/>. A body already
     /// drawn once this session is shown again without loading.
     /// </summary>
-    public void Show(string? model, float armSplay, WornOutfit worn)
+    public void Show(string? model, float armSplay, WornOutfit worn,string? weapon=null)
     {
         string key = model ?? "";
         if (!_figures.TryGetValue(key, out var figure))
@@ -117,6 +120,7 @@ public sealed partial class CreatorPreview : TextureRect
         if (_poses[figure] is { } pose)
             pose.ArmSplayDegrees = armSplay;
         figure.WearEquipment(worn);
+        figure.Hold(weapon);
     }
 
     /// <summary>Turn the body by an angle, in radians.</summary>
@@ -212,7 +216,7 @@ public sealed partial class CreatorPreview : TextureRect
         if (mode == SubViewport.UpdateMode.Disabled || _figure is null)
             return;
         // At the window's own pixels: the canvas is stretched, and a set drawn at canvas size would be blurred at 1440p.
-        var window = DisplayServer.WindowGetSize();
+        var window = Centered ? new Vector2I(Math.Max(1,(int)Size.X),Math.Max(1,(int)Size.Y)) : DisplayServer.WindowGetSize();
         if (window.X > 0 && window.Y > 0 && _viewport.Size != window)
             _viewport.Size = window;
         _figure.Pose(Vector3.Zero, 0, 0, delta);
@@ -234,7 +238,7 @@ public sealed partial class CreatorPreview : TextureRect
         float aspect = (float)window.X / Math.Max(1, window.Y);
         float half = _camera.Near * Mathf.Tan(Mathf.DegToRad(fov) / 2f);
         _camera.Size = 2f * half;
-        _camera.FrustumOffset = new Vector2(-2f * half * aspect * 0.17f, 0);
+        _camera.FrustumOffset = Centered ? Vector2.Zero : new Vector2(-2f * half * aspect * 0.17f, 0);
     }
 
     public override void _GuiInput(InputEvent @event)

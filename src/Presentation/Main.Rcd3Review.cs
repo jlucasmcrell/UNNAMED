@@ -36,6 +36,11 @@ public partial class Main
             AddChild(camera);
             source.GetNode<OmniLight3D>("CharacterFill").Reparent(camera, false);
             camera.MakeCurrent();
+            if(OS.GetEnvironment("OTHERREACH_RCD6_INVENTORY_REVIEW")=="1")
+            {
+                if(OS.GetEnvironment("OTHERREACH_RCD6_UI_WITH_AWAY")=="1")await RunAwayReview(directory,complete:false);
+                await RunInventoryReview(directory,camera);GetTree().Quit();return;
+            }
             if (OS.GetEnvironment("OTHERREACH_RCD6_AWAY")=="1")
             {
                 await RunAwayReview(directory);GetTree().Quit();return;
@@ -169,6 +174,8 @@ public partial class Main
     private async Task Rcd3Shot(string directory, string name)
     {
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+        if(OS.GetEnvironment("OTHERREACH_REVIEW_WGC_STILLS")=="1")
+        { await RequestReviewWgcStill(directory,name);return; }
         GetViewport().GetTexture().GetImage().SavePng(Path.Combine(directory, name + ".png"));
     }
     private async Task Rcd3Details(string directory, Camera3D camera)

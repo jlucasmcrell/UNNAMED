@@ -75,7 +75,12 @@ public partial class Main
             assets = MetaHumanFigure.AssetRoot, settings = "Normal launch: loaded owner client_prefs; no harness defaults",
         }, new JsonSerializerOptions { WriteIndented = true }));
         _mhReviewNext = Time.GetTicksMsec() + 3000;
-        if ((System.Environment.GetEnvironmentVariable("OTHERREACH_WORLD_LIGHTING_DIAGNOSTIC") == "1"
+        if(OS.GetEnvironment("OTHERREACH_RCD6_EXISTING_PARTY_UI")=="1")
+        {
+            if(Continue(catchUp:false) is null)throw new InvalidDataException("Existing-party gate has no restorable copied save");
+            _mhReviewStep=7;_mhReviewNext=Time.GetTicksMsec()+10000;
+        }
+        else if ((System.Environment.GetEnvironmentVariable("OTHERREACH_WORLD_LIGHTING_DIAGNOSTIC") == "1"
             || System.Environment.GetEnvironmentVariable("OTHERREACH_MH_OWNER_FIXES_DIAGNOSTIC") == "1"
             || System.Environment.GetEnvironmentVariable("OTHERREACH_RCD3_REVIEW") == "1")
             && System.Environment.GetEnvironmentVariable("OTHERREACH_LIGHTING_FAST") == "1")

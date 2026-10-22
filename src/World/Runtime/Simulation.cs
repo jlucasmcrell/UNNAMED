@@ -1167,6 +1167,8 @@ public sealed class Simulation
         ReturnLoans loans => _sheets.Handle(loans, Now),
         SettleFallen fallen => _sheets.Handle(fallen, Now),
         HandOver hand => _inventory.Handle(hand),
+        CheckEquipmentPack equipment=>_inventory.Handle(equipment),
+        RepackInventory repack=>_inventory.Handle(repack),
         CanReceiveStack receive=>_inventory.Handle(receive),
         ReceiveStack receive => _inventory.Handle(receive, Now),
         ReleaseItem release => _equipment.Handle(release, Now),

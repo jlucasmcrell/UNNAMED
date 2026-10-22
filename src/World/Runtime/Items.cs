@@ -153,6 +153,9 @@ internal sealed record HandOver(EntityId ItemId) : InternalCommand;
 /// where the character stands when it has no room or would be too heavy. With <see cref="DropAt"/>, it is left on the ground there
 /// instead (a hireling's own things, where they fell).
 /// </summary>
+internal sealed record CheckEquipmentPack(ImmutableSortedDictionary<EquipSlot,EntityId> Equipment) : InternalCommand;
+internal sealed record RepackInventory : InternalCommand;
+
 internal sealed record CanReceiveStack(InventoryEntry Entry) : InternalCommand;
 
 internal sealed record ReceiveStack(InventoryEntry Entry) : InternalCommand
@@ -983,13 +986,14 @@ internal sealed class EquipmentSystem
             freed.Add(EquipSlot.MainHand);
         if (freed.Any(InHands) && HandsBusy(tick) is { } busy)
             return busy;
-        var equipment = state.Equipment;
-        foreach (var (taken, item) in state.Equipment.Where(kv => freed.Contains(kv.Key) || kv.Value == command.Item).ToList())
-        {
-            equipment = equipment.Remove(taken);
-            _context.Events.Publish(new ItemUnequipped(_player, taken, item, tick));
-        }
-        state.SetEquipment(_owner, equipment.SetItem(slot, command.Item));
+        var displaced=state.Equipment.Where(kv=>freed.Contains(kv.Key) || kv.Value==command.Item).ToArray();
+        var equipment=state.Equipment;
+        foreach(var (taken,_) in displaced)equipment=equipment.Remove(taken);
+        equipment=equipment.SetItem(slot,command.Item);
+        if(_context.Dispatch(new CheckEquipmentPack(equipment)) is { } full)return full;
+        state.SetEquipment(_owner,equipment);
+        _context.Dispatch(new RepackInventory());
+        foreach(var (taken,item) in displaced)_context.Events.Publish(new ItemUnequipped(_player,taken,item,tick));
         _context.Events.Publish(new ItemEquipped(_player, slot, command.Item, tick));
         return null;
     }
@@ -1003,7 +1007,10 @@ internal sealed class EquipmentSystem
             return $"nothing is equipped in {EquipSlots.Key(command.Slot)}";
         if (InHands(command.Slot) && HandsBusy(tick) is { } busy)
             return busy;
-        state.SetEquipment(_owner, state.Equipment.Remove(command.Slot));
+        var equipment=state.Equipment.Remove(command.Slot);
+        if(_context.Dispatch(new CheckEquipmentPack(equipment)) is { } full)return full;
+        state.SetEquipment(_owner,equipment);
+        _context.Dispatch(new RepackInventory());
         _context.Events.Publish(new ItemUnequipped(_player, command.Slot, item, tick));
         return null;
     }

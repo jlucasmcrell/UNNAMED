@@ -8,7 +8,7 @@ namespace UNNAMED.Presentation;
 public partial class Main
 {
     // Opt-in review of actual World.Advance news. Never used by a normal launch.
-    private async Task RunAwayReview(string directory)
+    private async Task RunAwayReview(string directory,bool complete=true)
     {
         var simulation=_session.Simulation!;
         long span=9*_session.Setup.Clock.TicksPerDay+_session.Setup.Clock.TicksPerDay/4;
@@ -42,6 +42,6 @@ public partial class Main
                 full_lines=summary.DetailGroups.Sum(g=>g.Lines.Length),labels});
         }
         File.WriteAllText(Path.Combine(directory,"away_news.json"),JsonSerializer.Serialize(new{log.FromTick,log.ToTick,log.Lines,views=rows},new JsonSerializerOptions{WriteIndented=true}));
-        File.WriteAllText(Path.Combine(directory,"complete.json"),"{\"status\":\"AWAY_UI_REQUIRES_REVIEW\"}");
+        if(complete)File.WriteAllText(Path.Combine(directory,"complete.json"),"{\"status\":\"AWAY_UI_REQUIRES_REVIEW\"}");
     }
 }

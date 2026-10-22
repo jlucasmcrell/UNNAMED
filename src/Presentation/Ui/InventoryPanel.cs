@@ -35,6 +35,7 @@ public partial class InventoryPanel : CanvasLayer
     /// <summary>What the laden band means now, under the totals while laden or at the limit (D4).</summary>
     private readonly Label _laden = UiKit.Words(string.Empty, 16, HudStyle.Brass);
     private readonly VBoxContainer _details = new();
+    private readonly ScrollContainer _detailScroll=UiKit.Scroll();
     /// <summary>The bag bar: the backpack and each bag slot with how full it is.</summary>
     private readonly VBoxContainer _bags = new();
     /// <summary>The category tabs, drawn again with the pack; the search and the sort buttons beside them live as long as the panel.</summary>
@@ -105,12 +106,17 @@ public partial class InventoryPanel : CanvasLayer
         pack.AddThemeConstantOverride("separation", 16);
         _carried.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         _carried.AddThemeConstantOverride("separation", 4);
+        _carriedScroll.Name="PackListViewport";
+        _detailScroll.Name="ItemDetailViewport";
         _carriedScroll.SizeFlagsVertical = Control.SizeFlags.ShrinkBegin;
         _carriedScroll.AddChild(_carried);
         pack.AddChild(_carriedScroll);
         _details.AddThemeConstantOverride("separation", 6);
-        pack.AddChild(_details);
+        _detailScroll.SizeFlagsVertical=Control.SizeFlags.ShrinkBegin;
+        _detailScroll.AddChild(_details);
+        pack.AddChild(_detailScroll);
         columns.AddChild(pack);
+        BuildPaperDoll(columns);
 
         _context.CustomMinimumSize = new Vector2(ContextWidth, 0);
         _context.AddThemeConstantOverride("separation", 12);
@@ -122,7 +128,7 @@ public partial class InventoryPanel : CanvasLayer
         _context.AddChild(_containerScroll);
         columns.AddChild(_context);
         _sheet.Body.AddChild(columns);
-        foreach (var list in new Control[] { _carried, _container, _details, _contextHead })
+        foreach (var list in new Control[] { _carried, _container, _contextHead })
             list.MinimumSizeChanged += () => Callable.From(FitLists).CallDeferred();
         _sheet.OnShown(() =>
         {
@@ -227,7 +233,9 @@ public partial class InventoryPanel : CanvasLayer
             return;
         string? focused = UiKit.FocusedId(_sheet.Root);
         bool context = OpenContainer is not null || OpenStation is not null || OpenTrader is not null;
-        _sheet.Shape(context ? UiKit.Wide : UiKit.Standard);
+        _sheet.Shape(UiKit.Wide);
+        _doll.Visible=!context;
+        if(!context)RefreshPaperDoll(simulation);
         _context.Visible = context;
         Fill(simulation);
         Details(simulation);
@@ -359,6 +367,7 @@ public partial class InventoryPanel : CanvasLayer
         // A usable thing is dragged from its row onto an action bar's slot.
         if (usable)
             ActionBarsView.Source(row.Root, entry.DefId, Names.Of(_session, entry.DefId));
+        else if(definition?.Slot is not null)EquipmentDragSource(row.Root,entry);
         int q = quick.IndexOf(entry.DefId);
         if (q >= 0)
             row.Root.AddChild(new HudView.KeyCap(HelpPanel.Key($"quick_{q + 1}"), 16));
@@ -775,7 +784,10 @@ public partial class InventoryPanel : CanvasLayer
     private void FitLists()
     {
         float room = _sheet.Room - 150;
-        Fit(_carriedScroll, _carried, room - _details.GetCombinedMinimumSize().Y - 16);
+        // Reserve the same detail strip for every item. Hover never changes the list's height or scroll.
+        float detailHeight=Math.Clamp(room*.35f,140,240);
+        _detailScroll.CustomMinimumSize=new Vector2(0,detailHeight);
+        Fit(_carriedScroll, _carried, room-detailHeight-16);
         Fit(_containerScroll, _container, room - _contextHead.GetCombinedMinimumSize().Y - 12);
     }
 

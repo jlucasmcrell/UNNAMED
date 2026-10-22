@@ -25,6 +25,7 @@ public partial class Main
     {
         _inventory = new InventoryPanel { Name = "Inventory", Assign = AssignQuickSlot };
         _inventory.Bind(_session, _controller);
+        _inventory.BindArt(_art,_bindings,()=> (_avatarModel,_avatarPose?.ArmSplayDegrees??0));
         AddChild(_inventory);
         _loot = new LootPanel { Name = "Loot" };
         _loot.Bind(_session);

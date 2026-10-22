@@ -53,12 +53,39 @@ public class PackTests
     private static ItemDefinition Def(Arena arena, string def) => arena.Simulation.Setup.Items.Catalog.Get(def);
 
     [Fact]
+    public void WornItems_LeavePackSlotsButKeepTheirWeight_AndFullPackUnequipIsRefused()
+    {
+        using var profile=new TempProfile();
+        var arena=Start(Harness.Boot(profile),AtChest,Enumerable.Range(0,20).Select(_=>Stack(Flask,1)).Append(Stack("item.armor.hide_vest",1)).ToArray());
+        var vest=Id(arena,"item.armor.hide_vest");var before=arena.Simulation.Pack.Used;long grams=arena.Simulation.Player.CarriedGrams;
+        Assert.Equal(24,before);
+        Assert.Null(arena.Submit(new EquipCommand(arena.Player,vest)));
+        Assert.Equal(before-1,arena.Simulation.Pack.Used);
+        Assert.Equal(grams,arena.Simulation.Player.CarriedGrams);
+        Assert.Null(arena.Simulation.Pack.Holding(vest));
+        var entry=arena.Simulation.Player.Inventory.Single(e=>e.ItemId==vest);
+        Assert.Equal((-1,-1),(entry.Bag,entry.Slot));
+        const string chest="container.waystation_chest";
+        var arrows=arena.Simulation.Containers.Single(c=>c.Site.Key==chest).Items.Single(i=>i.DefId==Arrow);
+        Assert.Null(arena.Submit(new MoveItemCommand(arena.Player,arrows.Ref,ItemPlace.In(chest),ItemPlace.Carried,1)));
+        Assert.Equal(24,arena.Simulation.Pack.Used);
+        Assert.StartsWith("no room",arena.Submit(new UnequipCommand(arena.Player,EquipSlot.Chest)));
+        Assert.Equal(vest,arena.Simulation.Player.Equipment[EquipSlot.Chest]);
+        var carriedArrow=Id(arena,Arrow);
+        Assert.Null(arena.Submit(new MoveItemCommand(arena.Player,carriedArrow.Value,ItemPlace.Carried,ItemPlace.In(chest),1)));
+        Assert.Null(arena.Submit(new UnequipCommand(arena.Player,EquipSlot.Chest)));
+        Assert.NotNull(arena.Simulation.Pack.Holding(vest));
+        Assert.Equal(24,arena.Simulation.Pack.Used);
+        Assert.Single(arena.Simulation.Player.Inventory.Where(e=>e.ItemId==vest));
+    }
+
+    [Fact]
     public void ABag_AddsSlots_NotCarryingCapacity_AndLiesInNoSlotOfTheBackpack()
     {
         using var profile = new TempProfile();
         var arena = Start(Harness.Boot(profile), Open, Stack(Satchel, 1), Stack(Satchel, 1));
         var before = arena.Simulation.Player;
-        int stacks = before.Inventory.Length;
+        int stacks = arena.Simulation.Pack.Used;
         Assert.Equal(24, arena.Simulation.Pack.Capacity);
         var first = arena.Simulation.Player.Inventory.Where(e => e.DefId == Satchel).Select(e => e.ItemId).OrderBy(i => i.Value, StringComparer.Ordinal).ToList();
 
@@ -140,8 +167,8 @@ public class PackTests
     public void AFullPack_RefusesWhatDoesNotFit_UntilABagIsEquipped()
     {
         using var profile = new TempProfile();
-        // The four starting stacks, nineteen flasks and a satchel fill the backpack's 24.
-        var arena = Start(Harness.Boot(profile), AtChest, Enumerable.Range(0, 19).Select(_ => Stack(Flask, 1)).Append(Stack(Satchel, 1)).ToArray());
+        // The three starting packed stacks (the sword is worn), twenty flasks and a satchel fill the backpack's 24.
+        var arena = Start(Harness.Boot(profile), AtChest, Enumerable.Range(0, 20).Select(_ => Stack(Flask, 1)).Append(Stack(Satchel, 1)).ToArray());
         Assert.Null(arena.Submit(new TakeAllCommand(arena.Player, "container.waystation_chest")));   // the salve joins its stack; the rest has no room
         Assert.Equal(24, arena.Simulation.Pack.Used);
         Assert.Equal(0, Count(arena, Arrow));
@@ -160,7 +187,7 @@ public class PackTests
     {
         using var profile = new TempProfile();
         // 24 stacks fill the backpack; a quiver takes the arrows so the backpack stays full, then there is no room for the arrows' stacks and the quiver.
-        var arena = Start(Harness.Boot(profile), Open, Enumerable.Range(0, 20).Select(_ => Stack(Flask, 1))
+        var arena = Start(Harness.Boot(profile), Open, Enumerable.Range(0, 21).Select(_ => Stack(Flask, 1))
             .Concat(new[] { Stack(Quiver, 1), Stack(Arrow, 20), Stack(Arrow, 20), Stack(Arrow, 20) }).ToArray());
         Assert.Null(arena.Submit(new EquipBagCommand(arena.Player, Id(arena, Quiver), 1)));
         Assert.Equal(3, Bag(arena, 1).Stacks.Length);
