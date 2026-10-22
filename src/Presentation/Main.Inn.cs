@@ -27,15 +27,6 @@ public partial class Main
     }
 
     /// <summary>The opening of the most recently found lore page: what the character has to read before sleeping.</summary>
-    private string LatestPage()
-    {
-        if (_session.Simulation?.Lore is not { Length: > 0 } pages)
-            return "";
-        var newest = pages.OrderByDescending(p => p.Tick).First();
-        if (!_session.Setup.Lore.TryGetValue(newest.EntryId, out var entry))
-            return "";
-        string text = entry.PageAt(newest.Page)?.Text ?? "";
-        int stop = text.IndexOf(". ", StringComparison.Ordinal);
-        return stop > 40 ? text[..(stop + 1)] : text;
-    }
+    private string LatestPage() =>
+        _session.Simulation is { } simulation ? UNNAMED.Domain.Knowledge.LoreRules.Latest(_session.Setup.Lore, simulation.Lore) : "";
 }

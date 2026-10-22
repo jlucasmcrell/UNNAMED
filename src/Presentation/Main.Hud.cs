@@ -214,16 +214,8 @@ public partial class Main
     /// the lore content's own - nothing is composed here - so the plate can only say what the journal already holds, and says nothing at all
     /// about a beast nobody has studied.
     /// </summary>
-    private string Bestiary(Simulation simulation, string defId)
-    {
-        var entry = _session.Setup.Lore.Values.FirstOrDefault(e =>
-            e.Pages.Any(p => p.Sources.Any(s => s.Kind == LoreSourceKind.Studied && s.Ref == defId)));
-        if (entry is null || simulation.Lore.FirstOrDefault(r => r.EntryId == entry.Id) is not { } found)
-            return "";
-        string text = entry.PageAt(found.Page)?.Text ?? "";
-        int stop = text.IndexOf(". ", StringComparison.Ordinal);
-        return stop > 40 ? text[..(stop + 1)] : text;
-    }
+    private string Bestiary(Simulation simulation, string defId) =>
+        LoreRules.Known(_session.Setup.Lore, simulation.Lore, defId);
 
     /// <summary>The creature to show: the nearest one hunting the character, or the nearest living one the camera faces.</summary>
     private CreatureView? Target(Simulation simulation)
