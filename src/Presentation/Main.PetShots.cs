@@ -200,6 +200,22 @@ public partial class Main
                 PetEvidence("the party", $"{simulation.Pets.Length} animal(s): " +
                     string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Order}, {p.Standing}, {p.Health}/{p.MaxHealth}, bond {p.Bond}")) +
                     $"; carrying {Carried(simulation)}, purse {simulation.Player.Currency}");
+                // The forge is a walled shed: a character who traded at her counter is INSIDE it, and the way out - to the road and the pack - is
+                // the same door, opened from in here and walked through, as a player leaves. Without this the pass stands at the anvil for the rest
+                // of its scenes and the lure, the pull and the fight have nothing to work on (measured 12:21 and 12:45, both runs).
+                if (simulation.Doors.OrderBy(d => DoorGap(d, simulation.Player.Body)).FirstOrDefault() is { } outDoor)
+                {
+                    if (!outDoor.Open)
+                    {
+                        _controller.Interact(outDoor.Site.Key);
+                        await Rcd3Wait(1.0);
+                    }
+                    var box = outDoor.Site.ClosedFootprint;
+                    await ApproachPoint((box.MinXMm + box.MaxXMm) / 2000.0, (box.MinZMm + box.MaxZMm) / 2000.0, 1.0, 30);
+                    await ApproachPoint(box.MinXMm / 1000.0 - 2.5, (box.MinZMm + box.MaxZMm) / 2000.0, 1.2, 30);
+                    GD.Print($"PET_SHOTS out of the shed: door {outDoor.Site.Key} open " +
+                        $"{simulation.Doors.First(d => d.Site.Key == outDoor.Site.Key).Open}, {PetWhere(simulation)}");
+                }
                 break;
             }
             case 2:
