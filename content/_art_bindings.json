@@ -3654,8 +3654,8 @@
   },
   "creatures": {
     "creature.beast.hound_pup": {
-      "model": "creature_wm_ember_hound",
-      "clips": "creature.creature_wm_ember_hound",
+      "model": "creature_wm_grey_wolf_b",
+      "clips": "creature.creature_wm_grey_wolf_b",
       "voice": "grey_wolf",
       "flesh": "flesh",
       "steps": {
@@ -3666,9 +3666,20 @@
         "scale": [
           0.42,
           0.5
-        ]
+        ],
+        "shader": {
+          "hue_shift": 14,
+          "saturation": 1.2,
+          "value": 1.22,
+          "albedo_mul": [
+            1.22,
+            1.06,
+            0.82,
+            1.0
+          ]
+        }
       },
-      "note": "A pup of the Ashen Hollow hound until a young model exists: the ember hound drawn at 0.42-0.5 of its size, so the animal bought off Kera's shelf is a body at heel rather than a greybox slab hidden by the grass (spec 43)."
+      "note": "A wolf's pup: the grey wolf at 0.42-0.5 of its size with a warm sandy coat, so the party's animal reads at heel and does NOT pass for a wild grey wolf. Not the ember hound - that one is a hostile with cracks of fire in it. Swap the model when a young hound is scanned."
     },
     "creature.beast.wolf_grey": {
       "model": "creature_wm_grey_wolf_b",

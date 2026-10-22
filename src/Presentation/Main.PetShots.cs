@@ -50,9 +50,13 @@ public partial class Main
             _petRefusal = rejected.Reason;
             GD.Print($"PET_SHOTS refused {rejected.Command.GetType().Name}: {rejected.Reason}");
         });
+        // The offer's own odds and what became of it. Six offers had rolled against with nothing in the log saying whether the chance was three
+        // percent or fifty (Claude, 2026-10-22): the number here is the one the roll used.
+        _session.Subscribe<TameAttempted>(e => GD.Print($"PET_SHOTS offering: {e.ChancePercent}% it comes round ({e.Creature})"));
+        _session.Subscribe<TameFailed>(e => GD.Print($"PET_SHOTS the offer failed at {e.ChancePercent}%"));
+        _session.Subscribe<TameBroken>(e => GD.Print($"PET_SHOTS the offer broke: {e.Reason}"));
         GD.Print("PET_SHOTS installed " + _petShotsDirectory);
     }
-
     /// <summary>Driven from the main loop: one scene at a time, each waiting for the last.</summary>
     private void TickPetShots()
     {
@@ -254,6 +258,10 @@ public partial class Main
                 await RunAwayFrom(held, 10);
                 await Rcd3Wait(1.5);
                 await PetStill("pets_waiting", held);
+                // And a close look at it holding the spot: a still from ten metres frames the field around the animal, not the animal.
+                if (held is { } post)
+                    await GoTo(post, 5.0, 45);
+                await PetStill("pets_waiting_close", held);
                 PetEvidence("wait here", string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Order} at {Metres(p.Body)}")));
                 // Called back to heel: the beats after this one are about what the animal does beside the character.
                 await Obey(PetOrder.Follow, 4);
@@ -264,8 +272,10 @@ public partial class Main
                 // A fight to work on: the pack is walked to ONCE and roused by the character's own blade - the party engages one, which is what a
                 // lure and a pull both act on (an animal draws off an enemy already fighting the party, it does not start the fight). Walking at it
                 // a slice at a time is what ran the pass out of time before.
-                if (NearestWolf(simulation) is { } pack)
-                    await GoTo(pack.Body, 6.0, 110);
+                // ONE wolf, the loneliest one in sight: a character at level 1 with a sword cannot stand in a pack of four, and a fight it
+                // loses takes the whole rest of the pass with it (the 14:21 run bled out at the lure beat against three).
+                if (LoneWolf(simulation) is { } lone)
+                    await GoTo(lone.Body, 5.0, 110);
                 // The bond, fed in pieces before the pack is met: a pup starts wary (20) and refuses a hard order - attack my target - until it
                 // trusts the hand (Sure, 60). Feeding is three a piece, so the animal that goes into the fight is one that will take the order.
                 int fed = 0;
@@ -321,12 +331,24 @@ public partial class Main
                         await Rcd3Wait(0.6);
                         await Obey(PetOrder.AttackTarget, 3);
                     }
+                    // A character at 40% or under drinks the salve it carries and backs off: the pass has five beats to reach, and a death ends
+                    // all of them (the 14:21 run never came back from one).
+                    if (simulation.Combat.Health * 100 <= simulation.Combat.MaxHealth * 40
+                        && simulation.Player.Inventory.FirstOrDefault(e => e.DefId == "item.consumable.salve_minor") is { } salve)
+                    {
+                        _session.Submit(new UseItemCommand(simulation.PlayerId, salve.ItemId));
+                        await Rcd3Wait(1.2);
+                        if (NearestHostile(simulation) is { } danger)
+                            await RunAwayFrom(danger.Body, 12);
+                    }
                     if (NearestHostile(simulation) is { } foe)
-                        await GoTo(foe.Body, 2.5, 6);
+                        await GoTo(foe.Body, 3.0, 6);
                     _controller.Attack();
                     await Rcd3Wait(0.7);
                 }
                 await Rcd3Wait(1.5);
+                if (NearestHostile(simulation)?.Body is { } fought)
+                    await GoTo(fought, 5.0, 20);
                 await PetStill("pets_fight", NearestHostile(simulation)?.Body ?? simulation.Pets.FirstOrDefault()?.Body);
                 PetEvidence("fight", string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Doing}, {p.Standing} {p.Health}/{p.MaxHealth}")));
                 break;
@@ -537,6 +559,19 @@ public partial class Main
         .OrderBy(c => c.Asleep ? 0 : 1)
         .ThenBy(c => Distance(c.Body, simulation.Player.Body)).FirstOrDefault();
 
+    /// <summary>
+    /// The wolf to pick a fight with: one that has no other wolf within twelve metres, which is what makes the fight winnable for a level-one
+    /// character and what lets the animal pull ONE creature rather than a pack. Falls back to the nearest when the whole field is a pack.
+    /// </summary>
+    private static UNNAMED.World.Runtime.CreatureView? LoneWolf(Simulation simulation)
+    {
+        var wolves = simulation.Creatures.Where(c => c.Alive && c.DefId == "creature.beast.wolf_grey").ToArray();
+        if (wolves.Length == 0)
+            return null;
+        var alone = wolves.Where(w => wolves.All(other => other.Id == w.Id || Distance(other.Body, w.Body) > 12_000))
+            .OrderBy(w => Distance(w.Body, simulation.Player.Body)).ToArray();
+        return alone.Length > 0 ? alone[0] : wolves.OrderBy(w => Distance(w.Body, simulation.Player.Body)).First();
+    }
     /// <summary>Walk to a place in region metres, steering each frame; false when it is not reached in time.</summary>
     private async Task<bool> ApproachPoint(double x, double z, double withinMetres, double maxSeconds)
     {

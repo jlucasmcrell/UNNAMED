@@ -2,6 +2,7 @@
 // Godot presentation only: this file renders state and submits commands; it never writes state.
 
 using System.Text.RegularExpressions;
+using UNNAMED.Domain;
 using Godot;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
@@ -38,8 +39,21 @@ public partial class Main
     /// <summary>A notice of a kind the player may switch off (Settings, Notices): shown unless that kind is hidden.</summary>
     private void Notice(NoticeKind kind, string text, double seconds = 4) => _hud.Toast(text, seconds, kind: kind);
 
+    /// <summary>What a creature out in the world is called, for a notice about it; "the animal" when it has already gone.</summary>
+    private string WildName(EntityId creature)
+    {
+        string? defId = _session.Simulation?.Creatures.FirstOrDefault(c => c.Id == creature)?.DefId;
+        return defId is null ? "The animal" : Names.Of(_session, defId).ToLowerInvariant();
+    }
+
     private void Subscribe()
     {
+        // A wild animal's offer says its odds while it stands, and why it failed when it does: the number here is the one the roll used, so
+        // what the meat, the approach and the Handling skill bought the character is visible (spec 43's taming).
+        _session.Subscribe<TameAttempted>(e =>
+            _hud.Toast($"{WildName(e.Creature)}: {e.ChancePercent}% it comes round to the meat - hold still", 5));
+        _session.Subscribe<TameFailed>(e => _hud.Toast($"{WildName(e.Creature)} turned away ({e.ChancePercent}%)", 4));
+        _session.Subscribe<TameBroken>(e => _hud.Toast($"The offer broke: {e.Reason}", 4));
         _session.Subscribe<EncounterRestarted>(e => _hud.Toast(e.Loaded
             ? "Active boss encounters restart when loaded. You return outside the court with your saved resources."
             : "The Custodian disengages. The court falls quiet.", 7));
