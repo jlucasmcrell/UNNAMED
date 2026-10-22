@@ -110,7 +110,7 @@ public partial class Main
                 File.WriteAllText(Path.Combine(_petShotsDirectory!, "loaded.txt"), DateTimeOffset.Now.ToString("O"));
                 await Rcd3Wait(3.0);
                 PetEvidence("start", $"the character stands {PetWhere(simulation)}; queued {_petFrame} frames; purse {simulation.Player.Currency}");
-                await Rcd3Shot(_petShotsDirectory!, "pets_start");
+                await PetStill("pets_start");
                 var wain = simulation.Containers.FirstOrDefault(c => c.Site.Key == "container.road.wain_load");
                 if (wain is null || Distance(new Body(wain.Site.XMm, 0, wain.Site.ZMm, 0), simulation.Player.Body) > 6_000)
                 {
@@ -120,7 +120,7 @@ public partial class Main
                 }
                 _session.Submit(new TakeAllCommand(simulation.PlayerId, wain.Site.Key));
                 await Rcd3Wait(1.2);
-                await Rcd3Shot(_petShotsDirectory!, "pets_meat");
+                await PetStill("pets_meat");
                 PetEvidence("meat", $"the wain searched: {Carried(simulation)}");
                 if (Meat(simulation) == 0)
                     throw new InvalidOperationException($"the wain gave no meat; the character stands {PetWhere(simulation)}");
@@ -151,7 +151,7 @@ public partial class Main
                         $"{simulation.Doors.First(d => d.Site.Key == door.Site.Key).Open}, {PetWhere(simulation)}");
                 }
                 await GoTo(kera.Body, 1.0, 300);
-                await Rcd3Shot(_petShotsDirectory!, "pets_hollow");
+                await PetStill("pets_hollow");
                 // Her counter is close work, and the trade's reach is the simulation's 1.6 m, not the conversation prompt's. What stands between
                 // the road and her (the anvil she works at) is solid, so the last metres are walked round her: a ring of standpoints, each tried
                 // until the world itself takes a command. A capture that begins at her counter is already there and takes the first one.
@@ -173,15 +173,15 @@ public partial class Main
                 GD.Print($"PET_SHOTS at her counter: {_petRefusal ?? "the world took the command"}, purse {simulation.Player.Currency}");
                 Trade(simulation);
                 await Rcd3Wait(1.2);
-                await Rcd3Shot(_petShotsDirectory!, "pets_stall");
+                await PetStill("pets_stall");
                 PetEvidence("stall", $"at Kera's shelf with {simulation.Player.Currency} coin: {Carried(simulation)}");
                 // A sale, so the stall is seen working: the load's hides are what she pays for (the timber is worth nothing to her at the forty
                 // percent a merchant pays, and the flask is a tool she does not buy). The rest of the purse is the capture's own fixture - a
                 // character with coin in hand - because the pup is priced at 60 by content and a first-evening character carries none.
                 await SellAll(simulation, "item.material.small_hide");
-                await Rcd3Shot(_petShotsDirectory!, "pets_sold");
+                await PetStill("pets_sold");
                 var bought = await BuyPup(simulation);
-                await Rcd3Shot(_petShotsDirectory!, "pets_pup_bought");
+                await PetStill("pets_pup_bought");
                 PetEvidence("buy a pup", $"{bought ?? "not bought"}; purse {simulation.Player.Currency}");
                 // A run that could not buy it still has the wolf to tame and the fight to show: the pass says so and carries on rather than
                 // stopping with half the beats unrecorded.
@@ -192,7 +192,7 @@ public partial class Main
                 {
                     _session.Submit(new AdoptPetCommand(simulation.PlayerId, lead.ItemId));
                     await Rcd3Wait(1.0);
-                    await Rcd3Shot(_petShotsDirectory!, "pets_pup");
+                    await PetStill("pets_pup", simulation.Pets.FirstOrDefault()?.Body);
                 }
                 // The food for the offer, bought while the shelf is open and the coin is still in hand.
                 await BuyMeat(simulation);
@@ -225,13 +225,13 @@ public partial class Main
                 // roll are the pet system's own. The pup is in the party from here, so a pack that walks off still leaves the pass its beats.
                 _controller.Crouch(true);
                 await Rcd3Wait(0.6);
-                await Rcd3Shot(_petShotsDirectory!, "pets_creeping");
+                await PetStill("pets_creeping", FindTameable(simulation)?.Body);
                 bool tamed = await Tame(90);
                 _controller.Crouch(false);
                 PetEvidence("tame", $"{(tamed ? "the offer took" : "no animal was taken")}: " +
                     string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Order}, {p.Standing}, {p.Health}/{p.MaxHealth}, bond {p.Bond}")));
                 await Rcd3Wait(1.0);
-                await Rcd3Shot(_petShotsDirectory!, "pets_tamed");
+                await PetStill("pets_tamed", simulation.Pets.FirstOrDefault()?.Body);
                 break;
             }
             case 3:
@@ -245,12 +245,13 @@ public partial class Main
                 }
                 OpenPetOrders();
                 await Rcd3Wait(1.2);
-                await Rcd3Shot(_petShotsDirectory!, "pets_marker");
+                await PetStill("pets_marker");
                 await Obey(PetOrder.WaitHere, 6);
                 await Rcd3Wait(0.8);
-                await RunAwayFrom(simulation.Pets.FirstOrDefault()?.Body, 22);
+                var held = simulation.Pets.FirstOrDefault()?.Body;
+                await RunAwayFrom(held, 10);
                 await Rcd3Wait(1.5);
-                await Rcd3Shot(_petShotsDirectory!, "pets_waiting");
+                await PetStill("pets_waiting", held);
                 PetEvidence("wait here", string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Order} at {Metres(p.Body)}")));
                 break;
             }
@@ -266,7 +267,7 @@ public partial class Main
                     _controller.Attack();
                     await Rcd3Wait(0.8);
                 }
-                await Rcd3Shot(_petShotsDirectory!, "pets_roused");
+                await PetStill("pets_roused", NearestHostile(simulation)?.Body ?? NearestWolf(simulation)?.Body);
                 PetEvidence("roused", $"{simulation.Creatures.Count(c => c.Hostile)} creature(s) fighting the party");
                 // The lure: the animal is sent to a place by the pack and draws one creature out of the fight to it - the control skill doing
                 // the work a fight would otherwise cost.
@@ -274,7 +275,7 @@ public partial class Main
                 await Rcd3Wait(1.0);
                 await Obey(PetOrder.LureToHere, 6);
                 await Rcd3Wait(7.0);
-                await Rcd3Shot(_petShotsDirectory!, "pets_lure");
+                await PetStill("pets_lure", simulation.Pets.FirstOrDefault()?.Body);
                 PetEvidence("lure", string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Doing}, {p.Standing}")) +
                     $" | fighting: {simulation.Creatures.Count(c => c.Hostile)}");
                 break;
@@ -286,7 +287,7 @@ public partial class Main
                 await Rcd3Wait(1.0);
                 await Obey(PetOrder.Pull, 6);
                 await Rcd3Wait(8.0);
-                await Rcd3Shot(_petShotsDirectory!, "pets_pull");
+                await PetStill("pets_pull", simulation.Pets.FirstOrDefault()?.Body ?? NearestHostile(simulation)?.Body);
                 PetEvidence("pull one", string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Doing}, {p.Standing}, {p.Health}")) +
                     $" | fighting: {simulation.Creatures.Count(c => c.Hostile)}");
                 break;
@@ -311,7 +312,7 @@ public partial class Main
                     await Rcd3Wait(0.7);
                 }
                 await Rcd3Wait(1.5);
-                await Rcd3Shot(_petShotsDirectory!, "pets_fight");
+                await PetStill("pets_fight", NearestHostile(simulation)?.Body ?? simulation.Pets.FirstOrDefault()?.Body);
                 PetEvidence("fight", string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Doing}, {p.Standing} {p.Health}/{p.MaxHealth}")));
                 break;
             }
@@ -324,7 +325,7 @@ public partial class Main
                     ? "no animal was wounded in this pass"
                     : $"{home.Name}: {home.Standing}, home until tick {home.HomeUntilTick}, strength {simulation.PartyStrength}");
                 await Rcd3Wait(2.0);
-                await Rcd3Shot(_petShotsDirectory!, "pets_after_the_fight");
+                await PetStill("pets_after_the_fight", NearestHostile(simulation)?.Body ?? simulation.Pets.FirstOrDefault()?.Body);
                 break;
             }
             default:
@@ -539,6 +540,28 @@ public partial class Main
         }
         _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera);
         return false;
+    }
+
+    /// <summary>
+    /// One still of the pass, taken from behind the character: the camera goes round behind it first, looking where the character looks, or - when
+    /// a body is named - where that body is, so what the beat is about (the wolf, the ring on the ground, the animal holding its post) is in frame.
+    /// </summary>
+    private async Task PetStill(string name, Body? lookAt = null)
+    {
+        if (_session.Simulation is { } simulation)
+        {
+            var body = simulation.Player.Body;
+            if (lookAt is { } subject)
+                _camera.Yaw = Mathf.Atan2(-(subject.XMm - body.XMm) / 1000f, -(subject.ZMm - body.ZMm) / 1000f);
+            else
+            {
+                double facing = body.FacingMdeg * Math.PI / 180.0;
+                _camera.Yaw = (float)Math.Atan2(-Math.Sin(facing), -Math.Cos(facing));
+            }
+            _camera.Pitch = -0.22f;
+            await Rcd3Wait(0.5);
+        }
+        await Rcd3Shot(_petShotsDirectory!, name);
     }
 
     /// <summary>Put distance between the character and the animals, so a waiting one is seen to hold its post.</summary>
