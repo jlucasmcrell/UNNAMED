@@ -91,11 +91,14 @@ public partial class Main
             while(!File.Exists(Path.Combine(directory,"recording.started")))
             {
                 if(Time.GetTicksMsec()>deadline)throw new TimeoutException("Recorder not ready");
+                // WGC may wait for window damage. Grey is readiness only; magenta is sync.
+                flash.Visible=true;
+                flash.Color=Time.GetTicksMsec()%500<250 ? new Color(.1f,.1f,.1f) : new Color(.2f,.2f,.2f);
                 await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
             }
             recording.SetRecordingActive(true);
             await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
-            flash.Visible=true;beep.Play();
+            flash.Color=Colors.Magenta;flash.Visible=true;beep.Play();
             ulong syncEnd=Time.GetTicksMsec()+150;
             while(Time.GetTicksMsec()<syncEnd)await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
             flash.Visible=false;
@@ -119,6 +122,23 @@ public partial class Main
             if(OS.GetEnvironment("OTHERREACH_CALM_MOTION_REVIEW")=="1")
             {
                 _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);
+                bool attachmentReview=OS.GetEnvironment("OTHERREACH_SWORD_ATTACHMENT_REVIEW")=="1";
+                var attachmentRows=new List<object>();
+                void AuditSword()
+                {
+                    if(!attachmentReview)return;
+                    var right=_avatar.FindChildren("*",nameof(BoneAttachment3D),true,false).OfType<BoneAttachment3D>()
+                        .Single(a=>a.BoneName=="hand_r");
+                    var socket=right.FindChild(Art.HeldWeapon.GripSocket,true,false) as Node3D;
+                    var meshes=right.FindChildren("*",nameof(MeshInstance3D),true,false).OfType<MeshInstance3D>().ToArray();
+                    bool drawable=meshes.Any(m=>m.IsVisibleInTree() && m.CastShadow!=GeometryInstance3D.ShadowCastingSetting.ShadowsOnly);
+                    if(socket is null || !drawable || right.GlobalPosition.DistanceTo(socket.GlobalPosition)>.20f)
+                        throw new InvalidDataException("Sword attachment lost during "+phase+"/"+_avatar.ClipState);
+                    attachmentRows.Add(new{phase,clip=_avatar.ClipState,ticks_usec=Time.GetTicksUsec(),
+                        drawable,hand=right.GlobalPosition.ToString(),socket=socket.GlobalPosition.ToString(),
+                        socket_from_hand_m=right.GlobalPosition.DistanceTo(socket.GlobalPosition),
+                        weapon=_session.Simulation!.Combat.Weapon.Source});
+                }
                 var attacks=new HashSet<string>();
                 for(int strike=1;strike<=3;strike++)
                 {
@@ -127,7 +147,7 @@ public partial class Main
                     while(Time.GetTicksMsec()<through)
                     {
                         await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
-                        attacks.Add(_avatar.ClipState);
+                        attacks.Add(_avatar.ClipState);AuditSword();
                         var p=_avatar.GlobalPosition;var l=_avatar.Foot("L")??p;var r=_avatar.Foot("R")??p;
                         frames.WriteLine(FormattableString.Invariant($"{Time.GetTicksUsec()},{phase},{p.X},{p.Y},{p.Z},{l.X},{l.Y},{l.Z},{r.X},{r.Y},{r.Z},{_avatar.ClipState}"));
                     }
@@ -150,7 +170,8 @@ public partial class Main
                 var angleLabel=new Label { Position=new Vector2(64,8) };syncLayer.AddChild(angleLabel);
                 try
                 {
-                    foreach(var angle in new[]{("side",Mathf.Pi/2),("threequarter",Mathf.Pi/4)})
+                    foreach(var angle in attachmentReview ? new[]{("sword_side",-Mathf.Pi/2),("sword_threequarter",-Mathf.Pi/4)}
+                        : new[]{("side",Mathf.Pi/2),("threequarter",Mathf.Pi/4)})
                     {
                         void FrameAngle()
                         {
@@ -179,7 +200,7 @@ public partial class Main
                             while(Time.GetTicksMsec()<through)
                             {
                                 FrameAngle();await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
-                                attacks.Add(_avatar.ClipState);
+                                attacks.Add(_avatar.ClipState);AuditSword();
                                 var p=_avatar.GlobalPosition;var l=_avatar.Foot("L")??p;var r=_avatar.Foot("R")??p;
                                 frames.WriteLine(FormattableString.Invariant($"{Time.GetTicksUsec()},{phase},{p.X},{p.Y},{p.Z},{l.X},{l.Y},{l.Z},{r.X},{r.Y},{r.Z},{_avatar.ClipState}"));
                             }
@@ -188,6 +209,7 @@ public partial class Main
                 }
                 finally{fill.Reparent(_camera.Camera,false);_camera.Camera.MakeCurrent();angleCamera.QueueFree();angleLabel.QueueFree();}
                 File.WriteAllText(Path.Combine(directory,"attack_states.json"),JsonSerializer.Serialize(attacks));
+                if(attachmentReview)File.WriteAllText(Path.Combine(directory,"sword_attachment.json"),JsonSerializer.Serialize(attachmentRows));
                 foreach(string required in new[]{"sword_attack_1","sword_attack_2","sword_attack_3"})
                     if(!attacks.Contains(required))throw new InvalidOperationException("Normal controller did not show "+required);
             }
@@ -202,10 +224,19 @@ public partial class Main
             recording.SetRecordingActive(false);
             using var audio=recording.GetRecording();
             if(audio is not null && audio.Data.Length>0)audio.SaveToWav(Path.Combine(directory,"game_audio.wav"));
-            AudioServer.RemoveBusEffect(bus,effectIndex);syncLayer.QueueFree();beep.QueueFree();
+            AudioServer.RemoveBusEffect(bus,effectIndex);beep.QueueFree();
             _avatar.FootPlanted-=Contact;frames.Flush();
+            // Keep a changing tail frame until all motion timestamps reached WGC.
+            ulong tail=Time.GetTicksMsec()+750;
+            while(Time.GetTicksMsec()<tail)
+            {
+                flash.Color=Time.GetTicksMsec()%250<125 ? new Color(.1f,.1f,.1f) : new Color(.2f,.2f,.2f);
+                flash.Visible=true;
+                await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+            }
+            syncLayer.QueueFree();
             File.WriteAllText(Path.Combine(directory,"recording.finished"),DateTimeOffset.Now.ToString("o"));
-            ulong stop=Time.GetTicksMsec()+10000;
+            ulong stop=Time.GetTicksMsec()+30000;
             while(!File.Exists(Path.Combine(directory,"recording.stopped")) && Time.GetTicksMsec()<stop)
                 await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
         }

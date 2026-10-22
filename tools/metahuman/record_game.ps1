@@ -8,7 +8,9 @@ $psi=[Diagnostics.ProcessStartInfo]::new($exe);$psi.UseShellExecute=$false;$psi.
 $captureArgs=if($GraphicsCapture){@('-f','lavfi','-i',"gfxcapture=window_title='$WindowTitle':max_framerate=60:capture_cursor=false",'-vf','hwdownload,format=bgra,format=yuv420p','-c:v','libx264','-preset','ultrafast','-crf','18')}else{@('-f','gdigrab','-framerate','60','-draw_mouse','0','-i',$(if($DesktopCapture){'desktop'}else{'title='+$WindowTitle}),'-c:v','h264_nvenc','-preset','p4','-rc','vbr','-cq','18','-b:v','0')}
 $progressPath=Join-Path $out ($Label+'.progress')
 if($GraphicsCapture){$captureArgs+=@('-progress',$progressPath)}
-foreach($arg in (@('-hide_banner','-y')+$captureArgs+@('-an','-pix_fmt','yuv420p','-movflags','+faststart',(Join-Path $out ($Label+'.mp4'))))){$psi.ArgumentList.Add($arg)}
+# Fragmented MP4 retains timestamps and decodable clusters if WGC blocks while closing.
+$captureArgs+=@('-force_key_frames','expr:gte(t,n_forced*1)')
+foreach($arg in (@('-hide_banner','-y')+$captureArgs+@('-an','-pix_fmt','yuv420p','-flush_packets','1','-movflags','+frag_keyframe+empty_moov+default_base_moof',(Join-Path $out ($Label+'.mp4'))))){$psi.ArgumentList.Add($arg)}
 if($PSVersionTable.PSVersion.Major -lt 7){throw 'Run this recorder with pwsh (PowerShell 7)'}
 $p=[Diagnostics.Process]::Start($psi);$null=$p.Handle;$err=$p.StandardError.ReadToEndAsync();$stdout=$p.StandardOutput.ReadToEndAsync();$started=Get-Date
 @{pid=$p.Id;started=$p.StartTime.ToString('o');executable=$exe;window=$WindowTitle;desktop_capture=[bool]$DesktopCapture;graphics_capture=[bool]$GraphicsCapture;kind=$(if($GraphicsCapture){'REAL-TIME Windows Graphics Capture; software H264; no pacing override'}else{'REAL-TIME gdigrab60; no Godot write-movie/pacing override'})}|ConvertTo-Json|Set-Content (Join-Path $out ($Label+'.process.json'))
@@ -27,6 +29,8 @@ try{
  }
  if($ReadySignal){[IO.File]::WriteAllText($ReadySignal,(Get-Date -Format o))}
  while(-not $p.HasExited -and ((Get-Date)-$started).TotalSeconds -lt $Seconds -and -not (Test-Path (Join-Path $out ($Label+'.stop'))) -and (-not $StopSignal -or -not(Test-Path -LiteralPath $StopSignal)) -and (-not $StopIfFlagExists -or -not(Test-Path -LiteralPath $StopIfFlagExists))){Start-Sleep -Seconds 1;$p.Refresh()}
- if(-not $p.HasExited){$p.StandardInput.WriteLine('q');if(-not $p.WaitForExit(15000)){$p.Kill()}}
+ $forcedStop=$false
+ if(-not $p.HasExited){$p.StandardInput.WriteLine('q');if(-not $p.WaitForExit(15000)){$forcedStop=$true;$p.Kill()}}
  $p.WaitForExit();$err.Result|Set-Content (Join-Path $out ($Label+'.ffmpeg.log'));$stdout.Result|Set-Content (Join-Path $out ($Label+'.stdout.log'));Write-Output ('Recorder exit '+$p.ExitCode)
-}finally{if(-not $p.HasExited){$p.StandardInput.WriteLine('q');$null=$p.WaitForExit(10000)};if($p.HasExited -and $StoppedSignal){[IO.File]::WriteAllText($StoppedSignal,(Get-Date -Format o))}}
+ @{exit_code=$p.ExitCode;forced_stop=$forcedStop;container='fragmented MP4';requires_decode_validation=$true;timing='original WGC timestamps; keyframes every second; no FPS conversion'}|ConvertTo-Json|Set-Content (Join-Path $out ($Label+'.recorder.json'))
+}finally{if(-not $p.HasExited){try{$p.StandardInput.WriteLine('q')}catch{};if(-not $p.WaitForExit(10000)){$p.Kill();$p.WaitForExit()}};if($p.HasExited -and $StoppedSignal){[IO.File]::WriteAllText($StoppedSignal,(Get-Date -Format o))}}
