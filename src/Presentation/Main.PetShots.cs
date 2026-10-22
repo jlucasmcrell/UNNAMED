@@ -598,8 +598,8 @@ public partial class Main
         _petCamera ??= new Camera3D { Name = "PetCaptureCamera", Fov = 62 };
         if (_petCamera.GetParent() is null)
             AddChild(_petCamera);
-        _petCamera.GlobalPosition = target + away * 3.0f + side + new Vector3(0, 1.15f, 0);
-        _petCamera.LookAt(target + new Vector3(0, 0.35f, 0), Vector3.Up);
+        _petCamera.GlobalPosition = target + away * 2.2f + side * 0.6f + new Vector3(0, 0.85f, 0);
+        _petCamera.LookAt(target + new Vector3(0, 0.45f, 0), Vector3.Up);
         var play = GetViewport().GetCamera3D();
         _petCamera.MakeCurrent();
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
