@@ -3397,7 +3397,7 @@
   },
   "weapons": {
     "item.weapon.rusted_sword": {
-      "model": "weapon_real_arming_sword",
+      "model": "weapon_moonbrand_arming_sword",
       "family": "sword"
     },
     "item.weapon.hunting_bow": {
