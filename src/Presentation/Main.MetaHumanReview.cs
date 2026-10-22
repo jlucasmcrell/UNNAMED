@@ -508,7 +508,10 @@ public partial class Main
         try
         {
             await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
-            SaveScreenshot(_mhReviewDirectory!, name);
+            if (OS.GetEnvironment("OTHERREACH_REVIEW_WGC_STILLS") == "1")
+                await RequestReviewWgcStill(_mhReviewDirectory!, name);
+            else
+                SaveScreenshot(_mhReviewDirectory!, name);
             if (name is "03_creator_ada_face" or "05_creator_mateo_face") SaveMetaHumanMaterialAudit(name);
             File.WriteAllText(Path.Combine(_mhReviewDirectory!, name + ".json"), JsonSerializer.Serialize(details, new JsonSerializerOptions { WriteIndented = true }));
             if (nativeMetrics is not null) File.WriteAllText(Path.Combine(_mhReviewDirectory!, name + ".native.json"), nativeMetrics());

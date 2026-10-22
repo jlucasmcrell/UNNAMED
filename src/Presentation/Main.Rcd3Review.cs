@@ -36,6 +36,31 @@ public partial class Main
             AddChild(camera);
             source.GetNode<OmniLight3D>("CharacterFill").Reparent(camera, false);
             camera.MakeCurrent();
+            if(OS.GetEnvironment("OTHERREACH_RCD6_STARTUP_REVIEW")=="1")
+            {
+                _rcd3Driving=true;
+                var sim=_session.Simulation ?? throw new InvalidDataException("Fresh startup has no world");
+                if(sim.Setup.Pets is not null || sim.Pets.Length!=0)throw new InvalidDataException("Pending pets were enabled in RC d6");
+                var plants=_scatter.FindChildren("*",nameof(MultiMeshInstance3D),true,false).Count;
+                if(plants==0)throw new InvalidDataException("Fresh startup has no scatter meshes");
+                var aim=_avatar.GlobalPosition+Vector3.Up*1.1f;
+                camera.GlobalPosition=aim+new Vector3(2,1.3f,3);camera.LookAt(aim);await Rcd3Wait(2);
+                await Rcd3Shot(directory,"07_fresh_spawn_front");
+                camera.GlobalPosition=aim+new Vector3(-2,1.3f,-3);camera.LookAt(aim);await Rcd3Wait(1);
+                await Rcd3Shot(directory,"08_fresh_spawn_back_grass");
+                var npc=_npcs.GetChildren().OfType<Figure>().Where(n=>n.IsVisibleInTree())
+                    .OrderBy(n=>n.GlobalPosition.DistanceSquaredTo(_avatar.GlobalPosition)).FirstOrDefault()
+                    ?? throw new InvalidDataException("Fresh startup has no visible people");
+                aim=npc.GlobalPosition+Vector3.Up*1.1f;camera.GlobalPosition=aim+new Vector3(2,1.2f,3);camera.LookAt(aim);await Rcd3Wait(2);
+                await Rcd3Shot(directory,"09_fresh_npc_clothing");
+                _inventory.Open(null);await Rcd3Wait(1);await Rcd3Shot(directory,"10_fresh_inventory");
+                File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {
+                    status="FRESH_PACKAGED_STARTUP_REQUIRES_CLAUDE_REVIEW",people=VisualOptions.People,model=_avatarModel,
+                    scatter_meshes=plants,npcs=_npcs.States().ToArray(),pets_enabled=sim.Setup.Pets is not null,
+                    inventory=sim.Player.Inventory.Select(e=>new {e.DefId,e.Count}),world_tick=sim.WorldTick,
+                    engine_max_fps=Engine.MaxFps,profile="Fresh isolated profile; normal creator Begin; no desktop input"},new JsonSerializerOptions{WriteIndented=true}));
+                GetTree().Quit();return;
+            }
             if(OS.GetEnvironment("OTHERREACH_RCD6_INVENTORY_REVIEW")=="1")
             {
                 camera.GlobalTransform=source.GlobalTransform;
