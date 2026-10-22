@@ -558,6 +558,9 @@ public partial class Main : Node3D
         _controller = new PlayerController(_session);
         _controller.Reached += () => _avatar.Interact();
         _loading?.Stage("Building the screens", 0.92);
+        // A page under the bar, once the content and the saved journal exist: what the character last read, and nothing on a first game
+        // (spec 41, loading snippet - the screen can only say this after the content pack is loaded, which is why it comes here and not earlier).
+        _loading?.Note(UNNAMED.Domain.Knowledge.LoreRules.Latest(_session.Setup.Lore, _session.Simulation?.Lore ?? default));
         BuildPanels(profile);
         Subscribe();
         DefineInput();
