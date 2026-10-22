@@ -78,10 +78,20 @@ public partial class Main
             var sheet=sim.CaptureRecord().PartySheets.Single(s=>s.NpcId==id);
             bool Equippable(UNNAMED.World.InventoryEntry e) => sim.Setup.Items.Catalog.Find(e.DefId) is {Slot:not null} definition
                 && definition.Weapon is not {Ranged:true} && EquipmentRules.Refusal(definition,sheet.Progression,sim.Setup.Progression) is null;
-            var entry=sim.Player.Inventory.Where(e=>!sim.Player.Equipment.ContainsValue(e.ItemId) && !sim.Player.Bags.Contains(e.ItemId)
-                && sim.Setup.Items.Catalog.Find(e.DefId) is {NoDrop:false})
-                .OrderByDescending(Equippable)
+            // Use an actual wearable from this copied save, even when all its gear is worn.
+            // Unequip and restore through the same commands as the inventory UI.
+            var candidates=sim.Player.Inventory.Where(e=>!sim.Player.Bags.Contains(e.ItemId)
+                && sim.Setup.Items.Catalog.Find(e.DefId) is {NoDrop:false}).ToArray();
+            var entry=candidates.OrderByDescending(Equippable)
+                .ThenBy(e=>sim.Player.Equipment.ContainsValue(e.ItemId))
                 .ThenBy(e=>sim.Setup.Items.Catalog.Find(e.DefId)!.WeightGrams*e.Count).First();
+            EquipSlot? restoreSlot=sim.Player.Equipment.FirstOrDefault(e=>e.Value==entry.ItemId) is var previous
+                && previous.Value==entry.ItemId ? previous.Key : null;
+            if(restoreSlot is { } originalSlot)
+            {
+                int before=refusals.Count;_session.Submit(new UnequipCommand(sim.PlayerId,originalSlot));await Rcd3Wait(.4);
+                if(refusals.Count!=before || sim.Player.Equipment.ContainsValue(entry.ItemId))throw new InvalidDataException("Cannot make room for the real wearable: "+string.Join("; ",refusals.Skip(before)));
+            }
             ShowParty(id);await Rcd3Wait(.5);
             await Press($"{id}/givepack/{entry.ItemId}");
             if(!sim.PartySheet(id)!.Belongings.Any(e=>e.ItemId==entry.ItemId))throw new InvalidDataException("Offload failed");
@@ -103,7 +113,12 @@ public partial class Main
             var returned=sim.Player.Inventory.Single(e=>e.ItemId==entry.ItemId);
             if(returned.Count!=entry.Count || returned.Quality!=entry.Quality || returned.Notable!=entry.Notable || returned.Wear!=entry.Wear)
                 throw new InvalidDataException("Transfer changed the item instance");
-            evidence.Add(new {stage="companion",npc=id,item=entry.ItemId.Value,entry.DefId,equipped=canEquip,normal_commands=true,
+            if(restoreSlot is { } original)
+            {
+                _session.Submit(new EquipCommand(sim.PlayerId,entry.ItemId));await Rcd3Wait(.4);
+                if(!sim.Player.Equipment.TryGetValue(original,out var restored) || restored!=entry.ItemId)throw new InvalidDataException("Player loadout was not restored");
+            }
+            evidence.Add(new {stage="companion",npc=id,item=entry.ItemId.Value,entry.DefId,equipped=canEquip,player_loadout_restored=restoreSlot is not null,normal_commands=true,
                 distance_mm=sim.Companions.Single(c=>c.NpcId==id).Body.XMm-sim.Player.Body.XMm,tick=sim.WorldTick});
         }
         if(sim.WorldTick<=began)throw new InvalidDataException("UI paused the world");
