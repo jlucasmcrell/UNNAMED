@@ -1,0 +1,28 @@
+id: lore.folded_note
+kind: lore
+schema: 1
+display_key: lore.folded_note.title
+tags: [lore, history]
+title: The Folded Note
+category: history
+notes: "Written from content/items/quest/folded_note.yaml and content/quests/main/folded_note.yaml (the worn note naming Berrin Garth at Cairnwold; the missing name remains missing; it assigns no one a past). In-world, page 1 is the note read (readable.folded_note) and page 2 is Renn Vale's and Berrin Garth's telling (dialogue.ashen_hollow.renn_vale, dialogue.cairnwold.berrin_garth)."
+pages:
+  - page: 1
+    text: >
+      A worn note, folded small enough to ride in a pocket for a long time, and what is left of it names one person
+      and one place: Berrin Garth, at the lodge in Cairnwold. The rest of it has been rubbed away — not torn, not
+      faded, but worn down by a thumb or a fold until the words are gone, and the name that was under them is gone
+      with them. It says where to go and who to ask for, and it says nothing at all about who carried it, or why, or
+      what the missing half owed. A note with a name and no owner.
+    sources:
+      - { how: inspected, ref: readable.folded_note }
+  - page: 2
+    text: >
+      Renn Vale reads it in a few flat words: Berrin Garth, Cairnwold lodge, the rest has been rubbed away, and why
+      it was rubbed away is still the traveller's business. He does not try to fill the gap in, and he sends the
+      traveller on to Berrin's door with the note as it is. Berrin himself, when he is shown it, will not fill the
+      rubbed part in either — it is his name, he says, and it is still his, but the missing part stays missing. The
+      note assigns no one a past; it only points to a person and a door, and leaves the rest unwritten.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.renn_vale }
+      - { how: told, ref: dialogue.cairnwold.berrin_garth }

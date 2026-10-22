@@ -1,0 +1,28 @@
+id: lore.grey_wolf
+kind: lore
+schema: 1
+display_key: lore.grey_wolf.title
+tags: [lore, creatures]
+title: The Grey Wolf
+category: creatures
+plate: "No health to speak of: it is the pack that kills. Get a tree at your back."
+notes: "Written from content/creatures/beast/wolf_grey.yaml (dangerous in a pack by numbers and bleeding, never by a health pool) and content/loot/wolf_grey.yaml (meat, hide, fang). In-world, both pages are what studying the wolf teaches (creature.beast.wolf_grey)."
+pages:
+  - page: 1
+    text: >
+      The grey wolf is not dangerous alone. One wolf is a lean, wary animal, faster than a run and slower than a
+      sprint, and it will break off rather than press a thing that stands its ground. The danger is the pack: by
+      numbers, and by bleeding, and by never being where you last looked. They run the wood in a loose ring and take
+      their game by wearing it down, one at the flank, one at the heel, until it falls. They do not fight like a man
+      fights, and they do not stand to be counted. By the time you have counted the pack, the pack has counted you.
+    sources:
+      - { how: studied, ref: creature.beast.wolf_grey }
+  - page: 2
+    text: >
+      A wolf's body is worth little taken whole: a measure of meat, sometimes a hide, and now and then a fang,
+      nothing a man would cross the wood for on its own. The hide is the part with a use, and the rest is little
+      more than proof. A hunter who goes after wolves goes with company and a light, and keeps the pack where it
+      can be seen, because a wolf you cannot see is a wolf that has already begun its work. Bring each one down fast
+      and stay off the flanks, and never think of them as one animal, because they do not.
+    sources:
+      - { how: studied, ref: creature.beast.wolf_grey }

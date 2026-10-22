@@ -1,0 +1,28 @@
+id: lore.ashen_waystone
+kind: lore
+schema: 1
+display_key: lore.ashen_waystone.title
+tags: [lore, places]
+title: The Ashen Waystone
+category: places
+notes: "Written from content/regions/starting_frontier.yaml (waystone.ashen, the standing stone at the waystation where a new traveller begins) and docs/PHASE1_ASHEN_HOLLOW_PLAYABLE_CONTENT_BIBLE.md 5 and 18 (begins beside it; a fallen traveller returns at it). In-world, page 1 is the stone walked up to (location.outpost) and page 2 is Renn Vale's telling (dialogue.ashen_hollow.renn_vale)."
+pages:
+  - page: 1
+    text: >
+      The Ashen Waystone is the standing stone at the waystation's edge, the first fixed thing a traveller coming in
+      off the old road meets, and a new arrival begins beside it, facing east into the hollow: the smith's smoke, the
+      long roof, the road running through. It is one of the old travellers' stones that mark the road, and the
+      waystation has grown up around it — the smithy stands up by it, and the lodge and the well and the survey table
+      spread out from it. It is not a shrine and no one keeps it; it is simply the place the road lets a traveller
+      down.
+    sources:
+      - { how: visited, ref: location.outpost }
+  - page: 2
+    text: >
+      Renn Vale's word for the stone is as spare as the stone itself: the smithy is up by the waystone, he says, and
+      that is where a traveller's road begins. A traveller who falls on the road — who can go no further — comes
+      back to themselves at the Ashen Waystone, and the waystation's people take that as given and ask no more of it
+      than the stone will say. Nobody at the hollow claims to know the deeper working of it, and the Survey does not
+      pretend to. The stone stands, the traveller returns, and the road goes on.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.renn_vale }

@@ -1,0 +1,28 @@
+id: lore.the_rim
+kind: lore
+schema: 1
+display_key: lore.the_rim.title
+tags: [lore, places]
+title: The Rim
+category: places
+notes: "Written from content/locations/road/basin_rim.yaml (the cliff top where the road meets the drop, the village and moss and crags laid out below, a watch-fire someone keeps) and content/loot/rim_camp.yaml (a watcher's pack left by the fire). In-world, page 1 is the Rim walked up to (location.road.basin_rim) and page 2 is the pack by the fire (readable.the_rim_ii)."
+pages:
+  - page: 1
+    text: >
+      The Rim is the cliff top where the road meets the drop into Cairnwold's basin, and it is the highest ground a
+      traveller coming east can stand on without climbing. From it the whole of the basin opens below — the village,
+      the moss, the line of the crags — laid out like a thing drawn, and a watch-fire burns where someone keeps it.
+      It is the last long view before the road goes down, and a traveller stops there whether they mean to or not,
+      because the drop takes the breath and the fire says someone else stood here and thought it worth watching
+      over.
+    sources:
+      - { how: visited, ref: location.road.basin_rim }
+  - page: 2
+    text: >
+      A watcher's pack lies by the fire, left there: rough arrows, roast meat, and a measure of bog cotton, the
+      makings of a man who meant to sit the top a while and watch the road below. Who keeps the fire is not written
+      anywhere, only that it is kept — the pack is left as if its owner stepped away and will be back. At the edge
+      of the fall the Rim Stone stands cold, the old traveller's stone that has not answered in living memory, and
+      the fire burns near it as if keeping watch over the one stone on the top that is not watching back.
+    sources:
+      - { how: inspected, ref: readable.the_rim_ii }

@@ -86,6 +86,11 @@ nodes:
         text: "Tell me about the wolves' den"
         next: tell_wolves_den_p2
 
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_halda_crowden
+        text: "Tell me about halda crowden"
+        next: tell_halda_crowden
+
       - id: leave
         text: "Just passing."
   tell_gorge:
@@ -238,6 +243,14 @@ nodes:
       - id: back
         text: "I will remember it."
         consequences: [{ command: tell_lore, lore_ref: lore.wolves_den }]
+        next: again
+
+  tell_halda_crowden:
+    text: "Halda Crowden trapped the north slope, and she counted her work the way her sister counts everything: a hand's length of horn, notched once for every hide, thirty-one of them, so nobody could argue her count. She ran the line before the wolves took the den, and the notch in the rock was her cache before it was theirs. Two winters back she went up the north slope after the wolves and did not come down, and Tam counted her out. What came home instead was the tally, and Tam keeps it now where it gets counted, between the sacks."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.halda_crowden }]
         next: again
 
 barks:

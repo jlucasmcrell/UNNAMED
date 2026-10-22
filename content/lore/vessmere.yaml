@@ -1,0 +1,28 @@
+id: lore.vessmere
+kind: lore
+schema: 1
+display_key: lore.vessmere.title
+tags: [lore, places]
+title: Vessmere
+category: places
+notes: "Written from content/quests/main/three_accounts.yaml and Renn Vale's line (content/dialogue/ashen_hollow/renn_vale.yaml story_wayhold: the roadwarden at the Vessmere stone takes the Wayhold account), with the waystone network from content/regions/starting_frontier.yaml. In-world, page 1 is Renn's telling (dialogue.ashen_hollow.renn_vale) and page 2 is a note on the road's far end (readable.vessmere_ii)."
+pages:
+  - page: 1
+    text: >
+      Vessmere is the far end of the road, the name the road gives to where it finally runs out of the hollow's
+      country. Renn Vale's word for it is short: when the accounts go east, the Wayhold's letter is carried to the
+      roadwarden at the Vessmere stone — read it, pack it, keep it dry. It is not a village and not a waystation; it
+      is a stone and a roadwarden, where the road's letters are read at the far end and the road's own word is kept.
+      A traveller hears of it long before they reach it, and mostly as a place letters are bound for.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.renn_vale }
+  - page: 2
+    text: >
+      A note on the road's far end, set down for whoever walks that way. The Vessmere stone is one of the old
+      travellers' stones, the same kind as the Ashen Waystone a traveller begins beside and the cold one on the Rim,
+      and at Vessmere a roadwarden keeps it the way the steward keeps the hollow's end. The Wayhold's letter goes to
+      the roadwarden there — read, packed, kept dry — because the road's far end is where the road's word is finally
+      read. A stone at the far end of a road is a promise the road keeps: that it has an end, and that someone is
+      there to meet it.
+    sources:
+      - { how: inspected, ref: readable.vessmere_ii }

@@ -1,0 +1,29 @@
+id: lore.charwood_verge
+kind: lore
+schema: 1
+display_key: lore.charwood_verge.title
+tags: [lore, places]
+title: The Charwood Verge
+category: places
+notes: "Written from docs/PHASE1_ASHEN_HOLLOW_PLAYABLE_CONTENT_BIBLE.md 6 (open woodland with tree clusters, brush, fallen timber, clearings and shallow drainage; the merchant cart, the ash for hafts, the first view of the Foldscar) and the den in content/regions/ashen_hollow.yaml. In-world, page 1 is the wood walked into (location.ruined_cart) and page 2 is its north-west corner (location.den_mouth)."
+pages:
+  - page: 1
+    text: >
+      The Charwood Verge is the open woodland on the waystation's north-east side, and a traveller can walk it and
+      see only so far: clusters of trees and brush and fallen timber, with clearings between, and shallow drainage
+      running through, so the sight runs twenty to forty paces and then gives out. A stream threads it and runs down
+      toward the Foldscar's drainage. It is not a deep wood and it is not a tame one; it is open enough to see
+      trouble coming and broken enough to lose it again. The ash for hafts grows here, the woundmoss on the north
+      side of the trunks, and past the trees the Foldscar first shows itself through a gap.
+    sources:
+      - { how: visited, ref: location.ruined_cart }
+  - page: 2
+    text: >
+      The corners of the verge hold the things the road warns about. Among the trees a merchant's cart lies stove in,
+      its load opened to the moss, the hunting bow still in it. In the north-west corner the wood thins against rock,
+      and there is the notch of the wolves' den, where the pack keeps to the mouth and the ground about it is trodden
+      bare. The ash stand runs north where the ground rises. A traveller crossing the verge keeps to the trail and
+      keeps their head up: the wood lets you see a short way, and what it hides is always the thing worth watching
+      for.
+    sources:
+      - { how: visited, ref: location.den_mouth }

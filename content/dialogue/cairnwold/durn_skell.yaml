@@ -82,6 +82,16 @@ nodes:
         text: "Tell me about iron"
         next: tell_iron_p2
 
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_crag_walker
+        text: "Tell me about the crag walker"
+        next: tell_crag_walker
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_north_ash_stand_p2
+        text: "Tell me about the north ash stand"
+        next: tell_north_ash_stand_p2
+
       - id: leave
         text: "Nothing today."
       - id: story_packing
@@ -244,6 +254,22 @@ nodes:
       - id: back
         text: "I will remember it."
         consequences: [{ command: tell_lore, lore_ref: lore.iron }]
+        next: again
+
+  tell_crag_walker:
+    text: "The crag walker is Durn Skell's name for whatever walks the foot of the south crags after dark, and he will not describe it beyond a few words: east of the seam, at the foot of the crags, where the stone is rotten. It does not hurry, he says. A traveller going up there should leave it be — unless they mean to put it down, in which case he says go after dark and take a light. He pays for whatever walks that line at night, and he counts any bone-walker husk put down toward it, so the name is the work, not the beast."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.crag_walker }]
+        next: again
+
+  tell_north_ash_stand_p2:
+    text: "Durn Skell points north from the anvil and names the stand in a few words: ash, where the ground rises, for the haft. He sends a smith there for the wood the same way he sends them to the crags for the iron, and he counts it the same way — a thing that must last, and must not be wasted. The haft is the part the hand remembers, he would say, and a bad haft breaks the work before the iron ever will. So the stand is not scenery to him; it is the other half of every tool he has ever put into a pair of hands."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.north_ash_stand }]
         next: again
 
 barks:

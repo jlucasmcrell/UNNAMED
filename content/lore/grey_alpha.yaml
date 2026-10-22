@@ -1,0 +1,30 @@
+id: lore.grey_alpha
+kind: lore
+schema: 1
+display_key: lore.grey_alpha.title
+tags: [lore, creatures]
+title: The Den's Leader
+category: creatures
+plate: "The den's leader holds the middle. Kill it and the rest of the pack scatters."
+notes: "Written from content/creatures/beast/wolf_grey_alpha.yaml (the den's leader: a heavier neck, a scarred hide, drawn one size up, a shade faster, senses a little wider; the working name is provisional - the owner names characters, and the word is the trade's word, not the world's) and content/loot/alpha_wolf.yaml (a trophy, not a purse: the pelt and the fang). In-world, both pages are what studying the leader teaches (creature.beast.wolf_grey_alpha)."
+pages:
+  - page: 1
+    text: >
+      The den's leader is a grey wolf drawn one size up, and it reads as the leader before anything is said of it:
+      a heavier neck, and a hide gone scarred where the fur has grown back wrong, where the pack carries only fur.
+      It stands at the den mouth where the pack does not, and it is a shade faster than the wolves it leads, with
+      senses a little wider, so little slips past it. It is still a wolf, and the same rule holds for it as for the
+      pack: dangerous by numbers and by bleeding, never by size alone. But it is the one that holds the pack
+      together, and the pack answers when it moves.
+    sources:
+      - { how: studied, ref: creature.beast.wolf_grey_alpha }
+  - page: 2
+    text: >
+      Brought down, the leader pays like a trophy rather than a purse. Its pelt comes away whole, a real hide with
+      the scars still in it, and its fang comes away too, so the kill is kept and remembered rather than counted in
+      coin; there is meat as well, more than a common wolf carries. The fight is the same as with the pack, only
+      longer and heavier: stay clear of its reach, do not let the pack gather round you, and know that bringing down
+      the leader does not scatter the rest. The pack keeps coming, and that is the whole of what makes the den a
+      place the road goes round.
+    sources:
+      - { how: studied, ref: creature.beast.wolf_grey_alpha }

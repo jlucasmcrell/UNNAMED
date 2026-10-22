@@ -121,6 +121,31 @@ nodes:
         text: "Tell me about the wayhold"
         next: tell_wayhold_p2
 
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_ashen_waystone_p2
+        text: "Tell me about the ashen waystone"
+        next: tell_ashen_waystone_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_folded_note_p2
+        text: "Tell me about the folded note"
+        next: tell_folded_note_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_halda_crowden_p2
+        text: "Tell me about halda crowden"
+        next: tell_halda_crowden_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_tavars_afternoon_p2
+        text: "Tell me about tavar's afternoon"
+        next: tell_tavars_afternoon_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_vessmere
+        text: "Tell me about vessmere"
+        next: tell_vessmere
+
       - id: leave
         text: "Nothing for now."
       - id: story_begin_accounts
@@ -446,6 +471,46 @@ nodes:
       - id: back
         text: "I will remember it."
         consequences: [{ command: tell_lore, lore_ref: lore.wayhold }]
+        next: again
+
+  tell_ashen_waystone_p2:
+    text: "Renn Vale's word for the stone is as spare as the stone itself: the smithy is up by the waystone, he says, and that is where a traveller's road begins. A traveller who falls on the road — who can go no further — comes back to themselves at the Ashen Waystone, and the waystation's people take that as given and ask no more of it than the stone will say. Nobody at the hollow claims to know the deeper working of it, and the Survey does not pretend to. The stone stands, the traveller returns, and the road goes on."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.ashen_waystone }]
+        next: again
+
+  tell_folded_note_p2:
+    text: "Renn Vale reads it in a few flat words: Berrin Garth, Cairnwold lodge, the rest has been rubbed away, and why it was rubbed away is still the traveller's business. He does not try to fill the gap in, and he sends the traveller on to Berrin's door with the note as it is. Berrin himself, when he is shown it, will not fill the rubbed part in either — it is his name, he says, and it is still his, but the missing part stays missing. The note assigns no one a past; it only points to a person and a door, and leaves the rest unwritten."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.folded_note }]
+        next: again
+
+  tell_halda_crowden_p2:
+    text: "Renn Vale knew her from the book: Halda, the north slope, bound for her snares, two winters back, and nobody has written the other half. When the tally is carried to him he reads it without needing to turn it over twice — a trapper's tally, notched for every hide — and he sets the choice down plainly: take it home to Tam, or keep it and walk Halda's line, because the snares are still out on the slope and they do not know she is gone. Either is honest, he says. Only one of them is kind. Her bow, ash and horn, still sits on the third peg."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.halda_crowden }]
+        next: again
+
+  tell_tavars_afternoon_p2:
+    text: "The timing will not settle. Tavar places his long afternoon at the hour the traveller crossed the ridge, and Berrin Garth's lodge book has an older record in it that does not fit that week. Keep both dates, Renn says, because neither tells him what started this one. The accounts do not line up, and no one will force them: not the surveyor, who will not stretch one record over the gap, and not the steward, who will not rub one out to make the story tidier. So the afternoon stays where Tavar put it, and the older record stays older."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.tavars_afternoon }]
+        next: again
+
+  tell_vessmere:
+    text: "Vessmere is the far end of the road, the name the road gives to where it finally runs out of the hollow's country. Renn Vale's word for it is short: when the accounts go east, the Wayhold's letter is carried to the roadwarden at the Vessmere stone — read it, pack it, keep it dry. It is not a village and not a waystation; it is a stone and a roadwarden, where the road's letters are read at the far end and the road's own word is kept. A traveller hears of it long before they reach it, and mostly as a place letters are bound for."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.vessmere }]
         next: again
 
 barks:

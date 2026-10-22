@@ -147765,6 +147765,34 @@ barriers:
 # Readables (spec 41): what is written down, where it stands, and the lore entry reading it files. A page names one page of an entry; a
 # book (no page) opens every page of its entry the character has not read. Both are read from where a switch is worked.
 readables:
+  - key: readable.folded_note
+    lore_ref: lore.folded_note
+    page: 1
+    name: the The Folded Note on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 717.8, 0.6]
+    height_m: 0.9
+  - key: readable.overturned_wain_ii
+    lore_ref: lore.overturned_wain
+    page: 2
+    name: the The Overturned Wain on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 718.6, 0.6]
+    height_m: 0.9
+  - key: readable.the_rim_ii
+    lore_ref: lore.the_rim
+    page: 2
+    name: the The Rim on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 719.5, 0.6]
+    height_m: 0.9
+  - key: readable.vessmere_ii
+    lore_ref: lore.vessmere
+    page: 2
+    name: the Vessmere on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 720.3, 0.6]
+    height_m: 0.9
   - key: readable.mor_schism
     lore_ref: lore.mor_schism
     page: 1

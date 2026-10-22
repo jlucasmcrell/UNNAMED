@@ -1,0 +1,28 @@
+id: lore.overturned_wain
+kind: lore
+schema: 1
+display_key: lore.overturned_wain.title
+tags: [lore, places]
+title: The Overturned Wain
+category: places
+notes: "Written from content/locations/road/overturned_wain.yaml (a wain on its side at the road's edge; whoever drove it did not come back) and content/loot/wain_load.yaml (its load, mostly spoiled). In-world, page 1 is the wain walked up to (location.road.overturned_wain) and page 2 is a careful look at the load (readable.overturned_wain_ii)."
+pages:
+  - page: 1
+    text: >
+      A wain lies on its side at the edge of the road, and nobody has come back for it. Its load has half spoiled
+      where it has lain open to the weather, and what the rain did not get is still under the boards. It is not a
+      wreck from any violence you can read — no arrows, no fire, no trampled ground — only a cart that tipped and was
+      left, and a road that has gone on without it. The wheel is up to the sky and the shafts point off the road, and
+      whatever drove it walked away, or was taken, and did not return for what it carried.
+    sources:
+      - { how: visited, ref: location.road.overturned_wain }
+  - page: 2
+    text: >
+      A look at what the wain still holds, set down as found: lengths of sound timber, two small hides, and a
+      portion of roast meat, the spoil mostly on the outside where the weather reached it. It is a working cart's
+      load, not a trader's — building stock and hides and food — which makes the leaving stranger still, because a
+      man who loads a cart that way means to use it. Nothing is broken that could not be mended, and nothing is
+      taken that a thief would have taken. The wain is simply there, on its side, and the road keeps its distance
+      from it the way a road does from a thing with no one to mind it.
+    sources:
+      - { how: inspected, ref: readable.overturned_wain_ii }

@@ -1,5 +1,5 @@
-// UNNAMED Presentation - the map: what the character knows of the region and nothing else (MAPS_CARTOGRAPHY_AND_WORLD_KNOWLEDGE.md; the
-// owner's second-play brief §24; NEXT_AREA_TRAVEL_CITY_PLAN.md D.6 map v1)
+﻿// UNNAMED Presentation - the map: what the character knows of the region and nothing else (MAPS_CARTOGRAPHY_AND_WORLD_KNOWLEDGE.md; the
+// owner's second-play brief Â§24; NEXT_AREA_TRAVEL_CITY_PLAN.md D.6 map v1)
 // Godot presentation only: it draws Simulation.Map, which the simulation owns; nothing here holds state (D-11)
 
 using Godot;
@@ -74,7 +74,7 @@ public partial class MapPanel : CanvasLayer
         // walking into it (spec 41, map notes). A place's own entry wins over anything else that names the same ground - the map is a map of
         // places, and a people's entry that happens to stand there belongs in the journal, not under the pin. A place nobody has written up
         // carries no note.
-        var notes = new Dictionary<string, string>(StringComparer.Ordinal);
+        var notes = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         var borrowed = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var entry in _session.Setup.Lore.Values)
         {
@@ -83,12 +83,25 @@ public partial class MapPanel : CanvasLayer
             int known = simulation.Lore.Count(r => r.EntryId == entry.Id);
             if (known == 0)
                 continue;
-            var into = entry.Category == UNNAMED.Domain.Knowledge.LoreCategory.Places ? notes : borrowed;
+            string line = $"{entry.Title} {known}/{entry.PageCount}";
+            if (entry.Category != UNNAMED.Domain.Knowledge.LoreCategory.Places)
+            {
+                foreach (string place in visited)
+                    borrowed.TryAdd(place, line);
+                continue;
+            }
+            // More than one place entry can name the same ground: the map says both, and the pin keeps only the first two so it stays legible.
             foreach (string place in visited)
-                into[place] = $"{entry.Title} {known}/{entry.PageCount}";
+            {
+                if (!notes.TryGetValue(place, out var list))
+                    notes[place] = list = new List<string>();
+                if (list.Count < 2 && !list.Contains(line))
+                    list.Add(line);
+            }
         }
         foreach (var (place, note) in borrowed)
-            notes.TryAdd(place, note);
+            if (!notes.ContainsKey(place))
+                notes[place] = new List<string> { note };
         _canvas.Show(_session.Setup.Layout, map, stones.Select(w => (w.Site, w.ReturnPoint)).ToList(),
             map.Places.Select(p => (p, Names.Of(_session, p.LocationId))).ToList(), simulation.Player.Body, notes);
         _known.Text = stones.Count == 0
@@ -106,7 +119,7 @@ public partial class MapPanel : CanvasLayer
         private IReadOnlyList<(KnownPlace Place, string Name)> _places = Array.Empty<(KnownPlace, string)>();
 
         /// <summary>What the journal holds about a place, by its location id: drawn under the place's name.</summary>
-        private IReadOnlyDictionary<string, string> _notes = new Dictionary<string, string>(StringComparer.Ordinal);
+        private IReadOnlyDictionary<string, List<string>> _notes = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         private Body? _player;
         private string _drawn = string.Empty;
 
@@ -126,10 +139,10 @@ public partial class MapPanel : CanvasLayer
         }
 
         public void Show(RegionLayout layout, KnownMap map, IReadOnlyList<(WaystoneSite Site, bool ReturnPoint)> stones,
-            IReadOnlyList<(KnownPlace Place, string Name)> places, Body player, IReadOnlyDictionary<string, string>? notes = null)
+            IReadOnlyList<(KnownPlace Place, string Name)> places, Body player, IReadOnlyDictionary<string, List<string>>? notes = null)
         {
             _layout = layout;
-            _notes = notes ?? new Dictionary<string, string>(StringComparer.Ordinal);
+            _notes = notes ?? new Dictionary<string, List<string>>(StringComparer.Ordinal);
             float width = Math.Max(320, Size.X);
             var space = layout.Space;
             float height = width * (space.MaxZMm - space.MinZMm) / Math.Max(1f, space.MaxXMm - space.MinXMm) + 2 * Margin;
@@ -198,8 +211,8 @@ public partial class MapPanel : CanvasLayer
                 // The note is what the journal holds about the place: its entry and how much of it is known (spec 41, map notes). It sits a
                 // line below and clear of the pin, because the character's own arrow stands on the pin and the label drawer drops any label
                 // that overlaps one already drawn.
-                if (_notes.TryGetValue(place.LocationId, out string? note))
-                    Label(at + new Vector2(20, 26), note, HudStyle.Ash);
+                if (_notes.TryGetValue(place.LocationId, out var note))
+                    Label(at + new Vector2(20, 26), string.Join(" · ", note), HudStyle.Ash);
             }
 
             // Where the character stands, and which way they face (0 is north, +Z; clockwise towards east, +X).
