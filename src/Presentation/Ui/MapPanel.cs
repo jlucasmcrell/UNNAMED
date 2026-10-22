@@ -71,8 +71,11 @@ public partial class MapPanel : CanvasLayer
         _date.Text = CalendarWords.Line(simulation.Calendar, _session.Setup.Calendar, simulation.Weather.State);
         var stones = simulation.Waystones.Where(w => w.Known).ToList();
         // What the character has read about a place, written under its name: the journal's own entries, matched by the page that is found by
-        // walking into it (spec 41, map notes). A place nobody has written up carries no note.
+        // walking into it (spec 41, map notes). A place's own entry wins over anything else that names the same ground - the map is a map of
+        // places, and a people's entry that happens to stand there belongs in the journal, not under the pin. A place nobody has written up
+        // carries no note.
         var notes = new Dictionary<string, string>(StringComparer.Ordinal);
+        var borrowed = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var entry in _session.Setup.Lore.Values)
         {
             var visited = entry.Pages.SelectMany(p => p.Sources).Where(s => s.Kind == UNNAMED.Domain.Knowledge.LoreSourceKind.Visited)
@@ -80,9 +83,12 @@ public partial class MapPanel : CanvasLayer
             int known = simulation.Lore.Count(r => r.EntryId == entry.Id);
             if (known == 0)
                 continue;
+            var into = entry.Category == UNNAMED.Domain.Knowledge.LoreCategory.Places ? notes : borrowed;
             foreach (string place in visited)
-                notes[place] = $"{entry.Title} {known}/{entry.PageCount}";
+                into[place] = $"{entry.Title} {known}/{entry.PageCount}";
         }
+        foreach (var (place, note) in borrowed)
+            notes.TryAdd(place, note);
         _canvas.Show(_session.Setup.Layout, map, stones.Select(w => (w.Site, w.ReturnPoint)).ToList(),
             map.Places.Select(p => (p, Names.Of(_session, p.LocationId))).ToList(), simulation.Player.Body, notes);
         _known.Text = stones.Count == 0
@@ -189,9 +195,10 @@ public partial class MapPanel : CanvasLayer
                 var at = At(place.XMm, place.ZMm);
                 DrawRect(new Rect2(at - new Vector2(2.5f, 2.5f), new Vector2(5, 5)), HudStyle.Bone);
                 Label(at, name.ToUpperInvariant(), HudStyle.Bone);
-                // The note is what the journal holds about the place: its entry and how much of it is known (spec 41, map notes).
+                // The note is what the journal holds about the place: its entry and how much of it is known (spec 41, map notes). It sits a
+                // line below the name, clear of the name's own box, because a label that overlaps one already drawn is dropped.
                 if (_notes.TryGetValue(place.LocationId, out string? note))
-                    Label(at + new Vector2(0, 15), note, HudStyle.Ash);
+                    Label(at + new Vector2(0, 26), note, HudStyle.Ash);
             }
 
             // Where the character stands, and which way they face (0 is north, +Z; clockwise towards east, +X).
