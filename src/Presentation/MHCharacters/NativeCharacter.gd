@@ -36,6 +36,35 @@ func _all(node: Node, cls: String) -> Array:
 	for child in node.get_children(): result.append_array(_all(child,cls))
 	return result
 
+func _pixel_key(image: Image) -> String:
+	var hash_ := HashingContext.new()
+	hash_.start(HashingContext.HASH_SHA256)
+	hash_.update(image.get_data())
+	return "pixeltexture|%s|%s|%s|%s|%s" % [image.get_width(),image.get_height(),image.get_format(),image.get_mipmap_count(),hash_.finish().hex_encode()]
+
+func _image_texture(image: Image) -> Texture2D:
+	if OS.get_environment("OTHERREACH_TEXTURE_POOL_REVIEW") == "0":
+		return ImageTexture.create_from_image(image)
+	var key := _pixel_key(image)
+	if not _shared.has(key): _shared[key] = ImageTexture.create_from_image(image)
+	return _shared[key]
+
+func _pool_imported_textures(model: Node) -> void:
+	if OS.get_environment("OTHERREACH_TEXTURE_POOL_REVIEW") == "0": return
+	for mesh in _all(model,"MeshInstance3D"):
+		for surface in range(mesh.mesh.get_surface_count()):
+			var material: Material = mesh.mesh.surface_get_material(surface)
+			if not material is BaseMaterial3D: continue
+			for slot in range(BaseMaterial3D.TEXTURE_MAX):
+				var map: Texture2D = material.get_texture(slot)
+				if not map is ImageTexture: continue
+				var rid_key := "pixelrid|"+str(map.get_rid().get_id())
+				if not _shared.has(rid_key):
+					var key := _pixel_key(map.get_image())
+					if not _shared.has(key): _shared[key] = map
+					_shared[rid_key] = _shared[key]
+				material.set_texture(slot,_shared[rid_key])
+
 func _texture(path: String) -> Texture2D:
 	var limit: int = _config.get("max_texture_size", 4096)
 	var key := "texture|" + _asset_path(path) + "|" + str(limit)
@@ -49,7 +78,7 @@ func _texture(path: String) -> Texture2D:
 		var ratio: float = float(limit) / maxi(img.get_width(), img.get_height())
 		img.resize(maxi(1, roundi(img.get_width() * ratio)), maxi(1, roundi(img.get_height() * ratio)), Image.INTERPOLATE_LANCZOS)
 	img.generate_mipmaps()
-	var texture := ImageTexture.create_from_image(img)
+	var texture := _image_texture(img)
 	_shared[key] = texture
 	return texture
 
@@ -145,6 +174,7 @@ func _load_model(path: String, named_binds: bool = false) -> Node3D:
 		push_error("Required native GLB failed to load: " + path)
 		return null
 	var model := document.generate_scene(state)
+	_pool_imported_textures(model)
 	var packed := PackedScene.new()
 	var error := packed.pack(model)
 	model.free()
