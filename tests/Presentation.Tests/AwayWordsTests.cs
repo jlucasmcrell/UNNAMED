@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using UNNAMED.Presentation.Ui;
 using UNNAMED.World.Runtime;
 
@@ -191,4 +192,15 @@ public class AwayWordsTests
         Assert.Equal("You paid Bram 10 coin in wages.",Assert.Single(summary.Groups.SelectMany(g=>g.Lines)));
         Assert.Equal(2,summary.DetailGroups.Sum(g=>g.Lines.Length));
     }
+    [Fact]
+    public void ReturningAdventurers_SayWhereTheyWent_AndTheirActualLootOrWound()
+    {
+        string Display(string id)=>id switch {"location.den"=>"Blackvein Den","item.hide"=>"Wolf hide",_=>id};
+        var returned=new AdvanceLine(0,AdventurerAdvanceKinds.Returned,"slot.g") {ActorName="Brenna Holt",PlaceId="location.den",
+            Loot=ImmutableArray.Create(("item.hide",1),("item.hide",2))};
+        Assert.Equal("Brenna Holt came back from Blackvein Den with wolf hide ×3.",AwayWords.Line(returned,Display));
+        Assert.Equal("Brenna Holt came back from Blackvein Den, wounded.",AwayWords.Line(returned with {Wounded=true},Display));
+        Assert.Equal("An adventurer came back.",AwayWords.Line(new AdvanceLine(0,AdventurerAdvanceKinds.Returned,"slot.g"),Display));
+    }
+
 }

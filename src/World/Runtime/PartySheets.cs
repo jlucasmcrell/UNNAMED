@@ -13,13 +13,17 @@ namespace UNNAMED.World.Runtime;
 // ── commands ────────────────────────────────────────────────────────────────
 
 /// <summary>
-/// Hand a party member a carried item to wear, within a hand's reach of them: <see cref="Loan"/>, it comes back when they leave or are asked
-/// for it; otherwise it is a gift, and theirs for good (§2.15). Gear is player-assigned only in this bar (canon :84-92).
+/// Hand a party member a carried item to wear, within a hand's reach of them: <see cref="Loan"/>, it can be asked back; dismissal leaves both gifts and loans with their holder (§2.15). Gear is player-assigned only in this bar (canon :84-92).
 /// </summary>
 public sealed record GiveGearCommand(EntityId Actor, string NpcId, EntityId Item, bool Loan) : GameCommand(Actor);
 
 /// <summary>Ask for a loaned piece back from a party member, within a hand's reach of them. A gift is theirs and is not asked back.</summary>
 public sealed record TakeBackGearCommand(EntityId Actor, string NpcId, EquipSlot Slot) : GameCommand(Actor);
+
+/// <summary>Move a whole stack between the character's and a nearby companion's pack.</summary>
+public sealed record TransferPartyItemCommand(EntityId Actor,string NpcId,EntityId Item,bool ToCompanion) : GameCommand(Actor);
+public sealed record EquipPartyPackCommand(EntityId Actor,string NpcId,EntityId Item) : GameCommand(Actor);
+public sealed record UnequipPartyGearCommand(EntityId Actor,string NpcId,EquipSlot Slot) : GameCommand(Actor);
 
 /// <summary>Spend one of a party member's unspent attribute points (§2.15: on the character's rules; the player assigns them).</summary>
 public sealed record SpendPartyAttributeCommand(EntityId Actor, string NpcId, CharacterAttribute Attribute) : GameCommand(Actor);
@@ -47,7 +51,12 @@ public sealed record PartyGearView(EquipSlot Slot, EntityId Item, string DefId, 
 /// </summary>
 public sealed record PartySheetView(string NpcId, string Name, int Level, long LevelProgressXp, long ToNextLevelXp, int UnspentPoints,
     ImmutableSortedDictionary<string, SkillState> Skills, int MaxHealth, ImmutableArray<PartyGearView> Gear, ImmutableArray<InventoryEntry> Belongings,
-    string Regard, Disposition Disposition);
+    string Regard, Disposition Disposition)
+{
+    public ImmutableSortedDictionary<CharacterAttribute,int> Attributes {get;init;}=ImmutableSortedDictionary<CharacterAttribute,int>.Empty;
+    public long CarriedGrams {get;init;}
+    public long CarryLimitGrams {get;init;}
+}
 
 // ── internal commands ───────────────────────────────────────────────────────
 
@@ -188,27 +197,25 @@ internal sealed class PartySheetSystem : IAbstractAdvance
         // What this displaces: whatever shares a slot with it - a two-hander takes both hands, and a piece in the off hand frees a two-hander.
         var taken = EquipmentRules.Occupies(definition).ToHashSet();
         var displaced = sheet.Gear.Where(g => taken.Contains(g.Key) || EquipmentRules.Occupies(Definition(g.Value)).Any(taken.Contains)).ToList();
-        if (_context.Dispatch(new ReleaseItem(entry.ItemId)) is { } busy)
-            return busy;
-        if (_context.Dispatch(new HandOver(entry.ItemId)) is { } kept)
-            return kept;
-        var gear = sheet.Gear;
-        var belongings = sheet.Belongings;
-        foreach (var (at, old) in displaced)
+        var gear=sheet.Gear;
+        var belongings=sheet.Belongings;
+        foreach(var (at,old) in displaced)
         {
-            gear = gear.Remove(at);
-            // A loan goes back to the character; a gift is theirs, and they keep it with their things.
-            if (old.Loaned)
-                _context.Dispatch(new ReceiveStack(old.Item));
-            else
-                belongings = belongings.Add(old.Item);
-            _context.Events.Publish(new PartyGearChanged(command.NpcId, at, null, old.Loaned, tick));
+            gear=gear.Remove(at);
+            if(!old.Loaned)belongings=belongings.Add(old.Item);
         }
-        State.SetPartySheet(_owner, sheet with
+        var next=sheet with {
+            Gear=gear.SetItem(slot,new PartyGear(entry with {Bag=0,Slot=-1,Locked=false,Junk=false},command.Loan)),
+            Belongings=belongings.OrderBy(e=>e.ItemId.Value,StringComparer.Ordinal).ToImmutableArray() };
+        if(PackRefusal(next) is { } full)return full;
+        if (_context.Dispatch(new ReleaseItem(entry.ItemId)) is { } busy)return busy;
+        if (_context.Dispatch(new HandOver(entry.ItemId)) is { } kept)return kept;
+        foreach(var (at,old) in displaced)
         {
-            Gear = gear.SetItem(slot, new PartyGear(entry with { Bag = 0, Slot = -1, Locked = false, Junk = false }, command.Loan)),
-            Belongings = belongings.OrderBy(e => e.ItemId.Value, StringComparer.Ordinal).ToImmutableArray(),
-        });
+            if(old.Loaned)_context.Dispatch(new ReceiveStack(old.Item));
+            _context.Events.Publish(new PartyGearChanged(command.NpcId,at,null,old.Loaned,tick));
+        }
+        State.SetPartySheet(_owner,next);
         _context.Events.Publish(new PartyGearChanged(command.NpcId, slot, entry.DefId, command.Loan, tick));
         _context.Dispatch(new RefitMember(command.NpcId));
         return null;
@@ -223,9 +230,76 @@ internal sealed class PartySheetSystem : IAbstractAdvance
             return $"{Name(command.NpcId)} wears nothing in {EquipSlots.Key(command.Slot)}";
         if (!gear.Loaned)
             return $"{Name(command.NpcId)}'s {gear.Item.DefId} was a gift: it is theirs";
+        if(_context.Dispatch(new CanReceiveStack(gear.Item)) is { } full)return full;
         State.SetPartySheet(_owner, sheet with { Gear = sheet.Gear.Remove(command.Slot) });
         _context.Dispatch(new ReceiveStack(gear.Item));
         _context.Events.Publish(new PartyGearChanged(command.NpcId, command.Slot, null, true, tick));
+        _context.Dispatch(new RefitMember(command.NpcId));
+        return null;
+    }
+
+    private long Weight(IEnumerable<InventoryEntry> items)=>items.Sum(e=>(_context.Setup.Items.Catalog.Find(e.DefId)?.WeightGrams??0)*e.Count);
+    private string? PackRefusal(PartySheet sheet)
+    {
+        if(sheet.Belongings.Length>_context.Setup.Items.Inventory.StackSlots)return $"{Name(sheet.NpcId)}'s pack is full";
+        long limit=_context.Setup.Items.Inventory.CarryLimitGrams(sheet.Progression,Rules);
+        return Weight(sheet.Items)>limit ? $"That would be too heavy for {Name(sheet.NpcId)}" : null;
+    }
+
+    public string? Handle(TransferPartyItemCommand command,long tick)
+    {
+        if(Reach(command.Actor,command.NpcId) is { } far)return far;
+        var sheet=SheetOf(command.NpcId);
+        if(command.ToCompanion)
+        {
+            if(State.Inventory.FirstOrDefault(e=>e.ItemId==command.Item) is not { } entry)return "That item is no longer in your pack";
+            if(State.Equipment.ContainsValue(entry.ItemId) || State.Bags.Contains(entry.ItemId))return "Unequip it first";
+            var next=sheet with { Belongings=sheet.Belongings.Add(entry with {Bag=0,Slot=-1}) };
+            if(PackRefusal(next) is { } full)return full;
+            if(_context.Dispatch(new ReleaseItem(entry.ItemId)) is { } busy)return busy;
+            if(_context.Dispatch(new HandOver(entry.ItemId)) is { } refused)return refused;
+            State.SetPartySheet(_owner,next);
+        }
+        else
+        {
+            if(sheet.Belongings.FirstOrDefault(e=>e.ItemId==command.Item) is not { } entry)return "That item is no longer in their pack";
+            if(_context.Dispatch(new CanReceiveStack(entry)) is { } full)return full;
+            State.SetPartySheet(_owner,sheet with { Belongings=sheet.Belongings.Remove(entry) });
+            _context.Dispatch(new ReceiveStack(entry));
+        }
+        return null;
+    }
+
+    public string? Handle(UnequipPartyGearCommand command,long tick)
+    {
+        if(Reach(command.Actor,command.NpcId) is { } far)return far;
+        var sheet=SheetOf(command.NpcId);
+        if(!sheet.Gear.TryGetValue(command.Slot,out var gear))return "That slot is empty";
+        var next=sheet with {Gear=sheet.Gear.Remove(command.Slot),Belongings=sheet.Belongings.Add(gear.Item)};
+        if(PackRefusal(next) is { } full)return full;
+        State.SetPartySheet(_owner,next);
+        _context.Events.Publish(new PartyGearChanged(command.NpcId,command.Slot,null,gear.Loaned,tick));
+        _context.Dispatch(new RefitMember(command.NpcId));
+        return null;
+    }
+
+    public string? Handle(EquipPartyPackCommand command,long tick)
+    {
+        if(Reach(command.Actor,command.NpcId) is { } far)return far;
+        var sheet=SheetOf(command.NpcId);
+        if(sheet.Belongings.FirstOrDefault(e=>e.ItemId==command.Item) is not { } entry)return "That item is no longer in their pack";
+        if(_context.Setup.Items.Catalog.Find(entry.DefId) is not {Slot:{ } slot} definition)return "That item cannot be equipped";
+        if(definition.Weapon is {Ranged:true})return $"{Name(command.NpcId)} fights hand to hand";
+        if(EquipmentRules.Refusal(definition,sheet.Progression,Rules) is { } refused)return refused.Replace("you have","they have");
+        var occupied=EquipmentRules.Occupies(definition).ToHashSet();
+        var displaced=sheet.Gear.Where(g=>occupied.Contains(g.Key) || EquipmentRules.Occupies(Definition(g.Value)).Any(occupied.Contains)).ToArray();
+        var gear=sheet.Gear;var pack=sheet.Belongings.Remove(entry);
+        foreach(var (at,piece) in displaced){gear=gear.Remove(at);pack=pack.Add(piece.Item);}
+        var next=sheet with {Gear=gear.SetItem(slot,new PartyGear(entry,false)),Belongings=pack};
+        if(PackRefusal(next) is { } full)return full;
+        State.SetPartySheet(_owner,next);
+        foreach(var (at,piece) in displaced)_context.Events.Publish(new PartyGearChanged(command.NpcId,at,null,piece.Loaned,tick));
+        _context.Events.Publish(new PartyGearChanged(command.NpcId,slot,entry.DefId,false,tick));
         _context.Dispatch(new RefitMember(command.NpcId));
         return null;
     }
@@ -322,7 +396,9 @@ internal sealed class PartySheetSystem : IAbstractAdvance
         var (health, regard, disposition) = standing(npcId);
         return new PartySheetView(npcId, Name(npcId), p.Level, p.LevelProgressXp, toNext, p.UnspentAttributePoints, p.Skills, health,
             sheet.Gear.Select(g => new PartyGearView(g.Key, g.Value.Item.ItemId, g.Value.Item.DefId, g.Value.Item.Quality, g.Value.Loaned)).ToImmutableArray(),
-            sheet.Belongings, regard, disposition);
+            sheet.Belongings, regard, disposition) {
+                Attributes=ProgressionKeys.Attributes.ToImmutableSortedDictionary(a=>a,a=>ProgressionEngine.AttributeValue(p,a,Rules)),
+                CarriedGrams=Weight(sheet.Items),CarryLimitGrams=_context.Setup.Items.Inventory.CarryLimitGrams(p,Rules) };
     }
 
     private string Name(string npcId) =>

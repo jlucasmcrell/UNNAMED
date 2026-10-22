@@ -110,6 +110,10 @@ public class AdventurerTests
         var (state, happenings) = Live(Begin(rules), rules, 2);
         var a = state.Agents.Values.Single();
         Assert.Contains(happenings, h => h.Kind == AdventurerEngine.Culled && h.Key == a.Key);
+        var returns=happenings.Where(h=>h.Kind==AdventurerEngine.Returned).ToArray();
+        Assert.NotEmpty(returns);
+        Assert.All(returns,h=>Assert.Contains(h.Ref,new[]{Wolves,Hares}));
+        Assert.Contains(returns.SelectMany(h=>h.Loot),i=>i.ItemId==Hide && i.Count>0);
         Assert.True(a.Kills > 0);
         Assert.True(a.Progression.LevelProgressXp > 0 || a.Level > 1);
         // The hides came home, and the market here keeps them: sold at its rate.

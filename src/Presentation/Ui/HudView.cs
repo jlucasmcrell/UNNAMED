@@ -28,6 +28,8 @@ public sealed record HudSheet(
 /// </summary>
 public partial class HudView : Control
 {
+    public Action<int>? InspectCompanion {get;set;}
+    public Action<int>? InspectPet {get;set;}
     /// <summary>The safe-area margin from every screen edge, in the 1920 x 1080 layout.</summary>
     public const float Margin = 28;
 
@@ -977,8 +979,9 @@ void fragment() {
             if (i == 0 && _icons.For(icon) is { } texture)
                 row.AddChild(HudStyle.IconSlot(texture, 22));
             var match = Companion.Match(lines[i]);
-            var who = HudStyle.Text(HudStyle.Body, 16, HudStyle.Bone).Say(match.Success ? match.Groups[1].Value : lines[i]);
-            who.VerticalAlignment = VerticalAlignment.Center;
+            int rowIndex=i;
+            var who=UiKit.Action(match.Success?match.Groups[1].Value:lines[i],()=>InspectCompanion?.Invoke(rowIndex),compact:true,id:$"InspectCompanion/{i}");
+            who.TooltipText="Inspect inventory and stats";
             row.AddChild(who);
             if (match.Success)
             {
@@ -989,6 +992,8 @@ void fragment() {
             }
             _companionRows.AddChild(row);
             Quiet(row);
+            row.MouseFilter=MouseFilterEnum.Pass;
+            who.MouseFilter=MouseFilterEnum.Stop;
         }
         _companions.Visible = lines.Length > 0;
     }
@@ -1015,8 +1020,9 @@ void fragment() {
             if (i == 0 && _icons.For(icon) is { } texture)
                 row.AddChild(HudStyle.IconSlot(texture, 22));
             var match = Pet.Match(lines[i]);
-            var who = HudStyle.Text(HudStyle.Body, 16, HudStyle.Bone).Say(match.Success ? match.Groups[1].Value : lines[i]);
-            who.VerticalAlignment = VerticalAlignment.Center;
+            int rowIndex=i;
+            var who=UiKit.Action(match.Success?match.Groups[1].Value:lines[i],()=>InspectPet?.Invoke(rowIndex),compact:true,id:$"InspectPet/{i}");
+            who.TooltipText="Inspect inventory and stats";
             row.AddChild(who);
             if (match.Success)
             {
@@ -1027,6 +1033,8 @@ void fragment() {
             }
             _petRows.AddChild(row);
             Quiet(row);
+            row.MouseFilter=MouseFilterEnum.Pass;
+            who.MouseFilter=MouseFilterEnum.Stop;
         }
         _pets.Visible = lines.Length > 0;
     }

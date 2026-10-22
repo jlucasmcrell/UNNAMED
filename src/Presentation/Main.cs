@@ -1009,7 +1009,11 @@ public partial class Main : Node3D
         }
         _talkCamera = new TalkCamera { Name = "TalkCamera" };
         AddChild(_talkCamera);
-        _hud = new Hud { Name = "Hud" };
+        _hud = new Hud { Name = "Hud", InspectCompanion=i=> {
+            if(_session.Simulation is { } sim && i<sim.Companions.Length)ShowParty(sim.Companions[i].NpcId);
+        },InspectPet=i=> {
+            if(_session.Simulation is { } sim && i<sim.Pets.Length){CloseScreens();_companionsPanel.OpenPet(sim.Pets[i].Id);}
+        } };
         AddChild(_hud);
         _loading?.Stage("Placing items and creatures", 0.72);
         _items = new ItemsView { Name = "Items" };

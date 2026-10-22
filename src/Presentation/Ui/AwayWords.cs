@@ -131,6 +131,11 @@ public static class AwayWords
                 return $"{Actor(line,name)} took the “{SafeName(line.SubjectId??quest,name,"unnamed")}” contract{At(line.PlaceId,name)}.";
             case AdventurerAdvanceKinds.Died:
                 return $"{Actor(line,name)} died{(line.SubjectId is { } creature ? $" fighting {Lower(SafeName(creature,name,"wild creatures"))}" : "")}{At(line.PlaceId,name," near ")}.";
+            case AdventurerAdvanceKinds.Returned:
+                string from=line.PlaceId is { } place ? $" from {SafeName(place,name,"the hunting grounds")}" : "";
+                string brought=line.Wounded ? ", wounded" : line.Loot.IsDefaultOrEmpty ? "" : " with "+string.Join(", ",line.Loot.GroupBy(i=>i.ItemId,StringComparer.Ordinal)
+                    .Select(g=>$"{Lower(SafeName(g.Key,name,"supplies"))} ×{g.Sum(i=>(long)i.Count)}"));
+                return $"{Actor(line,name)} came back{from}{brought}.";
             case AdventurerAdvanceKinds.Retired:
                 return $"{Actor(line,name)} retired from adventuring{At(line.PlaceId,name)}.";
             case PartyAdvanceKinds.Delivered when Split(line.Ref) is (var worker,var good):

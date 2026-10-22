@@ -85,14 +85,61 @@ public class CompanionApprovalTests
 
     private static long Midnight(SimulationSetup setup, int day) => day * setup.Clock.TicksPerDay - setup.Clock.StartTicks;
 
+    [Fact]
+    public void CompanionPack_TransfersAndEquipsTheSameCompleteItem_WithoutDuplicatingIt()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var vest = Stack(Vest) with { Quality=1, Wear=new ItemWear(7,1),
+            Notable=new NotableRecord("Roadworn vest",ProvenanceKind.Found,"fixture.vest",0) { Familiarity=2,Uses=3 } };
+        var arena=At(session,session.Setup,AtStand,r=>Carrying(r,0,vest).WithCompanions(new[]{Joined(181.5,137)}));
+        Assert.Null(arena.Submit(new TransferPartyItemCommand(arena.Player,Tavar,vest.ItemId,true)));
+        Assert.DoesNotContain(arena.Simulation.Player.Inventory,e=>e.ItemId==vest.ItemId);
+        Assert.Equal(vest,Assert.Single(arena.Simulation.PartySheet(Tavar)!.Belongings) with {Bag=vest.Bag,Slot=vest.Slot});
+        Assert.Null(arena.Submit(new EquipPartyPackCommand(arena.Player,Tavar,vest.ItemId)));
+        Assert.Empty(arena.Simulation.PartySheet(Tavar)!.Belongings);
+        Assert.Equal(vest.ItemId,Assert.Single(arena.Simulation.PartySheet(Tavar)!.Gear).Item);
+        Assert.Null(arena.Submit(new UnequipPartyGearCommand(arena.Player,Tavar,EquipSlot.Chest)));
+        Assert.Empty(arena.Simulation.PartySheet(Tavar)!.Gear);
+        Assert.Null(arena.Submit(new TransferPartyItemCommand(arena.Player,Tavar,vest.ItemId,false)));
+        Assert.Empty(arena.Simulation.PartySheet(Tavar)!.Belongings);
+        var restored=Assert.Single(arena.Simulation.Player.Inventory.Where(e=>e.ItemId==vest.ItemId));
+        Assert.Equal(vest.Notable,restored.Notable);
+        Assert.Equal(vest.Wear,restored.Wear);
+        Assert.Equal(vest.Quality,restored.Quality);
+        Assert.NotNull(arena.Submit(new TransferPartyItemCommand(arena.Player,Tavar,vest.ItemId,false)));
+        Assert.Single(arena.Simulation.Player.Inventory.Where(e=>e.ItemId==vest.ItemId));
+    }
+
+    [Fact]
+    public void CompanionPack_RefusesOutOfReachAndFullPacks_WithoutLosingTheItem()
+    {
+        using var profile=new TempProfile();
+        var session=Harness.Boot(profile);
+        var vest=Stack(Vest);
+        var far=At(session,session.Setup,AtStand,r=>Carrying(r,0,vest).WithCompanions(new[]{Joined(190,137)}));
+        Assert.Contains("out of reach",far.Submit(new TransferPartyItemCommand(far.Player,Tavar,vest.ItemId,true)));
+        Assert.Contains(far.Simulation.Player.Inventory,e=>e.ItemId==vest.ItemId);
+        var setup=session.Setup with {Items=session.Setup.Items with {Inventory=session.Setup.Items.Inventory with {StackSlots=0}}};
+        var full=At(session,setup,AtStand,r=>Carrying(r,0,vest).WithCompanions(new[]{Joined(181.5,137)}));
+        Assert.NotNull(full.Submit(new TransferPartyItemCommand(full.Player,Tavar,vest.ItemId,true)));
+        Assert.Contains(full.Simulation.Player.Inventory,e=>e.ItemId==vest.ItemId);
+        Assert.Empty(full.Simulation.PartySheet(Tavar)!.Belongings);
+        var returning=At(session,setup,AtStand,r=>Carrying(r,0).WithCompanions(new[]{Joined(181.5,137)}) with {
+            PartySheets=ImmutableArray.Create(new PartySheet(Tavar,r.Progression) {Belongings=ImmutableArray.Create(vest)}) });
+        Assert.NotNull(returning.Submit(new TransferPartyItemCommand(returning.Player,Tavar,vest.ItemId,false)));
+        Assert.Equal(vest.ItemId,Assert.Single(returning.Simulation.PartySheet(Tavar)!.Belongings).ItemId);
+        Assert.DoesNotContain(returning.Simulation.Player.Inventory,e=>e.ItemId==vest.ItemId);
+    }
+
     // ── gear ────────────────────────────────────────────────────────────────
 
     /// <summary>
     /// §2.15: the character gives (it becomes theirs) or loans (it comes back when they leave). What they wear is the armour they fight in; a
-    /// gift is not asked back; a loan is, and comes back by itself when they are dismissed - with the identity it went with.
+    /// gift is not asked back; a loan can be asked back. Dismissal leaves both with their holder until explicitly taken back.
     /// </summary>
     [Fact]
-    public void Gear_GivenOrLoaned_IsWornAndFoughtIn_ALoanComesBackWhenHeLeaves_AGiftStaysHis()
+    public void Gear_GivenOrLoaned_IsWornAndFoughtIn_AndBothStayWhenDismissed()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
@@ -115,10 +162,15 @@ public class CompanionApprovalTests
 
         Assert.Null(arena.Submit(new DismissCommand(arena.Player, Tavar)));
 
-        Assert.Contains(arena.Simulation.Player.Inventory, e => e.ItemId == vest.ItemId);   // the loan, back
+        // Owner ruling 2026-10-21: dismissal leaves both loaned and given gear with them.
+        Assert.DoesNotContain(arena.Simulation.Player.Inventory, e => e.ItemId == cap.ItemId || e.ItemId == vest.ItemId);
         var kept = Assert.Single(arena.Simulation.CaptureRecord().PartySheets);
-        Assert.Equal((Tavar, cap.ItemId), (kept.NpcId, Assert.Single(kept.Gear).Value.Item.ItemId));   // the gift, still his at home
+        Assert.Equal(Tavar,kept.NpcId);
+        Assert.Equal(2,kept.Gear.Count);
+        Assert.Equal(cap.ItemId,kept.Gear[EquipSlot.Head].Item.ItemId);
+        Assert.Equal(vest.ItemId,kept.Gear[EquipSlot.Chest].Item.ItemId);
         Assert.False(kept.Gear[EquipSlot.Head].Loaned);
+        Assert.True(kept.Gear[EquipSlot.Chest].Loaned);
     }
 
     /// <summary>A loan asked back comes back to the pack, and he fights in his own jerkin again.</summary>

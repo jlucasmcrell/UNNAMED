@@ -251,8 +251,9 @@ internal sealed partial class CompanionSystem
         // Someone with a life walks home to it (WP12b); someone with none is put back at their place, as before.
         if (State.Npcs.TryGetValue(c.NpcId, out var npc) && !_life.Walks(c.NpcId))
             Place(npc, Home(npc), _context.Setup.SpaceOfNpc(npc.Definition.Id));
-        // A loan comes back when they leave (§2.15); what is theirs goes with them, and so does their sheet, into the life they go back to.
-        _context.Dispatch(new ReturnLoans(c.NpcId));
+        // Owner ruling: explicit dismissal leaves the gear with them. Returning a loan
+        // remains explicit; expiry/lapse keep their existing contract settlement.
+        if(reason!="dismissed")_context.Dispatch(new ReturnLoans(c.NpcId));
         _life.TakeUp(new PartyLifeEntry(c.NpcId, c.Membership, reason, State.PartySheets.GetValueOrDefault(c.NpcId), tick));
         _context.Events.Publish(new PartyMemberLeft(c.NpcId, reason, tick));
         log?.Add(new AdvanceLine(tick, PartyAdvanceKinds.Left, $"{c.NpcId}|{reason}"));

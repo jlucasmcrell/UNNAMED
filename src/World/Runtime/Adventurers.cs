@@ -69,6 +69,7 @@ public static class AdventurerAdvanceKinds
     public const string Arrived = "adventurer.arrived";
 
     public const string Retired = "adventurer.retired";
+    public const string Returned = "adventurer.returned";
 }
 
 // ── internal commands ───────────────────────────────────────────────────────
@@ -82,6 +83,13 @@ internal sealed record CullCreatures(string SpawnKey, int Count, long Tick) : In
 
 /// <summary>To <see cref="PartySheetSystem"/>: someone joins with a life of their own - their sheet is theirs as they come (WP13: level and gear kept).</summary>
 internal sealed record AdoptSheet(PartySheet Sheet) : InternalCommand;
+
+public static class AdventurerInventory
+{
+    public static AdventurerItem Snapshot(InventoryEntry e)=>new(e.ItemId,e.DefId,e.Count,e.Quality,e.Notable,e.Wear,e.Locked,e.Junk);
+    public static InventoryEntry Entry(AdventurerItem e)=>new(e.ItemId,e.DefId,e.Count) {
+        Quality=e.Quality,Notable=e.Notable,Wear=e.Wear,Locked=e.Locked,Junk=e.Junk };
+}
 
 /// <summary>To <see cref="PartySheetSystem"/>: someone with a life of their own left the party and took their sheet back into it.</summary>
 internal sealed record ReleaseSheet(string NpcId) : InternalCommand;
@@ -328,6 +336,10 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
                     break;
                 case AdventurerEngine.Injured:
                     _context.Events.Publish(new AdventurerInjured(h.Key, NameOf(h.Key), day + h.Amount, tick));
+                    log?.Add(new AdvanceLine(tick,AdventurerAdvanceKinds.Returned,h.Key) {ActorName=NameOf(h.Key),PlaceId=GroundPlace(h.Ref),Wounded=true});
+                    break;
+                case AdventurerEngine.Returned:
+                    log?.Add(new AdvanceLine(tick,AdventurerAdvanceKinds.Returned,h.Key) {ActorName=NameOf(h.Key),PlaceId=GroundPlace(h.Ref),Loot=h.Loot});
                     break;
                 case AdventurerEngine.Retired:
                     bool settled = _context.Dispatch(new SettleRetiree(h.Settlement!, h.Ref!, tick)) is null;
@@ -642,13 +654,16 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
         {
             case AdventurerPartyChanged.Joined:
                 // Their sheet is theirs as they are (§2.15: adventurers keep their level and gear when hired), and their own life waits.
-                var gear = a.Gear.ToImmutableSortedDictionary(g => g.Key, g => new PartyGear(new InventoryEntry(g.Value.ItemId, g.Value.DefId, 1) { Quality = g.Value.Quality }, false));
-                _context.Dispatch(new AdoptSheet(new PartySheet(a.Key, a.Progression) { Gear = gear }));
+                var gear = a.Gear.ToImmutableSortedDictionary(g => g.Key, g => new PartyGear(
+                    g.Value.Item is { } item ? AdventurerInventory.Entry(item) : new InventoryEntry(g.Value.ItemId,g.Value.DefId,1) { Quality=g.Value.Quality },g.Value.Loaned));
+                _context.Dispatch(new AdoptSheet(new PartySheet(a.Key,a.Progression) {
+                    Gear=gear,Belongings=a.Belongings.Select(AdventurerInventory.Entry).ToImmutableArray() }));
                 _context.Dispatch(new RefitMember(a.Key));
                 Set(a with
                 {
                     Party = PartyKeys.Key(command.Membership),
                     Gear = ImmutableSortedDictionary<EquipSlot, AdventurerGear>.Empty,
+                    Belongings = ImmutableArray<AdventurerItem>.Empty,
                     Plan = new AdventurerPlan(Clock.Day(command.Tick), AdventurerGoals.Rest, command.Membership == PartyMembership.TemporaryAlly ? a.Plan.Ref : null),
                 });
                 return null;
@@ -675,12 +690,10 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
     {
         if (!State.PartySheets.TryGetValue(a.Key, out var sheet))
             return a;
-        var gear = sheet.Gear.Where(g => !g.Value.Loaned)
-            .ToImmutableSortedDictionary(g => g.Key, g => new AdventurerGear(g.Value.Item.ItemId, g.Value.Item.DefId, g.Value.Item.Quality));
-        var pack = a.Pack;
-        foreach (var item in sheet.Belongings)
-            pack = pack.SetItem(item.DefId, pack.GetValueOrDefault(item.DefId) + item.Count);
-        return a with { Progression = AdventurerEngine.Spend(sheet.Progression), Gear = gear, Pack = pack };
+        var gear = sheet.Gear.ToImmutableSortedDictionary(g=>g.Key,g=>new AdventurerGear(g.Value.Item.ItemId,g.Value.Item.DefId,g.Value.Item.Quality) {
+            Item=AdventurerInventory.Snapshot(g.Value.Item),Loaned=g.Value.Loaned });
+        return a with { Progression=AdventurerEngine.Spend(sheet.Progression),Gear=gear,
+            Belongings=sheet.Belongings.Select(AdventurerInventory.Snapshot).ToImmutableArray() };
     }
 
     /// <summary>The character finished the bounty they set out on together: half its purse goes to the adventurer, and the group parts.</summary>

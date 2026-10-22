@@ -20,6 +20,7 @@ using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Domain.Travel;
 using UNNAMED.World;
+using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Persistence.Sections;
 
@@ -693,6 +694,7 @@ public sealed class AdventurerDto
     [Key("risk_percent")] public int RiskPercent { get; set; }
     [Key("arrived_day")] public long ArrivedDay { get; set; }
     [Key("gear")] public AdventurerGearDto[] Gear { get; set; } = Array.Empty<AdventurerGearDto>();
+    [Key("belongings")] public AdventurerItemDto[] Belongings { get; set; } = Array.Empty<AdventurerItemDto>();
     [Key("pack")] public GoodCountDto[] Pack { get; set; } = Array.Empty<GoodCountDto>();
     [Key("condition")] public string Condition { get; set; } = "active";
     [Key("injured_until_day")] public long InjuredUntilDay { get; set; }
@@ -706,10 +708,20 @@ public sealed class AdventurerDto
 [MessagePackObject]
 public sealed class AdventurerGearDto
 {
+    [Key("item")] public AdventurerItemDto? Item { get; set; }
+    [Key("loaned")] public bool Loaned { get; set; }
     [Key("slot")] public string Slot { get; set; } = "";
     [Key("item_id")] public string ItemId { get; set; } = "";
     [Key("def_id")] public string DefId { get; set; } = "";
     [Key("quality")] public int Quality { get; set; }
+}
+
+[MessagePackObject]
+public sealed class AdventurerItemDto
+{
+    [Key("stack")] public InventoryDto Stack { get; set; } = new();
+    [Key("locked")] public bool Locked { get; set; }
+    [Key("junk")] public bool Junk { get; set; }
 }
 
 [MessagePackObject]
@@ -1488,6 +1500,17 @@ public static class SectionCodec
         }, Options);
     }
 
+    private static AdventurerItemDto AdventurerItemToDto(AdventurerItem item) => new()
+    { Stack=StackToDto(AdventurerInventory.Entry(item)),Locked=item.Locked,Junk=item.Junk };
+
+    private static AdventurerItem AdventurerItemOf(AdventurerItemDto item)
+    {
+        var entry=StackOf(item.Stack,"adventurer's kept item");
+        if(entry.ItemId.Kind!=EntityKind.Item || !DefinitionId.IsValid(entry.DefId) || entry.Count<1)
+            throw new FormatException("Malformed adventurer kept item");
+        return AdventurerInventory.Snapshot(entry with {Locked=item.Locked,Junk=item.Junk});
+    }
+
     private static AdventurersDto AdventurersToDto(AdventurerState state) => new()
     {
         Day = state.Day,
@@ -1495,8 +1518,9 @@ public static class SectionCodec
         {
             Key = a.Key, Slot = a.Slot, Generation = a.Generation, Name = a.Name, PeopleId = a.PeopleId, Settlement = a.Settlement, At = a.At,
             Progression = ProgressionCodec.ToDto(a.Progression), Coin = a.Coin, RiskPercent = a.RiskPercent, ArrivedDay = a.ArrivedDay,
-            Gear = a.Gear.Select(g => new AdventurerGearDto { Slot = EquipSlots.Key(g.Key), ItemId = g.Value.ItemId.Value, DefId = g.Value.DefId, Quality = g.Value.Quality })
+            Gear = a.Gear.Select(g => new AdventurerGearDto { Slot = EquipSlots.Key(g.Key), ItemId = g.Value.ItemId.Value, DefId = g.Value.DefId, Quality = g.Value.Quality, Item=g.Value.Item is { } item ? AdventurerItemToDto(item) : null, Loaned=g.Value.Loaned })
                 .ToArray(),
+            Belongings=a.Belongings.Select(AdventurerItemToDto).ToArray(),
             Pack = a.Pack.Select(kv => new GoodCountDto { ItemId = kv.Key, Count = kv.Value }).ToArray(),
             Condition = a.Condition == AdventurerCondition.Injured ? "injured" : "active", InjuredUntilDay = a.InjuredUntilDay,
             Plan = new AdventurerPlanDto
@@ -1681,7 +1705,7 @@ public static class SectionCodec
             var gear = ImmutableSortedDictionary.CreateBuilder<EquipSlot, AdventurerGear>();
             foreach (var g in a.Gear)
             {
-                if (!EntityId.TryParse(g.ItemId, out var id) || id.Kind != EntityKind.Item || !DefinitionId.IsValid(g.DefId) || !gear.TryAdd(EquipSlots.Parse(g.Slot), new AdventurerGear(id, g.DefId, g.Quality)))
+                if (!EntityId.TryParse(g.ItemId, out var id) || id.Kind != EntityKind.Item || !DefinitionId.IsValid(g.DefId) || !gear.TryAdd(EquipSlots.Parse(g.Slot), new AdventurerGear(id, g.DefId, g.Quality) {Item=g.Item is { } kept ? AdventurerItemOf(kept) : null,Loaned=g.Loaned}))
                     throw new FormatException($"adventurer {a.Key} has a malformed or doubled gear piece in {g.Slot}");
             }
             var pack = ImmutableSortedDictionary.CreateBuilder<string, int>(StringComparer.Ordinal);
@@ -1693,12 +1717,16 @@ public static class SectionCodec
             var record = new AdventurerRecord(a.Key, a.Slot, a.Generation, a.Name, a.Settlement, a.At, ProgressionCodec.FromDto(a.Progression), a.Coin, a.RiskPercent)
             {
                 PeopleId = a.PeopleId, ArrivedDay = a.ArrivedDay, Gear = gear.ToImmutable(), Pack = pack.ToImmutable(), Condition = condition,
+                Belongings=a.Belongings.Select(AdventurerItemOf).ToImmutableArray(),
                 InjuredUntilDay = a.InjuredUntilDay, Party = a.Party, Acquired = a.Acquired, Kills = a.Kills, BountiesClaimed = a.BountiesClaimed,
                 Plan = new AdventurerPlan(a.Plan.Day, a.Plan.Goal, a.Plan.Ref)
                 {
                     Group = a.Plan.Group.ToImmutableArray(), PostTick = a.Plan.PostTick, DepartTick = a.Plan.DepartTick,
                 },
             };
+            var ids=record.Gear.Values.Select(g=>g.ItemId).Concat(record.Belongings.Select(i=>i.ItemId)).ToArray();
+            if(ids.Distinct().Count()!=ids.Length || record.Gear.Values.Any(g=>g.Item is { } i && (i.ItemId!=g.ItemId || i.DefId!=g.DefId || i.Quality!=g.Quality || i.Count!=1)))
+                throw new FormatException($"adventurer {a.Key} has inconsistent or duplicated kept items");
             if (!agents.TryAdd(a.Key, record))
                 throw new FormatException($"entities.msgpack holds adventurer {a.Key} twice");
         }

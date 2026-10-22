@@ -26,6 +26,8 @@ public sealed record AdvanceLine(long Tick, string Kind, string Ref, long Amount
     public string? PlaceId { get; init; }
     public string? SubjectId { get; init; }
     public int? Level { get; init; }
+    public bool Wounded {get;init;}
+    public ImmutableArray<(string ItemId,int Count)> Loot {get;init;}=ImmutableArray<(string,int)>.Empty;
 }
 
 /// <summary>The kinds of <see cref="AdvanceLine"/> the systems write. Presentation words them; the domain does not.</summary>

@@ -153,6 +153,8 @@ internal sealed record HandOver(EntityId ItemId) : InternalCommand;
 /// where the character stands when it has no room or would be too heavy. With <see cref="DropAt"/>, it is left on the ground there
 /// instead (a hireling's own things, where they fell).
 /// </summary>
+internal sealed record CanReceiveStack(InventoryEntry Entry) : InternalCommand;
+
 internal sealed record ReceiveStack(InventoryEntry Entry) : InternalCommand
 {
     public (long XMm, long ZMm)? DropAt { get; init; }
@@ -455,6 +457,14 @@ internal sealed partial class InventorySystem
             return $"{entry.DefId} is equipped";
         Commit(State.Inventory.Remove(entry));
         return null;
+    }
+
+    public string? Handle(CanReceiveStack command)
+    {
+        var entry=command.Entry;
+        if(Items.Catalog.Find(entry.DefId) is not { } definition)return "Unknown item";
+        return PackRoom(State.Inventory,definition,entry.Quality,entry.Count)
+            ?? (CarriedGrams()+definition.WeightGrams*entry.Count>CarryLimitGrams() ? "That would be too heavy to carry" : null);
     }
 
     public string? Handle(ReceiveStack command, long tick)

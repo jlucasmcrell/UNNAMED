@@ -123,7 +123,8 @@ public static class SchemaMigrations
         new SchemaV32ToV33(),
         new SchemaV33ToV34(),
         new SchemaV34ToV35(),
-        new SchemaV35ToV36());
+        new SchemaV35ToV36(),
+        new SchemaV36ToV37());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -2035,6 +2036,24 @@ public sealed class SchemaV35ToV36 : SchemaMigration
             }, options);
         }
         document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>Keep full personal item instances when adventurers leave the party; older saves have no such instances.</summary>
+public sealed class SchemaV36ToV37 : SchemaMigration
+{
+    public override int From => 36;
+    public override string Summary => "schema 36 -> 37: adventurers retain complete personal items between hires";
+    public override void Apply(MigrationDocument document,MigrationEnvironment environment,MigrationReport report)
+    {
+        if(document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } bytes)
+        {
+            var old=MessagePackSerializer.Deserialize<Sections.V36.EntitiesSection>(bytes,SectionCodec.MessagePackOptions);
+            var next=MessagePackSerializer.Deserialize<EntitiesSectionDto>(MessagePackSerializer.Serialize(old,SectionCodec.MessagePackOptions),SectionCodec.MessagePackOptions);
+            document.Sections[SaveFormat.Entities]=MessagePackSerializer.Serialize(next,SectionCodec.MessagePackOptions);
+        }
+        document.Manifest["schema_version"]=To;
         report.Steps.Add(Summary);
     }
 }

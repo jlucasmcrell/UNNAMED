@@ -21,7 +21,6 @@ namespace UNNAMED.Presentation.Ui;
 /// </summary>
 public partial class CompanionsPanel : CanvasLayer
 {
-    private const double ConfirmSeconds = 3;
 
     private readonly List<(string NpcId, HudView.Gauge Health, Label Words)> _live = new();
     private readonly Dictionary<string, Button> _rows = new(StringComparer.Ordinal);
@@ -33,7 +32,7 @@ public partial class CompanionsPanel : CanvasLayer
     private string? _drawn;
     private string? _selected;
     private string? _confirm;
-    private double _confirmLeft;
+    private bool _inventoryMode;
 
     /// <summary>The icon set: each member's order (or downed) tile, as the HUD's companion strip shows it, and the screen's own.</summary>
     public void UseIcons(HudIcons icons)
@@ -67,8 +66,12 @@ public partial class CompanionsPanel : CanvasLayer
     /// <summary>Open on a member (from a person in the world), or on whoever was chosen last.</summary>
     public void Open(string? npcId = null)
     {
+        _petId=null;
         if (npcId is not null)
+        {
             _selected = npcId;
+            _inventoryMode = true;
+        }
         Visible = true;
     }
 
@@ -76,18 +79,15 @@ public partial class CompanionsPanel : CanvasLayer
     {
         if (!Visible || _session?.Simulation is not { } simulation)
             return;
-        if (_confirm is not null && (_confirmLeft -= delta) <= 0)
-        {
-            _confirm = null;
-            _drawn = null;
-        }
+        if(_petId is not null){RefreshPet(simulation);return;}
         var companions = simulation.Companions;
         if (_selected is null || companions.All(c => c.NpcId != _selected))
             _selected = companions.FirstOrDefault()?.NpcId;
         var sheet = _selected is null ? null : simulation.PartySheet(_selected);
-        string signature = string.Join("|", companions.Select(c => $"{c.NpcId}:{c.Order}:{c.Condition}:{c.Doing}:{c.Stance}:{c.Tactics}:{c.Contract}:{c.WeaponId}")) +
-                           $"|{_selected}|{_confirm}|{sheet?.Level}:{sheet?.LevelProgressXp}:{sheet?.UnspentPoints}:{sheet?.Regard}:{sheet?.Disposition}:" +
+        string signature = string.Join("|", companions.Select(c => $"{c.NpcId}:{c.Order}:{c.Condition}:{c.Health}:{c.Doing}:{c.Stance}:{c.Tactics}:{c.Contract}:{c.WeaponId}")) +
+                           $"|{_selected}|{_inventoryMode}|{_confirm}|{sheet?.Level}:{sheet?.LevelProgressXp}:{sheet?.UnspentPoints}:{sheet?.Regard}:{sheet?.Disposition}:" +
                            string.Join(",", sheet?.Gear.Select(g => $"{g.Slot}{g.Item}{g.Loaned}") ?? Array.Empty<string>()) + "|" +
+                           string.Join(",", sheet?.Belongings.Select(e=>$"{e.ItemId}:{e.Count}:{e.Quality}:{e.Wear}") ?? Array.Empty<string>()) + "|" +
                            string.Join(",", simulation.Player.Inventory.Select(e => $"{e.ItemId}{e.Count}")) + "|" + string.Join(",", simulation.Player.Equipment.Values) + "|" +
                            string.Join(",", simulation.Recovering.Select(r => $"{r.NpcId}{(r.UntilTick - simulation.WorldTick) / Math.Max(1, _session.Setup.Clock.TicksPerDay)}")) + "|" +
                            string.Join(",", simulation.AllyGroups.Select(g => g.GroupKey));
@@ -116,6 +116,10 @@ public partial class CompanionsPanel : CanvasLayer
         _rows.Clear();
         UiKit.Clear(_panes.List);
         UiKit.Clear(_panes.Detail);
+        if(_inventoryMode && _selected is not null && simulation.Companions.Any(c=>c.NpcId==_selected))
+        { BuildInventory(simulation,_selected);return; }
+        _panes.ListScroll.CustomMinimumSize=new Godot.Vector2(UiKit.ListWidth,0);
+        _panes.ListScroll.SizeFlagsHorizontal=Control.SizeFlags.Fill;
         var rules = simulation.Party;
         _sheet.SetHint(PartyModel.Count(simulation.Companions.Length, rules));
         foreach (var member in simulation.Companions)
@@ -255,37 +259,17 @@ public partial class CompanionsPanel : CanvasLayer
             _panes.Detail.AddChild(growth);
         }
 
+        _panes.Detail.AddChild(UiKit.Action("Inventory and equipment",()=>{_inventoryMode=true;_drawn=null;},id:$"{id}/inventory"));
         Gear(simulation, card);
 
-        // Dismiss: asked twice, the second within a few seconds; a hireling's contract ends with it.
-        var leave = new HBoxContainer();
-        leave.AddThemeConstantOverride("separation", 12);
-        bool asked = _confirm == id;
-        var dismiss = UiKit.Action(asked ? "Press again to dismiss" : card.Hired ? "Dismiss: end the contract" : "Dismiss", () =>
-        {
-            if (_confirm == id)
-            {
-                _confirm = null;
-                Submit(new DismissCommand(simulation.PlayerId, id));
-            }
-            else
-            {
-                _confirm = id;
-                _confirmLeft = ConfirmSeconds;
-            }
-            _drawn = null;
-        }, UiKit.Kind.Destructive, id: $"{id}/dismiss");
-        dismiss.Disabled = !card.CanDismiss;
-        leave.AddChild(dismiss);
-        leave.AddChild(UiKit.Words(card.Dismiss ?? "They go home to their own life, and keep what is theirs; what you loaned them comes back.", 16, HudStyle.Muted));
-        _panes.Detail.AddChild(leave);
+        Dismiss(simulation,card,_panes.Detail);
     }
 
     /// <summary>What they wear, Take back on each piece; then what in the pack they could wear, to Loan or Give.</summary>
     private void Gear(Simulation simulation, PartyCard card)
     {
         string id = card.NpcId;
-        var gear = UiKit.Section("Gear", "loaned comes back when they leave");
+        var gear = UiKit.Section("Gear", "Dismissal leaves worn and packed items with them. Take items back first if you want to keep them.");
         foreach (var piece in card.Gear)
         {
             var row = UiKit.Row(UiKit.Chip(piece.SlotWord, HudStyle.Iron, HudStyle.Bone), piece.Item, piece.Whose);

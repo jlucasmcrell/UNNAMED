@@ -67,6 +67,7 @@ public sealed record CompanionView(string NpcId, EntityId InstanceId, string Nam
 
     /// <summary>The weapon they fight with: their own, or the melee weapon they were handed (WP15b).</summary>
     public string WeaponId { get; init; } = "";
+    public AttackProfile? Attack {get;init;}
 
     /// <summary>Their armour on each region: their own plus what they wear (WP15b).</summary>
     public ImmutableSortedDictionary<BodyRegion, int> Armor { get; init; } = ImmutableSortedDictionary<BodyRegion, int>.Empty;
@@ -708,6 +709,7 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
                 Contract = c.Contract,
                 WeaponId = c.Profile.WeaponId,
                 Armor = c.Profile.Armor,
+                Attack=c.Attack,
             };
         }).ToImmutableArray();
 

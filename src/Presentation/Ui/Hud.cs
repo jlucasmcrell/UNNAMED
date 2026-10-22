@@ -60,6 +60,8 @@ public partial class Hud : CanvasLayer
     // and F3 overlay are shared. Classic stays the baseline, unchanged.
     private readonly bool _production = VisualOptions.ProductionHud;
     private HudView? _view;
+    public Action<int>? InspectCompanion {get;set;}
+    public Action<int>? InspectPet {get;set;}
 
     public override void _Ready()
     {
@@ -169,7 +171,7 @@ public partial class Hud : CanvasLayer
 
     private void ReadyProduction()
     {
-        _view = new HudView { Name = "HudView" };
+        _view = new HudView { Name = "HudView", InspectCompanion=i=>InspectCompanion?.Invoke(i),InspectPet=i=>InspectPet?.Invoke(i) };
         AddChild(_view);
         _compass.Styled = true;
         _compass.SetAnchorsPreset(Control.LayoutPreset.TopRight);

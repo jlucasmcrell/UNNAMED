@@ -33,7 +33,23 @@ public static class AdventurerGoals
 public enum AdventurerCondition { Active, Injured }
 
 /// <summary>A piece an adventurer owns and wears: a real item (§2.13 "a gear tier as real items") with its instance identity and make.</summary>
-public sealed record AdventurerGear(EntityId ItemId, string DefId, int Quality);
+public sealed record AdventurerGear(EntityId ItemId, string DefId, int Quality)
+{
+    public AdventurerItem? Item { get; init; }
+    public bool Loaned { get; init; }
+}
+
+/// <summary>A full personal item kept while its owner lives outside the party; trade goods remain in Pack.</summary>
+public sealed record AdventurerItem(EntityId ItemId,string DefId,int Count,int Quality,NotableRecord? Notable,ItemWear? Wear,bool Locked=false,bool Junk=false)
+{
+    public void AddTo(CanonicalHasher h)
+    {
+        h.Add(ItemId.Value).Add(DefId).Add(Count).Add(Quality).Add(Locked?1:0).Add(Junk?1:0);
+        if(Notable is { } n)h.Add("notable").Add(n.Name).Add(ProvenanceKinds.Key(n.Provenance)).Add(n.SourceRef).Add(n.Tick)
+            .Add(n.Maker??"-").Add(n.Familiarity).Add(n.Uses);
+        if(Wear is { } w)h.Add("wear").Add(w.Points).Add(w.MadeQuality);
+    }
+}
 
 /// <summary>
 /// The day an adventurer planned at a midnight: the goal, what it names, whom they go with (themselves included, sorted), and - when they
@@ -69,6 +85,9 @@ public sealed record AdventurerRecord(string Key, string Slot, int Generation, s
 
     public ImmutableSortedDictionary<EquipSlot, AdventurerGear> Gear { get; init; } = ImmutableSortedDictionary<EquipSlot, AdventurerGear>.Empty;
 
+    /// <summary>Personal items held for a later return to the party, preserving instance history.</summary>
+    public ImmutableArray<AdventurerItem> Belongings { get; init; } = ImmutableArray<AdventurerItem>.Empty;
+
     /// <summary>What they carry to sell or deliver, by item definition.</summary>
     public ImmutableSortedDictionary<string, int> Pack { get; init; } = ImmutableSortedDictionary.Create<string, int>(StringComparer.Ordinal);
 
@@ -94,7 +113,7 @@ public sealed record AdventurerRecord(string Key, string Slot, int Generation, s
     public bool Equals(AdventurerRecord? other) =>
         other is not null && Key == other.Key && Slot == other.Slot && Generation == other.Generation && Name == other.Name && Settlement == other.Settlement
         && At == other.At && Progression.Digest == other.Progression.Digest && Coin == other.Coin && RiskPercent == other.RiskPercent && PeopleId == other.PeopleId
-        && ArrivedDay == other.ArrivedDay && Gear.SequenceEqual(other.Gear) && Pack.SequenceEqual(other.Pack) && Condition == other.Condition
+        && ArrivedDay == other.ArrivedDay && Gear.SequenceEqual(other.Gear) && Belongings.SequenceEqual(other.Belongings) && Pack.SequenceEqual(other.Pack) && Condition == other.Condition
         && InjuredUntilDay == other.InjuredUntilDay && Plan.Day == other.Plan.Day && Plan.Goal == other.Plan.Goal && Plan.Ref == other.Plan.Ref
         && Plan.Group.SequenceEqual(other.Plan.Group) && Plan.PostTick == other.Plan.PostTick && Plan.DepartTick == other.Plan.DepartTick
         && Party == other.Party && Acquired == other.Acquired && Kills == other.Kills && BountiesClaimed == other.BountiesClaimed;
@@ -127,7 +146,19 @@ public sealed record AdventurerState(long Day, ImmutableSortedDictionary<string,
                 .Add(a.Coin).Add(a.RiskPercent).Add(a.ArrivedDay).Add((int)a.Condition).Add(a.InjuredUntilDay).Add(a.Party ?? "-")
                 .Add(a.Acquired).Add(a.Kills).Add(a.BountiesClaimed).Add(a.Gear.Count);
             foreach (var (slot, gear) in a.Gear)
+            {
                 h.Add((int)slot).Add(gear.ItemId.Value).Add(gear.DefId).Add(gear.Quality);
+                if(gear.Item is not null || gear.Loaned)
+                {
+                    h.Add("kept_gear").Add(gear.Loaned?1:0);
+                    gear.Item?.AddTo(h);
+                }
+            }
+            if(!a.Belongings.IsDefaultOrEmpty)
+            {
+                h.Add("belongings").Add(a.Belongings.Length);
+                foreach(var item in a.Belongings)item.AddTo(h);
+            }
             h.Add(a.Pack.Count);
             foreach (var (item, count) in a.Pack)
                 h.Add(item).Add(count);
@@ -355,6 +386,7 @@ public sealed record AdventurerHappening(string Kind, string Key)
     public string? Market { get; init; }
     public long Amount { get; init; }
     public long Coin { get; init; }
+    public ImmutableArray<(string ItemId,int Count)> Loot {get;init;}=ImmutableArray<(string,int)>.Empty;
     public string? Settlement { get; init; }
 }
 
@@ -369,6 +401,7 @@ public static class AdventurerEngine
     public const string Arrived = "arrived";
     public const string Died = "died";
     public const string Injured = "injured";
+    public const string Returned = "returned";
     public const string Retired = "retired";
     public const string Claimed = "claimed";
     public const string Lost = "lost";
@@ -651,18 +684,20 @@ public static class AdventurerEngine
             return a;   // those out before them took what the ground held
         culled[ground.SpawnKey] = culled.GetValueOrDefault(ground.SpawnKey) + kills;
         happenings.Add(new AdventurerHappening(Culled, a.Key) { Ref = ground.SpawnKey, Amount = kills });
+        var loot=ImmutableArray.CreateBuilder<(string ItemId,int Count)>();
         var progression = a.Progression;
         string? weaponSkill = a.Gear.TryGetValue(EquipSlot.MainHand, out var weapon) ? day.Item(weapon.DefId)?.Weapon?.SkillId : null;
         for (int k = 0; k < kills; k++)
         {
             foreach (var (item, count) in day.Loot(ground.SpawnKey, day.Sample($"loot:{a.Key}@{day.Day}#{k}")))
-                a = Put(a, item, count);
+            { a = Put(a, item, count);loot.Add((item,count)); }
             a = a with { Kills = a.Kills + 1 };
             long xp = (day.KillXp?.Invoke(ground.CreatureId) ?? 0) * rules.HuntXpPermille / 1000;
             a = Gain(a, new XpAward(XpSource.Combat, xp, day.Tick) { Kill = new KillContext(ground.CreatureId, ground.CreatureLevel, ground.SpawnKey) }, day, happenings);
             if (weaponSkill is not null)
                 a = a with { Progression = ProgressionEngine.Practice(a.Progression, new SkillPractice(weaponSkill, ground.CreatureLevel, PracticeOutcome.Success, day.Tick), day.Progression).Progression };
         }
+        happenings.Add(new AdventurerHappening(Returned,a.Key) {Ref=ground.SpawnKey,Loot=loot.ToImmutable()});
         if (rules.FieldSkill is { } field)
             a = a with { Progression = ProgressionEngine.Practice(a.Progression, new SkillPractice(field, ground.Danger, PracticeOutcome.Success, day.Tick), day.Progression).Progression };
         if (bounty is not null)
