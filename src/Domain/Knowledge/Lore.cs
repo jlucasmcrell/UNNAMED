@@ -1,4 +1,4 @@
-﻿// UNNAMED Domain - lore: what the character has come to know, and the pages a thing is known by (spec 41; MAPS_CARTOGRAPHY_AND_WORLD_KNOWLEDGE.md Ã‚Â§3)
+// UNNAMED Domain - lore: what the character has come to know, and the pages a thing is known by (spec 41; MAPS_CARTOGRAPHY_AND_WORLD_KNOWLEDGE.md Ã‚Â§3)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -202,7 +202,7 @@ public static class LoreRules
 
     /// <summary>The opening of the most recently found page: what a character has to read when the day stops.</summary>
     public static string Latest(ImmutableSortedDictionary<string, LoreEntryDefinition> entries, ImmutableArray<LorePageRecord> pages) =>
-        pages.Length == 0
+        pages.IsDefaultOrEmpty
             ? ""
             : Opening(entries.TryGetValue(pages.MaxBy(r => r.Tick)!.EntryId, out var entry) ? entry : null,
                 new[] { pages.MaxBy(r => r.Tick)! });

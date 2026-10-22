@@ -48,6 +48,8 @@ public class LoreReadingTests
             new LorePageRecord("lore.wayhold", 1, LoreSourceKind.Visited, "location.outpost", 40));
         Assert.Equal("The Wayhold keeps the road.", LoreRules.Latest(Pack, known));
         Assert.Equal("", LoreRules.Latest(Pack, ImmutableArray<LorePageRecord>.Empty));
+        // Before New Game there is no Simulation: the loading screen passes default.
+        Assert.Equal("", LoreRules.Latest(Pack, default));
     }
 
     [Fact]
