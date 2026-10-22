@@ -1,4 +1,4 @@
-// UNNAMED World - the Phase-1 runtime systems (SYSTEMS.md S-04, S-08, S-20, S-21, S-22, S-30)
+﻿// UNNAMED World - the Phase-1 runtime systems (SYSTEMS.md S-04, S-08, S-20, S-21, S-22, S-30)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -11,7 +11,7 @@ using UNNAMED.Domain.Travel;
 namespace UNNAMED.World.Runtime;
 
 // Each system declares the state it owns in its header, writes only that through its SliceOwner, and reaches
-// another system's state only by dispatching an internal command (ARCHITECTURE.md §4.2, §5).
+// another system's state only by dispatching an internal command (ARCHITECTURE.md Â§4.2, Â§5).
 
 /// <summary>A command one system sends another. Presentation cannot construct these.</summary>
 internal abstract record InternalCommand;
@@ -30,6 +30,13 @@ internal sealed record UnlockLore(EntityId Actor, Domain.Knowledge.LoreSourceKin
 
 /// <summary>To <see cref="LoreSystem"/>: an entry was read outright, its every page not yet known filed (a book or a note).</summary>
 internal sealed record ReadLore(EntityId Actor, string EntryId, Domain.Knowledge.LoreSourceKind Source, string SourceRef) : InternalCommand;
+
+/// <summary>
+/// To <see cref="DiscoverySystem"/>: a page said where a place is, so it goes on the map as told. Not a visit - no landmark banner, no
+/// objective met, no discovery XP - because the character has been told about the place, not taken there (spec 41;
+/// MAPS_CARTOGRAPHY_AND_WORLD_KNOWLEDGE.md Â§6).
+/// </summary>
+internal sealed record TellOfPlace(string LocationId) : InternalCommand;
 
 /// <summary>To <see cref="LoreSystem"/>: a reply told the character of something, and the pages this conversation tells are filed.</summary>
 internal sealed record TellLore(EntityId Actor, string EntryId, string DialogueId) : InternalCommand;
@@ -66,7 +73,7 @@ internal sealed class SystemContext
     public Func<InternalCommand, string?> Dispatch { get; }
 
     /// <summary>
-    /// What the effects on a body deny it (STEALTH §14's control effects): nothing, its feet, or its actions. The strongest effect on it
+    /// What the effects on a body deny it (STEALTH Â§14's control effects): nothing, its feet, or its actions. The strongest effect on it
     /// wins, so a sleeper under a root is asleep. Read wherever movement or a blow is about to happen, which is what makes "rooted" and
     /// "paralysed" one rule rather than a special case per system.
     /// </summary>
@@ -127,7 +134,7 @@ internal sealed class SystemContext
     /// </summary>
     /// <remarks>
     /// This overload is for the player. Entities and authored sites use their own space. Unflagged interiors,
-    /// including Barrowworks, hold their state while absent (systems plan §2.11).
+    /// including Barrowworks, hold their state while absent (systems plan Â§2.11).
     /// </remarks>
     public CellKey CellOf(Body body) => CellKey.OfInterior(State.Space, body.XMm / 1000.0, body.ZMm / 1000.0);
 
@@ -637,7 +644,7 @@ internal sealed class ProgressionSystem
         return null;
     }
 
-    /// <summary>A learning event (PROGRESSION.md §4.4): the only way a formula becomes known.</summary>
+    /// <summary>A learning event (PROGRESSION.md Â§4.4): the only way a formula becomes known.</summary>
     public string? Handle(LearnTechnique command)
     {
         var result = ProgressionEngine.Learn(_context.State.Progression, command.Learning);
@@ -668,7 +675,7 @@ internal sealed class ProgressionSystem
 
 /// <summary>
 /// Owns: <see cref="StateSlice.Discoveries"/>. The Phase-1 subset of S-30: entering a named place's radius
-/// discovers it, once, and earns its discovery XP (PROGRESSION.md §3.3 <c>discovery</c>). Only places in tier-A
+/// discovers it, once, and earns its discovery XP (PROGRESSION.md Â§3.3 <c>discovery</c>). Only places in tier-A
 /// cells are checked; a place in a cell the simulation is not running cannot be walked into.
 /// </summary>
 internal sealed class DiscoverySystem
@@ -680,6 +687,18 @@ internal sealed class DiscoverySystem
     {
         _context = context;
         _owner = owner;
+    }
+
+    /// <summary>A page said where a place is: it joins the map as told, once, and nothing else about the world changes.</summary>
+    public string? Handle(TellOfPlace command, long tick)
+    {
+        var state = _context.State;
+        if (state.Discoveries.ContainsKey(command.LocationId))
+            return null;
+        if (_context.Setup.Sites(l => l.Locations).All(site => site.Site.Id != command.LocationId))
+            return $"{command.LocationId} is not a place any loaded region lays out";
+        state.AddDiscovery(_owner, new DiscoveryRecord(command.LocationId, DiscoveryMethod.Told, tick));
+        return null;
     }
 
     public void Tick(long tick)
@@ -768,7 +787,7 @@ internal sealed class TierSystem
     /// <summary>Who the world is simulated around at a tick: the character, and whoever else the observers name.</summary>
     public IReadOnlyList<TierObserver> Observers(long tick) => _observers.At(tick, _context.State.Body);
 
-    /// <summary>A hard boundary (a load, a new game): each cell settles directly, with no events (WORLD_ARCHITECTURE.md §5.1).</summary>
+    /// <summary>A hard boundary (a load, a new game): each cell settles directly, with no events (WORLD_ARCHITECTURE.md Â§5.1).</summary>
     public void Settle()
     {
         var observers = Observers(_context.State.WorldTick);

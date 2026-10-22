@@ -1,4 +1,4 @@
-// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md §4.5, §7, §8.1)
+﻿// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md Â§4.5, Â§7, Â§8.1)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -295,7 +295,7 @@ public sealed class Simulation
             world.Registry.CreateEntity(DefinitionId.Parse(entry.DefId), entry.ItemId);
         }
 
-        // The composition root: an explicit, ordered list, and every state slice claimed exactly once (§4.2, §5).
+        // The composition root: an explicit, ordered list, and every state slice claimed exactly once (Â§4.2, Â§5).
         _clock = new ClockSystem(_context, _state.Claim(nameof(ClockSystem), StateSlice.Clock));
         _movement = new MovementSystem(_context, _state.Claim(nameof(MovementSystem), StateSlice.PlayerBody), player.Id);
         _interaction = new InteractionSystem(_context, player.Id);
@@ -419,8 +419,8 @@ public sealed class Simulation
     }
 
     /// <summary>
-    /// A new character standing at the region's spawn point, with the starting package (PROGRESSION.md §5) and the
-    /// starting kit (PROTOTYPE.md §5 step 1: the sword equipped), and no Call.
+    /// A new character standing at the region's spawn point, with the starting package (PROGRESSION.md Â§5) and the
+    /// starting kit (PROTOTYPE.md Â§5 step 1: the sword equipped), and no Call.
     /// </summary>
     public static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, ulong appearanceSeed) =>
         NewCharacter(setup, id, name, null, appearanceSeed, null, null);
@@ -770,7 +770,7 @@ public sealed class Simulation
     /// <summary>Read-only: a wall, a structure or a closed door lies across the line - so an NPC beyond it is not spoken to (L-09).</summary>
     public bool Walled(long x0, long z0, long x1, long z1) => _context.Walled(x0, z0, x1, z1);
 
-    /// <summary>Which system owns each slice of state (ARCHITECTURE.md §5).</summary>
+    /// <summary>Which system owns each slice of state (ARCHITECTURE.md Â§5).</summary>
     public IReadOnlyDictionary<StateSlice, string> SliceOwners => _state.Owners;
 
     public IReadOnlyList<LoggedCommand> CommandLog => _log;
@@ -960,7 +960,7 @@ public sealed class Simulation
     }
 
     /// <summary>
-    /// The login grace (§2.12 item 6): for config.time's <c>login_grace_seconds</c> from now, creatures neither see nor hear the character,
+    /// The login grace (Â§2.12 item 6): for config.time's <c>login_grace_seconds</c> from now, creatures neither see nor hear the character,
     /// so nothing that came back while they were away is upon them before the world is on screen. Not saved: every login starts its own.
     /// </summary>
     public void BeginLoginGrace() => _creatures.BeginGrace(WorldTick + Setup.Offline.LoginGraceTicks);
@@ -1069,6 +1069,7 @@ public sealed class Simulation
         UnlockLore unlock => _lore.Handle(unlock, Now),
         ReadLore read => _lore.Handle(read, Now),
         TellLore tellLore => _lore.Handle(tellLore, Now),
+        TellOfPlace told => _discovery.Handle(told, Now),
         ChangePools pools => _progression.Handle(pools),
         PracticeSkill practice => _progression.Handle(practice),
         LearnTechnique learn => _progression.Handle(learn),

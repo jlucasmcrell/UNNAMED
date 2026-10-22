@@ -1,4 +1,4 @@
-﻿// UNNAMED World - lore: the pages a character finds, and what finding one is worth (spec 41; owner finding 41)
+// UNNAMED World - lore: the pages a character finds, and what finding one is worth (spec 41; owner finding 41)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -92,20 +92,14 @@ internal sealed class LoreSystem
         _context.State.SetLore(_owner, _context.State.Lore.Add(new LorePageRecord(entry.Id, page.Page, source, sourceRef, tick)));
         _context.Events.Publish(new LorePageUnlocked(entry.Id, page.Page, source, sourceRef, tick));
         _context.Dispatch(new AwardExperience(new XpAward(XpSource.Discovery, PageXp, tick)));
-        Told(page, tick);
+        if (page.TellsOfAPlace)
+            Told(page);
     }
 
     /// <summary>
-    /// A page that says where something is puts it on the map as told (spec 41; MAPS_CARTOGRAPHY_AND_WORLD_KNOWLEDGE.md Â§6: the job did not
-    /// change, the knowledge did). It is not a visit: no landmark banner is raised and no objective is met, because the character has been told,
-    /// not gone. The discovery record is the one the map already reads, so a save keeps it without a new shape.
+    /// A page that says where something is asks the discovery system to put it on the map as told (spec 41;
+    /// MAPS_CARTOGRAPHY_AND_WORLD_KNOWLEDGE.md §6: the job did not change, the knowledge did). The write belongs to the system that owns
+    /// discoveries, so being told cannot raise a landmark banner, meet an objective, or pay discovery XP: those belong to having gone.
     /// </summary>
-    private void Told(LorePageDefinition page, long tick)
-    {
-        if (!page.TellsOfAPlace || _context.State.Discoveries.ContainsKey(page.Reveals))
-            return;
-        if (_context.Setup.Layout.Locations.All(place => place.Id != page.Reveals))
-            return;
-        _context.State.AddDiscovery(_owner, new DiscoveryRecord(page.Reveals, DiscoveryMethod.Told, tick));
-    }
+    private void Told(LorePageDefinition page) => _context.Dispatch(new TellOfPlace(page.Reveals));
 }
