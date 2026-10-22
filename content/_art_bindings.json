@@ -3666,20 +3666,9 @@
         "scale": [
           0.42,
           0.5
-        ],
-        "shader": {
-          "hue_shift": 14,
-          "saturation": 1.2,
-          "value": 1.22,
-          "albedo_mul": [
-            1.22,
-            1.06,
-            0.82,
-            1.0
-          ]
-        }
+        ]
       },
-      "note": "A wolf's pup: the grey wolf at 0.42-0.5 of its size with a warm sandy coat, so the party's animal reads at heel and does NOT pass for a wild grey wolf. Not the ember hound - that one is a hostile with cracks of fire in it. Swap the model when a young hound is scanned."
+      "note": "A wolf's pup: the grey wolf at 0.42-0.5 of its size, so it reads as a young animal and never as the wild adult beside it (the presentation gives the party's animals a collar of their own). Not the ember hound - that one is a hostile with cracks of fire in it. Swap the model when a young hound is scanned."
     },
     "creature.beast.wolf_grey": {
       "model": "creature_wm_grey_wolf_b",

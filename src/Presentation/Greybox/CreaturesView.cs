@@ -68,6 +68,8 @@ public partial class CreaturesView : Node3D
                 figure.Name = creature.Id.Value;
                 AddChild(figure);
                 figure.Place(creature.Body);
+                if (creature.RoleId == "pet")
+                    figure.AddChild(Collar(definition.RadiusMm / 1000f));
                 _figures[creature.Id] = figure;
             }
             if (advanced)
@@ -120,6 +122,19 @@ public partial class CreaturesView : Node3D
             }
         }
     }
+
+    /// <summary>
+    /// The party's mark on a kept animal: a red collar at the neck, which is how a character's pup is told from the wild wolves it stands among.
+    /// A body, not a shader - it reads at any distance and cannot be mistaken for fur.
+    /// </summary>
+    private static MeshInstance3D Collar(float radius) => new()
+    {
+        Name = "PetCollar",
+        Mesh = new TorusMesh { InnerRadius = radius * 0.5f, OuterRadius = radius * 0.78f, Rings = 20, RingSegments = 10 },
+        MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.72f, 0.11f, 0.09f), Roughness = 0.7f },
+        Position = new Vector3(0, radius * 0.95f, -radius * 0.55f),
+        Rotation = new Vector3(1.25f, 0, 0),
+    };
 
     /// <summary>
     /// The party's animals as figures to draw: a kept animal is a pet, not a creature, so its species and body come from the pet itself. One

@@ -276,6 +276,8 @@ public partial class Main
                 // loses takes the whole rest of the pass with it (the 14:21 run bled out at the lure beat against three).
                 if (LoneWolf(simulation) is { } lone)
                     await GoTo(lone.Body, 5.0, 110);
+                if (LoneWolf(simulation) is { } close)
+                    await GoTo(close.Body, 2.0, 40);
                 // The bond, fed in pieces before the pack is met: a pup starts wary (20) and refuses a hard order - attack my target - until it
                 // trusts the hand (Sure, 60). Feeding is three a piece, so the animal that goes into the fight is one that will take the order.
                 int fed = 0;
