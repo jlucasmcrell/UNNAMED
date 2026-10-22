@@ -604,6 +604,20 @@ public partial class InventoryPanel : CanvasLayer
         var item = setup.Items.Catalog.Find(defId);
         var head = UiKit.Section(Names.Item(_session, defId, quality), item is null ? "" : Names.Words(item.Category));
         _details.AddChild(head);
+        if (_chosen is not null && simulation.Player.Inventory.FirstOrDefault(e => e.ItemId.Value == _chosen) is { } selected)
+        {
+            var salvage = simulation.Salvage(selected.ItemId);
+            string recovered = salvage.Materials.IsEmpty ? "no materials" : string.Join(", ", salvage.Materials.Select(m => $"{m.Count} {Names.Of(_session, m.ItemId)}"));
+            string label = salvage.Refusal is not null ? "Salvage" : "Salvage: " + recovered;
+            var dismantle = Button("salvage/" + selected.ItemId.Value, label, () => Submit(new SalvageCommand(simulation.PlayerId, selected.ItemId)));
+            dismantle.ClipText = true;
+            dismantle.Disabled = salvage.Refusal is not null;
+            dismantle.TooltipText = salvage.Refusal ?? $"Destroys one item. Recovers: {recovered}.";
+            _details.AddChild(dismantle);
+            if (salvage.Refusal is null)
+                _details.AddChild(UiKit.Quiet($"Salvage {salvage.Skill} · {salvage.RecoveryPercent}% recovery · destroys one item"));
+        }
+
         var grid = new GridContainer { Columns = _context.Visible ? 2 : 1 };
         grid.AddThemeConstantOverride("h_separation", 24);
         grid.AddThemeConstantOverride("v_separation", 2);
@@ -816,6 +830,7 @@ public partial class InventoryPanel : CanvasLayer
         row.Root.MouseFilter = Control.MouseFilterEnum.Pass;
         row.Root.MouseEntered += () => Choose(id);
         row.Root.SetMeta("item_definition", defId);
+        row.Root.SetMeta("item_reference", id);
         return row;
     }
 

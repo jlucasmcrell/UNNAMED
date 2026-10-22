@@ -108,6 +108,14 @@ internal sealed record ExchangeItems(ImmutableArray<StackTake> Takes, string? It
     public ImmutableArray<StashTake> StashTakes { get; init; } = ImmutableArray<StashTake>.Empty;
 }
 
+/// <summary>Several material outputs, checked together before an input is consumed.</summary>
+internal sealed record StackGive(string ItemId,int Count,int Quality=0);
+internal sealed record ExchangeItemBatch(ImmutableArray<StackTake> Takes,ImmutableArray<StackGive> Gives) : InternalCommand
+{
+    public NotableOrigin? Origin {get;init;}
+    public ImmutableArray<StashTake> StashTakes {get;init;}=ImmutableArray<StashTake>.Empty;
+}
+
 /// <summary>Some of a stack lying in a stash container to spend: <see cref="Ref"/> is the stack's item ID.</summary>
 internal sealed record StashTake(string ContainerKey, string Ref, int Count);
 
@@ -396,37 +404,42 @@ internal sealed partial class InventorySystem
     /// Spend carried stacks and receive the result (M3f): room and weight are judged with the spent stacks gone, and a refused
     /// exchange changes nothing. Equipped stacks are never spent.
     /// </summary>
-    public string? Handle(ExchangeItems command, long tick)
+    public string? Handle(ExchangeItems command,long tick) => Handle(new ExchangeItemBatch(command.Takes,
+        command.ItemId is { } id ? ImmutableArray.Create(new StackGive(id,command.Count,command.Quality)) : ImmutableArray<StackGive>.Empty)
+        {Origin=command.Origin,StashTakes=command.StashTakes},tick);
+
+    public string? Handle(ExchangeItemBatch command,long tick)
     {
-        ItemDefinition? definition = null;
-        if (command.ItemId is { } received && (definition = Items.Catalog.Find(received)) is null)
-            return $"{received} is not an item this build knows";
-        var remaining = State.Inventory.ToList();
-        long spentGrams = 0;
-        foreach (var take in command.Takes)
+        if(command.Gives.Any(g=>g.Count<1))return "An output count must be positive";
+        var gives=command.Gives.GroupBy(g=>(g.ItemId,g.Quality)).Select(g=>new StackGive(g.Key.ItemId,g.Sum(x=>x.Count),g.Key.Quality))
+            .OrderBy(g=>g.ItemId,StringComparer.Ordinal).ThenBy(g=>g.Quality).ToArray();
+        foreach(var give in gives)if(Items.Catalog.Find(give.ItemId) is null)return $"{give.ItemId} is not an item this build knows";
+        var remaining=State.Inventory.ToList();long spentGrams=0;
+        foreach(var take in command.Takes)
         {
-            int index = remaining.FindIndex(e => e.ItemId == take.ItemId);
-            if (index < 0 || take.Count < 1 || take.Count > remaining[index].Count || Worn(take.ItemId))
-                return $"{take.ItemId} cannot be spent";
-            spentGrams += (Items.Catalog.Find(remaining[index].DefId)?.WeightGrams ?? 0) * take.Count;
-            remaining[index] = remaining[index] with { Count = remaining[index].Count - take.Count };
+            int index=remaining.FindIndex(e=>e.ItemId==take.ItemId);
+            if(index<0 || take.Count<1 || take.Count>remaining[index].Count || Worn(take.ItemId))return $"{take.ItemId} cannot be spent";
+            spentGrams+=(Items.Catalog.Find(remaining[index].DefId)?.WeightGrams??0)*take.Count;
+            remaining[index]=remaining[index] with {Count=remaining[index].Count-take.Count};
         }
-        remaining.RemoveAll(e => e.Count == 0);
-        if (StashProblem(command.StashTakes) is { } stashRefused)
-            return stashRefused;
-        if (definition is not null)
+        remaining.RemoveAll(e=>e.Count==0);
+        if(StashProblem(command.StashTakes) is { } stashRefused)return stashRefused;
+        var more=new List<string?>();long addedGrams=0;
+        foreach(var give in gives)
         {
-            if (PackRoom(remaining, definition, command.Quality, command.Count) is { } full)
-                return full;
-            long weight = CarriedGrams() - spentGrams + definition.WeightGrams * command.Count;
-            long limit = CarryLimitGrams();
-            if (weight > limit)
-                return $"too heavy: {weight / 1000.0:0.##} kg of {limit / 1000.0:0.##} kg";
+            var definition=Items.Catalog.Find(give.ItemId)!;
+            int free=definition.Stacks?remaining.Where(e=>e.DefId==give.ItemId && e.Quality==give.Quality && !e.Junk).Sum(e=>Math.Max(0,definition.StackMax-e.Count)):0;
+            int needed=Stacks(Math.Max(0,give.Count-free),definition.StackMax).Count();
+            more.AddRange(Enumerable.Repeat(PackKinds.Of(definition),needed));addedGrams+=definition.WeightGrams*give.Count;
         }
-        Remove(command.Takes.Select(t => (State.Inventory.Single(e => e.ItemId == t.ItemId), t.Count)).ToList());
+        var bags=CleanBags(remaining,State.Bags);var worn=bags.OfType<EntityId>().Concat(State.Equipment.Values).ToHashSet();
+        if(!PackRules.Fits(remaining.Where(e=>!worn.Contains(e.ItemId)).Select(PackItemOf),more,ContainersOf(remaining,bags)))
+            return "No room in the pack for all recovered materials";
+        long weight=CarriedGrams()-spentGrams+addedGrams;
+        if(gives.Length>0 && weight>CarryLimitGrams())return $"too heavy: {weight/1000.0:0.##} kg of {CarryLimitGrams()/1000.0:0.##} kg";
+        Remove(command.Takes.Select(t=>(State.Inventory.Single(e=>e.ItemId==t.ItemId),t.Count)).ToList());
         SpendFromStash(command.StashTakes);
-        if (definition is not null)
-            Put(ItemPlace.Carried, definition, command.Count, null, command.Quality, null, command.Origin, tick);
+        foreach(var give in gives)Put(ItemPlace.Carried,Items.Catalog.Find(give.ItemId)!,give.Count,null,give.Quality,null,command.Origin,tick);
         return null;
     }
 

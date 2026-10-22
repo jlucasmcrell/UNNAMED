@@ -17,6 +17,8 @@ public static class FindingWords
     /// </summary>
     public static FindingLine Line(Finding finding, Func<string, string> name)
     {
+        if (finding.StationKind == "salvage")
+            return new($"Dismantling {name(finding.StationKey)} suggests {name(finding.RecipeId!)}", "A construction hint, recorded through Salvage.");
         string station = name(finding.StationKind).ToLowerInvariant();
         string materials = List(finding.Materials.Select(m => name(m).ToLowerInvariant()).ToList());
         return finding.Kind switch
@@ -30,6 +32,7 @@ public static class FindingWords
     /// <summary>The toast when a Finding is recorded: a found recipe is toasted as learned, so only the other two speak here.</summary>
     public static string? Toast(Finding finding, Func<string, string> name) => finding.Kind switch
     {
+        _ when finding.StationKind == "salvage" => "Salvage revealed a construction hint: noted under Recipes",
         FindingKind.Found => null,
         FindingKind.Hint => $"There is more to this at the {name(finding.StationKind).ToLowerInvariant()}: noted under Recipes",
         _ => $"Nothing came of it at the {name(finding.StationKind).ToLowerInvariant()}: noted under Recipes",

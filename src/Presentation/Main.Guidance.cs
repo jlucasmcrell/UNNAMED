@@ -122,6 +122,8 @@ public partial class Main
             Hint(HintTriggers.PromptShown);
         if (!combat.Defeated && combat.Health > 0 && combat.Health <= combat.MaxHealth * LowHealthShare)
             Hint(HintTriggers.HealthLow);
+        if (simulation.Pack.Used >= simulation.Pack.Capacity)
+            Hint(HintTriggers.PackFull);
         if (simulation.Player.CarriedGrams >= simulation.Player.CarryLimitGrams)
             Hint(HintTriggers.OverLimit);
         if (_inventory.OpenStation is not null)

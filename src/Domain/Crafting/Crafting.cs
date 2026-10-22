@@ -72,6 +72,12 @@ public static class Quality
 /// <summary>The tuning of crafting (<c>config.crafting</c>).</summary>
 public sealed record CraftingConstants
 {
+    public int SalvageBasePercent {get;init;}=25;
+    public int SalvagePercentPerSkill {get;init;}=2;
+    public int SalvageMaxPercent {get;init;}=75;
+    public int SalvageBrokenPercent {get;init;}=20;
+    public int SalvageHintPercent {get;init;}=5;
+
     /// <summary>At the recipe's complexity, this share of the work comes out a step finer.</summary>
     public int FinePercentAtComplexity { get; init; } = 10;
 

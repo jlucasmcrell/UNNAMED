@@ -169,7 +169,7 @@ internal sealed class GatheringSystem : IAbstractAdvance
 /// against the recipe's complexity. The work trains its skill through the difficulty gate; the first of each output also
 /// earns level XP, once (AG-7). No rank gates anything: a novice may try the hardest recipe and make something crude.
 /// </summary>
-internal sealed class CraftingSystem
+internal sealed partial class CraftingSystem
 {
     private const double SampleScale = 18446744073709551616.0;
 

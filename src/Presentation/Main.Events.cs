@@ -194,6 +194,12 @@ public partial class Main
                     _bindings.Stations.GetValueOrDefault(station.Kind)?.Sound is "anvil" or "forge", e.Quality);
             Notice(NoticeKind.Items, $"Made {Names.Item(_session, e.ItemId, e.Quality)}{(e.Count > 1 ? $" x{e.Count}" : "")}", 3);
         });
+        _session.Subscribe<ItemSalvaged>(e =>
+        {
+            _inventory.Refresh();
+            string recovered = e.Materials.IsEmpty ? "no usable materials" : string.Join(", ", e.Materials.Select(m => $"{m.Count} {Names.Of(_session, m.ItemId)}"));
+            Notice(NoticeKind.Items, $"Salvaged {Names.Of(_session, e.ItemId)}: {recovered}", 4);
+        });
         _session.Subscribe<FindingRecorded>(e =>
         {
             if (FindingWords.Toast(e.Finding, key => Names.Of(_session, key)) is { } said)

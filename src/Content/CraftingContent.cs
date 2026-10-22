@@ -101,6 +101,15 @@ public static class CraftingContent
             if (constants.MasterworkPercentOfFine is < 0 or > 100 || constants.MasterworkStationGrade < 1)
                 throw new FormatException("config.crafting masterwork: percent_of_fine in [0, 100], and station_grade_min at least 1 (an upgraded station)");
         }
+        if(config.GetValueOrDefault("salvage") is Dictionary<object,object> salvage)
+        {
+            constants=constants with {
+                SalvageBasePercent=Int(salvage,"base_percent"),SalvagePercentPerSkill=Int(salvage,"percent_per_skill"),
+                SalvageMaxPercent=Int(salvage,"max_percent"),SalvageBrokenPercent=Int(salvage,"broken_condition_percent"),SalvageHintPercent=Int(salvage,"hint_percent") };
+            if(constants.SalvageBasePercent is <0 or >100 || constants.SalvagePercentPerSkill<0 || constants.SalvageMaxPercent is <0 or >100
+                || constants.SalvageMaxPercent<constants.SalvageBasePercent || constants.SalvageBrokenPercent is <0 or >100 || constants.SalvageHintPercent is <0 or >100)
+                throw new FormatException("config.crafting salvage percentages must be0..100, with a nonnegative skill gain and max>=base");
+        }
         if (config.GetValueOrDefault("experiments") is Dictionary<object, object> experiments)
         {
             var counts = experiments.ToImmutableSortedDictionary(kv => kv.Key as string ?? "", kv => ParseCount(kv.Value, $"experiments.{kv.Key}"), StringComparer.Ordinal);

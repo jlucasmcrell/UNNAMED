@@ -33,6 +33,7 @@ public static class HintTriggers
     public const string PlayerDied = "player_died";
     public const string CreatureKilled = "creature_killed";
     public const string ItemPickedUp = "item_picked_up";
+    public const string PackFull = "pack_full";
     public const string OverLimit = "over_limit";
     public const string QuestStarted = "quest_started";
     public const string LevelUp = "level_up";
@@ -55,7 +56,7 @@ public static class HintTriggers
     public const string ReputationOpened = "reputation_opened";
 
     public static readonly ImmutableSortedSet<string> All = ImmutableSortedSet.Create(StringComparer.Ordinal,
-        NewGame, PromptShown, CreatureEngaged, HitTaken, HealthLow, PlayerDowned, PlayerDied, CreatureKilled, ItemPickedUp, OverLimit,
+        NewGame, PromptShown, CreatureEngaged, HitTaken, HealthLow, PlayerDowned, PlayerDied, CreatureKilled, ItemPickedUp, OverLimit, PackFull,
         QuestStarted, LevelUp, SkillPracticed, NodeGathered, StationOpened, TradeOpened, StoneTouched, FormulaLearned, CompanionRecruited,
         CompanionDowned, AwaySheet, HireOffered, PriceChanged, BarOpened, StashOpened, TrainerOpened, ItemWorn, ChatOpened, ReputationOpened);
 }

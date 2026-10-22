@@ -1,0 +1,10 @@
+id: hint.pack_full
+kind: hint
+schema: 1
+display_key: hint.pack_full.text
+tags: [hint]
+notes: "First full pack."
+category: bags
+trigger: pack_full
+order: 0
+text: "Pack full? Wear a bag for more space, sell unwanted gear, or Salvage spare equipment for materials and skill practice."

@@ -43,7 +43,8 @@ public class HintContentTests
         }
         foreach (string category in new[] { "social", "hiring", "identity" })
             Assert.Contains(hints.Values, h => h.Category == category);
-        Assert.Equal(HintTriggers.All.Count, 29);
+        Assert.Equal(30, HintTriggers.All.Count);
+        Assert.Contains(hints.Values, h => h.Trigger == HintTriggers.PackFull && h.Category == "bags");
     }
 
     [Fact]

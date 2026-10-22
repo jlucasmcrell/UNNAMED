@@ -28,3 +28,11 @@ drop_quality:
   - { level_min: 1, crude_percent: 30, fine_percent: 0 }
   - { level_min: 3, crude_percent: 20, fine_percent: 10 }
   - { level_min: 5, crude_percent: 10, fine_percent: 20 }
+
+# A fraction of authored recipe materials (or one repair-supply unit), scaled by skill and condition.
+salvage:
+  base_percent: 25
+  percent_per_skill: 2
+  max_percent: 75
+  broken_condition_percent: 20
+  hint_percent: 5

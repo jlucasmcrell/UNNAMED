@@ -1234,9 +1234,12 @@ public static class SectionCodec
         if (pack.Bags.Length != Domain.Items.PackLimits.BagSlots || placed.Count != dto.Inventory.Length || dto.Inventory.Any(e => !placed.ContainsKey(e.ItemId)))
             throw new FormatException($"the pack has {Domain.Items.PackLimits.BagSlots} bag slots and exactly one record for each carried stack");
         var wornBags = pack.Bags.Where(b => b is not null).Select(b => b!).ToList();
+        // Older saves may still place equipped gear in the backpack. New placement keeps it outside pack capacity.
+        var worn = wornBags.Concat(equipment.Select(e => e.ItemId)).ToHashSet(StringComparer.Ordinal);
         if (wornBags.Distinct(StringComparer.Ordinal).Count() != wornBags.Count || wornBags.Any(b => !placed.TryGetValue(b, out var at) || at.Bag != -1)
-            || placed.Values.Count(p => p.Bag == -1) != wornBags.Count || placed.Values.Any(p => p.Bag is < -1 or > Domain.Items.PackLimits.BagSlots || p.Slot < -1))
-            throw new FormatException("the pack's bag slots hold carried stacks that lie in no bag, each once, and every other stack lies in the backpack or a bag slot");
+            || placed.Values.Any(p => p.Bag == -1 && (!worn.Contains(p.ItemId) || p.Slot != -1))
+            || placed.Values.Any(p => p.Bag is < -1 or > Domain.Items.PackLimits.BagSlots || p.Slot < -1))
+            throw new FormatException("the pack's bag slots must name worn bags; only worn bags and equipped items may lie outside the pack");
         var sheets = dto.PartySheets ?? throw new FormatException("player.msgpack has no party sheets (required from schema 25)");
         var pronouns = PronounKeys.Parse(identity.Pronouns) ?? throw new FormatException($"player identity has pronouns '{identity.Pronouns}'");
         var stance = posture.Stance switch

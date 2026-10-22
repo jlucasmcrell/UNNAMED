@@ -1,0 +1,9 @@
+id: skill.salvage
+kind: skill
+schema: 1
+display_key: skill.salvage.name
+tags: [skill]
+name: Salvage
+family: crafting
+notes: Disassembling carried equipment recovers authored materials; skill and condition improve recovery.
+teaches: "Dismantle unwanted equipment to practise. Locked, worn and quest items are protected; repeated easy work teaches less."

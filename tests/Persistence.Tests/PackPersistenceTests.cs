@@ -91,4 +91,16 @@ public class PackPersistenceTests
         five.Pack!.Bags = new string?[5];
         Assert.Throws<FormatException>(() => SectionCodec.DecodePlayer(Bytes(five)));
     }
+    [Fact]
+    public void EquippedGearMayLieOutsidePackCapacity_ButAnUnwornStackMayNot()
+    {
+        var dto = Dto();
+        string id = dto.Equipment!.First().ItemId;
+        var at = dto.Pack!.Stacks.Single(p => p.ItemId == id);
+        at.Bag = -1; at.Slot = -1;
+        SectionCodec.DecodePlayer(Bytes(dto));
+        dto.Equipment = dto.Equipment.Where(e => e.ItemId != id).ToArray();
+        Assert.Throws<FormatException>(() => SectionCodec.DecodePlayer(Bytes(dto)));
+    }
+
 }

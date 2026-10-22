@@ -656,6 +656,7 @@ public sealed class Simulation
 
     /// <summary>What the character's experiments taught, oldest first (UI progression F).</summary>
     public ImmutableArray<Finding> Findings => _state.Findings;
+    public SalvageView Salvage(EntityId item) => _crafting.Salvage(item, WorldTick);
 
     /// <summary>The lore pages the character has found, in entry and page order (spec 41).</summary>
     public ImmutableArray<UNNAMED.Domain.Knowledge.LorePageRecord> Lore => _state.Lore;
@@ -843,6 +844,7 @@ public sealed class Simulation
                 LearnFromTeacherCommand learn => _teaching.Handle(learn, WorldTick),
                 GatherCommand gather => _gathering.Handle(gather, WorldTick),
                 CraftCommand craft => _crafting.Handle(craft, WorldTick),
+                SalvageCommand salvage => _crafting.Handle(salvage, WorldTick),
                 ExperimentCommand experiment => _crafting.Handle(experiment, WorldTick),
                 UseItemCommand use => _inventory.Handle(use, WorldTick),
                 TalkCommand talk => _dialogue.Handle(talk, WorldTick),
@@ -1132,6 +1134,7 @@ public sealed class Simulation
         DiscardContainer discard => _inventory.Handle(discard),
         ConsumeItem consume => _inventory.Handle(consume, Now),
         ExchangeItems exchange => _inventory.Handle(exchange, Now),
+        ExchangeItemBatch batch => _inventory.Handle(batch,Now),
         Trade trade => _inventory.Handle(trade, Now),
         RestockWares restock => _inventory.Handle(restock),
         MarketTrade trade => _markets.Handle(trade),

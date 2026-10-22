@@ -5738,6 +5738,7 @@
   "skill.force": "ui.skill.force",
   "skill.one_hand_blade": "ui.skill.one_hand_blade",
   "skill.smithing": "ui.skill.smithing",
+  "skill.salvage": "ui.skill.smithing",
   "skill.survival": "ui.skill.survival",
   "skill.handling": "ui.skill.survival",
   "item.misc.hound_pup": "ui.item.wolf_fang",

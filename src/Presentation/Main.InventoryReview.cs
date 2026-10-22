@@ -134,6 +134,33 @@ public partial class Main
             evidence.Add(new {stage="companion",npc=id,item=entry.ItemId.Value,entry.DefId,equipped=canEquip,player_loadout_restored=restoreSlot is not null,normal_commands=true,
                 distance_mm=sim.Companions.Single(c=>c.NpcId==id).Body.XMm-sim.Player.Body.XMm,tick=sim.WorldTick});
         }
+        if(OS.GetEnvironment("OTHERREACH_RCD6_SALVAGE_REVIEW")=="1")
+        {
+            CloseScreens();
+            var spare=sim.Player.Inventory.Where(e=>sim.Salvage(e.ItemId).Refusal is null)
+                .OrderByDescending(e=>sim.Salvage(e.ItemId).Materials.Sum(m=>m.Count)).FirstOrDefault();
+            if(spare is null)
+            {
+                var worn=sim.Player.Equipment.First(e=>UNNAMED.Domain.Crafting.SalvageRules.Plan(
+                    sim.Setup.Items.Catalog.Get(sim.Player.Inventory.Single(i=>i.ItemId==e.Value).DefId),sim.Setup.Crafting.Recipes.Values,sim.Setup.Items.Catalog)?.RecipeId is not null);
+                _session.Submit(new UnequipCommand(sim.PlayerId,worn.Key));await Rcd3Wait(.4);
+                spare=sim.Player.Inventory.Single(e=>e.ItemId==worn.Value);
+            }
+            _inventory.Open(null);await Rcd3Wait(.4);
+            var row=_inventory.FindChildren("*","",true,false).OfType<Control>().First(c=>c.HasMeta("item_reference") && c.GetMeta("item_reference").AsString()==spare.ItemId.Value);
+            row.EmitSignal(Control.SignalName.MouseEntered);await Rcd3Wait(.4);
+            var preview=sim.Salvage(spare.ItemId);
+            if(preview.Refusal is not null)throw new InvalidDataException(preview.Refusal);
+            await Rcd3Shot(directory,"salvage_before");
+            var action=_inventory.FindChildren("*","",true,false).OfType<Button>().First(b=>b.Text.StartsWith("Salvage:",StringComparison.Ordinal) && !b.Disabled);
+            var actionBounds=action.GetGlobalRect();
+            var detailsViewport=(ScrollContainer)_inventory.FindChild("ItemDetailViewport",true,false);
+            if(!detailsViewport.GetGlobalRect().Encloses(actionBounds))throw new InvalidDataException("Salvage action is outside the visible detail area");
+            action.EmitSignal(BaseButton.SignalName.Pressed);await Rcd3Wait(.7);
+            if(sim.Player.Inventory.Any(e=>e.ItemId==spare.ItemId))throw new InvalidDataException("Salvage did not consume the selected item");
+            await Rcd3Shot(directory,"salvage_after");
+            evidence.Add(new {stage="salvage",item=spare.ItemId.Value,spare.DefId,preview.Skill,preview.RecoveryPercent,preview.Materials,normal_command=true});
+        }
         if(sim.WorldTick<=began)throw new InvalidDataException("UI paused the world");
         File.WriteAllText(Path.Combine(directory,"inventory_review.json"),JsonSerializer.Serialize(new {from_tick=began,to_tick=sim.WorldTick,evidence},new JsonSerializerOptions{WriteIndented=true}));
         File.WriteAllText(Path.Combine(directory,"complete.json"),"{\"status\":\"UI_REQUIRES_VISUAL_REVIEW\"}");
