@@ -69,7 +69,13 @@ public partial class CreaturesView : Node3D
                 AddChild(figure);
                 figure.Place(creature.Body);
                 if (creature.RoleId == "pet")
-                    figure.AddChild(Collar(definition.RadiusMm / 1000f));
+                {
+                    // A skinned animal wears the band on its neck bone, so it turns with the head; a greybox one has no bone to hang it on.
+                    if (figure is Art.SkinnedCreature worn)
+                        worn.WearCollar();
+                    else
+                        figure.AddChild(Collar(definition.RadiusMm / 1000f));
+                }
                 _figures[creature.Id] = figure;
             }
             if (advanced)
@@ -130,9 +136,9 @@ public partial class CreaturesView : Node3D
     private static MeshInstance3D Collar(float radius) => new()
     {
         Name = "PetCollar",
-        Mesh = new TorusMesh { InnerRadius = radius * 0.5f, OuterRadius = radius * 0.78f, Rings = 20, RingSegments = 10 },
+        Mesh = new TorusMesh { InnerRadius = radius * 0.28f, OuterRadius = radius * 0.28f + 0.015f, Rings = 18, RingSegments = 8 },
         MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.72f, 0.11f, 0.09f), Roughness = 0.7f },
-        Position = new Vector3(0, radius * 0.95f, -radius * 0.55f),
+        Position = new Vector3(0, radius * 1.05f, -radius * 0.5f),
         Rotation = new Vector3(1.25f, 0, 0),
     };
 

@@ -255,6 +255,12 @@ public partial class Main
                     PetEvidence("wait here", "no animal is with the party: nothing to order");
                     break;
                 }
+                // Aimed at the open ground ahead first: the marker rings the point the camera names, and a capture that laid it at the forge
+                // put the camera on a table and a wall (measured 16:42).
+                if (simulation.Player.Body.FacingMdeg is var heading)
+                    _camera.Yaw = (float)Math.Atan2(-Math.Sin(heading / 1000.0 * Math.PI / 180), -Math.Cos(heading / 1000.0 * Math.PI / 180));
+                _camera.Pitch = -0.30f;
+                await Rcd3Wait(0.5);
                 OpenPetOrders();
                 await Rcd3Wait(1.2);
                 await PetStill("pets_marker");
@@ -282,14 +288,11 @@ public partial class Main
                 // a slice at a time is what ran the pass out of time before.
                 // ONE wolf, the loneliest one in sight: a character at level 1 with a sword cannot stand in a pack of four, and a fight it
                 // loses takes the whole rest of the pass with it (the 14:21 run bled out at the lure beat against three).
-                if (LoneWolf(simulation) is { } lone)
-                    await GoTo(lone.Body, 5.0, 110);
-                if (LoneWolf(simulation) is { } close)
-                    await GoTo(close.Body, 2.0, 40);
-                // The bond, fed in pieces before the pack is met: a pup starts wary (20) and refuses a hard order - attack my target - until it
-                // trusts the hand (Sure, 60). Feeding is three a piece, so the animal that goes into the fight is one that will take the order.
+                // The bond, fed BEFORE the walk: a pup that has just followed the character across the region is further than the feed's four
+                // metres, and every piece is refused in silence (measured 16:42: "Pup bond 20, fed 20 piece(s)"). Fed at heel, it counts.
                 int fed = 0;
                 while (fed < 20 && simulation.Pets.FirstOrDefault(p => p.Condition == PetCondition.Up) is { } fedPet && fedPet.Bond < 60
+                       && Distance(fedPet.Body, simulation.Player.Body) <= 3_500
                        && simulation.Player.Inventory.FirstOrDefault(e => e.DefId is RawMeat or RoastMeat) is { } piece)
                 {
                     _session.Submit(new FeedPetCommand(simulation.PlayerId, fedPet.Id, piece.ItemId));
@@ -297,8 +300,12 @@ public partial class Main
                     fed++;
                 }
                 PetEvidence("the bond", string.Join("; ", simulation.Pets.Select(p => $"{p.Name} bond {p.Bond}")) + $", fed {fed} piece(s)");
-                for (int round = 0; round < 16 && !simulation.Creatures.Any(c => c.Hostile); round++)
+                // The rouse, within reach: an approach that times out leaves the blade in empty air and the run reports "0 creatures fighting the
+                // party" (measured three times), so the wolf is walked to first and only struck from melee.
+                for (int round = 0; round < 20 && !simulation.Creatures.Any(c => c.Hostile) && LoneWolf(simulation) is { } wolf; round++)
                 {
+                    if (Distance(wolf.Body, simulation.Player.Body) > 2_200)
+                        await GoTo(wolf.Body, 2.0, 20);
                     _controller.Attack();
                     await Rcd3Wait(0.8);
                 }
@@ -559,7 +566,7 @@ public partial class Main
             _controller.Crouch(true);
             double heading = prey.Body.FacingMdeg / 1000.0 * Math.PI / 180;
             await ApproachPoint((prey.Body.XMm - Math.Sin(heading) * OfferWithinMetres * 1000) / 1000.0,
-                (prey.Body.ZMm - Math.Cos(heading) * OfferWithinMetres * 1000) / 1000.0, 0.7, 25);
+                (prey.Body.ZMm - Math.Cos(heading) * OfferWithinMetres * 1000) / 1000.0, 0.7, 45);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         }
         return Taken();

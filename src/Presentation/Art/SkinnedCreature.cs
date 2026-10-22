@@ -54,6 +54,32 @@ public sealed partial class SkinnedCreature : CreatureBody
         _yaw = Facing(body);
     }
 
+    /// <summary>
+    /// The party's mark on a kept animal: a thin red band round the neck, riding the neck bone so it follows the head, sized to the neck it
+    /// actually has (a quarter of that bone's length as the radius, the band a centimetre and a half thick). Not a life ring, and not a shader.
+    /// </summary>
+    public void WearCollar()
+    {
+        int neck = BoneNames.Find(_model.Skeleton, "neck");
+        if (neck < 0)
+            neck = BoneNames.Find(_model.Skeleton, "head");
+        if (neck < 0)
+            return;
+        int head = BoneNames.Find(_model.Skeleton, "head");
+        Vector3 at = _model.Skeleton.GetBoneGlobalRest(neck).Origin;
+        double length = head >= 0 ? at.DistanceTo(_model.Skeleton.GetBoneGlobalRest(head).Origin) : 0.18;
+        float radius = Mathf.Max(0.03f, (float)length * 0.25f);
+        if (_model.Attach(_model.Skeleton.GetBoneName(neck)) is not { } bone)
+            return;
+        bone.AddChild(new MeshInstance3D
+        {
+            Name = "PetCollar",
+            Mesh = new TorusMesh { InnerRadius = radius, OuterRadius = radius + 0.015f, Rings = 18, RingSegments = 8 },
+            MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.72f, 0.11f, 0.09f), Roughness = 0.65f },
+            Position = new Vector3(0, (float)length * 0.5f, 0),
+        });
+    }
+
     public override void Advance(Body body)
     {
         _previous = _current;
