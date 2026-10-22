@@ -390,6 +390,12 @@ public partial class Hud : CanvasLayer
         _companionIcon.Visible = _companionIcon.Texture is not null;
     }
 
+    /// <summary>The animals that travel with the character (spec 43): each pet's name, what it is doing, and how it stands.</summary>
+    public void SetPets(string? text, string? icon = null)
+    {
+        _view?.SetPets(text, icon);
+    }
+
     /// <summary>The quest tracker (content bible §19): optional and minimal, and out of the way of the debug overlay.</summary>
     public void SetTracker(string? text)
     {

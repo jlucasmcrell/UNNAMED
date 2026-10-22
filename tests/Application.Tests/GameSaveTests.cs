@@ -68,6 +68,8 @@ public class GameSaveTests
         (new Regex(@"^\$\.player\.SpaceTraversal$"), "null"),
         // Schema 31 (UI progression F): no experiment recorded what it came to, so no Finding.
         (new Regex(@"^\$\.player\.Findings$"), "[]"),
+        // Schema 36 (pets): no animal had joined the character, so no pets.
+        (new Regex(@"^\$\.player\.Pets$"), "[]"),
         // Schema 35 (lore): no page had been filed in the journal, so no lore.
         (new Regex(@"^\$\.player\.Lore$"), "[]"),
         // Schema 32 (action bars): the quick bar is twelve slots, the other five bars are empty, and no gear set was kept.
@@ -122,8 +124,8 @@ public class GameSaveTests
         // the faction ledger, and the economy and merchants.
         int members = expected["player"]!["Companions"]!.AsArray().Count;
         // ... and, schema 21, four fields each party member and the party's ledger; schema 23, the quick bar and its cleared record;
-        // schema 24, each stack's (empty) wear; schema 25, the party's sheets; schema 26, the NPCs' lives; schema 27, no attack under way; schema 29, the adventurers; schema 30, the space and the portal; schema 31, the Findings; schema 32, the further bars and the gear sets; and, schema 33, the bag slots and each stack's place, lock and junk mark; schema 34, the held weapon family and its layouts; and, schema 35, the empty lore.
-        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 1 + 2 + 4 * members + 1 + 2 + stacks + 1 + 1 + 1 + 1 + 2 + 1 + 2 + 1 + 4 * stacks + 3, differences.Count);
+        // schema 24, each stack's (empty) wear; schema 25, the party's sheets; schema 26, the NPCs' lives; schema 27, no attack under way; schema 29, the adventurers; schema 30, the space and the portal; schema 31, the Findings; schema 32, the further bars and the gear sets; and, schema 33, the bag slots and each stack's place, lock and junk mark; schema 34, the held weapon family and its layouts; schema 35, the empty lore; and, schema 36, the empty pets.
+        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 1 + 2 + 4 * members + 1 + 2 + stacks + 1 + 1 + 1 + 1 + 2 + 1 + 2 + 1 + 4 * stacks + 4, differences.Count);
 
         // And it plays on: a fixed stretch of ticks, then a walk to the Ashen Waystone, with no observer failing, no body inside anything,
         // Tavar still at the character's side and every quest still answering the debugger.

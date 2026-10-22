@@ -7,6 +7,7 @@ using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Pets;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Spatial;
@@ -118,6 +119,27 @@ internal sealed record CreatureState(
     public long DiedTick { get; init; }
     public long RespawnTick { get; init; }
 
+    /// <summary>
+    /// A lure has its attention (spec 43's control skill): until this tick it follows the decoy and does not notice the character. Runtime
+    /// only, like a blow in progress - a lure is a working of the moment, not a fact about the animal.
+    /// </summary>
+    public long DrawnUntil { get; init; }
+
+    /// <summary>
+    /// How much of an encounter this body is (spec 43 ruling 5): 100 is exactly as authored, and a party's presence scales what a
+    /// spawner places - its health, and the force of its blows. Derived when the world places it, so a save's wounded creature keeps
+    /// the body it was wounded at.
+    /// </summary>
+    public int ScalePercent { get; init; } = 100;
+
+    /// <summary>The levels the scale buys: what the nameplate shows and the reward honours (the fight is harder, not only longer).</summary>
+    public int LevelBonus { get; init; }
+
+    public double ScaleDamage => ScalePercent / 100.0;
+
+    /// <summary>The health this body was placed with: what the spawner authored, scaled by the party it was placed against.</summary>
+    public int ScaledMaxHealth => Math.Max(1, (int)Math.Round(Definition.MaxHealth * ScalePercent / 100.0));
+
     public bool Alive => Condition == CreatureCondition.Alive;
     public string CorpseKey => CreatureSystem.CorpseKeyOf(Key, Generation);
 }
@@ -152,6 +174,21 @@ internal sealed record CorpseEmptied(string CorpseKey) : InternalCommand;
 internal sealed record DiscardContainer(string Key) : InternalCommand;
 
 /// <summary>
+/// To <see cref="CreatureSystem"/>: a pet drew this creature off to a place (spec 43's control skill, the lure). It goes to look
+/// there and loses the character for a while - a lure is information pulled out of a fight, never damage.
+/// </summary>
+internal sealed record DrawCreature(EntityId Target, long XMm, long ZMm, long Ticks) : InternalCommand;
+
+/// <summary>To <see cref="CreatureSystem"/>: the animal has left the wild as the character's pet, and its slot stays empty.</summary>
+internal sealed record TakeCreature(EntityId Target) : InternalCommand;
+
+/// <summary>
+/// To <see cref="CreatureSystem"/>: something was reached for and refused - the creature has seen the character, and the next hand
+/// offered to it starts from further away.
+/// </summary>
+internal sealed record RouseCreature(EntityId Target) : InternalCommand;
+
+/// <summary>
 /// Owns: <see cref="StateSlice.Creatures"/> and the creature records of the world delta (S-23 and S-31). It places each
 /// spawner's creatures, lets them perceive - sight in a cone past no wall, and sound, each carrying only so far - and act
 /// on what they perceive, infer or are told through a call, in the manner of their role. There is no shared awareness:
@@ -180,6 +217,24 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// <summary>The creature the character struck within the focus window before <paramref name="tick"/>, still alive, or null.</summary>
     public string? PlayerFocus(long tick) =>
         _focusKey is { } key && tick - _focusTick <= PartyTactics.FocusWindowTicks && State.Creatures.TryGetValue(key, out var struck) && struck.Alive ? key : null;
+
+    /// <summary>
+    /// How much of an encounter a party meets (spec 43 ruling 5): null in a pack with no pets system, which leaves every spawner at the
+    /// numbers it authored. Asked each time the world places a creature, so an encounter is scaled to the party at that moment.
+    /// </summary>
+    public Func<EncounterScale>? Scale { get; set; }
+
+    /// <summary>Whether a spawn slot's animal has been taken as a pet, so it does not stand in the wild again (spec 43's taming).</summary>
+    public Func<string, bool>? TamedAway { get; set; }
+
+    private EncounterScale ScaleOf() => Scale?.Invoke() ?? EncounterScale.Authored;
+
+    /// <summary>An attack as a scaled body throws it: the same windup and reach, more force behind it.</summary>
+    private static AttackProfile Scaled(AttackProfile attack, int percent) => percent == 100 ? attack : attack with
+    {
+        DamageMin = Math.Max(1, (int)Math.Round(attack.DamageMin * percent / 100.0)),
+        DamageMax = Math.Max(1, (int)Math.Round(attack.DamageMax * percent / 100.0)),
+    };
 
     private sealed record TickSpace(Blocker[] Walls, Blocker[] Doors, Blocker[] People,
         Blocker[] CompanionBodies, NpcState[] Companions);
@@ -254,6 +309,10 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 var definition = Setup.Creatures[member.CreatureId];
                 var role = Setup.Roles.GetValueOrDefault(member.RoleId) ?? new CreatureRole(member.RoleId, UnawareBehaviour.Hold);
                 string key = $"{site.Key}#{i}";
+                // Taken as a pet (spec 43): the wild animal does not stand here again, and the empty slot is the player's own doing.
+                if (TamedAway?.Invoke(key) == true)
+                    continue;
+                var scale = ScaleOf();
                 var channel = RngChannel.Open(State.World.WorldSeed, cell, "spawn", key);
                 var others = State.Creatures.Values.Select(c => (Blocker)new CircleBlocker(c.Key, c.HomeXMm, c.HomeZMm, c.Definition.RadiusMm, 0)).ToList();
                 (long x, long z) = (site.XMm, site.ZMm);
@@ -271,7 +330,11 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 int facing = (int)(channel.UInt64(40) % 360_000);
                 var body = new Body(x, space.Terrain.HeightAtMm(x, z), z, facing);
                 var state = new CreatureState(Identity(key, 0), key, site, definition, role, x, z, facing, 0, CreatureCondition.Alive, body,
-                    definition.MaxHealth, ActionState.Idle, 0);
+                    Math.Max(1, (int)Math.Round(definition.MaxHealth * scale.HealthFactor)), ActionState.Idle, 0)
+                {
+                    ScalePercent = scale.Percent,
+                    LevelBonus = scale.Levels,
+                };
                 if (State.World.Creature(key) is { } record)
                 {
                     state = state with
@@ -502,7 +565,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         var player = State.Body;
         bool target = c.Site.Space == State.Space && !State.PlayerCombat.Defeated && !InGrace(tick);
         bool asleep = Asleep(c, tick);
-        double? seen = !asleep && target ? Perception.Sees(c.Body, senses, player.XMm, player.ZMm, Walls(c)) : null;
+        // A lure has it: it is watching where the decoy went, and the character is not what it is looking at (spec 43's control skill).
+        bool drawn = tick < c.DrawnUntil;
+        double? seen = !asleep && target && !drawn ? Perception.Sees(c.Body, senses, player.XMm, player.ZMm, Walls(c)) : null;
         // The character's stealth rank slows how fast a sighting registers (finding 26) - it never stops it (§20: no hidden flag).
         int awareness = Perception.Accrue(c.Awareness, seen, senses.SightMm, rules, TickMs, StealthAwarenessFactor());
         var next = c with { Awareness = awareness };
@@ -712,12 +777,12 @@ internal sealed class CreatureSystem : IAbstractAdvance
     {
         var foe = Foe(c);
         var player = foe.Body;
-        var attack = c.Definition.Attack;
+        var attack = Scaled(c.Definition.Attack, c.ScalePercent);
         // The character is gone after where they were last perceived; a companion who stands nearer is simply there (M6).
         long targetX = foe.Companion is null && c.Knows ? c.KnownXMm : player.XMm, targetZ = foe.Companion is null && c.Knows ? c.KnownZMm : player.ZMm;
         double distance = Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
         if (c.Definition.CloseAttack is { } close && distance <= close.ReachMm + _context.Setup.Movement.BodyRadiusMm - 100)
-            attack = close;
+            attack = Scaled(close, c.ScalePercent);
         double toKnown = Distance(c.Body.XMm, c.Body.ZMm, targetX, targetZ);
         int facing = CombatRules.FacingTowards(c.Body.XMm, c.Body.ZMm, targetX, targetZ);
         // A territory holds the line: past its edge the guardian goes back and faces the intruder from inside.
@@ -746,6 +811,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         if (_context.ControlOn(c.Id) != ControlKind.Roots && c.Definition.Charge is { } charge && foe.Companion is null && seesTarget && clear && tick >= c.NextChargeTick
             && distance >= charge.ChargeMinRangeMm && distance <= charge.ReachMm)
         {
+            charge = Scaled(charge, c.ScalePercent);
             var (dx, dz) = Direction(c.Body, player.XMm, player.ZMm);
             _context.Events.Publish(new AttackStarted(c.Id, charge.Source, charge.WindupTicks, charge.ActiveTicks, charge.RecoveryTicks, tick));
             return c with
@@ -969,9 +1035,13 @@ internal sealed class CreatureSystem : IAbstractAdvance
         var definition = c.Definition;
         if (definition.XpValue > 0 && killer == _player)
         {
-            _context.Dispatch(new AwardExperience(new XpAward(XpSource.Combat, definition.XpValue, tick)
+            // The reward honours the scale the creature was placed at (spec 43 ruling 5): it was a party's fight, so it is a party's worth of
+            // work and a party's worth of reward - its own value at the same percent, and the levels the scale bought, which is what the
+            // level-band guard reads. A solo character's kill is the authored one to the coin.
+            long worth = Math.Max(1, (long)Math.Round(definition.XpValue * c.ScalePercent / 100.0));
+            _context.Dispatch(new AwardExperience(new XpAward(XpSource.Combat, worth, tick)
             {
-                Kill = new KillContext(definition.Id, definition.Level, c.Site.Key),
+                Kill = new KillContext(definition.Id, definition.Level + c.LevelBonus, c.Site.Key),
             }));
         }
         long respawn = 0;
@@ -1026,8 +1096,13 @@ internal sealed class CreatureSystem : IAbstractAdvance
             }
             int generation = c.Generation + 1;
             var home = new Body(c.HomeXMm, _context.Setup.SpaceFor(c.Site.Space).Terrain.HeightAtMm(c.HomeXMm, c.HomeZMm), c.HomeZMm, c.HomeFacingMdeg);
+            var scale = ScaleOf();
             c = new CreatureState(Identity(c.Key, generation), c.Key, c.Site, c.Definition, c.Role, c.HomeXMm, c.HomeZMm, c.HomeFacingMdeg,
-                generation, CreatureCondition.Alive, home, c.Definition.MaxHealth, ActionState.Idle, 0);
+                generation, CreatureCondition.Alive, home, Math.Max(1, (int)Math.Round(c.Definition.MaxHealth * scale.HealthFactor)), ActionState.Idle, 0)
+            {
+                ScalePercent = scale.Percent,
+                LevelBonus = scale.Levels,
+            };
             _context.Events.Publish(new CreatureRespawned(c.Id, c.Key, generation, tick));
         }
         return c;
@@ -1084,6 +1159,55 @@ internal sealed class CreatureSystem : IAbstractAdvance
         return null;
     }
 
+    /// <summary>
+    /// A pet drew this creature off (spec 43's control skill): it goes to look where the decoy went and loses the character for a while.
+    /// Nothing is wounded by it - a lure moves information, not bodies, and an enemy that has followed one is not drawn again so soon.
+    /// </summary>
+    public string? Handle(DrawCreature command, long tick)
+    {
+        if (Find(command.Target) is not { Alive: true } c)
+            return "there is no such living creature";
+        Save(c with
+        {
+            Mind = c.Mind == CreatureMind.Engaged ? CreatureMind.Searching : c.Mind,
+            KnownXMm = command.XMm,
+            KnownZMm = command.ZMm,
+            Knows = false,
+            LastSeenTick = tick,
+            SearchUntil = tick + command.Ticks,
+            DrawnUntil = tick + command.Ticks,
+            Action = ActionState.Idle,
+        });
+        return null;
+    }
+
+    /// <summary>The animal has left the wild as a pet (spec 43's taming): its slot stays empty, and its record goes with it.</summary>
+    public string? Handle(TakeCreature command, long tick)
+    {
+        if (Find(command.Target) is not { } c)
+            return "there is no such creature";
+        State.RemoveCreatureRecord(_owner, c.Key);
+        State.RemoveCreature(_owner, c.Key);
+        return null;
+    }
+
+    /// <summary>Something was reached for and refused: it has seen the character, and it will not stand still for the next hand.</summary>
+    public string? Handle(RouseCreature command, long tick)
+    {
+        if (Find(command.Target) is not { Alive: true } c)
+            return "there is no such living creature";
+        Save(c with
+        {
+            Awareness = Math.Max(c.Awareness, Setup.Awareness.Suspicious),
+            Mind = c.Mind == CreatureMind.Unaware ? CreatureMind.Suspicious : c.Mind,
+            Knows = true,
+            KnownXMm = State.Body.XMm,
+            KnownZMm = State.Body.ZMm,
+            LastSeenTick = tick,
+        });
+        return null;
+    }
+
     // ── state ───────────────────────────────────────────────────────────────
 
     /// <summary>Keep the working state, and write its persistent part through to the world delta whenever that changes.</summary>
@@ -1098,7 +1222,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         long charge = alive && c.NextChargeTick > next ? c.NextChargeTick : 0;
         long immune = alive && c.StaggerImmuneUntil > next ? c.StaggerImmuneUntil : 0;
         bool staggered = alive && c.Action.Kind == ActionKind.Staggered && c.Action.PhaseAt(next, C).Phase == CombatPhase.Staggered;
-        bool baseline = c.Condition == CreatureCondition.Alive && c.Generation == 0 && c.Health == c.Definition.MaxHealth
+        bool baseline = c.Condition == CreatureCondition.Alive && c.Generation == 0 && c.Health == c.ScaledMaxHealth
                         && c.Body.XMm == c.HomeXMm && c.Body.ZMm == c.HomeZMm && c.Body.FacingMdeg == c.HomeFacingMdeg
                         && c.Mind == CreatureMind.Unaware && c.Awareness == 0 && !c.Knows && !c.HasCalled && charge == 0 && immune == 0 && !staggered;
         var existing = State.World.Creature(c.Key);
@@ -1260,17 +1384,17 @@ internal sealed class CreatureSystem : IAbstractAdvance
         var views = source.Values.Where(c => c.Site.Space == space).Select(c =>
         {
             var (phase, left) = c.Action.PhaseAt(tick, C);
-            return new CreatureView(c.Id, c.Key, c.Definition.Id, c.Role.Id, c.Body, c.Health, c.Definition.MaxHealth, phase, left, c.Condition,
+            return new CreatureView(c.Id, c.Key, c.Definition.Id, c.Role.Id, c.Body, c.Health, c.ScaledMaxHealth, phase, left, c.Condition,
                 c.Mind, c.Awareness, Asleep(c, tick))
             {
                 Generation = c.Generation, Peaceful = c.Role.Peaceful,
                 Rooted = c.Alive && _context.ControlOn(c.Id) == ControlKind.Roots,
                 Paralysed = c.Alive && State.Effects.GetValueOrDefault(c.Id, ImmutableArray<ActiveEffect>.Empty).Any(e => e.EffectId == "effect.paralyse"),
                 Poisoned = c.Alive && State.Effects.GetValueOrDefault(c.Id, ImmutableArray<ActiveEffect>.Empty).Any(e => e.EffectId == "effect.venom"),
-                Level = c.Definition.Level,
+                Level = c.Definition.Level + c.LevelBonus,
                 Huntable = c.Definition.LootTableId is not null,
                 Temperament = TemperamentRules.Of(c.Role.Peaceful, c.Role.AnswersCalls, c.Mind == CreatureMind.Engaged),
-                Threat = ThreatRules.Of(c.Definition.Level, State.Progression.Level),
+                Threat = ThreatRules.Of(c.Definition.Level + c.LevelBonus, State.Progression.Level),
                 AttackSource = c.Definition.CloseAttack is not null ? c.Action.Attack?.Source : null,
                 PhaseDurationTicks = c.Definition.CloseAttack is not null && c.Action.Attack is { } attack ? phase switch
                 {

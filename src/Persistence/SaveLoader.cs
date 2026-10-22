@@ -542,6 +542,16 @@ internal static class SaveLoader
                 lore.Add(resolved);
         }
 
+        // Pets (schema 36): an animal whose creature definition was removed goes with it; a renamed one follows its rename, so a pet keeps
+        // its own level, its skills and the bond it has built rather than being replaced by a stranger.
+        var pets = new List<PetRecord>();
+        foreach (var pet in player.Pets)
+        {
+            if (Resolve(pet.CreatureId, $"player pet ({pet.Name}, {pet.CreatureId})") is not { } creature)
+                continue;
+            pets.Add(pet with { CreatureId = creature });
+        }
+
         // The party ledger is set aside while the party is rewritten: a rename may bring the two together, which the record refuses.
         var rewritten = player with { Party = PartyLedger.Empty, PartySheets = ImmutableArray<PartySheet>.Empty };
         rewritten = rewritten.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values).WithEffects(effects.Values)
@@ -554,6 +564,7 @@ internal static class SaveLoader
                 Attack = attack,
                 Findings = findings.ToImmutableArray(),
                 Lore = lore.ToImmutableArray(),
+                Pets = pets.ToImmutableArray(),
             },
             new DeltaSnapshot(cells, entities.ToImmutable())
             {

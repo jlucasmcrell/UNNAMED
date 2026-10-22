@@ -126,6 +126,9 @@ public enum StateSlice
 
     /// <summary>The lore pages the character has unlocked (spec 41). Saved with the player (schema 35).</summary>
     Lore,
+
+    /// <summary>The animals that travel with the character (spec 43). Saved with the player (schema 36).</summary>
+    Pets,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -189,6 +192,7 @@ internal sealed class RuntimeState
         PartySheets = player.PartySheets.ToImmutableSortedDictionary(p => p.NpcId, p => p, StringComparer.Ordinal);
         Findings = player.Findings;
         Lore = player.Lore;
+        // The pets are placed by their own system, which reads the species and the body each one stands on out of content (spec 43).
     }
 
     public WorldDelta World { get; }
@@ -221,6 +225,10 @@ internal sealed class RuntimeState
     public ImmutableSortedDictionary<string, DeedTally> Deeds { get; private set; }
     public ImmutableArray<Finding> Findings { get; private set; }
     public ImmutableArray<LorePageRecord> Lore { get; private set; }
+
+    /// <summary>The animals that travel with the character, by instance (spec 43; part of the pets' slice, saved with the player).</summary>
+    public ImmutableSortedDictionary<string, PetState> Pets { get; private set; } =
+        ImmutableSortedDictionary.Create<string, PetState>(StringComparer.Ordinal);
     public long? WeatherCursor { get; private set; }
     public LfgState Lfg { get; private set; } = LfgState.Empty;
     public FactionLedger Factions { get; private set; }
@@ -606,6 +614,26 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Companions);
         Companions = Companions.SetItem(companion.NpcId, companion);
+    }
+
+    public void SetPet(SliceOwner owner, PetState pet)
+    {
+        Require(owner, StateSlice.Pets);
+        Pets = Pets.SetItem(pet.Key, pet);
+    }
+
+    /// <summary>Every pet at once - the world starting from a save, and nothing else.</summary>
+    public void SetPets(SliceOwner owner, ImmutableSortedDictionary<string, PetState> pets)
+    {
+        Require(owner, StateSlice.Pets);
+        Pets = pets;
+    }
+
+    /// <summary>An animal stops being a spawner's creature (spec 43's taming): it is the character's now, or it was taken and is gone.</summary>
+    public void RemoveCreature(SliceOwner owner, string key)
+    {
+        Require(owner, StateSlice.Creatures);
+        Creatures = Creatures.Remove(key);
     }
 
     /// <summary>Someone leaves the party (WP15a): dismissed, their contract over, gravely wounded or dead.</summary>

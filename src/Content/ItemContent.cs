@@ -203,6 +203,7 @@ public static class ItemContent
             Repair = repair,
             Bag = bag,
             PackKind = packKind,
+            PetCreature = map.GetValueOrDefault("pet_creature") as string,
         };
     }
 

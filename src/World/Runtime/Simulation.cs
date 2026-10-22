@@ -164,6 +164,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>The NPC adventurers' settlements, rules and hiring (<c>config.adventurers</c>; WP13); null in a pack with none.</summary>
     public AdventurerSetup? Adventurers { get; init; }
+
+    /// <summary>The pets' rules and the species a creature is a pet as (<c>config.pets</c> and the <c>pet:</c> blocks; spec 43); null in a pack with none.</summary>
+    public UNNAMED.Domain.Pets.PetSetup? Pets { get; init; }
 }
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>
@@ -249,6 +252,7 @@ public sealed class Simulation
     private readonly DurabilitySystem _durability;
     private readonly LadenSystem _laden;
     private readonly PartySheetSystem _sheets;
+    private readonly PetSystem _pets;
     private readonly ApprovalSystem _approval;
     private readonly LfgSystem _lfg;
     private readonly ChatSystem _chat;
@@ -335,6 +339,13 @@ public sealed class Simulation
         };
         _sheets = new PartySheetSystem(_context, _state.Claim(nameof(PartySheetSystem), StateSlice.PartySheets), player.Id);
         _sheets.Listen(bus);
+        // The party's animals (spec 43). Their own slice: an animal's body is its own, moved here, and its rules are their own.
+        _pets = new PetSystem(_context, _state.Claim(nameof(PetSystem), StateSlice.Pets), player.Id, player.Pets)
+        {
+            // Only the companions on their feet are worth anything to an encounter: one down and waiting to be helped up is not fighting.
+            Companions = () => _companions.Views().Count(c => c.Condition == CompanionCondition.Up),
+            PlayerFocus = () => _creatures.PlayerFocus(WorldTick),
+        };
         _spaces = new SpaceSystem(_context, _state.Claim(nameof(SpaceSystem), StateSlice.PlayerSpace), player.Id);
         // A loaded body stands where its save left it, and half of that is the space (the interior-space save extension). Without this the
         // ring's local coordinates load into the exterior - the Vestibule's (50, 84) would put a body in the Ashen
@@ -370,7 +381,7 @@ public sealed class Simulation
         // The abstract advance (WP11): the clock first, so every other system brings itself to the tick it reads. A new world system
         // that goes on while the character is away adds itself here. The party goes before the adventurers: an adventurer it lets go or
         // loses at a midnight of the absence takes up their life from that midnight, however the absence is split (T-22).
-        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _companions, _adventurers, _creatures, _effects, _gathering, _quests, _factions, _sheets, _approval, _npcs, _markets, _teaching, _durability, _laden, _lfg);
+        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _companions, _adventurers, _creatures, _effects, _gathering, _quests, _factions, _sheets, _approval, _npcs, _markets, _teaching, _durability, _laden, _lfg, _pets);
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
         _combat.Seed(player);
@@ -380,6 +391,11 @@ public sealed class Simulation
         _merchants.Populate();
         _companions.Populate();
         _npcs.SettleParty();
+        // The animals before the world they were taken out of: an encounter is scaled to the party as it stands, and an animal taken as a
+        // pet leaves its spawn slot empty instead of standing there again (spec 43).
+        _pets.Populate();
+        _creatures.Scale = () => _pets.Encounter;
+        _creatures.TamedAway = _pets.TamedAway;
         _creatures.Populate();
         _lfg.Populate();
         if (restoreAttempt) _creatures.RecoverLoadedAttempt();
@@ -647,6 +663,18 @@ public sealed class Simulation
     /// <summary>The character's companions (M6): the whole party - companions, hirelings and allies (WP15a).</summary>
     public ImmutableArray<CompanionView> Companions => _companions.Views();
 
+    /// <summary>The animals that travel with the character, on their feet or home badly wounded (spec 43).</summary>
+    public ImmutableArray<PetView> Pets => _pets.Views();
+
+    /// <summary>The pet rules (<c>config.pets</c>): the taming odds, the skills, the lure, the wound that sends one home, the encounter scale.</summary>
+    public UNNAMED.Domain.Pets.PetRules PetRules => _pets.Rules;
+
+    /// <summary>The offer of food under way on a creature, or null: what the HUD shows while the hand is held out.</summary>
+    public TameProgress? TameOf(EntityId creature) => _pets.Offer(creature);
+
+    /// <summary>What the party is worth to an encounter, in points: one a follower, a quarter a level past the first (owner ruling 5).</summary>
+    public double PartyStrength => _pets.StrengthPoints();
+
     /// <summary>The party's rules (<c>config.party</c>): its size, the grace on wages, the roles' terms. Null in a pack with none.</summary>
     public PartyRules? Party => Setup.Social.Party;
 
@@ -824,6 +852,10 @@ public sealed class Simulation
                 SellCommand sell => _trade.Handle(sell, WorldTick),
                 OrderCompanionCommand order => _companions.Handle(order, WorldTick),
                 ReviveCommand revive => _companions.Handle(revive, WorldTick),
+                TameCommand tame => _pets.Handle(tame, WorldTick),
+                AdoptPetCommand adopt => _pets.Handle(adopt, WorldTick),
+                OrderPetCommand petOrder => _pets.Handle(petOrder, WorldTick),
+                FeedPetCommand feed => _pets.Handle(feed, WorldTick),
                 HireCommand hire => _companions.Handle(hire, WorldTick),
                 DismissCommand dismiss => _companions.Handle(dismiss, WorldTick),
                 SetStanceCommand stance => _companions.Handle(stance, WorldTick),
@@ -879,6 +911,7 @@ public sealed class Simulation
             _laden.Tick(tick);
             _creatures.Tick(tick);
             _companions.Tick(tick);
+            _pets.Tick(tick);
             _approval.Tick(tick);
             _npcs.Tick(tick);
             _dialogue.Tick(tick);
@@ -1005,6 +1038,7 @@ public sealed class Simulation
             Attack = _combat.AttackUnderWay(),
             Findings = _state.Findings,
             Lore = _state.Lore,
+            Pets = _pets.Records(),
         };
     }
 
@@ -1087,6 +1121,9 @@ public sealed class Simulation
         WoundCreature wound => _creatures.Handle(wound, Now),
         HarmCreature harm => _creatures.Handle(harm, Now),
         HealCreature heal => _creatures.Handle(heal, Now),
+        DrawCreature draw => _creatures.Handle(draw, Now),
+        TakeCreature take => _creatures.Handle(take, Now),
+        RouseCreature rouse => _creatures.Handle(rouse, Now),
         ForgetPlayer forget => _creatures.Handle(forget),
         CorpseEmptied emptied => _creatures.Handle(emptied, Now),
         DiscardContainer discard => _inventory.Handle(discard),

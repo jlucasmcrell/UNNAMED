@@ -1,0 +1,13 @@
+id: item.misc.hound_pup
+kind: item
+schema: 1
+display_key: item.misc.hound_pup.name
+tags: [item]
+name: Hound Pup
+notes: A young hound on a lead, bought at the Ashen Hollow's stall - spec 43's reliable route, its temperament known because it was bred and handled here. Taking it in is the adoption; it grows into the grey wolf's animal over two days and fights beside the character in the meantime.
+category: misc
+stack_max: 1
+weight: 4.0
+value_base: 60
+item_class: notable
+pet_creature: creature.beast.hound_pup   # the animal it becomes when the character takes it in

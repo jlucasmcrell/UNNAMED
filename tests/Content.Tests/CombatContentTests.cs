@@ -103,7 +103,7 @@ public class CombatContentTests
         Assert.Equal(new[]
             {
                 "creature.beast.ash_ember_hound", "creature.beast.bristleback_boar", "creature.beast.buck", "creature.beast.cave_hunting_spider",
-                "creature.beast.chicken", "creature.beast.doe", "creature.beast.rabbit", "creature.beast.red_fox", "creature.beast.rooster",
+                "creature.beast.chicken", "creature.beast.doe", "creature.beast.hound_pup", "creature.beast.rabbit", "creature.beast.red_fox", "creature.beast.rooster",
                 "creature.beast.wolf_grey", "creature.beast.wolf_grey_alpha", "creature.construct.animated_armour",
                 "creature.construct.ring_custodian",
                 "creature.grazer.barrowback", "creature.grazer.fellhorn", "creature.undead.bone_walker_husk",

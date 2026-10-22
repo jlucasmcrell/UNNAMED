@@ -40,6 +40,7 @@ using V31 = UNNAMED.Persistence.Sections.V31;
 using V32 = UNNAMED.Persistence.Sections.V32;
 using V33 = UNNAMED.Persistence.Sections.V33;
 using V34 = UNNAMED.Persistence.Sections.V34;
+using V35 = UNNAMED.Persistence.Sections.V35;
 
 namespace UNNAMED.Persistence;
 
@@ -121,7 +122,8 @@ public static class SchemaMigrations
         new SchemaV31ToV32(),
         new SchemaV32ToV33(),
         new SchemaV33ToV34(),
-        new SchemaV34ToV35());
+        new SchemaV34ToV35(),
+        new SchemaV35ToV36());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -1925,7 +1927,7 @@ public sealed class SchemaV34ToV35 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V34.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new V35.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -1965,6 +1967,71 @@ public sealed class SchemaV34ToV35 : SchemaMigration
                 FamilyBars = old.FamilyBars,
                 FocusTargets = old.FocusTargets,
                 Lore = Array.Empty<LorePageDto>(),
+            }, options);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 35 to 36 (pets): the animals that travel with the character - the animal, its own name, role and order, the place that order
+/// named, how hurt it is, the bond it has built and the skills it has learnt - none of which any save before it recorded, so every older
+/// player has none. Every older field is copied one by one, since the frozen shape and the live DTO are different types.
+/// </summary>
+public sealed class SchemaV35ToV36 : SchemaMigration
+{
+    public override int From => 35;
+
+    public override string Summary => "schema 35 -> 36: the player keeps the animals that travel with it (none before)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
+        {
+            var old = MessagePackSerializer.Deserialize<V35.Player>(player, options);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            {
+                InstanceId = old.InstanceId,
+                Name = old.Name,
+                XMm = old.XMm,
+                YMm = old.YMm,
+                ZMm = old.ZMm,
+                AppearanceSeed = old.AppearanceSeed,
+                Inventory = old.Inventory,
+                Progression = old.Progression,
+                FacingMdeg = old.FacingMdeg,
+                Discoveries = old.Discoveries,
+                Equipment = old.Equipment,
+                Currency = old.Currency,
+                Effects = old.Effects,
+                Relationships = old.Relationships,
+                Conversations = old.Conversations,
+                Quests = old.Quests,
+                Companions = old.Companions,
+                Posture = old.Posture,
+                Waystones = old.Waystones,
+                ReturnPoint = old.ReturnPoint,
+                RoadsWalked = old.RoadsWalked,
+                Deeds = old.Deeds,
+                Identity = old.Identity,
+                Factions = old.Factions,
+                Party = old.Party,
+                QuickBar = old.QuickBar,
+                PartySheets = old.PartySheets,
+                Attack = old.Attack,
+                SpaceId = old.SpaceId,
+                SpaceTraversal = old.SpaceTraversal,
+                Findings = old.Findings,
+                ExtraBars = old.ExtraBars,
+                GearSets = old.GearSets,
+                Pack = old.Pack,
+                HeldFamily = old.HeldFamily,
+                FamilyBars = old.FamilyBars,
+                FocusTargets = old.FocusTargets,
+                Lore = old.Lore,
+                Pets = Array.Empty<PetDto>(),
             }, options);
         }
         document.Manifest["schema_version"] = To;

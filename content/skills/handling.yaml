@@ -1,0 +1,9 @@
+id: skill.handling
+kind: skill
+schema: 1
+display_key: skill.handling.name
+tags: [skill]
+name: Handling
+family: world
+notes: The taming skill (spec 43's Odds; PETS_ANIMALS_AND_ECOLOGY.md section 5). It levels with use like every other skill, and its levels buy the taming odds (config.pets per_handling_level) and nothing else. It is taught by the animal, not by a book - a failed attempt teaches less than a success, and an animal that turns on the character teaches most of all.
+teaches: "Reading an animal before you touch it - which way it will bolt, what it will take from a hand, and when to stop offering."

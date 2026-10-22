@@ -250,6 +250,11 @@ public class ContentLoader
             var loreErrors = LoreContent.Validate(this);
             _errors.AddRange(loreErrors);
             success &= loreErrors.Count == 0;
+
+            // Pets: the taming rules, the species a creature is a pet as, and what a party does to an encounter (PET codes; spec 43)
+            var petErrors = PetContent.Validate(this);
+            _errors.AddRange(petErrors);
+            success &= petErrors.Count == 0;
         }
         
         return success;

@@ -1,0 +1,31 @@
+id: creature.beast.hound_pup
+kind: creature
+schema: 1
+display_key: creature.beast.hound_pup.name
+tags: [creature]
+name: Hound Pup
+notes: A young hound of the hollow's own breeding - spec 43's first route, buy or raise. Sold at the waystation's market and raised from there; it is weak, it is steady-tempered because it was handled early, and it grows into the grey wolf's animal over two days of real time. It is not tamed - nobody has to creep up on a pup.
+family: beast
+archetype: predator
+level_band: [1, 1]
+pools: { health: 24, stamina: 40 }
+attributes: { might: 6, endurance: 6, agility: 10, precision: 7, will: 8, insight: 9, presence: 8 }
+attack_set: [ability.creature.wolf_bite]
+armor: { head: 0, torso: 1, limbs: 0 }   # still a pup's coat
+move_speed_m_s: 3.8
+body_radius_m: 0.30
+xp_value: 10
+perception: { sight_m: 18, hearing_m: 22, fov_deg: 140 }
+tier_hint: A
+tameable: false            # it comes from a stall, not the wild: tameable is a property of the animal you can creep up on
+pet:
+  name: Pup
+  role: fighter
+  skills: [bite, lure]
+  temperament: bold        # handled from birth, and not afraid of people
+  foods:
+    item.material.raw_meat: 15
+    item.consumable.roast_meat: 25
+  grows_into: creature.beast.wolf_grey   # the grown animal it becomes
+  grow_days: 2
+  home: location.outpost

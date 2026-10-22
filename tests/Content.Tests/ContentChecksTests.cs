@@ -180,7 +180,10 @@ public class ContentChecksTests : IDisposable
         var errors = Lint(("creatures/beast/wolf_grey.yaml", wolf));
 
         Assert.Contains(errors, e => e.Code == "SEM002" && e.Message.Contains("attributes.luck", StringComparison.Ordinal));
-        Assert.Contains(errors, e => e.Code == "SEM003" && e.Message.Contains(" tameable ", StringComparison.Ordinal));
+        // Spec 43: tameable is a yes or no now, and it is the pet block (PET001) that has to back it up - here there is none, so the
+        // animal is refused for the block it is missing rather than for being tameable at all.
+        Assert.DoesNotContain(errors, e => e.Code == "SEM003");
+        Assert.Contains(errors, e => e.Code == "PET001" && e.Message.Contains("tameable is true", StringComparison.Ordinal));
         Assert.DoesNotContain(errors, e => e.Code == "SEM001");
     }
 }

@@ -353,6 +353,12 @@ public sealed record ItemDefinition(
 
     /// <summary>The kind of thing it is for a specialised bag to take (<see cref="PackKinds"/>); null takes the default, material for a material.</summary>
     public string? PackKind { get; init; }
+
+    /// <summary>
+    /// A live animal carried on a lead (spec 43's buy route): the creature definition it becomes when the character takes it in. Null for
+    /// everything else a pack can hold.
+    /// </summary>
+    public string? PetCreature { get; init; }
 }
 
 /// <summary>The item definitions content defines, by ID.</summary>

@@ -4,7 +4,7 @@ schema: 1
 display_key: creature.beast.wolf_grey.name
 tags: [creature]
 name: Grey Wolf
-notes: The prototype's one archetype (PROTOTYPE.md §4.1) at its authored level. Dangerous in a pack by numbers and bleeding, never by a health pool.
+notes: The prototype's one archetype (PROTOTYPE.md §4.1) at its authored level. Dangerous in a pack by numbers and bleeding, never by a health pool. Spec 43 makes the grey wolf tameable - the hunter's hound is this animal, brought in with meat and a steady approach - and this is the pet it becomes when it is.
 family: beast
 archetype: predator
 level_band: [2, 2]
@@ -18,4 +18,13 @@ xp_value: 30
 loot_table: loot.wolf_grey # its corpse holds this until searched
 perception: { sight_m: 25, hearing_m: 30, fov_deg: 140 }   # sight in a cone, hearing all round (STEALTH §2)
 tier_hint: A
-tameable: false
+tameable: true             # spec 43: wolves are one of the tameable kinds; ember hounds and bosses are not
+pet:
+  name: Wolf
+  role: fighter            # the role its own kit is built around (owner ruling 3)
+  skills: [bite, lure]     # the fighting skill, and the control one: draw one creature off to a place the handler chose
+  temperament: wary
+  foods:                   # what it takes, and what one offer of it is worth in the odds (quality points)
+    item.material.raw_meat: 15
+    item.consumable.roast_meat: 25
+  home: location.outpost   # where it mends when it is badly wounded (owner ruling 1)

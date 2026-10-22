@@ -475,6 +475,45 @@ internal static class CanonicalState
                 json.WriteEndObject();
             }
             json.WriteEndArray();
+
+            // Schema 36 (pets): the animals that travel with the character, in instance order.
+            json.WriteStartArray("pets");
+            foreach (var pet in player.Pets)
+            {
+                json.WriteStartObject();
+                json.WriteString("id", pet.Id.Value);
+                json.WriteString("creature", pet.CreatureId);
+                json.WriteString("name", pet.Name);
+                json.WriteString("role", UNNAMED.Domain.Pets.PetKeys.Role(pet.Role));
+                json.WriteString("order", UNNAMED.Domain.Pets.PetKeys.Order(pet.Order));
+                json.WriteString("condition", UNNAMED.Domain.Pets.PetKeys.Condition(pet.Condition));
+                json.WriteNumber("x_mm", pet.XMm);
+                json.WriteNumber("z_mm", pet.ZMm);
+                json.WriteNumber("facing_mdeg", pet.FacingMdeg);
+                json.WriteNumber("health", pet.Health);
+                json.WriteNumber("bond", pet.Bond);
+                json.WriteNumber("level", pet.Level);
+                json.WriteString("space", pet.Space ?? "");
+                json.WriteString("tamed_from", pet.TamedFromKey ?? "");
+                json.WriteNumber("wait_x_mm", pet.WaitXMm);
+                json.WriteNumber("wait_z_mm", pet.WaitZMm);
+                json.WriteNumber("wounded_tick", pet.WoundedTick);
+                json.WriteNumber("recovers_at_tick", pet.RecoversAtTick);
+                json.WriteNumber("last_fed_tick", pet.LastFedTick);
+                json.WriteNumber("adopted_tick", pet.AdoptedTick);
+                json.WriteStartArray("skills");
+                foreach (var skill in pet.Skills)
+                {
+                    json.WriteStartObject();
+                    json.WriteString("skill", UNNAMED.Domain.Pets.PetKeys.Skill(skill.Kind));
+                    json.WriteNumber("level", skill.Level);
+                    json.WriteNumber("uses", skill.Uses);
+                    json.WriteEndObject();
+                }
+                json.WriteEndArray();
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
             json.WriteEndObject();
 
             json.WriteStartArray("cells");
