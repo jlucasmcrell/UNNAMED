@@ -103,14 +103,13 @@ public partial class Main
             }
             case 1:
             {
-                // The den's sleeper: creep up on it crouched, offer the meat, and hold. Nothing in the world is written by this - the offer,
-                // the channel, the odds and the roll are the pet system's own.
-                if (!await ApproachPoint(770, 692, 9.0, 120))
-                    throw new InvalidOperationException($"could not reach the pack; the character stands {PetWhere(simulation)}");
+                // The road's pack: creep up on a wolf crouched, offer the meat, and hold. The walker goes for the animal itself rather than a
+                // coordinate - a moving pack is what a fixed approach point fails at - and the offer, the channel, the odds and the roll are
+                // the pet system's own.
                 _controller.Crouch(true);
                 await Rcd3Wait(0.6);
                 await Rcd3Shot(_petShotsDirectory!, "pets_creeping");
-                if (!await Tame(90))
+                if (!await Tame(120))
                     GD.Print("PET_SHOTS: the offer did not take; carrying on with what the run has");
                 await Rcd3Wait(1.5);
                 await Rcd3Shot(_petShotsDirectory!, "pets_tamed");
@@ -141,7 +140,7 @@ public partial class Main
                 OpenPetOrders();
                 await Rcd3Wait(0.8);
                 OrderPet(PetOrder.LureToHere);
-                await Rcd3Wait(10.0);
+                await Rcd3Wait(6.0);
                 await Rcd3Shot(_petShotsDirectory!, "pets_lure");
                 PetEvidence("lure", string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Doing}, {p.Standing}")) +
                     $" | engaged: {simulation.Creatures.Count(c => c.Hostile)}");
@@ -153,7 +152,7 @@ public partial class Main
                 OpenPetOrders();
                 await Rcd3Wait(0.8);
                 OrderPet(PetOrder.Pull);
-                await Rcd3Wait(12.0);
+                await Rcd3Wait(8.0);
                 await Rcd3Shot(_petShotsDirectory!, "pets_pull");
                 PetEvidence("pull one", $"{simulation.Pets.Length} animal(s): " +
                     string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Doing}, {p.Standing}, {p.Health}")) +
@@ -164,7 +163,7 @@ public partial class Main
             {
                 // The fight: the animal bites what is fighting the party and is bitten back. A pet is never killed - at no health it goes home
                 // badly wounded (owner ruling 1) and the HUD says for how long.
-                for (int round = 0; round < 60 && simulation.Pets.Any(p => p.Condition == PetCondition.Up); round++)
+                for (int round = 0; round < 45 && simulation.Pets.Any(p => p.Condition == PetCondition.Up); round++)
                 {
                     if (simulation.Creatures.Any(c => c.Hostile))
                         _controller.Attack();

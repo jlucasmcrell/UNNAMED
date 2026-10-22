@@ -1395,6 +1395,9 @@ public partial class Main : Node3D
     /// <summary>What the run heard, for the harnesses: how much of the sound set played, and any family the mapping asked for that the set lacks.</summary>
     public override void _ExitTree()
     {
+        // The other half of a capture harness's question: this line is written on every orderly shutdown - a window close, or the game quitting
+        // itself - so a run whose log lacks it was killed from outside, and one whose log has it but no close request quit itself.
+        GD.Print($"CAPTURE exit tree at frame {Engine.GetFramesDrawn()} ({DateTimeOffset.Now:O})");
         _shadowLods.Unwatch();
         // Quitting while a save is being written finishes it first (P-01); its commit is atomic even if it were cut off.
         if (_session is not null && !_session.WaitForSaves(TimeSpan.FromSeconds(10)))
