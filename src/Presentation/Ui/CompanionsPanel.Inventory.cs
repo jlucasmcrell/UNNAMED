@@ -69,7 +69,8 @@ public partial class CompanionsPanel
         if(asked)
         {
             var kept=simulation.CaptureRecord().PartySheets.FirstOrDefault(s=>s.NpcId==id)?.Items.ToArray()??Array.Empty<InventoryEntry>();
-            leave.AddChild(UiKit.Words(kept.Length==0?"They will leave with no items you handed them.":"They will keep: "+string.Join(", ",kept.Select(ItemWords))+".",17,HudStyle.Brass));
+            var warning=UiKit.Words(kept.Length==0?$"{card.Name} will leave with no items you handed them.":$"{card.Name} will leave with: "+string.Join(", ",kept.Select(ItemWords))+".",17,HudStyle.Brass);
+            warning.Name="DismissKeptItemsWarning";leave.AddChild(warning);
             leave.AddChild(UiKit.Action("Cancel",()=>{_confirm=null;_drawn=null;},compact:true,id:$"{id}/canceldismiss"));
             leave.AddChild(UiKit.Action("Take items back",()=>{_confirm=null;_inventoryMode=true;_drawn=null;},compact:true,id:$"{id}/reviewkept"));
         }
@@ -80,5 +81,7 @@ public partial class CompanionsPanel
             _drawn=null;
         },UiKit.Kind.Destructive,id:$"{id}/dismiss");
         dismiss.Disabled=!card.CanDismiss;leave.AddChild(dismiss);parent.AddChild(leave);
+        // A requested confirmation belongs in view, above a long stats/gear list.
+        if(asked)parent.MoveChild(leave,0);
     }
 }

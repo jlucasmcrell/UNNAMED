@@ -109,7 +109,14 @@ public partial class Main
                     var slot=sim.Setup.Items.Catalog.Find(entry.DefId)!.Slot!.Value;
                     await Press($"{id}/unequip/{slot}");
                 }
-                await Press($"{id}/dismiss");await Rcd3Shot(directory,$"companion_{size.Y}_dismiss_warning");
+                await Press($"{id}/dismiss");
+                var warning=_companionsPanel.FindChild("DismissKeptItemsWarning",true,false) as Label
+                    ?? throw new InvalidDataException("Dismissal warning was not drawn");
+                var warningBounds=warning.GetGlobalRect();
+                var window=UiKit.SheetOf(_companionsPanel)!.Panel.GetGlobalRect();
+                if(!window.Encloses(warningBounds) || !warning.Text.Contains(Names.Item(_session,entry.DefId,entry.Quality),StringComparison.Ordinal))
+                    throw new InvalidDataException("Actual retained-item warning is outside the visible panel");
+                await Rcd3Shot(directory,$"companion_{size.Y}_dismiss_warning");
                 await Press($"{id}/reviewkept");
             }
             await Press($"{id}/takepack/{entry.ItemId}");

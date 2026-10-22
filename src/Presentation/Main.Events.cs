@@ -292,13 +292,33 @@ public partial class Main
             _inventory.Refresh();
             Notice(NoticeKind.Items, $"Sold {Names.Of(_session, e.ItemId)}{(e.Count > 1 ? $" x{e.Count}" : "")} for {e.Price}", 3);
         });
-        _session.Subscribe<RelationshipChanged>(e =>
-            _hud.Log($"{Names.Of(_session, e.NpcId)}: {e.Dimension} {(e.To >= e.From ? "+" : "")}{e.To - e.From}"));
+        _session.Subscribe<RelationshipChanged>(QueueRelationshipNotice);
         _session.Subscribe<CommandRejected>(e =>
         {
             if (e.Command is TalkCommand or ChooseCommand or BuyCommand or SellCommand)
                 _hud.Toast(e.Reason, 3);
         });
+    }
+
+    private readonly Dictionary<(string Npc,string Dimension),(int From,int To)> _relationshipNotices=new();
+    private bool _relationshipNoticeQueued;
+
+    // Catch-up can publish several days of loyalty in one frame. Show its net change once.
+    private void QueueRelationshipNotice(RelationshipChanged change)
+    {
+        var key=(change.NpcId,change.Dimension);
+        _relationshipNotices[key]=(_relationshipNotices.TryGetValue(key,out var previous)?previous.From:change.From,change.To);
+        if(_relationshipNoticeQueued)return;
+        _relationshipNoticeQueued=true;
+        Callable.From(()=>{
+            _relationshipNoticeQueued=false;
+            foreach(var (who,values) in _relationshipNotices)
+            {
+                int delta=values.To-values.From;
+                if(delta!=0)_hud.Log($"{Names.Of(_session,who.Npc)}: {who.Dimension} {(delta>0?"+":"")}{delta}");
+            }
+            _relationshipNotices.Clear();
+        }).CallDeferred();
     }
 
     /// <summary>Combat reads in words as well as poses: every blow, effect, kill and death goes to the log (ROADMAP.md M3c).</summary>
