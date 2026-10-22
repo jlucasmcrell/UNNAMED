@@ -16,6 +16,7 @@ namespace UNNAMED.Presentation.Art;
 /// </summary>
 public sealed partial class SkinnedFigure : Figure
 {
+    public override bool HasFootPlantEvents => _model.HasFootPlantEvents;
     private SkinnedModel _model = null!;
 
     /// <summary>The body's skeleton, for the skeleton modifiers (Phase B's foot planting and look-at).</summary>
@@ -45,6 +46,28 @@ public sealed partial class SkinnedFigure : Figure
     private bool _posed, _hasDirection;
     private IdleVariety _idles = null!;
     private string? _idleRole;
+    private string? _restPose;
+    public override bool SetRestPose(string? clip)
+    {
+        _restPose = clip is not null && _model.Has(clip) ? clip : null;
+        return _restPose is not null;
+    }
+    public override Vector3? RestContact
+    {
+        get
+        {
+            if (_restPose is null) return null;
+            Vector3 At(string name)
+            {
+                int bone=BoneNames.Find(Skeleton,name);
+                return bone>=0?Skeleton.GlobalTransform*Skeleton.GetBoneGlobalPose(bone).Origin:GlobalPosition;
+            }
+            var pelvis=At("pelvis");
+            if (_restPose!="lie_to_idle") return pelvis-Vector3.Up*(.085f*_uniformScale);
+            var centre=(At("head")+(At("foot.L")+At("foot.R"))*.5f)*.5f;
+            return new Vector3(centre.X,pelvis.Y-.115f*_uniformScale,centre.Z);
+        }
+    }
     public override void SetIdleRole(string? role) => _idleRole = role;
     public override void SetGaze(Vector3? target) => _face?.Gaze(target is { } at && Head is { } head ? GlobalBasis.Inverse() * (at - head).Normalized() : null);
     public override void SetMovementDirection(Vector3 direction) { if (direction.LengthSquared() > .001f) _moveDirection = direction.Normalized(); _hasDirection = true; }
@@ -74,6 +97,7 @@ public sealed partial class SkinnedFigure : Figure
         figure._idles = new IdleVariety(personId);
         model.IdleStartPhase = figure._idles.StartPhase;
         figure.AddChild(model);
+        model.FootPlanted+=figure.EmitFootPlant;
         figure._crouchHead=new CrouchHeadLift { Facing=figure,Influence=0 };
         model.Skeleton.AddChild(figure._crouchHead);
         var posture = new PostureModifier();
@@ -456,6 +480,13 @@ public sealed partial class SkinnedFigure : Figure
         if (_downed)
         {
             m.Play("death", 0.25f);
+            return;
+        }
+        if (speed < .25f && _restPose is { } resting)
+        {
+            _idles.Interrupt();
+            if (resting == "lie_to_idle") m.Hold(resting, 0, .3f);
+            else m.Play(_talking && m.Has("sit_talk") ? "sit_talk" : resting, .3f);
             return;
         }
         if (_striking > 0)

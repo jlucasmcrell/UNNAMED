@@ -18,6 +18,8 @@ var _sync: Node
 var _locomotion: Node
 var _animator: AnimationPlayer
 var _weapon_grip: SkeletonModifier3D
+signal foot_planted(clip: String, side: String, seconds: float)
+var has_foot_plants:=false
 var _body_meshes: Array[MeshInstance3D] = []
 var _load_failed := false
 var _seam_cache: Dictionary = {}
@@ -397,6 +399,10 @@ func _load_animation_library() -> bool:
 	_animator.root_node = NodePath("..")
 	_animator.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
 	_animator.add_animation_library("", library)
+	var plants:=preload("../Art/FootPlants.gd").new()
+	has_foot_plants=plants.configure(_animator,func():return _locomotion.dominant_clip() if _locomotion!=null and _locomotion.active else _current_clip)
+	if has_foot_plants:plants.planted.connect(func(clip,side,seconds):foot_planted.emit(clip,side,seconds))
+	else:plants.free()
 	_locomotion = load("res://Art/LocomotionBlend.gd").new()
 	_body.add_child(_locomotion)
 	_locomotion.configure(_animator, _config.get("animation_paces", {}), true, _config.get("animation_phases", {}))

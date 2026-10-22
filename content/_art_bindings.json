@@ -1528,6 +1528,10 @@
       "model": "prop_bp_bed_ah",
       "material": "wood"
     },
+    "ah_furn_longhouse_bed_keeper": {
+      "model": "prop_bp_bed_ah",
+      "material": "wood"
+    },
     "ah_furn_longhouse_table_01": {
       "model": "prop_cos_table_tavern_02_l120",
       "material": "wood"

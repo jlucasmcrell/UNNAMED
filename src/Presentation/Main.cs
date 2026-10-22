@@ -1499,6 +1499,7 @@ public partial class Main : Node3D
         var posture = simulation.Posture;
         _avatar.SetPosture(posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched, posture.Airborne);
         _avatar.SetMovementDirection(new Vector3(_controller.Intent.DirXPermille, 0, _controller.Intent.DirZPermille));
+        _soundEvents.ObserveFootPlants(_avatar,speed,posture.Airborne);
         _avatar.Pose(feet, PlayerController.FacingRadians(predicted.FacingMdeg), speed, delta);
         _camera.Crouch = _avatar.Crouch;
         Probe("avatar/world");

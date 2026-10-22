@@ -36,6 +36,21 @@ public partial class Main
             AddChild(camera);
             source.GetNode<OmniLight3D>("CharacterFill").Reparent(camera, false);
             camera.MakeCurrent();
+            if (OS.GetEnvironment("OTHERREACH_RCD6_FURNITURE")=="1")
+            {
+                await RunFurnitureReview(directory,camera);
+                if(OS.GetEnvironment("OTHERREACH_FOOTSTEP_AFTER_FURNITURE")=="1")
+                {
+                    _avatar.Visible=true;
+                    camera.GetNode<OmniLight3D>("CharacterFill").Reparent(_camera.Camera,false);
+                    _camera.Camera.MakeCurrent();
+                    string feetDirectory=OS.GetEnvironment("OTHERREACH_FOOTSTEP_CHAIN_OUT");
+                    if(!Path.IsPathFullyQualified(feetDirectory))throw new InvalidDataException("Footstep output must be absolute");
+                    Directory.CreateDirectory(feetDirectory);
+                    await RunFootstepReview(feetDirectory);
+                }
+                GetTree().Quit();return;
+            }
             if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD6_VISIBILITY") == "1")
             {
                 await RunRcd6VisibilityReview(directory, camera);

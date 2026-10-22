@@ -10,6 +10,7 @@ namespace UNNAMED.Presentation.MHCharacters;
 /// <summary>Native MetaHuman presentation. Simulation still owns movement and equipment.</summary>
 public sealed partial class MetaHumanFigure : Figure
 {
+    public override bool HasFootPlantEvents => _native is not null && _native.Get("has_foot_plants").AsBool();
     public const uint FillLayer = 1u << 19;
     public static string AssetRoot => System.Environment.GetEnvironmentVariable("OTHERREACH_MH_CHARACTERS_ROOT")
         ?? System.IO.Path.Combine(System.IO.Path.GetDirectoryName(OS.GetExecutablePath())!, "mh_characters");
@@ -40,9 +41,27 @@ public sealed partial class MetaHumanFigure : Figure
     private FaceDriver? _faceDriver;
     private IdleVariety _idles = null!;
     private string? _idleRole;
+    private string? _restPose;
+    public override bool SetRestPose(string? clip)
+    {
+        _restPose = clip is not null && Has(clip) ? clip : null;
+        return _restPose is not null;
+    }
     private string _identity = "";
     private string? _sex;
     public override void Say(string? line) => _faceDriver?.Say(line);
+    public override Vector3? RestContact
+    {
+        get
+        {
+            if (_restPose is null) return null;
+            var pelvis = _native.Call("bone_position", "pelvis").AsVector3();
+            if (_restPose != "lie_to_idle") return pelvis - Vector3.Up * .085f;
+            var centre = ((_native.Call("bone_position", "head").AsVector3()) +
+                (_native.Call("bone_position", "foot_l").AsVector3()+_native.Call("bone_position", "foot_r").AsVector3())*.5f)*.5f;
+            return new Vector3(centre.X,pelvis.Y-.115f,centre.Z);
+        }
+    }
     public override void SetIdleRole(string? role) => _idleRole = role;
     public override void SetGaze(Vector3? target) => _faceDriver?.Gaze(target is { } at && Head is { } head ? GlobalBasis.Inverse() * (at - head).Normalized() : null);
     private Vector3 _moveDirection;
@@ -90,6 +109,7 @@ public sealed partial class MetaHumanFigure : Figure
         AddChild(_native);
         if (!_native.Call("configure", AssetRoot, _configuration, _resources).AsBool())
             throw new InvalidDataException($"Native MetaHuman {CharacterId} failed to load");
+        _native.Connect("foot_planted",Callable.From<string,string,double>(EmitFootPlant));
         PeopleAppearance.EnsureSex(_native, _sex);
         _idles = new IdleVariety(_identity);
         _faceDriver = FaceDriver.Attach(_native, _identity);
@@ -216,6 +236,13 @@ public sealed partial class MetaHumanFigure : Figure
         if (!Has("idle")) return;
         if (speed > .25f || _downed || _talking || _airborne || (_stance.Holds != Held.Nothing || _equipped is not null)) _idles.Interrupt();
         if (_downed) { Play("death", .25f); return; }
+        if (speed < .25f && _restPose is { } resting)
+        {
+            _idles.Interrupt();
+            if (resting == "lie_to_idle") HoldClip(resting, 0, .3f);
+            else Play(_talking && Has("sit_talk") ? "sit_talk" : resting, .3f);
+            return;
+        }
         if (_striking > 0)
         {
             _striking += delta;

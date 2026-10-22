@@ -6,6 +6,7 @@ var paces: Dictionary
 var phases: Dictionary
 var active := false
 var direction := Vector2(0,1)
+var smoothed_direction := Vector2(0,1)
 var jog := 0.0
 var rate := 1.0
 
@@ -50,7 +51,16 @@ func configure(source: AnimationPlayer, measured: Dictionary, manual: bool = tru
  tree.root_node=tree.get_path_to(player.get_node(player.root_node))
  tree.tree_root=blend
  tree.callback_mode_process=AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL if manual else AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_IDLE
+ tree.callback_mode_method=AnimationMixer.ANIMATION_CALLBACK_MODE_METHOD_IMMEDIATE
  return true
+
+func dominant_clip() -> String:
+ var forward:=maxf(direction.y,0)
+ var weights={"walk":forward*(1-jog),"run":forward*jog,"walk_back":maxf(-direction.y,0),"strafe_left":maxf(direction.x,0),"strafe_right":maxf(-direction.x,0)}
+ var winner:="";var largest:=-1.0
+ for clip in weights:
+  if float(weights[clip])>largest:winner=clip;largest=float(weights[clip])
+ return winner
 
 func stride(state: String, fallback: float) -> float:
  return maxf(.1,float(paces.get(state,fallback))*player.get_animation(state).length)
@@ -68,7 +78,10 @@ func move(local_velocity: Vector2, delta: float) -> bool:
  # Unequal forward/back/side strides need inverse-stride weights to follow the actual travel heading.
  var wanted:=Vector2(local_velocity.x/side_stride,local_velocity.y/fore_stride)
  wanted/=maxf(.001,absf(wanted.x)+absf(wanted.y))
- direction=direction.lerp(wanted,smoothing) if active else wanted
+ # Preserve the unnormalised smoothing state. Projecting it back onto the
+ # diamond each frame prevents an opposite direction ever crossing zero.
+ smoothed_direction=smoothed_direction.lerp(wanted,smoothing) if active else wanted
+ direction=smoothed_direction
  direction/=maxf(.001,absf(direction.x)+absf(direction.y))
  var distance:=Vector2(direction.x*side_stride,direction.y*fore_stride).length()
  rate=speed/maxf(.1,distance)

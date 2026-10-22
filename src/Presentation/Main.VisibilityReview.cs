@@ -12,6 +12,10 @@ public partial class Main
         // Use the real gameplay camera, spring arm and shadow/cell updates.
         diagnostic.GetNode<OmniLight3D>("CharacterFill").Reparent(_camera.Camera, false);
         var camera = _camera.Camera;camera.MakeCurrent();
+        if(OS.GetEnvironment("OTHERREACH_FOOTSTEP_REVIEW")=="1")
+        {
+            await RunFootstepReview(directory);return;
+        }
         if(System.Environment.GetEnvironmentVariable("OTHERREACH_VISIBILITY_REALTIME_ROUTE")=="1")
         {
             await RunRcd6RealtimeRoute(directory);

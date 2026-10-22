@@ -4,6 +4,8 @@
 using Godot;
 using UNNAMED.Presentation.Player;
 using UNNAMED.World.Runtime;
+using UNNAMED.Domain.Social;
+using UNNAMED.Domain.Spatial;
 
 namespace UNNAMED.Presentation.Greybox;
 
@@ -25,6 +27,9 @@ public partial class NpcsView : Node3D
     private readonly Dictionary<string, Figure> _figures = new(StringComparer.Ordinal);
     private readonly Dictionary<string, GaitSpeed> _gaits = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _instances = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Vector3> _restOffsets = new(StringComparer.Ordinal);
+    private RegionLayout? _furnitureLayout;
+    private BoxBlocker[] _beds = [], _stools = [];
     private FoldEcho? _echo;
     private bool _echoTried;
     private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
@@ -63,6 +68,15 @@ public partial class NpcsView : Node3D
         var present = people.Select(n => n.Id).ToHashSet(StringComparer.Ordinal);
         foreach (string id in _figures.Keys.Where(id => !present.Contains(id)).ToArray())
             Forget(id);
+        if(!ReferenceEquals(_furnitureLayout,simulation.ActiveLayout))
+        {
+            _furnitureLayout=simulation.ActiveLayout;
+            var furniture=_furnitureLayout.Space.Blockers.OfType<BoxBlocker>().ToArray();
+            _beds=furniture.Where(b=>b.Id.Contains("_bed",StringComparison.Ordinal)).ToArray();
+            _stools=furniture.Where(b=>b.Id.Contains("_stool",StringComparison.Ordinal)).ToArray();
+            _restOffsets.Clear();
+        }
+        var occupiedFurniture = new HashSet<string>(StringComparer.Ordinal);
         foreach (var npc in people)
         {
             string instance = npc.InstanceId.ToString();
@@ -125,8 +139,14 @@ public partial class NpcsView : Node3D
             figure.SetPosture(held, false);
             figure.SetTalking(npc.Talking && !held);
             figure.Say(simulation.Conversation is { } talk && talk.NpcId == npc.Id ? talk.Text : Bark(simulation, npc, figure, feet, delta));
+            var furniture = FurnitureAt(simulation,npc,feet,speed,occupiedFurniture);
+            bool resting = figure.SetRestPose(furniture?.Clip);
             figure.Pose(feet, PlayerController.FacingRadians(npc.Body.FacingMdeg), speed, delta);
-            figure.SetGaze(feet.DistanceSquaredTo(PlayerHead.GlobalPosition) < 64 ? PlayerHead.GlobalPosition : null);
+            var wantedOffset = resting && furniture is { } support && figure.RestContact is { } contact ? support.Top-contact : Vector3.Zero;
+            var offset = _restOffsets.GetValueOrDefault(npc.Id).Lerp(wantedOffset,1-Mathf.Exp(-10*(float)delta));
+            _restOffsets[npc.Id]=offset;
+            figure.Position+=offset;
+            figure.SetGaze(furniture?.Clip!="lie_to_idle" && feet.DistanceSquaredTo(PlayerHead.GlobalPosition) < 64 ? PlayerHead.GlobalPosition : null);
             // Hide an intervening companion as a whole (including their outline/weapon). Keep
             // posing while hidden so they resume at the current gait when the camera moves away.
             if (simulation.Companions.Any(c => c.NpcId == npc.Id) && GetViewport().GetCamera3D() is { } camera)
@@ -181,6 +201,7 @@ public partial class NpcsView : Node3D
         }
         _instances.Remove(id);
         _gaits.Remove(id);
+        _restOffsets.Remove(id);
         _looks.Remove(id);
         _eyes.Remove(id);
         if (_barks.Remove(id, out var bark))
@@ -287,6 +308,30 @@ public partial class NpcsView : Node3D
     }
 
     /// <summary>A colour per person, from their ID, so each reads apart at a glance.</summary>
+    private (string Clip,Vector3 Top)? FurnitureAt(Simulation simulation,NpcView npc,Vector3 feet,float speed,HashSet<string> occupied)
+    {
+        if(speed>.2f || npc.Moving || npc.Downed || simulation.Companions.Any(c=>c.NpcId==npc.Id)) return null;
+        bool sleeping=npc.Activity==NpcActivities.Sleep;
+        if(npc.Role=="adventurer" && !npc.Talking && simulation.Setup.Adventurers is { } setup)
+        {
+            int hour=simulation.Setup.Clock.MinuteOfDay(simulation.WorldTick)/60;
+            sleeping=setup.Settlements.Values.Any(t=>t.Inn is { } inn &&
+                (inn.SleepFromHour>inn.BreakfastFromHour ? hour>=inn.SleepFromHour || hour<inn.BreakfastFromHour : hour>=inn.SleepFromHour && hour<inn.BreakfastFromHour) &&
+                inn.Beds.Any(b=>new Vector2(feet.X,feet.Z).DistanceTo(new Vector2(b.XMm/1000f,b.ZMm/1000f))<1.6f));
+        }
+        if(sleeping && npc.Talking) return null;
+        float reach=sleeping?1.65f:.85f;
+        var body=(sleeping?_beds:_stools)
+            .Where(b=>!occupied.Contains(b.Id))
+            .Select(b=>(Body:b,At:new Vector3((b.MinXMm+b.MaxXMm)/2000f,0,(b.MinZMm+b.MaxZMm)/2000f)))
+            .Where(b=>new Vector2(b.At.X-feet.X,b.At.Z-feet.Z).Length()<reach)
+            .OrderBy(b=>new Vector2(b.At.X-feet.X,b.At.Z-feet.Z).LengthSquared()).FirstOrDefault();
+        if(body.Body is null) return null;
+        occupied.Add(body.Body.Id);
+        float floor=simulation.ActiveLayout.Space.Terrain.HeightAtMm((long)(body.At.X*1000),(long)(body.At.Z*1000))/1000f;
+        return (sleeping?"lie_to_idle":"sit",body.At+Vector3.Up*(floor+body.Body.HeightMm/1000f));
+    }
+
     private static StandardMaterial3D Clothes(string npcId)
     {
         uint hash = 2166136261;

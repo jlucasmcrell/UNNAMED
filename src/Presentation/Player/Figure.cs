@@ -11,9 +11,16 @@ namespace UNNAMED.Presentation.Player;
 /// </summary>
 public abstract partial class Figure : Node3D
 {
+    public event Action<string,string,double>? FootPlanted;
+    public virtual bool HasFootPlantEvents => false;
+    protected void EmitFootPlant(string clip,string side,double seconds) => FootPlanted?.Invoke(clip,side,seconds);
     /// <summary>How far into a crouch the body is drawn, 0 standing to 1 crouched.</summary>
     public virtual void SetGaze(Vector3? worldTarget) { }
     public virtual void SetIdleRole(string? role) { }
+    /// <summary>A furniture idle, or null to resume movement; false if this cast lacks the authored clip.</summary>
+    public virtual bool SetRestPose(string? clip) => false;
+    /// <summary>The current pose's support point, in world space, for seating on furniture.</summary>
+    public virtual Vector3? RestContact => null;
     public virtual void SetMovementDirection(Vector3 worldDirection) { }
 
     public abstract float Crouch { get; }

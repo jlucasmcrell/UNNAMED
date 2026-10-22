@@ -6,9 +6,11 @@ from pipeline_paths import pipeline_root as _pipeline_root
 import unreal,json,traceback,os,struct,re
 from pathlib import Path
 root=Path((_pipeline_root().as_posix() + ''))
+inn_mode=os.environ.get('OTHERREACH_INN_CLIPS')=='1'
 grip_mode=os.environ.get('OTHERREACH_MH_HAND_GRIP')=='1'
+assert not inn_mode or not grip_mode,'Inn and grip batches must be separate'
 extra_mode=os.environ.get('OTHERREACH_MH_RCD3_CLIPS')=='1'
-out=root/'evidence'/('ue_native_animations_rcd3.json' if extra_mode else 'ue_native_weapon_grips.json' if grip_mode else 'ue_native_animations_extremities.json')
+out=root/'evidence'/('ue_native_inn.json' if inn_mode else 'ue_native_animations_rcd3.json' if extra_mode else 'ue_native_weapon_grips.json' if grip_mode else 'ue_native_animations_extremities.json')
 state=json.loads(out.read_text()) if out.exists() else {'characters':[]}
 def save(**kw):
  if kw.get('status')!='FAILED':state.pop('error',None)
@@ -34,7 +36,8 @@ try:
  'bow_ready':('kaykit_ranged','Ranged_Bow_Aiming_Idle'),'bow_draw':('kaykit_ranged','Ranged_Bow_Draw'),
  'bow_release':('kaykit_ranged','Ranged_Bow_Release'),'pick_up':('kaykit_general','PickUp'),
  'dodge':('kaykit_move','Dodge_Backward')}
- if extra_mode:clips={'strafe_left':('kaykit_move','Running_Strafe_Left'),'strafe_right':('kaykit_move','Running_Strafe_Right'),'walk_back':('kaykit_move','Walking_Backwards'),'idle_foldarms':('ual2','Idle_FoldArms_Loop'),'idle_shift':('ual2','Idle_No_Loop'),'idle_look':('kaykit_general','Idle_B')}
+ if inn_mode:clips={'sit_enter':('ual1','Sitting_Enter'),'sit':('ual1','Sitting_Idle_Loop'),'sit_talk':('ual1','Sitting_Talking_Loop'),'sit_exit':('ual1','Sitting_Exit'),'lie_to_idle':('ual2','LayToIdle')}
+ elif extra_mode:clips={'strafe_left':('kaykit_move','Running_Strafe_Left'),'strafe_right':('kaykit_move','Running_Strafe_Right'),'walk_back':('kaykit_move','Walking_Backwards'),'idle_foldarms':('ual2','Idle_FoldArms_Loop'),'idle_shift':('ual2','Idle_No_Loop'),'idle_look':('kaykit_general','Idle_B')}
  elif grip_mode:clips={'weapon_grip':('ual1','Sword_Idle')}
  elif os.environ.get('OTHERREACH_MH_ANIM_PROBE')=='1':clips={k:clips[k] for k in ['idle','walk','sword_attack_1']}
  catalog=json.loads((root/'runtime/catalog.json').read_text())

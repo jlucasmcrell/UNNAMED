@@ -17,6 +17,8 @@ public sealed partial class SkinnedModel : Node3D
     private bool _idlePhaseStarted;
     private Node? _locomotion;
     public IReadOnlyDictionary<string, float>? MotionPaces { get; private set; }
+    public bool HasFootPlantEvents { get; private set; }
+    public event Action<string,string,double>? FootPlanted;
     private Godot.Collections.Dictionary _contacts = new();
     private AnimationPlayer _player = null!;
 
@@ -85,6 +87,12 @@ public sealed partial class SkinnedModel : Node3D
             figure.ComparisonClips(assetId, library, skeletonPath, art.RiggedFile(assetId, assetId + "_rigged.glb"));
         player.AddAnimationLibrary("", library);
         figure._player = player;
+        var plants=GD.Load<GDScript>("res://Art/FootPlants.gd").New().As<Node>();
+        figure.HasFootPlantEvents=plants.Call("configure",player,Callable.From(()=>
+            figure._locomotion?.Get("active").AsBool()==true
+                ? figure._locomotion.Call("dominant_clip").AsString():figure.Current??"")).AsBool();
+        if(figure.HasFootPlantEvents)plants.Connect("planted",Callable.From<string,string,double>((clip,side,seconds)=>figure.FootPlanted?.Invoke(clip,side,seconds)));
+        else plants.Free();
         // Keep the opt-in interior's local player continuous through space changes; NPC visibility throttling remains.
         if (levels >= 4 && !(VisualOptions.Barrowworks && owner == "player"))
             figure.Throttle();
@@ -113,6 +121,8 @@ public sealed partial class SkinnedModel : Node3D
             _states.Add(clip);
         }
         MotionPaces = motion.GetMeta("motion_paces").AsGodotDictionary().ToDictionary(p => p.Key.AsString(), p => p.Value.AsSingle());
+        library.SetMeta("foot_plants_schema",motion.GetMeta("foot_plants_schema",0));
+        library.SetMeta("foot_plants",motion.GetMeta("foot_plants",new Godot.Collections.Dictionary()));
         _contacts = motion.GetMeta("motion_phases").AsGodotDictionary();
         GD.Print($"UNNAMED MPFB motion: {assetId}, {motion.GetAnimationList().Count} direct Epic target clips; no runtime retarget");
     }

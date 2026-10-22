@@ -93,7 +93,7 @@ func build() -> void:
      finger_worst=maxf(finger_worst,rad_to_deg(rest_rotation.angle_to(actual_rotation)))
    if finger_worst>.1:push_error("Excluded fingers not at native relaxed rest: "+id+" "+clip.logical+" "+str(finger_worst));quit(13);return
    reports.append({"clip":clip.logical,"excluded_fingers_max_rest_angle_degrees":finger_worst})
-   animation.loop_mode=Animation.LOOP_LINEAR if clip.logical in ["idle","walk","run","sprint","crouch_idle","crouch_walk","fall","sword_ready","sword_block","talk","spear_ready","bow_ready","strafe_left","strafe_right","walk_back","idle_foldarms","idle_look"] else Animation.LOOP_NONE
+   animation.loop_mode=Animation.LOOP_LINEAR if clip.logical in ["idle","walk","run","sprint","crouch_idle","crouch_walk","fall","sword_ready","sword_block","talk","spear_ready","bow_ready","strafe_left","strafe_right","walk_back","idle_foldarms","idle_look","sit","sit_talk"] else Animation.LOOP_NONE
    if library.has_animation(clip.logical): library.remove_animation(clip.logical)
    library.add_animation(clip.logical,animation)
    reports.append({"clip":clip.logical,"tracks":animation.get_track_count(),"seconds":animation.length,"max_rest_position_difference_m":worst})

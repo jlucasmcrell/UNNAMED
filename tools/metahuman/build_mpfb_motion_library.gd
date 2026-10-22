@@ -14,9 +14,14 @@ func glb(path: String) -> Node:
 func build():
  var folder=OS.get_environment("OTHERREACH_PIPELINE_ROOT").replace("\\","/")
  assert(folder.is_absolute_path())
- var manifest=JSON.parse_string(FileAccess.get_file_as_string(folder+"/evidence/ue_mpfb_motion.json"))
+ var manifest_name=OS.get_environment("OTHERREACH_MPFB_ANIM_MANIFEST")
+ if manifest_name.is_empty():manifest_name="ue_mpfb_motion.json"
+ var output_folder=OS.get_environment("OTHERREACH_MPFB_LIBRARY_FOLDER")
+ if output_folder.is_empty():output_folder="ue_libraries"
+ var source_folder=OS.get_environment("OTHERREACH_MPFB_LIBRARY_SOURCE").replace("\\","/")
+ var manifest=JSON.parse_string(FileAccess.get_file_as_string(folder+"/evidence/"+manifest_name))
  assert(manifest.status=="DONE")
- DirAccess.make_dir_recursive_absolute(folder+"/ue_libraries")
+ DirAccess.make_dir_recursive_absolute(folder+"/"+output_folder)
  var rows=[]
  for character in manifest.characters:
   var id=character.id
@@ -26,7 +31,9 @@ func build():
   var contacts={}
   var target=glb("D:/Otherreach_Scratch/rcd3_20261020/shared_fallback/rigged/"+id+"/"+id+"_rigged.glb");root.add_child(target)
   var target_rig:Skeleton3D=find_type(target,"Skeleton3D")
-  var library=AnimationLibrary.new()
+  var library=load(source_folder+"/"+id+"_motion.res").duplicate(true) as AnimationLibrary if not source_folder.is_empty() else AnimationLibrary.new()
+  if not source_folder.is_empty():
+   paces=library.get_meta("motion_paces",{});phases=library.get_meta("motion_phases",{});contacts=library.get_meta("foot_plants",{})
   for clip in character.clips:
    var source=glb(clip.path);root.add_child(source)
    var rig:Skeleton3D=find_type(source,"Skeleton3D")
@@ -75,7 +82,7 @@ func build():
      var t=animation.add_track(kind);animation.track_set_path(t,NodePath("Skeleton3D:"+bone))
      if kind==Animation.TYPE_POSITION_3D:animation.position_track_insert_key(t,0,rest.origin)
      else:animation.rotation_track_insert_key(t,0,rest.basis.get_rotation_quaternion())
-   animation.loop_mode=Animation.LOOP_LINEAR if clip.logical in ["idle","walk","run","sprint","crouch_idle","crouch_walk","fall","sword_ready","sword_block","talk","spear_ready","bow_ready","strafe_left","strafe_right","walk_back","idle_foldarms","idle_look"] else Animation.LOOP_NONE
+   animation.loop_mode=Animation.LOOP_LINEAR if clip.logical in ["idle","walk","run","sprint","crouch_idle","crouch_walk","fall","sword_ready","sword_block","talk","spear_ready","bow_ready","strafe_left","strafe_right","walk_back","idle_foldarms","idle_look","sit","sit_talk"] else Animation.LOOP_NONE
    if clip.logical in ["walk","run","sprint","walk_back","strafe_left","strafe_right","crouch_walk"]:
     # Measure the actual cleaned target-space animation, not the source-body cadence.
     var measurement=measure(animation,target_rig)
@@ -83,19 +90,20 @@ func build():
     phases[clip.logical]=measurement.phase
     contacts[clip.logical]=measurement.plants
 
+   if library.has_animation(clip.logical):library.remove_animation(clip.logical)
    library.add_animation(clip.logical,animation)
    rows.append({"id":id,"clip":clip.logical,"bones":rig.get_bone_count(),"rest_error_m":worst,"max_removed_nonroot_translation_m":stripped,"tracks":animation.get_track_count()})
    source.free()
   for pair in [["crouch_move","crouch_walk"],["block","sword_block"],["hit_react","hit"],["talk_idle","talk"],["attack","sword_attack_1"]]:
-   library.add_animation(pair[0],library.get_animation(pair[1]))
+   if not library.has_animation(pair[0]) and library.has_animation(pair[1]):library.add_animation(pair[0],library.get_animation(pair[1]))
   library.set_meta("target_body_sha256",FileAccess.get_sha256("D:/Otherreach_Scratch/rcd3_20261020/shared_fallback/rigged/"+id+"/"+id+"_rigged.glb"))
   library.set_meta("motion_paces",paces)
   library.set_meta("motion_phases",phases)
   library.set_meta("foot_plants",contacts)
   library.set_meta("route","Epic IK Retargeter -> native GLTFExporter -> direct target track copy; no Godot retarget")
-  assert(ResourceSaver.save(library,folder+"/ue_libraries/"+id+"_motion.res")==OK)
+  assert(ResourceSaver.save(library,folder+"/"+output_folder+"/"+id+"_motion.res")==OK)
   target.free()
- FileAccess.open(folder+"/evidence/ue_mpfb_motion_libraries.json",FileAccess.WRITE).store_string(JSON.stringify(rows,"  "))
+ FileAccess.open(folder+"/evidence/"+manifest_name.trim_suffix(".json")+"_libraries.json",FileAccess.WRITE).store_string(JSON.stringify(rows,"  "))
  print("UE_MPFB_MOTION_LIBRARIES_DONE ",rows)
  quit()
 

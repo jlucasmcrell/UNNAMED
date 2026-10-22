@@ -142028,6 +142028,14 @@ structures:
   - 437.38
   - 730.9
   height_m: 0.62
+# A separate cot for the keeper; the three west-wall beds belong to the adventurers.
+- id: ah_furn_longhouse_bed_keeper
+  box_m:
+  - 440.0
+  - 730.5
+  - 441.9
+  - 731.36
+  height_m: 0.62
 - id: ah_furn_longhouse_table_01
   box_m:
   - 442.0

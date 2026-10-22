@@ -27,7 +27,7 @@ func stage():
   var source="C:/Otherreach_Build/playtest_mh_rcd1_owner_wt/src/Presentation/Art/MPFBMotion/"+row.base+"_motion.res"
   var library=load(source).duplicate(true) as AnimationLibrary
   assert(library.get_meta("target_body_sha256")==FileAccess.get_sha256(base_path))
-  assert(library.get_animation_list().size()==37)
+  assert(library.get_animation_list().size()==42)
   library.set_meta("base_target_body_sha256",library.get_meta("target_body_sha256"))
   library.set_meta("target_body_sha256",FileAccess.get_sha256(row.path))
   library.set_meta("variant_base_rig",row.base)
@@ -35,7 +35,7 @@ func stage():
   var repo="C:/Otherreach_Build/playtest_mh_rcd1_owner_wt/src/Presentation/Art/MPFBMotion/"+row.id+"_motion.res"
   assert(ResourceSaver.save(library,repo)==OK)
   assert(ResourceSaver.save(library,root_path+"/ue_libraries/"+row.id+"_motion.res")==OK)
-  report.append({"id":row.id,"base":row.base,"bones":53,"rest_error_m":worst,"states":37,"body_sha256":FileAccess.get_sha256(row.path),"route":"Original exact Epic target tracks on verified identical MPFB rig; geometry-only MPFB face variants"})
+  report.append({"id":row.id,"base":row.base,"bones":53,"rest_error_m":worst,"states":42,"body_sha256":FileAccess.get_sha256(row.path),"route":"Original exact Epic target tracks on verified identical MPFB rig; geometry-only MPFB face variants"})
   actor.free();base.free()
  assert(report.size()==10)
  FileAccess.open(root_path+"/evidence/mpfb_named_staging.json",FileAccess.WRITE).store_string(JSON.stringify(report,"  "))

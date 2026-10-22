@@ -8,6 +8,7 @@ using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Presentation.Art;
 using UNNAMED.Presentation.Greybox;
+using UNNAMED.Presentation.Player;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
 
@@ -53,6 +54,28 @@ public partial class SoundEvents : Node
     private string? _wielded;
     private bool _wieldedKnown;
     private double _clock;
+    private Figure? _stepFigure;
+    private float _stepSpeed;
+    private bool _stepAirborne;
+
+    public void ObserveFootPlants(Figure figure,float speed,bool airborne)
+    {
+        _stepSpeed=speed;_stepAirborne=airborne;
+        if(_stepFigure==figure)return;
+        if(_stepFigure is not null)_stepFigure.FootPlanted-=OnFootPlant;
+        _stepFigure=figure;figure.FootPlanted+=OnFootPlant;
+        _walked=0;
+    }
+
+    private void OnFootPlant(string clip,string side,double seconds)
+    {
+        if(_bank.Count==0 || _stepFigure is null || _stepAirborne || _stepSpeed<=.3f)return;
+        var feet=_stepFigure.GlobalPosition;string surface=Surface(feet);
+        string gait=_crouched && _bank.Has($"sfx.player.footstep.{surface}.crouch")?"crouch":_stepSpeed>RunSpeed?"run":"walk";
+        bool played=_bank.Play($"sfx.player.footstep.{surface}.{gait}",feet);
+        if(OS.GetEnvironment("OTHERREACH_FOOTSTEP_REVIEW")=="1")
+            GD.Print("FOOT_PLANT_AUDIO "+System.Text.Json.JsonSerializer.Serialize(new{clip,side,contact_seconds=seconds,played,ticks_usec=Time.GetTicksUsec()}));
+    }
 
     public void Bind(GameSession session, ArtBindings bindings, SoundBank bank, GroundField? ground)
     {
@@ -109,7 +132,7 @@ public partial class SoundEvents : Node
             _airborneFor = 0;
             _walked += moved < 2f ? moved : 0;
             bool run = speed > RunSpeed;
-            if (speed > 0.3f && _walked >= (run ? RunStride : Stride))
+            if (_stepFigure?.HasFootPlantEvents!=true && speed > 0.3f && _walked >= (run ? RunStride : Stride))
             {
                 _walked = 0;
                 string gait = _crouched && _bank.Has($"sfx.player.footstep.{surface}.crouch") ? "crouch" : run ? "run" : "walk";
