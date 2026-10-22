@@ -72,6 +72,16 @@ nodes:
       - id: work
         text: "Any work going?"
         next: work
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_the_crags_p2
+        text: "Tell me about the south crags"
+        next: tell_the_crags_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_iron_p2
+        text: "Tell me about iron"
+        next: tell_iron_p2
+
       - id: leave
         text: "Nothing today."
       - id: story_packing
@@ -220,6 +230,22 @@ nodes:
     - id: back
       text: I will inspect it myself.
       next: again
+  tell_the_crags_p2:
+    text: "Durn Skell works the seam at the crags' west end, and he says it in few words. Iron, our own: three good strikes, then it is done, so do not waste them. His father took iron off that face, and his father before him, and after Durn the village buys its iron off the road - there is no second seam in the basin. And something walks the foot of the crags at night, he says, east of the seam where the stone is rotten. It does not hurry. Neither, he adds, do you."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.the_crags }]
+        next: again
+
+  tell_iron_p2:
+    text: "Durn Skell works the Cairnwold seam and counts it in strikes. Three, he says, or four, and then it is done. His father took iron off that face, and his father before him, and after him the village buys its iron off the road. There is no second seam in the basin, and he does not say it sadly, only as a fact a smith keeps track of. Do not waste them, he says, and then the hammer comes down again, and the counting goes on. He works while he talks, and he is watching the last of the village's own iron run out."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.iron }]
+        next: again
+
 barks:
   - { text: "Mind the sparks." }
   - { text: "Hm." }

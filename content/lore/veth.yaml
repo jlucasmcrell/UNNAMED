@@ -1,0 +1,41 @@
+id: lore.veth
+kind: lore
+schema: 1
+display_key: lore.veth.title
+tags: [lore, peoples]
+title: The Veth
+category: peoples
+notes: "Written from docs/MYTHOLOGY.md §Veth and docs/RACES.md §1 — native to this Pacha, changed by the last Pachakuti to learn faster and forget quicker, the majority and the road-builders, whose sacred act is keeping and whose heresy is the claim of descent. In-world, page 1 is a scholar's page (readable.veth) and page 2 is Renn Vale's own telling (dialogue.ashen_hollow.renn_vale). Page 3 is the rumour of arrival (readable.veth_ii)."
+pages:
+  - page: 1
+    text: >
+      The Veth are the people this country belongs to, insofar as anyone belongs to it. They were here before the
+      last Pachakuti, and the turn passed through them and left them changed: they take up a craft in weeks that
+      would cost another people seasons, and they forget it again nearly as fast. So what they keep, they keep on
+      paper and in oaths rather than in the head. They are the majority, and the ones who built the roads every
+      other people walks, and they rarely think about what that means, because a Veth has never had cause to leave
+      the one world and no word for wanting to. Their one heresy is the claim of descent — that some Veth lines are
+      purer than others for having been less changed. It is unfalsifiable, and it has started wars.
+    sources:
+      - { how: inspected, ref: readable.veth }
+  - page: 2
+    text: >
+      The steward of the waystation puts it in his own words, to anyone who writes a name in his book. We Veth keep
+      things, he says — roads, promises, people who turn up. He does not call it faith and he does not need to:
+      keeping is the act itself, a duty carried the way another people carries a prayer. The book by his door holds
+      every guest's name and road, and he will read a line back to you if you think you have been misremembered.
+      That is the whole of his people's religion in one ledger, and it asks nothing of the dead and nothing of any
+      maker. It only asks that the thing be written, and that the writing be kept.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.renn_vale }
+  - page: 3
+    text: >
+      The other telling, and it is not the Veth's own. The Veth hold they were always here, native to this
+      Pacha, changed by the last turn and never moved by it. There is a rumour, kept low and never written in the
+      lodge book, that they were not always the majority, that they arrived, and then rewrote the account so it
+      looked as if the country had always been theirs. It is unfalsifiable, like their own heresy of descent, and
+      it has the same shape: a people who keep everything in writing, accused of having written themselves a
+      beginning. Renn Vale does not tell it. The book by his door does not carry it. It persists anyway, in the
+      margins, where the records are not.
+    sources:
+      - { how: inspected, ref: readable.veth_ii }

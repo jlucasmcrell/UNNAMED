@@ -1,0 +1,18 @@
+id: lore.fixture_vale
+kind: lore
+schema: 1
+display_key: lore.fixture_vale.title
+tags: [fixture]
+title: The Vale
+category: places
+notes: Historical-fixture content for the save migration tests. Not game content.
+pages:
+  - page: 1
+    text: >
+      The wolves den in the mouth of a cave above the vale, and the road that runs past it is the
+      only way a traveller comes in. The vale itself is a stretch of ground between the ridge and
+      the river, where the fixture world's ten cells lie, and its one settlement sits by the ford.
+      The den is the place every visitor hears about first, because it is the thing the warden
+      warns of, and it is where the wolves have gone when the count is short.
+    sources:
+      - { how: visited, ref: location.den_mouth }

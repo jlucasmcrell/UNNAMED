@@ -245,6 +245,11 @@ public class ContentLoader
             var adventurerErrors = AdventurerContent.Validate(this);
             _errors.AddRange(adventurerErrors);
             success &= adventurerErrors.Count == 0;
+
+            // Lore: the headings, the pages and the discoveries that open them (LOR codes; spec 41)
+            var loreErrors = LoreContent.Validate(this);
+            _errors.AddRange(loreErrors);
+            success &= loreErrors.Count == 0;
         }
         
         return success;

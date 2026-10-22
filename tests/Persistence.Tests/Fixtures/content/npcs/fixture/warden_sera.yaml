@@ -1,5 +1,6 @@
 id: npc.fixture.warden_sera
 kind: npc
+sex: f
 schema: 1
 display_key: npc.fixture.warden_sera.name
 tags: [fixture]

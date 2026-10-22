@@ -63,6 +63,21 @@ nodes:
         conditions: [{ kind: visited, node: rim_stone, not: true }]
         consequences: [{ command: start_quest, quest_ref: quest.main.road_east }]
         next: rim_stone
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_cairnwold
+        text: "Tell me about cairnwold"
+        next: tell_cairnwold
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_cairnwold_p2
+        text: "Tell me about cairnwold"
+        next: tell_cairnwold_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_rim_stone_p2
+        text: "Tell me about the rim stone"
+        next: tell_rim_stone_p2
+
       - id: leave
         text: "Later."
       - id: story_note
@@ -180,6 +195,30 @@ nodes:
     - id: back
       text: I'll compare them at the lodge.
       next: again
+  tell_cairnwold:
+    text: "Berrin Garth keeps the lodge and remembers why every part of the village is the way it is, and he will tell you, warmly and at length. The walls are drystone, he says, because mortar wants lime and lime wants a kiln and a kiln wants a man with a whole summer, and nobody here has ever had a summer like that — drystone wants a winter and two good hands. The granary stands on staddles, stone legs with a flat cap on each, so a mouse climbs up and hangs there thinking about its choices. And if you ask what is older than the village, he points at the crag line on the south edge — put there by somebody, or something, and not by the village — and the cut in the east where the beck leaves, which is only water and time. We built between the two, he says, walled it, and called it home."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.cairnwold }]
+        next: again
+
+  tell_cairnwold_p2:
+    text: "Berrin Garth keeps the lodge and remembers why every part of the village is the way it is, and he will tell you, warmly and at length. The walls are drystone, he says, because mortar wants lime and lime wants a kiln and a kiln wants a man with a whole summer, and nobody here has ever had a summer like that — drystone wants a winter and two good hands. The granary stands on staddles, stone legs with a flat cap on each, so a mouse climbs up and hangs there thinking about its choices. And if you ask what is older than the village, he points at the crag line on the south edge — put there by somebody, or something, and not by the village — and the cut in the east where the beck leaves, which is only water and time. We built between the two, he says, walled it, and called it home."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.cairnwold }]
+        next: again
+
+  tell_rim_stone_p2:
+    text: "Berrin Garth keeps the lodge book, and in it is the Rim Stone's rite. It is a Waystone, he says, or it was - cold since before his grandfather. Old Corra set it down as three hands and a name, and then wrote not another word on it for forty years. The rite is simple: three times with the flat of the hand, one after another, and then you tell the stone its name, as if reminding it. Nobody in the village has tried it in his time. Nobody here, he says, has ever wanted to be anywhere it went."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.rim_stone }]
+        next: again
+
 barks:
   - { text: "Now then. Mind the step - it's older than it looks, and so am I." }
   - { text: "Where was I... the long wall. No. The ewe. It'll come back to me." }

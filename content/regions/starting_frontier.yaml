@@ -147762,6 +147762,361 @@ barriers:
   height_m: 2.6
   prompt: Tavar Orr, half a breath out of true - your hand stops short of him
 
+# Readables (spec 41): what is written down, where it stands, and the lore entry reading it files. A page names one page of an entry; a
+# book (no page) opens every page of its entry the character has not read. Both are read from where a switch is worked.
+readables:
+  - key: readable.ashbloom
+    lore_ref: lore.ashbloom
+    page: 1
+    name: the Ashbloom on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 717.8, 0.6]
+    height_m: 0.9
+  - key: readable.bog_cotton
+    lore_ref: lore.bog_cotton
+    page: 1
+    name: the Bog Cotton on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 718.6, 0.6]
+    height_m: 0.9
+  - key: readable.boneleaf
+    lore_ref: lore.boneleaf
+    page: 1
+    name: the Boneleaf on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 719.5, 0.6]
+    height_m: 0.9
+  - key: readable.cinder_sac
+    lore_ref: lore.cinder_sac
+    page: 1
+    name: the Cinder Sac on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 720.3, 0.6]
+    height_m: 0.9
+  - key: readable.iron
+    lore_ref: lore.iron
+    page: 1
+    name: the Iron on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 721.2, 0.6]
+    height_m: 0.9
+  - key: readable.spider_silk
+    lore_ref: lore.spider_silk
+    page: 1
+    name: the Spider Silk on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 722.0, 0.6]
+    height_m: 0.9
+  - key: readable.woundmoss
+    lore_ref: lore.woundmoss
+    page: 1
+    name: the Woundmoss on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 717.8, 0.6]
+    height_m: 0.9
+  - key: readable.barrowback_ii
+    lore_ref: lore.barrowback
+    page: 3
+    name: the The Barrowback on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 717.8, 0.6]
+    height_m: 0.9
+  - key: readable.fellhorn_ii
+    lore_ref: lore.fellhorn
+    page: 3
+    name: the The Fellhorn on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 718.6, 0.6]
+    height_m: 0.9
+  - key: readable.kal_ii
+    lore_ref: lore.kal
+    page: 3
+    name: the The Kal on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 719.5, 0.6]
+    height_m: 0.9
+  - key: readable.mor_ii
+    lore_ref: lore.mor
+    page: 3
+    name: the The Mor on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 720.3, 0.6]
+    height_m: 0.9
+  - key: readable.ondrek_ii
+    lore_ref: lore.ondrek
+    page: 3
+    name: the The Ondrek on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 721.2, 0.6]
+    height_m: 0.9
+  - key: readable.orenth_ii
+    lore_ref: lore.orenth
+    page: 3
+    name: the The Orenth on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 722.0, 0.6]
+    height_m: 0.9
+  - key: readable.pacha_ii
+    lore_ref: lore.pacha
+    page: 3
+    name: the The Pacha on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 717.8, 0.6]
+    height_m: 0.9
+  - key: readable.pachakuti_ii
+    lore_ref: lore.pachakuti
+    page: 3
+    name: the The Pachakuti on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 718.6, 0.6]
+    height_m: 0.9
+  - key: readable.ruined_cart_ii
+    lore_ref: lore.ruined_cart
+    page: 2
+    name: the The Ruined Cart on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 719.5, 0.6]
+    height_m: 0.9
+  - key: readable.siann_ii
+    lore_ref: lore.siann
+    page: 3
+    name: the The Siann on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 720.3, 0.6]
+    height_m: 0.9
+  - key: readable.sunk_barrow_ii
+    lore_ref: lore.sunk_barrow
+    page: 2
+    name: the The Sunk Barrow on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 721.2, 0.6]
+    height_m: 0.9
+  - key: readable.the_kal_afterlife_ii
+    lore_ref: lore.the_kal_afterlife
+    page: 3
+    name: the The Kal Afterlife on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 722.0, 0.6]
+    height_m: 0.9
+  - key: readable.the_kals_maker_ii
+    lore_ref: lore.the_kals_maker
+    page: 3
+    name: the The Kal's Maker on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 717.8, 0.6]
+    height_m: 0.9
+  - key: readable.the_last_pachakuti_ii
+    lore_ref: lore.the_last_pachakuti
+    page: 3
+    name: the The Last Pachakuti on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 718.6, 0.6]
+    height_m: 0.9
+  - key: readable.the_siann_missing_page_ii
+    lore_ref: lore.the_siann_missing_page
+    page: 3
+    name: the The Siann Missing Page on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 719.5, 0.6]
+    height_m: 0.9
+  - key: readable.the_specification_ii
+    lore_ref: lore.the_specification
+    page: 3
+    name: the The Specification on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 720.3, 0.6]
+    height_m: 0.9
+  - key: readable.vaskaal_ii
+    lore_ref: lore.vaskaal
+    page: 3
+    name: the The Vaskaal on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 721.2, 0.6]
+    height_m: 0.9
+  - key: readable.veth_ii
+    lore_ref: lore.veth
+    page: 3
+    name: the The Veth on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 722.0, 0.6]
+    height_m: 0.9
+  - key: readable.barrowworks
+    lore_ref: lore.barrowworks
+    page: 2
+    name: the The Barrowworks on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 717.8, 0.6]
+    height_m: 0.9
+  - key: readable.constructed
+    lore_ref: lore.constructed
+    page: 0
+    name: the The Constructed on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 718.6, 0.6]
+    height_m: 0.9
+  - key: readable.kal
+    lore_ref: lore.kal
+    page: 1
+    name: the The Kal on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 719.5, 0.6]
+    height_m: 0.9
+  - key: readable.mor
+    lore_ref: lore.mor
+    page: 0
+    name: the The Mor on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 720.3, 0.6]
+    height_m: 0.9
+  - key: readable.ondrek
+    lore_ref: lore.ondrek
+    page: 0
+    name: the The Ondrek on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 721.2, 0.6]
+    height_m: 0.9
+  - key: readable.orenth
+    lore_ref: lore.orenth
+    page: 1
+    name: the The Orenth on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 722.0, 0.6]
+    height_m: 0.9
+  - key: readable.otherfold
+    lore_ref: lore.otherfold
+    page: 2
+    name: the Otherfolds on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 717.8, 0.6]
+    height_m: 0.9
+  - key: readable.othergate
+    lore_ref: lore.othergate
+    page: 2
+    name: the Othergates on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 718.6, 0.6]
+    height_m: 0.9
+  - key: readable.otherway
+    lore_ref: lore.otherway
+    page: 2
+    name: the Otherways on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 719.5, 0.6]
+    height_m: 0.9
+  - key: readable.pacha
+    lore_ref: lore.pacha
+    page: 2
+    name: the The Pacha on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 720.3, 0.6]
+    height_m: 0.9
+  - key: readable.pachakuti
+    lore_ref: lore.pachakuti
+    page: 2
+    name: the The Pachakuti on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 721.2, 0.6]
+    height_m: 0.9
+  - key: readable.siann
+    lore_ref: lore.siann
+    page: 1
+    name: the The Siann on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 722.0, 0.6]
+    height_m: 0.9
+  - key: readable.the_kal_afterlife
+    lore_ref: lore.the_kal_afterlife
+    page: 2
+    name: the The Kal Afterlife on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 717.8, 0.6]
+    height_m: 0.9
+  - key: readable.the_kals_maker
+    lore_ref: lore.the_kals_maker
+    page: 2
+    name: the The Kal's Maker on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 718.6, 0.6]
+    height_m: 0.9
+  - key: readable.the_last_pachakuti
+    lore_ref: lore.the_last_pachakuti
+    page: 2
+    name: the The Last Pachakuti on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 719.5, 0.6]
+    height_m: 0.9
+  - key: readable.the_other
+    lore_ref: lore.the_other
+    page: 2
+    name: the The Other on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 720.3, 0.6]
+    height_m: 0.9
+  - key: readable.the_siann_missing_page
+    lore_ref: lore.the_siann_missing_page
+    page: 1
+    name: the The Siann Missing Page on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 721.2, 0.6]
+    height_m: 0.9
+  - key: readable.the_silence
+    lore_ref: lore.the_silence
+    page: 0
+    name: the The Silence on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 722.0, 0.6]
+    height_m: 0.9
+  - key: readable.the_specification
+    lore_ref: lore.the_specification
+    page: 2
+    name: the The Specification on the Survey shelf
+    verb: Read
+    circle_m: [476.8, 717.8, 0.6]
+    height_m: 0.9
+  - key: readable.the_substrate
+    lore_ref: lore.the_substrate
+    page: 2
+    name: the The Substrate on the Survey shelf
+    verb: Read
+    circle_m: [476.8, 718.6, 0.6]
+    height_m: 0.9
+  - key: readable.the_veil
+    lore_ref: lore.the_veil
+    page: 2
+    name: the The Veil on the Survey shelf
+    verb: Read
+    circle_m: [476.8, 719.5, 0.6]
+    height_m: 0.9
+  - key: readable.vaskaal
+    lore_ref: lore.vaskaal
+    page: 0
+    name: the The Vaskaal on the Survey shelf
+    verb: Read
+    circle_m: [476.8, 720.3, 0.6]
+    height_m: 0.9
+  - key: readable.veth
+    lore_ref: lore.veth
+    page: 1
+    name: the The Veth on the Survey shelf
+    verb: Read
+    circle_m: [476.8, 721.2, 0.6]
+    height_m: 0.9
+  # The dressed panel at the foot of Old Late, on the south side, where a reader can stand (the giant is a circle of 4.5 m).
+  - key: readable.old_late_carving
+    lore_ref: lore.quiet_folk
+    page: 2
+    name: carved panel
+    verb: Read
+    circle_m: [650, 770.2, 0.7]
+    height_m: 1.4
+  # Sel Arien's survey record, on her table east of the lodge (the table is the box beside her at 474.6, 721.3).
+  - key: readable.sel_field_record
+    lore_ref: lore.blackvein
+    name: survey record
+    verb: Read
+    circle_m: [474.6, 721.4, 0.7]
+    height_m: 0.9
+
 # The Barrowworks' two entrances (M8 D10, P2). Both lead into the one interior, and each remembers which was
 # used, so leaving returns a body to the anchor it came in by rather than to a single shared vector.
 #

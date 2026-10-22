@@ -52,6 +52,21 @@ nodes:
         text: "What grows up on the moor?"
         conditions: [{ kind: visited, node: herbs, not: true }]
         next: herbs
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_sinking_moss_p2
+        text: "Tell me about the sinking moss"
+        next: tell_sinking_moss_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_ashbloom_p2
+        text: "Tell me about ashbloom"
+        next: tell_ashbloom_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_what_the_bog_kept_after_p2
+        text: "Tell me about what the bog kept"
+        next: tell_what_the_bog_kept_after_p2
+
       - id: leave
         text: "Later."
       - id: story_lights
@@ -122,6 +137,30 @@ nodes:
     - id: back
       text: I'll keep looking.
       next: again
+  tell_sinking_moss_p2:
+    text: "Mara Ling keeps the well, and she will tell you the trouble is not the well. The water comes from the north-east, from the low ground and the moss that never drains, and this spring it has come up brown at the end of the rope. She asks for three ashbloom from the wettest ground, and splits the first with her thumbnail - root, stem and leaf all grey, all exactly as they have always been. So the plant is well and the water is not, which means it comes from deeper than the plant reaches. She hates being right, and she says so."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.sinking_moss }]
+        next: again
+
+  tell_ashbloom_p2:
+    text: "Mara Ling keeps the well, and she will split an ashbloom with her thumbnail before you have let go of it. Root, stem and leaf, all grey, all exactly as they have always been, and that is the answer she did not want. So the plant is well and the water is not, she says, which means it comes from deeper than the plant reaches. She drops the pieces in the bucket and hates being right. The bloom told her the trouble is not in the wet ground she can see, and it told her nothing else."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.ashbloom }]
+        next: again
+
+  tell_what_the_bog_kept_after_p2:
+    text: "Mara Ling drops the split pieces in the bucket and stares at them, and says the plant is well and the water is not, which means it comes from deeper than the plant reaches. Brilliant, she says, and she hates being right. Then she thanks you, genuinely, and tells you to come back when the rope comes up clean. That is the whole of it with her: the ashbloom did not mend the well, it only proved the well was never the part that was broken, and she will keep drawing the brown water and keeping count until it clears."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.what_the_bog_kept_after }]
+        next: again
+
 barks:
   - { text: "Brown again. Of course it is." }
   - { text: "Everyone says the well. Everyone's wrong." }

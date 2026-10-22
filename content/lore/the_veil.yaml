@@ -1,0 +1,27 @@
+id: lore.the_veil
+kind: lore
+schema: 1
+display_key: lore.the_veil.title
+tags: [lore, history]
+title: The Veil
+category: history
+notes: "The perceived boundary between ordinary reality and the Other, from docs/OTHERREACH_COSMOLOGY.md, section 3 The Veil. A surveyor's account that the Veil need not be a real membrane and may be thin or torn in places; told by Sel Arien, read in the entry's own book."
+pages:
+  - page: 1
+    text: >
+      The Veil is the name for the seam where ordinary reality gives onto the Other, and the surveyor is careful
+      about the word. It need not be a skin or a wall. In some places it runs thin on its own. Old events have
+      worn it. Magic pulls at it. Gates worked too often have frayed it. In a few places it has been pierced on
+      purpose, or pinned open. Sel Arien treats the Veil as a line she can read rather than a thing she can see,
+      and she warns against asking the word to be more solid than the fact.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }
+  - page: 2
+    text: >
+      What the Veil is for depends on who is speaking, and the book keeps the answers apart. Some say it protects
+      the world and should be kept whole. Some say it imprisons the world and should be opened. Some say it is
+      only a rough word for something they do not understand, and that the word has been asked to carry more than
+      it can. The book does not settle these. It records that they are held, and that the holders do not agree,
+      and that a wall with three uses already has two too many to be simply a wall.
+    sources:
+      - { how: inspected, ref: readable.the_veil }

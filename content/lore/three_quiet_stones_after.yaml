@@ -1,0 +1,29 @@
+id: lore.three_quiet_stones_after
+kind: lore
+schema: 1
+display_key: lore.three_quiet_stones_after.title
+tags: [lore, history]
+title: The Three Quiet Stones
+category: history
+notes: "Written from content/quests/ashen_hollow/three_quiet_stones.yaml (the stones turned square, the heart steadied, Tavar freed) and Tavar Orr's own account (content/dialogue/ashen_hollow/tavar_orr.yaml). In-world, page 1 is the page the finished job leaves in the journal (quest.ashen_hollow.three_quiet_stones) and page 2 is Tavar's telling."
+pages:
+  - page: 1
+    text: >
+      The ring has gone quiet, and Tavar Orr has walked out of it, and Sel Arien watched it happen from the rise
+      and wrote it in her Record under a name. That is what changed: three stones are square to the ring again,
+      the heart of the Foldscar is steadied, and a man who was three days out of step is standing on the same side
+      of the afternoon as everyone else. What did not settle is the older question. Nobody knows what the stones
+      were for, or who turned them out of line, and setting them right answered neither. The quiet is real. The
+      reason for the quiet is still a guess.
+    sources:
+      - { how: quest, ref: quest.ashen_hollow.three_quiet_stones }
+  - page: 2
+    text: >
+      Tavar Orr will tell you the stones were holding something shut or holding something still, and that he could
+      not say which, and that somebody turned them out of line before anyone now living ever came out here. Not
+      me, he says, and then he checks himself, and adds that he would remember, probably. Three days for Sel, he
+      says, and one long afternoon for him, where everything arrived a breath late and his voice came from the
+      wrong side. He keeps the cost in a little book, under things he has lost. The walk out is the part that does
+      not go in it.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.tavar_orr }

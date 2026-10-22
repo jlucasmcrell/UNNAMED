@@ -1,0 +1,39 @@
+id: lore.tavar_and_the_fold
+kind: lore
+schema: 1
+display_key: lore.tavar_and_the_fold.title
+tags: [lore, places]
+title: Tavar and the Fold
+category: places
+notes: "The Foldscar and the fold that held Tavar Orr, in three pages (spec 41 §5): the ring walked into, Tavar's own account from inside it, and the heart steadied. Canon - content/regions/ashen_hollow.yaml's three Quiet Stones and heart, Sel Arien's lines, Tavar's greeting, and VFX_FINISH.md's description of the doubling and the delayed shadow. The told page is heard only once the fold is quiet, which is why the quest's page can be found before it."
+pages:
+  - page: 1
+    text: >
+      The ruin is a basin with three standing stones set round a patch of ground that is not quite empty. The
+      stones were turned out of line. The ground inside the ring holds a slight doubling, as though everything
+      in it had been drawn twice and the second drawing was a moment behind; a shadow across the sun stands
+      aside from the feet it belongs to. Sound arrives late there. This is the first place on the road where the
+      frontier stops behaving like a frontier, and it does so quietly, without noise or light, which is worse.
+      Beneath it all the doubling is a habit of the ground, not of any one thing standing on it.
+    sources:
+      - { how: visited, ref: location.foldscar }
+  - page: 2
+    text: >
+      Tavar Orr's account, given afterwards, plainly and without performance. He walked in among the stones for
+      a dropped chain and did not walk out. From the rise he could be seen standing; from the rise he could not
+      be reached, and a hand stopped a hand's width short of him. His voice came from the wrong side. He says
+      the worst of it was that nothing hurt and nothing hurried: the afternoon simply did not end, and the
+      others went on having one. He does not describe the fold as another place. He says it was this place,
+      standing a breath out of step, and that he was in it, and that the sun kept going over.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.tavar_orr }
+  - page: 3
+    text: >
+      What steadied it, recorded as it happened. The three Quiet Stones were turned square to the ring, the
+      north, then the south-west, then the south-east, and the heart of the Foldscar was steadied last. The ring
+      went quiet all at once. The doubling thinned and closed into register over the following seconds, Tavar's
+      shadow slid home under him, and the sound of the place began arriving on time. The stones hold their light.
+      Nothing about the ring explains itself any better for having been worked; Sel Arien's measure went back on
+      the table and her guesses stayed guesses. What changed is that the ruin is now a place a person can stand in.
+    sources:
+      - { how: quest, ref: quest.ashen_hollow.three_quiet_stones }

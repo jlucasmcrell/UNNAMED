@@ -1,0 +1,42 @@
+id: lore.kal
+kind: lore
+schema: 1
+display_key: lore.kal.title
+tags: [lore, peoples]
+title: The Kal
+category: peoples
+notes: "Written from docs/MYTHOLOGY.md §Kal and docs/RACES.md §2 — native and older than the last Pachakuti, large folding dorsal wings, made deliberately by a craftsman whose name is lost, the afterlife as a return to material and the stone as the person waiting, a Kal caught in a turn sets to stone. In-world, page 1 is a scholar's page (readable.kal) and page 2 is Kera Voss's own telling (dialogue.ashen_hollow.kera_voss). Page 3 is a scholar's note on the wings (readable.kal_ii)."
+pages:
+  - page: 1
+    text: >
+      The Kal are the oldest people who can still answer for themselves, native here and older than the last
+      Pachakuti, and they carry the fact in their bones the way others carry it in a chronicle. Broad, short and
+      dense, they think in materials the way other people think in words, and what they make outlasts them by
+      centuries. Across the back they fold a pair of great wings, which in this air will not bear a full-grown Kal
+      far but will break a fall, brake a descent and steady a leap. They hold that they were made deliberately, by
+      a craftsman whose name is lost, and that a maker who finishes and leaves is not cruel but competent. To die
+      well is to be ready to be made into something else; that is why the stone is sacred to them — it is not a
+      relic, it is the person, waiting.
+    sources:
+      - { how: inspected, ref: readable.kal }
+  - page: 2
+    text: >
+      The smith Kera Voss says it plainly, over her own hammer. Ask about the wings and she will tell you they
+      fold, that they are not for flying — not in this air, and not with her supper in her — and that they are good
+      for coming down off a roof slow. Ask her about the Foldscar and the warmth goes out of her. A Kal caught when
+      a world turns does not die, she says; it sets, stone all the way through, standing where it stood, and the
+      ring out there is a world half-turning all day long. She will make you anything you like to carry out to it.
+      She will not carry herself. That is the whole of the Kal condition in two answers: a people who hold their
+      dead as stone, and who know exactly what a turn would make of them.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.kera_voss }
+  - page: 3
+    text: >
+      A scholar's note, and it does not settle what the smith holds. The Kal say they were made, deliberately, by
+      a craftsman whose name is lost, and the wings are theirs to explain or not. A scholar who has measured the
+      wings notes that they are the shape of a thinner sky, the span of a body meant for air that held it better,
+      and that the Kal's maker-tale neither needs the wings nor denies that reading. The smith does not ask after
+      it, and the scholar does not press her. What the wings were for, and whether a hand made them or a
+      different sky shaped them, is left open, because no measure taken in this air can say.
+    sources:
+      - { how: inspected, ref: readable.kal_ii }

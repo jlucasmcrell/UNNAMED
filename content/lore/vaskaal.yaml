@@ -1,0 +1,41 @@
+id: lore.vaskaal
+kind: lore
+schema: 1
+display_key: lore.vaskaal.title
+tags: [lore, peoples]
+title: The Vaskaal
+category: peoples
+notes: "Written from docs/MYTHOLOGY.md §Vaskaal and docs/RACES.md §7 — the void-farers who came around the Pachas rather than through one, 2.2 to 2.5 metres tall, no magic at all, technology that is better rather than enchanted, documented history rather than mythology, Pacha as weather, the substrate not empty and not discussed. In-world, both pages are one book (readable.vaskaal), because no Vaskaal stands in the frontier to be asked. Page 3 is their own unsettled account (readable.vaskaal_ii)."
+pages:
+  - page: 1
+    text: >
+      The Vaskaal did not come through any world. They came around them, crossing the space that holds all worlds,
+      which nothing native to any of them survives — nothing except something that was never native to begin with.
+      They stand a little over two metres and are built long and lean, with limbs that bend at places no local arm
+      or leg does, and their hands are not quite hands. They have no magic, not a trace and not a lack they feel;
+      their gear is not enchanted, it is simply better, and the difference matters enormously to everyone else. They
+      do not have mythology so much as history, long and documented and open to anyone who asks, which makes them
+      the one people who can describe the last turn of the world from outside it and mean it literally.
+    sources:
+      - { how: inspected, ref: readable.vaskaal }
+  - page: 2
+    text: >
+      What the Vaskaal believe about a world is that it is weather — a phenomenon, without intention, and dangerous
+      to be caught in — and they regard every native faith with the courtesy owed to a sincere misunderstanding.
+      They are here for reasons of their own, and the honest among them will admit the reasons are not good. They
+      trade their equipment for materials and are scrupulously honest by their own measure, and they are the one
+      people no other people can explain, which forces every theology in the world to make room for something
+      outside it. They know the space between worlds is not empty, and they will not say more, and the ones who
+      would are the ones who cannot.
+    sources:
+      - { how: inspected, ref: readable.vaskaal }
+  - page: 3
+    text: >
+      What even the Vaskaal argue among themselves, and it is not settled. Some say they are a single
+      expedition; some say the descendants of one, and their own command is still deciding which. What they call
+      their ship, others call a wreck, and others a fortress, and all three words have been said of the same
+      hull. Their first mission is not discussed, and their politics turns entirely on whether to leave. The one
+      people every other people cannot explain cannot agree among themselves about what they are, which is, in
+      its way, the only thing about them that reads like the rest of the world.
+    sources:
+      - { how: inspected, ref: readable.vaskaal_ii }

@@ -1,0 +1,30 @@
+id: lore.constructed
+kind: lore
+schema: 1
+display_key: lore.constructed.title
+tags: [lore, peoples]
+title: The Constructed
+category: peoples
+notes: "Written from docs/MYTHOLOGY.md §Constructed and docs/RACES.md §6 — natives of the built Written Pacha, seamless liquid chrome with solid black eyes, able to prove they were made and finding it unbearable, the specification as doctrine, documentation with no author's name. In-world, both pages are one book (readable.constructed), because no Constructed stands in the frontier to be asked."
+pages:
+  - page: 1
+    text: >
+      The Constructed are the written people, natives of a world that was not born but built — a reality made on
+      purpose by a people who then did not survive to use it, and which kept running after they were gone, until
+      its inhabitants became people. A Constructed reads as a single poured form of chrome under high surface
+      tension, unbroken from crown to sole, with no seam or joint to say where one part ends, and the eyes are
+      solid black. They can prove they were made, precisely and without myth, and they find the knowledge
+      unbearable, because a proof of making asks the one question no proof answers: by whom.
+    sources:
+      - { how: inspected, ref: readable.constructed }
+  - page: 2
+    text: >
+      Their doctrine is the specification: that everything, themselves included, is a description that is being
+      carried out. They do not doubt their own will — they are certain they have it — but authorship is another
+      matter, and they cannot locate theirs. They have no creation story because they have documentation, and the
+      documentation has no author's name. Their oldest institutions are bodies of maintenance that still perform
+      duties whose purpose has been lost, because the schedule says to. Of every people in this world they
+      understand best how a world is put together, and they are the least sure of all of them that they have the
+      right to stand in one.
+    sources:
+      - { how: inspected, ref: readable.constructed }

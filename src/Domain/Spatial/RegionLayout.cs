@@ -117,6 +117,14 @@ public sealed record StationSite(string Key, string Kind, long XMm, long ZMm)
 /// <summary>Where a named NPC stands (M4), and which way they face: their place in the settlement's authored layout.</summary>
 public sealed record NpcSite(string NpcId, long XMm, long ZMm, int FacingMdeg);
 
+/// <summary>
+/// Something written that can be read where it stands (spec 41): a carved panel, a grave marker, a book or a note. Read like a switch is
+/// worked - from the body to its edge - it files what it says into the journal. <see cref="Page"/> is the one page it opens, or 0 for a book,
+/// which opens every page of <see cref="EntryId"/> the character has not read. The words are the content's: the prompt is
+/// <see cref="Verb"/> and <see cref="Name"/>.
+/// </summary>
+public sealed record ReadableSite(string Key, string EntryId, int Page, Blocker Body, string Name, string Verb);
+
 /// <summary>The cell-level generation parameters the region declares (WORLD_ARCHITECTURE.md §4).</summary>
 public sealed record RegionGeneration(int TerrainBaseHeightMm, int TerrainAmplitudeMm, int TerrainSamplesPerAxis);
 
@@ -155,6 +163,9 @@ public sealed record RegionLayout(
 
     /// <summary>The region's Waystones.</summary>
     public ImmutableArray<WaystoneSite> Waystones { get; init; } = ImmutableArray<WaystoneSite>.Empty;
+
+    /// <summary>The region's readables (spec 41): what is written down, and where it stands.</summary>
+    public ImmutableArray<ReadableSite> Readables { get; init; } = ImmutableArray<ReadableSite>.Empty;
 
     /// <summary>The region's roads.</summary>
     public ImmutableArray<RoadSite> Roads { get; init; } = ImmutableArray<RoadSite>.Empty;

@@ -1,0 +1,32 @@
+id: lore.blackvein
+kind: lore
+schema: 1
+display_key: lore.blackvein.title
+tags: [lore, places]
+title: The Blackvein
+category: places
+notes: "Blackvein Cut, in two pages (spec 41 §5): the quarry walked into, and the sealed face. Canon - content/locations/blackvein_cut.yaml (the quarry, the iron seam on its floor, the overlook, the rim, the blocked shaft), content/quests/ashen_hollow/closed_seam.yaml (the sealed face, the ledger naming the Order of the Lantern, purpose and date unproved) and Kera's directions. The sealed face is stated as unproved because that is how the quest states it."
+pages:
+  - page: 1
+    text: >
+      A shallow abandoned quarry cut into the south-west of the frontier, entered down a ramp past an overlook
+      that sees the whole floor. The rim stands seven to ten metres above the working and the floor is flat and
+      pale, so nothing on it is hidden and nothing on it is in a hurry. The iron seam runs along the west side
+      of the floor, at the foot of the wall, and it is the reason the quarry was ever opened. Spoil lies about
+      in heaps where it was left. At the back of the working a shaft has been blocked: not collapsed, blocked,
+      filled and walled by a person who wanted it shut, and the walling is better than the quarry deserved.
+      The seam runs on into that wall and stops where the walling starts, and nobody in the hollow can tell you
+      what lies the other side of it, because nobody has found a way through.
+    sources:
+      - { how: visited, ref: location.blackvein_cut }
+  - page: 2
+    text: >
+      The sealed face, and what may be said about it. Somebody closed the working deliberately and left the rest
+      of the quarry as it stood, which is not what men do when a seam runs out: they take the tools and go, and
+      the spoil stays where it fell. A ledger fragment names the Order of the Lantern in connection with the
+      closure. That is the whole of the evidence, and the Survey holds it exactly that far - a name, an act, and
+      no date and no reason either way. The joins at the face are the thing to look at, because a wall built to
+      last and a wall built to be opened later are not built the same way, and the difference is in the joins
+      and not in the words anybody wrote about them.
+    sources:
+      - { how: quest, ref: quest.main.closed_seam }

@@ -119,6 +119,10 @@ public class PlayerRecordCompletenessTests
                         Domain.Crafting.FindingKind.Nothing, "station.fixture_hearth", "hearth", null, ImmutableArray<string>.Empty, 4_600),
                     new Domain.Crafting.Finding(
                         Domain.Crafting.FindingKind.Hint, "station.fixture_hearth", "hearth", "recipe.alchemy.salve_minor", ImmutableArray.Create("item.potion.minor_healing"), 4_800)),
+                // A page each of two lore entries, found by the ways the world reports (schema 35).
+                Lore = ImmutableArray.Create(
+                    new Domain.Knowledge.LorePageRecord("lore.fixture_vale", 1, Domain.Knowledge.LoreSourceKind.Visited, "location.den_mouth", 4_600),
+                    new Domain.Knowledge.LorePageRecord("lore.fixture_warden", 1, Domain.Knowledge.LoreSourceKind.Told, "dialogue.fixture.warden_sera", 4_700)),
             };
     }
 
@@ -140,6 +144,7 @@ public class PlayerRecordCompletenessTests
             Assert.Equal(full.SpaceId, copy.SpaceId);
             Assert.Equal(full.SpaceTraversal, copy.SpaceTraversal);
             Assert.Equal(full.Findings, copy.Findings);
+            Assert.Equal(full.Lore, copy.Lore.ToArray());   // the Lore init re-sorts, so a copy holds a fresh array of the same pages
             Assert.Equal(full.ExtraBars, copy.ExtraBars);
             Assert.Equal(full.HeldFamily, copy.HeldFamily);
             Assert.Equal(full.FamilyBars, copy.FamilyBars);

@@ -65,6 +65,20 @@ public static class ContentCliApp
     }
     
     /// <summary>
+    /// lore-coverage - what canon holds against what the player can read (spec 41 pass 2 §1, §6): the counts by status, and every way the
+    /// index and the entries disagree. Exit 1 on a disagreement: an index that lies is worse than none.
+    /// </summary>
+    public static int LoreCoverage(string contentRoot)
+    {
+        var loader = new ContentLoader();
+        loader.LoadAll(contentRoot);
+        var entries = LoreContent.Build(loader);
+        var coverage = LoreCoverageReport.Read(contentRoot, entries);
+        Console.WriteLine(coverage.Text(entries));
+        return coverage.Problems.IsEmpty ? 0 : 1;
+    }
+
+    /// <summary>
     /// chatter-coverage - The corpus's thin cells (WP16): each speaker type, place and time band with fewer always-sayable lines than
     /// the chatter schema's coverage_min_lines. What the next generated batch should fill. Exit 0 always: coverage is a report.
     /// </summary>

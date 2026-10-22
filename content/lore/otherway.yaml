@@ -1,0 +1,27 @@
+id: lore.otherway
+kind: lore
+schema: 1
+display_key: lore.otherway.title
+tags: [lore, history]
+title: Otherways
+category: history
+notes: "Traversable routes associated with the Other, from docs/OTHERREACH_COSMOLOGY.md, section 5 Otherways. A lexicon entry and the surveyor's warning that some go elsewhen; told by Sel Arien, read in the entry's own book."
+pages:
+  - page: 1
+    text: >
+      An Otherway is a road that runs through the Other, and the surveyor's first rule about them is that they
+      do not lead where a road leads. Some are steady and mapped. Some change what they lead to while they are
+      being walked. Some open only under a condition, or to a key, or to a knowing, or to a rite. Some are safe
+      to the far end, and some hold a hazard between the mouth and the end. Some will carry a cart and a
+      companion, and some will carry one person and nothing more.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }
+  - page: 2
+    text: >
+      The book's one line about them is kept larger than the rest, because it is the whole of the warning. No
+      one knows where the Otherways lead. Some go elsewhere, and some go elsewhen. The surveyor adds that a road
+      which can stop being a road is not a road at all, and that the oldest of them were made by no one now
+      remembered, which is the same as saying their upkeep is in other hands. She writes the routes that are
+      known, and beside each one writes the last time it was walked and came back.
+    sources:
+      - { how: inspected, ref: readable.otherway }

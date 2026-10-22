@@ -1,0 +1,39 @@
+id: lore.old_late
+kind: lore
+schema: 1
+display_key: lore.old_late.title
+tags: [lore, places]
+title: Old Late
+category: places
+notes: "The landmark giant east of the waystation, in three pages (spec 41 §5): the walk up to it, Renn's tale (folk belief, and the later page does not bear it out), and the Survey's measurement once the Foldscar has gone quiet. Everything here is the location's own note (content/locations/old_late.yaml) and canon already written down - the crown answering the wind a breath late is the note's own line, and Renn's version is the \"folk belief that a later page contradicts\" the owner asked for (spec 41, owner question 1)."
+pages:
+  - page: 1
+    text: >
+      A giant stands where the road forks east of the waystation, and the road goes round it. There is no face
+      left that anyone agrees on; the weather has been at it a long while and the stone is soft. Its crown is
+      a rough slab, and when the wind comes off the ridge the slab answers it - late, a breath behind the gust,
+      not with it. Nobody has explained the lag to anyone's satisfaction. The waystation calls it Old Late for
+      the lag and not for the age. Travellers stop at it once on the way through. Most stop again, later, to
+      check that they remembered it right.
+    sources:
+      - { how: visited, ref: location.old_late }
+  - page: 2
+    text: >
+      Renn Vale's version, told to anyone who writes their name in the lodge book: the Quiet-folk raised Old
+      Late as a marker before the road was a road, and walked away when the work was done. They cut the giant
+      and crowned it and left it to hold the crossing, so that a stranger coming down off the ridge would know
+      there was shelter in the hollow and no road worth taking east of the quarry. It is a good story to hear
+      at a fire and Renn tells it well, and he is careful to say that it is only what he was told. He cannot
+      name who told him. Nobody in the waystation claims to have been the one.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.renn_vale }
+  - page: 3
+    text: >
+      The Survey's reading, taken once the Foldscar had gone quiet and Sel Arien could stand at the stone with
+      a measure instead of a story. Old Late is dressed stone of the same stone as the three Quiet Stones, cut
+      by the same tools, at the same time. That is the whole of what the measurement says, and it is less than
+      the tale asks for: it does not say who cut them, or why one was crowned and left at a crossing while
+      three were set in a ring round a thing that is not there. Sel has graded her guesses and puts none of
+      them above one chance in three. The stone has not been persuaded to prefer any of them.
+    sources:
+      - { how: quest, ref: quest.ashen_hollow.three_quiet_stones }

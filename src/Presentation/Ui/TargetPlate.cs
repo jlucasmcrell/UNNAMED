@@ -12,7 +12,7 @@ namespace UNNAMED.Presentation.Ui;
 /// (<see cref="ThreatRules"/> / <see cref="TemperamentRules"/>) rather than a second vocabulary invented by the interface.
 /// </summary>
 public readonly record struct TargetPlate(string Name, int Level, int Health, int MaxHealth, Threat Threat, Temperament Temperament,
-    bool Engaged, bool Huntable, string Status = "")
+    bool Engaged, bool Huntable, string Status = "", string Known = "")
 {
     /// <summary>The line under the name: level, the threat word, what it will do, and what is in it for the character.</summary>
     public string Meta

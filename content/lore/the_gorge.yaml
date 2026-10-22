@@ -1,0 +1,30 @@
+id: lore.the_gorge
+kind: lore
+schema: 1
+display_key: lore.the_gorge.title
+tags: [lore, places]
+title: The Gorge
+category: places
+notes: "The gorge on the basin's eastern lip, in two pages (spec 41 §5): standing on the lip, and what Tam Crowden counts coming off the moor. Canon - content/locations/cairnwold/the_gorge.yaml (the Outfall: the cut where the basin's water leaves, the highest ground a character can walk to) and content/spawns/moor/ gorge_spiders.yaml (the two ambushers, at the end of a walk rather than on the way to anything), plus Tam's own note in content/npcs/cairnwold/tam_crowden.yaml (her counting, and her sister Halda)."
+pages:
+  - page: 1
+    text: >
+      The basin has one way out for its water and the road does not go there. The gorge is a cut on the eastern
+      lip, and its edge is the highest ground a person can walk to in this country: from the lip the whole basin
+      lies open below, the bog on one hand and the road on the other, and the river is a thread on the floor
+      where it turns out of sight. The rock overhangs in places and the wind comes up the cut rather than across
+      it, so it is cold there on a warm day. Nothing is built on the lip and nothing is grown on it. The place
+      has the air of being the end of something rather than the start of anything.
+    sources:
+      - { how: visited, ref: location.cairnwold.the_gorge }
+  - page: 2
+    text: >
+      Tam Crowden counts what comes off the moor, and the gorge is on her tally because it is where the counting
+      gets dangerous. Two hunting spiders den in the cut, deep in past the lip, and they take their game by the
+      ground rather than by sight: walking is safe and running is not, and the ground they claim is the ground
+      above the water. They are at the end of a walk rather than on the way to anything, which is the only reason
+      more people have not met them. Tam counts everyone up the west end of the village and knows exactly how
+      many have gone up the north slope, because her sister Halda went up it after the wolves and did not come
+      down, and the tally has been short by one ever since.
+    sources:
+      - { how: told, ref: dialogue.cairnwold.tam_crowden }

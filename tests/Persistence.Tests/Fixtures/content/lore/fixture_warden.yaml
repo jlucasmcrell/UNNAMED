@@ -1,0 +1,18 @@
+id: lore.fixture_warden
+kind: lore
+schema: 1
+display_key: lore.fixture_warden.title
+tags: [fixture]
+title: The Warden
+category: peoples
+notes: Historical-fixture content for the save migration tests. Not game content.
+pages:
+  - page: 1
+    text: >
+      The warden of the vale keeps the road and counts the wolves, and anyone who stops long
+      enough hears the same two warnings: the den is not empty, and the ridge is not safe. She
+      asks a traveller for help with the errand of finding where the wolves have gone, and she
+      remembers who thinned them and who did not. What she tells is the fixture's own account of
+      the vale, a short version of the place the waystation's people would know.
+    sources:
+      - { how: told, ref: dialogue.fixture.warden_sera }

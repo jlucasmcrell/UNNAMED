@@ -25,6 +25,15 @@ internal sealed record SetWorldFlag(CellKey Cell, string FlagId, long Value) : I
 /// <summary>To <see cref="ProgressionSystem"/>: award level XP.</summary>
 internal sealed record AwardExperience(XpAward Award) : InternalCommand;
 
+/// <summary>To <see cref="LoreSystem"/>: a discovery happened, and the pages naming it open.</summary>
+internal sealed record UnlockLore(EntityId Actor, Domain.Knowledge.LoreSourceKind Source, string SourceRef) : InternalCommand;
+
+/// <summary>To <see cref="LoreSystem"/>: an entry was read outright, its every page not yet known filed (a book or a note).</summary>
+internal sealed record ReadLore(EntityId Actor, string EntryId, Domain.Knowledge.LoreSourceKind Source, string SourceRef) : InternalCommand;
+
+/// <summary>To <see cref="LoreSystem"/>: a reply told the character of something, and the pages this conversation tells are filed.</summary>
+internal sealed record TellLore(EntityId Actor, string EntryId, string DialogueId) : InternalCommand;
+
 /// <summary>What systems share: the state, the rules, the event bus, and the internal command route.</summary>
 internal sealed class SystemContext
 {
@@ -46,6 +55,7 @@ internal sealed class SystemContext
         Register(l => l.Doors);
         Register(l => l.Switches);
         Register(l => l.Barriers);
+        Register(l => l.Readables);
     }
 
     public RuntimeState State { get; }
@@ -422,6 +432,8 @@ internal sealed class InteractionSystem
         // proximity test without a space test would reach across the hill.
         if (_context.Setup.Sites(l => l.Switches).FirstOrDefault(p => p.Site.Key == command.TargetKey) is { Site: { } switchSite, Layout: var switchHome })
             return Work(switchHome, switchSite, tick);
+        if (_context.Setup.Sites(l => l.Readables).FirstOrDefault(p => p.Site.Key == command.TargetKey) is { Site: { } readable, Layout: var readableHome })
+            return Read(readableHome, readable, tick);
         var found = _context.Setup.Sites(l => l.Doors).FirstOrDefault(p => p.Site.Key == command.TargetKey);
         if (found.Site is not { } door)
             return $"nothing to interact with called '{command.TargetKey}'";
@@ -458,6 +470,36 @@ internal sealed class InteractionSystem
         if (_context.Dispatch(new SetWorldFlag(Simulation.CellOf(found.Layout.SpaceId, door), door.FlagId, open ? 0 : 1)) is { } refused)
             return refused;
         _context.Events.Publish(new DoorToggled(_player, door.Key, !open, tick));
+        return null;
+    }
+
+    /// <summary>
+    /// Something written is read from where a switch is worked (spec 41). A page names itself; a book (page 0) opens every page of its entry
+    /// the character has not read. Either way presentation is told, and opens the page on its panel.
+    /// </summary>
+    private string? Read(RegionLayout home, ReadableSite site, long tick)
+    {
+        if (home.SpaceId != _context.State.Space)
+            return $"the {site.Name} is not in this place";
+        var body = _context.State.Body;
+        long reach = _context.Setup.Movement.InteractReachMm;
+        double distance = site.Body.DistanceTo(body.XMm, body.ZMm);
+        if (distance > reach)
+            return $"the {site.Name} is {distance / 1000:0.00} m away; reach is {reach / 1000.0:0.00} m";
+        if (site.Page > 0)
+        {
+            if (!_context.Setup.Lore.TryGetValue(site.EntryId, out var entry) || entry.PageAt(site.Page) is not { } page)
+                return $"{site.Key} names page {site.Page} of {site.EntryId}, which nobody wrote";
+            if (_context.State.Lore.Any(r => r.EntryId == entry.Id && r.Page == page.Page))
+                return $"{site.Key} is already in your journal";
+            if (_context.Dispatch(new UnlockLore(_player, Domain.Knowledge.LoreSourceKind.Inspected, site.Key)) is { } refused)
+                return refused;
+        }
+        else if (_context.Dispatch(new ReadLore(_player, site.EntryId, Domain.Knowledge.LoreSourceKind.Inspected, site.Key)) is { } refused)
+        {
+            return refused;
+        }
+        _context.Events.Publish(new LoreReadableRead(site.Key, site.EntryId, tick));
         return null;
     }
 

@@ -1,0 +1,28 @@
+id: lore.what_the_bog_kept_after
+kind: lore
+schema: 1
+display_key: lore.what_the_bog_kept_after.title
+tags: [lore, history]
+title: What The Bog Kept
+category: history
+notes: "Written from content/quests/cairnwold/what_the_bog_kept.yaml (three ashbloom brought back, the plant sound, the water still wrong) and Mara Ling's reading of the plant (content/dialogue/cairnwold/mara_ling.yaml). In-world, page 1 is the page the finished job leaves in the journal (quest.cairnwold.what_the_bog_kept) and page 2 is Mara's telling."
+pages:
+  - page: 1
+    text: >
+      Mara Ling asked for three ashbloom and got them, and the plant said what it had to say. Root, stem and leaf,
+      all grey, all sound, and so the answer is that the well is not the trouble and neither is the plant. That is
+      what changed: a woman who was right before anyone listened now has the plant's testimony to hold up. What
+      did not settle is the water. It still comes up brown, and the trouble is deeper than the plant reaches, and
+      no amount of sound ashbloom says where it begins. The bog kept its secret. The job only proved the secret
+      lay deeper down.
+    sources:
+      - { how: quest, ref: quest.cairnwold.what_the_bog_kept }
+  - page: 2
+    text: >
+      Mara Ling drops the split pieces in the bucket and stares at them, and says the plant is well and the water
+      is not, which means it comes from deeper than the plant reaches. Brilliant, she says, and she hates being
+      right. Then she thanks you, genuinely, and tells you to come back when the rope comes up clean. That is the
+      whole of it with her: the ashbloom did not mend the well, it only proved the well was never the part that
+      was broken, and she will keep drawing the brown water and keeping count until it clears.
+    sources:
+      - { how: told, ref: dialogue.cairnwold.mara_ling }

@@ -63,11 +63,39 @@ nodes:
           - { kind: has_item, item_ref: item.material.wolf_hide }
           - { kind: visited, node: wolves, not: true }
         next: wolves
+      - id: ask_gorge
+        text: "Tell me about the gorge."
+        conditions: [{ kind: visited, node: tell_gorge, not: true }]
+        consequences: [{ command: tell_lore, lore_ref: lore.the_gorge }]
+        next: tell_gorge
       - id: work
         text: "Is there anything you're short of?"
         next: work
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_the_gorge
+        text: "Tell me about the gorge"
+        next: tell_the_gorge
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_the_gorge_p2
+        text: "Tell me about the gorge"
+        next: tell_the_gorge_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_wolves_den_p2
+        text: "Tell me about the wolves' den"
+        next: tell_wolves_den_p2
+
       - id: leave
         text: "Just passing."
+  tell_gorge:
+    text: "\"The cut on the east lip, where the water leaves. Highest ground there is, and no road to speak of, so what goes up it goes up on foot and comes back the same way.\" She counts on her fingers, still counting something else entirely. \"Two hunting spiders den in there. They take their game by the ground, not by the eye - so walk, don't run, if you're ever fool enough to be in there. They're at the end of a walk, not on the way anywhere. That's the only reason more of us haven't met them.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "Walk, don't run."
+        next: again
   moor:
     text: "\"Boar in the birch, mostly - eleven this year, and worse in the autumn when the mast is down. Strays along the old line by the crags. Dogs gone wild, Durn says. Something that was never a dog, I say, because I've watched them run and they don't run like dogs. And up in the moss there are lights some nights. I don't count those. I tried. They won't keep still to be counted, and they don't add up when they do. Keep to the walls after dark and you'll be fine.\" A pause. \"Mostly.\""
     once: true
@@ -188,6 +216,30 @@ nodes:
       - id: back
         text: "Turn it."
         next: again
+  tell_the_gorge:
+    text: "Tam Crowden counts what comes off the moor, and the gorge is on her tally because it is where the counting gets dangerous. Two hunting spiders den in the cut, deep in past the lip, and they take their game by the ground rather than by sight: walking is safe and running is not, and the ground they claim is the ground above the water. They are at the end of a walk rather than on the way to anything, which is the only reason more people have not met them. Tam counts everyone up the west end of the village and knows exactly how many have gone up the north slope, because her sister Halda went up it after the wolves and did not come down, and the tally has been short by one ever since."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.the_gorge }]
+        next: again
+
+  tell_the_gorge_p2:
+    text: "Tam Crowden counts what comes off the moor, and the gorge is on her tally because it is where the counting gets dangerous. Two hunting spiders den in the cut, deep in past the lip, and they take their game by the ground rather than by sight: walking is safe and running is not, and the ground they claim is the ground above the water. They are at the end of a walk rather than on the way to anything, which is the only reason more people have not met them. Tam counts everyone up the west end of the village and knows exactly how many have gone up the north slope, because her sister Halda went up it after the wolves and did not come down, and the tally has been short by one ever since."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.the_gorge }]
+        next: again
+
+  tell_wolves_den_p2:
+    text: "Tam Crowden counts everyone who comes up the west end, and she counts them because her sister went up the north slope and did not come down. Halda trapped up there, she says, before the wolves took the den - the notch in the rock was Halda's cache before it was theirs. Two winters back she went up after the wolves and did not come down, and Tam counted her out. What came home instead was a hand's length of horn, notched once for every hide, thirty-one of them. She keeps it where it gets counted."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.wolves_den }]
+        next: again
+
 barks:
   - { text: "Fourteen, fifteen... sixteen? Sixteen. Hm." }
   - { text: "In, and out, and in. Good. Good." }

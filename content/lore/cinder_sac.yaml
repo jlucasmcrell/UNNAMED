@@ -1,0 +1,28 @@
+id: lore.cinder_sac
+kind: lore
+schema: 1
+display_key: lore.cinder_sac.title
+tags: [lore, creatures]
+title: Cinder Sac
+category: creatures
+notes: "Written from content/items/material/cinder_sac.yaml (an ember hound's fire gland, still warm, Sel will buy it and will not say what for) and content/lore/ember_hounds.yaml, with Sel Arien's ember lesson (content/dialogue/ashen_hollow/sel_arien.yaml). In-world, page 1 is the sac handled (readable.cinder_sac) and page 2 is Sel's telling."
+pages:
+  - page: 1
+    text: >
+      Take one off an ember hound and it is still warm an hour later. The cinder sac is the beast's fire gland, a
+      small dark knot cut from behind the ribs, and it holds its heat the way a banked hearth does, long after the
+      hound is not. In the hand it is never quite the heat of the hand, and a careful pair of hands carries it
+      wrapped, in cloth or leather, never against the skin. It is the one thing worth taking off the kill besides
+      the kill itself, and the only sign of what the hound was that keeps on working after the hound has stopped.
+    sources:
+      - { how: inspected, ref: readable.cinder_sac }
+  - page: 2
+    text: >
+      Sel Arien buys the sacs, and if you press her for the reason she will shut the door even though no one is
+      near, and tell you. Work one into a finished salve over the fire and the mending runs twice as fast. She has
+      no idea why. She has tried it eleven times and it has worked eleven times, and she still will not write it
+      down until she knows the reason, so it is not a secret but a thing unfinished. A thing that works and cannot
+      say why is kept carefully and not called knowledge. That is the rule she keeps for the sacs, the same rule
+      she keeps for the stones she will not name a people for.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }

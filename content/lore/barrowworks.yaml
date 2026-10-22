@@ -1,0 +1,31 @@
+id: lore.barrowworks
+kind: lore
+schema: 1
+display_key: lore.barrowworks.title
+tags: [lore, places]
+title: The Barrowworks
+category: places
+notes: "Written from content/regions/barrowworks.yaml (thirteen rooms, the withdrawal notice, the fitting note, the diagram rack, the blind store ledger, the measure at the headworks) and content/quests/barrowworks/unfinished_measure.yaml (built to gauge something, never finished, the readings still on the walls), and Kera Voss's line on the ring. In-world, page 1 is the headworks walked into (location.barrowworks.headworks) and page 2 is the ring's own writing (readable.barrowworks)."
+pages:
+  - page: 1
+    text: >
+      Under the hill at Ashen Hollow there is a ring of thirteen rooms, sealed away from the open air, and it was
+      built to gauge something and never finished the job. The rooms run in a ring round a court, cut through solid
+      stone, and the walls still carry the work: a withdrawal notice painted over twice, a stand of fitting notes,
+      rack after rack of the same drawing, each a little further from the last and none of them finished. The last
+      room holds the measure itself — a beam of fitted segments, each cut to a tolerance nothing in the ring could
+      hold, and the whole of it still true, made to outlast the works that built it. Whatever it was for, the works
+      stopped before the measuring was worked out.
+    sources:
+      - { how: visited, ref: location.barrowworks.headworks }
+  - page: 2
+    text: >
+      What the ring's own writing says, read from its walls. The notice declares the ring closed pending a
+      measurement that was never completed, and the name signed at its foot has been struck through so hard the
+      chisel went through the board. In a room nothing was ever taken out of, a ledger runs column after column of
+      the same reading, taken again and again over years, and every one of them short of the last; the final page is
+      dated the day the works stopped, and the number on it is not a reading at all but the width of the gap between
+      what the ring gauged and what it was meant to. The keeper of the ring still stands waiting in the court for a
+      reading that stopped coming. That is all the works will say about itself; the rest it keeps.
+    sources:
+      - { how: inspected, ref: readable.barrowworks }

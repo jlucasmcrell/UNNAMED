@@ -1,0 +1,28 @@
+id: lore.sinking_moss
+kind: lore
+schema: 1
+display_key: lore.sinking_moss.title
+tags: [lore, places]
+title: The Sinking Moss
+category: places
+notes: "Written from content/locations/cairnwold/the_bog.yaml (the low wet north-east corner of the basin that cannot drain) and content/quests/main/moss_lights.yaml (the lights follow standing water), with Mara Ling's failing water from content/dialogue/cairnwold/mara_ling.yaml. In-world, page 1 is the bog walked into (location.cairnwold.the_bog) and page 2 is Mara's telling of where the water comes from."
+pages:
+  - page: 1
+    text: >
+      Cairnwold's basin drains to the north-east, and where it cannot drain the ground turns to the Sinking Moss -
+      a low, wet corner of standing water and sphagnum and cotton grass, the kind of ground that keeps what falls
+      on it. It lies down in the corner of the basin and the village gives it a wide way round. On some nights
+      there are lights over the standing water that will not keep still to be counted and do not add up when they
+      do. By day it is quiet and grey-green, and the wet edge is the only boundary that can be trusted.
+    sources:
+      - { how: visited, ref: location.cairnwold.the_bog }
+  - page: 2
+    text: >
+      Mara Ling keeps the well, and she will tell you the trouble is not the well. The water comes from the
+      north-east, from the low ground and the moss that never drains, and this spring it has come up brown at the
+      end of the rope. She asks for three ashbloom from the wettest ground, and splits the first with her
+      thumbnail - root, stem and leaf all grey, all exactly as they have always been. So the plant is well and
+      the water is not, which means it comes from deeper than the plant reaches. She hates being right, and she
+      says so.
+    sources:
+      - { how: told, ref: dialogue.cairnwold.mara_ling }

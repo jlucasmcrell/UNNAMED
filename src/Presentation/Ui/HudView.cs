@@ -120,6 +120,9 @@ public partial class HudView : Control
     private readonly PanelContainer _targetBox = new();
     private readonly Label _targetName = HudStyle.Text(HudStyle.Caps, 18, HudStyle.Bone, caps: true);
     private readonly Label _targetMeta = HudStyle.Text(HudStyle.Body, 15, HudStyle.Ash);
+
+    /// <summary>What the character has read about this creature (spec 41): the page itself, not a summary of it.</summary>
+    private readonly Label _targetKnown = HudStyle.Text(HudStyle.Body, 14, HudStyle.Brass);
     private readonly Gauge _target = new(HudStyle.HealthFill, new Vector2(320, 9));
     private readonly VBoxContainer _toasts = new();
     private readonly List<(Control Box, string Text, double Expires)> _live = new();
@@ -415,6 +418,7 @@ public partial class HudView : Control
         _targetMeta.HorizontalAlignment = HorizontalAlignment.Center;
         rows.AddChild(_targetName);
         rows.AddChild(_targetMeta);
+        rows.AddChild(_targetKnown);
         rows.AddChild(_target);
         _targetBox.AddChild(rows);
         _targetBox.Visible = false;
@@ -847,6 +851,9 @@ void fragment() {
         _targetName.Text = read.Name + (read.Status.Length>0 ? " · " + read.Status : "");
         _targetName.AddThemeColorOverride("font_color", TargetTone.Of(read.Threat));
         _targetMeta.Text = read.Meta;
+        // What is known of it, once anything is: a beast studied and written up says what its own page says, and nothing until then.
+        _targetKnown.Text = read.Known;
+        _targetKnown.Visible = read.Known.Length > 0;
         _target.Visible = read.ShowBar;
         _target.Set(read.Health, Math.Max(1, read.MaxHealth));
     }

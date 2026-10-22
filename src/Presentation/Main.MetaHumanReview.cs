@@ -34,6 +34,10 @@ public partial class Main
 
     private void InstallMetaHumanReview()
     {
+        // The lore capture is a review-mode pass with its own harness: it sets the review variable so a launcher would take it for review, and
+        // this sequence would otherwise drive the same window.
+        if (_options.ContainsKey(LoreShotsOption))
+            return;
         if (System.Environment.GetEnvironmentVariable("OTHERREACH_MH_REVIEW_OUT") is not { Length: > 0 } directory)
             return;
         if ((!MetaHumanFigure.Available && VisualOptions.People != "mpfb") || DisplayServer.GetName() == "headless")

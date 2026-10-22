@@ -29,7 +29,7 @@ public static class SocialContent
 
     private static readonly string[] Consequences =
         { "transfer_item", "teach", "set_world_flag", "record_relationship_event", "open_service", "start_quest", "recruit_companion", "order_companion",
-          "report_act", "hire_hireling", "dismiss_companion", "rent_room" };
+          "report_act", "hire_hireling", "dismiss_companion", "rent_room", "tell_lore" };
 
     public static IReadOnlyList<ValidationError> Validate(ContentLoader loader)
     {
@@ -376,6 +376,9 @@ public static class SocialContent
                 : throw new FormatException($"{at}: rent_room names an hour of the day, 0 to 23")),
             "order_companion" => new OrderCompanionConsequence(Order(Text(map, "order"), at)),
             "report_act" => ReportAct(at, map, loader),
+            // tell_lore (spec 41): the speaker tells of something they know, and the page that answers to it is filed in the journal. The page
+            // must be a told page of that entry, heard in this conversation, or the reply would be a story the journal never receives.
+            "tell_lore" => new TellLoreConsequence(Defined(loader, Text(map, "lore_ref"), "lore", at)),
             "add_reputation" => throw new FormatException($"{at}: add_reputation is refused: standing moves only when a member is told of an act (WP6)"),
             _ => throw new FormatException($"{at}: consequence '{command}' is not built in Phase 1 ({string.Join(", ", Consequences)})"),
         };

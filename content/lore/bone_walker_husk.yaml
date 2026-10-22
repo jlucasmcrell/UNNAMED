@@ -1,0 +1,29 @@
+id: lore.bone_walker_husk
+kind: lore
+schema: 1
+display_key: lore.bone_walker_husk.title
+tags: [lore, creatures]
+title: The Bone Walker Husk
+category: creatures
+notes: "Written from content/creatures/undead/bone_walker_husk.yaml (slow, longest reach in the hollow behind a long readable windup, arrows pass through bone, no blood to lose, a walk a person can outpace) and content/quests/bounty/crag_walker.yaml and content/loot/bone_walker_husk.yaml (what it still carries, and the crag walker bounty any husk counts toward). In-world, both pages are what studying the dead thing teaches (creature.undead.bone_walker_husk)."
+pages:
+  - page: 1
+    text: >
+      The bone walker husk is the dead that walk the hollow, slow and patient and impossible to bleed. It carries
+      the longest reach in the hollow, and that reach comes out behind a long, readable windup, so the way to fight
+      it is to read the windup and not be where the blow lands; its turn is stiff and dead, and a walking pace will
+      leave it behind. Arrows are wasted on it — they pass through bone and do a fraction of what they should — and
+      it has no blood to lose, so the wounds that kill living things only slow it. Hit it, and step back, and do not
+      trade blows with it.
+    sources:
+      - { how: studied, ref: creature.undead.bone_walker_husk }
+  - page: 2
+    text: >
+      What the husk is worth is not its body but what it still carries from whoever it was: arrows, now and then a
+      salve, and rarely a piece of worn gear or a book of patterns, as if the dead kept their pockets. Durn Skell
+      posts a standing bounty on whatever walks the foot of the south crags after dark — he calls it the crag
+      walker, and any husk put down counts toward it, because nobody has ever seen the crag walker close enough to
+      say it is anything but another husk. The work is posted again a day after it is done. There is no shortage of
+      it.
+    sources:
+      - { how: studied, ref: creature.undead.bone_walker_husk }

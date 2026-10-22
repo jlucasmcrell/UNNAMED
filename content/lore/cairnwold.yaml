@@ -1,0 +1,31 @@
+id: lore.cairnwold
+kind: lore
+schema: 1
+display_key: lore.cairnwold.title
+tags: [lore, places]
+title: Cairnwold
+category: places
+notes: "Written from content/locations/cairnwold/village.yaml and content/locations/cairnwold/lodge.yaml (the dry south-west rise, the lodge, seven houses, the smithy, the well, the staddle granary, the drystone walls) and Berrin Garth's own lines (why the walls are drystone, why the granary stands on staddles, what is older than the village). In-world, page 1 is the village walked into (location.cairnwold.village) and page 2 is Berrin's telling (dialogue.cairnwold.berrin_garth)."
+pages:
+  - page: 1
+    text: >
+      Cairnwold is the second settlement a traveller meets coming east, a village on the dry rise at the basin's
+      south-west, and it does not announce itself the way the waystation does — it is simply there, seven houses and
+      a smithy and a well, drystone walls threading it together, and the long lodge at its east end, eighteen metres
+      of hall under one slate roof with the hearth under its own chimney. The granary stands off on stone legs at
+      the quiet west end, where Tam Crowden counts what comes off the moor. Nothing in the village is new and
+      nothing in it is hurried; it is a place that has decided what it is for and gets on with it.
+    sources:
+      - { how: visited, ref: location.cairnwold.village }
+  - page: 2
+    text: >
+      Berrin Garth keeps the lodge and remembers why every part of the village is the way it is, and he will tell
+      you, warmly and at length. The walls are drystone, he says, because mortar wants lime and lime wants a kiln
+      and a kiln wants a man with a whole summer, and nobody here has ever had a summer like that — drystone wants
+      a winter and two good hands. The granary stands on staddles, stone legs with a flat cap on each, so a mouse
+      climbs up and hangs there thinking about its choices. And if you ask what is older than the village, he points
+      at the crag line on the south edge — put there by somebody, or something, and not by the village — and the cut
+      in the east where the beck leaves, which is only water and time. We built between the two, he says, walled it,
+      and called it home.
+    sources:
+      - { how: told, ref: dialogue.cairnwold.berrin_garth }

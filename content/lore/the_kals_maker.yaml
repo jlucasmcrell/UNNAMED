@@ -1,0 +1,39 @@
+id: lore.the_kals_maker
+kind: lore
+schema: 1
+display_key: lore.the_kals_maker.title
+tags: [lore, faith]
+title: The Kal's Maker
+category: faith
+notes: "The Kal's workshop theology of a maker whose name is lost, from docs/MYTHOLOGY.md, Kal. Written as the smith's account at the forge - Kera Voss's telling - and the entry's own inscription; a maker who finishes and leaves is competent, not cruel. Page 3 is the Constructed's counter (readable.the_kals_maker_ii)."
+pages:
+  - page: 1
+    text: >
+      The Kal say they were made, and they mean it the way a smith means it. Kera Voss will tell you over the
+      anvil, when she is not too loud to be heard, that the word for creation is a word for shaping and joining
+      and finishing, and that there is nothing else behind it. The one who made them has no name now; it has been
+      lost, and she does not pretend otherwise. What she will not hear is that the maker was unkind. A maker who
+      finishes the work and walks away, she says, is not cruel. He is competent. The work was done, and it stayed
+      done.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.kera_voss }
+  - page: 2
+    text: >
+      The inscription is short, and it is the whole of the doctrine. Made, not born; finished, not abandoned.
+      The maker is not named, and the Kal do not ask that the name be found, because a name is not the work.
+      There is no prayer in the words, and no plea, and no complaint that the maker is gone. There is only the
+      holding that a maker who finishes and leaves is a maker who did the job well, and that the people the work
+      became are themselves the signature. The smith points at the last line and says, of the stone and of
+      herself, the same thing: made well.
+    sources:
+      - { how: inspected, ref: readable.the_kals_maker }
+  - page: 3
+    text: >
+      The other people who know what being made is, and their account does not match the smith's. The Kal hold
+      that a maker who finishes and leaves is competent, and the absence of a name does not trouble them. The
+      Constructed hold the opposite: they can prove they were made, and the proof names no hand at the top, and
+      the absence is the one thing they cannot bear. A proof of making, they say, is not a name, and may not be a
+      mind at all. The Kal's comfort and the Constructed's wound are the same fact looked at from two sides, and
+      neither account reaches the other.
+    sources:
+      - { how: inspected, ref: readable.the_kals_maker_ii }

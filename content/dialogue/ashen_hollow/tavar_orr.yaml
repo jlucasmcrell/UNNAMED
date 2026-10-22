@@ -88,6 +88,37 @@ nodes:
         conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, order: wait }]
         consequences: [{ command: order_companion, order: follow }]
         next: following
+      # Spec 41: what the fold was, from the only person who has been inside one. He tells it plainly; he does not perform it.
+      - id: ask_the_fold
+        text: "Tell me about the fold - what it was like, in there."
+        conditions: [{ kind: visited, node: tell_the_fold, not: true }]
+        consequences: [{ command: tell_lore, lore_ref: lore.tavar_and_the_fold }]
+        next: tell_the_fold
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_orenth
+        text: "Tell me about the orenth"
+        next: tell_orenth
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_tavar_and_the_fold
+        text: "Tell me about tavar and the fold"
+        next: tell_tavar_and_the_fold
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_orenth_p2
+        text: "Tell me about the orenth"
+        next: tell_orenth_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_tavar_and_the_fold_p2
+        text: "Tell me about tavar and the fold"
+        next: tell_tavar_and_the_fold_p2
+
+      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      - id: ask_three_quiet_stones_after_p2
+        text: "Tell me about the three quiet stones"
+        next: tell_three_quiet_stones_after_p2
+
       - id: leave
         text: "Take a moment. I'll see you at the waystation."
         conditions: [{ kind: companion_present, npc_ref: npc.ashen_hollow.tavar_orr, not: true }]
@@ -100,6 +131,14 @@ nodes:
         consequences:
         - command: start_quest
           quest_ref: quest.main.wrong_side
+  tell_the_fold:
+    text: "\"Nothing hurt,\" he says, and takes his time about it. \"That's the part nobody expects. I walked in after a chain and I did not walk out, and it stopped being an afternoon. The others went on having one. I could see the rise from where I stood and nobody on it could get a hand to me - a hand's width short, every time.\" He turns his cup around. \"It wasn't another place. It was this place, a breath out of step, and I was in the step. If I'd called it a place I think I'd have made it one.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "I'm glad it's quiet."
+        next: again
   ledger:
     text: "\"Three days, give or take. Cheap, for a crossing I never meant to make.\" He pats a coat pocket; something in it is the shape of a small book. \"We keep a ledger - what each crossing took. I'll put it under 'things I've lost', between my mother's name and a very good knife.\" He smiles as if that were the joke, and not the list."
     choices:
@@ -154,6 +193,46 @@ nodes:
     - id: back
       text: I'll keep looking.
       next: again
+  tell_orenth:
+    text: "Tavar Orr, the guide Sel Arien hires for her surveys, carries the ledger the way another man carries a purse. Three days in the fold, he says, and for him it was one long afternoon — cheap, for a crossing he never meant to make. He will write it down, he says, under things he has lost, between his mother's name and a very good knife, and he smiles as if that were the joke and not the list. The man lost time and does not pretend it cost him nothing; he only keeps the account, because an Orenth who does not keep the account is an Orenth who will one day be asked for more than he has left. His shadow keeps up with him now, which is how the waystation knows he is whole enough to walk."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.orenth }]
+        next: again
+
+  tell_tavar_and_the_fold:
+    text: "Tavar Orr's account, given afterwards, plainly and without performance. He walked in among the stones for a dropped chain and did not walk out. From the rise he could be seen standing; from the rise he could not be reached, and a hand stopped a hand's width short of him. His voice came from the wrong side. He says the worst of it was that nothing hurt and nothing hurried: the afternoon simply did not end, and the others went on having one. He does not describe the fold as another place. He says it was this place, standing a breath out of step, and that he was in it, and that the sun kept going over."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.tavar_and_the_fold }]
+        next: again
+
+  tell_orenth_p2:
+    text: "Tavar Orr, the guide Sel Arien hires for her surveys, carries the ledger the way another man carries a purse. Three days in the fold, he says, and for him it was one long afternoon — cheap, for a crossing he never meant to make. He will write it down, he says, under things he has lost, between his mother's name and a very good knife, and he smiles as if that were the joke and not the list. The man lost time and does not pretend it cost him nothing; he only keeps the account, because an Orenth who does not keep the account is an Orenth who will one day be asked for more than he has left. His shadow keeps up with him now, which is how the waystation knows he is whole enough to walk."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.orenth }]
+        next: again
+
+  tell_tavar_and_the_fold_p2:
+    text: "Tavar Orr's account, given afterwards, plainly and without performance. He walked in among the stones for a dropped chain and did not walk out. From the rise he could be seen standing; from the rise he could not be reached, and a hand stopped a hand's width short of him. His voice came from the wrong side. He says the worst of it was that nothing hurt and nothing hurried: the afternoon simply did not end, and the others went on having one. He does not describe the fold as another place. He says it was this place, standing a breath out of step, and that he was in it, and that the sun kept going over."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.tavar_and_the_fold }]
+        next: again
+
+  tell_three_quiet_stones_after_p2:
+    text: "Tavar Orr will tell you the stones were holding something shut or holding something still, and that he could not say which, and that somebody turned them out of line before anyone now living ever came out here. Not me, he says, and then he checks himself, and adds that he would remember, probably. Three days for Sel, he says, and one long afternoon for him, where everything arrived a breath late and his voice came from the wrong side. He keeps the cost in a little book, under things he has lost. The walk out is the part that does not go in it."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.three_quiet_stones_after }]
+        next: again
+
 barks:
   - text: "Still here. Still on time."
     conditions: [{ kind: visited, node: greet }]

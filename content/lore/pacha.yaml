@@ -1,0 +1,37 @@
+id: lore.pacha
+kind: lore
+schema: 1
+display_key: lore.pacha.title
+tags: [lore, history]
+title: The Pacha
+category: history
+notes: "What a Pacha is and how many are remembered, from docs/MYTHOLOGY.md, What a Pacha is and Known Pachas. Written as the surveyor's lexicon, in Sel Arien's voice - the told page is hers and the read page is the entry's own book; the setting's Pacha is left unnamed, as canon leaves it. Page 3 is the Vaskaal's own record (readable.pacha_ii), the contradicting count."
+pages:
+  - page: 1
+    text: >
+      A Pacha is the whole of a place and its time: its space, its matter, its history and its laws, taken
+      together as one thing. Sel Arien sets it out the way she sets out a measure. It is not a world, and not a
+      plane, and not a dimension; a world is a thing that sits inside a Pacha, the way a room sits inside a
+      house. Ask her for more and she will say the word matters because people keep using it wrongly, and that
+      she keeps the word apart so the reading does not drift. One Pacha is not a part of a larger one.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }
+  - page: 2
+    text: >
+      The surveyor's copy of the count. Five Pachas are remembered, and the number is argued over, for the
+      Vaskaal say there are more, and that counting them is how a person dies. The five do not stand one above
+      another, and no one of them is the true one that the rest reflect, though more than one people holds
+      otherwise and is wrong. This Pacha has no name in common use, and the notes mark that as itself a finding:
+      a person does not name the room they live in.
+    sources:
+      - { how: inspected, ref: readable.pacha }
+  - page: 3
+    text: >
+      The Vaskaal's own record, and it parts from the surveyor's count on the first line. Sel Arien writes five
+      Pachas, remembered. The Vaskaal write that the number is wrong, and will not give the right one. Ask them
+      how many, and they answer that counting them is how a person dies. They crossed the space that holds the
+      Pachas; they have seen enough of them to know a count is a thing people die making. So the void-farers'
+      ledger keeps no number where the surveyor keeps five, and the two books sit side by side on the same shelf,
+      each one sure the other has stopped reading too soon.
+    sources:
+      - { how: inspected, ref: readable.pacha_ii }

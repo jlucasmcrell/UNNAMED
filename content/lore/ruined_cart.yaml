@@ -1,0 +1,28 @@
+id: lore.ruined_cart
+kind: lore
+schema: 1
+display_key: lore.ruined_cart.title
+tags: [lore, places]
+title: The Ruined Cart
+category: places
+notes: "Written from content/locations/ruined_cart.yaml and content/loot/merchant_cart.yaml (the damaged merchant cart in Charwood where the hunting bow lies, and what it still holds), per docs/PHASE1_ASHEN_HOLLOW_PLAYABLE_CONTENT_BIBLE.md 6. In-world, page 1 is the cart walked up to (location.ruined_cart) and page 2 is a careful record of its stock (readable.ruined_cart_ii), since no keeper speaks of it."
+pages:
+  - page: 1
+    text: >
+      Among the Charwood's trees there is a merchant cart, and it is not going anywhere. One side is stove in and
+      the load has broken open onto the moss. What it carried is a trader's stock, not a farmer's: a hunting bow
+      lies where it fell, with a sheaf of rough arrows and a small traveller's blade, and little bottles of the
+      kind that coat a blade before a hunt. Nothing has been tidied and nothing taken but what the weather has got
+      to. The wood is going grey at the corners, but the bow is still sound and the string still takes a pull.
+    sources:
+      - { how: visited, ref: location.ruined_cart }
+  - page: 2
+    text: >
+      A careful look at what the cart still holds, set down as found: a two-handed hunting bow and a dozen rough
+      arrows, an iron dagger, and four small bottles - a poison, a snarebind, and two coatings, one that brings
+      sleep and one that brings stillness. The load is a merchant's line, weapons and the things that go with a
+      hunt, and it has lain long enough that the wrappings have gone soft but not long enough that the iron has
+      turned. There is no name on the cart and no mark of who drove it, and nothing here says why it stopped. It
+      is a cart the wood has kept, and the bow in it is good.
+    sources:
+      - { how: inspected, ref: readable.ruined_cart_ii }

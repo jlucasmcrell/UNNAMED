@@ -1,0 +1,28 @@
+id: lore.rim_stone
+kind: lore
+schema: 1
+display_key: lore.rim_stone.title
+tags: [lore, places]
+title: The Rim Stone
+category: places
+notes: "Written from content/locations/road/basin_rim.yaml (the Rim, the watch-fire someone keeps) and the waystone block of content/regions/starting_frontier.yaml (waystone.rim, dormant and woken by three hands and a name), with Berrin Garth's rite from content/dialogue/cairnwold/berrin_garth.yaml rim_stone and content/quests/main/road_east.yaml. In-world, page 1 is the stone walked up to on the Rim (location.road.basin_rim - the stone has no location id of its own) and page 2 is Berrin's telling of Old Corra's rite."
+pages:
+  - page: 1
+    text: >
+      The road climbs to the Rim and meets the drop, and there the whole of Cairnwold's basin opens below - the
+      village, the moss, the line of the crags - with a watch-fire someone keeps, and a stone standing at the edge
+      of the fall. The stone is a Waystone, one of the old travellers' stones, but it is cold under the hand and
+      does not answer, and it has not answered in living memory. A traveller coming east stops at it because it is
+      the only fixed thing on the top, and because the custom of the road is to put a hand on a Waystone and go
+      on.
+    sources:
+      - { how: visited, ref: location.road.basin_rim }
+  - page: 2
+    text: >
+      Berrin Garth keeps the lodge book, and in it is the Rim Stone's rite. It is a Waystone, he says, or it was -
+      cold since before his grandfather. Old Corra set it down as three hands and a name, and then wrote not
+      another word on it for forty years. The rite is simple: three times with the flat of the hand, one after
+      another, and then you tell the stone its name, as if reminding it. Nobody in the village has tried it in his
+      time. Nobody here, he says, has ever wanted to be anywhere it went.
+    sources:
+      - { how: told, ref: dialogue.cairnwold.berrin_garth }

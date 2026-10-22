@@ -276,6 +276,13 @@ public sealed record RentRoomConsequence(int Hour) : DialogueConsequence;
 /// </summary>
 public sealed record ReportActConsequence(string Kind, string Subject) : DialogueConsequence;
 
+/// <summary>
+/// <c>tell_lore</c> (spec 41): the speaker tells the character about something they know of, and the page or pages that answer to it are
+/// filed in the journal. The words are the lore content's, as the speaker varies them: the reply is what the speaker says, and the page is
+/// what the character learns. An entry already found opens nothing.
+/// </summary>
+public sealed record TellLoreConsequence(string EntryId) : DialogueConsequence;
+
 /// <summary>What a condition may ask of the world, answered by the simulation (read only).</summary>
 public interface IDialogueFacts
 {

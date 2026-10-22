@@ -8,6 +8,7 @@ using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Items;
+using UNNAMED.Domain.Knowledge;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
@@ -261,6 +262,11 @@ public static class M2Fixtures
                     ImmutableArray<string>.Empty, 4_600),
                 new Finding(FindingKind.Hint, "station.fixture_hearth", "hearth",
                     "recipe.alchemy.salve_minor", ImmutableArray.Create("item.potion.minor_healing"), 4_800)),
+            // Schema 35 (lore): a page of the vale's own entry, found by walking into the den, and a page of the warden's account, told in her
+            // conversation.
+            Lore = ImmutableArray.Create(
+                new LorePageRecord("lore.fixture_vale", 1, LoreSourceKind.Visited, "location.den_mouth", 4_600),
+                new LorePageRecord("lore.fixture_warden", 1, LoreSourceKind.Told, "dialogue.fixture.warden_sera", 4_700)),
         };
 
         public static readonly EntityId BagId = EntityId.Create(EntityKind.Item, 1_700_000_000_003, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 3 });
@@ -461,7 +467,7 @@ public static class M2Fixtures
         private static EntityId Creature(byte n) => EntityId.Create(EntityKind.Creature, 1_700_000_000_100 + n, new byte[] { 7, 7, 7, 7, 7, 7, 7, 7, 7, n });
 
         public const string CurrentContentVersion = "0.2.9";
-        public const string CurrentContentHash = "sha256:020b7c4c4fa05ec746d0383eb45aa06a1e4377e98342639260603e2557327ace";
+        public const string CurrentContentHash = "sha256:c5c183797fd897b73fc9ab1d7c157fc7d77719bed8e4c2db727020a8f646988e";
 
         /// <summary>
         /// Fixtures/content (0.2.0) as a content identity, for the probe, which does not load content
@@ -476,7 +482,7 @@ public static class M2Fixtures
                 "effect.bleeding", "effect.weakened", "faction.fixture.keepers",
                 "item.bag.satchel", "item.potion.minor_healing",
                 "item.weapon.iron_sword",
-                "location.den_mouth", "npc.fixture.warden_sera", "quest.fixture.cull", "quest.fixture.wardens_errand", "recipe.alchemy.salve_minor",
+                "location.den_mouth", "lore.fixture_vale", "lore.fixture_warden", "npc.fixture.warden_sera", "quest.fixture.cull", "quest.fixture.wardens_errand", "recipe.alchemy.salve_minor",
                 "region.fixture_vale", "skill.athletics",
                 "skill.one_hand_blade",
                 "spell.ember.bolt", "world.door.cellar_open", "world.lever.mill_gate",

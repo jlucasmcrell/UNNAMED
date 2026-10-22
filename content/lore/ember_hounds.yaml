@@ -1,0 +1,30 @@
+id: lore.ember_hounds
+kind: lore
+schema: 1
+display_key: lore.ember_hounds.title
+tags: [lore, creatures]
+title: Ember Hounds
+category: creatures
+notes: "The Ash Ember Hound, in two pages (spec 41 §5): the beast as the fight teaches it, and what Sel Arien wants its cinder sacs for. Canon - the creature's own content note (fast predator, outruns a sprint, the ember-hot lunge that no guard or armour takes, the cinder sac on the corpse) and Sel's ember lesson, which is already written as a line she says. Nothing here changes how the hound fights."
+pages:
+  - page: 1
+    text: >
+      The ash ember hound is a fast predator and the first thing on this road that will outsprint you. It does
+      not circle and it does not tire; it comes, and it keeps coming, and the ground it likes is open ground.
+      Its lunging bite is ember-hot. That is the part that kills people: no guard turns it and no armour takes
+      it, so the only answer is to be somewhere else when it lands, which means watching the tell and moving on
+      the tell rather than on the hound. Its corpse holds a cinder sac, warm long after the beast is not, and the
+      sac is worth carrying back - the Survey asks for it and pays, and the smith has a use for the rest.
+    sources:
+      - { how: studied, ref: creature.beast.ash_ember_hound }
+  - page: 2
+    text: >
+      What the cinder sacs are for, in Sel Arien's own words, given with the door shut even though there is no
+      one to hear. Work one into a finished salve over a fire and the mending runs twice as fast. She has no idea
+      why. She has tried it eleven times and it has worked eleven times, and she still will not put it in the
+      Record until she knows the reason, so it is not a secret - it is unfinished. That distinction matters to
+      her more than the salve does. A thing that works and cannot say why is a thing to be kept carefully and
+      not written down as knowledge, and the same rule she applies to the stones she will not name a people for
+      applies to the cinders she is happy to use.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }

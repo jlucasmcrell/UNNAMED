@@ -1,0 +1,31 @@
+id: lore.wayhold
+kind: lore
+schema: 1
+display_key: lore.wayhold.title
+tags: [lore, peoples]
+title: The Wayhold
+category: peoples
+notes: "Written from content/factions/ashen_hollow/wayhold.yaml (the chapter of Renn Vale and Kera Voss, seat at the waystation), Renn Vale's notices and the roadwarden's letter, and content/locations/road/lantern_shrine.yaml (the lantern kept filled). In-world, page 1 is what the seat itself shows (location.outpost) and page 2 is Renn Vale's own account (dialogue.ashen_hollow.renn_vale)."
+pages:
+  - page: 1
+    text: >
+      The Wayhold is the order that keeps the road, and its chapter at the hollow is the waystation itself — a
+      roof, a bed, a meal, and a board of what the road needs doing. The notices are posted where anyone coming in
+      off the ridge can read them: wolves to be taken off the road, timber for the roof, ore for the forge, each
+      with a price and a purse behind it. Its people are the steward Renn Vale and the smith Kera Voss, and between
+      them they hold the stop together, the one at the book and the other at the anvil. The same order keeps the
+      lantern at the roadside shrine down the way filled, so a traveller in the dark is never walking toward a light
+      that has been let go out.
+    sources:
+      - { how: visited, ref: location.outpost }
+  - page: 2
+    text: >
+      The steward explains how it runs, in his deadpan, to anyone who asks after the notices. The Wayhold posts what
+      the road needs, and he reads it out, since half the road cannot; three wolves off the road and the Wayhold
+      pays, six lengths of timber and so does he, out of the same purse, and it all goes back up in the morning
+      whether anyone has done the work or not. When he pays, he is careful to say it is from the Wayhold and not
+      from him — he only holds the purse. And when the accounts go east, the roadwarden at the Vessmere stone is
+      the one who takes the Wayhold's letter, keep it dry. The order, in short, is the road's memory and the road's
+      hand.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.renn_vale }

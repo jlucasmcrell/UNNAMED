@@ -9,6 +9,7 @@ using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Items;
+using UNNAMED.Domain.Knowledge;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
@@ -122,6 +123,9 @@ public enum StateSlice
 
     /// <summary>What the character's experiments at stations taught (UI progression F). Saved with the player (schema 31).</summary>
     Findings,
+
+    /// <summary>The lore pages the character has unlocked (spec 41). Saved with the player (schema 35).</summary>
+    Lore,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -184,6 +188,7 @@ internal sealed class RuntimeState
         FamilyBars = player.FamilyBars;
         PartySheets = player.PartySheets.ToImmutableSortedDictionary(p => p.NpcId, p => p, StringComparer.Ordinal);
         Findings = player.Findings;
+        Lore = player.Lore;
     }
 
     public WorldDelta World { get; }
@@ -215,6 +220,7 @@ internal sealed class RuntimeState
         ImmutableSortedDictionary.Create<string, CompanionState>(StringComparer.Ordinal);
     public ImmutableSortedDictionary<string, DeedTally> Deeds { get; private set; }
     public ImmutableArray<Finding> Findings { get; private set; }
+    public ImmutableArray<LorePageRecord> Lore { get; private set; }
     public long? WeatherCursor { get; private set; }
     public LfgState Lfg { get; private set; } = LfgState.Empty;
     public FactionLedger Factions { get; private set; }
@@ -356,6 +362,12 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Findings);
         Findings = findings;
+    }
+
+    public void SetLore(SliceOwner owner, ImmutableArray<LorePageRecord> lore)
+    {
+        Require(owner, StateSlice.Lore);
+        Lore = lore;
     }
 
     /// <summary>Replace action bar <paramref name="bar"/> (0 to 5; 0 is the quick bar).</summary>

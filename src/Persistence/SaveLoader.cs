@@ -11,6 +11,7 @@ using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Factions;
+using UNNAMED.Domain.Knowledge;
 using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
@@ -530,6 +531,17 @@ internal static class SaveLoader
                 findings.Add(resolved);
         }
 
+        // Lore pages (schema 35): a page whose entry was removed goes with it; two that resolve to the same entry and page are one.
+        var lore = new List<LorePageRecord>();
+        foreach (var page in player.Lore)
+        {
+            if (Resolve(page.EntryId, $"player lore page ({page.EntryId}#{page.Page})") is not { } id)
+                continue;
+            var resolved = page with { EntryId = id };
+            if (lore.All(p => p.EntryId != resolved.EntryId || p.Page != resolved.Page))
+                lore.Add(resolved);
+        }
+
         // The party ledger is set aside while the party is rewritten: a rename may bring the two together, which the record refuses.
         var rewritten = player with { Party = PartyLedger.Empty, PartySheets = ImmutableArray<PartySheet>.Empty };
         rewritten = rewritten.WithInventory(inventory).WithProgression(progression).WithDiscoveries(discoveries.Values).WithEffects(effects.Values)
@@ -541,6 +553,7 @@ internal static class SaveLoader
                 PartySheets = sheets.Values.ToImmutableArray(),
                 Attack = attack,
                 Findings = findings.ToImmutableArray(),
+                Lore = lore.ToImmutableArray(),
             },
             new DeltaSnapshot(cells, entities.ToImmutable())
             {

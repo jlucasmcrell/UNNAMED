@@ -1,0 +1,27 @@
+id: lore.wolves_den
+kind: lore
+schema: 1
+display_key: lore.wolves_den.title
+tags: [lore, places]
+title: The Wolves' Den
+category: places
+notes: "Written from content/locations/den_mouth.yaml (a notch in the rock in Charwood's north-west corner) and the den rocks in content/regions/ashen_hollow.yaml, with Halda Crowden's story from content/quests/ashen_hollow/haldas_tally.yaml and content/dialogue/cairnwold/tam_crowden.yaml. In-world, page 1 is the den walked up to (location.den_mouth) and page 2 is Tam Crowden's telling of her sister Halda and the wolves that took the den."
+pages:
+  - page: 1
+    text: >
+      Charwood thins toward its north-west corner and the ground breaks against rock, and there is a notch in the
+      stone where the wood gives out - the wolves' den. Rock rises on three sides of it and the pack keeps to the
+      mouth, grey wolves that run in number. They do not come out to meet a traveller who keeps clear, but the
+      ground about the mouth is theirs, trodden bare and scattered with what the pack has carried back. It is a
+      place you see before you are near enough to matter, and you turn back before they notice you have come.
+    sources:
+      - { how: visited, ref: location.den_mouth }
+  - page: 2
+    text: >
+      Tam Crowden counts everyone who comes up the west end, and she counts them because her sister went up the
+      north slope and did not come down. Halda trapped up there, she says, before the wolves took the den - the
+      notch in the rock was Halda's cache before it was theirs. Two winters back she went up after the wolves and
+      did not come down, and Tam counted her out. What came home instead was a hand's length of horn, notched once
+      for every hide, thirty-one of them. She keeps it where it gets counted.
+    sources:
+      - { how: told, ref: dialogue.cairnwold.tam_crowden }

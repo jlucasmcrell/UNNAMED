@@ -96,6 +96,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | The quick bar is twelve slots with a switch to gear set 1 on key 9; the second action bar holds `item.potion.minor_healing` and `spell.ember.bolt`; gear set 1 "Sword and board" wears the carried sword in the main hand | player quick bar, extra bars, gear sets | Schema 32 (action bars and gear sets: older saves keep their eight slots on the first bar, the other bars empty, no set). |
 | `item.bag.satchel` worn in the second of the four bag slots (it lies in no slot of any bag); the sword in backpack slot 0, locked; the three draughts in backpack slot 3, marked as junk | player pack (bag slots, each stack's bag, slot, lock and junk) | Schema 33 (inventory organisation: bags, sorting, junk, locks). v1-v32 migrate to every stack unplaced (bag 0, slot -1: the pack places them where their kind goes when the world starts), none locked or junk, and four empty bag slots; a schema-33 player without its pack, or one whose bag slots name a stack that lies in a bag or that is not carried, is corrupt, not defaulted |
 | The sword's family (`skill.one_hand_blade`) is the held family and its layout is the quick bar as it stands; bare hands (`unarmed`) keep a layout of their own, the draught on key 1; the warden has "focus my target" on | player held family, family layouts, focus targets | Schema 34 (before testers: the main bar follows the weapon in hand, canon 26 §8; party tactic "focus my target"). v1-v33 migrate to no family held (the first tick adopts the weapon in hand and its layout is the bar as it stands), no layouts and no focus target; a schema-34 player without them, with a layout that is not twelve slots under a weapon family, whose held family has no layout or a layout that is not the main bar, or that names a focus target who is not a party member, is corrupt, not defaulted |
+| A page of the vale's own entry, found by walking into the den, and a page of the warden's account, told in her conversation | player lore | Schema 35 (lore: the journal pages the character has unlocked, each naming its entry, page, what opened it and when). v1-v34 migrate to no pages; a schema-35 player without its lore, or a page whose name is not a way the world reports, is corrupt, not defaulted |
 
 ## Provenance
 
@@ -135,6 +136,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `v33/` | The inventory-organisation schema-33 writer (the pack: bag slots, each stack's place, lock and junk) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 
 | `v34/` | The before-testers schema-34 writer (weapon-family bar layouts and focus targets) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
+| `v35/` | The lore schema-35 writer (the journal pages the character has unlocked) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 
 The one-off addition to `7ff4c57`'s probe that wrote `v1/`. It is not compiled into this build, since
 that build's world API no longer exists:
