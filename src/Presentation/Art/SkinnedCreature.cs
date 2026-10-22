@@ -55,8 +55,9 @@ public sealed partial class SkinnedCreature : CreatureBody
     }
 
     /// <summary>
-    /// The party's mark on a kept animal: a thin red band round the neck, riding the neck bone so it follows the head, sized to the neck it
-    /// actually has (a quarter of that bone's length as the radius, the band a centimetre and a half thick). Not a life ring, and not a shader.
+    /// The party's mark on a kept animal: a red band round the neck, riding the neck bone so it follows the head, sized to the neck it actually
+    /// has - the neck's radius plus a centimetre, the band two centimetres wide - and emissive enough to read at portrait distance, which a
+    /// dark band on dark fur did not (measured: invisible in the still at 3 m). Not a life ring, and not a shader.
     /// </summary>
     public void WearCollar()
     {
@@ -68,14 +69,21 @@ public sealed partial class SkinnedCreature : CreatureBody
         int head = BoneNames.Find(_model.Skeleton, "head");
         Vector3 at = _model.Skeleton.GetBoneGlobalRest(neck).Origin;
         double length = head >= 0 ? at.DistanceTo(_model.Skeleton.GetBoneGlobalRest(head).Origin) : 0.18;
-        float radius = Mathf.Max(0.03f, (float)length * 0.25f);
+        float radius = Mathf.Max(0.03f, (float)length * 0.25f) + 0.01f;
         if (_model.Attach(_model.Skeleton.GetBoneName(neck)) is not { } bone)
             return;
         bone.AddChild(new MeshInstance3D
         {
             Name = "PetCollar",
-            Mesh = new TorusMesh { InnerRadius = radius, OuterRadius = radius + 0.015f, Rings = 18, RingSegments = 8 },
-            MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.72f, 0.11f, 0.09f), Roughness = 0.65f },
+            Mesh = new TorusMesh { InnerRadius = radius, OuterRadius = radius + 0.02f, Rings = 20, RingSegments = 8 },
+            MaterialOverride = new StandardMaterial3D
+            {
+                AlbedoColor = new Color(0.95f, 0.16f, 0.12f),
+                Roughness = 0.5f,
+                EmissionEnabled = true,
+                Emission = new Color(0.55f, 0.06f, 0.05f),
+                EmissionEnergyMultiplier = 0.6f,
+            },
             Position = new Vector3(0, (float)length * 0.5f, 0),
         });
     }

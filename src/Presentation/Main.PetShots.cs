@@ -265,7 +265,9 @@ public partial class Main
                 await Rcd3Wait(1.2);
                 await PetStill("pets_marker");
                 await Obey(PetOrder.WaitHere, 6);
-                await Rcd3Wait(0.8);
+                // Held while the animal walks the ring: the ring is one point and the animal another until it has got there, and a still taken too
+                // early shows a ring with no animal on it (measured twice).
+                await Rcd3Wait(8.0);
                 var held = simulation.Pets.FirstOrDefault()?.Body;
                 await RunAwayFrom(held, 10);
                 await Rcd3Wait(1.5);
@@ -274,8 +276,8 @@ public partial class Main
                 if (held is { } post)
                     await GoTo(post, 5.0, 45);
                 await PetStill("pets_waiting_close", held);
-                if (held is { } marked)
-                    await PetPortrait("pets_ring_pup", marked, simulation.Player.Body);
+                if (simulation.Pets.FirstOrDefault(p => p.Condition == PetCondition.Up)?.Body is { } onPost)
+                    await PetPortrait("pets_ring_pup", onPost, simulation.Player.Body);
                 PetEvidence("wait here", string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Order} at {Metres(p.Body)}")));
                 // Called back to heel: the beats after this one are about what the animal does beside the character.
                 await Obey(PetOrder.Follow, 4);
@@ -613,11 +615,10 @@ public partial class Main
     /// The wolf to offer the meat to, a sleeping one first: an animal that has not seen the character is worth twenty points of the offer's odds,
     /// so the den's sleeper is the better subject where the field's strays are awake and watching the road.
     /// </summary>
-    private static UNNAMED.World.Runtime.CreatureView? FindTameable(Simulation simulation) => simulation.Creatures
-        .Where(c => c.Alive && c.DefId == "creature.beast.wolf_grey" && c.Mind != CreatureMind.Engaged
-                    && Distance(c.Body, simulation.Player.Body) < 80_000)
-        .OrderBy(c => c.Asleep ? 0 : 1)
-        .ThenBy(c => Distance(c.Body, simulation.Player.Body)).FirstOrDefault();
+    private static UNNAMED.World.Runtime.CreatureView? FindTameable(Simulation simulation) =>
+        Quiet(simulation, simulation.Creatures.Where(c => c.Mind != CreatureMind.Engaged && Distance(c.Body, simulation.Player.Body) < 80_000))
+            .OrderBy(c => c.Asleep ? 0 : 1)
+            .ThenBy(c => Distance(c.Body, simulation.Player.Body)).FirstOrDefault();
 
     /// <summary>
     /// The wolf to pick a fight with: one that has no other wolf within twelve metres, which is what makes the fight winnable for a level-one
@@ -625,12 +626,24 @@ public partial class Main
     /// </summary>
     private static UNNAMED.World.Runtime.CreatureView? LoneWolf(Simulation simulation)
     {
-        var wolves = simulation.Creatures.Where(c => c.Alive && c.DefId == "creature.beast.wolf_grey").ToArray();
+        var wolves = Quiet(simulation, simulation.Creatures.Where(c => c.DefId == "creature.beast.wolf_grey")).ToArray();
         if (wolves.Length == 0)
             return null;
         var alone = wolves.Where(w => wolves.All(other => other.Id == w.Id || Distance(other.Body, w.Body) > 12_000))
             .OrderBy(w => Distance(w.Body, simulation.Player.Body)).ToArray();
         return alone.Length > 0 ? alone[0] : wolves.OrderBy(w => Distance(w.Body, simulation.Player.Body)).First();
+    }
+
+    /// <summary>
+    /// Grey wolves on quiet ground: alive, and not within thirty metres of an ash ember hound. The hounds lair at the den and are Hard at level
+    /// three, and every run that drifted there fought the wrong animal (and lost) - the beats want a wolf in the open.
+    /// </summary>
+    private static IEnumerable<UNNAMED.World.Runtime.CreatureView> Quiet(Simulation simulation,
+        IEnumerable<UNNAMED.World.Runtime.CreatureView> wolves)
+    {
+        var hounds = simulation.Creatures.Where(c => c.Alive && c.DefId == "creature.beast.ash_ember_hound").ToArray();
+        return wolves.Where(w => w.Alive && w.DefId == "creature.beast.wolf_grey"
+                                 && hounds.All(h => Distance(h.Body, w.Body) > 30_000));
     }
     /// <summary>Walk to a place in region metres, steering each frame; false when it is not reached in time.</summary>
     private async Task<bool> ApproachPoint(double x, double z, double withinMetres, double maxSeconds)
