@@ -37,7 +37,7 @@ public partial class ScatterView
             float radius = kind.Meshes.Select(m => m.GetAabb().Size.Length()).DefaultIfEmpty(0).Max();
             float tallest = 1 + kind.Rules.Tall.Values.DefaultIfEmpty(0).Max();
             _residentGrids.Add(new ResidentGrid(xs.ToArray(), zs.ToArray(), chunk,
-                kind.Rules.FadeM + radius * kind.Rules.SizeMax * tallest));
+                Reach(kind.Rules) + radius * kind.Rules.SizeMax * tallest));
             _counts[kind.Rules.Name] = 0;
         }
         PlanResidents(_residencySpawn);

@@ -221,7 +221,7 @@ public static class VisualOptions
     public static IReadOnlyDictionary<string, string> All => Values;
 
     /// <summary>The default visual-reference profile; Quality is its player-facing alias.</summary>
-    public const string DefaultTier = "high";
+    public const string DefaultTier = "ultra";
 
     /// <summary>
     /// The run's options: the tier the player saved (<paramref name="savedTier"/>, player runs only) or <see cref="DefaultTier"/>, then

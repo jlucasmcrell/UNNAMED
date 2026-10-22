@@ -329,12 +329,13 @@ public partial class ScatterView : Node3D
     {
         var from = kind.Rules.LodsM ?? new[] { 0f, 8f, 20f, 40f };
         var chain = levelsOwner ?? kind.Meshes;
-        int levels = Math.Min(chain.Length, from.Count);
-        bool fade = OS.GetEnvironment("UNNAMED_LOD_STIPPLE") == "1";
+        int levels = RenderTiers.FullEnvironment ? 1 : Math.Min(chain.Length, from.Count);
+        bool fade = OS.GetEnvironment("UNNAMED_LOD_STIPPLE") == "1" || RenderTiers.FullEnvironment && kind.Rules.Shadows;
         var bands = new List<MultiMeshInstance3D>(levels);
         for (int level = 0; level < levels; level++)
         {
             float begin = from[level], end = level + 1 < levels ? from[level + 1] : Reach(kind.Rules);
+            var range = EnvironmentLod.Band(begin, end, fade);
             if (end <= begin)
                 continue;
             var multi = new MultiMesh
@@ -349,6 +350,7 @@ public partial class ScatterView : Node3D
             var band = new MultiMeshInstance3D
             {
                 Name = $"{kind.Rules.Name}_{cx}_{cz}_lod{level}", Multimesh = multi,
+                LodBias = RenderTiers.FullEnvironment ? 1024 : 1,
                 // THE BAND. Without these two the band is computed above and then thrown away, and EVERY level is
                 // drawn at EVERY distance - four copies of the same field stacked on each other. That is not a
                 // subtle waste: it is the whole frame. Measured on the pinned world, a full --perf capture, average
@@ -357,9 +359,9 @@ public partial class ScatterView : Node3D
                 // lods_m mean anything, and it is why changing fade_m from 34 to 12 moved nothing (17.6 vs 18.2):
                 // a number nothing reads cannot have an effect.
                 // Metres, not squared: the card path below sets VisibilityRangeEnd = FadeM the same way.
-                VisibilityRangeBegin = begin, VisibilityRangeEnd = !fade && level + 1 < levels ? MathF.BitDecrement(end) : end,
-                VisibilityRangeBeginMargin = fade ? begin * .1f : 0,
-                VisibilityRangeEndMargin = fade ? end * .1f : 0,
+                VisibilityRangeBegin = range.Begin, VisibilityRangeEnd = !fade && level + 1 < levels ? MathF.BitDecrement(end) : range.End,
+                VisibilityRangeBeginMargin = range.BeginMargin,
+                VisibilityRangeEndMargin = range.EndMargin,
                 // Far foliage cards must not cast slabs, so a casting kind casts from its two near levels only - unless the
                 // rules say `far_shadows` (a rock, a sapling stand: solid and still), whose shadow must not switch off at
                 // the third level's edge while the thing itself stays drawn (the ash stand's shadow popping onto a wall).
@@ -383,12 +385,26 @@ public partial class ScatterView : Node3D
             var box = bands.Skip(1).Aggregate(bands[0].Multimesh.GetAabb(), (b, n) => b.Merge(n.Multimesh.GetAabb()));
             foreach (var band in bands)
                 band.CustomAabb = box;
+            // The shader fades each plant about its own origin. Extend batch culling
+            // beyond every contributing plant, rather than cutting the near edge off at the batch centre.
+            float radius = placed.Max(p => (bands[0].GlobalBasis * (p.Item1.Origin - box.GetCenter())).Length()) + .05f;
+            if (RenderTiers.FullEnvironment)
+                foreach (var band in bands)
+                {
+                    if (kind.Rules.Shadows)
+                    {
+                        float margin = (Reach(kind.Rules) - FullReach(kind.Rules)) / 2;
+                        band.VisibilityRangeEnd = FullReach(kind.Rules) + margin + radius;
+                        band.VisibilityRangeEndMargin = margin;
+                    }
+                    else band.VisibilityRangeEnd = Reach(kind.Rules) + radius;
+                }
             if (!kind.Rules.Shadows && OS.GetEnvironment("UNNAMED_SCATTER_PLANT_LOD") == "1")
             {
                 // Visibility ranges measure the batch centre, whereas the shader measures each plant.
                 // Keep the coarse batch alive until every plant has left its shader band.
                 var basis = bands[0].GlobalBasis;var centre = box.GetCenter();
-                float radius = placed.Max(p => (basis * (p.Item1.Origin - centre)).Length()) + .05f;
+                radius = placed.Max(p => (basis * (p.Item1.Origin - centre)).Length()) + .05f;
                 for (int i = 0; i < bands.Count; i++)
                 {
                     var band = bands[i];
@@ -401,8 +417,10 @@ public partial class ScatterView : Node3D
         }
     }
 
-    /// <summary>Where a prepared kind's last level ends: its <c>fade_m</c> times the tier's reach (<see cref="RenderTiers.GroundReach"/>).</summary>
-    private static float Reach(ScatterKind rules) => rules.FadeM * RenderTiers.GroundReach;
+    /// <summary>The full-density radius, followed by the outer fade. Casters use native range fading, not a shader measured from the shadow camera.</summary>
+    private static float FullReach(ScatterKind rules) => EnvironmentLod.GroundFullReach(VisualOptions.Tier, rules.FadeM, VisualOptions.ReachScale,
+        tree: rules.ModelId is { } id && (id.Contains("sapling", StringComparison.Ordinal) || id.EndsWith("_stand", StringComparison.Ordinal)));
+    private static float Reach(ScatterKind rules) => EnvironmentLod.GroundEnd(VisualOptions.Tier, FullReach(rules));
 
     /// <summary>A chunk's own random stream: the world seed, the kind and the chunk, so every chunk is the same in every run of that world.</summary>
     private static int ChunkSeed(ulong worldSeed, string kind, int cx, int cz)
@@ -675,7 +693,9 @@ public partial class ScatterView : Node3D
     /// </summary>
     private Mesh[] ModelMeshes(ArtLibrary art, ScatterKind kind, string id)
     {
-        var levels = art.ModelLevels(id);
+        IReadOnlyList<Node3D> levels = RenderTiers.FullEnvironment
+            ? art.Model(id) is { } full ? new[] { full } : Array.Empty<Node3D>()
+            : art.ModelLevels(id);
         var meshes = new List<Mesh>();
         float height = 0;
         foreach (var level in levels)
@@ -726,7 +746,7 @@ public partial class ScatterView : Node3D
             // Surface merging above copies only the close-up arrays, losing the importer's LODs.
             // Regenerate after transforming into model space so each instanced plant keeps its
             // original near mesh, material and placement, with projected-error indices further out.
-            if (System.Environment.GetEnvironmentVariable("UNNAMED_RUNTIME_MESH_LODS") != "0" &&
+            if (!RenderTiers.FullEnvironment && System.Environment.GetEnvironmentVariable("UNNAMED_RUNTIME_MESH_LODS") != "0" &&
                 !(!kind.Shadows && OS.GetEnvironment("UNNAMED_SCATTER_PLANT_LOD") == "1"))
             {
                 using var importer = new ImporterMesh();
@@ -818,7 +838,7 @@ public partial class ScatterView : Node3D
         // it stands), so the cover thins to nothing at the band's end and the far band costs a fraction of its full density.
         if (thins)
         {
-            material.SetShaderParameter("thin_from", 0.6f * Reach(kind));
+            material.SetShaderParameter("thin_from", RenderTiers.FullEnvironment ? FullReach(kind) : 0.6f * Reach(kind));
             material.SetShaderParameter("thin_to", Reach(kind));
         }
         // STONES DO NOT SWAY. Every model kind goes through this foliage shader, which bends its vertices by wind -
