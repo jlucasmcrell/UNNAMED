@@ -14,6 +14,7 @@ using UNNAMED.Domain.Factions;
 using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Knowledge;
+using UNNAMED.Domain.Pets;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
@@ -161,6 +162,52 @@ public sealed class PlayerDto
     /// none: nothing recorded what a page came from before.
     /// </summary>
     [Key("lore")] public LorePageDto[]? Lore { get; set; }
+
+    /// <summary>
+    /// Required from schema 36 (pets): the animals that travel with the character, in instance order. The 35 -> 36 step gives older saves none:
+    /// no save before it held an animal.
+    /// </summary>
+    [Key("pets")] public PetDto[]? Pets { get; set; }
+}
+
+/// <summary>
+/// One pet (schema 36): the animal it is and the name it answers to, the order it was last given and the place that order named, how hurt
+/// it is, the bond it has built and the skills it has learnt by use. A badly wounded one is kept too - home until it has mended, never dead
+/// (spec 43, owner ruling 1).
+/// </summary>
+[MessagePackObject]
+public sealed class PetDto
+{
+    [Key("id")] public string Id { get; set; } = "";
+    [Key("creature")] public string Creature { get; set; } = "";
+    [Key("name")] public string Name { get; set; } = "";
+    [Key("role")] public string Role { get; set; } = "";
+    [Key("order")] public string Order { get; set; } = "";
+    [Key("condition")] public string Condition { get; set; } = "";
+    [Key("x_mm")] public long XMm { get; set; }
+    [Key("z_mm")] public long ZMm { get; set; }
+    [Key("facing_mdeg")] public int FacingMdeg { get; set; }
+    [Key("health")] public int Health { get; set; }
+    [Key("bond")] public int Bond { get; set; }
+    [Key("level")] public int Level { get; set; }
+    [Key("space")] public string? Space { get; set; }
+    [Key("tamed_from")] public string? TamedFrom { get; set; }
+    [Key("wait_x_mm")] public long WaitXMm { get; set; }
+    [Key("wait_z_mm")] public long WaitZMm { get; set; }
+    [Key("wounded_tick")] public long WoundedTick { get; set; }
+    [Key("recovers_at_tick")] public long RecoversAtTick { get; set; }
+    [Key("last_fed_tick")] public long LastFedTick { get; set; }
+    [Key("adopted_tick")] public long AdoptedTick { get; set; }
+    [Key("skills")] public PetSkillDto[] Skills { get; set; } = Array.Empty<PetSkillDto>();
+}
+
+/// <summary>One of a pet's own skills (schema 36): which it is, its level, and how many uses have taken it there.</summary>
+[MessagePackObject]
+public sealed class PetSkillDto
+{
+    [Key("skill")] public string Skill { get; set; } = "";
+    [Key("level")] public int Level { get; set; }
+    [Key("uses")] public int Uses { get; set; }
 }
 
 /// <summary>One weapon family's layout of the main bar (schema 34): the family, and twelve slots, each a definition ID or nil.</summary>
@@ -1072,6 +1119,14 @@ public static class SectionCodec
         {
             Entry = p.EntryId, Page = p.Page, How = LoreSources.Key(p.Source), Source = p.SourceRef, Tick = p.Tick,
         }).ToArray(),
+        Pets = player.Pets.Select(p => new PetDto
+        {
+            Id = p.Id.Value, Creature = p.CreatureId, Name = p.Name, Role = PetKeys.Role(p.Role), Order = PetKeys.Order(p.Order),
+            Condition = PetKeys.Condition(p.Condition), XMm = p.XMm, ZMm = p.ZMm, FacingMdeg = p.FacingMdeg, Health = p.Health, Bond = p.Bond,
+            Level = p.Level, Space = p.Space, TamedFrom = p.TamedFromKey, WaitXMm = p.WaitXMm, WaitZMm = p.WaitZMm,
+            WoundedTick = p.WoundedTick, RecoversAtTick = p.RecoversAtTick, LastFedTick = p.LastFedTick, AdoptedTick = p.AdoptedTick,
+            Skills = p.Skills.Select(s => new PetSkillDto { Skill = PetKeys.Skill(s.Kind), Level = s.Level, Uses = s.Uses }).ToArray(),
+        }).ToArray(),
     }, Options);
 
     /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard, fine or (schema 19) masterwork.</summary>
@@ -1148,6 +1203,7 @@ public static class SectionCodec
         var familyBars = dto.FamilyBars ?? throw new FormatException("player.msgpack has no family layouts (required from schema 34)");
         var focusTargets = dto.FocusTargets ?? throw new FormatException("player.msgpack has no focus targets (required from schema 34)");
         var lore = dto.Lore ?? throw new FormatException("player.msgpack has no lore pages (required from schema 35)");
+        var pets = dto.Pets ?? throw new FormatException("player.msgpack has no animals (required from schema 36)");
         if (heldFamily.Length > 0 && !Domain.Progression.WeaponFamilies.IsValid(heldFamily))
             throw new FormatException($"the held weapon family is '{heldFamily}'");
         foreach (var family in familyBars)
@@ -1233,6 +1289,24 @@ public static class SectionCodec
             Lore = lore.Select(p => new LorePageRecord(p.Entry, p.Page,
                 LoreSources.Parse(p.How) ?? throw new FormatException($"a lore page of {p.Entry} was opened by '{p.How}'"),
                 p.Source, p.Tick)).ToImmutableArray(),
+            Pets = pets.Select(p => new PetRecord(EntityId.Parse(p.Id), p.Creature, p.Name,
+                PetKeys.ParseRole(p.Role) ?? throw new FormatException($"a pet {p.Id} has role '{p.Role}'"),
+                PetKeys.ParseOrder(p.Order) ?? throw new FormatException($"a pet {p.Id} has order '{p.Order}'"),
+                PetKeys.ParseCondition(p.Condition) ?? throw new FormatException($"a pet {p.Id} is '{p.Condition}'"),
+                p.XMm, p.ZMm, p.FacingMdeg, p.Health, p.Bond,
+                p.Skills.Select(s => new PetSkill(PetKeys.ParseSkill(s.Skill) ?? throw new FormatException($"a pet {p.Id} has skill '{s.Skill}'"),
+                    s.Level, s.Uses)).ToImmutableArray())
+            {
+                Space = p.Space,
+                TamedFromKey = p.TamedFrom,
+                WaitXMm = p.WaitXMm,
+                WaitZMm = p.WaitZMm,
+                WoundedTick = p.WoundedTick,
+                RecoversAtTick = p.RecoversAtTick,
+                LastFedTick = p.LastFedTick,
+                AdoptedTick = p.AdoptedTick,
+                Level = p.Level,
+            }).ToImmutableArray(),
         };
         // The held family's layout is the main bar itself: a save that has them differ is corrupt, not repaired.
         if (heldFamily.Length > 0 && !record.FamilyBars[heldFamily].SequenceEqual(record.QuickBar))

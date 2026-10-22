@@ -9,6 +9,7 @@ using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Knowledge;
+using UNNAMED.Domain.Pets;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
@@ -267,7 +268,26 @@ public static class M2Fixtures
             Lore = ImmutableArray.Create(
                 new LorePageRecord("lore.fixture_vale", 1, LoreSourceKind.Visited, "location.den_mouth", 4_600),
                 new LorePageRecord("lore.fixture_warden", 1, LoreSourceKind.Told, "dialogue.fixture.warden_sera", 4_700)),
+            // Schema 36 (pets): a wolf taken off the hill with meat and following, another struck down and at home badly wounded - one on its
+            // feet, one mending, which is the whole of owner ruling 1. Both are the fixture pack's own grey wolf: the pack is historical and is
+            // never given a creature the game has since added.
+            Pets = ImmutableArray.Create(
+                new PetRecord(PetId, "creature.beast.wolf_grey", "Wolf", PetRole.Fighter, PetOrder.Follow, PetCondition.Up,
+                    148_750, -41_500, 45_000, 37, 44, ImmutableArray.Create(
+                        new PetSkill(PetSkillKind.Bite, 2, 3), new PetSkill(PetSkillKind.Lure, 1, 1)))
+                {
+                    TamedFromKey = "spawn.fixture.den#0", WaitXMm = 148_750, WaitZMm = -41_500, LastFedTick = 4_900, Level = 2,
+                },
+                new PetRecord(PupId, "creature.beast.wolf_grey", "Grey", PetRole.Fighter, PetOrder.Follow, PetCondition.Wounded,
+                    149_000, -41_000, 0, 0, 20, ImmutableArray.Create(new PetSkill(PetSkillKind.Bite, 1, 0)))
+                {
+                    WoundedTick = 4_950, RecoversAtTick = 149_000, AdoptedTick = 4_000, Level = 1,
+                }),
         };
+
+        public static readonly EntityId PetId = EntityId.Create(EntityKind.Summon, 1_700_000_000_004, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 4 });
+
+        public static readonly EntityId PupId = EntityId.Create(EntityKind.Summon, 1_700_000_000_005, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 5 });
 
         public static readonly EntityId BagId = EntityId.Create(EntityKind.Item, 1_700_000_000_003, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 3 });
 

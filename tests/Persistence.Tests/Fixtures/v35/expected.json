@@ -627,7 +627,8 @@
         "source": "dialogue.fixture.warden_sera",
         "tick": 4700
       }
-    ]
+    ],
+    "pets": []
   },
   "cells": [
     {

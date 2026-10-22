@@ -123,7 +123,16 @@ public class PlayerRecordCompletenessTests
                 Lore = ImmutableArray.Create(
                     new Domain.Knowledge.LorePageRecord("lore.fixture_vale", 1, Domain.Knowledge.LoreSourceKind.Visited, "location.den_mouth", 4_600),
                     new Domain.Knowledge.LorePageRecord("lore.fixture_warden", 1, Domain.Knowledge.LoreSourceKind.Told, "dialogue.fixture.warden_sera", 4_700)),
-            };
+                Pets = ImmutableArray.Create(
+                    new World.PetRecord(EntityId.Create(EntityKind.Summon, 1_700_000_000_004, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 4 }),
+                        "creature.beast.wolf_grey", "Wolf", Domain.Pets.PetRole.Control, Domain.Pets.PetOrder.WaitHere, Domain.Pets.PetCondition.Wounded,
+                        148_750, -41_500, 45_000, 37, 44, ImmutableArray.Create(
+                            new Domain.Pets.PetSkill(Domain.Pets.PetSkillKind.Bite, 2, 3),
+                            new Domain.Pets.PetSkill(Domain.Pets.PetSkillKind.Lure, 1, 1)))
+                    {
+                        Space = "space.fixture.stable", TamedFromKey = "spawn.fixture.den#0", WaitXMm = 148_750, WaitZMm = -41_500, LastFedTick = 4_900, Level = 2,
+                        WoundedTick = 4_950, RecoversAtTick = 149_000, AdoptedTick = 4_000,
+                    }),            };
     }
 
     private static EntityId Item(byte n) => EntityId.Create(EntityKind.Item, 1_700_000_000_000 + n, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, n });
@@ -145,6 +154,7 @@ public class PlayerRecordCompletenessTests
             Assert.Equal(full.SpaceTraversal, copy.SpaceTraversal);
             Assert.Equal(full.Findings, copy.Findings);
             Assert.Equal(full.Lore, copy.Lore.ToArray());   // the Lore init re-sorts, so a copy holds a fresh array of the same pages
+            Assert.Equal(full.Pets, copy.Pets.ToArray());   // and the Pets init sorts by instance, so the copy holds the same animals
             Assert.Equal(full.ExtraBars, copy.ExtraBars);
             Assert.Equal(full.HeldFamily, copy.HeldFamily);
             Assert.Equal(full.FamilyBars, copy.FamilyBars);
@@ -232,7 +242,7 @@ public class PlayerRecordCompletenessTests
         var untouchable = reached.Where(r => !r.Value).Select(r => r.Key).ToList();
         Assert.True(untouchable.SequenceEqual(Coupled.Keys),
             "no valid change alone was found for these encoded fields (a field that cannot change alone is named in Coupled, with why):\n" +
-            string.Join("\n", untouchable));
+            string.Join("\n", untouchable) + "\nALL: " + string.Join("|", reached.Keys));
     }
 
     /// <summary>
@@ -248,6 +258,8 @@ public class PlayerRecordCompletenessTests
         ["player.party_sheets[].belongings[].wear"] = "a whole record, absent on an unworn stack; each of its fields is perturbed where one is present",
         ["player.party_sheets[].gear[].item.wear"] = "a whole record, absent on an unworn stack; each of its fields is perturbed where one is present",
         ["player.posture.airborne"] = "in the air or not decides the air time (0 on the ground)",
+        ["player.pets[].role"] = "one of the four role keys, so no other value decodes alone (schema 36)",
+        ["player.pets[].skills[].skill"] = "one of the two skill keys, so no other value decodes alone (schema 36)",
     };
 
     /// <summary>

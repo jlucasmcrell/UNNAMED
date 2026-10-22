@@ -1101,7 +1101,8 @@ public sealed record PlayerRecord
                 {
                     h.Add(pet.Id.Value).Add(pet.CreatureId).Add(pet.Name).Add(PetKeys.Role(pet.Role)).Add(PetKeys.Order(pet.Order))
                         .Add(PetKeys.Condition(pet.Condition)).Add(pet.XMm).Add(pet.ZMm).Add(pet.FacingMdeg).Add(pet.Health).Add(pet.Bond)
-                        .Add(pet.Level).Add(pet.WoundedTick).Add(pet.RecoversAtTick).Add(pet.TamedFromKey ?? "");
+                        .Add(pet.Level).Add(pet.WoundedTick).Add(pet.RecoversAtTick).Add(pet.TamedFromKey ?? "").Add(pet.Space ?? "")
+                        .Add(pet.WaitXMm).Add(pet.WaitZMm).Add(pet.LastFedTick).Add(pet.AdoptedTick);
                     foreach (var skill in pet.Skills)
                         h.Add(PetKeys.Skill(skill.Kind)).Add(skill.Level).Add(skill.Uses);
                 }
