@@ -215,6 +215,8 @@ public partial class HandGrip : SkeletonModifier3D
 {
     /// <summary>How closed the hand is asked to be (0..1); the fingers ease there.</summary>
     public float Closed { get; set; }
+    public IReadOnlyDictionary<int, Quaternion>? AuthoredRotations { get; set; }
+    public bool UseAuthored { get; set; }
 
     private float _now;
     private readonly List<(int Bone, Vector3 Axis, float Angle)> _bones = new();
@@ -271,6 +273,10 @@ public partial class HandGrip : SkeletonModifier3D
         return (rest.Basis.Inverse() * along.Cross(palm)).Normalized();
     }
 
+    // The exact existing finger pose, for read-only equipment-socket placement.
+    public IReadOnlyDictionary<int, Quaternion> ClosedRotations(Skeleton3D skeleton) => AuthoredRotations ?? _bones.ToDictionary(
+        b => b.Bone, b => skeleton.GetBoneRest(b.Bone).Basis.GetRotationQuaternion() * new Quaternion(b.Axis, b.Angle));
+
     public override void _ProcessModificationWithDelta(double delta)
     {
         if (GetSkeleton() is not { } skeleton)
@@ -279,6 +285,8 @@ public partial class HandGrip : SkeletonModifier3D
         if (_now <= 0.001f)
             return;
         foreach (var (bone, axis, angle) in _bones)
-            skeleton.SetBonePoseRotation(bone, skeleton.GetBonePoseRotation(bone) * new Quaternion(axis, angle * _now));
+            skeleton.SetBonePoseRotation(bone, UseAuthored && AuthoredRotations?.TryGetValue(bone, out var pose) == true
+                ? skeleton.GetBonePoseRotation(bone).Slerp(pose, _now)
+                : skeleton.GetBonePoseRotation(bone) * new Quaternion(axis, angle * _now));
     }
 }

@@ -6,11 +6,17 @@ root=Path(os.environ['OTHERREACH_PIPELINE_ROOT'])
 assert root.is_absolute() and root.name=='rcd6_20261021'
 inn_mode=os.environ.get('OTHERREACH_INN_CLIPS')=='1'
 calm_mode=os.environ.get('OTHERREACH_CALM_ATTACK_CLIPS')=='1'
-assert not (inn_mode and calm_mode),'Animation batches must be separate'
-report=root/'evidence'/('ue_mpfb_calm.json' if calm_mode else 'ue_mpfb_inn.json' if inn_mode else 'ue_mpfb_motion.json')
+grip_mode=os.environ.get('OTHERREACH_MPFB_HAND_GRIP')=='1'
+assert sum([inn_mode,calm_mode,grip_mode])<=1,'Animation batches must be separate'
+control_grip=os.environ.get('OTHERREACH_MPFB_CONTROL_GRIP')
+assert not control_grip or grip_mode,'Control Rig hand source requires isolated grip mode'
+control_job=os.environ.get('OTHERREACH_MPFB_CONTROL_JOB','')
+assert not control_job or (control_grip and control_job.isidentifier())
+control_name='mpfb_control_grips'+('_'+control_job if control_job else '')
+report=root/'evidence'/('ue_mpfb_calm.json' if calm_mode else 'ue_mpfb_inn.json' if inn_mode else ('ue_'+control_name+'.json') if control_grip else 'ue_mpfb_weapon_grips.json' if grip_mode else 'ue_mpfb_motion.json')
 state=json.loads(report.read_text(encoding='utf-8')) if report.exists() else {'characters':[]}
 tools=unreal.AssetToolsHelpers.get_asset_tools()
-package='/Game/MHPlaytest/'+('MPFBCalm20261021' if calm_mode else 'MPFBInn20261021' if inn_mode else 'MPFBMotion20261021')
+package='/Game/MHPlaytest/'+('MPFBCalm20261021' if calm_mode else 'MPFBInn20261021' if inn_mode else ('MPFBControlGrip20261021'+control_job) if control_grip else 'MPFBWeaponGrip20261021' if grip_mode else 'MPFBMotion20261021')
 GROUND_OFFSETS={'mpfb_fem_armour':-1.89843215048313,'mpfb_fem_lt':-1.89843215048313,'mpfb_male_armour':-2.85560935735703,'mpfb_male_lt':-2.85560935735703,'mpfb_var_armour':-2.20576338469982}
 def save(**kw):
  if kw.get('status')!='FAILED':state.pop('error',None)
@@ -23,7 +29,16 @@ clips={'idle': ('ual1', 'Idle_Loop'), 'walk': ('ual1', 'Walk_Loop'), 'run': ('ua
 try:
  if calm_mode:clips={'sword_attack_1':('kaykit_melee','Melee_1H_Attack_Chop'),'sword_attack_2':('kaykit_melee','Melee_1H_Attack_Slice_Diagonal'),'sword_attack_3':('kaykit_melee','Melee_1H_Attack_Stab')}
  elif inn_mode:clips={'sit_enter':('ual1','Sitting_Enter'),'sit':('ual1','Sitting_Idle_Loop'),'sit_talk':('ual1','Sitting_Talking_Loop'),'sit_exit':('ual1','Sitting_Exit'),'lie_to_idle':('ual2','LayToIdle')}
+ elif grip_mode:clips={'weapon_grip':('ual1','Sword_Idle')}
  sources=json.loads(Path('D:/Otherreach_Scratch/rcd3_20261020/evidence/ue_animation_sources.json').read_text(encoding='utf-8'))
+ if control_grip:
+  authored=json.loads(Path(control_grip).read_text(encoding='utf-8'))
+  assert authored['status']=='DONE'
+  character=next(c for c in authored['characters'] if c['id']=='ada')
+  clip=next(c for c in character['clips'] if c['logical']==os.environ.get('OTHERREACH_MPFB_CONTROL_LOGICAL','weapon_grip_controlrig_1'))
+  name=clip['asset'].rsplit('.',1)[-1]
+  sources={'sources':[{'id':'mh_control','path':clip['path'],'assets':[{'kind':'mesh','asset':character['body']},{'kind':'animation','name':name,'asset':clip['asset']}]}]}
+  clips={'weapon_grip':('mh_control',name)}
  if os.environ.get('OTHERREACH_MPFB_PROBE')=='1':clips={k:clips[k] for k in ['idle','walk','run','sword_attack_1']}
  selected=os.environ.get('OTHERREACH_MPFB_BODIES',','.join(GROUND_OFFSETS)).split(',')
  rigs={};meshes={};animations={};prefixes={}
@@ -53,7 +68,11 @@ try:
   target=asset(target_path,'IK_Target',unreal.IKRigDefinitionFactory());tc=unreal.IKRigController.get_controller(target)
   assert tc.set_skeletal_mesh(body);tc.apply_auto_generated_retarget_definition();assert tc.set_retarget_root('pelvis');assert tc.set_root_motion_bone(bones[0])
   for c in list(tc.get_retarget_chains()):
-   if any(f in str(tc.get_retarget_chain_start_bone(c.chain_name)).lower() for f in ['thumb','index','middle','ring','pinky']):tc.remove_retarget_chain(c.chain_name)
+   start=str(tc.get_retarget_chain_start_bone(c.chain_name)).lower()
+   if any(f in start for f in ['thumb','index','middle','ring','pinky']) and not (grip_mode and start.endswith('_r')):tc.remove_retarget_chain(c.chain_name)
+  if grip_mode:
+   digits=[str(tc.get_retarget_chain_start_bone(c.chain_name)).lower() for c in tc.get_retarget_chains() if any(f in str(tc.get_retarget_chain_start_bone(c.chain_name)).lower() for f in ['thumb','index','middle','ring','pinky'])]
+   assert len(digits)==5 and all(n.endswith('_r') for n in digits),digits
   assert len(tc.get_retarget_chains())>=7
   record=next((c for c in state['characters'] if c['id']==id),None)
   if record is None:record={'id':id,'body':body.get_path_name(),'clips':[]};state['characters'].append(record)
@@ -67,7 +86,7 @@ try:
    ctrl.add_default_ops()
    for i in range(ctrl.get_num_retarget_ops()):ctrl.run_op_initial_setup(i)
    ctrl.auto_map_chains(unreal.AutoMapChainType.FUZZY,True);ctrl.auto_align_all_bones(unreal.RetargetSourceOrTarget.TARGET)
-   digits=[b for b in bones if any(f in b.lower() for f in ['thumb','index','middle','ring','pinky'])]
+   digits=[b for b in bones if any(f in b.lower() for f in ['thumb','index','middle','ring','pinky']) and not (grip_mode and b.lower().endswith('_r'))]
    ctrl.reset_retarget_pose(ctrl.get_current_retarget_pose_name(unreal.RetargetSourceOrTarget.TARGET),digits+['foot_l','ball_l','foot_r','ball_r'],unreal.RetargetSourceOrTarget.TARGET)
    for i in range(ctrl.get_num_retarget_ops()):
     op=ctrl.get_op_controller(i)
@@ -84,7 +103,7 @@ try:
    for logical,original in chosen.items():
     animation=next(a for a in results if a.get_name()==id+'_'+original.get_name());animation.set_preview_skeletal_mesh(body)
     options=unreal.GLTFExportOptions();options.bake_material_inputs=unreal.GLTFMaterialBakeMode.DISABLED;options.export_vertex_skin_weights=True;options.export_morph_targets=False;options.export_animation_sequences=True;options.export_preview_mesh=True;options.export_uniform_scale=.01;options.default_level_of_detail=0;options.use_mesh_quantization=False
-    folder=root/('mpfb_calm' if calm_mode else 'mpfb_inn' if inn_mode else 'mpfb_motion')/id;folder.mkdir(parents=True,exist_ok=True);path=folder/(logical+'.glb')
+    folder=root/('mpfb_calm' if calm_mode else 'mpfb_inn' if inn_mode else control_name if control_grip else 'mpfb_weapon_grips' if grip_mode else 'mpfb_motion')/id;folder.mkdir(parents=True,exist_ok=True);path=folder/(logical+'.glb')
     task=unreal.AssetExportTask();task.object=animation;task.filename=str(path);task.automated=True;task.prompt=False;task.replace_identical=True;task.options=options
     assert unreal.Exporter.run_asset_export_task(task)
     raw=path.read_bytes();g=json.loads(raw[20:20+struct.unpack_from('<I',raw,12)[0]]);assert g.get('animations') and len(g['skins'][0]['joints'])==53

@@ -23,6 +23,29 @@ public static class HeldWeapon
         return new Transform3D(new Basis(x, y, x.Cross(y)), origin);
     }
 
+    /// <summary>Rigid grip through the closed fingers' channel, evaluated read-only in hand space.</summary>
+    public static Transform3D ClosedGrip(Skeleton3D skeleton, string handName, IReadOnlyDictionary<int, Quaternion> rotations)
+    {
+        int hand = skeleton.FindBone(handName);
+        if (hand < 0) throw new InvalidDataException("Grip hand missing: " + handName);
+        string side = handName.EndsWith("_l", StringComparison.Ordinal) ? "l" : "r";
+        var posed = new Dictionary<int, Transform3D> { [hand] = Transform3D.Identity };
+        Transform3D At(int bone)
+        {
+            if (posed.TryGetValue(bone, out var cached)) return cached;
+            if (bone < 0) throw new InvalidDataException("Grip digit is not a child of " + handName);
+            var local = skeleton.GetBoneRest(bone);
+            if (rotations.TryGetValue(bone, out var q)) local.Basis = new Basis(q) * Basis.FromScale(local.Basis.Scale);
+            return posed[bone] = At(skeleton.GetBoneParent(bone)) * local;
+        }
+        Vector3 Point(string digit, int joint) => At(skeleton.FindBone($"{digit}_0{joint}_{side}")).Origin;
+        Vector3 Channel(string digit) => (Point(digit, 1) + Point(digit, 3)) * .5f;
+        var centre = (Channel("middle") + Channel("ring")) * .5f;
+        var across = Channel("index") - Channel("pinky");
+        var rest = skeleton.GetBoneGlobalRest(hand).AffineInverse() * skeleton.GetBoneGlobalRest(skeleton.FindBone("middle_01_" + side)).Origin;
+        return Frame(centre, across, rest);
+    }
+
     /// <summary>The weapon <paramref name="modelId"/> with its grip socket on <paramref name="grip"/>; null without the model or the socket.</summary>
     public static Node3D? Mount(ArtLibrary art, string modelId, Transform3D grip, float scale = 1)
     {
@@ -42,6 +65,10 @@ public static class HeldWeapon
         // displaces an off-origin socket and pushes the handle through the hand.
         model.Transform = grip * new Transform3D(Basis.FromScale(Vector3.One * scale), Vector3.Zero)
             * ArtLibrary.Relative(model, socket).AffineInverse();
+        // Equipment attaches after the body receives its character-light layer.
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>()
+                     .Prepend(model as MeshInstance3D).OfType<MeshInstance3D>())
+            mesh.Layers |= MHCharacters.MetaHumanFigure.FillLayer;
         art.Coverage.Resolved("weapon", modelId, modelId);
         return model;
     }

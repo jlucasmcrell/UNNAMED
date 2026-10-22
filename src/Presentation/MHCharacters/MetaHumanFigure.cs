@@ -133,7 +133,8 @@ public sealed partial class MetaHumanFigure : Figure
         skeleton.AddChild(_hand);
         _offHand = new BoneAttachment3D { BoneName = "hand_l" };
         skeleton.AddChild(_offHand);
-        _grip = NativeGrip(skeleton, "r");
+        var rotations = _native.Call("weapon_grip_rotations").AsGodotDictionary();
+        _grip = HeldWeapon.ClosedGrip(skeleton, "hand_r", rotations.Keys.ToDictionary(k => k.AsInt32(), k => rotations[k].AsQuaternion()));
         _offGrip = NativeGrip(skeleton, "l");
     }
 
