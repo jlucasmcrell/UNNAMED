@@ -6,6 +6,7 @@ using Godot;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Items;
+using UNNAMED.Domain.Knowledge;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Presentation.Player;
 using UNNAMED.Presentation.Ui;
@@ -97,9 +98,10 @@ public partial class Main
             ? new TargetPlate(Names.Of(_session, target.DefId), target.Level, target.Health, target.MaxHealth, target.Threat,
                 target.Temperament, target.Hostile, target.Huntable,
                 string.Join(" / ", new[] { target.Rooted ? "ROOTED" : null, target.Paralysed ? "PARALYSED" : null,
-                    target.Asleep ? "ASLEEP" : null, target.Poisoned ? "POISONED" : null }.Where(s => s is not null)))
+                    target.Asleep ? "ASLEEP" : null, target.Poisoned ? "POISONED" : null }.Where(s => s is not null)),
+                Bestiary(simulation, target.DefId))
             : null);
-        // The nearest few bodies and what each has actually noticed (STEALTH §20): the indicator shows the number, never a hidden flag.
+    // The nearest few bodies and what each has actually noticed (STEALTH §20): the indicator shows the number, never a hidden flag.
         var awarenessRules = _session.Setup.Combat.Awareness;
         var playerBody = _controller.Authoritative;
         double Nearness(CreatureView c) => Math.Sqrt(Math.Pow(c.Body.XMm - playerBody.XMm, 2) + Math.Pow(c.Body.ZMm - playerBody.ZMm, 2));
@@ -206,6 +208,22 @@ public partial class Main
     /// <summary>The carried entry in the main hand, if any.</summary>
     private static InventoryEntry? Wielded(PlayerView view) =>
         view.Equipment.TryGetValue(EquipSlot.MainHand, out var id) ? view.Inventory.FirstOrDefault(e => e.ItemId == id) : null;
+
+    /// <summary>
+    /// What the character has read about this creature (spec 41): the opening of its bestiary page, once a page of it is known. The words are
+    /// the lore content's own - nothing is composed here - so the plate can only say what the journal already holds, and says nothing at all
+    /// about a beast nobody has studied.
+    /// </summary>
+    private string Bestiary(Simulation simulation, string defId)
+    {
+        var entry = _session.Setup.Lore.Values.FirstOrDefault(e =>
+            e.Pages.Any(p => p.Sources.Any(s => s.Kind == LoreSourceKind.Studied && s.Ref == defId)));
+        if (entry is null || simulation.Lore.FirstOrDefault(r => r.EntryId == entry.Id) is not { } found)
+            return "";
+        string text = entry.PageAt(found.Page)?.Text ?? "";
+        int stop = text.IndexOf(". ", StringComparison.Ordinal);
+        return stop > 40 ? text[..(stop + 1)] : text;
+    }
 
     /// <summary>The creature to show: the nearest one hunting the character, or the nearest living one the camera faces.</summary>
     private CreatureView? Target(Simulation simulation)
