@@ -60,9 +60,11 @@ public partial class ShadowLodsCheck : Node3D
                     _lods.Update(new Vector3(20, 0, 0));
                     Require(_spawn!.HasMeta("shadow_lod_bounds") && _spawn.CastShadow == GeometryInstance3D.ShadowCastingSetting.On, "Late spawn not registered");
                     _holder.Visible = false;
+                    Require(_near.CastShadow == GeometryInstance3D.ShadowCastingSetting.Off, "Parent visibility notification was not applied");
                     _lods.Update(Vector3.Zero);
                     Require(_near.CastShadow == GeometryInstance3D.ShadowCastingSetting.Off, "Hidden parent still casts");
                     _holder.Visible = true;
+                    Require(_near.CastShadow == GeometryInstance3D.ShadowCastingSetting.On, "Parent show notification was not applied");
                     _lods.Update(Vector3.Zero);
                     Require(_near.CastShadow == GeometryInstance3D.ShadowCastingSetting.On, "Shown parent did not regain casting");
                     _lods.Unwatch();

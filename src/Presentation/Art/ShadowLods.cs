@@ -12,8 +12,10 @@ public sealed class ShadowLods
         public GeometryInstance3D.ShadowCastingSetting Original = Node.CastShadow;
         public GeometryInstance3D.ShadowCastingSetting Applied = Node.CastShadow;
         public uint Layers = Node.Layers;
+        public uint AppliedLayers = Node.Layers;
         public Vector3 WorldCentre;
         public bool InTree;
+        public bool VisibleInTree;
         public ShadowLodBounds? Bounds;
     }
     private readonly List<Band> _bands = new();
@@ -55,7 +57,7 @@ public sealed class ShadowLods
             }
             if (GodotObject.IsInstanceValid(band.Bounds))
             {
-                band.Bounds!.Changed = null; band.Bounds.InTree = null; band.Bounds.ChangeMode = null;
+                band.Bounds!.Changed = null; band.Bounds.InTree = null; band.Bounds.Visibility = null; band.Bounds.ChangeMode = null;
                 band.Bounds.Free();
             }
         }
@@ -86,6 +88,7 @@ public sealed class ShadowLods
             var watcher = new ShadowLodBounds { Name = "ShadowLodBounds" };
             band.Bounds = watcher;
             watcher.InTree = active => band.InTree = active;
+            watcher.Visibility = visible => { band.VisibleInTree = visible; Apply(band); };
             watcher.Changed = transform => { band.WorldCentre = transform * band.Centre; Apply(band); };
             watcher.ChangeMode = mode =>
             {
@@ -114,13 +117,17 @@ public sealed class ShadowLods
     {
         if (!band.InTree) return;
         float distanceSquared = _eye.DistanceSquaredTo(band.WorldCentre);
-        bool casting = band.Node.IsVisibleInTree() && distanceSquared >= band.BeginSquared
+        bool casting = band.VisibleInTree && distanceSquared >= band.BeginSquared
             && (band.EndSquared == 0 || distanceSquared < band.EndSquared);
         // Off makes a ShadowsOnly proxy visible in the colour pass. Keep its mode
         // and exclude it from every camera/light layer while outside its band.
         bool proxy = band.Original == GeometryInstance3D.ShadowCastingSetting.ShadowsOnly;
         uint layers = proxy && !casting ? 0u : band.Layers;
-        if (band.Node.Layers != layers) band.Node.Layers = layers;
+        if (band.AppliedLayers != layers)
+        {
+            band.Node.Layers = layers;
+            band.AppliedLayers = layers;
+        }
         var next = proxy || casting ? band.Original : GeometryInstance3D.ShadowCastingSetting.Off;
         if (next == band.Applied) return;
         band.Node.CastShadow = next;
