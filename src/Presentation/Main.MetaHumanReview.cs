@@ -47,6 +47,7 @@ public partial class Main
         _mhPerfSequence = System.Environment.GetEnvironmentVariable("OTHERREACH_MH_PERF_SEQUENCE") == "1";
         _mhPerfSweep = System.Environment.GetEnvironmentVariable("OTHERREACH_MH_PERF_SWEEP") == "1";
         _npcs.SuppressPresentationForBenchmark = _mhPerfSequence
+            || System.Environment.GetEnvironmentVariable("OTHERREACH_RCD6_GRIP") == "1" // Isolated hand gate never shows NPCs.
             || (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_WORLD") == "1"
                 && System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_KEEP_NPCS") != "1");
         bool crouchToggle = SettingsStore.Current.Profile.Controls.IsToggle("crouch");

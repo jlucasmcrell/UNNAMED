@@ -112,18 +112,19 @@ public sealed partial class SkinnedFigure : Figure
             posture.Free();
         }
         figure._hand = model.Attach(person.Hand);
-        figure._grip = person.Grip ?? SocketGrip(model, person.Hand);
         if (person.OffHand is { } off)
         {
             figure._offHand = model.Attach(off);
-            figure._offGrip = person.OffGrip ?? SocketGrip(model, off);
         }
         // A rig with finger bones closes the hand that holds a weapon and relaxes the other (Phase B, character fidelity).
         // (A hand bound at its socket - the character standard's SOCK_hand.R - closes the fingers of the hand bone it sits on.)
         static string Bone(string hand) => hand.StartsWith("SOCK_", StringComparison.Ordinal) ? hand[5..] : hand;
         figure._fingers = BodyModifiers.Grip(model.Skeleton, Bone(person.Hand));
+        if (figure._fingers is not null) figure._fingers.AuthoredRotations = model.WeaponGrip;
         string otherHand = Bone(person.OffHand ?? BoneNames.Opposite(person.Hand));
         figure._offFingers = BodyModifiers.Grip(model.Skeleton, otherHand);
+        figure._grip = person.Grip ?? SocketGrip(model, person.Hand, figure._fingers);
+        if (person.OffHand is { } offName) figure._offGrip = person.OffGrip ?? SocketGrip(model, offName, figure._offFingers);
         figure.Relax();
         // A character-standard face: blinks, and the line on screen spoken (FaceDriver).
         if (FaceDriver.Attach(model, personId) is { } face)
@@ -156,7 +157,7 @@ public sealed partial class SkinnedFigure : Figure
     /// frame in the hand bone's space - where the bindings give no grip of their own. The glTF import makes a socket under a bone a bone of
     /// its own, or a node under the hand's attachment; either is read. Null when the rig has none.
     /// </summary>
-    private static Transform3D? SocketGrip(SkinnedModel model, string hand)
+    private static Transform3D? SocketGrip(SkinnedModel model, string hand, HandGrip? fingers)
     {
         var skeleton = model.Skeleton;
         int bone = skeleton.FindBone(hand), socket = skeleton.FindBone("SOCK_" + hand);
@@ -175,7 +176,11 @@ public sealed partial class SkinnedFigure : Figure
             if (new[] { "middle_01", "index_01", "pinky_01" }.All(n => skeleton.FindBone(n + "_" + side) >= 0))
             {
                 var middle = Point("middle_01");
-                return HeldWeapon.Frame(middle * .7f, Point("index_01") - Point("pinky_01"), middle);
+                if(fingers is not null && side=="r")
+                {
+                    return HeldWeapon.ClosedGrip(skeleton,hand,fingers.ClosedRotations(skeleton));
+                }
+                return HeldWeapon.Frame(middle*.7f,Point("index_01")-Point("pinky_01"),middle);
             }
         }
         return null;
@@ -193,7 +198,10 @@ public sealed partial class SkinnedFigure : Figure
     {
         bool off = _equipped?.OffHand == true && _offHand is not null;
         if (_fingers is not null)
-            _fingers.Closed = _held is not null && !off ? 1f : RelaxedHand;
+        {
+            _fingers.UseAuthored = _equipped?.Family == "sword";
+            _fingers.Closed = _held is not null && !off ? 1f : _fingers.AuthoredRotations is null ? RelaxedHand : 0f;
+        }
         if (_offFingers is not null)
             _offFingers.Closed = _held is not null && off ? 1f : RelaxedHand;
     }

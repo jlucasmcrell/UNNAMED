@@ -17,6 +17,7 @@ public sealed partial class SkinnedModel : Node3D
     private bool _idlePhaseStarted;
     private Node? _locomotion;
     public IReadOnlyDictionary<string, float>? MotionPaces { get; private set; }
+    public IReadOnlyDictionary<int, Quaternion>? WeaponGrip { get; private set; }
     public bool HasFootPlantEvents { get; private set; }
     public event Action<string,string,double>? FootPlanted;
     private Godot.Collections.Dictionary _contacts = new();
@@ -124,6 +125,27 @@ public sealed partial class SkinnedModel : Node3D
         library.SetMeta("foot_plants_schema",motion.GetMeta("foot_plants_schema",0));
         library.SetMeta("foot_plants",motion.GetMeta("foot_plants",new Godot.Collections.Dictionary()));
         _contacts = motion.GetMeta("motion_phases").AsGodotDictionary();
+        string gripId = motion.GetMeta("variant_base_rig", assetId).AsString();
+        var grip = System.Text.Json.JsonDocument.Parse(Godot.FileAccess.GetFileAsString($"res://Art/MPFBHandGrips/{gripId}.json"));
+        using (grip)
+        {
+            string expectedHash = motion.GetMeta("base_target_body_sha256", motion.GetMeta("target_body_sha256")).AsString();
+            if (grip.RootElement.GetProperty("target_body_sha256").GetString() != expectedHash)
+                throw new InvalidDataException("MPFB grip target body differs: " + assetId);
+            var rotations = new Dictionary<int, Quaternion>();
+            foreach (var digit in new[] { "thumb", "index", "middle", "ring", "pinky" })
+                for (int joint = 1; joint <= 3; joint++)
+                {
+                    string name = $"{digit}_0{joint}_r";
+                    int bone = Skeleton.FindBone(name);
+                    var q = grip.RootElement.GetProperty("rotations").GetProperty(name).EnumerateArray().Select(v => v.GetSingle()).ToArray();
+                    if (bone < 0 || q.Length != 4 || q.Any(v => !float.IsFinite(v))) throw new InvalidDataException("Invalid authored digit: " + name);
+                    var rotation = new Quaternion(q[0], q[1], q[2], q[3]);
+                    if (Math.Abs(rotation.LengthSquared() - 1) > .001f) throw new InvalidDataException("Non-unit authored digit: " + name);
+                    rotations.Add(bone, rotation);
+                }
+            WeaponGrip = rotations;
+        }
         GD.Print($"UNNAMED MPFB motion: {assetId}, {motion.GetAnimationList().Count} direct Epic target clips; no runtime retarget");
     }
 

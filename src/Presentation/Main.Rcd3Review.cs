@@ -61,6 +61,10 @@ public partial class Main
                 }
                 GetTree().Quit();return;
             }
+            if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD6_GRIP") == "1")
+            {
+                await RunRcd6GripReview(directory, camera);GetTree().Quit();return;
+            }
             if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD6_VISIBILITY") == "1")
             {
                 await RunRcd6VisibilityReview(directory, camera);

@@ -318,6 +318,9 @@ func _load_weapon_grip() -> bool:
 	_body.add_child(_weapon_grip)
 	return true
 
+func weapon_grip_rotations() -> Dictionary:
+	return _weapon_grip.rotations if _weapon_grip else {}
+
 func set_weapon_grip(equipped: bool) -> void:
 	if _weapon_grip: _weapon_grip.equipped=equipped
 
