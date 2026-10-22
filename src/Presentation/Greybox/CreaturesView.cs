@@ -2,8 +2,10 @@
 // Godot presentation only: no gameplay state lives here (D-11)
 
 using Godot;
+using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Pets;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
@@ -44,6 +46,11 @@ public partial class CreaturesView : Node3D
         bool advanced = simulation.WorldTick != _tick;
         _tick = simulation.WorldTick;
         var views = simulation.Creatures;
+        // The party's animals are drawn through the same figures: a kept animal has no creature of its own (it lives in the pet system), so
+        // without this the pup at heel, the tamed wolf and everything the pet orders are about are invisible in the world.
+        var pets = PetFigures(simulation);
+        if (!pets.IsDefaultOrEmpty)
+            views = views.AddRange(pets);
         var eye = GetViewport()?.GetCamera3D()?.GlobalPosition;
         Art.OtherFauna.Dusk();
         foreach (var creature in views)
@@ -114,10 +121,26 @@ public partial class CreaturesView : Node3D
         }
     }
 
+    /// <summary>
+    /// The party's animals as figures to draw: a kept animal is a pet, not a creature, so its species and body come from the pet itself. One
+    /// that is badly wounded is at home and not in the world, which reads as gone here and takes its figure out of the scene.
+    /// </summary>
+    private static ImmutableArray<CreatureView> PetFigures(Simulation simulation)
+    {
+        var pets = simulation.Pets;
+        if (pets.IsDefaultOrEmpty)
+            return ImmutableArray<CreatureView>.Empty;
+        var figures = ImmutableArray.CreateBuilder<CreatureView>(pets.Length);
+        foreach (var pet in pets)
+            figures.Add(new CreatureView(pet.Id, "pet." + pet.CreatureId, pet.CreatureId, "pet", pet.Body, pet.Health, pet.MaxHealth,
+                CombatPhase.Idle, 0, pet.Condition == PetCondition.Up ? CreatureCondition.Alive : CreatureCondition.Gone,
+                CreatureMind.Unaware, 0, false));
+        return figures.MoveToImmutable();
+    }
+
     private static Node3D ParalysisCrackle(float radius)
     {
         var mesh = new ImmediateMesh();
-        mesh.SurfaceBegin(Mesh.PrimitiveType.Lines);
         for (int strand = 0; strand < 8; strand++)
         for (int step = 0; step < 5; step++)
         {
