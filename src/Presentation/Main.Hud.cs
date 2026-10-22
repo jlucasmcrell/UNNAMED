@@ -7,6 +7,7 @@ using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Knowledge;
+using UNNAMED.Domain.Pets;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Presentation.Player;
 using UNNAMED.Presentation.Ui;
@@ -131,6 +132,19 @@ public partial class Main
             (c.FallsAtTick is { } falls ? $" - falls in {Math.Max(0, falls - simulation.WorldTick) * _session.TickSeconds:0} s unless helped up" : "") +
             (c.Condition == CompanionCondition.Up ? $"   [{HelpPanel.Key("companion_order")}] {(c.Order == CompanionOrder.Follow ? "wait" : "follow")}" : ""))),
             simulation.Companions.Select(c => c.Condition != CompanionCondition.Up ? "downed" : c.Order == CompanionOrder.Follow ? "follow" : "wait").FirstOrDefault());
+        // The animals (spec 43): what each is doing and how it stands, a badly wounded one with the days it is home, and the offer under
+        // way on an animal the character is calming.
+        var offering = _session.Simulation!.Creatures
+            .Select(c => (Creature: c, Offer: _session.Simulation.TameOf(c.Id)))
+            .FirstOrDefault(pair => pair.Offer is not null);
+        _hud.SetPets(string.Join("\n", simulation.Pets.Select(p =>
+            $"{p.Name} - {p.Doing}, {p.Standing}" +
+            (p.HomeUntilTick is { } home ? $" ({DaysAway(home)})" : "") +
+            $"   [{HelpPanel.Key("pet_orders")}] command"))
+            + (offering.Offer is { } offer
+                ? "\n" + $"Calming the {Names.Of(_session, offering.Creature.DefId).ToLowerInvariant()} - {offer.ChancePercent}% - hold on, {Math.Max(0, offer.EndsTick - simulation.WorldTick) * _session.TickSeconds:0.0} s"
+                : ""),
+            simulation.Pets.OrderBy(p => p.Condition == PetCondition.Up ? 0 : 1).Select(p => p.Doing).FirstOrDefault());
         _journal.Refresh(_session);
         _questDebug.Refresh(_session, delta);
         _character.Refresh();

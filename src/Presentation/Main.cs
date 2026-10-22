@@ -246,6 +246,8 @@ public partial class Main : Node3D
             InstallInnShots();
             InstallInnRoom();
             InstallLoreShots();
+            InstallPetOrders();
+            InstallPetShots();
         }
         catch (Exception e)
         {
@@ -348,7 +350,7 @@ public partial class Main : Node3D
               || (_options.ContainsKey("--front-shots") && !_options.ContainsKey("--profile"))
               || _options.ContainsKey("--creator-shots") || (_options.ContainsKey("--ds-shots") && !_options.ContainsKey("--profile"))
               || _options.ContainsKey("--inn-shots")
-              || _options.ContainsKey("--lore-shots")
+              || _options.ContainsKey("--lore-shots") || _options.ContainsKey("--pet-shots")
             ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
             : _options.GetValueOrDefault("--profile") is { } chosen ? Path.GetFullPath(chosen)
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
@@ -357,7 +359,8 @@ public partial class Main : Node3D
         // --region: which region the run plays. Content is chosen by id, so a new region needs no code
         // change - its region file, its cells and its bindings are the whole of it.
         string region = _options.GetValueOrDefault("--region") ?? "region.starting_frontier";
-        var shotStart = VisualOptions.Barrowworks && region == BarrowworksRegion ? ShotStart() : null;
+        // A --shot stands the character where a capture needs him; the pets' pass needs the same, at the den rather than the yard.
+        var shotStart = (VisualOptions.Barrowworks && region == BarrowworksRegion) || _options.ContainsKey("--pet-shots") ? ShotStart() : null;
         if (OS.GetEnvironment("OTHERREACH_RCD5_STEALTH") == "1"
             && File.Exists(Path.Combine(contentRoot,"RCD5_REVIEW_FIXTURE.txt")))
             shotStart = (600_000,755_000);
@@ -398,7 +401,7 @@ public partial class Main : Node3D
                         || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check") || _options.ContainsKey("--survey")
                         || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
                         || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
-                        || _options.ContainsKey("--showcase") || _options.ContainsKey("--inn-shots") || _options.ContainsKey("--lore-shots");
+                        || _options.ContainsKey("--showcase") || _options.ContainsKey("--inn-shots") || _options.ContainsKey("--lore-shots") || _options.ContainsKey("--pet-shots");
         // No run of a harness takes the mouse - but the input check, which checks who has it.
         _scripted = (scripted && !_flags.Contains("--input-check")) || _options.ContainsKey("--resume-shots");
         // A scripted run plays one world from its start - the acceptance playthrough a fixed one, so it is the same run every time (M6).
@@ -1358,6 +1361,8 @@ public partial class Main : Node3D
         TickInnShots();
         TickInnRoom();
         TickLoreShots();
+        TickPetOrders();
+        TickPetShots();
     }
 
     /// <summary>

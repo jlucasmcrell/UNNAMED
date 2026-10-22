@@ -294,6 +294,12 @@ public partial class Main
             foreach (var companion in up)
                 _controller.Order(companion.NpcId, companion.Order == CompanionOrder.Follow ? CompanionOrder.Wait : CompanionOrder.Follow);
         }
+        // The animals' orders (spec 43 ruling 4): a key opens the six, a number gives one, and the ground marker shows the place the
+        // ground-named ones would use. It comes before the quick slots, so a number means the order while the list is up.
+        if (_petOrdersOpen)
+            ReadPetOrderKeys();
+        else if (Input.IsActionJustPressed("pet_orders"))
+            OpenPetOrders();
         if (Input.IsActionJustPressed("jump"))
             _controller.Jump();
         // Crouch presses on and off by default (the owner's M6 playtest); held, the body stays down only while the key is.
@@ -373,6 +379,7 @@ public partial class Main
         Bind("takedown", Key.F);          // a knife into a body that has not noticed the character (STEALTH §12)
         Bind("use", Key.H);
         Bind("companion_order", Key.G);   // follow or wait (content bible §9: no radial menu)
+        Bind("pet_orders", Key.Y);        // the animals' six orders, with the ground marker the ground-named ones use (spec 43 ruling 4)
         for (int n = 1; n <= 9; n++)
             Bind($"reply_{n}", Key.Key1 + n - 1);   // in a conversation, the number keys answer
         // Outside a conversation the digits are the main bar's slots (WP9; PJ09): 1 to 9, 0, - and =.

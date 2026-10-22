@@ -35,6 +35,7 @@ public partial class HudView : Control
     private const float LogWidth = 452;
     private static readonly Regex Keyed = new(@"^\[([^\]]+)\] (.+)$", RegexOptions.Compiled);
     private static readonly Regex Companion = new(@"^(.*?)\s+\[([^\]]+)\] (.+)$", RegexOptions.Compiled);
+    private static readonly Regex Pet = new(@"^(.*?)\s+\[([^\]]+)\] (.+)$", RegexOptions.Compiled);
     private static readonly Regex Seconds = new(@"^(.*) (\d+s)$", RegexOptions.Compiled);
 
     private HudIcons _icons = HudIcons.None;
@@ -89,6 +90,12 @@ public partial class HudView : Control
     private readonly VBoxContainer _companionRows = new();
     private string _companionText = string.Empty;
     private string? _companionIcon;
+
+    // Under the companions: the animals that travel with the character (spec 43).
+    private readonly PanelContainer _pets = new();
+    private readonly VBoxContainer _petRows = new();
+    private string _petText = string.Empty;
+    private string? _petIcon;
 
     // Bottom left: the effects and the formula being worked. The vitals and the action bars are the bottom centre's (ActionBarsView).
     private readonly PanelContainer _lowerLeft = new();
@@ -276,6 +283,13 @@ public partial class HudView : Control
         _companions.AddChild(_companionRows);
         _companions.Visible = false;
         column.AddChild(_companions);
+
+        // The animals (spec 43), in their own panel under the party's: a pet is not a companion and does not read as one.
+        _pets.AddThemeStyleboxOverride("panel", HudStyle.PanelBox(12, 7));
+        _petRows.AddThemeConstantOverride("separation", 4);
+        _pets.AddChild(_petRows);
+        _pets.Visible = false;
+        column.AddChild(_pets);
     }
 
     /// <summary>
@@ -948,8 +962,7 @@ void fragment() {
 
     /// <summary>The companions (each "Name - doing, standing   [G] order"): a row each, the first with its order's icon.</summary>
     public void SetCompanions(string? text, string? icon)
-    {
-        text ??= string.Empty;
+    {        text ??= string.Empty;
         if (text == _companionText && icon == _companionIcon)
             return;
         _companionText = text;
@@ -978,6 +991,44 @@ void fragment() {
             Quiet(row);
         }
         _companions.Visible = lines.Length > 0;
+    }
+
+    /// <summary>
+    /// The animals that travel with the character (spec 43): each "Name - doing, standing   [Y] orders", the first with its role's icon,
+    /// and a badly wounded one saying so with the days it is home. Its own panel: a pet is not a companion and is not given a companion's
+    /// two orders.
+    /// </summary>
+    public void SetPets(string? text, string? icon)
+    {
+        text ??= string.Empty;
+        if (text == _petText && icon == _petIcon)
+            return;
+        _petText = text;
+        _petIcon = icon;
+        foreach (var child in _petRows.GetChildren())
+            child.QueueFree();
+        string[] lines = text.Length == 0 ? Array.Empty<string>() : text.Split('\n');
+        for (int i = 0; i < lines.Length; i++)
+        {
+            var row = new HBoxContainer();
+            row.AddThemeConstantOverride("separation", 8);
+            if (i == 0 && _icons.For(icon) is { } texture)
+                row.AddChild(HudStyle.IconSlot(texture, 22));
+            var match = Pet.Match(lines[i]);
+            var who = HudStyle.Text(HudStyle.Body, 16, HudStyle.Bone).Say(match.Success ? match.Groups[1].Value : lines[i]);
+            who.VerticalAlignment = VerticalAlignment.Center;
+            row.AddChild(who);
+            if (match.Success)
+            {
+                row.AddChild(new KeyCap(match.Groups[2].Value));
+                var doing = HudStyle.Text(HudStyle.Body, 16, HudStyle.Ash).Say(match.Groups[3].Value);
+                doing.VerticalAlignment = VerticalAlignment.Center;
+                row.AddChild(doing);
+            }
+            _petRows.AddChild(row);
+            Quiet(row);
+        }
+        _pets.Visible = lines.Length > 0;
     }
 
     /// <summary>The tracked quest ("TITLE\nobjective\n..."), hidden while the debug overlay has the corner.</summary>
