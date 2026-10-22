@@ -8,7 +8,7 @@ namespace UNNAMED.Presentation.Ui;
 
 public partial class InventoryPanel
 {
-    private readonly Control _doll=new() {CustomMinimumSize=new Vector2(340,260),SizeFlagsHorizontal=Control.SizeFlags.ExpandFill,SizeFlagsVertical=Control.SizeFlags.ExpandFill};
+    private readonly Control _doll=new() {CustomMinimumSize=new Vector2(340,120),SizeFlagsHorizontal=Control.SizeFlags.ExpandFill,SizeFlagsVertical=Control.SizeFlags.ExpandFill};
     private readonly CreatorPreview _dollPreview=new() {Name="PaperDoll",Centered=true};
     private readonly Dictionary<EquipSlot,Button> _dollSlots=new();
     private Func<(string? Model,float ArmSplay)> _bodyChoice=()=> (null,0);
@@ -16,7 +16,7 @@ public partial class InventoryPanel
     public void BindArt(ArtLibrary art,ArtBindings bindings,Func<(string? Model,float ArmSplay)> body)
     { _dollPreview.Bind(art,bindings);_bodyChoice=body; }
 
-    private void BuildPaperDoll(HBoxContainer columns)
+    private void BuildPaperDoll(BoxContainer columns)
     {
         _doll.AddChild(_dollPreview);columns.AddChild(_doll);
         EquipSlot[][] sides={new[]{EquipSlot.Head,EquipSlot.Chest,EquipSlot.Hands,EquipSlot.Legs,EquipSlot.Feet},
@@ -30,8 +30,9 @@ public partial class InventoryPanel
             button.SetAnchorsAndOffsetsPreset(side==0?Control.LayoutPreset.TopLeft:Control.LayoutPreset.TopRight);
             button.AnchorTop=button.AnchorBottom=(i+.5f)/5;
             button.OffsetTop=-21;button.OffsetBottom=21;
-            button.OffsetLeft=side==0?0:-100;button.OffsetRight=side==0?100:0;
-            button.ClipText=true;button.IconAlignment=HorizontalAlignment.Center;
+            button.OffsetLeft=side==0?0:-150;button.OffsetRight=side==0?150:0;
+            button.ClipText=true;button.IconAlignment=HorizontalAlignment.Left;button.ExpandIcon=true;button.AddThemeConstantOverride("icon_max_width",20);
+            button.AddThemeFontSizeOverride("font_size",HudStyle.Sized(14));
             button.SetDragForwarding(default,Callable.From<Vector2,Variant,bool>((_,data)=>EquipmentDrop(data,slot) is not null),
                 Callable.From<Vector2,Variant>((_,data)=>{if(EquipmentDrop(data,slot) is { } item && _session.Simulation is { } sim)Submit(new EquipCommand(sim.PlayerId,item));}));
             void Inspect()
@@ -68,7 +69,9 @@ public partial class InventoryPanel
         foreach(var (slot,button) in _dollSlots)
         {
             var entry=simulation.Player.Equipment.TryGetValue(slot,out var id)?simulation.Player.Inventory.FirstOrDefault(e=>e.ItemId==id):null;
-            button.Text=Names.Slot(slot)+(entry is null?"":" •");
+            string word=Names.Slot(slot);word=char.ToUpperInvariant(word[0])+word[1..];
+            button.Text=entry is null?word:$"{word}:\n{Names.Item(_session,entry.DefId,entry.Quality)}";
+            button.Icon=entry is null?null:_icons.For(entry.DefId);
             button.TooltipText=entry is null?$"{Names.Slot(slot)} · Empty. Drag an item here.":$"{Names.Item(_session,entry.DefId,entry.Quality)} · Click to unequip";
             UiKit.Select(button,entry is not null);
 

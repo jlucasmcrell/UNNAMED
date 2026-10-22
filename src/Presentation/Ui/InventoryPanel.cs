@@ -35,6 +35,8 @@ public partial class InventoryPanel : CanvasLayer
     /// <summary>What the laden band means now, under the totals while laden or at the limit (D4).</summary>
     private readonly Label _laden = UiKit.Words(string.Empty, 16, HudStyle.Brass);
     private readonly VBoxContainer _details = new();
+    private VBoxContainer _packColumn=null!;
+    private readonly VBoxContainer _portraitColumn=new() {SizeFlagsHorizontal=Control.SizeFlags.ExpandFill};
     private readonly ScrollContainer _detailScroll=UiKit.Scroll();
     /// <summary>The bag bar: the backpack and each bag slot with how full it is.</summary>
     private readonly VBoxContainer _bags = new();
@@ -103,6 +105,7 @@ public partial class InventoryPanel : CanvasLayer
         var columns = new HBoxContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill };
         columns.AddThemeConstantOverride("separation", 24);
         var pack = new VBoxContainer { CustomMinimumSize = new Vector2(PackWidth, 0), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        _packColumn=pack;
         pack.AddThemeConstantOverride("separation", 16);
         _carried.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         _carried.AddThemeConstantOverride("separation", 4);
@@ -116,7 +119,8 @@ public partial class InventoryPanel : CanvasLayer
         _detailScroll.AddChild(_details);
         pack.AddChild(_detailScroll);
         columns.AddChild(pack);
-        BuildPaperDoll(columns);
+        _portraitColumn.AddThemeConstantOverride("separation",8);
+        BuildPaperDoll(_portraitColumn);columns.AddChild(_portraitColumn);
 
         _context.CustomMinimumSize = new Vector2(ContextWidth, 0);
         _context.AddThemeConstantOverride("separation", 12);
@@ -235,7 +239,11 @@ public partial class InventoryPanel : CanvasLayer
         string? focused = UiKit.FocusedId(_sheet.Root);
         bool context = OpenContainer is not null || OpenStation is not null || OpenTrader is not null;
         _sheet.Shape(UiKit.Wide);
-        _doll.Visible=!context;
+        _doll.Visible=!context;_portraitColumn.Visible=!context;
+        var bagParent=context?_sheet.Body:_portraitColumn;
+        if(_bags.GetParent()!=bagParent){_bags.Reparent(bagParent,false);bagParent.MoveChild(_bags,context?2:0);}
+        var detailParent=context?_packColumn:_portraitColumn;
+        if(_detailScroll.GetParent()!=detailParent)_detailScroll.Reparent(detailParent,false);
         if(!context)RefreshPaperDoll(simulation);
         _context.Visible = context;
         Fill(simulation);
@@ -596,7 +604,7 @@ public partial class InventoryPanel : CanvasLayer
         var item = setup.Items.Catalog.Find(defId);
         var head = UiKit.Section(Names.Item(_session, defId, quality), item is null ? "" : Names.Words(item.Category));
         _details.AddChild(head);
-        var grid = new GridContainer { Columns = 2 };
+        var grid = new GridContainer { Columns = _context.Visible ? 2 : 1 };
         grid.AddThemeConstantOverride("h_separation", 24);
         grid.AddThemeConstantOverride("v_separation", 2);
         void Fact(string label, string value, Color? tone = null, string? icon = null)
@@ -789,9 +797,10 @@ public partial class InventoryPanel : CanvasLayer
         float chrome=_carriedScroll.GlobalPosition.Y-_sheet.Panel.GlobalPosition.Y;
         float room=Math.Max(0,_sheet.Room-chrome-UiKit.Padding);
         // Reserve the same detail strip for every item. Hover never changes the list's height or scroll.
-        float detailHeight=Math.Clamp(room*.35f,140,240);
+        bool beside=!_context.Visible;
+        float detailHeight=beside?100:Math.Clamp(room*.35f,140,240);
         _detailScroll.CustomMinimumSize=new Vector2(0,detailHeight);
-        Fit(_carriedScroll, _carried, room-detailHeight-16);
+        Fit(_carriedScroll, _carried, beside?room:room-detailHeight-16);
         Fit(_containerScroll, _container, room - _contextHead.GetCombinedMinimumSize().Y - 12);
     }
 
@@ -803,7 +812,7 @@ public partial class InventoryPanel : CanvasLayer
     private Row ItemRow(string id, string defId, int quality, int count, string secondary)
     {
         var row = UiKit.Row(HudStyle.IconSlot(_icons.Binds(defId) ? _icons.For(defId) : null, 32), Names.Item(_session, defId, quality) +
-            (count > 1 ? $"  ×{count}" : ""), secondary);
+            (count > 1 ? $"  ×{count}" : ""), secondary,height:36);
         row.Root.MouseFilter = Control.MouseFilterEnum.Pass;
         row.Root.MouseEntered += () => Choose(id);
         row.Root.SetMeta("item_definition", defId);

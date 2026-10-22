@@ -52,18 +52,21 @@ public partial class Main
             var panel=sheetFrame.Panel.GetGlobalRect();
             if(panel.Size.Y>sheetFrame.Room+1)throw new InvalidDataException("Inventory extends outside its reserved HUD band");
             var bounds=list.GetGlobalRect();int scroll=list.ScrollVertical;
-            var rows=_inventory.FindChildren("*",nameof(Control),true,false).OfType<Control>().Where(c=>c.HasMeta("item_definition")).Take(2).ToArray();
+            var itemRows=_inventory.FindChildren("*",nameof(Control),true,false).OfType<Control>().Where(c=>c.HasMeta("item_definition")).ToArray();
+            int visibleRows=itemRows.Count(c=>bounds.Encloses(c.GetGlobalRect()));
+            if(size.Y==1080 && itemRows.Length>=8 && visibleRows<8)throw new InvalidDataException($"Backpack shows only {visibleRows} complete rows at1080");
+            var rows=itemRows.Take(2).ToArray();
             if(rows.Length<2)throw new InvalidDataException("Inventory gate requires two real carried items");
             for(int i=0;i<rows.Length;i++)
             {
                 rows[i].EmitSignal(Control.SignalName.MouseEntered);await Rcd3Wait(.5);
                 if(!list.GetGlobalRect().IsEqualApprox(bounds) || list.ScrollVertical!=scroll || bounds.Intersects(details.GetGlobalRect()))
-                    throw new InvalidDataException("Item hover resized/scrolled/overlapped the pack");
+                    throw new InvalidDataException($"Item hover moved the pack: before={bounds}, after={list.GetGlobalRect()}, detail={details.GetGlobalRect()}, scroll={scroll}->{list.ScrollVertical}");
                 await Rcd3Shot(directory,$"inventory_{size.Y}_item_{i}");
             }
             var worn=sim.Player.Equipment.Values.ToHashSet();
             if(sim.Pack.Containers.SelectMany(c=>c.Stacks).Any(e=>worn.Contains(e.ItemId)))throw new InvalidDataException("Worn gear still appears in pack");
-            evidence.Add(new {stage="inventory",width=size.X,height=size.Y,panel_rect=panel.ToString(),reserved_height=sheetFrame.Room,pack_rect=bounds.ToString(),details_rect=details.GetGlobalRect().ToString(),scroll,
+            evidence.Add(new {stage="inventory",width=size.X,height=size.Y,panel_rect=panel.ToString(),reserved_height=sheetFrame.Room,visible_rows=visibleRows,pack_rect=bounds.ToString(),details_rect=details.GetGlobalRect().ToString(),scroll,
                 pack_used=sim.Pack.Used,worn=worn.Count,weight=sim.Player.CarriedGrams,body=_avatarModel,tick=sim.WorldTick});
         }
         if(OS.GetEnvironment("OTHERREACH_RCD6_EXISTING_PARTY_UI")=="1")
