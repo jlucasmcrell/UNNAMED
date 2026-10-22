@@ -1,0 +1,27 @@
+id: lore.the_written_pacha
+kind: lore
+schema: 1
+display_key: lore.the_written_pacha.title
+tags: [lore, history]
+title: The Written Pacha
+category: history
+notes: "The Pacha designed and constructed rather than arisen, from docs/MYTHOLOGY.md §Known Pachas and §Constructed. The surveyor's lexicon; page 1 is the book's entry (readable.the_written_pacha) and page 2 is what the Constructed's origin adds (readable.the_written_pacha_ii)."
+pages:
+  - page: 1
+    text: >
+      The Written Pacha was designed and constructed rather than arisen. Some people wanted a reality, and they set it
+      down the way a plan is set down, and then they did not survive to use it. It kept running after they were gone.
+      Of all the worlds anyone remembers, this one is the single most disturbing, because it proves a thing that
+      unsettles every faith and every account: that a reality can be made, deliberately, by hands and a plan, and left
+      running on its own.
+    sources:
+      - { how: inspected, ref: readable.the_written_pacha }
+  - page: 2
+    text: >
+      The Constructed are its natives, and they did not arrive there; they came up out of it, once it had been running
+      long enough for its inhabitants to become people. They are the proof of what was written, and the proof names no
+      hand at the top. That is their whole trouble, and the book states it without comfort: a people who can prove
+      their world was made, and who cannot find the maker anywhere in the record of it. The writing runs on, and no
+      one reads it back to them.
+    sources:
+      - { how: inspected, ref: readable.the_written_pacha_ii }

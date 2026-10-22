@@ -47,6 +47,7 @@ ALIAS = {
     "iron_under_ash": "lore.iron_under_ash_after",
     "three_quiet_stones": "lore.three_quiet_stones_after",
     "what_the_bog_kept": "lore.what_the_bog_kept_after",
+    "vaskaal_no_myth": "lore.the_vaskaal_and_pacha",
 }
 
 

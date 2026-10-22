@@ -1,0 +1,27 @@
+id: lore.the_long_lodge
+kind: lore
+schema: 1
+display_key: lore.the_long_lodge.title
+tags: [lore, places]
+title: The Long Lodge
+category: places
+notes: "Cairnwold's communal hall, from content/locations/cairnwold/lodge.yaml notes and Berrin Garth's lines on the books and the Resonance Primer (content/dialogue/cairnwold/berrin_garth.yaml primer). In-world, page 1 is the lodge walked into (location.cairnwold.lodge) and page 2 is what the lodge keeps (readable.the_long_lodge_ii)."
+pages:
+  - page: 1
+    text: >
+      The Long Lodge is Cairnwold's one great room, at the village's east end: eighteen metres of hall under a single
+      slate roof, with the hearth set under its own chimney so the smoke goes up and not into the rafters. It is the
+      place the village gathers, and the place it keeps what it cannot trust to memory. One door, one roof, one fire.
+      Nothing about it is grand, and nothing about it is new. It has held the whole of the village's business for
+      longer than anyone living can remember.
+    sources:
+      - { how: visited, ref: location.cairnwold.lodge }
+  - page: 2
+    text: >
+      A hall with a fire in it is where a village keeps its books, and the lodge keeps Cairnwold's: births, burials,
+      who owes whom, and the strangers who pass through. On the top shelf, behind a warped door, sits the Resonance
+      Primer, three small workings, and the door has stayed shut since they buried Wenna, the last of the village who
+      could make sense of what was in it. Berrin Garth keeps the lodge and the book, and he holds that a book on a
+      shelf is a promise nobody is keeping, which is why he hands the primer over rather than let it sit.
+    sources:
+      - { how: inspected, ref: readable.the_long_lodge_ii }

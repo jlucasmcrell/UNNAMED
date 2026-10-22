@@ -1,0 +1,27 @@
+id: lore.otherwhere
+kind: lore
+schema: 1
+display_key: lore.otherwhere.title
+tags: [lore, history]
+title: Otherwhere
+category: history
+notes: "Displacement outside ordinary geography, from docs/OTHERREACH_COSMOLOGY.md §6 Otherwhere. The surveyor's lexicon; page 1 is the book's entry (readable.otherwhere) and page 2 is Sel Arien's spoken gloss (dialogue.ashen_hollow.sel_arien)."
+pages:
+  - page: 1
+    text: >
+      Otherwhere is the word for being somewhere that is not on the map, and not merely off its edge. It names
+      displacement outside ordinary geography: another place in the same world, another world, another reality, or a
+      stretch of space that will not sit cleanly inside any of these. Two rooms that open into each other across a
+      thousand miles, a door that leads into a town on no road, a path that folds back on itself - all of it is
+      Otherwhere. The word does not say where the place is. It says that where has stopped being the question.
+    sources:
+      - { how: inspected, ref: readable.otherwhere }
+  - page: 2
+    text: >
+      The surveyor keeps the word for the moment a road stops being a road, and she says it plainly: a gate that
+      leads somewhere is one thing, and a gate that leads elsewhere is another. That gate does not lead north, she
+      will tell you; it leads Otherwhere. She will not say what is on the far side, because she has not stood there,
+      and a surveyor who fills the far side in from a guess has stopped measuring. The word is the whole of what she
+      knows, and she will not let it carry more than that.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }

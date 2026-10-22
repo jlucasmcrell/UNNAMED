@@ -1,0 +1,27 @@
+id: lore.the_vaskaal_and_pacha
+kind: lore
+schema: 1
+display_key: lore.the_vaskaal_and_pacha.title
+tags: [lore, faith]
+title: The Vaskaal and Pacha
+category: faith
+notes: "The Vaskaal's documented history in place of mythology and their view of Pacha as weather, from docs/MYTHOLOGY.md §Vaskaal. In-world, both pages are one book (readable.the_vaskaal_and_pacha), because no Vaskaal stands in the frontier to be asked."
+pages:
+  - page: 1
+    text: >
+      The Vaskaal have no mythology. What they have is history, and it is long, and it is written down, and it is
+      open to anyone who asks to see it. This is the one thing about them that unsettles every other people, because
+      it lets them say what the world was like before the last Pachakuti, from outside it, and mean the words
+      plainly. Every other people must make a story out of what the turn left behind. The Vaskaal simply keep the
+      record, and will read it to you.
+    sources:
+      - { how: inspected, ref: readable.the_vaskaal_and_pacha }
+  - page: 2
+    text: >
+      What they hold about a Pacha is that it is weather: a thing without intention, impartial, and dangerous to be
+      caught in. A world turns the way a storm turns, and no hand is behind it, and no plea will stay it. They hear
+      the faiths of the native peoples the way one hears a sincere misunderstanding, with a courtesy that is careful
+      and a little sad. It is not that they think less of those who pray. It is that they have seen the storm from
+      the outside, and know it does not listen.
+    sources:
+      - { how: inspected, ref: readable.the_vaskaal_and_pacha_ii }

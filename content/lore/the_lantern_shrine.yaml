@@ -1,0 +1,27 @@
+id: lore.the_lantern_shrine
+kind: lore
+schema: 1
+display_key: lore.the_lantern_shrine.title
+tags: [lore, places]
+title: The Lantern Shrine
+category: places
+notes: "The roadside stone and lit post where travellers leave what they can spare, from content/locations/road/lantern_shrine.yaml notes and the Wayhold's keeping of the lantern (content/lore/wayhold.yaml). In-world, page 1 is the shrine walked up to (location.road.lantern_shrine) and page 2 is the custom and the Wayhold's duty (readable.the_lantern_shrine_ii)."
+pages:
+  - page: 1
+    text: >
+      At the edge of the road stands a stone, and a post with a lit lantern hung on it, and the two together are the
+      shrine. It is not a temple, and no one keeps a roof over it. Travellers stop because it is the custom to stop,
+      and because the light is a thing the road holds out to whoever comes after. On the stone and at its foot they
+      leave what they can spare, not as an offering to any power but as a thing left for the next one who comes
+      through with less, and the next one takes it and walks on.
+    sources:
+      - { how: visited, ref: location.road.lantern_shrine }
+  - page: 2
+    text: >
+      The Wayhold keeps the lantern filled, so that a traveller in the dark is never walking toward a light that has
+      been let go out, and that single duty is the whole of what the shrine asks. The custom runs the other way from a
+      temple's: nothing is owed, nothing is asked, and the gifts are not watched. What you leave is for the road, and
+      what you take was left for you, and neither act is recorded anywhere. The shrine is only a stone and a light,
+      and the point of it is that both are left where a stranger can use them.
+    sources:
+      - { how: inspected, ref: readable.the_lantern_shrine_ii }

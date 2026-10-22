@@ -1,0 +1,27 @@
+id: lore.mor_schism
+kind: lore
+schema: 1
+display_key: lore.mor_schism.title
+tags: [lore, faith]
+title: The Mor Schism
+category: faith
+notes: "The Mor's belief that their world was killed deliberately and their schism between recovering and avenging the Lost Pacha, from docs/MYTHOLOGY.md §Mor. In-world, both pages are one book (readable.mor_schism), because no Mor stands in the frontier to be asked."
+pages:
+  - page: 1
+    text: >
+      The Mor hold that their world was killed on purpose, and that they are the proof of it. From that one holding
+      the rest of their faith follows, and it is not worship but finding out who did it. That question is the whole
+      of their existence, and it splits them in two. One side would recover the Lost Pacha, take back the world that
+      was taken from them. The other would avenge it. Both sides are patient in ways living things are not, and
+      neither has moved an inch toward the other in all the time anyone has kept count.
+    sources:
+      - { how: inspected, ref: readable.mor_schism }
+  - page: 2
+    text: >
+      The quarrel is not over whether their world fell, but over what is owed for it, and it has drawn blood. Whether
+      the Lost Pacha can be reached, or recovered, or made again is the central question of the Mor, and they have
+      killed each other over the answer before now. Some of them want the Lost Pacha back outright. The honest ones
+      understand that restoring it would unmake this world, and have not yet decided what they think of that. So the
+      two sides wait, patient as only the dead are patient, and the question stays open.
+    sources:
+      - { how: inspected, ref: readable.mor_schism_ii }

@@ -1,0 +1,27 @@
+id: lore.otherwrought
+kind: lore
+schema: 1
+display_key: lore.otherwrought.title
+tags: [lore, history]
+title: Otherwrought
+category: history
+notes: "Objects deliberately made using Other materials, forces, knowledge or techniques, from docs/OTHERREACH_COSMOLOGY.md §12 Otherwrought. The surveyor's lexicon; page 1 is the book's entry (readable.otherwrought) and page 2 is Sel Arien's spoken gloss (dialogue.ashen_hollow.sel_arien)."
+pages:
+  - page: 1
+    text: >
+      Otherwrought names a thing made on purpose out of the Other: its materials, its forces, its knowledge, or its
+      ways of working. A weapon, a piece of armor, a key, a relic, a tool, a box that holds more than its shape
+      should allow - any of these has been Otherwrought somewhere. The word is not for any strange thing, only for a
+      thing someone set out to make and made with what lies the far side of the Veil. Such a thing should feel
+      different in the hand from an ordinary worked object, and the difference is the whole of its worth.
+    sources:
+      - { how: inspected, ref: readable.otherwrought }
+  - page: 2
+    text: >
+      The surveyor will tell you how to know one when you hold it, and it is not by any glow or mark. An Otherwrought
+      thing is not a common object with a spell laid over it, she says; it is a thing made from the wrong side of the
+      seam, and it shows in the way it sits in the hand and the way it answers work. She has handled a few, and she
+      will not pretend they were easy. What she will not do is tell you where the rest of them are, because that
+      would be a guess, and guesses are not for the Record.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }

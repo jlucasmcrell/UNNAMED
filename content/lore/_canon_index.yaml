@@ -162,9 +162,11 @@ concepts:
 - id: canon.first_pacha
   name: The First Pacha
   kind: cosmology
-  status: missing
+  status: covered
   fact: The First Pacha is the oldest remembered Pacha, with no surviving people native to it, and the Mor believe they are its remnant.
   source: docs/MYTHOLOGY.md §Known Pachas
+  covered_by:
+  - lore.the_first_pacha
 - id: canon.fold_bleed
   name: Fold bleed
   kind: other
@@ -188,9 +190,11 @@ concepts:
 - id: canon.found_pacha
   name: The Found Pacha
   kind: cosmology
-  status: missing
+  status: covered
   fact: The Found Pacha was discovered intact and empty and was colonised, and the Orenth are its descendants and will not discuss it.
   source: docs/MYTHOLOGY.md §Known Pachas
+  covered_by:
+  - lore.the_found_pacha
 - id: canon.grey_alpha
   name: Grey Alpha
   kind: creature
@@ -266,9 +270,11 @@ concepts:
 - id: canon.lantern_shrine
   name: The Lantern Shrine
   kind: place
-  status: missing
+  status: covered
   fact: The Lantern Shrine is a roadside stone and lit post where travellers leave what they can spare, and the Wayhold keeps the lantern filled.
   source: content/locations/road/lantern_shrine.yaml notes
+  covered_by:
+  - lore.the_lantern_shrine
 - id: canon.last_pachakuti
   name: The last Pachakuti
   kind: history
@@ -286,9 +292,11 @@ concepts:
 - id: canon.long_lodge
   name: The Long Lodge
   kind: place
-  status: missing
+  status: covered
   fact: The Long Lodge is Cairnwold's communal hall of eighteen metres under one slate roof, kept by Berrin Garth, where the village keeps its books and the Resonance Primer.
   source: content/locations/cairnwold/lodge.yaml notes; content/dialogue/cairnwold/berrin_garth.yaml primer
+  covered_by:
+  - lore.the_long_lodge
 - id: canon.long_survey
   name: The Long Survey
   kind: faction
@@ -298,9 +306,11 @@ concepts:
 - id: canon.lost_pacha
   name: The Lost Pacha
   kind: cosmology
-  status: missing
+  status: covered
   fact: The Lost Pacha was destroyed, unravelled or never completed, and the Mor are what remains of its people.
   source: docs/MYTHOLOGY.md §Known Pachas
+  covered_by:
+  - lore.the_lost_pacha
 - id: canon.mara_ling
   name: Mara Ling
   kind: other
@@ -318,10 +328,12 @@ concepts:
 - id: canon.mor_schism
   name: The Mor schism
   kind: myth
-  status: missing
+  status: covered
   fact: The Mor believe their world was killed deliberately, and their schism is between those who want to recover the Lost Pacha and those who want to avenge it.
   source: docs/MYTHOLOGY.md §Mor
   in_world_voice: belief (Mor theology)
+  covered_by:
+  - lore.mor_schism
 - id: canon.moss_lights
   name: The Moss Lights
   kind: other
@@ -359,10 +371,12 @@ concepts:
 - id: canon.ondrek_record
   name: The Ondrek record
   kind: myth
-  status: missing
+  status: covered
   fact: The Ondrek have no creation account and their doctrine is the record - what is known is stone, what is stone is known, and anything else is opinion.
   source: docs/MYTHOLOGY.md §Ondrek
   in_world_voice: belief (Ondrek doctrine)
+  covered_by:
+  - lore.the_ondrek_record
 - id: canon.order_of_the_lantern
   name: The Order of the Lantern
   kind: faction
@@ -380,9 +394,11 @@ concepts:
 - id: canon.otherborn
   name: Otherborn
   kind: cosmology
-  status: missing
+  status: covered
   fact: Otherborn describes beings whose origin is fundamentally connected to the Other, and Sel Arien treats the player as one - Otherborn carry odd things.
   source: docs/OTHERREACH_COSMOLOGY.md §10 Otherborn; content/dialogue/ashen_hollow/sel_arien.yaml story_catalog
+  covered_by:
+  - lore.otherborn
 - id: canon.otherborn_relics
   name: The Otherborn relics
   kind: other
@@ -426,9 +442,11 @@ concepts:
 - id: canon.othermarked
   name: Othermarked
   kind: cosmology
-  status: missing
+  status: covered
   fact: An Othermarked person was not necessarily born connected to the Other but was permanently changed by later exposure to it.
   source: docs/OTHERREACH_COSMOLOGY.md §11 Othermarked
+  covered_by:
+  - lore.othermarked
 - id: canon.otherreach
   name: Otherreach
   kind: cosmology
@@ -446,21 +464,27 @@ concepts:
 - id: canon.otherwhen
   name: Otherwhen
   kind: cosmology
-  status: missing
+  status: covered
   fact: Otherwhen describes displacement outside ordinary chronology, so that when becomes a destination as where normally is.
   source: docs/OTHERREACH_COSMOLOGY.md §7 Otherwhen
+  covered_by:
+  - lore.otherwhen
 - id: canon.otherwhere
   name: Otherwhere
   kind: cosmology
-  status: missing
+  status: covered
   fact: Otherwhere describes displacement outside ordinary geography - another place, world, reality, or a region that does not map onto normal space.
   source: docs/OTHERREACH_COSMOLOGY.md §6 Otherwhere
+  covered_by:
+  - lore.otherwhere
 - id: canon.otherwrought
   name: Otherwrought
   kind: cosmology
-  status: missing
+  status: covered
   fact: Otherwrought describes objects deliberately made using materials, forces, knowledge or techniques associated with the Other.
   source: docs/OTHERREACH_COSMOLOGY.md §12 Otherwrought
+  covered_by:
+  - lore.otherwrought
 - id: canon.overturned_wain
   name: The Overturned Wain
   kind: place
@@ -558,9 +582,11 @@ concepts:
 - id: canon.south_crag_seam
   name: The South Crag Seam
   kind: place
-  status: missing
+  status: covered
   fact: The South Crag Seam is Cairnwold's own iron, worked for three generations of Skells, and it is finite - three strikes and it is worked out, with no second seam in the basin.
   source: content/locations/cairnwold/iron_seam.yaml notes; content/dialogue/cairnwold/durn_skell.yaml seam
+  covered_by:
+  - lore.the_south_crag_seam
 - id: canon.south_crags
   name: The South Crags
   kind: place
@@ -703,9 +729,11 @@ concepts:
 - id: canon.vaskaal_no_myth
   name: The Vaskaal and Pacha
   kind: myth
-  status: missing
+  status: covered
   fact: The Vaskaal have documented history rather than mythology and regard Pacha as weather - an impartial phenomenon dangerous to be caught in.
   source: docs/MYTHOLOGY.md §Vaskaal
+  covered_by:
+  - lore.the_vaskaal_and_pacha
 - id: canon.vessmere
   name: Vessmere
   kind: place
@@ -723,9 +751,11 @@ concepts:
 - id: canon.veth_keeping
   name: Veth keeping
   kind: myth
-  status: missing
+  status: covered
   fact: The Veth have no creation myth, and their sacred act is keeping - records, lineages, oaths and the continuity of ordinary life - while their heresy is the claim of descent.
   source: docs/MYTHOLOGY.md §Veth
+  covered_by:
+  - lore.veth_keeping
 - id: canon.wayhold
   name: The Wayhold
   kind: faction
@@ -773,9 +803,11 @@ concepts:
 - id: canon.written_pacha
   name: The Written Pacha
   kind: cosmology
-  status: missing
+  status: covered
   fact: The Written Pacha was designed and constructed rather than arisen and left running after its authors ended, and the Constructed are its natives.
   source: docs/MYTHOLOGY.md §Known Pachas
+  covered_by:
+  - lore.the_written_pacha
 gaps:
 - concept: canon.pachakuti
   what_canon_leaves_open: What caused the last Pachakuti - canon states it is caused by something nobody knows.

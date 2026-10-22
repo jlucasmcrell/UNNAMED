@@ -1,0 +1,27 @@
+id: lore.veth_keeping
+kind: lore
+schema: 1
+display_key: lore.veth_keeping.title
+tags: [lore, faith]
+title: Veth Keeping
+category: faith
+notes: "The Veth's sacred act of keeping and their heresy of the claim of descent, from docs/MYTHOLOGY.md §Veth. In-world, both pages are one book (readable.veth_keeping); page 1 is the doctrine and page 2 the heresy it stands against."
+pages:
+  - page: 1
+    text: >
+      The Veth have no creation myth, and they do not feel the lack of one. They were always here, and then something
+      happened, and that is enough. What they hold sacred is keeping: records, lineages, oaths, and the plain
+      continuity of ordinary life. A Veth who keeps their word is observing a duty they would never call religious,
+      and that is the point of it. It asks nothing of the dead and nothing of any maker. It only asks that the thing
+      be written down, and that the writing be kept.
+    sources:
+      - { how: inspected, ref: readable.veth_keeping }
+  - page: 2
+    text: >
+      Every keeping has a shadow, and the Veth's is the claim of descent: that some Veth lines are purer than others
+      because they were less changed by the turn. It is nonsense, and it cannot be disproved, which is what makes it
+      dangerous. A people whose whole faith is the keeping of straight records are the one people a lie about lineage
+      can still take hold among, because the lie asks to be written down, and once it is written it looks like the
+      truth they keep. It has started wars. The records have not stopped them.
+    sources:
+      - { how: inspected, ref: readable.veth_keeping_ii }

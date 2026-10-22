@@ -1,0 +1,27 @@
+id: lore.otherwhen
+kind: lore
+schema: 1
+display_key: lore.otherwhen.title
+tags: [lore, history]
+title: Otherwhen
+category: history
+notes: "Displacement outside ordinary chronology, from docs/OTHERREACH_COSMOLOGY.md §7 Otherwhen. The surveyor's lexicon; page 1 is the book's entry (readable.otherwhen) and page 2 is Sel Arien's spoken gloss (dialogue.ashen_hollow.sel_arien)."
+pages:
+  - page: 1
+    text: >
+      Otherwhen is the word for being outside ordinary chronology, and it does not simply mean going back or forward
+      along a line. It names the past, the future, a branch of time that never happened, a moment kept whole and
+      still, a place where time runs at the wrong speed, a town standing in an era that is not its own. The word is
+      meant to sit strangely on the ear, because the thing it names is strange: when becomes a destination, the way
+      where ordinarily is. Otherwhere is outside the map. Otherwhen is outside the clock.
+    sources:
+      - { how: inspected, ref: readable.otherwhen }
+  - page: 2
+    text: >
+      The surveyor warns that a road which stops leading anywhere has a twin that stops leading anywhen, and the twin
+      is the harder one to spot, because a person can see that the country is wrong but not that the hour is. Ask her
+      how far back or forward, and she will say the question is already wrong: the far side of an Otherwhen is not a
+      date but a place, stood at the wrong end of the year. She has no account of what it is like there. She will
+      tell you exactly that, and nothing more.
+    sources:
+      - { how: told, ref: dialogue.ashen_hollow.sel_arien }

@@ -1,0 +1,27 @@
+id: lore.the_found_pacha
+kind: lore
+schema: 1
+display_key: lore.the_found_pacha.title
+tags: [lore, history]
+title: The Found Pacha
+category: history
+notes: "The Pacha discovered intact and empty and colonised, from docs/MYTHOLOGY.md §Known Pachas and §Orenth. The surveyor's lexicon; page 1 is the book's entry (readable.the_found_pacha) and page 2 is the Orenth's silence (readable.the_found_pacha_ii)."
+pages:
+  - page: 1
+    text: >
+      The Found Pacha was discovered intact and empty, and then it was settled. The word found is exact: it was not
+      made, and it was not wrecked, and it was not waiting for anyone in particular. Something had been there. Nothing
+      in it explained what, and nothing left behind a name. Whoever or whatever held it before left it whole and bare,
+      the way a room is left when the work is finished and the workers have gone, and the settlers walked in and took
+      it up and made it theirs.
+    sources:
+      - { how: inspected, ref: readable.the_found_pacha }
+  - page: 2
+    text: >
+      The Orenth are the descendants of those settlers, and they will not discuss it. Ask them what their ancestors
+      found, and why it stood empty, and what was done when they arrived, and the answer is a long one about something
+      else. This is not a gap in the record; it is a door they have chosen to keep shut. The book sets down what is
+      known - found, empty, settled - and leaves the rest where the Orenth have always left it: with them, unspoken,
+      and heavy.
+    sources:
+      - { how: inspected, ref: readable.the_found_pacha_ii }

@@ -1,0 +1,27 @@
+id: lore.the_lost_pacha
+kind: lore
+schema: 1
+display_key: lore.the_lost_pacha.title
+tags: [lore, history]
+title: The Lost Pacha
+category: history
+notes: "The Pacha destroyed, unravelled or never completed, from docs/MYTHOLOGY.md §Known Pachas and §Mor. The surveyor's lexicon; page 1 is the book's entry (readable.the_lost_pacha) and page 2 is the Mor's question kept open (readable.the_lost_pacha_ii)."
+pages:
+  - page: 1
+    text: >
+      The Lost Pacha is gone, and the record will not say more than three ways it might have gone: destroyed,
+      unravelled, or never completed. Only the first of those has a hand behind it. The other two have no hand at all,
+      and the difference is the whole of what is at stake. The Mor are what remains of its people, and they crossed
+      out of it with nothing of it but themselves, and they are the only living answer to the question of what it
+      was. What remains of them is not a body.
+    sources:
+      - { how: inspected, ref: readable.the_lost_pacha }
+  - page: 2
+    text: >
+      Whether it can be reached, or recovered, or made again is the central question of the Mor, and they have killed
+      each other over the answer. The book does not take a side, because the record cannot: it can list the three ways
+      the world may have gone, and it can list the living who mourn it, and beyond that it has nothing to add. What it
+      does note is that the question is not a matter for the study only. They are the remnant, and the answer is the
+      one thing they have left to want.
+    sources:
+      - { how: inspected, ref: readable.the_lost_pacha_ii }

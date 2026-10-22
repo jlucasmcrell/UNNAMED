@@ -147765,6 +147765,174 @@ barriers:
 # Readables (spec 41): what is written down, where it stands, and the lore entry reading it files. A page names one page of an entry; a
 # book (no page) opens every page of its entry the character has not read. Both are read from where a switch is worked.
 readables:
+  - key: readable.mor_schism
+    lore_ref: lore.mor_schism
+    page: 1
+    name: the The Mor Schism on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 717.8, 0.6]
+    height_m: 0.9
+  - key: readable.mor_schism_ii
+    lore_ref: lore.mor_schism
+    page: 2
+    name: the The Mor Schism on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 718.6, 0.6]
+    height_m: 0.9
+  - key: readable.otherborn
+    lore_ref: lore.otherborn
+    page: 1
+    name: the Otherborn on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 719.5, 0.6]
+    height_m: 0.9
+  - key: readable.othermarked
+    lore_ref: lore.othermarked
+    page: 1
+    name: the Othermarked on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 720.3, 0.6]
+    height_m: 0.9
+  - key: readable.otherwhen
+    lore_ref: lore.otherwhen
+    page: 1
+    name: the Otherwhen on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 721.2, 0.6]
+    height_m: 0.9
+  - key: readable.otherwhere
+    lore_ref: lore.otherwhere
+    page: 1
+    name: the Otherwhere on the Survey shelf
+    verb: Read
+    circle_m: [472.6, 722.0, 0.6]
+    height_m: 0.9
+  - key: readable.otherwrought
+    lore_ref: lore.otherwrought
+    page: 1
+    name: the Otherwrought on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 717.8, 0.6]
+    height_m: 0.9
+  - key: readable.the_first_pacha
+    lore_ref: lore.the_first_pacha
+    page: 1
+    name: the The First Pacha on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 718.6, 0.6]
+    height_m: 0.9
+  - key: readable.the_first_pacha_ii
+    lore_ref: lore.the_first_pacha
+    page: 2
+    name: the The First Pacha on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 719.5, 0.6]
+    height_m: 0.9
+  - key: readable.the_found_pacha
+    lore_ref: lore.the_found_pacha
+    page: 1
+    name: the The Found Pacha on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 720.3, 0.6]
+    height_m: 0.9
+  - key: readable.the_found_pacha_ii
+    lore_ref: lore.the_found_pacha
+    page: 2
+    name: the The Found Pacha on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 721.2, 0.6]
+    height_m: 0.9
+  - key: readable.the_lantern_shrine_ii
+    lore_ref: lore.the_lantern_shrine
+    page: 2
+    name: the The Lantern Shrine on the Survey shelf
+    verb: Read
+    circle_m: [474.0, 722.0, 0.6]
+    height_m: 0.9
+  - key: readable.the_long_lodge_ii
+    lore_ref: lore.the_long_lodge
+    page: 2
+    name: the The Long Lodge on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 717.8, 0.6]
+    height_m: 0.9
+  - key: readable.the_lost_pacha
+    lore_ref: lore.the_lost_pacha
+    page: 1
+    name: the The Lost Pacha on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 718.6, 0.6]
+    height_m: 0.9
+  - key: readable.the_lost_pacha_ii
+    lore_ref: lore.the_lost_pacha
+    page: 2
+    name: the The Lost Pacha on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 719.5, 0.6]
+    height_m: 0.9
+  - key: readable.the_ondrek_record
+    lore_ref: lore.the_ondrek_record
+    page: 1
+    name: the The Ondrek Record on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 720.3, 0.6]
+    height_m: 0.9
+  - key: readable.the_ondrek_record_ii
+    lore_ref: lore.the_ondrek_record
+    page: 2
+    name: the The Ondrek Record on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 721.2, 0.6]
+    height_m: 0.9
+  - key: readable.the_south_crag_seam_ii
+    lore_ref: lore.the_south_crag_seam
+    page: 2
+    name: the The South Crag Seam on the Survey shelf
+    verb: Read
+    circle_m: [475.4, 722.0, 0.6]
+    height_m: 0.9
+  - key: readable.the_vaskaal_and_pacha
+    lore_ref: lore.the_vaskaal_and_pacha
+    page: 1
+    name: the The Vaskaal and Pacha on the Survey shelf
+    verb: Read
+    circle_m: [476.8, 717.8, 0.6]
+    height_m: 0.9
+  - key: readable.the_vaskaal_and_pacha_ii
+    lore_ref: lore.the_vaskaal_and_pacha
+    page: 2
+    name: the The Vaskaal and Pacha on the Survey shelf
+    verb: Read
+    circle_m: [476.8, 718.6, 0.6]
+    height_m: 0.9
+  - key: readable.the_written_pacha
+    lore_ref: lore.the_written_pacha
+    page: 1
+    name: the The Written Pacha on the Survey shelf
+    verb: Read
+    circle_m: [476.8, 719.5, 0.6]
+    height_m: 0.9
+  - key: readable.the_written_pacha_ii
+    lore_ref: lore.the_written_pacha
+    page: 2
+    name: the The Written Pacha on the Survey shelf
+    verb: Read
+    circle_m: [476.8, 720.3, 0.6]
+    height_m: 0.9
+  - key: readable.veth_keeping
+    lore_ref: lore.veth_keeping
+    page: 1
+    name: the Veth Keeping on the Survey shelf
+    verb: Read
+    circle_m: [476.8, 721.2, 0.6]
+    height_m: 0.9
+  - key: readable.veth_keeping_ii
+    lore_ref: lore.veth_keeping
+    page: 2
+    name: the Veth Keeping on the Survey shelf
+    verb: Read
+    circle_m: [476.8, 722.0, 0.6]
+    height_m: 0.9
   - key: readable.ashbloom
     lore_ref: lore.ashbloom
     page: 1
