@@ -16,6 +16,12 @@ content: the answer goes into the doc it belongs to first, and the lore page fol
 | Ondrek | Their part in the frontier. Canon names them and gives them no place in the slice. | `docs/RACES.md`, `docs/CHARACTER_CREATION_AND_LINEAGE.md` |
 | Dates | Almost all of it: how long ago the stones were raised, when the quarry was worked, when the Order sealed it. Canon gives "two winters back" for one death and nothing else. | every source above |
 
+## Waiting on another specification
+
+| Tie | What it needs | Where it stands |
+|---|---|---|
+| Lore unlocking **runes** (spec 47) | The enhancement system itself: enhancement slots, an Enchanting skill, an enchanting bench, and rune definitions for a page to name. Spec 47 is written (`C:\Otherreach_External_Assets\specs\47_gear_enhancement.md`, owner rulings 2026-10-21) but **not implemented in this build**: there is no enhancement, enchantment or rune content kind and no code for it. | The lore side is ready and waiting: the cosmology already carries the materials spec 47 infuses (ember hound ash, wolf fang, boar bristle, Blackvein ore) as entries with their own pages, so a rune, once it exists as content, has something to be taught from. A page cannot name a rune that does not exist, and inventing the rune system inside the lore pass would invent a mechanic and world facts at once. |
+
 ## Answered
 
 *(an answer moves here with the doc it was written into)*
