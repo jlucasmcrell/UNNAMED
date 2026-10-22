@@ -70,8 +70,21 @@ public partial class MapPanel : CanvasLayer
         var map = simulation.Map;
         _date.Text = CalendarWords.Line(simulation.Calendar, _session.Setup.Calendar, simulation.Weather.State);
         var stones = simulation.Waystones.Where(w => w.Known).ToList();
+        // What the character has read about a place, written under its name: the journal's own entries, matched by the page that is found by
+        // walking into it (spec 41, map notes). A place nobody has written up carries no note.
+        var notes = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var entry in _session.Setup.Lore.Values)
+        {
+            var visited = entry.Pages.SelectMany(p => p.Sources).Where(s => s.Kind == UNNAMED.Domain.Knowledge.LoreSourceKind.Visited)
+                .Select(s => s.Ref).Distinct(StringComparer.Ordinal).ToList();
+            int known = simulation.Lore.Count(r => r.EntryId == entry.Id);
+            if (known == 0)
+                continue;
+            foreach (string place in visited)
+                notes[place] = $"{entry.Title} {known}/{entry.PageCount}";
+        }
         _canvas.Show(_session.Setup.Layout, map, stones.Select(w => (w.Site, w.ReturnPoint)).ToList(),
-            map.Places.Select(p => (p, Names.Of(_session, p.LocationId))).ToList(), simulation.Player.Body);
+            map.Places.Select(p => (p, Names.Of(_session, p.LocationId))).ToList(), simulation.Player.Body, notes);
         _known.Text = stones.Count == 0
             ? "You know no Waystone yet. Touch one, and it will be on your map."
             : $"Waystones you know: {string.Join(", ", stones.Select(w => w.Site.Name + (w.ReturnPoint ? " (your return point)" : "")))}.";
@@ -85,6 +98,9 @@ public partial class MapPanel : CanvasLayer
         private KnownMap? _map;
         private IReadOnlyList<(WaystoneSite Site, bool ReturnPoint)> _stones = Array.Empty<(WaystoneSite, bool)>();
         private IReadOnlyList<(KnownPlace Place, string Name)> _places = Array.Empty<(KnownPlace, string)>();
+
+        /// <summary>What the journal holds about a place, by its location id: drawn under the place's name.</summary>
+        private IReadOnlyDictionary<string, string> _notes = new Dictionary<string, string>(StringComparer.Ordinal);
         private Body? _player;
         private string _drawn = string.Empty;
 
@@ -104,9 +120,10 @@ public partial class MapPanel : CanvasLayer
         }
 
         public void Show(RegionLayout layout, KnownMap map, IReadOnlyList<(WaystoneSite Site, bool ReturnPoint)> stones,
-            IReadOnlyList<(KnownPlace Place, string Name)> places, Body player)
+            IReadOnlyList<(KnownPlace Place, string Name)> places, Body player, IReadOnlyDictionary<string, string>? notes = null)
         {
             _layout = layout;
+            _notes = notes ?? new Dictionary<string, string>(StringComparer.Ordinal);
             float width = Math.Max(320, Size.X);
             var space = layout.Space;
             float height = width * (space.MaxZMm - space.MinZMm) / Math.Max(1f, space.MaxXMm - space.MinXMm) + 2 * Margin;
@@ -172,6 +189,9 @@ public partial class MapPanel : CanvasLayer
                 var at = At(place.XMm, place.ZMm);
                 DrawRect(new Rect2(at - new Vector2(2.5f, 2.5f), new Vector2(5, 5)), HudStyle.Bone);
                 Label(at, name.ToUpperInvariant(), HudStyle.Bone);
+                // The note is what the journal holds about the place: its entry and how much of it is known (spec 41, map notes).
+                if (_notes.TryGetValue(place.LocationId, out string? note))
+                    Label(at + new Vector2(0, 15), note, HudStyle.Ash);
             }
 
             // Where the character stands, and which way they face (0 is north, +Z; clockwise towards east, +X).
