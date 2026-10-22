@@ -28,6 +28,7 @@ public partial class Main
 
     private string? _petShotsDirectory;
     private string? _petRefusal;
+    private Camera3D? _petCamera;
     private ulong _petNext;
     private ulong _petBeat;
     private int _petStep;
@@ -222,6 +223,11 @@ public partial class Main
                     GD.Print($"PET_SHOTS out of the shed: door {outDoor.Site.Key} open " +
                         $"{simulation.Doors.First(d => d.Site.Key == outDoor.Site.Key).Open}, {PetWhere(simulation)}");
                 }
+                // And out of the hollow by its authored east route: the yard is walled, and the navigation alone leaves the character pacing inside
+                // it (five runs ended every field beat with "0 creatures fighting the party" while it stood at (452.7, 745.3)).
+                foreach (var (x, z) in Playthrough.OutOfTheHollow)
+                    await ApproachPoint(x, z, 1.5, 70);
+                GD.Print($"PET_SHOTS out of the hollow: {PetWhere(simulation)}");
                 break;
             }
             case 2:
@@ -262,6 +268,8 @@ public partial class Main
                 if (held is { } post)
                     await GoTo(post, 5.0, 45);
                 await PetStill("pets_waiting_close", held);
+                if (held is { } marked)
+                    await PetPortrait("pets_ring_pup", marked, simulation.Player.Body);
                 PetEvidence("wait here", string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Order} at {Metres(p.Body)}")));
                 // Called back to heel: the beats after this one are about what the animal does beside the character.
                 await Obey(PetOrder.Follow, 4);
@@ -315,6 +323,8 @@ public partial class Main
                 await Obey(PetOrder.Pull, 6);
                 await Rcd3Wait(8.0);
                 await PetStill("pets_pull", simulation.Pets.FirstOrDefault()?.Body ?? NearestHostile(simulation)?.Body);
+                if (simulation.Pets.FirstOrDefault()?.Body is { } pulled)
+                    await PetPortrait("pets_pull_pup", pulled, simulation.Player.Body);
                 PetEvidence("pull one", string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Doing}, {p.Standing}, {p.Health}")) +
                     $" | fighting: {simulation.Creatures.Count(c => c.Hostile)}");
                 break;
@@ -352,6 +362,8 @@ public partial class Main
                 if (NearestHostile(simulation)?.Body is { } fought)
                     await GoTo(fought, 5.0, 20);
                 await PetStill("pets_fight", NearestHostile(simulation)?.Body ?? simulation.Pets.FirstOrDefault()?.Body);
+                if (NearestHostile(simulation)?.Body is { } fighting)
+                    await PetPortrait("pets_fight_wolf", fighting, simulation.Pets.FirstOrDefault()?.Body ?? simulation.Player.Body);
                 PetEvidence("fight", string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Doing}, {p.Standing} {p.Health}/{p.MaxHealth}")));
                 break;
             }
@@ -542,12 +554,48 @@ public partial class Main
                 await Rcd3Wait(6.0);
                 continue;
             }
-            var to = new Vector3((prey.Body.XMm - body.XMm) / 1000f, 0, (prey.Body.ZMm - body.ZMm) / 1000f);
-            _camera.Yaw = Mathf.Atan2(-to.X, -to.Z);
-            _controller.SteerWorld(to.Normalized(), Gait.Walk, _camera, faceCamera: true);
+            // Crept up on from BEHIND and crouched: an animal that has not seen the character is worth twenty points of the offer's odds, and one
+            // that has seen it breaks the channel outright (measured: "the offer broke: it saw you", 15% before and 35-50% with stealth).
+            _controller.Crouch(true);
+            double heading = prey.Body.FacingMdeg / 1000.0 * Math.PI / 180;
+            await ApproachPoint((prey.Body.XMm - Math.Sin(heading) * OfferWithinMetres * 1000) / 1000.0,
+                (prey.Body.ZMm - Math.Cos(heading) * OfferWithinMetres * 1000) / 1000.0, 0.7, 25);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         }
         return Taken();
+    }
+
+    /// <summary>
+    /// A still of an ANIMAL rather than of the character's back: a camera of the pass's own goes on the far side of the animal from the character
+    /// (so the character stands in the frame beyond it), close enough that the animal fills a good part of it, and the play camera is restored
+    /// afterwards. What the beats are about is the animal, and a camera sitting behind the player frames walls.
+    /// </summary>
+    private async Task PetPortrait(string name, Body subject, Body? beyond = null)
+    {
+        var simulation = _session.Simulation;
+        if (simulation is null || _petShotsDirectory is null)
+            return;
+        var target = UNNAMED.Presentation.Greybox.HollowView.ToGodot(subject.XMm, subject.YMm, subject.ZMm);
+        var away = beyond is { } other
+            ? (target - UNNAMED.Presentation.Greybox.HollowView.ToGodot(other.XMm, other.YMm, other.ZMm))
+            : Vector3.Forward;
+        if (away.LengthSquared() < 0.01f)
+            away = Vector3.Forward;
+        away = away.Normalized();
+        var side = new Vector3(-away.Z, 0, away.X) * 0.9f;
+        _petCamera ??= new Camera3D { Name = "PetCaptureCamera", Fov = 62 };
+        if (_petCamera.GetParent() is null)
+            AddChild(_petCamera);
+        _petCamera.GlobalPosition = target + away * 3.0f + side + new Vector3(0, 1.15f, 0);
+        _petCamera.LookAt(target + new Vector3(0, 0.35f, 0), Vector3.Up);
+        var play = GetViewport().GetCamera3D();
+        _petCamera.MakeCurrent();
+        await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+        await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+        GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_petShotsDirectory, name + ".png"));
+        if (play is not null)
+            play.MakeCurrent();
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
     }
 
     /// <summary>The nearest grey wolf that can be reached for: alive, not yet roused, and near enough to walk to.</summary>

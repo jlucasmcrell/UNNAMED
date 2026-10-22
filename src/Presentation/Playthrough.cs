@@ -64,6 +64,12 @@ public sealed class Playthrough
     private static readonly (double X, double Z)[] ToTheSmithyDoor = Hollow((40, 140), (47, 139), (51.8, 139), (51.8, 142));
     private static readonly (double X, double Z)[] IntoTheSmithy = Hollow((54.5, 142));
     private static readonly (double X, double Z)[] ToTheEastExit = Hollow((51.8, 142), (51.8, 136), (65, 136), (88, 145));
+
+    /// <summary>
+    /// The way out of Ashen Hollow's yard to the east road, as the playthrough walks it: the yard is walled and the navigation alone leaves a body
+    /// pacing inside it, which is why a capture that has to reach the field takes these points (spec 43's hunt happens out there).
+    /// </summary>
+    public static IReadOnlyList<(double X, double Z)> OutOfTheHollow => ToTheEastExit;
     private static readonly (double X, double Z)[] ToTheHound = Hollow((108, 148), (128, 150));
     private static readonly (double X, double Z)[] ToTheCart = Hollow((145, 156), (157, 158.8));
     private static readonly (double X, double Z)[] ToTheStand = Hollow((165, 150), (175, 142), (179, 138.3));
