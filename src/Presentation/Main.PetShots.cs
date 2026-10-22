@@ -21,6 +21,7 @@ public partial class Main
 
     private string? _petShotsDirectory;
     private ulong _petNext;
+    private ulong _petBeat;
     private int _petStep;
     private bool _petBusy;
     private int _petFrame;
@@ -43,6 +44,14 @@ public partial class Main
         if (_petShotsDirectory is null)
             return;
         _petFrame++;
+        // A heartbeat every ten seconds: a run that stops without one having come first was killed from outside, and the last line dates
+        // it next to whatever else the machine was doing.
+        if (Time.GetTicksMsec() >= _petBeat)
+        {
+            _petBeat = Time.GetTicksMsec() + 10_000;
+            GD.Print($"PET_SHOTS heartbeat frame={_petFrame} step={_petStep} tick={_session?.Simulation?.WorldTick} " +
+                $"fps={Engine.GetFramesPerSecond():0.0} wall={DateTimeOffset.Now:O}");
+        }
         if (_petBusy || Time.GetTicksMsec() < _petNext)
             return;
         _petNext = Time.GetTicksMsec() + 400;

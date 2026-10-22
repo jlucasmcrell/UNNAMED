@@ -342,7 +342,8 @@ public sealed class Simulation
         // The party's animals (spec 43). Their own slice: an animal's body is its own, moved here, and its rules are their own.
         _pets = new PetSystem(_context, _state.Claim(nameof(PetSystem), StateSlice.Pets), player.Id, player.Pets)
         {
-            Companions = () => _companions.Views().Length,
+            // Only the companions on their feet are worth anything to an encounter: one down and waiting to be helped up is not fighting.
+            Companions = () => _companions.Views().Count(c => c.Condition == CompanionCondition.Up),
             PlayerFocus = () => _creatures.PlayerFocus(WorldTick),
         };
         _spaces = new SpaceSystem(_context, _state.Claim(nameof(SpaceSystem), StateSlice.PlayerSpace), player.Id);

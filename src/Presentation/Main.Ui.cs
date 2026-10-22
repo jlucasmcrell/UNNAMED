@@ -251,8 +251,15 @@ public partial class Main
     /// <summary>The window's close button quits as Quit does: the world is saved on the way out.</summary>
     public override void _Notification(int what)
     {
+        // A capture harness has to know who ended the run. A close request from the window writes this line with its frame and clock; a
+        // process killed from outside writes nothing at all, so the two are told apart by looking for it.
         if (what == NotificationWMCloseRequest)
+        {
+            GD.Print($"CAPTURE close request at frame {Engine.GetFramesDrawn()} ({DateTimeOffset.Now:O}); scripted={_scripted}");
             SaveOnTheWayOut();
+        }
+        else if (what == NotificationApplicationFocusOut)
+            GD.Print($"CAPTURE focus out at frame {Engine.GetFramesDrawn()} ({DateTimeOffset.Now:O}); scripted={_scripted}");
     }
 
     /// <summary>

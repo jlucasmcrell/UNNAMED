@@ -1035,9 +1035,13 @@ internal sealed class CreatureSystem : IAbstractAdvance
         var definition = c.Definition;
         if (definition.XpValue > 0 && killer == _player)
         {
-            _context.Dispatch(new AwardExperience(new XpAward(XpSource.Combat, definition.XpValue, tick)
+            // The reward honours the scale the creature was placed at (spec 43 ruling 5): it was a party's fight, so it is a party's worth of
+            // work and a party's worth of reward - its own value at the same percent, and the levels the scale bought, which is what the
+            // level-band guard reads. A solo character's kill is the authored one to the coin.
+            long worth = Math.Max(1, (long)Math.Round(definition.XpValue * c.ScalePercent / 100.0));
+            _context.Dispatch(new AwardExperience(new XpAward(XpSource.Combat, worth, tick)
             {
-                Kill = new KillContext(definition.Id, definition.Level, c.Site.Key),
+                Kill = new KillContext(definition.Id, definition.Level + c.LevelBonus, c.Site.Key),
             }));
         }
         long respawn = 0;
