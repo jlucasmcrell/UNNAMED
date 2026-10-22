@@ -30,9 +30,8 @@ public partial class Main
     private bool _petOrdersOpen;
     private Node3D? _petMarker;
     private MeshInstance3D? _petMarkerDisc;
-    private Label3D? _petMarkerWords;
 
-    /// <summary>The marker and its words, made once: a flat ring on the ground, and which order would use it.</summary>
+    /// <summary>The marker, made once: a flat ring on the ground where the order would land. The list itself is the HUD's, not the world's.</summary>
     private void InstallPetOrders()
     {
         var disc = new MeshInstance3D
@@ -50,19 +49,7 @@ public partial class Main
         };
         AddChild(disc);
         _petMarkerDisc = disc;
-        var words = new Label3D
-        {
-            Name = "PetOrderWords",
-            FontSize = 44,
-            OutlineSize = 8,
-            Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
-            NoDepthTest = false,
-            Modulate = new Color(0.93f, 0.98f, 0.86f),
-            OutlineModulate = new Color(0.05f, 0.06f, 0.04f),
-            Visible = false,
-        };
-        AddChild(words);
-        _petMarkerWords = words;
+
         _petMarker = disc;
     }
 
@@ -72,12 +59,11 @@ public partial class Main
     /// </summary>
     private void TickPetOrders()
     {
-        if (_petMarkerDisc is null || _petMarkerWords is null)
+        if (_petMarkerDisc is null)
             return;
         if (!_petOrdersOpen || _session.Simulation is not { } simulation)
         {
             _petMarkerDisc.Visible = false;
-            _petMarkerWords.Visible = false;
             return;
         }
         int facing = PlayerController.FacingOf(_camera.GroundForward);
@@ -86,9 +72,6 @@ public partial class Main
         float y = terrain.HeightAtMm(x, z) / 1000f;
         _petMarkerDisc.GlobalPosition = new Vector3(x / 1000f, y + 0.03f, z / 1000f);
         _petMarkerDisc.Visible = true;
-        _petMarkerWords.GlobalPosition = new Vector3(x / 1000f, y + 0.5f, z / 1000f);
-        _petMarkerWords.Text = "1 wait here   2 lure to here   3 pull one\n4 guard here   5 follow   6 attack my target";
-        _petMarkerWords.Visible = true;
     }
 
     /// <summary>The list comes up, and the marker with it: nothing is ordered until a number is given.</summary>
