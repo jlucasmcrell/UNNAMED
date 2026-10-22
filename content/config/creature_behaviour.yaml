@@ -22,9 +22,9 @@ noise_m:                      # STEALTH §7: how far each sound carries
 corpse: { decay_s: 600, stack_slots: 8 }
 hours: { night_from_h: 20.5, day_from_h: 5.5 }   # when roles that keep hours rest, by the world clock (config.time's clock_at_world_start_h at tick 0, the sky's clock too)
 roles:
-  den_alpha: { unaware: hold, territory_m: 18, calls_for_help: true, answers_calls: true, call_m: 70 }   # the den's leader: howls wider than its kind, so the packs beyond its own come (owner finding 29)
+  den_alpha: { unaware: hold, territory_m: 18, calls_for_help: true, answers_calls: true, call_m: 70, focus_weakest: true, hunts_handler: true }   # the den's leader: howls wider than its kind, so the packs beyond its own come (owner finding 29), and reads the fight it is in
   den_guardian: { unaware: hold, territory_m: 16, calls_for_help: true, answers_calls: true }   # holds the den mouth and howls
-  pack_hunter: { unaware: hold, answers_calls: true, flank_m: 3 }                                 # comes to a howl, closes from the side
+  pack_hunter: { unaware: hold, answers_calls: true, flank_m: 3, focus_weakest: true, hunts_handler: true }   # comes to a howl, closes from the side, finishes the hurt one and goes for the handler behind the animal (spec 43 ruling 5)
   sleeper: { unaware: sleep, sleep_hearing_percent: 40, answers_calls: true }                   # blind until woken; a sprint wakes it, a walk may not
   stray: { unaware: wander, wander_m: 8, keep_distance_m: 7, strike_within_m: 3, flee_below_percent: 30 }   # wary loner that runs when badly hurt
   roamer: { unaware: patrol, answers_calls: true }                                                # walks its spawner's route

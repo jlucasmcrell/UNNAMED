@@ -129,6 +129,12 @@ internal sealed record CreatureState(
     public long DrawnUntil { get; init; }
 
     /// <summary>
+    /// It has been led off by a lure once, and does not go again: an enemy that fell for the trick has learned it (spec 43 ruling 5). It
+    /// belongs to the animal, not to the decoy, and it is cleared by the reset - a respawned creature, or a load, begins knowing nothing.
+    /// </summary>
+    public bool LureLearned { get; init; }
+
+    /// <summary>
     /// The animal that savaged it, and until when (spec 43 ruling 5, "enemies learn"): a creature struck by a pet turns on the pet for a few
     /// seconds rather than on the archer behind it - so a hound that bites a wolf is a hound the wolf fights. Transient, like a blow in
     /// progress: a load starts with no grudge, and the creature's own wounds are what it remembers.
@@ -239,8 +245,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// <summary>Whether a spawn slot's animal has been taken as a pet, so it does not stand in the wild again (spec 43's taming).</summary>
     public Func<string, bool>? TamedAway { get; set; }
 
-    /// <summary>The animals on their feet, as bodies a creature can turn on: the other half of what a fight is about (spec 43 ruling 5).</summary>
-    public Func<ImmutableArray<(Body Body, EntityId Id)>>? PetsOnFeet { get; set; }
+    /// <summary>The animals on their feet, as bodies a creature can turn on, with the health a role that reads a fight needs (spec 43 ruling 5).</summary>
+    public Func<ImmutableArray<(Body Body, EntityId Id, int Health, int MaxHealth)>>? PetsOnFeet { get; set; }
 
     private EncounterScale ScaleOf() => Scale?.Invoke() ?? EncounterScale.Authored;
 
@@ -792,9 +798,10 @@ internal sealed class CreatureSystem : IAbstractAdvance
     {
         var foe = Foe(c);
         var player = foe.Body;
+        bool atCharacter = foe.Id == _player;
         var attack = Scaled(c.Definition.Attack, c.ScalePercent);
-        // The character is gone after where they were last perceived; a companion who stands nearer is simply there (M6).
-        long targetX = foe.Companion is null && c.Knows ? c.KnownXMm : player.XMm, targetZ = foe.Companion is null && c.Knows ? c.KnownZMm : player.ZMm;
+        // The character is gone after where they were last perceived; a companion or an animal that stands nearer is simply there (M6).
+        long targetX = atCharacter && c.Knows ? c.KnownXMm : player.XMm, targetZ = atCharacter && c.Knows ? c.KnownZMm : player.ZMm;
         double distance = Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
         if (c.Definition.CloseAttack is { } close && distance <= close.ReachMm + _context.Setup.Movement.BodyRadiusMm - 100)
             attack = Scaled(close, c.ScalePercent);
@@ -823,7 +830,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         bool seesTarget = tick == c.LastSeenTick;
 
         // A charge opens from range, committed to its line: only at a target it can see, and not too often - and only at the character.
-        if (_context.ControlOn(c.Id) != ControlKind.Roots && c.Definition.Charge is { } charge && foe.Companion is null && seesTarget && clear && tick >= c.NextChargeTick
+        if (_context.ControlOn(c.Id) != ControlKind.Roots && c.Definition.Charge is { } charge && atCharacter && seesTarget && clear && tick >= c.NextChargeTick
             && distance >= charge.ChargeMinRangeMm && distance <= charge.ReachMm)
         {
             charge = Scaled(charge, c.ScalePercent);
@@ -951,12 +958,14 @@ internal sealed class CreatureSystem : IAbstractAdvance
             obstacles.AddRange(People(c));
             c = c with { Body = Kinematics.Step(c.Body, intent, rules, SpaceNear(c, c.Body), obstacles, TickMs) };
         }
-        bool reaches = !spent && (foe.Companion is not null || !State.PlayerCombat.Defeated)
+        bool reaches = !spent && !foe.Animal && (foe.Companion is not null || !State.PlayerCombat.Defeated)
             && CombatRules.InFront(c.Body.XMm, c.Body.ZMm, c.Body.FacingMdeg, player.XMm, player.ZMm,
                 attack.ReachMm + _context.Setup.Movement.BodyRadiusMm, C.MeleeArcMdeg)
             && !Walled(c, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
-        InternalCommand blow = foe.Companion is { } companion ? new CompanionStruck(c.Id, companion, attack) : new CreatureStrike(c.Id, attack);
-        if (reaches && _context.Dispatch(blow) is null)
+        // A swing at an animal lands in the animal's own fight, in the pet system, where the wound is the animal's to take: a creature whose
+        // target is an animal must never wound the handler standing behind it. A companion and the character are struck through here.
+        InternalCommand? blow = foe.Animal ? null : foe.Companion is { } companion ? new CompanionStruck(c.Id, companion, attack) : new CreatureStrike(c.Id, attack);
+        if (blow is not null && reaches && _context.Dispatch(blow) is null)
         {
             Sound(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.BlowMm));
             return c with { Action = action with { Struck = action.Struck.Add(foe.Id) } };
@@ -1179,7 +1188,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
     /// <summary>
     /// A pet drew this creature off (spec 43's control skill): it goes to look where the decoy went and loses the character for a while.
-    /// Nothing is wounded by it - a lure moves information, not bodies, and an enemy that has followed one is not drawn again so soon.
+    /// Nothing is wounded by it - a lure moves information, not bodies - and it has now seen the trick once, so it is not drawn again until
+    /// it is reset (owned ruling 5's "enemies that ... ignore lures they've seen").
     /// </summary>
     public string? Handle(DrawCreature command, long tick)
     {
@@ -1194,6 +1204,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             LastSeenTick = tick,
             SearchUntil = tick + command.Ticks,
             DrawnUntil = tick + command.Ticks,
+            LureLearned = true,
             Action = ActionState.Idle,
         });
         return null;
@@ -1329,30 +1340,55 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
     /// <summary>
     /// Whom an engaged creature goes for (M6, spec 43 ruling 5): the character - or whoever of the party is on their feet and standing nearer,
-    /// a companion or an animal. The one that savaged it comes first while the grudge lasts: a wolf a hound has bitten fights the hound, not
-    /// the archer behind it.
+    /// a companion or an animal. Then the role reads the fight:
+    /// <list type="bullet">
+    /// <item>Hunting the handler: an animal savaging it is the leash, not the target - it goes past the animal for the character behind it.</item>
+    /// <item>The grudge: an ordinary predator a hound has bitten fights the hound, not the archer behind it.</item>
+    /// <item>Focusing the weakest: the hurt of the party, wherever it stands in the group, is finished first.</item>
+    /// </list>
     /// </summary>
-    private (Body Body, EntityId Id, string? Companion) Foe(CreatureState c)
+    private (Body Body, EntityId Id, string? Companion, bool Animal) Foe(CreatureState c)
     {
         var player = State.Body;
         double toPlayer = Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
-        (Body, EntityId, string?) foe = (player, _player, null);
+        double toFoe = toPlayer;
+        (Body, EntityId, string?, bool) foe = (player, _player, null, false);
+        int playerMax = (int)ProgressionEngine.Derive(State.Progression, _context.Setup.Progression).HealthMax;
+        int foeShare = Share(State.Progression.Pools.Health ?? playerMax, playerMax);
+        var bitten = State.WorldTick < c.ProvokedUntil ? c.ProvokedBy : null;
+        // The handler is the one the animal answers to: an animal that savages a role which hunts handlers is a reason to go for the character,
+        // not a target of its own - so the animals below are read for the grudge only when the role does not hunt handlers.
+        if (c.Role.HuntsHandler && bitten is not null && PetsOnFeet?.Invoke().Any(p => p.Id == bitten) == true)
+            return (player, _player, null, false);
         foreach (var npc in Obstacles(c.Site.Space).Companions)
         {
-            if (State.Companions[npc.Definition.Id].Condition != CompanionCondition.Up) continue;
+            var companion = State.Companions[npc.Definition.Id];
+            if (companion.Condition != CompanionCondition.Up) continue;
             double toCompanion = Distance(c.Body.XMm, c.Body.ZMm, npc.Body.XMm, npc.Body.ZMm);
-            if (toCompanion + FoeMarginMm < toPlayer && toCompanion + FoeMarginMm < Distance(c.Body.XMm, c.Body.ZMm, foe.Item1.XMm, foe.Item1.ZMm))
-                foe = (npc.Body, npc.InstanceId, npc.Definition.Id);
+            int share = Share(companion.Health, companion.Profile.MaxHealth);
+            bool takes = c.Role.FocusWeakest && share < foeShare
+                || toCompanion + FoeMarginMm < toPlayer && toCompanion + FoeMarginMm < toFoe;
+            if (!takes) continue;
+            foe = (npc.Body, npc.InstanceId, npc.Definition.Id, false);
+            toFoe = toCompanion;
+            foeShare = share;
         }
-        foreach (var (body, id) in PetsOnFeet?.Invoke() ?? ImmutableArray<(Body Body, EntityId Id)>.Empty)
+        foreach (var (body, id, health, maxHealth) in PetsOnFeet?.Invoke() ?? ImmutableArray<(Body Body, EntityId Id, int Health, int MaxHealth)>.Empty)
         {
-            bool grudge = c.ProvokedBy == id && State.WorldTick < c.ProvokedUntil;
-            if (grudge || Distance(c.Body.XMm, c.Body.ZMm, body.XMm, body.ZMm) + FoeMarginMm
-                    < Distance(c.Body.XMm, c.Body.ZMm, foe.Item1.XMm, foe.Item1.ZMm))
-                foe = (body, id, null);
+            bool grudge = bitten == id;
+            double toPet = Distance(c.Body.XMm, c.Body.ZMm, body.XMm, body.ZMm);
+            int share = Share(health, maxHealth);
+            bool takes = grudge || (c.Role.FocusWeakest ? share < foeShare : toPet + FoeMarginMm < toFoe);
+            if (!takes) continue;
+            foe = (body, id, null, true);
+            toFoe = toPet;
+            foeShare = share;
         }
         return foe;
     }
+
+    /// <summary>A party member's health as thousandths of its own: what "the weakest" is read from.</summary>
+    private static int Share(int health, int maxHealth) => health * 1000 / Math.Max(1, maxHealth);
 
     /// <summary>A companion stands nearer than the character by more than this before a creature turns on them.</summary>
     private const long FoeMarginMm = 1_000;

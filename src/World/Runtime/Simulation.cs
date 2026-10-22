@@ -397,9 +397,10 @@ public sealed class Simulation
         _pets.Populate();
         _creatures.Scale = () => _pets.Encounter;
         _creatures.TamedAway = _pets.TamedAway;
-        // What a creature fights when the party has animals in it (spec 43 ruling 5): an animal that savaged it first, or the one nearest.
+        // What a creature fights when the party has animals in it (spec 43 ruling 5): the handler behind an animal that savaged it, the animal
+        // that savaged it, the weakest of the party, or the one nearest.
         _creatures.PetsOnFeet = () => _pets.Views().Where(p => p.Condition == PetCondition.Up)
-            .Select(p => (p.Body, p.Id)).ToImmutableArray();
+            .Select(p => (p.Body, p.Id, p.Health, p.MaxHealth)).ToImmutableArray();
         _creatures.Populate();
         _lfg.Populate();
         if (restoreAttempt) _creatures.RecoverLoadedAttempt();

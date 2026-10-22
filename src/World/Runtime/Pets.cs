@@ -182,7 +182,6 @@ internal sealed partial class PetSystem : IAbstractAdvance
     private readonly EntityId _player;
     private readonly ImmutableArray<PetRecord> _saved;
     private readonly Dictionary<string, TameOffer> _offers = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, long> _luredUntil = new(StringComparer.Ordinal);
 
     private RuntimeState State => _context.State;
 
@@ -571,28 +570,33 @@ internal sealed partial class PetSystem : IAbstractAdvance
             return pet;
         var prey = State.Creatures.Values
             .Where(x => x.Alive && x.Mind == CreatureMind.Engaged && x.Site.Space == State.Space && TierOf(x.Body) == SimulationTier.A
-                        && Distance(x.Body, pet.Body) <= Rules.Lure.RadiusMm
-                        && (!_luredUntil.TryGetValue(x.Key, out long until) || tick >= until))
+                        && Distance(x.Body, pet.Body) <= Rules.Lure.RadiusMm)
             .OrderBy(x => Distance(x.Body, pet.Body)).ThenBy(x => x.Key, StringComparer.Ordinal)
             .FirstOrDefault();
         var settled = pet with { Order = PetOrder.Follow, OrderTick = tick, TargetKey = null };
         if (prey is null)
             return settled;
-        var channel = RngChannel.Open(State.World.WorldSeed, _context.CellOf(prey.Body), "pets", $"lure:{pet.Key}>{prey.Key}@{tick}");
-        if (channel.UInt64(0) / SampleScale * 100 >= PetLure.Chance(Rules.Lure, PetSkills.Of(pet.Skills, PetSkillKind.Lure), prey.Definition.Level))
+        // An enemy that has been led off once knows the trick: it is not drawn again until it is reset, and it says so rather than the working
+        // quietly doing nothing (owner ruling 5, "enemies that ... ignore lures they've seen").
+        if (prey.LureLearned)
         {
-            _luredUntil[prey.Key] = tick + Rules.Lure.ImmunityTicks;
             _context.Events.Publish(new LureRefused(pet.Id, prey.Id, tick));
             return settled;
         }
-        // Led towards the point, and no further than the rules' travel from where it stands.
+        var channel = RngChannel.Open(State.World.WorldSeed, _context.CellOf(prey.Body), "pets", $"lure:{pet.Key}>{prey.Key}@{tick}");
+        if (channel.UInt64(0) / SampleScale * 100 >= PetLure.Chance(Rules.Lure, PetSkills.Of(pet.Skills, PetSkillKind.Lure), prey.Definition.Level))
+        {
+            _context.Events.Publish(new LureRefused(pet.Id, prey.Id, tick));
+            return settled;
+        }
+        // Led towards the point, and no further than the rules' travel from where it stands. It learns the trick as it follows (DrawCreature
+        // sets that on the creature itself), so a second lure on the same animal is refused until it is reset.
         double toPoint = Math.Max(1, Distance(prey.Body, spot));
         int travel = PetLure.Travel(Rules.Lure, prey.Definition.Level);
         double step = Math.Min(travel, toPoint);
         long x = prey.Body.XMm + (long)((spot.XMm - prey.Body.XMm) / toPoint * step);
         long z = prey.Body.ZMm + (long)((spot.ZMm - prey.Body.ZMm) / toPoint * step);
         _context.Dispatch(new DrawCreature(prey.Id, x, z, Rules.Lure.ImmunityTicks));
-        _luredUntil[prey.Key] = tick + Rules.Lure.ImmunityTicks;
         _context.Events.Publish(new PetLured(pet.Id, prey.Id, x, z, tick));
         return Practise(settled, PetSkillKind.Lure, prey.Id, tick);
     }

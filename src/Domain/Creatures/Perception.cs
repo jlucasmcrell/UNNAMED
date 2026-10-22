@@ -78,6 +78,18 @@ public sealed record CreatureRole(string Id, UnawareBehaviour Unaware)
     /// <summary>A pack hunter closes from the side, this far off the straight line.</summary>
     public long FlankMm { get; init; }
 
+    /// <summary>
+    /// It picks the weakest of the party it can reach, not the nearest: a predator that reads a fight finishes the hurt one first, and a
+    /// party that lets one member get low meets the pack on that member (spec 43 ruling 5).
+    /// </summary>
+    public bool FocusWeakest { get; init; }
+
+    /// <summary>
+    /// An animal savaging it is a leash to whoever set the animal on: it goes past the animal for the handler, which is what makes a pet a
+    /// shield and not a solution (spec 43 ruling 5: "enemies that react to pets, attacking handlers").
+    /// </summary>
+    public bool HuntsHandler { get; init; }
+
     /// <summary>An ambusher goes straight for a sound it feels inside its territory, rather than stopping to look.</summary>
     public bool PounceOnNoise { get; init; }
 
