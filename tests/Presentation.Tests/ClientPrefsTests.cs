@@ -6,6 +6,15 @@ namespace UNNAMED.Presentation.Tests;
 public class ClientPrefsTests
 {
     [Fact]
+    public void FpsReadoutIsOptInAndPersistsInTheInterfacePreferences()
+    {
+        Assert.False(ClientPrefs.FromJson("{}").Profile.Interface.ShowFps);
+        var prefs=new ClientPrefs();
+        prefs=prefs with { Profile=prefs.Profile with { Interface=prefs.Profile.Interface with { ShowFps=true } } };
+        Assert.True(ClientPrefs.FromJson(prefs.ToJson()).Profile.Interface.ShowFps);
+    }
+
+    [Fact]
     public void Preferences_RoundTripThroughTheirFile()
     {
         var prefs = new ClientPrefs

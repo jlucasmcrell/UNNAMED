@@ -164,6 +164,7 @@ public partial class HudView : Control
     private readonly VBoxContainer _bannerLines = new();
     private readonly List<Announcement> _announcements = new();
     private double _bannerSince;
+    public string? ActiveLandmarkTitle => _announcements.FirstOrDefault() is { Kind: "Landmark discovered" } active ? active.Title : null;
 
     // The middle: the crosshair and the death recap.
     private readonly Crosshair _crosshair = new();

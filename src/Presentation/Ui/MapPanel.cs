@@ -187,7 +187,8 @@ public partial class MapPanel : CanvasLayer
                 box.Position = new Vector2(Math.Clamp(box.Position.X, 4, Size.X - size.X - 4), Math.Clamp(box.Position.Y, 4, Size.Y - size.Y - 4));
                 if (taken.Any(t => t.Grow(2).Intersects(box)))
                     return;
-                taken.Add(box);
+                taken.Add(box.Grow(3));
+                DrawRect(box.Grow(3), new Color(0.055f, 0.05f, 0.045f, 0.94f));
                 DrawString(font, box.Position + new Vector2(0, size.Y - 4), text, HorizontalAlignment.Left, -1, 16, color);
             }
 

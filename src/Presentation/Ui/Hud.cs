@@ -18,6 +18,9 @@ namespace UNNAMED.Presentation.Ui;
 /// </summary>
 public partial class Hud : CanvasLayer
 {
+    private readonly Label _fpsReadout = Text(15);
+    private ulong _fpsSampleAt;
+    private int _fpsSampleDrawn;
     private readonly Label _status = Text(18);
     private readonly Label _prompt = Text(22);
     private readonly Label _debug = Text(15);
@@ -65,6 +68,14 @@ public partial class Hud : CanvasLayer
 
     public override void _Ready()
     {
+        _fpsReadout.Name = "FPS";
+        _fpsReadout.MouseFilter = Control.MouseFilterEnum.Ignore;
+        _fpsReadout.SetAnchorsPreset(Control.LayoutPreset.BottomRight);
+        _fpsReadout.Position = new Vector2(-210, -28);
+        _fpsReadout.Size = new Vector2(190, 24);
+        _fpsReadout.HorizontalAlignment = HorizontalAlignment.Right;
+        _fpsReadout.Visible = false;
+        AddChild(_fpsReadout);
         var fadeLayer = new CanvasLayer { Layer = 100 };
         _fade.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         fadeLayer.AddChild(_fade);
@@ -421,6 +432,7 @@ public partial class Hud : CanvasLayer
 
     /// <summary>Add what the moment brought to its announcement while it still shows.</summary>
     public void AnnounceMore(string kind, string title, string text) => _view?.AnnounceMore(kind, title, text);
+    public string? ActiveLandmarkTitle => _view?.ActiveLandmarkTitle;
     public void SuccessGlow(Color tone) => _view?.SuccessGlow(tone);
 
     private Label? _reading;
@@ -470,6 +482,26 @@ public partial class Hud : CanvasLayer
 
     public override void _Process(double delta)
     {
+        _fpsReadout.Visible = Settings.SettingsStore.Current.Profile.Interface.ShowFps;
+        if (!_fpsReadout.Visible)
+            _fpsSampleAt = 0;
+        else
+        {
+            ulong now = Time.GetTicksMsec();
+            int drawn = Engine.GetFramesDrawn();
+            if (_fpsSampleAt == 0)
+            {
+                _fpsSampleAt = now;
+                _fpsSampleDrawn = drawn;
+            }
+            else if (now - _fpsSampleAt >= 1000)
+            {
+                double fps = (drawn - _fpsSampleDrawn) * 1000.0 / (now - _fpsSampleAt);
+                _fpsReadout.Text = $"{fps:0.0} FPS · {(fps > 0 ? 1000 / fps : 0):0.0} ms";
+                _fpsSampleAt = now;
+                _fpsSampleDrawn = drawn;
+            }
+        }
         if (_view is not null)
             _view.CompassBottom = (_view.GetGlobalTransform().AffineInverse() * new Vector2(0, _compass.OccupiedBottom)).Y;
         _clock += delta;

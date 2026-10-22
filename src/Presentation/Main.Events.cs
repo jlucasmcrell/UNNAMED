@@ -100,7 +100,11 @@ public partial class Main
             _hollow.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers, inPlay: true);
             _interior?.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers, inPlay: true);
         });
-        _session.Subscribe<LocationDiscovered>(e => Notice(NoticeKind.Discovery, $"Discovered: {Names.Of(_session, e.LocationId)}"));
+        _session.Subscribe<LocationDiscovered>(e =>
+        {
+            if (SettingsStore.Current.Profile.Interface.Shows(NoticeKind.Discovery))
+                _hud.Announce("Landmark discovered", Names.Of(_session, e.LocationId), HudStyle.Brass);
+        });
         // Lore (spec 41): a landmark the character has walked into raises the banner, with the journal key that reads what the place has to
         // say; a page found any other way - told, read, opened by a quest - is a line. Nothing pauses for either.
         _session.Subscribe<LorePageUnlocked>(e =>

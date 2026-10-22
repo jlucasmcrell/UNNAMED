@@ -310,6 +310,7 @@ public sealed record InterfacePrefs
     /// <summary>The size of words, over the interface's (1-2).</summary>
     public float TextSize { get; init; } = 1f;
 
+    public bool ShowFps { get; init; }
     public bool HighContrast { get; init; }
     public ColourVision ColourVision { get; init; } = ColourVision.None;
 
