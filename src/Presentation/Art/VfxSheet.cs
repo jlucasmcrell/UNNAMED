@@ -179,7 +179,7 @@ public partial class VfxSheet : Node3D
                 File.WriteAllText(Path.Combine(_directory, "vfx_sheet.md"),
                     "# VFX sheet\n\n" + (_notes.Count == 0 ? "Every recipe built.\n" : string.Join("\n", _notes.Select(n => $"- {n}")) + "\n")
                     + string.Join("\n", _shots.Select(s => $"![{s.Name}]({s.Name}.png)")) + "\n");
-                GetTree().Quit(0);
+                CaptureQuit.At(this, 0);
             }
             return;
         }

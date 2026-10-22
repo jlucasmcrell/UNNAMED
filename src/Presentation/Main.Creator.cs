@@ -329,7 +329,7 @@ public partial class Main
         if (_creatorStep >= steps.Length)
         {
             GD.Print($"UNNAMED creator shots written to {directory}");
-            GetTree().Quit(0);
+            CaptureQuit.At(this, 0);
             return;
         }
         var (shot, then, next) = steps[_creatorStep++];

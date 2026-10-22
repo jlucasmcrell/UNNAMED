@@ -610,7 +610,7 @@ public partial class AnimationSheet : Node3D
         if (_shot >= _shots.Count)
         {
             WriteReport();
-            GetTree().Quit(0);
+            CaptureQuit.At(this, 0);
             return;
         }
         if (_wait < 0)

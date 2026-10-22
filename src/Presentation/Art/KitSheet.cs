@@ -140,7 +140,7 @@ public partial class KitSheet : Node3D
         {
             File.WriteAllText(Path.Combine(_directory, "kit_sheet.md"), "# Kit sheet\n\n" + (_notes.Count == 0 ? "Every piece drawn.\n" : string.Join("\n", _notes.Select(n => $"- {n}")) + "\n")
                 + string.Join("\n", _shots.Select(s => $"![{s.Name}]({s.Name}.png)")) + "\n");
-            GetTree().Quit(0);
+            CaptureQuit.At(this, 0);
             return;
         }
         var shot = _shots[_shot];

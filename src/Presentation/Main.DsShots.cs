@@ -48,7 +48,7 @@ public partial class Main
             GD.PushError("DS_SHOTS failed: " + error);
             if (_dsShotsDirectory is { } directory) File.WriteAllText(Path.Combine(directory, "failed.txt"), error.ToString());
             _dsShotsDirectory = null;
-            GetTree().Quit(3);
+            CaptureQuit.At(this, 3);
         }
     }
 
@@ -159,7 +159,7 @@ public partial class Main
                 File.WriteAllText(Path.Combine(_dsShotsDirectory!,"complete.json"),JsonSerializer.Serialize(new {
                     status="DS_SHOTS_CAPTURED_REQUIRES_CLAUDE_REVIEW", people=VisualOptions.People,
                     hour=_session.ClockAtWorldStartHours, shots=new[]{"torch_off","torch_on","den_approach_plate","den_engaged_plate"} }));
-                GD.Print("DS_SHOTS complete "+_dsShotsDirectory);_dsShotsDirectory=null;GetTree().Quit();
+                GD.Print("DS_SHOTS complete "+_dsShotsDirectory);_dsShotsDirectory=null;CaptureQuit.At(this);
                 return;
             }
             // The torch, in the off hand and out of it, from the same framing: the light is the difference.

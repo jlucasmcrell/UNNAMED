@@ -62,9 +62,9 @@ public partial class FoliageSpecializationCheck : Node
                 RemoveChild(a); a.QueueFree(); RemoveChild(b); b.QueueFree();
             }
             if (differences) throw new Exception("Shader specialization changed the rendered field; all failed images retained");
-            GD.Print("FoliageSpecializationCheck PASS"); GetTree().Quit();
+            GD.Print("FoliageSpecializationCheck PASS"); CaptureQuit.At(this);
         }
-        catch (Exception e) { GD.PrintErr(e); GetTree().Quit(1); }
+        catch (Exception e) { GD.PrintErr(e); CaptureQuit.At(this, 1); }
     }
 
     private SubViewport View(string code, bool noWind, bool noOtherworld, bool noThin, bool mineral, bool tree, bool opaque, bool normalMap, bool armMap)

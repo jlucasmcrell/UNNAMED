@@ -182,7 +182,7 @@ public partial class ArtGallery : Node3D
             return;
         }
         WriteReport();
-        GetTree().Quit(0);
+        CaptureQuit.At(this, 0);
     }
 
     private double _clock;

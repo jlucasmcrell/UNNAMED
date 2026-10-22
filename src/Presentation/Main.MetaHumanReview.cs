@@ -98,7 +98,7 @@ public partial class Main
             GD.PushError("Native normal-game review failed: " + error);
             if (_mhReviewDirectory is { } directory) File.WriteAllText(Path.Combine(directory, "failed.txt"), error.ToString());
             _mhReviewDirectory = null;
-            GetTree().Quit(3);
+            CaptureQuit.At(this, 3);
         }
     }
 
@@ -312,7 +312,7 @@ public partial class Main
                     {
                         File.WriteAllText(Path.Combine(_mhReviewDirectory!, "complete.json"), "{\"status\":\"PERFORMANCE_SWEEP_COMPLETE\",\"phases\":[0,1,2,3,4]}");
                         _mhReviewDirectory = null;
-                        GetTree().Quit();
+                        CaptureQuit.At(this);
                     }
                 }, 0);
                 return;
@@ -338,7 +338,7 @@ public partial class Main
                     {
                         File.WriteAllText(Path.Combine(_mhReviewDirectory!, "complete.json"), "{\"status\":\"BASELINE_SEQUENCE_COMPLETE\",\"phases\":[0,28]}");
                         _mhReviewDirectory = null;
-                        GetTree().Quit();
+                        CaptureQuit.At(this);
                     }
                 }, 0);
                 return;
@@ -370,7 +370,7 @@ public partial class Main
                 player = ((MetaHumanFigure)_avatar).CharacterId, npcs = _npcs.States().Select(n => n.Id).ToArray(),
             }, new JsonSerializerOptions { WriteIndented = true }));
             GD.Print("MH_NORMAL_GAME_REVIEW CAPTURED " + _mhReviewDirectory);
-            GetTree().Quit();
+            CaptureQuit.At(this);
             _mhReviewDirectory = null;
             return;
         }
@@ -514,7 +514,7 @@ public partial class Main
         {
             GD.PushError("Native game review failed: " + error);
             if (_mhReviewDirectory is { } directory) File.WriteAllText(Path.Combine(directory, "failed.txt"), error.ToString());
-            GetTree().Quit(3);
+            CaptureQuit.At(this, 3);
         }
         finally { _mhReviewBusy = false; }
     }

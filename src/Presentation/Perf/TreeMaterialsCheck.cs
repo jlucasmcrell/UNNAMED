@@ -41,8 +41,8 @@ public partial class TreeMaterialsCheck : Node3D
             Require(c.Mesh.GetSurfaceOverrideMaterial(0).GetInstanceId() != d.Mesh.GetSurfaceOverrideMaterial(0).GetInstanceId(), "Non-white colour fallback unexpectedly shares a tint");
             Require(((ShaderMaterial)c.Mesh.GetSurfaceOverrideMaterial(0)).GetShaderParameter("albedo_colour").AsColor() == new Color(.4f, .6f, .8f) * tintA, "Non-white colour product changed");
             GD.Print("TREE MATERIAL CHECK PASS: shared resources, independent tint/stiffness/Late, source and non-white colours preserved");
-            GetTree().Quit(0);
+            CaptureQuit.At(this, 0);
         }
-        catch (Exception e) { GD.PushError(e.ToString()); GetTree().Quit(1); }
+        catch (Exception e) { GD.PushError(e.ToString()); CaptureQuit.At(this, 1); }
     }
 }
