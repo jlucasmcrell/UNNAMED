@@ -205,13 +205,15 @@ public partial class Main
                 // of its scenes and the lure, the pull and the fight have nothing to work on (measured 12:21 and 12:45, both runs).
                 if (simulation.Doors.OrderBy(d => DoorGap(d, simulation.Player.Body)).FirstOrDefault() is { } outDoor)
                 {
+                    var box = outDoor.Site.ClosedFootprint;
+                    // Walked to FIRST and opened from there: the door is eight metres from her counter, and a door is opened from arm's length
+                    // (1.6 m) - asking it from the anvil is answered "door.forge_shed is 7.77 m away; reach is 1.60 m" (measured 13:23).
+                    await ApproachPoint((box.MinXMm + box.MaxXMm) / 2000.0, (box.MinZMm + box.MaxZMm) / 2000.0, 1.0, 30);
                     if (!outDoor.Open)
                     {
                         _controller.Interact(outDoor.Site.Key);
                         await Rcd3Wait(1.0);
                     }
-                    var box = outDoor.Site.ClosedFootprint;
-                    await ApproachPoint((box.MinXMm + box.MaxXMm) / 2000.0, (box.MinZMm + box.MaxZMm) / 2000.0, 1.0, 30);
                     await ApproachPoint(box.MinXMm / 1000.0 - 2.5, (box.MinZMm + box.MaxZMm) / 2000.0, 1.2, 30);
                     GD.Print($"PET_SHOTS out of the shed: door {outDoor.Site.Key} open " +
                         $"{simulation.Doors.First(d => d.Site.Key == outDoor.Site.Key).Open}, {PetWhere(simulation)}");
@@ -253,6 +255,8 @@ public partial class Main
                 await Rcd3Wait(1.5);
                 await PetStill("pets_waiting", held);
                 PetEvidence("wait here", string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Order} at {Metres(p.Body)}")));
+                // Called back to heel: the beats after this one are about what the animal does beside the character.
+                await Obey(PetOrder.Follow, 4);
                 break;
             }
             case 4:
@@ -262,6 +266,17 @@ public partial class Main
                 // a slice at a time is what ran the pass out of time before.
                 if (NearestWolf(simulation) is { } pack)
                     await GoTo(pack.Body, 6.0, 110);
+                // The bond, fed in pieces before the pack is met: a pup starts wary (20) and refuses a hard order - attack my target - until it
+                // trusts the hand (Sure, 60). Feeding is three a piece, so the animal that goes into the fight is one that will take the order.
+                int fed = 0;
+                while (fed < 20 && simulation.Pets.FirstOrDefault(p => p.Condition == PetCondition.Up) is { } fedPet && fedPet.Bond < 60
+                       && simulation.Player.Inventory.FirstOrDefault(e => e.DefId is RawMeat or RoastMeat) is { } piece)
+                {
+                    _session.Submit(new FeedPetCommand(simulation.PlayerId, fedPet.Id, piece.ItemId));
+                    await Rcd3Wait(0.35);
+                    fed++;
+                }
+                PetEvidence("the bond", string.Join("; ", simulation.Pets.Select(p => $"{p.Name} bond {p.Bond}")) + $", fed {fed} piece(s)");
                 for (int round = 0; round < 16 && !simulation.Creatures.Any(c => c.Hostile); round++)
                 {
                     _controller.Attack();
@@ -420,7 +435,7 @@ public partial class Main
     /// <summary>Raw meat for the offers, as much as the purse still covers.</summary>
     private async Task BuyMeat(Simulation simulation)
     {
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 24; i++)
         {
             if (simulation.Wares(Kera)?.Wares.FirstOrDefault(w => w.ItemId == RawMeat) is not { } meat || meat.Price > simulation.Player.Currency)
                 break;
@@ -512,10 +527,15 @@ public partial class Main
     }
 
     /// <summary>The nearest grey wolf that can be reached for: alive, not yet roused, and near enough to walk to.</summary>
+    /// <summary>
+    /// The wolf to offer the meat to, a sleeping one first: an animal that has not seen the character is worth twenty points of the offer's odds,
+    /// so the den's sleeper is the better subject where the field's strays are awake and watching the road.
+    /// </summary>
     private static UNNAMED.World.Runtime.CreatureView? FindTameable(Simulation simulation) => simulation.Creatures
         .Where(c => c.Alive && c.DefId == "creature.beast.wolf_grey" && c.Mind != CreatureMind.Engaged
                     && Distance(c.Body, simulation.Player.Body) < 80_000)
-        .OrderBy(c => Distance(c.Body, simulation.Player.Body)).FirstOrDefault();
+        .OrderBy(c => c.Asleep ? 0 : 1)
+        .ThenBy(c => Distance(c.Body, simulation.Player.Body)).FirstOrDefault();
 
     /// <summary>Walk to a place in region metres, steering each frame; false when it is not reached in time.</summary>
     private async Task<bool> ApproachPoint(double x, double z, double withinMetres, double maxSeconds)
@@ -552,7 +572,20 @@ public partial class Main
         {
             var body = simulation.Player.Body;
             if (lookAt is { } subject)
+            {
+                // Turned on the spot first: the camera sits behind the character, so a still taken while it walks away from the animal shows the
+                // back of its head and nothing else (measured 13:37 - the waiting frame had no pup in it).
+                var toward = new Vector3((subject.XMm - body.XMm) / 1000f, 0, (subject.ZMm - body.ZMm) / 1000f);
+                if (toward.LengthSquared() > 0.01f)
+                {
+                    _controller.SteerWorld(toward, Gait.Walk, _camera);
+                    await Rcd3Wait(0.4);
+                    _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera);
+                    await Rcd3Wait(0.3);
+                }
+                body = simulation.Player.Body;
                 _camera.Yaw = Mathf.Atan2(-(subject.XMm - body.XMm) / 1000f, -(subject.ZMm - body.ZMm) / 1000f);
+            }
             else
             {
                 double facing = body.FacingMdeg * Math.PI / 180.0;
