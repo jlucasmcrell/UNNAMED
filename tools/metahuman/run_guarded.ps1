@@ -1,4 +1,4 @@
-param([Parameter(Mandatory)][string]$Executable,[Parameter(Mandatory)][string[]]$JobArguments,[Parameter(Mandatory)][string]$Log,[switch]$Gpu,[switch]$VisibleWindow,[string]$Job='native-job',[int]$LimitSeconds=1080)
+param([Parameter(Mandatory)][string]$Executable,[Parameter(Mandatory)][string[]]$JobArguments,[Parameter(Mandatory)][string]$Log,[switch]$Gpu,[switch]$VisibleWindow,[string]$Job='native-job',[int]$LimitSeconds=1080,[string]$FailIfStderrMatches='')
 $ErrorActionPreference='Stop'
 $flag='C:\Otherreach_Recovery\OWNER_PLAYING.flag'
 $lease='codex-mh-slice '+$Job
@@ -22,6 +22,7 @@ try {
  $started=Get-Date
  while(-not $owned.HasExited){
   if(Test-Path -LiteralPath $flag){throw 'Owner playing; stopping owned job'}
+  if($FailIfStderrMatches -and (Test-Path -LiteralPath ($Log+'.stderr')) -and (Select-String -LiteralPath ($Log+'.stderr') -Pattern $FailIfStderrMatches -Quiet)){throw 'Owned job reported a fatal startup error; see stderr log'}
   $age=((Get-Date)-$started).TotalSeconds
   if($age -gt $LimitSeconds){throw 'Owned job reached time limit'}
   if($Gpu -and $age -gt 540 -and (Get-Content 'C:\Otherreach_Recovery\gpu.queue' -ErrorAction SilentlyContinue | Where-Object {$_.Trim()})){throw 'Yielding GPU to queued lane'}

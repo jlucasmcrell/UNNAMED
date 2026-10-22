@@ -116,6 +116,81 @@ public partial class Main
                 }
                 if(_avatar.GlobalPosition.DistanceTo(from)<.5f)throw new InvalidOperationException("Footstep route blocked: "+phase);
             }
+            if(OS.GetEnvironment("OTHERREACH_CALM_MOTION_REVIEW")=="1")
+            {
+                _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);
+                var attacks=new HashSet<string>();
+                for(int strike=1;strike<=3;strike++)
+                {
+                    phase="attack_"+strike;_controller.Attack();
+                    ulong through=Time.GetTicksMsec()+3000;
+                    while(Time.GetTicksMsec()<through)
+                    {
+                        await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+                        attacks.Add(_avatar.ClipState);
+                        var p=_avatar.GlobalPosition;var l=_avatar.Foot("L")??p;var r=_avatar.Foot("R")??p;
+                        frames.WriteLine(FormattableString.Invariant($"{Time.GetTicksUsec()},{phase},{p.X},{p.Y},{p.Z},{l.X},{l.Y},{l.Z},{r.X},{r.Y},{r.Z},{_avatar.ClipState}"));
+                    }
+                }
+                // Required motion-review angles use a separate render camera. The real
+                // controller's facing camera stays fixed, so backing remains backing.
+                phase="clear_ground_approach";
+                foreach(var approach in new[]{Vector3.Right,Vector3.Forward})
+                {
+                    ulong through=Time.GetTicksMsec()+4000;
+                    while(Time.GetTicksMsec()<through)
+                    {
+                        _controller.SteerWorld(approach,Gait.Run,_camera,faceCamera:true);
+                        await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+                    }
+                }
+                _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);
+                var angleCamera=new Camera3D { Fov=50,Near=.05f };AddChild(angleCamera);
+                var fill=_camera.Camera.GetNode<OmniLight3D>("CharacterFill");fill.Reparent(angleCamera,false);
+                var angleLabel=new Label { Position=new Vector2(64,8) };syncLayer.AddChild(angleLabel);
+                try
+                {
+                    foreach(var angle in new[]{("side",Mathf.Pi/2),("threequarter",Mathf.Pi/4)})
+                    {
+                        void FrameAngle()
+                        {
+                            var aim=_avatar.GlobalPosition+Vector3.Up*.95f;
+                            angleCamera.GlobalPosition=aim+_avatar.GlobalBasis.Z.Rotated(Vector3.Up,angle.Item2)*3.5f+Vector3.Up*.2f;
+                            angleCamera.LookAt(aim);angleCamera.MakeCurrent();
+                        }
+                        foreach(var motion in new[]{("walk_back",Vector3.Left,Gait.Walk,3),("run_back",Vector3.Left,Gait.Run,3),
+                            ("strafe_left",Vector3.Forward,Gait.Walk,2),("strafe_right",Vector3.Back,Gait.Walk,2)})
+                        {
+                            phase=angle.Item1+"_"+motion.Item1;angleLabel.Text=phase+" | real time | 3.5 m";
+                            ulong through=Time.GetTicksMsec()+(ulong)motion.Item4*1000;
+                            while(Time.GetTicksMsec()<through)
+                            {
+                                _controller.SteerWorld(motion.Item2,motion.Item3,_camera,faceCamera:true);FrameAngle();
+                                await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+                                var p=_avatar.GlobalPosition;var l=_avatar.Foot("L")??p;var r=_avatar.Foot("R")??p;
+                                frames.WriteLine(FormattableString.Invariant($"{Time.GetTicksUsec()},{phase},{p.X},{p.Y},{p.Z},{l.X},{l.Y},{l.Z},{r.X},{r.Y},{r.Z},{_avatar.ClipState}"));
+                            }
+                        }
+                        _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);
+                        for(int strike=1;strike<=3;strike++)
+                        {
+                            phase=angle.Item1+"_attack_"+strike;angleLabel.Text=phase+" | real AttackCommand";
+                            _controller.Attack();ulong through=Time.GetTicksMsec()+3000;
+                            while(Time.GetTicksMsec()<through)
+                            {
+                                FrameAngle();await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+                                attacks.Add(_avatar.ClipState);
+                                var p=_avatar.GlobalPosition;var l=_avatar.Foot("L")??p;var r=_avatar.Foot("R")??p;
+                                frames.WriteLine(FormattableString.Invariant($"{Time.GetTicksUsec()},{phase},{p.X},{p.Y},{p.Z},{l.X},{l.Y},{l.Z},{r.X},{r.Y},{r.Z},{_avatar.ClipState}"));
+                            }
+                        }
+                    }
+                }
+                finally{fill.Reparent(_camera.Camera,false);_camera.Camera.MakeCurrent();angleCamera.QueueFree();angleLabel.QueueFree();}
+                File.WriteAllText(Path.Combine(directory,"attack_states.json"),JsonSerializer.Serialize(attacks));
+                foreach(string required in new[]{"sword_attack_1","sword_attack_2","sword_attack_3"})
+                    if(!attacks.Contains(required))throw new InvalidOperationException("Normal controller did not show "+required);
+            }
             File.WriteAllText(Path.Combine(directory,"foot_events.json"),JsonSerializer.Serialize(events));
             if(!baseline && events.Count<12)throw new InvalidOperationException("Too few audible contact candidates");
             File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new{status="FOOTSTEP_REQUIRES_AUDIO_VISUAL_REVIEW",baseline,cast=VisualOptions.People,events=events.Count,max_fps=Engine.MaxFps}));

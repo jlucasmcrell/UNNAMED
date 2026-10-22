@@ -99,6 +99,7 @@ func build() -> void:
    reports.append({"clip":clip.logical,"tracks":animation.get_track_count(),"seconds":animation.length,"max_rest_position_difference_m":worst})
    source.queue_free();await process_frame
   for pair in [["crouch_move","crouch_walk"],["block","sword_block"],["hit_react","hit"],["talk_idle","talk"],["attack","sword_attack_1"]]:
+   if pair[0]=="attack" and OS.get_environment("OTHERREACH_CALM_ATTACK_CLIPS")=="1" and library.has_animation("attack"):library.remove_animation("attack")
    if library.has_animation(pair[1]) and not library.has_animation(pair[0]):library.add_animation(pair[0],library.get_animation(pair[1]))
   library.set_meta("native_body_sha256",FileAccess.get_sha256(runtime+config.body))
   library.set_meta("route","Epic IK Retargeter -> native GLTFExporter -> documented Blender bridge; no Godot retarget")

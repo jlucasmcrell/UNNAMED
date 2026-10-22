@@ -95,6 +95,7 @@ func build():
    rows.append({"id":id,"clip":clip.logical,"bones":rig.get_bone_count(),"rest_error_m":worst,"max_removed_nonroot_translation_m":stripped,"tracks":animation.get_track_count()})
    source.free()
   for pair in [["crouch_move","crouch_walk"],["block","sword_block"],["hit_react","hit"],["talk_idle","talk"],["attack","sword_attack_1"]]:
+   if pair[0]=="attack" and OS.get_environment("OTHERREACH_CALM_ATTACK_CLIPS")=="1" and library.has_animation("attack"):library.remove_animation("attack")
    if not library.has_animation(pair[0]) and library.has_animation(pair[1]):library.add_animation(pair[0],library.get_animation(pair[1]))
   library.set_meta("target_body_sha256",FileAccess.get_sha256("D:/Otherreach_Scratch/rcd3_20261020/shared_fallback/rigged/"+id+"/"+id+"_rigged.glb"))
   library.set_meta("motion_paces",paces)

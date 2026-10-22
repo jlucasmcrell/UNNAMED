@@ -5,10 +5,12 @@ import unreal
 root=Path(os.environ['OTHERREACH_PIPELINE_ROOT'])
 assert root.is_absolute() and root.name=='rcd6_20261021'
 inn_mode=os.environ.get('OTHERREACH_INN_CLIPS')=='1'
-report=root/'evidence'/('ue_mpfb_inn.json' if inn_mode else 'ue_mpfb_motion.json')
+calm_mode=os.environ.get('OTHERREACH_CALM_ATTACK_CLIPS')=='1'
+assert not (inn_mode and calm_mode),'Animation batches must be separate'
+report=root/'evidence'/('ue_mpfb_calm.json' if calm_mode else 'ue_mpfb_inn.json' if inn_mode else 'ue_mpfb_motion.json')
 state=json.loads(report.read_text(encoding='utf-8')) if report.exists() else {'characters':[]}
 tools=unreal.AssetToolsHelpers.get_asset_tools()
-package='/Game/MHPlaytest/'+('MPFBInn20261021' if inn_mode else 'MPFBMotion20261021')
+package='/Game/MHPlaytest/'+('MPFBCalm20261021' if calm_mode else 'MPFBInn20261021' if inn_mode else 'MPFBMotion20261021')
 GROUND_OFFSETS={'mpfb_fem_armour':-1.89843215048313,'mpfb_fem_lt':-1.89843215048313,'mpfb_male_armour':-2.85560935735703,'mpfb_male_lt':-2.85560935735703,'mpfb_var_armour':-2.20576338469982}
 def save(**kw):
  if kw.get('status')!='FAILED':state.pop('error',None)
@@ -19,7 +21,8 @@ def asset(folder,name,factory):
 clips={'idle': ('ual1', 'Idle_Loop'), 'walk': ('ual1', 'Walk_Loop'), 'run': ('ual1', 'Jog_Fwd_Loop'), 'sprint': ('ual1', 'Sprint_Loop'), 'crouch_idle': ('ual1', 'Crouch_Idle_Loop'), 'crouch_walk': ('ual1', 'Crouch_Fwd_Loop'), 'jump_start': ('ual1', 'Jump_Start'), 'fall': ('ual1', 'Jump_Loop'), 'land': ('ual1', 'Jump_Land'), 'sword_ready': ('ual1', 'Sword_Idle'), 'sword_attack_1': ('ual1', 'Sword_Attack'), 'sword_attack_2': ('ual2', 'Sword_Regular_A'), 'sword_attack_3': ('ual2', 'Sword_Regular_B'), 'sword_block': ('ual2', 'Sword_Block'), 'hit': ('ual1', 'Hit_Chest'), 'death': ('ual1', 'Death01'), 'interact': ('ual1', 'Interact'), 'talk': ('ual1', 'Idle_Talking_Loop'), 'cast': ('ual1', 'Spell_Simple_Shoot'), 'spear_ready': ('kaykit_melee', 'Melee_2H_Idle'), 'spear_thrust': ('kaykit_melee', 'Melee_2H_Attack_Stab'), 'bow_ready': ('kaykit_ranged', 'Ranged_Bow_Aiming_Idle'), 'bow_draw': ('kaykit_ranged', 'Ranged_Bow_Draw'), 'bow_release': ('kaykit_ranged', 'Ranged_Bow_Release'), 'pick_up': ('kaykit_general', 'PickUp'), 'dodge': ('kaykit_move', 'Dodge_Backward'), 'strafe_left': ('kaykit_move', 'Running_Strafe_Left'), 'strafe_right': ('kaykit_move', 'Running_Strafe_Right'), 'walk_back': ('kaykit_move', 'Walking_Backwards'), 'idle_foldarms': ('ual2', 'Idle_FoldArms_Loop'), 'idle_shift': ('ual2', 'Idle_No_Loop'), 'idle_look': ('kaykit_general', 'Idle_B')}
 
 try:
- if inn_mode:clips={'sit_enter':('ual1','Sitting_Enter'),'sit':('ual1','Sitting_Idle_Loop'),'sit_talk':('ual1','Sitting_Talking_Loop'),'sit_exit':('ual1','Sitting_Exit'),'lie_to_idle':('ual2','LayToIdle')}
+ if calm_mode:clips={'sword_attack_1':('kaykit_melee','Melee_1H_Attack_Chop'),'sword_attack_2':('kaykit_melee','Melee_1H_Attack_Slice_Diagonal'),'sword_attack_3':('kaykit_melee','Melee_1H_Attack_Stab')}
+ elif inn_mode:clips={'sit_enter':('ual1','Sitting_Enter'),'sit':('ual1','Sitting_Idle_Loop'),'sit_talk':('ual1','Sitting_Talking_Loop'),'sit_exit':('ual1','Sitting_Exit'),'lie_to_idle':('ual2','LayToIdle')}
  sources=json.loads(Path('D:/Otherreach_Scratch/rcd3_20261020/evidence/ue_animation_sources.json').read_text(encoding='utf-8'))
  if os.environ.get('OTHERREACH_MPFB_PROBE')=='1':clips={k:clips[k] for k in ['idle','walk','run','sword_attack_1']}
  selected=os.environ.get('OTHERREACH_MPFB_BODIES',','.join(GROUND_OFFSETS)).split(',')
@@ -81,7 +84,7 @@ try:
    for logical,original in chosen.items():
     animation=next(a for a in results if a.get_name()==id+'_'+original.get_name());animation.set_preview_skeletal_mesh(body)
     options=unreal.GLTFExportOptions();options.bake_material_inputs=unreal.GLTFMaterialBakeMode.DISABLED;options.export_vertex_skin_weights=True;options.export_morph_targets=False;options.export_animation_sequences=True;options.export_preview_mesh=True;options.export_uniform_scale=.01;options.default_level_of_detail=0;options.use_mesh_quantization=False
-    folder=root/('mpfb_inn' if inn_mode else 'mpfb_motion')/id;folder.mkdir(parents=True,exist_ok=True);path=folder/(logical+'.glb')
+    folder=root/('mpfb_calm' if calm_mode else 'mpfb_inn' if inn_mode else 'mpfb_motion')/id;folder.mkdir(parents=True,exist_ok=True);path=folder/(logical+'.glb')
     task=unreal.AssetExportTask();task.object=animation;task.filename=str(path);task.automated=True;task.prompt=False;task.replace_identical=True;task.options=options
     assert unreal.Exporter.run_asset_export_task(task)
     raw=path.read_bytes();g=json.loads(raw[20:20+struct.unpack_from('<I',raw,12)[0]]);assert g.get('animations') and len(g['skins'][0]['joints'])==53
