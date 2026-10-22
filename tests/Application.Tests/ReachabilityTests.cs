@@ -34,6 +34,10 @@ public class ReachabilityTests
         // be tightened later: asking one region to spawn every catalogued creature would demand the Ashen Hollow
         // spawn the Ring Custodian, which the design does not.
         var spawned = setup.Combat.Spawns.SelectMany(s => s.Members).Select(m => m.CreatureId).ToHashSet(StringComparer.Ordinal);
+        // A creature an item brings is met by buying the item, not by walking into a spawn: the hound pup is bought at Ashen Hollow and
+        // grows into the wolf (spec 43), so no spawn places one and none should (WP-pets).
+        foreach (var item in setup.Items.Catalog.Definitions.Values.Where(i => i.PetCreature is { Length: > 0 }))
+            spawned.Add(item.PetCreature!);
         spawned.UnionWith(ring.Combat.Spawns.SelectMany(s => s.Members).Select(m => m.CreatureId));
         Assert.Empty(setup.Combat.Creatures.Keys.Where(c => !spawned.Contains(c)));
         var placed = setup.Layout.Nodes.Select(n => n.NodeDefId).ToHashSet(StringComparer.Ordinal);
@@ -77,6 +81,10 @@ public class ReachabilityTests
         var places = layouts.SelectMany(l => l.Locations).Select(l => l.Id).ToHashSet(StringComparer.Ordinal);
         var people = layouts.SelectMany(l => l.Npcs).Select(n => n.NpcId).ToHashSet(StringComparer.Ordinal);
         var spawned = setup.Combat.Spawns.SelectMany(s => s.Members).Select(m => m.CreatureId).ToHashSet(StringComparer.Ordinal);
+        // A creature an item brings is met by buying the item, not by walking into a spawn: the hound pup is bought at Ashen Hollow and
+        // grows into the wolf (spec 43), so no spawn places one and none should (WP-pets).
+        foreach (var item in setup.Items.Catalog.Definitions.Values.Where(i => i.PetCreature is { Length: > 0 }))
+            spawned.Add(item.PetCreature!);
         var reachable = Reachable(setup);
 
         var missing = new List<string>();

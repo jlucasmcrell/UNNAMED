@@ -136,22 +136,25 @@ public class PartyTests
     }
 
     [Fact]
-    public void ThePartyHoldsThree_CompanionsAndHirelingsAlike_AndASlotFreedCanBeFilled()
+    public void ThePartyHoldsFour_CompanionsAndHirelingsAlike_AndASlotFreedCanBeFilled()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = At(session, 50, r => r.WithCompanions(new[]
-        {
-            Member(Tavar, 62, 142, PartyMembership.Companion), Member(Renn, 59, 142), Member(Sel, 61, 138, role: HirelingRole.Porter, wage: 4),
-        }));
-        Assert.Equal(3, arena.Simulation.Companions.Length);
+        // Four is the size of the party (spec 43 ruling 2: one number for the people and the animals with them).
+        var arena = Arena.OpenCreatures(session, Hireable(session.Setup, Kera, Renn, Sel, "npc.cairnwold.mara_ling"), AtKera, 0,
+            Array.Empty<(string, double, double, string)>(), r => WithCoin(r.WithCompanions(new[]
+            {
+                Member(Tavar, 62, 142, PartyMembership.Companion), Member(Renn, 59, 142), Member(Sel, 61, 138, role: HirelingRole.Porter, wage: 4),
+                Member("npc.cairnwold.mara_ling", 60, 140),
+            }), 50));
+        Assert.Equal(4, arena.Simulation.Companions.Length);
 
-        Assert.Equal("your party is full (3 with you)", arena.Simulation.HireTerms(Kera, HirelingRole.Guard, 3).Refusal);
-        Assert.Equal("your party is full (3 with you)", Hire(arena, Kera, HirelingRole.Guard, 3));
+        Assert.Equal("your party is full (4 with you)", arena.Simulation.HireTerms(Kera, HirelingRole.Guard, 3).Refusal);
+        Assert.Equal("your party is full (4 with you)", Hire(arena, Kera, HirelingRole.Guard, 3));
 
         Assert.Null(arena.Submit(new DismissCommand(arena.Player, Sel)));
         Assert.Null(Hire(arena, Kera, HirelingRole.Guard, 3));
-        Assert.Equal(new[] { Kera, Renn, Tavar }, arena.Simulation.Companions.Select(c => c.NpcId).OrderBy(id => id, StringComparer.Ordinal));
+        Assert.Equal(new[] { Kera, Renn, Tavar, "npc.cairnwold.mara_ling" }, arena.Simulation.Companions.Select(c => c.NpcId).OrderBy(id => id, StringComparer.Ordinal));
     }
 
     /// <summary>Each midnight the next day's wage comes out of the purse; with too little in it, one day's grace, then the contract lapses.</summary>

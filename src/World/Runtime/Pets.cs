@@ -391,7 +391,9 @@ internal sealed partial class PetSystem : IAbstractAdvance
         if (Setup.Of(creature.Definition.Id) is not { } species)
             return "that is not an animal you can tame";
         int level = State.Progression.Level;
-        if (creature.Definition.Level > level)
+        // One level above the character is an animal worth trying for, and the odds already say so (config.pets tame.over_level); beyond that
+        // it is a fight, not a taming.
+        if (creature.Definition.Level > level + 1)
             return $"it is beyond you: a level {creature.Definition.Level} animal against level {level}";
         if (!species.Eats(command.FoodItem))
             return $"it will not take {command.FoodItem}";
