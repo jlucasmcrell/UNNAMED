@@ -68,7 +68,7 @@ public partial class Main
         _companionsPanel = new CompanionsPanel { Name = "Party" };
         _companionsPanel.Bind(_session, _controller);
         AddChild(_companionsPanel);
-        _waystones = new WaystonePanel { Name = "Waystones" };
+        _waystones = new WaystonePanel { Name = "Waystones", TravelRequested=TravelWithEffects };
         _waystones.Bind(_session, _controller);
         AddChild(_waystones);
         _noticeBoard = new NoticeBoardPanel { Name = "NoticeBoard" };
@@ -299,7 +299,7 @@ public partial class Main
     /// controls or the saves list (the Phase-1 technical audit, L-27; the Field Instrument UI). While one is, no gameplay key reaches the
     /// world, and the world runs on (the owner's ruling: nothing pauses for a panel). The quest debugger is an overlay: it takes no keys.
     /// </summary>
-    public bool Modal => _dialogue.Visible || Screen is not null;
+    public bool Modal => _waystoneTravelBusy || _dialogue.Visible || Screen is not null;
 
     /// <summary>The management screen open, if any: one at a time.</summary>
     private CanvasLayer? Screen =>

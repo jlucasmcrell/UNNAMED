@@ -26,6 +26,7 @@ public partial class WaystonePanel : CanvasLayer
     private PlayerController _controller = null!;
     private HudIcons _icons = HudIcons.None;
     private string? _drawn;
+    public Action<string,string>? TravelRequested { get; set; }
 
     /// <summary>The stone the panel is open at, or null.</summary>
     public string? StoneKey { get; private set; }
@@ -122,7 +123,7 @@ public partial class WaystonePanel : CanvasLayer
                 var to = stones.First(w => w.Site.Key == option.ToKey).Site;
                 var journey = UiKit.Row(UiKit.Icon(_icons, "panel.waystones", 32), to.Name, TravelWords.Journey(option.Cost.WalkTicks, Main.TicksPerDay));
                 string toKey = to.Key;
-                var go = UiKit.Action("Travel", () => _controller.TravelTo(here.Site.Key, toKey), id: $"travel/{toKey}");
+                var go = UiKit.Action("Travel", () => { if(TravelRequested is { } effect)effect(here.Site.Key,toKey);else _controller.TravelTo(here.Site.Key,toKey); }, id: $"travel/{toKey}");
                 go.Disabled = option.Blocked is not null;
                 journey.Root.AddChild(go);
                 travel.AddChild(journey.Root);

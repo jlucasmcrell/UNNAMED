@@ -89,6 +89,8 @@ public partial class Main
         });
         _session.Subscribe<PlayerTravelled>(e =>
         {
+            _waystoneArrived=true;
+            if(_waystoneTravelBusy)TravelStonePulse(e.ToKey,true);
             _controller.OnTravelled(e);
             _autorun = false;
             CloseScreens();

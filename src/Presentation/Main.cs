@@ -279,9 +279,7 @@ public partial class Main : Node3D
             OS.SetEnvironment("UNNAMED_LOD_STIPPLE", "0");
             GD.Print("UNNAMED direct EXE: using packaged PLAY defaults");
         }
-        string optionFile = Path.Combine(Home(), "characters.option");
-        string packagedPeople = directPlaytest && File.Exists(optionFile) ? File.ReadAllText(optionFile).Trim() : "production";
-        ParseArguments(Ui.Models.PlaytestLaunchDefaults.Resolve(arguments, Home(), OS.HasFeature("template"), packagedPeople));
+        ParseArguments(Ui.Models.PlaytestLaunchDefaults.Resolve(arguments, Home(), OS.HasFeature("template")));
         // A player's run plays with the player's settings (the window, the tier they chose, the dials); a harness run never reads or
         // writes them (its numbers stay comparable).
         _developer = OS.IsDebugBuild() || _flags.Contains("--dev");
@@ -1059,6 +1057,7 @@ public partial class Main : Node3D
         _hits.Bind(_assets.Root);
         _successEffects = new Art.SuccessEffects { Name = "SuccessEffects" };
         AddChild(_successEffects);
+        _successEffects.BindWaystones(_session, _hollow);
         _shadowLods.Watch(this);
         GetViewport().UseOcclusionCulling = System.Environment.GetEnvironmentVariable("UNNAMED_BUILDING_OCCLUSION") != "0";
         if (_avatar is Avatar glowing && _magicEffects.HasCastCharge)

@@ -61,6 +61,7 @@ public partial class HollowView : Node3D
 
     private GroundField? _ground;
     private readonly Dictionary<string, Node3D> _models = new(StringComparer.Ordinal);
+    public Node3D? PlacedModel(string id) => _models.GetValueOrDefault(id);
 
     /// <summary>The run's particle recipes (B0.7), read once for the whole region: a building's chimney smoke and a lit prop's own flame
     /// come out of this one instance, so the JSON and the effect textures are read once per region and not once per placement.</summary>

@@ -36,6 +36,7 @@ public partial class Main
             if ((System.Environment.GetEnvironmentVariable("OTHERREACH_ULTRA_FOLIAGE_REVIEW") == "1"
                     || System.Environment.GetEnvironmentVariable("OTHERREACH_ULTRA_RADIUS_SWEEP") == "1"
                     || System.Environment.GetEnvironmentVariable("OTHERREACH_FAL_AB_REVIEW") == "1"
+                    || System.Environment.GetEnvironmentVariable("OTHERREACH_COMBAT_SOURCE_REVIEW") == "1"
                     || System.Environment.GetEnvironmentVariable("OTHERREACH_WORLD_LIGHTING_DIAGNOSTIC") == "1"
                     || System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_WORLD") == "1")
                 && ulong.TryParse(System.Environment.GetEnvironmentVariable("OTHERREACH_LIGHTING_SEED"), out ulong diagnosticSeed) && diagnosticSeed != 0)
