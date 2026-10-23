@@ -9,7 +9,6 @@ var direction := Vector2(0,1)
 var smoothed_direction := Vector2(0,1)
 var jog := 0.0
 var rate := 1.0
-var calm_back := false
 var walk_strafes := false
 var jog_back := false
 
@@ -61,33 +60,7 @@ func configure(source: AnimationPlayer, measured: Dictionary, manual: bool = tru
  var blend := AnimationNodeBlendTree.new()
  blend.add_node("direction",space)
  blend.add_node("pace",AnimationNodeTimeScale.new())
- # Standard filtered AnimationNodeBlend2; environment 0 is the review baseline.
- # Backward KayKit arms/head are stylised; retain the original legs and hip motion.
- calm_back=OS.get_environment("OTHERREACH_CALM_BACK")!="0" and source.has_animation("idle")
- if calm_back:
-  var upper:=AnimationNodeBlend2.new()
-  upper.filter_enabled=true
-  var idle:=source.get_animation("idle")
-  var animation_root:=source.get_node(source.root_node)
-  var filtered:=0
-  for track in idle.get_track_count():
-   if idle.track_get_type(track)!=Animation.TYPE_ROTATION_3D:continue
-   var path:=idle.track_get_path(track)
-   if path.get_subname_count()!=1:continue
-   var rig:=animation_root.get_node_or_null(NodePath(path.get_concatenated_names())) as Skeleton3D
-   if rig==null:continue
-   var bone:=rig.find_bone(path.get_subname(0))
-   while bone>=0:
-    if rig.get_bone_name(bone) in ["spine_01","spine"]:
-     upper.set_filter_path(path,true);filtered+=1;break
-    bone=rig.get_bone_parent(bone)
-  assert(filtered>=5,"Calm backward candidate found no upper-body tracks")
-  blend.add_node("neutral_upper",clip("idle"))
-  blend.add_node("calm_upper",upper)
-  blend.connect_node("calm_upper",0,"direction")
-  blend.connect_node("calm_upper",1,"neutral_upper")
-  blend.connect_node("pace",0,"calm_upper")
- else:blend.connect_node("pace",0,"direction")
+ blend.connect_node("pace",0,"direction")
  blend.connect_node("output",0,"pace")
  tree=AnimationTree.new()
  tree.active=false
@@ -145,9 +118,6 @@ func move(local_velocity: Vector2, delta: float) -> bool:
   tree.set("parameters/direction/left/blend_position",jog)
   tree.set("parameters/direction/right/blend_position",jog)
  if jog_back:tree.set("parameters/direction/back/blend_position",jog)
- if calm_back:
-  var neutral_amount:=(0.0 if jog_back else .85)*maxf(-direction.y,0)+.30*maxf(direction.y,0)*jog+(0.0 if walk_strafes else .20)*absf(direction.x)
-  tree.set("parameters/calm_upper/blend_amount",neutral_amount)
  tree.set("parameters/pace/scale",rate)
  player.active=false
  tree.active=true

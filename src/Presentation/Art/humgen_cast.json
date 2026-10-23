@@ -1,19 +1,101 @@
 {
-  "comment": "The Human Generator arm of the character comparison, on the PAID licence (owner bought Commercial 2026-10-23). Two paid bodies stand in for the whole cast: humgen_paid_m is hg_paid_01 (male, 41, Caucasian 2 preset) and humgen_paid_f is hg_paid_00 (female, 26, Caucasian 1), both exported by the add-on's own Godot recipe - hair cards, baked metallic-roughness skin, four LODs (body 59,480 triangles down to 13,226), 59 joints named for Godot's SkeletonProfileHumanoid and 43 FACS blend shapes on LOD0. Their heights are the exports' own, measured at 1.7845 m and 1.7998 m; stature_m is the MetaHuman stature the comparison draws each sex at, exactly as mpfb_cast.json states it, so the arm is judged on fidelity rather than on size. Their motion libraries were baked offline from the game's own clips by tools/humgen/build_humgen_motion_library.gd, which translates the game's UE-mannequin bone names onto the humanoid names the paid export uses.",
-  "stature_m": {
-    "f": 1.692,
-    "m": 1.918
-  },
+  "comment": "Production paid HumGen cast: original native Godot-recipe exports with fitted outfits, hair and expressions. Heights record batch requests; runtime preserves native exported stature. Named identities are reserved from the generic pool.",
   "models": [
     {
-      "id": "humgen_paid_m",
-      "sex": "m",
-      "height_m": 1.7845
+      "id": "humgen_player_ada_f",
+      "sex": "f",
+      "height_m": 1.7,
+      "npc_only": false
     },
     {
-      "id": "humgen_paid_f",
+      "id": "humgen_player_mateo_m",
+      "sex": "m",
+      "height_m": 1.82,
+      "npc_only": false
+    },
+    {
+      "id": "humgen_named_kera_voss",
       "sex": "f",
-      "height_m": 1.7998
+      "height_m": 1.66,
+      "npc_only": true
+    },
+    {
+      "id": "humgen_named_renn_vale",
+      "sex": "m",
+      "height_m": 1.78,
+      "npc_only": true
+    },
+    {
+      "id": "humgen_named_sel_arien",
+      "sex": "f",
+      "height_m": 1.68,
+      "npc_only": true
+    },
+    {
+      "id": "humgen_named_tavar_orr",
+      "sex": "m",
+      "height_m": 1.8,
+      "npc_only": true
+    },
+    {
+      "id": "humgen_named_mara_ling",
+      "sex": "f",
+      "height_m": 1.63,
+      "npc_only": true
+    },
+    {
+      "id": "humgen_named_berrin_garth",
+      "sex": "m",
+      "height_m": 1.74,
+      "npc_only": true
+    },
+    {
+      "id": "humgen_named_durn_skell",
+      "sex": "m",
+      "height_m": 1.79,
+      "npc_only": true
+    },
+    {
+      "id": "humgen_named_tam_crowden",
+      "sex": "f",
+      "height_m": 1.61,
+      "npc_only": true
+    },
+    {
+      "id": "humgen_pool_00",
+      "sex": "f",
+      "height_m": 1.65,
+      "npc_only": true
+    },
+    {
+      "id": "humgen_pool_01",
+      "sex": "m",
+      "height_m": 1.76,
+      "npc_only": true
+    },
+    {
+      "id": "humgen_pool_02",
+      "sex": "f",
+      "height_m": 1.58,
+      "npc_only": true
+    },
+    {
+      "id": "humgen_pool_03",
+      "sex": "m",
+      "height_m": 1.72,
+      "npc_only": true
+    },
+    {
+      "id": "humgen_pool_04",
+      "sex": "f",
+      "height_m": 1.69,
+      "npc_only": true
+    },
+    {
+      "id": "humgen_pool_05",
+      "sex": "m",
+      "height_m": 1.7,
+      "npc_only": true
     }
   ]
 }
