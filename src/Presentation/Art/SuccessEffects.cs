@@ -61,16 +61,33 @@ public partial class SuccessEffects : Node3D
     public void Travel(string key,Vector3 at,bool arriving)
     {
         if(_stones.TryGetValue(key,out var glow))glow.TravelPulse(FlashScale);
-        var particles=new CpuParticles3D { Name=arriving?"WaystoneArrival":"WaystoneDeparture",
-            Amount=20,Lifetime=.65,OneShot=true,Explosiveness=1,
-            EmissionShape=CpuParticles3D.EmissionShapeEnum.Sphere,EmissionSphereRadius=arriving?.12f:.8f,
-            Gravity=Vector3.Zero,InitialVelocityMin=0,InitialVelocityMax=0,
-            RadialAccelMin=arriving?2.5f:-3f,RadialAccelMax=arriving?2.5f:-3f,
-            ScaleAmountMin=.008f,ScaleAmountMax=.016f,Mesh=new SphereMesh { Radius=1,Height=2 },
-            MaterialOverride=Glow(new Color(.6f,.8f,1)),CastShadow=GeometryInstance3D.ShadowCastingSetting.Off,
-            GIMode=GeometryInstance3D.GIModeEnum.Disabled,Emitting=false };
-        AddChild(particles);particles.GlobalPosition=at+Vector3.Up;particles.Emitting=true;
-        GetTree().CreateTimer(.8).Timeout+=particles.QueueFree;
+        var swirl=new Node3D { Name=arriving?"WaystoneArrival":"WaystoneDeparture" };
+        AddChild(swirl);swirl.GlobalPosition=at;
+        var material=new StandardMaterial3D { ShadingMode=BaseMaterial3D.ShadingModeEnum.Unshaded,
+            AlbedoColor=new Color(.08f,.6f,.85f),EmissionEnabled=true,Emission=new Color(.08f,.6f,.85f),
+            EmissionEnergyMultiplier=6*FlashScale,Transparency=BaseMaterial3D.TransparencyEnum.Alpha,
+            BlendMode=BaseMaterial3D.BlendModeEnum.Add,VertexColorUseAsAlbedo=true };
+        var ramp=new Gradient();ramp.SetColor(0,new Color(1,1,1,0));ramp.AddPoint(.15f,Colors.White);ramp.SetColor(1,new Color(1,1,1,0));
+        for(int arm=0;arm<2;arm++)
+        {
+            var rotor=new Node3D { Rotation=new Vector3(0,arm*Mathf.Pi,0) };swirl.AddChild(rotor);
+            var particles=new CpuParticles3D { Amount=72,Lifetime=1.4,OneShot=true,Explosiveness=.05f,
+                Position=new Vector3(.75f,arriving?1.8f:.15f,0),LocalCoords=false,
+                EmissionShape=CpuParticles3D.EmissionShapeEnum.Sphere,EmissionSphereRadius=.045f,
+                Direction=arriving?Vector3.Down:Vector3.Up,Spread=7,Gravity=Vector3.Zero,
+                InitialVelocityMin=1.2f,InitialVelocityMax=1.8f,ScaleAmountMin=.025f,ScaleAmountMax=.045f,
+                Mesh=new SphereMesh { Radius=1,Height=2 },MaterialOverride=material,ColorRamp=ramp,
+                CastShadow=GeometryInstance3D.ShadowCastingSetting.Off,GIMode=GeometryInstance3D.GIModeEnum.Disabled,Emitting=false };
+            rotor.AddChild(particles);particles.Emitting=true;
+            rotor.CreateTween().TweenProperty(rotor,"rotation:y",arm*Mathf.Pi+(arriving?-1:1)*Mathf.Tau*1.7f,1.4);
+            if(arriving)particles.CreateTween().TweenProperty(particles,"position:x",.1f,1.4);
+        }
+        var light=new OmniLight3D { Position=Vector3.Up,OmniRange=4,LightColor=new Color(.25f,.75f,1),
+            LightEnergy=0,LightIndirectEnergy=0,ShadowEnabled=false };
+        swirl.AddChild(light);
+        var pulse=swirl.CreateTween();pulse.TweenProperty(light,"light_energy",2.5f*FlashScale,.4);
+        pulse.TweenProperty(light,"light_energy",0f,1.4);
+        GetTree().CreateTimer(3).Timeout+=swirl.QueueFree;
     }
 
     public void Craft(Vector3 at, bool metal, int quality) => Burst(at, metal ? new Color(1,.62f,.23f) : new Color(.72f,.65f,.49f),

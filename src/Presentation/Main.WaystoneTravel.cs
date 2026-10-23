@@ -10,8 +10,9 @@ public partial class Main
     private void TravelStonePulse(string key,bool arriving)
     {
         if(_session.Setup.Layout.FindWaystone(key) is not { } site)return;
-        var (x,z)=Domain.Spatial.Footprints.Center(site.Body);
-        _successEffects.Travel(key,new Vector3(x/1000f,_session.Setup.Layout.Space.Terrain.HeightAtMm(x,z)/1000f,z/1000f),arriving);
+        var at=arriving?new Vector3(site.ArrivalXMm/1000f,
+            _session.Setup.Layout.Space.Terrain.HeightAtMm(site.ArrivalXMm,site.ArrivalZMm)/1000f,site.ArrivalZMm/1000f):_avatar.GlobalPosition;
+        _successEffects.Travel(key,at,arriving);
     }
 
     private async void TravelWithEffects(string from, string to)
@@ -57,7 +58,7 @@ public partial class Main
         {
             _controller.SteerWorld(Vector3.Zero,Domain.Spatial.Gait.Walk,_camera);
             _soundEvents.WaystoneUse(from);WaystoneResponse(from,true);TravelStonePulse(from,false);
-            await Fade(0,1,.6);
+            await Fade(0,1,1.2);
             _controller.TravelTo(from,to);
             ulong deadline=Time.GetTicksMsec()+5000;
             // The command and world streaming run normally underneath the wash.
@@ -65,7 +66,7 @@ public partial class Main
                 await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
             if(_waystoneArrived)await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
             material.SetShaderParameter("arriving",true);
-            await Fade(1,0,.6);
+            await Fade(1,0,1.2);
         }
         catch(Exception e) { GD.PushError("Waystone presentation: "+e); }
         finally { _camera.Camera.Fov=fov;layer.QueueFree();_waystoneTravelBusy=false; }
