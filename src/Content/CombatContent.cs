@@ -137,6 +137,8 @@ public static class CombatContent
             FleeBelowPercent = map.ContainsKey("flee_below_percent") ? Int(map, "flee_below_percent") : 0,
             SleepHearingPercent = map.ContainsKey("sleep_hearing_percent") ? Int(map, "sleep_hearing_percent") : 100,
             FlankMm = Metres("flank_m"),
+            FocusWeakest = map.GetValueOrDefault("focus_weakest") as string == "true",
+            HuntsHandler = map.GetValueOrDefault("hunts_handler") as string == "true",
             PounceOnNoise = map.GetValueOrDefault("pounce_on_noise") as string == "true",
             Peaceful = map.GetValueOrDefault("peaceful") as string == "true",
             FleeWithinMm = Metres("flee_within_m"),

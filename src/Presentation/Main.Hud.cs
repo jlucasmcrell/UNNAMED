@@ -138,9 +138,12 @@ public partial class Main
             .Select(c => (Creature: c, Offer: _session.Simulation.TameOf(c.Id)))
             .FirstOrDefault(pair => pair.Offer is not null);
         _hud.SetPets(string.Join("\n", simulation.Pets.Select(p =>
-            $"{p.Name} - {p.Doing}, {p.Standing}" +
-            (p.HomeUntilTick is { } home ? $" ({DaysAway(home)})" : "") +
-            $"   [{HelpPanel.Key("pet_orders")}] command"))
+            p.Condition == PetCondition.Wounded
+                ? $"{p.Name} - home, mending" + (p.HomeUntilTick is { } away ? $" ({DaysAway(away)})" : "") +
+                  $"   [{HelpPanel.Key("pet_orders")}] command"
+                : $"{p.Name} - {p.Doing}, {p.Standing}" +
+                  (p.HomeUntilTick is { } home ? $" ({DaysAway(home)})" : "") +
+                  $"   [{HelpPanel.Key("pet_orders")}] command"))
             + (offering.Offer is { } offer
                 ? "\n" + $"Calming the {Names.Of(_session, offering.Creature.DefId).ToLowerInvariant()} - {offer.ChancePercent}% - hold on, {Math.Max(0, offer.EndsTick - simulation.WorldTick) * _session.TickSeconds:0.0} s"
                 : ""),

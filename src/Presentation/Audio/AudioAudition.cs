@@ -98,7 +98,7 @@ public partial class AudioAudition : Node
         {
             File.WriteAllText(Path.Combine(_directory, "audition_key.json"), JsonSerializer.Serialize(_key, new JsonSerializerOptions { WriteIndented = true }));
             GD.Print($"UNNAMED audition: done, key written to {_directory}");
-            GetTree().Quit(0);
+            CaptureQuit.At(this, 0);
             return;
         }
         _half = 0;

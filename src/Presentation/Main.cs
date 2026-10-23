@@ -266,7 +266,7 @@ public partial class Main : Node3D
         GD.PushError($"UNNAMED cannot start: {e}");
         if (DisplayServer.GetName() != "headless")
             OS.Alert($"Otherreach cannot start.\n\n{why}\n\nThe log, with the details: {LogPath}", "Otherreach");
-        GetTree().Quit(2);
+        CaptureQuit.At(this, 2);
     }
 
     private void Start()
@@ -394,6 +394,9 @@ public partial class Main : Node3D
             // Barrowworks (plan P2h). Absent, the region's own spawn is used and nothing changes.
             StartXMm = shotStart?.X,
             StartZMm = shotStart?.Z,
+            // A capture that has to show a purchase is given a purse: the same fixture door as the place to stand, at new game, and never a
+            // player's run (its option is not in PlaytestLaunchDefaults).
+            StartCurrency = long.TryParse(_options.GetValueOrDefault("--purse"), out long purse) && purse > 0 ? purse : 0,
         });
         SkyView.ClockAtWorldStart = (float)_session.ClockAtWorldStartHours;
         _session.SubscriberFailed += SubscriberFailed;
@@ -401,9 +404,10 @@ public partial class Main : Node3D
         bool scripted = playthrough is not null || _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf")
                         || _options.ContainsKey("--ui-shots")
                         || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check") || _options.ContainsKey("--survey")
-                        || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
+                        || _options.ContainsKey("--shot") || _options.ContainsKey("--stand") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
                         || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
-                        || _options.ContainsKey("--showcase") || _options.ContainsKey("--inn-shots") || _options.ContainsKey("--lore-shots") || _options.ContainsKey("--pet-shots");
+                        || _options.ContainsKey("--showcase") || _options.ContainsKey("--inn-shots") || _options.ContainsKey("--lore-shots") || _options.ContainsKey("--pet-shots")
+                        || _options.ContainsKey("--pet-review");
         // No run of a harness takes the mouse - but the input check, which checks who has it.
         _scripted = (scripted && !_flags.Contains("--input-check")) || _options.ContainsKey("--resume-shots");
         // A scripted run plays one world from its start - the acceptance playthrough a fixed one, so it is the same run every time (M6).
@@ -426,11 +430,14 @@ public partial class Main : Node3D
                           || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
                           || _options.ContainsKey("--survey")
                           || _options.ContainsKey("--connected-check")
-                          || _options.ContainsKey("--shot") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
+                          || _options.ContainsKey("--shot") || _options.ContainsKey("--stand") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
                           || _flags.Contains("--perf")
                           || _options.ContainsKey("--inn-shots")
+                          || _options.ContainsKey("--pet-review")
                           || _options.ContainsKey("--resume-shots");
-        if (scripted && !verify && !showcaseContinues)
+        if (scripted && !verify && !showcaseContinues && _options.ContainsKey("--pet-review"))
+            InstallPetReview();   // the review world first: every spawner is replaced, so nothing may walk in later
+        if (scripted && !verify && !showcaseContinues && !_options.ContainsKey("--pet-review"))
             _session.NewGame(DefaultCharacter, fixedWorld ? Playthrough.Seed : 0);
         GD.Print($"UNNAMED boot: content {_session.Content.Version} ({_session.Content.Hash[..19]}...), region {_session.Setup.Layout.Id}, " +
                  $"{_session.Setup.Layout.CellKeys.Length} cells");
@@ -579,7 +586,7 @@ public partial class Main : Node3D
             if (_continued is null)
             {
                 GD.PushError(verify ? "UNNAMED playthrough verification: Continue loaded nothing" : "UNNAMED showcase: the profile has no save to continue");
-                GetTree().Quit(1);
+                CaptureQuit.At(this, 1);
                 return;
             }
         }
@@ -1087,14 +1094,14 @@ public partial class Main : Node3D
             // First, the no-pause doctrine (the owner's ruling, 2026-10-17): every screen open in turn while the world ticks under it.
             if (NoPauseStep() is false)
             {
-                GetTree().Quit(1);
+                CaptureQuit.At(this, 1);
                 return;
             }
             if (NoPauseDone && _smoke.Update() is { } code)
             {
                 // The smoke's profile is removed as it ends: its reports go beside the log (or to --coverage-out).
                 WriteReports(Path.GetDirectoryName(LogPath) ?? OS.GetUserDataDir(), "smoke");
-                GetTree().Quit(code);
+                CaptureQuit.At(this, code);
                 return;
             }
         }
@@ -1102,7 +1109,7 @@ public partial class Main : Node3D
         {
             if (_connectedCheck.Update() is { } code)
             {
-                GetTree().Quit(code);
+                CaptureQuit.At(this, code);
                 return;
             }
         }
@@ -1111,10 +1118,10 @@ public partial class Main : Node3D
             switch (_layout.Update())
             {
                 case "done":
-                    GetTree().Quit(0);
+                    CaptureQuit.At(this, 0);
                     return;
                 case "failed":
-                    GetTree().Quit(1);
+                    CaptureQuit.At(this, 1);
                     return;
                 case { } shot:
                     SaveScreenshot(_layout.Directory, shot);
@@ -1125,7 +1132,7 @@ public partial class Main : Node3D
         {
             if (_inputCheck.Update() is { } code)
             {
-                GetTree().Quit(code);
+                CaptureQuit.At(this, code);
                 return;
             }
             if (_inputCheck.Reading)
@@ -1137,11 +1144,11 @@ public partial class Main : Node3D
             {
                 case "done":
                     GD.Print($"UNNAMED ui shots written to {_shots.Directory}");
-                    GetTree().Quit(0);
+                    CaptureQuit.At(this, 0);
                     return;
                 case "failed":
                     SaveScreenshot(_shots.Directory, "failed");
-                    GetTree().Quit(1);
+                    CaptureQuit.At(this, 1);
                     return;
                 case { } shot:
                     SaveScreenshot(_shots.Directory, shot);
@@ -1154,12 +1161,12 @@ public partial class Main : Node3D
             {
                 case "done":
                     WriteReports(_showcase.Directory, "showcase");
-                    GetTree().Quit(0);
+                    CaptureQuit.At(this, 0);
                     return;
                 case "failed":
                     SaveScreenshot(_showcase.Directory, "failed");
                     WriteReports(_showcase.Directory, "showcase (failed)");
-                    GetTree().Quit(1);
+                    CaptureQuit.At(this, 1);
                     return;
                 case { } shot:
                     SaveScreenshot(_showcase.Directory, shot);
@@ -1173,12 +1180,12 @@ public partial class Main : Node3D
                 case "done":
                     GD.Print($"UNNAMED delta shots written to {_delta.Directory}");
                     WriteReports(_delta.Directory, "delta-shots");
-                    GetTree().Quit(0);
+                    CaptureQuit.At(this, 0);
                     return;
                 case "failed":
                     SaveScreenshot(_delta.Directory, "failed");
                     WriteReports(_delta.Directory, "delta-shots (failed)");
-                    GetTree().Quit(1);
+                    CaptureQuit.At(this, 1);
                     return;
                 case { } shot:
                     SaveScreenshot(_delta.Directory, shot);
@@ -1189,7 +1196,7 @@ public partial class Main : Node3D
         {
             if (_audit.Update() is { } finished)
             {
-                GetTree().Quit(finished == "done" ? 0 : 1);
+                CaptureQuit.At(this, finished == "done" ? 0 : 1);
                 return;
             }
         }
@@ -1197,7 +1204,7 @@ public partial class Main : Node3D
         {
             if (_auditAb.Update() is { } finished)
             {
-                GetTree().Quit(finished == "done" ? 0 : 1);
+                CaptureQuit.At(this, finished == "done" ? 0 : 1);
                 return;
             }
         }
@@ -1209,12 +1216,12 @@ public partial class Main : Node3D
             {
                 case "done":
                     WriteReports(_play.Directory, _continued is null ? "playthrough" : "playthrough-verify", _continued is null ? "" : "_relaunch");
-                    GetTree().Quit(0);
+                    CaptureQuit.At(this, 0);
                     return;
                 case "failed":
                     SaveScreenshot(_play.Directory, "failed");
                     WriteReports(_play.Directory, _continued is null ? "playthrough (failed)" : "playthrough-verify (failed)", _continued is null ? "" : "_relaunch");
-                    GetTree().Quit(1);
+                    CaptureQuit.At(this, 1);
                     return;
                 case { } shot:
                     SaveScreenshot(_play.Directory, shot);
@@ -1234,12 +1241,12 @@ public partial class Main : Node3D
                 case "done":
                     _barrowworksReview.WriteTiming();
                     WriteReports(_barrowworksReview.Directory, "barrowworks-frontier-review");
-                    GetTree().Quit(0);
+                    CaptureQuit.At(this, 0);
                     return;
                 case "failed":
                     if (DisplayServer.GetName() != "headless")
                         SaveScreenshot(_barrowworksReview.Directory, "failed");
-                    GetTree().Quit(1);
+                    CaptureQuit.At(this, 1);
                     return;
                 case { } shot:
                     if (DisplayServer.GetName() != "headless")
@@ -1259,7 +1266,7 @@ public partial class Main : Node3D
                 case "failed":
                     _frontierPerf.Write();
                     WriteReports(_frontierPerf.Directory, "frontier-rendering-benchmark");
-                    GetTree().Quit(result == "done" ? 0 : 1);
+                    CaptureQuit.At(this, result == "done" ? 0 : 1);
                     return;
                 case { } shot:
                     if (DisplayServer.GetName() != "headless")
@@ -1275,7 +1282,7 @@ public partial class Main : Node3D
             switch (_survey.Update())
             {
                 case "done":
-                    GetTree().Quit(0);
+                    CaptureQuit.At(this, 0);
                     return;
                 case { } shot:
                     SaveScreenshot(_survey.Directory, shot);
@@ -1369,20 +1376,29 @@ public partial class Main : Node3D
         TickLoreShots();
         TickPetOrders();
         TickPetShots();
+        TickPetReview();
     }
 
     /// <summary>
-    /// The place a <c>--shot "x,z,..."</c> names, in millimetres, or null when no shot was asked for.
+    /// Where the character begins, in millimetres, or null when the region's own spawn is used: <c>--stand "x,z"</c> for a harness that
+    /// drives the world itself, <c>--shot "x,z,..."</c> for the survey pass, which starts from the same place.
     /// </summary>
     /// <remarks>
     /// Only the first two fields are read here - the place to stand. Everything after them belongs to
     /// <see cref="SurveyShots.One"/>, which parses the spec again for the yaw, pitch, hold and standoff. Null on
     /// anything unparseable, so a bad spec falls back to the region's spawn and <c>SurveyShots.One</c> is still
     /// the one place that reports it.
+    /// <para>
+    /// <c>--stand</c> exists because <c>--shot</c> is two things at once: a place to begin, and a pass that stands the character about,
+    /// takes three frames and quits the game when it is done. A capture has to name its start without handing over to a second driver -
+    /// with both, the survey's quit ended the pets pass in the middle of its first offer, which read as "the game quits when the taming
+    /// starts" (2026-10-22).
+    /// </para>
     /// </remarks>
     private (long X, long Z)? ShotStart()
     {
-        if (!_options.TryGetValue("--shot", out string? spec))
+        string? spec = _options.GetValueOrDefault("--stand") ?? _options.GetValueOrDefault("--shot");
+        if (spec is null)
             return null;
         var parts = spec.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length < 2 || !double.TryParse(parts[0], out double x) || !double.TryParse(parts[1], out double z))
@@ -1401,6 +1417,9 @@ public partial class Main : Node3D
     /// <summary>What the run heard, for the harnesses: how much of the sound set played, and any family the mapping asked for that the set lacks.</summary>
     public override void _ExitTree()
     {
+        // The other half of a capture harness's question: this line is written on every orderly shutdown - a window close, or the game quitting
+        // itself - so a run whose log lacks it was killed from outside, and one whose log has it but no close request quit itself.
+        GD.Print($"CAPTURE exit tree at frame {Engine.GetFramesDrawn()} ({DateTimeOffset.Now:O})");
         _shadowLods.Unwatch();
         // Quitting while a save is being written finishes it first (P-01); its commit is atomic even if it were cut off.
         if (_session is not null && !_session.WaitForSaves(TimeSpan.FromSeconds(10)))
@@ -1678,7 +1697,7 @@ public partial class Main : Node3D
         GD.Print($"UNNAMED perf capture written to {_perfOut}\n{summary}");
         if (_perfStruck + _perfDied > 0)
             GD.PushWarning($"UNNAMED perf: a creature reached the character ({_perfStruck} blows, {_perfDied} deaths) - the capture measured a fight");
-        GetTree().Quit(0);
+        CaptureQuit.At(this, 0);
     }
 
     /// <summary>Keep a picture of what a capture segment was measuring, next to its numbers.</summary>
@@ -1724,7 +1743,7 @@ public partial class Main : Node3D
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
-                    or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-out" or "--watch-shots" or "--watch-every"
+                    or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--stand" or "--purse" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
                     or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"

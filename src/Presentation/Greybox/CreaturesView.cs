@@ -2,8 +2,10 @@
 // Godot presentation only: no gameplay state lives here (D-11)
 
 using Godot;
+using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Pets;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
@@ -44,6 +46,11 @@ public partial class CreaturesView : Node3D
         bool advanced = simulation.WorldTick != _tick;
         _tick = simulation.WorldTick;
         var views = simulation.Creatures;
+        // The party's animals are drawn through the same figures: a kept animal has no creature of its own (it lives in the pet system), so
+        // without this the pup at heel, the tamed wolf and everything the pet orders are about are invisible in the world.
+        var pets = PetFigures(simulation);
+        if (!pets.IsDefaultOrEmpty)
+            views = views.AddRange(pets);
         var eye = GetViewport()?.GetCamera3D()?.GlobalPosition;
         Art.OtherFauna.Dusk();
         foreach (var creature in views)
@@ -61,6 +68,14 @@ public partial class CreaturesView : Node3D
                 figure.Name = creature.Id.Value;
                 AddChild(figure);
                 figure.Place(creature.Body);
+                if (creature.RoleId == "pet")
+                {
+                    // A skinned animal wears the band on its neck bone, so it turns with the head; a greybox one has no bone to hang it on.
+                    if (figure is Art.SkinnedCreature worn)
+                        worn.WearCollar();
+                    else
+                        figure.AddChild(Collar(definition.RadiusMm / 1000f));
+                }
                 _figures[creature.Id] = figure;
             }
             if (advanced)
@@ -114,10 +129,39 @@ public partial class CreaturesView : Node3D
         }
     }
 
+    /// <summary>
+    /// The party's mark on a kept animal: a red collar at the neck, which is how a character's pup is told from the wild wolves it stands among.
+    /// A body, not a shader - it reads at any distance and cannot be mistaken for fur.
+    /// </summary>
+    private static MeshInstance3D Collar(float radius) => new()
+    {
+        Name = "PetCollar",
+        Mesh = new TorusMesh { InnerRadius = radius * 0.28f, OuterRadius = radius * 0.28f + 0.015f, Rings = 18, RingSegments = 8 },
+        MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.72f, 0.11f, 0.09f), Roughness = 0.7f },
+        Position = new Vector3(0, radius * 1.05f, -radius * 0.5f),
+        Rotation = new Vector3(1.25f, 0, 0),
+    };
+
+    /// <summary>
+    /// The party's animals as figures to draw: a kept animal is a pet, not a creature, so its species and body come from the pet itself. One
+    /// that is badly wounded is at home and not in the world, which reads as gone here and takes its figure out of the scene.
+    /// </summary>
+    private static ImmutableArray<CreatureView> PetFigures(Simulation simulation)
+    {
+        var pets = simulation.Pets;
+        if (pets.IsDefaultOrEmpty)
+            return ImmutableArray<CreatureView>.Empty;
+        var figures = ImmutableArray.CreateBuilder<CreatureView>(pets.Length);
+        foreach (var pet in pets)
+            figures.Add(new CreatureView(pet.Id, "pet." + pet.CreatureId, pet.CreatureId, "pet", pet.Body, pet.Health, pet.MaxHealth,
+                CombatPhase.Idle, 0, pet.Condition == PetCondition.Up ? CreatureCondition.Alive : CreatureCondition.Gone,
+                CreatureMind.Unaware, 0, false));
+        return figures.MoveToImmutable();
+    }
+
     private static Node3D ParalysisCrackle(float radius)
     {
         var mesh = new ImmediateMesh();
-        mesh.SurfaceBegin(Mesh.PrimitiveType.Lines);
         for (int strand = 0; strand < 8; strand++)
         for (int step = 0; step < 5; step++)
         {

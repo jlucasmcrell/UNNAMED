@@ -76,8 +76,8 @@ public partial class OpaqueFoliageCheck : Node3D
                 && !staticMineral.Shader.Code.Contains("#define NO_FOLIAGE_ARM_MAP"), "Active effects changed arithmetic paths");
             view.Free(); other.Free();
             GD.Print("OPAQUE FOLIAGE CHECK PASS: opacity, coverage bytes, wind/thinning, cutouts, unknown textures, mineral variant and world isolation");
-            GetTree().Quit();
+            CaptureQuit.At(this);
         }
-        catch (Exception e) { GD.PushError(e.ToString()); GetTree().Quit(1); }
+        catch (Exception e) { GD.PushError(e.ToString()); CaptureQuit.At(this, 1); }
     }
 }

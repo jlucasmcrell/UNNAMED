@@ -96,7 +96,7 @@ public partial class Main
                 if (!_title.PressContinue())
                 {
                     GD.PushError("UNNAMED resume shots: the start screen offered no Continue");
-                    GetTree().Quit(1);
+                    CaptureQuit.At(this, 1);
                 }
                 break;
             case 80:
@@ -110,7 +110,7 @@ public partial class Main
             case 120:
                 SaveScreenshot(directory, "03_saves_in_game");
                 GD.Print($"UNNAMED resume shots written to {directory}: continued at world tick {_session.Simulation?.WorldTick}");
-                GetTree().Quit(_session.Simulation is null ? 1 : 0);
+                CaptureQuit.At(this, _session.Simulation is null ? 1 : 0);
                 break;
         }
     }

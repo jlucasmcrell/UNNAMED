@@ -58,7 +58,7 @@ public partial class Main
         {
             GD.PushError("LORE_SHOTS failed: " + error);
             File.WriteAllText(Path.Combine(_loreShotsDirectory!, "failed.txt"), error.ToString());
-            GetTree().Quit(3);
+            CaptureQuit.At(this, 3);
         }
         finally
         {
@@ -195,7 +195,7 @@ public partial class Main
                         entries = _session.Setup.Lore.Count,
                     }, new JsonSerializerOptions { WriteIndented = true }));
                 GD.Print($"LORE_SHOTS complete: {simulation.Lore.Length} pages of {_session.Setup.Lore.Count} entries");
-                GetTree().Quit();
+                CaptureQuit.At(this);
                 break;
             }
         }

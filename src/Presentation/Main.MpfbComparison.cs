@@ -62,7 +62,7 @@ public partial class Main
             GD.PushError("MPFB_SHOTS failed: " + error);
             if (_mpfbShotsDirectory is { } directory) File.WriteAllText(Path.Combine(directory, "failed.txt"), error.ToString());
             _mpfbShotsDirectory = null;
-            GetTree().Quit(3);
+            CaptureQuit.At(this, 3);
         }
     }
 
@@ -81,7 +81,7 @@ public partial class Main
             }, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
             GD.Print("MPFB_SHOTS complete " + _mpfbShotsDirectory);
             _mpfbShotsDirectory = null;
-            GetTree().Quit();
+            CaptureQuit.At(this);
             return;
         }
         var (figure, person) = _mpfbFigures[_mpfbFigure];

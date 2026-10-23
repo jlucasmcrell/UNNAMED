@@ -125,7 +125,7 @@ public partial class Main
             ulong stopDeadline=Time.GetTicksMsec()+10000;
             while(!File.Exists(Path.Combine(directory,"recording.stopped")) && Time.GetTicksMsec()<stopDeadline)
                 await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
-            if(failed)GetTree().Quit(1);
+            if(failed)CaptureQuit.At(this, 1);
         }
     }
 }

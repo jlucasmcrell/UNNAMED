@@ -54,6 +54,40 @@ public sealed partial class SkinnedCreature : CreatureBody
         _yaw = Facing(body);
     }
 
+    /// <summary>
+    /// The party's mark on a kept animal: a red band round the neck, riding the neck bone so it follows the head, sized to the neck it actually
+    /// has - the neck's radius plus a centimetre, the band two centimetres wide - and emissive enough to read at portrait distance, which a
+    /// dark band on dark fur did not (measured: invisible in the still at 3 m). Not a life ring, and not a shader.
+    /// </summary>
+    public void WearCollar()
+    {
+        int neck = BoneNames.Find(_model.Skeleton, "neck");
+        if (neck < 0)
+            neck = BoneNames.Find(_model.Skeleton, "head");
+        if (neck < 0)
+            return;
+        int head = BoneNames.Find(_model.Skeleton, "head");
+        Vector3 at = _model.Skeleton.GetBoneGlobalRest(neck).Origin;
+        double length = head >= 0 ? at.DistanceTo(_model.Skeleton.GetBoneGlobalRest(head).Origin) : 0.18;
+        float radius = Mathf.Max(0.03f, (float)length * 0.25f) + 0.02f;
+        if (_model.Attach(_model.Skeleton.GetBoneName(neck)) is not { } bone)
+            return;
+        bone.AddChild(new MeshInstance3D
+        {
+            Name = "PetCollar",
+            Mesh = new TorusMesh { InnerRadius = radius, OuterRadius = radius + 0.030f, Rings = 24, RingSegments = 10 },
+            MaterialOverride = new StandardMaterial3D
+            {
+                AlbedoColor = new Color(1.0f, 0.07f, 0.05f),
+                Roughness = 0.4f,
+                EmissionEnabled = true,
+                Emission = new Color(1.0f, 0.05f, 0.03f),
+                EmissionEnergyMultiplier = 1.8f,
+            },
+            Position = new Vector3(0, (float)length * 0.5f, 0),
+        });
+    }
+
     public override void Advance(Body body)
     {
         _previous = _current;

@@ -18,6 +18,7 @@ public class PetTests
     private const string Wolf = "creature.beast.wolf_grey";
     private const string Pup = "creature.beast.hound_pup";
     private const string Meat = "item.material.raw_meat";
+    private const string Kera = "npc.ashen_hollow.kera_voss";
 
     /// <summary>An open stretch east of the smithy, clear of everything (the companion tests' own ground).</summary>
     private static readonly (double X, double Z) Open = (70, 152);
@@ -122,6 +123,53 @@ public class PetTests
     }
 
     [Fact]
+    public void ThePup_IsBoughtOffKerasShelf_AndTakenIn()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        // Spec 43's buy route, over the game's own prices: her shelf, her hours and her anchor. The purse is the FIXTURE - a character with coin
+        // in hand, which is what a player who has sold anything at all has - because the pup's price is content's (60) and a capture that has to
+        // show the purchase is given a purse rather than the item being made cheap.
+        var arena = Arena.OpenCreatures(session, session.Setup, (61.6, 139.6), 0, Array.Empty<(string, double, double, string)>(),
+            r => r.WithCurrency(200));
+        Assert.True(arena.WalkTo(61.6, 139.6), "the character could not walk to the stall");
+        Assert.Null(arena.Simulation.TradeRefusal(Kera));
+
+        var pup = Assert.Single(arena.Simulation.Wares(Kera)!.Wares.Where(w => w.ItemId == "item.misc.hound_pup"));
+        Assert.Equal(60, pup.Price);
+        Assert.Null(arena.Submit(new BuyCommand(arena.Player, Kera, pup.Ref, 1)));
+        Assert.Equal(140, arena.Simulation.Player.Currency);
+
+        // And it is the character's to take in.
+        var lead = Assert.Single(arena.Simulation.Player.Inventory.Where(e => e.DefId == "item.misc.hound_pup"));
+        Assert.Null(arena.Submit(new AdoptPetCommand(arena.Player, lead.ItemId)));
+        var pet = Assert.Single(arena.Simulation.Pets);
+        Assert.Equal((Pup, PetCondition.Up), (pet.CreatureId, pet.Condition));
+    }
+
+    [Fact]
+    public void WhatTheWainGave_IsWhatTheStallBuys()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        // The other half of the buy route, priced by her own shelf: of the overturned wain's load, the hides are what she pays for; the timber is
+        // worth nothing to her at the forty percent a merchant pays, and the water flask is a tool she does not buy at all.
+        var arena = Arena.OpenCreatures(session, session.Setup, (61.6, 139.6), 0, Array.Empty<(string, double, double, string)>(),
+            r => r.WithInventory(r.Inventory.Add(Arena.Stack("item.material.timber", 6)).Add(Arena.Stack("item.material.small_hide", 2))));
+        Assert.True(arena.WalkTo(61.6, 139.6), "the character could not walk to the stall");
+
+        var refusals = new List<string>();
+        foreach (var entry in arena.Simulation.Player.Inventory
+                     .Where(e => e.DefId is "item.material.timber" or "item.material.small_hide").ToArray())
+            if (arena.Submit(new SellCommand(arena.Player, Kera, entry.ItemId, entry.Count)) is { } why)
+                refusals.Add($"{entry.DefId}: {why}");
+        var refused = Assert.Single(refusals);
+        Assert.Contains("timber", refused);
+        Assert.Contains("nothing for that", refused);
+        Assert.Equal(4, arena.Simulation.Player.Currency);
+    }
+
+    [Fact]
     public void ThePartyCap_IsSharedWithTheCompanions()
     {
         using var profile = new TempProfile();
@@ -162,6 +210,66 @@ public class PetTests
         Assert.Equal(PetOrder.Follow, back.Order);
         Assert.True(Distance(back.Body, arena.Simulation.Player.Body) < 6_000, "it did not come back to the character");
     }
+
+    [Fact]
+    public void FeedingAnAnimalAtTheCharactersSide_CostsTheFood_AndBuildsTheBond()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var pet = Hound(70.0, 152.0);
+        var arena = ArenaWith(session, r => r
+            .WithPets(ImmutableArray.Create(pet))
+            .WithInventory(r.Inventory.Add(Arena.Stack(Meat, 2)).Add(Arena.Stack("item.material.iron_ore", 1))));
+        var fed = arena.Record<PetFed>();
+        var meat = arena.Simulation.Player.Inventory.First(e => e.DefId == Meat);
+
+        Assert.Null(arena.Submit(new FeedPetCommand(arena.Player, pet.Id, meat.ItemId)));
+        var once = arena.Simulation.Pets.Single();
+        Assert.Equal(PetBond.Tamed + 3, once.Bond);
+        // The food is eaten, not put back: it came out of the pack (the bug Codex found - the bond rose and the meat stayed).
+        Assert.Equal(1, arena.Simulation.Player.Inventory.First(e => e.DefId == Meat).Count);
+        Assert.Single(fed);
+
+        // What it will not eat is refused, and the pack is untouched for it.
+        var ore = arena.Simulation.Player.Inventory.First(e => e.DefId == "item.material.iron_ore");
+        Assert.Contains("will not eat", arena.Submit(new FeedPetCommand(arena.Player, pet.Id, ore.ItemId)));
+        Assert.Equal(1, arena.Simulation.Player.Inventory.First(e => e.DefId == "item.material.iron_ore").Count);
+
+        // Out of reach is out of reach: it eats from the hand, so a pet left on guard is called back first.
+        var far = Hound(700.0, 1_000.0);
+        var distant = ArenaWith(session, r => r
+            .WithPets(ImmutableArray.Create(far))
+            .WithInventory(r.Inventory.Add(Arena.Stack(Meat, 1))));
+        var carried = distant.Simulation.Player.Inventory.First(e => e.DefId == Meat);
+        Assert.Contains("too far", distant.Submit(new FeedPetCommand(distant.Player, far.Id, carried.ItemId)));
+        Assert.Equal(1, distant.Simulation.Player.Inventory.First(e => e.DefId == Meat).Count);
+    }
+
+    [Fact]
+    public void ACreatureTheHoundHasBitten_FightsTheHound_NotTheCharacter()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        // The wolf is turned by the character's own blow, and the hound at its shoulder bites it. From then on the wolf's quarrel is with the
+        // hound: it lands its blows on the animal, not on the character standing beside it (spec 43 ruling 5 - enemies learn what hurts them).
+        var arena = ArenaWith(session, r => r.WithPets(ImmutableArray.Create(Hound(71.0, 152.0, bond: PetBond.Sure))),
+            creatures: new[] { (Wolf, 72.0, 152.0, "pack_hunter") });
+        var bite = arena.Record<PetSkillUsed>();
+        var onPet = arena.Record<PetStruck>();
+        var onPlayer = arena.Record<HitResolved>();
+
+        arena.Fight(arena.Creature(), 30);
+        int beforeBite = onPlayer.Count(h => h.Target == arena.Player);
+        arena.Tick(240);
+
+        Assert.NotEmpty(bite);
+        Assert.NotEmpty(onPet);
+        Assert.True(arena.Simulation.Creatures.First().OnAnAnimal, "the wolf is not on the hound");
+        // The wolf's own hands are on the hound: nothing it threw in the window after the first bite landed on the character.
+        int afterBite = onPlayer.Count(h => h.Target == arena.Player);
+        // It splits its attention rather than forgetting the character: the animal is a foe in the fight, not a shield. What the grudge buys is
+        // that the wolf's blows are on the hound at all - before it, the animal was struck only by the pet system's own retaliation.
+        Assert.True(afterBite > beforeBite, "the wolf forgot the character entirely");    }
 
     [Fact]
     public void APetThatFights_IsStruckBack_AndAtNoHealthGoesHomeRatherThanDying()

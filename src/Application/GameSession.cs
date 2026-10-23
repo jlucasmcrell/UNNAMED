@@ -49,6 +49,13 @@ public sealed record GameOptions(string ContentRoot, string ProfileRoot)
     /// <inheritdoc cref="StartXMm"/>
     public long? StartZMm { get; init; }
 
+    /// <summary>
+    /// What a capture's new character carries in coin; 0 - a player's own opening, as it always was - unless a capture fixture asks for
+    /// more. A capture that has to show a purchase (spec 43's hound pup is 60 coin, and a first-evening character carries none) is given a
+    /// purse here, at new game, rather than by changing the price of what it buys.
+    /// </summary>
+    public long StartCurrency { get; init; }
+
     /// <summary>Where the session reads the real time: the wall clock unless a test gives another (WP11).</summary>
     public Func<DateTimeOffset>? Clock { get; init; }
 }
@@ -359,6 +366,35 @@ public sealed class GameSession : IDomainEvents, IDisposable
     public string SaveFolder => _store.Root;
 
     /// <summary>
+    /// Capture-only: the review world. The character starts on one quarter of flat open grass with the creatures it names standing where it names
+    /// them, and NOT ONE other spawner in the region - so a review's beats happen where the camera puts them instead of wherever the open world
+    /// happened to be (spec 43's stills were lost to hound dens and forge yards for seven rounds). Every spawner is replaced, which is why this is
+    /// a capture's entry point and never a player's: a launch with <c>--pet-review</c> builds this world and no other launch can.
+    /// </summary>
+    public Simulation OpenReview(CharacterSpec spec, (long XMm, long ZMm) player, IEnumerable<(string CreatureId, long XMm, long ZMm)> creatures,
+        ulong seed = 42)
+    {
+        var spawns = creatures.Select((c, i) => new SpawnSite($"spawn.review.{i}", c.XMm, c.ZMm, 0,
+                ImmutableArray.Create(new SpawnMember(c.CreatureId, "pack_hunter"))))
+            .ToImmutableArray();
+        var setup = Setup with { Combat = Setup.Combat with { Spawns = spawns } };
+        var id = EntityId.NewId(EntityKind.Character);
+        var record = Simulation.NewCharacter(setup, id, spec, PlayerRecord.DerivedAppearanceSeed(id), player.XMm, player.ZMm);
+        if (Options.StartCurrency > 0)
+            record = record.WithCurrency(Options.StartCurrency);
+        record = record.WithInventory(record.Inventory
+            .Add(new InventoryEntry(EntityId.NewId(EntityKind.Item), "item.misc.hound_pup", 1))
+            .Add(new InventoryEntry(EntityId.NewId(EntityKind.Item), "item.material.raw_meat", 8)));
+        var world = new WorldDelta(Generator, seed, new Registry());
+        var simulation = Simulation.Start(setup, record, world, 0, _bus);
+        _character = id.Value;
+        _store = StoreFor(id.Value);
+        _card = new CharacterCard(id.Value, record.Name, spec.PeopleId, spec.CallId);
+        Begin(simulation, playtime: 0, worldTimeAdvanced: 0, ImmutableArray<AdvanceLine>.Empty);
+        return _simulation!;
+    }
+
+    /// <summary>
     /// A new character, made from the creator's spec, in a new world. A seed of 0 or none picks one at random (PERSISTENCE.md §4.2). The
     /// character's saves go to a folder of their own (OD-14). Throws an <see cref="ArgumentException"/> when the spec is invalid or names
     /// a people or Call this content does not offer.
@@ -370,6 +406,8 @@ public sealed class GameSession : IDomainEvents, IDisposable
         var id = EntityId.NewId(EntityKind.Character);
         var player = Simulation.NewCharacter(Setup, id, spec, PlayerRecord.DerivedAppearanceSeed(id),
             Options.StartXMm, Options.StartZMm);
+        if (Options.StartCurrency > 0)
+            player = player.WithCurrency(Options.StartCurrency);
         var world = new WorldDelta(Generator, seed, new Registry());
         var simulation = Simulation.Start(Setup, player, world, 0, _bus);
         _character = id.Value;   // a save of the last character still being written goes to that character's folder: Queue kept it

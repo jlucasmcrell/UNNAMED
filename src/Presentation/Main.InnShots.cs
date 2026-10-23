@@ -76,7 +76,7 @@ public partial class Main
         {
             GD.PushError("INN_SHOTS failed: " + error);
             File.WriteAllText(Path.Combine(_innShotsDirectory!, "failed.txt"), error.ToString());
-            GetTree().Quit(3);
+            CaptureQuit.At(this, 3);
         }
         finally
         {
@@ -92,7 +92,7 @@ public partial class Main
             File.WriteAllText(Path.Combine(_innShotsDirectory!, "complete.json"),
                 JsonSerializer.Serialize(new { day = InnShotsDay, hours = InnShotsHours, departure_minute = InnShotsDepartureMinute,
                     views = InnShotsViews.Select(v => v.Name).ToArray() }, new JsonSerializerOptions { WriteIndented = true }));
-            GetTree().Quit();
+            CaptureQuit.At(this);
             return;
         }
         var simulation = _session.Simulation!;

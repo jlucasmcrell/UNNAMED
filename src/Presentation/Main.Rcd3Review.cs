@@ -93,37 +93,37 @@ public partial class Main
             if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD6_VISIBILITY") == "1")
             {
                 await RunRcd6VisibilityReview(directory, camera);
-                GetTree().Quit();
+                CaptureQuit.At(this);
                 return;
             }
             if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD6_NAMED_FACES") == "1")
             {
                 await RunRcd6NamedFacesReview(directory, camera);
-                GetTree().Quit();
+                CaptureQuit.At(this);
                 return;
             }
             if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD6_MPFB_MOTION") == "1")
             {
                 await RunRcd6MpfbMotionReview(directory, camera);
-                GetTree().Quit();
+                CaptureQuit.At(this);
                 return;
             }
             if (System.Environment.GetEnvironmentVariable("OTHERREACH_EFFECT_DELIVERY_REVIEW") == "1")
             {
                 await RunEffectDeliveryReview(directory, camera);
-                GetTree().Quit();
+                CaptureQuit.At(this);
                 return;
             }
             if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD5_STEALTH") == "1")
             {
                 await RunRcd5StealthReview(directory, camera);
-                GetTree().Quit();
+                CaptureQuit.At(this);
                 return;
             }
             if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_WORLD") == "1")
             {
                 await RunRcd4WorldReview(directory, camera);
-                GetTree().Quit();
+                CaptureQuit.At(this);
                 return;
             }
             if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_HOVER") == "1")
@@ -145,7 +145,7 @@ public partial class Main
                     await Rcd3Shot(directory, $"rim_{distance:0}_on");
                 }
                 File.WriteAllText(Path.Combine(directory, "complete.json"), "{\"fixture\":\"Frozen actual NPC, normal-distance hover pairs\"}");
-                GetTree().Quit();
+                CaptureQuit.At(this);
                 return;
             }
             var actions = new (string Name, string[] Keys, double Seconds)[] {
@@ -184,12 +184,12 @@ public partial class Main
             if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD3_DETAILS") == "1")
                 await Rcd3Details(directory, camera);
             File.WriteAllText(Path.Combine(directory, "complete.json"), JsonSerializer.Serialize(new { status = "CAPTURED_REQUIRES_CLAUDE_REVIEW", people = VisualOptions.People }));
-            GetTree().Quit();
+            CaptureQuit.At(this);
         }
         catch (Exception error)
         {
             File.WriteAllText(Path.Combine(directory, "failed.txt"), error.ToString());
-            GetTree().Quit(3);
+            CaptureQuit.At(this, 3);
         }
         finally
         {

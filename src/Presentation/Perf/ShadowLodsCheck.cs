@@ -70,11 +70,11 @@ public partial class ShadowLodsCheck : Node3D
                     _lods.Unwatch();
                     Require(_near.CastShadow == GeometryInstance3D.ShadowCastingSetting.On && !_near.HasMeta("shadow_lod_bounds"), "Unwatch did not restore/release");
                     GD.Print("SHADOW LOD CHECK PASS: transforms, camera, shadow-only, GI, spawn, disposal");
-                    GetTree().Quit(0);
+                    CaptureQuit.At(this, 0);
                     break;
             }
         }
-        catch (Exception e) { GD.PushError(e.ToString()); GetTree().Quit(1); }
+        catch (Exception e) { GD.PushError(e.ToString()); CaptureQuit.At(this, 1); }
     }
     public override void _ExitTree() => _lods.Unwatch();
 }

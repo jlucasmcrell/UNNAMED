@@ -318,6 +318,6 @@ public partial class SpikeScene : Node3D
         };
         string summary = _stats.Write(_out, notes);
         GD.Print($"UNNAMED spike capture written to {_out}\n{summary}");
-        GetTree().Quit(0);
+        CaptureQuit.At(this, 0);
     }
 }

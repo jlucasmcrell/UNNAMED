@@ -241,7 +241,7 @@ public partial class Main
     private void Quit()
     {
         SaveOnTheWayOut();
-        GetTree().Quit(0);
+        CaptureQuit.At(this, 0);
     }
 
     private void SaveOnTheWayOut()
@@ -628,7 +628,7 @@ public partial class Main
         if (_frontStep >= steps.Length)
         {
             GD.Print($"UNNAMED front shots written to {directory}");
-            GetTree().Quit(0);
+            CaptureQuit.At(this, 0);
             return;
         }
         var (shot, then) = steps[_frontStep++];

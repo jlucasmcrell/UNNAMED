@@ -620,6 +620,10 @@ public sealed record PlayerRecord
         return BinaryPrimitives.ReadUInt64BigEndian(h.Add("unnamed.appearance-seed/v1").Add(id.Value).FinishBytes());
     }
 
+    /// <summary>The same player with a different purse (a capture fixture that has to show a purchase; the game's new game starts empty).</summary>
+    public PlayerRecord WithCurrency(long currency) =>
+        new(Id, Name, XMm, YMm, ZMm, AppearanceSeed, Inventory, Progression, FacingMdeg, Discoveries, Equipment, currency, Effects, Relationships, Conversations, Quests, Companions) { Posture = Posture, Waystones = Waystones, ReturnPoint = ReturnPoint, RoadsWalked = RoadsWalked, Deeds = Deeds, Identity = Identity, Factions = Factions, Party = Party, QuickBar = QuickBar, QuickBarCleared = QuickBarCleared, PartySheets = PartySheets, Attack = Attack, Findings = Findings, Lore = Lore, Pets = Pets, SpaceId = SpaceId, SpaceTraversal = SpaceTraversal, ExtraBars = ExtraBars, HeldFamily = HeldFamily, FamilyBars = FamilyBars, GearSets = GearSets, Bags = Bags };
+
     /// <summary>The same player holding a different inventory (the definition-ID pass rewrites stored IDs).</summary>
     public PlayerRecord WithInventory(IEnumerable<InventoryEntry> inventory)
     {
