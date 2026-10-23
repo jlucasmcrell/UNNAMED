@@ -221,6 +221,13 @@ public partial class Main
                 }
             }
             if(OS.GetEnvironment("OTHERREACH_TRAVERSAL_GATE")=="1")await TraversalGate(simulation,directory);
+            // Stand out in the world a while longer (a weather front due after the route), the view sweeping slowly.
+            if(int.TryParse(OS.GetEnvironment("OTHERREACH_ROUTE_HOLD_S"),out int hold))
+                for(ulong until=Time.GetTicksMsec()+(ulong)hold*1000;Time.GetTicksMsec()<until;)
+                {
+                    _camera.Yaw+=.0025f;
+                    await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+                }
             File.WriteAllText(Path.Combine(directory,"route_complete.json"),JsonSerializer.Serialize(new{frame,seconds=(Time.GetTicksMsec()-start)/1000.0,arm}));
         }
         catch(Exception error)

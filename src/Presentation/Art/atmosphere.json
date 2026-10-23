@@ -15,7 +15,7 @@
     { "recipe": "leaves_falling", "follow": "camera", "offset": [0, 9, 0], "grounds": ["cw_forest_floor"], "weather": ["fair", "clear", "overcast", "rain"],
       "note": "Under the birch flanks: a leaf now and then." },
     { "recipe": "rain_light", "follow": "camera", "offset": [0, 12, 0], "weather": ["rain"] },
-    { "recipe": "rain", "follow": "camera", "offset": [0, 14, 0], "weather": ["storm"] },
+    { "recipe": "rain", "follow": "camera", "offset": [0, 14, 0], "weather": ["rain", "storm"] },
     { "recipe": "fog_bank", "follow": "camera", "offset": [0, 0.5, 0], "weather": ["fog"] },
     { "recipe": "snow", "follow": "camera", "offset": [0, 10, 0], "weather": ["snow"] },
     { "recipe": "river_mist", "at": "ravine_rivers", "note": "Mist over the river on the ravine floors." },
