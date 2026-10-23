@@ -228,6 +228,10 @@ public partial class Main
                 foreach (var (x, z) in Playthrough.OutOfTheHollow)
                     await ApproachPoint(x, z, 1.5, 70);
                 GD.Print($"PET_SHOTS out of the hollow: {PetWhere(simulation)}");
+                // The open field the beats happen in: clear of the hollows walls, the forge, and the hound den thirty-odd metres south-east. Every
+                // ring and every fight that landed at the yard did so because nothing took the character out here first.
+                await ApproachPoint(505, 735, 2.5, 120);
+                GD.Print($"PET_SHOTS meet point: {PetWhere(simulation)}");
                 break;
             }
             case 2:
@@ -313,6 +317,40 @@ public partial class Main
                 }
                 await PetStill("pets_roused", NearestHostile(simulation)?.Body ?? NearestWolf(simulation)?.Body);
                 PetEvidence("roused", $"{simulation.Creatures.Count(c => c.Hostile)} creature(s) fighting the party");
+                // HELD, and the animal sent in: "attack my target" on this same wolf, asked again whenever the wary pup refuses it, with the character
+                // standing its ground and striking. A fight that breaks off never hurts the pup, and a pup that is never hurt never goes home - so the
+                // loop keeps the wolf engaged, takes the biting still while the animal is in it, and stops once the pup is wounded and home.
+                for (int round = 0; round < 70 && !simulation.Pets.Any(p => p.Condition == PetCondition.Wounded); round++)
+                {
+                    if (!simulation.Creatures.Any(c => c.Hostile))
+                    {
+                        if (LoneWolf(simulation) is { } rouse)
+                        {
+                            if (Distance(rouse.Body, simulation.Player.Body) > 2_200)
+                                await GoTo(rouse.Body, 2.0, 20);
+                            _controller.Attack();
+                        }
+                        await Rcd3Wait(0.8);
+                        continue;
+                    }
+                    if (round % 4 == 0)
+                    {
+                        OpenPetOrders();
+                        await Rcd3Wait(0.4);
+                        await Obey(PetOrder.AttackTarget, 3);
+                    }
+                    if (NearestHostile(simulation) is { } foe)
+                    {
+                        if (Distance(foe.Body, simulation.Player.Body) > 2_200)
+                            await GoTo(foe.Body, 2.0, 10);
+                        _controller.Attack();
+                    }
+                    if (round == 10 && NearestHostile(simulation)?.Body is { } bitten && simulation.Pets.FirstOrDefault()?.Body is { } biter)
+                        await PetPortrait("pets_fight_pup_biting", bitten, biter);
+                    await Rcd3Wait(0.7);
+                }
+                PetEvidence("the hold", string.Join("; ", simulation.Pets.Select(p => $"{p.Name} {p.Doing}, {p.Standing} {p.Health}/{p.MaxHealth}")) +
+                    $" | fighting: {simulation.Creatures.Count(c => c.Hostile)}");
                 // The lure: the animal is sent to a place by the pack and draws one creature out of the fight to it - the control skill doing
                 // the work a fight would otherwise cost.
                 OpenPetOrders();
@@ -385,7 +423,7 @@ public partial class Main
                     ? "no animal was wounded in this pass"
                     : $"{home.Name}: {home.Standing}, home until tick {home.HomeUntilTick}, strength {simulation.PartyStrength}");
                 await Rcd3Wait(2.0);
-                await PetStill("pets_after_the_fight", NearestHostile(simulation)?.Body ?? simulation.Pets.FirstOrDefault()?.Body);
+                await PetStill("pets_pup_home_wounded");
                 break;
             }
             default:
