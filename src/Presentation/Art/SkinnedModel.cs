@@ -112,9 +112,16 @@ public sealed partial class SkinnedModel : Node3D
     // Every clip in these libraries was retargeted onto this exact body offline; only node paths are copied here.
     private void ComparisonClips(string assetId, AnimationLibrary library, string skeletonPath, string? bodyPath)
     {
-        // Reviewed mocap stays in the installed character payload, outside the public source repository; a comparison cast
-        // whose clips were baked into the repository (the HumGen arm) reads its own folder instead.
-        string externalMotion = System.IO.Path.Combine(UNNAMED.Presentation.MHCharacters.MetaHumanFigure.AssetRoot, "mocap_motion", assetId + "_motion.res");
+        // Production HumGen motion stays in its installed payload, outside the public source repository.
+        // The old resource fallback is for explicit reference casts only.
+        bool humgen = VisualOptions.ComparisonCast == "humgen";
+        string payloadRoot = humgen
+            ? System.Environment.GetEnvironmentVariable("OTHERREACH_CHARACTER_ROOT") ?? System.IO.Path.Combine(
+                OS.HasFeature("template") ? System.IO.Path.GetDirectoryName(OS.GetExecutablePath())! : ProjectSettings.GlobalizePath("res://"), "humgen_characters")
+            : UNNAMED.Presentation.MHCharacters.MetaHumanFigure.AssetRoot;
+        string externalMotion = System.IO.Path.Combine(payloadRoot, "mocap_motion", assetId + "_motion.res");
+        if (humgen && !System.IO.File.Exists(externalMotion))
+            throw new FileNotFoundException("HumGen exact-target motion payload is missing", externalMotion);
         var motion = GD.Load<AnimationLibrary>(System.IO.File.Exists(externalMotion)
                 ? externalMotion
                 : $"res://Art/{ComparisonMotionFolder}/{assetId}_motion.res")
