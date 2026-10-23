@@ -111,7 +111,9 @@ public partial class CreatorScreen
         var pending = _catalogue.Pending(Draft.Appearance, Model, Draft.PeopleId);
         _pendingWords.Text = pending.Count == 0
             ? "As baked: the preview is exactly this character."
-            : $"Pending bake: {string.Join(", ", pending)}. The preview shows the baked body; your choices are kept with the character for the bake.";
+            : _catalogue.BakedFor(Model) is null
+                ? $"Pending bake: {string.Join(", ", pending)}. This build draws no baked HumGen body here, so the preview is a stand-in; your choices are kept with the character for the bake."
+                : $"Pending bake: {string.Join(", ", pending)}. The preview shows the baked body; your choices are kept with the character for the bake.";
         _pendingWords.AddThemeColorOverride("font_color", pending.Count == 0 ? HudStyle.Lichen : HudStyle.Ember);
     }
 
