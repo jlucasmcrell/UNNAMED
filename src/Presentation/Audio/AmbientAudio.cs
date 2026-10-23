@@ -23,6 +23,7 @@ public partial class AmbientAudio : Node
         public string Id = "";
         public bool Loop;
         public float Gain = 1;
+        public float Sheltered = 1;
         public bool ByWind;
         public HashSet<string>? Weathers, Grounds;
         public bool DayOnly, NightOnly;
@@ -57,6 +58,7 @@ public partial class AmbientAudio : Node
                     Name = h.GetProperty("hook").GetString()!,
                     Loop = h.TryGetProperty("loop", out _),
                     Gain = h.TryGetProperty("gain", out var g) ? (float)g.GetDouble() : 1f,
+                    Sheltered = h.TryGetProperty("sheltered_gain", out var sg) ? (float)sg.GetDouble() : 1f,
                     ByWind = h.TryGetProperty("gain_by", out var by) && by.GetString() == "wind",
                     Weathers = Set(h, "weather"), Grounds = Set(h, "grounds"),
                     DayOnly = h.TryGetProperty("day_only", out var d) && d.ValueKind == JsonValueKind.True,
@@ -87,13 +89,13 @@ public partial class AmbientAudio : Node
         if (_hooks.Count == 0 || GetViewport().GetCamera3D() is not { } camera)
             return;
         var at = camera.GlobalPosition;
-        string weather = VisualOptions.Weather ?? "fair";
+        string weather = WeatherStates.Now;
         bool day = SkyView.DaylightNow > 0.5f;
         foreach (var hook in _hooks)
         {
             bool on = (hook.Weathers is null || hook.Weathers.Contains(weather)) && !(hook.DayOnly && !day) && !(hook.NightOnly && day)
                       && (hook.Grounds is null || OnGround(at, hook.Grounds)) && (hook.NearRavine <= 0 || RavineDistance(at) <= hook.NearRavine);
-            float gain = hook.Gain * (hook.ByWind ? Math.Clamp(WindField.Strength * 1.6f, 0f, 1f) : 1f);
+            float gain = hook.Gain * (hook.ByWind ? Math.Clamp(WindField.Strength * 1.6f, 0f, 1f) : 1f) * (WeatherStates.UnderSky ? 1f : hook.Sheltered);
             if (hook.Name == "anomaly_fold" && FoldGain is not null)
             {
                 // The ward's existing loop belongs to its barrier, not every muddy patch.

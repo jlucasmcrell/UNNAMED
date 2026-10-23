@@ -183,6 +183,7 @@ public static class Terrain3DView
         for (int i = 0; i < layers.Count; i++)
             assets.Call("set_texture", i, layers[i]);
         terrain.Set("assets", assets);
+        WeatherStates.WetGround(layers);
 
         var material = (GodotObject)terrain.Get("material");
         material.Set("world_background", 0);                              // NONE: nothing beyond the imported regions

@@ -5,12 +5,13 @@
     "not redesigned or regenerated), the hook is reported as awaiting audio and stays silent. A loop fades to its gain while its",
     "conditions hold (gain_by: wind scales it by the world wind's strength); a one-shot fires at random within 'every_s'. Conditions:",
     "'weather' (states it runs in; omitted: all), day_only / night_only, 'grounds' under the listener (world material IDs), 'near_ravine_m'",
-    "(within that many metres of the ravine's edge: the west, north and east edges)."
+    "(within that many metres of the ravine's edge: the west, north and east edges). 'sheltered_gain' scales a hook while the listener",
+    "is inside a space (rain on the roof, the wind outside)."
   ],
   "hooks": [
-    { "hook": "wind", "loop": "amb.weather.wind.01", "gain": 0.55, "gain_by": "wind" },
-    { "hook": "rain", "loop": "amb.weather.rain.01", "gain": 0.8, "weather": ["storm"] },
-    { "hook": "thunder", "one_shot": "sfx.weather.thunder.01", "every_s": [18, 55], "weather": ["storm"] },
+    { "hook": "wind", "loop": "amb.weather.wind.01", "gain": 0.55, "gain_by": "wind", "sheltered_gain": 0.2 },
+    { "hook": "rain", "loop": "amb.weather.rain.01", "gain": 0.8, "weather": ["rain", "storm"], "sheltered_gain": 0.3 },
+    { "hook": "thunder", "one_shot": "sfx.weather.thunder.01", "every_s": [18, 55], "weather": ["storm"], "sheltered_gain": 0.5 },
     { "hook": "river", "loop": "amb.water.river_gorge.01", "gain": 0.5, "near_ravine_m": 28 },
     { "hook": "foliage_gusts", "one_shot": "sfx.amb.charwood.branch_movement.01", "every_s": [7, 18], "gain_by": "wind", "grounds": ["material_marsh_grass_turf"] },
     { "hook": "insects_day", "loop": "amb.insects.meadow_day.01", "gain": 0.35, "day_only": true, "weather": ["fair", "clear"], "grounds": ["material_packed_dirt_ground"] },

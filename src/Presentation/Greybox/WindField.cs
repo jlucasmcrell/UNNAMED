@@ -44,6 +44,7 @@ public partial class WindField : Node
         RenderingServer.GlobalShaderParameterAdd("wind", RenderingServer.GlobalShaderParameterType.Vec4, Pack());
         RenderingServer.GlobalShaderParameterAdd("wind_gust", RenderingServer.GlobalShaderParameterType.Float, Gust);
         RenderingServer.GlobalShaderParameterAdd("wind_time", RenderingServer.GlobalShaderParameterType.Float, 0f);
+        RenderingServer.GlobalShaderParameterAdd("weather_wet", RenderingServer.GlobalShaderParameterType.Float, 0f);
         // The tree and foliage shaders below also read the strangeness field.
         Otherworld.Register();
     }
@@ -57,6 +58,13 @@ public partial class WindField : Node
         Gust = Math.Clamp(gust, 0f, 1f);
         RenderingServer.GlobalShaderParameterSet("wind", Pack());
         RenderingServer.GlobalShaderParameterSet("wind_gust", Gust);
+    }
+
+    /// <summary>How wet the plants are, 0-1 (the weather's rain).</summary>
+    public static void SetWet(float wet)
+    {
+        Register();
+        RenderingServer.GlobalShaderParameterSet("weather_wet", Math.Clamp(wet, 0f, 1f));
     }
 
     private static Vector4 Pack() => new(Direction.X, Direction.Y, Direction.Z, Strength);
@@ -80,6 +88,7 @@ shader_type spatial;
 render_mode cull_back, depth_draw_opaque;
 global uniform vec4 wind;
 global uniform float wind_gust;
+global uniform float weather_wet;
 // ow_late is a breath-late sway: the gust that crosses the ground reaches this tree seconds after its neighbours (Old Late).
 instance uniform float ow_late = 0.0;
 #ifdef OTHERWORLD" + Otherworld.FieldGlsl + @"
@@ -155,6 +164,9 @@ void fragment() {
         if (!FRONT_FACING) NORMAL = -NORMAL;
     }
     ROUGHNESS = has_roughness ? texture(roughness_tex, UV).g : roughness_value;
+    // Rain (WeatherStates): wet bark and leaves are darker and glossier.
+    ALBEDO *= 1.0 - 0.25 * weather_wet;
+    ROUGHNESS *= 1.0 - 0.5 * weather_wet;
     if (has_normal) {
         NORMAL_MAP = texture(normal_tex, UV).rgb;
     }
@@ -171,6 +183,7 @@ shader_type spatial;
 render_mode cull_disabled, depth_draw_opaque;
 global uniform vec4 wind;
 global uniform float wind_gust;
+global uniform float weather_wet;
 const float CYCLE = 6.28318530718 / 3600.0;
 #ifdef OTHERWORLD" + Otherworld.FieldGlsl + @"
 // Otherworld (ScatterRules' otherflora, at full strangeness; Otherworld.cs scales it by where the plant stands). All zero: as scanned.
@@ -321,6 +334,8 @@ void fragment() {
     }
     SPECULAR = 0.3;
     BACKLIGHT = backlight_colour;
+    ALBEDO *= 1.0 - 0.25 * weather_wet;
+    ROUGHNESS *= 1.0 - 0.5 * weather_wet;
 #ifdef OTHERWORLD
     if (strange > 0.0) {
         ROUGHNESS = mix(ROUGHNESS, 0.3, max(ow_sheen, lift * 0.8) * strange);
