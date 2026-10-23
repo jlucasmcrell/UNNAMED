@@ -875,6 +875,8 @@ public sealed class CreatureContinuationDto
 [MessagePackObject]
 public sealed class CreatureDto
 {
+    [Key("scale_percent")] public int ScalePercent { get; set; } = 100;
+    [Key("level_bonus")] public int LevelBonus { get; set; }
     [Key("key")] public string Key { get; set; } = "";
     [Key("def_id")] public string DefId { get; set; } = "";
     [Key("instance_id")] public string InstanceId { get; set; } = "";
@@ -1460,6 +1462,8 @@ public static class SectionCodec
                 Health = c.Health,
                 DiedTick = c.DiedTick,
                 RespawnTick = c.RespawnTick,
+                ScalePercent = c.ScalePercent,
+                LevelBonus = c.LevelBonus,
                 Mind = CreatureMinds.Key(c.Mind),
                 Awareness = c.Awareness,
                 Knows = c.Knows,
@@ -1603,6 +1607,8 @@ public static class SectionCodec
                     c.XMm, c.ZMm, c.FacingMdeg, c.Health, c.DiedTick, c.RespawnTick, baselines.GetValueOrDefault(c.HostCell))
                 {
                     Mind = CreatureMinds.Parse(c.Mind),
+                    ScalePercent = c.ScalePercent,
+                    LevelBonus = c.LevelBonus,
                     Awareness = c.Awareness,
                     Knows = c.Knows,
                     KnownXMm = c.KnownXMm,

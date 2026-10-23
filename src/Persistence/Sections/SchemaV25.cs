@@ -17,7 +17,7 @@ public sealed class EntitiesSection
     [Key("created")] public CreatedDto[] Created { get; set; } = Array.Empty<CreatedDto>();
     [Key("baselines")] public CellBaselineDto[] Baselines { get; set; } = Array.Empty<CellBaselineDto>();
     [Key("containers")] public ContainerDto[]? Containers { get; set; }
-    [Key("creatures")] public CreatureDto[]? Creatures { get; set; }
+    [Key("creatures")] public UNNAMED.Persistence.Sections.V37.CreatureDto[]? Creatures { get; set; }
     [Key("noises")] public NoiseDto[]? Noises { get; set; }
     [Key("economy")] public EconomyDto? Economy { get; set; }
     [Key("merchants")] public MerchantDto[]? Merchants { get; set; }

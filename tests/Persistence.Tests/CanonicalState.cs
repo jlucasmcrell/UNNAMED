@@ -634,6 +634,8 @@ internal static class CanonicalState
                 else
                     json.WriteNull("staggered_tick");
                 json.WriteNumber("stagger_lasts_ticks", creature.StaggerLastsTicks);
+                  json.WriteNumber("scale_percent", creature.ScalePercent);
+                  json.WriteNumber("level_bonus", creature.LevelBonus);
                 json.WriteEndObject();
             }
             json.WriteEndArray();

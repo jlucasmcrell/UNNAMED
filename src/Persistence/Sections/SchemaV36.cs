@@ -17,7 +17,7 @@ public sealed class EntitiesSection
     [Key("containers")] public ContainerDto[]? Containers { get; set; }
 
     /// <summary>Spawners' creatures that left their baseline. Required from schema 8.</summary>
-    [Key("creatures")] public CreatureDto[]? Creatures { get; set; }
+    [Key("creatures")] public UNNAMED.Persistence.Sections.V37.CreatureDto[]? Creatures { get; set; }
 
     /// <summary>The sounds made on the last tick that creatures hear on the next, in order. Required from schema 14.</summary>
     [Key("noises")] public NoiseDto[]? Noises { get; set; }

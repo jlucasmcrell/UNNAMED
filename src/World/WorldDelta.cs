@@ -190,6 +190,8 @@ public sealed record CreatureRecord(
     long RespawnTick,
     string? BaselineHash = null)
 {
+    public int ScalePercent { get; init; } = 100;
+    public int LevelBonus { get; init; }
     public CreatureMind Mind { get; init; }
     public int Awareness { get; init; }
     public bool Knows { get; init; }
@@ -795,7 +797,7 @@ public sealed class WorldDelta
             h.Add(c.Key).Add(c.DefId).Add(c.InstanceId.Value).Add(c.Generation).Add((int)c.Condition).Add(c.XMm).Add(c.ZMm).Add(c.FacingMdeg)
                 .Add(c.Health).Add(c.DiedTick).Add(c.RespawnTick).Add((int)c.Mind).Add(c.Awareness).Add(c.Knows).Add(c.KnownXMm).Add(c.KnownZMm)
                 .Add(c.LastSeenTick).Add(c.SearchUntil).Add(c.HasCalled).Add(c.NextChargeTick).Add(c.StaggerImmuneUntil).Add(c.StaggeredTick ?? -1)
-                .Add(c.StaggerLastsTicks);
+                .Add(c.StaggerLastsTicks).Add(c.ScalePercent).Add(c.LevelBonus);
         }
 
         foreach (var population in baseline.Populations)
@@ -983,7 +985,8 @@ public sealed class WorldDelta
         if (!Enum.IsDefined(record.Condition) || !Enum.IsDefined(record.Mind) || record.Generation < 0 || record.Health < 0 || record.DiedTick < 0
             || record.RespawnTick < 0 || record.FacingMdeg is < 0 or >= 360_000 || record.Awareness is < 0 or > 100 || record.LastSeenTick < 0
             || record.SearchUntil < 0 || record.NextChargeTick < 0 || record.StaggerImmuneUntil < 0 || record.StaggeredTick < 0
-            || record.StaggerLastsTicks < 0 || (record.StaggeredTick is null && record.StaggerLastsTicks != 0))
+            || record.StaggerLastsTicks < 0 || (record.StaggeredTick is null && record.StaggerLastsTicks != 0)
+            || record.ScalePercent <= 0 || record.LevelBonus < 0)
             return "its state is out of range";
         if (!seenIds.Add(record.InstanceId))
             return $"instance ID {record.InstanceId} appears twice";

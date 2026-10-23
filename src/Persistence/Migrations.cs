@@ -124,7 +124,8 @@ public static class SchemaMigrations
         new SchemaV33ToV34(),
         new SchemaV34ToV35(),
         new SchemaV35ToV36(),
-        new SchemaV36ToV37());
+        new SchemaV36ToV37(),
+        new SchemaV37ToV38());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -816,7 +817,7 @@ public sealed class SchemaV13ToV14 : SchemaMigration
                 Created = old.Created,
                 Baselines = old.Baselines,
                 Containers = old.Containers,
-                Creatures = old.Creatures?.Select(c => new CreatureDto
+                Creatures = old.Creatures?.Select(c => new Sections.V37.CreatureDto
                 {
                     Key = c.Key,
                     DefId = c.DefId,
@@ -1551,7 +1552,7 @@ public sealed class SchemaV28ToV29 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
         {
             var old = MessagePackSerializer.Deserialize<V28.EntitiesSection>(entities, options);
-            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new EntitiesSectionDto
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new Sections.V37.EntitiesSection
             {
                 Records = old.Records,
                 Created = old.Created,
@@ -2050,10 +2051,28 @@ public sealed class SchemaV36ToV37 : SchemaMigration
         if(document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } bytes)
         {
             var old=MessagePackSerializer.Deserialize<Sections.V36.EntitiesSection>(bytes,SectionCodec.MessagePackOptions);
-            var next=MessagePackSerializer.Deserialize<EntitiesSectionDto>(MessagePackSerializer.Serialize(old,SectionCodec.MessagePackOptions),SectionCodec.MessagePackOptions);
+            var next=MessagePackSerializer.Deserialize<Sections.V37.EntitiesSection>(MessagePackSerializer.Serialize(old,SectionCodec.MessagePackOptions),SectionCodec.MessagePackOptions);
             document.Sections[SaveFormat.Entities]=MessagePackSerializer.Serialize(next,SectionCodec.MessagePackOptions);
         }
         document.Manifest["schema_version"]=To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>Keep the encounter size a creature spawned at; older creatures have authored scale.</summary>
+public sealed class SchemaV37ToV38 : SchemaMigration
+{
+    public override int From => 37;
+    public override string Summary => "schema 37 -> 38: creatures retain their spawned health scale and level bonus";
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } bytes)
+        {
+            var old = MessagePackSerializer.Deserialize<Sections.V37.EntitiesSection>(bytes, SectionCodec.MessagePackOptions);
+            var next = MessagePackSerializer.Deserialize<EntitiesSectionDto>(MessagePackSerializer.Serialize(old, SectionCodec.MessagePackOptions), SectionCodec.MessagePackOptions);
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(next, SectionCodec.MessagePackOptions);
+        }
+        document.Manifest["schema_version"] = To;
         report.Steps.Add(Summary);
     }
 }

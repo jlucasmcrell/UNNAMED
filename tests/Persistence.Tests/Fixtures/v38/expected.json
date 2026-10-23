@@ -1,0 +1,1151 @@
+{
+  "world_seed": "0x5C1A9E7B4D2F0083",
+  "world_tick": 5000,
+  "world_time_advanced_ticks": 72000,
+  "playtime_seconds": 321.5,
+  "saved_utc": "2026-10-17T09:30:00.250Z",
+  "away_log": [
+    {
+      "tick": 4000,
+      "kind": "time.passed",
+      "ref": "",
+      "amount": 72000
+    },
+    {
+      "tick": 4000,
+      "kind": "time.days",
+      "ref": "",
+      "amount": 1
+    }
+  ],
+  "player": {
+    "id": "chr_01HF7YAT00041061050R3GG28A",
+    "name": "Aelin",
+    "x_mm": 150250,
+    "y_mm": 12000,
+    "z_mm": -40125,
+    "facing_mdeg": 123456,
+    "appearance_seed": "0x32599743E39279EF",
+    "inventory": [
+      {
+        "item_id": "itm_01HF7YAT01144GJ289144GJ281",
+        "def_id": "item.weapon.iron_sword",
+        "count": 1,
+        "quality": 1,
+        "notable": {
+          "name": "Iron Sword",
+          "provenance": "given",
+          "source_ref": "quest.fixture.cull",
+          "tick": 3500,
+          "maker": null,
+          "familiarity": 2,
+          "uses": 1
+        },
+        "wear": {
+          "points": 40,
+          "made_quality": 1
+        }
+      },
+      {
+        "item_id": "itm_01HF7YAT02144GJ289144GJ282",
+        "def_id": "item.potion.minor_healing",
+        "count": 3,
+        "quality": 0,
+        "notable": null,
+        "wear": null
+      },
+      {
+        "item_id": "itm_01HF7YAT03144GJ289144GJ283",
+        "def_id": "item.bag.satchel",
+        "count": 1,
+        "quality": 0,
+        "notable": null,
+        "wear": null
+      }
+    ],
+    "progression": {
+      "level": 3,
+      "level_progress_xp": 120,
+      "xp_debt": 35,
+      "lifetime_xp": {
+        "discovery": 400,
+        "combat": 395,
+        "production": 100
+      },
+      "attribute_allocation": {
+        "might": 1
+      },
+      "unspent_attribute_points": 1,
+      "attribute_grants": [
+        {
+          "attribute": "endurance",
+          "amount": 1,
+          "source": "quest",
+          "source_ref": "quest.fixture.rescue"
+        }
+      ],
+      "skills": {
+        "skill.athletics": {
+          "level": 2,
+          "progress_xp": 0
+        },
+        "skill.one_hand_blade": {
+          "level": 5,
+          "progress_xp": 12
+        }
+      },
+      "known": {
+        "recipe.alchemy.salve_minor": {
+          "source": "book",
+          "source_ref": "item.book.alchemy_primer",
+          "tick": 2400
+        },
+        "spell.ember.bolt": {
+          "source": "teacher",
+          "source_ref": "npc_01HF7YAT0T0000000000000001",
+          "tick": 1200
+        }
+      },
+      "production_firsts": [
+        "item.potion.minor_healing"
+      ],
+      "novelty_firsts": [
+        "recipe.alchemy.salve_minor"
+      ],
+      "pools": {
+        "health": 87,
+        "stamina": null,
+        "focus": 40,
+        "strain": 6
+      },
+      "guards": {
+        "species_today": {
+          "creature.beast.wolf_grey": {
+            "day": 0,
+            "kills": 3
+          }
+        },
+        "species_ever_killed": [
+          "creature.beast.deer",
+          "creature.beast.wolf_grey"
+        ],
+        "cluster_kills": {
+          "pop.r_0_0.c_00_02.wolves": [
+            4000,
+            4200,
+            4500
+          ]
+        }
+      }
+    },
+    "discoveries": [
+      {
+        "location_id": "location.den_mouth",
+        "method": "visited",
+        "tick": 3000
+      }
+    ],
+    "equipment": {
+      "main_hand": "itm_01HF7YAT01144GJ289144GJ281"
+    },
+    "currency": 40,
+    "effects": [
+      {
+        "effect_id": "effect.bleeding",
+        "stacks": 2,
+        "expires_tick": 5100,
+        "next_tick_at": 5020
+      },
+      {
+        "effect_id": "effect.weakened",
+        "stacks": 1,
+        "expires_tick": 5600,
+        "next_tick_at": 4801
+      }
+    ],
+    "relationships": [
+      {
+        "npc_id": "npc.fixture.warden_sera",
+        "dimension": "respect",
+        "value": -3
+      },
+      {
+        "npc_id": "npc.fixture.warden_sera",
+        "dimension": "trust",
+        "value": 12
+      }
+    ],
+    "conversations": [
+      {
+        "dialogue_id": "dialogue.fixture.warden_sera",
+        "heard": [
+          "greet",
+          "rumour"
+        ]
+      }
+    ],
+    "quests": [
+      {
+        "quest_id": "quest.fixture.cull",
+        "status": "completed",
+        "started_tick": 2000,
+        "ended_tick": 3500,
+        "ended_by": "o_cull",
+        "objectives": [
+          {
+            "id": "o_cull",
+            "status": "satisfied",
+            "activated_tick": 2000,
+            "ended_tick": 3500,
+            "progress": 3
+          }
+        ]
+      },
+      {
+        "quest_id": "quest.fixture.wardens_errand",
+        "status": "active",
+        "started_tick": 4000,
+        "objectives": [
+          {
+            "id": "o_ask",
+            "status": "satisfied",
+            "activated_tick": 4000,
+            "ended_tick": 4001,
+            "progress": 0
+          },
+          {
+            "id": "o_den",
+            "status": "active",
+            "activated_tick": 4001,
+            "progress": 0
+          }
+        ]
+      }
+    ],
+    "companions": [
+      {
+        "npc_id": "npc.fixture.warden_sera",
+        "order": "follow",
+        "condition": "up",
+        "x_mm": 148750,
+        "z_mm": -41500,
+        "facing_mdeg": 45000,
+        "health": 64,
+        "downed_tick": 0,
+        "stuck_ticks": 2,
+        "last_combat_tick": 4950,
+        "trail_mm": [
+          149250,
+          -41000,
+          149750,
+          -40750,
+          150250,
+          -40125
+        ],
+        "space": null,
+        "membership": "hireling",
+        "stance": "defensive",
+        "tactics": {
+          "keep_to_leash": false,
+          "protect_injured": true,
+          "hold_healing": false,
+          "focus_target": true
+        },
+        "contract": {
+          "role": "crafter",
+          "days": 10,
+          "daily_wage": 7,
+          "loot_rule": "wage_only",
+          "days_served": 3,
+          "unpaid_days": 1,
+          "purse": 21,
+          "work_site": "station.fixture_hearth",
+          "recipe_id": "recipe.alchemy.salve_minor",
+          "supply": {
+            "item.potion.minor_healing": 2
+          }
+        }
+      }
+    ],
+    "posture": {
+      "stance": "crouched",
+      "airborne": false,
+      "air_ms": 0
+    },
+    "waystones": [
+      {
+        "stone": "waystone.fixture.cairn",
+        "region": "region.fixture_vale",
+        "method": "touched",
+        "tick": 4100
+      },
+      {
+        "stone": "waystone.fixture.ford",
+        "region": "region.fixture_vale",
+        "method": "woken",
+        "tick": 4500
+      }
+    ],
+    "return_point": "waystone.fixture.ford",
+    "roads_walked": [
+      "road.fixture.track#0",
+      "road.fixture.track#1"
+    ],
+    "deeds": [
+      {
+        "deed": "crafted",
+        "subject": "item.weapon.iron_sword",
+        "npc": null,
+        "count": 1,
+        "last_tick": 3900
+      },
+      {
+        "deed": "delivered",
+        "subject": "item.potion.minor_healing",
+        "npc": "npc.fixture.warden_sera",
+        "count": 2,
+        "last_tick": 4200
+      },
+      {
+        "deed": "killed",
+        "subject": "creature.beast.ash_ember_hound",
+        "npc": null,
+        "count": 3,
+        "last_tick": 4800
+      }
+    ],
+    "identity": {
+      "pronouns": "she",
+      "people": "people.veth",
+      "body_preset": "body.build_slender",
+      "call": "call.scholar"
+    },
+    "factions": {
+      "next_act_seq": 2,
+      "acts": [
+        {
+          "seq": 1,
+          "kind": "creature_killed",
+          "subject": "creature.beast.ash_ember_hound",
+          "cell": "r_0_0:c_00_02",
+          "x_mm": 21500,
+          "z_mm": 4250,
+          "tick": 4800
+        }
+      ],
+      "knowledge": [
+        {
+          "knower": "faction.fixture.keepers",
+          "act": 1,
+          "identity": "identified",
+          "source": "reported",
+          "via": "npc.fixture.warden_sera",
+          "tick": 4900,
+          "delta": 100
+        }
+      ],
+      "standing": {
+        "faction.fixture.keepers": 100
+      }
+    },
+    "party": {
+      "recovering": [],
+      "fallen": []
+    },
+    "quick_bar": {
+      "slots": [
+        null,
+        null,
+        null,
+        "spell.ember.bolt",
+        null,
+        null,
+        null,
+        null,
+        "gearset.set_1",
+        null,
+        null,
+        null
+      ],
+      "cleared": [
+        "item.potion.minor_healing"
+      ]
+    },
+    "party_sheets": [
+      {
+        "npc_id": "npc.fixture.warden_sera",
+        "progression": {
+          "level": 2,
+          "level_progress_xp": 40,
+          "xp_debt": 0,
+          "lifetime_xp": {},
+          "attribute_allocation": {},
+          "unspent_attribute_points": 0,
+          "attribute_grants": [],
+          "skills": {
+            "skill.one_hand_blade": {
+              "level": 4,
+              "progress_xp": 6
+            }
+          },
+          "known": {},
+          "production_firsts": [],
+          "novelty_firsts": [],
+          "pools": {
+            "health": null,
+            "stamina": null,
+            "focus": null,
+            "strain": 0
+          },
+          "guards": {
+            "species_today": {},
+            "species_ever_killed": [],
+            "cluster_kills": {}
+          }
+        },
+        "gear": [
+          {
+            "slot": "main_hand",
+            "loaned": true,
+            "item_id": "itm_01HF7YAT05144GJ289144GJ285",
+            "def_id": "item.weapon.iron_sword",
+            "count": 1,
+            "quality": 0,
+            "notable": null,
+            "wear": {
+              "points": 12,
+              "made_quality": 0
+            }
+          }
+        ],
+        "belongings": [
+          {
+            "item_id": "itm_01HF7YAT06144GJ289144GJ286",
+            "def_id": "item.potion.minor_healing",
+            "count": 1,
+            "quality": 0,
+            "notable": null,
+            "wear": null
+          }
+        ]
+      }
+    ],
+    "attack": {
+      "source": "item.weapon.iron_sword",
+      "start_tick": 4995,
+      "struck": [
+        "crt_01HF7YAT350W3GE1R70W3GE1R1"
+      ]
+    },
+    "space_id": "",
+    "space_traversal": null,
+    "extra_bars": [
+      [
+        "item.potion.minor_healing",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        "spell.ember.bolt"
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    ],
+    "gear_sets": [
+      {
+        "index": 1,
+        "name": "Sword and board",
+        "items": [
+          {
+            "slot": "main_hand",
+            "item": "itm_01HF7YAT01144GJ289144GJ281",
+            "def": "item.weapon.iron_sword"
+          }
+        ]
+      }
+    ],
+    "held_family": "skill.one_hand_blade",
+    "family_bars": [
+      {
+        "family": "skill.one_hand_blade",
+        "slots": [
+          null,
+          null,
+          null,
+          "spell.ember.bolt",
+          null,
+          null,
+          null,
+          null,
+          "gearset.set_1",
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "family": "unarmed",
+        "slots": [
+          "item.potion.minor_healing",
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "pack": {
+      "bags": [
+        null,
+        "itm_01HF7YAT03144GJ289144GJ283",
+        null,
+        null
+      ],
+      "stacks": [
+        {
+          "item_id": "itm_01HF7YAT01144GJ289144GJ281",
+          "bag": 0,
+          "slot": 0,
+          "locked": true,
+          "junk": false
+        },
+        {
+          "item_id": "itm_01HF7YAT02144GJ289144GJ282",
+          "bag": 0,
+          "slot": 3,
+          "locked": false,
+          "junk": true
+        },
+        {
+          "item_id": "itm_01HF7YAT03144GJ289144GJ283",
+          "bag": -1,
+          "slot": -1,
+          "locked": false,
+          "junk": false
+        }
+      ]
+    },
+    "findings": [
+      {
+        "kind": "nothing",
+        "station": "station.fixture_hearth",
+        "station_kind": "hearth",
+        "recipe": null,
+        "materials": [],
+        "tick": 4600
+      },
+      {
+        "kind": "hint",
+        "station": "station.fixture_hearth",
+        "station_kind": "hearth",
+        "recipe": "recipe.alchemy.salve_minor",
+        "materials": [
+          "item.potion.minor_healing"
+        ],
+        "tick": 4800
+      }
+    ],
+    "lore": [
+      {
+        "entry": "lore.fixture_vale",
+        "page": 1,
+        "how": "visited",
+        "source": "location.den_mouth",
+        "tick": 4600
+      },
+      {
+        "entry": "lore.fixture_warden",
+        "page": 1,
+        "how": "told",
+        "source": "dialogue.fixture.warden_sera",
+        "tick": 4700
+      }
+    ],
+    "pets": [
+      {
+        "id": "sum_01HF7YAT04144GJ289144GJ284",
+        "creature": "creature.beast.wolf_grey",
+        "name": "Wolf",
+        "role": "fighter",
+        "order": "follow",
+        "condition": "up",
+        "x_mm": 148750,
+        "z_mm": -41500,
+        "facing_mdeg": 45000,
+        "health": 37,
+        "bond": 44,
+        "level": 2,
+        "space": "",
+        "tamed_from": "spawn.fixture.den#0",
+        "wait_x_mm": 148750,
+        "wait_z_mm": -41500,
+        "wounded_tick": 0,
+        "recovers_at_tick": 0,
+        "last_fed_tick": 4900,
+        "adopted_tick": 0,
+        "skills": [
+          {
+            "skill": "bite",
+            "level": 2,
+            "uses": 3
+          },
+          {
+            "skill": "lure",
+            "level": 1,
+            "uses": 1
+          }
+        ]
+      },
+      {
+        "id": "sum_01HF7YAT05144GJ289144GJ285",
+        "creature": "creature.beast.wolf_grey",
+        "name": "Grey",
+        "role": "fighter",
+        "order": "follow",
+        "condition": "wounded",
+        "x_mm": 149000,
+        "z_mm": -41000,
+        "facing_mdeg": 0,
+        "health": 0,
+        "bond": 20,
+        "level": 1,
+        "space": "",
+        "tamed_from": "",
+        "wait_x_mm": 0,
+        "wait_z_mm": 0,
+        "wounded_tick": 4950,
+        "recovers_at_tick": 149000,
+        "last_fed_tick": 0,
+        "adopted_tick": 4000,
+        "skills": [
+          {
+            "skill": "bite",
+            "level": 1,
+            "uses": 0
+          }
+        ]
+      }
+    ]
+  },
+  "cells": [
+    {
+      "cell_key": "r_0_0:c_00_00",
+      "baseline_hash": "sha256:0e96f61267a5fb32ced534dfad115d39a70e8ac6d3667ddc812003a67b51adfe",
+      "flags": {
+        "world.door.cellar_open": 1
+      },
+      "harvested_nodes": [],
+      "population_alive": {}
+    },
+    {
+      "cell_key": "r_0_0:c_00_03",
+      "baseline_hash": "sha256:d370b5990865dbab37aa08e54c5ebbd0235a787a20bc472394c2a29897cb202d",
+      "flags": {},
+      "harvested_nodes": [
+        {
+          "node_key": "node.r_0_0:c_00_03.iron_vein.00",
+          "last_harvest_tick": 1000,
+          "harvest_seq": 1
+        }
+      ],
+      "population_alive": {}
+    },
+    {
+      "cell_key": "r_0_0:c_00_05",
+      "baseline_hash": "sha256:79df1f88c645abc430ad368b2188420da664aa0fd53147e63c904e13744a79b5",
+      "flags": {},
+      "harvested_nodes": [],
+      "population_alive": {
+        "pop.r_0_0.c_00_05.deer": 1
+      }
+    },
+    {
+      "cell_key": "r_0_0:c_00_07",
+      "baseline_hash": "sha256:502dcec8a8f4779fab9b52aa11a205f8f783230f9423ed5c7fd11e924d636d65",
+      "flags": {
+        "world.lever.mill_gate": 3
+      },
+      "harvested_nodes": [],
+      "population_alive": {}
+    }
+  ],
+  "entities": [
+    {
+      "instance_id": "crt_01M5MFVS6RW88JGAC8BRZZDC0M",
+      "slot_key": "r_0_0:c_00_02.pop.r_0_0.c_00_02.wolves.00",
+      "def_id": "creature.beast.wolf_grey",
+      "alive": false,
+      "x_cm": null,
+      "z_cm": null,
+      "baseline_hash": "sha256:336629374b68555520a9f021a4df35ac6c0e8a923e50a39841608725deb70b44"
+    },
+    {
+      "instance_id": "crt_01M5MFVS6TPFJ73YVG7YRV87HH",
+      "slot_key": "r_0_0:c_00_04.pop.r_0_0.c_00_04.deer.01",
+      "def_id": "creature.beast.deer",
+      "alive": null,
+      "x_cm": 1234,
+      "z_cm": 5678,
+      "baseline_hash": "sha256:44d770b268cf00ff7715d9f4faabbfd66d162b05bc9fbd070b0845149db3241b"
+    }
+  ],
+  "created": [
+    {
+      "instance_id": "itm_01M5MFVS6TGGKTD9ASVFAX9RK0",
+      "def_id": "item.potion.minor_healing",
+      "host_cell": "r_0_0:c_00_08",
+      "x_cm": 700,
+      "z_cm": 800,
+      "count": 3,
+      "quality": 1,
+      "notable": null,
+      "wear": null,
+      "baseline_hash": "sha256:33e9f5e176340442903b64ff5de2d58b0a2a65af0a8dfc2263fb5ed04c06723c"
+    },
+    {
+      "instance_id": "itm_01M5MFVS6TX6Q3DKGTKD65D221",
+      "def_id": "item.weapon.iron_sword",
+      "host_cell": "r_0_0:c_00_06",
+      "x_cm": 500,
+      "z_cm": 600,
+      "count": 1,
+      "quality": 0,
+      "notable": null,
+      "wear": null,
+      "baseline_hash": "sha256:dc6e1a2a237b112abc70601672b08f812e0c479c3eae0cb22f002cce9db7373a"
+    }
+  ],
+  "containers": [
+    {
+      "key": "container.fixture_chest",
+      "instance_id": "cnt_01M5MFVS6VTZ820CG0ZBRSMVQZ",
+      "host_cell": "r_0_0:c_00_09",
+      "baseline_hash": "sha256:c715927a0968c5fcc31b60c8d8781c33387ee23a66968bcddd89eea9f2f60256",
+      "items": [
+        {
+          "item_id": "itm_01M5MFVS6VW0Z5H1G1PA6Q0QPS",
+          "def_id": "item.weapon.iron_sword",
+          "count": 1,
+          "quality": 2,
+          "notable": {
+            "name": "Iron Sword",
+            "provenance": "crafted",
+            "source_ref": "recipe.fixture.sword",
+            "tick": 2000,
+            "maker": "Aelin",
+            "familiarity": 0,
+            "uses": 0
+          },
+          "wear": {
+            "points": 5,
+            "made_quality": 2
+          }
+        },
+        {
+          "item_id": "itm_01M5MFVS6V5Z092D3DCN370QVK",
+          "def_id": "item.potion.minor_healing",
+          "count": 4,
+          "quality": -1,
+          "notable": null,
+          "wear": null
+        }
+      ]
+    },
+    {
+      "key": "corpse.fixture_den.m1_g0",
+      "instance_id": "cnt_01M5MFVS6XZRFZJM60G0YJ6P6S",
+      "host_cell": "r_0_0:c_00_01",
+      "baseline_hash": "sha256:b1baaec90d86555cb2aa9322d75121a46a81d9b7092a76bdaabcc9bf9afd50d2",
+      "items": [
+        {
+          "item_id": "itm_01M5MFVS6XEZJBJSJKKM9A11AZ",
+          "def_id": "item.potion.minor_healing",
+          "count": 1,
+          "quality": 0,
+          "notable": null,
+          "wear": null
+        }
+      ]
+    }
+  ],
+  "creatures": [
+    {
+      "key": "spawn.fixture.den#0",
+      "def_id": "creature.beast.wolf_grey",
+      "instance_id": "crt_01HF7YAT350W3GE1R70W3GE1R1",
+      "host_cell": "r_0_0:c_00_01",
+      "baseline_hash": "sha256:b1baaec90d86555cb2aa9322d75121a46a81d9b7092a76bdaabcc9bf9afd50d2",
+      "generation": 0,
+      "condition": "alive",
+      "x_mm": 12345,
+      "z_mm": 67890,
+      "facing_mdeg": 90000,
+      "health": 21,
+      "died_tick": 0,
+      "respawn_tick": 0,
+      "mind": "searching",
+      "awareness": 45,
+      "knows": true,
+      "known_x_mm": 13000,
+      "known_z_mm": 70000,
+      "last_seen_tick": 4990,
+      "search_until": 5110,
+      "has_called": true,
+      "next_charge_tick": 5060,
+      "stagger_immune_until": 5020,
+      "staggered_tick": 4995,
+      "stagger_lasts_ticks": 40,
+      "scale_percent": 100,
+      "level_bonus": 0
+    },
+    {
+      "key": "spawn.fixture.den#1",
+      "def_id": "creature.beast.wolf_grey",
+      "instance_id": "crt_01HF7YAT360W3GE1R70W3GE1R2",
+      "host_cell": "r_0_0:c_00_01",
+      "baseline_hash": "sha256:b1baaec90d86555cb2aa9322d75121a46a81d9b7092a76bdaabcc9bf9afd50d2",
+      "generation": 0,
+      "condition": "corpse",
+      "x_mm": 14000,
+      "z_mm": 66000,
+      "facing_mdeg": 180000,
+      "health": 0,
+      "died_tick": 4800,
+      "respawn_tick": 0,
+      "mind": "unaware",
+      "awareness": 0,
+      "knows": false,
+      "known_x_mm": 0,
+      "known_z_mm": 0,
+      "last_seen_tick": 0,
+      "search_until": 0,
+      "has_called": false,
+      "next_charge_tick": 0,
+      "stagger_immune_until": 0,
+      "staggered_tick": null,
+      "stagger_lasts_ticks": 0,
+      "scale_percent": 100,
+      "level_bonus": 0
+    },
+    {
+      "key": "spawn.fixture.ridge#0",
+      "def_id": "creature.beast.ash_ember_hound",
+      "instance_id": "crt_01HF7YAT370W3GE1R70W3GE1R3",
+      "host_cell": "r_0_0:c_00_02",
+      "baseline_hash": "sha256:336629374b68555520a9f021a4df35ac6c0e8a923e50a39841608725deb70b44",
+      "generation": 2,
+      "condition": "gone",
+      "x_mm": 20000,
+      "z_mm": 30000,
+      "facing_mdeg": 0,
+      "health": 0,
+      "died_tick": 4900,
+      "respawn_tick": 30000,
+      "mind": "unaware",
+      "awareness": 0,
+      "knows": false,
+      "known_x_mm": 0,
+      "known_z_mm": 0,
+      "last_seen_tick": 0,
+      "search_until": 0,
+      "has_called": false,
+      "next_charge_tick": 0,
+      "stagger_immune_until": 0,
+      "staggered_tick": null,
+      "stagger_lasts_ticks": 0,
+      "scale_percent": 100,
+      "level_bonus": 0
+    }
+  ],
+  "noises": [
+    {
+      "x_mm": 12345,
+      "z_mm": 67890,
+      "radius_mm": 30000,
+      "call": true,
+      "caller_kind": "creature.beast.ash_ember_hound"
+    },
+    {
+      "x_mm": 14000,
+      "z_mm": 66000,
+      "radius_mm": 12000,
+      "call": false,
+      "caller_kind": null
+    }
+  ],
+  "economy": {
+    "day": 3,
+    "markets": [
+      {
+        "market_id": "market.fixture.vale",
+        "stock": {
+          "item.potion.minor_healing": 14,
+          "item.weapon.iron_sword": 2
+        },
+        "sold_by_character": {
+          "item.potion.minor_healing": 3
+        }
+      }
+    ],
+    "shipments": [
+      {
+        "link_id": "road.fixture.track",
+        "from_market": "market.fixture.ford",
+        "to_market": "market.fixture.vale",
+        "item_id": "item.potion.minor_healing",
+        "count": 4,
+        "arrives_day": 4
+      }
+    ]
+  },
+  "merchants": [
+    {
+      "merchant_id": "merchant.fixture.trader",
+      "purse": 75,
+      "restocked_day": 2,
+      "shelf_day": 1,
+      "traded": true
+    }
+  ],
+  "npc_life": {
+    "hour": 80,
+    "npcs": [
+      {
+        "key": "npc.fixture.warden",
+        "routine_id": "routine.fixture.warden",
+        "cell": "r_0_0:c_00_00",
+        "name": null,
+        "generation": 0,
+        "arrived_day": 0,
+        "activity": "work",
+        "condition": "Living",
+        "condition_until": 0,
+        "pose": "148750,-41500,45000",
+        "route": "Active to 152000,-40000 via 150000,-41000 152000,-40000 at 4990 stamp 1122334455667788 watch 128000,-62000,172999,-20001",
+        "stuck_ticks": 2
+      },
+      {
+        "key": "routine.fixture.hunter",
+        "routine_id": "routine.fixture.hunter",
+        "cell": "r_0_0:c_00_00",
+        "name": "Mira Tolle",
+        "generation": 0,
+        "arrived_day": 0,
+        "activity": "idle",
+        "condition": "Hired",
+        "condition_until": 0,
+        "pose": "150000,-40500,90000",
+        "route": "None to 0,0 via  at 0 stamp 0000000000000000 watch 0,0,0,0",
+        "stuck_ticks": 0
+      },
+      {
+        "key": "routine.fixture.porter",
+        "routine_id": "routine.fixture.porter",
+        "cell": "r_0_0:c_00_00",
+        "name": "Aldo Renning",
+        "generation": 1,
+        "arrived_day": 2,
+        "activity": "sleep",
+        "condition": "Injured",
+        "condition_until": 6000,
+        "pose": "12000,34000,180000",
+        "route": "None to 0,0 via  at 0 stamp 0000000000000000 watch 0,0,0,0",
+        "stuck_ticks": 0
+      },
+      {
+        "key": "routine.fixture.trapper",
+        "routine_id": "routine.fixture.trapper",
+        "cell": "r_0_0:c_00_00",
+        "name": "Oswin Hale",
+        "generation": 0,
+        "arrived_day": 0,
+        "activity": "away",
+        "condition": "Living",
+        "condition_until": 0,
+        "pose": "20000,30000,270000",
+        "route": "None to 0,0 via  at 0 stamp 0000000000000000 watch 0,0,0,0",
+        "stuck_ticks": 0
+      }
+    ],
+    "vacancies": [
+      "routine.fixture.carter left 1 arrives 5 as 1 (Wyn Carrow)"
+    ]
+  },
+  "adventurers": {
+    "day": 3,
+    "agents": [
+      {
+        "key": "npc.adventurer.fixture_vale.slot_1_g0",
+        "slot": "fixture_vale.slot_1",
+        "generation": 0,
+        "name": "Bram Hallow",
+        "people_id": "people.fixture",
+        "settlement": "fixture_vale",
+        "at": "fixture_vale",
+        "progression": {
+          "level": 3,
+          "level_progress_xp": 40,
+          "xp_debt": 0,
+          "lifetime_xp": {},
+          "attribute_allocation": {
+            "might": 1,
+            "endurance": 1
+          },
+          "unspent_attribute_points": 0,
+          "attribute_grants": [],
+          "skills": {
+            "skill.one_hand_blade": {
+              "level": 4,
+              "progress_xp": 10
+            }
+          },
+          "known": {},
+          "production_firsts": [],
+          "novelty_firsts": [],
+          "pools": {
+            "health": null,
+            "stamina": null,
+            "focus": null,
+            "strain": 0
+          },
+          "guards": {
+            "species_today": {},
+            "species_ever_killed": [],
+            "cluster_kills": {}
+          }
+        },
+        "coin": 42,
+        "risk_percent": 55,
+        "arrived_day": 0,
+        "gear": [
+          "main_hand: item.weapon.iron_sword itm_01HF7YAT9C144GJ289144GJ281 quality 1"
+        ],
+        "pack": {
+          "item.potion.minor_healing": 2
+        },
+        "condition": "Active",
+        "injured_until_day": 0,
+        "plan": "day 3 hunt spawn.fixture.den with npc.adventurer.fixture_vale.slot_1_g0 npc.adventurer.fixture_vale.slot_2_g0 post 5000 depart 5100",
+        "party": null,
+        "counts": "acquired 1 kills 7 bounties 2"
+      },
+      {
+        "key": "npc.adventurer.fixture_vale.slot_2_g0",
+        "slot": "fixture_vale.slot_2",
+        "generation": 0,
+        "name": "Kester Vale-of-Stones",
+        "people_id": null,
+        "settlement": "fixture_vale",
+        "at": "fixture_vale",
+        "progression": {
+          "level": 1,
+          "level_progress_xp": 0,
+          "xp_debt": 0,
+          "lifetime_xp": {},
+          "attribute_allocation": {},
+          "unspent_attribute_points": 0,
+          "attribute_grants": [],
+          "skills": {},
+          "known": {},
+          "production_firsts": [],
+          "novelty_firsts": [],
+          "pools": {
+            "health": null,
+            "stamina": null,
+            "focus": null,
+            "strain": 0
+          },
+          "guards": {
+            "species_today": {},
+            "species_ever_killed": [],
+            "cluster_kills": {}
+          }
+        },
+        "coin": 8,
+        "risk_percent": 30,
+        "arrived_day": 0,
+        "gear": [],
+        "pack": {},
+        "condition": "Injured",
+        "injured_until_day": 5,
+        "plan": "day 3 rest - with  post 0 depart 0",
+        "party": null,
+        "counts": "acquired 0 kills 0 bounties 0"
+      }
+    ],
+    "vacancies": [
+      "fixture_vale.slot_3 of fixture_vale left 2 arrives 6 as 1"
+    ],
+    "bodies": [
+      "npc.adventurer.fixture_vale.slot_1_g0 Bram Hallow at 150000,-38000 facing 270000",
+      "npc.adventurer.fixture_vale.slot_2_g0 Kester Vale-of-Stones at 150000,-39200 facing 270000"
+    ]
+  }
+}
