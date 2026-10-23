@@ -48,4 +48,14 @@ public class DialogueMenuTests
         var replies = new List<(string, DialogueChoice?)> { Reply("a"), Reply("trade", null, new OpenServiceConsequence("trade")), Reply("bye", null) };
         Assert.Equal(new[] { "trade", "a", "bye" }, DialogueMenu.Top(replies));
     }
+
+    [Fact]
+    public void TopicsArePagedFourAtATimeWithoutLosingAnyReply()
+    {
+        var replies = Enumerable.Range(0, 9).Select(i => Reply("topic" + i)).Append(Reply("bye", null)).ToList();
+        Assert.Equal(new[] { DialogueMenu.Ask, "bye" }, DialogueMenu.Top(replies));
+        Assert.Equal(new[] { "topic0", "topic1", "topic2", "topic3", DialogueMenu.More, DialogueMenu.Back }, DialogueMenu.Topics(replies));
+        Assert.Equal(new[] { "topic4", "topic5", "topic6", "topic7", DialogueMenu.More, DialogueMenu.Back }, DialogueMenu.Topics(replies, page: 1));
+        Assert.Equal(new[] { "topic8", DialogueMenu.Back }, DialogueMenu.Topics(replies, page: 2));
+    }
 }

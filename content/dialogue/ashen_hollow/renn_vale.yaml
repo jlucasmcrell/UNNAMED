@@ -88,62 +88,42 @@ nodes:
         next: tell_quiet_folk
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_ashen_hollow
-        text: "Tell me about ashen hollow"
+        text: "Tell me about Ashen Hollow."
         next: tell_ashen_hollow
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_veth
-        text: "Tell me about the veth"
+        text: "Tell me about the Veth."
         next: tell_veth
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_wayhold
-        text: "Tell me about the wayhold"
+        text: "Tell me about the Wayhold."
         next: tell_wayhold
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
-      - id: ask_ashen_hollow_p2
-        text: "Tell me about ashen hollow"
-        next: tell_ashen_hollow_p2
-
-      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
-      - id: ask_old_late_p2
-        text: "Tell me about old late"
-        next: tell_old_late_p2
-
-      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
-      - id: ask_veth_p2
-        text: "Tell me about the veth"
-        next: tell_veth_p2
-
-      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
-      - id: ask_wayhold_p2
-        text: "Tell me about the wayhold"
-        next: tell_wayhold_p2
-
-      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_ashen_waystone_p2
-        text: "Tell me about the ashen waystone"
+        text: "Tell me about the ashen waystone."
         next: tell_ashen_waystone_p2
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_folded_note_p2
-        text: "Tell me about the folded note"
+        text: "Tell me about the folded note."
         next: tell_folded_note_p2
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_halda_crowden_p2
-        text: "Tell me about halda crowden"
+        text: "Tell me about Halda Crowden."
         next: tell_halda_crowden_p2
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_tavars_afternoon_p2
-        text: "Tell me about tavar's afternoon"
+        text: "Tell me about Tavar's afternoon."
         next: tell_tavars_afternoon_p2
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_vessmere
-        text: "Tell me about vessmere"
+        text: "Tell me about Vessmere."
         next: tell_vessmere
 
       - id: leave
@@ -434,38 +414,6 @@ nodes:
         next: again
 
   tell_wayhold:
-    text: "The steward explains how it runs, in his deadpan, to anyone who asks after the notices. The Wayhold posts what the road needs, and he reads it out, since half the road cannot; three wolves off the road and the Wayhold pays, six lengths of timber and so does he, out of the same purse, and it all goes back up in the morning whether anyone has done the work or not. When he pays, he is careful to say it is from the Wayhold and not from him — he only holds the purse. And when the accounts go east, the roadwarden at the Vessmere stone is the one who takes the Wayhold's letter, keep it dry. The order, in short, is the road's memory and the road's hand."
-    choices:
-      - id: back
-        text: "I will remember it."
-        consequences: [{ command: tell_lore, lore_ref: lore.wayhold }]
-        next: again
-
-  tell_ashen_hollow_p2:
-    text: "The steward's account, Renn Vale's, for anyone who asks what this place is: a stop on the old road between the quarry and the woods - a bed, a meal and a roof, in that order of reliability. The book by the door has every guest's name in it, their road and where they were bound, and he will read a line back to you if you think you have been misremembered. He keeps the roofs dry and the stone quiet and counts a season good if nobody he liked got eaten. When he says the hollow has not yet thought of anything to do about the Foldscar, he means that he has, and that there is nothing in the waystation's hands to do it with."
-    choices:
-      - id: back
-        text: "I will remember it."
-        consequences: [{ command: tell_lore, lore_ref: lore.ashen_hollow }]
-        next: again
-
-  tell_old_late_p2:
-    text: "Renn Vale's version, told to anyone who writes their name in the lodge book: the Quiet-folk raised Old Late as a marker before the road was a road, and walked away when the work was done. They cut the giant and crowned it and left it to hold the crossing, so that a stranger coming down off the ridge would know there was shelter in the hollow and no road worth taking east of the quarry. It is a good story to hear at a fire and Renn tells it well, and he is careful to say that it is only what he was told. He cannot name who told him. Nobody in the waystation claims to have been the one."
-    choices:
-      - id: back
-        text: "I will remember it."
-        consequences: [{ command: tell_lore, lore_ref: lore.old_late }]
-        next: again
-
-  tell_veth_p2:
-    text: "The steward of the waystation puts it in his own words, to anyone who writes a name in his book. We Veth keep things, he says — roads, promises, people who turn up. He does not call it faith and he does not need to: keeping is the act itself, a duty carried the way another people carries a prayer. The book by his door holds every guest's name and road, and he will read a line back to you if you think you have been misremembered. That is the whole of his people's religion in one ledger, and it asks nothing of the dead and nothing of any maker. It only asks that the thing be written, and that the writing be kept."
-    choices:
-      - id: back
-        text: "I will remember it."
-        consequences: [{ command: tell_lore, lore_ref: lore.veth }]
-        next: again
-
-  tell_wayhold_p2:
     text: "The steward explains how it runs, in his deadpan, to anyone who asks after the notices. The Wayhold posts what the road needs, and he reads it out, since half the road cannot; three wolves off the road and the Wayhold pays, six lengths of timber and so does he, out of the same purse, and it all goes back up in the morning whether anyone has done the work or not. When he pays, he is careful to say it is from the Wayhold and not from him — he only holds the purse. And when the accounts go east, the roadwarden at the Vessmere stone is the one who takes the Wayhold's letter, keep it dry. The order, in short, is the road's memory and the road's hand."
     choices:
       - id: back

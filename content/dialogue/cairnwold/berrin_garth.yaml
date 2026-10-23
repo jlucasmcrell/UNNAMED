@@ -65,34 +65,25 @@ nodes:
         next: rim_stone
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_cairnwold
-        text: "Tell me about cairnwold"
+        text: "Tell me about Cairnwold."
         next: tell_cairnwold
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
-      - id: ask_cairnwold_p2
-        text: "Tell me about cairnwold"
-        next: tell_cairnwold_p2
-
-      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_rim_stone_p2
-        text: "Tell me about the rim stone"
+        text: "Tell me about the rim stone."
         next: tell_rim_stone_p2
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_folded_note_p2
-        text: "Tell me about the folded note"
+        text: "Tell me about the folded note."
         next: tell_folded_note_p2
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_wenna
-        text: "Tell me about wenna"
+        text: "Tell me about Wenna."
         next: tell_wenna
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
-      - id: ask_wenna_p2
-        text: "Tell me about wenna"
-        next: tell_wenna_p2
-
       - id: leave
         text: "Later."
       - id: story_note
@@ -218,14 +209,6 @@ nodes:
         consequences: [{ command: tell_lore, lore_ref: lore.cairnwold }]
         next: again
 
-  tell_cairnwold_p2:
-    text: "Berrin Garth keeps the lodge and remembers why every part of the village is the way it is, and he will tell you, warmly and at length. The walls are drystone, he says, because mortar wants lime and lime wants a kiln and a kiln wants a man with a whole summer, and nobody here has ever had a summer like that — drystone wants a winter and two good hands. The granary stands on staddles, stone legs with a flat cap on each, so a mouse climbs up and hangs there thinking about its choices. And if you ask what is older than the village, he points at the crag line on the south edge — put there by somebody, or something, and not by the village — and the cut in the east where the beck leaves, which is only water and time. We built between the two, he says, walled it, and called it home."
-    choices:
-      - id: back
-        text: "I will remember it."
-        consequences: [{ command: tell_lore, lore_ref: lore.cairnwold }]
-        next: again
-
   tell_rim_stone_p2:
     text: "Berrin Garth keeps the lodge book, and in it is the Rim Stone's rite. It is a Waystone, he says, or it was - cold since before his grandfather. Old Corra set it down as three hands and a name, and then wrote not another word on it for forty years. The rite is simple: three times with the flat of the hand, one after another, and then you tell the stone its name, as if reminding it. Nobody in the village has tried it in his time. Nobody here, he says, has ever wanted to be anywhere it went."
     choices:
@@ -244,14 +227,6 @@ nodes:
 
   tell_wenna:
     text: "Wenna was the last of Cairnwold who could make sense of the Resonance Primer's shelf, and the cupboard with the warped door has not been opened since they buried her. Berrin Garth says it plainly, without mourning in the voice but with a carefulness that amounts to it: nobody has opened it since we buried Wenna, and Wenna was the last of us who could make sense of what is in it. The primer is three small workings — one to strike, one to brace, one to mend — and the book sits behind the warped door as a promise nobody has kept."
-    choices:
-      - id: back
-        text: "I will remember it."
-        consequences: [{ command: tell_lore, lore_ref: lore.wenna }]
-        next: again
-
-  tell_wenna_p2:
-    text: "Wenna left one warning behind, and Berrin hands it over with the book. Mind the third working, she used to say: the first two are honest, and the third asks something of you — it asks first and tells you the price after, and she was usually right about it, which Berrin allows was very tiresome of her. It is the last of her that the village has, a caution passed on with a book, and it has kept the shelf shut longer than any lock would have. A book on a shelf is a promise nobody is keeping, Berrin says, and Wenna is the reason nobody there has dared break it."
     choices:
       - id: back
         text: "I will remember it."

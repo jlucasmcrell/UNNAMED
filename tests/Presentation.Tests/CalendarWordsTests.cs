@@ -57,8 +57,19 @@ public class CalendarWordsTests
     public void TheLine_AddsTheWeatherWord()
     {
         var date = Calendar.Of(0, Clock, Rules);
-        Assert.Equal("1st day of the 1st tally, first Reckoning · Rain", CalendarWords.Line(date, Rules, WeatherState.Rain));
-        Assert.Equal("1st day of the 1st tally, first Reckoning", CalendarWords.Line(date, Rules, null));
+        Assert.Equal("1st day of the 1st tally, first Reckoning · 00:00 · Rain", CalendarWords.Line(date, Rules, WeatherState.Rain));
+        Assert.Equal("1st day of the 1st tally, first Reckoning · 00:00", CalendarWords.Line(date, Rules, null));
+    }
+
+    [Fact]
+    public void ClockUsesTheWorldStartOffsetAndRollsOverAtMidnight()
+    {
+        var clock = Clock with { StartTicks = Clock.TicksPerDay * 15 / 48 };
+        Assert.Equal("07:30", CalendarWords.Time(Calendar.Of(0, clock, Rules)));
+        var afterMidnight = Calendar.Of(clock.TicksPerDay - clock.StartTicks, clock, Rules);
+        Assert.Equal(2, afterMidnight.Day);
+        Assert.Equal("00:00", CalendarWords.Time(afterMidnight));
+        Assert.Contains("☾ 00:00 · ☂ Rain", CalendarWords.HudClock(afterMidnight, WeatherState.Rain));
     }
 
     [Fact]

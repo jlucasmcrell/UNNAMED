@@ -23,6 +23,7 @@ public partial class Main
     private void DrawHud(Simulation simulation, CombatView combat, Posture posture, double alpha, double delta)
     {
         _hud.SetHeading(PlayerController.FacingOf(_camera.GroundForward) / 1000f);
+        _hud.SetClock(CalendarWords.HudClock(simulation.Calendar, simulation.Weather.State));
         bool aiming = Aim(simulation, combat);
         _hud.SetCrosshair(_camera.IsFirstPerson && !aiming);
 

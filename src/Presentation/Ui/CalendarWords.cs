@@ -22,9 +22,18 @@ public static class CalendarWords
         return $"{Ordinal(date.Day)} day of the {Ordinal(date.Tally)} tally, {reckoning}";
     }
 
-    /// <summary>The date and the sky together, the strip's and the map's line: "14th day of the 3rd tally, first Reckoning · Rain".</summary>
+    /// <summary>The date, authoritative clock and weather, shared by the map and menu.</summary>
     public static string Line(CalendarDate date, CalendarRules rules, WeatherState? weather) =>
-        weather is { } sky ? $"{Date(date, rules)} · {Weather(sky)}" : Date(date, rules);
+        $"{Date(date, rules)} · {Time(date)}" + (weather is { } sky ? $" · {Weather(sky)}" : "");
+
+    public static string Time(CalendarDate date) => $"{date.Hour:00}:{date.Minute:00}";
+
+    public static string HudClock(CalendarDate date, WeatherState weather) =>
+        $"{(date.Hour is >= 6 and < 19 ? "☀" : "☾")} {Time(date)} · {weather switch
+        {
+            WeatherState.Rain => "☂", WeatherState.Fog => "≋", WeatherState.Wind => "≈",
+            WeatherState.Overcast => "☁", _ => ""
+        }} {Weather(weather)}";
 
     /// <summary>The weather as one word: Fair, Overcast, Rain, Fog, Wind - and the reserved fold, named should a save carry it.</summary>
     public static string Weather(WeatherState state) => state switch

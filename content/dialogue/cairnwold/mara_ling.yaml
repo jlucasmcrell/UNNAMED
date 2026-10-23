@@ -54,17 +54,17 @@ nodes:
         next: herbs
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_sinking_moss_p2
-        text: "Tell me about the sinking moss"
+        text: "Tell me about the sinking moss."
         next: tell_sinking_moss_p2
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_ashbloom_p2
-        text: "Tell me about ashbloom"
+        text: "Tell me about ashbloom."
         next: tell_ashbloom_p2
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_what_the_bog_kept_after_p2
-        text: "Tell me about what the bog kept"
+        text: "Tell me about What the Bog Kept."
         next: tell_what_the_bog_kept_after_p2
 
       - id: leave

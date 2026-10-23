@@ -75,6 +75,7 @@ public partial class DialoguePanel : CanvasLayer
 
     /// <summary>Whether the topic questions are showing in place of the top level; a new line starts at the top level again.</summary>
     private bool _asking;
+    private int _askPage;
 
     private string? _askingAt;
 
@@ -135,16 +136,18 @@ public partial class DialoguePanel : CanvasLayer
         {
             _askingAt = at;
             _asking = false;
+            _askPage = 0;
         }
         var offered = view.Replies.Select(r => (r.Id, Choice: Choice(view, r.Id))).ToList();
         var importance = offered.ToDictionary(r => r.Id, r => Importance(view, r.Choice));
         DialogueMenu.Group Rank(string id) => importance[id];
         bool Read(string id) => offered.First(r => r.Id == id).Choice?.Next is { } next && _session.Simulation.DialogueVisited(view.DialogueId, next);
         int unread = offered.Count(r => Rank(r.Id) == DialogueMenu.Group.Topic && !Read(r.Id));
-        var shown = (_asking ? DialogueMenu.Topics(offered, Rank, Read) : DialogueMenu.Top(offered, Rank, Read)).Select(id => id switch
+        var shown = (_asking ? DialogueMenu.Topics(offered, Rank, Read, _askPage) : DialogueMenu.Top(offered, Rank, Read)).Select(id => id switch
         {
             DialogueMenu.Ask => new ReplyView(id, unread > 0 ? $"Ask about... ({unread} unread)" : "Ask about..."),
             DialogueMenu.Back => new ReplyView(id, "Back"),
+            DialogueMenu.More => new ReplyView(id, "Ask about something else..."),
             _ => view.Replies.First(r => r.Id == id),
         }).ToList();
         Replies = shown.Select(r => r.Id).ToList();
@@ -158,7 +161,7 @@ public partial class DialoguePanel : CanvasLayer
             {
                 StyleReply(button, i + 1);
                 Tag(button, Choice(view, reply.Id));
-                if (importance.GetValueOrDefault(reply.Id) is DialogueMenu.Group.QuestAdvance)
+                if (importance.TryGetValue(reply.Id, out var rank) && rank is DialogueMenu.Group.QuestAdvance)
                     button.Text = "◆ " + button.Text;
             }
             string id = reply.Id;
@@ -343,9 +346,16 @@ public partial class DialoguePanel : CanvasLayer
 
     public void Answer(string replyId)
     {
+        if (replyId == DialogueMenu.More)
+        {
+            _askPage++;
+            Refresh();
+            return;
+        }
         if (replyId is DialogueMenu.Ask or DialogueMenu.Back)
         {
             _asking = replyId == DialogueMenu.Ask;
+            _askPage = 0;
             Refresh();
             return;
         }

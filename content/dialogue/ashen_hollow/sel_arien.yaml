@@ -104,140 +104,116 @@ nodes:
         text: "Tell me about the ember hounds."
         next: tell_hounds
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
-      - id: ask_ember_hounds
-        text: "Tell me about ember hounds"
-        next: tell_ember_hounds
-
-      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_otherfold
-        text: "Tell me about otherfolds"
+        text: "Tell me about otherfolds."
         next: tell_otherfold
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_othergate
-        text: "Tell me about othergates"
+        text: "Tell me about othergates."
         next: tell_othergate
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_otherway
-        text: "Tell me about otherways"
+        text: "Tell me about otherways."
         next: tell_otherway
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_pacha
-        text: "Tell me about the pacha"
+        text: "Tell me about the Pacha."
         next: tell_pacha
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_pachakuti
-        text: "Tell me about the pachakuti"
+        text: "Tell me about the Pachakuti."
         next: tell_pachakuti
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_siann
-        text: "Tell me about the siann"
+        text: "Tell me about the Siann."
         next: tell_siann
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_the_last_pachakuti
-        text: "Tell me about the last pachakuti"
+        text: "Tell me about the Last Pachakuti."
         next: tell_the_last_pachakuti
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_the_other
-        text: "Tell me about the other"
+        text: "Tell me about the Other."
         next: tell_the_other
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_the_siann_missing_page
-        text: "Tell me about the siann missing page"
+        text: "Tell me about the Siann missing page."
         next: tell_the_siann_missing_page
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_the_silence
-        text: "Tell me about the silence"
+        text: "Tell me about the Silence."
         next: tell_the_silence
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_the_specification
-        text: "Tell me about the specification"
+        text: "Tell me about the Specification."
         next: tell_the_specification
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_the_substrate
-        text: "Tell me about the substrate"
+        text: "Tell me about the Substrate."
         next: tell_the_substrate
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_the_veil
-        text: "Tell me about the veil"
+        text: "Tell me about the Veil."
         next: tell_the_veil
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
-      - id: ask_ember_hounds_p2
-        text: "Tell me about ember hounds"
-        next: tell_ember_hounds_p2
-
-      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
-      - id: ask_siann_p2
-        text: "Tell me about the siann"
-        next: tell_siann_p2
-
-      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
-      - id: ask_the_siann_missing_page_p2
-        text: "Tell me about the siann missing page"
-        next: tell_the_siann_missing_page_p2
-
-      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_boneleaf_p2
-        text: "Tell me about boneleaf"
+        text: "Tell me about boneleaf."
         next: tell_boneleaf_p2
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_cinder_sac_p2
-        text: "Tell me about cinder sac"
+        text: "Tell me about cinder sac."
         next: tell_cinder_sac_p2
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_woundmoss_p2
-        text: "Tell me about woundmoss"
+        text: "Tell me about woundmoss."
         next: tell_woundmoss_p2
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_otherborn_p2
-        text: "Tell me about otherborn"
+        text: "Tell me about otherborn."
         next: tell_otherborn_p2
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_othermarked_p2
-        text: "Tell me about othermarked"
+        text: "Tell me about othermarked."
         next: tell_othermarked_p2
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_otherwhen_p2
-        text: "Tell me about otherwhen"
+        text: "Tell me about otherwhen."
         next: tell_otherwhen_p2
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_otherwhere_p2
-        text: "Tell me about otherwhere"
+        text: "Tell me about otherwhere."
         next: tell_otherwhere_p2
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_otherwrought_p2
-        text: "Tell me about otherwrought"
+        text: "Tell me about otherwrought."
         next: tell_otherwrought_p2
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_long_survey
-        text: "Tell me about the long survey"
+        text: "Tell me about the Long Survey."
         next: tell_long_survey
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
-      - id: ask_long_survey_p2
-        text: "Tell me about the long survey"
-        next: tell_long_survey_p2
-
       - id: leave
         text: "Another time."
       - id: story_grazers
@@ -562,14 +538,6 @@ nodes:
     - id: back
       text: I'll keep looking.
       next: again
-  tell_ember_hounds:
-    text: "What the cinder sacs are for, in Sel Arien's own words, given with the door shut even though there is no one to hear. Work one into a finished salve over a fire and the mending runs twice as fast. She has no idea why. She has tried it eleven times and it has worked eleven times, and she still will not put it in the Record until she knows the reason, so it is not a secret - it is unfinished. That distinction matters to her more than the salve does. A thing that works and cannot say why is a thing to be kept carefully and not written down as knowledge, and the same rule she applies to the stones she will not name a people for applies to the cinders she is happy to use."
-    choices:
-      - id: back
-        text: "I will remember it."
-        consequences: [{ command: tell_lore, lore_ref: lore.ember_hounds }]
-        next: again
-
   tell_otherfold:
     text: "An Otherfold is a bend in the ordinary shape of space and time, and it is the least strange thing the surveyor has a word for, which she says is the worrying part. A fold can join two far places. It can join two eras. It can join two realities. It can put a room inside itself so the inside is larger than the outside. It can shorten a road for a while, then let the road go back to its real length. Some folds rise on their own, and some are pinned in place on purpose, and some come undone."
     choices:
@@ -674,30 +642,6 @@ nodes:
         consequences: [{ command: tell_lore, lore_ref: lore.the_veil }]
         next: again
 
-  tell_ember_hounds_p2:
-    text: "What the cinder sacs are for, in Sel Arien's own words, given with the door shut even though there is no one to hear. Work one into a finished salve over a fire and the mending runs twice as fast. She has no idea why. She has tried it eleven times and it has worked eleven times, and she still will not put it in the Record until she knows the reason, so it is not a secret - it is unfinished. That distinction matters to her more than the salve does. A thing that works and cannot say why is a thing to be kept carefully and not written down as knowledge, and the same rule she applies to the stones she will not name a people for applies to the cinders she is happy to use."
-    choices:
-      - id: back
-        text: "I will remember it."
-        consequences: [{ command: tell_lore, lore_ref: lore.ember_hounds }]
-        next: again
-
-  tell_siann_p2:
-    text: "Sel Arien, the archivist who keeps her books at the survey table east of the lodge, is the Siann habit made flesh. The Record holds eleven lines on the Foldscar, and four of them contradict the other seven, so she grades her own guesses and says none of them aloud at better than one chance in three. She came out here for a season. That was thirty-one years ago, and when Tavar Orr tells her it was a long season, she answers only that it felt recent. She will take your account of a thing and forbid you to improve it, because to her the word, exactly as given, is the whole of what a witness is worth. That is the Siann way in one scholar: time spent like a surplus, and testimony held like the only thing that cannot be bought back."
-    choices:
-      - id: back
-        text: "I will remember it."
-        consequences: [{ command: tell_lore, lore_ref: lore.siann }]
-        next: again
-
-  tell_the_siann_missing_page_p2:
-    text: "Ask a Siann what the missing part said, and the answer is a long one about something else. Sel Arien will confirm that the record begins mid-sentence, and grade that as a certainty, and then she will not go further. The oldest Siann know what is gone from the front of it, and they have kept that page closed for centuries, because to open it would be to admit that the Record, the whole standing of their people, set on exact testimony, begins with a gap they have known about and never once reported. That is the finding, and the surveyor leaves it where it stands."
-    choices:
-      - id: back
-        text: "I will remember it."
-        consequences: [{ command: tell_lore, lore_ref: lore.the_siann_missing_page }]
-        next: again
-
   tell_boneleaf_p2:
     text: "Sel Arien wants the leaves, and she wants you to note which way the veins run, exactly. They should not run the way they do, she says, and when the leaf comes back with its veins running outward from the tip she says it as if it were expected and still not true. I will write it down, she says, and nobody will read it, and it will still be true. That is the shape of the thing: a plant that grows only at the Foldscar and keeps whatever it knows in the wrong way its veins lie, and a surveyor who will record the fact and leave the meaning alone."
     choices:
@@ -764,14 +708,6 @@ nodes:
 
   tell_long_survey:
     text: "The Long Survey is Sel Arien's work, and its seat is the survey table at the waystation, where she watches the Foldscar and the old workings around it. It surveys what nobody has properly surveyed: the Foldscar, three standing stones around something that is no longer there or never was, and the sealed ring under the hill. What it wants is the Quiet Stones set right — turned square to the ring, the heart steadied last — because a thing measured wrong can be put right, and a thing never measured cannot. It is a patient work, and a work of years; she came for a season, thirty-one years ago."
-    choices:
-      - id: back
-        text: "I will remember it."
-        consequences: [{ command: tell_lore, lore_ref: lore.long_survey }]
-        next: again
-
-  tell_long_survey_p2:
-    text: "The Survey holds its findings only as far as the evidence reaches, and Sel Arien is the living proof of the rule. She grades her own guesses and says none of them aloud at better than one chance in three, and she will not put a thing in the Record until she knows why it works — eleven times tried and eleven times worked, and still unwritten, because a fact without a reason is not finished. Where the evidence stops, she stops: the heading names an order, and she will not say the ledger's last entry was followed, because the records are not all in yet. Do not fill the gaps with a better story, she says, and the Survey does not."
     choices:
       - id: back
         text: "I will remember it."

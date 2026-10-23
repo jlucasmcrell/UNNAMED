@@ -470,6 +470,7 @@ public static class SocialContent
     /// <summary>Every way through a conversation leads to a node it has, and no chain of spent lines loops.</summary>
     private static void CheckGraph(DialogueDefinition dialogue)
     {
+        CheckTopicReplies(dialogue);
         string id = dialogue.Id;
         void Exists(string? node, string what)
         {
@@ -608,6 +609,27 @@ public static class SocialContent
         !map.TryGetValue(key, out var value) ? fallback
         : long.TryParse(value as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out long parsed) ? parsed
         : throw new FormatException($"'{key}' must be a whole number");
+
+    /// <summary>Reject duplicate topic offers, including hand-written tellings.</summary>
+    public static void CheckTopicReplies(DialogueDefinition dialogue)
+    {
+        foreach (var node in dialogue.Nodes.Values)
+        {
+            var texts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var entries = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var choice in node.Choices)
+            {
+                string where = $"{dialogue.Id} node {node.Id} reply {choice.Id}";
+                if (!texts.Add(choice.Text.Trim().TrimEnd('.', '?', '…')))
+                    throw new FormatException($"{where}: duplicate reply text");
+                var effects = choice.Consequences.AsEnumerable();
+                if (choice.Next is { } next && dialogue.Nodes.TryGetValue(next, out var telling) && telling.Choices.Length == 1)
+                    effects = effects.Concat(telling.Choices.SelectMany(c => c.Consequences));
+                foreach (string entry in effects.OfType<TellLoreConsequence>().Select(c => c.EntryId).Distinct(StringComparer.Ordinal))
+                    if (!entries.Add(entry)) throw new FormatException($"{where}: duplicate lore_ref {entry}");
+            }
+        }
+    }
 
     private static int Positive(Dictionary<object, object> map, string key, int fallback) =>
         LongOr(map, key, fallback) is var value && value is >= 1 and <= int.MaxValue ? (int)value : throw new FormatException($"'{key}' must be at least 1");
