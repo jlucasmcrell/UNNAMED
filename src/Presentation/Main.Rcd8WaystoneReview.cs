@@ -103,7 +103,9 @@ public partial class Main
             if(!sim.Waystones.Single(w=>w.Site.Key==key).Known)throw new InvalidDataException("Stone touch was refused: "+key);
             CloseScreens();
         }
-        await Go(new[]{(428.9,758.0)},8);await Touch("waystone.ashen");
+        // The first drawn world frame lazily loads the cast. Do not charge that cold load to a walking deadline.
+        await Rcd3Wait(3);Mark("world_warm");
+        await Touch("waystone.ashen");
         await Go(new[]{(430.0,754.0),(407.0,754.0),(407.0,758.0)},30);
         _camera.Yaw=-Mathf.Pi/2;await Rcd3Wait(1);
         DisplayServer.WindowSetTitle("Otherreach - "+Path.GetFileName(directory));
