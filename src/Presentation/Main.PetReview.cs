@@ -15,8 +15,8 @@ public partial class Main
     private const string PetReviewOption = "--pet-review";
 
     /// <summary>Where the fixture's character stands: flat open grass east of Ashen Hollow, clear of every building.</summary>
-    private const long ReviewPlayerXMm = 503_000;
-    private const long ReviewPlayerZMm = 741_000;
+    private const long ReviewPlayerXMm = 486_000;
+    private const long ReviewPlayerZMm = 745_000;
     private const string ReviewWolf = "creature.beast.wolf_grey";
 
     private string? _reviewDirectory;
