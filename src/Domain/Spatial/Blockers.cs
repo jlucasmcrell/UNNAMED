@@ -144,7 +144,13 @@ public sealed record PolygonBlocker : Blocker
         Corners = Hull(points);
         if (Corners.Length < 3)
             throw new ArgumentException($"{id}: a hull needs three corners not on one line", nameof(points));
+        (MinX, MinZ, MaxX, MaxZ) = (Corners.Min(c => c.XMm), Corners.Min(c => c.ZMm), Corners.Max(c => c.XMm), Corners.Max(c => c.ZMm));
     }
+
+    // Every body is tested against every structure each sub-step: the hull's box answers most of them without the edges.
+    private readonly long MinX, MinZ, MaxX, MaxZ;
+
+    private bool Beyond(double x, double z, double margin) => x < MinX - margin || x > MaxX + margin || z < MinZ - margin || z > MaxZ + margin;
 
     public long CenterXMm => (long)Math.Round(Corners.Average(c => (double)c.XMm), MidpointRounding.AwayFromZero);
     public long CenterZMm => (long)Math.Round(Corners.Average(c => (double)c.ZMm), MidpointRounding.AwayFromZero);
@@ -177,6 +183,8 @@ public sealed record PolygonBlocker : Blocker
     /// <summary>True when the point lies inside or on the footprint.</summary>
     public bool Contains(double x, double z)
     {
+        if (Beyond(x, z, 0))
+            return false;
         for (int i = 0; i < Corners.Length; i++)
         {
             var (a, b) = (Corners[i], Corners[(i + 1) % Corners.Length]);
@@ -210,6 +218,8 @@ public sealed record PolygonBlocker : Blocker
 
     public override (double Dx, double Dz)? Separation(double x, double z, double radius)
     {
+        if (Beyond(x, z, radius))
+            return null;
         var (qx, qz, nx, nz) = Nearest(x, z);
         double dx = x - qx, dz = z - qz;
         if (Contains(x, z))

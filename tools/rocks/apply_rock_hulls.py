@@ -9,7 +9,28 @@ import json
 import re
 import sys
 
-hulls = json.load(open(sys.argv[1], encoding="utf-8"))
+TOLERANCE_M = 0.03   # a corner this close to the line of its neighbours adds nothing a body can feel
+
+
+def simplify(hull):
+    """Drop corners within TOLERANCE_M of the chord between their neighbours, until none is (the outline stays within 3 cm)."""
+    pts = list(hull)
+    changed = True
+    while changed and len(pts) > 3:
+        changed = False
+        for i in range(len(pts)):
+            (ax, az), (bx, bz), (cx, cz) = pts[i - 1], pts[i], pts[(i + 1) % len(pts)]
+            chord = ((cx - ax) ** 2 + (cz - az) ** 2) ** 0.5
+            if chord and abs((cx - ax) * (bz - az) - (cz - az) * (bx - ax)) / chord < TOLERANCE_M:
+                del pts[i]
+                changed = True
+                break
+    return pts
+
+
+ROCKS = ("cw_boulder_", "cw_crag_")   # rock only: turned props (woodpiles) keep their authored footprint and the anchors fitted to it
+
+hulls = {k: simplify(v) for k, v in json.load(open(sys.argv[1], encoding="utf-8")).items() if k.startswith(ROCKS)}
 path = sys.argv[2]
 text = open(path, encoding="utf-8", newline="").read()
 nl = "\r\n" if "\r\n" in text else "\n"

@@ -34,6 +34,65 @@ public partial class Main
         GD.Print($"UNNAMED rock hulls: {hulls.Count} written to {path}");
     }
 
+    // Owner finding 50's gate, by normal movement and jump commands at Cairnwold's rocks: onto a 0.8 m boulder, a mantle onto a 1.6 m one,
+    // then round a 2.8 m one close by, seen from the side.
+    private async Task TraversalGate(UNNAMED.World.Runtime.Simulation simulation,string directory)
+    {
+        using var log=new StreamWriter(Path.Combine(directory,"gate.csv"));
+        log.WriteLine("ms,step,x,z,feet,ground,airborne,stance");
+        string step="start";
+        _session.Subscribe<UNNAMED.World.Runtime.CommandRejected>(e=>log.WriteLine($"{Time.GetTicksMsec()},REFUSED {e.Command.GetType().Name}: {e.Reason}"));
+        void Log(){var b=simulation.Player.Body;log.WriteLine(FormattableString.Invariant($"{Time.GetTicksMsec()},{step},{b.XMm/1000.0},{b.ZMm/1000.0},{b.YMm/1000.0},{_ground.Height(b.XMm/1000f,b.ZMm/1000f)},{simulation.Posture.Airborne},{simulation.Posture.Stance}"));}
+        Vector2 At(){var b=simulation.Player.Body;return new Vector2(b.XMm/1000f,b.ZMm/1000f);}
+        async Task Frames(double seconds){ulong until=Time.GetTicksMsec()+(ulong)(seconds*1000);while(Time.GetTicksMsec()<until){await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Log();}}
+        async Task WalkTo(Vector2 end)
+        {
+            step=FormattableString.Invariant($"walk {end.X},{end.Y}");
+            var body=simulation.Player.Body;
+            foreach(var point in Playthrough.WayTo(simulation,body,new Body((long)(end.X*1000),body.YMm,(long)(end.Y*1000),body.FacingMdeg),standOff:0))
+                for(ulong give=Time.GetTicksMsec()+8000;Time.GetTicksMsec()<give;)
+                {
+                    var d=new Vector3((float)(point.X-At().X),0,(float)(point.Z-At().Y));
+                    if(d.Length()<.3f)break;
+                    _controller.SteerWorld(d.Normalized(),Gait.Walk,_camera);
+                    await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+                    Log();
+                }
+            _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);
+        }
+        // Run along a heading; jump once the body comes within reach of the named rock; keep running for the given time.
+        async Task RunAndJump(Vector3 heading,string rock,float jumpWithinM,double seconds)
+        {
+            step=rock+" run";
+            var target=simulation.Setup.Layout.Space.Blockers.Single(b=>b.Id==rock);
+            bool jumped=false;
+            for(ulong until=Time.GetTicksMsec()+(ulong)(seconds*1000);Time.GetTicksMsec()<until;)
+            {
+                _controller.SteerWorld(heading,Gait.Run,_camera);
+                if(!jumped&&target.DistanceTo(simulation.Player.Body.XMm,simulation.Player.Body.ZMm)<jumpWithinM*1000){_controller.Jump();jumped=true;step=rock+" jump";}
+                await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+                Log();
+            }
+            _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);
+        }
+        _camera.TargetDistance=5f;_camera.Pitch=-.12f;_camera.Yaw=Mathf.Pi;   // looking north: the runs east cross the view
+        await WalkTo(new Vector2(928.0f,700.0f));
+        await Frames(1);
+        await RunAndJump(Vector3.Right,"cw_boulder_b_204",.6f,.9);   // the mantle onto the 1.6 m one
+        await Frames(2);
+        await RunAndJump(Vector3.Right,"cw_boulder_b_204",0,1.2);
+        await WalkTo(new Vector2(936.5f,706.8f));
+        await Frames(1);
+        await WalkTo(new Vector2(947.5f,706.8f));                      // round the 2.8 m one: no wall where there is no rock
+        await Frames(1);
+        await WalkTo(new Vector2(952.5f,703.1f));
+        await Frames(1);
+        await RunAndJump(Vector3.Right,"cw_boulder_a_222",.9f,.9);   // onto the 0.8 m boulder, and stop on it
+        await Frames(2);
+        await RunAndJump(Vector3.Right,"cw_boulder_a_222",0,1.2);    // off its far side
+        await Frames(2);
+    }
+
     // Diagnostic input driver only: unchanged simulation pacing, renderer and movement commands.
     private async Task RunRcd6RealtimeRoute(string directory)
     {
@@ -144,6 +203,7 @@ public partial class Main
                     trace.WriteLine(FormattableString.Invariant($"{frame++},{Time.GetTicksMsec()},{at.X},{at.Y},{cam.X},{cam.Y},{cam.Z},{_camera.Yaw},{Engine.MaxFps},{Performance.GetMonitor(Performance.Monitor.RenderTotalDrawCallsInFrame)}"));
                 }
             }
+            if(OS.GetEnvironment("OTHERREACH_TRAVERSAL_GATE")=="1")await TraversalGate(simulation,directory);
             File.WriteAllText(Path.Combine(directory,"route_complete.json"),JsonSerializer.Serialize(new{frame,seconds=(Time.GetTicksMsec()-start)/1000.0,arm}));
         }
         catch(Exception error)
