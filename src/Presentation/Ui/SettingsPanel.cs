@@ -273,7 +273,7 @@ public partial class SettingsPanel : CanvasLayer
         page.AddChild(Choice("display.upscaler", "Upscaling", "Below 100% render scale: FSR sharpens the smaller picture; Bilinear is softer. Applies at once.",
             new[] { "FSR", "Bilinear" }, (int)machine.Upscaler, i => Machine(m => m with { Upscaler = (Upscaler)i })));
         page.AddChild(Choice("display.aa", "Anti-aliasing", "Smooths jagged edges. TAA steadies detail in motion; MSAA costs more. Applies at once. High and Ultra use TAA by default.",
-            new[] { "As the tier", "Off", "FXAA", "TAA", "MSAA 2×", "MSAA 4×", "MSAA 4× + TAA" }, (int)machine.AntiAliasing,
+            new[] { "As the tier", "Off", "FXAA", "TAA", "MSAA 2Ã—", "MSAA 4Ã—", "MSAA 4Ã— + TAA" }, (int)machine.AntiAliasing,
             i => Machine(m => m with { AntiAliasing = (AntiAliasing)i })));
         page.AddChild(Toggle("display.vsync", "Vertical sync", "Waits for the screen: no tearing, a little more delay.", machine.Vsync,
             on => Machine(m => m with { Vsync = on })));
