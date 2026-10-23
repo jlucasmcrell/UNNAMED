@@ -22,10 +22,11 @@ public partial class Main
         {
             if (_avatar is SkinnedFigure comparison && VisualOptions.ComparisonCast is not null)
             {
-                using var cast = JsonDocument.Parse(Godot.FileAccess.GetFileAsString("res://Art/mpfb_cast.json"));
+                bool humgen = VisualOptions.ComparisonCast == "humgen";
+                using var cast = JsonDocument.Parse(Godot.FileAccess.GetFileAsString(humgen ? "res://Art/humgen_cast.json" : "res://Art/mpfb_cast.json"));
                 var model = cast.RootElement.GetProperty("models").EnumerateArray().Single(m => m.GetProperty("id").GetString() == comparison.ModelId);
                 string sex = model.GetProperty("sex").GetString()!;
-                float expectedHeight = cast.RootElement.GetProperty("stature_m").GetProperty(sex).GetSingle();
+                float expectedHeight = humgen ? model.GetProperty("height_m").GetSingle() : cast.RootElement.GetProperty("stature_m").GetProperty(sex).GetSingle();
                 float drawnHeight = comparison.StatureScale * model.GetProperty("height_m").GetSingle();
                 if (Math.Abs(drawnHeight - expectedHeight) > .01f) throw new InvalidOperationException("Comparison creator retained the previous body's scale");
                 File.WriteAllText(Path.Combine(directory,"comparison_stature.json"),JsonSerializer.Serialize(new { model = comparison.ModelId, sex, expectedHeight, drawnHeight, scale = comparison.StatureScale }));
@@ -36,11 +37,21 @@ public partial class Main
             AddChild(camera);
             source.GetNode<OmniLight3D>("CharacterFill").Reparent(camera, false);
             camera.MakeCurrent();
-            if(OS.GetEnvironment("OTHERREACH_RCD6_STARTUP_REVIEW")=="1")
+            if(OS.GetEnvironment("OTHERREACH_RCD8_WAYSTONE_REVIEW")=="1")
+            {
+                await RunRcd8WaystoneReview(directory,camera);GetTree().Quit();return;
+            }
+            bool humgenStartup=OS.GetEnvironment("OTHERREACH_RCD8_STARTUP_REVIEW")=="1";
+            if(humgenStartup || OS.GetEnvironment("OTHERREACH_RCD6_STARTUP_REVIEW")=="1")
             {
                 _rcd3Driving=true;
                 var sim=_session.Simulation ?? throw new InvalidDataException("Fresh startup has no world");
-                if(sim.Setup.Pets is not null || sim.Pets.Length!=0)throw new InvalidDataException("Pending pets were enabled in RC d6");
+                if(humgenStartup)
+                {
+                    if(_avatar is not SkinnedFigure native || !native.ModelId.StartsWith("humgen_",StringComparison.Ordinal))throw new InvalidDataException("RC d8 did not draw a HumGen player");
+                    if(sim.Setup.Pets is null)throw new InvalidDataException("Accepted pets are missing from RC d8");
+                }
+                else if(sim.Setup.Pets is not null || sim.Pets.Length!=0)throw new InvalidDataException("Pending pets were enabled in RC d6");
                 var plants=_scatter.FindChildren("*",nameof(MultiMeshInstance3D),true,false).Count;
                 if(plants==0)throw new InvalidDataException("Fresh startup has no scatter meshes");
                 var aim=_avatar.GlobalPosition+Vector3.Up*1.1f;
