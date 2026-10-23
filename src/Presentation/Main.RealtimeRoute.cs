@@ -155,7 +155,7 @@ public partial class Main
         }
         _camera.TargetDistance=3.5f;_camera.Pitch=-.18f;
         using var trace=new StreamWriter(Path.Combine(directory,"route.csv"));
-        trace.WriteLine("frame,ms,player_x,player_z,camera_x,camera_y,camera_z,yaw,frame_cap,draw_calls");
+        trace.WriteLine("frame,ms,player_x,player_z,camera_x,camera_y,camera_z,yaw,frame_cap,draw_calls,video_mem_mb");
         int frame=0;
         File.WriteAllText(Path.Combine(directory,"record_ready.json"),JsonSerializer.Serialize(new{
             arm,scatter_cells=scatter.Length,visible_scatter_nodes=scatter.Count(n=>n.Visible),residency=_scatter.ResidencyEnabled,max_fps=Engine.MaxFps,
@@ -200,7 +200,7 @@ public partial class Main
                     _controller.SteerWorld(d.Normalized(),Gait.Run,_camera);
                     await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
                     var cam=_camera.Camera.GlobalPosition;
-                    trace.WriteLine(FormattableString.Invariant($"{frame++},{Time.GetTicksMsec()},{at.X},{at.Y},{cam.X},{cam.Y},{cam.Z},{_camera.Yaw},{Engine.MaxFps},{Performance.GetMonitor(Performance.Monitor.RenderTotalDrawCallsInFrame)}"));
+                    trace.WriteLine(FormattableString.Invariant($"{frame++},{Time.GetTicksMsec()},{at.X},{at.Y},{cam.X},{cam.Y},{cam.Z},{_camera.Yaw},{Engine.MaxFps},{Performance.GetMonitor(Performance.Monitor.RenderTotalDrawCallsInFrame)},{Performance.GetMonitor(Performance.Monitor.RenderVideoMemUsed)/1048576:0}"));
                 }
             }
             if(OS.GetEnvironment("OTHERREACH_TRAVERSAL_GATE")=="1")await TraversalGate(simulation,directory);

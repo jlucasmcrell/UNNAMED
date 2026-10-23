@@ -371,6 +371,9 @@ public partial class ScatterView : Node3D
                 VisibilityRangeFadeMode = fade ? GeometryInstance3D.VisibilityRangeFadeModeEnum.Self
                     : GeometryInstance3D.VisibilityRangeFadeModeEnum.Disabled,
             };
+            // Trees (the sapling stands): one full-detail band at every distance, by the owner's ruling (ArtLibrary.IsTree).
+            if (kind.Rules.ModelId is { } treeId && ArtLibrary.IsTree(treeId))
+                ArtLibrary.Whole(band);
             AddChild(band);
             bands.Add(band);
         }
@@ -678,7 +681,10 @@ public partial class ScatterView : Node3D
         var levels = art.ModelLevels(id);
         var meshes = new List<Mesh>();
         float height = 0;
-        foreach (var level in levels)
+        bool tree = ArtLibrary.IsTree(id);
+        foreach (var lighter in levels.Skip(tree ? 1 : levels.Count))
+            lighter.Free();
+        foreach (var level in levels.Take(tree ? 1 : levels.Count))
         {
             bool impostor = level.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>()
                 .Any(m => m.Mesh is not null && Enumerable.Range(0, m.Mesh.GetSurfaceCount()).Any(s =>
@@ -726,7 +732,7 @@ public partial class ScatterView : Node3D
             // Surface merging above copies only the close-up arrays, losing the importer's LODs.
             // Regenerate after transforming into model space so each instanced plant keeps its
             // original near mesh, material and placement, with projected-error indices further out.
-            if (System.Environment.GetEnvironmentVariable("UNNAMED_RUNTIME_MESH_LODS") != "0" &&
+            if (!tree && System.Environment.GetEnvironmentVariable("UNNAMED_RUNTIME_MESH_LODS") != "0" &&
                 !(!kind.Shadows && OS.GetEnvironment("UNNAMED_SCATTER_PLANT_LOD") == "1"))
             {
                 using var importer = new ImporterMesh();
