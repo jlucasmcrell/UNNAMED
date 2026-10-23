@@ -36,10 +36,15 @@ Accepted sources:
 | Jog strafe L/R | FAL anim_Jog_Loop_Left_L / anim_Jog_Loop_Right_R |
 | Walk/run backwards | FAL anim_Walk_Bwd_Loop_L / anim_Jog_Loop_Bwd |
 | Three sword attacks | UAL1 Sword_Attack; UAL2 Sword_Regular_A / Sword_Regular_B |
+| Sword ready guard | UAL1 Pistol_Idle_Loop; upright two-hand guard, Claude accepted Ada06 for owner review |
 | Spear ready/thrust | FAL Update_2/Spear AS_Spear_Idle / AS_Spear_Attack_01; HumGen visual gate pending |
 
 Carry sit/lie, grounded captive kneel, idle variety, face driver and measured foot contacts too.
 The imported 24-state comparison bake is an intermediate, not acceptance of the full animation port.
+
+The original UAL1 Sword_Idle contains an authored deep squat. Native source/target measurements
+confirmed Epic's pelvis-height scaling preserves that pose correctly. Replace the ready source;
+do not lift the hips or keyframe arms to compensate. The accepted three strikes stay unchanged.
 
 ## Gates and delivery
 

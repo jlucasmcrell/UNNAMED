@@ -61,7 +61,7 @@
   ],
   "sword_ready": [
     "ual1",
-    "Sword_Idle"
+    "Pistol_Idle_Loop"
   ],
   "sword_block": [
     "ual2",
