@@ -14,6 +14,8 @@ public static class DialogueMenu
 {
     public const string Ask = "\u0001ask";
     public const string Back = "\u0001back";
+    public const string More = "\u0001more";
+    public const int TopicsPerPage = 4;
 
     /// <summary>At most this many replies show flat; more fold their topics into the Ask entry.</summary>
     public const int FlatMost = 6;
@@ -43,7 +45,7 @@ public static class DialogueMenu
     public static ImmutableArray<string> Top(IReadOnlyList<(string Id, DialogueChoice? Choice)> replies, Func<string, Group>? importance = null, Func<string, bool>? read = null)
     {
         var grouped = replies.Select(r => (r.Id, Group: importance?.Invoke(r.Id) ?? Classify(r.Choice))).ToList();
-        if (replies.Count <= FlatMost)
+        if (replies.Count <= FlatMost && grouped.Count(r => r.Group == Group.Topic) <= TopicsPerPage)
             return grouped.OrderBy(r => r.Group).ThenBy(r => read?.Invoke(r.Id) == true).Select(r => r.Id).ToImmutableArray();
         var top = grouped.Where(r => r.Group is not (Group.Topic or Group.Close)).OrderBy(r => r.Group).Select(r => r.Id).ToList();
         if (grouped.Any(r => r.Group == Group.Topic))
@@ -53,6 +55,13 @@ public static class DialogueMenu
     }
 
     /// <summary>The topic ids behind the Ask entry, in the content's order, then Back.</summary>
-    public static ImmutableArray<string> Topics(IReadOnlyList<(string Id, DialogueChoice? Choice)> replies, Func<string, Group>? importance = null, Func<string, bool>? read = null) =>
-        replies.Where(r => (importance?.Invoke(r.Id) ?? Classify(r.Choice)) == Group.Topic).OrderBy(r => read?.Invoke(r.Id) == true).Select(r => r.Id).Append(Back).ToImmutableArray();
+    public static ImmutableArray<string> Topics(IReadOnlyList<(string Id, DialogueChoice? Choice)> replies, Func<string, Group>? importance = null, Func<string, bool>? read = null, int page = 0)
+    {
+        var topics = replies.Where(r => (importance?.Invoke(r.Id) ?? Classify(r.Choice)) == Group.Topic)
+            .OrderBy(r => read?.Invoke(r.Id) == true).Select(r => r.Id).ToArray();
+        int offset = Math.Clamp(page, 0, Math.Max(0, (topics.Length - 1) / TopicsPerPage)) * TopicsPerPage;
+        var shown = topics.Skip(offset).Take(TopicsPerPage);
+        if (offset + TopicsPerPage < topics.Length) shown = shown.Append(More);
+        return shown.Append(Back).ToImmutableArray();
+    }
 }

@@ -53,7 +53,7 @@ nodes:
           - { kind: quest_state, quest_ref: quest.ashen_hollow.iron_under_ash, objective: o_ore, is: satisfied, not: true }
         next: where
       - id: show_fine
-        text: "I made a spear. Look."
+        text: "I made a spear I am proud of. What do you think?"
         conditions:
           - { kind: has_item, item_ref: item.weapon.march_spear, quality_min: 1 }
           - { kind: visited, node: praised, not: true }
@@ -139,37 +139,32 @@ nodes:
         next: barrowworks_told
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_kal
-        text: "Tell me about the kal"
+        text: "Tell me about the Kal."
         next: tell_kal
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_the_kal_afterlife
-        text: "Tell me about the kal afterlife"
+        text: "Tell me about the Kal afterlife."
         next: tell_the_kal_afterlife
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_the_kals_maker
-        text: "Tell me about the kal's maker"
+        text: "Tell me about the Kal's maker."
         next: tell_the_kals_maker
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
-      - id: ask_kal_p2
-        text: "Tell me about the kal"
-        next: tell_kal_p2
-
-      # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_bog_cotton_p2
-        text: "Tell me about bog cotton"
+        text: "Tell me about bog cotton."
         next: tell_bog_cotton_p2
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_iron_under_ash_after_p2
-        text: "Tell me about iron under ash"
+        text: "Tell me about Iron Under Ash."
         next: tell_iron_under_ash_after_p2
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_spider_silk_p2
-        text: "Tell me about spider silk"
+        text: "Tell me about spider silk."
         next: tell_spider_silk_p2
 
       - id: leave
@@ -419,14 +414,6 @@ nodes:
       - id: back
         text: "I will remember it."
         consequences: [{ command: tell_lore, lore_ref: lore.the_kals_maker }]
-        next: again
-
-  tell_kal_p2:
-    text: "The smith Kera Voss says it plainly, over her own hammer. Ask about the wings and she will tell you they fold, that they are not for flying — not in this air, and not with her supper in her — and that they are good for coming down off a roof slow. Ask her about the Foldscar and the warmth goes out of her. A Kal caught when a world turns does not die, she says; it sets, stone all the way through, standing where it stood, and the ring out there is a world half-turning all day long. She will make you anything you like to carry out to it. She will not carry herself. That is the whole of the Kal condition in two answers: a people who hold their dead as stone, and who know exactly what a turn would make of them."
-    choices:
-      - id: back
-        text: "I will remember it."
-        consequences: [{ command: tell_lore, lore_ref: lore.kal }]
         next: again
 
   tell_bog_cotton_p2:
