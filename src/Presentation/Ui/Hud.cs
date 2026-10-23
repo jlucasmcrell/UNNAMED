@@ -19,6 +19,7 @@ namespace UNNAMED.Presentation.Ui;
 public partial class Hud : CanvasLayer
 {
     private readonly Label _fpsReadout = Text(15);
+    private readonly Label _worldClock = Text(15);
     private ulong _fpsSampleAt;
     private int _fpsSampleDrawn;
     private readonly Label _status = Text(18);
@@ -76,6 +77,14 @@ public partial class Hud : CanvasLayer
         _fpsReadout.HorizontalAlignment = HorizontalAlignment.Right;
         _fpsReadout.Visible = false;
         AddChild(_fpsReadout);
+        _worldClock.Name = "WorldClock";
+        _worldClock.MouseFilter = Control.MouseFilterEnum.Ignore;
+        _worldClock.SetAnchorsPreset(Control.LayoutPreset.TopRight);
+        _worldClock.Size = new Vector2(270, 24);
+        _worldClock.HorizontalAlignment = HorizontalAlignment.Right;
+        _worldClock.AddThemeColorOverride("font_outline_color", new Color(0, 0, 0, .9f));
+        _worldClock.AddThemeConstantOverride("outline_size", 4);
+        AddChild(_worldClock);
         var fadeLayer = new CanvasLayer { Layer = 100 };
         _fade.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         fadeLayer.AddChild(_fade);
@@ -378,6 +387,7 @@ public partial class Hud : CanvasLayer
     public void SetNearestMarker(float? bearingDegrees) => _compass.SetNearest(bearingDegrees);
 
     public void SetMarkerWords(string words) => _compass.SetMarkWords(words);
+    public void SetClock(string words) => _worldClock.Text = words;
 
     /// <summary>The pipeline's compass dial, when the asset workspace has one.</summary>
     public void UseCompassDial(Texture2D? dial) => _compass.UseDial(dial);
@@ -502,8 +512,12 @@ public partial class Hud : CanvasLayer
                 _fpsSampleDrawn = drawn;
             }
         }
+        _worldClock.Visible = Settings.SettingsStore.Current.Profile.Interface.ShowClock;
+        _worldClock.Position = new Vector2(-294, _compass.OccupiedBottom + 4);
+        float compassBottom = _compass.OccupiedBottom + (_worldClock.Visible ? 32 : 0);
         if (_view is not null)
-            _view.CompassBottom = (_view.GetGlobalTransform().AffineInverse() * new Vector2(0, _compass.OccupiedBottom)).Y;
+            _view.CompassBottom = (_view.GetGlobalTransform().AffineInverse() * new Vector2(0, compassBottom)).Y;
+        else _tracker.Position = new Vector2(_tracker.Position.X, compassBottom + 8);
         _clock += delta;
         _fade.Color = _fade.Color with { A = Mathf.MoveToward(_fade.Color.A, _fadeTarget, (float)delta) };
         if (_death.Visible && _clock >= _deathUntil)

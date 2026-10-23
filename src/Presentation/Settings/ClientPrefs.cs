@@ -318,6 +318,7 @@ public sealed record InterfacePrefs
     public float TextSize { get; init; } = 1f;
 
     public bool ShowFps { get; init; }
+    public bool ShowClock { get; init; } = true;
     public bool HighContrast { get; init; }
     public ColourVision ColourVision { get; init; } = ColourVision.None;
 
