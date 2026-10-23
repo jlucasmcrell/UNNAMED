@@ -562,6 +562,21 @@ over — the *people* exist here, the named individuals do not.
 
 ---
 
+## Adult stature (owner-approved, 2026-10-23)
+
+| Race | Typical adult height | Build |
+|---|---|---|
+| Siann | 1.40-1.55 m | slight |
+| Veth | 1.60-1.90 m | human baseline, long forearms, shins and fingers |
+| Orenth | 1.60-1.90 m | human baseline |
+| Kal | 1.50-1.75 m | very broad and heavy; folding dorsal wings extra |
+| Constructed | 2.10-2.30 m | idealised human form, liquid chrome |
+| Vaskaal | 2.20-2.50 m | very lean, long limbs with extra articulation |
+| Ondrek | 2.00-2.60 m | massive, irregular living stone |
+| Mor | varies | the remembered shape; not bound to a body |
+
+World, camera, reach, stride and gear fit families must accommodate this full range.
+
 ## Body-plan, armor and animation production guidance
 
 Race design must preserve enough shared structure that the equipment and animation
