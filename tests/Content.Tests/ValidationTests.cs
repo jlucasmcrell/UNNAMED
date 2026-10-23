@@ -557,7 +557,7 @@ public class ContentLoaderTests
                 "item.armor.smith_gloves", "item.armor.timber_shield", "item.armor.wool_trousers", "item.artefact.lantern_foot",
                 "item.bag.herb_pouch", "item.bag.pack_large", "item.bag.quiver", "item.bag.reagent_satchel",
                 "item.bag.satchel", "item.consumable.paralyse_coating", "item.consumable.poison_flask", "item.consumable.roast_meat", "item.consumable.salve_ember",
-                "item.consumable.salve_minor", "item.consumable.sleep_coating", "item.consumable.snarebind_resin", "item.material.alpha_pelt", "item.material.ash_haft", "item.material.barrowback_hide", "item.material.bog_cotton",
+                "item.consumable.salve_minor", "item.consumable.sleep_coating", "item.consumable.snarebind_resin", "item.heritage.kept_roll", "item.heritage.record_stone", "item.material.alpha_pelt", "item.material.ash_haft", "item.material.barrowback_hide", "item.material.bog_cotton",
                 "item.material.boneleaf", "item.material.cinder_sac", "item.material.deer_hide", "item.material.feathers",
                 "item.material.fellhorn_hide", "item.material.herb_ashbloom", "item.material.herb_woundmoss", "item.material.iron_ingot",
                 "item.material.iron_ore", "item.material.raw_meat", "item.material.small_hide", "item.material.spider_silk",

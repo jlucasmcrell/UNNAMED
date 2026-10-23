@@ -52,7 +52,9 @@ public class ReachabilityTests
         var setup = Harness.Boot(profile, barrowworks: true).Setup;
 
         var reachable = Reachable(setup);
-        Assert.Empty(setup.Items.Catalog.Definitions.Keys.Where(id => !reachable.Contains(id)));
+        // The heritage of a people nobody can play yet (the Ondrek's Record Stone) waits for them to be playable (owner, 2026-10-23).
+        var held = setup.Character.Peoples.Values.Where(p => !p.Playable).SelectMany(p => p.Heritage).Select(k => k.ItemId).ToHashSet(StringComparer.Ordinal);
+        Assert.Empty(setup.Items.Catalog.Definitions.Keys.Where(id => !reachable.Contains(id) && !held.Contains(id)));
     }
 
     /// <summary>
@@ -137,6 +139,7 @@ public class ReachabilityTests
             .Concat(setup.Combat.Spawns.SelectMany(s => s.Members).Select(m => setup.Combat.Creatures[m.CreatureId].LootTableId).OfType<string>()));
         var seenTables = new HashSet<string>(StringComparer.Ordinal);
         var reachable = new HashSet<string>(items.StartingKit.Select(k => k.ItemId), StringComparer.Ordinal);
+        reachable.UnionWith(setup.Character.PlayablePeoples.SelectMany(p => p.Heritage).Select(k => k.ItemId));
         while (tables.TryDequeue(out string? id))
         {
             if (!seenTables.Add(id) || !items.LootTables.TryGetValue(id, out var table))

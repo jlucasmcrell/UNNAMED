@@ -444,11 +444,11 @@ public sealed class Simulation
     /// starting kit (PROTOTYPE.md Â§5 step 1: the sword equipped), and no Call.
     /// </summary>
     public static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, ulong appearanceSeed) =>
-        NewCharacter(setup, id, name, null, appearanceSeed, null, null);
+        NewCharacter(setup, id, name, null, [], appearanceSeed, null, null);
 
     /// <summary>
     /// A new character made from the creator's spec: the starting package and kit, plus its Call's package, kit and contact (accepted
-    /// OD-C03). The spec must name a playable people and, if any, a defined Call.
+    /// OD-C03), and its people's heritage. The spec must name a playable people and, if any, a defined Call.
     /// </summary>
     /// <param name="atXMm">Where a capture stands the character; null uses the region's spawn, as every ordinary run does.</param>
     /// <param name="atZMm">The other half of <paramref name="atXMm"/>.</param>
@@ -458,12 +458,13 @@ public sealed class Simulation
         spec = spec.Validated();
         setup.Character.Check(spec);
         var call = spec.CallId is { } callId ? setup.Character.Calls[callId] : null;
+        var heritage = setup.Character.Peoples[spec.PeopleId].Heritage;
         var start = spec.Start == StartPoint.Road ? setup.Layout.Opening ?? setup.Layout.Spawn : setup.Layout.Spawn;
-        return NewCharacter(setup, id, spec.Name, call, appearanceSeed, start, atXMm, atZMm) with { Identity = CharacterIdentity.Of(spec) };
+        return NewCharacter(setup, id, spec.Name, call, heritage, appearanceSeed, start, atXMm, atZMm) with { Identity = CharacterIdentity.Of(spec) };
     }
 
-    private static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, CallDefinition? call, ulong appearanceSeed,
-        Body? start = null, long? atXMm = null, long? atZMm = null)
+    private static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, CallDefinition? call, ImmutableArray<StartingItem> heritage,
+        ulong appearanceSeed, Body? start = null, long? atXMm = null, long? atZMm = null)
     {
         var spawn = start ?? setup.Layout.Spawn;
         // A capture opens the character where it asked to rather than walking him there, which in the Barrowworks
@@ -471,7 +472,7 @@ public sealed class Simulation
         // untouched - the road start still decides where a character is made.
         long xMm = atXMm ?? spawn.XMm;
         long zMm = atZMm ?? spawn.ZMm;
-        var lines = call is null ? setup.Items.StartingKit : setup.Items.StartingKit.AddRange(call.Kit);
+        var lines = (call is null ? setup.Items.StartingKit : setup.Items.StartingKit.AddRange(call.Kit)).AddRange(heritage);
         // A notable piece of the kit carries its record from the start (WP3a).
         var kit = lines.Select(item => (Item: item, Entry: new InventoryEntry(EntityId.NewId(EntityKind.Item), item.ItemId, item.Count)
         {

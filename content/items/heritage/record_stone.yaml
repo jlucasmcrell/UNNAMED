@@ -1,0 +1,14 @@
+id: item.heritage.record_stone
+kind: item
+schema: 1
+display_key: item.heritage.record_stone.name
+tags: [item]
+name: Record Stone
+notes: In the game's voice, 'A palm-sized stone you have read many times. What is known is stone.' The Ondrek heritage item (owner, 2026-10-23, HERITAGE_ITEMS_PROPOSAL.md option A). From the Ondrek doctrine of the record - what is known is stone (MYTHOLOGY.md §Ondrek Belief). Identity, not power - no stat, no slot, no use, no value; kept, never sold or dropped. Whose stone it is stays open (LORE_OWNER_QUESTIONS.md Heritage H-7), so the words never say. The Ondrek are not playable, so nothing grants it yet.
+category: misc
+stack_max: 1
+weight: 0.3
+value_base: 0
+rarity: common
+no_drop: true
+no_sell: true
