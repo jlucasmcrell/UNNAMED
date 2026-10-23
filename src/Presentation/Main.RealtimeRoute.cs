@@ -11,6 +11,7 @@ public partial class Main
     private async Task RunRcd6RealtimeRoute(string directory)
     {
         _rcd3Driving=true;
+        DisplayServer.WindowSetTitle("Otherreach - "+Path.GetFileName(directory));
         var simulation=_session.Simulation ?? throw new InvalidOperationException("World missing");
         // A review can be scheduled while the boot canvas still covers the world.
         // Never spend part of the requested route behind the loading screen.
@@ -18,8 +19,9 @@ public partial class Main
         ulong warm=Time.GetTicksMsec()+2000;
         while(Time.GetTicksMsec()<warm)await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
         string arm=OS.GetEnvironment("OTHERREACH_VISIBILITY_ARM");
+        var arms=arm.Split(',');
         var scatter=_scatter.FindChildren("*",nameof(MultiMeshInstance3D),true,false).OfType<MultiMeshInstance3D>().ToArray();
-        if(arm=="scatter_single_lod")
+        if(arms.Contains("scatter_single_lod"))
         {
             // Hold geometry constant without the invalid all-LODs-at-once experiment.
             // Godot renames duplicate form names; the existing common band AABB is the reliable family key.
@@ -38,25 +40,35 @@ public partial class Main
         }
         foreach(var n in scatter)
         {
-            if(arm=="scatter_self_fade")
+            if(arms.Contains("scatter_self_fade"))
             {
                 n.VisibilityRangeBeginMargin=n.VisibilityRangeBegin*.1f;
                 n.VisibilityRangeEndMargin=n.VisibilityRangeEnd*.1f;
                 n.VisibilityRangeFadeMode=GeometryInstance3D.VisibilityRangeFadeModeEnum.Self;
             }
-            if(arm=="scatter_bounds")
+            if(arms.Contains("scatter_bounds"))
             {
                 var box=n.CustomAabb.Size.LengthSquared()>0?n.CustomAabb:n.Multimesh.GetAabb();
                 n.CustomAabb=box.Grow(8); // Preserve the existing common LOD-band centre.
             }
-            if(arm=="scatter_shadows_off")n.CastShadow=GeometryInstance3D.ShadowCastingSetting.Off;
+            if(arms.Contains("scatter_shadows_off"))n.CastShadow=GeometryInstance3D.ShadowCastingSetting.Off;
         }
-        if(arm=="directional_shadows_off")
+        if(arms.Contains("directional_shadows_off"))
             foreach(var n in FindChildren("*",nameof(DirectionalLight3D),true,false).OfType<DirectionalLight3D>())n.ShadowEnabled=false;
-        if(arm=="sdfgi_off")
+        if(arms.Contains("sdfgi_off"))
             foreach(var n in FindChildren("*",nameof(WorldEnvironment),true,false).OfType<WorldEnvironment>())
                 if(n.Environment is {} environment)environment.SdfgiEnabled=false;
-        if(arm=="occlusion_off")
+        foreach(var n in FindChildren("*",nameof(WorldEnvironment),true,false).OfType<WorldEnvironment>())
+            if(n.Environment is {} e)
+            {
+                if(arms.Contains("ssao_ssil_off")){e.SsaoEnabled=false;e.SsilEnabled=false;}
+                if(arms.Contains("volumetric_off"))e.VolumetricFogEnabled=false;
+                if(arms.Contains("ssr_off"))e.SsrEnabled=false;
+            }
+        if(arms.Contains("clouds_off"))
+            foreach(var n in FindChildren("*",nameof(WorldEnvironment),true,false).OfType<WorldEnvironment>())
+                if(n.Compositor is {} c)foreach(var effect in c.CompositorEffects)effect.Enabled=false;
+        if(arms.Contains("occlusion_off"))
         {
             GetViewport().UseOcclusionCulling=false;
             foreach(var n in FindChildren("*",nameof(OccluderInstance3D),true,false).OfType<OccluderInstance3D>())n.Visible=false;
@@ -87,7 +99,7 @@ public partial class Main
             // Ashen Hollow approach, forest verge, eastern road, Cairnwold entry.
             foreach(var end in new[]{new Vector2(450,748),new Vector2(480,760),new Vector2(560,752),new Vector2(650,742),
                 new Vector2(744.8f,732.5f),new Vector2(745.5f,731.8f),new Vector2(908.8f,705.5f),
-                new Vector2(911.8f,702.8f),new Vector2(937,683)})
+                new Vector2(911.8f,702.8f),new Vector2(937,683)}.Take(int.TryParse(OS.GetEnvironment("OTHERREACH_ROUTE_LEGS"),out int legs)?legs:9))
             {
                 var body=simulation.Player.Body;
                 var path=Playthrough.WayTo(simulation,body,new Body((long)(end.X*1000),body.YMm,(long)(end.Y*1000),body.FacingMdeg),standOff:0);

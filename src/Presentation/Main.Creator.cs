@@ -38,7 +38,8 @@ public partial class Main
                     || System.Environment.GetEnvironmentVariable("OTHERREACH_FAL_AB_REVIEW") == "1"
                     || System.Environment.GetEnvironmentVariable("OTHERREACH_COMBAT_SOURCE_REVIEW") == "1"
                     || System.Environment.GetEnvironmentVariable("OTHERREACH_WORLD_LIGHTING_DIAGNOSTIC") == "1"
-                    || System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_WORLD") == "1")
+                    || System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_WORLD") == "1"
+                    || System.Environment.GetEnvironmentVariable("OTHERREACH_VISIBILITY_REALTIME_ROUTE") == "1")
                 && ulong.TryParse(System.Environment.GetEnvironmentVariable("OTHERREACH_LIGHTING_SEED"), out ulong diagnosticSeed) && diagnosticSeed != 0)
                 return _nextWorld = diagnosticSeed;
             var random = new RandomNumberGenerator();
