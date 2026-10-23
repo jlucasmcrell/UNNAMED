@@ -105,7 +105,9 @@ public sealed partial class SkinnedModel : Node3D
     // Every clip is baked in Epic onto this exact original MPFB rig. Copy node paths only.
     private void ComparisonClips(string assetId, AnimationLibrary library, string skeletonPath, string? bodyPath)
     {
-        var motion = GD.Load<AnimationLibrary>($"res://Art/MPFBMotion/{assetId}_motion.res")
+        // Reviewed mocap stays in the installed character payload, outside the public source repository.
+        string externalMotion = System.IO.Path.Combine(UNNAMED.Presentation.MHCharacters.MetaHumanFigure.AssetRoot, "mocap_motion", assetId + "_motion.res");
+        var motion = GD.Load<AnimationLibrary>(System.IO.File.Exists(externalMotion) ? externalMotion : $"res://Art/MPFBMotion/{assetId}_motion.res")
             ?? throw new InvalidDataException("MPFB motion library missing: " + assetId);
         if (bodyPath is null || motion.GetMeta("target_body_sha256").AsString() != Godot.FileAccess.GetSha256(bodyPath))
             throw new InvalidDataException("MPFB motion library target body differs: " + assetId);

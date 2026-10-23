@@ -82,8 +82,8 @@ func build():
      var t=animation.add_track(kind);animation.track_set_path(t,NodePath("Skeleton3D:"+bone))
      if kind==Animation.TYPE_POSITION_3D:animation.position_track_insert_key(t,0,rest.origin)
      else:animation.rotation_track_insert_key(t,0,rest.basis.get_rotation_quaternion())
-   animation.loop_mode=Animation.LOOP_LINEAR if clip.logical in ["idle","walk","run","sprint","crouch_idle","crouch_walk","fall","sword_ready","sword_block","talk","spear_ready","bow_ready","strafe_left","strafe_right","walk_back","idle_foldarms","idle_look","sit","sit_talk"] else Animation.LOOP_NONE
-   if clip.logical in ["walk","run","sprint","walk_back","strafe_left","strafe_right","crouch_walk"]:
+   animation.loop_mode=Animation.LOOP_LINEAR if clip.logical in ["idle","walk","run","sprint","crouch_idle","crouch_walk","fall","sword_ready","sword_block","talk","spear_ready","bow_ready","strafe_left","strafe_right","walk_strafe_left","walk_strafe_right","run_back","walk_back","idle_foldarms","idle_look","sit","sit_talk"] else Animation.LOOP_NONE
+   if clip.logical in ["walk","run","sprint","walk_back","strafe_left","strafe_right","walk_strafe_left","walk_strafe_right","run_back","crouch_walk"]:
     # Measure the actual cleaned target-space animation, not the source-body cadence.
     var measurement=measure(animation,target_rig)
     paces[clip.logical]=measurement.pace

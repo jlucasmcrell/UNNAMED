@@ -1,6 +1,9 @@
 """Epic IK Retargeter directly from CC0 sources onto each original MPFB rig. No runtime retarget."""
 import json, os, traceback, struct, time
 from pathlib import Path
+import sys
+sys.path.insert(0,str(Path(__file__).parent))
+from mocap_sources import LOCOMOTION, epic_source
 import unreal
 root=Path(os.environ['OTHERREACH_PIPELINE_ROOT'])
 assert root.is_absolute() and root.name=='rcd6_20261021'
@@ -24,13 +27,16 @@ def save(**kw):
 def asset(folder,name,factory):
  return unreal.load_asset(folder+'/'+name) or tools.create_asset(name,folder,None,factory)
 
-clips={'idle': ('ual1', 'Idle_Loop'), 'walk': ('ual1', 'Walk_Loop'), 'run': ('ual1', 'Jog_Fwd_Loop'), 'sprint': ('ual1', 'Sprint_Loop'), 'crouch_idle': ('ual1', 'Crouch_Idle_Loop'), 'crouch_walk': ('ual1', 'Crouch_Fwd_Loop'), 'jump_start': ('ual1', 'Jump_Start'), 'fall': ('ual1', 'Jump_Loop'), 'land': ('ual1', 'Jump_Land'), 'sword_ready': ('ual1', 'Sword_Idle'), 'sword_attack_1': ('ual1', 'Sword_Attack'), 'sword_attack_2': ('ual2', 'Sword_Regular_A'), 'sword_attack_3': ('ual2', 'Sword_Regular_B'), 'sword_block': ('ual2', 'Sword_Block'), 'hit': ('ual1', 'Hit_Chest'), 'death': ('ual1', 'Death01'), 'interact': ('ual1', 'Interact'), 'talk': ('ual1', 'Idle_Talking_Loop'), 'cast': ('ual1', 'Spell_Simple_Shoot'), 'spear_ready': ('kaykit_melee', 'Melee_2H_Idle'), 'spear_thrust': ('kaykit_melee', 'Melee_2H_Attack_Stab'), 'bow_ready': ('kaykit_ranged', 'Ranged_Bow_Aiming_Idle'), 'bow_draw': ('kaykit_ranged', 'Ranged_Bow_Draw'), 'bow_release': ('kaykit_ranged', 'Ranged_Bow_Release'), 'pick_up': ('kaykit_general', 'PickUp'), 'dodge': ('kaykit_move', 'Dodge_Backward'), 'strafe_left': ('kaykit_move', 'Running_Strafe_Left'), 'strafe_right': ('kaykit_move', 'Running_Strafe_Right'), 'walk_back': ('kaykit_move', 'Walking_Backwards'), 'idle_foldarms': ('ual2', 'Idle_FoldArms_Loop'), 'idle_shift': ('ual2', 'Idle_No_Loop'), 'idle_look': ('kaykit_general', 'Idle_B')}
+clips={'idle': ('ual1', 'Idle_Loop'), 'walk': ('ual1', 'Walk_Loop'), 'run': ('ual1', 'Jog_Fwd_Loop'), 'sprint': ('ual1', 'Sprint_Loop'), 'crouch_idle': ('ual1', 'Crouch_Idle_Loop'), 'crouch_walk': ('ual1', 'Crouch_Fwd_Loop'), 'jump_start': ('ual1', 'Jump_Start'), 'fall': ('ual1', 'Jump_Loop'), 'land': ('ual1', 'Jump_Land'), 'sword_ready': ('ual1', 'Sword_Idle'), 'sword_attack_1': ('ual1', 'Sword_Attack'), 'sword_attack_2': ('ual2', 'Sword_Regular_A'), 'sword_attack_3': ('ual2', 'Sword_Regular_B'), 'sword_block': ('ual2', 'Sword_Block'), 'hit': ('ual1', 'Hit_Chest'), 'death': ('ual1', 'Death01'), 'interact': ('ual1', 'Interact'), 'talk': ('ual1', 'Idle_Talking_Loop'), 'cast': ('ual1', 'Spell_Simple_Shoot'), 'spear_ready': ('kaykit_melee', 'Melee_2H_Idle'), 'spear_thrust': ('kaykit_melee', 'Melee_2H_Attack_Stab'), 'bow_ready': ('kaykit_ranged', 'Ranged_Bow_Aiming_Idle'), 'bow_draw': ('kaykit_ranged', 'Ranged_Bow_Draw'), 'bow_release': ('kaykit_ranged', 'Ranged_Bow_Release'), 'pick_up': ('kaykit_general', 'PickUp'), 'dodge': ('kaykit_move', 'Dodge_Backward'), 'idle_foldarms': ('ual2', 'Idle_FoldArms_Loop'), 'idle_shift': ('ual2', 'Idle_No_Loop'), 'idle_look': ('kaykit_general', 'Idle_B')}
+
+clips.update(LOCOMOTION)
 
 try:
  if calm_mode:clips={'sword_attack_1':('kaykit_melee','Melee_1H_Attack_Chop'),'sword_attack_2':('kaykit_melee','Melee_1H_Attack_Slice_Diagonal'),'sword_attack_3':('kaykit_melee','Melee_1H_Attack_Stab')}
  elif inn_mode:clips={'sit_enter':('ual1','Sitting_Enter'),'sit':('ual1','Sitting_Idle_Loop'),'sit_talk':('ual1','Sitting_Talking_Loop'),'sit_exit':('ual1','Sitting_Exit'),'lie_to_idle':('ual2','LayToIdle')}
  elif grip_mode:clips={'weapon_grip':('ual1','Sword_Idle')}
  sources=json.loads(Path('D:/Otherreach_Scratch/rcd3_20261020/evidence/ue_animation_sources.json').read_text(encoding='utf-8'))
+ if any(source=='fal' for source,_ in clips.values()) and not any(x['id']=='fal' for x in sources['sources']):sources['sources'].append(epic_source())
  if control_grip:
   authored=json.loads(Path(control_grip).read_text(encoding='utf-8'))
   assert authored['status']=='DONE'

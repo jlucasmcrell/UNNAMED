@@ -3,15 +3,17 @@ from pathlib import Path as _PipelinePath
 import sys as _pipeline_sys
 _pipeline_sys.path.insert(0, str(_PipelinePath(__file__).parent))
 from pipeline_paths import pipeline_root as _pipeline_root
+from mocap_sources import LOCOMOTION, epic_source
 import unreal,json,traceback,os,struct,re
 from pathlib import Path
 root=Path((_pipeline_root().as_posix() + ''))
+fal_mode=os.environ.get('OTHERREACH_FAL_LOCOMOTION')=='1'
 inn_mode=os.environ.get('OTHERREACH_INN_CLIPS')=='1'
 calm_mode=os.environ.get('OTHERREACH_CALM_ATTACK_CLIPS')=='1'
 grip_mode=os.environ.get('OTHERREACH_MH_HAND_GRIP')=='1'
-assert sum([inn_mode,calm_mode,grip_mode])<=1,'Animation batches must be separate'
+assert sum([inn_mode,calm_mode,grip_mode,fal_mode])<=1,'Animation batches must be separate'
 extra_mode=os.environ.get('OTHERREACH_MH_RCD3_CLIPS')=='1'
-out=root/'evidence'/('ue_native_calm.json' if calm_mode else 'ue_native_inn.json' if inn_mode else 'ue_native_animations_rcd3.json' if extra_mode else 'ue_native_weapon_grips.json' if grip_mode else 'ue_native_animations_extremities.json')
+out=root/'evidence'/('ue_native_fal.json' if fal_mode else 'ue_native_calm.json' if calm_mode else 'ue_native_inn.json' if inn_mode else 'ue_native_animations_rcd3.json' if extra_mode else 'ue_native_weapon_grips.json' if grip_mode else 'ue_native_animations_extremities.json')
 state=json.loads(out.read_text()) if out.exists() else {'characters':[]}
 def save(**kw):
  if kw.get('status')!='FAILED':state.pop('error',None)
@@ -23,6 +25,8 @@ def asset(package,name,factory):
  return unreal.load_asset(path) if unreal.EditorAssetLibrary.does_asset_exist(path) else unreal.AssetToolsHelpers.get_asset_tools().create_asset(name,package,None,factory)
 try:
  sources=json.loads((root/'evidence/ue_animation_sources.json').read_text());assert sources['status']=='DONE'
+ if fal_mode:sources={'status':'DONE','sources':[epic_source()]}
+ elif extra_mode and not any(x['id']=='fal' for x in sources['sources']):sources['sources'].append(epic_source())
  # Original in-place game clips; aliases are only names, never synthesized motion.
  clips={
  'idle':('ual1','Idle_Loop'),'walk':('ual1','Walk_Loop'),'run':('ual1','Jog_Fwd_Loop'),'sprint':('ual1','Sprint_Loop'),
@@ -37,15 +41,16 @@ try:
  'bow_ready':('kaykit_ranged','Ranged_Bow_Aiming_Idle'),'bow_draw':('kaykit_ranged','Ranged_Bow_Draw'),
  'bow_release':('kaykit_ranged','Ranged_Bow_Release'),'pick_up':('kaykit_general','PickUp'),
  'dodge':('kaykit_move','Dodge_Backward')}
- if calm_mode:clips={'sword_attack_1':('kaykit_melee','Melee_1H_Attack_Chop'),'sword_attack_2':('kaykit_melee','Melee_1H_Attack_Slice_Diagonal'),'sword_attack_3':('kaykit_melee','Melee_1H_Attack_Stab')}
+ if fal_mode:clips=dict(LOCOMOTION)
+ elif calm_mode:clips={'sword_attack_1':('kaykit_melee','Melee_1H_Attack_Chop'),'sword_attack_2':('kaykit_melee','Melee_1H_Attack_Slice_Diagonal'),'sword_attack_3':('kaykit_melee','Melee_1H_Attack_Stab')}
  elif inn_mode:clips={'sit_enter':('ual1','Sitting_Enter'),'sit':('ual1','Sitting_Idle_Loop'),'sit_talk':('ual1','Sitting_Talking_Loop'),'sit_exit':('ual1','Sitting_Exit'),'lie_to_idle':('ual2','LayToIdle')}
- elif extra_mode:clips={'strafe_left':('kaykit_move','Running_Strafe_Left'),'strafe_right':('kaykit_move','Running_Strafe_Right'),'walk_back':('kaykit_move','Walking_Backwards'),'idle_foldarms':('ual2','Idle_FoldArms_Loop'),'idle_shift':('ual2','Idle_No_Loop'),'idle_look':('kaykit_general','Idle_B')}
+ elif extra_mode:clips={**LOCOMOTION,'idle_foldarms':('ual2','Idle_FoldArms_Loop'),'idle_shift':('ual2','Idle_No_Loop'),'idle_look':('kaykit_general','Idle_B')}
  elif grip_mode:clips={'weapon_grip':('ual1','Sword_Idle')}
  elif os.environ.get('OTHERREACH_MH_ANIM_PROBE')=='1':clips={k:clips[k] for k in ['idle','walk','sword_attack_1']}
  catalog=json.loads((root/'runtime/catalog.json').read_text())
  npc=json.loads((root/'evidence/npc_glb_export.json').read_text())
  selected=os.environ.get('OTHERREACH_MH_ANIM_CHARACTERS','ada').split(',')
- tools=unreal.AssetToolsHelpers.get_asset_tools();package='/Game/MHPlaytest/'+re.sub('[^A-Za-z0-9_]','_',root.name)+('_RightGrip_Retarget' if grip_mode else '_Retarget')
+ tools=unreal.AssetToolsHelpers.get_asset_tools();package='/Game/MHPlaytest/'+re.sub('[^A-Za-z0-9_]','_',root.name)+('_FAL_Retarget' if fal_mode else '_RightGrip_Retarget' if grip_mode else '_Retarget')
  rig_sources={};mesh_sources={};animations={};source_prefixes={}
  for source in sources['sources']:
   id=source['id']
@@ -131,7 +136,7 @@ try:
     opts=unreal.GLTFExportOptions();opts.bake_material_inputs=unreal.GLTFMaterialBakeMode.DISABLED
     opts.export_vertex_skin_weights=True;opts.export_morph_targets=False;opts.export_animation_sequences=True;opts.export_preview_mesh=True
     opts.export_uniform_scale=.01;opts.default_level_of_detail=catalog['characters'][id].get('body_lod',0);opts.use_mesh_quantization=False
-    folder=root/'animations'/('epic_weapon_grips' if grip_mode else 'epic_extremities')/id;folder.mkdir(parents=True,exist_ok=True)
+    folder=root/'animations'/('epic_fal' if fal_mode else 'epic_weapon_grips' if grip_mode else 'epic_extremities')/id;folder.mkdir(parents=True,exist_ok=True)
     path=folder/(logical+'.glb')
     task=unreal.AssetExportTask();task.object=anim;task.filename=str(path);task.automated=True;task.prompt=False;task.replace_identical=True;task.options=opts
     assert unreal.Exporter.run_asset_export_task(task),('Native animation export failed',logical)

@@ -71,7 +71,7 @@ func build() -> void:
     var idle_height:=rig.get_bone_global_pose(pelvis).origin.y
     if idle_height<=rest_height*.5:push_error("Idle pelvis collapsed to root; set UE root-motion bone=root separately from pelvis");quit(12);return
     reports.append({"idle_pelvis_height_m":idle_height,"rest_pelvis_height_m":rest_height})
-   if clip.logical in ["walk","run","sprint","crouch_walk","strafe_left","strafe_right","walk_back"]:
+   if clip.logical in ["walk","run","sprint","crouch_walk","strafe_left","strafe_right","walk_strafe_left","walk_strafe_right","run_back","walk_back"]:
     player.callback_mode_process=AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
     var pace:=measure_pace(player,rig,names[0])
     if pace.metres_per_second<=.05:push_error("No measurable native gait pace "+id+" "+clip.logical);quit(11);return
@@ -93,7 +93,7 @@ func build() -> void:
      finger_worst=maxf(finger_worst,rad_to_deg(rest_rotation.angle_to(actual_rotation)))
    if finger_worst>.1:push_error("Excluded fingers not at native relaxed rest: "+id+" "+clip.logical+" "+str(finger_worst));quit(13);return
    reports.append({"clip":clip.logical,"excluded_fingers_max_rest_angle_degrees":finger_worst})
-   animation.loop_mode=Animation.LOOP_LINEAR if clip.logical in ["idle","walk","run","sprint","crouch_idle","crouch_walk","fall","sword_ready","sword_block","talk","spear_ready","bow_ready","strafe_left","strafe_right","walk_back","idle_foldarms","idle_look","sit","sit_talk"] else Animation.LOOP_NONE
+   animation.loop_mode=Animation.LOOP_LINEAR if clip.logical in ["idle","walk","run","sprint","crouch_idle","crouch_walk","fall","sword_ready","sword_block","talk","spear_ready","bow_ready","strafe_left","strafe_right","walk_strafe_left","walk_strafe_right","run_back","walk_back","idle_foldarms","idle_look","sit","sit_talk"] else Animation.LOOP_NONE
    if library.has_animation(clip.logical): library.remove_animation(clip.logical)
    library.add_animation(clip.logical,animation)
    reports.append({"clip":clip.logical,"tracks":animation.get_track_count(),"seconds":animation.length,"max_rest_position_difference_m":worst})
