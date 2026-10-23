@@ -125,7 +125,8 @@ public static class SchemaMigrations
         new SchemaV34ToV35(),
         new SchemaV35ToV36(),
         new SchemaV36ToV37(),
-        new SchemaV37ToV38());
+        new SchemaV37ToV38(),
+        new SchemaV38ToV39());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -986,7 +987,7 @@ public sealed class SchemaV16ToV17 : SchemaMigration
                 RoadsWalked = old.RoadsWalked,
                 Deeds = old.Deeds,
                 // Literal, not CharacterIdentity.BeforeTheCreator: a step is a fixed function of the schema it reads.
-                Identity = new IdentityDto { Pronouns = "they", People = "people.veth", BodyPreset = "body.default", Call = null },
+                Identity = new Sections.V38.IdentityDto { Pronouns = "they", People = "people.veth", BodyPreset = "body.default", Call = null },
             }, options);
         }
         document.Manifest["schema_version"] = To;
@@ -1993,7 +1994,7 @@ public sealed class SchemaV35ToV36 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } player)
         {
             var old = MessagePackSerializer.Deserialize<V35.Player>(player, options);
-            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new PlayerDto
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(new Sections.V38.Player
             {
                 InstanceId = old.InstanceId,
                 Name = old.Name,
@@ -2071,6 +2072,24 @@ public sealed class SchemaV37ToV38 : SchemaMigration
             var old = MessagePackSerializer.Deserialize<Sections.V37.EntitiesSection>(bytes, SectionCodec.MessagePackOptions);
             var next = MessagePackSerializer.Deserialize<EntitiesSectionDto>(MessagePackSerializer.Serialize(old, SectionCodec.MessagePackOptions), SectionCodec.MessagePackOptions);
             document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(next, SectionCodec.MessagePackOptions);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>The creator's appearance joins the identity; older characters keep their body preset exactly as it was baked (none).</summary>
+public sealed class SchemaV38ToV39 : SchemaMigration
+{
+    public override int From => 38;
+    public override string Summary => "schema 38 -> 39: the identity keeps the creator's appearance (none before: the body preset as baked)";
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } bytes)
+        {
+            var old = MessagePackSerializer.Deserialize<Sections.V38.Player>(bytes, SectionCodec.MessagePackOptions);
+            var next = MessagePackSerializer.Deserialize<PlayerDto>(MessagePackSerializer.Serialize(old, SectionCodec.MessagePackOptions), SectionCodec.MessagePackOptions);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(next, SectionCodec.MessagePackOptions);
         }
         document.Manifest["schema_version"] = To;
         report.Steps.Add(Summary);

@@ -244,6 +244,23 @@ internal static class CanonicalState
                 json.WriteString("call", call);
             else
                 json.WriteNull("call");
+            if (player.Identity.Appearance is { } look)
+            {
+                json.WriteStartObject("appearance");
+                json.WriteNumber("stature_mm", look.StatureMm);
+                json.WriteString("face", look.Face);
+                json.WriteString("hair", look.Hair);
+                json.WriteString("facial_hair", look.FacialHair);
+                json.WriteString("outfit", look.Outfit);
+                json.WriteString("footwear", look.Footwear);
+                json.WriteStartObject("sliders");
+                foreach (var (slider, value) in look.Sliders)
+                    json.WriteNumber(slider, value);
+                json.WriteEndObject();
+                json.WriteEndObject();
+            }
+            else
+                json.WriteNull("appearance");
             json.WriteEndObject();
             json.WriteStartObject("factions");
             json.WriteNumber("next_act_seq", player.Factions.NextActSeq);

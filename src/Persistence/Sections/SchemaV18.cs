@@ -75,7 +75,7 @@ public sealed class Player
     [Key("return_point")] public string? ReturnPoint { get; set; }
     [Key("roads_walked")] public string[]? RoadsWalked { get; set; }
     [Key("deeds")] public DeedDto[]? Deeds { get; set; }
-    [Key("identity")] public IdentityDto? Identity { get; set; }
+    [Key("identity")] public V38.IdentityDto? Identity { get; set; }
 }
 
 [MessagePackObject]

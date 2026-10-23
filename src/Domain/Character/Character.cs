@@ -45,6 +45,9 @@ public sealed record CharacterSpec(string Name, Pronouns Pronouns, string People
     /// <summary>Where the character first stands. Not kept: once the world runs, the character is wherever they walked.</summary>
     public StartPoint Start { get; init; } = StartPoint.Waystone;
 
+    /// <summary>What the creator shaped beyond the body preset, or null for the preset exactly as it was baked.</summary>
+    public CharacterAppearance? Appearance { get; init; }
+
     public const int MaxNameLength = 24;
 
     /// <summary>The people every character belongs to until the creator offers another (only the Veth are in the slice).</summary>
@@ -90,10 +93,12 @@ public sealed record CharacterSpec(string Name, Pronouns Pronouns, string People
             throw new ArgumentException($"'{CallId}' is not a Call ID", nameof(CallId));
         if (!Enum.IsDefined(Start))
             throw new ArgumentException($"Unknown start {Start}", nameof(Start));
+        if (Appearance?.Problem() is { } appearance)
+            throw new ArgumentException(appearance, nameof(Appearance));
         return this with { Name = Normalize(Name) };
     }
 
-    private static bool IsIdOf(string? id, string prefix) => DefinitionId.IsValid(id) && id!.StartsWith(prefix + ".", StringComparison.Ordinal);
+    internal static bool IsIdOf(string? id, string prefix) => DefinitionId.IsValid(id) && id!.StartsWith(prefix + ".", StringComparison.Ordinal);
 }
 
 /// <summary>
@@ -105,7 +110,39 @@ public sealed record CharacterIdentity(Pronouns Pronouns, string PeopleId, strin
     public static readonly CharacterIdentity BeforeTheCreator =
         new(Pronouns.They, CharacterSpec.DefaultPeople, CharacterSpec.DefaultBodyPreset, null);
 
-    public static CharacterIdentity Of(CharacterSpec spec) => new(spec.Pronouns, spec.PeopleId, spec.BodyPresetId, spec.CallId);
+    /// <summary>What the creator shaped beyond the body preset (schema 39), or null for the preset as baked.</summary>
+    public CharacterAppearance? Appearance { get; init; }
+
+    public static CharacterIdentity Of(CharacterSpec spec) => new(spec.Pronouns, spec.PeopleId, spec.BodyPresetId, spec.CallId) { Appearance = spec.Appearance };
+}
+
+/// <summary>
+/// A character's look as the HumGen pipeline makes it (schema 39): the stature every scale derives from (RACE_SCALE_SPEC.md §1), the
+/// face preset, head and facial hair, outfit and footwear chosen by ID, and each shaping slider moved, in the catalogue's integer units.
+/// The domain only keeps the IDs and numbers; presentation resolves them, and a body whose combination has not been baked is drawn as
+/// its preset until a bake fills it in. Null choices keep the preset's own.
+/// </summary>
+public sealed record CharacterAppearance(int StatureMm, string? Face, string? Hair, string? FacialHair, string? Outfit, string? Footwear)
+{
+    /// <summary>The statures any character can have, the full canon range with margin (RACES.md: 1.40 m Siann to 2.60 m Ondrek).</summary>
+    public const int MinStatureMm = 1000, MaxStatureMm = 3000;
+
+    /// <summary>Every slider moved, by ID, in the catalogue's units.</summary>
+    public ImmutableSortedDictionary<string, int> Sliders { get; init; } = ImmutableSortedDictionary.Create<string, int>(StringComparer.Ordinal);
+
+    /// <summary>Why this appearance cannot be kept, or null when it can.</summary>
+    public string? Problem() =>
+        StatureMm is < MinStatureMm or > MaxStatureMm ? $"A stature of {StatureMm} mm is outside {MinStatureMm}-{MaxStatureMm} mm"
+        : new[] { (Face, "face"), (Hair, "hair"), (FacialHair, "facehair"), (Outfit, "outfit"), (Footwear, "footwear") }
+            .FirstOrDefault(c => c.Item1 is not null && !CharacterSpec.IsIdOf(c.Item1, c.Item2)) is { Item1: { } bad, Item2: var kind } ? $"'{bad}' is not a {kind} ID"
+        : Sliders.Keys.FirstOrDefault(k => !DefinitionId.IsValid(k)) is { } slider ? $"'{slider}' is not a slider ID"
+        : null;
+
+    public bool Equals(CharacterAppearance? other) =>
+        other is not null && (StatureMm, Face, Hair, FacialHair, Outfit, Footwear) == (other.StatureMm, other.Face, other.Hair, other.FacialHair, other.Outfit, other.Footwear)
+        && Sliders.SequenceEqual(other.Sliders);
+
+    public override int GetHashCode() => HashCode.Combine(StatureMm, Face, Hair, FacialHair, Outfit, Footwear, Sliders.Count);
 }
 
 /// <summary>Who a Call puts the character in touch with: an NPC who already trusts them a little.</summary>

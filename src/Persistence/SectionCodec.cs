@@ -430,6 +430,29 @@ public sealed class IdentityDto
     [Key("people")] public string People { get; set; } = "";
     [Key("body_preset")] public string BodyPreset { get; set; } = "";
     [Key("call")] public string? Call { get; set; }
+
+    /// <summary>From schema 39: what the creator shaped beyond the body preset, or null for the preset as baked (every older character).</summary>
+    [Key("appearance")] public AppearanceDto? Appearance { get; set; }
+}
+
+/// <summary>A character's HumGen look (schema 39): the stature, the chosen options by ID and every slider moved.</summary>
+[MessagePackObject]
+public sealed class AppearanceDto
+{
+    [Key("stature_mm")] public int StatureMm { get; set; }
+    [Key("face")] public string? Face { get; set; }
+    [Key("hair")] public string? Hair { get; set; }
+    [Key("facial_hair")] public string? FacialHair { get; set; }
+    [Key("outfit")] public string? Outfit { get; set; }
+    [Key("footwear")] public string? Footwear { get; set; }
+    [Key("sliders")] public SliderDto[] Sliders { get; set; } = Array.Empty<SliderDto>();
+}
+
+[MessagePackObject]
+public sealed class SliderDto
+{
+    [Key("id")] public string Id { get; set; } = "";
+    [Key("value")] public int Value { get; set; }
 }
 
 /// <summary>A Waystone the character knows (schema 15).</summary>
@@ -1082,6 +1105,11 @@ public static class SectionCodec
             People = player.Identity.PeopleId,
             BodyPreset = player.Identity.BodyPresetId,
             Call = player.Identity.CallId,
+            Appearance = player.Identity.Appearance is { } look ? new AppearanceDto
+            {
+                StatureMm = look.StatureMm, Face = look.Face, Hair = look.Hair, FacialHair = look.FacialHair, Outfit = look.Outfit, Footwear = look.Footwear,
+                Sliders = look.Sliders.Select(kv => new SliderDto { Id = kv.Key, Value = kv.Value }).ToArray(),
+            } : null,
         },
         Factions = new FactionLedgerDto
         {
@@ -1244,6 +1272,19 @@ public static class SectionCodec
             throw new FormatException("the pack's bag slots must name worn bags; only worn bags and equipped items may lie outside the pack");
         var sheets = dto.PartySheets ?? throw new FormatException("player.msgpack has no party sheets (required from schema 25)");
         var pronouns = PronounKeys.Parse(identity.Pronouns) ?? throw new FormatException($"player identity has pronouns '{identity.Pronouns}'");
+        static CharacterAppearance? Appearance(AppearanceDto? dto)
+        {
+            if (dto is null)
+                return null;
+            var sliders = ImmutableSortedDictionary.CreateBuilder<string, int>(StringComparer.Ordinal);
+            foreach (var slider in dto.Sliders)
+            {
+                if (!sliders.TryAdd(slider.Id, slider.Value))
+                    throw new FormatException($"player appearance moves slider {slider.Id} twice");
+            }
+            var look = new CharacterAppearance(dto.StatureMm, dto.Face, dto.Hair, dto.FacialHair, dto.Outfit, dto.Footwear) { Sliders = sliders.ToImmutable() };
+            return look.Problem() is { } problem ? throw new FormatException("player appearance: " + problem) : look;
+        }
         var stance = posture.Stance switch
         {
             "standing" or "crouched" => StanceKeys.Parse(posture.Stance),
@@ -1278,7 +1319,7 @@ public static class SectionCodec
             RoadsWalked = roads.ToImmutableArray(),
             Deeds = deeds.Select(d => new DeedTally(DeedKeys.Parse(d.Deed) ?? throw new FormatException($"a deed tally of {d.Subject} is '{d.Deed}'"),
                 d.Subject, d.Npc, d.Count, d.LastTick)).ToImmutableArray(),
-            Identity = new CharacterIdentity(pronouns, identity.People, identity.BodyPreset, identity.Call),
+            Identity = new CharacterIdentity(pronouns, identity.People, identity.BodyPreset, identity.Call) { Appearance = Appearance(identity.Appearance) },
             Factions = new FactionLedger(factions.NextActSeq,
                 factions.Acts.Select(a => new ActRecord(a.Seq, a.Kind, a.Subject, a.Cell, a.XMm, a.ZMm, a.Tick)).ToImmutableArray(),
                 factions.Knowledge.Select(k => new FactionKnowledge(k.Knower, k.Act, k.Identity, k.Source, k.Via, k.Tick, k.Delta)).ToImmutableArray(),

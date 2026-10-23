@@ -103,6 +103,12 @@ public static class M2Fixtures
     /// The historical-fixture world (tests/Persistence.Tests/Fixtures/README.md): the same logical world
     /// at every schema version, written by that version's own writer, with fixture content 0.1.0.
     /// </summary>
+    /// <summary>Aelin's look from schema 39: what the HumGen creator keeps (the fixture pack names no catalogue, so the IDs are kept as they are).</summary>
+    public static readonly CharacterAppearance Appearance = new(1_660, "face.f.caucasian_presets.caucasian_3", "hair.long.bun", null, null, "footwear.outdoor.garden_boot")
+    {
+        Sliders = ImmutableSortedDictionary.Create<string, int>(StringComparer.Ordinal).Add("body.muscular", 350).Add("face.nose_tip_size", -200),
+    };
+
     public static class Historical
     {
         /// <summary>The pack the v1-v3 fixtures were written with (Fixtures/content-0.1.0).</summary>
@@ -209,7 +215,8 @@ public static class M2Fixtures
                 new DeedTally(DeedKind.Delivered, "item.potion.healing_draught", "npc.fixture.warden", 2, 4_200),
                 new DeedTally(DeedKind.Crafted, "item.weapon.iron_sword", null, 1, 3_900)),
             // Schema 17 (the character creator): Aelin is "she", a Veth of a chosen build, of the Scholar's Call.
-            Identity = new CharacterIdentity(Pronouns.She, "people.veth", "body.build_slender", "call.scholar"),
+            // Schema 39 (the HumGen creator): 1.66 m, a chosen face, hair and boots, the outfit kept as baked, two sliders moved.
+            Identity = new CharacterIdentity(Pronouns.She, "people.veth", "body.build_slender", "call.scholar") { Appearance = Appearance },
             // Schema 20 (WP6): Aelin killed an ash hound at the ridge and told the warden, so the wardens know it of her and regard her
             // at +100; the act log counts on from 2. The hound, the warden and the wardens under the names they had then.
             Factions = new FactionLedger(2,

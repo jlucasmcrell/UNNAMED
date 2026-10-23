@@ -294,7 +294,8 @@
       "pronouns": "she",
       "people": "people.veth",
       "body_preset": "body.build_slender",
-      "call": "call.scholar"
+      "call": "call.scholar",
+      "appearance": null
     },
     "factions": {
       "next_act_seq": 1,
