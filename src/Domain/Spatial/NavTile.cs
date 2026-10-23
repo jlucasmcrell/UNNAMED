@@ -272,6 +272,12 @@ public sealed class NavTile
                 k++;
             return (byte)k;
         }
+        if (shape is PolygonBlocker p)
+        {
+            while (k < rp.Length && NavGeometry.PolygonClear(p, px, pz, rp[k]))
+                k++;
+            return (byte)k;
+        }
         var c = (CircleBlocker)shape;
         long ex = px - c.CenterXMm, ez = pz - c.CenterZMm;
         long e2 = ex * ex + ez * ez;
@@ -287,6 +293,9 @@ public sealed class NavTile
         foreach (var input in inputs)
         {
             var (cx, cz, radius) = input.Shape is CircleBlocker c ? (c.CenterXMm, c.CenterZMm, c.RadiusMm) : (0L, 0L, 0L);
+            if (input.Shape is PolygonBlocker polygon)
+                foreach (var corner in polygon.Corners)
+                    h.Add(corner.XMm).Add(corner.ZMm);
             h.Add((int)input.Kind).Add(input.ShapeTag)
                 .Add(input.Bounds.MinXMm).Add(input.Bounds.MinZMm).Add(input.Bounds.MaxXMm).Add(input.Bounds.MaxZMm)
                 .Add(cx).Add(cz).Add(radius).Add(input.Shape.HeightMm).Add(input.Shape.ClearanceMm);

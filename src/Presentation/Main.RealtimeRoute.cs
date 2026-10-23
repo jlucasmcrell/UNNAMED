@@ -7,6 +7,33 @@ namespace UNNAMED.Presentation;
 
 public partial class Main
 {
+    // Owner finding 50: each turned rock's footprint as drawn - the hull of its full-detail mesh above the ground - for
+    // tools/rocks/apply_rock_hulls.py to write into the region as hull_m. Metres, world XZ.
+    private void WriteRockHulls(string path)
+    {
+        var hulls=new SortedDictionary<string,double[][]>(StringComparer.Ordinal);
+        foreach(var (id,model) in _hollow.TurnedModels())
+        {
+            var points=new List<(long,long)>();
+            // The full-detail level only: lighter levels begin further out.
+            foreach(var mesh in model.FindChildren("*",nameof(MeshInstance3D),true,false).Cast<MeshInstance3D>())
+            {
+                if(mesh.Mesh is null||mesh.VisibilityRangeBegin>0)continue;
+                var toWorld=mesh.GlobalTransform;
+                foreach(var v in mesh.Mesh.GetFaces())
+                {
+                    var w=toWorld*v;
+                    if(w.Y<_ground.Height(w.X,w.Z)+.05f)continue;   // buried rock is not met
+                    points.Add(((long)Math.Round(w.X*1000),(long)Math.Round(w.Z*1000)));
+                }
+            }
+            var hull=PolygonBlocker.Hull(points);
+            if(hull.Length>=3)hulls[id]=hull.Select(c=>new[]{c.XMm/1000.0,c.ZMm/1000.0}).ToArray();
+        }
+        File.WriteAllText(path,JsonSerializer.Serialize(hulls));
+        GD.Print($"UNNAMED rock hulls: {hulls.Count} written to {path}");
+    }
+
     // Diagnostic input driver only: unchanged simulation pacing, renderer and movement commands.
     private async Task RunRcd6RealtimeRoute(string directory)
     {
@@ -17,6 +44,12 @@ public partial class Main
         while(GetViewport().Disable3D)await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
         ulong warm=Time.GetTicksMsec()+2000;
         while(Time.GetTicksMsec()<warm)await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+        if(OS.GetEnvironment("OTHERREACH_ROCK_HULLS_OUT") is {Length:>0} hullsOut)
+        {
+            WriteRockHulls(hullsOut);
+            CaptureQuit.At(this,0);
+            return;
+        }
         string arm=OS.GetEnvironment("OTHERREACH_VISIBILITY_ARM");
         var scatter=_scatter.FindChildren("*",nameof(MultiMeshInstance3D),true,false).OfType<MultiMeshInstance3D>().ToArray();
         if(arm=="scatter_single_lod")
@@ -102,7 +135,9 @@ public partial class Main
                     if(Time.GetTicksMsec()-progressAt>12000 || Time.GetTicksMsec()-start>420000)
                         throw new TimeoutException("Route blocked at "+at+" toward "+point);
                     // Gentle periodic camera turns expose cell/shadow boundaries during actual running.
-                    _camera.Yaw=Mathf.Atan2(-d.X,-d.Z)+.45f*Mathf.Sin((Time.GetTicksMsec()-start)/6000f);
+                    // A fixed yaw (radians) holds the view still but for travel, so a tile that changes brightness is a pop, not a turn.
+                    _camera.Yaw=float.TryParse(OS.GetEnvironment("OTHERREACH_ROUTE_YAW"),System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out float fixedYaw)?fixedYaw
+                        :Mathf.Atan2(-d.X,-d.Z)+.45f*Mathf.Sin((Time.GetTicksMsec()-start)/6000f);
                     _controller.SteerWorld(d.Normalized(),Gait.Run,_camera);
                     await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
                     var cam=_camera.Camera.GlobalPosition;
