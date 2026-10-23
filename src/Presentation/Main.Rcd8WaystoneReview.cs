@@ -4,6 +4,7 @@ using UNNAMED.Domain.Spatial;
 using UNNAMED.Presentation.Art;
 using UNNAMED.Presentation.Ui;
 using UNNAMED.World.Runtime;
+using UNNAMED.Persistence;
 
 namespace UNNAMED.Presentation;
 
@@ -61,6 +62,8 @@ public partial class Main
     private async Task RunRcd8WaystoneJourney(string directory,Camera3D reviewCamera)
     {
         var sim=_session.Simulation ?? throw new InvalidDataException("No journey world");
+        string leg=OS.GetEnvironment("OTHERREACH_RCD8_WAYSTONE_LEG");
+        if(string.IsNullOrEmpty(leg))leg=OS.GetEnvironment("OTHERREACH_RCD8_WAYSTONE_JOURNEY")=="1"?"prepare":"walk";
         _npcs.SuppressPresentationForBenchmark=false;
         reviewCamera.GetNode<OmniLight3D>("CharacterFill").Reparent(_camera.Camera,false);
         _camera.Camera.MakeCurrent();_camera.TargetDistance=4;_camera.Pitch=-.22f;
@@ -111,8 +114,11 @@ public partial class Main
             ulong now=Time.GetTicksMsec();stableFrames=now-previous<250?stableFrames+1:0;previous=now;
         }
         Mark("world_warm");
-        await Go(new[]{(428.9,758.0)},8);await Touch("waystone.ashen");
-        await Go(new[]{(430.0,754.0),(407.0,754.0),(407.0,758.0)},30);
+        if(leg!="resume")
+        {
+            await Go(new[]{(428.9,758.0)},8);await Touch("waystone.ashen");
+            await Go(new[]{(430.0,754.0),(407.0,754.0),(407.0,758.0)},30);
+        }
         _camera.Yaw=-Mathf.Pi/2;await Rcd3Wait(1);
         DisplayServer.WindowSetTitle("Otherreach - "+Path.GetFileName(directory));
         File.WriteAllText(Path.Combine(directory,"record_ready.json"),"{}");
@@ -122,13 +128,24 @@ public partial class Main
             if(Time.GetTicksMsec()>recordingDeadline)throw new TimeoutException("Waystone WGC recorder did not start");
             await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
         }
-        Mark("approach_start");
-        await Go(new[]{(425.1,758.0)},20,Gait.Walk);await Rcd3Wait(6);Mark("approach_end");
+        if(leg!="resume")
+        {
+            Mark("approach_start");
+            await Go(new[]{(425.1,758.0)},20,Gait.Walk);await Rcd3Wait(6);Mark("approach_end");
+        }
+        else Mark("continued_normal_checkpoint");
         if(OS.GetEnvironment("OTHERREACH_RCD8_WAYSTONE_JOURNEY")=="1")
         {
-            await Go(new[]{(425.0,754.0),(440.0,740.0),(447.0,739.0),(451.8,742.0),(451.8,736.0),(465.0,736.0),(488.0,745.0),
+            var road=new[]{(425.0,754.0),(440.0,740.0),(447.0,739.0),(451.8,742.0),(451.8,736.0),(465.0,736.0),(488.0,745.0),
                 (488.0,720.0),(522.0,690.0),(564.0,690.0),(600.0,656.0),(680.0,657.0),(760.0,658.0),(840.0,659.0),(920.0,660.0),
-                (978.0,653.0),(978.5,651.0),(971.0,643.0),(961.0,644.0),(959.0,645.0)},260);
+                (978.0,653.0),(978.5,651.0),(971.0,643.0),(961.0,644.0),(959.0,645.0)};
+            await Go(leg=="prepare"?road.Take(11):leg=="resume"?road.Skip(11):road,260);
+            if(leg=="prepare")
+            {
+                _session.Save(SaveSlots.Manual("waystone_gate"));await Rcd3Wait(2);Mark("normal_manual_checkpoint");
+            }
+            else
+            {
             var berrin=sim.Npcs.Single(n=>n.Id=="npc.cairnwold.berrin_garth");
             if(!_controller.InTalkReach(berrin))await Go(Playthrough.WayTo(sim,_controller.Authoritative,berrin.Body),20);
             _controller.Talk(berrin.Id);await Rcd3Wait(.5);
@@ -149,10 +166,11 @@ public partial class Main
             if(Math.Abs(arrival.XMm-site.ArrivalXMm)>2000 || Math.Abs(arrival.ZMm-site.ArrivalZMm)>2000 || Math.Abs(_camera.Camera.Fov-fov)>.01f)
                 throw new InvalidDataException("Travel arrival or camera restoration failed");
             Mark("arrival");await Rcd3Wait(5);
+            }
         }
         File.WriteAllText(Path.Combine(directory,"recording.finished"),"done");
         File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {
-            status="REAL_GAME_WAYSTONE_VIDEO_REQUIRES_CLAUDE_REVIEW",events,journeys,
+            status="REAL_GAME_WAYSTONE_VIDEO_REQUIRES_CLAUDE_REVIEW",leg,events,journeys,
             route="Normal controller walking, TouchStoneCommand, Berrin dialogue, TravelCommand; no state injection or teleport fixtures",
             engine_max_fps=Engine.MaxFps,people=VisualOptions.People
         },new JsonSerializerOptions{WriteIndented=true}));
