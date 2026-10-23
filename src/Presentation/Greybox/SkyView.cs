@@ -200,6 +200,9 @@ public static class SkyView
     // The sun crosses 7.5 degrees a minute at that rate, which is plainly visible while walking.
     private static Node? _sky;
 
+    /// <summary>The Sky3D node the weather is drawn on, once built.</summary>
+    public static WorldEnvironment? Sky3DNode => _sky as WorldEnvironment is { } sky && GodotObject.IsInstanceValid(sky) ? sky : null;
+
     /// <summary>The hour the sky is showing: the world clock when a run has one, else the fixed --visual hour.</summary>
     public static float Hour => IsFinite(_clockHour) ? _clockHour : VisualOptions.Hour ?? ClockAtWorldStart;
 
@@ -305,8 +308,6 @@ public static class SkyView
             sun.DirectionalShadowBlendSplits = true;
             sun.LightAngularDistance = classicSun.LightAngularDistance;
         }
-        // The weather (B5): Sky3D's clouds and light, the fog's density and the wind, by the run's state.
-        WeatherStates.Apply(sky, VisualOptions.Weather ?? "fair");
         // The air at the hour the sky was built at. Advance() applies the same thing as the clock runs, from the same
         // function, so a locked run and a running one cannot drift apart - and this call is here as well as there
         // because a run whose world never ticks (a sky with no simulation behind it) still has to have air.
@@ -323,6 +324,8 @@ public static class SkyView
             else
                 GD.PushWarning("UNNAMED clouds: " + cloudsWhy);
         }
+        // The weather (B5) last, over the clouds too: the run's state, which the world's own weather then moves on from (Main).
+        WeatherStates.Apply(sky, VisualOptions.Weather ?? "fair");
         GD.Print($"UNNAMED sky: Sky3D {sky.Get("version")} at {Hour:0.00} h, its clock DRIVEN FROM THE WORLD CLOCK " +
                  $"(is_day {sky.Call("is_day")}, sun altitude "
                  + $"{altitude:0.0}, daylight {daylight:0.00})");

@@ -811,6 +811,7 @@ public partial class Main : Node3D
     private void ShowSpace(bool outside)
     {
         if (!outside) LoadInterior();
+        Greybox.WeatherStates.UnderSky = outside;
         _hollow.SetSpaceActive(outside);
         if (_scatter is not null)
             _scatter.Visible = outside;
@@ -1309,7 +1310,12 @@ public partial class Main : Node3D
         // this the sun was set once at build time and never moved, which is the owner's "lighting in general is
         // pretty static". Only Sky3D has a clock to move; an HDRI run ignores it.
         if (_session.Simulation is { } clock)
+        {
             SkyView.Advance(clock.WorldTick, TicksPerDay);
+            // The sky follows the world's weather (owner finding 55); --visual weather pins one for a capture.
+            if (SkyView.Sky3DNode is { } sky)
+                Greybox.WeatherStates.Follow(sky, VisualOptions.Weather ?? World.Runtime.WeatherStates.Key(clock.Weather.State), delta);
+        }
 
         // The smoke and the playthrough run one tick per frame: the smoke finishes in a fraction of real time, and the playthrough is
         // the same run every time, whatever the frame rate.

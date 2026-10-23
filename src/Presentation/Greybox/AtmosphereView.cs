@@ -16,7 +16,7 @@ public partial class AtmosphereView : Node3D
 {
     public const string ResourcePath = "res://Art/atmosphere.json";
 
-    private sealed record Follower(GpuParticles3D Particles, Vector3 Offset, HashSet<string>? Grounds);
+    private sealed record Follower(GpuParticles3D Particles, Vector3 Offset, HashSet<string>? Grounds, HashSet<string>? Weathers, bool DayOnly, bool NightOnly);
 
     private readonly List<Follower> _followers = new();
     private GroundField _ground = null!;
@@ -28,17 +28,10 @@ public partial class AtmosphereView : Node3D
         if (!Godot.FileAccess.FileExists(ResourcePath))
             return 0;
         using var json = JsonDocument.Parse(Godot.FileAccess.GetFileAsString(ResourcePath));
-        string weather = VisualOptions.Weather ?? "fair";
         int built = 0;
         foreach (var e in json.RootElement.GetProperty("emitters").EnumerateArray())
         {
             string recipe = e.GetProperty("recipe").GetString()!;
-            if (e.TryGetProperty("weather", out var w) && !w.EnumerateArray().Any(x => x.GetString() == weather))
-                continue;
-            if (e.TryGetProperty("day_only", out var day) && day.ValueKind == JsonValueKind.True && SkyView.DaylightNow < 0.5f)
-                continue;
-            if (e.TryGetProperty("night_only", out var night) && night.ValueKind == JsonValueKind.True && SkyView.DaylightNow >= 0.5f)
-                continue;
             // The otherworld concepts' air (Greybox/Otherworld.cs): drawn only when a concept is on.
             if (e.TryGetProperty("otherworld", out var other) && other.ValueKind == JsonValueKind.True && Otherworld.Strength <= 0)
                 continue;
@@ -63,12 +56,17 @@ public partial class AtmosphereView : Node3D
                 continue;
             var offset = e.TryGetProperty("offset", out var o) ? new Vector3((float)o[0].GetDouble(), (float)o[1].GetDouble(), (float)o[2].GetDouble()) : Vector3.Zero;
             var grounds = e.TryGetProperty("grounds", out var g) ? g.EnumerateArray().Select(x => x.GetString()!).ToHashSet(StringComparer.Ordinal) : null;
+            // The weather and the hour move while the run plays (WeatherStates follows the world's weather), so every emitter is
+            // built and each frame decides which run.
+            var weathers = e.TryGetProperty("weather", out var w) ? w.EnumerateArray().Select(x => x.GetString()!).ToHashSet(StringComparer.Ordinal) : null;
+            bool dayOnly = e.TryGetProperty("day_only", out var day) && day.ValueKind == JsonValueKind.True;
+            bool nightOnly = e.TryGetProperty("night_only", out var night) && night.ValueKind == JsonValueKind.True;
             particles.Emitting = false;
             AddChild(particles);
-            _followers.Add(new Follower(particles, offset, grounds));
+            _followers.Add(new Follower(particles, offset, grounds, weathers, dayOnly, nightOnly));
             built++;
         }
-        GD.Print($"UNNAMED atmosphere: {built} emitters under {weather} weather");
+        GD.Print($"UNNAMED atmosphere: {built} emitters");
         return built;
     }
 
@@ -77,10 +75,17 @@ public partial class AtmosphereView : Node3D
         if (_followers.Count == 0 || GetViewport().GetCamera3D() is not { } camera)
             return;
         var eye = camera.GlobalPosition;
+        bool day = SkyView.DaylightNow >= 0.5f;
         foreach (var follower in _followers)
         {
+            // Fading in with the weather it belongs to, out with the one it leaves; nothing falls or drifts inside a space.
+            float share = follower.Weathers is not { } weathers ? 1f
+                : (weathers.Contains(WeatherStates.Now) ? WeatherStates.Blend : 0f) + (weathers.Contains(WeatherStates.Was) ? 1f - WeatherStates.Blend : 0f);
+            bool on = share > 0.01f && WeatherStates.UnderSky && !(follower.DayOnly && !day) && !(follower.NightOnly && day)
+                      && (follower.Grounds is null || OnGround(eye, follower.Grounds));
             follower.Particles.GlobalPosition = eye + follower.Offset;
-            follower.Particles.Emitting = follower.Grounds is null || OnGround(eye, follower.Grounds);
+            follower.Particles.AmountRatio = Math.Min(1f, share);
+            follower.Particles.Emitting = on;
         }
     }
 
