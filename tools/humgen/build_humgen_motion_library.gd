@@ -1,4 +1,4 @@
-﻿extends SceneTree
+extends SceneTree
 ## Bake the game's own clips onto the HumGen body OFFLINE, so the runtime only relocates track paths.
 ##
 ## The brief's route for MPFB was Epic's IK Retargeter directly onto the target rig, exported, then copied into an
@@ -30,7 +30,44 @@ const GAITS := ["walk", "run", "sprint", "crouch_walk"]
 ## Clips whose feet are not on the ground for the whole cycle: planting them would pin a jump to the floor.
 const AIRBORNE := ["jump_start", "fall", "land", "death"]
 const CONTACT_BONES := ["foot_l", "foot_r", "ball_l", "ball_r"]
-const TRAVEL_BONES := ["Root", "pelvis"]
+const TRAVEL_BONES := ["Root", "pelvis", "Hips"]
+## The paid Godot recipe names the skeleton for Godot's own SkeletonProfileHumanoid (`Hips`, `LeftUpperLeg`,
+## `LeftLowerArm` ...), while the game's clip libraries key the UE-mannequin names. Target bone -> clip bone, so a
+## body named one way and clips named another still meet.
+const CANONICAL := {
+	"Hips": "pelvis", "Spine": "spine_01", "Chest": "spine_02", "UpperChest": "spine_03",
+	"Neck": "neck_01", "Head": "head",
+	"LeftShoulder": "clavicle_l", "LeftUpperArm": "upperarm_l", "LeftLowerArm": "lowerarm_l", "LeftHand": "hand_l",
+	"RightShoulder": "clavicle_r", "RightUpperArm": "upperarm_r", "RightLowerArm": "lowerarm_r", "RightHand": "hand_r",
+	"LeftUpperLeg": "thigh_l", "LeftLowerLeg": "calf_l", "LeftFoot": "foot_l", "LeftToes": "ball_l",
+	"RightUpperLeg": "thigh_r", "RightLowerLeg": "calf_r", "RightFoot": "foot_r", "RightToes": "ball_r",
+	"LeftThumbMetacarpal": "thumb_01_l", "LeftThumbProximal": "thumb_02_l", "LeftThumbDistal": "thumb_03_l",
+	"RightThumbMetacarpal": "thumb_01_r", "RightThumbProximal": "thumb_02_r", "RightThumbDistal": "thumb_03_r",
+	"LeftIndexProximal": "index_01_l", "LeftIndexIntermediate": "index_02_l", "LeftIndexDistal": "index_03_l",
+	"RightIndexProximal": "index_01_r", "RightIndexIntermediate": "index_02_r", "RightIndexDistal": "index_03_r",
+	"LeftMiddleProximal": "middle_01_l", "LeftMiddleIntermediate": "middle_02_l", "LeftMiddleDistal": "middle_03_l",
+	"RightMiddleProximal": "middle_01_r", "RightMiddleIntermediate": "middle_02_r", "RightMiddleDistal": "middle_03_r",
+	"LeftRingProximal": "ring_01_l", "LeftRingIntermediate": "ring_02_l", "LeftRingDistal": "ring_03_l",
+	"RightRingProximal": "ring_01_r", "RightRingIntermediate": "ring_02_r", "RightRingDistal": "ring_03_r",
+	"LeftLittleProximal": "pinky_01_l", "LeftLittleIntermediate": "pinky_02_l", "LeftLittleDistal": "pinky_03_l",
+	"RightLittleProximal": "pinky_01_r", "RightLittleIntermediate": "pinky_02_r", "RightLittleDistal": "pinky_03_r",
+}
+
+
+func canonical_bone(skeleton: Skeleton3D, clip_bone: String) -> int:
+	## The target's bone for a clip bone name, through the map when the two rigs spell it differently.
+	for bone in CANONICAL:
+		if CANONICAL[bone] == clip_bone and skeleton.find_bone(bone) >= 0:
+			return skeleton.find_bone(bone)
+	return skeleton.find_bone(clip_bone)
+
+
+func canonical_name(clip_bone: String) -> String:
+	## The target's own name for a clip bone, or the clip's name when the target spells it the same.
+	for bone in CANONICAL:
+		if CANONICAL[bone] == clip_bone:
+			return bone
+	return clip_bone
 
 
 func find_type(node: Node, type: String) -> Node:
@@ -72,10 +109,10 @@ func build() -> void:
 	for b in target.get_bone_count():
 		target_rest[target.get_bone_name(b)] = target.get_bone_rest(b).basis.get_rotation_quaternion()
 		target_origin[target.get_bone_name(b)] = target.get_bone_rest(b).origin
-	var target_height := target.get_bone_global_rest(target.find_bone("pelvis")).origin.y
+	var target_height := target.get_bone_global_rest(canonical_bone(target, "pelvis")).origin.y
 	var rest_low := INF
 	for bone in CONTACT_BONES:
-		var index := target.find_bone(bone)
+		var index := canonical_bone(target, bone)
 		if index >= 0:
 			rest_low = minf(rest_low, target.get_bone_global_rest(index).origin.y)
 
@@ -102,14 +139,15 @@ func build() -> void:
 		var dropped := 0
 		var matched := 0
 		for t in range(animation.get_track_count() - 1, -1, -1):
-			var track_bone := animation.track_get_path(t).get_subname(0)
-			if track_bone == "" or target.find_bone(track_bone) < 0:
+			var clip_bone := animation.track_get_path(t).get_subname(0)
+			var track_bone := canonical_name(clip_bone)
+			if clip_bone == "" or target.find_bone(track_bone) < 0 or rig.find_bone(clip_bone) < 0:
 				animation.remove_track(t)
 				dropped += 1
 				continue
 			matched += 1
 			animation.track_set_path(t, NodePath("Skeleton3D:" + track_bone))
-			var source_index := rig.find_bone(track_bone)
+			var source_index := rig.find_bone(clip_bone)
 			if source_index < 0:
 				continue
 			var kind := animation.track_get_type(t)
@@ -196,7 +234,7 @@ func build() -> void:
 				probe.advance(0)
 				var low := INF
 				for bone in CONTACT_BONES:
-					var index := target.find_bone(bone)
+					var index := canonical_bone(target, bone)
 					if index >= 0:
 						low = minf(low, target.get_bone_global_pose(index).origin.y)
 				low_before[0] = minf(low_before[0], low)
