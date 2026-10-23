@@ -78,7 +78,7 @@ public partial class Main
         var events=new List<object>();string phase="sync";
         void Contact(string clip,string side,double seconds)=>events.Add(new{phase,clip,side,contact_seconds=seconds,ticks_usec=Time.GetTicksUsec()});
         _avatar.FootPlanted+=Contact;
-        _camera.Yaw=-Mathf.Pi/2;_camera.TargetDistance=3.8f;_camera.Pitch=-.35f;
+        _camera.Yaw=-Mathf.Pi/2;_camera.TargetDistance=3.8f;_camera.Pitch=rcd8?-.7f:-.35f;
         bool hudVisible=_hud.Visible;_hud.Visible=false;
         // This isolated foot-contact gate exposes ankles; normal gameplay keeps its scatter.
         foreach(var plant in _scatter.FindChildren("*",nameof(MultiMeshInstance3D),true,false).OfType<MultiMeshInstance3D>())
@@ -194,7 +194,7 @@ public partial class Main
                         void FrameAngle()
                         {
                             var aim=_avatar.GlobalPosition+Vector3.Up*.95f;
-                            angleCamera.GlobalPosition=aim+_avatar.GlobalBasis.Z.Rotated(Vector3.Up,angle.Item2)*3.5f+Vector3.Up*.2f;
+                            angleCamera.GlobalPosition=aim+_avatar.GlobalBasis.Z.Rotated(Vector3.Up,angle.Item2)*3.5f+Vector3.Up*(rcd8?2f:.2f);
                             angleCamera.LookAt(aim);angleCamera.MakeCurrent();
                         }
                         foreach(var motion in new[]{("walk_back",Vector3.Left,Gait.Walk,3),("run_back",Vector3.Left,Gait.Run,3),
