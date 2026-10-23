@@ -100,7 +100,7 @@ public partial class Main
             {
                 // The collar, side on, at a metre and a half: the mark the party's animal wears.
                 var pup = simulation.Pets.FirstOrDefault()?.Body;
-                await ReviewStill("review1_collar", pup, side: 1.5);
+                await ReviewStill("review1_collar", pup, side: 2.2, height: 3.0);
                 break;
             }
             case 2:
@@ -123,7 +123,7 @@ public partial class Main
                     await Rcd3Wait(2.0);
                     await WalkOff(10);
                     await Rcd3Wait(1.0);
-                    await ReviewStill("review2_ring", simulation.Pets.FirstOrDefault()?.Body, alsoWith: simulation.Player.Body, side: 5.0);
+                    await ReviewStill("review2_ring", simulation.Pets.FirstOrDefault()?.Body, alsoWith: simulation.Player.Body, side: 5.0, height: 2.6);
                 }
                 break;
             }
@@ -198,7 +198,7 @@ public partial class Main
     /// A still with the camera placed by hand: on the side of the subject, [side] metres off, at the subject's height, looking at it - and where a
     /// second body matters (the animal on its ring with the character beyond it, the pup at the wolf) the camera stands so both are in the frame.
     /// </summary>
-    private async Task ReviewStill(string name, Body? subject = null, Body? alsoWith = null, double side = 3.0)
+    private async Task ReviewStill(string name, Body? subject = null, Body? alsoWith = null, double side = 3.0, double height = 1.6)
     {
         var simulation = _session.Simulation;
         if (simulation is null || _reviewDirectory is null)
@@ -213,7 +213,7 @@ public partial class Main
             AddChild(_reviewCamera);
         var middle = target + along * (other.DistanceTo(target) * 0.35f);
         // Above the grass and pitched down on the subject: at a metre the review art grass swallows a pup whole (measured 04:41).
-        _reviewCamera.GlobalPosition = middle + new Vector3(-along.Z, 0, along.X) * (float)side + new Vector3(0, 1.6f, 0);
+        _reviewCamera.GlobalPosition = middle + new Vector3(-along.Z, 0, along.X) * (float)side + new Vector3(0, (float)height, 0);
         _reviewCamera.LookAt(target + new Vector3(0, 0.30f, 0), Vector3.Up);
         var play = GetViewport().GetCamera3D();
         _reviewCamera.MakeCurrent();
