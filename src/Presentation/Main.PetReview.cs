@@ -106,14 +106,24 @@ public partial class Main
             case 2:
             {
                 // Wait here, on its ring, with the character ten metres off and both in the frame.
+                for (int fed = 0; fed < 20 && simulation.Pets.FirstOrDefault() is { } hungry && hungry.Bond < 60
+                                   && simulation.Player.Inventory.FirstOrDefault(i => i.DefId == "item.material.raw_meat") is { } piece; fed++)
+                {
+                    _session.Submit(new FeedPetCommand(simulation.PlayerId, hungry.Id, piece.ItemId));
+                    await Rcd3Wait(0.4);
+                }
                 var pup = simulation.Pets.FirstOrDefault();
                 if (pup is not null)
                 {
-                    _session.Submit(new OrderPetCommand(simulation.PlayerId, pup.Id, PetOrder.WaitHere, pup.Body.XMm, pup.Body.ZMm));
+                    for (int ask = 0; ask < 6 && simulation.Pets.FirstOrDefault()?.Order != PetOrder.WaitHere; ask++)
+                    {
+                        _session.Submit(new OrderPetCommand(simulation.PlayerId, pup.Id, PetOrder.WaitHere, pup.Body.XMm, pup.Body.ZMm));
+                        await Rcd3Wait(0.8);
+                    }
                     await Rcd3Wait(2.0);
                     await WalkOff(10);
                     await Rcd3Wait(1.0);
-                    await ReviewStill("review2_ring", simulation.Pets.FirstOrDefault()?.Body, alsoWith: simulation.Player.Body, side: 6.0);
+                    await ReviewStill("review2_ring", simulation.Pets.FirstOrDefault()?.Body, alsoWith: simulation.Player.Body, side: 5.0);
                 }
                 break;
             }
@@ -202,8 +212,9 @@ public partial class Main
         if (_reviewCamera.GetParent() is null)
             AddChild(_reviewCamera);
         var middle = target + along * (other.DistanceTo(target) * 0.35f);
-        _reviewCamera.GlobalPosition = middle + new Vector3(-along.Z, 0, along.X) * (float)side + new Vector3(0, 1.1f, 0);
-        _reviewCamera.LookAt(target + new Vector3(0, 0.45f, 0), Vector3.Up);
+        // Above the grass and pitched down on the subject: at a metre the review art grass swallows a pup whole (measured 04:41).
+        _reviewCamera.GlobalPosition = middle + new Vector3(-along.Z, 0, along.X) * (float)side + new Vector3(0, 1.6f, 0);
+        _reviewCamera.LookAt(target + new Vector3(0, 0.30f, 0), Vector3.Up);
         var play = GetViewport().GetCamera3D();
         _reviewCamera.MakeCurrent();
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);

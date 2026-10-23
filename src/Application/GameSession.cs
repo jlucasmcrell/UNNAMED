@@ -373,7 +373,9 @@ public sealed class GameSession : IDomainEvents, IDisposable
         var record = Simulation.NewCharacter(setup, id, spec, PlayerRecord.DerivedAppearanceSeed(id), player.XMm, player.ZMm);
         if (Options.StartCurrency > 0)
             record = record.WithCurrency(Options.StartCurrency);
-        record = record.WithInventory(record.Inventory.Add(new InventoryEntry(EntityId.NewId(EntityKind.Item), "item.misc.hound_pup", 1)));
+        record = record.WithInventory(record.Inventory
+            .Add(new InventoryEntry(EntityId.NewId(EntityKind.Item), "item.misc.hound_pup", 1))
+            .Add(new InventoryEntry(EntityId.NewId(EntityKind.Item), "item.material.raw_meat", 8)));
         var world = new WorldDelta(Generator, seed, new Registry());
         var simulation = Simulation.Start(setup, record, world, 0, _bus);
         _character = id.Value;
