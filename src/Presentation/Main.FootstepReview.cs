@@ -11,6 +11,16 @@ public partial class Main
     {
         _rcd3Driving=true;
         while(GetViewport().Disable3D)await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+        bool rcd8=OS.GetEnvironment("OTHERREACH_RCD8_MOTION_REVIEW")=="1";
+        if(rcd8)
+        {
+            ulong previous=Time.GetTicksMsec();int stable=0;
+            while(stable<60)
+            {
+                await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+                ulong now=Time.GetTicksMsec();stable=now-previous<250?stable+1:0;previous=now;
+            }
+        }
         ulong warm=Time.GetTicksMsec()+2000;
         while(Time.GetTicksMsec()<warm)await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
         if(OS.GetEnvironment("OTHERREACH_FOOTSTEP_MATERIAL_AUDIT")=="1")
@@ -104,9 +114,15 @@ public partial class Main
             flash.Visible=false;
             ulong settle=Time.GetTicksMsec()+1000;
             while(Time.GetTicksMsec()<settle)await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
-            foreach(var step in new[]{("walk",Vector3.Right,Gait.Walk,4), ("back",Vector3.Left,Gait.Walk,4),
+            var steps=new[]{("walk",Vector3.Right,Gait.Walk,4), ("back",Vector3.Left,Gait.Walk,4),
                 ("strafe_left",Vector3.Forward,Gait.Walk,3),("strafe_right",Vector3.Back,Gait.Walk,3),
-                ("run",Vector3.Right,Gait.Run,4),("back_return",Vector3.Left,Gait.Walk,6)})
+                ("run",Vector3.Right,Gait.Run,4),("back_return",Vector3.Left,Gait.Walk,6)}.ToList();
+            if(rcd8)
+                foreach(var gait in new[]{Gait.Walk,Gait.Run})
+                    foreach(var diagonal in new[]{("forward_left",Vector3.Right+Vector3.Forward),("back_right",Vector3.Left+Vector3.Back),
+                        ("forward_right",Vector3.Right+Vector3.Back),("back_left",Vector3.Left+Vector3.Forward)})
+                        steps.Add(($"diagonal_{gait}_{diagonal.Item1}",diagonal.Item2.Normalized(),gait,3));
+            foreach(var step in steps)
             {
                 phase=step.Item1;ulong through=Time.GetTicksMsec()+(ulong)step.Item4*1000;
                 var from=_avatar.GlobalPosition;
@@ -127,8 +143,10 @@ public partial class Main
                 void AuditSword()
                 {
                     if(!attachmentReview)return;
+                    var skeleton=Art.ArtLibrary.Find<Skeleton3D>(_avatar) ?? throw new InvalidDataException("No native player skeleton");
+                    string hand=skeleton.GetBoneName(Art.BoneNames.Find(skeleton,"hand_r"));
                     var right=_avatar.FindChildren("*",nameof(BoneAttachment3D),true,false).OfType<BoneAttachment3D>()
-                        .Single(a=>a.BoneName=="hand_r");
+                        .Single(a=>a.BoneName==hand);
                     var socket=right.FindChild(Art.HeldWeapon.GripSocket,true,false) as Node3D;
                     var meshes=right.FindChildren("*",nameof(MeshInstance3D),true,false).OfType<MeshInstance3D>().ToArray();
                     bool drawable=meshes.Any(m=>m.IsVisibleInTree() && m.CastShadow!=GeometryInstance3D.ShadowCastingSetting.ShadowsOnly);
@@ -215,7 +233,8 @@ public partial class Main
             }
             File.WriteAllText(Path.Combine(directory,"foot_events.json"),JsonSerializer.Serialize(events));
             if(!baseline && events.Count<12)throw new InvalidOperationException("Too few audible contact candidates");
-            File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new{status="FOOTSTEP_REQUIRES_AUDIO_VISUAL_REVIEW",baseline,cast=VisualOptions.People,events=events.Count,max_fps=Engine.MaxFps}));
+            File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new{status="FOOTSTEP_REQUIRES_AUDIO_VISUAL_REVIEW",baseline,cast=VisualOptions.People,model=_avatarModel,events=events.Count,max_fps=Engine.MaxFps,
+                findings=rcd8?new[]{51,57}:Array.Empty<int>(),fixture="Low plants and HUD hidden to expose feet; native controller, combat, terrain and motion unchanged"}));
         }
         finally
         {

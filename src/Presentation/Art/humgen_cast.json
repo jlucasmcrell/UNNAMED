@@ -1,117 +1,117 @@
 {
-  "comment": "Cast v2: paid HumGen native outfit/footwear wear API, garden boots, fuller per-character hair and native expressions. Runtime preserves exported body stature and skeleton. Body hashes pin the accepted generation; named identities are reserved from the generic pool.",
+  "comment": "Cast v2 native HumGen wear API, garden boots and fuller hair; runtime_v3 caps source textures at2K for VRAM. All native mesh/skin buffers, skeletons, blendshapes and materials remain byte-identical. Runtime preserves exported stature. Body hashes pin this payload; named identities are reserved from the generic pool.",
   "models": [
     {
       "id": "humgen_player_ada_f",
       "sex": "f",
       "height_m": 1.7,
       "npc_only": false,
-      "body_sha256": "6f4f8ed0e6acd97b201c7b7cc1015fcdfab5b0d7da9803094372a6e01971ca11"
+      "body_sha256": "bf0386a40738d89e857e9acf29e095e7da085e6ba55937d896cb390da3470434"
     },
     {
       "id": "humgen_player_mateo_m",
       "sex": "m",
       "height_m": 1.82,
       "npc_only": false,
-      "body_sha256": "ea8c7f3dc367709d363bcf39aa84b042c2f5d2fc11e032130b8665f320c7907a"
+      "body_sha256": "638aba130fc99178e1f52231aa06101c94e519235b3108b869a991f1d8489a13"
     },
     {
       "id": "humgen_named_kera_voss",
       "sex": "f",
       "height_m": 1.66,
       "npc_only": true,
-      "body_sha256": "6bba870614ebffe38d3543a923d40395883add16e783b2b3293b70c075da2669"
+      "body_sha256": "c67f274482b9ec780595b1c2cedfaa05a21f642515cdd0cee8924739a765340c"
     },
     {
       "id": "humgen_named_renn_vale",
       "sex": "m",
       "height_m": 1.78,
       "npc_only": true,
-      "body_sha256": "999359429d4115ed9137d6441e052a5d62cee4445cca710072155e7ed876fa80"
+      "body_sha256": "2dd7020760905c012f50dc14935d11045a4680ee4b025b3448b3199048b1a2ac"
     },
     {
       "id": "humgen_named_sel_arien",
       "sex": "f",
       "height_m": 1.68,
       "npc_only": true,
-      "body_sha256": "778f3b02ad8a8f994384fc35c1af97c22f60f1c5674c7435adb4b1b3f1b75314"
+      "body_sha256": "f59d72e830035b5b87b6c708533128c089d03e3ec2c82042aeb7dbe10221c950"
     },
     {
       "id": "humgen_named_tavar_orr",
       "sex": "m",
       "height_m": 1.8,
       "npc_only": true,
-      "body_sha256": "72c9b25c3024aba7e1d06ab656023cc5de4cecdae917bec986b269de5afe9d18"
+      "body_sha256": "8f80b87a55adec0488c71c1a06f7aabd35a60436b3789f97759af76a6548702e"
     },
     {
       "id": "humgen_named_mara_ling",
       "sex": "f",
       "height_m": 1.63,
       "npc_only": true,
-      "body_sha256": "1a4fe1dbfd7cb24306199b6f29be9af98c320276f6518168e5bdf8e040d1101d"
+      "body_sha256": "24b3a86cf5bdef381846de66e380ed7730006555cc76ee5a14ce66c15de096a1"
     },
     {
       "id": "humgen_named_berrin_garth",
       "sex": "m",
       "height_m": 1.74,
       "npc_only": true,
-      "body_sha256": "aaa90ce029c25d13241b0c12dccbd50ab4389a114b77c6b8b2ee692543c1e780"
+      "body_sha256": "8e802359f755dfd82e9c89427e9f08d5c9e832a5d66a213e653654e61134e95d"
     },
     {
       "id": "humgen_named_durn_skell",
       "sex": "m",
       "height_m": 1.79,
       "npc_only": true,
-      "body_sha256": "206d1e773ed6fafc094bbce47ab0096354882032941c4bf1948f57c8dee0a483"
+      "body_sha256": "cc2556af99922a4be4e4ef8e1f50cb9c5b7d902cc9f47b893ded7e4f0ac28c8c"
     },
     {
       "id": "humgen_named_tam_crowden",
       "sex": "f",
       "height_m": 1.61,
       "npc_only": true,
-      "body_sha256": "cbf2fab0725d279207302123d97db98582376982ef2db61f33d9566e2a0ff45c"
+      "body_sha256": "aee6d8742ce9a4cc726043d5fda8600e1bb801fbb6f1af97452594faed2162b2"
     },
     {
       "id": "humgen_pool_00",
       "sex": "f",
       "height_m": 1.65,
       "npc_only": true,
-      "body_sha256": "73d14d2683fbb91dd65e19619ee662c74fec60c738837cd12862fa95368de6ab"
+      "body_sha256": "8959b292773fa17371dc4a7ac84d6cf4c6f7a092c4c1b5ebcbd2142828afbd7a"
     },
     {
       "id": "humgen_pool_01",
       "sex": "m",
       "height_m": 1.76,
       "npc_only": true,
-      "body_sha256": "da11cd1b42d75edab9ec9302f5283aa1ce5f1058c5e4e1c5d881965b8959ea9b"
+      "body_sha256": "7aec05db22808d82639ee6e594d47eee06b1600aadee53251e1256cc9518946c"
     },
     {
       "id": "humgen_pool_02",
       "sex": "f",
       "height_m": 1.58,
       "npc_only": true,
-      "body_sha256": "dadc9cf439d9bba8d65b372a937b1fb250bb5c1f8ed8e8f45c44c8eb9eccd688"
+      "body_sha256": "c7444f86546294981d94a85943c388a4a46cbb6b88d081d4656f6b1cc5a3c092"
     },
     {
       "id": "humgen_pool_03",
       "sex": "m",
       "height_m": 1.72,
       "npc_only": true,
-      "body_sha256": "faf33d0341baa9f29f000a6f8d0e8c6b8e1c0690696ea0c8258f320b44a80962"
+      "body_sha256": "d195eb4f43e320f42c4a8e9257d8727817337e6dd219682e979e5ee6d969211a"
     },
     {
       "id": "humgen_pool_04",
       "sex": "f",
       "height_m": 1.69,
       "npc_only": true,
-      "body_sha256": "01745fa49b3f63933fc3b340900aabeb593c4867a997b258dc6fadca23ff7a31"
+      "body_sha256": "87b50821e6bdf30f4bf900d412a8c559d2254da28642119dc4518d27ecec0c87"
     },
     {
       "id": "humgen_pool_05",
       "sex": "m",
       "height_m": 1.7,
       "npc_only": true,
-      "body_sha256": "a943cba0379d572d2dc868b6433bff2b80cb0d0d4d6efbd2bef2c0ccfdf35641"
+      "body_sha256": "df9fdf257b3ea7c121ec6c01aa1a6a71bfcf6fb8c5ccd2beff1a3dfa061fc83b"
     }
   ]
 }

@@ -37,6 +37,12 @@ public partial class Main
             AddChild(camera);
             source.GetNode<OmniLight3D>("CharacterFill").Reparent(camera, false);
             camera.MakeCurrent();
+            if(OS.GetEnvironment("OTHERREACH_RCD8_MOTION_REVIEW")=="1")
+            {
+                camera.GetNode<OmniLight3D>("CharacterFill").Reparent(source,false);
+                source.MakeCurrent();camera.QueueFree();
+                await RunFootstepReview(directory);GetTree().Quit();return;
+            }
             if(OS.GetEnvironment("OTHERREACH_RCD8_WAYSTONE_REVIEW")=="1")
             {
                 await RunRcd8WaystoneReview(directory,camera);GetTree().Quit();return;
