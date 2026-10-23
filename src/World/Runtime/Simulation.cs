@@ -367,7 +367,7 @@ public sealed class Simulation
         _durability = new DurabilitySystem(_context, player.Id);
         _durability.Listen(bus);
         _laden = new LadenSystem(_context, () => _movement.Effective, _inventory.CarriedGrams, _inventory.CarryLimitGrams);
-        _approval = new ApprovalSystem(_context, _dialogue.Banter);
+        _approval = new ApprovalSystem(_context, _dialogue.Banter, () => _quests.Tracked(null) is { } tracked ? _quests.Marker(tracked) : null);
         _approval.Listen(bus);
         _adventurers = new AdventurerSystem(_context, _state.Claim(nameof(AdventurerSystem), StateSlice.Adventurers), player.Id);
         _trips = new CombinedSettingOuts(setup.SettingOuts ?? _npcs, _adventurers);
