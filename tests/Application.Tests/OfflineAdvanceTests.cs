@@ -86,8 +86,9 @@ public class OfflineAdvanceTests
         }
         Assert.Equal(Seen(once), Seen(daily));
 
-        Assert.Equal(Reckoning, whole.Lines.Single(l => l.Kind == AdvanceKinds.TimePassed).Amount);
-        Assert.InRange(whole.Lines.Single(l => l.Kind == AdvanceKinds.DaysPassed).Amount, 182, 183);
+        // Advance splits at creature respawns/pet recoveries; the clock logs each segment.
+        Assert.Equal(Reckoning, whole.Lines.Where(l => l.Kind == AdvanceKinds.TimePassed).Sum(l=>l.Amount));
+        Assert.InRange(whole.Lines.Where(l => l.Kind == AdvanceKinds.DaysPassed).Sum(l=>l.Amount), 182, 183);
         Assert.Equal("effect.weakened", whole.Lines.Single(l => l.Kind == AdvanceKinds.EffectExpired).Ref);
     }
 

@@ -437,6 +437,7 @@ public class CombatTests
         var arena = Arena.Open(session, Open, 0, new[] { (Open.X, Open.Z + 1.9) }, r => WithHealth(r, 3));
         var died = arena.Record<PlayerDied>();
         var respawned = arena.Record<PlayerRespawned>();
+        var xp = arena.Record<ExperienceGained>();
         var before = arena.Simulation.Player.Progression;
 
         Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
@@ -451,7 +452,7 @@ public class CombatTests
         long owed = (long)Math.Round(rules.Curve.ToReach(2) * rules.Guards.DebtFraction, MidpointRounding.AwayFromZero);
         Assert.Equal(owed, death.DebtAdded);
         var after = arena.Simulation.Player.Progression;
-        Assert.Equal((before.Level, before.LevelProgressXp, owed), (after.Level, after.LevelProgressXp, after.XpDebt));   // debt, not lost XP
+        Assert.Equal((before.Level, before.LevelProgressXp+xp.Sum(e=>e.Awarded-e.Repaid), owed-xp.Sum(e=>e.Repaid)), (after.Level, after.LevelProgressXp, after.XpDebt));   // debt, not lost XP; new lore can repay it
         Assert.Equal(PoolState.Full, after.Pools);
         var spawn = session.Setup.Layout.Spawn;
         Assert.Equal((spawn.XMm, spawn.ZMm), (Assert.Single(respawned).Body.XMm, arena.Simulation.Player.Body.ZMm));
@@ -463,7 +464,7 @@ public class CombatTests
         // The penalty applies exactly once (PROTOTYPE.md C17).
         arena.Tick(400);
         Assert.Single(died);
-        Assert.Equal(owed, arena.Simulation.Player.Progression.XpDebt);
+        Assert.Equal(owed-xp.Sum(e=>e.Repaid), arena.Simulation.Player.Progression.XpDebt);
     }
 
     [Fact]

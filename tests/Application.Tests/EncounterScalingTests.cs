@@ -206,6 +206,8 @@ public class EncounterScalingTests
         // wolf - and the question here is what the kill is worth, not who wins the trade.
         var solo = Den(session, Archer);
         var party = Den(session, r => FullParty(Archer(r)));
+        foreach(var arena in new[]{solo,party})
+            Assert.Null(arena.Submit(new EquipCommand(arena.Player,arena.Simulation.Player.Inventory.Single(e=>e.DefId=="item.weapon.hunting_bow").ItemId)));
         var soloKill = solo.Record<ExperienceGained>();
         var partyKill = party.Record<ExperienceGained>();
 

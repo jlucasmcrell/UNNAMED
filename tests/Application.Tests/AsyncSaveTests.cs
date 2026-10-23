@@ -26,7 +26,8 @@ public class AsyncSaveTests
             if (step != _at)
                 return;
             Interlocked.Increment(ref _reached);
-            Assert.True(_gate.Wait(TimeSpan.FromSeconds(30)), "the test never let the save go");
+            // A full real-content suite can take minutes to simulate the held interval.
+            Assert.True(_gate.Wait(TimeSpan.FromMinutes(5)), "the test never let the save go");
         };
 
         public void WaitReached(int count)

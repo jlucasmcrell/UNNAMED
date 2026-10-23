@@ -268,7 +268,8 @@ public class ItemTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var (simulation, bus) = Custom(session, items => items with { Inventory = items.Inventory with { StackSlots = 4 } });
+        // Worn items no longer occupy backpack slots; fill it with the unequipped kit only.
+        var (simulation, bus) = Custom(session, items => items with { Inventory = items.Inventory with { StackSlots = items.StartingKit.Count(i => !i.Equip) } });
         var rejected = new List<CommandRejected>();
         bus.Subscribe<CommandRejected>(rejected.Add);
         Walk(simulation, ToTheDenCache);
