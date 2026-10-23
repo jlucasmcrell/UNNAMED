@@ -86,6 +86,12 @@ internal sealed class ApprovalSystem : IAbstractAdvance
     /// <summary>The tick before which the party says nothing more (a remark was just made). Transient: a load starts talkative, and nothing saved depends on it.</summary>
     private long _quietUntil;
 
+    /// <summary>When each banter line was last said (owner finding 52: no line twice within <see cref="RepeatTicks"/>). Transient, like the quiet.</summary>
+    private readonly Dictionary<string, long> _said = new(StringComparer.Ordinal);
+
+    /// <summary>Ten real minutes at the fixed 20 Hz tick.</summary>
+    private const long RepeatTicks = 10 * 60 * 20;
+
     public ApprovalSystem(SystemContext context, Func<string, ImmutableArray<SpokenLine>> banter)
     {
         _context = context;
@@ -188,6 +194,7 @@ internal sealed class ApprovalSystem : IAbstractAdvance
             .Where(c => c.Condition == CompanionCondition.Up && c.Order == CompanionOrder.Follow && c.TargetKey is null && State.Conversation?.NpcId != c.NpcId
                         && State.Npcs.TryGetValue(c.NpcId, out var npc) && Distance(npc.Body, State.Body) <= near)
             .SelectMany(c => _banter(c.NpcId).Select(line => (c.NpcId, Line: line)))
+            .Where(l => !_said.TryGetValue(l.Line.LineId, out long at) || tick - at >= RepeatTicks)
             .ToList();
         if (lines.Count == 0 || State.Conversation is not null)
             return;
@@ -196,6 +203,7 @@ internal sealed class ApprovalSystem : IAbstractAdvance
             return;
         var (npcId, spoken) = lines[channel.Int(1, 0, lines.Count)];
         _quietUntil = tick + rules.QuietTicks;
+        _said[spoken.LineId] = tick;
         _context.Events.Publish(new BanterSpoken(npcId, spoken.LineId, spoken.Text, tick));
     }
 
