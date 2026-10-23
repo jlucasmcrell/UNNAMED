@@ -237,11 +237,11 @@ structures:
   - { id: corr_r10_r11_turn_b_ceiling, box_m: [30, 104, 34, 108], height_m: 4.3, clearance_m: 4.0 }
   - { id: corr_r11_r12_a_z_ceiling, box_m: [48.5, 118.0, 51.5, 126.0], height_m: 4.3, clearance_m: 4.0 }
 
-# G1-G3 remain open once earned. G3 requires the Custodian defeat; the wedge belongs at the headworks saddles.
+# G1-G3 remain open once earned. G3 takes the Custodian defeat and a fitting wedge, which stays fitted in the door.
 doors:
   - { key: door.barrowworks.g1, flag_ref: world.barrowworks.gate_g1_open, box_m: [66.0, 36.5, 66.8, 39.5], height_m: 2.4, stays_open: true, latch_side: east, locked_text: 'The latch is on the gallery side.' }
   - { key: door.barrowworks.g2, flag_ref: world.barrowworks.gate_g2_open, box_m: [79.2, 58.5, 80.0, 61.5], height_m: 2.4, stays_open: true }
-  - { key: door.barrowworks.g3, flag_ref: world.barrowworks.gate_g3_open, box_m: [48.5, 118.2, 51.5, 119.0], height_m: 2.4, stays_open: true, requirement: { flag_ref: world.barrowworks.ring_custodian_defeated, location_ref: location.barrowworks.r11_measuring_court }, locked_text: 'The court interlock still holds. The Custodian must be stopped.' }
+  - { key: door.barrowworks.g3, flag_ref: world.barrowworks.gate_g3_open, box_m: [48.5, 118.2, 51.5, 119.0], height_m: 2.4, stays_open: true, requirement: { flag_ref: world.barrowworks.ring_custodian_defeated, location_ref: location.barrowworks.r11_measuring_court }, fitted: { item_ref: item.tool.fitting_wedge, count: 1 }, locked_text: 'The court interlock still holds. Stop the Custodian, then fit a wedge into its keyway.' }
 containers:
   - { key: container.barrowworks.archive_crate, loot_ref: loot.barrowworks.archive_crate, position_m: [74.5, 62.5], stack_slots: 4 }
   - { key: container.barrowworks.codex_fragment, loot_ref: loot.barrowworks.codex_fragment, position_m: [69.0, 63.0], stack_slots: 1, flag_ref: world.barrowworks.codex_fragment_taken }
@@ -280,22 +280,20 @@ switches:
     structure: r12_preserve_control
     flag_ref: world.barrowworks.headworks_preserved
     name: retaining saddle - preserve the measure
-    verb: Fit wedge into
-    consume: { item_ref: item.tool.fitting_wedge, count: 1 }
+    verb: Lock
     excludes: [world.barrowworks.headworks_dismantled]
     requirements:
       - { flag_ref: world.barrowworks.withdrawal_notice_read, location_ref: location.barrowworks.intake_hall }
       - { flag_ref: world.barrowworks.fitting_note_read, location_ref: location.barrowworks.gauge_archive }
       - { flag_ref: world.barrowworks.diagram_rack_read, location_ref: location.barrowworks.gauge_archive }
       - { flag_ref: world.barrowworks.ring_custodian_defeated, location_ref: location.barrowworks.r11_measuring_court }
-    locked_text: 'Read the notice, fitting note and diagram, then stop the Custodian. Both saddles require one fitting wedge; fitting either settles the choice.'
+    locked_text: 'Read the notice, fitting note and diagram, and stop the Custodian first. Working either saddle settles the choice.'
     done_text: "The measure is a beam of fitted segments, each one cut to a tolerance nothing in the ring could hold, and the whole of it is still true. Whatever it was for, it was made to outlast the works that built it, and it has. You leave it standing."
   - key: switch.barrowworks.headworks_dismantle
     structure: r12_dismantle_control
     flag_ref: world.barrowworks.headworks_dismantled
     name: release saddle - dismantle the measure
-    verb: Fit wedge into
-    consume: { item_ref: item.tool.fitting_wedge, count: 1 }
+    verb: Open
     reward: { item_ref: item.material.iron_ingot, count: 2 }
     excludes: [world.barrowworks.headworks_preserved]
     requirements:
@@ -303,7 +301,7 @@ switches:
       - { flag_ref: world.barrowworks.fitting_note_read, location_ref: location.barrowworks.gauge_archive }
       - { flag_ref: world.barrowworks.diagram_rack_read, location_ref: location.barrowworks.gauge_archive }
       - { flag_ref: world.barrowworks.ring_custodian_defeated, location_ref: location.barrowworks.r11_measuring_court }
-    locked_text: 'Read the notice, fitting note and diagram, then stop the Custodian. Both saddles require one fitting wedge; fitting either settles the choice.'
+    locked_text: 'Read the notice, fitting note and diagram, and stop the Custodian first. Working either saddle settles the choice.'
     done_text: "The measure comes apart at the joints, because it was built to. Every segment is a length of good ash haft and a plate of worked iron, and the ring has no one left in it to measure anything with. You take it apart for what it is made of."
 barriers:
   - { key: barrier.barrowworks.measure, flag_ref: world.barrowworks.headworks_dismantled, box_m: [42.1, 128.4, 43.1, 133.6], height_m: 2.2, prompt: 'The measure. Its retaining and release saddles are beside it.' }

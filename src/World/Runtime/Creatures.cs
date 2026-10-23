@@ -465,9 +465,21 @@ internal sealed class CreatureSystem : IAbstractAdvance
         foreach (string key in State.Creatures.Keys.ToList())
         {
             var creature = State.Creatures[key];
+            // Leaving or dying resets an encounter to full health (owner ruling OQ-17); only a defeat is durable. A
+            // wound counts as well as a fight still under way, so a guardian that lost track of the character keeps
+            // nothing either. Out of its space - through a portal, or respawned outside - it resets at once, quietly: there
+            // is nobody in the court to restage or to tell.
+            bool attempted = creature.Alive && creature.Site.Recovery is not null
+                             && (creature.Mind == CreatureMind.Engaged || creature.Health < creature.ScaledMaxHealth);
+            if (attempted && creature.Site.Space != State.Space)
+            {
+                Save(AtHome(creature) with { Health = creature.ScaledMaxHealth });
+                _outsideAttemptTicks.Remove(key);
+                continue;
+            }
             if (!creature.Site.Space.IsExterior && creature.Site.Space != State.Space)
                 continue;
-            if (creature.Alive && creature.Mind == CreatureMind.Engaged && creature.Site.Recovery is { } court)
+            if (attempted && creature.Site.Recovery is { } court)
             {
                 var player = State.Body;
                 bool outside = player.XMm < court.MinXMm || player.XMm > court.MaxXMm

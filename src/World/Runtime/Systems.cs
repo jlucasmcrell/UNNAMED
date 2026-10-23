@@ -474,6 +474,8 @@ internal sealed class InteractionSystem
                        || _context.State.Npcs.Values.Any(n => door.ClosedFootprint.Separation(n.Body.XMm, n.Body.ZMm, rules.BodyRadiusMm) is not null);
         if (open && blocked)
             return $"{door.Key} cannot close: something is in the doorway";
+        if (!open && door.Fitted is { } fitted && _context.Dispatch(new ConsumeItem(fitted.ItemId, fitted.Count)) is not null)
+            return door.LockedText;
         if (_context.Dispatch(new SetWorldFlag(Simulation.CellOf(found.Layout.SpaceId, door), door.FlagId, open ? 0 : 1)) is { } refused)
             return refused;
         _context.Events.Publish(new DoorToggled(_player, door.Key, !open, tick));
