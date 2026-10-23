@@ -15,8 +15,8 @@ public partial class Main
     private const string PetReviewOption = "--pet-review";
 
     /// <summary>Where the fixture's character stands: flat open grass east of Ashen Hollow, clear of every building.</summary>
-    private const long ReviewPlayerXMm = 486_000;
-    private const long ReviewPlayerZMm = 745_000;
+    private const long ReviewPlayerXMm = 503_000;
+    private const long ReviewPlayerZMm = 741_000;
     private const string ReviewWolf = "creature.beast.wolf_grey";
 
     private string? _reviewDirectory;
@@ -100,7 +100,7 @@ public partial class Main
             {
                 // The collar, side on, at a metre and a half: the mark the party's animal wears.
                 var pup = simulation.Pets.FirstOrDefault()?.Body;
-                await ReviewStill("review1_collar", pup, side: 2.2, height: 3.0);
+                await ReviewStill("review1_collar", pup, side: 2.2, height: 0.62);
                 break;
             }
             case 2:
@@ -140,7 +140,7 @@ public partial class Main
                         if (_reviewLog.Any(l => l.StartsWith("Lure") == false && l.Contains("Bite")))
                         {
                             await ReviewStill("review3_pup_bites", NearestReviewWolf(simulation)?.Body,
-                                alsoWith: simulation.Pets.FirstOrDefault()?.Body, side: 3.5);
+                                alsoWith: simulation.Pets.FirstOrDefault()?.Body, side: 2.6, height: 0.55);
                             break;
                         }
                         await Rcd3Wait(0.7);

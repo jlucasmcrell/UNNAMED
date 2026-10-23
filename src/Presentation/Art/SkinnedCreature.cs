@@ -75,7 +75,7 @@ public sealed partial class SkinnedCreature : CreatureBody
         bone.AddChild(new MeshInstance3D
         {
             Name = "PetCollar",
-            Mesh = new TorusMesh { InnerRadius = radius, OuterRadius = radius + 0.025f, Rings = 22, RingSegments = 10 },
+            Mesh = new TorusMesh { InnerRadius = radius, OuterRadius = radius + 0.030f, Rings = 24, RingSegments = 10 },
             MaterialOverride = new StandardMaterial3D
             {
                 AlbedoColor = new Color(0.95f, 0.16f, 0.12f),
