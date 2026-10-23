@@ -347,7 +347,7 @@ public partial class Main
                             await GoTo(foe.Body, 2.0, 10);
                         _controller.Attack();
                     }
-                    if (round == 10 && NearestHostile(simulation)?.Body is { } bitten && simulation.Pets.FirstOrDefault()?.Body is { } biter)
+                    if (round is 4 or 12 && NearestHostile(simulation)?.Body is { } bitten && simulation.Pets.FirstOrDefault()?.Body is { } biter)
                         await PetPortrait("pets_fight_pup_biting", bitten, biter);
                     await Rcd3Wait(0.7);
                 }
@@ -610,8 +610,9 @@ public partial class Main
             _controller.Crouch(true);
             double heading = prey.Body.FacingMdeg / 1000.0 * Math.PI / 180;
             if (!await ApproachPoint((prey.Body.XMm - Math.Sin(heading) * OfferWithinMetres * 1000) / 1000.0,
-                    (prey.Body.ZMm - Math.Cos(heading) * OfferWithinMetres * 1000) / 1000.0, 2.0, 30))
-                await GoTo(prey.Body, OfferWithinMetres - 0.2, 60);
+                    (prey.Body.ZMm - Math.Cos(heading) * OfferWithinMetres * 1000) / 1000.0, 2.0, 30)
+                && !await ApproachPoint(prey.Body.XMm / 1000.0, prey.Body.ZMm / 1000.0, 2.4, 45))
+                await GoTo(prey.Body, OfferWithinMetres - 0.2, 30);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         }
         return Taken();
