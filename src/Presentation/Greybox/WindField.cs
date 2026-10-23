@@ -140,6 +140,13 @@ void vertex() {
 }
 
 void fragment() {
+    // The third-person camera can be pushed through a branch: what is within a hand of the lens is not drawn (dithered out from 0.8 m,
+    // gone by 0.35 m), so it never fills the screen. The lens only: not a distance fade, and never in the shadow pass.
+    if (!IN_SHADOW_PASS) {
+        float lens = length(VERTEX);
+        if (lens < 0.8 && fract(52.9829189 * fract(dot(FRAGCOORD.xy, vec2(0.06711056, 0.00583715)))) > smoothstep(0.35, 0.8, lens))
+            discard;
+    }
     vec4 a = has_albedo ? texture(albedo_tex, UV) : vec4(1.0);
     vec4 colour = albedo_colour * (use_instance_tint ? tree_tint : vec4(1.0));
     ALBEDO = a.rgb * colour.rgb;
@@ -283,6 +290,13 @@ void vertex() {
 }
 
 void fragment() {
+    // The third-person camera can be pushed through a branch: what is within a hand of the lens is not drawn (dithered out from 0.8 m,
+    // gone by 0.35 m), so it never fills the screen. The lens only: not a distance fade, and never in the shadow pass.
+    if (!IN_SHADOW_PASS) {
+        float lens = length(VERTEX);
+        if (lens < 0.8 && fract(52.9829189 * fract(dot(FRAGCOORD.xy, vec2(0.06711056, 0.00583715)))) > smoothstep(0.35, 0.8, lens))
+            discard;
+    }
     vec4 a = texture(albedo_tex, UV);
     vec3 colour = a.rgb * tint;
 #ifdef OTHERWORLD
