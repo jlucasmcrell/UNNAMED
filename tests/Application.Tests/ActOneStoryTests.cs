@@ -196,10 +196,10 @@ public class ActOneStoryTests
         long first = Trust();
         Assert.True(first >= 5);
         Assert.Equal(QuestStatus.Completed, s.Quest("quest.main.wrong_side").Status);
-        s.Say("back"); s.Say("story_afternoon");
-        Assert.DoesNotContain(s.Sim.Conversation!.Replies, r => r.Id == "first");
-        Assert.Equal("'first' is not a reply here", s.Arena.Submit(new ChooseCommand(s.Arena.Player, "first")));
-        s.Say("later");
+        s.Say("back");
+        // Owner finding 53: a finished quest's reply is not offered again, so its trust cannot be asked for twice.
+        Assert.DoesNotContain(s.Sim.Conversation!.Replies, r => r.Id == "story_afternoon");
+        Assert.Equal("'story_afternoon' is not a reply here", s.Arena.Submit(new ChooseCommand(s.Arena.Player, "story_afternoon")));
         Assert.Equal(first, Trust());
         s.Talk(Renn);   // his departure line cites Tavar's account, so it waits until it has been heard
         Assert.Contains(s.Sim.Conversation!.Replies, r => r.Id == "story_road_east");

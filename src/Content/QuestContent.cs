@@ -509,6 +509,7 @@ public static class QuestContent
             }
         }
 
+        CheckQuestOffers(quests, dialogues);
         var asking = replies.Select(r => (At: $"{r.Dialogue.Id} node {r.Node.Id} reply {r.Choice.Id}", r.Choice.Conditions))
             .Concat(dialogues.Values.SelectMany(d => d.Barks.Select((b, i) => (At: $"{d.Id} bark {i}", b.Conditions))))
             .Concat(dialogues.Values.SelectMany(d => d.Nodes.Values.SelectMany(n => n.Variants.Select((v, i) => (At: $"{d.Id} node {n.Id} variant {i + 1}", v.Conditions)))));
@@ -526,6 +527,42 @@ public static class QuestContent
             }
         }
         return quests;
+    }
+
+    /// <summary>
+    /// A reply that starts a quest must not outlive it (owner finding 53: finished quests were still offered). It is hidden once the
+    /// quest is completed and, unless hearing its line is one of that quest's talks, while the quest is active too - by a
+    /// <c>quest_state</c> condition, or by being said once (a <c>once</c> line, or <c>visited</c> on its own line, <c>not: true</c>).
+    /// A reply starting several quests needs the completion guard on one of them; each it does not advance still needs the offer guard.
+    /// </summary>
+    public static void CheckQuestOffers(IReadOnlyDictionary<string, QuestDefinition> quests, IReadOnlyDictionary<string, DialogueDefinition> dialogues)
+    {
+        foreach (var dialogue in dialogues.Values)
+        foreach (var node in dialogue.Nodes.Values)
+        foreach (var choice in node.Choices)
+        {
+            var started = choice.Consequences.OfType<StartQuestConsequence>().Select(s => s.QuestId).ToList();
+            if (started.Count == 0 || node.Once
+                || choice.Conditions.Any(c => c is VisitedCondition { Negated: true, DialogueId: null } v && v.NodeId == choice.Next))
+                continue;
+            var guards = choice.Conditions.OfType<QuestStateCondition>().Where(c => c.ObjectiveId is null).ToList();
+            bool Offer(QuestStateCondition c) => c.State is QuestKeys.Available or QuestKeys.NotStarted ? !c.Negated : c.State == "active" && c.Negated;
+            bool Ends(QuestStateCondition c) => c.State is QuestKeys.Available or QuestKeys.NotStarted or "active" ? !c.Negated : c.State == "completed" && c.Negated;
+            string at = $"{dialogue.Id} node {node.Id} reply {choice.Id}";
+            if (!started.Any(q => guards.Any(g => g.QuestId == q && Ends(g))))
+                throw new FormatException($"{at}: starts {string.Join(", ", started)} but is still offered once it is completed");
+            foreach (string questId in started)
+            {
+                bool advances = quests[questId].Order.Any(o => o.Condition switch
+                {
+                    TalkTo t => t.DialogueId == dialogue.Id && t.Nodes.Contains(choice.Next ?? ""),
+                    ChoiceGiven c => c.DialogueId == dialogue.Id && c.NodeId == choice.Next,
+                    _ => false,
+                });
+                if (!advances && !guards.Any(g => g.QuestId == questId && Offer(g)))
+                    throw new FormatException($"{at}: offers {questId} but is still offered while it is active or done");
+            }
+        }
     }
 
     /// <summary>
