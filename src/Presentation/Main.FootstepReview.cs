@@ -88,6 +88,7 @@ public partial class Main
         var syncLayer=new CanvasLayer { Layer=100 };
         var flash=new ColorRect { Color=Colors.Magenta,Position=new Vector2(4,4),Size=new Vector2(48,48),Visible=false,MouseFilter=Control.MouseFilterEnum.Ignore };
         AddChild(syncLayer);syncLayer.AddChild(flash);
+        var phaseLabel=new Label { Position=new Vector2(64,8) };syncLayer.AddChild(phaseLabel);
         var toneData=new byte[4800*2];
         for(int i=0;i<4800;i++)BitConverter.GetBytes((short)(800*Math.Sin(2*Math.PI*2000*i/48000))).CopyTo(toneData,i*2);
         using var tone=new AudioStreamWav { Format=AudioStreamWav.FormatEnum.Format16Bits,MixRate=48000,Stereo=false,Data=toneData };
@@ -124,7 +125,7 @@ public partial class Main
                         steps.Add(($"diagonal_{gait}_{diagonal.Item1}",diagonal.Item2.Normalized(),gait,3));
             foreach(var step in steps)
             {
-                phase=step.Item1;ulong through=Time.GetTicksMsec()+(ulong)step.Item4*1000;
+                phase=step.Item1;phaseLabel.Text=phase+" | real controller | real time";ulong through=Time.GetTicksMsec()+(ulong)step.Item4*1000;
                 var from=_avatar.GlobalPosition;
                 while(Time.GetTicksMsec()<through)
                 {
@@ -158,7 +159,7 @@ public partial class Main
                         weapon=_session.Simulation!.Combat.Weapon.Source});
                 }
                 var attacks=new HashSet<string>();
-                for(int strike=1;strike<=3;strike++)
+                for(int strike=1;strike<=(rcd8?0:3);strike++)
                 {
                     phase="attack_"+strike;_controller.Attack();
                     ulong through=Time.GetTicksMsec()+3000;
@@ -183,6 +184,7 @@ public partial class Main
                     }
                 }
                 _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);
+                phaseLabel.Visible=false;
                 var angleCamera=new Camera3D { Fov=50,Near=.05f };AddChild(angleCamera);
                 var fill=_camera.Camera.GetNode<OmniLight3D>("CharacterFill");fill.Reparent(angleCamera,false);
                 var angleLabel=new Label { Position=new Vector2(64,8) };syncLayer.AddChild(angleLabel);
@@ -194,7 +196,7 @@ public partial class Main
                         void FrameAngle()
                         {
                             var aim=_avatar.GlobalPosition+Vector3.Up*.95f;
-                            angleCamera.GlobalPosition=aim+_avatar.GlobalBasis.Z.Rotated(Vector3.Up,angle.Item2)*3.5f+Vector3.Up*(rcd8?2f:.2f);
+                            angleCamera.GlobalPosition=aim+_avatar.GlobalBasis.Z.Rotated(Vector3.Up,angle.Item2)*3.5f+Vector3.Up*.2f;
                             angleCamera.LookAt(aim);angleCamera.MakeCurrent();
                         }
                         foreach(var motion in new[]{("walk_back",Vector3.Left,Gait.Walk,3),("run_back",Vector3.Left,Gait.Run,3),
@@ -211,13 +213,21 @@ public partial class Main
                             }
                         }
                         _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);
-                        for(int strike=1;strike<=3;strike++)
+                        ulong settleUntil=Time.GetTicksMsec()+750;
+                        while(Time.GetTicksMsec()<settleUntil)
                         {
-                            phase=angle.Item1+"_attack_"+strike;angleLabel.Text=phase+" | real AttackCommand";
+                            _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);FrameAngle();
+                            await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+                        }
+                        var stationary=_avatar.GlobalPosition;
+                        for(int strike=1;strike<=(rcd8?6:3);strike++)
+                        {
+                            phase=angle.Item1+"_attack_"+((strike-1)%3+1)+"_repeat_"+((strike-1)/3+1);angleLabel.Text=phase+" | stationary | real AttackCommand";
                             _controller.Attack();ulong through=Time.GetTicksMsec()+3000;
                             while(Time.GetTicksMsec()<through)
                             {
                                 FrameAngle();await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+                                if(_avatar.GlobalPosition.DistanceTo(stationary)>.03f)throw new InvalidDataException("Stationary attack drifted");
                                 attacks.Add(_avatar.ClipState);AuditSword();
                                 var p=_avatar.GlobalPosition;var l=_avatar.Foot("L")??p;var r=_avatar.Foot("R")??p;
                                 frames.WriteLine(FormattableString.Invariant($"{Time.GetTicksUsec()},{phase},{p.X},{p.Y},{p.Z},{l.X},{l.Y},{l.Z},{r.X},{r.Y},{r.Z},{_avatar.ClipState}"));

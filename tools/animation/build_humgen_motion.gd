@@ -16,6 +16,21 @@ func glb(path: String) -> Node:
  assert(document.append_from_file(path,state)==OK,"Cannot import "+path)
  return document.generate_scene(state)
 
+static func clean_contacts(events: Array, duration: float) -> Array:
+ # A foot hovering at the 2.5cm classifier boundary can cross it twice during
+ # ONE stance (run's L contacts at .016/.082s). Merge that sampling chatter,
+ # including across the loop seam; never alter animation values or force L/R.
+ var quiet := minf(.12,duration*.15)
+ var result := []
+ for side in ["L","R"]:
+  var kept := []
+  for event in events:
+   if event.side==side and (kept.is_empty() or float(event.time)-float(kept[-1].time)>=quiet):kept.append(event)
+  if kept.size()>1 and duration-float(kept[-1].time)+float(kept[0].time)<quiet:kept.pop_front()
+  result.append_array(kept)
+ result.sort_custom(func(a,b): return a.time < b.time)
+ return result
+
 func contacts(player: AnimationPlayer, rig: Skeleton3D, clip: StringName) -> Dictionary:
  var duration := player.get_animation(clip).length
  var count := maxi(24,ceili(duration*60))
@@ -59,12 +74,14 @@ func contacts(player: AnimationPlayer, rig: Skeleton3D, clip: StringName) -> Dic
    events.append({"side":"L" if side==0 else "R","time":minimum*dt})
  speeds.sort()
  events.sort_custom(func(a,b): return a.time < b.time)
+ var raw_events := events.duplicate(true)
+ events=clean_contacts(events,duration)
  var phase := 0.0
  for event in events:
   if event.side=="L": phase=event.time;break
  head_mean/=count
  stance_velocity/=maxi(1,stance_samples)
- return {"length":duration,"events":events,"pace":speeds[speeds.size()/2] if not speeds.is_empty() else 0.0,"phase":phase,"floor_m":floor_y,"stance_velocity_xz":[stance_velocity.x,stance_velocity.z],"shoulder_heading_degrees":rad_to_deg(atan2(shoulder_mean.z,shoulder_mean.x)),"head_height_above_hips_m":head_mean.y}
+ return {"length":duration,"events":events,"raw_events":raw_events,"pace":speeds[speeds.size()/2] if not speeds.is_empty() else 0.0,"phase":phase,"floor_m":floor_y,"stance_velocity_xz":[stance_velocity.x,stance_velocity.z],"shoulder_heading_degrees":rad_to_deg(atan2(shoulder_mean.z,shoulder_mean.x)),"head_height_above_hips_m":head_mean.y}
 
 func build() -> void:
  var manifest_path := OS.get_cmdline_user_args()[0]
