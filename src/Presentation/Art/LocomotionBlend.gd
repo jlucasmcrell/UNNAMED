@@ -11,6 +11,7 @@ var jog := 0.0
 var rate := 1.0
 var calm_back := false
 var walk_strafes := false
+var jog_back := false
 
 func clip(name_: String) -> AnimationNodeAnimation:
  var node := AnimationNodeAnimation.new()
@@ -39,7 +40,14 @@ func configure(source: AnimationPlayer, measured: Dictionary, manual: bool = tru
  var space := AnimationNodeBlendSpace2D.new()
  space.sync_mode=1
  space.add_blend_point(forward, Vector2(0,1), -1, "forward")
- space.add_blend_point(clip("walk_back"), Vector2(0,-1), -1, "back")
+ jog_back=source.has_animation("run_back")
+ if jog_back:
+  var backward=AnimationNodeBlendSpace1D.new()
+  backward.sync_mode=1;backward.min_space=0.0;backward.max_space=1.0
+  backward.add_blend_point(clip("walk_back"),0.0)
+  backward.add_blend_point(clip("run_back"),1.0)
+  space.add_blend_point(backward,Vector2(0,-1),-1,"back")
+ else:space.add_blend_point(clip("walk_back"),Vector2(0,-1),-1,"back")
  # Native bodies face +Z, their right is -X. Existing libraries retain their original graph.
  for side in ["right","left"]:
   var point=Vector2(-1,0) if side=="right" else Vector2(1,0)
@@ -99,6 +107,9 @@ func dominant_clip() -> String:
    var weight=float(weights["strafe_"+side])
    weights["strafe_"+side]=weight*jog
    weights["walk_strafe_"+side]=weight*(1-jog)
+ if jog_back:
+  var weight=float(weights["walk_back"])
+  weights["walk_back"]=weight*(1-jog);weights["run_back"]=weight*jog
  var winner:="";var largest:=-1.0
  for clip in weights:
   if float(weights[clip])>largest:winner=clip;largest=float(weights[clip])
@@ -115,7 +126,8 @@ func move(local_velocity: Vector2, delta: float) -> bool:
  var forward_stride:=lerpf(stride("walk",1.4),stride("run",3.2),jog)
  var side_state:="strafe_left" if local_velocity.x>0 else "strafe_right"
  var side_stride:=lerpf(stride("walk_"+side_state,1.4),stride(side_state,2.0),jog) if walk_strafes else stride(side_state,2.0)
- var fore_stride:=forward_stride if local_velocity.y>=0 else stride("walk_back",1.2)
+ var back_stride:=lerpf(stride("walk_back",1.2),stride("run_back",3.0),jog) if jog_back else stride("walk_back",1.2)
+ var fore_stride:=forward_stride if local_velocity.y>=0 else back_stride
  # Blend displacement vectors, not scalar distances: diagonal stride is their length.
  # Unequal forward/back/side strides need inverse-stride weights to follow the actual travel heading.
  var wanted:=Vector2(local_velocity.x/side_stride,local_velocity.y/fore_stride)
@@ -132,8 +144,9 @@ func move(local_velocity: Vector2, delta: float) -> bool:
  if walk_strafes:
   tree.set("parameters/direction/left/blend_position",jog)
   tree.set("parameters/direction/right/blend_position",jog)
+ if jog_back:tree.set("parameters/direction/back/blend_position",jog)
  if calm_back:
-  var neutral_amount:=.85*maxf(-direction.y,0)+.30*maxf(direction.y,0)*jog+.20*absf(direction.x)
+  var neutral_amount:=(0.0 if jog_back else .85)*maxf(-direction.y,0)+.30*maxf(direction.y,0)*jog+(0.0 if walk_strafes else .20)*absf(direction.x)
   tree.set("parameters/calm_upper/blend_amount",neutral_amount)
  tree.set("parameters/pace/scale",rate)
  player.active=false

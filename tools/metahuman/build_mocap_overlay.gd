@@ -1,6 +1,6 @@
 extends SceneTree
 var JOB:String
-const ALLOWED=["strafe_left","strafe_right","walk_strafe_left","walk_strafe_right"]
+const ALLOWED=["strafe_left","strafe_right","walk_strafe_left","walk_strafe_right","walk_back","run_back"]
 func _initialize():
  JOB=OS.get_environment("OTHERREACH_PIPELINE_ROOT").replace("\\","/").trim_suffix("/")+"/"
  assert(JOB.is_absolute_path() and JOB!="/","Fresh absolute OTHERREACH_PIPELINE_ROOT required")
@@ -80,8 +80,14 @@ func run():
    var donor_contacts:Dictionary=donor.get_meta("foot_plants",{})
    contacts[clip]=donor_contacts.get(clip,sample.contacts)
    changed.append({"clip":clip,"donor_digest":digest(donor.get_animation(clip)),"pace":paces[clip],"contact_metadata":contacts[clip]})
+  # Turning in place uses the normal idle pool, not a dedicated turn clip.
+  # Replace its KayKit Idle_B selection with the existing exact-target UAL1 Idle_Loop.
+  if result.has_animation("idle_look"):result.remove_animation("idle_look")
+  result.add_animation("idle_look",base.get_animation("idle").duplicate(true))
+  assert(digest(result.get_animation("idle_look"))==digest(base.get_animation("idle")))
+  changed.append({"clip":"idle_look","source":"Quaternius UAL1 Idle_Loop","source_digest":digest(base.get_animation("idle"))})
   for clip in base.get_animation_list():
-   if str(clip) in ALLOWED:continue
+   if str(clip) in ALLOWED or str(clip)=="idle_look":continue
    assert(result.has_animation(clip));assert(digest(base.get_animation(clip))==digest(result.get_animation(clip)),"Protected clip changed: "+pair[0]+" "+clip)
    unchanged.append(str(clip))
   result.set_meta("foot_plants",contacts);result.set_meta("motion_paces",paces);result.set_meta("motion_phases",phases)
@@ -97,4 +103,4 @@ func run():
   rows.append({"id":pair[0],"base_sha256":FileAccess.get_sha256(pair[1]),"donor_sha256":FileAccess.get_sha256(pair[2]),"output":pair[4],"body_sha256":FileAccess.get_sha256(pair[3]),"changed":changed,"protected_clip_digests_identical":unchanged})
  FileAccess.open(JOB+"runtime/catalog.json",FileAccess.WRITE).store_string(JSON.stringify(catalog,"  "))
  FileAccess.open(JOB+"evidence/mocap_overlay_identity.json",FileAccess.WRITE).store_string(JSON.stringify({"status":"PASS","libraries":rows,"route":"Reused existing Epic IK Retargeter native exports; clip selection and contact metadata only, no retarget or native mesh/rest edits"},"  "))
- print("STRAFE_ONLY_IDENTITY_PASS libraries=",rows.size());quit()
+ print("APPROVED_MOCAP_IDENTITY_PASS libraries=",rows.size());quit()

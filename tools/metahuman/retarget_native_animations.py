@@ -44,7 +44,7 @@ try:
  if fal_mode:clips=dict(LOCOMOTION)
  elif calm_mode:clips={'sword_attack_1':('kaykit_melee','Melee_1H_Attack_Chop'),'sword_attack_2':('kaykit_melee','Melee_1H_Attack_Slice_Diagonal'),'sword_attack_3':('kaykit_melee','Melee_1H_Attack_Stab')}
  elif inn_mode:clips={'sit_enter':('ual1','Sitting_Enter'),'sit':('ual1','Sitting_Idle_Loop'),'sit_talk':('ual1','Sitting_Talking_Loop'),'sit_exit':('ual1','Sitting_Exit'),'lie_to_idle':('ual2','LayToIdle')}
- elif extra_mode:clips={**LOCOMOTION,'idle_foldarms':('ual2','Idle_FoldArms_Loop'),'idle_shift':('ual2','Idle_No_Loop'),'idle_look':('kaykit_general','Idle_B')}
+ elif extra_mode:clips={**LOCOMOTION,'idle_foldarms':('ual2','Idle_FoldArms_Loop'),'idle_shift':('ual2','Idle_No_Loop'),'idle_look':('ual1','Idle_Loop')}
  elif grip_mode:clips={'weapon_grip':('ual1','Sword_Idle')}
  elif os.environ.get('OTHERREACH_MH_ANIM_PROBE')=='1':clips={k:clips[k] for k in ['idle','walk','sword_attack_1']}
  catalog=json.loads((root/'runtime/catalog.json').read_text())
