@@ -123,6 +123,8 @@ public partial class Main
                     foreach(var diagonal in new[]{("forward_left",Vector3.Right+Vector3.Forward),("back_right",Vector3.Left+Vector3.Back),
                         ("forward_right",Vector3.Right+Vector3.Back),("back_left",Vector3.Left+Vector3.Forward)})
                         steps.Add(($"diagonal_{gait}_{diagonal.Item1}",diagonal.Item2.Normalized(),gait,3));
+            // The accepted locomotion gate need not repeat when only a ready source changes.
+            if(rcd8 && OS.GetEnvironment("OTHERREACH_RCD8_SWORD_ONLY")=="1")steps.Clear();
             foreach(var step in steps)
             {
                 phase=step.Item1;phaseLabel.Text=phase+" | real controller | real time";ulong through=Time.GetTicksMsec()+(ulong)step.Item4*1000;

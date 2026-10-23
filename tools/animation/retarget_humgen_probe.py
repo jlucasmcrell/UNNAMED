@@ -208,4 +208,5 @@ try:
     save("DONE", minutes=(time.monotonic() - started) / 60)
 except Exception:
     save("FAILED", error=traceback.format_exc())
-unreal.SystemLibrary.quit_editor()
+if os.environ.get("OTHERREACH_HUMGEN_KEEP_EDITOR") != "1":
+    unreal.SystemLibrary.quit_editor()
