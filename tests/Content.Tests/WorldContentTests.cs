@@ -75,7 +75,7 @@ public class WorldContentTests
         Assert.Equal(28_000,layout.Locations.Single(l => l.Id == "location.old_late").DiscoveryRadiusMm);
         Assert.Equal(250,Assert.Single(layout.Space.WalkableSurfaces).SpacingMm);
         Assert.Equal(8_000, layout.Locations.Single(l => l.Id == "location.den_mouth").DiscoveryRadiusMm);   // PROTOTYPE.md O2
-        Assert.Equal(new MovementRules(3_200, 50, 160, 350, 1_600), WorldContent.BuildMovement(loader));
+        Assert.Equal(new MovementRules(3_200, 50, 160, 350, 1_600) { StepUpMm = 400, MantleMm = 1_600 }, WorldContent.BuildMovement(loader));
         Assert.Equal(new TierRules(150_000, 600_000, 2_000_000, 10_000), WorldContent.BuildTiers(loader));
         Assert.Equal(50, WorldContent.TickMilliseconds(loader));
     }
@@ -91,7 +91,7 @@ public class WorldContentTests
         var heart = layout.FindSwitch("switch.foldscar_heart")!;
         Assert.Equal(("world.foldscar.steadied", "Steady", "heart of the Foldscar"), (heart.FlagId, heart.Verb, heart.Name));
         Assert.Equal(layout.Switches.Take(3).Select(s => s.FlagId), heart.Requires);
-        Assert.Equal(new CircleBlocker("rock_foldscar_heart", 153_000, 48_000, 1_500, 3_500), heart.Body);
+        Assert.Equal(new CircleBlocker("rock_foldscar_heart", 153_000, 48_000, 1_500, 3_500) { Climbable = true }, heart.Body);
         Assert.All(layout.Switches.Take(3), s => Assert.Empty(s.Requires));
         var fold = Assert.Single(layout.Barriers);
         Assert.Equal(("barrier.foldscar_fold", "world.foldscar.steadied"), (fold.Key, fold.FlagId));

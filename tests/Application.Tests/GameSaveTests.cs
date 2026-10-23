@@ -35,7 +35,7 @@ public class GameSaveTests
         // Schema 16: the player has counted no deed.
         (new Regex(@"^\$\.player\.Deeds$"), "[]"),
         // Schema 17: the character the game made before the creator - "they", a Veth of the default body, with no Call.
-        (new Regex(@"^\$\.player\.Identity$"), """{"Pronouns":"They","PeopleId":"people.veth","BodyPresetId":"body.default","CallId":null}"""),
+        (new Regex(@"^\$\.player\.Identity$"), """{"Pronouns":"They","PeopleId":"people.veth","BodyPresetId":"body.default","CallId":null,"Appearance":null}"""),
         // Schema 19: every stack may carry a notable record; none before.
         (new Regex(@"^\$\.(player\.Inventory|world\.Created|world\.Containers\[\d+\]\.Items)\[\d+\]\.Notable$"), "null"),
         // Schema 24 (WP3b): every stack may carry its wear; nothing was worn before.
