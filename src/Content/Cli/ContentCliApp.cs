@@ -19,7 +19,7 @@ public static class ContentCliApp
     public static int LintContent(string contentRoot, string format)
     {
         var loader = new ContentLoader();
-        bool success = loader.LoadAll(contentRoot);
+        bool success = loader.LoadAll(contentRoot, authoring: true);
         var summary = loader.GetSummary();
         
         if (format == "json")

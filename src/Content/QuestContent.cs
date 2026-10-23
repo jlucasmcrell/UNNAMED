@@ -40,14 +40,14 @@ public static class QuestContent
     private static readonly string[] ObjectiveFieldsNotBuilt =
         { "description_key", "hidden", "optional", "any_of", "not", "timer_anchor", "world_time_required", "requirements" };
 
-    public static IReadOnlyList<ValidationError> Validate(ContentLoader loader)
+    public static IReadOnlyList<ValidationError> Validate(ContentLoader loader, bool authoring = false)
     {
         var errors = new List<ValidationError>();
         var quests = new List<QuestDefinition>();
         foreach (var definition in loader.GetByKind("quest").Values.OrderBy(d => d.Id, StringComparer.Ordinal))
             Try(() => { quests.Add(Parse(definition.Id, definition.YamlSource, loader)); return definition; }, definition.Id, errors);
         if (errors.Count == 0)
-            Try(() => CrossCheck(quests.ToImmutableSortedDictionary(q => q.Id, q => q, StringComparer.Ordinal), loader), "quests", errors);
+            Try(() => CrossCheck(quests.ToImmutableSortedDictionary(q => q.Id, q => q, StringComparer.Ordinal), loader, authoring), "quests", errors);
         return errors;
     }
 
@@ -435,7 +435,7 @@ public static class QuestContent
     }
 
     /// <summary>What a quest needs from the rest of content, and what conversations say about quests.</summary>
-    private static object CrossCheck(ImmutableSortedDictionary<string, QuestDefinition> quests, ContentLoader loader)
+    private static object CrossCheck(ImmutableSortedDictionary<string, QuestDefinition> quests, ContentLoader loader, bool authoring)
     {
         var dialogues = SocialContent.BuildDialogues(loader);
         var npcs = SocialContent.BuildNpcs(loader);
@@ -509,7 +509,8 @@ public static class QuestContent
             }
         }
 
-        CheckQuestOffers(quests, dialogues);
+        // Runtime already hides completed/active offers. Missing authored guards do not invalidate historical packs.
+        if (authoring) CheckQuestOffers(quests, dialogues);
         var asking = replies.Select(r => (At: $"{r.Dialogue.Id} node {r.Node.Id} reply {r.Choice.Id}", r.Choice.Conditions))
             .Concat(dialogues.Values.SelectMany(d => d.Barks.Select((b, i) => (At: $"{d.Id} bark {i}", b.Conditions))))
             .Concat(dialogues.Values.SelectMany(d => d.Nodes.Values.SelectMany(n => n.Variants.Select((v, i) => (At: $"{d.Id} node {n.Id} variant {i + 1}", v.Conditions)))));
