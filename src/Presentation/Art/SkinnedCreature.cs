@@ -78,11 +78,11 @@ public sealed partial class SkinnedCreature : CreatureBody
             Mesh = new TorusMesh { InnerRadius = radius, OuterRadius = radius + 0.030f, Rings = 24, RingSegments = 10 },
             MaterialOverride = new StandardMaterial3D
             {
-                AlbedoColor = new Color(0.95f, 0.16f, 0.12f),
-                Roughness = 0.5f,
+                AlbedoColor = new Color(1.0f, 0.07f, 0.05f),
+                Roughness = 0.4f,
                 EmissionEnabled = true,
-                Emission = new Color(0.55f, 0.06f, 0.05f),
-                EmissionEnergyMultiplier = 0.6f,
+                Emission = new Color(1.0f, 0.05f, 0.03f),
+                EmissionEnergyMultiplier = 1.8f,
             },
             Position = new Vector3(0, (float)length * 0.5f, 0),
         });
