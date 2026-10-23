@@ -497,6 +497,17 @@ public partial class HollowView : Node3D
         }
         // A prop's own flame and light, where its binding gives it any (Phase B: Cairnwold's lantern posts).
         PropEffects(model, look, blocker.Id);
+        // A turned rock's camera collider is the rock as drawn - its full-detail mesh's convex hull, overhang and full height - so the
+        // camera never sits inside a crag taller than its footprint's authored height.
+        if (blocker is PolygonBlocker)
+        {
+            var rock = new StaticBody3D { CollisionLayer = CameraCollisionLayer, CollisionMask = 0 };
+            foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>()
+                         .Where(m => m.Mesh is not null && m.VisibilityRangeBegin <= 0))
+                rock.AddChild(new CollisionShape3D { Shape = mesh.Mesh.CreateConvexShape(true, true), Transform = Art.ArtLibrary.Relative(model, mesh) });
+            model.AddChild(rock);
+            return model;
+        }
         // The camera's collider stays the structure's own shape: what the body collides with is the truth.
         var greyboxShape = BuildStructure(blocker, terrain);
         if (greyboxShape.GetChildren().OfType<StaticBody3D>().FirstOrDefault() is { } body)
