@@ -14,6 +14,7 @@ namespace UNNAMED.Application.Tests;
 /// WP11: the world goes on while the character is away (SYSTEMS_COMPLETENESS_PLAN §2.12). Every system brings itself to the new tick
 /// through <see cref="IAbstractAdvance"/>, and one long absence leaves the world that the same absence in pieces does (canon T-22).
 /// </summary>
+[Collection("Simulation timing budgets")]
 public class OfflineAdvanceTests
 {
     private const long Day = 57_600;
