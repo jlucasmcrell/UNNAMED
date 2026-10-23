@@ -61,7 +61,7 @@ public class PartySaveTests
 
         var store = new SaveStore(profile.Root);
         store.Save(SaveSlots.Manual("party"), SaveDocuments.Capture(arena.Simulation.World, before, session.Content, arena.Simulation.WorldTick, 0));
-        var loaded = Arena.Resume(rules, store.Load(SaveSlots.Manual("party"), new LoadContext(session.Generator, session.Content, new Registry())));
+        var loaded = Arena.Resume(arena.Simulation.Setup, store.Load(SaveSlots.Manual("party"), new LoadContext(session.Generator, session.Content, new Registry())));
 
         var after = loaded.Simulation.CaptureRecord();
         Assert.Equal(before.Digest, after.Digest);
@@ -111,7 +111,7 @@ public class PartySaveTests
 
         var store = new SaveStore(profile.Root);
         store.Save(SaveSlots.Manual("sheets"), SaveDocuments.Capture(arena.Simulation.World, before, session.Content, arena.Simulation.WorldTick, 0));
-        var loaded = Arena.Resume(rules, store.Load(SaveSlots.Manual("sheets"), new LoadContext(session.Generator, session.Content, new Registry())));
+        var loaded = Arena.Resume(arena.Simulation.Setup, store.Load(SaveSlots.Manual("sheets"), new LoadContext(session.Generator, session.Content, new Registry())));
 
         var after = loaded.Simulation.CaptureRecord();
         Assert.Equal(before.Digest, after.Digest);
@@ -129,3 +129,4 @@ public class PartySaveTests
 
     private static CompanionView Member(Simulation simulation) => simulation.Companions.Single(c => c.NpcId == Kera);
 }
+

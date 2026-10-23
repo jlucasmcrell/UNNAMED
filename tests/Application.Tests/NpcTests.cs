@@ -307,7 +307,7 @@ public class NpcTests
         var store = new SaveStore(profile.Root);
         store.Save(SaveSlots.Manual("offered"), SaveDocuments.Capture(open.Simulation.World, open.Simulation.CaptureRecord(), session.Content,
             open.Simulation.WorldTick, 0));
-        var loaded = Arena.Resume(session.Setup, store.Load(SaveSlots.Manual("offered"), new LoadContext(session.Generator, session.Content, new Registry())));
+        var loaded = Arena.Resume(open.Simulation.Setup, store.Load(SaveSlots.Manual("offered"), new LoadContext(session.Generator, session.Content, new Registry())));
         Assert.Null(loaded.Simulation.Conversation);
         Assert.Null(loaded.Submit(new TalkCommand(loaded.Player, Sel)));
         Assert.Null(Say(loaded, "books"));
@@ -344,7 +344,7 @@ public class NpcTests
         var store = new SaveStore(profile.Root);
         store.Save(SaveSlots.Manual("met"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content,
             arena.Simulation.WorldTick, 0));
-        var again = Arena.Resume(session.Setup, store.Load(SaveSlots.Manual("met"), new LoadContext(session.Generator, session.Content, new Registry())));
+        var again = Arena.Resume(arena.Simulation.Setup, store.Load(SaveSlots.Manual("met"), new LoadContext(session.Generator, session.Content, new Registry())));
 
         Assert.Equal(arena.Simulation.StateDigest(), again.Simulation.StateDigest());
         var memory = Assert.Single(again.Simulation.CaptureRecord().Conversations);
@@ -453,7 +453,7 @@ public class NpcTests
         var store = new SaveStore(profile.Root);
         store.Save(SaveSlots.Manual("gave"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content,
             arena.Simulation.WorldTick, 0));
-        var again = Arena.Resume(rules, store.Load(SaveSlots.Manual("gave"), new LoadContext(session.Generator, session.Content, new Registry())));
+        var again = Arena.Resume(arena.Simulation.Setup, store.Load(SaveSlots.Manual("gave"), new LoadContext(session.Generator, session.Content, new Registry())));
 
         Assert.Equal(arena.Simulation.StateDigest(), again.Simulation.StateDigest());
         var deed = Assert.Single(again.Simulation.CaptureRecord().Deeds);
@@ -558,7 +558,7 @@ public class NpcTests
         var store = new SaveStore(profile.Root);
         store.Save(SaveSlots.Manual("traded"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content,
             arena.Simulation.WorldTick, 0));
-        var again = Arena.Resume(session.Setup, store.Load(SaveSlots.Manual("traded"), new LoadContext(session.Generator, session.Content, new Registry())));
+        var again = Arena.Resume(arena.Simulation.Setup, store.Load(SaveSlots.Manual("traded"), new LoadContext(session.Generator, session.Content, new Registry())));
 
         Assert.Equal(arena.Simulation.StateDigest(), again.Simulation.StateDigest());
         Assert.Equal(arena.Simulation.Wares(Kera)!.Wares.ToList(), again.Simulation.Wares(Kera)!.Wares.ToList());
@@ -591,7 +591,7 @@ public class NpcTests
         var store = new SaveStore(profile.Root);
         store.Save(SaveSlots.Manual("bought_out"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content,
             arena.Simulation.WorldTick, 0));
-        var again = Arena.Resume(session.Setup, store.Load(SaveSlots.Manual("bought_out"), new LoadContext(session.Generator, session.Content, new Registry())));
+        var again = Arena.Resume(arena.Simulation.Setup, store.Load(SaveSlots.Manual("bought_out"), new LoadContext(session.Generator, session.Content, new Registry())));
 
         Assert.Equal(arena.Simulation.StateDigest(), again.Simulation.StateDigest());
         Assert.Empty(again.Simulation.Wares(Kera)!.Wares);
