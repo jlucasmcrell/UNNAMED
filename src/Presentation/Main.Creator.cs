@@ -151,6 +151,12 @@ public partial class Main
             _avatarPose = null;
             _art.Coverage.Resolved("person", "player", model);
         }
+        // HumGen keeps the exported shape and native mocap arms; saved legacy builds must not add arm splay.
+        if (_avatarModel?.StartsWith("humgen_", StringComparison.Ordinal) == true)
+        {
+            _avatarPose = null;
+            return;
+        }
         if (_avatarPose is null && _avatar is SkinnedFigure figure)
             _avatarPose = BuildPose.On(figure.Skeleton);
         if (_avatarPose is not null)

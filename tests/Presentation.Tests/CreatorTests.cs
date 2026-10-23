@@ -126,6 +126,22 @@ public class CreatorTests
         Assert.Null(none.Model(Body("veth_m", "average"), _ => true));
     }
 
+    [Theory]
+    [InlineData("veth_f", "heavy", "humgen_player_ada_f")]
+    [InlineData("veth_f", "very_lean", "humgen_player_ada_f")]
+    [InlineData("veth_m", "very_heavy", "humgen_player_mateo_m")]
+    public void HumGenSavedBuildChoices_KeepTheNativeIdentity(string type, string build, string expected)
+    {
+        var bodies = new PlayerBodies(new[]
+        {
+            new BodyModels("veth_f", new[] { "humgen_player_ada_f" }),
+            new BodyModels("veth_m", new[] { "humgen_player_mateo_m" })
+        }, null, "average");
+
+        Assert.Equal(expected, bodies.Model(Body(type, build), m => m == expected));
+        Assert.Null(bodies.Model(Body(type, build), _ => false));
+    }
+
     [Fact]
     public void AGarment_IsWornAsItsVariantBakedForTheBody()
     {

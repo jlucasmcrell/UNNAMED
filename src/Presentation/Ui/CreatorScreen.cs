@@ -270,7 +270,7 @@ public partial class CreatorScreen : CanvasLayer
         {
             string? model = bodies.Model(b, Installed);
             return new Offered(b, model, model is not null);
-        }).ToList();
+        }).Where(o => o.Model?.StartsWith("humgen_", StringComparison.Ordinal) != true || o.Body.Build == bodies.BaseBuild).ToList();
         if (offered.Count > 0 && offered.All(o => !o.Installed))
             offered = offered.Select(o => o with { Installed = true }).ToList();
         return offered;

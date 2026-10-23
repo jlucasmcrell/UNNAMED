@@ -30,6 +30,10 @@ public sealed partial class FaceDriver : Node
     private double _since, _gazeIn, _expressionTime;
     private Vector2 _saccade;
     private Vector3? _gaze;
+    private Skeleton3D? _nativeRig;
+    private Node3D? _nativeBody, _eyeTarget;
+    public int NativeEyeBindings { get; private set; }
+    public bool NativeJawBound { get; private set; }
     public void Gaze(Vector3? localDirection) => _gaze = localDirection;
     public float BlinkWeight => _weights.GetValueOrDefault("eyeBlinkLeft");
     public float JawWeight => _weights.GetValueOrDefault("jawOpen");
@@ -136,12 +140,43 @@ public sealed partial class FaceDriver : Node
             driver.Free();
             return null;
         }
+        if (model is Node3D body && ArtLibrary.Find<Skeleton3D>(model) is { } rig
+            && rig.GetBoneCount() == 59 && rig.FindBone("Hips") >= 0 && rig.FindBone("Jaw") >= 0)
+        {
+            driver._nativeRig = rig;
+            driver._nativeBody = body;
+        }
         driver._random.Seed = (ulong)seed.GetHashCode();
         driver._blinkIn = driver._random.RandfRange(0.5f, 3f);
         driver._seed = seed;
         GD.Print($"UNNAMED face: {seed} attached - {driver._meshes.Count} mesh(es), " +
                  $"{driver._meshes.Sum(m => m.Index.Count)} channel bindings");
         return driver;
+    }
+
+    public override void _Ready()
+    {
+        if (_nativeRig is not { } rig || _nativeBody is not { } body) return;
+        rig.AddChild(new HumGenJaw { Name = "FACSJaw", OpenWeight = () => JawWeight });
+        NativeJawBound = true;
+        // HumGen eye morphs move the lids; its separate eyeballs need their own bones.
+        // These facial channels also run when the optional full-body IK is disabled.
+        _eyeTarget = new Node3D { Name = "FacialEyeTarget" };
+        body.AddChild(_eyeTarget);
+        UpdateNativeEyes(Vector2.Zero);
+        var eyes = new HumGenEyes { Name = "FACSEyes", Body = body, WorldTarget = () => _eyeTarget.GlobalPosition };
+        rig.AddChild(eyes);
+        NativeEyeBindings = eyes.BoundCount;
+    }
+
+    private void UpdateNativeEyes(Vector2 look)
+    {
+        if (_eyeTarget is null || _nativeRig is not { } rig || _nativeBody is not { } body) return;
+        int left = rig.FindBone("LeftEye"), right = rig.FindBone("RightEye");
+        if (left < 0 || right < 0) return;
+        var direction = new Vector3(Mathf.Tan(look.X * .65f), Mathf.Tan(look.Y * .5f), 1).Normalized();
+        var centre = (rig.GetBoneGlobalPose(left).Origin + rig.GetBoneGlobalPose(right).Origin) * .5f;
+        _eyeTarget.GlobalPosition = rig.GlobalTransform * centre + body.GlobalBasis * direction * 2;
     }
 
     private static int ShapeIndex(MeshInstance3D mesh, string channel)
@@ -239,6 +274,7 @@ public sealed partial class FaceDriver : Node
         if (_gaze is { Z: > .2f } gaze)
             look += new Vector2(Mathf.Clamp(Mathf.Atan2(gaze.X, gaze.Z) / .65f, -.45f, .45f),
                 Mathf.Clamp(Mathf.Atan2(gaze.Y, gaze.Z) / .5f, -.3f, .3f));
+        UpdateNativeEyes(look);
         _targets["eyeLookOutLeft"] = _targets["eyeLookInRight"] = Math.Max(0, look.X);
         _targets["eyeLookInLeft"] = _targets["eyeLookOutRight"] = Math.Max(0, -look.X);
         _targets["eyeLookUpLeft"] = _targets["eyeLookUpRight"] = Math.Max(0, look.Y);

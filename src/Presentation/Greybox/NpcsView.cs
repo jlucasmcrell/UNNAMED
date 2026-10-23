@@ -116,7 +116,7 @@ public partial class NpcsView : Node3D
                     if (Art.BodyModifiers.LookAt(body.Skeleton, body, PlayerHead) is { } look)
                         _looks[npc.Id] = look;
                     // A production rig's eyes follow the player too, with the head (character fidelity).
-                    if (Art.BodyModifiers.EyesLook(body.Skeleton, body, PlayerHead) is { Count: > 0 } eyes)
+                    if (VisualOptions.ComparisonCast != "humgen" && Art.BodyModifiers.EyesLook(body.Skeleton, body, PlayerHead) is { Count: > 0 } eyes)
                         _eyes[npc.Id] = eyes;
                 }
             }

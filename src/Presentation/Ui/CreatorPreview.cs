@@ -112,7 +112,7 @@ public sealed partial class CreatorPreview : TextureRect
             figure.Name = model ?? "Greybox";
             _turntable.AddChild(figure);
             _figures[key] = figure;
-            _poses[figure] = figure is SkinnedFigure body ? BuildPose.On(body.Skeleton) : null;
+            _poses[figure] = model?.StartsWith("humgen_", StringComparison.Ordinal) != true && figure is SkinnedFigure body ? BuildPose.On(body.Skeleton) : null;
         }
         foreach (var other in _figures.Values)
             other.Visible = other == figure;

@@ -1,6 +1,6 @@
 param([Parameter(Mandatory)][string]$JobRoot,[Parameter(Mandatory)][string]$StagingReceipt,[string[]]$Only=@())
 $ErrorActionPreference='Stop'
-$guard='D:\Otherreach_Scratch\ultra_foliage_20261022\scripts\run_guarded_no_console.ps1'
+$guard=Join-Path $PSScriptRoot 'run_cpu_tool.ps1'
 $ue='C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor-Cmd.exe'
 $godot='C:\Otherreach_Worker\tools\godot_4_7_2_net8_0_31\godot\Godot_v4.7.2-stable_mono_win64.exe'
 $scripts=$PSScriptRoot.Replace('\','/')
@@ -20,7 +20,6 @@ function Run-Epic([string]$Script,[string]$Log) {
 try {
  foreach($row in $rows){
   if($Only.Count -gt 0 -and $row.id -notin $Only){continue}
-  if(Test-Path -LiteralPath 'C:\Otherreach_Recovery\OWNER_PLAYING.flag'){throw 'Owner playing; CPU batch deferred'}
   $state.current=$row.id;Save-Progress
   $env:OTHERREACH_HUMGEN_TARGET_ID=$row.id
   $env:OTHERREACH_HUMGEN_TARGET_GLB=$row.staged

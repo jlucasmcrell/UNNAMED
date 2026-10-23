@@ -22,8 +22,9 @@ No KayKit for **any** animation. No manual arm keys or Godot rest-frame retarget
    It measures gait pace, contact times and phase **in seconds**, checks relaxed fingers,
    facing and upright torso, and writes an exact-target AnimationLibrary outside Git.
 7. `run_humgen_cast_motion.ps1` runs these steps sequentially for the cast's staging
-   receipt. It reads immutable staged inputs, not mutable export filenames. Owner-play
-   interruptions stop owned workers; rerunning resumes/retries their partial outputs.
+   receipt. It reads immutable staged inputs, not mutable export filenames. Rerunning
+   resumes/retries partial outputs. The CPU guard whitelists non-rendering commandlets
+   and uses below-normal priority; the shared GPU rules permit these during owner play.
 
 ## Source-facing groups
 
@@ -43,7 +44,8 @@ unregistered preview component whose bone transforms may still be identity.
 Set `OTHERREACH_HUMGEN_ANIMATION_JOB` to a dedicated job directory containing a clean
 UE project and the source receipts. Native commandlets use `-run=pythonscript`, a
 forward-slash `-script` path, and `-NullRHI`. Workers run hidden, without Windows Terminal.
-Actual renderer runs additionally acquire the shared GPU lock and defer to owner play.
+Actual renderer runs require the separate render guard, acquire the shared GPU lock
+and defer to owner play. The CPU guard never changes that lock or the owner flag.
 
 The game loads only `<payload>/mocap_motion/<id>_motion.res` for HumGen and requires the
 original target body hash, source receipt for every state, the required accepted states

@@ -32,9 +32,9 @@ func configure(source: AnimationPlayer, measured: Dictionary, manual: bool = tru
  forward.sync_mode=1
  forward.min_space=0.0
  forward.max_space=1.0
- forward.add_blend_point(clip("walk"),0.0)
+ forward.add_blend_point(clip("walk"),0.0,-1,"walk")
  # The measured jog has a longer stride; scale it for sprint instead of racing the short sprint cycle.
- forward.add_blend_point(clip("run"),1.0)
+ forward.add_blend_point(clip("run"),1.0,-1,"run")
  walk_strafes=source.has_animation("walk_strafe_left") and source.has_animation("walk_strafe_right")
  var space := AnimationNodeBlendSpace2D.new()
  space.sync_mode=1
@@ -43,8 +43,8 @@ func configure(source: AnimationPlayer, measured: Dictionary, manual: bool = tru
  if jog_back:
   var backward=AnimationNodeBlendSpace1D.new()
   backward.sync_mode=1;backward.min_space=0.0;backward.max_space=1.0
-  backward.add_blend_point(clip("walk_back"),0.0)
-  backward.add_blend_point(clip("run_back"),1.0)
+  backward.add_blend_point(clip("walk_back"),0.0,-1,"walk")
+  backward.add_blend_point(clip("run_back"),1.0,-1,"run")
   space.add_blend_point(backward,Vector2(0,-1),-1,"back")
  else:space.add_blend_point(clip("walk_back"),Vector2(0,-1),-1,"back")
  # Native bodies face +Z, their right is -X. Existing libraries retain their original graph.
@@ -53,8 +53,8 @@ func configure(source: AnimationPlayer, measured: Dictionary, manual: bool = tru
   if walk_strafes:
    var lateral=AnimationNodeBlendSpace1D.new()
    lateral.sync_mode=1;lateral.min_space=0.0;lateral.max_space=1.0
-   lateral.add_blend_point(clip("walk_strafe_"+side),0.0)
-   lateral.add_blend_point(clip("strafe_"+side),1.0)
+   lateral.add_blend_point(clip("walk_strafe_"+side),0.0,-1,"walk")
+   lateral.add_blend_point(clip("strafe_"+side),1.0,-1,"run")
    space.add_blend_point(lateral,point,-1,side)
   else:space.add_blend_point(clip("strafe_"+side),point,-1,side)
  var blend := AnimationNodeBlendTree.new()
