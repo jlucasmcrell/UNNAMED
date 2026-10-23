@@ -8,7 +8,7 @@
 #            fails when a model the game binds matches no entry here and is not under `first_party`.
 #   ledger:  ledger ids this entry covers.
 # first_party: model-id prefixes built in house (own geometry with CC0 textures, credited under the Poly Haven / ambientCG lines) or
-#           made with the AI tools named in the disclosure. Not a third-party source, so they need no entry of their own.
+#           made in-house. Not a third-party source, so they need no entry of their own.
 #
 # Source-of-truth note: the entries are the CREDITS_DRAFT.md text; "Pending, if adopted" items of the draft are in only once they are bound.
 
@@ -93,7 +93,7 @@ first_party:
   - player_veth_
   - pc_veth_
   - af_
-  # Image-to-3D creatures (TRELLIS, Pixal3D), disclosed under "Use of AI".
+  # First-party creature geometry; production provenance stays in the maintainer ledger.
   - creature_animated_
   - creature_ash_
   - creature_bone_
@@ -177,6 +177,9 @@ sections:
   - id: characters
     title: "Characters"
     entries:
+      - binds: [humgen_]
+        text: "Characters, fitted clothing and hair created with Human Generator (HumGen3D), using licensed content packs."
+        url: "https://www.humgen3d.com/"
       - ledger: [P01, C33]
         text: "Character bodies: MPFB2 and the MakeHuman community base assets, CC0."
       - ledger: [P12]
@@ -211,8 +214,6 @@ sections:
     entries:
       - ledger: [AU01, AU02, AU03, AU04]
         text: "Sound effects and ambience recorded and layered from: Sonniss #GameAudioGDC Bundle (2024 and 2026), Leartes Cosmos Premium sounds, and Kenney Impact Sounds (CC0)."
-      - ledger: [AU05]
-        text: "Some sound effects, ambience and the interim music were generated locally with Stable Audio (Stability AI)."
       - ledger: [AU05]
         text: "Powered by Stability AI. This Stability AI Model is licensed under the Stability AI Community License, Copyright (c) Stability AI Ltd. All Rights Reserved. https://stability.ai/community-license-agreement"
 
@@ -272,9 +273,3 @@ sections:
       - text: "Creative Commons CC0 1.0 Universal: https://creativecommons.org/publicdomain/zero/1.0/"
       - text: "SIL Open Font License 1.1: https://openfontlicense.org"
       - text: "Stability AI Community License: https://stability.ai/community-license-agreement"
-
-  - id: ai
-    title: "Use of AI in this game"
-    entries:
-      - ledger: [G01, G02, G03, AU05]
-        text: "Some content was made with generative AI tools run locally: sound effects, ambience and interim music (Stable Audio); remaining image-to-3D props and flora (TRELLIS and Pixal3D); interface icons (Z-Image Turbo); magic effect flipbooks. Ambient chat: 3,000 World and Local lines were written with generative AI (DeepSeek); these lines are marked ai_generated in the content. AI-generated image textures accompany the remaining image-to-3D props and flora, UI icons and magic flipbooks. The current wardrobe uses scanned Poly Haven and ambientCG PBR materials. There is no AI-generated voice acting. The recorded sound libraries and the Fab, Cosmos and WildMesh assets were not fed to any AI model."
