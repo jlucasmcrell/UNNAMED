@@ -63,7 +63,7 @@ public partial class SuccessEffects : Node3D
         if(_stones.TryGetValue(key,out var glow))glow.TravelPulse(FlashScale);
         var swirl=new Node3D { Name=arriving?"WaystoneArrival":"WaystoneDeparture" };
         AddChild(swirl);swirl.GlobalPosition=at;
-        var material=new StandardMaterial3D { ShadingMode=BaseMaterial3D.ShadingModeEnum.Unshaded,
+        var material=new StandardMaterial3D {
             AlbedoColor=new Color(.08f,.6f,.85f),EmissionEnabled=true,Emission=new Color(.08f,.6f,.85f),
             EmissionEnergyMultiplier=6*FlashScale,Transparency=BaseMaterial3D.TransparencyEnum.Alpha,
             BlendMode=BaseMaterial3D.BlendModeEnum.Add,VertexColorUseAsAlbedo=true };

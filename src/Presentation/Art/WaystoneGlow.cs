@@ -33,9 +33,9 @@ public partial class WaystoneGlow : Node3D
             float core=exp(-pow(edge/0.018,2.0));
             float fringe=exp(-edge*28.0)*0.12;
             float pulse=0.82+0.18*sin(TIME*1.25663706);
-            ALBEDO=vec3(0.0);
-            // HDR emission crosses the world's existing bloom threshold.
-            EMISSION=vec3(0.08,0.58,0.72)*(4.5+travel_pulse*8.0)*pulse;
+            // Unshaded outputs ALBEDO only; its EMISSION branch is bypassed.
+            // Put the HDR cyan on the actual output so the existing bloom can see it.
+            ALBEDO=vec3(0.08,0.58,0.72)*(4.5+travel_pulse*8.0)*pulse;
             ALPHA=(core+fringe)*awake;
         }
         """ } };
@@ -60,7 +60,7 @@ public partial class WaystoneGlow : Node3D
                 MaterialOverride=_veins,CastShadow=GeometryInstance3D.ShadowCastingSetting.Off,
                 GIMode=GeometryInstance3D.GIModeEnum.Disabled });
         AddChild(_light); _light.Position=Vector3.Up;
-        var material=new StandardMaterial3D { ShadingMode=BaseMaterial3D.ShadingModeEnum.Unshaded,
+        var material=new StandardMaterial3D {
             AlbedoColor=new Color(.12f,.65f,.8f),EmissionEnabled=true,Emission=new Color(.12f,.65f,.8f),
             EmissionEnergyMultiplier=3,Transparency=BaseMaterial3D.TransparencyEnum.Alpha,
             VertexColorUseAsAlbedo=true };
