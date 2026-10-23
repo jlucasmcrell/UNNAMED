@@ -83,6 +83,10 @@ public partial class HumGenRigGate : Node
                 int runtimePlants = 0;
                 if (runtime is not null)
                 {
+                    if (runtime.Has("bow_draw") && (runtime.MotionActionPhases is not { } marks
+                        || !marks.TryGetValue("bow_draw", out var bow) || bow.Length != 3
+                        || bow[0] <= 0 || bow[0] >= bow[1] || bow[1] >= bow[2] || bow[2] != 1))
+                        throw new InvalidDataException("Native bow release phase is missing or invalid");
                     runtime.FootPlanted += (_, _, _) => runtimePlants++;
                     for (int frame = 0; frame < 240; frame++)
                     {

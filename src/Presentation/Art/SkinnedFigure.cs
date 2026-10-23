@@ -92,7 +92,10 @@ public sealed partial class SkinnedFigure : Figure
         if (!float.IsFinite(person.UniformScale) || person.UniformScale <= 0)
             throw new InvalidDataException($"Invalid uniform stature for {personId}");
         model.Scale = Vector3.One * person.UniformScale;
-        var figure = new SkinnedFigure { Name = personId, _model = model, _art = art, _bindings = bindings, _paces = model.MotionPaces ?? person.Paces, _phases = person.Phases, _uniformScale = person.UniformScale };
+        var phases = person.Phases.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+        if (model.MotionActionPhases is { } nativePhases)
+            foreach (var pair in nativePhases) phases[pair.Key] = pair.Value;
+        var figure = new SkinnedFigure { Name = personId, _model = model, _art = art, _bindings = bindings, _paces = model.MotionPaces ?? person.Paces, _phases = phases, _uniformScale = person.UniformScale };
         figure._person = person;
         figure._idles = new IdleVariety(personId);
         model.IdleStartPhase = figure._idles.StartPhase;

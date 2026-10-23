@@ -41,6 +41,20 @@ unregistered preview component whose bone transforms may still be identity.
 
 ## Launch and gates
 
+Preserve the source AnimSequence's `RateScale`. Native glTF export carries the raw
+keys but omits this playback property: FAL walk-back is -1, run-back is -0.6, and
+jog strafes are +0.6. The pack step reverses/scales the **whole timeline** through
+Godot's Animation key-time APIs; every position/quaternion value stays unchanged.
+It then remeasures contacts/pace and checks signed stance velocity against standing
+travel direction. A torso-facing check alone cannot detect a forward-time moonwalk.
+Deep crouch keeps its samples but requires visual contact review because both swing
+and stance feet remain inside the low-height classifier's band.
+
+`repackage_native_humgen.ps1` applies the native source-rate receipt to existing
+Epic transports, producing a new output folder. This also handles garment-only
+re-exports: all 59 rests/parents must still match, and the saved hash is the new
+actual GLB. A changed skeleton requires a fresh native retarget instead.
+
 Set `OTHERREACH_HUMGEN_ANIMATION_JOB` to a dedicated job directory containing a clean
 UE project and the source receipts. Native commandlets use `-run=pythonscript`, a
 forward-slash `-script` path, and `-NullRHI`. Workers run hidden, without Windows Terminal.
@@ -49,9 +63,17 @@ and defer to owner play. The CPU guard never changes that lock or the owner flag
 
 The game loads only `<payload>/mocap_motion/<id>_motion.res` for HumGen and requires the
 original target body hash, source receipt for every state, the required accepted states
-and measured foot contacts. The 39-clip set is an integration candidate: bow source work
-and rendered acceptance remain separate gates. Do not promote a package from numerical
+and measured foot contacts. The corrected 42-source/49-state set includes candidate
+CMU 79_86 bow ready/draw/release clips; bow and rendered acceptance remain separate gates. Do not promote a package from numerical
 checks alone.
+
+The bow source uses CMU's freely usable motion capture, Bruce Hahne's BVH conversion
+and the Shriinivas/cmubvh distribution. `import_cmu_bow_source.py` uses Blender's native
+BVH importer and glTF exporter, adding source-only preview markers and cropping time.
+`prepare_humgen_bow.py` imports it through Epic; `run_humgen_bow_motion.ps1` retargets
+on the unchanged native targets. Bow release marks follow the recorded performance,
+separate from gait-contact phases. The existing CMU acknowledgment is in credits.yaml.
+No converted garment or source-preview marker mesh is shipped as character geometry.
 
 `Diagnostics/HumGenRigGate.tscn` verifies the actual production rig roles, grip binding,
 FACS blink/speech and material matching. Claude owns the rendered motion gate, using

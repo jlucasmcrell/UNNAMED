@@ -73,6 +73,10 @@ try:
            for p in fal["packages"] if "/Animations/" in p]})
     sources["sources"].append(dict(sources["sources"][-1], id="fal_spear"))
     sources["sources"].append(dict(sources["sources"][-1], id="fal_side_walk"))
+    if os.environ.get("OTHERREACH_HUMGEN_EXTRA_SOURCES"):
+        extra = json.loads(Path(os.environ["OTHERREACH_HUMGEN_EXTRA_SOURCES"]).read_text())
+        assert extra["status"] == "DONE"
+        sources["sources"].extend(extra["sources"])
     # No textures/material baking is needed for an animation transport preview. The game
     # keeps the original, dressed HumGen GLB; these material slots never go into the game.
     materials = body.get_editor_property("materials")
@@ -91,6 +95,10 @@ try:
         assert source_controller.set_skeletal_mesh(source_mesh)
         source_controller.apply_auto_generated_retarget_definition()
         assert source_controller.set_root_motion_bone("root")
+        if sid == "cmu_bow":
+            assert source_controller.set_retarget_root("Hips")
+            assert source_controller.set_retarget_chain_start_bone("Spine", "LowerBack")
+            assert source_controller.set_retarget_chain_end_bone("Neck", "Neck1")
         state.setdefault("source_chains", {})[sid] = chains(source_controller)
         retargeter = asset(package, "RTG_" + sid, unreal.IKRetargetFactory())
         controller = unreal.IKRetargeterController.get_controller(retargeter)
@@ -100,6 +108,12 @@ try:
         controller.set_preview_mesh(unreal.RetargetSourceOrTarget.TARGET, body)
         for mode in (unreal.RetargetSourceOrTarget.SOURCE, unreal.RetargetSourceOrTarget.TARGET):
             controller.reset_retarget_pose(controller.get_current_retarget_pose_name(mode), [], mode)
+        if sid == "cmu_bow":
+            # BVH's root offset is zero; its original calibration frame places the
+            # pelvis one metre up. Correct the SOURCE retarget pose through Epic's
+            # native control so root-height normalization has a valid baseline.
+            # Neither source asset rests nor any target joints are rewritten.
+            controller.set_root_offset_in_retarget_pose(unreal.Vector(0, 0, 100), unreal.RetargetSourceOrTarget.SOURCE)
         while controller.get_num_retarget_ops():
             controller.remove_retarget_op(controller.get_num_retarget_ops() - 1)
         controller.add_default_ops()
@@ -186,8 +200,10 @@ try:
             gltf = json.loads(data[20:20 + struct.unpack_from("<I", data, 12)[0]])
             assert len(gltf["skins"][0]["joints"]) == 59 and gltf.get("animations")
             state["clips"].append({"state": key, "source": sid + "/" + todo[key], "source_asset": original.get_path_name(),
-                                   "asset": animation.get_path_name(), "path": str(path), "seconds": animation.sequence_length})
+                                   "asset": animation.get_path_name(), "path": str(path), "seconds": animation.sequence_length,
+                                   "source_rate_scale": original.get_editor_property("rate_scale")})
             save("EXPORTED", current=key)
+    assert len(state["clips"]) == len(selected), "Not every selected source was exported"
     unreal.EditorAssetLibrary.save_directory(package, only_if_is_dirty=True, recursive=True)
     save("DONE", minutes=(time.monotonic() - started) / 60)
 except Exception:

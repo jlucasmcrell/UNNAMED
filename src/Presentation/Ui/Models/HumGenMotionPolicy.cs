@@ -8,7 +8,7 @@ public static class HumGenMotionPolicy
         "crouch_idle", "crouch_walk", "sword_ready", "sword_attack_1", "sword_attack_2", "sword_attack_3",
         "spear_ready", "spear_thrust", "sit", "sit_talk", "lie_to_idle", "get_up", "jump_start", "captive_kneel"];
 
-    public static void Validate(IEnumerable<string> states, IReadOnlyDictionary<string, string> sources, int contactsSchema)
+    public static void Validate(IEnumerable<string> states, IReadOnlyDictionary<string, string> sources, int contactsSchema, int playbackSchema)
     {
         var present = states.ToHashSet(StringComparer.Ordinal);
         var missing = Required.Where(state => !present.Contains(state)).ToArray();
@@ -21,5 +21,6 @@ public static class HumGenMotionPolicy
                 throw new InvalidDataException("KayKit is forbidden for any animation: " + state);
         }
         if (contactsSchema != 1) throw new InvalidDataException("HumGen motion lacks measured foot contacts");
+        if (playbackSchema != 1) throw new InvalidDataException("HumGen motion lacks original source playback timing");
     }
 }
