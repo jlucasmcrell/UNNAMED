@@ -140,7 +140,7 @@ public partial class NpcsView : Node3D
             figure.SetTalking(npc.Talking && !held);
             figure.Say(simulation.Conversation is { } talk && talk.NpcId == npc.Id ? talk.Text : Bark(simulation, npc, figure, feet, delta));
             var furniture = FurnitureAt(simulation,npc,feet,speed,occupiedFurniture);
-            bool resting = figure.SetRestPose(furniture?.Clip);
+            bool resting = figure.SetRestPose(held && VisualOptions.ComparisonCast == "humgen" ? "captive_kneel" : furniture?.Clip);
             figure.Pose(feet, PlayerController.FacingRadians(npc.Body.FacingMdeg), speed, delta);
             var wantedOffset = resting && furniture is { } support && figure.RestContact is { } contact ? support.Top-contact : Vector3.Zero;
             var offset = _restOffsets.GetValueOrDefault(npc.Id).Lerp(wantedOffset,1-Mathf.Exp(-10*(float)delta));

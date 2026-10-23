@@ -413,7 +413,7 @@ public sealed partial class SkinnedFigure : Figure
         {
             // A crouch clip already holds the head under the crouch height; the bend is for what has none (a body without
             // crouch clips, a blow struck crouched).
-            _posture.Crouch = _model.Current is "crouch_idle" or "crouch_walk" ? 0 : _crouch;
+            _posture.Crouch = _model.Current is "crouch_idle" or "crouch_walk" or "captive_kneel" ? 0 : _crouch;
             _posture.Tuck = _tuck;
         }
     }
@@ -495,6 +495,7 @@ public sealed partial class SkinnedFigure : Figure
         {
             _idles.Interrupt();
             if (resting == "lie_to_idle") m.Hold(resting, 0, .3f);
+            else if (resting == "captive_kneel") m.Hold(resting, .5f, .3f);
             else m.Play(_talking && m.Has("sit_talk") ? "sit_talk" : resting, .3f);
             return;
         }

@@ -587,7 +587,8 @@ public sealed class ArtBindings
             return (chosen, VisualOptions.ComparisonCast == "humgen" ? 1f : (feminine ? cast.Feminine : cast.Masculine) / chosen.Height);
         }
         var reserved = named.Values.Select(Identity).ToHashSet(StringComparer.Ordinal);
-        var usable = cast.Models.Where(m => m.Sex == (feminine ? "f" : "m") && !reserved.Contains(m.Id) && (person != "player" || !m.NpcOnly)).ToArray();
+        var usable = cast.Models.Where(m => m.Sex == (feminine ? "f" : "m") && !reserved.Contains(m.Id)
+            && (person == "player" ? !m.NpcOnly : VisualOptions.ComparisonCast != "humgen" || m.NpcOnly)).ToArray();
         if (usable.Length == 0)
             return null;
         uint hash = 2166136261;
