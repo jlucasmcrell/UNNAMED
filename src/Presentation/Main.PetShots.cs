@@ -232,6 +232,7 @@ public partial class Main
                 // ring and every fight that landed at the yard did so because nothing took the character out here first.
                 await ApproachPoint(505, 735, 2.5, 120);
                 GD.Print($"PET_SHOTS meet point: {PetWhere(simulation)}");
+                await WaitForTheAnimal(6, 45);
                 break;
             }
             case 2:
@@ -268,6 +269,7 @@ public partial class Main
                 OpenPetOrders();
                 await Rcd3Wait(1.2);
                 await PetStill("pets_marker");
+                await WaitForTheAnimal(8, 45);
                 await Obey(PetOrder.WaitHere, 6);
                 // Held while the animal walks the ring: the ring is one point and the animal another until it has got there, and a still taken too
                 // early shows a ring with no animal on it (measured twice).
@@ -657,6 +659,26 @@ public partial class Main
         Quiet(simulation, simulation.Creatures.Where(c => c.Mind != CreatureMind.Engaged && Distance(c.Body, simulation.Player.Body) < 80_000))
             .OrderBy(c => c.Asleep ? 0 : 1)
             .ThenBy(c => Distance(c.Body, simulation.Player.Body)).FirstOrDefault();
+
+    /// <summary>
+    /// Waits for the party animal to catch up before the next beat: a pet walks at its own pace, and after a long stretch it is thirty or forty
+    /// metres behind - which is why the bond feeds are refused in silence and why the animal is not in a fight it is supposed to be in (measured
+    /// on every run since 16:42). False when it does not arrive in time.
+    /// </summary>
+    private async Task<bool> WaitForTheAnimal(double withinMetres, double maxSeconds)
+    {
+        var simulation = _session.Simulation!;
+        double deadline = Time.GetTicksMsec() + maxSeconds * 1000;
+        while (Time.GetTicksMsec() < deadline)
+        {
+            if (simulation.Pets.FirstOrDefault(p => p.Condition == PetCondition.Up) is not { } pet)
+                return false;
+            if (Distance(pet.Body, simulation.Player.Body) <= withinMetres * 1000)
+                return true;
+            await Rcd3Wait(0.5);
+        }
+        return false;
+    }
 
     /// <summary>
     /// The wolf to pick a fight with: one that has no other wolf within twelve metres, which is what makes the fight winnable for a level-one
