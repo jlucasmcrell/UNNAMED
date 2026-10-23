@@ -142,6 +142,11 @@ def main():
     doc["creatures"] = {"creature.construct.ring_custodian": {
         "model": "bw_codex_custodian", "clips": clips, "voice": "animated_armour", "flesh": "plate",
         "steps": {"walk": "walk", "run": "move_heavy"}, "paces": {"walk": 1.55, "run": 2.2}}}
+    # The ring's ordinary creatures (M8 09 E1-E4) are the frontier's own: the same production bindings its overlay draws them with.
+    with open(os.path.join(ROOT, "content", "_art_bindings.json"), encoding="utf-8") as handle:
+        frontier = json.load(handle)["creatures"]
+    for creature in ("creature.beast.cave_hunting_spider", "creature.undead.bone_walker_husk"):
+        doc["creatures"][creature] = frontier[creature]
 
     deep = sum(1 for sid in ids if wall_for(sid) == DEEP_WALL)
 

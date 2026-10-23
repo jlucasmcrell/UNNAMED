@@ -1,0 +1,25 @@
+id: spawn.barrowworks.sorting_spider_south
+kind: spawn
+schema: 1
+display_key: spawn.barrowworks.sorting_spider_south.name
+tags:
+- spawn
+notes: "E2 (M8 09), the second spider on R05's sorting floor, across the bins from the first. Its kill persists. Level 3, as the frontier's own spiders and husks (docs/BARROWWORKS_BALANCE.md)."
+region_ref: region.barrowworks
+creatures:
+- creature_ref: creature.beast.cave_hunting_spider
+  count:
+  - 1
+  - 1
+  role: ambusher
+at:
+  position_m:
+  - 34
+  - 64
+  radius_m: 0
+level_band:
+- 3
+- 3
+respawn:
+  kind: none
+tier_hint: A

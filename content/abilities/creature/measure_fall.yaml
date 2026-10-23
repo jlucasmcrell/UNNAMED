@@ -14,4 +14,4 @@ commit_facing: true
 charge: { speed_m_s: 7, min_range_m: 4, max_distance_m: 12, stun_s: 1.6 }
 cost: { stamina: 0 }
 payload:
-  - { type: damage, damage_type: physical_blunt, amount: [18, 24] }
+  - { type: damage, damage_type: physical_blunt, amount: [34, 42] }

@@ -2008,6 +2008,44 @@
         "walk": 1.55,
         "run": 2.2
       }
+    },
+    "creature.beast.cave_hunting_spider": {
+      "model": "creature_playtest_cave_spider",
+      "clips": {
+        "idle": "creature.creature_playtest_cave_spider.idle",
+        "walk": "creature.creature_playtest_cave_spider.walk",
+        "run": "creature.creature_playtest_cave_spider.run",
+        "attack": "creature.creature_playtest_cave_spider.attack",
+        "hit": "creature.creature_playtest_cave_spider.hit",
+        "death": "creature.creature_playtest_cave_spider.death",
+        "ability.creature.spider_bite": "creature.creature_playtest_cave_spider.attack"
+      },
+      "voice": "cave_hunting_spider",
+      "flesh": "flesh",
+      "note": "Playtest enemy replacement 2026-10-18; held licensed source, no generative assets. Nephila existing rig; uniform 2.7x body-centred scale; authored idle/lunge-bite/hit/curling death, run retimed from native walk.",
+      "steps": {
+        "walk": "scuttle",
+        "run": "scuttle_fast"
+      }
+    },
+    "creature.undead.bone_walker_husk": {
+      "model": "creature_playtest_bone_walker",
+      "clips": {
+        "idle": "creature.creature_playtest_bone_walker.idle",
+        "walk": "creature.creature_playtest_bone_walker.walk",
+        "run": "creature.creature_playtest_bone_walker.run",
+        "attack": "creature.creature_playtest_bone_walker.attack",
+        "hit": "creature.creature_playtest_bone_walker.hit",
+        "death": "creature.creature_playtest_bone_walker.death",
+        "ability.creature.husk_slash": "creature.creature_playtest_bone_walker.attack"
+      },
+      "voice": "bone_walker_husk",
+      "flesh": "stone",
+      "note": "Playtest enemy replacement 2026-10-18; held licensed source, no generative assets. Bone/aged grave-rag retexture; luminous eyeball removed.",
+      "steps": {
+        "walk": "walk",
+        "run": "move_fast"
+      }
     }
   },
   "nodes": {
