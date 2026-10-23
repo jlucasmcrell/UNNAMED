@@ -310,7 +310,9 @@ func measure(animation: Animation, rig: Skeleton3D) -> Dictionary:
 		player.advance(0)
 		var feet := []
 		for side in 2:
-			var at := rig.get_bone_global_pose(rig.find_bone("ball_l" if side == 0 else "ball_r")).origin
+			# measure() is always handed the TARGET skeleton, whose bones are named for Godot's humanoid profile,
+			# so the clip's own foot names have to go through the map here too (it threw Index p_bone = -1 first).
+			var at := rig.get_bone_global_pose(canonical_bone(rig, "ball_l" if side == 0 else "ball_r")).origin
 			feet.append(at)
 			floors[side] = minf(floors[side], at.y)
 		samples.append(feet)
