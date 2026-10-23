@@ -56,6 +56,7 @@ and FACS binding; it does not replace visual review.
 Claude reviews real-time movement/combat, hand/sword grip, sit/lie/kneel and footstep timing;
 review close-ups of faces, hands, hair and fitted garments, including named NPC identity/sex.
 Then clean export and fresh-save start the single package, with grass/art present and pets included.
+Normal startup uses `GameOptions`' accepted pets default; capture flags must not enable release features.
 Finish the remaining RC d8 gameplay gates on this same line.
 Package as `OTHERREACH - RC d8 (HumGen)` and promote only after the visual gates are accepted.
 Keep the RC d7 shortcuts/packages as backups.
