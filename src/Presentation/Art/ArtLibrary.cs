@@ -344,6 +344,8 @@ public sealed class ArtLibrary
     /// </summary>
     public Node3D? ModelWithLods(string id)
     {
+        if (IsTree(id))
+            return Whole(Model(id));
         if (ModelLevels(id) is not { Count: > 0 } all)
             return null;
         if (all.Count == 1)
@@ -520,6 +522,30 @@ public sealed class ArtLibrary
     /// <c>flora_fallen_log</c> (a log), <c>flora_young_ash_stand</c> (a stand of trees, not a tree), <c>flora_bramble_bush</c> (a
     /// shrub) and <c>env_ph_dead_tree_trunk</c> (a trunk) all keep the generic ladder, which is correct for every one of them.
     /// </remarks>
+    /// <summary>
+    /// Owner ruling for finding 40 (2026-10-23): "keep all of the trees at full detail at every distance. Never change the way the trees are
+    /// drawn." Every tree - the tree family, Old Late, the sapling stands - is its full model and nothing else, wherever it stands.
+    /// </summary>
+    public static bool IsTree(string id) => IsTreeFamily(id) || id == "flora_old_late" || id.Contains("sapling", StringComparison.Ordinal);
+
+    /// <summary>A tree as drawn at every distance: no visibility range, no fade, and the renderer's automatic mesh detail held at full.</summary>
+    public static T? Whole<T>(T? node) where T : Node3D
+    {
+        if (node is null)
+            return null;
+        foreach (var mesh in node.FindChildren("*", nameof(GeometryInstance3D), true, false).Cast<GeometryInstance3D>().Prepend(node as GeometryInstance3D).OfType<GeometryInstance3D>())
+        {
+            mesh.VisibilityRangeBegin = mesh.VisibilityRangeEnd = 0;
+            mesh.VisibilityRangeBeginMargin = mesh.VisibilityRangeEndMargin = 0;
+            mesh.VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Disabled;
+            mesh.LodBias = FullDetailLodBias;
+        }
+        return node;
+    }
+
+    /// <summary>Far beyond any distance in the world: the renderer never picks a lighter index level for a tree.</summary>
+    public const float FullDetailLodBias = 10000f;
+
     private static bool IsTreeFamily(string id)
     {
         ReadOnlySpan<char> head = id;
