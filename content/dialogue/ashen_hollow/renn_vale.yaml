@@ -51,6 +51,7 @@ nodes:
         conditions:
           - { kind: has_item, item_ref: item.quest.halda_token }
           - { kind: world_state, flag_ref: world.hollow.halda_tally_kept, location_ref: location.outpost, min: 0, max: 0 }
+          - { kind: quest_state, quest_ref: quest.ashen_hollow.haldas_tally, is: completed, not: true }
         consequences:
           - { command: start_quest, quest_ref: quest.ashen_hollow.haldas_tally }
         next: tally
@@ -157,6 +158,10 @@ nodes:
         conditions:
         - kind: has_item
           item_ref: item.story.folded_note
+        - kind: quest_state
+          quest_ref: quest.main.folded_note
+          is: completed
+          not: true
         consequences:
         - command: start_quest
           quest_ref: quest.main.folded_note
@@ -167,6 +172,9 @@ nodes:
         - kind: quest_state
           quest_ref: quest.main.wrong_side
           is: completed
+        - kind: quest_state
+          quest_ref: quest.main.road_east
+          is: available
         consequences:
         - command: start_quest
           quest_ref: quest.main.road_east

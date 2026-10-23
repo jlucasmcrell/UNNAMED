@@ -118,6 +118,11 @@ nodes:
       - id: story_afternoon
         text: When was your long afternoon?
         next: story_afternoon
+        conditions:
+        - kind: quest_state
+          quest_ref: quest.main.wrong_side
+          is: completed
+          not: true
         consequences:
         - command: start_quest
           quest_ref: quest.main.wrong_side

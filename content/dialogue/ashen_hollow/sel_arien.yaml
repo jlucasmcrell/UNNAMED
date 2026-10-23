@@ -219,6 +219,10 @@ nodes:
       - id: story_grazers
         text: What do the grazers tell you about that afternoon?
         next: story_grazers
+        conditions:
+        - kind: quest_state
+          quest_ref: quest.main.wrong_side
+          is: available
         consequences:
         - command: start_quest
           quest_ref: quest.main.wrong_side
@@ -255,12 +259,22 @@ nodes:
       - id: story_species_robin
         text: I have a name for the small bird near where I woke.
         next: story_species_robin
+        conditions:
+        - kind: quest_state
+          quest_ref: quest.story.name_robin
+          is: completed
+          not: true
         consequences:
         - command: start_quest
           quest_ref: quest.story.name_robin
       - id: story_species_dandelion
         text: I have a name for the yellow flower near where I woke.
         next: story_species_dandelion
+        conditions:
+        - kind: quest_state
+          quest_ref: quest.story.name_dandelion
+          is: completed
+          not: true
         consequences:
         - command: start_quest
           quest_ref: quest.story.name_dandelion

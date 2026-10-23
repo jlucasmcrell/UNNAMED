@@ -44,7 +44,7 @@ nodes:
         text: "About the moss, then."
         conditions:
           - { kind: visited, node: complaint }
-          - { kind: quest_state, quest_ref: quest.cairnwold.what_the_bog_kept, is: active, not: true }
+          - { kind: quest_state, quest_ref: quest.cairnwold.what_the_bog_kept, is: available }
         consequences:
           - { command: start_quest, quest_ref: quest.cairnwold.what_the_bog_kept }
         next: errand
@@ -76,6 +76,9 @@ nodes:
         - kind: quest_state
           quest_ref: quest.cairnwold.what_the_bog_kept
           is: completed
+        - kind: quest_state
+          quest_ref: quest.main.moss_lights
+          is: available
         consequences:
         - command: start_quest
           quest_ref: quest.main.moss_lights
@@ -95,6 +98,7 @@ nodes:
     choices:
       - id: offer
         text: "I'll walk it."
+        conditions: [{ kind: quest_state, quest_ref: quest.cairnwold.what_the_bog_kept, is: available }]
         consequences:
           - { command: start_quest, quest_ref: quest.cairnwold.what_the_bog_kept }
         next: errand

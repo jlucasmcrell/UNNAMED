@@ -120,6 +120,7 @@ nodes:
         conditions:
           - { kind: world_state, flag_ref: world.barrowworks.ring_accessible, location_ref: location.barrowworks.intake_hall, min: 1 }
           - { kind: visited, node: barrowworks }
+          - { kind: quest_state, quest_ref: quest.barrowworks.unfinished_measure, is: not_started }
         next: barrowworks_again
       # o_done: telling her which way it went. Two replies because the design's choice is two answers and a
       # condition list is a conjunction, so one reply per ending is the only honest way to gate them.
@@ -172,6 +173,10 @@ nodes:
       - id: story_cut
         text: What should I look for at Blackvein?
         next: story_cut
+        conditions:
+        - kind: quest_state
+          quest_ref: quest.main.closed_seam
+          is: available
         consequences:
         - command: start_quest
           quest_ref: quest.main.closed_seam
@@ -181,6 +186,11 @@ nodes:
         conditions:
         - kind: has_item
           item_ref: item.story.lantern_ledger
+        # Hearing this line is both quests' last talk, so closed_seam (the longer of the two) ends it.
+        - kind: quest_state
+          quest_ref: quest.main.closed_seam
+          is: completed
+          not: true
         consequences:
         - command: start_quest
           quest_ref: quest.main.closed_seam
