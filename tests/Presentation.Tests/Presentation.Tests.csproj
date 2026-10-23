@@ -26,7 +26,6 @@
     <Compile Include="..\..\src\Presentation\Ui\AssetWorkspace.cs" Link="Linked\AssetWorkspace.cs" />
     <Compile Include="..\..\src\Presentation\Art\ArtCoverage.cs" Link="Linked\ArtCoverage.cs" />
     <Compile Include="..\..\src\Presentation\Art\ScatterRules.cs" Link="Linked\ScatterRules.cs" />
-    <Compile Include="..\..\src\Presentation\Art\EnvironmentLod.cs" Link="Linked\EnvironmentLod.cs" />
     <Compile Include="..\..\src\Presentation\Art\PlantLodBands.cs" Link="Linked\PlantLodBands.cs" />
     <Compile Include="..\..\src\Presentation\Audio\AudioCoverage.cs" Link="Linked\AudioCoverage.cs" />
     <Compile Include="..\..\src\Presentation\Audio\MusicChoice.cs" Link="Linked\MusicChoice.cs" />

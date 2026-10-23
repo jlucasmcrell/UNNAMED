@@ -276,6 +276,7 @@ public partial class Main : Node3D
         if (directPlaytest)
         {
             OS.SetEnvironment("UNNAMED_SCATTER_RESIDENCY", "0");
+            OS.SetEnvironment("UNNAMED_LOD_STIPPLE", "0");
             GD.Print("UNNAMED direct EXE: using packaged PLAY defaults");
         }
         string optionFile = Path.Combine(Home(), "characters.option");

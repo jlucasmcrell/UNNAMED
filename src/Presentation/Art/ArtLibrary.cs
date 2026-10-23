@@ -344,38 +344,22 @@ public sealed class ArtLibrary
     /// </summary>
     public Node3D? ModelWithLods(string id)
     {
-        if (ModelLevels(id) is not { Count: > 0 } loaded)
+        if (ModelLevels(id) is not { Count: > 0 } all)
             return null;
-        var all = loaded.ToList();
-        bool fullQuality = EnvironmentLod.FullQuality(VisualOptions.Tier);
-        // A single authored mesh can still use Godot's native index LODs, but only
-        // beyond the full-quality radius. Duplicate nodes share the mesh/texture resources.
-        bool nativeFar = all.Count == 1 && fullQuality;
-        if (nativeFar)
-        {
-            var far = (Node3D)all[0].Duplicate();
-            far.Name = id + "_native_far";
-            all.Add(far);
-        }
         if (all.Count == 1)
-        {
-            foreach (var mesh in all[0].FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
-            {
-                mesh.SetMeta("otherreach_lod_level", 0);
-                mesh.SetMeta("otherreach_lod_asset", id);
-                mesh.SetMeta("otherreach_tree", IsTreeFamily(id));
-            }
             return all[0];
-        }
         var full = all[0];
         var root = new Node3D { Name = id };
-        root.SetMeta("otherreach_lod_root", true);
-        root.SetMeta("otherreach_native_far_lod", nativeFar);
-        var shared = full.Transform * ArtGallery.Bounds(full);
+        var shared = ArtGallery.Bounds(full);
         var extent = shared.Size;
         float size = Math.Max(0.1f, Math.Max(extent.X, Math.Max(extent.Y, extent.Z)));
+        // A tree's levels come sooner than its size alone would bring them (docs/phase_b/demo/trees/TREES.md): its needles and twigs thin
+        // to sky on the lighter meshes past about 130 m, where the crossed-plane impostor holds a solid crown.
         bool tree = IsTreeFamily(id);
-        float[] from = EnvironmentLod.ModelStarts(VisualOptions.Tier, tree, size, VisualOptions.ReachScale);
+        float reach = Greybox.RenderTiers.LodReach;
+        float[] from = tree
+            ? new[] { 0f, 35f * reach, 80f * reach, 150f * reach }
+            : new[] { 0, Math.Max(8f, 4f * size) * reach, Math.Max(20f, 10f * size) * reach, Math.Max(45f, 22f * size) * reach };
         // UNNAMED_LOD_REPORT=1 prints which ladder a model took and where its levels switch, so a claim about switch distances is
         // measured off a run rather than argued from the source. A name rule is only as good as the names it knows (IsFoliage makes
         // the same point), and this is what makes a name the rule gets WRONG visible: flora_slowtree took the generic ladder, 14 m of
@@ -386,7 +370,7 @@ public sealed class ArtLibrary
         // Tree silhouettes cross-fade through the authored bands. Explicit 0 retains the
         // hard-switch comparison; 1 also enables the diagnostic on other model families.
         string fadeOption = OS.GetEnvironment("UNNAMED_LOD_STIPPLE");
-        bool stipple = fadeOption != "0" && (tree || EnvironmentLod.FullQuality(VisualOptions.Tier) || fadeOption == "1");
+        bool stipple = fadeOption == "1" || tree && fadeOption != "0";
         // ONE BOX FOR EVERY SURFACE OF EVERY LEVEL. Godot measures each mesh's visibility range to the centre of that mesh's own
         // bounds, and a tree's trunk, crown and impostor centre metres apart, so at a switch distance one surface had changed level
         // and another had not: a crown drawn twice or not at all, its shadow with it, for as long as the camera stood in that gap.
@@ -395,7 +379,6 @@ public sealed class ArtLibrary
         {
             root.AddChild(all[i]);
             float begin = from[i], end = i + 1 < all.Count ? from[i + 1] : 0f;
-            var band = EnvironmentLod.Band(begin, end, stipple);
             foreach (var mesh in all[i].FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
             {
                 // An eight-view impostor represents the colour silhouette, not solid branches.
@@ -406,17 +389,12 @@ public sealed class ArtLibrary
                     mesh.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
                     mesh.GIMode = GeometryInstance3D.GIModeEnum.Disabled;
                 }
-                mesh.CustomAabb = Relative(root, mesh).AffineInverse() * shared;
-                if (fullQuality) mesh.LodBias = i == 0 ? 1024 : 1;
-                mesh.SetMeta("otherreach_lod_family", root.GetInstanceId().ToString());
-                mesh.SetMeta("otherreach_lod_level", i);
-                mesh.SetMeta("otherreach_lod_asset", id);
-                mesh.SetMeta("otherreach_tree", tree);
-                mesh.VisibilityRangeBegin = band.Begin;
-                mesh.VisibilityRangeEnd = !stipple && end > 0 ? MathF.BitDecrement(end) : band.End;
-                // Overlap the complete-opacity intervals, not just the fade tails.
-                mesh.VisibilityRangeBeginMargin = band.BeginMargin;
-                mesh.VisibilityRangeEndMargin = band.EndMargin;
+                mesh.CustomAabb = Relative(all[i], mesh).AffineInverse() * shared;
+                mesh.VisibilityRangeBegin = begin;
+                mesh.VisibilityRangeEnd = !stipple && end > 0 ? MathF.BitDecrement(end) : end;
+                // Adjacent levels share the same native fade interval.
+                mesh.VisibilityRangeBeginMargin = stipple && begin > 0 ? 0.1f * begin : 0;
+                mesh.VisibilityRangeEndMargin = stipple && end > 0 ? 0.1f * end : 0;
                 mesh.VisibilityRangeFadeMode = stipple
                     ? GeometryInstance3D.VisibilityRangeFadeModeEnum.Self
                     : GeometryInstance3D.VisibilityRangeFadeModeEnum.Disabled;
@@ -544,7 +522,6 @@ public sealed class ArtLibrary
     /// </remarks>
     private static bool IsTreeFamily(string id)
     {
-        if (id == "flora_old_late") return true;
         ReadOnlySpan<char> head = id;
         if (head.Length > 2 && head[^2] == '_' && char.IsAsciiLetterLower(head[^1]))
             head = head[..^2];

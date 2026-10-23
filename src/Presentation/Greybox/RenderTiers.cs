@@ -14,8 +14,19 @@ namespace UNNAMED.Presentation.Greybox;
 /// </summary>
 public static class RenderTiers
 {
-    // The environment policy is shared by models and scatter (EnvironmentLod).
-    public static bool FullEnvironment => Art.EnvironmentLod.FullQuality(VisualOptions.Tier);
+    /// <summary>How far the prepared ground cover reaches, as a multiple of each kind's <c>fade_m</c>. The plants thin out one by one
+    /// over the outer part of it (ScatterView), so a longer reach costs a thinned far band, not a full one; it is paid for by the
+    /// grass no longer casting into the sun's cascades (2026-10-15).</summary>
+    public static float GroundReach => VisualOptions.ReachScale * VisualOptions.Tier switch
+    {
+        "high" => 1.5f,
+        "ultra" => 1.8f,
+        _ => 1.0f,
+    };
+
+    /// <summary>How far the library models (trees, rocks, buildings) hold each level before the next lighter one, as a multiple of
+    /// ArtLibrary's ladder: Ultra keeps a tree's crown off its crossed-plane impostor until 225 m rather than 150.</summary>
+    public static float LodReach => VisualOptions.ReachScale * (VisualOptions.Tier == "ultra" ? 1.5f : 1.0f);
 
     /// <summary>The server-wide settings (shadow atlas and filter, SSAO/SSIL quality) for the run's tier.</summary>
     public static void ApplyGlobal()
@@ -58,7 +69,7 @@ public static class RenderTiers
                 // No percentage-closer soft shadows here either (the sun's angular size stays 0, as HollowView builds it).
                 // PCSS softened a fencepost's shadow as it stretched away, but its per-frame sample pattern is the shadow
                 // sparkle on swaying grass, and the 2026-10-02 walk measured 0.5 degrees no better than 1.0 for it. The
-                // cost it carried goes to the reach instead (EnvironmentLod).
+                // cost it carried goes to the reach instead (GroundReach and LodReach above).
                 environment.SsrEnabled = true;
                 environment.SsrMaxSteps = 64;
                 // Six cascades, not eight. SDFGI's reach is cell size x 64 x 2^cascades, so at the 0.2 m cell the
