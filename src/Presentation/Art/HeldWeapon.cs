@@ -26,9 +26,9 @@ public static class HeldWeapon
     /// <summary>Rigid grip through the closed fingers' channel, evaluated read-only in hand space.</summary>
     public static Transform3D ClosedGrip(Skeleton3D skeleton, string handName, IReadOnlyDictionary<int, Quaternion> rotations)
     {
-        int hand = skeleton.FindBone(handName);
+        int hand = BoneNames.Find(skeleton, handName);
         if (hand < 0) throw new InvalidDataException("Grip hand missing: " + handName);
-        string side = handName.EndsWith("_l", StringComparison.Ordinal) ? "l" : "r";
+        string side = BoneNames.Side(handName);
         var posed = new Dictionary<int, Transform3D> { [hand] = Transform3D.Identity };
         Transform3D At(int bone)
         {
@@ -38,11 +38,11 @@ public static class HeldWeapon
             if (rotations.TryGetValue(bone, out var q)) local.Basis = new Basis(q) * Basis.FromScale(local.Basis.Scale);
             return posed[bone] = At(skeleton.GetBoneParent(bone)) * local;
         }
-        Vector3 Point(string digit, int joint) => At(skeleton.FindBone($"{digit}_0{joint}_{side}")).Origin;
+        Vector3 Point(string digit, int joint) => At(BoneNames.Find(skeleton, $"{digit}_0{joint}.{side}")).Origin;
         Vector3 Channel(string digit) => (Point(digit, 1) + Point(digit, 3)) * .5f;
         var centre = (Channel("middle") + Channel("ring")) * .5f;
         var across = Channel("index") - Channel("pinky");
-        var rest = skeleton.GetBoneGlobalRest(hand).AffineInverse() * skeleton.GetBoneGlobalRest(skeleton.FindBone("middle_01_" + side)).Origin;
+        var rest = skeleton.GetBoneGlobalRest(hand).AffineInverse() * skeleton.GetBoneGlobalRest(BoneNames.Find(skeleton, "middle_01." + side)).Origin;
         return Frame(centre, across, rest);
     }
 

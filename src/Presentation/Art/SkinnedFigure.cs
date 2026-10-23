@@ -160,6 +160,7 @@ public sealed partial class SkinnedFigure : Figure
     private static Transform3D? SocketGrip(SkinnedModel model, string hand, HandGrip? fingers)
     {
         var skeleton = model.Skeleton;
+        hand = BoneNames.Resolve(skeleton, hand) ?? hand;
         int bone = skeleton.FindBone(hand), socket = skeleton.FindBone("SOCK_" + hand);
         if (bone >= 0 && socket >= 0)
             return skeleton.GetBoneGlobalRest(bone).AffineInverse() * skeleton.GetBoneGlobalRest(socket);
@@ -170,13 +171,13 @@ public sealed partial class SkinnedFigure : Figure
         // palm landmarks, exactly as the MetaHuman grip frame does; no rest or bind changes.
         if (VisualOptions.ComparisonCast is not null && bone >= 0)
         {
-            string side = BoneNames.Side(hand).ToLowerInvariant();
+            string side = BoneNames.Side(hand);
             var inverse = skeleton.GetBoneGlobalRest(bone).AffineInverse();
-            Vector3 Point(string name) => inverse * skeleton.GetBoneGlobalRest(skeleton.FindBone(name + "_" + side)).Origin;
-            if (new[] { "middle_01", "index_01", "pinky_01" }.All(n => skeleton.FindBone(n + "_" + side) >= 0))
+            Vector3 Point(string name) => inverse * skeleton.GetBoneGlobalRest(BoneNames.Find(skeleton, name + "." + side)).Origin;
+            if (new[] { "middle_01", "index_01", "pinky_01" }.All(n => BoneNames.Find(skeleton, n + "." + side) >= 0))
             {
                 var middle = Point("middle_01");
-                if(fingers is not null && side=="r")
+                if(fingers is not null && side=="R")
                 {
                     return HeldWeapon.ClosedGrip(skeleton,hand,fingers.ClosedRotations(skeleton));
                 }

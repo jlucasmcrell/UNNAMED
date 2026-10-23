@@ -11,9 +11,15 @@ public class NamedCharacterCastTests
         Assert.Equal(8, rows.Count);
         Assert.Equal(8, rows.Values.Select(v => v.Native).Distinct().Count());
         Assert.Equal(8, rows.Values.Select(v => v.Mpfb).Distinct().Count());
+        Assert.Equal(8, rows.Values.Select(v => v.Humgen).Distinct().Count());
+        Assert.All(rows.Values, row => Assert.StartsWith("humgen_named_", row.Humgen));
         Assert.Equal("05_Etta", rows["npc.cairnwold.tam_crowden"].Native);
     }
     [Fact]
     public void DuplicateNamedIdentitiesAreRefused() => Assert.Throws<FormatException>(() =>
         NamedCharacterCast.Read("{\"a\":{\"native\":\"Grace\",\"mpfb\":\"a\"},\"b\":{\"native\":\"Grace\",\"mpfb\":\"b\"}}"));
+
+    [Fact]
+    public void DuplicateHumGenIdentitiesAreRefused() => Assert.Throws<FormatException>(() =>
+        NamedCharacterCast.Read("{\"a\":{\"native\":\"a\",\"mpfb\":\"a\",\"humgen\":\"same\"},\"b\":{\"native\":\"b\",\"mpfb\":\"b\",\"humgen\":\"same\"}}"));
 }

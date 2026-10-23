@@ -119,6 +119,8 @@ sections:
       - ledger: [A-P01]
         binds: [cw_boulder_, cw_rock_face_, cw_gravel_stone_, cw_dandelion, cw_sorrel, cw_fern_, cw_nettle_, prop_ph_, rock_ph_, flora_ph_, landmark_ph_, env_ph_, veg_ph_, flora_ashbloom, flora_woundmoss, flora_woundmoss_bare, flora_bog_cotton, flora_bog_cotton_spent, flora_young_ash_stand, item_water_flask, item_salve_minor, item_salve_ember, item_tome_set]
         text: "Rocks, plants, terrain textures and sky HDRIs: Poly Haven (polyhaven.com), CC0."
+      - binds: [weapon_moonbrand_arming_sword]
+        text: "Moonbrand (Early 14th C Arming Sword): The Oakeshott Institute (https://sketchfab.com/oakeshott), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Source: https://sketchfab.com/3d-models/moonbrand-early-14th-c-arming-sword-80fa91fc8c974fd0acd2a55cc513edec . Changes: isolated sword mesh, uniform scale, grip socket, LODs and resized textures."
       - binds: [weapon_cc0_dagger]
         text: "Ornate medieval dagger: Sofia Pahaoja, Poly Haven (polyhaven.com), CC0."
       - ledger: [A-P02]

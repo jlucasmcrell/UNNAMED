@@ -1,4 +1,4 @@
-﻿// UNNAMED Presentation - the visual overhaul's switches: which presentation systems draw this run (Phase B)
+// UNNAMED Presentation - the visual overhaul's switches: which presentation systems draw this run (Phase B)
 // Godot presentation only: every option chooses how the game is drawn, never what the simulation holds (D-11)
 
 using Godot;
@@ -107,7 +107,7 @@ public static class VisualOptions
         ["hooks"] = "none",
         ["body"] = "none",
         ["clips"] = "procedural",
-        ["people"] = "phase_a",
+        ["people"] = "humgen",
         ["player"] = "metahuman_m",
         ["hud"] = "classic",
         // THE AIR'S HUE FOLLOWS THE SUN, ITS INTENSITY DOES NOT. Adopted as the default 2026-09-29, on the
@@ -137,10 +137,10 @@ public static class VisualOptions
     /// <summary>Quality aliases High; Performance aliases Medium for same-art scale-down validation. Final preset tuning is deferred.</summary>
     private static readonly Dictionary<string, Dictionary<string, string>> Tiers = new()
     {
-        ["low"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["people"] = "production", ["hud"] = "production", ["aa"] = "smaa" },
-        ["medium"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["people"] = "production", ["hud"] = "production", ["aa"] = "taa" },
-        ["high"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "sunshine", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["people"] = "production", ["hud"] = "production", ["aa"] = "taa" },
-        ["ultra"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "sunshine", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["people"] = "production", ["hud"] = "production", ["aa"] = "taa" },
+        ["low"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["people"] = "humgen", ["hud"] = "production", ["aa"] = "smaa" },
+        ["medium"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["people"] = "humgen", ["hud"] = "production", ["aa"] = "taa" },
+        ["high"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "sunshine", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["people"] = "humgen", ["hud"] = "production", ["aa"] = "taa" },
+        ["ultra"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "sunshine", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["people"] = "humgen", ["hud"] = "production", ["aa"] = "taa" },
     };
 
     public static string Tier => Values["tier"] switch

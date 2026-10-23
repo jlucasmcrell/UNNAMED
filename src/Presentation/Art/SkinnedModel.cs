@@ -121,6 +121,11 @@ public sealed partial class SkinnedModel : Node3D
             ?? throw new InvalidDataException("comparison motion library missing: " + assetId);
         if (bodyPath is null || motion.GetMeta("target_body_sha256").AsString() != Godot.FileAccess.GetSha256(bodyPath))
             throw new InvalidDataException("comparison motion library target body differs: " + assetId);
+        if (VisualOptions.ComparisonCast == "humgen")
+            Ui.Models.HumGenMotionPolicy.Validate(motion.GetAnimationList().Select(name => name.ToString()),
+                motion.GetMeta("animation_sources", new Godot.Collections.Dictionary()).AsGodotDictionary()
+                    .ToDictionary(p => p.Key.AsString(), p => p.Value.AsString(), StringComparer.Ordinal),
+                motion.GetMeta("foot_plants_schema", 0).AsInt32());
         foreach (string clip in motion.GetAnimationList())
         {
             var animation = (Animation)motion.GetAnimation(clip).Duplicate();
@@ -137,6 +142,13 @@ public sealed partial class SkinnedModel : Node3D
         library.SetMeta("foot_plants_schema",motion.GetMeta("foot_plants_schema",0));
         library.SetMeta("foot_plants",motion.GetMeta("foot_plants",new Godot.Collections.Dictionary()));
         _contacts = motion.GetMeta("motion_phases").AsGodotDictionary();
+        if (VisualOptions.ComparisonCast == "humgen")
+        {
+            // HumGen closes its own hand through HandGrip. MPFB's authored local
+            // rotations belong to a different rest frame and must never be reused.
+            GD.Print($"UNNAMED HumGen motion: {assetId}, {motion.GetAnimationList().Count} exact-target clips");
+            return;
+        }
         string gripId = motion.GetMeta("variant_base_rig", assetId).AsString();
         var grip = System.Text.Json.JsonDocument.Parse(Godot.FileAccess.GetFileAsString($"res://Art/MPFBHandGrips/{gripId}.json"));
         using (grip)
@@ -302,6 +314,7 @@ public sealed partial class SkinnedModel : Node3D
     /// <summary>Something carried on a bone (a weapon in the hand), placed relative to it.</summary>
     public BoneAttachment3D? Attach(string bone)
     {
+        bone = BoneNames.Resolve(Skeleton, bone) ?? bone;
         if (Skeleton.FindBone(bone) < 0)
             return null;
         var attachment = new BoneAttachment3D { BoneName = bone, Name = "On_" + bone };

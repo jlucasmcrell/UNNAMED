@@ -103,16 +103,16 @@ public sealed partial class FaceDriver : Node
             var index = new Dictionary<string, int>(StringComparer.Ordinal);
             foreach (string channel in Channels)
             {
-                int i = mesh.FindBlendShapeByName(channel);
+                int i = ShapeIndex(mesh, channel);
                 if (i >= 0)
                     index[channel] = i;
             }
             // No visemes of its own but the ARKit mouth: bind those shapes, keyed "arkit:<name>", for the viseme blends above.
-            if (!index.ContainsKey("viseme_aa") && mesh.FindBlendShapeByName("mouthPucker") >= 0)
+            if (!index.ContainsKey("viseme_aa") && ShapeIndex(mesh, "mouthPucker") >= 0)
             {
                 foreach (string shape in VisemeAsArkit.Values.SelectMany(v => v).Select(v => v.Shape).Distinct())
                 {
-                    int i = mesh.FindBlendShapeByName(shape);
+                    int i = ShapeIndex(mesh, shape);
                     if (i >= 0 && !index.ContainsKey(shape))
                         index["arkit:" + shape] = i;
                 }
@@ -142,6 +142,17 @@ public sealed partial class FaceDriver : Node
         GD.Print($"UNNAMED face: {seed} attached - {driver._meshes.Count} mesh(es), " +
                  $"{driver._meshes.Sum(m => m.Index.Count)} channel bindings");
         return driver;
+    }
+
+    private static int ShapeIndex(MeshInstance3D mesh, string channel)
+    {
+        int exact = mesh.FindBlendShapeByName(channel);
+        if (exact >= 0) return exact;
+        // Paid HumGen FACS uses _L/_R for these channels, while eye gaze already
+        // uses the ARKit Left/Right spelling. Keep every mesh's native names.
+        string alias = channel.EndsWith("Left", StringComparison.Ordinal) ? channel[..^4] + "_L"
+            : channel.EndsWith("Right", StringComparison.Ordinal) ? channel[..^5] + "_R" : channel;
+        return alias == channel ? -1 : mesh.FindBlendShapeByName(alias);
     }
 
     /// <summary>The line this character is saying now (a new text starts it from its first letter), or null when silent.</summary>

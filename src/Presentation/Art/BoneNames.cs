@@ -40,6 +40,24 @@ public static class BoneNames
                     map[$"{finger}_0{k}.{mpfb}"] = new[] { $"{finger}_0{k}.{mpfb}", $"{finger}_0{k}_{ue}" };
             }
         }
+        // HumGen's official Godot recipe exports SkeletonProfileHumanoid names.
+        foreach (var (role, humanoid) in new[] { ("hips", "Hips"), ("chest", "UpperChest"), ("neck", "Neck"), ("head", "Head") })
+            map[role] = [.. map[role], humanoid];
+        foreach (var (side, humanoid) in new[] { ("L", "Left"), ("R", "Right") })
+        {
+            foreach (var (role, bone) in new[] { ("thigh", "UpperLeg"), ("shin", "LowerLeg"), ("foot", "Foot"), ("upper_arm", "UpperArm"), ("forearm", "LowerArm"), ("hand", "Hand"), ("eye", "Eye") })
+                map[$"{role}.{side}"] = [.. map[$"{role}.{side}"], humanoid + bone];
+            foreach (var (finger, name) in new[] { ("thumb", "Thumb"), ("index", "Index"), ("middle", "Middle"), ("ring", "Ring"), ("pinky", "Little") })
+                for (int joint = 1; joint <= 3; joint++)
+                {
+                    string segment = finger == "thumb" ? new[] { "Metacarpal", "Proximal", "Distal" }[joint - 1] : new[] { "Proximal", "Intermediate", "Distal" }[joint - 1];
+                    map[$"{finger}_0{joint}.{side}"] = [.. map[$"{finger}_0{joint}.{side}"], humanoid + name + segment];
+                }
+        }
+        // Callers using a UE name (pelvis/hand_r) resolve through the same vocabulary.
+        foreach (var names in map.Values.ToArray())
+            foreach (string name in names)
+                map.TryAdd(name, names);
         return map;
     }
 
@@ -58,10 +76,11 @@ public static class BoneNames
     public static int Find(Skeleton3D skeleton, string canonical) => Resolve(skeleton, canonical) is { } name ? skeleton.FindBone(name) : -1;
 
     /// <summary>The side of a hand or socket bone in either vocabulary: "R" for hand.R / hand_r / SOCK_hand_r, else "L".</summary>
-    public static string Side(string bone) => bone.EndsWith(".R", StringComparison.Ordinal) || bone.EndsWith("_r", StringComparison.Ordinal) ? "R" : "L";
+    public static string Side(string bone) => bone.StartsWith("Right", StringComparison.Ordinal) || bone.EndsWith(".R", StringComparison.Ordinal) || bone.EndsWith("_r", StringComparison.Ordinal) ? "R" : "L";
 
     /// <summary>The same bone on the other side, in the vocabulary it was given in: hand.R to hand.L, hand_r to hand_l.</summary>
-    public static string Opposite(string bone) => bone[^2] switch
+    public static string Opposite(string bone) => bone.StartsWith("Right", StringComparison.Ordinal) ? "Left" + bone[5..]
+        : bone.StartsWith("Left", StringComparison.Ordinal) ? "Right" + bone[4..] : bone[^2] switch
     {
         '.' => bone[..^1] + (bone[^1] == 'R' ? "L" : "R"),
         '_' => bone[..^1] + (bone[^1] == 'r' ? "l" : "r"),

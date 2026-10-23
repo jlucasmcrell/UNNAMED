@@ -11,8 +11,7 @@ public partial class CrouchHeadLift : SkeletonModifier3D
     public override void _ProcessModificationWithDelta(double delta)
     {
         var skeleton=GetSkeleton();
-        int neck=skeleton.FindBone("neck_01");
-        if(neck<0)neck=skeleton.FindBone("neck");
+        int neck=BoneNames.Find(skeleton,"neck");
         if(neck<0)return;
         var axis=(skeleton.GlobalBasis.Inverse()*Facing.GlobalBasis.X).Normalized();
         var pose=skeleton.GetBoneGlobalPose(neck);

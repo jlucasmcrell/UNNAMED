@@ -6,8 +6,8 @@ Directory.CreateDirectory(evidence);
 var ownerFlag = @"C:\Otherreach_Recovery\OWNER_PLAYING.flag";
 var lockScript = Path.Combine(root, "invoke_gpu_lock.ps1");
 bool review = !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("OTHERREACH_MH_REVIEW_OUT"));
-var lease = review ? "codex-mh-slice mh-characters-playtest" : "owner-mh-playtest manual-playtest";
-var ownerMarker = "MetaHuman playtest launcher " + Environment.ProcessId;
+var lease = review ? "codex-mh-slice humgen-playtest" : "owner-humgen-playtest manual-playtest";
+var ownerMarker = "HumGen playtest launcher " + Environment.ProcessId;
 bool ownerFlagHeld = false;
 Process? game = null;
 bool held = false;
@@ -31,11 +31,7 @@ try
     // Which cast this package draws, from the one option file beside the exe. A comparison arm (mpfb, humgen) draws none
     // of the MetaHuman bundle - MetaHumanFigure.Available is false for those runs by design - so it does not have to
     // ship 342-joint bodies it will never draw.
-    string optionFile = Path.Combine(root, "characters.option");
-    string cast = File.Exists(optionFile) ? File.ReadAllText(optionFile).Trim() : "";
-    string people = cast is "mpfb" or "humgen" ? cast : "production";
-    if (people == "production" && !File.Exists(Path.Combine(root, "mh_characters", "catalog.json")))
-        throw new FileNotFoundException("MetaHuman runtime bundle is missing");
+    const string people = "humgen";
     if (!review)
     {
         using var flag = new FileStream(ownerFlag, FileMode.CreateNew, FileAccess.Write, FileShare.Read);

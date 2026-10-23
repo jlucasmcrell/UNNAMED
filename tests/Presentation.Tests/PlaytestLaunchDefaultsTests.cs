@@ -17,14 +17,14 @@ public class PlaytestLaunchDefaultsTests
         Assert.Equal(Path.Combine(root, "content", "_art_bindings.json"), options["--bindings-overlay"]);
         Assert.Equal(Path.Combine(root, "saves"), options["--profile"]);
         Assert.Equal("region.starting_frontier", options["--region"]);
-        Assert.Equal("tier=high,terrain=terrain3d,sky=sky3d,people=production,foldscar=proof,body=none", options["--visual"]);
+        Assert.Equal("tier=high,terrain=terrain3d,sky=sky3d,people=humgen,foldscar=proof,body=none", options["--visual"]);
     }
 
     [Fact]
-    public void ComparisonPackageUsesTheSameDefaultsAndItsOwnCharacterFlag()
+    public void HumGenPackageUsesItsOwnPayload()
     {
-        var args = PlaytestLaunchDefaults.Resolve([], "comparison", true, "mpfb");
-        Assert.Contains("tier=high,terrain=terrain3d,sky=sky3d,people=mpfb,foldscar=proof,body=none", args);
+        var args = PlaytestLaunchDefaults.Resolve([], "comparison", true);
+        Assert.Contains("tier=high,terrain=terrain3d,sky=sky3d,people=humgen,foldscar=proof,body=none", args);
         Assert.Contains(Path.Combine("comparison", "primary"), args);
     }
 
