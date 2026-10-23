@@ -100,7 +100,7 @@ public partial class Main
             {
                 // The collar, side on, at a metre and a half: the mark the party's animal wears.
                 var pup = simulation.Pets.FirstOrDefault()?.Body;
-                await ReviewStill("review1_collar", pup, side: 2.2, height: 0.62);
+                await ReviewStill("review1_collar", pup, alsoWith: simulation.Player.Body, side: 3.2, height: 0.62);
                 break;
             }
             case 2:
