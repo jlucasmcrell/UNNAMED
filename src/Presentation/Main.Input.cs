@@ -15,7 +15,7 @@ public partial class Main
 {
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (_session?.Simulation is null || _scripted)
+        if (_session?.Simulation is null || _scripted || _mhReviewDirectory is not null)
             return;
         switch (@event)
         {
@@ -44,6 +44,11 @@ public partial class Main
     /// </summary>
     private void UpdateMouse()
     {
+        if (_mhReviewDirectory is not null)
+        {
+            if (Input.MouseMode == Input.MouseModeEnum.Captured) Input.MouseMode = Input.MouseModeEnum.Visible;
+            return;
+        }
         if (_scripted || DisplayServer.GetName() == "headless")
             return;
         var wanted = Modal || Input.IsActionPressed("free_cursor") ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Captured;
