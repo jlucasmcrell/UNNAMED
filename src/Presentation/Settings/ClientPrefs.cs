@@ -344,6 +344,9 @@ public sealed record InterfacePrefs
 
     public Guidance Guidance { get; init; } = Guidance.Full;
 
+    /// <summary>A companion's word on the way on (owner finding 52): Full says it when it is fresh, Light at most every five minutes, Off never.</summary>
+    public Guidance CompanionHints { get; init; } = Guidance.Full;
+
     /// <summary>What chat shows (WP16); on by default. Chat itself is never saved: this only filters what is shown.</summary>
     public ChatSetting Chat { get; init; } = ChatSetting.On;
 
@@ -370,6 +373,7 @@ public sealed record InterfacePrefs
         ColourVision = Enum.IsDefined(ColourVision) ? ColourVision : ColourVision.None,
         NoticeDuration = Array.IndexOf(NoticeSeconds, NoticeDuration) >= 0 ? NoticeDuration : 1,
         Guidance = Enum.IsDefined(Guidance) ? Guidance : Guidance.Full,
+        CompanionHints = Enum.IsDefined(CompanionHints) ? CompanionHints : Guidance.Full,
         BarsShown = BarsShown & 0b11111,
         Chat = Enum.IsDefined(Chat) ? Chat : ChatSetting.On,
         SeenHints = (SeenHints ?? Array.Empty<string>()).Where(h => !string.IsNullOrEmpty(h)).Distinct(StringComparer.Ordinal).ToArray(),

@@ -52,6 +52,13 @@ public partial class Main
         // what the meat, the approach and the Handling skill bought the character is visible (spec 43's taming).
         _session.Subscribe<TameAttempted>(e =>
             _hud.Toast($"{WildName(e.Creature)}: {e.ChancePercent}% it comes round to the meat - hold still", 5));
+        // A companion's word on the way on (owner finding 52), said over their head like a bark, as the player's setting allows.
+        _session.Subscribe<BanterSpoken>(e =>
+        {
+            var hints = SettingsStore.Current.Profile.Interface.CompanionHints;
+            if (hints != Guidance.Off && e.LineId.StartsWith("hint.", StringComparison.Ordinal))
+                _npcs.Say(e.NpcId, e.LineId, e.Text, hints == Guidance.Light ? 300 : 0);
+        });
         _session.Subscribe<TameFailed>(e => _hud.Toast($"{WildName(e.Creature)} turned away ({e.ChancePercent}%)", 4));
         _session.Subscribe<TameBroken>(e => _hud.Toast($"The offer broke: {e.Reason}", 4));
         _session.Subscribe<EncounterRestarted>(e => _hud.Toast(e.Loaded
