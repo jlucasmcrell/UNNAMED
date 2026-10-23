@@ -177,9 +177,16 @@ public static class CharacterMaterials
     {
         if (_materialKinds.TryGetValue(name, out var explicitKind))
             return kinds.ContainsKey(explicitKind) ? explicitKind : string.Empty;
-        if (name == "eye")
+        int lod = name.LastIndexOf("_LOD", StringComparison.OrdinalIgnoreCase);
+        if (lod >= 0 && lod + 4 < name.Length && name[(lod + 4)..].All(char.IsDigit))
+            name = name[..lod];
+        // The paid HumGen Godot recipe uses _Skin, _Eyes and _HairCards/_Haircap.
+        // Resolve those native names without renaming or rebuilding exported materials.
+        if (name.Equals("eye", StringComparison.OrdinalIgnoreCase) || name.EndsWith("_Eyes", StringComparison.OrdinalIgnoreCase))
             return "eye";
-        return kinds.Keys.Where(k => name.EndsWith("_" + k, StringComparison.Ordinal))
+        if (new[] { "_HairCards", "_FaceHairCards", "_Haircap" }.Any(s => name.EndsWith(s, StringComparison.OrdinalIgnoreCase)))
+            return "hair";
+        return kinds.Keys.Where(k => name.EndsWith("_" + k, StringComparison.OrdinalIgnoreCase))
                          .OrderByDescending(k => k.Length).FirstOrDefault() ?? string.Empty;
     }
 

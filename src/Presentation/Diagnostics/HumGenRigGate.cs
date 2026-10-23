@@ -19,6 +19,8 @@ public partial class HumGenRigGate : Node
                 var model = document.GenerateScene(state);
                 AddChild(model);
                 var skeleton = ArtLibrary.Find<Skeleton3D>(model) ?? throw new InvalidDataException("Missing skeleton");
+                int upgraded = CharacterMaterials.Upgrade(model, out int zones);
+                if (zones < 3 || upgraded < 3) throw new InvalidDataException("Paid skin/eye/hair materials did not resolve");
                 string[] roles = ["hips", "pelvis", "head", "neck", "chest", "thigh.L", "shin.L", "foot.L", "thigh.R", "shin.R", "foot.R", "hand_r", "hand_l", "eye.L", "eye.R"];
                 foreach (string role in roles)
                     if (BoneNames.Find(skeleton, role) < 0) throw new InvalidDataException("Missing role: " + role);
@@ -41,7 +43,7 @@ public partial class HumGenRigGate : Node
                     throw new InvalidDataException("Invalid hand socket: " + socket);
                 rows.Add(new { body = path, sha256 = Godot.FileAccess.GetSha256(path), bones = skeleton.GetBoneCount(),
                     roles = roles.Length, finger_segments = rotations.Count, grip_offset_m = socket.Origin.Length(),
-                    face_bound = true, blink_peak = blinkPeak, jaw_peak = jawPeak });
+                    face_bound = true, blink_peak = blinkPeak, jaw_peak = jawPeak, material_zones = zones, materials_upgraded = upgraded });
                 face.Free();
                 model.Free();
             }
