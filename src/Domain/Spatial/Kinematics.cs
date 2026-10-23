@@ -72,6 +72,19 @@ public sealed record MovementRules(long BaseSpeedMmPerSecond, int WalkPercent, i
     /// </summary>
     public long JumpTuckRadiusMm { get; init; } = 200;
 
+    /// <summary>
+    /// How high a structure's top the feet walk up onto (owner finding 50: small rocks are stepped over, low boulders jumped onto). 0, the
+    /// default, keeps the planar rule: nothing is stood on. Above 0, a structure's top is ground: walked onto when it is no higher than
+    /// this above the feet, landed on when a jump comes down onto it, and stepped off at its edge.
+    /// </summary>
+    public long StepUpMm { get; init; }
+
+    /// <summary>
+    /// How high above the feet a jump takes off from a ledge it meets can be and still be climbed onto (owner finding 50: the mantle). 0 is
+    /// none. Only with <see cref="StepUpMm"/>: a mantled top is stood on like any other.
+    /// </summary>
+    public long MantleMm { get; init; }
+
     /// <summary>The body's height standing and crouched: what an overhang is measured against.</summary>
     public long StandHeightMm { get; init; } = 1_800;
 
@@ -136,8 +149,9 @@ public static class Kinematics
     /// <summary>
     /// The same, for a body with a posture (the owner's M6 playtest). A crouch slows it and lowers it under an overhang; a jump lifts
     /// the feet on an arc (<see cref="MovementRules.LiftMm"/>), and while they are higher than a structure's top the structure is
-    /// passed over - landing on one pushes the body off it, the same as walking into it. Nothing is stood on, and a body of unknown
-    /// height (a creature, a person, a door) is never jumped.
+    /// passed over - landing on one pushes the body off it, the same as walking into it, unless the rules stand on tops
+    /// (<see cref="MovementRules.StepUpMm"/>): then the body's feet keep their height above the ground under it, and a top is walked up
+    /// onto or landed on. A body of unknown height (a creature, a person, a door) is never jumped or stood on.
     /// </summary>
     public static (Body Body, Posture Posture) Step(Body body, Posture posture, MoveIntent intent, MovementRules rules, WalkSpace space,
         IReadOnlyList<Blocker> dynamicBlockers, int dtMs)
@@ -147,6 +161,10 @@ public static class Kinematics
         long height = rules.HeightMm(posture.Stance);
         int airFrom = posture.Airborne ? posture.AirMs : 0;
         int airTo = posture.Airborne ? Math.Min(airFrom + Math.Max(0, dtMs), rules.AirtimeMs) : 0;
+        // Standing on a top: how far above the ground under it the feet stand, the jump's lift aside. 0 on the ground.
+        bool tops = rules.StepUpMm > 0;
+        long raised = tops ? Math.Max(0, body.YMm - rules.LiftMm(airFrom) - space.HeightAtMm(body.XMm, body.ZMm)) : 0;
+        bool landed = false;
         double length = Math.Sqrt((double)intent.DirXPermille * intent.DirXPermille + (double)intent.DirZPermille * intent.DirZPermille);
         if (length > 0 && dtMs > 0)
         {
@@ -156,20 +174,114 @@ public static class Kinematics
             double dz = intent.DirZPermille / length * travel;
             // Sub-steps no longer than half the body radius, so a fast step cannot tunnel through a thin wall.
             int steps = Math.Max(1, (int)Math.Ceiling(travel / (radius / 2)));
-            for (int s = 0; s < steps; s++)
+            long before = rules.LiftMm(airFrom);
+            for (int s = 0; s < steps && !landed; s++)
             {
-                long lift = rules.LiftMm(airFrom + (airTo - airFrom) * (s + 1) / steps);
-                (x, z) = Resolve(x + dx / steps, z + dz / steps, radius, space, dynamicBlockers, lift, height, Tuck(posture, rules, lift));
+                int air = airFrom + (airTo - airFrom) * (s + 1) / steps;
+                (x, z, raised, landed) = SubStep(x, z, x + dx / steps, z + dz / steps, raised, before, air, posture, rules, space,
+                    dynamicBlockers, radius, height);
+                before = rules.LiftMm(air);
             }
         }
         else if (posture.Airborne)
         {
-            (x, z) = Resolve(x, z, radius, space, dynamicBlockers, rules.LiftMm(airTo), height, Tuck(posture, rules, rules.LiftMm(airTo)));
+            (x, z, raised, landed) = SubStep(x, z, x, z, raised, rules.LiftMm(airFrom), airTo, posture, rules, space, dynamicBlockers, radius, height);
         }
-        var next = posture.Airborne && airTo < rules.AirtimeMs ? posture with { AirMs = airTo } : posture with { Airborne = false, AirMs = 0 };
+        else if (tops)
+        {
+            (raised, _) = Settle(x, z, raised, 0, 0, 0, false, rules, space);
+        }
+        var next = posture.Airborne && airTo < rules.AirtimeMs && !landed ? posture with { AirMs = airTo } : posture with { Airborne = false, AirMs = 0 };
         long qx = (long)Math.Round(x, MidpointRounding.AwayFromZero);
         long qz = (long)Math.Round(z, MidpointRounding.AwayFromZero);
-        return (new Body(qx, space.HeightAtMm(qx, qz) + rules.LiftMm(next.AirMs), qz, intent.FacingMdeg), next);
+        if (tops && !next.Airborne && !landed)
+            (raised, _) = Settle(qx, qz, raised, 0, 0, 0, false, rules, space);
+        return (new Body(qx, space.HeightAtMm(qx, qz) + raised + rules.LiftMm(next.AirMs), qz, intent.FacingMdeg), next);
+    }
+
+    /// <summary>
+    /// One sub-step to a wanted point: a falling jump that reaches a top under that point lands on it first, so the top's own footprint does
+    /// not push it off; then collision; then, on the ground, the feet settle on what is under them.
+    /// </summary>
+    private static (double X, double Z, long Raised, bool Landed) SubStep(double fromX, double fromZ, double x, double z, long raised,
+        long liftBefore, int airMs, Posture posture, MovementRules rules, WalkSpace space, IReadOnlyList<Blocker> dynamicBlockers,
+        double radius, long height)
+    {
+        bool tops = rules.StepUpMm > 0, landed = false;
+        long lift = rules.LiftMm(airMs);
+        if (tops && posture.Airborne)
+        {
+            (raised, landed) = Settle(x, z, raised, liftBefore, lift, airMs, true, rules, space);
+            if (landed)
+                lift = 0;
+            else if (Mantle(fromX, fromZ, x, z, raised, lift, rules, space, radius) is { } ledge)
+                return (ledge.X, ledge.Z, ledge.Raised, true);
+        }
+        bool grounded = !posture.Airborne || landed;
+        (x, z) = Resolve(x, z, radius, space, dynamicBlockers, raised + lift, height, grounded ? null : Tuck(posture, rules, lift),
+            tops && grounded ? rules.StepUpMm : 0);
+        if (tops && grounded)
+            (raised, _) = Settle(x, z, raised, 0, 0, 0, false, rules, space);
+        return (x, z, raised, landed);
+    }
+
+    /// <summary>
+    /// Where the feet stand after a sub-step, as height above the ground under them, and whether a falling jump has landed. On the ground
+    /// the feet stand on the highest top under the body's centre within a step of where they were, else the ground (stepping off an edge
+    /// drops to it). In the air they land on a top once, coming down, they reach it.
+    /// </summary>
+    private static (long Raised, bool Landed) Settle(double x, double z, long raised, long liftBefore, long lift, int airMs, bool airborne,
+        MovementRules rules, WalkSpace space)
+    {
+        long ground = space.HeightAtMm((long)Math.Round(x, MidpointRounding.AwayFromZero), (long)Math.Round(z, MidpointRounding.AwayFromZero));
+        if (!airborne)
+            return (TopUnder(x, z, ground + raised + rules.StepUpMm, space) - ground, false);
+        long feet = ground + raised + lift;
+        long floor = TopUnder(x, z, ground + raised + liftBefore, space);
+        return airMs > rules.JumpRiseMs && feet <= floor ? (floor - ground, true) : (raised, false);
+    }
+
+    /// <summary>
+    /// A jump that meets a ledge it cannot pass over climbs onto it when the top is within the mantle reach of the take-off feet and the
+    /// body fits on it a radius in from the edge it met: the body stands there, on the top.
+    /// </summary>
+    private static (double X, double Z, long Raised)? Mantle(double fromX, double fromZ, double x, double z, long raised, long lift,
+        MovementRules rules, WalkSpace space, double radius)
+    {
+        double dx = x - fromX, dz = z - fromZ, length = Math.Sqrt(dx * dx + dz * dz);
+        if (rules.MantleMm <= 0 || length == 0)
+            return null;
+        double px = x + dx / length * radius, pz = z + dz / length * radius;
+        long ground = space.HeightAtMm((long)Math.Round(x, MidpointRounding.AwayFromZero), (long)Math.Round(z, MidpointRounding.AwayFromZero));
+        long feet = ground + raised + lift;
+        foreach (var blocker in space.Blockers)
+        {
+            if (!blocker.Climbable || blocker.HeightMm <= 0 || blocker.ClearanceMm > 0 || blocker.DistanceTo(px, pz) > 0)
+                continue;
+            var (cx, cz) = Footprints.Center(blocker);
+            long top = space.HeightAtMm(cx, cz) + blocker.HeightMm;
+            if (top <= feet || top > ground + raised + rules.MantleMm || TopUnder(px, pz, long.MaxValue, space) != top)
+                continue;
+            long under = space.HeightAtMm((long)Math.Round(px, MidpointRounding.AwayFromZero), (long)Math.Round(pz, MidpointRounding.AwayFromZero));
+            return (px, pz, top - under);
+        }
+        return null;
+    }
+
+    /// <summary>The highest structure top under a point no higher than <paramref name="limitMm"/> (absolute), else the ground there.</summary>
+    private static long TopUnder(double x, double z, long limitMm, WalkSpace space)
+    {
+        long best = space.HeightAtMm((long)Math.Round(x, MidpointRounding.AwayFromZero), (long)Math.Round(z, MidpointRounding.AwayFromZero));
+        foreach (var blocker in space.Blockers)
+        {
+            if (!blocker.Climbable || blocker.HeightMm <= 0 || blocker.ClearanceMm > 0 || blocker.DistanceTo(x, z) > 0)
+                continue;
+            var (cx, cz) = Footprints.Center(blocker);
+            long top = space.HeightAtMm(cx, cz) + blocker.HeightMm;
+            if (top <= limitMm && top > best)
+                best = top;
+        }
+        return best;
     }
 
     /// <summary>
@@ -198,14 +310,15 @@ public static class Kinematics
         posture.Airborne && liftMm > 0 ? (rules.JumpTuckRadiusMm, rules.JumpApexMm) : null;
 
     private static (double X, double Z) Resolve(double x, double z, double radius, WalkSpace space, IReadOnlyList<Blocker> dynamicBlockers,
-        long liftMm, long heightMm, (double Radius, long Below)? tuck = null)
+        long liftMm, long heightMm, (double Radius, long Below)? tuck = null, long stepMm = 0)
     {
         for (int pass = 0; pass < 4; pass++)
         {
             bool moved = false;
             foreach (var blocker in space.Blockers)
             {
-                if (Blocks(blocker, liftMm, heightMm))
+                // A structure on the ground within a step of the feet is walked up onto, not into; an overhang is never stepped.
+                if (Blocks(blocker, liftMm + (blocker.Climbable ? stepMm : 0), heightMm))
                     moved |= Push(blocker, ref x, ref z, tuck is { } t && blocker.HeightMm <= t.Below ? Math.Min(radius, t.Radius) : radius);
             }
             foreach (var blocker in dynamicBlockers)

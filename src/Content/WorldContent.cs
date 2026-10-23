@@ -81,6 +81,11 @@ public static class WorldContent
                 StandHeightMm = Mm(map, "stand_height_m"), CrouchHeightMm = Mm(map, "crouch_height_m"), CrouchPercent = Int(map, "crouch_percent"),
             };
         }
+        // Standing on structure tops (owner finding 50); a pack without it keeps the planar rule.
+        if (map.ContainsKey("step_up_m"))
+            rules = rules with { StepUpMm = Mm(map, "step_up_m"), MantleMm = map.ContainsKey("mantle_reach_m") ? Mm(map, "mantle_reach_m") : 0 };
+        if (rules.StepUpMm < 0 || rules.StepUpMm >= rules.JumpApexMm || rules.MantleMm < 0 || rules.MantleMm > 0 && rules.MantleMm <= rules.JumpApexMm)
+            throw new FormatException("config.base_speeds step_up_m is at least 0 and below the jump apex; mantle_reach_m, if any, is above it");
         if (rules.JumpApexMm <= 0 || rules.JumpRiseMs <= 0 || rules.JumpTuckRadiusMm <= 0 || rules.JumpTuckRadiusMm > rules.BodyRadiusMm
             || rules.CrouchHeightMm <= 0 || rules.CrouchHeightMm >= rules.StandHeightMm
             || rules.CrouchPercent is <= 0 or > 100)
@@ -272,8 +277,13 @@ public static class WorldContent
             Check(terrain.OriginXMm <= minX && terrain.OriginZMm <= minZ && terrain.MaxXMm >= maxX && terrain.MaxZMm >= maxZ,
                 "WLD003", "the terrain grid must cover the walkable bounds");
 
+            // What a body may climb (owner finding 50): structures whose id starts with one of config.base_speeds climbable_prefixes.
+            var climbable = Config(loader, "config.base_speeds") is var speeds && speeds.ContainsKey("climbable_prefixes")
+                ? List(speeds, "climbable_prefixes").Select(p => p as string ?? throw new FormatException("climbable_prefixes are id prefixes")).ToList()
+                : new List<string>();
             var structures = List(map, "structures").Select((s, i) => Blocker(s as Dictionary<object, object>
-                ?? throw new FormatException($"structures[{i}] must be a map"))).ToImmutableArray();
+                ?? throw new FormatException($"structures[{i}] must be a map")))
+                .Select(b => climbable.Any(p => b.Id.StartsWith(p, StringComparison.Ordinal)) ? b with { Climbable = true } : b).ToImmutableArray();
             Check(structures.Select(s => s.Id).Distinct(StringComparer.Ordinal).Count() == structures.Length, "WLD002", "two structures share an id");
 
             var flags = loader.GetByKind("world_flag");
@@ -672,6 +682,14 @@ public static class WorldContent
             if (box.MinXMm >= box.MaxXMm || box.MinZMm >= box.MaxZMm)
                 throw new FormatException($"structure {id}: box_m min must be below max");
             return box;
+        }
+        // A turned boulder's own outline (owner finding 50): its hull, written by tools/rocks/fit_rock_hulls.py.
+        if (map.ContainsKey("hull_m"))
+        {
+            var corners = List(map, "hull_m").Select(c => c as List<object> is { Count: 2 } xz ? (ToMm(xz[0], id), ToMm(xz[1], id))
+                : throw new FormatException($"structure {id}: hull_m is a list of [x, z]")).ToList();
+            try { return new PolygonBlocker(id, corners, height) { ClearanceMm = clearance }; }
+            catch (ArgumentException e) { throw new FormatException(e.Message); }
         }
         var c = List(map, "circle_m");
         if (c.Count != 3)

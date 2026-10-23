@@ -17,8 +17,8 @@ public sealed record NavInput(NavInputKind Kind, Blocker Shape, string? GateKey)
 
     public bool IsGate => Kind != NavInputKind.Solid;
 
-    /// <summary>The shape's tag in the canonical order and in tile stamps: 0 a box, 1 a circle.</summary>
-    public int ShapeTag => Shape is CircleBlocker ? 1 : 0;
+    /// <summary>The shape's tag in the canonical order and in tile stamps: 0 a box, 1 a circle, 2 a hull.</summary>
+    public int ShapeTag => Shape switch { CircleBlocker => 1, PolygonBlocker => 2, _ => 0 };
 }
 
 /// <summary>

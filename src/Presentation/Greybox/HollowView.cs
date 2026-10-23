@@ -63,6 +63,10 @@ public partial class HollowView : Node3D
     private readonly Dictionary<string, Node3D> _models = new(StringComparer.Ordinal);
     public Node3D? PlacedModel(string id) => _models.GetValueOrDefault(id);
 
+    /// <summary>The library models drawn at a turn of their own (a binding's yaw spread: boulders, crags), by structure id.</summary>
+    public IEnumerable<(string Id, Node3D Model)> TurnedModels() =>
+        _models.Where(m => _bindings.Structure(m.Key) is { YawSpread: > 0 }).Select(m => (m.Key, m.Value));
+
     /// <summary>The run's particle recipes (B0.7), read once for the whole region: a building's chimney smoke and a lit prop's own flame
     /// come out of this one instance, so the JSON and the effect textures are read once per region and not once per placement.</summary>
     private Art.ParticleRecipes? _recipes;
@@ -589,6 +593,18 @@ public partial class HollowView : Node3D
                         Position = new Vector3(0, height / 2 + 0.8f, 0),
                     });
                 }
+                return node;
+            }
+            case PolygonBlocker hull:
+            {
+                // A turned rock's own outline, raised: the camera meets the hull; the box mesh is only a stand-in for missing art.
+                float baseY = hull.Corners.Min(c => terrain.HeightAtMm(c.XMm, c.ZMm)) / 1000f - 0.2f, height = hull.HeightMm / 1000f + 0.2f;
+                var points = hull.Corners.SelectMany(c => new[] { new Vector3((c.XMm - hull.CenterXMm) / 1000f, -height / 2, (c.ZMm - hull.CenterZMm) / 1000f),
+                    new Vector3((c.XMm - hull.CenterXMm) / 1000f, height / 2, (c.ZMm - hull.CenterZMm) / 1000f) }).ToArray();
+                var size = new Vector3((hull.Corners.Max(c => c.XMm) - hull.Corners.Min(c => c.XMm)) / 1000f, height,
+                    (hull.Corners.Max(c => c.ZMm) - hull.Corners.Min(c => c.ZMm)) / 1000f);
+                var node = Solid(hull.Id, new BoxMesh { Size = size }, new ConvexPolygonShape3D { Points = points }, MaterialFor(hull.Id));
+                node.Position = new Vector3(hull.CenterXMm / 1000f, baseY + height / 2, hull.CenterZMm / 1000f);
                 return node;
             }
             default:

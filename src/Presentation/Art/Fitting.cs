@@ -42,6 +42,10 @@ public static class Fitting
                 width = (box.MaxXMm - box.MinXMm) / 1000f;
                 depth = (box.MaxZMm - box.MinZMm) / 1000f;
                 break;
+            case PolygonBlocker hull:
+                width = (hull.Corners.Max(c => c.XMm) - hull.Corners.Min(c => c.XMm)) / 1000f;
+                depth = (hull.Corners.Max(c => c.ZMm) - hull.Corners.Min(c => c.ZMm)) / 1000f;
+                break;
             default:
                 model.Free();
                 return null;

@@ -91,7 +91,9 @@ public class JumpAndCrouchTests
                 wasAirborne = airborne;
             }
             var body = arena.Simulation.Player.Body;
-            if (!Kinematics.IsClear(body.XMm, body.ZMm, session.Setup.Movement.BodyRadiusMm, session.Setup.Layout.Space, Array.Empty<Blocker>()))
+            // Owner finding 50: a landing on the timber's top stands on it; what must never happen is ending inside it on the ground.
+            bool onTheGround = body.YMm == session.Setup.Layout.Space.HeightAtMm(body.XMm, body.ZMm);
+            if (onTheGround && !Kinematics.IsClear(body.XMm, body.ZMm, session.Setup.Movement.BodyRadiusMm, session.Setup.Layout.Space, Array.Empty<Blocker>()))
                 inside.Add(takeOff);
         }
         Assert.True(inside.Count == 0, $"take-offs at ticks {string.Join(", ", inside)} left the body inside the timber");

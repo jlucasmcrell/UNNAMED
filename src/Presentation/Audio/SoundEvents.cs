@@ -603,6 +603,7 @@ public partial class SoundEvents : Node
             {
                 BoxBlocker b => x >= b.MinXMm - 600 && x <= b.MaxXMm + 600 && z >= b.MinZMm - 600 && z <= b.MaxZMm + 600,
                 CircleBlocker c => (x - c.CenterXMm) * (x - c.CenterXMm) + (z - c.CenterZMm) * (z - c.CenterZMm) <= (c.RadiusMm + 600) * (c.RadiusMm + 600),
+                PolygonBlocker p => p.DistanceTo(x, z) <= 600,
                 _ => false,
             };
             if (touches)
