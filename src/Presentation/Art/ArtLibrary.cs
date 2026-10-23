@@ -528,7 +528,8 @@ public sealed class ArtLibrary
     /// </summary>
     public static bool IsTree(string id) => IsTreeFamily(id) || id == "flora_old_late" || id.Contains("sapling", StringComparison.Ordinal);
 
-    /// <summary>A tree as drawn at every distance: no visibility range, no fade, and the renderer's automatic mesh detail held at full.</summary>
+    /// <summary>A tree as drawn at every distance: no visibility range, no fade, the renderer's automatic mesh detail held at full, and never
+    /// culled by the buildings' occluders.</summary>
     public static T? Whole<T>(T? node) where T : Node3D
     {
         if (node is null)
@@ -539,6 +540,8 @@ public sealed class ArtLibrary
             mesh.VisibilityRangeBeginMargin = mesh.VisibilityRangeEndMargin = 0;
             mesh.VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Disabled;
             mesh.LodBias = FullDetailLodBias;
+            // The occlusion test runs a frame behind the camera: a tree it wrongly hides blinks out while the player runs at it.
+            mesh.IgnoreOcclusionCulling = true;
         }
         return node;
     }
