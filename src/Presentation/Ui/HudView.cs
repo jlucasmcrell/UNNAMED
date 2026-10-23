@@ -501,6 +501,16 @@ public partial class HudView : Control
             AddLine(same, text, key);
     }
 
+    /// <summary>Travel leaves the origin stone behind, including its queued attunement banner.</summary>
+    public void ClearWaystoneAnnouncements()
+    {
+        bool showing=_announcements.FirstOrDefault()?.Kind is "Waystone" or "Waystone attuned";
+        _announcements.RemoveAll(a=>a.Kind is "Waystone" or "Waystone attuned");
+        if(!showing)return;
+        _banner.Visible=false;
+        if(_announcements.Count>0)ShowBanner();
+    }
+
     /// <summary>Add what a moment brought ("+40 XP", "Iron Billet") to its announcement while it shows or waits; false when it is gone.</summary>
     public bool AnnounceMore(string kind, string title, string text)
     {
