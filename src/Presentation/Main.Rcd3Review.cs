@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 using System.Text.Json;
 using UNNAMED.Presentation.MHCharacters;
 using UNNAMED.Presentation.Player;
@@ -20,7 +20,7 @@ public partial class Main
         var rows = new List<object>();
         try
         {
-            if (_avatar is SkinnedFigure comparison && VisualOptions.People == "mpfb")
+            if (_avatar is SkinnedFigure comparison && VisualOptions.ComparisonCast is not null)
             {
                 using var cast = JsonDocument.Parse(Godot.FileAccess.GetFileAsString("res://Art/mpfb_cast.json"));
                 var model = cast.RootElement.GetProperty("models").EnumerateArray().Single(m => m.GetProperty("id").GetString() == comparison.ModelId);
@@ -325,7 +325,7 @@ public partial class Main
             _hud.Announce("Waystone attuned","Ashen Waystone",HudStyle.Lichen);
             await Rcd3Wait(.35);await Rcd3Shot(directory,"fixture_waystone");await Rcd3Wait(1.8);
             _hud.Announce("Quest complete","Presentation fixture",HudStyle.Brass);
-            _hud.AnnounceMore("Quest complete","Presentation fixture","+40 XP · +10 coin (fixture)");
+            _hud.AnnounceMore("Quest complete","Presentation fixture","+40 XP Â· +10 coin (fixture)");
             _hud.SuccessGlow(HudStyle.Brass);
             _sounds.Play("sfx.ui.quest_complete");
             await Rcd3Wait(.25);await Rcd3Shot(directory,"fixture_quest");await Rcd3Wait(1.8);
@@ -383,3 +383,4 @@ public partial class Main
     }
 
 }
+

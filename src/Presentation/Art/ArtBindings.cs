@@ -503,8 +503,8 @@ public sealed class ArtBindings
         }
     }
 
-    /// <summary>Where the comparison's bodies and statures are stated.</summary>
-    private const string MpfbCastPath = "res://Art/mpfb_cast.json";
+    /// <summary>Where the comparison cast's bodies and statures are stated: one table per cast (<c>mpfb_cast.json</c>, <c>humgen_cast.json</c>).</summary>
+    private static string? ComparisonCastPath => VisualOptions.ComparisonCast is { } cast ? $"res://Art/{cast}_cast.json" : null;
 
     private static IReadOnlyDictionary<string, Ui.Models.NamedCharacterLook> ReadNamedCharacters() =>
         Ui.Models.NamedCharacterCast.Read(Godot.FileAccess.GetFileAsString("res://Art/named_character_cast.json"));
@@ -514,16 +514,16 @@ public sealed class ArtBindings
     /// <summary>The cast's bodies and the stature each sex is drawn at, or null when this run draws the bound cast.</summary>
     private static (MpfbModel[] Models, float Feminine, float Masculine)? MpfbCastFile()
     {
-        if (VisualOptions.People != "mpfb")
+        if (ComparisonCastPath is not { } path)
             return null;
-        if (!Godot.FileAccess.FileExists(MpfbCastPath))
+        if (!Godot.FileAccess.FileExists(path))
         {
-            GD.PushError($"UNNAMED art: people=mpfb but {MpfbCastPath} is missing; the people stay as bound");
+            GD.PushError($"UNNAMED art: people={VisualOptions.People} but {path} is missing; the people stay as bound");
             return null;
         }
         try
         {
-            using var json = JsonDocument.Parse(Godot.FileAccess.GetFileAsString(MpfbCastPath));
+            using var json = JsonDocument.Parse(Godot.FileAccess.GetFileAsString(path));
             var root = json.RootElement;
             float feminine = 1.692f, masculine = 1.918f;
             if (root.TryGetProperty("stature_m", out var stature))
@@ -539,20 +539,20 @@ public sealed class ArtBindings
             }
             if (models.Count == 0)
             {
-                GD.PushError($"UNNAMED art: {MpfbCastPath} lists no body of a usable height; the people stay as bound");
+                GD.PushError($"UNNAMED art: {path} lists no body of a usable height; the people stay as bound");
                 return null;
             }
             // A cast with one sex and not the other leaves those people on their bound bodies without saying so.
             foreach (string sex in new[] { "f", "m" })
             {
                 if (!models.Any(m => m.Sex == sex))
-                    GD.PushError($"UNNAMED art: {MpfbCastPath} lists no body of sex '{sex}'; those people stay as bound");
+                    GD.PushError($"UNNAMED art: {path} lists no body of sex '{sex}'; those people stay as bound");
             }
             return (models.ToArray(), feminine, masculine);
         }
         catch (Exception e) when (e is JsonException or KeyNotFoundException or InvalidOperationException)
         {
-            GD.PushError($"UNNAMED art: {MpfbCastPath} cannot be read ({e.Message}); the people stay as bound");
+            GD.PushError($"UNNAMED art: {path} cannot be read ({e.Message}); the people stay as bound");
             return null;
         }
     }
@@ -565,10 +565,12 @@ public sealed class ArtBindings
         (MpfbModel[] Models, float Feminine, float Masculine) cast)
     {
         var named = ReadNamedCharacters();
-        if (named.TryGetValue(person, out var identity))
+        // A named identity names the body it wears by id. A cast that does not carry that id - the Human Generator arm
+        // has two bodies and no named ones - falls through to the hash below rather than failing the whole document,
+        // which is what Single() did: the arm drew greybox instead of a person.
+        if (named.TryGetValue(person, out var identity) && cast.Models.FirstOrDefault(m => m.Id == identity.Mpfb) is { } chosen)
         {
-            var chosen = cast.Models.Single(m => m.Id == identity.Mpfb);
-            if (chosen.Sex != (feminine ? "f" : "m")) throw new InvalidDataException("Named MPFB identity sex differs: " + person);
+            if (chosen.Sex != (feminine ? "f" : "m")) throw new InvalidDataException("Named comparison identity sex differs: " + person);
             return (chosen, (feminine ? cast.Feminine : cast.Masculine) / chosen.Height);
         }
         var reserved = named.Values.Select(n => n.Mpfb).ToHashSet(StringComparer.Ordinal);
@@ -594,13 +596,14 @@ public sealed class ArtBindings
     }
 
     /// <summary>
-    /// <c>--visual people=mpfb</c>: every bound person keeps its identity - its clips, its people, its stature relative to the rest of the
-    /// cast - and only its body becomes one of the five MakeHuman exports (<see cref="MpfbCastPath"/>). The exports are rigged on
-    /// UE-mannequin bone names, the family the clip set is authored on, so <see cref="ArtLibrary.Retarget"/> plays them by name as it
-    /// plays any other body. Three things the MetaHuman binding assumes do not hold and are dropped rather than left to misfire: the
-    /// exports wear their own garments (so a bound outfit would be fitted over them), they state no <c>SOCK_</c> equipment socket (so the
-    /// hands are the hand bones themselves and no grip frame is claimed), and each was exported at its own height (so the stature is
-    /// divided back to what the binding had, keeping a resident's 0.9 as a 0.9).
+    /// <c>--visual people=mpfb</c> or <c>people=humgen</c>: every bound person keeps its identity - its clips, its people, its stature
+    /// relative to the rest of the cast - and only its body becomes one of the comparison exports in that cast's table
+    /// (<see cref="ComparisonCastPath"/>: five MakeHuman exports, or the two Human Generator trial bodies). The exports are rigged on
+    /// UE-mannequin bone names, the family the clip set is authored on, and each carries a motion library baked offline by
+    /// <see cref="SkinnedModel.ComparisonClips"/>. Three things the MetaHuman binding assumes do not hold and are dropped rather than
+    /// left to misfire: the exports wear their own garments (so a bound outfit would be fitted over them), they state no <c>SOCK_</c>
+    /// equipment socket (so the hands are the hand bones themselves and no grip frame is claimed), and each was exported at its own
+    /// height (so the stature is divided back to what the binding had, keeping a resident's 0.9 as a 0.9).
     /// </summary>
     private static Dictionary<string, PersonArt> MpfbCast(Dictionary<string, PersonArt> people)
     {
@@ -628,7 +631,7 @@ public sealed class ArtBindings
             };
             swapped++;
         }
-        GD.Print($"UNNAMED art: people=mpfb, {swapped} of {people.Count} people on {cast.Models.Length} MakeHuman bodies");
+        GD.Print($"UNNAMED art: people={VisualOptions.ComparisonCast}, {swapped} of {people.Count} people on {cast.Models.Length} comparison bodies");
         return people;
     }
 

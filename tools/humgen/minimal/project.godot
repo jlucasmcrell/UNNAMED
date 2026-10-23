@@ -1,0 +1,8 @@
+; A bare project for the offline motion bake: the game's own project pulls in autoloads and a renderer the bake
+; does not need, and its missing addon paths stop the run before the script starts.
+config_version=5
+
+[application]
+
+config/name="humgen-motion-bake"
+config/features=PackedStringArray("4.7")

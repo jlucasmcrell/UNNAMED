@@ -138,7 +138,7 @@ public sealed partial class SkinnedFigure : Figure
         CorrectiveJoints.Load(art, person.Model, model.Skeleton);
         Outfit.Dress(art, model, person.OutfitBody ?? person.Model, person.Outfit);
         PeopleAppearance.Apply(model, person.PeopleId, art, person.Model);
-        if (VisualOptions.People == "mpfb")
+        if (VisualOptions.ComparisonCast is not null)
             foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
                 mesh.Layers |= MHCharacters.MetaHumanFigure.FillLayer;
         CharacterMaterials.ShareLodBox(model.Skeleton);
@@ -168,7 +168,7 @@ public sealed partial class SkinnedFigure : Figure
             return node.Transform;
         // The comparison rig has named native fingers but no equipment socket. Use its own
         // palm landmarks, exactly as the MetaHuman grip frame does; no rest or bind changes.
-        if (VisualOptions.People == "mpfb" && bone >= 0)
+        if (VisualOptions.ComparisonCast is not null && bone >= 0)
         {
             string side = BoneNames.Side(hand).ToLowerInvariant();
             var inverse = skeleton.GetBoneGlobalRest(bone).AffineInverse();
@@ -308,7 +308,7 @@ public sealed partial class SkinnedFigure : Figure
                 ? "the rig has no such hand bone: the hand is empty" : "no grip frame bound and no hand socket in the rig: the hand is empty", weapon.Model);
             return;
         }
-        if (HeldWeapon.Mount(_art, weapon.Model, grip, VisualOptions.People == "mpfb" ? 1 / _uniformScale : 1) is not { } model)
+        if (HeldWeapon.Mount(_art, weapon.Model, grip, VisualOptions.ComparisonCast is not null ? 1 / _uniformScale : 1) is not { } model)
             return;
         model.Name = "Held";
         bone.AddChild(model);
@@ -398,7 +398,7 @@ public sealed partial class SkinnedFigure : Figure
         float behind = Mathf.Abs(Mathf.AngleDifference(_yaw, facingRadians));
         _turning = speedMetresPerSecond < 0.25f && (behind > 0.35f || (_turning && behind > 0.08f));
         float follow = _turning ? 6f : 14f;
-        _yaw = VisualOptions.People == "mpfb"
+        _yaw = VisualOptions.ComparisonCast is not null
             ? _yaw + Mathf.Clamp(Mathf.AngleDifference(_yaw, facingRadians), -6f * (float)delta, 6f * (float)delta)
             : Mathf.LerpAngle(_yaw, facingRadians, 1f - Mathf.Exp(-follow * (float)delta));
         Rotation = new Vector3(0, _yaw, 0);
@@ -664,3 +664,4 @@ public sealed partial class SkinnedFigure : Figure
         m.Play(_equipped is null ? _idles.Step(delta, _idleRole, m.Has, m.Length) : "idle", .4f);
     }
 }
+

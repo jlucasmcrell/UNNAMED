@@ -1,0 +1,19 @@
+{
+  "comment": "The Human Generator arm of the character comparison, on the PAID licence (owner bought Commercial 2026-10-23). Two paid bodies stand in for the whole cast: humgen_paid_m is hg_paid_01 (male, 41, Caucasian 2 preset) and humgen_paid_f is hg_paid_00 (female, 26, Caucasian 1), both exported by the add-on's own Godot recipe - hair cards, baked metallic-roughness skin, four LODs (body 59,480 triangles down to 13,226), 59 joints named for Godot's SkeletonProfileHumanoid and 43 FACS blend shapes on LOD0. Their heights are the exports' own, measured at 1.7845 m and 1.7998 m; stature_m is the MetaHuman stature the comparison draws each sex at, exactly as mpfb_cast.json states it, so the arm is judged on fidelity rather than on size. Their motion libraries were baked offline from the game's own clips by tools/humgen/build_humgen_motion_library.gd, which translates the game's UE-mannequin bone names onto the humanoid names the paid export uses.",
+  "stature_m": {
+    "f": 1.692,
+    "m": 1.918
+  },
+  "models": [
+    {
+      "id": "humgen_paid_m",
+      "sex": "m",
+      "height_m": 1.7845
+    },
+    {
+      "id": "humgen_paid_f",
+      "sex": "f",
+      "height_m": 1.7998
+    }
+  ]
+}

@@ -232,7 +232,7 @@ public partial class Main
         if (gear >= 0)
             _session.Submit(new SwapGearSetCommand(_session.Simulation!.PlayerId, gear + 1));
         bool working = captured && quick is not null && (_session.Setup.Magic.Formulas.ContainsKey(quick) || _session.Setup.Techniques.ContainsKey(quick));
-        _controller.Steer(_camera, stick, gait, faceCamera: _avatar is MHCharacters.MetaHumanFigure || VisualOptions.People == "mpfb" || holding || swing || working || combat.Phase == CombatPhase.Windup);
+        _controller.Steer(_camera, stick, gait, faceCamera: _avatar is MHCharacters.MetaHumanFigure || VisualOptions.ComparisonCast is not null || holding || swing || working || combat.Phase == CombatPhase.Windup);
         if (swing)
             _controller.Attack();
         if (slot >= 0)
@@ -376,7 +376,7 @@ public partial class Main
         Bind("map", Key.M);
         Bind("chat", Key.T);
         Bind("party", Key.O);
-        Bind("auto_run", Key.Quoteleft);   // the owner's brief §23 and ruling 2026-10-18: auto-run on the tilde key
+        Bind("auto_run", Key.Quoteleft);   // the owner's brief Â§23 and ruling 2026-10-18: auto-run on the tilde key
         Bind("quicksave", Key.F5);
         Bind("saves", Key.L);
         Bind("release_mouse", Key.Escape);
@@ -384,7 +384,7 @@ public partial class Main
         Bind("dialogue_skip", Key.Space, Key.Enter);   // in a conversation: silence the line and go on (held: fast-forward); Space jumps in play
         Bind("inventory", Key.Tab, Key.I);
         Bind("dodge", Key.C);
-        Bind("takedown", Key.F);          // a knife into a body that has not noticed the character (STEALTH §12)
+        Bind("takedown", Key.F);          // a knife into a body that has not noticed the character (STEALTH Â§12)
         Bind("use", Key.H);
         Bind("companion_order", Key.G);   // follow or wait (content bible §9: no radial menu)
         Bind("pet_orders", Key.Y);        // the animals' six orders, with the ground marker the ground-named ones use (spec 43 ruling 4)
@@ -409,3 +409,4 @@ public partial class Main
         }
     }
 }
+
