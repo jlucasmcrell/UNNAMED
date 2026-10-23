@@ -248,6 +248,8 @@ public partial class Main : Node3D
             InstallLoreShots();
             InstallPetOrders();
             InstallPetShots();
+        if (_options.ContainsKey("--pet-review"))
+            InstallPetReview();
         }
         catch (Exception e)
         {
@@ -430,8 +432,11 @@ public partial class Main : Node3D
                           || _options.ContainsKey("--shot") || _options.ContainsKey("--stand") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
                           || _flags.Contains("--perf")
                           || _options.ContainsKey("--inn-shots")
+                          || _options.ContainsKey("--pet-review")
                           || _options.ContainsKey("--resume-shots");
-        if (scripted && !verify && !showcaseContinues)
+        if (scripted && !verify && !showcaseContinues && _options.ContainsKey("--pet-review"))
+            InstallPetReview();   // the review world first: every spawner is replaced, so nothing may walk in later
+        if (scripted && !verify && !showcaseContinues && !_options.ContainsKey("--pet-review"))
             _session.NewGame(DefaultCharacter, fixedWorld ? Playthrough.Seed : 0);
         GD.Print($"UNNAMED boot: content {_session.Content.Version} ({_session.Content.Hash[..19]}...), region {_session.Setup.Layout.Id}, " +
                  $"{_session.Setup.Layout.CellKeys.Length} cells");
@@ -1366,6 +1371,7 @@ public partial class Main : Node3D
         TickLoreShots();
         TickPetOrders();
         TickPetShots();
+        TickPetReview();
     }
 
     /// <summary>
