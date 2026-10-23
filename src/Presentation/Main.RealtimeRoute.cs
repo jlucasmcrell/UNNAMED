@@ -60,16 +60,20 @@ public partial class Main
                 }
             _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);
         }
-        // Run along a heading; jump once the body comes within reach of the named rock; keep running for the given time.
+        // Run along a heading; jump once the body comes within reach of the named rock (no jump at 0); run on for the given time after it.
         async Task RunAndJump(Vector3 heading,string rock,float jumpWithinM,double seconds)
         {
-            step=rock+" run";
+            step=rock+(jumpWithinM>0?" run":" off");
             var target=simulation.Setup.Layout.Space.Blockers.Single(b=>b.Id==rock);
-            bool jumped=false;
-            for(ulong until=Time.GetTicksMsec()+(ulong)(seconds*1000);Time.GetTicksMsec()<until;)
+            bool jumped=jumpWithinM<=0;
+            ulong giveUp=Time.GetTicksMsec()+6000,until=jumped?Time.GetTicksMsec()+(ulong)(seconds*1000):ulong.MaxValue;
+            while(Time.GetTicksMsec()<Math.Min(until,giveUp))
             {
                 _controller.SteerWorld(heading,Gait.Run,_camera);
-                if(!jumped&&target.DistanceTo(simulation.Player.Body.XMm,simulation.Player.Body.ZMm)<jumpWithinM*1000){_controller.Jump();jumped=true;step=rock+" jump";}
+                if(!jumped&&target.DistanceTo(simulation.Player.Body.XMm,simulation.Player.Body.ZMm)<jumpWithinM*1000)
+                {
+                    _controller.Jump();jumped=true;step=rock+" jump";until=Time.GetTicksMsec()+(ulong)(seconds*1000);
+                }
                 await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
                 Log();
             }
@@ -87,7 +91,8 @@ public partial class Main
         await Frames(1);
         await WalkTo(new Vector2(952.5f,703.1f));
         await Frames(1);
-        await RunAndJump(Vector3.Right,"cw_boulder_a_222",.9f,.9);   // onto the 0.8 m boulder, and stop on it
+        await RunAndJump(Vector3.Right,"cw_boulder_a_222",.9f,.7);   // onto the 0.8 m boulder, and stop on it
+        step="cw_boulder_a_222 stand";
         await Frames(2);
         await RunAndJump(Vector3.Right,"cw_boulder_a_222",0,1.2);    // off its far side
         await Frames(2);
