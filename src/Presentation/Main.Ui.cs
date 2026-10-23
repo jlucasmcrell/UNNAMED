@@ -161,7 +161,8 @@ public partial class Main
         if (now.Machine.WindowMode != was.Machine.WindowMode || now.Machine.Resolution != was.Machine.Resolution
             || now.Machine.Vsync != was.Machine.Vsync || now.Machine.FrameCap != was.Machine.FrameCap)
             SettingsStore.ApplyWindow();
-        if (now.Machine.RenderScale != was.Machine.RenderScale || now.Machine.Brightness != was.Machine.Brightness || now.Machine.Dials != was.Machine.Dials)
+        if (now.Machine.AntiAliasing != was.Machine.AntiAliasing || now.Machine.Upscaler != was.Machine.Upscaler
+            || now.Machine.RenderScale != was.Machine.RenderScale || now.Machine.Brightness != was.Machine.Brightness || now.Machine.Dials != was.Machine.Dials)
             SettingsStore.ApplyPicture(GetViewport());
         if (now.Profile.Audio != was.Profile.Audio)
             SettingsStore.ApplyAudio();

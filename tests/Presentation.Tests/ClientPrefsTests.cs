@@ -5,6 +5,30 @@ namespace UNNAMED.Presentation.Tests;
 /// <summary>The player's preferences file (PJ03 §2, §8): it round-trips, absorbs the two old files once, and never holds a value the game cannot take.</summary>
 public class ClientPrefsTests
 {
+    [Theory]
+    [InlineData(AntiAliasing.Off)]
+    [InlineData(AntiAliasing.Fxaa)]
+    [InlineData(AntiAliasing.Taa)]
+    [InlineData(AntiAliasing.Msaa2X)]
+    [InlineData(AntiAliasing.Msaa4X)]
+    [InlineData(AntiAliasing.Msaa4XTaa)]
+    public void GraphicsChoicesSurviveSaveAndReload(AntiAliasing aa)
+    {
+        var prefs = new ClientPrefs { Machine = new MachinePrefs { AntiAliasing = aa, Upscaler = Upscaler.Bilinear } };
+        var loaded = ClientPrefs.FromJson(prefs.ToJson());
+        Assert.Equal(aa, loaded.Machine.AntiAliasing);
+        Assert.Equal(Upscaler.Bilinear, loaded.Machine.Upscaler);
+    }
+
+    [Fact]
+    public void OldPreferencesKeepTierAaAndInvalidNumericChoicesAreClamped()
+    {
+        Assert.Equal(AntiAliasing.Tier, ClientPrefs.FromJson("{\"machine\":{\"tier\":\"ultra\"}}").Machine.AntiAliasing);
+        var machine = new MachinePrefs { AntiAliasing = (AntiAliasing)999, Upscaler = (Upscaler)999 }.Normalised();
+        Assert.Equal(AntiAliasing.Tier, machine.AntiAliasing);
+        Assert.Equal(Upscaler.Fsr, machine.Upscaler);
+    }
+
     [Fact]
     public void FpsReadoutIsOptInAndPersistsInTheInterfacePreferences()
     {

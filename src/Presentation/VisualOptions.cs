@@ -20,7 +20,7 @@ public static class VisualOptions
         ["water"] = new[] { "none", "classic", "boujie", "flow" },  // flow: B6's river round the hollow on the ravine floors
         ["plants"] = new[] { "classic", "models" },   // models: the scatter kinds drawn from prepared plant models (with wind)
         ["foldscar"] = new[] { "classic", "proof" },
-        ["aa"] = new[] { "msaa_taa", "taa", "msaa", "smaa" },
+        ["aa"] = new[] { "msaa_taa", "taa", "msaa", "msaa2", "fxaa", "off", "smaa" },
         ["tier"] = new[] { "phase_a", "low", "medium", "high", "ultra", "quality", "performance" },
         ["wind"] = new[] { "none", "on" },
         ["vfx"] = new[] { "flipbooks", "recipes" },
@@ -140,7 +140,7 @@ public static class VisualOptions
         ["low"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["people"] = "production", ["hud"] = "production", ["aa"] = "smaa" },
         ["medium"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "none", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["people"] = "production", ["hud"] = "production", ["aa"] = "taa" },
         ["high"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "sunshine", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["people"] = "production", ["hud"] = "production", ["aa"] = "taa" },
-        ["ultra"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "sunshine", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["people"] = "production", ["hud"] = "production", ["aa"] = "msaa_taa" },
+        ["ultra"] = new() { ["terrain"] = "terrain3d", ["sky"] = "sky3d", ["clouds"] = "sunshine", ["plants"] = "models", ["foldscar"] = "proof", ["textures"] = "cache", ["wind"] = "on", ["water"] = "flow", ["vfx"] = "recipes", ["life"] = "on", ["hooks"] = "on", ["body"] = "modifiers", ["clips"] = "ext", ["people"] = "production", ["hud"] = "production", ["aa"] = "taa" },
     };
 
     public static string Tier => Values["tier"] switch
@@ -206,10 +206,15 @@ public static class VisualOptions
     /// <summary>The options that are the viewport's own settings (the anti-aliasing), applied to the game's viewport.</summary>
     public static void Apply(Viewport viewport)
     {
-        viewport.Msaa3D = AntiAliasing is "msaa_taa" or "msaa" ? Viewport.Msaa.Msaa4X : Viewport.Msaa.Disabled;
-        viewport.UseTaa = AntiAliasing is "msaa_taa" or "taa";
-        viewport.ScreenSpaceAA = AntiAliasing == "smaa" ? Viewport.ScreenSpaceAAEnum.Smaa : Viewport.ScreenSpaceAAEnum.Disabled;
+        ApplyAntiAliasing(viewport, AntiAliasing);
         Greybox.RenderTiers.ApplyGlobal();
+    }
+
+    public static void ApplyAntiAliasing(Viewport viewport, string mode)
+    {
+        viewport.Msaa3D = mode switch { "msaa2" => Viewport.Msaa.Msaa2X, "msaa" or "msaa_taa" => Viewport.Msaa.Msaa4X, _ => Viewport.Msaa.Disabled };
+        viewport.UseTaa = mode is "taa" or "msaa_taa";
+        viewport.ScreenSpaceAA = mode switch { "fxaa" => Viewport.ScreenSpaceAAEnum.Fxaa, "smaa" => Viewport.ScreenSpaceAAEnum.Smaa, _ => Viewport.ScreenSpaceAAEnum.Disabled };
     }
 
     /// <summary>The harness's time-of-day override in hours, or null to follow the world's clock.</summary>

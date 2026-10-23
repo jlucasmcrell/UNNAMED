@@ -84,6 +84,8 @@ public sealed record ClientPrefs
 }
 
 public enum WindowMode { Windowed, Borderless, Fullscreen }
+public enum AntiAliasing { Tier, Off, Fxaa, Taa, Msaa2X, Msaa4X, Msaa4XTaa }
+public enum Upscaler { Fsr, Bilinear }
 
 /// <summary>How this computer draws: the window, the frame rate, the tier and the dials over it (PJ03 §4.1).</summary>
 public sealed record MachinePrefs
@@ -98,6 +100,9 @@ public sealed record MachinePrefs
 
     /// <summary>The 3D image's share of the window's pixels (0.5-1.0); the interface is always drawn at full size.</summary>
     public float RenderScale { get; init; } = 1f;
+
+    public AntiAliasing AntiAliasing { get; init; } = AntiAliasing.Tier;
+    public Upscaler Upscaler { get; init; } = Upscaler.Fsr;
 
     public bool Vsync { get; init; } = true;
 
@@ -117,6 +122,8 @@ public sealed record MachinePrefs
         WindowMode = Enum.IsDefined(WindowMode) ? WindowMode : WindowMode.Borderless,
         Resolution = ParseResolution(Resolution) is not null ? Resolution : "1920x1080",
         RenderScale = Math.Clamp(float.IsFinite(RenderScale) ? RenderScale : 1f, 0.5f, 1f),
+        AntiAliasing = Enum.IsDefined(AntiAliasing) ? AntiAliasing : AntiAliasing.Tier,
+        Upscaler = Enum.IsDefined(Upscaler) ? Upscaler : Upscaler.Fsr,
         FrameCap = Array.IndexOf(FrameCaps, FrameCap) >= 0 ? FrameCap : 0,
         Brightness = Math.Clamp(float.IsFinite(Brightness) ? Brightness : 1f, 0.6f, 1.4f),
         Tier = Tier is not null && Array.IndexOf(Tiers, Tier) >= 0 ? Tier : null,
