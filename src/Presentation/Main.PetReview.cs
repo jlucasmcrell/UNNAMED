@@ -93,14 +93,14 @@ public partial class Main
                 if (simulation.Player.Inventory.FirstOrDefault(i => i.DefId == "item.misc.hound_pup") is { } lead)
                     _session.Submit(new AdoptPetCommand(simulation.PlayerId, lead.ItemId));
                 await Rcd3Wait(1.5);
-                await ReviewStill("review0_pup_spawned", simulation.Pets.FirstOrDefault()?.Body);
+                await ReviewStill("review0_pup_spawned", simulation.Pets.FirstOrDefault()?.Body, along: 4.0, height: 1.5, look: 0.35);
                 break;
             }
             case 1:
             {
                 // The collar, side on, at a metre and a half: the mark the party's animal wears.
                 var pup = simulation.Pets.FirstOrDefault()?.Body;
-                await ReviewStill("review1_collar", pup, alsoWith: simulation.Player.Body, side: 3.2, height: 0.62);
+                await ReviewStill("review1_collar", pup, side: 2.6, along: 1.6, height: 0.70, look: 0.40);
                 break;
             }
             case 2:
@@ -123,7 +123,7 @@ public partial class Main
                     await Rcd3Wait(2.0);
                     await WalkOff(10);
                     await Rcd3Wait(1.0);
-                    await ReviewStill("review2_ring", simulation.Pets.FirstOrDefault()?.Body, alsoWith: simulation.Player.Body, side: 5.0, height: 2.6);
+                    await ReviewStill("review2_ring", simulation.Pets.FirstOrDefault()?.Body, side: 5.5, along: 5.0, height: 2.4, look: 0.9);
                 }
                 break;
             }
@@ -140,7 +140,7 @@ public partial class Main
                         if (_reviewLog.Any(l => l.StartsWith("Lure") == false && l.Contains("Bite")))
                         {
                             await ReviewStill("review3_pup_bites", NearestReviewWolf(simulation)?.Body,
-                                alsoWith: simulation.Pets.FirstOrDefault()?.Body, side: 2.6, height: 0.55);
+                                side: 2.4, along: 2.2, height: 0.55, look: 0.45);
                             break;
                         }
                         await Rcd3Wait(0.7);
@@ -157,7 +157,7 @@ public partial class Main
                         _session.Submit(new OrderPetCommand(simulation.PlayerId, pup.Id, PetOrder.AttackTarget, wolf.Body.XMm, wolf.Body.ZMm));
                     await Rcd3Wait(1.0);
                 }
-                await ReviewStill("review4_wounded_home");
+                await ReviewStill("review4_wounded_home", null, side: 1.5, along: 4.0, height: 1.7, look: 0.9);
                 File.WriteAllLines(Path.Combine(_reviewDirectory!, "review.log"), _reviewLog);
                 break;
             }
@@ -198,7 +198,7 @@ public partial class Main
     /// A still with the camera placed by hand: on the side of the subject, [side] metres off, at the subject's height, looking at it - and where a
     /// second body matters (the animal on its ring with the character beyond it, the pup at the wolf) the camera stands so both are in the frame.
     /// </summary>
-    private async Task ReviewStill(string name, Body? subject = null, Body? alsoWith = null, double side = 3.0, double height = 1.6)
+    private async Task ReviewStill(string name, Body? subject = null, double side = 0, double height = 1.6, double along = 3.0, double look = 0.35)
     {
         var simulation = _session.Simulation;
         if (simulation is null || _reviewDirectory is null)
@@ -206,15 +206,13 @@ public partial class Main
         var target = subject is { } one
             ? Greybox.HollowView.ToGodot(one.XMm, one.YMm, one.ZMm)
             : Greybox.HollowView.ToGodot(simulation.Player.Body.XMm, simulation.Player.Body.YMm, simulation.Player.Body.ZMm);
-        var other = alsoWith is { } two ? Greybox.HollowView.ToGodot(two.XMm, two.YMm, two.ZMm) : target;
-        var along = (other - target).LengthSquared() > 0.01f ? (other - target).Normalized() : Vector3.Back;
-        _reviewCamera ??= new Camera3D { Name = "ReviewCamera", Fov = 60 };
+        _reviewCamera ??= new Camera3D { Name = "ReviewCamera", Fov = 55 };
         if (_reviewCamera.GetParent() is null)
             AddChild(_reviewCamera);
-        var middle = target + along * (other.DistanceTo(target) * 0.35f);
-        // Above the grass and pitched down on the subject: at a metre the review art grass swallows a pup whole (measured 04:41).
-        _reviewCamera.GlobalPosition = middle + new Vector3(-along.Z, 0, along.X) * (float)side + new Vector3(0, (float)height, 0);
-        _reviewCamera.LookAt(target + new Vector3(0, 0.30f, 0), Vector3.Up);
+        // A constant transform per beat: so many metres along X and Z from the subject, so high, looking at that height on it. Deriving it from
+        // facings and body vectors put the camera inside a wolf's muzzle and across fifteen metres of grass (measured over five runs).
+        _reviewCamera.GlobalPosition = target + new Vector3((float)side, (float)height, (float)along);
+        _reviewCamera.LookAt(target + new Vector3(0, (float)look, 0), Vector3.Up);
         var play = GetViewport().GetCamera3D();
         _reviewCamera.MakeCurrent();
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
