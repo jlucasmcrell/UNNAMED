@@ -110,6 +110,7 @@ public sealed partial class CreatorPreview : TextureRect
         {
             figure = (Figure?)MHCharacters.MetaHumanFigure.Create(_art, _bindings, "player", model) ?? (model is not null && SkinnedFigure.Create(_art, _bindings, "player", model) is { } skinned ? skinned : new Avatar());
             figure.Name = model ?? "Greybox";
+            if (figure is SkinnedFigure detailed) detailed.ForceLod0 = true;
             _turntable.AddChild(figure);
             _figures[key] = figure;
             _poses[figure] = model?.StartsWith("humgen_", StringComparison.Ordinal) != true && figure is SkinnedFigure body ? BuildPose.On(body.Skeleton) : null;

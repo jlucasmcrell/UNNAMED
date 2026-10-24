@@ -22,6 +22,7 @@ public sealed partial class SkinnedFigure : Figure
     /// <summary>The body's skeleton, for the skeleton modifiers (Phase B's foot planting and look-at).</summary>
     public Skeleton3D Skeleton => _model.Skeleton;
     public string ModelId => _person.Model;
+    public bool ForceLod0 { set => _model.ForceLod0 = value; }
     public float StatureScale => _uniformScale;
     private PostureModifier? _posture;
     private ArtLibrary _art = null!;
@@ -220,7 +221,7 @@ public sealed partial class SkinnedFigure : Figure
         _airborne = airborne;
     }
 
-    public override void SetTalking(bool talking) => _talking = talking;
+    public override void SetTalking(bool talking) { _talking = talking; _model.ForceLod0 = talking; }
 
     public override bool SetDowned(bool downed)
     {

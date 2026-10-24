@@ -19,11 +19,6 @@ with open(src, "rb") as f:
     binary = f.read(blength)
 
 
-def unbaked(material):
-    texture = material.get("pbrMetallicRoughness", {}).get("baseColorTexture")
-    return texture is not None and gltf["images"][gltf["textures"][texture["index"]]["source"]].get("name", "").startswith(".")
-
-
 meshes_by_node = {n["name"]: n["mesh"] for n in gltf["nodes"] if "mesh" in n and "name" in n}
 fixed = 0
 for name, mesh in meshes_by_node.items():
@@ -31,8 +26,12 @@ for name, mesh in meshes_by_node.items():
     if not match or match.group(1) + "_LOD0" not in meshes_by_node:
         continue
     base = gltf["meshes"][meshes_by_node[match.group(1) + "_LOD0"]]["primitives"]
+    if len(base) != len(gltf["meshes"][mesh]["primitives"]):
+        raise ValueError(f"{name}: LOD surface count differs from LOD0; cannot map materials safely")
     for index, primitive in enumerate(gltf["meshes"][mesh]["primitives"]):
-        if "material" in primitive and unbaked(gltf["materials"][primitive["material"]]) and not unbaked(gltf["materials"][base[index]["material"]]):
+        # Every lower level uses the same part's baked UVs. Texture-name heuristics
+        # missed ordinary HG_TSHIRT_Material images and alternate eye/hair materials.
+        if "material" in base[index] and primitive.get("material") != base[index]["material"]:
             primitive["material"] = base[index]["material"]
             fixed += 1
 
