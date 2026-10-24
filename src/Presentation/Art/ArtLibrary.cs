@@ -99,8 +99,6 @@ public sealed class ArtLibrary
             ? Path.Combine(FallbackRoot, "barrowworks_native", Engine.GetVersionInfo()["string"].AsString(), SceneCacheFormat) : null;
         Cache = new TextureCache(useTextureCache || VisualOptions.All.GetValueOrDefault("textures") == "cache" || BuildTextureCache ? root : null, BuildTextureCache,
             _nativeSceneRoot is not null ? Path.Combine(_nativeSceneRoot, "textures") : null, buildSceneCache);
-        PackedTerrainCache = useTextureCache && FallbackRoot is not null
-            ? new TextureCache(Path.Combine(FallbackRoot, "barrowworks_terrain"), false) : null;
         // Build-only cache in the owned depot, never its primary texture-cache junction. Normal play loads the
         // shared BC7 resources referenced by the native scenes; no extra texture dictionary retains the interior.
         _interiorBuildCache = buildSceneCache && _nativeSceneRoot is not null && FallbackRoot is not null
@@ -168,9 +166,6 @@ public sealed class ArtLibrary
 
     /// <summary>The compressed, shared copies of the textures (Phase B, B1), used when the run asks for them (<c>--visual textures=cache</c>).</summary>
     public TextureCache Cache { get; }
-
-    /// <summary>Offline-compressed packed terrain maps for the opt-in space budget; source dimensions stay unchanged.</summary>
-    public TextureCache? PackedTerrainCache { get; }
 
     /// <summary>What the views drew from this library and what they drew in greybox, by semantic ID (Phase A's coverage report).</summary>
     public ArtCoverage Coverage { get; } = new();

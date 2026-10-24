@@ -39,7 +39,7 @@ public partial class Main
         }
         if (!_hintLine.Show(HintRules.Words(hint.Text, HelpPanel.Key)))
             return false;
-        SettingsStore.Set(prefs with { Profile = prefs.Profile with { Interface = ui with { SeenHints = ui.SeenHints.Append(hint.Id).ToArray() } } });
+        SettingsStore.Remember(prefs with { Profile = prefs.Profile with { Interface = ui with { SeenHints = ui.SeenHints.Append(hint.Id).ToArray() } } });
         return true;
     }
 

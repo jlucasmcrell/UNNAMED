@@ -34,9 +34,9 @@ public sealed record GameOptions(string ContentRoot, string ProfileRoot)
     public Action<SaveStep>? SaveStepHook { get; init; }
 
     /// <summary>
-    /// Whether this run includes the Barrowworks (M8 D10). Off unless asked for: with it false no portal is
-    /// registered, so the interior cannot be entered and nothing in a normal launch changes. Presentation parses
-    /// <c>--visual barrowworks=1</c> and sets this, because what it gates is content the simulation holds.
+    /// Whether this run includes the Barrowworks (M8 D10). False registers no portal, so the interior cannot be entered.
+    /// The game sets it from <c>--visual barrowworks</c>, which is on unless a run turns it off; a tool or test that
+    /// builds its own options asks for the ring explicitly.
     /// </summary>
     public bool Barrowworks { get; init; }
 
@@ -55,6 +55,12 @@ public sealed record GameOptions(string ContentRoot, string ProfileRoot)
     /// purse here, at new game, rather than by changing the price of what it buys.
     /// </summary>
     public long StartCurrency { get; init; }
+
+    /// <summary>
+    /// What a capture's new character carries besides the starting kit, by the same fixture door as <see cref="StartCurrency"/>: the
+    /// Barrowworks review walks in with the band's reference kit (docs/BARROWWORKS_BALANCE.md) and equips it by ordinary commands.
+    /// </summary>
+    public ImmutableArray<(string ItemId, int Count)> StartItems { get; init; } = [];
 
     /// <summary>Where the session reads the real time: the wall clock unless a test gives another (WP11).</summary>
     public Func<DateTimeOffset>? Clock { get; init; }
@@ -408,6 +414,8 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Options.StartXMm, Options.StartZMm);
         if (Options.StartCurrency > 0)
             player = player.WithCurrency(Options.StartCurrency);
+        if (!Options.StartItems.IsEmpty)
+            player = player.WithInventory(player.Inventory.Concat(Options.StartItems.Select(i => new InventoryEntry(EntityId.NewId(EntityKind.Item), i.ItemId, i.Count))));
         var world = new WorldDelta(Generator, seed, new Registry());
         var simulation = Simulation.Start(Setup, player, world, 0, _bus);
         _character = id.Value;   // a save of the last character still being written goes to that character's folder: Queue kept it
