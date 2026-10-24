@@ -117,6 +117,24 @@ public sealed record MachinePrefs
 
     public GraphicsDials Dials { get; init; } = new();
 
+    /// <summary>Saved quality wins; otherwise cap the effective first-run default to the card's measured memory tier.</summary>
+    public string? StartVisuals(string? spec, string defaultTier, double? memoryGb)
+    {
+        if (spec is null) return null;
+        var parts = spec.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var other = parts.Where(part => !part.StartsWith("tier=", StringComparison.Ordinal));
+        if (Tier is not null) return string.Join(",", other);
+        string asked = parts.FirstOrDefault(part => part.StartsWith("tier=", StringComparison.Ordinal))?[5..] ?? defaultTier;
+        string fits = TierForMemory(memoryGb);
+        return Array.IndexOf(Tiers, asked) > Array.IndexOf(Tiers, fits)
+            ? string.Join(",", other.Append("tier=" + fits)) : spec;
+    }
+
+    public static string TierForMemory(double? gb) => gb switch
+    {
+        null => "ultra", < 6 => "low", < 10 => "medium", < 14 => "high", _ => "ultra",
+    };
+
     public MachinePrefs Normalised() => this with
     {
         WindowMode = Enum.IsDefined(WindowMode) ? WindowMode : WindowMode.Borderless,

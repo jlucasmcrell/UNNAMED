@@ -191,27 +191,13 @@ public static class SettingsStore
         VisualOptions.ReachScale = Current.Machine.Dials.DrawDistance;
         if (spec is null)
             return spec;
-        var parts = spec.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        if (Current.Machine.Tier is not null)
-            return string.Join(",", parts.Where(part => !part.StartsWith("tier=", StringComparison.Ordinal)));
-        // No tier chosen yet: the launcher's, but no higher than the card's memory carries (public playtest gate B4/C3).
-        int asked = Array.IndexOf(MachinePrefs.Tiers, parts.FirstOrDefault(part => part.StartsWith("tier=", StringComparison.Ordinal))?[5..]);
-        int fits = Array.IndexOf(MachinePrefs.Tiers, TierForMemory(GraphicsMemoryGb()));
-        if (asked <= fits)
-            return spec;
-        GD.Print($"UNNAMED tier: {MachinePrefs.Tiers[fits]} for this card's memory (the launcher asked {MachinePrefs.Tiers[asked]}); Settings can change it");
-        return string.Join(",", parts.Select(part => part.StartsWith("tier=", StringComparison.Ordinal) ? "tier=" + MachinePrefs.Tiers[fits] : part));
+        string? capped = Current.Machine.StartVisuals(spec, VisualOptions.DefaultTier, GraphicsMemoryGb());
+        if (capped != spec) GD.Print($"UNNAMED first-run visuals: {capped}; saved Settings choices take precedence");
+        return capped;
     }
 
-    /// <summary>The highest tier measured to fit a card of <paramref name="gb"/> GB (the --perf route, 2026-10-24); null memory caps nothing.</summary>
-    public static string TierForMemory(double? gb) => gb switch
-    {
-        null => "ultra",
-        < 6 => "low",
-        < 10 => "medium",
-        < 14 => "high",
-        _ => "ultra",
-    };
+    /// <summary>The highest tier measured to fit the card's memory; unknown memory caps nothing.</summary>
+    public static string TierForMemory(double? gb) => MachinePrefs.TierForMemory(gb);
 
     /// <summary>
     /// The largest graphics card's dedicated memory, from the display adapters' registry keys (Godot reports the adapter's name, not its
