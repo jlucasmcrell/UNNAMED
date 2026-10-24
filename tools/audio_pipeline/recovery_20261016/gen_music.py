@@ -17,6 +17,10 @@ CUES = {
     # owner ruling 2026-10-24: a known place, now and then, on a later visit - quieter and slower than the settlement, still Veth
     'mus.explore': (47, 'quiet wandering folk air, solo battered wooden flute, long pauses, soft fiddle drone, faint frame drum like a slow heartbeat, open air, warm acoustic, contemplative, lots of silence, 66 bpm'),
     'mus.stinger.discovery': (9, 'short discovery fanfare phrase, wooden flute rising melody over a swelling fiddle drone, acoustic, wonder, ends on a held note'),
+    # owner 2026-10-24, the opening at launch: a night, a rise and a hit, which build_opening.py lays out so the hit lands on the name
+    'mus.opening.night': (24, 'vast still night before dawn, a low soft fiddle drone, distant breathy wooden flute calls with long silences, faint wind, mysterious and wide, warm acoustic, very slow'),
+    'mus.opening.rise': (47, 'slow folk crescendo that builds for the whole piece, many fiddles swelling in long rising notes, frame drums starting soft and growing into a pounding heartbeat, a battered wooden flute melody climbing higher and higher, acoustic, grand and hopeful, louder and louder to a climax, 70 bpm'),
+    'mus.opening.hit': (14, 'one huge frame drum hit with every fiddle and flute on a single bright sustained chord, then a long ringing reverb tail fading slowly, acoustic, triumphant arrival'),
 }
 SEEDS = (11, 23)
 
@@ -46,7 +50,8 @@ def main():
     for cue, (seconds, prompt) in CUES.items():
         if ONLY and cue not in ONLY:
             continue
-        for seed in SEEDS:
+        # the opening's rise and hit are chosen from three takes by their shape (build_opening.py)
+        for seed in SEEDS + ((37,) if cue in ('mus.opening.rise', 'mus.opening.hit') else ()):
             prefix = f'otherreach_music/{cue}_s{seed}'
             r = post('/prompt', {'prompt': graph(prompt, seconds, seed, prefix)})
             jobs[r['prompt_id']] = (cue, seed, prompt, seconds)
