@@ -12,7 +12,7 @@ func _initialize():
     var custodian = ""
     var interior_samples = []
     for record in manifest.outputs:
-        if record.file.ends_with("bld_fab_cw_house_01.glb.scn"): first = record.file
+        if record.file.ends_with("bw_codex_room_02.glb.scn"): first = record.file
         if record.file.ends_with("bw_codex_custodian_rigged.glb.scn"): custodian = record.file
         if record.file.ends_with("bw_codex_room_12.glb.scn") or record.file.ends_with("bw_codex_entrance_drain.glb.scn"):
             interior_samples.append(record.file)

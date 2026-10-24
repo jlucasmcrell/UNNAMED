@@ -1,9 +1,11 @@
 """Refresh derived-file checksums and provenance after the CPU export scripts finish."""
-import hashlib,json
+import hashlib,json,os
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 DEPOT=Path(r'D:\Otherreach_Depot\barrowworks_codex')
 PRIMARY=Path(r'C:\Otherreach_Recovery\Otherreach_Playtest_RESTORE_20261015b\primary')
+# The package the native cache was built against, whose signed texture cache its shared BC7 copies came from.
+BUILT_AGAINST=Path(os.environ.get('BARROWWORKS_CACHE_PRIMARY',str(PRIMARY)))
 records=json.loads((DEPOT/'room_manifest.json').read_text())
 boiler=json.loads((DEPOT/'ready/bw_codex_boiler/bw_codex_boiler_meta.json').read_text())
 for record in records:
@@ -38,26 +40,18 @@ print('Recorded',len(records),'assets')
 # Native caches are opt-in, derived outside the primary package. Textures are shared external resources.
 scenes=[]
 textures=[]
-for path in sorted((DEPOT/'barrowworks_native').glob('*/v5/scenes/**/*.scn')):
+for path in sorted((DEPOT/'barrowworks_native').glob('*/v7/scenes/**/*.scn')):
     meta=json.loads(Path(str(path)+'.source.json').read_text())
     source=Path(meta['source']);stamp=Path(str(path)+'.sha256').read_text()
-    assert stamp==meta['stamp'] and stamp.startswith('v5 ') and stamp.endswith(hashlib.sha256(source.read_bytes()).hexdigest().upper()),source
+    assert stamp==meta['stamp'] and stamp.startswith('v7 ') and stamp.endswith(hashlib.sha256(source.read_bytes()).hexdigest().upper()),source
     scenes.append({'file':str(path),'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
                    'source':str(source),'stamp':stamp})
-for path in sorted((DEPOT/'barrowworks_native').glob('*/v5/textures/*.dds.res')):
-    source=PRIMARY/'texture_cache'/path.name[:-4]
+for path in sorted((DEPOT/'barrowworks_native').glob('*/v7/textures/*.dds.res')):
+    source=BUILT_AGAINST/'texture_cache'/path.name[:-4]
     if not source.exists():source=DEPOT/'barrowworks_materials/texture_cache'/path.name[:-4]
     assert source.exists(),source
     textures.append({'file':str(path),'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
                      'source_dds':str(source),'source_sha256':hashlib.sha256(source.read_bytes()).hexdigest()})
 (ROOT/'docs/BARROWWORKS_SCENE_CACHE.json').write_text(json.dumps({'raw_sources_committed':False,'outputs':scenes,
     'shared_textures':textures,'relocation':'External texture paths are absolute; rebuild the cache after moving the asset depot.'},indent=2)+'\n')
-# Terrain cache is deliberately separate from the shared primary texture-cache junction.
-terrain=[]
-for path in sorted((DEPOT/'barrowworks_terrain/texture_cache').glob('*.dds')):
-    terrain.append({'file':str(path),'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
-                    'size_px':[4096,4096],'format':'BC7 RGBA, full mip chain'})
-assert len(terrain)==18,'Rebuild all nine packed terrain pairs before publishing a cache manifest'
-(ROOT/'docs/BARROWWORKS_TERRAIN_CACHE.json').write_text(json.dumps({'cache_root':str(DEPOT/'barrowworks_terrain/texture_cache'),
-    'licence':'CC0 1.0; existing Poly Haven packed terrain maps','raw_sources_committed':False,'outputs':terrain},indent=2)+'\n')
-print('Recorded',len(scenes),'native scenes,',len(textures),'shared textures and',len(terrain),'packed terrain maps')
+print('Recorded',len(scenes),'native scenes and',len(textures),'shared textures')

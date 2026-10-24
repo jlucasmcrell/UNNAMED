@@ -142,8 +142,10 @@ def backing(at, dimensions, rock=False):
     return obj
 
 def texture_level(obj, originals, resolution):
-    """Each GLB owns its textures at runtime, including unused LODs. Keep that resident cost bounded."""
+    """The lighter levels carry smaller copies of the textures. The full level keeps the source modules' own maps (Ultra first):
+    they are shared BC7 resources in the native scene cache, so a room's full textures cost once, not once per room."""
     materials, images = [], []
+    if resolution is None: return materials, images
     for index, original in enumerate(originals):
         if original is None: continue
         material = original.copy()
@@ -291,7 +293,7 @@ for number in ([] if args.enclosure_only else selected):
         obj.select_set(True)
         bpy.context.view_layer.objects.active = obj
         name = asset_id + (f'_lod{level}' if level else '') + '.glb'
-        temporary = texture_level(obj, originals, (512, 256, 128)[level])
+        temporary = texture_level(obj, originals, (None, 1024, 512)[level])
         bpy.ops.export_scene.gltf(filepath=str(output/name), export_format='GLB', use_selection=True,
                                   export_yup=True, export_apply=True, export_lights=False)
         files.append({'file': name, 'triangles': sum(len(p.vertices)-2 for p in obj.data.polygons),
@@ -304,7 +306,7 @@ for number in ([] if args.enclosure_only else selected):
               'creator': 'DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex', 'source_modules': list(sources),
               'room_identity':recipe, 'additional_source_url':'https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5',
               'backing_material': {'creator': 'Rob Tuytel / Poly Haven', 'licence': 'CC0 1.0', 'source_url': 'https://polyhaven.com/a/rock_ground'},
-              'texture_resolutions': [512,256,128],
+              'texture_resolutions': ['source',1024,512],
               'licence_evidence': r'C:\Otherreach_Recovery\ASSET_REBUILD\FAB_LICENCES.md',
               'outputs': files, 'collision': 'authoritative region footprint; camera proxy only', 'shippable': True}
     (output/(asset_id+'_meta.json')).write_text(json.dumps(record, indent=2)+'\n', encoding='utf-8')
@@ -347,7 +349,7 @@ for asset_id, boxes in [('bw_codex_rock_mass', [(b,h) for n,b,h in structures if
     output=depot/'ready'/asset_id
     output.mkdir(parents=True,exist_ok=True)
     originals=list(obj.data.materials)
-    temporary=texture_level(obj,originals,512)
+    temporary=texture_level(obj,originals,None)
     bpy.ops.export_scene.gltf(filepath=str(output/(asset_id+'.glb')),export_format='GLB',use_selection=True,
                               export_yup=True,export_apply=True,export_lights=False)
     release_texture_level(obj,originals,temporary)
