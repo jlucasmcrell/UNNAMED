@@ -10,6 +10,11 @@ public partial class Main
     /// <summary>Opt-in native wardrobe inspection, using the normal NPC bindings, figures, materials and motion loader.</summary>
     private async Task RunRcd9WardrobeReview(string directory, Camera3D camera)
     {
+        if (OS.GetEnvironment("OTHERREACH_HUMGEN_LOD_REVIEW") == "1")
+        {
+            await RunHumGenLodReview(directory, camera);
+            return;
+        }
         var looks = _bindings.People.Where(p => p.Key != "player" && p.Value.Model.StartsWith("humgen_", StringComparison.Ordinal))
             .GroupBy(p => p.Value.Model)
             .Select(g => g.OrderBy(p => p.Value.PeopleId is null or "people.veth" ? 0 : 1).ThenBy(p => p.Key, StringComparer.Ordinal).First())

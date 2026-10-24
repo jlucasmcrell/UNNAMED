@@ -22,6 +22,7 @@
        reports, the scatter rules, the voice rules, the ID-to-words half of the display-name path, a journey's words, the player's preferences, the crash log and the creator's draft and bodies, and
        the words of the away sheet, the calendar line and the Reputation sheet (they read the world's views: the World reference), compiled here as they are compiled into the game. -->
   <ItemGroup>
+    <Compile Include="..\..\src\Presentation\Art\CharacterLodBand.cs" Link="Linked\CharacterLodBand.cs" />
     <Compile Include="..\..\src\Presentation\Art\ArtRecords.cs" Link="Linked\ArtRecords.cs" />
     <Compile Include="..\..\src\Presentation\Ui\AssetWorkspace.cs" Link="Linked\AssetWorkspace.cs" />
     <Compile Include="..\..\src\Presentation\Art\ArtCoverage.cs" Link="Linked\ArtCoverage.cs" />
@@ -37,6 +38,7 @@
     <Compile Include="..\..\src\Presentation\Ui\StandingWords.cs" Link="Linked\StandingWords.cs" />
     <Compile Include="..\..\src\Presentation\Settings\ClientPrefs.cs" Link="Linked\ClientPrefs.cs" />
     <Compile Include="..\..\src\Presentation\Diagnostics\CrashLog.cs" Link="Linked\CrashLog.cs" />
+    <Compile Include="..\..\src\Presentation\Diagnostics\ProblemReport.cs" Link="Linked\ProblemReport.cs" />
     <Compile Include="..\..\src\Presentation\Art\PlayerBodies.cs" Link="Linked\PlayerBodies.cs" />
     <Compile Include="..\..\src\Presentation\Art\IdleVariety.cs" Link="Linked\IdleVariety.cs" />
     <Compile Include="..\..\src\Presentation\Art\WornOutfit.cs" Link="Linked\WornOutfit.cs" />

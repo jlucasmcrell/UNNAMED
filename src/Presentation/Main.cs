@@ -1350,6 +1350,9 @@ public partial class Main : Node3D
         }
         else if (_survey is not null)
         {
+            // --clean: the pictures without the interface (store and website stills), held off for the whole pass.
+            if (_flags.Contains("--clean") && _hud.Visible)
+                ToggleInterface();
             switch (_survey.Update())
             {
                 case "done":

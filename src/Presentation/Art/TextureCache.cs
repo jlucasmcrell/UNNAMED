@@ -182,8 +182,11 @@ public sealed class TextureCache
             using var image = new Image();
             if (image.LoadDdsFromBuffer(File.ReadAllBytes(path)) == Error.Ok && !image.IsEmpty())
             {
-                texture = ImageTexture.CreateFromImage(image);
-                CompressedBytes += image.GetDataSize();
+                var upload = WithoutTopMips(image, _buildNative ? 0 : VisualOptions.TextureMipsDropped);
+                texture = ImageTexture.CreateFromImage(upload);
+                CompressedBytes += upload.GetDataSize();
+                if (upload != image)
+                    upload.Dispose();
                 if (_buildNative && native is not null)
                 {
                     Directory.CreateDirectory(_nativeRoot!);
@@ -195,6 +198,20 @@ public sealed class TextureCache
         }
         _loaded[name] = texture;
         return texture;
+    }
+
+    /// <summary>
+    /// <paramref name="image"/> from its <paramref name="drop"/>-th mip down, as a new image, for a map over 1024 with the chain to spare:
+    /// the cached blocks are sliced, never recompressed, so the picture at each kept level is the same. Otherwise the image itself.
+    /// </summary>
+    private static Image WithoutTopMips(Image image, int drop)
+    {
+        drop = Math.Min(drop, image.GetMipmapCount());
+        if (drop == 0 || Math.Max(image.GetWidth(), image.GetHeight()) <= 1024)
+            return image;
+        long offset = image.GetMipmapOffset(drop);
+        return Image.CreateFromData(Math.Max(1, image.GetWidth() >> drop), Math.Max(1, image.GetHeight() >> drop), true, image.GetFormat(),
+            image.GetData()[(int)offset..]);
     }
 
     /// <summary>Write the manifest when this run added to it.</summary>

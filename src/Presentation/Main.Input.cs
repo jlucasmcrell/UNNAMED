@@ -114,7 +114,7 @@ public partial class Main
         {
             Escape();
         }
-        else if (!_journal.Typing)   // a note being written takes its letters, not the screens' keys (WP4)
+        else if (!_journal.Typing && !_report.Typing)   // a note being written takes its letters, not the screens' keys (WP4)
         {
             if (Input.IsActionJustPressed("inventory"))
                 Toggle(_inventory, () => OpenInventory(null));
@@ -145,6 +145,10 @@ public partial class Main
                 Toggle(_help, _help.Toggle);
             if (Input.IsActionJustPressed("saves"))
                 Toggle(_saves, () => _saves.OpenInGame());
+            if (Input.IsActionJustPressed("report_problem"))
+                Toggle(_report, OpenReport);
+            if (Input.IsActionJustPressed("hide_interface") && !modal)
+                ToggleInterface();
         }
         if (Input.IsActionJustPressed("take_all") && _loot.Visible)
             _loot.TakeAll();
@@ -152,6 +156,8 @@ public partial class Main
             _inventory.TakeAll();
         if (looting && Input.IsActionJustPressed("interact"))
             CloseInventory();
+        if (Input.IsActionJustPressed("screenshot"))
+            TakeScreenshot();
         if (_developer && Input.IsActionJustPressed("debug_overlay"))
             _hud.DebugVisible = _hollow.DebugVisible = !_hud.DebugVisible;
         if (_developer && Input.IsActionJustPressed("quest_debug"))
@@ -378,6 +384,9 @@ public partial class Main
         Bind("party", Key.O);
         Bind("auto_run", Key.Quoteleft);   // the owner's brief Â§23 and ruling 2026-10-18: auto-run on the tilde key
         Bind("quicksave", Key.F5);
+        Bind("report_problem", Key.F8);
+        Bind("hide_interface", Key.F10);
+        Bind("screenshot", Key.F12);
         Bind("saves", Key.L);
         Bind("release_mouse", Key.Escape);
         Bind("free_cursor", Key.Z); // Hold only; Alt remains action-bar scrolling.

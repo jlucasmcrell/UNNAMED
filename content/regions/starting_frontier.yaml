@@ -149756,532 +149756,532 @@ readables:
   - key: readable.folded_note
     lore_ref: lore.folded_note
     page: 1
-    name: the The Folded Note on the Survey shelf
+    name: Survey's record of The Folded Note
     verb: Read
     circle_m: [472.6, 717.8, 0.6]
     height_m: 0.9
   - key: readable.overturned_wain_ii
     lore_ref: lore.overturned_wain
     page: 2
-    name: the The Overturned Wain on the Survey shelf
+    name: Survey's record of The Overturned Wain
     verb: Read
     circle_m: [472.6, 718.6, 0.6]
     height_m: 0.9
   - key: readable.the_rim_ii
     lore_ref: lore.the_rim
     page: 2
-    name: the The Rim on the Survey shelf
+    name: Survey's record of The Rim
     verb: Read
     circle_m: [472.6, 719.5, 0.6]
     height_m: 0.9
   - key: readable.vessmere_ii
     lore_ref: lore.vessmere
     page: 2
-    name: the Vessmere on the Survey shelf
+    name: Survey's record of Vessmere
     verb: Read
     circle_m: [472.6, 720.3, 0.6]
     height_m: 0.9
   - key: readable.mor_schism
     lore_ref: lore.mor_schism
     page: 1
-    name: the The Mor Schism on the Survey shelf
+    name: Survey's record of The Mor Schism
     verb: Read
     circle_m: [472.6, 717.8, 0.6]
     height_m: 0.9
   - key: readable.mor_schism_ii
     lore_ref: lore.mor_schism
     page: 2
-    name: the The Mor Schism on the Survey shelf
+    name: Survey's record of The Mor Schism
     verb: Read
     circle_m: [472.6, 718.6, 0.6]
     height_m: 0.9
   - key: readable.otherborn
     lore_ref: lore.otherborn
     page: 1
-    name: the Otherborn on the Survey shelf
+    name: Survey's record of Otherborn
     verb: Read
     circle_m: [472.6, 719.5, 0.6]
     height_m: 0.9
   - key: readable.othermarked
     lore_ref: lore.othermarked
     page: 1
-    name: the Othermarked on the Survey shelf
+    name: Survey's record of Othermarked
     verb: Read
     circle_m: [472.6, 720.3, 0.6]
     height_m: 0.9
   - key: readable.otherwhen
     lore_ref: lore.otherwhen
     page: 1
-    name: the Otherwhen on the Survey shelf
+    name: Survey's record of Otherwhen
     verb: Read
     circle_m: [472.6, 721.2, 0.6]
     height_m: 0.9
   - key: readable.otherwhere
     lore_ref: lore.otherwhere
     page: 1
-    name: the Otherwhere on the Survey shelf
+    name: Survey's record of Otherwhere
     verb: Read
     circle_m: [472.6, 722.0, 0.6]
     height_m: 0.9
   - key: readable.otherwrought
     lore_ref: lore.otherwrought
     page: 1
-    name: the Otherwrought on the Survey shelf
+    name: Survey's record of Otherwrought
     verb: Read
     circle_m: [474.0, 717.8, 0.6]
     height_m: 0.9
   - key: readable.the_first_pacha
     lore_ref: lore.the_first_pacha
     page: 1
-    name: the The First Pacha on the Survey shelf
+    name: Survey's record of The First Pacha
     verb: Read
     circle_m: [474.0, 718.6, 0.6]
     height_m: 0.9
   - key: readable.the_first_pacha_ii
     lore_ref: lore.the_first_pacha
     page: 2
-    name: the The First Pacha on the Survey shelf
+    name: Survey's record of The First Pacha
     verb: Read
     circle_m: [474.0, 719.5, 0.6]
     height_m: 0.9
   - key: readable.the_found_pacha
     lore_ref: lore.the_found_pacha
     page: 1
-    name: the The Found Pacha on the Survey shelf
+    name: Survey's record of The Found Pacha
     verb: Read
     circle_m: [474.0, 720.3, 0.6]
     height_m: 0.9
   - key: readable.the_found_pacha_ii
     lore_ref: lore.the_found_pacha
     page: 2
-    name: the The Found Pacha on the Survey shelf
+    name: Survey's record of The Found Pacha
     verb: Read
     circle_m: [474.0, 721.2, 0.6]
     height_m: 0.9
   - key: readable.the_lantern_shrine_ii
     lore_ref: lore.the_lantern_shrine
     page: 2
-    name: the The Lantern Shrine on the Survey shelf
+    name: Survey's record of The Lantern Shrine
     verb: Read
     circle_m: [474.0, 722.0, 0.6]
     height_m: 0.9
   - key: readable.the_long_lodge_ii
     lore_ref: lore.the_long_lodge
     page: 2
-    name: the The Long Lodge on the Survey shelf
+    name: Survey's record of The Long Lodge
     verb: Read
     circle_m: [475.4, 717.8, 0.6]
     height_m: 0.9
   - key: readable.the_lost_pacha
     lore_ref: lore.the_lost_pacha
     page: 1
-    name: the The Lost Pacha on the Survey shelf
+    name: Survey's record of The Lost Pacha
     verb: Read
     circle_m: [475.4, 718.6, 0.6]
     height_m: 0.9
   - key: readable.the_lost_pacha_ii
     lore_ref: lore.the_lost_pacha
     page: 2
-    name: the The Lost Pacha on the Survey shelf
+    name: Survey's record of The Lost Pacha
     verb: Read
     circle_m: [475.4, 719.5, 0.6]
     height_m: 0.9
   - key: readable.the_ondrek_record
     lore_ref: lore.the_ondrek_record
     page: 1
-    name: the The Ondrek Record on the Survey shelf
+    name: Survey's record of The Ondrek Record
     verb: Read
     circle_m: [475.4, 720.3, 0.6]
     height_m: 0.9
   - key: readable.the_ondrek_record_ii
     lore_ref: lore.the_ondrek_record
     page: 2
-    name: the The Ondrek Record on the Survey shelf
+    name: Survey's record of The Ondrek Record
     verb: Read
     circle_m: [475.4, 721.2, 0.6]
     height_m: 0.9
   - key: readable.the_south_crag_seam_ii
     lore_ref: lore.the_south_crag_seam
     page: 2
-    name: the The South Crag Seam on the Survey shelf
+    name: Survey's record of The South Crag Seam
     verb: Read
     circle_m: [475.4, 722.0, 0.6]
     height_m: 0.9
   - key: readable.the_vaskaal_and_pacha
     lore_ref: lore.the_vaskaal_and_pacha
     page: 1
-    name: the The Vaskaal and Pacha on the Survey shelf
+    name: Survey's record of The Vaskaal and Pacha
     verb: Read
     circle_m: [476.8, 717.8, 0.6]
     height_m: 0.9
   - key: readable.the_vaskaal_and_pacha_ii
     lore_ref: lore.the_vaskaal_and_pacha
     page: 2
-    name: the The Vaskaal and Pacha on the Survey shelf
+    name: Survey's record of The Vaskaal and Pacha
     verb: Read
     circle_m: [476.8, 718.6, 0.6]
     height_m: 0.9
   - key: readable.the_written_pacha
     lore_ref: lore.the_written_pacha
     page: 1
-    name: the The Written Pacha on the Survey shelf
+    name: Survey's record of The Written Pacha
     verb: Read
     circle_m: [476.8, 719.5, 0.6]
     height_m: 0.9
   - key: readable.the_written_pacha_ii
     lore_ref: lore.the_written_pacha
     page: 2
-    name: the The Written Pacha on the Survey shelf
+    name: Survey's record of The Written Pacha
     verb: Read
     circle_m: [476.8, 720.3, 0.6]
     height_m: 0.9
   - key: readable.veth_keeping
     lore_ref: lore.veth_keeping
     page: 1
-    name: the Veth Keeping on the Survey shelf
+    name: Survey's record of Veth Keeping
     verb: Read
     circle_m: [476.8, 721.2, 0.6]
     height_m: 0.9
   - key: readable.veth_keeping_ii
     lore_ref: lore.veth_keeping
     page: 2
-    name: the Veth Keeping on the Survey shelf
+    name: Survey's record of Veth Keeping
     verb: Read
     circle_m: [476.8, 722.0, 0.6]
     height_m: 0.9
   - key: readable.ashbloom
     lore_ref: lore.ashbloom
     page: 1
-    name: the Ashbloom on the Survey shelf
+    name: Survey's record of Ashbloom
     verb: Read
     circle_m: [472.6, 717.8, 0.6]
     height_m: 0.9
   - key: readable.bog_cotton
     lore_ref: lore.bog_cotton
     page: 1
-    name: the Bog Cotton on the Survey shelf
+    name: Survey's record of Bog Cotton
     verb: Read
     circle_m: [472.6, 718.6, 0.6]
     height_m: 0.9
   - key: readable.boneleaf
     lore_ref: lore.boneleaf
     page: 1
-    name: the Boneleaf on the Survey shelf
+    name: Survey's record of Boneleaf
     verb: Read
     circle_m: [472.6, 719.5, 0.6]
     height_m: 0.9
   - key: readable.cinder_sac
     lore_ref: lore.cinder_sac
     page: 1
-    name: the Cinder Sac on the Survey shelf
+    name: Survey's record of Cinder Sac
     verb: Read
     circle_m: [472.6, 720.3, 0.6]
     height_m: 0.9
   - key: readable.iron
     lore_ref: lore.iron
     page: 1
-    name: the Iron on the Survey shelf
+    name: Survey's record of Iron
     verb: Read
     circle_m: [472.6, 721.2, 0.6]
     height_m: 0.9
   - key: readable.spider_silk
     lore_ref: lore.spider_silk
     page: 1
-    name: the Spider Silk on the Survey shelf
+    name: Survey's record of Spider Silk
     verb: Read
     circle_m: [472.6, 722.0, 0.6]
     height_m: 0.9
   - key: readable.woundmoss
     lore_ref: lore.woundmoss
     page: 1
-    name: the Woundmoss on the Survey shelf
+    name: Survey's record of Woundmoss
     verb: Read
     circle_m: [474.0, 717.8, 0.6]
     height_m: 0.9
   - key: readable.barrowback_ii
     lore_ref: lore.barrowback
     page: 3
-    name: the The Barrowback on the Survey shelf
+    name: Survey's record of The Barrowback
     verb: Read
     circle_m: [472.6, 717.8, 0.6]
     height_m: 0.9
   - key: readable.fellhorn_ii
     lore_ref: lore.fellhorn
     page: 3
-    name: the The Fellhorn on the Survey shelf
+    name: Survey's record of The Fellhorn
     verb: Read
     circle_m: [472.6, 718.6, 0.6]
     height_m: 0.9
   - key: readable.kal_ii
     lore_ref: lore.kal
     page: 3
-    name: the The Kal on the Survey shelf
+    name: Survey's record of The Kal
     verb: Read
     circle_m: [472.6, 719.5, 0.6]
     height_m: 0.9
   - key: readable.mor_ii
     lore_ref: lore.mor
     page: 3
-    name: the The Mor on the Survey shelf
+    name: Survey's record of The Mor
     verb: Read
     circle_m: [472.6, 720.3, 0.6]
     height_m: 0.9
   - key: readable.ondrek_ii
     lore_ref: lore.ondrek
     page: 3
-    name: the The Ondrek on the Survey shelf
+    name: Survey's record of The Ondrek
     verb: Read
     circle_m: [472.6, 721.2, 0.6]
     height_m: 0.9
   - key: readable.orenth_ii
     lore_ref: lore.orenth
     page: 3
-    name: the The Orenth on the Survey shelf
+    name: Survey's record of The Orenth
     verb: Read
     circle_m: [472.6, 722.0, 0.6]
     height_m: 0.9
   - key: readable.pacha_ii
     lore_ref: lore.pacha
     page: 3
-    name: the The Pacha on the Survey shelf
+    name: Survey's record of The Pacha
     verb: Read
     circle_m: [474.0, 717.8, 0.6]
     height_m: 0.9
   - key: readable.pachakuti_ii
     lore_ref: lore.pachakuti
     page: 3
-    name: the The Pachakuti on the Survey shelf
+    name: Survey's record of The Pachakuti
     verb: Read
     circle_m: [474.0, 718.6, 0.6]
     height_m: 0.9
   - key: readable.ruined_cart_ii
     lore_ref: lore.ruined_cart
     page: 2
-    name: the The Ruined Cart on the Survey shelf
+    name: Survey's record of The Ruined Cart
     verb: Read
     circle_m: [474.0, 719.5, 0.6]
     height_m: 0.9
   - key: readable.siann_ii
     lore_ref: lore.siann
     page: 3
-    name: the The Siann on the Survey shelf
+    name: Survey's record of The Siann
     verb: Read
     circle_m: [474.0, 720.3, 0.6]
     height_m: 0.9
   - key: readable.sunk_barrow_ii
     lore_ref: lore.sunk_barrow
     page: 2
-    name: the The Sunk Barrow on the Survey shelf
+    name: Survey's record of The Sunk Barrow
     verb: Read
     circle_m: [474.0, 721.2, 0.6]
     height_m: 0.9
   - key: readable.the_kal_afterlife_ii
     lore_ref: lore.the_kal_afterlife
     page: 3
-    name: the The Kal Afterlife on the Survey shelf
+    name: Survey's record of The Kal Afterlife
     verb: Read
     circle_m: [474.0, 722.0, 0.6]
     height_m: 0.9
   - key: readable.the_kals_maker_ii
     lore_ref: lore.the_kals_maker
     page: 3
-    name: the The Kal's Maker on the Survey shelf
+    name: Survey's record of The Kal's Maker
     verb: Read
     circle_m: [475.4, 717.8, 0.6]
     height_m: 0.9
   - key: readable.the_last_pachakuti_ii
     lore_ref: lore.the_last_pachakuti
     page: 3
-    name: the The Last Pachakuti on the Survey shelf
+    name: Survey's record of The Last Pachakuti
     verb: Read
     circle_m: [475.4, 718.6, 0.6]
     height_m: 0.9
   - key: readable.the_siann_missing_page_ii
     lore_ref: lore.the_siann_missing_page
     page: 3
-    name: the The Siann Missing Page on the Survey shelf
+    name: Survey's record of The Siann Missing Page
     verb: Read
     circle_m: [475.4, 719.5, 0.6]
     height_m: 0.9
   - key: readable.the_specification_ii
     lore_ref: lore.the_specification
     page: 3
-    name: the The Specification on the Survey shelf
+    name: Survey's record of The Specification
     verb: Read
     circle_m: [475.4, 720.3, 0.6]
     height_m: 0.9
   - key: readable.vaskaal_ii
     lore_ref: lore.vaskaal
     page: 3
-    name: the The Vaskaal on the Survey shelf
+    name: Survey's record of The Vaskaal
     verb: Read
     circle_m: [475.4, 721.2, 0.6]
     height_m: 0.9
   - key: readable.veth_ii
     lore_ref: lore.veth
     page: 3
-    name: the The Veth on the Survey shelf
+    name: Survey's record of The Veth
     verb: Read
     circle_m: [475.4, 722.0, 0.6]
     height_m: 0.9
   - key: readable.barrowworks
     lore_ref: lore.barrowworks
     page: 2
-    name: the The Barrowworks on the Survey shelf
+    name: Survey's record of The Barrowworks
     verb: Read
     circle_m: [472.6, 717.8, 0.6]
     height_m: 0.9
   - key: readable.constructed
     lore_ref: lore.constructed
     page: 0
-    name: the The Constructed on the Survey shelf
+    name: Survey's record of The Constructed
     verb: Read
     circle_m: [472.6, 718.6, 0.6]
     height_m: 0.9
   - key: readable.kal
     lore_ref: lore.kal
     page: 1
-    name: the The Kal on the Survey shelf
+    name: Survey's record of The Kal
     verb: Read
     circle_m: [472.6, 719.5, 0.6]
     height_m: 0.9
   - key: readable.mor
     lore_ref: lore.mor
     page: 0
-    name: the The Mor on the Survey shelf
+    name: Survey's record of The Mor
     verb: Read
     circle_m: [472.6, 720.3, 0.6]
     height_m: 0.9
   - key: readable.ondrek
     lore_ref: lore.ondrek
     page: 0
-    name: the The Ondrek on the Survey shelf
+    name: Survey's record of The Ondrek
     verb: Read
     circle_m: [472.6, 721.2, 0.6]
     height_m: 0.9
   - key: readable.orenth
     lore_ref: lore.orenth
     page: 1
-    name: the The Orenth on the Survey shelf
+    name: Survey's record of The Orenth
     verb: Read
     circle_m: [472.6, 722.0, 0.6]
     height_m: 0.9
   - key: readable.otherfold
     lore_ref: lore.otherfold
     page: 2
-    name: the Otherfolds on the Survey shelf
+    name: Survey's record of Otherfolds
     verb: Read
     circle_m: [474.0, 717.8, 0.6]
     height_m: 0.9
   - key: readable.othergate
     lore_ref: lore.othergate
     page: 2
-    name: the Othergates on the Survey shelf
+    name: Survey's record of Othergates
     verb: Read
     circle_m: [474.0, 718.6, 0.6]
     height_m: 0.9
   - key: readable.otherway
     lore_ref: lore.otherway
     page: 2
-    name: the Otherways on the Survey shelf
+    name: Survey's record of Otherways
     verb: Read
     circle_m: [474.0, 719.5, 0.6]
     height_m: 0.9
   - key: readable.pacha
     lore_ref: lore.pacha
     page: 2
-    name: the The Pacha on the Survey shelf
+    name: Survey's record of The Pacha
     verb: Read
     circle_m: [474.0, 720.3, 0.6]
     height_m: 0.9
   - key: readable.pachakuti
     lore_ref: lore.pachakuti
     page: 2
-    name: the The Pachakuti on the Survey shelf
+    name: Survey's record of The Pachakuti
     verb: Read
     circle_m: [474.0, 721.2, 0.6]
     height_m: 0.9
   - key: readable.siann
     lore_ref: lore.siann
     page: 1
-    name: the The Siann on the Survey shelf
+    name: Survey's record of The Siann
     verb: Read
     circle_m: [474.0, 722.0, 0.6]
     height_m: 0.9
   - key: readable.the_kal_afterlife
     lore_ref: lore.the_kal_afterlife
     page: 2
-    name: the The Kal Afterlife on the Survey shelf
+    name: Survey's record of The Kal Afterlife
     verb: Read
     circle_m: [475.4, 717.8, 0.6]
     height_m: 0.9
   - key: readable.the_kals_maker
     lore_ref: lore.the_kals_maker
     page: 2
-    name: the The Kal's Maker on the Survey shelf
+    name: Survey's record of The Kal's Maker
     verb: Read
     circle_m: [475.4, 718.6, 0.6]
     height_m: 0.9
   - key: readable.the_last_pachakuti
     lore_ref: lore.the_last_pachakuti
     page: 2
-    name: the The Last Pachakuti on the Survey shelf
+    name: Survey's record of The Last Pachakuti
     verb: Read
     circle_m: [475.4, 719.5, 0.6]
     height_m: 0.9
   - key: readable.the_other
     lore_ref: lore.the_other
     page: 2
-    name: the The Other on the Survey shelf
+    name: Survey's record of The Other
     verb: Read
     circle_m: [475.4, 720.3, 0.6]
     height_m: 0.9
   - key: readable.the_siann_missing_page
     lore_ref: lore.the_siann_missing_page
     page: 1
-    name: the The Siann Missing Page on the Survey shelf
+    name: Survey's record of The Siann Missing Page
     verb: Read
     circle_m: [475.4, 721.2, 0.6]
     height_m: 0.9
   - key: readable.the_silence
     lore_ref: lore.the_silence
     page: 0
-    name: the The Silence on the Survey shelf
+    name: Survey's record of The Silence
     verb: Read
     circle_m: [475.4, 722.0, 0.6]
     height_m: 0.9
   - key: readable.the_specification
     lore_ref: lore.the_specification
     page: 2
-    name: the The Specification on the Survey shelf
+    name: Survey's record of The Specification
     verb: Read
     circle_m: [476.8, 717.8, 0.6]
     height_m: 0.9
   - key: readable.the_substrate
     lore_ref: lore.the_substrate
     page: 2
-    name: the The Substrate on the Survey shelf
+    name: Survey's record of The Substrate
     verb: Read
     circle_m: [476.8, 718.6, 0.6]
     height_m: 0.9
   - key: readable.the_veil
     lore_ref: lore.the_veil
     page: 2
-    name: the The Veil on the Survey shelf
+    name: Survey's record of The Veil
     verb: Read
     circle_m: [476.8, 719.5, 0.6]
     height_m: 0.9
   - key: readable.vaskaal
     lore_ref: lore.vaskaal
     page: 0
-    name: the The Vaskaal on the Survey shelf
+    name: Survey's record of The Vaskaal
     verb: Read
     circle_m: [476.8, 720.3, 0.6]
     height_m: 0.9
   - key: readable.veth
     lore_ref: lore.veth
     page: 1
-    name: the The Veth on the Survey shelf
+    name: Survey's record of The Veth
     verb: Read
     circle_m: [476.8, 721.2, 0.6]
     height_m: 0.9
