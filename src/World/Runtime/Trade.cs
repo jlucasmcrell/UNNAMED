@@ -92,6 +92,8 @@ internal sealed class TradeSystem
             return $"{npc.Definition.Name} has no such ware";
         if (command.Count < 1 || command.Count > ware.Count)
             return $"{npc.Definition.Name} has {ware.Count} of it";
+        if (Heritage(npc, ware.DefId) is { } heritage)
+            return heritage;
         long price = ShelfAsk(merchant, ware.DefId, ware.Wear, ware.Quality, ware.Notable) * command.Count;
         if (price > State.Currency)
             return $"not enough coin: {price} asked, {State.Currency} carried";
@@ -114,6 +116,8 @@ internal sealed class TradeSystem
             return $"only {entry.Count} carried";
         if (entry.Locked)
             return $"{entry.DefId} is locked: unlock it to sell it";
+        if (Heritage(npc, entry.DefId) is { } heritage)
+            return heritage;
         if (OfferFor(merchant, entry.DefId, entry.Wear, entry.Quality, entry.Notable) is not { } each)
             return $"{npc.Definition.Name} does not buy that";
         if (each == 0)
@@ -208,6 +212,7 @@ internal sealed class TradeSystem
             return null;
         string? market = MarketOf(merchant);
         return new WaresView(npcId, merchant.Id, _contents(site).Items
+            .Where(i => Heritage(npc, i.DefId) is null)
             .Select(i => new WareView(i.Ref, i.DefId, i.Count, i.Quality, ShelfAsk(merchant, i.DefId, i.Wear, i.Quality, i.Notable)) { Trend = Math.Sign(_markets.Factor(market, i.DefId) - 1000), Wear = i.Wear })
             .ToImmutableArray())
         {
@@ -216,10 +221,10 @@ internal sealed class TradeSystem
         };
     }
 
-    /// <summary>What a trader would pay for one of an item now; null when this NPC does not trade, or does not buy it.</summary>
+    /// <summary>What a trader would pay for one of an item now; null when this NPC does not trade, does not buy it, or may not take it (heritage).</summary>
     public long? Offer(string npcId, string itemId, ItemWear? wear = null, int quality = 0, NotableRecord? notable = null) =>
         State.Npcs.TryGetValue(npcId, out var npc) && npc.Definition.MerchantId is { } id && Items.Merchants.TryGetValue(id, out var merchant)
-            && Items.Catalog.Find(itemId) is not null
+            && Items.Catalog.Find(itemId) is not null && Heritage(npc, itemId) is null
             ? OfferFor(merchant, itemId, wear, quality, notable)
             : null;
 
@@ -251,6 +256,17 @@ internal sealed class TradeSystem
 
     private static bool MakerMarked(NotableRecord? notable) =>
         notable is { Provenance: ProvenanceKind.Crafted, Maker: { Length: > 0 } };
+
+    /// <summary>
+    /// Why a heritage item cannot change hands here (owner, 2026-10-24): the character and the trader must both be of its people. Null when
+    /// it can, which is always for anything that is no one's heritage.
+    /// </summary>
+    private string? Heritage(NpcState npc, string itemId)
+    {
+        var item = Items.Catalog.Get(itemId);
+        return HeritageRules.Refusal(item, _context.PlayerPeople)
+               ?? (HeritageRules.Allows(item, npc.Definition.PeopleId) ? null : $"{npc.Definition.Name} will not trade in {HeritageRules.PeopleWord(item.Heritage!)} heritage");
+    }
 
     private string? MarketOf(Merchant merchant) => _context.Setup.Economy.MarketOf(merchant.Id)?.Id;
 

@@ -54,6 +54,12 @@ public sealed record QuestDefinition(
     /// no gate. Only a personal quest has one.
     /// </summary>
     public int? ConfidesAt { get; init; }
+
+    /// <summary>
+    /// A heritage quest (<c>people_ref</c>; owner, 2026-10-24): only a character of this people takes it - <c>on_new_game</c> starts it for
+    /// them alone. Null: anyone.
+    /// </summary>
+    public string? PeopleId { get; init; }
 }
 
 /// <summary>The journal's sections (<c>track</c>).</summary>

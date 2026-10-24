@@ -1,0 +1,22 @@
+id: quest.heritage.what_was_kept
+kind: quest
+schema: 1
+display_key: quest.heritage.what_was_kept.name
+tags: [quest]
+notes: The Veth heritage questline (owner-approved 2026-10-24, HERITAGE_DESIGN.md §3.1), from the Veth sacred act of keeping and their personal quests of inheritance and obligation - a promise that has outlived its maker (MYTHOLOGY.md §Veth). The waystation oath, written twice, and the Cairnwold family are PROPOSED lore shown to the owner. Only a Veth takes it (people_ref), and every new Veth starts it. This is the opening slice, steps 1-2 - the roll read, the road to the other half - and steps 3-5 (the other half, the keeping or release or claim of descent, the roll recorded) continue from o_other_half. No step takes the roll from the character, and Renn re-copies a lost one, so it can never become uncompletable.
+title: What Was Kept
+summary: Someone in your line gave their word and did not live to keep it. The last line of your Kept Roll is still open, and the roll is waiting.
+track: side
+people_ref: people.veth
+on_new_game: true
+entry_objective: o_roll
+objectives:
+  - id: o_roll
+    type: talk_to
+    description: Show Renn the open line on your Kept Roll. A keeper knows the form of an oath.
+    params: { npc_ref: npc.ashen_hollow.renn_vale, nodes: [kept_roll] }
+    next: [o_other_half]
+  - id: o_other_half
+    type: visit_location
+    description: The other half of the oath was written into a Cairnwold family's roll. Take the road to Cairnwold.
+    params: { location_ref: location.cairnwold.village }

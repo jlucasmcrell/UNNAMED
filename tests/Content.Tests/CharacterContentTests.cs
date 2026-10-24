@@ -116,7 +116,8 @@ public class CharacterContentTests
         Assert.All(setup.Peoples.Values.SelectMany(p => p.Heritage), line =>
         {
             var item = catalog.Get(line.ItemId);
-            Assert.Equal(("misc", 0L, true, true, (EquipSlot?)null, 0), (item.Category, item.ValueBase, item.NoSell, item.NoDrop, item.Slot, item.ArmorValue));
+            Assert.Equal(("misc", true, (EquipSlot?)null, 0), (item.Category, item.NoDrop, item.Slot, item.ArmorValue));
+            Assert.Equal(setup.Peoples.Values.Single(p => p.Heritage.Contains(line)).Id, item.Heritage);
         });
     }
 
@@ -130,15 +131,19 @@ public class CharacterContentTests
 
     [Fact]
     public void AHeritageThatIsWorn_IsRefused() =>
-        AssertRefused("people/veth.yaml", "item_ref: item.heritage.kept_roll", "item_ref: item.trinket.wolf_fang", "must be identity, not power");
+        AssertRefused("items/heritage/record_stone.yaml", "no_drop: true", "no_drop: true\nequip_slot: amulet", "must be identity, not power");
 
     [Fact]
-    public void AHeritageWithValue_IsRefused() =>
-        AssertRefused("items/heritage/kept_roll.yaml", "value_base: 0", "value_base: 25", "must be identity, not power");
+    public void AHeritageThatCanBeDropped_IsRefused() =>
+        AssertRefused("items/heritage/record_stone.yaml", "no_drop: true", "no_drop: false", "must be identity, not power");
 
     [Fact]
-    public void AHeritageThatCanBeSold_IsRefused() =>
-        AssertRefused("items/heritage/record_stone.yaml", "no_sell: true", "no_sell: false", "must be identity, not power");
+    public void AHeritageNotMarkedAsItsPeoples_IsRefused() =>
+        AssertRefused("items/heritage/kept_roll.yaml", "heritage: people.veth", "heritage: people.ondrek", "must be marked heritage: people.veth");
+
+    [Fact]
+    public void AnItemMarkedHeritageThatNoPeopleGives_IsRefused() =>
+        AssertRefused("items/trinket/glass_marble.yaml", "rarity: common", "rarity: common\nheritage: people.veth", "which no people gives as its heritage");
 
     [Fact]
     public void TheVeth_HaveFiveBuildsOfEachBodyType_LeanAndAverageOffered_AsContent()

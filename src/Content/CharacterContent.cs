@@ -73,7 +73,7 @@ public static class CharacterContent
     {
         var peoples = loader.GetByKind("people");
         var catalog = peoples.Count == 0 ? ItemCatalog.Empty : ItemContent.BuildCatalog(loader);
-        return peoples.Values.Select(definition =>
+        var built = peoples.Values.Select(definition =>
         {
             var map = Read(definition.YamlSource);
             var names = List(map, "suggest_names").Select((name, i) =>
@@ -83,27 +83,36 @@ public static class CharacterContent
             if (names.Distinct(StringComparer.Ordinal).Count() != names.Count)
                 throw new FormatException($"{definition.Id} lists a name twice");
             bool playable = Flag(map, "playable");
-            var heritage = map.ContainsKey("heritage") ? Heritage(loader, definition.Id, map, catalog) : ImmutableArray<StartingItem>.Empty;
+            var heritage = map.ContainsKey("heritage") ? Heritage(definition.Id, map, catalog) : ImmutableArray<StartingItem>.Empty;
             if (playable && heritage.IsEmpty)
                 throw new FormatException($"{definition.Id} is playable and gives no heritage");
             return new PeopleDefinition(definition.Id, playable, new NameSource(names), heritage);
         }).ToImmutableSortedDictionary(p => p.Id, p => p, StringComparer.Ordinal);
+        // An item marked as heritage is one its people gives, so none is left that no people's keeper can re-issue.
+        foreach (var item in catalog.Definitions.Values.Where(i => i.Heritage is not null))
+        {
+            if (!built.TryGetValue(item.Heritage!, out var people) || people.Heritage.All(h => h.ItemId != item.Id))
+                throw new FormatException($"{item.Id} is marked heritage: {item.Heritage}, which no people gives as its heritage");
+        }
+        return built;
     }
 
     /// <summary>
-    /// A people's heritage kit (owner, 2026-10-23): one stack of each keepsake, never worn, and identity rather than power - no slot, no
-    /// use, no value, and never sold or dropped, so no people starts stronger than another.
+    /// A people's heritage kit (owner, 2026-10-23 and 2026-10-24): one stack of each keepsake, never worn, marked as that people's heritage
+    /// so it changes hands only within the people, never dropped (the keeper re-issues a lost one), and identity rather than power - no
+    /// slot, armour, weapon, bag or pet - so no people starts stronger than another.
     /// </summary>
-    private static ImmutableArray<StartingItem> Heritage(ContentLoader loader, string id, Dictionary<object, object> map, ItemCatalog catalog) =>
+    private static ImmutableArray<StartingItem> Heritage(string id, Dictionary<object, object> map, ItemCatalog catalog) =>
         Rows(map, "heritage", id).Select((line, i) =>
         {
             var item = new StartingItem(Text(line, "item_ref"), Int(line, "count"), Flag(line, "equip"));
             var found = catalog.Find(item.ItemId) ?? throw new FormatException($"{id} heritage[{i}] names {item.ItemId}, which is not an item");
             if (item.Count < 1 || item.Count > found.StackMax)
                 throw new FormatException($"{id} heritage[{i}]: {item.Count} of {item.ItemId} is not one stack (1..{found.StackMax})");
-            if (item.Equip || found.Slot is not null || found.Weapon is not null || found.ArmorValue != 0 || found.Bag is not null || found.PetCreature is not null
-                || found.ValueBase != 0 || !found.NoSell || !found.NoDrop || Read(loader.GetByKind("item")[item.ItemId].YamlSource).ContainsKey("use"))
-                throw new FormatException($"{id} heritage[{i}]: {item.ItemId} must be identity, not power - no slot, no use, no value, and never sold or dropped");
+            if (found.Heritage != id)
+                throw new FormatException($"{id} heritage[{i}]: {item.ItemId} must be marked heritage: {id}");
+            if (item.Equip || found.Slot is not null || found.Weapon is not null || found.ArmorValue != 0 || found.Bag is not null || found.PetCreature is not null || !found.NoDrop)
+                throw new FormatException($"{id} heritage[{i}]: {item.ItemId} must be identity, not power - no slot, armour, weapon, bag or pet, and never dropped");
             return item;
         }).ToImmutableArray();
 

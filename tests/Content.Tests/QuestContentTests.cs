@@ -299,9 +299,9 @@ public class QuestContentTests
         Assert.All(quests.Values.Where(q => q.Id.StartsWith("quest.main.", StringComparison.Ordinal)), q => Assert.Equal((QuestTrack.Main, (int?)1), (q.Track, q.Act)));
         Assert.All(quests.Values.Where(q => !q.Id.StartsWith("quest.bounty.", StringComparison.Ordinal) && !q.Id.StartsWith("quest.main.", StringComparison.Ordinal)),
             q => Assert.Equal(QuestTrack.Side, q.Track));
-        // The opening (WP2) is the one quest every new character starts. The hunting bounties are competitive (WP13): an adventurer may
+        // The opening (WP2) is the one quest every new character starts, beside their people's heritage questline (owner, 2026-10-24). The hunting bounties are competitive (WP13): an adventurer may
         // finish one first; the gathering and smithing ones are the character's alone.
-        Assert.Equal(new[] { "quest.main.the_road_in" }, quests.Values.Where(q => q.OnNewGame).Select(q => q.Id));
+        Assert.Equal(new[] { "quest.heritage.what_was_kept", "quest.main.the_road_in" }, quests.Values.Where(q => q.OnNewGame).Select(q => q.Id));
         Assert.Equal(new[] { "quest.bounty.crag_walker", "quest.bounty.lodge_supplies", "quest.bounty.rim_road", "quest.bounty.road_wolves", "quest.bounty.winter_hides" },
             quests.Values.Where(q => q.Competitive).Select(q => q.Id).OrderBy(id => id, StringComparer.Ordinal));
     }

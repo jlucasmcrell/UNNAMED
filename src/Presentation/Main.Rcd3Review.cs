@@ -54,6 +54,12 @@ public partial class Main
                 camera.GetNode<OmniLight3D>("CharacterFill").Reparent(source,false);camera.QueueFree();
                 await RunGrandFoldscarReview(directory);GetTree().Quit();return;
             }
+            if(OS.GetEnvironment("OTHERREACH_HERITAGE_REVIEW")=="1")
+            {
+                camera.GetNode<OmniLight3D>("CharacterFill").Reparent(source,false);
+                source.MakeCurrent();camera.QueueFree();
+                await RunHeritageReview(directory);GetTree().Quit();return;
+            }
             if(OS.GetEnvironment("OTHERREACH_RCD8_WAYSTONE_REVIEW")=="1")
             {
                 await RunRcd8WaystoneReview(directory,camera);GetTree().Quit();return;

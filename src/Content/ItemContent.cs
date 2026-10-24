@@ -208,6 +208,7 @@ public static class ItemContent
             Bag = bag,
             PackKind = packKind,
             PetCreature = map.GetValueOrDefault("pet_creature") as string,
+            Heritage = map.GetValueOrDefault("heritage") as string,
         };
     }
 

@@ -284,7 +284,7 @@ public sealed class Simulation
         _state = new RuntimeState(world, worldTick, new Body(player.XMm, player.YMm, player.ZMm, player.FacingMdeg), player,
             setup.Layout.SpaceId);
         var bus = new SimulationEvents(events);
-        _context = new SystemContext(_state, setup, bus, Dispatch);
+        _context = new SystemContext(_state, setup, bus, Dispatch) { PlayerPeople = player.Identity.PeopleId };
         // Everything carried is an instance like any other: the registry knows it, and an ID held twice is an error (D-10).
         foreach (var entry in player.Inventory)
         {
@@ -786,8 +786,8 @@ public sealed class Simulation
     /// <summary>Where the compass marks a quest's current beat, when the character knows where that is.</summary>
     public QuestMarker? Marker(string questId) => _quests.Marker(questId);
 
-    /// <summary>Whether a new game has a story to begin: some quest starts for every new character (<c>on_new_game</c>).</summary>
-    public bool HasOpeningQuests => Setup.Quests.Quests.Values.Any(q => q.OnNewGame);
+    /// <summary>Whether a new game has a story to begin: some quest starts for a new character of this people (<c>on_new_game</c>).</summary>
+    public bool HasOpeningQuests => Setup.Quests.Quests.Values.Any(q => q.OnNewGame && (q.PeopleId is null || q.PeopleId == _identity.Identity.PeopleId));
 
     /// <summary>The quest debugger (M5): what a quest is waiting on right now, every term's value, and its recent trace.</summary>
     public QuestDiagnosis Diagnose(string questId) => _debugger.Diagnose(questId);

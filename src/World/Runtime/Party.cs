@@ -375,6 +375,8 @@ internal sealed partial class CompanionSystem
             return $"{Name(command.NpcId)} is out of reach";
         if (command.Count < 1)
             return "hand over at least one";
+        if (_context.Setup.Items.Catalog.Find(command.ItemId) is { } item && !Domain.Items.HeritageRules.Allows(item, State.Npcs[c.NpcId].Definition.PeopleId))
+            return $"{Name(command.NpcId)} is not {Domain.Items.HeritageRules.PeopleWord(item.Heritage!)}: heritage passes only between its own people";
         if (_context.Dispatch(new ConsumeItem(command.ItemId, command.Count)) is { } refused)
             return refused;
         State.SetCompanion(_owner, c with
