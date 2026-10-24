@@ -221,12 +221,12 @@ public class DurabilityTests
         long purse = arena.Simulation.Wares(Kera)!.Purse!.Value, coin = arena.Simulation.Player.Currency;
 
         var quote = arena.Simulation.RepairQuote(Kera, sword)!;
-        Assert.Equal((6L, Quality.Standard), (quote.Fee, quote.Quality));   // 15 x 40% at full wear
+        Assert.Equal((8L, Quality.Standard), (quote.Fee, quote.Quality));   // fine as-made value 18 x 40%, rounded up at full wear
         Assert.Null(arena.Submit(new MerchantRepairCommand(arena.Player, Kera, sword)));
         Assert.Equal((Quality.Standard, new ItemWear(0, Quality.Fine)), (Carried(arena, Sword).Quality, Carried(arena, Sword).Wear));
-        Assert.Equal(coin - 6, arena.Simulation.Player.Currency);
-        Assert.Equal(purse + 6, arena.Simulation.Wares(Kera)!.Purse);
-        Assert.Equal((Kera, 6L), (repaired.Single().By, repaired[0].Coin));
+        Assert.Equal(coin - 8, arena.Simulation.Player.Currency);
+        Assert.Equal(purse + 8, arena.Simulation.Wares(Kera)!.Purse);
+        Assert.Equal((Kera, 8L), (repaired.Single().By, repaired[0].Coin));
 
         // Not yet worn out, a piece keeps the quality it has.
         Assert.Equal(Quality.Fine, arena.Simulation.RepairQuote(Kera, spear)!.Quality);
