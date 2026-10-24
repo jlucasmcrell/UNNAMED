@@ -1,5 +1,7 @@
 # VERTICAL_SLICE.md — Phase 2 Vertical Slice
 
+> **Historical specification — owner rulings supersede conflicting scope (2026-10-17/24, Wave 0).** Use `plans/SYSTEMS_COMPLETENESS_PLAN_20261017.md` and the accepted systems decision sheet for current scope. No pause, slow time or rest/bed/travel time skips; a shared world keeps its own clock. Do not implement old solo-only, player-corpse or time-advance requirements from this document without reconciling them to the accepted MMO, death and downed rules. Souls/incarnation remain deferred. This notice does not claim the remaining slice features are built.
+
 **Project:** Otherreach (codename UNNAMED) — full-body third-person with seamless first-person zoom, solo-first, open-world fantasy RPG
 **Phase:** 2 — Vertical Slice
 **Status:** Specification for implementation

@@ -742,7 +742,8 @@ public sealed class Simulation
             .Select(_inventory.View).ToImmutableArray();
 
     /// <summary>What a trader would pay for one of an item now (WP14); null when they do not trade, or do not buy it.</summary>
-    public long? Offer(string npcId, string itemId, ItemWear? wear = null) => _trade.Offer(npcId, itemId, wear);
+    public long? Offer(string npcId, string itemId, ItemWear? wear = null, int quality = 0, NotableRecord? notable = null) =>
+        _trade.Offer(npcId, itemId, wear, quality, notable);
 
     /// <summary>What a trader would charge to mend a carried piece now (WP3b); null when they do not repair, or it needs none.</summary>
     public RepairQuote? RepairQuote(string npcId, EntityId item) => _trade.RepairQuote(npcId, item);
@@ -988,10 +989,7 @@ public sealed class Simulation
     }
 
     /// <summary>
-    /// A room for the night (spec 15): the keeper's own town keeps the inn, the room costs what that inn asks, and the sleep is the world's
-    /// own advance to the hour the character asked to be woken at - the same catch-up an absence takes, so the adventurers' trips, the
-    /// markets and the boards come out of it exactly as they would have while they were away. Nothing else changes: a room is a safe place to
-    /// stop, not a cure.
+    /// Paid inn rest restores the character without advancing the shared world (DN8; owner ruling 2026-10-24).
     /// </summary>
     private string? RentRoom(RentRoom command)
     {
@@ -1002,19 +1000,17 @@ public sealed class Simulation
             return "there is no room to let here";
         if (inn.KeeperId != command.KeeperId)
             return "no one keeps a room here";
-        if (command.Hour is < 0 or > 23)
-            return "a room is let until an hour of the day";
+        if (_state.PlayerCombat.Defeated || _combat.View().InCombat)
+            return "you cannot rest while fighting or downed";
         if (inn.RoomCoin > _state.Currency)
             return $"not enough coin: the room is {inn.RoomCoin}, {_state.Currency} carried";
         if (Dispatch(new SpendCurrency(inn.RoomCoin)) is { } refused)
             return refused;
-        long nowHour = Setup.Clock.Hour(WorldTick);
-        long ahead = ((command.Hour - nowHour % Setup.Clock.HoursPerDay) % Setup.Clock.HoursPerDay + Setup.Clock.HoursPerDay) % Setup.Clock.HoursPerDay;
-        long wake = Setup.Clock.TickOfHour(nowHour + (ahead == 0 ? Setup.Clock.HoursPerDay : ahead));
-        Advance(wake - WorldTick);
+        Dispatch(new Heal(PlayerId, "inn rest", _combat.MaxHealth()));
+        Dispatch(new ChangePools(0, _combat.MaxStamina()));
         _context.Events.Publish(new RoomRented(command.KeeperId,
             _state.Npcs.TryGetValue(command.KeeperId, out var keeper) ? keeper.Definition.Name : command.KeeperId,
-            settlement, command.Hour, wake, inn.RoomCoin, WorldTick));
+            settlement, inn.RoomCoin, WorldTick));
         return null;
     }
 

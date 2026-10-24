@@ -371,9 +371,8 @@ public static class SocialContent
                     Positive(map, "days", 1))
                 : throw new FormatException($"{at}: hire_hireling needs risk_stated: true - the reply says the hireling can die (DN9)"),
             "dismiss_companion" => new DismissCompanionConsequence(),
-            "rent_room" => new RentRoomConsequence(LongOr(map, "hour", -1) is var hour and >= 0 and <= 23
-                ? (int)hour
-                : throw new FormatException($"{at}: rent_room names an hour of the day, 0 to 23")),
+            "rent_room" => !map.ContainsKey("hour") ? new RentRoomConsequence()
+                : throw new FormatException($"{at}: rent_room restores rest without choosing a world hour (DN8)"),
             "order_companion" => new OrderCompanionConsequence(Order(Text(map, "order"), at)),
             "report_act" => ReportAct(at, map, loader),
             // tell_lore (spec 41): the speaker tells of something they know, and the page that answers to it is filed in the journal. The page

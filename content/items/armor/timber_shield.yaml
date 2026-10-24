@@ -9,7 +9,7 @@ category: armor
 item_class: ordinary
 stack_max: 1
 weight: 3.0
-value_base: 18
+value_base: 15
 slot: off_hand
 armor_value: 2
 durability_max: 120       # wear from use (WP3b, D5); worn out it counts as crude and is never lost

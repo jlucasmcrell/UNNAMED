@@ -8,7 +8,7 @@ notes: The content bible's third weapon family, made by the player at the anvil 
 category: weapon
 stack_max: 1
 weight: 3.5
-value_base: 40
+value_base: 18
 rarity: common
 damage: [10, 14]
 damage_type: physical_pierce

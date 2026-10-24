@@ -116,10 +116,9 @@ public static class WorldContent
         if (!loader.Definitions.ContainsKey("config.travel"))
             return TravelRules.Default;
         var map = Config(loader, "config.travel");
-        var rules = new TravelRules((int)Math.Round(Number(map, "world_time_fraction") * 1000, MidpointRounding.AwayFromZero),
-            Mm(map, "road_walked_within_m"), Text(map, "touch_text"));
-        if (rules.WorldTimePermille is <= 0 or > 1000 || rules.RoadWalkedWithinMm <= 0)
-            throw new FormatException("config.travel needs a world_time_fraction in (0, 1] and a positive road_walked_within_m");
+        var rules = new TravelRules(Mm(map, "road_walked_within_m"), Text(map, "touch_text"));
+        if (rules.RoadWalkedWithinMm <= 0)
+            throw new FormatException("config.travel needs a positive road_walked_within_m");
         return rules;
     }
 

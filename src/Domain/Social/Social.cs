@@ -264,11 +264,9 @@ public sealed record DismissCompanionConsequence : DialogueConsequence;
 public sealed record OrderCompanionConsequence(CompanionOrder Order) : DialogueConsequence;
 
 /// <summary>
-/// <c>rent_room</c> (spec 15): the speaker lets the character a room for the night at their inn, to be woken at <c>hour</c> - a game hour of
-/// the day. The price, the sleep and what the world does through it are the inn's and the simulation's; the reply says the price, as a hire's
-/// reply states its risk.
+/// <c>rent_room</c>: paid restorative rest at the speaker's inn, with no world-time skip (DN8).
 /// </summary>
-public sealed record RentRoomConsequence(int Hour) : DialogueConsequence;
+public sealed record RentRoomConsequence : DialogueConsequence;
 
 /// <summary>
 /// <c>report_act</c> (WP6): the character tells the speaker of every logged act of this kind and subject; the speaker's faction learns

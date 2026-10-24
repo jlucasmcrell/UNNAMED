@@ -306,7 +306,7 @@ public partial class InventoryPanel : CanvasLayer
         _sellJunk.Visible = OpenTrader is not null;
         if (OpenTrader is { } seller)
         {
-            int junk = player.Inventory.Count(e => e.Junk && !e.Locked && !player.Equipment.ContainsValue(e.ItemId) && SellPrice(simulation, seller, e.DefId, e.Wear) is > 0);
+            int junk = player.Inventory.Count(e => e.Junk && !e.Locked && !player.Equipment.ContainsValue(e.ItemId) && SellPrice(simulation, seller, e.DefId, e.Wear, e.Quality, e.Notable) is > 0);
             _sellJunk.Text = junk > 0 ? $"Sell junk ({junk})" : "Sell junk";
             _sellJunk.Disabled = junk == 0;
             _sellJunkPressed = () => Submit(new SellJunkCommand(simulation.PlayerId, seller));
@@ -409,7 +409,7 @@ public partial class InventoryPanel : CanvasLayer
         // Remains take nothing in: the world takes a body away with whatever lies in it.
         if (OpenContainer is { } key && !simulation.Creatures.Any(c => c.Condition == CreatureCondition.Corpse && c.CorpseKey == key))
             row.Root.AddChild(Button(id, "Put", () => Submit(new MoveItemCommand(simulation.PlayerId, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.In(key), entry.Count))));
-        if (OpenTrader is { } trader && SellPrice(simulation, trader, entry.DefId, entry.Wear) is { } each && each > 0 && !equipped)
+        if (OpenTrader is { } trader && SellPrice(simulation, trader, entry.DefId, entry.Wear, entry.Quality, entry.Notable) is { } each && each > 0 && !equipped)
         {
             var sellAll = Button(id, $"Sell {each * entry.Count}", () => Submit(new SellCommand(simulation.PlayerId, trader, entry.ItemId, entry.Count)));
             sellAll.Disabled = entry.Locked;
@@ -796,7 +796,8 @@ public partial class InventoryPanel : CanvasLayer
     }
 
     /// <summary>What the trader pays for one now: their town's price, less what it remembers the character selling it (WP14) and what the wear costs (WP3b); null when they do not buy it.</summary>
-    private static long? SellPrice(Simulation simulation, string npcId, string defId, ItemWear? wear) => simulation.Offer(npcId, defId, wear);
+    private static long? SellPrice(Simulation simulation, string npcId, string defId, ItemWear? wear, int quality, NotableRecord? notable) =>
+        simulation.Offer(npcId, defId, wear, quality, notable);
 
     private void Submit(GameCommand command) => _session.Submit(command);
 
