@@ -1,0 +1,30 @@
+id: people.vaskaal
+kind: people
+schema: 1
+display_key: people.vaskaal.name
+tags: [people]
+name: Vaskaal
+notes: The void-farers (RACES.md section 7). NPC-only for now; traits and abilities are RACE_ABILITIES_PROPOSAL.md section 3.7, owner-approved. Their technology is culture, not biology. The suggest names are PROPOSED expedition names for owner review.
+playable: false
+card:
+  epithet: The void-farers
+  summary: They came around the Pachas rather than through one. Honest by their own standards, and here for reasons that are not good.
+  body: Very tall and lean, with extra articulation in forearm and ankle and hands of three fingers and two thumbs.
+  leans_toward: Ranged and science.
+  trade_off: Unmatched reach and technology, but fragile, and no magic ever.
+traits:
+  health_percent: 80
+  damage_taken_percent: { arcane: 50 }   # outside the Pacha
+  speed_percent: 105
+  carry_kg: -5
+  resonance_percent: 0                    # no magic at all, ever
+  attribute_grant: { precision: 2, agility: 1, endurance: -1 }
+learning:
+  aptitude_percent: { ranged: 120, science: 120, magic: 0 }
+suggest_names:
+  - Ithrak Saal
+  - Vessa Kol
+  - Oruun Tey
+  - Saal Merid
+  - Kethe Vorr
+  - Anaq Ilu

@@ -453,7 +453,8 @@ internal sealed partial class InventorySystem
 
     /// <summary>What the character can carry: their own limit, and what porters on their feet and following add (WP15a).</summary>
     public long CarryLimitGrams() =>
-        Items.Inventory.CarryLimitGrams(State.Progression, _context.Setup.Progression) + PartyCarry.BonusGrams(State, _context.Setup.Social.Party);
+        Items.Inventory.CarryLimitGrams(State.Progression, _context.Setup.Progression) + PartyCarry.BonusGrams(State, _context.Setup.Social.Party)
+        + _context.PlayerTraits.CarryGrams;
 
     public string? Handle(SpendCurrency command)
     {

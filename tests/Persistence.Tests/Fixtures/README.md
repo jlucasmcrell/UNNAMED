@@ -99,6 +99,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | A page of the vale's own entry, found by walking into the den, and a page of the warden's account, told in her conversation | player lore | Schema 35 (lore: the journal pages the character has unlocked, each naming its entry, page, what opened it and when). v1-v34 migrate to no pages; a schema-35 player without its lore, or a page whose name is not a way the world reports, is corrupt, not defaulted |
 | `creature.beast.wolf_grey` "Wolf" tamed out of `spawn.fixture.den#0`, following at (148.75, -41.5) facing 45 degrees, health 37 of 50, bond 44, bitten and lured (bite 2 on 3 uses, lure 1 on 1) and fed at tick 4900; `creature.beast.wolf_grey` "Grey" bought as a pup at (149, -41), struck down at tick 4950 and at home badly wounded until tick 149000 | player pets | Schema 36 (pets: the animals that travel with the character - the animal, its own name, role and order, the place that order named, how hurt it is, the bond it has built and the skills it learnt by use; owner rulings 1 and 3 of spec 43). v1-v35 migrate to no pets; a schema-36 player without its pets, an animal whose creature is not one the pack defines, or one kept twice, is corrupt, not defaulted |
 | Aelin's look: 1.66 m, the HumGen face `face.f.caucasian_presets.caucasian_3`, `hair.long.bun`, no facial hair, the body's own outfit, `footwear.outdoor.garden_boot`, and two sliders moved (`body.muscular` 350, `face.nose_tip_size` -200) | player identity appearance | Schema 39 (the HumGen creator: what the creator shaped beyond the body preset, by catalogue ID and integer slider value). The fixture pack has no catalogue: the IDs are the character's, kept as they are. v1-v38 migrate to no appearance - the body preset exactly as baked; a malformed stature, ID or doubled slider is corrupt, not defaulted |
+| A crossing record of toll 130 - one Debt tier, a phase scar taken - and a planar anchor at (150000, 12000, -40000) mm set at tick 4950; the identity's origin `origin.frontier_road` | player crossing, identity origin | Schema 40 (race abilities). The fixture pack defines no peoples, so nothing reads the record as an Orenth's; it pins the shape. v1-v39 migrate to no toll, no anchor, folded wings and the frontier-road origin |
 
 ## Provenance
 
@@ -141,6 +142,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `v35/` | The lore schema-35 writer (the journal pages the character has unlocked) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 | `v36/` | The pets schema-36 writer (the animals that travel with the character) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 | `v39/` | The HumGen-creator schema-39 writer (the identity's appearance) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
+| `v40/` | The race-abilities schema-40 writer (the origin, the crossing record and open wings) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 
 The one-off addition to `7ff4c57`'s probe that wrote `v1/`. It is not compiled into this build, since
 that build's world API no longer exists:

@@ -67,7 +67,7 @@ public class PlayerRecordCompletenessTests
                         Tactics = new PartyTactics(KeepToLeash: true, ProtectInjured: false, HoldHealing: true),
                     }))
             {
-                Posture = new Posture(Stance.Crouched, Airborne: true, AirMs: 120),
+                Posture = new Posture(Stance.Crouched, Airborne: true, AirMs: 120) { Wing = WingState.Glide, FeetMm = 13_500 },   // aloft on its wings (schema 40)
                 // Inside an interior space, come in by its portal (schema 30, the Barrowworks).
                 SpaceId = "space.fixture.ring",
                 SpaceTraversal = "portal.fixture.mouth",
@@ -133,7 +133,13 @@ public class PlayerRecordCompletenessTests
                     {
                         Space = "space.fixture.stable", TamedFromKey = "spawn.fixture.den#0", WaitXMm = 148_750, WaitZMm = -41_500, LastFedTick = 4_900, Level = 2,
                         WoundedTick = 4_950, RecoversAtTick = 149_000, AdoptedTick = 4_000,
-                    }),            };
+                    }),
+                // Schema 40: a crossing two tiers in - a phase scar, then a place forgotten - with an anchor set inside.
+                Crossing = new Domain.Character.Crossing(230, ImmutableArray.Create(
+                        new Domain.Character.TollCost(1, Domain.Character.TollKind.Scar, null),
+                        new Domain.Character.TollCost(2, Domain.Character.TollKind.Memory, "location.den_mouth")),
+                    new Domain.Character.PlanarAnchor("space.fixture.stable", 151_000, 12_000, -39_000, 4_950)),
+            };
     }
 
     private static EntityId Item(byte n) => EntityId.Create(EntityKind.Item, 1_700_000_000_000 + n, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, n });
@@ -259,8 +265,10 @@ public class PlayerRecordCompletenessTests
         ["player.party_sheets[].belongings[].wear"] = "a whole record, absent on an unworn stack; each of its fields is perturbed where one is present",
         ["player.party_sheets[].gear[].item.wear"] = "a whole record, absent on an unworn stack; each of its fields is perturbed where one is present",
         ["player.posture.airborne"] = "in the air or not decides the air time (0 on the ground)",
+        ["player.crossing.costs[].tier"] = "one cost for each tier, numbered from 1 in order, so no tier changes alone (schema 40)",
         ["player.pets[].role"] = "one of the four role keys, so no other value decodes alone (schema 36)",
         ["player.pets[].skills[].skill"] = "one of the two skill keys, so no other value decodes alone (schema 36)",
+        ["player.wings.wing"] = "one of the four open-wing keys, so no other value decodes alone (schema 40)",
     };
 
     /// <summary>

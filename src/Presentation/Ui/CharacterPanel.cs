@@ -148,11 +148,41 @@ public partial class CharacterPanel : CanvasLayer
             band.AddChild(who);
             band.AddChild(UiKit.Words($"{call.Package} · contact {call.Contact}", 16, HudStyle.Ash));
         }
+        band.AddChild(People(view));
         string hint = "A level-up grants an attribute point.";
         if (progression.XpDebt > 0)
             hint += " The XP debt is repaid from the next XP earned.";
         band.AddChild(UiKit.Words(hint, 16, HudStyle.Muted));
         return band;
+    }
+
+    /// <summary>
+    /// The character's people (RACE_ABILITIES_PROPOSAL.md): the epithet, what the body and the aptitude do, and the racial abilities, in the
+    /// creator's own words. The Orenth crossing toll is never shown.
+    /// </summary>
+    private Control People(PlayerView view)
+    {
+        var box = new VBoxContainer();
+        box.AddThemeConstantOverride("separation", 2);
+        var who = new HBoxContainer();
+        who.AddThemeConstantOverride("separation", 12);
+        who.AddChild(UiKit.Caption("People", HudStyle.Brass));
+        var name = HudStyle.Text(HudStyle.Strong, 20, HudStyle.Bone);
+        name.Text = Names.Of(_session!, view.Identity.PeopleId);
+        who.AddChild(name);
+        if (_session.Characters.Peoples.GetValueOrDefault(view.Identity.PeopleId) is { } people)
+        {
+            if (people.Card is { } card)
+                who.AddChild(UiKit.Words(card.Epithet, 17, HudStyle.Ash));
+            box.AddChild(who);
+            var traits = UiKit.Words(string.Join(" · ", Models.PeopleWords.Traits(people.Traits).Select(t => $"{t.Caption}: {t.Words}")), 16, HudStyle.Ash);
+            box.AddChild(traits);
+            foreach (var ability in _session.Characters.AbilitiesOf(people.Id))
+                box.AddChild(UiKit.Words($"{ability.Name} - {ability.Description}", 15, HudStyle.Muted));
+        }
+        else
+            box.AddChild(who);
+        return box;
     }
 
     /// <summary>The attributes in play: each value, what a point in it changes, and - with points to spend - the means to weigh them.</summary>

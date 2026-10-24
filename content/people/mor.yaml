@@ -1,0 +1,28 @@
+id: people.mor
+kind: people
+schema: 1
+display_key: people.mor.name
+tags: [people]
+name: Mor
+notes: The stolen (RACES.md section 5). NPC-only for now; traits and abilities are RACE_ABILITIES_PROPOSAL.md section 3.5, owner-approved. Echoes, the reliquary and will-touch wait until the Mor become playable. The suggest names are PROPOSED descriptive custodial titles for owner review.
+playable: false
+card:
+  epithet: The stolen
+  summary: What remains of the people of a Pacha that no longer exists - a person without a body, a guest this reality tolerates.
+  body: A remembered shape whose edges dissolve into mist or missing space.
+  leans_toward: The ethereal and magic.
+  trade_off: Cannot be disarmed or robbed, but fragile, and every touch of the world is an effort of will.
+traits:
+  health_percent: 65
+  damage_taken_percent: { physical: 75, necrotic: 150, arcane: 150 }
+  resonance_percent: 115
+  attribute_grant: { will: 2, presence: 1, might: -1 }
+learning:
+  aptitude_percent: { ethereal: 125, magic: 110 }
+suggest_names:
+  - Lantern Witness
+  - Threshold Keeper
+  - Ash Custodian
+  - Hollow Warden
+  - Ford Watcher
+  - Oath Witness

@@ -18,6 +18,12 @@ public sealed record CreatorDraft(string Name, Pronouns Pronouns, string PeopleI
     /// <summary>The look shaped beyond the body preset, or null while it is the preset exactly as baked (choosing another body clears it).</summary>
     public CharacterAppearance? Appearance { get; init; }
 
+    /// <summary>Where a people's free creation point goes (Veth), or null for the people's default; a people with none ignores it.</summary>
+    public UNNAMED.Domain.Progression.CharacterAttribute? FreeAttribute { get; init; }
+
+    /// <summary>Where the character was raised (CHARACTER_CREATION_AND_LINEAGE.md §4): it, not the people, decides where they start.</summary>
+    public string OriginId { get; init; } = CharacterSpec.DefaultOrigin;
+
     /// <summary>The Call offered first and preselected for a first character (PJ05 §8.4): "A little of everything; a good first choice."</summary>
     public const string FirstCall = "call.wayfarer";
 
@@ -37,7 +43,10 @@ public sealed record CreatorDraft(string Name, Pronouns Pronouns, string PeopleI
     public string Count => $"{KeptName.Length} / {CharacterSpec.MaxNameLength}";
 
     /// <summary>The spec Begin starts the game with; throws as the domain does when the draft cannot begin.</summary>
-    public CharacterSpec Spec() => new CharacterSpec(Name, Pronouns, PeopleId, BodyPresetId, CallId) { Start = Start, Appearance = Appearance }.Validated();
+    public CharacterSpec Spec() => new CharacterSpec(Name, Pronouns, PeopleId, BodyPresetId, CallId)
+    {
+        Start = Start, Appearance = Appearance, FreeAttribute = FreeAttribute, OriginId = OriginId,
+    }.Validated();
 
     /// <summary>A pronoun set in the creator's words: "he/him", "she/her", "they/them".</summary>
     public static string Words(Pronouns pronouns) => pronouns switch

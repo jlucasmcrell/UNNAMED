@@ -43,6 +43,12 @@ public partial class Main
                 source.MakeCurrent();camera.QueueFree();
                 await RunFootstepReview(directory);GetTree().Quit();return;
             }
+            if(OS.GetEnvironment("OTHERREACH_RACE_ABILITIES_REVIEW") is { Length: > 0 } raceRoute)
+            {
+                camera.GetNode<OmniLight3D>("CharacterFill").Reparent(source,false);
+                source.MakeCurrent();camera.QueueFree();
+                await RunRaceAbilitiesReview(directory,raceRoute);GetTree().Quit();return;
+            }
             if(OS.GetEnvironment("OTHERREACH_RCD8_WAYSTONE_REVIEW")=="1")
             {
                 await RunRcd8WaystoneReview(directory,camera);GetTree().Quit();return;

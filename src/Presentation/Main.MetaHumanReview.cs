@@ -90,6 +90,9 @@ public partial class Main
             OpenCreator();
             bool feminine = System.Environment.GetEnvironmentVariable("OTHERREACH_MH_REVIEW_PLAYER") != "mateo";
             _creator.Use(_creator.Draft with { Name = feminine ? "Ada" : "Mateo", BodyPresetId = feminine ? "body.veth_f.average" : "body.veth_m.average", Pronouns = feminine ? Pronouns.She : Pronouns.He, Start = StartPoint.Waystone });
+            // A people's route (the race abilities' gate): that people, on the body the run was bound with until the RC binds theirs.
+            if (System.Environment.GetEnvironmentVariable("OTHERREACH_REVIEW_PEOPLE") is { Length: > 0 } people)
+                _creator.Use(_creator.Draft with { PeopleId = people, BodyPresetId = CharacterSpec.DefaultBodyPreset });
             if (!_creator.PressBegin()) throw new InvalidOperationException("Lighting diagnostic Begin refused");
             _mhReviewStep = 7;
             _mhReviewNext = Time.GetTicksMsec() + 10000;

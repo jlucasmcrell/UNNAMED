@@ -112,8 +112,14 @@ public sealed class PlayerController
     /// <summary>Jump (the owner's M6 playtest): the simulation decides whether there is room, and the arc.</summary>
     public void Jump() => _session.Submit(new JumpCommand(_session.Simulation!.PlayerId));
 
-    /// <summary>Crouch, or stand where there is room to.</summary>
+    /// <summary>Crouch, or stand where there is room to; gliding, flare the wings, or spread them again.</summary>
     public void Crouch(bool crouched) => _session.Submit(new CrouchCommand(_session.Simulation!.PlayerId, crouched));
+
+    /// <summary>Spread the wings in the air, or fold them (Kal): the simulation decides whether there are wings, and stamina to hold them.</summary>
+    public void Glide(bool spread) => _session.Submit(new GlideCommand(_session.Simulation!.PlayerId, spread));
+
+    /// <summary>Use a racial ability (an Orenth's blink, a Siann's ring): the simulation decides whether it is ready and what it costs.</summary>
+    public void PeopleAbility(string abilityId) => _session.Submit(new PeopleAbilityCommand(_session.Simulation!.PlayerId, abilityId));
 
     /// <summary>Begin a working (M3e): its tell, then its release.</summary>
     public void Cast(string formulaId) => _session.Submit(new CastCommand(_session.Simulation!.PlayerId, formulaId));

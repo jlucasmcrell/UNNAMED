@@ -1,0 +1,17 @@
+id: body.orenth_f.average
+kind: body
+schema: 1
+display_key: body.orenth_f.average.name
+tags: [body]
+name: Feminine, average
+notes: "The Orenth feminine body (owner 2026-10-24 - four playable peoples to start). Drawn with the approved HumGen production body orenth_f (Race_Bodies/production); its model binding (player_bodies type orenth_f) is the RC's, so until Codex binds it the creator shows it pending. One build until more are baked."
+people_ref: people.orenth
+type: orenth_f
+type_label: Feminine
+build: average
+build_label: Average
+order: 1
+offered: true
+arm_splay_deg: 0
+measurements_mm: {}
+rest_offsets_mm: {}

@@ -48,7 +48,18 @@ public sealed record CharacterSpec(string Name, Pronouns Pronouns, string People
     /// <summary>What the creator shaped beyond the body preset, or null for the preset exactly as it was baked.</summary>
     public CharacterAppearance? Appearance { get; init; }
 
+    /// <summary>
+    /// Where the character was raised (CHARACTER_CREATION_AND_LINEAGE.md §4): separate from lineage, it decides where the character starts.
+    /// </summary>
+    public string OriginId { get; init; } = DefaultOrigin;
+
+    /// <summary>Where a people's free creation point goes (Veth: +1 to any attribute); null is the people's default, and a people with none ignores it.</summary>
+    public CharacterAttribute? FreeAttribute { get; init; }
+
     public const int MaxNameLength = 24;
+
+    /// <summary>The origin every character has until content offers another: the frontier road into Ashen Hollow (owner, 2026-10-24).</summary>
+    public const string DefaultOrigin = "origin.frontier_road";
 
     /// <summary>The people every character belongs to until the creator offers another (only the Veth are in the slice).</summary>
     public const string DefaultPeople = "people.veth";
@@ -95,6 +106,10 @@ public sealed record CharacterSpec(string Name, Pronouns Pronouns, string People
             throw new ArgumentException($"Unknown start {Start}", nameof(Start));
         if (Appearance?.Problem() is { } appearance)
             throw new ArgumentException(appearance, nameof(Appearance));
+        if (!IsIdOf(OriginId, "origin"))
+            throw new ArgumentException($"'{OriginId}' is not an origin ID", nameof(OriginId));
+        if (FreeAttribute is { } free && !Enum.IsDefined(free))
+            throw new ArgumentException($"Unknown attribute {free}", nameof(FreeAttribute));
         return this with { Name = Normalize(Name) };
     }
 
@@ -113,7 +128,11 @@ public sealed record CharacterIdentity(Pronouns Pronouns, string PeopleId, strin
     /// <summary>What the creator shaped beyond the body preset (schema 39), or null for the preset as baked.</summary>
     public CharacterAppearance? Appearance { get; init; }
 
-    public static CharacterIdentity Of(CharacterSpec spec) => new(spec.Pronouns, spec.PeopleId, spec.BodyPresetId, spec.CallId) { Appearance = spec.Appearance };
+    /// <summary>Where the character was raised (schema 40). A character made before origins has the frontier road.</summary>
+    public string OriginId { get; init; } = CharacterSpec.DefaultOrigin;
+
+    public static CharacterIdentity Of(CharacterSpec spec) =>
+        new(spec.Pronouns, spec.PeopleId, spec.BodyPresetId, spec.CallId) { Appearance = spec.Appearance, OriginId = spec.OriginId };
 }
 
 /// <summary>
@@ -170,7 +189,27 @@ public sealed record CallDefinition(
 }
 
 /// <summary>A people (race) a character can belong to, and the names its members are given.</summary>
-public sealed record PeopleDefinition(string Id, bool Playable, NameSource Names);
+public sealed record PeopleDefinition(string Id, bool Playable, NameSource Names)
+{
+    /// <summary>Its innate biology and inherited aptitude (RACE_ABILITIES_PROPOSAL.md): every member's, player or not.</summary>
+    public PeopleTraits Traits { get; init; } = PeopleTraits.None;
+
+    /// <summary>What the creator says of it; null for a people content gives no card.</summary>
+    public PeopleCard? Card { get; init; }
+
+    /// <summary>Its racial abilities (<c>ability</c> of <c>class: people</c>), by ID, in content order.</summary>
+    public ImmutableArray<string> Abilities { get; init; } = ImmutableArray<string>.Empty;
+}
+
+/// <summary>
+/// Where a character was raised (<c>config.origins</c>; CHARACTER_CREATION_AND_LINEAGE.md §4): what the creator calls it, and where a new
+/// character of it starts - <see cref="StartLocationId"/>, a named place, or with none the region's road in. Today the only origin is the
+/// frontier road; a start town is an origin naming its place.
+/// </summary>
+public sealed record OriginDefinition(string Id, string Name, string Description)
+{
+    public string? StartLocationId { get; init; }
+}
 
 /// <summary>
 /// A people's names, as the canon lists give them. The creator's Suggest button draws from it, and so can anything else that needs a
@@ -252,6 +291,40 @@ public sealed record CharacterSetup(
     /// <summary>Every body preset by ID; empty for a pack with none (test fixtures), where any <c>body.*</c> ID is accepted.</summary>
     public ImmutableSortedDictionary<string, BodyPreset> Bodies { get; init; } = ImmutableSortedDictionary.Create<string, BodyPreset>(StringComparer.Ordinal);
 
+    /// <summary>Every racial ability by ID (<c>ability</c> of <c>class: people</c>).</summary>
+    public ImmutableSortedDictionary<string, PeopleAbility> Abilities { get; init; } = ImmutableSortedDictionary.Create<string, PeopleAbility>(StringComparer.Ordinal);
+
+    /// <summary>The origins the creator offers; empty for a pack with none, where only the default origin is accepted.</summary>
+    public ImmutableSortedDictionary<string, OriginDefinition> Origins { get; init; } = ImmutableSortedDictionary.Create<string, OriginDefinition>(StringComparer.Ordinal);
+
+    /// <summary>A people's traits; a people content does not define has none.</summary>
+    public PeopleTraits TraitsOf(string? peopleId) =>
+        peopleId is not null && Peoples.TryGetValue(peopleId, out var people) ? people.Traits : PeopleTraits.None;
+
+    /// <summary>A people's racial abilities, in content order.</summary>
+    public ImmutableArray<PeopleAbility> AbilitiesOf(string? peopleId) =>
+        peopleId is not null && Peoples.TryGetValue(peopleId, out var people)
+            ? people.Abilities.Select(id => Abilities[id]).ToImmutableArray()
+            : ImmutableArray<PeopleAbility>.Empty;
+
+    /// <summary>The ability of this people that does <paramref name="action"/>, or null.</summary>
+    public PeopleAbility? AbilityOf(string? peopleId, PeopleAction action) => AbilitiesOf(peopleId).FirstOrDefault(a => a.Action == action);
+
+    /// <summary>
+    /// The creation grant a character of this spec's people takes (§1): the people's fixed grant, plus its free points on the attribute
+    /// the spec chose (or the people's default). Each line is its own one-time <see cref="GrantSource.Race"/> grant.
+    /// </summary>
+    public ImmutableArray<AttributeGrant> RaceGrants(CharacterSpec spec)
+    {
+        var traits = TraitsOf(spec.PeopleId);
+        var points = traits.AttributeGrant.ToBuilder();
+        if (traits.FreeAttributePoints > 0 && (spec.FreeAttribute ?? traits.FreeAttributeDefault) is var free)
+            points[free] = points.GetValueOrDefault(free) + traits.FreeAttributePoints;
+        return points.Where(p => p.Value != 0)
+            .Select(p => new AttributeGrant(p.Key, p.Value, GrantSource.Race, $"{spec.PeopleId}.{ProgressionKeys.Key(p.Key)}"))
+            .ToImmutableArray();
+    }
+
     /// <summary>The peoples a player may choose, in ID order.</summary>
     public ImmutableArray<PeopleDefinition> PlayablePeoples => Peoples.Values.Where(p => p.Playable).ToImmutableArray();
 
@@ -269,6 +342,9 @@ public sealed record CharacterSetup(
             throw new ArgumentException($"{spec.PeopleId} is not a people a character can be made from", nameof(spec));
         if (spec.CallId is { } call && !Calls.ContainsKey(call))
             throw new ArgumentException($"{call} is not a defined Call", nameof(spec));
+        if (Origins.Count > 0 ? !Origins.ContainsKey(spec.OriginId) : spec.OriginId != CharacterSpec.DefaultOrigin)
+            throw new ArgumentException($"{spec.OriginId} is not a defined origin", nameof(spec));
+
         if (Bodies.Count > 0 && spec.BodyPresetId != CharacterSpec.DefaultBodyPreset
             && (!Bodies.TryGetValue(spec.BodyPresetId, out var body) || !body.Offered || body.PeopleId != spec.PeopleId))
             throw new ArgumentException($"{spec.BodyPresetId} is not a body a {spec.PeopleId} character can be made with", nameof(spec));

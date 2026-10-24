@@ -1,0 +1,15 @@
+id: ability.people.orenth.blink
+kind: ability
+schema: 1
+display_key: ability.people.orenth.blink.name
+tags: [ability, people]
+name: Blink
+notes: Racial ability, innate biology - every Orenth has it and no other people can learn it (RACES.md section 4; RACE_ABILITIES_PROPOSAL.md section 3.4, owner-approved 2026-10-24). Every number is provisional.
+class: people
+people_ref: people.orenth
+action: blink
+description: "Step sideways through an adjacent reality and out again up to 8 m away, past creatures and people but never through a wall. Every crossing takes something."
+cost: { stamina: 15, focus: 5 }
+cooldown_s: 10
+range_m: 8.0
+toll: 1

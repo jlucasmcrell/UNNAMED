@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
@@ -52,6 +53,9 @@ internal sealed class SystemContext
         Setup = setup;
         Events = events;
         Dispatch = dispatch;
+        PlayerTraits = setup.Character.TraitsOf(state.PeopleId);
+        PlayerAbilities = setup.Character.AbilitiesOf(state.PeopleId);
+        PlayerMovement = PeopleRules.Movement(setup.Movement, PlayerTraits, PlayerAbilities);
         // Layouts are immutable for this context. Resolve authored sites once, preserving the
         // first matching layout, instead of rescanning every space for every collision probe.
         void Register<T>(Func<RegionLayout, IEnumerable<T>> sites) where T : notnull
@@ -68,6 +72,23 @@ internal sealed class SystemContext
     public RuntimeState State { get; }
     public SimulationSetup Setup { get; }
     public IEventBus Events { get; }
+
+    /// <summary>The player's people's biology and aptitude (RACE_ABILITIES_PROPOSAL.md): fixed for the run, as the people is.</summary>
+    public PeopleTraits PlayerTraits { get; }
+
+    /// <summary>The player's racial abilities, in content order.</summary>
+    public ImmutableArray<PeopleAbility> PlayerAbilities { get; }
+
+    /// <summary>The movement rules the player's body moves by: the shared ones, at its people's speed, with its people's leap and wings.</summary>
+    public MovementRules PlayerMovement { get; }
+
+    /// <summary>An NPC's people, where the world knows it (a role resident's slot, an adventurer); null for one it does not.</summary>
+    public string? PeopleOf(string npcId) =>
+        Setup.NpcLife.Routines.GetValueOrDefault(npcId)?.PeopleId ?? State.World.Adventurers?.Agents.GetValueOrDefault(npcId)?.PeopleId;
+
+    /// <summary>The player's derived pools and Resonance: the attributes' values, then the people's biology and the crossing toll's health.</summary>
+    public DerivedStats PlayerStats() =>
+        PeopleRules.Derive(ProgressionEngine.Derive(State.Progression, Setup.Progression), PlayerTraits, State.Crossing.Tier);
 
     /// <summary>Route an internal command to its owner; null when accepted, otherwise the reason.</summary>
     public Func<InternalCommand, string?> Dispatch { get; }
@@ -234,10 +255,18 @@ internal sealed class SystemContext
     /// not a companion (M6), who keeps out of the way instead, so a narrow door is never held shut by a friend.
     /// </summary>
     public ImmutableArray<Blocker> Obstacles() =>
-        ClosedDoors().AddRange(State.Creatures.Values.Where(c => c.Alive && c.Site.Space == State.Space)
-            .Select(c => (Blocker)new CircleBlocker(c.Key, c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm, 0)))
-            .AddRange(State.Npcs.Values.Where(n => !State.Companions.ContainsKey(n.Definition.Id) && n.Space == State.Space)
+        Phased() ? ClosedDoors() : ClosedDoors().AddRange(Bodies());
+
+    /// <summary>Living creatures and people the player's body meets - not a companion, who keeps out of the way.</summary>
+    public IEnumerable<Blocker> Bodies() =>
+        State.Creatures.Values.Where(c => c.Alive && c.Site.Space == State.Space)
+            .Select(c => (Blocker)new CircleBlocker(c.Key, c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm, 0))
+            .Concat(State.Npcs.Values.Where(n => !State.Companions.ContainsKey(n.Definition.Id) && n.Space == State.Space)
                 .Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, Setup.Movement.BodyRadiusMm, 0)));
+
+    /// <summary>The player is half out of this reality (Orenth: wraith-step): blows of the body pass through it, and it through bodies.</summary>
+    public bool Phased() =>
+        State.Effects.Any(kv => kv.Key.Kind == EntityKind.Character && EffectRules.Phased(kv.Value, Setup.Combat.Effects));
 }
 
 /// <summary>
@@ -280,14 +309,16 @@ internal sealed class ClockSystem : IAbstractAdvance
 
 /// <summary>
 /// Owns: <see cref="StateSlice.PlayerBody"/> - the body and its posture. Integrates the player's movement intent every tick with
-/// <see cref="Kinematics.Step"/>, jumps and crouches (the owner's M6 playtest). The intent itself is transient input state and is
-/// never saved; the posture is.
+/// <see cref="Kinematics.Step"/>, jumps and crouches (the owner's M6 playtest), and a winged body's leap, glide and flare (Kal). The intent
+/// itself is transient input state and is never saved; the posture is. The wings' cooldowns are transient, as cooldowns are.
 /// </summary>
 internal sealed class MovementSystem
 {
     private readonly SystemContext _context;
     private readonly SliceOwner _owner;
     private readonly EntityId _player;
+    private readonly Dictionary<PeopleAction, long> _readyAt = new();
+    private int _glideMilli;
 
     public MovementSystem(SystemContext context, SliceOwner owner, EntityId player)
     {
@@ -316,8 +347,14 @@ internal sealed class MovementSystem
             return "busy";
         if (posture.Stance == Stance.Crouched && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Setup.SpaceFor(_context.State.Space)))
             return "no room to stand";
-        _context.State.SetPosture(_owner, new Posture(Stance.Standing, Airborne: true, AirMs: 0));
+        // Sprint and jump: a winged body throws its wings open for a leap, if it has the stamina and the wings are ready (Kal: Gap Leap).
+        var wing = Intent.Gait == Gait.Sprint && Intent.IsMoving && posture.Stance == Stance.Standing && Spend(PeopleAction.Leap, tick)
+            ? WingState.Leap
+            : WingState.Folded;
+        _context.State.SetPosture(_owner, new Posture(Stance.Standing, Airborne: true, AirMs: 0) { Wing = wing });
         _context.Events.Publish(new Jumped(_player, tick));
+        if (wing == WingState.Leap)
+            _context.Events.Publish(new WingsChanged(_player, wing, tick));
         if (posture.Stance == Stance.Crouched)
             _context.Events.Publish(new StanceChanged(_player, Stance.Standing, tick));
         return null;
@@ -332,6 +369,8 @@ internal sealed class MovementSystem
         if (command.Actor != _player)
             return $"unknown actor {command.Actor}";
         var posture = _context.State.Posture;
+        if (posture.Aloft)
+            return command.Crouched ? Flare(posture, tick) : posture.Wing == WingState.Flare ? Wings(posture with { Wing = WingState.Glide }, tick) : null;
         var stance = command.Crouched ? Stance.Crouched : Stance.Standing;
         if (posture.Stance == stance)
             return null;
@@ -345,6 +384,65 @@ internal sealed class MovementSystem
         _context.Events.Publish(new StanceChanged(_player, stance, tick));
         return null;
     }
+
+    /// <summary>
+    /// Spread the wings, in the air and with stamina to hold them (Kal: Wing Glide): the body keeps the height it has and glides from there.
+    /// Folding them aloft lets the body drop; on the ground, or wingless, there is nothing to spread.
+    /// </summary>
+    public string? Handle(GlideCommand command, long tick)
+    {
+        if (command.Actor != _player)
+            return $"unknown actor {command.Actor}";
+        var posture = _context.State.Posture;
+        if (!command.Spread)
+            return posture.Aloft && posture.Wing != WingState.Fall ? Wings(posture with { Wing = WingState.Fall }, tick) : null;
+        if (!_context.PlayerMovement.Wings.CanGlide)
+            return "no wings to spread";
+        if (!posture.Airborne)
+            return "on the ground";
+        if (posture.Wing is WingState.Glide or WingState.Flare)
+            return null;
+        if (_context.State.PlayerCombat.Defeated || _context.ControlOn(_player) != ControlKind.None)
+            return "cannot spread the wings now";
+        if (Stamina() <= 0)
+            return "too tired to hold the wings";
+        _glideMilli = 0;
+        return Wings(posture with { Wing = WingState.Glide, FeetMm = _context.State.Body.YMm, AirMs = 0 }, tick);
+    }
+
+    /// <summary>Gliding, flare the wings to brake: forward to nothing, and down slowly onto the spot below (Kal: Wing Brake).</summary>
+    private string? Flare(Posture posture, long tick)
+    {
+        if (posture.Wing != WingState.Glide)
+            return "not gliding";
+        if (!Spend(PeopleAction.Flare, tick))
+            return "cannot flare yet";
+        return Wings(posture with { Wing = WingState.Flare }, tick);
+    }
+
+    private string? Wings(Posture posture, long tick)
+    {
+        _context.State.SetPosture(_owner, posture);
+        _context.Events.Publish(new WingsChanged(_player, posture.Wing, tick));
+        return null;
+    }
+
+    /// <summary>Pay for a wing ability the body has: its stamina, once its cooldown is out. False, and nothing paid, otherwise.</summary>
+    private bool Spend(PeopleAction action, long tick)
+    {
+        if (_context.PlayerAbilities.FirstOrDefault(a => a.Action == action) is not { } ability
+            || _readyAt.TryGetValue(action, out long ready) && tick < ready || Stamina() < ability.StaminaCost)
+            return false;
+        if (ability.StaminaCost > 0)
+            _context.Dispatch(new ChangePools(0, -ability.StaminaCost));
+        _readyAt[action] = tick + ability.CooldownTicks;
+        return true;
+    }
+
+    private int Stamina() => _context.State.Progression.Pools.Stamina ?? (int)_context.PlayerStats().StaminaMax;
+
+    /// <summary>Ticks until a wing ability is ready again; 0 when it is.</summary>
+    public int Cooldown(PeopleAction action, long tick) => _readyAt.TryGetValue(action, out long ready) && ready > tick ? (int)(ready - tick) : 0;
 
     public string? Handle(MoveCommand command)
     {
@@ -366,7 +464,7 @@ internal sealed class MovementSystem
         var from = _context.State.Body;
         var combat = _context.State.PlayerCombat;
         var constants = _context.Setup.Combat.Constants;
-        var rules = _context.Setup.Movement;
+        var rules = _context.PlayerMovement;
         var intent = Intent;
         var (phase, _) = combat.Action.PhaseAt(tick, constants);
         if (combat.Defeated || phase == CombatPhase.Staggered || (phase == CombatPhase.Recovery && combat.Action.Kind == ActionKind.Dodge)
@@ -395,14 +493,33 @@ internal sealed class MovementSystem
             intent = intent with { Gait = Gait.Run };
         }
 
-        var posture = _context.State.Posture;
+        var before = _context.State.Posture;
+        var posture = before.Aloft && (combat.Defeated || before.Wing == WingState.Glide && !HoldWings(tick)) ? before with { Wing = WingState.Fall } : before;
         var (to, next) = Kinematics.Step(from, posture, intent, rules, _context.Setup.SpaceFor(_context.State.Space), _context.Obstacles(), _context.Setup.TickMilliseconds);
-        if (next != posture)
+        if (next != before)
+        {
             _context.State.SetPosture(_owner, next);
+            if (next.Wing != before.Wing)
+                _context.Events.Publish(new WingsChanged(_player, next.Wing, tick));
+        }
         if (to == from)
             return;
         _context.State.SetBody(_owner, to);
         _context.Events.Publish(new BodyMoved(_player, from, to, tick));
+    }
+
+    /// <summary>A tick of gliding drains the wings' stamina a thousandth at a time; spent, they fold and the body drops.</summary>
+    private bool HoldWings(long tick)
+    {
+        var glide = _context.PlayerAbilities.FirstOrDefault(a => a.Action == PeopleAction.Glide);
+        if (glide is null)
+            return false;
+        _glideMilli += glide.StaminaPerSecond * _context.Setup.TickMilliseconds;
+        int whole = _glideMilli / 1000;
+        _glideMilli %= 1000;
+        if (whole > 0)
+            _context.Dispatch(new ChangePools(0, -whole));
+        return Stamina() > 0;
     }
 
     public string? Handle(Relocate command, long tick)
@@ -612,7 +729,7 @@ internal sealed class ProgressionSystem
     public string? Handle(ChangePools command)
     {
         var progression = _context.State.Progression;
-        var stats = ProgressionEngine.Derive(progression, _context.Setup.Progression);
+        var stats = _context.PlayerStats();
         int maxHealth = (int)stats.HealthMax, maxStamina = (int)stats.StaminaMax, maxFocus = (int)stats.FocusMax;
         int health = Math.Clamp((progression.Pools.Health ?? maxHealth) + command.Health, 0, maxHealth);
         int stamina = Math.Clamp((progression.Pools.Stamina ?? maxStamina) + command.Stamina, 0, maxStamina);
@@ -659,7 +776,7 @@ internal sealed class ProgressionSystem
 
     public string? Handle(PracticeSkill command)
     {
-        var result = ProgressionEngine.Practice(_context.State.Progression, command.Practice, _context.Setup.Progression);
+        var result = ProgressionEngine.Practice(_context.State.Progression, command.Practice, _context.Setup.Progression, _context.PlayerTraits.Learning);
         _context.State.SetProgression(_owner, result.Progression);
         _context.Events.Publish(new SkillPracticed(command.Practice.SkillId, result.XpGained,
             ProgressionEngine.SkillLevel(result.Progression, command.Practice.SkillId), result.LevelsGained, command.Practice.Tick));

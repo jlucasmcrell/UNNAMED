@@ -4,6 +4,7 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Magic;
 using UNNAMED.Domain.Progression;
 
@@ -70,10 +71,15 @@ internal sealed partial class CombatSystem
             return $"{command.FormulaId} is not a formula this build knows";
         if (!ProgressionEngine.Knows(State.Progression, formula.Id))
             return $"{formula.Id} is not known";
+        if (!_context.PlayerTraits.CanCast)
+            return "no Resonance to work with";
         if (Busy(State.PlayerCombat.Action, tick) is { } busy)
             return busy;
         if (Focus() < formula.FocusCost)
             return "not enough Focus";
+        double castTime = EffectRules.CastTimeMultiplier(EffectsOf(_player), Setup.Effects);
+        if (castTime != 1.0)
+            formula = formula with { CastTicks = Math.Max(1, (int)Math.Round(formula.CastTicks * castTime, MidpointRounding.AwayFromZero)) };
         _context.Dispatch(new ChangePools(0, 0) { Focus = -formula.FocusCost });
         State.SetPlayerCombat(_owner, State.PlayerCombat with
         {
@@ -93,7 +99,8 @@ internal sealed partial class CombatSystem
     private void Release(FormulaDefinition formula, long tick)
     {
         int skill = ProgressionEngine.SkillLevel(State.Progression, formula.DomainSkillId);
-        int cost = MagicRules.StrainCost(formula, skill, M);
+        int cost = (int)Math.Round(MagicRules.StrainCost(formula, skill, M) * EffectRules.StrainCostMultiplier(EffectsOf(_player), Setup.Effects),
+            MidpointRounding.AwayFromZero);
         int before = Strain();
         var (strain, backlash) = MagicRules.Settle(before, cost, StrainTolerance(), M);
         if (strain != before)

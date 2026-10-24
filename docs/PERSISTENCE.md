@@ -696,3 +696,17 @@ The 38 -> 39 step gives every older identity no appearance. The schema-38 player
 (`Sections/V38`); the 16 -> 17 and 35 -> 36 steps write those shapes. Schema 39 adds its own writer-generated fixture and
 updates only the fixtures' expected current representation (`"appearance": null`).
 
+
+## 14. Schema 40 — race abilities: the origin, the crossing record and open wings (2026-10-24)
+
+The player identity gains `origin` (CHARACTER_CREATION_AND_LINEAGE.md §4: where the character was raised, which decides where a new one
+starts; `config.origins`). The player gains `crossing`, the Orenth crossing record (RACE_ABILITIES_PROPOSAL.md §3.4, owner-approved): the
+hidden `toll`, one `costs` entry per Debt tier reached (`tier`, `kind` scar | memory | name | years, and the `ref` it took or null), and the
+planar `anchor` (`space`, `x_mm`, `y_mm`, `z_mm`, `placed_tick`) or null. It also gains `wings`: a winged body's wings while open
+(`wing` leap | glide | flare | fall, and `feet_mm`, the height a body aloft keeps over falling ground), null when folded. A people's creation
+grant is a `race` attribute grant, and only it may be negative.
+
+The 39 -> 40 step gives every older identity the origin `origin.frontier_road`, and every older player an empty crossing and folded wings.
+The schema-39 player and identity are frozen (`Sections/V39`); the 38 -> 39 step writes that shape. The origin enters the player digest only
+when it is not the frontier road, the crossing only when it holds a toll or an anchor, and the wings only when open, so every older record
+digests as it did. Schema 40 adds its own writer-generated fixture and updates the fixtures' expected current representation.

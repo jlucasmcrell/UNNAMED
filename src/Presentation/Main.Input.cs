@@ -310,8 +310,11 @@ public partial class Main
             OpenPetOrders();
         if (Input.IsActionJustPressed("jump"))
             _controller.Jump();
-        // Crouch presses on and off by default (the owner's M6 playtest); held, the body stays down only while the key is.
-        bool crouched = _session.Simulation!.Posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched;
+        Wings(Input.IsActionPressed("jump"));
+        // Crouch presses on and off by default (the owner's M6 playtest); held, the body stays down only while the key is. Gliding, the
+        // crouch is the wings' flare (Kal).
+        var posture = _session.Simulation!.Posture;
+        bool crouched = posture.Aloft ? posture.Wing == UNNAMED.Domain.Spatial.WingState.Flare : posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched;
         if (SettingsStore.Current.Profile.Controls.IsToggle("crouch") ? Input.IsActionJustPressed("crouch") : Input.IsActionPressed("crouch") != crouched)
             _controller.Crouch(!crouched);
         if (Input.IsActionJustPressed("first_person"))
@@ -342,6 +345,8 @@ public partial class Main
             if (captured)
                 _controller.Technique(id);
         }
+        else if (_session.Simulation!.PlayerAbilities.Any(a => a.Id == id))
+            _controller.PeopleAbility(id);
         else if (id.StartsWith("item.", StringComparison.Ordinal) && !_controller.UseItem(id))
             _hud.Toast($"No {Names.Of(_session, id)} left", 2);
     }

@@ -440,6 +440,7 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
         {
             Settlements = setup.Settlements,
             Roads = setup.Roads,
+            Aptitude = people => _context.Setup.Character.TraitsOf(people).Learning,
             Grounds = Grounds,
             Bounties = Bounties,
             CanClaim = questId => _context.Setup.Quests.Quests.TryGetValue(questId, out var quest)

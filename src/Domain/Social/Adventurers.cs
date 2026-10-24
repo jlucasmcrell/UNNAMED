@@ -372,6 +372,9 @@ public sealed record AdventurerDay(long Day, long Tick, long TicksPerHour, Func<
 
     public required ProgressionRules Progression { get; init; }
 
+    /// <summary>How a member of a people learns (null: no people known); everyone learns at the usual rate without it.</summary>
+    public Func<string?, LearningAptitude> Aptitude { get; init; } = _ => LearningAptitude.Usual;
+
     /// <summary>A creature's XP value (its <c>xp_value</c>); none when null.</summary>
     public Func<string, long>? KillXp { get; init; }
 
@@ -695,11 +698,11 @@ public static class AdventurerEngine
             long xp = (day.KillXp?.Invoke(ground.CreatureId) ?? 0) * rules.HuntXpPermille / 1000;
             a = Gain(a, new XpAward(XpSource.Combat, xp, day.Tick) { Kill = new KillContext(ground.CreatureId, ground.CreatureLevel, ground.SpawnKey) }, day, happenings);
             if (weaponSkill is not null)
-                a = a with { Progression = ProgressionEngine.Practice(a.Progression, new SkillPractice(weaponSkill, ground.CreatureLevel, PracticeOutcome.Success, day.Tick), day.Progression).Progression };
+                a = a with { Progression = ProgressionEngine.Practice(a.Progression, new SkillPractice(weaponSkill, ground.CreatureLevel, PracticeOutcome.Success, day.Tick), day.Progression, day.Aptitude(a.PeopleId)).Progression };
         }
         happenings.Add(new AdventurerHappening(Returned,a.Key) {Ref=ground.SpawnKey,Loot=loot.ToImmutable()});
         if (rules.FieldSkill is { } field)
-            a = a with { Progression = ProgressionEngine.Practice(a.Progression, new SkillPractice(field, ground.Danger, PracticeOutcome.Success, day.Tick), day.Progression).Progression };
+            a = a with { Progression = ProgressionEngine.Practice(a.Progression, new SkillPractice(field, ground.Danger, PracticeOutcome.Success, day.Tick), day.Progression, day.Aptitude(a.PeopleId)).Progression };
         if (bounty is not null)
         {
             if (claimed.Contains(bounty.QuestId) || !day.CanClaim(bounty.QuestId))

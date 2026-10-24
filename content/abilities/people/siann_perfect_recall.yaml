@@ -1,0 +1,11 @@
+id: ability.people.siann.perfect_recall
+kind: ability
+schema: 1
+display_key: ability.people.siann.perfect_recall.name
+tags: [ability, people]
+name: Perfect Recall
+notes: Racial ability, innate biology - every Siann has it and no other people can learn it (RACES.md section 3; RACE_ABILITIES_PROPOSAL.md section 3.3, owner-approved 2026-10-24). Every number is provisional.
+class: people
+people_ref: people.siann
+action: perfect_recall
+description: "A Siann misremembers nothing: every line spoken to you is kept, word for word, in the journal under Recalled."

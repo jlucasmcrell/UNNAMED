@@ -126,7 +126,8 @@ public static class SchemaMigrations
         new SchemaV35ToV36(),
         new SchemaV36ToV37(),
         new SchemaV37ToV38(),
-        new SchemaV38ToV39());
+        new SchemaV38ToV39(),
+        new SchemaV39ToV40());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -2088,7 +2089,27 @@ public sealed class SchemaV38ToV39 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } bytes)
         {
             var old = MessagePackSerializer.Deserialize<Sections.V38.Player>(bytes, SectionCodec.MessagePackOptions);
+            var next = MessagePackSerializer.Deserialize<Sections.V39.Player>(MessagePackSerializer.Serialize(old, SectionCodec.MessagePackOptions), SectionCodec.MessagePackOptions);
+            document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(next, SectionCodec.MessagePackOptions);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+public sealed class SchemaV39ToV40 : SchemaMigration
+{
+    public override int From => 39;
+    public override string Summary => "schema 39 -> 40: the identity keeps the origin (the frontier road before), and the player the crossing record (none before)";
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        if (document.Sections.GetValueOrDefault(SaveFormat.Player) is { } bytes)
+        {
+            var old = MessagePackSerializer.Deserialize<Sections.V39.Player>(bytes, SectionCodec.MessagePackOptions);
             var next = MessagePackSerializer.Deserialize<PlayerDto>(MessagePackSerializer.Serialize(old, SectionCodec.MessagePackOptions), SectionCodec.MessagePackOptions);
+            if (next.Identity is { } identity)
+                identity.Origin = Domain.Character.CharacterSpec.DefaultOrigin;
+            next.Crossing = new CrossingDto();
             document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(next, SectionCodec.MessagePackOptions);
         }
         document.Manifest["schema_version"] = To;

@@ -1,0 +1,14 @@
+id: ability.people.kal.wing_glide
+kind: ability
+schema: 1
+display_key: ability.people.kal.wing_glide.name
+tags: [ability, people]
+name: Wing Glide
+notes: Racial ability, innate biology - every Kal has it and no other people can learn it (RACES.md section 2; RACE_ABILITIES_PROPOSAL.md section 3.2, owner-approved 2026-10-24). Every number is provisional.
+class: people
+people_ref: people.kal
+action: glide
+description: "Hold jump in the air to spread the wings: glide forward at 7 m/s, sinking 2.5 m/s, holding your height as the ground falls away. Costs stamina while held; spent, the wings fold."
+stamina_per_s: 12
+speed_m_s: 7.0
+sink_m_s: 2.5

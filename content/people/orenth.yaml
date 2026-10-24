@@ -1,0 +1,27 @@
+id: people.orenth
+kind: people
+schema: 1
+display_key: people.orenth.name
+tags: [people]
+name: Orenth
+notes: The walkers (RACES.md section 4). Playable from 2026-10-24 (owner - four peoples to start). Traits and abilities are RACE_ABILITIES_PROPOSAL.md sections 1-3.4, owner-approved; the crossing toll is hidden. The suggest names are PROPOSED working names for owner review.
+playable: true
+card:
+  epithet: The walkers
+  summary: The only people who cross between realities by choice, stepping sideways through an adjacent one. Every crossing takes something.
+  body: Broadly ordinary until they move - then edges double and a shadow lags an instant behind.
+  leans_toward: Melee and magic.
+  trade_off: They can be where others cannot, and each step costs them something they never get back.
+traits:
+  attribute_grant: { agility: 1, will: 1 }
+learning:
+  aptitude_percent: { melee: 115, magic: 115 }
+suggest_names:
+  - Rhun Tallis
+  - Ysa Corrander
+  - Dace Merrow
+  - Teo Halvane
+  - Sorrel Drift
+  - Jaen Orsk
+  - Lio Varran
+  - Nadia Fennick

@@ -169,6 +169,49 @@ public sealed class PlayerDto
     /// no save before it held an animal.
     /// </summary>
     [Key("pets")] public PetDto[]? Pets { get; set; }
+
+    /// <summary>
+    /// Required from schema 40 (race abilities): the Orenth crossing record - the hidden toll, what each tier took, the planar anchor. The
+    /// 39 -> 40 step gives older saves none: no one had crossed before.
+    /// </summary>
+    [Key("crossing")] public CrossingDto? Crossing { get; set; }
+
+    /// <summary>From schema 40: a winged body's wings while open (Kal) - leaping, or aloft at its own height - or null when folded.</summary>
+    [Key("wings")] public WingsDto? Wings { get; set; }
+}
+
+[MessagePackObject]
+public sealed class WingsDto
+{
+    [Key("wing")] public string Wing { get; set; } = "";
+    [Key("feet_mm")] public long FeetMm { get; set; }
+}
+
+/// <summary>The Orenth crossing record (schema 40): the toll, a cost per tier reached, and the anchor if one is set.</summary>
+[MessagePackObject]
+public sealed class CrossingDto
+{
+    [Key("toll")] public long Toll { get; set; }
+    [Key("costs")] public TollCostDto[] Costs { get; set; } = Array.Empty<TollCostDto>();
+    [Key("anchor")] public AnchorDto? Anchor { get; set; }
+}
+
+[MessagePackObject]
+public sealed class TollCostDto
+{
+    [Key("tier")] public int Tier { get; set; }
+    [Key("kind")] public string Kind { get; set; } = "";
+    [Key("ref")] public string? Ref { get; set; }
+}
+
+[MessagePackObject]
+public sealed class AnchorDto
+{
+    [Key("space")] public string Space { get; set; } = "";
+    [Key("x_mm")] public long XMm { get; set; }
+    [Key("y_mm")] public long YMm { get; set; }
+    [Key("z_mm")] public long ZMm { get; set; }
+    [Key("placed_tick")] public long PlacedTick { get; set; }
 }
 
 /// <summary>
@@ -433,6 +476,9 @@ public sealed class IdentityDto
 
     /// <summary>From schema 39: what the creator shaped beyond the body preset, or null for the preset as baked (every older character).</summary>
     [Key("appearance")] public AppearanceDto? Appearance { get; set; }
+
+    /// <summary>Required from schema 40: where the character was raised. The 39 -> 40 step gives every older character the frontier road.</summary>
+    [Key("origin")] public string? Origin { get; set; }
 }
 
 /// <summary>A character's HumGen look (schema 39): the stature, the chosen options by ID and every slider moved.</summary>
@@ -1110,6 +1156,7 @@ public static class SectionCodec
                 StatureMm = look.StatureMm, Face = look.Face, Hair = look.Hair, FacialHair = look.FacialHair, Outfit = look.Outfit, Footwear = look.Footwear,
                 Sliders = look.Sliders.Select(kv => new SliderDto { Id = kv.Key, Value = kv.Value }).ToArray(),
             } : null,
+            Origin = player.Identity.OriginId,
         },
         Factions = new FactionLedgerDto
         {
@@ -1169,7 +1216,52 @@ public static class SectionCodec
             WoundedTick = p.WoundedTick, RecoversAtTick = p.RecoversAtTick, LastFedTick = p.LastFedTick, AdoptedTick = p.AdoptedTick,
             Skills = p.Skills.Select(s => new PetSkillDto { Skill = PetKeys.Skill(s.Kind), Level = s.Level, Uses = s.Uses }).ToArray(),
         }).ToArray(),
+        Wings = player.Posture.Wing == WingState.Folded ? null : new WingsDto { Wing = WingKey(player.Posture.Wing), FeetMm = player.Posture.FeetMm },
+        Crossing = new CrossingDto
+        {
+            Toll = player.Crossing.Toll,
+            Costs = player.Crossing.Costs.Select(c => new TollCostDto { Tier = c.Tier, Kind = TollKey(c.Kind), Ref = c.Ref }).ToArray(),
+            Anchor = player.Crossing.Anchor is { } anchor
+                ? new AnchorDto { Space = anchor.Space, XMm = anchor.XMm, YMm = anchor.YMm, ZMm = anchor.ZMm, PlacedTick = anchor.PlacedTick }
+                : null,
+        },
     }, Options);
+
+    private static string WingKey(WingState wing) => wing switch
+    {
+        WingState.Leap => "leap",
+        WingState.Glide => "glide",
+        WingState.Flare => "flare",
+        WingState.Fall => "fall",
+        _ => throw new ArgumentOutOfRangeException(nameof(wing), wing, "folded wings are not saved"),
+    };
+
+    private static WingState ParseWing(string key) => key switch
+    {
+        "leap" => WingState.Leap,
+        "glide" => WingState.Glide,
+        "flare" => WingState.Flare,
+        "fall" => WingState.Fall,
+        _ => throw new FormatException($"player wings are '{key}'"),
+    };
+
+    private static string TollKey(TollKind kind) => kind switch
+    {
+        TollKind.Scar => "scar",
+        TollKind.Memory => "memory",
+        TollKind.Name => "name",
+        TollKind.Years => "years",
+        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
+    };
+
+    private static TollKind ParseToll(string key) => key switch
+    {
+        "scar" => TollKind.Scar,
+        "memory" => TollKind.Memory,
+        "name" => TollKind.Name,
+        "years" => TollKind.Years,
+        _ => throw new FormatException($"a crossing cost is '{key}'"),
+    };
 
     /// <summary>A stack's saved quality: present from schema 9, and one of crude, standard, fine or (schema 19) masterwork.</summary>
     private static int QualityOf(int? quality, string what) => quality switch
@@ -1246,6 +1338,8 @@ public static class SectionCodec
         var focusTargets = dto.FocusTargets ?? throw new FormatException("player.msgpack has no focus targets (required from schema 34)");
         var lore = dto.Lore ?? throw new FormatException("player.msgpack has no lore pages (required from schema 35)");
         var pets = dto.Pets ?? throw new FormatException("player.msgpack has no animals (required from schema 36)");
+        var crossing = dto.Crossing ?? throw new FormatException("player.msgpack has no crossing record (required from schema 40)");
+        string origin = identity.Origin ?? throw new FormatException("player.msgpack's identity has no origin (required from schema 40)");
         if (heldFamily.Length > 0 && !Domain.Progression.WeaponFamilies.IsValid(heldFamily))
             throw new FormatException($"the held weapon family is '{heldFamily}'");
         foreach (var family in familyBars)
@@ -1312,14 +1406,16 @@ public static class SectionCodec
                     o.ActivatedTick, o.EndedTick, o.Progress)).ToImmutableArray())),
             companions.Select(Companion).Select(c => focusTargets.Contains(c.NpcId) ? c with { Tactics = c.Tactics with { FocusTarget = true } } : c))
         {
-            Posture = new Posture(stance, posture.Airborne, posture.AirMs),
+            Posture = new Posture(stance, posture.Airborne, posture.AirMs) { Wing = dto.Wings is { } wings ? ParseWing(wings.Wing) : WingState.Folded, FeetMm = dto.Wings?.FeetMm ?? 0 },
             Waystones = waystones.Select(w => new WaystoneRecord(w.Stone, w.Region,
                 WaystoneMethods.Parse(w.Method) ?? throw new FormatException($"Waystone {w.Stone} was known by '{w.Method}'"), w.Tick)).ToImmutableArray(),
             ReturnPoint = dto.ReturnPoint,
             RoadsWalked = roads.ToImmutableArray(),
             Deeds = deeds.Select(d => new DeedTally(DeedKeys.Parse(d.Deed) ?? throw new FormatException($"a deed tally of {d.Subject} is '{d.Deed}'"),
                 d.Subject, d.Npc, d.Count, d.LastTick)).ToImmutableArray(),
-            Identity = new CharacterIdentity(pronouns, identity.People, identity.BodyPreset, identity.Call) { Appearance = Appearance(identity.Appearance) },
+            Identity = new CharacterIdentity(pronouns, identity.People, identity.BodyPreset, identity.Call) { Appearance = Appearance(identity.Appearance), OriginId = origin },
+            Crossing = new Crossing(crossing.Toll, crossing.Costs.Select(c => new TollCost(c.Tier, ParseToll(c.Kind), c.Ref)).ToImmutableArray(),
+                crossing.Anchor is { } anchor ? new PlanarAnchor(SpaceId.Parse(anchor.Space).ToString(), anchor.XMm, anchor.YMm, anchor.ZMm, anchor.PlacedTick) : null),
             Factions = new FactionLedger(factions.NextActSeq,
                 factions.Acts.Select(a => new ActRecord(a.Seq, a.Kind, a.Subject, a.Cell, a.XMm, a.ZMm, a.Tick)).ToImmutableArray(),
                 factions.Knowledge.Select(k => new FactionKnowledge(k.Knower, k.Act, k.Identity, k.Source, k.Via, k.Tick, k.Delta)).ToImmutableArray(),

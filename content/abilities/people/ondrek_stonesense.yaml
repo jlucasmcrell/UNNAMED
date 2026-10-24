@@ -1,0 +1,15 @@
+id: ability.people.ondrek.stonesense
+kind: ability
+schema: 1
+display_key: ability.people.ondrek.stonesense.name
+tags: [ability, people]
+name: Stonesense
+notes: Racial ability, innate biology - every Ondrek has it and no other people can learn it (RACES.md section 8; RACE_ABILITIES_PROPOSAL.md section 3.8, owner-approved 2026-10-24). Every number is provisional.
+class: people
+people_ref: people.ondrek
+action: stonesense
+description: "Kneel and touch the stone: for 8 s feel ore, hollow walls, hidden stone doors and anything moving on stone within 25 m."
+cost: { stamina: 10 }
+cooldown_s: 30
+duration_s: 8
+range_m: 25.0

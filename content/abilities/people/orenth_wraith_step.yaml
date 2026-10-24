@@ -1,0 +1,16 @@
+id: ability.people.orenth.wraith_step
+kind: ability
+schema: 1
+display_key: ability.people.orenth.wraith_step.name
+tags: [ability, people]
+name: Wraith-step
+notes: Racial ability, innate biology - every Orenth has it and no other people can learn it (RACES.md section 4; RACE_ABILITIES_PROPOSAL.md section 3.4, owner-approved 2026-10-24). Every number is provisional.
+class: people
+people_ref: people.orenth
+action: wraith_step
+description: "For 1.5 s you are half elsewhere: physical blows pass through you, and you pass through creatures and people. Soul and phase damage hit harder. Every crossing takes something."
+cost: { focus: 20 }
+cooldown_s: 40
+duration_s: 1.5
+effect_ref: effect.wraith_step
+toll: 3

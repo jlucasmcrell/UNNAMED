@@ -1,0 +1,14 @@
+id: ability.people.kal.wing_brake
+kind: ability
+schema: 1
+display_key: ability.people.kal.wing_brake.name
+tags: [ability, people]
+name: Wing Brake
+notes: Racial ability, innate biology - every Kal has it and no other people can learn it (RACES.md section 2; RACE_ABILITIES_PROPOSAL.md section 3.2, owner-approved 2026-10-24). Every number is provisional.
+class: people
+people_ref: people.kal
+action: flare
+description: "While gliding, crouch to flare the wings: stop going forward and come down slowly, 1 m/s, onto exactly the spot below."
+cost: { stamina: 15 }
+cooldown_s: 4
+sink_m_s: 1.0

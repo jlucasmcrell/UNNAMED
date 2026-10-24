@@ -377,8 +377,8 @@ public partial class CreatorScreen : CanvasLayer
     }
 
     /// <summary>
-    /// Step 1: the peoples content makes playable, then every other people the HumGen catalogue knows, greyed out with why (not playable
-    /// yet, or its body pending bake), and Quick start.
+    /// Step 1: the peoples content makes playable, the chosen one's card under it - who they are, their biology and aptitude, their racial
+    /// abilities and the trade-off (RACE_ABILITIES_PROPOSAL.md) - then every other people, greyed out with its card and why, and Quick start.
     /// </summary>
     private void PeopleStep()
     {
@@ -387,7 +387,7 @@ public partial class CreatorScreen : CanvasLayer
         {
             var race = _catalogue.Race(people.Id);
             var card = UiKit.ListRow("creator.people." + people.Id, Names.Of(_session, people.Id),
-                race is null ? "The touched lineage" : $"{race.Epithet} · {Metres(race.MinStatureMm)}-{Metres(race.MaxStatureMm)}", height: 56);
+                race is null ? people.Card?.Epithet ?? "" : $"{race.Epithet} · {Metres(race.MinStatureMm)}-{Metres(race.MaxStatureMm)}", height: 56);
             if (race is { HumgenBody: false })
                 card.Right.AddChild(PendingChip());
             UiKit.Select(card.Button, people.Id == Draft.PeopleId);
@@ -400,17 +400,15 @@ public partial class CreatorScreen : CanvasLayer
                 Render("creator.people." + id);
             });
             section.AddChild(card.Button);
-            if (people.Id == "people.veth")
-            {
-                // RACES.md §1, in its own words and shortened: who they are, how their bodies differ, where they lean.
-                section.AddChild(UiKit.Words("Ordinary humans, insofar as that word means anything here: their ancestors survived a Pachakuti. "
-                    + "The majority, and the least examined.", 17, HudStyle.Ash));
-                section.AddChild(Line("Body", "Slightly long forearms and shins, long fingers, unusually mobile joints, reflective irises."));
-                section.AddChild(Line("Leans toward", "Melee and ranged."));
-            }
+            if (people.Id == Draft.PeopleId)
+                PeopleCard(section, people, chosen: true);
         }
         foreach (var race in _catalogue.Races.Where(r => !_session.Characters.Peoples.TryGetValue(r.People, out var p) || !p.Playable))
+        {
             section.AddChild(PendingRace(race));
+            if (_session.Characters.Peoples.TryGetValue(race.People, out var npcOnly))
+                PeopleCard(section, npcOnly, chosen: false);
+        }
         _body.AddChild(section);
 
         var quick = UiKit.Section("Quick start");
@@ -624,6 +622,9 @@ public partial class CreatorScreen : CanvasLayer
         who.AddChild(UiKit.Stat("Name", draft.KeptName.Length > 0 ? draft.KeptName : "-", draft.Problem is null ? null : HudStyle.Wound));
         who.AddChild(UiKit.Stat("Pronouns", CreatorDraft.Words(draft.Pronouns)));
         who.AddChild(UiKit.Stat("People", Names.Of(_session, draft.PeopleId)));
+        if (_session.Characters.RaceGrants(new CharacterSpec(CharacterSpec.DefaultName, draft.Pronouns, draft.PeopleId, draft.BodyPresetId, draft.CallId) { FreeAttribute = draft.FreeAttribute }) is { IsEmpty: false } grants)
+            who.AddChild(UiKit.Stat("Born with", string.Join(", ", grants.Select(g =>
+                $"{(g.Amount > 0 ? "+" : "")}{g.Amount} {Capital(UNNAMED.Domain.Progression.ProgressionKeys.Key(g.Attribute))}")), size: 17));
         who.AddChild(UiKit.Stat("Body", body is null ? "-" : $"{body.Body.TypeLabel}, {body.Body.BuildLabel.ToLowerInvariant()} build"));
         foreach (var (caption, words) in LookLines())
             who.AddChild(UiKit.Stat(caption, words, size: 17));

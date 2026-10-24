@@ -164,6 +164,9 @@ public sealed record CombatConstants
 public sealed record Strike(AttackProfile Attack, double DamageMultiplier, int CritPercent, double StaggerPower)
 {
     public BodyRegion? ForcedRegion { get; init; }
+
+    /// <summary>Points of the struck region's armour a physical blow passes, over what a pierce finds (Kal: structural read).</summary>
+    public int ArmorIgnoredPercent { get; init; }
     /// <summary>A qualifying dagger ambush executes through this same resolver (owner ruling, RC d5).</summary>
     public bool Execution { get; init; }
 }
@@ -174,7 +177,11 @@ public sealed record DefenseProfile(
     ImmutableSortedDictionary<BodyRegion, int> Armor,
     ImmutableSortedDictionary<string, double> Resistances,
     bool Blocking,
-    bool Dodging);
+    bool Dodging)
+{
+    /// <summary>Of the impact it usually takes to stagger the body: a denser body needs more (Kal, Ondrek).</summary>
+    public int StaggerThresholdPercent { get; init; } = 100;
+}
 
 /// <summary>What one blow did. <see cref="Final"/> is what the target loses; <see cref="Raw"/> is the impact before armor.</summary>
 public sealed record HitResult(BodyRegion Region, int Raw, int Final, bool Critical, bool Blocked, bool Dodged, bool Staggered, bool EffectApplied);
@@ -208,6 +215,7 @@ public static class CombatRules
             double armor = defense.Armor.GetValueOrDefault(region);
             if (attack.DamageType == "physical_pierce")
                 armor *= 1 - constants.PierceArmorIgnored;
+            armor *= 1 - strike.ArmorIgnoredPercent / 100.0;
             damage *= 1 - armor / (armor + constants.ArmorK);
         }
         damage *= 1 - Math.Clamp(defense.Resistances.GetValueOrDefault(attack.DamageType), -1.0, 0.9);
@@ -220,7 +228,7 @@ public static class CombatRules
         double whole = Math.Floor(damage);
         int final = roll > 0 ? Math.Max(1, (int)whole + (random(4) < damage - whole ? 1 : 0)) : 0;
         if (strike.Execution) final = Math.Max(final, defense.MaxHealth);
-        bool staggered = !blocked && impact * strike.StaggerPower * 100 >= (double)defense.MaxHealth * constants.StaggerThresholdPercent;
+        bool staggered = !blocked && impact * strike.StaggerPower * 100 * 100 >= (double)defense.MaxHealth * constants.StaggerThresholdPercent * defense.StaggerThresholdPercent;
         bool effect = attack.OnHitEffect is not null && !blocked && random(3) * 100 < attack.OnHitEffectPercent;
         return new HitResult(region, (int)Math.Round(impact, MidpointRounding.AwayFromZero), final, critical, blocked, false, staggered, effect);
     }
@@ -343,6 +351,16 @@ public sealed record EffectDefinition(
     public double StaminaRegenMultiplier { get; init; } = 1.0;
     public int ArmorBonus { get; init; }
 
+    /// <summary>What a working costs in Strain, and how long its tell takes, while the effect lasts (Siann: Kindled Ring).</summary>
+    public double StrainCostMultiplier { get; init; } = 1.0;
+    public double CastTimeMultiplier { get; init; } = 1.0;
+
+    /// <summary>
+    /// The bearer is half out of this reality (Orenth: wraith-step): physical blows pass through it, and it passes through creatures and
+    /// people, never walls.
+    /// </summary>
+    public bool Phased { get; init; }
+
     /// <summary>DATA_MODEL.md §4.8 <c>immunity_tags</c>: a body carrying any of these does not take the effect (no blood, no bleeding).</summary>
     public ImmutableSortedSet<string> ImmuneTags { get; init; } = ImmutableSortedSet<string>.Empty;
 
@@ -388,4 +406,13 @@ public static class EffectRules
 
     public static int ArmorBonus(IEnumerable<ActiveEffect> effects, IReadOnlyDictionary<string, EffectDefinition> definitions) =>
         effects.Sum(e => (definitions.GetValueOrDefault(e.EffectId)?.ArmorBonus ?? 0) * e.Stacks);
+
+    public static double StrainCostMultiplier(IEnumerable<ActiveEffect> effects, IReadOnlyDictionary<string, EffectDefinition> definitions) =>
+        effects.Aggregate(1.0, (m, e) => m * Math.Pow(definitions.GetValueOrDefault(e.EffectId)?.StrainCostMultiplier ?? 1.0, e.Stacks));
+
+    public static double CastTimeMultiplier(IEnumerable<ActiveEffect> effects, IReadOnlyDictionary<string, EffectDefinition> definitions) =>
+        effects.Aggregate(1.0, (m, e) => m * Math.Pow(definitions.GetValueOrDefault(e.EffectId)?.CastTimeMultiplier ?? 1.0, e.Stacks));
+
+    public static bool Phased(IEnumerable<ActiveEffect> effects, IReadOnlyDictionary<string, EffectDefinition> definitions) =>
+        effects.Any(e => definitions.GetValueOrDefault(e.EffectId)?.Phased == true);
 }

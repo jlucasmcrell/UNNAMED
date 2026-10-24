@@ -4,6 +4,7 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Items;
@@ -330,8 +331,11 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
         if (State.Creatures.Values.FirstOrDefault(x => x.Id == command.Attacker) is not { Alive: true } creature)
             return "no such attacker";
         var npc = State.Npcs[c.NpcId];
-        var defense = new DefenseProfile(c.Profile.MaxHealth, c.Profile.Armor, ImmutableSortedDictionary.Create<string, double>(StringComparer.Ordinal),
-            Blocking: false, Dodging: false);
+        var traits = TraitsOf(c.NpcId);
+        var defense = new DefenseProfile(c.Profile.MaxHealth, c.Profile.Armor, PeopleRules.Resistances(traits), Blocking: false, Dodging: false)
+        {
+            StaggerThresholdPercent = traits.StaggerThresholdPercent,
+        };
         var strike = new Strike(command.Attack, EffectRules.DamageDealtMultiplier(EffectsOf(creature.Id), _context.Setup.Combat.Effects), C.BaseCritPercent, 1.0);
         var result = CombatRules.Resolve(strike, defense, C, Random(creature.Key, c.NpcId, npc.Body, tick));
         int health = Math.Max(0, c.Health - result.Final);
@@ -576,7 +580,7 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
     /// <summary>The most hurt ally below the injured share - the character, or another party member on their feet - or null.</summary>
     private Body? InjuredAlly(string self)
     {
-        var stats = ProgressionEngine.Derive(State.Progression, _context.Setup.Progression);
+        var stats = _context.PlayerStats();
         int max = (int)stats.HealthMax, health = State.Progression.Pools.Health ?? max;
         var allies = State.Companions.Values.Where(m => m.NpcId != self && m.Condition == CompanionCondition.Up && State.Npcs.ContainsKey(m.NpcId))
             .Select(m => (Share: m.Health * 1000L / Math.Max(1, m.Profile.MaxHealth), Injured: PartyRulesOf.Injured(m.Health, m.Profile.MaxHealth), Body: State.Npcs[m.NpcId].Body))
@@ -739,8 +743,12 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
         };
         var armor = Enum.GetValues<BodyRegion>().Where(r => body.Armor.ContainsKey(r) || worn.GetValueOrDefault(r) > 0)
             .ToImmutableSortedDictionary(r => r, r => body.Armor.GetValueOrDefault(r) + worn.GetValueOrDefault(r));
-        return new CompanionProfile(Approval.MaxHealth(body.MaxHealth, sheet.Progression, _context.Setup.Progression), weapon, armor);
+        int health = Approval.MaxHealth(body.MaxHealth, sheet.Progression, _context.Setup.Progression) * TraitsOf(sheet.NpcId).HealthPercent / 100;
+        return new CompanionProfile(Math.Max(1, health), weapon, armor);
     }
+
+    /// <summary>A party member's people's traits (RACE_ABILITIES_PROPOSAL.md §0.4: an NPC of a people has the same biology as a player of it).</summary>
+    private PeopleTraits TraitsOf(string npcId) => _context.Setup.Character.TraitsOf(_context.PeopleOf(npcId));
 
     /// <summary>A member's gear or attributes changed: their body is fitted again, their health kept within it.</summary>
     public string? Handle(RefitMember command)

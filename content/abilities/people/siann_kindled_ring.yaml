@@ -1,0 +1,15 @@
+id: ability.people.siann.kindled_ring
+kind: ability
+schema: 1
+display_key: ability.people.siann.kindled_ring.name
+tags: [ability, people]
+name: Kindled Ring
+notes: Racial ability, innate biology - every Siann has it and no other people can learn it (RACES.md section 3; RACE_ABILITIES_PROPOSAL.md section 3.3, owner-approved 2026-10-24). Every number is provisional.
+class: people
+people_ref: people.siann
+action: kindled_ring
+description: "The inner ring of the eyes brightens: for 8 s workings cost 30% less Strain and their tell is 15% shorter."
+cost: { focus: 15 }
+cooldown_s: 120
+duration_s: 8
+effect_ref: effect.kindled_ring

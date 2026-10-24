@@ -81,5 +81,5 @@ internal sealed class LadenSystem : IAbstractAdvance
 
     private int Stamina() =>
         State.Progression.Pools.Stamina
-        ?? (int)Domain.Progression.ProgressionEngine.Derive(State.Progression, _context.Setup.Progression).StaminaMax;
+        ?? (int)_context.PlayerStats().StaminaMax;
 }

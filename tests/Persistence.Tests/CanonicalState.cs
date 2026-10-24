@@ -201,6 +201,8 @@ internal static class CanonicalState
             json.WriteString("stance", StanceKeys.Key(player.Posture.Stance));
             json.WriteBoolean("airborne", player.Posture.Airborne);
             json.WriteNumber("air_ms", player.Posture.AirMs);
+            json.WriteString("wing", player.Posture.Wing.ToString());
+            json.WriteNumber("feet_mm", player.Posture.FeetMm);
             json.WriteEndObject();
             json.WriteStartArray("waystones");
             foreach (var stone in player.Waystones)
@@ -261,6 +263,7 @@ internal static class CanonicalState
             }
             else
                 json.WriteNull("appearance");
+            json.WriteString("origin", player.Identity.OriginId);
             json.WriteEndObject();
             json.WriteStartObject("factions");
             json.WriteNumber("next_act_seq", player.Factions.NextActSeq);
@@ -492,6 +495,33 @@ internal static class CanonicalState
                 json.WriteEndObject();
             }
             json.WriteEndArray();
+
+            // Schema 40 (race abilities): the Orenth crossing record - the toll, a cost per tier, the anchor.
+            json.WriteStartObject("crossing");
+            json.WriteNumber("toll", player.Crossing.Toll);
+            json.WriteStartArray("costs");
+            foreach (var cost in player.Crossing.Costs)
+            {
+                json.WriteStartObject();
+                json.WriteNumber("tier", cost.Tier);
+                json.WriteString("kind", cost.Kind.ToString());
+                json.WriteString("ref", cost.Ref);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
+            if (player.Crossing.Anchor is { } anchor)
+            {
+                json.WriteStartObject("anchor");
+                json.WriteString("space", anchor.Space);
+                json.WriteNumber("x_mm", anchor.XMm);
+                json.WriteNumber("y_mm", anchor.YMm);
+                json.WriteNumber("z_mm", anchor.ZMm);
+                json.WriteNumber("placed_tick", anchor.PlacedTick);
+                json.WriteEndObject();
+            }
+            else
+                json.WriteNull("anchor");
+            json.WriteEndObject();
 
             // Schema 36 (pets): the animals that travel with the character, in instance order.
             json.WriteStartArray("pets");
