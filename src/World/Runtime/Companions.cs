@@ -330,6 +330,8 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
         if (State.Creatures.Values.FirstOrDefault(x => x.Id == command.Attacker) is not { Alive: true } creature)
             return "no such attacker";
         var npc = State.Npcs[c.NpcId];
+        if (!CombatRules.CanAttemptAttack(creature.Id, npc.InstanceId,
+                new(creature.Alive, c.Health > 0, creature.Site.Space == npc.Space))) return "attack is not permitted";
         var defense = new DefenseProfile(c.Profile.MaxHealth, c.Profile.Armor, ImmutableSortedDictionary.Create<string, double>(StringComparer.Ordinal),
             Blocking: false, Dodging: false);
         var strike = new Strike(command.Attack, EffectRules.DamageDealtMultiplier(EffectsOf(creature.Id), _context.Setup.Combat.Effects), C.BaseCritPercent, 1.0);
@@ -628,6 +630,8 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
     /// <summary>A companion's blow: resolved as the character's are, with the weapon's own numbers and nothing of the character's.</summary>
     private void Hit(CompanionState c, NpcState npc, CreatureState creature, AttackProfile attack, long tick)
     {
+        if (!CombatRules.CanAttemptAttack(npc.InstanceId, creature.Id,
+                new(c.Condition == CompanionCondition.Up && c.Health > 0, creature.Alive, npc.Space == creature.Site.Space))) return;
         var definition = creature.Definition;
         var effects = _context.Setup.Combat.Effects;
         var defense = new DefenseProfile(definition.MaxHealth, CombatSystem.WithBonus(definition.Armor, EffectRules.ArmorBonus(EffectsOf(creature.Id), effects)),

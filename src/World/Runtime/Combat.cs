@@ -636,6 +636,8 @@ internal sealed partial class CombatSystem
     /// <summary>The player's blow on a creature: resolved here, applied by the creature's owner.</summary>
     private void PlayerHits(CreatureState creature, AttackProfile attack, long tick)
     {
+        if (!CombatRules.CanAttemptAttack(_player, creature.Id,
+                new(!State.PlayerCombat.Defeated, creature.Alive, creature.Site.Space == State.Space))) return;
         var definition = creature.Definition;
         var defense = new DefenseProfile(definition.MaxHealth, WithBonus(definition.Armor, EffectRules.ArmorBonus(EffectsOf(creature.Id), Setup.Effects)),
             definition.Resistances, Blocking: false, Dodging: false);
@@ -716,6 +718,8 @@ internal sealed partial class CombatSystem
             .FirstOrDefault();
         if (nearest is not { } creature)
             return "nothing within reach of the blade";
+        if (!CombatRules.CanAttemptAttack(_player, creature.Id,
+                new(!State.PlayerCombat.Defeated, creature.Alive, creature.Site.Space == State.Space))) return "attack is not permitted";
         if (!StealthRules.Unaware(creature.Awareness, Setup.Awareness) && !EffectsOf(creature.Id).Any(e => e.EffectId == "effect.sleep"))
             return "it has noticed you";
         var definition = creature.Definition;
@@ -765,6 +769,8 @@ internal sealed partial class CombatSystem
         var combat = State.PlayerCombat;
         if (combat.Defeated)
             return "dead";
+        if (!CombatRules.CanAttemptAttack(creature.Id, _player,
+                new(creature.Alive, !combat.Defeated, creature.Site.Space == State.Space))) return "attack is not permitted";
         var attack = command.Attack;
         var body = State.Body;
         // A guard takes only what it can take - a physical blow - so only such a blow can break it (the Phase-1 technical audit, L-21).
