@@ -124,7 +124,8 @@ public partial class OpeningCinematic : Node
         StartCamera.Track(this, _camera);
         _layer = new CanvasLayer { Layer = 30 };
         AddChild(_layer);
-        var root = new Control { MouseFilter = Control.MouseFilterEnum.Ignore };
+        // The title's theme, so the name it hands over is drawn exactly as the title draws it.
+        var root = new Control { Theme = UiKit.Theme, MouseFilter = Control.MouseFilterEnum.Ignore };
         root.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         _layer.AddChild(root);
         // The bars: a 2.39:1 frame on a 16:9 screen is a ninth of the height above and below.
