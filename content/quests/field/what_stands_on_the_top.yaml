@@ -1,0 +1,56 @@
+id: quest.field.what_stands_on_the_top
+kind: quest
+schema: 1
+display_key: quest.field.what_stands_on_the_top.name
+tags: [quest]
+notes: "Sel Arien's quest for the Spill (docs/FIELD_RUINS.md; FIELD_RUINS_PROPOSAL.md 3.5). No objective asks for a fight - the Gate Warden stands between the character and the anchors, so the fight is the honest obstacle, not a checkbox - and nothing assumes an order the fiction does not need (bible §32): an anchor stilled before the quest counts. The anchors and the Needle are switches (M6) whose flags live in the Spill's cell. The shard is handed over in Sel's spill_back line, since a quest reward carries no item."
+title: What Stands on the Top
+summary: Something hums on the top past Old Late, and Cairnwold keeps off it after dark. Sel Arien has it on record as a gate, and no reading of it.
+track: side
+giver_ref: npc.ashen_hollow.sel_arien
+entry_objective: o_ask
+objectives:
+  - id: o_ask
+    type: talk_to
+    description: Ask Sel Arien what stands on the top.
+    params: { npc_ref: npc.ashen_hollow.sel_arien, nodes: [spill, spill_back] }
+    next: [o_reach]
+  - id: o_reach
+    type: visit_location
+    description: Reach the Spill, on the top between Old Late and the Rim.
+    params: { location_ref: location.field.the_spill }
+    next: [o_court]
+  - id: o_court
+    type: visit_location
+    description: Go down into the court at the Spill's heart.
+    params: { location_ref: location.field.stopped_gate }
+    next: [o_west, o_northeast, o_south]
+  - id: o_west
+    type: world_state
+    description: Still the west anchor.
+    params: { flag_ref: world.field.anchor_west_stilled, location_ref: location.field.stopped_gate, value: 1 }
+    next: [o_still]
+  - id: o_northeast
+    type: world_state
+    description: Still the north-east anchor.
+    params: { flag_ref: world.field.anchor_northeast_stilled, location_ref: location.field.stopped_gate, value: 1 }
+    next: [o_still]
+  - id: o_south
+    type: world_state
+    description: Still the south anchor.
+    params: { flag_ref: world.field.anchor_south_stilled, location_ref: location.field.stopped_gate, value: 1 }
+    next: [o_still]
+  - id: o_still
+    type: world_state
+    description: Lay a hand on the Needle and let the gate settle.
+    params: { flag_ref: world.field.stilled, location_ref: location.field.stopped_gate, value: 1 }
+    all_of: [o_west, o_northeast, o_south]
+    next: [o_tell]
+  - id: o_tell
+    type: talk_to
+    description: Tell Sel what the gate did.
+    params: { npc_ref: npc.ashen_hollow.sel_arien, nodes: [spill_back] }
+rewards:
+  - { kind: xp, amount: 250 }
+  - { kind: currency, amount: 40 }
+  - { kind: relationship, npc_ref: npc.ashen_hollow.sel_arien, dimension: trust, amount: 10 }

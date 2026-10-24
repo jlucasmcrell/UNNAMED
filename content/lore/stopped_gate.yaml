@@ -1,0 +1,27 @@
+id: lore.stopped_gate
+kind: lore
+schema: 1
+display_key: lore.stopped_gate.title
+tags: [lore, history]
+title: The Stopped Gate
+category: history
+notes: "Written from docs/OTHERREACH_COSMOLOGY.md §8 Stopped gates and docs/FIELD_RUINS.md (owner-approved 2026-10-24): a gate halted partway, its three anchors, and stilling them letting it settle shut. No maker and no date, deliberately. In-world, page 1 is the panel in the sunken court (readable.stopped_gate_panel) and page 2 is Sel Arien's reading after the anchors are stilled (quest.field.what_stands_on_the_top)."
+pages:
+  - page: 1
+    text: >
+      At the heart of the Spill the ground drops into a ring court, and at its east rim the Needle stands over it,
+      cracked through, half again the height of Old Late and seen from Ashen Hollow on a clear day. Three fixtures stand round the court and
+      hum louder than the rest of the iron. Set into the court wall is a panel cut with marks in rows. They are not
+      letters anybody here can read. They are spaced like a count, and the count stops partway along the last row,
+      the way a sentence stops when the one saying it is interrupted.
+    sources:
+      - { how: inspected, ref: readable.stopped_gate_panel }
+  - page: 2
+    text: >
+      Sel Arien files it as a stopped gate: one that began to open, or to close, and was halted before it finished,
+      and has stood ever since under the strain of it. The three that hum are its anchors, and they hum because they
+      are still pulling. Stilled, she says, it settles shut - not open; nobody has the rite for open, and she would
+      not write it down if she had. Whether the hands that cut the Quiet Stones made this too, she will not say. The
+      stones are stone and this is iron, and that is as far as the Survey goes.
+    sources:
+      - { how: quest, ref: quest.field.what_stands_on_the_top }

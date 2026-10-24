@@ -1,0 +1,24 @@
+id: lore.firstfold_iron
+kind: lore
+schema: 1
+display_key: lore.firstfold_iron.title
+tags: [lore, history]
+title: Firstfold Iron
+category: history
+notes: "Written from docs/WORLD_MATERIALS.md §6 Firstfold iron (owner-approved addition 2026-10-24): metal of the oldest gates, older than every people, never rusts, faintly warm, cannot be worked, only re-shaped; each gate's iron is one thing and a shard answers its own gate. In-world, page 1 comes with the shard Sel gives (quest.field.what_stands_on_the_top) and page 2 with it, since the shard is only in hand once the gate is still (the court's own discovery would open it before the shard)."
+pages:
+  - page: 1
+    text: >
+      Firstfold iron is the metal of the oldest gates, and it is older than every people who have found it. No
+      forge takes it. It does not rust, it is a little warmer than the air round it, and it cannot be worked - only
+      broken, where it broke already. Sel Arien gave the shard over carefully, the way a person hands on something
+      that is not theirs to give: each gate's iron is one thing, she says, and a piece of it is still that gate's.
+    sources:
+      - { how: quest, ref: quest.field.what_stands_on_the_top }
+  - page: 2
+    text: >
+      Carried down into the court, the shard answers. The note is the gate's own, quieter, coming from the hand
+      rather than from the iron all round; carried away again, it goes silent before the Rim. It is worth nothing
+      as metal and nothing to a trader. It is worth something as a thing that remembers where it belongs.
+    sources:
+      - { how: quest, ref: quest.field.what_stands_on_the_top }

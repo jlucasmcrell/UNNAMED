@@ -1,0 +1,15 @@
+id: ability.creature.tender_strike
+kind: ability
+schema: 1
+display_key: ability.creature.tender_strike.name
+tags: [ability]
+name: Setting Blow
+notes: The gate tender's arm brought down as if setting a plate back in place - quicker than the armour's slam, with a shorter recovery to get round it in.
+class: creature
+range_m: 2.0
+windup_s: 0.6
+active_s: 0.2
+recovery_s: 0.8
+cost: { stamina: 0 }
+payload:
+  - { type: damage, damage_type: physical_blunt, amount: [7, 10] }

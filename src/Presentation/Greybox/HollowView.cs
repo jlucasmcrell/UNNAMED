@@ -20,6 +20,9 @@ public partial class HollowView : Node3D
     private readonly Dictionary<string, (Node3D Hinge, Node3D? Leaf, float OpenDegrees)> _doors = new(StringComparer.Ordinal);
     private readonly HashSet<string> _artBuildings = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Node3D> _setMarks = new(StringComparer.Ordinal);
+
+    /// <summary>The lights of switch props that go dark once set (<c>set_goes_dark</c>), by switch key.</summary>
+    private readonly Dictionary<string, List<Node3D>> _darkOnSet = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Node3D> _barriers = new(StringComparer.Ordinal);
     private readonly List<(string Flag, AnimationPlayer Player, string Clip)> _flagAnimations = new();
     private HashSet<string> _activeFlags = new(StringComparer.Ordinal);
@@ -283,6 +286,9 @@ public partial class HollowView : Node3D
         {
             if (_setMarks.TryGetValue(view.Site.Key, out var mark) && _register?.Owns(view.Site.Key) != true)
                 mark.Visible = view.Set;
+            if (_darkOnSet.TryGetValue(view.Site.Key, out var lit))
+                foreach (var node in lit)
+                    node.Visible = !view.Set;
         }
         foreach (var view in barriers)
         {
@@ -747,6 +753,13 @@ public partial class HollowView : Node3D
     {
         if (_bindings.Structure(site.Body.Id)?.HideSetMark == true)
             return new Node3D { Name = site.Key + "_read" }; // A read document does not become an illuminated magical stone.
+        // A prop that goes dark when set shows it by its own light going out, not by a glow added over it.
+        if (_bindings.Structure(site.Body.Id)?.SetGoesDark == true && _models.TryGetValue(site.Body.Id, out var lit))
+        {
+            _darkOnSet[site.Key] = lit.FindChildren("*", nameof(Light3D), true, false).Cast<Node3D>().ToList();
+            Coverage.Resolved("switch_mark", site.Key, $"{lit.Name}'s own light, out once set");
+            return new Node3D { Name = site.Key + "_dark_when_set" };
+        }
         if (_models.TryGetValue(site.Body.Id, out var model))
         {
             var shell = new Node3D { Name = site.Key + "_set", Visible = false };

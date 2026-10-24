@@ -25,7 +25,7 @@ public class SessionTests
         Assert.Equal(new[]
             {
                 "location.blackvein_cut", "location.cairnwold.ash_stand", "location.cairnwold.iron_seam", "location.cairnwold.lodge", "location.cairnwold.the_bog",
-                "location.cairnwold.the_crags", "location.cairnwold.the_gorge", "location.cairnwold.village", "location.den_mouth", "location.foldscar",
+                "location.cairnwold.the_crags", "location.cairnwold.the_gorge", "location.cairnwold.village", "location.den_mouth", "location.field.stopped_gate", "location.field.the_spill", "location.foldscar",
                 "location.herb_patch", "location.old_late", "location.outpost", "location.road.basin_rim", "location.road.lantern_shrine", "location.road.overturned_wain",
                 "location.road.sunk_barrow", "location.ruined_cart",
             }, layout.Locations.Select(l => l.Id));

@@ -1,0 +1,21 @@
+id: quest.bounty.rim_road
+kind: quest
+schema: 1
+display_key: quest.bounty.rim_road.name
+tags: [quest, bounty]
+notes: "Berrin's standing bounty on the Spill's tenders (docs/FIELD_RUINS.md): they come to the edge of the top above the Rim road and set travellers back where they do not fit. A repeatable cull, paid when the third falls (a kill count is a hard count, AG-5)."
+title: Keep the Rim Road
+summary: Berrin will pay to have the tenders kept back from the edge of the top, where the road climbs past them.
+track: bounty
+competitive: true   # WP13: any adventurer may take it too - the first to finish it claims it (WP4)
+giver_ref: npc.cairnwold.berrin_garth
+entry_objective: o_put_down
+objectives:
+  - id: o_put_down
+    type: kill_creature
+    description: Put down three gate tenders on the Spill.
+    params: { creature_ref: creature.construct.gate_tender, count: 3 }
+rewards:
+  - { kind: xp, amount: 80 }
+  - { kind: currency, amount: 20 }
+repeat_policy: { repeatable: true, cooldown_min: 1440 }   # one world day (48 real minutes) after it is done, the work is posted again

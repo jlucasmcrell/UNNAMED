@@ -7,6 +7,7 @@ using UNNAMED.Content;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Guidance;
+using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
@@ -61,6 +62,13 @@ public sealed record GameOptions(string ContentRoot, string ProfileRoot)
     /// Barrowworks review walks in with the band's reference kit (docs/BARROWWORKS_BALANCE.md) and equips it by ordinary commands.
     /// </summary>
     public ImmutableArray<(string ItemId, int Count)> StartItems { get; init; } = [];
+
+    /// <summary>
+    /// The level a capture's new character starts at; 0 - a player's own level 1 - unless a capture fixture asks for more. A capture that
+    /// has to show a fight in its band (the Stopped Gate's level-5 court) is given the TTK table's character - level L, its L-1 points in
+    /// Might - rather than a softer creature.
+    /// </summary>
+    public int StartLevel { get; init; }
 
     /// <summary>Where the session reads the real time: the wall clock unless a test gives another (WP11).</summary>
     public Func<DateTimeOffset>? Clock { get; init; }
@@ -416,6 +424,12 @@ public sealed class GameSession : IDomainEvents, IDisposable
             player = player.WithCurrency(Options.StartCurrency);
         if (!Options.StartItems.IsEmpty)
             player = player.WithInventory(player.Inventory.Concat(Options.StartItems.Select(i => new InventoryEntry(EntityId.NewId(EntityKind.Item), i.ItemId, i.Count))));
+        if (Options.StartLevel > 1)
+            player = player.WithProgression(player.Progression with
+            {
+                Level = Options.StartLevel,
+                Allocation = ImmutableSortedDictionary.CreateRange(new[] { KeyValuePair.Create(CharacterAttribute.Might, Options.StartLevel - 1) }),
+            });
         var world = new WorldDelta(Generator, seed, new Registry());
         var simulation = Simulation.Start(Setup, player, world, 0, _bus);
         _character = id.Value;   // a save of the last character still being written goes to that character's folder: Queue kept it
