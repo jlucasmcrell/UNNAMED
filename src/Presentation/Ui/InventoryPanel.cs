@@ -442,8 +442,10 @@ public partial class InventoryPanel : CanvasLayer
         line.AddThemeConstantOverride("h_separation", 8);
         line.AddThemeConstantOverride("v_separation", 6);
         line.AddChild(Button(id, entry.Locked ? "Unlock" : "Lock", () => Submit(new LockStackCommand(player, entry.ItemId, !entry.Locked))));
-        line.AddChild(Button(id, entry.Junk ? "Not junk" : "Mark as junk", () => Submit(new MarkJunkCommand(player, entry.ItemId, !entry.Junk))));
         var definition = simulation.Setup.Items.Catalog.Find(entry.DefId);
+        // What the world will not junk - anything that cannot be sold or cannot be dropped (a quest item, a heritage keepsake) - is not offered.
+        if (entry.Junk || definition is not ({ NoSell: true } or { NoDrop: true }))
+            line.AddChild(Button(id, entry.Junk ? "Not junk" : "Mark as junk", () => Submit(new MarkJunkCommand(player, entry.ItemId, !entry.Junk))));
         var carried = simulation.Player.Inventory;
         if (entry.Count > 1)
             line.AddChild(Button(id, $"Split {entry.Count / 2}", () => Submit(new MoveItemCommand(player, id, ItemPlace.Carried, ItemPlace.Carried, entry.Count / 2))));
