@@ -42,7 +42,7 @@ public partial class Compass : Control
             Shader = new Shader
             {
                 // The icon is painted on an opaque background: only the round face is shown.
-                Code = "shader_type canvas_item;\nvoid fragment() {\n  vec4 c = texture(TEXTURE, UV);\n" +
+                Code = "shader_type canvas_item;\nuniform vec4 dial_region = vec4(0.0, 0.0, 1.0, 1.0);\nvoid fragment() {\n  vec4 c = texture(TEXTURE, dial_region.xy + UV * dial_region.zw);\n" +
                        "  c.a *= 1.0 - smoothstep(0.47, 0.5, distance(UV, vec2(0.5)));\n  COLOR = c;\n}\n",
             },
         };
@@ -101,12 +101,15 @@ public partial class Compass : Control
     /// <summary>Use the pipeline's dial: its face (the round, needle-up part of the icon) cut out of the picture around it.</summary>
     public void UseDial(Texture2D? icon)
     {
-        if (icon?.GetImage() is not { } image)
+        if (icon is null)
             return;
-        int size = image.GetWidth();
+        int size = icon.GetWidth();
         // The face sits a little below the icon's middle, under the ring it hangs from: centre (0.5, 0.545), radius 0.335 of the width.
         int radius = (int)(size * 0.335f), x = size / 2 - radius, y = (int)(size * 0.545f) - radius;
-        _dial.Texture = ImageTexture.CreateFromImage(image.GetRegion(new Rect2I(x, y, 2 * radius, 2 * radius)));
+        // Crop in the shader so the signed compressed source stays compressed on the GPU.
+        _dial.Texture = icon;
+        ((ShaderMaterial)_dial.Material).SetShaderParameter("dial_region",
+            new Vector4((float)x / size, (float)y / icon.GetHeight(), 2f * radius / size, 2f * radius / icon.GetHeight()));
         _marks.DrawnDial = false;
     }
 

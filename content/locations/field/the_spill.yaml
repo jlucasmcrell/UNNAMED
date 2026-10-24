@@ -1,0 +1,25 @@
+id: location.field.the_spill
+kind: location
+schema: 1
+display_key: location.field.the_spill.name
+tags:
+- location
+notes: "The Spill (docs/FIELD_RUINS.md): Cairnwold's name for the Firstfold-iron ruin across the plateau between Old Late and the Rim, walked by gate tenders. The outer field, level 4 (FIELD_RUINS_PROPOSAL.md 3.3)."
+name: The Spill
+region_ref: region.starting_frontier
+anchor:
+  world:
+  - 840.0
+  - 0.0
+  - 755.0
+kind_of_place: landmark
+discovery:
+  methods:
+  - visited
+  radius_m: 40
+  xp: 25
+map:
+  reveals_radius_m: 80
+  marker: landmark
+fast_travel:
+  node: false

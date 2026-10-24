@@ -21,7 +21,8 @@ public sealed class TextureCache
     /// <summary>Packages must never silently expand a missing/stale large cache entry into an RGBA upload.</summary>
     public static void RequireCompressed(Texture2D texture, string source)
     {
-        if (!OS.HasFeature("template") || Math.Max(texture.GetWidth(), texture.GetHeight()) < 2048) return;
+        if ((!OS.HasFeature("template") && OS.GetEnvironment("OTHERREACH_TEXTURE_AUDIT") != "1")
+            || Math.Max(texture.GetWidth(), texture.GetHeight()) < 2048) return;
         using var image = texture.GetImage();
         if (image is not null && !image.IsCompressed())
             throw new InvalidDataException("Packaged texture >=2K is uncompressed: " + source);

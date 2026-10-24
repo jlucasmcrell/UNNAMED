@@ -29,7 +29,11 @@ public sealed record Placement(string? Model, string Fit = "none", string? Surfa
     Vector3? SurfaceTint = null, Vector3? Glow = null, float GlowEnergy = 0, float Wind = 0,
     IReadOnlyList<(string Recipe, Vector3 At)>? Emitters = null, float YawSpread = 0, float LateS = 0,
     string? AnimationFlag = null, bool HideSetMark = false, float Scale = 1, Vector3? Tint = null, Vector3? SpentTint = null,
-    float GroundSinkM = 0);
+    float GroundSinkM = 0)
+{
+    /// <summary>A switch's prop whose own light goes out once the switch is set (<c>set_goes_dark</c>): the Stopped Gate's anchors.</summary>
+    public bool SetGoesDark { get; init; }
+}
 
 /// <summary>
 /// A light that is presentation data, not a coordinate in code: where it stands relative to what it lights (a station's feet, a building's
@@ -749,7 +753,10 @@ public sealed class ArtBindings
             : null,
         Number(e, "yaw_spread", 0), Number(e, "late_s", 0), Text(e, "animation_flag"), Flag(e, "hide_set_mark"),
         Number(e, "scale", 1), e.TryGetProperty("tint", out var tinted) ? Vector(tinted) : null,
-        e.TryGetProperty("spent_tint", out var spentTint) ? Vector(spentTint) : null, Number(e,"ground_sink_m",0));
+        e.TryGetProperty("spent_tint", out var spentTint) ? Vector(spentTint) : null, Number(e,"ground_sink_m",0))
+    {
+        SetGoesDark = Flag(e, "set_goes_dark"),
+    };
 
     private static bool Flag(JsonElement e, string name) =>
         e.ValueKind == JsonValueKind.Object && e.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.True;

@@ -101,6 +101,7 @@ public class BarrowworksSwitchTests
     {
         BoxBlocker box => (box.CenterXMm, box.CenterZMm),
         CircleBlocker circle => (circle.CenterXMm, circle.CenterZMm),
+        PolygonBlocker polygon => (polygon.CenterXMm, polygon.CenterZMm),
         _ => throw new Xunit.Sdk.XunitException($"switch {site.Key} stands on {site.Body.GetType().Name}, which has no centre"),
     };
 

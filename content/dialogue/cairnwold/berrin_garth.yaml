@@ -64,6 +64,15 @@ nodes:
         consequences: [{ command: start_quest, quest_ref: quest.main.road_east }]
         next: rim_stone
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      # The Spill (docs/FIELD_RUINS.md): told, not read, and the standing work on its tenders.
+      - id: ask_spill
+        text: "Tell me about the iron on the top."
+        next: tell_spill
+      - id: take_rim_road
+        text: "I'll keep the tenders back from the Rim road."
+        conditions: [{ kind: quest_state, quest_ref: quest.bounty.rim_road, is: available }]
+        consequences: [{ command: start_quest, quest_ref: quest.bounty.rim_road }]
+        next: rim_road_taken
       - id: ask_cairnwold
         text: "Tell me about Cairnwold."
         next: tell_cairnwold
@@ -201,6 +210,19 @@ nodes:
     - id: back
       text: I'll compare them at the lodge.
       next: again
+  tell_spill:
+    text: "Berrin Garth says the village has always kept off the top after dark, and nobody remembers being told to. The lodge book has one line on it, in Old Corra's hand and nothing round it: the top hums; leave it to hum. He reads that as permission to ignore it, he says, and he has, for forty years, very carefully. The things that walk the Spill pick up fallen iron and set it back where it does not fit, and the village calls them tenders, and leaves them to it."
+    choices:
+      - id: back
+        text: "I will remember it."
+        consequences: [{ command: tell_lore, lore_ref: lore.the_spill }]
+        next: again
+  rim_road_taken:
+    text: "\"Good. They come to the edge where the road climbs, now and then, and set a carter back where he doesn't fit.\" He winces at his own joke and writes it down anyway. \"Three of them, and I'll pay. Mind the big ones by the breaches - those aren't tenders, whatever they are.\""
+    choices:
+      - id: back
+        text: "Three tenders."
+        next: again
   tell_cairnwold:
     text: "Berrin Garth keeps the lodge and remembers why every part of the village is the way it is, and he will tell you, warmly and at length. The walls are drystone, he says, because mortar wants lime and lime wants a kiln and a kiln wants a man with a whole summer, and nobody here has ever had a summer like that — drystone wants a winter and two good hands. The granary stands on staddles, stone legs with a flat cap on each, so a mouse climbs up and hangs there thinking about its choices. And if you ask what is older than the village, he points at the crag line on the south edge — put there by somebody, or something, and not by the village — and the cut in the east where the beck leaves, which is only water and time. We built between the two, he says, walled it, and called it home."
     choices:

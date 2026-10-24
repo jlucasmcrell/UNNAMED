@@ -1,0 +1,23 @@
+id: creature.construct.gate_tender
+kind: creature
+schema: 1
+display_key: creature.construct.gate_tender.name
+tags: [creature, construct]
+name: Gate Tender
+notes: "The Stopped Gate's own keeper on the Spill (docs/FIELD_RUINS.md): a frame of Firstfold iron that sets fallen plates back where they no longer fit and treats anything on the top as one more thing out of place. The Spill's level-4 body - lighter and quicker than the animated armour, shelled in front and open behind. Bloodless; what is left of one is iron no forge takes."
+family: construct
+archetype: construct
+level_band: [4, 4]
+pools: { health: 60 }
+attack_set: [ability.creature.tender_strike]
+armor: { head: 8, torso: 14, limbs: 8 }
+resistances: { physical_pierce: 0.4 }
+weak_point: { region: torso, from_behind: true }
+move_speed_m_s: 3.2   # outpaces a walk, not a run
+turn_deg_s: 140       # quicker round than the armour, still slow enough to circle
+body_radius_m: 0.6
+xp_value: 50
+loot_table: loot.gate_tender
+perception: { sight_m: 20, hearing_m: 22, fov_deg: 140 }
+tier_hint: A
+tameable: false

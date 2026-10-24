@@ -70,6 +70,12 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 | spawn.cairnwold.moor_hares | (1000, 700) | Frost Hare as wildlife x3 | after 30.0 min |
 | spawn.cairnwold.moor_strays | (1018, 748) | Grey Wolf as stray, Grey Wolf as roamer x2 | after 20.0 min |
 | spawn.cairnwold.outfall_hares | (1060, 640) | Frost Hare as wildlife x2 | after 30.0 min |
+| spawn.field.breach_northeast | (867, 736) | Animated Armour as sentinel | after 60.0 min |
+| spawn.field.breach_west | (824, 758) | Animated Armour as sentinel | after 60.0 min |
+| spawn.field.gate_warden | (866, 762) | Gate Warden as sentinel | no |
+| spawn.field.tenders_east | (873, 727) | Gate Tender as sentinel x2 | after 60.0 min |
+| spawn.field.tenders_north | (830, 708) | Gate Tender as roamer x2 | after 60.0 min |
+| spawn.field.tenders_west | (800, 760) | Gate Tender as roamer x2 | after 60.0 min |
 | spawn.hollow.boar_wallow | (418, 672) | Bristleback Boar as territorial | after 30.0 min |
 | spawn.hollow.charwood_deer | (612, 718) | Timber Hind as skittish x2, Timber Stag as skittish | after 30.0 min |
 | spawn.hollow.charwood_fox | (590, 700) | Lantern Fox as wildlife | after 30.0 min |

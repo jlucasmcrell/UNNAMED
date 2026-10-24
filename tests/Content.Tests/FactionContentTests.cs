@@ -137,10 +137,12 @@ public class FactionContentTests
 
     [Fact]
     public void ACreaturePlacedTwiceReaction_IsRefused() =>
-        Refused("needs it placed once in the world; it is placed 2 times",
+        Refused("needs it placed once in the world; it is placed 4 times",
             (LongSurvey, SteadiedReaction, "act: creature_killed, creature_ref: creature.construct.animated_armour, delta: 100"),
             ("spawns/hollow/iron_shelf_armour.yaml", "  kind: timer\n  window_ticks: 72000", "  kind: none"),
-            ("spawns/moor/barrow_sentinel.yaml", "  kind: timer\n  window_ticks: 72000", "  kind: none"));
+            ("spawns/moor/barrow_sentinel.yaml", "  kind: timer\n  window_ticks: 72000", "  kind: none"),
+            ("spawns/field/breach_west.yaml", "  kind: timer\n  window_ticks: 72000", "  kind: none"),
+            ("spawns/field/breach_northeast.yaml", "  kind: timer\n  window_ticks: 72000", "  kind: none"));
 
     [Fact]
     public void AReactionDeltaOfIntMinValue_IsRefused() =>

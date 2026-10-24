@@ -160,7 +160,7 @@ lines:
   - { key: chat.b0007.0151, text: "Rain's on and every rut's a channel now.", speakers: [farmer], places: [old_east_road], times: [dawn], weather: [rain], ai_generated: true }
   - { key: chat.b0007.0152, text: "Fellhorn's come off the high ground and down where the road cuts. He'll be on the road itself by noon.", speakers: [herder], places: [old_east_road], times: [dawn], ai_generated: true }
   - { key: chat.b0007.0153, text: "Fog's filled the low stretch and the shrine post is the only thing standing out of it.", speakers: [villager], places: [old_east_road], times: [dawn], weather: [fog], ai_generated: true }
-  - { key: chat.b0007.0154, text: "Slept at the Rim camp. There's a Rim Stone up there and it's the only fixed thing on the whole top.", speakers: [adventurer], places: [old_east_road], times: [dawn], ai_generated: true }
+  - { key: chat.b0007.0154, text: "Slept at the Rim camp. There's a Rim Stone up there, and past it the Spill hummed all night.", speakers: [adventurer], places: [old_east_road], times: [dawn], ai_generated: true }
   - { key: chat.b0007.0155, text: "Boots are wet through and the day's not started yet.", places: [old_east_road], times: [dawn], ai_generated: true }
   - { key: chat.b0007.0156, text: "Fair and cold and the road's better than it was yesterday, in this light.", places: [old_east_road], times: [dawn], weather: [fair], ai_generated: true }
   - { key: chat.b0007.0157, text: "Bread on the shrine stone that wasn't there at dark, and a grey morning for it. That's the custom and it's a good one.", speakers: [traveller], places: [old_east_road], times: [morning], weather: [overcast], ai_generated: true }

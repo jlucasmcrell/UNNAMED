@@ -264,7 +264,7 @@ public class NpcTests
         Assert.Equal((1, 5), (Carried(arena, Notes), Regard(arena, Sel, "trust")));
         Assert.Equal("notes_given", Now(arena).NodeId);
         Assert.Null(Say(arena, "back"));
-        Assert.Equal(new[] { "ruin", "strain", "tavar", "survey", "leave", "story_grazers", "story_species_robin", "story_species_dandelion" }, CoreReplies(arena));   // the notes are given once; now she will talk of strain
+        Assert.Equal(new[] { "ruin", "strain", "tavar", "survey", "spill", "leave", "story_grazers", "story_species_robin", "story_species_dandelion" }, CoreReplies(arena));   // the notes are given once; now she will talk of strain
     }
 
     /// <summary>

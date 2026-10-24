@@ -171,7 +171,8 @@ public class QuestContentTests
         // Count the new armour routes so this deliberately missing route is still the March Spear.
         Assert.Contains(ErrorsWith(Quest1, "or_item_refs: [item.material.iron_ingot, item.weapon.march_spear]",
                 "or_item_refs: [item.material.iron_ingot, item.armor.lame_coif, item.armor.lame_sabatons, item.armor.lamework_jack]", FiniteSpoil,
-                ("spawns/hollow/iron_shelf_armour.yaml", "kind: timer", "kind: none"), ("spawns/moor/barrow_sentinel.yaml", "kind: timer", "kind: none")),
+                ("spawns/hollow/iron_shelf_armour.yaml", "kind: timer", "kind: none"), ("spawns/moor/barrow_sentinel.yaml", "kind: timer", "kind: none"),
+                ("spawns/field/breach_west.yaml", "kind: timer", "kind: none"), ("spawns/field/breach_northeast.yaml", "kind: timer", "kind: none")),
             e => e.Code == "QST001" && e.Message.Contains("nothing renews item.material.iron_ingot, and recipe.smithing.march_spear makes it into item.weapon.march_spear",
                 StringComparison.Ordinal));
 
@@ -301,7 +302,7 @@ public class QuestContentTests
         // The opening (WP2) is the one quest every new character starts. The hunting bounties are competitive (WP13): an adventurer may
         // finish one first; the gathering and smithing ones are the character's alone.
         Assert.Equal(new[] { "quest.main.the_road_in" }, quests.Values.Where(q => q.OnNewGame).Select(q => q.Id));
-        Assert.Equal(new[] { "quest.bounty.crag_walker", "quest.bounty.lodge_supplies", "quest.bounty.road_wolves", "quest.bounty.winter_hides" },
+        Assert.Equal(new[] { "quest.bounty.crag_walker", "quest.bounty.lodge_supplies", "quest.bounty.rim_road", "quest.bounty.road_wolves", "quest.bounty.winter_hides" },
             quests.Values.Where(q => q.Competitive).Select(q => q.Id).OrderBy(id => id, StringComparer.Ordinal));
     }
 
