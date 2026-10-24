@@ -19,8 +19,26 @@ public static class PeopleAppearance
             foreach (var mesh in model.FindChildren("mh_veth_m_beard*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
                 mesh.Visible = false;
         ApplyBodyColour(model, art, modelId);
-        if (people is null or "people.veth" or "people.kal")
+        if (people is null or "people.veth")
             return;
+        if (people == "people.kal")
+        {
+            if (art.RiggedFile(modelId, "kal_stone_rgbh.png") is { } colourPath && art.RiggedFile(modelId, "kal_stone_rm.png") is { } maskPath
+                && art.Texture(colourPath, "albedo") is { } colour && art.Texture(maskPath, "data") is { } mask)
+                KalStone(model, colour, mask);
+            if (art.RiggedFile(modelId, "kal_wings.glb") is { } wings
+                && model.FindChildren("*", nameof(Skeleton3D), true, false).OfType<Skeleton3D>().FirstOrDefault() is { } skeleton)
+                KalWings.Attach(skeleton, wings);
+            return;
+        }
+        if (people == "people.orenth")
+        {
+            if (model is Node3D body)
+                OrenthPhase.Attach(body, modelId + body.GetInstanceId());
+            if (art.RiggedFile(modelId, "orenth_scars.png") is { } scarPath && art.Texture(scarPath, "data") is { } scars)
+                OrenthPhase.Scar(model, scars, older: false);
+            return;
+        }
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
         {
             if (mesh.Mesh is null)
@@ -78,12 +96,12 @@ public static class PeopleAppearance
                 {
                     mesh.SetSurfaceOverrideMaterial(surface, Reflective(new Color(.21f, .30f, .32f), .3f, .2f));
                 }
-                else if ((people == "people.siann" && skin) || people is "people.orenth" or "people.mor")
+                else if ((people == "people.siann" && skin) || people == "people.mor")
                 {
                     if (GD.Load<Shader>("res://Art/people_phase.gdshader") is not { } shader)
                         continue;
                     var material = new ShaderMaterial { Shader = shader, ResourceName = name + "_" + people };
-                    material.SetShaderParameter("mode", people == "people.siann" ? 0 : people == "people.orenth" ? 1 : 2);
+                    material.SetShaderParameter("mode", people == "people.siann" ? 0 : 2);
                     material.SetShaderParameter("head_surface", name.EndsWith("_head_skin", StringComparison.Ordinal));
                     material.SetShaderParameter("base_map", source.AlbedoTexture);
                     material.SetShaderParameter("base_colour", source.AlbedoColor);
@@ -98,6 +116,30 @@ public static class PeopleAppearance
                         mesh.SetSurfaceOverrideMaterial(surface, local);
                     }
                 }
+            }
+        }
+    }
+
+    /// <summary>
+    /// The Kal calcification layer on every HumanShaders skin surface: the body's own baked stone (<paramref name="colour"/>: rgb + height)
+    /// and its joint/age mask (<paramref name="mask"/>: r roughness, g mask). Clothing, hair, eyes and teeth are other materials.
+    /// </summary>
+    public static void KalStone(Node model, Texture2D colour, Texture2D mask, float coverage = .55f)
+    {
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+        {
+            if (mesh.Mesh is null) continue;
+            for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
+            {
+                if ((mesh.GetSurfaceOverrideMaterial(surface) ?? mesh.Mesh.SurfaceGetMaterial(surface)) is not ShaderMaterial skin
+                    || !skin.ResourceName.EndsWith("_HumanShaders", StringComparison.Ordinal))
+                    continue;
+                var local = (ShaderMaterial)skin.Duplicate();
+                local.SetShaderParameter("use_stone", true);
+                local.SetShaderParameter("stone_rgbh", colour);
+                local.SetShaderParameter("stone_rm", mask);
+                local.SetShaderParameter("stone_coverage", coverage);
+                mesh.SetSurfaceOverrideMaterial(surface, local);
             }
         }
     }
