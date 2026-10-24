@@ -1,0 +1,25 @@
+id: spawn.barrowworks.inspection_spiders
+kind: spawn
+schema: 1
+display_key: spawn.barrowworks.inspection_spiders.name
+tags:
+- spawn
+notes: "E4 (M8 09): two spiders in R13, the optional inspection bay on the R07-R13-R10 loop. No required fact, wedge or key is here. Their kills persist. Level 3, as the frontier's own spiders and husks (docs/BARROWWORKS_BALANCE.md)."
+region_ref: region.barrowworks
+creatures:
+- creature_ref: creature.beast.cave_hunting_spider
+  count:
+  - 2
+  - 2
+  role: ambusher
+at:
+  position_m:
+  - 72
+  - 85
+  radius_m: 2
+level_band:
+- 3
+- 3
+respawn:
+  kind: none
+tier_hint: A

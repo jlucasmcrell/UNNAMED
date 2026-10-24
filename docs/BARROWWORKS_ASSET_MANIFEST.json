@@ -48,29 +48,29 @@
         "source_url": "https://polyhaven.com/a/rock_ground"
       },
       "texture_resolutions": [
-        512,
-        256,
-        128
+        "source",
+        1024,
+        512
       ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_01.glb",
           "triangles": 110481,
-          "bytes": 12630040,
-          "sha256": "8acd192b7f13bf6a28383d8955225c7156a2e238302f0513e47b8a8d7e1c0a24"
+          "bytes": 42937852,
+          "sha256": "db06afcb39b50c2ad128fca7fb8baa2d0eaa083f1c5d81ff7d783ed957002276"
         },
         {
           "file": "bw_codex_room_01_lod1.glb",
           "triangles": 55240,
-          "bytes": 4754080,
-          "sha256": "281453141b1b0893b3f53f630a70c9bc46a2017d96bcf9a6423b42b554bcb3b0"
+          "bytes": 17618528,
+          "sha256": "580d18f784bbd41c556bee2b9b85fa029b49e19970703d4e91e2b0d78ce89ced"
         },
         {
           "file": "bw_codex_room_01_lod2.glb",
           "triangles": 22083,
-          "bytes": 1869304,
-          "sha256": "a53e9a80ed6e9be09ebf59868802193fbddd8cafed82643df7a8e72b7e1c6e6a"
+          "bytes": 9385256,
+          "sha256": "b5fd8e96d4534108eb145c612120db6b53f11ab69ad5416b765ed87a662b23c2"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -146,29 +146,29 @@
         "source_url": "https://polyhaven.com/a/rock_ground"
       },
       "texture_resolutions": [
-        512,
-        256,
-        128
+        "source",
+        1024,
+        512
       ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_02.glb",
           "triangles": 187471,
-          "bytes": 16028000,
-          "sha256": "6c2d56170741927f97051496306343054f2781aeaf4e23640914f10bac56ca11"
+          "bytes": 46335800,
+          "sha256": "910aedadaeeb5090fd7f33019e461462691605c983e044939c8f8daf8e2ca1fc"
         },
         {
           "file": "bw_codex_room_02_lod1.glb",
           "triangles": 93735,
-          "bytes": 6640380,
-          "sha256": "282aeb8c2902d02da97020f537345f98db4d64e7ea846b9cd1d89e519b224ab7"
+          "bytes": 19504824,
+          "sha256": "933f5b494b9ada6c4defaa367de38111f08680d7cd06138a656107da233e52b2"
         },
         {
           "file": "bw_codex_room_02_lod2.glb",
           "triangles": 37488,
-          "bytes": 2787920,
-          "sha256": "ec307183a32cfbd47b55f0dc76f1824be2b845da6beb01ee313f3f17ad3814cb"
+          "bytes": 10303872,
+          "sha256": "66ba12b532623ed9d63d403f17061a6b0b2b80026d683bbc133ad2cf58d7cb67"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -232,29 +232,29 @@
         "source_url": "https://polyhaven.com/a/rock_ground"
       },
       "texture_resolutions": [
-        512,
-        256,
-        128
+        "source",
+        1024,
+        512
       ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_03.glb",
           "triangles": 110188,
-          "bytes": 16348300,
-          "sha256": "8952ef7f2ca895c78bd9b6ede8f5e75564e30105c9087fc5a89bec11134db419"
+          "bytes": 49786168,
+          "sha256": "099d714e7da3a832c38dab021e78792191fea6d929615e9b6c0abe5204c1c3bd"
         },
         {
           "file": "bw_codex_room_03_lod1.glb",
           "triangles": 55094,
-          "bytes": 5755180,
-          "sha256": "30956deb1fc6e7f6c18e2c75be0496013827144b66a1682b069d37c447006cb2"
+          "bytes": 28027780,
+          "sha256": "4356676da50c0bd1d117fc3d27a8f6dbcc252a174a1a10ec4d19dc5fe838f792"
         },
         {
           "file": "bw_codex_room_03_lod2.glb",
           "triangles": 22006,
-          "bytes": 2137580,
-          "sha256": "8c7582bb9762a6b3837fedb08619d5fcde6947903d836334edce307d5708edeb"
+          "bytes": 12932280,
+          "sha256": "d0c701461247d7908e0a8ae3014e1d6f6e2aa8ceaf143aec0c538cf5959d264c"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -306,29 +306,29 @@
         "source_url": "https://polyhaven.com/a/rock_ground"
       },
       "texture_resolutions": [
-        512,
-        256,
-        128
+        "source",
+        1024,
+        512
       ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_04.glb",
           "triangles": 125541,
-          "bytes": 10359676,
-          "sha256": "e982cf3620ccc11e8e528ae52011640d4f15c0dc95f8887f4554fe1eac6ba444"
+          "bytes": 41392652,
+          "sha256": "04e3afac784422debbc73cc44b98db21b4ad1988b93eaaa889acb2e4b25b3b1f"
         },
         {
           "file": "bw_codex_room_04_lod1.glb",
           "triangles": 62766,
-          "bytes": 4387924,
-          "sha256": "352d46d017145ccd7a8b4cd940406cb92940df55a90a66c005e84510cc448c03"
+          "bytes": 13395136,
+          "sha256": "433d6f77404ecb5fd84fa9045c107acfc8d129b7210a62ded99f2f497577895b"
         },
         {
           "file": "bw_codex_room_04_lod2.glb",
           "triangles": 25086,
-          "bytes": 1847164,
-          "sha256": "48c0a595e99a0c0628e4fb3130b9cb597bd21599e9504d3c2392e78c072b6bd6"
+          "bytes": 6678692,
+          "sha256": "4acc6a49c1510dc8bb044f247f561b9b2104ab0ffc062ce424c25d95f3b44ebf"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -392,29 +392,29 @@
         "source_url": "https://polyhaven.com/a/rock_ground"
       },
       "texture_resolutions": [
-        512,
-        256,
-        128
+        "source",
+        1024,
+        512
       ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_05.glb",
           "triangles": 196564,
-          "bytes": 20367820,
-          "sha256": "95f2ca300ff2fc6d0a20ba300fd00c845e82ff7a8f8182c93f3a197f8ea59fcf"
+          "bytes": 53805668,
+          "sha256": "80c57d97bc70462167f728c994131b1631679d5ee735e615de389adc4c061f66"
         },
         {
           "file": "bw_codex_room_05_lod1.glb",
           "triangles": 98281,
-          "bytes": 8314592,
-          "sha256": "976235de1890421de9222e022e08cb4f556d6f16f60175cba20e6313353a1ecb"
+          "bytes": 30587184,
+          "sha256": "ebec2253d6e8d53f1e74eebcc9b48031099a42c260422be4437f35353fdef1b4"
         },
         {
           "file": "bw_codex_room_05_lod2.glb",
           "triangles": 39292,
-          "bytes": 3416392,
-          "sha256": "e8138e93b660d4dafcba795556e819acad02c38ec210cde8336eef16ad9c3489"
+          "bytes": 14211080,
+          "sha256": "19e9db7834bb929b685f5104c9ac20f1ce38a588c3221c497eeeca9c297ea960"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -466,29 +466,29 @@
         "source_url": "https://polyhaven.com/a/rock_ground"
       },
       "texture_resolutions": [
-        512,
-        256,
-        128
+        "source",
+        1024,
+        512
       ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_06.glb",
           "triangles": 195062,
-          "bytes": 21638680,
-          "sha256": "b690f1f2edf71e057b89ddc4cda8e14467975d8dfc152eb20a2b68b2cc5e0276"
+          "bytes": 57757708,
+          "sha256": "cfd0c114b0bb40aab6179b9db6d1aa29197c51560218506d7923d566c81ae84c"
         },
         {
           "file": "bw_codex_room_06_lod1.glb",
           "triangles": 97531,
-          "bytes": 8190628,
-          "sha256": "f5314b81c8f989130516d2dbc9b77978d46e9b4539c5792fc3981b8460a8d3a2"
+          "bytes": 37734840,
+          "sha256": "30d87bde34fc8784d8b7e2e2ced97e52373f73ff7eaac5cad32ae8133ba0b8b2"
         },
         {
           "file": "bw_codex_room_06_lod2.glb",
           "triangles": 39010,
-          "bytes": 3240968,
-          "sha256": "63369056d2e62276a1e8e3ef323e93f6501a66d58fed6125e03b90e751e74ed4"
+          "bytes": 16014280,
+          "sha256": "26f158c9b2c6b9dda140edc50725596467cc240e12834ee45c44b1a14e1f5241"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -726,29 +726,29 @@
         "source_url": "https://polyhaven.com/a/rock_ground"
       },
       "texture_resolutions": [
-        512,
-        256,
-        128
+        "source",
+        1024,
+        512
       ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_07.glb",
           "triangles": 171220,
-          "bytes": 20809868,
-          "sha256": "92ab95e8f31e37c7bc1c34421026b203490a03556c166469e2eb6e3409806273"
+          "bytes": 53910792,
+          "sha256": "ba151dfc5ace680b38f203b0bc42a0c1685fb98cd3d4f4a1a221894c742fc7e7"
         },
         {
           "file": "bw_codex_room_07_lod1.glb",
           "triangles": 85610,
-          "bytes": 8071136,
-          "sha256": "5c31a21942bdd885e7bdbbd9aca6324fefc46c902e7f11aa791491eb7c98e49d"
+          "bytes": 32029872,
+          "sha256": "8623c752aa9cb7218f085ff5764b571f3a7e710c741d2ce41a8580a60e2ce71c"
         },
         {
           "file": "bw_codex_room_07_lod2.glb",
           "triangles": 34187,
-          "bytes": 3062240,
-          "sha256": "2b0adc882a986c46ad37903b7ca6fb75eadc6acc0479c29f13a638c5d7f9b8d1"
+          "bytes": 13731412,
+          "sha256": "219faefc066a3c5595aca5dd031801c5e93df90e52eee018420b846e093f45e0"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -800,29 +800,29 @@
         "source_url": "https://polyhaven.com/a/rock_ground"
       },
       "texture_resolutions": [
-        512,
-        256,
-        128
+        "source",
+        1024,
+        512
       ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_08.glb",
           "triangles": 118539,
-          "bytes": 12927460,
-          "sha256": "6286fbf2119b85c76f538e2e52fdf3684018021d7a4b40209851999629a84feb"
+          "bytes": 45419964,
+          "sha256": "5d8508d665efcb497e13e7ddedeae24d07faeb99ed84598efbd9f33775db1e72"
         },
         {
           "file": "bw_codex_room_08_lod1.glb",
           "triangles": 59268,
-          "bytes": 4958804,
-          "sha256": "c5315b6a5088b2c380abb5a1020e9d18597f0ee016fc79cd8d306fcdb3b07e00"
+          "bytes": 20937536,
+          "sha256": "6bc30b4a197fee8f55f32abd4e765748b1daf467385c24b753657dd55c511186"
         },
         {
           "file": "bw_codex_room_08_lod2.glb",
           "triangles": 23691,
-          "bytes": 1987832,
-          "sha256": "3555dac01bb996748120f78a43b81421afd545e7d318e037b51379c25c21a318"
+          "bytes": 9500360,
+          "sha256": "e9b89cc6b1a03d056bf8dcda05657a7643c34d1a461393fda6a1d0d651df1d75"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -886,29 +886,29 @@
         "source_url": "https://polyhaven.com/a/rock_ground"
       },
       "texture_resolutions": [
-        512,
-        256,
-        128
+        "source",
+        1024,
+        512
       ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_09.glb",
           "triangles": 127828,
-          "bytes": 19057076,
-          "sha256": "0022e25e08cad6b8e97cd46bd74d38889ead7b933482ca26ba1528d87b9b587e"
+          "bytes": 52158008,
+          "sha256": "0c3d3e38db88e2bd30a2cd1da9029e7f7afd48f28a06103353491afb2948f840"
         },
         {
           "file": "bw_codex_room_09_lod1.glb",
           "triangles": 63913,
-          "bytes": 7061352,
-          "sha256": "d09717365dfc9709dbcff170f1190277e17afcfcf6acfa976a2c1fa366182ab3"
+          "bytes": 31020088,
+          "sha256": "610ac040d3bbaf0fdc93a5a62da05229a4429a7c2e96a950e0c63cabaa8df707"
         },
         {
           "file": "bw_codex_room_09_lod2.glb",
           "triangles": 25384,
-          "bytes": 2510684,
-          "sha256": "562200676d1aa7b6f25bfb76f5482acacfd79d34742432820a36dab20883a19a"
+          "bytes": 13179852,
+          "sha256": "6d70ebc0ee2a93766eb822d04a8439642b352ffcc63643c55630d8cb0602cf9d"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -960,29 +960,115 @@
         "source_url": "https://polyhaven.com/a/rock_ground"
       },
       "texture_resolutions": [
-        512,
-        256,
-        128
+        "source",
+        1024,
+        512
       ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_10.glb",
           "triangles": 133631,
-          "bytes": 17143376,
-          "sha256": "2e61d7353d1488dc6224959197ab32d1768bf3d143b89cee4c0a581721b5a023"
+          "bytes": 50581244,
+          "sha256": "3aafab7e7c06d0764d06e9758d7f8edd97c0f2e2c23ddb68430251aadad3f72f"
         },
         {
           "file": "bw_codex_room_10_lod1.glb",
           "triangles": 66812,
-          "bytes": 6290740,
-          "sha256": "ca8bef196d4d1d645ac29f2213c7085aa195b792d510b50387ab5a4fe291a610"
+          "bytes": 28563316,
+          "sha256": "93f0c1e359e9c81ff0401229c82f6879570bc3d099d400359400fd00d628ea95"
         },
         {
           "file": "bw_codex_room_10_lod2.glb",
           "triangles": 26710,
-          "bytes": 2456996,
-          "sha256": "8999147bf67ef4ada29e7b603ac5e3df2aaa73257611f988fbfa68f542a56ae5"
+          "bytes": 13251668,
+          "sha256": "477293daf4be0bbbe2ace1ec5b7f5e53fd40c571b15a2f1511c2a6808de8775f"
+        }
+      ],
+      "collision": "authoritative region footprint; camera proxy only",
+      "shippable": true
+    },
+    {
+      "asset_id": "bw_codex_room_11",
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
+      "source_modules": [
+        "masonry",
+        "floor",
+        "ceiling",
+        "pillar",
+        "brazier",
+        "relief_rock",
+        "relief_masonry",
+        "plain_slab",
+        "pipe",
+        "boiler",
+        "timber",
+        "lantern"
+      ],
+      "room_identity": {
+        "identity": "court",
+        "wall": "rock",
+        "ceiling": "court_trusses",
+        "lights": [
+          [
+            2,
+            3.0,
+            -6,
+            [
+              0.94,
+              0.81,
+              0.65
+            ],
+            2.8,
+            16
+          ],
+          [
+            -5,
+            2.8,
+            5,
+            [
+              0.58,
+              0.73,
+              0.85
+            ],
+            2.6,
+            14
+          ]
+        ]
+      },
+      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
+      "backing_material": {
+        "creator": "Rob Tuytel / Poly Haven",
+        "licence": "CC0 1.0",
+        "source_url": "https://polyhaven.com/a/rock_ground"
+      },
+      "texture_resolutions": [
+        "source",
+        1024,
+        512
+      ],
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "outputs": [
+        {
+          "file": "bw_codex_room_11.glb",
+          "triangles": 435972,
+          "bytes": 57501940,
+          "sha256": "3a8fefeaa8a37f529dbad76d4af612dffe2633db5c3cd406a948db354e5b430b"
+        },
+        {
+          "file": "bw_codex_room_11_lod1.glb",
+          "triangles": 217986,
+          "bytes": 25010248,
+          "sha256": "15319e7ac2254650fe775eeb6842809730586fc7efb6d984ebb0c76ddab59427"
+        },
+        {
+          "file": "bw_codex_room_11_lod2.glb",
+          "triangles": 87177,
+          "bytes": 13085928,
+          "sha256": "ae853b935aec437b5848568ad53780b1f81e95df71182798f684e19eb027b396"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -1046,29 +1132,29 @@
         "source_url": "https://polyhaven.com/a/rock_ground"
       },
       "texture_resolutions": [
-        512,
-        256,
-        128
+        "source",
+        1024,
+        512
       ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_12.glb",
           "triangles": 133794,
-          "bytes": 17251168,
-          "sha256": "ec75f58671775ac1d51fabbddbce228252da6cb9deea1234640cdbdac5e00ca9"
+          "bytes": 50689040,
+          "sha256": "939cbba8df5816451689b0fa2869923292bfc7bd7a4e299cbd8bcf4588a48643"
         },
         {
           "file": "bw_codex_room_12_lod1.glb",
           "triangles": 66893,
-          "bytes": 6280244,
-          "sha256": "d9311a2fc166254157bd07a55ea47c51ff97f23a9dcb55b24fedf945dc3669fd"
+          "bytes": 28552824,
+          "sha256": "6ffb3aba0dfe49526ded90ae6fccb98f48688a9283b9adcf6efb8c4585b2e4a1"
         },
         {
           "file": "bw_codex_room_12_lod2.glb",
           "triangles": 26744,
-          "bytes": 2409680,
-          "sha256": "b9c41ed0562bf79d35f27912776339004dad8c75a54b315a7fd3c7b746f77e07"
+          "bytes": 13204352,
+          "sha256": "7a99a8012c3b4550d8b6c67bc433ae3586bae0cfe130216c53246026a78c32d5"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -1120,29 +1206,29 @@
         "source_url": "https://polyhaven.com/a/rock_ground"
       },
       "texture_resolutions": [
-        512,
-        256,
-        128
+        "source",
+        1024,
+        512
       ],
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "outputs": [
         {
           "file": "bw_codex_room_13.glb",
           "triangles": 118249,
-          "bytes": 10043892,
-          "sha256": "1ee4f18da215925439c326b22df2e73fcc1610e8d22a8061ff25ecbdcadcc6c2"
+          "bytes": 41076880,
+          "sha256": "37e373817a94ffdc01bda0150db83af228230e6b38da870a3b77d86baf22fb2b"
         },
         {
           "file": "bw_codex_room_13_lod1.glb",
           "triangles": 59122,
-          "bytes": 4196900,
-          "sha256": "851d9fda42d42c5febd81645d984b932eb7a506a9ece9e12f5e6125c2b06d18f"
+          "bytes": 13204092,
+          "sha256": "e38ad9bc608b9762cf9b517c089c21f3e4fd35f24c5ebcae3d769999f2ef9f43"
         },
         {
           "file": "bw_codex_room_13_lod2.glb",
           "triangles": 23634,
-          "bytes": 1752192,
-          "sha256": "a8cc8b5d9f882237feeabe67689254e62a4db228fa6143b5b45dc5a5ec52b167"
+          "bytes": 6583716,
+          "sha256": "85a52e98cc72e55997a9a5ef41babfe060c1b388267c47ed2ccb784fd9e96a24"
         }
       ],
       "collision": "authoritative region footprint; camera proxy only",
@@ -1153,7 +1239,7 @@
       "licence": "CC0 1.0; first-party enclosure geometry",
       "creator": "Poly Haven; geometry by Codex",
       "source_url": "https://polyhaven.com/a/rock_ground",
-      "sha256": "3dd0208b90d2e03aa79873be81a53557d589c57a11050614f977e50ed38895ee",
+      "sha256": "36d5ebbde17ed5930279f6b6952e0838e434ae1b2441184aa65e0a163cea8e30",
       "shippable": true,
       "source_provenance": {
         "id": "cw_rock_ground",
@@ -1185,93 +1271,7 @@
       "licence": "Fab Standard Personal",
       "creator": "DanStudios; manual assembly by Codex",
       "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "sha256": "d7e1747f37504bf5c4866e3842b8a1757b5506c81aa6b0f4ae94fc4a0afc5749",
-      "shippable": true
-    },
-    {
-      "asset_id": "bw_codex_room_11",
-      "category": "building",
-      "licence": "Fab Standard Personal",
-      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
-      "source_modules": [
-        "masonry",
-        "floor",
-        "ceiling",
-        "pillar",
-        "brazier",
-        "relief_rock",
-        "relief_masonry",
-        "plain_slab",
-        "pipe",
-        "boiler",
-        "timber",
-        "lantern"
-      ],
-      "room_identity": {
-        "identity": "court",
-        "wall": "rock",
-        "ceiling": "court_trusses",
-        "lights": [
-          [
-            2,
-            3.0,
-            -6,
-            [
-              0.94,
-              0.81,
-              0.65
-            ],
-            2.8,
-            16
-          ],
-          [
-            -5,
-            2.8,
-            5,
-            [
-              0.58,
-              0.73,
-              0.85
-            ],
-            2.6,
-            14
-          ]
-        ]
-      },
-      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
-      "backing_material": {
-        "creator": "Rob Tuytel / Poly Haven",
-        "licence": "CC0 1.0",
-        "source_url": "https://polyhaven.com/a/rock_ground"
-      },
-      "texture_resolutions": [
-        512,
-        256,
-        128
-      ],
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "outputs": [
-        {
-          "file": "bw_codex_room_11.glb",
-          "triangles": 435972,
-          "bytes": 27194156,
-          "sha256": "92805b6beb71f76702842803036ab2e9bd43aac4d95e6b41025b2fb8972b166c"
-        },
-        {
-          "file": "bw_codex_room_11_lod1.glb",
-          "triangles": 217986,
-          "bytes": 12145828,
-          "sha256": "6e549287836e61698c6e9e0a31bda1356408a3d3d3a2c28dae1086203e480046"
-        },
-        {
-          "file": "bw_codex_room_11_lod2.glb",
-          "triangles": 87177,
-          "bytes": 5569952,
-          "sha256": "c3bd286af6213661285d6fc6b073f91da8f4039371c1d5ad66a54a368b063981"
-        }
-      ],
-      "collision": "authoritative region footprint; camera proxy only",
+      "sha256": "c6901d59578f48827e744d2f6d4ee9ce47bdb4edb2df507bcd7f07c864d50e6c",
       "shippable": true
     },
     {
@@ -1285,7 +1285,8 @@
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "shippable": true,
-      "sha256": "11fb89d71fc8e393e891b3927cd7e9d68ab22796fea14d3e966ecdce5d3812cd",
+      "triangles": 4242,
+      "sha256": "384ee737255d9936ec172f59eee32eca055423697653ad85d9425f2ac76715b2",
       "source_urls": [
         "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
         "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
@@ -1344,7 +1345,8 @@
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "shippable": true,
-      "sha256": "b3cdbb1918150acb97663efa435a1e55c2e728930a4edc84e124f8fb2d430053",
+      "triangles": 6190,
+      "sha256": "225c8dca38603af07bf91c1209af16ab35ca0c550aeec2f38c5fc2a3bf4835bd",
       "source_urls": [
         "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
         "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
@@ -1403,7 +1405,8 @@
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "shippable": true,
-      "sha256": "e961fa623fb16154c2f7d04bb1c83e003ebc3f6c686cc93fdac8fecdcbcb7351",
+      "triangles": 2414,
+      "sha256": "4090a3ed3a2d32be9e1d7d679301a05a0e71df051858a9f559cf92fa61015f89",
       "source_urls": [
         "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
         "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
@@ -1462,715 +1465,8 @@
       "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
       "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
       "shippable": true,
-      "sha256": "7739c1a0ff010afe7f7f49ee68c2d67bb5050bbbc2ff1601264fb301ae5fadec",
-      "source_urls": [
-        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
-      ],
-      "rough_wood_source": {
-        "id": "cw_timber_beam",
-        "built_for": "CAIRNWOLD",
-        "source": "Poly Haven (https://polyhaven.com)",
-        "source_asset": "rough_wood",
-        "source_page": "https://polyhaven.com/a/rough_wood",
-        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-        "download_urls": {
-          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
-          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
-        },
-        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
-        "licence_url": "https://polyhaven.com/license",
-        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
-        "shippable": true,
-        "resolution": 4096,
-        "maps": {
-          "basecolor": {
-            "file": "cw_timber_beam_basecolor.jpg",
-            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
-            "bytes": 8069907
-          },
-          "normal": {
-            "file": "cw_timber_beam_normal.jpg",
-            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
-            "bytes": 7089554
-          },
-          "orm": {
-            "file": "cw_timber_beam_orm.jpg",
-            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
-            "bytes": 2365401
-          }
-        },
-        "orm_means": {
-          "occlusion": 0.7809,
-          "roughness": 0.5096,
-          "metallic": 0.005
-        },
-        "transform": "none - both sources ship glTF-shaped maps"
-      },
-      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
-    },
-    {
-      "asset_id": "bw_codex_measure_dismantled",
-      "category": "prop",
-      "source": "Licensed source modules; manual assembly and first-party paper/type.",
-      "sources": [
-        "DanStudios Lost Temple: Fab Standard Personal",
-        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
-      ],
-      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true,
-      "sha256": "d07010d534de5a28cb48f13b705c4d6f5da8c38ac760a7723837c3d89af1b07a",
-      "source_urls": [
-        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
-      ],
-      "rough_wood_source": {
-        "id": "cw_timber_beam",
-        "built_for": "CAIRNWOLD",
-        "source": "Poly Haven (https://polyhaven.com)",
-        "source_asset": "rough_wood",
-        "source_page": "https://polyhaven.com/a/rough_wood",
-        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-        "download_urls": {
-          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
-          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
-        },
-        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
-        "licence_url": "https://polyhaven.com/license",
-        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
-        "shippable": true,
-        "resolution": 4096,
-        "maps": {
-          "basecolor": {
-            "file": "cw_timber_beam_basecolor.jpg",
-            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
-            "bytes": 8069907
-          },
-          "normal": {
-            "file": "cw_timber_beam_normal.jpg",
-            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
-            "bytes": 7089554
-          },
-          "orm": {
-            "file": "cw_timber_beam_orm.jpg",
-            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
-            "bytes": 2365401
-          }
-        },
-        "orm_means": {
-          "occlusion": 0.7809,
-          "roughness": 0.5096,
-          "metallic": 0.005
-        },
-        "transform": "none - both sources ship glTF-shaped maps"
-      },
-      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
-    },
-    {
-      "asset_id": "bw_codex_codex_fragment",
-      "category": "prop",
-      "source": "Licensed source modules; manual assembly and first-party paper/type.",
-      "sources": [
-        "DanStudios Lost Temple: Fab Standard Personal",
-        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
-      ],
-      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true,
-      "sha256": "f54562cc811ddb9c5a1aeed957052e1aab9788eafeb71c9fe35f36a5815fec4c",
-      "source_urls": [
-        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
-      ],
-      "rough_wood_source": {
-        "id": "cw_timber_beam",
-        "built_for": "CAIRNWOLD",
-        "source": "Poly Haven (https://polyhaven.com)",
-        "source_asset": "rough_wood",
-        "source_page": "https://polyhaven.com/a/rough_wood",
-        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-        "download_urls": {
-          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
-          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
-        },
-        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
-        "licence_url": "https://polyhaven.com/license",
-        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
-        "shippable": true,
-        "resolution": 4096,
-        "maps": {
-          "basecolor": {
-            "file": "cw_timber_beam_basecolor.jpg",
-            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
-            "bytes": 8069907
-          },
-          "normal": {
-            "file": "cw_timber_beam_normal.jpg",
-            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
-            "bytes": 7089554
-          },
-          "orm": {
-            "file": "cw_timber_beam_orm.jpg",
-            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
-            "bytes": 2365401
-          }
-        },
-        "orm_means": {
-          "occlusion": 0.7809,
-          "roughness": 0.5096,
-          "metallic": 0.005
-        },
-        "transform": "none - both sources ship glTF-shaped maps"
-      },
-      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
-    },
-    {
-      "asset_id": "bw_codex_lantern_foot",
-      "category": "prop",
-      "source": "Licensed source modules; manual assembly and first-party paper/type.",
-      "sources": [
-        "DanStudios Lost Temple: Fab Standard Personal",
-        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
-      ],
-      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true,
-      "sha256": "b47626235782a7064e6f7de61ce9554b1b2bf136e674e890f27389395e59bac6",
-      "source_urls": [
-        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
-      ],
-      "rough_wood_source": {
-        "id": "cw_timber_beam",
-        "built_for": "CAIRNWOLD",
-        "source": "Poly Haven (https://polyhaven.com)",
-        "source_asset": "rough_wood",
-        "source_page": "https://polyhaven.com/a/rough_wood",
-        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-        "download_urls": {
-          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
-          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
-        },
-        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
-        "licence_url": "https://polyhaven.com/license",
-        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
-        "shippable": true,
-        "resolution": 4096,
-        "maps": {
-          "basecolor": {
-            "file": "cw_timber_beam_basecolor.jpg",
-            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
-            "bytes": 8069907
-          },
-          "normal": {
-            "file": "cw_timber_beam_normal.jpg",
-            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
-            "bytes": 7089554
-          },
-          "orm": {
-            "file": "cw_timber_beam_orm.jpg",
-            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
-            "bytes": 2365401
-          }
-        },
-        "orm_means": {
-          "occlusion": 0.7809,
-          "roughness": 0.5096,
-          "metallic": 0.005
-        },
-        "transform": "none - both sources ship glTF-shaped maps"
-      },
-      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
-    },
-    {
-      "asset_id": "bw_codex_gate_1",
-      "category": "prop",
-      "source": "Licensed source modules; manual assembly and first-party paper/type.",
-      "sources": [
-        "DanStudios Lost Temple: Fab Standard Personal",
-        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
-      ],
-      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true,
-      "sha256": "a26d8ff0bfa013d47e0ddf6b7cf6cb969c9ca406a03954f6f7b9ee6da949deda",
-      "source_urls": [
-        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
-      ],
-      "rough_wood_source": {
-        "id": "cw_timber_beam",
-        "built_for": "CAIRNWOLD",
-        "source": "Poly Haven (https://polyhaven.com)",
-        "source_asset": "rough_wood",
-        "source_page": "https://polyhaven.com/a/rough_wood",
-        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-        "download_urls": {
-          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
-          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
-        },
-        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
-        "licence_url": "https://polyhaven.com/license",
-        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
-        "shippable": true,
-        "resolution": 4096,
-        "maps": {
-          "basecolor": {
-            "file": "cw_timber_beam_basecolor.jpg",
-            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
-            "bytes": 8069907
-          },
-          "normal": {
-            "file": "cw_timber_beam_normal.jpg",
-            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
-            "bytes": 7089554
-          },
-          "orm": {
-            "file": "cw_timber_beam_orm.jpg",
-            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
-            "bytes": 2365401
-          }
-        },
-        "orm_means": {
-          "occlusion": 0.7809,
-          "roughness": 0.5096,
-          "metallic": 0.005
-        },
-        "transform": "none - both sources ship glTF-shaped maps"
-      },
-      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
-    },
-    {
-      "asset_id": "bw_codex_gate_2",
-      "category": "prop",
-      "source": "Licensed source modules; manual assembly and first-party paper/type.",
-      "sources": [
-        "DanStudios Lost Temple: Fab Standard Personal",
-        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
-      ],
-      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true,
-      "sha256": "82b46b4b12a60eb128fe2dedd53db3214f835c33018861ca7bf93bda0d356134",
-      "source_urls": [
-        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
-      ],
-      "rough_wood_source": {
-        "id": "cw_timber_beam",
-        "built_for": "CAIRNWOLD",
-        "source": "Poly Haven (https://polyhaven.com)",
-        "source_asset": "rough_wood",
-        "source_page": "https://polyhaven.com/a/rough_wood",
-        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-        "download_urls": {
-          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
-          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
-        },
-        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
-        "licence_url": "https://polyhaven.com/license",
-        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
-        "shippable": true,
-        "resolution": 4096,
-        "maps": {
-          "basecolor": {
-            "file": "cw_timber_beam_basecolor.jpg",
-            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
-            "bytes": 8069907
-          },
-          "normal": {
-            "file": "cw_timber_beam_normal.jpg",
-            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
-            "bytes": 7089554
-          },
-          "orm": {
-            "file": "cw_timber_beam_orm.jpg",
-            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
-            "bytes": 2365401
-          }
-        },
-        "orm_means": {
-          "occlusion": 0.7809,
-          "roughness": 0.5096,
-          "metallic": 0.005
-        },
-        "transform": "none - both sources ship glTF-shaped maps"
-      },
-      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
-    },
-    {
-      "asset_id": "bw_codex_gate_3",
-      "category": "prop",
-      "source": "Licensed source modules; manual assembly and first-party paper/type.",
-      "sources": [
-        "DanStudios Lost Temple: Fab Standard Personal",
-        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
-      ],
-      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true,
-      "sha256": "b85b6c26b63be60f87d29fb4651cb25670b00b2b19c23f2dde53dc82dacfc38b",
-      "source_urls": [
-        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
-      ],
-      "rough_wood_source": {
-        "id": "cw_timber_beam",
-        "built_for": "CAIRNWOLD",
-        "source": "Poly Haven (https://polyhaven.com)",
-        "source_asset": "rough_wood",
-        "source_page": "https://polyhaven.com/a/rough_wood",
-        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-        "download_urls": {
-          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
-          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
-        },
-        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
-        "licence_url": "https://polyhaven.com/license",
-        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
-        "shippable": true,
-        "resolution": 4096,
-        "maps": {
-          "basecolor": {
-            "file": "cw_timber_beam_basecolor.jpg",
-            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
-            "bytes": 8069907
-          },
-          "normal": {
-            "file": "cw_timber_beam_normal.jpg",
-            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
-            "bytes": 7089554
-          },
-          "orm": {
-            "file": "cw_timber_beam_orm.jpg",
-            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
-            "bytes": 2365401
-          }
-        },
-        "orm_means": {
-          "occlusion": 0.7809,
-          "roughness": 0.5096,
-          "metallic": 0.005
-        },
-        "transform": "none - both sources ship glTF-shaped maps"
-      },
-      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
-    },
-    {
-      "asset_id": "bw_codex_wash_pipe",
-      "category": "prop",
-      "source": "Licensed source modules; manual assembly and first-party paper/type.",
-      "sources": [
-        "DanStudios Lost Temple: Fab Standard Personal",
-        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
-      ],
-      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true,
-      "sha256": "df4edc88beef29507bdb6f0f839f3a592ba81328bcacf3475988079e69106ca6",
-      "source_urls": [
-        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
-      ],
-      "rough_wood_source": {
-        "id": "cw_timber_beam",
-        "built_for": "CAIRNWOLD",
-        "source": "Poly Haven (https://polyhaven.com)",
-        "source_asset": "rough_wood",
-        "source_page": "https://polyhaven.com/a/rough_wood",
-        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-        "download_urls": {
-          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
-          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
-        },
-        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
-        "licence_url": "https://polyhaven.com/license",
-        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
-        "shippable": true,
-        "resolution": 4096,
-        "maps": {
-          "basecolor": {
-            "file": "cw_timber_beam_basecolor.jpg",
-            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
-            "bytes": 8069907
-          },
-          "normal": {
-            "file": "cw_timber_beam_normal.jpg",
-            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
-            "bytes": 7089554
-          },
-          "orm": {
-            "file": "cw_timber_beam_orm.jpg",
-            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
-            "bytes": 2365401
-          }
-        },
-        "orm_means": {
-          "occlusion": 0.7809,
-          "roughness": 0.5096,
-          "metallic": 0.005
-        },
-        "transform": "none - both sources ship glTF-shaped maps"
-      },
-      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
-    },
-    {
-      "asset_id": "bw_codex_drain_valve",
-      "category": "prop",
-      "source": "Licensed source modules; manual assembly and first-party paper/type.",
-      "sources": [
-        "DanStudios Lost Temple: Fab Standard Personal",
-        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
-      ],
-      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true,
-      "sha256": "da62b3396b803f4ec77cdf205d2ae2a194d04af0224317422b09c02b4e018659",
-      "source_urls": [
-        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
-      ],
-      "rough_wood_source": {
-        "id": "cw_timber_beam",
-        "built_for": "CAIRNWOLD",
-        "source": "Poly Haven (https://polyhaven.com)",
-        "source_asset": "rough_wood",
-        "source_page": "https://polyhaven.com/a/rough_wood",
-        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-        "download_urls": {
-          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
-          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
-        },
-        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
-        "licence_url": "https://polyhaven.com/license",
-        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
-        "shippable": true,
-        "resolution": 4096,
-        "maps": {
-          "basecolor": {
-            "file": "cw_timber_beam_basecolor.jpg",
-            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
-            "bytes": 8069907
-          },
-          "normal": {
-            "file": "cw_timber_beam_normal.jpg",
-            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
-            "bytes": 7089554
-          },
-          "orm": {
-            "file": "cw_timber_beam_orm.jpg",
-            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
-            "bytes": 2365401
-          }
-        },
-        "orm_means": {
-          "occlusion": 0.7809,
-          "roughness": 0.5096,
-          "metallic": 0.005
-        },
-        "transform": "none - both sources ship glTF-shaped maps"
-      },
-      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
-    },
-    {
-      "asset_id": "bw_codex_inspection_gauge",
-      "category": "prop",
-      "source": "Licensed source modules; manual assembly and first-party paper/type.",
-      "sources": [
-        "DanStudios Lost Temple: Fab Standard Personal",
-        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
-      ],
-      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true,
-      "sha256": "aec918e1db36a6b0dad54a410c67f7c0af5e4b7c92cf3abfc5b1864e846a8005",
-      "source_urls": [
-        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
-      ],
-      "rough_wood_source": {
-        "id": "cw_timber_beam",
-        "built_for": "CAIRNWOLD",
-        "source": "Poly Haven (https://polyhaven.com)",
-        "source_asset": "rough_wood",
-        "source_page": "https://polyhaven.com/a/rough_wood",
-        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-        "download_urls": {
-          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
-          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
-        },
-        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
-        "licence_url": "https://polyhaven.com/license",
-        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
-        "shippable": true,
-        "resolution": 4096,
-        "maps": {
-          "basecolor": {
-            "file": "cw_timber_beam_basecolor.jpg",
-            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
-            "bytes": 8069907
-          },
-          "normal": {
-            "file": "cw_timber_beam_normal.jpg",
-            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
-            "bytes": 7089554
-          },
-          "orm": {
-            "file": "cw_timber_beam_orm.jpg",
-            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
-            "bytes": 2365401
-          }
-        },
-        "orm_means": {
-          "occlusion": 0.7809,
-          "roughness": 0.5096,
-          "metallic": 0.005
-        },
-        "transform": "none - both sources ship glTF-shaped maps"
-      },
-      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
-    },
-    {
-      "asset_id": "bw_codex_sorting_rack",
-      "category": "prop",
-      "source": "Licensed source modules; manual assembly and first-party paper/type.",
-      "sources": [
-        "DanStudios Lost Temple: Fab Standard Personal",
-        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
-      ],
-      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true,
-      "sha256": "6d23d986534fbb4e479e1b9d3c0149ff31c4d066a995fe4891a4abdef3bd2f6b",
-      "source_urls": [
-        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
-      ],
-      "rough_wood_source": {
-        "id": "cw_timber_beam",
-        "built_for": "CAIRNWOLD",
-        "source": "Poly Haven (https://polyhaven.com)",
-        "source_asset": "rough_wood",
-        "source_page": "https://polyhaven.com/a/rough_wood",
-        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-        "download_urls": {
-          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
-          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
-        },
-        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
-        "licence_url": "https://polyhaven.com/license",
-        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
-        "shippable": true,
-        "resolution": 4096,
-        "maps": {
-          "basecolor": {
-            "file": "cw_timber_beam_basecolor.jpg",
-            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
-            "bytes": 8069907
-          },
-          "normal": {
-            "file": "cw_timber_beam_normal.jpg",
-            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
-            "bytes": 7089554
-          },
-          "orm": {
-            "file": "cw_timber_beam_orm.jpg",
-            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
-            "bytes": 2365401
-          }
-        },
-        "orm_means": {
-          "occlusion": 0.7809,
-          "roughness": 0.5096,
-          "metallic": 0.005
-        },
-        "transform": "none - both sources ship glTF-shaped maps"
-      },
-      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
-    },
-    {
-      "asset_id": "bw_codex_work_seat",
-      "category": "prop",
-      "source": "Licensed source modules; manual assembly and first-party paper/type.",
-      "sources": [
-        "DanStudios Lost Temple: Fab Standard Personal",
-        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
-      ],
-      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true,
-      "sha256": "4aee10a35b41345278a8440bb5f852cac25bc396825f37c85edc0146f3b4102c",
-      "source_urls": [
-        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
-      ],
-      "rough_wood_source": {
-        "id": "cw_timber_beam",
-        "built_for": "CAIRNWOLD",
-        "source": "Poly Haven (https://polyhaven.com)",
-        "source_asset": "rough_wood",
-        "source_page": "https://polyhaven.com/a/rough_wood",
-        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-        "download_urls": {
-          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
-          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
-          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
-        },
-        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
-        "licence_url": "https://polyhaven.com/license",
-        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
-        "shippable": true,
-        "resolution": 4096,
-        "maps": {
-          "basecolor": {
-            "file": "cw_timber_beam_basecolor.jpg",
-            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
-            "bytes": 8069907
-          },
-          "normal": {
-            "file": "cw_timber_beam_normal.jpg",
-            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
-            "bytes": 7089554
-          },
-          "orm": {
-            "file": "cw_timber_beam_orm.jpg",
-            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
-            "bytes": 2365401
-          }
-        },
-        "orm_means": {
-          "occlusion": 0.7809,
-          "roughness": 0.5096,
-          "metallic": 0.005
-        },
-        "transform": "none - both sources ship glTF-shaped maps"
-      },
-      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
-    },
-    {
-      "asset_id": "bw_codex_counterweight",
-      "category": "prop",
-      "source": "Licensed source modules; manual assembly and first-party paper/type.",
-      "sources": [
-        "DanStudios Lost Temple: Fab Standard Personal",
-        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
-      ],
-      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "shippable": true,
-      "sha256": "d223cc14c56b1661906e3e3dd46e39f57d1763aefedb23261ff8a05c97c202ad",
+      "triangles": 2908,
+      "sha256": "37880dcdf2c6926b6f528d09f1377cbbb6adc0875200c09ca8a250af995e9178",
       "source_urls": [
         "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
         "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
@@ -2231,7 +1527,7 @@
       "licence_evidence": "C:\\Otherreach_External_Assets\\Sketchfab_20261016\\SLASH-RENDAR__Old_Industrial_Pipe_Pack_PBR\\LICENCE.txt",
       "shippable": true,
       "triangles": 16716,
-      "sha256": "ed4d68d16da6da6eaed91d60cb26f664edb8d081ddaea8bb6de9fad436812b98",
+      "sha256": "4a3e92f4ec59ed172a33b63a5d5769971aeb315b67931ef6fd3046f65faaeff0",
       "source_urls": [
         "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
       ],
@@ -2291,8 +1587,68 @@
       "licence_evidence": "C:\\Otherreach_External_Assets\\Sketchfab_20261016\\SLASH-RENDAR__Old_Industrial_Pipe_Pack_PBR\\LICENCE.txt",
       "shippable": true,
       "triangles": 16716,
-      "sha256": "f57756398839fff577a16e5d88449236df7e327f919ddfe62fea1ed0cba7551d",
+      "sha256": "f41aad620de77c3d8d8a3487a58dce3ceeec02650ffde6487f3317fdde22ebe8",
       "source_urls": [
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ],
+      "rough_wood_source": {
+        "id": "cw_timber_beam",
+        "built_for": "CAIRNWOLD",
+        "source": "Poly Haven (https://polyhaven.com)",
+        "source_asset": "rough_wood",
+        "source_page": "https://polyhaven.com/a/rough_wood",
+        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+        "download_urls": {
+          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
+          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
+        },
+        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+        "licence_url": "https://polyhaven.com/license",
+        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
+        "shippable": true,
+        "resolution": 4096,
+        "maps": {
+          "basecolor": {
+            "file": "cw_timber_beam_basecolor.jpg",
+            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
+            "bytes": 8069907
+          },
+          "normal": {
+            "file": "cw_timber_beam_normal.jpg",
+            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
+            "bytes": 7089554
+          },
+          "orm": {
+            "file": "cw_timber_beam_orm.jpg",
+            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
+            "bytes": 2365401
+          }
+        },
+        "orm_means": {
+          "occlusion": 0.7809,
+          "roughness": 0.5096,
+          "metallic": 0.005
+        },
+        "transform": "none - both sources ship glTF-shaped maps"
+      },
+      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
+    },
+    {
+      "asset_id": "bw_codex_measure_dismantled",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true,
+      "triangles": 12388,
+      "sha256": "122b65a5faa470ad3561cf26d40f95a0d01d17e68edac8f6e2e19325109a6e2b",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
         "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
       ],
       "rough_wood_source": {
@@ -2351,7 +1707,7 @@
       "licence_evidence": "C:\\Otherreach_External_Assets\\Sketchfab_20261016\\SLASH-RENDAR__Old_Industrial_Pipe_Pack_PBR\\LICENCE.txt",
       "shippable": true,
       "triangles": 1064,
-      "sha256": "5822bdf223185ec42bde9731880a4684f639dc8eb11d6749c0f3c02c659ef2af",
+      "sha256": "e235dae6d37dfd3966850bb3937f80c7570f9b1603cb2e61536507da729f443b",
       "source_urls": [
         "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
       ],
@@ -2411,8 +1767,668 @@
       "licence_evidence": "C:\\Otherreach_External_Assets\\Sketchfab_20261016\\SLASH-RENDAR__Old_Industrial_Pipe_Pack_PBR\\LICENCE.txt",
       "shippable": true,
       "triangles": 1064,
-      "sha256": "0f59ea4bfdb014fdcf3655d037796d033733384dec5957a04d467773fd1336a1",
+      "sha256": "fb53e98df953a488975df49c6953c45ea4a121f3558687e6c4c20d764a0bc6e0",
       "source_urls": [
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ],
+      "rough_wood_source": {
+        "id": "cw_timber_beam",
+        "built_for": "CAIRNWOLD",
+        "source": "Poly Haven (https://polyhaven.com)",
+        "source_asset": "rough_wood",
+        "source_page": "https://polyhaven.com/a/rough_wood",
+        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+        "download_urls": {
+          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
+          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
+        },
+        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+        "licence_url": "https://polyhaven.com/license",
+        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
+        "shippable": true,
+        "resolution": 4096,
+        "maps": {
+          "basecolor": {
+            "file": "cw_timber_beam_basecolor.jpg",
+            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
+            "bytes": 8069907
+          },
+          "normal": {
+            "file": "cw_timber_beam_normal.jpg",
+            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
+            "bytes": 7089554
+          },
+          "orm": {
+            "file": "cw_timber_beam_orm.jpg",
+            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
+            "bytes": 2365401
+          }
+        },
+        "orm_means": {
+          "occlusion": 0.7809,
+          "roughness": 0.5096,
+          "metallic": 0.005
+        },
+        "transform": "none - both sources ship glTF-shaped maps"
+      },
+      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
+    },
+    {
+      "asset_id": "bw_codex_codex_fragment",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true,
+      "triangles": 1022,
+      "sha256": "8584cbdbe89d0f013f2079f2760a9ee17191d77fd7584d7e22c5bfd3dc859f22",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ],
+      "rough_wood_source": {
+        "id": "cw_timber_beam",
+        "built_for": "CAIRNWOLD",
+        "source": "Poly Haven (https://polyhaven.com)",
+        "source_asset": "rough_wood",
+        "source_page": "https://polyhaven.com/a/rough_wood",
+        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+        "download_urls": {
+          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
+          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
+        },
+        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+        "licence_url": "https://polyhaven.com/license",
+        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
+        "shippable": true,
+        "resolution": 4096,
+        "maps": {
+          "basecolor": {
+            "file": "cw_timber_beam_basecolor.jpg",
+            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
+            "bytes": 8069907
+          },
+          "normal": {
+            "file": "cw_timber_beam_normal.jpg",
+            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
+            "bytes": 7089554
+          },
+          "orm": {
+            "file": "cw_timber_beam_orm.jpg",
+            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
+            "bytes": 2365401
+          }
+        },
+        "orm_means": {
+          "occlusion": 0.7809,
+          "roughness": 0.5096,
+          "metallic": 0.005
+        },
+        "transform": "none - both sources ship glTF-shaped maps"
+      },
+      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
+    },
+    {
+      "asset_id": "bw_codex_lantern_foot",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true,
+      "triangles": 740,
+      "sha256": "1b8dcea0d9b756bc4a1780639c8898f2c0a4590d639a61c0ec54580de30f7962",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ],
+      "rough_wood_source": {
+        "id": "cw_timber_beam",
+        "built_for": "CAIRNWOLD",
+        "source": "Poly Haven (https://polyhaven.com)",
+        "source_asset": "rough_wood",
+        "source_page": "https://polyhaven.com/a/rough_wood",
+        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+        "download_urls": {
+          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
+          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
+        },
+        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+        "licence_url": "https://polyhaven.com/license",
+        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
+        "shippable": true,
+        "resolution": 4096,
+        "maps": {
+          "basecolor": {
+            "file": "cw_timber_beam_basecolor.jpg",
+            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
+            "bytes": 8069907
+          },
+          "normal": {
+            "file": "cw_timber_beam_normal.jpg",
+            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
+            "bytes": 7089554
+          },
+          "orm": {
+            "file": "cw_timber_beam_orm.jpg",
+            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
+            "bytes": 2365401
+          }
+        },
+        "orm_means": {
+          "occlusion": 0.7809,
+          "roughness": 0.5096,
+          "metallic": 0.005
+        },
+        "transform": "none - both sources ship glTF-shaped maps"
+      },
+      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
+    },
+    {
+      "asset_id": "bw_codex_gate_1",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true,
+      "triangles": 3012,
+      "sha256": "bc624fb2c6e4c7465fceec2ec2372922b24220e3d1a13c294e0fd820242a7347",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ],
+      "rough_wood_source": {
+        "id": "cw_timber_beam",
+        "built_for": "CAIRNWOLD",
+        "source": "Poly Haven (https://polyhaven.com)",
+        "source_asset": "rough_wood",
+        "source_page": "https://polyhaven.com/a/rough_wood",
+        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+        "download_urls": {
+          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
+          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
+        },
+        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+        "licence_url": "https://polyhaven.com/license",
+        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
+        "shippable": true,
+        "resolution": 4096,
+        "maps": {
+          "basecolor": {
+            "file": "cw_timber_beam_basecolor.jpg",
+            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
+            "bytes": 8069907
+          },
+          "normal": {
+            "file": "cw_timber_beam_normal.jpg",
+            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
+            "bytes": 7089554
+          },
+          "orm": {
+            "file": "cw_timber_beam_orm.jpg",
+            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
+            "bytes": 2365401
+          }
+        },
+        "orm_means": {
+          "occlusion": 0.7809,
+          "roughness": 0.5096,
+          "metallic": 0.005
+        },
+        "transform": "none - both sources ship glTF-shaped maps"
+      },
+      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
+    },
+    {
+      "asset_id": "bw_codex_gate_2",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true,
+      "triangles": 3012,
+      "sha256": "75ee90a4670bdf8f01369b04f76f6e4e524ce142522d7fd47950af4e025702d8",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ],
+      "rough_wood_source": {
+        "id": "cw_timber_beam",
+        "built_for": "CAIRNWOLD",
+        "source": "Poly Haven (https://polyhaven.com)",
+        "source_asset": "rough_wood",
+        "source_page": "https://polyhaven.com/a/rough_wood",
+        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+        "download_urls": {
+          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
+          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
+        },
+        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+        "licence_url": "https://polyhaven.com/license",
+        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
+        "shippable": true,
+        "resolution": 4096,
+        "maps": {
+          "basecolor": {
+            "file": "cw_timber_beam_basecolor.jpg",
+            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
+            "bytes": 8069907
+          },
+          "normal": {
+            "file": "cw_timber_beam_normal.jpg",
+            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
+            "bytes": 7089554
+          },
+          "orm": {
+            "file": "cw_timber_beam_orm.jpg",
+            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
+            "bytes": 2365401
+          }
+        },
+        "orm_means": {
+          "occlusion": 0.7809,
+          "roughness": 0.5096,
+          "metallic": 0.005
+        },
+        "transform": "none - both sources ship glTF-shaped maps"
+      },
+      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
+    },
+    {
+      "asset_id": "bw_codex_gate_3",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true,
+      "triangles": 3012,
+      "sha256": "6dfdfd34e68c4af8782e92a892ee1ac110d0e51ff459dba87dc6e9d7b6ea8eae",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ],
+      "rough_wood_source": {
+        "id": "cw_timber_beam",
+        "built_for": "CAIRNWOLD",
+        "source": "Poly Haven (https://polyhaven.com)",
+        "source_asset": "rough_wood",
+        "source_page": "https://polyhaven.com/a/rough_wood",
+        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+        "download_urls": {
+          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
+          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
+        },
+        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+        "licence_url": "https://polyhaven.com/license",
+        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
+        "shippable": true,
+        "resolution": 4096,
+        "maps": {
+          "basecolor": {
+            "file": "cw_timber_beam_basecolor.jpg",
+            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
+            "bytes": 8069907
+          },
+          "normal": {
+            "file": "cw_timber_beam_normal.jpg",
+            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
+            "bytes": 7089554
+          },
+          "orm": {
+            "file": "cw_timber_beam_orm.jpg",
+            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
+            "bytes": 2365401
+          }
+        },
+        "orm_means": {
+          "occlusion": 0.7809,
+          "roughness": 0.5096,
+          "metallic": 0.005
+        },
+        "transform": "none - both sources ship glTF-shaped maps"
+      },
+      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
+    },
+    {
+      "asset_id": "bw_codex_wash_pipe",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true,
+      "triangles": 1592,
+      "sha256": "8ace2977c128a24cb1cf14a1abb6995d466793288b4741a1a94f7b1f5623cb76",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ],
+      "rough_wood_source": {
+        "id": "cw_timber_beam",
+        "built_for": "CAIRNWOLD",
+        "source": "Poly Haven (https://polyhaven.com)",
+        "source_asset": "rough_wood",
+        "source_page": "https://polyhaven.com/a/rough_wood",
+        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+        "download_urls": {
+          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
+          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
+        },
+        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+        "licence_url": "https://polyhaven.com/license",
+        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
+        "shippable": true,
+        "resolution": 4096,
+        "maps": {
+          "basecolor": {
+            "file": "cw_timber_beam_basecolor.jpg",
+            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
+            "bytes": 8069907
+          },
+          "normal": {
+            "file": "cw_timber_beam_normal.jpg",
+            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
+            "bytes": 7089554
+          },
+          "orm": {
+            "file": "cw_timber_beam_orm.jpg",
+            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
+            "bytes": 2365401
+          }
+        },
+        "orm_means": {
+          "occlusion": 0.7809,
+          "roughness": 0.5096,
+          "metallic": 0.005
+        },
+        "transform": "none - both sources ship glTF-shaped maps"
+      },
+      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
+    },
+    {
+      "asset_id": "bw_codex_drain_valve",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true,
+      "triangles": 1592,
+      "sha256": "225d5f6f5fd03f3fe71ff4a6e79697b9bc635b4ed50b9c07c2896617750e3771",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ],
+      "rough_wood_source": {
+        "id": "cw_timber_beam",
+        "built_for": "CAIRNWOLD",
+        "source": "Poly Haven (https://polyhaven.com)",
+        "source_asset": "rough_wood",
+        "source_page": "https://polyhaven.com/a/rough_wood",
+        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+        "download_urls": {
+          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
+          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
+        },
+        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+        "licence_url": "https://polyhaven.com/license",
+        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
+        "shippable": true,
+        "resolution": 4096,
+        "maps": {
+          "basecolor": {
+            "file": "cw_timber_beam_basecolor.jpg",
+            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
+            "bytes": 8069907
+          },
+          "normal": {
+            "file": "cw_timber_beam_normal.jpg",
+            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
+            "bytes": 7089554
+          },
+          "orm": {
+            "file": "cw_timber_beam_orm.jpg",
+            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
+            "bytes": 2365401
+          }
+        },
+        "orm_means": {
+          "occlusion": 0.7809,
+          "roughness": 0.5096,
+          "metallic": 0.005
+        },
+        "transform": "none - both sources ship glTF-shaped maps"
+      },
+      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
+    },
+    {
+      "asset_id": "bw_codex_inspection_gauge",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true,
+      "triangles": 1592,
+      "sha256": "dd2c549c678937c8855b63426b2c3c08e3ae98a92e7bb046325af242bc6f46c7",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ],
+      "rough_wood_source": {
+        "id": "cw_timber_beam",
+        "built_for": "CAIRNWOLD",
+        "source": "Poly Haven (https://polyhaven.com)",
+        "source_asset": "rough_wood",
+        "source_page": "https://polyhaven.com/a/rough_wood",
+        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+        "download_urls": {
+          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
+          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
+        },
+        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+        "licence_url": "https://polyhaven.com/license",
+        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
+        "shippable": true,
+        "resolution": 4096,
+        "maps": {
+          "basecolor": {
+            "file": "cw_timber_beam_basecolor.jpg",
+            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
+            "bytes": 8069907
+          },
+          "normal": {
+            "file": "cw_timber_beam_normal.jpg",
+            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
+            "bytes": 7089554
+          },
+          "orm": {
+            "file": "cw_timber_beam_orm.jpg",
+            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
+            "bytes": 2365401
+          }
+        },
+        "orm_means": {
+          "occlusion": 0.7809,
+          "roughness": 0.5096,
+          "metallic": 0.005
+        },
+        "transform": "none - both sources ship glTF-shaped maps"
+      },
+      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
+    },
+    {
+      "asset_id": "bw_codex_sorting_rack",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true,
+      "triangles": 7102,
+      "sha256": "ecb8928f77f91503570aedac187c1cae35b7004e7c51e2ae47cddc05ab7cadff",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ],
+      "rough_wood_source": {
+        "id": "cw_timber_beam",
+        "built_for": "CAIRNWOLD",
+        "source": "Poly Haven (https://polyhaven.com)",
+        "source_asset": "rough_wood",
+        "source_page": "https://polyhaven.com/a/rough_wood",
+        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+        "download_urls": {
+          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
+          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
+        },
+        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+        "licence_url": "https://polyhaven.com/license",
+        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
+        "shippable": true,
+        "resolution": 4096,
+        "maps": {
+          "basecolor": {
+            "file": "cw_timber_beam_basecolor.jpg",
+            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
+            "bytes": 8069907
+          },
+          "normal": {
+            "file": "cw_timber_beam_normal.jpg",
+            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
+            "bytes": 7089554
+          },
+          "orm": {
+            "file": "cw_timber_beam_orm.jpg",
+            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
+            "bytes": 2365401
+          }
+        },
+        "orm_means": {
+          "occlusion": 0.7809,
+          "roughness": 0.5096,
+          "metallic": 0.005
+        },
+        "transform": "none - both sources ship glTF-shaped maps"
+      },
+      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
+    },
+    {
+      "asset_id": "bw_codex_work_seat",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true,
+      "triangles": 14470,
+      "sha256": "f422a3dbd2946752156562aa5a5e08130bf9a5fde3e43ffcf373c2398d2c7147",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
+        "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
+      ],
+      "rough_wood_source": {
+        "id": "cw_timber_beam",
+        "built_for": "CAIRNWOLD",
+        "source": "Poly Haven (https://polyhaven.com)",
+        "source_asset": "rough_wood",
+        "source_page": "https://polyhaven.com/a/rough_wood",
+        "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+        "download_urls": {
+          "basecolor": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_diff_4k.jpg",
+          "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_nor_gl_4k.jpg",
+          "orm": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/rough_wood/rough_wood_arm_4k.jpg"
+        },
+        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
+        "licence_url": "https://polyhaven.com/license",
+        "licence_text_sha256": "0b7a23e05e933f7f28ffab64ac1302e215f44eeb69abbfac4f2c4fd331101be5",
+        "shippable": true,
+        "resolution": 4096,
+        "maps": {
+          "basecolor": {
+            "file": "cw_timber_beam_basecolor.jpg",
+            "sha256": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
+            "bytes": 8069907
+          },
+          "normal": {
+            "file": "cw_timber_beam_normal.jpg",
+            "sha256": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
+            "bytes": 7089554
+          },
+          "orm": {
+            "file": "cw_timber_beam_orm.jpg",
+            "sha256": "e9f19a69a76a9fd93e290634fe1691aa7c2d2763811c7cc2e3e94dab172ce661",
+            "bytes": 2365401
+          }
+        },
+        "orm_means": {
+          "occlusion": 0.7809,
+          "roughness": 0.5096,
+          "metallic": 0.005
+        },
+        "transform": "none - both sources ship glTF-shaped maps"
+      },
+      "first_party_surface": "Worn raster writing from existing region done_text, manually drawn gauges; conventional geometry."
+    },
+    {
+      "asset_id": "bw_codex_counterweight",
+      "category": "prop",
+      "source": "Licensed source modules; manual assembly and first-party paper/type.",
+      "sources": [
+        "DanStudios Lost Temple: Fab Standard Personal",
+        "SLASH-RENDAR Old Industrial Pipe Pack PBR: CC-BY 4.0"
+      ],
+      "modifications": "Resized, assembled, labelled and animated where specified. Source materials retained.",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "shippable": true,
+      "triangles": 6706,
+      "sha256": "eaee4d5e96691552eb084d3c35ca0bcfb95ad55e79385ab4b09ceb536254b347",
+      "source_urls": [
+        "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
         "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4"
       ],
       "rough_wood_source": {
@@ -2741,8 +2757,8 @@
         438.0,
         663.0
       ],
-      "terrain_source_sha256_lf": "5e252e70943f4faf5f03ff320c9fbf2dc1250bb203aa1ab81ce98b608c7efa7c",
-      "sha256": "d2d9d691827f23497666c91814293ba6a7354488f16eddbab7a9c737ae6a3fde",
+      "terrain_source_sha256_lf": "654b40cc717ae2311f8fecb42025204f423f97051f1fe8ed62c62b520cd53c46",
+      "sha256": "0c1e3321e3e5a89dbb6c45b10ce2f08e8b80cba353b83dc41aaab3a05db6f86f",
       "source_urls": [
         "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
         "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4",
@@ -3209,8 +3225,8 @@
         1050.0,
         770.0
       ],
-      "terrain_source_sha256_lf": "5e252e70943f4faf5f03ff320c9fbf2dc1250bb203aa1ab81ce98b608c7efa7c",
-      "sha256": "8361d80574e0cdecd814e06d4d0e24f3a24f4080bcfdc3112205338630bd36bd",
+      "terrain_source_sha256_lf": "654b40cc717ae2311f8fecb42025204f423f97051f1fe8ed62c62b520cd53c46",
+      "sha256": "d30b0231d45969cb0af90c1a33e661bc32b7e8e396352f9f4cae6b1d7fe10fca",
       "source_urls": [
         "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
         "https://sketchfab.com/3d-models/a10a6011334e4d11a7023d67705ac1d4",
@@ -3459,7 +3475,7 @@
         }
       ],
       "shippable": true,
-      "sha256": "d5caa39e17bb8428c13d2da5c04480d2c7696356b79f46686ceeabb435393e15"
+      "sha256": "b70a795087a29f74ccb37e7a895ac9f9a15d5c4c158bb190d7d3aa1b9e6b6b75"
     },
     {
       "asset_id": "prop_ph_wooden_crate_01",

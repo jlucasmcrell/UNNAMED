@@ -13,4 +13,4 @@ recovery_s: 1.2
 commit_facing: true
 cost: { stamina: 0 }
 payload:
-  - { type: damage, damage_type: physical_blunt, amount: [9, 12] }
+  - { type: damage, damage_type: physical_blunt, amount: [18, 22] }

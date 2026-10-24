@@ -1,0 +1,25 @@
+id: spawn.barrowworks.wash_spider
+kind: spawn
+schema: 1
+display_key: spawn.barrowworks.wash_spider.name
+tags:
+- spawn
+notes: "E1 (M8 09): one cave hunting spider in R03, the Wash Passage, off the line between the intake hall and the drain mouth. It waits in the wet corner and goes for what it feels; a walk along the dry edge passes it. Its kill persists. Level 3, as the frontier's own spiders and husks (docs/BARROWWORKS_BALANCE.md)."
+region_ref: region.barrowworks
+creatures:
+- creature_ref: creature.beast.cave_hunting_spider
+  count:
+  - 1
+  - 1
+  role: ambusher
+at:
+  position_m:
+  - 25
+  - 41
+  radius_m: 0
+level_band:
+- 3
+- 3
+respawn:
+  kind: none
+tier_hint: A

@@ -65,6 +65,7 @@ public partial class Main : Node3D
     private ItemsView _items = null!;
     private CreaturesView _creatures = null!;
     private CreaturesView _exteriorCreatures = null!;
+    private CreaturesView? _interiorCreatures;
     private CraftingView _crafting = null!;
     private NpcsView _npcs = null!;
     private InventoryPanel _inventory = null!;
@@ -115,6 +116,15 @@ public partial class Main : Node3D
 
     /// <summary>Whether the player was in the exterior last frame, so entering or leaving a space is noticed.</summary>
     private bool _wasOutside = true;
+
+    /// <summary>
+    /// The black a space change passes through. The frame that notices the change only raises it, so the next frame's
+    /// rebuild of the other space - and the GI the renderer re-voxelizes after the camera's jump of a kilometre - happens
+    /// behind black rather than on a frozen picture; then it fades. Never in a headless run.
+    /// </summary>
+    private ColorRect? _veil;
+    private bool _veiled;
+    private int _veilHold;
 
     private ProjectilesView _projectiles = null!;
     private Art.MagicEffects _magicEffects = null!;
@@ -393,6 +403,10 @@ public partial class Main : Node3D
             // A capture that has to show a purchase is given a purse: the same fixture door as the place to stand, at new game, and never a
             // player's run (its option is not in PlaytestLaunchDefaults).
             StartCurrency = long.TryParse(_options.GetValueOrDefault("--purse"), out long purse) && purse > 0 ? purse : 0,
+            StartItems = _options.GetValueOrDefault("--start-items") is { } items
+                ? [.. items.Split(',').Select(i => i.Split(':') is [var item, var count]
+                    ? (item, int.Parse(count)) : throw new ArgumentException($"--start-items: '{i}' is not item:count"))]
+                : [],
         });
         SkyView.ClockAtWorldStart = (float)_session.ClockAtWorldStartHours;
         _session.SubscriberFailed += SubscriberFailed;
@@ -456,9 +470,9 @@ public partial class Main : Node3D
             GD.PushWarning($"UNNAMED assets: --asset-fallback {fallback} does not exist; ignored");
             Art.ArtLibrary.FallbackRoot = null;
         }
-        // The opt-in co-loaded ring uses the existing signed BC7 cache; off retains the original upload path.
-        _art = new Art.ArtLibrary(_assets.Root, useTextureCache: VisualOptions.Barrowworks,
-            sceneCachePrefix: VisualOptions.Barrowworks ? "" : null, buildSceneCache: _flags.Contains("--build-scene-cache"));
+        // The ring's own models (bw_codex_) load from their native scene derivatives; everything else keeps the frontier's own path.
+        _art = new Art.ArtLibrary(_assets.Root, sceneCachePrefix: VisualOptions.Barrowworks ? "bw_codex_" : null,
+            buildSceneCache: _flags.Contains("--build-scene-cache"));
         if (Art.ArtLibrary.FallbackRoot is { } second)
             GD.Print($"UNNAMED assets: falling back to {second} for anything {_assets.Root ?? "the region"} does not hold");
         // A region's own art, layered over the bindings every region shares (the HUD, the icons, the effect
@@ -754,7 +768,8 @@ public partial class Main : Node3D
 
 
     /// <summary>
-    /// The held ring's bindings. Its GPU resources are loaded at entry and released on departure. Sharing the
+    /// The held ring's bindings. The ring is built on first entry and then kept, hidden while outside: freeing it on
+    /// departure crashed the renderer in its light unpair ("indexing did not unpair geometries from light"). Sharing the
     /// frontier's overlay would draw the Ashen Hollow's props in the ring's rooms; sharing the frontier's view would
     /// put the ring at the frontier's metres, which is where the body used to stand after a portal (review 3, B6).
     /// </summary>
@@ -808,30 +823,49 @@ public partial class Main : Node3D
     /// </summary>
     private void ShowSpace(bool outside)
     {
+        bool report = OS.GetEnvironment("UNNAMED_LOAD_REPORT") == "1";
+        ulong mark = Time.GetTicksUsec();
+        void Step(string what)
+        {
+            if (!report) return;
+            ulong now = Time.GetTicksUsec();
+            GD.Print($"UNNAMED space change ({(outside ? "out" : "in")}) {what}: {(now - mark) / 1000.0:0.0} ms");
+            mark = now;
+        }
         if (!outside) LoadInterior();
+        Step("interior load");
         Greybox.WeatherStates.UnderSky = outside;
         _hollow.SetSpaceActive(outside);
         if (_scatter is not null)
             _scatter.Visible = outside;
         if (_interior is { } ring)
             ring.SetSpaceActive(!outside);
+        Step("views shown");
         var bindings = outside ? _bindings : _interiorBindings ?? _bindings;
         _items.Bind(_art, bindings);
         _items.BuildContainers(_session.Simulation!.ActiveLayout);
         _items.Refresh(_session.Simulation!);
+        Step("items");
         _crafting.Bind(_art, bindings);
         _crafting.Build(_session.Simulation!.ActiveLayout);
         _crafting.Refresh(_session.Simulation!.Nodes);
+        Step("crafting");
         _exteriorCreatures.SetSpaceActive(outside);
+        _interiorCreatures?.SetSpaceActive(!outside);
         if (outside)
         {
             _creatures = _exteriorCreatures;
             _creatures.ResyncPositions(_session.Simulation!);
         }
+        else if (_interiorCreatures is not null)
+        {
+            _creatures = _interiorCreatures;
+            _creatures.ResyncPositions(_session.Simulation!);
+        }
         else
         {
-            if (_creatures != _exteriorCreatures) _creatures.Free();
-            _creatures = new CreaturesView { Name = "InteriorCreatures" };
+            // First entry: the ring's figures, its sound beds and its pipelines, once for the session.
+            _creatures = _interiorCreatures = new CreaturesView { Name = "InteriorCreatures" };
             _creatures.Bind(_art, bindings);
             _interior!.AddChild(_creatures);
             if (_sounds is not null && IsInstanceValid(_sounds))
@@ -848,13 +882,30 @@ public partial class Main : Node3D
             }
             PrewarmPortal();
         }
-        if (outside && _interior is not null)
+        Step(outside ? "creatures" : "creatures, audio and prewarm");
+    }
+
+    private void RaiseVeil()
+    {
+        if (_veil is null)
         {
-            _interior.Free();
-            _interior = null;
-            int released = _art.ReleaseModels("bw_codex_");
-            GD.Print($"UNNAMED interior release: {released} cached models; scene and creature instances freed");
+            var layer = new CanvasLayer { Name = "SpaceVeil", Layer = 120 };
+            AddChild(layer);
+            _veil = new ColorRect { Color = Colors.Black, MouseFilter = Control.MouseFilterEnum.Ignore };
+            _veil.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+            layer.AddChild(_veil);
+            // Going in builds the ring, which takes seconds: the place's name says the black is a way in, not a stall.
+            var name = new Label { Name = "Place", HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+            name.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+            name.AddThemeFontSizeOverride("font_size", 34);
+            name.AddThemeColorOverride("font_color", new Color(0.82f, 0.80f, 0.74f));
+            _veil.AddChild(name);
         }
+        _veil.GetNode<Label>("Place").Text = _session.Simulation!.PlayerInExterior ? "" : "The Barrowworks";
+        _veil.Modulate = Colors.White;
+        _veil.Visible = true;
+        _veiled = true;
+        _barrowworksReview?.Mark("space veil raised");
     }
 
     private void PrewarmPortal()
@@ -1326,9 +1377,25 @@ public partial class Main : Node3D
         _ticksLastFrame = frame.TicksRun;
         _frontierPerf?.SimulationPhase(simulationStarted, frame, gcPauseTicks);
         bool outside = _session.Simulation!.PlayerInExterior;
+        if (outside != _wasOutside && !_veiled && DisplayServer.GetName() != "headless")
+        {
+            RaiseVeil();
+            return;
+        }
+        if (_veil is { Visible: true } veil && outside == _wasOutside && _veilHold-- <= 0)
+        {
+            if (veil.Modulate.A >= 1) _barrowworksReview?.Mark("space veil fading");
+            float alpha = veil.Modulate.A - (float)Math.Min(delta, 0.05) / 0.35f;
+            veil.Modulate = new Color(1, 1, 1, Math.Max(0, alpha));
+            veil.Visible = alpha > 0;
+            if (!veil.Visible) _barrowworksReview?.Mark("space veil cleared");
+        }
         if (outside != _wasOutside)
         {
             _wasOutside = outside;
+            _veiled = false;
+            // The renderer re-voxelizes its GI on the frame after the camera's jump: keep that frame black as well.
+            _veilHold = 2;
             ulong transitionStarted = _barrowworksReview is null ? 0 : Time.GetTicksUsec();
             ShowSpace(outside);
             _barrowworksReview?.Phase(outside ? "exit projections" : "entry projections", transitionStarted);
@@ -1746,7 +1813,7 @@ public partial class Main : Node3D
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
-                    or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--stand" or "--purse" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
+                    or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--stand" or "--purse" or "--start-items" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
                     or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"

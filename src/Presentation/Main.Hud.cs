@@ -36,6 +36,10 @@ public partial class Main
         _hud.SetPrompt(Screen is not null ? null : focus switch
         {
             null => null,
+            { Kind: FocusKind.Door } door when simulation.ActiveLayout.Doors.FirstOrDefault(d => d.Key == door.Key)?.Fitted is { } fitted
+                => _controller.IsOpen(door.Key)
+                    ? $"A {Names.Of(_session, fitted.ItemId).ToLowerInvariant()} holds the {Names.Place(_session, door.Key, door.DefId)} open."
+                    : $"[{HelpPanel.Key("interact")}] Fit a {Names.Of(_session, fitted.ItemId).ToLowerInvariant()} into the {Names.Place(_session, door.Key, door.DefId)}",
             { Kind: FocusKind.Door } door when _controller.IsOpen(door.Key)
                 && simulation.ActiveLayout.Doors.Any(d => d.Key == door.Key && d.StaysOpen)
                 => $"The {Names.Place(_session, door.Key, door.DefId)} is latched open.",

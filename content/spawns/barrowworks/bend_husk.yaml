@@ -1,0 +1,30 @@
+id: spawn.barrowworks.bend_husk
+kind: spawn
+schema: 1
+display_key: spawn.barrowworks.bend_husk.name
+tags:
+- spawn
+notes: "E3 (M8 09): one Bone Walker Husk pacing the mouth of the R06-R10 passage, the slower rhythm before the court. It walks across the passage, not along it, so the R10 vestibule stays out of its sight and remains the retreat. Taking R07-R13-R10 trades this fight for E4. Its kill persists. Level 3, as the frontier's own spiders and husks (docs/BARROWWORKS_BALANCE.md)."
+region_ref: region.barrowworks
+creatures:
+- creature_ref: creature.undead.bone_walker_husk
+  count:
+  - 1
+  - 1
+  role: roamer
+at:
+  position_m:
+  - 50
+  - 66.5
+  radius_m: 0
+route_m:
+- - 49
+  - 66.5
+- - 51
+  - 66.5
+level_band:
+- 3
+- 3
+respawn:
+  kind: none
+tier_hint: A

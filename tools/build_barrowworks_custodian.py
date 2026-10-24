@@ -33,7 +33,7 @@ for obj in list(bpy.data.objects):bpy.data.objects.remove(obj,do_unlink=True)
 material=bpy.data.materials.new('piacenti_ancient_iron');material.use_nodes=True
 nodes=material.node_tree.nodes;bsdf=nodes.get('Principled BSDF');bsdf.inputs['Metallic'].default_value=.12;bsdf.inputs['Roughness'].default_value=.78
 for filename,socket in [('ancient color.png','Base Color'),('normal.png','Normal')]:
-    image=bpy.data.images.load(str(source/filename));image.scale(1024,1024)
+    image=bpy.data.images.load(str(source/filename))
     image.pack()
     tex=nodes.new('ShaderNodeTexImage');tex.image=image
     if socket=='Normal':

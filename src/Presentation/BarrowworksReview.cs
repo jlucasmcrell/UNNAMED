@@ -13,7 +13,19 @@ namespace UNNAMED.Presentation;
 
 public sealed class BarrowworksReview
 {
-    private sealed record Stop(string Name, long X, long Z, string? Interact = null, Vector2? LookAt = null);
+    private sealed record Stop(string Name, long X, long Z, string? Interact = null, Vector2? LookAt = null)
+    {
+        /// <summary>Stand anywhere within reach of (X, Z) rather than on it: a station or container can stand inside a wall's footprint.</summary>
+        public bool Near { get; init; }
+        public string? Take { get; init; }
+        public string? Craft { get; init; }
+        public string? Enter { get; init; }
+        public bool Leave { get; init; }
+        /// <summary>Hold here, out of the court, until the Custodian's attempt has reset (owner ruling OQ-17).</summary>
+        public bool Retreat { get; init; }
+        /// <summary>Wait out of the fight until health has come back, as a player does before the court.</summary>
+        public bool Rest { get; init; }
+    }
     private readonly GameSession _session;
     private readonly PlayerController _controller;
     private readonly CameraRig _camera;
@@ -37,6 +49,14 @@ public sealed class BarrowworksReview
     private readonly long[] _pipelines;
     private readonly int[] _collections = new int[3];
     private bool _entered, _arrived, _thresholdShot, _leaving, _memoryReported, _reentered;
+    private int? _woundedHp;
+    private bool _equipped;
+    private string? _fighting;
+    private long? _restFrom;
+    private long _leaveAsked;
+    private Task<Search>? _search;
+    private Stop? _searched;
+    private (long X, long Z) _goal;
     private double _exteriorSettle;
     private long _lastProgress;
     private readonly int _roomLimit;
@@ -153,21 +173,41 @@ public sealed class BarrowworksReview
         Add("R07_gauge_archive", 72, 60);
         Add("fitting_note", 67, 59, "switch.barrowworks.fitting_note");
         Add("diagram_rack", 77, 59, "switch.barrowworks.diagram_rack");
-        Add("archive_supplies", 70, 62, lookAt: new Vector2(74, 64));
+        _stops.Enqueue(new Stop("archive_supplies", 74_500, 62_500, LookAt: new Vector2(74, 64)) { Near = true, Take = "container.barrowworks.archive_crate" });
         Add("R08_return_gallery", 72, 38, lookAt: new Vector2(76, 41));
-        Add("gallery_latch", 68, 38, "door.barrowworks.g1");
-        Add("archive_cover", 78, 62, "door.barrowworks.g2");
+        Add("gallery_latch", 68, 38, "door.barrowworks.gallery");
+        // The wedge is ordinary crafting at a public anvil outside (M8 05): out by the threshold through the opened
+        // gallery shortcut, make it at the Ashen Hollow forge anvil from the archive's haft, and back in.
+        _stops.Enqueue(new Stop("threshold_out", 50_000, 10_000) { Leave = true });
+        _stops.Enqueue(new Stop("forge_door", 452_000, 742_000, "door.forge_shed") { Near = true });
+        _stops.Enqueue(new Stop("forge_anvil", 457_500, 740_500, LookAt: new Vector2(457.5f, 740.5f)) { Near = true, Craft = "recipe.smithing.fitting_wedge" });
+        _stops.Enqueue(new Stop("threshold_in", 438_000, 663_000) { Near = true, Enter = "portal.barrowworks.threshold" });
+        Add("archive_cover", 78, 62, "door.barrowworks.archive");
         Add("R09_blind_store", 92, 60, lookAt: new Vector2(95, 61));
         Add("blind_ledger", 95, 60, "switch.barrowworks.blind_ledger");
         Add("R13_inspection_bay", 72, 84, lookAt: new Vector2(76.5f, 86.5f));
-        Add("R10_service_vestibule", 50, 84, lookAt: new Vector2(54, 88.5f));
+        _stops.Enqueue(new Stop("R10_service_vestibule", 50_000, 84_000, LookAt: new Vector2(54, 88.5f)) { Rest = true });
         Add("R11_measuring_court", 50, 100);
         // Combat and the earned interlock remain ordinary gameplay; no flag or position is written by this driver.
+        // A first attempt is broken off once the Custodian is wounded, to show the retreat resetting it to full health.
+        Add("custodian_wound", 50, 106);
+        _stops.Enqueue(new Stop("retreat_reset", 50_000, 84_000, LookAt: new Vector2(50, 100)) { Retreat = true, Rest = true });
+        Add("court_return", 50, 100, lookAt: new Vector2(50, 106));
         Add("custodian", 50, 106);
-        Add("court_interlock", 50, 117, "door.barrowworks.g3");
+        Add("court_interlock", 50, 117, "door.barrowworks.headworks");
         Add("R12_headworks", 50, 131, lookAt: new Vector2(42.6f, 131));
+        _stops.Enqueue(new Stop("retaining_saddle", 45_700, 127_300, "switch.barrowworks.headworks_preserve") { Near = true });
         Add("drain_return",8,38);
-        _session.Subscribe<CommandRejected>(e => Note($"REFUSED {e.Command.GetType().Name}: {e.Reason}"));
+        // A transition diagnostic: the same threshold entry and drain return without the long route between them.
+        if (OS.GetEnvironment("BARROWWORKS_REVIEW_SHORT") == "1")
+        {
+            var keep = _stops.Where(s => s.Name is "R01_threshold" or "R02_intake_hall" or "notice" or "R03_wash_passage" or "R04_drain_mouth" or "drain_return").ToList();
+            _stops.Clear();
+            foreach (var s in keep) _stops.Enqueue(s);
+        }
+        _session.Subscribe<CommandRejected>(e => Note($"REFUSED {e.Command.GetType().Name}: {e.Reason}" + (e.Command is LeaveSpaceCommand
+            ? " - engaged: " + string.Join(", ", _session.Simulation!.Creatures.Where(c => c.Alive && c.Hostile).Select(c => $"{c.Key} at {c.Body.XMm},{c.Body.ZMm}"))
+            : "")));
         Note($"region={session.Setup.Layout.Id}; gate={session.Options.Barrowworks}; seed={session.Simulation!.World.WorldSeed}");
     }
 
@@ -185,10 +225,21 @@ public sealed class BarrowworksReview
     public string? Update()
     {
         var sim = _session.Simulation!;
-        if (++_frames > 500_000 || _captureSeconds > 420 || sim.Combat.Defeated)
+        if (++_frames > 2_000_000 || _captureSeconds > 1500 || sim.Combat.Defeated)
         {
             Note("FAILED: frame budget or defeat");
             return "failed";
+        }
+        if (_frames < 3 && DisplayServer.GetName() != "headless")
+            // The recorder finds the game window by this title, never the desktop. Set from the running loop: the engine names the
+            // window after the project once it opens, which overwrote a title set during boot.
+            DisplayServer.WindowSetTitle("Otherreach - " + Path.GetFileName(Directory));
+        if (!_equipped)
+        {
+            // The fixture's reference kit (--start-items) is put on as a player would, before the threshold photograph.
+            _equipped = true;
+            foreach (var item in sim.Player.Inventory.Where(e => e.DefId.StartsWith("item.armor.", StringComparison.Ordinal)))
+                _session.Submit(new EquipCommand(sim.PlayerId, item.ItemId));
         }
         if (!_entered)
         {
@@ -209,9 +260,8 @@ public sealed class BarrowworksReview
             _lastProgress=sim.WorldTick;
             return null;
         }
-        if (sim.PlayerInExterior)
+        if (sim.PlayerInExterior && _leaving)
         {
-            if (!_leaving) return "failed";
             _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);
             _camera.Yaw=0;_camera.Pitch=-.08f;_camera.TargetDistance=6;
             if ((_exteriorSettle+=_realtime ? _frameSeconds : _session.TickSeconds)<(_returnBaseline ? 10 : 5)) return null;
@@ -230,11 +280,65 @@ public sealed class BarrowworksReview
         if (sim.Creatures.FirstOrDefault(c => c.DefId == "creature.construct.ring_custodian") is
             { Phase: CombatPhase.Windup, AttackSource: { } source } telling && telling.PhaseTicksLeft < 10 && _attackShots.Add(source))
             return "attack_" + source.Split('.').Last();
+        // Leaving is refused while something still fights the character: deal with it, then walk back to the drain and try again.
+        if (_leaving && !sim.PlayerInExterior && _stops.Count == 0 && sim.WorldTick - _leaveAsked > 40)
+        {
+            Note("still inside after asking to leave; back to the drain");
+            _leaving = false;
+            Add("drain_return", 8, 38);
+        }
         if (!_stops.TryPeek(out var stop))
-            return "done";
+            return _leaving ? null : "done";
+        // The ring's ordinary creatures (M8 09 E1-E4) are fought where they come at the character, then the route is searched again.
+        var at = sim.Player.Body;
+        if (sim.Creatures.Where(c => c.Alive && c.Hostile && c.DefId != "creature.construct.ring_custodian")
+                .OrderBy(c => Distance(at.XMm, at.ZMm, c.Body.XMm, c.Body.ZMm)).FirstOrDefault() is { } threat
+            && Distance(at.XMm, at.ZMm, threat.Body.XMm, threat.Body.ZMm) < 30_000 && _search is null)
+        {
+            if (_fighting != threat.Key) Note($"engaged by {threat.DefId} ({threat.Key})");
+            _fighting = threat.Key;
+            _path.Clear();
+            _searched = null;
+            Fight(threat);
+            return null;
+        }
+        if (_fighting is { } fought && sim.Creatures.FirstOrDefault(c => c.Key == fought) is { Alive: false })
+        {
+            Note($"defeated {fought}");
+            _fighting = null;
+            _restFrom = sim.WorldTick;
+        }
+        // After a fight, rest back to health before going on, as a player would.
+        if (_restFrom is { } rested)
+        {
+            if (sim.Combat.Health * 20 < sim.Combat.MaxHealth * 19 && sim.WorldTick - rested < 3_000)
+            {
+                _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera);
+                _lastProgress = sim.WorldTick;
+                return null;
+            }
+            Note($"rested to {sim.Combat.Health}/{sim.Combat.MaxHealth}");
+            _restFrom = null;
+        }
         if (_arrived)
         {
             _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera);
+            if (stop.Retreat && Custodian(sim) is { } waiting && (waiting.Hostile || waiting.Health < waiting.MaxHealth))
+            {
+                if (sim.WorldTick - _lastProgress > 1200)
+                {
+                    Note($"FAILED: Custodian never reset after the retreat (hp {waiting.Health}/{waiting.MaxHealth})");
+                    return "failed";
+                }
+                return null;
+            }
+            if (stop.Retreat && Custodian(sim) is { } reset && _woundedHp is { } wounded)
+            {
+                Note($"retreat reset: Custodian {wounded}/{reset.MaxHealth} when the attempt was broken off, {reset.Health}/{reset.MaxHealth} after");
+                _woundedHp = null;
+            }
+            if (stop.Rest && sim.Combat.Health * 20 < sim.Combat.MaxHealth * 19 && sim.WorldTick - _lastProgress < 3_000)
+                return null;
             _settleSeconds -= _frameSeconds;
             if (--_settle > 0 || _settleSeconds > 0)
                 return null;
@@ -245,14 +349,29 @@ public sealed class BarrowworksReview
             if (stop.Name=="drain_return")
             {
                 _session.Submit(new LeaveSpaceCommand(sim.PlayerId));
-                _leaving=true;_exteriorSettle=0;
+                _leaving=true;_exteriorSettle=0;_leaveAsked=sim.WorldTick;
             }
             _lastProgress = sim.WorldTick;
             if (stop.Name.StartsWith("R", StringComparison.Ordinal) && ++_roomsDrawn >= _roomLimit && _roomLimit<13)
                 _stops.Clear();
             return stop.Name;
         }
-        if (stop.Name == "custodian" && sim.Creatures.FirstOrDefault(c => c.DefId == "creature.construct.ring_custodian") is { Alive: true } boss)
+        if (stop.Name == "custodian_wound" && Custodian(sim) is { Alive: true } quarry)
+        {
+            if (quarry.Health > quarry.MaxHealth * 4 / 5)
+            {
+                Fight(quarry);
+                return null;
+            }
+            _woundedHp = quarry.Health;
+            _stops.Dequeue();
+            _path.Clear();
+            _stats.Mark("room/interaction " + stop.Name);
+            Note($"reached {stop.Name}: Custodian at {quarry.Health}/{quarry.MaxHealth}; breaking off");
+            _lastProgress = sim.WorldTick;
+            return stop.Name;
+        }
+        if (stop.Name == "custodian" && Custodian(sim) is { Alive: true } boss)
         {
             Fight(boss);
             return null;
@@ -263,7 +382,31 @@ public sealed class BarrowworksReview
             _path.Dequeue();
             _lastProgress = sim.WorldTick;
         }
-        if (Distance(body.XMm, body.ZMm, stop.X, stop.Z) < 300)
+        if (_search is { IsCompleted: true } && _searched == stop)
+        {
+            var found = _search.Result;
+            _search = null;
+            _stats.Mark($"review path search {stop.Name}: {found.Ms:0.000} ms (worker thread)");
+            Note($"path search {stop.Name}: {found.Ms:0.000} ms");
+            if (found.Path is null)
+            {
+                Note("FAILED: no collision-clear route to " + stop.Name);
+                return "failed";
+            }
+            foreach (var step in found.Path) _path.Enqueue(step);
+            _goal = found.Goal;
+            _lastProgress = sim.WorldTick;
+        }
+        if (_search is not null)
+        {
+            // Standing still while the route is searched on a worker, so a long search is not a rendered stall.
+            _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera);
+            _lastProgress = sim.WorldTick;
+            return null;
+        }
+        long reach = Math.Min(sim.Setup.Movement.InteractReachMm, sim.Setup.Items.Inventory.ReachMm) - 300;
+        if (_searched == stop && (_path.Count == 0 && Distance(body.XMm, body.ZMm, _goal.X, _goal.Z) < 300
+                                  || stop.Near && Distance(body.XMm, body.ZMm, stop.X, stop.Z) <= reach))
         {
             _path.Clear();
             _arrived = true;
@@ -276,8 +419,18 @@ public sealed class BarrowworksReview
                 var door = sim.ActiveLayout.Doors.FirstOrDefault(d => d.Key == key);
                 if ((switchSite?.Body ?? door?.ClosedFootprint) is BoxBlocker target)
                     look = new Vector2(target.CenterXMm/1000f, target.CenterZMm/1000f);
-                _session.Submit(new InteractCommand(sim.PlayerId, key));
+                // A door someone already opened is walked through, not shut again.
+                if (door is null || !sim.Doors.Single(d => d.Site == door).Open)
+                    _session.Submit(new InteractCommand(sim.PlayerId, key));
             }
+            if (stop.Take is { } container)
+                _session.Submit(new TakeAllCommand(sim.PlayerId, container));
+            if (stop.Craft is { } recipe)
+                _session.Submit(new CraftCommand(sim.PlayerId, recipe));
+            if (stop.Leave)
+                _session.Submit(new LeaveSpaceCommand(sim.PlayerId));
+            if (stop.Enter is { } portal)
+                _session.Submit(new EnterSpaceCommand(sim.PlayerId, portal));
             _camera.Yaw = look is { } aim ? Mathf.Atan2(-(aim.X-body.XMm/1000f), -(aim.Y-body.ZMm/1000f)) : Mathf.Pi;
             _camera.Pitch = -.06f;
             _camera.TargetDistance = stop.Name == "custodian" ? 6.5f : 3.5f;
@@ -286,16 +439,8 @@ public sealed class BarrowworksReview
         }
         if (_path.Count == 0)
         {
-            ulong began = Time.GetTicksUsec();
-            bool planned = Plan(stop);
-            double ms = (Time.GetTicksUsec() - began) / 1000.0;
-            _stats.Mark($"review path search {stop.Name}: {ms:0.000} ms");
-            Note($"path search {stop.Name}: {ms:0.000} ms");
-            if (!planned)
-            {
-                Note("FAILED: no collision-clear route to " + stop.Name);
-                return "failed";
-            }
+            Plan(stop);
+            return null;
         }
         if (sim.WorldTick - _lastProgress > 500)
         {
@@ -320,20 +465,29 @@ public sealed class BarrowworksReview
         var towards = new Vector3(boss.Body.XMm-body.XMm, 0, boss.Body.ZMm-body.ZMm);
         float distance = towards.Length();
         _camera.Yaw = Mathf.Atan2(-towards.X, -towards.Z);
-        if (sim.Combat.Health < 35 && sim.WorldTick % 20 == 0)
+        if (sim.Combat.Health * 2 < sim.Combat.MaxHealth && sim.WorldTick % 20 == 0)
             _controller.UseConsumable();
         // Circle the slow housing toward its exposed rear; its planted windup is the warning to clear the arm.
         var tangent = new Vector3(towards.Z, 0, -towards.X).Normalized();
         var movement = distance > 1600 ? towards.Normalized() : tangent;
         _controller.SteerWorld(movement, Gait.Run, _camera, faceCamera: true);
-        if (boss.Phase == CombatPhase.Windup && boss.PhaseTicksLeft < 7 && sim.Combat.Phase == CombatPhase.Idle)
+        if (boss.Phase == CombatPhase.Windup && boss.PhaseTicksLeft < 7 && sim.Combat.Phase == CombatPhase.Idle
+            && sim.Player.Progression.Pools.Stamina is null or > 20)
             _controller.Dodge(tangent);
         else if (distance < 1900 && sim.Combat.Phase == CombatPhase.Idle && sim.Player.Progression.Pools.Stamina is null or > 15)
             _controller.Attack();
         _lastProgress = sim.WorldTick;
     }
 
-    private bool Plan(Stop stop)
+    private CreatureView? Custodian(Simulation sim) => sim.Creatures.FirstOrDefault(c => c.DefId == "creature.construct.ring_custodian");
+
+    private sealed record Search(List<(long X, long Z)>? Path, (long X, long Z) Goal, double Ms);
+
+    /// <summary>
+    /// A collision-clear 1 m route to the stop, searched on a worker over the layout and door state taken now (both immutable).
+    /// A Near stop ends at the first cell within interaction reach; the search stays in a box around both ends.
+    /// </summary>
+    private void Plan(Stop stop)
     {
         var sim = _session.Simulation!;
         var layout = sim.ActiveLayout;
@@ -342,30 +496,50 @@ public sealed class BarrowworksReview
         var body = sim.Player.Body;
         var start = ((int)Math.Round(body.XMm/1000.0), (int)Math.Round(body.ZMm/1000.0));
         var end = ((int)Math.Round(stop.X/1000.0), (int)Math.Round(stop.Z/1000.0));
-        var parents = new Dictionary<(int X, int Z), (int X, int Z)?> { [start] = null };
-        var queue = new Queue<(int X, int Z)>();
-        queue.Enqueue(start);
-        while (queue.TryDequeue(out var at))
+        long near = Math.Min(sim.Setup.Movement.InteractReachMm, sim.Setup.Items.Inventory.ReachMm) - 300;
+        long radius = sim.Setup.Movement.BodyRadiusMm, height = layout.SpaceId.IsExterior ? 0 : 1800;
+        var space = layout.Space;
+        _searched = stop;
+        if (layout.SpaceId.IsExterior)
         {
-            if (at == end)
-            {
-                var path = new List<(int X, int Z)>();
-                for (var current = ((int X, int Z)?)end; current is { } p; current = parents[p])
-                    path.Add(p);
-                path.Reverse();
-                foreach (var p in path.Skip(1)) _path.Enqueue((p.X*1000L, p.Z*1000L));
-                return _path.Count > 0;
-            }
-            foreach (var (dx, dz) in new[] { (1,0), (-1,0), (0,1), (0,-1) })
-            {
-                var next = (at.X+dx, at.Z+dz);
-                if (parents.ContainsKey(next) || !Kinematics.IsClear(next.Item1*1000L, next.Item2*1000L,
-                        sim.Setup.Movement.BodyRadiusMm, layout.Space, closed, 1800)) continue;
-                parents[next] = at;
-                queue.Enqueue(next);
-            }
+            // Outside, the frontier's own navigation lattice, as the playthrough harnesses walk it.
+            ulong began = Time.GetTicksUsec();
+            var corners = Playthrough.WayTo(sim, body, new Body(stop.X, 0, stop.Z, 0), standOff: stop.Near ? near / 1000.0 - 0.3 : 0)
+                .Select(c => ((long)Math.Round(c.X * 1000), (long)Math.Round(c.Z * 1000))).ToList();
+            _search = Task.FromResult(new Search(corners, corners.Count > 0 ? corners[^1] : (body.XMm, body.ZMm), (Time.GetTicksUsec() - began) / 1000.0));
+            return;
         }
-        return false;
+        _search = Task.Run(() =>
+        {
+            ulong began = Time.GetTicksUsec();
+            bool Goal((int X, int Z) at) => stop.Near ? Distance(at.X * 1000L, at.Z * 1000L, stop.X, stop.Z) <= near : at == end;
+            int minX = Math.Min(start.Item1, end.Item1) - 40, maxX = Math.Max(start.Item1, end.Item1) + 40;
+            int minZ = Math.Min(start.Item2, end.Item2) - 40, maxZ = Math.Max(start.Item2, end.Item2) + 40;
+            var parents = new Dictionary<(int X, int Z), (int X, int Z)?> { [start] = null };
+            var queue = new Queue<(int X, int Z)>();
+            queue.Enqueue(start);
+            while (queue.TryDequeue(out var at))
+            {
+                if (Goal(at))
+                {
+                    var path = new List<(int X, int Z)>();
+                    for (var current = ((int X, int Z)?)at; current is { } p; current = parents[p])
+                        path.Add(p);
+                    path.Reverse();
+                    return new Search(path.Skip(1).Select(p => (p.X * 1000L, p.Z * 1000L)).ToList(), (at.X * 1000L, at.Z * 1000L),
+                        (Time.GetTicksUsec() - began) / 1000.0);
+                }
+                foreach (var (dx, dz) in new[] { (1,0), (-1,0), (0,1), (0,-1) })
+                {
+                    var next = (at.X+dx, at.Z+dz);
+                    if (next.Item1 < minX || next.Item1 > maxX || next.Item2 < minZ || next.Item2 > maxZ) continue;
+                    if (parents.ContainsKey(next) || !Kinematics.IsClear(next.Item1*1000L, next.Item2*1000L, radius, space, closed, height)) continue;
+                    parents[next] = at;
+                    queue.Enqueue(next);
+                }
+            }
+            return new Search(null, default, (Time.GetTicksUsec() - began) / 1000.0);
+        });
     }
 
     private static double Distance(long x, long z, long tx, long tz) => Math.Sqrt(Math.Pow(tx-x, 2)+Math.Pow(tz-z, 2));

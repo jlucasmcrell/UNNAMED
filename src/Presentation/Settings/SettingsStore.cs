@@ -87,6 +87,16 @@ public static class SettingsStore
         Changed?.Invoke();
     }
 
+    /// <summary>
+    /// Kept and written, with nothing to apply: a hint marked seen. Through <see cref="Set"/> every hint re-applied the keys (their
+    /// bindings compare by reference), a 230 ms stall mid-fight each time one showed.
+    /// </summary>
+    public static void Remember(ClientPrefs prefs)
+    {
+        Current = prefs.Normalised();
+        Write();
+    }
+
     private static string? Read(string path)
     {
         try

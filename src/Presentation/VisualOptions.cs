@@ -75,9 +75,9 @@ public static class VisualOptions
         ["air"] = new[] { "flat", "sun", "hue" },
         // Otherreach's own sky over Sky3D (Greybox/CelestialView.cs): mix is the owner's pick (2026-10-16); the three concepts stay for comparison.
         ["celestial"] = new[] { "none", "giant", "arc", "binary", "mix" },
-        // 1: the Barrowworks is in the run - its two entrances become usable and its interior is loaded.
-        // 0 is the default and the whole of the default-off guarantee: with it off, no portal is registered
-        // anywhere, so EnterSpaceCommand cannot succeed and the playtest is the one it always was.
+        // 1, the default: the Barrowworks is in the run - its two entrances are usable and its interior loads on entry.
+        // 0 is the debug switch that takes it out: no portal is registered anywhere, so EnterSpaceCommand cannot
+        // succeed and the frontier plays as it did before the ring.
         //
         // This is the switch, but it is NOT where the gating happens. VisualOptions is Presentation and the
         // content gate is Application's, and Presentation -> Application is the direction the projects
@@ -127,9 +127,8 @@ public static class VisualOptions
         // Frames of all three at 07:00 and 08:00: docs/phase_b/air_ab/AIR_DECISION.png.
         ["air"] = "hue",
         ["celestial"] = "mix",
-        // The Barrowworks is off unless it is asked for. Defaults is also what `--visual phase_a` copies, so a
-        // Phase-A run excludes it too, which is what "invisible in a normal launch" means.
-        ["barrowworks"] = "0",
+        // The Barrowworks is in every run unless --visual barrowworks=0 takes it out (owner, 2026-10-23).
+        ["barrowworks"] = "1",
         // The owner's pick (2026-10-17): subtle, the level of the village wildlife variants. off and bold stay for comparison.
         ["otherworld"] = "subtle",
     };
@@ -195,7 +194,7 @@ public static class VisualOptions
     public static string? ComparisonBodyPrefix => ComparisonCast is { } cast ? cast + "_" : null;
 
     /// <summary>
-    /// Whether this run includes the Barrowworks (<c>--visual barrowworks=1</c>). Read once at startup and
+    /// Whether this run includes the Barrowworks (default; <c>--visual barrowworks=0</c> takes it out). Read once at startup and
     /// passed into <c>GameOptions.Barrowworks</c>: this is the switch, and that record is the gate.
     /// </summary>
     public static bool Barrowworks => Values["barrowworks"] == "1";

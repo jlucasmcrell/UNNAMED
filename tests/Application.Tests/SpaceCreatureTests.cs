@@ -31,12 +31,13 @@ public class SpaceCreatureTests
         var session = Harness.Boot(profile, barrowworks: true);
         session.NewGame(Harness.Named("Wanderer"), seed: 42);
 
-        var ringIds = session.Setup.Combat.Spawns.Where(s => s.Space == SpaceId.Parse(Ring))
-            .SelectMany(s => s.Members).Select(m => m.CreatureId).ToHashSet(StringComparer.Ordinal);
-        var seen = session.Simulation!.Creatures.Select(c => c.DefId).ToHashSet(StringComparer.Ordinal);
+        // By spawner, not by kind: the ring's spiders and husk are the frontier's own species.
+        var ringSpawns = session.Setup.Combat.Spawns.Where(s => s.Space == SpaceId.Parse(Ring))
+            .Select(s => s.Key).ToHashSet(StringComparer.Ordinal);
+        var seen = session.Simulation!.Creatures.Select(c => c.Key[..c.Key.LastIndexOf('#')]).ToHashSet(StringComparer.Ordinal);
 
-        Assert.NotEmpty(ringIds);
-        Assert.Empty(seen.Intersect(ringIds));
+        Assert.NotEmpty(ringSpawns);
+        Assert.Empty(seen.Intersect(ringSpawns));
     }
 
     [Fact]

@@ -314,13 +314,16 @@ public static class WorldContent
                 var locked = door.GetValueOrDefault("locked_text") as string;
                 var latch = door.GetValueOrDefault("latch_side") as string;
                 Check(latch is null or "north" or "south" or "east" or "west", "WLD004", $"{key}: invalid latch_side");
-                Check((latch is null && !door.ContainsKey("requirement")) || !string.IsNullOrWhiteSpace(locked), "WLD004", $"{key}: a locked door needs locked_text");
+                Check((latch is null && !door.ContainsKey("requirement") && !door.ContainsKey("fitted")) || !string.IsNullOrWhiteSpace(locked), "WLD004", $"{key}: a locked door needs locked_text");
+                bool staysOpen = door.ContainsKey("stays_open") && bool.Parse(door["stays_open"].ToString()!);
+                Check(!door.ContainsKey("fitted") || staysOpen, "WLD004", $"{key}: a door that holds a fitted item must stay open");
                 doors.Add(new DoorSite(key, flag, footprint)
                 {
                     Requirement = door.ContainsKey("requirement") ? Requirement(Map(door, "requirement")) : null,
                     LatchSide = latch,
                     LockedText = locked,
-                    StaysOpen = door.ContainsKey("stays_open") && bool.Parse(door["stays_open"].ToString()!),
+                    StaysOpen = staysOpen,
+                    Fitted = door.ContainsKey("fitted") ? SiteItem(Map(door, "fitted")) : null,
                 });
             }
             Check(doors.Select(d => d.Key).Distinct(StringComparer.Ordinal).Count() == doors.Count, "WLD004", "two doors share a key");
