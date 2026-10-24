@@ -516,8 +516,12 @@ public sealed record MerchantStock(string ItemId, int Count, double PriceBias);
 public sealed record Merchant(string Id, ImmutableArray<MerchantStock> Stock, ImmutableArray<string> BuysCategories);
 
 /// <summary>Prices from <c>config.economy</c>. A merchant buys at a fraction of value, so buying to resell loses money.</summary>
-public sealed record Pricing(double SellRatio)
+public sealed record Pricing(double SellRatio, double QualityStep = 0.25, double MakerPremium = 0.1, double RecipeMargin = 0.9)
 {
+    /// <summary>Instance value before market and wear: quality and an authenticated maker mark, never the holder's level.</summary>
+    public long Value(ItemDefinition item, int quality = 0, bool makerMarked = false) =>
+        (long)Math.Floor(item.ValueBase * (1 + QualityStep * Math.Clamp(quality, -1, 2)) * (makerMarked ? 1 + MakerPremium : 1));
+
     public long BuyPrice(ItemDefinition item, MerchantStock stock) => (long)Math.Ceiling(item.ValueBase * stock.PriceBias);
 
     /// <summary>What a merchant pays, or null when it will not buy this item.</summary>

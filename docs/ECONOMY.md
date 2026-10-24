@@ -181,6 +181,9 @@ Potential forms:
 Do not assume a global auction house in single-player.
 
 ## 13. Famous makers and provenance
+**Wave 0C implementation (2026-10-24).** Trader quotes, charged shelf prices and paid offers read instance quality and an authenticated crafted maker mark. `config.economy` sets a 0.25 quality step (crude/standard/fine/masterwork: 0.75/1/1.25/1.5) and a 0.1 maker-mark premium; wear and market conditions still apply. The mark premium is not a maker-reputation or famous-event system: those parts below remain future work.
+
+E-3 content validation checks every recipe at neutral market prices, using the highest authored output quality, a maker mark and the cheapest bought or recursively composed inputs. The configured vendor margin is 0.9. Cyclic production chains are refused. Thirteen output values were corrected for this invariant; recipe quantities, gear stats and quest rewards were unchanged. Regional arbitrage and dynamic supply remain governed by E-1/E-2 and the economy soak, rather than being prohibited by this authoring check.
 
 Crafted items may record makers and significant modifications.
 
@@ -195,3 +198,4 @@ Economic value can reflect:
 ## 14. Design rule
 
 > Simulate enough economy to generate consequences and opportunities; stabilize enough economy to remain a game.
+

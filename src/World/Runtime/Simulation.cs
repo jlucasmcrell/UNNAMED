@@ -742,7 +742,8 @@ public sealed class Simulation
             .Select(_inventory.View).ToImmutableArray();
 
     /// <summary>What a trader would pay for one of an item now (WP14); null when they do not trade, or do not buy it.</summary>
-    public long? Offer(string npcId, string itemId, ItemWear? wear = null) => _trade.Offer(npcId, itemId, wear);
+    public long? Offer(string npcId, string itemId, ItemWear? wear = null, int quality = 0, NotableRecord? notable = null) =>
+        _trade.Offer(npcId, itemId, wear, quality, notable);
 
     /// <summary>What a trader would charge to mend a carried piece now (WP3b); null when they do not repair, or it needs none.</summary>
     public RepairQuote? RepairQuote(string npcId, EntityId item) => _trade.RepairQuote(npcId, item);

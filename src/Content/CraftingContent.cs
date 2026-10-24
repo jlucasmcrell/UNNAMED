@@ -28,6 +28,8 @@ public static class CraftingContent
         Try(() => BuildYieldBonuses(loader), "skills", errors);
         Try(() => BuildDropQuality(loader), "config.crafting", errors);
         Try(() => CheckExperiments(BuildConstants(loader), BuildRecipes(loader)), "experiments", errors);
+        if (errors.Count == 0)
+            Try(() => CheckRecipeMargins(ItemContent.BuildCatalog(loader), ItemContent.BuildPricing(loader), BuildRecipes(loader)), "recipe vendor margin (E-3)", errors);
         return errors;
     }
 
@@ -221,6 +223,38 @@ public static class CraftingContent
                     return new YieldBonus(definition.Id, Int(passive, "at"), Int(modifier, "value"));
                 }));
         }).ToImmutableArray();
+
+    /// <summary>E-3 at neutral market prices, including the cheapest recursively composed inputs and the highest authored output quality.</summary>
+    public static bool CheckRecipeMargins(UNNAMED.Domain.Items.ItemCatalog catalog, UNNAMED.Domain.Items.Pricing pricing,
+        IReadOnlyDictionary<string, RecipeDefinition> recipes)
+    {
+        var byOutput = recipes.Values.GroupBy(r => r.OutputItemId).ToDictionary(g => g.Key, g => g.ToArray());
+        var costs = new Dictionary<string, decimal>(StringComparer.Ordinal);
+        decimal Cost(string id, HashSet<string> visiting)
+        {
+            if (costs.TryGetValue(id, out decimal known)) return known;
+            if (!visiting.Add(id)) throw new FormatException($"E-3 cyclic recipe inputs at {id}");
+            decimal cheapest = catalog.Get(id).ValueBase;
+            if (byOutput.TryGetValue(id, out var ways))
+                foreach (var recipe in ways)
+                    cheapest = Math.Min(cheapest, recipe.Inputs.Sum(i => Cost(i.ItemId, visiting) * i.Count) / recipe.OutputCount);
+            visiting.Remove(id);
+            return costs[id] = cheapest;
+        }
+        var failures = new List<string>();
+        foreach (var recipe in recipes.Values.OrderBy(r => r.Id, StringComparer.Ordinal))
+        {
+            var output = catalog.Get(recipe.OutputItemId);
+            if (output.NoSell) continue;
+            decimal inputCost = recipe.Inputs.Sum(i => Cost(i.ItemId, new HashSet<string>(StringComparer.Ordinal)) * i.Count);
+            int quality = recipe.MasterworkPossible ? Quality.Masterwork : recipe.QualityRoll ? Quality.Fine : Quality.Standard;
+            long vendor = (long)Math.Floor(pricing.Value(output, quality, makerMarked: true) * pricing.SellRatio) * recipe.OutputCount;
+            if (vendor > inputCost * (decimal)pricing.RecipeMargin)
+                failures.Add($"{recipe.Id}: vendor {vendor} exceeds {pricing.RecipeMargin:0.###} of bought/composed input cost {inputCost:0.###}");
+        }
+        if (failures.Count > 0) throw new FormatException(string.Join("; ", failures));
+        return true;
+    }
 
     private static void Try(Func<object> build, string what, List<ValidationError> errors)
     {

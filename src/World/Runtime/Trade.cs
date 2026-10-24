@@ -92,7 +92,7 @@ internal sealed class TradeSystem
             return $"{npc.Definition.Name} has no such ware";
         if (command.Count < 1 || command.Count > ware.Count)
             return $"{npc.Definition.Name} has {ware.Count} of it";
-        long price = ShelfAsk(merchant, ware.DefId, ware.Wear) * command.Count;
+        long price = ShelfAsk(merchant, ware.DefId, ware.Wear, ware.Quality, ware.Notable) * command.Count;
         if (price > State.Currency)
             return $"not enough coin: {price} asked, {State.Currency} carried";
         if (_context.Dispatch(new Trade(new MoveItemCommand(_player, ware.Ref, ItemPlace.In(merchant.Id), ItemPlace.Carried, command.Count), -price)) is { } failed)
@@ -114,7 +114,7 @@ internal sealed class TradeSystem
             return $"only {entry.Count} carried";
         if (entry.Locked)
             return $"{entry.DefId} is locked: unlock it to sell it";
-        if (OfferFor(merchant, entry.DefId, entry.Wear) is not { } each)
+        if (OfferFor(merchant, entry.DefId, entry.Wear, entry.Quality, entry.Notable) is not { } each)
             return $"{npc.Definition.Name} does not buy that";
         if (each == 0)
             return $"{npc.Definition.Name} would give nothing for that";
@@ -208,7 +208,7 @@ internal sealed class TradeSystem
             return null;
         string? market = MarketOf(merchant);
         return new WaresView(npcId, merchant.Id, _contents(site).Items
-            .Select(i => new WareView(i.Ref, i.DefId, i.Count, i.Quality, ShelfAsk(merchant, i.DefId, i.Wear)) { Trend = Math.Sign(_markets.Factor(market, i.DefId) - 1000), Wear = i.Wear })
+            .Select(i => new WareView(i.Ref, i.DefId, i.Count, i.Quality, ShelfAsk(merchant, i.DefId, i.Wear, i.Quality, i.Notable)) { Trend = Math.Sign(_markets.Factor(market, i.DefId) - 1000), Wear = i.Wear })
             .ToImmutableArray())
         {
             Purse = _merchants.Purse(merchant.Id),
@@ -217,32 +217,35 @@ internal sealed class TradeSystem
     }
 
     /// <summary>What a trader would pay for one of an item now; null when this NPC does not trade, or does not buy it.</summary>
-    public long? Offer(string npcId, string itemId, ItemWear? wear = null) =>
+    public long? Offer(string npcId, string itemId, ItemWear? wear = null, int quality = 0, NotableRecord? notable = null) =>
         State.Npcs.TryGetValue(npcId, out var npc) && npc.Definition.MerchantId is { } id && Items.Merchants.TryGetValue(id, out var merchant)
             && Items.Catalog.Find(itemId) is not null
-            ? OfferFor(merchant, itemId, wear)
+            ? OfferFor(merchant, itemId, wear, quality, notable)
             : null;
 
     /// <summary>What a trader asks for one: its value times their bias for it (1 for anything they did not stock) times their town's price.</summary>
-    private long AskFor(Merchant merchant, string itemId) =>
-        EconomyEngine.Ask(Items.Catalog.Get(itemId).ValueBase, merchant.Stock.FirstOrDefault(s => s.ItemId == itemId)?.PriceBias ?? 1.0,
+    private long AskFor(Merchant merchant, string itemId, int quality = 0, bool makerMarked = false) =>
+        EconomyEngine.Ask(Items.Pricing.Value(Items.Catalog.Get(itemId), quality, makerMarked), merchant.Stock.FirstOrDefault(s => s.ItemId == itemId)?.PriceBias ?? 1.0,
             _markets.Factor(MarketOf(merchant), itemId));
 
     /// <summary>What a trader asks for one piece as it stands on the shelf: less when it is worn (the same curve their offers use).</summary>
-    private long ShelfAsk(Merchant merchant, string itemId, ItemWear? wear) =>
-        Durability.ShelfPrice(AskFor(merchant, itemId), Items.Catalog.Get(itemId), wear, Items.Inventory.Durability);
+    private long ShelfAsk(Merchant merchant, string itemId, ItemWear? wear, int quality, NotableRecord? notable) =>
+        Durability.ShelfPrice(AskFor(merchant, itemId, quality, MakerMarked(notable)), Items.Catalog.Get(itemId), wear, Items.Inventory.Durability);
 
     /// <summary>What a trader pays for one, or null when they do not buy it (S-36: always below what they ask); less for a worn piece (WP3b).</summary>
-    private long? OfferFor(Merchant merchant, string itemId, ItemWear? wear)
+    private long? OfferFor(Merchant merchant, string itemId, ItemWear? wear, int quality, NotableRecord? notable)
     {
         var item = Items.Catalog.Get(itemId);
         if (Items.Pricing.SellPrice(item, merchant) is null)
             return null;
         string? market = MarketOf(merchant);
-        long offer = EconomyEngine.Offer(item.ValueBase, Items.Pricing.SellRatio, _markets.Factor(market, itemId), _markets.Remembered(market, itemId),
-            _context.Setup.Economy.Rules, AskFor(merchant, itemId));
+        long offer = EconomyEngine.Offer(Items.Pricing.Value(item, quality, MakerMarked(notable)), Items.Pricing.SellRatio, _markets.Factor(market, itemId), _markets.Remembered(market, itemId),
+            _context.Setup.Economy.Rules, AskFor(merchant, itemId, quality, MakerMarked(notable)));
         return Durability.SalePrice(offer, item, wear, Items.Inventory.Durability);
     }
+
+    private static bool MakerMarked(NotableRecord? notable) =>
+        notable is { Provenance: ProvenanceKind.Crafted, Maker: { Length: > 0 } };
 
     private string? MarketOf(Merchant merchant) => _context.Setup.Economy.MarketOf(merchant.Id)?.Id;
 
