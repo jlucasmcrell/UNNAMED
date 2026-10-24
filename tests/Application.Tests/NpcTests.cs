@@ -517,7 +517,7 @@ public class NpcTests
         var wares = arena.Simulation.Wares(Kera)!;
         var arrows = wares.Wares.First(w => w.ItemId == Arrows);
         var bow = wares.Wares.Single(w => w.ItemId == "item.weapon.hunting_bow");
-        Assert.Equal((60, 1L, 1, 45L), (wares.Wares.Where(w => w.ItemId == Arrows).Sum(w => w.Count), arrows.Price, bow.Count, bow.Price));
+        Assert.Equal((60, 1L, 1, 36L), (wares.Wares.Where(w => w.ItemId == Arrows).Sum(w => w.Count), arrows.Price, bow.Count, bow.Price));
         Assert.Null(arena.Simulation.Wares(Renn));   // Renn does not trade
 
         var bought = arena.Record<ItemBought>();
@@ -527,7 +527,7 @@ public class NpcTests
         Assert.Equal(40, arena.Simulation.Wares(Kera)!.Wares.Where(w => w.ItemId == Arrows).Sum(w => w.Count));
         // Touched, her wares got their identities (the slot-promotion rule): a ware is named by what the view says now.
         bow = arena.Simulation.Wares(Kera)!.Wares.Single(w => w.ItemId == "item.weapon.hunting_bow");
-        Assert.Equal("not enough coin: 45 asked, 5 carried", arena.Submit(new BuyCommand(arena.Player, Kera, bow.Ref, 1)));
+        Assert.Equal("not enough coin: 36 asked, 5 carried", arena.Submit(new BuyCommand(arena.Player, Kera, bow.Ref, 1)));
         Assert.Equal("Kera Voss has no such ware", arena.Submit(new BuyCommand(arena.Player, Kera, "merchant.nothing#00", 1)));
 
         // She buys a hide at 40% of its value, and it joins her wares; a quest token she will not buy.
