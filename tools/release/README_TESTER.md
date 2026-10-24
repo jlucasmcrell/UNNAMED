@@ -5,7 +5,7 @@ Thank you for playing. This is an early, unfinished playtest of Otherreach, a si
 ## Install and run
 
 1. Extract the whole download into one folder you can write to, for example `C:\Games\Otherreach`. Keep the folder together; do not copy `Otherreach.exe` out of it.
-2. Double-click **PLAY.bat** (High quality, 2560 x 1440 or your screen's size). `Otherreach.exe` on its own starts the same way.
+2. Double-click **PLAY.bat** or **Otherreach.exe**. Both use your saved display settings; the first launch selects quality for your graphics card. Change it in Settings.
 3. **PLAY Ultra 4K.bat** is for 4K screens and graphics cards with 16 GB of memory or more.
 
 Nothing else needs installing, and the game never asks for administrator rights.
