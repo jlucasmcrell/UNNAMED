@@ -630,20 +630,30 @@ public partial class Main : Node3D
                 : $"UNNAMED start screen: no save to continue; {choice.Saves.Length} saves in {profile}");
             _hud.Visible = false;   // no world yet: nothing to show but the choice
             _loading?.Stage("Opening the start screen", 0.96);
-            OpenFrontEnd();
-            _music.Title(true);
+            bool autostart = _flags.Contains("--autostart") || _flags.Any(f => f.StartsWith("--autostart-body="));
+            // The opening at launch (Main.Opening) comes before the start screen and hands its view over on the score's hit.
+            var opening = !autostart && Settings.SettingsStore.Current.Profile.PlayOpening ? OpeningPlaces(region) : null;
+            if (opening is null)
+            {
+                OpenFrontEnd();
+                _music.Title(true);
+            }
             // Phase B: behind the choice, a slow establishing shot over the hollow instead of whatever the game camera faces.
             if (VisualOptions.Tier != "phase_a")
             {
-                _startCamera = new StartCamera { Name = "StartCamera", Ground = _ground.Height,
-                    Offset = region == "region.starting_frontier" ? new Vector2(400, 600) : Vector2.Zero };
-                AddChild(_startCamera);
+                if (opening is null)
+                {
+                    _startCamera = StartView(region);
+                    AddChild(_startCamera);
+                }
                 // The ground's scatter of the world a new game will be (Main.Creator), so the shot is not bare earth and Begin finds it placed.
                 _loading?.Stage("Planting the land", 0.98);
                 _scatter.Build(NextWorldSeed);
             }
             _loading?.End();
-            if (_flags.Contains("--autostart") || _flags.Any(f => f.StartsWith("--autostart-body=")))
+            if (opening is not null)
+                BeginOpening(opening, region);
+            if (autostart)
                 Callable.From(AutoStart).CallDeferred();
             return;
         }

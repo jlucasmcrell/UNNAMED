@@ -174,10 +174,15 @@ public partial class Main
             SettingsStore.ApplyInterface(GetTree());
     }
 
-    /// <summary>The front end at launch: the first-launch screen the first time the game starts on this machine, then the title.</summary>
-    private void OpenFrontEnd()
+    /// <summary>
+    /// The front end at launch: the first-launch screen the first time the game starts on this machine, then the title; after the opening,
+    /// the title's entries come in under the name it left in place.
+    /// </summary>
+    private void OpenFrontEnd(bool reveal = false)
     {
-        if (SettingsStore.Current.Profile.FirstLaunchDone)
+        if (SettingsStore.Current.Profile.FirstLaunchDone && reveal)
+            _title.Reveal();
+        else if (SettingsStore.Current.Profile.FirstLaunchDone)
             _title.Open();
         else
             OpenFirstLaunch();

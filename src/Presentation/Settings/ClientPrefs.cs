@@ -180,6 +180,12 @@ public sealed record ProfilePrefs
     /// <summary>Whether the first-launch screen has been answered (PJ02 §3.2); it is offered once.</summary>
     public bool FirstLaunchDone { get; init; }
 
+    /// <summary>Whether the opening plays at launch (Settings, Interface: "Play the opening").</summary>
+    public bool PlayOpening { get; init; } = true;
+
+    /// <summary>Whether this profile has seen the opening through once: only then does a key skip it.</summary>
+    public bool OpeningSeen { get; init; }
+
     /// <summary>Whether a character of this profile has walked the road in to the waystation: only then is the skip offered (PJ06 §8).</summary>
     public bool RoadWalked { get; init; }
 
