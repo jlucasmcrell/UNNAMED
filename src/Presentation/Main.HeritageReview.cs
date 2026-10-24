@@ -30,6 +30,11 @@ public partial class Main
             await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
         }
         await Rcd3Wait(3);
+        if(OS.GetEnvironment("OTHERREACH_HERITAGE_REVIEW")=="step5")
+        {
+            await HeritageRecorded(directory);
+            return;
+        }
 
         // 1. The journal: every new Veth has taken up What Was Kept.
         var quest=sim.Quests.SingleOrDefault(q=>q.Id=="quest.heritage.what_was_kept") ?? throw new InvalidDataException("A new Veth has no What Was Kept");
@@ -112,6 +117,34 @@ public partial class Main
             await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
     }
 
+    /// <summary>
+    /// The last step alone, from a save left outside the inn with the oath released (OTHERREACH_HERITAGE_REVIEW=step5): Renn closes the line, and
+    /// the character sheet calls the character its keeper. The road there and Berrin's book are the full route's (heritage_veth_gate16).
+    /// </summary>
+    private async Task HeritageRecorded(string directory)
+    {
+        var sim=_session.Simulation!;
+        const string Renn="npc.ashen_hollow.renn_vale";
+        await HeritageWalkTo(Renn);
+        _session.Submit(new TalkCommand(sim.PlayerId,Renn));await Rcd3Wait(3);
+        if(sim.Conversation?.Replies.Any(r=>r.Id=="record")!=true)throw new InvalidDataException("Renn offers no closing of the line");
+        _session.Submit(new ChooseCommand(sim.PlayerId,"record"));await Rcd3Wait(12);
+        string closing=sim.Conversation?.NodeId ?? "";
+        _session.Submit(new ChooseCommand(sim.PlayerId,"back"));await Rcd3Wait(1);
+        _session.Submit(new LeaveCommand(sim.PlayerId));await Rcd3Wait(2);
+        Show(_character);await Rcd3Wait(8);CloseScreens();
+        Show(_journal);await Rcd3Wait(5);CloseScreens();
+        var done=sim.Quests.Single(q=>q.Id=="quest.heritage.what_was_kept");
+        File.WriteAllText(Path.Combine(directory,"recording.finished"),DateTime.Now.ToString("o"));
+        File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {
+            status="HERITAGE_VETH_STEP5_REALTIME_REQUIRES_CLAUDE_REVIEW",renn_closing=closing,quest_status=done.Status.ToString(),titles=sim.Titles,
+            world_tick=sim.WorldTick,engine_max_fps=Engine.MaxFps,profile="Saved step-5 state outside the inn; ordinary steering and commands; no desktop input"},
+            new JsonSerializerOptions{WriteIndented=true}));
+        ulong deadline=Time.GetTicksMsec()+20000;
+        while(!File.Exists(Path.Combine(directory,"recording.stopped")) && Time.GetTicksMsec()<deadline)
+            await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+    }
+
     /// <summary>Along a road from its point nearest the character, at a run; the way to that point is planned like any other.</summary>
     private async Task HeritageAlong(ImmutableArray<(long XMm,long ZMm)> points)
     {
@@ -149,7 +182,7 @@ public partial class Main
     /// <summary>Walk the character straight to a point, with ordinary steering, opening a closed door in the way and stepping round the rest.</summary>
     private async Task HeritageStep(long xMm,long zMm,Gait gait=Gait.Walk,Func<bool>? arrived=null,bool required=true)
     {
-        ulong through=Time.GetTicksMsec()+(required?45000UL:15000UL),stalledSince=Time.GetTicksMsec();
+        ulong through=Time.GetTicksMsec()+(required?45000UL:40000UL),stalledSince=Time.GetTicksMsec();
         long lastX=_controller.Authoritative.XMm,lastZ=_controller.Authoritative.ZMm;int sidestep=0;
         while(Math.Abs(_controller.Authoritative.XMm-xMm)+Math.Abs(_controller.Authoritative.ZMm-zMm)>700 && arrived?.Invoke()!=true)
         {
