@@ -58,6 +58,7 @@ public partial class Main
             {
                 _rcd3Driving=true;
                 var sim=_session.Simulation ?? throw new InvalidDataException("Fresh startup has no world");
+                if(_npcs.SuppressPresentationForBenchmark)throw new InvalidDataException("Packaged startup gate refuses suppressed NPC presentation");
                 if(humgenStartup)
                 {
                     if(_avatar is not SkinnedFigure native || !native.ModelId.StartsWith("humgen_",StringComparison.Ordinal))throw new InvalidDataException("RC d8 did not draw a HumGen player");
@@ -88,6 +89,7 @@ public partial class Main
                 File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {
                     status="FRESH_PACKAGED_STARTUP_REQUIRES_CLAUDE_REVIEW",people=VisualOptions.People,model=_avatarModel,
                     scatter_meshes=plants,npcs=_npcs.States().ToArray(),pets_enabled=sim.Setup.Pets is not null,
+                    npc_presentation_suppressed=_npcs.SuppressPresentationForBenchmark,
                     inventory=sim.Player.Inventory.Select(e=>new {e.DefId,e.Count}),world_tick=sim.WorldTick,
                     engine_max_fps=Engine.MaxFps,profile="Fresh isolated profile; normal creator Begin; no desktop input"},new JsonSerializerOptions{WriteIndented=true}));
                 File.WriteAllText(Path.Combine(directory,"vram.json"),JsonSerializer.Serialize(new {
