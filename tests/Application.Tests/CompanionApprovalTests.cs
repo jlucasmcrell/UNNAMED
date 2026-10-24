@@ -220,7 +220,7 @@ public class CompanionApprovalTests
 
     // ── progression ─────────────────────────────────────────────────────────
 
-    /// <summary>§2.15: a fight he shares raises his level on the character's rules, and his spear-work his polearm skill - his kill, still not the character's.</summary>
+    /// <summary>§2.15 plus the 2026-10-24 owner ruling: his fight raises his own level/skill and credits his owning player too.</summary>
     [Fact]
     public void AFightHeShares_RaisesHisLevelAndHisWeaponSkill()
     {
@@ -239,14 +239,14 @@ public class CompanionApprovalTests
         for (int i = 0; i < 1_200 && killed.Count == 0; i++)
             arena.Tick();
 
-        Assert.Single(killed);
+        Assert.Equal(arena.Player, Assert.Single(killed).Killer);
         var xp = Assert.Single(gained);
         Assert.Equal(Tavar, xp.NpcId);
         Assert.True(xp.Awarded > 0);
         var sheet = arena.Simulation.PartySheet(Tavar)!;
         Assert.True(sheet.Level > 1 || sheet.LevelProgressXp > 0);
         Assert.True(sheet.Skills.GetValueOrDefault("skill.polearm") is { } polearm && (polearm.Level > 0 || polearm.ProgressXp > 0));
-        Assert.Equal(0, arena.Simulation.Player.Progression.LifetimeXp.GetValueOrDefault(XpSource.Combat));
+        Assert.True(arena.Simulation.Player.Progression.LifetimeXp.GetValueOrDefault(XpSource.Combat) > 0);
     }
 
     /// <summary>A level grants points the player spends for him; endurance adds health as it would to the character.</summary>
