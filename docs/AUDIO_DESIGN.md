@@ -165,9 +165,17 @@ the first time.** The first visit is scored only by ambience. Music enters on th
 *second* visit, so the player learns that hearing a theme means they are somewhere they
 have been before — and a new theme means they have arrived somewhere new.
 
+**The one exception is the road in** (owner ruling 2026-10-24): the title theme carries on
+from the start screen while a new character wakes and walks down, and fades within the
+first minute, so launching the game and beginning it feel continuous.
+
 Music plays:
 - in settlements and safe places
-- during set-piece combat
+- in a place already walked, on a later visit: the exploration cue, now and then, with long rests
+- in every fight (owner ruling 2026-10-24), and as a **tension layer** before it, when
+  something that would start a fight has noticed the player, and after it while that thing
+  is still searching. The layer is the combat take's low band, so the fight comes in on the
+  same take at the same place in it
 - in the **ninth hall** and other memorials
 - with each race's endgame revelation
 

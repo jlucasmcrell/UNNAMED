@@ -181,6 +181,7 @@ public partial class Main
             _camera.TargetDistance = LyingZoom;
         }
         _hud.Announce("Arrival", "The road to Ashen Hollow", HudStyle.Brass);
+        _music.TheRoadIn();
     }
 
     /// <summary>

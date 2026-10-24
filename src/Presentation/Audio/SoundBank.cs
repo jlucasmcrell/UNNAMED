@@ -218,12 +218,19 @@ public partial class SoundBank : Node
             foreach (string id in members) Stream(_sounds[id]);
     }
 
-    /// <summary>A variation of a family (other than the last) as a stream, for a player of the caller's own - the score's decks.</summary>
-    public AudioStream? Take(string family)
+    /// <summary>The ID a family last played, or null: the score's way to follow a layer with the take it was cut from.</summary>
+    public string? Last(string family) => _last.GetValueOrDefault(family);
+
+    /// <summary>
+    /// A variation of a family (other than the last) as a stream, for a player of the caller's own - the score's decks. <paramref name="prefer"/>,
+    /// when it is one of the family, is taken instead of a random one.
+    /// </summary>
+    public AudioStream? Take(string family, string? prefer = null)
     {
         if (_sounds.Count > 0)
             Asked(family);
-        if (Pick(family) is not { } sound || Stream(sound) is not { } stream)
+        var picked = prefer is not null && _families.TryGetValue(family, out var members) && members.Contains(prefer) ? _sounds[_last[family] = prefer] : Pick(family);
+        if (picked is not { } sound || Stream(sound) is not { } stream)
             return null;
         _resolved.Add(family);
         _played.Add(sound.Id);
