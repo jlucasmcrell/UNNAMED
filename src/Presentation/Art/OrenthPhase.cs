@@ -102,12 +102,12 @@ public partial class OrenthPhase : Node
         bool moving = speed > .4f;
         if (_clock >= _nextBurst)
         {
-            _burstEnd = _clock + _random.RandfRange(.09f, .16f);
+            _burstEnd = _clock + _random.RandfRange(.12f, .2f);
             _nextBurst = _burstEnd + (moving ? _random.RandfRange(1.2f, 3.2f) : _random.RandfRange(4.5f, 9f));
             float turn = _random.RandfRange(0, Mathf.Tau);
-            _burstOffset = new Vector3(Mathf.Cos(turn), _random.RandfRange(-.15f, .25f), Mathf.Sin(turn)) * _random.RandfRange(.009f, .016f);
+            _burstOffset = new Vector3(Mathf.Cos(turn), _random.RandfRange(-.15f, .25f), Mathf.Sin(turn)) * _random.RandfRange(.025f, .045f);
         }
-        float edge = EdgeDoubling && _clock < _burstEnd && Math.Sin((_burstEnd - _clock) * 90.0) > -.3 ? (moving ? .42f : .24f) : 0f;
+        float edge = EdgeDoubling && _clock < _burstEnd && Math.Sin((_burstEnd - _clock) * 90.0) > -.3 ? (moving ? .55f : .3f) : 0f;
         float trail = Afterimage ? Mathf.Clamp((speed - 2.6f) / 2.4f, 0f, 1f) * .18f : 0f;
         var shadowLag = LaggingShadow ? Behind(ShadowLag) - at : Vector3.Zero;
         var trailLag = Behind(TrailLag) - at;
