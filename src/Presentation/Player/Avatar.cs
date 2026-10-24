@@ -274,7 +274,7 @@ public enum Held
 }
 
 /// <summary>A frame's combat pose: the phase from the simulation, how far through it (0-1), what the hands hold, the guard, and whether it is a working.</summary>
-public readonly record struct CombatStance(CombatPhase Phase, float Progress, Held Holds, bool Guarding, bool Casting = false)
+public readonly record struct CombatStance(CombatPhase Phase, float Progress, Held Holds, bool Guarding, bool Casting = false, bool Ready = true)
 {
     public static CombatStance AtRest => new(CombatPhase.Idle, 0, Held.Nothing, false);
 }

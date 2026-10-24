@@ -281,6 +281,41 @@ public class CombatTests
     }
 
     [Fact]
+    public void EquippedAtPeace_IsRelaxed_ButAttacksAndGuardAreCombat()
+    {
+        using var profile = new TempProfile();
+        var arena = Arena.Open(Harness.Boot(profile), Open, 0, Array.Empty<(double, double)>());
+        Assert.Equal("item.weapon.rusted_sword", arena.Simulation.Combat.Weapon.Source);
+        Assert.False(arena.Simulation.Combat.InCombat);
+        Assert.Null(arena.Submit(new BlockCommand(arena.Player, true)));
+        Assert.True(arena.Simulation.Combat.InCombat);
+        Assert.Null(arena.Submit(new BlockCommand(arena.Player, false)));
+        Assert.False(arena.Simulation.Combat.InCombat);
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
+        Assert.True(arena.Simulation.Combat.InCombat);
+        arena.Tick(20);
+        Assert.False(arena.Simulation.Combat.InCombat);
+    }
+
+    [Fact]
+    public void AfterAnExchange_CombatPoseExpiresWithTheExistingCombatDelay()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        // End the exchange before a bite can leave a ticking bleed, which correctly extends combat.
+        var rules = session.Setup with { Combat = session.Setup.Combat with
+        {
+            Creatures = session.Setup.Combat.Creatures.SetItem(Arena.Wolf, session.Setup.Combat.Creatures[Arena.Wolf] with { MaxHealth = 1 }),
+        } };
+        var arena = Arena.OpenWith(session, rules, Open, 0, new[] { (Open.X, Open.Z + 2.0) });
+        arena.Fight(arena.Creature(), 400);
+        Assert.False(arena.Creature().Alive);
+        Assert.True(arena.Simulation.Combat.InCombat);
+        arena.Tick(arena.Simulation.Setup.Combat.Constants.OutOfCombatTicks + 1);
+        Assert.False(arena.Simulation.Combat.InCombat);
+    }
+
+    [Fact]
     public void ASwingAtNothing_Misses_AndTeachesNothing()
     {
         using var profile = new TempProfile();

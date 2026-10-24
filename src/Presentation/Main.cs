@@ -1592,7 +1592,7 @@ public partial class Main : Node3D
             : weapon.Source == "unarmed" ? Held.Nothing
             : _session.Setup.Items.Catalog.Find(weapon.Source)?.Weapon?.TwoHanded == true ? Held.Spear   // the greybox draws a two-hander as a spear
             : Held.Sword;
-        return new CombatStance(combat.Phase, progress, held, combat.Blocking, working is not null);
+        return new CombatStance(combat.Phase, progress, held, combat.Blocking, working is not null, combat.InCombat);
     }
 
     /// <summary>The coverage report's allowlist (<c>res://Art/art_coverage_allowlist.json</c>): greybox kept on purpose, each with its reason.</summary>

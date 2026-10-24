@@ -138,6 +138,9 @@ public enum CombatPhase
 public sealed record CombatView(CombatPhase Phase, int PhaseTicksLeft, string? AttackSource, bool Blocking, AttackProfile Weapon,
     int Health, int MaxHealth, int Stamina, int MaxStamina, ImmutableArray<ActiveEffect> Effects)
 {
+    /// <summary>Acting, guarding, or within the existing out-of-combat delay after an exchange of blows.</summary>
+    public bool InCombat { get; init; }
+
     public int Focus { get; init; }
 
     public int MaxFocus { get; init; }
@@ -1031,6 +1034,7 @@ internal sealed partial class CombatSystem
         return new CombatView(phase, left, combat.Action.Attack?.Source, combat.Blocking, PlayerAttack(), Health(), MaxHealth(), Stamina(),
             MaxStamina(), EffectsOf(_player))
         {
+            InCombat = phase != CombatPhase.Idle || combat.Blocking || State.WorldTick - combat.LastCombat < C.OutOfCombatTicks,
             Focus = Focus(),
             MaxFocus = MaxFocus(),
             Strain = Strain(),

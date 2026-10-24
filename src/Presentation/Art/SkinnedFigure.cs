@@ -659,9 +659,9 @@ public sealed partial class SkinnedFigure : Figure
             m.Play("turn", 0.15f);
             return;
         }
-        // Standing with a weapon drawn: its ready stance, not the empty-handed idle.
+        // An equipped weapon alone is not a fight: use its ready stance only while combat is active.
         string ready = s.Holds switch { Held.Sword => "sword_ready", Held.Spear => "spear_ready", Held.Bow => "bow_ready", _ => "" };
-        if (ready.Length > 0 && m.Has(ready))
+        if (s.Ready && ready.Length > 0 && m.Has(ready))
         {
             m.Play(ready, 0.3f);
             return;
