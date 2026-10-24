@@ -17,6 +17,8 @@ public partial class Main
         ulong deadline = Time.GetTicksMsec() + 60000;
         while (!File.Exists(Path.Combine(directory, "opening_recording.started")))
         {
+            // Godot may apply its project title after _Ready; keep the window discoverable until WGC attaches.
+            DisplayServer.WindowSetTitle("Otherreach - RC d9 Opening Review");
             if (Time.GetTicksMsec() > deadline)
             {
                 File.WriteAllText(Path.Combine(directory, "failed.txt"), "Opening recorder did not start");
