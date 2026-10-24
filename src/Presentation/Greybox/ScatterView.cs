@@ -782,8 +782,9 @@ public partial class ScatterView : Node3D
         bool mineral = kind.Otherflora is { Vein: not null } or { Lichen: not null };
         Texture2D? coverage = null;
         bool opaque = false;
-        if (source?.AlbedoTexture is { } albedo && albedo.GetImage() is { } image)
+        if (source?.AlbedoTexture is { } albedo && albedo.GetImage() is { } originalImage)
         {
+            using var image = (Image)originalImage.Duplicate();
             // Keep the cache's signed compressed coverage mips; rebuilding these as RGBA defeats the packaged cache.
             if (image.IsCompressed())
             {
