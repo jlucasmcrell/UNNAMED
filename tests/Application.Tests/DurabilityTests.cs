@@ -212,12 +212,12 @@ public class DurabilityTests
         var session = Harness.Boot(profile);
         var arena = At(session, AtKera, r => Kit(r, session.Setup, 20,
             new[] { Stack(Sword, quality: Quality.Crude, wear: new ItemWear(200, Quality.Fine)), Stack(Spear, quality: Quality.Fine, wear: new ItemWear(100, Quality.Fine)),
-                Stack("item.material.wolf_hide", 2) }, Sword));
+                Stack("item.material.wolf_hide", 3) }, Sword));
         var repaired = arena.Record<ItemRepaired>();
         var sword = Carried(arena, Sword).ItemId;
         var spear = Carried(arena, Spear).ItemId;
-        // Her purse starts full, and what would overfill it leaves the town: sell her two hides first, to make room.
-        Assert.Null(arena.Submit(new SellCommand(arena.Player, Kera, Carried(arena, "item.material.wolf_hide").ItemId, 2)));
+        // Her purse starts full, and what would overfill it leaves the town: sell her three hides first, to make room for the quality-priced repair.
+        Assert.Null(arena.Submit(new SellCommand(arena.Player, Kera, Carried(arena, "item.material.wolf_hide").ItemId, 3)));
         long purse = arena.Simulation.Wares(Kera)!.Purse!.Value, coin = arena.Simulation.Player.Currency;
 
         var quote = arena.Simulation.RepairQuote(Kera, sword)!;
