@@ -84,6 +84,11 @@ public partial class Main
                     scatter_meshes=plants,npcs=_npcs.States().ToArray(),pets_enabled=sim.Setup.Pets is not null,
                     inventory=sim.Player.Inventory.Select(e=>new {e.DefId,e.Count}),world_tick=sim.WorldTick,
                     engine_max_fps=Engine.MaxFps,profile="Fresh isolated profile; normal creator Begin; no desktop input"},new JsonSerializerOptions{WriteIndented=true}));
+                if(OS.GetEnvironment("OTHERREACH_RCD9_WARDROBE_REVIEW")=="1")
+                {
+                    _inventory.Close();
+                    await RunRcd9WardrobeReview(directory,camera);
+                }
                 GetTree().Quit();return;
             }
             if(OS.GetEnvironment("OTHERREACH_RCD6_INVENTORY_REVIEW")=="1")
