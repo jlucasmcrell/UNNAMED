@@ -1,10 +1,31 @@
 # Barrowworks: current implementation, art and verification
 
-The dungeon remains opt-in (`--visual barrowworks=1`). Run from `region.starting_frontier` through
-the real portal. No schema number, historical fixture, audio clip or audio mapping manifest changed in this revision.
-This feature-branch revision does not renumber persistence. Integration onto the advancing base is a separate queue item.
+The Barrowworks is in every run; `--visual barrowworks=0` is the debug switch that takes it out. Run from
+`region.starting_frontier` through the real portal. Save schema stays 39: the rulings below use existing world flags,
+the door's open flag and the creature record.
 
-## Review 6 rendering and art
+## Review 7 (Claude, 2026-10-23): rulings, band, art, transitions, default on
+
+- **OQ-16:** G3 (`door.barrowworks.headworks`) needs the durable Custodian defeat and a fitting wedge. A door's `fitted`
+  item leaves the pack when it opens and the door stays open, so its open flag is the record; the saddles take no second
+  wedge. The three gate keys now read as names (gallery, archive, headworks); their flags are unchanged.
+- **OQ-17:** a wounded or engaged Custodian resets to full health when the character leaves its court or its space, or
+  dies; only the defeat flag is permanent. `BarrowworksRulingsTests` covers both rulings.
+- **Band:** the top of frontier band 1. M8 09's E1-E4 pockets (level-3 spiders and a husk, no respawn) are in, and the
+  Custodian is calibrated so four to six blows fell the level-5 reference (`docs/BARROWWORKS_BALANCE.md`).
+- **Ultra first:** room LOD0, fixtures, papers, the entrance soil atlas (4096) and the Custodian keep their source
+  texture resolution; the native scene cache (v7, ring models only) shares them as BC7. The ring no longer switches the
+  frontier's own asset path: the packed terrain BC7 cache it used to enable is removed.
+- **Transitions:** a space change raises a black veil for a frame, does the rebuild behind it, and holds it while the
+  renderer re-voxelizes SDFGI after the camera's kilometre jump (that was the 182-241 ms return frame; GPU timestamps
+  name the six "Render SDFGI" cascades). The ring is built on first entry and then kept, hidden: freeing it crashed
+  the renderer in its light unpair. Showing a hint no longer re-applies every setting (a 230 ms stall per hint).
+- **Harness:** the review route takes the archive haft, crafts the wedge at the Ashen Hollow forge anvil, fights E1-E4,
+  breaks off the first Custodian attempt to show the reset, fits the wedge, works a saddle and leaves by the drain.
+  `--start-items` gives the reviewed character the band's reference kit; `BARROWWORKS_REVIEW_SHORT=1` runs only the
+  threshold-to-drain transition. `tools/package_barrowworks_assets.ps1` copies the ring into a package's fallback.
+
+## Review 6 rendering and art (historical: entry loading and departure release were replaced in review 7)
 
 Interior geometry/textures are loaded on portal entry and its cached model resources are released after
 leaving, after views/creatures/items have switched back. No simulation state or save schema is changed.
@@ -25,15 +46,6 @@ It reuses the existing outdoor GI allocation before the first indoor draw and al
 viewport. No commands or authoritative state change. Entry and return stalls remain visible in raw
 timing data: the threshold screenshot exclusion is consumed before entry, fixing an earlier harness
 bug that masked the loading frame. No exclusion or timing threshold was broadened.
-
-The native terrain path also uses signed BC7 copies from the owned depot's
-`barrowworks_terrain/texture_cache/`. All eighteen maps retain 4096-square resolution, RGBA packed
-channels and full mip chains (384 MB). Source PNGs remain untouched. If any entry is stale/missing, all layers use the
-original RGBA8 path so one native array never mixes formats; that fallback does not meet the compressed
-budget. Build with the installed editor binary, CPU-only (PowerShell, from the repository root):
-`godot --headless --editor --path src/Presentation --script (Resolve-Path tools/build_barrowworks_terrain_cache.gd)`.
-`BARROWWORKS_TERRAIN_CACHE.json` records derived hashes. Native Terrain3D remains enabled, including its
-zero-mm agreement with domain ground; this optimization does not select the terrain fallback.
 
 Native scene derivatives avoid temporary RGBA uploads before the cache swaps in BC7 textures.
 Build with `--build-scene-cache` added to the headless real-portal review command below, then omit that
