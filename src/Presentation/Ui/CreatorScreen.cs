@@ -448,7 +448,11 @@ public partial class CreatorScreen : CanvasLayer
             button.Disabled = !choice.Installed;
             if (!choice.Installed)
                 button.TooltipText = "This body is not installed in this build.";
-            UiKit.Select(button, current?.Body.Type == type);
+            bool selected = current?.Body.Type == type;
+            button.ToggleMode = true;
+            button.SetPressedNoSignal(selected);
+            if (selected) button.Text += " (selected)";
+            UiKit.Select(button, selected);
             typeRow.AddChild(button);
         }
         types.AddChild(typeRow);

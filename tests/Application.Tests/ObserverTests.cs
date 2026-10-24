@@ -66,6 +66,7 @@ public class ObserverTests
         var simulation = session.Simulation!;
         var died = new List<PlayerDied>();
         session.Subscribe<PlayerDied>(died.Add);
+        var xp=Harness.Record<ExperienceGained>(session);
         session.Subscribe<PlayerDied>(_ => throw new InvalidOperationException("the death screen's art is malformed"));
 
         long start = simulation.WorldTick;
@@ -80,7 +81,7 @@ public class ObserverTests
         Assert.Single(died);
         var rules = session.Setup.Progression;
         long owed = (long)Math.Round(rules.Curve.ToReach(2) * rules.Guards.DebtFraction, MidpointRounding.AwayFromZero);
-        Assert.Equal((owed, owed), (death.DebtAdded, simulation.Player.Progression.XpDebt));
+        Assert.Equal((owed, owed-xp.Sum(e=>e.Repaid)), (death.DebtAdded, simulation.Player.Progression.XpDebt));
         Assert.Equal(1, session.SubscriberFailures);
     }
 

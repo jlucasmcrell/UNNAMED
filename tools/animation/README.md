@@ -75,6 +75,13 @@ on the unchanged native targets. Bow release marks follow the recorded performan
 separate from gait-contact phases. The existing CMU acknowledgment is in credits.yaml.
 No converted garment or source-preview marker mesh is shipped as character geometry.
 
+The RC d8 sword-ready source is UAL1 `Pistol_Idle_Loop`: native retargeting produces an
+upright two-hand guard with the blade forward/up (Ada06, Claude accepted for owner review).
+The original `Sword_Idle` squat is authored in the source, not a missing pelvis scale.
+Keep the three accepted sword-attack sources unchanged. Export ready-only changes into a
+new namespace with `retarget_humgen_batch.py`, then compose new full manifests and repack;
+never overwrite libraries used by a running gate.
+
 `Diagnostics/HumGenRigGate.tscn` verifies the actual production rig roles, grip binding,
 FACS blink/speech and material matching. Claude owns the rendered motion gate, using
 the game's normal figures and production payload. Capture its exact window title

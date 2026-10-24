@@ -112,6 +112,10 @@ func move(local_velocity: Vector2, delta: float) -> bool:
  direction/=maxf(.001,absf(direction.x)+absf(direction.y))
  var distance:=Vector2(direction.x*side_stride,direction.y*fore_stride).length()
  rate=speed/maxf(.1,distance)
+ # The vector-length correction makes diagonal walking scurry. Preserve the
+ # forward/back walk cadence on diagonals, retaining measured pure-strafe pace.
+ var diagonal:=minf(absf(local_velocity.x),absf(local_velocity.y))/maxf(.001,maxf(absf(local_velocity.x),absf(local_velocity.y)))
+ rate=lerpf(rate,speed/fore_stride,diagonal*(1.0-jog))
  tree.set("parameters/direction/blend_position",direction)
  tree.set("parameters/direction/forward/blend_position",jog)
  if walk_strafes:

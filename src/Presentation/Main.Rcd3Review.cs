@@ -62,6 +62,14 @@ public partial class Main
                 if(plants==0)throw new InvalidDataException("Fresh startup has no scatter meshes");
                 var aim=_avatar.GlobalPosition+Vector3.Up*1.1f;
                 camera.GlobalPosition=aim+new Vector3(2,1.3f,3);camera.LookAt(aim);await Rcd3Wait(2);
+                if(OS.GetEnvironment("OTHERREACH_RCD9_IDLE_REVIEW")=="1")
+                {
+                    if(sim.Combat.InCombat || _avatar.ClipState != "idle")throw new InvalidDataException("Peaceful spawn did not select relaxed idle");
+                    File.WriteAllText(Path.Combine(directory,"relaxed_idle.json"),JsonSerializer.Serialize(new {
+                        model=_avatarModel,combat=sim.Combat.InCombat,clip=_avatar.ClipState,weapon=sim.Combat.Weapon.Source,
+                        npcs=_npcs.States().Select(n=>new {id=n.Id,speed=n.Speed,clip=n.State})
+                    },new JsonSerializerOptions{WriteIndented=true}));
+                }
                 await Rcd3Shot(directory,"07_fresh_spawn_front");
                 camera.GlobalPosition=aim+new Vector3(-2,1.3f,-3);camera.LookAt(aim);await Rcd3Wait(1);
                 await Rcd3Shot(directory,"08_fresh_spawn_back_grass");

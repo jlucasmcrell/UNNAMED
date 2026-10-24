@@ -434,7 +434,7 @@ internal sealed partial class InventorySystem
         }
         var bags=CleanBags(remaining,State.Bags);var worn=bags.OfType<EntityId>().Concat(State.Equipment.Values).ToHashSet();
         if(!PackRules.Fits(remaining.Where(e=>!worn.Contains(e.ItemId)).Select(PackItemOf),more,ContainersOf(remaining,bags)))
-            return "No room in the pack for all recovered materials";
+            return "no room in the pack for all items";
         long weight=CarriedGrams()-spentGrams+addedGrams;
         if(gives.Length>0 && weight>CarryLimitGrams())return $"too heavy: {weight/1000.0:0.##} kg of {CarryLimitGrams()/1000.0:0.##} kg";
         Remove(command.Takes.Select(t=>(State.Inventory.Single(e=>e.ItemId==t.ItemId),t.Count)).ToList());

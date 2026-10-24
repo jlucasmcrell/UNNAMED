@@ -49,12 +49,13 @@ public class EncounterScalingTests
         .WithInventory(record.Inventory.Add(Arena.Stack("item.ammo.arrow_rough", 24)).Add(Arena.Stack("item.weapon.hunting_bow", 1)));
 
     /// <summary>The den's pack of four, placed around the spawn point, and nothing else in the world.</summary>
-    private static Arena Den(GameSession session, Func<PlayerRecord, PlayerRecord> change, ulong seed = 42) =>
-        Arena.OpenCreatures(session, session.Setup, Open, 90, new[]
+    private static Arena Den(GameSession session, Func<PlayerRecord, PlayerRecord> change, ulong seed = 42, int count = 4) =>
+        // Only the tested party may claim a kill; town guards/adventurers would race the archer.
+        Arena.OpenCreatures(session, session.Setup with { NpcLife=NpcLifeSetup.Empty, Adventurers=null }, Open, 90, new[]
         {
             (Wolf, 73.0, 152.0, "pack_hunter"), (Wolf, 76.0, 152.0, "pack_hunter"),
             (Wolf, 73.0, 155.0, "stray"), (Wolf, 76.0, 155.0, "stray"),
-        }, change, seed);
+        }.Take(count), change, seed);
 
     /// <summary>
     /// A party at the cap: four animals (<c>config.party</c> max_members is 4). Tavar is the region's companion; Renn and Sel are the
@@ -204,8 +205,10 @@ public class EncounterScalingTests
         var session = Harness.Boot(profile);
         // Shot from range: a party-scaled wolf has 82 health and hits for a party's worth, so a sword duel would end the character before the
         // wolf - and the question here is what the kill is worth, not who wins the trade.
-        var solo = Den(session, Archer);
-        var party = Den(session, r => FullParty(Archer(r)));
+        var solo = Den(session, Archer, count:1);
+        var party = Den(session, r => FullParty(Archer(r)), count:1);
+        foreach(var arena in new[]{solo,party})
+            Assert.Null(arena.Submit(new EquipCommand(arena.Player,arena.Simulation.Player.Inventory.Single(e=>e.DefId=="item.weapon.hunting_bow").ItemId)));
         var soloKill = solo.Record<ExperienceGained>();
         var partyKill = party.Record<ExperienceGained>();
 

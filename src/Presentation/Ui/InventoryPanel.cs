@@ -34,7 +34,7 @@ public partial class InventoryPanel : CanvasLayer
     private readonly HBoxContainer _totals = new();
     /// <summary>What the laden band means now, under the totals while laden or at the limit (D4).</summary>
     private readonly Label _laden = UiKit.Words(string.Empty, 16, HudStyle.Brass);
-    private readonly VBoxContainer _details = new();
+    private readonly VBoxContainer _details = new() { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
     private VBoxContainer _packColumn=null!;
     private readonly VBoxContainer _portraitColumn=new() {SizeFlagsHorizontal=Control.SizeFlags.ExpandFill};
     private readonly ScrollContainer _detailScroll=UiKit.Scroll();

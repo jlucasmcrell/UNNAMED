@@ -96,6 +96,15 @@ public partial class Main
         GD.Print("MH_NORMAL_GAME_REVIEW installed " + _mhReviewDirectory);
     }
 
+    private object[] ReviewBodyChoices(string expectedType)
+    {
+        var choices = _creator.FindChildren("*", nameof(Button), true, false).OfType<Button>()
+            .Where(b => b.GetMeta("ui_id", "").AsString().StartsWith("creator.type.", StringComparison.Ordinal)).ToArray();
+        if (choices.Count(b => b.ButtonPressed) != 1 || !choices.Single(b => b.ButtonPressed).GetMeta("ui_id").AsString().EndsWith(expectedType, StringComparison.Ordinal))
+            throw new InvalidDataException("Creator body selection does not match its displayed identity");
+        return choices.Select(b => (object)new { id = b.GetMeta("ui_id").AsString(), text = b.Text, selected = b.ButtonPressed }).ToArray();
+    }
+
     private void TickMetaHumanReview()
     {
         try { AdvanceMetaHumanReview(); }
@@ -129,7 +138,7 @@ public partial class Main
                     }, 6000);
                     break;
                 case 2:
-                    CaptureMetaHumanReview("02_creator_ada_full", new { character = "ada" }, () => _creator.Frame(1), 2000);
+                    CaptureMetaHumanReview("02_creator_ada_full", new { character = "ada", body_choices = ReviewBodyChoices("veth_f") }, () => _creator.Frame(1), 2000);
                     break;
                 case 3:
                     CaptureMetaHumanReview("03_creator_ada_face", new { character = "ada" }, () =>
@@ -139,7 +148,7 @@ public partial class Main
                     }, 6000);
                     break;
                 case 4:
-                    CaptureMetaHumanReview("04_creator_mateo_full", new { character = "mateo" }, () => _creator.Frame(1), 2000);
+                    CaptureMetaHumanReview("04_creator_mateo_full", new { character = "mateo", body_choices = ReviewBodyChoices("veth_m") }, () => _creator.Frame(1), 2000);
                     break;
                 case 5:
                     CaptureMetaHumanReview("05_creator_mateo_face", new { character = "mateo" }, () =>

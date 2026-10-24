@@ -14,6 +14,7 @@ namespace UNNAMED.Application.Tests;
 /// WP11: the world goes on while the character is away (SYSTEMS_COMPLETENESS_PLAN §2.12). Every system brings itself to the new tick
 /// through <see cref="IAbstractAdvance"/>, and one long absence leaves the world that the same absence in pieces does (canon T-22).
 /// </summary>
+[Collection("Simulation timing budgets")]
 public class OfflineAdvanceTests
 {
     private const long Day = 57_600;
@@ -86,8 +87,9 @@ public class OfflineAdvanceTests
         }
         Assert.Equal(Seen(once), Seen(daily));
 
-        Assert.Equal(Reckoning, whole.Lines.Single(l => l.Kind == AdvanceKinds.TimePassed).Amount);
-        Assert.InRange(whole.Lines.Single(l => l.Kind == AdvanceKinds.DaysPassed).Amount, 182, 183);
+        // Advance splits at creature respawns/pet recoveries; the clock logs each segment.
+        Assert.Equal(Reckoning, whole.Lines.Where(l => l.Kind == AdvanceKinds.TimePassed).Sum(l=>l.Amount));
+        Assert.InRange(whole.Lines.Where(l => l.Kind == AdvanceKinds.DaysPassed).Sum(l=>l.Amount), 182, 183);
         Assert.Equal("effect.weakened", whole.Lines.Single(l => l.Kind == AdvanceKinds.EffectExpired).Ref);
     }
 

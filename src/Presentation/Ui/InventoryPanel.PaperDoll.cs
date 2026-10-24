@@ -8,7 +8,7 @@ namespace UNNAMED.Presentation.Ui;
 
 public partial class InventoryPanel
 {
-    private readonly Control _doll=new() {CustomMinimumSize=new Vector2(340,120),SizeFlagsHorizontal=Control.SizeFlags.ExpandFill,SizeFlagsVertical=Control.SizeFlags.ExpandFill};
+    private readonly Control _doll=new() {CustomMinimumSize=new Vector2(400,320),SizeFlagsHorizontal=Control.SizeFlags.ExpandFill,SizeFlagsVertical=Control.SizeFlags.ExpandFill};
     private readonly CreatorPreview _dollPreview=new() {Name="PaperDoll",Centered=true};
     private readonly Dictionary<EquipSlot,Button> _dollSlots=new();
     private Func<(string? Model,float ArmSplay)> _bodyChoice=()=> (null,0);
