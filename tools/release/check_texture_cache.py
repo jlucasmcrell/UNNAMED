@@ -62,6 +62,12 @@ for root in (a.game/'primary', a.game/'fallback'):
                     if key.endswith('Texture') and isinstance(child, dict) and 'index' in child:
                         texture = doc['textures'][child['index']]
                         source = texture.get('source')
+                        if source is None:
+                            extensions = texture.get('extensions', {})
+                            for extension in ('EXT_texture_webp', 'KHR_texture_basisu'):
+                                if extension in extensions:
+                                    source = extensions[extension].get('source')
+                                    break
                         if source is not None:
                             role = 'normal' if 'normal' in key.lower() else 'color' if any(x in key.lower() for x in ('color', 'emissive')) else 'data'
                             roles[source] = 'cutout' if key == 'baseColorTexture' and cutout else role

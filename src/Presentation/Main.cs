@@ -517,6 +517,12 @@ public partial class Main : Node3D
         }
         catch (Exception e)
         {
+            if (e is InvalidDataException && e.Message.StartsWith("Packaged texture >=2K is uncompressed:", StringComparison.Ordinal))
+            {
+                GD.PushError(e.ToString());
+                GetTree().Quit(1);
+                return;
+            }
             // The asset library is generated elsewhere: a record it cannot read must cost its art, never the game (the Phase-1 technical
             // audit, H-02). Whatever was built goes, and the scene is built again in greybox.
             GD.PushError($"UNNAMED art: building the scene from the asset library failed ({e.GetType().Name}: {e.Message}); drawing greybox");
