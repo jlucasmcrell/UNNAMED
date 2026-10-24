@@ -43,6 +43,9 @@ public class SocialContentTests
         Assert.Contains(loader.Errors, e => e.Code == "SOC001" && e.Message.Contains(mentions, StringComparison.Ordinal));
     }
 
+    [Fact]
+    public void InnRestCannotPromiseAWorldTimeSkip() =>
+        AssertRefused("dialogue/ashen_hollow/renn_vale.yaml", "command: rent_room }", "command: rent_room, hour: 6 }", "without choosing a world hour");
     [Theory]
     [InlineData("sex: f\n", "")]
     [InlineData("sex: f", "sex: unknown")]
@@ -363,3 +366,4 @@ public class SocialContentTests
     public void ANearConditionOnAPlaceThereIsNot_IsRefused() =>
         AssertRefused("dialogue/ashen_hollow/tavar_orr.yaml", "location_ref: location.foldscar }", "location_ref: location.nowhere }", "location.nowhere is not a defined location");
 }
+

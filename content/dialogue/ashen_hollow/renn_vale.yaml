@@ -219,16 +219,12 @@ nodes:
         text: "I'll ask them."
         next: again
   bed:
-    text: "Bed's five coin, paid to me and not to the road. The door's bolted from inside and nothing gets in but the weather. Say an hour and I'll have you up at it - the world won't wait, but it doesn't need you for it."
+    text: "Bed's five coin, paid to me and not to the road. The door's bolted from inside and nothing gets in but the weather. Take a moment to rest. You'll be fit for the road again; the world keeps its own hours."
     choices:
       - id: take
-        text: "I'll take it. The sixth hour."
+        text: "I'll take a room and rest."
         consequences:
-          - { command: rent_room, hour: 6 }
-      - id: take_late
-        text: "I'll take it. The eighth hour."
-        consequences:
-          - { command: rent_room, hour: 8 }
+          - { command: rent_room }
       - id: not_tonight
         text: "Not tonight."
         next: again

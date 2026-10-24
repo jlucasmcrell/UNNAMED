@@ -1,39 +1,38 @@
-using UNNAMED.Domain.Social;
 using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Application.Tests;
 
-/// <summary>
-/// Spec 15 (owner finding 15): a room at the inn - the keeper's own town's inn, five coin for the night, and the sleep is the world's own
-/// advance to the hour the character asks for, so the adventurers, the markets and the boards come out of it as they do from an absence.
-/// </summary>
+/// <summary>Paid inn rest restores the character while the shared world clock keeps its own hours (DN8, 2026-10-24).</summary>
 public class InnRoomTests
 {
-    private const long Day = 57_600;
     private const string Renn = "npc.ashen_hollow.renn_vale";
 
     [Fact]
-    public void ARoom_IsFiveCoin_AndTheSleepIsTheWorldsOwnAdvanceToTheHourAskedFor()
+    public void ARoomCostsFiveCoin_RestoresHealthAndStamina_AndSkipsNoWorldTime()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         var arena = AdventurerWorldTests.AtTheInn(session, coin: 20);
         var sim = arena.Simulation;
+        Assert.Null(sim.Submit(new ChangePools(-25, -15)));
+        Assert.True(sim.Combat.Health < sim.Combat.MaxHealth);
+        Assert.True(sim.Combat.Stamina < sim.Combat.MaxStamina);
         var slept = arena.Record<RoomRented>();
         long before = sim.WorldTick;
-        long coin = sim.Player.Currency;
-        // The world starts at 07:30; the sixth hour of the day is tomorrow morning.
-        Assert.Null(sim.Submit(new RentRoom(Renn, 6)));
+        string world = AdventurerWorldTests.World(sim);
+
+        Assert.Null(sim.Submit(new RentRoom(Renn)));
         var room = Assert.Single(slept);
-        Assert.Equal((Renn, "ashen_hollow", 6, 5L), (room.KeeperId, room.Settlement, room.Hour, room.Coin));
-        Assert.Equal(coin - 5, sim.Player.Currency);
-        // Up at the sixth hour, and the world got there by its own advance, not by a tick.
-        Assert.Equal(6, session.Setup.Clock.MinuteOfDay(sim.WorldTick) / 60);
-        Assert.Equal(room.WakeTick, sim.WorldTick);
-        Assert.True(sim.WorldTick > before + 20 * 2_400);   // 07:30 to the sixth hour is most of a day
-        // A second room asked for at the same hour is a whole day's wait: the hour has to be ahead.
-        Assert.Null(sim.Submit(new RentRoom(Renn, 6)));
-        Assert.Equal(room.WakeTick + Day, slept[1].WakeTick);
+        Assert.Equal((Renn, "ashen_hollow", 5L, before), (room.KeeperId, room.Settlement, room.Coin, room.Tick));
+        Assert.Equal(15, sim.Player.Currency);
+        Assert.Equal(sim.Combat.MaxHealth, sim.Combat.Health);
+        Assert.Equal(sim.Combat.MaxStamina, sim.Combat.Stamina);
+        Assert.Equal(before, sim.WorldTick);
+        Assert.Equal(world, AdventurerWorldTests.World(sim));
+        Assert.Null(sim.Submit(new RentRoom(Renn)));
+        Assert.Equal(before, slept[1].Tick);
+        Assert.Equal(before, sim.WorldTick);
+        Assert.Equal(10, sim.Player.Currency);
     }
 
     [Fact]
@@ -44,10 +43,21 @@ public class InnRoomTests
         var arena = AdventurerWorldTests.AtTheInn(session, coin: 3);
         var sim = arena.Simulation;
         var slept = arena.Record<RoomRented>();
-        Assert.Equal("not enough coin: the room is 5, 3 carried", sim.Submit(new RentRoom(Renn, 6)));
-        Assert.Equal("no one keeps a room here", sim.Submit(new RentRoom("npc.ashen_hollow.kera_voss", 6)));
-        Assert.Equal("a room is let until an hour of the day", sim.Submit(new RentRoom(Renn, 24)));
+        Assert.Equal("not enough coin: the room is 5, 3 carried", sim.Submit(new RentRoom(Renn)));
+        Assert.Equal("no one keeps a room here", sim.Submit(new RentRoom("npc.ashen_hollow.kera_voss")));
         Assert.Empty(slept);
         Assert.Equal(3, sim.Player.Currency);
     }
+
+    [Fact]
+    public void FightingCannotUseAnInnAsInstantCombatHealing()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = AdventurerWorldTests.AtTheInn(session, coin: 20);
+        Assert.Null(arena.Submit(new BlockCommand(arena.Player, true)));
+        Assert.Equal("you cannot rest while fighting or downed", arena.Simulation.Submit(new RentRoom(Renn)));
+        Assert.Equal(20, arena.Simulation.Player.Currency);
+    }
 }
+
