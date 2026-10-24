@@ -28,7 +28,7 @@ public static class CraftingContent
         Try(() => BuildYieldBonuses(loader), "skills", errors);
         Try(() => BuildDropQuality(loader), "config.crafting", errors);
         Try(() => CheckExperiments(BuildConstants(loader), BuildRecipes(loader)), "experiments", errors);
-        if (errors.Count == 0)
+        if (errors.Count == 0 && loader.Definitions.ContainsKey("config.economy") && loader.GetByKind("recipe").Count > 0)
             Try(() => CheckRecipeMargins(ItemContent.BuildCatalog(loader), ItemContent.BuildPricing(loader), BuildRecipes(loader)), "recipe vendor margin (E-3)", errors);
         return errors;
     }

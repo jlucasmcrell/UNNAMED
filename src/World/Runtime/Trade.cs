@@ -192,7 +192,7 @@ internal sealed class TradeSystem
         var rules = Items.Inventory.Durability;
         // A piece not yet worn out keeps the quality it has; a worn-out one comes back no finer than a trader's hand gives.
         int quality = Math.Min(Durability.MadeQuality(entry.Quality, entry.Wear), Math.Max(entry.Quality, rules.MerchantQualityCap));
-        return new RepairQuote(npc.Definition.Id, item, Durability.MerchantFee(definition, entry.Wear, rules), quality);
+        return new RepairQuote(npc.Definition.Id, item, Durability.MerchantFee(Valued(definition, entry.Quality, entry.Wear, entry.Notable), entry.Wear, rules), quality);
     }
 
     private string Unrepairable(NpcState npc, EntityId item) =>
@@ -230,7 +230,8 @@ internal sealed class TradeSystem
 
     /// <summary>What a trader asks for one piece as it stands on the shelf: less when it is worn (the same curve their offers use).</summary>
     private long ShelfAsk(Merchant merchant, string itemId, ItemWear? wear, int quality, NotableRecord? notable) =>
-        Durability.ShelfPrice(AskFor(merchant, itemId, quality, MakerMarked(notable)), Items.Catalog.Get(itemId), wear, Items.Inventory.Durability);
+        Durability.ShelfPrice(AskFor(merchant, itemId, Durability.MadeQuality(quality, wear), MakerMarked(notable)),
+            Valued(Items.Catalog.Get(itemId), quality, wear, notable), wear, Items.Inventory.Durability);
 
     /// <summary>What a trader pays for one, or null when they do not buy it (S-36: always below what they ask); less for a worn piece (WP3b).</summary>
     private long? OfferFor(Merchant merchant, string itemId, ItemWear? wear, int quality, NotableRecord? notable)
@@ -239,10 +240,14 @@ internal sealed class TradeSystem
         if (Items.Pricing.SellPrice(item, merchant) is null)
             return null;
         string? market = MarketOf(merchant);
-        long offer = EconomyEngine.Offer(Items.Pricing.Value(item, quality, MakerMarked(notable)), Items.Pricing.SellRatio, _markets.Factor(market, itemId), _markets.Remembered(market, itemId),
-            _context.Setup.Economy.Rules, AskFor(merchant, itemId, quality, MakerMarked(notable)));
+        long offer = EconomyEngine.Offer(Items.Pricing.Value(item, Durability.MadeQuality(quality, wear), MakerMarked(notable)), Items.Pricing.SellRatio, _markets.Factor(market, itemId), _markets.Remembered(market, itemId),
+            _context.Setup.Economy.Rules, AskFor(merchant, itemId, Durability.MadeQuality(quality, wear), MakerMarked(notable)));
         return Durability.SalePrice(offer, item, wear, Items.Inventory.Durability);
     }
+
+    // Quality degradation and the condition curve represent the same wear: apply the loss once, and charge repairs on the same value.
+    private ItemDefinition Valued(ItemDefinition item, int quality, ItemWear? wear, NotableRecord? notable) =>
+        item with { ValueBase = Items.Pricing.Value(item, Durability.MadeQuality(quality, wear), MakerMarked(notable)) };
 
     private static bool MakerMarked(NotableRecord? notable) =>
         notable is { Provenance: ProvenanceKind.Crafted, Maker: { Length: > 0 } };

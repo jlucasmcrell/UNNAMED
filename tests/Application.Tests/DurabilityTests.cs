@@ -238,14 +238,16 @@ public class DurabilityTests
         Assert.Null(arena.Simulation.RepairQuote(Renn, sword));
     }
 
-    [Fact]
-    public void ATrader_PaysLessForAWornPiece_AndMendingItToSellItNeverGains()
+    [Theory]
+    [InlineData(Quality.Standard)]
+    [InlineData(Quality.Fine)]
+    public void ATrader_PaysLessForAWornPiece_AndMendingItToSellItNeverGains(int madeQuality)
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = At(session, AtKera, r => Kit(r, session.Setup, 50, new[] { Stack(Sword, quality: Quality.Crude, wear: new ItemWear(200, Quality.Standard)) }, Sword));
+        var arena = At(session, AtKera, r => Kit(r, session.Setup, 50, new[] { Stack(Sword, quality: Quality.Crude, wear: new ItemWear(200, madeQuality)) }, Sword));
         var sword = Carried(arena, Sword);
-        long whole = arena.Simulation.Offer(Kera, Sword)!.Value, worn = arena.Simulation.Offer(Kera, Sword, sword.Wear)!.Value;
+        long whole = arena.Simulation.Offer(Kera, Sword, quality: madeQuality)!.Value, worn = arena.Simulation.Offer(Kera, Sword, sword.Wear, sword.Quality, sword.Notable)!.Value;
         long fee = arena.Simulation.RepairQuote(Kera, sword.ItemId)!.Fee;
         Assert.True(worn < whole);
         Assert.True(whole - worn <= fee, $"mending costs {fee} and raises the offer by {whole - worn}");
@@ -384,3 +386,5 @@ public class DurabilityTests
         Assert.Equal(once.WorldTick, pieces.WorldTick);
     }
 }
+
+
