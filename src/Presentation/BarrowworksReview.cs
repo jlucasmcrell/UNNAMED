@@ -53,6 +53,7 @@ public sealed class BarrowworksReview
     private bool _equipped;
     private string? _fighting;
     private long? _restFrom;
+    private long _leaveAsked;
     private Task<Search>? _search;
     private Stop? _searched;
     private (long X, long Z) _goal;
@@ -204,7 +205,9 @@ public sealed class BarrowworksReview
             _stops.Clear();
             foreach (var s in keep) _stops.Enqueue(s);
         }
-        _session.Subscribe<CommandRejected>(e => Note($"REFUSED {e.Command.GetType().Name}: {e.Reason}"));
+        _session.Subscribe<CommandRejected>(e => Note($"REFUSED {e.Command.GetType().Name}: {e.Reason}" + (e.Command is LeaveSpaceCommand
+            ? " - engaged: " + string.Join(", ", _session.Simulation!.Creatures.Where(c => c.Alive && c.Hostile).Select(c => $"{c.Key} at {c.Body.XMm},{c.Body.ZMm}"))
+            : "")));
         Note($"region={session.Setup.Layout.Id}; gate={session.Options.Barrowworks}; seed={session.Simulation!.World.WorldSeed}");
     }
 
@@ -277,13 +280,20 @@ public sealed class BarrowworksReview
         if (sim.Creatures.FirstOrDefault(c => c.DefId == "creature.construct.ring_custodian") is
             { Phase: CombatPhase.Windup, AttackSource: { } source } telling && telling.PhaseTicksLeft < 10 && _attackShots.Add(source))
             return "attack_" + source.Split('.').Last();
+        // Leaving is refused while something still fights the character: deal with it, then walk back to the drain and try again.
+        if (_leaving && !sim.PlayerInExterior && _stops.Count == 0 && sim.WorldTick - _leaveAsked > 40)
+        {
+            Note("still inside after asking to leave; back to the drain");
+            _leaving = false;
+            Add("drain_return", 8, 38);
+        }
         if (!_stops.TryPeek(out var stop))
-            return "done";
+            return _leaving ? null : "done";
         // The ring's ordinary creatures (M8 09 E1-E4) are fought where they come at the character, then the route is searched again.
         var at = sim.Player.Body;
         if (sim.Creatures.Where(c => c.Alive && c.Hostile && c.DefId != "creature.construct.ring_custodian")
                 .OrderBy(c => Distance(at.XMm, at.ZMm, c.Body.XMm, c.Body.ZMm)).FirstOrDefault() is { } threat
-            && Distance(at.XMm, at.ZMm, threat.Body.XMm, threat.Body.ZMm) < 10_000 && _search is null)
+            && Distance(at.XMm, at.ZMm, threat.Body.XMm, threat.Body.ZMm) < 30_000 && _search is null)
         {
             if (_fighting != threat.Key) Note($"engaged by {threat.DefId} ({threat.Key})");
             _fighting = threat.Key;
@@ -339,7 +349,7 @@ public sealed class BarrowworksReview
             if (stop.Name=="drain_return")
             {
                 _session.Submit(new LeaveSpaceCommand(sim.PlayerId));
-                _leaving=true;_exteriorSettle=0;
+                _leaving=true;_exteriorSettle=0;_leaveAsked=sim.WorldTick;
             }
             _lastProgress = sim.WorldTick;
             if (stop.Name.StartsWith("R", StringComparison.Ordinal) && ++_roomsDrawn >= _roomLimit && _roomLimit<13)

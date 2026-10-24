@@ -25,6 +25,18 @@ the door's open flag and the creature record.
   `--start-items` gives the reviewed character the band's reference kit; `BARROWWORKS_REVIEW_SHORT=1` runs only the
   threshold-to-drain transition. `tools/package_barrowworks_assets.ps1` copies the ring into a package's fallback.
 
+Evidence (`D:\Otherreach_Scratch\claude_barrowworks_runs`): `bw_full07` is the real-time Ultra route with its WGC video,
+664 s, every stage including the drain exit. Ring interior median 9.3-9.9 ms (GPU 8.6-9.0); all four transitions
+(first entry 7.3 s, threshold exit 0.53 s, re-entry 0.13 s, drain exit 0.50 s incl. a 160 ms GI frame) are fully under
+the veil. Seven visible spikes remain, the largest 179/217 ms just after first entry (unattributed), a 121 ms
+frontier audio decode, and four of 76-82 ms. Frames over 33 ms outside spikes are steady cost: the frontier at Ultra in the
+editor build (25 ms near Ashen Hollow, 48 ms at the drain, GPU-bound as review 6 found with the ring off) and in-ring
+windows of about 55 ms CPU during some fights and readings, not attributed yet; check both in the release package.
+Option-off A/B, three interleaved quiet pairs (`bw_ab_*`, e03b22ab vs this branch, `--perf`, Ultra): 31.18 vs 31.21 FPS,
+frame mean 32.08 vs 32.05 ms, 1 % low 14.1 vs 13.9, renderer VRAM 12.2 GB both. Full solution suite green (Application
+646, Content 344, Presentation 422, Domain 405, Persistence 279, World 90, Architecture 23, EntityRegistry 23, Soak 10 + 3
+standing skips); content lint 571 definitions, 0 errors; xref exit 0; native cache check passes (62 scenes).
+
 ## Review 6 rendering and art (historical: entry loading and departure release were replaced in review 7)
 
 Interior geometry/textures are loaded on portal entry and its cached model resources are released after
