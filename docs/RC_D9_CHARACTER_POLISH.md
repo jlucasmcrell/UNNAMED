@@ -2,32 +2,15 @@
 
 RC d8 candidate03 (089c97cd) is the accepted owner build. Keep its game, cast and motion payload frozen; changes below belong to the next candidate on `playtest/humgen-main`.
 
-## NPC wardrobe variety
+## NPC wardrobe — owner attire ruling
 
-Replace the fourteen NPC ensembles through HumGen's documented `human.clothing.outfit.set()` and footwear wear APIs. Preserve each identity, sex, age, stature and accepted head/facial hair. The selections below come from the Claude-accepted 142-item catalogue at `C:\Otherreach_External_Assets\HumGen_Wardrobe\HUMGEN_WARDROBE_CATALOG.csv`; `HUMGEN_RCD9_WARDROBE.json` records exact preset paths and the reproducible colour variation.
+The 2026-10-24 owner ruling supersedes wardrobe03 and the cancelled wardrobe04 refinements. Use the least-modern practical catalogue cuts in frontier tones, chosen for occupation and station, with boots for outdoor workers. No default bright blue, sneakers, silk robe, flight suit, CEO outfit or business suit on villagers. Sel uses plain dark shirt/trouser pieces, without a jacket or tie.
 
-| Body | Outfit | Footwear |
-| --- | --- | --- |
-| npc_kera_voss | f_winter_frosty_evening | f_outdoor_hg_garden_boot_female |
-| npc_sel_arien | f_office_pantsuit | f_office_hg_leather_dress_shoe |
-| npc_tavar_orr | m_winter_frosty_evening | m_extra_outfits_pack_pirate_boots |
-| npc_berrin_garth | m_extra_outfits_pack_on_the_road | m_outdoor_hg_garden_boot_male |
-| npc_renn_vale | m_office_open_suit | m_office_hg_suede_dress_shoe |
-| npc_durn_skell | m_extra_outfits_pack_bomber_look | m_extra_outfits_pack_pirate_boots |
-| npc_mara_ling | f_extra_outfits_pack_ceo | f_office_hg_suede_dress_shoe |
-| npc_tam_crowden | f_extra_outfits_pack_presentation | f_office_hg_leather_dress_shoe |
-| npc_pool_00 | f_extra_outfits_pack_dress | f_office_hg_suede_dress_shoe |
-| npc_pool_01 | m_extra_outfits_pack_pirate | m_extra_outfits_pack_pirate_boots |
-| npc_pool_02 | f_extra_outfits_pack_kimono | f_office_hg_leather_dress_shoe |
-| npc_pool_03 | m_extra_outfits_pack_relaxed_fit | m_sneakers_hg_suede_sneakers_male |
-| npc_pool_04 | f_office_new_intern | f_sneakers_hg_leather_sneakers_female |
-| npc_pool_05 | m_office_stock_exchange | m_office_hg_suede_dress_shoe |
+[HUMGEN_RCD9_FRONTIER_ATTIRE.md](HUMGEN_RCD9_FRONTIER_ATTIRE.md) records every job → items → colours rationale and the limitations of this interim catalogue pass. Exact selections and material palettes are in `HUMGEN_RCD9_WARDROBE.json`. The new isolated export root is `rcd9_wardrobe05`; source-game captures must be repeated before Claude review. Old wardrobe03/04 frames do not prove this pass.
 
-Kera wears a brown outdoor coat and work boots; Sel wears a formal pantsuit; Tavar wears an olive winter coat and tall boots; Berrin wears an overshirt, loose work trousers and boots. Tavar's coat uses HumGen's documented `randomize_colors` API with seed 17, changing clothing only. Each named NPC retains a distinct hairstyle. The pool has six distinct garment sets, with varied footwear. Compare garment sets without sex suffixes against **both** player outfits; a different preset name alone is insufficient.
+Preserve the native Godot recipe, original-resolution retained images, sparse facial buffers, all 59 native bones/hierarchy/rest transforms, exact-target motion metadata and signed texture cache. Capture all fourteen NPCs idle and walking, plus Tavar in his normal captive kneel. Use actual normal bindings and label person/people IDs; preserve canonical phase shaders.
 
-Export into a separate asset root. Preserve the native Godot export recipe, original image resolution and sparse facial morphs. Before adoption, prove all 59 bone names, parents and rest transforms match the corresponding accepted body, repair only LOD material references, rebuild exact-target motion metadata and the signed texture cache, then capture each dressed body walking and idle in game. Inspect Tavar's new coat in his normal captive kneel as well. Catalogue approval does not accept a new cast export.
-
-Wardrobe inspections use the normal NPC bindings and figures on a labelled platform. Choose opaque Veth representatives when a pool also supplies phased peoples, and label the actual person/people IDs in both the frame and receipt. Canonical Mor phase shaders are separate from asset transparency; do not remove a people's appearance to disguise a review-selection error. Audit native body/clothing material alpha and keep the original full-resolution frames.
+DeepSeek separately owns the named Kal Kera, Siann Sel and Orenth Tavar body exports. Do not claim this human-shaped interim inspection proves those new proportions.
 
 ## Relaxed idle outside combat
 

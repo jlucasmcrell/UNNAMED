@@ -63,23 +63,10 @@ Keep the RC d7 shortcuts/packages as backups.
 
 ## RC d9 wardrobe handoff
 
-Use the full-cast candidate under `D:\Otherreach_Scratch\humgen_rcd8_20261023\rcd9_runtime02` only after its
-`RC_D9_PAYLOAD_RECEIPT.json` reports `READY_FOR_NATIVE_REVIEW` and the native review runner completes.
-The set includes `primary`, `humgen_characters`, corrected `content`, `NPC_OUTFIT_AUDIT.json` and `MATERIAL_OPACITY_AUDIT.json`.
-All fourteen NPC bodies receive the selections in `docs/HUMGEN_RCD9_WARDROBE.json`; both player bodies/libraries remain unchanged.
-Use the new cast hashes, exact-target libraries and signed texture cache together. The native wear-API exports,
-original-geometry/sparse-image checks and exact 59-bone rest checks are in `rcd9_wardrobe03`.
+The NPC ATTIRE owner ruling supersedes `rcd9_wardrobe03`, cancelled `rcd9_wardrobe04`, and `rcd9_review05` outfit frames. Use the interim role/station assignments in `HUMGEN_RCD9_WARDROBE.json` and the per-NPC rationale in `HUMGEN_RCD9_FRONTIER_ATTIRE.md`. Never use garment-set uniqueness to justify modern costumes or sneakers on village workers.
 
-This development overlay contains directory junctions into immutable reference art. It is not a portable package or a
-shortcut target. A future clean RC d9 package must dereference those directories into its own payload and verify all sixteen
-body/library pairs. Do not use the superseded four-body `rcd9_runtime` or the unchanged `runtime/production_native` NPC set.
-Keep the accepted RC d8 package, owner profile and shortcut intact.
+The replacement development overlay is `D:/Otherreach_Scratch/humgen_rcd8_20261023/rcd9_runtime04`; do not adopt it until all fourteen native export, material, exact 59-bone, exact-target motion and cache gates pass and the new source-game review completes. New raw wardrobe frames belong under `rcd9_review07`. Catalogue approval does not accept a new cast export. Keep original full-resolution frames; contact sheets are indexes only.
 
-Final source-game inspection frames belong under `rcd9_review05`: fourteen NPC front idles, fourteen moving three-quarter
-views, Tavar's normal captive kneel and both peaceful player spawns. The full creator body-choice stills remain under
-`rcd9_review03`: the player assets and UI code are unchanged; final05's fast Begin path does not repeat those stills. Frames and receipts label
-the actual person/people IDs; choose opaque Veth pool representatives to inspect clothing while preserving canonical race
-shaders in normal play. Original full-resolution PNGs are the evidence; cropped contact sheets are review indexes only.
-Catalogue approval does not approve a new cast export; Claude judges the in-game frames.
+The development overlay contains junctions into immutable reference art, not a portable package or shortcut target. Future RC d9 packaging must dereference those into its own payload and verify all sixteen body/library hashes. Keep the accepted RC d8 game, owner profile and shortcut intact.
 
-The armour approach is separately documented in `HUMGEN_WORN_ARMOUR_PLAN.md`; this batch implements no armour visuals.
+Kera/Sel/Tavar's race bodies are DeepSeek's separate production job. Coordinate `people_ref` with the heritage session, then gate the new statures and exact-body libraries when delivered. The shared frontier wardrobe / armour plan remains an implementation plan; this pass builds no custom period garments or armour visuals.
