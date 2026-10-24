@@ -7,7 +7,7 @@ tags:
 notes: 'A bristleback boar turning over the leaf litter on the birch flank, north-west
   of the village and up where the ground breaks into wood. Territorial rather than
   aggressive: it holds its wallow and does not come looking. A single boar, level
-  2 - worth the fight for a hide without being a reason to avoid the birch woods.
+  4 - an optional hard fight for a hide on the birch flank.
   COUNT IS [1, 1] AND NOT A RANGE: Phase 1 places a fixed count, and the lint says
   so (CMB001/QST001, "Phase 1 places a fixed count (count [n, n], n >= 1)"). A wallow
   with a random number of boars in it is Phase 2 work.'
@@ -24,8 +24,8 @@ at:
   - 748
   radius_m: 14
 level_band:
-- 2
-- 2
+- 4
+- 4
 respawn:
   kind: timer
   window_ticks: 36000   # 30 minutes: the world refills, away from the player (AG-3 doubles it while farmed)

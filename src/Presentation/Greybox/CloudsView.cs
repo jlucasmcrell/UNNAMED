@@ -8,7 +8,7 @@ namespace UNNAMED.Presentation.Greybox;
 /// <summary>
 /// <c>--visual clouds=sunshine</c>: SunshineClouds2's ray-marched cloud layer as a compositor effect on the world environment, lit by the
 /// sun it tracks and ambient-sampled from the environment. Configured from the addon's own example resource (its noise textures and
-/// shaders), duplicated per run. The addon has no tagged release; <c>addons/SunshineClouds2/PINNED_COMMIT.txt</c> names the commit.
+/// shaders), loaded fresh per world. The addon has no tagged release; <c>addons/SunshineClouds2/PINNED_COMMIT.txt</c> names the commit.
 /// </summary>
 public static class CloudsView
 {
@@ -24,7 +24,9 @@ public static class CloudsView
             why = "the SunshineClouds2 addon is not in the project";
             return false;
         }
-        if (GD.Load<Resource>(Resource)?.Duplicate(true) is not CompositorEffect effect || GD.Load<Script>(Driver) is not { } driverScript)
+        // Loading then duplicating a cached compositor creates an unused second compute effect whose
+        // resources survive until engine shutdown. Own one uncached effect for this world instead.
+        if (ResourceLoader.Load<CompositorEffect>(Resource, cacheMode: ResourceLoader.CacheMode.Ignore) is not { } effect || GD.Load<Script>(Driver) is not { } driverScript)
         {
             why = "the SunshineClouds2 example resource did not load as a compositor effect";
             return false;
@@ -32,15 +34,32 @@ public static class CloudsView
         var effects = world.Compositor?.CompositorEffects ?? new Godot.Collections.Array<CompositorEffect>();
         effects.Add(effect);
         world.Compositor = new Compositor { CompositorEffects = effects };
+        world.TreeExiting += () =>
+        {
+            // RenderingDevice RIDs must be freed on the render thread while it still exists, not
+            // from a resource's late PREDELETE notification after RenderingServer has shut down.
+            effect.Enabled = false;
+            if (world.Compositor is { } compositor)
+            {
+                var remaining = compositor.CompositorEffects;
+                remaining.Remove(effect);
+                compositor.CompositorEffects = remaining;
+            }
+            RenderingServer.CallOnRenderThread(Callable.From(() => effect.Call("clear_compute")));
+            RenderingServer.ForceSync();
+            GD.Print("UNNAMED clouds: compute resources released before world teardown");
+        };
 
         var driver = new Node { Name = "SunshineCloudsDriver" };
         driver.SetScript(driverScript);
-        world.AddChild(driver);
+        // Configure outside the tree: the driver's live property setter appends its effect
+        // to the compositor, which would register our already-attached effect twice.
         driver.Set("clouds_resource", effect);
         driver.Set("ambience_sample_environment", world.Environment);
         driver.Set("tracked_directional_lights", new Godot.Collections.Array<DirectionalLight3D> { sun });
         driver.Set("tracked_directional_light_shadow_steps", new Godot.Collections.Array<int> { 32 });
         driver.Set("update_continuously", true);
+        world.AddChild(driver);
         GD.Print("UNNAMED clouds: SunshineClouds2 @ a73a80b0 on the world environment, tracking " + sun.Name);
         return true;
     }

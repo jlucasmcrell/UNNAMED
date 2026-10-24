@@ -961,7 +961,23 @@ public sealed class Simulation
         _advancing = true;
         try
         {
-            AbstractAdvance.Run(from, to, _advances, log);
+            // A respawn reads party strength. Advance the other systems to that
+            // instant first, rather than letting a month-long companion expiry
+            // resize an animal that respawned on day two. Pet recovery is another
+            // boundary because it changes the party seen by a later respawn.
+            long cursor = from;
+            while (cursor < to)
+            {
+                long boundary = to;
+                foreach (var creature in _state.Creatures.Values)
+                    if (creature.Site.Space.IsExterior && !creature.Alive && creature.RespawnTick > 0)
+                        boundary = Math.Min(boundary, Math.Max(cursor + 1, creature.RespawnTick));
+                foreach (var pet in _state.Pets.Values)
+                    if (!pet.Up && pet.RecoversAtTick > 0)
+                        boundary = Math.Min(boundary, Math.Max(cursor + 1, pet.RecoversAtTick));
+                AbstractAdvance.Run(cursor, boundary, _advances, log);
+                cursor = boundary;
+            }
             _chat.AfterAbsence(log);
         }
         finally

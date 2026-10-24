@@ -177,6 +177,9 @@ sections:
   - id: characters
     title: "Characters"
     entries:
+      - binds: [humgen_]
+        text: "Characters, fitted clothing and hair created with Human Generator (HumGen3D), using licensed content packs."
+        url: "https://www.humgen3d.com/"
       - ledger: [P01, C33]
         text: "Character bodies: MPFB2 and the MakeHuman community base assets, CC0."
       - ledger: [P12]

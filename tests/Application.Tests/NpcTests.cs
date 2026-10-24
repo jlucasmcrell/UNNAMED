@@ -66,6 +66,10 @@ public class NpcTests
 
     private static string[] Replies(Arena arena) => Now(arena).Replies.Select(r => r.Id).ToArray();
 
+    // These M4 conditions are independent of the later lore topics and inn service,
+    // whose visibility/ordering have their own integration tests.
+    private static string[] CoreReplies(Arena arena) => Replies(arena).Where(id => !id.StartsWith("ask_", StringComparison.Ordinal) && id != "bed").ToArray();
+
     private static int Regard(Arena arena, string npc, string dimension) =>
         arena.Simulation.CaptureRecord().Relationships.FirstOrDefault(r => r.NpcId == npc && r.Dimension == dimension)?.Value ?? 0;
 
@@ -85,7 +89,10 @@ public class NpcTests
         Assert.Equal(new[] { Kera, Renn, Sel, "npc.ashen_hollow.tavar_orr" }, npcs.Select(n => n.Id));
         Assert.Equal(new[] { "Kera Voss", "Renn Vale", "Sel Arien", "Tavar Orr" }, npcs.Select(n => n.Name));
         Assert.Equal(8, simulation.Npcs.Count(n => !n.Resident && n.Role != "adventurer"));   // and 6 role residents a town (WP12, DN3)
-        Assert.Equal(8, simulation.Npcs.Count(n => n.Role == "adventurer"));   // and 4 adventurers a town at their lodge (WP13, DN5)
+        // The owner's inn dial keeps three in Ashen Hollow and four in Cairnwold.
+        var adventurers=session.Setup.Adventurers!;
+        Assert.Equal(adventurers.Settlements.Values.Sum(s=>s.Target??adventurers.Rules.TargetPerSettlement), simulation.World.Adventurers!.Agents.Count);
+        Assert.Equal(simulation.World.Adventurers.Bodies.Keys, simulation.Npcs.Where(n => n.Role == "adventurer").Select(n => n.Id).Order(StringComparer.Ordinal));
         Assert.Equal(12, simulation.Npcs.Count(n => n.Resident));
         Assert.All(npcs, n => Assert.False(n.Talking));
         Assert.Equal((461_600L, 739_600L, 300_000), (npcs[0].Body.XMm, npcs[0].Body.ZMm, npcs[0].Body.FacingMdeg));
@@ -138,7 +145,7 @@ public class NpcTests
         // The greeting is spent: the conversation stands at its again-node, and carrying nothing, the character is offered
         // neither the iron nor the spear.
         Assert.Equal("again", Now(arena).NodeId);
-        Assert.Equal(new[] { "place", "work", "notices", "leave", "story_begin_accounts", "story_note" }, Replies(arena));
+        Assert.Equal(new[] { "place", "work", "notices", "leave", "story_begin_accounts", "story_note" }, CoreReplies(arena));
         Assert.Null(Say(arena, "leave"));
         Assert.Null(arena.Simulation.Conversation);
         Assert.Equal(new[] { "greet", "place", "again" }, lines.Select(l => l.NodeId));
@@ -152,7 +159,7 @@ public class NpcTests
         Assert.Null(bearer.Submit(new TalkCommand(bearer.Player, Renn)));
         Assert.Null(Say(bearer, "leave"));
         Assert.Null(bearer.Submit(new TalkCommand(bearer.Player, Renn)));
-        Assert.Equal(new[] { "place", "work", "iron", "spear", "notices", "leave", "story_begin_accounts", "story_note" }, Replies(bearer));
+        Assert.Equal(new[] { "place", "work", "iron", "spear", "notices", "leave", "story_begin_accounts", "story_note" }, CoreReplies(bearer));
         Assert.Null(Say(bearer, "iron"));
         Assert.Equal(5, Regard(bearer, Renn, "respect"));
         Assert.Null(Say(bearer, "back"));
@@ -243,7 +250,7 @@ public class NpcTests
         var session = Harness.Boot(profile);
 
         // A pack with no free stack: the notes cannot be taken, so the reply is refused and nothing else happens either.
-        var full = At(session, AtSel, r => With(r, 0, Enumerable.Range(0, session.Setup.Items.Inventory.StackSlots - r.Inventory.Length)
+        var full = At(session, AtSel, r => With(r, 0, Enumerable.Range(0, session.Setup.Items.Inventory.StackSlots - r.Inventory.Count(e => !r.Equipment.ContainsValue(e.ItemId)))
             .Select(_ => Stack("item.trinket.wolf_fang", 1)).ToArray()));
         Assert.Null(full.Submit(new TalkCommand(full.Player, Sel)));
         Assert.Null(Say(full, "books"));
@@ -257,7 +264,7 @@ public class NpcTests
         Assert.Equal((1, 5), (Carried(arena, Notes), Regard(arena, Sel, "trust")));
         Assert.Equal("notes_given", Now(arena).NodeId);
         Assert.Null(Say(arena, "back"));
-        Assert.Equal(new[] { "ruin", "strain", "tavar", "survey", "leave", "story_grazers", "story_species_robin", "story_species_dandelion" }, Replies(arena));   // the notes are given once; now she will talk of strain
+        Assert.Equal(new[] { "ruin", "strain", "tavar", "survey", "leave", "story_grazers", "story_species_robin", "story_species_dandelion" }, CoreReplies(arena));   // the notes are given once; now she will talk of strain
     }
 
     /// <summary>
@@ -287,7 +294,7 @@ public class NpcTests
         Assert.DoesNotContain("books", Replies(left));   // given once
 
         // Refused for a full pack, left to make room, then taken.
-        var full = At(session, AtSel, r => With(r, 0, Enumerable.Range(0, session.Setup.Items.Inventory.StackSlots - r.Inventory.Length)
+        var full = At(session, AtSel, r => With(r, 0, Enumerable.Range(0, session.Setup.Items.Inventory.StackSlots - r.Inventory.Count(e => !r.Equipment.ContainsValue(e.ItemId)))
             .Select(_ => Stack("item.trinket.wolf_fang", 1)).ToArray()));
         Assert.Null(full.Submit(new TalkCommand(full.Player, Sel)));
         Assert.Null(Say(full, "books"));
@@ -307,7 +314,7 @@ public class NpcTests
         var store = new SaveStore(profile.Root);
         store.Save(SaveSlots.Manual("offered"), SaveDocuments.Capture(open.Simulation.World, open.Simulation.CaptureRecord(), session.Content,
             open.Simulation.WorldTick, 0));
-        var loaded = Arena.Resume(session.Setup, store.Load(SaveSlots.Manual("offered"), new LoadContext(session.Generator, session.Content, new Registry())));
+        var loaded = Arena.Resume(open.Simulation.Setup, store.Load(SaveSlots.Manual("offered"), new LoadContext(session.Generator, session.Content, new Registry())));
         Assert.Null(loaded.Simulation.Conversation);
         Assert.Null(loaded.Submit(new TalkCommand(loaded.Player, Sel)));
         Assert.Null(Say(loaded, "books"));
@@ -344,7 +351,7 @@ public class NpcTests
         var store = new SaveStore(profile.Root);
         store.Save(SaveSlots.Manual("met"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content,
             arena.Simulation.WorldTick, 0));
-        var again = Arena.Resume(session.Setup, store.Load(SaveSlots.Manual("met"), new LoadContext(session.Generator, session.Content, new Registry())));
+        var again = Arena.Resume(arena.Simulation.Setup, store.Load(SaveSlots.Manual("met"), new LoadContext(session.Generator, session.Content, new Registry())));
 
         Assert.Equal(arena.Simulation.StateDigest(), again.Simulation.StateDigest());
         var memory = Assert.Single(again.Simulation.CaptureRecord().Conversations);
@@ -453,7 +460,7 @@ public class NpcTests
         var store = new SaveStore(profile.Root);
         store.Save(SaveSlots.Manual("gave"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content,
             arena.Simulation.WorldTick, 0));
-        var again = Arena.Resume(rules, store.Load(SaveSlots.Manual("gave"), new LoadContext(session.Generator, session.Content, new Registry())));
+        var again = Arena.Resume(arena.Simulation.Setup, store.Load(SaveSlots.Manual("gave"), new LoadContext(session.Generator, session.Content, new Registry())));
 
         Assert.Equal(arena.Simulation.StateDigest(), again.Simulation.StateDigest());
         var deed = Assert.Single(again.Simulation.CaptureRecord().Deeds);
@@ -558,7 +565,7 @@ public class NpcTests
         var store = new SaveStore(profile.Root);
         store.Save(SaveSlots.Manual("traded"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content,
             arena.Simulation.WorldTick, 0));
-        var again = Arena.Resume(session.Setup, store.Load(SaveSlots.Manual("traded"), new LoadContext(session.Generator, session.Content, new Registry())));
+        var again = Arena.Resume(arena.Simulation.Setup, store.Load(SaveSlots.Manual("traded"), new LoadContext(session.Generator, session.Content, new Registry())));
 
         Assert.Equal(arena.Simulation.StateDigest(), again.Simulation.StateDigest());
         Assert.Equal(arena.Simulation.Wares(Kera)!.Wares.ToList(), again.Simulation.Wares(Kera)!.Wares.ToList());
@@ -576,7 +583,9 @@ public class NpcTests
         var session = Harness.Boot(profile);
         var arena = At(session, AtKera, r => With(r, 1000));
         int stacks = arena.Simulation.Wares(Kera)!.Wares.Length;
-        Assert.Equal(8, stacks);   // arrows, the bow, the salves, and since inventory organisation a quiver, a herb pouch and a satchel
+        // Authored stock lines may split into several stacks (e.g. sixty arrows).
+        Assert.Equal(session.Setup.Items.Merchants[Wares].Stock.Sum(s =>
+            (s.Count + session.Setup.Items.Catalog.Get(s.ItemId).StackMax - 1) / session.Setup.Items.Catalog.Get(s.ItemId).StackMax), stacks);
         for (int i = 0; i < stacks; i++)
         {
             var ware = arena.Simulation.Wares(Kera)!.Wares[0];
@@ -591,7 +600,7 @@ public class NpcTests
         var store = new SaveStore(profile.Root);
         store.Save(SaveSlots.Manual("bought_out"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content,
             arena.Simulation.WorldTick, 0));
-        var again = Arena.Resume(session.Setup, store.Load(SaveSlots.Manual("bought_out"), new LoadContext(session.Generator, session.Content, new Registry())));
+        var again = Arena.Resume(arena.Simulation.Setup, store.Load(SaveSlots.Manual("bought_out"), new LoadContext(session.Generator, session.Content, new Registry())));
 
         Assert.Equal(arena.Simulation.StateDigest(), again.Simulation.StateDigest());
         Assert.Empty(again.Simulation.Wares(Kera)!.Wares);

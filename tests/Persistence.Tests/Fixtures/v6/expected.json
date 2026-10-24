@@ -135,7 +135,8 @@
       "pronouns": "they",
       "people": "people.veth",
       "body_preset": "body.default",
-      "call": null
+      "call": null,
+      "appearance": null
     },
     "factions": {
       "next_act_seq": 1,

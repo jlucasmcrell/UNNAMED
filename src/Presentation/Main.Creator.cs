@@ -152,6 +152,12 @@ public partial class Main
             _avatarPose = null;
             _art.Coverage.Resolved("person", "player", model);
         }
+        // HumGen keeps the exported shape and native mocap arms; saved legacy builds must not add arm splay.
+        if (_avatarModel?.StartsWith("humgen_", StringComparison.Ordinal) == true)
+        {
+            _avatarPose = null;
+            return;
+        }
         if (_avatarPose is null && _avatar is SkinnedFigure figure)
             _avatarPose = BuildPose.On(figure.Skeleton);
         if (_avatarPose is not null)
@@ -256,7 +262,7 @@ public partial class Main
     private int _creatorStep;
 
     /// <summary>
-    /// <c>--creator-shots dir</c>: every creator step pictured as a player meets it - People, Body (each type and build), Identity (empty,
+    /// <c>--creator-shots dir</c>: every creator step pictured as a player meets it - People, Body (each type and build), Face, Hair, Outfit, Identity (empty,
     /// then a suggested name), Call, Confirm with and without the skip - then Begin on the road: lying, getting up, standing. Each picture
     /// is taken a while after the step before it (a new body loads first). A harness: it writes no player settings, and quits when done.
     /// </summary>
@@ -306,7 +312,10 @@ public partial class Main
             }, 6000));
             shown = $"{body.Type}_{body.Build}";
         }
-        list.Add(($"{list.Count + 1:00}_body_{shown}", () => _creator.Go(CreatorStep.Identity), 1500));
+        list.Add(($"{list.Count + 1:00}_body_{shown}", () => _creator.Go(CreatorStep.Face), 1500));
+        list.Add(($"{list.Count + 1:00}_face", () => _creator.Go(CreatorStep.Hair), 1500));
+        list.Add(($"{list.Count + 1:00}_hair", () => _creator.Go(CreatorStep.Outfit), 1500));
+        list.Add(($"{list.Count + 1:00}_outfit", () => _creator.Go(CreatorStep.Identity), 1500));
         int n = list.Count;
         string N(string shot) => $"{++n:00}_{shot}";
         var steps = list.Concat(new (string Shot, Action? Then, int NextMs)[]

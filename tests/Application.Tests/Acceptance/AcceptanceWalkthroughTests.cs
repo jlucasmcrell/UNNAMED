@@ -78,7 +78,7 @@ public partial class AcceptanceWalkthroughTests
         public void MoveTo(long xMm, long zMm, int facingDeg = 0, long giveCoin = 0, params InventoryEntry[] give)
         {
             var r = Sim.CaptureRecord();
-            var moved = new PlayerRecord(r.Id, r.Name, xMm, Sim.Setup.Layout.Space.Terrain.HeightAtMm(xMm, zMm), zMm, r.AppearanceSeed, r.Inventory.Concat(give), r.Progression,
+            var moved = new PlayerRecord(r.Id, r.Name, xMm, Sim.ActiveLayout.Space.Terrain.HeightAtMm(xMm, zMm), zMm, r.AppearanceSeed, r.Inventory.Concat(give), r.Progression,
                 facingDeg * 1000 % 360_000, r.Discoveries, r.Equipment, r.Currency + giveCoin, r.Effects, r.Relationships, r.Conversations, r.Quests, r.Companions);
             foreach (var property in typeof(PlayerRecord).GetProperties().Where(p => p.SetMethod is not null && p.GetIndexParameters().Length == 0
                 && p.Name is not nameof(PlayerRecord.FacingMdeg)))
@@ -101,7 +101,18 @@ public partial class AcceptanceWalkthroughTests
             var body = Sim.Npcs.Single(n => n.Id == npcId).Body;
             if (Sim.Conversation is not null)
                 Do(new LeaveCommand(Sim.PlayerId));
-            MoveTo(body.XMm + 700, body.ZMm);
+            // Inn routines can put the old fixed +X offset inside a wall or bed.
+            // Pick a real clear side with line of sight rather than talking through it.
+            foreach(var (dx,dz) in new[]{(900L,0L),(-900L,0L),(0L,900L),(0L,-900L),(700L,700L),(-700L,700L),(700L,-700L),(-700L,-700L)})
+            {
+                long x=body.XMm+dx,z=body.ZMm+dz;
+                if(!Sim.Walled(x,z,body.XMm,body.ZMm) && Kinematics.IsClear(x,z,Sim.Setup.Movement.BodyRadiusMm,Sim.ActiveLayout.Space,Sim.DynamicBlockers))
+                {
+                    MoveTo(x,z);
+                    return;
+                }
+            }
+            throw new InvalidOperationException("No clear speaking position beside "+npcId);
         }
 
         public void Dispose() => _profile.Dispose();

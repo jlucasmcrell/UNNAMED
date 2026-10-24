@@ -28,6 +28,9 @@ public class GameSaveTests
         // Schema 14: every creature record gains its continuation - none was kept - and the world its sounds waiting to be heard - none.
         (new Regex(@"^\$\.world\.Creatures\[\d+\]\.(NextChargeTick|StaggerImmuneUntil|StaggerLastsTicks)$"), "0"),
         (new Regex(@"^\$\.world\.Creatures\[\d+\]\.StaggeredTick$"), "null"),
+        // Schema 38: legacy creatures retain their original health and level (100%, no bonus).
+        (new Regex(@"^\$\.world\.Creatures\[\d+\]\.ScalePercent$"), "100"),
+        (new Regex(@"^\$\.world\.Creatures\[\d+\]\.LevelBonus$"), "0"),
         (new Regex(@"^\$\.world\.Noises$"), "[]"),
         // Schema 15: the player knows no Waystone, has chosen none to return to, and has walked no road.
         (new Regex(@"^\$\.player\.(Waystones|RoadsWalked)$"), "[]"),
@@ -35,7 +38,7 @@ public class GameSaveTests
         // Schema 16: the player has counted no deed.
         (new Regex(@"^\$\.player\.Deeds$"), "[]"),
         // Schema 17: the character the game made before the creator - "they", a Veth of the default body, with no Call.
-        (new Regex(@"^\$\.player\.Identity$"), """{"Pronouns":"They","PeopleId":"people.veth","BodyPresetId":"body.default","CallId":null}"""),
+        (new Regex(@"^\$\.player\.Identity$"), """{"Pronouns":"They","PeopleId":"people.veth","BodyPresetId":"body.default","CallId":null,"Appearance":null}"""),
         // Schema 19: every stack may carry a notable record; none before.
         (new Regex(@"^\$\.(player\.Inventory|world\.Created|world\.Containers\[\d+\]\.Items)\[\d+\]\.Notable$"), "null"),
         // Schema 24 (WP3b): every stack may carry its wear; nothing was worn before.
@@ -125,7 +128,7 @@ public class GameSaveTests
         int members = expected["player"]!["Companions"]!.AsArray().Count;
         // ... and, schema 21, four fields each party member and the party's ledger; schema 23, the quick bar and its cleared record;
         // schema 24, each stack's (empty) wear; schema 25, the party's sheets; schema 26, the NPCs' lives; schema 27, no attack under way; schema 29, the adventurers; schema 30, the space and the portal; schema 31, the Findings; schema 32, the further bars and the gear sets; and, schema 33, the bag slots and each stack's place, lock and junk mark; schema 34, the held weapon family and its layouts; schema 35, the empty lore; and, schema 36, the empty pets.
-        Assert.Equal(2 + 4 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 1 + 2 + 4 * members + 1 + 2 + stacks + 1 + 1 + 1 + 1 + 2 + 1 + 2 + 1 + 4 * stacks + 4, differences.Count);
+        Assert.Equal(2 + 6 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 1 + 2 + 4 * members + 1 + 2 + stacks + 1 + 1 + 1 + 1 + 2 + 1 + 2 + 1 + 4 * stacks + 4, differences.Count);
 
         // And it plays on: a fixed stretch of ticks, then a walk to the Ashen Waystone, with no observer failing, no body inside anything,
         // Tavar still at the character's side and every quest still answering the debugger.

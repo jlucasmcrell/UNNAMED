@@ -101,6 +101,7 @@ public partial class Main
             _controller.OnTravelled(e);
             _autorun = false;
             CloseScreens();
+            _hud.ClearWaystoneAnnouncements();
             WaystoneResponse(e.ToKey, true);
             _hud.Toast($"The {StoneName(e.ToKey)}. {TravelWords.Journey(e.Cost.WalkTicks, TicksPerDay).Replace("You arrive the moment you leave", "You arrived the moment you left").Replace("would take", "would have taken")}", 7);
         });        _session.Subscribe<DoorToggled>(e =>

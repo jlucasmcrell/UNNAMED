@@ -206,7 +206,7 @@ public class FactionTests
         var loaded = store.Load(SaveSlots.Manual("factions"), new LoadContext(session.Generator, session.Content, new Registry()));
         Assert.True(loaded.IsComplete);
         Assert.Equal(arena.Simulation.CaptureRecord().Factions, loaded.Player.Factions);
-        var again = Simulation.Start(setup, loaded.Player, loaded.World, loaded.Manifest.WorldTick, new EventBus());
+        var again = Simulation.Start(arena.Simulation.Setup, loaded.Player, loaded.World, loaded.Manifest.WorldTick, new EventBus());
         Assert.Equal(Ledger(arena.Simulation), Ledger(again));
         Assert.Equal(arena.Simulation.StateDigest(), again.StateDigest());
     }

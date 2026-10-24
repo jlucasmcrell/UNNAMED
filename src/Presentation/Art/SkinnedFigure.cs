@@ -92,7 +92,10 @@ public sealed partial class SkinnedFigure : Figure
         if (!float.IsFinite(person.UniformScale) || person.UniformScale <= 0)
             throw new InvalidDataException($"Invalid uniform stature for {personId}");
         model.Scale = Vector3.One * person.UniformScale;
-        var figure = new SkinnedFigure { Name = personId, _model = model, _art = art, _bindings = bindings, _paces = model.MotionPaces ?? person.Paces, _phases = person.Phases, _uniformScale = person.UniformScale };
+        var phases = person.Phases.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+        if (model.MotionActionPhases is { } nativePhases)
+            foreach (var pair in nativePhases) phases[pair.Key] = pair.Value;
+        var figure = new SkinnedFigure { Name = personId, _model = model, _art = art, _bindings = bindings, _paces = model.MotionPaces ?? person.Paces, _phases = phases, _uniformScale = person.UniformScale };
         figure._person = person;
         figure._idles = new IdleVariety(personId);
         model.IdleStartPhase = figure._idles.StartPhase;
@@ -413,7 +416,7 @@ public sealed partial class SkinnedFigure : Figure
         {
             // A crouch clip already holds the head under the crouch height; the bend is for what has none (a body without
             // crouch clips, a blow struck crouched).
-            _posture.Crouch = _model.Current is "crouch_idle" or "crouch_walk" ? 0 : _crouch;
+            _posture.Crouch = _model.Current is "crouch_idle" or "crouch_walk" or "captive_kneel" ? 0 : _crouch;
             _posture.Tuck = _tuck;
         }
     }
@@ -495,6 +498,7 @@ public sealed partial class SkinnedFigure : Figure
         {
             _idles.Interrupt();
             if (resting == "lie_to_idle") m.Hold(resting, 0, .3f);
+            else if (resting == "captive_kneel") m.Hold(resting, .5f, .3f);
             else m.Play(_talking && m.Has("sit_talk") ? "sit_talk" : resting, .3f);
             return;
         }
@@ -655,9 +659,9 @@ public sealed partial class SkinnedFigure : Figure
             m.Play("turn", 0.15f);
             return;
         }
-        // Standing with a weapon drawn: its ready stance, not the empty-handed idle.
+        // An equipped weapon alone is not a fight: use its ready stance only while combat is active.
         string ready = s.Holds switch { Held.Sword => "sword_ready", Held.Spear => "spear_ready", Held.Bow => "bow_ready", _ => "" };
-        if (ready.Length > 0 && m.Has(ready))
+        if (s.Ready && ready.Length > 0 && m.Has(ready))
         {
             m.Play(ready, 0.3f);
             return;

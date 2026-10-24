@@ -9,7 +9,6 @@ var direction := Vector2(0,1)
 var smoothed_direction := Vector2(0,1)
 var jog := 0.0
 var rate := 1.0
-var calm_back := false
 var walk_strafes := false
 var jog_back := false
 
@@ -33,9 +32,9 @@ func configure(source: AnimationPlayer, measured: Dictionary, manual: bool = tru
  forward.sync_mode=1
  forward.min_space=0.0
  forward.max_space=1.0
- forward.add_blend_point(clip("walk"),0.0)
+ forward.add_blend_point(clip("walk"),0.0,-1,"walk")
  # The measured jog has a longer stride; scale it for sprint instead of racing the short sprint cycle.
- forward.add_blend_point(clip("run"),1.0)
+ forward.add_blend_point(clip("run"),1.0,-1,"run")
  walk_strafes=source.has_animation("walk_strafe_left") and source.has_animation("walk_strafe_right")
  var space := AnimationNodeBlendSpace2D.new()
  space.sync_mode=1
@@ -44,8 +43,8 @@ func configure(source: AnimationPlayer, measured: Dictionary, manual: bool = tru
  if jog_back:
   var backward=AnimationNodeBlendSpace1D.new()
   backward.sync_mode=1;backward.min_space=0.0;backward.max_space=1.0
-  backward.add_blend_point(clip("walk_back"),0.0)
-  backward.add_blend_point(clip("run_back"),1.0)
+  backward.add_blend_point(clip("walk_back"),0.0,-1,"walk")
+  backward.add_blend_point(clip("run_back"),1.0,-1,"run")
   space.add_blend_point(backward,Vector2(0,-1),-1,"back")
  else:space.add_blend_point(clip("walk_back"),Vector2(0,-1),-1,"back")
  # Native bodies face +Z, their right is -X. Existing libraries retain their original graph.
@@ -54,40 +53,14 @@ func configure(source: AnimationPlayer, measured: Dictionary, manual: bool = tru
   if walk_strafes:
    var lateral=AnimationNodeBlendSpace1D.new()
    lateral.sync_mode=1;lateral.min_space=0.0;lateral.max_space=1.0
-   lateral.add_blend_point(clip("walk_strafe_"+side),0.0)
-   lateral.add_blend_point(clip("strafe_"+side),1.0)
+   lateral.add_blend_point(clip("walk_strafe_"+side),0.0,-1,"walk")
+   lateral.add_blend_point(clip("strafe_"+side),1.0,-1,"run")
    space.add_blend_point(lateral,point,-1,side)
   else:space.add_blend_point(clip("strafe_"+side),point,-1,side)
  var blend := AnimationNodeBlendTree.new()
  blend.add_node("direction",space)
  blend.add_node("pace",AnimationNodeTimeScale.new())
- # Standard filtered AnimationNodeBlend2; environment 0 is the review baseline.
- # Backward KayKit arms/head are stylised; retain the original legs and hip motion.
- calm_back=OS.get_environment("OTHERREACH_CALM_BACK")!="0" and source.has_animation("idle")
- if calm_back:
-  var upper:=AnimationNodeBlend2.new()
-  upper.filter_enabled=true
-  var idle:=source.get_animation("idle")
-  var animation_root:=source.get_node(source.root_node)
-  var filtered:=0
-  for track in idle.get_track_count():
-   if idle.track_get_type(track)!=Animation.TYPE_ROTATION_3D:continue
-   var path:=idle.track_get_path(track)
-   if path.get_subname_count()!=1:continue
-   var rig:=animation_root.get_node_or_null(NodePath(path.get_concatenated_names())) as Skeleton3D
-   if rig==null:continue
-   var bone:=rig.find_bone(path.get_subname(0))
-   while bone>=0:
-    if rig.get_bone_name(bone) in ["spine_01","spine"]:
-     upper.set_filter_path(path,true);filtered+=1;break
-    bone=rig.get_bone_parent(bone)
-  assert(filtered>=5,"Calm backward candidate found no upper-body tracks")
-  blend.add_node("neutral_upper",clip("idle"))
-  blend.add_node("calm_upper",upper)
-  blend.connect_node("calm_upper",0,"direction")
-  blend.connect_node("calm_upper",1,"neutral_upper")
-  blend.connect_node("pace",0,"calm_upper")
- else:blend.connect_node("pace",0,"direction")
+ blend.connect_node("pace",0,"direction")
  blend.connect_node("output",0,"pace")
  tree=AnimationTree.new()
  tree.active=false
@@ -139,15 +112,16 @@ func move(local_velocity: Vector2, delta: float) -> bool:
  direction/=maxf(.001,absf(direction.x)+absf(direction.y))
  var distance:=Vector2(direction.x*side_stride,direction.y*fore_stride).length()
  rate=speed/maxf(.1,distance)
+ # The vector-length correction makes diagonal walking scurry. Preserve the
+ # forward/back walk cadence on diagonals, retaining measured pure-strafe pace.
+ var diagonal:=minf(absf(local_velocity.x),absf(local_velocity.y))/maxf(.001,maxf(absf(local_velocity.x),absf(local_velocity.y)))
+ rate=lerpf(rate,speed/fore_stride,diagonal*(1.0-jog))
  tree.set("parameters/direction/blend_position",direction)
  tree.set("parameters/direction/forward/blend_position",jog)
  if walk_strafes:
   tree.set("parameters/direction/left/blend_position",jog)
   tree.set("parameters/direction/right/blend_position",jog)
  if jog_back:tree.set("parameters/direction/back/blend_position",jog)
- if calm_back:
-  var neutral_amount:=(0.0 if jog_back else .85)*maxf(-direction.y,0)+.30*maxf(direction.y,0)*jog+(0.0 if walk_strafes else .20)*absf(direction.x)
-  tree.set("parameters/calm_upper/blend_amount",neutral_amount)
  tree.set("parameters/pace/scale",rate)
  player.active=false
  tree.active=true

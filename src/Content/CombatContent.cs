@@ -48,6 +48,20 @@ public static class CombatContent
             Try(() => BuildBehaviour(loader, tickMs), "config.creature_behaviour", errors);
         foreach (string region in loader.GetByKind("region").Keys.OrderBy(k => k, StringComparer.Ordinal))
             Try(() => BuildSpawns(loader, region), "spawns", errors);
+        // Spawn bands describe their members; they never choose a runtime creature level.
+        var creatures = loader.GetByKind("creature");
+        foreach (var spawn in loader.GetByKind("spawn").Values.OrderBy(s => s.Id, StringComparer.Ordinal))
+            Try(() =>
+            {
+                var map = Read(spawn.YamlSource);
+                var band = List(map, "level_band");
+                var levels = Rows(map, "creatures", spawn.Id).SelectMany(member =>
+                    List(Read(creatures[Text(member, "creature_ref")].YamlSource), "level_band")
+                        .Select(n => Convert.ToInt32(n, CultureInfo.InvariantCulture))).ToArray();
+                if (levels.Length > 0 && (band.Count != 2 || IntOf(band, 0, "level_band") != levels.Min() || IntOf(band, 1, "level_band") != levels.Max()))
+                    throw new FormatException($"{spawn.Id}: level_band must match its members [{levels.Min()}, {levels.Max()}]");
+                return 0;
+            }, spawn.Id, errors);
         Try(() => BuildPassives(loader), "skills", errors);
         Try(() => BuildUseEffects(loader), "items", errors);
         return errors;

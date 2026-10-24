@@ -71,8 +71,8 @@ public class CraftingTests
         new SaveStore(profile.Root).Save(SaveSlots.Manual(slot), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(),
             session.Content, arena.Simulation.WorldTick, 0));
 
-    private static Arena Reload(GameSession session, TempProfile profile, string slot) =>
-        Arena.Resume(session.Setup, new SaveStore(profile.Root).Load(SaveSlots.Manual(slot), new LoadContext(session.Generator, session.Content, new Registry())));
+    private static Arena Reload(GameSession session, TempProfile profile, Arena before, string slot) =>
+        Arena.Resume(before.Simulation.Setup, new SaveStore(profile.Root).Load(SaveSlots.Manual(slot), new LoadContext(session.Generator, session.Content, new Registry())));
 
     // ── the nodes ───────────────────────────────────────────────────────────
 
@@ -178,7 +178,7 @@ public class CraftingTests
         Assert.Null(seam.Submit(new GatherCommand(seam.Player, seamKey)));
         seam.Tick(5);
         Save(session, profile, seam, "struck");
-        var struck = Reload(session, profile, "struck");
+        var struck = Reload(session, profile, seam, "struck");
         Assert.Equal(seam.Simulation.StateDigest(), struck.Simulation.StateDigest());
         Assert.Equal(seam.Simulation.Nodes.ToList(), struck.Simulation.Nodes.ToList());
         Assert.Null(struck.Submit(new GatherCommand(struck.Player, seamKey)));
@@ -189,7 +189,7 @@ public class CraftingTests
         string standKey = Node(stand, "ash_stand").Key;
         Assert.Null(stand.Submit(new GatherCommand(stand.Player, standKey)));
         Save(session, profile, stand, "cut");
-        var cut = Reload(session, profile, "cut");
+        var cut = Reload(session, profile, stand, "cut");
         Assert.Equal("there is nothing to take until it grows back", cut.Submit(new GatherCommand(cut.Player, standKey)));
         cut.Tick(30);
         Assert.Null(cut.Submit(new GatherCommand(cut.Player, standKey)));

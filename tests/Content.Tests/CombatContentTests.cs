@@ -154,6 +154,16 @@ public class CombatContentTests
     public void ASpawnWithARolledCount_IsRefusedInPhase1() =>
         AssertRefused("spawns/hollow/valley_strays.yaml", "count:\n  - 2\n  - 2", "count:\n  - 1\n  - 3", "fixed count");
 
+    [Theory]
+    [InlineData("spawns/moor/barrow_sentinel.yaml", "level_band:\n- 5\n- 5", "level_band:\n- 3\n- 3")]
+    [InlineData("spawns/moor/birch_boar.yaml", "level_band:\n- 4\n- 4", "level_band:\n- 2\n- 2")]
+    [InlineData("spawns/moor/moor_strays.yaml", "level_band:\n- 2\n- 2", "level_band:\n- 1\n- 2")]
+    [InlineData("spawns/road/barrow_husks.yaml", "level_band: [3, 3]", "level_band: [4, 4]")]
+    [InlineData("spawns/hollow/den_pack.yaml", "level_band:\n- 2\n- 3", "level_band:\n- 2\n- 2")]
+    [InlineData("spawns/road/wayside_pack.yaml", "level_band: [2, 2]", "level_band: [3, 3]")]
+    public void ASpawnBandThatMisstatesItsMembers_IsALintError(string path, string correct, string stale) =>
+        AssertRefused(path, correct, stale, "level_band must match its members");
+
     [Fact]
     public void DamageConstantsOutOfRange_AreRefused() =>
         AssertRefused("config/damage_constants.yaml", "armor_k: 50", "armor_k: 0", "armor_k");

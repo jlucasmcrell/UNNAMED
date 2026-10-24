@@ -11,6 +11,16 @@ public partial class Main
     {
         _rcd3Driving=true;
         while(GetViewport().Disable3D)await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+        bool rcd8=OS.GetEnvironment("OTHERREACH_RCD8_MOTION_REVIEW")=="1";
+        if(rcd8)
+        {
+            ulong previous=Time.GetTicksMsec();int stable=0;
+            while(stable<60)
+            {
+                await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+                ulong now=Time.GetTicksMsec();stable=now-previous<250?stable+1:0;previous=now;
+            }
+        }
         ulong warm=Time.GetTicksMsec()+2000;
         while(Time.GetTicksMsec()<warm)await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
         if(OS.GetEnvironment("OTHERREACH_FOOTSTEP_MATERIAL_AUDIT")=="1")
@@ -68,7 +78,7 @@ public partial class Main
         var events=new List<object>();string phase="sync";
         void Contact(string clip,string side,double seconds)=>events.Add(new{phase,clip,side,contact_seconds=seconds,ticks_usec=Time.GetTicksUsec()});
         _avatar.FootPlanted+=Contact;
-        _camera.Yaw=-Mathf.Pi/2;_camera.TargetDistance=3.8f;_camera.Pitch=-.35f;
+        _camera.Yaw=-Mathf.Pi/2;_camera.TargetDistance=3.8f;_camera.Pitch=rcd8?-.7f:-.35f;
         bool hudVisible=_hud.Visible;_hud.Visible=false;
         // This isolated foot-contact gate exposes ankles; normal gameplay keeps its scatter.
         foreach(var plant in _scatter.FindChildren("*",nameof(MultiMeshInstance3D),true,false).OfType<MultiMeshInstance3D>())
@@ -78,6 +88,7 @@ public partial class Main
         var syncLayer=new CanvasLayer { Layer=100 };
         var flash=new ColorRect { Color=Colors.Magenta,Position=new Vector2(4,4),Size=new Vector2(48,48),Visible=false,MouseFilter=Control.MouseFilterEnum.Ignore };
         AddChild(syncLayer);syncLayer.AddChild(flash);
+        var phaseLabel=new Label { Position=new Vector2(64,8) };syncLayer.AddChild(phaseLabel);
         var toneData=new byte[4800*2];
         for(int i=0;i<4800;i++)BitConverter.GetBytes((short)(800*Math.Sin(2*Math.PI*2000*i/48000))).CopyTo(toneData,i*2);
         using var tone=new AudioStreamWav { Format=AudioStreamWav.FormatEnum.Format16Bits,MixRate=48000,Stereo=false,Data=toneData };
@@ -104,11 +115,19 @@ public partial class Main
             flash.Visible=false;
             ulong settle=Time.GetTicksMsec()+1000;
             while(Time.GetTicksMsec()<settle)await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
-            foreach(var step in new[]{("walk",Vector3.Right,Gait.Walk,4), ("back",Vector3.Left,Gait.Walk,4),
+            var steps=new[]{("walk",Vector3.Right,Gait.Walk,4), ("back",Vector3.Left,Gait.Walk,4),
                 ("strafe_left",Vector3.Forward,Gait.Walk,3),("strafe_right",Vector3.Back,Gait.Walk,3),
-                ("run",Vector3.Right,Gait.Run,4),("back_return",Vector3.Left,Gait.Walk,6)})
+                ("run",Vector3.Right,Gait.Run,4),("back_return",Vector3.Left,Gait.Walk,6)}.ToList();
+            if(rcd8)
+                foreach(var gait in new[]{Gait.Walk,Gait.Run})
+                    foreach(var diagonal in new[]{("forward_left",Vector3.Right+Vector3.Forward),("back_right",Vector3.Left+Vector3.Back),
+                        ("forward_right",Vector3.Right+Vector3.Back),("back_left",Vector3.Left+Vector3.Forward)})
+                        steps.Add(($"diagonal_{gait}_{diagonal.Item1}",diagonal.Item2.Normalized(),gait,3));
+            // The accepted locomotion gate need not repeat when only a ready source changes.
+            if(rcd8 && OS.GetEnvironment("OTHERREACH_RCD8_SWORD_ONLY")=="1")steps.Clear();
+            foreach(var step in steps)
             {
-                phase=step.Item1;ulong through=Time.GetTicksMsec()+(ulong)step.Item4*1000;
+                phase=step.Item1;phaseLabel.Text=phase+" | real controller | real time";ulong through=Time.GetTicksMsec()+(ulong)step.Item4*1000;
                 var from=_avatar.GlobalPosition;
                 while(Time.GetTicksMsec()<through)
                 {
@@ -127,8 +146,10 @@ public partial class Main
                 void AuditSword()
                 {
                     if(!attachmentReview)return;
+                    var skeleton=Art.ArtLibrary.Find<Skeleton3D>(_avatar) ?? throw new InvalidDataException("No native player skeleton");
+                    string hand=skeleton.GetBoneName(Art.BoneNames.Find(skeleton,"hand_r"));
                     var right=_avatar.FindChildren("*",nameof(BoneAttachment3D),true,false).OfType<BoneAttachment3D>()
-                        .Single(a=>a.BoneName=="hand_r");
+                        .Single(a=>a.BoneName==hand);
                     var socket=right.FindChild(Art.HeldWeapon.GripSocket,true,false) as Node3D;
                     var meshes=right.FindChildren("*",nameof(MeshInstance3D),true,false).OfType<MeshInstance3D>().ToArray();
                     bool drawable=meshes.Any(m=>m.IsVisibleInTree() && m.CastShadow!=GeometryInstance3D.ShadowCastingSetting.ShadowsOnly);
@@ -140,7 +161,7 @@ public partial class Main
                         weapon=_session.Simulation!.Combat.Weapon.Source});
                 }
                 var attacks=new HashSet<string>();
-                for(int strike=1;strike<=3;strike++)
+                for(int strike=1;strike<=(rcd8?0:3);strike++)
                 {
                     phase="attack_"+strike;_controller.Attack();
                     ulong through=Time.GetTicksMsec()+3000;
@@ -165,6 +186,7 @@ public partial class Main
                     }
                 }
                 _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);
+                phaseLabel.Visible=false;
                 var angleCamera=new Camera3D { Fov=50,Near=.05f };AddChild(angleCamera);
                 var fill=_camera.Camera.GetNode<OmniLight3D>("CharacterFill");fill.Reparent(angleCamera,false);
                 var angleLabel=new Label { Position=new Vector2(64,8) };syncLayer.AddChild(angleLabel);
@@ -193,13 +215,21 @@ public partial class Main
                             }
                         }
                         _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);
-                        for(int strike=1;strike<=3;strike++)
+                        ulong settleUntil=Time.GetTicksMsec()+750;
+                        while(Time.GetTicksMsec()<settleUntil)
                         {
-                            phase=angle.Item1+"_attack_"+strike;angleLabel.Text=phase+" | real AttackCommand";
+                            _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);FrameAngle();
+                            await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+                        }
+                        var stationary=_avatar.GlobalPosition;
+                        for(int strike=1;strike<=(rcd8?6:3);strike++)
+                        {
+                            phase=angle.Item1+"_attack_"+((strike-1)%3+1)+"_repeat_"+((strike-1)/3+1);angleLabel.Text=phase+" | stationary | real AttackCommand";
                             _controller.Attack();ulong through=Time.GetTicksMsec()+3000;
                             while(Time.GetTicksMsec()<through)
                             {
                                 FrameAngle();await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+                                if(_avatar.GlobalPosition.DistanceTo(stationary)>.03f)throw new InvalidDataException("Stationary attack drifted");
                                 attacks.Add(_avatar.ClipState);AuditSword();
                                 var p=_avatar.GlobalPosition;var l=_avatar.Foot("L")??p;var r=_avatar.Foot("R")??p;
                                 frames.WriteLine(FormattableString.Invariant($"{Time.GetTicksUsec()},{phase},{p.X},{p.Y},{p.Z},{l.X},{l.Y},{l.Z},{r.X},{r.Y},{r.Z},{_avatar.ClipState}"));
@@ -215,7 +245,8 @@ public partial class Main
             }
             File.WriteAllText(Path.Combine(directory,"foot_events.json"),JsonSerializer.Serialize(events));
             if(!baseline && events.Count<12)throw new InvalidOperationException("Too few audible contact candidates");
-            File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new{status="FOOTSTEP_REQUIRES_AUDIO_VISUAL_REVIEW",baseline,cast=VisualOptions.People,events=events.Count,max_fps=Engine.MaxFps}));
+            File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new{status="FOOTSTEP_REQUIRES_AUDIO_VISUAL_REVIEW",baseline,cast=VisualOptions.People,model=_avatarModel,events=events.Count,max_fps=Engine.MaxFps,
+                findings=rcd8?new[]{51,57}:Array.Empty<int>(),fixture="Low plants and HUD hidden to expose feet; native controller, combat, terrain and motion unchanged"}));
         }
         finally
         {

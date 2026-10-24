@@ -5,8 +5,8 @@ using UNNAMED.Domain.Character;
 
 namespace UNNAMED.Presentation.Ui;
 
-/// <summary>The creator's steps, in order (PJ04 §3.1 as the owner scoped it, D3: no Face step).</summary>
-public enum CreatorStep { People, Body, Identity, Call, Confirm }
+/// <summary>The creator's steps, in order (PJ04 §3.1; the HumGen pipeline adds Face, Hair and Outfit, each backed by humgen_creator.json).</summary>
+public enum CreatorStep { People, Body, Face, Hair, Outfit, Identity, Call, Confirm }
 
 /// <summary>
 /// What the creator holds while a character is made: every choice has a value from the first frame, so any step can be visited in any
@@ -15,6 +15,9 @@ public enum CreatorStep { People, Body, Identity, Call, Confirm }
 /// </summary>
 public sealed record CreatorDraft(string Name, Pronouns Pronouns, string PeopleId, string BodyPresetId, string? CallId, StartPoint Start)
 {
+    /// <summary>The look shaped beyond the body preset, or null while it is the preset exactly as baked (choosing another body clears it).</summary>
+    public CharacterAppearance? Appearance { get; init; }
+
     /// <summary>The Call offered first and preselected for a first character (PJ05 §8.4): "A little of everything; a good first choice."</summary>
     public const string FirstCall = "call.wayfarer";
 
@@ -34,7 +37,7 @@ public sealed record CreatorDraft(string Name, Pronouns Pronouns, string PeopleI
     public string Count => $"{KeptName.Length} / {CharacterSpec.MaxNameLength}";
 
     /// <summary>The spec Begin starts the game with; throws as the domain does when the draft cannot begin.</summary>
-    public CharacterSpec Spec() => new CharacterSpec(Name, Pronouns, PeopleId, BodyPresetId, CallId) { Start = Start }.Validated();
+    public CharacterSpec Spec() => new CharacterSpec(Name, Pronouns, PeopleId, BodyPresetId, CallId) { Start = Start, Appearance = Appearance }.Validated();
 
     /// <summary>A pronoun set in the creator's words: "he/him", "she/her", "they/them".</summary>
     public static string Words(Pronouns pronouns) => pronouns switch

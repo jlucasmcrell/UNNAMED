@@ -75,7 +75,8 @@ public class PlayerRecordCompletenessTests
                 ReturnPoint = "waystone.fixture.cairn",
                 RoadsWalked = ImmutableArray.Create("road.fixture.track#2"),
                 Deeds = player.Deeds,
-                Identity = player.Identity,
+                // Every look choice filled, so each moves the digest (schema 39).
+                Identity = player.Identity with { Appearance = player.Identity.Appearance! with { FacialHair = "facehair.beard.goatee", Outfit = "outfit.casual.smart_casual" } },
                 // Three acts, the last two told to no one, so a sequence can move alone and a row can name another act (schema 20).
                 Factions = new Domain.Factions.FactionLedger(6,
                     player.Factions.Acts.AddRange(new[]

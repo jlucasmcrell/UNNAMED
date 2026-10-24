@@ -1,0 +1,158 @@
+{
+  "idle": [
+    "ual1",
+    "Idle_Loop"
+  ],
+  "idle_shift": [
+    "ual2",
+    "Idle_No_Loop"
+  ],
+  "idle_look": [
+    "ual1",
+    "Idle_Loop"
+  ],
+  "idle_foldarms": [
+    "ual2",
+    "Idle_FoldArms_Loop"
+  ],
+  "walk": [
+    "ual1",
+    "Walk_Loop"
+  ],
+  "run": [
+    "ual1",
+    "Jog_Fwd_Loop"
+  ],
+  "sprint": [
+    "ual1",
+    "Sprint_Loop"
+  ],
+  "walk_strafe_left": [
+    "fal_side_walk",
+    "anim_Walk_Left_Loop"
+  ],
+  "walk_strafe_right": [
+    "fal_side_walk",
+    "anim_Walk_Right_Loop"
+  ],
+  "strafe_left": [
+    "fal",
+    "anim_Jog_Loop_Left_L"
+  ],
+  "strafe_right": [
+    "fal",
+    "anim_Jog_Loop_Right_R"
+  ],
+  "walk_back": [
+    "fal",
+    "anim_Walk_Bwd_Loop_L"
+  ],
+  "run_back": [
+    "fal",
+    "anim_Jog_Loop_Bwd"
+  ],
+  "crouch_idle": [
+    "ual1",
+    "Crouch_Idle_Loop"
+  ],
+  "crouch_walk": [
+    "ual1",
+    "Crouch_Fwd_Loop"
+  ],
+  "sword_ready": [
+    "ual1",
+    "Pistol_Idle_Loop"
+  ],
+  "sword_block": [
+    "ual2",
+    "Sword_Block"
+  ],
+  "sword_attack_1": [
+    "ual1",
+    "Sword_Attack"
+  ],
+  "sword_attack_2": [
+    "ual2",
+    "Sword_Regular_A"
+  ],
+  "sword_attack_3": [
+    "ual2",
+    "Sword_Regular_B"
+  ],
+  "spear_ready": [
+    "fal_spear",
+    "AS_Spear_Idle"
+  ],
+  "spear_thrust": [
+    "fal_spear",
+    "AS_Spear_Attack_01"
+  ],
+  "sit": [
+    "ual1",
+    "Sitting_Idle_Loop"
+  ],
+  "sit_talk": [
+    "ual1",
+    "Sitting_Talking_Loop"
+  ],
+  "sit_enter": [
+    "ual1",
+    "Sitting_Enter"
+  ],
+  "sit_exit": [
+    "ual1",
+    "Sitting_Exit"
+  ],
+  "lie_to_idle": [
+    "ual2",
+    "LayToIdle"
+  ],
+  "captive_kneel": [
+    "ual1",
+    "Fixing_Kneeling"
+  ],
+  "jump": [
+    "ual1",
+    "Jump_Start"
+  ],
+  "fall": [
+    "ual1",
+    "Jump_Loop"
+  ],
+  "land": [
+    "ual1",
+    "Jump_Land"
+  ],
+  "cast": [
+    "ual1",
+    "Spell_Simple_Shoot"
+  ],
+  "hit": [
+    "ual1",
+    "Hit_Chest"
+  ],
+  "death": [
+    "ual1",
+    "Death01"
+  ],
+  "interact": [
+    "ual1",
+    "Interact"
+  ],
+  "talk": [
+    "ual1",
+    "Idle_Talking_Loop"
+  ],
+  "dodge": [
+    "ual1",
+    "Roll"
+  ],
+  "pick_up": [
+    "ual2",
+    "Farm_Harvest"
+  ],
+  "mantle_1m": [
+    "ual2",
+    "ClimbUp_1m"
+  ]
+}

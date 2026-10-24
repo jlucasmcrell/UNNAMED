@@ -542,6 +542,18 @@ public sealed class ArtBindings
                 GD.PushError($"UNNAMED art: {path} lists no body of a usable height; the people stay as bound");
                 return null;
             }
+            if (VisualOptions.ComparisonCast == "humgen")
+            {
+                if (models.Select(m => m.Id).Distinct(StringComparer.Ordinal).Count() != models.Count
+                    || models.Any(m => !m.Id.StartsWith("humgen_", StringComparison.Ordinal)))
+                    throw new InvalidDataException("HumGen cast IDs must be unique and start with humgen_");
+                foreach (var (person, identity) in ReadNamedCharacters())
+                    if (identity.Humgen is null || !models.Any(m => m.Id == identity.Humgen && m.NpcOnly))
+                        throw new InvalidDataException("HumGen named identity missing from production cast: " + person);
+                foreach (string sex in new[] { "f", "m" })
+                    if (!models.Any(m => m.Sex == sex && !m.NpcOnly))
+                        throw new InvalidDataException("HumGen player preset missing: " + sex);
+            }
             // A cast with one sex and not the other leaves those people on their bound bodies without saying so.
             foreach (string sex in new[] { "f", "m" })
             {
@@ -572,22 +584,24 @@ public sealed class ArtBindings
         if (named.TryGetValue(person, out var identity) && cast.Models.FirstOrDefault(m => m.Id == Identity(identity)) is { } chosen)
         {
             if (chosen.Sex != (feminine ? "f" : "m")) throw new InvalidDataException("Named comparison identity sex differs: " + person);
-            return (chosen, (feminine ? cast.Feminine : cast.Masculine) / chosen.Height);
+            return (chosen, VisualOptions.ComparisonCast == "humgen" ? 1f : (feminine ? cast.Feminine : cast.Masculine) / chosen.Height);
         }
         var reserved = named.Values.Select(Identity).ToHashSet(StringComparer.Ordinal);
-        var usable = cast.Models.Where(m => m.Sex == (feminine ? "f" : "m") && !reserved.Contains(m.Id) && (person != "player" || !m.NpcOnly)).ToArray();
+        var usable = cast.Models.Where(m => m.Sex == (feminine ? "f" : "m") && !reserved.Contains(m.Id)
+            && (person == "player" ? !m.NpcOnly : VisualOptions.ComparisonCast != "humgen" || m.NpcOnly)).ToArray();
         if (usable.Length == 0)
             return null;
         uint hash = 2166136261;
         foreach (char c in person)
             hash = (hash ^ c) * 16777619;
         var body = usable[(int)(hash % (uint)usable.Length)];
-        return (body, (feminine ? cast.Feminine : cast.Masculine) / body.Height);
+        return (body, VisualOptions.ComparisonCast == "humgen" ? 1f : (feminine ? cast.Feminine : cast.Masculine) / body.Height);
     }
 
     /// <summary>A creator body swap replaces model-height compensation, keeping only the person's stature variation.</summary>
     public static float ComparisonBodyScale(string fromModel, string toModel, float current)
     {
+        if (VisualOptions.ComparisonCast == "humgen") return current;
         if (MpfbCastFile() is not { } cast) return current;
         var from = cast.Models.FirstOrDefault(m => m.Id == fromModel);
         var to = cast.Models.FirstOrDefault(m => m.Id == toModel);
@@ -628,7 +642,7 @@ public sealed class ArtBindings
                 Outfit = Array.Empty<string>(),
                 OutfitBody = null,
                 EquipmentOutfits = new Dictionary<string, string[]>(),
-                UniformScale = look.UniformScale * worn.Scale,
+                UniformScale = VisualOptions.ComparisonCast == "humgen" ? 1f : look.UniformScale * worn.Scale,
             };
             swapped++;
         }

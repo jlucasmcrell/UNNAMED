@@ -282,8 +282,9 @@ public class HistoricalFixtureTests
             loaded.Player.Deeds);
         // Schema 17's identity (the character creator): Aelin is "she", a Veth of a chosen build, of the Scholar's Call; before it, the
         // character the game always made - "they", a Veth of the default body, with no Call - and her name kept.
+        // Schema 39's appearance (the HumGen creator): her stature, face, hair, boots and two sliders; before it, none - the preset as baked.
         Assert.Equal(schema >= 17
-                ? new CharacterIdentity(Pronouns.She, "people.veth", "body.build_slender", "call.scholar")
+                ? new CharacterIdentity(Pronouns.She, "people.veth", "body.build_slender", "call.scholar") { Appearance = schema >= 39 ? M2Fixtures.Appearance : null }
                 : new CharacterIdentity(Pronouns.They, "people.veth", "body.default", null),
             loaded.Player.Identity);
         Assert.Equal("Aelin", loaded.Player.Name);

@@ -666,3 +666,33 @@ Local IDs are retained for detail. Risks promoted to the project register are cr
 ---
 
 Action: owner review and sign-off on this file before moving to Phase 1 design.
+
+## 12. Schema 38 — spawned encounter strength (RC d8, 2026-10-23)
+
+Creature records retain `scale_percent` (positive integer, authored value 100) and
+`level_bonus` (non-negative integer). Health, damage, displayed level and kill rewards use
+this spawned strength until the next respawn; loading against another party must not resize it.
+A creature's initial placement therefore records its strength even while it is unwounded and at home.
+These fields participate in the effective-cell digest.
+
+The 37 -> 38 step defaults older creature records to authored strength (100, 0).
+The schema-37 entity envelope and shared pre-38 creature DTO are frozen; older migration steps
+continue to write that shape. Historical save bytes remain unchanged. Schema 38 adds its own
+writer-generated fixture and updates only the fixtures' expected current representation.
+
+Absent-time advancement observes known respawn and pet-recovery boundaries before continuing
+across a longer span. This preserves normal system order at those instants, so a companion's
+later departure cannot change the strength of a creature which respawned earlier in the absence.
+
+## 13. Schema 39 — the creator's appearance (HumGen creator, 2026-10-23)
+
+The player identity gains `appearance`: null for a character of its body preset exactly as baked, or a record of
+`stature_mm` (1000-3000), the chosen `face`, `hair`, `facial_hair`, `outfit` and `footwear` catalogue IDs (each nullable:
+null keeps the preset's own) and `sliders`, each `{id, value}` once, in the catalogue's integer units
+(`src/Presentation/Art/humgen_creator.json`). The domain keeps IDs and numbers only; presentation resolves them, and a look no
+baked body has is drawn as its preset until a bake fills it in. The appearance enters the player digest only when present.
+
+The 38 -> 39 step gives every older identity no appearance. The schema-38 player and the identity of schemas 17-38 are frozen
+(`Sections/V38`); the 16 -> 17 and 35 -> 36 steps write those shapes. Schema 39 adds its own writer-generated fixture and
+updates only the fixtures' expected current representation (`"appearance": null`).
+

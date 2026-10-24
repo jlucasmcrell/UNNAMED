@@ -12,10 +12,15 @@ using Registry = UNNAMED.EntityRegistry.EntityRegistry;
 
 namespace UNNAMED.Application.Tests;
 
+// The unchanged 4ms wall-clock budget needs an uncontended test lane.
+[CollectionDefinition("Simulation timing budgets", DisableParallelization = true)]
+public sealed class SimulationTimingBudgetCollection { }
+
 /// <summary>
 /// M3d: creatures perceive, act by role, die into lootable corpses, return by their spawner's timer, and are saved - over
 /// the game's own content (STEALTH_DETECTION_AND_THREAT.md; the content bible's five archetypes).
 /// </summary>
+[Collection("Simulation timing budgets")]
 public class CreatureTests
 {
     private const string Hound = "creature.beast.ash_ember_hound";

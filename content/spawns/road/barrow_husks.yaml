@@ -3,7 +3,7 @@ kind: spawn
 schema: 1
 display_key: spawn.road.barrow_husks.name
 tags: [spawn]
-notes: 'Two husks that keep the Sunk Barrow on the high ground north of the road: one stands at the cist, one walks the ring of stones. Level 4, the hardest fight between the settlements, and the barrow cache is behind them.'
+notes: 'Two husks that keep the Sunk Barrow on the high ground north of the road: one stands at the cist, one walks the ring of stones. Level 3, with the barrow cache behind them.'
 region_ref: region.starting_frontier
 creatures:
   - { creature_ref: creature.undead.bone_walker_husk, count: [1, 1], role: sentinel }
@@ -16,6 +16,6 @@ route_m:
   - [856, 624]
   - [856, 638]
   - [838, 638]
-level_band: [4, 4]
+level_band: [3, 3]
 respawn: { kind: timer, window_ticks: 72000 }   # 60 minutes after a death, once nobody is standing over the place
 tier_hint: A

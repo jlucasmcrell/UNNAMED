@@ -44,7 +44,7 @@ try
     var start = new ProcessStartInfo(Path.Combine(root, "Otherreach.exe")) {
         WorkingDirectory = root, UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true
     };
-    start.Environment["OTHERREACH_MH_CHARACTERS_ROOT"] = Path.Combine(root, "mh_characters");
+    start.Environment["OTHERREACH_CHARACTER_ROOT"] = Path.Combine(root, "humgen_characters");
     start.Environment["UNNAMED_SCATTER_RESIDENCY"] = "0";
     string profile = review && Environment.GetEnvironmentVariable("OTHERREACH_MH_REVIEW_PROFILE") is { Length: > 0 } reviewProfile
         ? Path.GetFullPath(reviewProfile) : Path.Combine(root, "saves");
@@ -55,7 +55,7 @@ try
         "--profile", profile, "--visual", $"terrain=terrain3d,sky=sky3d,people={people},foldscar=proof,body=none" +
             (start.Environment.TryGetValue("OTHERREACH_MH_REVIEW_HOUR", out var hour) && hour == "12" ? ",hour=12" : "") }) start.ArgumentList.Add(arg);
     game = Process.Start(start)!;
-    File.AppendAllText(Path.Combine(evidence, "launcher.log"), $"{DateTimeOffset.Now:o} launcher={Environment.ProcessPath} launcher_pid={Environment.ProcessId} game_pid={game.Id} asset_root={start.Environment["OTHERREACH_MH_CHARACTERS_ROOT"]}\n");
+    File.AppendAllText(Path.Combine(evidence, "launcher.log"), $"{DateTimeOffset.Now:o} launcher={Environment.ProcessPath} launcher_pid={Environment.ProcessId} game_pid={game.Id} asset_root={start.Environment["OTHERREACH_CHARACTER_ROOT"]}\n");
     output = game.StandardOutput.ReadToEndAsync(); errors = game.StandardError.ReadToEndAsync();
     var timer = Stopwatch.StartNew();
     while (!game.WaitForExit(1000))

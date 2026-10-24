@@ -3,6 +3,7 @@ using UNNAMED.Domain;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Social;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
 
@@ -125,7 +126,9 @@ public class BountyTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = Arena.OpenCreatures(session, session.Setup, AtRenn, 0, Array.Empty<(string, double, double, string)>(), r =>
+        // This checks the bounty's daily cooldown, independently of Renn walking to bed.
+        var rules=session.Setup with { NpcLife=NpcLifeSetup.Empty };
+        var arena = Arena.OpenCreatures(session, rules, AtRenn, 0, Array.Empty<(string, double, double, string)>(), r =>
             new PlayerRecord(r.Id, r.Name, r.XMm, r.YMm, r.ZMm, r.AppearanceSeed,
                 r.Inventory.Append(new InventoryEntry(EntityId.NewId(EntityKind.Item), Timber, 12)), r.Progression, r.FacingMdeg, r.Discoveries,
                 r.Equipment, r.Currency, r.Effects, r.Relationships, r.Conversations));

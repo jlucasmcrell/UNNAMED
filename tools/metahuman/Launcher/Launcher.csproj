@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>PlayOtherreachMH</AssemblyName>
+    <AssemblyName>PlayOtherreach</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="../invoke_gpu_lock.ps1" Link="invoke_gpu_lock.ps1" CopyToOutputDirectory="PreserveNewest" />

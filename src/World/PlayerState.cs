@@ -914,7 +914,8 @@ public sealed record PlayerRecord
         {
             if (value is null || !Enum.IsDefined(value.Pronouns) || !DefinitionId.IsValid(value.PeopleId) || !value.PeopleId.StartsWith("people.", StringComparison.Ordinal)
                 || !DefinitionId.IsValid(value.BodyPresetId) || !value.BodyPresetId.StartsWith("body.", StringComparison.Ordinal)
-                || value.CallId is { } call && (!DefinitionId.IsValid(call) || !call.StartsWith("call.", StringComparison.Ordinal)))
+                || value.CallId is { } call && (!DefinitionId.IsValid(call) || !call.StartsWith("call.", StringComparison.Ordinal))
+                || value.Appearance?.Problem() is not null)
                 throw new ArgumentException($"Invalid character identity {value}", nameof(Identity));
             _identity = value;
         }
@@ -999,6 +1000,13 @@ public sealed record PlayerRecord
             foreach (var d in Deeds)
                 h.Add(DeedKeys.Key(d.Kind)).Add(d.SubjectId).Add(d.NpcId ?? "-").Add(d.Count).Add(d.LastTick);
             h.Add(PronounKeys.Key(Identity.Pronouns)).Add(Identity.PeopleId).Add(Identity.BodyPresetId).Add(Identity.CallId ?? "-");
+            // Schema 39: the creator's look, only when there is one, so a character of the preset as baked keeps the digest it had.
+            if (Identity.Appearance is { } look)
+            {
+                h.Add(look.StatureMm).Add(look.Face ?? "-").Add(look.Hair ?? "-").Add(look.FacialHair ?? "-").Add(look.Outfit ?? "-").Add(look.Footwear ?? "-").Add(look.Sliders.Count);
+                foreach (var (slider, value) in look.Sliders)
+                    h.Add(slider).Add(value);
+            }
             h.Add(Factions.NextActSeq).Add(Factions.Acts.Length);
             foreach (var a in Factions.Acts)
                 h.Add(a.Seq).Add(a.Kind).Add(a.Subject).Add(a.CellKey).Add(a.XMm).Add(a.ZMm).Add(a.Tick);

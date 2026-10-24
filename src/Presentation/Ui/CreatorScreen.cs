@@ -1,4 +1,4 @@
-// UNNAMED Presentation - the character creator: People, Body, Identity, Call and Confirm, plus Quick start (WP2's local part; PJ04 §3, PJ06 §3)
+// UNNAMED Presentation - the character creator: People, Body, Face, Hair, Outfit, Identity, Call and Confirm, plus Quick start (WP2's local part; PJ04 §3, PJ06 §3)
 // Godot presentation only: it holds the draft being made and hands Main the spec to start a new game with; nothing here is game state (D-11)
 
 using Godot;
@@ -14,8 +14,10 @@ namespace UNNAMED.Presentation.Ui;
 /// New Game's creator, in the Field Instrument kit: the title's dark panel down the left with the step bar, the step and Back / Next,
 /// and the body itself filling the rest - the game's own model, turning on a set of its own (<see cref="CreatorPreview"/>). The owner's
 /// scope (D3): the Veth only; a body type and one of three builds; a name of 1-24 characters with Suggest; he, she or they; one of the
-/// four Calls, each showing what it starts with. No face sliders. Every step has a value from the first frame, so the steps can be taken
-/// in any order and going back loses nothing; Begin is refused, with the reason, only while the name cannot be kept.
+/// four Calls, each showing what it starts with. The HumGen pipeline adds the look (CreatorScreen.Look.cs): height and body shape, face,
+/// hair and outfit, offered as humgen_creator.json says HumGen can make them, every choice no baked body has marked as pending bake. Every
+/// step has a value from the first frame, so the steps can be taken in any order and going back loses nothing; Begin is refused, with the
+/// reason, only while the name cannot be kept.
 /// </summary>
 public partial class CreatorScreen : CanvasLayer
 {
@@ -23,8 +25,8 @@ public partial class CreatorScreen : CanvasLayer
 
     private static readonly (CreatorStep Step, string Name)[] Steps =
     {
-        (CreatorStep.People, "People"), (CreatorStep.Body, "Body"), (CreatorStep.Identity, "Identity"), (CreatorStep.Call, "Call"),
-        (CreatorStep.Confirm, "Confirm"),
+        (CreatorStep.People, "People"), (CreatorStep.Body, "Body"), (CreatorStep.Face, "Face"), (CreatorStep.Hair, "Hair"),
+        (CreatorStep.Outfit, "Outfit"), (CreatorStep.Identity, "Identity"), (CreatorStep.Call, "Call"), (CreatorStep.Confirm, "Confirm"),
     };
 
     private GameSession _session = null!;
@@ -33,7 +35,7 @@ public partial class CreatorScreen : CanvasLayer
     private HudIcons _icons = HudIcons.None;
     private readonly RandomNumberGenerator _random = new();
     private CreatorPreview _preview = null!;
-    private HBoxContainer _stepBar = null!;
+    private GridContainer _stepBar = null!;
     private Label _stepTitle = null!;
     private VBoxContainer _body = null!;
     private ScrollContainer _scroll = null!;
@@ -76,6 +78,7 @@ public partial class CreatorScreen : CanvasLayer
         Visible = false;
         Layer = 10;
         _random.Randomize();
+        _catalogue = ReadCatalogue();
         var root = new Control { Theme = UiKit.Theme, MouseFilter = Control.MouseFilterEnum.Ignore };
         root.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         _preview = new CreatorPreview { Name = "Preview" };
@@ -95,8 +98,10 @@ public partial class CreatorScreen : CanvasLayer
         column.AddChild(title);
         column.AddChild(new UiKit.TickRule { CustomMinimumSize = new Vector2(0, 10) });
         column.AddChild(new Control { CustomMinimumSize = new Vector2(0, 18) });
-        _stepBar = new HBoxContainer();
-        _stepBar.AddThemeConstantOverride("separation", 6);
+        // Two rows of four tabs: eight steps do not fit the panel's width in one.
+        _stepBar = new GridContainer { Columns = 4 };
+        _stepBar.AddThemeConstantOverride("h_separation", 6);
+        _stepBar.AddThemeConstantOverride("v_separation", 6);
         column.AddChild(_stepBar);
         column.AddChild(new Control { CustomMinimumSize = new Vector2(0, 22) });
         _stepTitle = HudStyle.Text(HudStyle.Caps, 28, HudStyle.Bone, caps: true);
@@ -162,7 +167,7 @@ public partial class CreatorScreen : CanvasLayer
         if (DisplayServer.GetName() != "headless")
             Input.MouseMode = Input.MouseModeEnum.Visible;
         if (!OfferedBodies().Any(b => b.Id == Draft.BodyPresetId && b.Installed))
-            _draft = Draft with { BodyPresetId = DefaultBody() };
+            _draft = WithBody(DefaultBody());
         _draft = Draft with { Start = RoadWalked && SkipRoad ? StartPoint.Waystone : StartPoint.Road };
         Go(CreatorStep.People);
     }
@@ -217,7 +222,7 @@ public partial class CreatorScreen : CanvasLayer
     public bool BeginQuick(int body)
     {
         var installed = OfferedBodies().Where(o => o.Installed).ToList();
-        _draft = Draft with { Name = SuggestedName(), BodyPresetId = installed.Count > 0 ? installed[Math.Clamp(body, 0, installed.Count - 1)].Id : DefaultBody(), Start = StartPoint.Waystone };
+        _draft = WithBody(installed.Count > 0 ? installed[Math.Clamp(body, 0, installed.Count - 1)].Id : DefaultBody()) with { Name = SuggestedName(), Start = StartPoint.Waystone };
         return PressBegin();
     }
 
@@ -270,7 +275,7 @@ public partial class CreatorScreen : CanvasLayer
         {
             string? model = bodies.Model(b, Installed);
             return new Offered(b, model, model is not null);
-        }).ToList();
+        }).Where(o => o.Model?.StartsWith("humgen_", StringComparison.Ordinal) != true || o.Body.Build == bodies.BaseBuild).ToList();
         if (offered.Count > 0 && offered.All(o => !o.Installed))
             offered = offered.Select(o => o with { Installed = true }).ToList();
         return offered;
@@ -317,6 +322,7 @@ public partial class CreatorScreen : CanvasLayer
     {
         _count = null;
         _problem = null;
+        _pendingWords = null;
         UiKit.Clear(_stepBar);
         foreach (var (step, name) in Steps)
         {
@@ -334,6 +340,15 @@ public partial class CreatorScreen : CanvasLayer
                 break;
             case CreatorStep.Body:
                 BodyStep();
+                break;
+            case CreatorStep.Face:
+                FaceStep();
+                break;
+            case CreatorStep.Hair:
+                HairStep();
+                break;
+            case CreatorStep.Outfit:
+                OutfitStep();
                 break;
             case CreatorStep.Identity:
                 IdentityStep();
@@ -361,18 +376,27 @@ public partial class CreatorScreen : CanvasLayer
         }).CallDeferred();
     }
 
-    /// <summary>Step 1: the one people the slice offers (the others are not shown, PJ04:51), and Quick start.</summary>
+    /// <summary>
+    /// Step 1: the peoples content makes playable, then every other people the HumGen catalogue knows, greyed out with why (not playable
+    /// yet, or its body pending bake), and Quick start.
+    /// </summary>
     private void PeopleStep()
     {
         var section = UiKit.Section("Lineage");
         foreach (var people in _session.Characters.PlayablePeoples)
         {
-            var card = UiKit.ListRow("creator.people." + people.Id, Names.Of(_session, people.Id), "The touched lineage", height: 56);
+            var race = _catalogue.Race(people.Id);
+            var card = UiKit.ListRow("creator.people." + people.Id, Names.Of(_session, people.Id),
+                race is null ? "The touched lineage" : $"{race.Epithet} · {Metres(race.MinStatureMm)}-{Metres(race.MaxStatureMm)}", height: 56);
+            if (race is { HumgenBody: false })
+                card.Right.AddChild(PendingChip());
             UiKit.Select(card.Button, people.Id == Draft.PeopleId);
             string id = people.Id;
             card.Button.Pressed += Deferred(() =>
             {
                 _draft = Draft with { PeopleId = id };
+                if (Draft.Appearance is { } look && _catalogue.Race(id) is { } chosen)
+                    _draft = Draft with { Appearance = look with { StatureMm = Math.Clamp(look.StatureMm, chosen.MinStatureMm, chosen.MaxStatureMm) } };
                 Render("creator.people." + id);
             });
             section.AddChild(card.Button);
@@ -385,6 +409,8 @@ public partial class CreatorScreen : CanvasLayer
                 section.AddChild(Line("Leans toward", "Melee and ranged."));
             }
         }
+        foreach (var race in _catalogue.Races.Where(r => !_session.Characters.Peoples.TryGetValue(r.People, out var p) || !p.Playable))
+            section.AddChild(PendingRace(race));
         _body.AddChild(section);
 
         var quick = UiKit.Section("Quick start");
@@ -396,7 +422,7 @@ public partial class CreatorScreen : CanvasLayer
     /// <summary>Quick start (PJ04 §3.1): a whole character - the default body, the first Call and a suggested name - then Identity.</summary>
     private void QuickStart()
     {
-        _draft = Draft with { BodyPresetId = DefaultBody(), CallId = Fresh().CallId, Name = SuggestedName() };
+        _draft = WithBody(DefaultBody()) with { CallId = Fresh().CallId, Name = SuggestedName() };
         Go(CreatorStep.Identity);
     }
 
@@ -415,14 +441,18 @@ public partial class CreatorScreen : CanvasLayer
             string id = "creator.type." + type;
             var button = UiKit.Action(choice.Body.TypeLabel, Deferred(() =>
             {
-                _draft = Draft with { BodyPresetId = choice.Id };
+                _draft = WithBody(choice.Id);
                 Render(id);
             }), id: id);
             button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
             button.Disabled = !choice.Installed;
             if (!choice.Installed)
                 button.TooltipText = "This body is not installed in this build.";
-            UiKit.Select(button, current?.Body.Type == type);
+            bool selected = current?.Body.Type == type;
+            button.ToggleMode = true;
+            button.SetPressedNoSignal(selected);
+            if (selected) button.Text += " (selected)";
+            UiKit.Select(button, selected);
             typeRow.AddChild(button);
         }
         types.AddChild(typeRow);
@@ -438,7 +468,7 @@ public partial class CreatorScreen : CanvasLayer
             string id = "creator.build." + choice.Body.Build;
             var button = UiKit.Action(choice.Body.BuildLabel, Deferred(() =>
             {
-                _draft = Draft with { BodyPresetId = choice.Id };
+                _draft = WithBody(choice.Id);
                 Render(id);
             }), id: id);
             button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
@@ -447,13 +477,18 @@ public partial class CreatorScreen : CanvasLayer
             buildRow.AddChild(button);
         }
         builds.AddChild(buildRow);
+        if (_catalogue.Baked.Length > 0)
+            builds.AddChild(UiKit.Words("Choosing another body type or build starts its look again from that body as baked.", 16, HudStyle.Muted));
         _body.AddChild(builds);
+        _body.AddChild(PendingNote());
+        _body.AddChild(HeightSection());
+        _body.AddChild(SliderSection("body", "Shape", "HumGen body proportions"));
 
         var randomise = UiKit.Action("Randomise", Deferred(() =>
         {
             var installed = OfferedBodies().Where(o => o.Installed).ToList();
             if (installed.Count > 0)
-                _draft = Draft with { BodyPresetId = installed[_random.RandiRange(0, installed.Count - 1)].Id };
+                _draft = WithBody(installed[_random.RandiRange(0, installed.Count - 1)].Id);
             Render("creator.randomise");
         }), id: "creator.randomise");
         var tools = new HBoxContainer();
@@ -590,12 +625,15 @@ public partial class CreatorScreen : CanvasLayer
         who.AddChild(UiKit.Stat("Pronouns", CreatorDraft.Words(draft.Pronouns)));
         who.AddChild(UiKit.Stat("People", Names.Of(_session, draft.PeopleId)));
         who.AddChild(UiKit.Stat("Body", body is null ? "-" : $"{body.Body.TypeLabel}, {body.Body.BuildLabel.ToLowerInvariant()} build"));
+        foreach (var (caption, words) in LookLines())
+            who.AddChild(UiKit.Stat(caption, words, size: 17));
         if (draft.CallId is { } callId && _session.Characters.Calls.TryGetValue(callId, out var call))
         {
             who.AddChild(UiKit.Stat("Call", Names.Of(_session, callId)));
             who.AddChild(UiKit.Stat("Starts", string.Join(", ", call.Package.Skills.Select(s => $"{Names.Of(_session, s.Key)} {s.Value}")), size: 17));
         }
         _body.AddChild(who);
+        _body.AddChild(PendingNote());
         if (draft.Problem is { } problem)
         {
             var fix = UiKit.Callout(HudStyle.Wound, problem);

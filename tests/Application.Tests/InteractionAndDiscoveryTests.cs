@@ -118,18 +118,21 @@ public class InteractionAndDiscoveryTests
     }
 
     [Fact]
-    public void TheOutpost_IsDiscoveredOnTheFirstTick_ForNoXp()
+    public void TheOutpost_IsDiscoveredOnTheFirstTick_AndOnlyItsLorePagesPayXp()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         var discovered = Harness.Record<LocationDiscovered>(session);
         var xp = Harness.Record<ExperienceGained>(session);
+        var pages = Harness.Record<LorePageUnlocked>(session);
 
         Harness.Ticks(session, 1);
 
         Assert.Equal("location.outpost", Assert.Single(discovered).LocationId);
-        Assert.Empty(xp);
+        Assert.All(pages, p=>Assert.Equal("location.outpost",p.SourceRef));
+        Assert.Equal(pages.Count,xp.Count);
+        Assert.All(xp,e=>Assert.Equal((XpSource.Discovery,10L),(e.Source,e.Awarded)));
         Assert.Equal(new DiscoveryRecord("location.outpost", DiscoveryMethod.Visited, 1), Assert.Single(simulation.Player.Discoveries));
     }
 
@@ -141,14 +144,16 @@ public class InteractionAndDiscoveryTests
         var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         var discovered = Harness.Record<LocationDiscovered>(session);
         var xp = Harness.Record<ExperienceGained>(session);
+        var pages = Harness.Record<LorePageUnlocked>(session);
 
         Assert.True(Harness.WalkPath(session, (60, 156), (90, 165), (104, 170), (112, 170)));
         Assert.True(Harness.WalkPath(session, (104, 160), (112, 170)));   // out of the radius and back in
 
         var den = Assert.Single(discovered, d => d.LocationId == "location.den_mouth");
         Assert.Equal(DiscoveryMethod.Visited, den.Method);
-        var award = Assert.Single(xp, e => e.Tick == den.Tick);
+        var award = Assert.Single(xp, e => e.Tick == den.Tick && e.Awarded==25);
         Assert.Equal((XpSource.Discovery, 25L), (award.Source, award.Awarded));
+        Assert.Equal(25L+10*pages.Count(p=>p.Tick==den.Tick),xp.Where(e=>e.Tick==den.Tick).Sum(e=>e.Awarded));
         Assert.Contains(simulation.Player.Discoveries, d => d.LocationId == "location.den_mouth" && d.Tick == den.Tick);
         Assert.Equal(simulation.Player.Discoveries.Length, discovered.Count);
     }

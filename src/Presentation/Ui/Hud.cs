@@ -432,6 +432,8 @@ public partial class Hud : CanvasLayer
     }
 
     /// <summary>A moment the player should not miss - a level gained, a quest finished - announced at the top centre; classic toasts it.</summary>
+    public void ClearWaystoneAnnouncements() => _view?.ClearWaystoneAnnouncements();
+
     public void Announce(string kind, string title, Color tone, params (string Text, string? Key)[] lines)
     {
         if (_view is not null)

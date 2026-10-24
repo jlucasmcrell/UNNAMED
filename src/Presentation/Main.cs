@@ -385,8 +385,6 @@ public partial class Main : Node3D
             LockProfile = true,
             RegionId = region,
             Barrowworks = VisualOptions.Barrowworks,
-            // RC d6 ships accepted companion work; pets remain an explicit development review.
-            EnablePets = _options.ContainsKey(PetShotsOption) || OS.GetEnvironment("OTHERREACH_PETS_REVIEW") == "1",
             // A --shot names a place to stand, so the session opens the player there instead of making the
             // capture walk him across the region - which measured about a quarter of an hour per room in the
             // Barrowworks (plan P2h). Absent, the region's own spawn is used and nothing changes.
@@ -1594,7 +1592,7 @@ public partial class Main : Node3D
             : weapon.Source == "unarmed" ? Held.Nothing
             : _session.Setup.Items.Catalog.Find(weapon.Source)?.Weapon?.TwoHanded == true ? Held.Spear   // the greybox draws a two-hander as a spear
             : Held.Sword;
-        return new CombatStance(combat.Phase, progress, held, combat.Blocking, working is not null);
+        return new CombatStance(combat.Phase, progress, held, combat.Blocking, working is not null, combat.InCombat);
     }
 
     /// <summary>The coverage report's allowlist (<c>res://Art/art_coverage_allowlist.json</c>): greybox kept on purpose, each with its reason.</summary>

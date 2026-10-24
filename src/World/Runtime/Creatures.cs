@@ -365,6 +365,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
                         Condition = record.Condition,
                         Body = new Body(record.XMm, space.Terrain.HeightAtMm(record.XMm, record.ZMm), record.ZMm, record.FacingMdeg),
                         Health = record.Health,
+                        ScalePercent = record.ScalePercent,
+                        LevelBonus = record.LevelBonus,
                         DiedTick = record.DiedTick,
                         RespawnTick = record.RespawnTick,
                         Mind = record.Mind,
@@ -383,6 +385,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
                     };
                 }
                 State.SetCreature(_owner, state);
+                // Party composition changes later. Even an untouched authored-size
+                // creature needs its spawn scale retained instead of being resized on load.
+                if (Scale is not null && State.World.Creature(key) is null) Save(state);
             }
         }
     }
@@ -431,7 +436,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                      && c.Site.Recovery is not null && c.Mind == CreatureMind.Engaged).ToList())
         {
             var safe = c.Site.Recovery!;
-            Save(AtHome(c) with { Health = c.Definition.MaxHealth });
+            Save(AtHome(c) with { Health = c.ScaledMaxHealth });
             var arrival = new Body(safe.SafeXMm, _context.Setup.SpaceFor(State.Space).Terrain.HeightAtMm(safe.SafeXMm, safe.SafeZMm), safe.SafeZMm, State.Body.FacingMdeg);
             _context.Dispatch(new Relocate(arrival));
             _context.Dispatch(new RestageEncounterParty(arrival, safe));
@@ -471,7 +476,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 _outsideAttemptTicks[key] = count;
                 if (count >= 20)
                 {
-                    Save(AtHome(creature) with { Health = creature.Definition.MaxHealth });
+                    Save(AtHome(creature) with { Health = creature.ScaledMaxHealth });
                     var arrival = new Body(court.SafeXMm, _context.Setup.SpaceFor(State.Space).Terrain.HeightAtMm(court.SafeXMm, court.SafeZMm), court.SafeZMm, 0);
                     _context.Dispatch(new RestageEncounterParty(arrival, court));
                     _context.Events.Publish(new EncounterRestarted(creature.Site.Key, false, tick));
@@ -1251,7 +1256,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         long charge = alive && c.NextChargeTick > next ? c.NextChargeTick : 0;
         long immune = alive && c.StaggerImmuneUntil > next ? c.StaggerImmuneUntil : 0;
         bool staggered = alive && c.Action.Kind == ActionKind.Staggered && c.Action.PhaseAt(next, C).Phase == CombatPhase.Staggered;
-        bool baseline = c.Condition == CreatureCondition.Alive && c.Generation == 0 && c.Health == c.ScaledMaxHealth
+        bool baseline = Scale is null && c.Condition == CreatureCondition.Alive && c.Generation == 0 && c.Health == c.ScaledMaxHealth
                         && c.Body.XMm == c.HomeXMm && c.Body.ZMm == c.HomeZMm && c.Body.FacingMdeg == c.HomeFacingMdeg
                         && c.Mind == CreatureMind.Unaware && c.Awareness == 0 && !c.Knows && !c.HasCalled && charge == 0 && immune == 0 && !staggered;
         var existing = State.World.Creature(c.Key);
@@ -1265,6 +1270,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
             c.Condition, c.Body.XMm, c.Body.ZMm, c.Body.FacingMdeg, c.Health, c.DiedTick, c.RespawnTick)
         {
             Mind = c.Mind,
+            ScalePercent = c.ScalePercent,
+            LevelBonus = c.LevelBonus,
             Awareness = c.Awareness,
             Knows = c.Knows,
             KnownXMm = c.Knows ? c.KnownXMm : 0,

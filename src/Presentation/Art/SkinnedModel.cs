@@ -17,6 +17,7 @@ public sealed partial class SkinnedModel : Node3D
     private bool _idlePhaseStarted;
     private Node? _locomotion;
     public IReadOnlyDictionary<string, float>? MotionPaces { get; private set; }
+    public IReadOnlyDictionary<string, float[]>? MotionActionPhases { get; private set; }
     public IReadOnlyDictionary<int, Quaternion>? WeaponGrip { get; private set; }
     public bool HasFootPlantEvents { get; private set; }
     public event Action<string,string,double>? FootPlanted;
@@ -112,9 +113,16 @@ public sealed partial class SkinnedModel : Node3D
     // Every clip in these libraries was retargeted onto this exact body offline; only node paths are copied here.
     private void ComparisonClips(string assetId, AnimationLibrary library, string skeletonPath, string? bodyPath)
     {
-        // Reviewed mocap stays in the installed character payload, outside the public source repository; a comparison cast
-        // whose clips were baked into the repository (the HumGen arm) reads its own folder instead.
-        string externalMotion = System.IO.Path.Combine(UNNAMED.Presentation.MHCharacters.MetaHumanFigure.AssetRoot, "mocap_motion", assetId + "_motion.res");
+        // Production HumGen motion stays in its installed payload, outside the public source repository.
+        // The old resource fallback is for explicit reference casts only.
+        bool humgen = VisualOptions.ComparisonCast == "humgen";
+        string payloadRoot = humgen
+            ? System.Environment.GetEnvironmentVariable("OTHERREACH_CHARACTER_ROOT") ?? System.IO.Path.Combine(
+                OS.HasFeature("template") ? System.IO.Path.GetDirectoryName(OS.GetExecutablePath())! : ProjectSettings.GlobalizePath("res://"), "humgen_characters")
+            : UNNAMED.Presentation.MHCharacters.MetaHumanFigure.AssetRoot;
+        string externalMotion = System.IO.Path.Combine(payloadRoot, "mocap_motion", assetId + "_motion.res");
+        if (humgen && !System.IO.File.Exists(externalMotion))
+            throw new FileNotFoundException("HumGen exact-target motion payload is missing", externalMotion);
         var motion = GD.Load<AnimationLibrary>(System.IO.File.Exists(externalMotion)
                 ? externalMotion
                 : $"res://Art/{ComparisonMotionFolder}/{assetId}_motion.res")
@@ -125,7 +133,7 @@ public sealed partial class SkinnedModel : Node3D
             Ui.Models.HumGenMotionPolicy.Validate(motion.GetAnimationList().Select(name => name.ToString()),
                 motion.GetMeta("animation_sources", new Godot.Collections.Dictionary()).AsGodotDictionary()
                     .ToDictionary(p => p.Key.AsString(), p => p.Value.AsString(), StringComparer.Ordinal),
-                motion.GetMeta("foot_plants_schema", 0).AsInt32());
+                motion.GetMeta("foot_plants_schema", 0).AsInt32(), motion.GetMeta("source_playback_schema", 0).AsInt32());
         foreach (string clip in motion.GetAnimationList())
         {
             var animation = (Animation)motion.GetAnimation(clip).Duplicate();
@@ -139,6 +147,8 @@ public sealed partial class SkinnedModel : Node3D
             _states.Add(clip);
         }
         MotionPaces = motion.GetMeta("motion_paces").AsGodotDictionary().ToDictionary(p => p.Key.AsString(), p => p.Value.AsSingle());
+        MotionActionPhases = motion.GetMeta("action_phases", new Godot.Collections.Dictionary()).AsGodotDictionary()
+            .ToDictionary(p => p.Key.AsString(), p => p.Value.AsGodotArray().Select(v => v.AsSingle()).ToArray());
         library.SetMeta("foot_plants_schema",motion.GetMeta("foot_plants_schema",0));
         library.SetMeta("foot_plants",motion.GetMeta("foot_plants",new Godot.Collections.Dictionary()));
         _contacts = motion.GetMeta("motion_phases").AsGodotDictionary();

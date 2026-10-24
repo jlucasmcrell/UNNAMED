@@ -284,7 +284,7 @@ public class FoldscarTests
         var store = new SaveStore(profile.Root);
         store.Save(SaveSlots.Manual("foldscar"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content,
             arena.Simulation.WorldTick, 0));
-        var loaded = Arena.Resume(session.Setup, store.Load(SaveSlots.Manual("foldscar"), new LoadContext(session.Generator, session.Content, new Registry())));
+        var loaded = Arena.Resume(arena.Simulation.Setup, store.Load(SaveSlots.Manual("foldscar"), new LoadContext(session.Generator, session.Content, new Registry())));
 
         Assert.Equal(arena.Simulation.StateDigest(), loaded.Simulation.StateDigest());
         Assert.All(Switches(loaded), s => Assert.True(s.Item2));

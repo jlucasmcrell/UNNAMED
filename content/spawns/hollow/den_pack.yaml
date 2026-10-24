@@ -38,7 +38,7 @@ at:
   radius_m: 2.5
 level_band:
 - 2
-- 2
+- 3
 respawn:
   kind: none
 tier_hint: A

@@ -3,7 +3,7 @@ kind: spawn
 schema: 1
 display_key: spawn.road.wayside_pack.name
 tags: [spawn]
-notes: 'Wolves working the high ground south of the road, furthest from either settlement - two roamers on a beat through the trees and a stray that hangs back. Level 3: the road''s middle is where the region stops being forgiving.'
+notes: 'Wolves working the high ground south of the road, furthest from either settlement - two roamers on a beat through the trees and a stray that hangs back. Level 2, like the grey wolves elsewhere in the region.'
 region_ref: region.starting_frontier
 creatures:
   - { creature_ref: creature.beast.wolf_grey, count: [2, 2], role: roamer }
@@ -16,6 +16,6 @@ route_m:
   - [790, 690]
   - [795, 715]
   - [760, 712]
-level_band: [3, 3]
+level_band: [2, 2]
 respawn: { kind: timer, window_ticks: 36000 }   # 30 minutes after a death, once nobody is standing over the place
 tier_hint: A

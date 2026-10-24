@@ -6,7 +6,7 @@ tags:
 - spawn
 notes: 'An animated armour standing in the north-west corner of the basin, where the
   dry rise runs out towards the west cliff and nothing else is placed. It does not
-  roam: a sentinel on a spot, level 3, which is what makes it a thing to find rather
+  roam: a sentinel on a spot, level 5, which is what makes it a thing to find rather
   than a thing that finds you. The one construct in the region.'
 region_ref: region.starting_frontier
 creatures:
@@ -21,8 +21,8 @@ at:
   - 772
   radius_m: 8
 level_band:
-- 3
-- 3
+- 5
+- 5
 respawn:
   kind: timer
   window_ticks: 72000   # 60 minutes: the world refills, away from the player (AG-3 doubles it while farmed)

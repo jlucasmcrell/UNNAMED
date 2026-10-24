@@ -8,6 +8,17 @@ namespace UNNAMED.Content.Tests;
 /// <summary>Owner finding 53: a reply that starts a quest is not offered once that quest is done, nor while it runs unless it advances it.</summary>
 public class QuestOfferLintTests
 {
+    [Fact]
+    public void HistoricalContentRemainsValidButNewAuthoringStillRequiresOfferGuards()
+    {
+        string root=Path.Combine(RepoPaths.Root(), "tests", "Persistence.Tests", "Fixtures", "content");
+        var runtime=new ContentLoader();
+        Assert.True(runtime.LoadAll(root), string.Join("\n",runtime.Errors));
+        var authoring=new ContentLoader();
+        Assert.False(authoring.LoadAll(root,authoring:true));
+        Assert.Contains(authoring.Errors,e=>e.Code=="QST001" && e.Message.Contains("once it is completed"));
+    }
+
     private const string Quest = "quest.test.errand";
     private const string Talk = "dialogue.test";
 

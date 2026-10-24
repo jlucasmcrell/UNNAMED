@@ -75,7 +75,7 @@ public sealed class Player
     [Key("return_point")] public string? ReturnPoint { get; set; }
     [Key("roads_walked")] public string[]? RoadsWalked { get; set; }
     [Key("deeds")] public DeedDto[]? Deeds { get; set; }
-    [Key("identity")] public IdentityDto? Identity { get; set; }
+    [Key("identity")] public V38.IdentityDto? Identity { get; set; }
 }
 
 [MessagePackObject]
@@ -85,6 +85,6 @@ public sealed class EntitiesSection
     [Key("created")] public Created[] Created { get; set; } = Array.Empty<Created>();
     [Key("baselines")] public CellBaselineDto[] Baselines { get; set; } = Array.Empty<CellBaselineDto>();
     [Key("containers")] public Container[]? Containers { get; set; }
-    [Key("creatures")] public CreatureDto[]? Creatures { get; set; }
+    [Key("creatures")] public UNNAMED.Persistence.Sections.V37.CreatureDto[]? Creatures { get; set; }
     [Key("noises")] public NoiseDto[]? Noises { get; set; }
 }

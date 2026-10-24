@@ -72,7 +72,7 @@ public class ContentLoader
     /// <summary>
     /// Load all content from a directory.
     /// </summary>
-    public bool LoadAll(string rootPath)
+    public bool LoadAll(string rootPath, bool authoring = false)
     {
         _contentRootPath = rootPath;
         
@@ -207,7 +207,7 @@ public class ContentLoader
             success &= economyErrors.Count == 0;
 
             // Quests: objective graphs over world state (QST codes)
-            var questErrors = QuestContent.Validate(this);
+            var questErrors = QuestContent.Validate(this, authoring);
             _errors.AddRange(questErrors);
             success &= questErrors.Count == 0;
 

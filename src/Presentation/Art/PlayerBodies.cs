@@ -10,9 +10,9 @@ namespace UNNAMED.Presentation.Art;
 public sealed record BodyModels(string Type, IReadOnlyList<string> Models);
 
 /// <summary>
-/// The bindings' <c>player_bodies</c>: what each body preset (content kind <c>body.*</c>, WP17) is drawn with. The player is a MetaHuman
-/// (owner 2026-10-17: the MPFB bodies are retired from the player); a type names its models, and a build is its own model, baked with its garments (tools/character_build): <c>&lt;model&gt;_&lt;build&gt;</c>, the base build drawn by the model
-/// itself. A body whose model is not installed is not drawn: there is no stand-in.
+/// The bindings' <c>player_bodies</c>: what each body preset is drawn with. HumGen identities use their
+/// exported native shape for every saved build choice. Legacy models use a separate baked model per build.
+/// A body whose model is not installed is not drawn: there is no stand-in.
 /// </summary>
 public sealed class PlayerBodies
 {
@@ -36,7 +36,7 @@ public sealed class PlayerBodies
 
     /// <summary>The model a body is drawn with: the first of its type's models whose build model is installed, or null.</summary>
     public string? Model(BodyPreset body, Func<string, bool> installed) =>
-        Types.FirstOrDefault(t => t.Type == body.Type)?.Models.Select(m => body.Build == BaseBuild ? m : $"{m}_{body.Build}").FirstOrDefault(installed);
+        Types.FirstOrDefault(t => t.Type == body.Type)?.Models.Select(m => body.Build == BaseBuild || m.StartsWith("humgen_", StringComparison.Ordinal) ? m : $"{m}_{body.Build}").FirstOrDefault(installed);
 
     /// <summary>
     /// A garment's variant baked for <paramref name="body"/> (tools/character_build: authored once, baked per body as

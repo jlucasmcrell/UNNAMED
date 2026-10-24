@@ -310,7 +310,7 @@ public class QuestTests
 
         new SaveStore(profile.Root).Save(SaveSlots.Manual("quest"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(),
             session.Content, arena.Simulation.WorldTick, 0));
-        var loaded = Arena.Resume(session.Setup,
+        var loaded = Arena.Resume(arena.Simulation.Setup,
             new SaveStore(profile.Root).Load(SaveSlots.Manual("quest"), new LoadContext(session.Generator, session.Content, new Registry())));
 
         Assert.Equal(arena.Simulation.StateDigest(), loaded.Simulation.StateDigest());
