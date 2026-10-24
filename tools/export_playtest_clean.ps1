@@ -14,6 +14,8 @@ $engine = "$tools\godot\Godot_v4.7.2-stable_mono_win64_console.exe"
 $env:DOTNET_ROOT = 'C:\Program Files\dotnet'; $env:DOTNET_ROOT_X64 = $env:DOTNET_ROOT
 $env:PATH = "C:\Program Files\dotnet;$env:PATH"
 $env:GODOT_AI_DISABLE_TELEMETRY = '1'
+$env:MSBUILDDISABLENODEREUSE = '1'
+$env:DOTNET_CLI_USE_MSBUILD_SERVER = '0'
 # Not shipped: godot_ai is editor-only; godotsteam, GD-Sync and terrabrush are referenced by no game code (checked by grep) and cost
 # DLLs beside the exe, a missing-library error in the editor (terrabrush) and size in the pack.
 $unshipped = 'godot_ai', 'godotsteam', 'GD-Sync', 'terrabrush'
@@ -29,7 +31,7 @@ function Robo($from, $to, $extra) {
     if ($LASTEXITCODE -ge 8) { Fail "robocopy $from exit $LASTEXITCODE" }
 }
 
-if (Test-Path $wt) { git -C $repo worktree remove --force $wt 2>&1 | Out-Null; if (Test-Path $wt) { Remove-Item -Recurse -Force $wt } }
+if (Test-Path $wt) { Fail 'Export worktree already exists; choose a fresh path (storage policy)' }
 git -C $repo worktree add --detach $wt $Commit 2>&1 | Add-Content $Log
 if ($LASTEXITCODE -ne 0) { Fail "git worktree add $Commit" }
 $proj = "$wt\src\Presentation"

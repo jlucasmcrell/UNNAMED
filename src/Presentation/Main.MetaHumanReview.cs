@@ -94,6 +94,7 @@ public partial class Main
             _mhReviewNext = Time.GetTicksMsec() + 10000;
         }
         GD.Print("MH_NORMAL_GAME_REVIEW installed " + _mhReviewDirectory);
+        if (OS.GetEnvironment("OTHERREACH_OPENING_AUDIO_REVIEW") == "1") StartOpeningReview(_mhReviewDirectory);
     }
 
     private object[] ReviewBodyChoices(string expectedType)

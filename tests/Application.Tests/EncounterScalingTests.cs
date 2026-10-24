@@ -203,17 +203,26 @@ public class EncounterScalingTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        // Shot from range: a party-scaled wolf has 82 health and hits for a party's worth, so a sword duel would end the character before the
-        // wolf - and the question here is what the kill is worth, not who wins the trade.
+        // Test the archer's reward, not a pet's last hit. Waiting pets still count towards encounter strength,
+        // but their post is outside the fight so ULID-dependent bite timing cannot steal this kill.
         var solo = Den(session, Archer, count:1);
-        var party = Den(session, r => FullParty(Archer(r)), count:1);
+        var party = Den(session, r => Archer(r).WithPets(Enumerable.Range(0, 4).Select(i =>
+            Hound(50 + i, 150) with { Order = PetOrder.WaitHere, WaitXMm = At((50 + i, 150)).XMm, WaitZMm = At((50 + i, 150)).ZMm })), count:1);
+        Assert.Equal(4, party.Simulation.PartyStrength);
+        Assert.Equal(2, solo.Creature().Level);
+        Assert.Equal(4, party.Creature().Level);
         foreach(var arena in new[]{solo,party})
             Assert.Null(arena.Submit(new EquipCommand(arena.Player,arena.Simulation.Player.Inventory.Single(e=>e.DefId=="item.weapon.hunting_bow").ItemId)));
         var soloKill = solo.Record<ExperienceGained>();
         var partyKill = party.Record<ExperienceGained>();
+        var soloDeaths = solo.Record<CreatureKilled>();
+        var partyDeaths = party.Record<CreatureKilled>();
 
         solo.Fight(solo.Simulation.Creatures.First(c => c.DefId == Wolf), 600);
         party.Fight(party.Simulation.Creatures.First(c => c.DefId == Wolf), 900);
+
+        Assert.Equal(solo.Player, Assert.Single(soloDeaths).Killer);
+        Assert.Equal(party.Player, Assert.Single(partyDeaths).Killer);
 
         var authored = Assert.Single(soloKill, x => x.Source == XpSource.Combat);
         var scaled = Assert.Single(partyKill, x => x.Source == XpSource.Combat);
