@@ -27,3 +27,14 @@ public class HeritageRulesTests
     [InlineData(null)]
     public void AnythingElse_IsForAnyone(string? people) => Assert.True(HeritageRules.Allows(Flask, people));
 }
+
+/// <summary>A title reward names the character by their surname: the last word of their name.</summary>
+public class TitleRewardTests
+{
+    [Theory]
+    [InlineData("Wenna Lind", "Keeper of the Lind roll")]
+    [InlineData("Kester Vale-of-Stones", "Keeper of the Vale-of-Stones roll")]
+    [InlineData("Ada", "Keeper of the Ada roll")]
+    public void TheSurname_IsTheLastWordOfTheName(string name, string title) =>
+        Assert.Equal(title, new UNNAMED.Domain.Quests.TitleReward("Keeper of the {surname} roll").For(name));
+}

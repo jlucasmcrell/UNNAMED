@@ -382,6 +382,10 @@ internal sealed class QuestSystem : IQuestFacts, IAbstractAdvance
                     (what, named, amount) = ($"{quest.CompanionId} {string.Join(", ", approval.Changes.Select(c => $"{c.Key} {c.Value:+#;-#}"))}", quest.CompanionId,
                         approval.Changes.Values.Sum());
                     break;
+                case TitleReward title:
+                    // Read from the completed quest wherever it is shown (Simulation.Titles): nothing to grant.
+                    (what, named, amount) = (title.Text, null, 1);
+                    break;
                 case ReputationReward reputation:
                     _context.Dispatch(new GrantStanding(reputation.FactionId, reputation.Delta, quest.Id));
                     (what, named, amount) = ($"{reputation.FactionId} {reputation.Delta:+#;-#}", reputation.FactionId, reputation.Delta);

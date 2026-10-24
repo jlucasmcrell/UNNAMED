@@ -27,6 +27,12 @@ nodes:
           - { kind: has_item, item_ref: item.heritage.kept_roll }
           - { kind: quest_state, quest_ref: quest.heritage.what_was_kept, objective: o_roll, is: active }
         next: kept_roll
+      - id: record
+        text: "The oath's settled. Will you close the line?"
+        conditions:
+          - { kind: people, people_ref: people.veth }
+          - { kind: quest_state, quest_ref: quest.heritage.what_was_kept, objective: o_recorded, is: active }
+        next: roll_recorded
       - id: recopy
         text: "I've lost my family's roll."
         conditions:
@@ -153,6 +159,12 @@ nodes:
           - { kind: has_item, item_ref: item.heritage.kept_roll }
           - { kind: quest_state, quest_ref: quest.heritage.what_was_kept, objective: o_roll, is: active }
         next: kept_roll
+      - id: record
+        text: "The oath's settled. Will you close the line?"
+        conditions:
+          - { kind: people, people_ref: people.veth }
+          - { kind: quest_state, quest_ref: quest.heritage.what_was_kept, objective: o_recorded, is: active }
+        next: roll_recorded
       - id: recopy
         text: "I've lost my family's roll."
         conditions:
@@ -239,6 +251,15 @@ nodes:
     choices:
       - id: back
         text: "Thank you, Renn."
+        next: again
+  roll_recorded:
+    text: "\"Let's see it. ... 'Kept,' in Berrin's hand. Good. Then here's mine.\" He writes, and dries it with his sleeve. \"Your line's closed. You're the one who closed it, so the roll's yours to keep now - properly, I mean. Keeper. It's the only word we Veth use on purpose.\""
+    variants:
+      - conditions: [{ kind: quest_state, quest_ref: quest.heritage.what_was_kept, objective: o_release, is: satisfied }]
+        text: "\"Let's see it. ... 'Released.' Berrin's an honest man; he'd not write that lightly. It's not kept, but it's settled, and settled is a thing a keeper can close.\" He writes. \"There. Your line's closed, and you're the one who closed it. The roll's yours to keep now - properly. Keeper.\""
+    choices:
+      - id: back
+        text: "Thank you, keeper."
         next: again
   kept_roll:
     text: "A Veth roll. You don't see many carried this far out. ... Your last line's open: a name, a word given, and no mark that it was kept. That's a waystation oath - made before a keeper and written twice, once on the giver's roll and once on the receiver's. The other half went into a Cairnwold family's roll, up the north road. They'll have kept it. We Veth are bad at a great many things, but forgetting a debt isn't one of them."

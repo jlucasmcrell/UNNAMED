@@ -28,8 +28,84 @@ nodes:
         text: "There's a standing stone up on the Rim. It's cold, and it doesn't answer."
         consequences: [{ command: start_quest, quest_ref: quest.main.road_east }]
         next: rim_stone
+      # What Was Kept (owner, 2026-10-24, HERITAGE_DESIGN.md §3.1): Berrin keeps the lodge book, so the other half of a Veth oath is in it.
+      - id: oath
+        text: "My family's roll has an open line. Renn says the other half is in your book."
+        conditions:
+          - { kind: people, people_ref: people.veth }
+          - { kind: quest_state, quest_ref: quest.heritage.what_was_kept, objective: o_lodge_book, is: active }
+        next: oath_half
+      - id: hallows
+        text: "About the Hallows' line."
+        conditions:
+          - { kind: visited, node: oath_half }
+          - { kind: quest_state, quest_ref: quest.heritage.what_was_kept, is: active }
+          - { kind: visited, node: oath_kept, not: true }
+          - { kind: visited, node: oath_released, not: true }
+          - { kind: visited, node: oath_claimed, not: true }
+        next: oath_half
       - id: leave
         text: "Later."
+  oath_half:
+    text: "Your line, is it? Sit - no, stand, you'll want to see this. ... Here. The Hallows. They built this lodge, the Hallows did, and they're down to me and this book, near enough. 'Owed by your line to the Hallows: a winter's roof timber for the long lodge. Sworn at the waystation.' Two lifetimes ago, and never kept. They counted it, the Hallows. Every winter the roof leaked, they counted it again. I've been meaning to forget it for years, and I can't. It's written down."
+    choices:
+      - id: keep
+        text: "Here's the timber. Four lengths, for the roof."
+        conditions:
+          - { kind: quest_state, quest_ref: quest.heritage.what_was_kept, is: active }
+          - { kind: visited, node: oath_kept, not: true }
+          - { kind: visited, node: oath_released, not: true }
+          - { kind: visited, node: oath_claimed, not: true }
+          - { kind: has_item, item_ref: item.material.timber, count: 4 }
+        consequences:
+          - { command: transfer_item, item_ref: item.material.timber, count: 4, to: npc }
+        next: oath_kept
+      - id: keep_later
+        text: "I'll bring the timber."
+        conditions:
+          - { kind: quest_state, quest_ref: quest.heritage.what_was_kept, is: active }
+          - { kind: visited, node: oath_kept, not: true }
+          - { kind: visited, node: oath_released, not: true }
+          - { kind: visited, node: oath_claimed, not: true }
+        next: again
+      - id: release
+        text: "Would the Hallows release it, after so long?"
+        conditions:
+          - { kind: quest_state, quest_ref: quest.heritage.what_was_kept, is: active }
+          - { kind: visited, node: oath_kept, not: true }
+          - { kind: visited, node: oath_released, not: true }
+          - { kind: visited, node: oath_claimed, not: true }
+        consequences:
+          - { command: record_relationship_event, npc_ref: npc.cairnwold.berrin_garth, dimension: respect, delta: -3, event: hallow_oath_released }
+        next: oath_released
+      - id: claim
+        text: "My line was less changed than most. That oath never bound us."
+        conditions:
+          - { kind: quest_state, quest_ref: quest.heritage.what_was_kept, is: active }
+          - { kind: visited, node: oath_kept, not: true }
+          - { kind: visited, node: oath_released, not: true }
+          - { kind: visited, node: oath_claimed, not: true }
+        consequences:
+          - { command: record_relationship_event, npc_ref: npc.cairnwold.berrin_garth, dimension: respect, delta: -10, event: hallow_oath_claimed }
+        next: oath_claimed
+  oath_kept:
+    text: "Four lengths. Good straight ones, too. ... There. 'Kept.' In my hand, next to theirs. The roof will have them by the first frost, and the Hallows - well, the Hallows will have it written down, which is what they'd have wanted. Go and tell Renn. He'll want to close your line himself; keepers are fussy like that."
+    choices:
+      - id: back
+        text: "I will."
+        next: again
+  oath_released:
+    text: "Released. ... I can do that. I'm what's left to do it. There - 'released, by the Hallows' keeper, at the asking of the line that owed.' It's an honest word. It's not the same word as kept, but it's honest. Renn will close your line for you."
+    choices:
+      - id: back
+        text: "Thank you, Berrin."
+        next: again
+  oath_claimed:
+    text: "Less changed. ... I've heard that said before. Usually by someone who'd rather not pay. I'll write it down, because I write everything down - 'the line that owed says it was never bound.' It'll sit there next to the Hallows' line for as long as the book does. I'd not take that to Renn, if I were you. He won't close it."
+    choices:
+      - id: back
+        text: "So be it."
+        next: again
   again:
     text: "Sit, sit. The fire doesn't mind company, and at my age neither do I."
     choices:
@@ -93,6 +169,22 @@ nodes:
         next: tell_wenna
 
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
+      # What Was Kept (owner, 2026-10-24, HERITAGE_DESIGN.md §3.1): Berrin keeps the lodge book, so the other half of a Veth oath is in it.
+      - id: oath
+        text: "My family's roll has an open line. Renn says the other half is in your book."
+        conditions:
+          - { kind: people, people_ref: people.veth }
+          - { kind: quest_state, quest_ref: quest.heritage.what_was_kept, objective: o_lodge_book, is: active }
+        next: oath_half
+      - id: hallows
+        text: "About the Hallows' line."
+        conditions:
+          - { kind: visited, node: oath_half }
+          - { kind: quest_state, quest_ref: quest.heritage.what_was_kept, is: active }
+          - { kind: visited, node: oath_kept, not: true }
+          - { kind: visited, node: oath_released, not: true }
+          - { kind: visited, node: oath_claimed, not: true }
+        next: oath_half
       - id: leave
         text: "Later."
       - id: story_note

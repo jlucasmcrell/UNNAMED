@@ -11,6 +11,7 @@ using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Pets;
 using UNNAMED.Domain.Progression;
+using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Domain.Travel;
@@ -785,6 +786,11 @@ public sealed class Simulation
 
     /// <summary>Where the compass marks a quest's current beat, when the character knows where that is.</summary>
     public QuestMarker? Marker(string questId) => _quests.Marker(questId);
+
+    /// <summary>What the character is called for what they have finished (<c>title</c> rewards of completed quests), in the order they were earned.</summary>
+    public ImmutableArray<string> Titles =>
+        _state.Quests.Values.Where(q => q.Status == QuestStatus.Completed && Setup.Quests.Quests.ContainsKey(q.QuestId)).OrderBy(q => q.EndedTick)
+            .SelectMany(q => Setup.Quests.Quests[q.QuestId].Rewards.OfType<TitleReward>()).Select(t => t.For(_identity.Name)).ToImmutableArray();
 
     /// <summary>Whether a new game has a story to begin: some quest starts for a new character of this people (<c>on_new_game</c>).</summary>
     public bool HasOpeningQuests => Setup.Quests.Quests.Values.Any(q => q.OnNewGame && (q.PeopleId is null || q.PeopleId == _identity.Identity.PeopleId));

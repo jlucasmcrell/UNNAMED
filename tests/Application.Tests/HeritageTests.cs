@@ -171,6 +171,109 @@ public class HeritageTests
         Assert.Contains(simulation.Quests, q => q.Id == "quest.main.the_road_in");
     }
 
+    // ── What Was Kept, steps 3-5: Berrin's book, the keeping, and Renn's record ──
+
+    private const string Berrin = "npc.cairnwold.berrin_garth";
+    private const string Timber = "item.material.timber";
+    private static readonly (double X, double Z) AtBerrin = (959.0, 644.0);   // region metres
+
+    /// <summary>What Was Kept as it stands after these objectives, the last of them the one now open.</summary>
+    private static QuestState At(params string[] reached)
+    {
+        var objectives = reached.Select((id, i) => i < reached.Length - 1
+            ? new ObjectiveState(id, ObjectiveStatus.Satisfied, 0, 0, 0)
+            : new ObjectiveState(id, ObjectiveStatus.Active, 0, null, 0));
+        return new QuestState(Quest, QuestStatus.Active, 0, null, null, objectives.ToImmutableArray());
+    }
+
+    private static Arena AtBerrins(GameSession session, QuestState quest, int timber) =>
+        Arena.OpenCreatures(session, session.Setup, AtBerrin, 0, Array.Empty<(string, double, double, string)>(),
+            r => WithRoll(r).WithInventory(WithRoll(r).Inventory.Concat(timber > 0 ? new[] { new InventoryEntry(EntityId.NewId(EntityKind.Item), Timber, timber) } : Array.Empty<InventoryEntry>()))
+                .WithQuests(new[] { quest }), origin: Harness.Region);
+
+    private static string[] Talk(Arena arena, string npc)
+    {
+        Assert.Null(arena.Submit(new TalkCommand(arena.Player, npc)));
+        return arena.Simulation.Conversation!.Replies.Select(r => r.Id).ToArray();
+    }
+
+    private static QuestView Kept(Arena arena) => arena.Simulation.Quests.Single(q => q.Id == Quest);
+
+    [Fact]
+    public void Berrin_FindsTheOtherHalf_AndTakesTheTimber_AndTheLineGoesBackToRenn()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = AtBerrins(session, At("o_roll", "o_other_half", "o_lodge_book"), timber: 4);
+
+        Assert.Contains("oath", Talk(arena, Berrin));
+        Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "oath")));
+        Assert.Equal(new[] { "keep", "keep_later", "release", "claim" }, arena.Simulation.Conversation!.Replies.Select(r => r.Id));
+        Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "keep")));
+        Assert.Equal("oath_kept", arena.Simulation.Conversation!.NodeId);
+        arena.Tick(2);
+
+        Assert.DoesNotContain(arena.Simulation.Player.Inventory, e => e.DefId == Timber);
+        var quest = Kept(arena);
+        Assert.Equal(QuestStatus.Active, quest.Status);
+        Assert.Equal("o_recorded", quest.Objectives.Single(o => o.Status == ObjectiveStatus.Active).Id);
+    }
+
+    [Fact]
+    public void WithoutFourTimber_TheOathCannotBeKeptYet_ButCanBeReleased()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = AtBerrins(session, At("o_roll", "o_other_half", "o_lodge_book"), timber: 3);
+
+        Talk(arena, Berrin);
+        Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "oath")));
+        Assert.DoesNotContain("keep", arena.Simulation.Conversation!.Replies.Select(r => r.Id));
+        Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "release")));
+        Assert.Equal("oath_released", arena.Simulation.Conversation!.NodeId);
+        arena.Tick(2);
+
+        Assert.Equal("o_recorded", Kept(arena).Objectives.Single(o => o.Status == ObjectiveStatus.Active).Id);
+        Assert.Equal(-3, arena.Simulation.CaptureRecord().Relationships.Single(r => r.NpcId == Berrin && r.Dimension == "respect").Value);
+    }
+
+    [Fact]
+    public void ClaimingDescent_FailsWhatWasKept_AndNoOneCallsYouKeeper()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = AtBerrins(session, At("o_roll", "o_other_half", "o_lodge_book"), timber: 0);
+
+        Talk(arena, Berrin);
+        Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "oath")));
+        Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "claim")));
+        Assert.Equal("oath_claimed", arena.Simulation.Conversation!.NodeId);
+        arena.Tick(2);
+
+        Assert.Equal(QuestStatus.Failed, Kept(arena).Status);
+        Assert.Empty(arena.Simulation.Titles);
+    }
+
+    [Theory]
+    [InlineData("o_keep", "'Kept,'")]
+    [InlineData("o_release", "'Released.'")]
+    public void Renn_ClosesTheLine_AndTheCharacterIsCalledItsKeeper(string settled, string says)
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var quest = At("o_roll", "o_other_half", "o_lodge_book", settled, "o_recorded");
+        var arena = At(session, session.Setup, AtRenn, r => WithRoll(r).WithQuests(new[] { quest }));
+
+        Assert.Contains("record", Replies(arena));
+        Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "record")));
+        Assert.Contains(says, arena.Simulation.Conversation!.Text);
+        arena.Tick(2);
+
+        Assert.Equal(QuestStatus.Completed, Kept(arena).Status);
+        Assert.Equal(new[] { "Keeper of the Wanderer roll" }, arena.Simulation.Titles);
+        Assert.Single(arena.Simulation.Player.Inventory, e => e.DefId == Roll);   // the roll stays the character's
+    }
+
     private static string[] Replies(Arena arena)
     {
         Assert.Null(arena.Submit(new TalkCommand(arena.Player, Renn)));

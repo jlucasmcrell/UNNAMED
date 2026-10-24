@@ -263,9 +263,9 @@ public class QuestContentTests
         Assert.Contains("fail_if reads the world as it stands; kill_creature counts deeds", Refused(
             """  - { id: o_a, type: visit_location, description: A., params: { location_ref: location.blackvein_cut } }""",
             "fail_if: [{ type: kill_creature, params: { creature_ref: creature.beast.wolf_grey } }]"));
-        Assert.Contains("reward kind 'title' is not built in Phase 1", Refused(
+        Assert.Contains("reward kind 'ability' is not built in Phase 1", Refused(
             """  - { id: o_a, type: visit_location, description: A., params: { location_ref: location.blackvein_cut } }""",
-            "rewards: [{ kind: title, amount: 5 }]"));
+            "rewards: [{ kind: ability, amount: 5 }]"));
     }
     [Fact]
     public void AFactionReputationObjective_AndAReputationReward_Build()

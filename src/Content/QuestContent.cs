@@ -341,6 +341,7 @@ public static class QuestContent
         return kind switch
         {
             "xp" => new XpReward(Positive(map, "amount", at)),
+            "title" => new TitleReward(Text(map, "text")),
             "currency" => new CurrencyReward(Positive(map, "amount", at)),
             "item" => new ItemReward(Defined(loader, Text(map, "item_ref"), "item", at), Positive(map, "count", at, 1)),
             "recipe" => new TechniqueReward(Defined(loader, Text(map, "recipe_ref"), "recipe", at), kind),
