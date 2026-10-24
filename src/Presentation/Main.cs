@@ -201,6 +201,10 @@ public partial class Main : Node3D
     /// </summary>
     private const string BarrowworksRegion = "region.barrowworks";
 
+    /// <summary>The switch that settles the Stopped Gate, and the court its hum is centred on (docs/FIELD_RUINS.md).</summary>
+    private const string StoppedGateSwitch = "switch.field.needle";
+    private static readonly Vector2 StoppedGateCourt = new(850, 758);
+
     private const float SpeedCeiling = 8f;
     /// <summary>How long before the respawn the screen starts to go black (the fade itself takes a second).</summary>
     private const double DeathFadeLeadSeconds = 1.2;
@@ -543,11 +547,21 @@ public partial class Main : Node3D
             AddChild(new Audio.AmbientAudio(_sounds, _ground) { FoldGain = at =>
             {
                 var simulation = _session.Simulation;
-                var fold = simulation?.Barriers.FirstOrDefault(b => b.Site.Key == FoldEcho.Barrier && b.Standing);
-                if (fold is null || simulation!.ActiveLayout.SpaceId != _session.Setup.Layout.SpaceId) return 0;
-                var (x,z) = Footprints.Center(fold.Site.Footprint);
-                float distance = new Vector2(at.X-x/1000f,at.Z-z/1000f).Length();
-                return Mathf.Clamp(1-(distance-3)/14,0,1);
+                if (simulation is null || simulation.ActiveLayout.SpaceId != _session.Setup.Layout.SpaceId) return 0;
+                float gain = 0;
+                if (simulation.Barriers.FirstOrDefault(b => b.Site.Key == FoldEcho.Barrier && b.Standing) is { } fold)
+                {
+                    var (x,z) = Footprints.Center(fold.Site.Footprint);
+                    gain = Mathf.Clamp(1-(new Vector2(at.X-x/1000f,at.Z-z/1000f).Length()-3)/14,0,1);
+                }
+                // The Stopped Gate hums across the whole Spill until the Needle is laid hands on (docs/FIELD_RUINS.md): wider and lower than
+                // the fold's, loudest in the court.
+                if (simulation.Switches.FirstOrDefault(s => s.Site.Key == StoppedGateSwitch) is { Set: false })
+                {
+                    float distance = new Vector2(at.X-StoppedGateCourt.X,at.Z-StoppedGateCourt.Y).Length();
+                    gain = Math.Max(gain, .8f*Mathf.Clamp(1-(distance-12)/70,0,1));
+                }
+                return gain;
             } });
         _soundEvents = new Audio.SoundEvents { Name = "SoundEvents" };
         AddChild(_soundEvents);
