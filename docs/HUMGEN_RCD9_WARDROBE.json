@@ -64,19 +64,19 @@
     "interim": true
   },
   "npc_mara_ling": {
-    "outfit_id": "outfit_f_extra_outfits_pack_dress",
-    "outfit": "outfits\\female\\Extra Outfits Pack\\Dress.blend",
+    "outfit_id": "outfit_f_casual_stylish_casual",
+    "outfit": "outfits\\female\\Casual\\Stylish_Casual.blend",
     "footwear_id": "footwear_f_extra_outfits_pack_pirate_boots",
     "footwear": "footwear\\female\\Extra Outfits Pack\\Pirate Boots.blend",
-    "reason": "Well keeper and herb gatherer: simple calf-length dress in faded moss, practical boots",
+    "reason": "Well keeper / herb gatherer: practical moss overshirt, linen underlayer, earth trousers and boots; avoid collapsed native skirt",
     "palette_srgb": {
       "top": "73765A",
       "trousers": "5A5141",
       "underlayer": "B6AA8F",
       "footwear": "604733"
     },
-    "catalog_front": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_extra_outfits_pack_dress_front.png",
-    "catalog_walk": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_extra_outfits_pack_dress_walk.png",
+    "catalog_front": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_casual_stylish_casual_front.png",
+    "catalog_walk": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_casual_stylish_casual_walk.png",
     "interim": true
   },
   "npc_berrin_garth": {
@@ -112,35 +112,35 @@
     "interim": true
   },
   "npc_tam_crowden": {
-    "outfit_id": "outfit_f_extra_outfits_pack_dress",
-    "outfit": "outfits\\female\\Extra Outfits Pack\\Dress.blend",
+    "outfit_id": "outfit_f_casual_weekend_warrior",
+    "outfit": "outfits\\female\\Casual\\Weekend_Warrior.blend",
     "footwear_id": "footwear_f_extra_outfits_pack_pirate_boots",
     "footwear": "footwear\\female\\Extra Outfits Pack\\Pirate Boots.blend",
-    "reason": "Granary keeper: simple oxblood work dress and leather boots, tied hair retained",
+    "reason": "Granary keeper: oxblood heavy pullover, work trousers and boots; avoid collapsed native skirt",
     "palette_srgb": {
       "top": "76564E",
       "trousers": "554A3C",
       "underlayer": "AC9B81",
       "footwear": "503B2B"
     },
-    "catalog_front": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_extra_outfits_pack_dress_front.png",
-    "catalog_walk": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_extra_outfits_pack_dress_walk.png",
+    "catalog_front": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_casual_weekend_warrior_front.png",
+    "catalog_walk": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_casual_weekend_warrior_walk.png",
     "interim": true
   },
   "npc_pool_00": {
-    "outfit_id": "outfit_f_extra_outfits_pack_dress",
-    "outfit": "outfits\\female\\Extra Outfits Pack\\Dress.blend",
+    "outfit_id": "outfit_f_office_stock_exchange",
+    "outfit": "outfits\\female\\Office\\Stock_Exchange.blend",
     "footwear_id": "footwear_f_extra_outfits_pack_pirate_boots",
     "footwear": "footwear\\female\\Extra Outfits Pack\\Pirate Boots.blend",
-    "reason": "Older village worker: undyed taupe everyday dress and boots",
+    "reason": "Older village worker: plain undyed collared work shirt, earth trousers and boots; no suit or tie; avoid collapsed native skirt",
     "palette_srgb": {
       "top": "99876D",
       "trousers": "5C5041",
       "underlayer": "B7A88E",
       "footwear": "604632"
     },
-    "catalog_front": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_extra_outfits_pack_dress_front.png",
-    "catalog_walk": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_extra_outfits_pack_dress_walk.png",
+    "catalog_front": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_office_stock_exchange_front.png",
+    "catalog_walk": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_office_stock_exchange_walk.png",
     "interim": true
   },
   "npc_pool_01": {

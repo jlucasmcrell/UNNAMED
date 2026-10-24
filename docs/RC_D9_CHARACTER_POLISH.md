@@ -6,7 +6,7 @@ RC d8 candidate03 (089c97cd) is the accepted owner build. Keep its game, cast an
 
 The 2026-10-24 owner ruling supersedes wardrobe03 and the cancelled wardrobe04 refinements. Use the least-modern practical catalogue cuts in frontier tones, chosen for occupation and station, with boots for outdoor workers. No default bright blue, sneakers, silk robe, flight suit, CEO outfit or business suit on villagers. Sel uses plain dark shirt/trouser pieces, without a jacket or tie.
 
-[HUMGEN_RCD9_FRONTIER_ATTIRE.md](HUMGEN_RCD9_FRONTIER_ATTIRE.md) records every job → items → colours rationale and the limitations of this interim catalogue pass. Exact selections and material palettes are in `HUMGEN_RCD9_WARDROBE.json`. The new isolated export root is `rcd9_wardrobe05`; source-game captures must be repeated before Claude review. Old wardrobe03/04 frames do not prove this pass.
+[HUMGEN_RCD9_FRONTIER_ATTIRE.md](HUMGEN_RCD9_FRONTIER_ATTIRE.md) records every job → items → colours rationale and the limitations of this interim catalogue pass. Exact selections and material palettes are in `HUMGEN_RCD9_WARDROBE.json`. The new isolated export root is `rcd9_wardrobe06`; source-game captures must be repeated before Claude review. Old wardrobe03/04/05 frames do not prove this pass.
 
 Preserve the native Godot recipe, original-resolution retained images, sparse facial buffers, all 59 native bones/hierarchy/rest transforms, exact-target motion metadata and signed texture cache. Capture all fourteen NPCs idle and walking, plus Tavar in his normal captive kneel. Use actual normal bindings and label person/people IDs; preserve canonical phase shaders.
 

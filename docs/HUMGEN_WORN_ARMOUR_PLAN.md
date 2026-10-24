@@ -66,3 +66,9 @@ The first gate requires Ada and Mateo wearing the vest in the running game, with
 Claude reviews the frames and movement before expansion. Then fit and gate each of the fourteen NPC bodies, followed by additional items/slots. Keep native hands and the accepted real footwear; body-shell gloves and boots are not the fallback. Cloth simulation, a general wardrobe editor and race-body armour fits are separate later work.
 
 Proposed first output: two fitted chest assets, their source/licence records, body/skeleton audits, coverage evidence, an equip/unequip video, and daylight front/side/attack frames. Implementation begins only as a separately requested task.
+
+## Runtime garment lesson from the interim pass
+
+Source-game `rcd9_review07` showed deep centre/hem folding on the catalogue long Dress in the accepted neutral idle and walk, despite native wear-API catalogue previews. The interim final pass therefore uses work tops and trousers instead of those three dresses. Do not alter the accepted stance, arms or body to conceal a garment problem. Native Blender fit/correctives are not proof of runtime skirt deformation; any future period smock, apron or cloak must pass its actual Godot movement gate before cast-wide expansion.
+
+The same review exposed cyan collared-shirt buttons. `HG_Control` exposes a separate `Buttons` colour field, outside the `_C0` fabric randomisation group; set and record visible detail fields as well as main fabric colours before native export.

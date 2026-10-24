@@ -65,8 +65,10 @@ Keep the RC d7 shortcuts/packages as backups.
 
 The NPC ATTIRE owner ruling supersedes `rcd9_wardrobe03`, cancelled `rcd9_wardrobe04`, and `rcd9_review05` outfit frames. Use the interim role/station assignments in `HUMGEN_RCD9_WARDROBE.json` and the per-NPC rationale in `HUMGEN_RCD9_FRONTIER_ATTIRE.md`. Never use garment-set uniqueness to justify modern costumes or sneakers on village workers.
 
-The replacement development overlay is `D:/Otherreach_Scratch/humgen_rcd8_20261023/rcd9_runtime04`; do not adopt it until all fourteen native export, material, exact 59-bone, exact-target motion and cache gates pass and the new source-game review completes. New raw wardrobe frames belong under `rcd9_review07`. Catalogue approval does not accept a new cast export. Keep original full-resolution frames; contact sheets are indexes only.
+The replacement development overlay is `D:/Otherreach_Scratch/humgen_rcd8_20261023/rcd9_runtime05`; do not adopt it until all fourteen native export, material, exact 59-bone, exact-target motion and cache gates pass and the new source-game review completes. New raw wardrobe frames belong under `rcd9_review08`. Catalogue approval does not accept a new cast export. Keep original full-resolution frames; contact sheets are indexes only.
 
 The development overlay contains junctions into immutable reference art, not a portable package or shortcut target. Future RC d9 packaging must dereference those into its own payload and verify all sixteen body/library hashes. Keep the accepted RC d8 game, owner profile and shortcut intact.
 
 Kera/Sel/Tavar's race bodies are DeepSeek's separate production job. Coordinate `people_ref` with the heritage session, then gate the new statures and exact-body libraries when delivered. The shared frontier wardrobe / armour plan remains an implementation plan; this pass builds no custom period garments or armour visuals.
+
+The superseded review07 dress and cyan-button diagnostics are preserved. Final review08 uses practical workwear and neutral native detail colours; no animation/body correction was used to hide clothing defects.
