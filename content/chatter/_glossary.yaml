@@ -19,6 +19,9 @@ terms:
   - { term: Rim, ref: location.road.basin_rim }
   - { term: Overturned Wain, ref: location.road.overturned_wain }
   - { term: Sunk Barrow, ref: location.road.sunk_barrow }
+  - { term: Spill, ref: location.field.the_spill }
+  - { term: Stopped Gate, ref: location.field.stopped_gate }
+  - { term: Needle, note: the broken gate-spire of the Stopped Gate (docs/FIELD_RUINS.md) }
   - { term: Wolves' Den, ref: location.den_mouth }
   - { term: Ruined Cart, ref: location.ruined_cart }
   - { term: Woundmoss Patch, ref: location.herb_patch }

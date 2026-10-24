@@ -359,6 +359,14 @@ def folded_note(c):
     c.line([(54, 50), (54, 54)], RED[2], 1.0, 0.0, cap=False)
 
 
+def firstfold_shard(c):
+    # a finger-long shard of dark Firstfold iron, broken where it broke, with the violet of its gate along the grain
+    shaded(c, [(30, 84), (22, 62), (34, 30), (52, 12), (60, 22), (66, 48), (58, 74), (42, 90)], DARKIRON, False,
+           light=[(26, 62), (36, 32), (50, 16), (46, 40), (34, 64)], shade=[(58, 26), (64, 48), (56, 72), (48, 70), (54, 46)])
+    c.line([(40, 78), (46, 50), (54, 24)], (150, 70, 230), 1.6, 0.0, cap=False)
+    c.dot(47, 47, 2.2, (186, 120, 255))
+
+
 def lantern_foot(c):
     # the brass foot of a lantern: a flared base with a ring socket
     c.rrect((18, 74, 82, 88), 3, BRASS[0], 2.2)
@@ -561,6 +569,7 @@ ICONS = {
     "ui.item.codex_fragment": ("item.quest.barrowworks_codex_fragment", codex_fragment, "Barrowworks codex fragment."),
     "ui.item.folded_note": ("item.story.folded_note", folded_note, "Folded Note."),
     "ui.item.lantern_foot": ("item.artefact.lantern_foot", lantern_foot, "Lantern foot."),
+    "ui.item.firstfold_shard": ("item.quest.firstfold_shard", firstfold_shard, "Firstfold shard."),
     "ui.item.lantern_ledger": ("item.story.lantern_ledger", lantern_ledger, "Lantern ledger."),
     "ui.item.bench_patterns": ("item.tome.bench_patterns", bench_patterns, "Bench patterns."),
     "ui.item.herbal_remedies": ("item.tome.herbal_remedies", herbal_remedies, "Herbal remedies."),

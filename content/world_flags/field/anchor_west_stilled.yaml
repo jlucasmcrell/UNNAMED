@@ -1,0 +1,9 @@
+id: world.field.anchor_west_stilled
+kind: world_flag
+schema: 1
+display_key: world.field.anchor_west_stilled.name
+tags: [world_flag]
+notes: Whether the west anchor of the Stopped Gate has been stilled (docs/FIELD_RUINS.md). Set once by its switch (M6); persisted in the Spill cell's delta.
+type: bool
+default: 0
+owning_system: S-22

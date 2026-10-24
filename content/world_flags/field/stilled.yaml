@@ -1,0 +1,9 @@
+id: world.field.stilled
+kind: world_flag
+schema: 1
+display_key: world.field.stilled.name
+tags: [world_flag]
+notes: Whether the Stopped Gate has settled shut, once all three anchors are stilled (docs/FIELD_RUINS.md). The hum stops and the Needle goes dark. Set once by its switch (M6); persisted in the Spill cell's delta.
+type: bool
+default: 0
+owning_system: S-22

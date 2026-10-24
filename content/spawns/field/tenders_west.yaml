@@ -1,0 +1,31 @@
+id: spawn.field.tenders_west
+kind: spawn
+schema: 1
+display_key: spawn.field.tenders_west.name
+tags:
+- spawn
+notes: 'Two gate tenders walking the west of the Spill, the first a body meets coming from Old Late (docs/FIELD_RUINS.md). Level 4.'
+region_ref: region.starting_frontier
+creatures:
+- creature_ref: creature.construct.gate_tender
+  count:
+  - 2
+  - 2
+  role: roamer
+at:
+  position_m:
+  - 800
+  - 760
+  radius_m: 5
+route_m:
+- [788, 752]
+- [812, 756]
+- [812, 766]
+- [788, 768]
+level_band:
+- 4
+- 4
+respawn:
+  kind: timer
+  window_ticks: 72000   # 60 minutes: the world refills, away from the player (AG-3 doubles it while farmed)
+tier_hint: A

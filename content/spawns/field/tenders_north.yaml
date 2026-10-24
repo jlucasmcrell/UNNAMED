@@ -1,0 +1,31 @@
+id: spawn.field.tenders_north
+kind: spawn
+schema: 1
+display_key: spawn.field.tenders_north.name
+tags:
+- spawn
+notes: 'Two gate tenders on the north of the Spill, above the road and the wayside woods. Level 4.'
+region_ref: region.starting_frontier
+creatures:
+- creature_ref: creature.construct.gate_tender
+  count:
+  - 2
+  - 2
+  role: roamer
+at:
+  position_m:
+  - 830
+  - 708
+  radius_m: 5
+route_m:
+- [828, 705]
+- [853, 705]
+- [853, 724]
+- [828, 724]
+level_band:
+- 4
+- 4
+respawn:
+  kind: timer
+  window_ticks: 72000   # 60 minutes: the world refills, away from the player (AG-3 doubles it while farmed)
+tier_hint: A

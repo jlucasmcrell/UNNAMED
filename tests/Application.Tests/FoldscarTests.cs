@@ -47,7 +47,9 @@ public class FoldscarTests
 
     private static string[] Replies(Arena arena) => arena.Simulation.Conversation!.Replies.Select(r => r.Id).ToArray();
 
-    private static (string, bool)[] Switches(Arena arena) => arena.Simulation.Switches.Select(s => (s.Site.Key, s.Set)).ToArray();
+    /// <summary>The Foldscar's own switches (the region has others: the Stopped Gate's).</summary>
+    private static (string, bool)[] Switches(Arena arena) => arena.Simulation.Switches
+        .Where(s => s.Site.FlagId.StartsWith("world.foldscar.", StringComparison.Ordinal)).Select(s => (s.Site.Key, s.Set)).ToArray();
 
     private static bool FoldStands(Arena arena) => arena.Simulation.Barriers.Single().Standing;
 

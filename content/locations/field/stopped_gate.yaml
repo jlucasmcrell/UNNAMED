@@ -1,0 +1,25 @@
+id: location.field.stopped_gate
+kind: location
+schema: 1
+display_key: location.field.stopped_gate.name
+tags:
+- location
+notes: "The Stopped Gate (docs/FIELD_RUINS.md): the sunken ring court at the Spill's heart, its three anchors, the Needle at its east rim and the Gate Warden. The core, level 5."
+name: The Stopped Gate
+region_ref: region.starting_frontier
+anchor:
+  world:
+  - 865.0
+  - 0.0
+  - 750.0
+kind_of_place: landmark
+discovery:
+  methods:
+  - visited
+  radius_m: 13
+  xp: 10
+map:
+  reveals_radius_m: 30
+  marker: none
+fast_travel:
+  node: false

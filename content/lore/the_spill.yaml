@@ -1,0 +1,28 @@
+id: lore.the_spill
+kind: lore
+schema: 1
+display_key: lore.the_spill.title
+tags: [lore, places]
+title: The Spill
+category: places
+notes: "Written from docs/FIELD_RUINS.md (owner-approved 2026-10-24): Cairnwold's name for the iron ruin across the plateau between Old Late and the Rim, kept off after dark, and Old Corra's one line on it in the lodge book. In-world, page 1 is walking onto the top (location.field.the_spill) and page 2 is Berrin Garth's telling (dialogue.cairnwold.berrin_garth the_spill)."
+pages:
+  - page: 1
+    text: >
+      Past the Rim the top runs flat and wide toward Old Late, and across the whole of it lies iron - plates the
+      length of a village street, ribs as high as a longhouse roof that curve up out of the turf and stop, pylons standing at angles nothing stands at
+      on purpose. Cairnwold calls it the Spill, as if a load had burst going over the top and nobody had come back
+      for it. The iron is dark, with a grain that runs the wrong way to the light, and there is no rust on any of
+      it. Under the wind there is a hum, low and steady, felt in the teeth before it is heard.
+    sources:
+      - { how: visited, ref: location.field.the_spill }
+  - page: 2
+    text: >
+      Berrin Garth says the village has always kept off the top after dark, and nobody remembers being told to. The
+      lodge book has one line on it, in Old Corra's hand and nothing round it: the top hums; leave it to hum. Berrin
+      reads that as permission to ignore it, and says he has, for forty years, very carefully. The things that walk
+      the Spill pick up fallen iron and set it back where it does not fit, and the village calls them tenders, and
+      leaves them to it.
+    reveals: location.field.the_spill
+    sources:
+      - { how: told, ref: dialogue.cairnwold.berrin_garth }

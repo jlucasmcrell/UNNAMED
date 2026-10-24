@@ -174,6 +174,18 @@ Possible forms:
 
 Different civilizations may have discovered different ways to interact with the same underlying phenomenon.
 
+### Stopped gates
+
+*(Owner-approved direction, 2026-10-24; first instance placed in the frontier: `docs/FIELD_RUINS.md`.)*
+
+A gate can be caught partway. A **stopped gate** is one that began to open, or began to close, and was halted before it finished. It is neither a door nor a wall. The structure stays under strain, and the strain is audible as a steady hum that a body feels in the teeth.
+
+Some gates were built with **anchors**: separate fixtures set round the gate that hold it in one state. A stopped gate's anchors hum louder than the gate, because they are still pulling against the halt. Stilling the anchors lets the gate settle shut. It does not open it. Nobody on record knows the rite that would.
+
+A gate is **not a fold**. A fold is ground where reality has slipped (§4). It bleeds: things grow and graze there that belong to the slip (the fold-bleed grazers of the frontier are met only near the Foldscar). A gate is a made or kept threshold. Shut or stopped, it bleeds nothing, and nothing is born of it. What gathers round a gate is drawn to it, not made by it.
+
+Some gates have **keepers**: bloodless mechanisms built into the gate's own fabric, still doing a duty whose purpose nobody living can state. They are part of the gate, as a lock is part of a door. They are not a people, and they are not the Constructed (`MYTHOLOGY.md`), whatever a farmer calls them.
+
 ---
 
 ## 9. Otherhome

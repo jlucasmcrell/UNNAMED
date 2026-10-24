@@ -1,0 +1,26 @@
+id: spawn.field.tenders_east
+kind: spawn
+schema: 1
+display_key: spawn.field.tenders_east.name
+tags:
+- spawn
+notes: 'Two gate tenders holding the east of the Spill above the scarp, the first met coming up the ramp from Cairnwold. Level 4.'
+region_ref: region.starting_frontier
+creatures:
+- creature_ref: creature.construct.gate_tender
+  count:
+  - 2
+  - 2
+  role: sentinel
+at:
+  position_m:
+  - 873
+  - 727
+  radius_m: 4
+level_band:
+- 4
+- 4
+respawn:
+  kind: timer
+  window_ticks: 72000   # 60 minutes: the world refills, away from the player (AG-3 doubles it while farmed)
+tier_hint: A

@@ -1,0 +1,17 @@
+id: ability.creature.warden_fall
+kind: ability
+schema: 1
+display_key: ability.creature.warden_fall.name
+tags: [ability]
+name: Warden's Fall
+notes: "Both arms come up and the warden comes down and forward in a straight line - the heaviest thing it does, with the longest tell. It cannot turn while it commits; the recovery is the window to get behind it."
+class: creature
+windup_s: 1.3
+recovery_s: 1.7
+cooldown_s: 8
+forces_stagger: true
+commit_facing: true
+charge: { speed_m_s: 6, min_range_m: 5, max_distance_m: 12, stun_s: 1.6 }
+cost: { stamina: 0 }
+payload:
+  - { type: damage, damage_type: physical_blunt, amount: [19, 25] }

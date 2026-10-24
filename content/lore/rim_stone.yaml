@@ -13,8 +13,8 @@ pages:
       village, the moss, the line of the crags - with a watch-fire someone keeps, and a stone standing at the edge
       of the fall. The stone is a Waystone, one of the old travellers' stones, but it is cold under the hand and
       does not answer, and it has not answered in living memory. A traveller coming east stops at it because it is
-      the only fixed thing on the top, and because the custom of the road is to put a hand on a Waystone and go
-      on.
+      the one thing on the top that was set there for travellers - the iron spilled across the rest of the top was
+      not - and because the custom of the road is to put a hand on a Waystone and go on.
     sources:
       - { how: visited, ref: location.road.basin_rim }
   - page: 2

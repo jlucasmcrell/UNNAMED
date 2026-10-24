@@ -9,5 +9,6 @@ seat_location_ref: location.outpost
 reactions:
   - { act: switch_set, flag_ref: world.barrowworks.headworks_preserved, delta: 25 }
   - { act: switch_set, flag_ref: world.foldscar.steadied, delta: 100 }   # the stones set right, the fold quiet
+  - { act: switch_set, flag_ref: world.field.stilled, delta: 50 }   # the Stopped Gate settled shut (docs/FIELD_RUINS.md)
 relations:
   - { faction_ref: faction.ashen_hollow.wayhold, attitude: cordial }
