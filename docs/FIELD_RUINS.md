@@ -70,16 +70,23 @@ The XP budget is in `FIELD_RUINS_PROPOSAL.md` §3.3.
 **Art.**
 - `tools/field_ruins/convert_spill_kit.ps1` converts 17 Red Echo and Monolith Megastructure pieces (Fab, owned) from their UE exports to `D:\Otherreach_Depot\field_ruins\ready\ruin_fs_*`.
   - They are at megastructure scale: the Needle is 98 m and the slab 77 m.
-  - Textures are 4096 for the large pieces. There are **no LODs**, so every piece is drawn at full detail on Ultra.
+  - There are **no LODs**, so every piece is drawn at full detail on Ultra.
+  - Textures are **4096**, and they **must reach the GPU through the BC7 texture cache** (`--visual textures=cache`, with the cache built by a `--texture-cache` run).
+    - The game uploads a runtime GLB's maps uncompressed (RGBA8), and every piece carries its own copy of the kit's maps.
+    - Uncompressed, the 4K Spill took 4,365 MB of texture memory (973 MB without it) and crashed the NVIDIA driver on the walk in from Old Late (2026-10-24).
+    - Through the cache, the 120 ruin and keeper maps de-duplicate to 18 BC7 images: **96 MB**.
+    - `D:\Otherreach_Depot\field_ruins_4k` is the final set. `D:\Otherreach_Depot\field_ruins` (2048, keepers 1024) is an interim set that runs uncompressed until the packaged default reads the cache.
 - `tools/field_ruins/build_keepers.py` (Blender 5.2) builds `rigged\creature_gate_tender` (3 m) and `rigged\creature_gate_warden` (8 m) on Stan the Golem's rig (ShyrAssets, CC BY 4.0).
-  - Each block is one Spill piece; the base colour is pulled to dark iron; a violet core sits in the open back.
+  - Each block is one Spill piece; the base colour is pulled to dark iron; a violet core sits in the open back. Their maps are capped at 2048 in the final set (`build_keepers.py --depot ...field_ruins_4k\ready --max-texture 2048`).
   - They play the golem's own six clips (`creature.creature_golem_stan.*`).
 - Otherfire is violet: the anchors' and the Needle's own lights, which go out when their switch is set (`set_goes_dark`). The hum is the fold-hum loop, wide over the Spill and gone once the Needle is set.
 - Nothing here went near a generative tool.
 
 **Installing into an RC asset root** (the root the game is launched with as `--asset-root`):
-1. Copy `D:\Otherreach_Depot\field_ruins\ready\ruin_fs_*` into `<root>\ready\`.
-2. Copy `D:\Otherreach_Depot\field_ruins\rigged\creature_gate_*` into `<root>\rigged\`.
+1. Copy `D:\Otherreach_Depot\field_ruins_4k\ready\ruin_fs_*` into `<root>\ready\`.
+2. Copy `D:\Otherreach_Depot\field_ruins_4k\rigged\creature_gate_*` into `<root>\rigged\`.
 3. Copy the golem's clips from `C:\Otherreach_Recovery\asset_work\creatures\ready_new\creature_golem_stan\animation\`: `ready\creatures\anim.creature.creature_golem_stan.*.glb` into `<root>\animation\ready\creatures\`, and `clips\anim.creature.creature_golem_stan.*.json` into `<root>\animation\clips\`. Clip records are read from the primary root only.
 4. The shard's icon: `python tools/ui_icons/make_missing_icons.py --out <dir> --install <root>`.
+5. Build the texture cache for the new maps: launch once with the editor binary and `--texture-cache --visual textures=cache` (a headless `--smoke` run does it in about five minutes without the GPU).
+6. Ship with `textures=cache` in the launch's `--visual`. Without it the 4K set is uploaded uncompressed. Until then, use the 2048 interim set from `D:\Otherreach_Depot\field_ruins`.
 

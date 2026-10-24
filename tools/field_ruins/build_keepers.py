@@ -16,7 +16,8 @@ import mathutils
 import numpy as np
 
 GOLEM = r"C:\Otherreach_Recovery\asset_work\creatures\ready_new\creature_golem_stan\creature_golem_stan.glb"
-DEPOT = r"D:\Otherreach_Depot\field_ruins\ready"
+DEPOT = r"D:\Otherreach_Depot\field_ruins\ready"   # --depot: the pieces the keepers are built from
+MAX_TEXTURE = 1024   # --max-texture
 GOLEM_HEIGHT = 4.0
 VIOLET = (0.62, 0.22, 1.0)
 
@@ -151,10 +152,10 @@ def build(asset_id, height, thickness, core_frac, out):
     bpy.ops.object.join()
     keeper = bpy.context.view_layer.objects.active
     keeper.name = keeper.data.name = asset_id
-    # Every image no larger than 2048 on a side: a keeper is seen at combat range, not inspected like the Needle.
+    # No image larger than MAX_TEXTURE on a side: a keeper is seen at combat range, and each of its parts brings its own maps.
     for img in bpy.data.images:
-        if img.size[0] > 2048:
-            img.scale(2048, int(img.size[1] * 2048 / img.size[0]))
+        if img.size[0] > MAX_TEXTURE:
+            img.scale(MAX_TEXTURE, int(img.size[1] * MAX_TEXTURE / img.size[0]))
     # The Red Echo trim is a warm brown that reads as timber on a moving body; the keepers are the Spill's dark iron, so their base
     # colour is pulled toward a cool, dark grey (the luminance kept, most of the hue taken out).
     colour_maps = [img for img in bpy.data.images if "_basecolor" in img.name]   # a re-imported piece names its copy _basecolor.001
@@ -196,6 +197,11 @@ def build(asset_id, height, thickness, core_frac, out):
 def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     out = argv[argv.index("--out") + 1] if "--out" in argv else r"D:\Otherreach_Depot\field_ruins"
+    global DEPOT, MAX_TEXTURE
+    if "--depot" in argv:
+        DEPOT = argv[argv.index("--depot") + 1]
+    if "--max-texture" in argv:
+        MAX_TEXTURE = int(argv[argv.index("--max-texture") + 1])
     for asset_id, (height, thickness, core_frac) in KEEPERS.items():
         build(asset_id, height, thickness, core_frac, out)
 
