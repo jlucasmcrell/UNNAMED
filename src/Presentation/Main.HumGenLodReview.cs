@@ -51,11 +51,46 @@ public partial class Main
             figure.Free();
         }
         platform.Free();
+        // Same world/camera/settings and normal simulation pacing. Do not impose a
+        // simulation-tick frame cap or infer whole-game speed from the isolated rig test.
+        _avatar.Visible = true;
+        _npcs.Visible = true;
+        camera.GlobalTransform = _camera.Camera.GlobalTransform;
+        var people = _npcs.GetChildren().OfType<SkinnedFigure>().ToList();
+        if (_avatar is SkinnedFigure player) people.Add(player);
+        var performance = new List<object>();
+        try
+        {
+            foreach (bool all in new[] { true, false, true, false })
+            {
+                foreach (var person in people) person.ReviewAllLods(all);
+                await Rcd3Wait(1);
+                var milliseconds = new List<double>();
+                ulong previous = Time.GetTicksUsec();
+                for (int frame = 0; frame < 180; frame++)
+                {
+                    await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+                    ulong now = Time.GetTicksUsec();
+                    milliseconds.Add((now - previous) / 1000.0);
+                    previous = now;
+                }
+                double[] sorted = milliseconds.Order().ToArray();
+                performance.Add(new { arm = all ? "all_four_diagnostic" : "exclusive", characters = people.Count,
+                    frame_ms = milliseconds, mean_ms = milliseconds.Average(), median_ms = sorted[90], p95_ms = sorted[171],
+                    engine_max_fps = Engine.MaxFps, viewport = GetViewport().GetVisibleRect().Size.ToString(),
+                    camera = camera.GlobalTransform.ToString(), visual = VisualOptions.All,
+                    draws = Performance.GetMonitor(Performance.Monitor.RenderTotalDrawCallsInFrame),
+                    primitives = Performance.GetMonitor(Performance.Monitor.RenderTotalPrimitivesInFrame) });
+                await Rcd3Shot(directory, all ? "lod_world_all_four_before" : "lod_world_exclusive_after");
+            }
+        }
+        finally { foreach (var person in people) person.ReviewAllLods(false); }
         File.WriteAllText(Path.Combine(directory, "humgen_lod_review.json"), JsonSerializer.Serialize(new
         {
             status = "PACKAGED_EXCLUSIVITY_PASS_FRAMES_REQUIRE_CLAUDE_REVIEW",
             staging = "Normal game figures on raised inspection platform; production camera/materials/motion",
             rows,
+            performance,
         }, new JsonSerializerOptions { WriteIndented = true }));
     }
 }

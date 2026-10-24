@@ -23,6 +23,7 @@ public sealed partial class SkinnedFigure : Figure
     public Skeleton3D Skeleton => _model.Skeleton;
     public string ModelId => _person.Model;
     public bool ForceLod0 { set => _model.ForceLod0 = value; }
+    internal void ReviewAllLods(bool all) => _model.ReviewAllLods(all);
     public float StatureScale => _uniformScale;
     private PostureModifier? _posture;
     private ArtLibrary _art = null!;

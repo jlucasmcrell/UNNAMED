@@ -24,6 +24,7 @@ public sealed partial class SkinnedModel : Node3D
     private Godot.Collections.Dictionary _contacts = new();
     private AnimationPlayer _player = null!;
     private HumGenLods? _humgenLods;
+    internal void ReviewAllLods(bool all) => _humgenLods?.ReviewAllLevels(all);
     public bool ForceLod0
     {
         set

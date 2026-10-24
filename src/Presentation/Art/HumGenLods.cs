@@ -10,8 +10,12 @@ public sealed class HumGenLods
     private readonly Part[] _parts;
     private readonly HashSet<MeshInstance3D> _hiddenOutfits = new();
     private int _level;
+    private bool _reviewAllLevels;
     public bool CloseUp { get; set; }
     public int Level => _level;
+
+    // Called only by the opt-in native capture gate, to measure the reported defect.
+    internal void ReviewAllLevels(bool all) { _reviewAllLevels = all; Apply(); }
 
     public HumGenLods(Node model)
     {
@@ -53,7 +57,7 @@ public sealed class HumGenLods
             // Some hair parts omit a distant level: retain their nearest available level.
             int selected = group.OrderBy(p => Math.Abs(p.Level - _level)).ThenBy(p => p.Level).First().Level;
             foreach (var part in group)
-                part.Mesh.Visible = part.Level == selected && !_hiddenOutfits.Contains(part.Mesh);
+                part.Mesh.Visible = (_reviewAllLevels || part.Level == selected) && !_hiddenOutfits.Contains(part.Mesh);
         }
     }
 }
