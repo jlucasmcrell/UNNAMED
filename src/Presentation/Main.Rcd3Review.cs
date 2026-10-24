@@ -1,4 +1,4 @@
-﻿using Godot;
+using Godot;
 using System.Text.Json;
 using UNNAMED.Presentation.MHCharacters;
 using UNNAMED.Presentation.Player;
@@ -96,6 +96,8 @@ public partial class Main
                     texture_mib=Performance.GetMonitor(Performance.Monitor.RenderTextureMemUsed)/1048576.0,
                     textures=VisualOptions.All.GetValueOrDefault("textures"),cache_hits=_art.Cache.Hits,cache_failed=_art.Cache.Failed,
                     source_resolution_preserved=true }));
+                if(OS.GetEnvironment("OTHERREACH_RCD9_TALKING_GATE")=="1")
+                    await RunTalkingThroatGate(Path.Combine(directory,"talking_face_throat"),camera);
                 if(OS.GetEnvironment("OTHERREACH_RCD9_WARDROBE_REVIEW")=="1")
                 {
                     _inventory.Close();
@@ -425,4 +427,5 @@ public partial class Main
     }
 
 }
+
 
