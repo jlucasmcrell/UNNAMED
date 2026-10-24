@@ -49,7 +49,7 @@ public class BarrowworksRulingsTests
             arena.Simulation.WorldTick, bus), bus);
     }
 
-    private static bool G3Open(Simulation simulation) => simulation.Doors.Single(d => d.Site.Key == "door.barrowworks.g3").Open;
+    private static bool G3Open(Simulation simulation) => simulation.Doors.Single(d => d.Site.Key == "door.barrowworks.headworks").Open;
 
     private static string? Use((Simulation Simulation, EventBus Bus) run, string key)
     {
@@ -67,7 +67,7 @@ public class BarrowworksRulingsTests
     {
         using var profile = new TempProfile();
         using var session = Harness.Boot(profile, "region.barrowworks", barrowworks: true);
-        var door = session.Setup.Layout.Doors.Single(d => d.Key == "door.barrowworks.g3");
+        var door = session.Setup.Layout.Doors.Single(d => d.Key == "door.barrowworks.headworks");
         Assert.Equal(new SiteItem(Wedge, 1), door.Fitted);
         Assert.True(door.StaysOpen);
 

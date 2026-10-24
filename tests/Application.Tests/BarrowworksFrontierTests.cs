@@ -84,7 +84,7 @@ public class BarrowworksFrontierTests
         var arena = AtThreshold(session);
         Assert.Null(arena.Submit(new EnterSpaceCommand(arena.Player, "portal.barrowworks.threshold")));
         arena.Tick();
-        var gallery = arena.Simulation.ActiveLayout.Doors.Single(d => d.Key == "door.barrowworks.g1");
+        var gallery = arena.Simulation.ActiveLayout.Doors.Single(d => d.Key == "door.barrowworks.gallery");
         Walk(arena, (x, z) => x < gallery.ClosedFootprint.CenterXMm
             && gallery.ClosedFootprint.DistanceTo(x, z) < session.Setup.Movement.InteractReachMm - 200);
         Assert.Equal(gallery.LockedText, arena.Submit(new InteractCommand(arena.Player, gallery.Key)));
@@ -95,7 +95,7 @@ public class BarrowworksFrontierTests
         Assert.All(arena.Simulation.ActiveLayout.Doors, d => Assert.True(d.StaysOpen));
         Assert.Null(arena.Submit(new InteractCommand(arena.Player, gallery.Key)));
         Assert.True(arena.Simulation.Doors.Single(d => d.Site == gallery).Open);
-        var headworks = arena.Simulation.ActiveLayout.Doors.Single(d => d.Key == "door.barrowworks.g3");
+        var headworks = arena.Simulation.ActiveLayout.Doors.Single(d => d.Key == "door.barrowworks.headworks");
         Walk(arena, (x, z) => headworks.ClosedFootprint.DistanceTo(x, z) < session.Setup.Movement.InteractReachMm - 200);
         Assert.Equal(headworks.LockedText, arena.Submit(new InteractCommand(arena.Player, headworks.Key)));
         Assert.False(arena.Simulation.Doors.Single(d => d.Site == headworks).Open);

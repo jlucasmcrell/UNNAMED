@@ -368,10 +368,12 @@ w("")
 # R07-R09 secret, G3 the R11-R12 aftermath. Each is a door in the edge's opening, shut until its flag is set.
 w("# G1-G3 remain open once earned. G3 takes the Custodian defeat and a fitting wedge, which stays fitted in the door.")
 w("doors:")
+GATE_NAMES = {"g1": "gallery", "g2": "archive", "g3": "headworks"}
 for gate, (x0, z0, x1, z1) in doors:
     lock = (", latch_side: east, locked_text: 'The latch is on the gallery side.'" if gate == "g1" else
             ", requirement: { flag_ref: world.barrowworks.ring_custodian_defeated, location_ref: location.barrowworks.r11_measuring_court }, fitted: { item_ref: item.tool.fitting_wedge, count: 1 }, locked_text: 'The court interlock still holds. Stop the Custodian, then fit a wedge into its keyway.'" if gate == "g3" else "")
-    w(f"  - {{ key: door.barrowworks.{gate}, flag_ref: world.barrowworks.gate_{gate}_open, "
+    # The key is what the prompt reads ("the headworks door"); the flag, which saves hold, keeps the gate's number.
+    w(f"  - {{ key: door.barrowworks.{GATE_NAMES[gate]}, flag_ref: world.barrowworks.gate_{gate}_open, "
       f"box_m: [{x0:.1f}, {z0:.1f}, {x1:.1f}, {z1:.1f}], height_m: 2.4, stays_open: true{lock} }}")
 w("containers:")
 w("  - { key: container.barrowworks.archive_crate, loot_ref: loot.barrowworks.archive_crate, position_m: [74.5, 62.5], stack_slots: 4 }")

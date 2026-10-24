@@ -1974,13 +1974,13 @@
     }
   },
   "doors": {
-    "door.barrowworks.g1": {
+    "door.barrowworks.gallery": {
       "model": "bw_codex_gate_1"
     },
-    "door.barrowworks.g2": {
+    "door.barrowworks.archive": {
       "model": "bw_codex_gate_2"
     },
-    "door.barrowworks.g3": {
+    "door.barrowworks.headworks": {
       "model": "bw_codex_gate_3"
     }
   },

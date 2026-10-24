@@ -132,7 +132,7 @@ def main():
         "container.barrowworks.codex_fragment": {"model": "bw_codex_codex_fragment"},
         "container.barrowworks.lantern_foot": {"model": "bw_codex_lantern_foot"},
     }
-    doc["doors"] = {f"door.barrowworks.g{i}": {"model": f"bw_codex_gate_{i}"} for i in range(1,4)}
+    doc["doors"] = {f"door.barrowworks.{name}": {"model": f"bw_codex_gate_{i}"} for i, name in enumerate(("gallery", "archive", "headworks"), 1)}
     doc["nodes"] = {"node.wood.ash_stand": {"model": "cw_woodpile_a", "spent": "bw_codex_work_seat"}}
     clips = {state: "creature.bw_codex_custodian."+state for state in ("idle","walk","run","hit","death")}
     clips.update({"attack": "creature.bw_codex_custodian.sweep",
