@@ -362,7 +362,8 @@ public partial class Main : Node3D
         // change - its region file, its cells and its bindings are the whole of it.
         string region = _options.GetValueOrDefault("--region") ?? "region.starting_frontier";
         // A --shot stands the character where a capture needs him; the pets' pass needs the same, at the den rather than the yard.
-        var shotStart = (VisualOptions.Barrowworks && region == BarrowworksRegion) || _options.ContainsKey("--pet-shots") || _options.ContainsKey("--shot") ? ShotStart() : null;
+        var shotStart = (VisualOptions.Barrowworks && region == BarrowworksRegion) || _options.ContainsKey("--pet-shots") || _options.ContainsKey("--shot")
+            || _options.ContainsKey("--stand") ? ShotStart() : null;
         if (OS.GetEnvironment("OTHERREACH_RCD5_STEALTH") == "1"
             && File.Exists(Path.Combine(contentRoot,"RCD5_REVIEW_FIXTURE.txt")))
             shotStart = (600_000,755_000);
@@ -397,6 +398,7 @@ public partial class Main : Node3D
             // A capture that has to show a purchase is given a purse: the same fixture door as the place to stand, at new game, and never a
             // player's run (its option is not in PlaytestLaunchDefaults).
             StartCurrency = long.TryParse(_options.GetValueOrDefault("--purse"), out long purse) && purse > 0 ? purse : 0,
+            StartLevel = int.TryParse(_options.GetValueOrDefault("--start-level"), out int startLevel) && startLevel > 1 ? startLevel : 0,
         });
         SkyView.ClockAtWorldStart = (float)_session.ClockAtWorldStartHours;
         _session.SubscriberFailed += SubscriberFailed;
@@ -1760,7 +1762,7 @@ public partial class Main : Node3D
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
-                    or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--stand" or "--purse" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
+                    or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--stand" or "--purse" or "--start-level" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
                     or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"
