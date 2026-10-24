@@ -358,7 +358,7 @@ public partial class Main : Node3D
         // change - its region file, its cells and its bindings are the whole of it.
         string region = _options.GetValueOrDefault("--region") ?? "region.starting_frontier";
         // A --shot stands the character where a capture needs him; the pets' pass needs the same, at the den rather than the yard.
-        var shotStart = (VisualOptions.Barrowworks && region == BarrowworksRegion) || _options.ContainsKey("--pet-shots") ? ShotStart() : null;
+        var shotStart = (VisualOptions.Barrowworks && region == BarrowworksRegion) || _options.ContainsKey("--pet-shots") || _options.ContainsKey("--shot") ? ShotStart() : null;
         if (OS.GetEnvironment("OTHERREACH_RCD5_STEALTH") == "1"
             && File.Exists(Path.Combine(contentRoot,"RCD5_REVIEW_FIXTURE.txt")))
             shotStart = (600_000,755_000);
