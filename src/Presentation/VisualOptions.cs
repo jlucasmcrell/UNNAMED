@@ -162,6 +162,12 @@ public static class VisualOptions
         _ => 1.00f,
     };
 
+    /// <summary>
+    /// The cached textures' top mip levels left on disk, so Low and Medium fit an 8 GB card (public playtest gate C3): a 4096 map uploads
+    /// from 2048 down. High and Ultra upload the full chain.
+    /// </summary>
+    public static int TextureMipsDropped => Tier is "low" or "medium" ? 1 : 0;
+
     /// <summary>Settings' plant density and detail distance dials, read as the world is built (a player's run; 1 for a harness).</summary>
     public static float PlantScale { get; set; } = 1f;
 
