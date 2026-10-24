@@ -1,32 +1,44 @@
-# Otherreach playtest
+# Otherreach — playtest
 
-Thank you for testing. This is an early, unfinished playtest of Otherreach, a single-player open-world fantasy RPG. You start in Ashen Hollow, a waystation settlement, and can follow the road to Cairnwold. Talk to the residents, take on work, gather and craft, and fight what lives in the wild. Expect rough edges.
+Thank you for playing. This is an early, unfinished playtest of Otherreach, a single-player fantasy RPG. You wake on a ridge above Ashen Hollow, a waystation on the frontier, and follow the road toward Cairnwold. Talk to the people who live there, take on work, gather and craft, travel by the Waystones, and see what lies under the hill. Expect rough edges: finding them is what this playtest is for.
 
 ## Install and run
 
-1. Extract the download (all parts, if it came in several) into one folder on your PC. Keep the whole folder together; do not copy Otherreach.exe out of it.
-2. Double-click **PLAY.bat**. It runs the game at 2560 x 1440 on High (your display may limit the window size).
-3. For a 4K display with a strong graphics card, use **PLAY Ultra 4K.bat** instead: Ultra at 3840 x 2160, which needs more graphics memory.
+1. Extract the whole download into one folder you can write to, for example `C:\Games\Otherreach`. Keep the folder together; do not copy `Otherreach.exe` out of it.
+2. Double-click **PLAY.bat** (High quality, 2560 x 1440 or your screen's size). `Otherreach.exe` on its own starts the same way.
+3. **PLAY Ultra 4K.bat** is for 4K screens and graphics cards with 16 GB of memory or more.
 
-You can also start **Otherreach.exe** directly. It loads the packaged world and approved characters without extra arguments; the launchers choose the display settings above. You need Windows 10 or 11 (64-bit) and a Vulkan-capable dedicated graphics card. Nothing else needs installing.
+Nothing else needs installing, and the game never asks for administrator rights.
 
-**Windows SmartScreen:** the game is not code-signed, so Windows may show "Windows protected your PC". Click **More info**, then **Run anyway**.
+**Windows SmartScreen:** the game is not code-signed, so Windows may say "Windows protected your PC". Choose **More info**, then **Run anyway**.
 
-**The first launch is slow.** The game builds its caches the first time, so a black or frozen-looking window for a minute or two is normal. Please wait; later launches are quicker.
+**The first launch is slower** while the game prepares its shaders. Later launches are quicker.
+
+## System requirements
+
+| | Minimum | Recommended |
+| --- | --- | --- |
+| System | Windows 10 or 11, 64-bit | Windows 10 or 11, 64-bit |
+| Graphics | Vulkan graphics card with 8 GB of memory, Low quality at 1920 x 1080 | 12 GB or more, High quality at 2560 x 1440 |
+| Processor | 6 cores | 8 cores or more |
+| Memory | 16 GB | 32 GB |
+| Storage | the unpacked folder, on an SSD | SSD |
+
+Quality, resolution, render scale and the individual effects are in **Settings > Graphics**. If the game runs slowly, choose a lower quality or a lower render scale there.
 
 ## Controls
 
-Keys are physical, meaning they follow the position of the key on the keyboard, not the letter. On an AZERTY keyboard, move with **Z Q S D**. The arrow keys also move. Press **F1** in the game for this list.
+Keys follow their position on the keyboard, not the letter: on an AZERTY keyboard, move with **Z Q S D**. Every key can be changed in **Settings > Controls**. Press **F1** in the game for this list.
 
 | Action | Key |
 | --- | --- |
-| Move | W A S D, or arrow keys |
+| Move | W A S D, or the arrow keys |
 | Look | Mouse |
 | Sprint (hold) | Shift |
 | Walk (hold) | Ctrl |
 | Jump | Space |
 | Crouch or stand | X |
-| Autorun, on or off | Tilde (the ` key, left of 1) |
+| Auto-run, on or off | ` (the key left of 1) |
 | First person, and back | V (the mouse wheel zooms) |
 | Change shoulder | Q |
 | Interact: open, take, talk, work, help up | E |
@@ -34,28 +46,43 @@ Keys are physical, meaning they follow the position of the key on the keyboard, 
 | Guard, or aim the bow (hold) | Right mouse |
 | Dodge | C |
 | Use a salve | H |
-| Quick slots | 1, 2, 3 |
-| Work a formula | 4, 5, 6 |
+| Action bar | 1 to 9, 0, -, = |
 | Tell your companion to follow or wait | G |
 | Answer in a conversation | 1 to 9 |
 | Inventory | Tab or I |
 | Take all, from an open container | R |
-| Journal | J |
-| Map | M |
-| Character | K |
-| Quicksave / quickload | F5 / F9 |
+| Journal / Map / Character / Skills / Party | J / M / K / P / O |
+| Save now | F5 |
 | All saves, backups too | L |
-| System menu, or close the open screen | Escape |
-| Controls list | F1 |
+| Report a problem | F8 |
+| Menu, or close the open screen | Escape |
+| Controls and help | F1 |
 
-## Saves
+There is no quick-load: the world is one continuous life. To go back to an earlier save, open **All saves** (L) and choose it.
 
-Saves are kept in the **saves** folder inside the game folder. Keep a copy of it if you move or replace the game folder. The game also autosaves.
+## Reporting a problem
 
-## Feedback
+Press **F8** (or Escape > **Report a problem**), write what happened, and choose **Write the report**. The game writes a zip into the **reports** folder inside the game folder and shows you where it is. It holds:
 
-Please tell us where you were, what you did and what happened. Screenshots or short videos help a lot. Leave feedback in the comments on the itch.io page, or in the channel where you got the link. If something crashed, say so and attach the log; **F1** shows where the log is.
+- what you wrote, the build number and your system (graphics card, its memory, processor, memory, Windows version, window size, quality);
+- a picture of the screen as it was when you pressed F8;
+- the game's log, your settings and your current save.
+
+**Nothing is sent.** The game never connects to the internet. To send a report, attach the zip to a comment on the Otherreach itch.io page, or use the feedback link on otherreach.com/playtest. Where you were, what you did and what you expected help most. If the game closed by itself, the next launch says so and offers to open the log folder; press F8 once you are back in.
+
+## Saves and logs
+
+- Saves: the **saves** folder inside the game folder. Copy it before you replace the game with a newer build. The game also saves by itself.
+- Reports: the **reports** folder inside the game folder.
+- The log: `%APPDATA%\Godot\app_userdata\Otherreach\logs\godot.log` (F1 shows the exact path).
+- Settings: `%APPDATA%\Godot\app_userdata\Otherreach\client_prefs.json`.
+
+## Known issues
+
+- Some clothing is interim and looks modern up close (buttons, pockets). Period garments and worn armour come later.
+- The first time you enter the Barrowworks the screen stays black for a while as the rooms are prepared. This is expected.
+- Short hitches can happen as new parts of the frontier load in.
 
 ## Credits
 
-Third-party licences, credits and the note on AI-generated content are in the **THIRD_PARTY_NOTICES** folder (start with NOTICE.txt).
+Choose **Credits** on the title screen: everyone whose work is in the game, every licence, and how generative AI was used in making it. The licence texts are in the **THIRD_PARTY_NOTICES** folder (start with NOTICE.txt).

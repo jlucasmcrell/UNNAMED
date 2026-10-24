@@ -1,4 +1,4 @@
-// UNNAMED Presentation - Main's problem reports and build id: what a tester sends, gathered into one local zip (public playtest gate E2, F3)
+// UNNAMED Presentation - Main's problem reports, screenshots and build id: what a tester keeps and sends, written locally (public playtest gate E2, F3)
 // Godot presentation only: this file renders state and submits commands; it never writes state. Nothing here sends anything anywhere.
 
 using Godot;
@@ -31,6 +31,31 @@ public partial class Main
         string label = lines.FirstOrDefault(l => l.StartsWith("build ", StringComparison.Ordinal))?[6..].Trim() ?? string.Empty;
         string commit = lines.FirstOrDefault(l => l.StartsWith("commit ", StringComparison.Ordinal))?[7..].Trim() ?? string.Empty;
         return string.Join(" · ", new[] { label, commit.Length > 8 ? commit[..8] : commit }.Where(p => p.Length > 0));
+    }
+
+    /// <summary>Where screenshots go: beside the game in an exported build, else <c>user://screenshots</c>.</summary>
+    private static string ScreenshotsFolder => OS.HasFeature("template")
+        ? Path.Combine(Home(), "screenshots")
+        : ProjectSettings.GlobalizePath("user://screenshots");
+
+    /// <summary>The last frame, at the window's full size, as <c>otherreach_NNNN.png</c>; the toast comes after, so it is never in the picture.</summary>
+    private void TakeScreenshot()
+    {
+        Directory.CreateDirectory(ScreenshotsFolder);
+        int next = Directory.EnumerateFiles(ScreenshotsFolder, "otherreach_*.png")
+            .Select(f => int.TryParse(Path.GetFileNameWithoutExtension(f)["otherreach_".Length..], out int n) ? n : 0)
+            .DefaultIfEmpty(0).Max() + 1;
+        string file = Path.Combine(ScreenshotsFolder, $"otherreach_{next:D4}.png");
+        var error = GetViewport().GetTexture().GetImage().SavePng(file);
+        _hud.Toast(error == Error.Ok ? $"Screenshot saved: {Path.GetFileName(file)}" : $"The screenshot could not be saved ({error})", 2);
+    }
+
+    /// <summary>The interface hidden, for a clear view or a picture: the HUD and the hint line, until the key is pressed again.</summary>
+    private void ToggleInterface()
+    {
+        _hud.Visible = !_hud.Visible;
+        if (_hintLine is not null)
+            _hintLine.Visible = _hud.Visible;
     }
 
     private void BuildReportPanel()
