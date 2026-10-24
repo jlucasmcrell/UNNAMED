@@ -81,6 +81,7 @@ public partial class Main
         AddChild(_settings);
         _credits = new CreditsPanel { Name = "Credits", Folder = NoticesFolder(), CreditsFile = Path.Combine(_session.Options.ContentRoot, "credits.yaml") };
         AddChild(_credits);
+        BuildReportPanel();
         BuildPlayerScreens();
         _menu = new SystemMenuPanel
         {
@@ -119,7 +120,7 @@ public partial class Main
         _credits.Closed = () => BackToTitle(CloseScreens);
         _title = new TitleScreen
         {
-            Name = "Title", Version = $"Playtest · content {_session.Content.Version}",
+            Name = "Title", Version = $"Playtest · {BuildId()} · content {_session.Content.Version}",
             CrashNotice = _crashNotice, OpenLogs = OpenCrashFolder,
             Continue = _ => Continue(),
             NewGame = OpenCreator,
@@ -291,6 +292,7 @@ public partial class Main
         new("System", "Settings", null, "panel.settings", FromMenu(() => _settings.Open())),
         new("System", "Credits", null, "panel.credits", FromMenu(() => _credits.Visible = true)),
         new("System", "Controls and help", "help", "panel.help", FromMenu(_help.Toggle)),
+        new("System", "Report a problem", "report_problem", "panel.help", FromMenu(OpenReport)),
     };
 
     /// <summary>
@@ -303,7 +305,7 @@ public partial class Main
 
     /// <summary>The management screen open, if any: one at a time.</summary>
     private CanvasLayer? Screen =>
-        new CanvasLayer[] { _menu, _inventory, _loot, _character, _skills, _journal, _reading, _effectsPanel, _companionsPanel, _reputation, _awaySheet, _waystones, _map, _settings, _credits, _help, _saves, _chat, _hire }
+        new CanvasLayer[] { _menu, _inventory, _loot, _character, _skills, _journal, _reading, _effectsPanel, _companionsPanel, _reputation, _awaySheet, _waystones, _map, _settings, _credits, _help, _saves, _chat, _hire, _report }
             .FirstOrDefault(s => s.Visible);
 
     /// <summary>Close whatever management screen is open, back to play.</summary>
@@ -319,7 +321,7 @@ public partial class Main
         _waystones.Close();
         _settings.Close();
         _hire.Close();
-        foreach (var screen in new CanvasLayer[] { _menu, _character, _skills, _journal, _effectsPanel, _companionsPanel, _reputation, _awaySheet, _map, _credits, _chat })
+        foreach (var screen in new CanvasLayer[] { _menu, _character, _skills, _journal, _effectsPanel, _companionsPanel, _reputation, _awaySheet, _map, _credits, _chat, _report })
             screen.Visible = false;
     }
 

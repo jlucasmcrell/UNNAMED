@@ -26,7 +26,7 @@ public static class SettingsStore
         "bar_page_1", "bar_page_2", "bar_page_3", "bar_page_4", "bar_page_5", "bar_page_6", "bar_modifier", "bar_scroll_modifier",
         "gear_set_1", "gear_set_2", "gear_set_3", "gear_set_4", "gear_set_5", "gear_set_6", "gear_set_7", "gear_set_8", "gear_set_9", "gear_set_10",
         "companion_order", "first_person", "shoulder_swap", "free_cursor",
-        "inventory", "character", "skills", "journal", "map", "party", "chat", "help", "saves", "quicksave",
+        "inventory", "character", "skills", "journal", "map", "party", "chat", "help", "saves", "quicksave", "report_problem",
         "dialogue_skip", "reply_1", "reply_2", "reply_3", "reply_4", "reply_5", "reply_6", "reply_7", "reply_8", "reply_9",
     };
 
