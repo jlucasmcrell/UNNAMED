@@ -935,12 +935,17 @@ internal sealed class SpaceSystem
         if (_context.State.Space.IsExterior)
             return "Already outside";
 
-        // Not through a door with something at your back. The same test the rest of the world asks: a creature
-        // whose mind is Engaged is a creature fighting you (Creatures.cs, CreatureView.Hostile).
-        if (_context.State.Creatures.Values.Any(c => c.Condition == CreatureCondition.Alive && c.Mind == CreatureMind.Engaged))
+        // Not through a door with something at your back: an Engaged creature in this space that can still come for
+        // you. One in the other space (a wolf outside fighting someone else) or one its territory or leash holds back
+        // from where you stand is not at your back, and must not be able to camp the way out.
+        var body = _context.State.Body;
+        long leash = _context.Setup.Combat.Constants.LeashMm;
+        bool Pursues(CreatureState c) => Math.Sqrt(Math.Pow(body.XMm - c.HomeXMm, 2) + Math.Pow(body.ZMm - c.HomeZMm, 2))
+            <= (c.Role.TerritoryMm > 0 ? c.Role.TerritoryMm : leash);
+        if (_context.State.Creatures.Values.Any(c => c.Condition == CreatureCondition.Alive && c.Mind == CreatureMind.Engaged
+                && c.Site.Space == _context.State.Space && Pursues(c)))
             return "Not while something is fighting you";
 
-        var body = _context.State.Body;
         if (_context.Setup.Layout.Portals.AtInterior(body.XMm, body.ZMm, ReachMm) is not { } portal)
             return "There is no way out from here";
 

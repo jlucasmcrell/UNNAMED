@@ -180,4 +180,29 @@ public class BarrowworksRulingsTests
         Assert.False(Boss(arena).Alive);
         Assert.Equal(1, arena.Simulation.World.GetFlag(CourtCell(session), Defeated));
     }
+
+    /// <summary>
+    /// The way out is held only by something in the ring that can still come for you. A wolf left fighting outside used
+    /// to refuse every exit ("Not while something is fighting you"), however far off and in whatever space.
+    /// </summary>
+    [Fact]
+    public void ACreatureFightingOutside_DoesNotHoldTheRingsExit()
+    {
+        using var profile = new TempProfile();
+        using var session = Harness.Boot(profile, barrowworks: true);
+        var arena = Arena.OpenCreatures(session, session.Setup, (437, 663), 0, [(Arena.Wolf, 437, 665.2, "pack_hunter")], origin: (0, 0));
+        var wolf = arena.Creature();
+        for (int i = 0; i < 200 && !arena.Creature().Hostile; i++)
+        {
+            arena.Face(arena.Creature());
+            arena.Submit(new AttackCommand(arena.Player));
+            arena.Tick();
+        }
+        Assert.True(arena.Simulation.Creatures.Single(c => c.Key == wolf.Key).Hostile, "the wolf never engaged");
+
+        Assert.Null(arena.Submit(new EnterSpaceCommand(arena.Player, "portal.barrowworks.threshold")));
+        Assert.False(arena.Simulation.PlayerInExterior);
+        Assert.Null(arena.Submit(new LeaveSpaceCommand(arena.Player)));
+        Assert.True(arena.Simulation.PlayerInExterior);
+    }
 }
