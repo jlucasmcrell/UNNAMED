@@ -176,10 +176,8 @@ public partial class HollowView : Node3D
             && layout.Space.Blockers.OfType<CircleBlocker>().FirstOrDefault(b => b.Id == "rock_foldscar_heart") is { } heartBody
             && layout.Barriers.FirstOrDefault() is { Footprint: CircleBlocker foldBody })
         {
-            var pebbles = new List<(Node3D Pebble, float Settled)>();
             FoldscarDressing.Dress(this, _art, foldGround, new Vector2(heartBody.CenterXMm / 1000f, heartBody.CenterZMm / 1000f),
-                new Vector2(foldBody.CenterXMm / 1000f, foldBody.CenterZMm / 1000f), foldBody.RadiusMm / 1000f, pebbles);
-            _register?.AddPebbles(pebbles);
+                new Vector2(foldBody.CenterXMm / 1000f, foldBody.CenterZMm / 1000f), foldBody.RadiusMm / 1000f, _register);
         }
         // Ambient life (B10): presentation only, placed from a fixed seed so the hollow's birds are the same every run.
         if (VisualOptions.All.GetValueOrDefault("life") == "on" && _ground is { } lifeGround)
@@ -821,6 +819,7 @@ public partial class HollowView : Node3D
         };
         _barriers[barrier.Key] = node;
         _register?.AddFold(barrier, node);
+        ((ShaderMaterial)node.MaterialOverride).SetShaderParameter("height_m", height);
         if (barrier.Key == FoldEcho.Barrier && barrier.Footprint is CircleBlocker wardCircle)
         {
             _ward = FoldWard.Build(node, wardCircle, terrain);

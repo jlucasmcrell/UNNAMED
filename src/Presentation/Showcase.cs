@@ -160,10 +160,10 @@ public sealed class Showcase
     // runs directly into a wall every time". The stand is 1.20 m from her, inside the talk reach.
     private static readonly (double X, double Z)[] ToSel = { (48.5, 46.7), (61.0, 38.0), (73.0, 50.0), (78.0, 51.0), (77.0, 60.0), (75.0, 64.0), (75.0, 63.8) };
     private static readonly (double X, double Z)[] ToTheFoldscar = { (90, 112), (105, 108), (120, 93), (140, 80) };
-    private static readonly (double X, double Z)[] ToTheNorthStone = { (148.5, 78) };
-    private static readonly (double X, double Z)[] ToTheSouthWestStone = { (135, 60), (123.5, 38) };
-    private static readonly (double X, double Z)[] ToTheSouthEastStone = { (140, 62), (160, 65), (187, 65), (194, 45), (182.5, 31) };
-    private static readonly (double X, double Z)[] ToTheHeart = { (194, 45), (187, 65), (160, 65), (153, 50.2) };
+    private static readonly (double X, double Z)[] ToTheNorthStone = { (147.2, 78) };
+    private static readonly (double X, double Z)[] ToTheSouthWestStone = { (135, 60), (124.8, 38) };
+    private static readonly (double X, double Z)[] ToTheSouthEastStone = { (140, 62), (160, 65), (187, 65), (194, 45), (183.8, 31) };
+    private static readonly (double X, double Z)[] ToTheHeart = { (194, 45), (187, 65), (160, 65), (153, 52.3) };
     private static readonly (double X, double Z)[] ToTheFold = { (150.5, 50), (147.9, 45.2) };
     private static readonly (double X, double Z)[] ToTheHeartSide = { (150.5, 50), (151.4, 50.2) };
     private static readonly (double X, double Z)[] AwayWithTavar = { (150, 47), (144, 58), (138, 68) };
