@@ -188,7 +188,7 @@ internal sealed class TravelSystem
     }
 
     private TravelCost CostTo(WaystoneSite from, WaystoneSite to) =>
-        Journeys.Cost(Layout.Roads, from, to, _context.Setup.Movement.SpeedMmPerSecond(Gait.Walk), _context.Setup.TickMilliseconds, _context.Setup.Travel);
+        Journeys.Cost(Layout.Roads, from, to, _context.Setup.Movement.SpeedMmPerSecond(Gait.Walk), _context.Setup.TickMilliseconds);
 
     private void Know(WaystoneSite stone, WaystoneMethod method, string text, long tick)
     {
