@@ -59,7 +59,7 @@ def main():
             lines.append(f"  - key: {key}")
             lines.append(f"    lore_ref: {entry}")
             lines.append(f"    page: {page}")
-            lines.append(f"    name: the {title} on the Survey shelf")
+            lines.append(f"    name: Survey's record of {title}")
             lines.append("    verb: Read")
             lines.append(f"    circle_m: [{x:.1f}, {z:.1f}, 0.6]")
             lines.append("    height_m: 0.9")
