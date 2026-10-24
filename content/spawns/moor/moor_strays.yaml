@@ -10,7 +10,7 @@ notes: 'Grey wolves on the open basin floor, away from the village and out where
   with the eight Ashen Hollow spawn files copied into its content tree, every one
   of them carrying `region_ref: region.ashen_hollow` and placing its creatures at
   Ashen Hollow''s coordinates, so the region had NO enemies in it at all. A stray
-  and a pair of roamers with a route round the basin, at level 1 to 2 so they are
+  and a pair of roamers with a route round the basin, at level 2 so they are
   a first fight rather than a wall.'
 region_ref: region.starting_frontier
 creatures:
@@ -39,7 +39,7 @@ route_m:
 - - 1002
   - 766
 level_band:
-- 1
+- 2
 - 2
 respawn:
   kind: timer
