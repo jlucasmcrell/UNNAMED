@@ -71,21 +71,26 @@ out = np.zeros((int((HIT + TAIL) * SR), 2))
 # The night, under the sky shot and into the Foldscar's; the rise comes up under it.
 night = to(fade(night[:int(22 * SR)], 2.5, 7.0), -27)
 out[:len(night)] += night
-# The rise ends on the hit: its thinning last half second cut, a breath of near-silence before the attack.
-rise = rise[:len(rise) - int(0.5 * SR)]
-rise = to(fade(rise, 8.0, 0.0), -20)
+# The rise ends on the hit at the end of its climax - where it last stands within 4 dB of its loudest in its final ten seconds (a take
+# thins out after it) - with a breath of near-silence before the attack.
+e = envelope(rise, 0.25)
+held = np.nonzero(e[-40:] >= e[-40:].max() - 4)[0]
+rise = rise[:(len(e) - 40 + int(held[-1]) + 1) * int(0.25 * SR)]
+rise = to(fade(rise, 8.0, 0.0), -22)
 breath = int(0.12 * SR)
 rise[-breath:] *= np.linspace(1, 0.15, breath)[:, None] ** 2
 start = int(HIT * SR) - len(rise)
 out[start:start + len(rise)] += rise
-# The hit's attack exactly at HIT: its first sample within 20 dB of its peak.
+# The hit's peak exactly at HIT, six decibels over the rise's last two seconds; what comes before its peak is its own swell, kept.
 a = np.abs(hit).max(axis=1)
-first = int(np.argmax(a > a.max() * 0.1))
-hit = hit[max(0, first - int(0.004 * SR)):]
-hit = hit[:int(TAIL * SR)]
-hit = fade(hit, 0.0, 4.0) * 10 ** ((-1 - true_peak_db(hit)) / 20) * 0.9
-at = int(HIT * SR) - int(0.004 * SR)
+peak = int(np.argmax(a[:int(1.5 * SR)]))
+lead = min(peak, int(0.25 * SR))
+hit = fade(hit[peak - lead:peak - lead + int(TAIL * SR)], 0.01, 4.0)
+level = lambda x: 10 * np.log10((x ** 2).mean() + 1e-12)
+hit *= 10 ** ((level(rise[-2 * SR:]) + 6 - level(hit[lead:lead + SR // 2])) / 20)
+at = int(HIT * SR) - lead
 out[at:at + len(hit)] += hit
+out = to(out, -21)            # mus.title's level (build_music.py), which takes over under the tail
 tp = true_peak_db(out)
 if tp > -1:
     out *= 10 ** ((-1 - tp) / 20)
