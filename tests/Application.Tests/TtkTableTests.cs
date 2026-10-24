@@ -107,8 +107,9 @@ public class TtkTableTests
                 ? ImmutableSortedDictionary.CreateRange(new[] { KeyValuePair.Create(CharacterAttribute.Might, level - 1) })
                 : ImmutableSortedDictionary<CharacterAttribute, int>.Empty,
         };
-        return new PlayerRecord(fresh.Id, fresh.Name, fresh.XMm, fresh.YMm, fresh.ZMm, fresh.AppearanceSeed, inventory, progression,
-            fresh.FacingMdeg, fresh.Discoveries, equipment, fresh.Currency, fresh.Effects);
+        // The rules' own body and learner (no people's traits): the table measures the combat rules, before any people's biology.
+        return Arena.Usual(new PlayerRecord(fresh.Id, fresh.Name, fresh.XMm, fresh.YMm, fresh.ZMm, fresh.AppearanceSeed, inventory, progression,
+            fresh.FacingMdeg, fresh.Discoveries, equipment, fresh.Currency, fresh.Effects));
     }
 
     /// <summary>Time from the first swing, draw or punch to the kill, over many worlds. The bow opens from 15 m.</summary>

@@ -515,7 +515,9 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
     /// </summary>
     private (string Name, string? People)? NameFor(string key, int generation, IReadOnlySet<string> taken)
     {
-        if (_context.Setup.Character.Peoples.Values.Where(p => p.Playable && !p.Names.IsEmpty).OrderBy(p => p.Id, StringComparer.Ordinal).FirstOrDefault() is not { } people)
+        // The Veth are the majority and the roads' own (MYTHOLOGY.md); another people only when content has no Veth to name.
+        if (_context.Setup.Character.Peoples.Values.Where(p => p.Playable && !p.Names.IsEmpty)
+                .OrderBy(p => p.Id == Domain.Character.CharacterSpec.DefaultPeople ? 0 : 1).ThenBy(p => p.Id, StringComparer.Ordinal).FirstOrDefault() is not { } people)
             return null;
         var all = taken.Concat((State.World.NpcLife?.Npcs.Values ?? Enumerable.Empty<NpcLifeRecord>()).Select(n => n.Name).OfType<string>())
             .ToHashSet(StringComparer.Ordinal);

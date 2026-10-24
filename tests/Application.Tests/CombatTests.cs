@@ -20,6 +20,14 @@ namespace UNNAMED.Application.Tests;
 internal sealed class Arena
 {
     public const string Wolf = "creature.beast.wolf_grey";
+
+    /// <summary>
+    /// A people content does not define: its members have no traits, so a body of it moves, fights and learns by the rules' own numbers
+    /// (RACE_ABILITIES_PROPOSAL.md). Tests that pin a shared rule - a TTK, a crafting curve - make their character one of these.
+    /// </summary>
+    public const string UsualPeople = "people.test_usual";
+
+    public static PlayerRecord Usual(PlayerRecord r) => r with { Identity = r.Identity with { PeopleId = UsualPeople } };
     public const string Bite = "ability.creature.wolf_bite";
 
     private Arena(Simulation simulation, EventBus bus, (double X, double Z) origin)

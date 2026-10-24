@@ -761,6 +761,9 @@ public sealed class Simulation
     /// <summary>Whether the planar anchor is set (Orenth), for the quick bar's recall slot. Never the toll: that stays hidden.</summary>
     public bool AnchorSet => _state.Crossing.Anchor is not null;
 
+    /// <summary>What the crossings have taken from the character's memory (Orenth): places and people, by ID. Never how much is left.</summary>
+    public ImmutableSortedSet<string> Forgotten => _state.Crossing.Costs.Select(c => c.Ref).OfType<string>().ToImmutableSortedSet(StringComparer.Ordinal);
+
     /// <summary>The crossing's tier (Orenth): how many phase scars the body carries. Presentation draws it; nothing ever prints it.</summary>
     public int PhaseScars => _state.Crossing.Tier;
 

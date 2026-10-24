@@ -38,7 +38,10 @@ public class CraftingTests
     private static Arena At(GameSession session, (double X, double Z) place, Func<PlayerRecord, PlayerRecord>? change = null, long startTick = 0,
         ICellBaselineGenerator? generator = null) =>
         Arena.OpenCreatures(session, session.Setup, place, 0, Array.Empty<(string, double, double, string)>(),
-            r => change?.Invoke(Taught(r)) ?? Taught(r), startTick: startTick, generator: generator);
+            r => Usual(change?.Invoke(Taught(r)) ?? Taught(r)), startTick: startTick, generator: generator);
+
+    /// <summary>A smith who learns at the rules' own rate: the numbers here are the crafting rules', before any people's aptitude.</summary>
+    private static PlayerRecord Usual(PlayerRecord r) => Arena.Usual(r);
 
     private static PlayerRecord Taught(PlayerRecord r) =>
         r.WithProgression(r.Progression with
@@ -343,7 +346,7 @@ public class CraftingTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         // A wolf asleep west of the smithy, out of earshot of the way to the forge, to try the spear on.
-        var arena = Arena.OpenCreatures(session, session.Setup, AtSeam, 0, new[] { (Arena.Wolf, 37.0, 138.0, "sleeper") });
+        var arena = Arena.OpenCreatures(session, session.Setup, AtSeam, 0, new[] { (Arena.Wolf, 37.0, 138.0, "sleeper") }, Usual);
         var crafted = arena.Record<ItemCrafted>();
         var hits = arena.Record<HitResolved>();
         void Walk(params (double X, double Z)[] route)

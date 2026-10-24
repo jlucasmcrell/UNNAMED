@@ -156,7 +156,7 @@ public partial class AcceptanceWalkthroughTests
             var other = Harness.Boot(profile);
             foreach (var body in bodies)
             {
-                var sim = other.NewGame(new CharacterSpec("Body Check", Pronouns.They, "people.veth", body.Id, "call.wayfarer"), seed: 1);
+                var sim = other.NewGame(new CharacterSpec("Body Check", Pronouns.They, body.PeopleId, body.Id, "call.wayfarer"), seed: 1);
                 Equal(body.Id, sim.Player.Identity.BodyPresetId, "body of the new character");
             }
             return $"{bodies.Count} offered bodies each start a character";
