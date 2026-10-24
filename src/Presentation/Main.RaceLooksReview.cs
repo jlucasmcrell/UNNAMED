@@ -8,8 +8,8 @@ namespace UNNAMED.Presentation;
 public partial class Main
 {
     /// <summary>
-    /// Opt-in race-look review for the owner (OTHERREACH_RACE_LOOKS_PLAN): HumGen race bodies drawn by the normal figure path on
-    /// an existing person's binding, in the live frontier, with the look under review set on them. Steps come from the plan file.
+    /// Opt-in race-look review (OTHERREACH_RACE_LOOKS_PLAN): HumGen race bodies drawn by the normal figure path on an existing
+    /// person's binding, in the live frontier, wearing their people's look exactly as in play. Steps come from the plan file.
     /// </summary>
     private async Task RunRaceLooksReview(string directory, Camera3D camera)
     {
@@ -52,16 +52,6 @@ public partial class Main
             camera.LookAt(aim);
         }
         static float Num(JsonElement s, string key, float fallback) => s.TryGetProperty(key, out var v) ? v.GetSingle() : fallback;
-        static Texture2D Load(string path)
-        {
-            var image = Image.LoadFromFile(path) ?? throw new FileNotFoundException(path);
-            image.GenerateMipmaps();
-            return ImageTexture.CreateFromImage(image);
-        }
-        IEnumerable<ShaderMaterial> Skin(Node figure) => figure.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>()
-            .SelectMany(m => Enumerable.Range(0, m.Mesh?.GetSurfaceCount() ?? 0).Select(i => m.GetSurfaceOverrideMaterial(i)))
-            .OfType<ShaderMaterial>().Where(m => m.ResourceName.EndsWith("_HumanShaders", StringComparison.Ordinal));
-
         foreach (var s in plan.RootElement.GetProperty("steps").EnumerateArray())
         {
             string step = s.GetProperty("do").GetString()!;
@@ -84,22 +74,6 @@ public partial class Main
                     log.Add(new { step, person, model = body.ValueKind == JsonValueKind.String ? body.GetString() : _bindings.People[person].Model, people = _bindings.People[person].PeopleId });
                     break;
                 }
-                case "kal":
-                {
-                    var f = figures[s.GetProperty("id").GetString()!].Figure;
-                    PeopleAppearance.KalStone(f, Load(s.GetProperty("rgbh").GetString()!), Load(s.GetProperty("rm").GetString()!), Num(s, "coverage", .55f));
-                    if (s.TryGetProperty("params", out var ps))
-                        foreach (var m in Skin(f))
-                            foreach (var p in ps.EnumerateObject())
-                                m.SetShaderParameter(p.Name, p.Value.ValueKind == JsonValueKind.Array
-                                    ? new Vector3(p.Value[0].GetSingle(), p.Value[1].GetSingle(), p.Value[2].GetSingle()) : p.Value.GetSingle());
-                    log.Add(new { step, surfaces = Skin(f).Count() });
-                    break;
-                }
-                case "coverage":
-                    foreach (var m in Skin(figures[s.GetProperty("id").GetString()!].Figure))
-                        m.SetShaderParameter("stone_coverage", Num(s, "value", .55f));
-                    break;
                 case "wings":
                 {
                     var f = figures[s.GetProperty("id").GetString()!].Figure;
@@ -114,17 +88,6 @@ public partial class Main
                         case "flare": wings.SetState(WingState.Flare); break;
                         case "fold": wings.SetState(WingState.Folded); break;
                     }
-                    break;
-                }
-                case "orenth":
-                {
-                    var f = figures[s.GetProperty("id").GetString()!].Figure;
-                    var phase = f.FindChildren("OrenthPhase", "", true, false).OfType<OrenthPhase>().Single();
-                    phase.EdgeDoubling = s.GetProperty("edge").GetBoolean();
-                    phase.LaggingShadow = s.GetProperty("shadow").GetBoolean();
-                    phase.Afterimage = s.GetProperty("trail").GetBoolean();
-                    if (s.TryGetProperty("scars", out var scars))
-                        OrenthPhase.Scar(f, Load(scars.GetString()!), s.TryGetProperty("older", out var older) && older.GetBoolean());
                     break;
                 }
                 case "remove":

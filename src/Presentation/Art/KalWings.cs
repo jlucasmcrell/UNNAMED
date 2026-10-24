@@ -3,9 +3,6 @@ using Godot;
 
 namespace UNNAMED.Presentation.Art;
 
-/// <summary>What the wings are doing; the movement code decides, the wings only draw it.</summary>
-public enum WingState { Folded, Glide, Flare, Leap }
-
 /// <summary>
 /// The wing rig (its own skeleton and the clip <c>deploy</c>: folded at its start, full span at its end) mounted on the body's
 /// <c>UpperChest</c>, so it rides the torso through every clip. The rig's <c>wing_root</c> joint, between the two spar roots,
@@ -13,7 +10,7 @@ public enum WingState { Folded, Glide, Flare, Leap }
 /// </summary>
 public partial class KalWings : BoneAttachment3D
 {
-    private const float BuiltForStature = 1.72f, DeploySeconds = .9f, FlarePitch = -.35f;
+    private const float BuiltForStature = 1.72f, DeploySeconds = .9f;
 
     private AnimationPlayer _player = null!;
     private Node3D _rig = null!;
@@ -30,8 +27,8 @@ public partial class KalWings : BoneAttachment3D
 
     public void SetState(WingState state)
     {
-        _target = state switch { WingState.Folded => 0f, WingState.Leap => .6f, _ => 1f };
-        _targetPitch = state == WingState.Flare ? FlarePitch : 0f;
+        _target = PeopleLooks.WingOpenness(state);
+        _targetPitch = PeopleLooks.WingPitch(state);
     }
 
     public static KalWings? Attach(Skeleton3D skeleton, string glbPath, float backOffset = .1f)

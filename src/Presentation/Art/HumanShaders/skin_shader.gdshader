@@ -85,16 +85,9 @@ uniform float stone_crack_dark : hint_range(0.0, 1.0) = 0.55;
 uniform float stone_cavity : hint_range(0.0, 1.0) = 0.4;
 uniform float stone_skin_blend : hint_range(0.0, 1.0) = 0.35;
 uniform float stone_match : hint_range(0.0, 1.0) = 0.6;
-uniform float stone_glint : hint_range(0.0, 1.0) = 0.0;
+uniform float stone_glint : hint_range(0.0, 1.0) = 0.6;
 uniform float stone_normal_y : hint_range(-1.0, 1.0) = 1.0;
 uniform vec3 stone_tint : source_color = vec3(1.0);
-
-// Orenth phase scars (Otherreach addition): skin that no longer resolves - a hard-edged patch with no surface texture.
-// scar_mask r: an adult walker's scar, g: what an older walker adds (scar_age 1).
-group_uniforms orenth_scars;
-uniform bool use_phase_scars = false;
-uniform sampler2D scar_mask : hint_default_black, filter_linear, repeat_disable;
-uniform float scar_age : hint_range(0.0, 1.0) = 0.0;
 
 group_uniforms u_v;
 uniform vec3 uv1_scale = vec3(1.);
@@ -237,18 +230,6 @@ void fragment() {
 	}
 
 	plain = stone * .8;
-	if (use_phase_scars){
-		vec2 sm = texture(scar_mask, base_uv).rg;
-		float field = max(sm.r, sm.g * scar_age);
-		float scar = smoothstep(0.5 - fwidth(field), 0.5 + fwidth(field), field);
-		// the skin's own tone, a little paler and greyer; scars can sit at a UV island's edge, so nothing is sampled around it
-		vec3 flat_tone = mix(ALBEDO, vec3(dot(ALBEDO, vec3(.299, .587, .114)) * 1.15), 0.35);
-		ALBEDO = mix(ALBEDO, flat_tone, scar);
-		NORMAL_MAP = mix(NORMAL_MAP, vec3(0.5, 0.5, 1.0), scar);
-		ROUGHNESS = mix(ROUGHNESS, 0.7, scar);
-		SPECULAR = mix(SPECULAR, 0.25, scar);
-		plain = max(plain, scar);
-	}
 
 	// Ambient Occlusion
 	if (use_ambient_occlusion){
@@ -364,7 +345,7 @@ void light()
 		diff_light = lw;
 	}
 
-	// Stone and phase scars take plain Lambert on its own relief: the wrapped skin response would blur the plates away.
+	// Stone takes plain Lambert on its own relief: the wrapped skin response would blur the plates away.
 	diff_light = mix(diff_light, vec3(NdotL), plain);
 
 	//Tint shadow penumbra:

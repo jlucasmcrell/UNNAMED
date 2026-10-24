@@ -21,22 +21,25 @@ public static class PeopleAppearance
         ApplyBodyColour(model, art, modelId);
         if (people is null or "people.veth")
             return;
-        if (people == "people.kal")
+        if (people == PeopleLooks.Kal)
         {
+            // The body's own slate maps and its age (kal_stone.json, written with the maps from the body's export).
             if (art.RiggedFile(modelId, "kal_stone_rgbh.png") is { } colourPath && art.RiggedFile(modelId, "kal_stone_rm.png") is { } maskPath
+                && art.RiggedFile(modelId, "kal_stone.json") is { } agePath
                 && art.Texture(colourPath, "albedo") is { } colour && art.Texture(maskPath, "data") is { } mask)
-                KalStone(model, colour, mask);
+            {
+                using var age = System.Text.Json.JsonDocument.Parse(File.ReadAllText(agePath));
+                KalStone(model, colour, mask, PeopleLooks.StoneCoverage(age.RootElement.GetProperty("age").GetInt32()));
+            }
             if (art.RiggedFile(modelId, "kal_wings.glb") is { } wings
                 && model.FindChildren("*", nameof(Skeleton3D), true, false).OfType<Skeleton3D>().FirstOrDefault() is { } skeleton)
                 KalWings.Attach(skeleton, wings);
             return;
         }
-        if (people == "people.orenth")
+        if (people == PeopleLooks.Orenth)
         {
             if (model is Node3D body)
-                OrenthPhase.Attach(body, modelId + body.GetInstanceId());
-            if (art.RiggedFile(modelId, "orenth_scars.png") is { } scarPath && art.Texture(scarPath, "data") is { } scars)
-                OrenthPhase.Scar(model, scars, older: false);
+                OrenthPhase.Attach(body);
             return;
         }
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
@@ -121,10 +124,10 @@ public static class PeopleAppearance
     }
 
     /// <summary>
-    /// The Kal calcification layer on every HumanShaders skin surface: the body's own baked stone (<paramref name="colour"/>: rgb + height)
-    /// and its joint/age mask (<paramref name="mask"/>: r roughness, g mask). Clothing, hair, eyes and teeth are other materials.
+    /// The Kal calcification layer on every HumanShaders skin surface: the body's own baked slate (<paramref name="colour"/>: rgb + height)
+    /// and its joint/age mask (<paramref name="mask"/>: r roughness, g mask, b bare skin). Clothing, hair, eyes and teeth are other materials.
     /// </summary>
-    public static void KalStone(Node model, Texture2D colour, Texture2D mask, float coverage = .55f)
+    public static void KalStone(Node model, Texture2D colour, Texture2D mask, float coverage)
     {
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
         {

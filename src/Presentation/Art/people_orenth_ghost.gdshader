@@ -1,9 +1,9 @@
 shader_type spatial;
 render_mode blend_mix, depth_draw_never, cull_back, diffuse_burley, specular_disabled;
 
-// Orenth: a second registration of the same skinned surface, displaced by `offset` (mesh space). The real body's
-// depth hides everything but the part that leaves its silhouette, so what shows is a doubled edge or, with a
-// lagging offset, a faint trailing outline. OrenthPhase drives offset and strength per frame.
+// Orenth: a second registration of the same skinned surface, trailing the body by `offset` (mesh space). The real
+// body's depth hides everything but the part that leaves its silhouette, so what shows is a faint trailing outline.
+// OrenthPhase drives offset and strength per frame.
 uniform sampler2D base_map : source_color, hint_default_white;
 uniform vec4 base_colour : source_color = vec4(1.0);
 instance uniform vec3 offset = vec3(0.0);
