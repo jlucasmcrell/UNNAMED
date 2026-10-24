@@ -189,10 +189,49 @@ public static class SettingsStore
     {
         VisualOptions.PlantScale = Current.Machine.Dials.PlantDensity;
         VisualOptions.ReachScale = Current.Machine.Dials.DrawDistance;
-        if (Current.Machine.Tier is null || spec is null)
+        if (spec is null)
             return spec;
-        return string.Join(",", spec.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Where(part => !part.StartsWith("tier=", StringComparison.Ordinal)));
+        var parts = spec.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (Current.Machine.Tier is not null)
+            return string.Join(",", parts.Where(part => !part.StartsWith("tier=", StringComparison.Ordinal)));
+        // No tier chosen yet: the launcher's, but no higher than the card's memory carries (public playtest gate B4/C3).
+        int asked = Array.IndexOf(MachinePrefs.Tiers, parts.FirstOrDefault(part => part.StartsWith("tier=", StringComparison.Ordinal))?[5..]);
+        int fits = Array.IndexOf(MachinePrefs.Tiers, TierForMemory(GraphicsMemoryGb()));
+        if (asked <= fits)
+            return spec;
+        GD.Print($"UNNAMED tier: {MachinePrefs.Tiers[fits]} for this card's memory (the launcher asked {MachinePrefs.Tiers[asked]}); Settings can change it");
+        return string.Join(",", parts.Select(part => part.StartsWith("tier=", StringComparison.Ordinal) ? "tier=" + MachinePrefs.Tiers[fits] : part));
+    }
+
+    /// <summary>The highest tier measured to fit a card of <paramref name="gb"/> GB (the --perf route, 2026-10-24); null memory caps nothing.</summary>
+    public static string TierForMemory(double? gb) => gb switch
+    {
+        null => "ultra",
+        < 6 => "low",
+        < 10 => "medium",
+        < 14 => "high",
+        _ => "ultra",
+    };
+
+    /// <summary>
+    /// The largest graphics card's dedicated memory, from the display adapters' registry keys (Godot reports the adapter's name, not its
+    /// memory); null off Windows or when no adapter says.
+    /// </summary>
+    private static double? GraphicsMemoryGb()
+    {
+        if (!OperatingSystem.IsWindows())
+            return null;
+        using var adapters = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}");
+        if (adapters is null)
+            return null;
+        long most = 0;
+        foreach (string name in adapters.GetSubKeyNames().Where(n => n.All(char.IsAsciiDigit)))
+        {
+            using var adapter = adapters.OpenSubKey(name);
+            if (adapter?.GetValue("HardwareInformation.qwMemorySize") is long bytes)
+                most = Math.Max(most, bytes);
+        }
+        return most > 0 ? most / 1073741824.0 : null;
     }
 
     /// <summary>The window as the player keeps it: its mode, its size when windowed, VSync and the frame ceiling.</summary>
