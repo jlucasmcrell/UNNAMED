@@ -1063,13 +1063,17 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
     /// <summary>
     /// A death: the body stays as a corpse, a kill by the character earns combat XP (through AG-1..AG-3, the spawner as the cluster) and
-    /// counts for their quests - a companion's kill does neither (M6) - and a spawner with a timer schedules the return, twice as long
+    /// counts for their quests. Their pets/summons/party credit the owner (2026-10-24 ruling); a spawner schedules the return, twice as long
     /// while the cluster is saturated (AG-3).
     /// </summary>
     private CreatureState Die(CreatureState c, long tick, EntityId killer)
     {
+        var directAttacker = killer;
+        if (State.Pets.Values.Any(p => p.Id == killer)
+            || State.Companions.Values.Any(p => State.Npcs.TryGetValue(p.NpcId, out var npc) && npc.InstanceId == killer))
+            killer = _player;
         _context.Dispatch(new ClearEffects(c.Id));
-        _context.Events.Publish(new CreatureKilled(c.Id, c.Definition.Id, killer, tick));
+        _context.Events.Publish(new CreatureKilled(c.Id, c.Definition.Id, killer, tick) { DirectAttacker = directAttacker });
         if (killer == _player)
         {
             _context.Dispatch(new RecordDeed(new Deed(DeedKind.Killed, c.Definition.Id, 1, Domain.Crafting.Quality.Standard, null, tick)));

@@ -92,7 +92,11 @@ public sealed record EffectApplied(EntityId Target, string EffectId, int Stacks,
 
 public sealed record EffectExpired(EntityId Target, string EffectId, long Tick);
 
-public sealed record CreatureKilled(EntityId Creature, string DefId, EntityId Killer, long Tick);
+public sealed record CreatureKilled(EntityId Creature, string DefId, EntityId Killer, long Tick)
+{
+    /// <summary>The physical attacker; Killer is the owning player for their pets and party (owner ruling 2026-10-24).</summary>
+    public EntityId DirectAttacker { get; init; } = Killer;
+}
 
 /// <summary>One of the blows before a death, for the recap: who, with what, how much.</summary>
 public sealed record DeathRecapLine(string AttackerDefId, string Source, int Damage, long Tick);

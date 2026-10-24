@@ -162,7 +162,7 @@ public static class Terrain3DView
         var layers = new List<GodotObject>();
         for (int i = 0; i < slots.Length; i++)
         {
-            var asset = TextureAsset(slots[i].Id, slots[i].UvScale, slots[i].Tint, art.Root);
+            var asset = TextureAsset(slots[i].Id, slots[i].UvScale, slots[i].Tint, art);
             if (asset is null)
             {
                 why = $"terrain layer {slots[i].Id} is not in the asset workspace";
@@ -637,13 +637,14 @@ public static class Terrain3DView
     private static uint Encode(int baseLayer, int overlay, int blend, bool auto) =>
         ((uint)(baseLayer & 0x1F) << 27) | ((uint)(overlay & 0x1F) << 22) | ((uint)(blend & 0xFF) << 14) | (auto ? 1u : 0u);
 
-    private static GodotObject? TextureAsset(string id, float uvScale, Color tint, string? assetRoot)
+    private static GodotObject? TextureAsset(string id, float uvScale, Color tint, ArtLibrary art)
     {
+        var assetRoot = art.Root;
         if (assetRoot is null)
             return null;
         string folder = Path.Combine(assetRoot, "materials", id);
-        var albedo = LoadTexture(Path.Combine(folder, id + "_albedo_height.png"));
-        var normal = LoadTexture(Path.Combine(folder, id + "_normal_rough.png"));
+        var albedo = art.Texture(Path.Combine(folder, id + "_albedo_height.png"), "color");
+        var normal = art.Texture(Path.Combine(folder, id + "_normal_rough.png"), "normal");
         if (albedo is null || normal is null)
             return null;
         var asset = ClassDB.Instantiate("Terrain3DTextureAsset").AsGodotObject();
@@ -657,14 +658,4 @@ public static class Terrain3DView
         return asset;
     }
 
-    private static ImageTexture? LoadTexture(string path)
-    {
-        if (!File.Exists(path))
-            return null;
-        var image = Image.LoadFromFile(path);
-        if (image is null || image.IsEmpty())
-            return null;
-        image.GenerateMipmaps();
-        return ImageTexture.CreateFromImage(image);
-    }
 }

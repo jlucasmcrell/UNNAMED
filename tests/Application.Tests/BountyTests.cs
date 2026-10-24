@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Items;
+using UNNAMED.Domain.Pets;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
@@ -264,6 +265,42 @@ public class BountyTests
         Assert.Equal(new[] { "xp", "currency" }, paid.Where(p => p.QuestId == quest).Select(p => p.Kind));
         Assert.Equal(coin + 15, Coin(arena));
         Assert.True(ProgressionEngine.SkillLevel(arena.Simulation.Player.Progression, "skill.polearm") >= 1);
+    }
+
+    [Fact]
+    public void APetsLastHit_CreditsItsOwnersCombatXpAndBountyCount()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        const string quest = "quest.bounty.road_wolves";
+        var giver = Hollow(session, AtRenn);
+        ToTheWork(giver, Renn, "notices");
+        Assert.Null(Say(giver, "take_wolves"));
+        var taken = giver.Simulation.CaptureRecord().Quests;
+        var at = Harness.InRegion(121, 60);
+        var pet = new PetRecord(EntityId.NewId(EntityKind.Summon), Arena.Wolf, "Hound", PetRole.Fighter,
+            PetOrder.Follow, PetCondition.Up, at.XMm, at.ZMm, 0, 50, PetBond.Sure,
+            ImmutableArray.Create(new PetSkill(PetSkillKind.Bite, PetSkill.MaxLevel, 0)));
+        // The character provokes it once, then lets the following pet finish the fight.
+        var setup = session.Setup with { NpcLife = NpcLifeSetup.Empty, Adventurers = null };
+        var arena = Arena.OpenCreatures(session, setup, (120, 60), 90,
+            new[] { (Arena.Wolf, 123.0, 60.0, "pack_hunter") }, r => r.WithQuests(taken).WithPets(new[] { pet }));
+        var kills = arena.Record<CreatureKilled>();
+        arena.Fight(arena.Creature(), 30);
+        for (int i = 0; i < 1000 && kills.Count == 0; i++) arena.Tick();
+        arena.Tick();
+        var killed = Assert.Single(kills);
+        Assert.Equal(pet.Id, killed.DirectAttacker);
+        Assert.Equal(arena.Player, killed.Killer);
+        Assert.True(arena.Simulation.Player.Progression.LifetimeXp.GetValueOrDefault(XpSource.Combat) > 0);
+        Assert.Equal(1, arena.Simulation.CaptureRecord().Quests.Single(q => q.QuestId == quest)
+            .Objectives.Single(o => o.Id == "o_cull").Progress);
+        Assert.Equal(1, arena.Simulation.CaptureRecord().Deeds.Single(d => d.Kind == DeedKind.Killed && d.SubjectId == Arena.Wolf).Count);
+        Assert.False(arena.Creature().Alive);
+        var corpse = Assert.Single(arena.Simulation.Containers, c => c.Site.Key == arena.Creature().CorpseKey);
+        var loot = Assert.Single(corpse.Items.Take(1));
+        Assert.Null(arena.Submit(new MoveItemCommand(arena.Player, loot.Ref,
+            ItemPlace.In(corpse.Site.Key), ItemPlace.Carried, loot.Count)));
     }
 
     /// <summary>Durn's night work: any bone-walker husk put down while it is taken.</summary>

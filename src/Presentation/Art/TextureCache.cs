@@ -18,6 +18,14 @@ namespace UNNAMED.Presentation.Art;
 /// </summary>
 public sealed class TextureCache
 {
+    /// <summary>Packages must never silently expand a missing/stale large cache entry into an RGBA upload.</summary>
+    public static void RequireCompressed(Texture2D texture, string source)
+    {
+        if (!OS.HasFeature("template") || Math.Max(texture.GetWidth(), texture.GetHeight()) < 2048) return;
+        using var image = texture.GetImage();
+        if (image is not null && !image.IsCompressed())
+            throw new InvalidDataException("Packaged texture >=2K is uncompressed: " + source);
+    }
     public const string Folder = "texture_cache";
     private const string ManifestName = "manifest.json";
 
@@ -111,7 +119,7 @@ public sealed class TextureCache
         if (image.IsCompressed() && image.Decompress() != Error.Ok)
             return null;
         image.ClearMipmaps();
-        image.Convert(Image.Format.Rgba8);
+        image.Convert(role == "hdr" ? Image.Format.Rgbf : Image.Format.Rgba8);
         string name = Convert.ToHexString(SHA256.HashData(image.GetData()))[..24].ToLowerInvariant() + $".{role}.dds";
         string path = Path.Combine(_root!, Folder, name);
         if (File.Exists(path))
@@ -153,7 +161,7 @@ public sealed class TextureCache
 
     private Texture2D? Load(string name)
     {
-        if (_loaded.TryGetValue(name, out var texture))
+        if (_loaded.TryGetValue(name, out var texture) && texture is not null)
             return texture;
         texture = null;
         string path = Path.Combine(_root!, Folder, name);

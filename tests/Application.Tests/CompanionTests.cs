@@ -199,7 +199,7 @@ public class CompanionTests
 
     /// <summary>
     /// He fights what hunts the character: a wolf set on the character is his to fight, the wolf turns on him because he is nearer, and
-    /// a kill that is his earns the character nothing (M6's default).
+    /// his last hit credits the owning character while retaining the physical attacker (owner ruling 2026-10-24).
     /// </summary>
     [Fact]
     public void HeFightsWhatHuntsTheCharacter_AndItFightsHim()
@@ -224,8 +224,9 @@ public class CompanionTests
         Assert.Contains(hits, h => h.Attacker == tavarId && h.Damage > 0);   // his spear
         Assert.Contains(hits, h => h.Target == tavarId);                   // and the wolf's teeth on him
         var kill = Assert.Single(killed);
-        Assert.Equal(tavarId, kill.Killer);
-        Assert.Equal(0, arena.Simulation.Player.Progression.LifetimeXp.GetValueOrDefault(XpSource.Combat));   // his kill, not the character's
+        Assert.Equal(tavarId, kill.DirectAttacker);
+        Assert.Equal(arena.Player, kill.Killer);
+        Assert.True(arena.Simulation.Player.Progression.LifetimeXp.GetValueOrDefault(XpSource.Combat) > 0);
     }
 
     /// <summary>

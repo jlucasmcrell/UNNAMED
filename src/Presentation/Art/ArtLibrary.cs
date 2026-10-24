@@ -89,6 +89,7 @@ public sealed class ArtLibrary
     private readonly string? _nativeSceneRoot;
     private const string SceneCacheFormat = "v7"; // Original geometry casts shadows; invalidate custom position-only proxies in v6.
     private readonly TextureCache? _interiorBuildCache;
+    private readonly TextureCache? _fallbackCache;
 
     public ArtLibrary(string? root, bool useTextureCache = false, string? sceneCachePrefix = null, bool buildSceneCache = false)
     {
@@ -99,6 +100,9 @@ public sealed class ArtLibrary
             ? Path.Combine(FallbackRoot, "barrowworks_native", Engine.GetVersionInfo()["string"].AsString(), SceneCacheFormat) : null;
         Cache = new TextureCache(useTextureCache || VisualOptions.All.GetValueOrDefault("textures") == "cache" || BuildTextureCache ? root : null, BuildTextureCache,
             _nativeSceneRoot is not null ? Path.Combine(_nativeSceneRoot, "textures") : null, buildSceneCache);
+        if (FallbackRoot is not null && !string.Equals(root, FallbackRoot, StringComparison.OrdinalIgnoreCase))
+            _fallbackCache = new TextureCache(useTextureCache || VisualOptions.All.GetValueOrDefault("textures") == "cache" || BuildTextureCache ? FallbackRoot : null,
+                BuildTextureCache, _nativeSceneRoot is not null ? Path.Combine(_nativeSceneRoot, "textures") : null, buildSceneCache);
         // Build-only cache in the owned depot, never its primary texture-cache junction. Normal play loads the
         // shared BC7 resources referenced by the native scenes; no extra texture dictionary retains the interior.
         _interiorBuildCache = buildSceneCache && _nativeSceneRoot is not null && FallbackRoot is not null
@@ -166,6 +170,9 @@ public sealed class ArtLibrary
 
     /// <summary>The compressed, shared copies of the textures (Phase B, B1), used when the run asks for them (<c>--visual textures=cache</c>).</summary>
     public TextureCache Cache { get; }
+
+    private TextureCache CacheFor(string path) => _fallbackCache is not null
+        && string.Equals(WorkspaceOf(path), FallbackRoot, StringComparison.OrdinalIgnoreCase) ? _fallbackCache : Cache;
 
     /// <summary>What the views drew from this library and what they drew in greybox, by semantic ID (Phase A's coverage report).</summary>
     public ArtCoverage Coverage { get; } = new();
@@ -1035,7 +1042,7 @@ public sealed class ArtLibrary
                             continue;
                         // The cache's compressed, shared copy (Phase B, B1), when the run uses the cache and has (or is building) one.
                         if (images.TryGetValue(texture.GetInstanceId(), out int index)
-                            && (Cache.For(TextureCache.Key(relative, index), path, texture.GetImage, Role(material, param))
+                            && (CacheFor(path).For(TextureCache.Key(relative, index), path, texture.GetImage, Role(material, param))
                                 ?? (assetId.StartsWith("bw_codex_", StringComparison.Ordinal)
                                     ? _interiorBuildCache?.For(TextureCache.Key(relative, index), path, texture.GetImage, Role(material, param)) : null)) is { } cached)
                         {
@@ -1045,6 +1052,7 @@ public sealed class ArtLibrary
                             continue;
                         }
                         var image = texture.GetImage();
+                        TextureCache.RequireCompressed(texture, path);
                         if (image is null || image.IsEmpty() || image.IsCompressed())
                             continue;
                         long pixels = (long)image.GetWidth() * image.GetHeight();
@@ -1314,7 +1322,7 @@ public sealed class ArtLibrary
             return cached;
         Texture2D? texture = null;
         ulong started = Time.GetTicksUsec();
-        if (Cache.For(TextureCache.Key(Path.GetRelativePath(WorkspaceOf(path), path)), path, () => Image.LoadFromFile(path), role) is { } compressed)
+        if (CacheFor(path).For(TextureCache.Key(Path.GetRelativePath(WorkspaceOf(path), path)), path, () => Image.LoadFromFile(path), role) is { } compressed)
         {
             texture = compressed;
             _mapCount++;
@@ -1328,6 +1336,7 @@ public sealed class ArtLibrary
             _vramWithMips += pixels * 4 * 4 / 3;
             image.GenerateMipmaps();
             texture = ImageTexture.CreateFromImage(image);
+            TextureCache.RequireCompressed(texture, path);
             _mapCount++;
         }
         _mapMs += (Time.GetTicksUsec() - started) / 1000.0;

@@ -84,6 +84,12 @@ public partial class Main
                     scatter_meshes=plants,npcs=_npcs.States().ToArray(),pets_enabled=sim.Setup.Pets is not null,
                     inventory=sim.Player.Inventory.Select(e=>new {e.DefId,e.Count}),world_tick=sim.WorldTick,
                     engine_max_fps=Engine.MaxFps,profile="Fresh isolated profile; normal creator Begin; no desktop input"},new JsonSerializerOptions{WriteIndented=true}));
+                File.WriteAllText(Path.Combine(directory,"vram.json"),JsonSerializer.Serialize(new {
+                    video_mib=Performance.GetMonitor(Performance.Monitor.RenderVideoMemUsed)/1048576.0,
+                    peak_video_mib=_mhPeakVideoMiB,
+                    texture_mib=Performance.GetMonitor(Performance.Monitor.RenderTextureMemUsed)/1048576.0,
+                    textures=VisualOptions.All.GetValueOrDefault("textures"),cache_hits=_art.Cache.Hits,cache_failed=_art.Cache.Failed,
+                    source_resolution_preserved=true }));
                 if(OS.GetEnvironment("OTHERREACH_RCD9_WARDROBE_REVIEW")=="1")
                 {
                     _inventory.Close();

@@ -3,6 +3,7 @@
 
 using System.Text.Json;
 using Godot;
+using UNNAMED.Presentation.Art;
 
 namespace UNNAMED.Presentation.Ui;
 
@@ -26,7 +27,12 @@ public sealed class AssetCatalog
     private readonly Dictionary<string, Texture2D?> _textures = new(StringComparer.Ordinal);
     private readonly List<string> _problems = new();
 
-    private AssetCatalog(string? root) => Root = root;
+    private readonly TextureCache _cache;
+    private AssetCatalog(string? root)
+    {
+        Root = root;
+        _cache = new TextureCache(root, ArtLibrary.BuildTextureCache);
+    }
 
     /// <summary>The workspace the art was read from, or null when there was none.</summary>
     public string? Root { get; }
@@ -184,10 +190,14 @@ public sealed class AssetCatalog
             return null;
         if (_textures.TryGetValue(relative, out var cached))
             return cached;
-        var image = Image.LoadFromFile(Path.Combine(Root, relative));
+        string path = Path.Combine(Root, relative);
+        if (_cache.For(TextureCache.Key(relative), path, () => Image.LoadFromFile(path), "color") is { } compressed)
+            return _textures[relative] = compressed;
+        var image = Image.LoadFromFile(path);
         if (mipmaps && image is not null && !image.IsEmpty())
             image.GenerateMipmaps();
         var texture = image is null || image.IsEmpty() ? null : ImageTexture.CreateFromImage(image);
+        if (texture is not null) TextureCache.RequireCompressed(texture, path);
         _textures[relative] = texture;
         return texture;
     }
