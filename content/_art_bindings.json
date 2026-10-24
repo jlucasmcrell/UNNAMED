@@ -1471,21 +1471,27 @@
       "note": "rocks_terrain overhaul 2026-10-14 (asset_work/rocks_terrain/PROPOSALS.csv): a scanned mossy stone stood on end (Poly Haven rock_moss_set_01 rock05) replaces the AI image-to-3D waystone."
     },
     "rock_stone_north": {
-      "model": "landmark_ph_quiet_stone_a",
+      "model": "gs_quiet_stone_a",
       "material": "stone",
-      "note": "rocks_terrain overhaul 2026-10-14 (asset_work/rocks_terrain/PROPOSALS.csv): the three Quiet Stones are three different scanned stones stood on end (rock_moss_set_01 rock01/02/06), so each has its own outline."
+      "yaw_spread": 180,
+      "note": "Grand scale 2026-10-24 (GRAND_SCALE_PROPOSAL.md 2.1, GS-1): the Quiet Stones are 16 m dressed, carved monoliths (Frozen Norse column, Cosmos), the same stone Old Late is cut from."
     },
     "rock_stone_southwest": {
-      "model": "landmark_ph_quiet_stone_b",
-      "material": "stone"
+      "model": "gs_quiet_stone_b",
+      "material": "stone",
+      "yaw_spread": 180
     },
     "rock_stone_southeast": {
-      "model": "landmark_ph_quiet_stone_c",
-      "material": "stone"
+      "model": "gs_quiet_stone_a",
+      "material": "stone",
+      "yaw_spread": 180
     },
     "rock_foldscar_heart": {
-      "model": "landmark_bp_foldscar_heart",
-      "material": "stone"
+      "model": "gs_foldscar_heart",
+      "material": "stone",
+      "surface": "mat_acg_onyx015",
+      "surface_tint": [0.2, 0.21, 0.26],
+      "note": "Grand scale 2026-10-24 (GS-2): the lower 24 m of a broken dressed monolith in the heart's dark polished stone (FoldscarDressing re-dresses it satin, and hangs its missing upper half over it)."
     },
     "rock_iron_seam": {
       "model": "rock_ph_ironstone_boulder_a",
@@ -1895,6 +1901,14 @@
     }
   },
   "structures_by_visual_option": {
+    "foldscar=proof": {
+      "rock_foldscar_heart": {
+        "model": "gs_foldscar_heart",
+        "material": "stone",
+        "surface": "mat_acg_onyx015",
+        "surface_tint": [0.2, 0.21, 0.26]
+      }
+    },
     "cairnwold_roofs=slate": {
       "cw_house_01": {
         "model": "cw_roof_slate",
@@ -1928,6 +1942,62 @@
     "note": "ADDED, and INERT for two reasons, both outside this region's files. (1) ArtBindings skips an option key that VisualOptions.All does not contain, and there is no 'cairnwold_roofs' key in src/Presentation/VisualOptions.cs - registering one is a code change, not a content one. (2) cw_roof_slate and cw_roof_thatch are WHOLE roofs, not panels: cw_house_timber_a already carries a roof node of its own, so a slate village means hiding that node and standing cw_roof_slate in its place, which lands on the same wall plate because both are authored to the same 8.72 x 6.78 m eaves rectangle, ridge 6.50 m, origin at the footprint centre on the ground. Until both are settled these two files are bound to nothing and the game will never draw them - recorded here so that is a known state rather than a surprise."
   },
   "models": {
+    "gs_fold_fluorite": {
+      "category": "landmark",
+      "dims_m": [2.4125, 3.0007, 2.6736],
+      "triangles": 45000,
+      "lods": {},
+      "texture_px": 4096
+    },
+    "gs_foldscar_heart": {
+      "category": "landmark",
+      "dims_m": [7.69, 24.0, 7.9358],
+      "triangles": 11182,
+      "lods": {},
+      "texture_px": 4096
+    },
+    "gs_foldscar_shard_a": {
+      "category": "landmark",
+      "dims_m": [2.3713, 4.7, 3.5205],
+      "triangles": 13534,
+      "lods": {},
+      "texture_px": 4096
+    },
+    "gs_foldscar_shard_b": {
+      "category": "landmark",
+      "dims_m": [2.4036, 3.7, 3.583],
+      "triangles": 13310,
+      "lods": {},
+      "texture_px": 4096
+    },
+    "gs_foldscar_shard_c": {
+      "category": "landmark",
+      "dims_m": [2.4227, 3.6, 3.6141],
+      "triangles": 13112,
+      "lods": {},
+      "texture_px": 4096
+    },
+    "gs_foldscar_slab_a": {
+      "category": "landmark",
+      "dims_m": [10.4865, 18.9, 12.2959],
+      "triangles": 14355,
+      "lods": {},
+      "texture_px": 4096
+    },
+    "gs_quiet_stone_a": {
+      "category": "landmark",
+      "dims_m": [3.2911, 16.0, 4.8839],
+      "triangles": 39956,
+      "lods": {},
+      "texture_px": 4096
+    },
+    "gs_quiet_stone_b": {
+      "category": "landmark",
+      "dims_m": [3.341, 16.0, 3.3067],
+      "triangles": 13816,
+      "lods": {},
+      "texture_px": 4096
+    },
     "note": "ADDED: the kit's own index, so the world side can size a blocker to a model without walking the metas. Every number is the measured GLB, not the generator's intent; the full per-file record is assets/ready/<id>/<id>_meta.json.",
     "cw_house_timber_a": {
       "category": "building",

@@ -197,8 +197,8 @@ concepts:
   name: The Foldscar
   kind: place
   status: covered
-  fact: The Foldscar is a basin of three Quiet Stones round a heart that is not quite there, where sound and shadow arrive late, and it goes quiet once the stones are turned square and the heart steadied.
-  source: content/lore/tavar_and_the_fold.yaml; content/regions/ashen_hollow.yaml switches
+  fact: The Foldscar is a basin of three Quiet Stones, dressed and carved and some sixteen metres tall, round a heart that is not quite there - the foot of a broken dark monolith with its missing upper half hanging upside down over it and the light bent violet in the gap - where sound and shadow arrive late; it goes quiet once the stones are turned square and the heart steadied, and the hanging half stays where it hangs.
+  source: content/lore/tavar_and_the_fold.yaml; content/regions/ashen_hollow.yaml switches; owner-approved grand-scale answers GS-1, GS-2 (2026-10-24)
   covered_by:
   - lore.tavar_and_the_fold
 - id: canon.found_pacha

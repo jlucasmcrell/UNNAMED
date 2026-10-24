@@ -141147,20 +141147,20 @@ structures:
   circle_m:
   - 550
   - 678
-  - 0.9
-  height_m: 2.8
+  - 2.0
+  height_m: 16.0
 - id: rock_stone_southwest
   circle_m:
   - 522
   - 638
-  - 0.9
-  height_m: 2.8
+  - 2.0
+  height_m: 16.0
 - id: rock_stone_southeast
   circle_m:
   - 581
   - 631
-  - 0.9
-  height_m: 2.8
+  - 2.0
+  height_m: 16.0
 # Trunk centre measured from native static mesh sections, not the canopy bounds.
 # Compensating art offset preserves every accepted world-space vertex/root support.
 - id: old_late
@@ -141173,8 +141173,8 @@ structures:
   circle_m:
   - 553
   - 648
-  - 1.5
-  height_m: 3.5
+  - 3.6
+  height_m: 24.0
 - id: tree_01
   circle_m:
   - 508
@@ -149738,7 +149738,7 @@ barriers:
   - 545
   - 642
   - 3
-  height_m: 2.6
+  height_m: 6.0
   prompt: Tavar Orr, half a breath out of true - your hand stops short of him
 
 # Readables (spec 41): what is written down, where it stands, and the lore entry reading it files. A page names one page of an entry; a

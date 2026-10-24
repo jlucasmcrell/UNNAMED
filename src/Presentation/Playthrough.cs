@@ -82,10 +82,10 @@ public sealed class Playthrough
     private static readonly (double X, double Z)[] ToTheAnvil = Hollow((58.2, 141.4));
     private static readonly (double X, double Z)[] OutToSel = Hollow((54.5, 142), (51.8, 142), (51.8, 136), (60, 128));
     private static readonly (double X, double Z)[] ToTheFoldscar = Hollow((90, 112), (105, 108), (120, 93), (140, 80));
-    private static readonly (double X, double Z)[] ToTheNorthStone = Hollow((148.5, 78));
-    private static readonly (double X, double Z)[] ToTheSouthWestStone = Hollow((135, 60), (123.5, 38));
-    private static readonly (double X, double Z)[] ToTheSouthEastStone = Hollow((140, 62), (160, 65), (187, 65), (194, 45), (182.5, 31));
-    private static readonly (double X, double Z)[] ToTheHeart = Hollow((194, 45), (187, 65), (160, 65), (153, 50.2));
+    private static readonly (double X, double Z)[] ToTheNorthStone = Hollow((147.2, 78));
+    private static readonly (double X, double Z)[] ToTheSouthWestStone = Hollow((135, 60), (124.8, 38));
+    private static readonly (double X, double Z)[] ToTheSouthEastStone = Hollow((140, 62), (160, 65), (187, 65), (194, 45), (183.8, 31));
+    private static readonly (double X, double Z)[] ToTheHeart = Hollow((194, 45), (187, 65), (160, 65), (153, 52.3));
     private static readonly (double X, double Z)[] HomeWithTavar = Hollow((150, 45), (135, 70), (100, 100), (80, 118), (62, 130), (48, 137));
     private static readonly (double X, double Z)[] ToTheDen = Hollow((55, 136), (66, 140), (66, 150), (90, 162), (104, 168), (112, 172));
     // Cairnwold, east along the road and back (region coordinates, planned round the region's blockers with the smithy door open).
