@@ -188,5 +188,43 @@
    "sampler": "dpmpp_3m_sde_gpu",
    "scheduler": "exponential"
   }
+ },
+ {
+  "cue": "mus.explore",
+  "seed": 11,
+  "prompt": "quiet wandering folk air, solo battered wooden flute, long pauses, soft fiddle drone, faint frame drum like a slow heartbeat, open air, warm acoustic, contemplative, lots of silence, 66 bpm",
+  "negative": "vocals, singing, voice, lyrics, bass, sub bass, electronic, synth, edm, drum kit, snare, hi-hat, guitar, piano, orchestra, brass, distortion, low quality, noise, clipping",
+  "seconds": 47,
+  "status": "success",
+  "files": [
+   "otherreach_music\\mus.explore_s11_00001.flac"
+  ],
+  "model": "stable_audio_open_1.0.safetensors",
+  "text_encoder": "t5_base.safetensors",
+  "settings": {
+   "steps": 100,
+   "cfg": 7.0,
+   "sampler": "dpmpp_3m_sde_gpu",
+   "scheduler": "exponential"
+  }
+ },
+ {
+  "cue": "mus.explore",
+  "seed": 23,
+  "prompt": "quiet wandering folk air, solo battered wooden flute, long pauses, soft fiddle drone, faint frame drum like a slow heartbeat, open air, warm acoustic, contemplative, lots of silence, 66 bpm",
+  "negative": "vocals, singing, voice, lyrics, bass, sub bass, electronic, synth, edm, drum kit, snare, hi-hat, guitar, piano, orchestra, brass, distortion, low quality, noise, clipping",
+  "seconds": 47,
+  "status": "success",
+  "files": [
+   "otherreach_music\\mus.explore_s23_00001.flac"
+  ],
+  "model": "stable_audio_open_1.0.safetensors",
+  "text_encoder": "t5_base.safetensors",
+  "settings": {
+   "steps": 100,
+   "cfg": 7.0,
+   "sampler": "dpmpp_3m_sde_gpu",
+   "scheduler": "exponential"
+  }
  }
 ]

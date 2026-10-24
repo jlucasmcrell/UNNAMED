@@ -125,9 +125,9 @@ public partial class Main
             if (Input.IsActionJustPressed("journal"))
             {
                 // A landmark banner still standing offers its page: the journal opens on it (spec 41 §2).
-                string? offered = _hud.ActiveLandmarkTitle is { } title
+                string? offered = (_hud.ActiveLandmarkTitle is { } title
                     ? _session.Setup.Lore.FirstOrDefault(entry => entry.Value.Title == title).Key
-                    : _loreOffered;
+                    : null) ?? _loreOffered;
                 if (offered is not null)
                 {
                     _journal.OpenLore(offered);
