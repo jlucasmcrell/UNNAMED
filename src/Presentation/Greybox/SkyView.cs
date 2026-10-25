@@ -217,7 +217,7 @@ public static class SkyView
     /// </summary>
     public static void Advance(double worldTick, double ticksPerDay, World.Runtime.SkyDate? date = null)
     {
-        if (_sky is not WorldEnvironment || ticksPerDay <= 0)
+        if (_sky is not WorldEnvironment sky || ticksPerDay <= 0)
             return;
         // THE YEAR TURNS WITH THE CALENDAR (WLD-34). Sky3D keeps its own Gregorian date, and left at its default every day had the same
         // sun declination and the same moon. The world's date, mapped season onto season (SkyCalendar), moves both: the sun stands higher
