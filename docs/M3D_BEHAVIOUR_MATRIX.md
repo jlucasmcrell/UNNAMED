@@ -27,12 +27,12 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 
 | Creature | Opens with | Tell at m | Lands from m | Arrow to blow s | Runs down a sprinter | Sword kill s (fighter died) | Death standing s | Walker seen at m | Sprinter heard at m |
 |---|---|---|---|---|---|---|---|---|---|
-| Ash Ember Hound | Ember Lunge | 2.3 | 0.8 | 2.1 | yes, 3.1 s (Ember Lunge) | 3.4 (0/8) | 24.7 | 28.8 | 15.7 |
-| Bone Walker Husk | Rusted Cleave | 2.6 | 2.6 | 5.8 | no | 5.6 (0/8) | 29.3 | 16.9 | 15.8 |
-| Animated Armour | Gauntlet Slam | 2.0 | 2.0 | 6.9 | no | 19.2 (0/8) | 22.1 | 13.9 | 15.8 |
+| Ash Ember Hound | Ember Lunge | 2.3 | 0.8 | 2.1 | yes, 3.1 s (Ember Lunge) | 4.1 (0/8) | 24.7 | 28.8 | 15.7 |
+| Bone Walker Husk | Rusted Cleave | 2.6 | 2.6 | 5.8 | no | 6.4 (0/8) | 29.3 | 16.9 | 15.8 |
+| Animated Armour | Gauntlet Slam | 2.0 | 2.0 | 6.9 | no | no kill (8/8) | 22.1 | 13.9 | 15.8 |
 | Bristleback Boar | Charge | 12.0 | 0.8 | 1.8 | yes, 1.3 s (Charge) | 7.9 (0/8) | 22.5 | 18.9 | 15.8 |
-| Cave Hunting Spider | Venom Bite | 1.2 | 1.2 | 2.9 | no | 4.1 (0/8) | 18.4 | 5.1 | 13.7 |
-| Grey Wolf | Bite | 1.5 | 1.5 | 3.0 | no | 5.6 (0/8) | 23.2 | 23.8 | 15.8 |
+| Cave Hunting Spider | Venom Bite | 1.2 | 1.2 | 2.9 | no | 4.9 (0/8) | 18.4 | 5.1 | 13.7 |
+| Grey Wolf | Bite | 1.5 | 1.5 | 2.4 | no | 5.6 (0/8) | 23.2 | 23.8 | 15.8 |
 
 ## Roles (content)
 

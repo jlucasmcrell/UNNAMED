@@ -11,6 +11,8 @@ level_band: [5, 5]
 pools: { health: 90 }
 attack_set: [ability.creature.armour_slam]
 armor: { head: 0, torso: 45, limbs: 35 }
+gap_armor: { head: 0, torso: 5, limbs: 5 }
+guard: { stamina: 40, cost_per_hit: 10 }
 resistances: { physical_pierce: 0.5 }
 weak_point: { region: head, from_behind: true }
 move_speed_m_s: 1.8

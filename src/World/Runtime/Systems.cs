@@ -101,6 +101,25 @@ internal sealed class SystemContext
     /// <summary>The character's people, as the creator made it: who may use and trade heritage items (owner, 2026-10-24).</summary>
     public string PlayerPeople { get; init; } = CharacterSpec.DefaultPeople;
 
+    public string? TechniqueRefusal(TechniqueDefinition technique) => TechniqueRequirements.Refusal(technique, requirement => requirement.Kind switch
+    {
+        TechniqueRequirementKind.Skill => ProgressionEngine.SkillLevel(State.Progression, requirement.Ref),
+        TechniqueRequirementKind.Attribute => ProgressionEngine.AttributeValue(State.Progression, ProgressionKeys.ParseAttribute(requirement.Ref), Setup.Progression),
+        TechniqueRequirementKind.Technique => ProgressionEngine.Knows(State.Progression, requirement.Ref) ? 1 : 0,
+        TechniqueRequirementKind.Equipment => State.Equipment.Values.Any(id => State.Inventory.Any(e => e.ItemId == id
+            && (e.DefId == requirement.Ref || Setup.Items.Catalog.Find(e.DefId)?.Weapon?.SkillId == requirement.Ref))) ? 1 : 0,
+        TechniqueRequirementKind.Body => requirement.Ref switch
+        {
+            "grounded" => State.Posture.Airborne ? 0 : 1,
+            "standing" => State.Posture.Stance == Stance.Standing ? 1 : 0,
+            _ => 0,
+        },
+        TechniqueRequirementKind.Knowledge => State.Lore.Any(p => p.EntryId == requirement.Ref) ? 1 : 0,
+        TechniqueRequirementKind.Relationship => State.RelationshipOf(requirement.Ref, requirement.Dimension),
+        TechniqueRequirementKind.Standing => State.StandingOf(requirement.Ref),
+        _ => 0,
+    });
+
     /// <summary>
     /// The space this layout's sites stand in. Every authored site's cell is resolved in it, so a door's flag and
     /// the quest that reads that flag are always the same cell (review B2).
@@ -389,6 +408,11 @@ internal sealed class MovementSystem
         else if (phase is CombatPhase.Windup or CombatPhase.Active or CombatPhase.Recovery)
         {
             intent = intent with { Gait = Gait.Walk, FacingMdeg = phase == CombatPhase.Windup ? intent.FacingMdeg : from.FacingMdeg };
+            if (combat.Action.Attack is { RetreatMm: > 0 } retreat && phase == CombatPhase.Active)
+            {
+                intent = new MoveIntent(combat.Action.DirXPermille, combat.Action.DirZPermille, Gait.Run, from.FacingMdeg);
+                rules = rules with { BaseSpeedMmPerSecond = retreat.RetreatMm * 1000 / Math.Max(1, retreat.ActiveTicks * _context.Setup.TickMilliseconds) };
+            }
         }
         else if (combat.Blocking)
         {
@@ -653,6 +677,9 @@ internal sealed class ProgressionSystem
     /// <summary>A learning event (PROGRESSION.md Â§4.4): the only way a formula becomes known.</summary>
     public string? Handle(LearnTechnique command)
     {
+        if (_context.Setup.Techniques.TryGetValue(command.Learning.DefinitionId, out var technique)
+            && _context.TechniqueRefusal(technique) is { } refusal)
+            return refusal;
         var result = ProgressionEngine.Learn(_context.State.Progression, command.Learning);
         if (!result.Learned)
             return $"{command.Learning.DefinitionId} is already known";

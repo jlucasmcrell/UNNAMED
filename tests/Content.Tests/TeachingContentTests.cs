@@ -91,7 +91,7 @@ public class TeachingContentTests
         var techniques = TeachingContent.BuildTechniques(loader);
 
         Assert.Equal(new[] { ("ability.blade.power_strike", "skill.one_hand_blade"), ("ability.bow.aimed_shot", "skill.bow"),
-            ("ability.polearm.long_thrust", "skill.polearm") }, techniques.Values.Select(t => (t.Id, t.SkillId)));
+            ("ability.polearm.long_thrust", "skill.polearm") }, techniques.Values.Where(t => t.Discovery == UNNAMED.Domain.Combat.TechniqueDiscovery.None).Select(t => (t.Id, t.SkillId)));
         var strike = techniques["ability.blade.power_strike"];
         Assert.Equal((1.6, 1.5, 0L, 22, 120, "effect.bleeding", 50), (strike.DamageMultiplier, strike.WindupMultiplier, strike.ReachBonusMm,
             strike.StaminaCost, strike.CooldownTicks, strike.OnHitEffect, strike.OnHitEffectPercent));

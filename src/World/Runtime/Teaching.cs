@@ -30,7 +30,8 @@ public sealed record TeachingView(string NpcId, string? Unavailable, ImmutableAr
 /// <summary>One lesson as the Learn column lists it: met and unmet requirement chips, the fee, and whether the conversation gives it.</summary>
 public sealed record LessonView(TeachingKind Kind, string DefinitionId, long Fee, bool Known, bool ByDialogue, ImmutableArray<RequirementCheck> Requirements)
 {
-    public bool Met => Requirements.All(r => r.Met);
+    public string? TechniqueRefusal { get; init; }
+    public bool Met => TechniqueRefusal is null && Requirements.All(r => r.Met);
 }
 
 /// <summary>To <see cref="TeachingSystem"/>: a <c>teach</c> consequence - the speaker teaches these entries of their block, all or nothing.</summary>
@@ -111,6 +112,9 @@ internal sealed class TeachingSystem : IAbstractAdvance
         var facts = _facts(npcId);
         foreach (var offer in offers)
         {
+            if (_context.Setup.Techniques.TryGetValue(offer.DefinitionId, out var technique)
+                && _context.TechniqueRefusal(technique) is { } techniqueRefusal)
+                return techniqueRefusal;
             if (TeachingRules.Check(offer, npcId, facts, Knows).FirstOrDefault(c => !c.Met) is { } unmet)
                 return $"{teacher.Name} will not teach {offer.DefinitionId} yet: {Reason(unmet, teacher)}";
         }
@@ -140,7 +144,8 @@ internal sealed class TeachingSystem : IAbstractAdvance
             return null;
         var facts = _facts(npcId);
         return new TeachingView(npcId, _hours.Unavailable(npcId, tick), npc.Definition.Teaches
-            .Select(o => new LessonView(o.Kind, o.DefinitionId, o.Fee, Knows(o.DefinitionId), o.ByDialogue, TeachingRules.Check(o, npcId, facts, Knows)))
+            .Select(o => new LessonView(o.Kind, o.DefinitionId, o.Fee, Knows(o.DefinitionId), o.ByDialogue, TeachingRules.Check(o, npcId, facts, Knows))
+            { TechniqueRefusal = _context.Setup.Techniques.TryGetValue(o.DefinitionId, out var technique) ? _context.TechniqueRefusal(technique) : null })
             .ToImmutableArray());
     }
 

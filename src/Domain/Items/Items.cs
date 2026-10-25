@@ -289,6 +289,7 @@ public sealed record Requirements(
 /// <summary>A weapon's numbers (DATA_MODEL.md §4.2), as combat (M3c) reads them.</summary>
 public sealed record WeaponStats(int DamageMin, int DamageMax, string DamageType, long ReachMm, bool TwoHanded, string? SkillId, string? AmmoDefId)
 {
+    public UNNAMED.Domain.Combat.PhysicalScaling? Scaling { get; init; }
     /// <summary>One swing, from <c>attack_speed</c> (swings per second); 0 when the weapon gives none.</summary>
     public int AttackMs { get; init; }
 

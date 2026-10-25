@@ -1,0 +1,20 @@
+id: ability.blade.gap_thrust
+kind: ability
+schema: 1
+display_key: ability.blade.gap_thrust.name
+tags: [ability]
+name: Gap Thrust
+notes: Place a dagger into the chosen region of an unaware, staggered or Opened opponent. Uses authored gap armour; no authored gap means ordinary protection. Discovered by a placed dagger blow.
+class: active
+discipline: skill.one_hand_blade
+web: dagger
+lane: basic
+use: contextual
+technique_kind: GapThrust
+requires_dagger: true
+discovery: PlacedHit
+requirements:
+  - { type: skill, ref: skill.one_hand_blade, minimum: 15 }
+cost: { stamina: 8 }
+cooldown_s: 0
+payload: [{ type: damage, multiplier_of_weapon: 1 }]

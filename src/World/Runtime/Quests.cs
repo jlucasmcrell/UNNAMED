@@ -303,6 +303,19 @@ internal sealed class QuestSystem : IQuestFacts, IAbstractAdvance
             if (!Setup.Quests.TryGetValue(state.QuestId, out var quest))
                 continue;
             var step = QuestRules.Advance(quest, state, this, tick);
+            // Technique gates belong to the reward, too. Wait before committing completion or paying any reward.
+            if (step.State.Status == QuestStatus.Completed)
+            {
+                var refusal = quest.Rewards.OfType<TechniqueReward>()
+                    .Where(r => !ProgressionEngine.Knows(State.Progression, r.DefinitionId))
+                    .Select(r => _context.Setup.Techniques.TryGetValue(r.DefinitionId, out var technique) ? _context.TechniqueRefusal(technique) : null)
+                    .FirstOrDefault(reason => reason is not null);
+                if (refusal is not null)
+                {
+                    Trace(quest.Id, tick, ImmutableArray.Create($"reward waits: {refusal}"), force: false);
+                    continue;
+                }
+            }
             var lines = step.Evaluations.SelectMany(e => e.Evaluation.Terms.Select(t =>
                 $"{e.ObjectiveId}: {t.Label} = {t.Value} (wanted {t.Wanted}) {(t.Holds ? "holds" : "waiting")}")).ToList();
             lines.AddRange(step.Transitions.Select(Describe));

@@ -104,10 +104,11 @@ public sealed record DerivedFormulas(
     DerivedFormula Resonance,
     DerivedFormula StrainTolerance)
 {
-    /// <summary>The attributes some derived value reads: those a point spent on changes something (Phase 1: might, endurance, will).</summary>
+    /// <summary>Attributes with a live derived value or PT combat effect. Insight and Presence wait for their owning systems.</summary>
     public ImmutableArray<CharacterAttribute> Live =>
         new[] { HealthMax, StaminaMax, FocusMax, Resonance, StrainTolerance }
-            .SelectMany(f => f.PerPoint.Where(term => term.Value != 0).Select(term => term.Key)).Distinct().Order().ToImmutableArray();
+            .SelectMany(f => f.PerPoint.Where(term => term.Value != 0).Select(term => term.Key))
+            .Concat(new[] { CharacterAttribute.Agility, CharacterAttribute.Precision }).Distinct().Order().ToImmutableArray();
 }
 
 /// <summary>Use under challenge (§4.2): the difficulty gate, the XP curve per level, novelty, and the common ceiling.</summary>

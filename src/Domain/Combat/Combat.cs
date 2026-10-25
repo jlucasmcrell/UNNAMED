@@ -61,6 +61,22 @@ public sealed record AttackProfile(
     int RecoveryTicks,
     int StaminaCost)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public PhysicalScaling? Scaling { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public BodyRegion? PlacedRegion { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public EntityId? PlacedTarget { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool PlacedAsAmbush { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool UsesGap { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool Quiet { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public int GuardStaminaDamage { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public long RetreatMm { get; init; }
     /// <summary>The tell commits its facing at the start, so stepping aside can beat it.</summary>
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public bool CommitFacing { get; init; }
@@ -174,7 +190,10 @@ public sealed record DefenseProfile(
     ImmutableSortedDictionary<BodyRegion, int> Armor,
     ImmutableSortedDictionary<string, double> Resistances,
     bool Blocking,
-    bool Dodging);
+    bool Dodging)
+{
+    public ImmutableSortedDictionary<BodyRegion, int> GapArmor { get; init; } = ImmutableSortedDictionary<BodyRegion, int>.Empty;
+}
 
 /// <summary>What one blow did. <see cref="Final"/> is what the target loses; <see cref="Raw"/> is the impact before armor.</summary>
 public sealed record HitResult(BodyRegion Region, int Raw, int Final, bool Critical, bool Blocked, bool Dodged, bool Staggered, bool EffectApplied);
@@ -197,7 +216,7 @@ public static class CombatRules
     public static HitResult Resolve(Strike strike, DefenseProfile defense, CombatConstants constants, Func<uint, double> random)
     {
         var attack = strike.Attack;
-        var region = strike.ForcedRegion ?? Region(constants, random(0));
+        var region = strike.ForcedRegion ?? attack.PlacedRegion ?? Region(constants, random(0));
         if (defense.Dodging)
             return new HitResult(region, 0, 0, false, false, true, false, false);
 
@@ -212,7 +231,9 @@ public static class CombatRules
         bool physical = DamageTypes.IsPhysical(attack.DamageType);
         if (physical)
         {
-            double armor = defense.Armor.GetValueOrDefault(region);
+            double armor = attack.UsesGap && (strike.ForcedRegion is not null || attack.PlacedRegion is not null)
+                ? defense.GapArmor.GetValueOrDefault(region, defense.Armor.GetValueOrDefault(region))
+                : defense.Armor.GetValueOrDefault(region);
             if (attack.DamageType == "physical_pierce")
                 armor *= 1 - constants.PierceArmorIgnored;
             damage *= 1 - armor / (armor + constants.ArmorK);
@@ -291,6 +312,8 @@ public sealed record CreatureDefinition(
     long RadiusMm,
     long XpValue)
 {
+    public GuardProfile? Guard { get; init; }
+    public ImmutableSortedDictionary<BodyRegion, int> GapArmor { get; init; } = ImmutableSortedDictionary<BodyRegion, int>.Empty;
     public string? LootTableId { get; init; }
 
     /// <summary>What it perceives with (M3d; DATA_MODEL.md §4.4 <c>perception</c>).</summary>
@@ -311,6 +334,8 @@ public sealed record CreatureDefinition(
     /// <summary>Its content tags (<c>undead</c>, <c>construct</c>): effects whose immunity tags meet them do not take.</summary>
     public ImmutableSortedSet<string> Tags { get; init; } = ImmutableSortedSet<string>.Empty;
 }
+
+public sealed record GuardProfile(int Stamina = 40, int CostPerHit = 10);
 
 public enum StackPolicy
 {

@@ -15,10 +15,10 @@ A level-L character has put its L-1 level-up points into Might. The sword and ba
 | Rusted Sword | 3 | 12 | 4.85 | 4.10 | 5.60 | 7 | yes |
 | Hunting Bow | 1 | 10 | 7.45 | 6.15 | 8.75 | 6 | yes |
 | Hunting Bow | 2 | 11 | 7.45 | 6.15 | 8.75 | 6 | yes |
-| Hunting Bow | 3 | 12 | 7.45 | 6.15 | 7.45 | 6 | yes |
+| Hunting Bow | 3 | 12 | 7.45 | 6.15 | 8.75 | 6 | yes |
 | Unarmed | 1 | 10 | 13.30 | 10.05 | 15.25 | 21 | no (a fallback, not a weapon family) |
-| Unarmed | 2 | 11 | 12.65 | 10.05 | 14.60 | 20 | no (a fallback, not a weapon family) |
-| Unarmed | 3 | 12 | 12.65 | 9.40 | 14.60 | 20 | no (a fallback, not a weapon family) |
+| Unarmed | 2 | 11 | 13.30 | 10.05 | 14.60 | 21 | no (a fallback, not a weapon family) |
+| Unarmed | 3 | 12 | 12.65 | 10.05 | 14.60 | 20 | no (a fallback, not a weapon family) |
 
 ## Dying, standing still
 

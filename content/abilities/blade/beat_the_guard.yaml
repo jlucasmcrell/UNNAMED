@@ -1,0 +1,18 @@
+id: ability.blade.beat_the_guard
+kind: ability
+schema: 1
+display_key: ability.blade.beat_the_guard.name
+tags: [ability]
+name: Beat the Guard
+notes: A deliberate blow draining 25 guard stamina on contact; a broken guard opens its holder. Discovered by first breaking a challenged guard.
+class: active
+discipline: skill.one_hand_blade
+web: blade
+lane: tactical
+technique_kind: GuardBreak
+discovery: GuardBroken
+requirements:
+  - { type: skill, ref: skill.one_hand_blade, minimum: 15 }
+cost: { stamina: 12 }
+cooldown_s: 0
+payload: [{ type: damage, multiplier_of_weapon: 1 }]

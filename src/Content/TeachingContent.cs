@@ -94,12 +94,14 @@ public static class TeachingContent
                 OnHitEffect = effect is null ? null : Text(effect, "effect_ref"),
                 OnHitEffectPercent = effect is null ? 0 : (int)Math.Round(Number(effect, "chance") * 100, MidpointRounding.AwayFromZero),
             };
+            technique = CombatContent.WithTechniqueRecord(technique, loader);
             if (technique.OnHitEffect is { } applied && !loader.GetByKind("effect").ContainsKey(applied))
                 throw new FormatException($"{id}: {applied} is not an effect");
             if (technique.Problem() is { } problem)
                 throw new FormatException($"{id}: {problem}");
             techniques.Add(id, technique);
         }
+        CombatContent.ValidateTechniqueWeb(techniques);
         return techniques.ToImmutable();
     }
 
@@ -220,6 +222,7 @@ public static class TeachingContent
         foreach (var call in CharacterContent.BuildCalls(loader).Values)
             sources.UnionWith(call.Package.Techniques);
 
+        sources.UnionWith(BuildTechniques(loader).Values.Where(t => t.Discovery != TechniqueDiscovery.None).Select(t => t.Id));
         var learnable = loader.GetByKind("recipe").Keys
             .Concat(loader.GetByKind("spell").Keys)
             .Concat(loader.GetByKind("piece").Keys)

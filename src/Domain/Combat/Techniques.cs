@@ -2,7 +2,13 @@
 // (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.3 C5, D11; DATA_MODEL.md §4.7; SYSTEMS.md S-10)
 // No Godot references - pure C#
 
+using System.Collections.Immutable;
+
 namespace UNNAMED.Domain.Combat;
+
+public enum TechniqueUse { Active, Reaction, Contextual }
+public enum TechniqueKind { Strike, Parry, GuardBreak, GivingGround, SetAgainstCharge, GapThrust, QuietBlade, SteadyDraw }
+public enum TechniqueDiscovery { None, GuardedBlow, GuardBroken, RetreatingHit, ChargeStopped, PlacedHit, RearAmbush, SteadyShot }
 
 /// <summary>
 /// An active technique (<c>ability</c> of <c>class: active</c>, DATA_MODEL.md §4.7): one weapon family's (<see cref="SkillId"/>, its
@@ -14,17 +20,25 @@ namespace UNNAMED.Domain.Combat;
 public sealed record TechniqueDefinition(string Id, string SkillId, double DamageMultiplier, double WindupMultiplier, long ReachBonusMm,
     int StaminaCost, int CooldownTicks)
 {
+    public string Web { get; init; } = "martial";
+    public string Lane { get; init; } = "basic";
+    public TechniqueUse Use { get; init; }
+    public TechniqueKind Kind { get; init; }
+    public TechniqueDiscovery Discovery { get; init; }
+    public ImmutableArray<TechniqueRequirement> Requirements { get; init; } = ImmutableArray<TechniqueRequirement>.Empty;
+    public ImmutableArray<string> Refines { get; init; } = ImmutableArray<string>.Empty;
+    public bool RequiresDagger { get; init; }
     public string? OnHitEffect { get; init; }
     public int OnHitEffectPercent { get; init; }
 
     public string? Problem() =>
-        DamageMultiplier <= 0 ? "multiplier_of_weapon is positive"
-        : WindupMultiplier < 1 ? "windup_multiplier is at least 1 (a technique never comes out faster than the plain blow)"
+        !double.IsFinite(DamageMultiplier) || DamageMultiplier <= 0 ? "multiplier_of_weapon is positive"
+        : !double.IsFinite(WindupMultiplier) || WindupMultiplier < 1 ? "windup_multiplier is at least 1 (a technique never comes out faster than the plain blow)"
         : ReachBonusMm < 0 ? "reach_bonus_m is not negative"
         : StaminaCost < 0 ? "cost.stamina is not negative"
         : CooldownTicks < 0 ? "cooldown_s is not negative"
         : OnHitEffectPercent is < 0 or > 100 ? "an apply_effect's chance is from 0 to 1"
-        : null;
+        : Requirements.Select(TechniqueRequirements.Problem).FirstOrDefault(p => p is not null);
 }
 
 public static class TechniqueRules
@@ -47,6 +61,10 @@ public static class TechniqueRules
             OnHitEffect = technique.OnHitEffect ?? weapon.OnHitEffect,
             OnHitEffectPercent = technique.OnHitEffect is null ? weapon.OnHitEffectPercent : technique.OnHitEffectPercent,
             CooldownTicks = technique.CooldownTicks,
+            GuardStaminaDamage = technique.Kind == TechniqueKind.GuardBreak ? 25 : weapon.GuardStaminaDamage,
+            UsesGap = technique.Kind == TechniqueKind.GapThrust,
+            Quiet = technique.Kind == TechniqueKind.QuietBlade,
+            RetreatMm = technique.Kind == TechniqueKind.GivingGround ? 1_000 : 0,
         };
     }
 }

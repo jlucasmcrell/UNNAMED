@@ -1,0 +1,18 @@
+id: ability.bow.steady_draw
+kind: ability
+schema: 1
+display_key: ability.bow.steady_draw.name
+tags: [ability]
+name: Steady Draw
+notes: Hold a full draw steady for one second, then press attack or the technique again to loose at the chosen region. Moving or turning resets steadiness. Holding costs stamina. Discovered by a challenged shot held steady without the technique.
+class: active
+discipline: skill.bow
+web: bow
+lane: basic
+technique_kind: SteadyDraw
+discovery: SteadyShot
+requirements:
+  - { type: skill, ref: skill.bow, minimum: 15 }
+cost: { stamina: 12 }
+cooldown_s: 0
+payload: [{ type: damage, multiplier_of_weapon: 1 }]

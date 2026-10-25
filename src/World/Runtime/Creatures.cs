@@ -168,6 +168,7 @@ internal sealed record CreatureState(
 /// </summary>
 internal sealed record WoundCreature(EntityId Target, HitResult Hit, string Source) : InternalCommand
 {
+    public bool Quiet { get; init; }
     public EntityId? Attacker { get; init; }
     public string? AttackerDefId { get; init; }
     public long FromXMm { get; init; }
@@ -520,7 +521,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             _ => sound.RunMm,
         };
         var (phase, _) = combat.Action.PhaseAt(State.WorldTick + 1, C);
-        if (combat.Action.Kind == ActionKind.Attack && phase is CombatPhase.Windup or CombatPhase.Active)
+        if (combat.Action.Kind == ActionKind.Attack && combat.Action.Attack?.Quiet != true && phase is CombatPhase.Windup or CombatPhase.Active)
             radius = Math.Max(radius, sound.SwingMm);
         // A stealthy character makes less of every sound (finding 26: -15/30/45% of the effective radius by rank).
         if (radius > 0)
@@ -924,6 +925,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             && _context.Dispatch(new CreatureStrike(c.Id, charge)) is null)
         {
             Sound(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.BlowMm));
+            if (Find(c.Id) is { } changed && (changed.Action != action || changed.Health != c.Health)) return changed;
             return c with { Action = action with { Struck = action.Struck.Add(_player), EndedTick = tick } };
         }
         if (elapsed > runTicks)
@@ -985,6 +987,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         if (blow is not null && reaches && _context.Dispatch(blow) is null)
         {
             Sound(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.BlowMm));
+            if (Find(c.Id) is { } changed && (changed.Action != action || changed.Health != c.Health)) return changed;
             return c with { Action = action with { Struck = action.Struck.Add(foe.Id) } };
         }
         if (action.Struck.IsEmpty && elapsed == attack.WindupTicks + attack.ActiveTicks)
@@ -1033,7 +1036,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         // A wound wakes a sleeper (effect.sleep's own rule): the body does not stay down through being stabbed.
         if (hit.Final > 0)
             _context.Dispatch(new RemoveEffect(c.Id, "effect.sleep"));
-        Sound(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.BlowMm));
+        if (!command.Quiet) Sound(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.BlowMm));
         _context.Events.Publish(new HitResolved(attacker, command.AttackerDefId ?? "player", c.Id, command.Source, hit.Region, hit.Final, hit.Critical,
             hit.Blocked, hit.Dodged, staggered, health, tick));
         Save(health == 0 ? Die(wounded, tick, attacker) : wounded);

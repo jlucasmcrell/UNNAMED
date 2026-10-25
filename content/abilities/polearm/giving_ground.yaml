@@ -1,0 +1,19 @@
+id: ability.polearm.giving_ground
+kind: ability
+schema: 1
+display_key: ability.polearm.giving_ground.name
+tags: [ability]
+name: Giving Ground
+notes: Thrust while retreating one metre, subject to terrain and walls. The tip retains its ordinary reach. Discovered by wounding a challenged opponent while moving away.
+class: active
+discipline: skill.polearm
+web: polearm
+lane: mobility
+technique_kind: GivingGround
+discovery: RetreatingHit
+requirements:
+  - { type: skill, ref: skill.polearm, minimum: 15 }
+  - { type: body, ref: grounded }
+cost: { stamina: 10 }
+cooldown_s: 0
+payload: [{ type: damage, multiplier_of_weapon: 1 }]

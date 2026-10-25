@@ -52,7 +52,11 @@ public sealed record CombatSetup(
 // ── commands ────────────────────────────────────────────────────────────────
 
 /// <summary>Attack with what the main hand holds, or bare-handed: a swing through the front arc, or a drawn shot along the facing.</summary>
-public sealed record AttackCommand(EntityId Actor) : GameCommand(Actor);
+public sealed record AttackCommand(EntityId Actor) : GameCommand(Actor)
+{
+    public BodyRegion? Region { get; init; }
+    public bool HoldDraw { get; init; }
+}
 
 /// <summary>Raise or lower the guard. A raised guard takes blows from the front for stamina and slows the feet to a walk.</summary>
 public sealed record BlockCommand(EntityId Actor, bool Raised) : GameCommand(Actor);
@@ -142,6 +146,9 @@ public enum CombatPhase
 public sealed record CombatView(CombatPhase Phase, int PhaseTicksLeft, string? AttackSource, bool Blocking, AttackProfile Weapon,
     int Health, int MaxHealth, int Stamina, int MaxStamina, ImmutableArray<ActiveEffect> Effects)
 {
+    public bool HoldingDraw { get; init; }
+    public bool DrawSteady { get; init; }
+    public BodyRegion? AimedRegion { get; init; }
     /// <summary>Acting, guarding, or within the existing out-of-combat delay after an exchange of blows.</summary>
     public bool InCombat { get; init; }
 
@@ -385,6 +392,7 @@ internal sealed partial class CombatSystem
     {
         if (command.Actor != _player)
             return $"unknown actor {command.Actor}";
+        if (_holdingDraw && State.PlayerCombat.Action.Attack is { Ranged: true }) return ReleaseDraw(tick);
         var combat = State.PlayerCombat;
         if (Busy(combat.Action, tick) is { } busy)
             return busy;
@@ -392,6 +400,26 @@ internal sealed partial class CombatSystem
         if (_context.ControlOn(_player) == ControlKind.Incapacitates)
             return "you cannot move";
         var attack = PlayerAttack();
+        if (command.HoldDraw && !attack.Ranged) return "only a bow can hold a draw";
+        if (attack.Ranged)
+        {
+            _holdingDraw = command.HoldDraw;
+            _aimRegion = command.Region ?? BodyRegion.Torso;
+            _steadySince = tick + attack.WindupTicks;
+            _steadyFacing = State.Body.FacingMdeg;
+        }
+        if (command.Region is { } region)
+        {
+            if (!Enum.IsDefined(region)) return "unknown body region";
+            var target = State.Creatures.Values.Where(c => c.Alive && c.Site.Space == State.Space
+                && CombatRules.InFront(State.Body.XMm, State.Body.ZMm, State.Body.FacingMdeg, c.Body.XMm, c.Body.ZMm,
+                    attack.ReachMm + c.Definition.RadiusMm, C.MeleeArcMdeg)
+                && (StealthRules.Unaware(c.Awareness, Setup.Awareness) || Open(c, tick) || c.Action.PhaseAt(tick, C).Phase == CombatPhase.Staggered))
+                .OrderBy(c => Math.Pow(c.Body.XMm - State.Body.XMm, 2) + Math.Pow(c.Body.ZMm - State.Body.ZMm, 2)).FirstOrDefault();
+            if (target is null)
+                return "needs an opening or an unaware target";
+            attack = attack with { PlacedRegion = region, PlacedTarget = target.Id, PlacedAsAmbush = StealthRules.Unaware(target.Awareness, Setup.Awareness) };
+        }
         if (attack.Ranged && attack.AmmoDefId is { } ammo && !State.Inventory.Any(e => e.DefId == ammo))
             return $"no {ammo} to shoot";
         if (Stamina() < attack.StaminaCost)
@@ -421,8 +449,10 @@ internal sealed partial class CombatSystem
         }
         if (Busy(combat.Action, tick) is { } busy)
             return busy;
+        if (_context.ControlOn(_player) == ControlKind.Incapacitates) return "you cannot move";
         if (PlayerAttack().Ranged)
             return "a bow cannot guard";
+        if (!combat.Blocking) _guardRaisedAt = tick;
         State.SetPlayerCombat(_owner, combat with { Blocking = true });
         return null;
     }
@@ -441,7 +471,9 @@ internal sealed partial class CombatSystem
             return "cannot dodge in the air";
         if (State.Posture.Stance == Stance.Crouched)
             return "cannot dodge while crouched";
-        if (Stamina() < C.DodgeStaminaCost)
+        int dodgeCost = Math.Max(1, (int)Math.Ceiling(C.DodgeStaminaCost * (1 - Math.Clamp(
+            ProgressionEngine.AttributeValue(State.Progression, CharacterAttribute.Agility, _context.Setup.Progression) - _context.Setup.Progression.AttributeBase, 0, 50) / 300.0)));
+        if (Stamina() < dodgeCost)
             return "too tired to dodge";
         double dx = command.DirXPermille, dz = command.DirZPermille;
         if (dx == 0 && dz == 0)
@@ -452,7 +484,7 @@ internal sealed partial class CombatSystem
         double length = Math.Sqrt(dx * dx + dz * dz);
         int x = (int)Math.Round(dx / length * 1000), z = (int)Math.Round(dz / length * 1000);
         BreakCast(combat.Action, "dodged", tick);
-        Exert(C.DodgeStaminaCost, tick);
+        Exert(dodgeCost, tick);
         State.SetPlayerCombat(_owner, State.PlayerCombat with { Action = ActionState.Begin(ActionKind.Dodge, tick, dirX: x, dirZ: z), Blocking = false });
         return null;
     }
@@ -476,7 +508,7 @@ internal sealed partial class CombatSystem
             int step = entry.Quality * _context.Setup.Crafting.Constants.WeaponDamagePerStep;
             return step == 0 ? attack : attack with { DamageMin = Math.Max(1, attack.DamageMin + step), DamageMax = Math.Max(1, attack.DamageMax + step) };
         }
-        return C.Unarmed;
+        return C.Unarmed with { Scaling = PhysicalScaling.Balanced };
     }
 
     private AttackProfile WeaponAttack(string defId, WeaponStats weapon) => AttackOf(defId, weapon, C, TickMs);
@@ -497,13 +529,14 @@ internal sealed partial class CombatSystem
                 Ranged = true,
                 AmmoDefId = weapon.AmmoDefId,
                 SkillId = weapon.SkillId,
+                Scaling = weapon.Scaling,
             };
         }
         int total = Math.Max(3, Ticks(weapon.AttackMs));
         int windup = Math.Max(1, (int)Math.Round(total * constants.WindupPercent / 100.0, MidpointRounding.AwayFromZero));
         int active = Math.Max(1, (int)Math.Round(total * constants.ActivePercent / 100.0, MidpointRounding.AwayFromZero));
         return new AttackProfile(defId, weapon.DamageMin, weapon.DamageMax, weapon.DamageType, weapon.ReachMm, windup, active,
-            Math.Max(0, total - windup - active), stamina) { SkillId = weapon.SkillId, SneakMultiplier = weapon.SneakMultiplier };
+            Math.Max(0, total - windup - active), stamina) { SkillId = weapon.SkillId, SneakMultiplier = weapon.SneakMultiplier, Scaling = weapon.Scaling };
     }
 
     private int Ticks(int milliseconds) => (int)Math.Round((double)milliseconds / TickMs, MidpointRounding.AwayFromZero);
@@ -519,10 +552,33 @@ internal sealed partial class CombatSystem
     private void PlayerTick(long tick)
     {
         var combat = State.PlayerCombat;
+        if (tick - combat.LastCombat >= C.OutOfCombatTicks && !combat.Blocking)
+        {
+            _hintedTechniques.Clear();
+            _openings.Clear();
+            _guardStamina.Clear();
+            _guardRestoresAt.Clear();
+        }
         var action = combat.Action;
         if (action.Kind == ActionKind.Idle || combat.Defeated)
             return;
         var (phase, _) = action.PhaseAt(tick, C);
+        if (action.Attack is { Ranged: true } && (phase == CombatPhase.Windup || _holdingDraw && phase == CombatPhase.Active)
+            && (_intent().IsMoving || State.Body.FacingMdeg != _steadyFacing))
+        {
+            _steadySince = Math.Max(_steadySince, tick);
+            _steadyFacing = State.Body.FacingMdeg;
+        }
+        if (_holdingDraw && action.Attack is { Ranged: true } held && phase == CombatPhase.Active)
+        {
+            if (Stamina() == 0) _holdingDraw = false;
+            else
+            {
+                if (tick % Math.Max(1, Ticks(1_000)) == 0) Exert(1, tick);
+                State.SetPlayerCombat(_owner, State.PlayerCombat with { Action = action with { StartTick = tick - held.WindupTicks } });
+                return;
+            }
+        }
         if (phase == CombatPhase.Idle)
         {
             State.SetPlayerCombat(_owner, combat with { Action = ActionState.Idle });
@@ -538,6 +594,8 @@ internal sealed partial class CombatSystem
             return;
 
         var attack = action.Attack!;
+        if (attack.Ranged && attack.PlacedRegion is not null && (tick - _steadySince < Ticks(1_000) || _intent().IsMoving))
+            attack = attack with { PlacedRegion = null };
         long elapsed = tick - action.StartTick;
         var body = State.Body;
         if (attack.Ranged)
@@ -639,15 +697,62 @@ internal sealed partial class CombatSystem
         if (!CombatRules.CanAttemptAttack(_player, creature.Id,
                 new(!State.PlayerCombat.Defeated, creature.Alive, creature.Site.Space == State.Space))) return;
         var definition = creature.Definition;
+        if (attack.PlacedTarget is { } aimedAt && aimedAt != creature.Id) return;
+        bool opened = Open(creature, tick);
+        bool unaware = StealthRules.Unaware(creature.Awareness, Setup.Awareness);
+        bool placedContext = unaware || opened || creature.Action.PhaseAt(tick, C).Phase == CombatPhase.Staggered
+            || attack.PlacedTarget == creature.Id && attack.PlacedAsAmbush;
+        if (attack.UsesGap && !placedContext || attack.Quiet && (!unaware || !Behind(creature.Body, State.Body))) return;
+        var guard = definition.Guard;
+        if (_guardRestoresAt.TryGetValue(creature.Id, out long restores) && tick >= restores)
+        {
+            _guardStamina.Remove(creature.Id);
+            _guardRestoresAt.Remove(creature.Id);
+        }
+        int guardStamina = _guardStamina.GetValueOrDefault(creature.Id, guard?.Stamina ?? 0);
+        bool guarding = guard is not null && guardStamina > 0 && !opened && !unaware
+            && creature.Action.PhaseAt(tick, C).Phase is CombatPhase.Idle or CombatPhase.Recovery
+            && CombatRules.InFront(creature.Body.XMm, creature.Body.ZMm, creature.Body.FacingMdeg,
+                State.Body.XMm, State.Body.ZMm, long.MaxValue / 4, C.BlockArcMdeg);
         var defense = new DefenseProfile(definition.MaxHealth, WithBonus(definition.Armor, EffectRules.ArmorBonus(EffectsOf(creature.Id), Setup.Effects)),
-            definition.Resistances, Blocking: false, Dodging: false);
+            definition.Resistances, Blocking: guarding, Dodging: false) { GapArmor = definition.GapArmor };
         var strike = SneakStrike(creature, attack, PlayerStrike(attack));
+        if (attack.PlacedRegion is not null && !attack.Ranged && !placedContext) return;
+        if (attack.PlacedRegion == BodyRegion.Head && KnowsAnatomy(creature))
+        {
+            strike = strike with { DamageMultiplier = strike.DamageMultiplier * (unaware ? Math.Max(1, 3 / StealthRules.SneakMultiplier(attack, true)) : 3) };
+            bool unprotected = defense.Armor.GetValueOrDefault(BodyRegion.Head) == 0;
+            if (unaware && unprotected && TakedownRules.Executes(true, true, Behind(creature.Body, State.Body),
+                    ThreatRules.Of(definition.Level, State.Progression.Level), definition.Tags.Contains("boss") || creature.Site.Recovery is not null))
+                strike = strike with { Execution = true };
+        }
         // A weak point open from behind is where a blow from behind lands (COMBAT §19): position, not luck.
-        if (definition.WeakPoint is { FromBehind: true } weak && Behind(creature.Body, State.Body))
+        if (attack.PlacedRegion is null && definition.WeakPoint is { FromBehind: true } weak && Behind(creature.Body, State.Body))
             strike = strike with { ForcedRegion = weak.Region };
         var result = CombatRules.Resolve(strike, defense, C, Random("player", creature.Key, creature.Body, tick));
+        if (result.Blocked)
+        {
+            int remaining = Math.Max(0, guardStamina - Math.Max(guard!.CostPerHit, attack.GuardStaminaDamage));
+            _guardStamina[creature.Id] = remaining;
+            if (remaining == 0)
+            {
+                _guardRestoresAt[creature.Id] = tick + Ticks(2_000);
+                OpenCreature(creature, tick, attack.Source);
+                _context.Events.Publish(new GuardBroken(creature.Id, tick));
+                Discover(TechniqueDiscovery.GuardBroken, creature, tick);
+            }
+        }
         State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick });
-        _context.Dispatch(new WoundCreature(creature.Id, result, attack.Source));
+        _context.Dispatch(new WoundCreature(creature.Id, result, attack.Source) { Quiet = attack.Quiet });
+        if (result.Final > 0)
+        {
+            if (_intent().DirXPermille * (creature.Body.XMm - State.Body.XMm) + _intent().DirZPermille * (creature.Body.ZMm - State.Body.ZMm) < 0)
+                Discover(TechniqueDiscovery.RetreatingHit, creature, tick);
+            if (strike.ForcedRegion is not null || attack.PlacedRegion is not null) Discover(TechniqueDiscovery.PlacedHit, creature, tick);
+            if (unaware && Behind(creature.Body, State.Body)) Discover(TechniqueDiscovery.RearAmbush, creature, tick);
+            if (attack.Ranged && !_intent().IsMoving && tick - _steadySince >= Ticks(1_000))
+                Discover(TechniqueDiscovery.SteadyShot, creature, tick);
+        }
         bool alive = State.Creatures.Values.Any(c => c.Id == creature.Id && c.Alive);
         if (result.EffectApplied && attack.OnHitEffect is { } effect && alive)
             _context.Dispatch(new ApplyEffect(creature.Id, effect));
@@ -732,6 +837,8 @@ internal sealed partial class CombatSystem
             Random("takedown", creature.Key, creature.Body, tick));
         State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick });
         _context.Dispatch(new WoundCreature(creature.Id, outcome.Hit, attack.Source));
+        Discover(TechniqueDiscovery.PlacedHit, creature, tick);
+        if (fromBehind) Discover(TechniqueDiscovery.RearAmbush, creature, tick);
         // A takedown is the skill's own practice: the killing of an unaware body is what stealth is for (finding 26: it levels with use).
         _context.Dispatch(new PracticeSkill(new SkillPractice("skill.stealth", definition.Level, PracticeOutcome.Success, tick)));
         return null;
@@ -745,7 +852,10 @@ internal sealed partial class CombatSystem
         if (attack.Magic)
             multiplier *= MagicRules.ResonanceMultiplier(Stats().Resonance, M);
         else if (DamageTypes.IsPhysical(attack.DamageType))
-            multiplier *= CombatRules.MightMultiplier(ProgressionEngine.AttributeValue(State.Progression, CharacterAttribute.Might, rules), rules.AttributeBase, C);
+            multiplier *= (attack.Scaling ?? PhysicalScaling.Heavy).Multiplier(
+                ProgressionEngine.AttributeValue(State.Progression, CharacterAttribute.Might, rules),
+                ProgressionEngine.AttributeValue(State.Progression, CharacterAttribute.Agility, rules),
+                ProgressionEngine.AttributeValue(State.Progression, CharacterAttribute.Precision, rules), rules.AttributeBase, C.MightDamagePercentPerPoint);
         double stagger = 1.0;
         foreach (var passive in Setup.Passives)
         {
@@ -753,7 +863,8 @@ internal sealed partial class CombatSystem
                 && ProgressionEngine.SkillLevel(State.Progression, passive.SkillId) >= passive.FromLevel)
                 stagger *= passive.Multiplier;
         }
-        return new Strike(attack, multiplier, C.BaseCritPercent, stagger);
+        int precisionTail = Math.Clamp(ProgressionEngine.AttributeValue(State.Progression, CharacterAttribute.Precision, rules) - rules.AttributeBase, 0, 50) / 10;
+        return new Strike(attack, multiplier, C.BaseCritPercent + (attack.Magic ? 0 : precisionTail), stagger);
     }
 
     /// <summary>
@@ -776,6 +887,28 @@ internal sealed partial class CombatSystem
         // A guard takes only what it can take - a physical blow - so only such a blow can break it (the Phase-1 technical audit, L-21).
         bool guarding = combat.Blocking && DamageTypes.IsPhysical(attack.DamageType)
             && CombatRules.InFront(body.XMm, body.ZMm, body.FacingMdeg, creature.Body.XMm, creature.Body.ZMm, long.MaxValue / 4, C.BlockArcMdeg);
+        var weapon = PlayerAttack();
+        bool lateGuard = guarding && tick >= _guardRaisedAt && tick - _guardRaisedAt <= Ticks(150);
+        if (guarding && attack.IsCharge && ReadyTechnique(TechniqueKind.SetAgainstCharge, weapon) is { } brace && Stamina() >= brace.StaminaCost)
+        {
+            Exert(brace.StaminaCost, tick);
+            State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick });
+            OpenCreature(creature, tick, brace.Id);
+            _context.Events.Publish(new TechniqueUsed(_player, brace.Id, weapon.Source, tick, tick));
+            PlayerHits(creature, TechniqueRules.Profile(weapon, brace), tick);
+            Discover(TechniqueDiscovery.ChargeStopped, creature, tick);
+            return null;
+        }
+        if (lateGuard && ReadyTechnique(TechniqueKind.Parry, weapon) is { } parry && Stamina() >= parry.StaminaCost && !attack.IsCharge)
+        {
+            Exert(parry.StaminaCost, tick);
+            State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick });
+            OpenCreature(creature, tick, parry.Id);
+            _context.Events.Publish(new HitResolved(creature.Id, creature.Definition.Id, _player, attack.Source, BodyRegion.Torso, 0,
+                false, true, false, false, Health(), tick));
+            _context.Events.Publish(new TechniqueUsed(_player, parry.Id, weapon.Source, tick, tick));
+            return null;
+        }
         if (guarding && Stamina() < C.BlockStaminaPerHit)
         {
             guarding = false;
@@ -790,7 +923,11 @@ internal sealed partial class CombatSystem
         var result = CombatRules.Resolve(strike, defense, C, Random(creature.Key, "player", body, tick));
 
         if (result.Blocked)
+        {
             Exert(C.BlockStaminaPerHit, tick);
+            if (lateGuard) Discover(TechniqueDiscovery.GuardedBlow, creature, tick);
+            if (attack.IsCharge) Discover(TechniqueDiscovery.ChargeStopped, creature, tick);
+        }
         State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick });
         int health = result.Final > 0 ? LosePlayerHealth(result.Final, creature.Definition.Id, attack.Source, tick) : Health();
         // Concentration under damage: a wound breaks a working still in its tell.
@@ -917,7 +1054,10 @@ internal sealed partial class CombatSystem
         var weapon = PlayerAttack();
         if (saved.Source == weapon.Source)
             return weapon;
+        // A reload has no retained aim/region or brace context in schema 40. Cancel those tells rather than inventing a target.
         return _context.Setup.Techniques.TryGetValue(saved.Source, out var technique) && technique.SkillId == weapon.SkillId
+            && technique.Kind is not (TechniqueKind.GapThrust or TechniqueKind.QuietBlade or TechniqueKind.SteadyDraw or TechniqueKind.GivingGround)
+            && ProgressionEngine.Knows(State.Progression, technique.Id) && _context.TechniqueRefusal(technique) is null
             ? TechniqueRules.Profile(weapon, technique)
             : null;
     }
@@ -1045,6 +1185,10 @@ internal sealed partial class CombatSystem
             MaxStamina(), EffectsOf(_player))
         {
             InCombat = phase != CombatPhase.Idle || combat.Blocking || State.WorldTick - combat.LastCombat < C.OutOfCombatTicks,
+            HoldingDraw = _holdingDraw && combat.Action.Attack?.Ranged == true,
+            DrawSteady = _holdingDraw && combat.Action.Attack?.Ranged == true && !_intent().IsMoving
+                && State.Body.FacingMdeg == _steadyFacing && State.WorldTick - _steadySince >= Ticks(1_000),
+            AimedRegion = combat.Action.Attack?.PlacedRegion,
             Focus = Focus(),
             MaxFocus = MaxFocus(),
             Strain = Strain(),

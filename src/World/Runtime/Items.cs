@@ -388,6 +388,9 @@ internal sealed partial class InventorySystem
             var fresh = formulas.Where(f => !ProgressionEngine.Knows(State.Progression, f)).ToList();
             if (fresh.Count == 0)
                 return $"nothing in {entry.DefId} is new";
+            foreach (string formula in fresh)
+                if (_context.Setup.Techniques.TryGetValue(formula, out var technique) && _context.TechniqueRefusal(technique) is { } requirement)
+                    return requirement;
             Remove(new[] { (entry, 1) });
             foreach (string formula in fresh)
                 _context.Dispatch(new LearnTechnique(new TechniqueLearning(formula, LearningSource.Book, tick) { SourceRef = entry.DefId }));
@@ -992,6 +995,7 @@ internal sealed class EquipmentSystem
         if (EquipmentRules.Refusal(definition, state.Progression, _context.Setup.Progression) is { } refused)
             return refused;
         var slot = definition.Slot!.Value;
+        if (!InHands(slot) && ArmourBusy(tick)) return "cannot change armour in combat";
         if (state.Equipment.TryGetValue(slot, out var current) && current == command.Item)
             return $"{definition.Id} is already equipped";
 
@@ -1022,6 +1026,7 @@ internal sealed class EquipmentSystem
         var state = _context.State;
         if (!state.Equipment.TryGetValue(command.Slot, out var item))
             return $"nothing is equipped in {EquipSlots.Key(command.Slot)}";
+        if (!InHands(command.Slot) && ArmourBusy(tick)) return "cannot change armour in combat";
         if (InHands(command.Slot) && HandsBusy(tick) is { } busy)
             return busy;
         var equipment=state.Equipment.Remove(command.Slot);
@@ -1039,6 +1044,7 @@ internal sealed class EquipmentSystem
         var item = held.Value;
         if (item != command.ItemId)
             return null;
+        if (!InHands(held.Key) && ArmourBusy(tick)) return "cannot change armour in combat";
         if (InHands(held.Key) && HandsBusy(tick) is { } busy)
             return busy;
         state.SetEquipment(_owner, state.Equipment.Remove(held.Key));
@@ -1047,6 +1053,10 @@ internal sealed class EquipmentSystem
     }
 
     private static bool InHands(EquipSlot slot) => slot is EquipSlot.MainHand or EquipSlot.OffHand;
+
+    private bool ArmourBusy(long tick) => _context.State.PlayerCombat.Blocking
+        || _context.State.PlayerCombat.Action.PhaseAt(tick, _context.Setup.Combat.Constants).Phase != CombatPhase.Idle
+        || tick - _context.State.PlayerCombat.LastCombat < _context.Setup.Combat.Constants.OutOfCombatTicks;
 
     /// <summary>
     /// Why what is in the hands cannot change now, or null (the Phase-1 technical audit, L-22): not under a raised guard, which would

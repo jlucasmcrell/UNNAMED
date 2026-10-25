@@ -1,0 +1,19 @@
+id: ability.blade.parry
+kind: ability
+schema: 1
+display_key: ability.blade.parry.name
+tags: [ability]
+name: Parry
+notes: Raise guard within 0.15 seconds of a frontal physical blow to deflect it and open the attacker. A held guard still blocks normally. Provisional timing.
+class: active
+discipline: skill.one_hand_blade
+web: blade
+lane: defensive
+use: reaction
+technique_kind: Parry
+discovery: GuardedBlow
+requirements:
+  - { type: skill, ref: skill.one_hand_blade, minimum: 15 }
+cost: { stamina: 5 }
+cooldown_s: 0
+payload: [{ type: damage, multiplier_of_weapon: 1 }]

@@ -21,6 +21,83 @@ namespace UNNAMED.Content;
 /// </summary>
 public static class CombatContent
 {
+    /// <summary>The PT record is shared by every learning source and checked again against the weapon in hand.</summary>
+    public static TechniqueDefinition WithTechniqueRecord(TechniqueDefinition technique, ContentLoader loader)
+    {
+        var map = Read(loader.Definitions[technique.Id].YamlSource);
+        T EnumValue<T>(string key, T fallback) where T : struct, Enum => map.GetValueOrDefault(key) is string text
+            ? Enum.TryParse<T>(text, ignoreCase: true, out var value) && Enum.IsDefined(value) ? value
+                : throw new FormatException($"{technique.Id}: unknown {key} '{text}'") : fallback;
+        var requirements = Rows(map, "requirements", technique.Id).Select(row =>
+        {
+            string text = Text(row, "type");
+            if (!Enum.TryParse<TechniqueRequirementKind>(text, true, out var kind) || !Enum.IsDefined(kind))
+                throw new FormatException($"{technique.Id}: unknown requirement kind '{text}'");
+            if (row.Keys.OfType<string>().Any(k => k is not ("type" or "ref" or "minimum" or "dimension")))
+                throw new FormatException($"{technique.Id}: unknown requirement field");
+            var requirement = new TechniqueRequirement(kind, Text(row, "ref"), row.ContainsKey("minimum") ? Int(row, "minimum") : 1,
+                row.GetValueOrDefault("dimension") as string ?? "trust");
+            if (TechniqueRequirements.Problem(requirement) is { } problem) throw new FormatException($"{technique.Id}: {problem}");
+            string? prefix = kind switch
+            {
+                TechniqueRequirementKind.Skill => "skill", TechniqueRequirementKind.Technique => "ability",
+                TechniqueRequirementKind.Knowledge => "lore", TechniqueRequirementKind.Relationship => "npc",
+                TechniqueRequirementKind.Standing => "faction", _ => null,
+            };
+            if (prefix is not null && (!loader.Definitions.TryGetValue(requirement.Ref, out var target) || target.Kind != prefix))
+                throw new FormatException($"{technique.Id}: {requirement.Ref} is not a {prefix}");
+            return requirement;
+        }).ToImmutableArray();
+        return technique with
+        {
+            Web = map.GetValueOrDefault("web") as string ?? "martial",
+            Lane = map.GetValueOrDefault("lane") as string ?? "basic",
+            Use = EnumValue("use", TechniqueUse.Active), Kind = EnumValue("technique_kind", TechniqueKind.Strike),
+            Discovery = EnumValue("discovery", TechniqueDiscovery.None), Requirements = requirements,
+            Refines = map.ContainsKey("refines") ? List(map, "refines").Select(r => r as string
+                ?? throw new FormatException($"{technique.Id}: refines names techniques")).ToImmutableArray() : ImmutableArray<string>.Empty,
+            RequiresDagger = map.GetValueOrDefault("requires_dagger") as string == "true",
+        };
+    }
+
+    public static void ValidateTechniqueWeb(IReadOnlyDictionary<string, TechniqueDefinition> techniques)
+    {
+        var visiting = new HashSet<string>(StringComparer.Ordinal);
+        var visited = new HashSet<string>(StringComparer.Ordinal);
+        void Visit(string id)
+        {
+            if (visited.Contains(id)) return;
+            if (!visiting.Add(id)) throw new FormatException($"{id}: technique web has a prerequisite cycle");
+            foreach (string parent in techniques[id].Refines.Concat(techniques[id].Requirements
+                         .Where(r => r.Kind == TechniqueRequirementKind.Technique).Select(r => r.Ref)))
+            {
+                if (!techniques.ContainsKey(parent)) throw new FormatException($"{id}: {parent} is not a technique");
+                Visit(parent);
+            }
+            visiting.Remove(id);
+            visited.Add(id);
+        }
+        foreach (string id in techniques.Keys.Order(StringComparer.Ordinal)) Visit(id);
+    }
+
+    public static PhysicalScaling WeaponScaling(Dictionary<object, object> map, string? skill, bool dagger, bool twoHanded)
+    {
+        if (map.GetValueOrDefault("scaling") is Dictionary<object, object> weights)
+        {
+            if (weights.Keys.OfType<string>().Any(k => k is not ("might" or "agility" or "precision")))
+                throw new FormatException("unknown physical scaling attribute");
+            double Weight(string key) => weights.ContainsKey(key) ? Number(weights, key) : 0;
+            var scaling = new PhysicalScaling(Weight("might"), Weight("agility"), Weight("precision"));
+            if (scaling.Problem() is { } problem) throw new FormatException(problem);
+            return scaling;
+        }
+        return dagger ? PhysicalScaling.Dagger : skill switch
+        {
+            "skill.bow" => PhysicalScaling.Bow, "skill.polearm" => PhysicalScaling.Polearm,
+            "skill.one_hand_blade" when !twoHanded => PhysicalScaling.Balanced,
+            "skill.unarmed" => PhysicalScaling.Balanced, _ => PhysicalScaling.Heavy,
+        };
+    }
     private static readonly IDeserializer Yaml = new DeserializerBuilder().Build();
 
     /// <summary>The stat targets Phase 1's effects and passives may name, and what each does.</summary>
@@ -359,7 +436,14 @@ public static class CombatContent
                     ? new WeakPoint(BodyRegions.Parse(Text(weak, "region")), weak.GetValueOrDefault("from_behind") as string == "true")
                     : null,
                 Tags = Tags(map, "tags"),
+                Guard = map.GetValueOrDefault("guard") is Dictionary<object, object> guard
+                    ? new GuardProfile(Int(guard, "stamina"), Int(guard, "cost_per_hit")) : null,
+                GapArmor = map.GetValueOrDefault("gap_armor") is Dictionary<object, object> gaps
+                    ? gaps.ToImmutableSortedDictionary(kv => BodyRegions.Parse(kv.Key as string ?? ""), kv => ParseInt(kv.Value, "gap_armor"))
+                    : ImmutableSortedDictionary<BodyRegion, int>.Empty,
             };
+            if (creature.Guard is { } g && (g.Stamina < 1 || g.CostPerHit < 1) || creature.GapArmor.Values.Any(v => v < 0))
+                throw new FormatException($"{id}: guard stamina/cost are positive and gap armour is non-negative");
             if (creature.Attack.IsCharge)
                 throw new FormatException($"{id}: its first attack is a blow; a charge comes second");
             if (IntOf(band, 0, "level_band") != IntOf(band, 1, "level_band"))

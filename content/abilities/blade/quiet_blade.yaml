@@ -1,0 +1,24 @@
+id: ability.blade.quiet_blade
+kind: ability
+schema: 1
+display_key: ability.blade.quiet_blade.name
+tags: [ability]
+name: Quiet Blade
+notes: A silent placed dagger strike from behind an unaware target. Anatomy knowledge is required for a vital execution; armour and boss exclusions still apply.
+class: active
+discipline: skill.one_hand_blade
+web: dagger
+lane: advanced
+use: contextual
+technique_kind: QuietBlade
+requires_dagger: true
+discovery: RearAmbush
+refines: [ability.blade.gap_thrust]
+requirements:
+  - { type: skill, ref: skill.one_hand_blade, minimum: 30 }
+  - { type: skill, ref: skill.stealth, minimum: 15 }
+  - { type: technique, ref: ability.blade.gap_thrust }
+  - { type: attribute, ref: precision, minimum: 20 }
+cost: { stamina: 12 }
+cooldown_s: 0
+payload: [{ type: damage, multiplier_of_weapon: 1 }]
