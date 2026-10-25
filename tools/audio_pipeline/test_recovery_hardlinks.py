@@ -23,7 +23,7 @@ with tempfile.TemporaryDirectory() as directory:
         os.link(source / name, package / name)
     (recovery / 'out/audio').mkdir(parents=True)
     (recovery / ('out/' + audio)).write_bytes(b'new audio')
-    (recovery / ('out/' + credits)).write_bytes(b'new credits')
+    (recovery / 'out/CREDITS_audio_recovery.txt').write_bytes(b'new credits')
     row = dict(audio_id='new.01', delivered=audio, sha256=hashlib.sha256(b'new audio').hexdigest())
     (recovery / 'out/gap_rows.json').write_text(json.dumps({'sounds': [row]}))
     subprocess.run([sys.executable, str(Path(__file__).parent / 'recovery_20261016/install.py'),
