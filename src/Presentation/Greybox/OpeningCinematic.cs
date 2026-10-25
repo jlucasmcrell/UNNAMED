@@ -29,6 +29,11 @@ public partial class OpeningCinematic : Node
 
     private const double DipSeconds = 0.3;
 
+    // The sun clears the horizon (and SkyView takes its night fill away) inside the black dip at the cut to the Needle: the sky steps over
+    // that much of the morning there, so the change of lights lands on a black frame (it cost one 128 ms frame at Ultra in the open).
+    private const double Dawn = 31;
+    private const float DawnHours = 0.35f;
+
     private static readonly double[] PulseAt = { 42.4, 46.2 };
 
     private readonly Places _at;
@@ -235,7 +240,8 @@ public partial class OpeningCinematic : Node
         _camera.Fov = Mathf.Lerp(shot.FovFrom, shot.FovTo, eased);
         _camera.LookAtFromPosition(eye, look, Vector3.Up);
         float day = (float)Math.Clamp(t / Hit, 0, 1);
-        SkyView.Show(Mathf.Lerp(NightHour, SkyView.ClockAtWorldStart, day * day * (3 - 2 * day)));
+        float dawn = (float)Math.Clamp((t - (Dawn - DipSeconds)) / (2 * DipSeconds), 0, 1);
+        SkyView.Show(Mathf.Lerp(NightHour, SkyView.ClockAtWorldStart - DawnHours, day * day * (3 - 2 * day)) + DawnHours * dawn);
     }
 
     /// <summary>Catmull-Rom through the keys (two keys: a straight line), at 0-1 along them.</summary>
