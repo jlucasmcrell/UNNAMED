@@ -34,6 +34,7 @@ public sealed class FrontierPerf
     private readonly List<object> _armStates = [];
     private bool _applyArm;
     private string? _armScreenshot;
+    private (GeometryInstance3D Node, float Bias)[] _treeViews = [];
 
     public string Directory { get; }
 
@@ -52,7 +53,15 @@ public sealed class FrontierPerf
         _session = session; _controller = controller; _camera = camera;
         _viewport = viewport;
         _diagnosticHide = diagnosticHide;
-        if (diagnosticHide == "attribution")
+        if (diagnosticHide == "tree_view_lod")
+        {
+            if (VisualOptions.Tier is not ("low" or "medium") || System.Environment.GetEnvironmentVariable("UNNAMED_TREE_VIEW_LOD") == "1")
+                throw new ArgumentException("Tree view LOD comparison requires Low/Medium and a full-detail initial control");
+            _arms = ["baseline", "candidate", "baseline_return", "candidate_repeat"];
+            _applyArm = true;
+            GD.Print("FRONTIER DIAGNOSTIC ONLY: Low/Medium native tree index LOD A/B/A/B; unchanged shadow settings");
+        }
+        else if (diagnosticHide == "attribution")
         {
             _arms = ["baseline", "ravine_off", "scatter_off", "sun_shadows_off", "npc_render_off", "sdfgi_off", "baseline_return"];
             var scene = viewport.GetTree().CurrentScene;
@@ -61,10 +70,6 @@ public sealed class FrontierPerf
                 var node = scene.GetNodeOrNull<Node3D>(path) ?? throw new InvalidOperationException("Missing diagnostic component " + path);
                 return (node, node.Visible);
             }).ToArray();
-            _suns = scene.FindChildren("*", nameof(DirectionalLight3D), true, false).OfType<DirectionalLight3D>().Where(light => light.GetViewport() == viewport)
-                .Select(light => (light, light.ShadowEnabled)).ToArray();
-            _environments = scene.FindChildren("*", nameof(WorldEnvironment), true, false).OfType<WorldEnvironment>()
-                .Where(node => node.GetViewport() == viewport && node.Environment is not null).Select(node => (node.Environment!, node.Environment!.SdfgiEnabled)).ToArray();
             _applyArm = true;
             GD.Print("FRONTIER DIAGNOSTIC ONLY: seven rendering arms at yaw270; no gameplay or quality acceptance");
         }
@@ -79,6 +84,14 @@ public sealed class FrontierPerf
                 ?? throw new InvalidOperationException($"Diagnostic component not found: {path}");
             hidden.Visible = false;
             GD.Print($"FRONTIER DIAGNOSTIC ONLY: hidden {diagnosticHide}; this run cannot pass acceptance");
+        }
+        if (_arms is not null)
+        {
+            var scene = viewport.GetTree().CurrentScene;
+            _suns = scene.FindChildren("*", nameof(DirectionalLight3D), true, false).OfType<DirectionalLight3D>().Where(light => light.GetViewport() == viewport)
+                .Select(light => (light, light.ShadowEnabled)).ToArray();
+            _environments = scene.FindChildren("*", nameof(WorldEnvironment), true, false).OfType<WorldEnvironment>()
+                .Where(node => node.GetViewport() == viewport && node.Environment is not null).Select(node => (node.Environment!, node.Environment!.SdfgiEnabled)).ToArray();
         }
         Directory = directory;
         System.IO.Directory.CreateDirectory(directory);
@@ -128,12 +141,19 @@ public sealed class FrontierPerf
         if (_warming)
         {
             if (_elapsed < (_heading == 0 || _arms?[_heading] == "baseline_return" ? FirstWarmupSeconds : TurnWarmupSeconds)) return null;
+            if (_diagnosticHide == "tree_view_lod" && _treeViews.Length == 0)
+            {
+                _treeViews = _viewport.GetTree().CurrentScene.FindChildren("*", nameof(GeometryInstance3D), true, false)
+                    .OfType<GeometryInstance3D>().Where(n => n.LodBias == Art.ArtLibrary.FullDetailLodBias
+                        && !n.HasMeta("otherreach_tree_shadow_lod_proxy")).Select(n => (n, n.LodBias)).ToArray();
+                if (_treeViews.Length == 0) throw new InvalidOperationException("No full-detail tree controls found after warm-up");
+            }
             _warming = false; _elapsed = 0;
             _stats.Segment = _arms is null ? $"capture_yaw_{_heading * HeadingDegrees:000}" : "capture_" + _arms[_heading];
             _stats.Mark($"steady observation starts at tick {_session.Simulation.WorldTick}");
             return null;
         }
-        if (_elapsed < (_arms is null ? CaptureSeconds : 4)) return null;
+        if (_elapsed < (_arms is null ? CaptureSeconds : _diagnosticHide == "tree_view_lod" ? 10 : 4)) return null;
         string shot = _arms is null ? $"yaw_{_heading * HeadingDegrees:000}" : "arm_" + _arms[_heading] + "_yaw270";
         var body = _controller.Authoritative;
         _armScreenshot = _arms?[_heading];
@@ -143,7 +163,8 @@ public sealed class FrontierPerf
                 camera = _camera.Camera.GlobalTransform.ToString(), fov = _camera.Camera.Fov,
                 visibility = _visibility.Select(v => new { path = v.Node.GetPath().ToString(), v.Node.Visible }).ToArray(),
                 suns = _suns.Select(v => new { path = v.Light.GetPath().ToString(), v.Light.ShadowEnabled }).ToArray(),
-                sdfgi = _environments.Select(v => v.Environment.SdfgiEnabled).ToArray() });
+                sdfgi = _environments.Select(v => v.Environment.SdfgiEnabled).ToArray(),
+                tree_views = _treeViews.Select(v => new {path=v.Node.GetPath().ToString(),v.Node.LodBias,v.Node.Visible}).ToArray() });
         _finished = ++_heading == (_arms?.Length ?? HeadingCount);
         _warming = true; _elapsed = 0;
         if (!_finished)
@@ -159,6 +180,7 @@ public sealed class FrontierPerf
         foreach (var (node, visible) in _visibility) node.Visible = visible;
         foreach (var (sun, shadows) in _suns) sun.ShadowEnabled = shadows;
         foreach (var (environment, sdfgi) in _environments) environment.SdfgiEnabled = sdfgi;
+        foreach (var (tree, bias) in _treeViews) tree.LodBias = bias;
         switch (_arms![_heading])
         {
             case "ravine_off": _visibility[0].Node.Visible = false; break;
@@ -166,6 +188,10 @@ public sealed class FrontierPerf
             case "sun_shadows_off": foreach (var (sun, _) in _suns) sun.ShadowEnabled = false; break;
             case "npc_render_off": _visibility[2].Node.Visible = false; break;
             case "sdfgi_off": foreach (var (environment, _) in _environments) environment.SdfgiEnabled = false; break;
+            case "candidate":
+            case "candidate_repeat":
+                foreach (var (tree, _) in _treeViews) tree.LodBias = VisualOptions.Tier == "low" ? .75f : 1.5f;
+                break;
         }
         if (_heading == 0) _stats.Segment = "warmup_baseline";
     }
@@ -185,6 +211,7 @@ public sealed class FrontierPerf
                 visibility = _visibility.Select(v => new { path = v.Node.GetPath().ToString(), v.Node.Visible }).ToArray(),
                 suns = _suns.Select(v => new { path = v.Light.GetPath().ToString(), v.Light.ShadowEnabled }).ToArray(),
                 sdfgi = _environments.Select(v => v.Environment.SdfgiEnabled).ToArray(),
+                tree_views = _treeViews.Select(v => new {path=v.Node.GetPath().ToString(),v.Node.LodBias,v.Node.Visible}).ToArray(),
             }) + "\n");
             _armScreenshot = null;
         }
