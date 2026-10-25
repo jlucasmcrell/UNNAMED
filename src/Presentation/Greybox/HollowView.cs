@@ -127,6 +127,9 @@ public partial class HollowView : Node3D
                 Position=new Vector3(surface.OriginXMm/1000f,0,surface.OriginZMm/1000f) };
             collider.AddChild(new CollisionShape3D { Shape=shape });AddChild(collider);
         }
+        // Old Late's crown, on the stone giant's weathered head (grand scale, GS-3): the top of the head in gs_old_late's own metres.
+        if (_models.GetValueOrDefault("old_late") is { } giant)
+            OldLateCrown.Crown(giant, _art, new Vector3(-11.54f, 56.96f, 0.25f));
         // Phase B VFX lane: the Foldscar's stones, heart and fold come back into register as they are set (FoldscarRegister).
         if (VisualOptions.Recipes)
         {

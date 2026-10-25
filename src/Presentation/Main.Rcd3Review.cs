@@ -43,10 +43,10 @@ public partial class Main
                 source.MakeCurrent();camera.QueueFree();
                 await RunFootstepReview(directory);GetTree().Quit();return;
             }
-            if(OS.GetEnvironment("OTHERREACH_GRAND_REVIEW")=="foldscar")
+            if(OS.GetEnvironment("OTHERREACH_GRAND_REVIEW") is "foldscar" or "oldlate")
             {
                 camera.GetNode<OmniLight3D>("CharacterFill").Reparent(source,false);camera.QueueFree();
-                await RunGrandFoldscarReview(directory);GetTree().Quit();return;
+                await RunGrandReview(directory,OS.GetEnvironment("OTHERREACH_GRAND_REVIEW"));GetTree().Quit();return;
             }
             if(OS.GetEnvironment("OTHERREACH_RCD8_WAYSTONE_REVIEW")=="1")
             {

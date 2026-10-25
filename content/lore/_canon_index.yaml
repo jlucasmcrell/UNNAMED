@@ -382,7 +382,7 @@ concepts:
   status: covered
   covered_by:
   - lore.old_late
-  fact: Old Late is a dressed stone giant east of the waystation whose crown answers the wind a breath late, cut from the same stone as the three Quiet Stones.
+  fact: Old Late is a dressed stone giant some sixty metres tall, kneeling on a planted sword east of the waystation, whose crown answers the wind a breath late, cut from the same stone as the three Quiet Stones (kneeling - owner-approved grand-scale answer GS-3, 2026-10-24).
   source: content/lore/old_late.yaml
 - id: canon.ondrek
   name: Ondrek
