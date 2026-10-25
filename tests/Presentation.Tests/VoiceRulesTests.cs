@@ -6,6 +6,16 @@ namespace UNNAMED.Presentation.Tests;
 public class VoiceRulesTests
 {
     [Fact]
+    public void RecordedSpeech_LastUntilItsAudioEnds_AndSilenceClosesTheJaw()
+    {
+        Assert.Equal(50, VoiceRules.SpeechLetter(9.5, 19, 100));
+        Assert.Equal(99, VoiceRules.SpeechLetter(18.9, 19, 100));
+        Assert.Equal(100, VoiceRules.SpeechLetter(19, 19, 100));
+        Assert.Equal(0, VoiceRules.SpeechJaw(-80));
+        Assert.InRange(VoiceRules.SpeechJaw(-18), .3f, .5f);
+        Assert.Equal(.65f, VoiceRules.SpeechJaw(0));
+    }
+    [Fact]
     public void ALinesVoice_LiesUnderTheVoiceFolder_ByItsLineId()
     {
         string root = Path.Combine("assets", "ws");

@@ -18,11 +18,23 @@ public partial class VoicePlayer : Node
     private readonly List<AudioStreamPlayer3D> _barks = new();
     private string? _assetRoot;
     private AudioEffectAmplify? _duck;
+    private string? _lineId;
+    private int _request;
+    private bool _pending;
 
     public void Load(string? assetRoot) => _assetRoot = assetRoot;
 
     /// <summary>Whether anyone is speaking now.</summary>
-    public bool Speaking => _line.Playing || _barks.Any(b => b.Playing);
+    public bool Speaking => _pending || _line.Playing || _barks.Any(b => b.Playing);
+
+    public (double Position, double Duration, float Jaw)? Speech(string lineId)
+    {
+        if (_lineId != lineId || _line.Stream is not { } stream) return null;
+        int bus = AudioServer.GetBusIndex(AudioMix.Voice);
+        float peak = Math.Max(AudioServer.GetBusPeakVolumeLeftDb(bus, 0), AudioServer.GetBusPeakVolumeRightDb(bus, 0));
+        return (_line.Playing ? _line.GetPlaybackPosition() : _pending ? 0 : stream.GetLength(),
+            stream.GetLength(), _line.Playing ? VoiceRules.SpeechJaw(peak) : 0);
+    }
 
     public override void _Ready()
     {
@@ -34,19 +46,35 @@ public partial class VoicePlayer : Node
     /// <summary>Say a conversation's line: the line before it stops. Whether it was voiced.</summary>
     public bool Say(string lineId)
     {
-        _line.Stop();
+        Hush();
         if (Stream(lineId) is not { } stream)
             return false;
+        _lineId = lineId;
         _line.Stream = stream;
-        _line.Play();
+        _pending = true;
+        PlayAfterPicture(_request);
         return true;
+    }
+
+    private async void PlayAfterPicture(int request)
+    {
+        await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+        if (request != _request || !IsInsideTree()) return;
+        _pending = false;
+        _line.Play();
     }
 
     /// <summary>Read a line's recording ahead of saying it, so its first showing decodes nothing (the opening's lines).</summary>
     public void Preload(string lineId) => Stream(lineId);
 
     /// <summary>Stop the conversation's line (the conversation ended).</summary>
-    public void Hush() => _line.Stop();
+    public void Hush()
+    {
+        _request++;
+        _pending = false;
+        _lineId = null;
+        _line.Stop();
+    }
 
     /// <summary>
     /// Say a bark where its speaker's head is: the voice saying it, which the caller keeps at the speaker's head while it plays, or null

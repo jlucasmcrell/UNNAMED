@@ -8,8 +8,7 @@ namespace UNNAMED.Presentation.Art;
 /// <summary>
 /// The face channels of a character-standard body (CHARACTER_ASSET_STANDARD.md: ARKit-52 and the Meta visemes as morph targets, on
 /// the skin, brows, lashes, teeth, tongue and hair alike): natural blinks, and while the character speaks a line, visemes timed from
-/// the line's text (there is no recorded voice: about fifteen letters a second, pauses at punctuation) with the jaw following the
-/// vowels. A body without the channels gets no driver.
+/// recorded playback and voice envelope, or the line's text when no recording exists. A body without the channels gets no driver.
 /// </summary>
 public sealed partial class FaceDriver : Node
 {
@@ -37,6 +36,7 @@ public sealed partial class FaceDriver : Node
     public void Gaze(Vector3? localDirection) => _gaze = localDirection;
     public float BlinkWeight => _weights.GetValueOrDefault("eyeBlinkLeft");
     public float JawWeight => _weights.GetValueOrDefault("jawOpen");
+    public Func<(double Position, double Duration, float Jaw)?>? RecordedSpeech { get; set; }
     // Opt-in native FACS inspection; ordinary speech leaves this unset.
     internal float? ReviewJawOpen { get; set; }
 
@@ -312,10 +312,13 @@ public sealed partial class FaceDriver : Node
 
     private void Speak(double delta)
     {
-        if (_line is null || _spoken < 0)
+        if (_line is null)
             return;
-        _spoken += delta;
-        int at = (int)(_spoken * LettersPerSecond);
+        var recording = RecordedSpeech?.Invoke();
+        if (recording is null && _spoken < 0) return;
+        if (recording is null) _spoken += delta;
+        int at = recording is { } voice ? Audio.VoiceRules.SpeechLetter(voice.Position, voice.Duration, _line.Length)
+            : (int)(_spoken * LettersPerSecond);
         if (at >= _line.Length)
         {
             _spoken = -1;   // the line is said; the face rests until the next one
@@ -345,7 +348,7 @@ public sealed partial class FaceDriver : Node
         };
         // Punctuation holds the mouth shut a little longer; a question lifts the brows.
         _targets[shape] = shape == "viseme_sil" ? 0.6f : 0.85f;
-        _targets["jawOpen"] = jaw * 0.6f;
+        _targets["jawOpen"] = recording?.Jaw ?? jaw * 0.6f;
         if (c is '.' or ',' or '!' or '?' or '-' or ';' or ':')
             _spoken += delta * 2.5;
         if (_line.TrimEnd().EndsWith('?'))
