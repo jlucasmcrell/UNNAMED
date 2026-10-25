@@ -247,13 +247,16 @@ public static class PeopleAppearance
         return copy;
     }
 
-    /// <summary>A texture's mean colour from its last mip of at least 8 pixels, or null when it holds no image.</summary>
+    /// <summary>
+    /// A cloth texture's mean colour from its last mip of at least 64 pixels, the near-black padding between its UV islands left out (it
+    /// would darken the mean and over-brighten the dye), or null when it holds no image.
+    /// </summary>
     private static Color? MeanColour(Texture2D texture)
     {
         if (texture.GetImage() is not { } image || image.IsEmpty())
             return null;
         int level = 0;
-        while (level < image.GetMipmapCount() && Math.Min(image.GetWidth(), image.GetHeight()) >> (level + 1) >= 8)
+        while (level < image.GetMipmapCount() && Math.Min(image.GetWidth(), image.GetHeight()) >> (level + 1) >= 64)
             level++;
         var data = image.GetData();
         int end = level < image.GetMipmapCount() ? (int)image.GetMipmapOffset(level + 1) : data.Length;
@@ -262,14 +265,16 @@ public static class PeopleAppearance
         if (small.IsCompressed())
             small.Decompress();
         small.Convert(Image.Format.Rgba8);
-        if (small.GetWidth() > 16)
-            small.Resize(16, 16 * small.GetHeight() / small.GetWidth());
+        if (small.GetWidth() > 64)
+            small.Resize(64, 64 * small.GetHeight() / small.GetWidth());
         float r = 0, g = 0, b = 0;
         int n = 0;
         for (int y = 0; y < small.GetHeight(); y++)
             for (int x = 0; x < small.GetWidth(); x++)
             {
                 var c = small.GetPixel(x, y);
+                if (c.A < .5f || c.R + c.G + c.B < .06f)
+                    continue;
                 r += c.R; g += c.G; b += c.B; n++;
             }
         return n == 0 ? null : new Color(r / n, g / n, b / n);

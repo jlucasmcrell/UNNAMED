@@ -22,7 +22,7 @@ public static class LookSwatches
     /// </summary>
     public static readonly Swatch[] Shirts =
     {
-        new("Undyed linen", .78f, .72f, .6f), new("Oxblood", .42f, .14f, .13f), new("Moss", .36f, .4f, .24f), new("Ochre", .66f, .5f, .25f),
+        new("Undyed linen", .7f, .64f, .52f), new("Oxblood", .42f, .14f, .13f), new("Moss", .36f, .4f, .24f), new("Ochre", .66f, .5f, .25f),
         new("Slate", .36f, .38f, .4f),
     };
 
