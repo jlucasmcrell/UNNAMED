@@ -36,8 +36,12 @@ m.setdefault('audio_recovery_20261016', {})
 m['audio_recovery_20261016'] = {'families_replaced_or_added': sorted(families), 'rows_dropped': dropped, 'rows_added': len(rows),
                                 'build': 'C:/Otherreach_Recovery/asset_work/audio_recovery', 'credits': 'audio/CREDITS_audio_recovery.txt'}
 out = json.dumps(m, indent=indent, ensure_ascii=False) + ('\n' if text.endswith('\n') else '')
-open(mp, 'wb').write((out.replace('\n', '\r\n') if crlf else out).encode('utf-8'))
+with open(mp + '.installing', 'wb') as f:
+    f.write((out.replace('\n', '\r\n') if crlf else out).encode('utf-8'))
+os.replace(mp + '.installing', mp)
 cred = os.path.join(root, 'out', 'CREDITS_audio_recovery.txt')
 if os.path.exists(cred):
-    shutil.copyfile(cred, os.path.join(asset, 'audio', 'CREDITS_audio_recovery.txt'))
+    target = os.path.join(asset, 'audio', 'CREDITS_audio_recovery.txt')
+    shutil.copyfile(cred, target + '.installing')
+    os.replace(target + '.installing', target)
 print(f'{len(families)} families: {dropped} rows dropped, {len(rows)} added; manifest now {len(m["sounds"])} sounds')

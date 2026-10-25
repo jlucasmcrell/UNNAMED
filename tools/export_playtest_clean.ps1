@@ -84,6 +84,12 @@ if ($Primary) {
     if ($code -ne 0) { Fail "music install exit $code" }
     $code = Run 'python' "-P `"$wt\tools\audio_pipeline\recovery_20261016\check_music.py`" `"$Primary`""
     if ($code -ne 0) { Fail 'the package is missing music (see the log)' }
+    Say '--- recorded Waystone touch, bind and arrival into the package'
+    $waystone = Join-Path (Split-Path $Out) 'waystone_audio_delivery'
+    $code = Run 'python' "-P `"$wt\tools\audio_pipeline\build_waystone_delivery.py`" `"$Primary`" `"$waystone`" --ffmpeg C:\Otherreach_Worker\tools\ffmpeg\bin\ffmpeg.exe"
+    if ($code -ne 0) { Fail "Waystone delivery build exit $code" }
+    $code = Run 'python' "-P `"$wt\tools\audio_pipeline\recovery_20261016\install.py`" `"$waystone`" `"$Primary`""
+    if ($code -ne 0) { Fail "Waystone delivery install exit $code" }
 }
 Say (Get-ChildItem $Out | Select-Object Name, Length | Format-Table -AutoSize | Out-String)
 exit 0
