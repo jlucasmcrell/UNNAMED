@@ -55,7 +55,7 @@ public partial class Main
             _controller.Attack();await Phase("normal_swing_rear_left_shoulder",3,Vector3.Zero,Gait.Walk);
             close=new Camera3D {Fov=32,Near=gameplay.Near,Far=gameplay.Far,CullMask=gameplay.CullMask,Attributes=gameplay.Attributes,Environment=gameplay.Environment};
             AddChild(close);gameplay.GetNode<OmniLight3D>("CharacterFill").Reparent(close,false);_innFreeCamera=true;
-            var rig=player.Skeleton;int l=rig.FindBone("eye.L"),r=rig.FindBone("eye.R"),h=rig.FindBone("Head");
+            var rig=player.Skeleton;int l=rig.FindBone("LeftEye"),r=rig.FindBone("RightEye"),h=rig.FindBone("Head");
             if(l<0 || r<0 || h<0)throw new InvalidDataException("Native facial bones missing");
             void Near(double t)
             {
