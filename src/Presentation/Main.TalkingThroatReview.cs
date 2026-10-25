@@ -38,7 +38,7 @@ public partial class Main
                 // Re-open through gameplay for each angle, so both sample a fresh real utterance rather than a held-open mouth.
                 if (simulation.Conversation is not null) { _dialogue.Leave(); await Rcd3Wait(.15); }
                 _controller.Talk(npcId);
-                await Rcd3Wait(.15);
+                await Rcd3Wait(.7); // Let the normal conversation turn finish before choosing its face angle.
                 var talk = simulation.Conversation;
                 if (talk?.NpcId != npcId || !simulation.Npcs.Single(n => n.Id == npcId).Talking)
                     throw new InvalidOperationException("Talking gate did not open a normal NPC conversation");

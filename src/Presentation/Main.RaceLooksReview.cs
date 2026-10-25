@@ -51,6 +51,7 @@ public partial class Main
                 ? f.Figure.Skeleton.GlobalTransform * f.Figure.Skeleton.GetBoneGlobalPose(b).Origin
                 : f.Feet + Vector3.Up * Num(s, "height", .9f);
             aim += Vector3.Up * Num(s, "aim_up", 0);
+            if (aim.DistanceTo(f.Feet) > 5) throw new InvalidDataException("Review bone aim is not at the posed world-space body");
             camera.Fov = Num(s, "fov", 40);
             camera.GlobalPosition = aim + new Basis(Vector3.Up, f.Yaw + angle) * new Vector3(Num(s, "side", 0), Num(s, "lift", 0), dist);
             camera.LookAt(aim);
@@ -80,6 +81,8 @@ public partial class Main
                     Vector3 feet = s.TryGetProperty("world",out var absolute) && absolute.GetBoolean()
                         ? new Vector3(x,ground(x,z),z) : Feet(x,z);
                     figures[s.GetProperty("id").GetString()!] = (figure, feet, yaw, 0);
+                    figure.Pose(feet, yaw, 0, 0);
+                    await Frames(.05); // Bone-based framing must read the positioned skeleton, not its initial origin.
                     log.Add(new { step, person, model = body.ValueKind == JsonValueKind.String ? body.GetString() : _bindings.People[person].Model, people = (appearance ?? _bindings.People[person]).PeopleId });
                     break;
                 }
