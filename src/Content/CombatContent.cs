@@ -25,6 +25,8 @@ public static class CombatContent
     public static TechniqueDefinition WithTechniqueRecord(TechniqueDefinition technique, ContentLoader loader)
     {
         var map = Read(loader.Definitions[technique.Id].YamlSource);
+        if (map.ContainsKey("requirements") && map["requirements"] is not List<object>)
+            throw new FormatException($"{technique.Id}: requirements must be a list");
         T EnumValue<T>(string key, T fallback) where T : struct, Enum => map.GetValueOrDefault(key) is string text
             ? Enum.TryParse<T>(text, ignoreCase: true, out var value) && Enum.IsDefined(value) ? value
                 : throw new FormatException($"{technique.Id}: unknown {key} '{text}'") : fallback;
@@ -82,6 +84,8 @@ public static class CombatContent
 
     public static PhysicalScaling WeaponScaling(Dictionary<object, object> map, string? skill, bool dagger, bool twoHanded)
     {
+        if (map.ContainsKey("scaling") && map["scaling"] is not Dictionary<object, object>)
+            throw new FormatException("physical scaling must be a map");
         if (map.GetValueOrDefault("scaling") is Dictionary<object, object> weights)
         {
             if (weights.Keys.OfType<string>().Any(k => k is not ("might" or "agility" or "precision")))

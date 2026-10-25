@@ -29,4 +29,14 @@ public class TechniqueContentTests
         Assert.Throws<FormatException>(() => CombatContent.ValidateTechniqueWeb(new Dictionary<string, TechniqueDefinition> { [first.Id] = first, [second.Id] = second }));
         Assert.Throws<FormatException>(() => CombatContent.ValidateTechniqueWeb(new Dictionary<string, TechniqueDefinition> { [first.Id] = first }));
     }
+
+    [Fact]
+    public void WeaponScaling_RefusesMalformedWeights_InsteadOfFallingBack()
+    {
+        Assert.Throws<FormatException>(() => CombatContent.WeaponScaling(new() { ["scaling"] = "might" }, "skill.bow", false, false));
+        Assert.Throws<FormatException>(() => CombatContent.WeaponScaling(new()
+        {
+            ["scaling"] = new Dictionary<object, object> { ["might"] = "0.8", ["agility"] = "0.8" },
+        }, "skill.bow", false, false));
+    }
 }
