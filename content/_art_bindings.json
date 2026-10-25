@@ -1817,13 +1817,17 @@
       "material": "wood"
     },
     "old_late": {
+      "model": "gs_old_late",
+      "material": "stone",
+      "note": "Grand scale 2026-10-24 (GRAND_SCALE_PROPOSAL.md 2.2, GS-3 option B): the stone giant, kneeling on a planted greatsword facing the hollow, 58 m - Dwarven Citadel guardian statue (Cosmos) with its head weathered away; its crown slab answers the wind a breath late (OldLateCrown)."
+    },
+    "great_tree": {
       "model": "flora_old_late",
-      "offset": [2.5, 0.102, -1.4],
+      "offset": [2.5, -0.058, -1.4],
       "ground_sink_m": 4.0,
       "material": "wood",
       "wind": 3.0,
-      "late_s": 1.5,
-      "note": "Otherworld concept 2026-10-16: OLD LATE, the landmark giant (Quiet-folk name, DIRECTION_AND_CONTENT_PLAN E7). The BlenderKit ceiba (flora_bk_kapok_giant_tree_a) at 2.2x, 59 m; the gust reaches its crown 1.5 s after the trees round it (late_s, the tree shader ow_late)."
+      "note": "Grand scale 2026-10-24 (GS-10): the BlenderKit ceiba that stood for Old Late, moved into the hollow as its great tree; its trunk, offset and root support carried with it."
     }
   },
   "doors": {
@@ -1965,6 +1969,20 @@
       "lods": {},
       "texture_px": 4096
     },
+    "gs_old_late": {
+      "category": "landmark",
+      "dims_m": [56.4144, 58.0, 34.4929],
+      "triangles": 57864,
+      "lods": {},
+      "texture_px": 4096
+    },
+    "gs_old_late_crown": {
+      "category": "landmark",
+      "dims_m": [2.992, 3.9835, 1.381],
+      "triangles": 268,
+      "lods": {},
+      "texture_px": 4096
+    },
     "gs_quiet_stone_a": {
       "category": "landmark",
       "dims_m": [3.2911, 16.0, 4.8839],
@@ -1976,6 +1994,20 @@
       "category": "landmark",
       "dims_m": [3.341, 16.0, 3.3067],
       "triangles": 13816,
+      "lods": {},
+      "texture_px": 4096
+    },
+    "gs_waystone_ashen": {
+      "category": "landmark",
+      "dims_m": [3.6363, 6.0, 2.412],
+      "triangles": 16548,
+      "lods": {},
+      "texture_px": 4096
+    },
+    "gs_waystone_rim": {
+      "category": "landmark",
+      "dims_m": [4.5453, 7.5, 3.015],
+      "triangles": 16548,
       "lods": {},
       "texture_px": 4096
     },
