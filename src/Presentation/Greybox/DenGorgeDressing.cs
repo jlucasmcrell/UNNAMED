@@ -218,6 +218,11 @@ public static partial class DenGorge
         mouth.AddChild(new MeshInstance3D { Name = "passage", Mesh = st.Commit(), MaterialOverride = PassageRock(art) });
         int placed = 1;
         var random = new RandomNumberGenerator { Seed = 0x5EED_D02A };
+        // The face over the arch: the terrain is cut away the face's whole height at the mouth, so the rock above the passage is two shells of
+        // its own, from four metres over the ledge to just under the lip.
+        float lintel = (height(X, Edge) - floor - 4.3f) / 10.3f;
+        foreach (float dx in new[] { -2.5f, 2.5f })
+            placed += Place(mouth, art, FaceShell, new Vector3(dx, 3.9f, 1.45f - 1.57f * lintel), new Vector3(random.RandfRange(-3, 2), random.RandfRange(-6, 6), random.RandfRange(-3, 3)), lintel);
         foreach (var (dx, dy, s, yaw) in new[] { (-3.1f, 0.6f, 0.62f, 80f), (3.2f, 0.4f, 0.58f, -80f), (-0.6f, 3.4f, 0.7f, 0f), (1.4f, 3.0f, 0.55f, 15f) })
             placed += Place(mouth, art, "gorge_rock_face", new Vector3(dx, dy - 0.6f, 1.55f), new Vector3(random.RandfRange(-12, 12), yaw, random.RandfRange(-15, 15)), s);
         return placed;
