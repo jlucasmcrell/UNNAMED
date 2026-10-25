@@ -288,6 +288,18 @@ public class HistoricalFixtureTests
                 : new CharacterIdentity(Pronouns.They, "people.veth", "body.default", null),
             loaded.Player.Identity);
         Assert.Equal("Aelin", loaded.Player.Name);
+        // Schema 41's World Event Director (WP 1H): a trader on the road, a migration that passed through; before it, none.
+        if (schema >= 41)
+        {
+            var director = loaded.World.Director!;
+            Assert.Equal(130, director.SettledHour);
+            Assert.Equal(("event.travelling_trader", 126L, 134L), (Assert.Single(director.Active).DefId, director.Active[0].StartHour, director.Active[0].EndHour));
+            Assert.Equal(("event.creature_migration", "passed_through"), (Assert.Single(director.History).DefId, director.History[0].Outcome));
+        }
+        else
+        {
+            Assert.Null(loaded.World.Director);
+        }
         // Schema 21's ledger: no one recovering or fallen - the fixture pack has one NPC, and the warden is in the party.
         Assert.Equal(PartyLedger.Empty, loaded.Player.Party);
         // Schema 23's quick bar (WP9): the firebolt on key 4 and the draught cleared off the bar, both under their current names; before

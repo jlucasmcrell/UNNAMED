@@ -127,7 +127,8 @@ public static class SchemaMigrations
         new SchemaV36ToV37(),
         new SchemaV37ToV38(),
         new SchemaV38ToV39(),
-        new SchemaV39ToV40());
+        new SchemaV39ToV40(),
+        new SchemaV40ToV41());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -2071,7 +2072,7 @@ public sealed class SchemaV37ToV38 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } bytes)
         {
             var old = MessagePackSerializer.Deserialize<Sections.V37.EntitiesSection>(bytes, SectionCodec.MessagePackOptions);
-            var next = MessagePackSerializer.Deserialize<EntitiesSectionDto>(MessagePackSerializer.Serialize(old, SectionCodec.MessagePackOptions), SectionCodec.MessagePackOptions);
+            var next = MessagePackSerializer.Deserialize<Sections.V39.EntitiesSection>(MessagePackSerializer.Serialize(old, SectionCodec.MessagePackOptions), SectionCodec.MessagePackOptions);
             document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(next, SectionCodec.MessagePackOptions);
         }
         document.Manifest["schema_version"] = To;
@@ -2097,16 +2098,32 @@ public sealed class SchemaV38ToV39 : SchemaMigration
     }
 }
 
-/// <summary>
-/// Schema 39 to 40 (WP 1B; spec 47): a stack - carried, a companion's, in a container or lying in the world - may carry its enhancements.
-/// A save from before had none; an absent record reads as never enhanced, so only the version moves.
-/// </summary>
+/// <summary>Stacks gain their enhancement records; absent records are never-enhanced stacks.</summary>
 public sealed class SchemaV39ToV40 : SchemaMigration
 {
     public override int From => 39;
     public override string Summary => "schema 39 -> 40: stacks gain their enhancements (none before)";
     public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
     {
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>The World Event Director begins at the next load, without back-filling history.</summary>
+public sealed class SchemaV40ToV41 : SchemaMigration
+{
+    public override int From => 40;
+    public override string Summary => "schema 40 -> 41: the entities section gains the World Event Director (none before)";
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } bytes)
+        {
+            var old = MessagePackSerializer.Deserialize<Sections.V40.EntitiesSection>(bytes, SectionCodec.MessagePackOptions);
+            var next = MessagePackSerializer.Deserialize<EntitiesSectionDto>(MessagePackSerializer.Serialize(old, SectionCodec.MessagePackOptions), SectionCodec.MessagePackOptions);
+            next.Director = null;
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(next, SectionCodec.MessagePackOptions);
+        }
         document.Manifest["schema_version"] = To;
         report.Steps.Add(Summary);
     }

@@ -1016,5 +1016,6 @@
       "npc.adventurer.fixture_vale.slot_1_g0 Bram Hallow at 150000,-38000 facing 270000",
       "npc.adventurer.fixture_vale.slot_2_g0 Kester Vale-of-Stones at 150000,-39200 facing 270000"
     ]
-  }
+  },
+  "director": null
 }

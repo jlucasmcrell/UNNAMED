@@ -816,6 +816,26 @@ internal static class CanonicalState
             {
                 json.WriteNull("adventurers");
             }
+
+            // The World Event Director (schema 40).
+            if (snapshot.Director is { } director)
+            {
+                json.WriteStartObject("director");
+                json.WriteNumber("settled_hour", director.SettledHour);
+                json.WriteStartArray("active");
+                foreach (var e in director.Active)
+                    json.WriteStringValue($"{e.Id} {e.DefId} in {e.Region} hours {e.StartHour}-{e.EndHour}");
+                json.WriteEndArray();
+                json.WriteStartArray("history");
+                foreach (var e in director.History)
+                    json.WriteStringValue($"{e.Id} {e.DefId} in {e.Region} hours {e.StartHour}-{e.EndHour}: {e.Outcome}");
+                json.WriteEndArray();
+                json.WriteEndObject();
+            }
+            else
+            {
+                json.WriteNull("director");
+            }
             json.WriteEndObject();
         }
         return Encoding.UTF8.GetString(stream.ToArray()).Replace("\r\n", "\n") + "\n";

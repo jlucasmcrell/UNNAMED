@@ -687,6 +687,30 @@ public sealed class EntitiesSectionDto
 
     /// <summary>Every NPC adventurer and the slots awaiting arrivals (WP13); null in a save from before adventurers first lived (schema 29).</summary>
     [Key("adventurers")] public AdventurersDto? Adventurers { get; set; }
+
+    /// <summary>The World Event Director's running events and the world's history (WP 1H); null in a save from before it first ran (schema 41).</summary>
+    [Key("director")] public DirectorDto? Director { get; set; }
+}
+
+/// <summary>The World Event Director (schema 41; WP 1H): the last game hour it settled, the events running, and the history, oldest first.</summary>
+[MessagePackObject]
+public sealed class DirectorDto
+{
+    [Key("settled_hour")] public long SettledHour { get; set; }
+    [Key("active")] public WorldEventDto[] Active { get; set; } = Array.Empty<WorldEventDto>();
+    [Key("history")] public WorldEventDto[] History { get; set; } = Array.Empty<WorldEventDto>();
+}
+
+/// <summary>One world event: running (no outcome yet) or resolved (its outcome).</summary>
+[MessagePackObject]
+public sealed class WorldEventDto
+{
+    [Key("id")] public string Id { get; set; } = "";
+    [Key("def_id")] public string DefId { get; set; } = "";
+    [Key("region")] public string Region { get; set; } = "";
+    [Key("start_hour")] public long StartHour { get; set; }
+    [Key("end_hour")] public long EndHour { get; set; }
+    [Key("outcome")] public string? Outcome { get; set; }
 }
 
 /// <summary>
@@ -1576,7 +1600,42 @@ public static class SectionCodec
             }).ToArray(),
             NpcLife = snapshot.NpcLife is { } life ? NpcLifeToDto(life) : null,
             Adventurers = snapshot.Adventurers is { } adventurers ? AdventurersToDto(adventurers) : null,
+            Director = snapshot.Director is { } director
+                ? new DirectorDto
+                {
+                    SettledHour = director.SettledHour,
+                    Active = director.Active.Select(e => new WorldEventDto
+                    {
+                        Id = e.Id.Value, DefId = e.DefId, Region = e.Region, StartHour = e.StartHour, EndHour = e.EndHour,
+                    }).ToArray(),
+                    History = director.History.Select(e => new WorldEventDto
+                    {
+                        Id = e.Id.Value, DefId = e.DefId, Region = e.Region, StartHour = e.StartHour, EndHour = e.EndHour, Outcome = e.Outcome,
+                    }).ToArray(),
+                }
+                : null,
         }, Options);
+    }
+
+    /// <summary>
+    /// The entities section's World Event Director (schema 41; WP 1H): null in a save from before it first ran. An event that is not a
+    /// world event's ID, a running one with an outcome or a resolved one without fails the section.
+    /// </summary>
+    public static World.Runtime.DirectorState? DecodeDirector(byte[] bytes)
+    {
+        var section = MessagePackSerializer.Deserialize<EntitiesSectionDto>(bytes, Options);
+        if (section.Director is not { } dto)
+            return null;
+        EntityId Id(WorldEventDto e) => EntityId.TryParse(e.Id, out var id) && id.Kind == EntityKind.WorldEvent
+            ? id
+            : throw new FormatException($"world event '{e.Id}' does not have a world event's ID");
+        var active = dto.Active.Select(e => e.Outcome is null
+            ? new World.Runtime.WorldEventState(Id(e), e.DefId, e.Region, e.StartHour, e.EndHour)
+            : throw new FormatException($"running world event {e.Id} already has an outcome")).ToImmutableArray();
+        var history = dto.History.Select(e => e.Outcome is { Length: > 0 } outcome
+            ? new World.Runtime.WorldEventRecord(Id(e), e.DefId, e.Region, e.StartHour, e.EndHour, outcome)
+            : throw new FormatException($"resolved world event {e.Id} has no outcome")).ToImmutableArray();
+        return new World.Runtime.DirectorState(dto.SettledHour, active, history);
     }
 
     private static AdventurerItemDto AdventurerItemToDto(AdventurerItem item) => new()

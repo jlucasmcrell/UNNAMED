@@ -217,6 +217,30 @@ public class DirectorTests
     }
 
     [Fact]
+    public void ASavedWorld_KeepsItsEventsAndHistory_AndGoesOnAsTheUnsavedOneDoes()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var setup = Busy(session.Setup);
+        var arena = Arena.OpenCreatures(session, setup, (120, 60), 0, Array.Empty<(string, double, double, string)>(), seed: 99);
+        arena.Simulation.Advance(5 * Clock.TicksPerDay / 24);
+        Assert.NotEmpty(arena.Simulation.WorldHistory);
+        var store = new UNNAMED.Persistence.SaveStore(profile.Root);
+        store.Save(UNNAMED.Persistence.SaveSlots.Manual("events"), UNNAMED.Persistence.SaveDocuments.Capture(arena.Simulation.World,
+            arena.Simulation.CaptureRecord(), session.Content, arena.Simulation.WorldTick, 0));
+        var loaded = store.Load(UNNAMED.Persistence.SaveSlots.Manual("events"),
+            new UNNAMED.Persistence.LoadContext(session.Generator, session.Content, new UNNAMED.EntityRegistry.EntityRegistry()));
+        Assert.True(loaded.IsComplete);
+        var again = Arena.Resume(setup, loaded).Simulation;
+        Assert.Equal(Digest(arena.Simulation.World.Director!), Digest(again.World.Director!));
+
+        arena.Simulation.Advance(9 * Clock.TicksPerDay / 24);
+        again.Advance(9 * Clock.TicksPerDay / 24);
+        Assert.Equal(arena.Simulation.WorldHistory.ToArray(), again.WorldHistory.ToArray());
+        Assert.Equal(Digest(arena.Simulation.World.Director!), Digest(again.World.Director!));
+    }
+
+    [Fact]
     public void TheAwaySheet_TellsAnEventThatBeganBeforeTheAbsence_AsEndedOnly()
     {
         var lines = new[]

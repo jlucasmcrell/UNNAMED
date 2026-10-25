@@ -854,5 +854,6 @@
       "routine.fixture.carter left 1 arrives 5 as 1"
     ]
   },
-  "adventurers": null
+  "adventurers": null,
+  "director": null
 }

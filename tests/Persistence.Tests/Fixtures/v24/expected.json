@@ -759,5 +759,6 @@
     }
   ],
   "npc_life": null,
-  "adventurers": null
+  "adventurers": null,
+  "director": null
 }
