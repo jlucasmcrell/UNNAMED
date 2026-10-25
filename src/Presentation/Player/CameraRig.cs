@@ -28,6 +28,9 @@ public partial class CameraRig : Node3D
 
     private const float ShoulderOffset = 0.45f;
 
+    /// <summary>The radius of the sphere the arm sweeps against the walls.</summary>
+    private const float ArmRadius = 0.2f;
+
     private readonly Node3D _pitch = new() { Name = "Pitch" };
     private readonly SpringArm3D _arm = new() { Name = "Arm" };
     private float _shoulder;
@@ -104,7 +107,7 @@ public partial class CameraRig : Node3D
         _pitch.AddChild(_arm);
         _arm.AddChild(Camera);
         _arm.CollisionMask = HollowView.CameraCollisionLayer;
-        _arm.Shape = new SphereShape3D { Radius = 0.2f };
+        _arm.Shape = new SphereShape3D { Radius = ArmRadius };
         _arm.Margin = 0.05f;
         Camera.Current = true;
     }
@@ -159,8 +162,25 @@ public partial class CameraRig : Node3D
         Rotation = new Vector3(0, Yaw, 0);
         // In first person the eye sits just ahead of the head's centre, so looking down shows the torso, not the neck.
         float forward = Mathf.Clamp(1f - Distance / FirstPersonBelow, 0, 1) * 0.1f;
+        // Kept, not just applied: the camera steps in from a wall at once and eases back out with the blend above.
+        _shoulder = ClearShoulder(_shoulder);
         _pitch.Position = new Vector3(_shoulder, 0, -forward);
         _pitch.Rotation = new Vector3(Pitch, 0, 0);
         _arm.SpringLength = Distance + _lift * 1.5f;
+    }
+
+    /// <summary>
+    /// The shoulder offset, shortened to keep the arm's sphere clear of a wall beside the eye. The arm sweeps from the shoulder, and a
+    /// sweep that starts inside a wall's collider never hits it: with the body against a wall the camera went into the rock behind it.
+    /// </summary>
+    private float ClearShoulder(float offset)
+    {
+        if (Mathf.Abs(offset) < 0.001f || !IsInsideTree())
+            return offset;
+        var from = GlobalPosition;
+        var side = GlobalBasis.X * Mathf.Sign(offset);
+        var query = PhysicsRayQueryParameters3D.Create(from, from + side * (Mathf.Abs(offset) + ArmRadius), HollowView.CameraCollisionLayer);
+        var hit = GetWorld3D().DirectSpaceState.IntersectRay(query);
+        return hit.Count == 0 ? offset : Mathf.Sign(offset) * Mathf.Max(0, from.DistanceTo((Vector3)hit["position"]) - ArmRadius);
     }
 }
