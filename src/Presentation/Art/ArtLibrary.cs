@@ -84,6 +84,7 @@ public sealed class ArtLibrary
     private SemaphoreSlim? _window;
     private readonly CancellationTokenSource _prefetchEnded = new();
 
+    private int _importsSinceFlush;
     private readonly string? _sceneCachePrefix;
     private readonly bool _buildSceneCache;
     private readonly string? _nativeSceneRoot;
@@ -689,6 +690,11 @@ public sealed class ArtLibrary
         _loadOrder.Add(path);
         // Disposed on return: the state holds every decoded source image, which otherwise stays in memory until the .NET collector
         // finalizes it (Phase B: five 4096-atlas characters held ~640 MB that way). Parsed ahead on a worker when it was prefetched.
+        // Each import uploads its images uncompressed until the cache's copies replace them, and the renderer frees a texture only as
+        // frames advance. A boot builds every model inside one frame, so without a frame now and then those uploads pile up to the
+        // whole scene's uncompressed size (Barrowworks first entry, packaged: 15.7 GB dedicated peak and 10.9 GB after; with this, 5.0).
+        if (++_importsSinceFlush % 4 == 0)
+            RenderingServer.ForceDraw(false);
         var parsed = Take(path);
         using var document = parsed?.Document ?? new GltfDocument();
         using var state = parsed?.State ?? new GltfState();
