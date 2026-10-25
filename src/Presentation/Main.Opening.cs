@@ -50,10 +50,23 @@ public partial class Main
     /// The opening, before the start screen: the world's view goes to the start screen's own camera on the hit, and the title comes in
     /// under the name. The first viewing plays through; it counts as seen once the name has come in.
     /// </summary>
+    private OpeningCinematic? _opening;
+    private int _openingTitleLayer;
+
+    private void StopOpening()
+    {
+        if (_opening is null) return;
+        _opening.Dismiss();
+        _opening = null;
+        _title.Layer = _openingTitleLayer;
+        _voice.Hush();
+        _music.Opening(false);
+    }
+
     private void BeginOpening(OpeningCinematic.Places places, string region)
     {
         string? capture = System.Environment.GetEnvironmentVariable("OTHERREACH_OPENING_VIDEO");
-        int titleLayer = _title.Layer;
+        int titleLayer = _openingTitleLayer = _title.Layer;
         var opening = new OpeningCinematic(places)
         {
             Name = "Opening", Skippable = SettingsStore.Current.Profile.OpeningSeen, Holding = capture is not null,
@@ -85,8 +98,12 @@ public partial class Main
                     SettingsStore.Set(SettingsStore.Current with { Profile = SettingsStore.Current.Profile with { OpeningSeen = true } });
             },
         };
+        _opening = opening;
         opening.Done = skipped =>
         {
+            _opening = null;
+            _voice.Hush();
+            _title.Layer = titleLayer;
             GD.Print($"UNNAMED opening: {(skipped ? "skipped" : "played through")}");
             OpenFrontEnd(reveal: true);
         };

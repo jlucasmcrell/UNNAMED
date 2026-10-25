@@ -672,8 +672,7 @@ public partial class Main : Node3D
             bool autostart = _flags.Contains("--autostart") || _flags.Any(f => f.StartsWith("--autostart-body="));
             // The opening at launch (Main.Opening) comes before the start screen and hands its view over on the score's hit.
             // The focused greeting review drives its own creator; the separately-gated intro must not narrate over it.
-            var opening = !autostart && OS.GetEnvironment("OTHERREACH_PUBLIC_VOICE_REVIEW").Length == 0
-                && Settings.SettingsStore.Current.Profile.PlayOpening ? OpeningPlaces(region) : null;
+            var opening = !autostart && Settings.SettingsStore.Current.Profile.PlayOpening ? OpeningPlaces(region) : null;
             if (opening is null)
             {
                 OpenFrontEnd();

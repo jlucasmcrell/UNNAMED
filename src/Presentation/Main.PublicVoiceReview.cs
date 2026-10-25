@@ -90,6 +90,13 @@ public partial class Main
         _voice.Preload(expected);
         _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);
         await Rcd3Wait(.3);
+        var close=new Camera3D {Fov=32,Near=gameplay.Near,Far=gameplay.Far,CullMask=gameplay.CullMask,
+            Attributes=gameplay.Attributes,Environment=gameplay.Environment};
+        AddChild(close);_innFreeCamera=true;
+        var aim=(figure.Head ?? throw new InvalidDataException("No native head"))-Vector3.Up*.07f;
+        close.GlobalPosition=aim+figure.GlobalBasis.Orthonormalized().Z*.85f+Vector3.Up*.02f;
+        close.LookAt(aim);close.MakeCurrent();
+        await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
         _controller.Talk(npcId);
         ulong deadline=Time.GetTicksMsec()+5000;
         while(_session.Simulation!.Conversation?.NpcId!=npcId)
@@ -103,23 +110,12 @@ public partial class Main
             throw new InvalidDataException("Greeting panel/line must be visible before voice");
         ulong start=Time.GetTicksMsec();
         var rows=new List<object>();
-        Camera3D? close=null;
         float peak=0;
         try
         {
             while(_voice.Speaking || Time.GetTicksMsec()-start<150)
             {
                 if(Time.GetTicksMsec()-start>45000)throw new TimeoutException("Full greeting did not finish");
-                // First prove the ordinary talk-camera/UI. Then inspect the SAME uninterrupted line close-up.
-                if(close is null && Time.GetTicksMsec()-start>3000)
-                {
-                    close=new Camera3D {Fov=32,Near=gameplay.Near,Far=gameplay.Far,CullMask=gameplay.CullMask,
-                        Attributes=gameplay.Attributes,Environment=gameplay.Environment};
-                    AddChild(close);_innFreeCamera=true;
-                    var aim=(figure.Head ?? throw new InvalidDataException("No native head"))-Vector3.Up*.07f;
-                    close.GlobalPosition=aim+figure.GlobalBasis.Orthonormalized().Z*.85f+Vector3.Up*.02f;
-                    close.LookAt(aim);close.MakeCurrent();
-                }
                 var speech=_voice.Speech(talk.LineId);
                 if(speech is null || _session.Simulation.Conversation?.LineId != expected)
                     throw new InvalidDataException("Greeting was replaced or interrupted before completion");
@@ -130,7 +126,7 @@ public partial class Main
                     native_jaw_angle_rad=figure.FindChildren("*","",true,false).OfType<Art.HumGenJaw>().Single().AppliedAngle,
                     dialogue_visible=_dialogue.Visible,canvas=GetViewport().CanvasCullMask,
                     camera=current?.Name.ToString(),camera_position=current?.GlobalPosition.ToString(),
-                    framing=close is null ? "NORMAL_TALK_CAMERA":"REVIEW_CLOSEUP_SAME_LINE_UI_VISIBLE"});
+                    framing="REVIEW_CLOSEUP_FULL_LINE_UI_VISIBLE"});
                 await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
             }
             if(peak<.05f)throw new InvalidDataException("Recorded voice produced no native speaking jaw");
@@ -139,7 +135,7 @@ public partial class Main
                 throw new InvalidDataException("Greeting ended before its full recorded duration");
             rows.Add(new {full_utterance_finished=true,utc=DateTimeOffset.UtcNow,peak_jaw=peak});
             File.WriteAllText(Path.Combine(directory,"evidence.json"),JsonSerializer.Serialize(new {
-                status="FULL_NORMAL_GREETING_THEN_SAME_LINE_CLOSEUP_REQUIRES_REVIEW",npc=npcId,talk.LineId,frames=rows}));
+                status="FULL_NORMAL_GREETING_REVIEW_CLOSEUP_REQUIRES_REVIEW",npc=npcId,talk.LineId,frames=rows}));
             // Readback only AFTER speech, so the screenshot cannot consume its visible performance.
             await Rcd3Shot(directory,"after_greeting");
         }

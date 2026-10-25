@@ -75,6 +75,7 @@ public partial class Main
     /// <summary>New Game: the creator, over a still world (its own set is drawn; the hollow behind it is not).</summary>
     private void OpenCreator()
     {
+        StopOpening();
         var profile = SettingsStore.Current.Profile;
         _creator.RoadWalked = profile.RoadWalked;
         _creator.SkipRoad = profile.SkipRoad;
