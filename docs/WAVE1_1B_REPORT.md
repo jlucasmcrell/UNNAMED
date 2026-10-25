@@ -69,4 +69,20 @@ The enchanting table is not placed in any region yet, so filming the rune steps 
 
 ## Suite run
 
-(See the end of this file; filled in after the Release run.)
+Release configuration, each test project on its own, on this branch:
+
+| Project | Result |
+|---|---|
+| Application.Tests | 685 passed, 1 failed (`ReachabilityTests.EveryItem_CanBeGotInAFreshSession`), 56 min. Fixed in 2adbaf2 (sources in play). The re-run passed: Reachability, Enhancement, Itemization, Salvage, GameSave, Companion, BarrowworksBalance and BehaviourMatrix, 48 tests. |
+| Content.Tests | 367 passed (re-run after the fix) |
+| Domain.Tests | 431 passed |
+| Persistence.Tests | 282 passed, 1 skipped (that skip predates this branch) |
+| Presentation.Tests | 434 passed (re-run after the fix) |
+| World.Tests | 90 passed |
+| Architecture.Tests | 23 passed |
+| EntityRegistry.Tests | 23 passed |
+| Soak.Tests | 10 passed, 3 skipped (those skips predate this branch) |
+
+Content lint: 0 errors. xref: clean.
+
+The whole Application suite was not re-run after the loot fix, which only appended loot chances. The coordinator's pre-merge full-suite run covers it.
