@@ -996,7 +996,7 @@ public partial class HollowView : Node3D
             // luminance it had, so what changes is CONTRAST rather than brightness.
             // Indoors there is no sun or sky, only lanterns: the floor of the ambient is what keeps the rock's shape and the floor's
             // grain readable outside their pools (Barrowworks art pass).
-            AmbientLightEnergy = exterior ? 0.30f : 0.85f,
+            AmbientLightEnergy = exterior ? 0.30f : 1.15f,
             ReflectedLightSource = exterior ? Godot.Environment.ReflectionSource.Sky : Godot.Environment.ReflectionSource.Disabled,
             TonemapMode = Godot.Environment.ToneMapper.Agx,
             // DS overnight 2026-09-27: EXPOSURE DOWN, CONTRAST UP. A video review of a walk reported the
@@ -1005,7 +1005,8 @@ public partial class HollowView : Node3D
             // 1.85 and exposure at 1.05, lit whites were landing above the point where AgX can hold detail. AgX is
             // chosen precisely because it shoulders off instead of clipping, so the fix is to stop pushing the
             // signal into the shoulder and to let the contrast carry the separation instead.
-            TonemapExposure = 1.02f,
+            // Indoors, lit by lanterns alone, the frame is exposed up so the rock and floor read outside the pools (Barrowworks).
+            TonemapExposure = exterior ? 1.02f : 1.4f,
             // The sunlit contrast crushes a lantern-lit room's low end to black; indoors it is eased.
             TonemapAgxContrast = exterior ? 1.34f : 1.2f,
             SsaoEnabled = true, SsaoRadius = 1.4f, SsaoIntensity = 2.2f, SsaoPower = 1.6f, SsaoDetail = 0.6f, SsaoHorizon = 0.06f, SsaoSharpness = 0.98f,

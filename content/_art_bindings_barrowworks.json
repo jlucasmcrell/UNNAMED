@@ -336,11 +336,11 @@
             0.48
           ],
           "energy": 5.25,
-          "range": 12,
+          "range": 15.0,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -353,7 +353,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.9,
+          "energy": 1.25,
           "range": 11.200000000000003,
           "shadows": false,
           "size": 1.5,
@@ -377,11 +377,11 @@
             0.6
           ],
           "energy": 6.0,
-          "range": 14,
+          "range": 17.5,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -395,11 +395,11 @@
             0.86
           ],
           "energy": 3.0,
-          "range": 12,
+          "range": 15.0,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -413,11 +413,11 @@
             0.6
           ],
           "energy": 3.75,
-          "range": 6,
+          "range": 7.5,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -430,7 +430,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.9,
+          "energy": 1.25,
           "range": 15.200000000000003,
           "shadows": false,
           "size": 1.5,
@@ -454,11 +454,11 @@
             0.78
           ],
           "energy": 4.5,
-          "range": 11,
+          "range": 13.75,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -472,11 +472,11 @@
             0.78
           ],
           "energy": 2.1,
-          "range": 10,
+          "range": 12.5,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -489,7 +489,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.9,
+          "energy": 1.25,
           "range": 13.200000000000003,
           "shadows": false,
           "size": 1.5,
@@ -513,11 +513,11 @@
             0.57
           ],
           "energy": 5.88,
-          "range": 10,
+          "range": 12.5,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -530,7 +530,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.9,
+          "energy": 1.25,
           "range": 11.200000000000003,
           "shadows": false,
           "size": 1.5,
@@ -554,11 +554,11 @@
             0.4
           ],
           "energy": 6.75,
-          "range": 15,
+          "range": 18.75,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -572,11 +572,11 @@
             0.44
           ],
           "energy": 4.5,
-          "range": 13,
+          "range": 16.25,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -589,7 +589,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.9,
+          "energy": 1.25,
           "range": 19.200000000000003,
           "shadows": false,
           "size": 1.5,
@@ -613,11 +613,11 @@
             0.46
           ],
           "energy": 5.1,
-          "range": 12,
+          "range": 15.0,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -630,7 +630,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.9,
+          "energy": 1.25,
           "range": 15.200000000000003,
           "shadows": false,
           "size": 1.5,
@@ -654,11 +654,11 @@
             0.61
           ],
           "energy": 6.0,
-          "range": 13,
+          "range": 16.25,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -672,11 +672,11 @@
             0.65
           ],
           "energy": 5.25,
-          "range": 12,
+          "range": 15.0,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -689,7 +689,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.9,
+          "energy": 1.25,
           "range": 15.199999999999989,
           "shadows": false,
           "size": 1.5,
@@ -713,11 +713,11 @@
             0.86
           ],
           "energy": 4.5,
-          "range": 13,
+          "range": 16.25,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -730,7 +730,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.9,
+          "energy": 1.25,
           "range": 15.200000000000003,
           "shadows": false,
           "size": 1.5,
@@ -754,11 +754,11 @@
             0.4
           ],
           "energy": 6.0,
-          "range": 11,
+          "range": 13.75,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -772,11 +772,11 @@
             0.52
           ],
           "energy": 4.5,
-          "range": 6,
+          "range": 7.5,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -789,7 +789,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.9,
+          "energy": 1.25,
           "range": 11.199999999999996,
           "shadows": false,
           "size": 1.5,
@@ -813,11 +813,11 @@
             0.45
           ],
           "energy": 4.95,
-          "range": 12,
+          "range": 15.0,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -830,7 +830,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.9,
+          "energy": 1.25,
           "range": 15.200000000000003,
           "shadows": false,
           "size": 1.5,
@@ -854,11 +854,11 @@
             0.65
           ],
           "energy": 4.2,
-          "range": 16,
+          "range": 20.0,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -872,11 +872,11 @@
             0.85
           ],
           "energy": 3.9,
-          "range": 14,
+          "range": 17.5,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -889,7 +889,7 @@
             0.7,
             0.72
           ],
-          "energy": 1.3,
+          "energy": 1.8,
           "range": 29.199999999999996,
           "shadows": false,
           "size": 1.5,
@@ -913,11 +913,11 @@
             0.4
           ],
           "energy": 6.0,
-          "range": 14,
+          "range": 17.5,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -931,11 +931,11 @@
             0.83
           ],
           "energy": 5.25,
-          "range": 13,
+          "range": 16.25,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -948,7 +948,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.9,
+          "energy": 1.25,
           "range": 17.200000000000003,
           "shadows": false,
           "size": 1.5,
@@ -972,11 +972,11 @@
             0.72
           ],
           "energy": 6.3,
-          "range": 12,
+          "range": 15.0,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -989,7 +989,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.9,
+          "energy": 1.25,
           "range": 13.199999999999989,
           "shadows": false,
           "size": 1.5,

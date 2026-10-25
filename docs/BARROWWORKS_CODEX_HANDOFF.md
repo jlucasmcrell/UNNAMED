@@ -462,6 +462,9 @@ Owner-approved art pass on top of `f72c1941`. Collision, gates, encounters and p
 - **Light.** Room lanterns cast shadows; corridor lanterns (now modelled, at their light) do not. The
   bounce light is 0.9, and the albedo is lifted for direct-only light (rock x1.35, coal floor x2.4).
   Interior ambient is 0.85 and AgX contrast 1.2 indoors (`HollowView`; the exterior is unchanged).
+- **Brightness (owner/coordinator: too dark to play).** Indoors only: exposure 1.02 -> 1.4, ambient 0.85 -> 1.15,
+  fill 0.9 -> 1.25 (court 1.8), lantern range x1.25 with softer attenuation (0.7). No new or shadowed lights.
+  Re-check `bw_art09`: full route, flicker 4.7/min, `bw_art09_entry_R05_R13.mp4`, `before_after_{1,2}.png`.
 - **Flicker (owner report).** The interior still draws the region's flat terrain at y = 0. The new floor
   sat exactly on it and z-fought under TAA. It now sits 1 cm above. Measured per-frame luma swings on
   real-time WGC video: pre-art 2.3/min; art pass before the fix 124-197/min (shadow variants did not move

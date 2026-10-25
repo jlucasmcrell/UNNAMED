@@ -195,9 +195,9 @@ def main():
         cx, cz = (x0+x1)/2, (z0+z1)/2
         recipe=json.load(open(os.path.join(os.path.dirname(__file__), 'barrowworks_art_direction.json'),encoding='utf-8'))[str(number)]
         # Every lantern throws real shadows off the shoring and the rock; the bounce is kept low so the pools read.
-        lights=[dict(hall_light,at=[x,h,z],colour=colour,energy=round(energy*1.5,3),range=distance,size=.35,shadows=True)
+        lights=[dict(hall_light,at=[x,h,z],colour=colour,energy=round(energy*1.5,3),range=round(distance*1.25,2),attenuation=.7,size=.35,shadows=True)
                 for x,h,z,colour,energy,distance in recipe['lights']]
-        lights.append(dict(hall_light,at=[0,3.6,0],colour=[.67,.70,.72],energy=.9 if number!=11 else 1.3,
+        lights.append(dict(hall_light,at=[0,3.6,0],colour=[.67,.70,.72],energy=1.25 if number!=11 else 1.8,
                            range=max(x1-x0,z1-z0),shadows=False,size=1.5))
         walls[group + "_wall"] = {"model": f"bw_codex_room_{number:02d}", "interior_light": lights}
         lit += 1
