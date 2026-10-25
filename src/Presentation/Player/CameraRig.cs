@@ -183,4 +183,19 @@ public partial class CameraRig : Node3D
         var hit = GetWorld3D().DirectSpaceState.IntersectRay(query);
         return hit.Count == 0 ? offset : Mathf.Sign(offset) * Mathf.Max(0, from.DistanceTo((Vector3)hit["position"]) - ArmRadius);
     }
+
+    /// <summary>
+    /// The shoulder offset, shortened to keep the arm's sphere clear of a wall beside the eye. The arm sweeps from the shoulder, and a
+    /// sweep that starts inside a wall's collider never hits it: with the body against a wall the camera went into the rock behind it.
+    /// </summary>
+    private float ClearShoulder(float offset)
+    {
+        if (Mathf.Abs(offset) < 0.001f || !IsInsideTree())
+            return offset;
+        var from = GlobalPosition;
+        var side = GlobalBasis.X * Mathf.Sign(offset);
+        var query = PhysicsRayQueryParameters3D.Create(from, from + side * (Mathf.Abs(offset) + ArmRadius), HollowView.CameraCollisionLayer);
+        var hit = GetWorld3D().DirectSpaceState.IntersectRay(query);
+        return hit.Count == 0 ? offset : Mathf.Sign(offset) * Mathf.Max(0, from.DistanceTo((Vector3)hit["position"]) - ArmRadius);
+    }
 }
