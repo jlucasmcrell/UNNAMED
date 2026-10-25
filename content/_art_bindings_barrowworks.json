@@ -2000,6 +2000,7 @@
       },
       "voice": "animated_armour",
       "flesh": "plate",
+      "blow": "slam",
       "steps": {
         "walk": "walk",
         "run": "move_heavy"
@@ -2021,7 +2022,8 @@
         "ability.creature.spider_bite": "creature.creature_playtest_cave_spider.attack"
       },
       "voice": "cave_hunting_spider",
-      "flesh": "flesh",
+      "flesh": "chitin",
+      "blow": "sting",
       "note": "Playtest enemy replacement 2026-10-18; held licensed source, no generative assets. Nephila existing rig; uniform 2.7x body-centred scale; authored idle/lunge-bite/hit/curling death, run retimed from native walk.",
       "steps": {
         "walk": "scuttle",
@@ -2040,7 +2042,8 @@
         "ability.creature.husk_slash": "creature.creature_playtest_bone_walker.attack"
       },
       "voice": "bone_walker_husk",
-      "flesh": "stone",
+      "flesh": "bone",
+      "blow": "claw",
       "note": "Playtest enemy replacement 2026-10-18; held licensed source, no generative assets. Bone/aged grave-rag retexture; luminous eyeball removed.",
       "steps": {
         "walk": "walk",
