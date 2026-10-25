@@ -1,4 +1,4 @@
-"""Install only the 36 owner-approved ElevenLabs recordings; never the rejected pilot."""
+"""Install only exact-hash owner-approved ElevenLabs recordings; never the rejected pilot."""
 import hashlib
 import json
 import os
@@ -17,7 +17,7 @@ def install(source: Path, primary: Path) -> None:
     target = primary / 'vo'
     target.mkdir(parents=True, exist_ok=True)
     if {p.relative_to(target).as_posix() for p in target.rglob('*.ogg')} - APPROVED.keys():
-        raise ValueError('Unexpected opening voice files; use a fresh public payload')
+        raise ValueError('Unexpected public voice files; use a fresh public payload')
     for name, content in data.items():
         temporary = target / (name + '.installing')
         temporary.parent.mkdir(parents=True, exist_ok=True)
@@ -29,7 +29,7 @@ def install(source: Path, primary: Path) -> None:
     temporary = receipt.with_suffix('.installing')
     temporary.write_text(json.dumps(MANIFEST, indent=2) + '\n')
     os.replace(temporary, receipt)
-    print('PASS: 36 exact owner-approved public voices installed; old hard links preserved')
+    print(f'PASS: {len(APPROVED)} exact owner-approved public voices installed; old hard links preserved')
 
 
 if __name__ == '__main__':

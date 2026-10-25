@@ -8,8 +8,7 @@ namespace UNNAMED.Presentation.Art;
 /// <summary>
 /// The face channels of a character-standard body (CHARACTER_ASSET_STANDARD.md: ARKit-52 and the Meta visemes as morph targets, on
 /// the skin, brows, lashes, teeth, tongue and hair alike): natural blinks, and while the character speaks a line, visemes timed from
-/// the line's text (there is no recorded voice: about fifteen letters a second, pauses at punctuation) with the jaw following the
-/// vowels. A body without the channels gets no driver.
+/// recorded playback and voice envelope, or the line's text when no recording exists. A body without the channels gets no driver.
 /// </summary>
 public sealed partial class FaceDriver : Node
 {
@@ -32,11 +31,18 @@ public sealed partial class FaceDriver : Node
     private Vector3? _gaze;
     private Skeleton3D? _nativeRig;
     private Node3D? _nativeBody, _eyeTarget;
+    // The head's forward in its own rest frame: gaze is aimed from where the head points, not from the level body,
+    // or a clip that tips the head down rolls the eyes up under the lids to hold a level target.
+    private int _headBone = -1;
+    private Vector3 _headAxis;
     public int NativeEyeBindings { get; private set; }
     public bool NativeJawBound { get; private set; }
     public void Gaze(Vector3? localDirection) => _gaze = localDirection;
     public float BlinkWeight => _weights.GetValueOrDefault("eyeBlinkLeft");
     public float JawWeight => _weights.GetValueOrDefault("jawOpen");
+    public Func<(double Position, double Duration, float Jaw)?>? RecordedSpeech { get; set; }
+    // Opt-in native FACS inspection; ordinary speech leaves this unset.
+    internal float? ReviewJawOpen { get; set; }
 
     private static readonly string[] Channels =
     {
@@ -163,7 +169,11 @@ public sealed partial class FaceDriver : Node
         // These facial channels also run when the optional full-body IK is disabled.
         _eyeTarget = new Node3D { Name = "FacialEyeTarget" };
         body.AddChild(_eyeTarget);
+        _headBone = rig.FindBone("Head");
+        if (_headBone >= 0)
+            _headAxis = (rig.GetBoneGlobalRest(_headBone).Basis.Inverse() * (rig.GlobalBasis.Inverse() * body.GlobalBasis.Z)).Normalized();
         UpdateNativeEyes(Vector2.Zero);
+        rig.AddChild(new HumGenHeadLevel { Name = "HeadLevel", Body = body });
         var eyes = new HumGenEyes { Name = "FACSEyes", Body = body, WorldTarget = () => _eyeTarget.GlobalPosition };
         rig.AddChild(eyes);
         NativeEyeBindings = eyes.BoundCount;
@@ -176,7 +186,10 @@ public sealed partial class FaceDriver : Node
         if (left < 0 || right < 0) return;
         var direction = new Vector3(Mathf.Tan(look.X * .65f), Mathf.Tan(look.Y * .5f), 1).Normalized();
         var centre = (rig.GetBoneGlobalPose(left).Origin + rig.GetBoneGlobalPose(right).Origin) * .5f;
-        _eyeTarget.GlobalPosition = rig.GlobalTransform * centre + body.GlobalBasis * direction * 2;
+        var ahead = body.GlobalBasis * direction;
+        if (_headBone >= 0)
+            ahead = new Quaternion(body.GlobalBasis.Z.Normalized(), HumGenHeadLevel.Level((rig.GlobalBasis * (rig.GetBoneGlobalPose(_headBone).Basis * _headAxis)).Normalized(), Vector3.Up)) * ahead;
+        _eyeTarget.GlobalPosition = rig.GlobalTransform * centre + ahead * 2;
     }
 
     private static int ShapeIndex(MeshInstance3D mesh, string channel)
@@ -208,6 +221,7 @@ public sealed partial class FaceDriver : Node
         RestAndGaze(delta);
         Blink(delta);
         Speak(delta);
+        if (ReviewJawOpen is { } jaw) _targets["jawOpen"] = Mathf.Clamp(jaw, 0, 1);
         // Visemes and the jaw ease in and out (about 60 ms): the mouth moves between shapes, never snaps.
         float rate = 1f - Mathf.Exp(-16f * (float)delta);
         float blinkRate = 1f - Mathf.Exp(-40f * (float)delta);
@@ -309,10 +323,13 @@ public sealed partial class FaceDriver : Node
 
     private void Speak(double delta)
     {
-        if (_line is null || _spoken < 0)
+        if (_line is null)
             return;
-        _spoken += delta;
-        int at = (int)(_spoken * LettersPerSecond);
+        var recording = RecordedSpeech?.Invoke();
+        if (recording is null && _spoken < 0) return;
+        if (recording is null) _spoken += delta;
+        int at = recording is { } voice ? Audio.VoiceRules.SpeechLetter(voice.Position, voice.Duration, _line.Length)
+            : (int)(_spoken * LettersPerSecond);
         if (at >= _line.Length)
         {
             _spoken = -1;   // the line is said; the face rests until the next one
@@ -342,7 +359,7 @@ public sealed partial class FaceDriver : Node
         };
         // Punctuation holds the mouth shut a little longer; a question lifts the brows.
         _targets[shape] = shape == "viseme_sil" ? 0.6f : 0.85f;
-        _targets["jawOpen"] = jaw * 0.6f;
+        _targets["jawOpen"] = recording?.Jaw ?? jaw * 0.6f;
         if (c is '.' or ',' or '!' or '?' or '-' or ';' or ':')
             _spoken += delta * 2.5;
         if (_line.TrimEnd().EndsWith('?'))

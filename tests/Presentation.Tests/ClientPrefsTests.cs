@@ -6,7 +6,9 @@ namespace UNNAMED.Presentation.Tests;
 public class ClientPrefsTests
 {
     [Theory]
-    [InlineData("people=humgen", "ultra", 8, "people=humgen,tier=medium")]
+    [InlineData("people=humgen", "ultra", 8, "people=humgen,tier=low")]
+    [InlineData("people=humgen", "ultra", 12, "people=humgen,tier=medium")]
+    [InlineData("people=humgen", "ultra", 16, "people=humgen,tier=high")]
     [InlineData("people=humgen,tier=ultra", "ultra", 4, "people=humgen,tier=low")]
     [InlineData("people=humgen,tier=low", "ultra", 8, "people=humgen,tier=low")]
     [InlineData("people=humgen", "ultra", 24, "people=humgen")]
@@ -14,10 +16,10 @@ public class ClientPrefsTests
         Assert.Equal(expected, new MachinePrefs().StartVisuals(spec, defaultTier, memoryGb));
 
     [Fact]
-    public void FirstRunDoesNotOverrideSavedQualityOrGuessUnknownMemory()
+    public void FirstRunKeepsSavedQualityAndUsesMediumWhenMemoryIsUnknown()
     {
         Assert.Equal("people=humgen", new MachinePrefs { Tier = "ultra" }.StartVisuals("people=humgen,tier=low", "ultra", 4));
-        Assert.Equal("people=humgen", new MachinePrefs().StartVisuals("people=humgen", "ultra", null));
+        Assert.Equal("people=humgen,tier=medium", new MachinePrefs().StartVisuals("people=humgen", "ultra", null));
         Assert.Null(new MachinePrefs().StartVisuals(null, "ultra", 4));
     }
 

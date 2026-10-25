@@ -34,6 +34,7 @@ public partial class NpcsView : Node3D
     private bool _echoTried;
     private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
     private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
+    private Simulation? _activeSimulation;
 
     /// <summary>The asset library and its bindings; without them, greybox.</summary>
     public void Bind(Art.ArtLibrary art, Art.ArtBindings bindings)
@@ -60,6 +61,7 @@ public partial class NpcsView : Node3D
 
     public void Draw(Simulation simulation, double delta, double tickSeconds)
     {
+        _activeSimulation = simulation;
         if (SuppressPresentationForBenchmark) return;
         if (PlayerHead.GetParent() is null)
             AddChild(PlayerHead);
@@ -101,6 +103,10 @@ public partial class NpcsView : Node3D
                 figure.Name = npc.Id;
                 AddChild(figure);
                 _figures[npc.Id] = figure;
+                string speakerId = npc.Id;
+                foreach (var face in figure.FindChildren("*", "", true, false).OfType<Art.FaceDriver>())
+                    face.RecordedSpeech = () => _activeSimulation?.Conversation is { } active && active.NpcId == speakerId
+                        ? Voice?.Speech(active.LineId) : null;
                 _instances[npc.Id] = instance;
                 // WHERE THE BODY ACTUALLY IS. Coverage.Resolved above fires when the FIGURE IS CREATED, not when it
                 // is on screen, so "person 5 requested 5 resolved" was never evidence that anybody was visible - and

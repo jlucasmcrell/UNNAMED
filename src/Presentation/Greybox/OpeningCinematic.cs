@@ -332,6 +332,17 @@ public partial class OpeningCinematic : Node
         _leaving = true;
     }
 
+    /// <summary>Leave immediately when another front-end or world takes ownership.</summary>
+    public void Dismiss()
+    {
+        SetProcess(false);
+        SetProcessInput(false);
+        if (_layer is not null) _layer.Visible = false;
+        _camera.Current = false;
+        SkyView.Show(SkyView.ClockAtWorldStart);
+        QueueFree();
+    }
+
     private void Finish(bool skipped)
     {
         if (IsQueuedForDeletion())
@@ -342,8 +353,7 @@ public partial class OpeningCinematic : Node
             _hit = true;
             Named?.Invoke();
         }
-        SkyView.Show(SkyView.ClockAtWorldStart);
+        Dismiss();
         Done?.Invoke(skipped);
-        QueueFree();
     }
 }

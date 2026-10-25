@@ -6,6 +6,10 @@ namespace UNNAMED.Presentation.Art;
 public partial class HumGenJaw : SkeletonModifier3D
 {
     public Func<float> OpenWeight { get; set; } = () => 0;
+    public float AppliedWeight { get; private set; }
+    public float AppliedAngle { get; private set; }
+    public Quaternion PoseBefore { get; private set; }
+    public Quaternion PoseAfter { get; private set; }
 
     public override void _ProcessModificationWithDelta(double delta)
     {
@@ -20,6 +24,10 @@ public partial class HumGenJaw : SkeletonModifier3D
         float angle = weight <= .25f ? Mathf.Lerp(0, .0614438f, weight * 4)
             : weight <= .5f ? Mathf.Lerp(.0614438f, .1239398f, (weight - .25f) * 4)
             : Mathf.Lerp(.1239398f, .2501659f, (weight - .5f) * 2);
-        skeleton.SetBonePoseRotation(jaw, skeleton.GetBonePoseRotation(jaw) * new Quaternion(Vector3.Right, angle));
+        PoseBefore = skeleton.GetBonePoseRotation(jaw);
+        PoseAfter = PoseBefore * new Quaternion(Vector3.Right, angle);
+        skeleton.SetBonePoseRotation(jaw, PoseAfter);
+        AppliedWeight = weight;
+        AppliedAngle = angle;
     }
 }

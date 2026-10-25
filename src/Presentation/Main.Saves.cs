@@ -122,6 +122,7 @@ public partial class Main
 
     private void Started()
     {
+        StopOpening();
         UseBody();
         if (_startCamera is not null)
         {

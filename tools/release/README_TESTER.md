@@ -12,7 +12,7 @@ Nothing else needs installing, and the game never asks for administrator rights.
 
 **Windows SmartScreen:** the game is not code-signed, so Windows may say "Windows protected your PC". Choose **More info**, then **Run anyway**.
 
-**The first launch is slower** while the game prepares its shaders. Later launches are quicker.
+**Loading takes a few minutes in this playtest.** The first launch also prepares shaders: our cold-start test took about five minutes, and a later launch about two and a half minutes. Leave the window open while the loading bar advances.
 
 ## System requirements
 
@@ -24,9 +24,9 @@ Nothing else needs installing, and the game never asks for administrator rights.
 | Memory | 16 GB | 32 GB |
 | Storage | the unpacked folder, on an SSD | SSD |
 
-The Barrowworks, the dungeon under the hill, uses more graphics memory than the open frontier: **16 GB is recommended there**. With 12 GB it still runs, but may stutter.
-
 **Graphics cards with 8 GB of memory are not supported in this playtest:** the game runs out of graphics memory and slows to a crawl. We are working on it for the next one.
+
+**16 GB of graphics memory is recommended for the Barrowworks dungeon.** Its interior currently uses more memory than the outdoor world.
 
 Quality, resolution, render scale and the individual effects are in **Settings > Graphics**. If the game runs slowly, choose a lower quality or a lower render scale there.
 

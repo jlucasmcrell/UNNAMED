@@ -36,6 +36,15 @@ public static class VoiceRules
     /// <summary>Whether a line's words show: always without a voice, and with one while subtitles are on.</summary>
     public static bool ShowWords(bool voiced, bool subtitles) => !voiced || subtitles;
 
+    /// <summary>A recorded line's text progresses over its actual playback, rather than a fixed reading speed.</summary>
+    public static int SpeechLetter(double position, double duration, int letters) =>
+        duration > 0 && double.IsFinite(position) && double.IsFinite(duration)
+            ? (int)(Math.Clamp(position / duration, 0, 1) * letters) : letters;
+
+    /// <summary>Small speaking jaw from the live voice-bus envelope; silence stays closed.</summary>
+    public static float SpeechJaw(float peakDb) =>
+        float.IsFinite(peakDb) ? Math.Clamp((MathF.Pow(10, peakDb / 20) - .008f) * 3.2f, 0, .65f) : 0;
+
     /// <summary>
     /// Whether a bark's words stand over the speaker's head. While subtitles are on the captions carry them (with the speaker's name, so a
     /// line from behind the camera is read too); with subtitles off, a line without a voice still shows overhead - it would otherwise be lost.

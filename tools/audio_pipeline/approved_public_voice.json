@@ -1,5 +1,5 @@
 {
-  "owner_approval": "CODEX_PROGRESS.md 2026-10-25: EPIC Reva intro take2 -17LUFS, replaces first take; thirty NPC lines including updated -16LUFS Tavar",
+  "owner_approval": "CODEX_PROGRESS.md 2026-10-25: EPIC Reva intro take2 -17LUFS, replaces first take; thirty NPC lines including updated -16LUFS Tavar; OWNER2026-10-25 ALL selected Cairnwold voices public: Berrin GrandfatherJoe, Durn Gideon, Mara Paisley,23lines; Tam Boo chosen by OWNER2026-10-25,8lines included",
   "files": {
     "opening.01.ogg": "4ba0cefb9652af3c0559bddf7ca0f7995861cda7a559c15cf918d7fa469ca6c9",
     "opening.02.ogg": "c4d6a8afa58f261716125d8f9a33804468faa8cdd20003fa43b66b5256ad0f62",
@@ -36,6 +36,43 @@
     "dialogue.ashen_hollow.tavar_orr/ledger.ogg": "3c03c6111e7668604f96c6c42bf783afc00bae04b049a25909e933377017e059",
     "dialogue.ashen_hollow.tavar_orr/joined.ogg": "32ce483895bf33be07efae2e6f710a53dc1eed5eb73bd5595b5c7f5831fa4fe5",
     "dialogue.ashen_hollow.tavar_orr/waiting.ogg": "3cd65ce812eef92d62b41cf28e7556faf0ee3f45cba4b97014136236eeedbca1",
-    "dialogue.ashen_hollow.tavar_orr/following.ogg": "8dd9faf706169b715519973b5e291bcce8c922277b674d12efde136d6c0af88c"
+    "dialogue.ashen_hollow.tavar_orr/following.ogg": "8dd9faf706169b715519973b5e291bcce8c922277b674d12efde136d6c0af88c",
+    "dialogue.cairnwold.berrin_garth/greet.ogg": "4cca2e6736fca6859566d4e6fb76a0204b84aeb881af7b249112332b5cb8deba",
+    "dialogue.cairnwold.berrin_garth/again.ogg": "887cd85ce2efe30e435013735a20902bf0b80e47db8149a50ba689fd77d20f4e",
+    "dialogue.cairnwold.berrin_garth/primer.ogg": "777df44e5d43d8f8eb91e6b792cb0219543f7acf2aebacbb4ca219cb34a673c6",
+    "dialogue.cairnwold.berrin_garth/primer_given.ogg": "033f52b51a7e2507a0d1a57d70b84dfbf924a55ea2ef0c7545f533e9a6e9f6da",
+    "dialogue.cairnwold.berrin_garth/lodge_book.ogg": "f6dc477f1d65ec253132adb5ff6ce18439a7ce04e152102604ed6c4b5cfb77dc",
+    "dialogue.cairnwold.berrin_garth/rim_stone.ogg": "e8bd8fdca9c43c9d3a87bfc5bf5dac0639a3616b42e5ed66946c54bde2eb8fff",
+    "dialogue.cairnwold.berrin_garth/oath_half.ogg": "4e13a96101e79070e7b40d91345c33da294fd3dfd3a749a62be5b8e876304902",
+    "dialogue.cairnwold.berrin_garth/oath_kept.ogg": "becebbdd2801ed55fa366928360bd2be66d69c101e81880ef70a324dd0b7cfe4",
+    "dialogue.cairnwold.berrin_garth/personal.ogg": "aa6390b650624f04c58fe9f4d888a99b2a8abd13795852f9d95ae5b6df08ba2f",
+    "dialogue.cairnwold.durn_skell/greet.ogg": "7054b82868952646c10959b87adcd25ce3c7cb5a7bac883bca91193fa397e998",
+    "dialogue.cairnwold.durn_skell/again.ogg": "2bb6a2bac2f2e8d00edc3442a34bdb3d5e2cfa3d9f13316970131a75ac1847de",
+    "dialogue.cairnwold.durn_skell/lesson.ogg": "34fe6ad78ee7ab4c497653e7956b2ca105a6c3c31654cbb285c1f2e47bb14a04",
+    "dialogue.cairnwold.durn_skell/where.ogg": "4b622ebb6725f61363eb48aece8729291645c0b210dd43bdeab2d2959e388d34",
+    "dialogue.cairnwold.durn_skell/praised.ogg": "962725a398d16ad006a6ebaabc58482dc110d2ef3c132c857ccd85b3459be90e",
+    "dialogue.cairnwold.durn_skell/judged.ogg": "49eb9505a7e85beb9e65f8b3ce46e800c251219294781bee8ea868ee362b518c",
+    "dialogue.cairnwold.durn_skell/seam.ogg": "7eb72634dcea4d96227347363ece630ca27d2f6109b7139c99e549fdd299ffad",
+    "dialogue.cairnwold.durn_skell/kera.ogg": "a71f543d9e2681bc657c57eac1616332f34276e0cedcf65fd0ed57bf5be1fb71",
+    "dialogue.cairnwold.mara_ling/greet.ogg": "3a7235a2900e7e2d1bbdfc9911e942b9c3fc01275c81351cf3ef93b1b06a07d4",
+    "dialogue.cairnwold.mara_ling/again.ogg": "de79850d11987ba82725176b63cf4cc3006da560a486e66fb384f37ae6e619ff",
+    "dialogue.cairnwold.mara_ling/complaint.ogg": "68862836515a5024cb82d2785224f2e8e50215010e630dc547ba580e97113d3f",
+    "dialogue.cairnwold.mara_ling/errand.ogg": "a7bc0b823c9aa30dd24fc1c859d5af695ff8888d8386bab4e9f6c6f9f33d3c8e",
+    "dialogue.cairnwold.mara_ling/told.ogg": "7d184b9d9608559786ba1c9cb2f02d6285524f87499b1e7e69e10990b37bf422",
+    "dialogue.cairnwold.mara_ling/herbs.ogg": "174a693a68356f53763c8046a3b42f6b128d9130f47ac17202266742c8f7b7f0",
+    "dialogue.cairnwold.tam_crowden/greet.ogg": "8261b22343ab711ba15e9226b3bac630c9355183e166bdfbfb4739ba24fde086",
+    "dialogue.cairnwold.tam_crowden/again.ogg": "c2087318159a6657cb99ee691fcce9dc34679e7ae1f3403e3dbb8086dfab09cc",
+    "dialogue.cairnwold.tam_crowden/count.ogg": "c44f42accdc12c9cb3a4a3c445bfaac29faa9d7f4bb3c74f69cd4e89c3f3771c",
+    "dialogue.cairnwold.tam_crowden/dont_look.ogg": "42228ed711dd28ae66da88ce67814ef15f8355d382d9eeaf63cbf980a2ed5984",
+    "dialogue.cairnwold.tam_crowden/halda.ogg": "34fd389de00d79005f8b2adcf1c45d3c43ce68c478a678ab190011371d432283",
+    "dialogue.cairnwold.tam_crowden/halda_bow.ogg": "bd218e69e6f3f5508ee58f97a8009ddc514187f9dda55d172459d39f7b446ed0",
+    "dialogue.cairnwold.tam_crowden/bow_given.ogg": "3e97ad5bdb50da9caa3844cb84e6175f258ff2d9ab44aff78f25099cf3ff0898",
+    "dialogue.cairnwold.tam_crowden/work.ogg": "29801549578bae2da1b09c8ba33ccdf37cde32a24f93ef885964677b52f93818"
+  },
+  "cairnwold_cast": {
+    "berrin_garth": "0lp4RIz96WD1RUtvEu3Q",
+    "durn_skell": "q1h5HGdnfVxp4TXTJRNN",
+    "mara_ling": "n2rchuGxORaC6g9NUXBR",
+    "tam_crowden": "Y0G5nEDw2qHnUHGmtoM9"
   }
 }

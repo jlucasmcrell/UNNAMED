@@ -262,9 +262,9 @@ public partial class CreatorScreen : CanvasLayer
     private List<Offered> OfferedBodies()
     {
         if (MHCharacters.MetaHumanFigure.Available)
-            return new[] { (Id: "body.veth_f.average", Name: "Ada"), (Id: "body.veth_m.average", Name: "Mateo") }
+            return new[] { (Id: "body.veth_f.average", Name: "Feminine"), (Id: "body.veth_m.average", Name: "Masculine") }
                 .Select(choice => _session.Characters.Bodies.TryGetValue(choice.Id, out var preset)
-                    ? new Offered(preset with { TypeLabel = choice.Name, BuildLabel = choice.Name }, MHCharacters.MetaHumanFigure.PlayerModel(choice.Id), true)
+                    ? new Offered(preset with { TypeLabel = choice.Name, BuildLabel = "Average" }, MHCharacters.MetaHumanFigure.PlayerModel(choice.Id), true)
                     : throw new InvalidDataException($"Missing native creator identity {choice.Id}"))
                 .ToList();
         var bodies = _bindings.Bodies;
@@ -426,8 +426,8 @@ public partial class CreatorScreen : CanvasLayer
         _body.AddChild(section);
 
         var quick = UiKit.Section("Quick start");
-        quick.AddChild(UiKit.Words("A ready body, the Wayfarer's Call and a Veth name to start from. You can change the name, then begin.", 17, HudStyle.Ash));
-        quick.AddChild(UiKit.Action("Start from a preset", Deferred(QuickStart), id: "creator.quick"));
+        quick.AddChild(UiKit.Words("Suggested body and Call choices for a new character. Choose your name and change any offered choice before beginning.", 17, HudStyle.Ash));
+        quick.AddChild(UiKit.Action("Use suggested choices", Deferred(QuickStart), id: "creator.quick"));
         _body.AddChild(quick);
     }
 

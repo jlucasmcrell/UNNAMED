@@ -35,7 +35,7 @@ if (Test-Path $wt) { Fail 'Export worktree already exists; choose a fresh path (
 git -C $repo worktree add --detach $wt $Commit 2>&1 | Add-Content $Log
 if ($LASTEXITCODE -ne 0) { Fail "git worktree add $Commit" }
 if ($Primary) {
-    # New owner ruling supersedes text-only: exactly 36 approved ElevenLabs files, by hash.
+    # New owner ruling supersedes text-only: the exact-hash approved ElevenLabs manifest, including selected Cairnwold lines.
     Say '--- owner-approved intro and key NPC voices (rejected pilot excluded)'
     $code = Run 'python' "-P `"$wt\tools\audio_pipeline\install_intro_voice.py`" C:\Otherreach_External_Assets\Voice_ElevenLabs\vo `"$Primary`""
     if ($code -ne 0) { Fail 'Approved public voice install/hash check failed' }
