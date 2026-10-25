@@ -193,7 +193,7 @@ public partial class Main
             Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
             Input.GetActionStrength("move_forward") - Input.GetActionStrength("move_back"));
         var gait = ReadGait();
-        if (HeldByTheOpening(stick))
+        if (HeldByTheOpening(stick) || _rope is not null)
         {
             _controller.Steer(_camera, Vector2.Zero, gait);
             return;

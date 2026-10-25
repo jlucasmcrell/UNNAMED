@@ -207,18 +207,21 @@ public sealed class GameSession : IDomainEvents, IDisposable
     private const string M3LayoutFingerprint = "sha256:4c97504c3d0db625e2447230087d2eabb56b4427c486a790f541d677a01b9a1b";
 
 /// <summary>
-    /// The region's combat setup, with an interior's spawns added when this run can reach it (B1). A spawn carries the
-    /// space it stands in, so the added creatures are the ring's and are never seen or struck from the exterior.
+    /// The region's combat setup, with each reachable interior's spawns added (B1). A spawn carries the space it stands in, so the
+    /// added creatures are that interior's and are never seen or struck from the exterior.
     /// </summary>
-    private static CombatSetup CoLoadSpawns(CombatSetup primary, ContentLoader loader, RegionLayout layout, RegionLayout? interior)
+    private static CombatSetup CoLoadSpawns(CombatSetup primary, ContentLoader loader, RegionLayout layout, IEnumerable<(string RegionId, RegionLayout Layout)> interiors)
     {
-        if (interior is null)
-            return primary;
-        var inner = CombatContent.Build(loader, "region.barrowworks", interior.SpaceId).Spawns;
-        if (inner.IsEmpty)
-            return primary;
-        return primary with { Spawns = primary.Spawns.AddRange(inner.Where(s => s.Space != layout.SpaceId)) };
+        foreach (var (regionId, interior) in interiors)
+        {
+            var inner = CombatContent.Build(loader, regionId, interior.SpaceId).Spawns;
+            primary = primary with { Spawns = primary.Spawns.AddRange(inner.Where(s => s.Space != layout.SpaceId)) };
+        }
+        return primary;
     }
+
+    /// <summary>The Barrowworks' space: the one interior the run's gate holds back (M8 D10).</summary>
+    private static readonly SpaceId BarrowworksSpace = SpaceId.Parse("space.barrowworks");
 
     public static GameSession Boot(GameOptions options)
     {
@@ -234,22 +237,26 @@ public sealed class GameSession : IDomainEvents, IDisposable
         // in code rather than by content discipline - a forgotten flag cannot leak the interior into a
         // normal launch, and `--visual phase_a` (which restores every default) closes it too.
         if (!options.Barrowworks)
-            layout = layout with { Portals = SpacePortalSet.Empty };
+            layout = layout with { Portals = new SpacePortalSet(layout.Portals.Portals.Where(p => p.Space != BarrowworksSpace).ToImmutableArray()) };
         var movement = WorldContent.BuildMovement(loader);
         // Every space this run holds the ground of. The region's own always; the interior's when the gate is on and
         // the region declares a way in. Its CONTENT - creatures, nodes, NPCs - is still the region's alone until B1
         // routes those per space; what this makes possible is a height or a wall test in the interior's own space
         // rather than the exterior's metres under it.
         var spaces = ImmutableDictionary<SpaceId, WalkSpace>.Empty.Add(layout.SpaceId, layout.Space);
-        // An interior this run can reach, built once and shared by the ground map and the spawn co-load.
+        // Every interior this run can reach, built once and shared by the ground map and the spawn co-load. An interior's region is
+        // named for its space: space.barrowworks is region.barrowworks.
         var layouts = ImmutableDictionary<SpaceId, RegionLayout>.Empty.Add(layout.SpaceId, layout);
-        RegionLayout? inner = null;
-        if (options.Barrowworks && !layout.Portals.Portals.IsEmpty)
+        var interiors = new List<(string RegionId, RegionLayout Layout)>();
+        foreach (var space in layout.Portals.Portals.Select(p => p.Space).Where(s => s != layout.SpaceId).Distinct())
         {
-            inner = WorldContent.BuildLayout(loader, "region.barrowworks");
+            string regionId = "region." + space.Name["space.".Length..];
+            var inner = WorldContent.BuildLayout(loader, regionId);
+            if (inner.SpaceId != space)
+                throw new InvalidDataException($"{regionId} stands in {inner.SpaceId}, not the {space} its portals lead to");
+            interiors.Add((regionId, inner));
             layouts = layouts.SetItem(inner.SpaceId, inner);
-            foreach (var portal in layout.Portals.Portals.Where(p => p.Space != layout.SpaceId))
-                spaces = spaces.SetItem(portal.Space, inner.Space);
+            spaces = spaces.SetItem(space, inner.Space);
         }
 
         var catalog = ItemContent.BuildCatalog(loader);
@@ -266,7 +273,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
                 ItemContent.BuildPricing(loader), merchants),
             // The region's spawns carry the region's space, and the ring's carry the ring's, so a creature is
             // only ever seen, struck or advanced in the space it stands in (B1).
-            Combat = CoLoadSpawns(CombatContent.Build(loader, options.RegionId, layout.SpaceId), loader, layout, inner),
+            Combat = CoLoadSpawns(CombatContent.Build(loader, options.RegionId, layout.SpaceId), loader, layout, interiors),
             Magic = MagicContent.Build(loader),
             Crafting = CraftingContent.Build(loader),
             Social = new SocialSetup(SocialContent.BuildNpcs(loader), SocialContent.BuildDialogues(loader))

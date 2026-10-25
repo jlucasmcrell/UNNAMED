@@ -59,7 +59,7 @@ public partial class Main
             { Kind: FocusKind.Readable } written => simulation.ActiveLayout.Readables.FirstOrDefault(r => r.Key == written.Key) is { } r
                 ? $"[{HelpPanel.Key("interact")}] {r.Verb} the {r.Name}"
                 : null,
-            { Kind: FocusKind.Portal } portal => $"[{HelpPanel.Key("interact")}] {(simulation.PlayerInExterior ? "Enter the Barrowworks" : "Return to the frontier")}",
+            { Kind: FocusKind.Portal } portal => $"[{HelpPanel.Key("interact")}] {PortalWords(portal.Key, simulation.PlayerInExterior)}",
             { Kind: FocusKind.Waystone } stone => simulation.Waystones.First(w => w.Site.Key == stone.Key) is var w && w.Known
                 ? $"[{HelpPanel.Key("interact")}] The {w.Site.Name}: Waystones you know"
                 : $"[{HelpPanel.Key("interact")}] Touch the stone",

@@ -1,0 +1,25 @@
+id: location.den_gorge
+kind: location
+schema: 1
+display_key: location.den_gorge.name
+tags:
+- location
+notes: "The gorge behind the wolves' den (spec 28), seen from its lip: the drop to the river, the fall off the far wall, Halda's rope going over the edge. The name is provisional (owner question DG-2)."
+name: The Den Gorge
+region_ref: region.starting_frontier
+anchor:
+  world:
+  - 540.0
+  - 0.0
+  - 797.0
+kind_of_place: landmark
+discovery:
+  methods:
+  - visited
+  radius_m: 10
+  xp: 20
+map:
+  reveals_radius_m: 60
+  marker: none
+fast_travel:
+  node: false

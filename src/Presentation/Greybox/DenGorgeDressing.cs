@@ -170,6 +170,7 @@ public static partial class DenGorge
             }
         }
         placed += CaveMouth(root, art, height);
+        placed += Cleft(root, art, height);
         if (Rope(root, art, height) is { } rope)
         {
             root.AddChild(rope);
@@ -266,6 +267,17 @@ public static partial class DenGorge
             points.Add(new Vector3(RopeX + 0.4f + 0.35f * MathF.Cos(a), shelf + 0.05f + 0.025f * i, Edge + 3.2f + 0.35f * MathF.Sin(a)));
         }
         rope.AddChild(new MeshInstance3D { Name = "line", Mesh = Tube(points, 0.022f, FrayAt: 2), MaterialOverride = material });
+        // What is left when it gives (ShowRopeGone): the frayed end still on the stake, and the rest fallen in a heap on the ledge.
+        var stub = points.Take(4).ToList();
+        stub[^1] = stub[^2].Lerp(stub[^1], 0.6f);
+        rope.AddChild(new MeshInstance3D { Name = "stub", Mesh = Tube(stub, 0.022f, FrayAt: 2), MaterialOverride = material, Visible = false });
+        var heap = new List<Vector3>();
+        for (int i = 0; i <= 26; i++)
+        {
+            float a = i * 0.75f, r = 0.25f + 0.02f * i;
+            heap.Add(new Vector3(RopeX + 0.2f + r * MathF.Cos(a), shelf + 0.03f + 0.012f * i, Edge + 2.2f + r * MathF.Sin(a)));
+        }
+        rope.AddChild(new MeshInstance3D { Name = "fallen", Mesh = Tube(heap, 0.022f, FrayAt: 25), MaterialOverride = material, Visible = false });
         // The stake: a short length of split timber driven into the lip.
         rope.AddChild(new MeshInstance3D
         {
@@ -274,6 +286,54 @@ public static partial class DenGorge
             MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.30f, 0.24f, 0.18f), Roughness = 0.9f },
         });
         return rope;
+    }
+
+    /// <summary>
+    /// The rope after it gave: the long line gone, the frayed stub on the stake and the rest in a heap on the ledge; with
+    /// <paramref name="burst"/>, a puff of fibre where it parted.
+    /// </summary>
+    public static void ShowRopeGone(Node3D hollow, bool burst)
+    {
+        if (hollow.FindChild("gorge_rope", true, false) is not Node3D rope || rope.GetNode<Node3D>("line") is not { Visible: true } line)
+            return;
+        line.Visible = false;
+        rope.GetNode<Node3D>("stub").Visible = true;
+        rope.GetNode<Node3D>("fallen").Visible = true;
+        if (!burst)
+            return;
+        var fibres = new CpuParticles3D
+        {
+            Name = "parted", Amount = 40, Lifetime = 1.6f, OneShot = true, Explosiveness = 0.9f, Emitting = true,
+            Mesh = new QuadMesh { Size = new Vector2(0.01f, 0.05f) }, Direction = Vector3.Down, Spread = 70f, Gravity = new Vector3(0, -2.5f, 0),
+            InitialVelocityMin = 0.4f, InitialVelocityMax = 1.4f, Color = new Color(0.62f, 0.55f, 0.42f),
+            Position = rope.GetNode<MeshInstance3D>("stub").GetAabb().End - new Vector3(0, 0.1f, 0),
+        };
+        rope.AddChild(fibres);
+    }
+
+    /// <summary>While the body is in the hollow under the den its own rock is drawn: the exterior's stand-in passage stands aside.</summary>
+    public static void ShowPassage(Node3D hollow, bool shown)
+    {
+        if (hollow.FindChild("gorge_cave_mouth", true, false) is Node3D mouth && mouth.GetNodeOrNull<Node3D>("passage") is { } passage)
+            passage.Visible = shown;
+    }
+
+    /// <summary>
+    /// The cleft at the ledge's east end: a crack up the face with roots in it for hands, the way up and down once the rope is gone.
+    /// </summary>
+    private static int Cleft(Node3D root, ArtLibrary art, Func<float, float, float> height)
+    {
+        const float X = 556.8f;
+        float lip = height(X, Edge), shelf = Shelf(lip);
+        int placed = 0;
+        placed += Place(root, art, "gorge_rock_face", new Vector3(X - 2.1f, shelf - 0.4f, Edge + 1.9f), new Vector3(-8, 70, 4), 1.25f);
+        placed += Place(root, art, "gorge_rock_face", new Vector3(X + 2.2f, shelf - 0.4f, Edge + 1.9f), new Vector3(-6, -72, -5), 1.3f);
+        placed += Place(root, art, "gorge_rock_face", new Vector3(X - 1.8f, shelf + 3.6f, Edge + 1.4f), new Vector3(-10, 80, 8), 1.0f);
+        placed += Place(root, art, "gorge_rock_face", new Vector3(X + 1.9f, shelf + 3.4f, Edge + 1.4f), new Vector3(-12, -78, -6), 1.05f);
+        for (int i = 0; i < 3; i++)
+            placed += Place(root, art, Roots, new Vector3(X + (i % 2 == 0 ? -0.4f : 0.5f), shelf + 1.5f + i * 2.5f, Edge + 1.8f),
+                new Vector3(86, i * 50f, 10), 0.8f);
+        return placed;
     }
 
     /// <summary>

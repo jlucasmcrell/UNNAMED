@@ -1,0 +1,10 @@
+id: loot.hunting_spider_matriarch
+kind: loot
+schema: 1
+display_key: loot.hunting_spider_matriarch.name
+tags: [loot]
+notes: The matriarch's drops (spec 28) - a trophy and a weight of silk, the gorge's pay for going down.
+rolls: 0
+entries:
+  - { item_ref: item.material.spider_silk, chance: 1.00, count_range: [3, 5] }
+  - { item_ref: item.trinket.matriarch_fang, chance: 1.00, count_range: [1, 1] }

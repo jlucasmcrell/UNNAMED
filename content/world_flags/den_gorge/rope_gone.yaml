@@ -1,0 +1,9 @@
+id: world.den_gorge.rope_gone
+kind: world_flag
+schema: 1
+display_key: world.den_gorge.rope_gone.name
+tags: [world_flag]
+notes: Whether Halda's rope over the gorge lip behind the den has given way (spec 28). Set by the first crossing of portal.den_gorge.rope, which it closes; it opens the cleft (portal.den_gorge.cleft). Kept in the den's cell.
+type: bool
+default: 0
+owning_system: S-22

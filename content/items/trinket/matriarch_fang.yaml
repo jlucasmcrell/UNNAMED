@@ -1,0 +1,13 @@
+id: item.trinket.matriarch_fang
+kind: item
+schema: 1
+display_key: item.trinket.matriarch_fang.name
+tags: [item]
+name: Matriarch's Fang
+notes: The hollow's matriarch's fang, a hand long and still bitter at the tip (spec 28). A trophy first, on the amulet slot like the wolves' fangs; its bonus is not authored yet - the drop is the point of it.
+category: misc
+item_class: notable
+stack_max: 1
+weight: 0.12
+value_base: 55
+equip_slot: amulet

@@ -29,16 +29,27 @@ public partial class HollowView : Node3D
     private Node3D? _debug;
     private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
     private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
-    private List<(WorldEnvironment Node, Godot.Environment Environment)>? _environments;
+    private List<(WorldEnvironment Node, Godot.Environment Environment, Compositor? Compositor)>? _environments;
 
     public Godot.Environment? SpaceEnvironment => _environments?.FirstOrDefault().Environment;
 
     public void SetSpaceActive(bool active)
     {
         Visible = active;
-        _environments ??= Environments(this).Select(e => (e, e.Environment)).ToList();
-        foreach (var (node, environment) in _environments)
+        SetAirActive(active);
+    }
+
+    /// <summary>Only this view's air (its environment): an interior under the open sky shares the frontier's until the cave's own begins.</summary>
+    public void SetAirActive(bool active)
+    {
+        // The air is the environment and what the compositor draws over it (the sky's clouds): both go, or the clouds are drawn over a
+        // space that has no sky.
+        _environments ??= Environments(this).Select(e => (e, e.Environment, e.Compositor)).ToList();
+        foreach (var (node, environment, compositor) in _environments)
+        {
             node.Environment = active ? environment : null;
+            node.Compositor = active ? compositor : null;
+        }
     }
 
     private static IEnumerable<WorldEnvironment> Environments(Node root)
@@ -82,13 +93,15 @@ public partial class HollowView : Node3D
         // The particle recipes, read once here (B0.7): a structure's own emitters (a lantern's flame, in ArtStructure) and a
         // building's (the smithy's chimney smoke, in BuildLighting) both build from this one instance.
         _recipes = VisualOptions.Recipes ? Art.ParticleRecipes.Load(_art.Root) : null;
-        var ground = BuildTerrain(terrain, layout.SpaceId);
+        // The hollow under the den draws its rock from its own layout (DenGorgeCave): its wall boxes are the camera's colliders only.
+        bool cave = DenGorgeCave.Owns(layout);
+        var ground = cave ? DenGorgeCave.Build(layout, _art) : BuildTerrain(terrain, layout.SpaceId);
         AddChild(ground);
         foreach (var building in ArtBuildings(layout, terrain))
             AddChild(building);
         foreach (var blocker in layout.Space.Blockers)
         {
-            if (InArtBuilding(blocker.Id))
+            if (InArtBuilding(blocker.Id) || cave)
             {
                 AddChild(Unseen(BuildStructure(blocker, terrain)));
                 continue;

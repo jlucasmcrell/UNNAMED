@@ -37,6 +37,7 @@ public partial class Main
         }
         _hollow.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers);
         _interior?.SetFlags(_session.Simulation!.Switches, _session.Simulation!.Barriers);
+        SyncDenGorgeRope();
         if (_session.Setup.Interior is not null)
         {
             _wasOutside = _session.Simulation!.PlayerInExterior;

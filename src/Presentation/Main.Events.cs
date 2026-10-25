@@ -48,6 +48,7 @@ public partial class Main
 
     private void Subscribe()
     {
+        SubscribeDenGorge();
         // A wild animal's offer says its odds while it stands, and why it failed when it does: the number here is the one the roll used, so
         // what the meat, the approach and the Handling skill bought the character is visible (spec 43's taming).
         _session.Subscribe<TameAttempted>(e =>

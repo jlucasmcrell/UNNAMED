@@ -72,11 +72,9 @@ public class ReachabilityTests
         using var profile = new TempProfile();
         var setup = Harness.Boot(profile, barrowworks: true).Setup;
 
-        // Every layout this run can stand in. The interior is its own, and a quest step that names one of its places
+        // Every layout this run can stand in. Each interior is its own, and a quest step that names one of its places
         // is satisfied by it - not by the exterior, where that place does not exist.
-        var layouts = new List<RegionLayout> { setup.Layout };
-        if (setup.Interior is { } interior)
-            layouts.Add(interior);
+        var layouts = setup.AllLayouts.ToList();
 
         var places = layouts.SelectMany(l => l.Locations).Select(l => l.Id).ToHashSet(StringComparer.Ordinal);
         var people = layouts.SelectMany(l => l.Npcs).Select(n => n.NpcId).ToHashSet(StringComparer.Ordinal);

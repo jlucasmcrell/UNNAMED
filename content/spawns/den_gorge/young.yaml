@@ -1,0 +1,25 @@
+id: spawn.den_gorge.young
+kind: spawn
+schema: 1
+display_key: spawn.den_gorge.young.name
+tags:
+- spawn
+notes: "Two of the matriarch's young in the antechamber behind the ledge (spec 28): the warning before the chamber, and the lesson - a walker passes them, a runner is taken. They do not return."
+region_ref: region.den_gorge_cave
+creatures:
+- creature_ref: creature.beast.cave_hunting_spider
+  count:
+  - 2
+  - 2
+  role: sentinel
+at:
+  position_m:
+  - 541
+  - 785
+  radius_m: 3
+level_band:
+- 3
+- 3
+respawn:
+  kind: none
+tier_hint: A

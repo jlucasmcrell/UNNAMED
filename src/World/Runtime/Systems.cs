@@ -863,6 +863,9 @@ internal sealed class SpaceSystem
         _player = player;
     }
 
+    /// <summary>What a fall costs, a metre: the rope's 3.5 m is a fifth of a starting character's health, never the last of it.</summary>
+    private const long FallHarmPerMetre = 6;
+
     /// <summary>How close the body must stand to a portal's anchor to use it: an arm's reach, as for a door.</summary>
     private long ReachMm => _context.Setup.Items.Inventory.ReachMm + _context.Setup.Movement.BodyRadiusMm;
 
@@ -888,8 +891,11 @@ internal sealed class SpaceSystem
         _context.State.SetSpace(_owner, new SpaceId(spaceId), traversal is { } key ? new SpaceTraversal(key) : SpaceTraversal.None);
     }
 
+    /// <summary>Whether a way that gives under its first crossing has already given.</summary>
+    private bool Gone(SpacePortal portal) => portal.GivesWay is { } gives && _context.RequirementMet(gives.Flag);
+
     /// <summary>Enter the space a portal leads to, placing the body at its interior anchor.</summary>
-    public string? Enter(EnterSpaceCommand command)
+    public string? Enter(EnterSpaceCommand command, long tick)
     {
         if (command.Actor != _player)
             return "Only the player moves between spaces";
@@ -906,6 +912,10 @@ internal sealed class SpaceSystem
         double away = Math.Sqrt(Math.Pow(portal.ExteriorXMm - body.XMm, 2) + Math.Pow(portal.ExteriorZMm - body.ZMm, 2));
         if (away > ReachMm)
             return $"Too far from '{command.PortalKey}' to use it";
+        if (portal.OpensWith is { } opens && !_context.RequirementMet(opens))
+            return "There is no way down here";
+        if (Gone(portal))
+            return "That way is gone";
 
         var (x, z, traversal) = portals.Enter(command.PortalKey);
         _context.State.SetSpace(_owner, portal.Space, traversal);
@@ -914,6 +924,18 @@ internal sealed class SpaceSystem
         // The party follows through the door: a follower left behind would be in a space the player has
         // left, and every rule about who can see and reach whom now depends on sharing it.
         _context.Dispatch(new ArriveWithParty(arrival));
+        // A way that gives under its first crossing: the body still arrives, the fall costs health but never the last of it,
+        // and the way is gone for good (consequence, not a failure screen).
+        if (portal.GivesWay is { } gives)
+        {
+            var place = _context.Setup.Sites(l => l.Locations).First(p => p.Site.Id == gives.Flag.LocationId);
+            _context.Dispatch(new SetWorldFlag(_context.CellOfSite(place.Layout.SpaceId, place.Site.XMm, place.Site.ZMm), gives.Flag.FlagId, 1));
+            int fall = (int)(gives.DropMm * FallHarmPerMetre / 1000);
+            if (_context.State.Progression.Pools.Health is { } health)
+                fall = Math.Min(fall, health - 1);
+            _context.Dispatch(new Harm(_player, "fall", fall));
+            _context.Events.Publish(new PortalGaveWay(portal.Key, gives.DropMm, tick));
+        }
         return null;
     }
 
@@ -946,8 +968,10 @@ internal sealed class SpaceSystem
                 && c.Site.Space == _context.State.Space && Pursues(c)))
             return "Not while something is fighting you";
 
-        if (_context.Setup.Layout.Portals.AtInterior(body.XMm, body.ZMm, ReachMm) is not { } portal)
+        if (_context.Setup.Layout.Portals.AtInterior(body.XMm, body.ZMm, ReachMm, _context.State.Space) is not { } portal)
             return "There is no way out from here";
+        if (Gone(portal))
+            return "That way is gone";
 
         _context.State.SetSpace(_owner, SpaceId.Exterior, SpaceTraversal.None);
         var out_ = new Body(portal.ExteriorXMm,

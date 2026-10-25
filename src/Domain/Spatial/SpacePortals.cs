@@ -22,6 +22,20 @@ public sealed record SpacePortal(string Key, SpaceId Space, long ExteriorXMm, lo
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public SiteFlagRequirement? ReachableFlag { get; init; }
 
+    /// <summary>
+    /// A way that is only there once a flag is set (a route found from the other side): it cannot be entered before. Leaving by it
+    /// is always allowed - standing at its foot is how it is found.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public SiteFlagRequirement? OpensWith { get; init; }
+
+    /// <summary>
+    /// A way that gives under the first body to use it (a rotten rope): that crossing sets the flag and drops the body the last
+    /// <see cref="PortalGivesWay.DropMm"/>, and from then on the way is gone in both directions.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public PortalGivesWay? GivesWay { get; init; }
+
     /// <summary>Rejects a portal whose key or space cannot be stored, rather than writing one that cannot be read back.</summary>
     public SpacePortal Validate()
     {
@@ -32,6 +46,9 @@ public sealed record SpacePortal(string Key, SpaceId Space, long ExteriorXMm, lo
         return this;
     }
 }
+
+/// <summary>The flag a portal sets when it gives way under its first crossing, and how far the body then falls.</summary>
+public sealed record PortalGivesWay(SiteFlagRequirement Flag, long DropMm);
 
 /// <summary>
 /// Where a body came into the space it is in, so leaving returns it to the anchor it actually used.
@@ -97,11 +114,12 @@ public sealed record SpacePortalSet(ImmutableArray<SpacePortal> Portals)
     /// renamed, or one loaded with the gate off, still leaves by a real door instead of crashing on a key that is
     /// no longer content.
     /// </remarks>
-    public SpacePortal? AtInterior(long xMm, long zMm, long reachMm)
+    public SpacePortal? AtInterior(long xMm, long zMm, long reachMm, SpaceId? space = null)
     {
         SpacePortal? nearest = null;
         double best = double.MaxValue;
-        foreach (var portal in Portals)
+        // With more than one interior, two spaces' local metres can name the same point: only the body's own space's doors count.
+        foreach (var portal in space is { } inside ? Portals.Where(p => p.Space == inside) : Portals)
         {
             double away = Math.Sqrt(Math.Pow(portal.InteriorXMm - xMm, 2) + Math.Pow(portal.InteriorZMm - zMm, 2));
             if (away <= reachMm && away < best)

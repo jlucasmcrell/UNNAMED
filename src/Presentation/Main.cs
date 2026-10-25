@@ -797,21 +797,31 @@ public partial class Main : Node3D
     /// </summary>
     private void BuildInterior()
     {
-        if (_session.Setup.Interior is not { } ring)
-            return;
-        string? overlay = Path.Combine(_session.Options.ContentRoot, "_art_bindings_barrowworks.json");
-        var bindings = Art.ArtBindings.LoadWithOverlay(
-            Art.ArtBindings.ResourcePath, System.IO.File.Exists(overlay) ? overlay : null);
-        _interiorBindings = bindings;
+        // Each interior's own overlay, _art_bindings_<space>.json; one under the open sky without one is drawn with the frontier's own.
+        foreach (var ring in _session.Setup.AllLayouts.Where(l => l.SpaceId != _session.Setup.Layout.SpaceId))
+        {
+            string overlay = Path.Combine(_session.Options.ContentRoot, $"_art_bindings_{ring.SpaceId.Name["space.".Length..]}.json");
+            var bindings = OpenAir(ring.SpaceId) && !System.IO.File.Exists(overlay) ? _bindings : Art.ArtBindings.LoadWithOverlay(
+                Art.ArtBindings.ResourcePath, System.IO.File.Exists(overlay) ? overlay : null);
+            _interiors[ring.SpaceId] = new HeldInterior(ring, bindings);
+        }
+        _interiorBindings = _interiors.GetValueOrDefault(BarrowworksSpace)?.Bindings;
         BuildPortalEntrances(_session.Setup.Layout);
     }
 
     private void LoadInterior()
     {
-        if (_interior is not null || _session.Setup.Interior is not { } ring || _interiorBindings is not { } bindings)
+        if (!_interiors.TryGetValue(_session.Simulation!.ActiveLayout.SpaceId, out var held))
             return;
+        _interiorBindings = held.Bindings;
+        _interior = held.View;
+        _interiorCreatures = held.Creatures;
+        if (_interior is not null)
+            return;
+        var ring = held.Layout;
+        var bindings = held.Bindings;
         ulong started = Time.GetTicksUsec();
-        _interior = new HollowView { Name = "Barrowworks" };
+        _interior = held.View = new HollowView { Name = OpenAir(ring.SpaceId) ? "DenGorgeCave" : "Barrowworks" };
         _interior.Bind(_art, bindings, new GroundField(ring, bindings, _scatterRules));
         AddChild(_interior);
         _interior.Build(ring);
@@ -836,7 +846,8 @@ public partial class Main : Node3D
     /// </summary>
     private void BuildPortalEntrances(RegionLayout layout)
     {
-        foreach (var portal in layout.Portals.Portals.Where(p => p.Space != layout.SpaceId))
+        // The gorge's rope and cleft are its own dressing (DenGorge), not a doorway.
+        foreach (var portal in layout.Portals.Portals.Where(p => p.Space != layout.SpaceId && !OpenAir(p.Space)))
             _hollow.AddChild(Greybox.PortalEntrance.Build(portal, layout, _art, _interiorBindings ?? _bindings));
     }
 
@@ -854,14 +865,22 @@ public partial class Main : Node3D
             GD.Print($"UNNAMED space change ({(outside ? "out" : "in")}) {what}: {(now - mark) / 1000.0:0.0} ms");
             mark = now;
         }
+        foreach (var held in _interiors.Values)
+            held.View?.SetSpaceActive(false);
         if (!outside) LoadInterior();
         Step("interior load");
-        Greybox.WeatherStates.UnderSky = outside;
-        _hollow.SetSpaceActive(outside);
+        // Under the open sky (the gorge's ledge and hollow) the frontier stays drawn round the interior; UpdateOpenAir picks whose air.
+        bool openAir = !outside && OpenAir(_session.Simulation!.ActiveLayout.SpaceId);
+        Greybox.WeatherStates.UnderSky = outside || openAir;
+        _hollow.SetSpaceActive(outside || openAir);
         if (_scatter is not null)
-            _scatter.Visible = outside;
-        if (_interior is { } ring)
-            ring.SetSpaceActive(!outside);
+            _scatter.Visible = outside || openAir;
+        if (!outside && _interior is { } ring)
+        {
+            ring.SetSpaceActive(true);
+            if (openAir)
+                ring.SetAirActive(false);
+        }
         Step("views shown");
         var bindings = outside ? _bindings : _interiorBindings ?? _bindings;
         _items.Bind(_art, bindings);
@@ -888,6 +907,7 @@ public partial class Main : Node3D
         {
             // First entry: the ring's figures, its sound beds and its pipelines, once for the session.
             _creatures = _interiorCreatures = new CreaturesView { Name = "InteriorCreatures" };
+            _interiors[_session.Simulation!.ActiveLayout.SpaceId].Creatures = _creatures;
             _creatures.Bind(_art, bindings);
             _interior!.AddChild(_creatures);
             if (_sounds is not null && IsInstanceValid(_sounds))
@@ -902,7 +922,9 @@ public partial class Main : Node3D
                 if (OS.GetEnvironment("UNNAMED_LOAD_REPORT") == "1")
                     GD.Print($"UNNAMED portal audio preparation: {(Time.GetTicksUsec() - audioStarted) / 1000.0:0.0} ms");
             }
-            PrewarmPortal();
+            // The prewarm's draws are the ring's own rooms and court.
+            if (_session.Simulation!.ActiveLayout.SpaceId == BarrowworksSpace)
+                PrewarmPortal();
         }
         Step(outside ? "creatures" : "creatures, audio and prewarm");
     }
@@ -923,7 +945,7 @@ public partial class Main : Node3D
             name.AddThemeColorOverride("font_color", new Color(0.82f, 0.80f, 0.74f));
             _veil.AddChild(name);
         }
-        _veil.GetNode<Label>("Place").Text = _session.Simulation!.PlayerInExterior ? "" : "The Barrowworks";
+        _veil.GetNode<Label>("Place").Text = _session.Simulation!.PlayerInExterior || _session.Simulation.ActiveLayout.SpaceId != BarrowworksSpace ? "" : "The Barrowworks";
         _veil.Modulate = Colors.White;
         _veil.Visible = true;
         _veiled = true;
@@ -980,7 +1002,7 @@ public partial class Main : Node3D
             _interior.Visible = true;
             _avatar.Position = new Vector3(50, 0, 106);
             _creatures.Draw(_session.Simulation!, 0, 0);
-            foreach (var room in _session.Setup.Interior!.Space.Blockers.OfType<BoxBlocker>()
+            foreach (var room in _interiors[BarrowworksSpace].Layout.Space.Blockers.OfType<BoxBlocker>()
                          .Where(b => b.Id.Length > 4 && b.Id[0] == 'r' && b.Id.Contains("_wall", StringComparison.Ordinal))
                          .GroupBy(b => b.Id[..3]))
             {
@@ -1399,7 +1421,7 @@ public partial class Main : Node3D
         _ticksLastFrame = frame.TicksRun;
         _frontierPerf?.SimulationPhase(simulationStarted, frame, gcPauseTicks);
         bool outside = _session.Simulation!.PlayerInExterior;
-        if (outside != _wasOutside && !_veiled && DisplayServer.GetName() != "headless")
+        if (outside != _wasOutside && !_veiled && _rope is null && DisplayServer.GetName() != "headless")
         {
             RaiseVeil();
             return;
@@ -1620,10 +1642,19 @@ public partial class Main : Node3D
             ? _session.Setup.Items.Catalog.Find(offhand)?.LightRadiusMm ?? 0
             : 0);
         var posture = simulation.Posture;
-        _avatar.SetPosture(posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched, posture.Airborne);
+        bool airborne = posture.Airborne, crouched = posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched;
+        float facing = PlayerController.FacingRadians(predicted.FacingMdeg);
+        // Halda's rope: the figure is on the rope or falling from it for the moment the world has already passed (spec 28).
+        if (DrawRopeDescent(delta) is { } rope)
+        {
+            (feet, airborne, crouched, facing, speed) = (rope.Feet, rope.Airborne, rope.Clinging, Mathf.Pi, 0f);
+            _lastFeet = feet;
+        }
+        UpdateOpenAir(feet);
+        _avatar.SetPosture(crouched, airborne);
         _avatar.SetMovementDirection(new Vector3(_controller.Intent.DirXPermille, 0, _controller.Intent.DirZPermille));
-        _soundEvents.ObserveFootPlants(_avatar,speed,posture.Airborne);
-        _avatar.Pose(feet, PlayerController.FacingRadians(predicted.FacingMdeg), speed, delta);
+        _soundEvents.ObserveFootPlants(_avatar,speed,airborne);
+        _avatar.Pose(feet, facing, speed, delta);
         _camera.Crouch = _avatar.Crouch;
         Probe("avatar/world");
         _creatures.Draw(simulation, alpha, delta);
