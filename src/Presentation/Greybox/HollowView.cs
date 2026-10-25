@@ -322,7 +322,11 @@ public partial class HollowView : Node3D
         set
         {
             if (_debug is not null)
+            {
                 _debug.Visible = value;
+                if (value)
+                    Coverage.Fallback("debug", "discovery_rings", "the F3 overlay's discovery rings, flat translucent discs");
+            }
         }
     }
 
@@ -891,7 +895,6 @@ public partial class HollowView : Node3D
     private Node3D BuildDebugMarkers(RegionLayout layout)
     {
         _debug = new Node3D { Name = "DebugMarkers", Visible = false };
-        Coverage.Fallback("debug", "discovery_rings", "the F3 overlay's discovery rings, flat translucent discs");
         var ring = new StandardMaterial3D { AlbedoColor = new Color(1f, 0.85f, 0.2f, 0.35f), Transparency = BaseMaterial3D.TransparencyEnum.Alpha };
         foreach (var place in layout.Locations)
         {
