@@ -300,11 +300,19 @@ public sealed class FrontierPerf
         _stats.Write(Directory, new Dictionary<string, string>
         {
             ["route"] = _arms is null ? "One fresh frontier fixture, eight gameplay camera headings; no relocation after new game"
-                : "DIAGNOSTIC: fixed yaw270; baseline/ravine/scatter/sun shadows/NPC render/SDFGI/baseline return; normal simulation remains active",
+                : _diagnosticHide switch
+                {
+                    "quality_probe" => "DIAGNOSTIC: fixed yaw270, one fresh process per quality arm; normal simulation remains active",
+                    "import_lifetime" => "DIAGNOSTIC: fixed yaw270 before GC, after GC, after30s settling; no production collection policy change",
+                    "tree_view_lod" => "DIAGNOSTIC: fixed yaw270 full-detail/index-LOD A/B/A/B; normal simulation remains active",
+                    _ => "DIAGNOSTIC: fixed yaw270; baseline/ravine/scatter/sun shadows/NPC render/SDFGI/baseline return; normal simulation remains active",
+                },
             ["clock"] = "Normal GameSession.Frame(delta), 20 Hz simulation; monotonic measured frame intervals",
-            ["warmup"] = "Retain two boot intervals, then 10 seconds first heading; 3 seconds after each turn excluding screenshot readback. Warmup segments retained separately",
+            ["warmup"] = "Retain two boot intervals, then10s first heading/return and3s after a turn/toggle; import_lifetime final arm settles30s. Warmup segments retained separately",
             ["capture"] = _arms is null ? "12 seconds per heading; only the frame after screenshot readback is excluded"
-                : "4 seconds per arm; 10s initial/return warmup, 3s after each toggle; screenshot readback excluded; no frame edits or gameplay suppression",
+                : _diagnosticHide is "quality_probe" or "import_lifetime" ? "12 seconds per arm; screenshot readback excluded; no frame edits or gameplay suppression"
+                : _diagnosticHide == "tree_view_lod" ? "10 seconds per arm; screenshot readback excluded; no frame edits or gameplay suppression"
+                : "4 seconds per arm; screenshot readback excluded; no frame edits or gameplay suppression",
             ["tier"] = VisualOptions.Tier,
             ["actual_msaa_3d"] = _viewport.Msaa3D.ToString(),
             ["actual_taa"] = _viewport.UseTaa.ToString(),
