@@ -326,7 +326,7 @@ public sealed class Smoke
 
         if (!_swung)
         {
-            int spawned = _session.Setup.Combat.Spawns.Sum(s => s.Members.Length);
+            int spawned = _session.Setup.Combat.Spawns.Where(s => s.Space == simulation.ActiveLayout.SpaceId).Sum(s => s.Members.Length);
             if (simulation.Creatures.Count(c => c.Alive) != spawned)
                 return Fail($"expected the {spawned} creatures the spawners place, found {simulation.Creatures.Count(c => c.Alive)} alive");
             if (simulation.Combat.Phase != CombatPhase.Idle)
