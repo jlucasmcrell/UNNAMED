@@ -18,8 +18,8 @@ public static partial class DenGorge
     /// <summary>The north edge the gorge hangs off (the region's end in z).</summary>
     public const float Edge = 800f;
 
-    /// <summary>Where Halda's rope is anchored on the lip, east of the den's east rock.</summary>
-    public const float RopeX = 538.5f;
+    /// <summary>Where Halda's rope is anchored on the lip, east of the den's east rock and clear of the cave mouth (x 534-544).</summary>
+    public const float RopeX = 547.5f;
 
     /// <summary>The waterfall, opposite the den, and the swallow at the east end where the river goes under.</summary>
     public const float FallX = 497f, SwallowX = 640f;
