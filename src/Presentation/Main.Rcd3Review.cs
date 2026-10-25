@@ -49,6 +49,10 @@ public partial class Main
                 source.MakeCurrent();camera.QueueFree();
                 await RunFootstepReview(directory);GetTree().Quit();return;
             }
+            if(OS.GetEnvironment("OTHERREACH_PUBLIC_VOICE_REVIEW") is { Length: > 0 } voiceNpc)
+            {
+                await RunPublicVoiceReview(directory, camera, voiceNpc);GetTree().Quit();return;
+            }
             if(OS.GetEnvironment("OTHERREACH_CAST_JAW_REVIEW")=="1")
             {
                 File.WriteAllText(Path.Combine(directory,"record_ready.json"),"{}");
