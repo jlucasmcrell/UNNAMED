@@ -22,6 +22,33 @@ nodes:
       - id: wings
         text: "Are those wings?"
         next: wings
+      # The Unfinished Joint (owner, 2026-10-25, HERITAGE_DESIGN.md §3.2): Kera reads the grip, settles the joint, cuts the mark, and re-issues a lost tool.
+      - id: grip
+        text: "This tool was handed down to me. Whose grip wore the handle?"
+        conditions:
+          - { kind: people, people_ref: people.kal }
+          - { kind: quest_state, quest_ref: quest.heritage.unfinished_joint, objective: o_grip, is: active }
+          - { kind: has_item, item_ref: item.heritage.finishing_tool }
+        next: grip
+      - id: joint
+        text: "Berrin's book says where the Brannock stone went."
+        conditions:
+          - { kind: quest_state, quest_ref: quest.heritage.unfinished_joint, objective: o_finish, is: active }
+        next: joint_choice
+      - id: mark
+        text: "The joint is settled. Will you mark the tool?"
+        conditions:
+          - { kind: quest_state, quest_ref: quest.heritage.unfinished_joint, objective: o_marked, is: active }
+          - { kind: has_item, item_ref: item.heritage.finishing_tool }
+        next: maker_mark
+      - id: reissue
+        text: "I've lost my Finishing Tool."
+        conditions:
+          - { kind: people, people_ref: people.kal }
+          - { kind: has_item, item_ref: item.heritage.finishing_tool, not: true }
+        consequences:
+          - { command: transfer_item, item_ref: item.heritage.finishing_tool, count: 1, to: player }
+        next: reissued
       - id: trade
         text: "What do you have for sale?"
         consequences: [{ command: open_service, service: trade }]
@@ -168,6 +195,33 @@ nodes:
         text: "Tell me about spider silk."
         next: tell_spider_silk_p2
 
+      # The Unfinished Joint (owner, 2026-10-25, HERITAGE_DESIGN.md §3.2): Kera reads the grip, settles the joint, cuts the mark, and re-issues a lost tool.
+      - id: grip
+        text: "This tool was handed down to me. Whose grip wore the handle?"
+        conditions:
+          - { kind: people, people_ref: people.kal }
+          - { kind: quest_state, quest_ref: quest.heritage.unfinished_joint, objective: o_grip, is: active }
+          - { kind: has_item, item_ref: item.heritage.finishing_tool }
+        next: grip
+      - id: joint
+        text: "Berrin's book says where the Brannock stone went."
+        conditions:
+          - { kind: quest_state, quest_ref: quest.heritage.unfinished_joint, objective: o_finish, is: active }
+        next: joint_choice
+      - id: mark
+        text: "The joint is settled. Will you mark the tool?"
+        conditions:
+          - { kind: quest_state, quest_ref: quest.heritage.unfinished_joint, objective: o_marked, is: active }
+          - { kind: has_item, item_ref: item.heritage.finishing_tool }
+        next: maker_mark
+      - id: reissue
+        text: "I've lost my Finishing Tool."
+        conditions:
+          - { kind: people, people_ref: people.kal }
+          - { kind: has_item, item_ref: item.heritage.finishing_tool, not: true }
+        consequences:
+          - { command: transfer_item, item_ref: item.heritage.finishing_tool, count: 1, to: player }
+        next: reissued
       - id: leave
         text: "Nothing today."
       - id: story_cut
@@ -196,6 +250,57 @@ nodes:
           quest_ref: quest.main.closed_seam
         - command: start_quest
           quest_ref: quest.story.lantern_ledger
+  grip:
+    text: "She takes the tool and closes her own hand round it, and goes quiet, which she never does. \"Hesta. That's Hesta Brannock's grip - thumb high, always, like she was holding it back from the work. She kept the joints of the old Brannock hold, in the crags south of Cairnwold. Nobody's lived in it since before your grandmother, but a hold's a hold; somebody keeps it.\" She turns the handle over. \"She died with one open. The lintel over the mouth. I know because she told me she'd finish it in the spring, and there wasn't one. That's yours now, new iron. A Kal doesn't call a thing made until it's finished.\""
+    choices:
+      - id: back
+        text: "Then I'll go and look at it."
+        next: again
+  joint_choice:
+    text: "\"Carted east. Sold.\" She sets the hammer down very carefully, the way you'd set down something you wanted to throw. \"The Ondrek buy stone. They pay fair and they say it was never anyone. Maybe they believe it. The hold doesn't care what they believe; it's open over the mouth, and it's failing.\" She breathes out. \"Two ways, and neither of them clean. We finish it - new iron, a cramp across the gap, the joint closed in our hands the way it should have been. Or you go east after the stone that was in it, and the joint stays open till you're back.\""
+    choices:
+      - id: finish
+        text: "Finish it. Here's the iron - two ingots, for the cramp."
+        conditions:
+          - { kind: quest_state, quest_ref: quest.heritage.unfinished_joint, objective: o_finish, is: active }
+          - { kind: has_item, item_ref: item.material.iron_ingot, count: 2 }
+        consequences:
+          - { command: transfer_item, item_ref: item.material.iron_ingot, count: 2, to: npc }
+        next: joint_finished
+      - id: finish_later
+        text: "I'll bring the iron."
+        conditions:
+          - { kind: quest_state, quest_ref: quest.heritage.unfinished_joint, objective: o_finish, is: active }
+        next: again
+      - id: trace
+        text: "The stone was in that joint. I'll trace it east."
+        conditions:
+          - { kind: quest_state, quest_ref: quest.heritage.unfinished_joint, objective: o_trace, is: active }
+        next: stone_traced
+  joint_finished:
+    text: "The cramp comes out of the fire the colour of a sunset, and she walks it to the crags with you and sets it herself, your hand on the tool and hers over yours. \"There. Not mended - finished. The stone that went is gone, and the hold holds without it.\" She doesn't look at the gap where it was. \"Come back to the forge. Hesta's tool wants another name on it.\""
+    choices:
+      - id: back
+        text: "I'll come."
+        next: again
+  stone_traced:
+    text: "\"East, then.\" She nods slowly. \"Past where I've ever walked. The Ondrek will be courteous, and sad, and they'll tell you they know a person from a stone better than we do. Don't fight them over it. Just find out where it went.\" She sets a chalk mark on the anvil, a line with a gap in it. \"The joint stays open till you're back. Hesta would've said that's honest. Come here - the tool should carry who's carrying it.\""
+    choices:
+      - id: back
+        text: "All right."
+        next: again
+  maker_mark:
+    text: "She sets a fine punch to the handle, just under Hesta's worn mark, and taps three times. \"There. Your mark, by hers. Anyone of the Kal who takes that tool in their hand will know whose it was, and whose it is, and that the Brannock hold still has someone keeping it.\" She hands it back, handle first. \"Named in the Brannock hold. Don't make me regret it.\""
+    choices:
+      - id: back
+        text: "I won't."
+        next: again
+  reissued:
+    text: "\"Lost it? Ha. Kal don't keep one of anything.\" She reaches under the bench and comes up with another, handle worn smooth in the same high grip. \"Hesta's too. She had a hand for losing them herself. Keep this one closer.\""
+    choices:
+      - id: back
+        text: "I will."
+        next: again
   # o_offer accepts either of these, so a character who comes back a second time still starts the quest.
   barrowworks:
     text: "She puts the hammer down, which she does not often. \"Service ring. Thirteen rooms under the Ashen Hollow, and a sealed door the strata never shut.\" She looks at you the way she looks at a weld. \"They built it to gauge something and never finished the job - the readings are cut into its walls, or so the notice says. I want to know what it measures. And I want to know what you think we should do about the thing that measures it. The way in is under the hill. Go on - I'll want your bones the right shape when you come back out.\""

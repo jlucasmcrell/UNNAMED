@@ -636,7 +636,7 @@ public class ContentLoaderTests
                 "quest.bounty.crossing_timber", "quest.bounty.lodge_supplies", "quest.bounty.moor_billets", "quest.bounty.rim_road",
                 "quest.bounty.road_wolves", "quest.bounty.shelf_iron", "quest.bounty.survey_herbs", "quest.bounty.winter_hides",
                 "quest.bounty.wrong_leaves", "quest.cairnwold.iron_from_the_moor", "quest.cairnwold.what_the_bog_kept", "quest.field.what_stands_on_the_top",
-                "quest.heritage.what_was_kept", "quest.main.closed_seam", "quest.main.folded_note", "quest.main.moss_lights",
+                "quest.heritage.unfinished_joint", "quest.heritage.what_was_kept", "quest.main.closed_seam", "quest.main.folded_note", "quest.main.moss_lights",
                 "quest.main.road_east", "quest.main.the_road_in", "quest.main.three_accounts", "quest.main.wrong_side",
                 "quest.story.lantern_ledger", "quest.story.name_dandelion", "quest.story.name_robin", "recipe.cooking.roast_meat",
                 "recipe.fletching.arrows", "recipe.fletching.hunting_bow", "recipe.fletching.hunting_bow_silk", "recipe.herbal.salve_ember",

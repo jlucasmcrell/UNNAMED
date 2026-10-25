@@ -42,6 +42,11 @@ public partial class Main
             await HeritageKal(directory);
             return;
         }
+        if(OS.GetEnvironment("OTHERREACH_HERITAGE_REVIEW")=="kaljoint")
+        {
+            await HeritageJoint(directory);
+            return;
+        }
 
         // 1. The journal: every new Veth has taken up What Was Kept.
         var quest=sim.Quests.SingleOrDefault(q=>q.Id=="quest.heritage.what_was_kept") ?? throw new InvalidDataException("A new Veth has no What Was Kept");
@@ -229,6 +234,75 @@ public partial class Main
             status="HERITAGE_PEOPLES_REALTIME_REQUIRES_CLAUDE_REVIEW",people=sim.Player.Identity.PeopleId,tool=tool.DefId,drop_button=drop,sell_disabled=true,refusal,worth_shown=worth,
             inventory=sim.Player.Inventory.Select(e=>new {e.DefId,e.Count}),world_tick=sim.WorldTick,
             profile="Fresh isolated profile; the creator toured Siann, Orenth and Kal, then Begin as a Kal; ordinary steering and commands; no desktop input"},
+            new JsonSerializerOptions{WriteIndented=true}));
+        ulong deadline=Time.GetTicksMsec()+20000;
+        while(!File.Exists(Path.Combine(directory,"recording.stopped")) && Time.GetTicksMsec()<deadline)
+            await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+    }
+
+    /// <summary>
+    /// The Unfinished Joint end to end for a new Kal (OTHERREACH_HERITAGE_REVIEW=kaljoint): Kera reads the tool's grip, the road east to the
+    /// Brannock hold in the south crags, Berrin's book on the taken stone, then back to Kera to trace it east (the new character has no iron
+    /// for the cramp) and have the tool marked; the character sheet names the character in the hold.
+    /// </summary>
+    private async Task HeritageJoint(string directory)
+    {
+        var sim=_session.Simulation!;
+        const string Quest="quest.heritage.unfinished_joint",Kera="npc.ashen_hollow.kera_voss",Berrin="npc.cairnwold.berrin_garth";
+        if(sim.Player.Identity.PeopleId!="people.kal")throw new InvalidDataException("The run did not begin as a Kal");
+        string Open()=>string.Join(",",sim.Quests.Single(q=>q.Id==Quest).Objectives.Where(o=>o.Status==UNNAMED.Domain.Quests.ObjectiveStatus.Active).Select(o=>o.Id));
+        var nodes=new List<string>();
+        async Task Say(string npc,params string[] replies)
+        {
+            _session.Submit(new TalkCommand(sim.PlayerId,npc));await Rcd3Wait(3);
+            foreach(string reply in replies)
+            {
+                if(sim.Conversation?.Replies.Any(r=>r.Id==reply)!=true)throw new InvalidDataException($"{npc} offers no '{reply}' (quest at {Open()})");
+                _session.Submit(new ChooseCommand(sim.PlayerId,reply));await Rcd3Wait(reply=="back"?1:14);
+                if(reply!="back")nodes.Add(sim.Conversation?.NodeId ?? "");
+            }
+            _session.Submit(new LeaveCommand(sim.PlayerId));await Rcd3Wait(2);
+        }
+        Show(_journal);await Rcd3Wait(6);CloseScreens();await Rcd3Wait(1);
+
+        // 1. Kera reads Hesta's grip on the handle.
+        await HeritageWalkTo(Kera);
+        await Say(Kera,"grip","back");
+
+        // 2. The road east, and the old Brannock hold in the south crags.
+        var road=sim.Setup.Layout.Roads.Single(r=>r.Id.EndsWith("old_east_road",StringComparison.Ordinal)).Points;
+        var east=road.Skip(2).Take(road.Length-4).ToImmutableArray();
+        await HeritageAlong(east);
+        var crags=sim.Setup.Layout.Locations.Single(l=>l.Id=="location.cairnwold.the_crags");
+        bool AtHold()=>Open()!="o_hold";
+        // The crag line itself is rock: the walk goes to its foot, on the village side, until the hold is found.
+        foreach(long back in new[]{0L,15000L,30000L})
+        {
+            if(AtHold())break;
+            await HeritageRoute(crags.XMm,crags.ZMm+back,AtHold);
+        }
+        if(!AtHold())throw new InvalidDataException("The walk did not find the Brannock hold");
+        _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);await Rcd3Wait(6);   // the open joint over the hold's mouth
+
+        // 3. Berrin's book: the dressed stone carted east and sold.
+        var approach=await HeritageWalkTo(Berrin);
+        await Say(Berrin,"crag_stone","back");
+        string branch=Open();
+
+        // 4. Back to Kera: trace the stone east, and the tool marked beside Hesta's.
+        foreach(var (x,z) in Enumerable.Reverse(approach))await HeritageStep(x,z);
+        await HeritageAlong(east.Reverse().ToImmutableArray());
+        await HeritageWalkTo(Kera);
+        await Say(Kera,"joint","trace","back","mark","back");
+        Show(_character);await Rcd3Wait(8);CloseScreens();
+        Show(_journal);await Rcd3Wait(5);CloseScreens();
+        var done=sim.Quests.Single(q=>q.Id==Quest);
+
+        File.WriteAllText(Path.Combine(directory,"recording.finished"),DateTime.Now.ToString("o"));
+        File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {
+            status="HERITAGE_KAL_JOINT_REALTIME_REQUIRES_CLAUDE_REVIEW",people=sim.Player.Identity.PeopleId,nodes,branch_after_berrin=branch,
+            quest_status=done.Status.ToString(),titles=sim.Titles,tool_carried=sim.Player.Inventory.Any(e=>e.DefId=="item.heritage.finishing_tool"),
+            world_tick=sim.WorldTick,profile="Fresh isolated profile; creator Begin as a Kal; ordinary steering and commands; no desktop input"},
             new JsonSerializerOptions{WriteIndented=true}));
         ulong deadline=Time.GetTicksMsec()+20000;
         while(!File.Exists(Path.Combine(directory,"recording.stopped")) && Time.GetTicksMsec()<deadline)

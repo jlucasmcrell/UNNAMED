@@ -44,6 +44,13 @@ nodes:
           - { kind: visited, node: oath_released, not: true }
           - { kind: visited, node: oath_claimed, not: true }
         next: oath_half
+      # The Unfinished Joint (owner, 2026-10-25, HERITAGE_DESIGN.md Â§3.2): the lodge book remembers the stone Cairnwold took from the crags.
+      - id: crag_stone
+        text: "There's a Kal hold in the south crags, and a stone gone from its door."
+        conditions:
+          - { kind: people, people_ref: people.kal }
+          - { kind: quest_state, quest_ref: quest.heritage.unfinished_joint, objective: o_why, is: active }
+        next: crag_stone
       - id: leave
         text: "Later."
   oath_half:
@@ -185,6 +192,13 @@ nodes:
           - { kind: visited, node: oath_released, not: true }
           - { kind: visited, node: oath_claimed, not: true }
         next: oath_half
+      # The Unfinished Joint (owner, 2026-10-25, HERITAGE_DESIGN.md Â§3.2): the lodge book remembers the stone Cairnwold took from the crags.
+      - id: crag_stone
+        text: "There's a Kal hold in the south crags, and a stone gone from its door."
+        conditions:
+          - { kind: people, people_ref: people.kal }
+          - { kind: quest_state, quest_ref: quest.heritage.unfinished_joint, objective: o_why, is: active }
+        next: crag_stone
       - id: leave
         text: "Later."
       - id: story_note
@@ -308,6 +322,12 @@ nodes:
       - id: back
         text: "I will remember it."
         consequences: [{ command: tell_lore, lore_ref: lore.the_spill }]
+        next: again
+  crag_stone:
+    text: "A hold. ... Well, that would explain the crags, wouldn't it - a line, not a scatter. I always said it wasn't us. Let me look. ... Here, my grandmother's hand: 'One dressed stone from the crag face, fit for a lintel, carted east and sold to the stone-buyers, the year the beck froze.' Cairnwold took it, and sold it on, and wrote it down, and never thought on it since. The Ondrek, that'll be. They pay fair, and they say it was never anyone. I don't know who's right. I only know we did it, and it's in the book."
+    choices:
+      - id: back
+        text: "Thank you, Berrin."
         next: again
   rim_road_taken:
     text: "\"Good. They come to the edge where the road climbs, now and then, and set a carter back where he doesn't fit.\" He winces at his own joke and writes it down anyway. \"Three of them, and I'll pay. Mind the big ones by the breaches - those aren't tenders, whatever they are.\""

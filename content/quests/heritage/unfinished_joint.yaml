@@ -1,0 +1,47 @@
+id: quest.heritage.unfinished_joint
+kind: quest
+schema: 1
+display_key: quest.heritage.unfinished_joint.name
+tags: [quest]
+notes: The Kal heritage questline (owner-approved 2026-10-25, HERITAGE_DESIGN.md §3.2), from the Kal word for creation - shape, join and finish - and their personal quests of debts to the dead - a stolen stone, a hall that is failing (MYTHOLOGY.md §Kal). Hesta Brannock, the Brannock hold in the south crags (Berrin's crags that 'wasn't us'), the lintel joint, the dressed stone Cairnwold carted east and sold, and the iron cramp are PROPOSED lore shown to the owner. The Stone Question is met, not settled (STONE_QUESTION.md - no correct answer). Only a Kal takes it (people_ref), and every new Kal starts it. Kera knows the grip; the character finds the hold; Berrin's book says where its stone went; the joint is finished in new iron, the Kal way, or the stone is traced east to the Ondrek; Kera cuts the character's mark beside Hesta's. No step takes the tool, and Kera re-issues a lost one, so it never becomes uncompletable.
+title: The Unfinished Joint
+summary: The handle of your Finishing Tool is worn to someone else's grip. Whoever held it last died with a joint unfinished, and the Kal do not call a thing made until it is finished.
+track: side
+people_ref: people.kal
+on_new_game: true
+entry_objective: o_grip
+objectives:
+  - id: o_grip
+    type: talk_to
+    description: Show Kera Voss the Finishing Tool. A Kal smith can read whose hand wore a handle.
+    params: { npc_ref: npc.ashen_hollow.kera_voss, nodes: [grip] }
+    next: [o_hold]
+  - id: o_hold
+    type: visit_location
+    description: Hesta Brannock kept the joints of the old Brannock hold in the south crags above Cairnwold. Find the hold.
+    params: { location_ref: location.cairnwold.the_crags }
+    next: [o_why]
+  - id: o_why
+    type: talk_to
+    description: The lintel joint over the hold's mouth is open, and a dressed stone is missing from it. Berrin Garth's lodge book remembers what Cairnwold did with the crags.
+    params: { npc_ref: npc.cairnwold.berrin_garth, nodes: [crag_stone] }
+    next: [o_finish, o_trace]
+    branch: first
+  - id: o_finish
+    type: talk_to
+    description: Finish the joint the Kal way, in new material - bring Kera two iron ingots for a cramp.
+    params: { npc_ref: npc.ashen_hollow.kera_voss, nodes: [joint_finished] }
+    next: [o_marked]
+  - id: o_trace
+    type: talk_to
+    description: Or tell Kera you will trace the taken stone east, to the Ondrek who bought it.
+    params: { npc_ref: npc.ashen_hollow.kera_voss, nodes: [stone_traced] }
+    next: [o_marked]
+  - id: o_marked
+    type: talk_to
+    description: Let Kera cut your mark into the tool, beside Hesta's.
+    params: { npc_ref: npc.ashen_hollow.kera_voss, nodes: [maker_mark] }
+rewards:
+  - { kind: title, text: "Named in the Brannock hold" }
+  - { kind: relationship, npc_ref: npc.ashen_hollow.kera_voss, dimension: respect, amount: 10 }
+  - { kind: xp, amount: 60 }
