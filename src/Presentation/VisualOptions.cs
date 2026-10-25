@@ -174,6 +174,12 @@ public static class VisualOptions
         _ => int.MaxValue,
     };
 
+    /// <summary>
+    /// How many of a scatter kind's nearest levels cast shadows: Low none (ground scatter was the second cost after the sun's cascades in the
+    /// 2026-10-25 attribution), Medium the nearest only, High and Ultra the two near levels as before.
+    /// </summary>
+    public static int ScatterShadowLevels => Tier switch { "low" => 0, "medium" => 1, _ => 2 };
+
     /// <summary>Settings' plant density and detail distance dials, read as the world is built (a player's run; 1 for a harness).</summary>
     public static float PlantScale { get; set; } = 1f;
 
@@ -228,8 +234,21 @@ public static class VisualOptions
     /// <summary>The options that are the viewport's own settings (the anti-aliasing), applied to the game's viewport.</summary>
     public static void Apply(Viewport viewport)
     {
+        ApplyRenderScale(viewport, RenderScale, upscale: true);
         ApplyAntiAliasing(viewport, AntiAliasing);
         Greybox.RenderTiers.ApplyGlobal();
+    }
+
+    /// <summary>
+    /// The share of the window's pixels the 3D picture is drawn at, by tier (the interface stays at full size): Low 0.67 and Medium 0.77,
+    /// enlarged with FSR, are the lower presets' biggest GPU saving (public playtest gate C4). High and Ultra draw every pixel.
+    /// </summary>
+    public static float RenderScale => Tier switch { "low" => 0.67f, "medium" => 0.77f, _ => 1f };
+
+    public static void ApplyRenderScale(Viewport viewport, float scale, bool upscale)
+    {
+        viewport.Scaling3DScale = scale;
+        viewport.Scaling3DMode = scale < 0.999f && upscale ? Viewport.Scaling3DModeEnum.Fsr : Viewport.Scaling3DModeEnum.Bilinear;
     }
 
     public static void ApplyAntiAliasing(Viewport viewport, string mode)

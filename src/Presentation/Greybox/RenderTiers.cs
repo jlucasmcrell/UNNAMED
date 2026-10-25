@@ -9,7 +9,7 @@ namespace UNNAMED.Presentation.Greybox;
 /// <c>--visual tier=low|medium|high|ultra</c> (see <see cref="VisualOptions"/> for the systems each tier draws with): the environment's
 /// and the shadows' cost by tier. The historical RAZER baseline was High at 1920 x 1080 and 60 FPS; the current Ultra art target is native 4K. High draws what Phase A drew with
 /// TAA alone (MSAA 4x cost half a millisecond and 170 MB on the 5090 for little on alpha-tested foliage). Medium drops the screen-space
-/// indirect light and shortens SDFGI; Low drops SDFGI and the volumetric fog and halves the shadow atlas; Ultra adds screen-space
+/// indirect light and shortens SDFGI; Low drops SDFGI and the volumetric fog, halves the shadow atlas and keeps two cascades; Ultra adds screen-space
 /// reflections and finer SDFGI rays. <c>phase_a</c> (the default) changes nothing.
 /// </summary>
 public static class RenderTiers
@@ -59,6 +59,7 @@ public static class RenderTiers
                 environment.SsilEnabled = false;
                 environment.VolumetricFogEnabled = false;
                 sun.DirectionalShadowMaxDistance = 60f;
+                sun.DirectionalShadowMode = DirectionalLight3D.ShadowMode.Parallel2Splits;
                 break;
             case "medium":
                 environment.SsilEnabled = false;
