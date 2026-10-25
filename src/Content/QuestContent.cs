@@ -28,7 +28,7 @@ public static class QuestContent
     private static readonly string[] Envelope = { "id", "kind", "schema", "display_key", "tags", "notes" };
 
     private static readonly string[] Fields =
-        { "title", "summary", "giver_ref", "entry_objective", "objectives", "fail_if", "rewards", "repeat_policy", "track", "act", "on_new_game", "competitive", "companion_ref", "confides_at" };
+        { "title", "summary", "giver_ref", "entry_objective", "objectives", "fail_if", "rewards", "repeat_policy", "track", "act", "on_new_game", "competitive", "companion_ref", "confides_at", "people_ref" };
 
     /// <summary>DATA_MODEL.md §4.11's quest fields that Phase 1 does not build.</summary>
     private static readonly string[] FieldsNotBuilt =
@@ -94,6 +94,7 @@ public static class QuestContent
             Competitive = Flag(map, "competitive", id),
             CompanionId = map.GetValueOrDefault("companion_ref") is string companion ? Companion(loader, companion, id) : null,
             ConfidesAt = map.ContainsKey("confides_at") ? (int)LongOf(map, "confides_at", id) : null,
+            PeopleId = map.GetValueOrDefault("people_ref") is string people ? Defined(loader, people, "people", id) : null,
         };
         // A personal quest (WP15b): a companion's, gated on their trust; and only a personal quest changes its companion's approval.
         if (quest.ConfidesAt is { } gate && (quest.CompanionId is null || gate is < Relationships.Min or > Relationships.Max))
@@ -340,6 +341,7 @@ public static class QuestContent
         return kind switch
         {
             "xp" => new XpReward(Positive(map, "amount", at)),
+            "title" => new TitleReward(Text(map, "text")),
             "currency" => new CurrencyReward(Positive(map, "amount", at)),
             "item" => new ItemReward(Defined(loader, Text(map, "item_ref"), "item", at), Positive(map, "count", at, 1)),
             "recipe" => new TechniqueReward(Defined(loader, Text(map, "recipe_ref"), "recipe", at), kind),

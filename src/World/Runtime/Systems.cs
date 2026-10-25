@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
@@ -96,6 +97,9 @@ internal sealed class SystemContext
     /// board names who claimed a bounty with it. Composition sets it once.
     /// </summary>
     public Func<string, string?> OtherActorName { get; set; } = _ => null;
+
+    /// <summary>The character's people, as the creator made it: who may use and trade heritage items (owner, 2026-10-24).</summary>
+    public string PlayerPeople { get; init; } = CharacterSpec.DefaultPeople;
 
     /// <summary>
     /// The space this layout's sites stand in. Every authored site's cell is resolved in it, so a door's flag and

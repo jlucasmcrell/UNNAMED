@@ -169,8 +169,11 @@ public sealed record CallDefinition(
     public const int SkillLevel = 15;
 }
 
-/// <summary>A people (race) a character can belong to, and the names its members are given.</summary>
-public sealed record PeopleDefinition(string Id, bool Playable, NameSource Names);
+/// <summary>
+/// A people (race) a character can belong to, the names its members are given, and its heritage: the keepsakes a new character of the
+/// people carries over the common kit and the Call's (owner, 2026-10-23). Heritage is identity, never power.
+/// </summary>
+public sealed record PeopleDefinition(string Id, bool Playable, NameSource Names, ImmutableArray<StartingItem> Heritage);
 
 /// <summary>
 /// A people's names, as the canon lists give them. The creator's Suggest button draws from it, and so can anything else that needs a

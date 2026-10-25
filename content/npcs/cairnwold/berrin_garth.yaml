@@ -9,6 +9,7 @@ notes: Keeps the long lodge, and is Cairnwold's memory - who built the drystone 
 role: steward
 dialogue_ref: dialogue.cairnwold.berrin_garth
 unique: true
+people_ref: people.veth   # Veth, by his voice note (NPC_PERSONALITY_BIBLE.md, dialogue.cairnwold.berrin_garth)
 # What he teaches (WP9, C10; owner decision, 2026-10-17): the timber building pieces, the anvil and the storage chest, each for a fee,
 # a pad before walls, walls before a doorway or a roof, a doorway before its door. Fees are provisional.
 teaches:

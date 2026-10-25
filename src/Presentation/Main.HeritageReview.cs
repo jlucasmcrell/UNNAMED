@@ -1,0 +1,231 @@
+using Godot;
+using System.Collections.Immutable;
+using System.Text.Json;
+using UNNAMED.Domain.Spatial;
+using UNNAMED.Presentation.Player;
+using UNNAMED.World.Runtime;
+namespace UNNAMED.Presentation;
+
+/// <summary>
+/// Opt-in real-time evidence for the Veth heritage (owner, 2026-10-24; HERITAGE_DESIGN.md), after the normal creator's Begin: the journal
+/// with What Was Kept, the Kept Roll in the pack, a sale of it refused by a trader of another people, and Renn reading its open line. It
+/// walks with ordinary steering and acts through the same commands and panels the player's input does, while an external window capture
+/// records the run.
+/// </summary>
+public partial class Main
+{
+    private const string HeritageRoll = "item.heritage.kept_roll";
+
+    private async Task RunHeritageReview(string directory)
+    {
+        _rcd3Driving=true;
+        var sim=_session.Simulation!;
+        var refusals=new List<string>();_session.Subscribe<CommandRejected>(e=>refusals.Add(e.Reason));
+        DisplayServer.WindowSetTitle("Otherreach - "+Path.GetFileName(directory));
+        File.WriteAllText(Path.Combine(directory,"record_ready.json"),JsonSerializer.Serialize(new {window_title="^Otherreach - "+Path.GetFileName(directory)+"$"}));
+        ulong deadline=Time.GetTicksMsec()+90000;
+        while(!File.Exists(Path.Combine(directory,"recording.started")))
+        {
+            if(Time.GetTicksMsec()>deadline)throw new TimeoutException("The window recording never started");
+            await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+        }
+        await Rcd3Wait(3);
+        if(OS.GetEnvironment("OTHERREACH_HERITAGE_REVIEW")=="step5")
+        {
+            await HeritageRecorded(directory);
+            return;
+        }
+
+        // 1. The journal: every new Veth has taken up What Was Kept.
+        var quest=sim.Quests.SingleOrDefault(q=>q.Id=="quest.heritage.what_was_kept") ?? throw new InvalidDataException("A new Veth has no What Was Kept");
+        Show(_journal);await Rcd3Wait(6);CloseScreens();await Rcd3Wait(1);
+
+        // 2. The pack: the Kept Roll, its heritage line, and no Drop.
+        var roll=sim.Player.Inventory.SingleOrDefault(e=>e.DefId==HeritageRoll) ?? throw new InvalidDataException("A new Veth carries no Kept Roll");
+        _inventory.Open(null);await Rcd3Wait(1.5);
+        Control Row()=>_inventory.FindChildren("*","",true,false).OfType<Control>()
+            .First(c=>c.HasMeta("item_reference") && c.GetMeta("item_reference").AsString()==roll.ItemId.Value);
+        Row().EmitSignal(Control.SignalName.MouseEntered);await Rcd3Wait(2);
+        var details=(ScrollContainer)_inventory.FindChild("ItemDetailViewport",true,false);
+        details.ScrollVertical=(int)details.GetVScrollBar().MaxValue;await Rcd3Wait(5);
+        bool drop=Row().FindChildren("*",nameof(Button),true,false).OfType<Button>().Any(b=>b.Text=="Drop");
+        CloseScreens();await Rcd3Wait(1);
+
+        // 3. Kera, a Kal trader: the roll offered for sale, and refused.
+        const string Kera="npc.ashen_hollow.kera_voss";
+        await HeritageWalkTo(Kera);
+        OpenTrade(Kera);await Rcd3Wait(2);
+        if(_inventory.OpenTrader!=Kera)throw new InvalidDataException("Kera's trade did not open: "+string.Join("; ",refusals));
+        Row().EmitSignal(Control.SignalName.MouseEntered);await Rcd3Wait(1);
+        var sell=Row().FindChildren("*",nameof(Button),true,false).OfType<Button>().FirstOrDefault(b=>b.Text=="Sell")
+                 ?? throw new InvalidDataException("No Sell on the roll at Kera's");
+        int before=refusals.Count;
+        sell.EmitSignal(Button.SignalName.Pressed);await Rcd3Wait(5);
+        string refusal=refusals.Skip(before).FirstOrDefault() ?? throw new InvalidDataException("Kera took the Veth roll");
+        if(!sim.Player.Inventory.Any(e=>e.ItemId==roll.ItemId))throw new InvalidDataException("The refused sale moved the roll");
+        CloseScreens();await Rcd3Wait(1);
+
+        // 4. Renn, the Veth keeper, reads the roll's open line.
+        const string Renn="npc.ashen_hollow.renn_vale";
+        await HeritageWalkTo(Renn);   // out of the forge shed and into the inn, where he keeps it from behind the counter
+        _session.Submit(new TalkCommand(sim.PlayerId,Renn));await Rcd3Wait(3);
+        if(sim.Conversation?.Replies.Any(r=>r.Id=="roll")!=true)throw new InvalidDataException("Renn offers no reading of the roll");
+        _session.Submit(new ChooseCommand(sim.PlayerId,"roll"));await Rcd3Wait(10);
+        string node=sim.Conversation?.NodeId ?? "";
+        _session.Submit(new ChooseCommand(sim.PlayerId,"back"));await Rcd3Wait(1);
+        _session.Submit(new LeaveCommand(sim.PlayerId));await Rcd3Wait(2);
+        Show(_journal);await Rcd3Wait(6);CloseScreens();
+        var after=sim.Quests.Single(q=>q.Id=="quest.heritage.what_was_kept");
+
+        // 5. The road to Cairnwold, and Berrin's lodge book: the other half, released (keeping it wants four timber the new character lacks).
+        const string Berrin="npc.cairnwold.berrin_garth";
+        // The Old East Road, joined past the waystation's yards and left short of its end at the village green (the CPU route probe's legs).
+        var road=sim.Setup.Layout.Roads.Single(r=>r.Id.EndsWith("old_east_road",StringComparison.Ordinal)).Points;
+        var east=road.Skip(2).Take(road.Length-4).ToImmutableArray();
+        await HeritageAlong(east);
+        var approach=await HeritageWalkTo(Berrin);   // by day he works in front of the long lodge
+        _session.Submit(new TalkCommand(sim.PlayerId,Berrin));await Rcd3Wait(3);
+        if(sim.Conversation?.Replies.Any(r=>r.Id=="oath")!=true)throw new InvalidDataException("Berrin offers no reading of the oath");
+        _session.Submit(new ChooseCommand(sim.PlayerId,"oath"));await Rcd3Wait(14);
+        _session.Submit(new ChooseCommand(sim.PlayerId,"release"));await Rcd3Wait(10);
+        string berrinNode=sim.Conversation?.NodeId ?? "";
+        _session.Submit(new ChooseCommand(sim.PlayerId,"back"));await Rcd3Wait(1);
+        _session.Submit(new LeaveCommand(sim.PlayerId));await Rcd3Wait(2);
+
+        // 6. Back to Renn, who closes the line; the character sheet calls the character its keeper.
+        foreach(var (x,z) in Enumerable.Reverse(approach))await HeritageStep(x,z);   // away from his door the way the character came
+        await HeritageAlong(east.Reverse().ToImmutableArray());
+        await HeritageWalkTo(Renn);
+        _session.Submit(new TalkCommand(sim.PlayerId,Renn));await Rcd3Wait(3);
+        if(sim.Conversation?.Replies.Any(r=>r.Id=="record")!=true)throw new InvalidDataException("Renn offers no closing of the line");
+        _session.Submit(new ChooseCommand(sim.PlayerId,"record"));await Rcd3Wait(12);
+        string closing=sim.Conversation?.NodeId ?? "";
+        _session.Submit(new ChooseCommand(sim.PlayerId,"back"));await Rcd3Wait(1);
+        _session.Submit(new LeaveCommand(sim.PlayerId));await Rcd3Wait(2);
+        Show(_character);await Rcd3Wait(7);CloseScreens();
+        Show(_journal);await Rcd3Wait(5);CloseScreens();
+        var done=sim.Quests.Single(q=>q.Id=="quest.heritage.what_was_kept");
+
+        File.WriteAllText(Path.Combine(directory,"recording.finished"),DateTime.Now.ToString("o"));
+        File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {
+            status="HERITAGE_VETH_REALTIME_REQUIRES_CLAUDE_REVIEW",quest=quest.Title,roll=roll.ItemId.Value,drop_button=drop,refusal,
+            renn_node=node,berrin_node=berrinNode,renn_closing=closing,quest_status=done.Status.ToString(),titles=sim.Titles,objective_after=after.Objectives.FirstOrDefault(o=>o.Status==UNNAMED.Domain.Quests.ObjectiveStatus.Active)?.Description,
+            inventory=sim.Player.Inventory.Select(e=>new {e.DefId,e.Count}),world_tick=sim.WorldTick,engine_max_fps=Engine.MaxFps,
+            profile="Fresh isolated profile; normal creator Begin; ordinary steering and commands; no desktop input"},new JsonSerializerOptions{WriteIndented=true}));
+        deadline=Time.GetTicksMsec()+20000;
+        while(!File.Exists(Path.Combine(directory,"recording.stopped")) && Time.GetTicksMsec()<deadline)
+            await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+    }
+
+    /// <summary>
+    /// The last step alone, from a save left outside the inn with the oath released (OTHERREACH_HERITAGE_REVIEW=step5): Renn closes the line, and
+    /// the character sheet calls the character its keeper. The road there and Berrin's book are the full route's (heritage_veth_gate16).
+    /// </summary>
+    private async Task HeritageRecorded(string directory)
+    {
+        var sim=_session.Simulation!;
+        const string Renn="npc.ashen_hollow.renn_vale";
+        await HeritageWalkTo(Renn);
+        _session.Submit(new TalkCommand(sim.PlayerId,Renn));await Rcd3Wait(3);
+        if(sim.Conversation?.Replies.Any(r=>r.Id=="record")!=true)throw new InvalidDataException("Renn offers no closing of the line");
+        _session.Submit(new ChooseCommand(sim.PlayerId,"record"));await Rcd3Wait(12);
+        string closing=sim.Conversation?.NodeId ?? "";
+        _session.Submit(new ChooseCommand(sim.PlayerId,"back"));await Rcd3Wait(1);
+        _session.Submit(new LeaveCommand(sim.PlayerId));await Rcd3Wait(2);
+        Show(_character);await Rcd3Wait(8);CloseScreens();
+        Show(_journal);await Rcd3Wait(5);CloseScreens();
+        var done=sim.Quests.Single(q=>q.Id=="quest.heritage.what_was_kept");
+        File.WriteAllText(Path.Combine(directory,"recording.finished"),DateTime.Now.ToString("o"));
+        File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {
+            status="HERITAGE_VETH_STEP5_REALTIME_REQUIRES_CLAUDE_REVIEW",renn_closing=closing,quest_status=done.Status.ToString(),titles=sim.Titles,
+            world_tick=sim.WorldTick,engine_max_fps=Engine.MaxFps,profile="Saved step-5 state outside the inn; ordinary steering and commands; no desktop input"},
+            new JsonSerializerOptions{WriteIndented=true}));
+        ulong deadline=Time.GetTicksMsec()+20000;
+        while(!File.Exists(Path.Combine(directory,"recording.stopped")) && Time.GetTicksMsec()<deadline)
+            await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+    }
+
+    /// <summary>Along a road from its point nearest the character, at a run; the way to that point is planned like any other.</summary>
+    private async Task HeritageAlong(ImmutableArray<(long XMm,long ZMm)> points)
+    {
+        var body=_controller.Authoritative;
+        int start=Enumerable.Range(0,points.Length).MinBy(i=>Math.Abs(points[i].XMm-body.XMm)+Math.Abs(points[i].ZMm-body.ZMm));
+        await HeritageRoute(points[start].XMm,points[start].ZMm,()=>false);
+        await HeritageStep(points[start].XMm,points[start].ZMm);
+        // A road point a verge or a cart stands on is passed, not reached: the next one carries on from wherever the walk got to.
+        foreach(var (x,z) in points.Skip(start+1))await HeritageStep(x,z,Gait.Run,required:false);
+    }
+
+    /// <summary>
+    /// The way a person would go to a point, from the world's own navigation grid - doors count as passable, since the walk opens them - until
+    /// <paramref name="arrived"/> says the walk is done.
+    /// </summary>
+    private async Task<List<(long X,long Z)>> HeritageRoute(long xMm,long zMm,Func<bool> arrived)
+    {
+        var walked=new List<(long X,long Z)>{(_controller.Authoritative.XMm,_controller.Authoritative.ZMm)};
+        var sim=_session.Simulation!;
+        var nav=sim.Navigation;
+        var gates=nav.Gates.ToDictionary(g=>g.Key,g=>g.Open);
+        var query=new NavQuery(nav.Grid,g=>g.GateKey is { } key && gates.GetValueOrDefault(key),sim.Setup.Navigation,new NavScratch(),null);
+        var start=_controller.Authoritative;
+        var plan=NavSearch.Plan(query,new NavAgent(sim.Setup.Navigation.PersonClass,true),new NavPoint(start.XMm,start.ZMm),new NavPoint(xMm,zMm));
+        if(plan.Outcome!=NavOutcome.Found)return walked;
+        foreach(var corner in plan.Corners.Skip(1))
+        {
+            if(arrived())break;
+            await HeritageStep(corner.XMm,corner.ZMm,arrived:arrived);
+            walked.Add((corner.XMm,corner.ZMm));
+        }
+        return walked;
+    }
+
+    /// <summary>Walk the character straight to a point, with ordinary steering, opening a closed door in the way and stepping round the rest.</summary>
+    private async Task HeritageStep(long xMm,long zMm,Gait gait=Gait.Walk,Func<bool>? arrived=null,bool required=true)
+    {
+        ulong through=Time.GetTicksMsec()+(required?45000UL:40000UL),stalledSince=Time.GetTicksMsec();
+        long lastX=_controller.Authoritative.XMm,lastZ=_controller.Authoritative.ZMm;int sidestep=0;
+        while(Math.Abs(_controller.Authoritative.XMm-xMm)+Math.Abs(_controller.Authoritative.ZMm-zMm)>700 && arrived?.Invoke()!=true)
+        {
+            if(Time.GetTicksMsec()>through)
+            {
+                if(required)throw new TimeoutException($"Could not walk to ({xMm}, {zMm})");
+                break;
+            }
+            var body=_controller.Authoritative;
+            _controller.SteerWorld(new Vector3(xMm-body.XMm,0,zMm-body.ZMm).Normalized(),gait,_camera);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+            if(Math.Abs(body.XMm-lastX)+Math.Abs(body.ZMm-lastZ)>150){lastX=body.XMm;lastZ=body.ZMm;stalledSince=Time.GetTicksMsec();}
+            else if(Time.GetTicksMsec()-stalledSince>1500)
+            {
+                // A closed door is opened as the interact key would; anything else is stepped along, alternating sides.
+                var toward=new Vector3(xMm-body.XMm,0,zMm-body.ZMm).Normalized();
+                if(_controller.FocusOn(_camera) is { Kind: FocusKind.Door } focus){_controller.Interact(focus.Key);await Rcd3Wait(1.5);}
+                else
+                {
+                    var aside=new Vector3(-toward.Z,0,toward.X)*(sidestep++%2==0?1:-1);
+                    ulong until=Time.GetTicksMsec()+800+400*(ulong)(sidestep/2);
+                    while(Time.GetTicksMsec()<until){_controller.SteerWorld(aside,gait,_camera);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
+                }
+                stalledSince=Time.GetTicksMsec();
+            }
+        }
+        _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);await Rcd3Wait(.5);
+    }
+
+    /// <summary>Walk the character to an NPC, by the planned way and then by straight steering, until they are within talking reach.</summary>
+    private async Task<List<(long X,long Z)>> HeritageWalkTo(string npcId)
+    {
+        var sim=_session.Simulation!;
+        bool InReach()=>_controller.InTalkReach(sim.Npcs.Single(n=>n.Id==npcId));
+        var goal=sim.Npcs.Single(n=>n.Id==npcId).Body;
+        var walked=await HeritageRoute(goal.XMm,goal.ZMm,InReach);
+        ulong through=Time.GetTicksMsec()+90000;
+        while(!InReach())
+        {
+            if(Time.GetTicksMsec()>through)throw new TimeoutException("Could not walk to "+npcId);
+            var npc=sim.Npcs.Single(n=>n.Id==npcId).Body;
+            await HeritageStep(npc.XMm,npc.ZMm,arrived:InReach);
+        }
+        _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);await Rcd3Wait(1);
+        return walked;
+    }
+}

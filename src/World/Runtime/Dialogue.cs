@@ -312,6 +312,8 @@ internal sealed class DialogueSystem : IDialogueFacts
         _context.Setup.Layout.Locations.FirstOrDefault(l => l.Id == locationId) is { } place
         && Math.Sqrt(Math.Pow(State.Body.XMm - place.XMm, 2) + Math.Pow(State.Body.ZMm - place.ZMm, 2)) <= (radiusMm ?? place.DiscoveryRadiusMm);
 
+    public string? People => _context.PlayerPeople;
+
     public string QuestState(string questId, string? objectiveId)
     {
         if (!State.Quests.TryGetValue(questId, out var quest))
@@ -403,5 +405,7 @@ internal sealed class DialogueSystem : IDialogueFacts
         public long Now => _system.Now;
 
         public bool Near(string locationId, long? radiusMm) => _system.Near(locationId, radiusMm);
+
+        public string? People => _system.People;
     }
 }

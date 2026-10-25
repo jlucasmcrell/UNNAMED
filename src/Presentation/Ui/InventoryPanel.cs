@@ -421,8 +421,12 @@ public partial class InventoryPanel : CanvasLayer
                 row.Root.AddChild(sellOne);
             }
         }
-        row.Root.AddChild(Button(id, "Drop", () => Submit(new MoveItemCommand(simulation.PlayerId, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.Ground, entry.Count)),
-            UiKit.Kind.Destructive));
+        // A heritage item is offered for sale at any trader, so a trader of another people says why they will not take it (owner, 2026-10-24).
+        else if (OpenTrader is { } other && definition?.Heritage is not null && !equipped)
+            row.Root.AddChild(Button(id, "Sell", () => Submit(new SellCommand(simulation.PlayerId, other, entry.ItemId, entry.Count))));
+        if (definition is not { NoDrop: true })
+            row.Root.AddChild(Button(id, "Drop", () => Submit(new MoveItemCommand(simulation.PlayerId, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.Ground, entry.Count)),
+                UiKit.Kind.Destructive));
         return row.Root;
     }
 
@@ -438,8 +442,10 @@ public partial class InventoryPanel : CanvasLayer
         line.AddThemeConstantOverride("h_separation", 8);
         line.AddThemeConstantOverride("v_separation", 6);
         line.AddChild(Button(id, entry.Locked ? "Unlock" : "Lock", () => Submit(new LockStackCommand(player, entry.ItemId, !entry.Locked))));
-        line.AddChild(Button(id, entry.Junk ? "Not junk" : "Mark as junk", () => Submit(new MarkJunkCommand(player, entry.ItemId, !entry.Junk))));
         var definition = simulation.Setup.Items.Catalog.Find(entry.DefId);
+        // What the world will not junk - anything that cannot be sold or cannot be dropped (a quest item, a heritage keepsake) - is not offered.
+        if (entry.Junk || definition is not ({ NoSell: true } or { NoDrop: true }))
+            line.AddChild(Button(id, entry.Junk ? "Not junk" : "Mark as junk", () => Submit(new MarkJunkCommand(player, entry.ItemId, !entry.Junk))));
         var carried = simulation.Player.Inventory;
         if (entry.Count > 1)
             line.AddChild(Button(id, $"Split {entry.Count / 2}", () => Submit(new MoveItemCommand(player, id, ItemPlace.Carried, ItemPlace.Carried, entry.Count / 2))));
@@ -723,6 +729,8 @@ public partial class InventoryPanel : CanvasLayer
             Organise(simulation, carriedEntry);
         if (item?.Bag is { } bagSpec)
             notes.Add(($"A bag: {setup.Items.Inventory.Bags.Capacity(bagSpec, quality)} slots at this make, {(bagSpec.IsSpecialised ? "takes " + PackModel.AcceptsWords(bagSpec.Accepts) : "takes anything")}. It adds room, not carrying strength.", HudStyle.Ash, null));
+        if (item?.Heritage is { } heritage)
+            notes.Add(($"{HeritageRules.PeopleWord(heritage)} heritage: only the {HeritageRules.PeopleWord(heritage)} use, buy, sell or trade it, and it is never dropped.", HudStyle.Brass, null));
         foreach (var (text, tone, icon) in notes)
         {
             if (icon is null || !_icons.Binds(icon))

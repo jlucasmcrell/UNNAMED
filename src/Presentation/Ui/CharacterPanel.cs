@@ -2,6 +2,7 @@
 // Godot presentation only: it reads views and submits one command; the points being weighed are presentation state only (D-11)
 
 using Godot;
+using System.Collections.Immutable;
 using UNNAMED.Application;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
@@ -136,6 +137,8 @@ public partial class CharacterPanel : CanvasLayer
             chips.AddChild(UiKit.Chip($"{progression.UnspentAttributePoints} {(progression.UnspentAttributePoints == 1 ? "point" : "points")} to spend", HudStyle.Ember));
         top.AddChild(chips);
         band.AddChild(top);
+        foreach (string title in _session.Simulation?.Titles ?? ImmutableArray<string>.Empty)
+            band.AddChild(UiKit.Caption(title, HudStyle.Brass, 18));
         if (CharacterWords.Call(view.Identity.CallId, _session.Characters.Calls, id => Names.Of(_session, id)) is { } call)
         {
             var who = new HBoxContainer();

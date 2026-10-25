@@ -6,6 +6,8 @@ tags: [people]
 name: Veth
 notes: The touched lineage (RACES.md §1). The slice ships the Veth only (E14 / OD-08, DCP:912), so they are the one playable people. Suggest names are the owner-approved working list (owner, 2026-10-06, "Draft list for review"; canon proposals/new/playtest/VETH_NAMES_AND_GRAZERS.md as recorded in docs/restore/OWNER_RULINGS_2026-10-05_to_14.txt) - a short given name and a land-or-work surname, old roots vess, tal, lind, ren, ost, pel. They are working names until the owner reviews them; the list makes no leaning by body or pronouns.
 playable: true
+heritage:
+  - { item_ref: item.heritage.kept_roll, count: 1 }
 suggest_names:
   - Oswin Tallow
   - Davan Pellcroft

@@ -359,6 +359,30 @@ public sealed record ItemDefinition(
     /// everything else a pack can hold.
     /// </summary>
     public string? PetCreature { get; init; }
+
+    /// <summary>
+    /// The people whose heritage it is (<c>heritage</c>, owner 2026-10-24): only that people may use, buy, sell, trade or be given it.
+    /// Null for everything else.
+    /// </summary>
+    public string? Heritage { get; init; }
+}
+
+/// <summary>Heritage items (owner, 2026-10-24): used, bought, sold, traded and given only between characters of the same people.</summary>
+public static class HeritageRules
+{
+    /// <summary>Whether someone of this people (null: none known) may use or trade the item.</summary>
+    public static bool Allows(ItemDefinition item, string? peopleId) => item.Heritage is null || item.Heritage == peopleId;
+
+    /// <summary>Why someone of another people cannot have the item; null when they can.</summary>
+    public static string? Refusal(ItemDefinition item, string? peopleId) =>
+        Allows(item, peopleId) ? null : $"that is {PeopleWord(item.Heritage!)} heritage: only their own people use or trade it";
+
+    /// <summary>A people's ID as a word: <c>people.veth</c> is "Veth".</summary>
+    public static string PeopleWord(string peopleId)
+    {
+        string word = peopleId.StartsWith("people.", StringComparison.Ordinal) ? peopleId["people.".Length..] : peopleId;
+        return word.Length == 0 ? word : char.ToUpperInvariant(word[0]) + word[1..];
+    }
 }
 
 /// <summary>The item definitions content defines, by ID.</summary>
