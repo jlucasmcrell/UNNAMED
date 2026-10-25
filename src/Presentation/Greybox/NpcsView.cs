@@ -222,7 +222,13 @@ public partial class NpcsView : Node3D
         public bool Voiced;
         public AudioStreamPlayer3D? Voice;
         public AudioStream? Line;
+        // Owner finding 52: when each line was last said (seconds of play), so none comes round again within RepeatSeconds.
+        public readonly Dictionary<string, double> Said = new(StringComparer.Ordinal);
+        public double LastHint = double.NegativeInfinity;
     }
+
+    private const double RepeatSeconds = 600;
+    private double _clock;
 
     private const float BarkReach = Audio.VoiceRules.BarkFullM;
     private const float BarkPixelSize = 0.0035f, BarkSizeFullM = 4f, BarkNearestM = 1.2f;
@@ -258,6 +264,7 @@ public partial class NpcsView : Node3D
         bark.Left -= delta;
         bark.Shown += delta;
         bark.Quiet -= delta;
+        _clock += delta / Math.Max(1, _barks.Count);
         float distance = feet.DistanceTo(PlayerHead.GlobalPosition);
         var head = figure.Head ?? feet + Vector3.Up * 1.6f;
         bool near = distance < BarkReach && simulation.Conversation is null && !npc.Downed;
@@ -266,9 +273,16 @@ public partial class NpcsView : Node3D
             bark.Quiet = 5;
         else if (!lines.IsDefault)
         {
-            var fresh = lines.Where(l => l.Text != bark.Last).ToArray();
-            var line = fresh.Length > 0 ? fresh[_random.RandiRange(0, fresh.Length - 1)] : lines[0];
+            var fresh = lines.Where(l => l.Text != bark.Last && (!bark.Said.TryGetValue(l.Text, out double at) || _clock - at >= RepeatSeconds)).ToArray();
+            if (fresh.Length == 0)
+            {
+                // Everything they have to say was said lately: they keep quiet rather than say it again.
+                bark.Quiet = 60;
+                return bark.Left > 0 ? bark.Label.Text : null;
+            }
+            var line = fresh[_random.RandiRange(0, fresh.Length - 1)];
             bark.Last = line.Text;
+            bark.Said[line.Text] = _clock;
             bark.Voice = Voice?.Bark(line.LineId, head);
             bark.Line = bark.Voice?.Stream;
             bark.Voiced = bark.Line is not null;
@@ -298,6 +312,26 @@ public partial class NpcsView : Node3D
         if (bark.Voice is { Playing: true } voice && voice.Stream == bark.Line)
             voice.GlobalPosition = head;   // a speaker who walks on - a companion following - takes their voice along
         return bark.Label.Text;
+    }
+
+    /// <summary>
+    /// A line said now, over someone's head (a companion's hint): shown as a bark is, unless the same line was said within ten minutes or,
+    /// with <paramref name="spacingSeconds"/>, any hint was said that recently.
+    /// </summary>
+    public void Say(string npcId, string lineId, string text, double spacingSeconds)
+    {
+        if (!_barks.TryGetValue(npcId, out var bark) || _clock - bark.LastHint < spacingSeconds
+            || bark.Said.TryGetValue(text, out double at) && _clock - at < RepeatSeconds)
+            return;
+        bark.Said[text] = bark.LastHint = _clock;
+        bark.Last = bark.Label.Text = text;
+        bark.Voice = null;
+        bark.Line = null;
+        bark.Voiced = false;
+        bark.Left = 1.5 + text.Length / 15.0;
+        bark.Shown = 0;
+        bark.Quiet = bark.Left + _random.RandfRange(25f, 45f);
+        Said?.Invoke(npcId, text, bark.Left);
     }
 
     /// <summary>A companion's blow landed (the simulation reports it as it lands): their figure strikes.</summary>

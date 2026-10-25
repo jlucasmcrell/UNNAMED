@@ -82,14 +82,22 @@ internal sealed class ApprovalSystem : IAbstractAdvance
 {
     private readonly SystemContext _context;
     private readonly Func<string, ImmutableArray<SpokenLine>> _banter;
+    private readonly Func<QuestMarker?> _tracked;
 
     /// <summary>The tick before which the party says nothing more (a remark was just made). Transient: a load starts talkative, and nothing saved depends on it.</summary>
     private long _quietUntil;
 
-    public ApprovalSystem(SystemContext context, Func<string, ImmutableArray<SpokenLine>> banter)
+    /// <summary>When each banter line was last said (owner finding 52: no line twice within <see cref="RepeatTicks"/>). Transient, like the quiet.</summary>
+    private readonly Dictionary<string, long> _said = new(StringComparer.Ordinal);
+
+    /// <summary>Ten real minutes at the fixed 20 Hz tick.</summary>
+    private const long RepeatTicks = 10 * 60 * 20;
+
+    public ApprovalSystem(SystemContext context, Func<string, ImmutableArray<SpokenLine>> banter, Func<QuestMarker?> tracked)
     {
         _context = context;
         _banter = banter;
+        _tracked = tracked;
     }
 
     private RuntimeState State => _context.State;
@@ -184,11 +192,16 @@ internal sealed class ApprovalSystem : IAbstractAdvance
         if (tick < _quietUntil || State.PlayerCombat.Defeated)
             return;
         long near = _context.Setup.Social.Companions?.CatchUpBeyondMm ?? 0;
-        var lines = State.Companions.Values
+        var speakers = State.Companions.Values
             .Where(c => c.Condition == CompanionCondition.Up && c.Order == CompanionOrder.Follow && c.TargetKey is null && State.Conversation?.NpcId != c.NpcId
                         && State.Npcs.TryGetValue(c.NpcId, out var npc) && Distance(npc.Body, State.Body) <= near)
-            .SelectMany(c => _banter(c.NpcId).Select(line => (c.NpcId, Line: line)))
-            .ToList();
+            .Select(c => c.NpcId).ToList();
+        bool Fresh(SpokenLine line) => !_said.TryGetValue(line.LineId, out long at) || tick - at >= RepeatTicks;
+        // Owner finding 52: a companion's word on the way on comes first - the tracked quest's mark, which is only ever a place, person or
+        // stone the character already knows - and the idle lines only when there is nothing useful to say.
+        var hints = speakers.Select(id => (NpcId: id, Line: Hint(id))).Where(h => h.Line is not null && Fresh(h.Line)).Select(h => (h.NpcId, Line: h.Line!)).ToList();
+        var lines = hints.Count > 0 ? hints
+            : speakers.SelectMany(id => _banter(id).Select(line => (NpcId: id, Line: line))).Where(l => Fresh(l.Line)).ToList();
         if (lines.Count == 0 || State.Conversation is not null)
             return;
         var channel = RngChannel.Open(State.World.WorldSeed, CellKey.OfWorld(0, 0), "banter", $"line@{tick}");
@@ -196,8 +209,28 @@ internal sealed class ApprovalSystem : IAbstractAdvance
             return;
         var (npcId, spoken) = lines[channel.Int(1, 0, lines.Count)];
         _quietUntil = tick + rules.QuietTicks;
+        _said[spoken.LineId] = tick;
         _context.Events.Publish(new BanterSpoken(npcId, spoken.LineId, spoken.Text, tick));
     }
+
+    /// <summary>Which way the tracked quest's mark lies, in a companion's words; null when there is none, or it is close.</summary>
+    private SpokenLine? Hint(string npcId)
+    {
+        if (_tracked() is not { } mark)
+            return null;
+        double dx = mark.XMm - State.Body.XMm, dz = mark.ZMm - State.Body.ZMm, metres = Math.Sqrt(dx * dx + dz * dz) / 1000.0;
+        if (metres < HintBeyondM)
+            return null;
+        // Clockwise from north, as the compass reads a mark (CompassMarkerModel).
+        string way = Points[(int)Math.Round(((Math.Atan2(dx, dz) * 180 / Math.PI) % 360 + 360) % 360 / 45) % 8];
+        long paces = (long)Math.Round(metres / 10) * 10;
+        string text = mark.Kind == TargetKind.Location ? $"Our way on is {way} of here. {paces} paces, give or take."
+            : $"{mark.Label}'s {way} of here. {paces} paces, give or take.";
+        return new SpokenLine($"hint.{npcId}.{mark.QuestId}.{mark.ObjectiveId}", text);
+    }
+
+    private const double HintBeyondM = 30;
+    private static readonly string[] Points = { "north", "north-east", "east", "south-east", "south", "south-west", "west", "north-west" };
 
     /// <summary>How a party member regards the character, in words and as what they would do if asked now.</summary>
     public (string Regard, Disposition Disposition) Standing(string npcId, string name) =>

@@ -60,16 +60,20 @@ public partial class Main
                 }
             _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);
         }
-        // Run along a heading; jump once the body comes within reach of the named rock; keep running for the given time.
+        // Run along a heading; jump once the body comes within reach of the named rock (no jump at 0); run on for the given time after it.
         async Task RunAndJump(Vector3 heading,string rock,float jumpWithinM,double seconds)
         {
-            step=rock+" run";
+            step=rock+(jumpWithinM>0?" run":" off");
             var target=simulation.Setup.Layout.Space.Blockers.Single(b=>b.Id==rock);
-            bool jumped=false;
-            for(ulong until=Time.GetTicksMsec()+(ulong)(seconds*1000);Time.GetTicksMsec()<until;)
+            bool jumped=jumpWithinM<=0;
+            ulong giveUp=Time.GetTicksMsec()+6000,until=jumped?Time.GetTicksMsec()+(ulong)(seconds*1000):ulong.MaxValue;
+            while(Time.GetTicksMsec()<Math.Min(until,giveUp))
             {
                 _controller.SteerWorld(heading,Gait.Run,_camera);
-                if(!jumped&&target.DistanceTo(simulation.Player.Body.XMm,simulation.Player.Body.ZMm)<jumpWithinM*1000){_controller.Jump();jumped=true;step=rock+" jump";}
+                if(!jumped&&target.DistanceTo(simulation.Player.Body.XMm,simulation.Player.Body.ZMm)<jumpWithinM*1000)
+                {
+                    _controller.Jump();jumped=true;step=rock+" jump";until=Time.GetTicksMsec()+(ulong)(seconds*1000);
+                }
                 await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
                 Log();
             }
@@ -87,7 +91,8 @@ public partial class Main
         await Frames(1);
         await WalkTo(new Vector2(952.5f,703.1f));
         await Frames(1);
-        await RunAndJump(Vector3.Right,"cw_boulder_a_222",.9f,.9);   // onto the 0.8 m boulder, and stop on it
+        await RunAndJump(Vector3.Right,"cw_boulder_a_222",.9f,.7);   // onto the 0.8 m boulder, and stop on it
+        step="cw_boulder_a_222 stand";
         await Frames(2);
         await RunAndJump(Vector3.Right,"cw_boulder_a_222",0,1.2);    // off its far side
         await Frames(2);
@@ -97,6 +102,7 @@ public partial class Main
     private async Task RunRcd6RealtimeRoute(string directory)
     {
         _rcd3Driving=true;
+        DisplayServer.WindowSetTitle("Otherreach - "+Path.GetFileName(directory));
         var simulation=_session.Simulation ?? throw new InvalidOperationException("World missing");
         // A review can be scheduled while the boot canvas still covers the world.
         // Never spend part of the requested route behind the loading screen.
@@ -110,8 +116,9 @@ public partial class Main
             return;
         }
         string arm=OS.GetEnvironment("OTHERREACH_VISIBILITY_ARM");
+        var arms=arm.Split(',');
         var scatter=_scatter.FindChildren("*",nameof(MultiMeshInstance3D),true,false).OfType<MultiMeshInstance3D>().ToArray();
-        if(arm=="scatter_single_lod")
+        if(arms.Contains("scatter_single_lod"))
         {
             // Hold geometry constant without the invalid all-LODs-at-once experiment.
             // Godot renames duplicate form names; the existing common band AABB is the reliable family key.
@@ -130,25 +137,35 @@ public partial class Main
         }
         foreach(var n in scatter)
         {
-            if(arm=="scatter_self_fade")
+            if(arms.Contains("scatter_self_fade"))
             {
                 n.VisibilityRangeBeginMargin=n.VisibilityRangeBegin*.1f;
                 n.VisibilityRangeEndMargin=n.VisibilityRangeEnd*.1f;
                 n.VisibilityRangeFadeMode=GeometryInstance3D.VisibilityRangeFadeModeEnum.Self;
             }
-            if(arm=="scatter_bounds")
+            if(arms.Contains("scatter_bounds"))
             {
                 var box=n.CustomAabb.Size.LengthSquared()>0?n.CustomAabb:n.Multimesh.GetAabb();
                 n.CustomAabb=box.Grow(8); // Preserve the existing common LOD-band centre.
             }
-            if(arm=="scatter_shadows_off")n.CastShadow=GeometryInstance3D.ShadowCastingSetting.Off;
+            if(arms.Contains("scatter_shadows_off"))n.CastShadow=GeometryInstance3D.ShadowCastingSetting.Off;
         }
-        if(arm=="directional_shadows_off")
+        if(arms.Contains("directional_shadows_off"))
             foreach(var n in FindChildren("*",nameof(DirectionalLight3D),true,false).OfType<DirectionalLight3D>())n.ShadowEnabled=false;
-        if(arm=="sdfgi_off")
+        if(arms.Contains("sdfgi_off"))
             foreach(var n in FindChildren("*",nameof(WorldEnvironment),true,false).OfType<WorldEnvironment>())
                 if(n.Environment is {} environment)environment.SdfgiEnabled=false;
-        if(arm=="occlusion_off")
+        foreach(var n in FindChildren("*",nameof(WorldEnvironment),true,false).OfType<WorldEnvironment>())
+            if(n.Environment is {} e)
+            {
+                if(arms.Contains("ssao_ssil_off")){e.SsaoEnabled=false;e.SsilEnabled=false;}
+                if(arms.Contains("volumetric_off"))e.VolumetricFogEnabled=false;
+                if(arms.Contains("ssr_off"))e.SsrEnabled=false;
+            }
+        if(arms.Contains("clouds_off"))
+            foreach(var n in FindChildren("*",nameof(WorldEnvironment),true,false).OfType<WorldEnvironment>())
+                if(n.Compositor is {} c)foreach(var effect in c.CompositorEffects)effect.Enabled=false;
+        if(arms.Contains("occlusion_off"))
         {
             GetViewport().UseOcclusionCulling=false;
             foreach(var n in FindChildren("*",nameof(OccluderInstance3D),true,false).OfType<OccluderInstance3D>())n.Visible=false;
@@ -179,7 +196,7 @@ public partial class Main
             // Ashen Hollow approach, forest verge, eastern road, Cairnwold entry.
             foreach(var end in new[]{new Vector2(450,748),new Vector2(480,760),new Vector2(560,752),new Vector2(650,742),
                 new Vector2(744.8f,732.5f),new Vector2(745.5f,731.8f),new Vector2(908.8f,705.5f),
-                new Vector2(911.8f,702.8f),new Vector2(937,683)})
+                new Vector2(911.8f,702.8f),new Vector2(937,683)}.Take(int.TryParse(OS.GetEnvironment("OTHERREACH_ROUTE_LEGS"),out int legs)?legs:9))
             {
                 var body=simulation.Player.Body;
                 var path=Playthrough.WayTo(simulation,body,new Body((long)(end.X*1000),body.YMm,(long)(end.Y*1000),body.FacingMdeg),standOff:0);
