@@ -31,6 +31,10 @@ public sealed partial class FaceDriver : Node
     private Vector3? _gaze;
     private Skeleton3D? _nativeRig;
     private Node3D? _nativeBody, _eyeTarget;
+    // The head's forward in its own rest frame: gaze is aimed from where the head points, not from the level body,
+    // or a clip that tips the head down rolls the eyes up under the lids to hold a level target.
+    private int _headBone = -1;
+    private Vector3 _headAxis;
     public int NativeEyeBindings { get; private set; }
     public bool NativeJawBound { get; private set; }
     public void Gaze(Vector3? localDirection) => _gaze = localDirection;
@@ -165,7 +169,11 @@ public sealed partial class FaceDriver : Node
         // These facial channels also run when the optional full-body IK is disabled.
         _eyeTarget = new Node3D { Name = "FacialEyeTarget" };
         body.AddChild(_eyeTarget);
+        _headBone = rig.FindBone("Head");
+        if (_headBone >= 0)
+            _headAxis = (rig.GetBoneGlobalRest(_headBone).Basis.Inverse() * (rig.GlobalBasis.Inverse() * body.GlobalBasis.Z)).Normalized();
         UpdateNativeEyes(Vector2.Zero);
+        rig.AddChild(new HumGenHeadLevel { Name = "HeadLevel", Body = body });
         var eyes = new HumGenEyes { Name = "FACSEyes", Body = body, WorldTarget = () => _eyeTarget.GlobalPosition };
         rig.AddChild(eyes);
         NativeEyeBindings = eyes.BoundCount;
@@ -178,7 +186,10 @@ public sealed partial class FaceDriver : Node
         if (left < 0 || right < 0) return;
         var direction = new Vector3(Mathf.Tan(look.X * .65f), Mathf.Tan(look.Y * .5f), 1).Normalized();
         var centre = (rig.GetBoneGlobalPose(left).Origin + rig.GetBoneGlobalPose(right).Origin) * .5f;
-        _eyeTarget.GlobalPosition = rig.GlobalTransform * centre + body.GlobalBasis * direction * 2;
+        var ahead = body.GlobalBasis * direction;
+        if (_headBone >= 0)
+            ahead = new Quaternion(body.GlobalBasis.Z.Normalized(), HumGenHeadLevel.Level((rig.GlobalBasis * (rig.GetBoneGlobalPose(_headBone).Basis * _headAxis)).Normalized(), Vector3.Up)) * ahead;
+        _eyeTarget.GlobalPosition = rig.GlobalTransform * centre + ahead * 2;
     }
 
     private static int ShapeIndex(MeshInstance3D mesh, string channel)
