@@ -26,6 +26,8 @@ Nothing else needs installing, and the game never asks for administrator rights.
 
 **Graphics cards with 8 GB of memory are not supported in this playtest:** the game runs out of graphics memory and slows to a crawl. We are working on it for the next one.
 
+**16 GB of graphics memory is recommended for the Barrowworks dungeon.** Its interior currently uses more memory than the outdoor world.
+
 Quality, resolution, render scale and the individual effects are in **Settings > Graphics**. If the game runs slowly, choose a lower quality or a lower render scale there.
 
 ## Controls
