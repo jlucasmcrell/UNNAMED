@@ -116,8 +116,8 @@ public partial class Main
                                 texture_albedo = material is ShaderMaterial tm ? tm.GetShaderParameter("texture_albedo").AsGodotObject()?.GetType().Name : null,
                                 albedo_texture = (material as BaseMaterial3D)?.AlbedoTexture?.GetType().Name,
                             };
-                        }),
-                    }) });
+                        }).ToList(),
+                    }).ToList() });
                     File.WriteAllText(Path.Combine(directory, "race_looks.json"), JsonSerializer.Serialize(log, new JsonSerializerOptions { WriteIndented = true }));
                     break;
                 }

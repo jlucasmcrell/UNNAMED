@@ -42,8 +42,8 @@ void fragment() {
 	float body = smoothstep(0.05, 0.55, facing + (wisp - 0.5) * 0.45);
 	float feet = smoothstep(0.05, 0.6, rest.y);
 	float alive = smoothstep(dissolve - 0.08, dissolve + 0.08, wisp);
-	vec3 pale = mix(base.rgb, vec3(dot(base.rgb, vec3(0.299, 0.587, 0.114))), 0.3);
-	ALBEDO = mix(pale * 1.1, SPIRIT, 0.28);
+	vec3 pale = mix(base.rgb, vec3(dot(base.rgb, vec3(0.299, 0.587, 0.114))), 0.15);
+	ALBEDO = mix(pale, SPIRIT, 0.12);
 	ROUGHNESS = 1.0;
 	EMISSION = SPIRIT * (0.04 + 0.1 * (1.0 - facing)) * strength;
 	ALPHA = strength * base.a * mix(0.55, 1.0, body) * body * feet * alive;

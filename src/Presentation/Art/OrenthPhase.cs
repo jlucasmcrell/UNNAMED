@@ -18,6 +18,17 @@ public partial class OrenthPhase : Node
     private readonly Queue<(double Time, Vector3 Position)> _path = new();
     private Node3D _body = null!;
     private double _clock, _phaseStart = -1, _phaseSeconds;
+    // Ghost materials still waiting for their source surface's texture: a figure's textures can be bound after it is built.
+    private readonly List<(MeshInstance3D Source, int Surface, ShaderMaterial Ghost)> _unbound = new();
+
+    /// <summary>The surface's own albedo map and colour, wherever this material type keeps them; null until it has one.</summary>
+    private static (Texture2D Map, Color Colour)? Albedo(Material? material) => material switch
+    {
+        BaseMaterial3D standard when standard.AlbedoTexture is { } map => (map, standard.AlbedoColor),
+        ShaderMaterial shaded when shaded.GetShaderParameter("texture_albedo").AsGodotObject() is Texture2D map
+            => (map, shaded.GetShaderParameter("albedo").VariantType == Variant.Type.Color ? shaded.GetShaderParameter("albedo").AsColor() : Colors.White),
+        _ => null,
+    };
 
     public static OrenthPhase Attach(Node3D model)
     {
@@ -53,18 +64,9 @@ public partial class OrenthPhase : Node
             var materials = new ShaderMaterial[mesh.Mesh.GetSurfaceCount()];
             for (int surface = 0; surface < materials.Length; surface++)
             {
-                var source = mesh.GetSurfaceOverrideMaterial(surface) ?? mesh.Mesh.SurfaceGetMaterial(surface);
                 var material = new ShaderMaterial { Shader = spirit };
-                if (source is BaseMaterial3D standard)
-                {
-                    material.SetShaderParameter("base_map", standard.AlbedoTexture);
-                    material.SetShaderParameter("base_colour", standard.AlbedoColor);
-                }
-                else if (source is ShaderMaterial shaded && shaded.GetShaderParameter("texture_albedo").AsGodotObject() is Texture2D albedo)
-                {
-                    material.SetShaderParameter("base_map", albedo);
-                }
                 materials[surface] = material;
+                phase._unbound.Add((mesh, surface, material));
                 foreach (var copy in trail.Append(veil))
                     copy.SetSurfaceOverrideMaterial(surface, material);
             }
@@ -79,6 +81,15 @@ public partial class OrenthPhase : Node
     public override void _Process(double delta)
     {
         _clock += delta;
+        for (int i = _unbound.Count - 1; i >= 0; i--)
+        {
+            var (source, surface, ghost) = _unbound[i];
+            if (Albedo(source.GetSurfaceOverrideMaterial(surface) ?? source.Mesh.SurfaceGetMaterial(surface)) is not { } albedo)
+                continue;
+            ghost.SetShaderParameter("base_map", albedo.Map);
+            ghost.SetShaderParameter("base_colour", albedo.Colour);
+            _unbound.RemoveAt(i);
+        }
         var at = _body.GlobalPosition;
         _path.Enqueue((_clock, at));
         while (_path.Count > 2 && _path.Peek().Time < _clock - History)
