@@ -71,7 +71,7 @@ public class ProgressionContentTests : IDisposable
         var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
 
         Assert.Equal(
-            new[] { "skill.athletics", "skill.bow", "skill.force", "skill.handling", "skill.one_hand_blade", "skill.polearm", "skill.salvage", "skill.smithing", "skill.stealth", "skill.survival", "skill.vital", "skill.warding" },
+            new[] { "skill.athletics", "skill.bow", "skill.enchanting", "skill.force", "skill.handling", "skill.one_hand_blade", "skill.polearm", "skill.salvage", "skill.smithing", "skill.stealth", "skill.survival", "skill.vital", "skill.warding" },
             loader.GetByKind("skill").Keys.OrderBy(k => k, StringComparer.Ordinal));
     }
 
@@ -90,7 +90,7 @@ public class ProgressionContentTests : IDisposable
         var rules = ProgressionContent.BuildRules(Load(Path.Combine(RepoPaths.Root(), "content")));
 
         Assert.Equal(
-            new[] { "skill.bow", "skill.one_hand_blade", "skill.polearm", "skill.force", "skill.vital", "skill.warding", "skill.salvage", "skill.smithing", "skill.athletics", "skill.handling", "skill.stealth", "skill.survival" },
+            new[] { "skill.bow", "skill.one_hand_blade", "skill.polearm", "skill.force", "skill.vital", "skill.warding", "skill.enchanting", "skill.salvage", "skill.smithing", "skill.athletics", "skill.handling", "skill.stealth", "skill.survival" },
             rules.Roster.Select(s => s.Id));
         Assert.Equal("combat", rules.Roster[0].Family);
         Assert.Equal(new[] { (0, "Untrained"), (15, "Familiar"), (30, "Proficient"), (45, "Adept"), (60, "Expert"), (61, "Master") },

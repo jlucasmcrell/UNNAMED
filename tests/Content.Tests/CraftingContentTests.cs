@@ -86,7 +86,8 @@ public class CraftingContentTests
 
         Assert.Equal(new[]
         {
-            "recipe.cooking.roast_meat", "recipe.fletching.arrows", "recipe.fletching.hunting_bow", "recipe.fletching.hunting_bow_silk",
+            "recipe.cooking.roast_meat", "recipe.enchanting.ember_touched", "recipe.enchanting.keen", "recipe.enchanting.steadfast",
+            "recipe.enchanting.warding", "recipe.fletching.arrows", "recipe.fletching.hunting_bow", "recipe.fletching.hunting_bow_silk",
             "recipe.herbal.salve_ember", "recipe.herbal.salve_ember_boneleaf", "recipe.herbal.salve_minor", "recipe.herbal.salve_minor_ashbloom",
             "recipe.leatherwork.cloak", "recipe.leatherwork.hide_boots", "recipe.leatherwork.hide_cap", "recipe.leatherwork.hide_cap_fellhorn",
             "recipe.leatherwork.hide_vest", "recipe.leatherwork.hide_vest_barrowback", "recipe.leatherwork.smith_gloves", "recipe.leatherwork.timber_shield",
