@@ -321,7 +321,7 @@ def arrow_plate(v, i):
 
 
 # ---- creature blows: what lands on the character (or a companion) for each kind of attack ----------------------------------
-@family('sfx.creature.blow.bite', 4, -16, 0.7, 'jaws closing on a body: a wet clamp and a tug', 'weapon.impact')
+@family('sfx.creature.blow.bite', 4, -17, 0.7, 'jaws closing on a body: a wet clamp and a tug', 'weapon.impact')
 def blow_bite(v, i):
     v.t(pick(['chomp/01.wav', 'chomp/06.wav', 'chomp/08.wav', 'chomp/16.wav', 'chomp/17.wav'], i), 0, 0, st=v.u(-2, 1), length=0.3)
     v.t(pick(n('k_punch_m', 5), i + 1), 0, -6, st=v.u(-3, -1), lpf=1500)
@@ -329,14 +329,14 @@ def blow_bite(v, i):
     v.t(pick(n('oga_eat', 4), i), 0.03, -14, st=v.u(-3, -1), length=0.2)
 
 
-@family('sfx.creature.blow.claw', 4, -16, 0.7, 'claws raking a body: a scrape that tears, a blow under it', 'weapon.impact')
+@family('sfx.creature.blow.claw', 4, -17, 0.7, 'claws raking a body: a scrape that tears, a blow under it', 'weapon.impact')
 def blow_claw(v, i):
     v.t(pick(n('nail_scratch', 2), i), 0, 0, st=v.u(-2, 2), hpf=700, length=0.3)
     v.t(pick(n('gore_rip', 22), i, 5), 0.01, -5, st=v.u(-1, 1), lpf=7000, start=0, length=0.25)
     v.t(pick(n('k_punch_m', 5), i + 3), 0, -5, st=v.u(-2, 0), lpf=1800)
 
 
-@family('sfx.creature.blow.gore', 4, -15, 0.6, 'a tusk or horn driven into a body: a heavy butt and a stab', 'weapon.impact')
+@family('sfx.creature.blow.gore', 4, -17, 0.6, 'a tusk or horn driven into a body: a heavy butt and a stab', 'weapon.impact')
 def blow_gore(v, i):
     v.t(pick(n('k_punch_h', 5), i + 2), 0, 0, st=v.u(-5, -3), lpf=1500)
     v.t(pick(n('punch_body', 4), i + 3), 0, -2, st=v.u(-3, -1), length=0.35)
@@ -344,7 +344,7 @@ def blow_gore(v, i):
     v.t(pick(n('axe_flesh', 5), i), 0.006, -10, st=v.u(-3, -1), length=0.25, lpf=6000)
 
 
-@family('sfx.creature.blow.sting', 4, -17, 0.8, 'a fang or stinger stabbing a body: a sharp pierce and a click', 'weapon.impact')
+@family('sfx.creature.blow.sting', 4, -18, 0.8, 'a fang or stinger stabbing a body: a sharp pierce and a click', 'weapon.impact')
 def blow_sting(v, i):
     v.t(pick(n('spear_fish', 4), i + 2), 0, 0, st=v.u(2, 4), hpf=1500, start=0, length=0.12)
     v.t(pick(n('bug', 13), i, 3), 0.005, -8, st=v.u(-1, 2), length=0.2)
@@ -352,7 +352,7 @@ def blow_sting(v, i):
     v.t(pick(n('k_punch_m', 5), i + 4), 0, -10, lpf=1200)
 
 
-@family('sfx.creature.blow.slam', 4, -15, 0.5, 'a construct\'s limb slammed into a body: metal mass and a hard thud', 'weapon.impact')
+@family('sfx.creature.blow.slam', 4, -18, 0.5, 'a construct\'s limb slammed into a body: metal mass and a hard thud', 'weapon.impact')
 def blow_slam(v, i):
     v.t('metal_thud/01.wav', 0, 0, st=v.u(-4, -1), length=0.5, lpf=500)
     v.t(pick(n('k_plate_h', 5), i + 2), 0, -4, st=v.u(-5, -3))
