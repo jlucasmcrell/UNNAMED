@@ -301,11 +301,13 @@ public partial class CreatorScreen : CanvasLayer
     {
         var body = OfferedBodies().FirstOrDefault(o => o.Id == Draft.BodyPresetId);
         var worn = Outfit(Draft.CallId);
-        string shown = $"{body?.Model}|{body?.Body.ArmSplayDegrees}|{worn}";
+        string tones = Draft.Appearance is { } look ? string.Join(",", look.Sliders.Where(s => s.Key.StartsWith("look.", StringComparison.Ordinal))) : "";
+        string shown = $"{body?.Model}|{body?.Body.ArmSplayDegrees}|{worn}|{Draft.PeopleId}|{tones}";
         if (shown == _shownBody)
             return;
         _shownBody = shown;
         _preview.Show(body?.Model, body?.Body.ArmSplayDegrees ?? 0, worn);
+        _preview.Look(Draft.PeopleId, Draft.Appearance);
     }
 
     /// <summary>Every worn armour slot in the Call's actual starting kit, using the same selection as Main.</summary>
@@ -494,6 +496,7 @@ public partial class CreatorScreen : CanvasLayer
         _body.AddChild(builds);
         _body.AddChild(PendingNote());
         _body.AddChild(HeightSection());
+        _body.AddChild(SwatchSection("Skin", LookSwatches.SkinSlider, LookSwatches.Skin(Draft.PeopleId), new Color(.36f, .26f, .2f), multiply: true));
         _body.AddChild(SliderSection("body", "Shape", "HumGen body proportions"));
 
         var randomise = UiKit.Action("Randomise", Deferred(() =>

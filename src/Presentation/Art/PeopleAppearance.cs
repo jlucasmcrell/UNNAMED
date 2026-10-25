@@ -1,5 +1,6 @@
 // Presentation only: peoples' surfaces over unchanged approved MetaHuman anatomy.
 using Godot;
+using UNNAMED.Domain.Character;
 
 namespace UNNAMED.Presentation.Art;
 
@@ -148,5 +149,61 @@ public static class PeopleAppearance
         material.SetShaderParameter("base_map", source.AlbedoTexture);
         material.SetShaderParameter("base_colour", source.AlbedoColor);
         material.SetShaderParameter("preserve_base_layer", true);
+    }
+
+    /// <summary>
+    /// The creator's skin tone and hair colour on a built figure (<see cref="LookSwatches"/>): the skin's colour scaled, a colour added over
+    /// the hair cards, each on this figure's own copy of the material. The material each surface had before is kept on the mesh, so choosing
+    /// again starts from it rather than from the last tint, and "as made" puts it back.
+    /// </summary>
+    public static void ApplyLook(Node model, string? people, CharacterAppearance? look)
+    {
+        int? Index(string slider) => look is not null && look.Sliders.TryGetValue(slider, out int value) ? value : null;
+        var skin = LookSwatches.Chosen(LookSwatches.Skin(people), Index(LookSwatches.SkinSlider));
+        var hair = LookSwatches.Chosen(LookSwatches.Hair(people), Index(LookSwatches.HairSlider));
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+        {
+            if (mesh.Mesh is null)
+                continue;
+            for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
+            {
+                string name = mesh.Mesh.SurfaceGetMaterial(surface)?.ResourceName ?? string.Empty;
+                bool isSkin = name.EndsWith("_Skin", StringComparison.OrdinalIgnoreCase);
+                bool isHair = new[] { "_HairCards", "_FaceHairCards", "_Haircap" }.Any(h => name.EndsWith(h, StringComparison.OrdinalIgnoreCase));
+                if (!isSkin && !isHair)
+                    continue;
+                string key = $"look_base_{surface}";
+                if (!mesh.HasMeta(key))
+                    mesh.SetMeta(key, (GodotObject?)mesh.GetSurfaceOverrideMaterial(surface) ?? mesh.Mesh.SurfaceGetMaterial(surface));
+                var original = mesh.GetMeta(key).As<Material>();
+                var swatch = isSkin ? skin : hair;
+                mesh.SetSurfaceOverrideMaterial(surface, swatch is null ? original : isSkin ? Tinted(original, swatch) : Coloured(original, swatch));
+            }
+        }
+    }
+
+    private static Material Tinted(Material original, Swatch tone)
+    {
+        var copy = (Material)original.Duplicate();
+        if (copy is ShaderMaterial shader)
+        {
+            var albedo = original is ShaderMaterial source ? source.GetShaderParameter("albedo").AsColor() : Colors.White;
+            shader.SetShaderParameter("albedo", new Color(albedo.R * tone.R, albedo.G * tone.G, albedo.B * tone.B, albedo.A));
+        }
+        else if (copy is BaseMaterial3D material)
+            material.AlbedoColor = new Color(material.AlbedoColor.R * tone.R, material.AlbedoColor.G * tone.G, material.AlbedoColor.B * tone.B, material.AlbedoColor.A);
+        return copy;
+    }
+
+    private static Material Coloured(Material original, Swatch colour)
+    {
+        if (original.Duplicate() is not BaseMaterial3D copy)
+            return original;
+        var image = Image.CreateEmpty(1, 1, false, Image.Format.Rgba8);
+        image.Fill(new Color(colour.R, colour.G, colour.B));
+        copy.DetailEnabled = true;
+        copy.DetailBlendMode = BaseMaterial3D.BlendModeEnum.Add;
+        copy.DetailAlbedo = ImageTexture.CreateFromImage(image);
+        return copy;
     }
 }

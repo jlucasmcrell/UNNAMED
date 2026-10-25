@@ -4,6 +4,7 @@
 
 using Godot;
 using UNNAMED.Domain.Character;
+using UNNAMED.Presentation.Art;
 using UNNAMED.Presentation.Ui.Models;
 
 namespace UNNAMED.Presentation.Ui;
@@ -72,6 +73,7 @@ public partial class CreatorScreen
     {
         _body.AddChild(PendingNote());
         _body.AddChild(OptionSection(CreatorChoice.Hair, "Hair", "HumGen hair cards"));
+        _body.AddChild(SwatchSection("Hair colour", LookSwatches.HairSlider, LookSwatches.Hair(Draft.PeopleId), new Color(.08f, .035f, .012f), multiply: false));
         if (_catalogue.Options(CreatorChoice.FacialHair, Sex).Count > 0)
             _body.AddChild(OptionSection(CreatorChoice.FacialHair, "Facial hair", "", none: "Clean-shaven"));
         _body.AddChild(SliderSection("hair", "Colour", ""));
@@ -161,6 +163,44 @@ public partial class CreatorScreen
         var section = UiKit.Section("Height", race is null ? "" : $"{race.Label}: {Metres(min)}-{Metres(max)}");
         section.AddChild(SliderRow("creator.height", "Height", min, max, 10, Math.Clamp(Look.StatureMm, min, max), Metres,
             v => Shape(look => look with { StatureMm = v })));
+        return section;
+    }
+
+    /// <summary>
+    /// A row of tones (<see cref="LookSwatches"/>), each a chip of the colour it gives over <paramref name="baked"/> (the body's baked colour,
+    /// scaled for a skin tone, added to for hair) and its name; the choice is kept as the slider's index, the first one as no slider at all.
+    /// </summary>
+    private Control SwatchSection(string heading, string slider, IReadOnlyList<Swatch> swatches, Color baked, bool multiply)
+    {
+        var section = UiKit.Section(heading);
+        var grid = new GridContainer { Columns = 5 };
+        grid.AddThemeConstantOverride("h_separation", 6);
+        grid.AddThemeConstantOverride("v_separation", 6);
+        int chosen = Look.Sliders.TryGetValue(slider, out int at) ? at : 0;
+        for (int i = 0; i < swatches.Count; i++)
+        {
+            var swatch = swatches[i];
+            int index = i;
+            string id = $"creator.{slider}.{i}";
+            var button = UiKit.Action(swatch.Label, Deferred(() =>
+            {
+                Shape(look => look with { Sliders = index == 0 ? look.Sliders.Remove(slider) : look.Sliders.SetItem(slider, index) });
+                Render(id);
+            }), compact: true, id: id);
+            button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+            var chip = new ColorRect
+            {
+                Color = multiply ? new Color(Math.Min(1, baked.R * swatch.R), Math.Min(1, baked.G * swatch.G), Math.Min(1, baked.B * swatch.B))
+                    : new Color(Math.Min(1, baked.R + swatch.R), Math.Min(1, baked.G + swatch.G), Math.Min(1, baked.B + swatch.B)),
+                CustomMinimumSize = new Vector2(14, 14), MouseFilter = Control.MouseFilterEnum.Ignore,
+            };
+            chip.SetAnchorsPreset(Control.LayoutPreset.CenterLeft);
+            chip.Position = new Vector2(6, -7);
+            button.AddChild(chip);
+            UiKit.Select(button, index == chosen);
+            grid.AddChild(button);
+        }
+        section.AddChild(grid);
         return section;
     }
 

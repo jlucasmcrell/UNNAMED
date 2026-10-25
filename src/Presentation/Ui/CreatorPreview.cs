@@ -124,6 +124,13 @@ public sealed partial class CreatorPreview : TextureRect
         figure.Hold(weapon);
     }
 
+    /// <summary>The draft's skin tone and hair colour on the body shown (<see cref="PeopleAppearance.ApplyLook"/>).</summary>
+    public void Look(string? people, Domain.Character.CharacterAppearance? look)
+    {
+        if (_figure is not null)
+            PeopleAppearance.ApplyLook(_figure, people, look);
+    }
+
     /// <summary>Turn the body by an angle, in radians.</summary>
     public void Turn(float radians) => _yaw = Mathf.Wrap(_yaw + radians, -Mathf.Pi, Mathf.Pi);
 

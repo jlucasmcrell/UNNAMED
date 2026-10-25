@@ -153,6 +153,7 @@ public partial class Main
             _avatarPose = null;
             _art.Coverage.Resolved("person", "player", model);
         }
+        PeopleAppearance.ApplyLook(_avatar, simulation.Player.Identity.PeopleId, simulation.Player.Identity.Appearance);
         // HumGen keeps the exported shape and native mocap arms; saved legacy builds must not add arm splay.
         if (_avatarModel?.StartsWith("humgen_", StringComparison.Ordinal) == true)
         {
