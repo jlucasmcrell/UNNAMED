@@ -39,6 +39,12 @@ public partial class OpeningCinematic : Node
     private readonly Places _at;
     private readonly Shot[] _shots;
     private readonly Camera3D _camera = new() { Name = "OpeningCamera", Far = 4000 };
+
+    // The night has to read at once on any screen: the opening's own camera is exposed up at the start and back to the world's own by
+    // the time the sky turns (the world's light and the title's camera are untouched).
+    private readonly CameraAttributesPractical _exposure = new();
+    private const float NightExposure = 2.6f;
+    private const double ExposedUntil = 24;
     private CanvasLayer _layer = null!;
     private ColorRect _black = null!, _flash = null!, _top = null!, _bottom = null!;
     private Label _words = null!;
@@ -105,13 +111,13 @@ public partial class OpeningCinematic : Node
             // pole stands: CelestialView) - tipping down across the land to the Foldscar.
             new Shot(0, 10, new[] { Over(at, stone.X + 38, stone.Z + 20, 34), Over(at, stone.X + 56, stone.Z + 12, 42) },
                 new[] { Over(at, stone.X + 80, stone.Z - 300, 230), Over(at, stone.X + 110, stone.Z - 200, 110), Over(at, heart.X, heart.Z, 40) }, 56, 52),
-            // The Foldscar: round its broken heart against the first light in the east, the whole 70 m of it and the tear in the gap at the
-            // frame's heart, closing in through the debris.
-            new Shot(10, 22, new[] { Round(at, heart, 150, 165, 20), Round(at, heart, 172, 140, 18), Round(at, heart, 192, 118, 16) },
-                new[] { tear + new Vector3(0, 14, 0), tear + new Vector3(0, 12, 0), tear + new Vector3(0, 10, 0) }, 46, 42),
-            // Old Late: low at its foot on the side the morning lights, rising with the trunk to the crown.
-            new Shot(22, 31, new[] { Round(at, at.OldLate, -20, 52, 3), Round(at, at.OldLate, -6, 44, 7), Round(at, at.OldLate, 8, 38, 12) },
-                new[] { at.OldLate + new Vector3(0, at.OldLateHeight * 0.25f, 0), at.OldLate + new Vector3(0, at.OldLateHeight * 0.75f, 0) }, 58, 54),
+            // The Foldscar: low at the basin's edge, looking up into its broken heart against the first light in the east - the 70 m of it
+            // more than the frame holds, the tear in the gap at the frame's heart - closing in.
+            new Shot(10, 22, new[] { Round(at, heart, 160, 92, 5), Round(at, heart, 178, 80, 4), Round(at, heart, 196, 68, 3) },
+                new[] { tear + new Vector3(0, 8, 0), tear + new Vector3(0, 6, 0), tear + new Vector3(0, 4, 0) }, 54, 50),
+            // Old Late, the kneeling stone giant: low at its knee, looking up past its sword to the crown slab that answers the wind late.
+            new Shot(22, 31, new[] { Round(at, at.OldLate, -70, 50, 2), Round(at, at.OldLate, -80, 44, 2.5f), Round(at, at.OldLate, -92, 40, 4) },
+                new[] { at.OldLate + new Vector3(0, at.OldLateHeight * 0.45f, 0), at.OldLate + new Vector3(0, at.OldLateHeight * 0.85f, 0) }, 62, 56),
             // The whole Needle over the Spill, the sun coming up beside it.
             new Shot(31, 41, new[] { Round(at, at.Needle, -165, 235, 30), Round(at, at.Needle, -150, 205, 26) },
                 new[] { at.Needle + new Vector3(0, at.NeedleHeight * 0.45f, 0), at.Needle + new Vector3(0, at.NeedleHeight * 0.5f, 0) }, 40, 36),
@@ -126,6 +132,7 @@ public partial class OpeningCinematic : Node
 
     public override void _Ready()
     {
+        _camera.Attributes = _exposure;
         AddChild(_camera);
         _camera.MakeCurrent();
         StartCamera.Track(this, _camera);
@@ -239,6 +246,8 @@ public partial class OpeningCinematic : Node
         var look = Along(shot.Looks, eased);
         _camera.Fov = Mathf.Lerp(shot.FovFrom, shot.FovTo, eased);
         _camera.LookAtFromPosition(eye, look, Vector3.Up);
+        float exposed = (float)Math.Clamp(t / ExposedUntil, 0, 1);
+        _exposure.ExposureMultiplier = Mathf.Lerp(NightExposure, 1, exposed * exposed * (3 - 2 * exposed));
         float day = (float)Math.Clamp(t / Hit, 0, 1);
         float dawn = (float)Math.Clamp((t - (Dawn - DipSeconds)) / (2 * DipSeconds), 0, 1);
         SkyView.Show(Mathf.Lerp(NightHour, SkyView.ClockAtWorldStart - DawnHours, day * day * (3 - 2 * day)) + DawnHours * dawn);
@@ -260,7 +269,7 @@ public partial class OpeningCinematic : Node
     private void Overlay(double t)
     {
         // Black at the start, then a short dip at every cut between shots.
-        float black = (float)Math.Clamp(1 - (t - 0.4) / 2.2, 0, 1);
+        float black = (float)Math.Clamp(1 - (t - 0.2) / 1.2, 0, 1);
         foreach (var shot in _shots.Skip(1))
             black = Math.Max(black, (float)Math.Clamp(1 - Math.Abs(t - shot.From) / DipSeconds, 0, 1));
         _black.Color = new Color(0, 0, 0, t < Hit ? black : 0);
