@@ -18,7 +18,7 @@ public partial class OpeningCinematic : Node
 {
     /// <summary>What the shots are framed on: the ground, and where the world put each landmark (feet and height, metres).</summary>
     public sealed record Places(Func<float, float, float> Ground, Vector3 Heart, Vector3 OldLate, float OldLateHeight, Vector3 Needle,
-        float NeedleHeight, Vector3 Stone);
+        float NeedleHeight, Vector3 Stone, float StoneHeight);
 
     private sealed record Shot(double From, double Until, Vector3[] Eyes, Vector3[] Looks, float FovFrom, float FovTo);
 
@@ -104,6 +104,7 @@ public partial class OpeningCinematic : Node
         var heart = at.Heart;
         var tear = heart + new Vector3(0, 30, 0);
         var stone = at.Stone;
+        float s = at.StoneHeight;
         var road = Over(at, stone.X + 20, stone.Z - 8, 0);
         return new[]
         {
@@ -121,9 +122,9 @@ public partial class OpeningCinematic : Node
             // The whole Needle over the Spill, the sun coming up beside it.
             new Shot(31, 41, new[] { Round(at, at.Needle, -165, 235, 30), Round(at, at.Needle, -150, 205, 26) },
                 new[] { at.Needle + new Vector3(0, at.NeedleHeight * 0.45f, 0), at.Needle + new Vector3(0, at.NeedleHeight * 0.5f, 0) }, 40, 36),
-            // The Ashen Waystone, close, waking.
-            new Shot(41, 50, new[] { Round(at, stone, -28, 6.8f, 1.5f), Round(at, stone, -48, 5.6f, 1.7f), Round(at, stone, -68, 5.0f, 2.0f) },
-                new[] { stone + new Vector3(0, 1.3f, 0), stone + new Vector3(0, 1.2f, 0) }, 44, 40),
+            // The Ashen Waystone, close, waking: framed on the stone as drawn (2.4 m when this was shot; grand scale raises it).
+            new Shot(41, 50, new[] { Round(at, stone, -28, 2.8f * s, 0.6f * s), Round(at, stone, -48, 2.3f * s, 0.7f * s), Round(at, stone, -68, 2.1f * s, 0.8f * s) },
+                new[] { stone + new Vector3(0, 0.54f * s, 0), stone + new Vector3(0, 0.5f * s, 0) }, 44, 40),
             // The road east: up from the stone and out over the frontier toward the morning, faster and faster to the hit.
             new Shot(50, Hit, new[] { Over(at, road.X, road.Z, 16), Over(at, road.X + 30, road.Z - 10, 30), Over(at, road.X + 80, road.Z - 28, 60) },
                 new[] { Over(at, road.X + 90, road.Z - 40, 6), Over(at, road.X + 260, road.Z - 70, 20), Over(at, at.Needle.X, at.Needle.Z, 40) }, 54, 62),

@@ -42,7 +42,8 @@ public partial class Main
         }
         var late = Drawn(oldLate);
         var spire = Drawn(needle);
-        return new OpeningCinematic.Places(_ground.Height, Drawn(heart).Feet, late.Feet, late.Height, spire.Feet, spire.Height, Drawn(waystone).Feet);
+        var stoneDrawn = Drawn(waystone);
+        return new OpeningCinematic.Places(_ground.Height, Drawn(heart).Feet, late.Feet, late.Height, spire.Feet, spire.Height, stoneDrawn.Feet, stoneDrawn.Height);
     }
 
     /// <summary>
