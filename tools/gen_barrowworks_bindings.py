@@ -132,7 +132,7 @@ def main():
         "container.barrowworks.codex_fragment": {"model": "bw_codex_codex_fragment"},
         "container.barrowworks.lantern_foot": {"model": "bw_codex_lantern_foot"},
     }
-    doc["doors"] = {f"door.barrowworks.g{i}": {"model": f"bw_codex_gate_{i}"} for i in range(1,4)}
+    doc["doors"] = {f"door.barrowworks.{name}": {"model": f"bw_codex_gate_{i}"} for i, name in enumerate(("gallery", "archive", "headworks"), 1)}
     doc["nodes"] = {"node.wood.ash_stand": {"model": "cw_woodpile_a", "spent": "bw_codex_work_seat"}}
     clips = {state: "creature.bw_codex_custodian."+state for state in ("idle","walk","run","hit","death")}
     clips.update({"attack": "creature.bw_codex_custodian.sweep",
@@ -142,6 +142,11 @@ def main():
     doc["creatures"] = {"creature.construct.ring_custodian": {
         "model": "bw_codex_custodian", "clips": clips, "voice": "animated_armour", "flesh": "plate",
         "steps": {"walk": "walk", "run": "move_heavy"}, "paces": {"walk": 1.55, "run": 2.2}}}
+    # The ring's ordinary creatures (M8 09 E1-E4) are the frontier's own: the same production bindings its overlay draws them with.
+    with open(os.path.join(ROOT, "content", "_art_bindings.json"), encoding="utf-8") as handle:
+        frontier = json.load(handle)["creatures"]
+    for creature in ("creature.beast.cave_hunting_spider", "creature.undead.bone_walker_husk"):
+        doc["creatures"][creature] = frontier[creature]
 
     deep = sum(1 for sid in ids if wall_for(sid) == DEEP_WALL)
 

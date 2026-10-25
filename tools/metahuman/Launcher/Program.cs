@@ -52,7 +52,7 @@ try
     foreach (var arg in new[] { "--", "--region", "region.starting_frontier", "--content-root", Path.Combine(root, "content"),
         "--bindings-overlay", Path.Combine(root, "content", "_art_bindings.json"), "--asset-root", Path.Combine(root, "primary"),
         "--asset-fallback", Path.Combine(root, "fallback"), "--scatter-rules", Path.Combine(root, "content", "_scatter_rules.json"),
-        "--profile", profile, "--visual", $"terrain=terrain3d,sky=sky3d,people={people},foldscar=proof,body=none" +
+        "--profile", profile, "--visual", $"terrain=terrain3d,sky=sky3d,people={people},foldscar=proof,body=none,textures=cache" +
             (start.Environment.TryGetValue("OTHERREACH_MH_REVIEW_HOUR", out var hour) && hour == "12" ? ",hour=12" : "") }) start.ArgumentList.Add(arg);
     game = Process.Start(start)!;
     File.AppendAllText(Path.Combine(evidence, "launcher.log"), $"{DateTimeOffset.Now:o} launcher={Environment.ProcessPath} launcher_pid={Environment.ProcessId} game_pid={game.Id} asset_root={start.Environment["OTHERREACH_CHARACTER_ROOT"]}\n");

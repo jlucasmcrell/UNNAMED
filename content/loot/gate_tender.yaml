@@ -1,0 +1,10 @@
+id: loot.gate_tender
+kind: loot
+schema: 1
+display_key: loot.gate_tender.name
+tags: [loot]
+notes: "A tender's own iron is Firstfold and no forge takes it (docs/FIELD_RUINS.md), so nothing of the body is worth carrying. What it does give up is what it had been tidying: a traveller's arrows or salve it picked up off the top and was setting back where they did not fit."
+rolls: 0
+entries:
+  - { item_ref: item.ammo.arrow_rough, chance: 0.3, count_range: [2, 5] }
+  - { item_ref: item.consumable.salve_minor, chance: 0.2, count_range: [1, 1] }

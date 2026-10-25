@@ -9,7 +9,7 @@ category: armor
 item_class: ordinary
 stack_max: 1
 weight: 0.8
-value_base: 10
+value_base: 9
 slot: legs
 armor_value: 1
 material_class: cloth

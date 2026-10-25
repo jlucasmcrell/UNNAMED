@@ -1,4 +1,4 @@
-﻿// UNNAMED Presentation - boot, the frame loop, and input (ARCHITECTURE.md Â§2, Â§8.1; D-11)
+// UNNAMED Presentation - boot, the frame loop, and input (ARCHITECTURE.md Â§2, Â§8.1; D-11)
 // Godot presentation only: this file renders state and submits commands; it never writes state.
 
 using Godot;
@@ -65,6 +65,7 @@ public partial class Main : Node3D
     private ItemsView _items = null!;
     private CreaturesView _creatures = null!;
     private CreaturesView _exteriorCreatures = null!;
+    private CreaturesView? _interiorCreatures;
     private CraftingView _crafting = null!;
     private NpcsView _npcs = null!;
     private InventoryPanel _inventory = null!;
@@ -115,6 +116,15 @@ public partial class Main : Node3D
 
     /// <summary>Whether the player was in the exterior last frame, so entering or leaving a space is noticed.</summary>
     private bool _wasOutside = true;
+
+    /// <summary>
+    /// The black a space change passes through. The frame that notices the change only raises it, so the next frame's
+    /// rebuild of the other space - and the GI the renderer re-voxelizes after the camera's jump of a kilometre - happens
+    /// behind black rather than on a frozen picture; then it fades. Never in a headless run.
+    /// </summary>
+    private ColorRect? _veil;
+    private bool _veiled;
+    private int _veilHold;
 
     private ProjectilesView _projectiles = null!;
     private Art.MagicEffects _magicEffects = null!;
@@ -200,6 +210,10 @@ public partial class Main : Node3D
     /// (review B4). A normal launch plays <c>region.starting_frontier</c> and never reaches that branch.
     /// </summary>
     private const string BarrowworksRegion = "region.barrowworks";
+
+    /// <summary>The switch that settles the Stopped Gate, and the court its hum is centred on (docs/FIELD_RUINS.md).</summary>
+    private const string StoppedGateSwitch = "switch.field.needle";
+    private static readonly Vector2 StoppedGateCourt = new(850, 758);
 
     private const float SpeedCeiling = 8f;
     /// <summary>How long before the respawn the screen starts to go black (the fade itself takes a second).</summary>
@@ -358,7 +372,8 @@ public partial class Main : Node3D
         // change - its region file, its cells and its bindings are the whole of it.
         string region = _options.GetValueOrDefault("--region") ?? "region.starting_frontier";
         // A --shot stands the character where a capture needs him; the pets' pass needs the same, at the den rather than the yard.
-        var shotStart = (VisualOptions.Barrowworks && region == BarrowworksRegion) || _options.ContainsKey("--pet-shots") || _options.ContainsKey("--shot") ? ShotStart() : null;
+        var shotStart = (VisualOptions.Barrowworks && region == BarrowworksRegion) || _options.ContainsKey("--pet-shots") || _options.ContainsKey("--shot")
+            || _options.ContainsKey("--stand") ? ShotStart() : null;
         if (OS.GetEnvironment("OTHERREACH_RCD5_STEALTH") == "1"
             && File.Exists(Path.Combine(contentRoot,"RCD5_REVIEW_FIXTURE.txt")))
             shotStart = (600_000,755_000);
@@ -393,6 +408,11 @@ public partial class Main : Node3D
             // A capture that has to show a purchase is given a purse: the same fixture door as the place to stand, at new game, and never a
             // player's run (its option is not in PlaytestLaunchDefaults).
             StartCurrency = long.TryParse(_options.GetValueOrDefault("--purse"), out long purse) && purse > 0 ? purse : 0,
+            StartItems = _options.GetValueOrDefault("--start-items") is { } items
+                ? [.. items.Split(',').Select(i => i.Split(':') is [var item, var count]
+                    ? (item, int.Parse(count)) : throw new ArgumentException($"--start-items: '{i}' is not item:count"))]
+                : [],
+            StartLevel = int.TryParse(_options.GetValueOrDefault("--start-level"), out int startLevel) && startLevel > 1 ? startLevel : 0,
         });
         SkyView.ClockAtWorldStart = (float)_session.ClockAtWorldStartHours;
         _session.SubscriberFailed += SubscriberFailed;
@@ -456,9 +476,9 @@ public partial class Main : Node3D
             GD.PushWarning($"UNNAMED assets: --asset-fallback {fallback} does not exist; ignored");
             Art.ArtLibrary.FallbackRoot = null;
         }
-        // The opt-in co-loaded ring uses the existing signed BC7 cache; off retains the original upload path.
-        _art = new Art.ArtLibrary(_assets.Root, useTextureCache: VisualOptions.Barrowworks,
-            sceneCachePrefix: VisualOptions.Barrowworks ? "" : null, buildSceneCache: _flags.Contains("--build-scene-cache"));
+        // The ring's own models (bw_codex_) load from their native scene derivatives; everything else keeps the frontier's own path.
+        _art = new Art.ArtLibrary(_assets.Root, sceneCachePrefix: VisualOptions.Barrowworks ? "bw_codex_" : null,
+            buildSceneCache: _flags.Contains("--build-scene-cache"));
         if (Art.ArtLibrary.FallbackRoot is { } second)
             GD.Print($"UNNAMED assets: falling back to {second} for anything {_assets.Root ?? "the region"} does not hold");
         // A region's own art, layered over the bindings every region shares (the HUD, the icons, the effect
@@ -503,6 +523,12 @@ public partial class Main : Node3D
         }
         catch (Exception e)
         {
+            if (e is InvalidDataException && e.Message.StartsWith("Packaged texture >=2K is uncompressed:", StringComparison.Ordinal))
+            {
+                GD.PushError(e.ToString());
+                GetTree().Quit(1);
+                return;
+            }
             // The asset library is generated elsewhere: a record it cannot read must cost its art, never the game (the Phase-1 technical
             // audit, H-02). Whatever was built goes, and the scene is built again in greybox.
             GD.PushError($"UNNAMED art: building the scene from the asset library failed ({e.GetType().Name}: {e.Message}); drawing greybox");
@@ -543,11 +569,21 @@ public partial class Main : Node3D
             AddChild(new Audio.AmbientAudio(_sounds, _ground) { FoldGain = at =>
             {
                 var simulation = _session.Simulation;
-                var fold = simulation?.Barriers.FirstOrDefault(b => b.Site.Key == FoldEcho.Barrier && b.Standing);
-                if (fold is null || simulation!.ActiveLayout.SpaceId != _session.Setup.Layout.SpaceId) return 0;
-                var (x,z) = Footprints.Center(fold.Site.Footprint);
-                float distance = new Vector2(at.X-x/1000f,at.Z-z/1000f).Length();
-                return Mathf.Clamp(1-(distance-3)/14,0,1);
+                if (simulation is null || simulation.ActiveLayout.SpaceId != _session.Setup.Layout.SpaceId) return 0;
+                float gain = 0;
+                if (simulation.Barriers.FirstOrDefault(b => b.Site.Key == FoldEcho.Barrier && b.Standing) is { } fold)
+                {
+                    var (x,z) = Footprints.Center(fold.Site.Footprint);
+                    gain = Mathf.Clamp(1-(new Vector2(at.X-x/1000f,at.Z-z/1000f).Length()-3)/14,0,1);
+                }
+                // The Stopped Gate hums across the whole Spill until the Needle is laid hands on (docs/FIELD_RUINS.md): wider and lower than
+                // the fold's, loudest in the court.
+                if (simulation.Switches.FirstOrDefault(s => s.Site.Key == StoppedGateSwitch) is { Set: false })
+                {
+                    float distance = new Vector2(at.X-StoppedGateCourt.X,at.Z-StoppedGateCourt.Y).Length();
+                    gain = Math.Max(gain, .8f*Mathf.Clamp(1-(distance-12)/70,0,1));
+                }
+                return gain;
             } });
         _soundEvents = new Audio.SoundEvents { Name = "SoundEvents" };
         AddChild(_soundEvents);
@@ -754,7 +790,8 @@ public partial class Main : Node3D
 
 
     /// <summary>
-    /// The held ring's bindings. Its GPU resources are loaded at entry and released on departure. Sharing the
+    /// The held ring's bindings. The ring is built on first entry and then kept, hidden while outside: freeing it on
+    /// departure crashed the renderer in its light unpair ("indexing did not unpair geometries from light"). Sharing the
     /// frontier's overlay would draw the Ashen Hollow's props in the ring's rooms; sharing the frontier's view would
     /// put the ring at the frontier's metres, which is where the body used to stand after a portal (review 3, B6).
     /// </summary>
@@ -808,30 +845,49 @@ public partial class Main : Node3D
     /// </summary>
     private void ShowSpace(bool outside)
     {
+        bool report = OS.GetEnvironment("UNNAMED_LOAD_REPORT") == "1";
+        ulong mark = Time.GetTicksUsec();
+        void Step(string what)
+        {
+            if (!report) return;
+            ulong now = Time.GetTicksUsec();
+            GD.Print($"UNNAMED space change ({(outside ? "out" : "in")}) {what}: {(now - mark) / 1000.0:0.0} ms");
+            mark = now;
+        }
         if (!outside) LoadInterior();
+        Step("interior load");
         Greybox.WeatherStates.UnderSky = outside;
         _hollow.SetSpaceActive(outside);
         if (_scatter is not null)
             _scatter.Visible = outside;
         if (_interior is { } ring)
             ring.SetSpaceActive(!outside);
+        Step("views shown");
         var bindings = outside ? _bindings : _interiorBindings ?? _bindings;
         _items.Bind(_art, bindings);
         _items.BuildContainers(_session.Simulation!.ActiveLayout);
         _items.Refresh(_session.Simulation!);
+        Step("items");
         _crafting.Bind(_art, bindings);
         _crafting.Build(_session.Simulation!.ActiveLayout);
         _crafting.Refresh(_session.Simulation!.Nodes);
+        Step("crafting");
         _exteriorCreatures.SetSpaceActive(outside);
+        _interiorCreatures?.SetSpaceActive(!outside);
         if (outside)
         {
             _creatures = _exteriorCreatures;
             _creatures.ResyncPositions(_session.Simulation!);
         }
+        else if (_interiorCreatures is not null)
+        {
+            _creatures = _interiorCreatures;
+            _creatures.ResyncPositions(_session.Simulation!);
+        }
         else
         {
-            if (_creatures != _exteriorCreatures) _creatures.Free();
-            _creatures = new CreaturesView { Name = "InteriorCreatures" };
+            // First entry: the ring's figures, its sound beds and its pipelines, once for the session.
+            _creatures = _interiorCreatures = new CreaturesView { Name = "InteriorCreatures" };
             _creatures.Bind(_art, bindings);
             _interior!.AddChild(_creatures);
             if (_sounds is not null && IsInstanceValid(_sounds))
@@ -848,13 +904,30 @@ public partial class Main : Node3D
             }
             PrewarmPortal();
         }
-        if (outside && _interior is not null)
+        Step(outside ? "creatures" : "creatures, audio and prewarm");
+    }
+
+    private void RaiseVeil()
+    {
+        if (_veil is null)
         {
-            _interior.Free();
-            _interior = null;
-            int released = _art.ReleaseModels("bw_codex_");
-            GD.Print($"UNNAMED interior release: {released} cached models; scene and creature instances freed");
+            var layer = new CanvasLayer { Name = "SpaceVeil", Layer = 120 };
+            AddChild(layer);
+            _veil = new ColorRect { Color = Colors.Black, MouseFilter = Control.MouseFilterEnum.Ignore };
+            _veil.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+            layer.AddChild(_veil);
+            // Going in builds the ring, which takes seconds: the place's name says the black is a way in, not a stall.
+            var name = new Label { Name = "Place", HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+            name.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+            name.AddThemeFontSizeOverride("font_size", 34);
+            name.AddThemeColorOverride("font_color", new Color(0.82f, 0.80f, 0.74f));
+            _veil.AddChild(name);
         }
+        _veil.GetNode<Label>("Place").Text = _session.Simulation!.PlayerInExterior ? "" : "The Barrowworks";
+        _veil.Modulate = Colors.White;
+        _veil.Visible = true;
+        _veiled = true;
+        _barrowworksReview?.Mark("space veil raised");
     }
 
     private void PrewarmPortal()
@@ -1277,6 +1350,9 @@ public partial class Main : Node3D
         }
         else if (_survey is not null)
         {
+            // --clean: the pictures without the interface (store and website stills), held off for the whole pass.
+            if (_flags.Contains("--clean") && _hud.Visible)
+                ToggleInterface();
             switch (_survey.Update())
             {
                 case "done":
@@ -1326,9 +1402,25 @@ public partial class Main : Node3D
         _ticksLastFrame = frame.TicksRun;
         _frontierPerf?.SimulationPhase(simulationStarted, frame, gcPauseTicks);
         bool outside = _session.Simulation!.PlayerInExterior;
+        if (outside != _wasOutside && !_veiled && DisplayServer.GetName() != "headless")
+        {
+            RaiseVeil();
+            return;
+        }
+        if (_veil is { Visible: true } veil && outside == _wasOutside && _veilHold-- <= 0)
+        {
+            if (veil.Modulate.A >= 1) _barrowworksReview?.Mark("space veil fading");
+            float alpha = veil.Modulate.A - (float)Math.Min(delta, 0.05) / 0.35f;
+            veil.Modulate = new Color(1, 1, 1, Math.Max(0, alpha));
+            veil.Visible = alpha > 0;
+            if (!veil.Visible) _barrowworksReview?.Mark("space veil cleared");
+        }
         if (outside != _wasOutside)
         {
             _wasOutside = outside;
+            _veiled = false;
+            // The renderer re-voxelizes its GI on the frame after the camera's jump: keep that frame black as well.
+            _veilHold = 2;
             ulong transitionStarted = _barrowworksReview is null ? 0 : Time.GetTicksUsec();
             ShowSpace(outside);
             _barrowworksReview?.Phase(outside ? "exit projections" : "entry projections", transitionStarted);
@@ -1420,6 +1512,7 @@ public partial class Main : Node3D
     /// <summary>What the run heard, for the harnesses: how much of the sound set played, and any family the mapping asked for that the set lacks.</summary>
     public override void _ExitTree()
     {
+        FinishOpeningReview();
         // The other half of a capture harness's question: this line is written on every orderly shutdown - a window close, or the game quitting
         // itself - so a run whose log lacks it was killed from outside, and one whose log has it but no close request quit itself.
         GD.Print($"CAPTURE exit tree at frame {Engine.GetFramesDrawn()} ({DateTimeOffset.Now:O})");
@@ -1444,6 +1537,20 @@ public partial class Main : Node3D
     /// speed, clip state and combat phase, and every drawn NPC's speed and clip state - the evidence that ordinary play selects a
     /// state (the acceptance contract's G4), not that a clip merely loaded.
     /// </summary>
+    /// <summary>
+    /// How far the view lifts for the biggest foe fighting within 16 m: nothing for anything up to a bear's girth (0.8 m), rising with
+    /// body radius past it - the Gate Warden's 1.6 m lifts it 2.4 m. At eye height an 8 m construct is all knees, and on the Stopped Gate's
+    /// court the arm behind was pressed into the slope.
+    /// </summary>
+    private float GiantLift(Simulation simulation)
+    {
+        float lift = 0;
+        foreach (var c in simulation.Creatures)
+            if (c.Alive && c.Mind == World.CreatureMind.Engaged && Distance(c.Body, simulation.Player.Body) < 16_000)
+                lift = Math.Max(lift, Math.Clamp((_session.Setup.Combat.Creatures[c.DefId].RadiusMm / 1000f - 0.8f) * 3f, 0, 3f));
+        return lift;
+    }
+
     private void LogStates(Simulation simulation, double delta, float speed)
     {
         if (!_options.TryGetValue("--state-log", out var path))
@@ -1555,6 +1662,7 @@ public partial class Main : Node3D
         Probe("crafting/NPCs");
         _frontierPerf?.Phase("npcs", npcsStarted);
         LogStates(simulation, delta, speed);
+        _camera.Lift = GiantLift(simulation);
         if (!_innFreeCamera) _camera.Follow(_shots?.Viewpoint ?? _avatar.Position, delta);
         bool reviewCamera = _mhReviewDirectory is not null && GetViewport().GetCamera3D() != _camera.Camera;
         _avatar.SetFirstPerson(!reviewCamera && _camera.EffectiveDistance < 0.4f);
@@ -1746,7 +1854,7 @@ public partial class Main : Node3D
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
-                    or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--stand" or "--purse" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
+                    or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--stand" or "--purse" or "--start-items" or "--start-level" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
                     or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"

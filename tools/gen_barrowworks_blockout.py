@@ -366,12 +366,14 @@ for sid, entry in structures:
 w("")
 # The three gates the design's own edge list names (04_LEVEL_MAPS.md): G1 is the R08-R02 shortcut, G2 the
 # R07-R09 secret, G3 the R11-R12 aftermath. Each is a door in the edge's opening, shut until its flag is set.
-w("# G1-G3 remain open once earned. G3 requires the Custodian defeat; the wedge belongs at the headworks saddles.")
+w("# G1-G3 remain open once earned. G3 takes the Custodian defeat and a fitting wedge, which stays fitted in the door.")
 w("doors:")
+GATE_NAMES = {"g1": "gallery", "g2": "archive", "g3": "headworks"}
 for gate, (x0, z0, x1, z1) in doors:
     lock = (", latch_side: east, locked_text: 'The latch is on the gallery side.'" if gate == "g1" else
-            ", requirement: { flag_ref: world.barrowworks.ring_custodian_defeated, location_ref: location.barrowworks.r11_measuring_court }, locked_text: 'The court interlock still holds. The Custodian must be stopped.'" if gate == "g3" else "")
-    w(f"  - {{ key: door.barrowworks.{gate}, flag_ref: world.barrowworks.gate_{gate}_open, "
+            ", requirement: { flag_ref: world.barrowworks.ring_custodian_defeated, location_ref: location.barrowworks.r11_measuring_court }, fitted: { item_ref: item.tool.fitting_wedge, count: 1 }, locked_text: 'The court interlock still holds. Stop the Custodian, then fit a wedge into its keyway.'" if gate == "g3" else "")
+    # The key is what the prompt reads ("the headworks door"); the flag, which saves hold, keeps the gate's number.
+    w(f"  - {{ key: door.barrowworks.{GATE_NAMES[gate]}, flag_ref: world.barrowworks.gate_{gate}_open, "
       f"box_m: [{x0:.1f}, {z0:.1f}, {x1:.1f}, {z1:.1f}], height_m: 2.4, stays_open: true{lock} }}")
 w("containers:")
 w("  - { key: container.barrowworks.archive_crate, loot_ref: loot.barrowworks.archive_crate, position_m: [74.5, 62.5], stack_slots: 4 }")
@@ -418,22 +420,20 @@ w("  - key: switch.barrowworks.headworks_preserve")
 w("    structure: r12_preserve_control")
 w("    flag_ref: world.barrowworks.headworks_preserved")
 w("    name: retaining saddle - preserve the measure")
-w("    verb: Fit wedge into")
-w("    consume: { item_ref: item.tool.fitting_wedge, count: 1 }")
+w("    verb: Lock")
 w("    excludes: [world.barrowworks.headworks_dismantled]")
 w("    requirements:")
 w("      - { flag_ref: world.barrowworks.withdrawal_notice_read, location_ref: location.barrowworks.intake_hall }")
 w("      - { flag_ref: world.barrowworks.fitting_note_read, location_ref: location.barrowworks.gauge_archive }")
 w("      - { flag_ref: world.barrowworks.diagram_rack_read, location_ref: location.barrowworks.gauge_archive }")
 w("      - { flag_ref: world.barrowworks.ring_custodian_defeated, location_ref: location.barrowworks.r11_measuring_court }")
-w("    locked_text: 'Read the notice, fitting note and diagram, then stop the Custodian. Both saddles require one fitting wedge; fitting either settles the choice.'")
+w("    locked_text: 'Read the notice, fitting note and diagram, and stop the Custodian first. Working either saddle settles the choice.'")
 w("    done_text: \"The measure is a beam of fitted segments, each one cut to a tolerance nothing in the ring could hold, and the whole of it is still true. Whatever it was for, it was made to outlast the works that built it, and it has. You leave it standing.\"")
 w("  - key: switch.barrowworks.headworks_dismantle")
 w("    structure: r12_dismantle_control")
 w("    flag_ref: world.barrowworks.headworks_dismantled")
 w("    name: release saddle - dismantle the measure")
-w("    verb: Fit wedge into")
-w("    consume: { item_ref: item.tool.fitting_wedge, count: 1 }")
+w("    verb: Open")
 w("    reward: { item_ref: item.material.iron_ingot, count: 2 }")
 w("    excludes: [world.barrowworks.headworks_preserved]")
 w("    requirements:")
@@ -441,15 +441,15 @@ w("      - { flag_ref: world.barrowworks.withdrawal_notice_read, location_ref: l
 w("      - { flag_ref: world.barrowworks.fitting_note_read, location_ref: location.barrowworks.gauge_archive }")
 w("      - { flag_ref: world.barrowworks.diagram_rack_read, location_ref: location.barrowworks.gauge_archive }")
 w("      - { flag_ref: world.barrowworks.ring_custodian_defeated, location_ref: location.barrowworks.r11_measuring_court }")
-w("    locked_text: 'Read the notice, fitting note and diagram, then stop the Custodian. Both saddles require one fitting wedge; fitting either settles the choice.'")
+w("    locked_text: 'Read the notice, fitting note and diagram, and stop the Custodian first. Working either saddle settles the choice.'")
 w("    done_text: \"The measure comes apart at the joints, because it was built to. Every segment is a length of good ash haft and a plate of worked iron, and the ring has no one left in it to measure anything with. You take it apart for what it is made of.\"")
 # The three gates are DOORS, and a door opens by being used: WLD013 refuses a switch and a door that share a
 # world flag, so a switch is not how a gate is opened and the reference regions have none - `door.longhouse` has
 # no switch anywhere, and its flag is what the door itself records when it swings. G1 and G2 need nothing more:
 # you have to find them, which is what "shortcut" and "secret" mean.
 #
-# G3 is the earned aftermath interlock: the Custodian defeat opens access. The wedge is consumed
-# at one of the two mutually exclusive headworks saddles, not at this door.
+# G3 is the earned aftermath interlock (owner ruling OQ-16): the durable Custodian defeat AND a fitting wedge.
+# The wedge leaves the pack and stays fitted in the door, whose open flag records it; the saddles take none.
 w("barriers:")
 w("  - { key: barrier.barrowworks.measure, flag_ref: world.barrowworks.headworks_dismantled, box_m: [42.1, 128.4, 43.1, 133.6], height_m: 2.2, prompt: 'The measure. Its retaining and release saddles are beside it.' }")
 w("")

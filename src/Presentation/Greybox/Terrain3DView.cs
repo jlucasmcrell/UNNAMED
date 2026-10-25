@@ -159,11 +159,10 @@ public static class Terrain3DView
             GD.Print($"UNNAMED terrain cells: the region's own ground palette from {art.Root}");
         if (layerWhy is not null)
             GD.PushWarning($"UNNAMED terrain layers: {layerWhy}");
-        var packed = PackedMaps(slots.Select(s => s.Id), art);
         var layers = new List<GodotObject>();
         for (int i = 0; i < slots.Length; i++)
         {
-            var asset = TextureAsset(slots[i].Id, slots[i].UvScale, slots[i].Tint, art.Root, packed);
+            var asset = TextureAsset(slots[i].Id, slots[i].UvScale, slots[i].Tint, art);
             if (asset is null)
             {
                 why = $"terrain layer {slots[i].Id} is not in the asset workspace";
@@ -638,35 +637,14 @@ public static class Terrain3DView
     private static uint Encode(int baseLayer, int overlay, int blend, bool auto) =>
         ((uint)(baseLayer & 0x1F) << 27) | ((uint)(overlay & 0x1F) << 22) | ((uint)(blend & 0xFF) << 14) | (auto ? 1u : 0u);
 
-    private static Dictionary<string, ImageTexture> PackedMaps(IEnumerable<string> ids, ArtLibrary art)
+    private static GodotObject? TextureAsset(string id, float uvScale, Color tint, ArtLibrary art)
     {
-        var maps = new Dictionary<string, ImageTexture>(StringComparer.Ordinal);
-        if (art.PackedTerrainCache is not { } cache || art.Root is null) return maps;
-        // Native texture-array layers must have one format. A partial cache must never mix BC7 and RGBA8.
-        foreach (string id in ids)
-            foreach (string suffix in new[] { "_albedo_height.png", "_normal_rough.png" })
-            {
-                string path = Path.Combine(art.Root, "materials", id, id + suffix);
-                if (cache.For(TextureCache.Key(Path.GetRelativePath(art.Root, path)), path,
-                        () => Image.LoadFromFile(path), "data") is not ImageTexture texture)
-                {
-                    maps.Clear();
-                    GD.Print("UNNAMED packed terrain cache incomplete: using the original RGBA8 layer set");
-                    return maps;
-                }
-                maps[path] = texture;
-            }
-        GD.Print($"UNNAMED packed terrain cache: {maps.Count} full-resolution maps, {cache.CompressedBytes / 1048576.0:0.0} MB BC7");
-        return maps;
-    }
-
-    private static GodotObject? TextureAsset(string id, float uvScale, Color tint, string? assetRoot, IReadOnlyDictionary<string, ImageTexture> packed)
-    {
+        var assetRoot = art.Root;
         if (assetRoot is null)
             return null;
         string folder = Path.Combine(assetRoot, "materials", id);
-        var albedo = LoadTexture(Path.Combine(folder, id + "_albedo_height.png"), packed);
-        var normal = LoadTexture(Path.Combine(folder, id + "_normal_rough.png"), packed);
+        var albedo = art.Texture(Path.Combine(folder, id + "_albedo_height.png"), "color");
+        var normal = art.Texture(Path.Combine(folder, id + "_normal_rough.png"), "normal");
         if (albedo is null || normal is null)
             return null;
         var asset = ClassDB.Instantiate("Terrain3DTextureAsset").AsGodotObject();
@@ -680,15 +658,4 @@ public static class Terrain3DView
         return asset;
     }
 
-    private static ImageTexture? LoadTexture(string path, IReadOnlyDictionary<string, ImageTexture> packed)
-    {
-        if (!File.Exists(path))
-            return null;
-        if (packed.TryGetValue(path, out var compressed)) return compressed;
-        var image = Image.LoadFromFile(path);
-        if (image is null || image.IsEmpty())
-            return null;
-        image.GenerateMipmaps();
-        return ImageTexture.CreateFromImage(image);
-    }
 }

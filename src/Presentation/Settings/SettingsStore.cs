@@ -26,7 +26,7 @@ public static class SettingsStore
         "bar_page_1", "bar_page_2", "bar_page_3", "bar_page_4", "bar_page_5", "bar_page_6", "bar_modifier", "bar_scroll_modifier",
         "gear_set_1", "gear_set_2", "gear_set_3", "gear_set_4", "gear_set_5", "gear_set_6", "gear_set_7", "gear_set_8", "gear_set_9", "gear_set_10",
         "companion_order", "first_person", "shoulder_swap", "free_cursor",
-        "inventory", "character", "skills", "journal", "map", "party", "chat", "help", "saves", "quicksave",
+        "inventory", "character", "skills", "journal", "map", "party", "chat", "help", "saves", "quicksave", "report_problem", "hide_interface", "screenshot",
         "dialogue_skip", "reply_1", "reply_2", "reply_3", "reply_4", "reply_5", "reply_6", "reply_7", "reply_8", "reply_9",
     };
 
@@ -85,6 +85,16 @@ public static class SettingsStore
         Current = prefs.Normalised();
         Write();
         Changed?.Invoke();
+    }
+
+    /// <summary>
+    /// Kept and written, with nothing to apply: a hint marked seen. Through <see cref="Set"/> every hint re-applied the keys (their
+    /// bindings compare by reference), a 230 ms stall mid-fight each time one showed.
+    /// </summary>
+    public static void Remember(ClientPrefs prefs)
+    {
+        Current = prefs.Normalised();
+        Write();
     }
 
     private static string? Read(string path)
@@ -179,10 +189,35 @@ public static class SettingsStore
     {
         VisualOptions.PlantScale = Current.Machine.Dials.PlantDensity;
         VisualOptions.ReachScale = Current.Machine.Dials.DrawDistance;
-        if (Current.Machine.Tier is null || spec is null)
+        if (spec is null)
             return spec;
-        return string.Join(",", spec.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Where(part => !part.StartsWith("tier=", StringComparison.Ordinal)));
+        string? capped = Current.Machine.StartVisuals(spec, VisualOptions.DefaultTier, GraphicsMemoryGb());
+        if (capped != spec) GD.Print($"UNNAMED first-run visuals: {capped}; saved Settings choices take precedence");
+        return capped;
+    }
+
+    /// <summary>The highest tier measured to fit the card's memory; unknown memory caps nothing.</summary>
+    public static string TierForMemory(double? gb) => MachinePrefs.TierForMemory(gb);
+
+    /// <summary>
+    /// The largest graphics card's dedicated memory, from the display adapters' registry keys (Godot reports the adapter's name, not its
+    /// memory); null off Windows or when no adapter says.
+    /// </summary>
+    private static double? GraphicsMemoryGb()
+    {
+        if (!OperatingSystem.IsWindows())
+            return null;
+        using var adapters = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}");
+        if (adapters is null)
+            return null;
+        long most = 0;
+        foreach (string name in adapters.GetSubKeyNames().Where(n => n.All(char.IsAsciiDigit)))
+        {
+            using var adapter = adapters.OpenSubKey(name);
+            if (adapter?.GetValue("HardwareInformation.qwMemorySize") is long bytes)
+                most = Math.Max(most, bytes);
+        }
+        return most > 0 ? most / 1073741824.0 : null;
     }
 
     /// <summary>The window as the player keeps it: its mode, its size when windowed, VSync and the frame ceiling.</summary>

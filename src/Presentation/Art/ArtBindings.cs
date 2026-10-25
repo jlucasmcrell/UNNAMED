@@ -29,7 +29,14 @@ public sealed record Placement(string? Model, string Fit = "none", string? Surfa
     Vector3? SurfaceTint = null, Vector3? Glow = null, float GlowEnergy = 0, float Wind = 0,
     IReadOnlyList<(string Recipe, Vector3 At)>? Emitters = null, float YawSpread = 0, float LateS = 0,
     string? AnimationFlag = null, bool HideSetMark = false, float Scale = 1, Vector3? Tint = null, Vector3? SpentTint = null,
-    float GroundSinkM = 0);
+    float GroundSinkM = 0)
+{
+    /// <summary>A switch's prop whose own light goes out once the switch is set (<c>set_goes_dark</c>): the Stopped Gate's anchors.</summary>
+    public bool SetGoesDark { get; init; }
+
+    /// <summary>How far a worn surface's edges are chipped back to bright metal (<c>edge_wear</c>, 0 to 1): the Spill's iron.</summary>
+    public float EdgeWear { get; init; }
+}
 
 /// <summary>
 /// A light that is presentation data, not a coordinate in code: where it stands relative to what it lights (a station's feet, a building's
@@ -78,7 +85,7 @@ public sealed record LightSpec(Vector3 At, Color Colour, float Energy, float Ran
     /// one decision, and a binding that changes one is authoring a different light.
     ///
     /// <see cref="Daylight"/> is how much of the light the sun takes away: 0 for a hearth or a lamp that burns all
-    /// day, 1 for a street lantern that is lit at dusk. It is the same axis the fog's light colour and the night
+    /// day, 1 for a street lantern that is lit at dusk, -1 for a bounce fill that only the sun lights. It is the same axis the fog's light colour and the night
     /// fill already run on (<see cref="Greybox.SkyView"/>), applied to the one kind of light that was still pinned
     /// to the moment the process booted.
     /// </remarks>
@@ -749,7 +756,11 @@ public sealed class ArtBindings
             : null,
         Number(e, "yaw_spread", 0), Number(e, "late_s", 0), Text(e, "animation_flag"), Flag(e, "hide_set_mark"),
         Number(e, "scale", 1), e.TryGetProperty("tint", out var tinted) ? Vector(tinted) : null,
-        e.TryGetProperty("spent_tint", out var spentTint) ? Vector(spentTint) : null, Number(e,"ground_sink_m",0));
+        e.TryGetProperty("spent_tint", out var spentTint) ? Vector(spentTint) : null, Number(e,"ground_sink_m",0))
+    {
+        SetGoesDark = Flag(e, "set_goes_dark"),
+        EdgeWear = Number(e, "edge_wear", 0),
+    };
 
     private static bool Flag(JsonElement e, string name) =>
         e.ValueKind == JsonValueKind.Object && e.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.True;
@@ -757,7 +768,8 @@ public sealed class ArtBindings
     /// <summary>
     /// A light: "at" [x, y, z] metres from what it lights, "colour" [r, g, b], "energy", "range" metres, "shadows",
     /// "size", and optionally "attenuation" (Godot's decay; defaults to <see cref="LightSpec.DefaultAttenuation"/>)
-    /// and "daylight" (how much of it the sun takes away; defaults to 0, a light the sun does not touch); null when
+    /// and "daylight" (how much of it the sun takes away; defaults to 0, a light the sun does not touch; negative, a bounce the sun
+    /// feeds); null when
     /// malformed.
     /// </summary>
     private static LightSpec? Light(JsonElement e)
@@ -776,7 +788,7 @@ public sealed class ArtBindings
             GD.PushWarning($"UNNAMED art: a light binding asks for attenuation {attenuation}, which is not a decay; using {LightSpec.DefaultAttenuation}");
             attenuation = LightSpec.DefaultAttenuation;
         }
-        float daylight = Mathf.Clamp(Number(e, "daylight", 0f), 0f, 1f);
+        float daylight = Mathf.Clamp(Number(e, "daylight", 0f), -1f, 1f);
         return new LightSpec(Vector(at), new Color(colour.X, colour.Y, colour.Z), Number(e, "energy", 1f), Number(e, "range", 5f),
             Flag(e, "shadows"), Number(e, "size", 0f), Number(e, "fog_energy", 1f), attenuation, daylight, Text(e, "note"));
     }

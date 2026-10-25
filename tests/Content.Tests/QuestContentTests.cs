@@ -171,7 +171,8 @@ public class QuestContentTests
         // Count the new armour routes so this deliberately missing route is still the March Spear.
         Assert.Contains(ErrorsWith(Quest1, "or_item_refs: [item.material.iron_ingot, item.weapon.march_spear]",
                 "or_item_refs: [item.material.iron_ingot, item.armor.lame_coif, item.armor.lame_sabatons, item.armor.lamework_jack]", FiniteSpoil,
-                ("spawns/hollow/iron_shelf_armour.yaml", "kind: timer", "kind: none"), ("spawns/moor/barrow_sentinel.yaml", "kind: timer", "kind: none")),
+                ("spawns/hollow/iron_shelf_armour.yaml", "kind: timer", "kind: none"), ("spawns/moor/barrow_sentinel.yaml", "kind: timer", "kind: none"),
+                ("spawns/field/breach_west.yaml", "kind: timer", "kind: none"), ("spawns/field/breach_northeast.yaml", "kind: timer", "kind: none")),
             e => e.Code == "QST001" && e.Message.Contains("nothing renews item.material.iron_ingot, and recipe.smithing.march_spear makes it into item.weapon.march_spear",
                 StringComparison.Ordinal));
 
@@ -262,9 +263,9 @@ public class QuestContentTests
         Assert.Contains("fail_if reads the world as it stands; kill_creature counts deeds", Refused(
             """  - { id: o_a, type: visit_location, description: A., params: { location_ref: location.blackvein_cut } }""",
             "fail_if: [{ type: kill_creature, params: { creature_ref: creature.beast.wolf_grey } }]"));
-        Assert.Contains("reward kind 'title' is not built in Phase 1", Refused(
+        Assert.Contains("reward kind 'ability' is not built in Phase 1", Refused(
             """  - { id: o_a, type: visit_location, description: A., params: { location_ref: location.blackvein_cut } }""",
-            "rewards: [{ kind: title, amount: 5 }]"));
+            "rewards: [{ kind: ability, amount: 5 }]"));
     }
     [Fact]
     public void AFactionReputationObjective_AndAReputationReward_Build()
@@ -298,10 +299,10 @@ public class QuestContentTests
         Assert.All(quests.Values.Where(q => q.Id.StartsWith("quest.main.", StringComparison.Ordinal)), q => Assert.Equal((QuestTrack.Main, (int?)1), (q.Track, q.Act)));
         Assert.All(quests.Values.Where(q => !q.Id.StartsWith("quest.bounty.", StringComparison.Ordinal) && !q.Id.StartsWith("quest.main.", StringComparison.Ordinal)),
             q => Assert.Equal(QuestTrack.Side, q.Track));
-        // The opening (WP2) is the one quest every new character starts. The hunting bounties are competitive (WP13): an adventurer may
+        // The opening (WP2) is the one quest every new character starts, beside their people's heritage questline (owner, 2026-10-24). The hunting bounties are competitive (WP13): an adventurer may
         // finish one first; the gathering and smithing ones are the character's alone.
-        Assert.Equal(new[] { "quest.main.the_road_in" }, quests.Values.Where(q => q.OnNewGame).Select(q => q.Id));
-        Assert.Equal(new[] { "quest.bounty.crag_walker", "quest.bounty.lodge_supplies", "quest.bounty.road_wolves", "quest.bounty.winter_hides" },
+        Assert.Equal(new[] { "quest.heritage.what_was_kept", "quest.main.the_road_in" }, quests.Values.Where(q => q.OnNewGame).Select(q => q.Id));
+        Assert.Equal(new[] { "quest.bounty.crag_walker", "quest.bounty.lodge_supplies", "quest.bounty.rim_road", "quest.bounty.road_wolves", "quest.bounty.winter_hides" },
             quests.Values.Where(q => q.Competitive).Select(q => q.Id).OrderBy(id => id, StringComparer.Ordinal));
     }
 

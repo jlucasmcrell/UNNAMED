@@ -50,6 +50,32 @@ public class EconomyTests
         + "|" + simulation.Wares(Kera)!.Purse + "|" + simulation.Wares("npc.cairnwold.durn_skell")!.Purse;
 
     [Fact]
+    public void QualityAndMakerMarksReachTheQuoteSaleAndResaleShelf()
+    {
+        const string jacket = "item.armor.lamework_jack";
+        var standard = Stack(jacket, 1);
+        var fine = Stack(jacket, 1) with { Quality = Quality.Fine };
+        var marked = Stack(jacket, 1) with { Quality = Quality.Fine,
+            Notable = new UNNAMED.Domain.Items.NotableRecord("Ada's work", UNNAMED.Domain.Items.ProvenanceKind.Crafted,
+                "recipe.smithing.lamework_jack", 0) { Maker = "Ada" } };
+        using var profile = new TempProfile();
+        var arena = At(Harness.Boot(profile), r => With(r, 200, standard, fine, marked));
+        var sim = arena.Simulation;
+        long Quote(InventoryEntry entry) => sim.Offer(Kera, entry.DefId, entry.Wear, entry.Quality, entry.Notable)!.Value;
+        Assert.True(Quote(standard) < Quote(fine));
+        Assert.True(Quote(fine) < Quote(marked));
+        long offered = Quote(marked), before = sim.Player.Currency;
+        Assert.Null(arena.Submit(new SellCommand(arena.Player, Kera, marked.ItemId, 1)));
+        Assert.Equal(before + offered, sim.Player.Currency);
+        var ware = sim.Wares(Kera)!.Wares.Single(w => w.Ref == marked.ItemId.Value);
+        Assert.Equal(Quality.Fine, ware.Quality);
+        Assert.True(ware.Price > offered);
+        Assert.Null(arena.Submit(new BuyCommand(arena.Player, Kera, ware.Ref, 1)));
+        Assert.Equal(before + offered - ware.Price, sim.Player.Currency);
+        Assert.Equal("Ada", sim.Player.Inventory.Single(e => e.ItemId == marked.ItemId).Notable!.Maker);
+    }
+
+    [Fact]
     public void ANewWorld_StartsEveryMarketAtTarget_AtBasePrices_WithFullPurses()
     {
         using var profile = new TempProfile();

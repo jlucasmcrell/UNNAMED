@@ -16,6 +16,7 @@ public partial class Main
     private int _mhReviewStep, _mhReviewShot;
     private ulong _mhReviewNext, _mhReviewLast;
     private bool _mhReviewBusy;
+    private double _mhPeakVideoMiB;
     private FrameStats? _mhReviewStats;
     private double _mhReviewSeconds;
     private readonly List<(MetaHumanFigure Figure, string Person, string Bone, float Distance, float Yaw)> _mhReviewShots = new();
@@ -94,6 +95,7 @@ public partial class Main
             _mhReviewNext = Time.GetTicksMsec() + 10000;
         }
         GD.Print("MH_NORMAL_GAME_REVIEW installed " + _mhReviewDirectory);
+        if (OS.GetEnvironment("OTHERREACH_OPENING_AUDIO_REVIEW") == "1") StartOpeningReview(_mhReviewDirectory);
     }
 
     private object[] ReviewBodyChoices(string expectedType)
@@ -107,6 +109,7 @@ public partial class Main
 
     private void TickMetaHumanReview()
     {
+        _mhPeakVideoMiB = Math.Max(_mhPeakVideoMiB, Performance.GetMonitor(Performance.Monitor.RenderVideoMemUsed) / 1048576.0);
         try { AdvanceMetaHumanReview(); }
         catch (Exception error)
         {

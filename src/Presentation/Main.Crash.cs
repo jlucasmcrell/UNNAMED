@@ -20,7 +20,7 @@ public partial class Main
     /// </summary>
     private void InstallCrashLog()
     {
-        _crashLog = new CrashLog(CrashFolder) { Build = $"{(OS.IsDebugBuild() ? "debug" : "release")} {Engine.GetVersionInfo()["string"]}" };
+        _crashLog = new CrashLog(CrashFolder) { Build = $"{BuildId()} ({(OS.IsDebugBuild() ? "debug" : "release")} {Engine.GetVersionInfo()["string"]})" };
         _crashLog.Install();
         if (DisplayServer.GetName() != "headless")
             _crashNotice = CrashLog.TakeNotice(CrashFolder);

@@ -10,9 +10,9 @@ ROOT, COMFY = sys.argv[1], sys.argv[2]
 OUT = os.path.join(ROOT, 'out', 'audio', 'music')
 os.makedirs(OUT, exist_ok=True)
 gen = json.load(open(os.path.join(ROOT, 'src', 'music', 'generated.json'), encoding='utf-8'))
-TARGET = {'mus.title': -21, 'mus.settlement.day': -23, 'mus.settlement.night': -25, 'mus.combat': -20, 'mus.stinger.discovery': -21}
+TARGET = {'mus.title': -21, 'mus.settlement.day': -23, 'mus.settlement.night': -25, 'mus.combat': -20, 'mus.explore': -26, 'mus.stinger.discovery': -21}
 ROLE = {'mus.title': 'the start screen theme', 'mus.settlement.day': 'a settlement by day', 'mus.settlement.night': 'a settlement by night',
-        'mus.combat': 'a fight (any engaged creature near the player)', 'mus.stinger.discovery': 'a place discovered: a short phrase over the ducked bed'}
+        'mus.combat': 'a fight (any engaged creature near the player)', 'mus.explore': 'a known place on a later visit, now and then', 'mus.stinger.discovery': 'a place discovered: a short phrase over the ducked bed'}
 rows = []
 count = {}
 for g in sorted(gen, key=lambda g: (g['cue'], g['seed'])):

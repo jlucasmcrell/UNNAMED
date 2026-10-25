@@ -1,9 +1,11 @@
 """Interim original score: generate the music cues locally with Stable Audio Open 1.0 through the running ComfyUI (localhost only),
-two seeds a cue, text prompts only (no library audio goes in). Run under the GPU lock.
-usage: python -P tools/gen_music.py <recovery root>"""
+two seeds a cue, text prompts only (no library audio goes in). Run under the GPU lock. Naming cues generates only those, and their rows
+replace theirs in generated.json; the others are kept.
+usage: python -P tools/gen_music.py <recovery root> [cue ...]"""
 import json, os, sys, time, urllib.request
 
 ROOT = sys.argv[1]
+ONLY = set(sys.argv[2:])
 API = 'http://127.0.0.1:8188'
 NEG = 'vocals, singing, voice, lyrics, bass, sub bass, electronic, synth, edm, drum kit, snare, hi-hat, guitar, piano, orchestra, brass, distortion, low quality, noise, clipping'
 # AUDIO_DESIGN.md: Veth - warm, acoustic; fiddle, frame drum, breath, room tone; a battered wooden flute in every cue; no low end.
@@ -12,6 +14,8 @@ CUES = {
     'mus.settlement.day': (47, 'gentle village folk tune, wooden flute and fiddle playing together slightly out of tune, light frame drum, warm acoustic, calm daytime, 92 bpm'),
     'mus.settlement.night': (47, 'quiet night folk lullaby, solo wooden flute, very sparse, soft fiddle harmonics, hushed, lots of silence, warm room tone, 60 bpm'),
     'mus.combat': (47, 'tense driving folk battle music, pounding frame drums, urgent fiddle ostinato, sharp wooden flute stabs, acoustic, dark and fast, 140 bpm'),
+    # owner ruling 2026-10-24: a known place, now and then, on a later visit - quieter and slower than the settlement, still Veth
+    'mus.explore': (47, 'quiet wandering folk air, solo battered wooden flute, long pauses, soft fiddle drone, faint frame drum like a slow heartbeat, open air, warm acoustic, contemplative, lots of silence, 66 bpm'),
     'mus.stinger.discovery': (9, 'short discovery fanfare phrase, wooden flute rising melody over a swelling fiddle drone, acoustic, wonder, ends on a held note'),
 }
 SEEDS = (11, 23)
@@ -40,6 +44,8 @@ def graph(prompt, seconds, seed, prefix):
 def main():
     jobs = {}
     for cue, (seconds, prompt) in CUES.items():
+        if ONLY and cue not in ONLY:
+            continue
         for seed in SEEDS:
             prefix = f'otherreach_music/{cue}_s{seed}'
             r = post('/prompt', {'prompt': graph(prompt, seconds, seed, prefix)})
@@ -60,7 +66,9 @@ def main():
                             'settings': {'steps': 100, 'cfg': 7.0, 'sampler': 'dpmpp_3m_sde_gpu', 'scheduler': 'exponential'}})
             print(cue, seed, st.get('status_str'), results[-1]['files'], flush=True)
     os.makedirs(os.path.join(ROOT, 'src', 'music'), exist_ok=True)
-    json.dump(results, open(os.path.join(ROOT, 'src', 'music', 'generated.json'), 'w', encoding='utf-8'), indent=1)
+    path = os.path.join(ROOT, 'src', 'music', 'generated.json')
+    kept = [r for r in json.load(open(path, encoding='utf-8')) if r['cue'] not in ONLY] if ONLY and os.path.exists(path) else []
+    json.dump(kept + results, open(path, 'w', encoding='utf-8'), indent=1)
 
 
 main()

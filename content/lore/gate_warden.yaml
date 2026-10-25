@@ -1,0 +1,27 @@
+id: lore.gate_warden
+kind: lore
+schema: 1
+display_key: lore.gate_warden.title
+tags: [lore, creatures]
+title: The Gate Warden
+category: creatures
+plate: "Slow to turn: stay behind it. The back is open where the gate's lock runs."
+notes: "Written from content/creatures/construct/gate_warden.yaml and docs/FIELD_RUINS.md (owner-approved 2026-10-24): the court's keeper, the gate's lock, slow to turn and open at the back; once down it does not return. In-world, both pages are what studying it teaches."
+pages:
+  - page: 1
+    text: >
+      The warden stands in the court between the anchors, and it is to the gate what a lock is to a door. It is a giant, near
+      four times the height of a man, plated front and sides in the dark iron, and it turns slowly, as if the whole court turned with it. It reads a
+      body before it strikes - the long sweep, the fall from above, the short grasp - and each one shows itself a
+      moment early to anyone watching for it. The back of it is open where its works run. That is the whole of the
+      fight: get behind it and stay there.
+    sources:
+      - { how: studied, ref: creature.construct.gate_warden }
+  - page: 2
+    text: >
+      Brought down, it does not get up, and the gate does not make another; whatever it was guarding the anchors
+      for, the guarding is over. What is left is plate too heavy to carry and a hum in the iron that fades over an
+      hour. Cairnwold had no name for it, because nobody from the village had been down into the court. They call it
+      the warden now, because the one who came back up called it that.
+    sources:
+      - { how: studied, ref: creature.construct.gate_warden }

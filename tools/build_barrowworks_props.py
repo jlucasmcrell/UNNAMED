@@ -62,7 +62,7 @@ def worn_metal(source):
     # Remove modern blue/red paint while retaining the owned scan's wear/roughness/normal detail.
     for link in bsdf.inputs['Base Color'].links:
         if link.from_node.type=='TEX_IMAGE' and link.from_node.image:
-            image=link.from_node.image.copy();image.scale(512,512)
+            image=link.from_node.image.copy()
             pixels=np.asarray(image.pixels[:],dtype=np.float32).reshape(-1,4)
             luma=pixels[:,:3]@np.array([.2126,.7152,.0722],dtype=np.float32)
             pixels[:,:3]=luma[:,None]*np.array([.64,.59,.50])+np.array([.025,.018,.011])
@@ -76,7 +76,7 @@ rng=np.random.default_rng(805)
 paper=flat_material('first_party_aged_paper',(.45,.36,.22,1))
 ink=flat_material('first_party_carbon_ink',(.035,.029,.02,1))
 wood=flat_material('Poly_Haven_rough_wood_CC0',(.11,.065,.033,1))
-wood_image=bpy.data.images.load(r'C:\Otherreach_Recovery\Otherreach_Playtest_RESTORE_20261015b\primary\materials\cw_timber_beam\cw_timber_beam_basecolor.jpg');wood_image.scale(512,512);wood_image.pack()
+wood_image=bpy.data.images.load(r'C:\Otherreach_Recovery\Otherreach_Playtest_RESTORE_20261015b\primary\materials\cw_timber_beam\cw_timber_beam_basecolor.jpg');wood_image.pack()
 next(n for n in wood.node_tree.nodes if n.type=='TEX_IMAGE').image=wood_image
 iron=flat_material('cast_iron',(.12,.105,.075,1))
 brass=flat_material('worn_brass',(.37,.25,.09,1))
@@ -152,15 +152,7 @@ def export(asset_id, pieces, animation=False):
     bpy.ops.object.select_all(action='DESELECT')
     for obj in pieces: obj.select_set(True)
     bpy.context.view_layer.objects.active = pieces[0]
-    # Embedded source maps must not retain their multi-megapixel scan atlases per fixture.
-    for obj in pieces:
-        for material in obj.data.materials:
-            if not material or not material.use_nodes: continue
-            for node in material.node_tree.nodes:
-                if node.type!='TEX_IMAGE' or node.image is None: continue
-                image=node.image;limit=2048 if 'frontier_bank' in image.name else 512
-                ratio=min(1,limit/max(image.size))
-                if ratio<1:image.scale(max(1,round(image.size[0]*ratio)),max(1,round(image.size[1]*ratio)));image.pack()
+    # Source maps keep their own resolution (Ultra first); the native scene cache shares each one as a single BC7 resource.
     bpy.ops.export_scene.gltf(filepath=str(folder/(asset_id+'.glb')),export_format='GLB',use_selection=True,
         export_yup=True,export_apply=True,export_animations=animation,export_animation_mode='ACTIVE_ACTIONS',
         export_force_sampling=True,export_lights=False)
@@ -386,7 +378,7 @@ def bank_surface(x,y,height):
 def bank_material(name,anchor,height):
     # Bake a blend of the exact frontier CC0 terrain maps at their world-space tile scales.
     # A single material/atlas keeps the blended earth cheap to draw and avoids transparent skirts.
-    resolution=2048
+    resolution=4096
     x,y=np.meshgrid(np.linspace(-25,25,resolution,dtype=np.float32),np.linspace(-3,26,resolution,dtype=np.float32))
     h=bank_height(x,y,height)
     slope=np.hypot(bank_height(x+.1,y,height)-h,bank_height(x,y+.1,height)-h)/.1
@@ -398,10 +390,10 @@ def bank_material(name,anchor,height):
         for role,target in [('basecolor',colour),('normal',normal)]:
             source=bpy.data.images.load(str(PRIMARY/f'materials/{asset}/{asset}_{role}.jpg'),check_existing=True)
             if role=='normal':source.colorspace_settings.name='Non-Color'
-            source.scale(512,512)
-            pixels=np.asarray(source.pixels[:],dtype=np.float32).reshape(512,512,4)
-            u=np.mod(np.floor((anchor[0]+x)*scale*512).astype(int),512)
-            v=np.mod(np.floor((anchor[1]-y)*scale*512).astype(int),512)
+            w,hgt=source.size
+            pixels=np.asarray(source.pixels[:],dtype=np.float32).reshape(hgt,w,4)
+            u=np.mod(np.floor((anchor[0]+x)*scale*w).astype(int),w)
+            v=np.mod(np.floor((anchor[1]-y)*scale*hgt).astype(int),hgt)
             target+=pixels[v,u]*weight[:,:,None]
     material=flat_material(name+'_frontier_soil',(.5,.5,.5,1));nodes=material.node_tree.nodes
     bsdf=nodes.get('Principled BSDF');bsdf.inputs['Roughness'].default_value=.94

@@ -137,7 +137,7 @@ public class NpcTests
         var lines = arena.Record<ConversationLine>();
         Assert.Null(arena.Submit(new TalkCommand(arena.Player, Renn)));
         Assert.Equal("greet", Now(arena).NodeId);
-        Assert.Equal(new[] { "place", "work", "leave" }, Replies(arena));
+        Assert.Equal(new[] { "place", "work", "recopy", "leave" }, Replies(arena));   // a Veth with no Kept Roll may have Renn re-copy it
         Assert.True(arena.Simulation.Npcs.Single(n => n.Id == Renn).Talking);
         Assert.Equal("'iron' is not a reply here", Say(arena, "iron"));
         Assert.Null(Say(arena, "place"));
@@ -145,7 +145,7 @@ public class NpcTests
         // The greeting is spent: the conversation stands at its again-node, and carrying nothing, the character is offered
         // neither the iron nor the spear.
         Assert.Equal("again", Now(arena).NodeId);
-        Assert.Equal(new[] { "place", "work", "notices", "leave", "story_begin_accounts", "story_note" }, CoreReplies(arena));
+        Assert.Equal(new[] { "place", "work", "notices", "recopy", "leave", "story_begin_accounts", "story_note" }, CoreReplies(arena));
         Assert.Null(Say(arena, "leave"));
         Assert.Null(arena.Simulation.Conversation);
         Assert.Equal(new[] { "greet", "place", "again" }, lines.Select(l => l.NodeId));
@@ -159,7 +159,7 @@ public class NpcTests
         Assert.Null(bearer.Submit(new TalkCommand(bearer.Player, Renn)));
         Assert.Null(Say(bearer, "leave"));
         Assert.Null(bearer.Submit(new TalkCommand(bearer.Player, Renn)));
-        Assert.Equal(new[] { "place", "work", "iron", "spear", "notices", "leave", "story_begin_accounts", "story_note" }, CoreReplies(bearer));
+        Assert.Equal(new[] { "place", "work", "iron", "spear", "notices", "recopy", "leave", "story_begin_accounts", "story_note" }, CoreReplies(bearer));
         Assert.Null(Say(bearer, "iron"));
         Assert.Equal(5, Regard(bearer, Renn, "respect"));
         Assert.Null(Say(bearer, "back"));
@@ -264,7 +264,7 @@ public class NpcTests
         Assert.Equal((1, 5), (Carried(arena, Notes), Regard(arena, Sel, "trust")));
         Assert.Equal("notes_given", Now(arena).NodeId);
         Assert.Null(Say(arena, "back"));
-        Assert.Equal(new[] { "ruin", "strain", "tavar", "survey", "leave", "story_grazers", "story_species_robin", "story_species_dandelion" }, CoreReplies(arena));   // the notes are given once; now she will talk of strain
+        Assert.Equal(new[] { "ruin", "strain", "tavar", "survey", "spill", "leave", "story_grazers", "story_species_robin", "story_species_dandelion" }, CoreReplies(arena));   // the notes are given once; now she will talk of strain
     }
 
     /// <summary>
@@ -517,7 +517,7 @@ public class NpcTests
         var wares = arena.Simulation.Wares(Kera)!;
         var arrows = wares.Wares.First(w => w.ItemId == Arrows);
         var bow = wares.Wares.Single(w => w.ItemId == "item.weapon.hunting_bow");
-        Assert.Equal((60, 1L, 1, 45L), (wares.Wares.Where(w => w.ItemId == Arrows).Sum(w => w.Count), arrows.Price, bow.Count, bow.Price));
+        Assert.Equal((60, 1L, 1, 36L), (wares.Wares.Where(w => w.ItemId == Arrows).Sum(w => w.Count), arrows.Price, bow.Count, bow.Price));
         Assert.Null(arena.Simulation.Wares(Renn));   // Renn does not trade
 
         var bought = arena.Record<ItemBought>();
@@ -527,7 +527,7 @@ public class NpcTests
         Assert.Equal(40, arena.Simulation.Wares(Kera)!.Wares.Where(w => w.ItemId == Arrows).Sum(w => w.Count));
         // Touched, her wares got their identities (the slot-promotion rule): a ware is named by what the view says now.
         bow = arena.Simulation.Wares(Kera)!.Wares.Single(w => w.ItemId == "item.weapon.hunting_bow");
-        Assert.Equal("not enough coin: 45 asked, 5 carried", arena.Submit(new BuyCommand(arena.Player, Kera, bow.Ref, 1)));
+        Assert.Equal("not enough coin: 36 asked, 5 carried", arena.Submit(new BuyCommand(arena.Player, Kera, bow.Ref, 1)));
         Assert.Equal("Kera Voss has no such ware", arena.Submit(new BuyCommand(arena.Player, Kera, "merchant.nothing#00", 1)));
 
         // She buys a hide at 40% of its value, and it joins her wares; a quest token she will not buy.

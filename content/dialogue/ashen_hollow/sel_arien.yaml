@@ -103,6 +103,22 @@ nodes:
       - id: ask_hounds
         text: "Tell me about the ember hounds."
         next: tell_hounds
+      # What Stands on the Top (docs/FIELD_RUINS.md): the Spill, and the shard once the gate is still.
+      - id: spill
+        text: "Something hums on the top past Old Late. Do you know what it is?"
+        conditions: [{ kind: quest_state, quest_ref: quest.field.what_stands_on_the_top, is: not_started }]
+        consequences: [{ command: start_quest, quest_ref: quest.field.what_stands_on_the_top }]
+        next: spill
+      - id: spill_back
+        text: "The gate on the top is still."
+        conditions:
+          - { kind: world_state, flag_ref: world.field.stilled, location_ref: location.field.stopped_gate, min: 1 }
+          - { kind: visited, node: spill_back, not: true }
+        consequences:
+          - { command: start_quest, quest_ref: quest.field.what_stands_on_the_top }
+          - { command: transfer_item, item_ref: item.quest.firstfold_shard, count: 1, to: player }
+          - { command: report_act, act: switch_set, flag_ref: world.field.stilled }
+        next: spill_back
       # Spec 41: told, not read. The page is the telling, so the two cannot drift.
       - id: ask_otherfold
         text: "Tell me about otherfolds."
@@ -358,6 +374,20 @@ nodes:
         text: "I'll remember."
         next: again
 # Said in passing, unprompted, when the character comes near (the bark patch): each line while its conditions hold.
+  spill:
+    text: "\"The Spill. Cairnwold's word, and a good one.\" She turns back eleven pages without looking for them. \"The Record has it as a gate. Not a fold - a gate: made, or kept, and stopped partway, which is a thing I have read about twice and seen never. It hums because it is still pulling against whatever stopped it. There are three anchors round a court at the heart of it, and they hum louder.\" She grades it with her pencil. \"If they were stilled, I think it would settle shut. Two chances in three. And something keeps that court. Cairnwold won't go down into it, and Cairnwold is not easily frightened.\""
+    choices:
+      - id: go
+        text: "I'll go and look."
+        next: again
+  spill_back:
+    text: "She listens to all of it without writing, which is not like her, and then writes all of it at once. \"Shut. Not open. Good.\" From the back of her ledger she takes a shard of dark iron no longer than a finger and holds it a moment before she gives it over. \"This came off the Spill before I was born - the Survey has carried it ever since and never known what it was for. Each gate's iron is one thing; this is that gate's. Take it down into the court one day and listen. It will tell you it is home.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "I'll keep it."
+        next: again
   tell_hounds:
     text: "\"The hound. Fast, and it does not tire, and it does not circle - it comes and it keeps coming.\" She is writing while she talks. \"The bite is the part that kills people. Ember-hot: no guard turns it and no armour takes it, so don't answer it with the thing you were taught to answer a bite with. Watch for the tell and be somewhere else when it lands.\" She looks up. \"And bring me the cinder sac. Not for the kill. For what it does in a salve. I'll tell you, and you'll want to know why, and the honest answer is that I don't.\""
     choices:

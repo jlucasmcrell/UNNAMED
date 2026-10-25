@@ -103,9 +103,13 @@ public static class ItemContent
 
     public static Pricing BuildPricing(ContentLoader loader)
     {
-        var pricing = new Pricing(Number(Config(loader, "config.economy"), "sell_ratio"));
-        if (pricing.SellRatio is < 0 or > 1)
-            throw new FormatException("config.economy sell_ratio must be in [0, 1]");
+        var map = Config(loader, "config.economy");
+        double Setting(string key, double fallback) => map.ContainsKey(key) ? Number(map, key) : fallback;
+        var pricing = new Pricing(Number(map, "sell_ratio"), Setting("quality_value_step", 0.25),
+            Setting("maker_mark_premium", 0.1), Setting("recipe_vendor_margin", 0.9));
+        if (pricing.SellRatio is < 0 or > 1 || pricing.QualityStep is < 0 or >= 1
+            || pricing.MakerPremium is < 0 or > 1 || pricing.RecipeMargin is <= 0 or >= 1)
+            throw new FormatException("config.economy needs sell_ratio [0,1], quality_value_step [0,1), maker_mark_premium [0,1], recipe_vendor_margin (0,1)");
         return pricing;
     }
 
@@ -204,6 +208,7 @@ public static class ItemContent
             Bag = bag,
             PackKind = packKind,
             PetCreature = map.GetValueOrDefault("pet_creature") as string,
+            Heritage = map.GetValueOrDefault("heritage") as string,
         };
     }
 

@@ -22,12 +22,14 @@ public sealed class ParticleRecipes
     private readonly Dictionary<string, (Color Ink, int Sides)> _formulas = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Texture2D?> _textures = new(StringComparer.Ordinal);
     private readonly string? _root;
+    private readonly TextureCache _cache;
 
     public IReadOnlyCollection<string> Names => _recipes.Keys;
 
     public ParticleRecipes(string? assetRoot, string json)
     {
         _root = assetRoot;
+        _cache = new TextureCache(assetRoot, ArtLibrary.BuildTextureCache);
         using var document = JsonDocument.Parse(json);
         foreach (var recipe in document.RootElement.GetProperty("recipes").EnumerateObject())
             _recipes[recipe.Name] = recipe.Value.Clone();
@@ -202,11 +204,14 @@ void fragment() {
             return cached;
         Texture2D? texture = null;
         string path = Path.Combine(_root, relative);
+        if (_cache.For(TextureCache.Key(relative), path, () => Image.LoadFromFile(path), "color") is { } compressed)
+            return _textures[relative] = compressed;
         if (File.Exists(path) && Image.LoadFromFile(path) is { } image && !image.IsEmpty())
         {
             image.Convert(Image.Format.Rgba8);
             image.GenerateMipmaps();
             texture = ImageTexture.CreateFromImage(image);
+            TextureCache.RequireCompressed(texture, path);
         }
         _textures[relative] = texture;
         return texture;

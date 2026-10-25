@@ -310,7 +310,7 @@ public partial class CreatorScreen : CanvasLayer
             Worn(EquipSlot.Hands), Worn(EquipSlot.Legs), Worn(EquipSlot.Cloak));
     }
 
-    /// <summary>Everything a new character carries: the common kit, then the Call's.</summary>
+    /// <summary>What a new character carries from kit: the common kit, then the Call's. Their people's heritage is shown apart.</summary>
     private IEnumerable<StartingItem> Kit(string? callId) =>
         callId is not null && _session.Characters.Calls.TryGetValue(callId, out var call)
             ? _session.Setup.Items.StartingKit.Concat(call.Kit)
@@ -643,6 +643,11 @@ public partial class CreatorScreen : CanvasLayer
 
         var carries = UiKit.Section("Carries");
         carries.AddChild(KitList(Kit(draft.CallId)));
+        if (_session.Characters.Peoples.TryGetValue(draft.PeopleId, out var people) && !people.Heritage.IsEmpty)
+        {
+            carries.AddChild(UiKit.Caption("Heritage"));
+            carries.AddChild(KitList(people.Heritage));
+        }
         carries.AddChild(UiKit.Words("Knows no formulas or recipes yet: people and books teach those.", 16, HudStyle.Muted));
         _body.AddChild(carries);
 

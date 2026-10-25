@@ -1,0 +1,25 @@
+id: spawn.barrowworks.sorting_spider_north
+kind: spawn
+schema: 1
+display_key: spawn.barrowworks.sorting_spider_north.name
+tags:
+- spawn
+notes: "E2 (M8 09), the first of two spiders on R05's sorting floor. Each is its own spawner, 13 m from the other, so one can be drawn off without the other joining. Its kill persists. Level 3, as the frontier's own spiders and husks (docs/BARROWWORKS_BALANCE.md)."
+region_ref: region.barrowworks
+creatures:
+- creature_ref: creature.beast.cave_hunting_spider
+  count:
+  - 1
+  - 1
+  role: ambusher
+at:
+  position_m:
+  - 22
+  - 56
+  radius_m: 0
+level_band:
+- 3
+- 3
+respawn:
+  kind: none
+tier_hint: A

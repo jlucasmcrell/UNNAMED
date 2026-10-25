@@ -1,0 +1,226 @@
+{
+  "npc_kera_voss": {
+    "outfit_id": "outfit_f_casual_weekend_warrior",
+    "outfit": "outfits\\female\\Casual\\Weekend_Warrior.blend",
+    "footwear_id": "footwear_f_extra_outfits_pack_pirate_boots",
+    "footwear": "footwear\\female\\Extra Outfits Pack\\Pirate Boots.blend",
+    "reason": "Forge smith: heavy plain pullover, work trousers and laced leather boots; no pressed jacket",
+    "palette_srgb": {
+      "top": "746B60",
+      "trousers": "4F4437",
+      "underlayer": "B2A58C",
+      "footwear": "4E3828"
+    },
+    "catalog_front": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_casual_weekend_warrior_front.png",
+    "catalog_walk": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_casual_weekend_warrior_walk.png",
+    "interim": true
+  },
+  "npc_renn_vale": {
+    "outfit_id": "outfit_m_winter_frosty_evening",
+    "outfit": "outfits\\male\\Winter\\Frosty_Evening.blend",
+    "footwear_id": "footwear_m_extra_outfits_pack_pirate_boots",
+    "footwear": "footwear\\male\\Extra Outfits Pack\\Pirate Boots.blend",
+    "reason": "Outdoor waystation steward: weather coat, dark trousers and leather boots",
+    "palette_srgb": {
+      "top": "655443",
+      "trousers": "414038",
+      "underlayer": "B6AA91",
+      "footwear": "4D3526"
+    },
+    "catalog_front": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_m_winter_frosty_evening_front.png",
+    "catalog_walk": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_m_winter_frosty_evening_walk.png",
+    "interim": true
+  },
+  "npc_sel_arien": {
+    "outfit_id": "outfit_f_office_summer_lawyer",
+    "outfit": "outfits\\female\\Office\\Summer_Lawyer.blend",
+    "footwear_id": "footwear_f_extra_outfits_pack_pirate_boots",
+    "footwear": "footwear\\female\\Extra Outfits Pack\\Pirate Boots.blend",
+    "reason": "Archivist: plain collared shirt and trousers in dark quiet tones; no suit jacket, tie or office ensemble",
+    "palette_srgb": {
+      "top": "5C5C53",
+      "trousers": "424844",
+      "underlayer": "A49A84",
+      "footwear": "49372E"
+    },
+    "catalog_front": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_office_summer_lawyer_front.png",
+    "catalog_walk": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_office_summer_lawyer_walk.png",
+    "interim": true
+  },
+  "npc_tavar_orr": {
+    "outfit_id": "outfit_m_winter_frosty_evening",
+    "outfit": "outfits\\male\\Winter\\Frosty_Evening.blend",
+    "footwear_id": "footwear_m_extra_outfits_pack_pirate_boots",
+    "footwear": "footwear\\male\\Extra Outfits Pack\\Pirate Boots.blend",
+    "reason": "Travelling guide: moss weather coat, earth trousers and leather boots",
+    "palette_srgb": {
+      "top": "62694B",
+      "trousers": "514A3D",
+      "underlayer": "B7AA8F",
+      "footwear": "52392A"
+    },
+    "catalog_front": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_m_winter_frosty_evening_front.png",
+    "catalog_walk": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_m_winter_frosty_evening_walk.png",
+    "interim": true
+  },
+  "npc_mara_ling": {
+    "outfit_id": "outfit_f_casual_stylish_casual",
+    "outfit": "outfits\\female\\Casual\\Stylish_Casual.blend",
+    "footwear_id": "footwear_f_extra_outfits_pack_pirate_boots",
+    "footwear": "footwear\\female\\Extra Outfits Pack\\Pirate Boots.blend",
+    "reason": "Well keeper / herb gatherer: practical moss overshirt, linen underlayer, earth trousers and boots; avoid collapsed native skirt",
+    "palette_srgb": {
+      "top": "73765A",
+      "trousers": "5A5141",
+      "underlayer": "B6AA8F",
+      "footwear": "604733"
+    },
+    "catalog_front": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_casual_stylish_casual_front.png",
+    "catalog_walk": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_casual_stylish_casual_walk.png",
+    "interim": true
+  },
+  "npc_berrin_garth": {
+    "outfit_id": "outfit_m_extra_outfits_pack_relaxed_fit",
+    "outfit": "outfits\\male\\Extra Outfits Pack\\Relaxed Fit.blend",
+    "footwear_id": "footwear_m_extra_outfits_pack_pirate_boots",
+    "footwear": "footwear\\male\\Extra Outfits Pack\\Pirate Boots.blend",
+    "reason": "Lodgekeeper: undyed wool pullover, loose earth trousers, boots for yard work",
+    "palette_srgb": {
+      "top": "A89A80",
+      "trousers": "5A4B3C",
+      "underlayer": "B5A88F",
+      "footwear": "503A2A"
+    },
+    "catalog_front": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_m_extra_outfits_pack_relaxed_fit_front.png",
+    "catalog_walk": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_m_extra_outfits_pack_relaxed_fit_walk.png",
+    "interim": true
+  },
+  "npc_durn_skell": {
+    "outfit_id": "outfit_m_extra_outfits_pack_on_the_road",
+    "outfit": "outfits\\male\\Extra Outfits Pack\\On the road.blend",
+    "footwear_id": "footwear_m_extra_outfits_pack_pirate_boots",
+    "footwear": "footwear\\male\\Extra Outfits Pack\\Pirate Boots.blend",
+    "reason": "Cairnwold smith: charcoal overshirt, dark work trousers, brown undershirt and boots",
+    "palette_srgb": {
+      "top": "55534A",
+      "trousers": "484036",
+      "underlayer": "8E7962",
+      "footwear": "493126"
+    },
+    "catalog_front": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_m_extra_outfits_pack_on_the_road_front.png",
+    "catalog_walk": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_m_extra_outfits_pack_on_the_road_walk.png",
+    "interim": true
+  },
+  "npc_tam_crowden": {
+    "outfit_id": "outfit_f_casual_weekend_warrior",
+    "outfit": "outfits\\female\\Casual\\Weekend_Warrior.blend",
+    "footwear_id": "footwear_f_extra_outfits_pack_pirate_boots",
+    "footwear": "footwear\\female\\Extra Outfits Pack\\Pirate Boots.blend",
+    "reason": "Granary keeper: oxblood heavy pullover, work trousers and boots; avoid collapsed native skirt",
+    "palette_srgb": {
+      "top": "76564E",
+      "trousers": "554A3C",
+      "underlayer": "AC9B81",
+      "footwear": "503B2B"
+    },
+    "catalog_front": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_casual_weekend_warrior_front.png",
+    "catalog_walk": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_casual_weekend_warrior_walk.png",
+    "interim": true
+  },
+  "npc_pool_00": {
+    "outfit_id": "outfit_f_office_stock_exchange",
+    "outfit": "outfits\\female\\Office\\Stock_Exchange.blend",
+    "footwear_id": "footwear_f_extra_outfits_pack_pirate_boots",
+    "footwear": "footwear\\female\\Extra Outfits Pack\\Pirate Boots.blend",
+    "reason": "Older village worker: plain undyed collared work shirt, earth trousers and boots; no suit or tie; avoid collapsed native skirt",
+    "palette_srgb": {
+      "top": "99876D",
+      "trousers": "5C5041",
+      "underlayer": "B7A88E",
+      "footwear": "604632"
+    },
+    "catalog_front": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_office_stock_exchange_front.png",
+    "catalog_walk": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_office_stock_exchange_walk.png",
+    "interim": true
+  },
+  "npc_pool_01": {
+    "outfit_id": "outfit_m_extra_outfits_pack_on_the_road",
+    "outfit": "outfits\\male\\Extra Outfits Pack\\On the road.blend",
+    "footwear_id": "footwear_m_extra_outfits_pack_pirate_boots",
+    "footwear": "footwear\\male\\Extra Outfits Pack\\Pirate Boots.blend",
+    "reason": "Outdoor labourer: faded olive overshirt, brown trousers, coarse cream underlayer and boots",
+    "palette_srgb": {
+      "top": "777558",
+      "trousers": "655341",
+      "underlayer": "B4A68C",
+      "footwear": "5E422D"
+    },
+    "catalog_front": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_m_extra_outfits_pack_on_the_road_front.png",
+    "catalog_walk": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_m_extra_outfits_pack_on_the_road_walk.png",
+    "interim": true
+  },
+  "npc_pool_02": {
+    "outfit_id": "outfit_f_office_stock_exchange",
+    "outfit": "outfits\\female\\Office\\Stock_Exchange.blend",
+    "footwear_id": "footwear_f_extra_outfits_pack_pirate_boots",
+    "footwear": "footwear\\female\\Extra Outfits Pack\\Pirate Boots.blend",
+    "reason": "Village worker: plain loose collared work shirt and trousers; no tie or suit",
+    "palette_srgb": {
+      "top": "A69A7F",
+      "trousers": "5E5A48",
+      "underlayer": "B5A78D",
+      "footwear": "59412D"
+    },
+    "catalog_front": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_office_stock_exchange_front.png",
+    "catalog_walk": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_office_stock_exchange_walk.png",
+    "interim": true
+  },
+  "npc_pool_03": {
+    "outfit_id": "outfit_m_extra_outfits_pack_relaxed_fit",
+    "outfit": "outfits\\male\\Extra Outfits Pack\\Relaxed Fit.blend",
+    "footwear_id": "footwear_m_extra_outfits_pack_pirate_boots",
+    "footwear": "footwear\\male\\Extra Outfits Pack\\Pirate Boots.blend",
+    "reason": "Field labourer: grey wool pullover, loose brown trousers and work boots",
+    "palette_srgb": {
+      "top": "72716B",
+      "trousers": "6D5B46",
+      "underlayer": "B4A88F",
+      "footwear": "523B2A"
+    },
+    "catalog_front": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_m_extra_outfits_pack_relaxed_fit_front.png",
+    "catalog_walk": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_m_extra_outfits_pack_relaxed_fit_walk.png",
+    "interim": true
+  },
+  "npc_pool_04": {
+    "outfit_id": "outfit_f_casual_weekend_warrior",
+    "outfit": "outfits\\female\\Casual\\Weekend_Warrior.blend",
+    "footwear_id": "footwear_f_extra_outfits_pack_pirate_boots",
+    "footwear": "footwear\\female\\Extra Outfits Pack\\Pirate Boots.blend",
+    "reason": "Outdoor village worker: muted brown pullover, earth work trousers and boots",
+    "palette_srgb": {
+      "top": "8D7460",
+      "trousers": "5C5844",
+      "underlayer": "B6A88D",
+      "footwear": "5B3E2C"
+    },
+    "catalog_front": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_casual_weekend_warrior_front.png",
+    "catalog_walk": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_f_casual_weekend_warrior_walk.png",
+    "interim": true
+  },
+  "npc_pool_05": {
+    "outfit_id": "outfit_m_office_summer_lawyer",
+    "outfit": "outfits\\male\\Office\\Summer_Lawyer.blend",
+    "footwear_id": "footwear_m_extra_outfits_pack_pirate_boots",
+    "footwear": "footwear\\male\\Extra Outfits Pack\\Pirate Boots.blend",
+    "reason": "Older village tradesman: plain faded grey shirt and earth trousers; no tie, jacket or business suit",
+    "palette_srgb": {
+      "top": "8D8A7D",
+      "trousers": "5C4F40",
+      "underlayer": "B7AA90",
+      "footwear": "503A2B"
+    },
+    "catalog_front": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_m_office_summer_lawyer_front.png",
+    "catalog_walk": "C:\\Otherreach_External_Assets\\HumGen_Wardrobe\\views\\outfit_m_office_summer_lawyer_walk.png",
+    "interim": true
+  }
+}

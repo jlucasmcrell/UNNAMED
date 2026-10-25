@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
@@ -96,6 +97,9 @@ internal sealed class SystemContext
     /// board names who claimed a bounty with it. Composition sets it once.
     /// </summary>
     public Func<string, string?> OtherActorName { get; set; } = _ => null;
+
+    /// <summary>The character's people, as the creator made it: who may use and trade heritage items (owner, 2026-10-24).</summary>
+    public string PlayerPeople { get; init; } = CharacterSpec.DefaultPeople;
 
     /// <summary>
     /// The space this layout's sites stand in. Every authored site's cell is resolved in it, so a door's flag and
@@ -474,6 +478,8 @@ internal sealed class InteractionSystem
                        || _context.State.Npcs.Values.Any(n => door.ClosedFootprint.Separation(n.Body.XMm, n.Body.ZMm, rules.BodyRadiusMm) is not null);
         if (open && blocked)
             return $"{door.Key} cannot close: something is in the doorway";
+        if (!open && door.Fitted is { } fitted && _context.Dispatch(new ConsumeItem(fitted.ItemId, fitted.Count)) is not null)
+            return door.LockedText;
         if (_context.Dispatch(new SetWorldFlag(Simulation.CellOf(found.Layout.SpaceId, door), door.FlagId, open ? 0 : 1)) is { } refused)
             return refused;
         _context.Events.Publish(new DoorToggled(_player, door.Key, !open, tick));
@@ -933,12 +939,17 @@ internal sealed class SpaceSystem
         if (_context.State.Space.IsExterior)
             return "Already outside";
 
-        // Not through a door with something at your back. The same test the rest of the world asks: a creature
-        // whose mind is Engaged is a creature fighting you (Creatures.cs, CreatureView.Hostile).
-        if (_context.State.Creatures.Values.Any(c => c.Condition == CreatureCondition.Alive && c.Mind == CreatureMind.Engaged))
+        // Not through a door with something at your back: an Engaged creature in this space that can still come for
+        // you. One in the other space (a wolf outside fighting someone else) or one its territory or leash holds back
+        // from where you stand is not at your back, and must not be able to camp the way out.
+        var body = _context.State.Body;
+        long leash = _context.Setup.Combat.Constants.LeashMm;
+        bool Pursues(CreatureState c) => Math.Sqrt(Math.Pow(body.XMm - c.HomeXMm, 2) + Math.Pow(body.ZMm - c.HomeZMm, 2))
+            <= (c.Role.TerritoryMm > 0 ? c.Role.TerritoryMm : leash);
+        if (_context.State.Creatures.Values.Any(c => c.Condition == CreatureCondition.Alive && c.Mind == CreatureMind.Engaged
+                && c.Site.Space == _context.State.Space && Pursues(c)))
             return "Not while something is fighting you";
 
-        var body = _context.State.Body;
         if (_context.Setup.Layout.Portals.AtInterior(body.XMm, body.ZMm, ReachMm) is not { } portal)
             return "There is no way out from here";
 

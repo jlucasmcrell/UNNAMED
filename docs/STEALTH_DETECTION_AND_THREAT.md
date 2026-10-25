@@ -184,6 +184,10 @@ Changing clothing helps only when identity was not firmly established.
 
 ## 12. True stealth lethality
 
+> **Current owner rule (RC d5; reaffirmed 2026-10-24 decision D11):** an in-reach rear ambush with a dagger executes an unaware or sleeping non-boss target at **Even threat or below**, using the same threat band as its nameplate. Armour does not add another gate to that execution. Higher-threat, frontal and boss/recovery-encounter attempts use the ordinary vital/armour resolver and can be resisted. The broader physical conditions below remain design direction; they do not replace this shipped rule.
+>
+> Implementation: `TakedownRules.Executes` and `Combat.Handle(TakedownCommand)`. Gates: `ExecutionRequiresTheAmbushCircumstances`, `ATakedown_FromBehindAnUnawareEvenWolf_ExecutesIt` and `AppliedSleep_AllowsATakedownAttempt_EvenAfterTheTargetNoticedYou`.
+
 Stealth should create favorable physical conditions rather than rely only on giant damage multipliers.
 
 An unaware target:

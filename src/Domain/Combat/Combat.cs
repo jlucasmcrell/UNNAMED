@@ -179,8 +179,15 @@ public sealed record DefenseProfile(
 /// <summary>What one blow did. <see cref="Final"/> is what the target loses; <see cref="Raw"/> is the impact before armor.</summary>
 public sealed record HitResult(BodyRegion Region, int Raw, int Final, bool Critical, bool Blocked, bool Dodged, bool Staggered, bool EffectApplied);
 
+/// <summary>Attack eligibility supplied by the caller; legal consequences are separate from whether a blow is permitted.</summary>
+public readonly record struct AttackContext(bool AttackerAlive, bool TargetAlive, bool AttacksEnabled);
+
 public static class CombatRules
 {
+    /// <summary>The shared attack-legality seam. Either participant may be a player; no actor kind is privileged.</summary>
+    public static bool CanAttemptAttack(EntityId attacker, EntityId target, AttackContext context) =>
+        attacker != target && context.AttackerAlive && context.TargetAlive && context.AttacksEnabled;
+
     /// <summary>
     /// COMBAT §18: attack -> contact region -> armor on that region -> penetration -> damage, stagger, effect. Level is not
     /// an input: the same blow on the same unarmoured spot wounds a level-50 body as much as a level-1 one (§1, §32).

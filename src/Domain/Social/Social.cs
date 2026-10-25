@@ -19,6 +19,9 @@ public sealed record NpcDefinition(string Id, string Name, string Role, Immutabl
     /// <summary>The faction the NPC belongs to (WP6), or none. Definition data: nothing can change it, so it is not saved.</summary>
     public string? FactionId { get; init; }
 
+    /// <summary>The people the NPC belongs to (<c>people_ref</c>), or none recorded: heritage items pass only between one people (owner, 2026-10-24).</summary>
+    public string? PeopleId { get; init; }
+
     /// <summary>Set for an NPC who can be hired (WP15a): the roles they take on and how they fight. Never on someone who can join as a companion.</summary>
     public HirelingProfile? Hireling { get; init; }
 
@@ -186,6 +189,9 @@ public sealed record DeedCondition(DeedKind Kind, string SubjectId, int Count, b
 /// <summary><c>near</c> (WP15b): the character is within <see cref="RadiusMm"/> of a place's anchor - the place's discovery radius unless named.</summary>
 public sealed record NearCondition(string LocationId, long? RadiusMm) : DialogueCondition;
 
+/// <summary><c>people</c> (owner, 2026-10-24): the character is of this people - a heritage keeper's lines are for their own.</summary>
+public sealed record PeopleCondition(string PeopleId) : DialogueCondition;
+
 /// <summary>
 /// <c>standing</c> (WP6): the character's standing with a faction is at a tier from <c>min_tier</c> to <c>max_tier</c>, compared by level.
 /// FAC001 holds it to the speaker's own faction.
@@ -264,11 +270,9 @@ public sealed record DismissCompanionConsequence : DialogueConsequence;
 public sealed record OrderCompanionConsequence(CompanionOrder Order) : DialogueConsequence;
 
 /// <summary>
-/// <c>rent_room</c> (spec 15): the speaker lets the character a room for the night at their inn, to be woken at <c>hour</c> - a game hour of
-/// the day. The price, the sleep and what the world does through it are the inn's and the simulation's; the reply says the price, as a hire's
-/// reply states its risk.
+/// <c>rent_room</c>: paid restorative rest at the speaker's inn, with no world-time skip (DN8).
 /// </summary>
-public sealed record RentRoomConsequence(int Hour) : DialogueConsequence;
+public sealed record RentRoomConsequence : DialogueConsequence;
 
 /// <summary>
 /// <c>report_act</c> (WP6): the character tells the speaker of every logged act of this kind and subject; the speaker's faction learns
@@ -324,6 +328,9 @@ public interface IDialogueFacts
 
     /// <summary>Whether the character is within a place's radius (WP15b); null radius: the place's own discovery radius.</summary>
     bool Near(string locationId, long? radiusMm) => false;
+
+    /// <summary>The character's people (the creator's choice); null when none is known.</summary>
+    string? People => null;
 }
 
 public static class DialogueRules
@@ -343,6 +350,7 @@ public static class DialogueRules
             (facts.Deeds(d.Kind, d.SubjectId, d.NpcId) >= d.Count && facts.DeedLastTick(d.Kind, d.SubjectId, d.NpcId) is { } last && facts.Now - last <= within) != d.Negated,
         DeedCondition d => facts.Deeds(d.Kind, d.SubjectId, d.NpcId) >= d.Count != d.Negated,
         NearCondition n => facts.Near(n.LocationId, n.RadiusMm),
+        PeopleCondition p => facts.People == p.PeopleId,
         StandingCondition s => facts.StandingLevel(s.FactionId) is var level && level >= s.MinLevel && level <= s.MaxLevel,
         ActDoneCondition a => facts.ActDone(a.Kind, a.Subject),
         _ => throw new ArgumentOutOfRangeException(nameof(condition), condition, "Unknown dialogue condition"),

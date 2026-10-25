@@ -785,14 +785,16 @@ public partial class SoundEvents : Node
                      ("sfx.ui.party.order", "party_order()"), ("sfx.ui.party.fell", "party_fell()"),
                  })
             Add(name, moment, optional: true);
-        // The score (MusicPlayer): asked for only where the set has it.
-        Add(MusicChoice.Title, "music(title)", optional: true);
-        Add(MusicChoice.Combat, "music(combat)", optional: true);
-        Add(MusicChoice.Discovery, "music(discovery)", optional: true);
+        // The score (MusicPlayer): required since the owner's ruling of 2026-10-24, so a package whose sound set lacks it is reported as missing music.
+        Add(MusicChoice.Title, "music(title)");
+        Add(MusicChoice.Combat, "music(combat)");
+        Add(MusicChoice.Tension, "music(tension)");
+        Add(MusicChoice.Explore, "music(explore)");
+        Add(MusicChoice.Discovery, "music(discovery)");
         foreach (string theme in bindings.MusicPlaces.Values.Select(p => p.Theme).Distinct(StringComparer.Ordinal))
         {
-            Add($"{theme}.day", "music(settlement, day)", optional: true);
-            Add($"{theme}.night", "music(settlement, night)", optional: true);
+            Add($"{theme}.day", "music(settlement, day)");
+            Add($"{theme}.night", "music(settlement, night)");
         }
         return list.GroupBy(m => m.Family, StringComparer.Ordinal).Select(g => g.First() with { Optional = g.All(m => m.Optional) }).ToList();
     }

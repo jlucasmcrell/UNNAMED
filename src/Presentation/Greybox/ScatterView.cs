@@ -782,8 +782,15 @@ public partial class ScatterView : Node3D
         bool mineral = kind.Otherflora is { Vein: not null } or { Lichen: not null };
         Texture2D? coverage = null;
         bool opaque = false;
-        if (source?.AlbedoTexture is { } albedo && albedo.GetImage() is { } image)
+        if (source?.AlbedoTexture is { } albedo && albedo.GetImage() is { } originalImage)
         {
+            using var image = (Image)originalImage.Duplicate();
+            // Keep the cache's signed compressed coverage mips; rebuilding these as RGBA defeats the packaged cache.
+            if (image.IsCompressed())
+            {
+                coverage = albedo;
+                image.Decompress();
+            }
             if (image.IsCompressed())
                 image.Decompress();
             image.ClearMipmaps();
@@ -792,8 +799,9 @@ public partial class ScatterView : Node3D
                 && source.GetMeta("otherreach_source_transparency", (int)source.Transparency).AsInt32() == (int)BaseMaterial3D.TransparencyEnum.Disabled
                 && System.Environment.GetEnvironmentVariable("UNNAMED_OPAQUE_FOLIAGE") != "0";
             string key = Convert.ToHexString(System.Security.Cryptography.SHA1.HashData(image.GetData()));
-            if (!albedos.TryGetValue(key, out coverage))
+            if (coverage is null && !albedos.TryGetValue(key, out coverage))
                 albedos[key] = coverage = ImageTexture.CreateFromImage(ImageMips.Coverage(image, 0.4f));
+            TextureCache.RequireCompressed(coverage, "scatter foliage " + key);
         }
         // Fully opaque source maps pass every existing alpha test (including the coverage mips).
         // Keep RGB, normals, wind and thinning; let depth/shadow passes omit the needless fragment alpha fetch.

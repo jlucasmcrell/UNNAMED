@@ -1,0 +1,50 @@
+id: quest.heritage.what_was_kept
+kind: quest
+schema: 1
+display_key: quest.heritage.what_was_kept.name
+tags: [quest]
+notes: The Veth heritage questline (owner-approved 2026-10-24, HERITAGE_DESIGN.md §3.1), from the Veth sacred act of keeping and their personal quests of inheritance and obligation - a promise that has outlived its maker (MYTHOLOGY.md §Veth). The waystation oath written twice, the Hallows' line in Berrin's lodge book and the winter's roof timber are PROPOSED lore shown to the owner. Only a Veth takes it (people_ref), and every new Veth starts it. Renn reads the roll; Berrin finds the other half; the character keeps the oath (four timber), has it released, or claims their line was less changed - the Veth heresy of descent, which fails the quest (fail_if); Renn records a kept or released oath, and the character is called its keeper. No step takes the roll from the character, and Renn re-copies a lost one, so it never becomes uncompletable.
+title: What Was Kept
+summary: Someone in your line gave their word and did not live to keep it. The last line of your Kept Roll is still open, and the roll is waiting.
+track: side
+people_ref: people.veth
+on_new_game: true
+entry_objective: o_roll
+objectives:
+  - id: o_roll
+    type: talk_to
+    description: Show Renn the open line on your Kept Roll. A keeper knows the form of an oath.
+    params: { npc_ref: npc.ashen_hollow.renn_vale, nodes: [kept_roll] }
+    next: [o_other_half]
+  - id: o_other_half
+    type: visit_location
+    description: The other half of the oath was written into a Cairnwold family's roll. Take the road to Cairnwold.
+    params: { location_ref: location.cairnwold.village }
+    next: [o_lodge_book]
+  - id: o_lodge_book
+    type: talk_to
+    description: Berrin Garth keeps Cairnwold's lodge book. Ask him whose roll holds the other half.
+    params: { npc_ref: npc.cairnwold.berrin_garth, nodes: [oath_half] }
+    next: [o_keep, o_release]
+    branch: first
+  - id: o_keep
+    type: talk_to
+    description: Keep the oath - a winter's roof timber for the long lodge, four lengths - and bring it to Berrin.
+    params: { npc_ref: npc.cairnwold.berrin_garth, nodes: [oath_kept] }
+    next: [o_recorded]
+  - id: o_release
+    type: talk_to
+    description: Or ask Berrin, who keeps the Hallows' roll, to release it.
+    params: { npc_ref: npc.cairnwold.berrin_garth, nodes: [oath_released] }
+    next: [o_recorded]
+  - id: o_recorded
+    type: talk_to
+    description: Take the roll back to Renn, so the open line can be closed.
+    params: { npc_ref: npc.ashen_hollow.renn_vale, nodes: [roll_recorded] }
+fail_if:
+  - { type: talk_to, params: { npc_ref: npc.cairnwold.berrin_garth, nodes: [oath_claimed] } }
+rewards:
+  - { kind: title, text: "Keeper of the {surname} roll" }
+  - { kind: relationship, npc_ref: npc.ashen_hollow.renn_vale, dimension: respect, amount: 10 }
+  - { kind: relationship, npc_ref: npc.cairnwold.berrin_garth, dimension: respect, amount: 10 }
+  - { kind: xp, amount: 60 }

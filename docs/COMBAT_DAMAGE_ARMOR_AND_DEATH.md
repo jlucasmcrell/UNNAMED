@@ -4,6 +4,8 @@
 **M2 impact:** None  
 **Future schema impact:** Significant; reconcile after M2.
 
+> **Owner ruling, reaffirmed 2026-10-24 D11:** the shipped rear dagger execution at Even threat or below is retained. Its exact unaware/sleeping, reach and boss conditions are stated in `STEALTH_DETECTION_AND_THREAT.md` §12. The general armour/weak-point design here does not silently replace that accepted rule.
+
 ## 1. Combat philosophy
 
 > **Weapons, armor, anatomy, positioning, knowledge and condition determine the result. Level influences competence, but does not replace physical logic.**

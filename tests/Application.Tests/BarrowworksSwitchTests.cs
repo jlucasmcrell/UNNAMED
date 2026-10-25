@@ -21,7 +21,7 @@ public class BarrowworksSwitchTests
     [Theory]
     [InlineData("headworks_preserve", "headworks_dismantle", 0)]
     [InlineData("headworks_dismantle", "headworks_preserve", 2)]
-    public void APreparedChoice_ConsumesOneWedgeAndPaysAtMostOnce(string first, string other, int ingots)
+    public void APreparedChoice_TakesNoWedgeAndPaysAtMostOnce(string first, string other, int ingots)
     {
         using var profile = new TempProfile();
         using var session = Boot(profile);
@@ -51,13 +51,13 @@ public class BarrowworksSwitchTests
         simulation.Enqueue(new InteractCommand(simulation.PlayerId, site.Key));
         simulation.DrainCommands();
         Assert.Null(refusal);
-        Assert.Equal(1, simulation.Player.Inventory.Where(i => i.DefId == "item.tool.fitting_wedge").Sum(i => i.Count));
+        Assert.Equal(2, simulation.Player.Inventory.Where(i => i.DefId == "item.tool.fitting_wedge").Sum(i => i.Count));
         Assert.Equal(ingots, simulation.Player.Inventory.Where(i => i.DefId == "item.material.iron_ingot").Sum(i => i.Count));
         Assert.Equal(ingots == 0, simulation.Barriers.Single(b => b.Site.Key == "barrier.barrowworks.measure").Standing);
         simulation.Enqueue(new InteractCommand(simulation.PlayerId, site.Key));
         simulation.DrainCommands();
         Assert.Contains("already", refusal);
-        Assert.Equal(1, simulation.Player.Inventory.Where(i => i.DefId == "item.tool.fitting_wedge").Sum(i => i.Count));
+        Assert.Equal(2, simulation.Player.Inventory.Where(i => i.DefId == "item.tool.fitting_wedge").Sum(i => i.Count));
         var alternative = session.Setup.Layout.Switches.Single(s => s.Key == "switch.barrowworks."+other);
         Assert.True(simulation.World.GetFlag(Simulation.CellOf(session.Setup.Layout.SpaceId, site), site.FlagId) == 1);
         Assert.Equal(0, simulation.World.GetFlag(Simulation.CellOf(session.Setup.Layout.SpaceId, alternative), alternative.FlagId));
@@ -73,7 +73,7 @@ public class BarrowworksSwitchTests
         simulation.Enqueue(new InteractCommand(simulation.PlayerId, alternative.Key));
         simulation.DrainCommands();
         Assert.Equal("That choice has already been made.", refusal);
-        Assert.Equal(1, simulation.Player.Inventory.Where(i => i.DefId == "item.tool.fitting_wedge").Sum(i => i.Count));
+        Assert.Equal(2, simulation.Player.Inventory.Where(i => i.DefId == "item.tool.fitting_wedge").Sum(i => i.Count));
         Assert.Equal(ingots, simulation.Player.Inventory.Where(i => i.DefId == "item.material.iron_ingot").Sum(i => i.Count));
     }
     private const string Region = "region.barrowworks";
@@ -101,6 +101,7 @@ public class BarrowworksSwitchTests
     {
         BoxBlocker box => (box.CenterXMm, box.CenterZMm),
         CircleBlocker circle => (circle.CenterXMm, circle.CenterZMm),
+        PolygonBlocker polygon => (polygon.CenterXMm, polygon.CenterZMm),
         _ => throw new Xunit.Sdk.XunitException($"switch {site.Key} stands on {site.Body.GetType().Name}, which has no centre"),
     };
 
@@ -194,8 +195,9 @@ public class BarrowworksSwitchTests
         Assert.Equal("r12_dismantle_control", dismantle.Body.Id);
         Assert.Contains(dismantled, preserve.Excludes);
         Assert.Contains(preserved, dismantle.Excludes);
-        Assert.Equal(new SiteItem("item.tool.fitting_wedge", 1), preserve.Consume);
-        Assert.Equal(preserve.Consume, dismantle.Consume);
+        // The wedge is fitted into the headworks door (OQ-16); the saddles take none.
+        Assert.Null(preserve.Consume);
+        Assert.Null(dismantle.Consume);
         Assert.Equal(new SiteItem("item.material.iron_ingot", 2), dismantle.Reward);
 
         var arena = StandingOn(session, preserve);

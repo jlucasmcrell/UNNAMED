@@ -4,6 +4,7 @@
 
 using System.Text.Json.Nodes;
 using Godot;
+using UNNAMED.Presentation.Art;
 
 namespace UNNAMED.Presentation.Greybox;
 
@@ -358,12 +359,19 @@ public static class SkyView
             why = $"the sky panorama {relative} is not in the asset workspace";
             return false;
         }
-        var image = Image.LoadFromFile(path);
+        var cache = new TextureCache(assetRoot, ArtLibrary.BuildTextureCache);
+        var panorama = cache.For(TextureCache.Key(relative), path, () => Image.LoadFromFile(path), "hdr");
+        if (panorama is null)
+        {
+            using var image = Image.LoadFromFile(path);
+            panorama = ImageTexture.CreateFromImage(image);
+            TextureCache.RequireCompressed(panorama, path);
+        }
         // The radiance cubemap the sky lights the scene with. At 256 it is a sixteenth of the detail the panorama
         // actually carries in each axis, and it is what every reflective surface and the whole ambient term are
         // sampled from. 1024 is about 32 MiB of cubemap and is the ceiling worth paying for.
         var radiance = VisualOptions.Tier is "high" or "ultra" ? Sky.RadianceSizeEnum.Size1024 : Sky.RadianceSizeEnum.Size256;
-        environment.Sky = new Sky { SkyMaterial = new PanoramaSkyMaterial { Panorama = ImageTexture.CreateFromImage(image) },
+        environment.Sky = new Sky { SkyMaterial = new PanoramaSkyMaterial { Panorama = panorama },
             RadianceSize = radiance, ProcessMode = Sky.ProcessModeEnum.Automatic };
         return true;
     }

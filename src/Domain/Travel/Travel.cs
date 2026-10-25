@@ -9,12 +9,11 @@ namespace UNNAMED.Domain.Travel;
 /// <summary>
 /// The tuning of Waystone travel (<c>config.travel</c>).
 /// </summary>
-/// <param name="WorldTimePermille">How much of the road's walking time the world lives through when a party takes the stones instead: 250 is the owner's quarter.</param>
 /// <param name="RoadWalkedWithinMm">A stretch of road is walked - and the map draws it - once the body has passed this close to it.</param>
 /// <param name="TouchText">What every awake stone says to a hand that touches it.</param>
-public sealed record TravelRules(int WorldTimePermille, long RoadWalkedWithinMm, string TouchText)
+public sealed record TravelRules(long RoadWalkedWithinMm, string TouchText)
 {
-    public static readonly TravelRules Default = new(250, 12_000,
+    public static readonly TravelRules Default = new(12_000,
         "The stone hums under the hand, as it must for every traveller who stops here. You will know this stone again.");
 }
 
@@ -42,21 +41,19 @@ public static class WaystoneMethods
     };
 }
 
-/// <summary>What a journey between two Waystones costs: the road's length, the walk it would take, and the world time that passes instead.</summary>
-public sealed record TravelCost(long RoadMm, long WalkTicks, long WorldTicks);
+/// <summary>The road distance and equivalent walking cost; Waystone travel advances no world time (DN8).</summary>
+public sealed record TravelCost(long RoadMm, long WalkTicks);
 
 public static class Journeys
 {
     /// <summary>
-    /// The cost of going from one stone to another: the road's walking distance at a walk, and the share of that walk the world lives
-    /// through. Never less than one tick: a journey always takes some time.
+    /// The walking cost of going from one stone to another, for the travel quote only. It never advances the world clock.
     /// </summary>
-    public static TravelCost Cost(IReadOnlyList<RoadSite> roads, WaystoneSite from, WaystoneSite to, double walkMmPerSecond, int tickMilliseconds,
-        TravelRules rules)
+    public static TravelCost Cost(IReadOnlyList<RoadSite> roads, WaystoneSite from, WaystoneSite to, double walkMmPerSecond, int tickMilliseconds)
     {
         long road = Roads.DistanceMm(roads, (from.ArrivalXMm, from.ArrivalZMm), (to.ArrivalXMm, to.ArrivalZMm));
         long walk = Math.Max(1, (long)Math.Ceiling(road * 1000.0 / (walkMmPerSecond * tickMilliseconds)));
-        return new TravelCost(road, walk, Math.Max(1, walk * rules.WorldTimePermille / 1000));
+        return new TravelCost(road, walk);
     }
 }
 

@@ -2,18 +2,15 @@
 
 RC d8 candidate03 (089c97cd) is the accepted owner build. Keep its game, cast and motion payload frozen; changes below belong to the next candidate on `playtest/humgen-main`.
 
-## NPC outfit clones
+## NPC wardrobe — owner attire ruling
 
-The accepted native cast already has several fitted outfits, but four NPC bodies repeat a player's exact combination. Replace those combinations through HumGen's documented `human.clothing.outfit.set()` wear API, preserving each identity, sex, age, stature, hair and footwear. These presets are in the Claude-accepted 142-item catalogue at `C:\Otherreach_External_Assets\HumGen_Wardrobe\HUMGEN_WARDROBE_CATALOG.csv`.
+The 2026-10-24 owner ruling supersedes wardrobe03 and the cancelled wardrobe04 refinements. Use the least-modern practical catalogue cuts in frontier tones, chosen for occupation and station, with boots for outdoor workers. No default bright blue, sneakers, silk robe, flight suit, CEO outfit or business suit on villagers. Sel uses plain dark shirt/trouser pieces, without a jacket or tie.
 
-| Body | RC d8 combination | RC d9 catalogue preset |
-| --- | --- | --- |
-| npc_pool_04 | Ada's Smart_Casual: sweater and chinos | female/Casual/Relaxed_Weekday: T-shirt and jeans |
-| npc_tam_crowden | Ada's Smart_Casual: sweater and chinos | female/Casual/Stylish_Casual: overshirt, T-shirt and jeans |
-| npc_renn_vale | Mateo's Casual_Weekday: T-shirt and jeans | male/Casual/Relaxed_Office: T-shirt and chinos |
-| npc_pool_01 | Mateo's Casual_Weekday: T-shirt and jeans | male/Casual/Weekend_Warrior: sweater and jeans |
+[HUMGEN_RCD9_FRONTIER_ATTIRE.md](HUMGEN_RCD9_FRONTIER_ATTIRE.md) records every job → items → colours rationale and the limitations of this interim catalogue pass. Exact selections and material palettes are in `HUMGEN_RCD9_WARDROBE.json`. The new isolated export root is `rcd9_wardrobe06`; source-game captures must be repeated before Claude review. Old wardrobe03/04/05 frames do not prove this pass.
 
-Export candidates to a separate asset root. The existing native Godot export recipe and LOD material repair apply; preserve original image resolution and sparse morph buffers. Before adopting, compare all 59 bone names, hierarchy and rest transforms against the corresponding accepted body, rebuild its exact-target motion metadata/cache, and capture the dressed body walking and idle in game. Catalogue acceptance alone does not accept a new cast export. Do not edit the accepted package or reuse an old skeleton/garment rebind.
+Preserve the native Godot recipe, original-resolution retained images, sparse facial buffers, all 59 native bones/hierarchy/rest transforms, exact-target motion metadata and signed texture cache. Capture all fourteen NPCs idle and walking, plus Tavar in his normal captive kneel. Use actual normal bindings and label person/people IDs; preserve canonical phase shaders.
+
+DeepSeek separately owns the named Kal Kera, Siann Sel and Orenth Tavar body exports. Do not claim this human-shaped interim inspection proves those new proportions.
 
 ## Relaxed idle outside combat
 
@@ -30,3 +27,5 @@ The current body-type button is pressed/filled and explicitly says `(selected)`.
 The Hide Vest and other equipped armour currently affect gameplay and appear in the paper doll, but do not replace the baked clothing on HumGen bodies. This remains a disclosed visual gap. The installed wardrobe has no medieval armour; it does not close that gap.
 
 Use owned/free appropriately licensed armour sources with a proper garment refit through HumGen's custom-content/deform-cloth tools. Start with one torso item on Ada and Mateo, gate shoulder/elbow/hip deformation, coverage masks, clipping and LOD transitions in real movement, then expand to the cast and item-to-visual mapping. Preserve each native skeleton and body proportions. Converted MakeHuman garments failed visual review and remain deferred; directly attaching old MetaHuman binds is not an accepted route. Do not claim armour visuals complete until actual equipped-state captures pass Claude's review.
+
+The detailed approach and first acceptance gate are in [HUMGEN_WORN_ARMOUR_PLAN.md](HUMGEN_WORN_ARMOUR_PLAN.md). It includes the prerequisite audit for skin already removed by baked clothing masks. This task implements no armour visuals.

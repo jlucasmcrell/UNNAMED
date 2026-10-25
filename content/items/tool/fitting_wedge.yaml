@@ -8,5 +8,5 @@ notes: A wedge cut to the measure's own taper, fitted at the anvil. The design's
 category: tool
 stack_max: 1
 weight: 0.3
-value_base: 14
+value_base: 13
 rarity: common   # derived from item_class; an omitted class is ordinary

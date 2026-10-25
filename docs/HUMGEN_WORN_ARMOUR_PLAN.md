@@ -1,12 +1,35 @@
-# Worn armour on HumGen — implementation plan
+# Frontier wardrobe and worn armour on HumGen — implementation plan
 
 Status: plan only, 2026-10-24. No armour fitting, runtime attachment code or coverage shader is implemented by this document. The accepted RC d8 package stays frozen.
+
+## Shared frontier wardrobe track — owner ruling 2026-10-24
+
+Armour and period clothing share one native HumGen custom-content pipeline: source/licence audit → fit to the actual body and rest pose → native clothing setup → save HumGen outfit → native Godot export → engine movement/coverage/LOD review. Do not create a second converter for civilian clothes.
+
+The interim catalogue pass is documented in `HUMGEN_RCD9_FRONTIER_ATTIRE.md`: occupational workwear in undyed wool, earth, grey, moss/olive and oxblood, with outdoor boots. Its modern construction remains a disclosed temporary limitation. Mixed-era attire is deliberate for a suitable background/station, never the default villager outfit.
+
+Follow with tunics, aprons, cloaks, jerkins, smocks, wraps and leather work boots from the owned Fab/Cosmos/Sourced packs. Record each exact source/licence/attribution. Never feed owned source assets to generative AI. Select real garments suited to smiths, keepers, scholars and labourers. Fit each target's actual native proportions; the named Kal/Siann/Orenth bodies need their own gates when DeepSeek's production assets arrive.
+
+Begin with one simple frontier torso garment and the first chest armour visual on Ada/Mateo; prove the shared path before expanding. Preserve baseline coverage and equipped-state behaviour. This ruling adds the track to this plan, not completed garments or permission to skip Claude's visual gates.
 
 ## First deliverable
 
 Make the already-equipped Hide Vest visible on Ada and Mateo, and remove it correctly when unequipped. Keep inventory, armour statistics and save data authoritative and unchanged. Prove one chest item on both actual bodies before expanding to fourteen NPC bodies or more slots.
 
 The paid HumGen wardrobe has no medieval armour. Its accepted catalogue supplies baseline clothing, not an armour solution. Choose a suitably licensed existing/free vest mesh and record the exact source, licence and attribution; the owned DevonLux leather/scalemail sources are candidates for a proper refit, not ready-to-attach HumGen skins. Converted MakeHuman garments remain deferred after their failed visual review.
+
+## Existing source candidates for the shared track
+
+These are source meshes to evaluate and refit, not accepted HumGen garments. Keep the source skeleton only as a placement reference; it does not establish compatible HumGen binds.
+
+| Existing source | First use to evaluate | Required check before implementation/shipping |
+| --- | --- | --- |
+| `C:/Otherreach_External_Assets/Sourced_Clothing_20261019/devonlux_peasant/extracted/source/Outfit_Leather_Pesant.fbx` | Plain shirt, sleeveless work vest, trousers, leather boots; smith/keeper/labourer baseline | Local `CREDITS.md` records CC BY 4.0 and requires tracing the compilation's upstream authors; fit each actual HumGen body and prove weights in engine |
+| `Sourced_Clothing_20261019/devonlux_4_piece_cloth_armor` | Coarse torso clothing / padded layers | Select occupational pieces, audit source attribution and collision/coverage before export |
+| `Sourced_Clothing_20261019/devonlux_4_piece_leather_armor` | First Hide Vest visual and leather work pieces | Proper refit through HumGen; never direct old MetaHuman binding reuse |
+| Owned Fab/Cosmos garment packs | Additional tunic, apron, smock, wrap and cloak cuts if present | Inventory exact garment files and applicable purchase/licence first; ownership of environment packs does not imply a suitable clothing mesh exists |
+
+The local source register is `C:/Otherreach_External_Assets/Sourced_Clothing_20261019/CREDITS.md`. Do not turn its compilation licence note into a claim that upstream attribution is already complete. No source mesh was processed, fitted or sent to any generative service for this plan.
 
 ## Prepare the garment in HumGen
 
@@ -43,3 +66,9 @@ The first gate requires Ada and Mateo wearing the vest in the running game, with
 Claude reviews the frames and movement before expansion. Then fit and gate each of the fourteen NPC bodies, followed by additional items/slots. Keep native hands and the accepted real footwear; body-shell gloves and boots are not the fallback. Cloth simulation, a general wardrobe editor and race-body armour fits are separate later work.
 
 Proposed first output: two fitted chest assets, their source/licence records, body/skeleton audits, coverage evidence, an equip/unequip video, and daylight front/side/attack frames. Implementation begins only as a separately requested task.
+
+## Runtime garment lesson from the interim pass
+
+Source-game `rcd9_review07` showed deep centre/hem folding on the catalogue long Dress in the accepted neutral idle and walk, despite native wear-API catalogue previews. The interim final pass therefore uses work tops and trousers instead of those three dresses. Do not alter the accepted stance, arms or body to conceal a garment problem. Native Blender fit/correctives are not proof of runtime skirt deformation; any future period smock, apron or cloak must pass its actual Godot movement gate before cast-wide expansion.
+
+The same review exposed cyan collared-shirt buttons. `HG_Control` exposes a separate `Buttons` colour field, outside the `_C0` fabric randomisation group; set and record visible detail fields as well as main fabric colours before native export.

@@ -26,7 +26,7 @@ class LodMaterialTest(unittest.TestCase):
                    meshes=[dict(primitives=[dict(attributes=dict(POSITION=0), material=i)]) for i in (0, 1)],
                    materials=[dict(pbrMetallicRoughness=dict(baseColorTexture=dict(index=i))) for i in (0, 1)],
                    textures=[dict(source=i) for i in (0, 1)],
-                   images=[dict(name='baked', bufferView=4), dict(name='.mask', bufferView=1)])
+                   images=[dict(name='baked', bufferView=4), dict(name='HG_TSHIRT_Material.001_BaseColor', bufferView=1)])
         text = json.dumps(doc).encode()
         text += b' ' * (-len(text) % 4)
         raw = (struct.pack('<III', 0x46546c67, 2, 28 + len(text) + len(binary))

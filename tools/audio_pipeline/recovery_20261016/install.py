@@ -6,7 +6,7 @@ import json, os, sys, shutil, hashlib, time
 
 root, asset = sys.argv[1], sys.argv[2]
 rows = []
-for name in ('combat_rows.json', 'gap_rows.json', 'music_rows.json'):
+for name in ('combat_rows.json', 'gap_rows.json', 'music_rows.json', 'tension_rows.json'):
     p = os.path.join(root, 'out', name)
     if os.path.exists(p):
         rows += json.load(open(p, encoding='utf-8'))['sounds']
@@ -25,7 +25,11 @@ for r in rows:
     src = os.path.join(root, 'out', *r['delivered'].split('/'))
     dst = os.path.join(asset, *r['delivered'].split('/'))
     os.makedirs(os.path.dirname(dst), exist_ok=True)
-    shutil.copyfile(src, dst)
+    # A new package may hard-link unchanged audio from the previous RC. Replace its
+    # directory entry rather than overwriting those shared bytes.
+    if not os.path.exists(dst) or hashlib.sha256(open(dst, 'rb').read()).hexdigest() != r['sha256']:
+        shutil.copyfile(src, dst + '.installing')
+        os.replace(dst + '.installing', dst)
     assert hashlib.sha256(open(dst, 'rb').read()).hexdigest() == r['sha256'], r['audio_id']
 m['sounds'] = kept + rows
 m.setdefault('audio_recovery_20261016', {})

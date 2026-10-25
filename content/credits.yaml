@@ -111,6 +111,8 @@ sections:
       - ledger: [A-F05, A-F07, A-F08]
         binds: [bw_codex_]
         text: "The Barrowworks interior kit: Lost Temple Environment by DanStudios and Ancient Mayan Ruins by Meshingun Studio, used under the Fab Standard License."
+      - binds: [ruin_fs_, creature_gate_]
+        text: "The Spill and the Stopped Gate: Red Echo and Monolith Megastructure environment kits from Fab, used under the Fab Standard License. The gate tender and the Gate Warden are built on Stan - The Golem by ShyrAssets (fab.com/listings/0a80c04e-ad02-4bf3-a059-f98ee9bf782e), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/); changes: the body replaced with Red Echo pieces, rescaled rig, original animations."
       - ledger: [A-F03]
         text: "Hearth and forge fire effects: Fire FX VDB by SHOGUN GAMES, used under the Fab Standard License."
       - ledger: [A-C01, A-C02]

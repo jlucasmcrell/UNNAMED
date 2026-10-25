@@ -1,0 +1,23 @@
+id: creature.construct.gate_warden
+kind: creature
+schema: 1
+display_key: creature.construct.gate_warden.name
+tags: [creature, construct]
+name: Gate Warden
+notes: "The Stopped Gate's lock (docs/FIELD_RUINS.md): it stands in the sunken court between the anchors, and once down it does not return. The same fight shape as the Ring Custodian at a giant's reach - three telegraphed attacks, slow to turn, open at the back where its mechanism runs - with its own body and a little more of it. Level 5, tier B; no scaling."
+family: construct
+archetype: construct
+level_band: [5, 5]
+pools: { health: 130 }
+attack_set: [ability.creature.warden_sweep, ability.creature.warden_fall, ability.creature.warden_grasp]
+armor: { head: 30, torso: 50, limbs: 40 }
+resistances: { physical_pierce: 0.5, physical_slash: 0.25 }
+weak_point: { region: torso, from_behind: true }
+move_speed_m_s: 1.6
+turn_deg_s: 55   # the fight is about staying behind it
+body_radius_m: 1.6   # a giant near four times a man's height (owner, 2026-10-24: BIG)
+xp_value: 160
+loot_table: loot.gate_warden
+perception: { sight_m: 24, hearing_m: 26, fov_deg: 120 }
+tier_hint: B
+tameable: false

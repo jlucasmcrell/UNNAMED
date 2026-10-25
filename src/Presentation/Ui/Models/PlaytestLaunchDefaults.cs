@@ -13,7 +13,7 @@ public static class PlaytestLaunchDefaults
             "--asset-fallback", Path.Combine(directory, "fallback"),
             "--scatter-rules", Path.Combine(directory, "content", "_scatter_rules.json"),
             "--profile", Path.Combine(directory, "saves"),
-            "--visual", "tier=high,terrain=terrain3d,sky=sky3d,people=humgen,foldscar=proof,body=none",
+            "--visual", "terrain=terrain3d,sky=sky3d,people=humgen,foldscar=proof,body=none,textures=cache",
         ];
 }
 

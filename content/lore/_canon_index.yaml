@@ -844,6 +844,46 @@ concepts:
   source: docs/MYTHOLOGY.md §Known Pachas
   covered_by:
   - lore.the_written_pacha
+- id: canon.the_spill
+  name: The Spill
+  kind: place
+  status: covered
+  fact: The Spill is Cairnwold's name for the iron ruin across the plateau between Old Late and the Rim, kept off after dark, where gate tenders set fallen plates back where they do not fit.
+  source: docs/FIELD_RUINS.md Canon (owner-approved 2026-10-24)
+  covered_by:
+  - lore.the_spill
+- id: canon.stopped_gate
+  name: The Stopped Gate
+  kind: place
+  status: covered
+  fact: The Stopped Gate is an Othergate of unknown makers halted partway, held by three humming anchors; stilling them lets it settle shut, not open.
+  source: docs/OTHERREACH_COSMOLOGY.md §8 Stopped gates; docs/FIELD_RUINS.md
+  covered_by:
+  - lore.stopped_gate
+- id: canon.gate_tender
+  name: Gate Tender
+  kind: creature
+  status: covered
+  fact: Gate tenders are the Stopped Gate's own bloodless keepers, quicker than an armour and open at the back, forever setting the Spill's iron back where it no longer fits.
+  source: docs/FIELD_RUINS.md; content/creatures/construct/gate_tender.yaml notes
+  covered_by:
+  - lore.gate_tender
+- id: canon.gate_warden
+  name: Gate Warden
+  kind: creature
+  status: covered
+  fact: The Gate Warden is the Stopped Gate's lock, a slow-turning keeper open at the back that does not return once brought down.
+  source: docs/FIELD_RUINS.md; content/creatures/construct/gate_warden.yaml notes
+  covered_by:
+  - lore.gate_warden
+- id: canon.firstfold_iron
+  name: Firstfold iron
+  kind: material
+  status: covered
+  fact: Firstfold iron is the metal of the oldest Othergates, older than every known people, unworkable, and each gate's iron is one thing whose shards answer their own gate.
+  source: docs/WORLD_MATERIALS.md §6
+  covered_by:
+  - lore.firstfold_iron
 gaps:
 - concept: canon.pachakuti
   what_canon_leaves_open: What caused the last Pachakuti - canon states it is caused by something nobody knows.

@@ -19,6 +19,12 @@ public sealed record DoorSite(string Key, string FlagId, BoxBlocker ClosedFootpr
     public string? LatchSide { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public string? LockedText { get; init; }
+    /// <summary>
+    /// What opening it takes out of the pack and fits into the door (the headworks door's wedge, owner ruling
+    /// OQ-16). Only a door that stays open can hold one: the open flag is the door's record that it was fitted.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public SiteItem? Fitted { get; init; }
 }
 
 public sealed record SiteFlagRequirement(string FlagId, string LocationId);

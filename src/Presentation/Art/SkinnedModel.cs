@@ -23,6 +23,17 @@ public sealed partial class SkinnedModel : Node3D
     public event Action<string,string,double>? FootPlanted;
     private Godot.Collections.Dictionary _contacts = new();
     private AnimationPlayer _player = null!;
+    private HumGenLods? _humgenLods;
+    internal void ReviewAllLods(bool all) => _humgenLods?.ReviewAllLevels(all);
+    public bool ForceLod0
+    {
+        set
+        {
+            if (_humgenLods is not { } lods || lods.CloseUp == value) return;
+            lods.CloseUp = value;
+            if (value) lods.Update(0);
+        }
+    }
 
     public Skeleton3D Skeleton { get; private set; } = null!;
 
@@ -62,6 +73,8 @@ public sealed partial class SkinnedModel : Node3D
                       : $" - {zoneNamed} surface(s) carry zone names but none matched a kind in character_materials.json,"
                         + " so skin SSS and the eye cornea are NOT applied"));
         int levels = CharacterMaterials.ApplyLods(model);
+        if (assetId.StartsWith("humgen_", StringComparison.Ordinal))
+            figure._humgenLods = new HumGenLods(model);
         // Imported players (none in these files today) would fight ours over the same bones.
         foreach (var imported in model.FindChildren("*", nameof(AnimationPlayer), true, false))
             imported.QueueFree();
@@ -240,7 +253,10 @@ public sealed partial class SkinnedModel : Node3D
         {
             bool shown = variants.Contains(variant);
             if (whole)
-                mesh.Visible = shown;
+            {
+                if (_humgenLods is { } lods) lods.OutfitVisible(mesh, shown);
+                else mesh.Visible = shown;
+            }
             else
                 mesh.SetSurfaceOverrideMaterial(surface, shown ? null : _unseen);
         }
@@ -264,6 +280,7 @@ public sealed partial class SkinnedModel : Node3D
 
     public override void _Process(double delta)
     {
+        _humgenLods?.Update(GetViewport().GetCamera3D() is { } eye ? eye.GlobalPosition.DistanceTo(GlobalPosition) : 0f);
         if (!_throttled)
             return;
         _owed += delta;

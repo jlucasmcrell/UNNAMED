@@ -18,6 +18,15 @@ namespace UNNAMED.Presentation.Art;
 /// </summary>
 public sealed class TextureCache
 {
+    /// <summary>Packages must never silently expand a missing/stale large cache entry into an RGBA upload.</summary>
+    public static void RequireCompressed(Texture2D texture, string source)
+    {
+        if ((!OS.HasFeature("template") && OS.GetEnvironment("OTHERREACH_TEXTURE_AUDIT") != "1")
+            || Math.Max(texture.GetWidth(), texture.GetHeight()) < 2048) return;
+        using var image = texture.GetImage();
+        if (image is not null && !image.IsCompressed())
+            throw new InvalidDataException("Packaged texture >=2K is uncompressed: " + source);
+    }
     public const string Folder = "texture_cache";
     private const string ManifestName = "manifest.json";
 
@@ -111,7 +120,7 @@ public sealed class TextureCache
         if (image.IsCompressed() && image.Decompress() != Error.Ok)
             return null;
         image.ClearMipmaps();
-        image.Convert(Image.Format.Rgba8);
+        image.Convert(role == "hdr" ? Image.Format.Rgbf : Image.Format.Rgba8);
         string name = Convert.ToHexString(SHA256.HashData(image.GetData()))[..24].ToLowerInvariant() + $".{role}.dds";
         string path = Path.Combine(_root!, Folder, name);
         if (File.Exists(path))
@@ -153,7 +162,7 @@ public sealed class TextureCache
 
     private Texture2D? Load(string name)
     {
-        if (_loaded.TryGetValue(name, out var texture))
+        if (_loaded.TryGetValue(name, out var texture) && texture is not null)
             return texture;
         texture = null;
         string path = Path.Combine(_root!, Folder, name);
@@ -173,8 +182,11 @@ public sealed class TextureCache
             using var image = new Image();
             if (image.LoadDdsFromBuffer(File.ReadAllBytes(path)) == Error.Ok && !image.IsEmpty())
             {
-                texture = ImageTexture.CreateFromImage(image);
-                CompressedBytes += image.GetDataSize();
+                var upload = WithoutTopMips(image, _buildNative ? 0 : VisualOptions.TextureMipsDropped);
+                texture = ImageTexture.CreateFromImage(upload);
+                CompressedBytes += upload.GetDataSize();
+                if (upload != image)
+                    upload.Dispose();
                 if (_buildNative && native is not null)
                 {
                     Directory.CreateDirectory(_nativeRoot!);
@@ -186,6 +198,20 @@ public sealed class TextureCache
         }
         _loaded[name] = texture;
         return texture;
+    }
+
+    /// <summary>
+    /// <paramref name="image"/> from its <paramref name="drop"/>-th mip down, as a new image, for a map over 1024 with the chain to spare:
+    /// the cached blocks are sliced, never recompressed, so the picture at each kept level is the same. Otherwise the image itself.
+    /// </summary>
+    private static Image WithoutTopMips(Image image, int drop)
+    {
+        drop = Math.Min(drop, image.GetMipmapCount());
+        if (drop == 0 || Math.Max(image.GetWidth(), image.GetHeight()) <= 1024)
+            return image;
+        long offset = image.GetMipmapOffset(drop);
+        return Image.CreateFromData(Math.Max(1, image.GetWidth() >> drop), Math.Max(1, image.GetHeight() >> drop), true, image.GetFormat(),
+            image.GetData()[(int)offset..]);
     }
 
     /// <summary>Write the manifest when this run added to it.</summary>

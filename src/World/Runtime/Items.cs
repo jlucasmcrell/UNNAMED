@@ -380,6 +380,8 @@ internal sealed partial class InventorySystem
             return $"{command.Item} is not carried";
         if (State.PlayerCombat.Defeated)
             return "dead";
+        if (HeritageRules.Refusal(Items.Catalog.Get(entry.DefId), _context.PlayerPeople) is { } heritage)
+            return heritage;
         // A book teaches what it holds: formulas (M3e) or recipes (a recipe book, WP3a).
         if (_context.Setup.Magic.Teaches.TryGetValue(entry.DefId, out var formulas))
         {
@@ -985,6 +987,8 @@ internal sealed class EquipmentSystem
             return $"{command.Item} is not carried";
         if (_context.Setup.Items.Catalog.Find(entry.DefId) is not { } definition)
             return $"{entry.DefId} is not an item this build knows";
+        if (HeritageRules.Refusal(definition, _context.PlayerPeople) is { } heritage)
+            return heritage;
         if (EquipmentRules.Refusal(definition, state.Progression, _context.Setup.Progression) is { } refused)
             return refused;
         var slot = definition.Slot!.Value;

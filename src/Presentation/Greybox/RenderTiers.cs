@@ -25,7 +25,7 @@ public static class RenderTiers
     };
 
     /// <summary>How far the library models (trees, rocks, buildings) hold each level before the next lighter one, as a multiple of
-    /// ArtLibrary's ladder: Ultra keeps a tree's crown off its crossed-plane impostor until 225 m rather than 150.</summary>
+    /// ArtLibrary's ladder for props. Trees retain their accepted full-detail path independently of this ladder.</summary>
     public static float LodReach => VisualOptions.ReachScale * (VisualOptions.Tier == "ultra" ? 1.5f : 1.0f);
 
     /// <summary>The server-wide settings (shadow atlas and filter, SSAO/SSIL quality) for the run's tier.</summary>

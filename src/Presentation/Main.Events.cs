@@ -122,15 +122,16 @@ public partial class Main
             if (SettingsStore.Current.Profile.Interface.Shows(NoticeKind.Discovery))
                 _hud.Announce("Landmark discovered", Names.Of(_session, e.LocationId), HudStyle.Brass);
         });
-        // Lore (spec 41): a landmark the character has walked into raises the banner, with the journal key that reads what the place has to
-        // say; a page found any other way - told, read, opened by a quest - is a line. Nothing pauses for either.
+        // Lore (spec 41): a landmark the character has walked into says so on the place's own banner, with the journal key that reads what the
+        // place has to say - one arrival, one banner, however many pages it opens (owner ruling 2026-10-24); a page found any other way - told,
+        // read, opened by a quest - is a line. Nothing pauses for either.
         _session.Subscribe<LorePageUnlocked>(e =>
         {
             string title = _session.Setup.Lore.GetValueOrDefault(e.EntryId)?.Title ?? Names.Of(_session, e.EntryId);
             if (e.Source == LoreSourceKind.Visited)
             {
                 _loreOffered = e.EntryId;
-                _hud.Announce("Landmark discovered", title, HudStyle.Brass, ("Read what is written there", HelpPanel.Key("journal")));
+                _hud.Announce("Landmark discovered", Names.Of(_session, e.SourceRef), HudStyle.Brass, ("Read what is written there", HelpPanel.Key("journal")));
             }
             else
             {
@@ -164,7 +165,11 @@ public partial class Main
                 or SpendAttributeCommand or TouchStoneCommand or BindStoneCommand or TravelCommand
                 or SaveGearSetCommand or DeleteGearSetCommand or SwapGearSetCommand or CancelGearSwapCommand
                 or EquipBagCommand or UnequipBagCommand or PlaceStackCommand or SortPackCommand or MarkJunkCommand or LockStackCommand or SellJunkCommand)
-                _hud.Toast(e.Reason, 3);
+            {
+                // A stack already taken (a second click before the first landed) needs no word; any other refusal names things, never ids.
+                if (e.Command is not MoveItemCommand || !e.Reason.StartsWith("there is no '", StringComparison.Ordinal))
+                    _hud.Toast(Regex.Replace(e.Reason, @"\b[a-z_]+(\.[a-z0-9_]+)+\b", m => Names.Of(_session, m.Value)), 3);
+            }
             // A jump or a stand refused under the beam says why; one refused mid-action or in the air stays quiet.
             if (e.Command is JumpCommand or CrouchCommand && e.Reason == "no room to stand")
                 _hud.Toast("No room to stand", 2);
