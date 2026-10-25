@@ -73,7 +73,7 @@ Release configuration, each test project on its own, on this branch:
 
 | Project | Result |
 |---|---|
-| Application.Tests | 685 passed, 1 failed (`ReachabilityTests.EveryItem_CanBeGotInAFreshSession`), 56 min. Fixed in 2adbaf2 (sources in play). The re-run passed: Reachability, Enhancement, Itemization, Salvage, GameSave, Companion, BarrowworksBalance and BehaviourMatrix, 48 tests. |
+| Application.Tests | 685 passed, 1 failed (`ReachabilityTests.EveryItem_CanBeGotInAFreshSession`), 56 min. Fixed in 747f87f9 (sources in play). The re-run passed: Reachability, Enhancement, Itemization, Salvage, GameSave, Companion, BarrowworksBalance and BehaviourMatrix, 48 tests. |
 | Content.Tests | 367 passed (re-run after the fix) |
 | Domain.Tests | 431 passed |
 | Persistence.Tests | 282 passed, 1 skipped (that skip predates this branch) |
