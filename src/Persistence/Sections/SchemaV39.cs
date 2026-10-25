@@ -1,4 +1,4 @@
-// Frozen schema 38-39 entity envelope, before the World Event Director (schema 40).
+// Frozen schema 38-39 entity envelope, before enhancements and the World Event Director.
 using MessagePack;
 namespace UNNAMED.Persistence.Sections.V39;
 

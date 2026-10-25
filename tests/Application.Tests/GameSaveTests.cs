@@ -88,7 +88,7 @@ public class GameSaveTests
         // Schema 34 (before testers): no weapon family held and no layouts yet - the first tick of a world adopts the one in hand.
         (new Regex(@"^\$\.player\.HeldFamily$"), "\"\""),
         (new Regex(@"^\$\.player\.FamilyBars$"), null),
-        // Schema 40 (the World Event Director, WP 1H): nothing was scheduled, so the director starts at the hour the world is loaded in.
+        // Schema 41 (the World Event Director, WP 1H): nothing was scheduled, so the director starts at the hour the world is loaded in.
         (new Regex(@"^\$\.world\.Director$"), null),
     };
 
@@ -132,7 +132,7 @@ public class GameSaveTests
         // the faction ledger, and the economy and merchants.
         int members = expected["player"]!["Companions"]!.AsArray().Count;
         // ... and, schema 21, four fields each party member and the party's ledger; schema 23, the quick bar and its cleared record;
-        // schema 24, each stack's (empty) wear; schema 25, the party's sheets; schema 26, the NPCs' lives; schema 27, no attack under way; schema 29, the adventurers; schema 30, the space and the portal; schema 31, the Findings; schema 32, the further bars and the gear sets; and, schema 33, the bag slots and each stack's place, lock and junk mark; schema 34, the held weapon family and its layouts; schema 35, the empty lore; schema 36, the empty pets; and, schema 40, the director.
+        // schema 24, each stack's (empty) wear; schema 25, the party's sheets; schema 26, the NPCs' lives; schema 27, no attack under way; schema 29, the adventurers; schema 30, the space and the portal; schema 31, the Findings; schema 32, the further bars and the gear sets; and, schema 33, the bag slots and each stack's place, lock and junk mark; schema 34, the held weapon family and its layouts; schema 35, the empty lore; schema 36, the empty pets; and, schema 41, the director.
         Assert.Equal(2 + 6 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 1 + 2 + 4 * members + 1 + 2 + stacks + 1 + 1 + 1 + 1 + 2 + 1 + 2 + 1 + 4 * stacks + 4 + stacks + 1, differences.Count);
 
         // And it plays on: a fixed stretch of ticks, then a walk to the Ashen Waystone, with no observer failing, no body inside anything,

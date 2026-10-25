@@ -459,7 +459,7 @@ public static class M2Fixtures
                 Allocation = ImmutableSortedDictionary.CreateRange(new[] { KeyValuePair.Create(CharacterAttribute.Might, 1), KeyValuePair.Create(CharacterAttribute.Endurance, 1) }),
                 Skills = ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[] { KeyValuePair.Create("skill.one_hand_blade", new SkillState(4, 10)) }),
             };
-            // Schema 40: a travelling trader on the road through the fixture vale, and a migration that passed through before it.
+            // Schema 41: a travelling trader on the road through the fixture vale, and a migration that passed through before it.
             world.SetDirector(new UNNAMED.World.Runtime.DirectorState(130,
                 ImmutableArray.Create(new UNNAMED.World.Runtime.WorldEventState(
                     EntityId.Create(EntityKind.WorldEvent, 1, new byte[] { 4, 4, 4, 4, 4, 4, 4, 4, 4, 1 }), "event.travelling_trader", "region.fixture_vale", 126, 134)),
