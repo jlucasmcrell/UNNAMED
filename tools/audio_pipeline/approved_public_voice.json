@@ -1,5 +1,5 @@
 {
-  "owner_approval": "CODEX_PROGRESS.md 2026-10-25: EPIC Reva intro take2 -17LUFS, replaces first take; thirty NPC lines including updated -16LUFS Tavar; OWNER2026-10-25 ALL selected Cairnwold voices public: Berrin GrandfatherJoe, Durn Gideon, Mara Paisley,23lines; Tam pending owner selection",
+  "owner_approval": "CODEX_PROGRESS.md 2026-10-25: EPIC Reva intro take2 -17LUFS, replaces first take; thirty NPC lines including updated -16LUFS Tavar; OWNER2026-10-25 ALL selected Cairnwold voices public: Berrin GrandfatherJoe, Durn Gideon, Mara Paisley,23lines; Tam Boo chosen by OWNER2026-10-25,8lines included",
   "files": {
     "opening.01.ogg": "4ba0cefb9652af3c0559bddf7ca0f7995861cda7a559c15cf918d7fa469ca6c9",
     "opening.02.ogg": "c4d6a8afa58f261716125d8f9a33804468faa8cdd20003fa43b66b5256ad0f62",
@@ -59,11 +59,20 @@
     "dialogue.cairnwold.mara_ling/complaint.ogg": "68862836515a5024cb82d2785224f2e8e50215010e630dc547ba580e97113d3f",
     "dialogue.cairnwold.mara_ling/errand.ogg": "a7bc0b823c9aa30dd24fc1c859d5af695ff8888d8386bab4e9f6c6f9f33d3c8e",
     "dialogue.cairnwold.mara_ling/told.ogg": "7d184b9d9608559786ba1c9cb2f02d6285524f87499b1e7e69e10990b37bf422",
-    "dialogue.cairnwold.mara_ling/herbs.ogg": "174a693a68356f53763c8046a3b42f6b128d9130f47ac17202266742c8f7b7f0"
+    "dialogue.cairnwold.mara_ling/herbs.ogg": "174a693a68356f53763c8046a3b42f6b128d9130f47ac17202266742c8f7b7f0",
+    "dialogue.cairnwold.tam_crowden/greet.ogg": "8261b22343ab711ba15e9226b3bac630c9355183e166bdfbfb4739ba24fde086",
+    "dialogue.cairnwold.tam_crowden/again.ogg": "c2087318159a6657cb99ee691fcce9dc34679e7ae1f3403e3dbb8086dfab09cc",
+    "dialogue.cairnwold.tam_crowden/count.ogg": "c44f42accdc12c9cb3a4a3c445bfaac29faa9d7f4bb3c74f69cd4e89c3f3771c",
+    "dialogue.cairnwold.tam_crowden/dont_look.ogg": "42228ed711dd28ae66da88ce67814ef15f8355d382d9eeaf63cbf980a2ed5984",
+    "dialogue.cairnwold.tam_crowden/halda.ogg": "34fd389de00d79005f8b2adcf1c45d3c43ce68c478a678ab190011371d432283",
+    "dialogue.cairnwold.tam_crowden/halda_bow.ogg": "bd218e69e6f3f5508ee58f97a8009ddc514187f9dda55d172459d39f7b446ed0",
+    "dialogue.cairnwold.tam_crowden/bow_given.ogg": "3e97ad5bdb50da9caa3844cb84e6175f258ff2d9ab44aff78f25099cf3ff0898",
+    "dialogue.cairnwold.tam_crowden/work.ogg": "29801549578bae2da1b09c8ba33ccdf37cde32a24f93ef885964677b52f93818"
   },
   "cairnwold_cast": {
     "berrin_garth": "0lp4RIz96WD1RUtvEu3Q",
     "durn_skell": "q1h5HGdnfVxp4TXTJRNN",
-    "mara_ling": "n2rchuGxORaC6g9NUXBR"
+    "mara_ling": "n2rchuGxORaC6g9NUXBR",
+    "tam_crowden": "Y0G5nEDw2qHnUHGmtoM9"
   }
 }
