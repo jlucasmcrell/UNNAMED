@@ -164,11 +164,11 @@ public static partial class DenGorge
     {
         var fall = new Node3D { Name = "gorge_fall" };
         FallWater.SetShaderParameter("drop_m", top - pool);
-        foreach (var (name, width, forward, seed, body) in new[] { ("veil", 11f, 0f, 0f, 0.45f), ("sheet", 8.5f, 0.35f, 1f, 0.8f), ("core", 4.2f, 0.7f, 2f, 0.9f) })
+        foreach (var (name, width, forward, side, seed, body) in new[] { ("veil", 12f, 0f, -1.2f, 0f, 0.3f), ("sheet", 7.5f, 0.35f, 0.9f, 1f, 0.6f), ("core", 3.6f, 0.7f, -0.4f, 2f, 0.85f) })
         {
             var curtain = new MeshInstance3D
             {
-                Name = name, Mesh = Curtain(top, pool, faceD - forward, width, seed), MaterialOverride = FallWater,
+                Name = name, Mesh = Curtain(top, pool, faceD - forward, side, width, seed), MaterialOverride = FallWater,
                 CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
             };
             curtain.SetInstanceShaderParameter("seed", seed);
@@ -179,7 +179,7 @@ public static partial class DenGorge
         return fall;
     }
 
-    private static ArrayMesh Curtain(float top, float pool, float faceD, float width, float seed)
+    private static ArrayMesh Curtain(float top, float pool, float faceD, float side, float width, float seed)
     {
         var st = new SurfaceTool();
         st.Begin(Mesh.PrimitiveType.Triangles);
@@ -196,10 +196,10 @@ public static partial class DenGorge
             for (int j = 0; j <= Across; j++)
             {
                 float u = j / (float)Across;
-                float spread = 1f + 0.3f * v;
+                float spread = 1f + 0.7f * v;
                 st.SetUV(new Vector2(u, v));
                 st.SetNormal(new Vector3(0, 0, -1));
-                st.AddVertex(new Vector3(FallX + sway + (u - 0.5f) * width * spread, y, Edge + faceD - out_ - 0.25f * MathF.Sin(u * 9f + seed)));
+                st.AddVertex(new Vector3(FallX + side + sway + (u - 0.5f) * width * spread, y, Edge + faceD - out_ - 0.25f * MathF.Sin(u * 9f + seed)));
             }
         }
         for (int i = 0; i < Down; i++)
@@ -252,16 +252,20 @@ void fragment() {
     float clump = smoothstep(0.58, 0.86, fbm(vec2(m.x * 0.9 + seed * 3.0, m.y * 0.28 - fall * 3.2)));
     float streak = s1 * 0.55 + s2 * 0.45;
     // The silhouette: each side eaten by its own noise running down with the water, so the edge is ragged and moving.
-    float left = 0.06 + 0.16 * fbm(vec2(UV.y * drop_m * 0.12 - fall * 1.4, seed * 5.0));
-    float right = 0.94 - 0.16 * fbm(vec2(UV.y * drop_m * 0.12 - fall * 1.4, seed * 5.0 + 31.0));
-    float side = smoothstep(left - 0.05, left + 0.05, UV.x) * (1.0 - smoothstep(right - 0.05, right + 0.05, UV.x));
-    // Gaps open as the sheet breaks up towards the foot.
-    float whole = smoothstep(0.18, 0.5, streak + 0.42 - 0.38 * UV.y);
-    float lip = 1.0 - smoothstep(0.0, 0.05, UV.y);
+    // Long slow lobes and short fast tatters, so neither side is ever a straight line.
+    float left = 0.02 + 0.34 * fbm(vec2(m.y * 0.05 - fall * 0.8, seed * 5.0)) + 0.1 * vnoise(vec2(m.y * 0.4 - fall * 2.4, seed));
+    float right = 0.98 - 0.34 * fbm(vec2(m.y * 0.05 - fall * 0.8, seed * 5.0 + 31.0)) - 0.1 * vnoise(vec2(m.y * 0.4 - fall * 2.4, seed + 7.0));
+    float side = smoothstep(left - 0.04, left + 0.04, UV.x) * (1.0 - smoothstep(right - 0.04, right + 0.04, UV.x));
+    // Gaps: columns where the sheet parts all the way down, and holes opening as it breaks up towards the foot.
+    float parted = smoothstep(0.6, 0.72, fbm(vec2(m.x * 0.55 + seed * 11.0, m.y * 0.03 - fall * 0.5)));
+    float whole = smoothstep(0.2, 0.5, streak + 0.4 - 0.45 * UV.y) * (1.0 - 0.85 * parted);
+    // The lip is not a ruler: the water pours over it unevenly.
+    float lip = 1.0 - smoothstep(0.0, 0.05, UV.y - 0.03 * vnoise(vec2(m.x * 0.8, seed)));
+    side *= smoothstep(0.0, 0.012, UV.y - 0.02 * vnoise(vec2(m.x * 0.8, seed)));
     float foot = smoothstep(0.82, 1.0, UV.y);
     float white = clamp(smoothstep(0.45, 0.72, streak) * 0.65 + clump * 0.7 + lip * 0.8 + foot * 0.85, 0.0, 1.0);
     ALBEDO = mix(vec3(0.28, 0.36, 0.36), vec3(0.94, 0.96, 0.96), white);
-    ALPHA = clamp(side * max(body * whole, white * 0.9) * (1.0 - 0.8 * smoothstep(0.93, 1.0, UV.y)), 0.0, 0.97);
+    ALPHA = clamp(side * max(body * whole, white * 0.75 * (1.0 - 0.6 * parted)) * (1.0 - 0.8 * smoothstep(0.93, 1.0, UV.y)), 0.0, 0.97);
     EMISSION = ALBEDO * sky_light * (0.6 + 0.4 * white);
     // Wet and glossy: it gives back the sky, so it stays the brightest thing in the gorge when the light goes.
     ROUGHNESS = mix(0.08, 0.4, white);
