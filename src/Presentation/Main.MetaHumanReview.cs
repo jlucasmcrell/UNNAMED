@@ -91,8 +91,9 @@ public partial class Main
             && System.Environment.GetEnvironmentVariable("OTHERREACH_LIGHTING_FAST") == "1")
         {
             OpenCreator();
-            bool feminine = System.Environment.GetEnvironmentVariable("OTHERREACH_MH_REVIEW_PLAYER") != "mateo";
-            _creator.Use(_creator.Draft with { Name = feminine ? "Ada" : "Mateo", BodyPresetId = feminine ? "body.veth_f.average" : "body.veth_m.average", Pronouns = feminine ? Pronouns.She : Pronouns.He, Start = StartPoint.Waystone });
+            string? baseReview=System.Environment.GetEnvironmentVariable("OTHERREACH_CREATOR_BASE_REVIEW");
+            bool feminine = baseReview is "male" or "female" ? baseReview=="female" : System.Environment.GetEnvironmentVariable("OTHERREACH_MH_REVIEW_PLAYER") != "mateo";
+            _creator.Use(_creator.Draft with { Name = baseReview is "male" or "female" ? feminine ? "Lysa Reed" : "Corin Vale" : feminine ? "Ada" : "Mateo", BodyPresetId = feminine ? "body.veth_f.average" : "body.veth_m.average", Pronouns = feminine ? Pronouns.She : Pronouns.He, Start = StartPoint.Waystone });
             if (!_creator.PressBegin()) throw new InvalidOperationException("Lighting diagnostic Begin refused");
             _mhReviewStep = 7;
             _mhReviewNext = Time.GetTicksMsec() + 10000;

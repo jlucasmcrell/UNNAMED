@@ -49,7 +49,7 @@ public partial class Main
                 source.MakeCurrent();camera.QueueFree();
                 await RunFootstepReview(directory);GetTree().Quit();return;
             }
-            if(OS.GetEnvironment("OTHERREACH_MATEO_TEETH_REVIEW")=="1")
+            if(OS.GetEnvironment("OTHERREACH_CREATOR_BASE_REVIEW") is "male" or "female")
             {
                 camera.GetNode<OmniLight3D>("CharacterFill").Reparent(source,false);
                 source.MakeCurrent();camera.QueueFree();

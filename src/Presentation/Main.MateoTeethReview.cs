@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Security.Cryptography;
 using UNNAMED.Presentation.Art;
 using UNNAMED.Presentation.Player;
+using UNNAMED.Domain.Spatial;
 namespace UNNAMED.Presentation;
 public partial class Main
 {
@@ -10,7 +11,9 @@ public partial class Main
     private async Task RunMateoTeethReview(string directory,Camera3D gameplay)
     {
         var player=_avatar as SkinnedFigure ?? throw new InvalidDataException("Expected native HumGen player");
-        if(player.ModelId!="humgen_player_mateo_m")throw new InvalidDataException("Not the actual Mateo player");
+        bool feminine=OS.GetEnvironment("OTHERREACH_CREATOR_BASE_REVIEW")=="female";
+        string expected=feminine?"humgen_player_ada_f":"humgen_player_mateo_m";
+        if(player.ModelId!=expected)throw new InvalidDataException("Not the creator-selected base body");
         var face=player.FindChildren("*","",true,false).OfType<FaceDriver>().Single();
         var lifts=player.FindChildren("*","",true,false).OfType<HumGenHeadLevel>().ToArray();
         if(lifts.Length!=1 || lifts[0].Influence<.99f)throw new InvalidDataException("Head lift must be enabled");
@@ -61,7 +64,7 @@ public partial class Main
             }
             face.ReviewJawOpen=0;await Phase("prepared_jaw_closed_front",2,Vector3.Zero,Gait.Walk,Near);await Rcd3Shot(directory,"jaw_closed");
             face.ReviewJawOpen=.65f;await Phase("prepared_jaw_open_throat_view_sweep",6,Vector3.Zero,Gait.Walk,Near);await Rcd3Shot(directory,"jaw_open_throat");
-            File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {status="MATEO_PLAYER_REQUIRES_OWNER_REVIEW",model=player.ModelId,body,hash,head_lift=true,
+            File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {status="CREATED_PLAYER_BASE_REQUIRES_OWNER_REVIEW",model=player.ModelId,body,hash,head_lift=true,created_name=_session.Simulation!.Player.Identity.Name,
                 phases,limits="Actual normal creator/controller idle/walk/run/camera look/swing. Final two phases are explicitly prepared jaw-open fixtures, not player speech. Shoulder unchanged; DeepSeek owns its fix."},new JsonSerializerOptions{WriteIndented=true}));
         }
         finally
