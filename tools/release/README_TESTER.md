@@ -12,7 +12,7 @@ Nothing else needs installing, and the game never asks for administrator rights.
 
 **Windows SmartScreen:** the game is not code-signed, so Windows may say "Windows protected your PC". Choose **More info**, then **Run anyway**.
 
-**The first launch is slower** while the game prepares its shaders. Later launches are quicker.
+**Loading takes a few minutes in this playtest.** The first launch also prepares shaders: our cold-start test took about five minutes, and a later launch about two and a half minutes. Leave the window open while the loading bar advances.
 
 ## System requirements
 
