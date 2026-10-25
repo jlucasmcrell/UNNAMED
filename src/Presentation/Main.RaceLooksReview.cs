@@ -118,7 +118,7 @@ public partial class Main
                     var dir = new Basis(Vector3.Up, Mathf.DegToRad(Num(s, "dir", 0))) * Vector3.Back;
                     var f = figures[id];
                     f.Figure.SetMovementDirection(dir);
-                    figures[id] = f with { Speed = speed, Yaw = Mathf.Atan2(dir.X, dir.Z) };
+                    figures[id] = f with { Speed = speed, Yaw = s.TryGetProperty("facing", out var facing) ? Mathf.DegToRad(facing.GetSingle()) : Mathf.Atan2(dir.X, dir.Z) };
                     await Frames(Num(s, "seconds", 4), dt =>
                     {
                         var g = figures[id];
@@ -128,7 +128,26 @@ public partial class Main
                             Aim(cam);
                     });
                     figures[id] = figures[id] with { Speed = 0 };
-                    log.Add(new { step, id, speed, fps = Engine.GetFramesPerSecond() });
+                    log.Add(new { step, id, speed, actual_clip = f.Figure.ClipState, fps = Engine.GetFramesPerSecond() });
+                    break;
+                }
+                case "talk":
+                {
+                    string id = s.GetProperty("id").GetString()!;
+                    var figure = figures[id].Figure;
+                    var driver = figure.FindChildren("*", "", true, false).OfType<FaceDriver>().Single();
+                    figure.SetTalking(true);
+                    figure.Say("Ada, we should go to the inn. Who are you? We can walk there together.");
+                    float jawPeak = 0;
+                    await Frames(Num(s, "seconds", 3), _ => jawPeak = Math.Max(jawPeak, driver.JawWeight));
+                    if (jawPeak < .045f) throw new InvalidDataException("Race talking gate produced no speaking jaw: " + id);
+                    log.Add(new { step, id, actual_clip = figure.ClipState, jaw_peak = jawPeak });
+                    break;
+                }
+                case "silence":
+                {
+                    var figure = figures[s.GetProperty("id").GetString()!].Figure;
+                    figure.SetTalking(false); figure.Say(null);
                     break;
                 }
                 case "record_ready":
