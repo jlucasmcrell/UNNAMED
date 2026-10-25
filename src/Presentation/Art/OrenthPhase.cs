@@ -93,6 +93,7 @@ public partial class OrenthPhase : Node
         foreach (var (source, lagging, trailTwin) in _twins)
         {
             var toLocal = source.GlobalBasis.Inverse();
+            lagging.Visible = source.IsVisibleInTree();
             lagging.SetInstanceShaderParameter("offset", toLocal * shadowLag);
             trailTwin.Visible = trail > .005f && source.IsVisibleInTree();
             trailTwin.SetInstanceShaderParameter("offset", toLocal * trailLag);
