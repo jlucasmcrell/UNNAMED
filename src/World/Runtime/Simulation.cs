@@ -680,6 +680,9 @@ public sealed class Simulation
     public ImmutableArray<Finding> Findings => _state.Findings;
     public SalvageView Salvage(EntityId item) => _crafting.Salvage(item, WorldTick);
 
+    /// <summary>Why a trader and the character may not trade an item, by its heritage; null when they may.</summary>
+    public string? HeritageRefusal(string npcId, string itemId) => _trade.HeritageRefusal(npcId, itemId);
+
     /// <summary>The lore pages the character has found, in entry and page order (spec 41).</summary>
     public ImmutableArray<UNNAMED.Domain.Knowledge.LorePageRecord> Lore => _state.Lore;
 

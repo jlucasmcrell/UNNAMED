@@ -66,9 +66,8 @@ public partial class Main
         Row().EmitSignal(Control.SignalName.MouseEntered);await Rcd3Wait(1);
         var sell=Row().FindChildren("*",nameof(Button),true,false).OfType<Button>().FirstOrDefault(b=>b.Text=="Sell")
                  ?? throw new InvalidDataException("No Sell on the roll at Kera's");
-        int before=refusals.Count;
-        sell.EmitSignal(Button.SignalName.Pressed);await Rcd3Wait(5);
-        string refusal=refusals.Skip(before).FirstOrDefault() ?? throw new InvalidDataException("Kera took the Veth roll");
+        if(!sell.Disabled)throw new InvalidDataException("Kera's Sell on the Veth roll is not disabled");
+        string refusal=sell.TooltipText;await Rcd3Wait(5);
         if(!sim.Player.Inventory.Any(e=>e.ItemId==roll.ItemId))throw new InvalidDataException("The refused sale moved the roll");
         CloseScreens();await Rcd3Wait(1);
 
@@ -220,13 +219,14 @@ public partial class Main
         Row().EmitSignal(Control.SignalName.MouseEntered);await Rcd3Wait(1);
         var sell=Row().FindChildren("*",nameof(Button),true,false).OfType<Button>().FirstOrDefault(b=>b.Text=="Sell")
                  ?? throw new InvalidDataException("No Sell on the Finishing Tool at Durn's");
-        int before=refusals.Count;
-        sell.EmitSignal(Button.SignalName.Pressed);await Rcd3Wait(6);
-        string refusal=refusals.Skip(before).FirstOrDefault() ?? throw new InvalidDataException("Durn took the Kal tool");
+        if(!sell.Disabled)throw new InvalidDataException("Durn's Sell on the Kal tool is not disabled");
+        string refusal=sell.TooltipText;
+        bool worth=_inventory.FindChildren("*",nameof(Label),true,false).OfType<Label>().Any(l=>l.Text.Equals("Worth",StringComparison.OrdinalIgnoreCase));
+        await Rcd3Wait(6);
         CloseScreens();await Rcd3Wait(1);
         File.WriteAllText(Path.Combine(directory,"recording.finished"),DateTime.Now.ToString("o"));
         File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {
-            status="HERITAGE_PEOPLES_REALTIME_REQUIRES_CLAUDE_REVIEW",people=sim.Player.Identity.PeopleId,tool=tool.DefId,drop_button=drop,refusal,
+            status="HERITAGE_PEOPLES_REALTIME_REQUIRES_CLAUDE_REVIEW",people=sim.Player.Identity.PeopleId,tool=tool.DefId,drop_button=drop,sell_disabled=true,refusal,worth_shown=worth,
             inventory=sim.Player.Inventory.Select(e=>new {e.DefId,e.Count}),world_tick=sim.WorldTick,
             profile="Fresh isolated profile; the creator toured Siann, Orenth and Kal, then Begin as a Kal; ordinary steering and commands; no desktop input"},
             new JsonSerializerOptions{WriteIndented=true}));

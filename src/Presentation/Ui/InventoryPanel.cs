@@ -421,9 +421,14 @@ public partial class InventoryPanel : CanvasLayer
                 row.Root.AddChild(sellOne);
             }
         }
-        // A heritage item is offered for sale at any trader, so a trader of another people says why they will not take it (owner, 2026-10-24).
-        else if (OpenTrader is { } other && definition?.Heritage is not null && !equipped)
-            row.Root.AddChild(Button(id, "Sell", () => Submit(new SellCommand(simulation.PlayerId, other, entry.ItemId, entry.Count))));
+        // A heritage item at a trader of another people: Sell stands disabled, saying why they will not take it (owner, 2026-10-24).
+        else if (OpenTrader is { } other && definition?.Heritage is not null && !equipped && simulation.HeritageRefusal(other, entry.DefId) is { } refused)
+        {
+            var sell = Button(id, "Sell", () => { });
+            sell.Disabled = true;
+            sell.TooltipText = refused;
+            row.Root.AddChild(sell);
+        }
         if (definition is not { NoDrop: true })
             row.Root.AddChild(Button(id, "Drop", () => Submit(new MoveItemCommand(simulation.PlayerId, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.Ground, entry.Count)),
                 UiKit.Kind.Destructive));
@@ -608,9 +613,10 @@ public partial class InventoryPanel : CanvasLayer
         }
         var setup = simulation.Setup;
         var item = setup.Items.Catalog.Find(defId);
-        var head = UiKit.Section(Names.Item(_session, defId, quality), item is null ? "" : Names.Words(item.Category));
+        var head = UiKit.Section(Names.Item(_session, defId, quality),
+            item is null ? "" : item.Heritage is { } people ? HeritageRules.PeopleWord(people) + " heritage" : Names.Words(item.Category));
         _details.AddChild(head);
-        if (_chosen is not null && simulation.Player.Inventory.FirstOrDefault(e => e.ItemId.Value == _chosen) is { } selected)
+        if (_chosen is not null && item?.Heritage is null && simulation.Player.Inventory.FirstOrDefault(e => e.ItemId.Value == _chosen) is { } selected)
         {
             var salvage = simulation.Salvage(selected.ItemId);
             string recovered = salvage.Materials.IsEmpty ? "no materials" : string.Join(", ", salvage.Materials.Select(m => $"{m.Count} {Names.Of(_session, m.ItemId)}"));
@@ -691,7 +697,9 @@ public partial class InventoryPanel : CanvasLayer
         if (item is not null)
         {
             Fact("Weight", $"{item.WeightGrams / 1000.0:0.0#} kg", icon: "stat.weight");
-            Fact("Worth", $"{item.ValueBase} coin", HudStyle.Brass, "stat.worth");
+            // A heritage item's worth counts only among its people: shown at a trader who would pay it, nowhere else.
+            if (item.Heritage is null || OpenTrader is { } trader && simulation.Offer(trader, defId) is not null)
+                Fact("Worth", $"{item.ValueBase} coin", HudStyle.Brass, "stat.worth");
             foreach (var (attribute, minimum) in item.Requirements.Attributes)
             {
                 int value = ProgressionEngine.AttributeValue(player.Progression, attribute, setup.Progression);
