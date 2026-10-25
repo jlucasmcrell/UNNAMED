@@ -127,6 +127,10 @@ sections:
         text: "Ornate medieval dagger: Sofia Pahaoja, Poly Haven (polyhaven.com), CC0."
       - binds: [gs_quiet_stone_, gs_foldscar_]
         text: "The Foldscar's Quiet Stones, its heart and the heart's debris: Frozen Norse Environment by Leartes Studios, Cosmos Premium (cosmos.leartesstudios.com)."
+      - binds: [gs_old_late]
+        text: "Old Late, the stone giant: Dwarven Citadel Megapack by Leartes Studios, Cosmos Premium (cosmos.leartesstudios.com), its head weathered away."
+      - binds: [gs_waystone_]
+        text: "The Waystones: rock_moss_set_01 by Poly Haven (polyhaven.com), CC0."
       - binds: [gs_fold_fluorite]
         text: "The fluorite in the Foldscar's heart: Mineral: Fluorite by Digital Atlas of Ancient Life (https://sketchfab.com/3d-models/5ed87d4487be495aac0a86632eb3880c), CC0."
       - ledger: [A-P02]

@@ -224,7 +224,7 @@ public sealed partial class FoldscarRegister : Node3D
     }
 
     // "The stones hold their light" - the stones, faintly at sixteen metres of carved face; the heart holds none (grand scale, GS-2).
-    private static float Held(Stone stone) => stone.Turns ? 0.12f : 0f;
+    private static float Held(Stone stone) => stone.Turns ? 0.05f : 0f;
 
     private void Animate(Stone stone)
     {
