@@ -15,6 +15,9 @@ public partial class Main
     {
         using var plan = JsonDocument.Parse(File.ReadAllText(OS.GetEnvironment("OTHERREACH_RACE_LOOKS_PLAN")));
         DisplayServer.WindowSetTitle("Otherreach - " + Path.GetFileName(directory));
+        _innFreeCamera = true;
+        GetViewport().CanvasCullMask = 0; // Diagnostic anatomy/motion frames contain no tutorial or lesson overlays.
+        camera.MakeCurrent();
         _hud.Visible = false;
         _avatar.Visible = false;
         _npcs.Visible = false;
@@ -37,6 +40,7 @@ public partial class Main
                 foreach (var (id, f) in figures.ToList())
                     f.Figure.Pose(f.Feet, f.Yaw, f.Speed, dt);
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+                if (GetViewport().GetCamera3D() != camera) throw new InvalidDataException("Race/FACS review camera is not rendering");
             } while (Time.GetTicksMsec() < until);
         }
         void Aim(JsonElement s)

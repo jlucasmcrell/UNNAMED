@@ -23,10 +23,15 @@ public partial class Main
         if (!driver.NativeJawBound) throw new InvalidOperationException("Talking NPC has no native FACS jaw binding");
         var rows = new List<object>();
         bool hudWasVisible = _hud.Visible;
+        bool freeCamera = _innFreeCamera;
+        uint canvasMask = GetViewport().CanvasCullMask;
         float fov = camera.Fov;
         try
         {
             _hud.Visible = false;
+            _innFreeCamera = true;
+            GetViewport().CanvasCullMask = 0; // Framing only; UI/gameplay state keeps running.
+            camera.MakeCurrent();
             camera.Fov = 32;
             foreach (string view in new[] { "front", "three_quarter" })
             {
@@ -50,6 +55,7 @@ public partial class Main
                         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                     if (driver.JawWeight < .045f) throw new InvalidOperationException("Normal dialogue produced no measurable speaking jaw");
                     string name = view + "_" + sample;
+                    if (GetViewport().GetCamera3D() != camera) throw new InvalidDataException("Talking close-up camera is not rendering");
                     await Rcd3Shot(directory, name);
                     rows.Add(new { frame = name + ".png", npc = npcId, model = figure.ModelId, talk.DialogueId, talk.NodeId,
                         tick = simulation.WorldTick, jaw_weight = driver.JawWeight, native_jaw_bound = driver.NativeJawBound,
@@ -66,6 +72,8 @@ public partial class Main
         {
             _dialogue.Leave();
             _hud.Visible = hudWasVisible;
+            _innFreeCamera = freeCamera;
+            GetViewport().CanvasCullMask = canvasMask;
             camera.Fov = fov;
             _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera);
         }

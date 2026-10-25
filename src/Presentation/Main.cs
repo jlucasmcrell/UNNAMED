@@ -1668,8 +1668,9 @@ public partial class Main : Node3D
         bool reviewCamera = _mhReviewDirectory is not null && GetViewport().GetCamera3D() != _camera.Camera;
         _avatar.SetFirstPerson(!reviewCamera && _camera.EffectiveDistance < 0.4f);
         // A conversation frames the speaker's face over the character's shoulder (not in first person).
-        _talkCamera.Frame(simulation.Conversation is { } talk && !_camera.IsFirstPerson ? _npcs.HeadOf(talk.NpcId) : null,
-            _avatar.Head, _camera.Camera, delta);
+        if (!_innFreeCamera)
+            _talkCamera.Frame(simulation.Conversation is { } talk && !_camera.IsFirstPerson ? _npcs.HeadOf(talk.NpcId) : null,
+                _avatar.Head, _camera.Camera, delta);
         Probe("camera/state log");
         ulong shadowsStarted = _frontierPerf is null ? 0 : Time.GetTicksUsec();
         if (GetViewport().GetCamera3D() is { } shadowEye) _shadowLods.Update(shadowEye.GlobalPosition);
