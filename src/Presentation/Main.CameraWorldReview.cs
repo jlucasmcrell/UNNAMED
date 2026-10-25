@@ -77,6 +77,9 @@ public partial class Main
                             Transform=new Transform3D(Basis.Identity,position)};
                         if(GetWorld3D().DirectSpaceState.IntersectShape(query).Count>0)
                             throw new InvalidDataException($"World camera overlaps geometry at {site.Item1}/{shoulder}/{pitch}: {position}");
+                        var sight=PhysicsRayQueryParameters3D.Create(_camera.GlobalPosition,position,HollowView.CameraCollisionLayer);
+                        if(GetWorld3D().DirectSpaceState.IntersectRay(sight).Count>0)
+                            throw new InvalidDataException($"World camera passed through geometry at {site.Item1}/{shoulder}/{pitch}: {position}");
                         frames.WriteLine(FormattableString.Invariant($"{Time.GetTicksUsec()},{site.Item1},{shoulder},{pitch},{_camera.Yaw},{position.X},{position.Y},{position.Z},{_camera.EffectiveDistance}"));
                     }
                     await Rcd3Shot(directory,$"{site.Item1}_{shoulder}_{pitch:0.0}");

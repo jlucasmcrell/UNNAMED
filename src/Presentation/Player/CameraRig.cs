@@ -16,7 +16,7 @@ public enum Shoulder
 
 /// <summary>
 /// One camera on a spectrum: the wheel moves it continuously from a distant third person through close shoulder to
-/// first person at the eye. A spring arm keeps it out of walls and roofs, so indoors it compresses on its own; it never
+/// first person at the eye. A native shape sweep keeps it out of walls and roofs, so indoors it compresses on its own; it never
 /// switches the player into first person (§4 "do not force a perspective change"). It changes nothing but the view.
 /// </summary>
 public partial class CameraRig : Node3D
@@ -29,7 +29,8 @@ public partial class CameraRig : Node3D
     private const float ShoulderOffset = 0.45f;
 
     private readonly Node3D _pitch = new() { Name = "Pitch" };
-    private readonly SpringArm3D _arm = new() { Name = "Arm" };
+    private readonly ShapeCast3D _arm = new() { Name = "Arm", Enabled = false };
+    private float _hitLength;
     private float _shoulder;
     private float _restoreDistance = 3.5f;
 
@@ -91,7 +92,7 @@ public partial class CameraRig : Node3D
     public bool IsFirstPerson => TargetDistance <= FirstPersonBelow;
 
     /// <summary>How far the camera actually is from the eye once collision has had its say.</summary>
-    public float EffectiveDistance => Distance <= 0.001f ? 0 : _arm.GetHitLength();
+    public float EffectiveDistance => Distance <= 0.001f ? 0 : _hitLength;
 
     /// <summary>Where the camera looks, flattened onto the ground.</summary>
     public Vector3 GroundForward => new(-Mathf.Sin(Yaw), 0, -Mathf.Cos(Yaw));
@@ -164,9 +165,11 @@ public partial class CameraRig : Node3D
         // Sweep from the body's safe eye position to the shoulder camera. Moving
         // the sweep origin sideways could start inside a wall, which shape casts ignore.
         float boom = Distance + _lift * 1.5f;
-        float armYaw = Mathf.Atan2(_shoulder, boom);
-        _arm.Rotation = new Vector3(0, armYaw, 0);
-        Camera.Rotation = new Vector3(0, -armYaw, 0); // Preserve the original viewing direction.
-        _arm.SpringLength = new Vector2(_shoulder, boom).Length();
+        _arm.TargetPosition = new Vector3(_shoulder, 0, boom);
+        // Mouse look and rendered body prediction change between physics ticks.
+        // Resolve this exact rendered pose immediately instead of using a stale arm length.
+        _arm.ForceShapecastUpdate();
+        Camera.Position = _arm.TargetPosition * _arm.GetClosestCollisionSafeFraction();
+        _hitLength = Camera.Position.Length();
     }
 }
