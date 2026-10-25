@@ -198,8 +198,8 @@ public partial class Main
     }
 
     /// <summary>
-    /// Three blinks along the road, a wraith-step, an anchor set, a walk away and the recall back to it - watched by a still camera side-on to
-    /// the whole line, so each blink reads as the body leaving one place and arriving in another rather than as a cut of a following view.
+    /// At game camera distance (coordinator, 2026-10-24: the lagging afterimage must be visible): a still camera 6 m side-on to the middle
+    /// of one blink, so both ends are in frame; the blink, a wraith-step where it lands, and a sprint back across the frame.
     /// </summary>
     private async Task OrenthRoute(Action<string, object?> mark)
     {
@@ -208,28 +208,25 @@ public partial class Main
         var facing = start.FacingMdeg / 1000.0 * Math.PI / 180;
         var ahead = new Vector3((float)Math.Sin(facing), 0, (float)Math.Cos(facing));
         var side = new Vector3(ahead.Z, 0, -ahead.X);
-        var middle = new Vector3(start.XMm / 1000f, start.YMm / 1000f + 1.1f, start.ZMm / 1000f) + ahead * 12;
-        var still = new Camera3D { Fov = 60, Near = .1f, Far = 2000, Environment = _camera.Camera.Environment, Attributes = _camera.Camera.Attributes };
+        var middle = new Vector3(start.XMm / 1000f, start.YMm / 1000f + 1.0f, start.ZMm / 1000f) + ahead * 4;
+        var still = new Camera3D { Fov = 60, Near = .05f, Far = 2000, Environment = _camera.Camera.Environment, Attributes = _camera.Camera.Attributes };
         AddChild(still);
-        still.GlobalPosition = middle + side * 17 + Vector3.Up * 1.5f;
+        still.GlobalPosition = middle + side * 6 + Vector3.Up * .4f;
         still.LookAt(middle);
         still.MakeCurrent();
-        await Rcd3Wait(1.5);
-        for (int i = 0; i < 3; i++)
-        {
-            _controller.PeopleAbility("ability.people.orenth.blink");
-            await Rcd3Wait(10.6);
-        }
-        _controller.PeopleAbility("ability.people.orenth.wraith_step");
-        await Rcd3Wait(3);
-        _controller.PeopleAbility("ability.people.orenth.planar_anchor");
         await Rcd3Wait(2);
-        var at = sim.Player.Body;
-        await SteerTo(at.XMm / 1000.0 - ahead.X * 18, at.ZMm / 1000.0 - ahead.Z * 18, Gait.Run, 20);
-        await Rcd3Wait(1.5);
-        mark("recall", null);
-        _controller.PeopleAbility("ability.people.orenth.anchor_recall");
-        await Rcd3Wait(6);
+        _controller.PeopleAbility("ability.people.orenth.blink");
+        await Rcd3Wait(4);
+        _controller.PeopleAbility("ability.people.orenth.wraith_step");
+        await Rcd3Wait(4);
+        mark("sprint", null);
+        for (int i = 0; i < 70; i++)
+        {
+            _controller.SteerWorld(-ahead, Gait.Sprint, _camera);
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        }
+        _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+        await Rcd3Wait(3);
         _camera.Camera.MakeCurrent();
         still.QueueFree();
     }

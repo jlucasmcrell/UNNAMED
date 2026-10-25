@@ -133,6 +133,9 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
     /// <summary>Catching up, a companion is put on the trail at least this far from the character and at most the next.</summary>
     private const long CatchUpNearMm = 2_000, CatchUpFarMm = 6_000;
 
+    /// <summary>When each party member's racial abilities come ready again, by member and action. Transient, as cooldowns are.</summary>
+    private readonly Dictionary<(string NpcId, PeopleAction Action), long> _abilityReady = new();
+
     private readonly SystemContext _context;
     private readonly SliceOwner _owner;
     private readonly EntityId _player;
@@ -332,7 +335,16 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
             return "no such attacker";
         var npc = State.Npcs[c.NpcId];
         var traits = TraitsOf(c.NpcId);
-        var defense = new DefenseProfile(c.Profile.MaxHealth, c.Profile.Armor, PeopleRules.Resistances(traits), Blocking: false, Dodging: false)
+        // Badly hurt, an Orenth wraith-steps out of the next blows (§3.4), on a player's cooldown.
+        if (c.Health * 2 < c.Profile.MaxHealth && AbilityReady(c.NpcId, PeopleAction.WraithStep, tick) is { EffectId: { } phase } wraith)
+        {
+            _context.Dispatch(new ApplyEffect(npc.InstanceId, phase));
+            _abilityReady[(c.NpcId, PeopleAction.WraithStep)] = tick + wraith.CooldownTicks;
+            _context.Events.Publish(new WraithStepped(npc.InstanceId, tick + wraith.DurationTicks, tick));
+        }
+        bool phased = EffectRules.Phased(EffectsOf(npc.InstanceId), _context.Setup.Combat.Effects);
+        var defense = new DefenseProfile(c.Profile.MaxHealth, c.Profile.Armor, PeopleRules.Resistances(traits), Blocking: false,
+            Dodging: phased && DamageTypes.IsPhysical(command.Attack.DamageType))
         {
             StaggerThresholdPercent = traits.StaggerThresholdPercent,
         };
@@ -604,9 +616,41 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
             _context.Events.Publish(new AttackStarted(npc.InstanceId, c.Attack.Source, c.Attack.WindupTicks, c.Attack.ActiveTicks, c.Attack.RecoveryTicks, tick));
             return c with { Action = ActionState.Begin(ActionKind.Attack, tick, c.Attack) };
         }
+        if (c.Order == CompanionOrder.Follow && Blink(c, npc, target, distance, tick))
+            return c;
         Place(npc, c.Order == CompanionOrder.Wait ? Turn(body, toward) : Step(npc, target.Body.XMm, target.Body.ZMm, Gait.Run));
         return c;
     }
+
+    /// <summary>
+    /// An Orenth closes a gap it would otherwise run (RACE_ABILITIES_PROPOSAL.md §5: an NPC of a people uses its abilities as a player of it
+    /// does): with its blink ready and the mark more than a few steps off, it steps sideways to within reach - past bodies, never through
+    /// a wall - on the same cooldown a player has. True when it blinked.
+    /// </summary>
+    private bool Blink(CompanionState c, NpcState npc, CreatureState target, double distance, long tick)
+    {
+        long reach = c.Attack.ReachMm + target.Definition.RadiusMm;
+        if (AbilityReady(c.NpcId, PeopleAction.Blink, tick) is not { } blink || distance < reach + 3_000)
+            return false;
+        var body = npc.Body;
+        var to = PeopleRules.BlinkTarget(body, (int)Math.Round((target.Body.XMm - body.XMm) / distance * 1000), (int)Math.Round((target.Body.ZMm - body.ZMm) / distance * 1000),
+            Math.Min(blink.RangeMm, (long)(distance - reach + 500)), _context.Setup.Movement, _context.Setup.SpaceFor(State.Space), _context.ClosedDoors(),
+            Obstacles(c.NpcId));
+        if (to is null)
+            return false;
+        to = to with { FacingMdeg = CombatRules.FacingTowards(to.XMm, to.ZMm, target.Body.XMm, target.Body.ZMm) };
+        Place(npc, to);
+        _abilityReady[(c.NpcId, PeopleAction.Blink)] = tick + blink.CooldownTicks;
+        _context.Events.Publish(new Blinked(npc.InstanceId, body, to, tick));
+        return true;
+    }
+
+    /// <summary>A party member's racial ability of this action when its people has one and it is ready; null otherwise.</summary>
+    private PeopleAbility? AbilityReady(string npcId, PeopleAction action, long tick) =>
+        _context.Setup.Character.AbilityOf(_context.PeopleOf(npcId), action) is { } ability
+        && (!_abilityReady.TryGetValue((npcId, action), out long ready) || tick >= ready)
+            ? ability
+            : null;
 
     /// <summary>The active window of a swing: every living creature in front within reach, with no wall between, is struck once.</summary>
     private CompanionState Swing(CompanionState c, NpcState npc, long tick)

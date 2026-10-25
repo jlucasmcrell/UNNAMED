@@ -34,6 +34,9 @@ public abstract partial class Figure : Node3D
     /// <summary>Crouched or standing, in the air or not (the simulation's posture).</summary>
     public abstract void SetPosture(bool crouched, bool airborne);
 
+    /// <summary>Aloft on spread wings (Kal: a glide or a flare): a body that can show it holds still under them rather than running.</summary>
+    public virtual void SetGliding(bool gliding) { }
+
     /// <summary>Place the body where the simulation says, turned towards its facing, and animate its gait.</summary>
     public abstract void Pose(Vector3 feet, float facingRadians, float speedMetresPerSecond, double delta);
 
