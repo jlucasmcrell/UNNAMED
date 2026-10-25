@@ -43,6 +43,21 @@ public partial class Main
                 source.MakeCurrent();camera.QueueFree();
                 await RunFootstepReview(directory);GetTree().Quit();return;
             }
+            if(OS.GetEnvironment("OTHERREACH_CAST_JAW_REVIEW")=="1")
+            {
+                File.WriteAllText(Path.Combine(directory,"record_ready.json"),"{}");
+                ulong recordDeadline=Time.GetTicksMsec()+120000;
+                while(!File.Exists(Path.Combine(directory,"recording.started")))
+                {
+                    if(Time.GetTicksMsec()>recordDeadline)throw new TimeoutException("Cast jaw recorder did not start");
+                    await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+                }
+                ulong recordStart=Time.GetTicksMsec();
+                await RunTalkingThroatGate(Path.Combine(directory,"normal_npc_talk"),camera);
+                File.WriteAllText(Path.Combine(directory,"normal_npc_video_span.json"),JsonSerializer.Serialize(new{
+                    start_ms=0,end_ms=Time.GetTicksMsec()-recordStart,note="Cast clip times start later at its record_ready step"}));
+                await RunRaceLooksReview(directory,camera);GetTree().Quit();return;
+            }
             if(OS.GetEnvironment("OTHERREACH_FIELD_RUINS_VIDEO")=="1")
             {
                 camera.GetNode<OmniLight3D>("CharacterFill").Reparent(source,false);

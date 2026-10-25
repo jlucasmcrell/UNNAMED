@@ -133,6 +133,29 @@ public partial class Main
                     log.Add(new { step, id, speed, actual_clip = f.Figure.ClipState, fps = Engine.GetFramesPerSecond() });
                     break;
                 }
+                case "jaw":
+                {
+                    string id = s.GetProperty("id").GetString()!;
+                    var figure = figures[id].Figure;
+                    var driver = figure.FindChildren("*", "", true, false).OfType<FaceDriver>().Single();
+                    float requested = Num(s, "weight", 0);
+                    if (requested is < 0 or > 1) throw new InvalidDataException("FACS jaw weight outside 0..1");
+                    figure.Say(null);figure.SetTalking(true);
+                    driver.ReviewJawOpen = requested;
+                    await Frames(.6);
+                    var hinge = figure.FindChildren("*", "", true, false).OfType<HumGenJaw>().Single();
+                    if (!driver.NativeJawBound || !hinge.Active || Math.Abs(driver.JawWeight-requested) > .025f
+                        || Math.Abs(hinge.AppliedWeight-requested) > .025f)
+                        throw new InvalidDataException("Native FACS jaw modifier did not follow requested weight");
+                    log.Add(new { step, id, requested, actual = driver.JawWeight, native_jaw_bound = driver.NativeJawBound,
+                        modifier_weight = hinge.AppliedWeight, modifier_angle_rad = hinge.AppliedAngle,
+                        native_pose_before = hinge.PoseBefore.ToString(), native_pose_after = hinge.PoseAfter.ToString() });
+                    break;
+                }
+                case "jaw_release":
+                    figures[s.GetProperty("id").GetString()!].Figure.FindChildren("*", "", true, false)
+                        .OfType<FaceDriver>().Single().ReviewJawOpen = null;
+                    break;
                 case "talk":
                 {
                     string id = s.GetProperty("id").GetString()!;

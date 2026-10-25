@@ -37,6 +37,8 @@ public sealed partial class FaceDriver : Node
     public void Gaze(Vector3? localDirection) => _gaze = localDirection;
     public float BlinkWeight => _weights.GetValueOrDefault("eyeBlinkLeft");
     public float JawWeight => _weights.GetValueOrDefault("jawOpen");
+    // Opt-in native FACS inspection; ordinary speech leaves this unset.
+    internal float? ReviewJawOpen { get; set; }
 
     private static readonly string[] Channels =
     {
@@ -208,6 +210,7 @@ public sealed partial class FaceDriver : Node
         RestAndGaze(delta);
         Blink(delta);
         Speak(delta);
+        if (ReviewJawOpen is { } jaw) _targets["jawOpen"] = Mathf.Clamp(jaw, 0, 1);
         // Visemes and the jaw ease in and out (about 60 ms): the mouth moves between shapes, never snaps.
         float rate = 1f - Mathf.Exp(-16f * (float)delta);
         float blinkRate = 1f - Mathf.Exp(-40f * (float)delta);

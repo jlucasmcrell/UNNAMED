@@ -19,6 +19,7 @@ public partial class Main
         var figure = _npcs.FigureOf(npcId) as SkinnedFigure ?? throw new InvalidOperationException("Talking gate requires the shipped HumGen NPC");
         var driver = figure.FindChildren("*", "", true, false).OfType<FaceDriver>().SingleOrDefault()
             ?? throw new InvalidOperationException("Talking NPC has no production face driver");
+        if (!driver.NativeJawBound) throw new InvalidOperationException("Talking NPC has no native FACS jaw binding");
         var rows = new List<object>();
         bool hudWasVisible = _hud.Visible;
         float fov = camera.Fov;
@@ -50,7 +51,9 @@ public partial class Main
                     string name = view + "_" + sample;
                     await Rcd3Shot(directory, name);
                     rows.Add(new { frame = name + ".png", npc = npcId, model = figure.ModelId, talk.DialogueId, talk.NodeId,
-                        tick = simulation.WorldTick, jaw_weight = driver.JawWeight, camera = camera.GlobalPosition.ToString() });
+                        tick = simulation.WorldTick, jaw_weight = driver.JawWeight, native_jaw_bound = driver.NativeJawBound,
+                        native_jaw_angle_rad = figure.FindChildren("*", "", true, false).OfType<HumGenJaw>().Single().AppliedAngle,
+                        camera = camera.GlobalPosition.ToString() });
                     await Rcd3Wait(.12);
                 }
             }
