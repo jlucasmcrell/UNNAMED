@@ -317,7 +317,13 @@ public partial class Main
         }
         list.Add(($"{list.Count + 1:00}_body_{shown}", () => _creator.Go(CreatorStep.Face), 1500));
         list.Add(($"{list.Count + 1:00}_face", () => _creator.Go(CreatorStep.Hair), 1500));
-        list.Add(($"{list.Count + 1:00}_hair", () => _creator.Go(CreatorStep.Outfit), 1500));
+        // A skin tone and a hair colour other than the baked ones (Tan, Blond), kept to the road so the game draws them too.
+        list.Add(($"{list.Count + 1:00}_hair", () => _creator.Use(_creator.Draft with
+        {
+            Appearance = (_creator.Draft.Appearance ?? new CharacterAppearance(1750, null, null, null, null, null)) is var look
+                ? look with { Sliders = look.Sliders.SetItem(LookSwatches.SkinSlider, 6).SetItem(LookSwatches.HairSlider, 7) } : null,
+        }), 2500));
+        list.Add(($"{list.Count + 1:00}_hair_tan_blond", () => _creator.Go(CreatorStep.Outfit), 1500));
         list.Add(($"{list.Count + 1:00}_outfit", () => _creator.Go(CreatorStep.Identity), 1500));
         int n = list.Count;
         string N(string shot) => $"{++n:00}_{shot}";

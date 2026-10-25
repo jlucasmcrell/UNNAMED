@@ -21,9 +21,10 @@ public partial class CreatorScreen
 
     /// <summary>
     /// An exported build offers only what it draws (public playtest gate A4): the baked bodies' own choices, no sliders a bake has not caught
-    /// up with, and no people without a baked body. The editor keeps the whole catalogue for the pipeline's work.
+    /// up with, and no people without a baked body. The editor keeps the whole catalogue for the pipeline's work (<c>--public-creator</c>
+    /// shows it the exported way).
     /// </summary>
-    private static bool BakedOnly => OS.HasFeature("template");
+    private static bool BakedOnly => OS.HasFeature("template") || OS.GetCmdlineUserArgs().Contains("--public-creator");
 
     /// <summary>What a player is told in place of the choices this build cannot draw yet.</summary>
     private const string LaterWords = "More looks come in later playtests.";
