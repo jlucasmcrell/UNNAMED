@@ -49,6 +49,12 @@ public partial class Main
                 source.MakeCurrent();camera.QueueFree();
                 await RunFootstepReview(directory);GetTree().Quit();return;
             }
+            if(OS.GetEnvironment("OTHERREACH_MATEO_TEETH_REVIEW")=="1")
+            {
+                camera.GetNode<OmniLight3D>("CharacterFill").Reparent(source,false);
+                source.MakeCurrent();camera.QueueFree();
+                await RunMateoTeethReview(directory,source);GetTree().Quit();return;
+            }
             if(OS.GetEnvironment("OTHERREACH_PUBLIC_VOICE_REVIEW") is { Length: > 0 } voiceNpc)
             {
                 camera.GetNode<OmniLight3D>("CharacterFill").Reparent(source,false);
