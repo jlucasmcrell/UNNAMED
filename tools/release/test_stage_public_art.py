@@ -28,4 +28,11 @@ with tempfile.TemporaryDirectory() as directory:
     assert (target/'humgen_characters/mocap_motion/body_motion.res').read_bytes()==b'exact native library'
     entries=json.loads((target/'primary/texture_cache/manifest.json').read_text())['entries']
     assert list(entries)==['model.glb#image0']
+    try:
+        stage(source,source/'nested')
+    except AssertionError:
+        pass
+    else:
+        raise AssertionError('Recursive staging destination was accepted')
+    assert not (source/'nested').exists()
 print('PASS fresh staging preserves originals/native libraries/live textures; receipts stay outside the public copy')

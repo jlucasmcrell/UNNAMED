@@ -17,6 +17,7 @@ def developer_file(relative):
 
 def stage(source, destination=None):
     if destination is not None:
+        assert not destination.resolve().is_relative_to(source.resolve()), 'Destination must be outside the retained source'
         assert not destination.exists(), 'Fresh destination only; retained builds are never pruned'
         destination.mkdir(parents=True)
     report=dict(linked=0,copied=0,kept_bytes=0,omitted_orphan_dds_bytes=0,omitted_developer_bytes=0)
