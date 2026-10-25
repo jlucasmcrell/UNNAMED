@@ -110,6 +110,8 @@ public partial class Main
         _menu.UseIcons(icons);
         _journal.UseIcons(icons);
         _help.UseIcons(icons);
+        _saveIndicator = new SaveIndicator { Name = "SaveIndicator" };
+        AddChild(_saveIndicator);
         _saves = new SavesPanel { Name = "Saves" };
         _saves.Bind(_session);
         _saves.Load = save => LoadChosen(save.Slot, save.Copy, save);

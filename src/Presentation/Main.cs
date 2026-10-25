@@ -80,6 +80,7 @@ public partial class Main : Node3D
     private CharacterPanel _character = null!;
     private HelpPanel _help = null!;
     private SavesPanel _saves = null!;
+    private SaveIndicator _saveIndicator = null!;
     private SystemMenuPanel _menu = null!;
     private CanvasLayer? _openedFromMenu;
     private bool _escapeToMenu;
@@ -1457,6 +1458,7 @@ public partial class Main : Node3D
                 _barrowworksReview?.Mark(note);
             }
         }
+        _saveIndicator.Show(_session.IsSaving, frame.Saves);
         foreach (var save in frame.Saves)
         {
             if (save.Failure is not { } failed)
@@ -1466,7 +1468,8 @@ public partial class Main : Node3D
                 continue;
             }
             GD.PushError($"UNNAMED {(save.Auto ? "autosave" : "save")} to {save.Slot} failed: {failed}");
-            _hud.Toast(save.Auto ? $"Autosave failed: {failed} It is tried again shortly. The log: {LogPath}" : $"Save failed: {failed} (the log: {LogPath})", 8);
+            string said = save.Trouble?.Sentence ?? failed;
+            _hud.Toast(save.Auto ? $"Autosave failed. {said}" : $"Save failed. {said} The saves list (L) has a report to copy.", 8);
         }
         ulong drawStarted = _barrowworksReview is null && _frontierPerf is null ? 0 : Time.GetTicksUsec();
         Draw(frame.Alpha, delta);
