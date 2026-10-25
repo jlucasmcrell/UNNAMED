@@ -19,6 +19,7 @@ public sealed class FrontierPerf
     private readonly FrameStats _stats;
     private readonly Viewport _viewport;
     private readonly string? _diagnosticHide;
+    private readonly float? _diagnosticShadowDistance;
     private readonly StringBuilder _renderCounts = new("segment,observed_frame,draw_calls,primitives,objects\n");
     private readonly StringBuilder _processPhases = new("observed_frame,segment,phase,ms\n");
     private readonly StringBuilder _slowSimulation = new("observed_frame,segment,ms,world_tick,ticks_run,autosave_taken,gc_pause_ms\n");
@@ -48,12 +49,28 @@ public sealed class FrontierPerf
         return ((long)Math.Round(x * 1000), (long)Math.Round(z * 1000));
     }
 
-    public FrontierPerf(GameSession session, PlayerController controller, CameraRig camera, Viewport viewport, string directory, string? diagnosticHide = null)
+    public FrontierPerf(GameSession session, PlayerController controller, CameraRig camera, Viewport viewport, string directory, string? diagnosticHide = null, float? diagnosticShadowDistance = null)
     {
         _session = session; _controller = controller; _camera = camera;
         _viewport = viewport;
         _diagnosticHide = diagnosticHide;
-        if (diagnosticHide == "tree_view_lod")
+        _diagnosticShadowDistance = diagnosticShadowDistance;
+        if(diagnosticShadowDistance is { } distance)
+        {
+            if(VisualOptions.Tier is not ("low" or "medium") || !float.IsFinite(distance) || distance<10 || distance>75)
+                throw new ArgumentException("Shadow distance diagnostic is Low/Medium only");
+            foreach(var sun in viewport.GetTree().CurrentScene.FindChildren("*",nameof(DirectionalLight3D),true,false)
+                .OfType<DirectionalLight3D>().Where(n=>n.GetViewport()==viewport))
+                sun.DirectionalShadowMaxDistance=Math.Min(sun.DirectionalShadowMaxDistance,distance);
+        }
+
+        if (diagnosticHide == "quality_probe")
+        {
+            if(VisualOptions.Tier is not ("low" or "medium"))throw new ArgumentException("Quality probe is Low/Medium only");
+            _arms=["baseline"];_applyArm=true;
+            GD.Print("FRONTIER DIAGNOSTIC ONLY: one fixed yaw270 quality arm; normal pacing, separate fresh process per arm");
+        }
+        else if (diagnosticHide == "tree_view_lod")
         {
             if (VisualOptions.Tier is not ("low" or "medium") || System.Environment.GetEnvironmentVariable("UNNAMED_TREE_VIEW_LOD") == "1")
                 throw new ArgumentException("Tree view LOD comparison requires Low/Medium and a full-detail initial control");
@@ -153,7 +170,7 @@ public sealed class FrontierPerf
             _stats.Mark($"steady observation starts at tick {_session.Simulation.WorldTick}");
             return null;
         }
-        if (_elapsed < (_arms is null ? CaptureSeconds : _diagnosticHide == "tree_view_lod" ? 10 : 4)) return null;
+        if (_elapsed < (_arms is null ? CaptureSeconds : _diagnosticHide == "quality_probe" ? CaptureSeconds : _diagnosticHide == "tree_view_lod" ? 10 : 4)) return null;
         string shot = _arms is null ? $"yaw_{_heading * HeadingDegrees:000}" : "arm_" + _arms[_heading] + "_yaw270";
         var body = _controller.Authoritative;
         _armScreenshot = _arms?[_heading];
@@ -162,7 +179,7 @@ public sealed class FrontierPerf
             _armStates.Add(new { arm = _arms[_heading], world_tick = _session.Simulation.WorldTick,
                 camera = _camera.Camera.GlobalTransform.ToString(), fov = _camera.Camera.Fov,
                 visibility = _visibility.Select(v => new { path = v.Node.GetPath().ToString(), v.Node.Visible }).ToArray(),
-                suns = _suns.Select(v => new { path = v.Light.GetPath().ToString(), v.Light.ShadowEnabled }).ToArray(),
+                suns = _suns.Select(v => new { path = v.Light.GetPath().ToString(), v.Light.ShadowEnabled, v.Light.DirectionalShadowMaxDistance }).ToArray(),
                 sdfgi = _environments.Select(v => v.Environment.SdfgiEnabled).ToArray(),
                 tree_views = _treeViews.Select(v => new {path=v.Node.GetPath().ToString(),v.Node.LodBias,v.Node.Visible}).ToArray() });
         _finished = ++_heading == (_arms?.Length ?? HeadingCount);
@@ -209,7 +226,7 @@ public sealed class FrontierPerf
             {
                 arm = shot, world_tick = _session.Simulation!.WorldTick,
                 visibility = _visibility.Select(v => new { path = v.Node.GetPath().ToString(), v.Node.Visible }).ToArray(),
-                suns = _suns.Select(v => new { path = v.Light.GetPath().ToString(), v.Light.ShadowEnabled }).ToArray(),
+                suns = _suns.Select(v => new { path = v.Light.GetPath().ToString(), v.Light.ShadowEnabled, v.Light.DirectionalShadowMaxDistance }).ToArray(),
                 sdfgi = _environments.Select(v => v.Environment.SdfgiEnabled).ToArray(),
                 tree_views = _treeViews.Select(v => new {path=v.Node.GetPath().ToString(),v.Node.LodBias,v.Node.Visible}).ToArray(),
             }) + "\n");
@@ -284,6 +301,11 @@ public sealed class FrontierPerf
             ["seed"] = _session.Simulation!.World.WorldSeed.ToString(CultureInfo.InvariantCulture),
             ["ticks"] = $"{_startTick}..{_session.Simulation.WorldTick}",
             ["diagnostic_hide"] = _diagnosticHide ?? "none",
+            ["diagnostic_quality_override"] = (_diagnosticShadowDistance is not null || VisualOptions.PlantScale != 1).ToString(),
+            ["actual_plant_share"] = VisualOptions.PlantDensity.ToString(CultureInfo.InvariantCulture),
+            ["actual_plant_scale"] = VisualOptions.PlantScale.ToString(CultureInfo.InvariantCulture),
+            ["actual_sun_shadow_distances"] = string.Join(",",_viewport.GetTree().CurrentScene.FindChildren("*",nameof(DirectionalLight3D),true,false)
+                .OfType<DirectionalLight3D>().Where(n=>n.GetViewport()==_viewport).Select(n=>n.DirectionalShadowMaxDistance.ToString(CultureInfo.InvariantCulture))),
             ["result"] = _session.Simulation.Combat.Defeated ? "FAILED: character defeated"
                 : _diagnosticHide is not null ? $"DIAGNOSTIC ONLY: hidden {_diagnosticHide}" : "complete",
         });

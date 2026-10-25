@@ -312,6 +312,26 @@ public partial class Main : Node3D
             Settings.SettingsStore.ApplyWindow();
         }
         Art.ArtLibrary.BuildTextureCache = _flags.Contains("--texture-cache");
+        // Diagnostic only: separate normal-pacing Low/Medium runs, one quality lever per arm.
+        float? frontierShadowDistance = null;
+        foreach(string key in new[]{"--frontier-plant-share","--frontier-shadow-distance"})
+            if(_options.TryGetValue(key,out string? raw))
+            {
+                if(!_options.ContainsKey("--frontier-perf") || VisualOptions.Tier is not ("low" or "medium")
+                    || !float.TryParse(raw,System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out float value)
+                    || !float.IsFinite(value))throw new ArgumentException(key+" requires a finite Low/Medium frontier diagnostic");
+                if(key=="--frontier-plant-share")
+                {
+                    if(value<.05f || value>VisualOptions.PlantDensity)throw new ArgumentException("Diagnostic plant share must be .05..tier baseline");
+                    VisualOptions.PlantScale=value/VisualOptions.PlantDensity;
+                }
+                else
+                {
+                    if(value<10 || value>75)throw new ArgumentException("Diagnostic shadow distance must be10..75m");
+                    frontierShadowDistance=value;
+                }
+                GD.Print($"FRONTIER DIAGNOSTIC ONLY: {key}={value}; High/Ultra refused");
+            }
         VisualOptions.Apply(GetViewport());
         if (_flags.Contains("--spike"))
         {
@@ -707,7 +727,7 @@ public partial class Main : Node3D
             Engine.MaxFps = 0;
             DisplayServer.WindowSetVsyncMode(DisplayServer.VSyncMode.Disabled);
             _frontierPerf = new FrontierPerf(_session, _controller, _camera, GetViewport(), Path.GetFullPath(frontierPerf),
-                _options.GetValueOrDefault("--frontier-hide"));
+                _options.GetValueOrDefault("--frontier-hide"), frontierShadowDistance);
         }
         else if (_options.TryGetValue("--shot", out string? shotSpec))
         {
@@ -1858,7 +1878,7 @@ public partial class Main : Node3D
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--stand" or "--purse" or "--start-items" or "--start-level" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
-                    or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
+                    or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide" or "--frontier-plant-share" or "--frontier-shadow-distance"
                     or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"
                     or "--anim-person" or "--anim-compare" or "--anim-phase"
                 && i + 1 < arguments.Length)
