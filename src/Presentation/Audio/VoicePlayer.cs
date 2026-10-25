@@ -42,6 +42,9 @@ public partial class VoicePlayer : Node
         return true;
     }
 
+    /// <summary>Read a line's recording ahead of saying it, so its first showing decodes nothing (the opening's lines).</summary>
+    public void Preload(string lineId) => Stream(lineId);
+
     /// <summary>Stop the conversation's line (the conversation ended).</summary>
     public void Hush() => _line.Stop();
 

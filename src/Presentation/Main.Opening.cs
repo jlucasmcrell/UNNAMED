@@ -55,8 +55,13 @@ public partial class Main
         var opening = new OpeningCinematic(places)
         {
             Name = "Opening", Skippable = SettingsStore.Current.Profile.OpeningSeen, Holding = capture is not null,
-            // The title built and drawn once under the black, so its first real showing costs no frame.
-            Warming = () => _title.Open(),
+            // The title built and drawn once under the black, and the narration read, so neither costs a frame when it comes.
+            Warming = () =>
+            {
+                _title.Open();
+                foreach (var line in Ui.OpeningWords.Lines)
+                    _voice.Preload(line.Voice);
+            },
             Started = () =>
             {
                 _title.Close();
