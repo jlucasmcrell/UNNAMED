@@ -403,13 +403,6 @@ internal sealed partial class CombatSystem
             return "you cannot move";
         var attack = PlayerAttack();
         if (command.HoldDraw && !attack.Ranged) return "only a bow can hold a draw";
-        if (attack.Ranged)
-        {
-            _holdingDraw = command.HoldDraw;
-            _aimRegion = command.Region ?? BodyRegion.Torso;
-            _steadySince = tick + attack.WindupTicks;
-            _steadyFacing = State.Body.FacingMdeg;
-        }
         if (command.Region is { } region)
         {
             if (!Enum.IsDefined(region)) return "unknown body region";
@@ -427,6 +420,13 @@ internal sealed partial class CombatSystem
         if (Stamina() < attack.StaminaCost)
             return "too tired to attack";
         Exert(attack.StaminaCost, tick);
+        _holdingDraw = attack.Ranged && command.HoldDraw;
+        if (attack.Ranged)
+        {
+            _aimRegion = command.Region ?? BodyRegion.Torso;
+            _steadySince = tick + attack.WindupTicks;
+            _steadyFacing = State.Body.FacingMdeg;
+        }
         // A swing is not a fight: only a blow landed or taken marks the character as in one - or a swing at the air before each working
         // would make every working a challenged one (the Phase-1 technical audit, L-10).
         State.SetPlayerCombat(_owner, State.PlayerCombat with

@@ -132,18 +132,18 @@ internal sealed partial class CombatSystem
             if (!unaware && !Open(target, tick) && target.Action.PhaseAt(tick, C).Phase != CombatPhase.Staggered) return "needs an opening";
             attack = attack with { PlacedRegion = command.Region, PlacedTarget = target.Id, PlacedAsAmbush = unaware };
         }
-        if (technique.Kind == TechniqueKind.SteadyDraw)
-        {
-            _holdingDraw = true;
-            _aimRegion = command.Region;
-            _steadySince = tick + attack.WindupTicks;
-            _steadyFacing = State.Body.FacingMdeg;
-        }
         if (attack.Ranged && attack.AmmoDefId is { } ammo && !State.Inventory.Any(e => e.DefId == ammo))
             return $"no {ammo} to shoot";
         if (Stamina() < attack.StaminaCost)
             return $"too tired for {technique.Id}";
         Exert(attack.StaminaCost, tick);
+        _holdingDraw = technique.Kind == TechniqueKind.SteadyDraw;
+        if (_holdingDraw)
+        {
+            _aimRegion = command.Region;
+            _steadySince = tick + attack.WindupTicks;
+            _steadyFacing = State.Body.FacingMdeg;
+        }
         long readyAt = tick + technique.CooldownTicks;
         State.SetPlayerCombat(_owner, State.PlayerCombat with
         {
