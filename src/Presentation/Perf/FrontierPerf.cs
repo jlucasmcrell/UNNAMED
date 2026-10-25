@@ -33,6 +33,7 @@ public sealed class FrontierPerf
     private readonly (Godot.Environment Environment, bool Sdfgi)[] _environments = [];
     private readonly List<object> _armStates = [];
     private bool _applyArm;
+    private string? _armScreenshot;
 
     public string Directory { get; }
 
@@ -135,6 +136,7 @@ public sealed class FrontierPerf
         if (_elapsed < (_arms is null ? CaptureSeconds : 4)) return null;
         string shot = _arms is null ? $"yaw_{_heading * HeadingDegrees:000}" : "arm_" + _arms[_heading] + "_yaw270";
         var body = _controller.Authoritative;
+        _armScreenshot = _arms?[_heading];
         _stats.Mark($"{shot}: tick {_session.Simulation.WorldTick}, body {body.XMm},{body.YMm},{body.ZMm}");
         if (_arms is not null)
             _armStates.Add(new { arm = _arms[_heading], world_tick = _session.Simulation.WorldTick,
@@ -172,8 +174,20 @@ public sealed class FrontierPerf
     // Reassert only this diagnostic arm after the normal world draw has finished.
     public void ApplyRenderOverride()
     {
-        if (_arms is not null && !_finished && !_applyArm && _arms[_heading] == "sun_shadows_off")
+        // Until the next Update applies its arm, the end screenshot still belongs to the previous one.
+        if (_arms is not null && !_finished && _arms[Math.Max(0, _heading - (_applyArm ? 1 : 0))] == "sun_shadows_off")
             foreach (var (sun, _) in _suns) sun.ShadowEnabled = false;
+        if (_armScreenshot is { } shot)
+        {
+            File.AppendAllText(Path.Combine(Directory, "attribution_draw_boundary.jsonl"), JsonSerializer.Serialize(new
+            {
+                arm = shot, world_tick = _session.Simulation!.WorldTick,
+                visibility = _visibility.Select(v => new { path = v.Node.GetPath().ToString(), v.Node.Visible }).ToArray(),
+                suns = _suns.Select(v => new { path = v.Light.GetPath().ToString(), v.Light.ShadowEnabled }).ToArray(),
+                sdfgi = _environments.Select(v => v.Environment.SdfgiEnabled).ToArray(),
+            }) + "\n");
+            _armScreenshot = null;
+        }
     }
 
     public void Write()
