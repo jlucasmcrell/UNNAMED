@@ -1,4 +1,4 @@
-﻿// UNNAMED Presentation - boot, the frame loop, and input (ARCHITECTURE.md Â§2, Â§8.1; D-11)
+// UNNAMED Presentation - boot, the frame loop, and input (ARCHITECTURE.md Â§2, Â§8.1; D-11)
 // Godot presentation only: this file renders state and submits commands; it never writes state.
 
 using Godot;
@@ -1537,6 +1537,20 @@ public partial class Main : Node3D
     /// speed, clip state and combat phase, and every drawn NPC's speed and clip state - the evidence that ordinary play selects a
     /// state (the acceptance contract's G4), not that a clip merely loaded.
     /// </summary>
+    /// <summary>
+    /// How far the view lifts for the biggest foe fighting within 16 m: nothing for anything up to a bear's girth (0.8 m), rising with
+    /// body radius past it - the Gate Warden's 1.6 m lifts it 2.4 m. At eye height an 8 m construct is all knees, and on the Stopped Gate's
+    /// court the arm behind was pressed into the slope.
+    /// </summary>
+    private float GiantLift(Simulation simulation)
+    {
+        float lift = 0;
+        foreach (var c in simulation.Creatures)
+            if (c.Alive && c.Mind == World.CreatureMind.Engaged && Distance(c.Body, simulation.Player.Body) < 16_000)
+                lift = Math.Max(lift, Math.Clamp((_session.Setup.Combat.Creatures[c.DefId].RadiusMm / 1000f - 0.8f) * 3f, 0, 3f));
+        return lift;
+    }
+
     private void LogStates(Simulation simulation, double delta, float speed)
     {
         if (!_options.TryGetValue("--state-log", out var path))
@@ -1648,6 +1662,7 @@ public partial class Main : Node3D
         Probe("crafting/NPCs");
         _frontierPerf?.Phase("npcs", npcsStarted);
         LogStates(simulation, delta, speed);
+        _camera.Lift = GiantLift(simulation);
         if (!_innFreeCamera) _camera.Follow(_shots?.Viewpoint ?? _avatar.Position, delta);
         bool reviewCamera = _mhReviewDirectory is not null && GetViewport().GetCamera3D() != _camera.Camera;
         _avatar.SetFirstPerson(!reviewCamera && _camera.EffectiveDistance < 0.4f);

@@ -409,10 +409,10 @@ public class CreatureTests
         using var profile = new TempProfile();
         // South of the Foldscar's heart, the boar further south on the same line, on the basin's level floor. It holds its ground here
         // (a sentinel, for the test).
-        var arena = Armed(Harness.Boot(profile), (153, 45.5), 180, "item.weapon.hunting_bow", (Boar, 153, 35.7, "sentinel"));
+        var arena = Armed(Harness.Boot(profile), (153, 43.4), 180, "item.weapon.hunting_bow", (Boar, 153, 33.6, "sentinel"));
         var stunned = arena.Record<CreatureStunned>();
         var hits = arena.Record<HitResolved>();
-        Shoot(arena, (153, 35.7));
+        Shoot(arena, (153, 33.6));
 
         bool dodged = false;
         for (int i = 0; i < 200 && stunned.Count == 0; i++)
@@ -476,10 +476,10 @@ public class CreatureTests
         var tried = new List<string>();
         for (int delay = 0; delay <= 8; delay++)
         {
-            var arena = Armed(session, (153, 45.5), 180, "item.weapon.hunting_bow", (Boar, 153, 35.7, "sentinel"));
+            var arena = Armed(session, (153, 43.4), 180, "item.weapon.hunting_bow", (Boar, 153, 33.6, "sentinel"));
             var stunned = arena.Record<CreatureStunned>();
             var hits = arena.Record<HitResolved>();
-            Shoot(arena, (153, 35.7));
+            Shoot(arena, (153, 33.6));
             bool dodged = false;
             for (int i = 0; i < 200 && stunned.Count == 0; i++)
             {
@@ -518,9 +518,9 @@ public class CreatureTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = Armed(session, (153, 45.5), 180, "item.weapon.hunting_bow", (Boar, 153, 35.7, "sentinel"));
+        var arena = Armed(session, (153, 43.4), 180, "item.weapon.hunting_bow", (Boar, 153, 33.6, "sentinel"));
         var hits = arena.Record<HitResolved>();
-        Shoot(arena, (153, 35.7));
+        Shoot(arena, (153, 33.6));
         for (int i = 0; i < 200 && !hits.Any(h => h.Target == arena.Player); i++)
             arena.Tick();
         var charge = hits.First(h => h.Target == arena.Player);
@@ -765,9 +765,9 @@ public class CreatureTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = Armed(session, (153, 45.5), 180, "item.weapon.hunting_bow", (Boar, 153, 35.7, "sentinel"));
+        var arena = Armed(session, (153, 43.4), 180, "item.weapon.hunting_bow", (Boar, 153, 33.6, "sentinel"));
         var stunned = arena.Record<CreatureStunned>();
-        Shoot(arena, (153, 35.7));
+        Shoot(arena, (153, 33.6));
         bool dodged = false;
         for (int i = 0; i < 200 && stunned.Count == 0; i++)
         {

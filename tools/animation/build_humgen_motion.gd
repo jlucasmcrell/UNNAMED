@@ -144,10 +144,15 @@ func build() -> void:
     for key in range(animation.track_get_key_count(track)-1,-1,-1): animation.track_remove_key(track,key)
     for key in keys: animation.track_insert_key(track,key[0],key[1],key[2])
   var finger_error := 0.0
-  for track in animation.get_track_count():
+  for track in range(animation.get_track_count()-1,-1,-1):
    var path := animation.track_get_path(track)
    assert(path.get_subname_count()==1)
    var bone_name := path.get_subname(0)
+   # Body mocap jaw channels contain source-rest rotations, not facial motion.
+   # Keep the native mouth rest; FaceDriver/HumGenJaw owns facial articulation.
+   if bone_name in ["Jaw","UpperJaw"]:
+    animation.remove_track(track)
+    continue
    assert(rig.find_bone(bone_name)>=0)
    if animation.track_get_type(track)==Animation.TYPE_ROTATION_3D and ["Thumb","Index","Middle","Ring","Little"].any(func(part): return part in bone_name):
     var rest := rig.get_bone_rest(rig.find_bone(bone_name)).basis.get_rotation_quaternion()

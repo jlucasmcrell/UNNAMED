@@ -44,6 +44,22 @@ public class CraftingContentTests
     }
 
     [Fact]
+    public void EveryRecipeMeetsTheVendorMarginIncludingComposedInputs()
+    {
+        var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
+        Assert.True(CraftingContent.CheckRecipeMargins(ItemContent.BuildCatalog(loader), ItemContent.BuildPricing(loader), CraftingContent.BuildRecipes(loader)));
+        Assert.DoesNotContain(loader.Errors, e => e.Code == "CRF001");
+    }
+
+    [Fact]
+    public void AnOverpricedOutputIsRefused() =>
+        AssertRefused("items/material/iron_ingot.yaml", "value_base: 9", "value_base: 9999", "recipe.smithing.iron_billet");
+
+    [Fact]
+    public void CheapRawInputsAlsoExposeAnUnsafeComposedRecipe() =>
+        AssertRefused("items/material/iron_ore.yaml", "value_base: 5", "value_base: 1", "recipe.smithing.march_spear");
+
+    [Fact]
     public void TheGamesCrafting_IsItsNodesAndRecipes()
     {
         var crafting = CraftingContent.Build(Load(Path.Combine(RepoPaths.Root(), "content")));

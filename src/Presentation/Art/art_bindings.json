@@ -5820,6 +5820,8 @@
   "item.story.glass_marble": "ui.item.glass_marble",
   "item.story.stopped_watch": "ui.item.stopped_watch",
   "item.story.unreadable_page": "ui.item.unreadable_page",
+  "item.heritage.kept_roll": "ui.item.kept_roll",
+  "item.heritage.record_stone": "ui.item.record_stone",
   "panel.chat": "ui.panel.chat",
   "panel.reputation": "ui.panel.reputation",
   "panel.credits": "ui.panel.credits",

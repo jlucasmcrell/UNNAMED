@@ -636,6 +636,8 @@ internal sealed partial class PetSystem : IAbstractAdvance
         if (!CombatRules.InFront(pet.Body.XMm, pet.Body.ZMm, pet.Body.FacingMdeg, prey.Body.XMm, prey.Body.ZMm,
                 attack.ReachMm + prey.Definition.RadiusMm, C.MeleeArcMdeg) || Walled(pet.Body, prey.Body))
             return pet with { Action = action with { Struck = action.Struck.Add(prey.Id) }, NextAttackTick = tick + attack.TotalTicks };
+        if (!CombatRules.CanAttemptAttack(pet.Id, prey.Id,
+                new(pet.Health > 0, prey.Alive, prey.Site.Space == State.Space))) return pet;
         var defense = new DefenseProfile(prey.ScaledMaxHealth, prey.Definition.Armor, prey.Definition.Resistances, Blocking: false, Dodging: false);
         var strike = new Strike(attack, PetSkills.DamageMultiplier(PetSkills.Of(pet.Skills, PetSkillKind.Bite)), C.BaseCritPercent, 1.0);
         var result = CombatRules.Resolve(strike, defense, C, Random(pet.Key, prey.Key, prey.Body, tick));
@@ -668,6 +670,8 @@ internal sealed partial class PetSystem : IAbstractAdvance
         var attack = prey.Definition.Attack;
         if (Distance(pet.Body, prey.Body) > attack.ReachMm + prey.Definition.RadiusMm || Walled(pet.Body, prey.Body))
             return pet with { NextStruckTick = tick + C.OutOfCombatTicks };
+        if (!CombatRules.CanAttemptAttack(prey.Id, pet.Id,
+                new(prey.Alive, pet.Health > 0, prey.Site.Space == State.Space))) return pet;
         var defense = Defense(pet);
         var result = CombatRules.Resolve(new Strike(attack, prey.ScaleDamage, C.BaseCritPercent, 1.0), defense, C, Random(prey.Key, pet.Key, pet.Body, tick));
         int health = Math.Max(0, pet.Health - result.Final);

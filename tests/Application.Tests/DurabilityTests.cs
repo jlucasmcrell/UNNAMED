@@ -212,21 +212,21 @@ public class DurabilityTests
         var session = Harness.Boot(profile);
         var arena = At(session, AtKera, r => Kit(r, session.Setup, 20,
             new[] { Stack(Sword, quality: Quality.Crude, wear: new ItemWear(200, Quality.Fine)), Stack(Spear, quality: Quality.Fine, wear: new ItemWear(100, Quality.Fine)),
-                Stack("item.material.wolf_hide", 2) }, Sword));
+                Stack("item.material.wolf_hide", 3) }, Sword));
         var repaired = arena.Record<ItemRepaired>();
         var sword = Carried(arena, Sword).ItemId;
         var spear = Carried(arena, Spear).ItemId;
-        // Her purse starts full, and what would overfill it leaves the town: sell her two hides first, to make room.
-        Assert.Null(arena.Submit(new SellCommand(arena.Player, Kera, Carried(arena, "item.material.wolf_hide").ItemId, 2)));
+        // Her purse starts full, and what would overfill it leaves the town: sell her three hides first, to make room for the quality-priced repair.
+        Assert.Null(arena.Submit(new SellCommand(arena.Player, Kera, Carried(arena, "item.material.wolf_hide").ItemId, 3)));
         long purse = arena.Simulation.Wares(Kera)!.Purse!.Value, coin = arena.Simulation.Player.Currency;
 
         var quote = arena.Simulation.RepairQuote(Kera, sword)!;
-        Assert.Equal((6L, Quality.Standard), (quote.Fee, quote.Quality));   // 15 x 40% at full wear
+        Assert.Equal((8L, Quality.Standard), (quote.Fee, quote.Quality));   // fine as-made value 18 x 40%, rounded up at full wear
         Assert.Null(arena.Submit(new MerchantRepairCommand(arena.Player, Kera, sword)));
         Assert.Equal((Quality.Standard, new ItemWear(0, Quality.Fine)), (Carried(arena, Sword).Quality, Carried(arena, Sword).Wear));
-        Assert.Equal(coin - 6, arena.Simulation.Player.Currency);
-        Assert.Equal(purse + 6, arena.Simulation.Wares(Kera)!.Purse);
-        Assert.Equal((Kera, 6L), (repaired.Single().By, repaired[0].Coin));
+        Assert.Equal(coin - 8, arena.Simulation.Player.Currency);
+        Assert.Equal(purse + 8, arena.Simulation.Wares(Kera)!.Purse);
+        Assert.Equal((Kera, 8L), (repaired.Single().By, repaired[0].Coin));
 
         // Not yet worn out, a piece keeps the quality it has.
         Assert.Equal(Quality.Fine, arena.Simulation.RepairQuote(Kera, spear)!.Quality);
@@ -238,14 +238,16 @@ public class DurabilityTests
         Assert.Null(arena.Simulation.RepairQuote(Renn, sword));
     }
 
-    [Fact]
-    public void ATrader_PaysLessForAWornPiece_AndMendingItToSellItNeverGains()
+    [Theory]
+    [InlineData(Quality.Standard)]
+    [InlineData(Quality.Fine)]
+    public void ATrader_PaysLessForAWornPiece_AndMendingItToSellItNeverGains(int madeQuality)
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = At(session, AtKera, r => Kit(r, session.Setup, 50, new[] { Stack(Sword, quality: Quality.Crude, wear: new ItemWear(200, Quality.Standard)) }, Sword));
+        var arena = At(session, AtKera, r => Kit(r, session.Setup, 50, new[] { Stack(Sword, quality: Quality.Crude, wear: new ItemWear(200, madeQuality)) }, Sword));
         var sword = Carried(arena, Sword);
-        long whole = arena.Simulation.Offer(Kera, Sword)!.Value, worn = arena.Simulation.Offer(Kera, Sword, sword.Wear)!.Value;
+        long whole = arena.Simulation.Offer(Kera, Sword, quality: madeQuality)!.Value, worn = arena.Simulation.Offer(Kera, Sword, sword.Wear, sword.Quality, sword.Notable)!.Value;
         long fee = arena.Simulation.RepairQuote(Kera, sword.ItemId)!.Fee;
         Assert.True(worn < whole);
         Assert.True(whole - worn <= fee, $"mending costs {fee} and raises the offer by {whole - worn}");

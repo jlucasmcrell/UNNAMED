@@ -30,26 +30,38 @@ END = "# FIELD_RUINS END"
 # Otherfire is violet at the Spill (owner, 2026-10-24: the colour of anything that bends reality); it goes out when its switch is set.
 VIOLET = {"light": {"at": [0, 5.5, 0], "colour": [0.62, 0.3, 1.0], "energy": 3.0, "range": 16, "shadows": False}, "set_goes_dark": True}
 NEEDLE_FIRE = {"light": {"at": [-14, 4, 0], "colour": [0.62, 0.3, 1.0], "energy": 4.0, "range": 26, "shadows": False}, "set_goes_dark": True}
+
+
+def iron(tint):
+    """Firstfold iron worn over a piece's own relief (make_firstfold_iron.py), its edges chipped, each kind of piece its own tone."""
+    return {"surface": "material_firstfold_iron", "surface_tint": tint, "edge_wear": 0.8}
+
+
+# The east lane runs between the north rib and the Needle, and at noon the Needle's shade fills it. The sun's bounce off the lit iron
+# and grass is put back by a fill hung off the rib (not the Needle, whose lights go out with its switch), as strong as the day.
+LANE_BOUNCE = {"light_world": [890.0, 9.0, 729.5], "light": {"colour": [1.0, 0.96, 0.88], "energy": 1.6, "range": 30, "shadows": False,
+                                                          "daylight": -1}}
+
 LAYOUT = [
-    ("fs_needle", "ruin_fs_needle", 890.0, 752.0, "metal", NEEDLE_FIRE),
+    ("fs_needle", "ruin_fs_needle", 890.0, 752.0, "metal", NEEDLE_FIRE | iron([0.82, 0.84, 0.9])),
     ("fs_gate", "ruin_fs_gate", 850.0, 758.0, "metal", {}),
     ("fs_anchor_west", "ruin_fs_anchor", 836.0, 760.0, "metal", VIOLET),
     ("fs_anchor_northeast", "ruin_fs_anchor", 858.5, 745.0, "metal", VIOLET),
     ("fs_anchor_south", "ruin_fs_anchor", 853.0, 771.5, "metal", VIOLET),
     ("fs_panel", "ruin_fs_panel", 846.0, 737.0, "stone", {}),
-    ("fs_colonnade", "ruin_fs_colonnade", 834.0, 730.5, "metal", {}),
-    ("fs_frame_north", "ruin_fs_frame", 821.0, 744.0, "metal", {}),
-    ("fs_frame_south", "ruin_fs_frame", 821.0, 770.0, "metal", {}),
-    ("fs_slab", "ruin_fs_slab", 834.0, 701.0, "stone", {}),
-    ("fs_block", "ruin_fs_block", 814.0, 786.0, "stone", {}),
-    ("fs_rib_north", "ruin_fs_rib_a", 893.0, 699.0, "metal", {}),
-    ("fs_rib_east", "ruin_fs_rib_c", 897.0, 784.4, "metal", {}),
-    ("fs_pylon_a", "ruin_fs_pylon_a", 862.0, 718.0, "metal", {}),
-    ("fs_pylon_b", "ruin_fs_pylon_b", 868.0, 790.0, "metal", {}),
-    ("fs_pylon_c", "ruin_fs_pylon_c", 842.0, 790.0, "metal", {}),
-    ("fs_stub_a", "ruin_fs_stub_a", 832.0, 750.0, "metal", {}),
-    ("fs_stub_b", "ruin_fs_stub_b", 868.0, 772.0, "metal", {}),
-    ("fs_stub_c", "ruin_fs_stub_c", 840.0, 716.0, "metal", {}),
+    ("fs_colonnade", "ruin_fs_colonnade", 834.0, 730.5, "metal", iron([1.12, 1.08, 1.02])),
+    ("fs_frame_north", "ruin_fs_frame", 821.0, 744.0, "metal", iron([1.12, 1.08, 1.02])),
+    ("fs_frame_south", "ruin_fs_frame", 821.0, 770.0, "metal", iron([1.12, 1.08, 1.02])),
+    ("fs_slab", "ruin_fs_slab", 834.0, 701.0, "stone", iron([1.06, 1.0, 0.94])),
+    ("fs_block", "ruin_fs_block", 814.0, 786.0, "stone", iron([1.06, 1.0, 0.94])),
+    ("fs_rib_north", "ruin_fs_rib_a", 893.0, 699.0, "metal", iron([0.92, 0.96, 1.06]) | LANE_BOUNCE),
+    ("fs_rib_east", "ruin_fs_rib_c", 897.0, 784.4, "metal", iron([0.92, 0.96, 1.06])),
+    ("fs_pylon_a", "ruin_fs_pylon_a", 862.0, 718.0, "metal", iron([1.0, 1.0, 1.0])),
+    ("fs_pylon_b", "ruin_fs_pylon_b", 868.0, 790.0, "metal", iron([1.0, 1.0, 1.0])),
+    ("fs_pylon_c", "ruin_fs_pylon_c", 842.0, 790.0, "metal", iron([1.0, 1.0, 1.0])),
+    ("fs_stub_a", "ruin_fs_stub_a", 832.0, 750.0, "metal", iron([0.95, 0.95, 0.97])),
+    ("fs_stub_b", "ruin_fs_stub_b", 868.0, 772.0, "metal", iron([0.95, 0.95, 0.97])),
+    ("fs_stub_c", "ruin_fs_stub_c", 840.0, 716.0, "metal", iron([0.95, 0.95, 0.97])),
 ]
 
 SWITCHES = [
@@ -175,7 +187,11 @@ def main():
         entry = {"model": asset, "material": material}
         if np.hypot(*drift) > 0.01:
             entry["offset"] = [round(-float(drift[0]), 3), 0, round(-float(drift[1]), 3)]
-        entry.update(extra)
+        entry.update({k: v for k, v in extra.items() if k != "light_world"})
+        if "light_world" in extra:
+            # A light given in world metres, put into the model's own frame (its origin sits box_centre from the box's centre).
+            wx, wy, wz = extra["light_world"]
+            entry["light"] = {"at": [round(wx - (x - box_centre[0]), 2), wy, round(wz - (z - box_centre[1]), 2)], **extra["light"]}
         bindings[sid] = entry
         shapes.append((sid, world))
 

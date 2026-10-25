@@ -200,7 +200,7 @@ internal sealed class QuestSystem : IQuestFacts, IAbstractAdvance
     {
         if (command.Actor != _player)
             return $"unknown actor {command.Actor}";
-        foreach (var quest in Setup.Quests.Values.Where(q => q.OnNewGame && !State.Quests.ContainsKey(q.Id)))
+        foreach (var quest in Setup.Quests.Values.Where(q => q.OnNewGame && (q.PeopleId is null || q.PeopleId == _context.PlayerPeople) && !State.Quests.ContainsKey(q.Id)))
             Handle(new StartQuest(quest.Id, null), tick);
         return null;
     }
@@ -264,6 +264,8 @@ internal sealed class QuestSystem : IQuestFacts, IAbstractAdvance
     {
         if (!Setup.Quests.TryGetValue(command.QuestId, out var quest))
             return $"there is no quest {command.QuestId}";
+        if (quest.PeopleId is { } people && people != _context.PlayerPeople)
+            return $"{quest.Title} is {Domain.Items.HeritageRules.PeopleWord(people)} heritage";
         // A repeatable quest, once its repeat time has passed since it ended, starts afresh over its last record.
         if (State.Quests.TryGetValue(quest.Id, out var last) && !QuestRules.CanStart(quest, last, tick))
             return $"{quest.Title} is already {QuestKeys.Key(last.Status)}";
@@ -379,6 +381,10 @@ internal sealed class QuestSystem : IQuestFacts, IAbstractAdvance
                         _context.Dispatch(new ChangeRelationship(quest.CompanionId!, dimension, delta, quest.Id));
                     (what, named, amount) = ($"{quest.CompanionId} {string.Join(", ", approval.Changes.Select(c => $"{c.Key} {c.Value:+#;-#}"))}", quest.CompanionId,
                         approval.Changes.Values.Sum());
+                    break;
+                case TitleReward title:
+                    // Read from the completed quest wherever it is shown (Simulation.Titles): nothing to grant.
+                    (what, named, amount) = (title.Text, null, 1);
                     break;
                 case ReputationReward reputation:
                     _context.Dispatch(new GrantStanding(reputation.FactionId, reputation.Delta, quest.Id));

@@ -70,6 +70,22 @@ public class CharacterCreationTests
 
     [Theory]
     [MemberData(nameof(Calls))]
+    public void ANewVeth_CarriesTheKeptRoll_OverTheCallsKit_AndNeverWearsIt(string callId)
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var spec = new CharacterSpec("Wenna Lind", Pronouns.She, "people.veth", "body.veth_f.lean", callId);
+
+        var record = session.NewGame(spec, seed: 42).CaptureRecord();
+
+        var roll = Assert.Single(record.Inventory, e => e.DefId == "item.heritage.kept_roll");
+        Assert.Equal(1, roll.Count);
+        Assert.DoesNotContain(roll.ItemId, record.Equipment.Values);
+        Assert.All(session.Characters.Calls[callId].Kit, k => Assert.Contains(record.Inventory, e => e.DefId == k.ItemId));
+    }
+
+    [Theory]
+    [MemberData(nameof(Calls))]
     public void ACharacterFromTheCreator_RoundTripsThroughASave_IdentityAndAll(string callId)
     {
         using var profile = new TempProfile();
@@ -101,7 +117,7 @@ public class CharacterCreationTests
         Assert.Equal(CharacterIdentity.BeforeTheCreator, record.Identity);
         Assert.Empty(record.Progression.Grants);
         Assert.Empty(record.Relationships);
-        Assert.Equal(new[] { "item.consumable.salve_minor", "item.story.folded_note", "item.tool.water_flask", "item.weapon.rusted_sword" },
+        Assert.Equal(new[] { "item.consumable.salve_minor", "item.heritage.kept_roll", "item.story.folded_note", "item.tool.water_flask", "item.weapon.rusted_sword" },
             record.Inventory.Select(e => e.DefId).Order(StringComparer.Ordinal));
     }
 

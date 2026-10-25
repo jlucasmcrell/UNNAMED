@@ -10,7 +10,7 @@ category: armor
 item_class: ordinary
 stack_max: 1
 weight: 7.0
-value_base: 100
+value_base: 71
 slot: chest
 armor_value: 10
 material_class: plate

@@ -11,6 +11,7 @@ using UNNAMED.Domain.Economy;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Pets;
 using UNNAMED.Domain.Progression;
+using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Domain.Travel;
@@ -284,7 +285,7 @@ public sealed class Simulation
         _state = new RuntimeState(world, worldTick, new Body(player.XMm, player.YMm, player.ZMm, player.FacingMdeg), player,
             setup.Layout.SpaceId);
         var bus = new SimulationEvents(events);
-        _context = new SystemContext(_state, setup, bus, Dispatch);
+        _context = new SystemContext(_state, setup, bus, Dispatch) { PlayerPeople = player.Identity.PeopleId };
         // Everything carried is an instance like any other: the registry knows it, and an ID held twice is an error (D-10).
         foreach (var entry in player.Inventory)
         {
@@ -444,11 +445,11 @@ public sealed class Simulation
     /// starting kit (PROTOTYPE.md Â§5 step 1: the sword equipped), and no Call.
     /// </summary>
     public static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, ulong appearanceSeed) =>
-        NewCharacter(setup, id, name, null, appearanceSeed, null, null);
+        NewCharacter(setup, id, name, null, [], appearanceSeed, null, null);
 
     /// <summary>
     /// A new character made from the creator's spec: the starting package and kit, plus its Call's package, kit and contact (accepted
-    /// OD-C03). The spec must name a playable people and, if any, a defined Call.
+    /// OD-C03), and its people's heritage. The spec must name a playable people and, if any, a defined Call.
     /// </summary>
     /// <param name="atXMm">Where a capture stands the character; null uses the region's spawn, as every ordinary run does.</param>
     /// <param name="atZMm">The other half of <paramref name="atXMm"/>.</param>
@@ -458,12 +459,13 @@ public sealed class Simulation
         spec = spec.Validated();
         setup.Character.Check(spec);
         var call = spec.CallId is { } callId ? setup.Character.Calls[callId] : null;
+        var heritage = setup.Character.Peoples[spec.PeopleId].Heritage;
         var start = spec.Start == StartPoint.Road ? setup.Layout.Opening ?? setup.Layout.Spawn : setup.Layout.Spawn;
-        return NewCharacter(setup, id, spec.Name, call, appearanceSeed, start, atXMm, atZMm) with { Identity = CharacterIdentity.Of(spec) };
+        return NewCharacter(setup, id, spec.Name, call, heritage, appearanceSeed, start, atXMm, atZMm) with { Identity = CharacterIdentity.Of(spec) };
     }
 
-    private static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, CallDefinition? call, ulong appearanceSeed,
-        Body? start = null, long? atXMm = null, long? atZMm = null)
+    private static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, CallDefinition? call, ImmutableArray<StartingItem> heritage,
+        ulong appearanceSeed, Body? start = null, long? atXMm = null, long? atZMm = null)
     {
         var spawn = start ?? setup.Layout.Spawn;
         // A capture opens the character where it asked to rather than walking him there, which in the Barrowworks
@@ -471,7 +473,7 @@ public sealed class Simulation
         // untouched - the road start still decides where a character is made.
         long xMm = atXMm ?? spawn.XMm;
         long zMm = atZMm ?? spawn.ZMm;
-        var lines = call is null ? setup.Items.StartingKit : setup.Items.StartingKit.AddRange(call.Kit);
+        var lines = (call is null ? setup.Items.StartingKit : setup.Items.StartingKit.AddRange(call.Kit)).AddRange(heritage);
         // A notable piece of the kit carries its record from the start (WP3a).
         var kit = lines.Select(item => (Item: item, Entry: new InventoryEntry(EntityId.NewId(EntityKind.Item), item.ItemId, item.Count)
         {
@@ -742,7 +744,8 @@ public sealed class Simulation
             .Select(_inventory.View).ToImmutableArray();
 
     /// <summary>What a trader would pay for one of an item now (WP14); null when they do not trade, or do not buy it.</summary>
-    public long? Offer(string npcId, string itemId, ItemWear? wear = null) => _trade.Offer(npcId, itemId, wear);
+    public long? Offer(string npcId, string itemId, ItemWear? wear = null, int quality = 0, NotableRecord? notable = null) =>
+        _trade.Offer(npcId, itemId, wear, quality, notable);
 
     /// <summary>What a trader would charge to mend a carried piece now (WP3b); null when they do not repair, or it needs none.</summary>
     public RepairQuote? RepairQuote(string npcId, EntityId item) => _trade.RepairQuote(npcId, item);
@@ -784,8 +787,13 @@ public sealed class Simulation
     /// <summary>Where the compass marks a quest's current beat, when the character knows where that is.</summary>
     public QuestMarker? Marker(string questId) => _quests.Marker(questId);
 
-    /// <summary>Whether a new game has a story to begin: some quest starts for every new character (<c>on_new_game</c>).</summary>
-    public bool HasOpeningQuests => Setup.Quests.Quests.Values.Any(q => q.OnNewGame);
+    /// <summary>What the character is called for what they have finished (<c>title</c> rewards of completed quests), in the order they were earned.</summary>
+    public ImmutableArray<string> Titles =>
+        _state.Quests.Values.Where(q => q.Status == QuestStatus.Completed && Setup.Quests.Quests.ContainsKey(q.QuestId)).OrderBy(q => q.EndedTick)
+            .SelectMany(q => Setup.Quests.Quests[q.QuestId].Rewards.OfType<TitleReward>()).Select(t => t.For(_identity.Name)).ToImmutableArray();
+
+    /// <summary>Whether a new game has a story to begin: some quest starts for a new character of this people (<c>on_new_game</c>).</summary>
+    public bool HasOpeningQuests => Setup.Quests.Quests.Values.Any(q => q.OnNewGame && (q.PeopleId is null || q.PeopleId == _identity.Identity.PeopleId));
 
     /// <summary>The quest debugger (M5): what a quest is waiting on right now, every term's value, and its recent trace.</summary>
     public QuestDiagnosis Diagnose(string questId) => _debugger.Diagnose(questId);
@@ -988,10 +996,7 @@ public sealed class Simulation
     }
 
     /// <summary>
-    /// A room for the night (spec 15): the keeper's own town keeps the inn, the room costs what that inn asks, and the sleep is the world's
-    /// own advance to the hour the character asked to be woken at - the same catch-up an absence takes, so the adventurers' trips, the
-    /// markets and the boards come out of it exactly as they would have while they were away. Nothing else changes: a room is a safe place to
-    /// stop, not a cure.
+    /// Paid inn rest restores the character without advancing the shared world (DN8; owner ruling 2026-10-24).
     /// </summary>
     private string? RentRoom(RentRoom command)
     {
@@ -1002,19 +1007,17 @@ public sealed class Simulation
             return "there is no room to let here";
         if (inn.KeeperId != command.KeeperId)
             return "no one keeps a room here";
-        if (command.Hour is < 0 or > 23)
-            return "a room is let until an hour of the day";
+        if (_state.PlayerCombat.Defeated || _combat.View().InCombat)
+            return "you cannot rest while fighting or downed";
         if (inn.RoomCoin > _state.Currency)
             return $"not enough coin: the room is {inn.RoomCoin}, {_state.Currency} carried";
         if (Dispatch(new SpendCurrency(inn.RoomCoin)) is { } refused)
             return refused;
-        long nowHour = Setup.Clock.Hour(WorldTick);
-        long ahead = ((command.Hour - nowHour % Setup.Clock.HoursPerDay) % Setup.Clock.HoursPerDay + Setup.Clock.HoursPerDay) % Setup.Clock.HoursPerDay;
-        long wake = Setup.Clock.TickOfHour(nowHour + (ahead == 0 ? Setup.Clock.HoursPerDay : ahead));
-        Advance(wake - WorldTick);
+        Dispatch(new Heal(PlayerId, "inn rest", _combat.MaxHealth()));
+        Dispatch(new ChangePools(0, _combat.MaxStamina()));
         _context.Events.Publish(new RoomRented(command.KeeperId,
             _state.Npcs.TryGetValue(command.KeeperId, out var keeper) ? keeper.Definition.Name : command.KeeperId,
-            settlement, command.Hour, wake, inn.RoomCoin, WorldTick));
+            settlement, inn.RoomCoin, WorldTick));
         return null;
     }
 

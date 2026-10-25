@@ -5,16 +5,19 @@ display_key: lore.tavar_and_the_fold.title
 tags: [lore, places]
 title: Tavar and the Fold
 category: places
-notes: "The Foldscar and the fold that held Tavar Orr, in three pages (spec 41 §5): the ring walked into, Tavar's own account from inside it, and the heart steadied. Canon - content/regions/ashen_hollow.yaml's three Quiet Stones and heart, Sel Arien's lines, Tavar's greeting, and VFX_FINISH.md's description of the doubling and the delayed shadow. The told page is heard only once the fold is quiet, which is why the quest's page can be found before it."
+notes: "The Foldscar and the fold that held Tavar Orr, in three pages (spec 41 §5): the ring walked into, Tavar's own account from inside it, and the heart steadied. Canon - content/regions/ashen_hollow.yaml's three Quiet Stones and heart, Sel Arien's lines, Tavar's greeting, and VFX_FINISH.md's description of the doubling and the delayed shadow; the stones' height, the heart's hanging half and the bent light in its break are the owner-approved grand-scale answers GS-1 and GS-2 (2026-10-24, GRAND_SCALE_PROPOSAL.md 2.1). The told page is heard only once the fold is quiet, which is why the quest's page can be found before it."
 pages:
   - page: 1
     text: >
       The ruin is a basin with three standing stones set round a patch of ground that is not quite empty. The
-      stones were turned out of line. The ground inside the ring holds a slight doubling, as though everything
-      in it had been drawn twice and the second drawing was a moment behind; a shadow across the sun stands
-      aside from the feet it belongs to. Sound arrives late there. This is the first place on the road where the
-      frontier stops behaving like a frontier, and it does so quietly, without noise or light, which is worse.
-      Beneath it all the doubling is a habit of the ground, not of any one thing standing on it.
+      stones are dressed and carved, each as tall as eight people, and they were turned out of line. At the
+      middle stands the heart: the foot of a broken monolith of dark polished stone, and over it, upside down
+      and turned off true, the rest of it, hanging where nothing holds it, with pieces of the break stopped in
+      the air between. Through the gap the far side bends, edged in violet. The ground inside the ring holds a slight doubling, as though everything in it had been
+      drawn twice and the second drawing was a moment behind; a shadow across the sun stands aside from the feet
+      it belongs to. Sound arrives late there. This is the first place on the road where the frontier stops
+      behaving like a frontier, and it does so quietly, without noise and with no light of its own, which is
+      worse. Beneath it all the doubling is a habit of the ground, not of any one thing standing on it.
     sources:
       - { how: visited, ref: location.foldscar }
   - page: 2
@@ -33,7 +36,9 @@ pages:
       What steadied it, recorded as it happened. The three Quiet Stones were turned square to the ring, the
       north, then the south-west, then the south-east, and the heart of the Foldscar was steadied last. The ring
       went quiet all at once. The doubling thinned and closed into register over the following seconds, Tavar's
-      shadow slid home under him, and the sound of the place began arriving on time. The stones hold their light.
+      shadow slid home under him, and the sound of the place began arriving on time. The pieces stopped in the air
+      came down, and the bent light went out of the gap. The stones hold their light. The upper half of the heart
+      did not come down; it hangs where it hung, single now and still.
       Nothing about the ring explains itself any better for having been worked; Sel Arien's measure went back on
       the table and her guesses stayed guesses. What changed is that the ruin is now a place a person can stand in.
     sources:

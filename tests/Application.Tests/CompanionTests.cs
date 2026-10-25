@@ -267,7 +267,7 @@ public class CompanionTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         // South of the Foldscar's heart, on the basin's level floor: the character, Tavar a step in front, and the boar further south.
-        var arena = With(session, (153, 45.5), Joined(153, 44.7, CompanionOrder.Wait), new[] { ("creature.beast.bristleback_boar", 153.0, 35.7, "sentinel") },
+        var arena = With(session, (153, 43.4), Joined(153, 42.6, CompanionOrder.Wait), new[] { ("creature.beast.bristleback_boar", 153.0, 33.6, "sentinel") },
             r => r.WithInventory(r.Inventory.Add(Arena.Stack(Bow, 1)).Add(Arena.Stack(Arrows, 10))));
         var charged = arena.Record<AttackStarted>();
         Assert.Null(arena.Submit(new EquipCommand(arena.Player, arena.Simulation.Player.Inventory.Single(e => e.DefId == Bow).ItemId)));

@@ -168,10 +168,11 @@ void fragment() {
     // Keep refraction on the opaque screen copy, but let the boundary read over sky and transparent foliage too.
     float edge = pow(1.0 - facing, 2.2);
     float contact = 1.0 - smoothstep(0.01, 0.035, h);
-    colour = mix(colour, vec3(0.50, 0.57, 0.80), clamp(edge * 0.65 + contact * 0.55, 0.0, 0.7));
+    // Violet: the colour of the Rift tear, kept for whatever bends reality (owner, 2026-10-24).
+    colour = mix(colour, vec3(0.62, 0.50, 0.86), clamp(edge * 0.65 + contact * 0.55, 0.0, 0.7));
     float pulse = .75 + .25 * sin(TIME * 2.5 - h * 5.0);
     float bands = pow(.5 + .5 * sin(h * 28.0 - TIME * .7 + ragged * 3.0), 12.0);
-    vec3 light = vec3(.25,.6,1.0) * (edge * .9 + contact * 2.0 + bands * .45) * (pulse + reaction * 1.8 + proximity * .25);
+    vec3 light = vec3(.58,.3,1.0) * (edge * .9 + contact * 2.0 + bands * .45) * (pulse + reaction * 1.8 + proximity * .25);
     ALBEDO = colour + light;
     EMISSION = light * 3.0;
     ALPHA = clamp(body * top * foot * held * .14 + (edge * .55 * foot + contact * .7 + bands * .2 * foot) * top + reaction * .12 * top * foot, 0.0, .75) * presence;
@@ -183,9 +184,10 @@ void fragment() {
     /// <summary>
     /// A model wearing a world material over its own relief (Phase B, B0.6): the material's colour, roughness and metal laid triplanar in
     /// the world at its tile size, the model's baked normal and occlusion keeping its carving, and a faint cold light kept in the deepest
-    /// grooves, breathing slowly - worked stone whose purpose is not obvious, not a lamp.
+    /// grooves, breathing slowly - worked stone whose purpose is not obvious, not a lamp. With <paramref name="edgeWear"/>, the relief's
+    /// edges (where its baked normal turns hardest) are chipped back to bright metal wherever the material's alpha lets them.
     /// </summary>
-    public static void Wear(Node3D model, Art.WorldMaps maps, Color tint, Color groove, float glow)
+    public static void Wear(Node3D model, Art.WorldMaps maps, Color tint, Color groove, float glow, float edgeWear = 0)
     {
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
         {
@@ -206,6 +208,7 @@ void fragment() {
                 worn.SetShaderParameter("groove_colour", new Vector3(groove.R, groove.G, groove.B));
                 worn.SetShaderParameter("tint", new Vector3(tint.R, tint.G, tint.B));
                 worn.SetShaderParameter("groove_glow", glow);
+                worn.SetShaderParameter("edge_wear", edgeWear);
                 mesh.SetSurfaceOverrideMaterial(s, worn);
             }
         }
@@ -344,6 +347,7 @@ uniform bool has_relief_ao = false;
 uniform vec3 groove_colour = vec3(0.45, 0.55, 1.0);
 uniform vec3 tint = vec3(1.0);
 uniform float groove_glow = 0.5;
+uniform float edge_wear = 0.0;
 varying vec3 world_pos;
 varying vec3 world_normal;
 
@@ -359,8 +363,15 @@ void vertex() {
 }
 
 void fragment() {
-    vec3 albedo = triplanar(surface_albedo, world_pos, world_normal).rgb;
+    vec4 surface = triplanar(surface_albedo, world_pos, world_normal);
+    vec3 albedo = surface.rgb;
     vec3 orm = has_surface_orm ? triplanar(surface_orm, world_pos, world_normal).rgb : vec3(1.0, 0.6, 0.0);
+    if (edge_wear > 0.0 && has_relief_normal) {
+        vec3 relief = texture(relief_normal, UV).rgb * 2.0 - 1.0;
+        float chipped = smoothstep(0.12, 0.45, 1.0 - relief.z) * smoothstep(0.6, 0.2, surface.a) * edge_wear;
+        albedo = mix(albedo, albedo * 2.6 + vec3(0.05), chipped);
+        orm.gb = mix(orm.gb, vec2(0.3, 0.9), chipped);
+    }
     float ao = has_relief_ao ? texture(relief_ao, UV).r : 1.0;
     ALBEDO = albedo * tint * mix(0.45, 1.0, ao);
     // A polished stone, not a mirror: the carving reads through the highlights.

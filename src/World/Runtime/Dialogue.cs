@@ -248,8 +248,8 @@ internal sealed class DialogueSystem : IDialogueFacts
             case ReportActConsequence report:
                 _context.Dispatch(new ReportAct(report.Kind, report.Subject, open.NpcId));
                 break;
-            case RentRoomConsequence room:
-                _context.Dispatch(new RentRoom(open.NpcId, room.Hour));
+            case RentRoomConsequence:
+                _context.Dispatch(new RentRoom(open.NpcId));
                 break;
             case TellLoreConsequence told:
                 _context.Dispatch(new TellLore(_player, told.EntryId, open.DialogueId));
@@ -311,6 +311,8 @@ internal sealed class DialogueSystem : IDialogueFacts
     public bool Near(string locationId, long? radiusMm) =>
         _context.Setup.Layout.Locations.FirstOrDefault(l => l.Id == locationId) is { } place
         && Math.Sqrt(Math.Pow(State.Body.XMm - place.XMm, 2) + Math.Pow(State.Body.ZMm - place.ZMm, 2)) <= (radiusMm ?? place.DiscoveryRadiusMm);
+
+    public string? People => _context.PlayerPeople;
 
     public string QuestState(string questId, string? objectiveId)
     {
@@ -403,5 +405,7 @@ internal sealed class DialogueSystem : IDialogueFacts
         public long Now => _system.Now;
 
         public bool Near(string locationId, long? radiusMm) => _system.Near(locationId, radiusMm);
+
+        public string? People => _system.People;
     }
 }

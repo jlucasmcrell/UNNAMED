@@ -43,6 +43,9 @@ public class SocialContentTests
         Assert.Contains(loader.Errors, e => e.Code == "SOC001" && e.Message.Contains(mentions, StringComparison.Ordinal));
     }
 
+    [Fact]
+    public void InnRestCannotPromiseAWorldTimeSkip() =>
+        AssertRefused("dialogue/ashen_hollow/renn_vale.yaml", "command: rent_room }", "command: rent_room, hour: 6 }", "without choosing a world hour");
     [Theory]
     [InlineData("sex: f\n", "")]
     [InlineData("sex: f", "sex: unknown")]

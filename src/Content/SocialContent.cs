@@ -25,7 +25,7 @@ public static class SocialContent
         { "villager", "merchant", "guard", "craftsperson", "quest_giver", "trainer", "innkeeper", "noble", "bandit", "scholar", "steward" };
 
     private static readonly string[] Conditions =
-        { "visited", "world_state", "has_item", "relationship", "skill", "level", "quest_state", "companion_present", "deed", "standing", "act_done", "near" };
+        { "visited", "world_state", "has_item", "relationship", "skill", "level", "quest_state", "companion_present", "deed", "standing", "act_done", "near", "people" };
 
     private static readonly string[] Consequences =
         { "transfer_item", "teach", "set_world_flag", "record_relationship_event", "open_service", "start_quest", "recruit_companion", "order_companion",
@@ -159,6 +159,7 @@ public static class SocialContent
                 Sex = sex,
                 Companion = map.ContainsKey("companion") ? Profile(id, Map(map, "companion"), loader) : null,
                 FactionId = map.GetValueOrDefault("faction_ref") is string faction ? Defined(loader, faction, "faction", id) : null,
+                PeopleId = map.GetValueOrDefault("people_ref") is string people ? Defined(loader, people, "people", id) : null,
                 Hireling = map.ContainsKey("hireling") ? HireProfile(id, Map(map, "hireling"), loader) : null,
                 Teaches = TeachingContent.Offers(id, map, loader),
                 Values = Rows(map, "values", id).Select((row, i) => Value($"{id} values[{i}]", row, loader)).ToImmutableArray(),
@@ -328,6 +329,7 @@ public static class SocialContent
             "act_done" => ActDone(at, map, loader),
             "near" => new NearCondition(Defined(loader, Text(map, "location_ref"), "location", at),
                 map.ContainsKey("radius_m") ? Mm(map, "radius_m") is var radius && radius > 0 ? radius : throw new FormatException($"{at}: radius_m is positive") : null),
+            "people" => new PeopleCondition(Defined(loader, Text(map, "people_ref"), "people", at)),
             _ => throw new FormatException($"{at}: condition '{kind}' is not built in Phase 1 ({string.Join(", ", Conditions)})"),
         };
     }
@@ -371,9 +373,8 @@ public static class SocialContent
                     Positive(map, "days", 1))
                 : throw new FormatException($"{at}: hire_hireling needs risk_stated: true - the reply says the hireling can die (DN9)"),
             "dismiss_companion" => new DismissCompanionConsequence(),
-            "rent_room" => new RentRoomConsequence(LongOr(map, "hour", -1) is var hour and >= 0 and <= 23
-                ? (int)hour
-                : throw new FormatException($"{at}: rent_room names an hour of the day, 0 to 23")),
+            "rent_room" => !map.ContainsKey("hour") ? new RentRoomConsequence()
+                : throw new FormatException($"{at}: rent_room restores rest without choosing a world hour (DN8)"),
             "order_companion" => new OrderCompanionConsequence(Order(Text(map, "order"), at)),
             "report_act" => ReportAct(at, map, loader),
             // tell_lore (spec 41): the speaker tells of something they know, and the page that answers to it is filed in the journal. The page

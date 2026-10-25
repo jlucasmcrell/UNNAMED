@@ -7,9 +7,7 @@ namespace UNNAMED.Presentation.Greybox;
 public sealed partial class FoldWard : Node3D
 {
     private ShaderMaterial _wall = null!, _ring = null!;
-    private StandardMaterial3D _crown = null!;
     private Decal _decal = null!;
-    private OmniLight3D _light = null!;
     private GpuParticles3D _motes = null!;
     private StandardMaterial3D _moteMaterial = null!;
     private float _radius;
@@ -49,29 +47,21 @@ public sealed partial class FoldWard : Node3D
         // same decal artwork visible there too, without changing terrain buffers.
         ward.AddChild(new MeshInstance3D { Name="GroundRuneRing", Mesh=surface.Commit(), MaterialOverride=ward._ring,
             CastShadow=GeometryInstance3D.ShadowCastingSetting.Off,GIMode=GeometryInstance3D.GIModeEnum.Disabled });
-        ward._crown = new StandardMaterial3D { ShadingMode=BaseMaterial3D.ShadingModeEnum.Unshaded,
-            Transparency=BaseMaterial3D.TransparencyEnum.Alpha, AlbedoColor=new Color(.6f,1.4f,2.5f,.8f),
-            EmissionEnabled=true,Emission=new Color(.25f,.6f,1),EmissionEnergyMultiplier=4 };
-        ward.AddChild(new MeshInstance3D { Name="FoldBoundaryCrown",
-            Mesh=new TorusMesh { InnerRadius=ward._radius-.045f,OuterRadius=ward._radius+.045f,Rings=96,RingSegments=8 },
-            Position=Vector3.Up*(circle.HeightMm/2000f),MaterialOverride=ward._crown,
-            CastShadow=GeometryInstance3D.ShadowCastingSetting.Off,GIMode=GeometryInstance3D.GIModeEnum.Disabled });
-        ward._light = new OmniLight3D { Name="WardSoftLight", Position=Vector3.Up*.2f,
-            LightColor=new Color(.35f,.65f,1),LightEnergy=2,OmniRange=7,OmniAttenuation=1.5f,ShadowEnabled=false };
-        ward.AddChild(ward._light);
+        // No light and no crown: the fold casts no light of its own (owner, 2026-10-24, GS-2), and a lit ring round its top read as a
+        // glass box. What it shows is violet, the colour kept for whatever bends reality.
         var glow=Image.CreateEmpty(32,32,false,Image.Format.Rgba8);
         for(int y=0;y<32;y++) for(int x=0;x<32;x++)
         {
             float r=new Vector2((x-15.5f)/16,(y-15.5f)/16).Length();
             float strength=Mathf.Pow(Mathf.Max(0,1-r),2);
-            glow.SetPixel(x,y,new Color(.55f*strength,.8f*strength,strength,strength));
+            glow.SetPixel(x,y,new Color(.75f*strength,.5f*strength,strength,strength));
         }
         var moteTexture=ImageTexture.CreateFromImage(glow);
         ward._moteMaterial=new StandardMaterial3D { ShadingMode=BaseMaterial3D.ShadingModeEnum.Unshaded,
             Transparency=BaseMaterial3D.TransparencyEnum.Alpha,BlendMode=BaseMaterial3D.BlendModeEnum.Add,
             BillboardMode=BaseMaterial3D.BillboardModeEnum.Particles,AlbedoTexture=moteTexture,EmissionTexture=moteTexture,
             AlbedoColor=new Color(3,3,3,1),VertexColorUseAsAlbedo=true,EmissionEnabled=true,
-            Emission=new Color(.3f,.65f,1),EmissionEnergyMultiplier=3 };
+            Emission=new Color(.6f,.32f,1),EmissionEnergyMultiplier=3 };
         ward._motes=new GpuParticles3D { Name="DriftingWardMotes", Amount=80,Lifetime=7,Preprocess=7,
             LocalCoords=true,Position=Vector3.Down*(circle.HeightMm/2000f-.15f),
             VisibilityAabb=new Aabb(new Vector3(-4,-1,-4),new Vector3(8,6,8)),
@@ -104,11 +94,8 @@ public sealed partial class FoldWard : Node3D
         float breathing=.88f+.12f*Mathf.Sin((float)_clock*2.5f);
         _decal.EmissionEnergy=(5*breathing+reaction*7)*presence;
         _decal.Modulate=new Color(1,1,1,presence);
-        _light.LightEnergy=(2*breathing+reaction*1.5f)*presence;
-        _light.Visible=Visible && presence>.001f;
         _motes.Visible=presence>.001f;
         _moteMaterial.AlbedoColor=new Color(3,3,3,presence);
-        _crown.AlbedoColor=_crown.AlbedoColor with { A=presence*(.55f+.2f*Mathf.Sin((float)_clock*2.5f)+reaction*.2f) };
     }
 
     private static Texture2D RuneTexture()
@@ -126,7 +113,7 @@ public sealed partial class FoldWard : Node3D
             float rune=Mathf.Max(stem,slash)*(q.Y>.12f&&q.Y<.88f?1:0);
             float alpha=Mathf.Max(lines,rune);
             // Decal emission samples RGB independently of albedo alpha.
-            image.SetPixel(x,y,new Color(.3f*alpha,.7f*alpha,alpha,alpha));
+            image.SetPixel(x,y,new Color(.62f*alpha,.35f*alpha,alpha,alpha));
         }
         image.GenerateMipmaps();
         return ImageTexture.CreateFromImage(image);

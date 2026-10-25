@@ -359,6 +359,30 @@ public sealed record ItemDefinition(
     /// everything else a pack can hold.
     /// </summary>
     public string? PetCreature { get; init; }
+
+    /// <summary>
+    /// The people whose heritage it is (<c>heritage</c>, owner 2026-10-24): only that people may use, buy, sell, trade or be given it.
+    /// Null for everything else.
+    /// </summary>
+    public string? Heritage { get; init; }
+}
+
+/// <summary>Heritage items (owner, 2026-10-24): used, bought, sold, traded and given only between characters of the same people.</summary>
+public static class HeritageRules
+{
+    /// <summary>Whether someone of this people (null: none known) may use or trade the item.</summary>
+    public static bool Allows(ItemDefinition item, string? peopleId) => item.Heritage is null || item.Heritage == peopleId;
+
+    /// <summary>Why someone of another people cannot have the item; null when they can.</summary>
+    public static string? Refusal(ItemDefinition item, string? peopleId) =>
+        Allows(item, peopleId) ? null : $"that is {PeopleWord(item.Heritage!)} heritage: only their own people use or trade it";
+
+    /// <summary>A people's ID as a word: <c>people.veth</c> is "Veth".</summary>
+    public static string PeopleWord(string peopleId)
+    {
+        string word = peopleId.StartsWith("people.", StringComparison.Ordinal) ? peopleId["people.".Length..] : peopleId;
+        return word.Length == 0 ? word : char.ToUpperInvariant(word[0]) + word[1..];
+    }
 }
 
 /// <summary>The item definitions content defines, by ID.</summary>
@@ -516,8 +540,12 @@ public sealed record MerchantStock(string ItemId, int Count, double PriceBias);
 public sealed record Merchant(string Id, ImmutableArray<MerchantStock> Stock, ImmutableArray<string> BuysCategories);
 
 /// <summary>Prices from <c>config.economy</c>. A merchant buys at a fraction of value, so buying to resell loses money.</summary>
-public sealed record Pricing(double SellRatio)
+public sealed record Pricing(double SellRatio, double QualityStep = 0.25, double MakerPremium = 0.1, double RecipeMargin = 0.9)
 {
+    /// <summary>Instance value before market and wear: quality and an authenticated maker mark, never the holder's level.</summary>
+    public long Value(ItemDefinition item, int quality = 0, bool makerMarked = false) =>
+        (long)Math.Floor(item.ValueBase * (1 + QualityStep * Math.Clamp(quality, -1, 2)) * (makerMarked ? 1 + MakerPremium : 1));
+
     public long BuyPrice(ItemDefinition item, MerchantStock stock) => (long)Math.Ceiling(item.ValueBase * stock.PriceBias);
 
     /// <summary>What a merchant pays, or null when it will not buy this item.</summary>

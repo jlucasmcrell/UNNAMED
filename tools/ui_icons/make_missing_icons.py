@@ -470,6 +470,28 @@ def unreadable_page(c):
     c.poly([(44, 46), (58, 42), (66, 54), (56, 66), (42, 62)], (74, 56, 46), 0.0, True)
 
 
+def kept_roll(c):
+    # a family roll half unrolled: the rolled top tied with a cord, names written down the hanging sheet
+    shaded(c, [(24, 26), (76, 26), (76, 80), (68, 86), (58, 80), (48, 86), (38, 80), (24, 84)], PAPER, False,
+           light=[(26, 30), (36, 30), (36, 80), (26, 82)], shade=[(66, 30), (76, 30), (76, 78), (66, 82)])
+    for k, y in enumerate((40, 48, 56, 64, 72)):
+        c.line([(32, y), (66 - (k % 2) * 10, y)], (122, 104, 82), 1.4, 0.0)
+    c.rrect((16, 14, 84, 30), 6, PAPER[2], 2.2)
+    c.shine([(20, 17), (80, 17), (80, 21), (20, 21)], PAPER[1] + (170,))
+    c.line([(48, 12), (48, 32)], RED[0], 3.0, 1.0)
+    c.line([(48, 30), (42, 42)], RED[0], 2.0, 0.8)
+    c.line([(48, 30), (55, 41)], RED[0], 2.0, 0.8)
+
+
+def record_stone(c):
+    # a palm-sized grey stone with banded strata and one bright vein
+    shaded(c, [(16, 58), (24, 34), (46, 22), (70, 26), (84, 46), (80, 70), (56, 82), (28, 78)], GREYHIDE, True,
+           light=[(26, 40), (44, 28), (56, 30), (34, 46)], shade=[(60, 72), (78, 60), (80, 70), (56, 80)])
+    for y, x0, x1 in ((44, 24, 80), (56, 20, 82), (66, 28, 74)):
+        c.line([(x0, y), ((x0 + x1) / 2, y - 2), (x1, y)], GREYHIDE[2], 1.0, 0.0)
+    c.line([(34, 34), (40, 42), (48, 47), (56, 50), (62, 56), (68, 64)], (226, 214, 176), 1.4, 0.0)
+
+
 def panel_chat(c):
     shaded(c, [(10, 14), (66, 14), (66, 56), (36, 56), (22, 70), (24, 56), (10, 56)], CLOTH, False, light=[(12, 16), (64, 16), (64, 24), (12, 24)])
     for y, w in ((28, 40), (38, 30)):
@@ -578,6 +600,8 @@ ICONS = {
     "ui.item.glass_marble": ("item.story.glass_marble", glass_marble, "Glass marble."),
     "ui.item.stopped_watch": ("item.story.stopped_watch", stopped_watch, "Stopped watch."),
     "ui.item.unreadable_page": ("item.story.unreadable_page", unreadable_page, "Unreadable page."),
+    "ui.item.kept_roll": ("item.heritage.kept_roll", kept_roll, "Kept roll."),
+    "ui.item.record_stone": ("item.heritage.record_stone", record_stone, "Record stone."),
     "ui.panel.chat": ("panel.chat", panel_chat, "System Menu: Chat."),
     "ui.panel.reputation": ("panel.reputation", panel_reputation, "System Menu: Reputation."),
     "ui.panel.credits": ("panel.credits", panel_credits, "System Menu: Credits."),

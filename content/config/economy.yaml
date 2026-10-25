@@ -14,3 +14,8 @@ daily_relaxation: 0.1
 # memory fades by this share a day.
 sell_memory_half_units: 20
 sell_memory_daily_decay: 0.1
+
+# Wave 0C: instance pricing and the E-3 neutral-market authoring guard. Famous-maker reputation is later social work.
+quality_value_step: 0.25       # crude/standard/fine/masterwork: 0.75 / 1 / 1.25 / 1.5
+maker_mark_premium: 0.1       # authenticated crafted provenance, never a player-written item name
+recipe_vendor_margin: 0.9    # output sale below cheapest bought/composed input cost; market dynamics remain E-1/soak checks
