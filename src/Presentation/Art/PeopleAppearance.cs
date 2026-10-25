@@ -238,6 +238,8 @@ public static class PeopleAppearance
         var added = new List<MeshInstance3D>();
         if (style is not null)
         {
+            // The hair zone's look (character_materials.json), as the body's own hair had it when the body was built.
+            CharacterMaterials.Upgrade(style);
             foreach (var mesh in style.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>().ToList())
             {
                 mesh.GetParent().RemoveChild(mesh);
