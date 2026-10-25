@@ -31,10 +31,27 @@ public static class LookSwatches
     /// <summary>The interim boots are black rubber garden boots; they are always drawn as worn leather.</summary>
     public static readonly Swatch Boots = new("Leather", .3f, .2f, .13f);
 
-    /// <summary>A garment's kind from its material name: a top, trousers, boots, or null (belts and the rest keep their colour).</summary>
+    /// <summary>
+    /// Names for the interim HumGen garments as the dye draws them: HumGen's own ("Smart Casual", "Garden Boot") name the modern
+    /// undyed pieces. A body in the frontier outfit wears it in place of whatever outfit it was baked in (<see cref="FrontierOutfit"/>).
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, string> DyedNames = new Dictionary<string, string>(StringComparer.Ordinal)
+    {
+        ["outfit.casual.smart_casual"] = "Work shirt and trousers",
+        ["footwear.outdoor.garden_boot"] = "Leather boots",
+    };
+
+    public const string FrontierOutfit = "Frontier: linen shirt, baldric and sash";
+
+    /// <summary>
+    /// A garment's kind from its material name: a top, trousers, boots, or null (belts and the rest keep their colour). The frontier
+    /// outfit's pieces (HumGen's Pirate set) keep their own colours: its shirt is one material with the baldric and sash.
+    /// </summary>
     public static string? GarmentKind(string material)
     {
         string name = material.ToLowerInvariant();
+        if (name.Contains("_pirate_"))
+            return null;
         if (new[] { "tshirt", "shirt", "sweater", "top", "tunic", "blouse", "hoodie" }.Any(name.Contains))
             return "shirt";
         if (name.Contains("boots"))

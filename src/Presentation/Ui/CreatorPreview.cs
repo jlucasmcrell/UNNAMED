@@ -53,6 +53,11 @@ public sealed partial class CreatorPreview : TextureRect
     private float _eyes = Avatar.EyeHeight;
     private bool _dragging;
 
+    /// <summary>Whether the body shown wears cloth the shirt and trouser colours dye (not the frontier outfit, which keeps its own).</summary>
+    public bool WearsDyedCloth => _figure is not null && PeopleAppearance.WearsDyedCloth(_figure);
+
+    public bool WearsFrontier => _figure is not null && PeopleAppearance.WearsFrontier(_figure);
+
     /// <summary>The light in use, by its index in <see cref="Lights"/>.</summary>
     public int Light { get; private set; }
 

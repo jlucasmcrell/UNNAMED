@@ -73,6 +73,8 @@ public sealed class LookSwatchesTests
         Assert.Equal("trousers", LookSwatches.GarmentKind("player_ada_f_Chinos_Female.hg_tmp"));
         Assert.Equal("boots", LookSwatches.GarmentKind("player_ada_f_Garden_Boots_Female.hg_tmp"));
         Assert.Null(LookSwatches.GarmentKind("player_ada_f_Eyes"));
+        Assert.Null(LookSwatches.GarmentKind("ada_frontier_final_Pirate_Shirt.hg_tmp"));
+        Assert.Null(LookSwatches.GarmentKind("mateo_frontier_final_Pirate_Pants.hg_tmp"));
         Assert.Equal("Undyed linen", LookSwatches.Cloth(LookSwatches.Shirts, null).Label);
         Assert.Equal("Oxblood", LookSwatches.Cloth(LookSwatches.Shirts, 1).Label);
         Assert.Equal("Brown", LookSwatches.Cloth(LookSwatches.Trousers, 9).Label);

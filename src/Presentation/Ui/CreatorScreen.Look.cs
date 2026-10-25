@@ -114,8 +114,11 @@ public partial class CreatorScreen
             _body.AddChild(UiKit.Words($"Fit family: {race.FitFamily.Replace('_', ' ')}. What you start in is fitted to this body; gear found later is fitted by crafters.", 16, HudStyle.Muted));
         _body.AddChild(OptionSection(CreatorChoice.Outfit, "Outfit", "fitted by HumGen"));
         _body.AddChild(OptionSection(CreatorChoice.Footwear, "Footwear", ""));
-        _body.AddChild(SwatchSection("Shirt", LookSwatches.ShirtSlider, LookSwatches.Shirts, Colors.Black, multiply: false));
-        _body.AddChild(SwatchSection("Trousers", LookSwatches.TrouserSlider, LookSwatches.Trousers, Colors.Black, multiply: false));
+        if (_preview.WearsDyedCloth)
+        {
+            _body.AddChild(SwatchSection("Shirt", LookSwatches.ShirtSlider, LookSwatches.Shirts, Colors.Black, multiply: false));
+            _body.AddChild(SwatchSection("Trousers", LookSwatches.TrouserSlider, LookSwatches.Trousers, Colors.Black, multiply: false));
+        }
     }
 
     /// <summary>The look's lines on Confirm: height, then each choice by its name.</summary>
@@ -124,7 +127,7 @@ public partial class CreatorScreen
         if (_catalogue.Baked.Length == 0)
             yield break;
         var look = Look;
-        string Name(CreatorChoice choice, string? id, string none) => _catalogue.Option(choice, id)?.Label ?? none;
+        string Name(CreatorChoice choice, string? id, string none) => _catalogue.Option(choice, id) is { } option ? OptionName(choice, option.Id, option.Label) : none;
         yield return ("Height", Metres(look.StatureMm));
         yield return ("Face", Name(CreatorChoice.Face, look.Face, "the body's own"));
         yield return ("Hair", Name(CreatorChoice.Hair, look.Hair, "none") + (look.FacialHair is { } beard ? ", " + Name(CreatorChoice.FacialHair, beard, beard) : ""));
@@ -287,13 +290,17 @@ public partial class CreatorScreen
         foreach (var option in shown)
         {
             string id = option.Id;
-            section.AddChild(OptionRow($"creator.{kind}.{id}", option.Label, chosen == id,
+            section.AddChild(OptionRow($"creator.{kind}.{id}", OptionName(choice, id, option.Label), chosen == id,
                 _catalogue.IsBaked(choice, id, Model), () => Choose(choice, id)));
         }
         if (BakedOnly)
             section.AddChild(UiKit.Words(LaterWords, 16, HudStyle.Muted));
         return section;
     }
+
+    /// <summary>A choice's name as the body is drawn: the frontier outfit in place of the baked one, the dyed garments by period names.</summary>
+    private string OptionName(CreatorChoice choice, string id, string label) =>
+        choice == CreatorChoice.Outfit && _preview.WearsFrontier ? LookSwatches.FrontierOutfit : LookSwatches.DyedNames.GetValueOrDefault(id, label);
 
     private Control OptionRow(string id, string name, bool selected, bool baked, Action pressed)
     {

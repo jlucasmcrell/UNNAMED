@@ -198,6 +198,16 @@ public static class PeopleAppearance
         }
     }
 
+    /// <summary>Whether <paramref name="model"/> wears a garment the creator's shirt and trouser colours dye.</summary>
+    public static bool WearsDyedCloth(Node model) => Materials(model).Any(name => LookSwatches.GarmentKind(name) is "shirt" or "trousers");
+
+    /// <summary>Whether <paramref name="model"/> wears the frontier outfit (HumGen's Pirate set).</summary>
+    public static bool WearsFrontier(Node model) => Materials(model).Any(name => name.Contains("_Pirate_", StringComparison.OrdinalIgnoreCase));
+
+    private static IEnumerable<string> Materials(Node model) => model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>()
+        .Where(mesh => mesh.Mesh is not null)
+        .SelectMany(mesh => Enumerable.Range(0, mesh.Mesh.GetSurfaceCount()).Select(s => mesh.Mesh.SurfaceGetMaterial(s)?.ResourceName ?? ""));
+
     private static readonly string[] HairSurfaces = { "_HairCards", "_FaceHairCards", "_Haircap" };
 
     private static string WithoutLod(string name) =>
@@ -212,30 +222,38 @@ public static class PeopleAppearance
     /// </summary>
     private static void WearHairStyle(Node model, ArtLibrary? art, string? asset)
     {
-        if (model.FindChildren("*", nameof(Skeleton3D), true, false).OfType<Skeleton3D>().FirstOrDefault() is not { } skeleton)
+        var body = model as SkinnedModel ?? model.FindChildren("*", nameof(SkinnedModel), true, false).OfType<SkinnedModel>().FirstOrDefault();
+        if (body is null)
             return;
+        var skeleton = body.Skeleton;
         var worn = skeleton.GetChildren().OfType<MeshInstance3D>().Where(m => m.HasMeta("look_style")).ToList();
         if (worn.FirstOrDefault()?.GetMeta("look_style").AsString() == asset && (asset is not null || worn.Count == 0))
             return;
         foreach (var mesh in worn)
-        {
             skeleton.RemoveChild(mesh);
-            mesh.QueueFree();
-        }
         var style = asset is null ? null : art?.Rigged(asset);
-        foreach (var own in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>().Where(IsHead))
-            own.Visible = style is null;
-        if (style is null)
-            return;
-        CharacterMaterials.ApplyLods(style);
-        foreach (var mesh in style.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>().ToList())
+        // The body's own hair is hidden through its level-of-detail choice, which would otherwise show it again at the next band.
+        foreach (var own in body.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>().Where(IsHead))
+            body.OutfitVisible(own, style is null);
+        var added = new List<MeshInstance3D>();
+        if (style is not null)
         {
-            mesh.GetParent().RemoveChild(mesh);
-            skeleton.AddChild(mesh);
-            mesh.Skeleton = mesh.GetPathTo(skeleton);
-            mesh.SetMeta("look_style", asset);
+            foreach (var mesh in style.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>().ToList())
+            {
+                mesh.GetParent().RemoveChild(mesh);
+                skeleton.AddChild(mesh);
+                mesh.Skeleton = mesh.GetPathTo(skeleton);
+                mesh.SetMeta("look_style", asset);
+                added.Add(mesh);
+            }
+            style.QueueFree();
         }
-        style.QueueFree();
+        body.SwapParts(worn, added);
+        foreach (var mesh in worn)
+            mesh.QueueFree();
+        // The style's cap and cards carry the face's shapes (brows, jaw): the face drives them with the body's own.
+        foreach (var face in model.FindChildren("*", nameof(FaceDriver), true, false).OfType<FaceDriver>())
+            face.Rebind(body);
     }
 
     /// <summary>
