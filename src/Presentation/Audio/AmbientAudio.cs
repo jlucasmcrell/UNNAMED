@@ -28,6 +28,8 @@ public partial class AmbientAudio : Node
         public HashSet<string>? Weathers, Grounds;
         public bool DayOnly, NightOnly;
         public float NearRavine;
+        public (float X, float Z, float Radius)? Near;
+        public float Pitch = 1;
         public (float Lo, float Hi) Every;
         public double Next;
         public AudioStreamPlayer? Player;
@@ -64,6 +66,8 @@ public partial class AmbientAudio : Node
                     DayOnly = h.TryGetProperty("day_only", out var d) && d.ValueKind == JsonValueKind.True,
                     NightOnly = h.TryGetProperty("night_only", out var n) && n.ValueKind == JsonValueKind.True,
                     NearRavine = h.TryGetProperty("near_ravine_m", out var r) ? (float)r.GetDouble() : 0f,
+                    Near = h.TryGetProperty("near_m", out var at) ? ((float)at[0].GetDouble(), (float)at[1].GetDouble(), (float)at[2].GetDouble()) : null,
+                    Pitch = h.TryGetProperty("pitch", out var pitch) ? (float)pitch.GetDouble() : 1f,
                     Every = h.TryGetProperty("every_s", out var e) ? ((float)e[0].GetDouble(), (float)e[1].GetDouble()) : (10f, 30f),
                 };
                 hook.Id = (hook.Loop ? h.GetProperty("loop") : h.GetProperty("one_shot")).GetString()!;
@@ -96,6 +100,13 @@ public partial class AmbientAudio : Node
             bool on = (hook.Weathers is null || hook.Weathers.Contains(weather)) && !(hook.DayOnly && !day) && !(hook.NightOnly && day)
                       && (hook.Grounds is null || OnGround(at, hook.Grounds)) && (hook.NearRavine <= 0 || RavineDistance(at) <= hook.NearRavine);
             float gain = hook.Gain * (hook.ByWind ? Math.Clamp(WindField.Strength * 1.6f, 0f, 1f) : 1f) * (WeatherStates.UnderSky ? 1f : hook.Sheltered);
+            // A place's own sound grows as the listener nears it: full at the place, gone at its radius.
+            if (hook.Near is { } near)
+            {
+                float away = new Vector2(at.X - near.X, at.Z - near.Z).Length() / near.Radius;
+                on &= away < 1f;
+                gain *= MathF.Pow(Math.Clamp(1f - away, 0f, 1f), 1.6f);
+            }
             if (hook.Name == "anomaly_fold" && FoldGain is not null)
             {
                 // The ward's existing loop belongs to its barrier, not every muddy patch.
@@ -105,7 +116,11 @@ public partial class AmbientAudio : Node
             }
             if (hook.Loop)
             {
-                hook.Player ??= _bank.Loop(hook.Id);
+                if (hook.Player is null && _bank.Loop(hook.Id) is { } player)
+                {
+                    player.PitchScale = hook.Pitch;
+                    hook.Player = player;
+                }
                 if (hook.Player is null)
                     continue;
                 float current = Mathf.DbToLinear(hook.Player.VolumeDb);
