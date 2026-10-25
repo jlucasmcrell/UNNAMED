@@ -90,6 +90,16 @@ public class ClientPrefsTests
     }
 
     [Fact]
+    public void AFileFromBeforeTheOpening_PlaysIt_AndCannotSkipIt()
+    {
+        var back = ClientPrefs.FromJson("{\"profile\": {\"first_launch_done\": true}}");
+
+        Assert.True(back.Profile.PlayOpening);
+        Assert.False(back.Profile.OpeningSeen);
+        Assert.True(ClientPrefs.FromJson(new ClientPrefs { Profile = new ProfilePrefs { OpeningSeen = true } }.ToJson()).Profile.OpeningSeen);
+    }
+
+    [Fact]
     public void TheOldFiles_AreAbsorbed()
     {
         var prefs = ClientPrefs.Migrate("{\"Master\":0.4,\"Music\":0.0,\"Effects\":0.85}", "low\n");

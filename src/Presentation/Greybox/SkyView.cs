@@ -217,7 +217,7 @@ public static class SkyView
     /// </summary>
     public static void Advance(double worldTick, double ticksPerDay)
     {
-        if (_sky is not WorldEnvironment sky || !GodotObject.IsInstanceValid(sky) || ticksPerDay <= 0)
+        if (_sky is not WorldEnvironment || ticksPerDay <= 0)
             return;
         double day = worldTick / ticksPerDay;
         // THE DAY STARTS AT THE WORLD CLOCK'S READING AT TICK 0 (ClockAtWorldStart, from config.time), not at
@@ -234,9 +234,28 @@ public static class SkyView
         // 13.50 h against 15.50 h, two hours apart, and a blind judge scored the LIGHTING (vegetation, lighting,
         // tree silhouette and terrain integration all 9 against 6) rather than the thing that had changed. Any
         // A/B whose arms come from separate runs needs this pinned on BOTH of them.
-        _clockHour = VisualOptions.Hour is { } pinned
+        Show(VisualOptions.Hour is { } pinned
             ? pinned
-            : (float)((ClockAtWorldStart + (day - Math.Floor(day)) * 24.0) % 24.0);
+            : (float)((ClockAtWorldStart + (day - Math.Floor(day)) * 24.0) % 24.0));
+        // Logged a quarter of a game hour apart, which is every 30 real seconds at time.yaml's rate: the only way
+        // to tell a running clock from a stopped one from outside the process, and the thing that was wrong.
+        if (Math.Abs(_clockHour - _loggedHour) >= 0.25f || float.IsNaN(_loggedHour))
+        {
+            _loggedHour = _clockHour;
+            GD.Print($"UNNAMED sky clock: {_clockHour:0.00} h at world tick {worldTick:0} of {ticksPerDay:0} a day");
+            AirProbe();
+        }
+    }
+
+    /// <summary>
+    /// The sky at <paramref name="hour"/>: the sun and moon, the air and Otherreach's own bodies. The world clock's hour, or the opening's
+    /// own before any world runs (its night turning to the start's morning).
+    /// </summary>
+    public static void Show(float hour)
+    {
+        if (_sky is not WorldEnvironment sky || !GodotObject.IsInstanceValid(sky))
+            return;
+        _clockHour = hour;
         // Sky3D recomputes its sun and moon from this when it is set; TimeOfDay is its own name for the hour.
         sky.Set("current_time", _clockHour);
         // AND THE AIR FOLLOWS THE SAME CLOCK. The line above is where the sun is; this is what the air is made of, and
@@ -254,14 +273,6 @@ public static class SkyView
         }
         if (sky.Environment is { } air)
             CelestialView.Advance(_clockHour, _daylightLevel, air);
-        // Logged a quarter of a game hour apart, which is every 30 real seconds at time.yaml's rate: the only way
-        // to tell a running clock from a stopped one from outside the process, and the thing that was wrong.
-        if (Math.Abs(_clockHour - _loggedHour) >= 0.25f || float.IsNaN(_loggedHour))
-        {
-            _loggedHour = _clockHour;
-            GD.Print($"UNNAMED sky clock: {_clockHour:0.00} h at world tick {worldTick:0} of {ticksPerDay:0} a day");
-            AirProbe();
-        }
     }
 
     /// <summary>

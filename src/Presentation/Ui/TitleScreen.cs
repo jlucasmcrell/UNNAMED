@@ -8,7 +8,8 @@ using UNNAMED.Persistence;
 namespace UNNAMED.Presentation.Ui;
 
 /// <summary>
-/// At launch, over the start camera's slow drift across the hollow: a dark panel down the left third with the wordmark and one column
+/// At launch, over the start camera's slow drift across the hollow, as the opening leaves it: the name large across the top (the same
+/// <see cref="Wordmark"/> the opening's hit puts there, so the hand-off moves nothing) and at the lower left a dark panel with one column
 /// of entries - Continue (the newest save that loads, named, with the focus), New game (the creator: a new character saves in a folder of
 /// its own, so nothing is asked), Load (every save and its kept copies, to restore one), Settings, Credits and Quit (no question: nothing
 /// is unsaved here). A save passed over by Continue is said, never silently skipped. The version and the maker sit at its foot.
@@ -19,6 +20,15 @@ public partial class TitleScreen : CanvasLayer
     public const string Maker = "“Rift Studios” — J.L. McRell";
 
     private const float Width = 600;
+
+    /// <summary>The name's top, as a share of the screen's height.</summary>
+    public const float MarkTop = 0.1f;
+
+    /// <summary>As the opening's hit brings the name in: this much larger, and this share of the screen's height lower, than it rests.</summary>
+    public const float RevealScale = 1.35f, RevealDrop = 0.24f;
+
+    private Control _panel = null!;
+    private Tween? _reveal;
 
     private GameSession _session = null!;
     private VBoxContainer _column = null!;
@@ -49,30 +59,45 @@ public partial class TitleScreen : CanvasLayer
         Layer = 10;
         var root = new Control { Theme = UiKit.Theme, MouseFilter = Control.MouseFilterEnum.Ignore };
         root.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-        var panel = new PanelContainer { AnchorBottom = 1, OffsetRight = Width, MouseFilter = Control.MouseFilterEnum.Stop };
+        root.AddChild(Wordmark());
+        var panel = new PanelContainer
+        {
+            AnchorTop = 1, AnchorBottom = 1, OffsetRight = Width, GrowVertical = Control.GrowDirection.Begin, MouseFilter = Control.MouseFilterEnum.Stop,
+        };
         panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat
         {
-            BgColor = new Color(HudStyle.Soot, 0.86f),
-            BorderColor = HudStyle.Iron, BorderWidthRight = 1,
-            ContentMarginLeft = 88, ContentMarginRight = 64, ContentMarginTop = 140, ContentMarginBottom = 48,
+            BgColor = new Color(HudStyle.Soot, 0.8f),
+            BorderColor = HudStyle.Iron, BorderWidthRight = 1, BorderWidthTop = 1,
+            ContentMarginLeft = 88, ContentMarginRight = 64, ContentMarginTop = 40, ContentMarginBottom = 48,
         });
         var stack = new VBoxContainer();
         stack.AddThemeConstantOverride("separation", 0);
-        var mark = HudStyle.Text(HudStyle.Caps, 76, HudStyle.Bone, caps: true);
-        mark.Text = "Otherreach";
-        stack.AddChild(mark);
-        var rule = new UiKit.TickRule { CustomMinimumSize = new Vector2(0, 10) };
-        stack.AddChild(rule);
-        stack.AddChild(new Control { CustomMinimumSize = new Vector2(0, 56) });
         _column = new VBoxContainer();
         _column.AddThemeConstantOverride("separation", 10);
         stack.AddChild(_column);
-        stack.AddChild(new Control { SizeFlagsVertical = Control.SizeFlags.ExpandFill });
+        stack.AddChild(new Control { CustomMinimumSize = new Vector2(0, 28) });
         _version = UiKit.Words(string.Empty, 16, HudStyle.Muted);
         stack.AddChild(_version);
         panel.AddChild(stack);
         root.AddChild(panel);
+        _panel = panel;
         AddChild(root);
+    }
+
+    /// <summary>The name: large, across the top of the screen, over a tick rule.</summary>
+    public static Control Wordmark()
+    {
+        var box = new VBoxContainer { AnchorRight = 1, AnchorTop = MarkTop, AnchorBottom = MarkTop, MouseFilter = Control.MouseFilterEnum.Ignore };
+        box.AddThemeConstantOverride("separation", 4);
+        var mark = HudStyle.Text(HudStyle.Caps, 132, HudStyle.Bone, caps: true);
+        mark.Text = "Otherreach";
+        mark.HorizontalAlignment = HorizontalAlignment.Center;
+        mark.AddThemeColorOverride("font_shadow_color", new Color(0, 0, 0, 0.7f));
+        mark.AddThemeConstantOverride("shadow_offset_y", 3);
+        mark.AddThemeConstantOverride("shadow_outline_size", 14);
+        box.AddChild(mark);
+        box.AddChild(new UiKit.TickRule { CustomMinimumSize = new Vector2(620, 10), SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter });
+        return box;
     }
 
     /// <summary>The title, with the focus on its first entry; <paramref name="failure"/> says why a Continue just failed.</summary>
@@ -83,6 +108,16 @@ public partial class TitleScreen : CanvasLayer
         if (DisplayServer.GetName() != "headless")
             Input.MouseMode = Input.MouseModeEnum.Visible;
         Render();
+    }
+
+    /// <summary>The title as the opening hands it over: the name already in place, the entries coming in under it.</summary>
+    public void Reveal()
+    {
+        Open();
+        _reveal?.Kill();
+        _panel.Modulate = new Color(1, 1, 1, 0);
+        _reveal = CreateTween();
+        _reveal.TweenProperty(_panel, "modulate:a", 1f, 1.0);
     }
 
     public void Close() => Visible = false;

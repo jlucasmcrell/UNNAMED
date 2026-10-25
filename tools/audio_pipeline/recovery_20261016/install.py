@@ -6,7 +6,7 @@ import json, os, sys, shutil, hashlib, time
 
 root, asset = sys.argv[1], sys.argv[2]
 rows = []
-for name in ('combat_rows.json', 'gap_rows.json', 'music_rows.json', 'tension_rows.json'):
+for name in ('combat_rows.json', 'gap_rows.json', 'music_rows.json', 'tension_rows.json', 'opening_rows.json'):
     p = os.path.join(root, 'out', name)
     if os.path.exists(p):
         rows += json.load(open(p, encoding='utf-8'))['sounds']

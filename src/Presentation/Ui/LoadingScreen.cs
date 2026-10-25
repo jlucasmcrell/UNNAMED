@@ -77,6 +77,9 @@ public sealed class LoadingScreen
         RenderingServer.ForceDraw();
     }
 
+    /// <summary>The world is drawn again under the bar, which still covers it: frames spent warming the world, not on a black screen.</summary>
+    public void ShowWorldBehind() => _viewport.Disable3D = false;
+
     /// <summary>The load is over: the bar goes and the world is drawn again.</summary>
     public void End()
     {

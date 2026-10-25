@@ -786,6 +786,7 @@ public partial class SoundEvents : Node
                  })
             Add(name, moment, optional: true);
         // The score (MusicPlayer): required since the owner's ruling of 2026-10-24, so a package whose sound set lacks it is reported as missing music.
+        Add(MusicChoice.Opening, "music(opening)");
         Add(MusicChoice.Title, "music(title)");
         Add(MusicChoice.Combat, "music(combat)");
         Add(MusicChoice.Tension, "music(tension)");
