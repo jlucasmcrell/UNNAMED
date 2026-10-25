@@ -16,6 +16,9 @@ func glb(path: String) -> Node:
  assert(document.append_from_file(path,state)==OK,"Cannot import "+path)
  return document.generate_scene(state)
 
+static func torso_is_upright(height: float, rest_height: float, crouched: bool) -> bool:
+ return rest_height > 0 and height/rest_height > (.28 if crouched else .65)
+
 static func clean_contacts(events: Array, duration: float) -> Array:
  # A foot hovering at the 2.5cm classifier boundary can cross it twice during
  # ONE stance (run's L contacts at .016/.082s). Merge that sampling chatter,
@@ -90,13 +93,15 @@ func build() -> void:
  root.add_child(target)
  var rig: Skeleton3D = nodes(target,"Skeleton3D")[0]
  assert(rig.get_bone_count()==59)
+ var rest_torso_height := (rig.get_bone_global_rest(rig.find_bone("Head")).origin-rig.get_bone_global_rest(rig.find_bone("Hips")).origin).y
+ assert(rest_torso_height>0)
  var library := AnimationLibrary.new()
  var sources := {}
  var paces := {}
  var phases := {}
  var plants := {}
  var action_phases := {}
- var report := {"body":manifest.body,"bones":59,"clips":[]}
+ var report := {"body":manifest.body,"bones":59,"rest_torso_height_m":rest_torso_height,"clips":[]}
  var loops := ["idle","idle_look","idle_foldarms","walk","run","sprint","crouch_idle","crouch_walk","sword_ready","sword_block","spear_ready","bow_ready","talk","sit","sit_talk","fall","walk_strafe_left","walk_strafe_right","strafe_left","strafe_right","walk_back","run_back","captive_kneel"]
  var gaits := ["walk","run","sprint","crouch_walk","walk_strafe_left","walk_strafe_right","strafe_left","strafe_right","walk_back","run_back"]
  for entry in manifest.clips:
@@ -187,7 +192,7 @@ func build() -> void:
   if entry.state in gaits:
    assert(measured.pace>.05,"No measurable native gait "+entry.state)
    assert(absf(measured.shoulder_heading_degrees)<38,"Gait faces sideways: "+entry.state+" "+str(measured.shoulder_heading_degrees))
-   assert(measured.head_height_above_hips_m>(.2 if entry.state=="crouch_walk" else .45),"Gait torso collapsed/tipped: "+entry.state)
+   assert(torso_is_upright(measured.head_height_above_hips_m,rest_torso_height,entry.state=="crouch_walk"),"Gait torso collapsed/tipped: "+entry.state+" ratio "+str(measured.head_height_above_hips_m/rest_torso_height))
    var travel := Vector2(0,-1) if entry.state in ["walk_back","run_back"] else Vector2(1,0) if "left" in entry.state else Vector2(-1,0) if "right" in entry.state else Vector2(0,1)
    var planted := Vector2(measured.stance_velocity_xz[0],measured.stance_velocity_xz[1])
    # The low-foot-height classifier covers standing locomotion. In the deep
