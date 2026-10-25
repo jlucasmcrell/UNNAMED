@@ -262,9 +262,19 @@ public static class Terrain3DView
         // B0.2: real rock over the north ravine, on the same scenery surface this renderer draws (never read back from it).
         int rocks = RavineDressing.Dress(parent, art, ground.Region, (x, z) => SceneryHeight(ground, x, z), art.Coverage);
         GD.Print($"UNNAMED terrain3d: {rocks} rock pieces dress the north ravine");
+        if (DenGorge.On(ground.Region))
+        {
+            int gorge = DenGorge.Dress(parent, art, (x, z) => SceneryHeight(ground, x, z), art.Coverage);
+            parent.AddChild(DenGorgeAir.Build((x, z) => SceneryHeight(ground, x, z)));
+            GD.Print($"UNNAMED terrain3d: {gorge} pieces dress the gorge behind the den");
+        }
         // B0.8: a river on the ravine floor, for the water proof.
         if (WaterView.BuildRavineRiver(parent, ground.Region, (x, z) => SceneryHeight(ground, x, z), out string? waterWhy) is not null)
+        {
             art.Coverage.Resolved("water", "ravine_river", $"a river on the north ravine floor ({VisualOptions.Water})");
+            if (DenGorge.On(ground.Region))
+                WaterView.BuildDenGorge(parent, (x, z) => SceneryHeight(ground, x, z));
+        }
         else if (waterWhy is not null)
             art.Coverage.Fallback("water", "ravine_river", waterWhy);
         return terrain;
@@ -322,6 +332,16 @@ public static class Terrain3DView
             {
                 h = Outside(ground, x, z, noise);
                 c = Encode(SlotLayer[1], Cliff, 0, auto: true);
+                // The den gorge is stone from its lip to the foot of its far wall, with wet mud in it towards the river (the far wall keeps
+                // the moor's own ground, so its ledges are lit litter and moss against the rock); the hole bit cuts
+                // the ground away at the cave mouth, where the passage's own rock stands.
+                if (z > region.End.Y && DenGorge.On(region) && DenGorge.Weight(x) > 0.3f && z - region.End.Y < DenGorge.FarFootAt(x) + 1f)
+                {
+                    float wet = Math.Clamp(0.5f + noise.GetNoise2D(x * 4f, z * 4f) * 0.6f, 0f, 1f) * (1f - GroundField.SmoothStep(16f, 38f, MathF.Abs(z - region.End.Y - 27f) + 10f));
+                    c = Encode(Cliff, SlotLayer[2], (int)(wet * 160f), auto: false);
+                    if (DenGorge.InMouth(x, z - region.End.Y))
+                        c |= 1u << 2;
+                }
                 // MARK THE OUT-OF-REGION TERRAIN. Everything beyond the walkable region keeps the white tint set above
                 // and this one constant control word, so it is one layer with no blend and a flat multiply - a flat
                 // sheet by construction, and immune to the palette, the patch layers, the tint and the macro
@@ -630,7 +650,11 @@ public static class Terrain3DView
         float cliff = d < 12f
             ? Mathf.Lerp(edge, edge + 20f + n * 5f, GroundField.SmoothStep(0f, 12f, d))
             : edge + 20f + n * 5f + GroundField.SmoothStep(12f, 180f, d) * (24f + n * 16f);
-        return Mathf.Lerp(ravine, cliff, south) + n2 * 0.6f * GroundField.SmoothStep(0f, 2f, d);
+        float h = Mathf.Lerp(ravine, cliff, south) + n2 * 0.6f * GroundField.SmoothStep(0f, 2f, d);
+        // Behind the wolf den the ravine is a gorge (spec 28).
+        if (z > region.End.Y && x > region.Position.X && x < region.End.X && DenGorge.On(region) && DenGorge.Weight(x) is > 0f and var gorge)
+            h = Mathf.Lerp(h, DenGorge.Height(edge, x, d, n, n2), gorge);
+        return h;
     }
 
     /// <summary>Terrain3D's control word: base id bits 31-27, overlay 26-22, blend 21-14, hole bit 2, navigation bit 1, autoshader bit 0.</summary>

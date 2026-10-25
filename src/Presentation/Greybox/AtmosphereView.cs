@@ -50,6 +50,19 @@ public partial class AtmosphereView : Node3D
                     AddChild(mist);
                     built++;
                 }
+                // The den gorge's own air: mist all along its river, spray at the fall's plunge and over the swallow.
+                if (DenGorge.On(ground.Region))
+                {
+                    foreach (var (name, place, yaw) in DenGorge.Mist(scenery))
+                    {
+                        if (recipes.Build(name) is not { } air)
+                            continue;
+                        air.Position = place;
+                        air.RotationDegrees = new Vector3(0, yaw, 0);
+                        AddChild(air);
+                        built++;
+                    }
+                }
                 continue;
             }
             if (recipes.Build(recipe) is not { } particles)
