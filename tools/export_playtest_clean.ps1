@@ -1,4 +1,4 @@
-# The playtest export (from the UI pass, 2026-10-15), from a clean worktree at a commit, so nothing uncommitted in the shared checkout (another
+﻿# The playtest export (from the UI pass, 2026-10-15), from a clean worktree at a commit, so nothing uncommitted in the shared checkout (another
 # agent's work in progress) is compiled into the build. The gitignored addons/ (less the editor-only and unused ones below) and the .godot
 # import cache are copied in, so the import is quick.
 # Every step's exit code is checked, and the log is scanned for GDExtension and export errors: the script exits 1 on the first failure.
@@ -35,10 +35,10 @@ if (Test-Path $wt) { Fail 'Export worktree already exists; choose a fresh path (
 git -C $repo worktree add --detach $wt $Commit 2>&1 | Add-Content $Log
 if ($LASTEXITCODE -ne 0) { Fail "git worktree add $Commit" }
 if ($Primary) {
-    # New owner ruling supersedes text-only: exactly six approved ElevenLabs files, by hash.
-    Say '--- owner-approved intro narration (rejected pilot excluded)'
+    # New owner ruling supersedes text-only: exactly 36 approved ElevenLabs files, by hash.
+    Say '--- owner-approved intro and key NPC voices (rejected pilot excluded)'
     $code = Run 'python' "-P `"$wt\tools\audio_pipeline\install_intro_voice.py`" C:\Otherreach_External_Assets\Voice_ElevenLabs\vo `"$Primary`""
-    if ($code -ne 0) { Fail 'Approved intro voice install/hash check failed' }
+    if ($code -ne 0) { Fail 'Approved public voice install/hash check failed' }
     $voiceFallback = Join-Path $Out 'fallback\vo'
     if ((Test-Path $voiceFallback) -and (Get-ChildItem -LiteralPath $voiceFallback -File -Filter 'opening.*.ogg')) {
         Fail 'Unexpected fallback opening voice files; only the approved primary delivery ships'
