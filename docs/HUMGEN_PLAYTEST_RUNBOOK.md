@@ -46,6 +46,11 @@ The original UAL1 Sword_Idle contains an authored deep squat. Native source/targ
 confirmed Epic's pelvis-height scaling preserves that pose correctly. Replace the ready source;
 do not lift the hips or keyframe arms to compensate. The accepted three strikes stay unchanged.
 
+## Review isolation
+
+- Every automated review must pass `--profile` inside its own run directory, even with explicit asset/content roots. Check the emitted save-directory line before allowing creator Begin; an omitted profile can select the owner's default saves.
+- Use `--coverage-out` (or an existing review harness option) so saved window preferences cannot override the requested engine resolution. Verify physical window/PNG pixels; the logical viewport size alone does not prove 1080p.
+
 ## Gates and delivery
 
 Run the full solution tests after integrating pets, preserving save compatibility and deterministic catch-up.
