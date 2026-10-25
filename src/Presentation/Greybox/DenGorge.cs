@@ -156,30 +156,50 @@ public static partial class DenGorge
     }
 
     /// <summary>
-    /// The fall: a curtain off the far shelf's lip into the plunge pool, curling out over the edge at the top. <paramref name="top"/> is
-    /// the stream's surface at the lip and <paramref name="pool"/> the river's under it.
+    /// The fall: three curtains off the far shelf's lip into the plunge pool - a wide thin veil behind, the main sheet, and a narrow heavy
+    /// core in front - each swaying a little as it drops and spreading towards the foot. <paramref name="top"/> is the stream's surface at
+    /// the lip and <paramref name="pool"/> the river's under it. The curtains share one material; each has its own seed and weight.
     /// </summary>
-    public static MeshInstance3D FallMesh(float top, float pool, float faceD)
+    public static Node3D FallMesh(float top, float pool, float faceD)
+    {
+        var fall = new Node3D { Name = "gorge_fall" };
+        FallWater.SetShaderParameter("drop_m", top - pool);
+        foreach (var (name, width, forward, seed, body) in new[] { ("veil", 11f, 0f, 0f, 0.45f), ("sheet", 8.5f, 0.35f, 1f, 0.8f), ("core", 4.2f, 0.7f, 2f, 0.9f) })
+        {
+            var curtain = new MeshInstance3D
+            {
+                Name = name, Mesh = Curtain(top, pool, faceD - forward, width, seed), MaterialOverride = FallWater,
+                CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+            };
+            curtain.SetInstanceShaderParameter("seed", seed);
+            curtain.SetInstanceShaderParameter("body", body);
+            curtain.SetInstanceShaderParameter("width_m", width);
+            fall.AddChild(curtain);
+        }
+        return fall;
+    }
+
+    private static ArrayMesh Curtain(float top, float pool, float faceD, float width, float seed)
     {
         var st = new SurfaceTool();
         st.Begin(Mesh.PrimitiveType.Triangles);
-        const int Across = 10, Down = 48;
-        const float Width = 9f;
+        const int Across = 12, Down = 60;
         float drop = top - pool;
         for (int i = 0; i <= Down; i++)
         {
             float v = i / (float)Down;
             float y = top - drop * v;
             // The water leaves the lip moving outward and falls clear of the face: a little parabola, about 5 m out at the foot (the notch
-            // face is sheer only to the terrain's metre: hung closer, the curtain cuts into it).
+            // face is sheer only to the terrain's metre: hung closer, the curtain cuts into it). It sways as it falls.
             float out_ = 2.2f + 2.6f * MathF.Sqrt(v);
+            float sway = 0.7f * v * MathF.Sin(v * 3.3f + seed * 1.7f);
             for (int j = 0; j <= Across; j++)
             {
                 float u = j / (float)Across;
-                float spread = 1f + 0.25f * v;
+                float spread = 1f + 0.3f * v;
                 st.SetUV(new Vector2(u, v));
                 st.SetNormal(new Vector3(0, 0, -1));
-                st.AddVertex(new Vector3(FallX + (u - 0.5f) * Width * spread, y, Edge + faceD - out_));
+                st.AddVertex(new Vector3(FallX + sway + (u - 0.5f) * width * spread, y, Edge + faceD - out_ - 0.25f * MathF.Sin(u * 9f + seed)));
             }
         }
         for (int i = 0; i < Down; i++)
@@ -188,21 +208,27 @@ public static partial class DenGorge
                 int a = i * (Across + 1) + j, b = a + Across + 1;
                 st.AddIndex(a); st.AddIndex(a + 1); st.AddIndex(b); st.AddIndex(a + 1); st.AddIndex(b + 1); st.AddIndex(b);
             }
-        return new MeshInstance3D { Name = "gorge_fall", Mesh = st.Commit(), MaterialOverride = FallWater, CastShadow = GeometryInstance3D.ShadowCastingSetting.Off };
+        return st.Commit();
     }
 
-    /// <summary>Falling water: streaks running down, whiter where it breaks, thinning at the curtain's sides.</summary>
+    /// <summary>
+    /// Falling water: thin streaks and clumps rushing down at the speed of a long drop, edges eaten away irregularly so the silhouette is
+    /// never a ribbon, gaps opening towards the foot, and foam where it pours over the lip and where it hits the pool.
+    /// </summary>
     public static ShaderMaterial FallWater { get; } = new()
     {
         Shader = new Shader
         {
             Code = @"
 shader_type spatial;
-render_mode blend_mix, cull_disabled, depth_draw_opaque, diffuse_burley, specular_schlick_ggx, shadows_disabled;
+render_mode blend_mix, cull_disabled, depth_draw_never, diffuse_burley, specular_schlick_ggx, shadows_disabled;
 
-uniform float speed = 0.55;
-uniform vec2 size_m = vec2(9.0, 54.0);
+uniform float speed = 1.0;
+uniform float drop_m = 54.0;
 uniform float sky_light = 0.0;   // the skylight its spray scatters, set with the daylight (DenGorgeAir)
+instance uniform float seed = 0.0;
+instance uniform float body = 0.8;
+instance uniform float width_m = 9.0;
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
 float vnoise(vec2 p) {
@@ -218,22 +244,29 @@ float fbm(vec2 p) {
 }
 
 void fragment() {
-    // Streaks: narrow, long noise scrolling down at two rates, so the sheet never reads as a sliding texture; whiter as it falls and
-    // breaks up, near-opaque throughout, thinning only at its two edges.
-    vec2 m = UV * size_m;
-    float a = fbm(vec2(m.x * 4.5, m.y * 0.09 - TIME * speed * 6.0));
-    float b = fbm(vec2(m.x * 9.0 + 5.0, m.y * 0.18 - TIME * speed * 10.0));
-    float streak = a * 0.55 + b * 0.45;
-    float white = smoothstep(0.38, 0.72, streak) * (0.45 + 0.55 * UV.y) + 0.35 * smoothstep(0.75, 1.0, UV.y);
-    ALBEDO = mix(vec3(0.42, 0.50, 0.50), vec3(0.93, 0.95, 0.95), clamp(white + 0.2, 0.0, 1.0));
-    float sides = smoothstep(0.0, 0.12, UV.x) * smoothstep(1.0, 0.88, UV.x);
-    // Its foot breaks into the spray rather than ending on a line.
-    ALPHA = clamp((0.82 + 0.18 * streak) * sides * (1.0 - 0.7 * smoothstep(0.93, 1.0, UV.y)), 0.0, 0.97);
-    // Wet and glossy: it gives back the sky, so it stays the brightest thing in the gorge when the light goes.
+    vec2 m = vec2(UV.x * width_m, UV.y * drop_m);
+    float fall = TIME * speed;
+    // Streaks: thin and long, rushing down; clumps: heavier water falling faster still.
+    float s1 = fbm(vec2(m.x * 2.4 + seed * 13.0, m.y * 0.10 - fall * 1.5));
+    float s2 = fbm(vec2(m.x * 6.0 + seed * 7.0, m.y * 0.22 - fall * 2.8));
+    float clump = smoothstep(0.58, 0.86, fbm(vec2(m.x * 0.9 + seed * 3.0, m.y * 0.28 - fall * 3.2)));
+    float streak = s1 * 0.55 + s2 * 0.45;
+    // The silhouette: each side eaten by its own noise running down with the water, so the edge is ragged and moving.
+    float left = 0.06 + 0.16 * fbm(vec2(UV.y * drop_m * 0.12 - fall * 1.4, seed * 5.0));
+    float right = 0.94 - 0.16 * fbm(vec2(UV.y * drop_m * 0.12 - fall * 1.4, seed * 5.0 + 31.0));
+    float side = smoothstep(left - 0.05, left + 0.05, UV.x) * (1.0 - smoothstep(right - 0.05, right + 0.05, UV.x));
+    // Gaps open as the sheet breaks up towards the foot.
+    float whole = smoothstep(0.18, 0.5, streak + 0.42 - 0.38 * UV.y);
+    float lip = 1.0 - smoothstep(0.0, 0.05, UV.y);
+    float foot = smoothstep(0.82, 1.0, UV.y);
+    float white = clamp(smoothstep(0.45, 0.72, streak) * 0.65 + clump * 0.7 + lip * 0.8 + foot * 0.85, 0.0, 1.0);
+    ALBEDO = mix(vec3(0.28, 0.36, 0.36), vec3(0.94, 0.96, 0.96), white);
+    ALPHA = clamp(side * max(body * whole, white * 0.9) * (1.0 - 0.8 * smoothstep(0.93, 1.0, UV.y)), 0.0, 0.97);
     EMISSION = ALBEDO * sky_light * (0.6 + 0.4 * white);
-    ROUGHNESS = mix(0.08, 0.35, white);
-    SPECULAR = 0.75;
-    NORMAL = normalize(NORMAL + vec3((b - 0.5) * 0.5, 0.0, 0.0));
+    // Wet and glossy: it gives back the sky, so it stays the brightest thing in the gorge when the light goes.
+    ROUGHNESS = mix(0.08, 0.4, white);
+    SPECULAR = 0.7;
+    NORMAL = normalize(NORMAL + vec3((s2 - 0.5) * 0.9, (s1 - 0.5) * 0.3, 0.0));
 }
 ",
         },
@@ -245,8 +278,12 @@ void fragment() {
         for (float x = 455f; x <= 690f; x += 30f)
             yield return ("river_mist", new Vector3(x, height(x, Edge + RiverOut) + 3.2f, Edge + RiverOut), 90f);
         float pool = height(FallX, Edge + FarFootAt(FallX) - 6f);
+        foreach (float dx in new[] { -5f, -2.5f, 0f, 2.5f, 5f })
+            yield return ("waterfall_spray", new Vector3(FallX + dx, pool + 1.4f, Edge + FarFootAt(FallX) - 5.5f), 0f);
         foreach (float dx in new[] { -3f, 0f, 3f })
-            yield return ("waterfall_spray", new Vector3(FallX + dx, pool + 1.6f, Edge + FarFootAt(FallX) - 4.5f), 0f);
+            yield return ("water_splash", new Vector3(FallX + dx, pool + 0.6f, Edge + FarFootAt(FallX) - 5f), 0f);
+        float lip = height(FallX, Edge + FarFootAt(FallX) + 4f);
+        yield return ("waterfall_spray", new Vector3(FallX, lip - 1.5f, Edge + FarFootAt(FallX) - 1.5f), 0f);
         yield return ("river_mist", new Vector3(FallX, pool + 4f, Edge + FarFootAt(FallX) - 8f), 0f);
         foreach (float dx in new[] { -4f, 4f })
             yield return ("waterfall_spray", new Vector3(SwallowX + dx, height(SwallowX, Edge + RiverOut) + 6f, Edge + RiverOut), 90f);

@@ -332,9 +332,10 @@ public static class Terrain3DView
             {
                 h = Outside(ground, x, z, noise);
                 c = Encode(SlotLayer[1], Cliff, 0, auto: true);
-                // The den gorge is stone from its lip to the top of its far wall, with wet mud in it towards the river; the hole bit cuts
+                // The den gorge is stone from its lip to the foot of its far wall, with wet mud in it towards the river (the far wall keeps
+                // the moor's own ground, so its ledges are lit litter and moss against the rock); the hole bit cuts
                 // the ground away at the cave mouth, where the passage's own rock stands.
-                if (z > region.End.Y && DenGorge.On(region) && DenGorge.Weight(x) > 0.3f && z - region.End.Y < DenGorge.FarFootAt(x) + 24f)
+                if (z > region.End.Y && DenGorge.On(region) && DenGorge.Weight(x) > 0.3f && z - region.End.Y < DenGorge.FarFootAt(x) + 1f)
                 {
                     float wet = Math.Clamp(0.5f + noise.GetNoise2D(x * 4f, z * 4f) * 0.6f, 0f, 1f) * (1f - GroundField.SmoothStep(16f, 38f, MathF.Abs(z - region.End.Y - 27f) + 10f));
                     c = Encode(Cliff, SlotLayer[2], (int)(wet * 160f), auto: false);
