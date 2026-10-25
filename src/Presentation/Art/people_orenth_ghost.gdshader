@@ -1,8 +1,9 @@
 shader_type spatial;
-render_mode blend_mix, depth_draw_never, cull_back, unshaded;
+render_mode blend_mix, depth_draw_never, cull_back, diffuse_lambert, specular_disabled;
 
 // Orenth: a spirit echo of this person - a second registration of the same skinned surface in its own clothes, hair and
-// skin, paled toward silver (never violet: violet belongs to the Rift). Trailing copies sit `offset` behind (mesh space)
+// skin, paled toward silver (never violet: violet belongs to the Rift). Lit like the scene but with no specular: an unlit
+// ghost is pushed by the frontier's exposure to a flat white that hides the clothes. Trailing copies sit `offset` behind (mesh space)
 // and smear along it; the body's depth hides all but what leaves its silhouette. Edges and feet dissolve, so it reads as
 // a spirit rather than a solid. OrenthPhase and OrenthDecoy drive offset, strength and dissolve per frame.
 uniform sampler2D base_map : source_color, hint_default_white;
@@ -30,7 +31,7 @@ void vertex() {
 	rest = VERTEX;
 	// The side trailing the motion stretches further back: a little motion left behind.
 	vec3 back = length(offset) > 1e-4 ? normalize(offset) : vec3(0.0);
-	VERTEX += offset + back * length(offset) * 0.7 * max(dot(NORMAL, back), 0.0);
+	VERTEX += offset + back * length(offset) * 0.35 * max(dot(NORMAL, back), 0.0);
 }
 
 void fragment() {
@@ -41,7 +42,9 @@ void fragment() {
 	float body = smoothstep(0.05, 0.55, facing + (wisp - 0.5) * 0.45);
 	float feet = smoothstep(0.05, 0.6, rest.y);
 	float alive = smoothstep(dissolve - 0.08, dissolve + 0.08, wisp);
-	vec3 pale = mix(base.rgb, vec3(dot(base.rgb, vec3(0.299, 0.587, 0.114))), 0.35);
-	ALBEDO = mix(pale * 1.15, SPIRIT, 0.38) + SPIRIT * (1.0 - facing) * 0.18;
+	vec3 pale = mix(base.rgb, vec3(dot(base.rgb, vec3(0.299, 0.587, 0.114))), 0.3);
+	ALBEDO = mix(pale * 1.1, SPIRIT, 0.28);
+	ROUGHNESS = 1.0;
+	EMISSION = SPIRIT * (0.04 + 0.1 * (1.0 - facing)) * strength;
 	ALPHA = strength * base.a * mix(0.55, 1.0, body) * body * feet * alive;
 }

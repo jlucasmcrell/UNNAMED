@@ -100,6 +100,27 @@ public partial class Main
                 case "phase":
                     figures[s.GetProperty("id").GetString()!].Figure.FindChildren("OrenthPhase", "", true, false).OfType<OrenthPhase>().Single().Phase(Num(s, "seconds", 1.5f));
                     break;
+                case "probe":
+                {
+                    var f = figures[s.GetProperty("id").GetString()!].Figure;
+                    log.Add(new { step, meshes = f.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>().Select(m => new
+                    {
+                        name = m.Name.ToString(), visible = m.IsVisibleInTree(), skinned = m.Skin is not null,
+                        surfaces = Enumerable.Range(0, m.Mesh?.GetSurfaceCount() ?? 0).Select(i =>
+                        {
+                            var material = m.GetSurfaceOverrideMaterial(i) ?? m.MaterialOverride ?? m.Mesh!.SurfaceGetMaterial(i);
+                            return new
+                            {
+                                type = material?.GetType().Name, resource = material?.ResourceName,
+                                base_map = material is ShaderMaterial sm ? sm.GetShaderParameter("base_map").AsGodotObject()?.GetType().Name : null,
+                                texture_albedo = material is ShaderMaterial tm ? tm.GetShaderParameter("texture_albedo").AsGodotObject()?.GetType().Name : null,
+                                albedo_texture = (material as BaseMaterial3D)?.AlbedoTexture?.GetType().Name,
+                            };
+                        }),
+                    }) });
+                    File.WriteAllText(Path.Combine(directory, "race_looks.json"), JsonSerializer.Serialize(log, new JsonSerializerOptions { WriteIndented = true }));
+                    break;
+                }
                 case "shatter":
                     decoy?.Shatter();
                     break;
