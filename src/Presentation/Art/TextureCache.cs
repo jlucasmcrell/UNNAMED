@@ -194,7 +194,7 @@ public sealed class TextureCache
             {
                 var upload = _buildNative ? image : WithinSize(image, maxSize);
                 texture = ImageTexture.CreateFromImage(upload);
-                CompressedBytes += upload.GetDataSize();
+                if (retain) CompressedBytes += upload.GetDataSize(); // Scoped player maps are not retained in this cache.
                 if (upload != image)
                     upload.Dispose();
                 if (_buildNative && native is not null)
