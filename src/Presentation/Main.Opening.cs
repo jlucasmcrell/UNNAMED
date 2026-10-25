@@ -47,7 +47,7 @@ public partial class Main
 
     /// <summary>
     /// The opening, before the start screen: the world's view goes to the start screen's own camera on the hit, and the title comes in
-    /// under the name. The first viewing plays through; it counts as seen once it ends, skipped or not.
+    /// under the name. The first viewing plays through; it counts as seen once the name has come in.
     /// </summary>
     private void BeginOpening(OpeningCinematic.Places places, string region)
     {
@@ -70,13 +70,14 @@ public partial class Main
                 AddChild(_startCamera);
                 _music.Opening(false);
                 _music.Title(true);
+                // Seen once the name is: written under the hit's flash, not as the title's entries come in.
+                if (!SettingsStore.Current.Profile.OpeningSeen)
+                    SettingsStore.Set(SettingsStore.Current with { Profile = SettingsStore.Current.Profile with { OpeningSeen = true } });
             },
         };
         opening.Done = skipped =>
         {
             GD.Print($"UNNAMED opening: {(skipped ? "skipped" : "played through")}");
-            if (!SettingsStore.Current.Profile.OpeningSeen)
-                SettingsStore.Set(SettingsStore.Current with { Profile = SettingsStore.Current.Profile with { OpeningSeen = true } });
             OpenFrontEnd(reveal: true);
         };
         if (capture is not null)

@@ -103,13 +103,13 @@ public partial class OpeningCinematic : Node
             // The Foldscar: round its broken heart against the first light in the east, the whole 70 m of it and the tear in the gap at the
             // frame's heart, closing in through the debris.
             new Shot(10, 22, new[] { Round(at, heart, 150, 165, 20), Round(at, heart, 172, 140, 18), Round(at, heart, 192, 118, 16) },
-                new[] { tear + new Vector3(0, 6, 0), tear + new Vector3(0, 4, 0), tear + new Vector3(0, 2, 0) }, 44, 40),
+                new[] { tear + new Vector3(0, 14, 0), tear + new Vector3(0, 12, 0), tear + new Vector3(0, 10, 0) }, 46, 42),
             // Old Late: low at its foot on the side the morning lights, rising with the trunk to the crown.
             new Shot(22, 31, new[] { Round(at, at.OldLate, -20, 52, 3), Round(at, at.OldLate, -6, 44, 7), Round(at, at.OldLate, 8, 38, 12) },
                 new[] { at.OldLate + new Vector3(0, at.OldLateHeight * 0.25f, 0), at.OldLate + new Vector3(0, at.OldLateHeight * 0.75f, 0) }, 58, 54),
-            // The Needle over the Spill from the north, the sun coming up at its side and lighting its face.
-            new Shot(31, 41, new[] { Round(at, at.Needle, -104, 150, 30), Round(at, at.Needle, -84, 126, 24) },
-                new[] { at.Needle + new Vector3(0, at.NeedleHeight * 0.45f, 0), at.Needle + new Vector3(0, at.NeedleHeight * 0.5f, 0) }, 38, 33),
+            // The whole Needle over the Spill, the sun coming up beside it.
+            new Shot(31, 41, new[] { Round(at, at.Needle, -165, 235, 30), Round(at, at.Needle, -150, 205, 26) },
+                new[] { at.Needle + new Vector3(0, at.NeedleHeight * 0.45f, 0), at.Needle + new Vector3(0, at.NeedleHeight * 0.5f, 0) }, 40, 36),
             // The Ashen Waystone, close, waking.
             new Shot(41, 50, new[] { Round(at, stone, -28, 6.8f, 1.5f), Round(at, stone, -48, 5.6f, 1.7f), Round(at, stone, -68, 5.0f, 2.0f) },
                 new[] { stone + new Vector3(0, 1.3f, 0), stone + new Vector3(0, 1.2f, 0) }, 44, 40),
@@ -283,7 +283,7 @@ public partial class OpeningCinematic : Node
         _name.Position = new Vector2(_name.Position.X, (TitleScreen.MarkTop + Mathf.Lerp(TitleScreen.RevealDrop, 0, rise)) * height);
         float bars = (float)Math.Clamp((since - 1.2) / 1.4, 0, 1);
         _top.Position = new Vector2(0, -_top.Size.Y * bars * bars);
-        _bottom.Position = new Vector2(0, _bottom.Size.Y * bars * bars);
+        _bottom.Position = new Vector2(0, height * 8 / 9 + _bottom.Size.Y * bars * bars);
     }
 
     private void Words(double t)
