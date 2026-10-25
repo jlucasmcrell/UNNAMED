@@ -650,9 +650,15 @@ public partial class Main : Node3D
                 _loading?.Stage("Planting the land", 0.98);
                 _scatter.Build(NextWorldSeed);
             }
-            _loading?.End();
+            // The opening warms the world's shaders under the bar, and ends the loading screen itself.
             if (opening is not null)
+            {
+                _loading?.Stage("Opening the sky", 0.99);
+                _loading?.ShowWorldBehind();
                 BeginOpening(opening, region);
+            }
+            else
+                _loading?.End();
             if (autostart)
                 Callable.From(AutoStart).CallDeferred();
             return;

@@ -59,7 +59,7 @@ public partial class OpeningCinematic : Node
     /// <summary>The first viewing plays through; after it any key skips.</summary>
     public bool Skippable { get; init; }
 
-    /// <summary>Warmed, under its own black: the opening is ready to play from its first frame.</summary>
+    /// <summary>Warmed under the loading screen (the opening draws nothing until then): ready to play from its first frame.</summary>
     public Action? Warmed { get; set; }
 
     /// <summary>Held on its first frame, warmed (a window recorder starting).</summary>
@@ -136,7 +136,7 @@ public partial class OpeningCinematic : Node
         AddChild(_camera);
         _camera.MakeCurrent();
         StartCamera.Track(this, _camera);
-        _layer = new CanvasLayer { Layer = 30 };
+        _layer = new CanvasLayer { Layer = 30, Visible = false };
         AddChild(_layer);
         // The title's theme, so the name it hands over is drawn exactly as the title draws it.
         var root = new Control { Theme = UiKit.Theme, MouseFilter = Control.MouseFilterEnum.Ignore };
@@ -180,7 +180,7 @@ public partial class OpeningCinematic : Node
         return bar;
     }
 
-    // The warm-up, under the opening's own black: every shot at its start, its middles and its end, at the hour it is seen at, two frames each -
+    // The warm-up, under the loading screen: every shot at its start, its middles and its end, at the hour it is seen at, two frames each -
     // so every material, the sky's night and morning and the tear's shader are built before the first frame anyone sees.
     private static readonly double[] WarmAt = { 0, 0.34, 0.67, 0.99 };
 
@@ -202,6 +202,7 @@ public partial class OpeningCinematic : Node
             {
                 _warm++;
                 Pose(0);
+                _layer.Visible = true;
                 Warmed?.Invoke();
                 return;
             }

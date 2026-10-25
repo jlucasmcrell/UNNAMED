@@ -52,12 +52,15 @@ public partial class Main
     private void BeginOpening(OpeningCinematic.Places places, string region)
     {
         string? capture = System.Environment.GetEnvironmentVariable("OTHERREACH_OPENING_VIDEO");
+        int titleLayer = _title.Layer;
         var opening = new OpeningCinematic(places)
         {
             Name = "Opening", Skippable = SettingsStore.Current.Profile.OpeningSeen, Holding = capture is not null,
-            // The title built and drawn once under the black, and the narration read, so neither costs a frame when it comes.
+            // The title built and drawn once under the loading screen (a layer beneath its canvas), and the narration read, so neither
+            // costs a frame when it comes.
             Warming = () =>
             {
+                _title.Layer = -1;
                 _title.Open();
                 foreach (var line in Ui.OpeningWords.Lines)
                     _voice.Preload(line.Voice);
@@ -65,6 +68,7 @@ public partial class Main
             Started = () =>
             {
                 _title.Close();
+                _title.Layer = titleLayer;
                 _music.Opening(true);
             },
             Say = id => _voice.Say(id),
@@ -85,8 +89,12 @@ public partial class Main
             GD.Print($"UNNAMED opening: {(skipped ? "skipped" : "played through")}");
             OpenFrontEnd(reveal: true);
         };
-        if (capture is not null)
-            opening.Warmed = () => RecordOpening(opening, capture);
+        opening.Warmed = () =>
+        {
+            _loading?.End();
+            if (capture is not null)
+                RecordOpening(opening, capture);
+        };
         AddChild(opening);
     }
 
