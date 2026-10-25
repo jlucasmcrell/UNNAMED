@@ -8,7 +8,7 @@ region_ref: region.starting_frontier
 creatures:
   - { creature_ref: creature.beast.cave_hunting_spider, count: [1, 1], role: ambusher }
 at:
-  position_m: [748, 666]
+  position_m: [747, 662]
   radius_m: 3
 level_band: [3, 3]
 respawn: { kind: timer, window_ticks: 115200 }   # 2 game days, staggered so the road never refills all at once

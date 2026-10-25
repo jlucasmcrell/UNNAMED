@@ -1,7 +1,9 @@
 """How often a body meets a fight along a region's travelled path: the gaps, in seconds at the base run, between hostile spawns.
 
-The path is the region's roads plus any branch given with --branch (x,z;x,z;...). A hostile site is met where the path passes within
---reach metres of its point or any point of its route (a creature's sight is 25 m; most notice from 20-30 m). Ground within --safe
+The path is the region's roads plus any branch given with --branch (x,z;x,z;...). A hostile site is met where the game would turn it on
+a passer-by: an unaware creature only takes notice inside the ground it keeps (config.creature_behaviour), so a role with a territory
+(sentinel 10 m, ambusher 14 m, territorial 15 m...) is met only where the path passes inside that territory of its spawn point; a role
+without one is met within --reach of its point or any point of its route (sight is 25 m). Roles that rest by day are marked (night). Ground within --safe
 metres of a settlement location is the safe core: no gap is counted there and no site may stand on the road in
 it. Peaceful roles (wildlife, skittish, yard_fowl, herd, herd_shy) are not fights.
 
@@ -45,12 +47,19 @@ def main():
     ap.add_argument("--speed", type=float, default=3.2)
     args = ap.parse_args()
 
+    roles = load("content/config/creature_behaviour.yaml")[0]["roles"]
     sites = []
     for s in load("content/spawns/**/*.yaml"):
-        if s.get("region_ref") != args.region or all(c.get("role") in PEACEFUL for c in s["creatures"]):
+        hostile = [c["role"] for c in s["creatures"] if c.get("role") not in PEACEFUL]
+        if s.get("region_ref") != args.region or not hostile:
             continue
-        points = [tuple(s["at"]["position_m"])] + [tuple(p) for p in s.get("route_m", [])]
-        sites.append((s["id"].split(".", 1)[1], points))
+        home = tuple(s["at"]["position_m"])
+        territory = max(roles.get(r, {}).get("territory_m", 0) for r in hostile)
+        territorial = all(roles.get(r, {}).get("territory_m", 0) > 0 for r in hostile)
+        points = [home] if territorial else [home] + [tuple(p) for p in s.get("route_m", [])]
+        reach = territory if territorial else args.reach
+        night = all(roles.get(r, {}).get("rests") == "day" for r in hostile)
+        sites.append((s["id"].split(".", 1)[1] + (" (night)" if night else ""), points, reach))
     cores = [tuple(loc["anchor"]["world"][0::2]) for loc in load("content/locations/**/*.yaml")
              if loc.get("region_ref") == args.region and loc.get("kind_of_place") in ("settlement", "waystation")]
 
@@ -60,7 +69,7 @@ def main():
         gap, worst, met, last = 0.0, 0.0, [], None
         for x, z in sample(path, 2.0):
             safe = any(math.hypot(x - cx, z - cz) < args.safe for cx, cz in cores)
-            near = [sid for sid, pts in sites if min(math.hypot(x - px, z - pz) for px, pz in pts) < args.reach]
+            near = [sid for sid, pts, reach in sites if min(math.hypot(x - px, z - pz) for px, pz in pts) < reach]
             if safe or near:
                 if gap:
                     worst = max(worst, gap)

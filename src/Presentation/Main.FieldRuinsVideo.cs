@@ -30,7 +30,12 @@ public partial class Main
                 textures_mb = Performance.GetMonitor(Performance.Monitor.RenderTextureMemUsed) / 1048576,
                 buffers_mb = Performance.GetMonitor(Performance.Monitor.RenderBufferMemUsed) / 1048576,
                 fps = Engine.GetFramesPerSecond(), creatures_within_60m = sim.Creatures.Count(c => c.Alive && Distance(_controller.Authoritative, c.Body) < 60_000),
-                nearest_hostile = Threat(60) is { } near ? $"{near.DefId} {Distance(_controller.Authoritative, near.Body) / 1000:0} m {near.Mind}" : null };
+                nearest_hostile = Threat(60) is { } near ? $"{near.DefId} {Distance(_controller.Authoritative, near.Body) / 1000:0} m {near.Mind}" : null,
+                // Each creature within 35 m: what it knows of the character, and how its cell is simulated.
+                near = sim.Creatures.Where(c => c.Alive && Distance(_controller.Authoritative, c.Body) < 35_000).Select(c =>
+                    $"{c.Key} {Distance(_controller.Authoritative, c.Body) / 1000:0}m {c.Mind} aw{c.Awareness}{(c.Asleep ? " asleep" : "")} "
+                    + sim.CellTiers.GetValueOrDefault(UNNAMED.World.CellKey.OfWorld(c.Body.XMm / 1000.0, c.Body.ZMm / 1000.0).ToString())).ToArray(),
+                player_tier = sim.CellTiers.GetValueOrDefault(UNNAMED.World.CellKey.OfWorld(_controller.Authoritative.XMm / 1000.0, _controller.Authoritative.ZMm / 1000.0).ToString()).ToString() };
             events.Add(row); File.AppendAllText(Path.Combine(directory, "phases.jsonl"), JsonSerializer.Serialize(row) + "\n");
         }
         CreatureView? Threat(double within) => sim.Creatures
@@ -118,7 +123,7 @@ public partial class Main
                         if (_avatar.GlobalPosition.DistanceTo(last) > .1f) { last = _avatar.GlobalPosition; moved = Time.GetTicksMsec(); }
                         if (Time.GetTicksMsec() - moved > 8000)
                             throw new InvalidDataException("Field-ruins route blocked at " + body + " toward " + corner);
-                        if (Time.GetTicksMsec() - sampled > 3000) { sampled = Time.GetTicksMsec(); Mark("sample"); }
+                        if (Time.GetTicksMsec() - sampled > 1000) { sampled = Time.GetTicksMsec(); Mark("sample"); }
                         _camera.Yaw = Mathf.Atan2(-toward.X, -toward.Z);
                         _controller.SteerWorld(toward.Normalized(), gait, _camera);
                         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
@@ -219,7 +224,7 @@ public partial class Main
                 Mark("foldscar_turn");
                 await Go(new[] { (680.0, 657.0), (760.0, 658.0), (840.0, 659.0) }, 360, Gait.Run, 25);
                 Mark("road_east");
-                await Go(new[] { (880.0, 660.0), (881.3, 701.8), (884.0, 728.0) }, 240, Gait.Run, 25);
+                await Go(new[] { (880.0, 660.0), (881.3, 701.8), (884.0, 728.0), (878.0, 729.0) }, 300, Gait.Run, 25);
                 Mark("east_lane"); await Look((850, 758), 5);
                 break;
             case "busy":
