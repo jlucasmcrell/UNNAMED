@@ -249,6 +249,9 @@ public sealed record DeltaSnapshot(ImmutableArray<CellDeltaRecord> Cells, Immuta
     /// <summary>Every NPC life, the role slots awaiting an arrival and the pairs' last meetings (WP12); null before lives first ran.</summary>
     public NpcLifeState? NpcLife { get; init; }
 
+    /// <summary>The World Event Director's running events and the world's history (WP 1H); null before the director first ran.</summary>
+    public Runtime.DirectorState? Director { get; init; }
+
     /// <summary>Every NPC adventurer and the slots awaiting arrivals (WP13); null before adventurers first lived.</summary>
     public AdventurerState? Adventurers { get; init; }
 }
@@ -279,6 +282,7 @@ public sealed class WorldDelta
     private EconomyState? _economy;
     private readonly SortedDictionary<string, MerchantState> _merchants = new(StringComparer.Ordinal);
     private NpcLifeState? _npcLife;
+    private Runtime.DirectorState? _director;
     private AdventurerState? _adventurers;
 
     public WorldDelta(ICellBaselineGenerator generator, ulong worldSeed, Registry registry)
@@ -512,6 +516,11 @@ public sealed class WorldDelta
 
     internal void SetNpcLife(NpcLifeState life) => _npcLife = life;
 
+    /// <summary>The World Event Director's running events and the world's history (WP 1H); null until the director first runs.</summary>
+    public Runtime.DirectorState? Director => _director;
+
+    internal void SetDirector(Runtime.DirectorState director) => _director = director;
+
     // ── adventurers (WP13) ──────────────────────────────────────────────────
 
     /// <summary>Every adventurer, keyed with no limit (DN5); null until adventurers first live.</summary>
@@ -612,7 +621,7 @@ public sealed class WorldDelta
         return new DeltaSnapshot(cells.ToImmutable(), entities.ToImmutable())
         {
             Created = created, Containers = containers, Creatures = creatures, Noises = _noises,
-            Economy = _economy, Merchants = _merchants.Values.ToImmutableArray(), NpcLife = _npcLife,
+            Economy = _economy, Merchants = _merchants.Values.ToImmutableArray(), NpcLife = _npcLife, Director = _director,
             Adventurers = _adventurers,
         };
     }
@@ -678,6 +687,16 @@ public sealed class WorldDelta
                 noises.Add(noise);
         }
         world._noises = noises.ToImmutable();
+
+        if (snapshot.Director is { } director)
+        {
+            var ids = director.Active.Select(e => e.Id).Concat(director.History.Select(e => e.Id)).ToList();
+            if (director.Active.Any(e => e.EndHour <= e.StartHour) || director.History.Any(e => e.EndHour <= e.StartHour || e.Outcome.Length == 0)
+                || ids.Count != ids.Distinct().Count())
+                problems.Add(new RejectedRecord("entities", "director", "an event that ends before it begins, one without an outcome, or one held twice"));
+            else
+                world._director = director;
+        }
 
         if (snapshot.Economy is { } economy)
         {

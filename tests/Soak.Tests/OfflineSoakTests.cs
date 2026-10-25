@@ -85,6 +85,11 @@ public sealed class OfflineSoakTests(ITestOutputHelper output)
         Assert.Equal(whole.Calendar, mixed.Calendar);
         Assert.Equal(whole.Weather, mixed.Weather);
         Assert.Equal(whole.WeatherCursor, mixed.WeatherCursor);
+        // The World Event Director (WP 1H): the same events, the same history, at every chunking.
+        Assert.NotEmpty(whole.WorldHistory);
+        Assert.Equal(whole.WorldHistory.ToArray(), daily.WorldHistory.ToArray());
+        Assert.Equal(whole.WorldHistory.ToArray(), mixed.WorldHistory.ToArray());
+        Assert.Equal(whole.WorldEvents.ToArray(), mixed.WorldEvents.ToArray());
         for (int i = 0; i < 40; i++) { whole.Step(); daily.Step(); mixed.Step(); }
         SoakWorld.Equal(whole, daily, "post-catch-up daily continuation");
         SoakWorld.Equal(whole, mixed, "post-catch-up mixed continuation");

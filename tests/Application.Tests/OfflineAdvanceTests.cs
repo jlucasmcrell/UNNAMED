@@ -91,6 +91,11 @@ public class OfflineAdvanceTests
         Assert.Equal(Reckoning, whole.Lines.Where(l => l.Kind == AdvanceKinds.TimePassed).Sum(l=>l.Amount));
         Assert.InRange(whole.Lines.Where(l => l.Kind == AdvanceKinds.DaysPassed).Sum(l=>l.Amount), 182, 183);
         Assert.Equal("effect.weakened", whole.Lines.Single(l => l.Kind == AdvanceKinds.EffectExpired).Ref);
+        // The World Event Director (WP 1H) ran the same events through the Reckoning, and the away log tells them (QST-55, WLD-89).
+        Assert.NotEmpty(once.WorldHistory);
+        Assert.Equal(once.WorldHistory.ToArray(), daily.WorldHistory.ToArray());
+        Assert.Equal(once.WorldEvents.ToArray(), daily.WorldEvents.ToArray());
+        Assert.Contains(whole.Lines, l => l.Kind == DirectorAdvanceKinds.Ended && l.Ref == "event.travelling_trader");
     }
 
     [Fact]

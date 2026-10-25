@@ -28,6 +28,9 @@ public sealed record AdvanceLine(long Tick, string Kind, string Ref, long Amount
     public int? Level { get; init; }
     public bool Wounded {get;init;}
     public ImmutableArray<(string ItemId,int Count)> Loot {get;init;}=ImmutableArray<(string,int)>.Empty;
+
+    /// <summary>How a world event ended (WP 1H), on the director's end line; null otherwise.</summary>
+    public string? Outcome { get; init; }
 }
 
 /// <summary>The kinds of <see cref="AdvanceLine"/> the systems write. Presentation words them; the domain does not.</summary>

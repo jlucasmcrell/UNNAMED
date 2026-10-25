@@ -129,6 +129,9 @@ public enum StateSlice
 
     /// <summary>The animals that travel with the character (spec 43). Saved with the player (schema 36).</summary>
     Pets,
+
+    /// <summary>The World Event Director's running events and the world's history (WP 1H). In the world delta.</summary>
+    Director,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -596,6 +599,12 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.Quests);
         Quests = Quests.SetItem(quest.QuestId, quest);
+    }
+
+    public void SetDirector(SliceOwner owner, DirectorState director)
+    {
+        Require(owner, StateSlice.Director);
+        World.SetDirector(director);
     }
 
     public void SetEconomy(SliceOwner owner, EconomyState economy)

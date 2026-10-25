@@ -1,6 +1,9 @@
 // UNNAMED Application - how much of an absence the world catches up (WP11; SYSTEMS_COMPLETENESS_PLAN §2.12, DN1)
 // No Godot references - pure C#
 
+using System.Collections.Immutable;
+using UNNAMED.World.Runtime;
+
 namespace UNNAMED.Application;
 
 /// <summary>
@@ -38,5 +41,38 @@ public static class OfflineCatchUp
             ? long.MaxValue
             : seconds * ticksPerSecond + elapsed % TimeSpan.TicksPerSecond * ticksPerSecond / TimeSpan.TicksPerSecond;
         return new CatchUp(requested, Math.Min(requested, Math.Max(0, capTicks)));
+    }
+}
+
+/// <summary>
+/// One world event as the "while you were away" sheet tells it (WP 1H): what and where, when it began (null: before the absence) and
+/// when and how it ended (null: it is still going on).
+/// </summary>
+public sealed record AwayWorldEvent(string EventId, string DefId, string Region, long? BeganTick, long? EndedTick, string? Outcome);
+
+/// <summary>The World Event Director's hook into the catch-up (WP 1H).</summary>
+public static class OfflineWorldEvents
+{
+    /// <summary>
+    /// The world events of an absence, one entry each, in the order they first appear: an event that began and ended while the
+    /// character was away is one entry with both ends. The director wrote the lines itself, from the same hours live play settles, so
+    /// these are exactly the events a character who had stayed would have seen.
+    /// </summary>
+    public static ImmutableArray<AwayWorldEvent> From(IEnumerable<AdvanceLine> lines)
+    {
+        var events = new List<AwayWorldEvent>();
+        foreach (var line in lines.Where(l => l.Kind is DirectorAdvanceKinds.Began or DirectorAdvanceKinds.Ended && l.SubjectId is not null))
+        {
+            int at = events.FindIndex(e => e.EventId == line.SubjectId);
+            var known = at >= 0 ? events[at] : new AwayWorldEvent(line.SubjectId!, line.Ref, line.PlaceId ?? string.Empty, null, null, null);
+            var next = line.Kind == DirectorAdvanceKinds.Began
+                ? known with { BeganTick = line.Tick }
+                : known with { EndedTick = line.Tick, Outcome = line.Outcome };
+            if (at >= 0)
+                events[at] = next;
+            else
+                events.Add(next);
+        }
+        return events.ToImmutableArray();
     }
 }

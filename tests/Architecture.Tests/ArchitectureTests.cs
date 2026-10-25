@@ -72,6 +72,7 @@ public class ArchitectureTests
             "get_" + nameof(WorldDelta.Economy), "get_" + nameof(WorldDelta.Merchants), nameof(WorldDelta.Merchant),   // the economy (WP14)
             "get_" + nameof(WorldDelta.NpcLife),   // NPC life (WP12)
             "get_" + nameof(WorldDelta.Adventurers),   // NPC adventurers (WP13)
+            "get_" + nameof(WorldDelta.Director),   // the World Event Director (WP 1H)
         };
         var exposed = typeof(WorldDelta)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)

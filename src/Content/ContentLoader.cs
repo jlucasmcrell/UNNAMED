@@ -206,6 +206,11 @@ public class ContentLoader
             _errors.AddRange(economyErrors);
             success &= economyErrors.Count == 0;
 
+            // The World Event Director's events, cap and channels (DIR codes)
+            var directorErrors = DirectorContent.Validate(this);
+            _errors.AddRange(directorErrors);
+            success &= directorErrors.Count == 0;
+
             // Quests: objective graphs over world state (QST codes)
             var questErrors = QuestContent.Validate(this, authoring);
             _errors.AddRange(questErrors);

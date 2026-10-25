@@ -136,6 +136,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
     /// <summary>The town markets, the road trade link and the merchants' purses (WP14).</summary>
     public EconomySetup Economy { get; init; } = EconomySetup.Empty;
 
+    /// <summary>The World Event Director's events, cap, history and intensity (WP 1H; <c>config.director</c>).</summary>
+    public DirectorSetup Director { get; init; } = DirectorSetup.Empty;
+
     /// <summary>The player's active techniques, one weapon family's each (WP9, D11).</summary>
     public ImmutableSortedDictionary<string, TechniqueDefinition> Techniques { get; init; } =
         ImmutableSortedDictionary.Create<string, TechniqueDefinition>(StringComparer.Ordinal);
@@ -263,6 +266,7 @@ public sealed class Simulation
     private readonly CombinedHireability _hiring;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
     private readonly ImmutableArray<IAbstractAdvance> _advances;
+    private readonly DirectorSystem _director;
     private long _sequence;
     private bool _stepping;
     private bool _advancing;
@@ -326,6 +330,7 @@ public sealed class Simulation
         _relationships.Listen(bus);
         _dialogue = new DialogueSystem(_context, _state.Claim(nameof(DialogueSystem), StateSlice.Conversations), player.Id);
         _markets = new MarketSystem(_context, _state.Claim(nameof(MarketSystem), StateSlice.Markets));
+        _director = new DirectorSystem(_context, _state.Claim(nameof(DirectorSystem), StateSlice.Director));
         _merchants = new MerchantSystem(_context, _state.Claim(nameof(MerchantSystem), StateSlice.Merchants), _markets);
         _merchants.Listen(bus);
         _trade = new TradeSystem(_context, player.Id, _inventory.View, _markets, _merchants) { Closed = _npcs.TradeRefusal };
@@ -383,13 +388,14 @@ public sealed class Simulation
         // The abstract advance (WP11): the clock first, so every other system brings itself to the tick it reads. A new world system
         // that goes on while the character is away adds itself here. The party goes before the adventurers: an adventurer it lets go or
         // loses at a midnight of the absence takes up their life from that midnight, however the absence is split (T-22).
-        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _companions, _adventurers, _creatures, _effects, _gathering, _quests, _factions, _sheets, _approval, _npcs, _markets, _teaching, _durability, _laden, _lfg, _pets);
+        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _companions, _adventurers, _creatures, _effects, _gathering, _quests, _factions, _sheets, _approval, _npcs, _markets, _teaching, _durability, _laden, _lfg, _pets, _director);
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
         _combat.Seed(player);
         _npcs.Populate();
         _adventurers.Populate();
         _markets.Populate();
+        _director.Populate();
         _merchants.Populate();
         _companions.Populate();
         _npcs.SettleParty();
@@ -786,6 +792,12 @@ public sealed class Simulation
     /// <summary>The town markets: each good's stock and price against base, and what is on the road to them (WP14).</summary>
     public ImmutableArray<MarketView> Markets => _markets.Views();
 
+    /// <summary>The world events running now (WP 1H).</summary>
+    public ImmutableArray<WorldEventView> WorldEvents => _director.Views();
+
+    /// <summary>The world's history: resolved events, oldest first, as many as <c>config.director</c> keeps (WP 1H).</summary>
+    public ImmutableArray<WorldEventRecord> WorldHistory => World.Director!.History;
+
     /// <summary>The quests the character has started, as the journal shows them: active first (M5).</summary>
     public ImmutableArray<QuestView> Quests => _quests.Views();
 
@@ -954,6 +966,7 @@ public sealed class Simulation
             _quests.Tick(tick);
             _adventurers.Tick(tick);
             _markets.Tick(tick);
+            _director.Tick(tick);
             _quickBar.Tick(tick);
             _gearSets.Tick(tick);
             _lfg.Tick(tick);
@@ -1123,6 +1136,8 @@ public sealed class Simulation
         // Adventurers (WP13): every life and the slots awaiting arrivals.
         h.Add(World.Adventurers is not null);
         World.Adventurers?.AddTo(h);
+        // The World Event Director (WP 1H): the events running and the world's history.
+        World.Director!.AddTo(h);
         return h.Finish();
     }
 

@@ -1,0 +1,37 @@
+id: config.director
+kind: config
+schema: 1
+display_key: config.director.name
+tags: [config]
+notes: >-
+  The World Event Director (WP 1H; QST-55, WLD-89): a seeded, controlled-random scheduler that settles one game hour at a time, the
+  same hours live and through an absence. At most max_active_per_region events run at once in one region (RK-A9: 8). Every event
+  started in the last intensity_window_h hours lowers every kind's hourly odds by intensity_damping_permille. The two events here are
+  framework proofs, resolved abstractly: they are announced, run their time, end with a seeded outcome and enter the world's history.
+  What they change in the world (a trader's wares, a herd's numbers) is for the consequence systems of later waves. Every number is
+  provisional, for playtests to tune.
+max_active_per_region: 8
+history_kept: 64
+intensity_window_h: 48
+intensity_damping_permille: 250
+events:
+  - id: event.travelling_trader
+    scale: local
+    min_world_day: 1             # not on the first day of a new world
+    chance_permille: 40          # per game hour, before damping
+    hours: [6, 12]
+    cooldown_h: 24               # from when the last one began
+    channels: [notice_board, chat, away_log]
+    outcomes:
+      - { key: moved_on, weight: 3 }
+      - { key: sold_out, weight: 1 }
+  - id: event.creature_migration
+    scale: regional
+    min_world_day: 3
+    chance_permille: 10
+    hours: [24, 48]
+    cooldown_h: 72
+    channels: [rumour, away_log]
+    outcomes:
+      - { key: passed_through, weight: 2 }
+      - { key: lingered, weight: 1 }

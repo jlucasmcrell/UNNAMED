@@ -294,6 +294,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Calendar = WorldContent.BuildCalendar(loader),
             Weather = WorldContent.BuildWeather(loader),
             Economy = EconomyContent.Build(loader),
+            Director = DirectorContent.Build(loader),
             Techniques = TeachingContent.BuildTechniques(loader),
             Chat = ChatterContent.Build(loader),
             Navigation = NavigationContent.Build(loader),
