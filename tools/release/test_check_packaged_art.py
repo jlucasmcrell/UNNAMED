@@ -15,4 +15,8 @@ with tempfile.TemporaryDirectory() as directory:
     path = Path(directory) / "art_coverage.json"
     path.write_text('[{"outcome":"fallback","allowed":"old fixture"}]')
     assert problems(path), "Public gate must reject even an allowlisted placeholder"
+    path.write_text('{"entries":[{"Outcome":"fallback","Fallbacks":1,"Allowed":"old fixture"}]}')
+    assert problems(path), "Native C# coverage uses capitalised record fields"
+    path.write_text('{"entries":[{"Outcome":"resolved","Fallbacks":0}]}')
+    assert not problems(path)
 print("PACKAGED_ART_GATE_CHECK_PASS")
