@@ -857,7 +857,8 @@
    "model": "creature_ash_ember_hound",
    "clips": "creature.ash_ember_hound",
    "voice": "ash_ember_hound",
-   "flesh": "flesh",
+   "flesh": "fur",
+   "blow": "bite",
    "steps": {
     "walk": "walk",
     "run": "run"
@@ -867,7 +868,8 @@
    "model": "creature_bristleback_boar",
    "clips": "creature.bristleback_boar",
    "voice": "bristleback_boar",
-   "flesh": "flesh",
+   "flesh": "hide",
+   "blow": "gore",
    "steps": {
     "walk": "walk",
     "run": "charge"
@@ -877,7 +879,8 @@
    "model": "creature_cave_hunting_spider",
    "clips": "creature.cave_hunting_spider",
    "voice": "cave_hunting_spider",
-   "flesh": "flesh",
+   "flesh": "chitin",
+   "blow": "sting",
    "steps": {
     "walk": "scuttle",
     "run": "scuttle_fast"
@@ -888,7 +891,8 @@
    "model": "creature_bone_walker_husk",
    "clips": "creature.bone_walker_husk",
    "voice": "bone_walker_husk",
-   "flesh": "flesh",
+   "flesh": "bone",
+   "blow": "claw",
    "steps": {
     "walk": "walk",
     "run": "move_fast"
@@ -899,6 +903,7 @@
    "clips": "creature.animated_armour",
    "voice": "animated_armour",
    "flesh": "plate",
+   "blow": "slam",
    "steps": {
     "walk": "walk",
     "run": "move_heavy"
@@ -907,8 +912,9 @@
   "creature.beast.wolf_grey_alpha": {
       "model": "creature_frost_wolf",
       "clips": "creature.frost_wolf",
-      "voice": "ash_ember_hound",
-      "flesh": "flesh",
+      "voice": "grey_wolf",
+      "flesh": "fur",
+      "blow": "bite",
       "steps": { "walk": "walk", "run": "run" },
       "note": "The den leader (owner finding 29) is the grey wolf's own model at its own size: the view scales a creature by its body_radius_m, so the alpha's 0.58 m against the pack's 0.45 draws it 1.29x. A distinct coat would need a separate model and is left to character art."
     },
@@ -916,7 +922,8 @@
    "model": "creature_frost_wolf",
    "clips": "creature.frost_wolf",
    "voice": "ash_ember_hound",
-   "flesh": "flesh",
+   "flesh": "fur",
+   "blow": "bite",
    "steps": {
     "walk": "walk",
     "run": "run"

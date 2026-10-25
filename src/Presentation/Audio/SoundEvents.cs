@@ -187,28 +187,19 @@ public partial class SoundEvents : Node
             double commit = e.WindupTicks * _session.TickSeconds;
             if (e.Attacker == PlayerId)
             {
-                switch (Family(e.Source))
-                {
-                    case "sword":
-                        _bank.Play("sfx.weapon.sword.swing.light", Chest(_feet), commit);
-                        break;
-                    case "polearm":
-                        _bank.Play("sfx.weapon.polearm.thrust", Chest(_feet), commit);
-                        break;
-                    case "bow":
-                        _bank.Play("sfx.player.weapon.bow.nock", Chest(_feet));
-                        _bank.Play("sfx.weapon.bow.draw", Chest(_feet));
-                        break;
-                }
+                Swing(Family(e.Source), Chest(_feet), commit);
             }
-            else if (Companion(e.Attacker) is not null && _bindings.CompanionWeapon?.Family == "polearm" && Where(e.Attacker) is { } at)
+            else if (Companion(e.Attacker) is not null && Where(e.Attacker) is { } at)
             {
-                _bank.Play("sfx.weapon.polearm.thrust", at, commit);
+                Swing(WeaponFamily(e.Attacker, e.Source), Chest(at), commit);
             }
-            else if (Creature(e.Attacker) is { } creature && Voice(creature.DefId) is { } voice && Where(e.Attacker) is { } at2)
+            else if (Creature(e.Attacker) is { } creature && Where(e.Attacker) is { } at2)
             {
-                // attack() fires with the attack's commit, not its windup.
-                _bank.Play($"sfx.creature.{voice}.attack", at2, commit);
+                // attack() and the creature's own swing fire with the attack's commit, not its windup.
+                if (Voice(creature.DefId) is { } voice)
+                    _bank.Play($"sfx.creature.{voice}.attack", at2, commit);
+                if (Blow(creature.DefId) is { } blow)
+                    _bank.Play($"sfx.creature.swing.{blow}", Chest(at2), commit);
             }
         });
         s.Subscribe<HitResolved>(Hit);
@@ -418,8 +409,7 @@ public partial class SoundEvents : Node
         if (e.Dodged || Where(e.Target) is not { } at)
             return;
         var simulation = _session.Simulation!;
-        string? family = e.Attacker == PlayerId ? Family(e.Source)
-            : Companion(e.Attacker) is not null ? _bindings.CompanionWeapon?.Family : null;
+        string? family = WeaponFamily(e.Attacker, e.Source);
         // An arrow is heard where it lands, when it lands.
         double delay = family == "bow" && Where(e.Attacker) is { } from ? from.DistanceTo(at) / ProjectilesView.ArrowSpeed : 0;
         var creature = Creature(e.Target);
@@ -430,14 +420,15 @@ public partial class SoundEvents : Node
                 _bank.Play($"sfx.weapon.{guard}.block", Chest(at));
             return;
         }
-        // impact(weapon family, target material): the matrix of families; an arrow on plate has no asset of its own and takes the spear's.
+        // impact(weapon family, target material): the matrix of families. A creature's (or a pet's) blow is its own - bite, claw, gore,
+        // sting or slam - on whatever it lands on.
         string material = creature is not null ? _bindings.Creatures.GetValueOrDefault(creature.DefId)?.Flesh ?? "flesh" : "flesh";
         string? impact = family switch
         {
             "sword" => $"sfx.weapon.sword.impact.{material}",
             "polearm" => $"sfx.weapon.polearm.impact.{material}",
-            "bow" => material == "plate" ? "sfx.weapon.polearm.impact.plate" : $"sfx.weapon.bow.arrow.impact.{material}",
-            _ => null,
+            "bow" => $"sfx.weapon.bow.arrow.impact.{material}",
+            _ => Blow(e.AttackerDefId) is { } blow ? $"sfx.creature.blow.{blow}" : null,
         };
         if (impact is not null)
             _bank.Play(impact, Chest(at), delay);
@@ -447,9 +438,6 @@ public partial class SoundEvents : Node
         {
             var combat = simulation.Combat;
             bool heavy = e.Critical || e.Damage * 100 >= combat.MaxHealth * 15;
-            // A creature's blow lands on the body before the voice answers it (no hit on the player had an impact of its own).
-            if (Creature(e.Attacker) is not null && _bank.Has("sfx.player.impact.creature_blow"))
-                _bank.Play("sfx.player.impact.creature_blow", Chest(at));
             _bank.Play(heavy ? "sfx.player.hurt.heavy" : "sfx.player.hurt.light", Chest(at), 0.04);
             // ward_hit(): a blow landing on the braced body.
             foreach (var effect in combat.Effects)
@@ -482,6 +470,24 @@ public partial class SoundEvents : Node
         else if (family == "polearm")
             _bank.Play("sfx.player.weapon.spear.ready", Chest(_feet), 0.15);
         _wielded = family;
+    }
+
+    /// <summary>swing(family) at the attack's commit: a sword's cut, a spear's thrust; a bow is nocked and drawn as the attack begins.</summary>
+    private void Swing(string? family, Vector3 at, double commit)
+    {
+        switch (family)
+        {
+            case "sword":
+                _bank.Play("sfx.weapon.sword.swing.light", at, commit);
+                break;
+            case "polearm":
+                _bank.Play("sfx.weapon.polearm.thrust", at, commit);
+                break;
+            case "bow":
+                _bank.Play("sfx.player.weapon.bow.nock", at);
+                _bank.Play("sfx.weapon.bow.draw", at);
+                break;
+        }
     }
 
     /// <summary>
@@ -618,7 +624,13 @@ public partial class SoundEvents : Node
 
     private string? Family(string? itemDefId) => itemDefId is null ? null : _bindings.Weapons.GetValueOrDefault(itemDefId)?.Family;
 
+    /// <summary>The weapon family a person's blow comes from: the character's, or a party member's own weapon (else the bound companion weapon).</summary>
+    private string? WeaponFamily(EntityId attacker, string source) =>
+        attacker == PlayerId ? Family(source) : Companion(attacker) is not null ? Family(source) ?? _bindings.CompanionWeapon?.Family : null;
+
     private string? Voice(string defId) => _bindings.Creatures.GetValueOrDefault(defId)?.Voice is { Length: > 0 } voice ? voice : null;
+
+    private string? Blow(string defId) => _bindings.Creatures.GetValueOrDefault(defId)?.Blow is { Length: > 0 } blow ? blow : null;
 
     private string? Stem(string formulaId) => _bindings.FormulaSounds.GetValueOrDefault(formulaId);
 
@@ -671,7 +683,6 @@ public partial class SoundEvents : Node
             Add($"sfx.player.footstep.{path}.walk", "footstep(path, walk)");
             Add($"sfx.player.footstep.{path}.run", "footstep(path, run)");
         }
-        Add("sfx.player.impact.creature_blow", "creature_blow()", optional: true);
         Add("sfx.player.jump.effort", "jump_effort()");
         Add("sfx.player.crouch.enter", "crouch_enter()");
         Add("sfx.player.crouch.exit", "crouch_exit()");
@@ -708,11 +719,16 @@ public partial class SoundEvents : Node
                     Add("sfx.weapon.bow.release", "swing(bow): release");
                     Add("sfx.weapon.bow.arrow.flight", "projectile_flight(bow)");
                     foreach (string material in materials)
-                        Add(material == "plate" ? "sfx.weapon.polearm.impact.plate" : $"sfx.weapon.bow.arrow.impact.{material}", $"impact(bow, {material})");
+                        Add($"sfx.weapon.bow.arrow.impact.{material}", $"impact(bow, {material})");
                     Add("sfx.weapon.bow.arrow.impact.wood", "impact(arrow, wood): a structure");
                     Add("sfx.weapon.bow.arrow.impact.stone", "impact(arrow, stone): a structure");
                     break;
             }
+        }
+        foreach (string blow in bindings.Creatures.Values.Select(c => c.Blow).Where(b => b.Length > 0).Distinct(StringComparer.Ordinal))
+        {
+            Add($"sfx.creature.swing.{blow}", $"creature_swing({blow})");
+            Add($"sfx.creature.blow.{blow}", $"creature_blow({blow})");
         }
         foreach (var creature in bindings.Creatures.Values.Where(c => c.Voice.Length > 0))
         {

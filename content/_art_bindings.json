@@ -3793,13 +3793,14 @@
     "model": "prop_bp_haversack"
   },
   "creatures": {
-    "creature.construct.gate_tender": {"model": "creature_gate_tender", "clips": {"idle": "creature.creature_golem_stan.idle", "walk": "creature.creature_golem_stan.walk", "run": "creature.creature_golem_stan.run", "attack": "creature.creature_golem_stan.attack", "hit": "creature.creature_golem_stan.hit", "death": "creature.creature_golem_stan.death", "ability.creature.tender_strike": "creature.creature_golem_stan.attack"}, "voice": "animated_armour", "flesh": "plate", "steps": {"walk": "walk", "run": "move_heavy"}, "paces": {"walk": 1.41, "run": 4.58}},
-    "creature.construct.gate_warden": {"model": "creature_gate_warden", "clips": {"idle": "creature.creature_golem_stan.idle", "walk": "creature.creature_golem_stan.walk", "run": "creature.creature_golem_stan.run", "attack": "creature.creature_golem_stan.attack", "hit": "creature.creature_golem_stan.hit", "death": "creature.creature_golem_stan.death", "ability.creature.warden_sweep": "creature.creature_golem_stan.attack", "ability.creature.warden_fall": "creature.creature_golem_stan.attack", "ability.creature.warden_grasp": "creature.creature_golem_stan.attack"}, "voice": "animated_armour", "flesh": "plate", "steps": {"walk": "move_heavy", "run": "move_heavy"}, "paces": {"walk": 3.76, "run": 12.2}},
+    "creature.construct.gate_tender": {"model": "creature_gate_tender", "clips": {"idle": "creature.creature_golem_stan.idle", "walk": "creature.creature_golem_stan.walk", "run": "creature.creature_golem_stan.run", "attack": "creature.creature_golem_stan.attack", "hit": "creature.creature_golem_stan.hit", "death": "creature.creature_golem_stan.death", "ability.creature.tender_strike": "creature.creature_golem_stan.attack"}, "voice": "animated_armour", "flesh": "plate", "blow": "slam", "steps": {"walk": "walk", "run": "move_heavy"}, "paces": {"walk": 1.41, "run": 4.58}},
+    "creature.construct.gate_warden": {"model": "creature_gate_warden", "clips": {"idle": "creature.creature_golem_stan.idle", "walk": "creature.creature_golem_stan.walk", "run": "creature.creature_golem_stan.run", "attack": "creature.creature_golem_stan.attack", "hit": "creature.creature_golem_stan.hit", "death": "creature.creature_golem_stan.death", "ability.creature.warden_sweep": "creature.creature_golem_stan.attack", "ability.creature.warden_fall": "creature.creature_golem_stan.attack", "ability.creature.warden_grasp": "creature.creature_golem_stan.attack"}, "voice": "animated_armour", "flesh": "plate", "blow": "slam", "steps": {"walk": "move_heavy", "run": "move_heavy"}, "paces": {"walk": 3.76, "run": 12.2}},
     "creature.beast.hound_pup": {
       "model": "creature_wm_grey_wolf_b",
       "clips": "creature.creature_wm_grey_wolf_b",
       "voice": "grey_wolf",
-      "flesh": "flesh",
+      "flesh": "fur",
+      "blow": "bite",
       "steps": {
         "walk": "walk",
         "run": "run"
@@ -3816,7 +3817,8 @@
       "model": "creature_wm_grey_wolf_b",
       "clips": "creature.creature_wm_grey_wolf_b",
       "voice": "grey_wolf",
-      "flesh": "flesh",
+      "flesh": "fur",
+      "blow": "bite",
       "steps": {
         "walk": "walk",
         "run": "run"
@@ -3827,7 +3829,8 @@
       "model": "creature_wm_ember_hound",
       "clips": "creature.creature_wm_ember_hound",
       "voice": "ash_ember_hound",
-      "flesh": "flesh",
+      "flesh": "fur",
+      "blow": "bite",
       "steps": {
         "walk": "walk",
         "run": "run"
@@ -3838,7 +3841,8 @@
       "model": "creature_wm_bristleback_boar",
       "clips": "creature.creature_wm_bristleback_boar",
       "voice": "bristleback_boar",
-      "flesh": "flesh",
+      "flesh": "hide",
+      "blow": "gore",
       "steps": {
         "walk": "walk",
         "run": "charge"
@@ -3849,7 +3853,8 @@
       "model": "creature_wm_chicken",
       "clips": "creature.creature_wm_chicken",
       "voice": "",
-      "flesh": "flesh",
+      "flesh": "fur",
+      "blow": "bite",
       "steps": {
         "walk": "walk",
         "run": "run"
@@ -3886,7 +3891,8 @@
       "model": "creature_wm_rooster",
       "clips": "creature.creature_wm_rooster",
       "voice": "",
-      "flesh": "flesh",
+      "flesh": "fur",
+      "blow": "bite",
       "steps": {
         "walk": "walk",
         "run": "run"
@@ -3938,7 +3944,8 @@
       "model": "creature_wm_rabbit",
       "clips": "creature.creature_wm_rabbit",
       "voice": "",
-      "flesh": "flesh",
+      "flesh": "fur",
+      "blow": "bite",
       "steps": {
         "walk": "walk",
         "run": "run"
@@ -4001,7 +4008,8 @@
       "model": "creature_wm_doe",
       "clips": "creature.creature_wm_doe",
       "voice": "",
-      "flesh": "flesh",
+      "flesh": "hide",
+      "blow": "gore",
       "steps": {
         "walk": "walk",
         "run": "run"
@@ -4054,7 +4062,8 @@
       "model": "creature_wm_buck",
       "clips": "creature.creature_wm_buck",
       "voice": "",
-      "flesh": "flesh",
+      "flesh": "hide",
+      "blow": "gore",
       "steps": {
         "walk": "walk",
         "run": "run"
@@ -4132,7 +4141,8 @@
       "model": "creature_wm_red_fox",
       "clips": "creature.creature_wm_red_fox",
       "voice": "",
-      "flesh": "flesh",
+      "flesh": "fur",
+      "blow": "bite",
       "steps": {
         "walk": "walk",
         "run": "run"
@@ -4188,7 +4198,8 @@
       "model": "creature_wm_barrowback",
       "clips": "creature.creature_wm_barrowback",
       "voice": "barrowback",
-      "flesh": "flesh",
+      "flesh": "hide",
+      "blow": "gore",
       "steps": {
         "walk": "walk",
         "run": "run"
@@ -4199,7 +4210,8 @@
       "model": "creature_wm_fellhorn",
       "clips": "creature.creature_wm_fellhorn",
       "voice": "fellhorn",
-      "flesh": "flesh",
+      "flesh": "hide",
+      "blow": "gore",
       "steps": {
         "walk": "walk",
         "run": "run"
@@ -4218,7 +4230,8 @@
         "ability.creature.husk_slash": "creature.creature_playtest_bone_walker.attack"
       },
       "voice": "bone_walker_husk",
-      "flesh": "stone",
+      "flesh": "bone",
+      "blow": "claw",
       "note": "Playtest enemy replacement 2026-10-18; held licensed source, no generative assets. Bone/aged grave-rag retexture; luminous eyeball removed.",
       "steps": {
         "walk": "walk",
@@ -4238,6 +4251,7 @@
       },
       "voice": "animated_armour",
       "flesh": "plate",
+      "blow": "slam",
       "note": "Playtest enemy replacement 2026-10-18; held licensed source, no generative assets. Empty plate, no dark visor filler; open rear helm. Authored overhead gauntlet slam.",
       "steps": {
         "walk": "walk",
@@ -4256,7 +4270,8 @@
         "ability.creature.spider_bite": "creature.creature_playtest_cave_spider.attack"
       },
       "voice": "cave_hunting_spider",
-      "flesh": "flesh",
+      "flesh": "chitin",
+      "blow": "sting",
       "note": "Playtest enemy replacement 2026-10-18; held licensed source, no generative assets. Nephila existing rig; uniform 2.7x body-centred scale; authored idle/lunge-bite/hit/curling death, run retimed from native walk.",
       "steps": {
         "walk": "scuttle",

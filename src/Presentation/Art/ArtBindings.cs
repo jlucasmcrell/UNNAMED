@@ -96,7 +96,11 @@ public sealed record LightSpec(Vector3 At, Color Colour, float Energy, float Ran
     };
 }
 
-public sealed record CreatureArt(string Model, IReadOnlyDictionary<string, string> Clips, string Voice, string Flesh,
+/// <summary>
+/// A creature's model and clips, and what it sounds like: its voice, what a weapon meets on its body (<see cref="Flesh"/>: fur, hide,
+/// chitin, bone, plate...) and what its own attack sounds like as it swings and lands (<see cref="Blow"/>: bite, claw, gore, sting, slam).
+/// </summary>
+public sealed record CreatureArt(string Model, IReadOnlyDictionary<string, string> Clips, string Voice, string Flesh, string Blow,
     IReadOnlyDictionary<string, string> Steps, int StepsPerSound)
 {
     public IReadOnlyDictionary<string, float> Paces { get; init; } = new Dictionary<string, float>();
@@ -411,7 +415,7 @@ public sealed class ArtBindings
                         c.Value.TryGetProperty("clips", out var creatureClips) && creatureClips.ValueKind == JsonValueKind.Object
                             ? Strings(c.Value, "clips")
                             : new[] { "idle", "walk", "run", "attack", "hit", "death" }.ToDictionary(s => s, s => $"{Text(c.Value, "clips")}.{s}"),
-                        Text(c.Value, "voice") ?? string.Empty, Text(c.Value, "flesh") ?? "flesh", Strings(c.Value, "steps"),
+                        Text(c.Value, "voice") ?? string.Empty, Text(c.Value, "flesh") ?? "flesh", Text(c.Value, "blow") ?? string.Empty, Strings(c.Value, "steps"),
                         c.Value.TryGetProperty("steps_per_sound", out var steps) ? steps.GetInt32() : 1)
                         {
                             Fauna = FaunaLook.Parse(c.Value),
