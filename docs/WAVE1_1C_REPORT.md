@@ -83,4 +83,4 @@ All runs below are Release, on the cloud build box.
 | Presentation.Tests | 438 passed |
 | Soak.Tests | 12 passed, 3 skipped (opt-in long soaks); T-25 run alone: P50 1.67 ms, P99 3.00 ms |
 | Application.Tests, save subset (AsyncSave, SaveFailure, SaveExperience, Resume, CharacterCreation, Login, StoryFramework, BarrowworksPersistence, SaveLoad) | 80 passed |
-| Full suite at the branch tip | running; the result is added in the next commit |
+| Full suite at the branch tip (`21c0f0cd`; the docs commit after it changes no code) | **green**: Application 685, Content 361, Domain 424, Presentation 438, Persistence 298 (+1 that was already skipped), World 90, Architecture 23, EntityRegistry 23, Soak 12 (+3 opt-in) - 2,354 passed, 0 failed |
