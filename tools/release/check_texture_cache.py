@@ -86,6 +86,9 @@ for root in (a.game/'primary', a.game/'fallback'):
                     add(root, file, rel+'#'+str(index), raw, offset, fmt, roles[index])
                 else:
                     raise ValueError('External/data-URI image needs an explicit cache route: '+str(file))
+    for file in sorted(root.glob('rigged/*/quality_4k/*.png')):
+        role = 'normal' if file.stem.endswith('_normal') else 'data' if file.stem.endswith('_orm') else 'color'
+        add(root, file, file.relative_to(root).as_posix(), file.read_bytes(), 0, 'png', role)
     for folder in ('materials', 'sky', 'ui', 'vfx'):
         for file in sorted((root/folder).rglob('*')):
             fmt = file.suffix.lower().lstrip('.').replace('jpeg', 'jpg')

@@ -19,6 +19,7 @@ public partial class Main
         if(lifts.Length!=1 || lifts[0].Influence<.99f)throw new InvalidDataException("Head lift must be enabled");
         string body=_art.RiggedFile(player.ModelId,player.ModelId+"_rigged.glb") ?? throw new FileNotFoundException("Mateo body");
         string hash=Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(body))).ToLowerInvariant();
+        if(OS.GetEnvironment("OTHERREACH_QUALITY_REVIEW")=="1") { await RunCharacterQualityReview(directory,gameplay,player,face,hash); return; }
         _rcd3Driving=true;_innFreeCamera=false;_camera.TargetDistance=3.2f;_camera.Side=Shoulder.Left;_camera.Yaw=0;_camera.Pitch=-.2f;
         var phases=new List<object>();
         File.WriteAllText(Path.Combine(directory,"record_ready.json"),"{}");

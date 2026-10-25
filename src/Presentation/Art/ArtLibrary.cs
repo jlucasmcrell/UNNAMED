@@ -84,6 +84,7 @@ public sealed class ArtLibrary
     private SemaphoreSlim? _window;
     private readonly CancellationTokenSource _prefetchEnded = new();
 
+    private int _importsSinceFlush;
     private readonly string? _sceneCachePrefix;
     private readonly bool _buildSceneCache;
     private readonly string? _nativeSceneRoot;
@@ -692,6 +693,11 @@ public sealed class ArtLibrary
         _loadOrder.Add(path);
         // Disposed on return: the state holds every decoded source image, which otherwise stays in memory until the .NET collector
         // finalizes it (Phase B: five 4096-atlas characters held ~640 MB that way). Parsed ahead on a worker when it was prefetched.
+        // Each import uploads its images uncompressed until the cache's copies replace them, and the renderer frees a texture only as
+        // frames advance. A boot builds every model inside one frame, so without a frame now and then those uploads pile up to the
+        // whole scene's uncompressed size (Barrowworks first entry, packaged: 15.7 GB dedicated peak and 10.9 GB after; with this, 5.0).
+        if (++_importsSinceFlush % 4 == 0)
+            RenderingServer.ForceDraw(false);
         var parsed = Take(path);
         using var document = parsed?.Document ?? new GltfDocument();
         using var state = parsed?.State ?? new GltfState();
@@ -1353,6 +1359,9 @@ public sealed class ArtLibrary
         _maps[id] = maps;
         return maps;
     }
+
+    internal Texture2D ScopedTexture(string path, int maximum) =>
+        CacheFor(path).Scoped(TextureCache.Key(Path.GetRelativePath(WorkspaceOf(path), path)), path, maximum);
 
     /// <summary>A map file as a texture, through the texture cache (<paramref name="role"/> as TextureCache takes it); null when it will not load.</summary>
     public Texture2D? Texture(string path, string role)

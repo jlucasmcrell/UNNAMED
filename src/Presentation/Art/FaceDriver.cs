@@ -293,9 +293,11 @@ public sealed partial class FaceDriver : Node
         _targets["eyeLookInLeft"] = _targets["eyeLookOutRight"] = Math.Max(0, -look.X);
         _targets["eyeLookUpLeft"] = _targets["eyeLookUpRight"] = Math.Max(0, look.Y);
         _targets["eyeLookDownLeft"] = _targets["eyeLookDownRight"] = Math.Max(0, -look.Y);
-        // A slight lid rest removes the constant wide-eyed expression. Blinks take precedence.
-        _targets["eyeSquintLeft"] = _targets["eyeSquintRight"] = .07f;
-        _targets["eyeBlinkLeft"] = _targets["eyeBlinkRight"] = .035f;
+        // A lid rest removes the constant wide-eyed expression: the upper lid just covers the top of the iris, as in
+        // the HumGen renders, and follows the eye down (and lifts as it looks up). Blinks take precedence.
+        bool wide = VisualOptions.All.GetValueOrDefault("lids") == "wide";
+        _targets["eyeSquintLeft"] = _targets["eyeSquintRight"] = wide ? .07f : .12f;
+        _targets["eyeBlinkLeft"] = _targets["eyeBlinkRight"] = wide ? .035f : Mathf.Clamp(.17f + Math.Max(0, -look.Y) * .35f - Math.Max(0, look.Y) * .2f, 0, .45f);
         float expression = .02f + .015f * Mathf.Sin((float)_expressionTime * .37f);
         _targets["browDownLeft"] = _targets["browDownRight"] = expression;
         _targets["mouthSmileLeft"] = _targets["mouthSmileRight"] = _line is null ? expression * .5f : 0;

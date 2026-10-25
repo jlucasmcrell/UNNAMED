@@ -35,6 +35,16 @@ public static class HumanSkin
     private static bool _tried;
     private static bool _reportedOcclusion;
 
+    private static NoiseTexture2D? _pores;
+
+    /// <summary>One shared seamless pore normal: fine cellular noise baked as a normal map.</summary>
+    private static Texture2D Pores() => _pores ??= new NoiseTexture2D
+    {
+        Width = 512, Height = 512, Seamless = true, AsNormalMap = true, BumpStrength = 6f, GenerateMipmaps = true,
+        Noise = new FastNoiseLite { NoiseType = FastNoiseLite.NoiseTypeEnum.Cellular, Frequency = .15f, Seed = 7,
+            CellularReturnType = FastNoiseLite.CellularReturnTypeEnum.Distance, FractalType = FastNoiseLite.FractalTypeEnum.None },
+    };
+
     /// <summary>A 4x4 single-colour texture, for the maps the characters do not have.</summary>
     private static Texture2D Solid(Color colour)
     {
@@ -79,19 +89,24 @@ public static class HumanSkin
         var m = new ShaderMaterial { ResourceName = (source.ResourceName ?? "skin") + "_HumanShaders", Shader = _shader };
         m.SetShaderParameter("albedo", source.AlbedoColor);
         m.SetShaderParameter("texture_albedo", source.AlbedoTexture ?? _white);
-        m.SetShaderParameter("roughness", source.Roughness);
+        // A touch rougher and less specular than the export: its doubled lobe drew a broad oily sheen across the
+        // cheeks and forehead (owner review 2026-10-25); the highlight now stays narrow on the nose and brow.
+        m.SetShaderParameter("roughness", source.Roughness * 1.15f);
         m.SetShaderParameter("texture_roughness", source.RoughnessTexture ?? _white);
         m.SetShaderParameter("texture_normal",
             source.NormalEnabled && source.NormalTexture is not null ? source.NormalTexture : _flatNormal);
         m.SetShaderParameter("normal_strength", source.NormalEnabled ? source.NormalScale : 0f);
-        m.SetShaderParameter("specular", source.MetallicSpecular);
+        m.SetShaderParameter("specular", source.MetallicSpecular * 0.8f);
         // Skin is a dielectric: no metallic map, and the shader multiplies the texture by this scalar.
         m.SetShaderParameter("metallic", 0f);
         m.SetShaderParameter("texture_metallic", _white);
-        // Features this project has no map for are OFF, not fed a guess.
-        m.SetShaderParameter("texture_micro_detail", _flatNormal);
-        m.SetShaderParameter("micro_normal_strength", 0f);
-        m.SetShaderParameter("use_micro_detail", false);
+        // Pores: the paid HumGen skin ships only a 2K normal, which reads as plastic at conversation distance. A tiling
+        // procedural pore normal (no asset) breaks up the highlight; its blue channel is left out of the micro occlusion.
+        m.SetShaderParameter("texture_micro_detail", Pores());
+        m.SetShaderParameter("micro_detail_scale", 40f);
+        m.SetShaderParameter("micro_normal_strength", 0.35f);
+        m.SetShaderParameter("micro_ao_strength", 0f);
+        m.SetShaderParameter("use_micro_detail", true);
         m.SetShaderParameter("use_noise", false);
         m.SetShaderParameter("lightwarp", _lightwarp);
         m.SetShaderParameter("texture_translucency", _white);
@@ -162,10 +177,10 @@ public static class HumanSkin
                 m.SetShaderParameter("use_ambient_occlusion", false);
                 break;
             case "no-microdetail":
-                // A NO-OP ARM, AND DELIBERATELY SO. `use_micro_detail` and `micro_normal_strength` are already
-                // false/0 above, so this arm renders exactly the `human` frame. It is kept as an accepted value
-                // because the bisect ladder asked for it and an arm that is missing reads as an arm that was not
-                // run; a sibling round can confirm it is identical and learn that the ladder is wired correctly.
+                // The pore normal off: the before arm of the skin-detail review.
+                m.SetShaderParameter("texture_micro_detail", _flatNormal);
+                m.SetShaderParameter("micro_normal_strength", 0f);
+                m.SetShaderParameter("use_micro_detail", false);
                 break;
             case "lightwarp":
                 // Swaps the three-lobe wrapped diffuse (three mip levels of the normal map, a mip selected by

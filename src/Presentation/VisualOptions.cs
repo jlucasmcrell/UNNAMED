@@ -60,6 +60,8 @@ public static class VisualOptions
         // Same rule as `human`/`engine`: one build photographs every arm, and none of these is ever set in a
         // shipping run.
         ["skin"] = new[] { "human", "engine", "no-sss", "no-ao", "no-microdetail", "lightwarp", "red" },
+        // rest: relaxed upper lids that follow vertical gaze; wide: the earlier near-open lids (the before arm of the face review).
+        ["lids"] = new[] { "rest", "wide" },
         // flat: the air's light and ambient are the authored base scaled by a CLAMPED daylight, which reaches
         // 1.00 by 08:00 - so both read byte-identical from 08:00 to 16:00. Measured, fifteen hourly samples:
         // docs/phase_b/air_day, and the plateau is roughly 07:30-17:00.
