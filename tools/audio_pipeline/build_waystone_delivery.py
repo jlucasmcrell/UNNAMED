@@ -8,6 +8,8 @@ import hashlib
 import json
 from pathlib import Path
 import subprocess
+import struct
+import wave
 
 
 def build(source: Path, destination: Path, ffmpeg: str) -> None:
@@ -28,8 +30,14 @@ def build(source: Path, destination: Path, ffmpeg: str) -> None:
     # The transient-rich recording measures -26.35 LUFS / -6.75 dBTP. A fixed
     # +4.35 dB reaches -22 LUFS while retaining its envelope and >2 dB headroom.
     subprocess.run([ffmpeg, '-hide_banner', '-nostdin', '-n', '-i', str(recording),
-                    '-af', 'volume=4.35dB', '-ar', '48000', '-ac', '1',
-                    '-c:a', 'pcm_s24le', str(output)], check=True, capture_output=True)
+                    '-af', 'volume=4.35dB,aresample=osf=s16:dither_method=triangular', '-ar', '48000', '-ac', '1',
+                    '-c:a', 'pcm_s16le', str(output)], check=True, capture_output=True)
+    data = output.read_bytes()
+    if struct.unpack_from('<H', data, data.index(b'fmt ') + 8)[0] != 1:
+        raise ValueError('Godot runtime requires classic PCM, not WAVE_FORMAT_EXTENSIBLE')
+    with wave.open(str(output), 'rb') as pcm:
+        if (pcm.getnchannels(), pcm.getsampwidth(), pcm.getframerate()) != (1, 2, 48000):
+            raise ValueError('Expected mono 16-bit 48 kHz PCM')
     result = subprocess.run([ffmpeg, '-hide_banner', '-nostdin', '-i', str(output),
                              '-af', 'loudnorm=I=-22:TP=-1:LRA=7:print_format=json',
                              '-f', 'null', '-'], check=True, capture_output=True, text=True)
@@ -41,7 +49,7 @@ def build(source: Path, destination: Path, ffmpeg: str) -> None:
              'arrive': 'arrival through a waystone'}
     rows = [dict(audio_id=f'sfx.travel.waystone.{name}.01', category='travel', group='magic',
                  gameplay_role=role, human_auditioned=False, channels=1, loop=False,
-                 sample_rate=48000, subtype='PCM_24', seconds=entry['seconds'],
+                 sample_rate=48000, subtype='PCM_16', seconds=entry['seconds'],
                  delivered=delivered, sha256=digest, source=provenance,
                  loudness_lufs=float(measurement['input_i']),
                  true_peak_dbtp=float(measurement['input_tp']),
