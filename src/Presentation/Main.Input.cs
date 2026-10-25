@@ -20,6 +20,8 @@ public partial class Main
         switch (@event)
         {
             case InputEventMouseMotion motion when Input.MouseMode == Input.MouseModeEnum.Captured && !Modal:
+                // A drawn or held-aimed bow turns at the aim sensitivity (Settings, Camera).
+                _camera.Aiming = _session.Simulation.Combat.Weapon.Ranged && Input.IsActionPressed("guard");
                 _camera.Look(motion.Relative);
                 break;
             // The scroll modifier (Alt) and the wheel page the main bar instead of zooming.

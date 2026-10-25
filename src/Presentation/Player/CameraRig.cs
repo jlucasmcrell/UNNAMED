@@ -68,11 +68,26 @@ public partial class CameraRig : Node3D
     /// <summary>Moving the mouse forward looks down (Settings, Camera: invert vertical look).</summary>
     public bool InvertY { get; private set; }
 
-    /// <summary>The player's camera settings: look speed, vertical look and the field of view, applied at once.</summary>
+    /// <summary>A bow is drawn or held aimed: the look turns at the aim sensitivity's share (Settings, Camera).</summary>
+    public bool Aiming { get; set; }
+
+    private CameraPrefs _prefs = new();
+    private CameraPrefs? _used;
+
+    /// <summary>
+    /// The player's camera settings, applied at once: look speed (and while aiming), vertical look, the field of view, and - only when they
+    /// changed, so a wheel zoom or a swapped shoulder is never undone by another setting - the starting distance and the shoulder.
+    /// </summary>
     public void Use(CameraPrefs prefs)
     {
-        Sensitivity = CameraPrefs.BaseSensitivity * prefs.Sensitivity;
+        _prefs = prefs;
+        Sensitivity = CameraRules.LookSpeed(prefs, aiming: false);
         InvertY = prefs.InvertY;
+        if (CameraRules.DistanceFor(_used, prefs) is { } distance && !IsFirstPerson)
+            TargetDistance = _restoreDistance = distance;
+        if (CameraRules.ShoulderFor(_used, prefs) is { } shoulder)
+            Side = Of(shoulder);
+        _used = prefs;
         Camera.Fov = prefs.Fov;
         _shakeScale = prefs.Shake;
         _bobScale = prefs.Bob;
@@ -114,8 +129,9 @@ public partial class CameraRig : Node3D
 
     public void Look(Vector2 mouseDelta)
     {
-        Yaw = Mathf.Wrap(Yaw - mouseDelta.X * Sensitivity, -Mathf.Pi, Mathf.Pi);
-        Pitch = Mathf.Clamp(Pitch - mouseDelta.Y * Sensitivity * (InvertY ? -1 : 1), -1.35f, 1.2f);
+        float speed = CameraRules.LookSpeed(_prefs, Aiming);
+        Yaw = Mathf.Wrap(Yaw - mouseDelta.X * speed, -Mathf.Pi, Mathf.Pi);
+        Pitch = Mathf.Clamp(Pitch - mouseDelta.Y * speed * (InvertY ? -1 : 1), -1.35f, 1.2f);
     }
 
     public void Zoom(float metres) => TargetDistance = Mathf.Clamp(TargetDistance + metres, 0, MaxDistance);
@@ -134,12 +150,11 @@ public partial class CameraRig : Node3D
         }
     }
 
-    public void SwapShoulder() => Side = Side switch
-    {
-        Shoulder.Right => Shoulder.Left,
-        Shoulder.Left => Shoulder.Center,
-        _ => Shoulder.Right,
-    };
+    public void SwapShoulder() => Side = Of(CameraRules.Next(Of(Side)));
+
+    private static Shoulder Of(CameraShoulder side) => side switch { CameraShoulder.Left => Shoulder.Left, CameraShoulder.Center => Shoulder.Center, _ => Shoulder.Right };
+
+    private static CameraShoulder Of(Shoulder side) => side switch { Shoulder.Left => CameraShoulder.Left, Shoulder.Center => CameraShoulder.Center, _ => CameraShoulder.Right };
 
     /// <summary>Follow the body's drawn position this frame.</summary>
     public void Follow(Vector3 feet, double delta)
@@ -147,7 +162,7 @@ public partial class CameraRig : Node3D
         float blend = 1f - Mathf.Exp(-10f * (float)delta);
         Distance = Mathf.Abs(Distance - TargetDistance) < 0.005f ? TargetDistance : Mathf.Lerp(Distance, TargetDistance, blend);
         // No shoulder offset near the eye: the offset fades in with distance so the zoom stays seamless.
-        float side = Side switch { Shoulder.Right => 1f, Shoulder.Left => -1f, _ => 0f };
+        float side = CameraRules.Side(Of(Side));
         _shoulder = Mathf.Lerp(_shoulder, side * ShoulderOffset * Mathf.Clamp(Distance / 2f, 0, 1), blend);
 
         // Head bob: only at the eye (first person), by how fast the body is going; a shake decays by itself.

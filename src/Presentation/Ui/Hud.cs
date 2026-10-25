@@ -2,6 +2,7 @@
 // Godot presentation only: no gameplay state lives here (D-11)
 
 using Godot;
+using UNNAMED.Presentation.Settings;
 
 namespace UNNAMED.Presentation.Ui;
 
@@ -419,16 +420,22 @@ public partial class Hud : CanvasLayer
         _view?.SetPets(text, icon);
     }
 
+    /// <summary>The tracker is shown (Settings, HUD: the player may turn it off - the Phase-1 HUD spec's "the tracker can be disabled").</summary>
+    private static bool Tracked => SettingsStore.Current.Profile.Hud.Shows(HudElement.Tracker);
+
+    /// <summary>A blow's number under the plate, when the option is on (the production HUD; the classic one has no plate to put it under).</summary>
+    public void ShowDamage(string words) => _view?.ShowDamage(words);
+
     /// <summary>The quest tracker (content bible §19): optional and minimal, and out of the way of the debug overlay.</summary>
     public void SetTracker(string? text)
     {
         if (_view is not null)
         {
-            _view.SetTracker(text, !_debug.Visible);
+            _view.SetTracker(text, !_debug.Visible && Tracked);
             return;
         }
         _tracker.Text = text ?? string.Empty;
-        _tracker.Visible = !_debug.Visible;
+        _tracker.Visible = !_debug.Visible && Tracked;
     }
 
     /// <summary>A moment the player should not miss - a level gained, a quest finished - announced at the top centre; classic toasts it.</summary>

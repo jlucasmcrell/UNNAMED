@@ -270,4 +270,53 @@ public class ClientPrefsTests
         var odd = new ClientPrefs { Profile = new ProfilePrefs { Interface = new InterfacePrefs { Chat = (ChatSetting)9 } } };
         Assert.Equal(ChatSetting.On, odd.Normalised().Profile.Interface.Chat);
     }
+
+    // ── WP-1E: the HUD's options and the camera's distance, shoulder and aim speed ──
+
+    [Fact]
+    public void TheHudAndCameraOptions_DefaultToTheGameAsBuilt()
+    {
+        var prefs = new ClientPrefs().Profile;
+        Assert.True(prefs.Hud.Shows(HudElement.Tracker));
+        Assert.Equal(EnemyCondition.WordsAndBar, prefs.Hud.EnemyCondition);
+        Assert.False(prefs.Hud.DamageNumbers);   // canon: damage numbers are off by default
+        Assert.Equal(3.5f, prefs.Camera.Distance);
+        Assert.Equal(CameraShoulder.Right, prefs.Camera.Shoulder);
+        Assert.Equal(1f, prefs.Camera.AimSensitivity);
+    }
+
+    [Fact]
+    public void TheHudAndCameraOptions_RoundTrip()
+    {
+        var prefs = new ClientPrefs
+        {
+            Profile = new ProfilePrefs
+            {
+                Hud = new HudPrefs { EnemyCondition = EnemyCondition.Numbers, DamageNumbers = true }.With(HudElement.Tracker, false),
+                Camera = new CameraPrefs { Distance = 5f, Shoulder = CameraShoulder.Center, AimSensitivity = 0.5f },
+            },
+        };
+        var loaded = ClientPrefs.FromJson(prefs.ToJson()).Profile;
+        Assert.False(loaded.Hud.Shows(HudElement.Tracker));
+        Assert.Equal(EnemyCondition.Numbers, loaded.Hud.EnemyCondition);
+        Assert.True(loaded.Hud.DamageNumbers);
+        Assert.Equal((5f, CameraShoulder.Center, 0.5f), (loaded.Camera.Distance, loaded.Camera.Shoulder, loaded.Camera.AimSensitivity));
+        Assert.True(loaded.Hud.With(HudElement.Tracker, true).Shows(HudElement.Tracker));
+    }
+
+    [Fact]
+    public void AnOlderFile_WithoutTheNewOptions_ReadsAsTheDefaults_AndAHandEditedOneIsClamped()
+    {
+        var old = ClientPrefs.FromJson("""{ "profile": { "camera": { "fov": 90 } } }""").Profile;
+        Assert.Equal(new HudPrefs().HiddenElements, old.Hud.HiddenElements);
+        Assert.Equal(3.5f, old.Camera.Distance);
+
+        var edited = ClientPrefs.FromJson("""
+            { "profile": { "camera": { "distance": 40, "aim_sensitivity": 0 }, "hud": { "hidden_elements": 255 } } }
+            """).Profile;
+        Assert.Equal(CameraPrefs.MaxDistance, edited.Camera.Distance);
+        Assert.Equal(0.2f, edited.Camera.AimSensitivity);
+        Assert.Equal((int)HudElement.All, edited.Hud.HiddenElements);   // only the parts that exist can be hidden
+        Assert.Equal(CameraPrefs.MinDistance, ClientPrefs.FromJson("""{ "profile": { "camera": { "distance": 0 } } }""").Profile.Camera.Distance);
+    }
 }

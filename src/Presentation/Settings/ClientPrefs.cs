@@ -194,6 +194,7 @@ public sealed record ProfilePrefs
     public ControlPrefs Controls { get; init; } = new();
     public CameraPrefs Camera { get; init; } = new();
     public InterfacePrefs Interface { get; init; } = new();
+    public HudPrefs Hud { get; init; } = new();
 
     /// <summary>Whether the first-launch screen has been answered (PJ02 §3.2); it is offered once.</summary>
     public bool FirstLaunchDone { get; init; }
@@ -216,6 +217,7 @@ public sealed record ProfilePrefs
         Controls = (Controls ?? new ControlPrefs()).Normalised(),
         Camera = (Camera ?? new CameraPrefs()).Normalised(),
         Interface = (Interface ?? new InterfacePrefs()).Normalised(),
+        Hud = (Hud ?? new HudPrefs()).Normalised(),
     };
 }
 
@@ -291,6 +293,15 @@ public sealed record CameraPrefs
     /// <summary>Flashes held down: a burst of light reaches at most a third of its brightness (PJ03 §6.3).</summary>
     public bool ReduceFlashes { get; init; }
 
+    /// <summary>The third-person distance the camera starts at, in metres (1-6): the wheel still moves it from there.</summary>
+    public float Distance { get; init; } = 3.5f;
+
+    /// <summary>Which shoulder the camera stands over; the shoulder key still swaps it in play.</summary>
+    public CameraShoulder Shoulder { get; init; } = CameraShoulder.Right;
+
+    /// <summary>The look speed while a bow is drawn or held aimed, as a share of the look sensitivity (0.2-2).</summary>
+    public float AimSensitivity { get; init; } = 1f;
+
     /// <summary>Motion blur, off unless chosen. No blur is drawn yet (the engine has none built in), so Settings does not offer the switch; it is kept so a saved value still loads.</summary>
     public bool MotionBlur { get; init; }
 
@@ -300,6 +311,53 @@ public sealed record CameraPrefs
         Fov = Math.Clamp(float.IsFinite(Fov) ? Fov : 75f, 60f, 110f),
         Shake = Math.Clamp(float.IsFinite(Shake) ? Shake : 1f, 0f, 1f),
         Bob = Math.Clamp(float.IsFinite(Bob) ? Bob : 1f, 0f, 1f),
+        Distance = Math.Clamp(float.IsFinite(Distance) ? Distance : 3.5f, MinDistance, MaxDistance),
+        Shoulder = Enum.IsDefined(Shoulder) ? Shoulder : CameraShoulder.Right,
+        AimSensitivity = Math.Clamp(float.IsFinite(AimSensitivity) ? AimSensitivity : 1f, 0.2f, 2f),
+    };
+
+    /// <summary>The starting distance's range: close over the shoulder to the camera's farthest (first person stays the wheel's or the key's).</summary>
+    public const float MinDistance = 1f, MaxDistance = 6f;
+}
+
+/// <summary>The shoulder the camera stands over, as Settings offers it (the rig's own order: right, left, centre).</summary>
+public enum CameraShoulder { Right, Left, Center }
+
+/// <summary>How the creature in front of the character shows its condition once the fight is on: a word, a word and a bar, or the numbers.</summary>
+public enum EnemyCondition { Words, WordsAndBar, Numbers }
+
+/// <summary>The HUD's parts a player may switch off, one bit each (Settings, HUD). Health, stamina and the prompt are never among them.</summary>
+[Flags]
+public enum HudElement
+{
+    None = 0,
+    Tracker = 1,
+    All = Tracker,
+}
+
+/// <summary>
+/// The HUD: which of its parts are shown, how an enemy's condition reads, and whether the damage a blow did is shown over the plate. Every
+/// default is the HUD as built: everything shown, words and a bar, no damage numbers (canon: off by default).
+/// </summary>
+public sealed record HudPrefs
+{
+    /// <summary>The parts switched off (<see cref="HudElement"/>, as bits); none by default.</summary>
+    public int HiddenElements { get; init; }
+
+    public EnemyCondition EnemyCondition { get; init; } = EnemyCondition.WordsAndBar;
+
+    public bool DamageNumbers { get; init; }
+
+    public bool Shows(HudElement element) => (HiddenElements & (int)element) == 0;
+
+    /// <summary>The same preferences with one part shown or hidden.</summary>
+    public HudPrefs With(HudElement element, bool shown) =>
+        this with { HiddenElements = shown ? HiddenElements & ~(int)element : HiddenElements | (int)element };
+
+    public HudPrefs Normalised() => this with
+    {
+        HiddenElements = HiddenElements & (int)HudElement.All,
+        EnemyCondition = Enum.IsDefined(EnemyCondition) ? EnemyCondition : EnemyCondition.WordsAndBar,
     };
 }
 

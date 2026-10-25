@@ -132,6 +132,10 @@ public partial class HudView : Control
 
     /// <summary>What the character has read about this creature (spec 41): the page itself, not a summary of it.</summary>
     private readonly Label _targetKnown = HudStyle.Text(HudStyle.Body, 14, HudStyle.Brass);
+    // The condition as the player chose to read it (Settings, HUD), and the last blow's number while the option is on.
+    private readonly Label _targetCondition = HudStyle.Text(HudStyle.Strong, 15, HudStyle.Bone);
+    private readonly Label _damage = HudStyle.Text(HudStyle.Caps, 22, HudStyle.Ember, caps: true);
+    private double _damageUntil;
     private readonly Gauge _target = new(HudStyle.HealthFill, new Vector2(320, 9));
     private readonly VBoxContainer _toasts = new();
     private readonly List<(Control Box, string Text, double Expires)> _live = new();
@@ -436,7 +440,13 @@ public partial class HudView : Control
         rows.AddChild(_targetName);
         rows.AddChild(_targetMeta);
         rows.AddChild(_targetKnown);
+        _targetCondition.HorizontalAlignment = HorizontalAlignment.Center;
+        _targetCondition.Visible = false;
+        rows.AddChild(_targetCondition);
         rows.AddChild(_target);
+        _damage.HorizontalAlignment = HorizontalAlignment.Center;
+        _damage.Visible = false;
+        rows.AddChild(_damage);
         _targetBox.AddChild(rows);
         _targetBox.Visible = false;
         AddChild(_targetBox);
@@ -881,8 +891,22 @@ void fragment() {
         // What is known of it, once anything is: a beast studied and written up says what its own page says, and nothing until then.
         _targetKnown.Text = read.Known;
         _targetKnown.Visible = read.Known.Length > 0;
-        _target.Visible = read.ShowBar;
+        // Its condition as the player reads it (Settings, HUD): a word, a word and the bar, or the bar and the figures - once the fight is on.
+        var condition = HudRules.Condition(Settings.SettingsStore.Current.Profile.Hud.EnemyCondition, read.Health, read.MaxHealth, read.ShowBar);
+        string said = string.Join(" · ", new[] { condition.Word, condition.Numbers }.Where(w => w is not null));
+        _targetCondition.Text = said;
+        _targetCondition.Visible = said.Length > 0;
+        _target.Visible = condition.Bar;
         _target.Set(read.Health, Math.Max(1, read.MaxHealth));
+    }
+
+    /// <summary>A blow's number under the plate (Settings, HUD: damage numbers), shown a moment; only while a plate is up.</summary>
+    public void ShowDamage(string words)
+    {
+        _damage.Text = words;
+        _damage.Visible = true;
+        _damage.Modulate = Colors.White;
+        _damageUntil = _clock + 1.2;
     }
 
     public void Log(string line)
@@ -1161,6 +1185,11 @@ void fragment() {
         AnimateBanner(delta);
         if (_death.Visible && _clock >= _deathUntil)
             _death.Visible = false;
+        if (_damage.Visible)
+        {
+            _damage.Modulate = new Color(1, 1, 1, (float)Math.Clamp((_damageUntil - _clock) / 0.4, 0, 1));
+            _damage.Visible = _clock < _damageUntil;
+        }
         for (int i = _live.Count - 1; i >= 0; i--)
         {
             var (box, _, expires) = _live[i];

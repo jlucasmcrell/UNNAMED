@@ -517,6 +517,15 @@ public partial class SettingsPanel : CanvasLayer
             on => Profile(p => p with { Camera = p.Camera with { InvertY = on } })));
         page.AddChild(Slider("camera.fov", "Field of view", "How wide the view is, top to bottom. Wider shows more and moves faster.",
             60, 110, 1, camera.Fov, v => $"{v:0}°", v => Profile(p => p with { Camera = p.Camera with { Fov = (float)v } })));
+        page.AddChild(Slider("camera.aim", "Aim sensitivity", "How fast the camera turns while a bow is drawn or held aimed, as a share of the look sensitivity.",
+            20, 200, 5, camera.AimSensitivity * 100, v => $"{v:0} %", v => Profile(p => p with { Camera = p.Camera with { AimSensitivity = (float)(v / 100) } })));
+        page.AddChild(Slider("camera.distance", "Camera distance", "How far behind you the camera starts. The wheel still moves it in play.",
+            CameraPrefs.MinDistance * 10, CameraPrefs.MaxDistance * 10, 5, camera.Distance * 10, v => $"{v / 10:0.0} m",
+            v => Profile(p => p with { Camera = p.Camera with { Distance = (float)(v / 10) } })));
+        var shoulders = Enum.GetValues<CameraShoulder>();
+        page.AddChild(Choice("camera.shoulder", "Camera shoulder", "Which shoulder the camera looks over. The shoulder key still changes it in play.",
+            new[] { "Right", "Left", "Centre" }, Array.IndexOf(shoulders, camera.Shoulder),
+            i => Profile(p => p with { Camera = p.Camera with { Shoulder = shoulders[i] } })));
         var comfort = Page("Comfort", "every camera effect has a zero");
         comfort.AddChild(Slider("camera.shake", "Camera shake", "A solid blow on you jolts the view; this scales the jolt, and 0 is none.",
             0, 100, 5, camera.Shake * 100, v => $"{v:0} %", v => Profile(p => p with { Camera = p.Camera with { Shake = (float)(v / 100) } })));
@@ -553,6 +562,17 @@ public partial class SettingsPanel : CanvasLayer
             new[] { "As designed", "Red-weak (protanopia)", "Green-weak (deuteranopia)", "Blue-weak (tritanopia)" }, Array.IndexOf(visions, ui.ColourVision),
             i => Profile(p => p with { Interface = p.Interface with { ColourVision = visions[i] } }), Redraw));
         page.AddChild(Swatches());
+
+        var hud = Page("HUD", "what the screen shows in play");
+        var prefs = SettingsStore.Current.Profile.Hud;
+        hud.AddChild(Toggle("hud.tracker", "Quest tracker", "The tracked quest and its steps at the top right. The journal and the compass still show them.",
+            prefs.Shows(HudElement.Tracker), on => Profile(p => p with { Hud = p.Hud.With(HudElement.Tracker, on) })));
+        var conditions = Enum.GetValues<EnemyCondition>();
+        hud.AddChild(Choice("hud.condition", "Enemy condition", "Once a fight is on: a word for how hurt it is, the word and a bar, or the bar and its health in figures.",
+            new[] { "Words", "Words and bar", "Numbers" }, Array.IndexOf(conditions, prefs.EnemyCondition),
+            i => Profile(p => p with { Hud = p.Hud with { EnemyCondition = conditions[i] } })));
+        hud.AddChild(Toggle("hud.damage", "Damage numbers", "What each of your side's blows did, a moment under the enemy's plate.",
+            prefs.DamageNumbers, on => Profile(p => p with { Hud = p.Hud with { DamageNumbers = on } })));
 
         var bars = Page("Action bars", "the main bar is always shown");
         for (int bar = 1; bar < UNNAMED.Domain.Progression.QuickBar.Bars; bar++)
@@ -619,7 +639,7 @@ public partial class SettingsPanel : CanvasLayer
         }, id: "interface.hints");
         hints.Disabled = ui.SeenHints.Length == 0;
         reading.AddChild(Line("interface.hints", "Reset hints", "Every hint shows again, as on a first game.", hints));
-        Reset("interface.reset", () => Profile(p => p with { Interface = new InterfacePrefs { SeenHints = p.Interface.SeenHints } }));
+        Reset("interface.reset", () => Profile(p => p with { Interface = new InterfacePrefs { SeenHints = p.Interface.SeenHints }, Hud = new HudPrefs() }));
     }
 
     /// <summary>Harm and aid as the HUD will draw them, so the choice is seen, not described.</summary>

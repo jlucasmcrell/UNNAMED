@@ -402,6 +402,10 @@ public partial class Main
             var targetNpc = _session.Simulation.Npcs.FirstOrDefault(n => n.InstanceId == e.Target);
             _hud.Log(Ui.Models.CombatWords.Hit(e, player, Name(e.AttackerDefId), namedAttacker,
                 Name(targetNpc?.Id ?? CreatureDef(e.Target)), Name(e.Source), targetNpc is not null));
+            // WP-1E seam: a blow the character's side struck, as a number under the plate when that option is on.
+            bool ours = e.Attacker == player || _session.Simulation.Companions.Any(c => c.InstanceId == e.Attacker);
+            if (Ui.HudRules.DamageNumber(Settings.SettingsStore.Current.Profile.Hud, ours, e.Damage, e.Critical, e.Dodged, e.Blocked) is { } number)
+                _hud.ShowDamage(number);
         });
         _session.Subscribe<AttackMissed>(e =>
         {
