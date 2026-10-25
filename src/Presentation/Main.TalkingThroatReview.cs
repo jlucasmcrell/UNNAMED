@@ -15,7 +15,8 @@ public partial class Main
         _rcd3Driving = true;
         const string npcId = "npc.ashen_hollow.sel_arien"; // Her survey table is outdoors; the gate must not stare at an inn wall.
         var simulation = _session.Simulation ?? throw new InvalidOperationException("Talking gate has no world");
-        if (!await Approach(npcId, 3.0, 90)) throw new InvalidOperationException("Talking gate could not walk into Sel's talk reach");
+        double reach = (_session.Setup.Items.Inventory.ReachMm + _session.Setup.Movement.BodyRadiusMm) / 1000.0;
+        if (!await Approach(npcId, Math.Max(.8, reach - .25), 90)) throw new InvalidOperationException("Talking gate could not walk into Sel's talk reach");
         var figure = _npcs.FigureOf(npcId) as SkinnedFigure ?? throw new InvalidOperationException("Talking gate requires the shipped HumGen NPC");
         var driver = figure.FindChildren("*", "", true, false).OfType<FaceDriver>().SingleOrDefault()
             ?? throw new InvalidOperationException("Talking NPC has no production face driver");
