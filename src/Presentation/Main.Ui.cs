@@ -473,6 +473,18 @@ public partial class Main
             case "help":
                 _help.Toggle();
                 break;
+            case "help_search":
+                _help.Toggle();
+                var search = _help.FindChildren("*", nameof(LineEdit), true, false).OfType<LineEdit>().Single();
+                search.GrabFocus();
+                foreach (char letter in "save")
+                {
+                    Input.ParseInputEvent(new InputEventKey { Pressed = true, Unicode = letter });
+                    Input.ParseInputEvent(new InputEventKey { Pressed = false, Unicode = letter });
+                }
+                Input.FlushBufferedEvents();
+                if (_help.Query != "save") throw new InvalidDataException("Field Guide did not accept typed search");
+                break;
             case "saves":
                 _saves.OpenInGame();
                 break;
