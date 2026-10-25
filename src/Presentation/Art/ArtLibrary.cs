@@ -538,6 +538,7 @@ public sealed class ArtLibrary
             return null;
         foreach (var mesh in node.FindChildren("*", nameof(GeometryInstance3D), true, false).Cast<GeometryInstance3D>().Prepend(node as GeometryInstance3D).OfType<GeometryInstance3D>())
         {
+            if (mesh.HasMeta("otherreach_tree_shadow_lod_proxy")) continue;
             mesh.VisibilityRangeBegin = mesh.VisibilityRangeEnd = 0;
             mesh.VisibilityRangeBeginMargin = mesh.VisibilityRangeEndMargin = 0;
             mesh.VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Disabled;
@@ -547,8 +548,42 @@ public sealed class ArtLibrary
                 : FullDetailLodBias;
             // The occlusion test runs a frame behind the camera: a tree it wrongly hides blinks out while the player runs at it.
             mesh.IgnoreOcclusionCulling = true;
+            if (System.Environment.GetEnvironmentVariable("UNNAMED_TREE_SHADOW_LOD") == "1")
+                AddTreeShadowLod(mesh);
         }
         return node;
+    }
+
+    private static void AddTreeShadowLod(GeometryInstance3D source)
+    {
+        if (source.CastShadow != GeometryInstance3D.ShadowCastingSetting.On || source.HasNode("TreeShadowLod")) return;
+        GeometryInstance3D? proxy = source switch
+        {
+            MeshInstance3D { Skin: null, Mesh: { } mesh } when mesh is not ArrayMesh array || array.GetBlendShapeCount() == 0
+                => new MeshInstance3D { Mesh = mesh },
+            MultiMeshInstance3D { Multimesh: { } multi } => new MultiMeshInstance3D { Multimesh = multi },
+            _ => null,
+        };
+        if (proxy is null) return;
+        proxy.Name = "TreeShadowLod";
+        proxy.SetMeta("otherreach_tree_shadow_lod_proxy", true);
+        proxy.CastShadow = GeometryInstance3D.ShadowCastingSetting.ShadowsOnly;
+        proxy.LodBias = 1;
+        proxy.GIMode = GeometryInstance3D.GIModeEnum.Disabled;
+        proxy.IgnoreOcclusionCulling = true;
+        proxy.Layers = source.Layers;
+        proxy.CustomAabb = source.CustomAabb;
+        proxy.ExtraCullMargin = source.ExtraCullMargin;
+        proxy.MaterialOverride = source.MaterialOverride;
+        proxy.MaterialOverlay = source.MaterialOverlay;
+        if (source is MeshInstance3D original && proxy is MeshInstance3D copy)
+            for (int i = 0; i < original.Mesh.GetSurfaceCount(); i++)
+                copy.SetSurfaceOverrideMaterial(i, original.GetSurfaceOverrideMaterial(i));
+        // Native projected-error LOD selects shadow detail; no explicit per-cascade API is used.
+        // The main view/depth prepass keep the original mesh and its full-detail bias.
+        source.AddChild(proxy);
+        if (source.Owner is not null) proxy.Owner = source.Owner;
+        source.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
     }
 
     /// <summary>Far beyond any distance in the world: the renderer never picks a lighter index level for a tree.</summary>
