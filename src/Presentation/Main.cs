@@ -1847,7 +1847,8 @@ public partial class Main : Node3D
     {
         var notes = new Dictionary<string, string>
         {
-            ["scene"] = "PROTOTYPE greybox: Ashen Hollow, 200 m x 200 m, 4 cells",
+            ["scene"] = $"region {_session.Setup.Layout.Id}, {_session.Setup.Layout.CellKeys.Length} cells, content {_session.Content.Version}, " +
+                        $"tier {VisualOptions.Tier}, start hour {VisualOptions.All.GetValueOrDefault("hour") ?? "the world's own"}",
             ["script"] = _perf!.Summary,
             ["vsync"] = "disabled for the capture, so frame times show headroom rather than the refresh rate",
             ["screenshots"] = "one per segment, halfway through; the frame after each is left out of the numbers (the capture stalls the GPU)",
