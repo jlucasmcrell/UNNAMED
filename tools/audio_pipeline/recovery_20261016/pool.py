@@ -11,6 +11,11 @@ LIC_SON = 'Sonniss GDC 2026 Game Audio Bundle licence: royalty-free, commercial 
 LIC_COS = 'Leartes Cosmos Premium subscription licence (private builds; post-subscription rights unconfirmed)'
 LIC_KEN = 'CC0 1.0 (Kenney Impact Sounds)'
 IND = COS + r'\Indoor Ambience (cp-indoor-ambience)'
+# The audio library (D:\Otherreach_Audio_Library): Sonniss GDC 2024/2026 packs and CC0 OpenGameArt packs, for the creature materials and blows.
+LIB = r'D:\Otherreach_Audio_Library'
+S24, S26, OGA = LIB + r'\Sonniss\GDC2024', LIB + r'\Sonniss\GDC2026', LIB + r'\OpenGameArt'
+LIC_S24 = 'Sonniss GDC 2024 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI'
+LIC_OGA = 'CC0 1.0 (OpenGameArt)'
 
 # tag: (glob, licence, library, threshold dB, min gap s, max take s)
 SOURCES = {
@@ -55,11 +60,33 @@ SOURCES = {
     'k_plank':      (KEN + r'\impactPlank_medium_*.ogg', LIC_KEN, 'Kenney Impact Sounds', -50, 1, 2),
     'k_mining':     (KEN + r'\impactMining_*.ogg', LIC_KEN, 'Kenney Impact Sounds', -50, 1, 2),
     'k_generic':    (KEN + r'\impactGeneric_light_*.ogg', LIC_KEN, 'Kenney Impact Sounds', -50, 1, 2),
+    'bone_break':   (S24 + r'\Justsoundeffects - Gore Mini Pack\GOREBone_*.wav', LIC_S24, 'Sonniss GDC 2024 / Justsoundeffects - Gore Mini Pack', -35, 0.15, 1.0),
+    'flesh_drop':   (S24 + r'\Justsoundeffects - Gore Mini Pack\GOREFlsh_*.wav', LIC_S24, 'Sonniss GDC 2024 / Justsoundeffects - Gore Mini Pack', -35, 0.2, 1.0),
+    'axe_flesh':    (S24 + r'\Justsoundeffects - Melee Weapons\WEAPAxe_*Flesh*.wav', LIC_S24, 'Sonniss GDC 2024 / Justsoundeffects - Melee Weapons', -35, 0.25, 1.2),
+    'wood_snap':    (S24 + r'\InMotionAudio - Wood\WOODBrk_*.wav', LIC_S24, 'Sonniss GDC 2024 / InMotionAudio - Wood', -35, 0.15, 1.0),
+    'nail_scratch': (S26 + r'\InMotionAudio - Sinister Textures 5\GOREMisc_Cladding_*.wav', LIC_SON, 'Sonniss GDC 2026 / InMotionAudio - Sinister Textures 5', -35, 0.15, 1.2),
+    'ice_crack':    (S26 + r'\Alexander Kopeikin - 100 kHz Designed Ice\ice, *crack*.wav', LIC_SON, 'Sonniss GDC 2026 / Alexander Kopeikin - 100 kHz Designed Ice', -35, 0.15, 1.0),
+    'shell_crack':  (S26 + r'\344 Audio - Dinosaurs Vol. 2\ANMLRept_Dinosaur Egg Hatching*.wav', LIC_SON, 'Sonniss GDC 2026 / 344 Audio - Dinosaurs Vol. 2', -35, 0.12, 1.0),
+    'chomp':        (S26 + r'\344 Audio - Dinosaurs Vol. 2\ANMLRept_Dinosaur Eating Meat*.wav', LIC_SON, 'Sonniss GDC 2026 / 344 Audio - Dinosaurs Vol. 2', -30, 0.12, 1.0),
+    'whip':         (S26 + r'\David Dumais Audio - Melee Weapons Sound Effects Pack 2\WEAPWhip_*.wav', LIC_SON, 'Sonniss GDC 2026 / David Dumais Audio - Melee Weapons 2', -35, 0.2, 1.0),
+    'squelch':      (S26 + r'\Epic Stock Media - Tower Defense Game\WOODImpt_Hit Blood*.wav', LIC_SON, 'Sonniss GDC 2026 / Epic Stock Media - Tower Defense Game', -35, 0.2, 1.0),
+    'swish':        (OGA + r'\swishes-sound-pack\**\swish-*.wav', LIC_OGA, 'OpenGameArt - Swishes Sound Pack (artisticdude)', -35, 0.15, 1.0),
+    'bug':          (OGA + r'\80-cc0-cre*\**\bug_*.ogg', LIC_OGA, 'OpenGameArt - 80 CC0 creature SFX (rubberduck)', -35, 0.15, 1.2),
+    'oga_eat':      (OGA + r'\80-cc0-cre*\**\eat_*.ogg', LIC_OGA, 'OpenGameArt - 80 CC0 creature SFX (rubberduck)', -35, 0.15, 1.0),
+    'pig':          (S24 + r'\Mechanical Wave - Farm Animals\ANMLFarm_Pig*.wav', LIC_S24, 'Sonniss GDC 2024 / Mechanical Wave - Farm Animals', -30, 0.2, 2.0),
+    'herbivore':    (S26 + r'\344 Audio - Dinosaurs Vol. 2\ANMLRept_Large Herbivore*.wav', LIC_SON, 'Sonniss GDC 2026 / 344 Audio - Dinosaurs Vol. 2', -30, 0.3, 4.0),
+    'dog_bark':     (S26 + r'\344 Audio - Dog Vocalisations Vol. 1\ANMLDog_Dog Barks*.wav', LIC_SON, 'Sonniss GDC 2026 / 344 Audio - Dog Vocalisations Vol. 1', -30, 0.12, 1.2),
+    'dog_grunt':    (S26 + r'\344 Audio - Dog Vocalisations Vol. 1\ANMLDog_Dog Shuffle*.wav', LIC_SON, 'Sonniss GDC 2026 / 344 Audio - Dog Vocalisations Vol. 1', -35, 0.15, 2.5),
+    'werewolf':     (S26 + r'\Epic Stock Media - Halloween Game - Haunted House and Horror Audio Scare Kit\CREABeast_*.wav', LIC_SON, 'Sonniss GDC 2026 / Epic Stock Media - Halloween Game', -30, 0.2, 2.5),
+    'husk_breath':  (S26 + r'\Epic Stock Media - Humanoid Creatures Vol 4 - Monstrous and Undead Creature Vocalization Sound Sets\HMNBrth_*.wav', LIC_SON, 'Sonniss GDC 2026 / Epic Stock Media - Humanoid Creatures Vol 4', -35, 0.15, 1.5),
+    'insectoid':    (S26 + r'\SoundBits - Vox Bestiae - Source Elements\CREAInsc_*.wav', LIC_SON, 'Sonniss GDC 2026 / SoundBits - Vox Bestiae', -30, 0.15, 2.5),
+    'bear':         (OGA + r'\bear-growls\**\bear_*.ogg', LIC_OGA, 'OpenGameArt - Bear Growls (AntumDeluge)', -30, 0.25, 3.0),
+    'beast_growl':  (OGA + r'\monster-or-beast-sounds\**\Beast Growl*.wav', LIC_OGA, 'OpenGameArt - Monster or Beast Sounds (pauliuw)', -30, 0.25, 3.0),
 }
 
 index = {}
 for tag, (pattern, lic, lib, th, gap, mx) in SOURCES.items():
-    files = sorted(glob.glob(pattern))
+    files = sorted(f for f in glob.glob(pattern, recursive=True) if not os.path.basename(f).startswith('._'))
     if not files:
         print('MISSING', tag, pattern)
         continue
