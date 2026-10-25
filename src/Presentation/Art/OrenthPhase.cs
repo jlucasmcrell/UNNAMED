@@ -108,12 +108,13 @@ public partial class OrenthPhase : Node
     }
 
     /// <summary>
-    /// A decoy: the figure's pose at this moment, frozen as a spirit ghost at <paramref name="at"/> (its current place when
-    /// null) for <paramref name="seconds"/>. The caller decides what it absorbs; <see cref="OrenthDecoy.Shatter"/> draws the hit.
+    /// A decoy: the figure's pose at this moment, frozen as a spirit ghost for <paramref name="seconds"/>, standing where a
+    /// figure at <paramref name="at"/> (the figure's own transform) would stand. The caller decides what it absorbs;
+    /// <see cref="OrenthDecoy.Shatter"/> draws the hit. No optional arguments: other branches reach this through Call.
     /// </summary>
-    public OrenthDecoy Linger(double seconds, Transform3D? at = null)
+    public OrenthDecoy Linger(double seconds, Transform3D at)
     {
-        var decoy = new OrenthDecoy(seconds);
+        var decoy = new OrenthDecoy { Seconds = seconds };
         foreach (var (source, _, _, spirit) in _twins)
         {
             if (!source.IsVisibleInTree())
@@ -128,7 +129,8 @@ public partial class OrenthPhase : Node
             decoy.AddChild(frozen);
         }
         GetTree().CurrentScene.AddChild(decoy);
-        decoy.GlobalTransform = at ?? _body.GlobalTransform;
+        var figure = _body.GetParent() as Node3D ?? _body;
+        decoy.GlobalTransform = at * (figure.GlobalTransform.AffineInverse() * _body.GlobalTransform);
         return decoy;
     }
 }

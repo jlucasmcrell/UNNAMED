@@ -9,13 +9,18 @@ public partial class OrenthDecoy : Node3D
 {
     private const double ShatterSeconds = .35;
 
-    private readonly double _seconds;
     private double _age, _shattered = -1;
 
-    public OrenthDecoy(double seconds) { _seconds = seconds; Name = "OrenthDecoy"; }
+    public OrenthDecoy() => Name = "OrenthDecoy";
+
+    /// <summary>How long it holds before it has faded out.</summary>
+    public double Seconds { get; set; } = 1;
 
     /// <summary>False once it has faded out or shattered.</summary>
-    public bool Alive => _shattered < 0 && _age < _seconds;
+    public bool Alive => _shattered < 0 && _age < Seconds;
+
+    /// <summary><see cref="Alive"/>, for callers that reach the decoy through Call.</summary>
+    public bool IsAlive() => Alive;
 
     /// <summary>The decoy absorbs a hit: it flares, swells slightly and breaks into silver shards.</summary>
     public void Shatter()
@@ -54,8 +59,8 @@ public partial class OrenthDecoy : Node3D
         }
         else
         {
-            strength = PeopleLooks.DecoyStrength(_age, _seconds);
-            if (_age >= _seconds)
+            strength = PeopleLooks.DecoyStrength(_age, Seconds);
+            if (_age >= Seconds)
                 QueueFree();
         }
         foreach (var mesh in GetChildren().OfType<MeshInstance3D>())
