@@ -143,6 +143,7 @@ public sealed partial class SkinnedModel : Node3D
         foreach (var mesh in old) { mesh.GetParent().RemoveChild(mesh); mesh.Free(); }
         foreach (var mesh in garments)
         {
+            mesh.Owner = null;
             mesh.GetParent().RemoveChild(mesh);
             target.AddChild(mesh);
             mesh.Skeleton = mesh.GetPathTo(target);
