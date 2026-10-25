@@ -170,4 +170,61 @@ public class SaveToolTests
         Assert.Equal(2, code);
         Assert.Contains("--content-version", error);
     }
+    // ── save:repair (PERSISTENCE.md §3.2, §7.2; SYS-116) ─────────────────────
+
+    private static string[] Repair(string save) => new[]
+    {
+        "save:repair", save, "--content-root", Fixtures.ContentRoot, "--worldgen", Fixtures.Profile, "--content-version", Fixtures.ContentVersion,
+    };
+
+    [Fact]
+    public void Repair_DropsAQuarantinedSection_CommitsWhatSurvived_AndKeepsTheOriginal()
+    {
+        using var profile = Fixtures.Copy(SaveFormat.SchemaVersion);
+        string slot = Path.Combine(profile.Root, SaveSlots.Quick);
+        Tamper.FlipByte(Path.Combine(slot, SaveFormat.Cells));
+        byte[] damaged = File.ReadAllBytes(Path.Combine(slot, SaveFormat.Cells));
+        var store = new SaveStore(profile.Root);
+        string playerBefore = store.Load(SaveSlots.Quick, Fixtures.Context(new Registry())).Player.Digest;
+
+        var (code, output, _) = Run(Repair(slot));
+
+        Assert.Equal(0, code);
+        Assert.Contains("Dropped section: cells", output);
+        Assert.Contains("Repaired. The original is kept at", output);
+        Assert.Null(SaveStore.VerifyIntegrity(slot));
+        var loaded = new SaveStore(profile.Root).Load(SaveSlots.Quick, Fixtures.Context(new Registry()));
+        Assert.Empty(loaded.QuarantinedSections);
+        Assert.Equal(playerBefore, loaded.Player.Digest);   // only the damaged section went
+        Assert.Equal(damaged, File.ReadAllBytes(Path.Combine(store.PreRepairPath(SaveSlots.Quick), SaveFormat.Cells)));
+    }
+
+    [Fact]
+    public void Repair_OfAWholeSave_WritesNothing()
+    {
+        using var profile = Fixtures.Copy(SaveFormat.SchemaVersion);
+        string slot = Path.Combine(profile.Root, SaveSlots.Quick);
+        var before = Snapshot(profile.Root);
+
+        var (code, output, _) = Run(Repair(slot));
+
+        Assert.Equal(0, code);
+        Assert.Contains("Nothing to repair", output);
+        Assert.Equal(before, Snapshot(profile.Root));
+    }
+
+    [Fact]
+    public void Repair_OfACorruptPlayer_IsRefused_AndChangesNothing()
+    {
+        using var profile = Fixtures.Copy(SaveFormat.SchemaVersion);
+        string slot = Path.Combine(profile.Root, SaveSlots.Quick);
+        Tamper.FlipByte(Path.Combine(slot, SaveFormat.Player));
+        var before = Snapshot(profile.Root);
+
+        var (code, _, error) = Run(Repair(slot));
+
+        Assert.Equal(1, code);
+        Assert.Contains("Cannot repair", error);
+        Assert.Equal(before, Snapshot(profile.Root));
+    }
 }

@@ -417,6 +417,48 @@ public sealed class SaveStore
         }
     }
 
+    /// <summary>
+    /// <c>savetool repair</c> (§3.2, §7.2): accept the loss a quarantined section or invalid records already cost, and make the slot whole
+    /// again. The save is loaded exactly as the game loads it - a corrupt <c>cells</c> or <c>entities</c> section is quarantined, an invalid
+    /// record rejected - and what loaded is committed back through the §7.1 sequence, so the damaged section is replaced by what survived.
+    /// The original is copied to <c>pre_repair_&lt;slot&gt;</c> first and never touched again. A save with nothing to repair is left as it
+    /// is; one whose player or manifest is corrupt cannot be repaired here and throws as a load would.
+    /// </summary>
+    public RepairResult Repair(string slot, LoadContext context)
+    {
+        RequireValidSlot(slot);
+        lock (_gate)
+        {
+            var report = SaveLoader.NewReport(slot, context);
+            var result = SaveLoader.Run(SlotPath(slot), slot, context, AvailableBackups(slot), report)
+                         ?? throw new SaveCompatibilityException(report);
+            if (result.QuarantinedSections.IsEmpty && result.RejectedRecords.IsEmpty && !result.IntegrityRootRederived)
+                return new RepairResult(ImmutableArray<string>.Empty, ImmutableArray<RejectedRecord>.Empty, null, report);
+
+            string kept = PreRepairPath(slot);
+            if (Directory.Exists(kept))
+                DeleteWithRetry(kept);
+            CopyDirectory(SlotPath(slot), kept);
+            Commit(slot, SaveDocuments.Capture(result.World, result.Player, context.Content,
+                result.Manifest.WorldTick, result.Manifest.PlaytimeSeconds, result.Manifest.WorldTimeAdvancedTicks) with
+            {
+                SavedUtc = result.Manifest.SavedAt,
+                AwayLog = result.Manifest.AwayLog.Select(e => e.ToLine()).ToImmutableArray(),
+            });
+            return new RepairResult(result.QuarantinedSections, result.RejectedRecords, kept, report);
+        }
+    }
+
+    /// <summary><c>pre_repair_&lt;slot&gt;</c>: the save as it was before <see cref="Repair"/> made it whole.</summary>
+    public string PreRepairPath(string slot) => Path.Combine(Root, "pre_repair_" + slot);
+
+    private static void CopyDirectory(string from, string to)
+    {
+        Directory.CreateDirectory(to);
+        foreach (string file in Directory.EnumerateFiles(from))
+            File.Copy(file, Path.Combine(to, Path.GetFileName(file)));
+    }
+
     /// <summary>Null when every file of a save directory matches its <c>sections.sha256</c>; otherwise what failed.</summary>
     public static string? VerifyIntegrity(string saveDirectory) => SaveIntegrity.Verify(saveDirectory);
 

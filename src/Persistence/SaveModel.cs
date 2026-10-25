@@ -256,3 +256,12 @@ public sealed class SaveCompatibilityException : SaveException
 
     public MigrationReport Report { get; }
 }
+
+/// <summary>
+/// What <see cref="SaveStore.Repair"/> did: the sections it dropped (replaced by what survived of them), the records it let go, and where
+/// the original was kept - null when there was nothing to repair and nothing was written.
+/// </summary>
+public sealed record RepairResult(ImmutableArray<string> Dropped, ImmutableArray<RejectedRecord> Rejected, string? KeptAt, MigrationReport Report)
+{
+    public bool Repaired => KeptAt is not null;
+}

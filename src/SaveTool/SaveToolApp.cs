@@ -1,4 +1,4 @@
-// UNNAMED SaveTool - save:inspect and save:migrate (M2b §13)
+// UNNAMED SaveTool - save:inspect, save:migrate (M2b §13) and save:repair (PERSISTENCE.md §3.2, §7.2)
 // No Godot references - pure C#
 
 using System.Text.Json;
@@ -21,7 +21,8 @@ public static class SaveToolApp
         "usage:\n" +
         "  save:inspect <save-dir>\n" +
         "  save:migrate --dry-run <save-dir> --content-root <dir> --worldgen <profile.json> [--content-version <v>]\n" +
-        "  save:migrate <save-dir> --content-root <dir> --worldgen <profile.json> --content-version <v>";
+        "  save:migrate <save-dir> --content-root <dir> --worldgen <profile.json> --content-version <v>\n" +
+        "  save:repair <save-dir> --content-root <dir> --worldgen <profile.json> --content-version <v>";
 
     public static int Run(string[] args, TextWriter output, TextWriter error)
     {
@@ -31,6 +32,7 @@ public static class SaveToolApp
             {
                 "save:inspect" when args.Length == 2 => Inspect(args[1], output),
                 "save:migrate" => Migrate(args[1..], output, error),
+                "save:repair" => Repair(args[1..], output, error),
                 _ => Fail(error, Usage),
             };
         }
@@ -80,6 +82,51 @@ public static class SaveToolApp
         }
         output.Write(report.ToText());
         return report.Result == MigrationResult.Blocked ? 1 : 0;
+    }
+
+    /// <summary>
+    /// <c>save:repair</c>: drop what a load quarantines or rejects and commit what survived, keeping the original as
+    /// <c>pre_repair_&lt;slot&gt;</c>. Exit 0 repaired or nothing to repair, 1 refused (a corrupt player or manifest, or an incompatible save).
+    /// </summary>
+    private static int Repair(string[] args, TextWriter output, TextWriter error)
+    {
+        var options = Options(args, out var positional);
+        if (positional.Count != 1)
+            return Fail(error, Usage);
+        string save = positional[0];
+        if (!Directory.Exists(save))
+            return Fail(error, $"No save directory at '{save}'");
+        var content = ReadContent(Required(options, "--content-root"), Required(options, "--content-version"), error);
+        if (content is null)
+            return 1;
+        var context = new LoadContext(new CellBaselineGenerator(WorldgenProfileFile.Read(Required(options, "--worldgen"))), content, new Registry());
+        string full = Path.TrimEndingDirectorySeparator(Path.GetFullPath(save));
+        RepairResult result;
+        try
+        {
+            result = new SaveStore(Path.GetDirectoryName(full)!).Repair(Path.GetFileName(full), context);
+        }
+        catch (SaveCompatibilityException e)
+        {
+            output.Write(e.Report.ToText());
+            return 1;
+        }
+        catch (SaveException e)
+        {
+            error.WriteLine($"Cannot repair '{full}': {e.Message}");
+            return 1;
+        }
+        if (!result.Repaired)
+        {
+            output.WriteLine($"Nothing to repair: '{full}' loads whole.");
+            return 0;
+        }
+        foreach (string section in result.Dropped)
+            output.WriteLine($"Dropped section: {section} (replaced by what survived of it)");
+        foreach (var record in result.Rejected)
+            output.WriteLine($"Dropped record: {record.Section} {record.Key}: {record.Reason}");
+        output.WriteLine($"Repaired. The original is kept at {result.KeptAt}");
+        return 0;
     }
 
     private static int Inspect(string save, TextWriter output)
