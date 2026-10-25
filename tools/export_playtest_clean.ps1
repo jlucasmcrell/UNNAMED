@@ -35,6 +35,14 @@ if (Test-Path $wt) { Fail 'Export worktree already exists; choose a fresh path (
 git -C $repo worktree add --detach $wt $Commit 2>&1 | Add-Content $Log
 if ($LASTEXITCODE -ne 0) { Fail "git worktree add $Commit" }
 if ($Primary) {
+    # Owner ruling 2026-10-25: rejected voice pilot; public opening is text-only.
+    foreach ($voiceRoot in @((Join-Path $Primary 'vo'), (Join-Path $Out 'fallback\vo'))) {
+        if (Test-Path $voiceRoot) {
+            if (Get-ChildItem -LiteralPath $voiceRoot -File -Filter 'opening.*.ogg') {
+                Fail 'Rejected opening voice files are present; stage a text-only public payload'
+            }
+        }
+    }
     Say '--- full-resolution compressed texture preflight'
     $code = Run 'python' "-P `"$wt\tools\release\check_texture_cache.py`" `"$Out`" `"$Out\..\texture_cache_export_audit.json`""
     if ($code -ne 0) { Fail 'large art texture cache is missing/stale/uncompressed/downscaled (see audit)' }
