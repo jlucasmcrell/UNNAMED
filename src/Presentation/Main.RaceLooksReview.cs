@@ -62,16 +62,18 @@ public partial class Main
                 {
                     string donor = s.GetProperty("donor").GetString()!;
                     string? people = s.TryGetProperty("people", out var wanted) ? wanted.GetString() : null;
-                    var person = _bindings.People.Where(p => p.Value.Model == donor && (people is null || p.Value.PeopleId == people))
+                    var appearance = s.TryGetProperty("people_override", out var overridePeople)
+                        ? _bindings.People["player"] with { PeopleId = overridePeople.GetString(), UniformScale = 1 } : null;
+                    var person = appearance is not null ? "player" : _bindings.People.Where(p => p.Value.Model == donor && (people is null || p.Value.PeopleId == people))
                         .Select(p => p.Key).OrderBy(k => k, StringComparer.Ordinal).First();
-                    var figure = SkinnedFigure.Create(_art, _bindings, person, s.TryGetProperty("body", out var body) ? body.GetString() : null)
+                    var figure = SkinnedFigure.Create(_art, _bindings, person, s.TryGetProperty("body", out var body) ? body.GetString() : null, appearance)
                         ?? throw new InvalidDataException("Race look body did not load: " + s);
                     AddChild(figure);
                     figure.SetStance(CombatStance.AtRest);
                     float yaw = Mathf.DegToRad(Num(s, "yaw", 0));
                     figure.SetMovementDirection(new Basis(Vector3.Up, yaw) * Vector3.Back);
                     figures[s.GetProperty("id").GetString()!] = (figure, Feet(Num(s, "x", 0), Num(s, "z", 0)), yaw, 0);
-                    log.Add(new { step, person, model = body.ValueKind == JsonValueKind.String ? body.GetString() : _bindings.People[person].Model, people = _bindings.People[person].PeopleId });
+                    log.Add(new { step, person, model = body.ValueKind == JsonValueKind.String ? body.GetString() : _bindings.People[person].Model, people = (appearance ?? _bindings.People[person]).PeopleId });
                     break;
                 }
                 case "wings":
