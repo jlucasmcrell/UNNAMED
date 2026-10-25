@@ -30,6 +30,9 @@ with tempfile.TemporaryDirectory() as directory:
                     str(recovery), str(package)], check=True)
     assert all((source / name).read_bytes() == data for name, data in old.items())
     assert (package / audio).read_bytes() == b'new audio'
-    assert (package / credits).read_bytes() == b'new credits'
+    assert (package / credits).read_text() == 'retained credits\n\nnew credits'
     assert len(json.loads((package / manifest).read_text())['sounds']) == 2
+    subprocess.run([sys.executable, str(Path(__file__).parent / 'recovery_20261016/install.py'),
+                    str(recovery), str(package)], check=True)
+    assert (package / credits).read_text() == 'retained credits\n\nnew credits'
     print('PASS: retained manifest, credits and audio hard links are unchanged')

@@ -42,6 +42,10 @@ os.replace(mp + '.installing', mp)
 cred = os.path.join(root, 'out', 'CREDITS_audio_recovery.txt')
 if os.path.exists(cred):
     target = os.path.join(asset, 'audio', 'CREDITS_audio_recovery.txt')
-    shutil.copyfile(cred, target + '.installing')
+    incoming = open(cred, encoding='utf-8-sig').read()
+    existing = open(target, encoding='utf-8-sig').read() if os.path.exists(target) else ''
+    combined = existing if incoming in existing else incoming if existing in incoming else existing.rstrip() + '\n\n' + incoming
+    with open(target + '.installing', 'w', encoding='utf-8', newline='\n') as f:
+        f.write(combined)
     os.replace(target + '.installing', target)
 print(f'{len(families)} families: {dropped} rows dropped, {len(rows)} added; manifest now {len(m["sounds"])} sounds')
