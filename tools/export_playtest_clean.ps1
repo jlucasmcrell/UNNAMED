@@ -35,13 +35,13 @@ if (Test-Path $wt) { Fail 'Export worktree already exists; choose a fresh path (
 git -C $repo worktree add --detach $wt $Commit 2>&1 | Add-Content $Log
 if ($LASTEXITCODE -ne 0) { Fail "git worktree add $Commit" }
 if ($Primary) {
-    # Owner ruling 2026-10-25: rejected voice pilot; public opening is text-only.
-    foreach ($voiceRoot in @((Join-Path $Primary 'vo'), (Join-Path $Out 'fallback\vo'))) {
-        if (Test-Path $voiceRoot) {
-            if (Get-ChildItem -LiteralPath $voiceRoot -File -Filter 'opening.*.ogg') {
-                Fail 'Rejected opening voice files are present; stage a text-only public payload'
-            }
-        }
+    # New owner ruling supersedes text-only: exactly six approved ElevenLabs files, by hash.
+    Say '--- owner-approved intro narration (rejected pilot excluded)'
+    $code = Run 'python' "-P `"$wt\tools\audio_pipeline\install_intro_voice.py`" C:\Otherreach_External_Assets\Voice_ElevenLabs\vo `"$Primary`""
+    if ($code -ne 0) { Fail 'Approved intro voice install/hash check failed' }
+    $voiceFallback = Join-Path $Out 'fallback\vo'
+    if ((Test-Path $voiceFallback) -and (Get-ChildItem -LiteralPath $voiceFallback -File -Filter 'opening.*.ogg')) {
+        Fail 'Unexpected fallback opening voice files; only the approved primary delivery ships'
     }
     Say '--- full-resolution compressed texture preflight'
     $code = Run 'python' "-P `"$wt\tools\release\check_texture_cache.py`" `"$Out`" `"$Out\..\texture_cache_export_audit.json`""
