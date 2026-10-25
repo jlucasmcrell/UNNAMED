@@ -21,6 +21,21 @@ public sealed record Blinked(EntityId Actor, Body From, Body To, long Tick);
 /// <summary>An Orenth is half elsewhere until <paramref name="UntilTick"/>.</summary>
 public sealed record WraithStepped(EntityId Actor, long UntilTick, long Tick);
 
+/// <summary>
+/// An Orenth's afterimage lingering where it was (owner ruling 2026-10-25): until <paramref name="UntilTick"/>, a foe after
+/// <paramref name="Of"/> may go for it instead - one roll per foe and afterimage, <paramref name="ChancePercent"/> of the time.
+/// </summary>
+public sealed record Afterimage(EntityId Of, Body At, long UntilTick, int ChancePercent, long LeftTick);
+
+/// <summary>An afterimage lingers at <paramref name="At"/> until <paramref name="UntilTick"/>; presentation holds the ghost there.</summary>
+public sealed record AfterimageLeft(EntityId Actor, Body At, long UntilTick, long Tick);
+
+/// <summary>A foe struck an afterimage instead of the body: the blow is spent and the ghost shatters.</summary>
+public sealed record AfterimageStruck(EntityId Attacker, string AttackerDefinitionId, EntityId Actor, Body At, long Tick);
+
+/// <summary>A creature's blow landed on the afterimage of <paramref name="Of"/>; refused when there is none to take it.</summary>
+internal sealed record StrikeAfterimage(EntityId Attacker, string AttackerDefinitionId, EntityId Of) : InternalCommand;
+
 public sealed record AnchorPlaced(EntityId Actor, Body At, long Tick);
 
 /// <summary>A recall to the anchor began; it crosses at <paramref name="UntilTick"/> if nothing breaks it.</summary>
@@ -47,6 +62,9 @@ internal sealed class PeopleSystem
     private readonly Func<MoveIntent> _intent;
     private readonly Dictionary<string, long> _readyAt = new(StringComparer.Ordinal);
     private (PeopleAbility Ability, long Until, Body From, int Health)? _recall;
+    private Afterimage? _afterimage;
+    private long _decoyReady;
+    private long? _sprintSince;
 
     public PeopleSystem(SystemContext context, SliceOwner owner, EntityId player, Func<MoveIntent> intent)
     {
@@ -79,7 +97,11 @@ internal sealed class PeopleSystem
         Func<string?> act = ability.Action switch
         {
             PeopleAction.Blink => Blink(ability, tick),
-            PeopleAction.WraithStep => WithEffect(ability, tick, () => _context.Events.Publish(new WraithStepped(_player, tick + ability.DurationTicks, tick))),
+            PeopleAction.WraithStep => WithEffect(ability, tick, () =>
+            {
+                _context.Events.Publish(new WraithStepped(_player, tick + ability.DurationTicks, tick));
+                Leave(State.Body, tick);
+            }),
             PeopleAction.KindledRing => WithEffect(ability, tick, () => { }),
             PeopleAction.Anchor => Anchor(tick),
             PeopleAction.Recall => Recall(ability, tick),
@@ -106,6 +128,7 @@ internal sealed class PeopleSystem
     /// </summary>
     public void Tick(long tick)
     {
+        Sprinting(tick);
         if (State.Crossing.Anchor is { } anchor && Lapsed(anchor, tick))
             State.SetCrossing(_owner, State.Crossing with { Anchor = null });
         if (_recall is not { } recall)
@@ -145,8 +168,51 @@ internal sealed class PeopleSystem
             return "nowhere to step to";
         _context.Dispatch(new Relocate(to));
         _context.Events.Publish(new Blinked(_player, body, to, tick));
+        Leave(body, tick);
         return null;
     };
+
+    /// <summary>The afterimage lingering now, if one is.</summary>
+    public Afterimage? Ghost(long tick) => _afterimage is { } ghost && tick < ghost.UntilTick ? ghost : null;
+
+    /// <summary>A foe struck the afterimage: it is gone, and no other takes a blow until the decoy is ready again.</summary>
+    public string? Handle(StrikeAfterimage command, long tick)
+    {
+        if (Ghost(tick) is not { } ghost || Decoy() is not { } decoy)
+            return "no afterimage";
+        _afterimage = null;
+        _decoyReady = tick + decoy.CooldownTicks;
+        _context.Events.Publish(new AfterimageStruck(command.Attacker, command.AttackerDefinitionId, _player, ghost.At, tick));
+        return null;
+    }
+
+    private PeopleAbility? Decoy() => _context.PlayerAbilities.FirstOrDefault(a => a.Action == PeopleAction.Afterimage);
+
+    /// <summary>An afterimage left where the body was, when its people leaves one and the last has had its rest.</summary>
+    private void Leave(Body at, long tick)
+    {
+        if (Decoy() is not { } decoy || tick < _decoyReady)
+            return;
+        _afterimage = new Afterimage(_player, at, tick + decoy.DurationTicks, decoy.ChancePercent, tick);
+        _context.Events.Publish(new AfterimageLeft(_player, at, _afterimage.UntilTick, tick));
+    }
+
+    /// <summary>A sprint held unbroken for the decoy's sprint time leaves an afterimage, and starts counting again.</summary>
+    private void Sprinting(long tick)
+    {
+        var intent = _intent();
+        if (!intent.IsMoving || intent.Gait != Gait.Sprint)
+        {
+            _sprintSince = null;
+            return;
+        }
+        _sprintSince ??= tick;
+        if (Decoy() is { SprintTicks: > 0 } decoy && tick - _sprintSince >= decoy.SprintTicks)
+        {
+            Leave(State.Body, tick);
+            _sprintSince = tick;
+        }
+    }
 
     private Func<string?> WithEffect(PeopleAbility ability, long tick, Action then) => () =>
     {

@@ -523,7 +523,7 @@ public class ContentLoaderTests
                 "ability.creature.wolf_bite", "ability.people.constructed.module_swap", "ability.people.constructed.optimise", "ability.people.kal.gap_leap",
                 "ability.people.kal.structural_read", "ability.people.kal.wing_brake", "ability.people.kal.wing_glide", "ability.people.mor.ethereal_step",
                 "ability.people.mor.spectral_sight", "ability.people.ondrek.bedrock_stance", "ability.people.ondrek.material_memory", "ability.people.ondrek.stonesense",
-                "ability.people.orenth.anchor_recall", "ability.people.orenth.blink", "ability.people.orenth.planar_anchor", "ability.people.orenth.wraith_step",
+                "ability.people.orenth.afterimage", "ability.people.orenth.anchor_recall", "ability.people.orenth.blink", "ability.people.orenth.planar_anchor", "ability.people.orenth.wraith_step",
                 "ability.people.siann.kindled_ring", "ability.people.siann.perfect_recall", "ability.people.vaskaal.long_sight", "ability.people.vaskaal.thermal_read",
                 "ability.people.veth.quick_study", "ability.people.veth.supple", "ability.polearm.long_thrust", "body.kal_f.average",
                 "body.kal_m.average", "body.orenth_f.average", "body.orenth_m.average", "body.siann_f.average",

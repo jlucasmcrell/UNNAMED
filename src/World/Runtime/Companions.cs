@@ -136,6 +136,9 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
     /// <summary>When each party member's racial abilities come ready again, by member and action. Transient, as cooldowns are.</summary>
     private readonly Dictionary<(string NpcId, PeopleAction Action), long> _abilityReady = new();
 
+    /// <summary>Each Orenth member's lingering afterimage, by member. Transient, as cooldowns are.</summary>
+    private readonly Dictionary<string, Afterimage> _afterimages = new(StringComparer.Ordinal);
+
     private readonly SystemContext _context;
     private readonly SliceOwner _owner;
     private readonly EntityId _player;
@@ -341,6 +344,7 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
             _context.Dispatch(new ApplyEffect(npc.InstanceId, phase));
             _abilityReady[(c.NpcId, PeopleAction.WraithStep)] = tick + wraith.CooldownTicks;
             _context.Events.Publish(new WraithStepped(npc.InstanceId, tick + wraith.DurationTicks, tick));
+            Leave(c.NpcId, npc.InstanceId, npc.Body, tick);
         }
         bool phased = EffectRules.Phased(EffectsOf(npc.InstanceId), _context.Setup.Combat.Effects);
         var defense = new DefenseProfile(c.Profile.MaxHealth, c.Profile.Armor, PeopleRules.Resistances(traits), Blocking: false,
@@ -642,7 +646,33 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
         Place(npc, to);
         _abilityReady[(c.NpcId, PeopleAction.Blink)] = tick + blink.CooldownTicks;
         _context.Events.Publish(new Blinked(npc.InstanceId, body, to, tick));
+        Leave(c.NpcId, npc.InstanceId, body, tick);
         return true;
+    }
+
+    /// <summary>The party's afterimages lingering now: what a creature after one of them may go for instead.</summary>
+    public IEnumerable<Afterimage> Afterimages(long tick) => _afterimages.Values.Where(a => tick < a.UntilTick);
+
+    /// <summary>A foe struck a member's afterimage: it is gone, and the member's decoy rests as a player's does.</summary>
+    public string? Handle(StrikeAfterimage command, long tick)
+    {
+        if (_afterimages.FirstOrDefault(kv => kv.Value.Of == command.Of && tick < kv.Value.UntilTick) is not { Value: { } ghost } entry)
+            return "no afterimage";
+        _afterimages.Remove(entry.Key);
+        if (_context.Setup.Character.AbilityOf(_context.PeopleOf(entry.Key), PeopleAction.Afterimage) is { } decoy)
+            _abilityReady[(entry.Key, PeopleAction.Afterimage)] = tick + decoy.CooldownTicks;
+        _context.Events.Publish(new AfterimageStruck(command.Attacker, command.AttackerDefinitionId, ghost.Of, ghost.At, tick));
+        return null;
+    }
+
+    /// <summary>A member's afterimage left where it was, when its people leaves one and its decoy is ready (their ghost is the players' tell).</summary>
+    private void Leave(string npcId, EntityId instance, Body at, long tick)
+    {
+        if (AbilityReady(npcId, PeopleAction.Afterimage, tick) is not { } decoy)
+            return;
+        var ghost = new Afterimage(instance, at, tick + decoy.DurationTicks, decoy.ChancePercent, tick);
+        _afterimages[npcId] = ghost;
+        _context.Events.Publish(new AfterimageLeft(instance, at, ghost.UntilTick, tick));
     }
 
     /// <summary>A party member's racial ability of this action when its people has one and it is ready; null otherwise.</summary>

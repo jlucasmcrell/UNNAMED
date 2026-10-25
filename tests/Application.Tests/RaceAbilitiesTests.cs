@@ -180,9 +180,12 @@ public class RaceAbilitiesTests
         {
             var arena = WithTavar(session, rules, 100, (Arena.Wolf, 83.0, 152.0, "pack_hunter"));
             var blinked = arena.Record<Blinked>();
+            var left = arena.Record<AfterimageLeft>();
             var tavarId = arena.Simulation.Companions.Single().InstanceId;
             for (int i = 0; i < 400 && blinked.Count == 0; i++)
                 arena.Tick();
+            // Where he blinked from, his afterimage lingers: the tell a player reads.
+            Assert.Equal(blinked.Where(b => b.Actor == tavarId).Select(b => b.From), left.Where(l => l.Actor == tavarId).Select(l => l.At));
             return blinked.Count(b => b.Actor == tavarId);
         }
         Assert.Equal(1, Blinks(TavarOrenth(session.Setup)));
@@ -194,6 +197,75 @@ public class RaceAbilitiesTests
         for (int i = 0; i < 400 && stepped.Count == 0; i++)
             hurt.Tick();
         Assert.Single(stepped);
+    }
+
+    /// <summary>The rules with the Orenth afterimage always taking the bait, so a test reads the decoy and not the roll.</summary>
+    private static SimulationSetup SureDecoy(SimulationSetup setup)
+    {
+        const string Decoy = "ability.people.orenth.afterimage";
+        return setup with
+        {
+            Character = setup.Character with { Abilities = setup.Character.Abilities.SetItem(Decoy, setup.Character.Abilities[Decoy] with { ChancePercent = 100 }) },
+        };
+    }
+
+    [Fact]
+    public void AnOrenthsAfterimage_TakesAWolfsBlow_ThenRestsBeforeTheNext()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Arena.OpenCreatures(session, SureDecoy(session.Setup), Open, 0, [(Arena.Wolf, Open.X, Open.Z + 1.9, "pack_hunter")],
+            r => r with { Identity = CharacterIdentity.BeforeTheCreator with { PeopleId = "people.orenth" } });
+        var hits = arena.Record<HitResolved>();
+        var left = arena.Record<AfterimageLeft>();
+        var struck = arena.Record<AfterimageStruck>();
+        var wolf = arena.Creature();
+        arena.Face(wolf);
+        arena.Submit(new AttackCommand(arena.Player));
+        for (int i = 0; i < 600 && !hits.Any(h => h.Target == arena.Player); i++)
+            arena.Tick();
+        int bitten = hits.Count(h => h.Target == arena.Player);
+        Assert.True(bitten > 0, "the wolf never went for the character");
+        // Its next bite winding up, the Orenth blinks away from under it.
+        var lunges = arena.Record<AttackStarted>();
+        for (int i = 0; i < 200 && !lunges.Any(a => a.Attacker == wolf.Id); i++)
+            arena.Tick();
+        Assert.Contains(lunges, a => a.Attacker == wolf.Id);
+
+        Assert.Null(arena.Submit(new PeopleAbilityCommand(arena.Player, "ability.people.orenth.blink")));
+        arena.Tick(20);
+        var ghost = Assert.Single(left);
+        var blow = Assert.Single(struck);
+        Assert.Equal(wolf.Id, blow.Attacker);
+        Assert.Equal(ghost.At, blow.At);
+        Assert.Equal(bitten, hits.Count(h => h.Target == arena.Player));
+
+        // One blow per afterimage, and the decoy rests: a wraith-step straight after leaves none.
+        Assert.Null(arena.Submit(new PeopleAbilityCommand(arena.Player, "ability.people.orenth.wraith_step")));
+        arena.Tick();
+        Assert.Single(left);
+    }
+
+    [Fact]
+    public void ALongSprint_LeavesAnOrenthsAfterimage_AndNoOneElses()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+
+        int Afterimages(string people)
+        {
+            var arena = As(session, people);
+            var left = arena.Record<AfterimageLeft>();
+            for (int i = 0; i < 40; i++)
+            {
+                arena.Simulation.Enqueue(new MoveCommand(arena.Player, new MoveIntent(0, 1000, Gait.Sprint, 0)));
+                arena.Tick();
+            }
+            return left.Count;
+        }
+
+        Assert.Equal(1, Afterimages("people.orenth"));
+        Assert.Equal(0, Afterimages("people.veth"));
     }
 
     [Fact]

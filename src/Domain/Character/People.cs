@@ -102,6 +102,7 @@ public enum PeopleAction
     Stonesense,
     MaterialMemory,
     BedrockStance,
+    Afterimage,
 }
 
 /// <summary>
@@ -135,21 +136,29 @@ public sealed record PeopleAbility(string Id, string PeopleId, string Name, stri
     public int StrainPercent { get; init; } = 100;
     public int CastPercent { get; init; } = 100;
 
+    /// <summary>The chance in percent that a foe after the body strikes its afterimage instead (Orenth, owner ruling 2026-10-25).</summary>
+    public int ChancePercent { get; init; }
+
+    /// <summary>How long a sprint runs unbroken before it leaves an afterimage behind.</summary>
+    public int SprintTicks { get; init; }
+
     /// <summary>The effect the ability puts on its user for <see cref="DurationTicks"/>, if any.</summary>
     public string? EffectId { get; init; }
 
     /// <summary>Always on, never used from a key: a trait's working, or one presentation keeps (Perfect Recall's journal).</summary>
-    public bool Passive => Action is PeopleAction.Passive or PeopleAction.PerfectRecall;
+    public bool Passive => Action is PeopleAction.Passive or PeopleAction.PerfectRecall or PeopleAction.Afterimage;
 
     public string? Problem() =>
         StaminaCost < 0 || FocusCost < 0 || StaminaPerSecond < 0 ? "costs are not negative"
-        : CooldownTicks < 0 || DurationTicks < 0 ? "cooldown_s and duration_s are not negative"
+        : CooldownTicks < 0 || DurationTicks < 0 || SprintTicks < 0 ? "cooldown_s, duration_s and sprint_s are not negative"
+        : ChancePercent is < 0 or > 100 ? "chance_percent is 0 to 100"
         : RangeMm < 0 || SpeedMmPerSecond < 0 || SinkMmPerSecond < 0 || ApexBonusMm < 0 ? "distances and speeds are not negative"
         : DistancePercent <= 0 || StrainPercent < 0 || CastPercent <= 0 ? "percents are positive"
         : Toll < 0 ? "toll is not negative"
         : Action == PeopleAction.Blink && RangeMm <= 0 ? "a blink has a range"
         : Action is PeopleAction.Glide or PeopleAction.Flare && SinkMmPerSecond <= 0 ? "a glide or a flare sinks"
         : Action == PeopleAction.Glide && SpeedMmPerSecond <= 0 ? "a glide goes forward"
+        : Action == PeopleAction.Afterimage && (DurationTicks <= 0 || ChancePercent <= 0) ? "an afterimage lingers and has a chance"
         : null;
 }
 

@@ -74,7 +74,8 @@ public static class CharacterContent
     /// <summary>
     /// The racial abilities (<c>ability</c> of <c>class: people</c>): a <c>people_ref</c>, an <c>action</c>, a <c>description</c>, and the
     /// numbers its action reads - <c>cost</c> (stamina, focus), <c>stamina_per_s</c>, <c>cooldown_s</c>, <c>duration_s</c>, <c>range_m</c>,
-    /// <c>speed_m_s</c>, <c>sink_m_s</c>, <c>apex_bonus_m</c>, <c>distance_percent</c>, <c>toll</c>, <c>effect_ref</c>.
+    /// <c>speed_m_s</c>, <c>sink_m_s</c>, <c>apex_bonus_m</c>, <c>distance_percent</c>, <c>toll</c>, <c>effect_ref</c>, <c>chance_percent</c>,
+    /// <c>sprint_s</c>.
     /// </summary>
     public static ImmutableSortedDictionary<string, PeopleAbility> BuildPeopleAbilities(ContentLoader loader)
     {
@@ -109,6 +110,8 @@ public static class CharacterContent
                     ApexBonusMm = (long)Math.Round(Opt("apex_bonus_m") * 1000),
                     DistancePercent = (int)Opt("distance_percent", 100),
                     Toll = map.ContainsKey("toll") ? Int(map, "toll") : 0,
+                    ChancePercent = map.ContainsKey("chance_percent") ? Int(map, "chance_percent") : 0,
+                    SprintTicks = ToTicks(Opt("sprint_s"), tickMs),
                     EffectId = map.ContainsKey("effect_ref") ? Defined(loader, Text(map, "effect_ref"), "effect", $"{id} effect_ref") : null,
                 };
                 if (!id.StartsWith(ability.PeopleId.Replace("people.", "ability.people.") + ".", StringComparison.Ordinal))

@@ -403,6 +403,7 @@ public sealed class Simulation
         // that savaged it, the weakest of the party, or the one nearest.
         _creatures.PetsOnFeet = () => _pets.Views().Where(p => p.Condition == PetCondition.Up)
             .Select(p => (p.Body, p.Id, p.Health, p.MaxHealth)).ToImmutableArray();
+        _creatures.Afterimages = () => _people.Ghost(Now) is { } ghost ? _companions.Afterimages(Now).Append(ghost) : _companions.Afterimages(Now);
         _creatures.Populate();
         _lfg.Populate();
         if (restoreAttempt) _creatures.RecoverLoadedAttempt();
@@ -1220,6 +1221,7 @@ public sealed class Simulation
         Recruit recruit => _companions.Handle(recruit, Now),
         OrderCompanion order => _companions.Handle(order, Now),
         CompanionStruck struck => _companions.Handle(struck, Now),
+        StrikeAfterimage ghost => ghost.Of == PlayerId ? _people.Handle(ghost, Now) : _companions.Handle(ghost, Now),
         PlaceNpc place => _npcs.Handle(place),
         RemoveNpc remove => _npcs.Handle(remove),
         DepartNpc depart => _npcs.Handle(depart, Now),

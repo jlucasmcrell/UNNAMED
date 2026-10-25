@@ -42,6 +42,8 @@ public partial class Main
         _session.Subscribe<WingsChanged>(e => Mark("wings", e.Wing.ToString()));
         _session.Subscribe<Blinked>(e => Mark("blinked", new { from = e.From.ToString(), to = e.To.ToString() }));
         _session.Subscribe<WraithStepped>(e => Mark("wraith_step", e.UntilTick));
+        _session.Subscribe<AfterimageLeft>(e => Mark("afterimage_left", new { actor = e.Actor.ToString(), at = e.At.ToString(), until = e.UntilTick }));
+        _session.Subscribe<AfterimageStruck>(e => Mark("afterimage_struck", new { by = e.AttackerDefinitionId, at = e.At.ToString() }));
         _session.Subscribe<AnchorPlaced>(e => Mark("anchor", e.At.ToString()));
         _session.Subscribe<Recalled>(e => Mark("recalled", new { from = e.From.ToString(), to = e.To.ToString() }));
         _session.Subscribe<CommandRejected>(e => Mark("refused", $"{e.Command.GetType().Name}: {e.Reason}"));
@@ -59,6 +61,11 @@ public partial class Main
         {
             await KalSlope();
             Mark("slope", new { top = _glideFrom.Top.ToString(), drop_mm = _glideFrom.Drop, dir = $"{_glideFrom.DirX},{_glideFrom.DirZ}" });
+        }
+        else if (route == "decoy")
+        {
+            var wolf = await DecoyApproach();
+            Mark("wolf", new { wolf = wolf.Key, at = wolf.Body.ToString() });
         }
         else
         {
@@ -78,6 +85,8 @@ public partial class Main
         Mark("recording");
         if (route == "kal")
             await KalRoute(Mark);
+        else if (route == "decoy")
+            await DecoyRoute(Mark);
         else
             await OrenthRoute(Mark);
         await Rcd3Wait(2);
@@ -172,6 +181,77 @@ public partial class Main
             return;
         }
         throw new InvalidOperationException("No open ground for the Orenth route within 200 m");
+    }
+
+    private const string DecoyWolf = "creature.beast.wolf_grey";
+
+    /// <summary>The decoy's wolf: the nearest grey wolf alive. The Orenth walks to 30 m of it, unrecorded, and waits there.</summary>
+    private async Task<CreatureView> DecoyApproach()
+    {
+        var sim = _session.Simulation!;
+        var start = sim.Player.Body;
+        var wolf = sim.Creatures.Where(c => c.DefId == DecoyWolf && c.Alive)
+            .MinBy(c => Math.Pow(c.Body.XMm - start.XMm, 2) + Math.Pow(c.Body.ZMm - start.ZMm, 2))
+            ?? throw new InvalidOperationException("No grey wolf alive for the decoy route");
+        foreach (var (cx, cz) in Playthrough.WayTo(sim, sim.Player.Body, wolf.Body, standOff: 30))
+            await SteerTo(cx, cz, Gait.Run, 120);
+        _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+        return wolf;
+    }
+
+    /// <summary>
+    /// The decoy (owner ruling 2026-10-25): the Orenth walks at the wolf until it comes; each time it winds up a bite with the blink ready, the
+    /// Orenth blinks, and a still camera 7 m side-on to the place it left holds the afterimage and the wolf in frame. The roll is the real one,
+    /// so it goes again on the next bite until one lands on the afterimage, or 60 s pass.
+    /// </summary>
+    private async Task DecoyRoute(Action<string, object?> mark)
+    {
+        var sim = _session.Simulation!;
+        var wolf = sim.Creatures.Where(c => c.DefId == DecoyWolf && c.Alive)
+            .MinBy(c => Math.Pow(c.Body.XMm - sim.Player.Body.XMm, 2) + Math.Pow(c.Body.ZMm - sim.Player.Body.ZMm, 2))!;
+        bool lunging = false, struck = false;
+        _session.Subscribe<AttackStarted>(e => lunging |= e.Attacker == wolf.Id);
+        _session.Subscribe<AfterimageStruck>(_ => struck = true);
+        var still = new Camera3D { Fov = 60, Near = .05f, Far = 2000, Environment = _camera.Camera.Environment, Attributes = _camera.Camera.Attributes };
+        AddChild(still);
+        void Frame(Body at, Body toward)
+        {
+            var spot = new Vector3(at.XMm / 1000f, at.YMm / 1000f + 1f, at.ZMm / 1000f);
+            var line = new Vector3((toward.XMm - at.XMm) / 1000f, 0, (toward.ZMm - at.ZMm) / 1000f).Normalized();
+            still.GlobalPosition = spot + new Vector3(line.Z, 0, -line.X) * 7 + Vector3.Up * .5f;
+            still.LookAt(spot);
+            still.MakeCurrent();
+        }
+        mark("approach", null);
+        ulong deadline = Time.GetTicksMsec() + 60_000;
+        bool framed = false;
+        while (!struck && Time.GetTicksMsec() < deadline)
+        {
+            var now = sim.Creatures.Single(c => c.Id == wolf.Id);
+            var me = sim.Player.Body;
+            double apart = Math.Sqrt(Math.Pow(now.Body.XMm - me.XMm, 2) + Math.Pow(now.Body.ZMm - me.ZMm, 2));
+            if (!framed && apart < 8_000)
+            {
+                Frame(me, now.Body);
+                framed = true;
+            }
+            // Walk at it until it is close; then stand and let it come.
+            var toward = new Vector3((now.Body.XMm - me.XMm) / 1000f, 0, (now.Body.ZMm - me.ZMm) / 1000f);
+            _controller.SteerWorld(apart > 6_000 ? toward.Normalized() : Vector3.Zero, Gait.Walk, _camera);
+            if (lunging && sim.PeopleAbilityCooldown("ability.people.orenth.blink") == 0)
+            {
+                Frame(me, now.Body);
+                mark("lunge", null);
+                _controller.PeopleAbility("ability.people.orenth.blink");
+            }
+            lunging = false;
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        }
+        _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+        await Rcd3Wait(3);
+        mark(struck ? "decoy_taken" : "decoy_not_taken", null);
+        _camera.Camera.MakeCurrent();
+        still.QueueFree();
     }
 
     private async Task SteerTo(double x, double z, Gait gait, double budgetSeconds)

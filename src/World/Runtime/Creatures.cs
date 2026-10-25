@@ -248,6 +248,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// <summary>The animals on their feet, as bodies a creature can turn on, with the health a role that reads a fight needs (spec 43 ruling 5).</summary>
     public Func<ImmutableArray<(Body Body, EntityId Id, int Health, int MaxHealth)>>? PetsOnFeet { get; set; }
 
+    /// <summary>The Orenth afterimages lingering now (owner ruling 2026-10-25): a creature after one of them may strike the ghost instead.</summary>
+    public Func<IEnumerable<Afterimage>>? Afterimages { get; set; }
+
     private EncounterScale ScaleOf() => Scale?.Invoke() ?? EncounterScale.Authored;
 
     /// <summary>An attack as a scaled body throws it: the same windup and reach, more force behind it.</summary>
@@ -815,7 +818,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
     {
         var foe = Foe(c);
         var player = foe.Body;
-        bool atCharacter = foe.Id == _player;
+        bool atCharacter = foe.Id == _player && foe.Decoy is null;
         var attack = Scaled(c.Definition.Attack, c.ScalePercent);
         // The character is gone after where they were last perceived; a companion or an animal that stands nearer is simply there (M6).
         long targetX = atCharacter && c.Knows ? c.KnownXMm : player.XMm, targetZ = atCharacter && c.Knows ? c.KnownZMm : player.ZMm;
@@ -981,7 +984,10 @@ internal sealed class CreatureSystem : IAbstractAdvance
             && !Walled(c, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
         // A swing at an animal lands in the animal's own fight, in the pet system, where the wound is the animal's to take: a creature whose
         // target is an animal must never wound the handler standing behind it. A companion and the character are struck through here.
-        InternalCommand? blow = foe.Animal ? null : foe.Companion is { } companion ? new CompanionStruck(c.Id, companion, attack) : new CreatureStrike(c.Id, attack);
+        InternalCommand? blow = foe.Decoy is { } ghost ? new StrikeAfterimage(c.Id, c.Definition.Id, ghost.Of)
+            : foe.Animal ? null
+            : foe.Companion is { } companion ? new CompanionStruck(c.Id, companion, attack)
+            : new CreatureStrike(c.Id, attack);
         if (blow is not null && reaches && _context.Dispatch(blow) is null)
         {
             Sound(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.BlowMm));
@@ -1370,7 +1376,21 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// <item>Focusing the weakest: the hurt of the party, wherever it stands in the group, is finished first.</item>
     /// </list>
     /// </summary>
-    private (Body Body, EntityId Id, string? Companion, bool Animal) Foe(CreatureState c)
+    /// <summary>
+    /// What the creature fights: <see cref="Quarry"/>, or that one's lingering afterimage when the creature takes the bait - one roll per
+    /// creature and afterimage, the same on a replay.
+    /// </summary>
+    private (Body Body, EntityId Id, string? Companion, bool Animal, Afterimage? Decoy) Foe(CreatureState c)
+    {
+        var (body, id, companion, animal) = Quarry(c);
+        foreach (var ghost in Afterimages?.Invoke() ?? Enumerable.Empty<Afterimage>())
+            if (ghost.Of == id && RngChannel.Open(State.World.WorldSeed, _context.CellOf(ghost.At), "afterimage", $"{c.Key}>{ghost.Of}@{ghost.LeftTick}")
+                    .UInt64(0) % 100 < (ulong)ghost.ChancePercent)
+                return (ghost.At, id, companion, animal, ghost);
+        return (body, id, companion, animal, null);
+    }
+
+    private (Body Body, EntityId Id, string? Companion, bool Animal) Quarry(CreatureState c)
     {
         var player = State.Body;
         double toPlayer = Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);

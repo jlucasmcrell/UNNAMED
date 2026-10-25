@@ -3,6 +3,7 @@
 // Godot presentation only: it submits the wing and ability commands and says what the simulation did (D-11)
 
 using Godot;
+using UNNAMED.Domain;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Presentation.Settings;
@@ -19,7 +20,7 @@ public partial class Main
     private bool _wingsHeld;
     private WingState? _wingsDrawn;
     private long _phasedUntil;
-    private bool _phaseDrawn;
+    private Dictionary<GeometryInstance3D, float>? _phaseFaded;
 
     /// <summary>
     /// The jump key held past the jump spreads the wings (Kal: Wing Glide); let go aloft, they fold and the body drops. Sent once each way, and
@@ -63,19 +64,57 @@ public partial class Main
         });
     }
 
-    /// <summary>A wraith-stepping body (§3.4) is drawn half out of reality: the whole figure fades while blows pass through it.</summary>
+    /// <summary>
+    /// A wraith-stepping body (§3.4) is drawn half out of reality: the figure fades while blows pass through it, and each mesh gets its own
+    /// transparency back after. The Orenth's lagging shadow twin keeps casting.
+    /// </summary>
     private void DrawPhase(long tick)
     {
         bool phased = tick < _phasedUntil;
-        if (phased == _phaseDrawn)
+        if (phased == (_phaseFaded is not null))
             return;
-        _phaseDrawn = phased;
-        foreach (var mesh in _avatar.FindChildren("*", nameof(GeometryInstance3D), true, false).OfType<GeometryInstance3D>())
-            mesh.Transparency = phased ? .6f : 0f;
+        if (!phased)
+        {
+            foreach (var (mesh, was) in _phaseFaded!)
+                if (IsInstanceValid(mesh))
+                    mesh.Transparency = was;
+            _phaseFaded = null;
+            return;
+        }
+        _phaseFaded = _avatar.FindChildren("*", nameof(GeometryInstance3D), true, false).OfType<GeometryInstance3D>()
+            .Where(mesh => !mesh.Name.ToString().EndsWith("_phase_shadow")).ToDictionary(mesh => mesh, mesh => mesh.Transparency);
+        foreach (var mesh in _phaseFaded.Keys)
+            mesh.Transparency = .6f;
+    }
+
+    /// <summary>The afterimages held in the world, by whose they are: the ghost a struck one shatters.</summary>
+    private readonly Dictionary<EntityId, GodotObject> _afterimages = new();
+
+    /// <summary>
+    /// An afterimage lingers as the figure stood when it was left - the handler runs in the step, before the figure is posed anew - through
+    /// the figure's own <c>OrenthPhase</c> (race-looks' ghost; <c>Linger(seconds, at)</c> hands back the decoy, <c>Shatter()</c> breaks it).
+    /// </summary>
+    private void Linger(AfterimageLeft left)
+    {
+        var simulation = _session.Simulation!;
+        Node3D? figure = left.Actor == simulation.PlayerId ? _avatar
+            : simulation.Npcs.FirstOrDefault(n => n.InstanceId == left.Actor) is { } npc ? _npcs.FigureOf(npc.Id) : null;
+        if (figure?.FindChild("OrenthPhase", true, false) is not { } phase)
+            return;
+        double seconds = (left.UntilTick - left.Tick) * simulation.Setup.TickMilliseconds / 1000.0;
+        _afterimages[left.Actor] = phase.Call("Linger", seconds, figure.GlobalTransform).AsGodotObject();
     }
 
     private void SubscribePeople()
     {
+        _session.Subscribe<AfterimageLeft>(Linger);
+        _session.Subscribe<AfterimageStruck>(e =>
+        {
+            if (_afterimages.Remove(e.Actor, out var ghost) && IsInstanceValid(ghost))
+                ghost.Call("Shatter");
+            if (e.Actor == _session.Simulation!.PlayerId)
+                _hud.Toast($"The {Names.Of(_session, e.AttackerDefinitionId).ToLowerInvariant()} struck your afterimage", 2);
+        });
         _session.Subscribe<WraithStepped>(e =>
         {
             if (e.Actor == _session.Simulation!.PlayerId)
