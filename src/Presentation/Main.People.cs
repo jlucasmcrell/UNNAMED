@@ -19,8 +19,6 @@ public partial class Main
 
     private bool _wingsHeld;
     private WingState? _wingsDrawn;
-    private long _phasedUntil;
-    private Dictionary<GeometryInstance3D, float>? _phaseFaded;
 
     /// <summary>
     /// The jump key held past the jump spreads the wings (Kal: Wing Glide); let go aloft, they fold and the body drops. Sent once each way, and
@@ -64,29 +62,6 @@ public partial class Main
         });
     }
 
-    /// <summary>
-    /// A wraith-stepping body (§3.4) is drawn half out of reality: the figure fades while blows pass through it, and each mesh gets its own
-    /// transparency back after. The Orenth's lagging shadow twin keeps casting.
-    /// </summary>
-    private void DrawPhase(long tick)
-    {
-        bool phased = tick < _phasedUntil;
-        if (phased == (_phaseFaded is not null))
-            return;
-        if (!phased)
-        {
-            foreach (var (mesh, was) in _phaseFaded!)
-                if (IsInstanceValid(mesh))
-                    mesh.Transparency = was;
-            _phaseFaded = null;
-            return;
-        }
-        _phaseFaded = _avatar.FindChildren("*", nameof(GeometryInstance3D), true, false).OfType<GeometryInstance3D>()
-            .Where(mesh => !mesh.Name.ToString().EndsWith("_phase_shadow")).ToDictionary(mesh => mesh, mesh => mesh.Transparency);
-        foreach (var mesh in _phaseFaded.Keys)
-            mesh.Transparency = .6f;
-    }
-
     /// <summary>The afterimages held in the world, by whose they are: the ghost a struck one shatters.</summary>
     private readonly Dictionary<EntityId, GodotObject> _afterimages = new();
 
@@ -96,14 +71,28 @@ public partial class Main
     /// </summary>
     private void Linger(AfterimageLeft left)
     {
-        var simulation = _session.Simulation!;
-        Node3D? figure = left.Actor == simulation.PlayerId ? _avatar
-            : simulation.Npcs.FirstOrDefault(n => n.InstanceId == left.Actor) is { } npc ? _npcs.FigureOf(npc.Id) : null;
-        if (figure?.FindChild("OrenthPhase", true, false) is not { } phase)
+        if (OrenthPhaseOf(left.Actor) is not var (figure, phase))
             return;
-        double seconds = (left.UntilTick - left.Tick) * simulation.Setup.TickMilliseconds / 1000.0;
-        _afterimages[left.Actor] = phase.Call("Linger", seconds, figure.GlobalTransform).AsGodotObject();
+        _afterimages[left.Actor] = phase.Call("Linger", Seconds(left.UntilTick - left.Tick), figure.GlobalTransform).AsGodotObject();
     }
+
+    /// <summary>A wraith-stepping body (§3.4) is drawn half out of reality by its own <c>OrenthPhase</c> for as long as it lasts.</summary>
+    private void Phase(WraithStepped stepped)
+    {
+        if (OrenthPhaseOf(stepped.Actor) is var (_, phase))
+            phase.Call("Phase", Seconds(stepped.UntilTick - stepped.Tick));
+    }
+
+    /// <summary>The figure of the character or a party member, and the <c>OrenthPhase</c> race-looks attaches to an Orenth's.</summary>
+    private (Node3D Figure, Node Phase)? OrenthPhaseOf(EntityId actor)
+    {
+        var simulation = _session.Simulation!;
+        Node3D? figure = actor == simulation.PlayerId ? _avatar
+            : simulation.Npcs.FirstOrDefault(n => n.InstanceId == actor) is { } npc ? _npcs.FigureOf(npc.Id) : null;
+        return figure?.FindChild("OrenthPhase", true, false) is { } phase ? (figure, phase) : null;
+    }
+
+    private double Seconds(long ticks) => ticks * _session.Simulation!.Setup.TickMilliseconds / 1000.0;
 
     private void SubscribePeople()
     {
@@ -115,11 +104,7 @@ public partial class Main
             if (e.Actor == _session.Simulation!.PlayerId)
                 _hud.Toast($"The {Names.Of(_session, e.AttackerDefinitionId).ToLowerInvariant()} struck your afterimage", 2);
         });
-        _session.Subscribe<WraithStepped>(e =>
-        {
-            if (e.Actor == _session.Simulation!.PlayerId)
-                _phasedUntil = e.UntilTick;
-        });
+        _session.Subscribe<WraithStepped>(Phase);
         _session.Subscribe<AnchorPlaced>(_ => Notice(NoticeKind.Progress, "Anchor set", 2));
         _session.Subscribe<RecallBegun>(_ => _hud.Toast("Crossing back - hold still", 3));
         _session.Subscribe<RecallBroken>(e => _hud.Toast($"The crossing slipped: {e.Reason}", 3));
