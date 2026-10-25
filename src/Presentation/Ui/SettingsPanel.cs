@@ -268,8 +268,8 @@ public partial class SettingsPanel : CanvasLayer
             i => Window(m => m with { Resolution = sizes[i] }));
         Disable(size, machine.WindowMode != WindowMode.Windowed);
         page.AddChild(size);
-        page.AddChild(Slider("display.scale", "Render scale", "The world drawn at fewer pixels, then enlarged - faster; the interface stays sharp.",
-            50, 100, 5, machine.RenderScale * 100, v => $"{v:0} %", v => Machine(m => m with { RenderScale = (float)(v / 100) })));
+        page.AddChild(Slider("display.scale", "Render scale", "The world drawn at fewer pixels, then enlarged - faster; the interface stays sharp. Low starts at 67 % and Medium at 77 %.",
+            50, 100, 5, (machine.RenderScale ?? VisualOptions.RenderScale) * 100, v => $"{v:0} %", v => Machine(m => m with { RenderScale = (float)(v / 100) })));
         page.AddChild(Choice("display.upscaler", "Upscaling", "Below 100% render scale: FSR sharpens the smaller picture; Bilinear is softer. Applies at once.",
             new[] { "FSR", "Bilinear" }, (int)machine.Upscaler, i => Machine(m => m with { Upscaler = (Upscaler)i })));
         page.AddChild(Choice("display.aa", "Anti-aliasing", "Smooths jagged edges. TAA steadies detail in motion; MSAA costs more. Applies at once. High and Ultra use TAA by default.",

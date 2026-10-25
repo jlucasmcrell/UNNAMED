@@ -98,8 +98,8 @@ public sealed record MachinePrefs
     /// <summary>The window's size in windowed mode, "1920x1080"; borderless and fullscreen take the screen's.</summary>
     public string Resolution { get; init; } = "1920x1080";
 
-    /// <summary>The 3D image's share of the window's pixels (0.5-1.0); the interface is always drawn at full size.</summary>
-    public float RenderScale { get; init; } = 1f;
+    /// <summary>The 3D image's share of the window's pixels (0.5-1.0), or null for the tier's own; the interface is always drawn at full size.</summary>
+    public float? RenderScale { get; init; }
 
     public AntiAliasing AntiAliasing { get; init; } = AntiAliasing.Tier;
     public Upscaler Upscaler { get; init; } = Upscaler.Fsr;
@@ -139,7 +139,7 @@ public sealed record MachinePrefs
     {
         WindowMode = Enum.IsDefined(WindowMode) ? WindowMode : WindowMode.Borderless,
         Resolution = ParseResolution(Resolution) is not null ? Resolution : "1920x1080",
-        RenderScale = Math.Clamp(float.IsFinite(RenderScale) ? RenderScale : 1f, 0.5f, 1f),
+        RenderScale = RenderScale is { } scale ? Math.Clamp(float.IsFinite(scale) ? scale : 1f, 0.5f, 1f) : null,
         AntiAliasing = Enum.IsDefined(AntiAliasing) ? AntiAliasing : AntiAliasing.Tier,
         Upscaler = Enum.IsDefined(Upscaler) ? Upscaler : Upscaler.Fsr,
         FrameCap = Array.IndexOf(FrameCaps, FrameCap) >= 0 ? FrameCap : 0,

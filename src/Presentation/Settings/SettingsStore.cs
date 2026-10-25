@@ -286,8 +286,7 @@ public static class SettingsStore
     public static void ApplyPicture(Viewport viewport)
     {
         var machine = Current.Machine;
-        viewport.Scaling3DScale = machine.RenderScale;
-        viewport.Scaling3DMode = machine.RenderScale < 0.999f && machine.Upscaler == Upscaler.Fsr ? Viewport.Scaling3DModeEnum.Fsr : Viewport.Scaling3DModeEnum.Bilinear;
+        VisualOptions.ApplyRenderScale(viewport, machine.RenderScale ?? VisualOptions.RenderScale, machine.Upscaler == Upscaler.Fsr);
         VisualOptions.ApplyAntiAliasing(viewport, machine.AntiAliasing switch
         {
             AntiAliasing.Off => "off", AntiAliasing.Fxaa => "fxaa", AntiAliasing.Taa => "taa",
