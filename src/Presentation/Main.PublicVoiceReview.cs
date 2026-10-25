@@ -121,6 +121,8 @@ public partial class Main
                     close.LookAt(aim);close.MakeCurrent();
                 }
                 var speech=_voice.Speech(talk.LineId);
+                if(speech is null || _session.Simulation.Conversation?.LineId != expected)
+                    throw new InvalidDataException("Greeting was replaced or interrupted before completion");
                 var current=GetViewport().GetCamera3D();
                 peak=Math.Max(peak,face.JawWeight);
                 rows.Add(new {utc=DateTimeOffset.UtcNow,elapsed_ms=Time.GetTicksMsec()-start,
@@ -132,6 +134,9 @@ public partial class Main
                 await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
             }
             if(peak<.05f)throw new InvalidDataException("Recorded voice produced no native speaking jaw");
+            var ended=_voice.Speech(expected);
+            if(ended is null || ended.Value.Position < ended.Value.Duration-.15)
+                throw new InvalidDataException("Greeting ended before its full recorded duration");
             rows.Add(new {full_utterance_finished=true,utc=DateTimeOffset.UtcNow,peak_jaw=peak});
             File.WriteAllText(Path.Combine(directory,"evidence.json"),JsonSerializer.Serialize(new {
                 status="FULL_NORMAL_GREETING_THEN_SAME_LINE_CLOSEUP_REQUIRES_REVIEW",npc=npcId,talk.LineId,frames=rows}));
