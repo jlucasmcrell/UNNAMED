@@ -28,6 +28,12 @@ public static class SaveFormat
     public const string Entities = "entities.msgpack";
     public const string IntegrityRoot = "sections.sha256";
 
+    /// <summary>The save row's summary (§3.2): whose save, what level, where, and the quest followed. Not authoritative, not checksummed.</summary>
+    public const string Preview = "preview.json";
+
+    /// <summary>The save row's picture (§3.2), added after the save is committed. Not authoritative, not checksummed.</summary>
+    public const string Thumbnail = "preview.png";
+
     /// <summary>Every file the integrity root covers, in canonical order.</summary>
     public static readonly ImmutableArray<string> CheckedFiles =
         ImmutableArray.Create(Cells, Entities, Manifest, Player);
@@ -154,7 +160,21 @@ public sealed record SaveDocument(
 
     /// <summary>The tail of the last login's away log (schema 18), oldest first; at most <see cref="AwayLogEntry.Kept"/> lines are written.</summary>
     public ImmutableArray<AdvanceLine> AwayLog { get; init; } = ImmutableArray<AdvanceLine>.Empty;
+
+    /// <summary>What the save row says of it (<c>preview.json</c>); null writes none.</summary>
+    public SavePreview? Preview { get; init; }
 }
+
+/// <summary>
+/// <c>preview.json</c> (PJ10 §4.3, §3.2's slot-UI sidecar): what a save row shows without loading the save - the character's name and
+/// level, where they were, and the quest they were following. Written into the save's staging with the sections, so it always matches its
+/// save; never read by a load, never checksummed, and a save without one (or with a broken one) still lists and loads.
+/// </summary>
+public sealed record SavePreview(
+    [property: System.Text.Json.Serialization.JsonPropertyName("name")] string Name,
+    [property: System.Text.Json.Serialization.JsonPropertyName("level")] int Level,
+    [property: System.Text.Json.Serialization.JsonPropertyName("place")] string Place,
+    [property: System.Text.Json.Serialization.JsonPropertyName("quest")] string? Quest);
 
 /// <summary>
 /// What the running build is. A save is compared against it and migrated, rebased through a
@@ -204,6 +224,12 @@ public enum SaveCopy
 /// </summary>
 public sealed record SaveSummary(string Slot, SaveCopy Copy, string? Problem, DateTimeOffset WrittenAt, double PlaytimeSeconds, long WorldTick)
 {
+    /// <summary>What <c>preview.json</c> says of the save, or null when it has none.</summary>
+    public SavePreview? Preview { get; init; }
+
+    /// <summary>The save's <c>preview.png</c>, or null when it has none.</summary>
+    public string? ThumbnailPath { get; init; }
+
     /// <summary>
     /// The character folder the save is in (<see cref="CharacterFolders"/>): the character's instance ID, or null for a save written at
     /// the profile root before saves were kept per character (OD-14).

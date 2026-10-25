@@ -75,7 +75,8 @@ internal static class Harness
     public static GameSession Boot(TempProfile profile, string? regionId = null, bool barrowworks = false)
     {
         string root = Environment.GetEnvironmentVariable("UNNAMED_ACCEPTANCE_GAME_ROOT") ?? RepoRoot();
-        var options = new GameOptions(Path.Combine(root, "content"), profile.Root);
+        // These tests count autosaves and slots from zero; the first-frame autosave has tests of its own (SaveExperienceTests).
+        var options = new GameOptions(Path.Combine(root, "content"), profile.Root) { FirstFrameAutosave = false };
         if (regionId is not null)
             options = options with { RegionId = regionId };
         if (barrowworks)

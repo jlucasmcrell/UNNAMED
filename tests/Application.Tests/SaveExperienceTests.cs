@@ -9,8 +9,132 @@ namespace UNNAMED.Application.Tests;
 /// </summary>
 public class SaveExperienceTests
 {
-    private static GameSession Boot(TempProfile profile, Action<SaveStep>? hook = null) =>
-        GameSession.Boot(new GameOptions(Path.Combine(Harness.RepoRoot(), "content"), profile.Root) { SaveStepHook = hook });
+    private static GameSession Boot(TempProfile profile, Action<SaveStep>? hook = null, bool firstFrame = false) =>
+        GameSession.Boot(new GameOptions(Path.Combine(Harness.RepoRoot(), "content"), profile.Root) { SaveStepHook = hook, FirstFrameAutosave = firstFrame });
+
+    [Fact]
+    public void ASave_SaysWhoseItIs_TheirLevel_AndWhere_InItsPreview()
+    {
+        using var profile = new TempProfile();
+        using var session = Boot(profile);
+        session.NewGame(Harness.Named("Wenna Lind"), seed: 42);
+        Harness.Ticks(session, 5);
+        session.Save(SaveSlots.Quick);
+
+        var preview = session.SaveSlots().Single().Preview!;
+        Assert.Equal(("Wenna Lind", 1), (preview.Name, preview.Level));
+        Assert.Equal(session.DisplayName(session.Simulation!.ActiveLayout.Id), preview.Place);
+        Assert.Equal(session.Simulation.TrackedQuest() is { } quest ? session.DisplayName(quest) : null, preview.Quest);
+        Assert.True(session.AttachThumbnail(SaveSlots.Quick, new byte[] { 1, 2, 3 }));
+        Assert.NotNull(session.SaveSlots().Single().ThumbnailPath);
+    }
+
+    // ── when autosaves are taken (PJ10 §4.2; PERSISTENCE.md §8.1; SYS-143) ─────────
+
+    [Fact]
+    public void ANewCharacter_IsAutosavedOnTheirFirstFrame_SoQuittingAtOnceLosesNothing()
+    {
+        using var profile = new TempProfile();
+        using var session = Boot(profile, firstFrame: true);
+        session.NewGame(Harness.Named("Wenna Lind"), seed: 42);
+
+        var frame = session.Frame(session.TickSeconds);
+
+        Assert.Equal(SaveSlots.Auto(1), frame.AutosaveTaken);
+        session.WaitForSaves(TimeSpan.FromSeconds(30));
+        Assert.Equal(SaveSlots.Auto(1), Assert.Single(session.SaveSlots()).Slot);
+        Assert.Null(session.Frame(session.TickSeconds).AutosaveTaken);   // once, not every frame
+        // A loaded character is not a new one: no first-frame save.
+        using var again = Boot(profile, firstFrame: true);
+        again.Load(SaveSlots.Auto(1));
+        Assert.Null(again.Frame(again.TickSeconds).AutosaveTaken);
+    }
+
+    [Fact]
+    public void AnAutosaveDueMidFight_WaitsUntilTheFightHasBeenOverAWhile()
+    {
+        using var profile = new TempProfile();
+        using var session = Boot(profile);
+        var simulation = session.NewGame(Harness.Named("Wenna Lind"), seed: 42);
+        session.Submit(new World.Runtime.AttackCommand(simulation.PlayerId));   // a swing at the air is a fight, as far as saving goes
+        PlayUntil(session, () => simulation.Combat.InCombat);
+        session.RequestAutosave();
+
+        double askedAt = session.PlaytimeSeconds;
+        string? taken = null;
+        double fightOver = double.NaN;
+        while (taken is null && session.PlaytimeSeconds < askedAt + GameSession.CombatDeferralCapSeconds + 5)
+        {
+            var frame = session.Frame(GameSession.MaxFrameSeconds);
+            if (double.IsNaN(fightOver) && !simulation.Combat.InCombat)
+                fightOver = session.PlaytimeSeconds;
+            taken = frame.AutosaveTaken;
+        }
+
+        Assert.NotNull(taken);
+        Assert.False(double.IsNaN(fightOver));
+        Assert.True(session.PlaytimeSeconds >= fightOver + GameSession.CombatQuietSeconds - GameSession.MaxFrameSeconds,
+            $"taken at {session.PlaytimeSeconds:0.00} s, the fight over at {fightOver:0.00} s");
+    }
+
+    [Fact]
+    public void AnAutosave_IsNeverDeferredPastTheCap_HoweverLongTheFightGoesOn()
+    {
+        using var profile = new TempProfile();
+        using var session = Boot(profile);
+        var simulation = session.NewGame(Harness.Named("Wenna Lind"), seed: 42);
+        session.RequestAutosave();
+        string? taken = null;
+        // An event's autosave falls due EventAutosaveSpacingSeconds after the last one (the start); the cap counts from then.
+        double due = Math.Max(session.PlaytimeSeconds, GameSession.EventAutosaveSpacingSeconds);
+        while (taken is null && session.PlaytimeSeconds < due + GameSession.CombatDeferralCapSeconds + 5)
+        {
+            if (simulation.Combat.Phase == World.Runtime.CombatPhase.Idle)
+                session.Submit(new World.Runtime.AttackCommand(simulation.PlayerId));   // swinging all the while
+            taken = session.Frame(GameSession.MaxFrameSeconds).AutosaveTaken;
+        }
+
+        // The swings never left ten quiet seconds, so only the cap could take it - and it did.
+        Assert.NotNull(taken);
+        Assert.InRange(session.PlaytimeSeconds - due, GameSession.CombatDeferralCapSeconds - GameSession.MaxFrameSeconds,
+            GameSession.CombatDeferralCapSeconds + 2 * GameSession.MaxFrameSeconds);
+    }
+
+    [Fact]
+    public void CrossingIntoASpace_IsAutosaved_AtTheBoundary_ButNoMoreOftenThanTheScopedSpacing()
+    {
+        using var profile = new TempProfile();
+        using var session = GameSession.Boot(new GameOptions(Path.Combine(Harness.RepoRoot(), "content"), profile.Root)
+        {
+            RegionId = "region.starting_frontier", Barrowworks = true, StartXMm = 438_000, StartZMm = 663_000, FirstFrameAutosave = false,
+        });
+        var simulation = session.NewGame(Harness.Named("Wenna Lind"), seed: 42);
+        Assert.Null(session.Frame(session.TickSeconds).AutosaveTaken);
+
+        session.Submit(new World.Runtime.EnterSpaceCommand(simulation.PlayerId, "portal.barrowworks.threshold"));
+        var inside = session.Frame(session.TickSeconds);
+        Assert.False(simulation.PlayerInExterior);
+        Assert.Equal(SaveSlots.Auto(1), inside.AutosaveTaken);
+        session.WaitForSaves(TimeSpan.FromSeconds(30));
+
+        // Straight back out: the boundary is crossed again inside the spacing, so it waits for it.
+        session.Submit(new World.Runtime.LeaveSpaceCommand(simulation.PlayerId));
+        var outside = session.Frame(session.TickSeconds);
+        Assert.True(simulation.PlayerInExterior);
+        Assert.Null(outside.AutosaveTaken);
+        string? taken = null;
+        while (taken is null && session.PlaytimeSeconds < GameSession.ScopedSaveSpacingSeconds + 5)
+            taken = session.Frame(GameSession.MaxFrameSeconds).AutosaveTaken;
+        Assert.Equal(SaveSlots.Auto(2), taken);
+        Assert.True(session.PlaytimeSeconds >= GameSession.ScopedSaveSpacingSeconds - GameSession.MaxFrameSeconds);
+    }
+
+    private static void PlayUntil(GameSession session, Func<bool> done)
+    {
+        for (int i = 0; i < 400 && !done(); i++)
+            session.Frame(session.TickSeconds);
+        Assert.True(done());
+    }
 
     [Fact]
     public void WhileASaveIsWrittenInTheBackground_TheSessionSaysItIsSaving_AndStopsOnceItIsCommitted()

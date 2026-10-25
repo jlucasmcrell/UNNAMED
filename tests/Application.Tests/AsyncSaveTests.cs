@@ -47,7 +47,7 @@ public class AsyncSaveTests
     }
 
     private static GameSession Boot(TempProfile profile, Action<SaveStep> hook) =>
-        GameSession.Boot(new GameOptions(Path.Combine(Harness.RepoRoot(), "content"), profile.Root) { SaveStepHook = hook });
+        GameSession.Boot(new GameOptions(Path.Combine(Harness.RepoRoot(), "content"), profile.Root) { SaveStepHook = hook, FirstFrameAutosave = false });
 
     /// <summary>Frames of a quarter second until the playtime reaches <paramref name="seconds"/>; the world tick of the frame that got there.</summary>
     private static long PlayTo(GameSession session, double seconds, List<SaveOutcome>? outcomes = null)

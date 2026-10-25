@@ -160,7 +160,11 @@ public sealed class SaveStore
                 : schema < SaveFormat.OldestSupportedSchema ? $"schema {schema} is older than this build reads"
                 : SaveIntegrity.Verify(directory) is { } damage ? $"it is damaged: {damage}"
                 : null;
-            return new SaveSummary(slot, copy, problem, written, playtime, tick);
+            return new SaveSummary(slot, copy, problem, written, playtime, tick)
+            {
+                Preview = ReadPreview(directory),
+                ThumbnailPath = File.Exists(Path.Combine(directory, SaveFormat.Thumbnail)) ? Path.Combine(directory, SaveFormat.Thumbnail) : null,
+            };
         }
         catch (Exception e) when (e is FormatException or InvalidOperationException)
         {
@@ -169,6 +173,46 @@ public sealed class SaveStore
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
             return new SaveSummary(slot, copy, $"it could not be read ({e.Message})", DateTimeOffset.MinValue, 0, 0);
+        }
+    }
+
+    private static SavePreview? ReadPreview(string directory)
+    {
+        try
+        {
+            string path = Path.Combine(directory, SaveFormat.Preview);
+            return File.Exists(path) ? JsonSerializer.Deserialize<SavePreview>(File.ReadAllBytes(path)) : null;
+        }
+        catch (Exception e) when (e is IOException or JsonException or UnauthorizedAccessException)
+        {
+            return null;   // a label: the row is listed without it
+        }
+    }
+
+    /// <summary>
+    /// Put a picture beside a committed save (<c>preview.png</c>, §3.2): taken when the save was, encoded off the frame, and added once the
+    /// save is in place. It is never part of the commit, so a picture that cannot be written costs the save nothing; false then, or when the
+    /// slot is gone. A save that replaces this one later carries no picture until one is attached to it.
+    /// </summary>
+    public bool AttachThumbnail(string slot, byte[] png)
+    {
+        RequireValidSlot(slot);
+        lock (_gate)
+        {
+            string directory = SlotPath(slot);
+            if (!Directory.Exists(directory))
+                return false;
+            try
+            {
+                string path = Path.Combine(directory, SaveFormat.Thumbnail);
+                File.WriteAllBytes(path + ".tmp", png);
+                File.Move(path + ".tmp", path, overwrite: true);
+                return true;
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                return false;
+            }
         }
     }
 
@@ -220,6 +264,10 @@ public sealed class SaveStore
             [SaveFormat.Cells] = SectionCodec.EncodeCells(document.Delta),
             [SaveFormat.Entities] = SectionCodec.EncodeEntities(document.Delta),
         };
+        // The row's summary is staged with the sections, so it is committed, verified-around and retired with them; the integrity
+        // root never covers it (it is not authoritative), and a load never reads it.
+        if (document.Preview is { } preview)
+            files[SaveFormat.Preview] = JsonSerializer.SerializeToUtf8Bytes(preview);
 
         // 2-3. Write to a staging directory, flushing each file to disk.
         Guarded(slot, () =>

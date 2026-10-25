@@ -16,7 +16,30 @@ namespace UNNAMED.Presentation.Ui;
 public partial class SaveIndicator : CanvasLayer
 {
     private readonly SaveIndicatorModel _model = new();
+    private readonly Dictionary<string, Task<byte[]?>> _pictures = new(StringComparer.Ordinal);
     private Label _label = null!;
+    private GameSession? _session;
+
+    public void Bind(GameSession session) => _session = session;
+
+    /// <summary>The width of a save's picture (<c>preview.png</c>); its height follows the screen's shape.</summary>
+    public const int PictureWidth = 320;
+
+    /// <summary>
+    /// Take the picture for a save taken on this frame (F5): read back now, shrunk and encoded off the frame, and put beside the save once
+    /// it is committed. A save that fails keeps no picture.
+    /// </summary>
+    public void Picture(string slot)
+    {
+        if (DisplayServer.GetName() == "headless" || GetViewport().GetTexture()?.GetImage() is not { } image || image.IsEmpty())
+            return;   // nothing drawn to picture: the save is listed without one
+        _pictures[slot] = Task.Run<byte[]?>(() =>
+        {
+            int height = Math.Max(1, image.GetHeight() * PictureWidth / Math.Max(1, image.GetWidth()));
+            image.Resize(PictureWidth, height, Image.Interpolation.Bilinear);
+            return image.SavePngToBuffer();
+        });
+    }
 
     public override void _Ready()
     {
@@ -44,6 +67,19 @@ public partial class SaveIndicator : CanvasLayer
             ? failure.Trouble?.Headline ?? "Not saved."
             : null;
         _model.Update(Time.GetTicksMsec() / 1000.0, saving, succeeded, failed);
+        if (!finished.IsDefaultOrEmpty)
+        {
+            foreach (var save in finished)
+            {
+                if (!_pictures.Remove(save.Slot, out var picture) || save.Failure is not null || _session is not { } session)
+                    continue;
+                picture.ContinueWith(t =>
+                {
+                    if (t.IsCompletedSuccessfully && t.Result is { } png)
+                        session.AttachThumbnail(save.Slot, png);
+                }, TaskScheduler.Default);
+            }
+        }
         _label.Text = _model.Text ?? string.Empty;
         _label.AddThemeColorOverride("font_color", _model.Warning ? HudStyle.Wound : HudStyle.Ash);
     }

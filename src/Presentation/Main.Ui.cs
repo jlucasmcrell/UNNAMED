@@ -111,6 +111,7 @@ public partial class Main
         _journal.UseIcons(icons);
         _help.UseIcons(icons);
         _saveIndicator = new SaveIndicator { Name = "SaveIndicator" };
+        _saveIndicator.Bind(_session);
         AddChild(_saveIndicator);
         _saves = new SavesPanel { Name = "Saves" };
         _saves.Bind(_session);

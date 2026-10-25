@@ -80,7 +80,11 @@ public partial class Main
     /// F5, "save now": taken now, written in the background (P-01); "Saved", or why not, when it has been. There is no quickload: one live
     /// world (DN7), and an older save is only ever restored by choice from the saves list.
     /// </summary>
-    private void QuickSave() => _session.SaveInBackground(SaveSlots.Quick);
+    private void QuickSave()
+    {
+        _session.SaveInBackground(SaveSlots.Quick);
+        _saveIndicator.Picture(SaveSlots.Quick);
+    }
 
     /// <summary>
     /// <c>--resume-shots dir</c>, with <c>--profile</c>: the start screen as a player meets it, Continue pressed, and the saves list opened

@@ -34,6 +34,7 @@ public partial class TitleScreen : CanvasLayer
     private VBoxContainer _column = null!;
     private Label _version = null!;
     private string? _failure;
+    private bool _syncDismissed;
 
     public void Bind(GameSession session) => _session = session;
 
@@ -159,9 +160,20 @@ public partial class TitleScreen : CanvasLayer
             }), id: "title.crash.dismiss"));
             _column.AddChild(answers);
         }
+        if (_session.CloudSyncRoot is { } sync && !_syncDismissed)
+        {
+            // §3.2 (RK-P06): a sync program can hold, bring back or half-download a save while it is written. Said once a run, never blocking.
+            _column.AddChild(UiKit.Callout(HudStyle.Ember,
+                $"Your saves are inside {sync}, a folder a cloud-sync program manages. Sync can hold or bring back save files while they are written; saves are safest kept outside it."));
+            _column.AddChild(UiKit.Action("Understood", Deferred(() =>
+            {
+                _syncDismissed = true;
+                Render();
+            }), id: "title.sync.dismiss"));
+        }
         foreach (var passed in choice.PassedOver)
             _column.AddChild(UiKit.Callout(HudStyle.Wound,
-                $"{SavesPanel.Describe(passed.Slot, passed.Copy)} ({SavesPanel.When(passed)}) could not be continued: {passed.Problem}. Load lists its other copies."));
+                $"{SavesPanel.Describe(passed.Slot, passed.Copy)} ({SavesPanel.When(passed)}) could not be continued. {SaveTrouble.OfProblem(passed.Problem!).Headline} Load lists its other copies."));
         Control? focus = null;
         if (choice.Continue is { } next)
         {

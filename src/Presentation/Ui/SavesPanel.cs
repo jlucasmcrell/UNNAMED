@@ -152,7 +152,9 @@ public partial class SavesPanel : CanvasLayer
     private Button? Row(VBoxContainer list, SaveSummary save, bool primary, string? whose)
     {
         bool copy = save.Copy != SaveCopy.Current;
-        var row = UiKit.Row(null, Describe(save.Slot, save.Copy), $"{(whose is null ? "" : whose + " · ")}{When(save)} · {Played(save)}", copy ? HudStyle.Ash : HudStyle.Bone, copy ? 32 : 40);
+        var row = UiKit.Row(copy ? null : Thumbnail(save), Describe(save.Slot, save.Copy),
+            $"{(whose is null ? "" : whose + " · ")}{When(save)} · {Played(save)}{(save.Preview is { } preview ? "\n" + Summary(preview) : "")}",
+            copy ? HudStyle.Ash : HudStyle.Bone, copy ? 32 : 40);
         if (copy)
             row.Root.AddThemeConstantOverride("separation", 12);
         Button? load = null;
@@ -243,6 +245,24 @@ public partial class SavesPanel : CanvasLayer
     /// <summary>The report on the clipboard, for the tester to paste: local only, nothing is sent.</summary>
     private void CopyReport(string what, SaveTrouble trouble, string folder) =>
         DisplayServer.ClipboardSet(trouble.Report(what, folder, $"content {_session.Content.Version} ({_session.Content.Hash})"));
+
+    /// <summary>What a save's preview says, on one line: "Wenna Lind · level 3 · the Starting Frontier · Iron Under Ash".</summary>
+    internal static string Summary(SavePreview preview) =>
+        $"{preview.Name} · level {preview.Level} · {preview.Place}{(preview.Quest is { } quest ? " · " + quest : "")}";
+
+    /// <summary>The save's picture at the row's left, or nothing when it has none (an autosave, or a save from before pictures).</summary>
+    private static Control? Thumbnail(SaveSummary save)
+    {
+        if (save.ThumbnailPath is not { } path || Image.LoadFromFile(path) is not { } image || image.IsEmpty())
+            return null;
+        return new TextureRect
+        {
+            Texture = ImageTexture.CreateFromImage(image),
+            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+            StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+            CustomMinimumSize = new Vector2(96, 54),
+        };
+    }
 
     /// <summary>A slot as a player reads it: "Quick save", "Autosave 3", a manual save by its name; and which copy.</summary>
     public static string Describe(string slot, SaveCopy copy)

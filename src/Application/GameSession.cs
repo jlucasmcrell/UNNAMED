@@ -31,6 +31,12 @@ public sealed record GameOptions(string ContentRoot, string ProfileRoot)
     /// </summary>
     public bool LockProfile { get; init; }
 
+    /// <summary>
+    /// Autosave on a new game's first frame (PJ10 §4.2), so a character who quits at once is kept. The game does; a test that counts the
+    /// five-minute cadence from zero turns it off.
+    /// </summary>
+    public bool FirstFrameAutosave { get; init; } = true;
+
     /// <summary>Called at each step of every save's commit, on the thread writing it: fault injection for tests. The game leaves it null.</summary>
     public Action<SaveStep>? SaveStepHook { get; init; }
 
@@ -441,6 +447,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
         _store = StoreFor(id.Value);
         _card = new CharacterCard(id.Value, player.Name, spec.PeopleId, spec.CallId);
         Begin(simulation, playtime: 0, worldTimeAdvanced: 0, ImmutableArray<AdvanceLine>.Empty);
+        _firstAutosaveDue = Options.FirstFrameAutosave;   // PJ10 §4.2: a new character is kept from its first frame, so quitting at once loses nothing
         // The story begins before the first tick: the journal's first entries are there when the character first looks (WP4).
         if (_simulation!.HasOpeningQuests)
         {
@@ -557,8 +564,17 @@ public sealed class GameSession : IDomainEvents, IDisposable
         return deleted;
     }
 
+    /// <summary>The cloud-sync folder (OneDrive, Dropbox) the saves are inside, or null: the title says so once (§3.2, RK-P06).</summary>
+    public string? CloudSyncRoot => _profileStore.CloudSyncRoot;
+
     /// <summary>The folder a character's saves are in (null: the saves from before folders, at the profile root): what "Open saves folder" opens.</summary>
     public string FolderOf(string? character) => StoreOf(character).Root;
+
+    /// <summary>
+    /// Put the picture taken with a save beside it once it is committed (<c>preview.png</c>), in the folder of the character in play. False
+    /// when the slot is not there or the picture could not be written: it is a label, and the save is whole without it.
+    /// </summary>
+    public bool AttachThumbnail(string slot, byte[] png) => _store.AttachThumbnail(slot, png);
 
     /// <summary>A save is being written in the background now: what the "Saving…" indicator shows (PJ10 §6.2).</summary>
     public bool IsSaving => _pending.Count > 0 && !_pending[^1].Written.IsCompleted;
@@ -632,8 +648,11 @@ public sealed class GameSession : IDomainEvents, IDisposable
     {
         var simulation = _simulation ?? throw new InvalidOperationException("There is no running world to save");
         var now = Now();
-        return SaveDocuments.Capture(simulation.World, simulation.CaptureRecord(), Content, simulation.WorldTick, PlaytimeSeconds, _worldTimeAdvanced)
-            with { CapturedAt = now, SavedUtc = now, AwayLog = _away };
+        var record = simulation.CaptureRecord();
+        var preview = new SavePreview(record.Name, record.Progression.Level, DisplayName(simulation.ActiveLayout.Id),
+            simulation.TrackedQuest() is { } quest ? DisplayName(quest) : null);
+        return SaveDocuments.Capture(simulation.World, record, Content, simulation.WorldTick, PlaytimeSeconds, _worldTimeAdvanced)
+            with { CapturedAt = now, SavedUtc = now, AwayLog = _away, Preview = preview };
     }
 
     private void Queue(string slot, bool auto)
@@ -733,18 +752,58 @@ public sealed class GameSession : IDomainEvents, IDisposable
         // next is counted from that one's capture. A failure never stops the frame (M-02); it comes back as an outcome.
         string? taken = null;
         bool writing = _pending.Any(p => p.Auto);
-        if (!writing && (AutosaveCadence.IsDue(PlaytimeSeconds, _lastAutosave)
-                         || _autosaveRequested && PlaytimeSeconds - _lastAutosave >= EventAutosaveSpacingSeconds))
+        // Crossing into or out of a space keeps the world as it was at the boundary (§8.1), at most once a ScopedSaveSpacingSeconds.
+        string space = simulation.ActiveLayout.Id;
+        if (space != _space)
         {
-            Queue(taken = _store.NextAutosaveSlot(), auto: true);
-            _lastAutosave = PlaytimeSeconds;
-            _autosaveRequested = false;
+            _space = space;
+            _boundaryAutosaveDue = true;
+        }
+        if (simulation.Combat.InCombat)
+            _lastFight = PlaytimeSeconds;
+        bool wanted = _firstAutosaveDue
+                      || AutosaveCadence.IsDue(PlaytimeSeconds, _lastAutosave)
+                      || _autosaveRequested && PlaytimeSeconds - _lastAutosave >= EventAutosaveSpacingSeconds
+                      || _boundaryAutosaveDue && PlaytimeSeconds - _lastBoundaryAutosave >= ScopedSaveSpacingSeconds;
+        if (!writing && wanted)
+        {
+            // Not mid-fight (PJ10 §4.2): an autosave waits until the fight has been over CombatQuietSeconds, but never longer than
+            // CombatDeferralCapSeconds, so a long fight cannot keep the world unsaved.
+            _autosaveWantedSince ??= PlaytimeSeconds;
+            bool quiet = PlaytimeSeconds - _lastFight >= CombatQuietSeconds;
+            bool overdue = PlaytimeSeconds - _autosaveWantedSince.Value >= CombatDeferralCapSeconds;
+            if (_firstAutosaveDue || quiet || overdue)
+            {
+                Queue(taken = _store.NextAutosaveSlot(), auto: true);
+                if (_boundaryAutosaveDue)
+                    _lastBoundaryAutosave = PlaytimeSeconds;
+                _lastAutosave = PlaytimeSeconds;
+                _autosaveRequested = false;
+                _firstAutosaveDue = false;
+                _boundaryAutosaveDue = false;
+                _autosaveWantedSince = null;
+            }
         }
         return new FrameResult(ticks, _accumulator / TickSeconds, saves) { AutosaveTaken = taken };
     }
 
+    /// <summary>An autosave due while the character is fighting waits until the fight has been over this long (PJ10 §4.2).</summary>
+    public const double CombatQuietSeconds = 10;
+
+    /// <summary>...but never longer than this after it fell due: a long fight cannot keep the world unsaved.</summary>
+    public const double CombatDeferralCapSeconds = 60;
+
+    /// <summary>A space boundary's autosave comes at most this often, so walking in and out of a door does not write continuously (§8.2).</summary>
+    public const double ScopedSaveSpacingSeconds = 30;
+
     private int _autosaveFailures;
     private bool _autosaveRequested;
+    private bool _firstAutosaveDue;
+    private bool _boundaryAutosaveDue;
+    private string? _space;
+    private double _lastBoundaryAutosave = double.NegativeInfinity;
+    private double _lastFight = double.NegativeInfinity;
+    private double? _autosaveWantedSince;
 
     /// <summary>
     /// Autosave soon, because something worth keeping just happened (WP4's event autosaves): a quest completed and an arrival by the stones
@@ -813,6 +872,12 @@ public sealed class GameSession : IDomainEvents, IDisposable
         PlaytimeSeconds = playtime;
         _lastAutosave = playtime;
         _autosaveRequested = false;
+        _firstAutosaveDue = false;
+        _boundaryAutosaveDue = false;
+        _space = simulation.ActiveLayout.Id;
+        _lastBoundaryAutosave = double.NegativeInfinity;
+        _lastFight = double.NegativeInfinity;
+        _autosaveWantedSince = null;
         _awayNotes.Clear();
         Notes = new JournalNotes(Options.ProfileRoot, simulation.PlayerId);
         _worldTimeAdvanced = worldTimeAdvanced;
