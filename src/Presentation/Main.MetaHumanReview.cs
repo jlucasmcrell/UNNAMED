@@ -74,7 +74,10 @@ public partial class Main
         {
             executable = OS.GetExecutablePath(), arguments = OS.GetCmdlineUserArgs(),
             renderer = RenderingServer.GetCurrentRenderingMethod(), viewport = GetViewport().GetVisibleRect().Size.ToString(),
-            assets = MetaHumanFigure.AssetRoot, settings = "Normal launch: loaded owner client_prefs; no harness defaults",
+            assets = _art.Root, fallback = Art.ArtLibrary.FallbackRoot,
+            character_root_override = OS.GetEnvironment("OTHERREACH_CHARACTER_ROOT"),
+            settings_persisted = SettingsStore.PersistenceEnabled,
+            settings = SettingsStore.PersistenceEnabled ? "Player preferences enabled" : "Harness defaults; owner preferences neither read nor written",
         }, new JsonSerializerOptions { WriteIndented = true }));
         _mhReviewNext = Time.GetTicksMsec() + 3000;
         if(OS.GetEnvironment("OTHERREACH_RCD6_EXISTING_PARTY_UI")=="1")

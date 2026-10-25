@@ -32,6 +32,7 @@ public static class SettingsStore
 
     private static readonly Dictionary<string, string[]> Defaults = new(StringComparer.Ordinal);
     private static bool _persist;
+    public static bool PersistenceEnabled => _persist;
     private static Baseline? _baseline;
 
     public static ClientPrefs Current { get; private set; } = new ClientPrefs { Profile = new ProfilePrefs { FirstLaunchDone = true } };
