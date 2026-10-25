@@ -34,8 +34,6 @@ public partial class OpeningCinematic : Node
     private const double Dawn = 31;
     private const float DawnHours = 0.35f;
 
-    private static readonly double[] PulseAt = { 42.4, 46.2 };
-
     private readonly Places _at;
     private readonly Shot[] _shots;
     private readonly Camera3D _camera = new() { Name = "OpeningCamera", Far = 4000 };
@@ -51,8 +49,8 @@ public partial class OpeningCinematic : Node
     private Control _name = null!;
     private int _line = -1;
     private double _clock = -1;
+    private readonly OpeningClock _time = new();
     private int _warm;
-    private int _pulses;
     private bool _hit, _leaving;
     private double _leave;
 
@@ -210,13 +208,15 @@ public partial class OpeningCinematic : Node
             if (Holding)
                 return;
             // The first frame after the warm-up: the opening starts with it, and so does its score.
-            _clock = 0;
+            _time.Start(Now);
             Started?.Invoke();
             GetViewport().GuiReleaseFocus();
             if (DisplayServer.GetName() != "headless")
                 Input.MouseMode = Input.MouseModeEnum.Hidden;
         }
-        _clock += delta;
+        // Where the score is, not the sum of the frames: a slow machine drops frames and stays on the score (OpeningClock).
+        var reached = _time.Advance(Now);
+        _clock = _time.Seconds;
         if (_leaving)
         {
             _leave += delta;
@@ -227,15 +227,33 @@ public partial class OpeningCinematic : Node
         }
         if (_clock < Hit)
             Pose(_clock);
-        else if (!_hit)
+        bool over = false;
+        foreach (var (cue, index) in reached)
         {
-            _hit = true;
-            Named?.Invoke();
+            switch (cue)
+            {
+                case OpeningCue.Line:
+                    Say?.Invoke(OpeningWords.Lines[index].Voice);
+                    break;
+                case OpeningCue.Pulse:
+                    Pulse?.Invoke();
+                    break;
+                case OpeningCue.Hit:
+                    _hit = true;
+                    Named?.Invoke();
+                    break;
+                case OpeningCue.End:
+                    over = true;
+                    break;
+            }
         }
         Overlay(_clock);
-        if (_clock >= End)
+        if (over)
             Finish(skipped: false);
     }
+
+    /// <summary>Seconds on the engine's steady clock.</summary>
+    private static double Now => Time.GetTicksUsec() / 1_000_000.0;
 
     /// <summary>The camera and the sky at a moment before the hit.</summary>
     private void Pose(double t)
@@ -275,12 +293,6 @@ public partial class OpeningCinematic : Node
         foreach (var shot in _shots.Skip(1))
             black = Math.Max(black, (float)Math.Clamp(1 - Math.Abs(t - shot.From) / DipSeconds, 0, 1));
         _black.Color = new Color(0, 0, 0, t < Hit ? black : 0);
-        // The waystone wakes as it comes into the light, and answers again.
-        if (_pulses < PulseAt.Length && t >= PulseAt[_pulses])
-        {
-            _pulses++;
-            Pulse?.Invoke();
-        }
         Words(t);
         // The hit: a flash, the name in, slightly large, settling; the bars open and the name rises to the title's place.
         double since = t - Hit;
@@ -307,10 +319,7 @@ public partial class OpeningCinematic : Node
     {
         int line = Array.FindIndex(OpeningWords.Lines, l => t >= l.From && t < l.Until);
         if (line != _line && line >= 0)
-        {
             _words.Text = OpeningWords.Lines[line].Words;
-            Say?.Invoke(OpeningWords.Lines[line].Voice);
-        }
         _line = line;
         if (line < 0)
         {
