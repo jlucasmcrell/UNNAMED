@@ -38,7 +38,8 @@ def stage(source, destination=None):
             if not item.is_file():continue
             relative=item.relative_to(base)
             size=item.stat().st_size
-            if developer_file(relative):
+            # SkinnedModel loads only these self-contained libraries; receipts remain beside the retained source package.
+            if developer_file(relative) or (scope=='humgen_characters' and not (relative.parts[0]=='mocap_motion' and item.suffix=='.res')):
                 report['omitted_developer_bytes']+=size;continue
             if cache is not None and item.parent==manifest.parent and item.suffix.lower()=='.dds' and item.name not in used:
                 report['omitted_orphan_dds_bytes']+=size;continue

@@ -15,13 +15,17 @@ with tempfile.TemporaryDirectory() as directory:
         'missing.glb#image0':dict(dds='orphan.dds')})))
     (source/'humgen_characters/library.log').write_text('developer log')
     (source/'humgen_characters/native.audit.json').write_text('{"runtime":"keep"}')
+    (source/'humgen_characters/mocap_motion').mkdir()
+    (source/'humgen_characters/mocap_motion/body_motion.res').write_bytes(b'exact native library')
     result=stage(source,target)
     assert result['omitted_orphan_dds_bytes']==6
     assert (cache/'orphan.dds').read_bytes()==b'orphan'
     assert not (target/'primary/texture_cache/orphan.dds').exists()
     assert (target/'primary/model.glb').stat().st_ino==(source/'primary/model.glb').stat().st_ino
     assert not (target/'humgen_characters/library.log').exists()
-    assert (target/'humgen_characters/native.audit.json').is_file()
+    assert not (target/'humgen_characters/native.audit.json').exists()
+    assert (source/'humgen_characters/native.audit.json').is_file()
+    assert (target/'humgen_characters/mocap_motion/body_motion.res').read_bytes()==b'exact native library'
     entries=json.loads((target/'primary/texture_cache/manifest.json').read_text())['entries']
     assert list(entries)==['model.glb#image0']
 print('PASS fresh staging preserves original files/native bytes, retains live textures/audits, omits only orphan cache and developer files')
