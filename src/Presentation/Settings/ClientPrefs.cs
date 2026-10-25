@@ -132,7 +132,7 @@ public sealed record MachinePrefs
 
     public static string TierForMemory(double? gb) => gb switch
     {
-        null => "ultra", < 6 => "low", < 10 => "medium", < 14 => "high", _ => "ultra",
+        null => "medium", < 12 => "low", < 16 => "medium", < 24 => "high", _ => "ultra",
     };
 
     public MachinePrefs Normalised() => this with
