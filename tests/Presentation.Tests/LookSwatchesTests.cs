@@ -63,4 +63,19 @@ public sealed class LookSwatchesTests
         Assert.Contains(ada, s => s.Asset == "humgen_hair_f_bun");
         Assert.Empty(LookSwatches.HairStyles("humgen_player_mateo_m"));
     }
+
+    [Fact]
+    public void Shirts_AndTrousers_AreDyedEarthTones_AndTheRestKeepsItsColour()
+    {
+        Assert.Equal("shirt", LookSwatches.GarmentKind("player_mateo_m_TSHIRT_Male.hg_tmp"));
+        Assert.Equal("shirt", LookSwatches.GarmentKind("player_ada_f_Sweater_1_Female.hg_tmp"));
+        Assert.Equal("trousers", LookSwatches.GarmentKind("player_mateo_m_Skinny_Jeans_Male.hg_tmp"));
+        Assert.Equal("trousers", LookSwatches.GarmentKind("player_ada_f_Chinos_Female.hg_tmp"));
+        Assert.Null(LookSwatches.GarmentKind("player_ada_f_Garden_Boots_Female.hg_tmp"));
+        Assert.Equal("Undyed linen", LookSwatches.Cloth(LookSwatches.Shirts, null).Label);
+        Assert.Equal("Oxblood", LookSwatches.Cloth(LookSwatches.Shirts, 1).Label);
+        Assert.Equal("Brown", LookSwatches.Cloth(LookSwatches.Trousers, 9).Label);
+        // No blue cloth: every dye's blue is no stronger than its red.
+        Assert.All(LookSwatches.Shirts.Concat(LookSwatches.Trousers), s => Assert.True(s.B <= s.R + .05f, s.Label));
+    }
 }

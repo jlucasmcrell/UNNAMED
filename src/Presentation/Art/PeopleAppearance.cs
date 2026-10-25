@@ -162,6 +162,8 @@ public static class PeopleAppearance
         WearHairStyle(model, art, LookSwatches.HairStyles(bodyModel).ElementAtOrDefault(Index(LookSwatches.StyleSlider) ?? 0).Asset);
         var skin = LookSwatches.Chosen(LookSwatches.Skin(people), Index(LookSwatches.SkinSlider));
         var hair = LookSwatches.Chosen(LookSwatches.Hair(people), Index(LookSwatches.HairSlider));
+        var shirt = LookSwatches.Cloth(LookSwatches.Shirts, Index(LookSwatches.ShirtSlider));
+        var trousers = LookSwatches.Cloth(LookSwatches.Trousers, Index(LookSwatches.TrouserSlider));
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
         {
             if (mesh.Mesh is null)
@@ -171,12 +173,18 @@ public static class PeopleAppearance
                 string name = WithoutLod(mesh.Mesh.SurfaceGetMaterial(surface)?.ResourceName ?? string.Empty);
                 bool isSkin = name.EndsWith("_Skin", StringComparison.OrdinalIgnoreCase);
                 bool isHair = HairSurfaces.Any(h => name.EndsWith(h, StringComparison.OrdinalIgnoreCase));
-                if (!isSkin && !isHair)
+                string? garment = isSkin || isHair ? null : LookSwatches.GarmentKind(name);
+                if (!isSkin && !isHair && garment is null)
                     continue;
                 string key = $"look_base_{surface}";
                 if (!mesh.HasMeta(key))
                     mesh.SetMeta(key, (GodotObject?)mesh.GetSurfaceOverrideMaterial(surface) ?? mesh.Mesh.SurfaceGetMaterial(surface));
                 var original = mesh.GetMeta(key).As<Material>();
+                if (garment is not null)
+                {
+                    mesh.SetSurfaceOverrideMaterial(surface, Dyed(original, garment == "shirt" ? shirt : trousers));
+                    continue;
+                }
                 var swatch = isSkin ? skin : hair;
                 mesh.SetSurfaceOverrideMaterial(surface, swatch is null ? original : isSkin ? Tinted(original, swatch) : Coloured(original, swatch));
             }
@@ -221,6 +229,50 @@ public static class PeopleAppearance
             mesh.SetMeta("look_style", asset);
         }
         style.QueueFree();
+    }
+
+    /// <summary>
+    /// The garment in <paramref name="cloth"/>'s colour, its weave kept: the albedo scaled (in linear light) by what takes the texture's mean
+    /// colour to the cloth's, the mean read from the texture's smallest mip so nothing large is decompressed.
+    /// </summary>
+    private static Material Dyed(Material original, Swatch cloth)
+    {
+        if (original.Duplicate() is not BaseMaterial3D copy)
+            return original;
+        var mean = (copy.AlbedoTexture is { } texture ? MeanColour(texture) : null) ?? Colors.White;
+        var tint = copy.AlbedoColor.SrgbToLinear() * mean.SrgbToLinear();
+        var target = new Color(cloth.R, cloth.G, cloth.B).SrgbToLinear();
+        var dye = new Color(target.R / Math.Max(tint.R, .002f), target.G / Math.Max(tint.G, .002f), target.B / Math.Max(tint.B, .002f)).LinearToSrgb();
+        copy.AlbedoColor = new Color(dye.R, dye.G, dye.B, copy.AlbedoColor.A);
+        return copy;
+    }
+
+    /// <summary>A texture's mean colour from its last mip of at least 8 pixels, or null when it holds no image.</summary>
+    private static Color? MeanColour(Texture2D texture)
+    {
+        if (texture.GetImage() is not { } image || image.IsEmpty())
+            return null;
+        int level = 0;
+        while (level < image.GetMipmapCount() && Math.Min(image.GetWidth(), image.GetHeight()) >> (level + 1) >= 8)
+            level++;
+        var data = image.GetData();
+        int end = level < image.GetMipmapCount() ? (int)image.GetMipmapOffset(level + 1) : data.Length;
+        var small = Image.CreateFromData(Math.Max(1, image.GetWidth() >> level), Math.Max(1, image.GetHeight() >> level), false, image.GetFormat(),
+            data[(int)image.GetMipmapOffset(level)..end]);
+        if (small.IsCompressed())
+            small.Decompress();
+        small.Convert(Image.Format.Rgba8);
+        if (small.GetWidth() > 16)
+            small.Resize(16, 16 * small.GetHeight() / small.GetWidth());
+        float r = 0, g = 0, b = 0;
+        int n = 0;
+        for (int y = 0; y < small.GetHeight(); y++)
+            for (int x = 0; x < small.GetWidth(); x++)
+            {
+                var c = small.GetPixel(x, y);
+                r += c.R; g += c.G; b += c.B; n++;
+            }
+        return n == 0 ? null : new Color(r / n, g / n, b / n);
     }
 
     private static Material Tinted(Material original, Swatch tone)

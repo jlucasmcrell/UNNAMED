@@ -13,7 +13,32 @@ public sealed record Swatch(string Label, float R, float G, float B);
 /// </summary>
 public static class LookSwatches
 {
-    public const string SkinSlider = "look.skin_tone", HairSlider = "look.hair_colour", StyleSlider = "look.hair_style";
+    public const string SkinSlider = "look.skin_tone", HairSlider = "look.hair_colour", StyleSlider = "look.hair_style",
+        ShirtSlider = "look.shirt_colour", TrouserSlider = "look.trouser_colour";
+
+    /// <summary>
+    /// Undyed and earth-dyed cloth for the interim garments (owner, 2026-10-25: no blue denim or bright tees on the frontier): the colour a
+    /// shirt or a pair of trousers is drawn in, whatever its baked colour (sRGB). The first is the default, so every body is dressed in one.
+    /// </summary>
+    public static readonly Swatch[] Shirts =
+    {
+        new("Undyed linen", .78f, .72f, .6f), new("Oxblood", .42f, .14f, .13f), new("Moss", .36f, .4f, .24f), new("Ochre", .66f, .5f, .25f),
+        new("Slate", .36f, .38f, .4f),
+    };
+
+    public static readonly Swatch[] Trousers = { new("Brown", .33f, .25f, .18f), new("Charcoal", .2f, .2f, .21f) };
+
+    /// <summary>A garment's kind from its material name: a top, trousers, or null (boots, belts and the rest keep their colour).</summary>
+    public static string? GarmentKind(string material)
+    {
+        string name = material.ToLowerInvariant();
+        if (new[] { "tshirt", "shirt", "sweater", "top", "tunic", "blouse", "hoodie" }.Any(name.Contains))
+            return "shirt";
+        return new[] { "jeans", "chinos", "trousers", "pants", "shorts" }.Any(name.Contains) ? "trousers" : null;
+    }
+
+    /// <summary>The cloth an index names, the first when none is chosen or the index is not in the list.</summary>
+    public static Swatch Cloth(IReadOnlyList<Swatch> cloth, int? index) => index is int i && i >= 0 && i < cloth.Count ? cloth[i] : cloth[0];
 
     /// <summary>
     /// The hairstyles a body can wear: its own baked hair first, then HumGen hair baked on the same rig and shipped as rigged models

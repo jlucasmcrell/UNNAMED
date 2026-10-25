@@ -114,6 +114,8 @@ public partial class CreatorScreen
             _body.AddChild(UiKit.Words($"Fit family: {race.FitFamily.Replace('_', ' ')}. What you start in is fitted to this body; gear found later is fitted by crafters.", 16, HudStyle.Muted));
         _body.AddChild(OptionSection(CreatorChoice.Outfit, "Outfit", "fitted by HumGen"));
         _body.AddChild(OptionSection(CreatorChoice.Footwear, "Footwear", ""));
+        _body.AddChild(SwatchSection("Shirt", LookSwatches.ShirtSlider, LookSwatches.Shirts, Colors.Black, multiply: false));
+        _body.AddChild(SwatchSection("Trousers", LookSwatches.TrouserSlider, LookSwatches.Trousers, Colors.Black, multiply: false));
     }
 
     /// <summary>The look's lines on Confirm: height, then each choice by its name.</summary>
