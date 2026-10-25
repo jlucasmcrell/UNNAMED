@@ -7,7 +7,7 @@ namespace UNNAMED.Presentation.Art;
 /// <summary>A frozen spirit ghost made by <see cref="OrenthPhase.Linger"/>: it fades out over its life, or shatters when hit.</summary>
 public partial class OrenthDecoy : Node3D
 {
-    private const double ShatterSeconds = .35;
+    private const double ShatterSeconds = .5;
 
     private double _age, _shattered = -1;
 
@@ -22,39 +22,37 @@ public partial class OrenthDecoy : Node3D
     /// <summary><see cref="Alive"/>, for callers that reach the decoy through Call.</summary>
     public bool IsAlive() => Alive;
 
-    /// <summary>The decoy absorbs a hit: it flares, swells slightly and breaks into silver shards.</summary>
+    /// <summary>The decoy absorbs a hit: it dissolves from the inside out and drifts away as pale motes.</summary>
     public void Shatter()
     {
         if (!Alive)
             return;
         _shattered = 0;
-        var shards = new CpuParticles3D
+        AddChild(new CpuParticles3D
         {
-            Emitting = true, OneShot = true, Amount = 48, Lifetime = .6f, Explosiveness = .95f, Position = Vector3.Up * 1.1f,
-            EmissionShape = CpuParticles3D.EmissionShapeEnum.Box, EmissionBoxExtents = new Vector3(.25f, .7f, .15f),
-            Direction = Vector3.Up, Spread = 180, InitialVelocityMin = 1.2f, InitialVelocityMax = 2.6f, Gravity = Vector3.Down * 3,
-            ScaleAmountMin = .015f, ScaleAmountMax = .04f,
-            Mesh = new BoxMesh { Size = Vector3.One, Material = new StandardMaterial3D
+            Emitting = true, OneShot = true, Amount = 40, Lifetime = 1.4f, Explosiveness = .7f, Position = Vector3.Up * 1.0f,
+            EmissionShape = CpuParticles3D.EmissionShapeEnum.Box, EmissionBoxExtents = new Vector3(.25f, .6f, .15f),
+            Direction = Vector3.Up, Spread = 60, InitialVelocityMin = .15f, InitialVelocityMax = .5f, Gravity = Vector3.Up * .15f,
+            ScaleAmountMin = .5f, ScaleAmountMax = 1f,
+            Mesh = new SphereMesh { Radius = .012f, Height = .024f, RadialSegments = 6, Rings = 3, Material = new StandardMaterial3D
             {
-                ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded, AlbedoColor = new Color(.86f, .9f, .96f),
-                EmissionEnabled = true, Emission = new Color(.78f, .82f, .88f),
+                ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded, Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+                AlbedoColor = new Color(.82f, .86f, .92f, .7f),
             } },
-        };
-        AddChild(shards);
+        });
     }
 
     public override void _Process(double delta)
     {
         _age += delta;
         float strength;
+        float dissolve = 0f;
         if (_shattered >= 0)
         {
             _shattered += delta;
-            float t = (float)(_shattered / ShatterSeconds);
-            strength = Mathf.Lerp(1f, 0f, Mathf.Clamp(t, 0f, 1f));
-            foreach (var mesh in GetChildren().OfType<MeshInstance3D>())
-                mesh.Scale = Vector3.One * (1f + .12f * t);
-            if (_shattered > .7)
+            strength = PeopleLooks.DecoyStrength(0, Seconds);
+            dissolve = (float)Math.Clamp(_shattered / ShatterSeconds, 0, 1) * 1.1f;
+            if (_shattered > 1.5)
                 QueueFree();
         }
         else
@@ -63,6 +61,8 @@ public partial class OrenthDecoy : Node3D
             if (_age >= Seconds)
                 QueueFree();
         }
+        foreach (var mesh in GetChildren().OfType<MeshInstance3D>())
+            mesh.SetInstanceShaderParameter("dissolve", dissolve);
         foreach (var mesh in GetChildren().OfType<MeshInstance3D>())
             mesh.SetInstanceShaderParameter("strength", strength);
     }

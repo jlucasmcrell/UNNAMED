@@ -28,6 +28,8 @@ public partial class OrenthPhase : Node
         {
             if (mesh.Mesh is null || mesh.Skin is null || !mesh.Visible || mesh.VisibilityRangeBegin >= LastLevelDistance)
                 continue;
+            // Teeth, eyeballs and lashes would show through a see-through head.
+            bool inner = new[] { "Teeth", "Eyes", "Eyelashes" }.Any(part => mesh.Name.ToString().Contains(part, StringComparison.Ordinal));
             MeshInstance3D Twin(string suffix)
             {
                 var twin = new MeshInstance3D
@@ -44,6 +46,8 @@ public partial class OrenthPhase : Node
             lagging.CastShadow = GeometryInstance3D.ShadowCastingSetting.ShadowsOnly;
             lagging.MaterialOverride = shadow;
             mesh.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
+            if (inner)
+                continue;
             var trail = PeopleLooks.AfterimageLags.Select((_, ghost) => Twin("_phase_trail" + ghost)).ToArray();
             var veil = Twin("_phase_veil");
             var materials = new ShaderMaterial[mesh.Mesh.GetSurfaceCount()];

@@ -28,14 +28,14 @@ public static class PeopleLooks
 
     /// <summary>
     /// Opacity of trailing ghost <paramref name="ghost"/> (0 nearest) at a ground speed in m/s: nothing at a walk, rising
-    /// from a jog to full at a sprint, each later ghost fainter (0.5, 0.33, 0.17 at full speed).
+    /// from a jog to full at a sprint, each later ghost fainter (0.38, 0.24, 0.12 at full speed: a soft echo, owner 2026-10-25).
     /// </summary>
     public static float AfterimageStrength(float speed, int ghost) =>
-        Math.Clamp((speed - 2.4f) / 2.0f, 0f, 1f) * .5f * (1f - ghost / (float)AfterimageLags.Length);
+        Math.Clamp((speed - 2.4f) / 2.0f, 0f, 1f) * .38f * (1f - ghost * .34f);
 
-    /// <summary>A lingering decoy ghost's opacity: as strong as the nearest trail ghost, fading out over its last third.</summary>
+    /// <summary>A lingering decoy ghost's opacity: a little stronger than the nearest trail ghost, fading out over its last third.</summary>
     public static float DecoyStrength(double age, double seconds) =>
-        .55f * (float)Math.Clamp((seconds - age) / (seconds / 3), 0, 1);
+        .42f * (float)Math.Clamp((seconds - age) / (seconds / 3), 0, 1);
 
     /// <summary>
     /// A wraith-step's silver veil over the body: eases in and out over 0.2 s so it never pops, 0.45 at its height, so the
@@ -45,5 +45,5 @@ public static class PeopleLooks
         .45f * (float)Math.Clamp(Math.Min(age, seconds - age) / .2, 0, 1);
 
     /// <summary>While phased the trail shows even at a walk: each ghost at least this strong.</summary>
-    public static float PhaseTrailFloor(int ghost) => .35f * (1f - ghost / (float)AfterimageLags.Length);
+    public static float PhaseTrailFloor(int ghost) => .28f * (1f - ghost * .34f);
 }
