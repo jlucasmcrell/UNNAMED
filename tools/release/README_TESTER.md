@@ -24,6 +24,8 @@ Nothing else needs installing, and the game never asks for administrator rights.
 | Memory | 16 GB | 32 GB |
 | Storage | the unpacked folder, on an SSD | SSD |
 
+The Barrowworks, the dungeon under the hill, uses more graphics memory than the open frontier: **16 GB is recommended there**. With 12 GB it still runs, but may stutter.
+
 **Graphics cards with 8 GB of memory are not supported in this playtest:** the game runs out of graphics memory and slows to a crawl. We are working on it for the next one.
 
 Quality, resolution, render scale and the individual effects are in **Settings > Graphics**. If the game runs slowly, choose a lower quality or a lower render scale there.
