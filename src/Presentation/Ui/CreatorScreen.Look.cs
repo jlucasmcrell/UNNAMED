@@ -127,10 +127,18 @@ public partial class CreatorScreen
         if (_catalogue.Baked.Length == 0)
             yield break;
         var look = Look;
-        string Name(CreatorChoice choice, string? id, string none) => _catalogue.Option(choice, id) is { } option ? OptionName(choice, option.Id, option.Label) : none;
+        // No outfit or footwear chosen is what the body was baked in, so that is named rather than "none".
+        string? Baked(CreatorChoice choice) => choice is CreatorChoice.Outfit or CreatorChoice.Footwear
+            ? _catalogue.Options(choice, Sex).FirstOrDefault(o => _catalogue.IsBaked(choice, o.Id, Model))?.Id : null;
+        string Name(CreatorChoice choice, string? id, string none) => _catalogue.Option(choice, id ?? Baked(choice)) is { } option
+                ? OptionName(choice, option.Id, option.Label) : none;
+        var styles = LookSwatches.HairStyles(Model);
+        string hair = look.Hair is null && styles.Count > 0
+            ? styles.ElementAtOrDefault(look.Sliders.TryGetValue(LookSwatches.StyleSlider, out int style) ? style : 0).Label ?? styles[0].Label
+            : Name(CreatorChoice.Hair, look.Hair, "none");
         yield return ("Height", Metres(look.StatureMm));
         yield return ("Face", Name(CreatorChoice.Face, look.Face, "the body's own"));
-        yield return ("Hair", Name(CreatorChoice.Hair, look.Hair, "none") + (look.FacialHair is { } beard ? ", " + Name(CreatorChoice.FacialHair, beard, beard) : ""));
+        yield return ("Hair", hair + (look.FacialHair is { } beard ? ", " + Name(CreatorChoice.FacialHair, beard, beard) : ""));
         yield return ("Outfit", $"{Name(CreatorChoice.Outfit, look.Outfit, "none")}, {Name(CreatorChoice.Footwear, look.Footwear, "barefoot").ToLowerInvariant()}");
     }
 
