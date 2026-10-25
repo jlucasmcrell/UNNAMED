@@ -60,10 +60,10 @@ public sealed class FrontierPerf
                 var node = scene.GetNodeOrNull<Node3D>(path) ?? throw new InvalidOperationException("Missing diagnostic component " + path);
                 return (node, node.Visible);
             }).ToArray();
-            _suns = scene.FindChildren("*", nameof(DirectionalLight3D), true, false).OfType<DirectionalLight3D>()
+            _suns = scene.FindChildren("*", nameof(DirectionalLight3D), true, false).OfType<DirectionalLight3D>().Where(light => light.GetViewport() == viewport)
                 .Select(light => (light, light.ShadowEnabled)).ToArray();
             _environments = scene.FindChildren("*", nameof(WorldEnvironment), true, false).OfType<WorldEnvironment>()
-                .Where(node => node.Environment is not null).Select(node => (node.Environment!, node.Environment!.SdfgiEnabled)).ToArray();
+                .Where(node => node.GetViewport() == viewport && node.Environment is not null).Select(node => (node.Environment!, node.Environment!.SdfgiEnabled)).ToArray();
             _applyArm = true;
             GD.Print("FRONTIER DIAGNOSTIC ONLY: seven rendering arms at yaw270; no gameplay or quality acceptance");
         }
@@ -166,6 +166,14 @@ public sealed class FrontierPerf
             case "sdfgi_off": foreach (var (environment, _) in _environments) environment.SdfgiEnabled = false; break;
         }
         if (_heading == 0) _stats.Segment = "warmup_baseline";
+    }
+
+    // SkyView advances the ordinary sky after Update and restores sunlight shadows.
+    // Reassert only this diagnostic arm after the normal world draw has finished.
+    public void ApplyRenderOverride()
+    {
+        if (_arms is not null && !_finished && !_applyArm && _arms[_heading] == "sun_shadows_off")
+            foreach (var (sun, _) in _suns) sun.ShadowEnabled = false;
     }
 
     public void Write()

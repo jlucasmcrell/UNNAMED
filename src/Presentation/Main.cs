@@ -1454,6 +1454,7 @@ public partial class Main : Node3D
         }
         ulong drawStarted = _barrowworksReview is null && _frontierPerf is null ? 0 : Time.GetTicksUsec();
         Draw(frame.Alpha, delta);
+        _frontierPerf?.ApplyRenderOverride();
         _barrowworksReview?.Phase("presentation", drawStarted);
         _frontierPerf?.Phase("drawing", drawStarted);
         UpdateMouse();
