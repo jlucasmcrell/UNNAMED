@@ -35,13 +35,17 @@ internal sealed partial class CombatSystem
     private bool _holdingDraw;
     private BodyRegion _aimRegion;
 
-    private string? ReleaseDraw(long tick)
+    private string? ReleaseDraw(long tick, bool automaticIfEarly = false)
     {
         if (_context.ControlOn(_player) == ControlKind.Incapacitates) return "you cannot move";
         var action = State.PlayerCombat.Action;
         var attack = action.Attack!;
         if (action.PhaseAt(tick, C).Phase == CombatPhase.Windup && tick - action.StartTick < attack.WindupTicks)
-            return "the bow is not fully drawn";
+        {
+            if (!automaticIfEarly) return "the bow is not fully drawn";
+            _holdingDraw = false;
+            return null;
+        }
         _holdingDraw = false;
         bool steady = !_intent().IsMoving && tick - _steadySince >= Ticks(1_000) && State.Body.FacingMdeg == _steadyFacing;
         attack = attack with { PlacedRegion = steady && ReadyTechnique(TechniqueKind.SteadyDraw, PlayerAttack()) is not null ? _aimRegion : null };

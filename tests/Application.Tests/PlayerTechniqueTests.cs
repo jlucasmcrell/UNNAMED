@@ -155,6 +155,30 @@ public class PlayerTechniqueTests
         Assert.Null(arena.Simulation.Combat.AimedRegion);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void TheBaseBowVerb_CanTapToShoot_OrHoldToDiscoverSteadyDraw(bool hold)
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Arena.Open(session, Ground, 0, new[] { (Ground.X, Ground.Z + 12) },
+            r => Trained(Armed(r, "item.weapon.hunting_bow"), "skill.bow", 15), role: "roamer");
+        arena.Face(arena.Creature());
+        arena.Tick();
+        var shots = arena.Record<ShotLoosed>();
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player) { HoldDraw = true }));
+        arena.Tick(hold ? 40 : 1);
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player) { ReleaseDrawOnly = true }));
+        arena.Tick(40);
+        Assert.Single(shots);
+        Assert.Equal(hold, ProgressionEngine.Knows(arena.Simulation.Player.Progression, "ability.bow.steady_draw"));
+        // Releasing again cannot start another shot.
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player) { ReleaseDrawOnly = true }));
+        arena.Tick(40);
+        Assert.Single(shots);
+    }
+
     [Fact]
     public void WeaponAndAttributeRequirements_AreCheckedAtUse_WithoutSpendingStamina()
     {

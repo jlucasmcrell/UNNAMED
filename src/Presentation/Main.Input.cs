@@ -92,6 +92,8 @@ public partial class Main
         if (_settings.Capturing || _rcd3Driving)
             return;
         var combat = _session.Simulation!.Combat;
+        if (combat.HoldingDraw && Input.IsActionJustReleased("attack"))
+            _session.Submit(new AttackCommand(_session.Simulation.PlayerId) { ReleaseDrawOnly = true });
         bool modal = Modal;
         bool looting = _loot.Visible || _inventory.Visible && _inventory.Anchor is not null && _inventory.OpenStation is null &&
                        _inventory.OpenTrader is null && !_dialogue.Visible;
@@ -240,7 +242,12 @@ public partial class Main
         bool working = captured && quick is not null && (_session.Setup.Magic.Formulas.ContainsKey(quick) || _session.Setup.Techniques.ContainsKey(quick));
         _controller.Steer(_camera, stick, gait, faceCamera: _avatar is MHCharacters.MetaHumanFigure || VisualOptions.ComparisonCast is not null || holding || swing || working || combat.Phase == CombatPhase.Windup);
         if (swing)
-            _controller.Attack();
+        {
+            if (combat.Weapon.Ranged)
+                _session.Submit(new AttackCommand(_session.Simulation!.PlayerId) { HoldDraw = Input.IsActionPressed("attack") });
+            else
+                _controller.Attack();
+        }
         if (slot >= 0)
             UseQuickSlot(slot, quick, captured);
         bool guard = holding && !combat.Weapon.Ranged;

@@ -56,6 +56,7 @@ public sealed record AttackCommand(EntityId Actor) : GameCommand(Actor)
 {
     public BodyRegion? Region { get; init; }
     public bool HoldDraw { get; init; }
+    public bool ReleaseDrawOnly { get; init; }
 }
 
 /// <summary>Raise or lower the guard. A raised guard takes blows from the front for stamina and slows the feet to a walk.</summary>
@@ -392,7 +393,8 @@ internal sealed partial class CombatSystem
     {
         if (command.Actor != _player)
             return $"unknown actor {command.Actor}";
-        if (_holdingDraw && State.PlayerCombat.Action.Attack is { Ranged: true }) return ReleaseDraw(tick);
+        if (command.ReleaseDrawOnly && (!_holdingDraw || State.PlayerCombat.Action.Attack is not { Ranged: true })) return null;
+        if (_holdingDraw && State.PlayerCombat.Action.Attack is { Ranged: true }) return ReleaseDraw(tick, command.ReleaseDrawOnly);
         var combat = State.PlayerCombat;
         if (Busy(combat.Action, tick) is { } busy)
             return busy;
