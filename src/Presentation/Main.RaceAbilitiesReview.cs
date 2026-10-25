@@ -60,6 +60,11 @@ public partial class Main
             await KalSlope();
             Mark("slope", new { top = _glideFrom.Top.ToString(), drop_mm = _glideFrom.Drop, dir = $"{_glideFrom.DirX},{_glideFrom.DirZ}" });
         }
+        else
+        {
+            await OrenthField();
+            Mark("field", sim.Player.Body.ToString());
+        }
         DisplayServer.WindowSetTitle("Otherreach - " + Path.GetFileName(directory));
         File.WriteAllText(Path.Combine(directory, "record_ready.json"), JsonSerializer.Serialize(new { window_title = "^Otherreach - " + Path.GetFileName(directory) + "$" }));
         ulong deadline = Time.GetTicksMsec() + 90000;
@@ -134,6 +139,39 @@ public partial class Main
         _camera.Yaw = Mathf.Atan2(-dz, dx);
         _camera.TargetDistance = 4.5f;
         _camera.Pitch = -.08f;
+    }
+
+    /// <summary>
+    /// Where the Orenth is filmed: open ground at least 30 m from anyone (gate04's still camera stood inside a villager), with the 10 m
+    /// strip ahead and the camera spot 6 m to its side both clear. The body walks there and ends facing down the strip, unrecorded.
+    /// </summary>
+    private async Task OrenthField()
+    {
+        var sim = _session.Simulation!;
+        var space = sim.ActiveLayout.Space;
+        var start = sim.Player.Body;
+        long radius = sim.PlayerMovement.BodyRadiusMm;
+        var others = sim.Setup.Combat.Spawns.Select(s => (s.XMm, s.ZMm)).Concat(sim.Creatures.Where(c => c.Alive).Select(c => (c.Body.XMm, c.Body.ZMm)))
+            .Concat(sim.Npcs.Select(n => (n.Body.XMm, n.Body.ZMm))).ToList();
+        bool Open(long x, long z) => x > space.MinXMm && z > space.MinZMm && x < space.MaxXMm && z < space.MaxZMm
+            && others.All(o => Math.Pow(o.XMm - x, 2) + Math.Pow(o.ZMm - z, 2) > 30_000.0 * 30_000.0)
+            && Kinematics.IsClear(x, z, radius, space, sim.DynamicBlockers);
+        for (long ring = 0; ring <= 200_000; ring += 6_000)
+        for (int a = 0; a < 16; a++)
+        {
+            double angle = a * Math.PI / 8;
+            int ux = (int)Math.Round(Math.Sin(angle) * 1000), uz = (int)Math.Round(Math.Cos(angle) * 1000);
+            long x = start.XMm + ux * ring / 1000, z = start.ZMm + uz * ring / 1000;
+            if (!Enumerable.Range(-1, 13).All(m => Open(x + ux * m, z + uz * m)) || !Open(x + ux * 4 + uz * 6, z + uz * 4 - ux * 6)
+                || space.Blockers.Any(b => b.HeightMm > 0 && b.Crosses(x, z, x + ux * 10, z + uz * 10)))
+                continue;
+            foreach (var (cx, cz) in Playthrough.WayTo(sim, sim.Player.Body, new Body(x - ux * 2, space.HeightAtMm(x, z), z - uz * 2, 0), standOff: 0))
+                await SteerTo(cx, cz, Gait.Run, 120);
+            await SteerTo(x / 1000.0, z / 1000.0, Gait.Walk, 10);
+            _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+            return;
+        }
+        throw new InvalidOperationException("No open ground for the Orenth route within 200 m");
     }
 
     private async Task SteerTo(double x, double z, Gait gait, double budgetSeconds)
