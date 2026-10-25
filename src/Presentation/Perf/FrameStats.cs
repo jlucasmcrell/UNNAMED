@@ -19,6 +19,7 @@ public sealed class FrameStats
     private readonly List<Sample> _samples = new();
     private readonly List<(string Segment, double Ms)> _worstProcess = new();
     private readonly Rid _viewport;
+    private readonly Viewport _view;
     private readonly bool _renderTimes = System.Environment.GetEnvironmentVariable("UNNAMED_FRAME_RENDER_TIMES") != "0";
     private long _workingSetBytes;
     private int _frame;
@@ -28,6 +29,7 @@ public sealed class FrameStats
 
     public FrameStats(Viewport viewport)
     {
+        _view = viewport;
         _viewport = viewport.GetViewportRid();
         RenderingServer.ViewportSetMeasureRenderTime(_viewport, _renderTimes);
     }
@@ -99,6 +101,15 @@ public sealed class FrameStats
         var summary = new Dictionary<string, object>
         {
             ["machine"] = Machine(),
+            // GetVisibleRect is the logical canvas; fullscreen can render a larger texture.
+            ["render_target"] = new {
+                logical_canvas = _view.GetVisibleRect().Size.ToString(),
+                texture_pixels = _view.GetTexture().GetSize().ToString(),
+                scale_3d = _view.Scaling3DScale,
+                scaling_mode = _view.Scaling3DMode.ToString(),
+                window_pixels = DisplayServer.GetName() == "headless" ? "headless" : DisplayServer.WindowGetSize().ToString(),
+                max_fps = Engine.MaxFps,
+            },
             ["notes"] = notes,
             ["instrumentation"] = new { render_time_queries = _renderTimes, memory_sampler = "Environment.WorkingSet every 30 retained frames",
                 raw_wall_clock_every_frame = true },
