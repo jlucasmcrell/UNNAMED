@@ -1247,7 +1247,10 @@ public class MigrationTests
             var content = Fixtures.Content(pack);
 
             for (int schema = SaveFormat.OldestSupportedSchema; schema <= SaveFormat.SchemaVersion; schema++)
-                Assert.Contains(RefuseFixture(schema, Fixtures.Context(new Registry(), content)).Report.Blockers, b => b.Contains(Draught));
+            {
+                if (!SaveFormat.ReservedSchemas.Contains(schema))
+                    Assert.Contains(RefuseFixture(schema, Fixtures.Context(new Registry(), content)).Report.Blockers, b => b.Contains(Draught));
+            }
         }
         finally
         {

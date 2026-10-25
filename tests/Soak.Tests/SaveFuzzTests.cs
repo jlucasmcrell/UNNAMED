@@ -70,10 +70,11 @@ public sealed class SaveFuzzTests(ITestOutputHelper output)
     {
         using var w = new SoakWorld();
         string fixtures = Path.Combine(SoakWorld.Repo, "tests", "Persistence.Tests", "Fixtures");
-        var content = SaveToolApp.ReadContent(Path.Combine(fixtures, "content"), "0.2.9", TextWriter.Null)!;
+        var content = SaveToolApp.ReadContent(Path.Combine(fixtures, "content"), "0.2.10", TextWriter.Null)!;
         var generator = new CellBaselineGenerator(WorldgenProfileFile.Read(Path.Combine(fixtures, "worldgen_profile.json")));
         var versions = Directory.EnumerateDirectories(fixtures, "v*").Select(p => int.Parse(Path.GetFileName(p)[1..])).Order().ToArray();
-        Assert.Equal(Enumerable.Range(SaveFormat.OldestSupportedSchema, SaveFormat.SchemaVersion - SaveFormat.OldestSupportedSchema + 1), versions);
+        Assert.Equal(Enumerable.Range(SaveFormat.OldestSupportedSchema, SaveFormat.SchemaVersion - SaveFormat.OldestSupportedSchema + 1)
+            .Where(v => !SaveFormat.ReservedSchemas.Contains(v)), versions);
         foreach (int v in versions)
         {
             string root = Path.Combine(w.Root, "fixture-" + v), target = Path.Combine(root, SaveSlots.Quick);

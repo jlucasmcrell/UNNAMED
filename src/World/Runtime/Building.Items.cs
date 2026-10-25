@@ -25,7 +25,7 @@ internal sealed partial class InventorySystem
             return $"there is no container '{command.Key}'";
         if (!EntityId.TryParse("pce_" + command.Key["container.pce_".Length..].ToUpperInvariant(), out var piece))
             return $"there is no container '{command.Key}'";
-        var chest = State.World.Registry.CreateEntity(DefinitionId.Parse(command.Key), SystemContext.PieceChestId(piece)).InstanceId;
+        var chest = State.World.Registry.CreateEntity(DefinitionId.Parse(command.Key), WorldDelta.PieceChestId(piece)).InstanceId;
         var cell = _context.CellOfSite(_context.ContainerSpace(site), site.XMm, site.ZMm);
         State.SetContainer(_owner, new ContainerRecord(site.Key, chest, cell.ToString(), ImmutableArray<ContainerItem>.Empty));
         return null;

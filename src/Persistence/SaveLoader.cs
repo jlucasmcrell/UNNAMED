@@ -26,7 +26,7 @@ namespace UNNAMED.Persistence;
 /// never writes them: a migrated save reaches disk only through the §7.1 write sequence.
 /// Order (M2b §16): container, integrity, schema chain, definition IDs, baseline proof, invariants.
 /// </summary>
-internal static class SaveLoader
+internal static partial class SaveLoader
 {
     public static MigrationReport NewReport(string saveName, LoadContext context) => new(saveName)
     {
@@ -161,10 +161,13 @@ internal static class SaveLoader
         // Adventurers (schema 29): reconciled against config.adventurers when the world starts, outside the definition-ID pass too.
         var adventurers = DecodeOrQuarantine(quarantined.Contains(SectionName(SaveFormat.Entities)) ? null : sections[SaveFormat.Entities],
             SaveFormat.Entities, SectionCodec.DecodeAdventurers, quarantined, report, (AdventurerState?)null);
+        // Placed pieces (schema 44, WP-1G): through the definition-ID pass with the rest.
+        var (pieces, structureSequence) = DecodeOrQuarantine(quarantined.Contains(SectionName(SaveFormat.Entities)) ? null : sections[SaveFormat.Entities],
+            SaveFormat.Entities, SectionCodec.DecodePieces, quarantined, report, (ImmutableArray<PieceRecord>.Empty, 0L));
         var delta = new DeltaSnapshot(cells, entities)
         {
             Created = created, Containers = containers, Creatures = creatures, Noises = noises, Economy = economy, Merchants = merchants,
-            NpcLife = npcLife, Adventurers = adventurers,
+            NpcLife = npcLife, Adventurers = adventurers, Pieces = pieces, StructureSequence = structureSequence,
         };
         PlayerRecord player;
         try
@@ -301,6 +304,10 @@ internal static class SaveLoader
             }
             return container with { Items = items.ToImmutable() };
         }).ToImmutableArray();
+
+        // Placed pieces (schema 44, WP-1G): a piece whose definition was removed is lost, and its chest's stacks lie where it stood.
+        var (pieces, spilled) = ResolvePieces(delta.Pieces, ref containers, Resolve, report);
+        created.AddRange(spilled);
 
         // Skills, known techniques, first-time records and kill records name definitions too (schema 4).
         var progression = player.Progression.RewriteDefinitionIds((id, role) => Resolve(id, $"player {role}"));
@@ -570,6 +577,7 @@ internal static class SaveLoader
             {
                 Created = created.ToImmutable(), Containers = containers, Creatures = creatures.ToImmutable(), Noises = noises.ToImmutable(),
                 Economy = delta.Economy, Merchants = delta.Merchants, NpcLife = delta.NpcLife, Adventurers = delta.Adventurers,
+                Pieces = pieces, StructureSequence = delta.StructureSequence,
             });
     }
 
@@ -601,6 +609,8 @@ internal static class SaveLoader
         foreach (var record in delta.Containers)
             Check(record.HostCell, record.BaselineHash);
         foreach (var record in delta.Creatures)
+            Check(record.HostCell, record.BaselineHash);
+        foreach (var record in delta.Pieces)   // a piece is proven against its anchor's cell only (WP-1G)
             Check(record.HostCell, record.BaselineHash);
         proven.ExceptWith(mismatched.Keys);
         report.CellsMatched = proven.Count;

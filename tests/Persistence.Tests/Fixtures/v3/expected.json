@@ -295,5 +295,7 @@
   "economy": null,
   "merchants": [],
   "npc_life": null,
-  "adventurers": null
+  "adventurers": null,
+  "structure_seq": 0,
+  "pieces": []
 }

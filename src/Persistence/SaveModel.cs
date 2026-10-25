@@ -18,9 +18,15 @@ public static class SaveFormat
     /// GAMEPLAY STATE schema (§6.1). Every older version back to <see cref="OldestSupportedSchema"/>
     /// migrates step by step (<see cref="SchemaMigrations"/>), and every one has a committed fixture.
     /// </summary>
-    public const int SchemaVersion = 39;
+    public const int SchemaVersion = 44;
 
     public const int OldestSupportedSchema = 1;
+
+    /// <summary>
+    /// Schemas reserved for the other Wave 1 packages (40-43), whose steps and fixtures arrive when they merge: until then each is a step
+    /// that carries the save unchanged (<see cref="ReservedSchemaStep"/>) and has no fixture. Empty again once they are filled.
+    /// </summary>
+    public static readonly IReadOnlySet<int> ReservedSchemas = new HashSet<int> { 40, 41, 42, 43 };
 
     public const string Manifest = "manifest.json";
     public const string Player = "player.msgpack";

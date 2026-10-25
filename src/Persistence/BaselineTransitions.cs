@@ -107,6 +107,12 @@ internal static class SemanticRebase
             .Select(c => cellsToRebase.Contains(c.HostCell) ? c with { BaselineHash = baseline(CellKey.Parse(c.HostCell)).Digest } : c)
             .ToImmutableArray();
 
+        // A placed piece is the player's, not generation's: it moves to the new baseline as it is; whether it still stands legally over
+        // the new ground is the load audit's question (WP-1G).
+        var rebasedPieces = delta.Pieces
+            .Select(p => cellsToRebase.Contains(p.HostCell) ? p with { BaselineHash = baseline(CellKey.Parse(p.HostCell)).Digest } : p)
+            .ToImmutableArray();
+
         foreach (string cell in cellsToRebase.OrderBy(c => c, StringComparer.Ordinal))
             report.CellsRebased.Add($"{cell} ({transition.Name})");
         return new DeltaSnapshot(rebasedCells.ToImmutable(), rebasedEntities.ToImmutable())
@@ -119,6 +125,8 @@ internal static class SemanticRebase
             Merchants = delta.Merchants,
             NpcLife = delta.NpcLife,
             Adventurers = delta.Adventurers,
+            Pieces = rebasedPieces,
+            StructureSequence = delta.StructureSequence,
         };
     }
 }

@@ -126,7 +126,12 @@ public static class SchemaMigrations
         new SchemaV35ToV36(),
         new SchemaV36ToV37(),
         new SchemaV37ToV38(),
-        new SchemaV38ToV39());
+        new SchemaV38ToV39(),
+        new ReservedSchemaStep(39),   // 39 -> 40 .. 42 -> 43: the other Wave 1 packages' slots, filled at merge
+        new ReservedSchemaStep(40),
+        new ReservedSchemaStep(41),
+        new ReservedSchemaStep(42),
+        new SchemaV43ToV44());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -2070,7 +2075,7 @@ public sealed class SchemaV37ToV38 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } bytes)
         {
             var old = MessagePackSerializer.Deserialize<Sections.V37.EntitiesSection>(bytes, SectionCodec.MessagePackOptions);
-            var next = MessagePackSerializer.Deserialize<EntitiesSectionDto>(MessagePackSerializer.Serialize(old, SectionCodec.MessagePackOptions), SectionCodec.MessagePackOptions);
+            var next = MessagePackSerializer.Deserialize<Sections.V43.EntitiesSection>(MessagePackSerializer.Serialize(old, SectionCodec.MessagePackOptions), SectionCodec.MessagePackOptions);
             document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(next, SectionCodec.MessagePackOptions);
         }
         document.Manifest["schema_version"] = To;

@@ -488,13 +488,28 @@ public static class M2Fixtures
                     KeyValuePair.Create("npc.adventurer.fixture_vale.slot_2_g0", new AdventurerBody("Kester Vale-of-Stones", 150_000, -39_200, 270_000)),
                 }),
             });
+            // Schema 44 (WP-1G): placed pieces in c_00_04 - Aelin's pad (ordinal 1), a pad placed and taken down (2 and 3), and on the
+            // first pad a chest (4) turned once, damaged to 60 and holding five timber, under the identity its piece derives.
+            const string PieceTag = "unnamed.piece/v1";
+            string host = TenCells[4].ToString();
+            var pad = EntityId.Derived(EntityKind.Piece, 1, PieceTag, PlayerId.Value);
+            world.PlacePiece(new PieceRecord(pad, "piece.fixture.pad", host, 49_500, 451_500, 0, PlayerId, 200), 1);
+            var gone = EntityId.Derived(EntityKind.Piece, 2, PieceTag, PlayerId.Value);
+            world.PlacePiece(new PieceRecord(gone, "piece.fixture.pad", host, 52_500, 451_500, 0, PlayerId, 200), 2);
+            world.RemovePiece(gone, 3);
+            var chestPiece = EntityId.Derived(EntityKind.Piece, 4, PieceTag, PlayerId.Value);
+            world.PlacePiece(new PieceRecord(chestPiece, "piece.fixture.chest", host, 49_500, 451_500, 1, PlayerId, 60), 4);
+            string chestKey = "container." + chestPiece.Value.ToLowerInvariant();
+            var pieceChest = registry.CreateEntity(DefinitionId.Parse(chestKey), WorldDelta.PieceChestId(chestPiece)).InstanceId;
+            var timber = registry.CreateEntity(DefinitionId.Parse("item.material.timber")).InstanceId;
+            world.SetContainer(new ContainerRecord(chestKey, pieceChest, host, ImmutableArray.Create(new ContainerItem(timber, "item.material.timber", 5))));
             return world;
         }
 
         private static EntityId Creature(byte n) => EntityId.Create(EntityKind.Creature, 1_700_000_000_100 + n, new byte[] { 7, 7, 7, 7, 7, 7, 7, 7, 7, n });
 
-        public const string CurrentContentVersion = "0.2.9";
-        public const string CurrentContentHash = "sha256:c5c183797fd897b73fc9ab1d7c157fc7d77719bed8e4c2db727020a8f646988e";
+        public const string CurrentContentVersion = "0.2.10";
+        public const string CurrentContentHash = "sha256:8fed81994459565d6085356bae260fc4c2eb416c04f632bababdb68c00eea221";
 
         /// <summary>
         /// Fixtures/content (0.2.0) as a content identity, for the probe, which does not load content
@@ -504,12 +519,13 @@ public static class M2Fixtures
             CurrentContentVersion, CurrentContentHash,
             new[]
             {
-                "config.base_speeds", "config.factions", "config.simulation_tiers",
+                "config.base_speeds", "config.building", "config.factions", "config.simulation_tiers",
                 "creature.beast.ash_ember_hound", "creature.beast.deer", "creature.beast.wolf_grey", "dialogue.fixture.warden_sera",
                 "effect.bleeding", "effect.weakened", "faction.fixture.keepers",
-                "item.bag.satchel", "item.potion.minor_healing",
+                "item.bag.satchel", "item.material.timber", "item.potion.minor_healing",
                 "item.weapon.iron_sword",
-                "location.den_mouth", "lore.fixture_vale", "lore.fixture_warden", "npc.fixture.warden_sera", "quest.fixture.cull", "quest.fixture.wardens_errand", "recipe.alchemy.salve_minor",
+                "location.den_mouth", "lore.fixture_vale", "lore.fixture_warden", "npc.fixture.warden_sera", "piece.fixture.chest", "piece.fixture.pad",
+                "quest.fixture.cull", "quest.fixture.wardens_errand", "recipe.alchemy.salve_minor",
                 "region.fixture_vale", "skill.athletics",
                 "skill.one_hand_blade",
                 "spell.ember.bolt", "world.door.cellar_open", "world.lever.mill_gate",

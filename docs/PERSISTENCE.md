@@ -696,3 +696,23 @@ The 38 -> 39 step gives every older identity no appearance. The schema-38 player
 (`Sections/V38`); the 16 -> 17 and 35 -> 36 steps write those shapes. Schema 39 adds its own writer-generated fixture and
 updates only the fixtures' expected current representation (`"appearance": null`).
 
+
+## 14. Schema 44 — placed pieces (WP-1G building, 2026-10-25)
+
+Schemas 40-43 are reserved for the other Wave 1 packages (`SaveFormat.ReservedSchemas`). Until each merges, its slot is a step that
+carries the save unchanged (`ReservedSchemaStep`) and has no fixture; at merge the packages' own steps take those places and this one
+is renumbered behind them.
+
+The entities section gains `pieces` and `structure_seq`, required from schema 44. A piece row is its derived ID (`EntityId.Derived`,
+ordinal = the structure sequence when it was placed), its definition, its host cell (its anchor's), its anchor in absolute millimetres,
+its quarter turn, its owner (a plain record: who may enter or take is the crime and law package's), its health and whether a door
+stands open. Each row is proven against its host cell's `baseline_hash` like every other record, and is rejected at load when its ID
+is not a piece's, its ordinal exceeds the sequence, or its host cell is not its anchor's. A placed chest is an ordinary changed
+container keyed `container.pce_<ulid>`, under the identity derived from its piece; any other identity, or a chest whose piece is gone,
+is rejected. A piece whose definition was discarded is lost, and its chest's stacks are put on the ground where it stood, under their
+own identities. A cell's pieces enter its effective digest only when it has some, so every digest taken before building reads the same.
+
+The 43 -> 44 step gives every older save no pieces and sequence 0. The entity envelope of schemas 38-43 is frozen (`Sections/V43`);
+the 37 -> 38 step writes that shape. Fixture content 0.2.10 adds `config.building`, `item.material.timber` and two pieces; schema 44
+adds its own writer-generated fixture and updates only the fixtures' expected current representation (`"structure_seq": 0`,
+`"pieces": []`).

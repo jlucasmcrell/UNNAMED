@@ -40,10 +40,6 @@ internal sealed partial class SystemContext
     /// <summary>A placed chest's container key (M7): <c>container.pce_</c> and its piece's ULID in lower case.</summary>
     internal static string PieceChestKey(EntityId pieceId) => "container." + pieceId.Value.ToLowerInvariant();
 
-    /// <summary>A placed chest's container identity (M7, D-04 §2.2): derived from its piece, so the same commands make the same chest.</summary>
-    internal static EntityId PieceChestId(EntityId pieceId) =>
-        EntityId.Derived(EntityKind.Container, pieceId.Timestamp, "unnamed.piece-container/v1", pieceId.Value);
-
     /// <summary>A placed bench's station key (M7): <c>station.pce_</c> and its piece's ULID in lower case.</summary>
     internal static string PieceStationKey(EntityId pieceId) => "station." + pieceId.Value.ToLowerInvariant();
 

@@ -675,6 +675,12 @@ public sealed class EntitiesSectionDto
 
     /// <summary>Every NPC adventurer and the slots awaiting arrivals (WP13); null in a save from before adventurers first lived (schema 29).</summary>
     [Key("adventurers")] public AdventurersDto? Adventurers { get; set; }
+
+    /// <summary>Player-placed pieces (WP-1G). Required from schema 44; the 39 -> 44 step gives older saves none: nothing was built.</summary>
+    [Key("pieces")] public PieceDto[]? Pieces { get; set; }
+
+    /// <summary>The structure sequence (WP-1G). Required from schema 44; the 39 -> 44 step gives older saves 0.</summary>
+    [Key("structure_seq")] public long? StructureSeq { get; set; }
 }
 
 /// <summary>
@@ -1002,7 +1008,7 @@ public sealed class EntityStateDto
 }
 
 /// <summary>Encodes and decodes save sections. Output is byte-stable: equal input, equal bytes (T-03).</summary>
-public static class SectionCodec
+public static partial class SectionCodec
 {
     // A save is untrusted input from disk: it may be damaged or hand-edited.
     private static readonly MessagePackSerializerOptions Options =
@@ -1457,6 +1463,8 @@ public static class SectionCodec
             Prove(c.HostCell, c.BaselineHash, c.InstanceId);
         foreach (var c in snapshot.Creatures)
             Prove(c.HostCell, c.BaselineHash, c.InstanceId);
+        foreach (var p in snapshot.Pieces)
+            Prove(p.HostCell, p.BaselineHash, p.InstanceId);
 
         return MessagePackSerializer.Serialize(new EntitiesSectionDto
         {
@@ -1545,6 +1553,7 @@ public static class SectionCodec
             }).ToArray(),
             NpcLife = snapshot.NpcLife is { } life ? NpcLifeToDto(life) : null,
             Adventurers = snapshot.Adventurers is { } adventurers ? AdventurersToDto(adventurers) : null,
+            Pieces = PiecesToDto(snapshot), StructureSeq = snapshot.StructureSequence,
         }, Options);
     }
 

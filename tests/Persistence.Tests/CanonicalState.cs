@@ -813,6 +813,26 @@ internal static class CanonicalState
             {
                 json.WriteNull("adventurers");
             }
+
+            // Placed pieces and the structure sequence (schema 44, WP-1G).
+            json.WriteNumber("structure_seq", snapshot.StructureSequence);
+            json.WriteStartArray("pieces");
+            foreach (var piece in snapshot.Pieces)
+            {
+                json.WriteStartObject();
+                json.WriteString("instance_id", piece.InstanceId.Value);
+                json.WriteString("def_id", piece.DefId);
+                json.WriteString("host_cell", piece.HostCell);
+                json.WriteNumber("x_mm", piece.XMm);
+                json.WriteNumber("z_mm", piece.ZMm);
+                json.WriteNumber("rotation", piece.Rotation);
+                json.WriteString("owner", piece.Owner.Value);
+                json.WriteNumber("health", piece.HealthCurrent);
+                json.WriteBoolean("door_open", piece.DoorOpen);
+                json.WriteString("baseline_hash", piece.BaselineHash);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray();
             json.WriteEndObject();
         }
         return Encoding.UTF8.GetString(stream.ToArray()).Replace("\r\n", "\n") + "\n";

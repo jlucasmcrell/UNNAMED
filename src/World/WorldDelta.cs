@@ -218,7 +218,7 @@ public sealed record CreatureRecord(
 }
 
 /// <summary>What <see cref="WorldDelta.TakeSnapshot"/> captures: the whole persisted world delta.</summary>
-public sealed record DeltaSnapshot(ImmutableArray<CellDeltaRecord> Cells, ImmutableArray<EntityDeltaRecord> Entities)
+public sealed partial record DeltaSnapshot(ImmutableArray<CellDeltaRecord> Cells, ImmutableArray<EntityDeltaRecord> Entities)
 {
     public static DeltaSnapshot Empty { get; } = new(ImmutableArray<CellDeltaRecord>.Empty, ImmutableArray<EntityDeltaRecord>.Empty);
 
@@ -608,6 +608,7 @@ public sealed partial class WorldDelta
             Created = created, Containers = containers, Creatures = creatures, Noises = _noises,
             Economy = _economy, Merchants = _merchants.Values.ToImmutableArray(), NpcLife = _npcLife,
             Adventurers = _adventurers,
+            Pieces = PieceSnapshot(), StructureSequence = _structureSequence,   // WP-1G
         };
     }
 
@@ -647,6 +648,9 @@ public sealed partial class WorldDelta
             if (reason is not null)
                 problems.Add(new RejectedRecord("entities", record.InstanceId.Value, reason));
         }
+
+        // Pieces before the containers that name them (WP-1G).
+        world.ApplyPieces(snapshot, seenIds, problems);
 
         foreach (var record in snapshot.Containers)
         {
@@ -953,6 +957,8 @@ public sealed partial class WorldDelta
             return $"container key '{record.Key}' is invalid or appears twice";
         if (record.InstanceId.Kind != EntityKind.Container)
             return $"{record.InstanceId} is not a container ID";
+        if (PieceChestProblem(record) is { } chest)
+            return chest;
         var ids = record.Items.Select(i => i.ItemId).Prepend(record.InstanceId).ToList();
         foreach (var id in ids)
         {

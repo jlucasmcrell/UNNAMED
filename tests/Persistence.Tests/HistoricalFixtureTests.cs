@@ -20,7 +20,7 @@ namespace UNNAMED.Persistence.Tests;
 /// <summary>The committed historical fixtures (Fixtures/README.md) and the context they load under.</summary>
 internal static class Fixtures
 {
-    public const string ContentVersion = "0.2.9";
+    public const string ContentVersion = "0.2.10";
 
     public static string Root { get; } = FindRoot();
 
@@ -80,7 +80,10 @@ public class HistoricalFixtureTests
     {
         var data = new TheoryData<int>();
         for (int schema = SaveFormat.OldestSupportedSchema; schema <= SaveFormat.SchemaVersion; schema++)
-            data.Add(schema);
+        {
+            if (!SaveFormat.ReservedSchemas.Contains(schema))   // another Wave 1 package's, whose fixture comes with it
+                data.Add(schema);
+        }
         return data;
     }
 
@@ -93,7 +96,8 @@ public class HistoricalFixtureTests
             .OrderBy(v => v)
             .ToList();
 
-        Assert.Equal(Enumerable.Range(SaveFormat.OldestSupportedSchema, SaveFormat.SchemaVersion - SaveFormat.OldestSupportedSchema + 1), present);
+        Assert.Equal(Enumerable.Range(SaveFormat.OldestSupportedSchema, SaveFormat.SchemaVersion - SaveFormat.OldestSupportedSchema + 1)
+            .Where(v => !SaveFormat.ReservedSchemas.Contains(v)), present);
         foreach (int schema in present)
         {
             Assert.True(File.Exists(Fixtures.Expected(schema)), $"v{schema} has no expected.json");
@@ -448,6 +452,27 @@ public class HistoricalFixtureTests
         else
         {
             Assert.Null(loaded.Player.Attack);
+        }
+
+        // Schema 44's placed pieces (WP-1G): Aelin's pad and, on it, her chest turned once and damaged to 60, holding five timber under the
+        // identity its piece derives; the sequence at 4, a pad having come and gone. Before it, nothing was built.
+        if (schema >= 44)
+        {
+            var aelin = UNNAMED.Domain.EntityId.Parse("chr_01HF7YAT00041061050R3GG28A");
+            UNNAMED.Domain.EntityId Piece(int ordinal) =>
+                UNNAMED.Domain.EntityId.Derived(UNNAMED.Domain.EntityKind.Piece, ordinal, "unnamed.piece/v1", aelin.Value);
+            Assert.Equal(4, loaded.World.StructureSequence);
+            Assert.Equal(new[] { (Piece(1), "piece.fixture.pad", 0, 200), (Piece(4), "piece.fixture.chest", 1, 60) },
+                loaded.World.Pieces.Select(p => (p.InstanceId, p.DefId, p.Rotation, p.HealthCurrent)));
+            Assert.All(loaded.World.Pieces, p => Assert.Equal((aelin, "r_0_0:c_00_04", 49_500L, 451_500L), (p.Owner, p.HostCell, p.XMm, p.ZMm)));
+            var pieceChest = loaded.World.Container("container." + Piece(4).Value.ToLowerInvariant())!;
+            Assert.Equal(UNNAMED.World.WorldDelta.PieceChestId(Piece(4)), pieceChest.InstanceId);
+            Assert.Equal(("item.material.timber", 5), (Assert.Single(pieceChest.Items).DefId, pieceChest.Items[0].Count));
+        }
+        else
+        {
+            Assert.Empty(loaded.World.Pieces);
+            Assert.Equal(0, loaded.World.StructureSequence);
         }
 
         Assert.Equal(SaveFormat.SchemaVersion - schema, loaded.Report.Steps.Count);
