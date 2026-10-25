@@ -54,6 +54,12 @@ public sealed record QuestDefinition(
     /// no gate. Only a personal quest has one.
     /// </summary>
     public int? ConfidesAt { get; init; }
+
+    /// <summary>
+    /// A heritage quest (<c>people_ref</c>; owner, 2026-10-24): only a character of this people takes it - <c>on_new_game</c> starts it for
+    /// them alone. Null: anyone.
+    /// </summary>
+    public string? PeopleId { get; init; }
 }
 
 /// <summary>The journal's sections (<c>track</c>).</summary>
@@ -326,6 +332,17 @@ public sealed record WorldFlagReward(string FlagId, string LocationId, long Valu
     public override string Kind => "world_flag";
 }
 
+/// <summary>
+/// <c>title</c> (owner, 2026-10-24): what the character is called for finishing the quest - "Keeper of the {surname} roll". It is read from
+/// the completed quest whenever it is shown, so nothing more is saved; <c>{surname}</c> is the last word of the character's name.
+/// </summary>
+public sealed record TitleReward(string Text) : QuestReward
+{
+    public override string Kind => "title";
+
+    public string For(string characterName) => Text.Replace("{surname}", characterName.Split(' ', StringSplitOptions.RemoveEmptyEntries).LastOrDefault() ?? characterName);
+}
+
 /// <summary><c>reputation</c> (WP6): the giver's faction moves the character's standing by <see cref="Delta"/> points.</summary>
 public sealed record ReputationReward(string FactionId, int Delta) : QuestReward
 {
@@ -348,10 +365,10 @@ public sealed record ApprovalChangeReward(ImmutableSortedDictionary<string, int>
 public static class RewardKinds
 {
     public static readonly ImmutableArray<string> Built = ImmutableArray.Create("xp", "currency", "item", "recipe", "spell", "relationship", "world_flag", "reputation",
-        "approval_change");
+        "approval_change", "title");
 
     public static readonly ImmutableArray<string> NotBuilt = ImmutableArray.Create(
-        "ability", "title", "access", "companion", "property", "permanent_ability", "transformation");
+        "ability", "access", "companion", "property", "permanent_ability", "transformation");
 }
 
 // ── state ──────────────────────────────────────────────────────────────────────

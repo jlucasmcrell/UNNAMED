@@ -101,6 +101,22 @@ public class PricingTests
     private static ItemDefinition Item(string category, long value, bool noSell = false) =>
         new("item.x.y", category, 1, 100, value, "common", false, noSell, null, Requirements.None, null, 0);
 
+    [Theory]
+    [InlineData(-1, 75)]
+    [InlineData(0, 100)]
+    [InlineData(1, 125)]
+    [InlineData(2, 150)]
+    public void QualityChangesTheInstanceValue(int quality, long expected) =>
+        Assert.Equal(expected, new Pricing(0.4).Value(Item("material", 100), quality));
+
+    [Fact]
+    public void AnAuthenticatedMakerMarkAddsItsConfiguredPremium()
+    {
+        var pricing = new Pricing(0.4);
+        Assert.Equal(125, pricing.Value(Item("material", 100), 1));
+        Assert.Equal(137, pricing.Value(Item("material", 100), 1, makerMarked: true));
+    }
+
     [Fact]
     public void AMerchantBuysAtTheSellRatio_SoResellingLosesMoney()
     {

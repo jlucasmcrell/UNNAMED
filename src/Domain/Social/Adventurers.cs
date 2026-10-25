@@ -210,7 +210,7 @@ public sealed record InnPlaces(InnPlace Door, InnPlace Keeper, InnPlace Board, I
     /// <summary>Out for this many hours: away at the departure hour, back at that hour plus this.</summary>
     public int ReturnHours { get; init; } = 9;
 
-    /// <summary>What a room for the night costs (spec 15): coin paid to the keeper, who wakes the character at the hour they ask for.</summary>
+    /// <summary>What a room for the night costs (spec 15): coin paid to the keeper for restorative rest, without a shared-world time skip.</summary>
     public long RoomCoin { get; init; } = 5;
 
     /// <summary>The one who keeps the inn and lets its rooms - the only voice that can. Empty: nobody lets a room here.</summary>

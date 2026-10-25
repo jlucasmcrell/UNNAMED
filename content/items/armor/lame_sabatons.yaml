@@ -10,7 +10,7 @@ category: armor
 item_class: ordinary
 stack_max: 1
 weight: 1.9
-value_base: 45
+value_base: 29
 slot: feet
 armor_value: 4
 material_class: plate

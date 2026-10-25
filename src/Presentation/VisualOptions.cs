@@ -235,8 +235,8 @@ public static class VisualOptions
     /// <summary>Everything in effect, for reports and screenshots' records.</summary>
     public static IReadOnlyDictionary<string, string> All => Values;
 
-    /// <summary>The default visual-reference profile; Quality is its player-facing alias.</summary>
-    public const string DefaultTier = "high";
+    /// <summary>Owner builds start at Ultra (2026-10-24); saved settings or an explicit public hardware profile take precedence.</summary>
+    public const string DefaultTier = "ultra";
 
     /// <summary>
     /// The run's options: the tier the player saved (<paramref name="savedTier"/>, player runs only) or <see cref="DefaultTier"/>, then

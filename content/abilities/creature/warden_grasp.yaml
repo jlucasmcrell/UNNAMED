@@ -1,0 +1,16 @@
+id: ability.creature.warden_grasp
+kind: ability
+schema: 1
+display_key: ability.creature.warden_grasp.name
+tags: [ability]
+name: Warden's Grasp
+notes: "The warden's short grasp at its own feet: it plants, a hand draws back, and closes where the tell began. A short reach for its size and a long recovery reward stepping aside toward the open back."
+class: creature
+range_m: 2.6
+windup_s: 0.9
+active_s: 0.2
+recovery_s: 1.3
+commit_facing: true
+cost: { stamina: 0 }
+payload:
+  - { type: damage, damage_type: physical_blunt, amount: [10, 13] }

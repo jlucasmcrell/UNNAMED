@@ -22,6 +22,8 @@ learning:
   aptitude_percent: { melee: 110, ranged: 110 }
   mastery_ceiling: 90              # lowest skill cap
   novelty_percent: 150             # quick study
+heritage:
+  - { item_ref: item.heritage.kept_roll, count: 1 }
 suggest_names:
   - Oswin Tallow
   - Davan Pellcroft

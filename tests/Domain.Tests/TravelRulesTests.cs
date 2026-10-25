@@ -42,13 +42,13 @@ public class TravelRulesTests
     }
 
     [Fact]
-    public void AJourney_LetsAShareOfTheWalkPassInTheWorld_AndNeverNone()
+    public void AJourney_QuotesTheEquivalentWalkWithoutAWorldTimeCharge()
     {
         var roads = new[] { Road("road.s", (0, 2), (800, 2)) };
-        var cost = Journeys.Cost(roads, Stone("waystone.a", 0, 0), Stone("waystone.b", 800, 0), 1_600, 50, TravelRules.Default);
-        // 800 m at a 1.6 m/s walk is 500 s: 10,000 ticks of 50 ms; a quarter of it passes.
-        Assert.Equal(new TravelCost(800_000, 10_000, 2_500), cost);
-        Assert.Equal(1, Journeys.Cost(roads, Stone("waystone.a", 0, 0), Stone("waystone.a", 0, 0), 1_600, 50, TravelRules.Default).WorldTicks);
+        var cost = Journeys.Cost(roads, Stone("waystone.a", 0, 0), Stone("waystone.b", 800, 0), 1_600, 50);
+        // 800 m at a 1.6 m/s walk is quoted as 500 s: 10,000 ticks of 50 ms.
+        Assert.Equal(new TravelCost(800_000, 10_000), cost);
+        Assert.Equal(1, Journeys.Cost(roads, Stone("waystone.a", 0, 0), Stone("waystone.a", 0, 0), 1_600, 50).WalkTicks);
     }
 
     [Fact]

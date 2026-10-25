@@ -359,6 +359,14 @@ def folded_note(c):
     c.line([(54, 50), (54, 54)], RED[2], 1.0, 0.0, cap=False)
 
 
+def firstfold_shard(c):
+    # a finger-long shard of dark Firstfold iron, broken where it broke, with the violet of its gate along the grain
+    shaded(c, [(30, 84), (22, 62), (34, 30), (52, 12), (60, 22), (66, 48), (58, 74), (42, 90)], DARKIRON, False,
+           light=[(26, 62), (36, 32), (50, 16), (46, 40), (34, 64)], shade=[(58, 26), (64, 48), (56, 72), (48, 70), (54, 46)])
+    c.line([(40, 78), (46, 50), (54, 24)], (150, 70, 230), 1.6, 0.0, cap=False)
+    c.dot(47, 47, 2.2, (186, 120, 255))
+
+
 def lantern_foot(c):
     # the brass foot of a lantern: a flared base with a ring socket
     c.rrect((18, 74, 82, 88), 3, BRASS[0], 2.2)
@@ -462,6 +470,54 @@ def unreadable_page(c):
     c.poly([(44, 46), (58, 42), (66, 54), (56, 66), (42, 62)], (74, 56, 46), 0.0, True)
 
 
+def finishing_tool(c):
+    # a small finishing chisel: a handle worn smooth by another hand, and a short bright blade
+    shaded(c, [(16, 70), (52, 34), (62, 44), (26, 80)], WOOD, False, light=[(20, 70), (50, 38), (54, 42), (24, 74)], shade=[(30, 76), (60, 46), (62, 44), (26, 80)])
+    c.poly([(52, 34), (58, 28), (68, 38), (62, 44)], DARKIRON[0], 1.8)
+    shaded(c, [(58, 28), (78, 14), (86, 22), (68, 38)], IRON, False, light=[(62, 28), (78, 16), (80, 18), (64, 32)])
+    c.line([(24, 70), (34, 60)], WOOD[2], 1.2, 0.0)
+
+
+def testimony_book(c):
+    # a pale record book, every line dated
+    def lines(c):
+        for y in (40, 48, 56, 64):
+            c.line([(42, y), (52, y)], (90, 84, 110), 1.2, 0.0, cap=False)
+            c.line([(55, y), (70, y)], (120, 112, 140), 1.0, 0.0, cap=False)
+    book(c, ((160, 152, 184), (200, 194, 222), (110, 102, 132)), lines, ribbon=(150, 120, 200))
+
+
+def cost_ledger(c):
+    # a walker's ledger, its cover marked with a route that doubles back
+    def route(c):
+        c.line([(42, 66), (50, 52), (60, 58), (66, 42)], BRASS[0], 2.0, 0.0)
+        c.dot(42, 66, 2.2, BRASS[0])
+        c.dot(66, 42, 2.2, BRASS[0])
+    book(c, ((72, 60, 52), (108, 92, 80), (46, 38, 32)), route)
+
+
+def kept_roll(c):
+    # a family roll half unrolled: the rolled top tied with a cord, names written down the hanging sheet
+    shaded(c, [(24, 26), (76, 26), (76, 80), (68, 86), (58, 80), (48, 86), (38, 80), (24, 84)], PAPER, False,
+           light=[(26, 30), (36, 30), (36, 80), (26, 82)], shade=[(66, 30), (76, 30), (76, 78), (66, 82)])
+    for k, y in enumerate((40, 48, 56, 64, 72)):
+        c.line([(32, y), (66 - (k % 2) * 10, y)], (122, 104, 82), 1.4, 0.0)
+    c.rrect((16, 14, 84, 30), 6, PAPER[2], 2.2)
+    c.shine([(20, 17), (80, 17), (80, 21), (20, 21)], PAPER[1] + (170,))
+    c.line([(48, 12), (48, 32)], RED[0], 3.0, 1.0)
+    c.line([(48, 30), (42, 42)], RED[0], 2.0, 0.8)
+    c.line([(48, 30), (55, 41)], RED[0], 2.0, 0.8)
+
+
+def record_stone(c):
+    # a palm-sized grey stone with banded strata and one bright vein
+    shaded(c, [(16, 58), (24, 34), (46, 22), (70, 26), (84, 46), (80, 70), (56, 82), (28, 78)], GREYHIDE, True,
+           light=[(26, 40), (44, 28), (56, 30), (34, 46)], shade=[(60, 72), (78, 60), (80, 70), (56, 80)])
+    for y, x0, x1 in ((44, 24, 80), (56, 20, 82), (66, 28, 74)):
+        c.line([(x0, y), ((x0 + x1) / 2, y - 2), (x1, y)], GREYHIDE[2], 1.0, 0.0)
+    c.line([(34, 34), (40, 42), (48, 47), (56, 50), (62, 56), (68, 64)], (226, 214, 176), 1.4, 0.0)
+
+
 def panel_chat(c):
     shaded(c, [(10, 14), (66, 14), (66, 56), (36, 56), (22, 70), (24, 56), (10, 56)], CLOTH, False, light=[(12, 16), (64, 16), (64, 24), (12, 24)])
     for y, w in ((28, 40), (38, 30)):
@@ -561,6 +617,7 @@ ICONS = {
     "ui.item.codex_fragment": ("item.quest.barrowworks_codex_fragment", codex_fragment, "Barrowworks codex fragment."),
     "ui.item.folded_note": ("item.story.folded_note", folded_note, "Folded Note."),
     "ui.item.lantern_foot": ("item.artefact.lantern_foot", lantern_foot, "Lantern foot."),
+    "ui.item.firstfold_shard": ("item.quest.firstfold_shard", firstfold_shard, "Firstfold shard."),
     "ui.item.lantern_ledger": ("item.story.lantern_ledger", lantern_ledger, "Lantern ledger."),
     "ui.item.bench_patterns": ("item.tome.bench_patterns", bench_patterns, "Bench patterns."),
     "ui.item.herbal_remedies": ("item.tome.herbal_remedies", herbal_remedies, "Herbal remedies."),
@@ -569,6 +626,11 @@ ICONS = {
     "ui.item.glass_marble": ("item.story.glass_marble", glass_marble, "Glass marble."),
     "ui.item.stopped_watch": ("item.story.stopped_watch", stopped_watch, "Stopped watch."),
     "ui.item.unreadable_page": ("item.story.unreadable_page", unreadable_page, "Unreadable page."),
+    "ui.item.kept_roll": ("item.heritage.kept_roll", kept_roll, "Kept roll."),
+    "ui.item.record_stone": ("item.heritage.record_stone", record_stone, "Record stone."),
+    "ui.item.finishing_tool": ("item.heritage.finishing_tool", finishing_tool, "Finishing tool."),
+    "ui.item.testimony_book": ("item.heritage.testimony_book", testimony_book, "Testimony book."),
+    "ui.item.cost_ledger": ("item.heritage.cost_ledger", cost_ledger, "Ledger of costs."),
     "ui.panel.chat": ("panel.chat", panel_chat, "System Menu: Chat."),
     "ui.panel.reputation": ("panel.reputation", panel_reputation, "System Menu: Reputation."),
     "ui.panel.credits": ("panel.credits", panel_credits, "System Menu: Credits."),

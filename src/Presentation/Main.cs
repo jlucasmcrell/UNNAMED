@@ -1,4 +1,4 @@
-﻿// UNNAMED Presentation - boot, the frame loop, and input (ARCHITECTURE.md Â§2, Â§8.1; D-11)
+// UNNAMED Presentation - boot, the frame loop, and input (ARCHITECTURE.md Â§2, Â§8.1; D-11)
 // Godot presentation only: this file renders state and submits commands; it never writes state.
 
 using Godot;
@@ -211,6 +211,10 @@ public partial class Main : Node3D
     /// </summary>
     private const string BarrowworksRegion = "region.barrowworks";
 
+    /// <summary>The switch that settles the Stopped Gate, and the court its hum is centred on (docs/FIELD_RUINS.md).</summary>
+    private const string StoppedGateSwitch = "switch.field.needle";
+    private static readonly Vector2 StoppedGateCourt = new(850, 758);
+
     private const float SpeedCeiling = 8f;
     /// <summary>How long before the respawn the screen starts to go black (the fade itself takes a second).</summary>
     private const double DeathFadeLeadSeconds = 1.2;
@@ -368,7 +372,8 @@ public partial class Main : Node3D
         // change - its region file, its cells and its bindings are the whole of it.
         string region = _options.GetValueOrDefault("--region") ?? "region.starting_frontier";
         // A --shot stands the character where a capture needs him; the pets' pass needs the same, at the den rather than the yard.
-        var shotStart = (VisualOptions.Barrowworks && region == BarrowworksRegion) || _options.ContainsKey("--pet-shots") ? ShotStart() : null;
+        var shotStart = (VisualOptions.Barrowworks && region == BarrowworksRegion) || _options.ContainsKey("--pet-shots") || _options.ContainsKey("--shot")
+            || _options.ContainsKey("--stand") ? ShotStart() : null;
         if (OS.GetEnvironment("OTHERREACH_RCD5_STEALTH") == "1"
             && File.Exists(Path.Combine(contentRoot,"RCD5_REVIEW_FIXTURE.txt")))
             shotStart = (600_000,755_000);
@@ -407,6 +412,7 @@ public partial class Main : Node3D
                 ? [.. items.Split(',').Select(i => i.Split(':') is [var item, var count]
                     ? (item, int.Parse(count)) : throw new ArgumentException($"--start-items: '{i}' is not item:count"))]
                 : [],
+            StartLevel = int.TryParse(_options.GetValueOrDefault("--start-level"), out int startLevel) && startLevel > 1 ? startLevel : 0,
         });
         SkyView.ClockAtWorldStart = (float)_session.ClockAtWorldStartHours;
         _session.SubscriberFailed += SubscriberFailed;
@@ -563,11 +569,21 @@ public partial class Main : Node3D
             AddChild(new Audio.AmbientAudio(_sounds, _ground) { FoldGain = at =>
             {
                 var simulation = _session.Simulation;
-                var fold = simulation?.Barriers.FirstOrDefault(b => b.Site.Key == FoldEcho.Barrier && b.Standing);
-                if (fold is null || simulation!.ActiveLayout.SpaceId != _session.Setup.Layout.SpaceId) return 0;
-                var (x,z) = Footprints.Center(fold.Site.Footprint);
-                float distance = new Vector2(at.X-x/1000f,at.Z-z/1000f).Length();
-                return Mathf.Clamp(1-(distance-3)/14,0,1);
+                if (simulation is null || simulation.ActiveLayout.SpaceId != _session.Setup.Layout.SpaceId) return 0;
+                float gain = 0;
+                if (simulation.Barriers.FirstOrDefault(b => b.Site.Key == FoldEcho.Barrier && b.Standing) is { } fold)
+                {
+                    var (x,z) = Footprints.Center(fold.Site.Footprint);
+                    gain = Mathf.Clamp(1-(new Vector2(at.X-x/1000f,at.Z-z/1000f).Length()-3)/14,0,1);
+                }
+                // The Stopped Gate hums across the whole Spill until the Needle is laid hands on (docs/FIELD_RUINS.md): wider and lower than
+                // the fold's, loudest in the court.
+                if (simulation.Switches.FirstOrDefault(s => s.Site.Key == StoppedGateSwitch) is { Set: false })
+                {
+                    float distance = new Vector2(at.X-StoppedGateCourt.X,at.Z-StoppedGateCourt.Y).Length();
+                    gain = Math.Max(gain, .8f*Mathf.Clamp(1-(distance-12)/70,0,1));
+                }
+                return gain;
             } });
         _soundEvents = new Audio.SoundEvents { Name = "SoundEvents" };
         AddChild(_soundEvents);
@@ -1821,7 +1837,7 @@ public partial class Main : Node3D
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
-                    or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--stand" or "--purse" or "--start-items" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
+                    or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--stand" or "--purse" or "--start-items" or "--start-level" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
                     or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"

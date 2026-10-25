@@ -1,0 +1,14 @@
+id: item.heritage.kept_roll
+kind: item
+schema: 1
+display_key: item.heritage.kept_roll.name
+tags: [item]
+name: Kept Roll
+notes: In the game's voice, 'Your line, written out name by name in more than one hand. Keeping it is a duty nobody calls a duty.' The Veth heritage item (owner, 2026-10-23, HERITAGE_ITEMS_PROPOSAL.md option A). From the Veth sacred act of keeping - records, lineages, oaths (MYTHOLOGY.md §Veth Belief). Identity, not power - no stat, no slot. Heritage (owner, 2026-10-24) - only its own people use, buy, sell, trade or are given it, and its value counts only among them; never dropped, and the people's keeper re-issues a lost one (HERITAGE_DESIGN.md §1.4). Its physical form is open (LORE_OWNER_QUESTIONS.md Heritage H-2).
+category: misc
+stack_max: 1
+weight: 0.1
+value_base: 8
+rarity: common
+no_drop: true
+heritage: people.veth

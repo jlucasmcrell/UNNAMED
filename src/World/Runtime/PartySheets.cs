@@ -187,6 +187,8 @@ internal sealed class PartySheetSystem : IAbstractAdvance
             return $"{command.Item} is not carried";
         if (_context.Setup.Items.Catalog.Find(entry.DefId) is not { } definition)
             return $"{entry.DefId} is not an item this build knows";
+        if (Heritage(command.NpcId, definition) is { } heritage)
+            return heritage;
         if (definition.Slot is not { } slot)
             return $"{definition.Id} is not worn";
         if (definition.Weapon is { Ranged: true })
@@ -254,6 +256,7 @@ internal sealed class PartySheetSystem : IAbstractAdvance
         {
             if(State.Inventory.FirstOrDefault(e=>e.ItemId==command.Item) is not { } entry)return "That item is no longer in your pack";
             if(State.Equipment.ContainsValue(entry.ItemId) || State.Bags.Contains(entry.ItemId))return "Unequip it first";
+            if(Heritage(command.NpcId,_context.Setup.Items.Catalog.Get(entry.DefId)) is { } heritage)return heritage;
             var next=sheet with { Belongings=sheet.Belongings.Add(entry with {Bag=0,Slot=-1}) };
             if(PackRefusal(next) is { } full)return full;
             if(_context.Dispatch(new ReleaseItem(entry.ItemId)) is { } busy)return busy;
@@ -401,6 +404,10 @@ internal sealed class PartySheetSystem : IAbstractAdvance
                 Attributes=ProgressionKeys.Attributes.ToImmutableSortedDictionary(a=>a,a=>ProgressionEngine.AttributeValue(p,a,Rules)),
                 CarriedGrams=Weight(sheet.Items),CarryLimitGrams=_context.Setup.Items.Inventory.CarryLimitGrams(p,Rules) };
     }
+
+    /// <summary>Why a party member may not be handed a heritage item (owner, 2026-10-24): they must be of its people; null when they may.</summary>
+    private string? Heritage(string npcId, ItemDefinition item) =>
+        HeritageRules.Allows(item, State.Npcs[npcId].Definition.PeopleId) ? null : $"{Name(npcId)} is not {HeritageRules.PeopleWord(item.Heritage!)}: heritage passes only between its own people";
 
     private string Name(string npcId) =>
         State.Npcs.TryGetValue(npcId, out var npc) ? npc.Definition.Name

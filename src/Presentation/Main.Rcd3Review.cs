@@ -1,4 +1,4 @@
-﻿using Godot;
+using Godot;
 using System.Text.Json;
 using UNNAMED.Presentation.MHCharacters;
 using UNNAMED.Presentation.Player;
@@ -49,6 +49,23 @@ public partial class Main
                 source.MakeCurrent();camera.QueueFree();
                 await RunRaceAbilitiesReview(directory,raceRoute);GetTree().Quit();return;
             }
+            if(OS.GetEnvironment("OTHERREACH_FIELD_RUINS_VIDEO")=="1")
+            {
+                camera.GetNode<OmniLight3D>("CharacterFill").Reparent(source,false);
+                source.MakeCurrent();camera.QueueFree();
+                await RunFieldRuinsVideo(directory);GetTree().Quit();return;
+            }
+            if(OS.GetEnvironment("OTHERREACH_GRAND_REVIEW")=="foldscar")
+            {
+                camera.GetNode<OmniLight3D>("CharacterFill").Reparent(source,false);camera.QueueFree();
+                await RunGrandFoldscarReview(directory);GetTree().Quit();return;
+            }
+            if(OS.GetEnvironment("OTHERREACH_HERITAGE_REVIEW") is "1" or "step5")
+            {
+                camera.GetNode<OmniLight3D>("CharacterFill").Reparent(source,false);
+                source.MakeCurrent();camera.QueueFree();
+                await RunHeritageReview(directory);GetTree().Quit();return;
+            }
             if(OS.GetEnvironment("OTHERREACH_RCD8_WAYSTONE_REVIEW")=="1")
             {
                 await RunRcd8WaystoneReview(directory,camera);GetTree().Quit();return;
@@ -96,6 +113,8 @@ public partial class Main
                     texture_mib=Performance.GetMonitor(Performance.Monitor.RenderTextureMemUsed)/1048576.0,
                     textures=VisualOptions.All.GetValueOrDefault("textures"),cache_hits=_art.Cache.Hits,cache_failed=_art.Cache.Failed,
                     source_resolution_preserved=true }));
+                if(OS.GetEnvironment("OTHERREACH_RCD9_TALKING_GATE")=="1")
+                    await RunTalkingThroatGate(Path.Combine(directory,"talking_face_throat"),camera);
                 if(OS.GetEnvironment("OTHERREACH_RCD9_WARDROBE_REVIEW")=="1")
                 {
                     _inventory.Close();
@@ -425,4 +444,3 @@ public partial class Main
     }
 
 }
-

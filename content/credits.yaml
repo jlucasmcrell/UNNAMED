@@ -111,6 +111,8 @@ sections:
       - ledger: [A-F05, A-F07, A-F08]
         binds: [bw_codex_]
         text: "The Barrowworks interior kit: Lost Temple Environment by DanStudios and Ancient Mayan Ruins by Meshingun Studio, used under the Fab Standard License."
+      - binds: [ruin_fs_, creature_gate_]
+        text: "The Spill and the Stopped Gate: Red Echo and Monolith Megastructure environment kits from Fab, used under the Fab Standard License. The gate tender and the Gate Warden are built on Stan - The Golem by ShyrAssets (fab.com/listings/0a80c04e-ad02-4bf3-a059-f98ee9bf782e), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/); changes: the body replaced with Red Echo pieces, rescaled rig, original animations."
       - ledger: [A-F03]
         text: "Hearth and forge fire effects: Fire FX VDB by SHOGUN GAMES, used under the Fab Standard License."
       - ledger: [A-C01, A-C02]
@@ -123,6 +125,10 @@ sections:
         text: "Moonbrand (Early 14th C Arming Sword): The Oakeshott Institute (https://sketchfab.com/oakeshott), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Source: https://sketchfab.com/3d-models/moonbrand-early-14th-c-arming-sword-80fa91fc8c974fd0acd2a55cc513edec . Changes: isolated sword mesh, uniform scale, grip socket, LODs and resized textures."
       - binds: [weapon_cc0_dagger]
         text: "Ornate medieval dagger: Sofia Pahaoja, Poly Haven (polyhaven.com), CC0."
+      - binds: [gs_quiet_stone_, gs_foldscar_]
+        text: "The Foldscar's Quiet Stones, its heart and the heart's debris: Frozen Norse Environment by Leartes Studios, Cosmos Premium (cosmos.leartesstudios.com)."
+      - binds: [gs_fold_fluorite]
+        text: "The fluorite in the Foldscar's heart: Mineral: Fluorite by Digital Atlas of Ancient Life (https://sketchfab.com/3d-models/5ed87d4487be495aac0a86632eb3880c), CC0."
       - ledger: [A-P02]
         text: "Surface textures: ambientCG (ambientcg.com), CC0."
       - ledger: [A-B01]

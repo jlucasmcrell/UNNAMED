@@ -456,6 +456,7 @@ internal sealed class QuestDebugger
         StandingCondition s => Standing(s),
         ActDoneCondition a => $"needs the character to have {(a.Kind == Domain.Factions.ActKinds.SwitchSet ? "set" : "killed")} {a.Subject}; " +
             $"the act log holds {(State.Factions.Acts.Any(x => x.Kind == a.Kind && x.Subject == a.Subject) ? "it" : "none")}",
+        PeopleCondition p => $"needs a character of {p.PeopleId}; the character is {_context.PlayerPeople}",
         _ => condition.ToString(),
     };
 

@@ -1,0 +1,10 @@
+id: loot.gate_warden
+kind: loot
+schema: 1
+display_key: loot.gate_warden.name
+tags: [loot]
+notes: "The warden's plate is too heavy to carry and no forge takes it (docs/FIELD_RUINS.md). What lies at its feet is what the court kept of the people who came down before: salve, and sometimes a piece of their armour. The court's real reward is Sel's shard and the gate stilled."
+rolls: 0
+entries:
+  - { item_ref: item.consumable.salve_ember, chance: 1.0, count_range: [1, 2] }
+  - { item_ref: item.armor.lame_sabatons, chance: 0.4, count_range: [1, 1] }

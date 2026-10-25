@@ -6,6 +6,8 @@ tags: [people]
 name: Kal
 notes: The calcified (RACES.md section 2). Playable from 2026-10-24 (owner - four peoples to start). Traits and abilities are RACE_ABILITIES_PROPOSAL.md sections 1-3.2, owner-approved. The suggest names are PROPOSED working names for owner review - canon gives no Kal naming language.
 playable: true
+heritage:
+  - { item_ref: item.heritage.finishing_tool, count: 1 }
 card:
   epithet: The calcified
   summary: Broad, short, dense - built for cold and for work. They think in materials the way others think in words, and their work outlasts them.

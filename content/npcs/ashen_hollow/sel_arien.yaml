@@ -9,6 +9,7 @@ notes: Archivist and survey scholar (content bible §9) - Foldscar framing, acce
 role: scholar
 dialogue_ref: dialogue.ashen_hollow.sel_arien
 unique: true
+people_ref: people.siann   # content bible §9
 faction_ref: faction.ashen_hollow.long_survey
 # What she teaches (WP9, C10): the salves, by her own lines, free, as she always has.
 teaches:

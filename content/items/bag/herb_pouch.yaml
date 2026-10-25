@@ -8,7 +8,7 @@ notes: "A soft pouch for gathered herbs and nothing else, kept apart so they do 
 category: bag
 stack_max: 1
 weight: 0.3
-value_base: 25
+value_base: 12
 rarity: common
 bag:
   slots: 8

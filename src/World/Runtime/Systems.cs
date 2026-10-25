@@ -82,9 +82,10 @@ internal sealed class SystemContext
     /// <summary>The movement rules the player's body moves by: the shared ones, at its people's speed, with its people's leap and wings.</summary>
     public MovementRules PlayerMovement { get; }
 
-    /// <summary>An NPC's people, where the world knows it (a role resident's slot, an adventurer); null for one it does not.</summary>
+    /// <summary>An NPC's people, where the world knows it (a named NPC's <c>people_ref</c>, a role resident's slot, an adventurer); null for one it does not.</summary>
     public string? PeopleOf(string npcId) =>
-        Setup.NpcLife.Routines.GetValueOrDefault(npcId)?.PeopleId ?? State.World.Adventurers?.Agents.GetValueOrDefault(npcId)?.PeopleId;
+        Setup.Social.Npcs.GetValueOrDefault(npcId)?.PeopleId ?? Setup.NpcLife.Routines.GetValueOrDefault(npcId)?.PeopleId
+        ?? State.World.Adventurers?.Agents.GetValueOrDefault(npcId)?.PeopleId;
 
     /// <summary>The player's derived pools and Resonance: the attributes' values, then the people's biology and the crossing toll's health.</summary>
     public DerivedStats PlayerStats() =>
@@ -117,6 +118,9 @@ internal sealed class SystemContext
     /// board names who claimed a bounty with it. Composition sets it once.
     /// </summary>
     public Func<string, string?> OtherActorName { get; set; } = _ => null;
+
+    /// <summary>The character's people, as the creator made it: who may use and trade heritage items (owner, 2026-10-24).</summary>
+    public string PlayerPeople { get; init; } = CharacterSpec.DefaultPeople;
 
     /// <summary>
     /// The space this layout's sites stand in. Every authored site's cell is resolved in it, so a door's flag and

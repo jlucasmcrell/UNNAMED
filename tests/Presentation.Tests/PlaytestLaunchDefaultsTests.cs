@@ -17,14 +17,15 @@ public class PlaytestLaunchDefaultsTests
         Assert.Equal(Path.Combine(root, "content", "_art_bindings.json"), options["--bindings-overlay"]);
         Assert.Equal(Path.Combine(root, "saves"), options["--profile"]);
         Assert.Equal("region.starting_frontier", options["--region"]);
-        Assert.Equal("tier=high,terrain=terrain3d,sky=sky3d,people=humgen,foldscar=proof,body=none,textures=cache", options["--visual"]);
+        Assert.DoesNotContain("tier=", options["--visual"]); // Preserve the saved tier; VisualOptions supplies the owner default.
+        Assert.Equal("terrain=terrain3d,sky=sky3d,people=humgen,foldscar=proof,body=none,textures=cache", options["--visual"]);
     }
 
     [Fact]
     public void HumGenPackageUsesItsOwnPayload()
     {
         var args = PlaytestLaunchDefaults.Resolve([], "comparison", true);
-        Assert.Contains("tier=high,terrain=terrain3d,sky=sky3d,people=humgen,foldscar=proof,body=none,textures=cache", args);
+        Assert.Contains("terrain=terrain3d,sky=sky3d,people=humgen,foldscar=proof,body=none,textures=cache", args);
         Assert.Contains(Path.Combine("comparison", "primary"), args);
     }
 

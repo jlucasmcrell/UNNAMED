@@ -692,6 +692,25 @@
     }
   },
   "structures": {
+    "fs_needle": {"model": "ruin_fs_needle", "material": "metal", "offset": [1.49, 0, -0.112], "light": {"at": [-14, 4, 0], "colour": [0.62, 0.3, 1.0], "energy": 4.0, "range": 26, "shadows": false}, "set_goes_dark": true},
+    "fs_gate": {"model": "ruin_fs_gate", "material": "metal"},
+    "fs_anchor_west": {"model": "ruin_fs_anchor", "material": "metal", "light": {"at": [0, 5.5, 0], "colour": [0.62, 0.3, 1.0], "energy": 3.0, "range": 16, "shadows": false}, "set_goes_dark": true},
+    "fs_anchor_northeast": {"model": "ruin_fs_anchor", "material": "metal", "light": {"at": [0, 5.5, 0], "colour": [0.62, 0.3, 1.0], "energy": 3.0, "range": 16, "shadows": false}, "set_goes_dark": true},
+    "fs_anchor_south": {"model": "ruin_fs_anchor", "material": "metal", "light": {"at": [0, 5.5, 0], "colour": [0.62, 0.3, 1.0], "energy": 3.0, "range": 16, "shadows": false}, "set_goes_dark": true},
+    "fs_panel": {"model": "ruin_fs_panel", "material": "stone", "offset": [-0.361, 0, -0.001]},
+    "fs_colonnade": {"model": "ruin_fs_colonnade", "material": "metal", "offset": [3.384, 0, 0.186]},
+    "fs_frame_north": {"model": "ruin_fs_frame", "material": "metal"},
+    "fs_frame_south": {"model": "ruin_fs_frame", "material": "metal"},
+    "fs_slab": {"model": "ruin_fs_slab", "material": "stone", "offset": [0.138, 0, -0.237]},
+    "fs_block": {"model": "ruin_fs_block", "material": "stone", "offset": [-8.336, 0, 2.234]},
+    "fs_rib_north": {"model": "ruin_fs_rib_a", "material": "metal", "offset": [-0.49, 0, -4.324]},
+    "fs_rib_east": {"model": "ruin_fs_rib_c", "material": "metal", "offset": [-0.065, 0, -0.176]},
+    "fs_pylon_a": {"model": "ruin_fs_pylon_a", "material": "metal", "offset": [-0.364, 0, -0.441]},
+    "fs_pylon_b": {"model": "ruin_fs_pylon_b", "material": "metal", "offset": [-0.184, 0, -0.113]},
+    "fs_pylon_c": {"model": "ruin_fs_pylon_c", "material": "metal", "offset": [-0.046, 0, 0.482]},
+    "fs_stub_a": {"model": "ruin_fs_stub_a", "material": "metal", "offset": [0.428, 0, -0.83]},
+    "fs_stub_b": {"model": "ruin_fs_stub_b", "material": "metal", "offset": [0.568, 0, -0.08]},
+    "fs_stub_c": {"model": "ruin_fs_stub_c", "material": "metal", "offset": [0.688, 0, -0.284]},
     "cw_well": {
       "model": "prop_bp_well_cw",
       "material": "stone"
@@ -1452,21 +1471,27 @@
       "note": "rocks_terrain overhaul 2026-10-14 (asset_work/rocks_terrain/PROPOSALS.csv): a scanned mossy stone stood on end (Poly Haven rock_moss_set_01 rock05) replaces the AI image-to-3D waystone."
     },
     "rock_stone_north": {
-      "model": "landmark_ph_quiet_stone_a",
+      "model": "gs_quiet_stone_a",
       "material": "stone",
-      "note": "rocks_terrain overhaul 2026-10-14 (asset_work/rocks_terrain/PROPOSALS.csv): the three Quiet Stones are three different scanned stones stood on end (rock_moss_set_01 rock01/02/06), so each has its own outline."
+      "yaw_spread": 180,
+      "note": "Grand scale 2026-10-24 (GRAND_SCALE_PROPOSAL.md 2.1, GS-1): the Quiet Stones are 16 m dressed, carved monoliths (Frozen Norse column, Cosmos), the same stone Old Late is cut from."
     },
     "rock_stone_southwest": {
-      "model": "landmark_ph_quiet_stone_b",
-      "material": "stone"
+      "model": "gs_quiet_stone_b",
+      "material": "stone",
+      "yaw_spread": 180
     },
     "rock_stone_southeast": {
-      "model": "landmark_ph_quiet_stone_c",
-      "material": "stone"
+      "model": "gs_quiet_stone_a",
+      "material": "stone",
+      "yaw_spread": 180
     },
     "rock_foldscar_heart": {
-      "model": "landmark_bp_foldscar_heart",
-      "material": "stone"
+      "model": "gs_foldscar_heart",
+      "material": "stone",
+      "surface": "mat_acg_onyx015",
+      "surface_tint": [0.2, 0.21, 0.26],
+      "note": "Grand scale 2026-10-24 (GS-2): the lower 24 m of a broken dressed monolith in the heart's dark polished stone (FoldscarDressing re-dresses it satin, and hangs its missing upper half over it)."
     },
     "rock_iron_seam": {
       "model": "rock_ph_ironstone_boulder_a",
@@ -1876,6 +1901,14 @@
     }
   },
   "structures_by_visual_option": {
+    "foldscar=proof": {
+      "rock_foldscar_heart": {
+        "model": "gs_foldscar_heart",
+        "material": "stone",
+        "surface": "mat_acg_onyx015",
+        "surface_tint": [0.2, 0.21, 0.26]
+      }
+    },
     "cairnwold_roofs=slate": {
       "cw_house_01": {
         "model": "cw_roof_slate",
@@ -1909,6 +1942,62 @@
     "note": "ADDED, and INERT for two reasons, both outside this region's files. (1) ArtBindings skips an option key that VisualOptions.All does not contain, and there is no 'cairnwold_roofs' key in src/Presentation/VisualOptions.cs - registering one is a code change, not a content one. (2) cw_roof_slate and cw_roof_thatch are WHOLE roofs, not panels: cw_house_timber_a already carries a roof node of its own, so a slate village means hiding that node and standing cw_roof_slate in its place, which lands on the same wall plate because both are authored to the same 8.72 x 6.78 m eaves rectangle, ridge 6.50 m, origin at the footprint centre on the ground. Until both are settled these two files are bound to nothing and the game will never draw them - recorded here so that is a known state rather than a surprise."
   },
   "models": {
+    "gs_fold_fluorite": {
+      "category": "landmark",
+      "dims_m": [2.4125, 3.0007, 2.6736],
+      "triangles": 45000,
+      "lods": {},
+      "texture_px": 4096
+    },
+    "gs_foldscar_heart": {
+      "category": "landmark",
+      "dims_m": [7.69, 24.0, 7.9358],
+      "triangles": 11182,
+      "lods": {},
+      "texture_px": 4096
+    },
+    "gs_foldscar_shard_a": {
+      "category": "landmark",
+      "dims_m": [2.3713, 4.7, 3.5205],
+      "triangles": 13534,
+      "lods": {},
+      "texture_px": 4096
+    },
+    "gs_foldscar_shard_b": {
+      "category": "landmark",
+      "dims_m": [2.4036, 3.7, 3.583],
+      "triangles": 13310,
+      "lods": {},
+      "texture_px": 4096
+    },
+    "gs_foldscar_shard_c": {
+      "category": "landmark",
+      "dims_m": [2.4227, 3.6, 3.6141],
+      "triangles": 13112,
+      "lods": {},
+      "texture_px": 4096
+    },
+    "gs_foldscar_slab_a": {
+      "category": "landmark",
+      "dims_m": [10.4865, 18.9, 12.2959],
+      "triangles": 14355,
+      "lods": {},
+      "texture_px": 4096
+    },
+    "gs_quiet_stone_a": {
+      "category": "landmark",
+      "dims_m": [3.2911, 16.0, 4.8839],
+      "triangles": 39956,
+      "lods": {},
+      "texture_px": 4096
+    },
+    "gs_quiet_stone_b": {
+      "category": "landmark",
+      "dims_m": [3.341, 16.0, 3.3067],
+      "triangles": 13816,
+      "lods": {},
+      "texture_px": 4096
+    },
     "note": "ADDED: the kit's own index, so the world side can size a blocker to a model without walking the metas. Every number is the measured GLB, not the generator's intent; the full per-file record is assets/ready/<id>/<id>_meta.json.",
     "cw_house_timber_a": {
       "category": "building",
@@ -3658,6 +3747,8 @@
     "model": "prop_bp_haversack"
   },
   "creatures": {
+    "creature.construct.gate_tender": {"model": "creature_gate_tender", "clips": {"idle": "creature.creature_golem_stan.idle", "walk": "creature.creature_golem_stan.walk", "run": "creature.creature_golem_stan.run", "attack": "creature.creature_golem_stan.attack", "hit": "creature.creature_golem_stan.hit", "death": "creature.creature_golem_stan.death", "ability.creature.tender_strike": "creature.creature_golem_stan.attack"}, "voice": "animated_armour", "flesh": "plate", "steps": {"walk": "walk", "run": "move_heavy"}, "paces": {"walk": 1.41, "run": 4.58}},
+    "creature.construct.gate_warden": {"model": "creature_gate_warden", "clips": {"idle": "creature.creature_golem_stan.idle", "walk": "creature.creature_golem_stan.walk", "run": "creature.creature_golem_stan.run", "attack": "creature.creature_golem_stan.attack", "hit": "creature.creature_golem_stan.hit", "death": "creature.creature_golem_stan.death", "ability.creature.warden_sweep": "creature.creature_golem_stan.attack", "ability.creature.warden_fall": "creature.creature_golem_stan.attack", "ability.creature.warden_grasp": "creature.creature_golem_stan.attack"}, "voice": "animated_armour", "flesh": "plate", "steps": {"walk": "move_heavy", "run": "move_heavy"}, "paces": {"walk": 3.76, "run": 12.2}},
     "creature.beast.hound_pup": {
       "model": "creature_wm_grey_wolf_b",
       "clips": "creature.creature_wm_grey_wolf_b",

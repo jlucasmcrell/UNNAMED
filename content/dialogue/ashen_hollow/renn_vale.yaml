@@ -18,6 +18,29 @@ nodes:
       - id: work
         text: "Is there work here?"
         next: work
+      # Heritage (owner, 2026-10-24, HERITAGE_DESIGN.md): Renn keeps the waystation's book, so he is the Veth keeper - he reads a Veth roll's
+      # open line for What Was Kept, and re-copies a roll a Veth has lost.
+      - id: roll
+        text: "Will you read something for me? It's my family's roll."
+        conditions:
+          - { kind: people, people_ref: people.veth }
+          - { kind: has_item, item_ref: item.heritage.kept_roll }
+          - { kind: quest_state, quest_ref: quest.heritage.what_was_kept, objective: o_roll, is: active }
+        next: kept_roll
+      - id: record
+        text: "The oath's settled. Will you close the line?"
+        conditions:
+          - { kind: people, people_ref: people.veth }
+          - { kind: quest_state, quest_ref: quest.heritage.what_was_kept, objective: o_recorded, is: active }
+        next: roll_recorded
+      - id: recopy
+        text: "I've lost my family's roll."
+        conditions:
+          - { kind: people, people_ref: people.veth }
+          - { kind: has_item, item_ref: item.heritage.kept_roll, not: true }
+        consequences:
+          - { command: transfer_item, item_ref: item.heritage.kept_roll, count: 1, to: player }
+        next: recopied
       - id: leave
         text: "I'll look around."
   again:
@@ -127,6 +150,29 @@ nodes:
         text: "Tell me about Vessmere."
         next: tell_vessmere
 
+      # Heritage (owner, 2026-10-24, HERITAGE_DESIGN.md): Renn keeps the waystation's book, so he is the Veth keeper - he reads a Veth roll's
+      # open line for What Was Kept, and re-copies a roll a Veth has lost.
+      - id: roll
+        text: "Will you read something for me? It's my family's roll."
+        conditions:
+          - { kind: people, people_ref: people.veth }
+          - { kind: has_item, item_ref: item.heritage.kept_roll }
+          - { kind: quest_state, quest_ref: quest.heritage.what_was_kept, objective: o_roll, is: active }
+        next: kept_roll
+      - id: record
+        text: "The oath's settled. Will you close the line?"
+        conditions:
+          - { kind: people, people_ref: people.veth }
+          - { kind: quest_state, quest_ref: quest.heritage.what_was_kept, objective: o_recorded, is: active }
+        next: roll_recorded
+      - id: recopy
+        text: "I've lost my family's roll."
+        conditions:
+          - { kind: people, people_ref: people.veth }
+          - { kind: has_item, item_ref: item.heritage.kept_roll, not: true }
+        consequences:
+          - { command: transfer_item, item_ref: item.heritage.kept_roll, count: 1, to: player }
+        next: recopied
       - id: leave
         text: "Nothing for now."
       - id: story_begin_accounts
@@ -206,6 +252,27 @@ nodes:
       - id: back
         text: "Thank you, Renn."
         next: again
+  roll_recorded:
+    text: "\"Let's see it. ... 'Kept,' in Berrin's hand. Good. Then here's mine.\" He writes, and dries it with his sleeve. \"Your line's closed. You're the one who closed it, so the roll's yours to keep now - properly, I mean. Keeper. It's the only word we Veth use on purpose.\""
+    variants:
+      - conditions: [{ kind: quest_state, quest_ref: quest.heritage.what_was_kept, objective: o_release, is: satisfied }]
+        text: "\"Let's see it. ... 'Released.' Berrin's an honest man; he'd not write that lightly. It's not kept, but it's settled, and settled is a thing a keeper can close.\" He writes. \"There. Your line's closed, and you're the one who closed it. The roll's yours to keep now - properly. Keeper.\""
+    choices:
+      - id: back
+        text: "Thank you, keeper."
+        next: again
+  kept_roll:
+    text: "A Veth roll. You don't see many carried this far out. ... Your last line's open: a name, a word given, and no mark that it was kept. That's a waystation oath - made before a keeper and written twice, once on the giver's roll and once on the receiver's. The other half went into a Cairnwold family's roll, up the north road. They'll have kept it. We Veth are bad at a great many things, but forgetting a debt isn't one of them."
+    choices:
+      - id: back
+        text: "Then I'll go to Cairnwold."
+        next: again
+  recopied:
+    text: "Lost it. Well. A keeper keeps copies, or what is the point of us. ... There - your line as my book has it, every name and the open one at the end. Try not to lose this one. Ink comes up that road twice a year."
+    choices:
+      - id: back
+        text: "Thank you, keeper."
+        next: again
   place:
     text: "Ashen Hollow. A stop on the old road between the quarry and the woods: a bed, a meal and a roof, in that order of reliability. Kera has the smithy up by the waystone. Sel keeps her books at the survey table east of here, where she can watch the Foldscar. The Foldscar has not yet thought of anything to do about it."
     choices:
@@ -219,16 +286,12 @@ nodes:
         text: "I'll ask them."
         next: again
   bed:
-    text: "Bed's five coin, paid to me and not to the road. The door's bolted from inside and nothing gets in but the weather. Say an hour and I'll have you up at it - the world won't wait, but it doesn't need you for it."
+    text: "Bed's five coin, paid to me and not to the road. The door's bolted from inside and nothing gets in but the weather. Take a moment to rest. You'll be fit for the road again; the world keeps its own hours."
     choices:
       - id: take
-        text: "I'll take it. The sixth hour."
+        text: "I'll take a room and rest."
         consequences:
-          - { command: rent_room, hour: 6 }
-      - id: take_late
-        text: "I'll take it. The eighth hour."
-        consequences:
-          - { command: rent_room, hour: 8 }
+          - { command: rent_room }
       - id: not_tonight
         text: "Not tonight."
         next: again

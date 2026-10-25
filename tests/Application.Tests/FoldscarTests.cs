@@ -27,10 +27,10 @@ public class FoldscarTests
     // Sel's table into the Foldscar; the south-east stone by the bible's route round the spider (§8), beyond what it hears.
     private static readonly (double X, double Z) AtSel = (71, 123);
     private static readonly (double X, double Z)[] ToTheFoldscar = { (80, 118), (100, 100), (135, 70) };
-    private static readonly (double X, double Z) AtNorth = (148.5, 78);
-    private static readonly (double X, double Z)[] ToTheSouthWest = { (135, 60), (123.5, 38) };
-    private static readonly (double X, double Z)[] ToTheSouthEast = { (140, 62), (160, 65), (187, 65), (194, 45), (182.5, 31) };
-    private static readonly (double X, double Z)[] ToTheHeart = { (194, 45), (187, 65), (160, 65), (153, 50.2) };
+    private static readonly (double X, double Z) AtNorth = (147.2, 78);
+    private static readonly (double X, double Z)[] ToTheSouthWest = { (135, 60), (124.8, 38) };
+    private static readonly (double X, double Z)[] ToTheSouthEast = { (140, 62), (160, 65), (187, 65), (194, 45), (183.8, 31) };
+    private static readonly (double X, double Z)[] ToTheHeart = { (194, 45), (187, 65), (160, 65), (153, 52.3) };
     private static readonly (double X, double Z)[] ToTavar = { (150, 45), (146.2, 42.8) };
     private static readonly (double X, double Z)[] BackToSel = { (150, 45), (135, 70), (100, 100), (80, 118), AtSel };
 
@@ -47,7 +47,9 @@ public class FoldscarTests
 
     private static string[] Replies(Arena arena) => arena.Simulation.Conversation!.Replies.Select(r => r.Id).ToArray();
 
-    private static (string, bool)[] Switches(Arena arena) => arena.Simulation.Switches.Select(s => (s.Site.Key, s.Set)).ToArray();
+    /// <summary>The Foldscar's own switches (the region has others: the Stopped Gate's).</summary>
+    private static (string, bool)[] Switches(Arena arena) => arena.Simulation.Switches
+        .Where(s => s.Site.FlagId.StartsWith("world.foldscar.", StringComparison.Ordinal)).Select(s => (s.Site.Key, s.Set)).ToArray();
 
     private static bool FoldStands(Arena arena) => arena.Simulation.Barriers.Single().Standing;
 
@@ -113,7 +115,7 @@ public class FoldscarTests
         Assert.Null(Work(arena, "switch.stone_north"));
         Walk(arena, ToTheSouthWest);
         Assert.Null(Work(arena, "switch.stone_southwest"));
-        Walk(arena, (135, 60), (150, 52), (153, 50.2));
+        Walk(arena, (135, 60), (150, 52), (153, 52.3));
         Assert.Equal("It slides out from under your hand. Somewhere in the ring a Quiet Stone is still out of line.", Work(arena, "switch.foldscar_heart"));
         Assert.Equal(0, arena.Simulation.World.GetFlag(Foldscar, Steadied));
 

@@ -25,10 +25,10 @@ public class FactionTests
 
     // FoldscarTests' ways round the Foldscar (content/regions/ashen_hollow.yaml).
     private static readonly (double X, double Z) AtSel = (71, 123);
-    private static readonly (double X, double Z) AtNorth = (148.5, 78);
-    private static readonly (double X, double Z)[] ToTheSouthWest = { (135, 60), (123.5, 38) };
-    private static readonly (double X, double Z)[] ToTheSouthEast = { (140, 62), (160, 65), (187, 65), (194, 45), (182.5, 31) };
-    private static readonly (double X, double Z)[] ToTheHeart = { (194, 45), (187, 65), (160, 65), (153, 50.2) };
+    private static readonly (double X, double Z) AtNorth = (147.2, 78);
+    private static readonly (double X, double Z)[] ToTheSouthWest = { (135, 60), (124.8, 38) };
+    private static readonly (double X, double Z)[] ToTheSouthEast = { (140, 62), (160, 65), (187, 65), (194, 45), (183.8, 31) };
+    private static readonly (double X, double Z)[] ToTheHeart = { (194, 45), (187, 65), (160, 65), (153, 52.3) };
     private static readonly (double X, double Z)[] ToTavar = { (150, 45), (146.2, 42.8) };
     private static readonly (double X, double Z)[] BackToSel = { (150, 45), (135, 70), (100, 100), (80, 118), AtSel };
 

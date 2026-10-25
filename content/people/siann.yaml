@@ -6,6 +6,8 @@ tags: [people]
 name: Siann
 notes: The long view (RACES.md section 3). Playable from 2026-10-24 (owner - four peoples to start). Traits and abilities are RACE_ABILITIES_PROPOSAL.md sections 1-3.3, owner-approved. The suggest names are PROPOSED working names for owner review.
 playable: true
+heritage:
+  - { item_ref: item.heritage.testimony_book, count: 1 }
 card:
   epithet: The long view
   summary: They reach maturity in their late teens and simply stop. They learn slowly, then keep going past where anyone else stops.

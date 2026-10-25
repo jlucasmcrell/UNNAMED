@@ -1,0 +1,14 @@
+id: item.heritage.cost_ledger
+kind: item
+schema: 1
+display_key: item.heritage.cost_ledger.name
+tags: [item]
+name: Ledger of Costs
+notes: "In the game's voice, 'Your band's ledger: each crossing, and what it took. Some of the entries are in your hand, and you do not remember writing them.' The Orenth heritage item (owner-approved option A, HERITAGE_DESIGN.md §2). From the Orenth ledger of costs - what each crossing took, kept so no walker gives more than they can cover (MYTHOLOGY.md §Orenth Society). Flavour only: it does not track the hidden crossing-cost mechanic (RACES.md §4). Heritage (owner, 2026-10-24) - only its own people use, buy, sell, trade or are given it, and its value counts only among them; never dropped, and the people's keeper re-issues a lost one (HERITAGE_DESIGN.md §1.4)."
+category: misc
+stack_max: 1
+weight: 0.3
+value_base: 8
+rarity: common
+no_drop: true
+heritage: people.orenth

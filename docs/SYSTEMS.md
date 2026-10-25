@@ -71,6 +71,8 @@ Phase membership is summarized in §3. Ordering is the required command/mutation
 
 ### S-04 Time & Calendar — split: core in **Phase 1**, calendar in **Phase 2**
 
+**Owner supersession, 2026-10-17/24.** No pause or slow time anywhere; no rest-until, bed or Waystone time skip. The Phase-2 timescale-controls bullet below is historical and must not be implemented. Fixed simulation ticks and authorised real absence catch-up remain. Inn rest restores the character without extra world time.
+
 **Why this is split rather than simply deferred.** Fourteen Phase-1 systems declare a read on S-04 (spawn timing, node regrowth, craft timers, NPC schedule bands, merchant restock, quest deadlines, travel time), so a plain "S-04 is Phase 2" would leave the Phase-1 system set unable to satisfy its own declared dependencies. The resolution is to ship the **clock** in Phase 1 and the **calendar** in Phase 2. `PROTOTYPE.md` independently reaches the same conclusion: "a static `world_time` counter is enough to test respawn."
 
 **Phase 1 — the clock (mandatory, small).**
@@ -110,6 +112,8 @@ Phase membership is summarized in §3. Ordering is the required command/mutation
 - **M3e reconciliation.** Focus returns and Strain ebbs after a pause from the last working (`config.magic`); both are on the progression record's pools, saved since schema 4, with Strain held between zero and the tolerance. As with stamina, the pause itself is not saved: a load starts at rest.
 
 ### S-07 Death & Recovery
+
+**Owner supersession, 2026-10-17/24.** The old player-corpse/recovery and per-player difficulty descriptions below are not implementation instructions. Follow the accepted XP-debt, bound-stone, weakened and companion-downed rules in the current implementation and owner plan; souls/incarnation remain deferred. Do not add a second death model from this historical inventory.
 
 - **Responsibility.** Decide what dying costs, where the character returns, and how remains are recovered.
 - **Owns.** Player death penalty state (temporary injuries, XP debt, durability damage, corpse record with instance ID and cell), respawn point selection.

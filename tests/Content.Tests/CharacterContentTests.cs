@@ -1,10 +1,11 @@
 using UNNAMED.Domain.Character;
+using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 
 namespace UNNAMED.Content.Tests;
 
 /// <summary>
-/// Peoples, Calls and bodies from content (WP2, WP17): the Veth, the four CC-0 Calls and the Veth's five builds of each body type build,
+/// Peoples, Calls and bodies from content (WP2, WP17): the Veth and their heritage, the four CC-0 Calls and the Veth's five builds of each body type build,
 /// and the CHR lint refuses what the creator cannot offer.
 /// </summary>
 public class CharacterContentTests
@@ -136,6 +137,47 @@ public class CharacterContentTests
     [Fact]
     public void APeopleListingANameTwice_IsRefused() =>
         AssertRefused("people/veth.yaml", "  - Teagan Peel", "  - Teagan Peel\n  - Wenna Lind", "lists a name twice");
+
+    [Fact]
+    public void EachPeople_GivesItsHeritageKeepsake_AndNoneOfItIsPower()
+    {
+        var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
+        var setup = CharacterContent.Build(loader);
+        var catalog = ItemContent.BuildCatalog(loader);
+
+        Assert.Equal(new StartingItem("item.heritage.kept_roll", 1, false), Assert.Single(setup.Peoples["people.veth"].Heritage));
+        Assert.Equal(new StartingItem("item.heritage.record_stone", 1, false), Assert.Single(setup.Peoples["people.ondrek"].Heritage));
+        Assert.All(setup.Peoples.Values.SelectMany(p => p.Heritage), line =>
+        {
+            var item = catalog.Get(line.ItemId);
+            Assert.Equal(("misc", true, (EquipSlot?)null, 0), (item.Category, item.NoDrop, item.Slot, item.ArmorValue));
+            Assert.Equal(setup.Peoples.Values.Single(p => p.Heritage.Contains(line)).Id, item.Heritage);
+        });
+    }
+
+    [Fact]
+    public void APlayablePeopleWithNoHeritage_IsRefused() =>
+        AssertRefused("people/veth.yaml", "heritage:\n  - { item_ref: item.heritage.kept_roll, count: 1 }\n", "", "is playable and gives no heritage");
+
+    [Fact]
+    public void AHeritageNamingNoItem_IsRefused() =>
+        AssertRefused("people/veth.yaml", "item_ref: item.heritage.kept_roll", "item_ref: item.heritage.family_sword", "item.heritage.family_sword, which is not an item");
+
+    [Fact]
+    public void AHeritageThatIsWorn_IsRefused() =>
+        AssertRefused("items/heritage/record_stone.yaml", "no_drop: true", "no_drop: true\nequip_slot: amulet", "must be identity, not power");
+
+    [Fact]
+    public void AHeritageThatCanBeDropped_IsRefused() =>
+        AssertRefused("items/heritage/record_stone.yaml", "no_drop: true", "no_drop: false", "must be identity, not power");
+
+    [Fact]
+    public void AHeritageNotMarkedAsItsPeoples_IsRefused() =>
+        AssertRefused("items/heritage/kept_roll.yaml", "heritage: people.veth", "heritage: people.ondrek", "must be marked heritage: people.veth");
+
+    [Fact]
+    public void AnItemMarkedHeritageThatNoPeopleGives_IsRefused() =>
+        AssertRefused("items/trinket/glass_marble.yaml", "rarity: common", "rarity: common\nheritage: people.veth", "which no people gives as its heritage");
 
     [Fact]
     public void TheVeth_HaveFiveBuildsOfEachBodyType_LeanAndAverageOffered_AsContent()

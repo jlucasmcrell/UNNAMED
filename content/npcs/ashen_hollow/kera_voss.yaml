@@ -11,6 +11,7 @@ services: [trade, repair]
 merchant_ref: merchant.ashen_hollow.kera_voss
 dialogue_ref: dialogue.ashen_hollow.kera_voss
 unique: true
+people_ref: people.kal   # content bible §9
 faction_ref: faction.ashen_hollow.wayhold
 # What she teaches (WP9, C10): the forge and the fletching bench by her own lines, free, as she always has; the blade's technique to
 # anyone familiar with a blade, for a fee into her purse. Fees are provisional.

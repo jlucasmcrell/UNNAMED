@@ -1,0 +1,14 @@
+id: item.quest.firstfold_shard
+kind: item
+schema: 1
+display_key: item.quest.firstfold_shard.name
+tags: [item]
+name: Firstfold Shard
+notes: "The one shard of the Stopped Gate's iron Sel Arien hands over once the gate is stilled (FR-3, docs/WORLD_MATERIALS.md Firstfold iron): broken free where its plate broke, never rusts, faintly warm, answers its own gate. A keepsake - no stats, never dropped, never sold, no forge takes it."
+category: quest_item
+stack_max: 1
+weight: 0.2
+value_base: 0
+rarity: common
+no_drop: true
+no_sell: true

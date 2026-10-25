@@ -144,6 +144,8 @@ Note the standard this sets: "Unreal would be easier" is **not** a revisit trigg
 
 ## D-06 — World simulation: four tiers + a global tick
 
+**Owner supersession, 2026-10-17/24 (Wave 0).** The tier architecture remains. The historical restriction below that abstract tiers never change combat or inventory is superseded by the owner-approved deterministic away simulation and each system's declared ownership. Away and live results must agree; this does not authorise restoring the removed NPC needs/utility simulation. Menus, radial controls, travel and inn rest never pause, slow or fast-forward the shared world.
+
 **Decision.** Everything in the world is assigned a simulation tier:
 `Tier A` full simulation (nearby) → `Tier B` simplified regional → `Tier C` abstract schedule/economy → `Tier D` stored state only.
 

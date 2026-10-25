@@ -199,6 +199,12 @@ public sealed record PeopleDefinition(string Id, bool Playable, NameSource Names
 
     /// <summary>Its racial abilities (<c>ability</c> of <c>class: people</c>), by ID, in content order.</summary>
     public ImmutableArray<string> Abilities { get; init; } = ImmutableArray<string>.Empty;
+
+    /// <summary>
+    /// Its heritage: the keepsakes a new character of the people carries over the common kit and the Call's (owner, 2026-10-23). Heritage is
+    /// identity, never power.
+    /// </summary>
+    public ImmutableArray<StartingItem> Heritage { get; init; } = ImmutableArray<StartingItem>.Empty;
 }
 
 /// <summary>

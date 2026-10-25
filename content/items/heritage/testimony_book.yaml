@@ -1,0 +1,14 @@
+id: item.heritage.testimony_book
+kind: item
+schema: 1
+display_key: item.heritage.testimony_book.name
+tags: [item]
+name: Testimony Book
+notes: "In the game's voice, 'Your own record of what you have seen, every line dated. A Siann who misremembers is ruined, so you write it down.' The Siann heritage item (owner-approved option A, HERITAGE_DESIGN.md §2). From the Record - an obsession with accurate testimony; a Siann who misremembers is ruined (MYTHOLOGY.md §Siann Belief). A keepsake, not a tome: it teaches nothing. Heritage (owner, 2026-10-24) - only its own people use, buy, sell, trade or are given it, and its value counts only among them; never dropped, and the people's keeper re-issues a lost one (HERITAGE_DESIGN.md §1.4)."
+category: misc
+stack_max: 1
+weight: 0.4
+value_base: 8
+rarity: common
+no_drop: true
+heritage: people.siann

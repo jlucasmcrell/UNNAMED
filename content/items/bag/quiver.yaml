@@ -8,7 +8,7 @@ notes: "A hide quiver that holds arrows and nothing else - four stacks of them."
 category: bag
 stack_max: 1
 weight: 0.4
-value_base: 25
+value_base: 18
 rarity: common
 bag:
   slots: 4

@@ -17,7 +17,7 @@ namespace UNNAMED.Content;
 /// Suggest draws, each a name a character could take; a Call spends exactly <see cref="CallDefinition.BiasPoints"/> attribute points,
 /// starts exactly <see cref="CallDefinition.SkillCount"/> defined skills at <see cref="CallDefinition.SkillLevel"/>, adds kit that is
 /// one stack each and wears nothing over the common starting kit, and names a defined NPC as its contact. A pack with Calls needs a
-/// playable people. Calls are built only from items, skills and NPCs that already exist (C11): nothing here is new lore.
+/// playable people, and a playable people gives a heritage kit of keepsakes that carry no power. Calls are built only from items, skills and NPCs that already exist (C11): nothing here is new lore.
 /// A body (WP17) names a defined people, a type and a build with their labels, a build order unique within its people and type, its
 /// tape measurements in whole millimetres, its joints' rest offsets and its arm splay (0-30 degrees); every playable people offers at
 /// least one body of each type it defines. A people's traits (RACE_ABILITIES_PROPOSAL.md) net the same creation grant as every other
@@ -154,7 +154,9 @@ public static class CharacterContent
     {
         var groups = AptitudeGroups(loader);
         var abilities = BuildPeopleAbilities(loader);
-        var peoples = loader.GetByKind("people").Values.Select(definition =>
+        var definitions = loader.GetByKind("people");
+        var catalog = definitions.Count == 0 ? ItemCatalog.Empty : ItemContent.BuildCatalog(loader);
+        var peoples = definitions.Values.Select(definition =>
         {
             var map = Read(definition.YamlSource);
             var names = List(map, "suggest_names").Select((name, i) =>
@@ -167,8 +169,13 @@ public static class CharacterContent
             var card = map.GetValueOrDefault("card") is Dictionary<object, object> c
                 ? new PeopleCard(Text(c, "epithet"), Text(c, "summary"), Text(c, "body"), Text(c, "leans_toward"), Text(c, "trade_off"))
                 : null;
-            return new PeopleDefinition(definition.Id, Flag(map, "playable"), new NameSource(names))
+            bool playable = Flag(map, "playable");
+            var heritage = map.ContainsKey("heritage") ? Heritage(definition.Id, map, catalog) : ImmutableArray<StartingItem>.Empty;
+            if (playable && heritage.IsEmpty)
+                throw new FormatException($"{definition.Id} is playable and gives no heritage");
+            return new PeopleDefinition(definition.Id, playable, new NameSource(names))
             {
+                Heritage = heritage,
                 Traits = traits,
                 Card = card,
                 Abilities = abilities.Values.Where(a => a.PeopleId == definition.Id).Select(a => a.Id).ToImmutableArray(),
@@ -177,6 +184,12 @@ public static class CharacterContent
         var grants = peoples.Values.Where(p => p.Traits != PeopleTraits.None).Select(p => p.Traits.GrantTotal).Distinct().ToList();
         if (grants.Count > 1)
             throw new FormatException($"every people's creation grant nets the same points; these net {string.Join(", ", grants)}");
+        // An item marked as heritage is one its people gives, so none is left that no people's keeper can re-issue.
+        foreach (var item in catalog.Definitions.Values.Where(i => i.Heritage is not null))
+        {
+            if (!peoples.TryGetValue(item.Heritage!, out var people) || people.Heritage.All(h => h.ItemId != item.Id))
+                throw new FormatException($"{item.Id} is marked heritage: {item.Heritage}, which no people gives as its heritage");
+        }
         return peoples;
     }
 
@@ -251,6 +264,25 @@ public static class CharacterContent
 
     private static int ParseInt(object? value, string what) =>
         int.TryParse(value as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out int n) ? n : throw new FormatException($"'{what}' must be a whole number");
+
+    /// <summary>
+    /// A people's heritage kit (owner, 2026-10-23 and 2026-10-24): one stack of each keepsake, never worn, marked as that people's heritage
+    /// so it changes hands only within the people, never dropped (the keeper re-issues a lost one), and identity rather than power - no
+    /// slot, armour, weapon, bag or pet - so no people starts stronger than another.
+    /// </summary>
+    private static ImmutableArray<StartingItem> Heritage(string id, Dictionary<object, object> map, ItemCatalog catalog) =>
+        Rows(map, "heritage", id).Select((line, i) =>
+        {
+            var item = new StartingItem(Text(line, "item_ref"), Int(line, "count"), Flag(line, "equip"));
+            var found = catalog.Find(item.ItemId) ?? throw new FormatException($"{id} heritage[{i}] names {item.ItemId}, which is not an item");
+            if (item.Count < 1 || item.Count > found.StackMax)
+                throw new FormatException($"{id} heritage[{i}]: {item.Count} of {item.ItemId} is not one stack (1..{found.StackMax})");
+            if (found.Heritage != id)
+                throw new FormatException($"{id} heritage[{i}]: {item.ItemId} must be marked heritage: {id}");
+            if (item.Equip || found.Slot is not null || found.Weapon is not null || found.ArmorValue != 0 || found.Bag is not null || found.PetCreature is not null || !found.NoDrop)
+                throw new FormatException($"{id} heritage[{i}]: {item.ItemId} must be identity, not power - no slot, armour, weapon, bag or pet, and never dropped");
+            return item;
+        }).ToImmutableArray();
 
     public static ImmutableSortedDictionary<string, CallDefinition> BuildCalls(ContentLoader loader)
     {

@@ -1,0 +1,28 @@
+id: lore.gate_tender
+kind: lore
+schema: 1
+display_key: lore.gate_tender.title
+tags: [lore, creatures]
+title: Gate Tenders
+category: creatures
+plate: "Quick, but open behind: circle it and strike the back where the works run."
+notes: "Written from content/creatures/construct/gate_tender.yaml and docs/FIELD_RUINS.md (owner-approved 2026-10-24): the Stopped Gate's own keepers on the Spill, bloodless, never finishing their work, not the Constructed. In-world, both pages are what studying one teaches."
+pages:
+  - page: 1
+    text: >
+      A gate tender is part of the gate, the way a hinge is part of a door: a frame of the same dark iron, lighter
+      than an armour and quicker, that walks the Spill picking up fallen plates and setting them back in places they
+      no longer fit. It never finishes. Anything that comes onto the top it treats as one more thing out of place,
+      and it moves to set it right. Its face is shelled; its back is open where the works run, and that is where it
+      comes apart.
+    sources:
+      - { how: studied, ref: creature.construct.gate_tender }
+  - page: 2
+    text: >
+      There is nothing inside a tender to tire or to bleed, and what is left of one is its iron, which no forge in
+      the basin will take. Cairnwold folk call them tenders and will tell a stranger they are the gate's own, made
+      with it and for it. They are not people, whatever they look like at dusk, and they are not the made folk of
+      the old accounts. Put one down and the gate stands up another in its own time, because the work is still not
+      done.
+    sources:
+      - { how: studied, ref: creature.construct.gate_tender }
