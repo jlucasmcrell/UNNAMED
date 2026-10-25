@@ -7,6 +7,8 @@ with tempfile.TemporaryDirectory() as directory:
     for text, bad in [
         ("502 assets drawn; 0 withheld or unavailable (greybox stands in)", False),
         ("0 assets drawn from the library at boot; 0 withheld or unavailable (greybox stands in)", True),
+        ("UNNAMED art coverage: 500 requested, 499 resolved, 1 fallbacks, 0 unexpected", True),
+        ("UNNAMED art coverage: 500 requested, 500 resolved, 0 fallbacks, 0 unexpected", False),
         ("502 assets drawn; 24 withheld or unavailable (greybox stands in)", True),
         ("WARNING: UNNAMED art: chicken: no rigged file - drawing greybox", True),
         ("binding npc.renn resolves to a rig placeholder", True),

@@ -16,6 +16,7 @@ def problems(path):
         drawn = re.search(r"(\d+) assets drawn", line)
         count = re.search(r"(\d+) withheld or unavailable \(greybox stands in\)", line)
         if (drawn and int(drawn[1]) == 0) or (count and int(count[1]) > 0) or re.search(
+                r"UNNAMED art coverage:.*?\b[1-9]\d* fallbacks\b", line) or re.search(
                 r"drawing greybox|rig placeholder|binding.*(?:greybox|placeholder)", line, re.I):
             failures.append(line.strip())
     if path.suffix == ".json":
