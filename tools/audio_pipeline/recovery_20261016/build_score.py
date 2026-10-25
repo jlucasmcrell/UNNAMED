@@ -12,14 +12,17 @@ from alib import SR, load, lufs_integrated, true_peak_db
 SRC, ROOT = sys.argv[1], sys.argv[2]
 OUT = os.path.join(ROOT, 'out', 'audio', 'music')
 os.makedirs(OUT, exist_ok=True)
-# cue: source file, integrated target, role. The town theme serves the settlement by day and, quieter, by night.
+# cue: source file, integrated target, role
 CUES = {'mus.title': ('title_v1.mp3', -21, 'the start screen theme'),
         'mus.settlement.day': ('town_waystation_v1.mp3', -23, 'a settlement by day'),
-        'mus.settlement.night': ('town_waystation_v1.mp3', -25, 'a settlement by night'),
+        'mus.settlement.night': ('town_night_v1.mp3', -25, 'a settlement by night'),
         'mus.combat': ('combat_v1.mp3', -20, 'a fight (any engaged creature near the player)'),
         'mus.tension': ('tension_v1.mp3', -26, 'something has noticed the character, before the fight'),
         'mus.explore': ('explore_frontier_v1.mp3', -26, 'a known place on a later visit, now and then'),
         'mus.stinger.discovery': ('discovery_sting_v1.mp3', -21, 'a place discovered: a short phrase over the ducked bed')}
+# The night theme builds through its first half: its loop starts after the build (up to half way in, not a third) and holds its
+# level across the seam, or the full texture drops back to the sparse opening at every wrap.
+LOOP = {'mus.settlement.night': (0.5, 0.2)}
 HOP = 1024
 XF = int(0.5 * SR)
 CONTEXT = 3.0
@@ -38,11 +41,11 @@ def features(x):
     return spec / np.sqrt(spec.shape[1]), flux, level
 
 
-def loop_points(x):
+def loop_points(x, latest_start=0.35, level_weight=0.05):
     """(start, end) samples: the end's surroundings sound most like the start's; the loop keeps most of the track."""
     spec, flux, level = features(x)
     n, w = len(spec), int(CONTEXT * SR / HOP)
-    a_rng = np.arange(w, int(0.35 * n))
+    a_rng = np.arange(w, int(latest_start * n))
     b_rng = np.arange(int(0.6 * n), n - w - int(1.0 * SR / HOP))
     sim = np.zeros((len(a_rng), len(b_rng)), np.float32)
     fz = (flux - flux.mean()) / (flux.std() + 1e-9)
@@ -55,7 +58,7 @@ def loop_points(x):
     sim /= 2 * w; rhythm /= 2 * w
     lev = np.abs(lev_a[:, None] - lev_b[None, :]) / (2 * w)
     length = (b_rng[None, :] - a_rng[:, None]) / n
-    score = sim + 0.5 * rhythm - 0.05 * lev + 0.1 * length
+    score = sim + 0.5 * rhythm - level_weight * lev + 0.1 * length
     i, j = np.unravel_index(np.argmax(score), score.shape)
     a, b = a_rng[i] * HOP, b_rng[j] * HOP
     # Sample-accurate: slide the end within a frame either way to best match the start's waveform (its transients and phase).
@@ -82,7 +85,7 @@ for cue, (name, target, role) in CUES.items():
     loop = not cue.startswith('mus.stinger')
     detail = {}
     if loop:
-        a, b, sim, rhythm = loop_points(x)
+        a, b, sim, rhythm = loop_points(x, *LOOP.get(cue, ()))
         w = np.linspace(0, np.pi / 2, XF)[:, None]
         y = x[a:b].copy()
         y[:XF] = x[a:a + XF] * np.sin(w) + x[b:b + XF] * np.cos(w)
