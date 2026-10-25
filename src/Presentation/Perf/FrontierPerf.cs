@@ -64,7 +64,13 @@ public sealed class FrontierPerf
                 sun.DirectionalShadowMaxDistance=Math.Min(sun.DirectionalShadowMaxDistance,distance);
         }
 
-        if (diagnosticHide == "quality_probe")
+        if (diagnosticHide == "import_lifetime")
+        {
+            if(VisualOptions.Tier is not ("low" or "medium"))throw new ArgumentException("Import lifetime probe is Low/Medium only");
+            _arms=["baseline","after_gc","after_gc_settled"];_applyArm=true;
+            GD.Print("FRONTIER DIAGNOSTIC ONLY: managed import-wrapper collection counterfactual; no production GC change");
+        }
+        else if (diagnosticHide == "quality_probe")
         {
             if(VisualOptions.Tier is not ("low" or "medium"))throw new ArgumentException("Quality probe is Low/Medium only");
             _arms=["baseline"];_applyArm=true;
@@ -157,7 +163,7 @@ public sealed class FrontierPerf
         if (_session.Simulation!.Combat.Defeated) return "failed";
         if (_warming)
         {
-            if (_elapsed < (_heading == 0 || _arms?[_heading] == "baseline_return" ? FirstWarmupSeconds : TurnWarmupSeconds)) return null;
+            if (_elapsed < (_arms?[_heading] == "after_gc_settled" ? 30 : _heading == 0 || _arms?[_heading] == "baseline_return" ? FirstWarmupSeconds : TurnWarmupSeconds)) return null;
             if (_diagnosticHide == "tree_view_lod" && _treeViews.Length == 0)
             {
                 _treeViews = _viewport.GetTree().CurrentScene.FindChildren("*", nameof(GeometryInstance3D), true, false)
@@ -170,7 +176,7 @@ public sealed class FrontierPerf
             _stats.Mark($"steady observation starts at tick {_session.Simulation.WorldTick}");
             return null;
         }
-        if (_elapsed < (_arms is null ? CaptureSeconds : _diagnosticHide == "quality_probe" ? CaptureSeconds : _diagnosticHide == "tree_view_lod" ? 10 : 4)) return null;
+        if (_elapsed < (_arms is null ? CaptureSeconds : _diagnosticHide is "quality_probe" or "import_lifetime" ? CaptureSeconds : _diagnosticHide == "tree_view_lod" ? 10 : 4)) return null;
         string shot = _arms is null ? $"yaw_{_heading * HeadingDegrees:000}" : "arm_" + _arms[_heading] + "_yaw270";
         var body = _controller.Authoritative;
         _armScreenshot = _arms?[_heading];
@@ -200,6 +206,9 @@ public sealed class FrontierPerf
         foreach (var (tree, bias) in _treeViews) tree.LodBias = bias;
         switch (_arms![_heading])
         {
+            case "after_gc":
+                GC.Collect();GC.WaitForPendingFinalizers();GC.Collect();
+                break;
             case "ravine_off": _visibility[0].Node.Visible = false; break;
             case "scatter_off": _visibility[1].Node.Visible = false; break;
             case "sun_shadows_off": foreach (var (sun, _) in _suns) sun.ShadowEnabled = false; break;
@@ -225,6 +234,11 @@ public sealed class FrontierPerf
             File.AppendAllText(Path.Combine(Directory, "attribution_draw_boundary.jsonl"), JsonSerializer.Serialize(new
             {
                 arm = shot, world_tick = _session.Simulation!.WorldTick,
+                managed_bytes = GC.GetTotalMemory(false),
+                engine_video_bytes = Performance.GetMonitor(Performance.Monitor.RenderVideoMemUsed),
+                engine_texture_bytes = Performance.GetMonitor(Performance.Monitor.RenderTextureMemUsed),
+                engine_buffer_bytes = Performance.GetMonitor(Performance.Monitor.RenderBufferMemUsed),
+                object_resource_count = Performance.GetMonitor(Performance.Monitor.ObjectResourceCount),
                 visibility = _visibility.Select(v => new { path = v.Node.GetPath().ToString(), v.Node.Visible }).ToArray(),
                 suns = _suns.Select(v => new { path = v.Light.GetPath().ToString(), v.Light.ShadowEnabled, v.Light.DirectionalShadowMaxDistance }).ToArray(),
                 sdfgi = _environments.Select(v => v.Environment.SdfgiEnabled).ToArray(),
