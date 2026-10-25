@@ -216,9 +216,26 @@ public class PlayerTechniqueTests
             r => Trained(Armed(r, "item.weapon.hunting_bow"), "skill.bow", 15, "ability.bow.aimed_shot"), startTick: 1000, role: "roamer");
         arena.Face(arena.Creature());
         arena.Tick();
+        var shots = arena.Record<ShotLoosed>();
         Assert.Null(arena.Submit(new TechniqueCommand(arena.Player, "ability.bow.aimed_shot")));
         arena.Tick(50);
+        Assert.NotNull(Assert.Single(shots).Target);
         Assert.False(ProgressionEngine.Knows(arena.Simulation.Player.Progression, "ability.bow.steady_draw"));
+    }
+
+    [Fact]
+    public void APressAndReleaseQueuedBeforeTheNextTick_DoNotLeaveAStuckDraw()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Arena.Open(session, Ground, 0, Array.Empty<(double, double)>(),
+            r => Trained(Armed(r, "item.weapon.hunting_bow"), "skill.bow", 15));
+        var shots = arena.Record<ShotLoosed>();
+        arena.Simulation.Enqueue(new AttackCommand(arena.Player) { HoldDraw = true });
+        arena.Simulation.Enqueue(new AttackCommand(arena.Player) { ReleaseDrawOnly = true });
+        arena.Tick(40);
+        Assert.False(arena.Simulation.Combat.HoldingDraw);
+        Assert.Single(shots);
     }
 
     [Fact]

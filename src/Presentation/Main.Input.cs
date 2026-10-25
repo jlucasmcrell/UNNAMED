@@ -92,7 +92,7 @@ public partial class Main
         if (_settings.Capturing || _rcd3Driving)
             return;
         var combat = _session.Simulation!.Combat;
-        if (combat.HoldingDraw && Input.IsActionJustReleased("attack"))
+        if (Input.IsActionJustReleased("attack"))
             _session.Submit(new AttackCommand(_session.Simulation.PlayerId) { ReleaseDrawOnly = true });
         bool modal = Modal;
         bool looting = _loot.Visible || _inventory.Visible && _inventory.Anchor is not null && _inventory.OpenStation is null &&
