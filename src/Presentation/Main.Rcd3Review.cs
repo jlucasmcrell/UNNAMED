@@ -60,7 +60,7 @@ public partial class Main
                 camera.GetNode<OmniLight3D>("CharacterFill").Reparent(source,false);camera.QueueFree();
                 await RunGrandFoldscarReview(directory);GetTree().Quit();return;
             }
-            if(OS.GetEnvironment("OTHERREACH_HERITAGE_REVIEW") is "1" or "step5")
+            if(OS.GetEnvironment("OTHERREACH_HERITAGE_REVIEW") is { Length: > 0 })
             {
                 camera.GetNode<OmniLight3D>("CharacterFill").Reparent(source,false);
                 source.MakeCurrent();camera.QueueFree();

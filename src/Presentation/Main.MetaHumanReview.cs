@@ -93,9 +93,18 @@ public partial class Main
             // A people's route (the race abilities' gate): that people, on the body the run was bound with until the RC binds theirs.
             if (System.Environment.GetEnvironmentVariable("OTHERREACH_REVIEW_PEOPLE") is { Length: > 0 } people)
                 _creator.Use(_creator.Draft with { PeopleId = people, BodyPresetId = CharacterSpec.DefaultBodyPreset });
-            if (!_creator.PressBegin()) throw new InvalidOperationException("Lighting diagnostic Begin refused");
-            _mhReviewStep = 7;
-            _mhReviewNext = Time.GetTicksMsec() + 10000;
+            // The heritage gate shows each people's card, body and Carries before it begins (Main.HeritageReview).
+            if (OS.GetEnvironment("OTHERREACH_HERITAGE_REVIEW") == "peoples")
+            {
+                _mhReviewBusy = true;
+                HeritageCreatorTour(_mhReviewDirectory);
+            }
+            else
+            {
+                if (!_creator.PressBegin()) throw new InvalidOperationException("Lighting diagnostic Begin refused");
+                _mhReviewStep = 7;
+                _mhReviewNext = Time.GetTicksMsec() + 10000;
+            }
         }
         GD.Print("MH_NORMAL_GAME_REVIEW installed " + _mhReviewDirectory);
         if (OS.GetEnvironment("OTHERREACH_OPENING_AUDIO_REVIEW") == "1") StartOpeningReview(_mhReviewDirectory);
