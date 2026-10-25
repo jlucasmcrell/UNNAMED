@@ -58,6 +58,7 @@ public partial class Main
         if (_opening is null) return;
         _opening.Dismiss();
         _opening = null;
+        _loading?.End();
         _title.Layer = _openingTitleLayer;
         _voice.Hush();
         _music.Opening(false);
