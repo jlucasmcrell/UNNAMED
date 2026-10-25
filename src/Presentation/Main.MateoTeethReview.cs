@@ -33,6 +33,9 @@ public partial class Main
                 _controller.SteerWorld(direction,gait,_camera);frame?.Invoke((Time.GetTicksMsec()-began)/1000.0);
                 await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
             }
+            float distance=player.GlobalPosition.DistanceTo(start);
+            if(name=="normal_walk_rear_left" && distance<3 || name=="normal_run_rear_left" && distance<6)
+                throw new InvalidDataException("Requested ordinary movement was blocked: "+name);
             phases.Add(new {name,utc,until=DateTimeOffset.UtcNow,seconds=(Time.GetTicksMsec()-began)/1000.0,
                 travelled_m=player.GlobalPosition.DistanceTo(start),clip=player.ClipState,position=player.GlobalPosition.ToString(),
                 jaw=face.JawWeight,head_lift_influence=lifts[0].Influence,
@@ -64,7 +67,7 @@ public partial class Main
             }
             face.ReviewJawOpen=0;await Phase("prepared_jaw_closed_front",2,Vector3.Zero,Gait.Walk,Near);await Rcd3Shot(directory,"jaw_closed");
             face.ReviewJawOpen=.65f;await Phase("prepared_jaw_open_throat_view_sweep",6,Vector3.Zero,Gait.Walk,Near);await Rcd3Shot(directory,"jaw_open_throat");
-            File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {status="CREATED_PLAYER_BASE_REQUIRES_OWNER_REVIEW",model=player.ModelId,body,hash,head_lift=true,created_name=_session.Simulation!.Player.Identity.Name,
+            File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {status="CREATED_PLAYER_BASE_REQUIRES_OWNER_REVIEW",model=player.ModelId,body,hash,head_lift=true,created_name=_session.Simulation!.Player.Name,
                 phases,limits="Actual normal creator/controller idle/walk/run/camera look/swing. Final two phases are explicitly prepared jaw-open fixtures, not player speech. Shoulder unchanged; DeepSeek owns its fix."},new JsonSerializerOptions{WriteIndented=true}));
         }
         finally
