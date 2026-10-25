@@ -33,9 +33,12 @@ public static class PeopleLooks
     public static float AfterimageStrength(float speed, int ghost) =>
         Math.Clamp((speed - 2.4f) / 2.0f, 0f, 1f) * .38f * (1f - ghost * .34f);
 
-    /// <summary>A lingering decoy ghost's opacity: a little stronger than the nearest trail ghost, fading out over its last third.</summary>
+    /// <summary>
+    /// A lingering decoy ghost's opacity per layer, fading out over its last third. A decoy stands in the open, so its skin,
+    /// shirt and coat layers stack (three at 0.25 make about 0.58): lower than a trail ghost, which the real body half covers.
+    /// </summary>
     public static float DecoyStrength(double age, double seconds) =>
-        .42f * (float)Math.Clamp((seconds - age) / (seconds / 3), 0, 1);
+        .25f * (float)Math.Clamp((seconds - age) / (seconds / 3), 0, 1);
 
     /// <summary>
     /// A wraith-step's silver veil over the body: eases in and out over 0.2 s so it never pops, 0.45 at its height, so the

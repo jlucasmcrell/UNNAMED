@@ -49,9 +49,9 @@ public class PeopleLooksTests
     }
 
     [Theory]
-    [InlineData(0.0, .42f)]
-    [InlineData(.6, .42f)]
-    [InlineData(.85, .189f)]
+    [InlineData(0.0, .25f)]
+    [InlineData(.6, .25f)]
+    [InlineData(.85, .1125f)]
     [InlineData(1.0, 0f)]
     [InlineData(2.0, 0f)]
     public void DecoyHoldsThenFadesOverItsLastThird(double age, float strength) => Assert.Equal(strength, PeopleLooks.DecoyStrength(age, 1.0), 3);
