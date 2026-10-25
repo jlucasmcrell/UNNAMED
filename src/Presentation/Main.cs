@@ -333,6 +333,24 @@ public partial class Main : Node3D
                 GD.Print($"FRONTIER DIAGNOSTIC ONLY: {key}={value}; High/Ultra refused");
             }
         VisualOptions.Apply(GetViewport());
+        // Compare built-in upscalers without changing a player's preferences or tier defaults.
+        if (_options.TryGetValue("--frontier-render-scale", out string? scaleText))
+        {
+            if (!_options.ContainsKey("--frontier-perf") || VisualOptions.Tier is not ("low" or "medium")
+                || !float.TryParse(scaleText, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float scale)
+                || !float.IsFinite(scale) || scale < .5f || scale > 1f)
+                throw new ArgumentException("Render-scale diagnostic requires Low/Medium and scale .5..1");
+            string upscaler = _options.GetValueOrDefault("--frontier-upscaler", "fsr2");
+            GetViewport().Scaling3DMode = upscaler switch
+            {
+                "fsr1" => Viewport.Scaling3DModeEnum.Fsr,
+                "fsr2" => Viewport.Scaling3DModeEnum.Fsr2,
+                _ => throw new ArgumentException("Diagnostic upscaler must be fsr1 or fsr2"),
+            };
+            GetViewport().Scaling3DScale = scale;
+        }
+        else if (_options.ContainsKey("--frontier-upscaler"))
+            throw new ArgumentException("Diagnostic upscaler requires --frontier-render-scale");
         if (_flags.Contains("--spike"))
         {
             AddChild(new SpikeScene(_options.GetValueOrDefault("--perf-out", DefaultPerfOut("spike")), Seconds()));
@@ -1878,7 +1896,7 @@ public partial class Main : Node3D
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--stand" or "--purse" or "--start-items" or "--start-level" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
-                    or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide" or "--frontier-plant-share" or "--frontier-shadow-distance"
+                    or "--front-shots" or "--creator-shots" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide" or "--frontier-plant-share" or "--frontier-shadow-distance" or "--frontier-render-scale" or "--frontier-upscaler"
                     or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"
                     or "--anim-person" or "--anim-compare" or "--anim-phase"
                 && i + 1 < arguments.Length)

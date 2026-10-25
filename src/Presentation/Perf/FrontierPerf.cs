@@ -318,6 +318,7 @@ public sealed class FrontierPerf
             ["actual_taa"] = _viewport.UseTaa.ToString(),
             ["actual_screen_space_aa"] = _viewport.ScreenSpaceAA.ToString(),
             ["actual_render_scale"] = _viewport.Scaling3DScale.ToString(CultureInfo.InvariantCulture),
+            ["actual_upscaler"] = _viewport.Scaling3DMode.ToString(),
             ["visual_options"] = string.Join(",", VisualOptions.All.OrderBy(v => v.Key, StringComparer.Ordinal).Select(v => $"{v.Key}={v.Value}")),
             ["region"] = _session.Setup.Layout.Id,
             ["seed"] = _session.Simulation!.World.WorldSeed.ToString(CultureInfo.InvariantCulture),
