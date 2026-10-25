@@ -281,6 +281,13 @@ public partial class CreatorScreen : CanvasLayer
         return offered;
     }
 
+    /// <summary>Whether this build draws a baked body for <paramref name="people"/>: one of its offered bodies is installed and baked.</summary>
+    private bool Drawn(string people) =>
+        _catalogue.Race(people) is not { HumgenBody: false }
+        && _session.Characters.OfferedBodies(people)
+            .Select(b => _bindings.Bodies.Model(b, model => _art.RiggedFile(model, model + "_rigged.glb") is not null))
+            .Any(model => _catalogue.BakedFor(model) is not null);
+
     private string DefaultBody()
     {
         var offered = OfferedBodies();
@@ -386,9 +393,14 @@ public partial class CreatorScreen : CanvasLayer
         foreach (var people in _session.Characters.PlayablePeoples)
         {
             var race = _catalogue.Race(people.Id);
+            if (BakedOnly && race is not null && !Drawn(people.Id))
+            {
+                section.AddChild(PendingRace(race));
+                continue;
+            }
             var card = UiKit.ListRow("creator.people." + people.Id, Names.Of(_session, people.Id),
                 race is null ? "The touched lineage" : $"{race.Epithet} · {Metres(race.MinStatureMm)}-{Metres(race.MaxStatureMm)}", height: 56);
-            if (race is { HumgenBody: false })
+            if (race is { HumgenBody: false } && !BakedOnly)
                 card.Right.AddChild(PendingChip());
             UiKit.Select(card.Button, people.Id == Draft.PeopleId);
             string id = people.Id;
@@ -477,7 +489,7 @@ public partial class CreatorScreen : CanvasLayer
             buildRow.AddChild(button);
         }
         builds.AddChild(buildRow);
-        if (_catalogue.Baked.Length > 0)
+        if (_catalogue.Baked.Length > 0 && !BakedOnly)
             builds.AddChild(UiKit.Words("Choosing another body type or build starts its look again from that body as baked.", 16, HudStyle.Muted));
         _body.AddChild(builds);
         _body.AddChild(PendingNote());

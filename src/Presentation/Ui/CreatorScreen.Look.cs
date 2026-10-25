@@ -18,6 +18,15 @@ public partial class CreatorScreen
     private CreatorCatalogue _catalogue = CreatorCatalogue.Empty;
     private Label? _pendingWords;
 
+    /// <summary>
+    /// An exported build offers only what it draws (public playtest gate A4): the baked bodies' own choices, no sliders a bake has not caught
+    /// up with, and no people without a baked body. The editor keeps the whole catalogue for the pipeline's work.
+    /// </summary>
+    private static bool BakedOnly => OS.HasFeature("template");
+
+    /// <summary>What a player is told in place of the choices this build cannot draw yet.</summary>
+    private const string LaterWords = "More looks come in later playtests.";
+
     private static CreatorCatalogue ReadCatalogue()
     {
         if (!Godot.FileAccess.FileExists(CataloguePath))
@@ -72,7 +81,7 @@ public partial class CreatorScreen
     private void OutfitStep()
     {
         _body.AddChild(PendingNote());
-        if (_catalogue.Race(Draft.PeopleId) is { } race)
+        if (_catalogue.Race(Draft.PeopleId) is { } race && !BakedOnly)
             _body.AddChild(UiKit.Words($"Fit family: {race.FitFamily.Replace('_', ' ')}. What you start in is fitted to this body; gear found later is fitted by crafters.", 16, HudStyle.Muted));
         _body.AddChild(OptionSection(CreatorChoice.Outfit, "Outfit", "fitted by HumGen"));
         _body.AddChild(OptionSection(CreatorChoice.Footwear, "Footwear", ""));
@@ -96,6 +105,8 @@ public partial class CreatorScreen
     /// <summary>What the preview is: exactly the character, or the baked body with these parts of the look still to bake.</summary>
     private Control PendingNote()
     {
+        if (BakedOnly)
+            return new Control();
         _pendingWords = UiKit.Words(string.Empty, 16, HudStyle.Ember);
         _pendingWords.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         UiKit.Id(_pendingWords, "creator.pending");
@@ -127,6 +138,12 @@ public partial class CreatorScreen
         var row = UiKit.ListRow("creator.people." + race.People, race.Label, $"{race.Epithet} · {Metres(race.MinStatureMm)}-{Metres(race.MaxStatureMm)}",
             HudStyle.Muted, height: 48);
         row.Button.Disabled = true;
+        if (BakedOnly)
+        {
+            row.Button.TooltipText = "Comes in a later playtest.";
+            row.Right.AddChild(UiKit.Chip("Later playtest", HudStyle.Iron, HudStyle.Ash));
+            return row.Button;
+        }
         row.Button.TooltipText = race.HumgenBody ? "Not playable in this build." : "Its body needs its own morphology before HumGen can bake it.";
         row.Right.AddChild(race.HumgenBody ? UiKit.Chip("Not playable yet", HudStyle.Iron, HudStyle.Ash) : PendingChip());
         return row.Button;
@@ -137,6 +154,8 @@ public partial class CreatorScreen
     /// <summary>Height over the people's canon stature range (RACES.md), in centimetres; every scale derives from it (RACE_SCALE_SPEC.md §1).</summary>
     private Control HeightSection()
     {
+        if (BakedOnly)
+            return UiKit.Words($"Height {Metres(Look.StatureMm)}. {LaterWords}", 16, HudStyle.Muted);
         var race = _catalogue.Race(Draft.PeopleId);
         int min = race?.MinStatureMm ?? CharacterAppearance.MinStatureMm, max = race?.MaxStatureMm ?? CharacterAppearance.MaxStatureMm;
         var section = UiKit.Section("Height", race is null ? "" : $"{race.Label}: {Metres(min)}-{Metres(max)}");
@@ -149,6 +168,8 @@ public partial class CreatorScreen
     private Control SliderSection(string panel, string heading, string note)
     {
         var sliders = _catalogue.Sliders.Where(s => s.Panel == panel).ToList();
+        if (BakedOnly)
+            return new Control();
         var section = UiKit.Section(heading, note);
         if (sliders.Count == 0)
         {
@@ -172,10 +193,12 @@ public partial class CreatorScreen
     private Control OptionSection(CreatorChoice choice, string heading, string note, string? none = null)
     {
         var options = _catalogue.Options(choice, Sex);
-        var section = UiKit.Section(heading, note);
+        if (BakedOnly)
+            options = options.Where(o => _catalogue.IsBaked(choice, o.Id, Model)).ToList();
+        var section = UiKit.Section(heading, BakedOnly ? "" : note);
         if (options.Count == 0)
         {
-            section.AddChild(UiKit.Words("The HumGen catalogue is not in this build.", 16, HudStyle.Muted));
+            section.AddChild(UiKit.Words(BakedOnly ? LaterWords : "The HumGen catalogue is not in this build.", 16, HudStyle.Muted));
             return section;
         }
         string? chosen = choice switch
@@ -195,7 +218,7 @@ public partial class CreatorScreen
             shown = options.Where(o => o.Group == group).ToList();
         }
         string kind = choice.ToString().ToLowerInvariant();
-        if (none is not null)
+        if (none is not null && (!BakedOnly || _catalogue.IsBaked(choice, null, Model)))
             section.AddChild(OptionRow($"creator.{kind}.none", none, chosen is null, _catalogue.IsBaked(choice, null, Model), () => Choose(choice, null)));
         foreach (var option in shown)
         {
@@ -203,13 +226,16 @@ public partial class CreatorScreen
             section.AddChild(OptionRow($"creator.{kind}.{id}", option.Label, chosen == id,
                 _catalogue.IsBaked(choice, id, Model), () => Choose(choice, id)));
         }
+        if (BakedOnly)
+            section.AddChild(UiKit.Words(LaterWords, 16, HudStyle.Muted));
         return section;
     }
 
     private Control OptionRow(string id, string name, bool selected, bool baked, Action pressed)
     {
         var row = UiKit.ListRow(id, name, height: 40);
-        row.Right.AddChild(baked ? BakedChip() : PendingChip());
+        if (!BakedOnly)
+            row.Right.AddChild(baked ? BakedChip() : PendingChip());
         UiKit.Select(row.Button, selected);
         row.Button.Pressed += Deferred(() =>
         {
