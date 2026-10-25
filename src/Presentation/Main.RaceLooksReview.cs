@@ -72,7 +72,10 @@ public partial class Main
                     figure.SetStance(CombatStance.AtRest);
                     float yaw = Mathf.DegToRad(Num(s, "yaw", 0));
                     figure.SetMovementDirection(new Basis(Vector3.Up, yaw) * Vector3.Back);
-                    figures[s.GetProperty("id").GetString()!] = (figure, Feet(Num(s, "x", 0), Num(s, "z", 0)), yaw, 0);
+                    float x = Num(s,"x",0), z = Num(s,"z",0);
+                    Vector3 feet = s.TryGetProperty("world",out var absolute) && absolute.GetBoolean()
+                        ? new Vector3(x,ground(x,z),z) : Feet(x,z);
+                    figures[s.GetProperty("id").GetString()!] = (figure, feet, yaw, 0);
                     log.Add(new { step, person, model = body.ValueKind == JsonValueKind.String ? body.GetString() : _bindings.People[person].Model, people = (appearance ?? _bindings.People[person]).PeopleId });
                     break;
                 }
@@ -187,6 +190,7 @@ public partial class Main
                     break;
                 case "clip_end":
                     log.Add(new { step = "clip", name = clip, start_ms = clipStart, end_ms = Time.GetTicksMsec() - (recordingStarted ?? 0) });
+                    File.WriteAllText(Path.Combine(directory,"race_looks_partial.json"),JsonSerializer.Serialize(log));
                     break;
                 case "record_end":
                     File.WriteAllText(Path.Combine(directory, "recording.finished"), "{}");
