@@ -1,0 +1,15 @@
+# ONBOARDING_HINTS.yaml - the stuck player's own hint (1I, SYS-166).
+# Shape matches content/hints/*.yaml exactly: one document per hint.
+# The stuck rule offers this when the player has made no progress for 75 s (30 s with a prompt standing),
+# at most twice a session and four minutes apart. It never fires over words on screen or while the player is down.
+
+id: hint.stuck
+kind: hint
+schema: 1
+display_key: hint.stuck.text
+tags: [hint]
+notes: "Stuck help. Names the two things a lost player most often has not found: the journal and the controls sheet."
+category: help
+trigger: stuck
+order: 0
+text: "Stuck? {key:journal} lists what you were asked to do, and {key:help} lists every key. Nothing here is timed."

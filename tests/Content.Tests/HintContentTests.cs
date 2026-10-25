@@ -43,7 +43,7 @@ public class HintContentTests
         }
         foreach (string category in new[] { "social", "hiring", "identity" })
             Assert.Contains(hints.Values, h => h.Category == category);
-        Assert.Equal(30, HintTriggers.All.Count);
+        Assert.Equal(31, HintTriggers.All.Count);   // 30 moments plus 1I's stuck moment
         Assert.Contains(hints.Values, h => h.Trigger == HintTriggers.PackFull && h.Category == "bags");
     }
 
@@ -110,5 +110,37 @@ public class HintContentTests
         {
             Directory.Delete(root, recursive: true);
         }
+    }
+
+    // ---- the Field Guide (1I): F1 searches this content, so every hint has to be reachable from it ---------------------------
+
+    [Fact]
+    public void TheFieldGuide_CanFindEveryHintByAWordFromItsOwnText()
+    {
+        var hints = HintContent.Build(Load(Path.Combine(RepoPaths.Root(), "content")));
+        Assert.NotEmpty(hints);
+        var entries = hints.Values.Select(h => FieldGuide.Of(h, action => action == "interact" ? "E" : action)).ToArray();
+        Assert.All(entries, e =>
+        {
+            Assert.Equal("Guidance", e.Section);
+            Assert.DoesNotContain('{', e.Title);      // the key tokens are spelled out before the guide shows them
+            Assert.Contains("waits until", e.Body);
+        });
+        foreach (var pair in hints.Keys.Zip(entries))
+        {
+            string word = pair.Second.Title.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .First(w => w.Length >= 4 && w.All(c => char.IsLetter(c) || c == '-'));
+            Assert.True(FieldGuide.Search(entries, word).Contains(pair.Second), $"{pair.First} cannot be found by '{word}'");
+        }
+    }
+
+    [Fact]
+    public void TheStuckMoment_HasItsOwnHint_AndAPlayerWhoIsStuckSeesItFirst()
+    {
+        var hints = HintContent.Build(Load(Path.Combine(RepoPaths.Root(), "content")));
+        var stuck = Assert.Single(hints.Values.Where(h => h.Trigger == HintTriggers.Stuck));
+        Assert.Equal("help", stuck.Category);
+        Assert.Contains("help", HintRules.Actions(stuck.Text));
+        Assert.Equal(stuck.Id, StuckHints.Candidates(hints.Values, new HashSet<string>(StringComparer.Ordinal))[0].Id);
     }
 }
