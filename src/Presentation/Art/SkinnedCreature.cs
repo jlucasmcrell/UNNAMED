@@ -29,6 +29,7 @@ public sealed partial class SkinnedCreature : CreatureBody
     private int _phaseTicks = 1;
     private string? _attackSource;
     private HashSet<string> _clips = new(StringComparer.Ordinal);
+    private readonly List<(BaseMaterial3D Material, float Energy)> _otherfire = new();
 
     /// <summary>The bound creature's skinned body, or null when the bindings or the asset lack it (the greybox is drawn instead).</summary>
     public static SkinnedCreature? Create(ArtLibrary art, ArtBindings bindings, CreatureDefinition definition, string individual)
@@ -43,6 +44,15 @@ public sealed partial class SkinnedCreature : CreatureBody
         var creature = new SkinnedCreature { _model = model, _walkPace = Pace("walk", WalkPace) * size, _runPace = Pace("run", RunPace) * size,
             _clips = look.Clips.Keys.ToHashSet(StringComparer.Ordinal) };
         creature.AddChild(model);
+        // A body that burns with Otherfire (its materials named otherfire_*) gets its own copies, so its blow can flare them alone.
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>().Where(m => m.Mesh is not null))
+            for (int i = 0; i < mesh.Mesh.GetSurfaceCount(); i++)
+                if (mesh.Mesh.SurfaceGetMaterial(i) is BaseMaterial3D { EmissionEnabled: true } fire && fire.ResourceName.StartsWith("otherfire", StringComparison.Ordinal))
+                {
+                    var own = (BaseMaterial3D)fire.Duplicate();
+                    mesh.SetSurfaceOverrideMaterial(i, own);
+                    creature._otherfire.Add((own, own.EmissionEnergyMultiplier));
+                }
         creature._mark.Position = new Vector3(0, ArtGallery.Bounds(model).End.Y * size + 0.4f, 0);
         creature.AddChild(creature._mark);
         return creature;
@@ -154,6 +164,11 @@ public sealed partial class SkinnedCreature : CreatureBody
         float speed = new Vector2(_current.X - _previous.X, _current.Z - _previous.Z).Length() / 0.05f;
         _yaw = Mathf.LerpAngle(_yaw, Facing(creature.Body), 1f - Mathf.Exp(-16f * (float)delta));
         Rotation = new Vector3(0, _yaw, 0);
+        // The telegraph of a body that burns: the fire swells through the windup, holds through the blow, and goes out when it falls.
+        float charge = 1f - (float)creature.PhaseTicksLeft / Math.Max(1, creature.PhaseDurationTicks);
+        float flare = !creature.Alive ? 0f : creature.Phase switch { CombatPhase.Windup => 1f + 4f * charge, CombatPhase.Active => 5f, _ => 1f };
+        foreach (var (material, energy) in _otherfire)
+            material.EmissionEnergyMultiplier = energy * flare;
         if (!creature.Alive)
         {
             _mark.Visible = false;

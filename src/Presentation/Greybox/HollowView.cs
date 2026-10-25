@@ -481,7 +481,7 @@ public partial class HollowView : Node3D
             // that varies a placement must not vary it differently from another. The numbers are unchanged.
             tint = Palette.Shifted(blocker.Id, tint);
             var glow = look.Glow is { } g ? new Color(g.X, g.Y, g.Z) : Colors.Black;
-            Palette.Wear(model, maps, tint, glow, look.GlowEnergy);
+            Palette.Wear(model, maps, tint, glow, look.GlowEnergy, look.EdgeWear);
             Coverage.Resolved("structure_surface", blocker.Id, worn);
         }
         // A model bound with a wind stiffness sways on the world wind (Phase B, B4: the trees).
@@ -570,7 +570,7 @@ public partial class HollowView : Node3D
             // what owns a light's energy and one owner is the point: measured 2026-09-29 at 13.00 h with
             // daylight 1.00, thirteen lantern posts were burning at 1.78 to 2.35 from a scene built once at
             // boot. A prop with neither a flame nor a daylight term is left a plain constant light, untouched.
-            if (Art.FlameFlicker.Lit(look.Emitters) || spec.Daylight > 0f)
+            if (Art.FlameFlicker.Lit(look.Emitters) || spec.Daylight != 0f)
                 Art.FlameFlicker.Attach(light, Art.FlameFlicker.DefaultAmount, spec.Daylight);
         }
     }
@@ -1085,7 +1085,7 @@ public partial class HollowView : Node3D
                 // chimney's smoke - every cottage, and the smithy - keeps its steady lamp, and the seven
                 // cottage lamps stay at exactly 1.6 and 1.3.
                 bool lit = Art.FlameFlicker.Lit(look.Emitters);
-                if (lit || lights[i].Daylight > 0f)
+                if (lit || lights[i].Daylight != 0f)
                     Art.FlameFlicker.Attach(light, lit ? Art.FlameFlicker.DefaultAmount : 0f, lights[i].Daylight);
             }
         }

@@ -24,7 +24,11 @@ public partial class Main
         void Mark(string phase, object? detail = null)
         {
             var row = new { phase, detail, utc = DateTimeOffset.UtcNow, uptime_ms = Time.GetTicksMsec(), world_tick = sim.WorldTick,
-                body = _controller.Authoritative, health = sim.Combat.Health, level = sim.Player.Progression.Level };
+                body = _controller.Authoritative, health = sim.Combat.Health, level = sim.Player.Progression.Level,
+                // The game's own allocations: nvidia-smi on a 24 GB card shows the driver filling what is free, not what the game needs.
+                video_mb = Performance.GetMonitor(Performance.Monitor.RenderVideoMemUsed) / 1048576,
+                textures_mb = Performance.GetMonitor(Performance.Monitor.RenderTextureMemUsed) / 1048576,
+                buffers_mb = Performance.GetMonitor(Performance.Monitor.RenderBufferMemUsed) / 1048576 };
             events.Add(row); File.AppendAllText(Path.Combine(directory, "phases.jsonl"), JsonSerializer.Serialize(row) + "\n");
         }
         CreatureView? Threat(double within) => sim.Creatures

@@ -32,7 +32,8 @@ namespace UNNAMED.Presentation.Art;
 /// lit at dusk, not all day, and the air already runs on this axis - <see cref="Greybox.SkyView"/> scales the
 /// fog's light colour and the volumetric ambient by the same number and adds a night fill below 0.3. A light
 /// authored <c>"daylight": 1</c> is therefore off in full sun and at full strength after dark, and the default,
-/// 0, leaves a hearth or a cottage lamp exactly as it was.
+/// 0, leaves a hearth or a cottage lamp exactly as it was. A negative term is the other way round, a bounce the sun feeds: at
+/// <c>-1</c> it is at full strength in full sun and out after dark (the Spill's east lane, in the Needle's shade at noon).
 ///
 /// SHADOWS. These lights are authored <c>"shadows": false</c>, so this re-renders no shadow map and costs
 /// one node per flame. If a flame light is ever authored with shadows on, this becomes a shadow-map churn
@@ -77,7 +78,7 @@ public partial class FlameFlicker : Node3D
         light.AddChild(new FlameFlicker
         {
             Name = "FlameFlicker", _light = light, _base = light.LightEnergy, _at = light.Position,
-            _amount = amount, _daylight = Mathf.Clamp(daylight, 0f, 1f), _phase = Phase(light.Name.ToString()),
+            _amount = amount, _daylight = Mathf.Clamp(daylight, -1f, 1f), _phase = Phase(light.Name.ToString()),
         });
     }
 
@@ -102,7 +103,9 @@ public partial class FlameFlicker : Node3D
                     + 0.15f * Mathf.Sin(t * 19.7f + _phase * 2.3f);
         // The sun's share, floored at 6 %: a lantern in full sun is not visibly lit, but a light that goes to
         // exactly zero and back is a switch, and the eye reads the last of a flame long before it is out.
-        float sun = 1f - _daylight * (1f - 0.06f) * Greybox.SkyView.DaylightLevel;
+        float sun = _daylight >= 0f
+            ? 1f - _daylight * (1f - 0.06f) * Greybox.SkyView.DaylightLevel
+            : 1f + _daylight * (1f - Greybox.SkyView.DaylightLevel);
         _light.LightEnergy = _base * sun * (1f + _amount * waver);
         _light.Position = _at + new Vector3(0f, Drift * waver, 0f);
     }

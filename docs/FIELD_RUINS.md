@@ -75,10 +75,17 @@ The XP budget is in `FIELD_RUINS_PROPOSAL.md` §3.3.
     - The game uploads a runtime GLB's maps uncompressed (RGBA8), and every piece carries its own copy of the kit's maps.
     - Uncompressed, the 4K Spill took 4,365 MB of texture memory (973 MB without it) and crashed the NVIDIA driver on the walk in from Old Late (2026-10-24).
     - Through the cache, the 120 ruin and keeper maps de-duplicate to 18 BC7 images: **96 MB**.
-    - `D:\Otherreach_Depot\field_ruins_4k` is the final set. `D:\Otherreach_Depot\field_ruins` (2048, keepers 1024) is an interim set that runs uncompressed until the packaged default reads the cache.
-- `tools/field_ruins/build_keepers.py` (Blender 5.2) builds `rigged\creature_gate_tender` (3 m) and `rigged\creature_gate_warden` (8 m) on Stan the Golem's rig (ShyrAssets, CC BY 4.0).
-  - Each block is one Spill piece; the base colour is pulled to dark iron; a violet core sits in the open back. Their maps are capped at 2048 in the final set (`build_keepers.py --depot ...field_ruins_4k\ready --max-texture 2048`).
-  - They play the golem's own six clips (`creature.creature_golem_stan.*`).
+    - `D:\Otherreach_Depot\field_ruins_4k` is the final set. `D:\Otherreach_Depot\field_ruins` (2048) is an interim set that runs uncompressed until the packaged default reads the cache.
+- `tools/field_ruins/build_keepers.py` (Blender 5.2) builds `rigged\creature_gate_tender` (3 m) and `rigged\creature_gate_warden` (8 m, its three back spires to 10 m) on Stan the Golem's rig (ShyrAssets, CC BY 4.0).
+  - Each is a mechanism, not a statue: shingled Firstfold-iron plates over works (pistons, axles, gears at shoulder, elbow, hip and knee), maul fists, a helm with one violet slit, and the core in the open back between gears.
+  - The Otherfire is in the seams between plates, self-lit and casting no light. Those materials are named `otherfire_*`, and `SkinnedCreature` flares them through a blow's windup (up to five times), holds them through the strike and puts them out when the keeper falls: the telegraph.
+  - The script draws the iron's maps (2048) itself and reads nothing else. They play the golem's own six clips (`creature.creature_golem_stan.*`).
+- **Surfaces.** `tools/field_ruins/make_firstfold_iron.py` draws `material_firstfold_iron` (4096, 8 m tile): staggered 2 x 1 m plates each its own tone, seams, rivets, run-off under the seams, the grain running across the light, pitting, bright scuffs and cut tally marks.
+  - Every iron piece wears it over its own relief (`surface`), each kind of piece tinted its own way (`surface_tint`: the Needle darker, the ribs cool, slab and block warm, the colonnade and frames brighter), and every placement is shifted again by its id.
+  - `edge_wear` chips the relief's edges back to bright iron where the material's alpha allows.
+  - The gate, the anchors and the court panel keep their own surfaces.
+- **The east lane** lies between the north rib and the Needle and is in the Needle's shade at noon. A fill hung off the rib puts back the sun's bounce: `"daylight": -1`, full in sun, out after dark.
+- **The camera.** A foe whose body radius is over 0.8 m, engaged within 16 m, lifts the camera (`CameraRig.Lift`, from `Main.GiantLift`). The Warden's 1.6 m raises the eye 2.4 m and lengthens the arm 3.6 m, so the Warden stays in frame and the camera clears the court slope.
 - Otherfire is violet: the anchors' and the Needle's own lights, which go out when their switch is set (`set_goes_dark`). The hum is the fold-hum loop, wide over the Spill and gone once the Needle is set.
 - Nothing here went near a generative tool.
 
@@ -86,7 +93,8 @@ The XP budget is in `FIELD_RUINS_PROPOSAL.md` §3.3.
 1. Copy `D:\Otherreach_Depot\field_ruins_4k\ready\ruin_fs_*` into `<root>\ready\`.
 2. Copy `D:\Otherreach_Depot\field_ruins_4k\rigged\creature_gate_*` into `<root>\rigged\`.
 3. Copy the golem's clips from `C:\Otherreach_Recovery\asset_work\creatures\ready_new\creature_golem_stan\animation\`: `ready\creatures\anim.creature.creature_golem_stan.*.glb` into `<root>\animation\ready\creatures\`, and `clips\anim.creature.creature_golem_stan.*.json` into `<root>\animation\clips\`. Clip records are read from the primary root only.
-4. The shard's icon: `python tools/ui_icons/make_missing_icons.py --out <dir> --install <root>`.
-5. Build the texture cache for the new maps: launch once with the editor binary and `--texture-cache --visual textures=cache` (a headless `--smoke` run does it in about five minutes without the GPU).
-6. Ship with `textures=cache` in the launch's `--visual`. Without it the 4K set is uploaded uncompressed. Until then, use the 2048 interim set from `D:\Otherreach_Depot\field_ruins`.
+4. The iron: copy `D:\Otherreach_Depot\field_ruins_4k\materials\material_firstfold_iron` into `<root>\materials\`.
+5. The shard's icon: `python tools/ui_icons/make_missing_icons.py --out <dir> --install <root>`.
+6. Build the texture cache for the new maps: launch once with the editor binary and `--texture-cache --visual textures=cache` (a headless `--smoke` run does it in about five minutes without the GPU).
+7. Ship with `textures=cache` in the launch's `--visual`. Without it the 4K set is uploaded uncompressed. Until then, use the 2048 interim set from `D:\Otherreach_Depot\field_ruins`.
 

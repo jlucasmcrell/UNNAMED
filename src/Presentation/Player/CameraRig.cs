@@ -48,6 +48,11 @@ public partial class CameraRig : Node3D
 
     public Shoulder Side { get; set; } = Shoulder.Right;
 
+    /// <summary>How far a giant in the fight lifts the view, in metres: the eye rises by it and the arm grows by a little more, so the
+    /// foe's head stays in frame and the camera rides over the ground behind instead of being pressed into it.</summary>
+    public float Lift { get; set; }
+    private float _lift;
+
     /// <summary>How far into a crouch the body is drawn (0-1): the eye comes down with it (the owner's M6 playtest).</summary>
     public float Crouch { get; set; }
 
@@ -149,12 +154,13 @@ public partial class CameraRig : Node3D
         _bobPhase += speed * 2.2f * (float)delta;
         _shake = Mathf.Max(0, _shake - 3.5f * (float)delta);
         float stride = IsFirstPerson ? Mathf.Clamp(speed / 6f, 0, 1) : 0;
-        Position = feet + new Vector3(0, Mathf.Lerp(Avatar.EyeHeight, CrouchedEyeHeight, Crouch), 0) + Disturbance(_shake, _shakeScale, _bobPhase, _bobScale, stride, _clock);
+        _lift = Mathf.Lerp(_lift, IsFirstPerson ? 0 : Lift, 1f - Mathf.Exp(-2.5f * (float)delta));
+        Position = feet + new Vector3(0, Mathf.Lerp(Avatar.EyeHeight, CrouchedEyeHeight, Crouch) + _lift, 0) + Disturbance(_shake, _shakeScale, _bobPhase, _bobScale, stride, _clock);
         Rotation = new Vector3(0, Yaw, 0);
         // In first person the eye sits just ahead of the head's centre, so looking down shows the torso, not the neck.
         float forward = Mathf.Clamp(1f - Distance / FirstPersonBelow, 0, 1) * 0.1f;
         _pitch.Position = new Vector3(_shoulder, 0, -forward);
         _pitch.Rotation = new Vector3(Pitch, 0, 0);
-        _arm.SpringLength = Distance;
+        _arm.SpringLength = Distance + _lift * 1.5f;
     }
 }
