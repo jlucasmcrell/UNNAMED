@@ -4,7 +4,7 @@
 # Every step's exit code is checked, and the log is scanned for GDExtension and export errors: the script exits 1 on the first failure.
 # With -Primary <package asset root>, the score is installed into it and checked (owner ruling 2026-10-24: the music ships with the package).
 # usage: powershell -File export_playtest_clean.ps1 <commit> <out dir> <log> [worktree dir] [-Primary <dir>]
-param([string]$Commit, [string]$Out, [string]$Log, [string]$Wt = 'C:\Otherreach_Build\export_wt', [string]$Primary, [string]$AudioRecovery = 'C:\Otherreach_Recovery\asset_work\audio_recovery')
+param([string]$Commit, [string]$Out, [string]$Log, [string]$Wt = 'C:\Otherreach_Build\export_wt', [string]$Primary, [string]$AudioRecovery = 'C:\Otherreach_Recovery\asset_work\audio_recovery', [string]$Label = 'Playtest 1')
 $ErrorActionPreference = 'Continue'; $ProgressPreference = 'SilentlyContinue'
 $repo = 'C:\Otherreach_Recovery\UNNAMED'
 # $Wt is outside C:\Otherreach_Recovery, which Google Drive syncs: it held the old worktree's files open, and 2 GB of copies would upload.
@@ -99,5 +99,8 @@ if ($Primary) {
     $code = Run 'python' "-P `"$wt\tools\audio_pipeline\recovery_20261016\install.py`" `"$waystone`" `"$Primary`""
     if ($code -ne 0) { Fail "Waystone delivery install exit $code" }
 }
+$sha = (git -C $wt rev-parse HEAD).Trim()
+$code = Run 'python' "-P `"$wt\tools\release\write_public_metadata.py`" `"$Out`" $sha --label `"$Label`""
+if ($code -ne 0) { Fail 'public build id / itch launcher metadata failed' }
 Say (Get-ChildItem $Out | Select-Object Name, Length | Format-Table -AutoSize | Out-String)
 exit 0
