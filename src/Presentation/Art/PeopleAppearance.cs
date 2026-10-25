@@ -222,7 +222,7 @@ public static class PeopleAppearance
     /// </summary>
     private static void WearHairStyle(Node model, ArtLibrary? art, string? asset)
     {
-        var body = model as SkinnedModel ?? model.FindChildren("*", nameof(SkinnedModel), true, false).OfType<SkinnedModel>().FirstOrDefault();
+        var body = model as SkinnedModel ?? model.FindChildren("*", "", true, false).OfType<SkinnedModel>().FirstOrDefault();
         if (body is null)
             return;
         var skeleton = body.Skeleton;
@@ -254,7 +254,7 @@ public static class PeopleAppearance
         foreach (var mesh in worn)
             mesh.QueueFree();
         // The style's cap and cards carry the face's shapes (brows, jaw): the face drives them with the body's own.
-        foreach (var face in model.FindChildren("*", nameof(FaceDriver), true, false).OfType<FaceDriver>())
+        foreach (var face in model.FindChildren("*", "", true, false).OfType<FaceDriver>())
             face.Rebind(body);
     }
 
