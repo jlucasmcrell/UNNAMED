@@ -214,6 +214,43 @@ void fragment() {
         }
     }
 
+    /// <summary>
+    /// Weathered carved stone over a model's own carving (grand scale): its own colour lifted by <paramref name="lift"/> (the power its
+    /// source material raised the colour to - Unreal packs store their stone dark), roughened to matte and never metal, with
+    /// <paramref name="stone"/>'s grain and lichen laid triplanar in the world over it as detail round that material's own mean, a slow
+    /// variation in value the size of a house so a 60 m figure is not one flat tone, and <paramref name="moss"/> grown in patches on the
+    /// faces that look up. The model's own normal and occlusion keep the chisel work.
+    /// </summary>
+    public static void Weathered(Node3D model, Art.WorldMaps stone, Art.WorldMaps moss, float lift = 0.5f)
+    {
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
+        {
+            if (mesh.Mesh is null)
+                continue;
+            for (int s = 0; s < mesh.Mesh.GetSurfaceCount(); s++)
+            {
+                if (mesh.GetActiveMaterial(s) is not BaseMaterial3D own)
+                    continue;
+                var weathered = new ShaderMaterial { Shader = _weatheredShader ??= new Shader { Code = WeatheredCode } };
+                weathered.SetShaderParameter("own_albedo", own.AlbedoTexture);
+                weathered.SetShaderParameter("own_tint", new Vector3(own.AlbedoColor.R, own.AlbedoColor.G, own.AlbedoColor.B));
+                weathered.SetShaderParameter("own_normal", own.NormalTexture);
+                weathered.SetShaderParameter("has_own_normal", own is { NormalEnabled: true, NormalTexture: not null });
+                weathered.SetShaderParameter("own_ao", own.AOTexture);
+                weathered.SetShaderParameter("has_own_ao", own is { AOEnabled: true, AOTexture: not null });
+                weathered.SetShaderParameter("own_rough", own.RoughnessTexture);
+                weathered.SetShaderParameter("has_own_rough", own.RoughnessTexture is not null);
+                weathered.SetShaderParameter("lift", lift);
+                weathered.SetShaderParameter("stone_albedo", stone.Albedo);
+                weathered.SetShaderParameter("stone_tile_m", stone.TileSizeM);
+                weathered.SetShaderParameter("moss_albedo", moss.Albedo);
+                weathered.SetShaderParameter("moss_tile_m", moss.TileSizeM);
+                mesh.SetSurfaceOverrideMaterial(s, weathered);
+            }
+        }
+    }
+
+    private static Shader? _weatheredShader;
     private static Shader? _wornShader;
     private static Shader? _treeShader;
     private static Shader? _leafShader;
@@ -333,6 +370,68 @@ void fragment() {
             }
         }
     }
+
+    private const string WeatheredCode = @"
+shader_type spatial;
+uniform sampler2D own_albedo : source_color, filter_linear_mipmap_anisotropic;
+uniform vec3 own_tint = vec3(1.0);
+uniform sampler2D own_normal : hint_normal, filter_linear_mipmap_anisotropic;
+uniform bool has_own_normal = false;
+uniform sampler2D own_ao : hint_default_white, filter_linear_mipmap_anisotropic;
+uniform bool has_own_ao = false;
+uniform sampler2D own_rough : hint_default_white, filter_linear_mipmap_anisotropic;
+uniform bool has_own_rough = false;
+uniform float lift = 0.5;
+uniform sampler2D stone_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform float stone_tile_m = 2.0;
+uniform sampler2D moss_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform float moss_tile_m = 2.0;
+varying vec3 world_pos;
+varying vec3 world_normal;
+
+vec3 triplanar(sampler2D tex, vec3 p, vec3 n, float tile) {
+    vec3 w = pow(abs(n), vec3(4.0));
+    w /= (w.x + w.y + w.z);
+    return texture(tex, p.zy / tile).rgb * w.x + texture(tex, p.xz / tile).rgb * w.y + texture(tex, p.xy / tile).rgb * w.z;
+}
+
+float hash(vec3 p) { return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }
+
+float vnoise(vec3 p) {
+    vec3 i = floor(p), f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    return mix(mix(mix(hash(i), hash(i + vec3(1, 0, 0)), f.x), mix(hash(i + vec3(0, 1, 0)), hash(i + vec3(1, 1, 0)), f.x), f.y),
+               mix(mix(hash(i + vec3(0, 0, 1)), hash(i + vec3(1, 0, 1)), f.x), mix(hash(i + vec3(0, 1, 1)), hash(i + vec3(1, 1, 1)), f.x), f.y), f.z);
+}
+
+float fbm(vec3 p) { return 0.55 * vnoise(p) + 0.3 * vnoise(p * 2.03 + 11.0) + 0.15 * vnoise(p * 4.1 + 23.0); }
+
+void vertex() {
+    world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+    world_normal = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
+}
+
+void fragment() {
+    vec3 own = pow(texture(own_albedo, UV).rgb * own_tint, vec3(lift));
+    // The stone's grain round its own mean (the smallest mip), greyed a little so the lichen rock's rust does not tint the statue.
+    vec3 grain = triplanar(stone_albedo, world_pos, world_normal, stone_tile_m) / max(textureLod(stone_albedo, vec2(0.5), 12.0).rgb, vec3(0.02));
+    float grain_value = dot(grain, vec3(0.3, 0.59, 0.11));
+    vec3 albedo = own * mix(vec3(1.0), mix(vec3(grain_value), grain, 0.35), 0.7) * (0.8 + 0.4 * fbm(world_pos / 9.0));
+    float up = smoothstep(0.3, 0.8, world_normal.y);
+    float tuft = smoothstep(0.42, 0.62, fbm(world_pos / 2.6 + vec3(7.0)));
+    float mossed = up * tuft * 0.85;
+    vec3 moss = triplanar(moss_albedo, world_pos, world_normal, moss_tile_m) * vec3(0.62, 0.66, 0.42);
+    ALBEDO = mix(albedo, moss, mossed);
+    float ao = has_own_ao ? texture(own_ao, UV).r : 1.0;
+    float rough = has_own_rough ? texture(own_rough, UV).g : 0.8;
+    ROUGHNESS = mix(clamp(rough + 0.25, 0.72, 1.0), 0.95, mossed);
+    METALLIC = 0.0;
+    AO = ao;
+    if (has_own_normal) {
+        NORMAL_MAP = texture(own_normal, UV).rgb;
+    }
+}
+";
 
     private const string WornCode = @"
 shader_type spatial;

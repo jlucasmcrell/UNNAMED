@@ -16,6 +16,7 @@ public sealed partial class OldLateCrown : Node3D
     private const string Slab = "gs_old_late_crown";        // Frozen Norse SM_Arch_kit_03, 3.0 x 4.0 x 1.4 m as authored
     private const float LateSeconds = 1.5f;
     private const float RockDegrees = 0.6f;
+    private const float CrownScale = 1.8f;
     // The trees' wind shader runs its gust and sway on a 3600 s cycle (WindField's CYCLE); this is the same clock.
     private const float Cycle = Mathf.Tau / 3600f;
     private Node3D _slab = null!;
@@ -30,10 +31,10 @@ public sealed partial class OldLateCrown : Node3D
         if (art.ModelWithLods(Slab) is not { } slab)
             return null;
         var authored = giant.GetChildren().OfType<Node3D>().FirstOrDefault()?.GetChildren().OfType<Node3D>().FirstOrDefault() ?? giant;
-        // Laid on its broad face and turned off the shoulders' line: 10.5 m across, 14 m long, 4.8 m thick.
+        // Laid on its broad face and turned off the shoulders' line, narrower than the helm so the head shows round it: 5.4 m across, 7.2 m long, 2.5 m thick.
         slab.RotationDegrees = new Vector3(90, 0, 0);
-        slab.Scale = Vector3.One * 3.5f;
-        var crown = new OldLateCrown { Name = "OldLateCrown", Position = head + new Vector3(0, -0.8f, 0), RotationDegrees = new Vector3(3, 14, -4), _slab = slab };
+        slab.Scale = Vector3.One * CrownScale;
+        var crown = new OldLateCrown { Name = "OldLateCrown", Position = head + new Vector3(0, -0.4f, 0), RotationDegrees = new Vector3(3, 14, -4), _slab = slab };
         crown.AddChild(slab);
         authored.AddChild(crown);
         crown._origin = new Vector2(giant.GlobalPosition.X, giant.GlobalPosition.Z);
@@ -50,6 +51,6 @@ public sealed partial class OldLateCrown : Node3D
         float sway = Mathf.Sin(time * 516f * Cycle) * 0.6f + Mathf.Sin(time * 974f * Cycle) * 0.4f;
         // Tipped about the line across the wind: the leeward edge lifts a hair, a breath after the trees.
         var across = new Vector3(-wind.Z, 0, wind.X).Normalized();
-        _slab.Transform = new Transform3D(new Basis(across, Mathf.DegToRad(RockDegrees * strength * sway)) * Basis.FromEuler(new Vector3(Mathf.Pi / 2, 0, 0)).Scaled(Vector3.One * 3.5f), Vector3.Zero);
+        _slab.Transform = new Transform3D(new Basis(across, Mathf.DegToRad(RockDegrees * strength * sway)) * Basis.FromEuler(new Vector3(Mathf.Pi / 2, 0, 0)).Scaled(Vector3.One * CrownScale), Vector3.Zero);
     }
 }
