@@ -54,6 +54,9 @@ public partial class OpeningCinematic : Node
     /// <summary>Held on its first frame, warmed (a window recorder starting).</summary>
     public bool Holding { get; set; }
 
+    /// <summary>The warm-up has begun: what is drawn now is under the opening's black (the caller builds the title there, so it opens without a hitch).</summary>
+    public Action? Warming { get; set; }
+
     /// <summary>The first frame drawn: the score starts with it.</summary>
     public Action? Started { get; set; }
 
@@ -97,20 +100,21 @@ public partial class OpeningCinematic : Node
             // pole stands: CelestialView) - tipping down across the land to the Foldscar.
             new Shot(0, 10, new[] { Over(at, stone.X + 38, stone.Z + 20, 34), Over(at, stone.X + 56, stone.Z + 12, 42) },
                 new[] { Over(at, stone.X + 80, stone.Z - 300, 230), Over(at, stone.X + 110, stone.Z - 200, 110), Over(at, heart.X, heart.Z, 40) }, 56, 52),
-            // The Foldscar: round its broken heart against the first light in the east, the tear in the gap at the frame's heart.
-            new Shot(10, 22, new[] { Round(at, heart, 205, 104, 32), Round(at, heart, 186, 92, 27), Round(at, heart, 166, 82, 22) },
-                new[] { tear + new Vector3(0, 4, 0), tear, tear - new Vector3(0, 2, 0) }, 46, 40),
+            // The Foldscar: round its broken heart against the first light in the east, the whole 70 m of it and the tear in the gap at the
+            // frame's heart, closing in through the debris.
+            new Shot(10, 22, new[] { Round(at, heart, 150, 165, 20), Round(at, heart, 172, 140, 18), Round(at, heart, 192, 118, 16) },
+                new[] { tear + new Vector3(0, 6, 0), tear + new Vector3(0, 4, 0), tear + new Vector3(0, 2, 0) }, 44, 40),
             // Old Late: low at its foot on the side the morning lights, rising with the trunk to the crown.
             new Shot(22, 31, new[] { Round(at, at.OldLate, -20, 52, 3), Round(at, at.OldLate, -6, 44, 7), Round(at, at.OldLate, 8, 38, 12) },
                 new[] { at.OldLate + new Vector3(0, at.OldLateHeight * 0.25f, 0), at.OldLate + new Vector3(0, at.OldLateHeight * 0.75f, 0) }, 58, 54),
-            // The Needle on the horizon with the sun coming up behind it, over the Spill.
-            new Shot(31, 41, new[] { Round(at, at.Needle, 184, 158, 26), Round(at, at.Needle, 182, 132, 22) },
+            // The Needle over the Spill from the north, the sun coming up at its side and lighting its face.
+            new Shot(31, 41, new[] { Round(at, at.Needle, -104, 150, 30), Round(at, at.Needle, -84, 126, 24) },
                 new[] { at.Needle + new Vector3(0, at.NeedleHeight * 0.45f, 0), at.Needle + new Vector3(0, at.NeedleHeight * 0.5f, 0) }, 38, 33),
             // The Ashen Waystone, close, waking.
             new Shot(41, 50, new[] { Round(at, stone, -28, 6.8f, 1.5f), Round(at, stone, -48, 5.6f, 1.7f), Round(at, stone, -68, 5.0f, 2.0f) },
                 new[] { stone + new Vector3(0, 1.3f, 0), stone + new Vector3(0, 1.2f, 0) }, 44, 40),
             // The road east: up from the stone and out over the frontier toward the morning, faster and faster to the hit.
-            new Shot(50, Hit, new[] { Over(at, road.X, road.Z, 4), Over(at, road.X + 30, road.Z - 10, 22), Over(at, road.X + 80, road.Z - 28, 58) },
+            new Shot(50, Hit, new[] { Over(at, road.X, road.Z, 16), Over(at, road.X + 30, road.Z - 10, 30), Over(at, road.X + 80, road.Z - 28, 60) },
                 new[] { Over(at, road.X + 90, road.Z - 40, 6), Over(at, road.X + 260, road.Z - 70, 20), Over(at, at.Needle.X, at.Needle.Z, 40) }, 54, 62),
         };
     }
@@ -119,8 +123,6 @@ public partial class OpeningCinematic : Node
     {
         AddChild(_camera);
         _camera.MakeCurrent();
-        if (DisplayServer.GetName() != "headless")
-            Input.MouseMode = Input.MouseModeEnum.Hidden;
         StartCamera.Track(this, _camera);
         _layer = new CanvasLayer { Layer = 30 };
         AddChild(_layer);
@@ -175,6 +177,8 @@ public partial class OpeningCinematic : Node
         if (_clock < 0)
         {
             int poses = _shots.Length * WarmAt.Length;
+            if (_warm == 0)
+                Warming?.Invoke();
             if (_warm < poses * 2)
             {
                 var shot = _shots[_warm / 2 / WarmAt.Length];
@@ -194,6 +198,9 @@ public partial class OpeningCinematic : Node
             // The first frame after the warm-up: the opening starts with it, and so does its score.
             _clock = 0;
             Started?.Invoke();
+            GetViewport().GuiReleaseFocus();
+            if (DisplayServer.GetName() != "headless")
+                Input.MouseMode = Input.MouseModeEnum.Hidden;
         }
         _clock += delta;
         if (_leaving)
@@ -264,7 +271,8 @@ public partial class OpeningCinematic : Node
             : (float)Math.Clamp(0.9 * (1 - since / 1.3), 0, 1));
         if (since < 0)
             return;
-        float rise = (float)Math.Clamp((since - 2.2) / 2.0, 0, 1);
+        // The bars are gone before the name rises, so it never crosses them.
+        float rise = (float)Math.Clamp((since - 2.7) / 1.8, 0, 1);
         rise = rise * rise * (3 - 2 * rise);
         float settle = (float)Math.Clamp(since / 0.9, 0, 1);
         float scale = Mathf.Lerp(1.22f, 1.0f, 1 - (1 - settle) * (1 - settle) * (1 - settle));
@@ -273,7 +281,7 @@ public partial class OpeningCinematic : Node
         _name.Scale = new Vector2(scale, scale) * Mathf.Lerp(TitleScreen.RevealScale, 1, rise);
         float height = _name.GetParentControl().Size.Y;
         _name.Position = new Vector2(_name.Position.X, (TitleScreen.MarkTop + Mathf.Lerp(TitleScreen.RevealDrop, 0, rise)) * height);
-        float bars = (float)Math.Clamp((since - 2.0) / 1.8, 0, 1);
+        float bars = (float)Math.Clamp((since - 1.2) / 1.4, 0, 1);
         _top.Position = new Vector2(0, -_top.Size.Y * bars * bars);
         _bottom.Position = new Vector2(0, _bottom.Size.Y * bars * bars);
     }

@@ -55,7 +55,13 @@ public partial class Main
         var opening = new OpeningCinematic(places)
         {
             Name = "Opening", Skippable = SettingsStore.Current.Profile.OpeningSeen, Holding = capture is not null,
-            Started = () => _music.Opening(true),
+            // The title built and drawn once under the black, so its first real showing costs no frame.
+            Warming = () => _title.Open(),
+            Started = () =>
+            {
+                _title.Close();
+                _music.Opening(true);
+            },
             Say = id => _voice.Say(id),
             Pulse = () => _successEffects.Answer(OpeningStone),
             Named = () =>
