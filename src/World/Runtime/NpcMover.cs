@@ -306,6 +306,9 @@ internal sealed partial class NpcSystem
     /// <summary>An NPC opens a door in their way: NPCs open doors and never close them. False when it is no door, or already open.</summary>
     private bool OpenDoor(string key, NpcState npc, long tick)
     {
+        // A placed door (WP-1G): anyone may open one - who may enter is property law, which waits for the crime and law package.
+        if (_navigation.PieceDoor(key) is { } piece)
+            return !piece.DoorOpen && _context.Dispatch(new OperatePieceDoor(piece.InstanceId, npc.InstanceId, npc.Definition.Id, true)) is null;
         if (_navigation.Door(key) is not { } door || _context.IsOpen(door))
             return false;
         if (door.ClosedFootprint.DistanceTo(npc.Body.XMm, npc.Body.ZMm) > _context.Setup.Movement.InteractReachMm)
@@ -339,7 +342,7 @@ internal sealed partial class NpcSystem
             direction = ((int)Math.Round(dx / length * MoveIntent.FullDeflection), (int)Math.Round(dz / length * MoveIntent.FullDeflection));
         }
         var intent = new MoveIntent(direction.X, direction.Z, Gait.Walk, CombatRules.FacingTowards(body.XMm, body.ZMm, target.XMm, target.ZMm));
-        return (Kinematics.Step(body, intent, _context.Setup.Movement, _context.Setup.Layout.Space, Obstacles(npc.Definition.Id), TickMs), landing);
+        return (Kinematics.Step(body, intent, _context.Setup.Movement, _context.SpaceFor(_context.Setup.Layout.SpaceId), Obstacles(npc.Definition.Id), TickMs), landing);
     }
 
     private static int DivRound(long numerator, long denominator) =>
@@ -405,7 +408,7 @@ internal sealed partial class NpcSystem
     private bool InTheWay(string npcId, MoveIntent intent)
     {
         var from = State.Body;
-        var space = _context.Setup.Layout.Space;
+        var space = _context.SpaceFor(_context.Setup.Layout.SpaceId);
         var all = _context.Obstacles();
         var (with, _) = Kinematics.Step(from, State.Posture, intent, _context.Setup.Movement, space, all, TickMs);
         var (without, _) = Kinematics.Step(from, State.Posture, intent, _context.Setup.Movement, space, all.Where(b => b.Id != npcId).ToImmutableArray(), TickMs);

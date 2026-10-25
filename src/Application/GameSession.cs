@@ -286,6 +286,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Techniques = TeachingContent.BuildTechniques(loader),
             Chat = ChatterContent.Build(loader),
             Navigation = NavigationContent.Build(loader),
+            Building = BuildingContent.Build(loader),
             NpcLife = NpcLifeContent.Build(loader, options.RegionId),
             Adventurers = AdventurerContent.Build(loader),
             Lore = LoreContent.Build(loader),

@@ -236,6 +236,11 @@ public class ContentLoader
             _errors.AddRange(navigationErrors);
             success &= navigationErrors.Count == 0;
 
+            // Building: pieces, config.building and the build areas (BLD codes; WP-1G)
+            var buildingErrors = BuildingContent.Validate(this);
+            _errors.AddRange(buildingErrors);
+            success &= buildingErrors.Count == 0;
+
             // NPC life: routines, anchors, jobs, pairs and the rules of needs and arrivals (NPL codes; WP12)
             var lifeErrors = NpcLifeContent.Validate(this);
             _errors.AddRange(lifeErrors);

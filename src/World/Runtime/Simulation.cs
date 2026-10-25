@@ -28,6 +28,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
     public ImmutableSortedDictionary<string, UNNAMED.Domain.Knowledge.LoreEntryDefinition> Lore { get; init; } =
         ImmutableSortedDictionary<string, UNNAMED.Domain.Knowledge.LoreEntryDefinition>.Empty;
 
+    /// <summary>Building (M7, WP-1G): the pieces and building's numbers.</summary>
+    public BuildingSetup Building { get; init; } = BuildingSetup.Empty;
+
     /// <summary>Combat constants, status effects, creatures and where they stand (M3c).</summary>
     public CombatSetup Combat { get; init; } = CombatSetup.Empty;
 
@@ -209,7 +212,7 @@ public sealed record BarrierView(BarrierSite Site, bool Standing);
 /// produce the same state, so a session delivered through the UI and the same session replayed from its command
 /// log end identical (PROTOTYPE.md C3). Everything public here reads or submits; nothing writes state.
 /// </summary>
-public sealed class Simulation
+public sealed partial class Simulation
 {
     private readonly RuntimeState _state;
     private readonly SystemContext _context;
@@ -320,6 +323,7 @@ public sealed class Simulation
         _lore = new LoreSystem(_context, _state.Claim(nameof(LoreSystem), StateSlice.Lore), player.Id);
         _lore.Listen(bus);
         _navigation = new WorldNavigation(_context);
+        _building = new BuildingSystem(_context, _state.Claim(nameof(BuildingSystem), StateSlice.Structures), player.Id, _navigation);
         _npcs = new NpcSystem(_context, _state.Claim(nameof(NpcSystem), StateSlice.Npcs, StateSlice.NpcLife), _navigation, _tiers.Observers,
             () => _movement.Effective);
         _relationships = new RelationshipSystem(_context, _state.Claim(nameof(RelationshipSystem), StateSlice.Relationships));
@@ -387,6 +391,7 @@ public sealed class Simulation
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
         _combat.Seed(player);
+        _building.Populate();
         _npcs.Populate();
         _adventurers.Populate();
         _markets.Populate();
@@ -554,7 +559,7 @@ public sealed class Simulation
 
     /// <summary>Every authored container and what it holds now.</summary>
     public ImmutableArray<ContainerView> Containers =>
-        Setup.AllLayouts.SelectMany(l => l.Containers).Concat(_context.CorpseSites()).Select(_inventory.View).ToImmutableArray();
+        Setup.AllLayouts.SelectMany(l => l.Containers).Concat(_context.CorpseSites()).Concat(_context.PieceChestSites()).Select(_inventory.View).ToImmutableArray();
 
     /// <summary>Items lying in the region.</summary>
     public ImmutableArray<WorldItemView> WorldItems => _inventory.WorldItems();
@@ -839,6 +844,9 @@ public sealed class Simulation
                 EnterSpaceCommand enter => _spaces.Enter(enter),
                 LeaveSpaceCommand leave => _spaces.Leave(leave),
                 MoveItemCommand item => _inventory.Handle(item, WorldTick),
+                PlacePieceCommand piece => _building.Handle(piece, WorldTick),
+                DismantlePieceCommand dismantle => _building.Handle(dismantle, WorldTick),
+                RepairPieceCommand repair => _building.Handle(repair, WorldTick),
                 EquipBagCommand equipBag => _inventory.Handle(equipBag, WorldTick),
                 UnequipBagCommand unequipBag => _inventory.Handle(unequipBag, WorldTick),
                 PlaceStackCommand place => _inventory.Handle(place, WorldTick),
@@ -1156,6 +1164,10 @@ public sealed class Simulation
         ForgetPlayer forget => _creatures.Handle(forget),
         CorpseEmptied emptied => _creatures.Handle(emptied, Now),
         DiscardContainer discard => _inventory.Handle(discard),
+        OpenPieceChest chest => _inventory.Handle(chest),
+        SpillContainer spill => _inventory.Handle(spill),
+        OperatePieceDoor door => _building.Handle(door, Now),
+        DamagePiece damage => _building.Handle(damage, Now),
         ConsumeItem consume => _inventory.Handle(consume, Now),
         ExchangeItems exchange => _inventory.Handle(exchange, Now),
         ExchangeItemBatch batch => _inventory.Handle(batch,Now),

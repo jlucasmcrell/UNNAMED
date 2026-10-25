@@ -131,6 +131,12 @@ public sealed record NpcSite(string NpcId, long XMm, long ZMm, int FacingMdeg);
 /// </summary>
 public sealed record ReadableSite(string Key, string EntryId, int Page, Blocker Body, string Name, string Verb);
 
+/// <summary>
+/// Where the player may build (M7 design §4.16; WP-1G): a box on the building lattice, edges included, and how many pieces may stand in it.
+/// Build areas are layout, not baseline.
+/// </summary>
+public sealed record BuildAreaSite(string Key, long MinXMm, long MinZMm, long MaxXMm, long MaxZMm, int MaxPieces);
+
 /// <summary>The cell-level generation parameters the region declares (WORLD_ARCHITECTURE.md §4).</summary>
 public sealed record RegionGeneration(int TerrainBaseHeightMm, int TerrainAmplitudeMm, int TerrainSamplesPerAxis);
 
@@ -172,6 +178,9 @@ public sealed record RegionLayout(
 
     /// <summary>The region's readables (spec 41): what is written down, and where it stands.</summary>
     public ImmutableArray<ReadableSite> Readables { get; init; } = ImmutableArray<ReadableSite>.Empty;
+
+    /// <summary>Where the player may build (M7, WP-1G).</summary>
+    public ImmutableArray<BuildAreaSite> BuildAreas { get; init; } = ImmutableArray<BuildAreaSite>.Empty;
 
     /// <summary>The region's roads.</summary>
     public ImmutableArray<RoadSite> Roads { get; init; } = ImmutableArray<RoadSite>.Empty;

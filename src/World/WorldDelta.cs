@@ -260,7 +260,7 @@ public sealed record OccupantView(string SlotKey, EntityId? InstanceId, bool Ali
 /// authoritative state). The systems that own node and spawn state receive write access when they
 /// are built; until then only World and its tests can mutate a world.
 /// </summary>
-public sealed class WorldDelta
+public sealed partial class WorldDelta
 {
     private readonly Registry _registry;
     private readonly Dictionary<CellKey, CellBaseline> _baselines = new();
@@ -809,6 +809,7 @@ public sealed class WorldDelta
                 h.Add(occupant.InstanceId?.Value ?? "-").Add(occupant.Alive).Add(occupant.XCm).Add(occupant.ZCm);
             }
         }
+        AddPieces(h, cell);
         return h.Finish();
     }
 

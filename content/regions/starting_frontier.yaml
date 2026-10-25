@@ -149313,6 +149313,12 @@ doors:
   - 678.0
   height_m: 2.1
 containers:
+- key: container.timber_stack   # WP-1G: the building timber, 5 m from the build area's corner (M7's, moved with the hollow)
+  loot_ref: loot.timber_stack
+  position_m:
+  - 483
+  - 718
+  stack_slots: 12
 - key: container.den_cache
   loot_ref: loot.den_cache
   position_m:
@@ -149747,6 +149753,12 @@ barriers:
   - 3
   height_m: 6.0
   prompt: Tavar Orr, half a breath out of true - your hand stops short of him
+
+# Build areas (M7, re-ported by WP-1G): where the player may build - a box on the 3 m lattice, and how many pieces may stand in it. M7's
+# crossing area, moved with the hollow (+399 m, +600 m: the lattice is absolute). It straddles the corner of c_04_06, c_05_06, c_04_07
+# and c_05_07, and is clear of the road.
+build_areas:
+- { key: build_area.hollow_crossing, box_m: [486, 687, 513, 714], max_pieces: 256 }
 
 # Readables (spec 41): what is written down, where it stands, and the lore entry reading it files. A page names one page of an entry; a
 # book (no page) opens every page of its entry the character has not read. Both are read from where a switch is worked.

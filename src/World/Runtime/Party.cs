@@ -335,7 +335,7 @@ internal sealed partial class CompanionSystem
                 site = (node.Site.XMm, node.Site.ZMm);
                 break;
             case HirelingRole.Crafter:
-                if (_context.Setup.Sites(l => l.Stations).FirstOrDefault(p => p.Site.Key == command.SiteKey) is not { Site: { } station })
+                if (_context.StationSites().FirstOrDefault(p => p.Site.Key == command.SiteKey) is not { Site: { } station })
                     return $"there is no station '{command.SiteKey}'";
                 if (command.RecipeId is null || !_context.Setup.Crafting.Recipes.TryGetValue(command.RecipeId, out var recipe))
                     return "a crafter needs a recipe to work";

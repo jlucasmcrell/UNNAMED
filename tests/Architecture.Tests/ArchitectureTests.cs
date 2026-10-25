@@ -72,6 +72,8 @@ public class ArchitectureTests
             "get_" + nameof(WorldDelta.Economy), "get_" + nameof(WorldDelta.Merchants), nameof(WorldDelta.Merchant),   // the economy (WP14)
             "get_" + nameof(WorldDelta.NpcLife),   // NPC life (WP12)
             "get_" + nameof(WorldDelta.Adventurers),   // NPC adventurers (WP13)
+            nameof(WorldDelta.Piece), nameof(WorldDelta.PiecesIn), "get_" + nameof(WorldDelta.Pieces),
+            "get_" + nameof(WorldDelta.StructureSequence),   // placed pieces (WP-1G)
         };
         var exposed = typeof(WorldDelta)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
@@ -133,6 +135,7 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.Experiments),   // how much of a station's experiment set is found, for its panel (WP3a)
             nameof(UNNAMED.World.Runtime.Simulation.HireTerms),   // what a hire would mean - wage, cost, that they can die - for the hiring sheet (WP15a)
             nameof(UNNAMED.World.Runtime.Simulation.Offer),   // what a trader would pay for one of an item now, for the sell buttons (WP14)
+            nameof(UNNAMED.World.Runtime.Simulation.PreviewPlacement),   // the placement ghost: what placing a piece would do, read-only (WP-1G)
             nameof(UNNAMED.World.Runtime.Simulation.Teaching),   // what a teacher offers and on what terms, for the Learn column (WP9)
             nameof(UNNAMED.World.Runtime.Simulation.TechniqueCooldown),   // ticks until a technique is ready, for the quick bar (WP9)
             nameof(UNNAMED.World.Runtime.Simulation.RepairQuote),   // what a trader would charge to mend a piece, for the repair button (WP3b)

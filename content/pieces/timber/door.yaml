@@ -4,4 +4,15 @@ schema: 1
 display_key: piece.door.timber.name
 tags: [piece]
 name: Timber Door
-notes: A building piece of the m7 kit (SYSTEMS_COMPLETENESS_PLAN §2.9), held here as its identity only so a teacher can teach it (WP9; Berrin, by owner decision). WP8 ports the piece itself - footprint, sockets, cost - into this definition.
+notes: A 1.6 m timber leaf hung in a doorway (M7). It blocks while shut; anyone opens it with E, and NPCs open it in their way and never close it (who may enter waits for the crime and law package).
+family: door
+slot: door
+rotations: [0, 1, 2, 3]
+bounds_m: [-0.8, -0.2, 0.8, 0.2]      # local [min_x, min_z, max_x, max_z] at r0: the doorway's opening
+parts:
+  - { box_m: [-0.8, -0.2, 0.8, 0.2], height_m: 2.4, traversal: door }
+sockets:
+  - { type: door_mount, at_m: [0, 0], axis: x }
+cost:
+  - { item_ref: item.material.timber, count: 1 }
+health_max: 120

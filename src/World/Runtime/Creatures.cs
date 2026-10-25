@@ -279,7 +279,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         Blocker BodyOf(NpcState n) => new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm,
             _context.Setup.Movement.BodyRadiusMm, 0);
         return _tickSpaces[space] = new TickSpace(
-            _context.Setup.SpaceFor(space).Blockers.Concat(doors).Where(b => space.IsExterior || b.ClearanceMm < 1800).ToArray(),
+            _context.SpaceFor(space).Blockers.Concat(doors).Where(b => space.IsExterior || b.ClearanceMm < 1800).ToArray(),
             doors, people.Select(BodyOf).ToArray(), companions.Select(BodyOf).ToArray(), companions);
     }
     private readonly Dictionary<string, int> _outsideAttemptTicks = new(StringComparer.Ordinal);
@@ -1337,6 +1337,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
     private const long GridMm = 16_000;
 
     private Dictionary<(SpaceId, long, long), WalkSpace>? _near;
+    private long _nearRevision;
 
     /// <summary>
     /// The walk space round a body, holding only the region's structures within a grid square of it (16 m): what a body that moves at
@@ -1345,9 +1346,11 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// </summary>
     private WalkSpace SpaceNear(CreatureState creature, Body body)
     {
-        var space = _context.Setup.SpaceFor(creature.Site.Space);
+        var space = _context.SpaceFor(creature.Site.Space);
         var square = (creature.Site.Space, Math.DivRem(body.XMm, GridMm).Quotient, Math.DivRem(body.ZMm, GridMm).Quotient);
-        _near ??= new Dictionary<(SpaceId, long, long), WalkSpace>();
+        // A placed or removed piece changes the structures (WP-1G): the squares are gathered again.
+        if (_near is null || _nearRevision != State.World.StructureSequence)
+            (_near, _nearRevision) = (new Dictionary<(SpaceId, long, long), WalkSpace>(), State.World.StructureSequence);
         if (_near.TryGetValue(square, out var near))
             return near;
         long x0 = (square.Item2 - 1) * GridMm, z0 = (square.Item3 - 1) * GridMm, x1 = (square.Item2 + 2) * GridMm, z1 = (square.Item3 + 2) * GridMm;

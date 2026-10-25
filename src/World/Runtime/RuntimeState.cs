@@ -129,6 +129,12 @@ public enum StateSlice
 
     /// <summary>The animals that travel with the character (spec 43). Saved with the player (schema 36).</summary>
     Pets,
+
+    /// <summary>
+    /// Player-placed pieces (M7, re-ported by WP-1G): the rows and the structure sequence in the world delta, and what is derived from
+    /// them. Not the region YAML's <c>structures:</c>, which are authored blockers.
+    /// </summary>
+    Structures,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -148,7 +154,7 @@ internal sealed class SliceOwner
 /// The mutable state behind a <see cref="Simulation"/>. It holds records and makes no decisions: every write
 /// names its owner, and a writer that does not own the slice is a bug that fails loudly.
 /// </summary>
-internal sealed class RuntimeState
+internal sealed partial class RuntimeState
 {
     private readonly Dictionary<StateSlice, string> _owners = new();
 

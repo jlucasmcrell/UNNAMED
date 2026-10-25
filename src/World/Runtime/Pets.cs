@@ -876,7 +876,7 @@ internal sealed partial class PetSystem : IAbstractAdvance
             return pet;
         var intent = new MoveIntent((int)Math.Round(dx / length * MoveIntent.FullDeflection), (int)Math.Round(dz / length * MoveIntent.FullDeflection),
             gait, CombatRules.FacingTowards(from.XMm, from.ZMm, toXMm, toZMm));
-        var moved = Kinematics.Step(from, intent, _context.Setup.Movement, _context.Setup.SpaceFor(State.Space), Obstacles(), TickMs);
+        var moved = Kinematics.Step(from, intent, _context.Setup.Movement, _context.SpaceFor(State.Space), Obstacles(), TickMs);
         double expected = _context.Setup.Movement.SpeedMmPerSecond(gait) * TickMs / 1000.0;
         bool headway = Distance(moved, from) >= expected * 0.3;
         return pet with { Body = moved, StuckTicks = headway ? 0 : pet.StuckTicks + 1 };
@@ -896,7 +896,7 @@ internal sealed partial class PetSystem : IAbstractAdvance
     }
 
     private bool Walled(Body from, Body to) =>
-        _context.Setup.SpaceFor(State.Space).Blockers.Concat(_context.ClosedDoors())
+        _context.SpaceFor(State.Space).Blockers.Concat(_context.ClosedDoors())
             .Where(b => State.Space.IsExterior || b.ClearanceMm < 1800).Any(b => b.Crosses(from.XMm, from.ZMm, to.XMm, to.ZMm));
 
     /// <summary>The body turned towards a facing by at most 360 degrees a second, as every body turns here.</summary>

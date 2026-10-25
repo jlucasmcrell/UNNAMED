@@ -79,7 +79,8 @@ internal sealed class WorldNavigation
 
     public NavConfig Config => _context.Setup.Navigation;
 
-    public NavGrid Grid => _grid ??= NavigationLayout.Build(_context.Setup.Layout, Config, Counters);
+    public NavGrid Grid => _grid ??= NavGrid.Build(Config, NavigationLayout.Bounds(_context.Setup.Layout),
+        NavigationLayout.TileKeys(_context.Setup.Layout), CurrentInputs(), Counters);
 
     /// <summary>Whether a grid has been built yet: views and tests only.</summary>
     public bool Built => _grid is not null;
@@ -101,25 +102,55 @@ internal sealed class WorldNavigation
     public NavAgent Person => new(Config.PersonClass, true);
 
     /// <summary>Whether an edit keeps the world navigable: the one rule, on the grid as it stands. For building (WP8).</summary>
-    public NavEditVerdict CheckEdit(ImmutableArray<NavInput> addSolids, ImmutableArray<NavInput> addDoors, ImmutableArray<NavProtectedPoint> points)
+    public NavEditVerdict CheckEdit(ImmutableArray<NavInput> addSolids, ImmutableArray<NavInput> addDoors, ImmutableArray<NavProtectedPoint> points) =>
+        CheckEdit(addSolids, addDoors, points, Scratch, Counters);
+
+    /// <summary>The same check with the scratch and counter sink given - the command path's, or a preview's own and none. It never writes the grid.</summary>
+    public NavEditVerdict CheckEdit(ImmutableArray<NavInput> addSolids, ImmutableArray<NavInput> addDoors, ImmutableArray<NavProtectedPoint> points,
+        NavScratch scratch, NavCounterSink? counters)
     {
-        var verdict = NavEditCheck.Check(Grid, Config, Scratch, addSolids, addDoors, points);
-        Counters.CountEditCheck(verdict.Ok ? null : verdict.Rule, verdict.NodesFlooded);
+        var verdict = NavEditCheck.Check(Grid, Config, scratch, addSolids, addDoors, points);
+        counters?.CountEditCheck(verdict.Ok ? null : verdict.Rule, verdict.NodesFlooded);
         return verdict;
+    }
+
+    /// <summary>
+    /// The inputs: the authored ones, every placed solid part, and every placed door's leaf as a gate keyed by its piece (WP-1G, M7 design
+    /// §3.5), in canonical order.
+    /// </summary>
+    public ImmutableArray<NavInput> CurrentInputs() =>
+        NavigationLayout.AuthoredInputs(_context.Setup.Layout, Config)
+            .AddRange(_context.State.StructureFootprints.Select(f => f.Class == TraversalClass.Solid
+                ? new NavInput(NavInputKind.Solid, f.Box(), null)
+                : new NavInput(NavInputKind.Door, f.Box(), f.PieceId.Value)))
+            .Sort(NavInputOrder.Instance);
+
+    /// <summary>A structure change (WP-1G): the tiles the changed area touches are restamped from the current inputs; returns them and the nodes recomputed.</summary>
+    public (ImmutableArray<NavTileKey> Tiles, long Nodes) Restamp(NavRect changed)
+    {
+        _grid = Grid.With(changed, CurrentInputs(), Counters, out var tiles, out long nodes);
+        return (tiles, nodes);
     }
 
     public DoorSite? Door(string key) => _doors.GetValueOrDefault(key);
 
-    /// <summary>A gate's state now: a door's flag, a barrier's lift.</summary>
+    /// <summary>A gate's state now: a door's flag, a placed door's row, a barrier's lift.</summary>
     public bool IsGateOpen(NavInput gate) => gate.Kind switch
     {
+        NavInputKind.Door when PieceDoor(gate.GateKey!) is { } row => row.DoorOpen,
         NavInputKind.Door => _doors.TryGetValue(gate.GateKey!, out var door) && _context.IsOpen(door),
         NavInputKind.Barrier => _barriers.TryGetValue(gate.GateKey!, out var barrier) && _context.IsLifted(barrier),
         _ => false,
     };
 
+    /// <summary>A placed door by its gate key, or null for an authored door's.</summary>
+    public PieceRecord? PieceDoor(string key) =>
+        key.StartsWith("pce_", StringComparison.Ordinal) && EntityId.TryParse(key, out var id) ? _context.State.World.Piece(id) : null;
+
     public ImmutableArray<NavGateView> Gates() =>
         _context.Setup.Layout.Doors.Select(d => new NavGateView(d.Key, "door", d.ClosedFootprint, _context.IsOpen(d)))
+            .Concat(_context.State.StructureFootprints.Where(f => f.Class == TraversalClass.Door)
+                .Select(f => new NavGateView(f.PieceId.Value, "door", f.Box(), PieceDoor(f.PieceId.Value)?.DoorOpen == true)))
             .Concat(_context.Setup.Layout.Barriers.Select(b => new NavGateView(b.Key, "barrier", b.Footprint, _context.IsLifted(b))))
             .ToImmutableArray();
 }

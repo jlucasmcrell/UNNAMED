@@ -43,7 +43,7 @@ internal sealed record TellOfPlace(string LocationId) : InternalCommand;
 internal sealed record TellLore(EntityId Actor, string EntryId, string DialogueId) : InternalCommand;
 
 /// <summary>What systems share: the state, the rules, the event bus, and the internal command route.</summary>
-internal sealed class SystemContext
+internal sealed partial class SystemContext
 {
     private readonly Dictionary<object, SpaceId> _siteSpaces = new();
 
@@ -159,11 +159,13 @@ internal sealed class SystemContext
         CellKey.OfInterior(space, xMm / 1000.0, zMm / 1000.0);
 
     /// <summary>Closed doors and standing barriers: the footprints whose passability is a world flag.</summary>
-    public ImmutableArray<Blocker> ClosedDoors(SpaceId? space = null) => Setup.LayoutFor(space ?? State.Space).ClosedDoors(IsOpen, IsLifted);
+    public ImmutableArray<Blocker> ClosedDoors(SpaceId? space = null) =>
+        WithPieceLeaves(space ?? State.Space, Setup.LayoutFor(space ?? State.Space).ClosedDoors(IsOpen, IsLifted));
 
     /// <summary>An authored container, or a corpse lying where its creature fell (M3d).</summary>
     public ContainerSite? FindContainer(string key) =>
-        Setup.LayoutFor(State.Space).FindContainer(key) ?? CorpseSites().FirstOrDefault(s => s.Key == key) ?? MerchantSites().FirstOrDefault(s => s.Key == key);
+        Setup.LayoutFor(State.Space).FindContainer(key) ?? CorpseSites().FirstOrDefault(s => s.Key == key) ?? MerchantSites().FirstOrDefault(s => s.Key == key)
+        ?? PieceChest(key);
 
     public SpaceId ContainerSpace(ContainerSite site) =>
         Setup.Sites(l => l.Containers).FirstOrDefault(p => p.Site.Key == site.Key).Layout?.SpaceId
@@ -207,8 +209,10 @@ internal sealed class SystemContext
     public bool Walled(long x0, long z0, long x1, long z1)
     {
         bool Blocks(Blocker b) => (State.Space.IsExterior || b.ClearanceMm < 1800) && b.Crosses(x0, z0, x1, z1);
-        foreach (var blocker in Setup.SpaceFor(State.Space).Blockers)
+        foreach (var blocker in SpaceFor(State.Space).Blockers)
             if (Blocks(blocker)) return true;
+        foreach (var leaf in PieceLeaves(State.Space))
+            if (Blocks(leaf)) return true;
         var layout = Setup.LayoutFor(State.Space);
         foreach (var door in layout.Doors)
             if (!IsOpen(door) && Blocks(door.ClosedFootprint)) return true;
@@ -318,7 +322,7 @@ internal sealed class MovementSystem
         var (phase, _) = combat.Action.PhaseAt(tick, _context.Setup.Combat.Constants);
         if (combat.Defeated || phase != CombatPhase.Idle || combat.Blocking)
             return "busy";
-        if (posture.Stance == Stance.Crouched && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Setup.SpaceFor(_context.State.Space)))
+        if (posture.Stance == Stance.Crouched && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.SpaceFor(_context.State.Space)))
             return "no room to stand";
         _context.State.SetPosture(_owner, new Posture(Stance.Standing, Airborne: true, AirMs: 0));
         _context.Events.Publish(new Jumped(_player, tick));
@@ -343,7 +347,7 @@ internal sealed class MovementSystem
             return "in the air";
         if (_context.State.PlayerCombat.Action.PhaseAt(tick, _context.Setup.Combat.Constants).Phase == CombatPhase.Dodge)
             return "mid-dodge";
-        if (stance == Stance.Standing && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.Setup.SpaceFor(_context.State.Space)))
+        if (stance == Stance.Standing && !Kinematics.CanStand(_context.State.Body, _context.Setup.Movement, _context.SpaceFor(_context.State.Space)))
             return "no room to stand";
         _context.State.SetPosture(_owner, posture with { Stance = stance });
         _context.Events.Publish(new StanceChanged(_player, stance, tick));
@@ -400,7 +404,7 @@ internal sealed class MovementSystem
         }
 
         var posture = _context.State.Posture;
-        var (to, next) = Kinematics.Step(from, posture, intent, rules, _context.Setup.SpaceFor(_context.State.Space), _context.Obstacles(), _context.Setup.TickMilliseconds);
+        var (to, next) = Kinematics.Step(from, posture, intent, rules, _context.SpaceFor(_context.State.Space), _context.Obstacles(), _context.Setup.TickMilliseconds);
         if (next != posture)
             _context.State.SetPosture(_owner, next);
         if (to == from)
@@ -439,6 +443,11 @@ internal sealed class InteractionSystem
     {
         if (command.Actor != _player)
             return $"unknown actor {command.Actor}";
+        // A placed door first (M7, WP-1G): its toggle is the building system's.
+        if (command.TargetKey.StartsWith("pce_", StringComparison.Ordinal))
+            return EntityId.TryParse(command.TargetKey, out var piece)
+                ? _context.Dispatch(new OperatePieceDoor(piece, _player, null, null))
+                : "there is no such door";
         // The site's own layout, and only usable from inside its space: local metres overlap between spaces, so a
         // proximity test without a space test would reach across the hill.
         if (_context.Setup.Sites(l => l.Switches).FirstOrDefault(p => p.Site.Key == command.TargetKey) is { Site: { } switchSite, Layout: var switchHome })

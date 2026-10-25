@@ -206,7 +206,7 @@ internal sealed partial class CraftingSystem
             return $"{recipe.Id} is not known";
         var body = State.Body;
         // The best station of its kind within reach: an upgraded one is what masterwork needs.
-        if (_context.Setup.Sites(l => l.Stations).Where(p => p.Layout.SpaceId == State.Space && p.Site.Kind == recipe.StationKind && InReach(p.Site))
+        if (_context.StationSites().Where(p => p.Layout.SpaceId == State.Space && p.Site.Kind == recipe.StationKind && InReach(p.Site))
                 .OrderByDescending(p => p.Site.Grade).ThenBy(p => p.Site.Key, StringComparer.Ordinal)
                 .Select(p => p.Site).FirstOrDefault() is not { } station)
             return $"no {recipe.StationKind} in reach";
@@ -272,7 +272,7 @@ internal sealed partial class CraftingSystem
             return $"unknown actor {command.Actor}";
         if (State.PlayerCombat.Defeated)
             return "dead";
-        if (_context.Setup.Sites(l => l.Stations).FirstOrDefault(p => p.Layout.SpaceId == State.Space && p.Site.Key == command.StationKey) is not { Site: { } station })
+        if (_context.StationSites().FirstOrDefault(p => p.Layout.SpaceId == State.Space && p.Site.Key == command.StationKey) is not { Site: { } station })
             return $"there is no station '{command.StationKey}'";
         if (!InReach(station))
             return $"{station.Key} is out of reach";
@@ -310,7 +310,7 @@ internal sealed partial class CraftingSystem
     {
         int count = Setup.Constants.ExperimentsPerStation.GetValueOrDefault(station.Kind);
         var candidates = Setup.Recipes.Values.Where(r => r.Experiment && r.StationKind == station.Kind).Select(r => r.Id);
-        var home = _context.Setup.Sites(l => l.Stations).First(p => p.Site == station).Layout;
+        var home = _context.StationSites().First(p => p.Site == station).Layout;
         var channel = RngChannel.Open(State.World.WorldSeed, _context.CellOfSite(home.SpaceId, station.XMm, station.ZMm), "experiment", station.Key);
         return CraftingRules.ExperimentSet(candidates, count, sample => channel.UInt64(sample) / SampleScale);
     }

@@ -475,6 +475,28 @@ public static class WorldContent
             }
             Check(barriers.Select(b => b.Key).Distinct(StringComparer.Ordinal).Count() == barriers.Count, "WLD014", "two barriers share a key");
 
+            // Build areas (M7, WP-1G): where the player may build, outdoors only. Their placement against the lattice and what they must keep
+            // clear of is BLD007's; here, their shape.
+            var areas = ImmutableArray.CreateBuilder<BuildAreaSite>();
+            foreach (var (entry, i) in (map.ContainsKey("build_areas") ? List(map, "build_areas") : new List<object>()).Select((a, i) => (a, i)))
+            {
+                var site = entry as Dictionary<object, object> ?? throw new FormatException($"build_areas[{i}] must be a map");
+                string key = Text(site, "key");
+                var box = List(site, "box_m");
+                if (box.Count != 4)
+                    throw new FormatException($"{key}: box_m is [min_x, min_z, max_x, max_z]");
+                var area = new BuildAreaSite(key, ToMm(box[0], key), ToMm(box[1], key), ToMm(box[2], key), ToMm(box[3], key), Int(site, "max_pieces"));
+                Check(key.StartsWith("build_area.", StringComparison.Ordinal), "WLD017", $"build area key '{key}' must start with 'build_area.'");
+                Check(spaceId.IsExterior, "WLD017", $"{key}: building is outdoors only");
+                Check(area.MinXMm < area.MaxXMm && area.MinZMm < area.MaxZMm, "WLD017", $"{key}: box_m min must be below max");
+                Check(area.MinXMm >= minX && area.MinZMm >= minZ && area.MaxXMm <= maxX && area.MaxZMm <= maxZ
+                      && Covered(cells, spaceId, area.MinXMm, area.MinZMm, area.MaxXMm, area.MaxZMm), "WLD017",
+                    $"{key} must lie inside the walkable bounds and the region's cells");
+                Check(area.MaxPieces >= 1, "WLD017", $"{key} must allow at least one piece (max_pieces)");
+                areas.Add(area);
+            }
+            Check(areas.Select(a => a.Key).Distinct(StringComparer.Ordinal).Count() == areas.Count, "WLD017", "two build areas share a key");
+
             // Readables (spec 41): something written, standing where it can be read. Each names the lore entry it files - one page of it, or
             // the whole book (page 0) - and stands on its own footprint, so the reach to it is the reach to a switch.
             var readables = ImmutableArray.CreateBuilder<ReadableSite>();
@@ -606,6 +628,7 @@ public static class WorldContent
                 Npcs = npcs.ToImmutable(),
                 Switches = switches.ToImmutable(),
                 Barriers = barriers.ToImmutable(),
+                BuildAreas = areas.ToImmutable(),
                 Readables = readables.ToImmutable(),
                 // The space this region's coordinates belong to: the exterior for the world's regions, its own
                 // for an interior (M8 D10). Everything derived from a site in this layout follows it.
