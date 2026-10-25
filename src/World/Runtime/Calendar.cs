@@ -109,8 +109,8 @@ public sealed record SeasonRules(
     ImmutableSortedDictionary<Season, ImmutableArray<(string MarketId, string ItemId, long Delta)>> MarketFlows)
 {
     /// <summary>
-    /// Provisional until the owner settles the tally-to-season mapping: spring from the 1st tally, summer from the 4th, autumn from the 7th,
-    /// winter from the 10th through the Hollow Day. Only the Hollow Day is a window: it is the one dated day the canon has.
+    /// The owner's mapping (approved 2026-10-25): spring from the 1st tally, summer from the 4th, autumn from the 7th, winter from the 10th
+    /// through the Hollow Day. Only the Hollow Day is a window: it is the one dated day the canon has.
     /// </summary>
     public static readonly SeasonRules Default = new(ImmutableArray.Create(0, 42, 84, 126),
         ImmutableArray.Create(new CalendarWindow("window.hollow_day", CalendarWindow.Festival, 182, 182)),

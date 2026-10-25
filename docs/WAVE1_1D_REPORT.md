@@ -6,7 +6,7 @@ Branch `claude/wave1-1D`, cut from `e38fcdf4` on `playtest/humgen-main` (the bas
 
 | Row | What it is now | Status |
 |---|---|---|
-| WLD-33 Seasons | `Season` (spring, summer, autumn, winter) is a function of the calendar day, one cycle per Reckoning. Its start days live in the new `content/config/seasons.yaml`. Its consumers are the sky (WLD-34), the weather's per-season weights (`config.weather` `season_weights`), the market flows (WLD-56) and the windows (WLD-58). `Simulation.Season` reads it, and `SeasonChanged` is raised at the midnight a season turns. | DONE for the engine. The mapping is provisional (see the questions below). |
+| WLD-33 Seasons | `Season` (spring, summer, autumn, winter) is a function of the calendar day, one cycle per Reckoning. Its start days live in the new `content/config/seasons.yaml`. Its consumers are the sky (WLD-34), the weather's per-season weights (`config.weather` `season_weights`), the market flows (WLD-56) and the windows (WLD-58). `Simulation.Season` reads it, and `SeasonChanged` is raised at the midnight a season turns. | DONE. The mapping is approved by the owner (2026-10-25). |
 | WLD-34 Calendar-driven sky | `SkyCalendar.Of` lays each season over the sky's year, centred on its solstice or equinox, and `SkyView.Advance` sets Sky3D's date from it. The sun's declination and day length move through the Reckoning, with midsummer on about 21 June and midwinter on about 21 December. Sky3D's own moon runs through its phases about once a tally. The two extra moons (`CelestialView`) move along their orbits by world days, every 9 and 23 days; both periods are presentation tuning, not lore. The ring, galaxy, aurora and textures are untouched. | DONE (needs the video) |
 | WLD-38 Weather presented, blended by world ticks | `WeatherView.Previous` is the front the current one took over from. `Weather.Blend(view, tick, fadeTicks)` is the cross-fade as a function of the tick. `WeatherStates.Follow` now draws `Lerp(previous look, current look, blend)` from those absolute looks instead of a 40-second wall-clock fade, so a load in the middle of a change draws the same half-way sky. `--visual weather` still pins one look. | PARTIAL. The sky, fog, clouds, wind and wet ground follow. The particle and atmosphere gating, and a look for Fold, are still open. |
 | WLD-56 Season effects on the economy | `ISeasonalGoods` is a daily hook in `MarketSystem`, built like the jobs and adventurers hooks; `CalendarSystem` implements it from `config.seasons` `market_flows`. Autumn hunting adds hides at Cairnwold. Winter burns ash hafts at Cairnwold and uses salves at Ashen Hollow. All four flows are working numbers. | DONE for the engine; the numbers are tuning. |
@@ -64,13 +64,14 @@ Use one fixed place with a clear southern view: the spawn, looking toward the ri
 6. **Hollow Day**: the sky on day 182, which should be late-winter ordinary. There is deliberately no special event, because no source establishes one.
 7. **Performance**: rerun a frame-time capture after the sky change. The date is set once per game day and the moons are updated every frame, as before.
 
-## Questions for the owner
+## Owner answers (2026-10-25)
 
-1. **Tally-to-season mapping**, provisional and data-only in `config.seasons`: spring is tallies 1-3, summer 4-6, autumn 7-9, and winter 10-13 plus the Hollow Day. That puts the Hollow Day at the end of winter.
-2. **Windows**: bloom, midsummer, harvest, migration and midwinter are generic seasonal windows from WEATHER §29, chosen by me and carrying no lore. Keep, rename or drop them?
-3. **Seasonal weather weights** (`config.weather`) and the **winter and autumn market flows** are placeholder tuning numbers.
+1. **Tally-to-season mapping: APPROVED as proposed.** Spring is tallies 1-3, summer 4-6, autumn 7-9, and winter 10-13 plus the Hollow Day, so the Hollow Day falls at the end of winter. `config.seasons` and `SeasonRules.Default` now say approved.
+2. **The five seasonal windows (bloom, midsummer, harvest, migration, midwinter): KEPT as mechanics.** Lore is attached later; each is marked "no lore yet" in `content/config/seasons.yaml`.
+3. **Placeholder seasonal weather weights and market flows: fine for now.**
+4. **The open items below are noted for later and not started:** particles following live weather, a look for Fold weather, the HUD season line, and day length.
 
-## Not done / follow-ups
+## Not done / follow-ups (noted for later by the owner, 2026-10-25)
 
 - **WLD-38 remainder**:
   - AtmosphereView builds its emitters once by day and weather; it should gate their emission live.
