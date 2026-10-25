@@ -159,8 +159,14 @@ public partial class CameraRig : Node3D
         Rotation = new Vector3(0, Yaw, 0);
         // In first person the eye sits just ahead of the head's centre, so looking down shows the torso, not the neck.
         float forward = Mathf.Clamp(1f - Distance / FirstPersonBelow, 0, 1) * 0.1f;
-        _pitch.Position = new Vector3(_shoulder, 0, -forward);
+        _pitch.Position = new Vector3(0, 0, -forward);
         _pitch.Rotation = new Vector3(Pitch, 0, 0);
-        _arm.SpringLength = Distance + _lift * 1.5f;
+        // Sweep from the body's safe eye position to the shoulder camera. Moving
+        // the sweep origin sideways could start inside a wall, which shape casts ignore.
+        float boom = Distance + _lift * 1.5f;
+        float armYaw = Mathf.Atan2(_shoulder, boom);
+        _arm.Rotation = new Vector3(0, armYaw, 0);
+        Camera.Rotation = new Vector3(0, -armYaw, 0); // Preserve the original viewing direction.
+        _arm.SpringLength = new Vector2(_shoulder, boom).Length();
     }
 }
