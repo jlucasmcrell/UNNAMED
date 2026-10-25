@@ -27,6 +27,12 @@ public sealed class FrontierPerf
     private double _elapsed;
     private int _heading;
     private bool _warming = true, _finished;
+    private readonly string[]? _arms;
+    private readonly (Node3D Node, bool Visible)[] _visibility = [];
+    private readonly (DirectionalLight3D Light, bool Shadows)[] _suns = [];
+    private readonly (Godot.Environment Environment, bool Sdfgi)[] _environments = [];
+    private readonly List<object> _armStates = [];
+    private bool _applyArm;
 
     public string Directory { get; }
 
@@ -45,7 +51,23 @@ public sealed class FrontierPerf
         _session = session; _controller = controller; _camera = camera;
         _viewport = viewport;
         _diagnosticHide = diagnosticHide;
-        if (diagnosticHide is not null)
+        if (diagnosticHide == "attribution")
+        {
+            _arms = ["baseline", "ravine_off", "scatter_off", "sun_shadows_off", "npc_render_off", "sdfgi_off", "baseline_return"];
+            var scene = viewport.GetTree().CurrentScene;
+            _visibility = new[] { "Hollow/RavineDressing", "Scatter", "Npcs" }.Select(path =>
+            {
+                var node = scene.GetNodeOrNull<Node3D>(path) ?? throw new InvalidOperationException("Missing diagnostic component " + path);
+                return (node, node.Visible);
+            }).ToArray();
+            _suns = scene.FindChildren("*", nameof(DirectionalLight3D), true, false).OfType<DirectionalLight3D>()
+                .Select(light => (light, light.ShadowEnabled)).ToArray();
+            _environments = scene.FindChildren("*", nameof(WorldEnvironment), true, false).OfType<WorldEnvironment>()
+                .Where(node => node.Environment is not null).Select(node => (node.Environment!, node.Environment!.SdfgiEnabled)).ToArray();
+            _applyArm = true;
+            GD.Print("FRONTIER DIAGNOSTIC ONLY: seven rendering arms at yaw270; no gameplay or quality acceptance");
+        }
+        else if (diagnosticHide is not null)
         {
             string path = diagnosticHide switch
             {
@@ -82,6 +104,7 @@ public sealed class FrontierPerf
     public string? Update()
     {
         if (_finished) return "done";
+        if (_applyArm) { ApplyArm(); _applyArm = false; }
         ulong now = Time.GetTicksUsec();
         double seconds = (now - _lastUsec) / 1_000_000.0;
         _lastUsec = now;
@@ -96,31 +119,59 @@ public sealed class FrontierPerf
         // Screenshot readback must not consume the next heading's warm-up either.
         if (_heading == 0 && _warming && _stats.Count <= 2) _elapsed = 0;
         else if (_stats.Count > before) _elapsed += seconds;
-        _camera.Yaw = _heading * Mathf.Tau / HeadingCount;
+        _camera.Yaw = _arms is not null ? Mathf.Pi * 1.5f : _heading * Mathf.Tau / HeadingCount;
         _camera.Pitch = -.12f;
         _camera.TargetDistance = 3.5f;
         _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
         if (_session.Simulation!.Combat.Defeated) return "failed";
         if (_warming)
         {
-            if (_elapsed < (_heading == 0 ? FirstWarmupSeconds : TurnWarmupSeconds)) return null;
+            if (_elapsed < (_heading == 0 || _arms?[_heading] == "baseline_return" ? FirstWarmupSeconds : TurnWarmupSeconds)) return null;
             _warming = false; _elapsed = 0;
-            _stats.Segment = $"capture_yaw_{_heading * HeadingDegrees:000}";
+            _stats.Segment = _arms is null ? $"capture_yaw_{_heading * HeadingDegrees:000}" : "capture_" + _arms[_heading];
             _stats.Mark($"steady observation starts at tick {_session.Simulation.WorldTick}");
             return null;
         }
-        if (_elapsed < CaptureSeconds) return null;
-        string shot = $"yaw_{_heading * HeadingDegrees:000}";
+        if (_elapsed < (_arms is null ? CaptureSeconds : 4)) return null;
+        string shot = _arms is null ? $"yaw_{_heading * HeadingDegrees:000}" : "arm_" + _arms[_heading] + "_yaw270";
         var body = _controller.Authoritative;
         _stats.Mark($"{shot}: tick {_session.Simulation.WorldTick}, body {body.XMm},{body.YMm},{body.ZMm}");
-        _finished = ++_heading == HeadingCount;
+        if (_arms is not null)
+            _armStates.Add(new { arm = _arms[_heading], world_tick = _session.Simulation.WorldTick,
+                camera = _camera.Camera.GlobalTransform.ToString(), fov = _camera.Camera.Fov,
+                visibility = _visibility.Select(v => new { path = v.Node.GetPath().ToString(), v.Node.Visible }).ToArray(),
+                suns = _suns.Select(v => new { path = v.Light.GetPath().ToString(), v.Light.ShadowEnabled }).ToArray(),
+                sdfgi = _environments.Select(v => v.Environment.SdfgiEnabled).ToArray() });
+        _finished = ++_heading == (_arms?.Length ?? HeadingCount);
         _warming = true; _elapsed = 0;
-        if (!_finished) _stats.Segment = $"warmup_yaw_{_heading * HeadingDegrees:000}";
+        if (!_finished)
+        {
+            _stats.Segment = _arms is null ? $"warmup_yaw_{_heading * HeadingDegrees:000}" : "warmup_" + _arms[_heading];
+            _applyArm = _arms is not null;
+        }
         return shot;
+    }
+
+    private void ApplyArm()
+    {
+        foreach (var (node, visible) in _visibility) node.Visible = visible;
+        foreach (var (sun, shadows) in _suns) sun.ShadowEnabled = shadows;
+        foreach (var (environment, sdfgi) in _environments) environment.SdfgiEnabled = sdfgi;
+        switch (_arms![_heading])
+        {
+            case "ravine_off": _visibility[0].Node.Visible = false; break;
+            case "scatter_off": _visibility[1].Node.Visible = false; break;
+            case "sun_shadows_off": foreach (var (sun, _) in _suns) sun.ShadowEnabled = false; break;
+            case "npc_render_off": _visibility[2].Node.Visible = false; break;
+            case "sdfgi_off": foreach (var (environment, _) in _environments) environment.SdfgiEnabled = false; break;
+        }
+        if (_heading == 0) _stats.Segment = "warmup_baseline";
     }
 
     public void Write()
     {
+        if (_arms is not null)
+            File.WriteAllText(Path.Combine(Directory, "attribution_arms.json"), JsonSerializer.Serialize(_armStates, new JsonSerializerOptions { WriteIndented = true }));
         File.WriteAllText(Path.Combine(Directory, "render_counts.csv"), _renderCounts.ToString());
         File.WriteAllText(Path.Combine(Directory, "process_phases.csv"), _processPhases.ToString());
         File.WriteAllText(Path.Combine(Directory, "slow_simulation.csv"), _slowSimulation.ToString());
@@ -168,10 +219,12 @@ public sealed class FrontierPerf
         File.WriteAllText(Path.Combine(Directory, "lights.json"), JsonSerializer.Serialize(lights, new JsonSerializerOptions { WriteIndented = true }));
         _stats.Write(Directory, new Dictionary<string, string>
         {
-            ["route"] = "One fresh frontier fixture, eight gameplay camera headings; no relocation after new game",
+            ["route"] = _arms is null ? "One fresh frontier fixture, eight gameplay camera headings; no relocation after new game"
+                : "DIAGNOSTIC: fixed yaw270; baseline/ravine/scatter/sun shadows/NPC render/SDFGI/baseline return; normal simulation remains active",
             ["clock"] = "Normal GameSession.Frame(delta), 20 Hz simulation; monotonic measured frame intervals",
             ["warmup"] = "Retain two boot intervals, then 10 seconds first heading; 3 seconds after each turn excluding screenshot readback. Warmup segments retained separately",
-            ["capture"] = "12 seconds per heading; only the frame after screenshot readback is excluded",
+            ["capture"] = _arms is null ? "12 seconds per heading; only the frame after screenshot readback is excluded"
+                : "4 seconds per arm; 10s initial/return warmup, 3s after each toggle; screenshot readback excluded; no frame edits or gameplay suppression",
             ["tier"] = VisualOptions.Tier,
             ["actual_msaa_3d"] = _viewport.Msaa3D.ToString(),
             ["actual_taa"] = _viewport.UseTaa.ToString(),
