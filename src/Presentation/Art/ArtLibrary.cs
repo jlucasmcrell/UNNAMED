@@ -548,7 +548,8 @@ public sealed class ArtLibrary
                 : FullDetailLodBias;
             // The occlusion test runs a frame behind the camera: a tree it wrongly hides blinks out while the player runs at it.
             mesh.IgnoreOcclusionCulling = true;
-            if (System.Environment.GetEnvironmentVariable("UNNAMED_TREE_SHADOW_LOD") == "1")
+            // Accepted parity pan: enabled for every tier; explicit 0 remains a diagnostic control.
+            if (System.Environment.GetEnvironmentVariable("UNNAMED_TREE_SHADOW_LOD") != "0")
                 AddTreeShadowLod(mesh);
         }
         return node;

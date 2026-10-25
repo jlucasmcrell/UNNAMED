@@ -8,11 +8,17 @@ public partial class TreeShadowLodGate : Node
     public override void _Ready()
     {
         string? prior = System.Environment.GetEnvironmentVariable("UNNAMED_TREE_SHADOW_LOD");
+        string? viewPrior = System.Environment.GetEnvironmentVariable("UNNAMED_TREE_VIEW_LOD");
         try
         {
-            foreach (bool enabled in new[] { false, true })
+            System.Environment.SetEnvironmentVariable("UNNAMED_TREE_VIEW_LOD", "0");
+            int cases = 0;
+            foreach (string tier in new[] { "low", "medium", "high", "ultra" })
+            foreach (string? mode in new string?[] { null, "0", "1" })
             {
-                System.Environment.SetEnvironmentVariable("UNNAMED_TREE_SHADOW_LOD", enabled ? "1" : "0");
+                VisualOptions.Parse("tier=" + tier);
+                bool enabled = mode != "0";
+                System.Environment.SetEnvironmentVariable("UNNAMED_TREE_SHADOW_LOD", mode);
                 var root = new Node3D(); AddChild(root);
                 var material = new StandardMaterial3D { Roughness = .8f };
                 var tree = new MeshInstance3D { Mesh = new BoxMesh(), Position = new Vector3(2, 0, 1) };
@@ -24,7 +30,7 @@ public partial class TreeShadowLodGate : Node
                 if (!enabled)
                 {
                     if (proxy is not null || tree.CastShadow != GeometryInstance3D.ShadowCastingSetting.On)
-                        throw new InvalidDataException("Default path changed");
+                        throw new InvalidDataException("Explicit baseline control changed");
                 }
                 else
                 {
@@ -42,11 +48,16 @@ public partial class TreeShadowLodGate : Node
                 if (enabled && (bandProxy is null || bandProxy.Multimesh != band.Multimesh))
                     throw new InvalidDataException("Scatter shadow proxy copied native instance buffers");
                 root.Free();
+                cases++;
             }
-            GD.Print("TREE_SHADOW_LOD_GATE_PASS default unchanged; visible mesh/buffers/materials shared; proxy idempotent");
+            GD.Print($"TREE_SHADOW_LOD_GATE_PASS {cases}: accepted default ON all tiers; explicit baseline OFF; visible mesh/buffers/materials shared; proxy idempotent");
             GetTree().Quit();
         }
         catch (Exception error) { GD.PushError(error.ToString()); GetTree().Quit(1); }
-        finally { System.Environment.SetEnvironmentVariable("UNNAMED_TREE_SHADOW_LOD", prior); }
+        finally
+        {
+            System.Environment.SetEnvironmentVariable("UNNAMED_TREE_SHADOW_LOD", prior);
+            System.Environment.SetEnvironmentVariable("UNNAMED_TREE_VIEW_LOD", viewPrior);
+        }
     }
 }
