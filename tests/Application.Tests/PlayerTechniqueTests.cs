@@ -192,6 +192,36 @@ public class PlayerTechniqueTests
     }
 
     [Fact]
+    public void Roots_StopRetreatingFootwork_ButNotAStationaryTechnique()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var blade = Arena.Open(session, Ground, 0, Array.Empty<(double, double)>(), r => Trained(r, Blade, 15, "ability.blade.power_strike"));
+        Assert.Null(blade.Simulation.Submit(new ApplyEffect(blade.Player, "effect.root")));
+        Assert.Null(blade.Submit(new TechniqueCommand(blade.Player, "ability.blade.power_strike")));
+        var spear = Arena.Open(session, Ground, 0, Array.Empty<(double, double)>(),
+            r => Trained(Armed(r, "item.weapon.march_spear"), "skill.polearm", 15, "ability.polearm.giving_ground"));
+        Assert.Null(spear.Simulation.Submit(new ApplyEffect(spear.Player, "effect.root")));
+        int stamina = spear.Simulation.Combat.Stamina;
+        Assert.Equal("you cannot move", spear.Submit(new TechniqueCommand(spear.Player, "ability.polearm.giving_ground")));
+        Assert.Equal(stamina, spear.Simulation.Combat.Stamina);
+    }
+
+    [Fact]
+    public void AnAutomaticBowTechnique_DoesNotInheritAnOlderSteadyDrawTimer()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Arena.Open(session, Ground, 0, new[] { (Ground.X, Ground.Z + 12) },
+            r => Trained(Armed(r, "item.weapon.hunting_bow"), "skill.bow", 15, "ability.bow.aimed_shot"), startTick: 1000, role: "roamer");
+        arena.Face(arena.Creature());
+        arena.Tick();
+        Assert.Null(arena.Submit(new TechniqueCommand(arena.Player, "ability.bow.aimed_shot")));
+        arena.Tick(50);
+        Assert.False(ProgressionEngine.Knows(arena.Simulation.Player.Progression, "ability.bow.steady_draw"));
+    }
+
+    [Fact]
     public void LateGuard_DiscoversParry_OnlyOnce_AndKnownParryDeflectsWithoutDamage()
     {
         using var profile = new TempProfile();

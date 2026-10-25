@@ -105,7 +105,9 @@ internal sealed partial class CombatSystem
             return $"{technique.Id} is not known";
         if (_context.TechniqueRefusal(technique) is { } requirements) return requirements;
         if (!Enum.IsDefined(command.Region)) return "unknown body region";
-        if (_context.ControlOn(_player) != ControlKind.None) return "you cannot move";
+        var control = _context.ControlOn(_player);
+        if (control == ControlKind.Incapacitates || control == ControlKind.Roots && technique.Kind == TechniqueKind.GivingGround)
+            return "you cannot move";
         var combat = State.PlayerCombat;
         if (_holdingDraw && combat.Action.Attack?.Source == technique.Id) return ReleaseDraw(tick);
         if (Busy(combat.Action, tick) is { } busy)
@@ -138,7 +140,7 @@ internal sealed partial class CombatSystem
             return $"too tired for {technique.Id}";
         Exert(attack.StaminaCost, tick);
         _holdingDraw = technique.Kind == TechniqueKind.SteadyDraw;
-        if (_holdingDraw)
+        if (attack.Ranged)
         {
             _aimRegion = command.Region;
             _steadySince = tick + attack.WindupTicks;
