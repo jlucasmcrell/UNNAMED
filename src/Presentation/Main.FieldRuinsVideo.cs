@@ -214,11 +214,12 @@ public partial class Main
                 // The new player's way east (the population pass): from the Ashen Waystone along the Old East Road, past the Lantern Shrine
                 // and the overturned wain, up by the Rim Stone and into the Spill's east lane - fighting whatever comes, resting when hurt.
                 await Look((600, 656), 3);
-                await Go(new[] { (464.0, 748.0), (522.0, 690.0), (564.0, 690.0), (600.0, 656.0) }, 240, Gait.Run);
+                // A body that keeps running outpaces most of it to the leash; a player turns on what comes, so the route does.
+                await Go(new[] { (464.0, 748.0), (522.0, 690.0), (564.0, 690.0), (600.0, 656.0) }, 300, Gait.Run, 25);
                 Mark("foldscar_turn");
-                await Go(new[] { (680.0, 657.0), (760.0, 658.0), (840.0, 659.0) }, 300, Gait.Run);
+                await Go(new[] { (680.0, 657.0), (760.0, 658.0), (840.0, 659.0) }, 360, Gait.Run, 25);
                 Mark("road_east");
-                await Go(new[] { (880.0, 660.0), (881.3, 701.8), (884.0, 728.0) }, 200, Gait.Run, 14);
+                await Go(new[] { (880.0, 660.0), (881.3, 701.8), (884.0, 728.0) }, 240, Gait.Run, 25);
                 Mark("east_lane"); await Look((850, 758), 5);
                 break;
             case "busy":
