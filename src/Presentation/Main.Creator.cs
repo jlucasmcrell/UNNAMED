@@ -338,8 +338,8 @@ public partial class Main
             yaw = to;
             _creator.Use(_creator.Draft with { Appearance = _creator.Draft.Appearance! with { Sliders = _creator.Draft.Appearance!.Sliders.SetItem(LookSwatches.StyleSlider, style) } });
         }
-        list.Add(($"{list.Count + 1:00}_hair_bun", () => Style(2, -0.96f), 3500));
-        foreach (var (name, style) in new[] { ("long_bob", 2), ("bun", 1), ("ponytail", 0) })
+        list.Add(($"{list.Count + 1:00}_hair_bun", () => Style(1, -0.96f), 3500));
+        foreach (var (name, style) in new[] { ("bun", 1), ("ponytail", 0) })
         {
             list.Add(($"{list.Count + 1:00}_hair_{name}_three", () => Style(style, 2.4f), 2500));
             list.Add(($"{list.Count + 1:00}_hair_{name}_back", style == 0

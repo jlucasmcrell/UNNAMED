@@ -68,7 +68,8 @@ public static class LookSwatches
     /// </summary>
     public static IReadOnlyList<(string Label, string? Asset)> HairStyles(string? bodyModel) => bodyModel switch
     {
-        "humgen_player_ada_f" => new (string, string?)[] { ("Ponytail", null), ("Bun", "humgen_hair_f_bun"), ("Long bob", "humgen_hair_f_bob_long") },
+        // The long bob (humgen_hair_f_bob_long) is left out: in game its cards draw as one flat sheet, worse than the ponytail.
+        "humgen_player_ada_f" => new (string, string?)[] { ("Ponytail", null), ("Bun", "humgen_hair_f_bun") },
         _ => Array.Empty<(string, string?)>(),
     };
 
