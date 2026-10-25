@@ -65,10 +65,21 @@ public partial class Main
                 var aim=eyes-Vector3.Up*.07f;close.GlobalPosition=aim+ahead.Normalized()*.7f+Vector3.Up*(float)(.3*Math.Sin(t*Math.Tau/6));
                 close.LookAt(aim);close.MakeCurrent();
             }
+            void Collar(double t)
+            {
+                var head=rig.GlobalTransform*rig.GetBoneGlobalPose(h).Origin;
+                var eyes=rig.GlobalTransform*((rig.GetBoneGlobalPose(l).Origin+rig.GetBoneGlobalPose(r).Origin)*.5f);
+                var ahead=eyes-head;ahead.Y=0;var aim=head-Vector3.Up*.38f;
+                close.Fov=40;close.GlobalPosition=aim+ahead.Normalized().Rotated(Vector3.Up,(float)t)*1.65f+Vector3.Up*.08f;
+                close.LookAt(aim);close.MakeCurrent();
+            }
+            await Phase("frontier_collar_hands_front",2,Vector3.Zero,Gait.Walk,t=>Collar(.35));await Rcd3Shot(directory,"frontier_collar_hands_front");
+            await Phase("frontier_rear_left_shoulder",2,Vector3.Zero,Gait.Walk,t=>Collar(2.5));await Rcd3Shot(directory,"frontier_rear_left_shoulder");
+            close.Fov=32;
             face.ReviewJawOpen=0;await Phase("prepared_jaw_closed_front",2,Vector3.Zero,Gait.Walk,Near);await Rcd3Shot(directory,"jaw_closed");
             face.ReviewJawOpen=.65f;await Phase("prepared_jaw_open_throat_view_sweep",6,Vector3.Zero,Gait.Walk,Near);await Rcd3Shot(directory,"jaw_open_throat");
             File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {status="CREATED_PLAYER_BASE_REQUIRES_OWNER_REVIEW",model=player.ModelId,body,hash,head_lift=true,created_name=_session.Simulation!.Player.Name,
-                phases,limits="Actual normal creator/controller idle/walk/run/camera look/swing. Final two phases are explicitly prepared jaw-open fixtures, not player speech. Shoulder unchanged; DeepSeek owns its fix."},new JsonSerializerOptions{WriteIndented=true}));
+                phases,limits="Actual normal creator/controller idle/walk/run/camera look/swing. Final two phases are explicitly prepared jaw-open fixtures, not player speech. Frontier native garments on unchanged approved base; DeepSeek owns garment shoulder fit fixes."},new JsonSerializerOptions{WriteIndented=true}));
         }
         finally
         {
