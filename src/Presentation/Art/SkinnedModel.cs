@@ -318,6 +318,7 @@ public sealed partial class SkinnedModel : Node3D
         AddChild(_seen);
     }
 
+    public override void _Notification(int what) { if(what==NotificationDisabled) _closeTextures?.Update(false); }
     public override void _ExitTree() => _closeTextures?.Update(false);
 
     public override void _Process(double delta)

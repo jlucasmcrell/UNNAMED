@@ -21,10 +21,14 @@ public partial class HumGenCloseMapGate : Node3D
     for(int cycle=0;cycle<2;cycle++) {
      camera.GlobalPosition=new Vector3(0,0,3);figure._Process(1.0/60);npc._Process(1.0/60);
      if(Width(figure,"Body")!=4096||Width(figure,"Eyes")!=1024||Width(npc,"Body")!=2048||Width(npc,"Eyes")!=512)throw new InvalidDataException("Near/NPC resolution policy failed");
+     figure.ProcessMode=Node.ProcessModeEnum.Disabled;
+     if(Width(figure,"Body")!=2048||Width(figure,"Eyes")!=512)throw new InvalidDataException("Disabled creator retained close maps");
+     figure.ProcessMode=Node.ProcessModeEnum.Inherit;figure._Process(1.0/60);
+     if(Width(figure,"Body")!=4096)throw new InvalidDataException("Reopened creator did not restore close maps");
      camera.GlobalPosition=new Vector3(0,0,80);figure._Process(1.0/60);
      if(Width(figure,"Body")!=2048||Width(figure,"Eyes")!=512)throw new InvalidDataException("Far maps were not restored");
     }
-    rows.Add(new{id,near_skin=4096,near_eyes=1024,far_skin=2048,far_eyes=512,npc_skin=2048,npc_eyes=512,cycles=2});npc.Free();figure.Free();
+    rows.Add(new{id,near_skin=4096,near_eyes=1024,far_skin=2048,far_eyes=512,npc_skin=2048,npc_eyes=512,cycles=2,disabled_creator_restores_original_maps=true});npc.Free();figure.Free();
    }
    File.WriteAllText(OS.GetCmdlineUserArgs()[1],JsonSerializer.Serialize(new{status="NATIVE_CLOSE_FAR_AND_NPC_POLICY_PASS",rows},new JsonSerializerOptions{WriteIndented=true}));GD.Print("HUMGEN_CLOSE_MAP_GATE_PASS 2");GetTree().Quit();
   } catch(Exception e){GD.PushError(e.ToString());GetTree().Quit(1);}
