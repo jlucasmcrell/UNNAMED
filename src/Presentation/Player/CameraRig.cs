@@ -115,7 +115,27 @@ public partial class CameraRig : Node3D
         Pitch = Mathf.Clamp(Pitch - mouseDelta.Y * Sensitivity * (InvertY ? -1 : 1), -1.35f, 1.2f);
     }
 
-    public void Zoom(float metres) => TargetDistance = Mathf.Clamp(TargetDistance + metres, 0, MaxDistance);
+    public void Zoom(float metres) => TargetDistance = Mathf.Clamp(TargetDistance + metres, 0, Cap);
+
+    /// <summary>How far the camera may pull back while building (M7 design §8.11, WP-1G): the whole of a small structure in view.</summary>
+    public const float BuildMaxDistance = 9f;
+
+    /// <summary>
+    /// How far the zoom may go now: <see cref="MaxDistance"/>, or <see cref="BuildMaxDistance"/> in build mode. Lowering it pulls the
+    /// camera in, and the lerp eases it there.
+    /// </summary>
+    public float Cap
+    {
+        get => _cap;
+        set
+        {
+            _cap = value;
+            TargetDistance = Mathf.Min(TargetDistance, value);
+            _restoreDistance = Mathf.Min(_restoreDistance, value);
+        }
+    }
+
+    private float _cap = MaxDistance;
 
     /// <summary>Jump straight to first person, or back to the last third-person distance.</summary>
     public void ToggleFirstPerson()

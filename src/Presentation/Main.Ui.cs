@@ -3,6 +3,7 @@
 
 using Godot;
 using UNNAMED.Persistence;
+using UNNAMED.Presentation.Player;
 using UNNAMED.Presentation.Settings;
 using UNNAMED.Presentation.Ui;
 using UNNAMED.Presentation.Ui.Models;
@@ -810,7 +811,7 @@ public partial class Main
 
     private void OpenStation(string key)
     {
-        var station = _session.Setup.Layout.Stations.Single(s => s.Key == key);
+        var station = _session.Setup.Layout.Stations.Concat(BuildMode.PlacedStations(_session, _session.Simulation!)).Single(s => s.Key == key);
         if (station.Kind == NoticeBoardPanel.Kind)
             Show(_noticeBoard, key);
         else

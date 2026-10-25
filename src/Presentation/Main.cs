@@ -607,6 +607,7 @@ public partial class Main : Node3D
         _loading?.Note(UNNAMED.Domain.Knowledge.LoreRules.Latest(_session.Setup.Lore, _session.Simulation?.Lore ?? default));
         BuildPanels(profile);
         Subscribe();
+        SubscribeBuilding();
         DefineInput();
         UseSettings(applyPicture: !harness);
 
@@ -1107,6 +1108,7 @@ public partial class Main : Node3D
         _crafting.Bind(_art, _bindings);
         AddChild(_crafting);
         _crafting.Build(_session.Setup.Layout);
+        SetUpBuilding();
         _loading?.Stage("Bringing in the people", 0.78);
         _npcs = new NpcsView { Name = "Npcs", Ground = VisualOptions.BodyModifiers ? _ground.Height : null };
         _npcs.Bind(_art, _bindings);
@@ -1379,6 +1381,7 @@ public partial class Main : Node3D
         }
         KeepContainerInReach();
         KeepHireInReach();
+        BuildingFrame();
         // THE SKY RUNS ON THE WORLD CLOCK. content/config/time.yaml: 20 ticks a second, 1 game minute = 2 real
         // seconds, 1440 game minutes a day - so 57,600 ticks is one full day and night, 48 real minutes. Before
         // this the sun was set once at build time and never moved, which is the owner's "lighting in general is

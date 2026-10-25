@@ -4,6 +4,7 @@
 using Godot;
 using UNNAMED.Application;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Building;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.World.Runtime;
 
@@ -61,6 +62,8 @@ public sealed class PlayerController
         _open.Clear();
         foreach (var door in simulation.Doors)
             _open[door.Site.Key] = door.Open;
+        foreach (var piece in simulation.Pieces.Where(p => p.Family == PieceFamily.Door))
+            _open[piece.Id.Value] = piece.DoorOpen;
     }
 
     public void OnBodyMoved(BodyMoved moved) => _motion.OnBodyMoved(moved);
@@ -185,11 +188,21 @@ public sealed class PlayerController
             candidates.Add((new Focus(FocusKind.Door, door.Key, door.FlagId, door.ClosedFootprint.CenterXMm, door.ClosedFootprint.CenterZMm),
                 door.ClosedFootprint.DistanceTo(Authoritative.XMm, Authoritative.ZMm) - doorReach));
         }
-        foreach (var site in simulation.Containers.Where(c => !(IsPickup(c.Site) && c.Items.IsEmpty)).Select(c => c.Site).Where(s =>
-                     simulation.ActiveLayout.Containers.Contains(s) || simulation.Creatures.Any(c => c.CorpseKey == s.Key)))
+        // A placed door (M7, WP-1G) is worked the same way, from the body to its shut leaf; placed pieces stand outdoors only.
+        bool outdoors = simulation.ActiveLayout.SpaceId == _session.Setup.Layout.SpaceId;
+        foreach (var piece in simulation.Pieces.Where(p => outdoors && p.Family == PieceFamily.Door))
         {
-            // A corpse is searched like a chest, and named for the creature it was.
-            string defId = simulation.Creatures.FirstOrDefault(c => c.CorpseKey == site.Key)?.DefId ?? site.Key;
+            var leaf = new BoxBlocker(piece.Id.Value, piece.MinXMm, piece.MinZMm, piece.MaxXMm, piece.MaxZMm, 0);
+            candidates.Add((new Focus(FocusKind.Door, piece.Id.Value, piece.DefId, leaf.CenterXMm, leaf.CenterZMm),
+                leaf.DistanceTo(Authoritative.XMm, Authoritative.ZMm) - doorReach));
+        }
+        foreach (var site in simulation.Containers.Where(c => !(IsPickup(c.Site) && c.Items.IsEmpty)).Select(c => c.Site).Where(s =>
+                     simulation.ActiveLayout.Containers.Contains(s) || simulation.Creatures.Any(c => c.CorpseKey == s.Key)
+                     || outdoors && simulation.Pieces.Any(p => p.ContainerKey == s.Key)))
+        {
+            // A corpse is searched like a chest, and named for the creature it was; a placed chest (M7) for its piece.
+            string defId = simulation.Creatures.FirstOrDefault(c => c.CorpseKey == site.Key)?.DefId
+                ?? simulation.Pieces.FirstOrDefault(p => p.ContainerKey == site.Key)?.DefId ?? site.Key;
             candidates.Add((new Focus(FocusKind.Container, site.Key, defId, site.XMm, site.ZMm), Distance(site.XMm, site.ZMm) - itemReach));
         }
         foreach (var item in simulation.WorldItems)
@@ -197,7 +210,7 @@ public sealed class PlayerController
         // Gathering and crafting (M3f) are measured like picking up: from the body, at the same reach.
         foreach (var node in simulation.Nodes.Where(n => n.Space == simulation.ActiveLayout.SpaceId))
             candidates.Add((new Focus(FocusKind.Node, node.Key, node.NodeDefId, node.XMm, node.ZMm), Distance(node.XMm, node.ZMm) - itemReach));
-        foreach (var station in simulation.ActiveLayout.Stations)
+        foreach (var station in simulation.ActiveLayout.Stations.Concat(BuildMode.PlacedStations(_session, simulation)))   // and each placed bench (M7)
             candidates.Add((new Focus(FocusKind.Station, station.Key, station.Kind, station.XMm, station.ZMm), Distance(station.XMm, station.ZMm) - itemReach));
         // An NPC is spoken to within a hand's reach of their body (M4), and not through a wall: the rule the simulation applies.
         long talkReach = itemReach + _session.Setup.Movement.BodyRadiusMm;

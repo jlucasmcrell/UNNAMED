@@ -41,6 +41,12 @@ public partial class HelpPanel : CanvasLayer
         new[]
         {
             ("Companion", new[] { ("Tell them to follow, or to wait", new[] { "companion_order" }) }),
+            ("Building", new[]
+            {
+                ("Build mode, in and out", new[] { "build_mode" }), ("Choose a piece", new[] { "build_piece_1", "build_piece_7" }),
+                ("Turn it", new[] { "build_rotate" }), ("Place it", new[] { "build_place" }), ("Mend", new[] { "build_repair" }),
+                ("Take down (twice)", new[] { "build_dismantle" }),
+            }),
             ("Conversation", new[] { ("Answer", new[] { "reply_1", "reply_9" }), ("Walk away", new[] { "release_mouse" }) }),
             ("Saving", new[]
             {

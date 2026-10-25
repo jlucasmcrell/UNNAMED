@@ -112,7 +112,8 @@ public partial class Main
         }
         else if (Input.IsActionJustPressed("release_mouse"))
         {
-            Escape();
+            if (!LeaveBuild())
+                Escape();
         }
         else if (!_journal.Typing && !_report.Typing)   // a note being written takes its letters, not the screens' keys (WP4)
         {
@@ -225,14 +226,15 @@ public partial class Main
         // Combat: the left button swings or shoots, the right holds a guard (or aims a bow), C dodges, H uses a salve.
         // A swing, a guard and an aimed bow all go where the camera looks.
         bool captured = Input.MouseMode == Input.MouseModeEnum.Captured;
-        bool holding = captured && Engaged("guard");
-        bool swing = captured && Input.IsActionJustPressed("attack");
+        bool building = ReadBuildKeys(captured);   // build mode has the left button and the digits (WP-1G)
+        bool holding = captured && !building && Engaged("guard");
+        bool swing = captured && !building && Input.IsActionJustPressed("attack");
         // The quick bar (WP9): a slot's key uses what is on it - an item, or a formula or technique worked where the camera looks, like a swing (M3e).
         // The page keys first: the page modifier held with 1 to 6 pages the main bar, and the digit is then not a slot's.
         int page = Input.IsActionPressed("bar_modifier") ? Array.FindIndex(BarPageKeys, key => Input.IsActionJustPressed(key)) : -1;
         if (page >= 0)
             _barPage = page;
-        int slot = page >= 0 ? -1 : Array.FindIndex(QuickKeys, key => Input.IsActionJustPressed(key));
+        int slot = page >= 0 || building ? -1 : Array.FindIndex(QuickKeys, key => Input.IsActionJustPressed(key));
         string? quick = slot >= 0 ? _session.Simulation!.ActionBars[_barPage][slot] : null;
         int gear = Array.FindIndex(GearSetKeys, key => Input.IsActionJustPressed(key));
         if (gear >= 0)
@@ -410,6 +412,7 @@ public partial class Main
         Bind("bar_scroll_modifier", Key.Alt);
         foreach (string action in GearSetKeys)
             Bind(action);
+        DefineBuildInput(Bind);
         foreach (var (action, button) in new[] { ("attack", MouseButton.Left), ("guard", MouseButton.Right) })
         {
             if (!InputMap.HasAction(action))
