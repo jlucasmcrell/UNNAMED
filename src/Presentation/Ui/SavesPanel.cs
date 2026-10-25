@@ -22,6 +22,8 @@ public partial class SavesPanel : CanvasLayer
     private GameSession _session = null!;
     private bool _atStart;
     private string? _failure;
+    private (string What, SaveTrouble Trouble)? _trouble;
+    private string? _deleting;
 
     private Texture2D? _icon;
 
@@ -63,15 +65,33 @@ public partial class SavesPanel : CanvasLayer
         Open(what);
     }
 
+    /// <summary>A load of <paramref name="what"/> failed, from the title: said in a player's words, with a report to copy (PJ10 §6.3).</summary>
+    public void ShowFailure(string what, Exception error)
+    {
+        _atStart = true;
+        Open(null, (what, SaveTrouble.OfLoad(error)));
+    }
+
+    /// <summary>A load of <paramref name="what"/> failed in the game: the list, the trouble said in a player's words, and its report.</summary>
+    public void OpenInGame(string what, Exception error)
+    {
+        _atStart = false;
+        Open(null, (what, SaveTrouble.OfLoad(error)));
+    }
+
     public void Close()
     {
         Visible = false;
         _failure = null;
+        _trouble = null;
+        _deleting = null;
     }
 
-    private void Open(string? failure)
+    private void Open(string? failure, (string What, SaveTrouble Trouble)? trouble = null)
     {
         _failure = failure;
+        _trouble = trouble;
+        _deleting = null;
         Visible = true;
         if (DisplayServer.GetName() != "headless")
             Input.MouseMode = Input.MouseModeEnum.Visible;
@@ -90,9 +110,14 @@ public partial class SavesPanel : CanvasLayer
 
         if (_failure is not null)
             _sheet.Body.AddChild(UiKit.Callout(HudStyle.Wound, _failure));
+        if (_trouble is { } failed)
+        {
+            _sheet.Body.AddChild(UiKit.Callout(HudStyle.Wound, $"{failed.What} could not be loaded. {failed.Trouble.Sentence}"));
+            _sheet.Body.AddChild(ReportActions(failed.What, failed.Trouble, _session.SaveFolder, "saves.failure"));
+        }
         foreach (var passed in choice.PassedOver)
             _sheet.Body.AddChild(UiKit.Callout(HudStyle.Wound,
-                $"{Describe(passed.Slot, passed.Copy)} ({When(passed)}) is not offered to Continue: {passed.Problem}. Its other copies are listed below."));
+                $"{Describe(passed.Slot, passed.Copy)} ({When(passed)}) is not offered to Continue. {SaveTrouble.OfProblem(passed.Problem!).Headline} Its other copies are listed below."));
 
         var list = UiKit.Section("Saves", choice.Saves.IsEmpty ? "" : $"{choice.Saves.Length}, newest first");
         list.AddThemeConstantOverride("separation", 4);
@@ -113,6 +138,8 @@ public partial class SavesPanel : CanvasLayer
                 Row(list, copy, false, whose?.GetValueOrDefault(copy.Character ?? ""));
         }
         _sheet.Body.AddChild(list);
+        if (_atStart)
+            Characters();
         var back = Action(_atStart ? "Back to the title" : "Back to the game", () => Closed?.Invoke());
         back.SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin;
         _sheet.Body.AddChild(back);
@@ -138,8 +165,11 @@ public partial class SavesPanel : CanvasLayer
         }
         if (save.Problem is { } problem)
         {
-            row.Secondary.Text += $"\n{problem}";
+            var trouble = SaveTrouble.OfProblem(problem);
+            row.Secondary.Text += $"\n{trouble.Sentence}";
             row.Secondary.AddThemeColorOverride("font_color", HudStyle.Wound);
+            row.Root.AddChild(Action("Copy report", () => CopyReport(Describe(save.Slot, save.Copy), trouble, _session.FolderOf(save.Character)),
+                compact: true));
         }
         if (copy)
         {
@@ -154,6 +184,65 @@ public partial class SavesPanel : CanvasLayer
         }
         return load;
     }
+
+    /// <summary>
+    /// At the title: each character with saves, and Delete (PJ10 §5.2). Delete asks first, naming the character and how many saves go with
+    /// it; the answer is final. The saves from before folders are not a character, and the character in play is never offered.
+    /// </summary>
+    private void Characters()
+    {
+        var characters = _session.CharacterSaves().Where(c => c.Character is not null).ToList();
+        if (characters.Count == 0)
+            return;
+        var section = UiKit.Section("Characters", $"{characters.Count}");
+        section.AddThemeConstantOverride("separation", 4);
+        foreach (var character in characters)
+        {
+            string name = character.Name ?? "Unnamed character";
+            string count = character.Saves.Length == 1 ? "1 save" : $"{character.Saves.Length} saves";
+            var row = UiKit.Row(null, name, count, HudStyle.Bone, 40);
+            section.AddChild(row.Root);
+            if (_deleting != character.Character)
+            {
+                row.Root.AddChild(Action("Delete", () =>
+                {
+                    _deleting = character.Character;
+                    Render();
+                }, compact: true));
+                continue;
+            }
+            section.AddChild(UiKit.Callout(HudStyle.Ember, $"Delete {name} and {(character.Saves.Length == 1 ? "their save" : $"all {count}")}? This cannot be undone."));
+            var answers = new HBoxContainer();
+            answers.AddThemeConstantOverride("separation", 8);
+            answers.AddChild(Action($"Delete {name}", () =>
+            {
+                _deleting = null;
+                _session.DeleteCharacter(character.Character!);
+                Render();
+            }, UiKit.Kind.Destructive));
+            answers.AddChild(Action("Keep", () =>
+            {
+                _deleting = null;
+                Render();
+            }));
+            section.AddChild(answers);
+        }
+        _sheet.Body.AddChild(section);
+    }
+
+    /// <summary>Copy report and Open saves folder, under a failure.</summary>
+    private HBoxContainer ReportActions(string what, SaveTrouble trouble, string folder, string id)
+    {
+        var actions = new HBoxContainer();
+        actions.AddThemeConstantOverride("separation", 8);
+        actions.AddChild(UiKit.Action("Copy report", () => CopyReport(what, trouble, folder), id: id + ".copy"));
+        actions.AddChild(UiKit.Action("Open saves folder", () => OS.ShellOpen(folder), id: id + ".folder"));
+        return actions;
+    }
+
+    /// <summary>The report on the clipboard, for the tester to paste: local only, nothing is sent.</summary>
+    private void CopyReport(string what, SaveTrouble trouble, string folder) =>
+        DisplayServer.ClipboardSet(trouble.Report(what, folder, $"content {_session.Content.Version} ({_session.Content.Hash})"));
 
     /// <summary>A slot as a player reads it: "Quick save", "Autosave 3", a manual save by its name; and which copy.</summary>
     public static string Describe(string slot, SaveCopy copy)

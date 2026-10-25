@@ -64,6 +64,47 @@ public static class CharacterFolders
         }
     }
 
+    private const string DeletedPrefix = ".deleted-";
+
+    /// <summary>
+    /// Delete a character and every save in its folder (PJ10 §5.2). Atomic as the player sees it: the folder is first renamed out of the
+    /// list in one move - from then on the character is gone, whatever happens - and only then removed. A removal cut short (a crash, a
+    /// file held open) leaves a <c>.deleted-</c> folder that <see cref="SweepDeleted"/> finishes at the next boot; it is never listed, and
+    /// never loaded. False when the character has no folder.
+    /// </summary>
+    public static bool Delete(string profileRoot, EntityId character)
+    {
+        string folder = PathOf(profileRoot, character);
+        if (!System.IO.Directory.Exists(folder))
+            return false;
+        string gone = Path.Combine(Path.GetDirectoryName(folder)!, DeletedPrefix + character.Value + "-" + EntityId.NewId(EntityKind.WorldEvent).Ulid);
+        System.IO.Directory.Move(folder, gone);
+        TryRemove(gone);
+        return true;
+    }
+
+    /// <summary>Finish deletions an earlier run began: every <c>.deleted-</c> folder goes. The folders it could not remove yet, it names.</summary>
+    public static ImmutableArray<string> SweepDeleted(string profileRoot)
+    {
+        string root = Path.Combine(Path.GetFullPath(profileRoot), Directory);
+        if (!System.IO.Directory.Exists(root))
+            return ImmutableArray<string>.Empty;
+        return System.IO.Directory.EnumerateDirectories(root, DeletedPrefix + "*").Where(gone => !TryRemove(gone)).ToImmutableArray();
+    }
+
+    private static bool TryRemove(string gone)
+    {
+        try
+        {
+            System.IO.Directory.Delete(gone, recursive: true);
+            return true;
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            return false;   // the next boot's sweep tries again; the character is already out of the list
+        }
+    }
+
     /// <summary>Write a folder's card: to a temporary file first, then moved over the old one, so a crash leaves one card or the other.</summary>
     public static void WriteCard(string folder, CharacterCard card)
     {

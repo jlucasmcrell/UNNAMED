@@ -177,6 +177,12 @@ public partial class Main
                 CaptureQuit.At(this);
                 return;
             }
+            if (System.Environment.GetEnvironmentVariable("OTHERREACH_GORGE_REVIEW") == "stills")
+            {
+                await RunGorgeStills(directory, camera);
+                CaptureQuit.At(this);
+                return;
+            }
             if (System.Environment.GetEnvironmentVariable("OTHERREACH_RCD4_WORLD") == "1")
             {
                 await RunRcd4WorldReview(directory, camera);

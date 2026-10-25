@@ -335,12 +335,12 @@
             0.74,
             0.48
           ],
-          "energy": 3.5,
-          "range": 12,
-          "shadows": false,
+          "energy": 5.25,
+          "range": 15.0,
+          "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -353,7 +353,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.65,
+          "energy": 1.25,
           "range": 11.200000000000003,
           "shadows": false,
           "size": 1.5,
@@ -376,12 +376,12 @@
             0.78,
             0.6
           ],
-          "energy": 4,
-          "range": 14,
-          "shadows": false,
+          "energy": 6.0,
+          "range": 17.5,
+          "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -394,12 +394,12 @@
             0.78,
             0.86
           ],
-          "energy": 2,
-          "range": 12,
-          "shadows": false,
+          "energy": 3.0,
+          "range": 15.0,
+          "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -412,12 +412,12 @@
             0.8,
             0.6
           ],
-          "energy": 2.5,
-          "range": 6,
-          "shadows": false,
+          "energy": 3.75,
+          "range": 7.5,
+          "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -430,7 +430,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.65,
+          "energy": 1.25,
           "range": 15.200000000000003,
           "shadows": false,
           "size": 1.5,
@@ -453,12 +453,12 @@
             0.75,
             0.78
           ],
-          "energy": 3,
-          "range": 11,
-          "shadows": false,
+          "energy": 4.5,
+          "range": 13.75,
+          "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -471,12 +471,12 @@
             0.76,
             0.78
           ],
-          "energy": 1.4,
-          "range": 10,
-          "shadows": false,
+          "energy": 2.1,
+          "range": 12.5,
+          "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -489,7 +489,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.65,
+          "energy": 1.25,
           "range": 13.200000000000003,
           "shadows": false,
           "size": 1.5,
@@ -512,12 +512,12 @@
             0.7,
             0.57
           ],
-          "energy": 2.8,
-          "range": 10,
-          "shadows": false,
+          "energy": 5.88,
+          "range": 12.5,
+          "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -530,7 +530,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.65,
+          "energy": 1.25,
           "range": 11.200000000000003,
           "shadows": false,
           "size": 1.5,
@@ -553,12 +553,12 @@
             0.7,
             0.4
           ],
-          "energy": 4.5,
-          "range": 15,
-          "shadows": false,
+          "energy": 6.75,
+          "range": 18.75,
+          "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -571,12 +571,12 @@
             0.66,
             0.44
           ],
-          "energy": 3,
-          "range": 13,
-          "shadows": false,
+          "energy": 4.5,
+          "range": 16.25,
+          "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -589,7 +589,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.65,
+          "energy": 1.25,
           "range": 19.200000000000003,
           "shadows": false,
           "size": 1.5,
@@ -612,12 +612,12 @@
             0.75,
             0.46
           ],
-          "energy": 3.4,
-          "range": 12,
-          "shadows": false,
+          "energy": 5.1,
+          "range": 15.0,
+          "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -630,7 +630,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.65,
+          "energy": 1.25,
           "range": 15.200000000000003,
           "shadows": false,
           "size": 1.5,
@@ -653,12 +653,12 @@
             0.82,
             0.61
           ],
-          "energy": 4,
-          "range": 13,
-          "shadows": false,
+          "energy": 6.0,
+          "range": 16.25,
+          "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -671,12 +671,12 @@
             0.78,
             0.65
           ],
-          "energy": 3.5,
-          "range": 12,
-          "shadows": false,
+          "energy": 5.25,
+          "range": 15.0,
+          "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -689,7 +689,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.65,
+          "energy": 1.25,
           "range": 15.199999999999989,
           "shadows": false,
           "size": 1.5,
@@ -712,12 +712,12 @@
             0.78,
             0.86
           ],
-          "energy": 3,
-          "range": 13,
-          "shadows": false,
+          "energy": 4.5,
+          "range": 16.25,
+          "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -730,7 +730,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.65,
+          "energy": 1.25,
           "range": 15.200000000000003,
           "shadows": false,
           "size": 1.5,
@@ -753,12 +753,12 @@
             0.69,
             0.4
           ],
-          "energy": 4,
-          "range": 11,
-          "shadows": false,
+          "energy": 6.0,
+          "range": 13.75,
+          "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -771,12 +771,12 @@
             0.78,
             0.52
           ],
-          "energy": 3,
-          "range": 6,
-          "shadows": false,
+          "energy": 4.5,
+          "range": 7.5,
+          "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -789,7 +789,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.65,
+          "energy": 1.25,
           "range": 11.199999999999996,
           "shadows": false,
           "size": 1.5,
@@ -812,12 +812,12 @@
             0.71,
             0.45
           ],
-          "energy": 3.3,
-          "range": 12,
-          "shadows": false,
+          "energy": 4.95,
+          "range": 15.0,
+          "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -830,7 +830,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.65,
+          "energy": 1.25,
           "range": 15.200000000000003,
           "shadows": false,
           "size": 1.5,
@@ -853,12 +853,12 @@
             0.81,
             0.65
           ],
-          "energy": 2.8,
-          "range": 16,
-          "shadows": false,
+          "energy": 4.2,
+          "range": 20.0,
+          "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -871,12 +871,12 @@
             0.73,
             0.85
           ],
-          "energy": 2.6,
-          "range": 14,
+          "energy": 3.9,
+          "range": 17.5,
           "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -889,7 +889,7 @@
             0.7,
             0.72
           ],
-          "energy": 1.0,
+          "energy": 1.8,
           "range": 29.199999999999996,
           "shadows": false,
           "size": 1.5,
@@ -912,12 +912,12 @@
             0.7,
             0.4
           ],
-          "energy": 4,
-          "range": 14,
-          "shadows": false,
+          "energy": 6.0,
+          "range": 17.5,
+          "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -930,12 +930,12 @@
             0.76,
             0.83
           ],
-          "energy": 3.5,
-          "range": 13,
-          "shadows": false,
+          "energy": 5.25,
+          "range": 16.25,
+          "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -948,7 +948,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.65,
+          "energy": 1.25,
           "range": 17.200000000000003,
           "shadows": false,
           "size": 1.5,
@@ -971,12 +971,12 @@
             0.76,
             0.72
           ],
-          "energy": 3,
-          "range": 12,
-          "shadows": false,
+          "energy": 6.3,
+          "range": 15.0,
+          "shadows": true,
           "size": 0.35,
           "fog_energy": 0.35,
-          "attenuation": 0.85
+          "attenuation": 0.7
         },
         {
           "at": [
@@ -989,7 +989,7 @@
             0.7,
             0.72
           ],
-          "energy": 0.65,
+          "energy": 1.25,
           "range": 13.199999999999989,
           "shadows": false,
           "size": 1.5,
@@ -1001,19 +1001,19 @@
     "corr_r01_r02_a_z_ceiling": {
       "interior_light": {
         "at": [
-          0.0,
-          3.2,
+          -1.1,
+          2.7,
           0.0
         ],
         "colour": [
-          0.62,
-          0.66,
-          0.72
+          0.93,
+          0.74,
+          0.5
         ],
-        "energy": 1.2,
-        "range": 14,
+        "energy": 1.6,
+        "range": 10,
         "shadows": false,
-        "size": 0.6,
+        "size": 0.35,
         "fog_energy": 0.35,
         "attenuation": 0.85
       }
@@ -1022,18 +1022,18 @@
       "interior_light": {
         "at": [
           0.0,
-          3.2,
-          0.0
+          2.7,
+          -1.1
         ],
         "colour": [
-          0.62,
-          0.66,
-          0.72
+          0.93,
+          0.74,
+          0.5
         ],
-        "energy": 1.2,
-        "range": 14,
+        "energy": 1.6,
+        "range": 10,
         "shadows": false,
-        "size": 0.6,
+        "size": 0.35,
         "fog_energy": 0.35,
         "attenuation": 0.85
       }
@@ -1041,19 +1041,19 @@
     "corr_r02_r03_z_ceiling": {
       "interior_light": {
         "at": [
-          0.0,
-          3.2,
+          -1.1,
+          2.7,
           0.0
         ],
         "colour": [
-          0.62,
-          0.66,
-          0.72
+          0.93,
+          0.74,
+          0.5
         ],
-        "energy": 1.2,
-        "range": 14,
+        "energy": 1.6,
+        "range": 10,
         "shadows": false,
-        "size": 0.6,
+        "size": 0.35,
         "fog_energy": 0.35,
         "attenuation": 0.85
       }
@@ -1062,18 +1062,18 @@
       "interior_light": {
         "at": [
           0.0,
-          3.2,
-          0.0
+          2.7,
+          -1.1
         ],
         "colour": [
-          0.62,
-          0.66,
-          0.72
+          0.93,
+          0.74,
+          0.5
         ],
-        "energy": 1.2,
-        "range": 14,
+        "energy": 1.6,
+        "range": 10,
         "shadows": false,
-        "size": 0.6,
+        "size": 0.35,
         "fog_energy": 0.35,
         "attenuation": 0.85
       }
@@ -1081,19 +1081,19 @@
     "corr_r03_r05_a_z_ceiling": {
       "interior_light": {
         "at": [
-          0.0,
-          3.2,
+          -1.1,
+          2.7,
           0.0
         ],
         "colour": [
-          0.62,
-          0.66,
-          0.72
+          0.93,
+          0.74,
+          0.5
         ],
-        "energy": 1.2,
-        "range": 14,
+        "energy": 1.6,
+        "range": 10,
         "shadows": false,
-        "size": 0.6,
+        "size": 0.35,
         "fog_energy": 0.35,
         "attenuation": 0.85
       }
@@ -1102,18 +1102,18 @@
       "interior_light": {
         "at": [
           0.0,
-          3.2,
-          0.0
+          2.7,
+          -1.1
         ],
         "colour": [
-          0.62,
-          0.66,
-          0.72
+          0.93,
+          0.74,
+          0.5
         ],
-        "energy": 1.2,
-        "range": 14,
+        "energy": 1.6,
+        "range": 10,
         "shadows": false,
-        "size": 0.6,
+        "size": 0.35,
         "fog_energy": 0.35,
         "attenuation": 0.85
       }
@@ -1122,18 +1122,18 @@
       "interior_light": {
         "at": [
           0.0,
-          3.2,
-          0.0
+          2.7,
+          -1.1
         ],
         "colour": [
-          0.62,
-          0.66,
-          0.72
+          0.93,
+          0.74,
+          0.5
         ],
-        "energy": 1.2,
-        "range": 14,
+        "energy": 1.6,
+        "range": 10,
         "shadows": false,
-        "size": 0.6,
+        "size": 0.35,
         "fog_energy": 0.35,
         "attenuation": 0.85
       }
@@ -1141,19 +1141,19 @@
     "corr_r06_r10_a_z_ceiling": {
       "interior_light": {
         "at": [
-          0.0,
-          3.2,
+          -1.1,
+          2.7,
           0.0
         ],
         "colour": [
-          0.62,
-          0.66,
-          0.72
+          0.93,
+          0.74,
+          0.5
         ],
-        "energy": 1.2,
-        "range": 14,
+        "energy": 1.6,
+        "range": 10,
         "shadows": false,
-        "size": 0.6,
+        "size": 0.35,
         "fog_energy": 0.35,
         "attenuation": 0.85
       }
@@ -1161,19 +1161,19 @@
     "corr_r07_r08_a_z_ceiling": {
       "interior_light": {
         "at": [
-          0.0,
-          3.2,
+          -1.1,
+          2.7,
           0.0
         ],
         "colour": [
-          0.62,
-          0.66,
-          0.72
+          0.93,
+          0.74,
+          0.5
         ],
-        "energy": 1.2,
-        "range": 14,
+        "energy": 1.6,
+        "range": 10,
         "shadows": false,
-        "size": 0.6,
+        "size": 0.35,
         "fog_energy": 0.35,
         "attenuation": 0.85
       }
@@ -1182,18 +1182,18 @@
       "interior_light": {
         "at": [
           0.0,
-          3.2,
-          0.0
+          2.7,
+          -1.1
         ],
         "colour": [
-          0.62,
-          0.66,
-          0.72
+          0.93,
+          0.74,
+          0.5
         ],
-        "energy": 1.2,
-        "range": 14,
+        "energy": 1.6,
+        "range": 10,
         "shadows": false,
-        "size": 0.6,
+        "size": 0.35,
         "fog_energy": 0.35,
         "attenuation": 0.85
       }
@@ -1201,19 +1201,19 @@
     "corr_r07_r13_a_z_ceiling": {
       "interior_light": {
         "at": [
-          0.0,
-          3.2,
+          -1.1,
+          2.7,
           0.0
         ],
         "colour": [
-          0.62,
-          0.66,
-          0.72
+          0.93,
+          0.74,
+          0.5
         ],
-        "energy": 1.2,
-        "range": 14,
+        "energy": 1.6,
+        "range": 10,
         "shadows": false,
-        "size": 0.6,
+        "size": 0.35,
         "fog_energy": 0.35,
         "attenuation": 0.85
       }
@@ -1222,18 +1222,18 @@
       "interior_light": {
         "at": [
           0.0,
-          3.2,
-          0.0
+          2.7,
+          -1.1
         ],
         "colour": [
-          0.62,
-          0.66,
-          0.72
+          0.93,
+          0.74,
+          0.5
         ],
-        "energy": 1.2,
-        "range": 14,
+        "energy": 1.6,
+        "range": 10,
         "shadows": false,
-        "size": 0.6,
+        "size": 0.35,
         "fog_energy": 0.35,
         "attenuation": 0.85
       }
@@ -1241,19 +1241,19 @@
     "corr_r08_r02_z_ceiling": {
       "interior_light": {
         "at": [
-          0.0,
-          3.2,
+          -1.1,
+          2.7,
           0.0
         ],
         "colour": [
-          0.62,
-          0.66,
-          0.72
+          0.93,
+          0.74,
+          0.5
         ],
-        "energy": 1.2,
-        "range": 14,
+        "energy": 1.6,
+        "range": 10,
         "shadows": false,
-        "size": 0.6,
+        "size": 0.35,
         "fog_energy": 0.35,
         "attenuation": 0.85
       }
@@ -1262,18 +1262,18 @@
       "interior_light": {
         "at": [
           0.0,
-          3.2,
-          0.0
+          2.7,
+          -1.1
         ],
         "colour": [
-          0.62,
-          0.66,
-          0.72
+          0.93,
+          0.74,
+          0.5
         ],
-        "energy": 1.2,
-        "range": 14,
+        "energy": 1.6,
+        "range": 10,
         "shadows": false,
-        "size": 0.6,
+        "size": 0.35,
         "fog_energy": 0.35,
         "attenuation": 0.85
       }
@@ -1281,19 +1281,19 @@
     "corr_r10_r11_dogleg_ceiling": {
       "interior_light": {
         "at": [
-          0.0,
-          3.2,
+          -1.1,
+          2.7,
           0.0
         ],
         "colour": [
-          0.62,
-          0.66,
-          0.72
+          0.93,
+          0.74,
+          0.5
         ],
-        "energy": 1.2,
-        "range": 14,
+        "energy": 1.6,
+        "range": 10,
         "shadows": false,
-        "size": 0.6,
+        "size": 0.35,
         "fog_energy": 0.35,
         "attenuation": 0.85
       }
@@ -1302,18 +1302,18 @@
       "interior_light": {
         "at": [
           0.0,
-          3.2,
-          0.0
+          2.7,
+          -1.1
         ],
         "colour": [
-          0.62,
-          0.66,
-          0.72
+          0.93,
+          0.74,
+          0.5
         ],
-        "energy": 1.2,
-        "range": 14,
+        "energy": 1.6,
+        "range": 10,
         "shadows": false,
-        "size": 0.6,
+        "size": 0.35,
         "fog_energy": 0.35,
         "attenuation": 0.85
       }
@@ -1322,18 +1322,18 @@
       "interior_light": {
         "at": [
           0.0,
-          3.2,
-          0.0
+          2.7,
+          -1.1
         ],
         "colour": [
-          0.62,
-          0.66,
-          0.72
+          0.93,
+          0.74,
+          0.5
         ],
-        "energy": 1.2,
-        "range": 14,
+        "energy": 1.6,
+        "range": 10,
         "shadows": false,
-        "size": 0.6,
+        "size": 0.35,
         "fog_energy": 0.35,
         "attenuation": 0.85
       }
@@ -1342,18 +1342,18 @@
       "interior_light": {
         "at": [
           0.0,
-          3.2,
-          0.0
+          2.7,
+          -1.1
         ],
         "colour": [
-          0.62,
-          0.66,
-          0.72
+          0.93,
+          0.74,
+          0.5
         ],
-        "energy": 1.2,
-        "range": 14,
+        "energy": 1.6,
+        "range": 10,
         "shadows": false,
-        "size": 0.6,
+        "size": 0.35,
         "fog_energy": 0.35,
         "attenuation": 0.85
       }
@@ -1361,19 +1361,19 @@
     "corr_r11_r12_a_z_ceiling": {
       "interior_light": {
         "at": [
-          0.0,
-          3.2,
+          -1.1,
+          2.7,
           0.0
         ],
         "colour": [
-          0.62,
-          0.66,
-          0.72
+          0.93,
+          0.74,
+          0.5
         ],
-        "energy": 1.2,
-        "range": 14,
+        "energy": 1.6,
+        "range": 10,
         "shadows": false,
-        "size": 0.6,
+        "size": 0.35,
         "fog_energy": 0.35,
         "attenuation": 0.85
       }
@@ -1382,18 +1382,18 @@
       "interior_light": {
         "at": [
           0.0,
-          3.2,
-          0.0
+          2.7,
+          -1.1
         ],
         "colour": [
-          0.62,
-          0.66,
-          0.72
+          0.93,
+          0.74,
+          0.5
         ],
-        "energy": 1.2,
-        "range": 14,
+        "energy": 1.6,
+        "range": 10,
         "shadows": false,
-        "size": 0.6,
+        "size": 0.35,
         "fog_energy": 0.35,
         "attenuation": 0.85
       }
@@ -2000,6 +2000,7 @@
       },
       "voice": "animated_armour",
       "flesh": "plate",
+      "blow": "slam",
       "steps": {
         "walk": "walk",
         "run": "move_heavy"
@@ -2021,7 +2022,8 @@
         "ability.creature.spider_bite": "creature.creature_playtest_cave_spider.attack"
       },
       "voice": "cave_hunting_spider",
-      "flesh": "flesh",
+      "flesh": "chitin",
+      "blow": "sting",
       "note": "Playtest enemy replacement 2026-10-18; held licensed source, no generative assets. Nephila existing rig; uniform 2.7x body-centred scale; authored idle/lunge-bite/hit/curling death, run retimed from native walk.",
       "steps": {
         "walk": "scuttle",
@@ -2040,7 +2042,8 @@
         "ability.creature.husk_slash": "creature.creature_playtest_bone_walker.attack"
       },
       "voice": "bone_walker_husk",
-      "flesh": "stone",
+      "flesh": "bone",
+      "blow": "claw",
       "note": "Playtest enemy replacement 2026-10-18; held licensed source, no generative assets. Bone/aged grave-rag retexture; luminous eyeball removed.",
       "steps": {
         "walk": "walk",

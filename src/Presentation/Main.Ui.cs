@@ -54,7 +54,7 @@ public partial class Main
             bars.Use = UseActionSlot;
             bars.PageTo = page => _barPage = page;
         }
-        _help = new HelpPanel { Name = "Help", DeveloperKeys = _developer, Files = $"Saves: {profile}\nThe log, to send with a problem report: {LogPath}" };
+        _help = new HelpPanel { Name = "Help", DeveloperKeys = _developer, Hints = () => _session.Hints.Values, Files = $"Saves: {profile}\nThe log, to send with a problem report: {LogPath}" };
         GD.Print($"UNNAMED files: saves in {profile}; the log at {LogPath}");
         AddChild(_help);
         _effectsPanel = new EffectsPanel { Name = "Effects" };
@@ -110,6 +110,8 @@ public partial class Main
         _menu.UseIcons(icons);
         _journal.UseIcons(icons);
         _help.UseIcons(icons);
+        _saveIndicator = new SaveIndicator { Name = "SaveIndicator" };
+        AddChild(_saveIndicator);
         _saves = new SavesPanel { Name = "Saves" };
         _saves.Bind(_session);
         _saves.Load = save => LoadChosen(save.Slot, save.Copy, save);

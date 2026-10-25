@@ -6,13 +6,16 @@
     "conditions hold (gain_by: wind scales it by the world wind's strength); a one-shot fires at random within 'every_s'. Conditions:",
     "'weather' (states it runs in; omitted: all), day_only / night_only, 'grounds' under the listener (world material IDs), 'near_ravine_m'",
     "(within that many metres of the ravine's edge: the west, north and east edges). 'sheltered_gain' scales a hook while the listener",
-    "is inside a space (rain on the roof, the wind outside)."
+    "is inside a space (rain on the roof, the wind outside). 'near_m' [x, z, radius]: a place's own sound, loudest at the place and gone",
+    "at its radius; 'pitch' plays the loop at that rate (one recording heard as two waters)."
   ],
   "hooks": [
     { "hook": "wind", "loop": "amb.weather.wind.01", "gain": 0.55, "gain_by": "wind", "sheltered_gain": 0.2 },
     { "hook": "rain", "loop": "amb.weather.rain.01", "gain": 0.8, "weather": ["rain", "storm"], "sheltered_gain": 0.3 },
     { "hook": "thunder", "one_shot": "sfx.weather.thunder.01", "every_s": [18, 55], "weather": ["storm"], "sheltered_gain": 0.5 },
     { "hook": "river", "loop": "amb.water.river_gorge.01", "gain": 0.5, "near_ravine_m": 28 },
+    { "hook": "gorge_fall", "loop": "amb.water.river_gorge.01", "gain": 1.0, "pitch": 0.78, "near_m": [497, 850, 140], "note": "The fall off the den gorge's far wall (spec 28): a deep roar, heard from the den and loud at the lip." },
+    { "hook": "gorge_rapids", "loop": "amb.water.river_gorge.01", "gain": 0.7, "pitch": 1.12, "near_m": [560, 827, 85], "note": "The den gorge's whitewater below the lip." },
     { "hook": "foliage_gusts", "one_shot": "sfx.amb.charwood.branch_movement.01", "every_s": [7, 18], "gain_by": "wind", "grounds": ["material_marsh_grass_turf"] },
     { "hook": "insects_day", "loop": "amb.insects.meadow_day.01", "gain": 0.35, "day_only": true, "weather": ["fair", "clear"], "grounds": ["material_packed_dirt_ground"] },
     { "hook": "insects_night", "loop": "amb.insects.night.01", "gain": 0.4, "night_only": true, "weather": ["fair", "clear", "overcast"] },

@@ -23,7 +23,9 @@ public static class RavineDressing
     private static readonly string[] FarTrees = { "flora_pine_tree", "flora_pine_tree", "flora_oak_tree" };
 
     /// <summary>An edge of the region: where it is, which way is out, and which way the far side must turn to face the hollow.</summary>
-    private readonly record struct Edge(string Name, float From, float To, Func<float, float, Vector3> At, float FacingYaw, ulong Seed);
+    /// <summary><c>Gorge</c>: the stretch the den gorge dresses itself (DenGorge), where this edge places nothing - after its draws, so
+    /// the rest of the edge keeps its placing.</summary>
+    private readonly record struct Edge(string Name, float From, float To, Func<float, float, Vector3> At, float FacingYaw, ulong Seed, Func<float, bool>? Gorge = null);
 
     /// <summary>Dress every edge; returns how many pieces were placed. <paramref name="height"/> is the scenery surface at (x, z).</summary>
     public static int Dress(Node3D parent, ArtLibrary art, Rect2 region, Func<float, float, float> height, ArtCoverage coverage)
@@ -32,7 +34,8 @@ public static class RavineDressing
         parent.AddChild(root);
         float x0 = region.Position.X, x1 = region.End.X, z0 = region.Position.Y, z1 = region.End.Y;
         // (along the edge, out from it) to the world; the far side faces back towards the hollow. The north keeps B0.2's seed and placing.
-        var north = new Edge("north", x0, x1, (a, o) => new Vector3(a, 0, z1 + o), 180f, 0x5EED_B002);
+        var north = new Edge("north", x0, x1, (a, o) => new Vector3(a, 0, z1 + o), 180f, 0x5EED_B002,
+            DenGorge.On(region) ? a => DenGorge.Weight(a) > 0.02f : null);
         var west = new Edge("west", z0, z1, (a, o) => new Vector3(x0 - o, 0, a), 90f, 0x5EED_B003);
         var east = new Edge("east", z0, z1, (a, o) => new Vector3(x1 + o, 0, a), -90f, 0x5EED_B004);
         var south = new Edge("south", x0, x1, (a, o) => new Vector3(a, 0, z0 - o), 0f, 0x5EED_B005);
@@ -70,7 +73,7 @@ public static class RavineDressing
                 var at = Ground(a, o);
                 float y = outward < 35f ? at.Y - 1.5f * s : Mathf.Min(at.Y - 1.5f * s, Ground(a, o + 6f).Y - 1.0f - 10.5f * s);
                 var tilt = new Vector3(random.RandfRange(-9, 4), edge.FacingYaw + random.RandfRange(-22, 22), random.RandfRange(-5, 5));
-                if (Place(root, art, CliffFace, new Vector3(at.X, y, at.Z), tilt, s))
+                if (edge.Gorge?.Invoke(a) != true && Place(root, art, CliffFace, new Vector3(at.X, y, at.Z), tilt, s))
                     placed++;
             }
         }
@@ -80,15 +83,18 @@ public static class RavineDressing
         {
             float s = random.RandfRange(0.9f, 2.2f);
             var at = Ground(a, random.RandfRange(0.8f, 1.9f));
-            if (Place(root, art, Boulders[random.RandiRange(0, Boulders.Length - 1)], at - new Vector3(0, 0.35f * s, 0),
-                    new Vector3(random.RandfRange(-8, 8), random.RandfRange(0, 360), random.RandfRange(-8, 8)), s))
+            string boulder = Boulders[random.RandiRange(0, Boulders.Length - 1)];
+            var turn = new Vector3(random.RandfRange(-8, 8), random.RandfRange(0, 360), random.RandfRange(-8, 8));
+            if (edge.Gorge?.Invoke(a) != true && Place(root, art, boulder, at - new Vector3(0, 0.35f * s, 0), turn, s))
                 placed++;
         }
         // The floor: rocky shelves along the gulf.
         for (float a = edge.From - 10f; a < edge.To + 20f; a += random.RandfRange(38, 55))
         {
             var at = Ground(a, random.RandfRange(12, 20));
-            if (Place(root, art, RockShelf, at - new Vector3(0, 1.2f, 0), new Vector3(0, random.RandfRange(0, 360), 0), random.RandfRange(0.35f, 0.5f)))
+            var turn = new Vector3(0, random.RandfRange(0, 360), 0);
+            float s = random.RandfRange(0.35f, 0.5f);
+            if (edge.Gorge?.Invoke(a) != true && Place(root, art, RockShelf, at - new Vector3(0, 1.2f, 0), turn, s))
                 placed++;
         }
         // Beyond the far rim (B3): a fir wood on the ridges, in clumps with clearings between, swaying if the run has wind. Its own
@@ -101,7 +107,14 @@ public static class RavineDressing
             for (int row = 0; row < 2; row++)
             {
                 var at = Ground(a + woods.RandfRange(-3, 3), 46f + row * 11f + woods.RandfRange(-3, 4));
-                if (art.ModelWithLods(FarTrees[woods.RandiRange(0, FarTrees.Length - 1)]) is not { } tree)
+                string kind = FarTrees[woods.RandiRange(0, FarTrees.Length - 1)];
+                if (edge.Gorge?.Invoke(at.X) == true)
+                {
+                    woods.RandfRange(0, 360);
+                    woods.RandfRange(0.85f, 1.3f);
+                    continue;
+                }
+                if (art.ModelWithLods(kind) is not { } tree)
                     continue;
                 tree.Position = at - new Vector3(0, 0.3f, 0);
                 tree.RotationDegrees = new Vector3(0, woods.RandfRange(0, 360), 0);

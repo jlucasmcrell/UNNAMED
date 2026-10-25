@@ -4,434 +4,434 @@
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_codex_fragment\\bw_codex_codex_fragment.glb.scn",
       "bytes": 24012,
-      "sha256": "70b3e8bb61a71a9e041d43772c07b53d987bdab284e85b898b84b497e67df904",
+      "sha256": "2dcbb3e98fb8109062726ef6944f85f4bef014f5d3dd470797f8553a3c3c17c7",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_codex_fragment\\bw_codex_codex_fragment.glb",
       "stamp": "v7 4.7.2-stable (official) 8584CBDBE89D0F013F2079F2760A9EE17191D77FD7584D7E22C5BFD3DC859F22"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_corridors\\bw_codex_corridors.glb.scn",
-      "bytes": 5706629,
-      "sha256": "1e39a4d6bc1b491b5752cfcc71b53b348ea3a45875e4d0213a648d4530ae4ab8",
+      "bytes": 16952711,
+      "sha256": "2ffbe4786bdc44fcd06b6c5ea93a60c2d6d0f08538644169c6eafb1536b0f257",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_corridors\\bw_codex_corridors.glb",
-      "stamp": "v7 4.7.2-stable (official) C6901D59578F48827E744D2F6D4EE9CE47BDB4EDB2DF507BCD7F07C864D50E6C"
+      "stamp": "v7 4.7.2-stable (official) 04676A55168307D328B579998185548738BAD521E29B79D6CC4DC6E64A209575"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_counterweight\\bw_codex_counterweight.glb.scn",
-      "bytes": 78589,
-      "sha256": "2708e4c966d1d4024b317069f97233423c235f89b96704c5892b1a0d8b723031",
+      "bytes": 78588,
+      "sha256": "e3ac9b745515d2eb33b88bcbd450a2464d3b6610aa2a935beddf511e2fa8416e",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_counterweight\\bw_codex_counterweight.glb",
       "stamp": "v7 4.7.2-stable (official) EAEE4D5E96691552EB084D3C35CA0BCFB95AD55E79385AB4B09CEB536254B347"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_diagram\\bw_codex_diagram.glb.scn",
       "bytes": 46889,
-      "sha256": "eb7995dcd6bcae903aaa03a38a6cd04ba05c1331aeb937743a50ecd457832668",
+      "sha256": "2c0ac027bf70ee2dc2c5db2765625b91aa0dcd34900984b1bb9e0f86db4f25f4",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_diagram\\bw_codex_diagram.glb",
       "stamp": "v7 4.7.2-stable (official) 4090A3ED3A2D32BE9E1D7D679301A05A0E71DF051858A9F559CF92FA61015F89"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_dismantle_control\\bw_codex_dismantle_control.glb.scn",
-      "bytes": 18399,
-      "sha256": "653fb15ed36c06d093d069714465872285a1313570e9bfeaafb8471d7910898c",
+      "bytes": 18401,
+      "sha256": "8d75d226ebc1219e6cabd6dcc49a51927fa42166d42dd3406e3481ec53e02ca1",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_dismantle_control\\bw_codex_dismantle_control.glb",
       "stamp": "v7 4.7.2-stable (official) FB53E98DF953A488975DF49C6953C45EA4A121F3558687E6C4C20D764A0BC6E0"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_drain_valve\\bw_codex_drain_valve.glb.scn",
       "bytes": 22944,
-      "sha256": "2270c0ae1a804537a806e5fc486ab6b51b2bfb9a00f6c4a9a9e1f57c603ebee3",
+      "sha256": "9a9146d8e9c57f99a858f2dbf8cd49b393cb23f532715ec4ccc2bf1f6e5e45c3",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_drain_valve\\bw_codex_drain_valve.glb",
       "stamp": "v7 4.7.2-stable (official) 225D5F6F5FD03F3FE71FF4A6E79697B9BC635B4ED50B9C07C2896617750E3771"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_entrance_drain\\bw_codex_entrance_drain.glb.scn",
       "bytes": 2213186,
-      "sha256": "2f324059b61683d4c185f4b71fd69891425d3659688fbe89725de9477ae85e6b",
+      "sha256": "af227d32eb59178d1204969e13d9b395278bddee05201dc3f319dab71a10f437",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_entrance_drain\\bw_codex_entrance_drain.glb",
       "stamp": "v7 4.7.2-stable (official) D30B0231D45969CB0AF90C1A33E661BC32B7E8E396352F9F4CAE6B1D7FE10FCA"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_entrance_threshold\\bw_codex_entrance_threshold.glb.scn",
-      "bytes": 2501587,
-      "sha256": "4007e9a07c73b0ee6c11821e284db600017ad6c3e52c3e5df2085d059c228cb0",
+      "bytes": 2501586,
+      "sha256": "3d36fd81d1f9ca8bffb1ac6d5528e8eb02c4c0c6be2fcf6e67bfabbf6843c617",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_entrance_threshold\\bw_codex_entrance_threshold.glb",
       "stamp": "v7 4.7.2-stable (official) 0C1E3321E3E5A89DBB6C45B10CE2F08E8B80CBA353B83DC41AAAB3A05DB6F86F"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_fitting_note\\bw_codex_fitting_note.glb.scn",
       "bytes": 135654,
-      "sha256": "c93af89384f3ebd96336107920baf567a6172947d0a2c5d25ae6d20f8de1fc76",
+      "sha256": "290d792f449ba541b103734e4cfab84274507146aab2e4437104e56926b4ec95",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_fitting_note\\bw_codex_fitting_note.glb",
       "stamp": "v7 4.7.2-stable (official) 225C8DCA38603AF07BF91C1209AF16AB35CA0C550AEEC2F38C5FC2A3BF4835BD"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_gate_1\\bw_codex_gate_1.glb.scn",
-      "bytes": 42434,
-      "sha256": "35fe7293cddb9a4272f1bcc33c386a45f1c4367b3da1852bbd204b1d85f83060",
+      "bytes": 42425,
+      "sha256": "14dda38beb9e8c0634538da1c0f2c389f1a61e538b2ea032ceb2c85f1fc98df9",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_gate_1\\bw_codex_gate_1.glb",
       "stamp": "v7 4.7.2-stable (official) BC624FB2C6E4C7465FCEEC2EC2372922B24220E3D1A13C294E0FD820242A7347"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_gate_2\\bw_codex_gate_2.glb.scn",
-      "bytes": 42429,
-      "sha256": "32a9718576182b5dde5c1c405b84b180409356477211d7602378e3bf1c259599",
+      "bytes": 42424,
+      "sha256": "7b2b933c77999b33fb5901769e87520da49875b0713bbfeb204eef6e11e16843",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_gate_2\\bw_codex_gate_2.glb",
       "stamp": "v7 4.7.2-stable (official) 75EE90A4670BDF8F01369B04F76F6E4E524CE142522D7FD47950AF4E025702D8"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_gate_3\\bw_codex_gate_3.glb.scn",
-      "bytes": 42420,
-      "sha256": "a905c9b5812cbb336946b72475e0e7e60b1da18c33e810b28d4cbaef25b90852",
+      "bytes": 42423,
+      "sha256": "9ab483dca58c1333d02ddee424e158da3aff369da02010fee894be37cee49ee4",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_gate_3\\bw_codex_gate_3.glb",
       "stamp": "v7 4.7.2-stable (official) 6DFDFD34E68C4AF8782E92A892EE1AC110D0E51FF459DBA87DC6E9D7B6EA8EAE"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_inspection_gauge\\bw_codex_inspection_gauge.glb.scn",
       "bytes": 22957,
-      "sha256": "48b47acb01c0e110eabd560b4f4f065dc89686bbe6d39589dc9b4ccb22afff05",
+      "sha256": "8b07f926038c85e77db437babd65b46e5622e9f0f4a5b4db84e2951b36bf4a08",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_inspection_gauge\\bw_codex_inspection_gauge.glb",
       "stamp": "v7 4.7.2-stable (official) DD2C549C678937C8855B63426B2C3C08E3AE98A92E7BB046325AF242BC6F46C7"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_lantern_foot\\bw_codex_lantern_foot.glb.scn",
-      "bytes": 11083,
-      "sha256": "1f405f07e9b24601804a3da556c49e93cae3b7928ef2e1478f7c90de653c9ca2",
+      "bytes": 11082,
+      "sha256": "53e0a30a29bd363c481f3c888e7ee18b4f85ccdd1177b17497fabe3ec812e343",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_lantern_foot\\bw_codex_lantern_foot.glb",
       "stamp": "v7 4.7.2-stable (official) 1B8DCEA0D9B756BC4A1780639C8898F2C0A4590D639A61C0EC54580DE30F7962"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_ledger\\bw_codex_ledger.glb.scn",
-      "bytes": 63983,
-      "sha256": "bc44108ca3aad9283654918c6d53078562372be261e9fe54efef7b61aa9a5551",
+      "bytes": 63987,
+      "sha256": "742954be7ab85aa021acf588c9ccac9bde3959473892c13e464e555b798199e4",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_ledger\\bw_codex_ledger.glb",
       "stamp": "v7 4.7.2-stable (official) 37880DCDF2C6926B6F528D09F1377CBBB6ADC0875200C09CA8A250AF995E9178"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_measure_running\\bw_codex_measure_running.glb.scn",
-      "bytes": 311359,
-      "sha256": "c45f5aa0ad3ff8ea544a4faf7666ddc77a788731d3be392a44fa6d2747384aa9",
+      "bytes": 311358,
+      "sha256": "f30b99f4911d4d73b1ea11c479b7882859a11a8b1d2cba07092b7bced65c7a36",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_measure_running\\bw_codex_measure_running.glb",
       "stamp": "v7 4.7.2-stable (official) F41AAD620DE77C3D8D8A3487A58DCE3CEEEC02650FFDE6487F3317FDDE22EBE8"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_notice\\bw_codex_notice.glb.scn",
       "bytes": 86775,
-      "sha256": "a325c65555a3f87b835023bd517ff20dfc7e910c02cbc34c81af69ab09622cf6",
+      "sha256": "00e73499c5ecebff94661671bf552ccf87d479641c8493f587221ae38315a137",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_notice\\bw_codex_notice.glb",
       "stamp": "v7 4.7.2-stable (official) 384EE737255D9936EC172F59EEE32ECA055423697653AD85D9425F2AC76715B2"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_preserve_control\\bw_codex_preserve_control.glb.scn",
-      "bytes": 18395,
-      "sha256": "51109085177680ebe5603cbfdfa35badfcb93d95e8025c299475c21dd3cae3a3",
+      "bytes": 18399,
+      "sha256": "46636152b35ff88231c80871453a8806de6c0c76f291c3bdebc8ca370e8d1867",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_preserve_control\\bw_codex_preserve_control.glb",
       "stamp": "v7 4.7.2-stable (official) E235DAE6D37DFD3966850BB3937F80C7570F9B1603CB2E61536507DA729F443B"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_rock_mass\\bw_codex_rock_mass.glb.scn",
-      "bytes": 8873,
-      "sha256": "bc63314835f5e171fe5d580f99a5ff1e0dacf21a86b0c3e0ad2f8e5ad76dba36",
+      "bytes": 7792,
+      "sha256": "fb6dd15035d221fa8dca5a1b713ea2471b53d34325da3013ae80487e6766d430",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_rock_mass\\bw_codex_rock_mass.glb",
-      "stamp": "v7 4.7.2-stable (official) 36D5EBBDE17ED5930279F6B6952E0838E434AE1B2441184AA65E0A163CEA8E30"
+      "stamp": "v7 4.7.2-stable (official) 5E208C545228BE902D9227FC80AE298832640F87089AA9178462DA000A29A0FA"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_01\\bw_codex_room_01.glb.scn",
-      "bytes": 2088020,
-      "sha256": "940f9267ac6c8bfc9c43c7c921ca855968482fd76e3f17e729a86f47b080bb40",
+      "bytes": 2993609,
+      "sha256": "f32c7a2a29f6211332b04c5b63067348bc65835e1797ea9b895d1eba6e06b502",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_01\\bw_codex_room_01.glb",
-      "stamp": "v7 4.7.2-stable (official) DB06AFCB39B50C2AD128FCA7FB8BAA2D0EAA083F1C5D81FF7D783ED957002276"
+      "stamp": "v7 4.7.2-stable (official) 8185C91DF8D8BCE87C6C62F46CE4AB794699BADFB923B2931F6ACF2D8C18BC51"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_01\\bw_codex_room_01_lod1.glb.scn",
-      "bytes": 1115905,
-      "sha256": "ae7021cd16e4a2932fa23a1c910c9ff227452df623db42564908acefc0f5e0a1",
+      "bytes": 1531685,
+      "sha256": "899c3b3448b1845cdffe129d80b359791ad389c29668dc4d38d2356cbcd18677",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_01\\bw_codex_room_01_lod1.glb",
-      "stamp": "v7 4.7.2-stable (official) 580D18F784BBD41C556BEE2B9B85FA029B49E19970703D4E91E2B0D78CE89CED"
+      "stamp": "v7 4.7.2-stable (official) 15CF4706FC162FAFB2FFCAD5CD583BD233EDD4E2A8B55F0B0AA0D049219EE455"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_01\\bw_codex_room_01_lod2.glb.scn",
-      "bytes": 465124,
-      "sha256": "b7d39b6f4eb1cca714a9fa5baa7ea8a32a2c799612db22fdee97b451862a7d4f",
+      "bytes": 607687,
+      "sha256": "aeec0780c31a629e943a55d5fb2e9cb0897df422b167022ba8ddae2592c45be6",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_01\\bw_codex_room_01_lod2.glb",
-      "stamp": "v7 4.7.2-stable (official) B5FD8E96D4534108EB145C612120DB6B53F11AB69AD5416B765ED87A662B23C2"
+      "stamp": "v7 4.7.2-stable (official) C9BC94A3C239A3776EB2E838FE34D20002E90B0B4B7860B3E8C5CA059B916A4A"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_02\\bw_codex_room_02.glb.scn",
-      "bytes": 3458327,
-      "sha256": "4760e59d6bc96772c6770b20633c51668e6d172f3d8c2c12d461894dce7c9f1f",
+      "bytes": 5186516,
+      "sha256": "d8259db7aa899e2c51cdbb5e926815eb132fd87ebdbc6a06f597f9c705725a5e",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_02\\bw_codex_room_02.glb",
-      "stamp": "v7 4.7.2-stable (official) 910AEDADAEEB5090FD7F33019E461462691605C983E044939C8F8DAF8E2CA1FC"
+      "stamp": "v7 4.7.2-stable (official) 8C00DDDD560337705F3671A029491B8B9A2BEC991C190BA7D633D2F986E170B8"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_02\\bw_codex_room_02_lod1.glb.scn",
-      "bytes": 1850029,
-      "sha256": "2f4c9e3eba79a59fcf9aba74505dff7612964890c4f2776db713749ffa4861ae",
+      "bytes": 2609652,
+      "sha256": "823f1791f4d44468e7fb185043bc58839e9ecaf7a6d42c8ca90d91a0ab427f3e",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_02\\bw_codex_room_02_lod1.glb",
-      "stamp": "v7 4.7.2-stable (official) 933F5B494B9ADA6C4DEFAA367DE38111F08680D7CD06138A656107DA233E52B2"
+      "stamp": "v7 4.7.2-stable (official) A7B3EA7F722265ACD7FD72DA133E848DD6553801EEB18B1597AD081DE273154F"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_02\\bw_codex_room_02_lod2.glb.scn",
-      "bytes": 771525,
-      "sha256": "0fe47392ba888e300a3c11446352eb8427f99667721a5d6aa0001e3308b8b640",
+      "bytes": 1087388,
+      "sha256": "ee6ba39799f927d4299d74fb010dee3e568e614aea518b6cf8b82937c91d0290",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_02\\bw_codex_room_02_lod2.glb",
-      "stamp": "v7 4.7.2-stable (official) 66BA12B532623ED9D63D403F17061A6B0B2B80026D683BBC133AD2CF58D7CB67"
+      "stamp": "v7 4.7.2-stable (official) 892EAEB9F865240F3B267265693D93F0E3D0616E77FA5BD6F3B2035CE04379A0"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_03\\bw_codex_room_03.glb.scn",
-      "bytes": 2123100,
-      "sha256": "ecc3fc98522e1426a3afd2467a3170e21d15f732df773349eeac591beb531e6a",
+      "bytes": 4211372,
+      "sha256": "ce262e62d58a75d1eecdda3caa2bd3f685619dad1a5b7b72ae9c6f70b567def0",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_03\\bw_codex_room_03.glb",
-      "stamp": "v7 4.7.2-stable (official) 099D714E7DA3A832C38DAB021E78792191FEA6D929615E9B6C0ABE5204C1C3BD"
+      "stamp": "v7 4.7.2-stable (official) 747D0D86DB0A148572A1275B7D9DF3C04C6C8DD5DEB42E2B24B8B8D9D7C72F1B"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_03\\bw_codex_room_03_lod1.glb.scn",
-      "bytes": 1105119,
-      "sha256": "6790cc57445735b3380f3414c9f40bb1e0b87668c63f40472bd53069c4e425a5",
+      "bytes": 2173635,
+      "sha256": "91dcad0b40d3443007461eedd10038282863936401e6c78fe6881b3de591d46b",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_03\\bw_codex_room_03_lod1.glb",
-      "stamp": "v7 4.7.2-stable (official) 4356676DA50C0BD1D117FC3D27A8F6DBCC252A174A1A10EC4D19DC5FE838F792"
+      "stamp": "v7 4.7.2-stable (official) E56CB4CEF77457D4750F88CFD3DE0972F0BB7EA50BCF194CC74498C7FD57736B"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_03\\bw_codex_room_03_lod2.glb.scn",
-      "bytes": 470213,
-      "sha256": "29bfad8ea93a7a1dfc6fe4e0de3548362f18d4964e7dd54de25c03242d97c7b9",
+      "bytes": 882440,
+      "sha256": "4cc99ee1e6d3d3cca6c2891c20f05793e88b88a8576bdf5c72c02484f235241d",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_03\\bw_codex_room_03_lod2.glb",
-      "stamp": "v7 4.7.2-stable (official) D0C701461247D7908E0A8AE3014E1D6F6E2AA8CEAF143AEC0C538CF5959D264C"
+      "stamp": "v7 4.7.2-stable (official) 5F99AF157F928BDD0CB9BC6D17224D40219E0B04059D5D3200E0CCE3A32D6F64"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_04\\bw_codex_room_04.glb.scn",
-      "bytes": 2421955,
-      "sha256": "040f09c094ea58cf85b6bdaa138371984941cf64c1089c8c3f7b44547a96f546",
+      "bytes": 2623144,
+      "sha256": "61faae88b50952dc5bf67c37a4102736b6eba28f648434dfc11d6194ec6c6a9a",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_04\\bw_codex_room_04.glb",
-      "stamp": "v7 4.7.2-stable (official) 04E3AFAC784422DEBBC73CC44B98DB21B4AD1988B93EAAA889ACB2E4B25B3B1F"
+      "stamp": "v7 4.7.2-stable (official) 401DAA7700E081C9F6D6ACC3F800F7E117EC3EBDAFFE3A419049FDB592B64209"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_04\\bw_codex_room_04_lod1.glb.scn",
-      "bytes": 1237707,
-      "sha256": "983ec652e75dda04a68a80343be66fcaac29938bb3e4c3afe8d1d0f9bc77d9a1",
+      "bytes": 1314725,
+      "sha256": "40132373719f877792623a9ede26ca3e610b608e5a9fdd267eea07c9aa346360",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_04\\bw_codex_room_04_lod1.glb",
-      "stamp": "v7 4.7.2-stable (official) 433D6F77404ECB5FD84FA9045C107ACFC8D129B7210A62DED99F2F497577895B"
+      "stamp": "v7 4.7.2-stable (official) 215661FD0BD7418CE6647EC3A729AB87E9B3BA7B14C9DA26DD13DF50001171C4"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_04\\bw_codex_room_04_lod2.glb.scn",
-      "bytes": 527948,
-      "sha256": "689c2c18ff4c9fb2699322ce5421f3868de46e9447701ff7e9e7d324360d2351",
+      "bytes": 511008,
+      "sha256": "15ea0f64bb0c9a38157c8e90ffa20972dc30a2ced33eecddaa3249033bf1656e",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_04\\bw_codex_room_04_lod2.glb",
-      "stamp": "v7 4.7.2-stable (official) 4ACC6A49C1510DC8BB044F247F561B9B2104AB0FFC062CE424C25D95F3B44EBF"
+      "stamp": "v7 4.7.2-stable (official) E6F261A02C20E65384E1EB02FC1FDF050FC0217646145198D41EFC46FCB854DE"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_05\\bw_codex_room_05.glb.scn",
-      "bytes": 3792137,
-      "sha256": "bc5a70ee0b3fd3386f42c8e40dc4edac7fde19f58b95db4b0bfd19aa4f1ab5c0",
+      "bytes": 11567941,
+      "sha256": "287711e8fd53e71dfe324e9534da94f2420a8f09b6b3636e5c8dd73251ef101a",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_05\\bw_codex_room_05.glb",
-      "stamp": "v7 4.7.2-stable (official) 80C57D97BC70462167F728C994131B1631679D5EE735E615DE389ADC4C061F66"
+      "stamp": "v7 4.7.2-stable (official) A6A1957D63EE67118B11CE6F39E427A1FD6E91B5EB54BC02E527CDEABE12A99B"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_05\\bw_codex_room_05_lod1.glb.scn",
-      "bytes": 1945336,
-      "sha256": "29bd412f512d9b50e6db9adcd5c62f12c10754a83615cd75f467d0bd6757bc21",
+      "bytes": 5739297,
+      "sha256": "adb0873a506970153af637ed106f6a8f694904c387346390974de5dc5b450094",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_05\\bw_codex_room_05_lod1.glb",
-      "stamp": "v7 4.7.2-stable (official) EBEC2253D6E8D53F1E74EEBCC9B48031099A42C260422BE4437F35353FDEF1B4"
+      "stamp": "v7 4.7.2-stable (official) 7F534094300160FDA2DD86D7905E0BB0CBF084C3FB5926A79F99CD7CB0DB5850"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_05\\bw_codex_room_05_lod2.glb.scn",
-      "bytes": 814223,
-      "sha256": "a8f0d5c8ffb1f846bb1bdb4d0eb735d3b3f13ef5759fa779b28cb1c939e8f37a",
+      "bytes": 2282987,
+      "sha256": "352755be917dd8579c0009d9d77db250c5417f90a2a365f2b5fdef090d40ad42",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_05\\bw_codex_room_05_lod2.glb",
-      "stamp": "v7 4.7.2-stable (official) 19E9DB7834BB929B685F5104C9AC20F1CE38A588C3221C497EEECA9C297EA960"
+      "stamp": "v7 4.7.2-stable (official) D9A8E44CC3CB0AF7F9C90C77C724F3CE27F7227925C48565CBBF568C2A97836A"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_06\\bw_codex_room_06.glb.scn",
-      "bytes": 3687311,
-      "sha256": "aa86b79ec3d9fa93fa8e7f82bcb5675c67f5fb2725fd47bb68a86eb86b1f070c",
+      "bytes": 5478819,
+      "sha256": "4b8d1aa7d023c5ee705f0071ff00c7b397536e52730c8b93e31366f94e2b8fee",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_06\\bw_codex_room_06.glb",
-      "stamp": "v7 4.7.2-stable (official) CFD0C114B0BB40AAB6179B9DB6D1AA29197C51560218506D7923D566C81AE84C"
+      "stamp": "v7 4.7.2-stable (official) 661B57D116F1B7D0BB0C8F8CA942FB7F896813C5429179BD7D337A8ABDF9D6E7"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_06\\bw_codex_room_06_lod1.glb.scn",
-      "bytes": 1918577,
-      "sha256": "8b2e74367b8cfc3b9253f1d844267e223b844ac6ff9a6f2752eb4e8d0d3073d8",
+      "bytes": 3098830,
+      "sha256": "156422d6f09ca09370e8c347e15bd397cd927b862f9a794114f47e2f4461a8f5",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_06\\bw_codex_room_06_lod1.glb",
-      "stamp": "v7 4.7.2-stable (official) 30D87BDE34FC8784D8B7E2E2CED97E52373F73FF7EAAC5CAD32AE8133BA0B8B2"
+      "stamp": "v7 4.7.2-stable (official) 6E557A7B181BCB814B2D6FCF137A2C433C7C303C78FF6E61BF2D9D609050442B"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_06\\bw_codex_room_06_lod2.glb.scn",
-      "bytes": 785609,
-      "sha256": "69292e54ff92ac79caf0d7e54be1bdce8fbcd3900838321323d3fe6f365cb56f",
+      "bytes": 1186072,
+      "sha256": "4d7a6eee3e31635612d921c0c1915bb6d127d8d5c83800d6ca63f30d33c999b2",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_06\\bw_codex_room_06_lod2.glb",
-      "stamp": "v7 4.7.2-stable (official) 26F158C9B2C6B9DDA140EDC50725596467CC240E12834EE45C44B1A14E1F5241"
+      "stamp": "v7 4.7.2-stable (official) B2FC43D2CD75560F2673738D80E0695EA218D529A5A7334DEFCF291D05CEC7C0"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_07\\bw_codex_room_07.glb.scn",
-      "bytes": 3241283,
-      "sha256": "dbe1703875b64732b1da20fecc9ccc468d021085f23bd892822fac95dec658aa",
+      "bytes": 5616100,
+      "sha256": "94c9285a88c223da4f54482be1a30c1c5fe8cb54bf064fa15c3db1f2306ebce1",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_07\\bw_codex_room_07.glb",
-      "stamp": "v7 4.7.2-stable (official) BA151DFC5ACE680B38F203B0BC42A0C1685FB98CD3D4F4A1A221894C742FC7E7"
+      "stamp": "v7 4.7.2-stable (official) F07064AFBBD7F2EDEB4BE82F02DBAD6342393B944DB50952B36D6F948048440B"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_07\\bw_codex_room_07_lod1.glb.scn",
-      "bytes": 1741737,
-      "sha256": "a02d7ad8833e8393999826fdd70334085439bcd56287196e183e1d1654b23725",
+      "bytes": 2862228,
+      "sha256": "c368866136e691c0797058aa64b64039323681636e94041e98b39e000d68a0fe",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_07\\bw_codex_room_07_lod1.glb",
-      "stamp": "v7 4.7.2-stable (official) 8623C752AA9CB7218F085FF5764B571F3A7E710C741D2CE41A8580A60E2CE71C"
+      "stamp": "v7 4.7.2-stable (official) 2BA0B55E6FF4F4E3845327F4E60BB85A1C2472730B93EB7A2D62011FC618B1AB"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_07\\bw_codex_room_07_lod2.glb.scn",
-      "bytes": 683646,
-      "sha256": "d8f385ff562dd3a850b982714531e051f2fea1a07899eafbc1b6d4c3a432fa86",
+      "bytes": 1180732,
+      "sha256": "bfecb5fb75ff6aee27e899f15724bfe3d42b39b4e807ccbedec205338f664f68",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_07\\bw_codex_room_07_lod2.glb",
-      "stamp": "v7 4.7.2-stable (official) 219FAEFC066A3C5595ACA5DD031801C5E93DF90E52EEE018420B846E093F45E0"
+      "stamp": "v7 4.7.2-stable (official) CE9B344670875124CCE8CC7D448587EDF03237DD090F1388E5D4C1F4F43238B8"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_08\\bw_codex_room_08.glb.scn",
-      "bytes": 2249258,
-      "sha256": "a8d38ce43469d42a372d76038fd178de1cdacd79c77aa9e2b882c88aecb46e54",
+      "bytes": 3743616,
+      "sha256": "a1dcdda84e5aa6bc0a6e0396aa487dd50b625393f11e1c9e8a1c61939491ef52",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_08\\bw_codex_room_08.glb",
-      "stamp": "v7 4.7.2-stable (official) 5D8508D665EFCB497E13E7DDEDEAE24D07FAEB99ED84598EFBD9F33775DB1E72"
+      "stamp": "v7 4.7.2-stable (official) 6F7238A5CF2F5F23E425B23478B319FA8C0E5B131859A66634275A9DFC5F6611"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_08\\bw_codex_room_08_lod1.glb.scn",
-      "bytes": 1199230,
-      "sha256": "511e4dd521b0dc8a6e704e987b1543424dabe38a4281ad2f764193045921acc2",
+      "bytes": 1927135,
+      "sha256": "b75f02a97a1113779db7e03ca312ecea3212f36af94c2328c96c1b39437d3a9d",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_08\\bw_codex_room_08_lod1.glb",
-      "stamp": "v7 4.7.2-stable (official) 6BC30B4A197FEE8F55F32ABD4E765748B1DAF467385C24B753657DD55C511186"
+      "stamp": "v7 4.7.2-stable (official) D47E1E24E9E6EB85D25CCEA2B8E809FAC4FDF90D62ADA1C53F2BFB49D9E60387"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_08\\bw_codex_room_08_lod2.glb.scn",
-      "bytes": 478176,
-      "sha256": "f5bfee2d93458bd10d681914dc0bfd5ffd80103c5197b0df74bfc8142783cb59",
+      "bytes": 797571,
+      "sha256": "6c18b29ab3e6d64ed75b9d739c6be85edafe7109d7ae73714dbbfdbc1b8da7c5",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_08\\bw_codex_room_08_lod2.glb",
-      "stamp": "v7 4.7.2-stable (official) E9B89CC6B1A03D056BF8DCDA05657A7643C34D1A461393FDA6A1D0D651DF1D75"
+      "stamp": "v7 4.7.2-stable (official) 442A78A8D1DF1A133714143D8604DACE75E796828E79A4AF42AB33A7AE35DF59"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_09\\bw_codex_room_09.glb.scn",
-      "bytes": 2439400,
-      "sha256": "c05f8c8c266f78eb7bfe2d57f4088d76c9d4acb7030342712b024fcdc88520b0",
+      "bytes": 3884030,
+      "sha256": "bac7407dd16eef10b61cf3e3385244cbd328d82fa6c3400de85f27a81e87b184",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_09\\bw_codex_room_09.glb",
-      "stamp": "v7 4.7.2-stable (official) 0C3D3E38DB88E2BD30A2CD1DA9029E7F7AFD48F28A06103353491AFB2948F840"
+      "stamp": "v7 4.7.2-stable (official) DED924C7CAEB392C5A26FF820D1F0FC9C9017981594D8011C4802CC30BE4EE91"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_09\\bw_codex_room_09_lod1.glb.scn",
-      "bytes": 1313816,
-      "sha256": "788adb1f3e1a61cababe2d1561f6887eed54e05b6828d981f2b9f344046cc145",
+      "bytes": 1923127,
+      "sha256": "8a8801476553027825d09dcc3b72f82633add3ebae157b521582b52a558ebc26",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_09\\bw_codex_room_09_lod1.glb",
-      "stamp": "v7 4.7.2-stable (official) 610AC040D3BBAF0FDC93A5A62DA05229A4429A7C2E96A950E0C63CABAA8DF707"
+      "stamp": "v7 4.7.2-stable (official) 3E9D997765ACE7AEFA1A2A22E360AD62AE2CE2AF9B39CAEFC9C1ABD7508F7ABB"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_09\\bw_codex_room_09_lod2.glb.scn",
-      "bytes": 531549,
-      "sha256": "d6e8617fe3b639d50bc41a3f58d604db363a48bae5c911329f460d1d74e3f32d",
+      "bytes": 801471,
+      "sha256": "132c3a993f56e765d7245c10b7ec3e34e65b49a60be75600ca2c2a61cad2ed1f",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_09\\bw_codex_room_09_lod2.glb",
-      "stamp": "v7 4.7.2-stable (official) 6D70EBC0EE2A93766EB822D04A8439642B352FFCC63643C55630D8CB0602CF9D"
+      "stamp": "v7 4.7.2-stable (official) FC48D4E1784654A18B1D1EEE3C9DC97C3E32DA2AA937929D0B57DF88DCB49C2A"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_10\\bw_codex_room_10.glb.scn",
-      "bytes": 2556907,
-      "sha256": "faaf44622a55b87ac25864ee3d937641492d6d6957b814f9fdefe84e85812fc9",
+      "bytes": 5449893,
+      "sha256": "7d41585099bd06ded1bb4df2065d57d60eccb110033bf83c6814c85a21d69dac",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_10\\bw_codex_room_10.glb",
-      "stamp": "v7 4.7.2-stable (official) 3AAFAB7E7C06D0764D06E9758D7F8EDD97C0F2E2C23DDB68430251AADAD3F72F"
+      "stamp": "v7 4.7.2-stable (official) 18A338A59FD519FC820AD3BC2F9F77D767C4747D91F220344F877768BB542626"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_10\\bw_codex_room_10_lod1.glb.scn",
-      "bytes": 1312341,
-      "sha256": "56d99dffc89eb0e8297b3a89f33a35b00d84f211dd265518ef8d752abff81380",
+      "bytes": 2693315,
+      "sha256": "8503bf222e0b8df51e328aef9fefbbe23047c5ae38fb3e305c4f943982f9f6a5",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_10\\bw_codex_room_10_lod1.glb",
-      "stamp": "v7 4.7.2-stable (official) 93F0C1E359E9C81FF0401229C82F6879570BC3D099D400359400FD00D628EA95"
+      "stamp": "v7 4.7.2-stable (official) C964F1039F0391428A1A8D85A806E62BCE3FDA97CBE268F7E879BC1AD735CAC8"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_10\\bw_codex_room_10_lod2.glb.scn",
-      "bytes": 552306,
-      "sha256": "95a818f5caaf1fb398ea6150301626218308202d8e21a96f63290ed3688a109b",
+      "bytes": 1113865,
+      "sha256": "e87f5dcfdb848deb59a66f380a06470c2b3a98f3cadb12e356c666e33409b225",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_10\\bw_codex_room_10_lod2.glb",
-      "stamp": "v7 4.7.2-stable (official) 477293DAF4BE0BBBE2ACE1EC5B7F5E53FD40C571B15A2F1511C2A6808DE8775F"
+      "stamp": "v7 4.7.2-stable (official) 48F7619A61B4FAE59DC5DCE51B219FF97C33EA75812CCE530217013F5D54DB45"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_11\\bw_codex_room_11.glb.scn",
-      "bytes": 7772420,
-      "sha256": "dcb25471c680b57cbcd33498ac77927e3d0db386178778f60c17ca6933e37dc9",
+      "bytes": 5656243,
+      "sha256": "3dc81a3fed21ca3adff763525fc57c0141b33b2fe1296c4b33d7956b6ff8450e",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_11\\bw_codex_room_11.glb",
-      "stamp": "v7 4.7.2-stable (official) 3A8FEFEAA8A37F529DBAD76D4AF612DFFE2633DB5C3CD406A948DB354E5B430B"
+      "stamp": "v7 4.7.2-stable (official) 52B324195D8E3717DF16B876697FB44AFE5DC6CD91588CA8C61E5F1A1F7FC7F9"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_11\\bw_codex_room_11_lod1.glb.scn",
-      "bytes": 4175914,
-      "sha256": "b0e4a35a25879540aaac62dbcd1b5b723b6acadef84b1101f15f25c7fd18752e",
+      "bytes": 2884121,
+      "sha256": "f05bb2569fa3bd290e473f02b1bafeb419ec01a2c2d6e43f5099d5a66d27e03c",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_11\\bw_codex_room_11_lod1.glb",
-      "stamp": "v7 4.7.2-stable (official) 15319E7AC2254650FE775EEB6842809730586FC7EFB6D984EBB0C76DDAB59427"
+      "stamp": "v7 4.7.2-stable (official) 2E2B605C462F33DD7B145BDE526235DA33E758C00A7CFC1A5817BEECE31106A1"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_11\\bw_codex_room_11_lod2.glb.scn",
-      "bytes": 1740804,
-      "sha256": "592db8bc5d8e7ee92ee29e59f0cc47f3f53010bee4c013408fd53b9f349c8fc4",
+      "bytes": 1193502,
+      "sha256": "f5a5af2cc9d89150806eba024969e73c9896685ad6fb46e274f66e725c9e5e5c",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_11\\bw_codex_room_11_lod2.glb",
-      "stamp": "v7 4.7.2-stable (official) AE853B935AEC437B5848568AD53780B1F81E95DF71182798F684E19EB027B396"
+      "stamp": "v7 4.7.2-stable (official) 7A53CFC932B6B88E20FDCDF012C315E88FBBA9FC5A99EC3C85F7F6B74E23A179"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_12\\bw_codex_room_12.glb.scn",
-      "bytes": 2580673,
-      "sha256": "87127ce22618ecbf97784010b1f9c3d785b36c83a4b3310213937a8c3110ad70",
+      "bytes": 4929096,
+      "sha256": "3b2c16c987a3218ed1211a97fd2e8a5f87db674f25a9a159358bc8d4ccbfc993",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_12\\bw_codex_room_12.glb",
-      "stamp": "v7 4.7.2-stable (official) 939CBBA8DF5816451689B0FA2869923292BFC7BD7A4E299CBD8BCF4588A48643"
+      "stamp": "v7 4.7.2-stable (official) 061192CDCA9871195E75BAE84CA1842F2CDD0D5A207FA7E469ED5A90E9BED5F5"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_12\\bw_codex_room_12_lod1.glb.scn",
-      "bytes": 1379331,
-      "sha256": "dbd74fea3d343e1aded8d0c4b135bd08850db681b7ebd669b2ffe01e8d6994e6",
+      "bytes": 2575791,
+      "sha256": "693ece39ba481022a7d77fe3ef1d554aa15d8281fb300dd50f7999365022ef0f",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_12\\bw_codex_room_12_lod1.glb",
-      "stamp": "v7 4.7.2-stable (official) 6FFB3ABA0DFE49526DED90AE6FCCB98F48688A9283B9ADCF6EFB8C4585B2E4A1"
+      "stamp": "v7 4.7.2-stable (official) 669F6316BBECFA38B0A9D24FF4FA5EF45CD8A37B45F2907C30D44206F6623E56"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_12\\bw_codex_room_12_lod2.glb.scn",
-      "bytes": 570638,
-      "sha256": "b7fc81d932e91884de93ea8e2c222f39a9623cf28741ef006b66f9ae11713a49",
+      "bytes": 1008375,
+      "sha256": "b5918677236c21229a3bd179505be9ccb9b480961116f971776011a72c666f45",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_12\\bw_codex_room_12_lod2.glb",
-      "stamp": "v7 4.7.2-stable (official) 7A99A8012C3B4550D8B6C67BC433AE3586BAE0CFE130216C53246026A78C32D5"
+      "stamp": "v7 4.7.2-stable (official) 48E2129E433FA879C7B212D27169E8A206C7A9A93202BE5B580B9F46106866CA"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_13\\bw_codex_room_13.glb.scn",
-      "bytes": 2287143,
-      "sha256": "1db8ca676b5510acf1001ecf6254b93e99f8e1d670e4295142b57875ecc2442c",
+      "bytes": 2697970,
+      "sha256": "798982e8e48ca28424a4b03b6adddf7641cbdb0b0cd12f96d66d93e92479dfea",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_13\\bw_codex_room_13.glb",
-      "stamp": "v7 4.7.2-stable (official) 37E373817A94FFDC01BDA0150DB83AF228230E6B38DA870A3B77D86BAF22FB2B"
+      "stamp": "v7 4.7.2-stable (official) C3762793FDB9D2DE65867259853401C1C19F4F9DFE8FF048A69961D7F444A2B6"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_13\\bw_codex_room_13_lod1.glb.scn",
-      "bytes": 1163931,
-      "sha256": "da9741de68698e6543c9ff024ab27bde1f066fc85361dcb8b2443f16ac1f5411",
+      "bytes": 1338821,
+      "sha256": "f572d23932d200b5571ec8de64a2e6ce99fd646ae1b177d46576934f6c004bdc",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_13\\bw_codex_room_13_lod1.glb",
-      "stamp": "v7 4.7.2-stable (official) E38AD9BC608B9762CF9B517C089C21F3E4FD35F24C5EBCAE3D769999F2EF9F43"
+      "stamp": "v7 4.7.2-stable (official) 994BC980F1D0F15DBB31A23B96A989EE26D844A350E48EDEBD0061CB4B12344D"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_room_13\\bw_codex_room_13_lod2.glb.scn",
-      "bytes": 506540,
-      "sha256": "fc866e48e056607fc0898cf3cced91a419834ad879f7ff6186a4235e2b04f1dd",
+      "bytes": 534161,
+      "sha256": "d62f01ab075136e1931956fb4b24f8a580c3d2fc0582e8abb9777ccd654ad85c",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_room_13\\bw_codex_room_13_lod2.glb",
-      "stamp": "v7 4.7.2-stable (official) 85A52E98CC72E55997A9A5EF41BABFE060C1B388267C47ED2CCB784FD9E96A24"
+      "stamp": "v7 4.7.2-stable (official) 62CFE65358DD2640191F0658183E3DD88258DDBE772504868F6E4446C6104390"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_sorting_rack\\bw_codex_sorting_rack.glb.scn",
-      "bytes": 84423,
-      "sha256": "58c1197444d4fa39cb63583fbff8b98e4742a5aa9cf4a29864a474f850547ec8",
+      "bytes": 84420,
+      "sha256": "c6949efdb00a530b74af01a6e9ca6e85c18d13f09d60e8dcbc38a9c39ce309ea",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_sorting_rack\\bw_codex_sorting_rack.glb",
       "stamp": "v7 4.7.2-stable (official) ECB8928F77F91503570AEDAC187C1CAE35B7004E7C51E2AE47CDDC05AB7CADFF"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_wash_pipe\\bw_codex_wash_pipe.glb.scn",
-      "bytes": 22930,
-      "sha256": "0d7a0424e0875dc18fea54af31285ff3938c4179552f4766d216a5fb3105895d",
+      "bytes": 22931,
+      "sha256": "47774f52b3254721b45133b66e0ca4cfeea141739283bbf54ef2db1734d12878",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_wash_pipe\\bw_codex_wash_pipe.glb",
       "stamp": "v7 4.7.2-stable (official) 8ACE2977C128A24CB1CF14A1ABB6995D466793288B4741A1A94F7B1F5623CB76"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\ready\\bw_codex_work_seat\\bw_codex_work_seat.glb.scn",
-      "bytes": 168706,
-      "sha256": "0a605a3b6c6651c44ddefffc5db770e8238c7ab6cabc381561d6fe3b0303e0e1",
+      "bytes": 168705,
+      "sha256": "4fe41a3b1fec935e6649df1c851e11a78d48a8578a60cb03542aa0c75214be3b",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\ready\\bw_codex_work_seat\\bw_codex_work_seat.glb",
       "stamp": "v7 4.7.2-stable (official) F422A3DBD2946752156562AA5A5E08130BF9A5FDE3E43FFCF373C2398D2C7147"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\scenes\\rigged\\bw_codex_custodian\\bw_codex_custodian_rigged.glb.scn",
-      "bytes": 420952,
-      "sha256": "98effbeba577aa9d27f3d4addd0f5bd52cf826a364da7b823f1a3e373800be3f",
+      "bytes": 420956,
+      "sha256": "571f9c1a7f277ecb6e916685b9eb668daa7524db9f9799e3de69d190c9acf1f3",
       "source": "D:\\Otherreach_Scratch\\claude_barrowworks_runs\\fallback\\rigged\\bw_codex_custodian\\bw_codex_custodian_rigged.glb",
       "stamp": "v7 4.7.2-stable (official) B70A795087A29F74CCB37E7A895AC9F9A15D5C4C158BB190D7D3AA1B9E6B6B75"
     }
@@ -578,6 +578,13 @@
       "source_sha256": "ba0202e7ee9bd306c5c87e570169cf257e666ccc8670f907a285d5821dd11bc8"
     },
     {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\029775596398b1561143c3d7.color.dds.res",
+      "bytes": 1229211,
+      "sha256": "e4bf1ce230a83d8b203fc59dcfb598630243861ae7fb58c59fec95a8ee94f7f9",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\029775596398b1561143c3d7.color.dds",
+      "source_sha256": "094a354ed3c6ae871156e59ced402eea7083e5b483cba46f7f578f5f5b69f124"
+    },
+    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\029b9b84b18a6fadf75c656e.data.dds.res",
       "bytes": 42615,
       "sha256": "ebcff4515eb0cae1bed22c15c1dd78f2cdb367f8bb0f713494c4f9940be2db18",
@@ -646,6 +653,13 @@
       "sha256": "cae628205fa1483208b5e017764990f7c2d0d086a6c48190fe28a9e89adb86b5",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\03c4dbc2db1329f1132dc116.cutout.dds",
       "source_sha256": "4a91cc8bcba80093d938f5d86e9d3b371769b33d41531ab4ab682057db15127e"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\03c8b4774956c7507fc63d71.normal.dds.res",
+      "bytes": 5179925,
+      "sha256": "269179b9fa37ae022e931ba708b332c2fa624f6a8cb2747f9f4bfb96eef84f11",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\03c8b4774956c7507fc63d71.normal.dds",
+      "source_sha256": "d449235378b6426bbdfd2f00c51fa5d38f90f17d1198e6e860c255353899d165"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\03ea561a73075dca47bb78e8.data.dds.res",
@@ -893,6 +907,13 @@
       "source_sha256": "85634e59b5478b3be4cbff85b06ab233aea425d9e262ffa7c173598b78043e2a"
     },
     {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\098fe0ee8121081ddbf9aaf0.data.dds.res",
+      "bytes": 931204,
+      "sha256": "7f26da05da216f387d15de045be01532d812084ff063fd85ec215eb74dd96ac0",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\098fe0ee8121081ddbf9aaf0.data.dds",
+      "source_sha256": "77bea1e3357e6343ef16ffe09a2845713757c549a52cab07b5f358736988d9dc"
+    },
+    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\099b03a5ba589bf61047a938.color.dds.res",
       "bytes": 338189,
       "sha256": "a9ee6201d473bedd2065a5422c437e0765bd546816c62a8a5775c28fecd1fa47",
@@ -1047,6 +1068,13 @@
       "source_sha256": "1e74daa089c0d7f20c446ebefa9953511d53c7292f01ec41d5cdfb38d52d8fba"
     },
     {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\0ca3f947510ad5f04df43397.normal.dds.res",
+      "bytes": 1398652,
+      "sha256": "e5f29a13b44120a128c395527f48ea0f8fa3c9d69a496a9f5ee5434963fa0e5d",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\0ca3f947510ad5f04df43397.normal.dds",
+      "source_sha256": "bf9676f7691c4b537bee0546f00e814bc77453884c3de5ea7a4cfa6c6133a2f3"
+    },
+    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\0cd400fcb3a1ccf4e2218e67.data.dds.res",
       "bytes": 415817,
       "sha256": "82fef1c03f3c20c55d232a7193db5cd56b28c2472a01bb0c7e7f39d261d60d95",
@@ -1073,13 +1101,6 @@
       "sha256": "3f3f9b4d1d98d82bf369cdf8cba126affe1282d67dd609db8ad5e99b94cb53fb",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\0cf6b24810cc00c5954b22de.normal.dds",
       "source_sha256": "dbc060364aaa0b58adabbf0d2efc20427f581f4533fe732609e0010f893dad42"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\0cf6cd8da85843398e0844e3.normal.dds.res",
-      "bytes": 330108,
-      "sha256": "6530ced30d1b83cd7d05d350e0af3db2d4fa86ab344565a4fcce1f4958212bd1",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\0cf6cd8da85843398e0844e3.normal.dds",
-      "source_sha256": "37235c3964c7757091630443b35c97309df78130fcfa27812aaa657dca9be88d"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\0d1399fd02df038f9b8e11cd.data.dds.res",
@@ -1150,13 +1171,6 @@
       "sha256": "5594582a786aa5b33e0960b7dc3b2aa2681db78bc3bb1cf8fdb1adb7d6b4bc05",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\0e9fec3cb347973f716d7143.normal.dds",
       "source_sha256": "61ecf37e4a47a3454dd356c9eb77398845408cf860eb49a5ff03e03b0dd7676e"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\0ec0a7d4d6732c73f448acd1.normal.dds.res",
-      "bytes": 269048,
-      "sha256": "cbf437f944daac02a9846b8f31266c04bd4f6ff2d98f68e8364117e2ecf3960e",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\0ec0a7d4d6732c73f448acd1.normal.dds",
-      "source_sha256": "942925575a471e37d30acdd53e054028588a2fec25147242e1fa0b5160070ceb"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\0efc5b940b92f2f2e3acdd69.normal.dds.res",
@@ -1234,6 +1248,13 @@
       "sha256": "38df48bfc4bb81c212bcb479e03ae6c3880585a45597d4adc3470ba1f5068d4b",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\0fd887c99492c6c0c3d36ab2.color.dds",
       "source_sha256": "dce354ba64272126c1ab3d4eec1f9c2f37dc7f08ae15c442edbed85867bf14cb"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\1001dabb90347e9cf8664ab8.color.dds.res",
+      "bytes": 4231890,
+      "sha256": "d273cc89ab01256e2a7e931890bac5941f63b45fc97e690ef74acc3c9788e472",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\1001dabb90347e9cf8664ab8.color.dds",
+      "source_sha256": "d46bb68512627b57a77e52528f4f6914bc44a7b4fde53d588fa8e7797d512fee"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\1037a55f34fba88efd285117.cutout.dds.res",
@@ -1663,13 +1684,6 @@
       "source_sha256": "1f40c5075d95f8f48ec33d8cf61ea6792bb2f28ed899f69a43a1b7abab7d7fec"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\19acd2f196078ce4058c19ce.data.dds.res",
-      "bytes": 248058,
-      "sha256": "a7f031b12e2c74ed3257f1f317565de3a0686f64239d39b866dbba4a5a96b929",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\19acd2f196078ce4058c19ce.data.dds",
-      "source_sha256": "9a024ad6a79860839d8054054258921f5a7cbf4e9216a3d1f50117a05ca78958"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\19d341a67e49ed4510434185.data.dds.res",
       "bytes": 330857,
       "sha256": "dcd7d28d2fcc6eab751918f0609765658278eb2cc2cab753db1ab6ac73a0fdec",
@@ -1738,13 +1752,6 @@
       "sha256": "86fad60370d6c9a2075a925b31782855a6f905c0f5fb12aa06ff50c601ac4318",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\1aa23172e1dd20051bf4d647.data.dds",
       "source_sha256": "8186794400b1461edcb4fd4ff983ef0a99f8bc042be935ba8635cfffa5e38edc"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\1ace458a7e573f6e29073e4d.normal.dds.res",
-      "bytes": 1272203,
-      "sha256": "a7eaabaa68a46bbcd66294249e7c0f0c25af787c4b640a6f2d9afd5b0d5f5423",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\1ace458a7e573f6e29073e4d.normal.dds",
-      "source_sha256": "06c2fd0415857267ba0cccd9231ea942eee048c60a20c01162c2b3733e33012b"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\1b1b23fc0d1e1d76a79b05bc.color.dds.res",
@@ -1892,13 +1899,6 @@
       "sha256": "c3a5f50b6e69dd5d5315b874d9c5dc5d2163620b5db868f818b7f2b27aded1ad",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\1d25066aa2c418081820c6c2.normal.dds",
       "source_sha256": "6308de514fc455897e0243183ea1f4ac3324cd97e304150da02d8dd3e5d1567a"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\1d405beaa1fdc18202660b8f.data.dds.res",
-      "bytes": 318564,
-      "sha256": "ad19d46c842d91b9ad929835558492257459d8747e85b034017db91583b2cc8a",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\1d405beaa1fdc18202660b8f.data.dds",
-      "source_sha256": "7c6b9de753f22a1096b10ef994e7f7271f18147c50d693a9dc24a09174317650"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\1d5cdab9558780b556dac770.data.dds.res",
@@ -2055,6 +2055,13 @@
       "source_sha256": "e34dece737666b29dfb2b1c8f419d62b6b269981675908e4b3d92626d8c2be86"
     },
     {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\2109f4ceb5c26acdaf4dc7be.color.dds.res",
+      "bytes": 1326147,
+      "sha256": "8786fa8b8011ef4d10dccaa230f526c5d179dbd6dc88e4ac5919133ca05ba0b3",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\2109f4ceb5c26acdaf4dc7be.color.dds",
+      "source_sha256": "915a95dbd4306e2095c1e6cb7bcb0c24f9fcdde182178a32ef1346bbe07a424d"
+    },
+    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\210ae19b5de38e4b6a652ff1.cutout.dds.res",
       "bytes": 5520764,
       "sha256": "ea992bcffdb289a365b074477d93a4b647bf82390982149a57448184643b86a8",
@@ -2095,6 +2102,13 @@
       "sha256": "8cda4df6dcae89d456f19e2c5e9de5e7f47596e3828b7922b96e9a82d68e74d4",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\21b722e5c1e6e780e737280e.normal.dds",
       "source_sha256": "cf13a20d95cd8ad8003f7600a99c1678210c6530ed8aeafd717353293323b0d8"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\21ea049cf5167675c58775c2.normal.dds.res",
+      "bytes": 5262561,
+      "sha256": "511446c2ae0f30068759d501b52e8badd8295a29f1db8e62294ceac72a1d464d",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\21ea049cf5167675c58775c2.normal.dds",
+      "source_sha256": "3b6bab39d07e8d07bb7b43cc3b94528d0b03d36a2b26fd3bdc66fd563a470e31"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\220cab2de4e86a65668cdd35.color.dds.res",
@@ -2181,13 +2195,6 @@
       "source_sha256": "ac19e2d506a57bbb42eecce29db949178de9c1c2f91d8f7c6d32ee2592a793c8"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\23553c1c60b2fca3f1aa2eb6.color.dds.res",
-      "bytes": 349942,
-      "sha256": "f34defb3a2a2b3607817b60532f6670c31e72ba80672768d53cbeaf94cf938e3",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\23553c1c60b2fca3f1aa2eb6.color.dds",
-      "source_sha256": "713e171011541ed51082b95dea87a3e0e375308a88660be9fbaae58fc9ef9483"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\238177c61fa473083fe34f08.data.dds.res",
       "bytes": 1287192,
       "sha256": "362f17710398bbb73bd38fc0b8c6c63d81284089433c7528438f7ba3e13772fb",
@@ -2207,13 +2214,6 @@
       "sha256": "af6a52dc076d460551bb52a2962f2afcf3e20d019b3e2468cad73c9225737028",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\24181cc51b5c70d7dacb8713.normal.dds",
       "source_sha256": "bea3a0c88dde6fad75edf5fbf3fb98f000f917e0382f1d0be742217c409b3323"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\24362cef553d1f8da377aeb0.color.dds.res",
-      "bytes": 22420404,
-      "sha256": "1682c434cfe2b3f5016fd83a9879510eb37b990a03baec8ac8637a0f9ff51453",
-      "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\24362cef553d1f8da377aeb0.color.dds",
-      "source_sha256": "bc44d46c1e97d7049006310c8a7fe57810001baaac30a70d0072dcaf2c2de79d"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\24906633cefeeb0b290c9b73.data.dds.res",
@@ -2249,13 +2249,6 @@
       "sha256": "520afb80d614d65131c05b66fc1984b3afedcff69f708abe706e7c14e328e22e",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\258ad6f8ab70d0d85a24152e.normal.dds",
       "source_sha256": "43b9f325f1acfdabe89e2686244b28544050f71f809702dd7a341fbc730e6b23"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\258dc3e0bf235709cec5b0e1.color.dds.res",
-      "bytes": 351082,
-      "sha256": "4d66ab14f6149d7b9cb54bb30c94b5d6e8f8c1a4e578659b5a3113158caf42ab",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\258dc3e0bf235709cec5b0e1.color.dds",
-      "source_sha256": "7f9e4c8141ba8548f37975a029b487ffb1a15a3b343cece4066b4791eed6eaac"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\25ea642fb881e6609fb7df73.normal.dds.res",
@@ -2384,6 +2377,13 @@
       "source_sha256": "7198a1458ab8c6a770d96e4a5d2c8cb2c925d6548debb083257ae2b607aaa370"
     },
     {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\276520b4f73c748dbf212c16.color.dds.res",
+      "bytes": 5048296,
+      "sha256": "051495e55e29c759d30a943a5404dc054dd0fe4dff9be0721ce56eee81dfdb40",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\276520b4f73c748dbf212c16.color.dds",
+      "source_sha256": "9a91415fcd8a3eae7de9828bd5b4e4312b3658b25de352c56e93c7a72336f739"
+    },
+    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\276bc0ebc99ca768fedaa419.data.dds.res",
       "bytes": 338164,
       "sha256": "0e02f0840149425b5e03cb0ee52809354849bf19f5606da8f8a8b1e9ec0becd6",
@@ -2496,13 +2496,6 @@
       "source_sha256": "86427e04bbc74aaf6595783d49ba46b5af059c0a898cc286282ed3c5c09369c3"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\2a86a901865f402f7e72af8d.data.dds.res",
-      "bytes": 325329,
-      "sha256": "669f399d5d713881dd50ee705584d57ec09d1bd39d029cd1e8c133118fdabc8b",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\2a86a901865f402f7e72af8d.data.dds",
-      "source_sha256": "a1d41b00db5b82a727cd199fbeb53e6220c52d11f02b634236be49e4cf28331e"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\2a9606ee941f099077249a04.data.dds.res",
       "bytes": 1342259,
       "sha256": "ca22677c21d18e486cf1662ce8420c2ccd5e6740963685901d8aef57b156fec8",
@@ -2529,13 +2522,6 @@
       "sha256": "8b18fb6da11a005b0883e1d2bdb37f7cc729322799d051bf77a490c96ace7382",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\2ab4a9c66c3aa3807d685939.cutout.dds",
       "source_sha256": "24a3c393f39af5a094147f71ea6281feccd08d6a46c5eaf424f314a526cd4088"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\2abe2a54a4e61df3cc4a8953.normal.dds.res",
-      "bytes": 341486,
-      "sha256": "85be2d36db4424d40a6cd42aa015fd1fd2ac3a6010512976f29d616ce40f6c5f",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\2abe2a54a4e61df3cc4a8953.normal.dds",
-      "source_sha256": "87ead58f71c61eba4c180d22b6691be66ff82d57b2dbaf6038ffa8972dc876a7"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\2ac3557f743c08ad9b205760.normal.dds.res",
@@ -2606,13 +2592,6 @@
       "sha256": "7b49bf5912e7868e6eaeb0e4e542c64de0e86e492ad8e6001796f00f6ed5dcc4",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\2c8f4b7229786e485f28f7c1.cutout.dds",
       "source_sha256": "6ec5cb664d4d1598ffef33a27de279182fcb9723ea141d6f1d1f66a3440dc7ba"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\2c9ad3d2c289f795f2e05bdd.normal.dds.res",
-      "bytes": 1365878,
-      "sha256": "83686a1f865711bcddecb1d17bfd29ce21a9a3c94ec17044d25a040b206c99e2",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\2c9ad3d2c289f795f2e05bdd.normal.dds",
-      "source_sha256": "8ec40d1802279b7d8d79593d74e82f864b54785da2c70182966d043806bb66c7"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\2c9ece35befc608558b62b0f.data.dds.res",
@@ -2804,13 +2783,6 @@
       "source_sha256": "90ab8164a54c5b396436253e25e96a82e4523df9f6c0c25575756c67798add88"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\317fcce0fdc934ccb8439232.data.dds.res",
-      "bytes": 334780,
-      "sha256": "af62c0a2ce64c84a7bc03668e625aedd5fddf3473b97ca9197c71acc5227776f",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\317fcce0fdc934ccb8439232.data.dds",
-      "source_sha256": "8e197e5f857cf45f9e6ea9089043be85473c986a06244a7a88ffcfba54c13a9e"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\31b86c44b9cfe6742440f8ba.cutout.dds.res",
       "bytes": 504546,
       "sha256": "b4df6ba5d8f957f230562ba919d7e7f0e00afea98744f424f3b816e847437e35",
@@ -2935,6 +2907,13 @@
       "sha256": "9a21d6b670fe0c34dc8157e36a86b930c593f3b108e1347661630c0f0cdce92a",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\3392088591140fbca0b92ae5.data.dds",
       "source_sha256": "fb9702e77762f8e9e9404703512691f83e5018f086b960355c397406839bb10d"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\33b383eb1ce90c4b56a221ca.normal.dds.res",
+      "bytes": 5209857,
+      "sha256": "7b31403c5499fd1eb4446a9ff6527a625b087b54006749d2ba26781b14a834c1",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\33b383eb1ce90c4b56a221ca.normal.dds",
+      "source_sha256": "8065533bd2a30dad3c9232c1bf72801abeddc07dc20f487b2321edf3442bd4ed"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\33fe9b405aec5e7af71e07c7.color.dds.res",
@@ -3231,6 +3210,13 @@
       "source_sha256": "e617d123aca1feddf410d12051310579eea81f2517085dd438ac661b38f8d8f9"
     },
     {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\387354cc54dd4ec1a7d3cbd9.normal.dds.res",
+      "bytes": 78819,
+      "sha256": "364723f168985740bd0e58e08dabc4b597925c356357aac95eb49b114f3ab3c7",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\387354cc54dd4ec1a7d3cbd9.normal.dds",
+      "source_sha256": "1a6abce7aa5cf7db79cf9a79eca6c6f5473774c3dd75de0283dbeb9a1d52b8af"
+    },
+    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\3885c25286a3344329ad0ca5.normal.dds.res",
       "bytes": 5555771,
       "sha256": "c07ab19fe6a835e8cc7f97747d7c0df0ed1ba1293f9c18cc23f5cfd68a85b60f",
@@ -3343,13 +3329,6 @@
       "source_sha256": "b48010003ef8ca84503996fa6ff5dc1c9b3b3f25eb5e0544d2fcb12be13d8fb1"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\3ab57ed97a055e2faf075909.color.dds.res",
-      "bytes": 341736,
-      "sha256": "b8054183bbe5d3837bc8134a7f0eb767c49628d333d72536a2a18903a7e544fd",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\3ab57ed97a055e2faf075909.color.dds",
-      "source_sha256": "582eca5f429caca4b9d9e1ad591fd9b126ecea170396d207a13147c07d26fc3e"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\3ae2b369a889ef68233c2b56.data.dds.res",
       "bytes": 1270938,
       "sha256": "eb2f848f17832a49ef9857cbcb43535cd940210bcda6477c1c700a8678798ddd",
@@ -3383,6 +3362,13 @@
       "sha256": "b6104c405d05cd5fee5334851e7b74b121c7ebbbc2052a30214b51ddc72fff67",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\3bc6718d88645116bdbb43eb.color.dds",
       "source_sha256": "2d210ad14d0ebd81845b2f8c29e50a5bc0038a32918233cb624f5b3c0eb35b51"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\3c12d44d6c95fe95f256adaa.color.dds.res",
+      "bytes": 74148,
+      "sha256": "b5697cf795a8ae6d33338f296013c3749264f8e445d40cf130dea8b9a8e3f355",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\3c12d44d6c95fe95f256adaa.color.dds",
+      "source_sha256": "40f36fb45f41732d90970ccd3e78566321a4116890795f0713d92837539ba855"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\3c2d9609f429d48c2d5f7a07.color.dds.res",
@@ -3495,13 +3481,6 @@
       "sha256": "ae762a621c395288890ce3b2b814905c66e120d36e165df88c491cfd7942fa6a",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\3dd33f6e5dcd378d084a1543.normal.dds",
       "source_sha256": "0b2604872cebef1b0fc65bed5176af70489f5f23f5a611fdb39f5649e1cb34ba"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\3dee773dbed7d7365eabd3cd.normal.dds.res",
-      "bytes": 343165,
-      "sha256": "9919f33d39c6cbd038835c2d62a7bde9c0e9e91bdc21ee1c78acba9e9ff20dec",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\3dee773dbed7d7365eabd3cd.normal.dds",
-      "source_sha256": "12e38067cdf247f89091081bf97a67302c826196988e1843315a05b884fa8700"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\3dfd02da1ea61a38274a032c.cutout.dds.res",
@@ -3670,13 +3649,6 @@
       "sha256": "92e8b2e5e8fa9d54c7caf3a6fcd324c802e4067e435bb51972251f3264b0e98a",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\409f283275691d6c67465165.color.dds",
       "source_sha256": "b426cd1957ff4c83bc2846db2574bc87be985cc737236298471f49b9872c19da"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\40bff9dc8bcdf7164a25ce4c.color.dds.res",
-      "bytes": 1348045,
-      "sha256": "b033028e4bf79d97df9326055b688eb260ce57209137cb4000d5a81967e9796d",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\40bff9dc8bcdf7164a25ce4c.color.dds",
-      "source_sha256": "b1bcc1285204b7d1e5e2d952e6b6f0c6238a0edcbf0927a4ff38fd95c3ab84e4"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\4100d3e5a78947a17ef44a43.normal.dds.res",
@@ -4127,13 +4099,6 @@
       "source_sha256": "7617764ce8c24706628523e1c93164b4dbc9442ff79981f335ef3fb41b741c63"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\479a4f0ac435ac07be2c3793.color.dds.res",
-      "bytes": 1403096,
-      "sha256": "03431a2f203913647c822eb14b1824e5005ee9891d93e9de043bf53a4ba09694",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\479a4f0ac435ac07be2c3793.color.dds",
-      "source_sha256": "129262fe09ac5c97f12e5a648ed85476f85fe856ee0a7b8fc0fc040b050ea929"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\47de7c46000aeeac10991867.data.dds.res",
       "bytes": 3463707,
       "sha256": "1ff8abefbe5f171f970eab974fb3b5fc70f4faad5f1dd61519889ced8dccfa85",
@@ -4274,13 +4239,6 @@
       "source_sha256": "7cfafd091b57d724d182826c53ce0c498b8d9f50615d8d14a8e813ed7e80414a"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\4be30830b0cfd436612d4117.normal.dds.res",
-      "bytes": 182847,
-      "sha256": "6a876a2f4894c6315549d54e300431cda169526fc965a03690e4cd02abbfcf73",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\4be30830b0cfd436612d4117.normal.dds",
-      "source_sha256": "324bccd3018b1b300c5237238b18f1e81e56ddcb2f037db92f8d90ba003f2085"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\4bf28f2ec429bc48bb67a370.data.dds.res",
       "bytes": 189761,
       "sha256": "ce25830babdb2e16e1b35c4c74469bf140586d97b3d001df4304737683531668",
@@ -4300,13 +4258,6 @@
       "sha256": "8d10228d77373c7229c2a964009e2a53098a15ff30e5b643a87116bb608981dc",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\4cc3a6f7600eca2f73ef70ab.color.dds",
       "source_sha256": "a251c1bd1655e25fb63a560883708bda35482b6111065a2a3a41c0fbb9a8d437"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\4ccfbd539a411f287fbb6ae6.color.dds.res",
-      "bytes": 335285,
-      "sha256": "05946e24b4c3f68749c382d18a9d6f072284747f3879471924dd30e6f1da2ee7",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\4ccfbd539a411f287fbb6ae6.color.dds",
-      "source_sha256": "fe50d99c405f4d3ca355c6098af708a2d965ee7fb0aabf86bc6ae0f43eb331e9"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\4cd3e437d40722f58e29c179.normal.dds.res",
@@ -4596,6 +4547,13 @@
       "source_sha256": "212f3e820b84a78db084c68aea6eaba70fd8d35ebbd96d72965b947dfdb9dabb"
     },
     {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\52c310715f6dc0c547e21ff8.color.dds.res",
+      "bytes": 3855061,
+      "sha256": "66e3f883c6eaa651f747d6b3046114ee7830d4f84ba21cb1d613fc97c926983a",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\52c310715f6dc0c547e21ff8.color.dds",
+      "source_sha256": "a4e602db074a6b25f8c90ca801ae0f506920cc2002b3bc9fb8d11f193d0adc3f"
+    },
+    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\533165426f5e6cb1eaad6b1a.data.dds.res",
       "bytes": 81439,
       "sha256": "5e0d4d72b36c58bb589be08f6b72ccce26650de72158084b553f9532dddb6058",
@@ -4848,6 +4806,13 @@
       "source_sha256": "c345548694ad60a50afc2f61f03d84c459b9cf3c680007ca32404e29914401b1"
     },
     {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\596664193e18ec0d37b66c72.color.dds.res",
+      "bytes": 4927183,
+      "sha256": "8ea73b63358e6f2e77023f6d4bf83bad0a3ba38299fcf95424119504d763b806",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\596664193e18ec0d37b66c72.color.dds",
+      "source_sha256": "0745268cfe8386caa1e33f8249c21a81593af6907686bc30d4159b3efd9afe7d"
+    },
+    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\5968ca8c66eb9c4c8c5ebd58.data.dds.res",
       "bytes": 66951,
       "sha256": "d6bda9be022edf5cad08ccc73944925f5382de0f985d967b761bba5d3bd5e763",
@@ -4881,13 +4846,6 @@
       "sha256": "6e486b99be247db158ec9ae84fd82c7740fdc3c2631e806167e4ef05e84f7ca8",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\59fd265ff50a815c6e936b30.data.dds",
       "source_sha256": "32dbb9900bc9af4639c5ceccaa65c0cfc8c7b831323330041287bc495d87173a"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\5a35d7ead7c74aec7c1c778f.data.dds.res",
-      "bytes": 3130,
-      "sha256": "145d0a6f12f8123e009e051cc13fe505e54ddcf5ef066c3859ca2e929dcbb9ca",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\5a35d7ead7c74aec7c1c778f.data.dds",
-      "source_sha256": "b730aeefaba01d224a94c1fc66863d4a52b50a270c4aca6802ad2d943c504f00"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\5a62bcbce0b422459bbdab08.cutout.dds.res",
@@ -4937,13 +4895,6 @@
       "sha256": "9a8153c5c4cf2ead22dd237a7f9826844822d285189cb2d1908dfb7bd4b956fa",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\5b2c3d4b18294ab7fdce64e0.data.dds",
       "source_sha256": "61953be31789b04550484588912b22ae0d872f19c07858a239a9cb7a3921fbe5"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\5b63d64ed8f25eaae826fbeb.normal.dds.res",
-      "bytes": 340077,
-      "sha256": "4ebed4753d2086ba9d1d19c0c5b1493a31c5b60a0d6d7242320141dc3b94f614",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\5b63d64ed8f25eaae826fbeb.normal.dds",
-      "source_sha256": "46ef311a9e9eec722e3b505677c97782f245dfee4e46edb9b82451462b7d08c3"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\5b6a4a3cbab097f4bdadfcf1.color.dds.res",
@@ -5056,13 +5007,6 @@
       "sha256": "8fc713982d2c1df26be751b97ace5c0c165aca6a31c1d3e65f51957ac8402cf7",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\5d0d9acba199d5b43c47b8b6.normal.dds",
       "source_sha256": "61ae7f2f8fc05bbf66be955949871abd355521e376c226d36a64a22edaa62c32"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\5d10dc18b6fb55f4e3cf9153.data.dds.res",
-      "bytes": 11579,
-      "sha256": "38c8aad1dc8adbedef991778e77e6935179d2bedc9e6f8f061a20414da3473a6",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\5d10dc18b6fb55f4e3cf9153.data.dds",
-      "source_sha256": "98645a5ec638a93b1357647d6f31f1573f6669d7318c771fd31bd29ab3354e49"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\5d1ced0d9de7cff629d70c8d.data.dds.res",
@@ -5182,13 +5126,6 @@
       "sha256": "e0715e57ada7680031f66b24eb5f891356ef73a56216c9ab27995cb11a9fd0e9",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\5ef0a4d67df9422a1e751440.data.dds",
       "source_sha256": "1b4727e71cc7772d3dae8b4efff904434a1bd6c1bdadfb8baa1c4a3a5931b6f2"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\5ef2200d10e753a7652c683a.data.dds.res",
-      "bytes": 321906,
-      "sha256": "ae46d6a48dee058861141db893c3897e2080f667b78b9bb457600b19033c2e36",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\5ef2200d10e753a7652c683a.data.dds",
-      "source_sha256": "f3fb991d553dce9fa98291f6772b7f6c1cb729fe09879496f6915b131ce0f6e9"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\5f043273234d34cbb9a7a2c3.cutout.dds.res",
@@ -5443,6 +5380,13 @@
       "source_sha256": "8fe9a5ef6b78160a2d87a164e84a743d681e19bd965d85ce970749d7eb8939d1"
     },
     {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\6446dd8e9db7cf4580ac536e.normal.dds.res",
+      "bytes": 330555,
+      "sha256": "95f3bb5b9ef9b87c2ce02c8c94634d566c8f19eafa6173a4dddc1a9dca90e023",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\6446dd8e9db7cf4580ac536e.normal.dds",
+      "source_sha256": "1e43105ae5a757739f071e4b154a3e30cdcc26c5a5d9c693a115b0e70b8105c9"
+    },
+    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\648653298a83c30dea4bdf1f.data.dds.res",
       "bytes": 4955003,
       "sha256": "012a88e294076c2e8bd1b87116346e8fd22681647563bdbbcde6bb4d65860bbd",
@@ -5485,25 +5429,11 @@
       "source_sha256": "3d97305caf27e97cccb8072f781bc50ee0fd1592fce8e582ca58fadba711d0e3"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\658e09e24ae633976592c138.color.dds.res",
-      "bytes": 348257,
-      "sha256": "82d0624606b70fddd17822d2ed272acfb3a010c3ff10a36dc0e46852f6675b09",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\658e09e24ae633976592c138.color.dds",
-      "source_sha256": "6c0387645f75cb78f9887af473c7018eda37d1fcf1f9d44831e13f76fe798073"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\65a7239dab1345645ba234ec.normal.dds.res",
       "bytes": 206615,
       "sha256": "136d86022149bd68f71878da39a49d7a31313bb6584e180db5718837c4037cbf",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\65a7239dab1345645ba234ec.normal.dds",
       "source_sha256": "9a12707afb993e781eaee89e9f6fd839c2156dc067dbaff40bad623bd2e7b279"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\6602107458a43f758a71fe27.color.dds.res",
-      "bytes": 350945,
-      "sha256": "dc63f5430c3bcfa69288274c81f61478b0ac7300bb7ae3b4e853238e6ceadcf1",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\6602107458a43f758a71fe27.color.dds",
-      "source_sha256": "3fa6db43d0a5c0094fe12e46eb98b3603133d82dc460f8b307015f566f238690"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\6613eab8aeca4f03298a96fc.color.dds.res",
@@ -5539,13 +5469,6 @@
       "sha256": "b93afa8f095deb576988901f637d85750287fa3538e1ad849f6b32b27cf2440d",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\66f1e9713607c221af79241a.data.dds",
       "source_sha256": "eae7b64fd758dcda91e270a96238915ef64787c69bb82507d7b1ebe6b711ff19"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\6723e384f2b9ba35c96ec591.normal.dds.res",
-      "bytes": 1048339,
-      "sha256": "5b0c018f10f2a088c06536d91b074f1f28a062d4d4c03f3c30cbf37edd98b5e8",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\6723e384f2b9ba35c96ec591.normal.dds",
-      "source_sha256": "eb887ebd256b7eb5cfc616458acc0caed20ab61489a73b62da635e1c135b1ab0"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\673047fb4cb426cb1b792ab3.color.dds.res",
@@ -5588,13 +5511,6 @@
       "sha256": "20d8834c2672e2f190b2158216ba530c689972bfb24d26e8b5fb9e660db57b96",
       "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\67940a6b0fbc1971dc286799.color.dds",
       "source_sha256": "d26c830638396321a734bf80454525c8d654c47f1af16651e1c5eedfdb71b93e"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\67b14a7eb3853ac801204ade.data.dds.res",
-      "bytes": 1288829,
-      "sha256": "3772a4792a232791c08defc9a92a4e757bf87ccdf314f7a445ee19b50c2ee058",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\67b14a7eb3853ac801204ade.data.dds",
-      "source_sha256": "8f64353f3a187798a99db7d52a61a232eac0cd731d3c483c0a4c5e7b06f1e16c"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\67d34f3a31488edffa667ea7.cutout.dds.res",
@@ -5821,6 +5737,13 @@
       "source_sha256": "d679067c7775c5c362b23ce13e7bdea5696a4a4d0698fac0c9480cc87e9607ec"
     },
     {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\6e2df4791c7c6b111184c4ca.normal.dds.res",
+      "bytes": 331292,
+      "sha256": "556d080c1d0acb331bbfb0d951031e5e29d749375b1c4468b7352bdd941f6214",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\6e2df4791c7c6b111184c4ca.normal.dds",
+      "source_sha256": "4bcb18a81ed93b88aadcc7d845afc8407f8b7e1995eb70250bcc37095f7c6650"
+    },
+    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\6e3aca55b3f874e6a311acb8.data.dds.res",
       "bytes": 65931,
       "sha256": "5bab7b07b3787b43abe374faa8f6a16b8208feea20f1502f53f706ea7b79ed35",
@@ -5847,6 +5770,13 @@
       "sha256": "78c71545ddd070ec78d0144ecc2cba39003c665df7a763d486a275695fc4af46",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\6e91905823589e51f30ee3ad.color.dds",
       "source_sha256": "1bb7336a1a8e53c6010c5c77f4c05954e7dad33563c03fc5b0157b1c938e5779"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\6ec893391c0f8be28199b50c.data.dds.res",
+      "bytes": 21505673,
+      "sha256": "5125571d34799304cf6ddc5af7e82c6b9903773f27d39ee49a5de9769e43bb44",
+      "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\6ec893391c0f8be28199b50c.data.dds",
+      "source_sha256": "e296c98ce08b698135cd58bab8b3f222a921e3fa99313f8772f1cdf0c9dd7209"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\6ee7d1b7e024a1bd669fcce0.data.dds.res",
@@ -5898,6 +5828,13 @@
       "source_sha256": "1ab66e0550e14f97c531947dd21808aebcabcb9f07890c45ed5311dbc9bc0f59"
     },
     {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\6fa7dbe34e1a68f18c6d1c87.data.dds.res",
+      "bytes": 799789,
+      "sha256": "8b9771e19fced8efbddda9302d61fe04a4fbdd95e0353db384d0b73d46e17d60",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\6fa7dbe34e1a68f18c6d1c87.data.dds",
+      "source_sha256": "f62af4ab163f22493a0ec989f9a46ba551f3625173b37eb138006f6637854455"
+    },
+    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\700a481c7e5bf049291232ab.normal.dds.res",
       "bytes": 3832027,
       "sha256": "da1c678f5a592e8716a4347882c4db86cd4670c354d476b1eafef6c5b3497d84",
@@ -5917,6 +5854,13 @@
       "sha256": "82c4142811d531597b8610e9990d856719761863e6e67197251a945fd82f9b97",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\704aae37f4beb0da12c918c6.data.dds",
       "source_sha256": "35d55b3929ce2046576ddb9885d6ec4bafcbe58ff68c19b517cf0d31ff95d221"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\7081256d6559a03684da9bfc.color.dds.res",
+      "bytes": 333637,
+      "sha256": "ccfa3022c5a6f1acd5384d1df79cac673485e378530c77d889a8137107b1c3f5",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\7081256d6559a03684da9bfc.color.dds",
+      "source_sha256": "4964ac889658ca3ca71212c9766067972b8fdac9dadf69c07b37ce654e43eec7"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\708f4796799bbcaaf81d84ba.normal.dds.res",
@@ -5980,6 +5924,13 @@
       "sha256": "a83af5f3d0d914f22aa41574d9eb4dedd8c4467550381dadeb3bdc65ecb82190",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\715665ec2ea201e43652f2e2.color.dds",
       "source_sha256": "733608856838ca91cbf75eeca059b6327f3980457a8f30693abba9caf2109718"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\715b1d27a8b8d4eca93f0bb1.color.dds.res",
+      "bytes": 337461,
+      "sha256": "5e01c878b91b2281f222a824ad6951b612dc6c281852a8f42ca925109fe86a61",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\715b1d27a8b8d4eca93f0bb1.color.dds",
+      "source_sha256": "f04d04016dfda859588aed97b1db1aaa6136068b032f00560507e20d033bdecc"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\71bdb44211f03f2147cdca91.data.dds.res",
@@ -6052,6 +6003,13 @@
       "source_sha256": "1e64cfcf0500031edee38bf51ef785e33bf3ca140db68f29322554537a73f04e"
     },
     {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\72791ab5bff5566696c0d7cf.normal.dds.res",
+      "bytes": 22071954,
+      "sha256": "82dafff804067a25fb3c94e0128377cb87e627e6a1785cf4e90471b569e93487",
+      "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\72791ab5bff5566696c0d7cf.normal.dds",
+      "source_sha256": "1e9cf74bdbabdccd3beaa0d0dd378ac7318ccb74ed366b7ec743a1c5cb123f9d"
+    },
+    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\72bb7d1fff1c24074292135b.color.dds.res",
       "bytes": 111454,
       "sha256": "f0465945e0cba41c54dd83bf783999c12892c6e797240715fb67f67fab98e9ec",
@@ -6085,13 +6043,6 @@
       "sha256": "2b5dfd961a921c41a65cea432ccd926798d3676bc33107494e2b91074c5a7fb7",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\737bbc1c17ee68225c399ee5.data.dds",
       "source_sha256": "ccd8bc32860b1c19a29a441d43d4999b4aa3cb59e29e6d9f3220e4efd31f4d07"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\73d5bb537e258e9fa16713ca.data.dds.res",
-      "bytes": 341002,
-      "sha256": "cda165c4231e0b86027640e3633d88910f1ab2f0e68d710aeb699a5c2eab1fb7",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\73d5bb537e258e9fa16713ca.data.dds",
-      "source_sha256": "d3864a2bd3a6b44a2f542f25ab9a86fa0838ce2d2741523b059f206a789d7e6c"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\73da99775ba7706b964cc50f.normal.dds.res",
@@ -6225,6 +6176,13 @@
       "sha256": "2c7daa50c8cfeb992a2d0566ff0fe7ec763ea795c24a6e9b5d83b5071676c96a",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\75a7210a49167a4e239dade2.normal.dds",
       "source_sha256": "5b5cd4f19d0fa0065422e87d20c87139c84a5b8af58eb372a95830341ea0bbe6"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\75c3419d89501f685efa7ac7.color.dds.res",
+      "bytes": 5488032,
+      "sha256": "e1712302111fe1063ce472afaeba6b85e636d68276837b174ec21c7e21b75efa",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\75c3419d89501f685efa7ac7.color.dds",
+      "source_sha256": "48e30ba30c7c3be9eb3c118d8ec95dcbc4b4fe26703c0788148dcaea4e7dd860"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\7604e5a871b1d758c8141948.cutout.dds.res",
@@ -6759,20 +6717,6 @@
       "source_sha256": "5d667015832d17346d7c697fae829d31bd5172a50c2abb90c13cae17440af739"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\7faff7c61c3f1641f4e740f3.color.dds.res",
-      "bytes": 1402068,
-      "sha256": "4a9c23d7397fb766631b64c123f66fde00f16ed9dbef4471f73e0ed95a9d2ff2",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\7faff7c61c3f1641f4e740f3.color.dds",
-      "source_sha256": "78bec64eb127721d36fbed5ab15cc75a9620cd43f8fa431a077df1491a019c88"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\7fd2170779fbf8f13da6e2d3.normal.dds.res",
-      "bytes": 350408,
-      "sha256": "571b530f40514d41d119b2eb35d91b3c27be4c25b8041ec4d0cfccc4360a61dd",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\7fd2170779fbf8f13da6e2d3.normal.dds",
-      "source_sha256": "b4f22dde49ddeafd329b7c68c7b95e583c0bccb634622ddf333babc21aac1da7"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\7febacf42f5f1190d50071fd.color.dds.res",
       "bytes": 2686638,
       "sha256": "f0b2f6656033f3522dc0668823614e9acd176bbd19f200ddbc826a34874c6cdb",
@@ -6960,6 +6904,13 @@
       "sha256": "991f1bbf70cedbe8d679fb81249f3107fe2670c8fcdae6c1bdfba250e444d40b",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\8394f9580a5cfc6ba176a43b.data.dds",
       "source_sha256": "c81c4e701080a53e5deb0e2327b73b1c72049967e5271c423e19bc7d8b7cc149"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\83bbd37b1085b4881e5300d7.normal.dds.res",
+      "bytes": 4995029,
+      "sha256": "d91faf19e029ac391cae4f6a3d4fb331481260b22244bf3cdb4c7ef17278a714",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\83bbd37b1085b4881e5300d7.normal.dds",
+      "source_sha256": "7cbd49f42182e5d9dcb46ddc6a0f2804ede1777ee5960ce9ce22f7c4ac72c32f"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\83dce11d699f0cbd49dcc980.normal.dds.res",
@@ -7347,13 +7298,6 @@
       "source_sha256": "3fd47a21efee181e268b3ea8881aab80e2384f199ee32399897f6ef474d7b8f6"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\89a385b374cdf830a2ab3f6d.color.dds.res",
-      "bytes": 348513,
-      "sha256": "ee353fd5dc3aa61861caec0cb2795a5d66e22819f60db95ef2e5b0461dfe6e89",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\89a385b374cdf830a2ab3f6d.color.dds",
-      "source_sha256": "e7ad887007005465dc136cffe02b0b03d5ee2f0a23b8a0ade5f3410f1f7df8cb"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\89c3149915114505a6c46084.cutout.dds.res",
       "bytes": 929155,
       "sha256": "7db6e755c30df63bae18fe2b8594a8ab63313c667459d76b90b5d6f1095b4e3e",
@@ -7417,13 +7361,6 @@
       "source_sha256": "1b149efb31e38142a059dec04f9de86fb600dc8cd9fbac177abb4610d686f6ea"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\8ab161919af7cd3af63ea823.normal.dds.res",
-      "bytes": 351082,
-      "sha256": "7f6549e5faa91ea0112a20cb547ee0545cd2b41e7aa64501fa2b49858a04b695",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\8ab161919af7cd3af63ea823.normal.dds",
-      "source_sha256": "72421aaf33869882997653f151780468061cbb25de24d5c85f9ababfd0216ff8"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\8b08d075f68fce148b2b2483.data.dds.res",
       "bytes": 5287904,
       "sha256": "8e7d1846a9b7836560cf262c9d21f382ed9c184cfa6cf753639eea2c68748dae",
@@ -7445,13 +7382,6 @@
       "source_sha256": "eebb0d633b9ceea99cbdedcbcd23686b8081002798419f08fa47d031c921e577"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\8c193ec9e9e54ffc33d666d5.color.dds.res",
-      "bytes": 1295516,
-      "sha256": "fa5d2c3733e16b730db022ed91ac1443cee737ee646b9db8ca3be0344f694c53",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\8c193ec9e9e54ffc33d666d5.color.dds",
-      "source_sha256": "b0eedd63afdb5b4779e4b2d1011a7ea676934a04a61cde1898f55f9857936f7a"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\8c2f3e4a12ad1daf3f5e51a2.normal.dds.res",
       "bytes": 1116035,
       "sha256": "9f175c29b9f4583e21296d79abcf2f0691e615690534ed248deb0cd7a572ed93",
@@ -7471,6 +7401,13 @@
       "sha256": "b0b4a501dbaebbe6a8d8889a626b08d5daf79e7ba81bc70a455ebc0b10b93f68",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\8c3fe69191515f896e0b318c.data.dds",
       "source_sha256": "e2f3ff5e4f2e84c99743f571e96438612070a2dadf82169dd5cf8681a5af03f8"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\8c70732d43aa0b436075f52e.color.dds.res",
+      "bytes": 5243084,
+      "sha256": "d1b427f9ad257c6aafb149435d294e327fedd828355a68c9249a740f3c7a163c",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\8c70732d43aa0b436075f52e.color.dds",
+      "source_sha256": "c1d6dd6517db72ef90f70dbba84039285fa6fff1aa99617b774832634e50bb92"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\8c84ad2169909970ecbf7a77.data.dds.res",
@@ -7648,13 +7585,6 @@
       "source_sha256": "cdf5ce3cdac37f0842aacc73ec9138c34922fddda4f861de50a77f3f70f4368f"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\8f35d1e4d50a65a3a628da35.data.dds.res",
-      "bytes": 331721,
-      "sha256": "10ce68a27052538a35546d5f1e7913deb08053bc22750761508649558a0c62ce",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\8f35d1e4d50a65a3a628da35.data.dds",
-      "source_sha256": "13f70f140bf56998388f764e12e0211e34140182933ed81032c872c711abce53"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\8f4c4df594eee85cd94f46f3.cutout.dds.res",
       "bytes": 879362,
       "sha256": "1c5f0ff6088cb25d65cc420d075f00926c7928262a198f4c56805a3c3a3fe9f8",
@@ -7709,13 +7639,6 @@
       "sha256": "adc5feb5dbab31c7b869041ebb85b31cf796dd3852ea40ecd26973c800e99280",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\91149cd05201ec3e378047c3.color.dds",
       "source_sha256": "53e1d27fae64051ccf65132b5d524fd9ee6cd84eb8c13d26d77a98abb638f06d"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\91359ddfeecfa43750d2cfd4.normal.dds.res",
-      "bytes": 22441507,
-      "sha256": "ad7640fe1fa25a25f83601776234c3b9b8e96ff57ef72fd4b58deed5a3861f79",
-      "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\91359ddfeecfa43750d2cfd4.normal.dds",
-      "source_sha256": "e2205b14a6c2aa34474b9e1158e5f187c92cc294b47c8e69b08254cd6fa7a397"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\917241dd2033f33d5a5f608d.color.dds.res",
@@ -7830,13 +7753,6 @@
       "source_sha256": "dd3ae7b905cf15520bd5d6d908338f893cc1422f46ae66385bd06a8424d914ab"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\9313da28e136794ba6a3d090.normal.dds.res",
-      "bytes": 1388076,
-      "sha256": "74a8404c807a0052bc1f703247f1707f24b5a1c3c547eadfbf3b1c17c77c9bc4",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\9313da28e136794ba6a3d090.normal.dds",
-      "source_sha256": "cc25cc022ff2d5f95364c016bca77f185e30c06dd8c397544a92fe090de90ede"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\9328cd2a19ae1ad5707a75c9.normal.dds.res",
       "bytes": 22002909,
       "sha256": "8e194d08e8a34f4928c8918595a9a53f8f0df62bd637473858721daaa3838840",
@@ -7921,6 +7837,13 @@
       "source_sha256": "c6bce8b529bd605b878e55ebebe9e00e75efe66e286387c0eb3b316515899c32"
     },
     {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\94bc3c99eaa3ad243f4ee34a.color.dds.res",
+      "bytes": 1389393,
+      "sha256": "011783160508f59e8420b9c0098c560e0e1e96e835cfb2ab345fd1b34f161427",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\94bc3c99eaa3ad243f4ee34a.color.dds",
+      "source_sha256": "eefb46e0828d7f6a009352bc1a1035f5d5540f15e2df9157a0ae86c041b930ed"
+    },
+    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\94daeedccb3068b7cadc111d.cutout.dds.res",
       "bytes": 655908,
       "sha256": "f9ca558b49458af930c97fd0e151b6163d244e01e3d57a42793568fae55108a2",
@@ -8003,13 +7926,6 @@
       "sha256": "731468c2fd08e86bafd971c3cfedd4fffe12dece664c367005644eacb40859f7",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\96b2e334dbbfa6bc6ded4951.normal.dds",
       "source_sha256": "64fa4c9c3957fd881765610b74843766a2ff0adf5855638bc2f2d03874b861ff"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\96f6ac3a92d82e3df5a6c862.normal.dds.res",
-      "bytes": 1356481,
-      "sha256": "66e513b8c39b59d590a4a1666930b5da2ee6c857f4ca86dde9b0cb6d137f181c",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\96f6ac3a92d82e3df5a6c862.normal.dds",
-      "source_sha256": "b39469f70ac878fd0e3ad0fb867cac5e5ea829df2ebea46552115ca0491ac4c4"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\97155187ed2ebc61156f61ed.data.dds.res",
@@ -8243,13 +8159,6 @@
       "source_sha256": "91734d7e5baf9b70b7100f3ae618201d2f114588143141e261fcc6fdfe4bc15b"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\9b9818219fd15a02462b77e1.data.dds.res",
-      "bytes": 1332394,
-      "sha256": "e8496d0ea79c6fb68eb77dced6506a8651be4308e6e0b6770a23281f3a9601ad",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\9b9818219fd15a02462b77e1.data.dds",
-      "source_sha256": "09157d096c947488e68edc4e1da03e51630cc1c7610e3f28c938c36405a3be4d"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\9ba58239469d6d31930679ef.color.dds.res",
       "bytes": 87573,
       "sha256": "b2cb68a315d8c18d16b7be3fc564800c8f6ef39a1367bf41b98d0cd7235fc8e8",
@@ -8381,6 +8290,13 @@
       "sha256": "deb47a434cb6e5c778b12c2abb901bee44e7f5b326d69512d3406faa379e7bd2",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\9e31abbcf39fb7f188df9d57.color.dds",
       "source_sha256": "57cfe65a83407f2457eab26d889b9cd2e5807d2d6c59866ab7430d1f0f6eae00"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\9e49fcdb3445510a50334f3e.normal.dds.res",
+      "bytes": 5045863,
+      "sha256": "648cc27fb9adc0e73f030e173dad1569f03cc2d91dc610c25571f5bd06d5bb1c",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\9e49fcdb3445510a50334f3e.normal.dds",
+      "source_sha256": "edaf02673c37277b486c3dbb8ad92c5cf2c6fcc12b9bc3b266ed933d75666931"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\9e540b1f641d03e3601d1445.normal.dds.res",
@@ -8894,11 +8810,25 @@
       "source_sha256": "018dae0a9dbd7ba254f8b79f971b772909e1328c1702077abc091dc091d77ed7"
     },
     {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\aa38bf66b3c181586df3acae.normal.dds.res",
+      "bytes": 5367565,
+      "sha256": "bf5216a879c64c1bd2251221fa8afeb931b2e9c7ee762ae88d217c8bdb3b9759",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\aa38bf66b3c181586df3acae.normal.dds",
+      "source_sha256": "da91c51549172ced38832e554d91096ae5e56b14281c60b968fdecf3c2debdf4"
+    },
+    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\aa4156233a8e0285c43f3c44.normal.dds.res",
       "bytes": 5478936,
       "sha256": "5ba53d0024bc079428be85a469e8710621266082940993ac673af7f5f0e7c972",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\aa4156233a8e0285c43f3c44.normal.dds",
       "source_sha256": "4715b4b007900dd3e2e6f586ef039a95243db3d7b16c8a3fa6721e221efb5c67"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\aa4ec57948dd8bb1b1dde9b7.color.dds.res",
+      "bytes": 5158097,
+      "sha256": "5b867070c4ac70aa9875c79ff031a39ae959c5402d3bbde59a165a6e607ed5c4",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\aa4ec57948dd8bb1b1dde9b7.color.dds",
+      "source_sha256": "b399d9d4087596742003b51bedc71bff1d3620994b546f941dfa32835c8fd721"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\aa6821c76134b00547f4f2d7.color.dds.res",
@@ -8955,13 +8885,6 @@
       "sha256": "08ac05acd8028451cdc3bba226b1d6db3a14be6d965db43b586112ab6789fbb0",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\aac99f98629544d9285301bb.data.dds",
       "source_sha256": "0c9a8954fb7523b5f044b2ef5c4ce106ad6dcbbfe991b89f3dc844c3f6294e6d"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\ab0696da6c3c6af6cff24588.data.dds.res",
-      "bytes": 1354545,
-      "sha256": "44d099aafe6c4414fbb317e4cf31a1bc58188721a31d42610b3b3a4daed29a8c",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\ab0696da6c3c6af6cff24588.data.dds",
-      "source_sha256": "1245cb69f5956f20498996867d5d0a6907ea4fa5bd58cdb16769123b33183129"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\ab2df89e106ccd6169875e9b.color.dds.res",
@@ -9041,6 +8964,13 @@
       "source_sha256": "0a02f8a5fb29801065b278397ff9c490ceec4a053cbc03d09646a2345794a68f"
     },
     {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\ac4e12b42026fddec74bd33d.color.dds.res",
+      "bytes": 1357789,
+      "sha256": "207aa9dbd7fc0c41eb0f931408aca4a762a7bf14e76149001ac8f566696f8709",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\ac4e12b42026fddec74bd33d.color.dds",
+      "source_sha256": "a3191b55b01cabddd1662d33bd5f3d55e8faeb0bd53a97060322c7eefb6fb331"
+    },
+    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\ac65e139ee4aa23d8eb32827.data.dds.res",
       "bytes": 86971,
       "sha256": "ff4f360cc3b1747cdd57885accebb7a6388d5fd89b7cc8198e5143833afd9238",
@@ -9097,18 +9027,18 @@
       "source_sha256": "897b5c57ba1575eb1207d6bc2e16fff084f9a4dd4ef5718217fe9e20d6a30981"
     },
     {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\ad3a4a89eb2b21c5bb7a00cc.color.dds.res",
+      "bytes": 1370821,
+      "sha256": "5b8f92a142fed43794b9f96b14cf81dc1124a6204f10471770b3248115008e24",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\ad3a4a89eb2b21c5bb7a00cc.color.dds",
+      "source_sha256": "0ab74b47875f5f86f75e65c6b26aa2d16fc64f7c157196aa532b1ec927055487"
+    },
+    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\ad6a1fddebb726289aee1cca.cutout.dds.res",
       "bytes": 1176523,
       "sha256": "955bf89383d7cace14f1fe231b66d9d96cca93aa03fc60d7a26a653ec939466c",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\ad6a1fddebb726289aee1cca.cutout.dds",
       "source_sha256": "ed7a20c2016c55e66118130fb4343b01ed697fc0e7a15cd910460bbf66bbc211"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\ad6d90fa8fdb7e4789801603.normal.dds.res",
-      "bytes": 1401834,
-      "sha256": "cdeb417ce4518ba5943b050fa32364ad41a6858b8a3935ad5dd69e2bae1d6656",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\ad6d90fa8fdb7e4789801603.normal.dds",
-      "source_sha256": "bbe78220e6565d0fc6313e0c96a3289207e9d91a2a982b0cfae9bb70431d19b6"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\ad6ff562a4a8eae6fc28f27c.data.dds.res",
@@ -9172,13 +9102,6 @@
       "sha256": "4392f6144f0f54f14ee2aae4857dbbef96f4ba9eba88f203e79285a9470e816e",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\adec603829bcd1facb00760f.color.dds",
       "source_sha256": "db64ef69f97c8972db884eb5d571945129c68acbf1bd1b09fd958d94f7fb3c86"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\adf15a0df71e9d5315e97f06.color.dds.res",
-      "bytes": 334445,
-      "sha256": "f34ac7d01f8413af24c4b9f9aa4faa469fc33e60e8fe036d6aa1f4ae7bcf2d25",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\adf15a0df71e9d5315e97f06.color.dds",
-      "source_sha256": "d7179eabddcd15c19b7d7af5d0f060b0c12a0614ecce31d42c23058daaeef7e4"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\ae0b8b6715e3544d2d2abb84.normal.dds.res",
@@ -9517,11 +9440,11 @@
       "source_sha256": "13f1bf510b0fdd9a56881785298bff6b20cdbc06184288ae8ed074f2c10ff065"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\b5381eed1d6aaee8126b25fb.color.dds.res",
-      "bytes": 306395,
-      "sha256": "753e8dd0af96ab05a1ba16a862b7f42e6ea10524f45cff93b15bdfe063a0cbfa",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\b5381eed1d6aaee8126b25fb.color.dds",
-      "source_sha256": "02f0293bbfcdb37f9c683138a8f21e7e333a08c5113aae79364991d902897ad3"
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\b541a1fec132db58b8a0ed7c.color.dds.res",
+      "bytes": 5257050,
+      "sha256": "288a60aea85be0493537c10c3a5fbc10a2d3257c71b219bdb96e72de9a3dadea",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\b541a1fec132db58b8a0ed7c.color.dds",
+      "source_sha256": "cbe690fb934bd8ee6242fc34e1dc5bf2a8ff81be1ae0e8f5d7cdf6de62ba4d86"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\b567498d8499504f7722bcb7.data.dds.res",
@@ -9692,6 +9615,13 @@
       "source_sha256": "49b0351cc363e71247e58edc5df4275e09d4c48228ae20d07bdd5b4844f8b859"
     },
     {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\b8491f4b11e3e6e6987de55e.color.dds.res",
+      "bytes": 22446443,
+      "sha256": "3014d8fe42e70b59e027898f77816c05ce03f40e68d1c36b932b877e402f5878",
+      "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\b8491f4b11e3e6e6987de55e.color.dds",
+      "source_sha256": "12450a29218f5cc27fed39c1abf479aac08cd7c585439ea9e62f08b2e85cf48b"
+    },
+    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\b86e5cd5a7b5655d37b5f82e.cutout.dds.res",
       "bytes": 583722,
       "sha256": "0c209cad4a4af5db6bf5cc308cb9ef321779004a653fde6cf26be792f4a6f94e",
@@ -9853,13 +9783,6 @@
       "source_sha256": "fa9cee48c93ce5bf83c6d60d897e346f6ad14f2722baf8546bfbd969f228231e"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\bb2e9e283ac540539a15f79b.color.dds.res",
-      "bytes": 298440,
-      "sha256": "a4b0da8d93c7806358bea3ffcdc057bfe40a2612eb1c0a402b0eee976045032a",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\bb2e9e283ac540539a15f79b.color.dds",
-      "source_sha256": "123e6b8ba2daa4d6db7f3350a85f834cc412230ed867cf5e9df9e781888650a4"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\bb39ca46c768fd2860caf1db.normal.dds.res",
       "bytes": 351892,
       "sha256": "35a979a9f36f4f44214ec1a35ac4e8c911364dae3639390d30165f91756c3174",
@@ -9935,6 +9858,13 @@
       "sha256": "37b7241d3358f4d51faa37c5a83c1fb885c5f05eb2a0c7100b12f98fd344f1ff",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\bccd47fa0deefdadeb8ecd1e.color.dds",
       "source_sha256": "73172d1e138f3a47c4569cb4b0dee188178354b4beeaf3e3ac1022dfcb271387"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\bcce863567d42b8612265e36.normal.dds.res",
+      "bytes": 4805125,
+      "sha256": "abc35ebc1036bd880d56e3485d5fc6f20e175b227fe669f0c4df3cf9d20122ff",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\bcce863567d42b8612265e36.normal.dds",
+      "source_sha256": "a9dc73bf0cff43a8e207d0e48aecb82dc856d0c68b99a040599a6fbd79724f0c"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\bcd6d290b35259916c9c08f6.data.dds.res",
@@ -10385,13 +10315,6 @@
       "source_sha256": "93a6beec3c4b124a740790d603485fdd32cb700e1a0f107d3c403bdaf15d7db1"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\c5b05600698247d07634246d.normal.dds.res",
-      "bytes": 351020,
-      "sha256": "d72bda289443fd8ee6fbee43d010b241c76fddb190026c63f29107d86fc08906",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\c5b05600698247d07634246d.normal.dds",
-      "source_sha256": "89f7893f60de81533f417bf1f68418d3270ee9aa222c72dd1bc3eeb9d9a73be4"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\c5c03b152f49a89e59f6958d.color.dds.res",
       "bytes": 55395,
       "sha256": "7472b99b87bf4b8ead17e60776771adfde37f2cee8d43028ed2885345033143e",
@@ -10595,13 +10518,6 @@
       "source_sha256": "12ffe37dd94678674e8275504ced2782eb460f81d7377694e2000aeb00febdcb"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\c94b041e0f41790f7c8a5532.color.dds.res",
-      "bytes": 333858,
-      "sha256": "9724f0f6e2261c0042331f22f97003c964220b0d9547915115690aee6538c15b",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\c94b041e0f41790f7c8a5532.color.dds",
-      "source_sha256": "a531b83758ed2ad07328bda45e7d4cab66572df6f7df4bf72f08f86ee1d98c9a"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\c953c6eef96c5b53aea3178c.color.dds.res",
       "bytes": 2937174,
       "sha256": "bd827ca5034c956f8d11b507651b7bbc3edfa45f508b13422cec4487b6511c35",
@@ -10649,6 +10565,13 @@
       "sha256": "eddc5556ad007c506b58ffe677f0f8a5c42afc2953f5893045c7b13348f512ef",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\ca100d4c0bd6ade9f809259e.data.dds",
       "source_sha256": "9a43b2754272df5e3379d47e9e26b8f83e7767962f5cfa0324709e512c3cb17c"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\ca3958fa96758cf50b012e30.normal.dds.res",
+      "bytes": 4691783,
+      "sha256": "bcfb0787a6d762bc0deeebc17980c794199217e20fbebc6b27879ecd302d30c2",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\ca3958fa96758cf50b012e30.normal.dds",
+      "source_sha256": "bcd40b6aafd4be0fda88ac58871c164b69dad904538a4175b200e6e1a5e3464a"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\ca47751fe08c400e0313192f.normal.dds.res",
@@ -10789,13 +10712,6 @@
       "sha256": "bce84e60c55766982fa25f68b59af9c575ee454ffb9d939d3a4646e6a0cfb8d9",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\cc117b91fac681870b2705b1.color.dds",
       "source_sha256": "38231609061aa3cb085fedeb197593a0ec41a544afcc17cc90d4d446eabfd633"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\cc12dc3e4bcea68dbba43471.data.dds.res",
-      "bytes": 305154,
-      "sha256": "bdc3675d3a12144c597e9d933fd74a9b6845dbed8d9085f022ad3985305b1567",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\cc12dc3e4bcea68dbba43471.data.dds",
-      "source_sha256": "536104d01b51a9c02597f4951203857f5c0f6d454388813bd4473fc00df130c5"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\cc46d23ae8d85185e6bb1270.data.dds.res",
@@ -11323,13 +11239,6 @@
       "source_sha256": "e8a90308734a95f44d4116bf99d84dede0ff363f3742f1c7d8bdede016af0d72"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\d71f1e0ad97efc940be173af.normal.dds.res",
-      "bytes": 348894,
-      "sha256": "f3fd079757e722eb0a127dab123c8ae9f1e71fe74ddb5b8a18ddc84ba8d2e61a",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\d71f1e0ad97efc940be173af.normal.dds",
-      "source_sha256": "db68f416b2279a62ce23903704e9dea3c0b1bbd2dd043621d6f5cad522fe44af"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\d744239d21c8f194a9e97a19.color.dds.res",
       "bytes": 5391944,
       "sha256": "a8c2a6fd291b98a41cd2c290685a5c7d9c37954a717b128120a7c11ce20a5ba1",
@@ -11657,13 +11566,6 @@
       "sha256": "82885a4c4805dae5aa81848d25f38f1d6f736bc3313ef43742dc375baafc020c",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\ddd293a90beb678a8868df0b.normal.dds",
       "source_sha256": "f0b95e8cec275a46f0d26ee75f05a90c6fef4e05dd34d8fdd0cd4c86bc50a27c"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\dde35644205b65dc5861e702.normal.dds.res",
-      "bytes": 319667,
-      "sha256": "05b571493bfe2a97636dc9de5d06d268ce7e89f42b7f263dc014cfe436146c64",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\dde35644205b65dc5861e702.normal.dds",
-      "source_sha256": "1303b8b3cb3d4acce3941ffb1db5d343b139a357c852b2f663a25a954d71e207"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\dde65b524ad05f4f71cf053b.data.dds.res",
@@ -12051,13 +11953,6 @@
       "source_sha256": "be8ab59ea5fb5eab27c88d4151ba4ea826831ab3bf582b19b2b25715bd17cc7d"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\e824d757740b88474fb9abe3.color.dds.res",
-      "bytes": 1191219,
-      "sha256": "b4486157623e614b27bdb17dfb764802ec0f56bfa0bc875b117c708a8c11ccbb",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\e824d757740b88474fb9abe3.color.dds",
-      "source_sha256": "485b336d4bae024fe02dd40060f3edb822536a12d78dfeb35f588267ef988ce4"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\e883aa39fb72f53f443add53.normal.dds.res",
       "bytes": 216342,
       "sha256": "83b89f0a8fbc97fd6e9b3c9806816795b2ec5d2f07c91a6c86c50cb48c2d1b75",
@@ -12147,13 +12042,6 @@
       "sha256": "b966f3919b9e543fa0209ebb23115e3f4bd965c5d7cf0047128232f9c400478e",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\e9e85e275c48118b6d00f2d8.color.dds",
       "source_sha256": "0d0b78ba00c841c1e3de1336ab130a1d05bc0b94a9e692d81615b518e2fabf0a"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\e9ea8d749cb8922923550904.data.dds.res",
-      "bytes": 1265122,
-      "sha256": "c5ef38216da7a8462ce2a9992eb13ff3aad39915d9df1b8f4749ad3463b6e938",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\e9ea8d749cb8922923550904.data.dds",
-      "source_sha256": "bc642b9baa4ee0c0af9bc4dce3ef6a54d87567aa98a994bb5f3182b04f459216"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\ea3f4c098e1f4549160a44b1.normal.dds.res",
@@ -12464,13 +12352,6 @@
       "source_sha256": "778c158da3b5edf1ce11b7cb418ab20daaf014006317e7f385b1c40d9e824cf3"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\f0bc5d2c3c5378fd3fab42aa.normal.dds.res",
-      "bytes": 340284,
-      "sha256": "6483398e0020da3b073805497a8c6466848af75c41712615db89af1ac267c15a",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\f0bc5d2c3c5378fd3fab42aa.normal.dds",
-      "source_sha256": "7f774dfee803bb131ddcc71804338e60a08dfab68c7393744c126fb958850c4b"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\f0dd9b4ee1810aa96161b46c.normal.dds.res",
       "bytes": 3071601,
       "sha256": "af5544c01b03569316bcd7a10bcb79f1ff3adde9527b19a8a62bf088cdcac162",
@@ -12511,6 +12392,13 @@
       "sha256": "5ba63b90c44e9d93ec365398413e2e1ef24e981efff98b41f831b74802a135e7",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\f23b4ab443156e01064840c9.data.dds",
       "source_sha256": "281834a96e5869d939cd273a6a3ec959b88eef4da92b209296ed8f2aafde7888"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\f25236d217c7723d0a2c9947.color.dds.res",
+      "bytes": 5104077,
+      "sha256": "49d9a6a3ba82af4e8593211d6ae1780f7235c2271e0a76366f803ba6de95e20b",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\f25236d217c7723d0a2c9947.color.dds",
+      "source_sha256": "e2ccb7fca1a831c2f5e2c8eefb0bbc069c3aa8543bb1dd421b24966ecbb6fc66"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\f27361e9196f8c1711512123.data.dds.res",
@@ -12639,13 +12527,6 @@
       "source_sha256": "fb1cadca901486a01c227064b606f74389aac9e1d36091bdceb28c82ab804648"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\f55b391a3e83ad29cecf0003.data.dds.res",
-      "bytes": 329169,
-      "sha256": "4db4072f8e61e3e6d947a40e70042f21d55d735828487f92012128686468dffe",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\f55b391a3e83ad29cecf0003.data.dds",
-      "source_sha256": "030d319d2bad3a8344da221c92a85b2e0e58f64c7064e50d9943f8a565119cd9"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\f563e17ee5379857fa9cf061.data.dds.res",
       "bytes": 42593,
       "sha256": "c6d35fc1bfcc85df315053a08e196a213cf1dcbd81402ef74bcc9b7c8533e757",
@@ -12763,13 +12644,6 @@
       "sha256": "a9060126a8569eb03f140e2c113d9ebbbf84419dff6899ef72940e371b42e3ab",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\f7f4955b434c11731af11e0d.normal.dds",
       "source_sha256": "f8bbb4712ddebd11998e986559e93467a2e6423e2bd72648f1bdd8ee355e8c10"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\f81a98bb6271ad8b8c6e8420.color.dds.res",
-      "bytes": 1329152,
-      "sha256": "912c4d068143843f97dedc9bfc124a69da7f72a8e0bd9022f1378cc4d4b896bf",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\f81a98bb6271ad8b8c6e8420.color.dds",
-      "source_sha256": "24f5fdbe75a5e2caa3d99622d06e60104d093046c2dbfce03e5a9954440bb0c2"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\f82d96aaa12c0f7a8a321026.normal.dds.res",
@@ -12961,25 +12835,11 @@
       "source_sha256": "b6eef566dd5fbfbe3e7a28b053ce22498b109638cd6c68a8d98ee4ab12ec2c12"
     },
     {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\fa9ae901f3cd8cf60fe943a5.data.dds.res",
-      "bytes": 314376,
-      "sha256": "d4a071237c5a828fc5b3ca9152a7b3c8fa3a753b083aa8654506b72a1d2a2eaa",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\fa9ae901f3cd8cf60fe943a5.data.dds",
-      "source_sha256": "ad6916958c803fda7bb2a224161016a22eae82f59f8afd46c6d4054573aeb265"
-    },
-    {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\faa8b288c6c9a30a7fcaf707.color.dds.res",
       "bytes": 1360079,
       "sha256": "9171663d52cfbff270df10b449ab6507ba943279389df37c69d4a7a68cc6da24",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\faa8b288c6c9a30a7fcaf707.color.dds",
       "source_sha256": "084f7ee45df67f85fb55c4224a9df469366699f5ce07b8c7726747a2f00f9efb"
-    },
-    {
-      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\faaa9b04a0071e86145843b7.color.dds.res",
-      "bytes": 336688,
-      "sha256": "767c17a99065924776b0b11247f548cd566c1a9dae4a164805018fb6f5768716",
-      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\faaa9b04a0071e86145843b7.color.dds",
-      "source_sha256": "8b29a05895290a19971da9a6fd200aaaff8a50a36e8b561eb407385546242e1e"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\fadc07dafb213bf5dd6edc6b.color.dds.res",
@@ -12994,6 +12854,13 @@
       "sha256": "1507370ae0292714cdf73ea017eb5f0777e60dc57ff2b62bf2ccce1a48fd26a6",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\fadd50883856506fa41762cd.color.dds",
       "source_sha256": "40abd23a9ef0b9755bb8d5bb9a6cdecd6215f579764968b6975099032b0dd549"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\fae1fb6e25fe8abf2fe5e163.normal.dds.res",
+      "bytes": 1368738,
+      "sha256": "22205572e8cc674e06a0964e3e19c0962e719bdcbd1d615400435d513d33d428",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\fae1fb6e25fe8abf2fe5e163.normal.dds",
+      "source_sha256": "2cdb050419dd68c6d23c4bd9ef91d5e76af02893055b690ee378a78c723491c9"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\fb3d769b33465c21161f5d55.cutout.dds.res",
@@ -13064,6 +12931,13 @@
       "sha256": "fe4ca743d7de87ed1de80d7d6a91d84b69f856bce426d4f7141141270ea6d7d6",
       "source_dds": "D:\\Otherreach_Scratch\\humgen_rcd8_20261023\\runtime\\production_native\\review_primary\\texture_cache\\fd0c972c0cb54ccda8c1922d.data.dds",
       "source_sha256": "fdeede29656b23a55fed59e1a96f2c97ce2751a19bfcc8b2762dafdbf887d3e3"
+    },
+    {
+      "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\fd31c30da0e8963f82c8070c.normal.dds.res",
+      "bytes": 5069371,
+      "sha256": "bca5f6e52a8ec000678f855c2bc8769cf138a10da0a58b73eeb340a36db86018",
+      "source_dds": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_materials\\texture_cache\\fd31c30da0e8963f82c8070c.normal.dds",
+      "source_sha256": "3e8f60d51a917d7e9f2885e0629e0a5ea744e0b7781f4f31fe78abc49458066c"
     },
     {
       "file": "D:\\Otherreach_Depot\\barrowworks_codex\\barrowworks_native\\4.7.2-stable (official)\\v7\\textures\\fd33ccddfdf016224905c4bd.color.dds.res",

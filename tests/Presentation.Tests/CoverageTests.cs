@@ -235,6 +235,42 @@ public class AudioCoverageTests
                      + "1 missing, 0 malformed, 0 runtime errors, 0 unmapped", AudioCoverage.GateLine(check, 3, 2, 1, 0, 0, 0));
     }
 
+    /// <summary>
+    /// The owner's finding (2026-10-25): a wolf, a boar, a spider and a golem all sounded alike under a weapon, and every creature landed
+    /// the same generic blow. Every creature the content defines is bound, across the base file and its overlays, to a body material
+    /// with impact sets of its own (never the generic "flesh") and to its own attack (the swing and blow families build_combat.py makes).
+    /// </summary>
+    [Fact]
+    public void EveryCreature_ResolvesToItsOwnMaterialAndBlow()
+    {
+        var materials = new[] { "fur", "hide", "chitin", "bone", "plate", "stone" };
+        var blows = new[] { "bite", "claw", "gore", "sting", "slam" };
+        var bound = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
+        foreach (string file in new[] { Repository.File("src", "Presentation", "Art", "art_bindings.json"), Repository.File("content", "_art_bindings.json"),
+                     Repository.File("content", "_art_bindings_barrowworks.json") })
+        {
+            using var json = JsonDocument.Parse(File.ReadAllText(file));
+            foreach (var creature in json.RootElement.GetProperty("creatures").EnumerateObject())
+            {
+                var fields = bound.TryGetValue(creature.Name, out var known) ? known : bound[creature.Name] = new(StringComparer.Ordinal);
+                foreach (var field in creature.Value.EnumerateObject().Where(f => f.Value.ValueKind == JsonValueKind.String))
+                    fields[field.Name] = field.Value.GetString()!;
+            }
+        }
+        var defined = Directory.EnumerateFiles(Repository.File("content", "creatures"), "*.yaml", SearchOption.AllDirectories)
+            .Select(f => File.ReadLines(f).First(l => l.StartsWith("id: ", StringComparison.Ordinal))[4..].Trim()).ToList();
+        Assert.Equal(19, defined.Count);
+        Assert.All(defined, id =>
+        {
+            Assert.True(bound.TryGetValue(id, out var fields), $"{id} has no binding");
+            Assert.Contains(fields!.GetValueOrDefault("flesh"), materials);
+            Assert.Contains(fields.GetValueOrDefault("blow"), blows);
+        });
+        // The families are told apart: no two kinds of beast share both a body and a blow.
+        Assert.Equal(new[] { "bone/claw", "chitin/sting", "fur/bite", "hide/gore", "plate/slam" },
+            defined.Select(id => $"{bound[id]["flesh"]}/{bound[id]["blow"]}").Distinct().Order(StringComparer.Ordinal));
+    }
+
     [Fact]
     public void ARequestTheMappingDoesNotList_IsReportedUnmapped()
     {

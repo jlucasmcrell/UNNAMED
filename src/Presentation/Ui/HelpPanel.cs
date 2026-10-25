@@ -2,14 +2,17 @@
 // Godot presentation only: it reads the input map; nothing here holds state (D-11)
 
 using Godot;
+using UNNAMED.Domain.Guidance;
 using UNNAMED.Presentation.Settings;
 
 namespace UNNAMED.Presentation.Ui;
 
 /// <summary>
-/// The controls (F1), read from the input map as it is bound - never a list that could drift from it - in the order a player needs
-/// them, each key on the HUD's key cap. A WIDE sheet in three columns; the developer's keys stand apart, quieter, at the foot of the
-/// third, and where the saves and the log lie closes the sheet.
+/// The Field Guide (F1): the controls, read from the input map as it is bound - never a list that could drift from it - beside the
+/// hints the game has to give and the three things this world does differently, all of it searchable (1I). A WIDE sheet in three
+/// columns with no question typed; typed words are matched by <see cref="FieldGuide"/> across everything the sheet holds and the
+/// matches stand in one list, best first. The developer's keys stand apart, quieter, at the foot of the third column, and where the
+/// saves and the log lie closes the sheet.
 /// </summary>
 public partial class HelpPanel : CanvasLayer
 {
@@ -66,9 +69,14 @@ public partial class HelpPanel : CanvasLayer
     };
 
     private Sheet _sheet = null!;
+    private LineEdit _search = null!;
+    private VBoxContainer _results = null!;
 
     /// <summary>Whether the developer keys are on (a debug build, or <c>--dev</c>): they are listed only then.</summary>
     public bool DeveloperKeys { get; init; }
+
+    /// <summary>The hints the game may show (1I): the guide lists them and searches them, so a player can read at their own pace what a hint line said once.</summary>
+    public Func<IEnumerable<HintDefinition>>? Hints { get; init; }
 
     /// <summary>Where the saves and the log are (M-07): what a tester sends with a problem report.</summary>
     public string Files { get; set; } = string.Empty;
@@ -76,7 +84,19 @@ public partial class HelpPanel : CanvasLayer
     public override void _Ready()
     {
         Visible = false;
-        _sheet = UiKit.Sheet(this, "Controls", "help", UiKit.Wide);
+        _sheet = UiKit.Sheet(this, "Field Guide", "help", UiKit.Wide);
+        _search = new LineEdit
+        {
+            PlaceholderText = "Search: a key, a word, what you were asked to do",
+            CustomMinimumSize = new Vector2(560, 0),
+            ClearButtonEnabled = true,
+        };
+        _search.TextChanged += _ => Build();
+        _results = new VBoxContainer();
+        _results.AddThemeConstantOverride("separation", 16);
+        // The search box stays put while the results under it change: the sheet's body is filled once, and rebuilt below the box.
+        _sheet.Body.AddChild(_search);
+        _sheet.Body.AddChild(_results);
     }
 
     /// <summary>The screen's own tile, as its System Menu row shows it.</summary>
@@ -86,9 +106,66 @@ public partial class HelpPanel : CanvasLayer
     public void Toggle()
     {
         Visible = !Visible;
-        if (!Visible)
+        if (Visible)
+            Build();
+    }
+
+    /// <summary>The words typed into the guide's search, so a screenshot or a test can see what was asked for.</summary>
+    public string Query => _search?.Text ?? string.Empty;
+
+    /// <summary>Every entry the guide holds: what the search searches.</summary>
+    public IReadOnlyList<GuideEntry> Entries()
+    {
+        var entries = new List<GuideEntry>();
+        foreach (var column in Columns)
+            foreach (var (heading, lines) in column)
+                foreach (var (does, actions) in lines)
+                    entries.Add(new GuideEntry(heading, does, $"Controls: {Words(actions)}"));
+        if (DeveloperKeys)
+            foreach (var (does, actions) in Developer)
+                entries.Add(new GuideEntry("Developer", does, $"Controls: {Words(actions)}"));
+        entries.AddRange(Models.Explainers.All.Select(explainer =>
+            new GuideEntry("How this world works", explainer.Title, string.Join(" ", explainer.Paragraphs))));
+        foreach (var hint in Hints?.Invoke() ?? Enumerable.Empty<HintDefinition>())
+            entries.Add(FieldGuide.Of(hint, Key));
+        if (Files.Length > 0)
+            entries.Add(new GuideEntry("Support", "Where the saves and the log are", Files));
+        return entries;
+    }
+
+    /// <summary>The actions as their keys read, for the guide's body text.</summary>
+    private static string Words(string[] actions) => actions.Length == 0 ? ""
+        : string.Join(", ", actions.Select(action => action.StartsWith('@') ? action[1..] : Key(action)));
+
+    /// <summary>Draw the results for the words in the search box: the three columns when it is empty, the matches when it is not.</summary>
+    private void Build()
+    {
+        UiKit.Clear(_results);
+        string query = _search.Text.Trim();
+        if (query.Length > 0)
+        {
+            var matches = FieldGuide.Search(Entries(), query);
+            var header = UiKit.Section("Field Guide", $"{matches.Length} matching {(matches.Length == 1 ? "entry" : "entries")}", tone: HudStyle.Brass);
+            _results.AddChild(header);
+            if (matches.Length == 0)
+            {
+                header.AddChild(UiKit.Words($"Nothing here matches \"{query}\". With nothing typed the controls are listed beside the hints.", 17, HudStyle.Bone));
+                return;
+            }
+            string section = string.Empty;
+            foreach (var entry in matches)
+            {
+                if (entry.Section != section)
+                {
+                    section = entry.Section;
+                    _results.AddChild(UiKit.Words(section, 15, HudStyle.Ash));
+                }
+                _results.AddChild(UiKit.Words(entry.Title, 18, HudStyle.Bone));
+                if (entry.Body.Length > 0)
+                    _results.AddChild(UiKit.Words(entry.Body, 15, HudStyle.Ash));
+            }
             return;
-        UiKit.Clear(_sheet.Body);
+        }
         var columns = new HBoxContainer();
         columns.AddThemeConstantOverride("separation", 24);
         for (int c = 0; c < Columns.Length; c++)
@@ -101,7 +178,7 @@ public partial class HelpPanel : CanvasLayer
                 column.AddChild(Section("Developer", Developer, HudStyle.Muted, HudStyle.Ash));
             columns.AddChild(column);
         }
-        _sheet.Body.AddChild(columns);
+        _results.AddChild(columns);
         // The three things a new player must be told, shown here when asked for rather than as a panel in the way (the world does not stop).
         var world = UiKit.Section("How this world works", "three things that are not what other games do", tone: HudStyle.Brass);
         foreach (var explainer in Models.Explainers.All)
@@ -110,12 +187,12 @@ public partial class HelpPanel : CanvasLayer
             foreach (string paragraph in explainer.Paragraphs)
                 world.AddChild(UiKit.Words(paragraph, 16, HudStyle.Bone));
         }
-        _sheet.Body.AddChild(world);
+        _results.AddChild(world);
         if (Files.Length > 0)
         {
             var support = UiKit.Section("Support", "what a tester sends with a problem report");
             support.AddChild(UiKit.Words(Files, 16, HudStyle.Ash));
-            _sheet.Body.AddChild(support);
+            _results.AddChild(support);
         }
     }
 

@@ -1,15 +1,15 @@
 OTHERREACH - audio recovery build, 2026-10-16: sources and licences
 
-No attribution is legally required for any file below (Sonniss GDC: none required; Kenney: CC0; Cosmos: subscription; synthesis and
+No attribution is legally required for any file below (Sonniss GDC: none required; Kenney and OpenGameArt: CC0; Cosmos: subscription; synthesis and
 generated music: our own). Credit is still given here. Raw library files are not redistributed; only the processed game sounds ship.
-Nothing from Sonniss, Cosmos or Kenney was fed to any AI model.
+Nothing from Sonniss, Cosmos, Kenney or OpenGameArt was fed to any AI model.
 
 == Cosmos - Blade Cutting
    licence: Leartes Cosmos Premium subscription licence (private builds; post-subscription rights unconfirmed)
-   Survival SFX - bladecutting1.wav  ->  sfx.weapon.sword.impact.flesh, sfx.weapon.sword.impact.wood
-   Survival SFX - bladecutting2.wav  ->  sfx.weapon.sword.impact.flesh, sfx.weapon.sword.impact.wood
-   Survival SFX - bladecutting3.wav  ->  sfx.weapon.sword.impact.flesh, sfx.weapon.sword.impact.wood
-   Survival SFX - bladecutting4.wav  ->  sfx.weapon.sword.impact.flesh, sfx.weapon.sword.impact.wood
+   Survival SFX - bladecutting1.wav  ->  sfx.weapon.sword.impact.bone, sfx.weapon.sword.impact.chitin, sfx.weapon.sword.impact.flesh, sfx.weapon.sword.impact.fur, sfx.weapon.sword.impact.hide, sfx.weapon.sword.impact.wood
+   Survival SFX - bladecutting2.wav  ->  sfx.weapon.sword.impact.bone, sfx.weapon.sword.impact.chitin, sfx.weapon.sword.impact.flesh, sfx.weapon.sword.impact.fur, sfx.weapon.sword.impact.hide, sfx.weapon.sword.impact.wood
+   Survival SFX - bladecutting3.wav  ->  sfx.weapon.sword.impact.bone, sfx.weapon.sword.impact.chitin, sfx.weapon.sword.impact.flesh, sfx.weapon.sword.impact.fur, sfx.weapon.sword.impact.hide, sfx.weapon.sword.impact.wood
+   Survival SFX - bladecutting4.wav  ->  sfx.weapon.sword.impact.bone, sfx.weapon.sword.impact.chitin, sfx.weapon.sword.impact.flesh, sfx.weapon.sword.impact.fur, sfx.weapon.sword.impact.hide, sfx.weapon.sword.impact.wood
 
 == Cosmos - Chopingwood
    licence: Leartes Cosmos Premium subscription licence (private builds; post-subscription rights unconfirmed)
@@ -38,10 +38,10 @@ Nothing from Sonniss, Cosmos or Kenney was fed to any AI model.
 
 == Cosmos - Damage Metal
    licence: Leartes Cosmos Premium subscription licence (private builds; post-subscription rights unconfirmed)
-   Survival SFX - damage(metal)1.wav  ->  sfx.weapon.polearm.block, sfx.weapon.polearm.impact.plate, sfx.weapon.sword.block, sfx.weapon.sword.impact.plate
-   Survival SFX - damage(metal)2.wav  ->  sfx.weapon.polearm.block, sfx.weapon.polearm.impact.plate, sfx.weapon.sword.block, sfx.weapon.sword.impact.plate
-   Survival SFX - damage(metal)3.wav  ->  sfx.weapon.polearm.block, sfx.weapon.polearm.impact.plate, sfx.weapon.sword.block, sfx.weapon.sword.impact.plate
-   Survival SFX - damage(metal)4.wav  ->  sfx.weapon.polearm.block, sfx.weapon.polearm.impact.plate, sfx.weapon.sword.block, sfx.weapon.sword.impact.plate
+   Survival SFX - damage(metal)1.wav  ->  sfx.creature.swing.slam, sfx.weapon.bow.arrow.impact.plate, sfx.weapon.polearm.block, sfx.weapon.polearm.impact.plate, sfx.weapon.sword.block, sfx.weapon.sword.impact.plate
+   Survival SFX - damage(metal)2.wav  ->  sfx.creature.swing.slam, sfx.weapon.bow.arrow.impact.plate, sfx.weapon.polearm.block, sfx.weapon.polearm.impact.plate, sfx.weapon.sword.block, sfx.weapon.sword.impact.plate
+   Survival SFX - damage(metal)3.wav  ->  sfx.creature.animated_armour.hurt, sfx.creature.swing.slam, sfx.weapon.bow.arrow.impact.plate, sfx.weapon.polearm.block, sfx.weapon.polearm.impact.plate, sfx.weapon.sword.block, sfx.weapon.sword.impact.plate
+   Survival SFX - damage(metal)4.wav  ->  sfx.creature.animated_armour.hurt, sfx.creature.swing.slam, sfx.weapon.bow.arrow.impact.plate, sfx.weapon.polearm.block, sfx.weapon.polearm.impact.plate, sfx.weapon.sword.block, sfx.weapon.sword.impact.plate
 
 == Cosmos - Drinking
    licence: Leartes Cosmos Premium subscription licence (private builds; post-subscription rights unconfirmed)
@@ -92,10 +92,10 @@ Nothing from Sonniss, Cosmos or Kenney was fed to any AI model.
 
 == Cosmos - Spear Fishing
    licence: Leartes Cosmos Premium subscription licence (private builds; post-subscription rights unconfirmed)
-   Survival SFX - spearfishing1.wav  ->  sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.polearm.impact.flesh
-   Survival SFX - spearfishing2.wav  ->  sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.polearm.impact.flesh
-   Survival SFX - spearfishing3.wav  ->  sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.polearm.impact.flesh
-   Survival SFX - spearfishing4.wav  ->  sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.polearm.impact.flesh
+   Survival SFX - spearfishing1.wav  ->  sfx.creature.blow.sting, sfx.weapon.bow.arrow.impact.bone, sfx.weapon.bow.arrow.impact.chitin, sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.bow.arrow.impact.fur, sfx.weapon.bow.arrow.impact.hide, sfx.weapon.polearm.impact.bone, sfx.weapon.polearm.impact.chitin, sfx.weapon.polearm.impact.flesh, sfx.weapon.polearm.impact.fur, sfx.weapon.polearm.impact.hide
+   Survival SFX - spearfishing2.wav  ->  sfx.creature.blow.sting, sfx.weapon.bow.arrow.impact.bone, sfx.weapon.bow.arrow.impact.chitin, sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.bow.arrow.impact.fur, sfx.weapon.bow.arrow.impact.hide, sfx.weapon.polearm.impact.bone, sfx.weapon.polearm.impact.chitin, sfx.weapon.polearm.impact.flesh, sfx.weapon.polearm.impact.fur, sfx.weapon.polearm.impact.hide
+   Survival SFX - spearfishing3.wav  ->  sfx.creature.blow.sting, sfx.weapon.bow.arrow.impact.bone, sfx.weapon.bow.arrow.impact.chitin, sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.bow.arrow.impact.fur, sfx.weapon.bow.arrow.impact.hide, sfx.weapon.polearm.impact.bone, sfx.weapon.polearm.impact.chitin, sfx.weapon.polearm.impact.flesh, sfx.weapon.polearm.impact.fur, sfx.weapon.polearm.impact.hide
+   Survival SFX - spearfishing4.wav  ->  sfx.creature.blow.sting, sfx.weapon.bow.arrow.impact.bone, sfx.weapon.bow.arrow.impact.chitin, sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.bow.arrow.impact.fur, sfx.weapon.bow.arrow.impact.hide, sfx.weapon.polearm.impact.bone, sfx.weapon.polearm.impact.chitin, sfx.weapon.polearm.impact.flesh, sfx.weapon.polearm.impact.fur, sfx.weapon.polearm.impact.hide
 
 == Cosmos - Sticks Wing
    licence: Leartes Cosmos Premium subscription licence (private builds; post-subscription rights unconfirmed)
@@ -106,10 +106,10 @@ Nothing from Sonniss, Cosmos or Kenney was fed to any AI model.
 
 == Cosmos - Throwing Rock
    licence: Leartes Cosmos Premium subscription licence (private builds; post-subscription rights unconfirmed)
-   Survival SFX - throwingrock1.wav  ->  sfx.weapon.bow.arrow.impact.stone, sfx.weapon.polearm.impact.stone, sfx.weapon.sword.impact.stone
-   Survival SFX - throwingrock2.wav  ->  sfx.weapon.polearm.impact.stone, sfx.weapon.sword.impact.stone
-   Survival SFX - throwingrock3.wav  ->  sfx.weapon.bow.arrow.impact.stone, sfx.weapon.polearm.impact.stone, sfx.weapon.sword.impact.stone
-   Survival SFX - throwingrock4.wav  ->  sfx.weapon.bow.arrow.impact.stone, sfx.weapon.polearm.impact.stone, sfx.weapon.sword.impact.stone
+   Survival SFX - throwingrock1.wav  ->  sfx.creature.swing.gore, sfx.weapon.bow.arrow.impact.stone, sfx.weapon.polearm.impact.stone, sfx.weapon.sword.impact.stone
+   Survival SFX - throwingrock2.wav  ->  sfx.creature.swing.gore, sfx.weapon.polearm.impact.stone, sfx.weapon.sword.impact.stone
+   Survival SFX - throwingrock3.wav  ->  sfx.creature.swing.gore, sfx.weapon.bow.arrow.impact.stone, sfx.weapon.polearm.impact.stone, sfx.weapon.sword.impact.stone
+   Survival SFX - throwingrock4.wav  ->  sfx.creature.swing.gore, sfx.weapon.bow.arrow.impact.stone, sfx.weapon.polearm.impact.stone, sfx.weapon.sword.impact.stone
 
 == Cosmos - Winter Indoor Ambience
    licence: Leartes Cosmos Premium subscription licence (private builds; post-subscription rights unconfirmed)
@@ -123,91 +123,166 @@ Nothing from Sonniss, Cosmos or Kenney was fed to any AI model.
 
 == Cosmos - Zombie Voices Pack, Guts and Organs Falling
    licence: Leartes Cosmos Premium subscription licence (private builds; post-subscription rights unconfirmed)
-   SFX_Gore_Guts_and_Organs_Falling_on_the_Ground_Blood_Splatter_Disgusting_001.wav  ->  sfx.player.impact.creature_blow, sfx.weapon.bow.arrow.impact.flesh
-   SFX_Gore_Guts_and_Organs_Falling_on_the_Ground_Blood_Splatter_Disgusting_002.wav  ->  sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.polearm.impact.flesh, sfx.weapon.sword.impact.flesh
+   SFX_Gore_Guts_and_Organs_Falling_on_the_Ground_Blood_Splatter_Disgusting_001.wav  ->  sfx.weapon.bow.arrow.impact.flesh
+   SFX_Gore_Guts_and_Organs_Falling_on_the_Ground_Blood_Splatter_Disgusting_002.wav  ->  sfx.creature.blow.bite, sfx.creature.blow.sting, sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.polearm.impact.flesh, sfx.weapon.sword.impact.flesh
    SFX_Gore_Guts_and_Organs_Falling_on_the_Ground_Blood_Splatter_Disgusting_003.wav  ->  sfx.weapon.bow.arrow.impact.flesh
-   SFX_Gore_Guts_and_Organs_Falling_on_the_Ground_Blood_Splatter_Disgusting_004.wav  ->  sfx.player.impact.creature_blow, sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.polearm.impact.flesh
+   SFX_Gore_Guts_and_Organs_Falling_on_the_Ground_Blood_Splatter_Disgusting_004.wav  ->  sfx.creature.blow.sting, sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.polearm.impact.flesh
    SFX_Gore_Guts_and_Organs_Falling_on_the_Ground_Blood_Splatter_Disgusting_005.wav  ->  sfx.weapon.bow.arrow.impact.flesh
-   SFX_Gore_Guts_and_Organs_Falling_on_the_Ground_Blood_Splatter_Disgusting_006.wav  ->  sfx.weapon.polearm.impact.flesh
+   SFX_Gore_Guts_and_Organs_Falling_on_the_Ground_Blood_Splatter_Disgusting_006.wav  ->  sfx.creature.blow.sting, sfx.weapon.polearm.impact.flesh
 
 == Cosmos - Zombie Voices Pack, Pull Rip off and Tear
    licence: Leartes Cosmos Premium subscription licence (private builds; post-subscription rights unconfirmed)
-   SFX_Gore_Pull_C01_Rip_off_001.wav  ->  sfx.player.impact.creature_blow, sfx.weapon.sword.impact.flesh
+   SFX_Gore_Pull_C01_Rip_off_001.wav  ->  sfx.creature.blow.claw, sfx.weapon.sword.impact.flesh
    SFX_Gore_Pull_C02_Rip_off_001.wav  ->  sfx.weapon.polearm.impact.flesh
+   SFX_Gore_Pull_C02_Tear_and_Rip_off_001.wav  ->  sfx.creature.blow.claw
    SFX_Gore_Pull_C03_Rip_off_001.wav  ->  sfx.weapon.sword.impact.flesh
-   SFX_Gore_Pull_C03_Tear_001.wav  ->  sfx.player.impact.creature_blow, sfx.weapon.polearm.impact.flesh
-   SFX_Gore_Pull_C04_Rip_off_001.wav  ->  sfx.weapon.sword.impact.flesh
-   SFX_Gore_Pull_C04_Tear_001.wav  ->  sfx.weapon.polearm.impact.flesh
-   SFX_Gore_Pull_C05_Rip_off_001.wav  ->  sfx.player.impact.creature_blow, sfx.weapon.sword.impact.flesh
-   SFX_Gore_Pull_C08_Rip_off_001.wav  ->  sfx.weapon.sword.impact.flesh
+   SFX_Gore_Pull_C03_Tear_001.wav  ->  sfx.weapon.polearm.impact.flesh
+   SFX_Gore_Pull_C04_Rip_off_001.wav  ->  sfx.creature.blow.bite, sfx.weapon.sword.impact.flesh
+   SFX_Gore_Pull_C04_Tear_001.wav  ->  sfx.creature.blow.claw, sfx.weapon.polearm.impact.flesh
+   SFX_Gore_Pull_C05_Rip_off_001.wav  ->  sfx.creature.blow.bite, sfx.weapon.sword.impact.flesh
+   SFX_Gore_Pull_C06_Rip_off_001.wav  ->  sfx.creature.blow.claw
+   SFX_Gore_Pull_C08_Rip_off_001.wav  ->  sfx.creature.blow.bite, sfx.creature.blow.sting, sfx.weapon.sword.impact.flesh
 
 == Kenney Impact Sounds
    licence: CC0 1.0 (Kenney Impact Sounds)
-   impactGeneric_light_000.ogg  ->  sfx.crafting.gather.herb, sfx.weapon.bow.arrow.impact.stone
-   impactGeneric_light_001.ogg  ->  sfx.crafting.gather.herb, sfx.player.weapon.bow.nock, sfx.weapon.bow.arrow.impact.stone
-   impactGeneric_light_002.ogg  ->  sfx.crafting.gather.herb, sfx.player.weapon.bow.nock, sfx.weapon.bow.arrow.impact.stone
+   impactGeneric_light_000.ogg  ->  sfx.crafting.gather.herb, sfx.weapon.bow.arrow.impact.chitin, sfx.weapon.bow.arrow.impact.plate, sfx.weapon.bow.arrow.impact.stone, sfx.weapon.polearm.impact.chitin, sfx.weapon.sword.impact.chitin
+   impactGeneric_light_001.ogg  ->  sfx.crafting.gather.herb, sfx.player.weapon.bow.nock, sfx.weapon.bow.arrow.impact.plate, sfx.weapon.bow.arrow.impact.stone
+   impactGeneric_light_002.ogg  ->  sfx.crafting.gather.herb, sfx.player.weapon.bow.nock, sfx.weapon.bow.arrow.impact.chitin, sfx.weapon.bow.arrow.impact.plate, sfx.weapon.bow.arrow.impact.stone, sfx.weapon.polearm.impact.chitin, sfx.weapon.sword.impact.chitin
+   impactGeneric_light_003.ogg  ->  sfx.weapon.bow.arrow.impact.chitin, sfx.weapon.polearm.impact.chitin, sfx.weapon.sword.impact.chitin
+   impactGeneric_light_004.ogg  ->  sfx.weapon.bow.arrow.impact.chitin, sfx.weapon.bow.arrow.impact.plate, sfx.weapon.polearm.impact.chitin, sfx.weapon.sword.impact.chitin
    impactMetal_heavy_000.ogg  ->  sfx.weapon.polearm.impact.plate, sfx.weapon.sword.block, sfx.weapon.sword.impact.plate
    impactMetal_heavy_001.ogg  ->  sfx.weapon.polearm.impact.plate, sfx.weapon.sword.block, sfx.weapon.sword.impact.plate
    impactMetal_heavy_002.ogg  ->  sfx.weapon.polearm.impact.plate, sfx.weapon.sword.block, sfx.weapon.sword.impact.plate
-   impactMetal_heavy_003.ogg  ->  sfx.weapon.polearm.impact.plate, sfx.weapon.sword.block, sfx.weapon.sword.impact.plate
-   impactMetal_heavy_004.ogg  ->  sfx.weapon.polearm.impact.plate, sfx.weapon.sword.block, sfx.weapon.sword.impact.plate
+   impactMetal_heavy_003.ogg  ->  sfx.creature.animated_armour.hurt, sfx.weapon.polearm.impact.plate, sfx.weapon.sword.block, sfx.weapon.sword.impact.plate
+   impactMetal_heavy_004.ogg  ->  sfx.creature.animated_armour.hurt, sfx.weapon.polearm.impact.plate, sfx.weapon.sword.block, sfx.weapon.sword.impact.plate
+   impactMetal_medium_000.ogg  ->  sfx.weapon.bow.arrow.impact.plate
+   impactMetal_medium_001.ogg  ->  sfx.weapon.bow.arrow.impact.plate
+   impactMetal_medium_002.ogg  ->  sfx.weapon.bow.arrow.impact.plate
+   impactMetal_medium_003.ogg  ->  sfx.weapon.bow.arrow.impact.plate
    impactMining_000.ogg  ->  sfx.weapon.bow.arrow.impact.stone, sfx.weapon.polearm.impact.stone, sfx.weapon.sword.impact.stone
    impactMining_001.ogg  ->  sfx.weapon.sword.impact.stone
    impactMining_002.ogg  ->  sfx.weapon.polearm.impact.stone, sfx.weapon.sword.impact.stone
    impactMining_003.ogg  ->  sfx.weapon.bow.arrow.impact.stone, sfx.weapon.polearm.impact.stone, sfx.weapon.sword.impact.stone
    impactMining_004.ogg  ->  sfx.weapon.bow.arrow.impact.stone, sfx.weapon.polearm.impact.stone
-   impactPlate_heavy_000.ogg  ->  sfx.weapon.sword.impact.plate
+   impactPlank_medium_000.ogg  ->  sfx.weapon.bow.arrow.impact.bone, sfx.weapon.polearm.impact.bone, sfx.weapon.sword.impact.bone
+   impactPlank_medium_001.ogg  ->  sfx.weapon.bow.arrow.impact.bone, sfx.weapon.polearm.impact.bone, sfx.weapon.sword.impact.bone
+   impactPlank_medium_003.ogg  ->  sfx.weapon.bow.arrow.impact.bone, sfx.weapon.polearm.impact.bone, sfx.weapon.sword.impact.bone
+   impactPlank_medium_004.ogg  ->  sfx.weapon.bow.arrow.impact.bone, sfx.weapon.polearm.impact.bone, sfx.weapon.sword.impact.bone
+   impactPlate_heavy_000.ogg  ->  sfx.creature.blow.slam, sfx.weapon.sword.impact.plate
    impactPlate_heavy_001.ogg  ->  sfx.weapon.sword.impact.plate
-   impactPlate_heavy_002.ogg  ->  sfx.weapon.sword.impact.plate
-   impactPlate_heavy_003.ogg  ->  sfx.weapon.sword.impact.plate
-   impactPlate_heavy_004.ogg  ->  sfx.weapon.sword.impact.plate
+   impactPlate_heavy_002.ogg  ->  sfx.creature.blow.slam, sfx.weapon.sword.impact.plate
+   impactPlate_heavy_003.ogg  ->  sfx.creature.blow.slam, sfx.weapon.sword.impact.plate
+   impactPlate_heavy_004.ogg  ->  sfx.creature.blow.slam, sfx.weapon.sword.impact.plate
    impactPlate_medium_000.ogg  ->  sfx.weapon.polearm.impact.plate
    impactPlate_medium_001.ogg  ->  sfx.weapon.polearm.impact.plate
    impactPlate_medium_002.ogg  ->  sfx.weapon.polearm.impact.plate
    impactPlate_medium_003.ogg  ->  sfx.weapon.polearm.impact.plate
    impactPlate_medium_004.ogg  ->  sfx.weapon.polearm.impact.plate
-   impactPunch_heavy_000.ogg  ->  sfx.player.hurt.heavy, sfx.player.impact.creature_blow, sfx.weapon.sword.impact.flesh
-   impactPunch_heavy_001.ogg  ->  sfx.player.hurt.heavy, sfx.player.impact.creature_blow, sfx.weapon.sword.impact.flesh
-   impactPunch_heavy_002.ogg  ->  sfx.player.hurt.heavy, sfx.player.impact.creature_blow, sfx.weapon.sword.impact.flesh
-   impactPunch_heavy_003.ogg  ->  sfx.player.hurt.heavy, sfx.player.impact.creature_blow, sfx.weapon.sword.impact.flesh
-   impactPunch_heavy_004.ogg  ->  sfx.player.impact.creature_blow, sfx.weapon.sword.impact.flesh
-   impactPunch_medium_000.ogg  ->  sfx.player.hurt.light, sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.sword.block
-   impactPunch_medium_001.ogg  ->  sfx.player.hurt.light, sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.sword.block
-   impactPunch_medium_002.ogg  ->  sfx.player.hurt.light, sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.sword.block
-   impactPunch_medium_003.ogg  ->  sfx.player.hurt.light, sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.sword.block
-   impactPunch_medium_004.ogg  ->  sfx.player.hurt.light, sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.sword.block
-   impactSoft_heavy_000.ogg  ->  sfx.player.death, sfx.weapon.bow.release, sfx.weapon.polearm.impact.flesh
+   impactPunch_heavy_000.ogg  ->  sfx.creature.blow.gore, sfx.creature.blow.slam, sfx.player.hurt.heavy, sfx.weapon.sword.impact.flesh
+   impactPunch_heavy_001.ogg  ->  sfx.creature.blow.slam, sfx.player.hurt.heavy, sfx.weapon.bow.arrow.impact.hide, sfx.weapon.polearm.impact.hide, sfx.weapon.sword.impact.flesh, sfx.weapon.sword.impact.hide
+   impactPunch_heavy_002.ogg  ->  sfx.creature.blow.gore, sfx.creature.blow.slam, sfx.player.hurt.heavy, sfx.weapon.bow.arrow.impact.hide, sfx.weapon.polearm.impact.hide, sfx.weapon.sword.impact.flesh, sfx.weapon.sword.impact.hide
+   impactPunch_heavy_003.ogg  ->  sfx.creature.blow.gore, sfx.creature.blow.slam, sfx.player.hurt.heavy, sfx.weapon.bow.arrow.impact.hide, sfx.weapon.polearm.impact.hide, sfx.weapon.sword.impact.flesh, sfx.weapon.sword.impact.hide
+   impactPunch_heavy_004.ogg  ->  sfx.creature.blow.gore, sfx.weapon.bow.arrow.impact.hide, sfx.weapon.polearm.impact.hide, sfx.weapon.sword.impact.flesh, sfx.weapon.sword.impact.hide
+   impactPunch_medium_000.ogg  ->  sfx.creature.blow.claw, sfx.creature.blow.sting, sfx.player.hurt.light, sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.sword.block
+   impactPunch_medium_001.ogg  ->  sfx.creature.blow.bite, sfx.creature.blow.claw, sfx.creature.blow.sting, sfx.player.hurt.light, sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.sword.block
+   impactPunch_medium_002.ogg  ->  sfx.creature.blow.bite, sfx.creature.blow.sting, sfx.player.hurt.light, sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.sword.block
+   impactPunch_medium_003.ogg  ->  sfx.creature.blow.bite, sfx.creature.blow.claw, sfx.player.hurt.light, sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.sword.block
+   impactPunch_medium_004.ogg  ->  sfx.creature.blow.bite, sfx.creature.blow.claw, sfx.creature.blow.sting, sfx.player.hurt.light, sfx.weapon.bow.arrow.impact.flesh, sfx.weapon.sword.block
+   impactSoft_heavy_000.ogg  ->  sfx.player.death, sfx.weapon.bow.arrow.impact.fur, sfx.weapon.bow.release, sfx.weapon.polearm.impact.flesh, sfx.weapon.polearm.impact.fur, sfx.weapon.sword.impact.fur
    impactSoft_heavy_001.ogg  ->  sfx.player.death, sfx.weapon.bow.release, sfx.weapon.polearm.impact.flesh
-   impactSoft_heavy_002.ogg  ->  sfx.weapon.polearm.impact.flesh
-   impactSoft_heavy_003.ogg  ->  sfx.weapon.bow.release, sfx.weapon.polearm.impact.flesh
-   impactSoft_heavy_004.ogg  ->  sfx.weapon.bow.release, sfx.weapon.polearm.impact.flesh
+   impactSoft_heavy_002.ogg  ->  sfx.weapon.bow.arrow.impact.fur, sfx.weapon.polearm.impact.flesh, sfx.weapon.polearm.impact.fur, sfx.weapon.sword.impact.fur
+   impactSoft_heavy_003.ogg  ->  sfx.weapon.bow.arrow.impact.fur, sfx.weapon.bow.release, sfx.weapon.polearm.impact.flesh, sfx.weapon.polearm.impact.fur, sfx.weapon.sword.impact.fur
+   impactSoft_heavy_004.ogg  ->  sfx.weapon.bow.arrow.impact.fur, sfx.weapon.bow.release, sfx.weapon.polearm.impact.flesh, sfx.weapon.polearm.impact.fur, sfx.weapon.sword.impact.fur
    impactWood_heavy_000.ogg  ->  sfx.crafting.gather.wood, sfx.weapon.polearm.impact.wood, sfx.weapon.sword.impact.wood
    impactWood_heavy_001.ogg  ->  sfx.crafting.gather.wood, sfx.weapon.polearm.block, sfx.weapon.sword.impact.wood
    impactWood_heavy_002.ogg  ->  sfx.crafting.gather.wood, sfx.weapon.polearm.block, sfx.weapon.polearm.impact.wood, sfx.weapon.sword.impact.wood
    impactWood_heavy_003.ogg  ->  sfx.weapon.polearm.block, sfx.weapon.polearm.impact.wood, sfx.weapon.sword.impact.wood
    impactWood_heavy_004.ogg  ->  sfx.weapon.polearm.block, sfx.weapon.polearm.impact.wood
    impactWood_medium_000.ogg  ->  sfx.weapon.bow.arrow.impact.wood
-   impactWood_medium_001.ogg  ->  sfx.weapon.bow.arrow.impact.wood, sfx.weapon.bow.release
-   impactWood_medium_002.ogg  ->  sfx.weapon.bow.arrow.impact.wood, sfx.weapon.bow.release
-   impactWood_medium_003.ogg  ->  sfx.weapon.bow.arrow.impact.wood, sfx.weapon.bow.release
-   impactWood_medium_004.ogg  ->  sfx.weapon.bow.release
+   impactWood_medium_001.ogg  ->  sfx.weapon.bow.arrow.impact.bone, sfx.weapon.bow.arrow.impact.wood, sfx.weapon.bow.release, sfx.weapon.polearm.impact.bone, sfx.weapon.sword.impact.bone
+   impactWood_medium_002.ogg  ->  sfx.weapon.bow.arrow.impact.bone, sfx.weapon.bow.arrow.impact.wood, sfx.weapon.bow.release, sfx.weapon.polearm.impact.bone, sfx.weapon.sword.impact.bone
+   impactWood_medium_003.ogg  ->  sfx.weapon.bow.arrow.impact.bone, sfx.weapon.bow.arrow.impact.wood, sfx.weapon.bow.release, sfx.weapon.polearm.impact.bone, sfx.weapon.sword.impact.bone
+   impactWood_medium_004.ogg  ->  sfx.weapon.bow.arrow.impact.bone, sfx.weapon.bow.release, sfx.weapon.polearm.impact.bone, sfx.weapon.sword.impact.bone
+
+== OpenGameArt - 80 CC0 creature SFX (rubberduck)
+   licence: CC0 1.0 (OpenGameArt)
+   bug_01.ogg  ->  sfx.creature.blow.sting
+   bug_02.ogg  ->  sfx.creature.cave_hunting_spider.hurt, sfx.creature.swing.sting
+   bug_04.ogg  ->  sfx.creature.blow.sting, sfx.creature.cave_hunting_spider.hurt, sfx.creature.swing.sting
+   bug_07.ogg  ->  sfx.creature.blow.sting
+   bug_10.ogg  ->  sfx.creature.blow.sting
+   bug_11.ogg  ->  sfx.creature.swing.sting
+   bug_13.ogg  ->  sfx.creature.swing.sting
+   eat_01.ogg  ->  sfx.creature.blow.bite
+   eat_02.ogg  ->  sfx.creature.blow.bite
+   eat_03.ogg  ->  sfx.creature.blow.bite
+   eat_04.ogg  ->  sfx.creature.blow.bite
+
+== OpenGameArt - Bear Growls (AntumDeluge)
+   licence: CC0 1.0 (OpenGameArt)
+   bear_01.ogg  ->  sfx.creature.barrowback.hurt
+   bear_02.ogg  ->  sfx.creature.barrowback.hurt
+
+== OpenGameArt - Monster or Beast Sounds (pauliuw)
+   licence: CC0 1.0 (OpenGameArt)
+   Beast Growl.wav  ->  sfx.creature.ash_ember_hound.hurt
+
+== OpenGameArt - Swishes Sound Pack (artisticdude)
+   licence: CC0 1.0 (OpenGameArt)
+   swish-1.wav  ->  sfx.creature.swing.claw
+   swish-12.wav  ->  sfx.creature.swing.claw
+   swish-3.wav  ->  sfx.creature.swing.claw
+   swish-6.wav  ->  sfx.creature.swing.claw
+
+== Sonniss GDC 2024 / InMotionAudio - Wood
+   licence: Sonniss GDC 2024 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
+   WOODBrk_Snap09_InMotionAudio_Wood.wav  ->  sfx.weapon.bow.arrow.impact.bone, sfx.weapon.polearm.impact.bone, sfx.weapon.sword.impact.bone
+
+== Sonniss GDC 2024 / Justsoundeffects - Gore Mini Pack
+   licence: Sonniss GDC 2024 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
+   GOREBone_Bone Breaks Celery 01_JSE_GMP.wav  ->  sfx.creature.bone_walker_husk.hurt, sfx.weapon.bow.arrow.impact.bone, sfx.weapon.bow.arrow.impact.chitin, sfx.weapon.polearm.impact.bone, sfx.weapon.polearm.impact.chitin, sfx.weapon.sword.impact.bone, sfx.weapon.sword.impact.chitin
+   GOREFlsh_Flesh Drops on Floor 03_JSE_GMP.wav  ->  sfx.weapon.bow.arrow.impact.chitin, sfx.weapon.polearm.impact.chitin, sfx.weapon.sword.impact.chitin
+
+== Sonniss GDC 2024 / Justsoundeffects - Melee Weapons
+   licence: Sonniss GDC 2024 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
+   WEAPAxe_Long Two-Handed Axe Flesh Hit_JSE_MW.wav  ->  sfx.creature.blow.gore
+
+== Sonniss GDC 2024 / Mechanical Wave - Farm Animals
+   licence: Sonniss GDC 2024 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
+   ANMLFarm_Pig Squeal and Snort-18_MWSFX_FA.wav  ->  sfx.creature.bristleback_boar.hurt
 
 == Sonniss GDC 2026 / 344 Audio - Cinematic Fight Vol. 1
    licence: Sonniss GDC 2026 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
-   FGHTImpt_4 x Punch, Body 02_344 Audio_Cinematic Fight Vol 1.wav  ->  sfx.player.hurt.heavy, sfx.player.impact.creature_blow
+   FGHTImpt_4 x Punch, Body 02_344 Audio_Cinematic Fight Vol 1.wav  ->  sfx.creature.blow.gore, sfx.player.hurt.heavy, sfx.weapon.bow.arrow.impact.hide, sfx.weapon.polearm.impact.hide, sfx.weapon.sword.impact.hide
+
+== Sonniss GDC 2026 / 344 Audio - Dinosaurs Vol. 2
+   licence: Sonniss GDC 2026 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
+   ANMLRept_Dinosaur Eating Meat 01_344 Audio_Dinosaurs Vol 2.wav  ->  sfx.creature.blow.bite, sfx.creature.swing.bite
+   ANMLRept_Dinosaur Egg Hatching 02_344 Audio_Dinosaurs Vol 2.wav  ->  sfx.weapon.bow.arrow.impact.chitin, sfx.weapon.polearm.impact.chitin, sfx.weapon.sword.impact.chitin
+   ANMLRept_Large Herbivore Roar 01_344 Audio_Dinosaurs Vol 2.wav  ->  sfx.creature.barrowback.attack, sfx.creature.fellhorn.attack, sfx.creature.fellhorn.hurt
+
+== Sonniss GDC 2026 / 344 Audio - Dog Vocalisations Vol. 1
+   licence: Sonniss GDC 2026 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
+   ANMLDog_Dog Barks, Multiple, Indoors, Perspective,_344 Audio_Dog Vocalisations_02.wav  ->  sfx.creature.grey_wolf.death, sfx.creature.grey_wolf.hurt
+   ANMLDog_Dog Shuffle, Grunt, Movement, Lying Down_344 Audio_Dog Vocalisations.wav  ->  sfx.creature.grey_wolf.death
 
 == Sonniss GDC 2026 / 344 Audio - Elemental Palette Designed Vol. 1
    licence: Sonniss GDC 2026 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
-   METLMisc_Metal, Slow Whoosh, Rattle, Pass By x4 01_344 Audio_Elemental Palette Designed Vol 1.wav  ->  sfx.weapon.sword.swing.heavy
+   METLMisc_Metal, Slow Whoosh, Rattle, Pass By x4 01_344 Audio_Elemental Palette Designed Vol 1.wav  ->  sfx.creature.swing.slam, sfx.weapon.sword.swing.heavy
 
 == Sonniss GDC 2026 / 344 Audio - Haunting Ambiences Vol. 3
    licence: Sonniss GDC 2026 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
+   METLImpt_Metal Bangs, Metal Hits, Banging On Doors_344 Audio_Haunting Ambiences Vol 3.wav  ->  sfx.creature.blow.slam
    WOODImpt_Wooden Hit, Dark, Heavy Hit, Vampire's Prison_344 Audio_Haunting Ambiences Vol 3.wav  ->  sfx.crafting.gather.wood, sfx.weapon.polearm.impact.wood, sfx.weapon.sword.impact.wood
 
 == Sonniss GDC 2026 / 344 Audio - Historical Weapons Vol. 2
    licence: Sonniss GDC 2026 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
-   WEAPBlnt_Spear And Stick Impact, Wooden MKH 2_344 Audio_Medieval Weapons Vol 2.wav  ->  sfx.weapon.polearm.block, sfx.weapon.polearm.impact.flesh, sfx.weapon.polearm.impact.plate, sfx.weapon.polearm.impact.stone, sfx.weapon.polearm.impact.wood, sfx.weapon.polearm.thrust
+   WEAPBlnt_Spear And Stick Impact, Wooden MKH 2_344 Audio_Medieval Weapons Vol 2.wav  ->  sfx.weapon.polearm.block, sfx.weapon.polearm.impact.bone, sfx.weapon.polearm.impact.chitin, sfx.weapon.polearm.impact.flesh, sfx.weapon.polearm.impact.fur, sfx.weapon.polearm.impact.hide, sfx.weapon.polearm.impact.plate, sfx.weapon.polearm.impact.stone, sfx.weapon.polearm.impact.wood, sfx.weapon.polearm.thrust
    WEAPSwrd_Sword Slide Cuts, Metallic, Impact CM4 2_344 Audio_Medieval Weapons Vol 2.wav  ->  sfx.weapon.sword.block, sfx.weapon.sword.impact.plate, sfx.weapon.sword.impact.stone, sfx.weapon.sword.swing.light
+
+== Sonniss GDC 2026 / Alexander Kopeikin - 100 kHz Designed Ice
+   licence: Sonniss GDC 2026 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
+   ice, crack, ice block snapping-001.wav  ->  sfx.weapon.bow.arrow.impact.chitin, sfx.weapon.polearm.impact.chitin, sfx.weapon.sword.impact.chitin
 
 == Sonniss GDC 2026 / Cinematic Sound Design - Hybrid Game & UI Elements
    licence: Sonniss GDC 2026 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
@@ -219,25 +294,43 @@ Nothing from Sonniss, Cosmos or Kenney was fed to any AI model.
 
 == Sonniss GDC 2026 / David Dumais Audio - Melee Weapons 2
    licence: Sonniss GDC 2026 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
-   SWSH_SWING IMPACTS Quick Heavy Weapon Swing To Thud Impact Var 01_DDUMAIS_MWP2.wav  ->  sfx.weapon.polearm.impact.flesh, sfx.weapon.sword.impact.flesh, sfx.weapon.sword.swing.light
+   SWSH_SWING IMPACTS Quick Heavy Weapon Swing To Thud Impact Var 01_DDUMAIS_MWP2.wav  ->  sfx.creature.blow.gore, sfx.weapon.bow.arrow.impact.fur, sfx.weapon.bow.arrow.impact.hide, sfx.weapon.polearm.impact.flesh, sfx.weapon.polearm.impact.fur, sfx.weapon.polearm.impact.hide, sfx.weapon.sword.impact.flesh, sfx.weapon.sword.impact.fur, sfx.weapon.sword.impact.hide, sfx.weapon.sword.swing.light
+   WEAPWhip_WHIP Snap Crack 05_DDUMAIS_MWP2.wav  ->  sfx.weapon.bow.arrow.impact.hide, sfx.weapon.polearm.impact.hide, sfx.weapon.sword.impact.hide
 
 == Sonniss GDC 2026 / Epic Stock Media - Fantasy Game 2
    licence: Sonniss GDC 2026 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
    CLOTHFlp_Action Inventory Open Flip Cloth Canvas Bag Slide Light 02_ESM_FG2.wav  ->  sfx.crafting.gather.fibre
 
+== Sonniss GDC 2026 / Epic Stock Media - Humanoid Creatures Vol 4
+   licence: Sonniss GDC 2026 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
+   HMNBrth_Construction Kit Male Screeching Breath Inhale Weak Squeal 05_ESM_HC4.wav  ->  sfx.creature.bone_walker_husk.hurt
+
+== Sonniss GDC 2026 / Epic Stock Media - Tower Defense Game
+   licence: Sonniss GDC 2026 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
+   WOODImpt_Hit Blood Spill Splat Wood Impact Light Hit Squelch Small Thump 03_ESM_TDG.wav  ->  sfx.weapon.bow.arrow.impact.chitin, sfx.weapon.polearm.impact.chitin, sfx.weapon.sword.impact.chitin
+
 == Sonniss GDC 2026 / InMotionAudio - Foley T-Shirt
    licence: Sonniss GDC 2026 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
-   FOLYClth_ClothMovement24_InMotionAudio_FoleyT-Shirt.wav  ->  sfx.crafting.gather.fibre, sfx.crafting.gather.herb, sfx.player.death, sfx.player.hurt.light, sfx.player.weapon.bow.nock, sfx.weapon.bow.draw, sfx.weapon.polearm.thrust, sfx.weapon.sword.swing.heavy
-   FOLYClth_ClothMovement29_InMotionAudio_FoleyT-Shirt.wav  ->  sfx.crafting.gather.fibre, sfx.crafting.gather.herb, sfx.player.death, sfx.player.hurt.light, sfx.weapon.bow.draw, sfx.weapon.polearm.thrust, sfx.weapon.sword.swing.heavy
-   FOLYClth_SinglePats04_InMotionAudio_FoleyT-Shirt.wav  ->  sfx.player.hurt.light, sfx.player.weapon.bow.nock, sfx.weapon.bow.draw, sfx.weapon.polearm.thrust, sfx.weapon.sword.swing.heavy
+   FOLYClth_ClothMovement24_InMotionAudio_FoleyT-Shirt.wav  ->  sfx.crafting.gather.fibre, sfx.crafting.gather.herb, sfx.creature.swing.gore, sfx.player.death, sfx.player.hurt.light, sfx.player.weapon.bow.nock, sfx.weapon.bow.arrow.impact.fur, sfx.weapon.bow.draw, sfx.weapon.polearm.impact.fur, sfx.weapon.polearm.thrust, sfx.weapon.sword.impact.fur, sfx.weapon.sword.swing.heavy
+   FOLYClth_ClothMovement29_InMotionAudio_FoleyT-Shirt.wav  ->  sfx.crafting.gather.fibre, sfx.crafting.gather.herb, sfx.creature.swing.gore, sfx.player.death, sfx.player.hurt.light, sfx.weapon.bow.arrow.impact.fur, sfx.weapon.bow.draw, sfx.weapon.polearm.impact.fur, sfx.weapon.polearm.thrust, sfx.weapon.sword.impact.fur, sfx.weapon.sword.swing.heavy
+   FOLYClth_SinglePats04_InMotionAudio_FoleyT-Shirt.wav  ->  sfx.creature.swing.gore, sfx.player.hurt.light, sfx.player.weapon.bow.nock, sfx.weapon.bow.arrow.impact.fur, sfx.weapon.bow.draw, sfx.weapon.polearm.impact.fur, sfx.weapon.polearm.thrust, sfx.weapon.sword.impact.fur, sfx.weapon.sword.swing.heavy
 
 == Sonniss GDC 2026 / InMotionAudio - Scratch Card
    licence: Sonniss GDC 2026 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
    OBJMisc_ScratchCard_CoinTapScratch_01_InMotionAudio_ScratchCard.wav  ->  sfx.interaction.trade.coins
 
+== Sonniss GDC 2026 / InMotionAudio - Sinister Textures 5
+   licence: Sonniss GDC 2026 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
+   GOREMisc_Cladding_NailScratch19_InMotionAudio_SinisterTextures5.wav  ->  sfx.creature.blow.claw
+   GOREMisc_Cladding_Scratch06_InMotionAudio_SinisterTextures5.wav  ->  sfx.creature.blow.claw
+
 == Sonniss GDC 2026 / Ivo Vicic - Campfire - Bonfire FX
    licence: Sonniss GDC 2026 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
    24 Campfire, Dropping Fresh Pine Branches in Fire, Crackling, Sizzling Strong, Close 02.wav  ->  sfx.crafting.cook
+
+== Sonniss GDC 2026 / SoundBits - Vox Bestiae
+   licence: Sonniss GDC 2026 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
+   CREAInsc_Insectoid Creature Tremble Attack Long 1_SNDBTS_VB-SE.wav  ->  sfx.creature.cave_hunting_spider.hurt
 
 == Sonniss GDC 2026 / SoundBits - Vox Hominis
    licence: Sonniss GDC 2026 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
@@ -245,7 +338,7 @@ Nothing from Sonniss, Cosmos or Kenney was fed to any AI model.
 
 == Sonniss GDC 2026 / The Noisery - Moaning Metal
    licence: Sonniss GDC 2026 Game Audio Bundle licence: royalty-free, commercial use, no attribution; no redistribution as a library; never into AI
-   DSGNImpt_Metal Hit Thud Thump Low Ring Geofon 1_The Noisery_Moaning Metal.wav  ->  sfx.weapon.polearm.impact.plate, sfx.weapon.sword.impact.plate
+   DSGNImpt_Metal Hit Thud Thump Low Ring Geofon 1_The Noisery_Moaning Metal.wav  ->  sfx.creature.blow.slam, sfx.weapon.polearm.impact.plate, sfx.weapon.sword.impact.plate
 
 == synthesised (numpy, this build)
    licence: original, owned by the project
@@ -253,15 +346,21 @@ Nothing from Sonniss, Cosmos or Kenney was fed to any AI model.
    arrow leaving  ->  sfx.weapon.bow.release
    blade whoosh  ->  sfx.weapon.sword.swing.light
    bowstring twang  ->  sfx.weapon.bow.release
-   heavy whoosh  ->  sfx.weapon.sword.swing.heavy
+   heavy rush  ->  sfx.creature.swing.gore
+   heavy whoosh  ->  sfx.creature.swing.slam, sfx.weapon.sword.swing.heavy
    low air push  ->  sfx.weapon.polearm.thrust, sfx.weapon.sword.swing.heavy, sfx.weapon.sword.swing.light
+   lunge air  ->  sfx.creature.swing.bite
    shaft quiver  ->  sfx.weapon.bow.arrow.impact.wood
+   strike air  ->  sfx.creature.swing.sting
+   swipe air  ->  sfx.creature.swing.claw
    thrust air  ->  sfx.weapon.polearm.thrust
 
 == Music (interim, generated locally from text prompts)
    model: Stable Audio Open 1.0, Stability AI Community License (commercial use free under USD 1M annual revenue; owner revenue USD 0)
    mus.combat.01: seed 11; prompt "tense driving folk battle music, pounding frame drums, urgent fiddle ostinato, sharp wooden flute stabs, acoustic, dark and fast, 140 bpm"
    mus.combat.02: seed 23; prompt "tense driving folk battle music, pounding frame drums, urgent fiddle ostinato, sharp wooden flute stabs, acoustic, dark and fast, 140 bpm"
+   mus.explore.01: seed 11; prompt "quiet wandering folk air, solo battered wooden flute, long pauses, soft fiddle drone, faint frame drum like a slow heartbeat, open air, warm acoustic, contemplative, lots of silence, 66 bpm"
+   mus.explore.02: seed 23; prompt "quiet wandering folk air, solo battered wooden flute, long pauses, soft fiddle drone, faint frame drum like a slow heartbeat, open air, warm acoustic, contemplative, lots of silence, 66 bpm"
    mus.settlement.day.01: seed 11; prompt "gentle village folk tune, wooden flute and fiddle playing together slightly out of tune, light frame drum, warm acoustic, calm daytime, 92 bpm"
    mus.settlement.day.02: seed 23; prompt "gentle village folk tune, wooden flute and fiddle playing together slightly out of tune, light frame drum, warm acoustic, calm daytime, 92 bpm"
    mus.settlement.night.01: seed 11; prompt "quiet night folk lullaby, solo wooden flute, very sparse, soft fiddle harmonics, hushed, lots of silence, warm room tone, 60 bpm"

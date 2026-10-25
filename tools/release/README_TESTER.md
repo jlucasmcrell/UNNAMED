@@ -19,10 +19,14 @@ Nothing else needs installing, and the game never asks for administrator rights.
 | | Minimum | Recommended |
 | --- | --- | --- |
 | System | Windows 10 or 11, 64-bit | Windows 10 or 11, 64-bit |
-| Graphics | Vulkan graphics card with 8 GB of memory, Low quality at 1920 x 1080 | 12 GB or more, High quality at 2560 x 1440 |
+| Graphics | Vulkan graphics card with 12 GB of memory (RTX 3060 12 GB, RTX 4070, RX 6700 XT or better), Low quality at 1920 x 1080 | 16 GB or more, High quality at 2560 x 1440 |
 | Processor | 6 cores | 8 cores or more |
 | Memory | 16 GB | 32 GB |
 | Storage | the unpacked folder, on an SSD | SSD |
+
+The Barrowworks, the dungeon under the hill, uses more graphics memory than the open frontier: **16 GB is recommended there**. With 12 GB it still runs, but may stutter.
+
+**Graphics cards with 8 GB of memory are not supported in this playtest:** the game runs out of graphics memory and slows to a crawl. We are working on it for the next one.
 
 Quality, resolution, render scale and the individual effects are in **Settings > Graphics**. If the game runs slowly, choose a lower quality or a lower render scale there.
 

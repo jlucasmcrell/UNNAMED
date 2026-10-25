@@ -55,10 +55,13 @@ public static class HintTriggers
     public const string ChatOpened = "chat_opened";
     public const string ReputationOpened = "reputation_opened";
 
+    /// <summary>Named by the stuck rule (1I): no progress for a while, so the guide offers its own help.</summary>
+    public const string Stuck = "stuck";
+
     public static readonly ImmutableSortedSet<string> All = ImmutableSortedSet.Create(StringComparer.Ordinal,
         NewGame, PromptShown, CreatureEngaged, HitTaken, HealthLow, PlayerDowned, PlayerDied, CreatureKilled, ItemPickedUp, OverLimit, PackFull,
         QuestStarted, LevelUp, SkillPracticed, NodeGathered, StationOpened, TradeOpened, StoneTouched, FormulaLearned, CompanionRecruited,
-        CompanionDowned, AwaySheet, HireOffered, PriceChanged, BarOpened, StashOpened, TrainerOpened, ItemWorn, ChatOpened, ReputationOpened);
+        CompanionDowned, AwaySheet, HireOffered, PriceChanged, BarOpened, StashOpened, TrainerOpened, ItemWorn, ChatOpened, ReputationOpened, Stuck);
 }
 
 public static partial class HintRules

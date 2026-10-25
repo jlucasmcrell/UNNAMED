@@ -115,7 +115,11 @@ public sealed record Login(string Slot, LoadResult Result, DateTimeOffset SavedU
 /// How a save written in the background went (P-01): its slot, whether it was an autosave, the playtime its world was captured at, and
 /// what went wrong - null when it was committed and verified.
 /// </summary>
-public sealed record SaveOutcome(string Slot, bool Auto, double CapturedAtPlaytime, string? Failure);
+public sealed record SaveOutcome(string Slot, bool Auto, double CapturedAtPlaytime, string? Failure)
+{
+    /// <summary>What went wrong, in a player's words, with a report they can copy (PJ10 §6.3.1); null when the save was committed.</summary>
+    public SaveTrouble? Trouble { get; init; }
+}
 
 /// <summary>
 /// One presentation frame's worth of simulation: how many fixed ticks ran, how far into the next one the frame is, and the saves that
@@ -182,6 +186,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
         {
             _profileStore = new SaveStore(options.ProfileRoot, options.SaveStepHook);
             _profileStore.RecoverInterruptedCommits();
+            CharacterFolders.SweepDeleted(options.ProfileRoot);   // a deletion a crash cut short is finished, never listed
             foreach (var character in CharacterFolders.List(options.ProfileRoot))
                 StoreFor(character.Value).RecoverInterruptedCommits();
             // Until a game starts, the saves in play are those Continue would load: the newest loadable save's character.
@@ -528,6 +533,36 @@ public sealed class GameSession : IDomainEvents, IDisposable
     /// <summary>The other copies of a save as the saves list offered it, from whichever character's folder holds it.</summary>
     public ImmutableArray<SaveSummary> OtherCopies(SaveSummary save) => Tagged(StoreOf(save.Character).OtherCopies(save.Slot), save.Character);
 
+    /// <summary>
+    /// Delete a character and all its saves (PJ10 §5.2), from the title or the saves list. Refused for the character in play while its world
+    /// runs: its next save would bring the folder back. Saves still being written finish first. False when it had no folder; the saves
+    /// from before folders (null) are not a character and cannot be deleted this way.
+    /// </summary>
+    public bool DeleteCharacter(string character)
+    {
+        if (_simulation is not null && character == _character)
+            throw new InvalidOperationException("The character in play cannot be deleted while its world runs");
+        var id = EntityId.TryParse(character, out var parsed) && parsed.Kind == EntityKind.Character
+            ? parsed
+            : throw new ArgumentException($"'{character}' is not a character's save folder", nameof(character));
+        WaitForSaves(Timeout.InfiniteTimeSpan);
+        lock (_characterStores)
+            _characterStores.Remove(character);
+        bool deleted = CharacterFolders.Delete(Options.ProfileRoot, id);
+        if (_simulation is null && character == _character)
+        {
+            _character = StartChoice().Continue?.Character;
+            _store = StoreOf(_character);
+        }
+        return deleted;
+    }
+
+    /// <summary>The folder a character's saves are in (null: the saves from before folders, at the profile root): what "Open saves folder" opens.</summary>
+    public string FolderOf(string? character) => StoreOf(character).Root;
+
+    /// <summary>A save is being written in the background now: what the "Saving…" indicator shows (PJ10 §6.2).</summary>
+    public bool IsSaving => _pending.Count > 0 && !_pending[^1].Written.IsCompleted;
+
     /// <summary>The profile root's saves (null), then each character's folder.</summary>
     private IEnumerable<string?> Folders() =>
         new string?[] { null }.Concat(CharacterFolders.List(Options.ProfileRoot).Select(id => (string?)id.Value));
@@ -625,8 +660,9 @@ public sealed class GameSession : IDomainEvents, IDisposable
         {
             var save = _pending[0];
             _pending.RemoveAt(0);
-            string? failure = save.Written.Exception?.InnerException?.Message;
-            outcomes.Add(new SaveOutcome(save.Slot, save.Auto, save.Playtime, failure));
+            var error = save.Written.Exception?.InnerException;
+            string? failure = error?.Message;
+            outcomes.Add(new SaveOutcome(save.Slot, save.Auto, save.Playtime, failure) { Trouble = error is null ? null : SaveTrouble.OfSave(error) });
             if (!save.Auto)
                 continue;
             if (failure is null)

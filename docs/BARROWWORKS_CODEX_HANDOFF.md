@@ -442,3 +442,51 @@ by that run. The option-off drain view independently reproduces the approximatel
 See `BARROWWORKS_HITCH_PROFILE.md` for raw-run names, limits, detailed phases and all retained hitches.
 The official three interleaved idle option-off revision pairs remain pending the owner's quiet-window go.
 Barrowworks stays disabled. Frontier performance proceeds on its separate queue branch.
+
+## Art pass (Claude, 2026-10-24/25)
+
+Owner-approved art pass on top of `f72c1941`. Collision, gates, encounters and portal anchors are unchanged.
+
+- **Rock.** One shell for the whole ring, built by `tools/build_barrowworks_rooms.py`. The walkable volume
+  (rooms to their 4 m walls under a vault, 3 m doorways arched from 3 m, corridors under a low vault) is
+  voxel-remeshed at 0.12 m and displaced outward only (0.05-0.67 m: bedding planes, lumps, Voronoi joints),
+  so it never comes inside a collision face and has no room/corridor seams. It is split per room by
+  footprint and per corridor leg (22 meshes, culled leg by leg). Megascans Old Mine rock and coal floor
+  surfaces at source resolution, world-scale box UVs (2 m rock, 3 m floor), so texel density is uniform.
+  The rock mass is drawn 0.75 m back from every inner face.
+- **Dressing** (`tools/convert_barrowworks_mine.ps1`, Scene_OldMine, decimated to prop budgets):
+  - Timber sets carry wall plates and ties, in pieces of at most 2.5 m so the grain is never stretched.
+  - Doorway posts sit inside the jambs, under a cap at the arch spring.
+  - Sleepered rails form the delivery groove (R01/R02) and the two work tracks (R05), with carts.
+  - Timber archive shelves (R07/R09), the headworks trestle (R12), tools, spoil and fallen slabs.
+- **Light.** Room lanterns cast shadows; corridor lanterns (now modelled, at their light) do not. The
+  bounce light is 0.9, and the albedo is lifted for direct-only light (rock x1.35, coal floor x2.4).
+  Interior ambient is 0.85 and AgX contrast 1.2 indoors (`HollowView`; the exterior is unchanged).
+- **Brightness (owner/coordinator: too dark to play).** Indoors only: exposure 1.02 -> 1.4, ambient 0.85 -> 1.15,
+  fill 0.9 -> 1.25 (court 1.8), lantern range x1.25 with softer attenuation (0.7). No new or shadowed lights.
+  Re-check `bw_art09`: full route, flicker 4.7/min, `bw_art09_entry_R05_R13.mp4`, `before_after_{1,2}.png`.
+- **Flicker (owner report).** The interior still draws the region's flat terrain at y = 0. The new floor
+  sat exactly on it and z-fought under TAA. It now sits 1 cm above. Measured per-frame luma swings on
+  real-time WGC video: pre-art 2.3/min; art pass before the fix 124-197/min (shadow variants did not move
+  it; a geometry/lighting cross test isolated the floor); after the fix 4.0/min over the whole route
+  (`bw_art07`).
+- **Camera.** The spring arm's sweep started at the shoulder pivot, which could already be inside a wall,
+  so the camera went into the rock. The shoulder offset is now cleared by a ray from the eye. It steps in
+  at once and eases back out (`CameraRig.ClearShoulder`).
+- **Review driver.** An empty route found from inside the goal's cell is now walked straight to the goal
+  instead of being re-searched every tick.
+
+Evidence is in `D:\Otherreach_Scratch\claude_barrowworks_runs`:
+- `bw_art07\bw_art07.mp4`: the full real-time route.
+- `bw_art07\bw_art07_clip.mp4`: 100 s from entry through R03.
+- `bw_art07\before_after_{1,2}.png`: all 13 rooms against `bw_full07`.
+- `bw_short_v1..v4`, `bw_short_c1/c2`: the flicker isolation runs.
+- `bw_abart_*`: three interleaved same-slot short-route pairs against the pre-art arm. Visible spikes:
+  art 24, pre-art 29. GPU median: art about 14-16 ms, pre-art about 9.8 ms; the art costs about +5 ms GPU,
+  measured on a contended host. VRAM peak: art 13.2 GB, pre-art 19.5 GB (that arm loads uncached GLBs).
+- `bw_short_low` and `bw_short_medium` complete the route (VRAM peaks 11.6 / 12.6 GB on a 24 GB card).
+
+The native cache v7 is rebuilt and PASSES (62 scenes, 1,805 textures). Packaging skips the Old Mine source
+modules. Follow-up after the public build: the ring's 1,805 BC7 textures (3.8 GB) are mostly per-room
+copies of shared module maps plus room LOD copies. Dropping room LODs and sharing the module maps should
+cut that to a few hundred.

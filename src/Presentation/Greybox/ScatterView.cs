@@ -263,7 +263,7 @@ public partial class ScatterView : Node3D
             AddChild(new MultiMeshInstance3D
             {
                 Name = $"{kind.Rules.Name}_{cx}_{cz}_{m}", Multimesh = multi,
-                CastShadow = kind.Rules.Shadows ? GeometryInstance3D.ShadowCastingSetting.On : GeometryInstance3D.ShadowCastingSetting.Off,
+                CastShadow = kind.Rules.Shadows && VisualOptions.ScatterShadowLevels > 0 ? GeometryInstance3D.ShadowCastingSetting.On : GeometryInstance3D.ShadowCastingSetting.Off,
                 GIMode = GeometryInstance3D.GIModeEnum.Disabled, VisibilityRangeEnd = kind.Rules.FadeM,
                 // No fade mode and no end margin: a stipple on an alpha-scissor material toggles the
                 // instance on and off rather than fading it, which is the blink the owner reported.
@@ -363,7 +363,8 @@ public partial class ScatterView : Node3D
                 // Far foliage cards must not cast slabs, so a casting kind casts from its two near levels only - unless the
                 // rules say `far_shadows` (a rock, a sapling stand: solid and still), whose shadow must not switch off at
                 // the third level's edge while the thing itself stays drawn (the ash stand's shadow popping onto a wall).
-                CastShadow = kind.Rules.Shadows && (level < 2 || kind.Rules.FarShadows) && !chain[level].HasMeta("otherreach_impostor")
+                CastShadow = kind.Rules.Shadows && (level < VisualOptions.ScatterShadowLevels || kind.Rules.FarShadows && VisualOptions.ScatterShadowLevels > 0)
+                    && !chain[level].HasMeta("otherreach_impostor")
                     ? GeometryInstance3D.ShadowCastingSetting.On : GeometryInstance3D.ShadowCastingSetting.Off,
                 GIMode = GeometryInstance3D.GIModeEnum.Disabled,
                 // Ground cover keeps its existing per-plant thinning by default.

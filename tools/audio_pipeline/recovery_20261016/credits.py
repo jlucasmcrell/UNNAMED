@@ -14,14 +14,15 @@ for name in ('combat_rows.json', 'gap_rows.json', 'music_rows.json'):
         if r['category'] == 'music':
             music.append(r)
             continue
-        for layer in r['source']['layers']:
+        # A creature take carried over from the V3 set has a single source and is credited with that set.
+        for layer in r['source'].get('layers', []):
             lib = layer.get('library', '?')
             lic[lib] = layer.get('licence', '?')
             use[lib][layer.get('file') or layer.get('what', 'synthesis')].add(r['audio_id'].rsplit('.', 1)[0])
 lines = ['OTHERREACH - audio recovery build, 2026-10-16: sources and licences', '',
-         'No attribution is legally required for any file below (Sonniss GDC: none required; Kenney: CC0; Cosmos: subscription; synthesis and',
+         'No attribution is legally required for any file below (Sonniss GDC: none required; Kenney and OpenGameArt: CC0; Cosmos: subscription; synthesis and',
          'generated music: our own). Credit is still given here. Raw library files are not redistributed; only the processed game sounds ship.',
-         'Nothing from Sonniss, Cosmos or Kenney was fed to any AI model.', '']
+         'Nothing from Sonniss, Cosmos, Kenney or OpenGameArt was fed to any AI model.', '']
 for lib in sorted(use):
     lines.append(f'== {lib}')
     lines.append(f'   licence: {lic[lib]}')

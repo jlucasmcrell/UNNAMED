@@ -394,6 +394,8 @@ public sealed class BarrowworksReview
                 return "failed";
             }
             foreach (var step in found.Path) _path.Enqueue(step);
+            // Already in the goal's cell but not within arrival distance of it: an empty route would be searched again every tick.
+            if (_path.Count == 0) _path.Enqueue(found.Goal);
             _goal = found.Goal;
             _lastProgress = sim.WorldTick;
         }

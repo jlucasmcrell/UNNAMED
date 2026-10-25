@@ -39,8 +39,56 @@ public static class WaterView
         float x0 = region.Position.X, x1 = region.End.X, z0 = region.Position.Y, z1 = region.End.Y;
         const float Out = 17f, Width = 15f, Past = 24f;
         yield return (new Vector3(x0 - Out, 0, (z0 + z1) / 2), new Vector2(Width, z1 - z0 + 2 * Past), new Vector2(0, 1));
-        yield return (new Vector3((x0 + x1) / 2, 0, z1 + Out), new Vector2(x1 - x0 + 2 * Past, Width), new Vector2(1, 0));
+        if (DenGorge.On(region))
+        {
+            // The north run stops either side of the den gorge, whose own river comes down into it (DenGorge.Runs): from the west it
+            // runs east into the gorge, from the east it runs west.
+            const float West = 440f, East = 704f;
+            yield return (new Vector3((x0 - Past + West) / 2, 0, z1 + Out), new Vector2(West - x0 + Past, Width), new Vector2(1, 0));
+            yield return (new Vector3((East + x1 + Past) / 2, 0, z1 + Out), new Vector2(x1 + Past - East, Width), new Vector2(-1, 0));
+        }
+        else
+            yield return (new Vector3((x0 + x1) / 2, 0, z1 + Out), new Vector2(x1 - x0 + 2 * Past, Width), new Vector2(1, 0));
         yield return (new Vector3(x1 + Out, 0, (z0 + z1) / 2), new Vector2(Width, z1 - z0 + 2 * Past), new Vector2(0, -1));
+    }
+
+    /// <summary>
+    /// The gorge behind the den (spec 28): its two river runs into the swallow, white where they fall, brighter and faster than the
+    /// ravine's slow strips; the fall off the far wall; and the stream that feeds it across the far shelf.
+    /// </summary>
+    public static void BuildDenGorge(Node3D parent, Func<float, float, float> height)
+    {
+        var root = new Node3D { Name = "DenGorgeWater" };
+        parent.AddChild(root);
+        foreach (var (name, flow, samples) in DenGorge.Runs(height))
+        {
+            var river = (ShaderMaterial)FlowWater.Duplicate();
+            river.SetShaderParameter("flow_dir", flow);
+            river.SetShaderParameter("flow_speed", 1.7f);
+            river.SetShaderParameter("shallow_colour", new Vector3(0.22f, 0.35f, 0.32f));
+            river.SetShaderParameter("deep_colour", new Vector3(0.07f, 0.15f, 0.16f));
+            river.SetShaderParameter("depth_fade_m", 2.4f);
+            river.SetShaderParameter("foam_m", 0.3f);
+            river.SetShaderParameter("rapids", 1f);
+            river.SetShaderParameter("edge_fade", 1f);
+            root.AddChild(DenGorge.RiverMesh(name, flow, samples, river));
+        }
+        float faceD = DenGorge.FarFootAt(DenGorge.FallX) + 0.75f;
+        float top = height(DenGorge.FallX, DenGorge.Edge + faceD + 4f) + 0.35f;
+        float pool = height(DenGorge.FallX, DenGorge.Edge + faceD - 6f) + 1.2f;
+        root.AddChild(DenGorge.FallMesh(top, pool, faceD));
+        // The feeding stream: a narrow strip down its cut over the far shelf to the lip.
+        var stream = (ShaderMaterial)FlowWater.Duplicate();
+        stream.SetShaderParameter("flow_dir", new Vector2(0, -1));
+        stream.SetShaderParameter("flow_speed", 1.4f);
+        stream.SetShaderParameter("foam_m", 0.3f);
+        stream.SetShaderParameter("shallow_colour", new Vector3(0.22f, 0.35f, 0.32f));
+        root.AddChild(new MeshInstance3D
+        {
+            Name = "gorge_fall_stream", Mesh = new PlaneMesh { Size = new Vector2(4.5f, 70f), SubdivideWidth = 4, SubdivideDepth = 35 },
+            MaterialOverride = stream, CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+            Position = new Vector3(DenGorge.FallX, top - 0.15f, DenGorge.Edge + faceD + 35.5f),
+        });
     }
 
     private static void Strip(Node3D root, string name, Vector3 centre, Vector2 size, Vector2 flow, Func<float, float, float> height)
@@ -98,6 +146,8 @@ uniform vec3 deep_colour : source_color = vec3(0.03, 0.07, 0.08);
 uniform float depth_fade_m = 1.6;
 uniform float foam_m = 0.12;
 uniform float refraction = 0.018;
+uniform float rapids = 0.0;    // how much the vertex colour's red (0 still, 1 a rapid) whitens the run: the den gorge's runs only
+uniform float edge_fade = 0.0;   // fades the surface to its sides by the vertex colour's green (the den gorge's runs only)
 
 varying vec3 world_pos;
 
@@ -151,10 +201,12 @@ void fragment() {
     float breakup = vnoise(streak * vec2(1.0 + abs(flow_dir.y) * 3.0, 1.0 + abs(flow_dir.x) * 3.0));
     float foam = (1.0 - smoothstep(0.0, foam_m, depth)) * smoothstep(0.55, 0.85, breakup) * 0.7;
     foam += smoothstep(0.8, 0.95, fbm(streak * 0.6)) * 0.2;
+    foam += rapids * COLOR.r * 0.8 * smoothstep(0.35, 0.75, vnoise(streak * vec2(2.6, 2.6) + vec2(11.0, 3.0)) * 0.5 + breakup * 0.5);
     colour = mix(colour, vec3(0.62, 0.66, 0.65), clamp(foam, 0.0, 1.0));
 
     ALBEDO = colour;
     ALPHA = clamp(mix(0.55, 0.96, deep) * smoothstep(0.0, 0.06, depth) + foam * 0.3, 0.0, 1.0);
+    ALPHA *= mix(1.0, smoothstep(0.0, 1.0, COLOR.g), edge_fade);
     ROUGHNESS = mix(0.06, 0.5, clamp(foam, 0.0, 1.0));
     SPECULAR = 0.55;
 }
