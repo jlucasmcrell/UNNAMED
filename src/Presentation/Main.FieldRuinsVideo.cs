@@ -28,7 +28,8 @@ public partial class Main
                 // The game's own allocations: nvidia-smi on a 24 GB card shows the driver filling what is free, not what the game needs.
                 video_mb = Performance.GetMonitor(Performance.Monitor.RenderVideoMemUsed) / 1048576,
                 textures_mb = Performance.GetMonitor(Performance.Monitor.RenderTextureMemUsed) / 1048576,
-                buffers_mb = Performance.GetMonitor(Performance.Monitor.RenderBufferMemUsed) / 1048576 };
+                buffers_mb = Performance.GetMonitor(Performance.Monitor.RenderBufferMemUsed) / 1048576,
+                fps = Engine.GetFramesPerSecond(), creatures_within_60m = sim.Creatures.Count(c => c.Alive && Distance(_controller.Authoritative, c.Body) < 60_000) };
             events.Add(row); File.AppendAllText(Path.Combine(directory, "phases.jsonl"), JsonSerializer.Serialize(row) + "\n");
         }
         CreatureView? Threat(double within) => sim.Creatures
@@ -80,6 +81,16 @@ public partial class Main
             _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
             Mark("fight_end");
         }
+        ulong sampled = 0;
+        // A careful body gets its breath back before walking on: out of a fight below half health, it waits (up to 25 s) to regain some.
+        async Task Rest()
+        {
+            if (sim.Combat.Health * 2 >= sim.Combat.MaxHealth)
+                return;
+            Mark("rest");
+            for (int i = 0; i < 50 && sim.Combat.Health * 5 < sim.Combat.MaxHealth * 4 && Threat(12) is null; i++)
+                await Rcd3Wait(.5);
+        }
         async Task Go(IEnumerable<(double X, double Z)> points, double budget, Gait gait, double fightWithin = 9)
         {
             ulong deadline = Time.GetTicksMsec() + (ulong)(budget * 1000);
@@ -94,6 +105,7 @@ public partial class Main
                         if (Threat(fightWithin) is { } threat)
                         {
                             await Fight(threat, 150);
+                            await Rest();
                             moved = Time.GetTicksMsec();
                         }
                         var body = _controller.Authoritative;
@@ -105,6 +117,7 @@ public partial class Main
                         if (_avatar.GlobalPosition.DistanceTo(last) > .1f) { last = _avatar.GlobalPosition; moved = Time.GetTicksMsec(); }
                         if (Time.GetTicksMsec() - moved > 8000)
                             throw new InvalidDataException("Field-ruins route blocked at " + body + " toward " + corner);
+                        if (Time.GetTicksMsec() - sampled > 3000) { sampled = Time.GetTicksMsec(); Mark("sample"); }
                         _camera.Yaw = Mathf.Atan2(-toward.X, -toward.Z);
                         _controller.SteerWorld(toward.Normalized(), gait, _camera);
                         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
@@ -196,8 +209,29 @@ public partial class Main
                     throw new InvalidDataException("The gate did not settle");
                 Mark("gate_stilled"); await Look((890, 752), 6);
                 break;
+            case "route":
+                // The new player's way east (the population pass): from the Ashen Waystone along the Old East Road, past the Lantern Shrine
+                // and the overturned wain, up by the Rim Stone and into the Spill's east lane - fighting whatever comes, resting when hurt.
+                await Look((600, 656), 3);
+                await Go(new[] { (464.0, 748.0), (522.0, 690.0), (564.0, 690.0), (600.0, 656.0) }, 240, Gait.Run);
+                Mark("foldscar_turn");
+                await Go(new[] { (680.0, 657.0), (760.0, 658.0), (840.0, 659.0) }, 300, Gait.Run);
+                Mark("road_east");
+                await Go(new[] { (880.0, 660.0), (886.0, 700.0), (884.0, 728.0) }, 200, Gait.Run, 14);
+                Mark("east_lane"); await Look((850, 758), 5);
+                break;
+            case "busy":
+                // The spot the population pass crowds most (the court's north side): thirty seconds of frame rate, fighting what comes.
+                await Look((866, 762), 2);
+                for (ulong until = Time.GetTicksMsec() + 30_000; Time.GetTicksMsec() < until;)
+                {
+                    if (Threat(10) is { } threat)
+                        await Fight(threat, 120);
+                    Mark("sample"); await Rcd3Wait(1);
+                }
+                break;
             default:
-                throw new InvalidDataException("OTHERREACH_FIELD_RUINS_LEG must be west, east or core");
+                throw new InvalidDataException("OTHERREACH_FIELD_RUINS_LEG must be west, east, core, route or busy");
         }
         File.WriteAllText(Path.Combine(directory, "recording.finished"), "done");
         File.WriteAllText(Path.Combine(directory, "complete.json"), JsonSerializer.Serialize(new
