@@ -104,5 +104,5 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 | spawn.road.scarp_boar | (905, 650) | Bristleback Boar as territorial | after 96.0 min |
 | spawn.road.shrine_hound | (670, 674) | Ash Ember Hound as hunter | after 72.0 min |
 | spawn.road.shrine_husk | (700, 645) | Bone Walker Husk as night_walker | after 72.0 min |
-| spawn.road.wain_spider | (748, 666) | Cave Hunting Spider as ambusher | after 96.0 min |
+| spawn.road.wain_spider | (747, 662) | Cave Hunting Spider as ambusher | after 96.0 min |
 | spawn.road.wayside_pack | (772, 697) | Grey Wolf as roamer x2, Grey Wolf as stray | after 30.0 min |
