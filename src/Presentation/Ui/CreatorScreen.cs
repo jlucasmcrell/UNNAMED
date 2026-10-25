@@ -281,6 +281,9 @@ public partial class CreatorScreen : CanvasLayer
         return offered;
     }
 
+    /// <summary>The ids of the bodies the Body step offers that this build draws (the creator-shots harness walks these).</summary>
+    public IReadOnlyList<string> DrawnBodyIds() => OfferedBodies().Where(o => o.Installed).Select(o => o.Body.Id).ToList();
+
     /// <summary>Whether this build draws a baked body for <paramref name="people"/>: one of its offered bodies is installed and baked.</summary>
     private bool Drawn(string people) =>
         _catalogue.Race(people) is not { HumgenBody: false }

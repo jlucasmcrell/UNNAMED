@@ -281,10 +281,11 @@ public partial class Main
         }
         if (Time.GetTicksMsec() < _creatorNext)
             return;
-        // Every body content offers, type by type and build by build, the second type's middle build last: each its own model, whose
-        // first showing loads it. A shot shows what the step before it chose.
+        // Every body the Body step offers and draws, type by type and build by build, the second type's middle build last: each its own
+        // model, whose first showing loads it. A shot shows what the step before it chose.
         var typeOrder = _bindings.Bodies.Types.Select(t => t.Type).ToList();
-        var bodies = _session.Characters.OfferedBodies(CharacterSpec.DefaultPeople)
+        var drawn = _creator.DrawnBodyIds();
+        var bodies = _session.Characters.OfferedBodies(CharacterSpec.DefaultPeople).Where(b => drawn.Contains(b.Id))
             .OrderBy(b => typeOrder.IndexOf(b.Type) is var i && i >= 0 ? i : typeOrder.Count).ThenBy(b => b.Order).ToList();
         var walk = bodies.Where(b => b.Id != _bindings.Bodies.Default).ToList();
         if (bodies.Count > 0)
