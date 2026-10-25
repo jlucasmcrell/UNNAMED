@@ -156,9 +156,10 @@ public static class PeopleAppearance
     /// the hair cards, each on this figure's own copy of the material. The material each surface had before is kept on the mesh, so choosing
     /// again starts from it rather than from the last tint, and "as made" puts it back.
     /// </summary>
-    public static void ApplyLook(Node model, string? people, CharacterAppearance? look)
+    public static void ApplyLook(Node model, string? people, CharacterAppearance? look, ArtLibrary? art = null, string? bodyModel = null)
     {
         int? Index(string slider) => look is not null && look.Sliders.TryGetValue(slider, out int value) ? value : null;
+        WearHairStyle(model, art, LookSwatches.HairStyles(bodyModel).ElementAtOrDefault(Index(LookSwatches.StyleSlider) ?? 0).Asset);
         var skin = LookSwatches.Chosen(LookSwatches.Skin(people), Index(LookSwatches.SkinSlider));
         var hair = LookSwatches.Chosen(LookSwatches.Hair(people), Index(LookSwatches.HairSlider));
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
@@ -167,9 +168,9 @@ public static class PeopleAppearance
                 continue;
             for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
             {
-                string name = mesh.Mesh.SurfaceGetMaterial(surface)?.ResourceName ?? string.Empty;
+                string name = WithoutLod(mesh.Mesh.SurfaceGetMaterial(surface)?.ResourceName ?? string.Empty);
                 bool isSkin = name.EndsWith("_Skin", StringComparison.OrdinalIgnoreCase);
-                bool isHair = new[] { "_HairCards", "_FaceHairCards", "_Haircap" }.Any(h => name.EndsWith(h, StringComparison.OrdinalIgnoreCase));
+                bool isHair = HairSurfaces.Any(h => name.EndsWith(h, StringComparison.OrdinalIgnoreCase));
                 if (!isSkin && !isHair)
                     continue;
                 string key = $"look_base_{surface}";
@@ -180,6 +181,46 @@ public static class PeopleAppearance
                 mesh.SetSurfaceOverrideMaterial(surface, swatch is null ? original : isSkin ? Tinted(original, swatch) : Coloured(original, swatch));
             }
         }
+    }
+
+    private static readonly string[] HairSurfaces = { "_HairCards", "_FaceHairCards", "_Haircap" };
+
+    private static string WithoutLod(string name) =>
+        name.LastIndexOf("_LOD", StringComparison.Ordinal) is int at and >= 0 && at + 4 < name.Length && name[(at + 4)..].All(char.IsAsciiDigit) ? name[..at] : name;
+
+    private static bool IsHead(MeshInstance3D mesh) => mesh.Mesh is { } m && m.GetSurfaceCount() > 0
+        && HairSurfaces.Any(h => WithoutLod(m.SurfaceGetMaterial(0)?.ResourceName ?? "").EndsWith(h, StringComparison.OrdinalIgnoreCase)) && mesh.Name.ToString().Contains("Hair", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// A hairstyle other than the body's own: the style's rigged model loaded once, its hair meshes moved onto this body's skeleton (the same
+    /// HumGen rig, bound by bone name) and the body's own hair hidden; none puts the body's own back. A style already worn is left alone.
+    /// </summary>
+    private static void WearHairStyle(Node model, ArtLibrary? art, string? asset)
+    {
+        if (model.FindChildren("*", nameof(Skeleton3D), true, false).OfType<Skeleton3D>().FirstOrDefault() is not { } skeleton)
+            return;
+        var worn = skeleton.GetChildren().OfType<MeshInstance3D>().Where(m => m.HasMeta("look_style")).ToList();
+        if (worn.FirstOrDefault()?.GetMeta("look_style").AsString() == asset && (asset is not null || worn.Count == 0))
+            return;
+        foreach (var mesh in worn)
+        {
+            skeleton.RemoveChild(mesh);
+            mesh.QueueFree();
+        }
+        var style = asset is null ? null : art?.Rigged(asset);
+        foreach (var own in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>().Where(IsHead))
+            own.Visible = style is null;
+        if (style is null)
+            return;
+        CharacterMaterials.ApplyLods(style);
+        foreach (var mesh in style.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>().ToList())
+        {
+            mesh.GetParent().RemoveChild(mesh);
+            skeleton.AddChild(mesh);
+            mesh.Skeleton = mesh.GetPathTo(skeleton);
+            mesh.SetMeta("look_style", asset);
+        }
+        style.QueueFree();
     }
 
     private static Material Tinted(Material original, Swatch tone)

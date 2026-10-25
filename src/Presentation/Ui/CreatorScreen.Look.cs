@@ -73,7 +73,33 @@ public partial class CreatorScreen
     private void HairStep()
     {
         _body.AddChild(PendingNote());
-        _body.AddChild(OptionSection(CreatorChoice.Hair, "Hair", "HumGen hair cards"));
+        // Hairstyles baked on this body's rig and installed in this build, the body's own first; the row is only there when there is a choice.
+        var styles = LookSwatches.HairStyles(Model).Select((s, i) => (s.Label, Index: i, s.Asset))
+            .Where(s => s.Asset is null || _art.RiggedFile(s.Asset, s.Asset + "_rigged.glb") is not null).ToList();
+        // The exported creator's one baked hair is the style row's first entry, so the list is only drawn when there is no row.
+        if (!BakedOnly || styles.Count < 2)
+            _body.AddChild(OptionSection(CreatorChoice.Hair, "Hair", "HumGen hair cards"));
+        if (styles.Count > 1)
+        {
+            var section = UiKit.Section("Hair style");
+            var row = new HBoxContainer();
+            row.AddThemeConstantOverride("separation", 6);
+            int worn = Look.Sliders.TryGetValue(LookSwatches.StyleSlider, out int at) ? at : 0;
+            foreach (var style in styles)
+            {
+                string id = $"creator.{LookSwatches.StyleSlider}.{style.Index}";
+                var button = UiKit.Action(style.Label, Deferred(() =>
+                {
+                    Shape(look => look with { Sliders = style.Index == 0 ? look.Sliders.Remove(LookSwatches.StyleSlider) : look.Sliders.SetItem(LookSwatches.StyleSlider, style.Index) });
+                    Render(id);
+                }), compact: true, id: id);
+                button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+                UiKit.Select(button, style.Index == worn);
+                row.AddChild(button);
+            }
+            section.AddChild(row);
+            _body.AddChild(section);
+        }
         _body.AddChild(SwatchSection("Hair colour", LookSwatches.HairSlider, LookSwatches.Hair(Draft.PeopleId), new Color(.08f, .035f, .012f), multiply: false));
         if (_catalogue.Options(CreatorChoice.FacialHair, Sex).Count > 0)
             _body.AddChild(OptionSection(CreatorChoice.FacialHair, "Facial hair", "", none: "Clean-shaven"));

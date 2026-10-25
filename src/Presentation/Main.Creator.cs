@@ -153,7 +153,7 @@ public partial class Main
             _avatarPose = null;
             _art.Coverage.Resolved("person", "player", model);
         }
-        PeopleAppearance.ApplyLook(_avatar, simulation.Player.Identity.PeopleId, simulation.Player.Identity.Appearance);
+        PeopleAppearance.ApplyLook(_avatar, simulation.Player.Identity.PeopleId, simulation.Player.Identity.Appearance, _art, _avatarModel);
         // HumGen keeps the exported shape and native mocap arms; saved legacy builds must not add arm splay.
         if (_avatarModel?.StartsWith("humgen_", StringComparison.Ordinal) == true)
         {
@@ -323,7 +323,11 @@ public partial class Main
             Appearance = (_creator.Draft.Appearance ?? new CharacterAppearance(1750, null, null, null, null, null)) is var look
                 ? look with { Sliders = look.Sliders.SetItem(LookSwatches.SkinSlider, 6).SetItem(LookSwatches.HairSlider, 7) } : null,
         }), 2500));
-        list.Add(($"{list.Count + 1:00}_hair_tan_blond", () => _creator.Go(CreatorStep.Outfit), 1500));
+        list.Add(($"{list.Count + 1:00}_hair_tan_blond", () => _creator.Use(_creator.Draft with
+        {
+            Appearance = _creator.Draft.Appearance! with { Sliders = _creator.Draft.Appearance!.Sliders.SetItem(LookSwatches.StyleSlider, 1) },
+        }), 3000));
+        list.Add(($"{list.Count + 1:00}_hair_bun", () => _creator.Go(CreatorStep.Outfit), 1500));
         list.Add(($"{list.Count + 1:00}_outfit", () => _creator.Go(CreatorStep.Identity), 1500));
         int n = list.Count;
         string N(string shot) => $"{++n:00}_{shot}";

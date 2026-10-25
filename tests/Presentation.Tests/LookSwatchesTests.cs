@@ -54,4 +54,13 @@ public sealed class LookSwatchesTests
         };
         Assert.Null(look.Problem());
     }
+
+    [Fact]
+    public void AdasOwnHair_IsTheFirstStyle_AndOtherBodiesHaveNoStyleChoiceYet()
+    {
+        var ada = LookSwatches.HairStyles("humgen_player_ada_f");
+        Assert.Equal(("Ponytail", (string?)null), ada[0]);
+        Assert.Contains(ada, s => s.Asset == "humgen_hair_f_bun");
+        Assert.Empty(LookSwatches.HairStyles("humgen_player_mateo_m"));
+    }
 }

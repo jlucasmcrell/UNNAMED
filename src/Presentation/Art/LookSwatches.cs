@@ -13,7 +13,17 @@ public sealed record Swatch(string Label, float R, float G, float B);
 /// </summary>
 public static class LookSwatches
 {
-    public const string SkinSlider = "look.skin_tone", HairSlider = "look.hair_colour";
+    public const string SkinSlider = "look.skin_tone", HairSlider = "look.hair_colour", StyleSlider = "look.hair_style";
+
+    /// <summary>
+    /// The hairstyles a body can wear: its own baked hair first, then HumGen hair baked on the same rig and shipped as rigged models
+    /// (<c>rigged/&lt;asset&gt;/&lt;asset&gt;_rigged.glb</c>). A style whose model is not installed is not offered.
+    /// </summary>
+    public static IReadOnlyList<(string Label, string? Asset)> HairStyles(string? bodyModel) => bodyModel switch
+    {
+        "humgen_player_ada_f" => new (string, string?)[] { ("Ponytail", null), ("Bun", "humgen_hair_f_bun"), ("Long bob", "humgen_hair_f_bob_long") },
+        _ => Array.Empty<(string, string?)>(),
+    };
 
     private static readonly Swatch AsMade = new("As made", 1, 1, 1), Unchanged = new("As made", 0, 0, 0);
 

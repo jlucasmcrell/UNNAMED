@@ -128,7 +128,7 @@ public sealed partial class CreatorPreview : TextureRect
     public void Look(string? people, Domain.Character.CharacterAppearance? look)
     {
         if (_figure is not null)
-            PeopleAppearance.ApplyLook(_figure, people, look);
+            PeopleAppearance.ApplyLook(_figure, people, look, _art, _figure.Name);
     }
 
     /// <summary>Turn the body by an angle, in radians.</summary>
