@@ -163,10 +163,16 @@ public static class VisualOptions
     };
 
     /// <summary>
-    /// The cached textures' top mip levels left on disk, so Low and Medium fit an 8 GB card (public playtest gate C3): a 4096 map uploads
-    /// from 2048 down. High and Ultra upload the full chain.
+    /// The largest side a cached texture is uploaded at, by tier, so Low and Medium fit an 8 GB card (public playtest gate C3): Low takes the
+    /// world's maps to 1024 and the rigged bodies' (people and creatures, seen close) to 2048, Medium everything to 2048. High and Ultra
+    /// upload the full chain, and so does the sky's HDR at every tier.
     /// </summary>
-    public static int TextureMipsDropped => Tier is "low" or "medium" ? 1 : 0;
+    public static int TextureMaxSize(string key, string role) => role == "hdr" ? int.MaxValue : Tier switch
+    {
+        "low" => key.StartsWith("rigged/", StringComparison.Ordinal) ? 2048 : 1024,
+        "medium" => 2048,
+        _ => int.MaxValue,
+    };
 
     /// <summary>Settings' plant density and detail distance dials, read as the world is built (a player's run; 1 for a harness).</summary>
     public static float PlantScale { get; set; } = 1f;

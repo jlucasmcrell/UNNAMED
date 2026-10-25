@@ -93,7 +93,7 @@ public sealed class TextureCache
         if (!info.Exists)
             return null;
         if (_entries.TryGetValue(key, out var entry) && entry.Size == info.Length && entry.Sig == Signature(source)
-            && Load(entry.Dds) is { } cached)
+            && Load(entry.Dds, VisualOptions.TextureMaxSize(key, entry.Role)) is { } cached)
         {
             Hits++;
             return cached;
@@ -110,7 +110,7 @@ public sealed class TextureCache
         _dirty = true;
         Added++;
         Save();
-        return Load(dds);
+        return Load(dds, VisualOptions.TextureMaxSize(key, role));
     }
 
     /// <summary>A mip-chained BC7 copy of <paramref name="picture"/> in the cache, named by its content; null when it cannot be made.</summary>
@@ -160,7 +160,7 @@ public sealed class TextureCache
         return image;
     }
 
-    private Texture2D? Load(string name)
+    private Texture2D? Load(string name, int maxSize)
     {
         if (_loaded.TryGetValue(name, out var texture) && texture is not null)
             return texture;
@@ -182,7 +182,7 @@ public sealed class TextureCache
             using var image = new Image();
             if (image.LoadDdsFromBuffer(File.ReadAllBytes(path)) == Error.Ok && !image.IsEmpty())
             {
-                var upload = WithoutTopMips(image, _buildNative ? 0 : VisualOptions.TextureMipsDropped);
+                var upload = _buildNative ? image : WithinSize(image, maxSize);
                 texture = ImageTexture.CreateFromImage(upload);
                 CompressedBytes += upload.GetDataSize();
                 if (upload != image)
@@ -201,13 +201,15 @@ public sealed class TextureCache
     }
 
     /// <summary>
-    /// <paramref name="image"/> from its <paramref name="drop"/>-th mip down, as a new image, for a map over 1024 with the chain to spare:
-    /// the cached blocks are sliced, never recompressed, so the picture at each kept level is the same. Otherwise the image itself.
+    /// <paramref name="image"/> from its first mip no larger than <paramref name="maxSize"/> down, as a new image: the cached blocks are sliced,
+    /// never recompressed, so the picture at each kept level is the same. The image itself when it already fits or has no chain to spare.
     /// </summary>
-    private static Image WithoutTopMips(Image image, int drop)
+    private static Image WithinSize(Image image, int maxSize)
     {
-        drop = Math.Min(drop, image.GetMipmapCount());
-        if (drop == 0 || Math.Max(image.GetWidth(), image.GetHeight()) <= 1024)
+        int drop = 0;
+        while (drop < image.GetMipmapCount() && Math.Max(image.GetWidth(), image.GetHeight()) >> drop > maxSize)
+            drop++;
+        if (drop == 0)
             return image;
         long offset = image.GetMipmapOffset(drop);
         return Image.CreateFromData(Math.Max(1, image.GetWidth() >> drop), Math.Max(1, image.GetHeight() >> drop), true, image.GetFormat(),
