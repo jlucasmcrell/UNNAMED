@@ -63,6 +63,55 @@ public partial class Main
             GD.Print("RACE_LOOKS step " + step + " " + s);
             switch (step)
             {
+                case "arena":
+                {
+                    _scatter.Visible=false;
+                    stage=_avatar.GlobalPosition+Vector3.Up*8;
+                    ground=(_,_)=>stage.Y;
+                    AddChild(new MeshInstance3D {
+                        Name="MotionInspectionPlatform",Position=stage-Vector3.Up*.05f,
+                        Mesh=new BoxMesh {Size=new Vector3(28,.1f,28)},
+                        MaterialOverride=new StandardMaterial3D {AlbedoColor=new Color(.18f,.2f,.2f),Roughness=1}
+                    });
+                    log.Add(new {step,stage=stage.ToString(),scatter_visible=_scatter.Visible,note="Diagnostic flat raised inspection platform; production figures/materials/motion"});
+                    break;
+                }
+                case "reset":
+                {
+                    string id=s.GetProperty("id").GetString()!;var f=figures[id];
+                    figures[id]=f with {Feet=stage+new Vector3(0,0,-4),Speed=0};
+                    f.Figure.Pose(figures[id].Feet,f.Yaw,0,0);await Frames(.15);break;
+                }
+                case "eye_audit":
+                {
+                    string id=s.GetProperty("id").GetString()!;var figure=figures[id].Figure;
+                    var materials=new List<object>();var saved=new HashSet<ulong>();
+                    foreach(var mesh in figure.FindChildren("*",nameof(MeshInstance3D),true,false).OfType<MeshInstance3D>()
+                        .Where(m=>m.Name.ToString().Contains("Eye",StringComparison.OrdinalIgnoreCase) && !m.Name.ToString().Contains("lash",StringComparison.OrdinalIgnoreCase)))
+                    for(int surface=0;surface<(mesh.Mesh?.GetSurfaceCount()??0);surface++)
+                    {
+                        if(mesh.GetActiveMaterial(surface) is not { } material)continue;
+                        foreach(var property in material.GetPropertyList())
+                        {
+                            string name=property["name"].AsString();
+                            var value=material.Get(name);
+                            if(value.VariantType!=Variant.Type.Object || value.AsGodotObject() is not Texture2D texture)continue;
+                            string file=id+"_eye_"+texture.GetInstanceId()+".png";
+                            if(saved.Add(texture.GetInstanceId()))
+                            {
+                                using var image=texture.GetImage();
+                                if(image is not null){if(image.IsCompressed())image.Decompress();image.SavePng(Path.Combine(directory,file));}
+                            }
+                            materials.Add(new {mesh=mesh.Name.ToString(),surface,material=material.ResourceName,property=name,width=texture.GetWidth(),height=texture.GetHeight(),file});
+                        }
+                    }
+                    var rig=figure.Skeleton;var bones=new List<object>();
+                    foreach(string name in new[]{"Head","LeftEye","RightEye"})
+                        if(rig.FindBone(name) is int bone && bone>=0)bones.Add(new {name,world=(rig.GlobalTransform*rig.GetBoneGlobalPose(bone).Origin).ToString(),rest=rig.GetBoneRest(bone).ToString(),pose=rig.GetBonePoseRotation(bone).ToString()});
+                    var eyeTarget=figure.FindChildren("FacialEyeTarget","",true,false).OfType<Node3D>().FirstOrDefault();
+                    File.WriteAllText(Path.Combine(directory,id+"_eyes.json"),JsonSerializer.Serialize(new {materials,bones,target=eyeTarget?.GlobalPosition.ToString(),native_eye_bindings=figure.FindChildren("*","",true,false).OfType<FaceDriver>().Single().NativeEyeBindings},new JsonSerializerOptions {WriteIndented=true}));
+                    break;
+                }
                 case "spawn":
                 {
                     string donor = s.GetProperty("donor").GetString()!;

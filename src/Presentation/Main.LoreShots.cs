@@ -234,25 +234,34 @@ public partial class Main
     {
         var simulation = _session.Simulation!;
         double deadline = Time.GetTicksMsec() + maxSeconds * 1000;
+        (double X, double Z)[] route = [];
+        int corner = 0;
+        UNNAMED.Domain.Spatial.Body? target = null;
         while (Time.GetTicksMsec() < deadline)
         {
             var view = simulation.Npcs.FirstOrDefault(n => n.Id == npcId);
-            if (view is null)
-                return false;
+            if (view is null) return false;
             var body = simulation.Player.Body;
-            var to = new Vector3((float)((view.Body.XMm - body.XMm) / 1000.0), 0, (float)((view.Body.ZMm - body.ZMm) / 1000.0));
-            if (to.Length() <= withinMetres && _controller.InTalkReach(view))
+            var to = new Vector3((float)((view.Body.XMm-body.XMm)/1000.0),0,(float)((view.Body.ZMm-body.ZMm)/1000.0));
+            if(to.Length() <= withinMetres && _controller.InTalkReach(view))
             {
-                _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera);
-                await Rcd3Wait(0.2);
-                return true;
+                _controller.SteerWorld(Vector3.Zero,Gait.Run,_camera);await Rcd3Wait(.2);return true;
             }
-            _camera.Yaw = Mathf.Atan2(-to.X, -to.Z);
-            _controller.SteerWorld(to.Normalized(), Gait.Run, _camera, faceCamera: true);
-            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            if(target is null || Math.Abs(view.Body.XMm-target.XMm)+Math.Abs(view.Body.ZMm-target.ZMm)>1000 || corner>=route.Length)
+            {
+                route=Playthrough.WayTo(simulation,body,view.Body,Math.Max(.2,withinMetres-.2));corner=0;target=view.Body;
+            }
+            while(corner<route.Length)
+            {
+                var next=new Vector3((float)(route[corner].X-body.XMm/1000.0),0,(float)(route[corner].Z-body.ZMm/1000.0));
+                if(next.Length()>.25f){to=next;break;}
+                corner++;
+            }
+            _camera.Yaw=Mathf.Atan2(-to.X,-to.Z);
+            _controller.SteerWorld(to.Normalized(),Gait.Run,_camera,faceCamera:true);
+            await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
         }
-        _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera);
-        return false;
+        _controller.SteerWorld(Vector3.Zero,Gait.Run,_camera);return false;
     }
 
     /// <summary>The first tick of a minute of the first capture day, by the world's own advance - the same catch-up an absence takes.</summary>
@@ -287,3 +296,4 @@ public partial class Main
             }) + System.Environment.NewLine);
     }
 }
+
