@@ -214,6 +214,7 @@ public class PlayerTechniqueTests
         var session = Harness.Boot(profile);
         var arena = Arena.Open(session, Ground, 0, new[] { (Ground.X, Ground.Z + 12) },
             r => Trained(Armed(r, "item.weapon.hunting_bow"), "skill.bow", 15, "ability.bow.aimed_shot"), startTick: 1000, role: "roamer");
+        Assert.Null(arena.Simulation.Submit(new ApplyEffect(arena.Creature().Id, "effect.root")));
         arena.Face(arena.Creature());
         arena.Tick();
         var shots = arena.Record<ShotLoosed>();
