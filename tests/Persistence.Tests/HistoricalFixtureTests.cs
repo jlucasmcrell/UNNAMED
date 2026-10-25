@@ -339,6 +339,13 @@ public class HistoricalFixtureTests
         Assert.Equal(schema >= 24 ? new ItemWear(40, 1) : null, carried.Wear);
         if (chest is not null)
             Assert.Equal(schema >= 24 ? new ItemWear(5, 2) : null, chest.Items.Single(i => i.DefId == "item.weapon.iron_sword").Wear);
+        // Schema 41's enhancements (WP 1B, spec 47): the carried sword has a fire edge set and a slot cracked; the chest's blade two runes. Before
+        // it, nothing was enhanced.
+        Assert.Equal(schema >= 41 ? new[] { "item.material.cinder_sac" } : null, carried.Enhancements?.Filled.ToArray());
+        Assert.Equal(schema >= 41 ? (1, 3) : (0, 0), (carried.Enhancements?.Cracked ?? 0, carried.Enhancements?.Attempts ?? 0));
+        if (chest is not null)
+            Assert.Equal(schema >= 41 ? new[] { "item.rune.keen", "item.trinket.wolf_fang" } : null,
+                chest.Items.Single(i => i.DefId == "item.weapon.iron_sword").Enhancements?.Filled.ToArray());
         // Schema 22's economy (WP14): the vale's market on day 3 with four draughts on the road, and its trader's purse. Before it, a save
         // held no economy: the markets start at their targets when the world does.
         var economy = loaded.World.Economy;

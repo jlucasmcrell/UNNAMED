@@ -582,6 +582,18 @@ public sealed class InventoryDto
 
     /// <summary>From schema 24: its wear, or null when it is unworn at its made quality.</summary>
     [Key("wear")] public WearDto? Wear { get; set; }
+
+    /// <summary>From schema 41: what fills its enhancement slots (spec 47), or null for a never-enhanced stack.</summary>
+    [Key("enhancements")] public EnhancementsDto? Enhancements { get; set; }
+}
+
+/// <summary>A piece's enhancements (schema 41; spec 47): the infusions and runes in its slots in order, cracked slots, settings tried.</summary>
+[MessagePackObject]
+public sealed class EnhancementsDto
+{
+    [Key("filled")] public string[] Filled { get; set; } = Array.Empty<string>();
+    [Key("cracked")] public int Cracked { get; set; }
+    [Key("attempts")] public int Attempts { get; set; }
 }
 
 /// <summary>A stack's wear (schema 24; WP3b): the points taken, and the quality it was made at.</summary>
@@ -949,6 +961,9 @@ public sealed class ContainerItemDto
 
     /// <summary>From schema 24: its wear, or null.</summary>
     [Key("wear")] public WearDto? Wear { get; set; }
+
+    /// <summary>From schema 41: what fills its enhancement slots (spec 47), or null for a never-enhanced stack.</summary>
+    [Key("enhancements")] public EnhancementsDto? Enhancements { get; set; }
 }
 
 [MessagePackObject]
@@ -971,6 +986,9 @@ public sealed class CreatedDto
 
     /// <summary>From schema 24: its wear, or null.</summary>
     [Key("wear")] public WearDto? Wear { get; set; }
+
+    /// <summary>From schema 41: what fills its enhancement slots (spec 47), or null for a never-enhanced stack.</summary>
+    [Key("enhancements")] public EnhancementsDto? Enhancements { get; set; }
 }
 
 [MessagePackObject]
@@ -1028,7 +1046,7 @@ public static class SectionCodec
         ZMm = player.ZMm,
         AppearanceSeed = player.AppearanceSeed,
         Inventory = player.Inventory
-            .Select(e => new InventoryDto { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality, Notable = NotableToDto(e.Notable), Wear = WearToDto(e.Wear) })
+            .Select(e => new InventoryDto { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality, Notable = NotableToDto(e.Notable), Wear = WearToDto(e.Wear), Enhancements = EnhancementsToDto(e.Enhancements) })
             .ToArray(),
         Progression = ProgressionCodec.ToDto(player.Progression),
         FacingMdeg = player.FacingMdeg,
@@ -1179,6 +1197,18 @@ public static class SectionCodec
         var q => throw new FormatException($"{what} has quality {q}, which is not -1, 0, 1 or 2"),
     };
 
+    private static EnhancementsDto? EnhancementsToDto(ItemEnhancements? enhancements) => enhancements is null ? null
+        : new EnhancementsDto { Filled = enhancements.Filled.ToArray(), Cracked = enhancements.Cracked, Attempts = enhancements.Attempts };
+
+    /// <summary>A stack's saved enhancements (schema 41), whole, or null for a never-enhanced stack.</summary>
+    private static ItemEnhancements? EnhancementsOf(EnhancementsDto? dto, string what)
+    {
+        if (dto is null)
+            return null;
+        var enhancements = new ItemEnhancements(dto.Filled.ToImmutableArray(), dto.Cracked, dto.Attempts);
+        return enhancements.IsValid ? enhancements : throw new FormatException($"{what} has invalid enhancements");
+    }
+
     private static WearDto? WearToDto(ItemWear? wear) => wear is null ? null : new WearDto { Points = wear.Points, MadeQuality = wear.MadeQuality };
 
     /// <summary>A stack's saved wear (schema 24), in range, or null for an unworn stack.</summary>
@@ -1295,7 +1325,7 @@ public static class SectionCodec
         var record = new PlayerRecord(EntityId.Parse(dto.InstanceId), dto.Name, dto.XMm, dto.YMm, dto.ZMm, dto.AppearanceSeed,
             dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count)
             {
-                Quality = QualityOf(e.Quality, $"carried {e.ItemId}"), Notable = NotableOf(e.Notable, $"carried {e.ItemId}"), Wear = WearOf(e.Wear, $"carried {e.ItemId}"),
+                Quality = QualityOf(e.Quality, $"carried {e.ItemId}"), Notable = NotableOf(e.Notable, $"carried {e.ItemId}"), Wear = WearOf(e.Wear, $"carried {e.ItemId}"), Enhancements = EnhancementsOf(e.Enhancements, $"carried {e.ItemId}"),
                 Bag = placed[e.ItemId].Bag, Slot = placed[e.ItemId].Slot, Locked = placed[e.ItemId].Locked, Junk = placed[e.ItemId].Junk,
             }),
             ProgressionCodec.FromDto(progression), facing,
@@ -1373,10 +1403,10 @@ public static class SectionCodec
     }
 
     private static InventoryDto StackToDto(InventoryEntry e) =>
-        new() { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality, Notable = NotableToDto(e.Notable), Wear = WearToDto(e.Wear) };
+        new() { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality, Notable = NotableToDto(e.Notable), Wear = WearToDto(e.Wear), Enhancements = EnhancementsToDto(e.Enhancements) };
 
     private static InventoryEntry StackOf(InventoryDto e, string what) =>
-        new(EntityId.Parse(e.ItemId), e.DefId, e.Count) { Quality = QualityOf(e.Quality, what), Notable = NotableOf(e.Notable, what), Wear = WearOf(e.Wear, what) };
+        new(EntityId.Parse(e.ItemId), e.DefId, e.Count) { Quality = QualityOf(e.Quality, what), Notable = NotableOf(e.Notable, what), Wear = WearOf(e.Wear, what), Enhancements = EnhancementsOf(e.Enhancements, what) };
 
     private static CompanionRecord Companion(CompanionDto c)
     {
@@ -1480,6 +1510,7 @@ public static class SectionCodec
                 Quality = c.Quality,
                 Notable = NotableToDto(c.Notable),
                 Wear = WearToDto(c.Wear),
+                Enhancements = EnhancementsToDto(c.Enhancements),
             }).ToArray(),
             Baselines = baselines.Select(kv => new CellBaselineDto { CellKey = kv.Key, BaselineHash = kv.Value }).ToArray(),
             Containers = snapshot.Containers.Select(c => new ContainerDto
@@ -1487,7 +1518,7 @@ public static class SectionCodec
                 Key = c.Key,
                 InstanceId = c.InstanceId.Value,
                 HostCell = c.HostCell,
-                Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId.Value, DefId = i.DefId, Count = i.Count, Quality = i.Quality, Notable = NotableToDto(i.Notable), Wear = WearToDto(i.Wear) }).ToArray(),
+                Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId.Value, DefId = i.DefId, Count = i.Count, Quality = i.Quality, Notable = NotableToDto(i.Notable), Wear = WearToDto(i.Wear), Enhancements = EnhancementsToDto(i.Enhancements) }).ToArray(),
             }).ToArray(),
             Creatures = snapshot.Creatures.Select(c => new CreatureDto
             {
@@ -1631,12 +1662,13 @@ public static class SectionCodec
                 Quality = QualityOf(c.Quality, $"created instance {c.InstanceId}"),
                 Notable = NotableOf(c.Notable, $"created instance {c.InstanceId}"),
                 Wear = WearOf(c.Wear, $"created instance {c.InstanceId}"),
+                Enhancements = EnhancementsOf(c.Enhancements, $"created instance {c.InstanceId}"),
             })
             .ToImmutableArray();
         var containers = (section.Containers ?? throw new FormatException("entities.msgpack has no containers list (required from schema 6)"))
             .Select(c => new ContainerRecord(
                 c.Key, EntityId.Parse(c.InstanceId), c.HostCell,
-                c.Items.Select(i => new ContainerItem(EntityId.Parse(i.ItemId), i.DefId, i.Count) { Quality = QualityOf(i.Quality, $"{c.Key} item {i.ItemId}"), Notable = NotableOf(i.Notable, $"{c.Key} item {i.ItemId}"), Wear = WearOf(i.Wear, $"{c.Key} item {i.ItemId}") })
+                c.Items.Select(i => new ContainerItem(EntityId.Parse(i.ItemId), i.DefId, i.Count) { Quality = QualityOf(i.Quality, $"{c.Key} item {i.ItemId}"), Notable = NotableOf(i.Notable, $"{c.Key} item {i.ItemId}"), Wear = WearOf(i.Wear, $"{c.Key} item {i.ItemId}"), Enhancements = EnhancementsOf(i.Enhancements, $"{c.Key} item {i.ItemId}") })
                     .ToImmutableArray(),
                 baselines.GetValueOrDefault(c.HostCell)))
             .ToImmutableArray();

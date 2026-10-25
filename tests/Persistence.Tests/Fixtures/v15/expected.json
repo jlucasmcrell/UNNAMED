@@ -20,7 +20,8 @@
         "count": 1,
         "quality": 1,
         "notable": null,
-        "wear": null
+        "wear": null,
+        "enhancements": null
       },
       {
         "item_id": "itm_01HF7YAT02144GJ289144GJ282",
@@ -28,7 +29,8 @@
         "count": 3,
         "quality": 0,
         "notable": null,
-        "wear": null
+        "wear": null,
+        "enhancements": null
       }
     ],
     "progression": {
@@ -461,6 +463,7 @@
       "quality": 1,
       "notable": null,
       "wear": null,
+      "enhancements": null,
       "baseline_hash": "sha256:33e9f5e176340442903b64ff5de2d58b0a2a65af0a8dfc2263fb5ed04c06723c"
     },
     {
@@ -473,6 +476,7 @@
       "quality": 0,
       "notable": null,
       "wear": null,
+      "enhancements": null,
       "baseline_hash": "sha256:dc6e1a2a237b112abc70601672b08f812e0c479c3eae0cb22f002cce9db7373a"
     }
   ],
@@ -489,7 +493,8 @@
           "count": 1,
           "quality": 0,
           "notable": null,
-          "wear": null
+          "wear": null,
+          "enhancements": null
         },
         {
           "item_id": "itm_01M523A5JNR2KWB5NZARZ87CDV",
@@ -497,7 +502,8 @@
           "count": 4,
           "quality": -1,
           "notable": null,
-          "wear": null
+          "wear": null,
+          "enhancements": null
         }
       ]
     },
@@ -513,7 +519,8 @@
           "count": 1,
           "quality": 0,
           "notable": null,
-          "wear": null
+          "wear": null,
+          "enhancements": null
         }
       ]
     }

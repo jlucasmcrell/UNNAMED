@@ -60,6 +60,7 @@ internal static class CanonicalState
                 json.WriteNumber("quality", entry.Quality);
                 WriteNotable(json, entry.Notable);
                 WriteWear(json, entry.Wear);
+                WriteEnhancements(json, entry.Enhancements);
                 json.WriteEndObject();
             }
             json.WriteEndArray();
@@ -589,6 +590,7 @@ internal static class CanonicalState
                 json.WriteNumber("quality", created.Quality);
                 WriteNotable(json, created.Notable);
                 WriteWear(json, created.Wear);
+                WriteEnhancements(json, created.Enhancements);
                 json.WriteString("baseline_hash", created.BaselineHash);
                 json.WriteEndObject();
             }
@@ -612,6 +614,7 @@ internal static class CanonicalState
                     json.WriteNumber("quality", item.Quality);
                     WriteNotable(json, item.Notable);
                     WriteWear(json, item.Wear);
+                    WriteEnhancements(json, item.Enhancements);
                     json.WriteEndObject();
                 }
                 json.WriteEndArray();
@@ -819,6 +822,24 @@ internal static class CanonicalState
     }
 
     /// <summary>The progression record (schema 4), every field, in canonical order.</summary>
+    /// <summary>A stack's enhancements (schema 41): null for a never-enhanced stack.</summary>
+    private static void WriteEnhancements(Utf8JsonWriter json, UNNAMED.Domain.Items.ItemEnhancements? enhancements)
+    {
+        if (enhancements is null)
+        {
+            json.WriteNull("enhancements");
+            return;
+        }
+        json.WriteStartObject("enhancements");
+        json.WriteStartArray("filled");
+        foreach (string id in enhancements.Filled)
+            json.WriteStringValue(id);
+        json.WriteEndArray();
+        json.WriteNumber("cracked", enhancements.Cracked);
+        json.WriteNumber("attempts", enhancements.Attempts);
+        json.WriteEndObject();
+    }
+
     /// <summary>A stack's wear (schema 24): null for an unworn stack.</summary>
     private static void WriteWear(Utf8JsonWriter json, UNNAMED.Domain.Items.ItemWear? wear)
     {
@@ -860,6 +881,7 @@ internal static class CanonicalState
         json.WriteNumber("quality", entry.Quality);
         WriteNotable(json, entry.Notable);
         WriteWear(json, entry.Wear);
+        WriteEnhancements(json, entry.Enhancements);
     }
 
     private static void WriteProgression(Utf8JsonWriter json, CharacterProgression p)

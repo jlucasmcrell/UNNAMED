@@ -138,6 +138,8 @@ public static class M2Fixtures
                     Notable = new NotableRecord("Iron Sword", ProvenanceKind.Given, "quest.fixture.cull", 3_500) { Familiarity = 2, Uses = 1 },
                     // Schema 24 (WP3b): it has taken 40 points of wear - not yet worn out, so still fine.
                     Wear = new ItemWear(40, 1),
+                    // Schema 41 (WP 1B, spec 47): one slot set with a fire edge, one cracked, three settings tried.
+                    Enhancements = new ItemEnhancements(ImmutableArray.Create("item.material.cinder_sac"), 1, 3),
                     // Schema 33 (inventory organisation): it lies in the backpack's first slot and is locked against sorting and selling.
                     Bag = 0, Slot = 0, Locked = true,
                 },
@@ -371,6 +373,7 @@ public static class M2Fixtures
                     Notable = new NotableRecord("Iron Sword", ProvenanceKind.Crafted, "recipe.fixture.sword", 2_000) { Maker = "Aelin" },
                     // Schema 24 (WP3b): a little worn where it lies.
                     Wear = new ItemWear(5, 2),
+                    Enhancements = new ItemEnhancements(ImmutableArray.Create("item.rune.keen", "item.trinket.wolf_fang"), 0, 2),   // schema 41: a chest's blade keeps its runes
                 },
                 new ContainerItem(potions, "item.potion.healing_draught", 4) { Quality = -1 })));   // schema 9: crude
             // Schema 8: spawners' creatures that left their baseline - one alive, moved and wounded; one a corpse half

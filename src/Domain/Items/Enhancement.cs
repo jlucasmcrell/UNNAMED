@@ -93,8 +93,6 @@ public sealed record ItemEnhancements(ImmutableArray<string> Filled, int Cracked
 {
     public static ItemEnhancements None { get; } = new(ImmutableArray<string>.Empty, 0, 0);
 
-    public bool IsEmpty => Filled.IsEmpty && Cracked == 0 && Attempts == 0;
-
     public bool IsValid => !Filled.IsDefault && Filled.All(f => !string.IsNullOrWhiteSpace(f)) && Cracked >= 0 && Attempts >= Filled.Length + Cracked;
 }
 

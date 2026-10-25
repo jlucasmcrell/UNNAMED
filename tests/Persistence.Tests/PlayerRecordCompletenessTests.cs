@@ -104,10 +104,12 @@ public class PlayerRecordCompletenessTests
                 PartySheets = ImmutableArray.Create(new PartySheet("npc.fixture.scout", progression)
                 {
                     Gear = ImmutableSortedDictionary.Create<EquipSlot, PartyGear>()
-                        .Add(EquipSlot.MainHand, new PartyGear(new InventoryEntry(Item(7), "item.weapon.iron_sword", 1) { Quality = 1, Notable = player.Inventory.Single(e => e.Notable is not null).Notable, Wear = new Domain.Items.ItemWear(9, 1) }, Loaned: true))
+                        .Add(EquipSlot.MainHand, new PartyGear(new InventoryEntry(Item(7), "item.weapon.iron_sword", 1) { Quality = 1, Notable = player.Inventory.Single(e => e.Notable is not null).Notable, Wear = new Domain.Items.ItemWear(9, 1),
+                            Enhancements = new Domain.Items.ItemEnhancements(ImmutableArray.Create("item.rune.keen"), 1, 2) }, Loaned: true))
                         .Add(EquipSlot.Head, new PartyGear(new InventoryEntry(Item(8), "item.armor.fixture_cap", 1) { Quality = -1, Notable = vest.Notable }, Loaned: false)),
                     Belongings = ImmutableArray.Create(new InventoryEntry(Item(9), "item.potion.minor_healing", 2) { Quality = 1 },
-                        new InventoryEntry(Item(10), "item.weapon.fixture_knife", 1) { Notable = vest.Notable! with { Familiarity = 1 }, Wear = new Domain.Items.ItemWear(3, 1) },
+                        new InventoryEntry(Item(10), "item.weapon.fixture_knife", 1) { Notable = vest.Notable! with { Familiarity = 1 }, Wear = new Domain.Items.ItemWear(3, 1),
+                            Enhancements = new Domain.Items.ItemEnhancements(ImmutableArray.Create("item.material.cinder_sac"), 1, 2) },
                         new InventoryEntry(Item(11), "item.weapon.fixture_axe", 1) { Notable = player.Inventory.Single(e => e.Notable is not null).Notable }),
                 }),
                 // A swing under way that has struck two creatures (schema 27).
@@ -253,10 +255,13 @@ public class PlayerRecordCompletenessTests
     {
         ["player.companions[].condition"] = "up or downed decides the health (0 when downed) and the downed tick (0 when up)",
         ["player.companions[].contract"] = "a whole contract, present exactly on a hireling (schema 21); each of its fields is perturbed where one is present",
+        ["player.inventory[].enhancements"] = "a whole record, absent on a never-enhanced stack; each of its fields is perturbed where one is present",
         ["player.inventory[].notable"] = "a whole record, absent on an ordinary stack; each of its fields is perturbed where one is present",
         ["player.inventory[].wear"] = "a whole record, absent on an unworn stack; each of its fields is perturbed where one is present",
+        ["player.party_sheets[].belongings[].enhancements"] = "a whole record, absent on a never-enhanced stack; each of its fields is perturbed where one is present",
         ["player.party_sheets[].belongings[].notable"] = "a whole record, absent on an ordinary stack; each of its fields is perturbed where one is present",
         ["player.party_sheets[].belongings[].wear"] = "a whole record, absent on an unworn stack; each of its fields is perturbed where one is present",
+        ["player.party_sheets[].gear[].item.enhancements"] = "a whole record, absent on a never-enhanced stack; each of its fields is perturbed where one is present",
         ["player.party_sheets[].gear[].item.wear"] = "a whole record, absent on an unworn stack; each of its fields is perturbed where one is present",
         ["player.posture.airborne"] = "in the air or not decides the air time (0 on the ground)",
         ["player.pets[].role"] = "one of the four role keys, so no other value decodes alone (schema 36)",

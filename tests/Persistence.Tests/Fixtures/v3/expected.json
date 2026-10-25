@@ -20,7 +20,8 @@
         "count": 1,
         "quality": 0,
         "notable": null,
-        "wear": null
+        "wear": null,
+        "enhancements": null
       },
       {
         "item_id": "itm_01HF7YAT02144GJ289144GJ282",
@@ -28,7 +29,8 @@
         "count": 3,
         "quality": 0,
         "notable": null,
-        "wear": null
+        "wear": null,
+        "enhancements": null
       }
     ],
     "progression": {
@@ -286,6 +288,7 @@
       "quality": 0,
       "notable": null,
       "wear": null,
+      "enhancements": null,
       "baseline_hash": "sha256:dc6e1a2a237b112abc70601672b08f812e0c479c3eae0cb22f002cce9db7373a"
     }
   ],
