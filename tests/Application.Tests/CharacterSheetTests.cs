@@ -37,8 +37,9 @@ public class CharacterSheetTests
         var arena = Arena.OpenCreatures(session, session.Setup, (70, 152), 0, Array.Empty<(string, double, double, string)>(),
             r => r.WithProgression(r.Progression with { Level = 2, UnspentAttributePoints = 1 }));
 
-        Assert.Equal(new[] { CharacterAttribute.Might, CharacterAttribute.Endurance, CharacterAttribute.Will }.Order(), session.Setup.Progression.Derived.Live);
-        Assert.Contains("not in play", arena.Submit(new SpendAttributeCommand(arena.Player, CharacterAttribute.Agility)));
+        Assert.Equal(new[] { CharacterAttribute.Might, CharacterAttribute.Endurance, CharacterAttribute.Agility,
+            CharacterAttribute.Precision, CharacterAttribute.Will }.Order(), session.Setup.Progression.Derived.Live);
+        Assert.Contains("not in play", arena.Submit(new SpendAttributeCommand(arena.Player, CharacterAttribute.Insight)));
         Assert.Equal(1, arena.Simulation.Player.Progression.UnspentAttributePoints);
     }
 }
