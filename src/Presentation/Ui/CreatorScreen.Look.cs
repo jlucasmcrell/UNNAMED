@@ -189,15 +189,10 @@ public partial class CreatorScreen
                 Render(id);
             }), compact: true, id: id);
             button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            var chip = new ColorRect
-            {
-                Color = multiply ? new Color(Math.Min(1, baked.R * swatch.R), Math.Min(1, baked.G * swatch.G), Math.Min(1, baked.B * swatch.B))
-                    : new Color(Math.Min(1, baked.R + swatch.R), Math.Min(1, baked.G + swatch.G), Math.Min(1, baked.B + swatch.B)),
-                CustomMinimumSize = new Vector2(14, 14), MouseFilter = Control.MouseFilterEnum.Ignore,
-            };
-            chip.SetAnchorsPreset(Control.LayoutPreset.CenterLeft);
-            chip.Position = new Vector2(6, -7);
-            button.AddChild(chip);
+            var chip = Image.CreateEmpty(14, 14, false, Image.Format.Rgba8);
+            chip.Fill(multiply ? new Color(Math.Min(1, baked.R * swatch.R), Math.Min(1, baked.G * swatch.G), Math.Min(1, baked.B * swatch.B))
+                : new Color(Math.Min(1, baked.R + swatch.R), Math.Min(1, baked.G + swatch.G), Math.Min(1, baked.B + swatch.B)));
+            button.Icon = ImageTexture.CreateFromImage(chip);
             UiKit.Select(button, index == chosen);
             grid.AddChild(button);
         }
