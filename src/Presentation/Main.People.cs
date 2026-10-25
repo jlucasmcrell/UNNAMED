@@ -18,6 +18,8 @@ public partial class Main
 
     private bool _wingsHeld;
     private WingState? _wingsDrawn;
+    private long _phasedUntil;
+    private bool _phaseDrawn;
 
     /// <summary>
     /// The jump key held past the jump spreads the wings (Kal: Wing Glide); let go aloft, they fold and the body drops. Sent once each way, and
@@ -61,8 +63,24 @@ public partial class Main
         });
     }
 
+    /// <summary>A wraith-stepping body (§3.4) is drawn half out of reality: the whole figure fades while blows pass through it.</summary>
+    private void DrawPhase(long tick)
+    {
+        bool phased = tick < _phasedUntil;
+        if (phased == _phaseDrawn)
+            return;
+        _phaseDrawn = phased;
+        foreach (var mesh in _avatar.FindChildren("*", nameof(GeometryInstance3D), true, false).OfType<GeometryInstance3D>())
+            mesh.Transparency = phased ? .6f : 0f;
+    }
+
     private void SubscribePeople()
     {
+        _session.Subscribe<WraithStepped>(e =>
+        {
+            if (e.Actor == _session.Simulation!.PlayerId)
+                _phasedUntil = e.UntilTick;
+        });
         _session.Subscribe<AnchorPlaced>(_ => Notice(NoticeKind.Progress, "Anchor set", 2));
         _session.Subscribe<RecallBegun>(_ => _hud.Toast("Crossing back - hold still", 3));
         _session.Subscribe<RecallBroken>(e => _hud.Toast($"The crossing slipped: {e.Reason}", 3));
