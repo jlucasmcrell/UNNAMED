@@ -479,6 +479,14 @@ public partial class Main
             case "credits":
                 _credits.Visible = true;
                 break;
+            case "report":
+                OpenReport();
+                break;
+            case "report_written":
+                // A note written and the report written, as its button does: the zip it leaves is the harness's evidence (gate E2).
+                OpenReport();
+                _report.Submit("UI shots: the report as a tester writes it.");
+                break;
             case not null when name.StartsWith("settings", StringComparison.Ordinal):
                 // "settings" opens its first page, "settings_controls" that page.
                 _settings.Open(name.Length > 9 ? name[9..] : "display");
