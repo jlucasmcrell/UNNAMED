@@ -182,7 +182,14 @@ public static class PeopleAppearance
                 var original = mesh.GetMeta(key).As<Material>();
                 if (garment is not null)
                 {
-                    mesh.SetSurfaceOverrideMaterial(surface, Dyed(original, garment switch { "shirt" => shirt, "trousers" => trousers, _ => LookSwatches.Boots }));
+                    var dyed = Dyed(original, garment switch { "shirt" => shirt, "trousers" => trousers, _ => LookSwatches.Boots });
+                    // The rubber's gloss gives the boots away even in leather brown.
+                    if (garment == "boots" && dyed is BaseMaterial3D leather)
+                    {
+                        leather.RoughnessTexture = null;
+                        leather.Roughness = .75f;
+                    }
+                    mesh.SetSurfaceOverrideMaterial(surface, dyed);
                     continue;
                 }
                 var swatch = isSkin ? skin : hair;
