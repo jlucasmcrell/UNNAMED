@@ -54,7 +54,7 @@ public partial class Main
             bars.Use = UseActionSlot;
             bars.PageTo = page => _barPage = page;
         }
-        _help = new HelpPanel { Name = "Help", DeveloperKeys = _developer, Files = $"Saves: {profile}\nThe log, to send with a problem report: {LogPath}" };
+        _help = new HelpPanel { Name = "Help", DeveloperKeys = _developer, Hints = () => _session.Hints.Values, Files = $"Saves: {profile}\nThe log, to send with a problem report: {LogPath}" };
         GD.Print($"UNNAMED files: saves in {profile}; the log at {LogPath}");
         AddChild(_help);
         _effectsPanel = new EffectsPanel { Name = "Effects" };

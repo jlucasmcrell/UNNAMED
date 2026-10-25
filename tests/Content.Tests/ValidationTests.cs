@@ -550,7 +550,7 @@ public class ContentLoaderTests
                 "hint.looting", "hint.mending", "hint.moving", "hint.node_restraint",
                 "hint.nodes", "hint.pack", "hint.pack_full", "hint.party", "hint.points_keep",
                 "hint.prices", "hint.quality", "hint.reputation", "hint.skills",
-                "hint.specialised_bags", "hint.stash", "hint.station_storage", "hint.teacher_practise",
+                "hint.specialised_bags", "hint.stash", "hint.station_storage", "hint.stuck", "hint.teacher_practise",
                 "hint.trade", "hint.trainers", "hint.waystones", "hint.worn_price",
                 "item.ammo.arrow_rough", "item.armor.cloak", "item.armor.hide_boots", "item.armor.hide_cap",
                 "item.armor.hide_vest", "item.armor.lame_coif", "item.armor.lame_sabatons", "item.armor.lamework_jack",
