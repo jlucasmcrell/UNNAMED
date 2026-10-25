@@ -8,8 +8,10 @@ public partial class TreeTierLodGate : Node
     public override void _Ready()
     {
         string? before=System.Environment.GetEnvironmentVariable("UNNAMED_TREE_VIEW_LOD");
+        string? shadow=System.Environment.GetEnvironmentVariable("UNNAMED_TREE_SHADOW_LOD");
         try
         {
+            System.Environment.SetEnvironmentVariable("UNNAMED_TREE_SHADOW_LOD","0");
             int cases=0;
             foreach(bool candidate in new[]{false,true})
             foreach(string tier in new[]{"low","medium","high","ultra"})
@@ -40,6 +42,10 @@ public partial class TreeTierLodGate : Node
             GetTree().Quit();
         }
         catch(Exception error){GD.PushError(error.ToString());GetTree().Quit(1);}
-        finally{System.Environment.SetEnvironmentVariable("UNNAMED_TREE_VIEW_LOD",before);}
+        finally
+        {
+            System.Environment.SetEnvironmentVariable("UNNAMED_TREE_VIEW_LOD",before);
+            System.Environment.SetEnvironmentVariable("UNNAMED_TREE_SHADOW_LOD",shadow);
+        }
     }
 }
