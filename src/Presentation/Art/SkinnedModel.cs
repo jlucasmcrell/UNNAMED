@@ -28,6 +28,16 @@ public sealed partial class SkinnedModel : Node3D
     private bool? _reviewCloseTextures;
     internal void ReviewCloseTextures(bool? enabled) { _reviewCloseTextures=enabled; _closeTextures?.Update((enabled??true) && _humgenLods?.Level==0 && IsVisibleInTree()); }
     internal void ReviewAllLods(bool all) => _humgenLods?.ReviewAllLevels(all);
+
+    /// <summary>Show or hide one of the body's own meshes so its level of detail stays exclusive (HumGen bodies choose it each band).</summary>
+    public void OutfitVisible(MeshInstance3D mesh, bool shown)
+    {
+        if (_humgenLods is { } lods) lods.OutfitVisible(mesh, shown);
+        else mesh.Visible = shown;
+    }
+
+    /// <summary>Meshes taken off and put on the body after it was built, so a HumGen body's level of detail covers them too.</summary>
+    public void SwapParts(IReadOnlyCollection<MeshInstance3D> removed, IReadOnlyCollection<MeshInstance3D> added) => _humgenLods?.Swap(removed, added);
     public bool ForceLod0
     {
         set

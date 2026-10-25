@@ -88,6 +88,46 @@ public sealed partial class FaceDriver : Node
         ["mouthFunnel_mouthPucker"] = new[] { new[] { "mouthFunnel" }, new[] { "mouthPucker" } },
     };
 
+    /// <summary>The face channels <paramref name="mesh"/> carries, by blend shape index; null when it carries none.</summary>
+    private static Dictionary<string, int>? Bind(MeshInstance3D mesh)
+    {
+        if (mesh.Mesh is not ArrayMesh array || array.GetBlendShapeCount() == 0)
+            return null;
+        var index = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (string channel in Channels)
+        {
+            int i = ShapeIndex(mesh, channel);
+            if (i >= 0)
+                index[channel] = i;
+        }
+        // No visemes of its own but the ARKit mouth: bind those shapes, keyed "arkit:<name>", for the viseme blends above.
+        if (!index.ContainsKey("viseme_aa") && ShapeIndex(mesh, "mouthPucker") >= 0)
+        {
+            foreach (string shape in VisemeAsArkit.Values.SelectMany(v => v).Select(v => v.Shape).Distinct())
+            {
+                int i = ShapeIndex(mesh, shape);
+                if (i >= 0 && !index.ContainsKey(shape))
+                    index["arkit:" + shape] = i;
+            }
+            foreach (string combination in Combinations.Keys)
+            {
+                int i = mesh.FindBlendShapeByName(combination);
+                if (i >= 0)
+                    index["combo:" + combination] = i;
+            }
+        }
+        return index.Count > 0 ? index : null;
+    }
+
+    /// <summary>Bind again after meshes were put on or taken off the face's body (the creator's hairstyles carry the face's shapes).</summary>
+    public void Rebind(Node model)
+    {
+        _meshes.Clear();
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
+            if (Bind(mesh) is { } index)
+                _meshes.Add((mesh, index));
+    }
+
     /// <summary>A driver for <paramref name="model"/>'s face, or null when no mesh carries the blink channel.</summary>
     public static FaceDriver? Attach(Node model, string seed)
     {
@@ -110,30 +150,7 @@ public sealed partial class FaceDriver : Node
                     names.Add(array.GetBlendShapeName(k));
                 sample.Add($"{mesh.Name}:{count}[{string.Join(",", names)}]");
             }
-            var index = new Dictionary<string, int>(StringComparer.Ordinal);
-            foreach (string channel in Channels)
-            {
-                int i = ShapeIndex(mesh, channel);
-                if (i >= 0)
-                    index[channel] = i;
-            }
-            // No visemes of its own but the ARKit mouth: bind those shapes, keyed "arkit:<name>", for the viseme blends above.
-            if (!index.ContainsKey("viseme_aa") && ShapeIndex(mesh, "mouthPucker") >= 0)
-            {
-                foreach (string shape in VisemeAsArkit.Values.SelectMany(v => v).Select(v => v.Shape).Distinct())
-                {
-                    int i = ShapeIndex(mesh, shape);
-                    if (i >= 0 && !index.ContainsKey(shape))
-                        index["arkit:" + shape] = i;
-                }
-                foreach (string combination in Combinations.Keys)
-                {
-                    int i = mesh.FindBlendShapeByName(combination);
-                    if (i >= 0)
-                        index["combo:" + combination] = i;
-                }
-            }
-            if (index.Count > 0)
+            if (Bind(mesh) is { } index)
                 driver._meshes.Add((mesh, index));
         }
         if (!driver._meshes.Any(m => m.Index.ContainsKey("eyeBlinkLeft")))

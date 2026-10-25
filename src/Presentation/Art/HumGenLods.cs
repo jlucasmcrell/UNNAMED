@@ -7,7 +7,7 @@ namespace UNNAMED.Presentation.Art;
 public sealed class HumGenLods
 {
     private sealed record Part(MeshInstance3D Mesh, string PartName, int Level);
-    private readonly Part[] _parts;
+    private readonly List<Part> _parts;
     private readonly HashSet<MeshInstance3D> _hiddenOutfits = new();
     private int _level;
     private bool _reviewAllLevels;
@@ -19,21 +19,29 @@ public sealed class HumGenLods
 
     public HumGenLods(Node model)
     {
-        _parts = model.FindChildren("*", nameof(MeshInstance3D), true, false)
-            .OfType<MeshInstance3D>().Select(mesh =>
-            {
-                string name = mesh.Name.ToString();
-                int at = name.LastIndexOf("_LOD", StringComparison.Ordinal);
-                return at >= 0 && int.TryParse(name.AsSpan(at + 4), out int level)
-                    ? new Part(mesh, name[..at], level) : null;
-            }).OfType<Part>().ToArray();
-        foreach (var part in _parts)
-        {
-            part.Mesh.VisibilityRangeBegin = 0;
-            part.Mesh.VisibilityRangeEnd = 0;
-        }
+        _parts = Parts(model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>());
         Apply(); // Correct before the first rendered frame, including the creator.
     }
+
+    /// <summary>Meshes taken off the body and put on it after it was built (the creator's hairstyles), the band chosen again.</summary>
+    public void Swap(IReadOnlyCollection<MeshInstance3D> removed, IEnumerable<MeshInstance3D> added)
+    {
+        _parts.RemoveAll(p => removed.Contains(p.Mesh));
+        _hiddenOutfits.ExceptWith(removed);
+        _parts.AddRange(Parts(added));
+        Apply();
+    }
+
+    private static List<Part> Parts(IEnumerable<MeshInstance3D> meshes) => meshes.Select(mesh =>
+    {
+        string name = mesh.Name.ToString();
+        int at = name.LastIndexOf("_LOD", StringComparison.Ordinal);
+        if (at < 0 || !int.TryParse(name.AsSpan(at + 4), out int level))
+            return null;
+        mesh.VisibilityRangeBegin = 0;
+        mesh.VisibilityRangeEnd = 0;
+        return new Part(mesh, name[..at], level);
+    }).OfType<Part>().ToList();
 
     public void OutfitVisible(MeshInstance3D mesh, bool shown)
     {
