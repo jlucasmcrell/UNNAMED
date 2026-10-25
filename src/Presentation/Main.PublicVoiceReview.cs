@@ -93,9 +93,18 @@ public partial class Main
         var close=new Camera3D {Fov=32,Near=gameplay.Near,Far=gameplay.Far,CullMask=gameplay.CullMask,
             Attributes=gameplay.Attributes,Environment=gameplay.Environment};
         AddChild(close);_innFreeCamera=true;
-        var aim=(figure.Head ?? throw new InvalidDataException("No native head"))-Vector3.Up*.07f;
-        close.GlobalPosition=aim+figure.GlobalBasis.Orthonormalized().Z*.85f+Vector3.Up*.02f;
-        close.LookAt(aim);close.MakeCurrent();
+        // The normal conversation turns the NPC toward the player. Frame from THAT side, not the pre-talk idle yaw.
+        bool playerVisible=_avatar.Visible;
+        _avatar.Visible=false; // Review close-up only: the near player must not occlude the speaker.
+        void FrameSpeaker()
+        {
+            var aim=(figure.Head ?? throw new InvalidDataException("No native head"))-Vector3.Up*.07f;
+            var toward=(_avatar.Head ?? _avatar.GlobalPosition+Vector3.Up*1.5f)-aim;
+            toward.Y=0;toward=toward.Normalized();
+            close.GlobalPosition=aim+toward*.75f+Vector3.Up*.02f;
+            close.LookAt(aim);close.MakeCurrent();
+        }
+        FrameSpeaker();
         await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
         _controller.Talk(npcId);
         ulong deadline=Time.GetTicksMsec()+5000;
@@ -116,6 +125,7 @@ public partial class Main
             while(_voice.Speaking || Time.GetTicksMsec()-start<150)
             {
                 if(Time.GetTicksMsec()-start>45000)throw new TimeoutException("Full greeting did not finish");
+                FrameSpeaker();
                 var speech=_voice.Speech(talk.LineId);
                 if(speech is null || _session.Simulation.Conversation?.LineId != expected)
                     throw new InvalidDataException("Greeting was replaced or interrupted before completion");
@@ -126,7 +136,7 @@ public partial class Main
                     native_jaw_angle_rad=figure.FindChildren("*","",true,false).OfType<Art.HumGenJaw>().Single().AppliedAngle,
                     dialogue_visible=_dialogue.Visible,canvas=GetViewport().CanvasCullMask,
                     camera=current?.Name.ToString(),camera_position=current?.GlobalPosition.ToString(),
-                    framing="REVIEW_CLOSEUP_FULL_LINE_UI_VISIBLE"});
+                    framing="REVIEW_FRONTAL_FULL_LINE_UI_VISIBLE_PLAYER_HIDDEN"});
                 await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
             }
             if(peak<.05f)throw new InvalidDataException("Recorded voice produced no native speaking jaw");
@@ -141,7 +151,7 @@ public partial class Main
         }
         finally
         {
-            _dialogue.Leave();_innFreeCamera=false;gameplay.MakeCurrent();close?.QueueFree();
+            _dialogue.Leave();_avatar.Visible=playerVisible;_innFreeCamera=false;gameplay.MakeCurrent();close.QueueFree();
         }
     }
 }
