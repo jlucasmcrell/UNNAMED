@@ -125,6 +125,7 @@ public class GearSetTests
         arena.Tick();
         var head = Worn(arena, EquipSlot.Head);
         Assert.Null(arena.Submit(new SaveGearSetCommand(arena.Player, 1, "Blade and cap")));
+        Assert.Null(arena.Submit(new UnequipCommand(arena.Player, EquipSlot.Head)));
         var done = arena.Record<GearSwapped>();
         arena.Tick();
         arena.Face(arena.Creature());
@@ -135,7 +136,7 @@ public class GearSetTests
         Assert.Contains(arena.Simulation.Creatures, c => c.Hostile);
         arena.Tick(30);
         Assert.Null(arena.Submit(new EquipCommand(arena.Player, Id(arena, Bow))));
-        Assert.Null(arena.Submit(new UnequipCommand(arena.Player, EquipSlot.Head)));
+        Assert.Equal("cannot change armour in combat", arena.Submit(new EquipCommand(arena.Player, head)));
         Assert.Contains(arena.Simulation.Creatures, c => c.Hostile);
 
         Assert.Null(arena.Submit(new SwapGearSetCommand(arena.Player, 1)));
