@@ -66,6 +66,29 @@ uniform float translucency_strength : hint_range(0.0, 2.0, 0.01) = 0.75;
 uniform sampler2D texture_translucency : hint_default_white, filter_linear_mipmap, repeat_enable;
 uniform sampler2D texture_translucency_color : source_color, filter_linear, repeat_disable;
 
+// Kal calcification (Otherreach addition): a scanned stone set baked into this body's own UV space by triplanar
+// projection (rgb colour, a height; stone_rm r roughness, g the joint/age mask, b bare skin). All bare skin carries the
+// stone's crack network and relief in the person's own hue (stone_base); toward the joints, as far as coverage reaches,
+// it thickens into the stone itself: its colour, matte roughness and full relief. No subsurface where it is stone.
+group_uniforms kal_stone;
+uniform bool use_stone = false;
+uniform sampler2D stone_rgbh : source_color, filter_linear_mipmap, repeat_disable;
+uniform sampler2D stone_rm : hint_default_black, filter_linear_mipmap, repeat_disable;
+uniform float stone_coverage : hint_range(0.0, 1.0) = 0.55;
+uniform float stone_breakup : hint_range(0.0, 1.5) = 0.9;
+uniform float stone_soft : hint_range(0.005, 0.5) = 0.035;
+uniform float stone_base : hint_range(0.0, 1.0) = 0.45;
+uniform float stone_relief : hint_range(0.0, 40.0) = 14.0;
+uniform float stone_base_relief : hint_range(0.0, 40.0) = 7.0;
+uniform vec2 stone_crack = vec2(0.16, 0.3);
+uniform float stone_crack_dark : hint_range(0.0, 1.0) = 0.55;
+uniform float stone_cavity : hint_range(0.0, 1.0) = 0.4;
+uniform float stone_skin_blend : hint_range(0.0, 1.0) = 0.35;
+uniform float stone_match : hint_range(0.0, 1.0) = 0.6;
+uniform float stone_glint : hint_range(0.0, 1.0) = 0.6;
+uniform float stone_normal_y : hint_range(-1.0, 1.0) = 1.0;
+uniform vec3 stone_tint : source_color = vec3(1.0);
+
 group_uniforms u_v;
 uniform vec3 uv1_scale = vec3(1.);
 uniform vec3 uv1_offset = vec3(0.);
@@ -80,6 +103,8 @@ varying float ao;
 varying float linear_depth;
 varying float smooth_depth;
 varying float sss_tex;
+varying float stone;
+varying float plain;
 
 void vertex() {
 	region_mask(VERTEX, UV2);  // before UV2 becomes the detail layer's coordinates
@@ -171,6 +196,41 @@ void fragment() {
 	NORMAL_MAP = normal_final;
 	NORMAL_MAP_DEPTH = normal_strength;
 
+	stone = 0.0;
+	if (use_stone){
+		vec4 rgbh = texture(stone_rgbh, base_uv);
+		vec3 rmb = texture(stone_rm, base_uv).rgb;
+		vec2 px = 1.5 / vec2(textureSize(stone_rgbh, 0));
+		float t = 1.0 - stone_coverage;
+		// breakup grows with the mask, so the faint zones (cheek, brow) appear only at an older coverage
+		float joint = smoothstep(t - stone_soft, t + stone_soft, rmb.g + (rgbh.a - 0.5) * stone_breakup * smoothstep(0.25, 0.7, rmb.g)) * step(0.02, rmb.g);
+		stone = rmb.b * mix(stone_base, 1.0, joint);
+		float crack = 1.0 - smoothstep(stone_crack.x, stone_crack.y, rgbh.a);
+		float hx = texture(stone_rgbh, base_uv + vec2(px.x, 0.)).a - texture(stone_rgbh, base_uv - vec2(px.x, 0.)).a;
+		float hy = texture(stone_rgbh, base_uv + vec2(0., px.y)).a - texture(stone_rgbh, base_uv - vec2(0., px.y)).a;
+		vec2 slope = vec2(hx, hy) * mix(stone_base_relief, stone_relief, joint) * rmb.b;
+		float luma = max(dot(ALBEDO, vec3(.299, .587, .114)), .02);
+		vec3 rock = rgbh.rgb * stone_tint;
+		// the stone's own colour at roughly this skin's lightness: neither a black blot nor a white chalk patch
+		rock *= mix(1.0, clamp(luma * 1.05 / max(dot(rock, vec3(.299, .587, .114)), .02), .5, 8.0), stone_match);
+		float rock_luma = dot(rock, vec3(.299, .587, .114));
+		// the skin's own hue carrying the stone's tone; toward the joints, the stone's own colour
+		vec3 mineral = mix(ALBEDO * clamp(rock_luma / max(luma, .05), .55, 1.35), mix(rock, rock_luma * ALBEDO / luma, stone_skin_blend), joint);
+		mineral *= mix(1.0 - stone_cavity, 1.0, rgbh.a) * (1.0 - crack * stone_crack_dark);
+		ALBEDO = mix(ALBEDO, mineral, stone);
+		ROUGHNESS = mix(ROUGHNESS, max(rmb.r, .78), stone);
+		SPECULAR = mix(SPECULAR, .3, stone);
+		if (stone_glint > 0.0){
+			vec2 cell = floor(base_uv * vec2(textureSize(stone_rgbh, 0)) * 1.5);
+			float spark = pow(fract(sin(dot(cell, vec2(12.9898, 78.233))) * 43758.5453), 60.0) * stone_glint * stone;
+			ROUGHNESS = mix(ROUGHNESS, 0.06, clamp(spark * 6.0, 0., 1.));
+			SPECULAR = mix(SPECULAR, 1.0, clamp(spark * 6.0, 0., 1.));
+		}
+		NORMAL_MAP = mix(NORMAL_MAP, normalize(vec3(-slope.x, -slope.y * stone_normal_y, 1.0)) * .5 + .5, min(stone * 1.6, 1.0));
+	}
+
+	plain = stone * .8;
+
 	// Ambient Occlusion
 	if (use_ambient_occlusion){
 		AO = ao * ao_strength + (1.-ao_strength);// * smoothstep(0.,1., micro_detail.z * 1.6);
@@ -193,7 +253,7 @@ void fragment() {
 				sss_strength_value *= noise;
 				//ALBEDO = vec3(noise);
 			}
-			SSS_STRENGTH = sss_strength_value * texture(ambient_occlusion_texture, base_uv).r * smooth_depth;
+			SSS_STRENGTH = sss_strength_value * texture(ambient_occlusion_texture, base_uv).r * smooth_depth * (1.0 - plain);
 		}
 		//ALBEDO = vec3(smooth_depth);
 		//float sss_depth = 1. - pow(clamp(world_camera.z,0.,1.), 0.5);
@@ -284,6 +344,9 @@ void light()
 		}
 		diff_light = lw;
 	}
+
+	// Stone takes plain Lambert on its own relief: the wrapped skin response would blur the plates away.
+	diff_light = mix(diff_light, vec3(NdotL), plain);
 
 	//Tint shadow penumbra:
 	vec3 att = overlay(min(vec3(ATTENUATION), 1.), vec3(1.2,.8,.6)) * max(ATTENUATION, 0.5);
