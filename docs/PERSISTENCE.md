@@ -55,7 +55,7 @@ This project has exactly two tuples, and every other document cites them rather 
 | Tuple | Fields | Used for |
 |---|---|---|
 | **Baseline tuple** | `(world_seed, generator contract)`: `worldgen_version`, `rng_contract_version` and the placement data the generator reads | Regenerating world/cell content exactly |
-| **Replay tuple** | `(world_seed, generator contract, content_hash, command_log)` | Reproducing **tick outcomes** from a save |
+| **Replay tuple** | `(world_seed, generator contract, content_hash, command_log)` | Reproducing **tick outcomes** from a starting state, in process (§5.7: the log is not persisted) |
 
 **Content identity is in the replay tuple and not in the baseline tuple.** `content_hash` answers "what exact content pack wrote this save?": simulation reads content (a wolf's hit points), so replay needs it. Generation reads only its placement data. M2 fed the whole `content_hash` into every cell's random streams, so a one-value balance edit moved every rock and every wolf. M2b removed that coupling (`RK-P14`, `M2B_SAVE_MIGRATION_AND_BASELINE_COMPATIBILITY.md` §2).
 
@@ -106,19 +106,27 @@ The save **is a directory** with one file per section plus two metadata files. S
 ### 3.2 Layout
 
 ```
-saves/<profile>/<slot>/  # <slot>: quick, manual_<slug>, auto_NN, or pre_migration_<schema>_<slot>
+saves/<profile>/
+  characters/<character instance ID>/   # one folder per character (OD-14, PJ10 §5.2): a whole store root of its own
+    character.json          # the folder's label: id, name, people, Call. Not authoritative
+    <slot>/                 # as below
+  characters/.deleted-<id>-<token>/     # a character deletion a crash cut short; never listed, swept at boot
+  <slot>/                   # saves written before per-character folders, read and written in place; nothing is moved
+  .lock                     # one game per profile (§7.1)
+
+<slot>/  # quick, manual_<slug>, auto_NN, pre_migration_<schema>_<slot>, or pre_repair_<slot>
   manifest.json             # human-readable JSON; the only file a tool needs first
-  player.msgpack            # fully serialized: character, inventory, equipment, skills, quests, reputation
-  companions.msgpack        # fully serialized: companion roster and rich state
+  player.msgpack            # fully serialized: character, inventory, equipment, skills, quests, reputation, companions
   entities.msgpack          # sparse entity delta (world-scoped instances), slot-keyed (§5.3)
   cells.msgpack             # sparse cell delta (per-cell flags, node/spawn overrides)
-  buildings.msgpack         # player structures and their pieces
-  journal.jsonl             # append-only human-readable log of the session that produced this save
-  command_log.jsonl         # VERSIONED, PERSISTED, REPLAY-TESTED (see §5.7) — not a debug artifact
-  orphans.msgpack           # OPTIONAL — created only on a quarantine event (§7.2)
+  buildings.msgpack         # player structures and their pieces (not built yet: SYS-121)
+  orphans.msgpack           # OPTIONAL — created only on a quarantine event (§7.2; not built yet: SYS-115)
   sections.sha256           # section → SHA-256; the integrity root; never the whole save
-  preview.png               # optional slot-UI screenshot (not authoritative, not checksummed)
+  preview.json              # slot-UI summary: name, level, place, quest followed (§14; not authoritative, not checksummed)
+  preview.png               # optional slot-UI picture, added after commit (§14; not authoritative, not checksummed)
 ```
+
+`journal.jsonl` and `command_log.jsonl`, listed here by earlier revisions, are **not written** (WP 1C, 2026-10-25). The journal's Recent list is derived from the quest records and the away log (`DATA_MODEL.md`), so a second journal would be a second truth; the command log is §5.7's.
 
 **Where `<profile>` lives is part of the contract, not an implementation detail.** The save root must be a location **excluded from known cloud-sync roots** (OneDrive/Dropbox), or the game must detect and warn. Windows user-profile redirection into OneDrive is common, and a sync engine that hydrates placeholders or resurrects a deleted `staging`/`.trash-*` directory defeats the commit protocol (`RK-P06`).
 
@@ -134,11 +142,10 @@ saves/<profile>/<slot>/  # <slot>: quick, manual_<slug>, auto_NN, or pre_migrati
 | **`entities.msgpack`** | Sparse, slot-keyed divergence only (§5.3) | Linear in diverged instances, so a large world is a large section | Load **without** it, record `quarantined_sections`, and state what was lost (§7.2) |
 | **`cells.msgpack`** | Sparse per-cell overrides only | Same linear argument | Load **without** it (§7.2) |
 | **`buildings.msgpack`** | Regenerable from nothing — a player structure is authored state | Loss is unrecoverable player work | Load **without** it and report every lost structure explicitly; never fail the whole load |
-| **`journal.jsonl`** | Append-only prose, useful to players and tools | It is not authoritative state and never replayed | Truncate to the last complete line; a partial tail line is not corruption |
-| **`command_log.jsonl`** | A few KB; the enabler of the replay tuple (§1.3) | Loss makes a save unreplayable, not unloadable | Truncate to the last complete line; the save still loads, and the unavailability of replay is reported |
 | **`orphans.msgpack`** | Records quarantined by the tombstone pass | Absent unless a quarantine occurred | Not load-bearing; a corrupt orphan file is reported and discarded |
 | **`sections.sha256`** | The integrity root covering every other file including `manifest.json` (the `sha256sum` layout) | If corrupted, re-derive by re-hashing the directory | Re-derive and report it. The load then does not count as complete, so the save is not proven good for backup rotation (§7.3). The manifest records no sizes to check against (§4.2); an earlier revision referred to them |
-| **`preview.png`** | Slot-UI affordance only | Not authoritative, not checksummed | Ignore and regenerate |
+| **`preview.json`** | Slot-UI summary only, staged and committed with the sections | Not authoritative, not checksummed | The row is listed without it; the save loads whole |
+| **`preview.png`** | Slot-UI affordance only, attached after the commit | Not authoritative, not checksummed | Ignore; the next save that takes a picture writes a new one |
 
 ---
 
@@ -162,7 +169,7 @@ saves/<profile>/<slot>/  # <slot>: quick, manual_<slug>, auto_NN, or pre_migrati
   "rng_contract_version": 2,              // the key-to-random-value encoding (WORLD_ARCHITECTURE.md §3.4)
   "world_tick": 918273645,                // monotonic domain tick; the only clock (§5.5)
   "world_time_advanced_ticks": 1728000,   // honoured offline advance; PERSISTED, not a load policy
-  "command_log_sha256": "sha256:c7d2…",   // digest of command_log.jsonl; absent ⇒ replay unavailable
+  "command_log_sha256": null,             // reserved, never written: the command log is not persisted (§5.7)
   "build_timestamp": "2026-02-14T22:31:07Z",
   "playtime_seconds": 41337.5,
   "flags": { "quarantined_sections": [] } // populated by §7.2 when a section is dropped
@@ -293,14 +300,15 @@ Because the honoured amount is stored state rather than a per-load policy, **one
 
 **Cross-cell divergence.** An entity whose *host cell* is pristine — a placed chest, a node mined in a cell never entered, a corpse dragged over a boundary — is stored as an entity record with its `slot_key` naming its host cell, and does not imply a cell record. Load applies entity records independently of whether a cell record exists, so the entity is neither dropped nor orphaned.
 
-### 5.7 `command_log.jsonl` — the replay enabler
+### 5.7 `command_log.jsonl` — not persisted (WP 1C, 2026-10-25)
 
-**The command log is persisted for every save, and replayed by a test.** It is a few KB. It is **not** a diagnostic-only artifact, and any statement to the contrary elsewhere is superseded by this section.
+**Decision.** The command log is kept in memory (`Simulation.CommandLog`: every command with its tick, sequence and refusal) and **replayed by tests in process**; it is **not written to a save**. `command_log_sha256` stays in the manifest's shape, always absent.
 
-- **Format:** append-only JSONL, one command per line, with the tick it was dispatched on.
-- **Scope:** every command that mutated authoritative state, in dispatch order.
-- **Digest:** `command_log_sha256` in the manifest, so a truncated or edited log is detectable.
-- **Test:** `T-28` feeds a saved log into a fresh world and asserts digest equality against the original final state. This is the mechanism that makes the **replay tuple** (§1.3) true rather than aspirational.
+**Why.** A log replays only from the state it began at. Under the MMO rulings (2026-10-17) that state is gone by the next save: there is one live state, the slot it came from is overwritten by autosaves, and the world advances offline between sessions (§5.5, DN1), which no command records. A persisted log would therefore replay nothing a player or tool can reach, while costing a format for 66 command types and their versioning.
+
+**What stands in for T-28.** `DeterminismAndViewTests.AScripted200CommandSession_ThroughFrames_EqualsItsReplayThroughTheCommandBus`: a save, a scripted session of 200 commands through real frames, then the same log fed into a fresh load of that save through the command bus, asserting `StateDigest` equality and the same refusals. Offline catch-up's determinism is T-22's (`OfflineAdvanceTests`, `OfflineSoakTests`). The replay tuple (§1.3) is true in process, which is where it is used.
+
+If a later need (bug reports with a reproducible tail, CAN-391's continuous persistence) wants the log on disk, it comes with its base: a log since a named save, written beside that save, in a schema-numbered format.
 
 Events are **not** logged; they are derivable from commands plus the deterministic system order.
 
@@ -473,9 +481,10 @@ Therefore step 5 is specified as: **retry with bounded exponential backoff on `I
 | `player.msgpack` corrupt | Fatal for the session; offer the rolling backup |
 | `sections.sha256` mismatch on one section | Quarantine that section; load without it if it is `cells`/`entities`/`buildings` |
 | Quarantined section is `cells`/`entities`/`buildings` | Load **without** it, set `flags.quarantined_sections`, and state exactly what was lost. **Partial recovery beats none** |
-| `journal.jsonl` / `command_log.jsonl` partial tail | Truncate to the last complete line; not corruption |
 | Post-load invariant validation fails | Domain validator (no item in two containers, no orphan ULID reference, no quest bound to a missing instance) → quarantine the offending record set |
 | Reference target is in a **quarantined** section | **Reported loss**, never re-quarantined. The reference was valid; its target was dropped |
+
+**`savetool save:repair`** (SYS-116, WP 1C) makes a quarantined save whole again: it loads the slot as the game does and, when a section was quarantined or records rejected, commits what survived through §7.1 after copying the original to `pre_repair_<slot>`. A whole save is left untouched; a corrupt player or manifest is refused as a load refuses it.
 
 **Two distinct failure paths.** A `save_format` mismatch **refuses** — a container layout cannot be guessed. A corrupt *section* is **quarantined and loaded without** — partial recovery is worth more than nothing. `SYSTEMS.md` S-33's "fall back to a backup slot rather than partially loading" describes the refusal case; both paths exist and the difference is deliberate.
 
@@ -557,6 +566,14 @@ Scoped saves are **unconditional when the trigger fires** — a streamer may not
 
 The main-thread budget is met by serializing off-thread and committing on-thread; commit is the only main-thread work.
 
+**When an autosave is taken (WP 1C, PJ10 §4.2).** Every autosave is captured on a frame and written in the background as below; these decide when:
+- **A new character's first frame** (`GameOptions.FirstFrameAutosave`, on in the game), so quitting at once loses nothing. A loaded character is not new.
+- **Every 5 minutes of playtime.**
+- **An event**: a quest completed, an arrival by the stones, the creator finished (`RequestAutosave`), no sooner than 10 s after the last autosave.
+- **A space boundary**: crossing into or out of an interior (the active layout changes), at most once every 30 s (`ScopedSaveSpacingSeconds`). It is a whole autosave, not a scoped one: §8.1's sections-only save is not built.
+- **Not mid-fight.** Any of these that falls due while the character is in combat waits until the fight has been over 10 s (`CombatQuietSeconds`), and never longer than 60 s after it fell due (`CombatDeferralCapSeconds`).
+- **On waking:** not a trigger, because there is no sleep (MMO rulings: no time skips).
+
 **As implemented (Phase-1 audit remediation, 2026-09-24, P-01).** The autosave and the quicksave are taken on the frame and written in the background.
 - **What stays on the frame.** The capture: `SaveDocuments.Capture` at the tick boundary, which rebases the delta and returns an immutable document. The manifest is stamped with the capture time, so saves order by the moment they hold.
 - **What moves off it.** Encoding, the staging write, the integrity root, the commit, its verification and rotation all run on one background writer, one save after another in the order they were taken, each through the unchanged §7.1 sequence. So the commit is off the main thread too, which is more than this section asked. The main thread holds no lock a commit needs.
@@ -571,7 +588,7 @@ The main-thread budget is met by serializing off-thread and committing on-thread
 
 ## 9. Save size, and what to do when it grows
 
-**Budgets, not measurements.** Nothing has been profiled.
+**Budgets, now measured (T-24, WP 1C).** A world that lived a whole Reckoning (183 game days of offline advance) saves at about 57 KB: `entities.msgpack` 54 KB, `player.msgpack` 2.6 KB, `cells.msgpack` 10 bytes, `manifest.json` 0.6 KB. `SaveBudgetTests.T24_…` holds every section to the top of its range below, holds the sections to the same size across two saves with nothing changed, and allows a second Reckoning to grow the save by at most 256 KB.
 
 | Section | Budget | Grows with |
 |---|---|---|
@@ -581,8 +598,8 @@ The main-thread budget is met by serializing off-thread and committing on-thread
 | `entities.msgpack` | 2–40 MB | **Diverged instances** (loot, corpses, NPC changes) |
 | `cells.msgpack` | 1–20 MB | Visited/diverged cells |
 | `buildings.msgpack` | 10 KB–5 MB | Player structures |
-| `journal.jsonl` | 100 KB–5 MB | Session length |
-| `command_log.jsonl` | 10 KB–2 MB | Commands issued |
+| `preview.json` | < 1 KB | Fixed |
+| `preview.png` | < 200 KB | Fixed (320 px wide) |
 
 **Response order when a budget is exceeded** — in this order, and each step must be measured before the next is taken:
 
@@ -625,11 +642,11 @@ Every test is headless, engine-free, and a domain-layer concern. Gate column: `P
 | **T-21** | Faction reputation | Reputation values plus their bounded event log persist; no oscillation across reload | P2 |
 | **T-22** | Spawn/respawn and catch-up purity | A node's ready time is identical across save/load **and one 300-day step equals 300 one-day steps** (§5.5); chunk size is unobservable | P1 |
 | **T-23** | Content alias/tombstone pass | Renames resolve; removals convert/destroy/quarantine per §6.3; unresolved IDs are a hard error naming the ID | P2 |
-| **T-24** | Save-size budget | A golden long-play fixture stays inside the §9 budget; regression fails CI | P2 |
-| **T-25** | Autosave hitch | Main-thread save cost ≤ 2 ms P99 on the target machine under a loaded world | P2 |
+| **T-24** | Save-size budget | A golden long-play fixture stays inside the §9 budget; regression fails CI. **Built:** `Soak.Tests/SaveBudgetTests.T24_AWorldThatLivedAReckoning_SavesInsideTheBudget_AndASecondDoesNotPileUp` | P2 |
+| **T-25** | Autosave hitch | Main-thread save cost ≤ 2 ms P99 on the target machine under a loaded world. **Built:** `SaveBudgetTests.T25_…` times the frame's whole share of 200 saves in a Reckoning-lived world. The median is held to 2 ms everywhere; the P99 to 2 ms with `OTHERREACH_TARGET_MACHINE=1` (RAZER), and to a 10 ms regression ceiling elsewhere. On the cloud build box (Release) it measured P50 1.4 ms, P99 3-5 ms; `WorldDelta.TakeSnapshot` is most of it (P50 0.64 ms) | P2 |
 | **T-26** | Tier-transition legality | (Co-owned with `WORLD_ARCHITECTURE.md` §7) promotion never adopts illegal abstract state; save/load at a tier boundary is consistent | P2 |
 | **T-27** | **Load-order sequence** | **Asserts §7.4's order rather than its steps.** One fixture save carrying (a) an old `schema_version` needing migration, (b) a renamed ID resolvable only via the alias map, (c) a persisted derived value that must be recomputed, and (d) a deliberately corrupt quarantinable section. Assert: `save_format` mismatch **refuses** while a corrupt `cells`/`entities` section **loads** with `flags.quarantined_sections`; every derived cache reflects **migrated** inputs, never pre-migration ones; no dangling reference survives a resolvable alias; and exactly **one** `WorldLoaded` event is emitted | **P1** |
-| **T-28** | **Command-log replay** | Feed a save's `command_log.jsonl` into a fresh world and assert **digest equality** with the original final state. This is what makes the replay tuple (§1.3) true rather than aspirational | **P1** |
+| **T-28** | **Command-log replay** | Feed a session's command log into a fresh load of the save it began from and assert **digest equality** with the original final state, in process (§5.7: the log is not persisted). **Built:** `DeterminismAndViewTests.AScripted200CommandSession_…` | **P1** |
 
 ---
 
@@ -696,3 +713,29 @@ The 38 -> 39 step gives every older identity no appearance. The schema-38 player
 (`Sections/V38`); the 16 -> 17 and 35 -> 36 steps write those shapes. Schema 39 adds its own writer-generated fixture and
 updates only the fixtures' expected current representation (`"appearance": null`).
 
+## 14. The save as a player meets it (WP 1C, 2026-10-25)
+
+What the player sees of saving. None of it changes the save format; the schema stays 39.
+
+- **"Saving…"** in the lower right while a save is written in the background (`GameSession.IsSaving`), shown at least 0.8 s so a fast save is seen (`SaveIndicatorModel`).
+- **A failed save stays said.** Its headline ("Not saved: the disk is full.") stays in that corner until a later save is committed, rather than fading like a toast.
+- **Trouble in a player's words (`SaveTrouble`, PJ10 §6.3, §6.3.1).** A failure is judged by error code down the exception chain, never by its words. The kinds:
+  - disk full (`ERROR_DISK_FULL`, `ENOSPC`, `EDQUOT`)
+  - a file held by another program (sharing or lock violation, `EBUSY`)
+  - a folder the game may not write
+  - damaged, unreadable, newer build, too old, refused
+  - other, for anything unrecognised
+- **What each failure says.** A headline, what to do, and that the last save is untouched (§7.1 guarantees it).
+- **Copy report and Open saves folder.**
+  - The saves list's failure callout has both.
+  - Every row with a problem has Copy report.
+  - The report is plain text on the clipboard: the save, the problem and its kind key, the saves folder, the build, and every message down the chain with its type and HRESULT. Nothing is sent anywhere.
+- **Delete character (PJ10 §5.2).**
+  - Offered from the title's Load list. The confirmation names the character and the number of saves going with them.
+  - `CharacterFolders.Delete` first renames the folder out of the list in one move, then removes it. A removal cut short is finished by the boot sweep.
+  - The character in play is never deleted, and neither are the saves from before folders.
+- **Preview.**
+  - `preview.json` holds the character's name, level, place (the active layout's name) and the quest followed. It is written with every save the game takes and shown on its row.
+  - `preview.png` is a 320-pixel-wide picture taken with an F5 save, encoded off the frame, and attached once the save is committed (`SaveStore.AttachThumbnail`).
+  - Autosaves take no picture. A frame readback costs more than §8.2's budget allows, and Godot's asynchronous readback is not wired.
+- **A cloud-sync saves folder** is said once on the title (§3.2, RK-P06), and dismissed with "Understood".
