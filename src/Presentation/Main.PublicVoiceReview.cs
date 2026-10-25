@@ -1,5 +1,6 @@
 using Godot;
 using System.Text.Json;
+using UNNAMED.Domain.Spatial;
 
 namespace UNNAMED.Presentation;
 
@@ -22,6 +23,33 @@ public partial class Main
         recording.SetRecordingActive(true);
         try
         {
+            if (npc == "tavar_orr")
+            {
+                var sim=_session.Simulation ?? throw new InvalidDataException("Voice gate has no world");
+                foreach(var site in new[]{("switch.stone_north",547.2,678.0),("switch.stone_southwest",524.8,638.0),
+                    ("switch.stone_southeast",583.8,631.0),("switch.foldscar_heart",553.0,652.3)})
+                {
+                    var goal=new Body((long)Math.Round(site.Item2*1000),0,(long)Math.Round(site.Item3*1000),0);
+                    ulong walkingDeadline=Time.GetTicksMsec()+90000;
+                    foreach(var corner in Playthrough.WayTo(sim,_controller.Authoritative,goal,0))
+                        while(true)
+                        {
+                            var body=_controller.Authoritative;
+                            var to=new Vector3((float)(corner.X-body.XMm/1000.0),0,(float)(corner.Z-body.ZMm/1000.0));
+                            if(to.Length()<.25f)break;
+                            if(Time.GetTicksMsec()>walkingDeadline)throw new TimeoutException("Cannot walk to "+site.Item1);
+                            _camera.Yaw=Mathf.Atan2(-to.X,-to.Z);
+                            _controller.SteerWorld(to.Normalized(),Gait.Run,_camera);
+                            await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+                        }
+                    _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);await Rcd3Wait(.3);
+                    _controller.Interact(site.Item1);await Rcd3Wait(1);
+                    if(!sim.Switches.Single(x=>x.Site.Key==site.Item1).Set)
+                        throw new InvalidDataException("Normal Foldscar interaction refused: "+site.Item1);
+                    CloseScreens();
+                }
+                await Rcd3Wait(2);
+            }
             await RunTalkingThroatGate(Path.Combine(directory,npc),camera,"npc.ashen_hollow."+npc,true);
             File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {
                 npc,status="FULL_GREETING_CAPTURED_AUDIO_VISUAL_REVIEW_PENDING",speaking=_voice.Speaking}));
