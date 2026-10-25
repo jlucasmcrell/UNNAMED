@@ -152,8 +152,8 @@ public static class PeopleAppearance
     }
 
     /// <summary>
-    /// The creator's skin tone and hair colour on a built figure (<see cref="LookSwatches"/>): the skin's colour scaled, a colour added over
-    /// the hair cards, each on this figure's own copy of the material. The material each surface had before is kept on the mesh, so choosing
+    /// The creator's skin tone and hair colour on a built figure (<see cref="LookSwatches"/>): the skin's colour scaled, the hair cards and cap
+    /// dyed like the garments, each on this figure's own copy of the material. The material each surface had before is kept on the mesh, so choosing
     /// again starts from it rather than from the last tint, and "as made" puts it back.
     /// </summary>
     public static void ApplyLook(Node model, string? people, CharacterAppearance? look, ArtLibrary? art = null, string? bodyModel = null)
@@ -193,7 +193,16 @@ public static class PeopleAppearance
                     continue;
                 }
                 var swatch = isSkin ? skin : hair;
-                mesh.SetSurfaceOverrideMaterial(surface, swatch is null ? original : isSkin ? Tinted(original, swatch) : Coloured(original, swatch));
+                var drawn = swatch is null ? original : isSkin ? Tinted(original, swatch) : Dyed(original, swatch, lift: .4f);
+                // The body's skin texture carries the baked hair's colour painted under the cap; blended, a recoloured cap lets it show
+                // through (dark sideburns under blond). Cut out instead, the cap covers it wherever it has hair.
+                if (swatch is not null && name.EndsWith("_Haircap", StringComparison.OrdinalIgnoreCase) && drawn is BaseMaterial3D cap)
+                {
+                    cap.Transparency = BaseMaterial3D.TransparencyEnum.AlphaScissor;
+                    cap.AlphaScissorThreshold = .2f;
+                    cap.AlphaAntialiasingMode = BaseMaterial3D.AlphaAntiAliasing.AlphaToCoverage;
+                }
+                mesh.SetSurfaceOverrideMaterial(surface, drawn);
             }
         }
     }
@@ -262,20 +271,20 @@ public static class PeopleAppearance
     /// The garment in <paramref name="cloth"/>'s colour, its weave kept: the albedo scaled (in linear light) by what takes the texture's mean
     /// colour to the cloth's, the mean read from the texture's smallest mip so nothing large is decompressed.
     /// </summary>
-    private static Material Dyed(Material original, Swatch cloth)
+    private static Material Dyed(Material original, Swatch cloth, float lift = .2f)
     {
         if (original.Duplicate() is not BaseMaterial3D copy)
             return original;
         var mean = (copy.AlbedoTexture is { } texture ? MeanColour(texture) : null) ?? Colors.White;
         var tint = copy.AlbedoColor.SrgbToLinear() * mean.SrgbToLinear();
-        // A fifth of the cloth's colour is added under the dye, so parts baked black (the sweater's collar band, the rubber boots) come out
-        // as a darker shade of the same cloth instead of staying black.
-        var target = new Color(cloth.R, cloth.G, cloth.B).SrgbToLinear() * .8f;
+        // Part of the colour (a fifth for cloth) is added under the dye, so parts baked black (the sweater's collar band, the rubber boots,
+        // the roots and shadow in hair cards) come out as a darker shade of the same colour instead of staying black.
+        var target = new Color(cloth.R, cloth.G, cloth.B).SrgbToLinear() * (1 - lift);
         var dye = new Color(target.R / Math.Max(tint.R, .002f), target.G / Math.Max(tint.G, .002f), target.B / Math.Max(tint.B, .002f)).LinearToSrgb();
         copy.AlbedoColor = new Color(dye.R, dye.G, dye.B, copy.AlbedoColor.A);
-        var lift = (new Color(cloth.R, cloth.G, cloth.B).SrgbToLinear() * .2f).LinearToSrgb();
+        var floor = (new Color(cloth.R, cloth.G, cloth.B).SrgbToLinear() * lift).LinearToSrgb();
         var image = Image.CreateEmpty(1, 1, false, Image.Format.Rgba8);
-        image.Fill(new Color(lift.R, lift.G, lift.B));
+        image.Fill(new Color(floor.R, floor.G, floor.B));
         copy.DetailEnabled = true;
         copy.DetailBlendMode = BaseMaterial3D.BlendModeEnum.Add;
         copy.DetailAlbedo = ImageTexture.CreateFromImage(image);
@@ -325,18 +334,6 @@ public static class PeopleAppearance
         }
         else if (copy is BaseMaterial3D material)
             material.AlbedoColor = new Color(material.AlbedoColor.R * tone.R, material.AlbedoColor.G * tone.G, material.AlbedoColor.B * tone.B, material.AlbedoColor.A);
-        return copy;
-    }
-
-    private static Material Coloured(Material original, Swatch colour)
-    {
-        if (original.Duplicate() is not BaseMaterial3D copy)
-            return original;
-        var image = Image.CreateEmpty(1, 1, false, Image.Format.Rgba8);
-        image.Fill(new Color(colour.R, colour.G, colour.B));
-        copy.DetailEnabled = true;
-        copy.DetailBlendMode = BaseMaterial3D.BlendModeEnum.Add;
-        copy.DetailAlbedo = ImageTexture.CreateFromImage(image);
         return copy;
     }
 }
