@@ -9,14 +9,14 @@ namespace UNNAMED.Presentation.Greybox;
 /// <summary>
 /// A weather state applied to a Sky3D node (<see cref="SkyView"/>): its own properties and its dome's (named as Sky3D 2.1 declares them;
 /// numbers, or [r, g, b] colours), the volumetric clouds' (<c>clouds</c>), the environment's, the fog densities scaled, the world wind and
-/// how wet the ground is. The file's <c>all</c> applies first under every state. <see cref="Follow"/> moves to the simulation's state over
-/// <see cref="FadeSeconds"/>, every number blended from where the sky stands now; a property no state names keeps the value it booted with.
+/// how wet the ground is. The file's <c>all</c> applies first under every state. <see cref="Follow"/> draws the simulation's front, blended
+/// from the front before it by elapsed world ticks; a property no state names keeps the value it booted with.
 /// </summary>
 public static class WeatherStates
 {
     public const string ResourcePath = "res://Art/weather_states.json";
 
-    /// <summary>How long one weather takes to give way to the next (owner finding 55: a cross-fade, not a cut).</summary>
+    /// <summary>How long, in world time, one weather takes to give way to the next (owner finding 55: a cross-fade, not a cut).</summary>
     public const float FadeSeconds = 40f;
 
     private sealed record Look(Dictionary<(string Target, string Property), Variant> Values, float FogScale, float Wind, float Gust, float Wet);
@@ -54,24 +54,31 @@ public static class WeatherStates
         GD.Print($"UNNAMED weather: {state}");
     }
 
-    /// <summary>Move toward <paramref name="state"/>, a frame at a time: a change starts a cross-fade from whatever is drawn now.</summary>
-    public static void Follow(WorldEnvironment sky, string state, double delta)
+    /// <summary>
+    /// Draw the simulation's weather as it stands at <paramref name="tick"/> (WLD-38): the previous front's look giving way to this one's
+    /// over <see cref="FadeSeconds"/> of world time from the front's first tick (<see cref="World.Runtime.Weather.Blend"/>). A function of
+    /// the tick, so a save loaded half way through a change draws the same half-way sky, and both ends are absolute looks, so nothing
+    /// compounds. <paramref name="pinned"/> (<c>--visual weather</c>) holds one look for a capture.
+    /// </summary>
+    public static void Follow(WorldEnvironment sky, World.Runtime.WeatherView view, long tick, double tickSeconds, string? pinned)
     {
         if (_to is null)
             return;
-        if (state != Now && Of(sky, state) is { } next)
+        string to = pinned ?? World.Runtime.WeatherStates.Key(view.State);
+        string from = pinned ?? World.Runtime.WeatherStates.Key(view.Previous);
+        float blend = pinned is null && tickSeconds > 0
+            ? (float)World.Runtime.Weather.Blend(view, tick, (long)Math.Round(FadeSeconds / tickSeconds)) : 1f;
+        if (from != Was || to != Now)
         {
-            _from = Lerp(_from!, _to, Smooth(Blend));
-            _to = next;
-            Was = Now;
-            Now = state;
-            Blend = 0f;
-            GD.Print($"UNNAMED weather: {Was} -> {state}");
+            if (Of(sky, from) is not { } a || Of(sky, to) is not { } b)
+                return;
+            (_from, _to, Was, Now) = (a, b, from, to);
+            GD.Print($"UNNAMED weather: {from} -> {to} at {blend:0.00}");
         }
-        if (Blend >= 1f)
+        else if (Math.Abs(blend - Blend) < 0.002f)
             return;
-        Blend = Math.Min(1f, Blend + (float)delta / FadeSeconds);
-        Write(sky, Lerp(_from!, _to, Smooth(Blend)));
+        Blend = blend;
+        Write(sky, Lerp(_from!, _to, Smooth(blend)));
     }
 
     private static float Smooth(float t) => t * t * (3f - 2f * t);

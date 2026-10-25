@@ -531,7 +531,7 @@ public class ContentLoaderTests
                 "config.chat", "config.companion", "config.crafting", "config.creature_behaviour",
                 "config.damage_constants", "config.economy", "config.factions", "config.inventory",
                 "config.level_cap", "config.magic", "config.navigation", "config.npc_life",
-                "config.party", "config.pets", "config.progression", "config.simulation_tiers", "config.teaching",
+                "config.party", "config.pets", "config.progression", "config.seasons", "config.simulation_tiers", "config.teaching",
                 "config.time", "config.travel", "config.weather", "config.xp_curve",
                 "creature.beast.ash_ember_hound", "creature.beast.bristleback_boar", "creature.beast.buck", "creature.beast.cave_hunting_spider",
                 "creature.beast.chicken", "creature.beast.doe", "creature.beast.hound_pup", "creature.beast.rabbit", "creature.beast.red_fox",

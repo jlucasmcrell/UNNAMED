@@ -58,9 +58,22 @@ public static class CelestialView
 
     private static Texture2D? Load(string file) => ResourceLoader.Exists(Dir + file) ? GD.Load<Texture2D>(Dir + file) : null;
 
-    /// <summary>Once a frame from the sky clock: the look's fixed set-up when the option changes, then what moves with the hour.</summary>
-    public static void Advance(float hour, float daylight, Godot.Environment environment)
+    /// <summary>
+    /// How many world days each extra moon takes round its orbit (WLD-34): presentation tuning, not lore. Each day it stands further along,
+    /// so it shows another phase of the sun's light and another place in the sky, instead of repeating itself every day.
+    /// </summary>
+    public const double PaleMoonDays = 9.0, WispMoonDays = 23.0;
+
+    /// <summary>How far along its orbit a moon is after <paramref name="days"/>, in degrees of bearing.</summary>
+    public static float Orbit(double days, double period) => (float)(days / period % 1.0 * 360.0);
+
+    /// <summary>
+    /// Once a frame from the sky clock: the look's fixed set-up when the option changes, then what moves with the hour and, for the two
+    /// extra moons, with the day (<paramref name="days"/> since the world's first tick).
+    /// </summary>
+    public static void Advance(float hour, float daylight, Godot.Environment environment, double days = 0)
     {
+        float pale = Orbit(days, PaleMoonDays), wisp = Orbit(days, WispMoonDays);
         if (_material is null || !GodotObject.IsInstanceValid(_material))
             return;
         string look = VisualOptions.Celestial;
@@ -77,13 +90,13 @@ public static class CelestialView
             case "giant":
                 // The giant stays put (the world turns once per orbit, facing it); the moons cross slowly with the clock.
                 Set("or_giant_spin", hour * Mathf.Tau / 10.4f);
-                Set("or_moon1_dir", Toward(236f + (hour - 12f) * 0.9f, 38f));
-                Set("or_moon2_dir", Toward(52f + (hour - 12f) * 1.6f, 31f));
+                Set("or_moon1_dir", Toward(236f + pale + (hour - 12f) * 0.9f, 38f));
+                Set("or_moon2_dir", Toward(52f + wisp + (hour - 12f) * 1.6f, 31f));
                 break;
             case "arc":
             case "mix":
-                Set("or_moon1_dir", Toward(70f + (hour - 12f) * 0.9f, 24f));
-                Set("or_moon2_dir", Toward(205f + (hour - 12f) * 1.4f, 47f));
+                Set("or_moon1_dir", Toward(70f + pale + (hour - 12f) * 0.9f, 24f));
+                Set("or_moon2_dir", Toward(205f + wisp + (hour - 12f) * 1.4f, 47f));
                 if (look == "mix")
                     Galaxy(toSun, 70f);
                 break;
@@ -91,8 +104,8 @@ public static class CelestialView
                 // A distant companion of the sun: it rides the sun's own daily circle about the pole, seven hours behind it.
                 Set("or_star_dir", new Quaternion(Pole, Mathf.DegToRad(-105f)) * toSun);
                 Galaxy(toSun, 25f);
-                Set("or_moon1_dir", Toward(130f + (hour - 12f) * 0.9f, 33f));
-                Set("or_moon2_dir", Toward(300f + (hour - 12f) * 1.3f, 22f));
+                Set("or_moon1_dir", Toward(130f + pale + (hour - 12f) * 0.9f, 33f));
+                Set("or_moon2_dir", Toward(300f + wisp + (hour - 12f) * 1.3f, 22f));
                 break;
         }
     }

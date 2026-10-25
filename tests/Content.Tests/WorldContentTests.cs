@@ -186,4 +186,34 @@ public class WorldContentTests
     [Fact]
     public void ACalendarWithoutDays_IsRefused() =>
         AssertRefused("WLD008", "config/time.yaml", "days_per_tally: 14", "days_per_tally: 0", "calendar");
+
+    // ── seasons and windows (WP 1D) ─────────────────────────────────────────
+
+    [Fact]
+    public void TheGamesSeasons_BuildFromItsContent()
+    {
+        var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
+        var seasons = WorldContent.BuildSeasons(loader);
+        Assert.Equal(new[] { 0, 42, 84, 126 }, seasons.StartDays);
+        Assert.Equal(new[] { "window.hollow_day", "window.bloom", "window.midsummer", "window.harvest", "window.migration", "window.midwinter" },
+            seasons.Windows.Select(w => w.Id));
+        Assert.Contains(("market.ashen_hollow", "item.consumable.salve_minor", -1L), seasons.MarketFlows[Season.Winter]);
+        Assert.Equal(3, WorldContent.BuildWeather(loader).SeasonWeights.Count);
+    }
+
+    [Fact]
+    public void SeasonsOutOfOrder_AreRefused() =>
+        AssertRefused("WLD008", "config/seasons.yaml", "  summer: 42", "  summer: 130", "in order");
+
+    [Fact]
+    public void AWindowPastTheReckoning_IsRefused() =>
+        AssertRefused("WLD008", "config/seasons.yaml", "from: 182, to: 182", "from: 182, to: 183", "window.hollow_day");
+
+    [Fact]
+    public void AMarketFlowForAGoodTheMarketDoesNotKeep_IsRefused() =>
+        AssertRefused("WLD008", "config/seasons.yaml", "item: item.consumable.salve_minor", "item: item.material.deer_hide", "keeps no");
+
+    [Fact]
+    public void ASeasonTheWorldDoesNotHave_IsRefused_InTheWeather() =>
+        AssertRefused("WLD008", "config/weather.yaml", "  summer: { fair: 6", "  monsoon: { fair: 6", "monsoon");
 }

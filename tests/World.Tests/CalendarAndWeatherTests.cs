@@ -150,6 +150,107 @@ public class CalendarAndWeatherTests
         Assert.Null(WeatherStates.Parse("storm"));
     }
 
+    // ── seasons, the sky's year and the dated windows (WP 1D: WLD-33, 34, 58) ─────
+
+    [Fact]
+    public void TheSeasons_RunOnceAReckoning_FromSpring_AndTheHollowDayIsWinters()
+    {
+        var seasons = SeasonRules.Default;
+        Assert.Equal(Season.Spring, seasons.SeasonOn(0));
+        Assert.Equal(Season.Spring, seasons.SeasonOn(41));
+        Assert.Equal(Season.Summer, seasons.SeasonOn(42));
+        Assert.Equal(Season.Autumn, seasons.SeasonOn(84));
+        Assert.Equal(Season.Winter, seasons.SeasonOn(126));
+        Assert.Equal(Season.Winter, seasons.SeasonOn(182));   // the Hollow Day
+        Assert.Same(seasons, seasons.Validated(183));
+        foreach (var season in Enum.GetValues<Season>())
+            Assert.Equal(season, Seasons.Parse(Seasons.Key(season)));
+    }
+
+    [Fact]
+    public void SeasonsThatDoNotTileTheReckoning_OrWindowsOutsideIt_AreRefused()
+    {
+        var seasons = SeasonRules.Default;
+        Assert.Throws<FormatException>(() => (seasons with { StartDays = ImmutableArray.Create(1, 42, 84, 126) }).Validated(183));
+        Assert.Throws<FormatException>(() => (seasons with { StartDays = ImmutableArray.Create(0, 84, 42, 126) }).Validated(183));
+        Assert.Throws<FormatException>(() => (seasons with { StartDays = ImmutableArray.Create(0, 42, 84) }).Validated(183));
+        Assert.Throws<FormatException>(() => seasons.Validated(100));
+        Assert.Throws<FormatException>(() => (seasons with { Windows = ImmutableArray.Create(new CalendarWindow("w", CalendarWindow.Festival, 0, 183)) }).Validated(183));
+        Assert.Throws<FormatException>(() => (seasons with { Windows = ImmutableArray.Create(new CalendarWindow("w", "fair", 0, 1)) }).Validated(183));
+        Assert.Throws<FormatException>(() => (seasons with
+        {
+            Windows = ImmutableArray.Create(new CalendarWindow("w", CalendarWindow.Seasonal, 0, 1), new CalendarWindow("w", CalendarWindow.Seasonal, 3, 4)),
+        }).Validated(183));
+    }
+
+    [Fact]
+    public void AWindow_CoversItsDays_AndOneThatRunsOverTheTurnOfTheReckoning_CoversBothEnds()
+    {
+        var harvest = new CalendarWindow("window.harvest", CalendarWindow.Seasonal, 98, 125);
+        Assert.False(harvest.Covers(97));
+        Assert.True(harvest.Covers(98));
+        Assert.True(harvest.Covers(125));
+        Assert.False(harvest.Covers(126));
+        var turn = new CalendarWindow("window.turn", CalendarWindow.Festival, 180, 2);
+        Assert.True(turn.Covers(182));
+        Assert.True(turn.Covers(0));
+        Assert.True(turn.Covers(2));
+        Assert.False(turn.Covers(3));
+        Assert.False(turn.Covers(179));
+    }
+
+    [Fact]
+    public void TheSkysYear_TurnsWithTheReckoning_SeasonOnSeason_SoTheSunsHighestDayIsMidSummer()
+    {
+        SkyDate On(long day) => SkyCalendar.Of(DayStart(day), Clock, CalendarRules.Default, SeasonRules.Default);
+
+        Assert.Equal((2001, 2, 4), (On(0).Year, On(0).Month, On(0).Day));   // spring begins half-way to the sky's spring equinox
+        Assert.Equal((2001, 5, 6), (On(42).Year, On(42).Month, On(42).Day));
+        Assert.Equal((2001, 8, 7), (On(84).Year, On(84).Month, On(84).Day));
+        Assert.Equal((2001, 11, 7), (On(126).Year, On(126).Month, On(126).Day));
+        Assert.Equal((2002, 2), (On(182).Year, On(182).Month));             // the Hollow Day: the end of the sky's winter
+        Assert.Equal((2002, 2, 4), (On(183).Year, On(183).Month, On(183).Day));   // the next Reckoning's spring, a year on
+        // Midsummer and midwinter fall on the solstices (about 21 June and 21 December), inside the windows named for them.
+        Assert.Equal(6, On(63).Month);
+        Assert.InRange(On(63).Day, 20, 22);
+        Assert.Equal(12, On(154).Month);
+        Assert.InRange(On(154).Day, 19, 22);
+        // Monotonic through the year: every day stands later in the sky's year than the one before.
+        for (long day = 1; day < 183; day++)
+            Assert.True(On(day).DayOfYear > On(day - 1).DayOfYear || On(day).Year > On(day - 1).Year, $"day {day}");
+    }
+
+    [Fact]
+    public void ASeason_DrawsItsOwnWeather_AndTheOthersKeepTheBaseWeights()
+    {
+        var winter = new Dictionary<WeatherState, int> { [WeatherState.Fair] = 1, [WeatherState.Overcast] = 6, [WeatherState.Fog] = 6, [WeatherState.Rain] = 1 }
+            .ToImmutableSortedDictionary();
+        var rules = WeatherRules.Default with { SeasonWeights = ImmutableSortedDictionary<Season, ImmutableSortedDictionary<WeatherState, int>>.Empty.Add(Season.Winter, winter) };
+        Assert.Same(rules, rules.Validated());
+
+        // Without a season every span draws as before; spring has no weights of its own, so it draws as before too.
+        Assert.Equal(Weather.Fronts(Seed, RegionCell, Region, 3, WeatherRules.Default).ToArray(), Weather.Fronts(Seed, RegionCell, Region, 3, rules, _ => Season.Spring).ToArray());
+        var all = Enumerable.Range(0, 300).SelectMany(s => Weather.Fronts(Seed, RegionCell, Region, s, rules, _ => Season.Winter)).ToList();
+        Assert.DoesNotContain(all, f => f.State == WeatherState.Wind);   // winter has no weight for it
+        Assert.True(all.Count(f => f.State is WeatherState.Overcast or WeatherState.Fog) > all.Count * 2 / 3);   // neighbours differ, so not all of it
+        Assert.Throws<FormatException>(() => (rules with
+        {
+            SeasonWeights = rules.SeasonWeights.SetItem(Season.Summer, winter.SetItem(WeatherState.Fold, 2)),
+        }).Validated());
+    }
+
+    [Fact]
+    public void TheSkyBlends_FromThePreviousFront_ByWorldTicks_SoAnyTickReadsTheSameBlend()
+    {
+        var view = new WeatherView(Region, WeatherState.Rain, 10_000, 30_000) { Previous = WeatherState.Fair };
+        Assert.Equal(0.0, Weather.Blend(view, 10_000, 800));
+        Assert.Equal(0.5, Weather.Blend(view, 10_400, 800));
+        Assert.Equal(1.0, Weather.Blend(view, 10_800, 800));
+        Assert.Equal(1.0, Weather.Blend(view, 29_999, 800));
+        Assert.Equal(1.0, Weather.Blend(view with { Previous = WeatherState.Rain }, 10_000, 800));   // nothing to blend from
+        Assert.Equal(WeatherState.Rain, new WeatherView(Region, WeatherState.Rain, 0, 1).Previous);
+    }
+
     private static long DayStart(long day) => day * Day - Clock.StartTicks;
 
     private static (long Reckoning, int Tally, int Day) Date(long day)

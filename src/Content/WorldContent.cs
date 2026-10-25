@@ -45,6 +45,7 @@ public static class WorldContent
             TryBuild(() => BuildOffline(loader), "config.time", loader, errors);
             TryBuild(() => BuildCalendar(loader), "config.time", loader, errors);
             TryBuild(() => BuildWeather(loader), "config.weather", loader, errors);
+            TryBuild(() => BuildSeasons(loader), "config.seasons", loader, errors);
         }
         return errors;
     }
@@ -200,15 +201,67 @@ public static class WorldContent
         if (!loader.Definitions.ContainsKey("config.weather"))
             return WeatherRules.Default;
         var map = Config(loader, "config.weather");
-        var weights = new Dictionary<WeatherState, int>();
-        foreach (var (key, _) in Map(map, "weights"))
+        ImmutableSortedDictionary<WeatherState, int> Weights(Dictionary<object, object> table)
         {
-            string name = key as string ?? throw new FormatException("a weather weight is named by its state");
-            weights[WeatherStates.Parse(name) ?? throw new FormatException($"config.weather weights '{name}', which is not a weather state")] =
-                Int(Map(map, "weights"), name);
+            var weights = new Dictionary<WeatherState, int>();
+            foreach (var (key, _) in table)
+            {
+                string name = key as string ?? throw new FormatException("a weather weight is named by its state");
+                weights[WeatherStates.Parse(name) ?? throw new FormatException($"config.weather weights '{name}', which is not a weather state")] =
+                    Int(table, name);
+            }
+            return weights.ToImmutableSortedDictionary();
         }
-        return new WeatherRules(Int(map, "front_hours_min"), Int(map, "front_hours_max"), Int(map, "span_hours"),
-            weights.ToImmutableSortedDictionary()).Validated();
+        var seasonal = new Dictionary<Season, ImmutableSortedDictionary<WeatherState, int>>();
+        if (map.ContainsKey("season_weights"))
+        {
+            var table = Map(map, "season_weights");
+            foreach (var (key, _) in table)
+                seasonal[Seasons.Parse(key as string ?? "") ?? throw new FormatException($"config.weather season_weights '{key}', which is not a season")] =
+                    Weights(Map(table, (string)key));
+        }
+        return new WeatherRules(Int(map, "front_hours_min"), Int(map, "front_hours_max"), Int(map, "span_hours"), Weights(Map(map, "weights")))
+        {
+            SeasonWeights = seasonal.ToImmutableSortedDictionary(),
+        }.Validated();
+    }
+
+    /// <summary>
+    /// The seasons, the dated windows and the seasons' market flows (<c>config.seasons</c>; WLD-33, 56, 58). A pack without it has the
+    /// provisional seasons and the Hollow Day only. A market flow names a market and a good it keeps.
+    /// </summary>
+    public static SeasonRules BuildSeasons(ContentLoader loader)
+    {
+        if (!loader.Definitions.ContainsKey("config.seasons"))
+            return SeasonRules.Default;
+        var map = Config(loader, "config.seasons");
+        var starts = Map(map, "season_starts");
+        var windows = List(map, "windows").Select(w => w as Dictionary<object, object> ?? throw new FormatException("a window is a map"))
+            .Select(w => new CalendarWindow(Text(w, "id"), Text(w, "kind"), Int(w, "from"), Int(w, "to"))).ToImmutableArray();
+        var flows = new Dictionary<Season, ImmutableArray<(string, string, long)>>();
+        if (map.ContainsKey("market_flows"))
+        {
+            var table = Map(map, "market_flows");
+            foreach (var (key, _) in table)
+            {
+                var season = Seasons.Parse(key as string ?? "") ?? throw new FormatException($"config.seasons market_flows '{key}', which is not a season");
+                flows[season] = List(table, (string)key).Select(f => f as Dictionary<object, object> ?? throw new FormatException("a market flow is a map"))
+                    .Select(f =>
+                    {
+                        // Plain keys, not *_ref: the market and the good are checked here, against the whole pack.
+                        string market = Text(f, "market"), item = Text(f, "item");
+                        if (!loader.Definitions.TryGetValue(market, out var defined) || defined.Kind != "market")
+                            throw new FormatException($"config.seasons market_flows names '{market}', which is not a market");
+                        if (!Read(defined.YamlSource).TryGetValue("goods", out var goods) || goods is not List<object> list
+                            || !list.OfType<Dictionary<object, object>>().Any(g => g.GetValueOrDefault("item_ref") as string == item))
+                            throw new FormatException($"config.seasons market_flows: {market} keeps no '{item}'");
+                        return (market, item, Long(f, "delta"));
+                    }).ToImmutableArray();
+            }
+        }
+        var order = new[] { Season.Spring, Season.Summer, Season.Autumn, Season.Winter };
+        return new SeasonRules(order.Select(s => Int(starts, Seasons.Key(s))).ToImmutableArray(), windows, flows.ToImmutableSortedDictionary())
+            .Validated(BuildCalendar(loader).DaysPerReckoning);
     }
 
     /// <summary>

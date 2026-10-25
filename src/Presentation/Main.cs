@@ -1402,10 +1402,10 @@ public partial class Main : Node3D
         // pretty static". Only Sky3D has a clock to move; an HDRI run ignores it.
         if (_session.Simulation is { } clock)
         {
-            SkyView.Advance(clock.WorldTick, TicksPerDay);
-            // The sky follows the world's weather (owner finding 55); --visual weather pins one for a capture.
+            SkyView.Advance(clock.WorldTick, TicksPerDay, clock.SkyDate);
+            // The sky follows the world's weather (owner finding 55), blended by world ticks (WLD-38); --visual weather pins one for a capture.
             if (SkyView.Sky3DNode is { } sky)
-                Greybox.WeatherStates.Follow(sky, VisualOptions.Weather ?? World.Runtime.WeatherStates.Key(clock.Weather.State), delta);
+                Greybox.WeatherStates.Follow(sky, clock.Weather, clock.WorldTick, _session.TickSeconds, VisualOptions.Weather);
         }
 
         // The smoke and the playthrough run one tick per frame: the smoke finishes in a fraction of real time, and the playthrough is

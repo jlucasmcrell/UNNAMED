@@ -130,6 +130,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
     /// <summary>How the weather's fronts are laid out and drawn (config.weather; WP7).</summary>
     public WeatherRules Weather { get; init; } = WeatherRules.Default;
 
+    /// <summary>The seasons, the dated windows and the seasons' market flows (config.seasons; WLD-33, 56, 58).</summary>
+    public SeasonRules Seasons { get; init; } = SeasonRules.Default;
+
     /// <summary>The factions, the standing ladder and the act log's capacity (WP6).</summary>
     public FactionSetup Factions { get; init; } = FactionSetup.Empty;
 
@@ -245,6 +248,7 @@ public sealed class Simulation
     private readonly TravelSystem _travel;
     private readonly DeedSystem _deeds;
     private readonly WeatherSystem _weather;
+    private readonly CalendarSystem _calendar;
     private readonly FactionSystem _factions;
     private readonly MarketSystem _markets;
     private readonly MerchantSystem _merchants;
@@ -358,6 +362,8 @@ public sealed class Simulation
         _death = new DeathSystem(_context, player.Id, _travel.ReturnBody, _spaces.LeaveForDeath);
         _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views, _inventory.WorldItems);
         _deeds = new DeedSystem(_context, _state.Claim(nameof(DeedSystem), StateSlice.Deeds));
+        _calendar = new CalendarSystem(_context);
+        _markets.Seasons = _calendar;
         _weather = new WeatherSystem(_context, _state.Claim(nameof(WeatherSystem), StateSlice.Weather), new CellKey(_cells[0].Region, 0, 0));
         _factions = new FactionSystem(_context, _state.Claim(nameof(FactionSystem), StateSlice.Factions));
         _quickBar = new QuickBarSystem(_context, _state.Claim(nameof(QuickBarSystem), StateSlice.QuickBar), player.Id);
@@ -383,7 +389,7 @@ public sealed class Simulation
         // The abstract advance (WP11): the clock first, so every other system brings itself to the tick it reads. A new world system
         // that goes on while the character is away adds itself here. The party goes before the adventurers: an adventurer it lets go or
         // loses at a midnight of the absence takes up their life from that midnight, however the absence is split (T-22).
-        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _companions, _adventurers, _creatures, _effects, _gathering, _quests, _factions, _sheets, _approval, _npcs, _markets, _teaching, _durability, _laden, _lfg, _pets);
+        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _calendar, _weather, _companions, _adventurers, _creatures, _effects, _gathering, _quests, _factions, _sheets, _approval, _npcs, _markets, _teaching, _durability, _laden, _lfg, _pets);
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
         _combat.Seed(player);
@@ -640,6 +646,15 @@ public sealed class Simulation
 
     /// <summary>The weather over the region played now (WP7): its state and the ticks its front holds.</summary>
     public WeatherView Weather => _weather.View(WorldTick);
+
+    /// <summary>The season now (WLD-33): a function of the calendar day.</summary>
+    public Season Season => _calendar.SeasonOfDay(Setup.Clock.Day(WorldTick));
+
+    /// <summary>The festivals and seasonal windows open today (WLD-58).</summary>
+    public ImmutableArray<CalendarWindow> OpenWindows => _calendar.OpenOn(Setup.Clock.Day(WorldTick));
+
+    /// <summary>The sky's date now (WLD-34): where the sun's declination and the moon stand in the year.</summary>
+    public SkyDate SkyDate => SkyCalendar.Of(WorldTick, Setup.Clock, Setup.Calendar, Setup.Seasons);
 
     /// <summary>The weather's seed cursor (WP7): the game hour the front last announced began; null before the first. What a save keeps of the weather.</summary>
     public long? WeatherCursor => _state.WeatherCursor;
@@ -922,6 +937,7 @@ public sealed class Simulation
             long tick = WorldTick + 1;
             _movement.Tick(tick);
             _tiers.Tick(tick);
+            _calendar.Tick(tick);
             _weather.Tick(tick);
             foreach (var simulation in _tierSimulations)
                 simulation.Tick(tick, _cells.Where(c => _state.Tiers.GetValueOrDefault(c.ToString(), SimulationTier.D) == simulation.Tier).ToList());

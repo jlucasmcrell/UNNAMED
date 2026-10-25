@@ -22,6 +22,15 @@ internal interface IJobOutput
     IEnumerable<(string MarketId, string ItemId, long Count)> On(long day);
 }
 
+/// <summary>
+/// What the season does to the towns' markets on a calendar day (WLD-56): each good's stock moved by a count, more made or more used. A pure
+/// function of the day, like the job output, so an absence and the same absence in pieces settle alike (T-22).
+/// </summary>
+internal interface ISeasonalGoods
+{
+    IEnumerable<(string MarketId, string ItemId, long Delta)> On(long day);
+}
+
 /// <summary>A good in a town market as it stands, and its price against base in permille.</summary>
 public sealed record MarketGoodView(string ItemId, long Stock, long Target, long Min, long Max, int PriceFactorPermille)
 {
@@ -76,6 +85,9 @@ internal sealed class MarketSystem : IAbstractAdvance
 
     /// <summary>What the adventurers trade here each day (WP13); none until composition gives it.</summary>
     public IAgentTrade? Agents { get; set; }
+
+    /// <summary>What the season moves in the markets each day (WLD-56); none until composition gives it.</summary>
+    public ISeasonalGoods? Seasons { get; set; }
 
     private RuntimeState State => _context.State;
     private EconomySetup Economy => _context.Setup.Economy;
@@ -167,6 +179,14 @@ internal sealed class MarketSystem : IAbstractAdvance
             foreach (var (marketId, itemId, delta) in Agents?.Goods(state.Day + 1) ?? Enumerable.Empty<(string, string, long)>())
             {
                 if (Economy.Markets.TryGetValue(marketId, out var market) && state.Markets.TryGetValue(marketId, out var stock))
+                    state = state with { Markets = state.Markets.SetItem(marketId, delta >= 0
+                        ? EconomyEngine.Produced(market, stock, itemId, delta)
+                        : EconomyEngine.Traded(market, stock, itemId, -delta, 0)) };
+            }
+            // The season's day (WLD-56): what it makes more of joins the stock, what it uses more of leaves it, as the adventurers' goods do.
+            foreach (var (marketId, itemId, delta) in Seasons?.On(state.Day + 1) ?? Enumerable.Empty<(string, string, long)>())
+            {
+                if (Economy.Markets.TryGetValue(marketId, out var market) && market.Goods.ContainsKey(itemId) && state.Markets.TryGetValue(marketId, out var stock))
                     state = state with { Markets = state.Markets.SetItem(marketId, delta >= 0
                         ? EconomyEngine.Produced(market, stock, itemId, delta)
                         : EconomyEngine.Traded(market, stock, itemId, -delta, 0)) };

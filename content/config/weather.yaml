@@ -13,3 +13,7 @@ weights:                          # how often each state is drawn; fold is reser
   rain: 2
   fog: 1
   wind: 2
+season_weights:                   # a season draws by its own weights where it has them (WLD-33); spring keeps the base weights
+  summer: { fair: 6, overcast: 2, rain: 1, fog: 1, wind: 2 }
+  autumn: { fair: 3, overcast: 3, rain: 2, fog: 2, wind: 3 }
+  winter: { fair: 2, overcast: 4, rain: 2, fog: 3, wind: 2 }

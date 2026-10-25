@@ -1,0 +1,25 @@
+id: config.seasons
+kind: config
+schema: 1
+display_key: config.seasons.name
+tags: [config]
+notes: "The seasons and dated windows (WLD-33, 56, 58; WEATHER_SEASONS_SURVIVAL_AND_ENVIRONMENT.md §4, §26, §29). One cycle per Reckoning on the one calendar (owner). The tally-to-season mapping is PROVISIONAL until the owner settles it; every number here is tuning, and no window carries lore. Days are days of the Reckoning, counted from 0 (the 1st day of the 1st tally); the Hollow Day is day 182. No survival effects (D6)."
+season_starts:                     # the day of the Reckoning each season starts on
+  spring: 0                        # 1st tally
+  summer: 42                       # 4th tally
+  autumn: 84                       # 7th tally
+  winter: 126                      # 10th tally, through the Hollow Day
+windows:
+  - { id: window.hollow_day, kind: festival, from: 182, to: 182 }      # the canon's one dated day (ORR:877-886)
+  - { id: window.bloom, kind: seasonal, from: 14, to: 41 }             # 2nd-3rd tally
+  - { id: window.midsummer, kind: seasonal, from: 63, to: 63 }         # midsummer: the sky's solstice falls mid-summer
+  - { id: window.harvest, kind: seasonal, from: 98, to: 125 }          # 8th-9th tally
+  - { id: window.migration, kind: seasonal, from: 119, to: 132 }       # late 9th to early 10th tally
+  - { id: window.midwinter, kind: seasonal, from: 154, to: 154 }       # midwinter: the sky's other solstice
+market_flows:                      # a good's stock moved each day of the season (WLD-56); working numbers
+  autumn:
+    - { market: market.cairnwold, item: item.material.wolf_hide, delta: 1 }     # the hunting season
+    - { market: market.cairnwold, item: item.material.deer_hide, delta: 1 }
+  winter:
+    - { market: market.cairnwold, item: item.material.ash_haft, delta: -1 }     # hearth-fires burn the ash
+    - { market: market.ashen_hollow, item: item.consumable.salve_minor, delta: -1 }   # more ailments in the cold

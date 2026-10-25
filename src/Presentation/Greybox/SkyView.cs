@@ -215,10 +215,23 @@ public static class SkyView
     /// Advance the sky to the world clock. Called once a frame by the frame loop with the simulation's tick;
     /// does nothing when the run's sky is not Sky3D (an HDRI sky has no clock to move) or before it is built.
     /// </summary>
-    public static void Advance(double worldTick, double ticksPerDay)
+    public static void Advance(double worldTick, double ticksPerDay, World.Runtime.SkyDate? date = null)
     {
         if (_sky is not WorldEnvironment || ticksPerDay <= 0)
             return;
+        // THE YEAR TURNS WITH THE CALENDAR (WLD-34). Sky3D keeps its own Gregorian date, and left at its default every day had the same
+        // sun declination and the same moon. The world's date, mapped season onto season (SkyCalendar), moves both: the sun stands higher
+        // in summer and the days are longer, and Sky3D's moon runs through its phases about once a tally. Set only when the day changes,
+        // the day first to 1 so no month ever holds a day it does not have.
+        if (date is { } on && (on.Year, on.Month, on.Day) != _date)
+        {
+            _date = (on.Year, on.Month, on.Day);
+            sky.Set("day", 1);
+            sky.Set("year", on.Year);
+            sky.Set("month", on.Month);
+            sky.Set("day", on.Day);
+        }
+        _days = worldTick / ticksPerDay;
         double day = worldTick / ticksPerDay;
         // THE DAY STARTS AT THE WORLD CLOCK'S READING AT TICK 0 (ClockAtWorldStart, from config.time), not at
         // midnight, which would open every run in darkness. The clock advances from there, and 48 real minutes
@@ -272,7 +285,7 @@ public static class SkyView
             ApplyAir(sky, SunAltitude(sky));
         }
         if (sky.Environment is { } air)
-            CelestialView.Advance(_clockHour, _daylightLevel, air);
+            CelestialView.Advance(_clockHour, _daylightLevel, air, _days);
     }
 
     /// <summary>
@@ -295,6 +308,10 @@ public static class SkyView
     }
 
     private static float _loggedHour = float.NaN;
+
+    /// <summary>The sky's date last set on Sky3D; the world days since tick 0, which the extra moons orbit by.</summary>
+    private static (int Year, int Month, int Day)? _date;
+    private static double _days;
 
     /// <summary>Whether the run's hour is day (the sun well up): for what only runs by day (the atmosphere's pollen).</summary>
     public static float DaylightNow => Hour is > 7f and < 18f ? 1f : 0f;
@@ -328,7 +345,7 @@ public static class SkyView
         float daylight = Daylight(altitude);
         CelestialView.Attach(sky);
         if (sky.Environment is { } air)
-            CelestialView.Advance(Hour, daylight, air);
+            CelestialView.Advance(Hour, daylight, air, _days);
         if (VisualOptions.Clouds == "sunshine" && sky.Get("sun").AsGodotObject() is DirectionalLight3D cloudSun)
         {
             if (CloudsView.Attach(sky, cloudSun, out string? cloudsWhy))
