@@ -141,8 +141,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `v35/` | The lore schema-35 writer (the journal pages the character has unlocked) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 | `v36/` | The pets schema-36 writer (the animals that travel with the character) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 | `v39/` | The HumGen-creator schema-39 writer (the identity's appearance) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
-| `v40/` | PLACEHOLDER (WP 1B's branch): the schema-39 shapes at version 40, standing in for the wave-1 WP the coordinator reserved 40 for. Replace it with that WP's fixture at merge | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
-| `v41/` | The WP 1B schema-41 writer (each stack's enhancements, spec 47) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
+| `v40/` | The WP 1B enhancement writer, next after the pinned schema-39 main; unpublished landing fixture, renumber if main gains another schema first | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 
 The one-off addition to `7ff4c57`'s probe that wrote `v1/`. It is not compiled into this build, since
 that build's world API no longer exists:

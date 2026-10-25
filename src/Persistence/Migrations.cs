@@ -127,8 +127,7 @@ public static class SchemaMigrations
         new SchemaV36ToV37(),
         new SchemaV37ToV38(),
         new SchemaV38ToV39(),
-        new SchemaV39ToV40(),
-        new SchemaV40ToV41());
+        new SchemaV39ToV40());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -2099,29 +2098,13 @@ public sealed class SchemaV38ToV39 : SchemaMigration
 }
 
 /// <summary>
-/// PLACEHOLDER for the wave-1 WP the coordinator reserved schema 40 for (WP 1B holds 41). It changes nothing - the version number only - so
-/// that this branch's chain and fixtures stay unbroken; at merge it is replaced by that WP's real step and fixture, and WP 1B's step
-/// renumbers after it.
+/// Schema 39 to 40 (WP 1B; spec 47): a stack - carried, a companion's, in a container or lying in the world - may carry its enhancements.
+/// A save from before had none; an absent record reads as never enhanced, so only the version moves.
 /// </summary>
 public sealed class SchemaV39ToV40 : SchemaMigration
 {
     public override int From => 39;
-    public override string Summary => "schema 39 -> 40: no change (a placeholder for the version reserved for another wave-1 work package)";
-    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
-    {
-        document.Manifest["schema_version"] = To;
-        report.Steps.Add(Summary);
-    }
-}
-
-/// <summary>
-/// Schema 40 to 41 (WP 1B; spec 47): a stack - carried, a companion's, in a container or lying in the world - may carry its enhancements.
-/// A save from before had none; an absent record reads as never enhanced, so only the version moves.
-/// </summary>
-public sealed class SchemaV40ToV41 : SchemaMigration
-{
-    public override int From => 40;
-    public override string Summary => "schema 40 -> 41: stacks gain their enhancements (none before)";
+    public override string Summary => "schema 39 -> 40: stacks gain their enhancements (none before)";
     public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
     {
         document.Manifest["schema_version"] = To;

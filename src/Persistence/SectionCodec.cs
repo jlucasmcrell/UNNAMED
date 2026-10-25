@@ -583,11 +583,11 @@ public sealed class InventoryDto
     /// <summary>From schema 24: its wear, or null when it is unworn at its made quality.</summary>
     [Key("wear")] public WearDto? Wear { get; set; }
 
-    /// <summary>From schema 41: what fills its enhancement slots (spec 47), or null for a never-enhanced stack.</summary>
+    /// <summary>From schema 40: what fills its enhancement slots (spec 47), or null for a never-enhanced stack.</summary>
     [Key("enhancements")] public EnhancementsDto? Enhancements { get; set; }
 }
 
-/// <summary>A piece's enhancements (schema 41; spec 47): the infusions and runes in its slots in order, cracked slots, settings tried.</summary>
+/// <summary>A piece's enhancements (schema 40; spec 47): the infusions and runes in its slots in order, cracked slots, settings tried.</summary>
 [MessagePackObject]
 public sealed class EnhancementsDto
 {
@@ -962,7 +962,7 @@ public sealed class ContainerItemDto
     /// <summary>From schema 24: its wear, or null.</summary>
     [Key("wear")] public WearDto? Wear { get; set; }
 
-    /// <summary>From schema 41: what fills its enhancement slots (spec 47), or null for a never-enhanced stack.</summary>
+    /// <summary>From schema 40: what fills its enhancement slots (spec 47), or null for a never-enhanced stack.</summary>
     [Key("enhancements")] public EnhancementsDto? Enhancements { get; set; }
 }
 
@@ -987,7 +987,7 @@ public sealed class CreatedDto
     /// <summary>From schema 24: its wear, or null.</summary>
     [Key("wear")] public WearDto? Wear { get; set; }
 
-    /// <summary>From schema 41: what fills its enhancement slots (spec 47), or null for a never-enhanced stack.</summary>
+    /// <summary>From schema 40: what fills its enhancement slots (spec 47), or null for a never-enhanced stack.</summary>
     [Key("enhancements")] public EnhancementsDto? Enhancements { get; set; }
 }
 
@@ -1200,7 +1200,7 @@ public static class SectionCodec
     private static EnhancementsDto? EnhancementsToDto(ItemEnhancements? enhancements) => enhancements is null ? null
         : new EnhancementsDto { Filled = enhancements.Filled.ToArray(), Cracked = enhancements.Cracked, Attempts = enhancements.Attempts };
 
-    /// <summary>A stack's saved enhancements (schema 41), whole, or null for a never-enhanced stack.</summary>
+    /// <summary>A stack's saved enhancements (schema 40), whole, or null for a never-enhanced stack.</summary>
     private static ItemEnhancements? EnhancementsOf(EnhancementsDto? dto, string what)
     {
         if (dto is null)

@@ -19,8 +19,8 @@ All numbers are content (`content/config/inventory.yaml` `enhancement:`), with d
 
 ## Save
 
-- Schema 41 adds an optional `enhancements` record on inventory, container and created stacks (`EnhancementsDto`). An absent record reads as never enhanced. The 40 → 41 step moves the version only. Fixture `v41` was written by the new writer and every `expected.json` gained the empty field. All of this is in one commit (1a840598).
-- **Schema 40 is a placeholder.** The fixture tests require an unbroken chain and one fixture per version. This branch therefore carries a no-op 39 → 40 step and a `Fixtures/v40` fixture, which is the schema-39 shapes at version 40. **At merge:** drop `SchemaV39ToV40` and `Fixtures/v40`, take the real 40 from the WP that owns it, and renumber this step if the order changes. Both pieces are in the same final commit.
+- Landing preparation is based on main `278f57a8` (schema 39) plus the 1C remainder. Enhancements are its next real step, 39 → 40. The cloud placeholder and its fixture are removed. The new `v40` fixture is written by the renumbered writer; earlier shipped fixture bytes remain unchanged.
+- **40 is not reserved.** If heritage or another save change lands first, rebase onto that main and move this step to its schema + 1, regenerate this unpublished fixture with that writer, update the enhancement threshold in `HistoricalFixtureTests`, then rerun the suite. Never replace a shipped fixture or insert a placeholder to fill the gap.
 
 ## Seams outside 1B's folders (please confirm)
 
@@ -44,7 +44,7 @@ Each seam is a line or two. The rules stay in `Domain/Items` and `Runtime/Items.
 
 - New: `tests/Domain.Tests/Items/EnhancementRuleTests.cs` (7), `tests/Content.Tests/EnhancementContentTests.cs` (6), `tests/Application.Tests/EnhancementTests.cs` (10).
 - `EnhancementTests` covers: setting at the forge, refusals (wrong bench, wrong target, no material, not an enhancement), failure and cracking, the same-state same-roll guarantee, a rune at the table training enchanting, reforging, worn effects and the ring's equip effect on and off, visuals per the ruling, a wolf-fang proc landing in a real fight, armour slowing the wearer and a wolf hearing the armoured footfall but not the bare one, salvage recovery (whole vs essence), and heritage refused.
-- Persistence: v41 fixture, `HistoricalFixtureTests` assertions for schema ≥ 41, completeness sample and coupled fields, and the M6 acceptance save diff allowance.
+- Persistence: next-step fixture, `HistoricalFixtureTests` assertions from the enhancement step onward, completeness sample and coupled fields, and the M6 acceptance save diff allowance.
 - Results: see "Suite run" below.
 
 ## What the coordinator should film

@@ -822,7 +822,7 @@ internal static class CanonicalState
     }
 
     /// <summary>The progression record (schema 4), every field, in canonical order.</summary>
-    /// <summary>A stack's enhancements (schema 41): null for a never-enhanced stack.</summary>
+    /// <summary>A stack's enhancements (schema 40): null for a never-enhanced stack.</summary>
     private static void WriteEnhancements(Utf8JsonWriter json, UNNAMED.Domain.Items.ItemEnhancements? enhancements)
     {
         if (enhancements is null)

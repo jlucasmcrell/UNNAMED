@@ -45,7 +45,13 @@
           "points": 40,
           "made_quality": 1
         },
-        "enhancements": null
+        "enhancements": {
+          "filled": [
+            "item.material.cinder_sac"
+          ],
+          "cracked": 1,
+          "attempts": 3
+        }
       },
       {
         "item_id": "itm_01HF7YAT02144GJ289144GJ282",
@@ -755,7 +761,7 @@
   ],
   "entities": [
     {
-      "instance_id": "crt_01M5SB1ASW8WFGKH3MMBN26VYJ",
+      "instance_id": "crt_01M5T0T8FHC24T8V8YG0N72SMH",
       "slot_key": "r_0_0:c_00_02.pop.r_0_0.c_00_02.wolves.00",
       "def_id": "creature.beast.wolf_grey",
       "alive": false,
@@ -764,7 +770,7 @@
       "baseline_hash": "sha256:336629374b68555520a9f021a4df35ac6c0e8a923e50a39841608725deb70b44"
     },
     {
-      "instance_id": "crt_01M5SB1AT0FA4SGT1FA7YZ9BM1",
+      "instance_id": "crt_01M5T0T8FKDVSW6PMWAQ8GJE12",
       "slot_key": "r_0_0:c_00_04.pop.r_0_0.c_00_04.deer.01",
       "def_id": "creature.beast.deer",
       "alive": null,
@@ -775,20 +781,7 @@
   ],
   "created": [
     {
-      "instance_id": "itm_01M5SB1AT19QW8C86T4S2HA3YP",
-      "def_id": "item.potion.minor_healing",
-      "host_cell": "r_0_0:c_00_08",
-      "x_cm": 700,
-      "z_cm": 800,
-      "count": 3,
-      "quality": 1,
-      "notable": null,
-      "wear": null,
-      "enhancements": null,
-      "baseline_hash": "sha256:33e9f5e176340442903b64ff5de2d58b0a2a65af0a8dfc2263fb5ed04c06723c"
-    },
-    {
-      "instance_id": "itm_01M5SB1AT1EZZECJBNQXBK84AH",
+      "instance_id": "itm_01M5T0T8FK6K33BD7YXVR3FD1P",
       "def_id": "item.weapon.iron_sword",
       "host_cell": "r_0_0:c_00_06",
       "x_cm": 500,
@@ -799,17 +792,30 @@
       "wear": null,
       "enhancements": null,
       "baseline_hash": "sha256:dc6e1a2a237b112abc70601672b08f812e0c479c3eae0cb22f002cce9db7373a"
+    },
+    {
+      "instance_id": "itm_01M5T0T8FKD8G09STWN63GMF2Y",
+      "def_id": "item.potion.minor_healing",
+      "host_cell": "r_0_0:c_00_08",
+      "x_cm": 700,
+      "z_cm": 800,
+      "count": 3,
+      "quality": 1,
+      "notable": null,
+      "wear": null,
+      "enhancements": null,
+      "baseline_hash": "sha256:33e9f5e176340442903b64ff5de2d58b0a2a65af0a8dfc2263fb5ed04c06723c"
     }
   ],
   "containers": [
     {
       "key": "container.fixture_chest",
-      "instance_id": "cnt_01M5SB1AT2YFM438KM0Z28M1G1",
+      "instance_id": "cnt_01M5T0T8FMRHV9HXPSY07HP9F3",
       "host_cell": "r_0_0:c_00_09",
       "baseline_hash": "sha256:c715927a0968c5fcc31b60c8d8781c33387ee23a66968bcddd89eea9f2f60256",
       "items": [
         {
-          "item_id": "itm_01M5SB1AT2YB47NRFXNCHWK6BB",
+          "item_id": "itm_01M5T0T8FMH65HG2P27Y5RE5DB",
           "def_id": "item.weapon.iron_sword",
           "count": 1,
           "quality": 2,
@@ -826,10 +832,17 @@
             "points": 5,
             "made_quality": 2
           },
-          "enhancements": null
+          "enhancements": {
+            "filled": [
+              "item.rune.keen",
+              "item.trinket.wolf_fang"
+            ],
+            "cracked": 0,
+            "attempts": 2
+          }
         },
         {
-          "item_id": "itm_01M5SB1AT3BTYEA207N0PY28CH",
+          "item_id": "itm_01M5T0T8FMRQ8KQD6N02M6X907",
           "def_id": "item.potion.minor_healing",
           "count": 4,
           "quality": -1,
@@ -841,12 +854,12 @@
     },
     {
       "key": "corpse.fixture_den.m1_g0",
-      "instance_id": "cnt_01M5SB1AT6DJQPHTEW0E2EKZDH",
+      "instance_id": "cnt_01M5T0T8FQ9NAJ5BB9FHVF1NQQ",
       "host_cell": "r_0_0:c_00_01",
       "baseline_hash": "sha256:b1baaec90d86555cb2aa9322d75121a46a81d9b7092a76bdaabcc9bf9afd50d2",
       "items": [
         {
-          "item_id": "itm_01M5SB1AT6VYXJ1S4T95369R6F",
+          "item_id": "itm_01M5T0T8FQNFTGZRXN2QWX2K0H",
           "def_id": "item.potion.minor_healing",
           "count": 1,
           "quality": 0,
