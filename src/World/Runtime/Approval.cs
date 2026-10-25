@@ -230,7 +230,7 @@ internal sealed class ApprovalSystem : IAbstractAdvance
     }
 
     private const double HintBeyondM = 30;
-    private static readonly string[] Points = { "north", "north-east", "east", "south-east", "south", "south-west", "west", "north-west" };
+    private static readonly ImmutableArray<string> Points = ["north", "north-east", "east", "south-east", "south", "south-west", "west", "north-west"];
 
     /// <summary>How a party member regards the character, in words and as what they would do if asked now.</summary>
     public (string Regard, Disposition Disposition) Standing(string npcId, string name) =>
