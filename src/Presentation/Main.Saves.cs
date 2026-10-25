@@ -237,11 +237,10 @@ public partial class Main
         catch (Exception e) when (e is SaveException or IOException or UnauthorizedAccessException)
         {
             GD.PushError($"UNNAMED continue from {next.Slot} failed: {e.Message}");
-            string failure = $"{what} could not be loaded: {e.Message}";
             if (_session.Simulation is null)
-                _saves.ShowFailure(failure);
+                _saves.ShowFailure(what, e);
             else
-                _saves.OpenInGame(failure);
+                _saves.OpenInGame(what, e);
             return null;
         }
     }
@@ -292,11 +291,10 @@ public partial class Main
         catch (Exception e) when (e is SaveException or IOException or UnauthorizedAccessException)
         {
             GD.PushError($"UNNAMED load of {slot} ({copy}) failed: {e.Message}");
-            string failure = $"{what} could not be loaded: {e.Message}";
             if (_session.Simulation is null)
-                _saves.ShowFailure(failure);
+                _saves.ShowFailure(what, e);
             else
-                _saves.OpenInGame(failure);
+                _saves.OpenInGame(what, e);
             return null;
         }
     }

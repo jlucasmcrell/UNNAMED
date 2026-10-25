@@ -80,6 +80,7 @@ public partial class Main : Node3D
     private CharacterPanel _character = null!;
     private HelpPanel _help = null!;
     private SavesPanel _saves = null!;
+    private SaveIndicator _saveIndicator = null!;
     private SystemMenuPanel _menu = null!;
     private CanvasLayer? _openedFromMenu;
     private bool _escapeToMenu;
@@ -668,20 +669,36 @@ public partial class Main : Node3D
                 : $"UNNAMED start screen: no save to continue; {choice.Saves.Length} saves in {profile}");
             _hud.Visible = false;   // no world yet: nothing to show but the choice
             _loading?.Stage("Opening the start screen", 0.96);
-            OpenFrontEnd();
-            _music.Title(true);
+            bool autostart = _flags.Contains("--autostart") || _flags.Any(f => f.StartsWith("--autostart-body="));
+            // The opening at launch (Main.Opening) comes before the start screen and hands its view over on the score's hit.
+            var opening = !autostart && Settings.SettingsStore.Current.Profile.PlayOpening ? OpeningPlaces(region) : null;
+            if (opening is null)
+            {
+                OpenFrontEnd();
+                _music.Title(true);
+            }
             // Phase B: behind the choice, a slow establishing shot over the hollow instead of whatever the game camera faces.
             if (VisualOptions.Tier != "phase_a")
             {
-                _startCamera = new StartCamera { Name = "StartCamera", Ground = _ground.Height,
-                    Offset = region == "region.starting_frontier" ? new Vector2(400, 600) : Vector2.Zero };
-                AddChild(_startCamera);
+                if (opening is null)
+                {
+                    _startCamera = StartView(region);
+                    AddChild(_startCamera);
+                }
                 // The ground's scatter of the world a new game will be (Main.Creator), so the shot is not bare earth and Begin finds it placed.
                 _loading?.Stage("Planting the land", 0.98);
                 _scatter.Build(NextWorldSeed);
             }
-            _loading?.End();
-            if (_flags.Contains("--autostart") || _flags.Any(f => f.StartsWith("--autostart-body=")))
+            // The opening warms the world's shaders under the bar, and ends the loading screen itself.
+            if (opening is not null)
+            {
+                _loading?.Stage("Opening the sky", 0.99);
+                _loading?.ShowWorldBehind();
+                BeginOpening(opening, region);
+            }
+            else
+                _loading?.End();
+            if (autostart)
                 Callable.From(AutoStart).CallDeferred();
             return;
         }
@@ -1479,6 +1496,7 @@ public partial class Main : Node3D
                 _barrowworksReview?.Mark(note);
             }
         }
+        _saveIndicator.Show(_session.IsSaving, frame.Saves);
         foreach (var save in frame.Saves)
         {
             if (save.Failure is not { } failed)
@@ -1488,7 +1506,8 @@ public partial class Main : Node3D
                 continue;
             }
             GD.PushError($"UNNAMED {(save.Auto ? "autosave" : "save")} to {save.Slot} failed: {failed}");
-            _hud.Toast(save.Auto ? $"Autosave failed: {failed} It is tried again shortly. The log: {LogPath}" : $"Save failed: {failed} (the log: {LogPath})", 8);
+            string said = save.Trouble?.Sentence ?? failed;
+            _hud.Toast(save.Auto ? $"Autosave failed. {said}" : $"Save failed. {said} The saves list (L) has a report to copy.", 8);
         }
         ulong drawStarted = _barrowworksReview is null && _frontierPerf is null ? 0 : Time.GetTicksUsec();
         Draw(frame.Alpha, delta);

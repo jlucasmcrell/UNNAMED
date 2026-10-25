@@ -16,7 +16,8 @@ namespace UNNAMED.Presentation.Audio;
 /// creature engaged within <see cref="FightRange"/> of the player, held for <see cref="FightHold"/> after the last one lets go, so a
 /// pause in a fight does not drop the music. Before it, a creature that would start a fight and has noticed something within
 /// <see cref="TenseRange"/> (suspicious, or searching after the fight) brings in the tension layer, held for <see cref="TenseHold"/>;
-/// the layer is cut from a combat take, so the change between the two keeps its playback position and its take. The road in keeps the
+/// the layer is cut from a combat take, so the change between the two keeps its playback position and its take. The opening at launch has
+/// its own cue, from its start, and the title theme takes over under the cue's tail. The road in keeps the
 /// title theme for <see cref="RoadSeconds"/>. Any other place of the layout already known when the character walks into it plays the
 /// exploration cue now and then (<see cref="ExploreWait"/>, <see cref="ExplorePlay"/>, <see cref="ExploreRest"/>); a first visit stays
 /// silent. A change of cue cross-fades over <see cref="FadeSeconds"/> (faster into a fight, slower out of the title and the exploration
@@ -55,6 +56,7 @@ public partial class MusicPlayer : Node
     private bool _areaKnown;
     private double _inArea;
     private bool _title;
+    private bool _opening;
 
     /// <summary>The cue playing now (a family), or null for silence.</summary>
     public string? Cue => _cue;
@@ -90,6 +92,12 @@ public partial class MusicPlayer : Node
         });
     }
 
+    /// <summary>
+    /// The opening's cue: on as the opening's first frame is drawn, from the cue's own start, which is timed to the pictures; off, and what
+    /// the moment calls for (the title theme) comes in under its tail.
+    /// </summary>
+    public void Opening(bool on) => _opening = on;
+
     /// <summary>The start screen's theme on (before a world is played) or off.</summary>
     public void Title(bool on) => _title = on;
 
@@ -120,7 +128,7 @@ public partial class MusicPlayer : Node
         }
         _road = Math.Max(0, _road - delta);
         string? theme = _places.Where(p => p.At.DistanceTo(here) <= p.Radius).Select(p => p.Theme).FirstOrDefault();
-        Play(MusicChoice.Bed(_title, fighting, tense, theme, SkyView.DaylightNow < 0.5f, _road > 0, Exploring()));
+        Play(MusicChoice.Bed(_opening, _title, fighting, tense, theme, SkyView.DaylightNow < 0.5f, _road > 0, Exploring()));
     }
 
     // The place the character is in, and whether it was already known when they walked in: discovering it on the way in is a first visit.
@@ -147,8 +155,8 @@ public partial class MusicPlayer : Node
     {
         if (_decks[0] is null)
             return;
-        if (_title)
-            Play(MusicChoice.Title);
+        if (_opening || _title)
+            Play(_opening ? MusicChoice.Opening : MusicChoice.Title);
         float step = (float)(delta / _fade);
         float duck = _stinger.Playing ? Duck : 1f;
         for (int i = 0; i < 2; i++)
@@ -166,9 +174,11 @@ public partial class MusicPlayer : Node
     {
         if (cue == _cue)
             return;
-        _fade = cue == MusicChoice.Combat ? FightFadeSeconds
+        // The opening's cue begins from its own silence: in at once, at its start, so the swell lands where the pictures expect it.
+        _fade = cue == MusicChoice.Opening ? 0.05
+            : cue == MusicChoice.Combat ? FightFadeSeconds
             : cue == MusicChoice.Tension ? TenseFadeSeconds
-            : _cue is MusicChoice.Title or MusicChoice.Explore || cue == MusicChoice.Explore ? SlowFadeSeconds
+            : _cue is MusicChoice.Title or MusicChoice.Explore or MusicChoice.Opening || cue == MusicChoice.Explore ? SlowFadeSeconds
             : FadeSeconds;
         // The tension layer and the fight are one take: into the fight goes the take the layer was cut from, at the layer's place in it.
         bool layered = _cue is MusicChoice.Tension or MusicChoice.Combat && cue is MusicChoice.Tension or MusicChoice.Combat;

@@ -4,7 +4,7 @@ using UNNAMED.Domain.Spatial;
 
 namespace UNNAMED.Application.Tests;
 
-public class OldLateTrunkTests
+public class GreatTreeTrunkTests
 {
     [Fact]
     public void TrunkBlocksFromThreeSides_AndTheVisibleTreeKeepsItsWorldPosition()
@@ -12,8 +12,9 @@ public class OldLateTrunkTests
         using var profile=new TempProfile();
         var session=Harness.Boot(profile);
         var original=session.Setup.Layout.Space;
-        var trunk=Assert.IsType<CircleBlocker>(Assert.Single(original.Blockers,b=>b.Id=="old_late"));
-        Assert.Equal((647_500L,766_400L,4_500L),(trunk.CenterXMm,trunk.CenterZMm,trunk.RadiusMm));
+        // The kapok that stood for Old Late until it became the stone giant (GS-3), moved into the hollow as its great tree (GS-10).
+        var trunk=Assert.IsType<CircleBlocker>(Assert.Single(original.Blockers,b=>b.Id=="great_tree"));
+        Assert.Equal((578_000L,748_000L,4_500L),(trunk.CenterXMm,trunk.CenterZMm,trunk.RadiusMm));
         var space=original with { Blockers=ImmutableArray.Create<Blocker>(trunk) };
         var rules=session.Setup.Movement;
         foreach(var (x,z) in new[]{(-1,0),(0,-1),(1,0)})
@@ -26,10 +27,10 @@ public class OldLateTrunkTests
             Assert.InRange(distance,trunk.RadiusMm+rules.BodyRadiusMm-2,trunk.RadiusMm+rules.BodyRadiusMm+2);
         }
         using var bindings=JsonDocument.Parse(File.ReadAllText(Path.Combine(Harness.RepoRoot(),"content","_art_bindings.json")));
-        var offset=bindings.RootElement.GetProperty("structures").GetProperty("old_late").GetProperty("offset").EnumerateArray().Select(v=>v.GetDouble()).ToArray();
-        Assert.Equal(650, trunk.CenterXMm/1000.0+offset[0],6);
-        Assert.Equal(765, trunk.CenterZMm/1000.0+offset[2],6);
-        Assert.Equal(original.Terrain.HeightAtMm(650_000,765_000)/1000.0,
+        var offset=bindings.RootElement.GetProperty("structures").GetProperty("great_tree").GetProperty("offset").EnumerateArray().Select(v=>v.GetDouble()).ToArray();
+        Assert.Equal(580.5, trunk.CenterXMm/1000.0+offset[0],6);
+        Assert.Equal(746.6, trunk.CenterZMm/1000.0+offset[2],6);
+        Assert.Equal(original.Terrain.HeightAtMm(580_500,746_600)/1000.0,
             original.Terrain.HeightAtMm(trunk.CenterXMm,trunk.CenterZMm)/1000.0+offset[1],6);
     }
 }

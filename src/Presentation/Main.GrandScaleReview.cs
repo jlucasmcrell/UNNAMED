@@ -7,10 +7,12 @@ namespace UNNAMED.Presentation;
 
 public partial class Main
 {
-    // Grand-scale landmark video gate (OTHERREACH_GRAND_REVIEW=foldscar): a fresh traveller walks from the Ashen Waystone to the Foldscar with
-    // the normal controller, turns the three Quiet Stones and steadies the heart, and walks back out to look - recorded in real time (WGC) by
-    // the harness once record_ready.json appears. No state injection and no teleport: every switch is worked by InteractCommand.
-    private async Task RunGrandFoldscarReview(string directory)
+    // Grand-scale landmark video gates (OTHERREACH_GRAND_REVIEW=foldscar|oldlate), recorded in real time (WGC) by the harness once
+    // record_ready.json appears. foldscar: a fresh traveller walks from the Ashen Waystone to the Foldscar with the normal controller, turns
+    // the three Quiet Stones and steadies the heart, and walks back out to look. oldlate: the same traveller walks from the Waystone past the
+    // great tree to the stone giant, stands at its knee looking up at the crown, walks round it, and looks back from the east. No state
+    // injection and no teleport: every switch is worked by InteractCommand.
+    private async Task RunGrandReview(string directory, string landmark)
     {
         _rcd3Driving = true;
         var sim = _session.Simulation ?? throw new InvalidDataException("Foldscar gate has no world");
@@ -74,7 +76,8 @@ public partial class Main
         }
         Mark("world_warm");
         await Go(new[] { (438.0, 754.0) }, 20, Gait.Walk);
-        Face(553, 648, .06f); await Rcd3Wait(1);
+        if (landmark == "oldlate") Face(647.5, 766.4, .1f); else Face(553, 648, .06f);
+        await Rcd3Wait(1);
         DisplayServer.WindowSetTitle("Otherreach - " + Path.GetFileName(directory));
         File.WriteAllText(Path.Combine(directory, "record_ready.json"), "{}");
         ulong recordingDeadline = Time.GetTicksMsec() + 30000;
@@ -84,6 +87,36 @@ public partial class Main
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         }
         Mark("approach_start"); await Rcd3Wait(4);
+        if (landmark == "oldlate")
+        {
+            // Each walk leg goes back to the walking pitch; a held upward look carried into a walk drops the camera into the grass.
+            void Walking() { _camera.Pitch = -.12f; _camera.TargetDistance = 4; }
+            await Go(new[] { (470.0, 756.0), (520.0, 752.0) }, 120, Gait.Walk);
+            Mark("great_tree"); Face(578, 748, .12f); await Rcd3Wait(4);
+            Walking(); await Go(new[] { (560.0, 768.0), (600.0, 768.0) }, 120, Gait.Walk);
+            Mark("giant_west"); Face(647.5, 766.4, .12f); await Rcd3Wait(6);
+            Walking(); await Go(new[] { (614.0, 758.0) }, 60, Gait.Walk);
+            _camera.TargetDistance = 3;
+            Mark("at_the_knee"); Face(645, 766.4, .25f); await Rcd3Wait(8);
+            Walking(); await Go(new[] { (610.0, 735.0), (647.0, 722.0) }, 120, Gait.Walk);
+            Mark("from_the_south"); Face(647.5, 766.4, .15f); await Rcd3Wait(6);
+            Walking(); await Go(new[] { (690.0, 740.0), (712.0, 768.0) }, 120, Gait.Walk);
+            Face(647.5, 766.4, .1f);
+            await Go(new[] { (705.0, 768.0) }, 20, Gait.Walk);
+            Mark("from_the_east"); await Rcd3Wait(6);
+            Mark("done");
+            File.WriteAllText(Path.Combine(directory, "recording.finished"), "done");
+            File.WriteAllText(Path.Combine(directory, "complete.json"), JsonSerializer.Serialize(new
+            {
+                status = "REAL_GAME_OLD_LATE_VIDEO_REQUIRES_CLAUDE_REVIEW", events,
+                route = "Normal controller walking from the Ashen Waystone past the great tree, round the stone giant and out east; no state injection or teleport",
+                engine_max_fps = Engine.MaxFps, people = VisualOptions.People,
+            }, new JsonSerializerOptions { WriteIndented = true }));
+            ulong stopped = Time.GetTicksMsec() + 15000;
+            while (!File.Exists(Path.Combine(directory, "recording.stopped")) && Time.GetTicksMsec() < stopped)
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            return;
+        }
         await Go(new[] { (465.0, 736.0), (488.0, 720.0), (514.0, 694.0) }, 150, Gait.Walk);
         Mark("ring_edge"); Face(553, 648, .08f); await Rcd3Wait(5);
         await Work("switch.stone_north", (547.2, 678.0), 550, 678, .06f, 3);

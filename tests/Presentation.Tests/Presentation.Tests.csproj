@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <!-- The presentation's Godot-free parts (the Godot project itself cannot load outside the engine): the asset records, the coverage
-       reports, the scatter rules, the voice rules, the ID-to-words half of the display-name path, a journey's words, the player's preferences, the crash log and the creator's draft and bodies, and
+       reports, the scatter rules, the voice rules, the ID-to-words half of the display-name path, a journey's words, the opening's words, the player's preferences, the crash log and the creator's draft and bodies, and
        the words of the away sheet, the calendar line and the Reputation sheet (they read the world's views: the World reference), compiled here as they are compiled into the game. -->
   <ItemGroup>
     <Compile Include="..\..\src\Presentation\Art\CharacterLodBand.cs" Link="Linked\CharacterLodBand.cs" />
@@ -34,6 +34,7 @@
     <Compile Include="..\..\src\Presentation\Audio\VoiceRules.cs" Link="Linked\VoiceRules.cs" />
     <Compile Include="..\..\src\Presentation\Ui\NameWords.cs" Link="Linked\NameWords.cs" />
     <Compile Include="..\..\src\Presentation\Ui\TravelWords.cs" Link="Linked\TravelWords.cs" />
+    <Compile Include="..\..\src\Presentation\Ui\OpeningWords.cs" Link="Linked\OpeningWords.cs" />
     <Compile Include="..\..\src\Presentation\Ui\CalendarWords.cs" Link="Linked\CalendarWords.cs" />
     <Compile Include="..\..\src\Presentation\Ui\AwayWords.cs" Link="Linked\AwayWords.cs" />
     <Compile Include="..\..\src\Presentation\Ui\StandingWords.cs" Link="Linked\StandingWords.cs" />

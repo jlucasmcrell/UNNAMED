@@ -130,6 +130,17 @@ public partial class HollowView : Node3D
                 Position=new Vector3(surface.OriginXMm/1000f,0,surface.OriginZMm/1000f) };
             collider.AddChild(new CollisionShape3D { Shape=shape });AddChild(collider);
         }
+        // Old Late (grand scale, GS-3): the stone giant in weathered carved stone, its crown on the top of its weathered head (gs_old_late's
+        // own metres); the Dwarven Citadel statue's material raised its colour to the power 0.5, which the lift restores.
+        if (_models.GetValueOrDefault("old_late") is { } giant)
+        {
+            var stone = _art.WorldMaps("ter_ph_lichen_rock");
+            var moss = _art.WorldMaps("cw_moor_grass");
+            if (stone is not null && moss is not null)
+                Palette.Weathered(giant, stone, moss);
+            if (OldLateCrown.Crown(giant, _art, new Vector3(-13.08f, 57.16f, 0.22f)) is { } crown && stone is not null && moss is not null)
+                Palette.Weathered(crown, stone, moss, lift: 1f);
+        }
         // Phase B VFX lane: the Foldscar's stones, heart and fold come back into register as they are set (FoldscarRegister).
         if (VisualOptions.Recipes)
         {

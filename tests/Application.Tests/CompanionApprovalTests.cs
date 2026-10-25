@@ -362,8 +362,10 @@ public class CompanionApprovalTests
         Assert.Equal(("banter.ashen_hollow.tavar_orr.4", "If I fall behind, it's the mud. Not the other thing."), (line.LineId, line.Text));
         Assert.Equal(20, line.Tick);
         arena.Tick(120);
-        Assert.Equal(2, said.Count);   // the quiet over, at the first boundary after it
-        Assert.Equal(220, said[1].Tick);
+        Assert.Single(said);   // the quiet is over, but his only line was said within ten minutes (owner finding 52)
+        arena.Tick(12_000 - 200);
+        Assert.Equal(2, said.Count);
+        Assert.Equal(12_020, said[1].Tick);   // ten minutes after it was first said, at a boundary
 
         var silent = At(session, Rules(session.Setup, p => p with { Banter = new BanterRules(20, 0, 0) }), AtStand, r => r.WithCompanions(new[] { Joined(181.5, 137) }));
         var none = silent.Record<BanterSpoken>();

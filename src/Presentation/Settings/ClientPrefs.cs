@@ -198,6 +198,12 @@ public sealed record ProfilePrefs
     /// <summary>Whether the first-launch screen has been answered (PJ02 §3.2); it is offered once.</summary>
     public bool FirstLaunchDone { get; init; }
 
+    /// <summary>Whether the opening plays at launch (Settings, Interface: "Play the opening").</summary>
+    public bool PlayOpening { get; init; } = true;
+
+    /// <summary>Whether this profile has seen the opening through once: only then does a key skip it.</summary>
+    public bool OpeningSeen { get; init; }
+
     /// <summary>Whether a character of this profile has walked the road in to the waystation: only then is the skip offered (PJ06 §8).</summary>
     public bool RoadWalked { get; init; }
 
@@ -362,6 +368,9 @@ public sealed record InterfacePrefs
 
     public Guidance Guidance { get; init; } = Guidance.Full;
 
+    /// <summary>A companion's word on the way on (owner finding 52): Full says it when it is fresh, Light at most every five minutes, Off never.</summary>
+    public Guidance CompanionHints { get; init; } = Guidance.Full;
+
     /// <summary>What chat shows (WP16); on by default. Chat itself is never saved: this only filters what is shown.</summary>
     public ChatSetting Chat { get; init; } = ChatSetting.On;
 
@@ -388,6 +397,7 @@ public sealed record InterfacePrefs
         ColourVision = Enum.IsDefined(ColourVision) ? ColourVision : ColourVision.None,
         NoticeDuration = Array.IndexOf(NoticeSeconds, NoticeDuration) >= 0 ? NoticeDuration : 1,
         Guidance = Enum.IsDefined(Guidance) ? Guidance : Guidance.Full,
+        CompanionHints = Enum.IsDefined(CompanionHints) ? CompanionHints : Guidance.Full,
         BarsShown = BarsShown & 0b11111,
         Chat = Enum.IsDefined(Chat) ? Chat : ChatSetting.On,
         SeenHints = (SeenHints ?? Array.Empty<string>()).Where(h => !string.IsNullOrEmpty(h)).Distinct(StringComparer.Ordinal).ToArray(),

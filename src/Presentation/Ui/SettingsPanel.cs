@@ -536,6 +536,8 @@ public partial class SettingsPanel : CanvasLayer
             ui.ShowFps, on => Profile(p => p with { Interface = p.Interface with { ShowFps = on } }), Redraw));
         page.AddChild(Toggle("interface.clock", "Show clock", "The world time and weather below the compass.",
             ui.ShowClock, on => Profile(p => p with { Interface = p.Interface with { ShowClock = on } }), Redraw));
+        page.AddChild(Toggle("interface.opening", "Play the opening", "The flight over the frontier as the game starts. Once seen, any key skips it.",
+            SettingsStore.Current.Profile.PlayOpening, on => Profile(p => p with { PlayOpening = on }), Redraw));
         float[] scales = { 0.75f, 0.9f, 1f, 1.1f, 1.25f, 1.5f, 1.75f, 2f };
         page.AddChild(Choice("interface.scale", "Interface size", "Everything on screen but the world: the HUD and every screen.",
             scales.Select(s => $"{s * 100:0} %").ToArray(), Nearest(scales, ui.UiScale),
@@ -603,6 +605,9 @@ public partial class SettingsPanel : CanvasLayer
         reading.AddChild(Choice("interface.guidance", "Guidance", "Full shows every hint; Light only the first of each kind; Off none.",
             new[] { "Full", "Light", "Off" }, Array.IndexOf(guidance, ui.Guidance),
             i => Profile(p => p with { Interface = p.Interface with { Guidance = guidance[i] } })));
+        reading.AddChild(Choice("interface.companion_hints", "Companion hints", "Full: a companion says which way the tracked quest lies; Light: now and then; Off: never.",
+            new[] { "Full", "Light", "Off" }, Array.IndexOf(guidance, ui.CompanionHints),
+            i => Profile(p => p with { Interface = p.Interface with { CompanionHints = guidance[i] } })));
         var chat = Enum.GetValues<ChatSetting>();
         reading.AddChild(Choice("interface.chat", "Chat", "On shows all chat; Play-relevant only keeps offers to set out together, bounties and system lines; Off none.",
             new[] { "On", "Play-relevant only", "Off" }, Array.IndexOf(chat, ui.Chat),

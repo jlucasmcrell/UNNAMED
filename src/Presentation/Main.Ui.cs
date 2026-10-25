@@ -110,6 +110,8 @@ public partial class Main
         _menu.UseIcons(icons);
         _journal.UseIcons(icons);
         _help.UseIcons(icons);
+        _saveIndicator = new SaveIndicator { Name = "SaveIndicator" };
+        AddChild(_saveIndicator);
         _saves = new SavesPanel { Name = "Saves" };
         _saves.Bind(_session);
         _saves.Load = save => LoadChosen(save.Slot, save.Copy, save);
@@ -175,10 +177,15 @@ public partial class Main
             SettingsStore.ApplyInterface(GetTree());
     }
 
-    /// <summary>The front end at launch: the first-launch screen the first time the game starts on this machine, then the title.</summary>
-    private void OpenFrontEnd()
+    /// <summary>
+    /// The front end at launch: the first-launch screen the first time the game starts on this machine, then the title; after the opening,
+    /// the title's entries come in under the name it left in place.
+    /// </summary>
+    private void OpenFrontEnd(bool reveal = false)
     {
-        if (SettingsStore.Current.Profile.FirstLaunchDone)
+        if (SettingsStore.Current.Profile.FirstLaunchDone && reveal)
+            _title.Reveal();
+        else if (SettingsStore.Current.Profile.FirstLaunchDone)
             _title.Open();
         else
             OpenFirstLaunch();
@@ -478,6 +485,14 @@ public partial class Main
                 break;
             case "credits":
                 _credits.Visible = true;
+                break;
+            case "report":
+                OpenReport();
+                break;
+            case "report_written":
+                // A note written and the report written, as its button does: the zip it leaves is the harness's evidence (gate E2).
+                OpenReport();
+                _report.Submit("UI shots: the report as a tester writes it.");
                 break;
             case not null when name.StartsWith("settings", StringComparison.Ordinal):
                 // "settings" opens its first page, "settings_controls" that page.

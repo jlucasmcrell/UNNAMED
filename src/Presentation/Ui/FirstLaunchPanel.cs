@@ -154,7 +154,11 @@ public partial class FirstLaunchPanel : CanvasLayer
     private void Finish(bool recommended) => Callable.From(() =>
     {
         if (recommended)
-            SettingsStore.Set(new ClientPrefs { Profile = new ProfilePrefs { Interface = new InterfacePrefs { UiScale = SettingsStore.RecommendedUiScale() } } });
+            SettingsStore.Set(new ClientPrefs
+            {
+                // The opening has just been seen through: every default, but not as if it had not.
+                Profile = new ProfilePrefs { Interface = new InterfacePrefs { UiScale = SettingsStore.RecommendedUiScale() }, OpeningSeen = SettingsStore.Current.Profile.OpeningSeen },
+            });
         Profile(p => p with { FirstLaunchDone = true });
         Visible = false;
         Done?.Invoke();

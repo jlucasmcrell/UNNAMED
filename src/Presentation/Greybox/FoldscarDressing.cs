@@ -217,23 +217,21 @@ public static class FoldscarDressing
             Hang(id, size * random.RandfRange(min, max), carved, from, to, low, high);
         }
         // Kept off the heart's own column, so its silhouette, the break and the tear stay legible from the road.
-        Hang(Wreck, 0.7f, true, 26f, 36f, 26f, 44f);
-        Hang(Wreck, 0.5f, true, 22f, 32f, 14f, 30f);
-        for (int i = 0; i < Many(10); i++)
-            HangNext(2.2f, 16f, 38f, 14f, 54f);
-        for (int i = 0; i < Many(18); i++)
-            HangNext(1f, 11f, 32f, 7f, 48f);
-        for (int i = 0; i < Many(22); i++)
-            HangNext(0.3f, 8f, 24f, 3f, 46f);
+        foreach (var band in FoldscarRing.Wreck)
+            Hang(Wreck, band.Size, true, band.From, band.To, band.Low, band.High);
+        foreach (var band in FoldscarRing.Hanging)
+            for (int i = 0; i < Many(band.Count); i++)
+                HangNext(band.Size, band.From, band.To, band.Low, band.High);
 
         // Debris that came down long ago: lying round the ring, sunk by a third, a few with fluorite showing where they split.
-        for (int i = 0; i < Many(10); i++)
+        var rubble = FoldscarRing.Rubble;
+        for (int i = 0; i < Many(rubble.Count); i++)
         {
             var (id, min, max, _) = Debris[(next + i * 5) % Debris.Length];
-            if (Spot(10f, 38f) is not { } p || art.ModelWithLods(id) is not { } piece)
+            if (Spot(rubble.From, rubble.To) is not { } p || art.ModelWithLods(id) is not { } piece)
                 continue;
             // Rubble, not boulders: nothing on the ground collides, so nothing lying where people walk stands taller than a knee.
-            float scale = random.RandfRange(min, max) * 0.35f;
+            float scale = random.RandfRange(min, max) * rubble.Size;
             piece.Position = new Vector3(p.X, ground.Height(p.X, p.Y) - 0.5f * scale, p.Y);
             piece.RotationDegrees = new Vector3(random.RandfRange(-25, 25), random.RandfRange(0, 360), random.RandfRange(-25, 25));
             piece.Scale = Vector3.One * scale;
@@ -249,13 +247,14 @@ public static class FoldscarDressing
                 placed++;
             }
         }
-        for (int i = 0; i < 26; i++)
+        var pebbles = FoldscarRing.Pebbles;
+        for (int i = 0; i < pebbles.Count; i++)
         {
-            if (Spot(6.5f, 16f) is not { } p || art.ModelWithLods(Pebble) is not { } pebble)
+            if (Spot(pebbles.From, pebbles.To) is not { } p || art.ModelWithLods(Pebble) is not { } pebble)
                 continue;
             float s = random.RandfRange(0.07f, 0.13f);
             float at = ground.Height(p.X, p.Y);
-            pebble.Position = new Vector3(p.X, at + random.RandfRange(0.18f, 0.4f), p.Y);
+            pebble.Position = new Vector3(p.X, at + random.RandfRange(pebbles.Low, pebbles.High), p.Y);
             pebble.RotationDegrees = new Vector3(random.RandfRange(0, 360), random.RandfRange(0, 360), random.RandfRange(0, 360));
             pebble.Scale = Vector3.One * s;
             root.AddChild(pebble);
@@ -281,7 +280,7 @@ public static class FoldscarDressing
         };
         root.AddChild(new Decal
         {
-            Name = "FoldscarScar", Size = new Vector3(76, 24, 76), Position = new Vector3(heart.X, floor, heart.Y), TextureAlbedo = cracks,
+            Name = "FoldscarScar", Size = new Vector3(2 * FoldscarRing.Radius, 24, 2 * FoldscarRing.Radius), Position = new Vector3(heart.X, floor, heart.Y), TextureAlbedo = cracks,
             AlbedoMix = 0.85f, UpperFade = 0.2f, LowerFade = 0.2f, CullMask = 1,
         });
 
@@ -292,7 +291,7 @@ public static class FoldscarDressing
             VisibilityAabb = new Aabb(new Vector3(-45, -2, -45), new Vector3(90, 70, 90)),
             ProcessMaterial = new ParticleProcessMaterial
             {
-                EmissionShape = ParticleProcessMaterial.EmissionShapeEnum.Box, EmissionBoxExtents = new Vector3(38, 1, 38),
+                EmissionShape = ParticleProcessMaterial.EmissionShapeEnum.Box, EmissionBoxExtents = new Vector3(FoldscarRing.Radius, 1, FoldscarRing.Radius),
                 Gravity = new Vector3(0, 0.22f, 0), InitialVelocityMin = 0.1f, InitialVelocityMax = 0.4f, Direction = Vector3.Up, Spread = 35,
                 TurbulenceEnabled = true, TurbulenceNoiseStrength = 0.5f, TurbulenceNoiseScale = 7, ScaleMin = 0.6f, ScaleMax = 1.6f,
                 ColorInitialRamp = new GradientTexture1D { Gradient = new Gradient { Offsets = new[] { 0f, 0.7f, 0.71f }, Colors = new[] { new Color(0.86f, 0.83f, 0.76f), new Color(0.86f, 0.83f, 0.76f), new Color(0.8f, 0.5f, 1.4f) } } },

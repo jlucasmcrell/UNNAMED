@@ -32,6 +32,13 @@ public partial class SuccessEffects : Node3D
             if(_stones.TryGetValue(view.Site.Key,out var glow))glow.SetAwake(view.Awake,animate);
     }
 
+    /// <summary>The opening, before any world runs: a stone woken and answering with a pulse; the world's own state takes it over once it runs.</summary>
+    public void Answer(string key)
+    {
+        if(!_stones.TryGetValue(key,out var glow))return;
+        glow.SetAwake(true,true);glow.TravelPulse(FlashScale);
+    }
+
     public void Waystone(Vector3 stone, Vector3 player, bool repeat)
     {
         float seconds = repeat ? .8f : 1.6f;

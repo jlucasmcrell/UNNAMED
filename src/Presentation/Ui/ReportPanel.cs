@@ -57,6 +57,13 @@ public partial class ReportPanel : CanvasLayer
         Visible = true;
     }
 
+    /// <summary>Write the report with <paramref name="note"/>, as typing it and pressing Write the report would.</summary>
+    public void Submit(string note)
+    {
+        _note.Text = note;
+        Write();
+    }
+
     private void Write()
     {
         UiKit.Clear(_result);
