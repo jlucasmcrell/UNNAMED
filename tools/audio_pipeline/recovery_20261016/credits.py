@@ -6,7 +6,7 @@ root = sys.argv[1]
 use = collections.defaultdict(lambda: collections.defaultdict(set))
 lic = {}
 music = []
-for name in ('combat_rows.json', 'gap_rows.json', 'music_rows.json'):
+for name in ('combat_rows.json', 'gap_rows.json', 'music_rows.json', 'opening_rows.json'):
     p = os.path.join(root, 'out', name)
     if not os.path.exists(p):
         continue
@@ -30,10 +30,12 @@ for lib in sorted(use):
         lines.append(f'   {f}  ->  {", ".join(sorted(use[lib][f]))}')
     lines.append('')
 if music:
-    lines.append('== Music (interim, generated locally from text prompts)')
-    lines.append('   model: Stable Audio Open 1.0, Stability AI Community License (commercial use free under USD 1M annual revenue; owner revenue USD 0)')
+    lines.append('== Music')
+    lines.append('   The score: ElevenLabs Music, an online service, chosen by the developer; the game never connects to it.')
+    lines.append('   The opening cue: Stable Audio Open 1.0, generated locally from text prompts, Stability AI Community License (commercial use free under USD 1M annual revenue; owner revenue USD 0)')
     for r in music:
-        lines.append(f'   {r["audio_id"]}: seed {r["seed"]}; prompt "{r["prompt"]}"')
+        raw = r['source']['raw']
+        lines.append(f'   {r["audio_id"]}: {", ".join(raw) if isinstance(raw, list) else raw}')
 open(os.path.join(root, 'out', 'CREDITS_audio_recovery.txt'), 'w', encoding='utf-8').write('\n'.join(lines) + '\n')
 print('\n'.join(lines[:12]))
 print(sum(len(v) for v in use.values()), 'source files')
