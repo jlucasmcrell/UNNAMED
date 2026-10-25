@@ -75,9 +75,6 @@ public partial class Main
             ulong now = Time.GetTicksMsec(); stableFrames = now - previous < 250 ? stableFrames + 1 : 0; previous = now;
         }
         Mark("world_warm");
-        // The road to Old Late runs through the hollow's hound and wolf packs; the login grace, held for the whole route, keeps them off the camera's traveller.
-        var calm = new Godot.Timer { WaitTime = 2, Autostart = true };
-        calm.Timeout += sim.BeginLoginGrace; AddChild(calm); sim.BeginLoginGrace();
         await Go(new[] { (438.0, 754.0) }, 20, Gait.Walk);
         if (landmark == "oldlate") Face(647.5, 766.4, .1f); else Face(553, 648, .06f);
         await Rcd3Wait(1);
