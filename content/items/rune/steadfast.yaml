@@ -1,0 +1,13 @@
+id: item.rune.steadfast
+kind: item
+schema: 1
+display_key: item.rune.steadfast.name
+tags: [item]
+name: Steadfast Rune
+notes: "A rune of the enchanting table (spec 47): breath comes back faster. No visual."
+category: material
+item_class: ordinary
+stack_max: 5
+weight: 0.4
+value_base: 30
+enhancement: { kind: enchantment, target: armour, tier: 2, enchantability: 0, stability: 2, worn_effect: effect.gear_steadfast, essence: item.essence.resonant }

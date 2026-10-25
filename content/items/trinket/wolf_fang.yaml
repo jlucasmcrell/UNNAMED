@@ -11,3 +11,4 @@ weight: 0.05
 value_base: 10
 rarity: common
 equip_slot: amulet
+enhancement: { kind: infusion, target: weapon, tier: 1, enchantability: 0, stability: 1, on_hit: { effect: effect.bleeding, percent: 15 }, essence: item.essence.resonant }   # spec 47: wolf fang, bleed; no visual

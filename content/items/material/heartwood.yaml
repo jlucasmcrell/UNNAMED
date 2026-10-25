@@ -1,0 +1,13 @@
+id: item.material.heartwood
+kind: item
+schema: 1
+display_key: item.material.heartwood.name
+tags: [item]
+name: Heartwood
+notes: The Old Late's heartwood (spec 47; the Old Late quest gives it) - set in a weapon, it gives a stamina regen bonus.
+category: material
+item_class: ordinary
+stack_max: 5
+weight: 0.3
+value_base: 20
+enhancement: { kind: infusion, target: weapon, tier: 2, enchantability: 10, stability: 2, worn_effect: effect.gear_heartwood, visual: body, visual_hook: heartwood_aura, essence: item.essence.resonant }

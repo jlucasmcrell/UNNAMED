@@ -1,0 +1,16 @@
+id: recipe.enchanting.warding
+kind: recipe
+schema: 1
+display_key: recipe.enchanting.warding.name
+tags: [recipe]
+name: Warding Rune
+notes: An essence worked into a blank rune stone at the enchanting table (spec 47, slice 2). Taught by lore (spec 41) once that ties in; until then it is known only from a teacher or a quest.
+station: enchanting_table
+skill_ref: skill.enchanting
+complexity: 6
+inputs:
+  - { item_ref: item.material.rune_stone, count: 1 }
+  - { item_ref: item.essence.resonant, count: 2 }
+outputs:
+  - { item_ref: item.rune.warding, count: 1, quality_roll: false }
+xp_award: { xp: 20 }       # level XP for the first only (AG-7)

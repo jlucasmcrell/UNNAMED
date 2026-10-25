@@ -53,6 +53,13 @@ public partial class EffectsPanel : CanvasLayer
         {
             if (combat.Effects.FirstOrDefault(e => e.EffectId == id) is not { } effect)
                 continue;
+            // Gear's worn effects (spec 47) never run out: they last while the piece is worn.
+            if (effect.ExpiresTick == long.MaxValue)
+            {
+                gauge.Set(1, 1);
+                left.Text = "worn";
+                continue;
+            }
             long ticks = Math.Max(0, effect.ExpiresTick - simulation.WorldTick);
             int whole = _session.Setup.Combat.Effects.TryGetValue(id, out var definition) ? definition.DurationTicks : (int)ticks;
             gauge.Set(ticks, Math.Max(1, whole));

@@ -7,6 +7,7 @@ name: Cinder Sac
 notes: An ember hound's fire gland (canon WORLD_MATERIALS). Still warm. Sel will buy it, and will not say what for.
 category: material
 stack_max: 10
+enhancement: { kind: infusion, target: weapon, tier: 1, enchantability: 5, stability: 1, on_hit: { effect: effect.scorched, percent: 20 }, visual: item, visual_hook: ember, essence: item.essence.ember }   # spec 47: ember hound ash, a fire edge
 weight: 0.2
 value_base: 14
 rarity: common

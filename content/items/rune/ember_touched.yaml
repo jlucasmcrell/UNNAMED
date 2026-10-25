@@ -1,0 +1,13 @@
+id: item.rune.ember_touched
+kind: item
+schema: 1
+display_key: item.rune.ember_touched.name
+tags: [item]
+name: Ember-touched Rune
+notes: "A rune of the enchanting table (spec 47): the blade burns what it cuts, and the fire shows on the blade (owner ruling 2026-10-21)."
+category: material
+item_class: ordinary
+stack_max: 5
+weight: 0.4
+value_base: 40
+enhancement: { kind: enchantment, target: weapon, tier: 3, enchantability: 0, stability: 3, on_hit: { effect: effect.scorched, percent: 30 }, visual: item, visual_hook: ember, essence: item.essence.ember }

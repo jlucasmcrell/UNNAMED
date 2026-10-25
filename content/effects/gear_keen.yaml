@@ -1,0 +1,14 @@
+id: effect.gear_keen
+kind: effect
+schema: 1
+display_key: effect.gear_keen.name
+tags: [effect]
+name: Keen
+notes: The Keen rune's edge (spec 47) - blows land five in a hundred harder while the weapon is in hand.
+category: buff
+stack_policy: refresh
+max_stacks: 1
+duration_min: 1.0          # never runs out while worn: gear carries it, not the clock (spec 47)
+tick_interval_min: 0
+modifiers:
+  - { target: stat.damage_dealt, op: multiply, value: 1.05 }

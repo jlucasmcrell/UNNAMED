@@ -1,0 +1,13 @@
+id: item.rune.warding
+kind: item
+schema: 1
+display_key: item.rune.warding.name
+tags: [item]
+name: Warding Rune
+notes: "A rune of the enchanting table (spec 47): the piece holds two armour harder on every region. No visual."
+category: material
+item_class: ordinary
+stack_max: 5
+weight: 0.4
+value_base: 30
+enhancement: { kind: enchantment, target: armour, tier: 2, enchantability: 0, stability: 2, worn_effect: effect.gear_warding, essence: item.essence.resonant }

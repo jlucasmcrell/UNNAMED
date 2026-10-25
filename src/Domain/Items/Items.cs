@@ -365,6 +365,24 @@ public sealed record ItemDefinition(
     /// Null for everything else.
     /// </summary>
     public string? Heritage { get; init; }
+
+    /// <summary>
+    /// An effect the wearer carries while it is equipped (<c>equip_effect</c>; ITM-19): a ring's or an amulet's modifier, through the effect
+    /// system rather than a second stat path. Null for none.
+    /// </summary>
+    public string? EquipEffect { get; init; }
+
+    /// <summary>How much it slows the wearer while worn, [0, 1] (<c>movement_penalty</c>, DATA_MODEL.md §4.3; ATD §1's mobility cost).</summary>
+    public double MovementPenalty { get; init; }
+
+    /// <summary>How much louder it makes every footfall while worn, a share of the radius (<c>noise</c>; ATD §1).</summary>
+    public double Noise { get; init; }
+
+    /// <summary>A weapon's or armour piece's enhancement slots at standard quality (<c>enchant_sockets</c>); null takes the rules' base.</summary>
+    public int? EnhancementSlots { get; init; }
+
+    /// <summary>What it does set into a slot, for an infusion material or a rune (<c>enhancement:</c>; spec 47). Null for everything else.</summary>
+    public EnhancementSpec? Enhancement { get; init; }
 }
 
 /// <summary>Heritage items (owner, 2026-10-24): used, bought, sold, traded and given only between characters of the same people.</summary>
@@ -415,6 +433,9 @@ public sealed record InventoryRules(int StackSlots, long CarryBaseGrams, long Ca
 
     /// <summary>The laden band (WP3b, D4).</summary>
     public LadenRules Laden { get; init; } = LadenRules.Default;
+
+    /// <summary>Enhancement slots, infusions and enchanting (spec 47).</summary>
+    public EnhancementRules Enhancement { get; init; } = EnhancementRules.Default;
 
     /// <summary>Bags and the stash (owner request, 2026-10-18).</summary>
     public BagRules Bags { get; init; } = BagRules.Default;

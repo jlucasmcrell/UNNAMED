@@ -11,7 +11,8 @@ public static class SalvageRules
 
     public static SalvagePlan? Plan(ItemDefinition item,IEnumerable<RecipeDefinition> recipes,ItemCatalog catalog)
     {
-        if(item.NoDrop || item.Class is ItemClass.Notable or ItemClass.Artefact || item.Category == "quest" || item.Slot is null && item.Bag is null)return null;
+        // Heritage is identity, never material (owner, 2026-10-24): it is never broken down, whatever else it is.
+        if(item.Heritage is not null || item.NoDrop || item.Class is ItemClass.Notable or ItemClass.Artefact || item.Category == "quest" || item.Slot is null && item.Bag is null)return null;
         bool Material(string id)=>catalog.Find(id)?.Category is "material" or "component";
         foreach(var recipe in recipes.Where(x=>x.OutputItemId==item.Id && x.OutputCount>0).OrderBy(x=>x.Complexity).ThenBy(x=>x.Id,StringComparer.Ordinal))
         {

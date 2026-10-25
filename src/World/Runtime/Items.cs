@@ -78,6 +78,9 @@ public sealed record ItemView(string Ref, string DefId, int Count)
 
     /// <summary>Its wear (WP3b), for the tooltip; null when unworn.</summary>
     public ItemWear? Wear { get; init; }
+
+    /// <summary>What fills its enhancement slots (spec 47), for the tooltip; null for a never-enhanced stack.</summary>
+    public ItemEnhancements? Enhancements { get; init; }
 }
 
 public sealed record ContainerView(ContainerSite Site, EntityId? Id, ImmutableArray<ItemView> Items);
@@ -89,6 +92,9 @@ public sealed record WorldItemView(EntityId Id, string DefId, int Count, long XM
     public NotableRecord? Notable { get; init; }
 
     public ItemWear? Wear { get; init; }
+
+    /// <summary>What fills its enhancement slots (spec 47), for the tooltip; null for a never-enhanced stack.</summary>
+    public ItemEnhancements? Enhancements { get; init; }
 }
 
 /// <summary>One carried stack to spend, and how many of it.</summary>
@@ -324,7 +330,8 @@ internal sealed partial class InventorySystem
             PlaceKind.Ground => new NotableOrigin(ProvenanceKind.Found, _context.CellOfSite(source.XMm, source.ZMm).ToString()),
             _ => null,
         };
-        Put(command.To, definition, command.Count, moving, source.Quality, whole ? source.Notable : null, origin, tick, whole ? source.Wear : null);
+        Put(command.To, definition, command.Count, moving, source.Quality, whole ? source.Notable : null, origin, tick, whole ? source.Wear : null, null,
+            whole ? source.Enhancements : null);
         if (command.From.Kind == PlaceKind.Container && _context.FindContainer(command.From.ContainerKey!) is { EmptyFlag: { } flag } emptiedSite
             && ContentsOf(emptiedSite).Count == 0)
             _context.Dispatch(new SetWorldFlag(_context.CellOfSite(_context.ContainerSpace(emptiedSite), emptiedSite.XMm, emptiedSite.ZMm), flag, 1));
@@ -492,12 +499,13 @@ internal sealed partial class InventorySystem
             return $"{entry.DefId} is not an item this build knows";
         if (command.DropAt is { } at)
         {
-            Put(ItemPlace.Ground, definition, entry.Count, entry.ItemId, entry.Quality, entry.Notable, null, tick, entry.Wear, at);
+            Put(ItemPlace.Ground, definition, entry.Count, entry.ItemId, entry.Quality, entry.Notable, null, tick, entry.Wear, at, entry.Enhancements);
             return null;
         }
         bool fits = PackRoom(State.Inventory, definition, entry.Quality, entry.Count) is null
                     && CarriedGrams() + definition.WeightGrams * entry.Count <= CarryLimitGrams();
-        Put(fits ? ItemPlace.Carried : ItemPlace.Ground, definition, entry.Count, entry.ItemId, entry.Quality, entry.Notable, null, tick, entry.Wear);
+        Put(fits ? ItemPlace.Carried : ItemPlace.Ground, definition, entry.Count, entry.ItemId, entry.Quality, entry.Notable, null, tick, entry.Wear, null,
+            entry.Enhancements);
         return null;
     }
 
@@ -592,7 +600,7 @@ internal sealed partial class InventorySystem
         foreach (var line in command.Lines)
         {
             var definition = Items.Catalog.Get(line.ItemId);
-            bool Plain(ContainerItem i) => i.DefId == line.ItemId && i.Quality == Quality.Standard && i.Notable is null && i.Wear is null;
+            bool Plain(ContainerItem i) => i.DefId == line.ItemId && i.Quality == Quality.Standard && i.Notable is null && i.Wear is null && i.Enhancements is null;
             int have = items.Where(Plain).Sum(i => i.Count);
             for (int over = have - line.Count; over > 0;)
             {
@@ -675,7 +683,7 @@ internal sealed partial class InventorySystem
     {
         var record = State.World.Container(site.Key);
         return new ContainerView(site, record?.InstanceId,
-            ContentsOf(site).Select(i => new ItemView(i.Ref, i.DefId, i.Count) { Quality = i.Quality, Notable = i.Notable, Wear = i.Wear }).ToImmutableArray());
+            ContentsOf(site).Select(i => new ItemView(i.Ref, i.DefId, i.Count) { Quality = i.Quality, Notable = i.Notable, Wear = i.Wear, Enhancements = i.Enhancements }).ToImmutableArray());
     }
 
     public ImmutableArray<WorldItemView> WorldItems() =>
@@ -683,7 +691,7 @@ internal sealed partial class InventorySystem
             .SelectMany(cell => State.World.CreatedIn(cell).Select(c =>
             {
                 var (x, z) = WorldPosition(cell, c.XCm, c.ZCm);
-                return new WorldItemView(c.InstanceId, c.DefId, c.Count, x, z) { Quality = c.Quality, Notable = c.Notable, Wear = c.Wear };
+                return new WorldItemView(c.InstanceId, c.DefId, c.Count, x, z) { Quality = c.Quality, Notable = c.Notable, Wear = c.Wear, Enhancements = c.Enhancements };
             }))
             .ToImmutableArray();
 
@@ -698,6 +706,8 @@ internal sealed partial class InventorySystem
         public NotableRecord? Notable { get; init; }
 
         public ItemWear? Wear { get; init; }
+
+        public ItemEnhancements? Enhancements { get; init; }
     }
 
     private string? Check(ItemPlace place, bool trading)
@@ -718,14 +728,14 @@ internal sealed partial class InventorySystem
         {
             case PlaceKind.Inventory:
                 return State.Inventory.Where(e => e.ItemId.Value == itemRef)
-                    .Select(e => new Located(itemRef, e.DefId, e.Count, e.ItemId, -1, 0, 0, e.Quality) { Notable = e.Notable, Wear = e.Wear }).FirstOrDefault();
+                    .Select(e => new Located(itemRef, e.DefId, e.Count, e.ItemId, -1, 0, 0, e.Quality) { Notable = e.Notable, Wear = e.Wear, Enhancements = e.Enhancements }).FirstOrDefault();
             case PlaceKind.Ground:
             {
                 if (!EntityId.TryParse(itemRef, out var id) || State.World.FindCreated(id) is not { } record || !CellKey.TryParse(record.HostCell, out var cell)
                     || cell.Space != State.Space)
                     return null;
                 var (x, z) = WorldPosition(cell, record.XCm, record.ZCm);
-                return new Located(itemRef, record.DefId, record.Count, id, -1, x, z, record.Quality) { Notable = record.Notable, Wear = record.Wear };
+                return new Located(itemRef, record.DefId, record.Count, id, -1, x, z, record.Quality) { Notable = record.Notable, Wear = record.Wear, Enhancements = record.Enhancements };
             }
             default:
             {
@@ -734,6 +744,7 @@ internal sealed partial class InventorySystem
                     {
                         Notable = item.Notable,
                         Wear = item.Wear,
+                        Enhancements = item.Enhancements,
                     }).FirstOrDefault(l => l.Ref == itemRef);
             }
         }
@@ -743,12 +754,12 @@ internal sealed partial class InventorySystem
     private bool IsCorpse(string key) => _context.CorpseSites().Any(s => s.Key == key);
 
     /// <summary>A container's contents: its record once it has changed, otherwise its loot table rolled for this world.</summary>
-    private IReadOnlyList<(string Ref, string DefId, int Count, EntityId? Id, int Quality, NotableRecord? Notable, ItemWear? Wear)> ContentsOf(ContainerSite site)
+    private IReadOnlyList<(string Ref, string DefId, int Count, EntityId? Id, int Quality, NotableRecord? Notable, ItemWear? Wear, ItemEnhancements? Enhancements)> ContentsOf(ContainerSite site)
     {
         if (State.World.Container(site.Key) is { } record)
-            return record.Items.Select(i => (i.ItemId.Value, i.DefId, i.Count, (EntityId?)i.ItemId, i.Quality, i.Notable, i.Wear)).ToList();
+            return record.Items.Select(i => (i.ItemId.Value, i.DefId, i.Count, (EntityId?)i.ItemId, i.Quality, i.Notable, i.Wear, i.Enhancements)).ToList();
         return Baseline(site).Select((stack, i) => ($"{site.Key}#{i:00}", stack.Drop.ItemId, stack.Drop.Count, (EntityId?)null, stack.Quality, (NotableRecord?)null,
-            (ItemWear?)null)).ToList();
+            (ItemWear?)null, (ItemEnhancements?)null)).ToList();
     }
 
     /// <summary>
@@ -815,7 +826,8 @@ internal sealed partial class InventorySystem
                 if (whole)
                     return record.InstanceId;
                 var cell = CellKey.Parse(record.HostCell);
-                State.PlaceItem(_owner, cell, record.InstanceId, record.DefId, record.Count - count, record.XCm, record.ZCm, record.Quality, record.Notable, record.Wear);
+                State.PlaceItem(_owner, cell, record.InstanceId, record.DefId, record.Count - count, record.XCm, record.ZCm, record.Quality, record.Notable, record.Wear,
+                    record.Enhancements);
                 return null;
             }
             default:
@@ -842,7 +854,7 @@ internal sealed partial class InventorySystem
     /// with its item; one that has none yet and should (WP3a) gets it now, from <paramref name="origin"/>.
     /// </summary>
     private void Put(ItemPlace place, ItemDefinition definition, int count, EntityId? moving, int quality, NotableRecord? notable, NotableOrigin? origin, long tick,
-        ItemWear? wear = null, (long XMm, long ZMm)? at = null)
+        ItemWear? wear = null, (long XMm, long ZMm)? at = null, ItemEnhancements? enhancements = null)
     {
         if (notable is null && ItemClasses.KeepsRecord(definition, quality))
         {
@@ -857,7 +869,7 @@ internal sealed partial class InventorySystem
                 int left = MergeInto(entries.Where(e => e.DefId == definition.Id && e.Quality == quality && !e.Junk).OrderBy(e => e.ItemId.Value, StringComparer.Ordinal).ToList(),
                     definition, count, (e, add) => entries[entries.IndexOf(e)] = e with { Count = e.Count + add });
                 foreach (int stack in Stacks(left, definition.StackMax))
-                    entries.Add(new InventoryEntry(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality, Notable = stack == 1 ? notable : null, Wear = stack == 1 ? wear : null });
+                    entries.Add(new InventoryEntry(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality, Notable = stack == 1 ? notable : null, Wear = stack == 1 ? wear : null, Enhancements = stack == 1 ? enhancements : null });
                 Retire(moving);
                 Commit(entries);
                 break;
@@ -870,7 +882,8 @@ internal sealed partial class InventorySystem
                 // One placed stack per drop, where the body stands; a drop larger than a stack lies as several.
                 foreach (int stack in Stacks(count, definition.StackMax))
                     State.PlaceItem(_owner, cell, Identity(ref moving, definition.Id), definition.Id, stack,
-                        (int)((x - minX) / 10), (int)((z - minZ) / 10), quality, stack == 1 ? notable : null, stack == 1 ? wear : null);
+                        (int)((x - minX) / 10), (int)((z - minZ) / 10), quality, stack == 1 ? notable : null, stack == 1 ? wear : null,
+                        stack == 1 ? enhancements : null);
                 break;
             }
             default:
@@ -881,7 +894,7 @@ internal sealed partial class InventorySystem
                 int left = MergeInto(items.Where(i => i.DefId == definition.Id && i.Quality == quality).OrderBy(i => i.ItemId.Value, StringComparer.Ordinal).ToList(),
                     definition, count, (i, add) => items[items.IndexOf(i)] = i with { Count = i.Count + add });
                 foreach (int stack in Stacks(left, definition.StackMax))
-                    items.Add(new ContainerItem(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality, Notable = stack == 1 ? notable : null, Wear = stack == 1 ? wear : null });
+                    items.Add(new ContainerItem(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality, Notable = stack == 1 ? notable : null, Wear = stack == 1 ? wear : null, Enhancements = stack == 1 ? enhancements : null });
                 Retire(moving);
                 State.SetContainer(_owner, record with { Items = items.ToImmutableArray() });
                 break;
@@ -1068,4 +1081,142 @@ internal sealed class EquipmentSystem
             .Sum(entry => entry is not null && _context.Setup.Items.Catalog.Find(entry.DefId) is { } item
                 ? EquipmentRules.ArmorOf(item, entry.Quality, _context.Setup.Crafting.Constants.ArmorPerStep)
                 : 0);
+}
+
+// ── enhancement (spec 47; ITM-19, 20, 64..69) ───────────────────────────────
+
+/// <summary>
+/// Set an infusion material or a rune into a carried weapon or armour piece, at the bench its kind is worked at (spec 47). The material is
+/// spent whatever the outcome; a failure may crack the slot. <see cref="Replace"/> names a filled slot to reforge: its enhancement is
+/// consumed and the new one takes its place if the setting holds.
+/// </summary>
+public sealed record EnhanceCommand(EntityId Actor, EntityId Item, string Material, int? Replace = null) : GameCommand(Actor);
+
+/// <summary>A setting was tried: what was set into what, and how it went.</summary>
+public sealed record ItemEnhanced(EntityId Item, string DefId, string Enhancement, SettingOutcome Outcome, long Tick);
+
+/// <summary>A piece's enhancement slots as the tooltip shows them: how many, what fills them, how many cracked, and its stability.</summary>
+public sealed record EnhancementView(int Slots, int Free, int Cracked, ImmutableArray<string> Filled, int StabilityUsed, int StabilityCapacity, bool Unstable);
+
+/// <summary>What setting this material into this piece would be: why not, or the chance, the bench and the skill.</summary>
+public sealed record EnhancePreview(string? Refusal, int Percent, string Station, string Skill, bool WouldDestabilise);
+
+internal sealed partial class InventorySystem
+{
+    private const double EnhanceSampleScale = 18446744073709551616.0;
+
+    public EnhancementView? Enhancement(EntityId item)
+    {
+        if (State.Inventory.FirstOrDefault(e => e.ItemId == item) is not { } entry || Items.Catalog.Find(entry.DefId) is not { } definition
+            || !EnhancementRulesEngine.Enhanceable(definition))
+            return null;
+        var rules = Items.Inventory.Enhancement;
+        return new EnhancementView(EnhancementRulesEngine.Slots(definition, entry.Quality, rules),
+            EnhancementRulesEngine.FreeSlots(definition, entry.Quality, entry.Enhancements, rules), entry.Enhancements?.Cracked ?? 0,
+            entry.Enhancements?.Filled ?? ImmutableArray<string>.Empty, EnhancementRulesEngine.StabilityUsed(entry.Enhancements, Items.Catalog),
+            EnhancementRulesEngine.StabilityCapacity(entry.Quality, rules), EnhancementRulesEngine.Unstable(entry.Quality, entry.Enhancements, Items.Catalog, rules));
+    }
+
+    public EnhancePreview Preview(EnhanceCommand command, long tick)
+    {
+        var rules = Items.Inventory.Enhancement;
+        EnhancePreview Refuse(string why) => new(why, 0, "", "", false);
+        if (command.Actor != _player)
+            return Refuse($"unknown actor {command.Actor}");
+        if (State.PlayerCombat.Defeated)
+            return Refuse("dead");
+        if (State.PlayerCombat.Action.PhaseAt(tick, _context.Setup.Combat.Constants).Phase != CombatPhase.Idle)
+            return Refuse("busy");
+        if (State.Inventory.FirstOrDefault(e => e.ItemId == command.Item) is not { } entry || Items.Catalog.Find(entry.DefId) is not { } piece)
+            return Refuse($"{command.Item} is not carried");
+        if (EnhancementRulesEngine.TargetOf(piece) is not { } target)
+            return Refuse($"{piece.Id} takes no enhancement");
+        if (Items.Catalog.Find(command.Material)?.Enhancement is not { } spec)
+            return Refuse($"{command.Material} is not an infusion or a rune");
+        if (spec.Target != target)
+            return Refuse($"{command.Material} goes into {EnhancementKeys.Key(spec.Target)}, not {EnhancementKeys.Key(target)}");
+        if (!State.Inventory.Any(e => e.DefId == command.Material && !State.Equipment.ContainsValue(e.ItemId)))
+            return Refuse($"needs 1 {command.Material}");
+        var filled = entry.Enhancements?.Filled ?? ImmutableArray<string>.Empty;
+        if (command.Replace is { } replace ? replace < 0 || replace >= filled.Length : EnhancementRulesEngine.FreeSlots(piece, entry.Quality, entry.Enhancements, rules) == 0)
+            return Refuse(command.Replace is null ? $"{piece.Id} has no free slot" : $"{piece.Id} has no enhancement in slot {command.Replace}");
+        if (command.Replace is null && filled.Contains(command.Material))
+            return Refuse($"{piece.Id} already carries {command.Material}");
+        var (station, skillId) = EnhancementRulesEngine.Bench(spec, rules);
+        if (!_context.Setup.Layout.Stations.Any(s => s.Kind == station && Distance(s.XMm, s.ZMm) <= Items.Inventory.ReachMm))
+            return Refuse($"no {station} in reach");
+        int skill = ProgressionEngine.SkillLevel(State.Progression, skillId);
+        var after = EnhancementRulesEngine.Apply(entry.Enhancements, command.Material, command.Replace, SettingOutcome.Set);
+        bool destabilises = !EnhancementRulesEngine.Unstable(entry.Quality, entry.Enhancements, Items.Catalog, rules)
+            && EnhancementRulesEngine.Unstable(entry.Quality, after, Items.Catalog, rules);
+        return new EnhancePreview(null, EnhancementRulesEngine.SetPercent(skill, spec, rules), station, skillId, destabilises);
+    }
+
+    /// <summary>
+    /// The setting itself. Its roll is keyed by the piece and how many settings it has had, never by the tick: the same piece in the same
+    /// state always rolls the same, so a reload cannot roll it again.
+    /// </summary>
+    public string? Handle(EnhanceCommand command, long tick)
+    {
+        var preview = Preview(command, tick);
+        if (preview.Refusal is { } refusal)
+            return refusal;
+        var rules = Items.Inventory.Enhancement;
+        var entry = State.Inventory.Single(e => e.ItemId == command.Item);
+        var spec = Items.Catalog.Get(command.Material).Enhancement!;
+        int skill = ProgressionEngine.SkillLevel(State.Progression, preview.Skill);
+        var channel = RngChannel.Open(State.World.WorldSeed, _context.CellOf(State.Body), "enhance",
+            $"{entry.ItemId}/{entry.Enhancements?.Attempts ?? 0}");
+        var outcome = EnhancementRulesEngine.Setting(skill, spec, rules, channel.UInt64(0) / EnhanceSampleScale, channel.UInt64(1) / EnhanceSampleScale);
+        var material = State.Inventory.Where(e => e.DefId == command.Material && !State.Equipment.ContainsValue(e.ItemId))
+            .OrderBy(e => e.Quality).ThenBy(e => e.ItemId.Value, StringComparer.Ordinal).First();
+        Remove(new[] { (material, 1) });
+        var entries = State.Inventory.ToList();
+        int index = entries.FindIndex(e => e.ItemId == entry.ItemId);
+        entries[index] = entries[index] with { Enhancements = EnhancementRulesEngine.Apply(entry.Enhancements, command.Material, command.Replace, outcome) };
+        Commit(entries);
+        _context.Dispatch(new PracticeSkill(new SkillPractice(preview.Skill, spec.Tier * rules.RecoverSkillPerTier,
+            outcome == SettingOutcome.Set ? PracticeOutcome.Success : PracticeOutcome.Failure, tick) { NoveltyKey = command.Material }));
+        _context.Events.Publish(new ItemEnhanced(entry.ItemId, entry.DefId, command.Material, outcome, tick));
+        return null;
+    }
+}
+
+/// <summary>
+/// What the character's equipped gear does beyond armour and damage, read by combat, movement and perception through these helpers rather
+/// than through each reaching into the pack (spec 47; ITM-19, 20).
+/// </summary>
+internal static class Gear
+{
+    private static IEnumerable<(EquipSlot Slot, ItemDefinition Item, InventoryEntry Entry)> Worn(SystemContext context) =>
+        context.State.Equipment.Select(kv => (kv.Key, Entry: context.State.Inventory.FirstOrDefault(e => e.ItemId == kv.Value)))
+            .Where(w => w.Entry is not null && context.Setup.Items.Catalog.Find(w.Entry.DefId) is not null)
+            .Select(w => (w.Key, context.Setup.Items.Catalog.Get(w.Entry!.DefId), w.Entry!));
+
+    /// <summary>The effects the character carries for what they wear, as effects that never run out and never tick.</summary>
+    public static ImmutableArray<Domain.Combat.ActiveEffect> WornEffects(this SystemContext context) =>
+        GearRules.WornEffects(Worn(context).Select(w => (w.Slot, w.Item, w.Entry.Quality, w.Entry.Enhancements)), context.Setup.Items.Catalog,
+                context.Setup.Items.Inventory.Enhancement)
+            .Where(id => context.Setup.Combat.Effects.ContainsKey(id))
+            .Select(id => new Domain.Combat.ActiveEffect(id, 1, long.MaxValue, long.MaxValue)).ToImmutableArray();
+
+    /// <summary>The effects a main-hand blow that wounds may also deliver, rolled from <paramref name="sample"/> (in [0, 1), by index).</summary>
+    public static ImmutableArray<string> Procs(this SystemContext context, Func<uint, double> sample)
+    {
+        var main = Worn(context).FirstOrDefault(w => w.Slot == EquipSlot.MainHand);
+        if (main.Entry is null)
+            return ImmutableArray<string>.Empty;
+        return GearRules.Procs(main.Entry.Enhancements, context.Setup.Items.Catalog)
+            .Where((p, i) => sample((uint)(64 + i)) * 100 < p.Percent).Select(p => p.Effect).ToImmutableArray();
+    }
+
+    public static ImmutableArray<WornEnhancement> Enhancements(this SystemContext context) =>
+        GearRules.Enhancements(Worn(context).Select(w => (w.Slot, w.Item, w.Entry.Enhancements)), context.Setup.Items.Catalog);
+
+    /// <summary>How much worn armour slows the character (ITM-20).</summary>
+    public static double MovementPenalty(this SystemContext context) =>
+        GearRules.MovementPenalty(Worn(context).Select(w => w.Item), context.Setup.Items.Inventory.Enhancement);
+
+    /// <summary>How much louder worn armour makes each footfall (ITM-20).</summary>
+    public static double NoiseFactor(this SystemContext context) => GearRules.NoiseFactor(Worn(context).Select(w => w.Item));
 }

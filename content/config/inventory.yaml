@@ -29,6 +29,29 @@ laden:
 bags:
   slots_per_quality_step: 1
   stash_pull_radius_m: 60
+# Enhancement (spec 47, owner rulings 2026-10-21): slots, setting chance, cracking, stability, and getting an enhancement back out in salvage.
+enhancement:
+  base_slots: 1                 # a standard weapon or armour piece; fine +1, masterwork +2, crude -1, always 1..3
+  max_slots: 3
+  base_percent: 40              # a setting's chance: this, +3 a skill level, + the material's enchantability, -10 a tier
+  percent_per_skill: 3
+  percent_per_tier: 10
+  min_percent: 5
+  max_percent: 95
+  crack_percent: 35             # of failed settings, this share cracks the slot
+  stability_base: 4             # a standard piece holds 4 stability, +1 a quality step; past it the piece is unstable
+  stability_per_quality: 1
+  instability_effect: effect.gear_unstable
+  weapon_station: forge         # infusions into weapons at the forge, into armour at the bench, runes at the enchanting table
+  armour_station: workbench
+  enchanting_station: enchanting_table
+  weapon_skill: skill.smithing
+  armour_skill: skill.survival
+  enchanting_skill: skill.enchanting
+  recover_skill_per_tier: 5     # salvage keeps an enhancement whole from 5 skill a tier, with 50% + 5 a level past it
+  recover_base_percent: 50
+  recover_percent_per_skill: 5
+  max_movement_penalty: 0.5
 starting_items:
   - { item_ref: item.weapon.rusted_sword, count: 1, equip: true }
   - { item_ref: item.consumable.salve_minor, count: 1 }

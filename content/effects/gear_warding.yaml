@@ -1,0 +1,14 @@
+id: effect.gear_warding
+kind: effect
+schema: 1
+display_key: effect.gear_warding.name
+tags: [effect]
+name: Warding
+notes: The Warding rune's hold (spec 47) - every region two armour harder while the piece is worn.
+category: buff
+stack_policy: refresh
+max_stacks: 1
+duration_min: 1.0          # never runs out while worn: gear carries it, not the clock (spec 47)
+tick_interval_min: 0
+modifiers:
+  - { target: stat.armor, op: add, value: 2 }

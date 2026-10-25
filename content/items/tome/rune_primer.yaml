@@ -1,0 +1,19 @@
+id: item.tome.rune_primer
+kind: item
+schema: 1
+display_key: item.tome.rune_primer.name
+tags: [item]
+name: Rune Primer
+notes: "A recipe book (spec 47, slice 2): read once, it teaches the four runes of the enchanting table - Keen, Warding, Steadfast and Ember-touched. Lore pages (spec 41) are meant to teach runes too once that tie-in lands."
+category: book
+item_class: ordinary
+stack_max: 1
+weight: 0.3
+value_base: 40
+use:
+  consume: true
+  grants:
+    - { kind: recipe, ref: recipe.enchanting.keen }
+    - { kind: recipe, ref: recipe.enchanting.warding }
+    - { kind: recipe, ref: recipe.enchanting.steadfast }
+    - { kind: recipe, ref: recipe.enchanting.ember_touched }

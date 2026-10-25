@@ -1,0 +1,12 @@
+id: item.essence.ember
+kind: item
+schema: 1
+display_key: item.essence.ember.name
+tags: [item]
+name: Ember Essence
+notes: What is left of a fire enhancement that did not come out whole (owner ruling 2026-10-21), and what an Ember-touched rune is made from.
+category: material
+item_class: ordinary
+stack_max: 20
+weight: 0.05
+value_base: 8

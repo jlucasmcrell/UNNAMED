@@ -523,8 +523,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         if (combat.Action.Kind == ActionKind.Attack && phase is CombatPhase.Windup or CombatPhase.Active)
             radius = Math.Max(radius, sound.SwingMm);
         // A stealthy character makes less of every sound (finding 26: -15/30/45% of the effective radius by rank).
+        // Worn armour makes every footfall louder (ITM-20, ATD §1).
         if (radius > 0)
-            radius = Math.Max(1, (long)Math.Round(radius * StealthNoiseFactor(), MidpointRounding.AwayFromZero));
+            radius = Math.Max(1, (long)Math.Round(radius * StealthNoiseFactor() * _context.NoiseFactor(), MidpointRounding.AwayFromZero));
         if (radius > 0)
             yield return new Noise(body.XMm, body.ZMm, radius);
     }

@@ -1,0 +1,12 @@
+id: item.material.rune_stone
+kind: item
+schema: 1
+display_key: item.material.rune_stone.name
+tags: [item]
+name: Rune Stone
+notes: "A blank rune stone (spec 47: the enchanting table's stone) - what an essence is worked into to make a rune."
+category: material
+item_class: ordinary
+stack_max: 10
+weight: 0.4
+value_base: 6

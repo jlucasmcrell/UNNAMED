@@ -360,6 +360,13 @@ internal sealed class MovementSystem
         return null;
     }
 
+    /// <summary>The movement rules under what is worn: the base speed less armour's mobility cost (ITM-20). Prediction reads the same.</summary>
+    public MovementRules GearMovement(MovementRules rules)
+    {
+        double penalty = _context.MovementPenalty();
+        return penalty <= 0 ? rules : rules with { BaseSpeedMmPerSecond = (long)Math.Round(rules.BaseSpeedMmPerSecond * (1 - penalty)) };
+    }
+
     /// <summary>
     /// One tick of movement. What the body is doing in combat shapes it: a dodge dashes along its own direction, a stagger
     /// or a dodge's recovery roots the feet, an attack or a raised guard slows them to a walk (and a landed blow holds
@@ -399,6 +406,9 @@ internal sealed class MovementSystem
             intent = intent with { Gait = Gait.Run };
         }
 
+        // Worn armour costs mobility (ITM-20, ATD §1); a dodge's dash is its own.
+        if (phase != CombatPhase.Dodge)
+            rules = GearMovement(rules);
         var posture = _context.State.Posture;
         var (to, next) = Kinematics.Step(from, posture, intent, rules, _context.Setup.SpaceFor(_context.State.Space), _context.Obstacles(), _context.Setup.TickMilliseconds);
         if (next != posture)

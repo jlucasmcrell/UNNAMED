@@ -729,6 +729,26 @@ public partial class InventoryPanel : CanvasLayer
             Organise(simulation, carriedEntry);
         if (item?.Bag is { } bagSpec)
             notes.Add(($"A bag: {setup.Items.Inventory.Bags.Capacity(bagSpec, quality)} slots at this make, {(bagSpec.IsSpecialised ? "takes " + PackModel.AcceptsWords(bagSpec.Accepts) : "takes anything")}. It adds room, not carrying strength.", HudStyle.Ash, null));
+        // What worn gear does beyond armour and damage, and its enhancement slots (spec 47; ITM-19, 20, 64..69).
+        if (item?.EquipEffect is { } equipEffect)
+            notes.Add(($"While worn: {Names.Of(_session, equipEffect)}.", HudStyle.Lichen, null));
+        if (item is { MovementPenalty: > 0 } || item is { Noise: > 0 })
+            notes.Add(($"Worn, it slows you {item!.MovementPenalty * 100:0}% and your steps carry {item.Noise * 100:0}% further.", HudStyle.Ash, null));
+        if (item?.Enhancement is { } spec)
+            notes.Add(($"{(spec.Kind == EnhancementKind.Enchantment ? "A rune" : "An infusion")} for {EnhancementKeys.Key(spec.Target)}: "
+                + string.Join(", ", new[] { spec.WornEffect is { } w ? $"{Names.Of(_session, w)} while worn" : null,
+                    spec.OnHitEffect is { } h ? $"{spec.OnHitPercent}% to put {Names.Of(_session, h)} on what it wounds" : null }.OfType<string>())
+                + $". Tier {spec.Tier}, stability {spec.Stability}.", HudStyle.Lichen, null));
+        if (_chosen is not null && simulation.Player.Inventory.FirstOrDefault(e => e.ItemId.Value == _chosen) is { } enhanced
+            && simulation.Enhancement(enhanced.ItemId) is { } slots)
+        {
+            Fact("Enhancement slots", $"{slots.Filled.Length} of {slots.Slots}{(slots.Cracked > 0 ? $", {slots.Cracked} cracked" : "")}");
+            foreach (string filled in slots.Filled)
+                notes.Add(($"Set with {Names.Of(_session, filled)}.", HudStyle.Lichen, null));
+            if (!slots.Filled.IsEmpty)
+                notes.Add(($"Stability {slots.StabilityUsed} of {slots.StabilityCapacity}{(slots.Unstable ? ": unstable, and its wearer feels it" : "")}.",
+                    slots.Unstable ? HudStyle.Wound : HudStyle.Ash, null));
+        }
         if (item?.Heritage is { } heritage)
             notes.Add(($"{HeritageRules.PeopleWord(heritage)} heritage: only the {HeritageRules.PeopleWord(heritage)} use, buy, sell or trade it, and it is never dropped.", HudStyle.Brass, null));
         foreach (var (text, tone, icon) in notes)

@@ -143,6 +143,8 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.TeachRefusal),   // why a teacher is not teaching now, for WP9's trainers (WP12)
             nameof(UNNAMED.World.Runtime.Simulation.IsHireable),   // whether someone can be hired now, derived from town roles, for the hire prompt (WP12b)
             nameof(UNNAMED.World.Runtime.Simulation.Salvage), // pure disassembly preview; mutation uses SalvageCommand
+            nameof(UNNAMED.World.Runtime.Simulation.Enhancement), // a piece's slots, read only (spec 47)
+            nameof(UNNAMED.World.Runtime.Simulation.PreviewEnhance), // a setting's chance, read only; mutation uses EnhanceCommand
             nameof(UNNAMED.World.Runtime.Simulation.TameOf), // read-only progress of an active taming offer
             nameof(UNNAMED.World.Runtime.Simulation.StashesAt),   // the stashes in a crafting station's settlement and what they hold, for the recipe inputs' sources (inventory organisation)
         };

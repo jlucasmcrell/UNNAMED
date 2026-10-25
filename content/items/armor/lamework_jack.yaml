@@ -13,6 +13,8 @@ weight: 7.0
 value_base: 71
 slot: chest
 armor_value: 10
+movement_penalty: 0.06   # ATD §1: rung 3 costs about a tenth of the run, most of it the jack
+noise: 0.25
 material_class: plate
 durability_max: 500
 repair: { station: anvil, skill_ref: skill.smithing, skill_min: 10, item_ref: item.material.iron_ingot }

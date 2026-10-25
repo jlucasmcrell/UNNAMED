@@ -1,0 +1,13 @@
+id: item.rune.keen
+kind: item
+schema: 1
+display_key: item.rune.keen.name
+tags: [item]
+name: Keen Rune
+notes: "A rune of the enchanting table (spec 47): blows land a little harder. A plain stat bump, so it shows nothing (owner ruling 2026-10-21)."
+category: material
+item_class: ordinary
+stack_max: 5
+weight: 0.4
+value_base: 30
+enhancement: { kind: enchantment, target: weapon, tier: 2, enchantability: 0, stability: 2, worn_effect: effect.gear_keen, essence: item.essence.resonant }

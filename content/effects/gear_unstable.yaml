@@ -1,0 +1,14 @@
+id: effect.gear_unstable
+kind: effect
+schema: 1
+display_key: effect.gear_unstable.name
+tags: [effect]
+name: Unstable
+notes: "What an over-enhanced piece costs its wearer (spec 47: stacking strong enchantments risks instability) - blows land a tenth softer until it is reforged lighter."
+category: debuff
+stack_policy: refresh
+max_stacks: 1
+duration_min: 1.0          # never runs out while worn: gear carries it, not the clock (spec 47)
+tick_interval_min: 0
+modifiers:
+  - { target: stat.damage_dealt, op: multiply, value: 0.9 }

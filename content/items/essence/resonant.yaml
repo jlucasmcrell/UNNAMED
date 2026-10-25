@@ -1,0 +1,12 @@
+id: item.essence.resonant
+kind: item
+schema: 1
+display_key: item.essence.resonant.name
+tags: [item]
+name: Resonant Essence
+notes: The plain essence a destroyed enhancement leaves (owner ruling 2026-10-21) - the base of the Keen, Warding and Steadfast runes.
+category: material
+item_class: ordinary
+stack_max: 20
+weight: 0.05
+value_base: 6

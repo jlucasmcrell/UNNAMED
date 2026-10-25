@@ -28,6 +28,7 @@ public static class ItemContent
         Try(() => BuildMerchants(loader), "merchants", errors);
         Try(() => CheckCraftOnly(BuildCatalog(loader), BuildLootTables(loader), BuildMerchants(loader)), "masterwork", errors);
         Try(() => CheckRepairStations(BuildCatalog(loader), loader), "repair", errors);
+        Try(() => CheckGearEffects(BuildCatalog(loader), loader), "gear effects", errors);
         if (loader.Definitions.ContainsKey("config.inventory"))
         {
             Try(() => BuildStartingKit(loader), "config.inventory", errors);
@@ -75,6 +76,30 @@ public static class ItemContent
             rules = rules with { Bags = new BagRules(Int(bags, "slots_per_quality_step"), Grams(bags, "stash_pull_radius_m")) };
             if (rules.Bags.SlotsPerQualityStep is < 0 or > 4 || rules.Bags.StashPullRadiusMm < 0)
                 throw new FormatException("config.inventory bags: slots_per_quality_step in [0, 4] and a stash_pull_radius_m of at least 0");
+        }
+        if (map.GetValueOrDefault("enhancement") is Dictionary<object, object> e)
+        {
+            int Or(string key, int fallback) => e.ContainsKey(key) ? Int(e, key) : fallback;
+            string TextOr(string key, string fallback) => e.GetValueOrDefault(key) as string ?? fallback;
+            var d = EnhancementRules.Default;
+            var r = new EnhancementRules
+            {
+                BaseSlots = Or("base_slots", d.BaseSlots), MaxSlots = Or("max_slots", d.MaxSlots),
+                BasePercent = Or("base_percent", d.BasePercent), PercentPerSkill = Or("percent_per_skill", d.PercentPerSkill),
+                PercentPerTier = Or("percent_per_tier", d.PercentPerTier), MinPercent = Or("min_percent", d.MinPercent), MaxPercent = Or("max_percent", d.MaxPercent),
+                CrackPercent = Or("crack_percent", d.CrackPercent), StabilityBase = Or("stability_base", d.StabilityBase),
+                StabilityPerQuality = Or("stability_per_quality", d.StabilityPerQuality), InstabilityEffect = e.GetValueOrDefault("instability_effect") as string,
+                WeaponStation = TextOr("weapon_station", d.WeaponStation), ArmourStation = TextOr("armour_station", d.ArmourStation),
+                EnchantingStation = TextOr("enchanting_station", d.EnchantingStation), WeaponSkill = TextOr("weapon_skill", d.WeaponSkill),
+                ArmourSkill = TextOr("armour_skill", d.ArmourSkill), EnchantingSkill = TextOr("enchanting_skill", d.EnchantingSkill),
+                RecoverSkillPerTier = Or("recover_skill_per_tier", d.RecoverSkillPerTier), RecoverBasePercent = Or("recover_base_percent", d.RecoverBasePercent),
+                RecoverPercentPerSkill = Or("recover_percent_per_skill", d.RecoverPercentPerSkill),
+                MaxMovementPenalty = e.ContainsKey("max_movement_penalty") ? Number(e, "max_movement_penalty") : d.MaxMovementPenalty,
+            };
+            if (r.BaseSlots is < 0 or > 3 || r.MaxSlots is < 1 or > 3 || r.MinPercent < 0 || r.MaxPercent > 100 || r.MinPercent > r.MaxPercent
+                || r.CrackPercent is < 0 or > 100 || r.RecoverBasePercent is < 0 or > 100 || r.MaxMovementPenalty is < 0 or > 1)
+                throw new FormatException("config.inventory enhancement: slots in [0, 3] (at most 3), percentages in [0, 100], and the mobility cap in [0, 1]");
+            rules = rules with { Enhancement = r };
         }
         if (rules.StackSlots < 1 || rules.CarryBaseGrams < 0 || rules.CarryGramsPerMight < 0)
             throw new FormatException("config.inventory needs at least one stack slot and non-negative carry weights");
@@ -192,6 +217,20 @@ public static class ItemContent
         {
             throw new FormatException($"{id}: a bag item gives its bag (slots, and accepts for a specialised bag)");
         }
+        // What worn gear does (ITM-19, 20) and what a piece or a material brings to enhancement (spec 47).
+        string? equipEffect = map.GetValueOrDefault("equip_effect") as string;
+        double movement = map.ContainsKey("movement_penalty") ? Number(map, "movement_penalty") : 0;
+        double noise = map.ContainsKey("noise") ? Number(map, "noise") : 0;
+        if ((equipEffect is not null || movement > 0 || noise > 0) && slot is null)
+            throw new FormatException($"{id}: equip_effect, movement_penalty and noise belong to something equipped");
+        if (movement is < 0 or > 1 || noise is < 0 or > 2)
+            throw new FormatException($"{id}: movement_penalty is in [0, 1] and noise in [0, 2]");
+        int? sockets = map.ContainsKey("enchant_sockets") ? Int(map, "enchant_sockets") : null;
+        if (sockets is < 0 or > 3)
+            throw new FormatException($"{id}: enchant_sockets is 0 to 3 (spec 47: 1-3 slots by quality and material)");
+        var enhancement = map.GetValueOrDefault("enhancement") is Dictionary<object, object> enhancementMap ? Enhancement(id, enhancementMap) : null;
+        if (enhancement is not null && slot is EquipSlot.MainHand or EquipSlot.OffHand)
+            throw new FormatException($"{id}: an enhancement is a material or a rune, not a weapon or a shield");
         string? packKind = map.GetValueOrDefault("pack_kind") as string;
         if (packKind is not null && !PackKinds.All.Contains(packKind))
             throw new FormatException($"{id}: pack_kind {packKind} is not one of {string.Join(", ", PackKinds.All)}");
@@ -209,6 +248,11 @@ public static class ItemContent
             PackKind = packKind,
             PetCreature = map.GetValueOrDefault("pet_creature") as string,
             Heritage = map.GetValueOrDefault("heritage") as string,
+            EquipEffect = equipEffect,
+            MovementPenalty = movement,
+            Noise = noise,
+            EnhancementSlots = sockets,
+            Enhancement = enhancement,
         };
     }
 
@@ -241,6 +285,69 @@ public static class ItemContent
         {
             if (item.Repair is { } repair && !kinds.Contains(repair.StationKind))
                 throw new FormatException($"{item.Id}: repair station {repair.StationKind} is no kind of station any recipe is worked at ({string.Join(", ", kinds.Order(StringComparer.Ordinal))})");
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// <c>enhancement: { kind, target, tier, enchantability, stability, worn_effect, on_hit: { effect, percent }, visual, visual_hook, essence }</c>
+    /// (spec 47). The owner's visual ruling (2026-10-21) is checked here: a plain stat bump has no visual.
+    /// </summary>
+    private static EnhancementSpec Enhancement(string id, Dictionary<object, object> map)
+    {
+        var onHit = map.GetValueOrDefault("on_hit") as Dictionary<object, object>;
+        var spec = new EnhancementSpec(
+            EnhancementKeys.Parse<EnhancementKind>(Text(map, "kind")),
+            EnhancementKeys.Parse<EnhancementTarget>(Text(map, "target")),
+            Int(map, "tier"),
+            map.ContainsKey("enchantability") ? Int(map, "enchantability") : 0,
+            map.ContainsKey("stability") ? Int(map, "stability") : 1,
+            map.GetValueOrDefault("worn_effect") as string,
+            onHit is null ? null : Text(onHit, "effect"),
+            onHit is null ? 0 : Int(onHit, "percent"),
+            map.ContainsKey("visual") ? EnhancementKeys.Parse<EnhancementVisual>(Text(map, "visual")) : EnhancementVisual.None)
+        {
+            VisualHook = map.GetValueOrDefault("visual_hook") as string,
+            Essence = map.GetValueOrDefault("essence") as string,
+        };
+        if (spec.Tier is < 1 or > 5 || spec.Enchantability is < -50 or > 50 || spec.Stability < 0 || spec.OnHitPercent is < 0 or > 100
+            || (spec.OnHitEffect is null) != (spec.OnHitPercent == 0))
+            throw new FormatException($"{id}: enhancement tier 1-5, enchantability -50..50, stability not below 0, and an on_hit effect with a percent in 1..100");
+        if (spec.WornEffect is null && spec.OnHitEffect is null)
+            throw new FormatException($"{id}: an enhancement does something: a worn_effect, an on_hit effect, or both");
+        if (spec.OnHitEffect is not null && spec.Target != EnhancementTarget.Weapon)
+            throw new FormatException($"{id}: only a weapon's enhancement puts an effect on what it strikes");
+        if (spec.VisualRefusal() is { } visual)
+            throw new FormatException($"{id}: {visual} (owner ruling 2026-10-21)");
+        return spec;
+    }
+
+    /// <summary>
+    /// Equip effects and enhancements name effects that exist; a worn effect is a modifier, never a coating that delivers on hit (that is an
+    /// enhancement's on_hit); an essence is an item.
+    /// </summary>
+    private static bool CheckGearEffects(ItemCatalog catalog, ContentLoader loader)
+    {
+        var effects = loader.GetByKind("effect");
+        void Effect(string owner, string? effect, bool worn)
+        {
+            if (effect is null)
+                return;
+            if (!effects.TryGetValue(effect, out var definition))
+                throw new FormatException($"{owner}: {effect} is not an effect");
+            if (worn && Read(definition.YamlSource).ContainsKey("applies_on_hit"))
+                throw new FormatException($"{owner}: {effect} delivers on hit; a worn effect is a modifier, and an on_hit belongs to a weapon's enhancement");
+        }
+        foreach (var item in catalog.Definitions.Values)
+        {
+            Effect(item.Id, item.EquipEffect, worn: true);
+            if (item.Enhancement is { } spec)
+            {
+                Effect(item.Id, spec.WornEffect, worn: true);
+                Effect(item.Id, spec.OnHitEffect, worn: false);
+                if (spec.Essence is { } essence && catalog.Find(essence) is null)
+                    throw new FormatException($"{item.Id}: its essence {essence} is not an item");
+            }
         }
         return true;
     }

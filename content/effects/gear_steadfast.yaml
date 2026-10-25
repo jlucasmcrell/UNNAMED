@@ -1,0 +1,14 @@
+id: effect.gear_steadfast
+kind: effect
+schema: 1
+display_key: effect.gear_steadfast.name
+tags: [effect]
+name: Steadfast
+notes: The Steadfast rune (spec 47) - breath comes back a little faster while the piece is worn.
+category: buff
+stack_policy: refresh
+max_stacks: 1
+duration_min: 1.0          # never runs out while worn: gear carries it, not the clock (spec 47)
+tick_interval_min: 0
+modifiers:
+  - { target: stat.stamina_regen, op: multiply, value: 1.05 }

@@ -665,6 +665,20 @@ public sealed class Simulation
     public ImmutableArray<Finding> Findings => _state.Findings;
     public SalvageView Salvage(EntityId item) => _crafting.Salvage(item, WorldTick);
 
+    /// <summary>A carried piece's enhancement slots, what fills them and its stability (spec 47); null for what takes none.</summary>
+    public EnhancementView? Enhancement(EntityId item) => _inventory.Enhancement(item);
+
+    /// <summary>What an <see cref="EnhanceCommand"/> would be now: why not, or its chance, bench and skill. Reads only.</summary>
+    public EnhancePreview PreviewEnhance(EnhanceCommand command) => _inventory.Preview(command, WorldTick);
+
+    /// <summary>The enhancements on what is equipped, and the visual hooks presentation draws for them (owner ruling 2026-10-21).</summary>
+    public ImmutableArray<WornEnhancement> WornEnhancements => _context.Enhancements();
+
+    public ImmutableArray<EnhancementVisualHook> EnhancementVisuals => GearRules.Visuals(_context.Enhancements());
+
+    /// <summary>The movement rules the character moves under now, worn armour's mobility cost included (ITM-20): prediction steps with these.</summary>
+    public MovementRules PlayerMovement => _movement.GearMovement(Setup.Movement);
+
     /// <summary>The lore pages the character has found, in entry and page order (spec 41).</summary>
     public ImmutableArray<UNNAMED.Domain.Knowledge.LorePageRecord> Lore => _state.Lore;
 
@@ -858,6 +872,7 @@ public sealed class Simulation
                 GatherCommand gather => _gathering.Handle(gather, WorldTick),
                 CraftCommand craft => _crafting.Handle(craft, WorldTick),
                 SalvageCommand salvage => _crafting.Handle(salvage, WorldTick),
+                EnhanceCommand enhance => _inventory.Handle(enhance, WorldTick),
                 ExperimentCommand experiment => _crafting.Handle(experiment, WorldTick),
                 UseItemCommand use => _inventory.Handle(use, WorldTick),
                 TalkCommand talk => _dialogue.Handle(talk, WorldTick),

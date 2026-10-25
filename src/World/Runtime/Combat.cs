@@ -655,6 +655,10 @@ internal sealed partial class CombatSystem
         // effect it delivers, so alchemy adds content rather than a second damage path.
         if (result.Final > 0 && alive && Coating() is { } poison)
             _context.Dispatch(new ApplyEffect(creature.Id, poison));
+        // A weapon's enhancements put their effects on what it wounds, each at its own chance (spec 47).
+        if (result.Final > 0 && alive && !attack.Magic)
+            foreach (string proc in _context.Procs(Random("player", creature.Key, creature.Body, tick)))
+                _context.Dispatch(new ApplyEffect(creature.Id, proc));
         // Weapon skill only from effective contribution: a blow that wounded something that fights back (ROADMAP.md M3c).
         if (attack.SkillId is { } skill && result.Final > 0)
         {
@@ -1028,7 +1032,9 @@ internal sealed partial class CombatSystem
 
     public int Stamina() => State.Progression.Pools.Stamina ?? MaxStamina();
 
-    private ImmutableArray<ActiveEffect> EffectsOf(EntityId body) => State.Effects.GetValueOrDefault(body, ImmutableArray<ActiveEffect>.Empty);
+    private ImmutableArray<ActiveEffect> EffectsOf(EntityId body) => body == _player
+        ? State.Effects.GetValueOrDefault(body, ImmutableArray<ActiveEffect>.Empty).AddRange(_context.WornEffects())   // gear's worn effects (spec 47)
+        : State.Effects.GetValueOrDefault(body, ImmutableArray<ActiveEffect>.Empty);
 
     /// <summary>The rolls of one blow, keyed by who struck whom on which tick: the same on a replay and after a load.</summary>
     private Func<uint, double> Random(string attacker, string target, Body at, long tick)

@@ -32,6 +32,9 @@ public sealed record InventoryEntry(EntityId ItemId, string DefId, int Count)
     /// <summary>The wear it has taken and the quality it was made at (WP3b, D5). Null: unworn, at its made quality.</summary>
     public ItemWear? Wear { get; init; }
 
+    /// <summary>What fills its enhancement slots, and how many cracked (spec 47; schema 41). Null: never enhanced.</summary>
+    public ItemEnhancements? Enhancements { get; init; }
+
     /// <summary>
     /// Where it lies in the pack (schema 33): bag 0 is the backpack, 1..4 the bag slots, -1 an equipped bag, which lies in none. A slot of
     /// -1 is not placed yet; the pack places it where its kind goes.
@@ -62,6 +65,20 @@ public static class WearDigest
 {
     public static CanonicalHasher Add(CanonicalHasher h, ItemWear? wear) =>
         wear is null ? h : h.Add("wear").Add(wear.Points).Add(wear.MadeQuality);
+}
+
+/// <summary>How a stack's enhancements enter a digest: nothing for a never-enhanced stack, so such stacks hash as they always have (spec 47).</summary>
+public static class EnhancementDigest
+{
+    public static CanonicalHasher Add(CanonicalHasher h, ItemEnhancements? enhancements)
+    {
+        if (enhancements is null)
+            return h;
+        h.Add("enhancements").Add(enhancements.Filled.Length);
+        foreach (string id in enhancements.Filled)
+            h.Add(id);
+        return h.Add(enhancements.Cracked).Add(enhancements.Attempts);
+    }
 }
 
 /// <summary>How a place became known (SYSTEMS.md S-30). Phase 1 discovers by visiting only; the rest arrive with S-30.</summary>
@@ -273,6 +290,7 @@ public sealed record PlayerRecord
                 throw new ArgumentException($"Inventory holds item instances, got {entry.ItemId}", nameof(inventory));
             if (!DefinitionId.IsValid(entry.DefId) || entry.Count <= 0 || entry.Notable is { IsValid: false } || (entry.Notable is not null && entry.Count != 1)
                 || entry.Wear is { IsValid: false } || (entry.Wear is not null && entry.Count != 1)
+                || entry.Enhancements is { IsValid: false } || (entry.Enhancements is not null && entry.Count != 1)
                 || entry.Bag is < -1 or > Domain.Items.PackLimits.BagSlots || entry.Slot < -1)
                 throw new ArgumentException($"Invalid inventory entry {entry}", nameof(inventory));
         }
@@ -506,7 +524,7 @@ public sealed record PlayerRecord
             {
                 sheet.Progression.Validate();
                 if (!DefinitionId.IsValid(sheet.NpcId) || !PartyMemberKeys.IsMember(sheet.NpcId) || sheet.Gear.Values.Any(g => g is null)
-                    || sheet.Items.Any(e => e.ItemId.Kind != EntityKind.Item || !DefinitionId.IsValid(e.DefId) || e.Count <= 0 || e.Notable is { IsValid: false } || e.Wear is { IsValid: false } || (e.Wear is not null && e.Count != 1)))
+                    || sheet.Items.Any(e => e.ItemId.Kind != EntityKind.Item || !DefinitionId.IsValid(e.DefId) || e.Count <= 0 || e.Notable is { IsValid: false } || e.Wear is { IsValid: false } || (e.Wear is not null && e.Count != 1) || e.Enhancements is { IsValid: false }))
                     throw new ArgumentException($"Invalid party sheet for {sheet.NpcId}", nameof(PartySheets));
             }
             var items = sheets.SelectMany(p => p.Items).Select(e => e.ItemId).ToList();
@@ -934,7 +952,7 @@ public sealed record PlayerRecord
             using var h = new CanonicalHasher();
             h.Add("unnamed.player/v10").Add(Id.Value).Add(Name).Add(XMm).Add(YMm).Add(ZMm).Add(FacingMdeg).Add(AppearanceSeed).Add(Inventory.Length);
             foreach (var e in Inventory)
-                WearDigest.Add(NotableDigest.Add(h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality), e.Notable), e.Wear);
+                EnhancementDigest.Add(WearDigest.Add(NotableDigest.Add(h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality), e.Notable), e.Wear), e.Enhancements);
             h.Add(Progression.Digest).Add(Discoveries.Length);
             foreach (var d in Discoveries)
                 h.Add(d.LocationId).Add(DiscoveryMethods.Key(d.Method)).Add(d.Tick);
@@ -1073,11 +1091,11 @@ public sealed record PlayerRecord
                 {
                     h.Add(sheet.NpcId).Add(sheet.Progression.Digest).Add(sheet.Gear.Count);
                     foreach (var (slot, gear) in sheet.Gear)
-                        WearDigest.Add(NotableDigest.Add(h.Add(EquipSlots.Key(slot)).Add(gear.Loaned ? 1 : 0).Add(gear.Item.ItemId.Value).Add(gear.Item.DefId)
-                            .Add(gear.Item.Count).Add(gear.Item.Quality), gear.Item.Notable), gear.Item.Wear);
+                        EnhancementDigest.Add(WearDigest.Add(NotableDigest.Add(h.Add(EquipSlots.Key(slot)).Add(gear.Loaned ? 1 : 0).Add(gear.Item.ItemId.Value).Add(gear.Item.DefId)
+                            .Add(gear.Item.Count).Add(gear.Item.Quality), gear.Item.Notable), gear.Item.Wear), gear.Item.Enhancements);
                     h.Add(sheet.Belongings.Length);
                     foreach (var e in sheet.Belongings)
-                        WearDigest.Add(NotableDigest.Add(h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality), e.Notable), e.Wear);
+                        EnhancementDigest.Add(WearDigest.Add(NotableDigest.Add(h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality), e.Notable), e.Wear), e.Enhancements);
                 }
             }
             // The attack under way (schema 27) only when there is one, so every older record digests as it always has.

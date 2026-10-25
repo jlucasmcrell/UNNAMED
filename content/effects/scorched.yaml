@@ -1,0 +1,15 @@
+id: effect.scorched
+kind: effect
+schema: 1
+display_key: effect.scorched.name
+tags: [effect]
+name: Scorched
+notes: "An ember-edged blade's burn (spec 47: a fire edge) - a point of fire a second for 4 s. A fresh cut restarts it."
+category: dot
+stack_policy: refresh
+max_stacks: 1
+duration_min: 2.0          # game minutes (config.time): 4 s
+tick_interval_min: 0.5     # 1 s
+on_tick:
+  - { type: damage, damage_type: fire, amount: 1 }
+dispel_category: fire

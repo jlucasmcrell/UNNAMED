@@ -1,0 +1,14 @@
+id: item.trinket.quartz_ring
+kind: item
+schema: 1
+display_key: item.trinket.quartz_ring.name
+tags: [item]
+name: Resonance Quartz Ring
+notes: "A ring set with resonance quartz (ATD §3.2) - the first worn trinket with an effect (ITM-19): one armour on every region while worn."
+category: misc
+item_class: ordinary
+stack_max: 1
+weight: 0.02
+value_base: 35
+equip_slot: ring
+equip_effect: effect.gear_quartz

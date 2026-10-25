@@ -1,0 +1,9 @@
+id: skill.enchanting
+kind: skill
+schema: 1
+display_key: skill.enchanting.name
+tags: [skill]
+name: Enchanting
+family: crafting
+notes: Spec 47's second slice - setting runes into gear at the enchanting table, and, with salvage, getting an enhancement back out whole (owner ruling 2026-10-21). Competence only, no ranks.
+teaches: "Setting runes into weapons and armour at an enchanting table: harder runes teach most, and a failed setting still teaches."
