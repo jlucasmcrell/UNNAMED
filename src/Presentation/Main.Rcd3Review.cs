@@ -51,7 +51,9 @@ public partial class Main
             }
             if(OS.GetEnvironment("OTHERREACH_PUBLIC_VOICE_REVIEW") is { Length: > 0 } voiceNpc)
             {
-                await RunPublicVoiceReview(directory, camera, voiceNpc);GetTree().Quit();return;
+                camera.GetNode<OmniLight3D>("CharacterFill").Reparent(source,false);
+                source.MakeCurrent();camera.QueueFree();
+                await RunPublicVoiceReview(directory, source, voiceNpc);GetTree().Quit();return;
             }
             if(OS.GetEnvironment("OTHERREACH_CAST_JAW_REVIEW")=="1")
             {
