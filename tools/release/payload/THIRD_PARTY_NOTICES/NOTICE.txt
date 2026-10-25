@@ -57,5 +57,5 @@ Some of the content in this playtest was made with generative AI tools, run loca
 - Magic effect flipbooks: AI-generated.
 - Ambient chat: 3,000 World and Local lines were written with generative AI (DeepSeek); these lines are marked ai_generated in the content.
 - AI-generated image textures accompany the remaining image-to-3D props and flora, UI icons and magic flipbooks. The current wardrobe uses scanned Poly Haven and ambientCG PBR materials.
-- Voice: The opening narration and the spoken lines of Renn Vale, Kera Voss, Sel Arien and Tavar Orr were generated with ElevenLabs text-to-speech, an online service, and chosen by the developer; the game itself never connects to it, and every voiced line is also shown as text.
+- Voice: The opening narration and the spoken lines of the main characters of Ashen Hollow and Cairnwold were generated with ElevenLabs text-to-speech, an online service, and chosen by the developer; the game itself never connects to it, and every voiced line is also shown as text.
 The recorded sound libraries and the Fab and WildMesh assets were not fed to any AI model.
