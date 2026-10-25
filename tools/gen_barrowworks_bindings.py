@@ -194,20 +194,21 @@ def main():
         x1, z1 = max(b[2] for b in boxes), max(b[3] for b in boxes)
         cx, cz = (x0+x1)/2, (z0+z1)/2
         recipe=json.load(open(os.path.join(os.path.dirname(__file__), 'barrowworks_art_direction.json'),encoding='utf-8'))[str(number)]
-        lights=[dict(hall_light,at=[x,h,z],colour=colour,energy=energy,range=distance,size=.35,shadows=(number==11 and x<0))
+        # Every lantern throws real shadows off the shoring and the rock; the bounce is kept low so the pools read.
+        lights=[dict(hall_light,at=[x,h,z],colour=colour,energy=round(energy*1.5,3),range=distance,size=.35,shadows=True)
                 for x,h,z,colour,energy,distance in recipe['lights']]
-        # A broad soft bounce keeps grounded limbs readable without making the unlit edges flat.
-        lights.append(dict(hall_light,at=[0,3.6,0],colour=[.67,.70,.72],energy=.65 if number!=11 else 1.0,
+        lights.append(dict(hall_light,at=[0,3.6,0],colour=[.67,.70,.72],energy=.9 if number!=11 else 1.3,
                            range=max(x1-x0,z1-z0),shadows=False,size=1.5))
         walls[group + "_wall"] = {"model": f"bw_codex_room_{number:02d}", "interior_light": lights}
         lit += 1
     doc["roof_groups"] = [g + "_wall" for g in room_groups] + corridor_groups
     # The corridors are roofed too, and a five-metre passage under a slab is a black tube without its own light.
-    corridor_light = dict(hall_light)
-    corridor_light["energy"] = 1.2
-    corridor_light["range"] = 14
+    # Each leg's lantern hangs 1.1 m off its centre line, where build_barrowworks_rooms.py hangs the lantern model.
+    # Unshadowed: twenty more shadowed omnis left the court's lanterns competing for shadow-atlas slots, and they toggled.
     for leg in corridor_groups:
-        walls[leg] = {"interior_light": corridor_light}
+        x0, z0, x1, z1 = map(float, re.search(rf'id: {leg}, box_m: \[([^\]]+)\]', text).group(1).split(','))
+        offset = [0.0, 2.7, -1.1] if x1-x0 >= z1-z0 else [-1.1, 2.7, 0.0]
+        walls[leg] = {"interior_light": dict(hall_light, at=offset, colour=[.93, .74, .5], energy=1.6, range=10, shadows=False, size=.35)}
         lit += 1
     walls['rock_'] = {'model': 'bw_codex_rock_mass'}
     walls['corr_'] = {'model': 'bw_codex_corridors'}

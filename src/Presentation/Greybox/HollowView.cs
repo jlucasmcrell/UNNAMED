@@ -994,7 +994,9 @@ public partial class HollowView : Node3D
             // down here, the exposure comes back up to hold the overall level, and the separation is left to the
             // sun. Ambient 0.55 -> 0.30 and sdfgi 1.0 -> 0.55; exposure 0.82 -> 1.02 to keep the frame at the
             // luminance it had, so what changes is CONTRAST rather than brightness.
-            AmbientLightEnergy = exterior ? 0.30f : 0.55f,
+            // Indoors there is no sun or sky, only lanterns: the floor of the ambient is what keeps the rock's shape and the floor's
+            // grain readable outside their pools (Barrowworks art pass).
+            AmbientLightEnergy = exterior ? 0.30f : 0.85f,
             ReflectedLightSource = exterior ? Godot.Environment.ReflectionSource.Sky : Godot.Environment.ReflectionSource.Disabled,
             TonemapMode = Godot.Environment.ToneMapper.Agx,
             // DS overnight 2026-09-27: EXPOSURE DOWN, CONTRAST UP. A video review of a walk reported the
@@ -1004,7 +1006,8 @@ public partial class HollowView : Node3D
             // chosen precisely because it shoulders off instead of clipping, so the fix is to stop pushing the
             // signal into the shoulder and to let the contrast carry the separation instead.
             TonemapExposure = 1.02f,
-            TonemapAgxContrast = 1.34f,
+            // The sunlit contrast crushes a lantern-lit room's low end to black; indoors it is eased.
+            TonemapAgxContrast = exterior ? 1.34f : 1.2f,
             SsaoEnabled = true, SsaoRadius = 1.4f, SsaoIntensity = 2.2f, SsaoPower = 1.6f, SsaoDetail = 0.6f, SsaoHorizon = 0.06f, SsaoSharpness = 0.98f,
             // BOTH TO 0.0, on the lighting research. These were 0.45 and 0.5, and both are documented as
             // unphysical. `ssao_light_affect` makes SSAO darken DIRECTLY LIT surfaces - impossible, and because

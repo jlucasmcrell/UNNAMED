@@ -13,7 +13,8 @@ function Copy-Tree([string]$from, [string]$to) {
     if ($LASTEXITCODE -ge 8) { throw "robocopy $from failed ($LASTEXITCODE)" }
     $script:copied++
 }
-foreach ($asset in Get-ChildItem (Join-Path $Depot 'ready') -Directory -Filter 'bw_codex_*') {
+# The Old Mine modules (bw_codex_mine_*) are build inputs, already assembled into the rooms and corridors.
+foreach ($asset in Get-ChildItem (Join-Path $Depot 'ready') -Directory -Filter 'bw_codex_*' | Where-Object Name -notlike 'bw_codex_mine_*') {
     Copy-Tree $asset.FullName (Join-Path $Fallback "ready\$($asset.Name)")
 }
 Copy-Tree (Join-Path $Depot 'rigged\bw_codex_custodian') (Join-Path $Fallback 'rigged\bw_codex_custodian')

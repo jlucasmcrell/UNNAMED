@@ -3,25 +3,119 @@
   "raw_sources_committed": false,
   "assets": [
     {
-      "asset_id": "bw_codex_room_01",
       "category": "building",
       "licence": "Fab Standard Personal",
-      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
+      "source_url": "Fab library: Scene_OldMine (Quixel Megascans), C:\\Otherreach_External_Assets\\Fab\\FabAssets\\Content\\Scene_OldMine",
+      "creator": "Quixel Megascans (Old Mine scene); lantern Poly Haven; rock shell and assembly by Claude",
       "source_modules": [
-        "masonry",
-        "floor",
-        "ceiling",
-        "pillar",
-        "brazier",
-        "relief_rock",
-        "relief_masonry",
-        "plain_slab",
+        "beam",
+        "beam_b",
+        "rails",
+        "cart",
+        "log_cart",
+        "pickaxe",
+        "shovel",
+        "hammer",
+        "board",
+        "slab",
+        "rubble",
+        "spoil",
         "pipe",
         "boiler",
-        "timber",
         "lantern"
       ],
+      "texture_resolutions": [
+        "source",
+        1024,
+        512
+      ],
+      "rock_shell": "walkable volume voxel-remeshed at 0.12 m, displaced outward 0.05-0.67 m; collision faces never crossed",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LIBRARY_CATALOGUE.md",
+      "collision": "authoritative region footprint; camera proxy only",
+      "shippable": true,
+      "asset_id": "bw_codex_corridors",
+      "outputs": [
+        {
+          "file": "bw_codex_corridors.glb",
+          "meshes": 22,
+          "triangles": 659099,
+          "bytes": 109315828,
+          "sha256": "04676a55168307d328b579998185548738bad521e29b79d6cc4dc6e64a209575"
+        }
+      ]
+    },
+    {
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "Fab library: Scene_OldMine (Quixel Megascans), C:\\Otherreach_External_Assets\\Fab\\FabAssets\\Content\\Scene_OldMine",
+      "creator": "rock enclosure by Claude; Megascans Old Mine rock surface",
+      "source_modules": [
+        "beam",
+        "beam_b",
+        "rails",
+        "cart",
+        "log_cart",
+        "pickaxe",
+        "shovel",
+        "hammer",
+        "board",
+        "slab",
+        "rubble",
+        "spoil",
+        "pipe",
+        "boiler",
+        "lantern"
+      ],
+      "texture_resolutions": [
+        "source",
+        1024,
+        512
+      ],
+      "rock_shell": "walkable volume voxel-remeshed at 0.12 m, displaced outward 0.05-0.67 m; collision faces never crossed",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LIBRARY_CATALOGUE.md",
+      "collision": "authoritative region footprint; camera proxy only",
+      "shippable": true,
+      "asset_id": "bw_codex_rock_mass",
+      "outputs": [
+        {
+          "file": "bw_codex_rock_mass.glb",
+          "triangles": 564,
+          "bytes": 13062064,
+          "sha256": "5e208c545228be902d9227fc80ae298832640f87089aa9178462da000a29a0fa"
+        }
+      ]
+    },
+    {
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "Fab library: Scene_OldMine (Quixel Megascans), C:\\Otherreach_External_Assets\\Fab\\FabAssets\\Content\\Scene_OldMine",
+      "creator": "Quixel Megascans (Old Mine scene); lantern Poly Haven; rock shell and assembly by Claude",
+      "source_modules": [
+        "beam",
+        "beam_b",
+        "rails",
+        "cart",
+        "log_cart",
+        "pickaxe",
+        "shovel",
+        "hammer",
+        "board",
+        "slab",
+        "rubble",
+        "spoil",
+        "pipe",
+        "boiler",
+        "lantern"
+      ],
+      "texture_resolutions": [
+        "source",
+        1024,
+        512
+      ],
+      "rock_shell": "walkable volume voxel-remeshed at 0.12 m, displaced outward 0.05-0.67 m; collision faces never crossed",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LIBRARY_CATALOGUE.md",
+      "collision": "authoritative region footprint; camera proxy only",
+      "shippable": true,
       "room_identity": {
         "identity": "threshold",
         "wall": "rock",
@@ -41,61 +135,59 @@
           ]
         ]
       },
-      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
-      "backing_material": {
-        "creator": "Rob Tuytel / Poly Haven",
-        "licence": "CC0 1.0",
-        "source_url": "https://polyhaven.com/a/rock_ground"
-      },
+      "asset_id": "bw_codex_room_01",
+      "outputs": [
+        {
+          "file": "bw_codex_room_01.glb",
+          "triangles": 105132,
+          "bytes": 62112548,
+          "sha256": "8185c91df8d8bce87c6c62f46ce4ab794699badfb923b2931f6acf2d8c18bc51"
+        },
+        {
+          "file": "bw_codex_room_01_lod1.glb",
+          "triangles": 52565,
+          "bytes": 55975824,
+          "sha256": "15cf4706fc162fafb2ffcad5cd583bd233edd4e2a8b55f0b0aa0d049219ee455"
+        },
+        {
+          "file": "bw_codex_room_01_lod2.glb",
+          "triangles": 21025,
+          "bytes": 47766568,
+          "sha256": "c9bc94a3c239a3776eb2e838fe34d20002e90b0b4b7860b3e8c5ca059b916a4a"
+        }
+      ]
+    },
+    {
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "Fab library: Scene_OldMine (Quixel Megascans), C:\\Otherreach_External_Assets\\Fab\\FabAssets\\Content\\Scene_OldMine",
+      "creator": "Quixel Megascans (Old Mine scene); lantern Poly Haven; rock shell and assembly by Claude",
+      "source_modules": [
+        "beam",
+        "beam_b",
+        "rails",
+        "cart",
+        "log_cart",
+        "pickaxe",
+        "shovel",
+        "hammer",
+        "board",
+        "slab",
+        "rubble",
+        "spoil",
+        "pipe",
+        "boiler",
+        "lantern"
+      ],
       "texture_resolutions": [
         "source",
         1024,
         512
       ],
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "outputs": [
-        {
-          "file": "bw_codex_room_01.glb",
-          "triangles": 110481,
-          "bytes": 42937852,
-          "sha256": "db06afcb39b50c2ad128fca7fb8baa2d0eaa083f1c5d81ff7d783ed957002276"
-        },
-        {
-          "file": "bw_codex_room_01_lod1.glb",
-          "triangles": 55240,
-          "bytes": 17618528,
-          "sha256": "580d18f784bbd41c556bee2b9b85fa029b49e19970703d4e91e2b0d78ce89ced"
-        },
-        {
-          "file": "bw_codex_room_01_lod2.glb",
-          "triangles": 22083,
-          "bytes": 9385256,
-          "sha256": "b5fd8e96d4534108eb145c612120db6b53f11ab69ad5416b765ed87a662b23c2"
-        }
-      ],
+      "rock_shell": "walkable volume voxel-remeshed at 0.12 m, displaced outward 0.05-0.67 m; collision faces never crossed",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LIBRARY_CATALOGUE.md",
       "collision": "authoritative region footprint; camera proxy only",
-      "shippable": true
-    },
-    {
-      "asset_id": "bw_codex_room_02",
-      "category": "building",
-      "licence": "Fab Standard Personal",
-      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
-      "source_modules": [
-        "masonry",
-        "floor",
-        "ceiling",
-        "pillar",
-        "brazier",
-        "relief_rock",
-        "relief_masonry",
-        "plain_slab",
-        "pipe",
-        "boiler",
-        "timber",
-        "lantern"
-      ],
+      "shippable": true,
       "room_identity": {
         "identity": "intake",
         "wall": "rock",
@@ -139,61 +231,59 @@
           ]
         ]
       },
-      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
-      "backing_material": {
-        "creator": "Rob Tuytel / Poly Haven",
-        "licence": "CC0 1.0",
-        "source_url": "https://polyhaven.com/a/rock_ground"
-      },
+      "asset_id": "bw_codex_room_02",
+      "outputs": [
+        {
+          "file": "bw_codex_room_02.glb",
+          "triangles": 180981,
+          "bytes": 68225204,
+          "sha256": "8c00dddd560337705f3671a029491b8b9a2bec991c190ba7d633d2f986e170b8"
+        },
+        {
+          "file": "bw_codex_room_02_lod1.glb",
+          "triangles": 90487,
+          "bytes": 57995976,
+          "sha256": "a7b3ea7f722265acd7fd72da133e848dd6553801eeb18b1597ad081de273154f"
+        },
+        {
+          "file": "bw_codex_room_02_lod2.glb",
+          "triangles": 36193,
+          "bytes": 45879792,
+          "sha256": "892eaeb9f865240f3b267265693d93f0e3d0616e77fa5bd6f3b2035ce04379a0"
+        }
+      ]
+    },
+    {
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "Fab library: Scene_OldMine (Quixel Megascans), C:\\Otherreach_External_Assets\\Fab\\FabAssets\\Content\\Scene_OldMine",
+      "creator": "Quixel Megascans (Old Mine scene); lantern Poly Haven; rock shell and assembly by Claude",
+      "source_modules": [
+        "beam",
+        "beam_b",
+        "rails",
+        "cart",
+        "log_cart",
+        "pickaxe",
+        "shovel",
+        "hammer",
+        "board",
+        "slab",
+        "rubble",
+        "spoil",
+        "pipe",
+        "boiler",
+        "lantern"
+      ],
       "texture_resolutions": [
         "source",
         1024,
         512
       ],
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "outputs": [
-        {
-          "file": "bw_codex_room_02.glb",
-          "triangles": 187471,
-          "bytes": 46335800,
-          "sha256": "910aedadaeeb5090fd7f33019e461462691605c983e044939c8f8daf8e2ca1fc"
-        },
-        {
-          "file": "bw_codex_room_02_lod1.glb",
-          "triangles": 93735,
-          "bytes": 19504824,
-          "sha256": "933f5b494b9ada6c4defaa367de38111f08680d7cd06138a656107da233e52b2"
-        },
-        {
-          "file": "bw_codex_room_02_lod2.glb",
-          "triangles": 37488,
-          "bytes": 10303872,
-          "sha256": "66ba12b532623ed9d63d403f17061a6b0b2b80026d683bbc133ad2cf58d7cb67"
-        }
-      ],
+      "rock_shell": "walkable volume voxel-remeshed at 0.12 m, displaced outward 0.05-0.67 m; collision faces never crossed",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LIBRARY_CATALOGUE.md",
       "collision": "authoritative region footprint; camera proxy only",
-      "shippable": true
-    },
-    {
-      "asset_id": "bw_codex_room_03",
-      "category": "building",
-      "licence": "Fab Standard Personal",
-      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
-      "source_modules": [
-        "masonry",
-        "floor",
-        "ceiling",
-        "pillar",
-        "brazier",
-        "relief_rock",
-        "relief_masonry",
-        "plain_slab",
-        "pipe",
-        "boiler",
-        "timber",
-        "lantern"
-      ],
+      "shippable": true,
       "room_identity": {
         "identity": "wash",
         "wall": "rock",
@@ -225,61 +315,59 @@
           ]
         ]
       },
-      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
-      "backing_material": {
-        "creator": "Rob Tuytel / Poly Haven",
-        "licence": "CC0 1.0",
-        "source_url": "https://polyhaven.com/a/rock_ground"
-      },
+      "asset_id": "bw_codex_room_03",
+      "outputs": [
+        {
+          "file": "bw_codex_room_03.glb",
+          "triangles": 146051,
+          "bytes": 64868644,
+          "sha256": "747d0d86db0a148572a1275b7d9df3c04c6c8dd5deb42e2b24b8b8d9d7c72f1b"
+        },
+        {
+          "file": "bw_codex_room_03_lod1.glb",
+          "triangles": 73013,
+          "bytes": 56342688,
+          "sha256": "e56cb4cef77457d4750f88cfd3de0972f0bb7ea50bcf194cc74498c7fd57736b"
+        },
+        {
+          "file": "bw_codex_room_03_lod2.glb",
+          "triangles": 29200,
+          "bytes": 45933524,
+          "sha256": "5f99af157f928bdd0cb9bc6d17224d40219e0b04059d5d3200e0cce3a32d6f64"
+        }
+      ]
+    },
+    {
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "Fab library: Scene_OldMine (Quixel Megascans), C:\\Otherreach_External_Assets\\Fab\\FabAssets\\Content\\Scene_OldMine",
+      "creator": "Quixel Megascans (Old Mine scene); lantern Poly Haven; rock shell and assembly by Claude",
+      "source_modules": [
+        "beam",
+        "beam_b",
+        "rails",
+        "cart",
+        "log_cart",
+        "pickaxe",
+        "shovel",
+        "hammer",
+        "board",
+        "slab",
+        "rubble",
+        "spoil",
+        "pipe",
+        "boiler",
+        "lantern"
+      ],
       "texture_resolutions": [
         "source",
         1024,
         512
       ],
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "outputs": [
-        {
-          "file": "bw_codex_room_03.glb",
-          "triangles": 110188,
-          "bytes": 49786168,
-          "sha256": "099d714e7da3a832c38dab021e78792191fea6d929615e9b6c0abe5204c1c3bd"
-        },
-        {
-          "file": "bw_codex_room_03_lod1.glb",
-          "triangles": 55094,
-          "bytes": 28027780,
-          "sha256": "4356676da50c0bd1d117fc3d27a8f6dbcc252a174a1a10ec4d19dc5fe838f792"
-        },
-        {
-          "file": "bw_codex_room_03_lod2.glb",
-          "triangles": 22006,
-          "bytes": 12932280,
-          "sha256": "d0c701461247d7908e0a8ae3014e1d6f6e2aa8ceaf143aec0c538cf5959d264c"
-        }
-      ],
+      "rock_shell": "walkable volume voxel-remeshed at 0.12 m, displaced outward 0.05-0.67 m; collision faces never crossed",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LIBRARY_CATALOGUE.md",
       "collision": "authoritative region footprint; camera proxy only",
-      "shippable": true
-    },
-    {
-      "asset_id": "bw_codex_room_04",
-      "category": "building",
-      "licence": "Fab Standard Personal",
-      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
-      "source_modules": [
-        "masonry",
-        "floor",
-        "ceiling",
-        "pillar",
-        "brazier",
-        "relief_rock",
-        "relief_masonry",
-        "plain_slab",
-        "pipe",
-        "boiler",
-        "timber",
-        "lantern"
-      ],
+      "shippable": true,
       "room_identity": {
         "identity": "drain",
         "wall": "rock",
@@ -294,66 +382,64 @@
               0.7,
               0.57
             ],
-            2.8,
+            3.92,
             10
           ]
         ]
       },
-      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
-      "backing_material": {
-        "creator": "Rob Tuytel / Poly Haven",
-        "licence": "CC0 1.0",
-        "source_url": "https://polyhaven.com/a/rock_ground"
-      },
+      "asset_id": "bw_codex_room_04",
+      "outputs": [
+        {
+          "file": "bw_codex_room_04.glb",
+          "triangles": 93085,
+          "bytes": 57894664,
+          "sha256": "401daa7700e081c9f6d6acc3f800f7e117ec3ebdaffe3a419049fdb592b64209"
+        },
+        {
+          "file": "bw_codex_room_04_lod1.glb",
+          "triangles": 46531,
+          "bytes": 52686964,
+          "sha256": "215661fd0bd7418ce6647ec3a729ab87e9b3ba7b14c9da26dd13df50001171c4"
+        },
+        {
+          "file": "bw_codex_room_04_lod2.glb",
+          "triangles": 18608,
+          "bytes": 48481148,
+          "sha256": "e6f261a02c20e65384e1eb02fc1fdf050fc0217646145198d41efc46fcb854de"
+        }
+      ]
+    },
+    {
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "Fab library: Scene_OldMine (Quixel Megascans), C:\\Otherreach_External_Assets\\Fab\\FabAssets\\Content\\Scene_OldMine",
+      "creator": "Quixel Megascans (Old Mine scene); lantern Poly Haven; rock shell and assembly by Claude",
+      "source_modules": [
+        "beam",
+        "beam_b",
+        "rails",
+        "cart",
+        "log_cart",
+        "pickaxe",
+        "shovel",
+        "hammer",
+        "board",
+        "slab",
+        "rubble",
+        "spoil",
+        "pipe",
+        "boiler",
+        "lantern"
+      ],
       "texture_resolutions": [
         "source",
         1024,
         512
       ],
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "outputs": [
-        {
-          "file": "bw_codex_room_04.glb",
-          "triangles": 125541,
-          "bytes": 41392652,
-          "sha256": "04e3afac784422debbc73cc44b98db21b4ad1988b93eaaa889acb2e4b25b3b1f"
-        },
-        {
-          "file": "bw_codex_room_04_lod1.glb",
-          "triangles": 62766,
-          "bytes": 13395136,
-          "sha256": "433d6f77404ecb5fd84fa9045c107acfc8d129b7210a62ded99f2f497577895b"
-        },
-        {
-          "file": "bw_codex_room_04_lod2.glb",
-          "triangles": 25086,
-          "bytes": 6678692,
-          "sha256": "4acc6a49c1510dc8bb044f247f561b9b2104ab0ffc062ce424c25d95f3b44ebf"
-        }
-      ],
+      "rock_shell": "walkable volume voxel-remeshed at 0.12 m, displaced outward 0.05-0.67 m; collision faces never crossed",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LIBRARY_CATALOGUE.md",
       "collision": "authoritative region footprint; camera proxy only",
-      "shippable": true
-    },
-    {
-      "asset_id": "bw_codex_room_05",
-      "category": "building",
-      "licence": "Fab Standard Personal",
-      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
-      "source_modules": [
-        "masonry",
-        "floor",
-        "ceiling",
-        "pillar",
-        "brazier",
-        "relief_rock",
-        "relief_masonry",
-        "plain_slab",
-        "pipe",
-        "boiler",
-        "timber",
-        "lantern"
-      ],
+      "shippable": true,
       "room_identity": {
         "identity": "sorting",
         "wall": "rock",
@@ -385,61 +471,59 @@
           ]
         ]
       },
-      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
-      "backing_material": {
-        "creator": "Rob Tuytel / Poly Haven",
-        "licence": "CC0 1.0",
-        "source_url": "https://polyhaven.com/a/rock_ground"
-      },
+      "asset_id": "bw_codex_room_05",
+      "outputs": [
+        {
+          "file": "bw_codex_room_05.glb",
+          "triangles": 357252,
+          "bytes": 107418500,
+          "sha256": "a6a1957d63ee67118b11ce6f39e427a1fd6e91b5eb54bc02e527cdeabe12a99b"
+        },
+        {
+          "file": "bw_codex_room_05_lod1.glb",
+          "triangles": 178620,
+          "bytes": 82118132,
+          "sha256": "7f534094300160fda2dd86d7905e0bb0cbf084c3fb5926a79f99cd7cb0db5850"
+        },
+        {
+          "file": "bw_codex_room_05_lod2.glb",
+          "triangles": 71444,
+          "bytes": 61125308,
+          "sha256": "d9a8e44cc3cb0af7f9c90c77c724f3ce27f7227925c48565cbbf568c2a97836a"
+        }
+      ]
+    },
+    {
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "Fab library: Scene_OldMine (Quixel Megascans), C:\\Otherreach_External_Assets\\Fab\\FabAssets\\Content\\Scene_OldMine",
+      "creator": "Quixel Megascans (Old Mine scene); lantern Poly Haven; rock shell and assembly by Claude",
+      "source_modules": [
+        "beam",
+        "beam_b",
+        "rails",
+        "cart",
+        "log_cart",
+        "pickaxe",
+        "shovel",
+        "hammer",
+        "board",
+        "slab",
+        "rubble",
+        "spoil",
+        "pipe",
+        "boiler",
+        "lantern"
+      ],
       "texture_resolutions": [
         "source",
         1024,
         512
       ],
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "outputs": [
-        {
-          "file": "bw_codex_room_05.glb",
-          "triangles": 196564,
-          "bytes": 53805668,
-          "sha256": "80c57d97bc70462167f728c994131b1631679d5ee735e615de389adc4c061f66"
-        },
-        {
-          "file": "bw_codex_room_05_lod1.glb",
-          "triangles": 98281,
-          "bytes": 30587184,
-          "sha256": "ebec2253d6e8d53f1e74eebcc9b48031099a42c260422be4437f35353fdef1b4"
-        },
-        {
-          "file": "bw_codex_room_05_lod2.glb",
-          "triangles": 39292,
-          "bytes": 14211080,
-          "sha256": "19e9db7834bb929b685f5104c9ac20f1ce38a588c3221c497eeeca9c297ea960"
-        }
-      ],
+      "rock_shell": "walkable volume voxel-remeshed at 0.12 m, displaced outward 0.05-0.67 m; collision faces never crossed",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LIBRARY_CATALOGUE.md",
       "collision": "authoritative region footprint; camera proxy only",
-      "shippable": true
-    },
-    {
-      "asset_id": "bw_codex_room_06",
-      "category": "building",
-      "licence": "Fab Standard Personal",
-      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
-      "source_modules": [
-        "masonry",
-        "floor",
-        "ceiling",
-        "pillar",
-        "brazier",
-        "relief_rock",
-        "relief_masonry",
-        "plain_slab",
-        "pipe",
-        "boiler",
-        "timber",
-        "lantern"
-      ],
+      "shippable": true,
       "room_identity": {
         "identity": "still",
         "wall": "rock",
@@ -459,40 +543,27 @@
           ]
         ]
       },
-      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
-      "backing_material": {
-        "creator": "Rob Tuytel / Poly Haven",
-        "licence": "CC0 1.0",
-        "source_url": "https://polyhaven.com/a/rock_ground"
-      },
-      "texture_resolutions": [
-        "source",
-        1024,
-        512
-      ],
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "asset_id": "bw_codex_room_06",
       "outputs": [
         {
           "file": "bw_codex_room_06.glb",
-          "triangles": 195062,
-          "bytes": 57757708,
-          "sha256": "cfd0c114b0bb40aab6179b9db6d1aa29197c51560218506d7923d566c81ae84c"
+          "triangles": 210287,
+          "bytes": 73661092,
+          "sha256": "661b57d116f1b7d0bb0c8f8ca942fb7f896813c5429179bd7d337a8abdf9d6e7"
         },
         {
           "file": "bw_codex_room_06_lod1.glb",
-          "triangles": 97531,
-          "bytes": 37734840,
-          "sha256": "30d87bde34fc8784d8b7e2e2ced97e52373f73ff7eaac5cad32ae8133ba0b8b2"
+          "triangles": 105142,
+          "bytes": 66137652,
+          "sha256": "6e557a7b181bcb814b2d6fcf137a2c433c7c303c78ff6e61bf2d9d609050442b"
         },
         {
           "file": "bw_codex_room_06_lod2.glb",
-          "triangles": 39010,
-          "bytes": 16014280,
-          "sha256": "26f158c9b2c6b9dda140edc50725596467cc240e12834ee45c44b1a14e1f5241"
+          "triangles": 42056,
+          "bytes": 53112864,
+          "sha256": "b2fc43d2cd75560f2673738d80e0695ea218d529a5a7334defcf291d05cec7c0"
         }
       ],
-      "collision": "authoritative region footprint; camera proxy only",
-      "shippable": true,
       "boiler_source": {
         "asset_id": "bw_codex_boiler",
         "name": "bw_codex_boiler",
@@ -669,25 +740,36 @@
       }
     },
     {
-      "asset_id": "bw_codex_room_07",
       "category": "building",
       "licence": "Fab Standard Personal",
-      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
+      "source_url": "Fab library: Scene_OldMine (Quixel Megascans), C:\\Otherreach_External_Assets\\Fab\\FabAssets\\Content\\Scene_OldMine",
+      "creator": "Quixel Megascans (Old Mine scene); lantern Poly Haven; rock shell and assembly by Claude",
       "source_modules": [
-        "masonry",
-        "floor",
-        "ceiling",
-        "pillar",
-        "brazier",
-        "relief_rock",
-        "relief_masonry",
-        "plain_slab",
+        "beam",
+        "beam_b",
+        "rails",
+        "cart",
+        "log_cart",
+        "pickaxe",
+        "shovel",
+        "hammer",
+        "board",
+        "slab",
+        "rubble",
+        "spoil",
         "pipe",
         "boiler",
-        "timber",
         "lantern"
       ],
+      "texture_resolutions": [
+        "source",
+        1024,
+        512
+      ],
+      "rock_shell": "walkable volume voxel-remeshed at 0.12 m, displaced outward 0.05-0.67 m; collision faces never crossed",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LIBRARY_CATALOGUE.md",
+      "collision": "authoritative region footprint; camera proxy only",
+      "shippable": true,
       "room_identity": {
         "identity": "archive",
         "wall": "rock",
@@ -719,61 +801,59 @@
           ]
         ]
       },
-      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
-      "backing_material": {
-        "creator": "Rob Tuytel / Poly Haven",
-        "licence": "CC0 1.0",
-        "source_url": "https://polyhaven.com/a/rock_ground"
-      },
+      "asset_id": "bw_codex_room_07",
+      "outputs": [
+        {
+          "file": "bw_codex_room_07.glb",
+          "triangles": 191153,
+          "bytes": 72643744,
+          "sha256": "f07064afbbd7f2edeb4be82f02dbad6342393b944db50952b36d6f948048440b"
+        },
+        {
+          "file": "bw_codex_room_07_lod1.glb",
+          "triangles": 95310,
+          "bytes": 60751588,
+          "sha256": "2ba0b55e6ff4f4e3845327f4e60bb85a1c2472730b93eb7a2d62011fc618b1ab"
+        },
+        {
+          "file": "bw_codex_room_07_lod2.glb",
+          "triangles": 37964,
+          "bytes": 43975520,
+          "sha256": "ce9b344670875124cce8cc7d448587edf03237dd090f1388e5d4c1f4f43238b8"
+        }
+      ]
+    },
+    {
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "Fab library: Scene_OldMine (Quixel Megascans), C:\\Otherreach_External_Assets\\Fab\\FabAssets\\Content\\Scene_OldMine",
+      "creator": "Quixel Megascans (Old Mine scene); lantern Poly Haven; rock shell and assembly by Claude",
+      "source_modules": [
+        "beam",
+        "beam_b",
+        "rails",
+        "cart",
+        "log_cart",
+        "pickaxe",
+        "shovel",
+        "hammer",
+        "board",
+        "slab",
+        "rubble",
+        "spoil",
+        "pipe",
+        "boiler",
+        "lantern"
+      ],
       "texture_resolutions": [
         "source",
         1024,
         512
       ],
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "outputs": [
-        {
-          "file": "bw_codex_room_07.glb",
-          "triangles": 171220,
-          "bytes": 53910792,
-          "sha256": "ba151dfc5ace680b38f203b0bc42a0c1685fb98cd3d4f4a1a221894c742fc7e7"
-        },
-        {
-          "file": "bw_codex_room_07_lod1.glb",
-          "triangles": 85610,
-          "bytes": 32029872,
-          "sha256": "8623c752aa9cb7218f085ff5764b571f3a7e710c741d2ce41a8580a60e2ce71c"
-        },
-        {
-          "file": "bw_codex_room_07_lod2.glb",
-          "triangles": 34187,
-          "bytes": 13731412,
-          "sha256": "219faefc066a3c5595aca5dd031801c5e93df90e52eee018420b846e093f45e0"
-        }
-      ],
+      "rock_shell": "walkable volume voxel-remeshed at 0.12 m, displaced outward 0.05-0.67 m; collision faces never crossed",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LIBRARY_CATALOGUE.md",
       "collision": "authoritative region footprint; camera proxy only",
-      "shippable": true
-    },
-    {
-      "asset_id": "bw_codex_room_08",
-      "category": "building",
-      "licence": "Fab Standard Personal",
-      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
-      "source_modules": [
-        "masonry",
-        "floor",
-        "ceiling",
-        "pillar",
-        "brazier",
-        "relief_rock",
-        "relief_masonry",
-        "plain_slab",
-        "pipe",
-        "boiler",
-        "timber",
-        "lantern"
-      ],
+      "shippable": true,
       "room_identity": {
         "identity": "return",
         "wall": "rock",
@@ -793,61 +873,59 @@
           ]
         ]
       },
-      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
-      "backing_material": {
-        "creator": "Rob Tuytel / Poly Haven",
-        "licence": "CC0 1.0",
-        "source_url": "https://polyhaven.com/a/rock_ground"
-      },
+      "asset_id": "bw_codex_room_08",
+      "outputs": [
+        {
+          "file": "bw_codex_room_08.glb",
+          "triangles": 128199,
+          "bytes": 63522048,
+          "sha256": "6f7238a5cf2f5f23e425b23478b319fa8c0e5b131859a66634275a9dfc5f6611"
+        },
+        {
+          "file": "bw_codex_room_08_lod1.glb",
+          "triangles": 64098,
+          "bytes": 55730680,
+          "sha256": "d47e1e24e9e6eb85d25ccea2b8e809fac4fdf90d62ada1c53f2bfb49d9e60387"
+        },
+        {
+          "file": "bw_codex_room_08_lod2.glb",
+          "triangles": 25638,
+          "bytes": 42090396,
+          "sha256": "442a78a8d1df1a133714143d8604dace75e796828e79a4af42ab33a7ae35df59"
+        }
+      ]
+    },
+    {
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "Fab library: Scene_OldMine (Quixel Megascans), C:\\Otherreach_External_Assets\\Fab\\FabAssets\\Content\\Scene_OldMine",
+      "creator": "Quixel Megascans (Old Mine scene); lantern Poly Haven; rock shell and assembly by Claude",
+      "source_modules": [
+        "beam",
+        "beam_b",
+        "rails",
+        "cart",
+        "log_cart",
+        "pickaxe",
+        "shovel",
+        "hammer",
+        "board",
+        "slab",
+        "rubble",
+        "spoil",
+        "pipe",
+        "boiler",
+        "lantern"
+      ],
       "texture_resolutions": [
         "source",
         1024,
         512
       ],
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "outputs": [
-        {
-          "file": "bw_codex_room_08.glb",
-          "triangles": 118539,
-          "bytes": 45419964,
-          "sha256": "5d8508d665efcb497e13e7ddedeae24d07faeb99ed84598efbd9f33775db1e72"
-        },
-        {
-          "file": "bw_codex_room_08_lod1.glb",
-          "triangles": 59268,
-          "bytes": 20937536,
-          "sha256": "6bc30b4a197fee8f55f32abd4e765748b1daf467385c24b753657dd55c511186"
-        },
-        {
-          "file": "bw_codex_room_08_lod2.glb",
-          "triangles": 23691,
-          "bytes": 9500360,
-          "sha256": "e9b89cc6b1a03d056bf8dcda05657a7643c34d1a461393fda6a1d0d651df1d75"
-        }
-      ],
+      "rock_shell": "walkable volume voxel-remeshed at 0.12 m, displaced outward 0.05-0.67 m; collision faces never crossed",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LIBRARY_CATALOGUE.md",
       "collision": "authoritative region footprint; camera proxy only",
-      "shippable": true
-    },
-    {
-      "asset_id": "bw_codex_room_09",
-      "category": "building",
-      "licence": "Fab Standard Personal",
-      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
-      "source_modules": [
-        "masonry",
-        "floor",
-        "ceiling",
-        "pillar",
-        "brazier",
-        "relief_rock",
-        "relief_masonry",
-        "plain_slab",
-        "pipe",
-        "boiler",
-        "timber",
-        "lantern"
-      ],
+      "shippable": true,
       "room_identity": {
         "identity": "blind_store",
         "wall": "rock",
@@ -879,61 +957,59 @@
           ]
         ]
       },
-      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
-      "backing_material": {
-        "creator": "Rob Tuytel / Poly Haven",
-        "licence": "CC0 1.0",
-        "source_url": "https://polyhaven.com/a/rock_ground"
-      },
+      "asset_id": "bw_codex_room_09",
+      "outputs": [
+        {
+          "file": "bw_codex_room_09.glb",
+          "triangles": 135083,
+          "bytes": 60115012,
+          "sha256": "ded924c7caeb392c5a26ff820d1f0fc9c9017981594d8011c4802cc30be4ee91"
+        },
+        {
+          "file": "bw_codex_room_09_lod1.glb",
+          "triangles": 67275,
+          "bytes": 52065720,
+          "sha256": "3e9d997765ace7aefa1a2a22e360ad62ae2ce2af9b39caefc9c1abd7508f7abb"
+        },
+        {
+          "file": "bw_codex_room_09_lod2.glb",
+          "triangles": 26750,
+          "bytes": 42307016,
+          "sha256": "fc48d4e1784654a18b1d1eee3c9dc97c3e32da2aa937929d0b57df88dcb49c2a"
+        }
+      ]
+    },
+    {
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "Fab library: Scene_OldMine (Quixel Megascans), C:\\Otherreach_External_Assets\\Fab\\FabAssets\\Content\\Scene_OldMine",
+      "creator": "Quixel Megascans (Old Mine scene); lantern Poly Haven; rock shell and assembly by Claude",
+      "source_modules": [
+        "beam",
+        "beam_b",
+        "rails",
+        "cart",
+        "log_cart",
+        "pickaxe",
+        "shovel",
+        "hammer",
+        "board",
+        "slab",
+        "rubble",
+        "spoil",
+        "pipe",
+        "boiler",
+        "lantern"
+      ],
       "texture_resolutions": [
         "source",
         1024,
         512
       ],
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "outputs": [
-        {
-          "file": "bw_codex_room_09.glb",
-          "triangles": 127828,
-          "bytes": 52158008,
-          "sha256": "0c3d3e38db88e2bd30a2cd1da9029e7f7afd48f28a06103353491afb2948f840"
-        },
-        {
-          "file": "bw_codex_room_09_lod1.glb",
-          "triangles": 63913,
-          "bytes": 31020088,
-          "sha256": "610ac040d3bbaf0fdc93a5a62da05229a4429a7c2e96a950e0c63cabaa8df707"
-        },
-        {
-          "file": "bw_codex_room_09_lod2.glb",
-          "triangles": 25384,
-          "bytes": 13179852,
-          "sha256": "6d70ebc0ee2a93766eb822d04a8439642b352ffcc63643c55630d8cb0602cf9d"
-        }
-      ],
+      "rock_shell": "walkable volume voxel-remeshed at 0.12 m, displaced outward 0.05-0.67 m; collision faces never crossed",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LIBRARY_CATALOGUE.md",
       "collision": "authoritative region footprint; camera proxy only",
-      "shippable": true
-    },
-    {
-      "asset_id": "bw_codex_room_10",
-      "category": "building",
-      "licence": "Fab Standard Personal",
-      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
-      "source_modules": [
-        "masonry",
-        "floor",
-        "ceiling",
-        "pillar",
-        "brazier",
-        "relief_rock",
-        "relief_masonry",
-        "plain_slab",
-        "pipe",
-        "boiler",
-        "timber",
-        "lantern"
-      ],
+      "shippable": true,
       "room_identity": {
         "identity": "vestibule",
         "wall": "rock",
@@ -953,61 +1029,59 @@
           ]
         ]
       },
-      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
-      "backing_material": {
-        "creator": "Rob Tuytel / Poly Haven",
-        "licence": "CC0 1.0",
-        "source_url": "https://polyhaven.com/a/rock_ground"
-      },
+      "asset_id": "bw_codex_room_10",
+      "outputs": [
+        {
+          "file": "bw_codex_room_10.glb",
+          "triangles": 182425,
+          "bytes": 75420432,
+          "sha256": "18a338a59fd519fc820ad3bc2f9f77d767c4747d91f220344f877768bb542626"
+        },
+        {
+          "file": "bw_codex_room_10_lod1.glb",
+          "triangles": 91211,
+          "bytes": 60027304,
+          "sha256": "c964f1039f0391428a1a8d85a806e62bce3fda97cbe268f7e879bc1ad735cac8"
+        },
+        {
+          "file": "bw_codex_room_10_lod2.glb",
+          "triangles": 36484,
+          "bytes": 43756032,
+          "sha256": "48f7619a61b4fae59dc5dce51b219ff97c33ea75812cce530217013f5d54db45"
+        }
+      ]
+    },
+    {
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "Fab library: Scene_OldMine (Quixel Megascans), C:\\Otherreach_External_Assets\\Fab\\FabAssets\\Content\\Scene_OldMine",
+      "creator": "Quixel Megascans (Old Mine scene); lantern Poly Haven; rock shell and assembly by Claude",
+      "source_modules": [
+        "beam",
+        "beam_b",
+        "rails",
+        "cart",
+        "log_cart",
+        "pickaxe",
+        "shovel",
+        "hammer",
+        "board",
+        "slab",
+        "rubble",
+        "spoil",
+        "pipe",
+        "boiler",
+        "lantern"
+      ],
       "texture_resolutions": [
         "source",
         1024,
         512
       ],
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "outputs": [
-        {
-          "file": "bw_codex_room_10.glb",
-          "triangles": 133631,
-          "bytes": 50581244,
-          "sha256": "3aafab7e7c06d0764d06e9758d7f8edd97c0f2e2c23ddb68430251aadad3f72f"
-        },
-        {
-          "file": "bw_codex_room_10_lod1.glb",
-          "triangles": 66812,
-          "bytes": 28563316,
-          "sha256": "93f0c1e359e9c81ff0401229c82f6879570bc3d099d400359400fd00d628ea95"
-        },
-        {
-          "file": "bw_codex_room_10_lod2.glb",
-          "triangles": 26710,
-          "bytes": 13251668,
-          "sha256": "477293daf4be0bbbe2ace1ec5b7f5e53fd40c571b15a2f1511c2a6808de8775f"
-        }
-      ],
+      "rock_shell": "walkable volume voxel-remeshed at 0.12 m, displaced outward 0.05-0.67 m; collision faces never crossed",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LIBRARY_CATALOGUE.md",
       "collision": "authoritative region footprint; camera proxy only",
-      "shippable": true
-    },
-    {
-      "asset_id": "bw_codex_room_11",
-      "category": "building",
-      "licence": "Fab Standard Personal",
-      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
-      "source_modules": [
-        "masonry",
-        "floor",
-        "ceiling",
-        "pillar",
-        "brazier",
-        "relief_rock",
-        "relief_masonry",
-        "plain_slab",
-        "pipe",
-        "boiler",
-        "timber",
-        "lantern"
-      ],
+      "shippable": true,
       "room_identity": {
         "identity": "court",
         "wall": "rock",
@@ -1039,61 +1113,59 @@
           ]
         ]
       },
-      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
-      "backing_material": {
-        "creator": "Rob Tuytel / Poly Haven",
-        "licence": "CC0 1.0",
-        "source_url": "https://polyhaven.com/a/rock_ground"
-      },
+      "asset_id": "bw_codex_room_11",
+      "outputs": [
+        {
+          "file": "bw_codex_room_11.glb",
+          "triangles": 215317,
+          "bytes": 69888740,
+          "sha256": "52b324195d8e3717df16b876697fb44afe5dc6cd91588ca8c61e5f1a1f7fc7f9"
+        },
+        {
+          "file": "bw_codex_room_11_lod1.glb",
+          "triangles": 107655,
+          "bytes": 60194752,
+          "sha256": "2e2b605c462f33dd7b145bde526235da33e758c00a7cfc1a5817beece31106a1"
+        },
+        {
+          "file": "bw_codex_room_11_lod2.glb",
+          "triangles": 43061,
+          "bytes": 47534148,
+          "sha256": "7a53cfc932b6b88e20fdcdf012c315e88fbba9fc5a99ec3c85f7f6b74e23a179"
+        }
+      ]
+    },
+    {
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "Fab library: Scene_OldMine (Quixel Megascans), C:\\Otherreach_External_Assets\\Fab\\FabAssets\\Content\\Scene_OldMine",
+      "creator": "Quixel Megascans (Old Mine scene); lantern Poly Haven; rock shell and assembly by Claude",
+      "source_modules": [
+        "beam",
+        "beam_b",
+        "rails",
+        "cart",
+        "log_cart",
+        "pickaxe",
+        "shovel",
+        "hammer",
+        "board",
+        "slab",
+        "rubble",
+        "spoil",
+        "pipe",
+        "boiler",
+        "lantern"
+      ],
       "texture_resolutions": [
         "source",
         1024,
         512
       ],
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "outputs": [
-        {
-          "file": "bw_codex_room_11.glb",
-          "triangles": 435972,
-          "bytes": 57501940,
-          "sha256": "3a8fefeaa8a37f529dbad76d4af612dffe2633db5c3cd406a948db354e5b430b"
-        },
-        {
-          "file": "bw_codex_room_11_lod1.glb",
-          "triangles": 217986,
-          "bytes": 25010248,
-          "sha256": "15319e7ac2254650fe775eeb6842809730586fc7efb6d984ebb0c76ddab59427"
-        },
-        {
-          "file": "bw_codex_room_11_lod2.glb",
-          "triangles": 87177,
-          "bytes": 13085928,
-          "sha256": "ae853b935aec437b5848568ad53780b1f81e95df71182798f684e19eb027b396"
-        }
-      ],
+      "rock_shell": "walkable volume voxel-remeshed at 0.12 m, displaced outward 0.05-0.67 m; collision faces never crossed",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LIBRARY_CATALOGUE.md",
       "collision": "authoritative region footprint; camera proxy only",
-      "shippable": true
-    },
-    {
-      "asset_id": "bw_codex_room_12",
-      "category": "building",
-      "licence": "Fab Standard Personal",
-      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
-      "source_modules": [
-        "masonry",
-        "floor",
-        "ceiling",
-        "pillar",
-        "brazier",
-        "relief_rock",
-        "relief_masonry",
-        "plain_slab",
-        "pipe",
-        "boiler",
-        "timber",
-        "lantern"
-      ],
+      "shippable": true,
       "room_identity": {
         "identity": "headworks",
         "wall": "rock",
@@ -1125,61 +1197,59 @@
           ]
         ]
       },
-      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
-      "backing_material": {
-        "creator": "Rob Tuytel / Poly Haven",
-        "licence": "CC0 1.0",
-        "source_url": "https://polyhaven.com/a/rock_ground"
-      },
+      "asset_id": "bw_codex_room_12",
+      "outputs": [
+        {
+          "file": "bw_codex_room_12.glb",
+          "triangles": 169291,
+          "bytes": 72316180,
+          "sha256": "061192cdca9871195e75bae84ca1842f2cdd0d5a207fa7e469ed5a90e9bed5f5"
+        },
+        {
+          "file": "bw_codex_room_12_lod1.glb",
+          "triangles": 84643,
+          "bytes": 58951768,
+          "sha256": "669f6316bbecfa38b0a9d24ff4fa5ef45cd8a37b45f2907c30d44206f6623e56"
+        },
+        {
+          "file": "bw_codex_room_12_lod2.glb",
+          "triangles": 33856,
+          "bytes": 43340504,
+          "sha256": "48e2129e433fa879c7b212d27169e8a206c7a9a93202be5b580b9f46106866ca"
+        }
+      ]
+    },
+    {
+      "category": "building",
+      "licence": "Fab Standard Personal",
+      "source_url": "Fab library: Scene_OldMine (Quixel Megascans), C:\\Otherreach_External_Assets\\Fab\\FabAssets\\Content\\Scene_OldMine",
+      "creator": "Quixel Megascans (Old Mine scene); lantern Poly Haven; rock shell and assembly by Claude",
+      "source_modules": [
+        "beam",
+        "beam_b",
+        "rails",
+        "cart",
+        "log_cart",
+        "pickaxe",
+        "shovel",
+        "hammer",
+        "board",
+        "slab",
+        "rubble",
+        "spoil",
+        "pipe",
+        "boiler",
+        "lantern"
+      ],
       "texture_resolutions": [
         "source",
         1024,
         512
       ],
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
-      "outputs": [
-        {
-          "file": "bw_codex_room_12.glb",
-          "triangles": 133794,
-          "bytes": 50689040,
-          "sha256": "939cbba8df5816451689b0fa2869923292bfc7bd7a4e299cbd8bcf4588a48643"
-        },
-        {
-          "file": "bw_codex_room_12_lod1.glb",
-          "triangles": 66893,
-          "bytes": 28552824,
-          "sha256": "6ffb3aba0dfe49526ded90ae6fccb98f48688a9283b9adcf6efb8c4585b2e4a1"
-        },
-        {
-          "file": "bw_codex_room_12_lod2.glb",
-          "triangles": 26744,
-          "bytes": 13204352,
-          "sha256": "7a99a8012c3b4550d8b6c67bc433ae3586bae0cfe130216c53246026a78c32d5"
-        }
-      ],
+      "rock_shell": "walkable volume voxel-remeshed at 0.12 m, displaced outward 0.05-0.67 m; collision faces never crossed",
+      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LIBRARY_CATALOGUE.md",
       "collision": "authoritative region footprint; camera proxy only",
-      "shippable": true
-    },
-    {
-      "asset_id": "bw_codex_room_13",
-      "category": "building",
-      "licence": "Fab Standard Personal",
-      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "creator": "DanStudios; Meshingun Studio; Poly Haven; room assembly by Codex",
-      "source_modules": [
-        "masonry",
-        "floor",
-        "ceiling",
-        "pillar",
-        "brazier",
-        "relief_rock",
-        "relief_masonry",
-        "plain_slab",
-        "pipe",
-        "boiler",
-        "timber",
-        "lantern"
-      ],
+      "shippable": true,
       "room_identity": {
         "identity": "inspection",
         "wall": "rock",
@@ -1194,85 +1264,32 @@
               0.76,
               0.72
             ],
-            3,
+            4.2,
             12
           ]
         ]
       },
-      "additional_source_url": "https://www.fab.com/listings/5d9d932b-9e6e-42d0-8afc-45249e7535a5",
-      "backing_material": {
-        "creator": "Rob Tuytel / Poly Haven",
-        "licence": "CC0 1.0",
-        "source_url": "https://polyhaven.com/a/rock_ground"
-      },
-      "texture_resolutions": [
-        "source",
-        1024,
-        512
-      ],
-      "licence_evidence": "C:\\Otherreach_Recovery\\ASSET_REBUILD\\FAB_LICENCES.md",
+      "asset_id": "bw_codex_room_13",
       "outputs": [
         {
           "file": "bw_codex_room_13.glb",
-          "triangles": 118249,
-          "bytes": 41076880,
-          "sha256": "37e373817a94ffdc01bda0150db83af228230e6b38da870a3b77d86baf22fb2b"
+          "triangles": 96935,
+          "bytes": 58286168,
+          "sha256": "c3762793fdb9d2de65867259853401c1c19f4f9dfe8ff048a69961d7f444a2b6"
         },
         {
           "file": "bw_codex_room_13_lod1.glb",
-          "triangles": 59122,
-          "bytes": 13204092,
-          "sha256": "e38ad9bc608b9762cf9b517c089c21f3e4fd35f24c5ebcae3d769999f2ef9f43"
+          "triangles": 48466,
+          "bytes": 52900780,
+          "sha256": "994bc980f1d0f15dbb31a23b96a989ee26d844a350e48edebd0061cb4b12344d"
         },
         {
           "file": "bw_codex_room_13_lod2.glb",
-          "triangles": 23634,
-          "bytes": 6583716,
-          "sha256": "85a52e98cc72e55997a9a5ef41babfe060c1b388267c47ed2ccb784fd9e96a24"
+          "triangles": 19386,
+          "bytes": 45191280,
+          "sha256": "62cfe65358dd2640191f0658183e3dd88258ddbe772504868f6e4446c6104390"
         }
-      ],
-      "collision": "authoritative region footprint; camera proxy only",
-      "shippable": true
-    },
-    {
-      "asset_id": "bw_codex_rock_mass",
-      "licence": "CC0 1.0; first-party enclosure geometry",
-      "creator": "Poly Haven; geometry by Codex",
-      "source_url": "https://polyhaven.com/a/rock_ground",
-      "sha256": "36d5ebbde17ed5930279f6b6952e0838e434ae1b2441184aa65e0a163cea8e30",
-      "shippable": true,
-      "source_provenance": {
-        "id": "cw_rock_ground",
-        "built_for": "CAIRNWOLD",
-        "source_folder": "polyhaven__rock_ground",
-        "source_store": "G:\\Otherreach\\external-assets\\assets\\materials",
-        "source_url": "https://polyhaven.com",
-        "licence": "CC0 1.0 Universal (Public Domain Dedication)",
-        "licence_text_sha256": "cd9628ae4c9470847401479e821542c2ee1fa2b7e6093dfcf47a133d7a45fd9b",
-        "shippable": true,
-        "maps": {
-          "basecolor": {
-            "file": "cw_rock_ground_basecolor.jpg",
-            "sha256": "1bd796dcfb07bf473732f53ade9bd6c27f56df5150f6f120b9aeb5994884cce7"
-          },
-          "normal": {
-            "file": "cw_rock_ground_normal.jpg",
-            "sha256": "ddbff689451fd5ef8a88dacc596b23ccad5a3651a19d86e37282e40553152bca"
-          },
-          "orm": {
-            "file": "cw_rock_ground_orm.jpg",
-            "sha256": "0e4b5508d78811658179b9abd8b088738819b612e9bebb92d20ccc80a3407b5d"
-          }
-        }
-      }
-    },
-    {
-      "asset_id": "bw_codex_corridors",
-      "licence": "Fab Standard Personal",
-      "creator": "DanStudios; manual assembly by Codex",
-      "source_url": "https://www.fab.com/listings/48148dbe-67c8-40a1-af9b-041fa4b9354e",
-      "sha256": "c6901d59578f48827e744d2f6d4ee9ce47bdb4edb2df507bcd7f07c864d50e6c",
-      "shippable": true
+      ]
     },
     {
       "asset_id": "bw_codex_notice",
