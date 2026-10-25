@@ -6,14 +6,14 @@ namespace UNNAMED.Presentation.Art;
 /// <summary>
 /// An Orenth figure's registration lag, drawn by twins of the figure's own skinned meshes on the same skeleton: the shadow
 /// is cast by a shadow-only twin that trails the body by an instant (the real meshes stop casting), and running leaves a
-/// faint secondary silhouette that trails a little further (<see cref="PeopleLooks.AfterimageStrength"/>).
+/// trail of pale spirit ghosts, each further behind and fainter (<see cref="PeopleLooks.AfterimageLags"/>).
 /// </summary>
 public partial class OrenthPhase : Node
 {
-    private const double ShadowLag = .09, TrailLag = .15, History = .4;
+    private const double ShadowLag = .09, History = .4;
     private const float LastLevelDistance = 18f;
 
-    private readonly List<(MeshInstance3D Source, MeshInstance3D Shadow, MeshInstance3D Trail)> _twins = new();
+    private readonly List<(MeshInstance3D Source, MeshInstance3D Shadow, MeshInstance3D[] Trail, ShaderMaterial[] Spirit)> _twins = new();
     private readonly Queue<(double Time, Vector3 Position)> _path = new();
     private Node3D _body = null!;
     private double _clock;
@@ -21,7 +21,7 @@ public partial class OrenthPhase : Node
     public static OrenthPhase Attach(Node3D model)
     {
         var phase = new OrenthPhase { Name = "OrenthPhase", _body = model };
-        var ghost = GD.Load<Shader>("res://Art/people_orenth_ghost.gdshader");
+        var spirit = GD.Load<Shader>("res://Art/people_orenth_ghost.gdshader");
         var shadow = new ShaderMaterial { Shader = GD.Load<Shader>("res://Art/people_orenth_shadow.gdshader") };
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>().ToList())
         {
@@ -43,12 +43,12 @@ public partial class OrenthPhase : Node
             lagging.CastShadow = GeometryInstance3D.ShadowCastingSetting.ShadowsOnly;
             lagging.MaterialOverride = shadow;
             mesh.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
-            var trail = Twin("_phase_trail");
-            trail.Visible = false;
-            for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
+            var trail = PeopleLooks.AfterimageLags.Select((_, ghost) => Twin("_phase_trail" + ghost)).ToArray();
+            var materials = new ShaderMaterial[mesh.Mesh.GetSurfaceCount()];
+            for (int surface = 0; surface < materials.Length; surface++)
             {
                 var source = mesh.GetSurfaceOverrideMaterial(surface) ?? mesh.Mesh.SurfaceGetMaterial(surface);
-                var material = new ShaderMaterial { Shader = ghost };
+                var material = new ShaderMaterial { Shader = spirit };
                 if (source is BaseMaterial3D standard)
                 {
                     material.SetShaderParameter("base_map", standard.AlbedoTexture);
@@ -58,9 +58,13 @@ public partial class OrenthPhase : Node
                 {
                     material.SetShaderParameter("base_map", albedo);
                 }
-                trail.SetSurfaceOverrideMaterial(surface, material);
+                materials[surface] = material;
+                foreach (var copy in trail)
+                    copy.SetSurfaceOverrideMaterial(surface, material);
             }
-            phase._twins.Add((mesh, lagging, trail));
+            foreach (var copy in trail)
+                copy.Visible = false;
+            phase._twins.Add((mesh, lagging, trail, materials));
         }
         model.AddChild(phase);
         return phase;
@@ -87,16 +91,44 @@ public partial class OrenthPhase : Node
         }
         var oldest = _path.Peek();
         float speed = _clock - oldest.Time > .05 ? (at - oldest.Position).Length() / (float)(_clock - oldest.Time) : 0f;
-        float trail = PeopleLooks.AfterimageStrength(speed);
         var shadowLag = Behind(ShadowLag) - at;
-        var trailLag = Behind(TrailLag) - at;
-        foreach (var (source, lagging, trailTwin) in _twins)
+        var lags = PeopleLooks.AfterimageLags.Select(lag => Behind(lag) - at).ToArray();
+        foreach (var (source, lagging, trail, _) in _twins)
         {
             var toLocal = source.GlobalBasis.Inverse();
             lagging.SetInstanceShaderParameter("offset", toLocal * shadowLag);
-            trailTwin.Visible = trail > .005f && source.IsVisibleInTree();
-            trailTwin.SetInstanceShaderParameter("offset", toLocal * trailLag);
-            trailTwin.SetInstanceShaderParameter("strength", trail);
+            for (int ghost = 0; ghost < trail.Length; ghost++)
+            {
+                float strength = PeopleLooks.AfterimageStrength(speed, ghost);
+                trail[ghost].Visible = strength > .005f && source.IsVisibleInTree();
+                trail[ghost].SetInstanceShaderParameter("offset", toLocal * lags[ghost]);
+                trail[ghost].SetInstanceShaderParameter("strength", strength);
+            }
         }
+    }
+
+    /// <summary>
+    /// A decoy: the figure's pose at this moment, frozen as a spirit ghost at <paramref name="at"/> (its current place when
+    /// null) for <paramref name="seconds"/>. The caller decides what it absorbs; <see cref="OrenthDecoy.Shatter"/> draws the hit.
+    /// </summary>
+    public OrenthDecoy Linger(double seconds, Transform3D? at = null)
+    {
+        var decoy = new OrenthDecoy(seconds);
+        foreach (var (source, _, _, spirit) in _twins)
+        {
+            if (!source.IsVisibleInTree())
+                continue;
+            var frozen = new MeshInstance3D
+            {
+                Mesh = source.BakeMeshFromCurrentSkeletonPose(), Transform = ArtLibrary.Relative(_body, source),
+                CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+            };
+            for (int surface = 0; surface < spirit.Length; surface++)
+                frozen.SetSurfaceOverrideMaterial(surface, spirit[surface]);
+            decoy.AddChild(frozen);
+        }
+        GetTree().CurrentScene.AddChild(decoy);
+        decoy.GlobalTransform = at ?? _body.GlobalTransform;
+        return decoy;
     }
 }

@@ -33,9 +33,25 @@ public class PeopleLooksTests
     [Theory]
     [InlineData(0f, 0f)]
     [InlineData(1.4f, 0f)]
-    [InlineData(2.6f, 0f)]
-    [InlineData(3.8f, .09f)]
-    [InlineData(5f, .18f)]
-    [InlineData(9f, .18f)]
-    public void AfterimageOnlyAtARunAndStaysFaint(float speed, float strength) => Assert.Equal(strength, PeopleLooks.AfterimageStrength(speed), 3);
+    [InlineData(2.4f, 0f)]
+    [InlineData(3.4f, .25f)]
+    [InlineData(4.4f, .5f)]
+    [InlineData(9f, .5f)]
+    public void NearestGhostOnlyFromAJogAndFullAtASprint(float speed, float strength) => Assert.Equal(strength, PeopleLooks.AfterimageStrength(speed, 0), 3);
+
+    [Fact]
+    public void LaterGhostsTrailFurtherAndFainter()
+    {
+        Assert.Equal(new[] { .08, .16, .24 }, PeopleLooks.AfterimageLags);
+        var strengths = Enumerable.Range(0, PeopleLooks.AfterimageLags.Length).Select(g => PeopleLooks.AfterimageStrength(5f, g)).ToArray();
+        Assert.True(strengths.Zip(strengths.Skip(1)).All(p => p.First > p.Second && p.Second > 0));
+    }
+
+    [Theory]
+    [InlineData(0.0, .55f)]
+    [InlineData(.6, .55f)]
+    [InlineData(.85, .2475f)]
+    [InlineData(1.0, 0f)]
+    [InlineData(2.0, 0f)]
+    public void DecoyHoldsThenFadesOverItsLastThird(double age, float strength) => Assert.Equal(strength, PeopleLooks.DecoyStrength(age, 1.0), 3);
 }

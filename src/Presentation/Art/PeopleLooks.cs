@@ -6,7 +6,7 @@ public enum WingState { Folded, Glide, Flare, Leap }
 
 /// <summary>
 /// The chosen race looks. Kal: slate calcification on bare skin, spreading with age, and the folding dorsal wings.
-/// Orenth: the shadow lags the body by an instant and a sprint leaves a faint secondary silhouette. Edge doubling and
+/// Orenth: the shadow lags the body by an instant and running leaves a trail of pale spirit ghosts. Edge doubling and
 /// the phase-scar skin were tried and dropped (they read as a rendering fault and as a skin condition).
 /// </summary>
 public static class PeopleLooks
@@ -23,6 +23,17 @@ public static class PeopleLooks
     /// <summary>The flare brake pitches the spread spars forward, in radians.</summary>
     public static float WingPitch(WingState state) => state == WingState.Flare ? -.35f : 0f;
 
-    /// <summary>The trailing silhouette's opacity at a ground speed in m/s: nothing below a run, at most 0.18 at a sprint.</summary>
-    public static float AfterimageStrength(float speed) => Math.Clamp((speed - 2.6f) / 2.4f, 0f, 1f) * .18f;
+    /// <summary>How far behind the body each trailing ghost is, in seconds; the owner asked for a stronger, longer spirit trail.</summary>
+    public static readonly double[] AfterimageLags = { .08, .16, .24 };
+
+    /// <summary>
+    /// Opacity of trailing ghost <paramref name="ghost"/> (0 nearest) at a ground speed in m/s: nothing at a walk, rising
+    /// from a jog to full at a sprint, each later ghost fainter (0.5, 0.33, 0.17 at full speed).
+    /// </summary>
+    public static float AfterimageStrength(float speed, int ghost) =>
+        Math.Clamp((speed - 2.4f) / 2.0f, 0f, 1f) * .5f * (1f - ghost / (float)AfterimageLags.Length);
+
+    /// <summary>A lingering decoy ghost's opacity: as strong as the nearest trail ghost, fading out over its last third.</summary>
+    public static float DecoyStrength(double age, double seconds) =>
+        .55f * (float)Math.Clamp((seconds - age) / (seconds / 3), 0, 1);
 }

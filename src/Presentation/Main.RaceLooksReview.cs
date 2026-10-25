@@ -23,6 +23,7 @@ public partial class Main
         var figures = new Dictionary<string, (SkinnedFigure Figure, Vector3 Feet, float Yaw, float Speed)>();
         var log = new List<object>();
         ulong? recordingStarted = null;
+        OrenthDecoy? decoy = null;
         string? clip = null;
         ulong clipStart = 0;
 
@@ -90,6 +91,15 @@ public partial class Main
                     }
                     break;
                 }
+                case "decoy":
+                {
+                    var f = figures[s.GetProperty("id").GetString()!].Figure;
+                    decoy = f.FindChildren("OrenthPhase", "", true, false).OfType<OrenthPhase>().Single().Linger(Num(s, "seconds", 1));
+                    break;
+                }
+                case "shatter":
+                    decoy?.Shatter();
+                    break;
                 case "remove":
                 {
                     string id = s.GetProperty("id").GetString()!;
