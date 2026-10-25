@@ -25,6 +25,8 @@ public sealed record KillContext(string SpeciesId, int CreatureLevel, string Clu
 public sealed record SkillPractice(string SkillId, int Difficulty, PracticeOutcome Outcome, long Tick)
 {
     public string? NoveltyKey { get; init; }
+    /// <summary>A discovery adds its novelty after the action's normal practice; it must not award that use twice.</summary>
+    public bool NoveltyOnly { get; init; }
 }
 
 /// <summary>A learning event (§4.4): the only way a technique, formula or recipe becomes known.</summary>
@@ -154,10 +156,10 @@ public static class ProgressionEngine
             ? 0.0
             : Math.Min((double)(practice.Difficulty - gate) / model.DifficultyMargin, model.MaxChallengeFactor);
         double outcome = practice.Outcome == PracticeOutcome.Success ? 1.0 : model.FailureFactor;
-        long xp = (long)Math.Round(model.UseXp * challenge * outcome, MidpointRounding.AwayFromZero);
+        long xp = practice.NoveltyOnly ? 0 : (long)Math.Round(model.UseXp * challenge * outcome, MidpointRounding.AwayFromZero);
 
         var novelty = progression.NoveltyFirsts;
-        if (practice.Outcome == PracticeOutcome.Success && practice.NoveltyKey is { } key)
+        if (practice.Outcome == PracticeOutcome.Success && practice.NoveltyKey is { } key && (!practice.NoveltyOnly || challenge > 0))
         {
             if (!DefinitionId.IsValid(key))
                 throw new ArgumentException($"Novelty key '{key}' must be the definition performed or produced", nameof(practice));

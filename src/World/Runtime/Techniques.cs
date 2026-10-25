@@ -82,7 +82,7 @@ internal sealed partial class CombatSystem
             if (_context.Dispatch(new LearnTechnique(new TechniqueLearning(technique.Id, LearningSource.Discovery, tick)
                     { SourceRef = opponent.Definition.Id })) is not null) continue;
             _context.Dispatch(new PracticeSkill(new SkillPractice(technique.SkillId, opponent.Definition.Level, PracticeOutcome.Success, tick)
-                { NoveltyKey = technique.Id }));
+                { NoveltyKey = technique.Id, NoveltyOnly = true }));
             _context.Events.Publish(new TechniqueDiscovered(technique.Id, tick));
         }
     }

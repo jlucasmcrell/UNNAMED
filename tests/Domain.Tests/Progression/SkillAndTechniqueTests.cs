@@ -58,6 +58,18 @@ public class SkillAndTechniqueTests
     }
 
     [Fact]
+    public void DiscoveryNovelty_AddsOnlyTheBonus_Once_AndNeverOnATrivialAction()
+    {
+        var practice = Use(Blade, 20) with { NoveltyKey = "ability.blade.parry", NoveltyOnly = true };
+        var first = ProgressionEngine.Practice(WithSkill(Blade, 20), practice, Rules);
+        Assert.Equal(Rules.Skills.NoveltyBonusXp, first.XpGained);
+        Assert.Equal(0, ProgressionEngine.Practice(first.Progression, practice, Rules).XpGained);
+        var trivial = ProgressionEngine.Practice(WithSkill(Blade, 20), practice with { Difficulty = 5 }, Rules);
+        Assert.Equal(0, trivial.XpGained);
+        Assert.Empty(trivial.Progression.NoveltyFirsts);
+    }
+
+    [Fact]
     public void ASkill_StopsAtTheCommonCeiling()
     {
         var p = WithSkill(Blade, 59);
