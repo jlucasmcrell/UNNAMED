@@ -29,7 +29,8 @@ public partial class Main
                 video_mb = Performance.GetMonitor(Performance.Monitor.RenderVideoMemUsed) / 1048576,
                 textures_mb = Performance.GetMonitor(Performance.Monitor.RenderTextureMemUsed) / 1048576,
                 buffers_mb = Performance.GetMonitor(Performance.Monitor.RenderBufferMemUsed) / 1048576,
-                fps = Engine.GetFramesPerSecond(), creatures_within_60m = sim.Creatures.Count(c => c.Alive && Distance(_controller.Authoritative, c.Body) < 60_000) };
+                fps = Engine.GetFramesPerSecond(), creatures_within_60m = sim.Creatures.Count(c => c.Alive && Distance(_controller.Authoritative, c.Body) < 60_000),
+                nearest_hostile = Threat(60) is { } near ? $"{near.DefId} {Distance(_controller.Authoritative, near.Body) / 1000:0} m {near.Mind}" : null };
             events.Add(row); File.AppendAllText(Path.Combine(directory, "phases.jsonl"), JsonSerializer.Serialize(row) + "\n");
         }
         CreatureView? Threat(double within) => sim.Creatures
@@ -217,7 +218,7 @@ public partial class Main
                 Mark("foldscar_turn");
                 await Go(new[] { (680.0, 657.0), (760.0, 658.0), (840.0, 659.0) }, 300, Gait.Run);
                 Mark("road_east");
-                await Go(new[] { (880.0, 660.0), (886.0, 700.0), (884.0, 728.0) }, 200, Gait.Run, 14);
+                await Go(new[] { (880.0, 660.0), (881.3, 701.8), (884.0, 728.0) }, 200, Gait.Run, 14);
                 Mark("east_lane"); await Look((850, 758), 5);
                 break;
             case "busy":

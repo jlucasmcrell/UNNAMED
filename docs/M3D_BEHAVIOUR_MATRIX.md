@@ -94,14 +94,15 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 | spawn.hollow.spider_lair | (572, 648) | Cave Hunting Spider as ambusher | after 30.0 min |
 | spawn.hollow.valley_strays | (518, 728) | Grey Wolf as stray x2 | after 20.0 min |
 | spawn.road.barrow_husks | (846, 630) | Bone Walker Husk as sentinel, Bone Walker Husk as roamer | after 60.0 min |
+| spawn.road.bend_hunter | (560, 702) | Grey Wolf as hunter | after 48.0 min |
 | spawn.road.charred_pair | (690, 784) | Ash Ember Hound as prowler x2 | after 30.0 min |
 | spawn.road.deer | (790, 715) | Timber Hind as skittish x2 | after 30.0 min |
 | spawn.road.foldscar_wolves | (622, 622) | Grey Wolf as pack_hunter x2 | after 48.0 min |
 | spawn.road.hares | (720, 765) | Frost Hare as wildlife x2 | after 30.0 min |
 | spawn.road.old_grey | (760, 632) | Grey Alpha as roamer, Grey Wolf as roamer x2 | after 192.0 min |
 | spawn.road.old_late_boar | (720, 735) | Bristleback Boar as territorial | after 96.0 min |
-| spawn.road.scarp_boar | (905, 632) | Bristleback Boar as territorial | after 96.0 min |
-| spawn.road.shrine_hound | (668, 690) | Ash Ember Hound as hunter | after 72.0 min |
+| spawn.road.scarp_boar | (905, 650) | Bristleback Boar as territorial | after 96.0 min |
+| spawn.road.shrine_hound | (670, 674) | Ash Ember Hound as hunter | after 72.0 min |
 | spawn.road.shrine_husk | (700, 645) | Bone Walker Husk as night_walker | after 72.0 min |
-| spawn.road.wain_spider | (752, 678) | Cave Hunting Spider as ambusher | after 96.0 min |
+| spawn.road.wain_spider | (748, 666) | Cave Hunting Spider as ambusher | after 96.0 min |
 | spawn.road.wayside_pack | (772, 697) | Grey Wolf as roamer x2, Grey Wolf as stray | after 30.0 min |

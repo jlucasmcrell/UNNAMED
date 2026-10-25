@@ -8,7 +8,7 @@ region_ref: region.starting_frontier
 creatures:
   - { creature_ref: creature.beast.ash_ember_hound, count: [1, 1], role: hunter }
 at:
-  position_m: [668, 690]
+  position_m: [670, 674]
   radius_m: 6
 level_band: [3, 3]
 respawn: { kind: timer, window_ticks: 86400 }   # 1.5 game days, staggered so the road never refills all at once

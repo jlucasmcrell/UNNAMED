@@ -644,7 +644,7 @@ public class ContentLoaderTests
                 "spawn.hollow.charwood_fox", "spawn.hollow.charwood_hound", "spawn.hollow.den_pack", "spawn.hollow.east_pack",
                 "spawn.hollow.foldscar_barrowbacks", "spawn.hollow.foldscar_fellhorns", "spawn.hollow.hares", "spawn.hollow.hens",
                 "spawn.hollow.iron_shelf_armour", "spawn.hollow.iron_shelf_husk", "spawn.hollow.spider_lair", "spawn.hollow.valley_strays",
-                "spawn.road.barrow_husks", "spawn.road.charred_pair", "spawn.road.deer", "spawn.road.foldscar_wolves", "spawn.road.hares",
+                "spawn.road.barrow_husks", "spawn.road.bend_hunter", "spawn.road.charred_pair", "spawn.road.deer", "spawn.road.foldscar_wolves", "spawn.road.hares",
                 "spawn.road.old_grey", "spawn.road.old_late_boar", "spawn.road.scarp_boar", "spawn.road.shrine_hound", "spawn.road.shrine_husk",
                 "spawn.road.wain_spider", "spawn.road.wayside_pack", "spell.force.impulse_bolt", "spell.vital.mending_thread", "spell.warding.brace_ward",
                 "world.barrowworks.blind_store_read", "world.barrowworks.codex_fragment_taken", "world.barrowworks.diagram_rack_read", "world.barrowworks.fitting_note_read",
