@@ -56,6 +56,7 @@ public sealed partial class SkinnedModel : Node3D
         }
         var figure = new SkinnedModel { Name = assetId, Skeleton = skeleton };
         figure.AddChild(model);
+        WearFrontier(art, assetId, model, skeleton);
         // THE RETURN VALUE IS THE ONLY EVIDENCE THIS FIRES, AND IT WAS BEING THROWN AWAY. CharacterMaterials matches a
         // surface material to a zone by the END of its name - _skin, _cloth, _leather, _eye and so on - and applies
         // what glTF cannot say, which for skin is subsurface scattering at 0.22 with the skin mode on and for the eye
@@ -114,6 +115,41 @@ public sealed partial class SkinnedModel : Node3D
         figure.FindOutfits(model);
         figure.SetOutfit("base");
         return figure;
+    }
+
+    // Attach before material/LOD/face discovery: the native base (including its teeth and identity) stays intact.
+    private static void WearFrontier(ArtLibrary art, string assetId, Node3D model, Skeleton3D target)
+    {
+        string? outfitId = assetId switch
+        {
+            "humgen_player_ada_f" => "humgen_frontier_ada_f",
+            "humgen_player_mateo_m" => "humgen_frontier_mateo_m",
+            _ => null
+        };
+        if (outfitId is null) return;
+        var outfit = art.Rigged(outfitId) ?? throw new InvalidDataException("Default frontier outfit missing: " + outfitId);
+        var source = ArtLibrary.Find<Skeleton3D>(outfit) ?? throw new InvalidDataException("Frontier skeleton missing");
+        if (source.GetBoneCount() != target.GetBoneCount()) throw new InvalidDataException("Frontier bone count differs");
+        for (int i = 0; i < target.GetBoneCount(); i++)
+            if (source.GetBoneName(i) != target.GetBoneName(i))
+                throw new InvalidDataException("Frontier native bone order differs");
+        string[] originals = assetId.EndsWith("ada_f", StringComparison.Ordinal)
+            ? new[] { "Chinos_Female", "Garden_Boots_Female", "Sweater_1_Female" }
+            : new[] { "Skinny_Jeans_Male", "Garden_Boots_Male", "TSHIRT_Male" };
+        var old = model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>()
+            .Where(mesh => originals.Any(part => mesh.Name.ToString().Contains("_" + part + "_LOD", StringComparison.Ordinal))).ToArray();
+        var garments = outfit.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>().ToArray();
+        if (old.Length != 12 || garments.Length != 12) throw new InvalidDataException("Expected three native four-LOD garments");
+        foreach (var mesh in old) { mesh.GetParent().RemoveChild(mesh); mesh.Free(); }
+        foreach (var mesh in garments)
+        {
+            mesh.Owner = null;
+            mesh.GetParent().RemoveChild(mesh);
+            target.AddChild(mesh);
+            mesh.Skeleton = mesh.GetPathTo(target);
+        }
+        outfit.Free();
+        GD.Print($"UNNAMED frontier default: {assetId}, {garments.Length} native garment LOD meshes; base body unchanged");
     }
 
     /// <summary>Whether this body is a comparison cast's export, which brings its own clips and no bound outfit.</summary>
