@@ -22,13 +22,20 @@ public sealed partial class CreatorPreview : TextureRect
 
     private readonly SubViewport _viewport = new()
     {
-        Name = "Set", OwnWorld3D = true, Msaa3D = Viewport.Msaa.Msaa4X, RenderTargetUpdateMode = SubViewport.UpdateMode.Disabled,
+        Name = "Set", OwnWorld3D = true, Msaa3D = Viewport.Msaa.Msaa4X, ScreenSpaceAA = Viewport.ScreenSpaceAAEnum.Smaa, RenderTargetUpdateMode = SubViewport.UpdateMode.Disabled,
         Size = new Vector2I(1920, 1080),
     };
 
     private readonly Node3D _turntable = new() { Name = "Turntable" };
     private readonly Camera3D _camera = new() { Name = "Camera", Projection = Camera3D.ProjectionType.Frustum, KeepAspect = Camera3D.KeepAspectEnum.Height, Near = 0.05f };
-    private readonly DirectionalLight3D _key = new() { Name = "Key", ShadowEnabled = true };
+    // The key's shadows are soft (a sun of some angular size) and fall only on the set, so their maps resolve the face; the fill opens the
+    // shadow side of the face from beside the camera.
+    private readonly DirectionalLight3D _key = new()
+    {
+        Name = "Key", ShadowEnabled = true, LightAngularDistance = 4, DirectionalShadowMaxDistance = 12,
+        DirectionalShadowMode = DirectionalLight3D.ShadowMode.Parallel2Splits,
+    };
+    private readonly DirectionalLight3D _fill = new() { Name = "Fill" };
     private readonly OmniLight3D _rim = new() { Name = "Rim", OmniRange = 8 };
     private readonly OmniLight3D _lamp = new() { Name = "Lamp", OmniRange = 5, ShadowEnabled = true };
     private readonly ProceduralSkyMaterial _sky = new();
@@ -78,6 +85,8 @@ public sealed partial class CreatorPreview : TextureRect
         stage.AddChild(new WorldEnvironment { Environment = _environment });
         _key.RotationDegrees = new Vector3(-38, -32, 0);
         stage.AddChild(_key);
+        _fill.RotationDegrees = new Vector3(-12, 35, 0);
+        stage.AddChild(_fill);
         _rim.Position = new Vector3(-1.4f, 2.1f, -1.8f);
         stage.AddChild(_rim);
         stage.AddChild(_lamp);
@@ -156,24 +165,28 @@ public sealed partial class CreatorPreview : TextureRect
             case 0:   // the opening's light: late morning, light overcast (bible §28)
                 Sky(new Color(0.36f, 0.48f, 0.66f), new Color(0.70f, 0.72f, 0.74f), new Color(0.20f, 0.18f, 0.16f), 0.9f);
                 Key(new Color(1f, 0.94f, 0.84f), 2.1f);
+                Fill(new Color(0.86f, 0.9f, 1f), 0.55f);
                 Rim(new Color(0.75f, 0.82f, 1f), 0.9f);
                 Lamp(null, 0);
                 break;
             case 1:
                 Sky(new Color(0.52f, 0.55f, 0.60f), new Color(0.70f, 0.71f, 0.72f), new Color(0.22f, 0.21f, 0.20f), 1.2f);
                 Key(new Color(0.92f, 0.94f, 0.97f), 0.7f);
+                Fill(new Color(0.92f, 0.94f, 0.97f), 0.25f);
                 Rim(new Color(0.9f, 0.92f, 0.96f), 0.4f);
                 Lamp(null, 0);
                 break;
             case 2:
                 Sky(new Color(0.06f, 0.05f, 0.04f), new Color(0.12f, 0.09f, 0.07f), new Color(0.05f, 0.04f, 0.03f), 0.35f);
                 Key(new Color(0.9f, 0.85f, 0.8f), 0.25f);
+                Fill(new Color(1f, 0.8f, 0.6f), 0.1f);
                 Rim(new Color(1f, 0.55f, 0.25f), 0.5f);
                 Lamp(new Vector3(1.1f, 1.7f, 1.0f), 4.5f);
                 break;
             default:
                 Sky(new Color(0.03f, 0.05f, 0.10f), new Color(0.08f, 0.10f, 0.16f), new Color(0.03f, 0.03f, 0.04f), 0.4f);
                 Key(new Color(0.55f, 0.65f, 0.95f), 0.35f);
+                Fill(new Color(0.55f, 0.65f, 0.95f), 0.1f);
                 Rim(new Color(0.5f, 0.6f, 1f), 0.6f);
                 Lamp(new Vector3(0.7f, 1.1f, 1.1f), 3.0f);
                 break;
@@ -196,6 +209,12 @@ public sealed partial class CreatorPreview : TextureRect
     {
         _key.LightColor = colour;
         _key.LightEnergy = energy;
+    }
+
+    private void Fill(Color colour, float energy)
+    {
+        _fill.LightColor = colour;
+        _fill.LightEnergy = energy;
     }
 
     private void Rim(Color colour, float energy)

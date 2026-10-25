@@ -328,7 +328,20 @@ public partial class Main
         {
             Appearance = _creator.Draft.Appearance! with { Sliders = _creator.Draft.Appearance!.Sliders.SetItem(LookSwatches.StyleSlider, 1) },
         }), 3000));
-        list.Add(($"{list.Count + 1:00}_hair_bun", () => _creator.Go(CreatorStep.Outfit), 1500));
+        // Every style at the face framing, so a style that looks worse up close than the body's own can be dropped.
+        void Style(int style, float zoom)
+        {
+            _creator.Frame(zoom);
+            _creator.Use(_creator.Draft with { Appearance = _creator.Draft.Appearance! with { Sliders = _creator.Draft.Appearance!.Sliders.SetItem(LookSwatches.StyleSlider, style) } });
+        }
+        list.Add(($"{list.Count + 1:00}_hair_bun", () => Style(2, CreatorPreview.Framings[2].Zoom), 3500));
+        list.Add(($"{list.Count + 1:00}_hair_long_bob_face", () => Style(1, CreatorPreview.Framings[2].Zoom), 2500));
+        list.Add(($"{list.Count + 1:00}_hair_bun_face", () => Style(0, CreatorPreview.Framings[2].Zoom), 2500));
+        list.Add(($"{list.Count + 1:00}_hair_ponytail_face", () =>
+        {
+            Style(1, CreatorPreview.Framings[0].Zoom);
+            _creator.Go(CreatorStep.Outfit);
+        }, 2500));
         list.Add(($"{list.Count + 1:00}_outfit", () => _creator.Go(CreatorStep.Identity), 1500));
         int n = list.Count;
         string N(string shot) => $"{++n:00}_{shot}";
