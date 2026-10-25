@@ -56,10 +56,15 @@ public partial class KalWings : BoneAttachment3D
         wings.AddChild(rig);
         foreach (var mesh in rig.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
             mesh.CastShadow = GeometryInstance3D.ShadowCastingSetting.On;
-        player.Play("deploy");
-        player.Pause();
-        wings.Apply();
         return wings;
+    }
+
+    // The figure is usually built off the tree, where the player cannot pose the rig yet.
+    public override void _Ready()
+    {
+        _player.Play("deploy");
+        _player.Pause();
+        Apply();
     }
 
     public override void _Process(double delta)
