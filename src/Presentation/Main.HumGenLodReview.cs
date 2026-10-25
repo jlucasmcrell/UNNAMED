@@ -48,6 +48,8 @@ public partial class Main
                     total_meshes = meshes.Length, engine_max_fps = Engine.MaxFps });
                 await Rcd3Shot(directory, "lod_" + id + "_" + distance + "m");
             }
+            if (id is "humgen_player_ada_f" or "humgen_player_mateo_m" or "humgen_named_sel_arien" or "humgen_named_tavar_orr")
+                await CaptureHumGenTeethGate(directory, camera, figure, feet, rows);
             figure.Free();
         }
         platform.Free();
@@ -92,5 +94,51 @@ public partial class Main
             rows,
             performance,
         }, new JsonSerializerOptions { WriteIndented = true }));
+    }
+
+    private async Task CaptureHumGenTeethGate(string directory, Camera3D camera, SkinnedFigure figure, Vector3 feet, List<object> rows)
+    {
+        var model = figure.GetChildren().OfType<SkinnedModel>().Single();
+        var driver = figure.FindChildren("*", "", true, false).OfType<FaceDriver>().Single();
+        foreach (string clip in new[] { "walk_back", "walk_strafe_left", "talk" })
+        foreach (bool all in new[] { true, false })
+        {
+            bool talking = clip == "talk";
+            figure.SetTalking(talking);
+            figure.Say(null);
+            figure.Say(talking ? "Ada, we should go to the inn. Who are you?" : null);
+            // Actual accepted animation playback, in place on the inspection platform;
+            // no held pose, bone edit or inferred anatomy from a Blender import.
+            model.Play(clip, 0, 1, restart: true);
+            if (!model.Has(clip)) throw new InvalidDataException("Teeth gate lacks clip " + clip);
+            figure.ReviewAllLods(all);
+            camera.GlobalPosition = feet + new Vector3(0, 1.5f, MathF.Sqrt(1.75f));
+            camera.Fov = 25;
+            camera.LookAt(figure.Head!.Value - Vector3.Up * .10f);
+            await Rcd3Wait(.65);
+            if (talking)
+            {
+                ulong until = Time.GetTicksMsec() + 2500;
+                while (driver.JawWeight < .045f && Time.GetTicksMsec() < until)
+                    await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                if (driver.JawWeight < .045f) throw new InvalidDataException("Teeth gate produced no speaking jaw");
+            }
+            foreach (bool throat in new[] { false, true })
+            {
+                camera.Fov = throat ? 14 : 25;
+                camera.LookAt(figure.Head!.Value - Vector3.Up * (throat ? .20f : .10f));
+                string frame = "teeth_" + figure.ModelId + "_" + clip + "_" + (all ? "all_four_before" : "exclusive_after") + (throat ? "_throat" : "_face");
+                await Rcd3Shot(directory, frame);
+                rows.Add(new { frame = frame + ".png", model = figure.ModelId, requested_clip = clip, actual_clip = figure.ClipState,
+                    animation_seconds = model.GetNode<AnimationPlayer>("Clips").CurrentAnimationPosition,
+                    jaw_weight = driver.JawWeight, camera = camera.GlobalPosition.ToString(), fov = camera.Fov,
+                    distance_m = camera.GlobalPosition.DistanceTo(feet), all_four_diagnostic = all,
+                    staging = "Production NPC figure/face driver; real accepted clip plays in place; throat framing is native camera, not edited pixels" });
+            }
+        }
+        figure.ReviewAllLods(false);
+        figure.SetTalking(false);
+        figure.Say(null);
+        camera.Fov = 40;
     }
 }
