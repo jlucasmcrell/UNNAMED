@@ -182,7 +182,7 @@ public static class PeopleAppearance
                 var original = mesh.GetMeta(key).As<Material>();
                 if (garment is not null)
                 {
-                    mesh.SetSurfaceOverrideMaterial(surface, Dyed(original, garment == "shirt" ? shirt : trousers));
+                    mesh.SetSurfaceOverrideMaterial(surface, Dyed(original, garment switch { "shirt" => shirt, "trousers" => trousers, _ => LookSwatches.Boots }));
                     continue;
                 }
                 var swatch = isSkin ? skin : hair;
@@ -241,9 +241,17 @@ public static class PeopleAppearance
             return original;
         var mean = (copy.AlbedoTexture is { } texture ? MeanColour(texture) : null) ?? Colors.White;
         var tint = copy.AlbedoColor.SrgbToLinear() * mean.SrgbToLinear();
-        var target = new Color(cloth.R, cloth.G, cloth.B).SrgbToLinear();
+        // A fifth of the cloth's colour is added under the dye, so parts baked black (the sweater's collar band, the rubber boots) come out
+        // as a darker shade of the same cloth instead of staying black.
+        var target = new Color(cloth.R, cloth.G, cloth.B).SrgbToLinear() * .8f;
         var dye = new Color(target.R / Math.Max(tint.R, .002f), target.G / Math.Max(tint.G, .002f), target.B / Math.Max(tint.B, .002f)).LinearToSrgb();
         copy.AlbedoColor = new Color(dye.R, dye.G, dye.B, copy.AlbedoColor.A);
+        var lift = (new Color(cloth.R, cloth.G, cloth.B).SrgbToLinear() * .2f).LinearToSrgb();
+        var image = Image.CreateEmpty(1, 1, false, Image.Format.Rgba8);
+        image.Fill(new Color(lift.R, lift.G, lift.B));
+        copy.DetailEnabled = true;
+        copy.DetailBlendMode = BaseMaterial3D.BlendModeEnum.Add;
+        copy.DetailAlbedo = ImageTexture.CreateFromImage(image);
         return copy;
     }
 

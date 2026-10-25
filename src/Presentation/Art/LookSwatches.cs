@@ -28,12 +28,17 @@ public static class LookSwatches
 
     public static readonly Swatch[] Trousers = { new("Brown", .33f, .25f, .18f), new("Charcoal", .2f, .2f, .21f) };
 
-    /// <summary>A garment's kind from its material name: a top, trousers, or null (boots, belts and the rest keep their colour).</summary>
+    /// <summary>The interim boots are black rubber garden boots; they are always drawn as worn leather.</summary>
+    public static readonly Swatch Boots = new("Leather", .3f, .2f, .13f);
+
+    /// <summary>A garment's kind from its material name: a top, trousers, boots, or null (belts and the rest keep their colour).</summary>
     public static string? GarmentKind(string material)
     {
         string name = material.ToLowerInvariant();
         if (new[] { "tshirt", "shirt", "sweater", "top", "tunic", "blouse", "hoodie" }.Any(name.Contains))
             return "shirt";
+        if (name.Contains("boots"))
+            return "boots";
         return new[] { "jeans", "chinos", "trousers", "pants", "shorts" }.Any(name.Contains) ? "trousers" : null;
     }
 
