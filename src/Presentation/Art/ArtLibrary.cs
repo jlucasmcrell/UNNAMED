@@ -542,8 +542,10 @@ public sealed class ArtLibrary
             mesh.VisibilityRangeBegin = mesh.VisibilityRangeEnd = 0;
             mesh.VisibilityRangeBeginMargin = mesh.VisibilityRangeEndMargin = 0;
             mesh.VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Disabled;
-            // Opt-in public performance comparison; High/Ultra retain the accepted full model.
-            mesh.LodBias = System.Environment.GetEnvironmentVariable("UNNAMED_TREE_VIEW_LOD") == "1"
+            // Low/Medium use the importer-generated projected-error index LODs. No tree disappears
+            // or switches to a separately-originated model; High/Ultra keep their accepted full mesh.
+            // Explicit 0 remains the diagnostic full-detail control.
+            mesh.LodBias = System.Environment.GetEnvironmentVariable("UNNAMED_TREE_VIEW_LOD") != "0"
                 ? VisualOptions.Tier switch { "low" => .75f, "medium" => 1.5f, _ => FullDetailLodBias }
                 : FullDetailLodBias;
             // The occlusion test runs a frame behind the camera: a tree it wrongly hides blinks out while the player runs at it.

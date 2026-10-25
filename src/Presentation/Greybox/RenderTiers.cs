@@ -55,6 +55,7 @@ public static class RenderTiers
         switch (VisualOptions.Tier)
         {
             case "low":
+                environment.SsaoEnabled = false;
                 environment.SdfgiEnabled = false;
                 environment.SsilEnabled = false;
                 environment.VolumetricFogEnabled = false;

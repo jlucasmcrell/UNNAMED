@@ -13,10 +13,10 @@ public partial class TreeTierLodGate : Node
         {
             System.Environment.SetEnvironmentVariable("UNNAMED_TREE_SHADOW_LOD","0");
             int cases=0;
-            foreach(bool candidate in new[]{false,true})
+            foreach(string? candidate in new string?[]{null,"0","1"})
             foreach(string tier in new[]{"low","medium","high","ultra"})
             {
-                System.Environment.SetEnvironmentVariable("UNNAMED_TREE_VIEW_LOD",candidate?"1":"0");
+                System.Environment.SetEnvironmentVariable("UNNAMED_TREE_VIEW_LOD",candidate);
                 VisualOptions.Parse("tier="+tier);
                 var root=new Node3D();AddChild(root);
                 var geometry=new BoxMesh();var material=new StandardMaterial3D();
@@ -27,7 +27,7 @@ public partial class TreeTierLodGate : Node
                 var scatter=new MultiMeshInstance3D {Multimesh=multi};root.AddChild(scatter);
                 var buffer=multi.Buffer;
                 ArtLibrary.Whole(root);
-                float expected=candidate && tier=="low"?.75f:candidate && tier=="medium"?1.5f:ArtLibrary.FullDetailLodBias;
+                float expected=candidate!="0" && tier=="low"?.75f:candidate!="0" && tier=="medium"?1.5f:ArtLibrary.FullDetailLodBias;
                 foreach(var instance in new GeometryInstance3D[]{tree,scatter})
                     if(instance.LodBias!=expected || instance.VisibilityRangeBegin!=0 || instance.VisibilityRangeEnd!=0
                         || !instance.IgnoreOcclusionCulling || instance.CastShadow!=GeometryInstance3D.ShadowCastingSetting.On)
@@ -38,7 +38,7 @@ public partial class TreeTierLodGate : Node
                 if(root.GetChildCount()!=2)throw new InvalidDataException("Tree quality setup created duplicate draws");
                 root.Free();cases++;
             }
-            GD.Print($"TREE_TIER_LOD_GATE_PASS {cases}: defaults and High/Ultra unchanged; buffers/materials/ranges/casting preserved");
+            GD.Print($"TREE_TIER_LOD_GATE_PASS {cases}: Low/Medium defaults use native index LOD; High/Ultra unchanged; buffers/materials/ranges/casting preserved");
             GetTree().Quit();
         }
         catch(Exception error){GD.PushError(error.ToString());GetTree().Quit(1);}
