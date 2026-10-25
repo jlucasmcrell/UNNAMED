@@ -1,0 +1,15 @@
+id: spawn.field.tenders_south
+kind: spawn
+schema: 1
+display_key: spawn.field.tenders_south.name
+tags: [spawn]
+notes: 'Two gate tenders holding the gap between the south pylons, behind the fallen block (docs/FIELD_RUINS.md). Level 4.'
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.construct.gate_tender, count: [2, 2], role: sentinel }
+at:
+  position_m: [856, 792]
+  radius_m: 3
+level_band: [4, 4]
+respawn: { kind: timer, window_ticks: 172800 }   # 3 game days, staggered so the road never refills all at once
+tier_hint: A

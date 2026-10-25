@@ -68,13 +68,16 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 | spawn.cairnwold.gorge_spiders | (1076, 696) | Cave Hunting Spider as ambusher x2 | after 30.0 min |
 | spawn.cairnwold.hens | (980, 694) | Ashcomb Hen as yard_fowl x4, Ashcomb Cock as yard_fowl | after 30.0 min |
 | spawn.cairnwold.moor_hares | (1000, 700) | Frost Hare as wildlife x3 | after 30.0 min |
-| spawn.cairnwold.moor_strays | (1018, 748) | Grey Wolf as stray, Grey Wolf as roamer x2 | after 20.0 min |
+| spawn.cairnwold.moor_strays | (1024, 753) | Grey Wolf as stray, Grey Wolf as roamer x2 | after 20.0 min |
 | spawn.cairnwold.outfall_hares | (1060, 640) | Frost Hare as wildlife x2 | after 30.0 min |
 | spawn.field.breach_northeast | (867, 736) | Animated Armour as sentinel | after 60.0 min |
+| spawn.field.breach_south | (846, 777) | Animated Armour as sentinel | after 144.0 min |
 | spawn.field.breach_west | (824, 758) | Animated Armour as sentinel | after 60.0 min |
 | spawn.field.gate_warden | (866, 762) | Gate Warden as sentinel | no |
 | spawn.field.tenders_east | (873, 727) | Gate Tender as sentinel x2 | after 60.0 min |
-| spawn.field.tenders_north | (830, 708) | Gate Tender as roamer x2 | after 60.0 min |
+| spawn.field.tenders_needle | (912, 752) | Gate Tender as sentinel x2 | after 144.0 min |
+| spawn.field.tenders_north | (830, 716) | Gate Tender as roamer x2 | after 60.0 min |
+| spawn.field.tenders_south | (856, 792) | Gate Tender as sentinel x2 | after 144.0 min |
 | spawn.field.tenders_west | (800, 760) | Gate Tender as roamer x2 | after 60.0 min |
 | spawn.hollow.boar_wallow | (418, 672) | Bristleback Boar as territorial | after 30.0 min |
 | spawn.hollow.charwood_deer | (612, 718) | Timber Hind as skittish x2, Timber Stag as skittish | after 30.0 min |
@@ -93,5 +96,12 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 | spawn.road.barrow_husks | (846, 630) | Bone Walker Husk as sentinel, Bone Walker Husk as roamer | after 60.0 min |
 | spawn.road.charred_pair | (690, 784) | Ash Ember Hound as prowler x2 | after 30.0 min |
 | spawn.road.deer | (790, 715) | Timber Hind as skittish x2 | after 30.0 min |
+| spawn.road.foldscar_wolves | (622, 622) | Grey Wolf as pack_hunter x2 | after 48.0 min |
 | spawn.road.hares | (720, 765) | Frost Hare as wildlife x2 | after 30.0 min |
-| spawn.road.wayside_pack | (770, 692) | Grey Wolf as roamer x2, Grey Wolf as stray | after 30.0 min |
+| spawn.road.old_grey | (760, 632) | Grey Alpha as roamer, Grey Wolf as roamer x2 | after 192.0 min |
+| spawn.road.old_late_boar | (720, 735) | Bristleback Boar as territorial | after 96.0 min |
+| spawn.road.scarp_boar | (905, 632) | Bristleback Boar as territorial | after 96.0 min |
+| spawn.road.shrine_hound | (668, 690) | Ash Ember Hound as hunter | after 72.0 min |
+| spawn.road.shrine_husk | (700, 645) | Bone Walker Husk as night_walker | after 72.0 min |
+| spawn.road.wain_spider | (752, 678) | Cave Hunting Spider as ambusher | after 96.0 min |
+| spawn.road.wayside_pack | (772, 697) | Grey Wolf as roamer x2, Grey Wolf as stray | after 30.0 min |

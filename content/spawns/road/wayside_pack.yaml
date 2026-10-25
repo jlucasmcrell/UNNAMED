@@ -9,7 +9,7 @@ creatures:
   - { creature_ref: creature.beast.wolf_grey, count: [2, 2], role: roamer }
   - { creature_ref: creature.beast.wolf_grey, count: [1, 1], role: stray }
 at:
-  position_m: [770, 692]
+  position_m: [772, 697]
   radius_m: 8
 route_m:
   - [748, 688]

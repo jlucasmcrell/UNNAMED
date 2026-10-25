@@ -1,0 +1,15 @@
+id: spawn.road.foldscar_wolves
+kind: spawn
+schema: 1
+display_key: spawn.road.foldscar_wolves.name
+tags: [spawn]
+notes: 'Two grey wolves lying up at the Foldscar''s edge, watching the fellhorn herd - the first fight on the road east that a body has to choose. Level 2.'
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.beast.wolf_grey, count: [2, 2], role: pack_hunter }
+at:
+  position_m: [622, 622]
+  radius_m: 6
+level_band: [2, 2]
+respawn: { kind: timer, window_ticks: 57600 }   # 1 game day, staggered so the road never refills all at once
+tier_hint: A

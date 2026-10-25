@@ -172,7 +172,8 @@ public class QuestContentTests
         Assert.Contains(ErrorsWith(Quest1, "or_item_refs: [item.material.iron_ingot, item.weapon.march_spear]",
                 "or_item_refs: [item.material.iron_ingot, item.armor.lame_coif, item.armor.lame_sabatons, item.armor.lamework_jack]", FiniteSpoil,
                 ("spawns/hollow/iron_shelf_armour.yaml", "kind: timer", "kind: none"), ("spawns/moor/barrow_sentinel.yaml", "kind: timer", "kind: none"),
-                ("spawns/field/breach_west.yaml", "kind: timer", "kind: none"), ("spawns/field/breach_northeast.yaml", "kind: timer", "kind: none")),
+                ("spawns/field/breach_west.yaml", "kind: timer", "kind: none"), ("spawns/field/breach_northeast.yaml", "kind: timer", "kind: none"),
+                ("spawns/field/breach_south.yaml", "kind: timer", "kind: none")),
             e => e.Code == "QST001" && e.Message.Contains("nothing renews item.material.iron_ingot, and recipe.smithing.march_spear makes it into item.weapon.march_spear",
                 StringComparison.Ordinal));
 

@@ -1,0 +1,21 @@
+id: spawn.road.old_grey
+kind: spawn
+schema: 1
+display_key: spawn.road.old_grey.name
+tags: [spawn]
+notes: 'Old Grey: a big grey wolf and two of his pack on a long beat north of the road. Rare - once he is down the road is quiet of him for days. Level 3 with level 2 wolves.'
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.beast.wolf_grey_alpha, count: [1, 1], role: roamer }
+  - { creature_ref: creature.beast.wolf_grey, count: [2, 2], role: roamer }
+at:
+  position_m: [760, 632]
+  radius_m: 8
+route_m:
+  - [728, 630]
+  - [782, 622]
+  - [792, 640]
+  - [764, 646]
+level_band: [2, 3]
+respawn: { kind: timer, window_ticks: 230400 }   # 4 game days, staggered so the road never refills all at once
+tier_hint: A
