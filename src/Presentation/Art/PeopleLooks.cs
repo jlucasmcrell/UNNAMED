@@ -36,4 +36,14 @@ public static class PeopleLooks
     /// <summary>A lingering decoy ghost's opacity: as strong as the nearest trail ghost, fading out over its last third.</summary>
     public static float DecoyStrength(double age, double seconds) =>
         .55f * (float)Math.Clamp((seconds - age) / (seconds / 3), 0, 1);
+
+    /// <summary>
+    /// A wraith-step's silver veil over the body: eases in and out over 0.2 s so it never pops, 0.45 at its height, so the
+    /// body reads as half out of reality while staying solid underneath.
+    /// </summary>
+    public static float PhaseVeil(double age, double seconds) =>
+        .45f * (float)Math.Clamp(Math.Min(age, seconds - age) / .2, 0, 1);
+
+    /// <summary>While phased the trail shows even at a walk: each ghost at least this strong.</summary>
+    public static float PhaseTrailFloor(int ghost) => .35f * (1f - ghost / (float)AfterimageLags.Length);
 }

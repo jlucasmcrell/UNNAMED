@@ -97,6 +97,9 @@ public partial class Main
                     decoy = f.FindChildren("OrenthPhase", "", true, false).OfType<OrenthPhase>().Single().Linger(Num(s, "seconds", 1), f.GlobalTransform);
                     break;
                 }
+                case "phase":
+                    figures[s.GetProperty("id").GetString()!].Figure.FindChildren("OrenthPhase", "", true, false).OfType<OrenthPhase>().Single().Phase(Num(s, "seconds", 1.5f));
+                    break;
                 case "shatter":
                     decoy?.Shatter();
                     break;

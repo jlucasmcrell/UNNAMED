@@ -54,4 +54,20 @@ public class PeopleLooksTests
     [InlineData(1.0, 0f)]
     [InlineData(2.0, 0f)]
     public void DecoyHoldsThenFadesOverItsLastThird(double age, float strength) => Assert.Equal(strength, PeopleLooks.DecoyStrength(age, 1.0), 3);
+
+    [Theory]
+    [InlineData(0.0, 0f)]
+    [InlineData(.1, .225f)]
+    [InlineData(.75, .45f)]
+    [InlineData(1.4, .225f)]
+    [InlineData(1.5, 0f)]
+    [InlineData(2.0, 0f)]
+    public void PhaseVeilEasesInAndOut(double age, float strength) => Assert.Equal(strength, PeopleLooks.PhaseVeil(age, 1.5), 3);
+
+    [Fact]
+    public void PhasedTrailShowsAtAWalkAndStaysFainterThanASprint()
+    {
+        Assert.True(PeopleLooks.PhaseTrailFloor(0) > 0 && PeopleLooks.PhaseTrailFloor(0) < PeopleLooks.AfterimageStrength(5f, 0));
+        Assert.True(PeopleLooks.PhaseTrailFloor(2) < PeopleLooks.PhaseTrailFloor(0));
+    }
 }

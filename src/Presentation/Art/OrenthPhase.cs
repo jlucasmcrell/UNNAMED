@@ -6,17 +6,18 @@ namespace UNNAMED.Presentation.Art;
 /// <summary>
 /// An Orenth figure's registration lag, drawn by twins of the figure's own skinned meshes on the same skeleton: the shadow
 /// is cast by a shadow-only twin that trails the body by an instant (the real meshes stop casting), and running leaves a
-/// trail of pale spirit ghosts, each further behind and fainter (<see cref="PeopleLooks.AfterimageLags"/>).
+/// trail of pale spirit ghosts, each further behind and fainter (<see cref="PeopleLooks.AfterimageLags"/>). A wraith-step
+/// (<see cref="Phase"/>) lays a silver veil over the body itself, drawn by the same ghost shader, with no material change on the body.
 /// </summary>
 public partial class OrenthPhase : Node
 {
     private const double ShadowLag = .09, History = .4;
     private const float LastLevelDistance = 18f;
 
-    private readonly List<(MeshInstance3D Source, MeshInstance3D Shadow, MeshInstance3D[] Trail, ShaderMaterial[] Spirit)> _twins = new();
+    private readonly List<(MeshInstance3D Source, MeshInstance3D Shadow, MeshInstance3D[] Trail, MeshInstance3D Veil, ShaderMaterial[] Spirit)> _twins = new();
     private readonly Queue<(double Time, Vector3 Position)> _path = new();
     private Node3D _body = null!;
-    private double _clock;
+    private double _clock, _phaseStart = -1, _phaseSeconds;
 
     public static OrenthPhase Attach(Node3D model)
     {
@@ -44,6 +45,7 @@ public partial class OrenthPhase : Node
             lagging.MaterialOverride = shadow;
             mesh.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
             var trail = PeopleLooks.AfterimageLags.Select((_, ghost) => Twin("_phase_trail" + ghost)).ToArray();
+            var veil = Twin("_phase_veil");
             var materials = new ShaderMaterial[mesh.Mesh.GetSurfaceCount()];
             for (int surface = 0; surface < materials.Length; surface++)
             {
@@ -59,12 +61,12 @@ public partial class OrenthPhase : Node
                     material.SetShaderParameter("base_map", albedo);
                 }
                 materials[surface] = material;
-                foreach (var copy in trail)
+                foreach (var copy in trail.Append(veil))
                     copy.SetSurfaceOverrideMaterial(surface, material);
             }
-            foreach (var copy in trail)
+            foreach (var copy in trail.Append(veil))
                 copy.Visible = false;
-            phase._twins.Add((mesh, lagging, trail, materials));
+            phase._twins.Add((mesh, lagging, trail, veil, materials));
         }
         model.AddChild(phase);
         return phase;
@@ -93,18 +95,31 @@ public partial class OrenthPhase : Node
         float speed = _clock - oldest.Time > .05 ? (at - oldest.Position).Length() / (float)(_clock - oldest.Time) : 0f;
         var shadowLag = Behind(ShadowLag) - at;
         var lags = PeopleLooks.AfterimageLags.Select(lag => Behind(lag) - at).ToArray();
-        foreach (var (source, lagging, trail, _) in _twins)
+        bool phased = _phaseStart >= 0 && _clock - _phaseStart < _phaseSeconds;
+        float veilStrength = phased ? PeopleLooks.PhaseVeil(_clock - _phaseStart, _phaseSeconds) : 0f;
+        foreach (var (source, lagging, trail, veil, _) in _twins)
         {
             var toLocal = source.GlobalBasis.Inverse();
             lagging.SetInstanceShaderParameter("offset", toLocal * shadowLag);
+            veil.Visible = veilStrength > .005f && source.IsVisibleInTree();
+            veil.SetInstanceShaderParameter("strength", veilStrength);
             for (int ghost = 0; ghost < trail.Length; ghost++)
             {
                 float strength = PeopleLooks.AfterimageStrength(speed, ghost);
+                if (phased)
+                    strength = Math.Max(strength, PeopleLooks.PhaseTrailFloor(ghost) * veilStrength / .45f);
                 trail[ghost].Visible = strength > .005f && source.IsVisibleInTree();
                 trail[ghost].SetInstanceShaderParameter("offset", toLocal * lags[ghost]);
                 trail[ghost].SetInstanceShaderParameter("strength", strength);
             }
         }
+    }
+
+    /// <summary>A wraith-step: for <paramref name="seconds"/> the body wears the silver veil and the spirit trail shows even at a walk.</summary>
+    public void Phase(double seconds)
+    {
+        _phaseStart = _clock;
+        _phaseSeconds = seconds;
     }
 
     /// <summary>
@@ -115,7 +130,7 @@ public partial class OrenthPhase : Node
     public OrenthDecoy Linger(double seconds, Transform3D at)
     {
         var decoy = new OrenthDecoy { Seconds = seconds };
-        foreach (var (source, _, _, spirit) in _twins)
+        foreach (var (source, _, _, _, spirit) in _twins)
         {
             if (!source.IsVisibleInTree())
                 continue;
