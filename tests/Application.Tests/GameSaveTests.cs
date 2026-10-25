@@ -125,7 +125,7 @@ public class GameSaveTests
         int stacks = differences.Count(d => d.Contains(".Notable: ", StringComparison.Ordinal));
         Assert.True(stacks >= expected["player"]!["Inventory"]!.AsArray().Count, "every carried stack gains its (empty) notable record");
         Assert.Equal(stacks, differences.Count(d => d.Contains(".Wear: ", StringComparison.Ordinal)));   // and its (empty) wear, schema 24
-        Assert.Equal(stacks, differences.Count(d => d.Contains(".Enhancements: ", StringComparison.Ordinal)));   // and its (empty) enhancements, schema 41
+        Assert.Equal(stacks, differences.Count(d => d.Contains(".Enhancements: ", StringComparison.Ordinal)));   // and its (empty) enhancements, schema 40
         // The posture and digest, four fields a record, the noises, the Waystones, the deeds, the identity, each stack's notable record,
         // the faction ledger, and the economy and merchants.
         int members = expected["player"]!["Companions"]!.AsArray().Count;
