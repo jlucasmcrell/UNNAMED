@@ -33,7 +33,7 @@ public class FieldRuinsBandTests(ITestOutputHelper output)
         var setup = Harness.Boot(profile).Setup;
         var creatures = setup.Combat.Creatures;
         var field = setup.Combat.Spawns.Where(s => s.Key.StartsWith("spawn.field.", StringComparison.Ordinal)).ToList();
-        Assert.Equal(6, field.Count);
+        Assert.Equal(9, field.Count);
         Assert.All(field.Where(s => s.Key.Contains("tenders", StringComparison.Ordinal)).SelectMany(s => s.Members),
             m => Assert.Equal(4, creatures[m.CreatureId].Level));
         Assert.All(field.Where(s => !s.Key.Contains("tenders", StringComparison.Ordinal)).SelectMany(s => s.Members),

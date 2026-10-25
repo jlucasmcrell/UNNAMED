@@ -1,0 +1,20 @@
+id: spawn.road.shrine_husk
+kind: spawn
+schema: 1
+display_key: spawn.road.shrine_husk.name
+tags: [spawn]
+notes: 'A husk that walks round the Lantern Shrine after dark and stands in the trees by day. Level 3.'
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.undead.bone_walker_husk, count: [1, 1], role: night_walker }
+at:
+  position_m: [700, 645]
+  radius_m: 4
+route_m:
+  - [684, 642]
+  - [708, 640]
+  - [712, 652]
+  - [690, 650]
+level_band: [3, 3]
+respawn: { kind: timer, window_ticks: 86400 }   # 1.5 game days, staggered so the road never refills all at once
+tier_hint: A

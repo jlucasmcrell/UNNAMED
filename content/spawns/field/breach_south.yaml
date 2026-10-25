@@ -1,0 +1,15 @@
+id: spawn.field.breach_south
+kind: spawn
+schema: 1
+display_key: spawn.field.breach_south.name
+tags: [spawn]
+notes: 'The third suit of armour the hum has stood up, at the court''s south-west breach. Level 5.'
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.construct.animated_armour, count: [1, 1], role: sentinel }
+at:
+  position_m: [846, 777]
+  radius_m: 3
+level_band: [5, 5]
+respawn: { kind: timer, window_ticks: 172800 }   # 3 game days, staggered so the road never refills all at once
+tier_hint: A

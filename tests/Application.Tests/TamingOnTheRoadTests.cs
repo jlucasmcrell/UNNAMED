@@ -22,7 +22,7 @@ public class TamingOnTheRoadTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        // The region's own wayside pack (content/spawns/road/wayside_pack.yaml: two roamers and a stray at (770, 692), level band 3), and the
+        // The region's own wayside pack (content/spawns/road/wayside_pack.yaml: two roamers and a stray at (772, 697), level band 2), and the
         // character set down beside them rather than walked - reaching a moving pack is the capture harness's problem, not the world's.
         var arena = Arena.OpenCreatures(session, session.Setup, (768.0, 690.0), 90, Array.Empty<(string, double, double, string)>(),
             r => r.WithInventory(r.Inventory.Add(Arena.Stack(Meat, 3))), keepSpawns: true);

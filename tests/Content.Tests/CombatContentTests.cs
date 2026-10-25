@@ -85,7 +85,7 @@ public class CombatContentTests
         var spawns = setup.Spawns.ToDictionary(s => s.Key);
         // 29, not 30: the Ring Custodian's spawn is region.barrowworks' and this run is the start area's, so
         // CombatContent correctly does not carry it. A run of the ring has it and not these.
-        Assert.Equal(35, spawns.Count);   // the hollow's eight and Cairnwold's four; the road's three camps; one night walker; 13 of wildlife; the Spill's six
+        Assert.Equal(46, spawns.Count);   // the hollow's eight and Cairnwold's four; the road's eleven camps (the population pass); one night walker; 13 of wildlife; the Spill's nine
         var strays = spawns["spawn.hollow.valley_strays"];
         Assert.Equal((2, 518_000L, 728_000L, 24_000L), (strays.Members.Length, strays.XMm, strays.ZMm, strays.RespawnTicks));
         Assert.All(strays.Members, m => Assert.Equal("stray", m.RoleId));

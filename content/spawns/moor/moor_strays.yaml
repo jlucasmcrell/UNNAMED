@@ -26,14 +26,14 @@ creatures:
   role: roamer
 at:
   position_m:
-  - 1018
-  - 748
+  - 1024
+  - 753
   radius_m: 22
 route_m:
 - - 1000
   - 730
 - - 1040
-  - 732
+  - 737
 - - 1042
   - 768
 - - 1002

@@ -1,11 +1,14 @@
 import tempfile
 from pathlib import Path
-from check_packaged_art import problems
+from check_packaged_art import problems, main
 
 with tempfile.TemporaryDirectory() as directory:
     path = Path(directory) / "game.log"
     for text, bad in [
         ("502 assets drawn; 0 withheld or unavailable (greybox stands in)", False),
+        ("0 assets drawn from the library at boot; 0 withheld or unavailable (greybox stands in)", True),
+        ("UNNAMED art coverage: 500 requested, 499 resolved, 1 fallbacks, 0 unexpected", True),
+        ("UNNAMED art coverage: 500 requested, 500 resolved, 0 fallbacks, 0 unexpected", False),
         ("502 assets drawn; 24 withheld or unavailable (greybox stands in)", True),
         ("WARNING: UNNAMED art: chicken: no rigged file - drawing greybox", True),
         ("binding npc.renn resolves to a rig placeholder", True),
@@ -19,4 +22,13 @@ with tempfile.TemporaryDirectory() as directory:
     assert problems(path), "Native C# coverage uses capitalised record fields"
     path.write_text('{"entries":[{"Outcome":"resolved","Fallbacks":0}]}')
     assert not problems(path)
+    assert main([str(path)]) == 0
+    path.write_text('{"entries":[{"Outcome":"fallback","Fallbacks":0}]}')
+    assert problems(path), "A fallback is rejected even when its count is zero"
+    empty = Path(directory) / "empty.stderr"
+    empty.write_text("")
+    assert main([str(empty)]) == 1, "Empty evidence must not pass"
+    path = Path(directory) / "valid.log"
+    path.write_text("502 assets drawn; 0 withheld or unavailable (greybox stands in)")
+    assert main([str(path), str(empty)]) == 0, "An empty stderr is fine beside positive art evidence"
 print("PACKAGED_ART_GATE_CHECK_PASS")
