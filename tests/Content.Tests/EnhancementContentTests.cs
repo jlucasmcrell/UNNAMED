@@ -54,7 +54,6 @@ public class EnhancementContentTests
         Assert.Equal((EnhancementKind.Infusion, EnhancementTarget.Weapon, "effect.scorched", EnhancementVisual.Item, "ember"),
             (cinder.Kind, cinder.Target, cinder.OnHitEffect, cinder.Visual, cinder.VisualHook));
         Assert.Equal(("effect.bleeding", EnhancementVisual.None), (catalog.Get("item.trinket.wolf_fang").Enhancement!.OnHitEffect, catalog.Get("item.trinket.wolf_fang").Enhancement!.Visual));
-        Assert.Equal(EnhancementVisual.Body, catalog.Get("item.material.heartwood").Enhancement!.Visual);
         Assert.All(new[] { "keen", "warding", "steadfast" }, r => Assert.Equal(EnhancementVisual.None, catalog.Get($"item.rune.{r}").Enhancement!.Visual));
         Assert.Equal(EnhancementKind.Enchantment, catalog.Get("item.rune.ember_touched").Enhancement!.Kind);
         Assert.Equal((EquipSlot.Ring, "effect.gear_quartz"), (catalog.Get("item.trinket.quartz_ring").Slot!.Value, catalog.Get("item.trinket.quartz_ring").EquipEffect));

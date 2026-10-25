@@ -8,3 +8,4 @@ rolls: 0
 entries:
   - { item_ref: item.material.cinder_sac, chance: 0.60, count_range: [1, 1] }
   - { item_ref: item.material.raw_meat, chance: 0.40, count_range: [1, 1] }
+  - { item_ref: item.essence.ember, chance: 0.15, count_range: [1, 1] }   # spec 47: what a burst sac leaves
