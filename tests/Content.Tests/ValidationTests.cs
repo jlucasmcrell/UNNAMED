@@ -516,11 +516,12 @@ public class ContentLoaderTests
         Assert.Equal(
             new[]
             {
-                "ability.blade.power_strike", "ability.bow.aimed_shot", "ability.creature.armour_slam", "ability.creature.boar_charge",
+                "ability.blade.beat_the_guard", "ability.blade.gap_thrust", "ability.blade.parry", "ability.blade.power_strike", "ability.blade.quiet_blade",
+                "ability.bow.aimed_shot", "ability.bow.steady_draw", "ability.creature.armour_slam", "ability.creature.boar_charge",
                 "ability.creature.boar_gore", "ability.creature.gauge_sweep", "ability.creature.grazer_charge", "ability.creature.hoof_kick",
                 "ability.creature.horn_butt", "ability.creature.hound_lunge", "ability.creature.husk_slash", "ability.creature.index_grasp",
                 "ability.creature.measure_fall", "ability.creature.peck", "ability.creature.spider_bite", "ability.creature.tender_strike", "ability.creature.tusk_sweep", "ability.creature.warden_fall", "ability.creature.warden_grasp", "ability.creature.warden_sweep",
-                "ability.creature.wolf_bite", "ability.polearm.long_thrust",
+                "ability.creature.wolf_bite", "ability.polearm.giving_ground", "ability.polearm.long_thrust", "ability.polearm.set_against_charge",
                 "body.veth_f.average", "body.veth_f.heavy", "body.veth_f.lean", "body.veth_f.very_heavy", "body.veth_f.very_lean",
                 "body.veth_m.average", "body.veth_m.heavy", "body.veth_m.lean", "body.veth_m.very_heavy", "body.veth_m.very_lean",
                 "call.hedge_healer", "call.scholar",
