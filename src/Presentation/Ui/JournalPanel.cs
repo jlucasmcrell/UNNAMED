@@ -292,6 +292,7 @@ public partial class JournalPanel : CanvasLayer
         LoreCategory.Peoples => "Peoples",
         LoreCategory.Creatures => "Creatures",
         LoreCategory.History => "History",
+        LoreCategory.Rumours => "Rumours",
         _ => "Faith",
     };
 
