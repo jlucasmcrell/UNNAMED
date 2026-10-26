@@ -49,7 +49,7 @@ public partial class Main
                 source.MakeCurrent();camera.QueueFree();
                 await RunFieldRuinsVideo(directory);GetTree().Quit();return;
             }
-            if(OS.GetEnvironment("OTHERREACH_GRAND_REVIEW") is "foldscar" or "oldlate")
+            if(OS.GetEnvironment("OTHERREACH_GRAND_REVIEW") is "foldscar" or "oldlate" or "road")
             {
                 camera.GetNode<OmniLight3D>("CharacterFill").Reparent(source,false);camera.QueueFree();
                 await RunGrandReview(directory,OS.GetEnvironment("OTHERREACH_GRAND_REVIEW"));GetTree().Quit();return;

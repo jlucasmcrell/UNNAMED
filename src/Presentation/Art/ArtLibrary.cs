@@ -348,7 +348,7 @@ public sealed class ArtLibrary
     public Node3D? ModelWithLods(string id)
     {
         if (IsTree(id))
-            return Whole(Model(id));
+            return Tree(id);
         if (ModelLevels(id) is not { Count: > 0 } all)
             return null;
         if (all.Count == 1)
@@ -530,6 +530,55 @@ public sealed class ArtLibrary
     /// drawn." Every tree - the tree family, Old Late, the sapling stands - is its full model and nothing else, wherever it stands.
     /// </summary>
     public static bool IsTree(string id) => IsTreeFamily(id) || id == "flora_old_late" || id.Contains("sapling", StringComparison.Ordinal);
+
+    /// <summary>
+    /// A tree (owner rulings 2026-10-23 and 2026-10-25): its full model at full detail out to the haze (<see cref="Greybox.RenderTiers.TreeFarFrom"/>),
+    /// and there a dithered cross-fade - never a switch - to its crossed-plane impostor (the last level the vegetation pipeline builds),
+    /// over a margin a fifth as deep, so no tree blinks between levels. Without an impostor level it is <see cref="Whole"/> at every distance.
+    /// </summary>
+    private Node3D? Tree(string id)
+    {
+        if (Whole(Model(id)) is not { } full)
+            return null;
+        var impostor = Enumerable.Range(1, 3).Reverse()
+            .Select(n => Path.Combine("ready", id, $"{id}_lod{n}.glb"))
+            .Where(relative => Root is not null && At(relative) is not null)
+            .Select(relative => Instance(Path.GetFileNameWithoutExtension(relative), relative))
+            .FirstOrDefault(level => level is not null && level.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>()
+                .Any(m => Enumerable.Range(0, m.Mesh.GetSurfaceCount()).Any(s =>
+                    m.GetActiveMaterial(s)?.ResourceName.Contains("impostor", StringComparison.OrdinalIgnoreCase) == true)));
+        // Explicit 0 is the diagnostic control: every tree its full model at every distance, as before 2026-10-25.
+        if (impostor is null || System.Environment.GetEnvironmentVariable("UNNAMED_TREE_FAR") == "0")
+        {
+            impostor?.Free();
+            return full;
+        }
+        float far = Greybox.RenderTiers.TreeFarFrom, margin = 0.2f * far;
+        var root = new Node3D { Name = id };
+        root.AddChild(full);
+        root.AddChild(impostor);
+        // One box for both levels and the shadow proxies, as on the ladder: each measures its range to the same centre.
+        var shared = ArtGallery.Bounds(full);
+        foreach (var mesh in full.FindChildren("*", nameof(GeometryInstance3D), true, false).Cast<GeometryInstance3D>())
+        {
+            mesh.CustomAabb = Relative(full, mesh).AffineInverse() * shared;
+            mesh.VisibilityRangeEnd = far;
+            mesh.VisibilityRangeEndMargin = margin;
+            mesh.VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Self;
+        }
+        foreach (var mesh in impostor.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
+        {
+            mesh.CustomAabb = Relative(impostor, mesh).AffineInverse() * shared;
+            mesh.VisibilityRangeBegin = far;
+            mesh.VisibilityRangeBeginMargin = margin;
+            mesh.VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Self;
+            // The crossed sheets are a colour silhouette: never an opaque slab in a shadow map or in static GI.
+            mesh.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
+            mesh.GIMode = GeometryInstance3D.GIModeEnum.Disabled;
+            mesh.IgnoreOcclusionCulling = true;
+        }
+        return root;
+    }
 
     /// <summary>A tree as drawn at every distance: no visibility range, no fade, the renderer's automatic mesh detail held at full, and never
     /// culled by the buildings' occluders.</summary>

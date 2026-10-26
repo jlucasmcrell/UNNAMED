@@ -76,7 +76,7 @@ public partial class Main
         }
         Mark("world_warm");
         await Go(new[] { (438.0, 754.0) }, 20, Gait.Walk);
-        if (landmark == "oldlate") Face(647.5, 766.4, .1f); else Face(553, 648, .06f);
+        if (landmark == "oldlate") Face(647.5, 766.4, .1f); else if (landmark == "road") Face(488, 745, 0f); else Face(553, 648, .06f);
         await Rcd3Wait(1);
         DisplayServer.WindowSetTitle("Otherreach - " + Path.GetFileName(directory));
         File.WriteAllText(Path.Combine(directory, "record_ready.json"), "{}");
@@ -87,6 +87,42 @@ public partial class Main
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         }
         Mark("approach_start"); await Rcd3Wait(4);
+        if (landmark == "road")
+        {
+            // Tree popping gate (owner: no tree may blink in and out): the Old East Road from the waystation to Cairnwold at a run, with a
+            // slow full turn at three stations, so every tree's fade to its impostor is crossed walking and turning, at the tier's own lines.
+            async Task Turn(string station)
+            {
+                Mark(station); _camera.Pitch = -.04f;
+                float start = _camera.Yaw; ulong from = Time.GetTicksMsec();
+                while (Time.GetTicksMsec() - from < 12000)
+                {
+                    _camera.Yaw = start + Mathf.Tau * (Time.GetTicksMsec() - from) / 12000f;
+                    await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                }
+                _camera.Pitch = -.12f;
+            }
+            await Go(new[] { (440.0, 740.0), (447.0, 739.0), (451.8, 742.0), (451.8, 736.0), (465.0, 736.0), (488.0, 745.0), (488.0, 720.0) }, 90, Gait.Run);
+            await Turn("hollow_edge");
+            await Go(new[] { (522.0, 690.0), (564.0, 690.0), (600.0, 656.0), (680.0, 657.0) }, 120, Gait.Run);
+            await Turn("mid_road");
+            await Go(new[] { (760.0, 658.0), (840.0, 659.0), (920.0, 660.0) }, 120, Gait.Run);
+            await Turn("cairnwold_edge");
+            await Go(new[] { (978.0, 653.0) }, 40, Gait.Run);
+            Mark("done");
+            File.WriteAllText(Path.Combine(directory, "recording.finished"), "done");
+            File.WriteAllText(Path.Combine(directory, "complete.json"), JsonSerializer.Serialize(new
+            {
+                status = "REAL_GAME_TREE_ROAD_VIDEO_REQUIRES_CLAUDE_REVIEW", events, tier = VisualOptions.Tier,
+                tree_far = System.Environment.GetEnvironmentVariable("UNNAMED_TREE_FAR") != "0",
+                route = "Normal controller running the Old East Road, three full camera turns; no teleport",
+                engine_max_fps = Engine.MaxFps,
+            }, new JsonSerializerOptions { WriteIndented = true }));
+            ulong stoppedRoad = Time.GetTicksMsec() + 15000;
+            while (!File.Exists(Path.Combine(directory, "recording.stopped")) && Time.GetTicksMsec() < stoppedRoad)
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            return;
+        }
         if (landmark == "oldlate")
         {
             // Each walk leg goes back to the walking pitch; a held upward look carried into a walk drops the camera into the grass.

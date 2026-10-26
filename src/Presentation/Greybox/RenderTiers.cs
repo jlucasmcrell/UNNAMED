@@ -28,6 +28,9 @@ public static class RenderTiers
     /// ArtLibrary's ladder for props. Trees retain their accepted full-detail path independently of this ladder.</summary>
     public static float LodReach => VisualOptions.ReachScale * (VisualOptions.Tier == "ultra" ? 1.5f : 1.0f);
 
+    /// <summary>Where a tree begins its cross-fade to its impostor (ArtLibrary.Tree): out in the haze, furthest on Ultra.</summary>
+    public static float TreeFarFrom => VisualOptions.ReachScale * VisualOptions.Tier switch { "low" => 140f, "medium" => 180f, "high" => 240f, _ => 320f };
+
     /// <summary>The server-wide settings (shadow atlas and filter, SSAO/SSIL quality) for the run's tier.</summary>
     public static void ApplyGlobal()
     {
