@@ -118,6 +118,23 @@ public class CreatorCatalogueTests
                     Assert.True(LookSwatches.ShownNames.ContainsKey(id), $"{body.Model}: {id} has no shown name");
     }
 
+    [Theory]
+    [InlineData("humgen_player_mateo_m", "m")]
+    [InlineData("humgen_player_ada_f", "f")]
+    public void EachVethBase_OffersItsOwnFace_AndThreeFaceBodies_EachDrawnAsItself(string model, string sex)
+    {
+        var faces = Shipped.Faces(model);
+        Assert.Equal(4, faces.Count);
+        Assert.Equal(model, faces[0].Model);
+        Assert.All(faces.Skip(1), f => Assert.Equal((model, sex), (f.FaceOf!, f.Sex)));
+        foreach (var face in faces)
+        {
+            Assert.Equal(face.Model, Shipped.DrawnModel(model, face.Look.Face));
+            Assert.Equal(face.Model, Shipped.DrawnModel(face.Model, face.Look.Face));
+        }
+        Assert.Equal(model, Shipped.DrawnModel(model, null));
+    }
+
     private static string Root()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);

@@ -187,6 +187,78 @@
    "facial_hair": null,
    "outfit": "outfit.extra_outfits_pack.pirate",
    "footwear": "footwear.extra_outfits_pack.pirate_boots"
+  },
+  {
+   "model": "humgen_veth_m_face_holt",
+   "face_of": "humgen_player_mateo_m",
+   "sex": "m",
+   "face": "face.veth.m_holt",
+   "age": 30,
+   "stature_cm": 178,
+   "hair": "hair.veth.m_holt",
+   "facial_hair": "facehair.veth.m_holt",
+   "outfit": "outfit.extra_outfits_pack.pirate",
+   "footwear": "footwear.extra_outfits_pack.pirate_boots"
+  },
+  {
+   "model": "humgen_veth_m_face_marsh",
+   "face_of": "humgen_player_mateo_m",
+   "sex": "m",
+   "face": "face.veth.m_marsh",
+   "age": 30,
+   "stature_cm": 178,
+   "hair": "hair.veth.m_marsh",
+   "facial_hair": null,
+   "outfit": "outfit.extra_outfits_pack.pirate",
+   "footwear": "footwear.extra_outfits_pack.pirate_boots"
+  },
+  {
+   "model": "humgen_veth_m_face_tarr",
+   "face_of": "humgen_player_mateo_m",
+   "sex": "m",
+   "face": "face.veth.m_tarr",
+   "age": 30,
+   "stature_cm": 178,
+   "hair": "hair.veth.m_tarr",
+   "facial_hair": "facehair.veth.m_tarr",
+   "outfit": "outfit.extra_outfits_pack.pirate",
+   "footwear": "footwear.extra_outfits_pack.pirate_boots"
+  },
+  {
+   "model": "humgen_veth_f_face_holt",
+   "face_of": "humgen_player_ada_f",
+   "sex": "f",
+   "face": "face.veth.f_holt",
+   "age": 30,
+   "stature_cm": 168,
+   "hair": "hair.veth.f_holt",
+   "facial_hair": null,
+   "outfit": "outfit.extra_outfits_pack.pirate",
+   "footwear": "footwear.extra_outfits_pack.pirate_boots"
+  },
+  {
+   "model": "humgen_veth_f_face_marsh",
+   "face_of": "humgen_player_ada_f",
+   "sex": "f",
+   "face": "face.veth.f_marsh",
+   "age": 30,
+   "stature_cm": 168,
+   "hair": "hair.veth.f_marsh",
+   "facial_hair": null,
+   "outfit": "outfit.extra_outfits_pack.pirate",
+   "footwear": "footwear.extra_outfits_pack.pirate_boots"
+  },
+  {
+   "model": "humgen_veth_f_face_tarr",
+   "face_of": "humgen_player_ada_f",
+   "sex": "f",
+   "face": "face.veth.f_tarr",
+   "age": 30,
+   "stature_cm": 168,
+   "hair": "hair.veth.f_tarr",
+   "facial_hair": null,
+   "outfit": "outfit.extra_outfits_pack.pirate",
+   "footwear": "footwear.extra_outfits_pack.pirate_boots"
   }
  ],
  "sliders": [

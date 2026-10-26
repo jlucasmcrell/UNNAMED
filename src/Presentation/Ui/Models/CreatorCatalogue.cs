@@ -24,7 +24,8 @@ public sealed record CreatorOption(string Id, string Label, string Group, Immuta
 }
 
 /// <summary>A player body that exists as a GLB with packaged motion, and the look it was baked with.</summary>
-public sealed record BakedBody(string Model, string Sex, CharacterAppearance Look);
+/// <summary>A baked body and its look; <paramref name="FaceOf"/> names the body it is another face of (the same type, its own head and hair).</summary>
+public sealed record BakedBody(string Model, string Sex, CharacterAppearance Look, string? FaceOf = null);
 
 public enum CreatorChoice { Face, Hair, FacialHair, Outfit, Footwear }
 
@@ -79,13 +80,14 @@ public sealed class CreatorCatalogue
             new CharacterAppearance(b.GetProperty("stature_cm").GetInt32() * 10, N(b, "face"), N(b, "hair"), N(b, "facial_hair"), N(b, "outfit"), N(b, "footwear"))
             {
                 Sliders = ImmutableSortedDictionary.Create<string, int>(StringComparer.Ordinal).Add("face.age", b.GetProperty("age").GetInt32()),
-            })).ToImmutableArray();
+            }, b.TryGetProperty("face_of", out var faceOf) ? faceOf.GetString() : null)).ToImmutableArray();
         var catalogue = new CreatorCatalogue(races, sliders, options, baked);
         foreach (var body in baked)
         {
             if (body.Look.Problem() is { } problem)
                 throw new FormatException($"baked body {body.Model}: {problem}");
-            foreach (var (choice, id) in Chosen(body.Look))
+            // A face body's own head, hair and beard are baked with it, not catalogue pieces.
+            foreach (var (choice, id) in Chosen(body.Look).Where(c => body.FaceOf is null || c.Choice is CreatorChoice.Outfit or CreatorChoice.Footwear))
                 if (catalogue.Option(choice, id) is not { } option || !option.For(body.Sex))
                     throw new FormatException($"baked body {body.Model} names {id}, which the catalogue does not offer a '{body.Sex}' body");
         }
@@ -102,6 +104,17 @@ public sealed class CreatorCatalogue
     public CreatorRace? Race(string people) => Races.FirstOrDefault(r => r.People == people);
 
     public BakedBody? BakedFor(string? model) => Baked.FirstOrDefault(b => b.Model == model);
+
+    /// <summary>The faces a body type's model offers: the model as baked, then each body baked as another face of it.</summary>
+    public IReadOnlyList<BakedBody> Faces(string? model)
+    {
+        string? root = BakedFor(model)?.FaceOf ?? model;
+        return BakedFor(root) is { } own ? Baked.Where(b => b.FaceOf == root).Prepend(own).ToList() : Array.Empty<BakedBody>();
+    }
+
+    /// <summary>The model drawn for a body type's <paramref name="model"/> and a chosen face: the face's own body when it has one.</summary>
+    public string? DrawnModel(string? model, string? face) =>
+        face is not null && Faces(model).FirstOrDefault(b => b.Look.Face == face) is { } chosen ? chosen.Model : model;
 
     /// <summary>The look a draft starts from: the baked body's own, or for a body not baked, the race's middle stature and every preset's own choice.</summary>
     public CharacterAppearance Start(string? model, string people) =>

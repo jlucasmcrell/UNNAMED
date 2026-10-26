@@ -139,6 +139,8 @@ public partial class Main
         string preset = simulation.Player.Identity.BodyPresetId;
         var body = _session.Characters.Bodies.GetValueOrDefault(preset);
         string? model = body is not null ? _bindings.Bodies.Model(body, m => _art.RiggedFile(m, m + "_rigged.glb") is not null) : null;
+        // The face chosen in the creator is its own baked body (the creator draws it the same way).
+        model = _creator.DrawnModel(model, simulation.Player.Identity.Appearance);
         if (model is not null && model != _avatarModel && SkinnedFigure.Create(_art, _bindings, "player", model, people: simulation.Player.Identity.PeopleId) is { } skinned)
         {
             var feet = _avatar.Position;
@@ -365,7 +367,25 @@ public partial class Main
             list.Add(($"{list.Count + 1:00}_people_{name}_other", () => _creator.Frame(CreatorPreview.Framings[2].Zoom), 2500));
             list.Add(($"{list.Count + 1:00}_people_{name}_other_face", after, 6000));
         }
-        list.Add(($"{list.Count + 1:00}_face", () => _creator.Go(CreatorStep.Hair), 1500));
+        // Every baked face of each Veth body at the Face step (each its own body), then the feminine body for the hair shots.
+        var faceShots = new[] { "body.veth_m.average", "body.veth_f.average" }
+            .SelectMany(body => _creator.FacesFor(body).Select((face, i) => (Body: body, Face: face, Index: i))).ToList();
+        string faceShot = "face";
+        foreach (var face in faceShots.Where(f => f.Body != "body.veth_m.average" || f.Index > 0))
+        {
+            list.Add(($"{list.Count + 1:00}_{faceShot}", () =>
+            {
+                _creator.UseFace(face.Body, face.Face);
+                _creator.Frame(CreatorPreview.Framings[2].Zoom);
+            }, 6000));
+            faceShot = $"face_{face.Body.Split('.')[1]}_{face.Index}";
+        }
+        list.Add(($"{list.Count + 1:00}_{faceShot}", () =>
+        {
+            _creator.UseFace("body.veth_f.average", null);
+            _creator.Frame(CreatorPreview.Framings[0].Zoom);
+            _creator.Go(CreatorStep.Hair);
+        }, 1500));
         // A skin tone and a hair colour other than the baked ones (Tan, Blond), kept to the road so the game draws them too.
         list.Add(($"{list.Count + 1:00}_hair", () => _creator.Use(_creator.Draft with
         {

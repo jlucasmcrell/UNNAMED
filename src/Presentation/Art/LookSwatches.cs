@@ -61,6 +61,20 @@ public static class LookSwatches
         ["hair.long.medium_center_part"] = "Long, parted in the centre",
         ["hair.short.short_combed"] = "Short, combed back",
         ["facehair.other.stubble_short"] = "Short stubble",
+        ["face.veth.m_holt"] = "Long and lean",
+        ["face.veth.m_marsh"] = "Round and broad",
+        ["face.veth.m_tarr"] = "Angular",
+        ["face.veth.f_holt"] = "Long and lean",
+        ["face.veth.f_marsh"] = "Round and broad",
+        ["face.veth.f_tarr"] = "Angular",
+        ["hair.veth.m_holt"] = "Short, swept back",
+        ["hair.veth.m_marsh"] = "Close-cropped",
+        ["hair.veth.m_tarr"] = "Short and thick",
+        ["hair.veth.f_holt"] = "Straight bob",
+        ["hair.veth.f_marsh"] = "Tied back",
+        ["hair.veth.f_tarr"] = "Short, parted at the side",
+        ["facehair.veth.m_holt"] = "Goatee",
+        ["facehair.veth.m_tarr"] = "Long moustache",
     };
 
     /// <summary>The one face each body is baked with (HumGen names its presets by real-world ethnicity).</summary>

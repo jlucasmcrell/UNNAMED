@@ -319,11 +319,12 @@ public partial class CreatorScreen : CanvasLayer
         var body = OfferedBodies().FirstOrDefault(o => o.Id == Draft.BodyPresetId);
         var worn = Outfit(Draft.CallId);
         string tones = Draft.Appearance is { } look ? string.Join(",", look.Sliders.Where(s => s.Key.StartsWith("look.", StringComparison.Ordinal))) : "";
-        string shown = $"{body?.Model}|{body?.Body.ArmSplayDegrees}|{worn}|{Draft.PeopleId}|{tones}";
+        string? model = _catalogue.DrawnModel(body?.Model, Draft.Appearance?.Face);
+        string shown = $"{model}|{body?.Body.ArmSplayDegrees}|{worn}|{Draft.PeopleId}|{tones}";
         if (shown == _shownBody)
             return;
         _shownBody = shown;
-        _preview.Show(body?.Model, Draft.PeopleId, body?.Body.ArmSplayDegrees ?? 0, worn);
+        _preview.Show(model, Draft.PeopleId, body?.Body.ArmSplayDegrees ?? 0, worn);
         _preview.Look(Draft.PeopleId, Draft.Appearance);
     }
 

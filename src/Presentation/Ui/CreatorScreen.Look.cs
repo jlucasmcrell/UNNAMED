@@ -42,7 +42,23 @@ public partial class CreatorScreen
     /// <summary>The draft with this body: its look starts again from that body as baked (a look is per body, its options per sex).</summary>
     private CreatorDraft WithBody(string id) => Draft with { BodyPresetId = id, Appearance = id == Draft.BodyPresetId ? Draft.Appearance : null };
 
-    private string? Model => OfferedBodies().FirstOrDefault(o => o.Id == Draft.BodyPresetId)?.Model;
+    /// <summary>The model drawn: the body type's, or the body baked as the chosen face of it.</summary>
+    private string? Model => _catalogue.DrawnModel(OfferedBodies().FirstOrDefault(o => o.Id == Draft.BodyPresetId)?.Model, Draft.Appearance?.Face);
+
+    /// <summary>The baked faces a body offers, by face id, its own first (the creator shots walk these).</summary>
+    public IReadOnlyList<string?> FacesFor(string body) =>
+        _catalogue.Faces(OfferedBodies(CharacterSpec.DefaultPeople).FirstOrDefault(o => o.Id == body)?.Model).Select(f => f.Look.Face).ToList();
+
+    /// <summary>A body and one of its baked faces, its look otherwise as baked, as choosing them does (the creator shots).</summary>
+    public void UseFace(string body, string? face)
+    {
+        _draft = WithBody(body);
+        _draft = Draft with { Appearance = Look with { Face = face } };
+        Render(null);
+    }
+
+    /// <summary>The model a character's body and look are drawn with (the game's player, as the creator showed it).</summary>
+    public string? DrawnModel(string? model, CharacterAppearance? look) => _catalogue.DrawnModel(model, look?.Face);
 
     /// <summary>The body's sex as HumGen's content folders split it: the baked body's own, else the body type's (<c>…_f</c>).</summary>
     private string Sex => _catalogue.BakedFor(Model)?.Sex
@@ -65,8 +81,34 @@ public partial class CreatorScreen
     private void FaceStep()
     {
         _body.AddChild(PendingNote());
+        if (BakedOnly && _catalogue.Faces(Model) is { Count: > 1 } faces)
+        {
+            _body.AddChild(BakedFaces(faces));
+            return;
+        }
         _body.AddChild(OptionSection(CreatorChoice.Face, "Face", "a HumGen starting face; choosing one resets the face sliders to it"));
         _body.AddChild(SliderSection("face", "Features", "age, skin and proportions"));
+    }
+
+    /// <summary>The faces baked for this body type, each its own body: choosing one draws that body, its head and hair.</summary>
+    private Control BakedFaces(IReadOnlyList<BakedBody> faces)
+    {
+        var section = UiKit.Section("Face");
+        string? worn = Look.Face;
+        foreach (var face in faces)
+        {
+            string id = $"creator.face.{face.Model}";
+            string label = face.FaceOf is null ? LookSwatches.BakedFace : LookSwatches.ShownNames.GetValueOrDefault(face.Look.Face ?? "", face.Model);
+            var row = UiKit.ListRow(id, label, height: 40);
+            UiKit.Select(row.Button, face.Look.Face == worn || (worn is null && face.FaceOf is null));
+            row.Button.Pressed += Deferred(() =>
+            {
+                Shape(look => look with { Face = face.Look.Face });
+                Render(id);
+            });
+            section.AddChild(row.Button);
+        }
+        return section;
     }
 
     /// <summary>Step 4: head hair, facial hair where HumGen has it for this body, and the hair's colour.</summary>
@@ -155,15 +197,19 @@ public partial class CreatorScreen
         // No outfit or footwear chosen is what the body was baked in, so that is named rather than "none".
         string? Baked(CreatorChoice choice) => choice is CreatorChoice.Outfit or CreatorChoice.Footwear
             ? _catalogue.Options(choice, Sex).FirstOrDefault(o => _catalogue.IsBaked(choice, o.Id, Model))?.Id : null;
+        // A piece baked with one body only (a face body's own hair) is named by its shown name.
         string Name(CreatorChoice choice, string? id, string none) => _catalogue.Option(choice, id ?? Baked(choice)) is { } option
-                ? OptionName(choice, option.Id, option.Label) : none;
+                ? OptionName(choice, option.Id, option.Label) : id is not null && LookSwatches.ShownNames.TryGetValue(id, out var shown) ? shown : none;
+        // The exported creator draws each body's own hair and beard (a chosen face is its own body), whatever the draft carries.
+        var drawn = BakedOnly ? _catalogue.BakedFor(Model)?.Look : null;
+        string? hairId = drawn is not null ? drawn.Hair : look.Hair, beardId = drawn is not null ? drawn.FacialHair : look.FacialHair;
         var styles = LookSwatches.HairStyles(Model);
-        string hair = look.Hair is null && styles.Count > 0
+        string hair = styles.Count > 0 && (look.Hair is null || drawn is not null)
             ? styles.ElementAtOrDefault(look.Sliders.TryGetValue(LookSwatches.StyleSlider, out int style) ? style : 0).Label ?? styles[0].Label
-            : Name(CreatorChoice.Hair, look.Hair, "none");
+            : Name(CreatorChoice.Hair, hairId, "none");
         yield return ("Height", Metres(look.StatureMm));
-        yield return ("Face", BakedOnly ? "their own" : Name(CreatorChoice.Face, look.Face, "the body's own"));
-        yield return ("Hair", hair + (look.FacialHair is { } beard ? ", " + Name(CreatorChoice.FacialHair, beard, beard) : ""));
+        yield return ("Face", BakedOnly ? FaceName(look.Face) : Name(CreatorChoice.Face, look.Face, "the body's own"));
+        yield return ("Hair", hair + (beardId is { } beard ? ", " + Name(CreatorChoice.FacialHair, beard, beard) : ""));
         yield return ("Outfit", $"{Name(CreatorChoice.Outfit, look.Outfit, "none")}, {Name(CreatorChoice.Footwear, look.Footwear, "barefoot").ToLowerInvariant()}");
     }
 
@@ -330,6 +376,10 @@ public partial class CreatorScreen
             section.AddChild(UiKit.Words(LaterWords, 16, HudStyle.Muted));
         return section;
     }
+
+    /// <summary>The baked face's name on Confirm: "their own" for the body type's own face, else the face's shown name.</summary>
+    private string FaceName(string? face) => _catalogue.Faces(Model).FirstOrDefault(f => f.Look.Face == face) is { FaceOf: not null } variant
+        ? LookSwatches.ShownNames.GetValueOrDefault(face!, variant.Model) : "their own";
 
     /// <summary>A choice's name as the body is drawn: the frontier outfit in place of the baked one, the baked face and pieces by our own names.</summary>
     private string OptionName(CreatorChoice choice, string id, string label) =>

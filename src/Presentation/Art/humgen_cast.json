@@ -112,6 +112,48 @@
       "height_m": 1.7,
       "npc_only": true,
       "body_sha256": "d0ce296b3b015db80374c36e7fd4ee07b2da5f0083c7d1adb2420584a6d56ceb"
+    },
+    {
+      "id": "humgen_veth_m_face_holt",
+      "sex": "m",
+      "height_m": 1.783,
+      "npc_only": false,
+      "body_sha256": "db257d37a53c89b90f5508899f4b6177962b7bf4de8986464d4a088b6412e406"
+    },
+    {
+      "id": "humgen_veth_m_face_marsh",
+      "sex": "m",
+      "height_m": 1.784,
+      "npc_only": false,
+      "body_sha256": "de38bd79135f407a24253f8757c630e1867b7dfb0a139e0ea33d1bb8d4928185"
+    },
+    {
+      "id": "humgen_veth_m_face_tarr",
+      "sex": "m",
+      "height_m": 1.783,
+      "npc_only": false,
+      "body_sha256": "fa19637eacf92caf6b4b7b8582421144d62121b9c5e00b2fb4cf2434e5772a5b"
+    },
+    {
+      "id": "humgen_veth_f_face_holt",
+      "sex": "f",
+      "height_m": 1.675,
+      "npc_only": false,
+      "body_sha256": "5c3c34b64677cd972dad0e53f78f4230cea1c4af049fc36df6d4bb74be77d373"
+    },
+    {
+      "id": "humgen_veth_f_face_marsh",
+      "sex": "f",
+      "height_m": 1.676,
+      "npc_only": false,
+      "body_sha256": "a95973292dce8a84817ed47b1c71fab4ba8721d3efc4ee6f21f7ef257a2d34b6"
+    },
+    {
+      "id": "humgen_veth_f_face_tarr",
+      "sex": "f",
+      "height_m": 1.675,
+      "npc_only": false,
+      "body_sha256": "0e03ab7d959dbf65b69f72d18ee594a2e41af5d673e44891a2387a22cb3ea4a8"
     }
   ]
 }
