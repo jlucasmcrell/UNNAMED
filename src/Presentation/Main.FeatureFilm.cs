@@ -91,6 +91,12 @@ public partial class Main
             _controller.Guard(false);_controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);fixedAim=null;
         }
         Frame();await Hold(3);
+        ulong last=Time.GetTicksMsec();
+        for(int stable=0;stable<60;)
+        {
+            await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+            ulong now=Time.GetTicksMsec();stable=now-last<250?stable+1:0;last=now;
+        }
         Mark("world_ready",new {actors=sim.Npcs.Select(n=>new {n.Id,n.Body}),creatures=sim.Creatures.Select(c=>new {c.Key,c.DefId,c.Body,c.Alive})});
         File.WriteAllText(Path.Combine(directory,"record_ready.json"),"{}");
         ulong deadline=Time.GetTicksMsec()+60000;
@@ -98,6 +104,9 @@ public partial class Main
         {if(Time.GetTicksMsec()>deadline)throw new TimeoutException("No owned recorder first frame");await Hold(.1);}
         int bus=AudioServer.GetBusIndex("Master"),slot=AudioServer.GetBusEffectCount(bus);
         var audio=new AudioEffectRecord();AudioServer.AddBusEffect(bus,audio);audio.SetRecordingActive(true);
+        var frameTimes=new List<double>();
+        void Sample()=>frameTimes.Add(GetProcessDeltaTime()*1000);
+        GetTree().ProcessFrame+=Sample;
         Mark("audio_start");
         try
         {
@@ -131,6 +140,15 @@ public partial class Main
                     case "crouch":_controller.Crouch(step.GetProperty("enabled").GetBoolean());await Hold(seconds);break;
                     case "ability":_controller.PeopleAbility(Text(step,"id"));await Hold(seconds);break;
                     case "takedown":_controller.Takedown();await Hold(seconds);break;
+                    case "kal_route":
+                        _glideFrom=(sim.Player.Body,step.GetProperty("dx").GetInt32(),step.GetProperty("dz").GetInt32(),0);
+                        camera.GetNode<OmniLight3D>("CharacterFill").Reparent(_camera.Camera,false);
+                        _camera.Camera.MakeCurrent();await KalRoute(Mark);
+                        _camera.Camera.GetNode<OmniLight3D>("CharacterFill").Reparent(camera,false);break;
+                    case "decoy_route":
+                        camera.GetNode<OmniLight3D>("CharacterFill").Reparent(_camera.Camera,false);
+                        _camera.Camera.MakeCurrent();await DecoyRoute(Mark);
+                        _camera.Camera.GetNode<OmniLight3D>("CharacterFill").Reparent(camera,false);break;
                     case "interact":_controller.Interact(Text(step,"id"));await Hold(seconds);break;
                     case "go":
                         var goal=V(step.GetProperty("position"));
@@ -180,6 +198,8 @@ public partial class Main
         }
         finally
         {
+            GetTree().ProcessFrame-=Sample;
+            File.WriteAllText(Path.Combine(directory,"frame_ms.json"),JsonSerializer.Serialize(frameTimes));
             audio.SetRecordingActive(false);using(var wav=audio.GetRecording())wav?.SaveToWav(Path.Combine(directory,"game_audio.wav"));
             AudioServer.RemoveBusEffect(bus,slot);Mark("audio_end");
         }
