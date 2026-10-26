@@ -368,7 +368,8 @@ public partial class Main
             list.Add(($"{list.Count + 1:00}_people_{name}_other_face", after, 6000));
         }
         // Every baked face of each Veth body at the Face step (each its own body), then the feminine body for the hair shots.
-        var faceShots = new[] { "body.veth_m.average", "body.veth_f.average" }
+        // Only when the road shots are the default people's: a run as another people keeps that people's body to the road.
+        var faceShots = worn != CharacterSpec.DefaultPeople ? [] : new[] { "body.veth_m.average", "body.veth_f.average" }
             .SelectMany(body => _creator.FacesFor(body).Select((face, i) => (Body: body, Face: face, Index: i))).ToList();
         string faceShot = "face";
         foreach (var face in faceShots.Where(f => f.Body != "body.veth_m.average" || f.Index > 0))
@@ -382,7 +383,8 @@ public partial class Main
         }
         list.Add(($"{list.Count + 1:00}_{faceShot}", () =>
         {
-            _creator.UseFace("body.veth_f.average", null);
+            if (faceShots.Count > 0)
+                _creator.UseFace("body.veth_f.average", null);
             _creator.Frame(CreatorPreview.Framings[0].Zoom);
             _creator.Go(CreatorStep.Hair);
         }, 1500));
