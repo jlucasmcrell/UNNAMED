@@ -131,6 +131,7 @@ public partial class OpeningCinematic : Node
 
     public override void _Ready()
     {
+        if (FilmFile is not null) { ReadyFilm(); return; }
         _camera.Attributes = _exposure;
         AddChild(_camera);
         _camera.MakeCurrent();
@@ -185,6 +186,7 @@ public partial class OpeningCinematic : Node
 
     public override void _Process(double delta)
     {
+        if (FilmFile is not null) { ProcessFilm(); return; }
         if (_clock < 0)
         {
             int poses = _shots.Length * WarmAt.Length;
@@ -317,16 +319,17 @@ public partial class OpeningCinematic : Node
 
     private void Words(double t)
     {
-        int line = Array.FindIndex(OpeningWords.Lines, l => t >= l.From && t < l.Until);
+        var lines = FilmFile is null ? OpeningWords.Lines : OpeningFilmWords.Lines;
+        int line = Array.FindIndex(lines, l => t >= l.From && t < l.Until);
         if (line != _line && line >= 0)
-            _words.Text = OpeningWords.Lines[line].Words;
+            _words.Text = lines[line].Words;
         _line = line;
         if (line < 0)
         {
             _words.Modulate = new Color(1, 1, 1, 0);
             return;
         }
-        var l = OpeningWords.Lines[line];
+        var l = lines[line];
         float fade = (float)Math.Min(Math.Clamp((t - l.From) / 0.9, 0, 1), Math.Clamp((l.Until - t) / 0.9, 0, 1));
         _words.Modulate = new Color(1, 1, 1, fade);
     }
@@ -344,6 +347,7 @@ public partial class OpeningCinematic : Node
     /// <summary>Leave immediately when another front-end or world takes ownership.</summary>
     public void Dismiss()
     {
+        if (_film is not null) { _film.Stop(); GetViewport().Disable3D = _filmDisabled3D; }
         SetProcess(false);
         SetProcessInput(false);
         if (_layer is not null) _layer.Visible = false;
