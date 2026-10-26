@@ -85,9 +85,9 @@ public sealed class LookSwatchesTests
     [Fact]
     public void KalStone_DefaultsToFull_AndEachLevelIsItsCoverage()
     {
-        Assert.Equal(1f, LookSwatches.StoneCoverage(null));
-        Assert.Equal(1f, LookSwatches.StoneCoverage(9));
-        Assert.Equal(new[] { .5f, .85f, 1f }, LookSwatches.KalStone.Select(l => l.Coverage));
+        Assert.Equal(1.2f, LookSwatches.StoneCoverage(null));
+        Assert.Equal(1.2f, LookSwatches.StoneCoverage(9));
+        Assert.Equal(new[] { .62f, .7f, 1.2f }, LookSwatches.KalStone.Select(l => l.Coverage));
         Assert.Equal("Patched", LookSwatches.KalStone[0].Label);
     }
 }

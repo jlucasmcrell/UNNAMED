@@ -17,13 +17,14 @@ public static class LookSwatches
         ShirtSlider = "look.shirt_colour", TrouserSlider = "look.trouser_colour", StoneSlider = "look.kal_stone";
 
     /// <summary>
-    /// How much of a Kal's skin has turned to stone (owner, 2026-10-26), as the creator offers it: the skin shader's stone_coverage. None
-    /// chosen is full stone; the choice takes the place of the age in the body's kal_stone.json.
+    /// How much of a Kal's skin has turned to stone (owner, 2026-10-26), as the creator offers it: the skin shader's stone_coverage, on the
+    /// graded mask's scale (race-looks: full needs 1.2 to clear the mask's noisy floor). None chosen is full stone; the choice takes the
+    /// place of the coverage in the body's kal_stone.json.
     /// </summary>
-    public static readonly (string Label, float Coverage)[] KalStone = { ("Patched", .5f), ("Mostly stone", .85f), ("Full stone", 1f) };
+    public static readonly (string Label, float Coverage)[] KalStone = { ("Patched", .62f), ("Mostly stone", .7f), ("Full stone", 1.2f) };
 
     /// <summary>The stone coverage an index names, full stone when none is chosen or the index is not in the list.</summary>
-    public static float StoneCoverage(int? index) => index is int i && i >= 0 && i < KalStone.Length ? KalStone[i].Coverage : 1f;
+    public static float StoneCoverage(int? index) => index is int i && i >= 0 && i < KalStone.Length ? KalStone[i].Coverage : 1.2f;
 
     /// <summary>
     /// Undyed and earth-dyed cloth for the interim garments (owner, 2026-10-25: no blue denim or bright tees on the frontier): the colour a
