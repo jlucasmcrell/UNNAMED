@@ -83,7 +83,7 @@ Press **F8** (or Escape > **Report a problem**), write what happened, and choose
 
 ## Known issues
 
-- Some clothing is interim and looks modern up close (buttons, pockets). Period garments and worn armour come later.
+- Armour and more outfits come later.
 - The first time you enter the Barrowworks the screen stays black for a while as the rooms are prepared. This is expected.
 - Short hitches can happen as new parts of the frontier load in.
 
