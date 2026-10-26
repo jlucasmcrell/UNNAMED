@@ -296,7 +296,7 @@ public partial class Main
             goto kera;
         }
 
-        // 1. Kera reads Hesta's grip on the handle.
+        // 1. Kera reads Ottra's grip on the handle.
         var shed=await HeritageWalkTo(Kera);
         await Say(Kera,"grip","back");
         foreach(var (x,z) in Enumerable.Reverse(shed))await HeritageStep(x,z);   // out of the forge shed the way the character came in
@@ -327,7 +327,7 @@ public partial class Main
         await Saved("HERITAGE_KAL_JOINT_LEASE2_REALTIME_REQUIRES_CLAUDE_REVIEW");
         return;
 
-        // 5. Kera: trace the stone east, and the tool marked beside Hesta's.
+        // 5. Kera: trace the stone east, and the tool marked beside Ottra's.
         kera:
         await HeritageWalkTo(Kera);
         await Say(Kera,"joint","trace","back","mark","back");
