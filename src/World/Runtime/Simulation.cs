@@ -53,7 +53,7 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
     public ImmutableDictionary<SpaceId, RegionLayout> Layouts { get; init; } =
         ImmutableDictionary<SpaceId, RegionLayout>.Empty;
 
-    /// <summary>The interior this run can reach, or null when the gate let none in.</summary>
+    /// <summary>An interior this run can reach (any one; name one through <see cref="Layouts"/>), or null when it holds none.</summary>
     public RegionLayout? Interior =>
         Layouts.Values.FirstOrDefault(l => l.SpaceId != Layout.SpaceId);
 
@@ -408,6 +408,12 @@ public sealed class Simulation
         _tiers.Settle();
         SeedReachableNotices();
     }
+
+    /// <summary>Whether a way that gives under its first crossing (a rotten rope) has already given.</summary>
+    public bool PortalGone(SpacePortal portal) => portal.GivesWay is { } gives && _context.RequirementMet(gives.Flag);
+
+    /// <summary>Whether a way can be entered from outside: one found from the other side opens with its flag.</summary>
+    public bool PortalOpen(SpacePortal portal) => portal.OpensWith is not { } opens || _context.RequirementMet(opens);
 
     /// <summary>
     /// What is readable in a world the character can reach as it starts. Only an interior this run holds contributes:
@@ -836,7 +842,7 @@ public sealed class Simulation
                 TakeAllCommand takeAll => _inventory.Handle(takeAll, WorldTick),
                 SpendAttributeCommand spend => spend.Actor != PlayerId ? $"unknown actor {spend.Actor}" : _progression.Handle(spend, WorldTick),
                 InteractCommand interact => _interaction.Handle(interact, WorldTick),
-                EnterSpaceCommand enter => _spaces.Enter(enter),
+                EnterSpaceCommand enter => _spaces.Enter(enter, WorldTick),
                 LeaveSpaceCommand leave => _spaces.Leave(leave),
                 MoveItemCommand item => _inventory.Handle(item, WorldTick),
                 EquipBagCommand equipBag => _inventory.Handle(equipBag, WorldTick),

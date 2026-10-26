@@ -46,7 +46,7 @@ public class BarrowworksEntranceTests
         var session = Boot(profile, gated: true);
 
         var portals = session.Setup.Layout.Portals;
-        Assert.Equal(2, portals.Portals.Length);
+        Assert.Equal(2, portals.Portals.Count(p => p.Space == Barrowworks));
         Assert.Equal(2, portals.Into(Barrowworks).Length);
         Assert.NotNull(portals.Find(Threshold));
         Assert.NotNull(portals.Find(Drain));
@@ -60,7 +60,7 @@ public class BarrowworksEntranceTests
         using var profile = new TempProfile();
         var session = Boot(profile, gated: false);
 
-        Assert.Empty(session.Setup.Layout.Portals.Portals);
+        Assert.DoesNotContain(session.Setup.Layout.Portals.Portals, p => p.Space == Barrowworks);
     }
 
     [Fact]

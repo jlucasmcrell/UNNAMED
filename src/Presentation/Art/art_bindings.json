@@ -5666,6 +5666,11 @@
    "family": "sword",
    "note": "CC0 Poly Haven dagger by Sofia Pahaoja; standard grip socket and one-handed blade clips."
   },
+  "item.weapon.haldas_knife": {
+   "model": "weapon_cc0_dagger",
+   "family": "sword",
+   "note": "Spec 28: Halda's skinning knife, on the iron dagger's CC0 model and clips."
+  },
   "item.weapon.rusted_sword": {
    "model": "weapon_real_arming_sword",
    "family": "sword",
@@ -5726,6 +5731,7 @@
   "item.bag.herb_pouch": "ui.item.herb_pouch",
   "item.trinket.wolf_fang": "ui.item.wolf_fang",
     "item.trinket.alpha_fang": "ui.item.wolf_fang",
+  "item.trinket.matriarch_fang": "ui.item.wolf_fang",
   "spell.force.impulse_bolt": "ui.formula.impulse_bolt",
   "spell.warding.brace_ward": "ui.formula.brace_ward",
   "spell.vital.mending_thread": "ui.formula.mending_thread",
@@ -5754,6 +5760,7 @@
   "skill.warding": "ui.skill.warding",
   "skill.stealth": "ui.skill.survival",
   "item.weapon.iron_dagger": "ui.item.rusted_sword",
+  "item.weapon.haldas_knife": "ui.item.rusted_sword",
   "item.consumable.poison_flask": "ui.item.salve_ember",
   "item.consumable.snarebind_resin": "ui.item.salve_ember",
   "item.consumable.sleep_coating": "ui.item.restorative",

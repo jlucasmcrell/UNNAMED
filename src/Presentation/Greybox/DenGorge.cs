@@ -66,7 +66,7 @@ public static partial class DenGorge
         if (d < 1.3f)
             return Mathf.Lerp(edge - 0.175f, shelf, GroundField.SmoothStep(0.5f, 1.3f, d));
         if (d < shelfEnd)
-            return shelf - MathF.Max(0f, d - 2.6f) * 0.08f + n2 * 0.12f;
+            return shelf - MathF.Max(0f, d - 2.6f) * 0.08f;   // no noise: the hollow's ledge is walked at these heights (tools/gen_den_gorge_cave.py)
         float shelfLow = shelf - (shelfEnd - 2.6f) * 0.08f;
         if (d < shelfEnd + 2.5f)
             return Mathf.Lerp(shelfLow, bed, GroundField.SmoothStep(shelfEnd, shelfEnd + 2.5f, d));

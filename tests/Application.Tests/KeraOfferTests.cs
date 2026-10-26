@@ -20,7 +20,7 @@ public class KeraOfferTests
 
     private static long NoticeValue(GameSession session)
     {
-        var ring = session.Setup.Interior;
+        var ring = session.Setup.Layouts.GetValueOrDefault(SpaceId.Parse("space.barrowworks"));
         if (ring is null)
             return 0;
         var hall = ring.Locations.Single(l => l.Id == Hall);
@@ -47,7 +47,7 @@ public class KeraOfferTests
         var session = Harness.Boot(profile);
         session.NewGame(Harness.Named("Wanderer"), seed: 42);
 
-        Assert.Null(session.Setup.Interior);
+        Assert.DoesNotContain(SpaceId.Parse("space.barrowworks"), session.Setup.Layouts.Keys);
         Assert.Equal(0, NoticeValue(session));
     }
 }

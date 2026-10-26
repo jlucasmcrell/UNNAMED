@@ -183,12 +183,12 @@ public class SpaceTransitionTests
     [Fact]
     public void WithNoPortalsDeclared_NothingChanges()
     {
-        // The default-off guarantee: a world with no portals has the player in the exterior, and the
-        // space system does nothing. Every region is in this state until the Barrowworks is gated on.
+        // The default-off guarantee: with the gate off no way into the Barrowworks is declared, and the space system
+        // does nothing about it. The den gorge's rope and cleft are the frontier's own and stay (spec 28).
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
 
-        Assert.Empty(session.Setup.Layout.Portals.Portals);
+        Assert.DoesNotContain(session.Setup.Layout.Portals.Portals, p => p.Space == Barrowworks);
         Assert.True(session.Setup.Layout.Portals.Into(Barrowworks).IsEmpty);
     }
 
@@ -212,7 +212,7 @@ public class SpaceTransitionTests
         var session = Harness.Boot(profile);
 
         Assert.False(session.Options.Barrowworks);
-        Assert.Empty(session.Setup.Layout.Portals.Portals);
+        Assert.DoesNotContain(session.Setup.Layout.Portals.Portals, p => p.Space == Barrowworks);
     }
 
     [Fact]
@@ -228,8 +228,8 @@ public class SpaceTransitionTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
 
-        Assert.Empty(session.Setup.Layout.Portals.Portals);
-        // With no portal declared, every entry is refused and the player never leaves the exterior.
+        Assert.DoesNotContain(session.Setup.Layout.Portals.Portals, p => p.Space == Barrowworks);
+        // With no portal into the ring declared, its entry is refused and the player never leaves the exterior.
         var arena = Arena.OpenWith(session, session.Setup, Harness.HollowOf(session.Setup), 0, []);
         arena.Simulation.Enqueue(new EnterSpaceCommand(arena.Simulation.PlayerId, Threshold));
         arena.Simulation.DrainCommands();

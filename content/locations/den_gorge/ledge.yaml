@@ -1,0 +1,25 @@
+id: location.den_gorge.ledge
+kind: location
+schema: 1
+display_key: location.den_gorge.ledge.name
+tags:
+- location
+notes: "The ledge nine metres under the gorge lip, where Halda's rope comes down and the hollow under the den opens (spec 28)."
+name: Halda's Ledge
+region_ref: region.den_gorge_cave
+anchor:
+  world:
+  - 543.0
+  - 0.0
+  - 805.0
+kind_of_place: landmark
+discovery:
+  methods:
+  - visited
+  radius_m: 6
+  xp: 25
+map:
+  reveals_radius_m: 15
+  marker: none
+fast_travel:
+  node: false

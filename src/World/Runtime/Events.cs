@@ -27,6 +27,9 @@ public sealed record DoorToggled(EntityId Actor, string DoorKey, bool Open, long
 /// <summary>A switch was worked (M6): its flag is set, for good.</summary>
 public sealed record SwitchSet(EntityId Actor, string SwitchKey, long Tick);
 
+/// <summary>A way gave under the body crossing it (a rotten rope): it is gone, and the body fell the last <paramref name="DropMm"/>.</summary>
+public sealed record PortalGaveWay(string PortalKey, long DropMm, long Tick);
+
 public sealed record LocationDiscovered(string LocationId, DiscoveryMethod Method, long Tick);
 
 /// <summary>A page of lore was filed (spec 41): which entry and page, and the discovery that opened it.</summary>

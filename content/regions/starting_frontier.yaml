@@ -150332,6 +150332,19 @@ portals:
     space: space.barrowworks
     exterior_m: [1050, 770]
     interior_m: [8, 38]
+  # The den gorge (spec 28): Halda's rope over the lip beside the den's east rock, down to the ledge. Rotten: it gives under
+  # the first body on it, three and a half metres above the ledge, and is gone. Then the cleft - found from below - is the way
+  # up and down. Not gated: the gorge is part of the frontier.
+  - key: portal.den_gorge.rope
+    space: space.den_gorge_cave
+    exterior_m: [547.5, 799.2]
+    interior_m: [547.5, 802.0]
+    gives_way: { flag_ref: world.den_gorge.rope_gone, location_ref: location.den_mouth, drop_m: 3.5 }
+  - key: portal.den_gorge.cleft
+    space: space.den_gorge_cave
+    exterior_m: [556.5, 799.2]
+    interior_m: [557.0, 804.4]
+    opens_with: { flag_ref: world.den_gorge.rope_gone, location_ref: location.den_mouth }
 
 waystones:
 - key: waystone.ashen

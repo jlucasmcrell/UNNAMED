@@ -3560,6 +3560,10 @@
       "model": "prop_ph_wooden_crate_02",
       "sound": "chest"
     },
+    "container.den_gorge.haldas_store": {
+      "model": "prop_ph_wooden_crate_02",
+      "sound": "chest"
+    },
     "container.road.barrow_cache": {
       "model": "prop_ph_treasure_chest",
       "sound": "chest"
@@ -4273,6 +4277,26 @@
       "flesh": "chitin",
       "blow": "sting",
       "note": "Playtest enemy replacement 2026-10-18; held licensed source, no generative assets. Nephila existing rig; uniform 2.7x body-centred scale; authored idle/lunge-bite/hit/curling death, run retimed from native walk.",
+      "steps": {
+        "walk": "scuttle",
+        "run": "scuttle_fast"
+      }
+    },
+    "creature.beast.hunting_spider_matriarch": {
+      "model": "creature_playtest_cave_spider",
+      "clips": {
+        "idle": "creature.creature_playtest_cave_spider.idle",
+        "walk": "creature.creature_playtest_cave_spider.walk",
+        "run": "creature.creature_playtest_cave_spider.run",
+        "attack": "creature.creature_playtest_cave_spider.attack",
+        "hit": "creature.creature_playtest_cave_spider.hit",
+        "death": "creature.creature_playtest_cave_spider.death",
+        "ability.creature.spider_bite": "creature.creature_playtest_cave_spider.attack",
+        "ability.creature.matriarch_lunge": "creature.creature_playtest_cave_spider.attack"
+      },
+      "voice": "cave_hunting_spider",
+      "flesh": "flesh",
+      "note": "Spec 28: the hollow's matriarch on the hunting spider's own model and clips, drawn 2.5x by her body radius.",
       "steps": {
         "walk": "scuttle",
         "run": "scuttle_fast"

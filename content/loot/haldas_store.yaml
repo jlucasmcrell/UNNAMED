@@ -1,0 +1,12 @@
+id: loot.haldas_store
+kind: loot
+schema: 1
+display_key: loot.haldas_store.name
+tags: [loot]
+notes: "Halda's dry store in the alcove off the great chamber (spec 28): what a trapper keeps where the wolves cannot get it - her skinning knife, cured hides, cord. She cached in the den's notch (lore.halda_crowden); this was the store under it, reached by her rope. PROPOSED: owner question DG-1."
+rolls: 0
+guaranteed:
+  - { item_ref: item.weapon.haldas_knife, count_range: [1, 1] }
+entries:
+  - { item_ref: item.material.small_hide, chance: 1.00, count_range: [3, 4] }
+  - { item_ref: item.material.spider_silk, chance: 0.60, count_range: [1, 2] }

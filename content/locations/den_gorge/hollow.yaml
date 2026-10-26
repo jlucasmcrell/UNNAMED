@@ -1,0 +1,25 @@
+id: location.den_gorge.hollow
+kind: location
+schema: 1
+display_key: location.den_gorge.hollow.name
+tags:
+- location
+notes: "The great chamber under the wolves' den, lit through a crack in the den's notch above (spec 28). The matriarch's."
+name: The Hollow Under the Den
+region_ref: region.den_gorge_cave
+anchor:
+  world:
+  - 518.0
+  - 0.0
+  - 765.0
+kind_of_place: landmark
+discovery:
+  methods:
+  - visited
+  radius_m: 9
+  xp: 40
+map:
+  reveals_radius_m: 20
+  marker: none
+fast_travel:
+  node: false

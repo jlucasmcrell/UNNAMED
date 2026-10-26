@@ -120,7 +120,7 @@ public class BarrowworksPersistenceTests
             // No portals exist, so the ring is unreachable and the space is never anything but the exterior - which
             // is what keeps the option-off playtest the playtest it was.
             Assert.True(session.Simulation!.PlayerInExterior);
-            Assert.Empty(session.Setup.Layout.Portals.Portals);
+            Assert.DoesNotContain(session.Setup.Layout.Portals.Portals, p => p.Space == UNNAMED.Domain.Spatial.SpaceId.Parse("space.barrowworks"));
             session.Save(SaveSlots.Quick);
         }
 

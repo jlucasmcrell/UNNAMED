@@ -33,7 +33,7 @@ public class SpaceGroundTests
         using var profile = new TempProfile();
         var setup = Harness.Boot(profile).Setup;
 
-        Assert.Single(setup.Spaces);
+        Assert.Equal(2, setup.Spaces.Count);   // the frontier and the hollow under the den (spec 28), which no gate holds back
         Assert.False(setup.Spaces.ContainsKey(SpaceId.Parse(Ring)));
         // A space it does not hold falls back to its own, which is what an unloaded space can honestly answer.
         Assert.Equal(setup.Layout.Space, setup.SpaceFor(SpaceId.Parse(Ring)));

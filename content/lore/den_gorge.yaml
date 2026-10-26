@@ -1,0 +1,26 @@
+id: lore.den_gorge
+kind: lore
+schema: 1
+display_key: lore.den_gorge.title
+tags: [lore, places]
+title: The Den Gorge
+category: places
+notes: "Written from content/locations/den_gorge.yaml and content/locations/den_gorge/*.yaml (spec 28) and Halda Crowden's story (lore.halda_crowden). That the rope and the store under the den were Halda's is PROPOSED (owner question DG-1); canon says only that the notch was her cache and that she went up after the wolves and did not come down. In-world, page 1 is the gorge seen from its lip (location.den_gorge) and page 2 the hollow walked into (location.den_gorge.hollow)."
+pages:
+  - page: 1
+    text: >
+      Behind the wolves' den the ground stops. The lip drops nine metres to a ledge and thirty to a river that runs
+      white between the walls, fed by a fall off the far side and swallowed at the east end where the water goes
+      under the ground and does not come out. A rope is tied off on the lip beside the den's east rock, a trapper's
+      knot round a driven stake, and it goes over the edge and down to the ledge. It has been out in two winters.
+      Where it runs over the edge a strand is gone and the rest has furred.
+    sources:
+      - { how: visited, ref: location.den_gorge }
+  - page: 2
+    text: >
+      The ledge opens into a hollow that runs back under the den itself, dry, and in the great chamber a crack lets
+      down the light from the den's notch and whatever the pack drops through it. Someone kept a store here once,
+      out of the wolves' reach, and something has kept the hollow since: a hunting spider grown past any size the
+      slope has seen, near-blind, feeling every footfall on the stone. Walk and she waits. Run and she comes.
+    sources:
+      - { how: visited, ref: location.den_gorge.hollow }

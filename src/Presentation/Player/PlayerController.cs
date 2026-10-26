@@ -227,6 +227,9 @@ public sealed class PlayerController
         bool outside = simulation.PlayerInExterior;
         foreach (var portal in simulation.Setup.Layout.Portals.Portals)
         {
+            // Only the doors of the space the body is in, and only those still there to be used.
+            if (!outside && portal.Space != simulation.ActiveLayout.SpaceId || simulation.PortalGone(portal) || outside && !simulation.PortalOpen(portal))
+                continue;
             long px = outside ? portal.ExteriorXMm : portal.InteriorXMm;
             long pz = outside ? portal.ExteriorZMm : portal.InteriorZMm;
             var foot = new CircleBlocker(portal.Key, px, pz, 1_500, 2_200);

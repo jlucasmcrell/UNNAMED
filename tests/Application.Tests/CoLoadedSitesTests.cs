@@ -34,7 +34,7 @@ public class CoLoadedSitesTests
         using var profile = new TempProfile();
         var session = Frontier(profile, barrowworks: true);
         var source = session.Setup.Layout;
-        var place = session.Setup.Interior!.Locations.First();
+        var place = session.Setup.Layouts.GetValueOrDefault(UNNAMED.Domain.Spatial.SpaceId.Parse("space.barrowworks"))!.Locations.First();
         const string flag = "world.test.portal_offer";
         var portals = source.Portals.Portals.Select((p, i) => p with
         {
@@ -43,7 +43,7 @@ public class CoLoadedSitesTests
         var setup = session.Setup with { Layout = source with { Portals = new SpacePortalSet(portals) } };
         var sim = Simulation.Start(setup, session.Simulation!.CaptureRecord(),
             new WorldDelta(session.Generator, 42, new Registry()), 0, new EventBus());
-        var cell = CellKey.OfInterior(session.Setup.Interior.SpaceId, place.XMm / 1000.0, place.ZMm / 1000.0);
+        var cell = CellKey.OfInterior(session.Setup.Layouts.GetValueOrDefault(UNNAMED.Domain.Spatial.SpaceId.Parse("space.barrowworks"))!.SpaceId, place.XMm / 1000.0, place.ZMm / 1000.0);
         Assert.Equal(1, sim.World.GetFlag(cell, flag));
         Assert.Equal(0, sim.World.GetFlag(cell, "world.barrowworks.ring_accessible"));
     }
@@ -54,7 +54,7 @@ public class CoLoadedSitesTests
         using var profile = new TempProfile();
         var session = Frontier(profile, barrowworks: true);
 
-        var ring = session.Setup.Interior;
+        var ring = session.Setup.Layouts.GetValueOrDefault(UNNAMED.Domain.Spatial.SpaceId.Parse("space.barrowworks"));
         Assert.NotNull(ring);
         Assert.NotEmpty(ring!.Switches);
 
@@ -69,7 +69,7 @@ public class CoLoadedSitesTests
     {
         using var profile = new TempProfile();
         var session = Frontier(profile, barrowworks: true);
-        var ring = session.Setup.Interior!;
+        var ring = session.Setup.Layouts.GetValueOrDefault(UNNAMED.Domain.Spatial.SpaceId.Parse("space.barrowworks"))!;
 
         var doors = session.Simulation!.Doors.Select(d => d.Site.Key).ToHashSet(StringComparer.Ordinal);
         Assert.All(ring.Doors, d => Assert.Contains(d.Key, doors));
@@ -81,7 +81,7 @@ public class CoLoadedSitesTests
     {
         using var profile = new TempProfile();
         var session = Frontier(profile, barrowworks: true);
-        var ring = session.Setup.Interior!;
+        var ring = session.Setup.Layouts.GetValueOrDefault(UNNAMED.Domain.Spatial.SpaceId.Parse("space.barrowworks"))!;
 
         // A space with no tier cells has no tiers, so a creature's AI - which keys on the tier of the cell it stands
         // in - never leaves Idle. That is exactly what the Custodian did.
@@ -97,7 +97,7 @@ public class CoLoadedSitesTests
         using var profile = new TempProfile();
         var session = Frontier(profile, barrowworks: false);
 
-        Assert.Null(session.Setup.Interior);
+        Assert.Null(session.Setup.Layouts.GetValueOrDefault(UNNAMED.Domain.Spatial.SpaceId.Parse("space.barrowworks")));
         Assert.All(session.Simulation!.Switches, s => Assert.DoesNotContain("barrowworks", s.Site.Key, StringComparison.Ordinal));
         Assert.All(session.Simulation!.Doors, d => Assert.DoesNotContain("barrowworks", d.Site.Key, StringComparison.Ordinal));
     }

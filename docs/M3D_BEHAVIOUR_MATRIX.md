@@ -70,6 +70,8 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 | spawn.cairnwold.moor_hares | (1000, 700) | Frost Hare as wildlife x3 | after 30.0 min |
 | spawn.cairnwold.moor_strays | (1024, 753) | Grey Wolf as stray, Grey Wolf as roamer x2 | after 20.0 min |
 | spawn.cairnwold.outfall_hares | (1060, 640) | Frost Hare as wildlife x2 | after 30.0 min |
+| spawn.den_gorge.matriarch | (516, 763) | Hunting Spider Matriarch as sentinel | no |
+| spawn.den_gorge.young | (541, 785) | Cave Hunting Spider as sentinel x2 | no |
 | spawn.field.breach_northeast | (867, 736) | Animated Armour as sentinel | after 60.0 min |
 | spawn.field.breach_south | (846, 777) | Animated Armour as sentinel | after 144.0 min |
 | spawn.field.breach_west | (824, 758) | Animated Armour as sentinel | after 60.0 min |

@@ -177,6 +177,12 @@ public partial class Main
                 CaptureQuit.At(this);
                 return;
             }
+            if (System.Environment.GetEnvironmentVariable("OTHERREACH_GORGE_REVIEW") == "video")
+            {
+                camera.GetNode<OmniLight3D>("CharacterFill").Reparent(source, false);
+                source.MakeCurrent(); camera.QueueFree();
+                await RunGorgeVideo(directory); GetTree().Quit(); return;
+            }
             if (System.Environment.GetEnvironmentVariable("OTHERREACH_GORGE_REVIEW") == "stills")
             {
                 await RunGorgeStills(directory, camera);

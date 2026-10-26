@@ -151,6 +151,14 @@ concepts:
   source: content/quests/bounty/crag_walker.yaml notes; content/dialogue/cairnwold/durn_skell.yaml where
   covered_by:
   - lore.crag_walker
+- id: canon.den_gorge
+  name: The Den Gorge
+  kind: place
+  status: covered
+  fact: Behind the wolves' den the ground drops nine metres to a ledge and thirty to a river; a frayed rope runs from the lip to the ledge, and a hollow runs back from the ledge under the den.
+  source: content/locations/den_gorge.yaml notes; content/locations/den_gorge/*.yaml notes (spec 28)
+  covered_by:
+  - lore.den_gorge
 - id: canon.durn_skell
   name: Durn Skell
   kind: other

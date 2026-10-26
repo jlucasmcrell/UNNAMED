@@ -99,11 +99,11 @@ public class CombatContentTests
         }, setup.Roles.Keys);
 
         // The content bible's five archetypes, each a creature of its own with its own body and blow (§10) - and the start area's wildlife
-        // and its two great grazers. The Ring Custodian is M8 I4's, inside the gated Barrowworks; the gate tender and the Gate Warden keep the Spill.
+        // and its two great grazers. The Ring Custodian is M8 I4's, inside the gated Barrowworks; the gate tender and the Gate Warden keep the Spill; the hunting spider matriarch keeps the hollow under the den.
         Assert.Equal(new[]
             {
                 "creature.beast.ash_ember_hound", "creature.beast.bristleback_boar", "creature.beast.buck", "creature.beast.cave_hunting_spider",
-                "creature.beast.chicken", "creature.beast.doe", "creature.beast.hound_pup", "creature.beast.rabbit", "creature.beast.red_fox", "creature.beast.rooster",
+                "creature.beast.chicken", "creature.beast.doe", "creature.beast.hound_pup", "creature.beast.hunting_spider_matriarch", "creature.beast.rabbit", "creature.beast.red_fox", "creature.beast.rooster",
                 "creature.beast.wolf_grey", "creature.beast.wolf_grey_alpha", "creature.construct.animated_armour", "creature.construct.gate_tender", "creature.construct.gate_warden",
                 "creature.construct.ring_custodian",
                 "creature.grazer.barrowback", "creature.grazer.fellhorn", "creature.undead.bone_walker_husk",

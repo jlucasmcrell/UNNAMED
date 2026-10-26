@@ -516,9 +516,19 @@ public static class WorldContent
                 // The exterior anchor is a place in this region, so it has to be walkable ground in it.
                 Check(exteriorX >= minX && exteriorX <= maxX && exteriorZ >= minZ && exteriorZ <= maxZ, "WLD015",
                     $"{key}'s exterior anchor is outside the walkable bounds");
+                PortalGivesWay? givesWay = null;
+                if (site.ContainsKey("gives_way"))
+                {
+                    var gives = Map(site, "gives_way");
+                    long drop = (long)Math.Round(Number(gives, "drop_m") * 1000);
+                    Check(drop > 0, "WLD015", $"{key}'s gives_way needs a drop_m above zero");
+                    givesWay = new PortalGivesWay(Requirement(gives), drop);
+                }
                 portals.Add(new SpacePortal(key, portalSpace, exteriorX, exteriorZ, interiorX, interiorZ)
                 {
                     ReachableFlag = site.ContainsKey("reachable_flag") ? Requirement(Map(site, "reachable_flag")) : null,
+                    OpensWith = site.ContainsKey("opens_with") ? Requirement(Map(site, "opens_with")) : null,
+                    GivesWay = givesWay,
                 });
             }
             Check(portals.Select(p => p.Key).Distinct(StringComparer.Ordinal).Count() == portals.Count, "WLD015", "two portals share a key");
