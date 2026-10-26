@@ -69,6 +69,7 @@ public sealed partial class SkinnedModel : Node3D
         }
         var figure = new SkinnedModel { Name = assetId, Skeleton = skeleton };
         figure.AddChild(model);
+        HumGenIdentityWeights.Apply(model, art, assetId);
         WearFrontier(art, assetId, model, skeleton);
         // THE RETURN VALUE IS THE ONLY EVIDENCE THIS FIRES, AND IT WAS BEING THROWN AWAY. CharacterMaterials matches a
         // surface material to a zone by the END of its name - _skin, _cloth, _leather, _eye and so on - and applies
