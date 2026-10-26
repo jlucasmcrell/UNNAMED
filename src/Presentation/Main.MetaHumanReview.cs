@@ -97,7 +97,11 @@ public partial class Main
             {
                 string body=$"body.{_creator.Draft.PeopleId[7..]}_{(feminine?"f":"m")}.average";
                 if(!_creator.DrawnBodyIds(_creator.Draft.PeopleId).Contains(body))throw new InvalidDataException("Film must use an installed normal creator body: "+body);
-                _creator.Use(_creator.Draft with { BodyPresetId=body });
+                string filmName=OS.GetEnvironment("OTHERREACH_FEATURE_FILM_NAME");
+                if(string.IsNullOrWhiteSpace(filmName)||filmName.Equals("Ada",StringComparison.OrdinalIgnoreCase)||filmName.Equals("Mateo",StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidDataException("Film needs its own player-created name");
+                _creator.Use(_creator.Draft with { Name=filmName,BodyPresetId=body,
+                    Start=OS.GetEnvironment("OTHERREACH_FEATURE_FILM_ROAD")=="1"?StartPoint.Road:StartPoint.Waystone });
             }
             // The heritage gate shows each people's card, body and Carries before it begins (Main.HeritageReview).
             if (OS.GetEnvironment("OTHERREACH_HERITAGE_REVIEW") == "peoples")

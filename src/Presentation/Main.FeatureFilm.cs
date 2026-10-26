@@ -23,7 +23,7 @@ public partial class Main
         if(selectedPeople!="people.veth"&&!native.ModelId.Contains("_race_"+selectedPeople[7..]+"_",StringComparison.Ordinal))
             throw new InvalidDataException("Film's actual model does not match chosen people: "+selectedPeople+" / "+native.ModelId);
         File.WriteAllText(Path.Combine(directory,"BODY_CONTRACT.json"),JsonSerializer.Serialize(new {
-            selectedPeople,preset=sim.Player.Identity.BodyPresetId,actual_model=native.ModelId,
+            name=sim.Player.Name,selectedPeople,preset=sim.Player.Identity.BodyPresetId,actual_model=native.ModelId,
             stature_scale=native.StatureScale,library="Native exact-target public library; no donor figures",
             legacy_veth_comparison_gate="Not applicable to race models absent from the old Veth-only comparison table; actual model asserted here"}));
         _rcd3Driving=true;
@@ -41,7 +41,7 @@ public partial class Main
         double Number(JsonElement e,string key,double fallback)=>e.TryGetProperty(key,out var v)?v.GetDouble():fallback;
         void Mark(string phase,object? detail=null)=>File.AppendAllText(Path.Combine(directory,"phases.jsonl"),JsonSerializer.Serialize(new {
             phase,detail,utc=DateTimeOffset.UtcNow,uptime_ms=Time.GetTicksMsec(),tick=sim.WorldTick,
-            player=sim.Player.Body,health=sim.Combat.Health,level=sim.Player.Progression.Level,
+            name=sim.Player.Name,avatar_position=_avatar.GlobalPosition.ToString(),avatar_visible=_avatar.IsVisibleInTree(),lying=_lying,player=sim.Player.Body,health=sim.Combat.Health,level=sim.Player.Progression.Level,
             camera=camera.GlobalPosition.ToString(),model=native.ModelId,tier=VisualOptions.Tier})+"\n");
         _session.Subscribe<CommandRejected>(e=>Mark("rejected",e));
         _session.Subscribe<HitResolved>(e=>Mark("hit",e));
@@ -163,7 +163,7 @@ public partial class Main
                         void FollowWings()
                         {
                             var aim=_avatar.GlobalPosition+Vector3.Up*.8f;
-                            var eye=aim+new Vector3(down.Z,0,-down.X)*side*4.8f-down*1.2f+Vector3.Up*1.4f;
+                            var eye=aim+new Vector3(down.Z,0,-down.X)*side*(float)Number(step,"camera_distance",4.8)-down*1.2f+Vector3.Up*(float)Number(step,"camera_height",1.4);
                             eye.Y=Math.Max(eye.Y,_ground.Height(eye.X,eye.Z)+.8f);
                             camera.Fov=55;camera.GlobalPosition=eye;camera.LookAt(aim);camera.MakeCurrent();
                         }
@@ -199,9 +199,9 @@ public partial class Main
                         // The real offline advance and its returned log, as at login; no synthetic digest or event rows.
                         var advance=sim.Advance((long)(Number(step,"hours",8)*sim.Setup.Clock.TicksPerDay/sim.Setup.Clock.HoursPerDay));
                         Mark("normal_offline_advance",new {advance.FromTick,advance.ToTick,lines=advance.Lines.Count});
-                        ShowAway(AwayOf(advance.FromTick,advance.ToTick,advance.Lines,false));await Hold(seconds);break;
+                        CloseScreens();ShowAway(AwayOf(advance.FromTick,advance.ToTick,advance.Lines,false));await Hold(seconds);break;
                     case "road_start":
-                        OpenCreator();_creator.Use(_creator.Draft with {Name="Ada",PeopleId="people.veth",BodyPresetId="body.veth_f.average",Start=StartPoint.Road});
+                        OpenCreator();_creator.Use(_creator.Draft with {Name=OS.GetEnvironment("OTHERREACH_FEATURE_FILM_NAME"),PeopleId="people.veth",BodyPresetId="body.veth_f.average",Start=StartPoint.Road});
                         if(!_creator.PressBegin())throw new InvalidDataException("Normal road Begin refused: "+_creator.Draft.Problem);
                         sim=_session.Simulation!;native=(SkinnedFigure)_avatar;gameplayCamera=true;
                         Mark("actual_road_start",new {sim.Player.Identity,model=native.ModelId,lying=_lying});
@@ -211,13 +211,20 @@ public partial class Main
                         string nextBody=$"body.{nextPeople[7..]}_f.average";
                         OpenCreator();
                         if(!_creator.DrawnBodyIds(nextPeople).Contains(nextBody))throw new InvalidDataException("Uninstalled real creator body: "+nextBody);
-                        _creator.Use(_creator.Draft with {Name="Ada",PeopleId=nextPeople,BodyPresetId=nextBody,Start=StartPoint.Waystone});
+                        _creator.Use(_creator.Draft with {Name=OS.GetEnvironment("OTHERREACH_FEATURE_FILM_NAME"),PeopleId=nextPeople,BodyPresetId=nextBody,Start=StartPoint.Waystone});
                         if(!_creator.PressBegin())throw new InvalidDataException("Normal people Begin refused: "+_creator.Draft.Problem);
                         sim=_session.Simulation!;native=(SkinnedFigure)_avatar;gameplayCamera=false;fixedAim=null;
                         if(nextPeople!="people.veth"&&!native.ModelId.Contains("_race_"+nextPeople[7..]+"_",StringComparison.Ordinal))throw new InvalidDataException("New creator model mismatch");
                         Mark("actual_people_start",new {sim.Player.Identity,model=native.ModelId});await Hold(seconds);break;
                     case "wake":GetUp();await Hold(seconds);break;
-                    case "touch_stone":_controller.TouchStone(Text(step,"id"));await Hold(seconds);break;
+                    case "turn":
+                        var facing=V(step.GetProperty("direction"));
+                        await Hold(seconds,()=>_controller.SteerWorld(facing,Gait.Walk,_camera));
+                        _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);break;
+                    case "touch_stone":
+                        var touching=sim.Waystones.Single(w=>w.Site.Key==Text(step,"id"));
+                        Mark("stone_before_touch",new {touching.Known,touching.Awake,touching.Site.Key});
+                        _controller.TouchStone(touching.Site.Key);await Hold(.1);CloseScreens();await Hold(seconds);break;
                     case "use_stone":
                         string stoneKey=Text(step,"id");
                         var stone=sim.Waystones.Single(w=>w.Site.Key==stoneKey);
@@ -266,6 +273,13 @@ public partial class Main
                             default:throw new InvalidDataException("Unknown real panel");
                         }
                         await Hold(seconds);break;
+                    case "weather":
+                        if(step.TryGetProperty("hour",out var hour))VisualOptions.Pin("hour",hour.GetSingle().ToString(System.Globalization.CultureInfo.InvariantCulture));
+                        if(step.TryGetProperty("weather",out var weather))VisualOptions.Pin("weather",weather.GetString()!);
+                        Mark("presentation_weather_fixture",new {VisualOptions.Hour,VisualOptions.Weather});await Hold(seconds);break;
+                    case "map_check":
+                        if(sim.Map.Places.Length<2)throw new InvalidDataException("Map has fewer than two actual discovered places");
+                        Mark("actual_map",sim.Map);await Hold(seconds);break;
                     case "look":await Hold(seconds);break;
                     case "orbit":
                         var start=offset;float angle=(float)Number(step,"degrees",45)*Mathf.Pi/180f;
