@@ -109,8 +109,13 @@ public class UnfinishedJointTests
         Assert.Contains("crag_stone", Talk(arena, Berrin));
         Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "crag_stone")));
         Assert.Contains("Ondrek", arena.Simulation.Conversation!.Text);
+        Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "back")));
         arena.Tick(2);
         Assert.Equal("o_finish,o_trace", Open(arena));
+        // East is a rumour in the journal, never an objective (owner K-1, 2026-10-26).
+        Assert.Contains(arena.Simulation.Lore, p => p.EntryId == "lore.brannock_stone");
+        Assert.Equal(UNNAMED.Domain.Knowledge.LoreCategory.Rumours, session.Setup.Lore["lore.brannock_stone"].Category);
+        Assert.DoesNotContain(arena.Simulation.Quests.SelectMany(q => q.Objectives), o => o.Description.Contains("Ondrek") && o.Id is not ("o_trace"));
 
         var veth = Arena.OpenCreatures(session, session.Setup, AtBerrin, 0, Array.Empty<(string, double, double, string)>(),
             r => r.WithQuests(new[] { quest }), origin: Harness.Region);
@@ -167,7 +172,9 @@ public class UnfinishedJointTests
         Assert.Equal("maker_mark", arena.Simulation.Conversation!.NodeId);
         arena.Tick(2);
 
-        Assert.Equal(QuestStatus.Completed, arena.Simulation.Quests.Single(q => q.Id == Quest).Status);
+        var done = arena.Simulation.Quests.Single(q => q.Id == Quest);
+        Assert.Equal(QuestStatus.Completed, done.Status);
+        Assert.DoesNotContain(done.Objectives, o => o.Status == ObjectiveStatus.Active);   // the trace branch too ends here, nothing left open east
         Assert.Equal(new[] { "Named in the Brannock hold" }, arena.Simulation.Titles);
         Assert.Single(arena.Simulation.Player.Inventory, e => e.DefId == Tool);   // the tool stays the character's
     }

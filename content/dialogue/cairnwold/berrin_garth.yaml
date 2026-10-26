@@ -328,6 +328,7 @@ nodes:
     choices:
       - id: back
         text: "Thank you, Berrin."
+        consequences: [{ command: tell_lore, lore_ref: lore.brannock_stone }]   # K-1 (owner, 2026-10-26): east is a lead, not an objective
         next: again
   rim_road_taken:
     text: "\"Good. They come to the edge where the road climbs, now and then, and set a carter back where he doesn't fit.\" He winces at his own joke and writes it down anyway. \"Three of them, and I'll pay. Mind the big ones by the breaches - those aren't tenders, whatever they are.\""

@@ -284,7 +284,7 @@ nodes:
         text: "I'll come."
         next: again
   stone_traced:
-    text: "\"East, then.\" She nods slowly. \"Past where I've ever walked. The Ondrek will be courteous, and sad, and they'll tell you they know a person from a stone better than we do. Don't fight them over it. Just find out where it went.\" She sets a chalk mark on the anvil, a line with a gap in it. \"The joint stays open till you're back. Ottra would've said that's honest. Come here - the tool should carry who's carrying it.\""
+    text: "\"East, then.\" She nods slowly. \"Past where I've ever walked. The Ondrek will be courteous, and sad, and they'll tell you they know a person from a stone better than we do. Don't fight them over it. If your road ever runs east, ask after it.\" She sets a chalk mark on the anvil, a line with a gap in it. \"The joint stays open till you're back. Ottra would've said that's honest. Come here - the tool should carry who's carrying it.\""
     choices:
       - id: back
         text: "All right."

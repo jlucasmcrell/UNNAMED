@@ -603,7 +603,7 @@ public class ContentLoaderTests
                 "loot.waystation_chest", "loot.wolf_grey",
                 "lore.animated_armour", "lore.ashbloom", "lore.ashen_hollow", "lore.ashen_waystone",
                 "lore.barrowback", "lore.barrowworks", "lore.blackvein", "lore.bog_cotton",
-                "lore.bone_walker_husk", "lore.boneleaf", "lore.bristleback_boar", "lore.cairnwold",
+                "lore.bone_walker_husk", "lore.boneleaf", "lore.brannock_stone", "lore.bristleback_boar", "lore.cairnwold",
                 "lore.cave_hunting_spider", "lore.charwood_verge", "lore.cinder_sac", "lore.constructed",
                 "lore.crag_walker", "lore.den_gorge", "lore.ember_hounds", "lore.fellhorn", "lore.firstfold_iron", "lore.folded_note", "lore.gate_tender", "lore.gate_warden",
                 "lore.grey_alpha", "lore.grey_wolf", "lore.halda_crowden", "lore.iron",
