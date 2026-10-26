@@ -33,7 +33,8 @@ public class CreatorCatalogueTests
         Assert.Equal((1400, 1550), (Shipped.Race("people.siann")!.MinStatureMm, Shipped.Race("people.siann")!.MaxStatureMm));
         Assert.Equal((2000, 2600), (Shipped.Race("people.ondrek")!.MinStatureMm, Shipped.Race("people.ondrek")!.MaxStatureMm));
         Assert.True(Shipped.Race("people.veth")!.HumgenBody);
-        Assert.False(Shipped.Race("people.kal")!.HumgenBody);
+        Assert.All(new[] { "people.kal", "people.siann", "people.orenth" }, id => Assert.True(Shipped.Race(id)!.HumgenBody));
+        Assert.False(Shipped.Race("people.ondrek")!.HumgenBody);
     }
 
     [Fact]
@@ -53,7 +54,7 @@ public class CreatorCatalogueTests
         Assert.False(Shipped.IsBaked(CreatorChoice.Hair, hair, Ada));
         Assert.True(Shipped.IsBaked(CreatorChoice.FacialHair, null, Ada));
         Assert.Equal(new[] { "HumGen body" }, Shipped.Pending(null, "humgen_not_baked", "people.veth"));
-        Assert.Contains("Kal body", Shipped.Pending(null, Ada, "people.kal"));
+        Assert.Contains("Ondrek body", Shipped.Pending(null, Ada, "people.ondrek"));
     }
 
     [Fact]
@@ -82,6 +83,28 @@ public class CreatorCatalogueTests
         Assert.Equal(look, CharacterIdentity.Of(draft.Spec()).Appearance);
         Assert.Throws<ArgumentException>(() => (draft with { Appearance = look with { StatureMm = 400 } }).Spec());
         Assert.Throws<ArgumentException>(() => (draft with { Appearance = look with { Hair = "outfit.casual.smart_casual" } }).Spec());
+    }
+
+    [Theory]
+    [InlineData("kal", "f", "frontier", 1620)]
+    [InlineData("kal", "m", "frontier", 1680)]
+    [InlineData("siann", "f", "long", 1420)]
+    [InlineData("siann", "m", "long", 1500)]
+    [InlineData("orenth", "f", "frontier", 1680)]
+    [InlineData("orenth", "m", "frontier", 1880)]
+    public void EachPublicRaceBinding_HasItsInstalledBakedIdentity(string people, string sex, string suffix, int stature)
+    {
+        using var bindings = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(Root(), "src", "Presentation", "Art", "art_bindings.json")));
+        var type = bindings.RootElement.GetProperty("player_bodies").GetProperty("types").EnumerateArray()
+            .Single(t => t.GetProperty("id").GetString() == people + "_" + sex);
+        string model = Assert.Single(type.GetProperty("models").EnumerateArray()).GetString()!;
+        Assert.Equal($"humgen_race_{people}_{sex}_{suffix}", model);
+        var baked = Shipped.BakedFor(model);
+        Assert.NotNull(baked);
+        Assert.Equal(sex, baked.Sex);
+        Assert.Equal(stature, baked.Look.StatureMm);
+        Assert.True(Shipped.Race("people." + people)!.HumgenBody);
+        Assert.Empty(Shipped.Pending(baked.Look, model, "people." + people));
     }
 
     private static string Root()
