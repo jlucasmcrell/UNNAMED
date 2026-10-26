@@ -179,6 +179,20 @@ public partial class Main
                         var goal=V(step.GetProperty("position"));
                         await SteerTo(goal.X,goal.Z,Gait.Run,seconds);await Hold(1);break;
                     case "talk":_controller.Talk(Text(step,"id"));await Hold(seconds);break;
+                    case "answer":
+                        string reply=Text(step,"id");
+                        if(reply.Length==0)reply=_dialogue.Replies.First(id=>id.Contains(Text(step,"contains"),StringComparison.Ordinal));
+                        if(!_dialogue.Replies.Contains(reply))throw new InvalidDataException("Conversation does not offer "+reply);
+                        _dialogue.Answer(reply);await Hold(seconds);break;
+                    case "hire":ShowHire(Text(step,"id"));await Hold(seconds);break;
+                    case "trade":OpenTrade(Text(step,"id"));await Hold(seconds);break;
+                    case "clock":
+                        AdvanceTo((int)Number(step,"minute",480));Mark("normal_offline_schedule_advance");await Hold(seconds);break;
+                    case "away_hours":
+                        // The real offline advance and its returned log, as at login; no synthetic digest or event rows.
+                        var advance=sim.Advance((long)(Number(step,"hours",8)*sim.Setup.Clock.TicksPerDay/sim.Setup.Clock.HoursPerDay));
+                        Mark("normal_offline_advance",new {advance.FromTick,advance.ToTick,lines=advance.Lines.Count});
+                        ShowAway(AwayOf(advance.FromTick,advance.ToTick,advance.Lines,false));await Hold(seconds);break;
                     case "road_start":
                         OpenCreator();_creator.Use(_creator.Draft with {Name="Ada",PeopleId="people.veth",BodyPresetId="body.veth_f.average",Start=StartPoint.Road});
                         if(!_creator.PressBegin())throw new InvalidDataException("Normal road Begin refused: "+_creator.Draft.Problem);
