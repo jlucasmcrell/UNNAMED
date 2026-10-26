@@ -13,6 +13,7 @@ public static class PeopleLooks
 {
     public const string Kal = "people.kal";
     public const string Orenth = "people.orenth";
+    public const string Siann = "people.siann";
 
     /// <summary>How far the stone has spread at <paramref name="ageYears"/>: 0.5 for a young adult, 0.8 for the oldest.</summary>
     public static float StoneCoverage(int ageYears) => Math.Clamp(.5f + (ageYears - 20) * .006f, .5f, .8f);
@@ -49,4 +50,31 @@ public static class PeopleLooks
 
     /// <summary>While phased the trail shows even at a walk: each ghost at least this strong.</summary>
     public static float PhaseTrailFloor(int ghost) => .28f * (1f - ghost * .34f);
+
+    /// <summary>
+    /// A Siann iris texel at distance <paramref name="radius"/> from the eye texture's centre (UV units; the HumGen iris spans
+    /// 0.035-0.118, the pupil inside): pale lavender keeping the iris's own grain (<paramref name="luma"/>), with a brighter
+    /// inner ring around the pupil. Returns the colour and how much of it replaces the original (0 outside the iris).
+    /// </summary>
+    public static (float R, float G, float B, float Blend) SiannIris(float radius, float luma)
+    {
+        // a definite dark pupil, which a pale iris otherwise loses under the cornea's sky reflection
+        if (radius < .05f)
+            return (.02f, .02f, .03f, .95f);
+        float shade = .55f + .7f * luma;
+        // Past the iris the HumGen sclera's warm, veined white turns a cool pearl, so the eye reads lavender, not orange.
+        if (radius > .118f)
+            return (.86f * shade, .85f * shade, .9f * shade, .6f);
+        // Lavender with a brighter ring round the pupil and a dark limbal ring at the edge, so the iris reads at conversation distance.
+        float ring = Smooth(.05f, .058f, radius) * (1f - Smooth(.066f, .082f, radius));
+        float limbal = 1f - .65f * Smooth(.095f, .112f, radius);
+        return (Math.Min(1f, (.55f * shade + .15f * ring) * limbal), Math.Min(1f, (.46f * shade + .13f * ring) * limbal),
+            Math.Min(1f, (.82f * shade + .16f * ring) * limbal), 1f);
+    }
+
+    private static float Smooth(float edge0, float edge1, float x)
+    {
+        float t = Math.Clamp((x - edge0) / (edge1 - edge0), 0f, 1f);
+        return t * t * (3f - 2f * t);
+    }
 }

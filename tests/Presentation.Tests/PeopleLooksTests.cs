@@ -71,4 +71,31 @@ public class PeopleLooksTests
         Assert.True(PeopleLooks.PhaseTrailFloor(0) > 0 && PeopleLooks.PhaseTrailFloor(0) < PeopleLooks.AfterimageStrength(5f, 0));
         Assert.True(PeopleLooks.PhaseTrailFloor(2) < PeopleLooks.PhaseTrailFloor(0));
     }
+
+    [Fact]
+    public void SiannPupilIsDark()
+    {
+        var pupil = PeopleLooks.SiannIris(0f, .5f);
+        Assert.True(pupil.R + pupil.G + pupil.B < .1f && pupil.Blend > .5f);
+    }
+
+    [Fact]
+    public void SiannScleraIsACoolPearl()
+    {
+        var sclera = PeopleLooks.SiannIris(.2f, .8f);
+        Assert.True(sclera.B > sclera.R && sclera.R >= sclera.G, "cool: blue over red over green, never the warm HumGen white");
+        Assert.InRange(sclera.Blend, .5f, 1f);
+    }
+
+    [Fact]
+    public void SiannIrisIsLavenderWithABrighterInnerRing()
+    {
+        var inner = PeopleLooks.SiannIris(.06f, .4f);
+        var outer = PeopleLooks.SiannIris(.09f, .4f);
+        Assert.True(inner.B > inner.G && inner.R > inner.G, "lavender: blue and red over green");
+        Assert.True(inner.R + inner.G + inner.B > outer.R + outer.G + outer.B, "the inner ring is brighter");
+        Assert.Equal(1f, outer.Blend);
+        var limbal = PeopleLooks.SiannIris(.112f, .4f);
+        Assert.True(limbal.R + limbal.G + limbal.B < .6f * (outer.R + outer.G + outer.B), "a dark limbal ring at the iris edge");
+    }
 }

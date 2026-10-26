@@ -89,6 +89,17 @@ uniform float stone_glint : hint_range(0.0, 1.0) = 0.6;
 uniform float stone_normal_y : hint_range(-1.0, 1.0) = 1.0;
 uniform vec3 stone_tint : source_color = vec3(1.0);
 
+// Siann (Otherreach addition): opal skin - a pale pearl base whose mother-of-pearl sheen drifts through lavender-blue,
+// pink and teal with the view angle, strongest where opal_mask r is (neck, upper chest, shoulders, face), with fine
+// silver-lavender subdermal traces where opal_mask g is (temples, ears, throat, fingers). Never transparent.
+group_uniforms siann_opal;
+uniform bool use_opal = false;
+uniform sampler2D opal_mask : hint_default_black, filter_linear_mipmap, repeat_disable;
+uniform float opal_pale : hint_range(0.0, 1.0) = 0.6;
+uniform float opal_sheen : hint_range(0.0, 1.0) = 0.85;
+uniform float opal_traces : hint_range(0.0, 1.0) = 0.4;
+uniform vec3 opal_pearl : source_color = vec3(0.97, 0.92, 0.92);
+
 group_uniforms u_v;
 uniform vec3 uv1_scale = vec3(1.);
 uniform vec3 uv1_offset = vec3(0.);
@@ -130,6 +141,17 @@ vec3 custom_normal(vec3 normal_map){
 		1   // Z-axis (solid blue)
 		);
 	return normalize(TBN * normal_tangent);
+}
+
+float opal_noise(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	float a = fract(sin(dot(i, vec2(127.1, 311.7))) * 43758.5453);
+	float b = fract(sin(dot(i + vec2(1.0, 0.0), vec2(127.1, 311.7))) * 43758.5453);
+	float c = fract(sin(dot(i + vec2(0.0, 1.0), vec2(127.1, 311.7))) * 43758.5453);
+	float d = fract(sin(dot(i + vec2(1.0, 1.0), vec2(127.1, 311.7))) * 43758.5453);
+	return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
 }
 
 float ScreenSpaceDither12(vec2 vScreenPos, float time){
@@ -230,6 +252,24 @@ void fragment() {
 	}
 
 	plain = stone * .8;
+	if (use_opal){
+		vec2 om = texture(opal_mask, base_uv).rg;
+		float luma = dot(ALBEDO, vec3(.299, .587, .114));
+		// a pale cool pearl that keeps the skin's own shading detail
+		ALBEDO = mix(ALBEDO, opal_pearl * clamp(0.74 + (luma - 0.45) * 0.6, 0.6, 0.92), opal_pale);
+		// mother-of-pearl: the hue drifts with the view angle and slowly across the skin
+		float nv = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
+		float drift = (1.0 - nv) * 1.4 + opal_noise(base_uv * 18.0) * 0.5;
+		vec3 film = vec3(0.84, 0.84, 0.97) + vec3(0.16, 0.13, 0.12) * cos(6.2832 * (drift + vec3(0.0, 0.34, 0.63)));
+		// the lavender-blue cast under the sheen, deepest on the neck, chest and shoulders
+		ALBEDO = mix(ALBEDO, ALBEDO * vec3(0.93, 0.94, 1.03), opal_sheen * om.r);
+		ALBEDO = mix(ALBEDO, ALBEDO * film * 1.1, opal_sheen * om.r * (0.5 + 0.5 * (1.0 - nv)));
+		// silver-lavender traces where the skin is thinnest, instead of red vessels
+		float ridge = 1.0 - abs(opal_noise(base_uv * 140.0) * 2.0 - 1.0);
+		float trace = smoothstep(0.9, 0.98, ridge) * om.g;
+		ALBEDO = mix(ALBEDO, vec3(0.80, 0.77, 0.93), trace * opal_traces);
+		ROUGHNESS = mix(ROUGHNESS, ROUGHNESS * 0.85, om.r * 0.4);
+	}
 
 	// Ambient Occlusion
 	if (use_ambient_occlusion){

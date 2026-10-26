@@ -1,0 +1,338 @@
+{
+  "comment": "Siann with long platinum hair (owner ruling 2026-10-25); r2 entries unchanged except hair, hair colour and iris",
+  "bodies": [
+    {
+      "id": "siann_f_long",
+      "kind": "race",
+      "people": "Siann",
+      "sex": "f",
+      "preset": "female/Caucasian presets/Caucasian 1.json",
+      "age": 24,
+      "height_cm": 142,
+      "sliders": {
+        "skinny": 0.85,
+        "muscular": -0.6,
+        "Shoulder Width": -0.7,
+        "Neck Length": 0.9,
+        "Neck Thickness": -0.5,
+        "Hand Length": 0.55,
+        "Hand Thickness": -0.2,
+        "Forearm Length": 0.45,
+        "Chest Width": -0.4,
+        "Waist Thickness": -0.5,
+        "Hips Size": -0.35,
+        "Thigh Thickness": -0.4,
+        "Shin Thickness": -0.35,
+        "Upper Arm Thickness": -0.35
+      },
+      "face_sliders": {
+        "jaw_width": -0.7,
+        "chin_width": -0.6,
+        "chin_size": -0.35,
+        "chin_height": 0.25,
+        "cheek_zygomatic_bone": 0.55,
+        "cheek_fullness": -0.55,
+        "temple_size": -0.45,
+        "forehead_size": 0.3,
+        "eye_width": 0.5,
+        "eye_height": 0.4,
+        "Eye Scale": 0.55,
+        "eye_tilt": -0.25,
+        "eye_orbit_size": 0.35,
+        "Eye Depth": -0.15,
+        "browridge_center_size": -0.4,
+        "nose_bridge_height": 0.35,
+        "nose_bridge_width": -0.45,
+        "nose_tip_size": -0.35,
+        "lip_width": -0.3,
+        "muzzle_location_vertical": 0.15
+      },
+      "face_strength": 1.0,
+      "skin": "textures\\female\\Default 1K\\Female 02.png",
+      "hair": "hair\\head\\female\\Long\\Medium Center Part.json",
+      "eye_colour": [
+        0.8,
+        0.74,
+        0.96
+      ],
+      "outfit": "outfits/female/Extra Outfits Pack/Pirate.blend",
+      "footwear": "footwear/female/Extra Outfits Pack/Pirate Boots.blend",
+      "identity_note": "the approved round-2 body and face direction verbatim; role-neutral outfit, distinct from the other five bodies",
+      "hair_end_fraction": 0.42,
+      "hair_colour": {
+        "lightness": 1,
+        "redness": 0.15,
+        "root_lightness": 1,
+        "root_redness": 0,
+        "salt_and_pepper": 1
+      },
+      "hair_card_match": [
+        1.25,
+        0.18
+      ],
+      "hair_sleek": {
+        "child_radius": 0.015,
+        "roughness": 0.004,
+        "children": 3,
+        "thickness": 6
+      },
+      "hair_cards": {
+        "min_half_width": 0.008,
+        "max_half_width": 0.06,
+        "ultra_triangles": 80000
+      },
+      "texture_resolution": {
+        "body": 4096,
+        "clothing": 2048,
+        "eyes": 1024,
+        "teeth": 512,
+        "hair": 4096
+      },
+      "recolour": [
+        {
+          "name": "shirt",
+          "match": "shirt",
+          "rgb": [
+            0.74,
+            0.68,
+            0.55
+          ]
+        },
+        {
+          "name": "trousers",
+          "match": "pants",
+          "rgb": [
+            0.28,
+            0.22,
+            0.16
+          ]
+        },
+        {
+          "name": "boots",
+          "match": "boot",
+          "rgb": [
+            0.32,
+            0.21,
+            0.13
+          ]
+        }
+      ],
+      "outfit_drop": [
+        "hat"
+      ]
+    },
+    {
+      "id": "siann_m_long",
+      "kind": "race",
+      "people": "Siann",
+      "sex": "m",
+      "preset": "male/Caucasian Presets/Caucasian 2.json",
+      "age": 27,
+      "height_cm": 150,
+      "sliders": {
+        "skinny": 0.75,
+        "muscular": -0.55,
+        "Shoulder Width": -0.65,
+        "Neck Length": 0.85,
+        "Neck Thickness": -0.45,
+        "Hand Length": 0.5,
+        "Hand Thickness": -0.2,
+        "Forearm Length": 0.4,
+        "Chest Width": -0.35,
+        "Waist Thickness": -0.45,
+        "Hips Size": -0.3,
+        "Thigh Thickness": -0.35,
+        "Shin Thickness": -0.3,
+        "Upper Arm Thickness": -0.3
+      },
+      "face_sliders": {
+        "jaw_width": -0.65,
+        "chin_width": -0.55,
+        "chin_size": -0.3,
+        "chin_height": 0.2,
+        "cheek_zygomatic_bone": 0.5,
+        "cheek_fullness": -0.5,
+        "temple_size": -0.4,
+        "forehead_size": 0.25,
+        "eye_width": 0.45,
+        "eye_height": 0.35,
+        "Eye Scale": 0.5,
+        "eye_tilt": -0.2,
+        "eye_orbit_size": 0.3,
+        "Eye Depth": -0.1,
+        "browridge_center_size": -0.35,
+        "nose_bridge_height": 0.3,
+        "nose_bridge_width": -0.4,
+        "nose_tip_size": -0.3,
+        "lip_width": -0.25
+      },
+      "face_strength": 1.0,
+      "skin": "textures\\male\\Default 1K\\Male 02.png",
+      "hair": "hair\\head\\male\\Long\\Medium Center Part.json",
+      "eye_colour": [
+        0.8,
+        0.74,
+        0.96
+      ],
+      "outfit": "outfits/male/Extra Outfits Pack/Pirate.blend",
+      "footwear": "footwear/male/Extra Outfits Pack/Pirate Boots.blend",
+      "identity_note": "the approved round-2 body and face direction verbatim; role-neutral outfit, distinct from the other five bodies",
+      "hair_end_fraction": 0.42,
+      "hair_colour": {
+        "lightness": 1,
+        "redness": 0.15,
+        "root_lightness": 1,
+        "root_redness": 0,
+        "salt_and_pepper": 1
+      },
+      "hair_card_match": [
+        1.25,
+        0.18
+      ],
+      "hair_sleek": {
+        "child_radius": 0.015,
+        "roughness": 0.004,
+        "children": 3,
+        "thickness": 6
+      },
+      "hair_cards": {
+        "min_half_width": 0.008,
+        "max_half_width": 0.06,
+        "ultra_triangles": 80000
+      },
+      "texture_resolution": {
+        "body": 4096,
+        "clothing": 2048,
+        "eyes": 1024,
+        "teeth": 512,
+        "hair": 4096
+      },
+      "recolour": [
+        {
+          "name": "shirt",
+          "match": "shirt",
+          "rgb": [
+            0.4,
+            0.42,
+            0.33
+          ]
+        },
+        {
+          "name": "trousers",
+          "match": "pants",
+          "rgb": [
+            0.2,
+            0.2,
+            0.19
+          ]
+        },
+        {
+          "name": "boots",
+          "match": "boot",
+          "rgb": [
+            0.24,
+            0.16,
+            0.11
+          ]
+        }
+      ],
+      "outfit_drop": [
+        "hat"
+      ]
+    },
+    {
+      "id": "npc_sel_arien_long",
+      "kind": "named",
+      "people": "Siann",
+      "sex": "f",
+      "preset": "female/Black presets/Black 1.json",
+      "age": 38,
+      "height_cm": 145,
+      "face_strength": 0.5,
+      "skin": null,
+      "hair": "hair\\head\\female\\Long\\Medium Center Part.json",
+      "outfit": "outfits\\female\\Casual\\Smart_Casual.blend",
+      "footwear": "footwear\\female\\Office\\HG_Leather_Dress_Shoe.blend",
+      "job": "archivist",
+      "eye_colour": [
+        0.8,
+        0.74,
+        0.96
+      ],
+      "identity_note": "keeps her preset face, age, Black skin and existing hair; Siann proportions plus half the Siann face direction; archivist clothes are a jacket and trousers recoloured undyed wool",
+      "sliders": {
+        "skinny": 0.85,
+        "muscular": -0.6,
+        "Shoulder Width": -0.7,
+        "Neck Length": 0.9,
+        "Neck Thickness": -0.5,
+        "Hand Length": 0.55,
+        "Hand Thickness": -0.2,
+        "Forearm Length": 0.45,
+        "Chest Width": -0.4,
+        "Waist Thickness": -0.5,
+        "Hips Size": -0.35,
+        "Thigh Thickness": -0.4,
+        "Shin Thickness": -0.35,
+        "Upper Arm Thickness": -0.35
+      },
+      "face_sliders": {
+        "jaw_width": -0.7,
+        "chin_width": -0.6,
+        "chin_size": -0.35,
+        "chin_height": 0.25,
+        "cheek_zygomatic_bone": 0.55,
+        "cheek_fullness": -0.55,
+        "temple_size": -0.45,
+        "forehead_size": 0.3,
+        "eye_width": 0.5,
+        "eye_height": 0.4,
+        "Eye Scale": 0.55,
+        "eye_tilt": -0.25,
+        "eye_orbit_size": 0.35,
+        "Eye Depth": -0.15,
+        "browridge_center_size": -0.4,
+        "nose_bridge_height": 0.35,
+        "nose_bridge_width": -0.45,
+        "nose_tip_size": -0.35,
+        "lip_width": -0.3,
+        "muzzle_location_vertical": 0.15
+      },
+      "outfit_colour": [
+        0.34,
+        0.3,
+        0.22
+      ],
+      "hair_end_fraction": 0.42,
+      "hair_colour": {
+        "lightness": 1,
+        "redness": 0.15,
+        "root_lightness": 1,
+        "root_redness": 0,
+        "salt_and_pepper": 1
+      },
+      "hair_card_match": [
+        1.25,
+        0.18
+      ],
+      "hair_sleek": {
+        "child_radius": 0.015,
+        "roughness": 0.004,
+        "children": 3,
+        "thickness": 6
+      },
+      "hair_cards": {
+        "min_half_width": 0.008,
+        "max_half_width": 0.06,
+        "ultra_triangles": 80000
+      },
+      "texture_resolution": {
+        "body": 2048,
+        "clothing": 2048,
+        "eyes": 512,
+        "teeth": 512,
+        "hair": 2048
+      }
+    }
+  ]
+}
