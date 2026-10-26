@@ -43,7 +43,7 @@ public partial class Main
             await HeritageKal(directory);
             return;
         }
-        if(OS.GetEnvironment("OTHERREACH_HERITAGE_REVIEW") is "kaljoint" or "kaljoint2")
+        if(OS.GetEnvironment("OTHERREACH_HERITAGE_REVIEW") is "kaljoint" or "kaljoint2" or "kaljoint3")
         {
             await HeritageJoint(directory);
             return;
@@ -242,10 +242,10 @@ public partial class Main
     }
 
     /// <summary>
-    /// The Unfinished Joint for a new Kal, in two leases of under ten minutes. The first (OTHERREACH_HERITAGE_REVIEW=kaljoint): Kera reads the
-    /// tool's grip, the road east to the Brannock hold in the south crags, and Berrin's book on the taken stone, saved there. The second
-    /// (kaljoint2, from that save): back to Kera to trace the stone east (the new character has no iron for the cramp) and have the tool
-    /// marked; the character sheet names the character in the hold.
+    /// The Unfinished Joint for a new Kal, in leases of under ten minutes, each saved for the next. The first (OTHERREACH_HERITAGE_REVIEW=kaljoint):
+    /// Kera reads the tool's grip, the road east to the Brannock hold in the south crags, and Berrin's book on the taken stone. The second
+    /// (kaljoint2): the road back to Ashen Hollow. The third (kaljoint3): Kera, to trace the stone east (the new character has no iron for the
+    /// cramp) and have the tool marked; the character sheet names the character in the hold.
     /// </summary>
     private async Task HeritageJoint(string directory)
     {
@@ -268,12 +268,27 @@ public partial class Main
         Show(_journal);await Rcd3Wait(6);CloseScreens();await Rcd3Wait(1);
         var road=sim.Setup.Layout.Roads.Single(r=>r.Id.EndsWith("old_east_road",StringComparison.Ordinal)).Points;
         var east=road.Skip(2).Take(road.Length-4).ToImmutableArray();
-        string branch;
-        if(OS.GetEnvironment("OTHERREACH_HERITAGE_REVIEW")=="kaljoint2")
+        string branch,mode=OS.GetEnvironment("OTHERREACH_HERITAGE_REVIEW");
+        // A lease ends saved, its journal shown, for the next lease to continue from.
+        async Task Saved(string status)
+        {
+            _session.Save(SaveSlots.Manual("heritage_kaljoint"));await Rcd3Wait(2);
+            Show(_journal);await Rcd3Wait(5);CloseScreens();
+            File.WriteAllText(Path.Combine(directory,"recording.finished"),DateTime.Now.ToString("o"));
+            File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {
+                status,people=sim.Player.Identity.PeopleId,nodes,quest_open=Open(),tool_carried=sim.Player.Inventory.Any(e=>e.DefId=="item.heritage.finishing_tool"),
+                world_tick=sim.WorldTick,profile="Ordinary steering and commands; no desktop input; saved as heritage_kaljoint for the next lease"},
+                new JsonSerializerOptions{WriteIndented=true}));
+            ulong half=Time.GetTicksMsec()+20000;
+            while(!File.Exists(Path.Combine(directory,"recording.stopped")) && Time.GetTicksMsec()<half)
+                await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+        }
+        if(mode is "kaljoint2" or "kaljoint3")
         {
             branch=Open();
             if(branch!="o_finish,o_trace")throw new InvalidDataException("The save is not at the joint's choice: "+branch);
-            goto back;
+            if(mode=="kaljoint2")goto back;
+            goto kera;
         }
 
         // 1. Kera reads Hesta's grip on the handle.
@@ -298,22 +313,17 @@ public partial class Main
         await HeritageWalkTo(Berrin);
         await Say(Berrin,"crag_stone","back");
         branch=Open();
-        _session.Save(SaveSlots.Manual("heritage_kaljoint"));await Rcd3Wait(2);
-        Show(_journal);await Rcd3Wait(5);CloseScreens();
-        File.WriteAllText(Path.Combine(directory,"recording.finished"),DateTime.Now.ToString("o"));
-        File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {
-            status="HERITAGE_KAL_JOINT_HALF1_REALTIME_REQUIRES_CLAUDE_REVIEW",people=sim.Player.Identity.PeopleId,nodes,branch_after_berrin=branch,
-            tool_carried=sim.Player.Inventory.Any(e=>e.DefId=="item.heritage.finishing_tool"),world_tick=sim.WorldTick,
-            profile="Fresh isolated profile; creator Begin as a Kal; ordinary steering and commands; no desktop input; saved as heritage_kaljoint"},
-            new JsonSerializerOptions{WriteIndented=true}));
-        ulong half=Time.GetTicksMsec()+20000;
-        while(!File.Exists(Path.Combine(directory,"recording.stopped")) && Time.GetTicksMsec()<half)
-            await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+        await Saved("HERITAGE_KAL_JOINT_LEASE1_REALTIME_REQUIRES_CLAUDE_REVIEW");
         return;
 
-        // 4. Back to Kera from the village: trace the stone east, and the tool marked beside Hesta's.
+        // 4. The road back to Ashen Hollow.
         back:
         await HeritageAlong(east.Reverse().ToImmutableArray());
+        await Saved("HERITAGE_KAL_JOINT_LEASE2_REALTIME_REQUIRES_CLAUDE_REVIEW");
+        return;
+
+        // 5. Kera: trace the stone east, and the tool marked beside Hesta's.
+        kera:
         await HeritageWalkTo(Kera);
         await Say(Kera,"joint","trace","back","mark","back");
         Show(_character);await Rcd3Wait(8);CloseScreens();
@@ -322,9 +332,9 @@ public partial class Main
 
         File.WriteAllText(Path.Combine(directory,"recording.finished"),DateTime.Now.ToString("o"));
         File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {
-            status="HERITAGE_KAL_JOINT_HALF2_REALTIME_REQUIRES_CLAUDE_REVIEW",people=sim.Player.Identity.PeopleId,nodes,branch_after_berrin=branch,
+            status="HERITAGE_KAL_JOINT_LEASE3_REALTIME_REQUIRES_CLAUDE_REVIEW",people=sim.Player.Identity.PeopleId,nodes,branch_after_berrin=branch,
             quest_status=done.Status.ToString(),titles=sim.Titles,tool_carried=sim.Player.Inventory.Any(e=>e.DefId=="item.heritage.finishing_tool"),
-            world_tick=sim.WorldTick,profile="The first half's save at Berrin's (heritage_kaljoint); ordinary steering and commands; no desktop input"},
+            world_tick=sim.WorldTick,profile="The second lease's save at Ashen Hollow (heritage_kaljoint); ordinary steering and commands; no desktop input"},
             new JsonSerializerOptions{WriteIndented=true}));
         ulong deadline=Time.GetTicksMsec()+20000;
         while(!File.Exists(Path.Combine(directory,"recording.stopped")) && Time.GetTicksMsec()<deadline)
