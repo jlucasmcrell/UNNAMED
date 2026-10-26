@@ -41,14 +41,28 @@ public static class LookSwatches
     public static readonly Swatch Boots = new("Leather", .3f, .2f, .13f);
 
     /// <summary>
-    /// Names for the interim HumGen garments as the dye draws them: HumGen's own ("Smart Casual", "Garden Boot") name the modern
-    /// undyed pieces. A body in the frontier outfit wears it in place of whatever outfit it was baked in (<see cref="FrontierOutfit"/>).
+    /// The names the creator shows for what the bodies are baked with. HumGen's catalogue names its own pieces ("Caucasian 2", "Pirate
+    /// Boots", "Smart Casual"): real-world and modern words for a fantasy people, or garments the dye draws otherwise. A body in the
+    /// frontier outfit wears it in place of whatever outfit it was baked in (<see cref="FrontierOutfit"/>). Faces are named apart
+    /// (<see cref="BakedFace"/>).
     /// </summary>
-    public static readonly IReadOnlyDictionary<string, string> DyedNames = new Dictionary<string, string>(StringComparer.Ordinal)
+    public static readonly IReadOnlyDictionary<string, string> ShownNames = new Dictionary<string, string>(StringComparer.Ordinal)
     {
         ["outfit.casual.smart_casual"] = "Work shirt and trousers",
+        ["outfit.casual.casual_weekday"] = "Work shirt and trousers",
+        ["outfit.extra_outfits_pack.pirate"] = FrontierOutfit,
         ["footwear.outdoor.garden_boot"] = "Leather boots",
+        ["footwear.extra_outfits_pack.pirate_boots"] = "Leather boots",
+        ["hair.long.ponytail"] = "Ponytail",
+        ["hair.long.ponytail_short"] = "Short ponytail",
+        ["hair.long.bob_short"] = "Short bob",
+        ["hair.long.medium_center_part"] = "Long, parted in the centre",
+        ["hair.short.short_combed"] = "Short, combed back",
+        ["facehair.other.stubble_short"] = "Short stubble",
     };
+
+    /// <summary>The one face each body is baked with (HumGen names its presets by real-world ethnicity).</summary>
+    public const string BakedFace = "Their own face";
 
     public const string FrontierOutfit = "Frontier: linen shirt, baldric and sash";
 

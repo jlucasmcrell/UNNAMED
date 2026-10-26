@@ -162,7 +162,7 @@ public partial class CreatorScreen
             ? styles.ElementAtOrDefault(look.Sliders.TryGetValue(LookSwatches.StyleSlider, out int style) ? style : 0).Label ?? styles[0].Label
             : Name(CreatorChoice.Hair, look.Hair, "none");
         yield return ("Height", Metres(look.StatureMm));
-        yield return ("Face", Name(CreatorChoice.Face, look.Face, "the body's own"));
+        yield return ("Face", BakedOnly ? "their own" : Name(CreatorChoice.Face, look.Face, "the body's own"));
         yield return ("Hair", hair + (look.FacialHair is { } beard ? ", " + Name(CreatorChoice.FacialHair, beard, beard) : ""));
         yield return ("Outfit", $"{Name(CreatorChoice.Outfit, look.Outfit, "none")}, {Name(CreatorChoice.Footwear, look.Footwear, "barefoot").ToLowerInvariant()}");
     }
@@ -331,9 +331,11 @@ public partial class CreatorScreen
         return section;
     }
 
-    /// <summary>A choice's name as the body is drawn: the frontier outfit in place of the baked one, the dyed garments by period names.</summary>
+    /// <summary>A choice's name as the body is drawn: the frontier outfit in place of the baked one, the baked face and pieces by our own names.</summary>
     private string OptionName(CreatorChoice choice, string id, string label) =>
-        choice == CreatorChoice.Outfit && _preview.WearsFrontier ? LookSwatches.FrontierOutfit : LookSwatches.DyedNames.GetValueOrDefault(id, label);
+        choice == CreatorChoice.Outfit && _preview.WearsFrontier ? LookSwatches.FrontierOutfit
+        : choice == CreatorChoice.Face && BakedOnly ? LookSwatches.BakedFace
+        : LookSwatches.ShownNames.GetValueOrDefault(id, label);
 
     private Control OptionRow(string id, string name, bool selected, bool baked, Action pressed)
     {

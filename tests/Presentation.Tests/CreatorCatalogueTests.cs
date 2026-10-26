@@ -1,4 +1,5 @@
 using UNNAMED.Domain.Character;
+using UNNAMED.Presentation.Art;
 using UNNAMED.Presentation.Ui;
 using UNNAMED.Presentation.Ui.Models;
 
@@ -105,6 +106,16 @@ public class CreatorCatalogueTests
         Assert.Equal(stature, baked.Look.StatureMm);
         Assert.True(Shipped.Race("people." + people)!.HumgenBody);
         Assert.Empty(Shipped.Pending(baked.Look, model, "people." + people));
+    }
+
+    [Fact]
+    public void EveryBakedPiece_IsShownByOurOwnName()
+    {
+        // HumGen's catalogue names (real-world ethnicities, "Pirate Boots") must not reach a player.
+        foreach (var body in Shipped.Baked)
+            foreach (string? id in new[] { body.Look.Hair, body.Look.FacialHair, body.Look.Outfit, body.Look.Footwear })
+                if (id is not null)
+                    Assert.True(LookSwatches.ShownNames.ContainsKey(id), $"{body.Model}: {id} has no shown name");
     }
 
     private static string Root()
