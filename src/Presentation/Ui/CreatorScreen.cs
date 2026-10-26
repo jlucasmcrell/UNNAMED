@@ -281,6 +281,18 @@ public partial class CreatorScreen : CanvasLayer
         return offered;
     }
 
+    /// <summary>The playable peoples this build draws a baked body for (the creator-shots harness walks these).</summary>
+    public IReadOnlyList<string> DrawnPeoples() => _session.Characters.PlayablePeoples.Select(p => p.Id).Where(Drawn).ToList();
+
+    /// <summary>Choose a people as its card does, on that people's default body when the drawn one is not theirs (the creator shots).</summary>
+    public void UsePeople(string people)
+    {
+        _draft = Draft with { PeopleId = people };
+        if (!OfferedBodies().Any(b => b.Id == Draft.BodyPresetId && b.Installed))
+            _draft = WithBody(DefaultBody());
+        Render(null);
+    }
+
     /// <summary>The ids of the bodies the Body step offers that this build draws (the creator-shots harness walks these).</summary>
     public IReadOnlyList<string> DrawnBodyIds() => OfferedBodies().Where(o => o.Installed).Select(o => o.Body.Id).ToList();
 
