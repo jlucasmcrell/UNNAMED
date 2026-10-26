@@ -93,6 +93,12 @@ public partial class Main
             // A people's route (the race abilities' gate): that people, on the body the run was bound with until the RC binds theirs.
             if (System.Environment.GetEnvironmentVariable("OTHERREACH_REVIEW_PEOPLE") is { Length: > 0 } people)
                 _creator.Use(_creator.Draft with { PeopleId = people, BodyPresetId = CharacterSpec.DefaultBodyPreset });
+            if (OS.GetEnvironment("OTHERREACH_FEATURE_FILM_PLAN").Length>0)
+            {
+                string body=$"body.{_creator.Draft.PeopleId[7..]}_{(feminine?"f":"m")}.average";
+                if(!_creator.DrawnBodyIds(_creator.Draft.PeopleId).Contains(body))throw new InvalidDataException("Film must use an installed normal creator body: "+body);
+                _creator.Use(_creator.Draft with { BodyPresetId=body });
+            }
             // The heritage gate shows each people's card, body and Carries before it begins (Main.HeritageReview).
             if (OS.GetEnvironment("OTHERREACH_HERITAGE_REVIEW") == "peoples")
             {

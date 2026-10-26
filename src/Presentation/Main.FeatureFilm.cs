@@ -5,6 +5,7 @@ using UNNAMED.Domain.Spatial;
 using UNNAMED.Domain.Character;
 using UNNAMED.Presentation.Ui;
 using UNNAMED.Presentation.MHCharacters;
+using UNNAMED.Presentation.Art;
 using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Presentation;
@@ -17,6 +18,12 @@ public partial class Main
     {
         using var plan=JsonDocument.Parse(File.ReadAllText(planPath));
         var sim=_session.Simulation ?? throw new InvalidDataException("Film has no live world");
+        string selectedPeople=sim.Player.Identity.PeopleId;
+        if(_avatar is not SkinnedFigure native)throw new InvalidDataException("Film requires the public native player figure");
+        if(selectedPeople!="people.veth"&&!native.ModelId.Contains("_race_"+selectedPeople[7..]+"_",StringComparison.Ordinal))
+            throw new InvalidDataException("Film's actual model does not match chosen people: "+selectedPeople+" / "+native.ModelId);
+        File.WriteAllText(Path.Combine(directory,"BODY_CONTRACT.json"),JsonSerializer.Serialize(new {
+            selectedPeople,preset=sim.Player.Identity.BodyPresetId,actual_model=native.ModelId,library="Native exact-target public library; no donor figures"}));
         _rcd3Driving=true;
         CloseScreens();CloseFrontEnd();
         _npcs.SuppressPresentationForBenchmark=false;
@@ -32,7 +39,7 @@ public partial class Main
         void Mark(string phase,object? detail=null)=>File.AppendAllText(Path.Combine(directory,"phases.jsonl"),JsonSerializer.Serialize(new {
             phase,detail,utc=DateTimeOffset.UtcNow,uptime_ms=Time.GetTicksMsec(),tick=sim.WorldTick,
             player=sim.Player.Body,health=sim.Combat.Health,level=sim.Player.Progression.Level,
-            camera=camera.GlobalPosition.ToString(),model=_avatarModel,tier=VisualOptions.Tier})+"\n");
+            camera=camera.GlobalPosition.ToString(),model=native.ModelId,tier=VisualOptions.Tier})+"\n");
         _session.Subscribe<CommandRejected>(e=>Mark("rejected",e));
         _session.Subscribe<HitResolved>(e=>Mark("hit",e));
         _session.Subscribe<WingsChanged>(e=>Mark("wings",e));
@@ -160,7 +167,8 @@ public partial class Main
                         await Hold(seconds,()=>fixedAim=Pos(sim.Npcs.Single(n=>n.Id==npc.Id).Body)+Vector3.Up);break;
                     case "creator":
                         OpenCreator();
-                        _creator.Use(_creator.Draft with {PeopleId=Text(step,"people","people.veth"),BodyPresetId=CharacterSpec.DefaultBodyPreset});
+                        string people=Text(step,"people","people.veth");
+                        _creator.Use(_creator.Draft with {PeopleId=people,BodyPresetId=$"body.{people[7..]}_f.average"});
                         _creator.Go(Enum.Parse<CreatorStep>(Text(step,"page","People")));_creator.Frame((float)Number(step,"zoom",0));
                         await Hold(seconds);CloseCreator();break;
                     case "lore":
