@@ -285,12 +285,14 @@ public partial class CreatorScreen : CanvasLayer
     public IReadOnlyList<string> DrawnPeoples() => _session.Characters.PlayablePeoples.Select(p => p.Id).Where(Drawn).ToList();
 
     /// <summary>Choose a people as its card does, on that people's default body when the drawn one is not theirs (the creator shots).</summary>
-    public void UsePeople(string people)
+    public void UsePeople(string people, string? focus = null)
     {
         _draft = Draft with { PeopleId = people };
         if (!OfferedBodies().Any(b => b.Id == Draft.BodyPresetId && b.Installed))
             _draft = WithBody(DefaultBody());
-        Render(null);
+        if (Draft.Appearance is { } look && _catalogue.Race(people) is { } chosen)
+            _draft = Draft with { Appearance = look with { StatureMm = Math.Clamp(look.StatureMm, chosen.MinStatureMm, chosen.MaxStatureMm) } };
+        Render(focus);
     }
 
     /// <summary>The ids of the bodies the Body step offers that this build draws (the creator-shots harness walks these).</summary>
@@ -421,13 +423,7 @@ public partial class CreatorScreen : CanvasLayer
                 card.Right.AddChild(PendingChip());
             UiKit.Select(card.Button, people.Id == Draft.PeopleId);
             string id = people.Id;
-            card.Button.Pressed += Deferred(() =>
-            {
-                _draft = Draft with { PeopleId = id };
-                if (Draft.Appearance is { } look && _catalogue.Race(id) is { } chosen)
-                    _draft = Draft with { Appearance = look with { StatureMm = Math.Clamp(look.StatureMm, chosen.MinStatureMm, chosen.MaxStatureMm) } };
-                Render("creator.people." + id);
-            });
+            card.Button.Pressed += Deferred(() => UsePeople(id, "creator.people." + id));
             section.AddChild(card.Button);
             if (people.Id == Draft.PeopleId)
                 PeopleCard(section, people, chosen: true);
