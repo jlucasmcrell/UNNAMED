@@ -95,7 +95,7 @@ public sealed partial class SkinnedFigure : Figure
         // Another body on the same binding (the creator's, WP2): the same rig family, so the clips, hands and grips hold.
         if (body is not null)
             person = person with { Model = body, UniformScale = ArtBindings.ComparisonBodyScale(person.Model, body, person.UniformScale) };
-        if (SkinnedModel.Create(art, person.Model, person.Clips, personId) is not { } model)
+        if (SkinnedModel.Create(art, person.Model, person.Clips, personId, namedCloseup: bindings.NamedCharacters.ContainsKey(personId)) is not { } model)
             return null;
         if (!float.IsFinite(person.UniformScale) || person.UniformScale <= 0)
             throw new InvalidDataException($"Invalid uniform stature for {personId}");

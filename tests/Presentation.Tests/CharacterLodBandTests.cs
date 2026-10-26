@@ -5,6 +5,17 @@ namespace UNNAMED.Presentation.Tests;
 public class CharacterLodBandTests
 {
     [Fact]
+    public void NamedFaceMaps_StayScopedToTheConversation_AndDoNotChurnAtWalkingDistance()
+    {
+        Assert.False(CharacterLodBand.CloseTextures(3.5f, false));
+        Assert.True(CharacterLodBand.CloseTextures(2.9f, false));
+        Assert.True(CharacterLodBand.CloseTextures(3.5f, true));
+        Assert.False(CharacterLodBand.CloseTextures(4.1f, true));
+        Assert.True(CharacterLodBand.CloseTextures(20f, false, focused: true));
+        Assert.False(CharacterLodBand.CloseTextures(20f, true));
+    }
+
+    [Fact]
     public void WholeCharacterBands_HoldAcrossBoundaryJitter_AndCloseUpsStayDetailed()
     {
         Assert.Equal(0, CharacterLodBand.Select(2, 0, true));

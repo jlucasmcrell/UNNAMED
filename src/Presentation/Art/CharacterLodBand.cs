@@ -3,6 +3,10 @@ namespace UNNAMED.Presentation.Art;
 /// <summary>One whole-character band, with a two-metre hysteresis on either side.</summary>
 public static class CharacterLodBand
 {
+    /// <summary>Named faces enter their native high-resolution maps at 3 m, release beyond 4 m; dialogue holds them.</summary>
+    public static bool CloseTextures(float distance, bool previous, bool focused = false) =>
+        focused || distance <= (previous ? 4f : 3f);
+
     public static int Select(float distance, int previous, bool ultra, bool closeUp = false)
     {
         if (closeUp) return 0;

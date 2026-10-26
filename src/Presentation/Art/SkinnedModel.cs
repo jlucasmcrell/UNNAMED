@@ -26,7 +26,13 @@ public sealed partial class SkinnedModel : Node3D
     private HumGenLods? _humgenLods;
     private HumGenCloseupTextures? _closeTextures;
     private bool? _reviewCloseTextures;
-    internal void ReviewCloseTextures(bool? enabled) { _reviewCloseTextures=enabled; _closeTextures?.Update((enabled??true) && _humgenLods?.Level==0 && IsVisibleInTree()); }
+    internal void ReviewCloseTextures(bool? enabled) { _reviewCloseTextures=enabled; UpdateCloseTextures(); }
+    private void UpdateCloseTextures()
+    {
+        if (_closeTextures is null) return;
+        float distance = GetViewport().GetCamera3D() is { } eye ? eye.GlobalPosition.DistanceTo(GlobalPosition) : float.PositiveInfinity;
+        _closeTextures.Update((_reviewCloseTextures??true) && _humgenLods?.Level==0 && IsVisibleInTree(), distance, _humgenLods?.CloseUp==true);
+    }
     internal void ReviewAllLods(bool all) => _humgenLods?.ReviewAllLevels(all);
 
     /// <summary>Show or hide one of the body's own meshes so its level of detail stays exclusive (HumGen bodies choose it each band).</summary>
@@ -57,7 +63,7 @@ public sealed partial class SkinnedModel : Node3D
     /// The rigged model <paramref name="assetId"/> with <paramref name="clips"/> (state to clip ID); null without the model. With an
     /// <paramref name="owner"/> (what it draws: <c>creature.beast.wolf_grey</c>), each state's clip is recorded in the coverage report.
     /// </summary>
-    public static SkinnedModel? Create(ArtLibrary art, string assetId, IReadOnlyDictionary<string, string> clips, string? owner = null)
+    public static SkinnedModel? Create(ArtLibrary art, string assetId, IReadOnlyDictionary<string, string> clips, string? owner = null, bool namedCloseup = false)
     {
         if (art.Rigged(assetId) is not { } model)
             return null;
@@ -127,7 +133,7 @@ public sealed partial class SkinnedModel : Node3D
             figure.Throttle();
         figure.FindOutfits(model);
         figure.SetOutfit("base");
-        if (owner=="player") figure._closeTextures=HumGenCloseupTextures.Create(model,art,assetId);
+        if (owner=="player" || namedCloseup) figure._closeTextures=HumGenCloseupTextures.Create(model,art,assetId,namedCloseup);
         return figure;
     }
 
@@ -334,7 +340,7 @@ public sealed partial class SkinnedModel : Node3D
     public override void _Process(double delta)
     {
         _humgenLods?.Update(GetViewport().GetCamera3D() is { } eye ? eye.GlobalPosition.DistanceTo(GlobalPosition) : 0f);
-        _closeTextures?.Update((_reviewCloseTextures??true) && _humgenLods?.Level==0 && IsVisibleInTree());
+        UpdateCloseTextures();
         if (!_throttled)
             return;
         _owed += delta;

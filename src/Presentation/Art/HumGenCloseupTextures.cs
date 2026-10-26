@@ -8,17 +8,19 @@ internal sealed class HumGenCloseupTextures
     private sealed record Map(MeshInstance3D Mesh, int Surface, string Part, string Role, string Path, Texture2D? Original);
     private readonly ArtLibrary _art;
     private readonly string _id;
+    private readonly bool _named;
+    private bool _near;
     private readonly List<Map> _maps = new();
     private readonly Dictionary<Map, Texture2D> _resident = new();
-    private HumGenCloseupTextures(ArtLibrary art, string id) { _art=art; _id=id; }
-    public static HumGenCloseupTextures? Create(Node model, ArtLibrary art, string id)
+    private HumGenCloseupTextures(ArtLibrary art, string id, bool named) { _art=art; _id=id; _named=named; }
+    public static HumGenCloseupTextures? Create(Node model, ArtLibrary art, string id, bool named = false)
     {
         if (OS.GetEnvironment("OTHERREACH_CLOSE_TEXTURES")=="off" || art.RiggedFile(id,"quality_4k/textures.json") is not {} manifest) return null;
         using var json=JsonDocument.Parse(File.ReadAllText(manifest));
         string body=art.RiggedFile(id,id+"_rigged.glb") ?? throw new InvalidDataException(id);
         if(json.RootElement.GetProperty("target_body_sha256").GetString()!=Godot.FileAccess.GetSha256(body))
             throw new InvalidDataException("Close-up maps target a different body: "+id);
-        var result=new HumGenCloseupTextures(art,id);
+        var result=new HumGenCloseupTextures(art,id,named);
         foreach(string part in new[]{"Body","Eyes"})
         {
             var mesh=model.FindChildren("*",nameof(MeshInstance3D),true,false).OfType<MeshInstance3D>()
@@ -38,8 +40,9 @@ internal sealed class HumGenCloseupTextures
         }
         return result;
     }
-    public void Update(bool near)
+    public void Update(bool active, float distance = 0f, bool focused = false)
     {
+        bool near = _near = active && (!_named || CharacterLodBand.CloseTextures(distance, _near, focused));
         if(near && _resident.Count==0)
         {
             foreach(var map in _maps)_resident[map]=_art.ScopedTexture(map.Path,map.Part=="Body"?4096:1024);
