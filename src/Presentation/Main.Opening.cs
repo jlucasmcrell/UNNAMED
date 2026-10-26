@@ -145,6 +145,9 @@ public partial class Main
         AudioServer.AddBusEffect(bus, record);
         record.SetRecordingActive(true);
         var audioStart = DateTimeOffset.UtcNow;
+        bool seenBefore=SettingsStore.Current.Profile.OpeningSeen,skipSent=false;
+        double.TryParse(System.Environment.GetEnvironmentVariable("OTHERREACH_OPENING_SKIP_SECONDS"),out double skipAfter);
+        ulong captureStart=Time.GetTicksMsec();
         opening.Holding = false;
         var frames = new List<double>();
         bool done = false;
@@ -153,6 +156,16 @@ public partial class Main
         {
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             frames.Add(GetProcessDeltaTime() * 1000);
+            if(skipAfter>0&&!skipSent&&Time.GetTicksMsec()-captureStart>=skipAfter*1000)
+            {
+                skipSent=true;
+                // Opt-in native gate: Godot's real input dispatch, never desktop/keyboard control.
+                Input.ParseInputEvent(new InputEventKey { Keycode=Key.Space,Pressed=true });
+                Input.ParseInputEvent(new InputEventKey { Keycode=Key.Space,Pressed=false });
+                File.WriteAllText(Path.Combine(directory,"skip_key.json"),JsonSerializer.Serialize(new {
+                    seenBefore,utc=DateTimeOffset.UtcNow,seconds=(Time.GetTicksMsec()-captureStart)/1000.0,
+                    route="Godot Input.ParseInputEvent Space -> OpeningCinematic._Input; no OS input"}));
+            }
         }
         var title = DateTimeOffset.UtcNow;
         for (ulong until = Time.GetTicksMsec() + 10000; Time.GetTicksMsec() < until;)
