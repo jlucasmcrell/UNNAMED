@@ -90,7 +90,7 @@ level = lambda x: 10 * np.log10((x ** 2).mean() + 1e-12)
 hit *= 10 ** ((level(rise[-2 * SR:]) + 6 - level(hit[lead:lead + SR // 2])) / 20)
 at = int(HIT * SR) - lead
 out[at:at + len(hit)] += hit
-out = to(out, -21)            # mus.title's level (build_music.py), which takes over under the tail
+out = to(out, -21)            # mus.title's level (build_score.py), which takes over under the tail
 tp = true_peak_db(out)
 if tp > -1:
     out *= 10 ** ((-1 - tp) / 20)
