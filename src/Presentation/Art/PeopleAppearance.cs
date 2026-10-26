@@ -299,6 +299,7 @@ public static class PeopleAppearance
         var hair = LookSwatches.Chosen(LookSwatches.Hair(people), Index(LookSwatches.HairSlider));
         var shirt = LookSwatches.Cloth(LookSwatches.Shirts, Index(LookSwatches.ShirtSlider));
         var trousers = LookSwatches.Cloth(LookSwatches.Trousers, Index(LookSwatches.TrouserSlider));
+        float? stone = people == PeopleLooks.Kal ? LookSwatches.StoneCoverage(Index(LookSwatches.StoneSlider)) : null;
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
         {
             if (mesh.Mesh is null || mesh.HasMeta(OrenthPhase.TwinMeta))
@@ -329,6 +330,14 @@ public static class PeopleAppearance
                 }
                 var swatch = isSkin ? skin : hair;
                 var drawn = swatch is null ? original : isSkin ? Tinted(original, swatch) : Dyed(original, swatch, lift: .4f);
+                // A Kal's stone as the creator sets it, on the stone skin KalStone gave the body.
+                if (isSkin && stone is float coverage && drawn is ShaderMaterial stoneSkin && stoneSkin.GetShaderParameter("use_stone").AsBool())
+                {
+                    if (drawn == original)
+                        stoneSkin = (ShaderMaterial)original.Duplicate();
+                    stoneSkin.SetShaderParameter("stone_coverage", coverage);
+                    drawn = stoneSkin;
+                }
                 // The body's skin texture carries the baked hair's colour painted under the cap; blended, a recoloured cap lets it show
                 // through (dark sideburns under blond). Cut out instead, the cap covers it wherever it has hair.
                 if (swatch is not null && name.EndsWith("_Haircap", StringComparison.OrdinalIgnoreCase) && drawn is BaseMaterial3D cap)

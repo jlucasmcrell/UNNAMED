@@ -121,6 +121,31 @@ public partial class CreatorScreen
         }
     }
 
+    /// <summary>A Kal's stone, from patched to full (the skin shader's coverage); full stone is the default and saves as no choice.</summary>
+    private Control StoneSection()
+    {
+        var section = UiKit.Section("Stone");
+        var row = new HBoxContainer();
+        row.AddThemeConstantOverride("separation", 6);
+        int full = LookSwatches.KalStone.Length - 1;
+        int worn = Look.Sliders.TryGetValue(LookSwatches.StoneSlider, out int at) ? at : full;
+        for (int i = 0; i < LookSwatches.KalStone.Length; i++)
+        {
+            int level = i;
+            string id = $"creator.{LookSwatches.StoneSlider}.{level}";
+            var button = UiKit.Action(LookSwatches.KalStone[level].Label, Deferred(() =>
+            {
+                Shape(look => look with { Sliders = level == full ? look.Sliders.Remove(LookSwatches.StoneSlider) : look.Sliders.SetItem(LookSwatches.StoneSlider, level) });
+                Render(id);
+            }), compact: true, id: id);
+            button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+            UiKit.Select(button, level == worn);
+            row.AddChild(button);
+        }
+        section.AddChild(row);
+        return section;
+    }
+
     /// <summary>The look's lines on Confirm: height, then each choice by its name.</summary>
     private IEnumerable<(string Caption, string Words)> LookLines()
     {

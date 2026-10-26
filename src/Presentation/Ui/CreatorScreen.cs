@@ -506,6 +506,8 @@ public partial class CreatorScreen : CanvasLayer
         _body.AddChild(PendingNote());
         _body.AddChild(HeightSection());
         _body.AddChild(SwatchSection("Skin", LookSwatches.SkinSlider, LookSwatches.Skin(Draft.PeopleId), new Color(.36f, .26f, .2f), multiply: true));
+        if (Draft.PeopleId == PeopleLooks.Kal)
+            _body.AddChild(StoneSection());
         _body.AddChild(SliderSection("body", "Shape", "HumGen body proportions"));
 
         var randomise = UiKit.Action("Randomise", Deferred(() =>

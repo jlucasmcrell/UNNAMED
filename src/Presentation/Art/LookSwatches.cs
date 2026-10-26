@@ -14,7 +14,16 @@ public sealed record Swatch(string Label, float R, float G, float B);
 public static class LookSwatches
 {
     public const string SkinSlider = "look.skin_tone", HairSlider = "look.hair_colour", StyleSlider = "look.hair_style",
-        ShirtSlider = "look.shirt_colour", TrouserSlider = "look.trouser_colour";
+        ShirtSlider = "look.shirt_colour", TrouserSlider = "look.trouser_colour", StoneSlider = "look.kal_stone";
+
+    /// <summary>
+    /// How much of a Kal's skin has turned to stone (owner, 2026-10-26), as the creator offers it: the skin shader's stone_coverage. None
+    /// chosen is full stone; the choice takes the place of the age in the body's kal_stone.json.
+    /// </summary>
+    public static readonly (string Label, float Coverage)[] KalStone = { ("Patched", .5f), ("Mostly stone", .85f), ("Full stone", 1f) };
+
+    /// <summary>The stone coverage an index names, full stone when none is chosen or the index is not in the list.</summary>
+    public static float StoneCoverage(int? index) => index is int i && i >= 0 && i < KalStone.Length ? KalStone[i].Coverage : 1f;
 
     /// <summary>
     /// Undyed and earth-dyed cloth for the interim garments (owner, 2026-10-25: no blue denim or bright tees on the frontier): the colour a
