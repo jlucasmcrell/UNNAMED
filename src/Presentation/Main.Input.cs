@@ -89,7 +89,7 @@ public partial class Main
     private void ReadInput()
     {
         // A key being bound in Settings is the binding: it opens no screen and moves no one.
-        if (_settings.Capturing || _rcd3Driving)
+        if (_captureRequest is not null || _settings.Capturing || _rcd3Driving)
             return;
         var combat = _session.Simulation!.Combat;
         bool modal = Modal;

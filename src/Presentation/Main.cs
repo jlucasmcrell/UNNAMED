@@ -295,6 +295,7 @@ public partial class Main : Node3D
             GD.Print("UNNAMED direct EXE: using packaged PLAY defaults");
         }
         ParseArguments(Ui.Models.PlaytestLaunchDefaults.Resolve(arguments, Home(), OS.HasFeature("template")));
+        ConfigureCapture();
         // A player's run plays with the player's settings (the window, the tier they chose, the dials); a harness run never reads or
         // writes them (its numbers stay comparable).
         _developer = OS.IsDebugBuild() || _flags.Contains("--dev");
@@ -1435,7 +1436,7 @@ public partial class Main : Node3D
         ulong sessionStarted = _barrowworksReview is null ? 0 : Time.GetTicksUsec();
         ulong simulationStarted = _frontierPerf is null ? 0 : Time.GetTicksUsec();
         long gcPauseTicks = _frontierPerf is null ? 0 : GC.GetTotalPauseDuration().Ticks;
-        var frame = _session.Frame(_smoke is not null || _connectedCheck is not null || (_barrowworksReview is not null && !_realtime) || (_play is not null && !_realtime) || _delta is not null || _survey is not null || _audit is not null || _auditAb is not null
+        var frame = _session.Frame(_captureRequest is not null && !_captureRunning ? 0 : _smoke is not null || _connectedCheck is not null || (_barrowworksReview is not null && !_realtime) || (_play is not null && !_realtime) || _delta is not null || _survey is not null || _audit is not null || _auditAb is not null
             ? _session.TickSeconds : delta);
         _barrowworksReview?.Phase("simulation", sessionStarted);
         _ticksLastFrame = frame.TicksRun;
@@ -1715,6 +1716,7 @@ public partial class Main : Node3D
         _frontierPerf?.Phase("npcs", npcsStarted);
         LogStates(simulation, delta, speed);
         _camera.Lift = GiantLift(simulation);
+        CaptureView();
         if (!_innFreeCamera) _camera.Follow(_shots?.Viewpoint ?? _avatar.Position, delta);
         bool reviewCamera = _mhReviewDirectory is not null && GetViewport().GetCamera3D() != _camera.Camera;
         _avatar.SetFirstPerson(!reviewCamera && _camera.EffectiveDistance < 0.4f);
@@ -1727,6 +1729,7 @@ public partial class Main : Node3D
         _frontierPerf?.Phase("shadow_lods", shadowsStarted);
         DrawHud(simulation, combat, posture, alpha, delta);
         Probe("HUD");
+        TickCapture();
     }
 
     /// <summary>How far the body is through its combat phase, from the simulation's own phase lengths, for the pose.</summary>
@@ -1908,7 +1911,7 @@ public partial class Main : Node3D
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--stand" or "--purse" or "--start-items" or "--start-level" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
-                    or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
+                    or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size" or "--capture-session"
                     or "--front-shots" or "--creator-shots" or "--creator-people" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
                     or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"
                     or "--anim-person" or "--anim-compare" or "--anim-phase"
