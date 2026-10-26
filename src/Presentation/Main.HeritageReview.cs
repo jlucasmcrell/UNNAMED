@@ -277,8 +277,9 @@ public partial class Main
         }
 
         // 1. Kera reads Hesta's grip on the handle.
-        await HeritageWalkTo(Kera);
+        var shed=await HeritageWalkTo(Kera);
         await Say(Kera,"grip","back");
+        foreach(var (x,z) in Enumerable.Reverse(shed))await HeritageStep(x,z);   // out of the forge shed the way the character came in
 
         // 2. The road east, and the old Brannock hold in the south crags.
         await HeritageAlong(east);
