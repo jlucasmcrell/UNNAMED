@@ -4295,7 +4295,8 @@
         "ability.creature.matriarch_lunge": "creature.creature_playtest_cave_spider.attack"
       },
       "voice": "cave_hunting_spider",
-      "flesh": "flesh",
+      "flesh": "chitin",
+      "blow": "sting",
       "note": "Spec 28: the hollow's matriarch on the hunting spider's own model and clips, drawn 2.5x by her body radius.",
       "steps": {
         "walk": "scuttle",

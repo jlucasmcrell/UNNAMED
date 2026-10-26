@@ -259,7 +259,8 @@ public class AudioCoverageTests
         }
         var defined = Directory.EnumerateFiles(Repository.File("content", "creatures"), "*.yaml", SearchOption.AllDirectories)
             .Select(f => File.ReadLines(f).First(l => l.StartsWith("id: ", StringComparison.Ordinal))[4..].Trim()).ToList();
-        Assert.Equal(19, defined.Count);
+        Assert.Equal(20, defined.Count);
+        Assert.Contains("creature.beast.hunting_spider_matriarch", defined);
         Assert.All(defined, id =>
         {
             Assert.True(bound.TryGetValue(id, out var fields), $"{id} has no binding");
