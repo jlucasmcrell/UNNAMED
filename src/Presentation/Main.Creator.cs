@@ -328,15 +328,35 @@ public partial class Main
             _creator.Frame(CreatorPreview.Framings[0].Zoom);
         };
         list.Add(($"{list.Count + 1:00}_body_{shown}", others.Count > 0 ? Show(others[0]) : () => _creator.Go(CreatorStep.Face), others.Count > 0 ? 6000 : 1500));
+        // A Kal's stone at each level the creator offers, whole and at the face (full stone, the default, is the people shot itself).
+        void Stone(int level, float zoom)
+        {
+            _creator.Frame(zoom);
+            _creator.Use(_creator.Draft with
+            {
+                Appearance = (_creator.Draft.Appearance ?? new CharacterAppearance(1750, null, null, null, null, null)) is var look
+                    ? look with { Sliders = look.Sliders.SetItem(LookSwatches.StoneSlider, level) } : null,
+            });
+        }
         for (int i = 0; i < others.Count; i++)
         {
             string name = others[i].Replace("people.", "");
-            list.Add(($"{list.Count + 1:00}_people_{name}", () => _creator.Frame(CreatorPreview.Framings[2].Zoom), 2500));
-            list.Add(($"{list.Count + 1:00}_people_{name}_face", i + 1 < others.Count ? Show(others[i + 1]) : () =>
+            Action after = i + 1 < others.Count ? Show(others[i + 1]) : () =>
             {
                 Show(worn)();
                 _creator.Go(CreatorStep.Face);
-            }, 6000));
+            };
+            list.Add(($"{list.Count + 1:00}_people_{name}", () => _creator.Frame(CreatorPreview.Framings[2].Zoom), 2500));
+            if (others[i] != PeopleLooks.Kal)
+            {
+                list.Add(($"{list.Count + 1:00}_people_{name}_face", after, 6000));
+                continue;
+            }
+            list.Add(($"{list.Count + 1:00}_people_kal_face", () => Stone(0, CreatorPreview.Framings[0].Zoom), 2500));
+            list.Add(($"{list.Count + 1:00}_kal_stone_patched", () => _creator.Frame(CreatorPreview.Framings[2].Zoom), 2500));
+            list.Add(($"{list.Count + 1:00}_kal_stone_patched_face", () => Stone(1, CreatorPreview.Framings[0].Zoom), 2500));
+            list.Add(($"{list.Count + 1:00}_kal_stone_mostly", () => _creator.Frame(CreatorPreview.Framings[2].Zoom), 2500));
+            list.Add(($"{list.Count + 1:00}_kal_stone_mostly_face", after, 6000));
         }
         list.Add(($"{list.Count + 1:00}_face", () => _creator.Go(CreatorStep.Hair), 1500));
         // A skin tone and a hair colour other than the baked ones (Tan, Blond), kept to the road so the game draws them too.
