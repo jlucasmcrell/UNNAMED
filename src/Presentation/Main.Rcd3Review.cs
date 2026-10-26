@@ -20,7 +20,8 @@ public partial class Main
         var rows = new List<object>();
         try
         {
-            if (_avatar is SkinnedFigure comparison && VisualOptions.ComparisonCast is not null)
+            if (_avatar is SkinnedFigure comparison && VisualOptions.ComparisonCast is not null
+                && OS.GetEnvironment("OTHERREACH_FEATURE_FILM_PLAN").Length==0)
             {
                 bool humgen = VisualOptions.ComparisonCast == "humgen";
                 using var cast = JsonDocument.Parse(Godot.FileAccess.GetFileAsString(humgen ? "res://Art/humgen_cast.json" : "res://Art/mpfb_cast.json"));

@@ -23,7 +23,9 @@ public partial class Main
         if(selectedPeople!="people.veth"&&!native.ModelId.Contains("_race_"+selectedPeople[7..]+"_",StringComparison.Ordinal))
             throw new InvalidDataException("Film's actual model does not match chosen people: "+selectedPeople+" / "+native.ModelId);
         File.WriteAllText(Path.Combine(directory,"BODY_CONTRACT.json"),JsonSerializer.Serialize(new {
-            selectedPeople,preset=sim.Player.Identity.BodyPresetId,actual_model=native.ModelId,library="Native exact-target public library; no donor figures"}));
+            selectedPeople,preset=sim.Player.Identity.BodyPresetId,actual_model=native.ModelId,
+            stature_scale=native.StatureScale,library="Native exact-target public library; no donor figures",
+            legacy_veth_comparison_gate="Not applicable to race models absent from the old Veth-only comparison table; actual model asserted here"}));
         _rcd3Driving=true;
         CloseScreens();CloseFrontEnd();
         _npcs.SuppressPresentationForBenchmark=false;
