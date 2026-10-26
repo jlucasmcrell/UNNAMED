@@ -50,6 +50,8 @@ public partial class Main
         _session.Subscribe<WraithStepped>(e=>Mark("wraith_step",e));
         _session.Subscribe<AfterimageLeft>(e=>Mark("afterimage",e));
         _session.Subscribe<AfterimageStruck>(e=>Mark("decoy_struck",e));
+        _session.Subscribe<StoneTouched>(e=>Mark("stone_touched",e));
+        _session.Subscribe<PetAdopted>(e=>Mark("pet_adopted",e));
         void Frame()
         {
             if(gameplayCamera){_camera.Camera.MakeCurrent();return;}
@@ -62,7 +64,7 @@ public partial class Main
             do { input?.Invoke();Frame();await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame); }
             while(Time.GetTicksMsec()<until);
         }
-        CreatureView Target(string contains)=>sim.Creatures.Where(c=>c.Alive&&c.Hostile&&
+        CreatureView Target(string contains)=>sim.Creatures.Where(c=>c.Alive&&(c.Hostile||contains.Length>0)&&
             (contains.Length==0||c.DefId.Contains(contains,StringComparison.Ordinal)||c.Key.Contains(contains,StringComparison.Ordinal)))
             .OrderBy(c=>Pos(c.Body).DistanceSquaredTo(_avatar.GlobalPosition)).FirstOrDefault()
             ??throw new InvalidDataException("No natural target: "+contains);
@@ -125,6 +127,7 @@ public partial class Main
             {
                 string action=Text(step,"action");Mark("start_"+action,step);
                 double seconds=Number(step,"seconds",5);
+                if(step.TryGetProperty("camera",out var view))gameplayCamera=view.GetString()=="gameplay";
                 if(step.TryGetProperty("offset",out var off))offset=V(off);
                 if(step.TryGetProperty("aim",out var aim))fixedAim=V(aim);
                 if(step.TryGetProperty("ground",out var ground))
@@ -194,6 +197,21 @@ public partial class Main
                         Mark("actual_people_start",new {sim.Player.Identity,model=native.ModelId});await Hold(seconds);break;
                     case "wake":GetUp();await Hold(seconds);break;
                     case "touch_stone":_controller.TouchStone(Text(step,"id"));await Hold(seconds);break;
+                    case "use_stone":
+                        string stoneKey=Text(step,"id");
+                        var stone=sim.Waystones.Single(w=>w.Site.Key==stoneKey);
+                        var centre=Footprints.Center(stone.Site.Body);
+                        if(new Vector2(centre.Item1/1000f-_avatar.GlobalPosition.X,centre.Item2/1000f-_avatar.GlobalPosition.Z).Length()>4)
+                            throw new InvalidDataException("Filming hand is not in reach of the real Waystone");
+                        // The same known-stone interaction as Main.Input, then close its real panel for the effect shot.
+                        if(stone.Known){WaystoneResponse(stoneKey,true);_soundEvents.WaystoneUse(stoneKey);Show(_waystones,stoneKey);}
+                        else _controller.TouchStone(stoneKey);
+                        await Hold(.1);CloseScreens();await Hold(seconds);break;
+                    case "adopt":
+                        var lead=sim.Player.Inventory.First(i=>i.DefId=="item.misc.hound_pup");
+                        _session.Submit(new AdoptPetCommand(sim.PlayerId,lead.ItemId));await Hold(seconds);break;
+                    case "pet":
+                        await Hold(seconds,()=>fixedAim=Pos(sim.Pets.First().Body)+Vector3.Up*.4f);break;
                     case "npc":
                         var npc=sim.Npcs.Single(n=>n.Id==Text(step,"id"));fixedAim=Pos(npc.Body)+Vector3.Up;
                         await Hold(seconds,()=>fixedAim=Pos(sim.Npcs.Single(n=>n.Id==npc.Id).Body)+Vector3.Up);break;
@@ -231,6 +249,9 @@ public partial class Main
                     case "orbit":
                         var start=offset;float angle=(float)Number(step,"degrees",45)*Mathf.Pi/180f;
                         ulong t=Time.GetTicksMsec();await Hold(seconds,()=>offset=start.Rotated(Vector3.Up,angle*(Time.GetTicksMsec()-t)/(float)(seconds*1000)));break;
+                    case "push":
+                        var from=offset;var to=V(step.GetProperty("to"));ulong pushAt=Time.GetTicksMsec();
+                        await Hold(seconds,()=>offset=from.Lerp(to,Mathf.Clamp((Time.GetTicksMsec()-pushAt)/(float)(seconds*1000),0,1)));break;
                     default:throw new InvalidDataException("Unknown film action: "+action);
                 }
                 Mark("end_"+action);
