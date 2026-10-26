@@ -144,13 +144,15 @@ public class RaceAbilitiesTests
 
     private const string Tavar = "npc.ashen_hollow.tavar_orr";
 
-    /// <summary>The rules with Tavar an Orenth (his people, as the heritage branch's people_ref will give it, set on his routine here).</summary>
-    private static SimulationSetup TavarOrenth(SimulationSetup setup) => setup with
+    /// <summary>Explicit fixtures: heritage now gives the real Tavar his Orenth people on the named NPC too.</summary>
+    private static SimulationSetup TavarOrenth(SimulationSetup setup) => TavarPeople(setup, "people.orenth");
+    private static SimulationSetup TavarPeople(SimulationSetup setup, string people) => setup with
     {
+        Social = setup.Social with { Npcs = setup.Social.Npcs.SetItem(Tavar, setup.Social.Npcs[Tavar] with { PeopleId = people }) },
         NpcLife = setup.NpcLife with
         {
             Routines = setup.NpcLife.Routines.SetItems(setup.NpcLife.Routines.Where(r => r.Value.NpcId == Tavar)
-                .Select(r => KeyValuePair.Create(r.Key, r.Value with { PeopleId = "people.orenth" }))),
+                .Select(r => KeyValuePair.Create(r.Key, r.Value with { PeopleId = people }))),
         },
     };
 
@@ -175,7 +177,7 @@ public class RaceAbilitiesTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
 
-        // A wolf hunting the character 11 m off: an Orenth Tavar steps sideways to it; the same Tavar with no people runs.
+        // A wolf hunting the character 11 m off: an Orenth Tavar steps sideways to it; an explicitly Veth control Tavar runs.
         int Blinks(SimulationSetup rules)
         {
             var arena = WithTavar(session, rules, 100, (Arena.Wolf, 83.0, 152.0, "pack_hunter"));
@@ -189,7 +191,7 @@ public class RaceAbilitiesTests
             return blinked.Count(b => b.Actor == tavarId);
         }
         Assert.Equal(1, Blinks(TavarOrenth(session.Setup)));
-        Assert.Equal(0, Blinks(session.Setup));
+        Assert.Equal(0, Blinks(TavarPeople(session.Setup, "people.veth")));
 
         // Under half his health and struck, he slips half out of reality.
         var hurt = WithTavar(session, TavarOrenth(session.Setup), 20, (Arena.Wolf, 73.5, 153.0, "pack_hunter"));
