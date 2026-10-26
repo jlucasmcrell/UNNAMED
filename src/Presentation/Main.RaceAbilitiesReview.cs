@@ -42,6 +42,8 @@ public partial class Main
         _session.Subscribe<WingsChanged>(e => Mark("wings", e.Wing.ToString()));
         _session.Subscribe<Blinked>(e => Mark("blinked", new { from = e.From.ToString(), to = e.To.ToString() }));
         _session.Subscribe<WraithStepped>(e => Mark("wraith_step", e.UntilTick));
+        _session.Subscribe<AfterimageLeft>(e => Mark("afterimage_left", new { actor = e.Actor.ToString(), at = e.At.ToString(), until = e.UntilTick }));
+        _session.Subscribe<AfterimageStruck>(e => Mark("afterimage_struck", new { by = e.AttackerDefinitionId, at = e.At.ToString() }));
         _session.Subscribe<AnchorPlaced>(e => Mark("anchor", e.At.ToString()));
         _session.Subscribe<Recalled>(e => Mark("recalled", new { from = e.From.ToString(), to = e.To.ToString() }));
         _session.Subscribe<CommandRejected>(e => Mark("refused", $"{e.Command.GetType().Name}: {e.Reason}"));
@@ -56,7 +58,20 @@ public partial class Main
             previous = now;
         }
         if (route == "kal")
+        {
             await KalSlope();
+            Mark("slope", new { top = _glideFrom.Top.ToString(), drop_mm = _glideFrom.Drop, dir = $"{_glideFrom.DirX},{_glideFrom.DirZ}" });
+        }
+        else if (route == "decoy")
+        {
+            var wolf = await DecoyApproach();
+            Mark("wolf", new { wolf = wolf.Key, at = wolf.Body.ToString() });
+        }
+        else
+        {
+            await OrenthField();
+            Mark("field", sim.Player.Body.ToString());
+        }
         DisplayServer.WindowSetTitle("Otherreach - " + Path.GetFileName(directory));
         File.WriteAllText(Path.Combine(directory, "record_ready.json"), JsonSerializer.Serialize(new { window_title = "^Otherreach - " + Path.GetFileName(directory) + "$" }));
         ulong deadline = Time.GetTicksMsec() + 90000;
@@ -70,6 +85,8 @@ public partial class Main
         Mark("recording");
         if (route == "kal")
             await KalRoute(Mark);
+        else if (route == "decoy")
+            await DecoyRoute(Mark);
         else
             await OrenthRoute(Mark);
         await Rcd3Wait(2);
@@ -83,29 +100,33 @@ public partial class Main
     }
 
     /// <summary>
-    /// Where the Kal glides from: the walkable point near the start with the steepest fall of the ground ahead of it over 30 m, and the way
-    /// down. The body walks there first, unrecorded; the recording opens on the slope.
+    /// Where the Kal glides from: the walkable point within 400 m of the start with the greatest fall of the ground ahead of it over 40 m,
+    /// at least 70 m from any spawn or living creature (a fight is not the evidence), and the way down. The body walks there first,
+    /// unrecorded; the recording opens on the slope.
     /// </summary>
-    private (Body Top, int DirX, int DirZ) _glideFrom;
+    private (Body Top, int DirX, int DirZ, long Drop) _glideFrom;
 
     private async Task KalSlope()
     {
         var sim = _session.Simulation!;
         var space = sim.ActiveLayout.Space;
         var start = sim.Player.Body;
+        var danger = sim.Setup.Combat.Spawns.Select(s => (s.XMm, s.ZMm)).Concat(sim.Creatures.Where(c => c.Alive).Select(c => (c.Body.XMm, c.Body.ZMm))).ToList();
+        bool Quiet(long x, long z) => danger.All(d => Math.Pow(d.XMm - x, 2) + Math.Pow(d.ZMm - z, 2) > 70_000.0 * 70_000.0);
         (long Drop, Body Top, int DirX, int DirZ) best = (0, start, 0, 1000);
-        for (long dx = -120_000; dx <= 120_000; dx += 4_000)
-        for (long dz = -120_000; dz <= 120_000; dz += 4_000)
+        for (long dx = -400_000; dx <= 400_000; dx += 6_000)
+        for (long dz = -400_000; dz <= 400_000; dz += 6_000)
         {
             long x = start.XMm + dx, z = start.ZMm + dz;
-            if (!Kinematics.IsClear(x, z, sim.PlayerMovement.BodyRadiusMm, space, sim.DynamicBlockers))
+            if (x < space.MinXMm || z < space.MinZMm || x > space.MaxXMm || z > space.MaxZMm || !Quiet(x, z)
+                || !Kinematics.IsClear(x, z, sim.PlayerMovement.BodyRadiusMm, space, sim.DynamicBlockers))
                 continue;
             for (int a = 0; a < 16; a++)
             {
                 double angle = a * Math.PI / 8;
                 int ux = (int)Math.Round(Math.Sin(angle) * 1000), uz = (int)Math.Round(Math.Cos(angle) * 1000);
-                long ex = x + ux * 30, ez = z + uz * 30;
-                if (ex < space.MinXMm || ez < space.MinZMm || ex > space.MaxXMm || ez > space.MaxZMm
+                long ex = x + ux * 40, ez = z + uz * 40;
+                if (ex < space.MinXMm || ez < space.MinZMm || ex > space.MaxXMm || ez > space.MaxZMm || !Quiet(ex, ez)
                     || space.Blockers.Any(b => b.HeightMm > 0 && b.Crosses(x, z, ex, ez)))
                     continue;
                 long drop = space.HeightAtMm(x, z) - space.HeightAtMm(ex, ez);
@@ -113,13 +134,124 @@ public partial class Main
                     best = (drop, new Body(x, space.HeightAtMm(x, z), z, 0), ux, uz);
             }
         }
-        _glideFrom = (best.Top, best.DirX, best.DirZ);
+        _glideFrom = (best.Top, best.DirX, best.DirZ, best.Drop);
         foreach (var (cx, cz) in Playthrough.WayTo(sim, sim.Player.Body, best.Top, standOff: 0))
-            await SteerTo(cx, cz, Gait.Run, 60);
+            await SteerTo(cx, cz, Gait.Run, 120);
         _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
-        _camera.Yaw = Mathf.Atan2(-best.DirZ, best.DirX);   // side-on to the way down
-        _camera.TargetDistance = 7;
-        _camera.Pitch = -.18f;
+        SideOn();
+    }
+
+    /// <summary>A close follow view side-on to the way down, held every frame: the wings are the evidence, so they must be in frame.</summary>
+    private void SideOn()
+    {
+        var (_, dx, dz, _) = _glideFrom;
+        _camera.Yaw = Mathf.Atan2(-dz, dx);
+        _camera.TargetDistance = 4.5f;
+        _camera.Pitch = -.08f;
+    }
+
+    /// <summary>
+    /// Where the Orenth is filmed: open ground at least 30 m from anyone (gate04's still camera stood inside a villager), with the 10 m
+    /// strip ahead and the camera spot 6 m to its side both clear. The body walks there and ends facing down the strip, unrecorded.
+    /// </summary>
+    private async Task OrenthField()
+    {
+        var sim = _session.Simulation!;
+        var space = sim.ActiveLayout.Space;
+        var start = sim.Player.Body;
+        long radius = sim.PlayerMovement.BodyRadiusMm;
+        var others = sim.Setup.Combat.Spawns.Select(s => (s.XMm, s.ZMm)).Concat(sim.Creatures.Where(c => c.Alive).Select(c => (c.Body.XMm, c.Body.ZMm)))
+            .Concat(sim.Npcs.Select(n => (n.Body.XMm, n.Body.ZMm))).ToList();
+        bool Open(long x, long z) => x > space.MinXMm && z > space.MinZMm && x < space.MaxXMm && z < space.MaxZMm
+            && others.All(o => Math.Pow(o.XMm - x, 2) + Math.Pow(o.ZMm - z, 2) > 30_000.0 * 30_000.0)
+            && Kinematics.IsClear(x, z, radius, space, sim.DynamicBlockers);
+        for (long ring = 0; ring <= 200_000; ring += 6_000)
+        for (int a = 0; a < 16; a++)
+        {
+            double angle = a * Math.PI / 8;
+            int ux = (int)Math.Round(Math.Sin(angle) * 1000), uz = (int)Math.Round(Math.Cos(angle) * 1000);
+            long x = start.XMm + ux * ring / 1000, z = start.ZMm + uz * ring / 1000;
+            if (!Enumerable.Range(-1, 13).All(m => Open(x + ux * m, z + uz * m)) || !Open(x + ux * 4 + uz * 6, z + uz * 4 - ux * 6)
+                || space.Blockers.Any(b => b.HeightMm > 0 && b.Crosses(x, z, x + ux * 10, z + uz * 10)))
+                continue;
+            foreach (var (cx, cz) in Playthrough.WayTo(sim, sim.Player.Body, new Body(x - ux * 2, space.HeightAtMm(x, z), z - uz * 2, 0), standOff: 0))
+                await SteerTo(cx, cz, Gait.Run, 120);
+            await SteerTo(x / 1000.0, z / 1000.0, Gait.Walk, 10);
+            _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+            return;
+        }
+        throw new InvalidOperationException("No open ground for the Orenth route within 200 m");
+    }
+
+    private const string DecoyWolf = "creature.beast.wolf_grey";
+
+    /// <summary>The decoy's wolf: the nearest grey wolf alive. The Orenth walks to 30 m of it, unrecorded, and waits there.</summary>
+    private async Task<CreatureView> DecoyApproach()
+    {
+        var sim = _session.Simulation!;
+        var start = sim.Player.Body;
+        var wolf = sim.Creatures.Where(c => c.DefId == DecoyWolf && c.Alive)
+            .MinBy(c => Math.Pow(c.Body.XMm - start.XMm, 2) + Math.Pow(c.Body.ZMm - start.ZMm, 2))
+            ?? throw new InvalidOperationException("No grey wolf alive for the decoy route");
+        foreach (var (cx, cz) in Playthrough.WayTo(sim, sim.Player.Body, wolf.Body, standOff: 30))
+            await SteerTo(cx, cz, Gait.Run, 120);
+        _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+        return wolf;
+    }
+
+    /// <summary>
+    /// The decoy (owner ruling 2026-10-25): the Orenth walks at the wolf until it comes; each time it winds up a bite with the blink ready, the
+    /// Orenth blinks, and a still camera 7 m side-on to the place it left holds the afterimage and the wolf in frame. The roll is the real one,
+    /// so it goes again on the next bite until one lands on the afterimage, or 60 s pass.
+    /// </summary>
+    private async Task DecoyRoute(Action<string, object?> mark)
+    {
+        var sim = _session.Simulation!;
+        var wolf = sim.Creatures.Where(c => c.DefId == DecoyWolf && c.Alive)
+            .MinBy(c => Math.Pow(c.Body.XMm - sim.Player.Body.XMm, 2) + Math.Pow(c.Body.ZMm - sim.Player.Body.ZMm, 2))!;
+        bool lunging = false, struck = false;
+        _session.Subscribe<AttackStarted>(e => lunging |= e.Attacker == wolf.Id);
+        _session.Subscribe<AfterimageStruck>(_ => struck = true);
+        var still = new Camera3D { Fov = 60, Near = .05f, Far = 2000, Environment = _camera.Camera.Environment, Attributes = _camera.Camera.Attributes };
+        AddChild(still);
+        void Frame(Body at, Body toward)
+        {
+            var spot = new Vector3(at.XMm / 1000f, at.YMm / 1000f + 1f, at.ZMm / 1000f);
+            var line = new Vector3((toward.XMm - at.XMm) / 1000f, 0, (toward.ZMm - at.ZMm) / 1000f).Normalized();
+            still.GlobalPosition = spot + new Vector3(line.Z, 0, -line.X) * 7 + Vector3.Up * .5f;
+            still.LookAt(spot);
+            still.MakeCurrent();
+        }
+        mark("approach", null);
+        ulong deadline = Time.GetTicksMsec() + 60_000;
+        bool framed = false;
+        while (!struck && Time.GetTicksMsec() < deadline)
+        {
+            var now = sim.Creatures.Single(c => c.Id == wolf.Id);
+            var me = sim.Player.Body;
+            double apart = Math.Sqrt(Math.Pow(now.Body.XMm - me.XMm, 2) + Math.Pow(now.Body.ZMm - me.ZMm, 2));
+            if (!framed && apart < 8_000)
+            {
+                Frame(me, now.Body);
+                framed = true;
+            }
+            // Walk at it until it is close; then stand and let it come.
+            var toward = new Vector3((now.Body.XMm - me.XMm) / 1000f, 0, (now.Body.ZMm - me.ZMm) / 1000f);
+            _controller.SteerWorld(apart > 6_000 ? toward.Normalized() : Vector3.Zero, Gait.Walk, _camera);
+            if (lunging && sim.PeopleAbilityCooldown("ability.people.orenth.blink") == 0)
+            {
+                Frame(me, now.Body);
+                mark("lunge", null);
+                _controller.PeopleAbility("ability.people.orenth.blink");
+            }
+            lunging = false;
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        }
+        _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+        await Rcd3Wait(3);
+        mark(struck ? "decoy_taken" : "decoy_not_taken", null);
+        _camera.Camera.MakeCurrent();
+        still.QueueFree();
     }
 
     private async Task SteerTo(double x, double z, Gait gait, double budgetSeconds)
@@ -137,15 +269,16 @@ public partial class Main
         _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
     }
 
-    /// <summary>A gap leap on the flat, then two glides down the slope: one held to the ground, one flared to brake on the way.</summary>
+    /// <summary>A gap leap away from the slope, then two glides down it: one held to the ground, one flared to brake on the way.</summary>
     private async Task KalRoute(Action<string, object?> mark)
     {
-        var (top, dx, dz) = _glideFrom;
+        var (top, dx, dz, _) = _glideFrom;
         var down = new Vector3(dx / 1000f, 0, dz / 1000f);
         // 1. Gap leap: sprint, then jump.
         mark("leap", null);
         for (int i = 0; i < 40; i++)
         {
+            SideOn();
             _controller.SteerWorld(-down, Gait.Sprint, _camera);
             if (i == 20)
                 _controller.Jump();
@@ -156,15 +289,17 @@ public partial class Main
         for (int glide = 0; glide < 2; glide++)
         {
             await SteerTo(top.XMm / 1000.0, top.ZMm / 1000.0, Gait.Run, 30);
+            SideOn();
             await Rcd3Wait(1.5);
             mark(glide == 0 ? "glide" : "glide_flare", null);
             _controller.Jump();
-            await Rcd3Wait(.3);
+            await Rcd3Wait(.35);
             _controller.Glide(true);
-            ulong flareAt = Time.GetTicksMsec() + 1600, ends = Time.GetTicksMsec() + 15000;
+            ulong flareAt = Time.GetTicksMsec() + 1400, ends = Time.GetTicksMsec() + 15000;
             bool flared = false;
             while (Time.GetTicksMsec() < ends && _session.Simulation!.Posture.Airborne)
             {
+                SideOn();
                 _controller.SteerWorld(down, Gait.Run, _camera);
                 if (glide == 1 && !flared && Time.GetTicksMsec() > flareAt)
                 {
@@ -180,29 +315,37 @@ public partial class Main
         }
     }
 
-    /// <summary>Three blinks along the road, a wraith-step, an anchor set, a walk away and the recall back to it.</summary>
+    /// <summary>
+    /// At game camera distance (coordinator, 2026-10-24: the lagging afterimage must be visible): a still camera 6 m side-on to the middle
+    /// of one blink, so both ends are in frame; the blink, a wraith-step where it lands, and a sprint back across the frame.
+    /// </summary>
     private async Task OrenthRoute(Action<string, object?> mark)
     {
         var sim = _session.Simulation!;
-        _camera.TargetDistance = 6;
-        _camera.Pitch = -.2f;
-        var facing = sim.Player.Body.FacingMdeg / 1000.0 * Math.PI / 180;
+        var start = sim.Player.Body;
+        var facing = start.FacingMdeg / 1000.0 * Math.PI / 180;
         var ahead = new Vector3((float)Math.Sin(facing), 0, (float)Math.Cos(facing));
-        _camera.Yaw = Mathf.Atan2(-ahead.Z, ahead.X);   // side-on to the blinks
-        for (int i = 0; i < 3; i++)
-        {
-            _controller.PeopleAbility("ability.people.orenth.blink");
-            await Rcd3Wait(10.6);
-        }
-        _controller.PeopleAbility("ability.people.orenth.wraith_step");
-        await Rcd3Wait(3);
-        _controller.PeopleAbility("ability.people.orenth.planar_anchor");
+        var side = new Vector3(ahead.Z, 0, -ahead.X);
+        var middle = new Vector3(start.XMm / 1000f, start.YMm / 1000f + 1.0f, start.ZMm / 1000f) + ahead * 4;
+        var still = new Camera3D { Fov = 60, Near = .05f, Far = 2000, Environment = _camera.Camera.Environment, Attributes = _camera.Camera.Attributes };
+        AddChild(still);
+        still.GlobalPosition = middle + side * 6 + Vector3.Up * .4f;
+        still.LookAt(middle);
+        still.MakeCurrent();
         await Rcd3Wait(2);
-        var at = sim.Player.Body;
-        await SteerTo(at.XMm / 1000.0 - ahead.X * 18, at.ZMm / 1000.0 - ahead.Z * 18, Gait.Run, 20);
-        await Rcd3Wait(1.5);
-        mark("recall", null);
-        _controller.PeopleAbility("ability.people.orenth.anchor_recall");
-        await Rcd3Wait(6);
+        _controller.PeopleAbility("ability.people.orenth.blink");
+        await Rcd3Wait(4);
+        _controller.PeopleAbility("ability.people.orenth.wraith_step");
+        await Rcd3Wait(4);
+        mark("sprint", null);
+        for (int i = 0; i < 70; i++)
+        {
+            _controller.SteerWorld(-ahead, Gait.Sprint, _camera);
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        }
+        _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+        await Rcd3Wait(3);
+        _camera.Camera.MakeCurrent();
+        still.QueueFree();
     }
 }

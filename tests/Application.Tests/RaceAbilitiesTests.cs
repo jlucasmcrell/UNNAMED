@@ -1,5 +1,6 @@
 using UNNAMED.Domain;
 using UNNAMED.Domain.Character;
+using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
@@ -139,6 +140,132 @@ public class RaceAbilitiesTests
         Assert.Equal(12, arena.Simulation.CaptureRecord().Crossing.Toll);
         // Nothing of the toll is a skill, a level or an attribute.
         Assert.Equal(1, arena.Simulation.Player.Progression.Level);
+    }
+
+    private const string Tavar = "npc.ashen_hollow.tavar_orr";
+
+    /// <summary>The rules with Tavar an Orenth (his people, as the heritage branch's people_ref will give it, set on his routine here).</summary>
+    private static SimulationSetup TavarOrenth(SimulationSetup setup) => setup with
+    {
+        NpcLife = setup.NpcLife with
+        {
+            Routines = setup.NpcLife.Routines.SetItems(setup.NpcLife.Routines.Where(r => r.Value.NpcId == Tavar)
+                .Select(r => KeyValuePair.Create(r.Key, r.Value with { PeopleId = "people.orenth" }))),
+        },
+    };
+
+    /// <summary>Tavar at the character's side and a creature set on the character by an arrow, as the companion tests do.</summary>
+    private static Arena WithTavar(GameSession session, SimulationSetup rules, int health, params (string, double, double, string)[] creatures)
+    {
+        var arena = Arena.OpenCreatures(session, rules, (70, 152), 90, creatures, r => r.WithCompanions(new[]
+        {
+            new CompanionRecord(Tavar, CompanionOrder.Follow, CompanionCondition.Up, Harness.InRegion(72, 153).XMm, Harness.InRegion(72, 153).ZMm, 90_000, health),
+        }).WithInventory(r.Inventory.Add(Arena.Stack("item.weapon.hunting_bow", 1)).Add(Arena.Stack("item.ammo.arrow_rough", 10))));
+        var bow = arena.Simulation.Player.Inventory.Single(e => e.DefId == "item.weapon.hunting_bow").ItemId;
+        Assert.Null(arena.Submit(new EquipCommand(arena.Player, bow)));
+        arena.Face(arena.Creature());
+        arena.Tick();
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
+        return arena;
+    }
+
+    [Fact]
+    public void AnOrenthCompanion_BlinksToItsMark_AndWraithStepsWhenBadlyHurt()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+
+        // A wolf hunting the character 11 m off: an Orenth Tavar steps sideways to it; the same Tavar with no people runs.
+        int Blinks(SimulationSetup rules)
+        {
+            var arena = WithTavar(session, rules, 100, (Arena.Wolf, 83.0, 152.0, "pack_hunter"));
+            var blinked = arena.Record<Blinked>();
+            var left = arena.Record<AfterimageLeft>();
+            var tavarId = arena.Simulation.Companions.Single().InstanceId;
+            for (int i = 0; i < 400 && blinked.Count == 0; i++)
+                arena.Tick();
+            // Where he blinked from, his afterimage lingers: the tell a player reads.
+            Assert.Equal(blinked.Where(b => b.Actor == tavarId).Select(b => b.From), left.Where(l => l.Actor == tavarId).Select(l => l.At));
+            return blinked.Count(b => b.Actor == tavarId);
+        }
+        Assert.Equal(1, Blinks(TavarOrenth(session.Setup)));
+        Assert.Equal(0, Blinks(session.Setup));
+
+        // Under half his health and struck, he slips half out of reality.
+        var hurt = WithTavar(session, TavarOrenth(session.Setup), 20, (Arena.Wolf, 73.5, 153.0, "pack_hunter"));
+        var stepped = hurt.Record<WraithStepped>();
+        for (int i = 0; i < 400 && stepped.Count == 0; i++)
+            hurt.Tick();
+        Assert.Single(stepped);
+    }
+
+    /// <summary>The rules with the Orenth afterimage always taking the bait, so a test reads the decoy and not the roll.</summary>
+    private static SimulationSetup SureDecoy(SimulationSetup setup)
+    {
+        const string Decoy = "ability.people.orenth.afterimage";
+        return setup with
+        {
+            Character = setup.Character with { Abilities = setup.Character.Abilities.SetItem(Decoy, setup.Character.Abilities[Decoy] with { ChancePercent = 100 }) },
+        };
+    }
+
+    [Fact]
+    public void AnOrenthsAfterimage_TakesAWolfsBlow_ThenRestsBeforeTheNext()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Arena.OpenCreatures(session, SureDecoy(session.Setup), Open, 0, [(Arena.Wolf, Open.X, Open.Z + 1.9, "pack_hunter")],
+            r => r with { Identity = CharacterIdentity.BeforeTheCreator with { PeopleId = "people.orenth" } });
+        var hits = arena.Record<HitResolved>();
+        var left = arena.Record<AfterimageLeft>();
+        var struck = arena.Record<AfterimageStruck>();
+        var wolf = arena.Creature();
+        arena.Face(wolf);
+        arena.Submit(new AttackCommand(arena.Player));
+        for (int i = 0; i < 600 && !hits.Any(h => h.Target == arena.Player); i++)
+            arena.Tick();
+        int bitten = hits.Count(h => h.Target == arena.Player);
+        Assert.True(bitten > 0, "the wolf never went for the character");
+        // Its next bite winding up, the Orenth blinks away from under it.
+        var lunges = arena.Record<AttackStarted>();
+        for (int i = 0; i < 200 && !lunges.Any(a => a.Attacker == wolf.Id); i++)
+            arena.Tick();
+        Assert.Contains(lunges, a => a.Attacker == wolf.Id);
+
+        Assert.Null(arena.Submit(new PeopleAbilityCommand(arena.Player, "ability.people.orenth.blink")));
+        arena.Tick(20);
+        var ghost = Assert.Single(left);
+        var blow = Assert.Single(struck);
+        Assert.Equal(wolf.Id, blow.Attacker);
+        Assert.Equal(ghost.At, blow.At);
+        Assert.Equal(bitten, hits.Count(h => h.Target == arena.Player));
+
+        // One blow per afterimage, and the decoy rests: a wraith-step straight after leaves none.
+        Assert.Null(arena.Submit(new PeopleAbilityCommand(arena.Player, "ability.people.orenth.wraith_step")));
+        arena.Tick();
+        Assert.Single(left);
+    }
+
+    [Fact]
+    public void ALongSprint_LeavesAnOrenthsAfterimage_AndNoOneElses()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+
+        int Afterimages(string people)
+        {
+            var arena = As(session, people);
+            var left = arena.Record<AfterimageLeft>();
+            for (int i = 0; i < 40; i++)
+            {
+                arena.Simulation.Enqueue(new MoveCommand(arena.Player, new MoveIntent(0, 1000, Gait.Sprint, 0)));
+                arena.Tick();
+            }
+            return left.Count;
+        }
+
+        Assert.Equal(1, Afterimages("people.orenth"));
+        Assert.Equal(0, Afterimages("people.veth"));
     }
 
     [Fact]

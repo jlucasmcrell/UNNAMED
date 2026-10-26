@@ -3,6 +3,7 @@
 // Godot presentation only: it submits the wing and ability commands and says what the simulation did (D-11)
 
 using Godot;
+using UNNAMED.Domain;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Presentation.Settings;
@@ -61,8 +62,49 @@ public partial class Main
         });
     }
 
+    /// <summary>The afterimages held in the world, by whose they are: the ghost a struck one shatters.</summary>
+    private readonly Dictionary<EntityId, GodotObject> _afterimages = new();
+
+    /// <summary>
+    /// An afterimage lingers as the figure stood when it was left - the handler runs in the step, before the figure is posed anew - through
+    /// the figure's own <c>OrenthPhase</c> (race-looks' ghost; <c>Linger(seconds, at)</c> hands back the decoy, <c>Shatter()</c> breaks it).
+    /// </summary>
+    private void Linger(AfterimageLeft left)
+    {
+        if (OrenthPhaseOf(left.Actor) is not var (figure, phase))
+            return;
+        _afterimages[left.Actor] = phase.Call("Linger", Seconds(left.UntilTick - left.Tick), figure.GlobalTransform).AsGodotObject();
+    }
+
+    /// <summary>A wraith-stepping body (§3.4) is drawn half out of reality by its own <c>OrenthPhase</c> for as long as it lasts.</summary>
+    private void Phase(WraithStepped stepped)
+    {
+        if (OrenthPhaseOf(stepped.Actor) is var (_, phase))
+            phase.Call("Phase", Seconds(stepped.UntilTick - stepped.Tick));
+    }
+
+    /// <summary>The figure of the character or a party member, and the <c>OrenthPhase</c> race-looks attaches to an Orenth's.</summary>
+    private (Node3D Figure, Node Phase)? OrenthPhaseOf(EntityId actor)
+    {
+        var simulation = _session.Simulation!;
+        Node3D? figure = actor == simulation.PlayerId ? _avatar
+            : simulation.Npcs.FirstOrDefault(n => n.InstanceId == actor) is { } npc ? _npcs.FigureOf(npc.Id) : null;
+        return figure?.FindChild("OrenthPhase", true, false) is { } phase ? (figure, phase) : null;
+    }
+
+    private double Seconds(long ticks) => ticks * _session.Simulation!.Setup.TickMilliseconds / 1000.0;
+
     private void SubscribePeople()
     {
+        _session.Subscribe<AfterimageLeft>(Linger);
+        _session.Subscribe<AfterimageStruck>(e =>
+        {
+            if (_afterimages.Remove(e.Actor, out var ghost) && IsInstanceValid(ghost))
+                ghost.Call("Shatter");
+            if (e.Actor == _session.Simulation!.PlayerId)
+                _hud.Toast($"The {Names.Of(_session, e.AttackerDefinitionId).ToLowerInvariant()} struck your afterimage", 2);
+        });
+        _session.Subscribe<WraithStepped>(Phase);
         _session.Subscribe<AnchorPlaced>(_ => Notice(NoticeKind.Progress, "Anchor set", 2));
         _session.Subscribe<RecallBegun>(_ => _hud.Toast("Crossing back - hold still", 3));
         _session.Subscribe<RecallBroken>(e => _hud.Toast($"The crossing slipped: {e.Reason}", 3));

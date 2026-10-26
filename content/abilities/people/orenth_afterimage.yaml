@@ -1,0 +1,15 @@
+id: ability.people.orenth.afterimage
+kind: ability
+schema: 1
+display_key: ability.people.orenth.afterimage.name
+tags: [ability, people]
+name: Afterimage
+notes: Racial passive, innate biology (RACES.md section 4 - reality registers an Orenth an instant late). Owner ruling 2026-10-25 - the lagging afterimage is a decoy. Every number is provisional.
+class: people
+people_ref: people.orenth
+action: afterimage
+description: "Reality registers you an instant late. Where you blink or wraith-step from, or after a long sprint, your afterimage lingers for a moment - and a foe after you may strike it instead. Once it has taken a blow, it is a while before another can."
+chance_percent: 50
+duration_s: 1.0
+cooldown_s: 6
+sprint_s: 1.5

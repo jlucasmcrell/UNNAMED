@@ -38,6 +38,7 @@ public sealed partial class SkinnedFigure : Figure
     private CombatStance _stance = CombatStance.AtRest;
     private bool _crouched;
     private bool _airborne;
+    private bool _gliding;
     private bool _talking;
     private bool _downed;
     private float _crouch;
@@ -222,6 +223,7 @@ public sealed partial class SkinnedFigure : Figure
         _airborne = airborne;
     }
 
+    public override void SetGliding(bool gliding) => _gliding = gliding;
     public override void SetTalking(bool talking) { _talking = talking; _model.ForceLod0 = talking; }
 
     public override bool SetDowned(bool downed)
@@ -561,6 +563,17 @@ public sealed partial class SkinnedFigure : Figure
         }
         // In the air: the take-off played through its first part, then the airborne loop; on landing, the landing played once
         // (walking or running on cuts it short).
+        // Aloft on spread wings (Kal): a held pose - the body hangs under the wings - never a gait or the fall's flailing. A body with its
+        // own glide clip plays it; any other holds its idle still.
+        if (_gliding)
+        {
+            _wasAirborne = true;
+            if (m.Has("glide"))
+                m.Play("glide", 0.25f);
+            else if (m.Has("idle"))
+                m.Hold("idle", 0.5f, 0.25f);
+            return;
+        }
         if (_airborne && m.Has("fall"))
         {
             _airTime = _wasAirborne ? _airTime + delta : 0;

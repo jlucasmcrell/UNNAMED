@@ -3,7 +3,7 @@ kind: effect
 schema: 1
 display_key: effect.wraith_step.name
 tags: [effect]
-name: Wraith-step
+name: Wraith-stepping
 notes: The Orenth wraith-step (RACES.md section 4; RACE_ABILITIES_PROPOSAL.md section 3.4, owner-approved 2026-10-24) - for 1.5 s the body is half in an adjacent reality - physical blows pass through it and it passes creatures and people, never walls. Soul and phase damage hit it harder.
 category: buff
 stack_policy: refresh

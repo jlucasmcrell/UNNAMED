@@ -84,7 +84,7 @@ internal sealed class SystemContext
 
     /// <summary>An NPC's people, where the world knows it (a named NPC's <c>people_ref</c>, a role resident's slot, an adventurer); null for one it does not.</summary>
     public string? PeopleOf(string npcId) =>
-        Setup.Social.Npcs.GetValueOrDefault(npcId)?.PeopleId ?? Setup.NpcLife.Routines.GetValueOrDefault(npcId)?.PeopleId
+        Setup.Social.Npcs.GetValueOrDefault(npcId)?.PeopleId ?? Setup.NpcLife.RoutineOf(npcId)?.PeopleId
         ?? State.World.Adventurers?.Agents.GetValueOrDefault(npcId)?.PeopleId;
 
     /// <summary>The player's derived pools and Resonance: the attributes' values, then the people's biology and the crossing toll's health.</summary>
