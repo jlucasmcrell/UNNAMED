@@ -37,6 +37,10 @@ public partial class Main
             AddChild(camera);
             source.GetNode<OmniLight3D>("CharacterFill").Reparent(camera, false);
             camera.MakeCurrent();
+            if(OS.GetEnvironment("OTHERREACH_FEATURE_FILM_PLAN") is { Length: > 0 } filmPlan)
+            {
+                await RunFeatureFilm(directory,camera,filmPlan);GetTree().Quit();return;
+            }
             if(OS.GetEnvironment("OTHERREACH_RCD8_MOTION_REVIEW")=="1")
             {
                 camera.GetNode<OmniLight3D>("CharacterFill").Reparent(source,false);
