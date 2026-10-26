@@ -33,6 +33,7 @@ public partial class Main
         _hud.Visible=ui;if(_hintLine is not null)_hintLine.Visible=ui;
         camera.Fov=60;
         var offset=new Vector3(3,2.2f,4.5f);
+        bool gameplayCamera=false;
         Vector3? fixedAim=null;
         Vector3 Pos(Body b)=>new(b.XMm/1000f,b.YMm/1000f,b.ZMm/1000f);
         Vector3 V(JsonElement e)=>new(e[0].GetSingle(),e[1].GetSingle(),e[2].GetSingle());
@@ -51,6 +52,7 @@ public partial class Main
         _session.Subscribe<AfterimageStruck>(e=>Mark("decoy_struck",e));
         void Frame()
         {
+            if(gameplayCamera){_camera.Camera.MakeCurrent();return;}
             var aim=fixedAim??(_avatar.GlobalPosition+Vector3.Up);
             camera.GlobalPosition=aim+offset;camera.LookAt(aim);camera.MakeCurrent();
         }
@@ -151,9 +153,20 @@ public partial class Main
                     case "takedown":_controller.Takedown();await Hold(seconds);break;
                     case "kal_route":
                         _glideFrom=(sim.Player.Body,step.GetProperty("dx").GetInt32(),step.GetProperty("dz").GetInt32(),0);
-                        camera.GetNode<OmniLight3D>("CharacterFill").Reparent(_camera.Camera,false);
-                        _camera.Camera.MakeCurrent();await KalRoute(Mark);
-                        _camera.Camera.GetNode<OmniLight3D>("CharacterFill").Reparent(camera,false);break;
+                        var down=new Vector3(_glideFrom.DirX/1000f,0,_glideFrom.DirZ/1000f);
+                        var oldOffset=offset;
+                        float side=(float)Number(step,"camera_side",1);
+                        void FollowWings()
+                        {
+                            var aim=_avatar.GlobalPosition+Vector3.Up*.8f;
+                            var eye=aim+new Vector3(down.Z,0,-down.X)*side*4.8f-down*1.2f+Vector3.Up*1.4f;
+                            eye.Y=Math.Max(eye.Y,_ground.Height(eye.X,eye.Z)+.8f);
+                            camera.Fov=55;camera.GlobalPosition=eye;camera.LookAt(aim);camera.MakeCurrent();
+                        }
+                        GetTree().ProcessFrame+=FollowWings;
+                        try { await KalRoute(Mark); }
+                        finally { GetTree().ProcessFrame-=FollowWings;offset=oldOffset; }
+                        break;
                     case "decoy_route":
                         camera.GetNode<OmniLight3D>("CharacterFill").Reparent(_camera.Camera,false);
                         _camera.Camera.MakeCurrent();await DecoyRoute(Mark);
@@ -163,6 +176,23 @@ public partial class Main
                         var goal=V(step.GetProperty("position"));
                         await SteerTo(goal.X,goal.Z,Gait.Run,seconds);await Hold(1);break;
                     case "talk":_controller.Talk(Text(step,"id"));await Hold(seconds);break;
+                    case "road_start":
+                        OpenCreator();_creator.Use(_creator.Draft with {Name="Ada",PeopleId="people.veth",BodyPresetId="body.veth_f.average",Start=StartPoint.Road});
+                        if(!_creator.PressBegin())throw new InvalidDataException("Normal road Begin refused: "+_creator.Draft.Problem);
+                        sim=_session.Simulation!;native=(SkinnedFigure)_avatar;gameplayCamera=true;
+                        Mark("actual_road_start",new {sim.Player.Identity,model=native.ModelId,lying=_lying});
+                        await Hold(seconds);break;
+                    case "begin_people":
+                        string nextPeople=Text(step,"people");
+                        string nextBody=$"body.{nextPeople[7..]}_f.average";
+                        OpenCreator();
+                        if(!_creator.DrawnBodyIds(nextPeople).Contains(nextBody))throw new InvalidDataException("Uninstalled real creator body: "+nextBody);
+                        _creator.Use(_creator.Draft with {Name="Ada",PeopleId=nextPeople,BodyPresetId=nextBody,Start=StartPoint.Waystone});
+                        if(!_creator.PressBegin())throw new InvalidDataException("Normal people Begin refused: "+_creator.Draft.Problem);
+                        sim=_session.Simulation!;native=(SkinnedFigure)_avatar;gameplayCamera=false;fixedAim=null;
+                        if(nextPeople!="people.veth"&&!native.ModelId.Contains("_race_"+nextPeople[7..]+"_",StringComparison.Ordinal))throw new InvalidDataException("New creator model mismatch");
+                        Mark("actual_people_start",new {sim.Player.Identity,model=native.ModelId});await Hold(seconds);break;
+                    case "wake":GetUp();await Hold(seconds);break;
                     case "touch_stone":_controller.TouchStone(Text(step,"id"));await Hold(seconds);break;
                     case "npc":
                         var npc=sim.Npcs.Single(n=>n.Id==Text(step,"id"));fixedAim=Pos(npc.Body)+Vector3.Up;
