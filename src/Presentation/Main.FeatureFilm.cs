@@ -128,6 +128,7 @@ public partial class Main
                 string action=Text(step,"action");Mark("start_"+action,step);
                 double seconds=Number(step,"seconds",5);
                 if(step.TryGetProperty("camera",out var view))gameplayCamera=view.GetString()=="gameplay";
+                if(step.TryGetProperty("fov",out var fov))camera.Fov=fov.GetSingle();
                 if(step.TryGetProperty("offset",out var off))offset=V(off);
                 if(step.TryGetProperty("aim",out var aim))fixedAim=V(aim);
                 if(step.TryGetProperty("ground",out var ground))
@@ -185,6 +186,12 @@ public partial class Main
                         if(!_dialogue.Replies.Contains(reply))throw new InvalidDataException("Conversation does not offer "+reply);
                         _dialogue.Answer(reply);await Hold(seconds);break;
                     case "hire":ShowHire(Text(step,"id"));await Hold(seconds);break;
+                    case "hire_accept":
+                        string hiredKey=Text(step,"id");
+                        _session.Submit(new HireCommand(sim.PlayerId,hiredKey,UNNAMED.Domain.Companions.HirelingRole.Guard,1,true));
+                        await Hold(seconds);
+                        if(!sim.Companions.Any(c=>c.NpcId==hiredKey))throw new InvalidDataException("Normal hiring was refused: "+hiredKey);
+                        Mark("actual_companion_hired",hiredKey);break;
                     case "trade":OpenTrade(Text(step,"id"));await Hold(seconds);break;
                     case "clock":
                         AdvanceTo((int)Number(step,"minute",480));Mark("normal_offline_schedule_advance");await Hold(seconds);break;
