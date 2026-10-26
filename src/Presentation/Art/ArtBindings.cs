@@ -674,7 +674,9 @@ public sealed class ArtBindings
         var types = new List<BodyModels>();
         foreach (var type in bodies.Types)
         {
-            types.Add(MpfbBodyFor("player", type.Type.EndsWith("_f", StringComparison.Ordinal), cast) is { } worn
+            // The cast's player bodies are Veth; every other people keeps its own race body.
+            types.Add(type.Type.StartsWith("veth_", StringComparison.Ordinal)
+                      && MpfbBodyFor("player", type.Type.EndsWith("_f", StringComparison.Ordinal), cast) is { } worn
                 ? new BodyModels(type.Type, new[] { worn.Body.Id })
                 : type);
         }
