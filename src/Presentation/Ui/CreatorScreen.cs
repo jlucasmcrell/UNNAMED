@@ -259,7 +259,7 @@ public partial class CreatorScreen : CanvasLayer
     /// with in this run's family. When none of them is installed (a run with no asset workspace) the game draws everyone as the greybox,
     /// and every body is offered on it.
     /// </summary>
-    private List<Offered> OfferedBodies()
+    private List<Offered> OfferedBodies(string? people = null)
     {
         if (MHCharacters.MetaHumanFigure.Available)
             return new[] { (Id: "body.veth_f.average", Name: "Feminine"), (Id: "body.veth_m.average", Name: "Masculine") }
@@ -271,7 +271,7 @@ public partial class CreatorScreen : CanvasLayer
         bool Installed(string model) => _art.RiggedFile(model, model + "_rigged.glb") is not null;
         var typeOrder = bodies.Types.Select(t => t.Type).ToList();
         int TypeOrder(string type) => typeOrder.IndexOf(type) is var i && i >= 0 ? i : typeOrder.Count;
-        var offered = _session.Characters.OfferedBodies(_draft?.PeopleId ?? CharacterSpec.DefaultPeople).OrderBy(b => TypeOrder(b.Type)).ThenBy(b => b.Order).Select(b =>
+        var offered = _session.Characters.OfferedBodies(people ?? _draft?.PeopleId ?? CharacterSpec.DefaultPeople).OrderBy(b => TypeOrder(b.Type)).ThenBy(b => b.Order).Select(b =>
         {
             string? model = bodies.Model(b, Installed);
             return new Offered(b, model, model is not null);
@@ -295,8 +295,8 @@ public partial class CreatorScreen : CanvasLayer
         Render(focus);
     }
 
-    /// <summary>The ids of the bodies the Body step offers that this build draws (the creator-shots harness walks these).</summary>
-    public IReadOnlyList<string> DrawnBodyIds() => OfferedBodies().Where(o => o.Installed).Select(o => o.Body.Id).ToList();
+    /// <summary>The ids of the bodies the Body step offers <paramref name="people"/> that this build draws (the creator-shots harness walks these).</summary>
+    public IReadOnlyList<string> DrawnBodyIds(string people) => OfferedBodies(people).Where(o => o.Installed).Select(o => o.Body.Id).ToList();
 
     /// <summary>Whether this build draws a baked body for <paramref name="people"/>: one of its offered bodies is installed and baked.</summary>
     private bool Drawn(string people) =>
