@@ -12,6 +12,9 @@ namespace UNNAMED.Presentation.Art;
 public partial class OrenthPhase : Node
 {
     private const double ShadowLag = .09, History = .4;
+
+    /// <summary>Meta on every twin mesh: the creator's look (<see cref="PeopleAppearance.ApplyLook"/>) leaves their ghost materials alone.</summary>
+    public const string TwinMeta = "orenth_twin";
     private const float LastLevelDistance = 18f;
 
     private readonly List<(MeshInstance3D Source, MeshInstance3D Shadow, MeshInstance3D[] Trail, MeshInstance3D Veil, ShaderMaterial[] Spirit)> _twins = new();
@@ -49,6 +52,7 @@ public partial class OrenthPhase : Node
                     VisibilityRangeBegin = mesh.VisibilityRangeBegin, VisibilityRangeEnd = mesh.VisibilityRangeEnd, Layers = mesh.Layers,
                     CustomAabb = mesh.CustomAabb, CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
                 };
+                twin.SetMeta(TwinMeta, true);
                 mesh.GetParent().AddChild(twin);
                 twin.Skeleton = twin.GetPathTo(mesh.GetNode(mesh.Skeleton));
                 return twin;

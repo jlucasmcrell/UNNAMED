@@ -81,12 +81,17 @@ public sealed partial class SkinnedFigure : Figure
 
     public override string? ClipState => _model.Current;
 
-    /// <summary>The bound person's skinned figure (<c>player</c> or an NPC's ID), or null when the bindings or the asset lack it.</summary>
-    public static SkinnedFigure? Create(ArtLibrary art, ArtBindings bindings, string personId, string? body = null, PersonArt? appearance = null)
+    /// <summary>
+    /// The bound person's skinned figure (<c>player</c> or an NPC's ID), or null when the bindings or the asset lack it. A player's chosen
+    /// <paramref name="people"/> replaces the binding's, so the people's look (Kal stone and wings, Siann opal, Orenth phase) is drawn.
+    /// </summary>
+    public static SkinnedFigure? Create(ArtLibrary art, ArtBindings bindings, string personId, string? body = null, PersonArt? appearance = null, string? people = null)
     {
         var person = appearance ?? bindings.People.GetValueOrDefault(personId);
         if (person is null)
             return null;
+        if (people is not null)
+            person = person with { PeopleId = people };
         // Another body on the same binding (the creator's, WP2): the same rig family, so the clips, hands and grips hold.
         if (body is not null)
             person = person with { Model = body, UniformScale = ArtBindings.ComparisonBodyScale(person.Model, body, person.UniformScale) };

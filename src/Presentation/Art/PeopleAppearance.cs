@@ -301,7 +301,7 @@ public static class PeopleAppearance
         var trousers = LookSwatches.Cloth(LookSwatches.Trousers, Index(LookSwatches.TrouserSlider));
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
         {
-            if (mesh.Mesh is null)
+            if (mesh.Mesh is null || mesh.HasMeta(OrenthPhase.TwinMeta))
                 continue;
             for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
             {
