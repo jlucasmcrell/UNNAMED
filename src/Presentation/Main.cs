@@ -295,6 +295,7 @@ public partial class Main : Node3D
             GD.Print("UNNAMED direct EXE: using packaged PLAY defaults");
         }
         ParseArguments(Ui.Models.PlaytestLaunchDefaults.Resolve(arguments, Home(), OS.HasFeature("template")));
+        InstallFarmFilmOptions();
         // A player's run plays with the player's settings (the window, the tier they chose, the dials); a harness run never reads or
         // writes them (its numbers stay comparable).
         _developer = OS.IsDebugBuild() || _flags.Contains("--dev");
@@ -1911,7 +1912,7 @@ public partial class Main : Node3D
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--creator-people" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
                     or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"
-                    or "--anim-person" or "--anim-compare" or "--anim-phase"
+                    or "--anim-person" or "--anim-compare" or "--anim-phase" or "--film-plan" or "--film-out"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

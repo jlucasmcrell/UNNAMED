@@ -12,6 +12,22 @@ namespace UNNAMED.Presentation;
 
 public partial class Main
 {
+    // The dedicated packaged-test farm accepts arguments, not a launcher environment.
+    private void InstallFarmFilmOptions()
+    {
+        if(!_options.TryGetValue("--film-plan",out var path))return;
+        string directory=Path.GetFullPath(_options.GetValueOrDefault("--film-out")??throw new ArgumentException("--film-plan needs --film-out"));
+        path=Path.GetFullPath(path);Directory.CreateDirectory(directory);
+        using var plan=JsonDocument.Parse(File.ReadAllText(path));
+        OS.SetEnvironment("OTHERREACH_FEATURE_FILM_PLAN",path);
+        OS.SetEnvironment("OTHERREACH_MH_REVIEW_OUT",directory);
+        OS.SetEnvironment("OTHERREACH_RCD3_REVIEW","1");OS.SetEnvironment("OTHERREACH_LIGHTING_FAST","1");
+        OS.SetEnvironment("OTHERREACH_REVIEW_PEOPLE",plan.RootElement.TryGetProperty("people",out var people)?people.GetString()!:"people.veth");
+        OS.SetEnvironment("OTHERREACH_MH_REVIEW_PLAYER",plan.RootElement.TryGetProperty("player",out var player)?player.GetString()!:"ada");
+        OS.SetEnvironment("OTHERREACH_CHARACTER_ROOT",Path.Combine(Home(),"humgen_characters"));
+        OS.SetEnvironment("APPDATA",Path.Combine(directory,"appdata"));OS.SetEnvironment("LOCALAPPDATA",Path.Combine(directory,"localappdata"));
+    }
+
     // Private filming only: cameras and ordinary player commands over the public content.
     // --stand/start-items/start-level are recorded starting fixtures, never hidden gameplay buffs.
     private async Task RunFeatureFilm(string directory,Camera3D camera,string planPath)
@@ -112,6 +128,25 @@ public partial class Main
         }
         Mark("world_ready",new {actors=sim.Npcs.Select(n=>new {n.Id,n.Body}),creatures=sim.Creatures.Select(c=>new {c.Key,c.DefId,c.Body,c.Alive})});
         File.WriteAllText(Path.Combine(directory,"record_ready.json"),"{}");
+        if(_options.ContainsKey("--film-plan"))
+        {
+            // record=true starts the farm's own recorder before the game. Require real video bytes before proceeding.
+            string recording=Path.Combine(directory,"record.mkv");ulong readyUntil=Time.GetTicksMsec()+30000;
+            while(!File.Exists(recording)||new FileInfo(recording).Length<65536)
+            {
+                if(Time.GetTicksMsec()>readyUntil)throw new TimeoutException("Farm recorder did not produce video bytes");
+                await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+            }
+            await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(directory,"first_gameplay.png"));
+            var movie=new FileInfo(recording);
+            File.WriteAllText(Path.Combine(directory,"FARM_RECORDER_READBACK.json"),JsonSerializer.Serialize(new {
+                utc=DateTimeOffset.UtcNow,pid=OS.GetProcessId(),hwnd=DisplayServer.WindowGetNativeHandle(DisplayServer.HandleType.WindowHandle),
+                recording,bytes=movie.Length,created_utc=movie.CreationTimeUtc,modified_utc=movie.LastWriteTimeUtc,
+                backend="Owner-authorized dedicated6900XT farm runner record=true, ddagrab30; not a local desktop capture",
+                timing="File creation is an approximate video clock anchor, not exact audio synchronization"}));
+            File.WriteAllText(Path.Combine(directory,"recording.started"),DateTimeOffset.UtcNow.ToString("o"));
+        }
         ulong deadline=Time.GetTicksMsec()+60000;
         while(!File.Exists(Path.Combine(directory,"recording.started")))
         {if(Time.GetTicksMsec()>deadline)throw new TimeoutException("No owned recorder first frame");await Hold(.1);}
@@ -288,6 +323,7 @@ public partial class Main
         File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {status="CAPTURE_ONLY_PUBLIC_SOURCE_REQUIRES_REVIEW",plan=planPath,world_tick=sim.WorldTick,engine_max_fps=Engine.MaxFps}));
         File.WriteAllText(Path.Combine(directory,"recording.finished"),"done");
         deadline=Time.GetTicksMsec()+15000;
-        while(!File.Exists(Path.Combine(directory,"recording.stopped"))&&Time.GetTicksMsec()<deadline)await Hold(.1);
+        if(_options.ContainsKey("--film-plan"))await Hold(2);
+        else while(!File.Exists(Path.Combine(directory,"recording.stopped"))&&Time.GetTicksMsec()<deadline)await Hold(.1);
     }
 }
