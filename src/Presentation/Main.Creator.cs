@@ -139,7 +139,7 @@ public partial class Main
         string preset = simulation.Player.Identity.BodyPresetId;
         var body = _session.Characters.Bodies.GetValueOrDefault(preset);
         string? model = body is not null ? _bindings.Bodies.Model(body, m => _art.RiggedFile(m, m + "_rigged.glb") is not null) : null;
-        if (model is not null && model != _avatarModel && SkinnedFigure.Create(_art, _bindings, "player", model) is { } skinned)
+        if (model is not null && model != _avatarModel && SkinnedFigure.Create(_art, _bindings, "player", model, people: simulation.Player.Identity.PeopleId) is { } skinned)
         {
             var feet = _avatar.Position;
             _avatar.QueueFree();

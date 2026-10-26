@@ -117,12 +117,12 @@ public sealed partial class CreatorPreview : TextureRect
     /// build's <paramref name="armSplay"/>, wearing <paramref name="worn"/>. A body already
     /// drawn once this session is shown again without loading.
     /// </summary>
-    public void Show(string? model, float armSplay, WornOutfit worn,string? weapon=null)
+    public void Show(string? model, string? people, float armSplay, WornOutfit worn,string? weapon=null)
     {
-        string key = model ?? "";
+        string key = (model ?? "") + "|" + people;
         if (!_figures.TryGetValue(key, out var figure))
         {
-            figure = (Figure?)MHCharacters.MetaHumanFigure.Create(_art, _bindings, "player", model) ?? (model is not null && SkinnedFigure.Create(_art, _bindings, "player", model) is { } skinned ? skinned : new Avatar());
+            figure = (Figure?)MHCharacters.MetaHumanFigure.Create(_art, _bindings, "player", model) ?? (model is not null && SkinnedFigure.Create(_art, _bindings, "player", model, people: people) is { } skinned ? skinned : new Avatar());
             figure.Name = model ?? "Greybox";
             if (figure is SkinnedFigure detailed) detailed.ForceLod0 = true;
             _turntable.AddChild(figure);

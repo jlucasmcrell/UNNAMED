@@ -323,7 +323,7 @@ public partial class CreatorScreen : CanvasLayer
         if (shown == _shownBody)
             return;
         _shownBody = shown;
-        _preview.Show(body?.Model, body?.Body.ArmSplayDegrees ?? 0, worn);
+        _preview.Show(body?.Model, Draft.PeopleId, body?.Body.ArmSplayDegrees ?? 0, worn);
         _preview.Look(Draft.PeopleId, Draft.Appearance);
     }
 

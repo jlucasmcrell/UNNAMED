@@ -65,7 +65,7 @@ public partial class InventoryPanel
     {
         string? Worn(EquipSlot slot)=>simulation.Player.Equipment.TryGetValue(slot,out var item)?simulation.Player.Inventory.FirstOrDefault(e=>e.ItemId==item)?.DefId:null;
         var body=_bodyChoice();
-        _dollPreview.Show(body.Model,body.ArmSplay,new WornOutfit(Worn(EquipSlot.Chest),Worn(EquipSlot.Head),Worn(EquipSlot.Feet),Worn(EquipSlot.Hands),Worn(EquipSlot.Legs),Worn(EquipSlot.Cloak)),Worn(EquipSlot.MainHand));
+        _dollPreview.Show(body.Model,simulation.Player.Identity.PeopleId,body.ArmSplay,new WornOutfit(Worn(EquipSlot.Chest),Worn(EquipSlot.Head),Worn(EquipSlot.Feet),Worn(EquipSlot.Hands),Worn(EquipSlot.Legs),Worn(EquipSlot.Cloak)),Worn(EquipSlot.MainHand));
         foreach(var (slot,button) in _dollSlots)
         {
             var entry=simulation.Player.Equipment.TryGetValue(slot,out var id)?simulation.Player.Inventory.FirstOrDefault(e=>e.ItemId==id):null;
