@@ -28,6 +28,7 @@
     <Compile Include="..\..\src\Presentation\Art\ArtCoverage.cs" Link="Linked\ArtCoverage.cs" />
     <Compile Include="..\..\src\Presentation\Art\ScatterRules.cs" Link="Linked\ScatterRules.cs" />
     <Compile Include="..\..\src\Presentation\Art\PlantLodBands.cs" Link="Linked\PlantLodBands.cs" />
+    <Compile Include="..\..\src\Presentation\Art\PeopleLooks.cs" Link="Linked\PeopleLooks.cs" />
     <Compile Include="..\..\src\Presentation\Audio\AudioCoverage.cs" Link="Linked\AudioCoverage.cs" />
     <Compile Include="..\..\src\Presentation\Audio\MusicChoice.cs" Link="Linked\MusicChoice.cs" />
     <Compile Include="..\..\src\Presentation\Audio\VoiceRules.cs" Link="Linked\VoiceRules.cs" />

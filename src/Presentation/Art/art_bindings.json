@@ -948,12 +948,12 @@
      "mh_veth_f"
     ]
    },
-      { "id": "kal_m", "models": [ "humgen_kal_m" ] },
-      { "id": "kal_f", "models": [ "humgen_kal_f" ] },
-      { "id": "siann_m", "models": [ "humgen_siann_m" ] },
-      { "id": "siann_f", "models": [ "humgen_siann_f" ] },
-      { "id": "orenth_m", "models": [ "humgen_orenth_m" ] },
-      { "id": "orenth_f", "models": [ "humgen_orenth_f" ] }
+      { "id": "kal_m", "models": [ "humgen_race_kal_m_frontier" ] },
+      { "id": "kal_f", "models": [ "humgen_race_kal_f_frontier" ] },
+      { "id": "siann_m", "models": [ "humgen_race_siann_m_long" ] },
+      { "id": "siann_f", "models": [ "humgen_race_siann_f_long" ] },
+      { "id": "orenth_m", "models": [ "humgen_race_orenth_m_frontier" ] },
+      { "id": "orenth_f", "models": [ "humgen_race_orenth_f_frontier" ] }
   ]
  },
  "people": {

@@ -204,6 +204,8 @@ public static class CharacterMaterials
         if (spec.TryGetProperty("alpha_coverage", out var coverage) && coverage.ValueKind == JsonValueKind.True && m.Transparency == BaseMaterial3D.TransparencyEnum.AlphaScissor)
         {
             m.AlphaAntialiasingMode = BaseMaterial3D.AlphaAntiAliasing.AlphaToCoverageAndToOne;
+            // HumGen's long cards fray into ropes at glTF's 0.5 cut-off: their tips are the atlas's thinnest coverage.
+            m.AlphaScissorThreshold = Num("alpha_cutoff", m.AlphaScissorThreshold);
             // Plain averaged mips thin the strands to nothing a few metres off (the brows, the hair at a parting): the mip chain keeps
             // the base level's coverage (ImageMips.Coverage, as the texture cache does for cut-outs - these textures are outside it).
             if (m.AlbedoTexture is { } albedo)

@@ -20,8 +20,39 @@ public static class PeopleAppearance
             foreach (var mesh in model.FindChildren("mh_veth_m_beard*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
                 mesh.Visible = false;
         ApplyBodyColour(model, art, modelId);
-        if (people is null or "people.veth" or "people.kal")
+        if (people is null or "people.veth")
             return;
+        if (people == PeopleLooks.Kal)
+        {
+            // The body's own slate maps and its age (kal_stone.json, written with the maps from the body's export).
+            if (art.RiggedFile(modelId, "kal_stone_rgbh.png") is { } colourPath && art.RiggedFile(modelId, "kal_stone_rm.png") is { } maskPath
+                && art.RiggedFile(modelId, "kal_stone.json") is { } agePath
+                && art.Texture(colourPath, "albedo") is { } colour && art.Texture(maskPath, "data") is { } mask)
+            {
+                using var age = System.Text.Json.JsonDocument.Parse(File.ReadAllText(agePath));
+                KalStone(model, colour, mask, PeopleLooks.StoneCoverage(age.RootElement.GetProperty("age").GetInt32()));
+            }
+            if (art.RiggedFile(modelId, "kal_wings.glb") is { } wings
+                && model.FindChildren("*", nameof(Skeleton3D), true, false).OfType<Skeleton3D>().FirstOrDefault() is { } skeleton)
+                KalWings.Attach(skeleton, wings);
+            return;
+        }
+        if (people == PeopleLooks.Siann)
+        {
+            // Only bodies made for the look carry its mask: a Siann on any other body (Sel Arien's voiced head) keeps her own look.
+            if (art.RiggedFile(modelId, "siann_skin.png") is { } siannPath && art.Texture(siannPath, "data") is { } mask)
+            {
+                SiannSkin(model, mask);
+                SiannEyes(model);
+            }
+            return;
+        }
+        if (people == PeopleLooks.Orenth)
+        {
+            if (model is Node3D body)
+                OrenthPhase.Attach(body);
+            return;
+        }
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
         {
             if (mesh.Mesh is null)
@@ -79,12 +110,11 @@ public static class PeopleAppearance
                 {
                     mesh.SetSurfaceOverrideMaterial(surface, Reflective(new Color(.21f, .30f, .32f), .3f, .2f));
                 }
-                else if ((people == "people.siann" && skin) || people is "people.orenth" or "people.mor")
+                else if (people == "people.mor")
                 {
                     if (GD.Load<Shader>("res://Art/people_phase.gdshader") is not { } shader)
                         continue;
                     var material = new ShaderMaterial { Shader = shader, ResourceName = name + "_" + people };
-                    material.SetShaderParameter("mode", people == "people.siann" ? 0 : people == "people.orenth" ? 1 : 2);
                     material.SetShaderParameter("head_surface", name.EndsWith("_head_skin", StringComparison.Ordinal));
                     material.SetShaderParameter("base_map", source.AlbedoTexture);
                     material.SetShaderParameter("base_colour", source.AlbedoColor);
@@ -99,6 +129,111 @@ public static class PeopleAppearance
                         mesh.SetSurfaceOverrideMaterial(surface, local);
                     }
                 }
+            }
+        }
+    }
+
+    /// <summary>
+    /// The Kal calcification layer on every HumanShaders skin surface: the body's own baked slate (<paramref name="colour"/>: rgb + height)
+    /// and its joint/age mask (<paramref name="mask"/>: r roughness, g mask, b bare skin). Clothing, hair, eyes and teeth are other materials.
+    /// </summary>
+    public static void KalStone(Node model, Texture2D colour, Texture2D mask, float coverage)
+    {
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+        {
+            if (mesh.Mesh is null) continue;
+            for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
+            {
+                if ((mesh.GetSurfaceOverrideMaterial(surface) ?? mesh.Mesh.SurfaceGetMaterial(surface)) is not ShaderMaterial skin
+                    || !skin.ResourceName.EndsWith("_HumanShaders", StringComparison.Ordinal))
+                    continue;
+                var local = (ShaderMaterial)skin.Duplicate();
+                local.SetShaderParameter("use_stone", true);
+                local.SetShaderParameter("stone_rgbh", colour);
+                local.SetShaderParameter("stone_rm", mask);
+                local.SetShaderParameter("stone_coverage", coverage);
+                mesh.SetSurfaceOverrideMaterial(surface, local);
+            }
+        }
+    }
+
+    /// <summary>
+    /// The Siann opal skin on every HumanShaders skin surface: pearl pallor, mother-of-pearl sheen and silver-lavender traces
+    /// from the body's own mask (<paramref name="mask"/>: r sheen, g thin areas), with stronger, softer subsurface light.
+    /// </summary>
+    public static void SiannSkin(Node model, Texture2D mask)
+    {
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+        {
+            if (mesh.Mesh is null) continue;
+            for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
+            {
+                if ((mesh.GetSurfaceOverrideMaterial(surface) ?? mesh.Mesh.SurfaceGetMaterial(surface)) is not ShaderMaterial skin
+                    || !skin.ResourceName.EndsWith("_HumanShaders", StringComparison.Ordinal))
+                    continue;
+                var local = (ShaderMaterial)skin.Duplicate();
+                local.SetShaderParameter("use_opal", true);
+                local.SetShaderParameter("opal_mask", mask);
+                local.SetShaderParameter("subsurface_scattering_strength", .6f);
+                mesh.SetSurfaceOverrideMaterial(surface, local);
+            }
+        }
+    }
+
+    private static readonly Dictionary<ulong, Texture2D> SiannIrises = new(), SiannIrisGlow = new();
+
+    /// <summary>The HumGen eye surfaces with their iris recoloured pale lavender around a brighter inner ring, a cool pearl sclera and a soft glow.</summary>
+    public static void SiannEyes(Node model)
+    {
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+        {
+            if (mesh.Mesh is null) continue;
+            for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
+            {
+                if ((mesh.GetSurfaceOverrideMaterial(surface) ?? mesh.Mesh.SurfaceGetMaterial(surface)) is not BaseMaterial3D eye
+                    || !eye.ResourceName.Contains("_Eyes", StringComparison.Ordinal) || eye.AlbedoTexture is not { } source)
+                    continue;
+                if (!SiannIrises.TryGetValue(source.GetRid().Id, out var iris) || !SiannIrisGlow.TryGetValue(source.GetRid().Id, out var glow))
+                {
+                    var image = source.GetImage();
+                    if (image.IsCompressed())
+                        image.Decompress();
+                    image.ClearMipmaps();
+                    image.Convert(Image.Format.Rgba8);
+                    int w = image.GetWidth(), h = image.GetHeight();
+                    for (int y = 0; y < h; y++)
+                        for (int x = 0; x < w; x++)
+                        {
+                            float u = (x + .5f) / w - .5f, v = (y + .5f) / h - .5f;
+                            var c = image.GetPixel(x, y);
+                            var (r, g, b, blend) = PeopleLooks.SiannIris(MathF.Sqrt(u * u + v * v), c.Luminance);
+                            if (blend > 0)
+                                image.SetPixel(x, y, c.Lerp(new Color(r, g, b, c.A), blend));
+                        }
+                    // the glow is the iris alone: a lit sclera turns the whole eye blank white
+                    var lit = Image.CreateEmpty(w, h, false, Image.Format.Rgba8);
+                    for (int y = 0; y < h; y++)
+                        for (int x = 0; x < w; x++)
+                        {
+                            float u = (x + .5f) / w - .5f, v = (y + .5f) / h - .5f, radius = MathF.Sqrt(u * u + v * v);
+                            lit.SetPixel(x, y, radius is > .05f and < .105f ? image.GetPixel(x, y) : Colors.Black);
+                        }
+                    image.GenerateMipmaps();
+                    lit.GenerateMipmaps();
+                    iris = SiannIrises[source.GetRid().Id] = ImageTexture.CreateFromImage(image);
+                    glow = SiannIrisGlow[source.GetRid().Id] = ImageTexture.CreateFromImage(lit);
+                }
+                var local = (BaseMaterial3D)eye.Duplicate();
+                local.AlbedoTexture = iris;
+                // the soft glow of a Siann's eyes
+                local.EmissionEnabled = true;
+                local.Emission = new Color(.72f, .68f, .95f);
+                local.EmissionTexture = glow;
+                local.EmissionEnergyMultiplier = .25f;
+                // a softer cornea: the eye kind's mirror clearcoat reflects the sky across the whole pale iris
+                local.Clearcoat = .3f;
+                local.ClearcoatRoughness = .15f;
+                mesh.SetSurfaceOverrideMaterial(surface, local);
             }
         }
     }
