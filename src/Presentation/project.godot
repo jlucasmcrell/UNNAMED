@@ -11,6 +11,8 @@ config_version=5
 [application]
 
 config/name="Otherreach"
+boot_splash/show_image=false
+boot_splash/bg_color=Color(0.085, 0.083, 0.078, 1)
 config/description="Phase-1 playable prototype (codename UNNAMED): Ashen Hollow."
 run/main_scene="res://Main.tscn"
 config/features=PackedStringArray("4.7", "C#", "Forward Plus")
