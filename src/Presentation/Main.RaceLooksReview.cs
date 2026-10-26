@@ -61,11 +61,15 @@ public partial class Main
             {
                 case "spawn":
                 {
-                    string donor = s.GetProperty("donor").GetString()!;
                     string? people = s.TryGetProperty("people", out var wanted) ? wanted.GetString() : null;
-                    var person = _bindings.People.Where(p => p.Value.Model == donor && (people is null || p.Value.PeopleId == people))
-                        .Select(p => p.Key).OrderBy(k => k, StringComparer.Ordinal).First();
-                    var figure = SkinnedFigure.Create(_art, _bindings, person, s.TryGetProperty("body", out var body) ? body.GetString() : null)
+                    // A binding by its own id, or the first bound to a donor model (and people, when given).
+                    string person = s.TryGetProperty("person", out var named) ? named.GetString()!
+                        : _bindings.People.Where(p => p.Value.Model == s.GetProperty("donor").GetString() && (people is null || p.Value.PeopleId == people))
+                            .Select(p => p.Key).OrderBy(k => k, StringComparer.Ordinal).First();
+                    GD.Print($"RACE_LOOKS person {person}: model {_bindings.People[person].Model}, people {_bindings.People[person].PeopleId}");
+                    // The player binding takes the people given, as a player of that people is drawn.
+                    var figure = SkinnedFigure.Create(_art, _bindings, person, s.TryGetProperty("body", out var body) ? body.GetString() : null,
+                                     people: person == "player" ? people : null)
                         ?? throw new InvalidDataException("Race look body did not load: " + s);
                     AddChild(figure);
                     figure.SetStance(CombatStance.AtRest);

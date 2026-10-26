@@ -29,8 +29,10 @@ public static class PeopleAppearance
                 && art.RiggedFile(modelId, "kal_stone.json") is { } agePath
                 && art.Texture(colourPath, "albedo") is { } colour && art.Texture(maskPath, "data") is { } mask)
             {
+                // A graded body names its own coverage (the creator's level overrides it); an older one spreads with its age.
                 using var age = System.Text.Json.JsonDocument.Parse(File.ReadAllText(agePath));
-                KalStone(model, colour, mask, PeopleLooks.StoneCoverage(age.RootElement.GetProperty("age").GetInt32()));
+                KalStone(model, colour, mask, age.RootElement.TryGetProperty("coverage", out var coverage) ? coverage.GetSingle()
+                    : PeopleLooks.StoneCoverage(age.RootElement.GetProperty("age").GetInt32()));
             }
             if (art.RiggedFile(modelId, "kal_wings.glb") is { } wings
                 && model.FindChildren("*", nameof(Skeleton3D), true, false).OfType<Skeleton3D>().FirstOrDefault() is { } skeleton)
@@ -42,7 +44,14 @@ public static class PeopleAppearance
             // Only bodies made for the look carry its mask: a Siann on any other body (Sel Arien's voiced head) keeps her own look.
             if (art.RiggedFile(modelId, "siann_skin.png") is { } siannPath && art.Texture(siannPath, "data") is { } mask)
             {
-                SiannSkin(model, mask);
+                // A darker base body (Sel Arien's preset) names its own pallor, so it reaches the same porcelain as the players.
+                float? pale = null;
+                if (art.RiggedFile(modelId, "siann_skin.json") is { } tonePath)
+                {
+                    using var tone = System.Text.Json.JsonDocument.Parse(File.ReadAllText(tonePath));
+                    pale = tone.RootElement.GetProperty("opal_pale").GetSingle();
+                }
+                SiannSkin(model, mask, pale);
                 SiannEyes(model);
             }
             return;
@@ -161,7 +170,7 @@ public static class PeopleAppearance
     /// The Siann opal skin on every HumanShaders skin surface: pearl pallor, mother-of-pearl sheen and silver-lavender traces
     /// from the body's own mask (<paramref name="mask"/>: r sheen, g thin areas), with stronger, softer subsurface light.
     /// </summary>
-    public static void SiannSkin(Node model, Texture2D mask)
+    public static void SiannSkin(Node model, Texture2D mask, float? pale)
     {
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
         {
@@ -174,6 +183,8 @@ public static class PeopleAppearance
                 var local = (ShaderMaterial)skin.Duplicate();
                 local.SetShaderParameter("use_opal", true);
                 local.SetShaderParameter("opal_mask", mask);
+                if (pale is { } p)
+                    local.SetShaderParameter("opal_pale", p);
                 local.SetShaderParameter("subsurface_scattering_strength", .6f);
                 mesh.SetSurfaceOverrideMaterial(surface, local);
             }

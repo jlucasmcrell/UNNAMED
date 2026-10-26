@@ -12,6 +12,12 @@ public partial class KalWings : BoneAttachment3D
 {
     private const float BuiltForStature = 1.72f, DeploySeconds = .9f;
 
+    /// <summary>The wings against the body: absurdly large for a compact Kal (owner, 2026-10-26), a span well over twice its height.</summary>
+    private const float Grandeur = 1.45f;
+
+    /// <summary>The closed wing against the open one: gathered small to the back, never a sail off it or a tip on the ground.</summary>
+    private const float FoldedSize = .6f;
+
     private AnimationPlayer _player = null!;
     private Node3D _rig = null!;
     private Transform3D _placed;
@@ -46,7 +52,7 @@ public partial class KalWings : BoneAttachment3D
             return null;
         var rootAt = (ArtLibrary.Relative(rig, bones) * bones.GetBoneGlobalRest(bones.FindBone("wing_root"))).Origin;
         // On these bodies the head joint sits at about 0.9 of stature.
-        float scale = skeleton.GetBoneGlobalRest(head).Origin.Y / .9f / BuiltForStature;
+        float scale = skeleton.GetBoneGlobalRest(head).Origin.Y / .9f / BuiltForStature * Grandeur;
         var chestRest = skeleton.GetBoneGlobalRest(chest);
         var wings = new KalWings { Name = "KalWings", BoneName = "UpperChest", _player = player, _rig = rig };
         wings._placed = chestRest.AffineInverse()
@@ -80,7 +86,9 @@ public partial class KalWings : BoneAttachment3D
     {
         _player.Seek(_openness * _player.GetAnimation("deploy").Length, true);
         // Flare pitches the spread spars forward about their root on the spine.
-        _rig.Transform = new Transform3D(Basis.Identity, _pivot) * new Transform3D(new Basis(Vector3.Right, _pitch), Vector3.Zero)
+        // ...and the membrane gathers as it closes, shrinking toward the root on the spine.
+        var gathered = Basis.Identity.Scaled(Vector3.One * Mathf.Lerp(FoldedSize, 1f, _openness));
+        _rig.Transform = new Transform3D(Basis.Identity, _pivot) * new Transform3D(new Basis(Vector3.Right, _pitch) * gathered, Vector3.Zero)
                          * new Transform3D(Basis.Identity, -_pivot) * _placed;
     }
 }
