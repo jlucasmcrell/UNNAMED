@@ -67,24 +67,27 @@ public partial class Main
     private void BeginOpening(OpeningCinematic.Places places, string region)
     {
         string? capture = System.Environment.GetEnvironmentVariable("OTHERREACH_OPENING_VIDEO");
+        string filmPath=Path.Combine(_assets.Root??Home(),"films","opening_v2.ogv");
+        bool filmed=File.Exists(filmPath);
         int titleLayer = _openingTitleLayer = _title.Layer;
         var opening = new OpeningCinematic(places)
         {
-            Name = "Opening", Skippable = SettingsStore.Current.Profile.OpeningSeen, Holding = capture is not null,
+            Name = "Opening", FilmFile=filmed?filmPath:null, Skippable = filmed||SettingsStore.Current.Profile.OpeningSeen, Holding = capture is not null,
             // The title built and drawn once under the loading screen (a layer beneath its canvas), and the narration read, so neither
             // costs a frame when it comes.
             Warming = () =>
             {
                 _title.Layer = -1;
                 _title.Open();
-                foreach (var line in Ui.OpeningWords.Lines)
+                foreach (var line in filmed?Ui.OpeningFilmWords.Lines:Ui.OpeningWords.Lines)
                     _voice.Preload(line.Voice);
             },
             Started = () =>
             {
                 _title.Close();
                 _title.Layer = titleLayer;
-                _music.Opening(true);
+                _music.Opening(!filmed);
+                if(filmed)_music.Title(false);
             },
             Say = id => _voice.Say(id),
             Pulse = () => _successEffects.Answer(OpeningStone),
@@ -93,7 +96,7 @@ public partial class Main
                 _startCamera = StartView(region);
                 AddChild(_startCamera);
                 _music.Opening(false);
-                _music.Title(true);
+                if(!filmed)_music.Title(true);
                 // Seen once the name is: written under the hit's flash, not as the title's entries come in.
                 if (!SettingsStore.Current.Profile.OpeningSeen)
                     SettingsStore.Set(SettingsStore.Current with { Profile = SettingsStore.Current.Profile with { OpeningSeen = true } });
@@ -104,6 +107,7 @@ public partial class Main
         {
             _opening = null;
             _voice.Hush();
+            _music.Title(true);
             _title.Layer = titleLayer;
             GD.Print($"UNNAMED opening: {(skipped ? "skipped" : "played through")}");
             OpenFrontEnd(reveal: true);
@@ -164,7 +168,7 @@ public partial class Main
         File.WriteAllText(Path.Combine(directory, "complete.json"), JsonSerializer.Serialize(new
         {
             status = "REAL_GAME_OPENING_VIDEO_REQUIRES_CLAUDE_REVIEW", tier = VisualOptions.Tier, audio_start_utc = audioStart, title_utc = title,
-            hit_seconds = Ui.OpeningWords.Hit, end_seconds = Ui.OpeningWords.End, frames = frames.Count,
+            hit_seconds = opening.HitSeconds, end_seconds = opening.DurationSeconds, frames = frames.Count,
             frame_ms_p50 = sorted[sorted.Length / 2], frame_ms_p99 = sorted[(int)(sorted.Length * 0.99)], frame_ms_max = sorted[^1],
             frames_over_50ms = frames.Count(f => f > 50), cue = _music.Cue,
             route = "The normal launch's opening and start screen, the player's prefs in a run-local user folder; no state set",
