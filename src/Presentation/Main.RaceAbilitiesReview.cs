@@ -271,13 +271,13 @@ public partial class Main
     }
 
     /// <summary>A gap leap away from the slope, then two glides down it: one held to the ground, one flared to brake on the way.</summary>
-    private async Task KalRoute(Action<string, object?> mark)
+    private async Task KalRoute(Action<string, object?> mark, bool singleGlide=false)
     {
         var (top, dx, dz, _) = _glideFrom;
         var down = new Vector3(dx / 1000f, 0, dz / 1000f);
         // 1. Gap leap: sprint, then jump.
         mark("leap", null);
-        for (int i = 0; i < 40; i++)
+        for (int i = 0; !singleGlide && i < 40; i++)
         {
             SideOn();
             _controller.SteerWorld(-down, Gait.Sprint, _camera);
@@ -286,10 +286,10 @@ public partial class Main
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         }
         _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
-        await Rcd3Wait(2);
-        for (int glide = 0; glide < 2; glide++)
+        if(!singleGlide)await Rcd3Wait(2);
+        for (int glide = 0; glide < (singleGlide?1:2); glide++)
         {
-            await SteerTo(top.XMm / 1000.0, top.ZMm / 1000.0, Gait.Run, 30);
+            if(!singleGlide)await SteerTo(top.XMm / 1000.0, top.ZMm / 1000.0, Gait.Run, 30);
             SideOn();
             await Rcd3Wait(1.5);
             mark(glide == 0 ? "glide" : "glide_flare", null);
@@ -302,7 +302,7 @@ public partial class Main
             {
                 SideOn();
                 _controller.SteerWorld(down, Gait.Run, _camera);
-                if (glide == 1 && !flared && Time.GetTicksMsec() > flareAt)
+                if ((singleGlide || glide == 1) && !flared && Time.GetTicksMsec() > flareAt)
                 {
                     _controller.Crouch(true);
                     flared = true;
@@ -312,6 +312,7 @@ public partial class Main
             _controller.Glide(false);
             _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
             mark("landed", null);
+            if(singleGlide)_controller.Crouch(false);
             await Rcd3Wait(2.5);
         }
     }

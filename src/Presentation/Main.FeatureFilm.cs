@@ -166,12 +166,12 @@ public partial class Main
                         void FollowWings()
                         {
                             var aim=_avatar.GlobalPosition+Vector3.Up*.8f;
-                            var eye=aim+new Vector3(down.Z,0,-down.X)*side*(float)Number(step,"camera_distance",4.8)-down*1.2f+Vector3.Up*(float)Number(step,"camera_height",1.4);
+                            var eye=aim+new Vector3(down.Z,0,-down.X)*side*(float)Number(step,"camera_distance",4.8)-down*(float)Number(step,"camera_back",1.2)+Vector3.Up*(float)Number(step,"camera_height",1.4);
                             eye.Y=Math.Max(eye.Y,_ground.Height(eye.X,eye.Z)+.8f);
                             camera.Fov=55;camera.GlobalPosition=eye;camera.LookAt(aim);camera.MakeCurrent();
                         }
                         GetTree().ProcessFrame+=FollowWings;
-                        try { await KalRoute(Mark); }
+                        try { await KalRoute(Mark,step.TryGetProperty("single_glide",out var singleGlide)&&singleGlide.GetBoolean()); }
                         finally { GetTree().ProcessFrame-=FollowWings;offset=oldOffset; }
                         break;
                     case "decoy_route":
