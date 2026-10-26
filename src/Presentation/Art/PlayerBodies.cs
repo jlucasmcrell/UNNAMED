@@ -34,6 +34,11 @@ public sealed class PlayerBodies
     /// <summary>The build each type's own model is (every other build's model carries its build ID).</summary>
     public string BaseBuild { get; }
 
+    /// <summary>Residents of the three drawn peoples use the same approved native body as the creator.</summary>
+    public string? ResidentModel(string? people, string sex) => people is "people.kal" or "people.siann" or "people.orenth"
+        ? Types.FirstOrDefault(t => t.Type == people[7..] + "_" + sex)?.Models.FirstOrDefault(m => m.StartsWith("humgen_race_", StringComparison.Ordinal))
+        : null;
+
     /// <summary>The model a body is drawn with: the first of its type's models whose build model is installed, or null.</summary>
     public string? Model(BodyPreset body, Func<string, bool> installed) =>
         Types.FirstOrDefault(t => t.Type == body.Type)?.Models.Select(m => body.Build == BaseBuild || m.StartsWith("humgen_", StringComparison.Ordinal) ? m : $"{m}_{body.Build}").FirstOrDefault(installed);

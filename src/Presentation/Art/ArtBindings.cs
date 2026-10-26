@@ -196,15 +196,24 @@ public sealed class ArtBindings
         if (People.TryGetValue(id, out var named))
         {
             if (sex is not null && MpfbCastFile() is { } cast && MpfbBodyFor(id, sex == "f", cast) is { } worn)
-                return named with { Model = worn.Body.Id, UniformScale = ComparisonBodyScale(named.Model, worn.Body.Id, named.UniformScale) };
-            return named;
+                return ResidentRace(named with { Model = worn.Body.Id, UniformScale = ComparisonBodyScale(named.Model, worn.Body.Id, named.UniformScale) }, id, peopleId, sex);
+            return ResidentRace(named, id, peopleId, sex);
         }
         if (!ResidentPeople.TryGetValue(peopleId ?? "people.veth", out var variants) || variants.Count == 0)
             return null;
         uint hash = 2166136261;
         foreach (char c in instance)
             hash = unchecked((hash ^ c) * 16777619);
-        return People.GetValueOrDefault(variants[(int)(hash % (uint)variants.Count)]);
+        return ResidentRace(People.GetValueOrDefault(variants[(int)(hash % (uint)variants.Count)]), id, peopleId, sex);
+    }
+
+    private PersonArt? ResidentRace(PersonArt? look, string id, string? people, string? sex)
+    {
+        if (look is null || id == "player" || NamedCharacters.ContainsKey(id) || VisualOptions.ComparisonCast != "humgen") return look;
+        sex ??= MpfbCastFile()?.Models.FirstOrDefault(m => m.Id == look.Model)?.Sex;
+        return sex is not null && Bodies.ResidentModel(people ?? look.PeopleId, sex) is { } model
+            ? look with { Model = model, UniformScale = 1f, PeopleId = people ?? look.PeopleId }
+            : look;
     }
 
     /// <summary>The bodies the character creator offers (<c>player_bodies</c>, WP2), each drawn on the player's binding.</summary>

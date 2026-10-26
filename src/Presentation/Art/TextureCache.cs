@@ -93,7 +93,7 @@ public sealed class TextureCache
         if (!info.Exists)
             return null;
         if (_entries.TryGetValue(key, out var entry) && entry.Size == info.Length && entry.Sig == Signature(source)
-            && Load(entry.Dds, VisualOptions.TextureMaxSize(key, entry.Role)) is { } cached)
+            && Load(entry.Dds, BaseMaximum(key, entry.Role)) is { } cached)
         {
             Hits++;
             return cached;
@@ -110,8 +110,13 @@ public sealed class TextureCache
         _dirty = true;
         Added++;
         Save();
-        return Load(dds, VisualOptions.TextureMaxSize(key, role));
+        return Load(dds, BaseMaximum(key, role));
     }
+
+    // Native Siann GLBs embed 4K skin. Baseline figures share a 2K upload;
+    // the scoped close-up path alone holds 4K for eligible players/named NPCs.
+    private static int BaseMaximum(string key, string role) => key.StartsWith("rigged/humgen_", StringComparison.Ordinal)
+        ? Math.Min(2048, VisualOptions.TextureMaxSize(key, role)) : VisualOptions.TextureMaxSize(key, role);
 
     // Close-up maps live only on the figure using them; never retain their 4K upload in the scene cache.
     public Texture2D Scoped(string key, string source, int maximum)
@@ -172,7 +177,8 @@ public sealed class TextureCache
     private Texture2D? Load(string name, int maxSize, bool retain = true)
     {
         Texture2D? texture = null;
-        if (retain && _loaded.TryGetValue(name, out texture) && texture is not null)
+        string loadedKey = name + "@" + maxSize;
+        if (retain && _loaded.TryGetValue(loadedKey, out texture) && texture is not null)
             return texture;
         texture = null;
         string path = Path.Combine(_root!, Folder, name);
@@ -181,7 +187,7 @@ public sealed class TextureCache
             && ResourceLoader.Load<ImageTexture>(native) is { } shared)
         {
             // Reuse the same external texture as native model scenes, including their LODs.
-            _loaded[name] = shared;
+            _loaded[loadedKey] = shared;
             CompressedBytes += new FileInfo(path).Length - 148; // BC7 DDS/DX10 header.
             return shared;
         }
@@ -206,7 +212,7 @@ public sealed class TextureCache
                 }
             }
         }
-        if (retain) _loaded[name] = texture;
+        if (retain) _loaded[loadedKey] = texture;
         return texture;
     }
 

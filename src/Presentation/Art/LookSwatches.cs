@@ -154,6 +154,19 @@ public static class LookSwatches
 
     public static IReadOnlyList<Swatch> Hair(string? people) => people == "people.siann" ? SiannHair : NaturalHair;
 
+    /// <summary>Stable resident variation from the existing natural palettes; identity and garments stay as authored.</summary>
+    public static (int Skin, int Hair) ResidentColours(string? people, string instance)
+    {
+        uint Hash(string part)
+        {
+            uint value = 2166136261;
+            foreach (char c in instance + part) value = unchecked((value ^ c) * 16777619);
+            return value;
+        }
+        int[] skin = people switch { "people.siann" => new[] { 0, 1, 2, 3, 4 }, "people.kal" => new[] { 0, 1, 2, 4 }, _ => new[] { 0, 5, 6, 7 } };
+        return (skin[Hash("|skin") % (uint)skin.Length], (int)(Hash("|hair") % (uint)Hair(people).Count));
+    }
+
     /// <summary>
     /// The swatch an index names (none chosen is the first), or null where that is the body as baked or the list has no such index. A list
     /// without "As made" (Siann hair) therefore always recolours.
