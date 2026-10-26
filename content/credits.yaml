@@ -129,6 +129,8 @@ sections:
         text: "The Foldscar's Quiet Stones, its heart and the heart's debris: Frozen Norse Environment by Leartes Studios, Cosmos Premium (cosmos.leartesstudios.com)."
       - binds: [gs_old_late]
         text: "Old Late, the stone giant: Dwarven Citadel Megapack by Leartes Studios, Cosmos Premium (cosmos.leartesstudios.com), its head weathered away."
+      - binds: [landmark_dc_brannock_hold_mouth]
+        text: "The Brannock hold's mouth: Dwarven Citadel Megapack by Leartes Studios, Cosmos Premium (cosmos.leartesstudios.com), a stone lifted from its lintel."
       - binds: [gs_waystone_]
         text: "The Waystones: rock_moss_set_01 by Poly Haven (polyhaven.com), CC0."
       - binds: [gs_fold_fluorite]

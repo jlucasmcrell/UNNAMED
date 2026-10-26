@@ -1807,6 +1807,15 @@
       "material": "wood",
       "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. 7.32 x 0.67 x 0.70 m scanned log."
     },
+    "hold_brannock_mouth": {
+      "model": "landmark_dc_brannock_hold_mouth",
+      "material": "stone",
+      "note": "The Brannock hold's mouth (The Unfinished Joint, HERITAGE_DESIGN.md 3.2): Dwarven Citadel main-gate arch scaled 1.416 with its door shut and a 0.7 m notch cut from the lintel course; built by C:/Otherreach_Build/heritage_hold_art/src/build_brannock_hold_mouth.py."
+    },
+    "hold_brannock_rubble": {
+      "model": "bw_codex_mine_rubble",
+      "material": "stone"
+    },
     "road_barrow_pillar_a": {
       "model": "rock_ph_beam_pillar_a",
       "material": "stone"
