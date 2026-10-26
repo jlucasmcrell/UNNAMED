@@ -72,6 +72,23 @@ public static class PeopleLooks
             Math.Min(1f, (.82f * shade + .16f * ring) * limbal), 1f);
     }
 
+    /// <summary>
+    /// A Kal's eye at <paramref name="radius"/> from the eye texture's centre (<see cref="SiannIris"/>'s layout): a dark pupil, then a warm
+    /// amber iris, brighter round the pupil and darker at a limbal ring; the body's own sclera is kept.
+    /// </summary>
+    public static (float R, float G, float B, float Blend) KalIris(float radius, float luma)
+    {
+        if (radius < .05f)
+            return (.02f, .015f, .01f, .95f);
+        if (radius > .118f)
+            return (0, 0, 0, 0);
+        float shade = .55f + .7f * luma;
+        float ring = Smooth(.05f, .058f, radius) * (1f - Smooth(.066f, .082f, radius));
+        float limbal = 1f - .65f * Smooth(.095f, .112f, radius);
+        return (Math.Min(1f, (.82f * shade + .14f * ring) * limbal), Math.Min(1f, (.5f * shade + .1f * ring) * limbal),
+            Math.Min(1f, (.16f * shade + .04f * ring) * limbal), 1f);
+    }
+
     private static float Smooth(float edge0, float edge1, float x)
     {
         float t = Math.Clamp((x - edge0) / (edge1 - edge0), 0f, 1f);

@@ -98,4 +98,14 @@ public class PeopleLooksTests
         var limbal = PeopleLooks.SiannIris(.112f, .4f);
         Assert.True(limbal.R + limbal.G + limbal.B < .6f * (outer.R + outer.G + outer.B), "a dark limbal ring at the iris edge");
     }
+
+    [Fact]
+    public void KalIrisIsWarmAmberRoundADarkPupil_AndKeepsTheSclera()
+    {
+        var iris = PeopleLooks.KalIris(.08f, .4f);
+        Assert.True(iris.R > iris.G && iris.G > iris.B, "amber: red over green over blue");
+        var pupil = PeopleLooks.KalIris(0f, .5f);
+        Assert.True(pupil.R + pupil.G + pupil.B < .1f && pupil.Blend > .5f);
+        Assert.Equal(0f, PeopleLooks.KalIris(.2f, .8f).Blend);
+    }
 }

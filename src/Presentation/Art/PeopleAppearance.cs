@@ -34,6 +34,7 @@ public static class PeopleAppearance
                 KalStone(model, colour, mask, age.RootElement.TryGetProperty("coverage", out var coverage) ? coverage.GetSingle()
                     : PeopleLooks.StoneCoverage(age.RootElement.GetProperty("age").GetInt32()));
             }
+            KalEyes(model);
             if (art.RiggedFile(modelId, "kal_wings.glb") is { } wings
                 && model.FindChildren("*", nameof(Skeleton3D), true, false).OfType<Skeleton3D>().FirstOrDefault() is { } skeleton)
                 KalWings.Attach(skeleton, wings);
@@ -191,10 +192,15 @@ public static class PeopleAppearance
         }
     }
 
-    private static readonly Dictionary<ulong, Texture2D> SiannIrises = new(), SiannIrisGlow = new();
+    private static readonly Dictionary<(ulong, string), (Texture2D Iris, Texture2D Glow)> Irises = new();
 
-    /// <summary>The HumGen eye surfaces with their iris recoloured pale lavender around a brighter inner ring, a cool pearl sclera and a soft glow.</summary>
-    public static void SiannEyes(Node model)
+    /// <summary>The HumGen eye surfaces with their iris recoloured pale lavender around a brighter inner ring, a cool pearl sclera and a faint glow.</summary>
+    public static void SiannEyes(Node model) => Eyes(model, PeopleLooks.Siann, PeopleLooks.SiannIris, new Color(.72f, .68f, .95f));
+
+    /// <summary>The HumGen eye surfaces with a warm amber iris round a dark pupil: the same eye for every Kal, whatever the body baked.</summary>
+    public static void KalEyes(Node model) => Eyes(model, PeopleLooks.Kal, PeopleLooks.KalIris, null);
+
+    private static void Eyes(Node model, string people, Func<float, float, (float R, float G, float B, float Blend)> recolour, Color? glowColour)
     {
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
         {
@@ -204,7 +210,7 @@ public static class PeopleAppearance
                 if ((mesh.GetSurfaceOverrideMaterial(surface) ?? mesh.Mesh.SurfaceGetMaterial(surface)) is not BaseMaterial3D eye
                     || !eye.ResourceName.Contains("_Eyes", StringComparison.Ordinal) || eye.AlbedoTexture is not { } source)
                     continue;
-                if (!SiannIrises.TryGetValue(source.GetRid().Id, out var iris) || !SiannIrisGlow.TryGetValue(source.GetRid().Id, out var glow))
+                if (!Irises.TryGetValue((source.GetRid().Id, people), out var made))
                 {
                     var image = source.GetImage();
                     if (image.IsCompressed())
@@ -217,7 +223,7 @@ public static class PeopleAppearance
                         {
                             float u = (x + .5f) / w - .5f, v = (y + .5f) / h - .5f;
                             var c = image.GetPixel(x, y);
-                            var (r, g, b, blend) = PeopleLooks.SiannIris(MathF.Sqrt(u * u + v * v), c.Luminance);
+                            var (r, g, b, blend) = recolour(MathF.Sqrt(u * u + v * v), c.Luminance);
                             if (blend > 0)
                                 image.SetPixel(x, y, c.Lerp(new Color(r, g, b, c.A), blend));
                         }
@@ -231,17 +237,19 @@ public static class PeopleAppearance
                         }
                     image.GenerateMipmaps();
                     lit.GenerateMipmaps();
-                    iris = SiannIrises[source.GetRid().Id] = ImageTexture.CreateFromImage(image);
-                    glow = SiannIrisGlow[source.GetRid().Id] = ImageTexture.CreateFromImage(lit);
+                    made = Irises[(source.GetRid().Id, people)] = (ImageTexture.CreateFromImage(image), ImageTexture.CreateFromImage(lit));
                 }
                 var local = (BaseMaterial3D)eye.Duplicate();
-                local.AlbedoTexture = iris;
-                // the soft glow of a Siann's eyes
-                local.EmissionEnabled = true;
-                local.Emission = new Color(.72f, .68f, .95f);
-                local.EmissionTexture = glow;
-                local.EmissionEnergyMultiplier = .25f;
-                // a softer cornea: the eye kind's mirror clearcoat reflects the sky across the whole pale iris
+                local.AlbedoTexture = made.Iris;
+                if (glowColour is { } colour)
+                {
+                    // the faint glow of a Siann's eyes: noticeable up close, never a constant glowing-eye effect at dusk
+                    local.EmissionEnabled = true;
+                    local.Emission = colour;
+                    local.EmissionTexture = made.Glow;
+                    local.EmissionEnergyMultiplier = .08f;
+                }
+                // a softer cornea: the eye kind's mirror clearcoat reflects the sky across the whole recoloured iris
                 local.Clearcoat = .3f;
                 local.ClearcoatRoughness = .15f;
                 mesh.SetSurfaceOverrideMaterial(surface, local);
