@@ -219,6 +219,7 @@ public sealed class Simulation
     private readonly List<LoggedCommand> _log = new();
     private readonly ClockSystem _clock;
     private readonly MovementSystem _movement;
+    private readonly PeopleSystem _people;
     private readonly InteractionSystem _interaction;
     private readonly WorldFlagSystem _flags;
     private readonly ProgressionSystem _progression;
@@ -305,6 +306,7 @@ public sealed class Simulation
         _clock = new ClockSystem(_context, _state.Claim(nameof(ClockSystem), StateSlice.Clock));
         _movement = new MovementSystem(_context, _state.Claim(nameof(MovementSystem), StateSlice.PlayerBody), player.Id);
         _interaction = new InteractionSystem(_context, player.Id);
+        _people = new PeopleSystem(_context, _state.Claim(nameof(PeopleSystem), StateSlice.Crossing), player.Id, () => _movement.Effective);
         _flags = new WorldFlagSystem(_context, _state.Claim(nameof(WorldFlagSystem), StateSlice.WorldFlags));
         _progression = new ProgressionSystem(_context, _state.Claim(nameof(ProgressionSystem), StateSlice.PlayerProgression));
         _discovery = new DiscoverySystem(_context, _state.Claim(nameof(DiscoverySystem), StateSlice.Discoveries));
@@ -455,7 +457,9 @@ public sealed class Simulation
 
     /// <summary>
     /// A new character made from the creator's spec: the starting package and kit, plus its Call's package, kit and contact (accepted
-    /// OD-C03), and its people's heritage. The spec must name a playable people and, if any, a defined Call.
+    /// OD-C03), and its people's creation grant (RACE_ABILITIES_PROPOSAL.md §1), and its people's heritage. The spec must name a playable people and, if any, a defined
+    /// Call. Its origin, not its people, decides where it starts (CHARACTER_CREATION_AND_LINEAGE.md §4): the origin's place, or the road in;
+    /// the Waystone start skips either.
     /// </summary>
     /// <param name="atXMm">Where a capture stands the character; null uses the region's spawn, as every ordinary run does.</param>
     /// <param name="atZMm">The other half of <paramref name="atXMm"/>.</param>
@@ -466,8 +470,19 @@ public sealed class Simulation
         setup.Character.Check(spec);
         var call = spec.CallId is { } callId ? setup.Character.Calls[callId] : null;
         var heritage = setup.Character.Peoples[spec.PeopleId].Heritage;
-        var start = spec.Start == StartPoint.Road ? setup.Layout.Opening ?? setup.Layout.Spawn : setup.Layout.Spawn;
-        return NewCharacter(setup, id, spec.Name, call, heritage, appearanceSeed, start, atXMm, atZMm) with { Identity = CharacterIdentity.Of(spec) };
+        var start = spec.Start == StartPoint.Road ? OriginStart(setup, spec.OriginId) : setup.Layout.Spawn;
+        var record = NewCharacter(setup, id, spec.Name, call, heritage, appearanceSeed, start, atXMm, atZMm) with { Identity = CharacterIdentity.Of(spec) };
+        return record.WithProgression(setup.Character.RaceGrants(spec).Aggregate(record.Progression, (p, grant) => ProgressionEngine.Grant(p, grant, setup.Progression)));
+    }
+
+    /// <summary>Where an origin's road in begins: its start place, facing as the road in does, or the region's road in itself.</summary>
+    private static Body OriginStart(SimulationSetup setup, string originId)
+    {
+        var road = setup.Layout.Opening ?? setup.Layout.Spawn;
+        if (setup.Character.Origins.GetValueOrDefault(originId)?.StartLocationId is not { } place
+            || setup.Layout.Locations.FirstOrDefault(l => l.Id == place) is not { } site)
+            return road;
+        return new Body(site.XMm, setup.SpaceFor(setup.Layout.SpaceId).HeightAtMm(site.XMm, site.ZMm), site.ZMm, road.FacingMdeg);
     }
 
     private static PlayerRecord NewCharacter(SimulationSetup setup, EntityId id, string name, CallDefinition? call, ImmutableArray<StartingItem> heritage,
@@ -554,7 +569,7 @@ public sealed class Simulation
     public long ActiveSpaceTick => _context.SpaceTick(_state.Space, _state.WorldTick);
 
     public PlayerView Player => new(_identity.Id, _identity.Name, _state.Body, _movement.Intent, _state.Progression,
-        ProgressionEngine.Derive(_state.Progression, Setup.Progression), _state.Discoveries.Values.ToImmutableArray(),
+        _context.PlayerStats(), _state.Discoveries.Values.ToImmutableArray(),
         _state.Inventory, _state.Equipment, _state.Currency, _inventory.CarriedGrams(),
         _inventory.CarryLimitGrams(), _equipment.Armor()) { Identity = _identity.Identity, Bags = _state.Bags };
 
@@ -671,6 +686,9 @@ public sealed class Simulation
     public ImmutableArray<Finding> Findings => _state.Findings;
     public SalvageView Salvage(EntityId item) => _crafting.Salvage(item, WorldTick);
 
+    /// <summary>Why a trader and the character may not trade an item, by its heritage; null when they may.</summary>
+    public string? HeritageRefusal(string npcId, string itemId) => _trade.HeritageRefusal(npcId, itemId);
+
     /// <summary>The lore pages the character has found, in entry and page order (spec 41).</summary>
     public ImmutableArray<UNNAMED.Domain.Knowledge.LorePageRecord> Lore => _state.Lore;
 
@@ -713,7 +731,8 @@ public sealed class Simulation
         if (_companions.Views().FirstOrDefault(c => c.NpcId == id) is { } member)
             health = member.MaxHealth;
         else if ((definition?.Companion ?? definition?.Hireling?.Body) is { } body && _state.PartySheets.TryGetValue(id, out var sheet))
-            health = Domain.Companions.Approval.MaxHealth(body.MaxHealth, sheet.Progression, Setup.Progression);
+            health = Domain.Companions.Approval.MaxHealth(body.MaxHealth, sheet.Progression, Setup.Progression)
+                     * Setup.Character.TraitsOf(_context.PeopleOf(id)).HealthPercent / 100;
         return (health, regard, disposition);
     });
 
@@ -738,6 +757,27 @@ public sealed class Simulation
     /// <summary>Ticks until a technique is ready again (WP9); 0 when it is ready now.</summary>
     public int TechniqueCooldown(string techniqueId) => _combat.TechniqueCooldown(techniqueId, WorldTick);
 
+    /// <summary>Ticks until a racial ability is ready again; 0 when it is. The wings' are the movement system's.</summary>
+    public int PeopleAbilityCooldown(string abilityId) =>
+        _context.PlayerAbilities.FirstOrDefault(a => a.Id == abilityId) is { Action: PeopleAction.Leap or PeopleAction.Flare } wing
+            ? _movement.Cooldown(wing.Action, WorldTick)
+            : _people.Cooldown(abilityId, WorldTick);
+
+    /// <summary>The player's racial abilities, in content order (the creator's card and the character sheet list them).</summary>
+    public ImmutableArray<PeopleAbility> PlayerAbilities => _context.PlayerAbilities;
+
+    /// <summary>The movement rules the player moves by - its people's speed and wings - which presentation predicts with.</summary>
+    public MovementRules PlayerMovement => _context.PlayerMovement;
+
+    /// <summary>Whether the planar anchor is set (Orenth), for the quick bar's recall slot. Never the toll: that stays hidden.</summary>
+    public bool AnchorSet => _state.Crossing.Anchor is not null;
+
+    /// <summary>What the crossings have taken from the character's memory (Orenth): places and people, by ID. Never how much is left.</summary>
+    public ImmutableSortedSet<string> Forgotten => _state.Crossing.Costs.Select(c => c.Ref).OfType<string>().ToImmutableSortedSet(StringComparer.Ordinal);
+
+    /// <summary>The crossing's tier (Orenth): how many phase scars the body carries. Presentation draws it; nothing ever prints it.</summary>
+    public int PhaseScars => _state.Crossing.Tier;
+
     /// <summary>A trader's wares at their prices; null when that NPC does not trade (M4).</summary>
     public WaresView? Wares(string npcId) => _trade.View(npcId);
 
@@ -761,6 +801,9 @@ public sealed class Simulation
 
     /// <summary>What the character heard on chat (WP16), oldest first: World, Local, Party and System. Not saved; a load starts it empty.</summary>
     public ImmutableArray<ChatMessage> Chat => _chat.Heard;
+
+    /// <summary>Every line of every conversation the character has heard, by dialogue (the Siann's Perfect Recall reads them back).</summary>
+    public ImmutableSortedDictionary<string, ImmutableSortedSet<string>> ConversationsHeard => _state.Conversations;
 
     /// <summary>A chat message in words, from the content's lines; null when content no longer has its line.</summary>
     public string? ChatText(ChatMessage message) => Runtime.ChatText.Render(Setup.Chat, message);
@@ -839,6 +882,8 @@ public sealed class Simulation
                 MoveCommand move => _movement.Handle(move),
                 JumpCommand jump => _movement.Handle(jump, WorldTick),
                 CrouchCommand crouch => _movement.Handle(crouch, WorldTick),
+                GlideCommand glide => _movement.Handle(glide, WorldTick),
+                PeopleAbilityCommand ability => _people.Handle(ability, WorldTick),
                 TakeAllCommand takeAll => _inventory.Handle(takeAll, WorldTick),
                 SpendAttributeCommand spend => spend.Actor != PlayerId ? $"unknown actor {spend.Actor}" : _progression.Handle(spend, WorldTick),
                 InteractCommand interact => _interaction.Handle(interact, WorldTick),
@@ -927,6 +972,7 @@ public sealed class Simulation
         {
             long tick = WorldTick + 1;
             _movement.Tick(tick);
+            _people.Tick(tick);
             _tiers.Tick(tick);
             _weather.Tick(tick);
             foreach (var simulation in _tierSimulations)
@@ -1056,6 +1102,7 @@ public sealed class Simulation
             RoadsWalked = _state.RoadsWalked.ToImmutableArray(),
             Deeds = _state.Deeds.Values.ToImmutableArray(),
             Identity = _identity.Identity,   // as the creator made it: nothing in the world changes it
+            Crossing = _state.Crossing,
             // From LIVE state, not from _identity: a body moves between spaces during a run and its identity does
             // not, so a save that read these from the identity would record the exterior for a body standing inside.
             SpaceId = _state.Space.Name ?? "",

@@ -221,6 +221,10 @@ internal sealed class TradeSystem
         };
     }
 
+    /// <summary>Why this trader and the character may not trade an item (its heritage); null when they may, or when no trader of that name stands here.</summary>
+    public string? HeritageRefusal(string npcId, string itemId) =>
+        State.Npcs.TryGetValue(npcId, out var npc) && Items.Catalog.Find(itemId) is not null ? Heritage(npc, itemId) : null;
+
     /// <summary>What a trader would pay for one of an item now; null when this NPC does not trade, does not buy it, or may not take it (heritage).</summary>
     public long? Offer(string npcId, string itemId, ItemWear? wear = null, int quality = 0, NotableRecord? notable = null) =>
         State.Npcs.TryGetValue(npcId, out var npc) && npc.Definition.MerchantId is { } id && Items.Merchants.TryGetValue(id, out var merchant)

@@ -1,0 +1,16 @@
+id: config.aptitudes
+kind: config
+schema: 1
+display_key: config.aptitudes.name
+tags: [config]
+notes: What a people's aptitude names (RACES.md aptitude lines; RACE_ABILITIES_PROPOSAL.md §2, owner-approved 2026-10-24). Each group is the skills it covers, including ones content does not define yet, so a skill added later already learns at its people's rate. A skill in several groups takes the best leaning among them and the worst limit.
+groups:
+  melee: [skill.one_hand_blade, skill.two_hand_blade, skill.axe, skill.mace_hammer, skill.polearm, skill.dagger, skill.shield, skill.staff, skill.unarmed, skill.tactics]
+  ranged: [skill.bow, skill.crossbow, skill.thrown]
+  magic: [skill.force, skill.warding, skill.vital, skill.necromancy, skill.conjuration, skill.nature, skill.transmutation, skill.illusion]
+  science: [skill.research, skill.lore, skill.medicine, skill.alchemy, skill.artifice]
+  craft: [skill.smithing, skill.alchemy, skill.leatherworking, skill.tailoring, skill.woodworking, skill.enchanting, skill.jewelcrafting, skill.artifice, skill.masonry, skill.arms_maintenance, skill.salvage]
+  ethereal: [skill.necromancy]
+  theory: [skill.enchanting, skill.artifice, skill.research, skill.transmutation]
+  intuition: [skill.persuasion, skill.music, skill.tracking, skill.survival, skill.hunting]
+  stealth: [skill.stealth]

@@ -1,0 +1,36 @@
+id: people.kal
+kind: people
+schema: 1
+display_key: people.kal.name
+tags: [people]
+name: Kal
+notes: The calcified (RACES.md section 2). Playable from 2026-10-24 (owner - four peoples to start). Traits and abilities are RACE_ABILITIES_PROPOSAL.md sections 1-3.2, owner-approved. The suggest names are PROPOSED working names for owner review - canon gives no Kal naming language.
+playable: true
+heritage:
+  - { item_ref: item.heritage.finishing_tool, count: 1 }
+card:
+  epithet: The calcified
+  summary: Broad, short, dense - built for cold and for work. They think in materials the way others think in words, and their work outlasts them.
+  body: Very broad and heavy, with large folding dorsal wings channelled along the spine.
+  leans_toward: Science and crafting.
+  trade_off: Hard to hurt and precise, but slow on foot and with little feel for magic.
+traits:
+  health_percent: 110
+  damage_taken_percent: { physical: 85 }   # resistance to physical damage
+  speed_percent: 90                        # slow movement
+  carry_kg: 10
+  resonance_percent: 50                    # reduced spell capacity
+  stagger_threshold_percent: 120
+  armor_ignored_percent: 10                # structural read
+  attribute_grant: { endurance: 2, precision: 1, agility: -1 }
+learning:
+  aptitude_percent: { science: 120, craft: 120, magic: 50 }   # no affinity for magic at all
+suggest_names:
+  - Durrin Kalvast
+  - Hesta Brannock
+  - Orrik Dalmere
+  - Tovra Keld
+  - Garran Holk
+  - Mirel Kaddrun
+  - Bruna Steddal
+  - Ivo Kalhorn

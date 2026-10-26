@@ -4,6 +4,7 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Creatures;
@@ -753,7 +754,16 @@ internal sealed partial class CombatSystem
                 && ProgressionEngine.SkillLevel(State.Progression, passive.SkillId) >= passive.FromLevel)
                 stagger *= passive.Multiplier;
         }
-        return new Strike(attack, multiplier, C.BaseCritPercent, stagger);
+        return new Strike(attack, multiplier, C.BaseCritPercent, stagger) { ArmorIgnoredPercent = _context.PlayerTraits.ArmorIgnoredPercent };
+    }
+
+    /// <summary>The player's people's resistances; phased, soul and phase damage do half again as much.</summary>
+    private ImmutableSortedDictionary<string, double> PlayerResistances(bool phased)
+    {
+        var resistances = PeopleRules.Resistances(_context.PlayerTraits);
+        return phased
+            ? resistances.SetItem("necrotic", resistances.GetValueOrDefault("necrotic") - 0.5).SetItem("arcane", resistances.GetValueOrDefault("arcane") - 0.5)
+            : resistances;
     }
 
     /// <summary>
@@ -785,7 +795,13 @@ internal sealed partial class CombatSystem
             combat = State.PlayerCombat;
         }
         bool dodging = combat.Action.Kind == ActionKind.Dodge && combat.Action.PhaseAt(tick, C).Phase == CombatPhase.Dodge;
-        var defense = new DefenseProfile(MaxHealth(), PlayerArmor(), ImmutableSortedDictionary.Create<string, double>(StringComparer.Ordinal), guarding, dodging);
+        // Wraith-step (Orenth): a physical blow passes through a body half elsewhere; soul and phase damage find it all the more.
+        bool phased = _context.Phased();
+        var defense = new DefenseProfile(MaxHealth(), PlayerArmor(), PlayerResistances(phased), guarding,
+            dodging || phased && DamageTypes.IsPhysical(attack.DamageType))
+        {
+            StaggerThresholdPercent = _context.PlayerTraits.StaggerThresholdPercent,
+        };
         var strike = new Strike(attack, EffectRules.DamageDealtMultiplier(EffectsOf(creature.Id), Setup.Effects), C.BaseCritPercent, 1.0);
         var result = CombatRules.Resolve(strike, defense, C, Random(creature.Key, "player", body, tick));
 
@@ -923,8 +939,8 @@ internal sealed partial class CombatSystem
     }
 
     /// <summary>The health a downed character stands up with: the revive share of their maximum, at least one.</summary>
-    internal static int RevivedHealth(CharacterProgression progression, ProgressionRules rules, CombatConstants constants) =>
-        Math.Max(1, (int)(ProgressionEngine.Derive(progression, rules).HealthMax * constants.DownedRevivePercent / 100));
+    internal static int RevivedHealth(long maxHealth, CombatConstants constants) =>
+        Math.Max(1, (int)(maxHealth * constants.DownedRevivePercent / 100));
 
     public string? Handle(LieDowned command, long tick)
     {
@@ -1018,7 +1034,7 @@ internal sealed partial class CombatSystem
 
     // ── reads ───────────────────────────────────────────────────────────────
 
-    private DerivedStats Stats() => ProgressionEngine.Derive(State.Progression, _context.Setup.Progression);
+    private DerivedStats Stats() => _context.PlayerStats();
 
     public int MaxHealth() => (int)Stats().HealthMax;
 
@@ -1237,7 +1253,7 @@ internal sealed class DeathSystem
             {
                 if (tick < combat.DownedUntil)
                     return;
-                int health = CombatSystem.RevivedHealth(state.Progression, _context.Setup.Progression, constants);
+                int health = CombatSystem.RevivedHealth(_context.PlayerStats().HealthMax, constants);
                 _context.Dispatch(new ChangePools(health, 0));
                 _context.Dispatch(new LieDowned(0));
                 _context.Events.Publish(new PlayerRevived(hand, state.Progression.Pools.Health ?? health, tick));

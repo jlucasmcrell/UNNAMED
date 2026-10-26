@@ -24,7 +24,7 @@ public static class CombatContent
     private static readonly IDeserializer Yaml = new DeserializerBuilder().Build();
 
     /// <summary>The stat targets Phase 1's effects and passives may name, and what each does.</summary>
-    private static readonly string[] Stats = { "stat.damage_dealt", "stat.stamina_regen", "stat.armor", "stat.stagger_power" };
+    private static readonly string[] Stats = { "stat.damage_dealt", "stat.stamina_regen", "stat.armor", "stat.stagger_power", "stat.strain_cost", "stat.cast_time" };
 
     public static IReadOnlyList<ValidationError> Validate(ContentLoader loader)
     {
@@ -290,12 +290,15 @@ public static class CombatContent
                     ("stat.damage_dealt", "multiply") => effect with { DamageDealtMultiplier = value },
                     ("stat.stamina_regen", "multiply") => effect with { StaminaRegenMultiplier = value },
                     ("stat.armor", "add") => effect with { ArmorBonus = (int)Math.Round(value, MidpointRounding.AwayFromZero) },
+                    ("stat.strain_cost", "multiply") => effect with { StrainCostMultiplier = value },
+                    ("stat.cast_time", "multiply") => effect with { CastTimeMultiplier = value },
                     var (t, op) => throw new FormatException($"{id}: modifier {t} {op} is not built in Phase 1 ({string.Join(", ", Stats)})"),
                 };
             }
             return effect with
             {
                 ImmuneTags = Tags(map, "immunity_tags"),
+                Phased = map.GetValueOrDefault("phased") as string == "true",
                 Control = map.ContainsKey("control") ? Text(map, "control") switch
                 {
                     "roots" => ControlKind.Roots,

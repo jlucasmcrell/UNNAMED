@@ -102,8 +102,12 @@ public partial class MapPanel : CanvasLayer
         foreach (var (place, note) in borrowed)
             if (!notes.ContainsKey(place))
                 notes[place] = new List<string> { note };
+        // A place an Orenth crossing took is still on the map, but no longer named or noted (RACE_ABILITIES_PROPOSAL.md §3.4).
+        var forgotten = simulation.Forgotten;
+        foreach (var place in forgotten)
+            notes.Remove(place);
         _canvas.Show(_session.Setup.Layout, map, stones.Select(w => (w.Site, w.ReturnPoint)).ToList(),
-            map.Places.Select(p => (p, Names.Of(_session, p.LocationId))).ToList(), simulation.Player.Body, notes);
+            map.Places.Select(p => (p, forgotten.Contains(p.LocationId) ? "Somewhere you knew" : Names.Of(_session, p.LocationId))).ToList(), simulation.Player.Body, notes);
         _known.Text = stones.Count == 0
             ? "You know no Waystone yet. Touch one, and it will be on your map."
             : $"Waystones you know: {string.Join(", ", stones.Select(w => w.Site.Name + (w.ReturnPoint ? " (your return point)" : "")))}.";

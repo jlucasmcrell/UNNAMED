@@ -1,0 +1,11 @@
+id: ability.people.ondrek.material_memory
+kind: ability
+schema: 1
+display_key: ability.people.ondrek.material_memory.name
+tags: [ability, people]
+name: Material Memory
+notes: Racial ability, innate biology - every Ondrek has it and no other people can learn it (RACES.md section 8; RACE_ABILITIES_PROPOSAL.md section 3.8, owner-approved 2026-10-24). Every number is provisional.
+class: people
+people_ref: people.ondrek
+action: material_memory
+description: "Read what a worked stone remembers - and whether it was once Kal."

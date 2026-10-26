@@ -1,0 +1,11 @@
+id: ability.people.kal.structural_read
+kind: ability
+schema: 1
+display_key: ability.people.kal.structural_read.name
+tags: [ability, people]
+name: Structural Read
+notes: Racial ability, innate biology - every Kal has it and no other people can learn it (RACES.md section 2; RACE_ABILITIES_PROPOSAL.md section 3.2, owner-approved 2026-10-24). Every number is provisional.
+class: people
+people_ref: people.kal
+action: passive
+description: "Kal see how things are built: their own blows pass a tenth more of the armour they strike, and the dense body takes 15% less from physical blows and staggers less."

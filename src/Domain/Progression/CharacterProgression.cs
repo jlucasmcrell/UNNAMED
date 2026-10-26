@@ -15,7 +15,11 @@ public sealed record SkillState(int Level, long ProgressXp);
 public sealed record KnownTechnique(LearningSource Source, string? SourceRef, long Tick);
 
 /// <summary>A one-time attribute grant (§4.1, §11.3). The same source can grant only once.</summary>
-public sealed record AttributeGrant(CharacterAttribute Attribute, int Amount, GrantSource Source, string SourceRef);
+public sealed record AttributeGrant(CharacterAttribute Attribute, int Amount, GrantSource Source, string SourceRef)
+{
+    /// <summary>A source, and an amount that is positive - or, from a people's grant alone, any but zero.</summary>
+    public bool Valid => !string.IsNullOrEmpty(SourceRef) && (Amount > 0 || Source == GrantSource.Race && Amount != 0);
+}
 
 /// <summary>Current pool values. Null means full: maxima are derived, never stored. Strain starts at zero.</summary>
 public sealed record PoolState(int? Health, int? Stamina, int? Focus, int Strain)
@@ -83,7 +87,7 @@ public sealed record CharacterProgression
         Require(LifetimeXp.Values.All(v => v >= 0), "negative lifetime XP");
         Require(Allocation.Values.All(v => v >= 0), "negative attribute allocation");
         foreach (var grant in Grants)
-            Require(grant.Amount > 0 && !string.IsNullOrEmpty(grant.SourceRef), $"attribute grant {grant}");
+            Require(grant.Valid, $"attribute grant {grant}");
         Require(Grants.Select(g => (g.Source, g.SourceRef)).Distinct().Count() == Grants.Length, "an attribute grant source used twice");
         foreach (var (id, skill) in Skills)
             Require(ProgressionKeys.IsSkillId(id) && skill.Level is >= 0 and <= 100 && skill.ProgressXp >= 0, $"skill {id} {skill}");

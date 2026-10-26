@@ -270,7 +270,9 @@
     "posture": {
       "stance": "crouched",
       "airborne": false,
-      "air_ms": 0
+      "air_ms": 0,
+      "wing": "Folded",
+      "feet_mm": 0
     },
     "waystones": [
       {
@@ -330,7 +332,8 @@
           "body.muscular": 350,
           "face.nose_tip_size": -200
         }
-      }
+      },
+      "origin": "origin.frontier_road"
     },
     "factions": {
       "next_act_seq": 2,
@@ -640,6 +643,11 @@
         "tick": 4700
       }
     ],
+    "crossing": {
+      "toll": 0,
+      "costs": [],
+      "anchor": null
+    },
     "pets": [
       {
         "id": "sum_01HF7YAT04144GJ289144GJ284",

@@ -1,0 +1,10 @@
+id: config.origins
+kind: config
+schema: 1
+display_key: config.origins.name
+tags: [config]
+notes: Where a character was raised (CHARACTER_CREATION_AND_LINEAGE.md §4), separate from lineage. Origin, not people, decides where a new character starts. The owner has not chosen per-people start towns (2026-10-24), so every origin starts on the frontier road into Ashen Hollow for now; a start town is added here when it exists. The Siann and the Orenth have no homeland in canon.
+origins:
+  origin.frontier_road:
+    name: The frontier road
+    description: Raised somewhere behind you, on the roads that run out to the edge of the settled land. You come in on foot, along the road into Ashen Hollow.

@@ -470,6 +470,32 @@ def unreadable_page(c):
     c.poly([(44, 46), (58, 42), (66, 54), (56, 66), (42, 62)], (74, 56, 46), 0.0, True)
 
 
+def finishing_tool(c):
+    # a small finishing chisel: a handle worn smooth by another hand, and a short bright blade
+    shaded(c, [(16, 70), (52, 34), (62, 44), (26, 80)], WOOD, False, light=[(20, 70), (50, 38), (54, 42), (24, 74)], shade=[(30, 76), (60, 46), (62, 44), (26, 80)])
+    c.poly([(52, 34), (58, 28), (68, 38), (62, 44)], DARKIRON[0], 1.8)
+    shaded(c, [(58, 28), (78, 14), (86, 22), (68, 38)], IRON, False, light=[(62, 28), (78, 16), (80, 18), (64, 32)])
+    c.line([(24, 70), (34, 60)], WOOD[2], 1.2, 0.0)
+
+
+def testimony_book(c):
+    # a pale record book, every line dated
+    def lines(c):
+        for y in (40, 48, 56, 64):
+            c.line([(42, y), (52, y)], (90, 84, 110), 1.2, 0.0, cap=False)
+            c.line([(55, y), (70, y)], (120, 112, 140), 1.0, 0.0, cap=False)
+    book(c, ((160, 152, 184), (200, 194, 222), (110, 102, 132)), lines, ribbon=(150, 120, 200))
+
+
+def cost_ledger(c):
+    # a walker's ledger, its cover marked with a route that doubles back
+    def route(c):
+        c.line([(42, 66), (50, 52), (60, 58), (66, 42)], BRASS[0], 2.0, 0.0)
+        c.dot(42, 66, 2.2, BRASS[0])
+        c.dot(66, 42, 2.2, BRASS[0])
+    book(c, ((72, 60, 52), (108, 92, 80), (46, 38, 32)), route)
+
+
 def kept_roll(c):
     # a family roll half unrolled: the rolled top tied with a cord, names written down the hanging sheet
     shaded(c, [(24, 26), (76, 26), (76, 80), (68, 86), (58, 80), (48, 86), (38, 80), (24, 84)], PAPER, False,
@@ -602,6 +628,9 @@ ICONS = {
     "ui.item.unreadable_page": ("item.story.unreadable_page", unreadable_page, "Unreadable page."),
     "ui.item.kept_roll": ("item.heritage.kept_roll", kept_roll, "Kept roll."),
     "ui.item.record_stone": ("item.heritage.record_stone", record_stone, "Record stone."),
+    "ui.item.finishing_tool": ("item.heritage.finishing_tool", finishing_tool, "Finishing tool."),
+    "ui.item.testimony_book": ("item.heritage.testimony_book", testimony_book, "Testimony book."),
+    "ui.item.cost_ledger": ("item.heritage.cost_ledger", cost_ledger, "Ledger of costs."),
     "ui.panel.chat": ("panel.chat", panel_chat, "System Menu: Chat."),
     "ui.panel.reputation": ("panel.reputation", panel_reputation, "System Menu: Reputation."),
     "ui.panel.credits": ("panel.credits", panel_credits, "System Menu: Credits."),

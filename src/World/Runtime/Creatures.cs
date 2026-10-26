@@ -1376,7 +1376,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         double toPlayer = Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
         double toFoe = toPlayer;
         (Body, EntityId, string?, bool) foe = (player, _player, null, false);
-        int playerMax = (int)ProgressionEngine.Derive(State.Progression, _context.Setup.Progression).HealthMax;
+        int playerMax = (int)_context.PlayerStats().HealthMax;
         int foeShare = Share(State.Progression.Pools.Health ?? playerMax, playerMax);
         var bitten = State.WorldTick < c.ProvokedUntil ? c.ProvokedBy : null;
         // The handler is the one the animal answers to: an animal that savages a role which hunts handlers is a reason to go for the character,

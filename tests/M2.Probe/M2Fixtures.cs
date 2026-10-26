@@ -290,6 +290,10 @@ public static class M2Fixtures
                 {
                     WoundedTick = 4_950, RecoversAtTick = 149_000, AdoptedTick = 4_000, Level = 1,
                 }),
+            // Schema 40 (race abilities): a crossing record past its first tier - a phase scar taken - and an anchor set by the ford. The
+            // fixture pack defines no peoples, so nothing reads it as Orenth; it pins the shape.
+            Crossing = new Crossing(130, ImmutableArray.Create(new TollCost(1, TollKind.Scar, null)),
+                new PlanarAnchor("", 150_000, 12_000, -40_000, 4_950)),
         };
 
         public static readonly EntityId PetId = EntityId.Create(EntityKind.Summon, 1_700_000_000_004, new byte[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 4 });

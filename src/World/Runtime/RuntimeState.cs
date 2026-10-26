@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Creatures;
@@ -129,6 +130,9 @@ public enum StateSlice
 
     /// <summary>The animals that travel with the character (spec 43). Saved with the player (schema 36).</summary>
     Pets,
+
+    /// <summary>The Orenth crossing record: the hidden toll, its costs and the planar anchor (RACE_ABILITIES_PROPOSAL.md §3.4). Saved with the player (schema 40).</summary>
+    Crossing,
 }
 
 /// <summary>A system's proof of which slices it owns. Only composition creates one.</summary>
@@ -192,11 +196,18 @@ internal sealed class RuntimeState
         PartySheets = player.PartySheets.ToImmutableSortedDictionary(p => p.NpcId, p => p, StringComparer.Ordinal);
         Findings = player.Findings;
         Lore = player.Lore;
+        PeopleId = player.Identity.PeopleId;
+        Crossing = player.Crossing;
         // The pets are placed by their own system, which reads the species and the body each one stands on out of content (spec 43).
     }
 
     public WorldDelta World { get; }
     public long WorldTick { get; private set; }
+
+    /// <summary>The character's people, as the creator made them: fixed for the run.</summary>
+    public string PeopleId { get; }
+
+    public Crossing Crossing { get; private set; }
     public Body Body { get; private set; }
     public Posture Posture { get; private set; }
     public CharacterProgression Progression { get; private set; }
@@ -327,6 +338,12 @@ internal sealed class RuntimeState
             throw new InvalidOperationException("Left to the exterior while still holding a portal traversal");
         Space = space;
         Traversal = traversal;
+    }
+
+    public void SetCrossing(SliceOwner owner, Crossing crossing)
+    {
+        Require(owner, StateSlice.Crossing);
+        Crossing = crossing.Problem() is { } problem ? throw new InvalidOperationException($"Invalid crossing record: {problem}") : crossing;
     }
 
     public void SetProgression(SliceOwner owner, CharacterProgression progression)

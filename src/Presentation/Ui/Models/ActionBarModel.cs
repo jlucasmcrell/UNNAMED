@@ -64,7 +64,7 @@ public static class ActionBarModel
             progression.Pools.Stamina ?? (int)view.Stats.StaminaMax, progression.Pools.Focus ?? (int)view.Stats.FocusMax, progression.Pools.Strain,
             (int)view.Stats.StrainTolerance, progression.Pools.Health ?? (int)view.Stats.HealthMax, held, heldName,
             id => view.Inventory.Where(e => e.DefId == id).Sum(e => e.Count), stationKind,
-            id => (simulation.TechniqueCooldown(id) + 19) / 20, name);
+            id => ((id.StartsWith("ability.people.", StringComparison.Ordinal) ? simulation.PeopleAbilityCooldown(id) : simulation.TechniqueCooldown(id)) + 19) / 20, name);
     }
 
     /// <summary>The twelve slots of action bar <paramref name="bar"/> (0 to 5). <paramref name="keyOf"/> names the key that uses a slot, or empty when none does.</summary>
@@ -85,6 +85,9 @@ public static class ActionBarModel
                 _ when QuickBar.TryGearSet(id, out int set) => GearSlot(simulation, bar, slot, key, set),
                 _ when setup.Magic.Formulas.TryGetValue(id, out var formula) =>
                     Of(AvailabilityRules.Formula(formula, setup.Magic.Constants, context), bar, slot, id, ActionSlotKind.Formula, name(id), key, $"{formula.FocusCost}F", id == casting),
+                _ when simulation.PlayerAbilities.FirstOrDefault(a => a.Id == id) is { } racial =>
+                    Of(UNNAMED.Domain.Character.PeopleRules.Availability(racial, context, simulation.AnchorSet), bar, slot, id, ActionSlotKind.Technique, name(id), key,
+                        racial.FocusCost > 0 ? $"{racial.FocusCost}F" : racial.StaminaCost > 0 ? $"{racial.StaminaCost}S" : "", false),
                 _ when setup.Techniques.TryGetValue(id, out var technique) =>
                     Of(AvailabilityRules.Technique(technique, context), bar, slot, id, ActionSlotKind.Technique, name(id), key, $"{technique.StaminaCost}S", false),
                 _ when id.StartsWith("item.", StringComparison.Ordinal) => ItemSlot(simulation, bar, slot, id, name(id), key),

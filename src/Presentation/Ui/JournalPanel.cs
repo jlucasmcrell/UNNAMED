@@ -21,6 +21,7 @@ public partial class JournalPanel : CanvasLayer
     private const string Board = "page.board";
     private const string NotesPage = "page.notes";
     private const string LorePage = "page.lore";
+    private const string RecalledPage = "page.recalled";
 
     private Sheet _sheet = null!;
     private string? _chosen;
@@ -74,13 +75,17 @@ public partial class JournalPanel : CanvasLayer
         string? tracked = simulation.TrackedQuest(Tracked);
         var lore = session.Setup.Lore;
         var pages = simulation.Lore;
-        if (_chosen is null || _chosen is not (Recent or Board or NotesPage or LorePage) && quests.All(q => q.Id != _chosen))
+        bool recalls = simulation.PlayerAbilities.Any(a => a.Action == UNNAMED.Domain.Character.PeopleAction.PerfectRecall);
+        var heard = simulation.ConversationsHeard;
+        if (_chosen is null || _chosen is not (Recent or Board or NotesPage or LorePage or RecalledPage) && quests.All(q => q.Id != _chosen)
+            || _chosen == RecalledPage && !recalls)
             _chosen = tracked ?? quests.FirstOrDefault()?.Id ?? Recent;
         string signature = _chosen + "|" + _loreEntry + "|" + tracked + "|" + string.Join("|", quests.Select(q =>
                 $"{q.Id}:{q.Status}:{q.LostTo}:" + string.Join(",", q.Objectives.Select(o => $"{o.Id}{o.Status}{o.Progress}"))))
             + "|" + string.Join("|", journal.Recent.Select(e => $"{e.Tick}{e.Text}")) + "|" + string.Join("|", bounties.Select(b => $"{b.QuestId}{b.Standing}{b.ClaimantId}{AgainMinutes(b, session)}"))
             + "|" + string.Join("|", notes.Select(n => n.Text))
-            + "|" + string.Join("|", pages.Select(p => $"{p.EntryId}#{p.Page}@{p.Tick}"));
+            + "|" + string.Join("|", pages.Select(p => $"{p.EntryId}#{p.Page}@{p.Tick}"))
+            + "|" + (recalls ? heard.Values.Sum(lines => lines.Count) : 0);
         if (signature == _drawn)
             return;
         _drawn = signature;
@@ -140,8 +145,17 @@ public partial class JournalPanel : CanvasLayer
         if (unread.Count > 0)
             loreRow.Right.AddChild(UiKit.Chip(unread.Count.ToString(), HudStyle.Ember, HudStyle.Bone));
         Row(panes.List, loreRow.Button, LorePage, session);
+        if (recalls)
+        {
+            var recalled = UiKit.ListRow(RecalledPage, "Recalled", "every word, as it was said");
+            recalled.Right.AddChild(UiKit.Chip(heard.Values.Sum(lines => lines.Count).ToString(), HudStyle.Iron, HudStyle.Brass));
+            Row(panes.List, recalled.Button, RecalledPage, session);
+        }
         switch (_chosen)
         {
+            case RecalledPage:
+                RecalledDetail(panes.Detail, heard, session);
+                break;
             case Recent:
                 RecentDetail(panes.Detail, journal);
                 break;
@@ -163,6 +177,29 @@ public partial class JournalPanel : CanvasLayer
             UiKit.FirstFocusable(_sheet.Root)?.GrabFocus();
         // Read is read: a page found from here on is unread until the journal is opened again.
         _loreSeenTick = simulation.WorldTick;
+    }
+
+    /// <summary>
+    /// The Siann's Perfect Recall (RACES.md §3; MYTHOLOGY.md "the Record"): every line spoken to the character, word for word, by who spoke it,
+    /// in the conversation's own node order. A line spoken is a line kept - nothing here is summarised.
+    /// </summary>
+    private static void RecalledDetail(VBoxContainer detail,
+        System.Collections.Immutable.ImmutableSortedDictionary<string, System.Collections.Immutable.ImmutableSortedSet<string>> heard, GameSession session)
+    {
+        var section = UiKit.Section("Recalled", "A Siann misremembers nothing.");
+        var dialogues = session.Setup.Social.Dialogues;
+        foreach (var (dialogueId, lines) in heard)
+        {
+            if (!dialogues.TryGetValue(dialogueId, out var dialogue))
+                continue;
+            string speaker = dialogue.Participants.FirstOrDefault() is { } npc ? Names.Of(session, npc) : Names.Of(session, dialogueId);
+            section.AddChild(UiKit.Caption(speaker, HudStyle.Brass));
+            foreach (var node in dialogue.Nodes.Values.Where(n => lines.Contains(n.Id) && n.Text.Length > 0))
+                section.AddChild(UiKit.Words($"\u201c{node.Text}\u201d", 16, HudStyle.Ash));
+        }
+        if (heard.IsEmpty)
+            section.AddChild(UiKit.Quiet("No one has spoken to you yet."));
+        detail.AddChild(section);
     }
 
     /// <summary>

@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 
@@ -122,8 +123,12 @@ internal sealed class QuickBarSystem
             return State.GearSets.Any(g => g.Index == set) ? null : $"there is no gear set {set}";
         if (id.StartsWith("item.", StringComparison.Ordinal))
             return _context.Setup.Combat.UseEffects.ContainsKey(id) ? null : $"{id} has no use";
-        return ProgressionEngine.Knows(State.Progression, id) ? null : $"{id} is not known";
+        return ProgressionEngine.Knows(State.Progression, id) || Racial().Contains(id) ? null : $"{id} is not known";
     }
+
+    /// <summary>The character's racial abilities that are used from a key: innate, never learned, so first on the bar (Orenth blink, Siann ring).</summary>
+    private IEnumerable<string> Racial() =>
+        _context.PlayerAbilities.Where(a => !a.Passive && a.Action is not (PeopleAction.Glide or PeopleAction.Flare or PeopleAction.Leap)).Select(a => a.Id);
 
     /// <summary>Offer a free slot to whatever came to hand since the last tick; reads the pack and the knowledge record, never writes them.</summary>
     public void Tick(long tick)
@@ -141,6 +146,7 @@ internal sealed class QuickBarSystem
             .OrderBy(k => k.Value.Tick)
             .ThenBy(k => k.Value.SourceRef is { } book && magic.Teaches.TryGetValue(book, out var taught) && taught.Contains(k.Key) ? taught.IndexOf(k.Key) : int.MaxValue)
             .ThenBy(k => k.Key, StringComparer.Ordinal).Select(k => k.Key).ToList();
+        workings.InsertRange(0, Racial());
         // An item no longer carried may be offered again when it is next picked up, even one cleared off the bar; nothing is unlearned.
         _offered.RemoveWhere(id => id.StartsWith("item.", StringComparison.Ordinal) && !carried.Contains(id));
         if (State.QuickBarCleared.Where(id => id.StartsWith("item.", StringComparison.Ordinal) && !carried.Contains(id)).ToList() is { Count: > 0 } dropped)

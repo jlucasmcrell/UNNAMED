@@ -345,7 +345,8 @@ internal sealed class PartySheetSystem : IAbstractAdvance
         if (!ProgressionKeys.IsSkillId(command.Practice.SkillId))
             return null;
         var sheet = SheetOf(command.NpcId);
-        var result = ProgressionEngine.Practice(sheet.Progression, command.Practice, Rules);
+        var result = ProgressionEngine.Practice(sheet.Progression, command.Practice, Rules,
+            _context.Setup.Character.TraitsOf(_context.PeopleOf(command.NpcId)).Learning);
         if (result.XpGained == 0 && result.Progression.NoveltyFirsts.SequenceEqual(sheet.Progression.NoveltyFirsts))
             return null;
         State.SetPartySheet(_owner, sheet with { Progression = result.Progression });

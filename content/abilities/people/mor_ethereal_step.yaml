@@ -1,0 +1,14 @@
+id: ability.people.mor.ethereal_step
+kind: ability
+schema: 1
+display_key: ability.people.mor.ethereal_step.name
+tags: [ability, people]
+name: Ethereal Step
+notes: Racial ability, innate biology - every Mor has it and no other people can learn it (RACES.md section 5; RACE_ABILITIES_PROPOSAL.md section 3.5, owner-approved 2026-10-24). Every number is provisional.
+class: people
+people_ref: people.mor
+action: ethereal_step
+description: "For 3 s the remembered shape lets go of the world: through doors, bars and bodies, untouched by mundane blows."
+cost: { focus: 25 }
+cooldown_s: 30
+duration_s: 3

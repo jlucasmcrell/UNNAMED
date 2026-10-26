@@ -242,6 +242,7 @@ public partial class Main
         SubscribeSocial();
         SubscribeParty();
         SubscribeQuests();
+        SubscribePeople();
         SubscribeCombat();
         SubscribeGuidance();
     }

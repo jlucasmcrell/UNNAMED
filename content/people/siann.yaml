@@ -1,0 +1,34 @@
+id: people.siann
+kind: people
+schema: 1
+display_key: people.siann.name
+tags: [people]
+name: Siann
+notes: The long view (RACES.md section 3). Playable from 2026-10-24 (owner - four peoples to start). Traits and abilities are RACE_ABILITIES_PROPOSAL.md sections 1-3.3, owner-approved. The suggest names are PROPOSED working names for owner review.
+playable: true
+heritage:
+  - { item_ref: item.heritage.testimony_book, count: 1 }
+card:
+  epithet: The long view
+  summary: They reach maturity in their late teens and simply stop. They learn slowly, then keep going past where anyone else stops.
+  body: Slight, opal-pale and faintly luminous, with long platinum-white hair - the whitest are the oldest.
+  leans_toward: Magic and science.
+  trade_off: Slow to learn and physically frail, but they go further than anyone in the end.
+traits:
+  health_percent: 85                       # reduced physical resilience
+  carry_kg: -5
+  resonance_percent: 125
+  attribute_grant: { insight: 2, will: 1, endurance: -1 }
+learning:
+  rate_by_band: [[0, 70], [30, 80], [60, 110]]   # slowest learning, then the furthest
+  aptitude_percent: { magic: 115, science: 115 }
+  common_ceiling: 65                        # highest skill ceiling
+suggest_names:
+  - Ysolde Maren
+  - Caelith Orvanne
+  - Ilse Varrow
+  - Seraphine Liss
+  - Aurel Thane
+  - Nimue Callis
+  - Evander Quill
+  - Ophira Vale

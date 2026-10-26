@@ -1,8 +1,10 @@
 using Godot;
 using System.Collections.Immutable;
 using System.Text.Json;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Presentation.Player;
+using UNNAMED.Presentation.Ui;
 using UNNAMED.World.Runtime;
 namespace UNNAMED.Presentation;
 
@@ -35,6 +37,11 @@ public partial class Main
             await HeritageRecorded(directory);
             return;
         }
+        if(OS.GetEnvironment("OTHERREACH_HERITAGE_REVIEW")=="peoples")
+        {
+            await HeritageKal(directory);
+            return;
+        }
 
         // 1. The journal: every new Veth has taken up What Was Kept.
         var quest=sim.Quests.SingleOrDefault(q=>q.Id=="quest.heritage.what_was_kept") ?? throw new InvalidDataException("A new Veth has no What Was Kept");
@@ -59,9 +66,8 @@ public partial class Main
         Row().EmitSignal(Control.SignalName.MouseEntered);await Rcd3Wait(1);
         var sell=Row().FindChildren("*",nameof(Button),true,false).OfType<Button>().FirstOrDefault(b=>b.Text=="Sell")
                  ?? throw new InvalidDataException("No Sell on the roll at Kera's");
-        int before=refusals.Count;
-        sell.EmitSignal(Button.SignalName.Pressed);await Rcd3Wait(5);
-        string refusal=refusals.Skip(before).FirstOrDefault() ?? throw new InvalidDataException("Kera took the Veth roll");
+        if(!sell.Disabled)throw new InvalidDataException("Kera's Sell on the Veth roll is not disabled");
+        string refusal=sell.TooltipText;await Rcd3Wait(5);
         if(!sim.Player.Inventory.Any(e=>e.ItemId==roll.ItemId))throw new InvalidDataException("The refused sale moved the roll");
         CloseScreens();await Rcd3Wait(1);
 
@@ -139,6 +145,90 @@ public partial class Main
         File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {
             status="HERITAGE_VETH_STEP5_REALTIME_REQUIRES_CLAUDE_REVIEW",renn_closing=closing,quest_status=done.Status.ToString(),titles=sim.Titles,
             world_tick=sim.WorldTick,engine_max_fps=Engine.MaxFps,profile="Saved step-5 state outside the inn; ordinary steering and commands; no desktop input"},
+            new JsonSerializerOptions{WriteIndented=true}));
+        ulong deadline=Time.GetTicksMsec()+20000;
+        while(!File.Exists(Path.Combine(directory,"recording.stopped")) && Time.GetTicksMsec()<deadline)
+            await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+    }
+
+    /// <summary>
+    /// The playable peoples' heritage in the creator (OTHERREACH_HERITAGE_REVIEW=peoples), recorded from before Begin: Siann, Orenth and Kal in
+    /// turn - the People card, a body, and the Confirm step whose Carries lists the people's heritage - then Begin as a Kal.
+    /// </summary>
+    private async void HeritageCreatorTour(string directory)
+    {
+        try
+        {
+            // This runs as the window first opens: give the engine its own title first, then name the window for the capture.
+            await Rcd3Wait(2);
+            DisplayServer.WindowSetTitle("Otherreach - "+Path.GetFileName(directory));
+            await Rcd3Wait(1);
+            File.WriteAllText(Path.Combine(directory,"record_ready.json"),JsonSerializer.Serialize(new {window_title="^Otherreach - "+Path.GetFileName(directory)+"$"}));
+            ulong deadline=Time.GetTicksMsec()+90000;
+            while(!File.Exists(Path.Combine(directory,"recording.started")))
+            {
+                if(Time.GetTicksMsec()>deadline)throw new TimeoutException("The window recording never started");
+                await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+            }
+            await Rcd3Wait(2);
+            foreach(string people in new[]{"people.siann","people.orenth","people.kal"})
+            {
+                string body=_session.Characters.OfferedBodies(people).FirstOrDefault()?.Id ?? CharacterSpec.DefaultBodyPreset;
+                _creator.Use(_creator.Draft with { PeopleId=people, BodyPresetId=body });
+                _creator.Go(CreatorStep.People);await Rcd3Wait(5);
+                _creator.Go(CreatorStep.Body);await Rcd3Wait(4);
+                _creator.Go(CreatorStep.Confirm);await Rcd3Wait(2);
+                // Carries closes the Confirm step, its Heritage last: scrolled into view as the player's wheel would.
+                foreach(var scroll in _creator.FindChildren("*",nameof(ScrollContainer),true,false).OfType<ScrollContainer>())
+                    scroll.ScrollVertical=(int)scroll.GetVScrollBar().MaxValue;
+                await Rcd3Wait(6);
+            }
+            if(!_creator.PressBegin())throw new InvalidOperationException("The creator refused Begin as a Kal");
+            _mhReviewStep=7;_mhReviewNext=Time.GetTicksMsec()+10000;
+        }
+        catch(Exception error)
+        {
+            File.WriteAllText(Path.Combine(directory,"failed.txt"),error.ToString());
+            CaptureQuit.At(this,3);
+        }
+        finally { _mhReviewBusy=false; }
+    }
+
+    /// <summary>A Kal begun from the creator: the Finishing Tool in the pack, and a sale of it refused by a trader of no people at Cairnwold.</summary>
+    private async Task HeritageKal(string directory)
+    {
+        var sim=_session.Simulation!;
+        var refusals=new List<string>();_session.Subscribe<CommandRejected>(e=>refusals.Add(e.Reason));
+        if(sim.Player.Identity.PeopleId!="people.kal")throw new InvalidDataException("The tour did not begin as a Kal");
+        var tool=sim.Player.Inventory.SingleOrDefault(e=>e.DefId=="item.heritage.finishing_tool") ?? throw new InvalidDataException("A new Kal carries no Finishing Tool");
+        Control Row()=>_inventory.FindChildren("*","",true,false).OfType<Control>()
+            .First(c=>c.HasMeta("item_reference") && c.GetMeta("item_reference").AsString()==tool.ItemId.Value);
+        _inventory.Open(null);await Rcd3Wait(1.5);
+        Row().EmitSignal(Control.SignalName.MouseEntered);await Rcd3Wait(2);
+        var details=(ScrollContainer)_inventory.FindChild("ItemDetailViewport",true,false);
+        details.ScrollVertical=(int)details.GetVScrollBar().MaxValue;await Rcd3Wait(5);
+        bool drop=Row().FindChildren("*",nameof(Button),true,false).OfType<Button>().Any(b=>b.Text=="Drop");
+        CloseScreens();await Rcd3Wait(1);
+
+        const string Durn="npc.cairnwold.durn_skell";
+        var road=sim.Setup.Layout.Roads.Single(r=>r.Id.EndsWith("old_east_road",StringComparison.Ordinal)).Points;
+        await HeritageAlong(road.Skip(2).Take(road.Length-4).ToImmutableArray());
+        await HeritageWalkTo(Durn);
+        OpenTrade(Durn);await Rcd3Wait(2);
+        if(_inventory.OpenTrader!=Durn)throw new InvalidDataException("Durn's trade did not open: "+string.Join("; ",refusals));
+        Row().EmitSignal(Control.SignalName.MouseEntered);await Rcd3Wait(1);
+        var sell=Row().FindChildren("*",nameof(Button),true,false).OfType<Button>().FirstOrDefault(b=>b.Text=="Sell")
+                 ?? throw new InvalidDataException("No Sell on the Finishing Tool at Durn's");
+        if(!sell.Disabled)throw new InvalidDataException("Durn's Sell on the Kal tool is not disabled");
+        string refusal=sell.TooltipText;
+        bool worth=_inventory.FindChildren("*",nameof(Label),true,false).OfType<Label>().Any(l=>l.Text.Equals("Worth",StringComparison.OrdinalIgnoreCase));
+        await Rcd3Wait(6);
+        CloseScreens();await Rcd3Wait(1);
+        File.WriteAllText(Path.Combine(directory,"recording.finished"),DateTime.Now.ToString("o"));
+        File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {
+            status="HERITAGE_PEOPLES_REALTIME_REQUIRES_CLAUDE_REVIEW",people=sim.Player.Identity.PeopleId,tool=tool.DefId,drop_button=drop,sell_disabled=true,refusal,worth_shown=worth,
+            inventory=sim.Player.Inventory.Select(e=>new {e.DefId,e.Count}),world_tick=sim.WorldTick,
+            profile="Fresh isolated profile; the creator toured Siann, Orenth and Kal, then Begin as a Kal; ordinary steering and commands; no desktop input"},
             new JsonSerializerOptions{WriteIndented=true}));
         ulong deadline=Time.GetTicksMsec()+20000;
         while(!File.Exists(Path.Combine(directory,"recording.stopped")) && Time.GetTicksMsec()<deadline)

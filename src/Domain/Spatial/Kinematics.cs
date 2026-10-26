@@ -19,12 +19,26 @@ public enum Stance
 }
 
 /// <summary>
+/// What a winged body's wings are doing (Kal, RACES.md §2): folded along the spine, half-open for a wing-assisted leap, spread in a
+/// glide, flared to brake, or folded again while the body drops to the ground.
+/// </summary>
+public enum WingState { Folded, Leap, Glide, Flare, Fall }
+
+/// <summary>
 /// How the body holds itself (the owner's M6 playtest): standing or crouched, and whether it is in the air - and for how long, since
 /// the jump that took it there. A body on the ground has <see cref="AirMs"/> 0.
 /// </summary>
 public readonly record struct Posture(Stance Stance, bool Airborne, int AirMs)
 {
     public static Posture Grounded => default;
+
+    /// <summary>A winged body's wings (Kal). Glide, flare and fall mean the body is aloft, its feet at <see cref="FeetMm"/>.</summary>
+    public WingState Wing { get; init; }
+
+    /// <summary>Aloft, the feet's absolute height: a glide keeps its height over falling ground rather than following it.</summary>
+    public long FeetMm { get; init; }
+
+    public bool Aloft => Airborne && Wing is WingState.Glide or WingState.Flare or WingState.Fall;
 }
 
 /// <summary>
@@ -93,6 +107,16 @@ public sealed record MovementRules(long BaseSpeedMmPerSecond, int WalkPercent, i
     /// <summary>A crouched body's speed, of the base, whatever the gait.</summary>
     public int CrouchPercent { get; init; } = 50;
 
+    /// <summary>What wings let the body do; <see cref="WingRules.None"/> for a body without them.</summary>
+    public WingRules Wings { get; init; } = WingRules.None;
+
+    /// <summary>The rules a wing-assisted leap flies by: a higher arc, and further for the same time in the air.</summary>
+    public MovementRules Leaping() => this with
+    {
+        JumpApexMm = JumpApexMm + Wings.LeapApexBonusMm,
+        BaseSpeedMmPerSecond = BaseSpeedMmPerSecond * Wings.LeapDistancePercent / 100,
+    };
+
     /// <summary>From take-off to landing: the arc rises and falls in the same time.</summary>
     public int AirtimeMs => 2 * JumpRiseMs;
 
@@ -111,6 +135,25 @@ public sealed record MovementRules(long BaseSpeedMmPerSecond, int WalkPercent, i
     /// <summary>How far above the ground the feet are this long after take-off: a parabola, whole millimetres, 0 before and after.</summary>
     public long LiftMm(int airMs) =>
         airMs <= 0 || airMs >= AirtimeMs ? 0 : JumpApexMm * airMs * (AirtimeMs - airMs) / ((long)JumpRiseMs * JumpRiseMs);
+}
+
+/// <summary>
+/// Wings (Kal, RACE_ABILITIES_PROPOSAL.md §3.2): a leap's extra height and reach, a glide's forward speed and sink, a flare's slower sink,
+/// and how fast a body comes down with its wings folded. Zero speeds are a body that cannot glide.
+/// </summary>
+public sealed record WingRules
+{
+    public static WingRules None { get; } = new();
+
+    public long LeapApexBonusMm { get; init; }
+    public int LeapDistancePercent { get; init; } = 100;
+    public long GlideSpeedMmPerSecond { get; init; }
+    public long GlideSinkMmPerSecond { get; init; }
+    public long FlareSinkMmPerSecond { get; init; }
+    public long FallSinkMmPerSecond { get; init; } = 9_000;
+
+    public bool CanGlide => GlideSpeedMmPerSecond > 0 && GlideSinkMmPerSecond > 0;
+    public bool CanLeap => LeapApexBonusMm > 0 || LeapDistancePercent != 100;
 }
 
 /// <summary>The static walkable space of a region: its movement bounds, its terrain, and what stands on it.</summary>
@@ -156,6 +199,10 @@ public static class Kinematics
     public static (Body Body, Posture Posture) Step(Body body, Posture posture, MoveIntent intent, MovementRules rules, WalkSpace space,
         IReadOnlyList<Blocker> dynamicBlockers, int dtMs)
     {
+        if (posture.Aloft)
+            return Soar(body, posture, intent, rules, space, dynamicBlockers, dtMs);
+        if (posture.Airborne && posture.Wing == WingState.Leap)
+            rules = rules.Leaping();
         double x = body.XMm, z = body.ZMm;
         double radius = rules.BodyRadiusMm;
         long height = rules.HeightMm(posture.Stance);
@@ -191,12 +238,58 @@ public static class Kinematics
         {
             (raised, _) = Settle(x, z, raised, 0, 0, 0, false, rules, space);
         }
-        var next = posture.Airborne && airTo < rules.AirtimeMs && !landed ? posture with { AirMs = airTo } : posture with { Airborne = false, AirMs = 0 };
+        var next = posture.Airborne && airTo < rules.AirtimeMs && !landed ? posture with { AirMs = airTo } : posture with { Airborne = false, AirMs = 0, Wing = WingState.Folded };
         long qx = (long)Math.Round(x, MidpointRounding.AwayFromZero);
         long qz = (long)Math.Round(z, MidpointRounding.AwayFromZero);
         if (tops && !next.Airborne && !landed)
             (raised, _) = Settle(qx, qz, raised, 0, 0, 0, false, rules, space);
         return (new Body(qx, space.HeightAtMm(qx, qz) + raised + rules.LiftMm(next.AirMs), qz, intent.FacingMdeg), next);
+    }
+
+    /// <summary>
+    /// A body aloft on its wings: it goes forward at the glide's speed (none in a flare, a walk in a fall), comes down at the wing state's
+    /// sink from its own height rather than the ground's, passes over what is lower than its feet, and lands - wings folded, on its feet -
+    /// where the ground or a top it may stand on comes up to meet it. There is no fall damage: the body only comes down.
+    /// </summary>
+    private static (Body Body, Posture Posture) Soar(Body body, Posture posture, MoveIntent intent, MovementRules rules, WalkSpace space,
+        IReadOnlyList<Blocker> dynamicBlockers, int dtMs)
+    {
+        var wings = rules.Wings;
+        long sink = posture.Wing switch
+        {
+            WingState.Glide => wings.GlideSinkMmPerSecond,
+            WingState.Flare => wings.FlareSinkMmPerSecond,
+            _ => wings.FallSinkMmPerSecond,
+        };
+        double speed = posture.Wing switch
+        {
+            WingState.Glide => wings.GlideSpeedMmPerSecond,
+            WingState.Fall => rules.SpeedMmPerSecond(Gait.Walk),
+            _ => 0,
+        };
+        double x = body.XMm, z = body.ZMm, radius = rules.BodyRadiusMm;
+        long feet = posture.FeetMm - sink * Math.Max(0, dtMs) / 1000;
+        long Floor(double px, double pz) => rules.StepUpMm > 0
+            ? TopUnder(px, pz, feet, space)
+            : space.HeightAtMm((long)Math.Round(px, MidpointRounding.AwayFromZero), (long)Math.Round(pz, MidpointRounding.AwayFromZero));
+        double length = Math.Sqrt((double)intent.DirXPermille * intent.DirXPermille + (double)intent.DirZPermille * intent.DirZPermille);
+        if (length > 0 && speed > 0 && dtMs > 0)
+        {
+            double travel = speed * dtMs / 1000.0 * Math.Min(length, MoveIntent.FullDeflection) / MoveIntent.FullDeflection;
+            int steps = Math.Max(1, (int)Math.Ceiling(travel / (radius / 2)));
+            for (int s = 0; s < steps; s++)
+            {
+                x += intent.DirXPermille / length * travel / steps;
+                z += intent.DirZPermille / length * travel / steps;
+                (x, z) = Resolve(x, z, radius, space, dynamicBlockers, Math.Max(0, feet - Floor(x, z)), rules.StandHeightMm);
+            }
+        }
+        long qx = (long)Math.Round(x, MidpointRounding.AwayFromZero);
+        long qz = (long)Math.Round(z, MidpointRounding.AwayFromZero);
+        long floor = Floor(qx, qz);
+        if (feet <= floor)
+            return (new Body(qx, floor, qz, intent.FacingMdeg), Posture.Grounded with { Stance = posture.Stance });
+        return (new Body(qx, feet, qz, intent.FacingMdeg), posture with { FeetMm = feet });
     }
 
     /// <summary>

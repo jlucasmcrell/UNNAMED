@@ -15,12 +15,13 @@ public class CharacterCreationTests
     public static readonly TheoryData<string> Calls = new() { "call.wayfarer", "call.scholar", "call.smiths_hand", "call.hedge_healer" };
 
     [Fact]
-    public void TheCreator_OffersTheVeth_AndTheFourCalls()
+    public void TheCreator_OffersTheFourStartingPeoples_AndTheFourCalls()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
 
-        Assert.Equal(new[] { "people.veth" }, session.Characters.PlayablePeoples.Select(p => p.Id));
+        // Owner, 2026-10-24: four playable peoples to start; the other four are NPC-only for now.
+        Assert.Equal(new[] { "people.kal", "people.orenth", "people.siann", "people.veth" }, session.Characters.PlayablePeoples.Select(p => p.Id));
         Assert.Equal(new[] { "call.hedge_healer", "call.scholar", "call.smiths_hand", "call.wayfarer" }, session.Characters.Calls.Keys);
         Assert.Equal(new[] { "Hedge healer", "Scholar", "Smith's hand", "Wayfarer" }, session.Characters.Calls.Keys.Select(session.DisplayName));
     }
@@ -43,12 +44,13 @@ public class CharacterCreationTests
         Assert.Equal("Wenna Lind", record.Name);
         Assert.Equal(new CharacterIdentity(Pronouns.She, "people.veth", "body.veth_f.lean", callId), record.Identity);
         Assert.Equal(record.Identity, simulation.Player.Identity);   // what presentation draws and words the character by
-        // Attributes: the bias over the base, as creation grants - outside the cap on later grants.
+        // Attributes: the bias over the base, as creation grants, and the people's (the Veth: +1 Agility, and their free point, which a
+        // spec that places none puts on Agility too) - both outside the cap on later grants.
         Assert.Equal(CallDefinition.BiasPoints, call.Package.AttributeBias.Values.Sum());
         foreach (var attribute in ProgressionKeys.Attributes)
-            Assert.Equal(rules.AttributeBase + call.Package.AttributeBias.GetValueOrDefault(attribute),
+            Assert.Equal(rules.AttributeBase + call.Package.AttributeBias.GetValueOrDefault(attribute) + (attribute == CharacterAttribute.Agility ? 2 : 0),
                 ProgressionEngine.AttributeValue(record.Progression, attribute, rules));
-        Assert.All(record.Progression.Grants, g => Assert.Equal(GrantSource.Creation, g.Source));
+        Assert.All(record.Progression.Grants, g => Assert.Contains(g.Source, new[] { GrantSource.Creation, GrantSource.Race }));
         // Skills: two at 15, and nothing else started.
         Assert.Equal(call.Package.Skills.Keys, record.Progression.Skills.Where(s => s.Value.Level > 0).Select(s => s.Key));
         Assert.All(call.Package.Skills.Keys, skill => Assert.Equal(CallDefinition.SkillLevel, record.Progression.Skills[skill].Level));
@@ -115,7 +117,7 @@ public class CharacterCreationTests
 
         Assert.Equal("Wanderer", record.Name);
         Assert.Equal(CharacterIdentity.BeforeTheCreator, record.Identity);
-        Assert.Empty(record.Progression.Grants);
+        Assert.Empty(record.Progression.Grants.Where(g => g.Source != GrantSource.Race));   // only the Veth's own grant
         Assert.Empty(record.Relationships);
         Assert.Equal(new[] { "item.consumable.salve_minor", "item.heritage.kept_roll", "item.story.folded_note", "item.tool.water_flask", "item.weapon.rusted_sword" },
             record.Inventory.Select(e => e.DefId).Order(StringComparer.Ordinal));
@@ -146,7 +148,7 @@ public class CharacterCreationTests
 
     [Theory]
     [InlineData("people.veth", "call.unknown")]
-    [InlineData("people.kal", "call.wayfarer")]
+    [InlineData("people.mor", "call.wayfarer")]
     [InlineData("people.veth", "item.weapon.rusted_sword")]
     public void ASpecNamingWhatTheCreatorDoesNotOffer_IsRefused(string people, string call)
     {

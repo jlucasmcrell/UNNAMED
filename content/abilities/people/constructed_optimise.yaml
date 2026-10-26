@@ -1,0 +1,13 @@
+id: ability.people.constructed.optimise
+kind: ability
+schema: 1
+display_key: ability.people.constructed.optimise.name
+tags: [ability, people]
+name: Optimise
+notes: Racial ability, innate biology - every Constructed has it and no other people can learn it (RACES.md section 6; RACE_ABILITIES_PROPOSAL.md section 3.6, owner-approved 2026-10-24). Every number is provisional.
+class: people
+people_ref: people.constructed
+action: optimise
+description: "Study an encounter for 10 s; for the rest of the day the whole party does 5% more to that kind of creature."
+cooldown_s: 2880
+duration_s: 10

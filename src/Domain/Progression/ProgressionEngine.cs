@@ -141,9 +141,12 @@ public static class ProgressionEngine
     /// <summary>
     /// Use under challenge (§4.2): XP only past the difficulty gate, scaled by how far past it, reduced on failure,
     /// plus a one-time novelty bonus for a first success. A skill stops at the common ceiling (designations are M12).
+    /// The character's people sets the rate and the ceiling (<paramref name="aptitude"/>; null is <see cref="LearningAptitude.Usual"/>).
     /// </summary>
-    public static SkillResult Practice(CharacterProgression progression, SkillPractice practice, ProgressionRules rules)
+    public static SkillResult Practice(CharacterProgression progression, SkillPractice practice, ProgressionRules rules,
+        LearningAptitude? aptitude = null)
     {
+        aptitude ??= LearningAptitude.Usual;
         if (!ProgressionKeys.IsSkillId(practice.SkillId))
             throw new ArgumentException($"'{practice.SkillId}' is not a skill ID", nameof(practice));
         var model = rules.Skills;
@@ -154,7 +157,8 @@ public static class ProgressionEngine
             ? 0.0
             : Math.Min((double)(practice.Difficulty - gate) / model.DifficultyMargin, model.MaxChallengeFactor);
         double outcome = practice.Outcome == PracticeOutcome.Success ? 1.0 : model.FailureFactor;
-        long xp = (long)Math.Round(model.UseXp * challenge * outcome, MidpointRounding.AwayFromZero);
+        double rate = aptitude.RatePercent(practice.SkillId, state.Level) / 100.0;
+        long xp = (long)Math.Round(model.UseXp * challenge * outcome * rate, MidpointRounding.AwayFromZero);
 
         var novelty = progression.NoveltyFirsts;
         if (practice.Outcome == PracticeOutcome.Success && practice.NoveltyKey is { } key)
@@ -164,20 +168,22 @@ public static class ProgressionEngine
             if (!novelty.Contains(key))
             {
                 novelty = novelty.Add(key);
-                xp += model.NoveltyBonusXp;
+                if (rate > 0)
+                    xp += (long)Math.Round(model.NoveltyBonusXp * aptitude.NoveltyPercent / 100.0, MidpointRounding.AwayFromZero);
             }
         }
 
+        int ceiling = aptitude.Ceiling(model);
         int level = state.Level;
         long progress = state.ProgressXp + xp;
         int gained = 0;
-        while (level < model.CommonCeiling && progress >= model.ToNext(level))
+        while (level < ceiling && progress >= model.ToNext(level))
         {
             progress -= model.ToNext(level);
             level++;
             gained++;
         }
-        if (level >= model.CommonCeiling)
+        if (level >= ceiling)
             progress = 0;
 
         var advancements = xp > 0
@@ -222,11 +228,12 @@ public static class ProgressionEngine
 
     /// <summary>
     /// A bounded one-time grant (§4.1, §11.3). Each source grants once. Grants after creation (trainer, quest,
-    /// item) share a budget of at most 8% of the attribute points levels give.
+    /// item) share a budget of at most 8% of the attribute points levels give. Only a people's grant may take a point away: its
+    /// creation package nets the same for every people, with the minus where canon names a weakness (RACE_ABILITIES_PROPOSAL.md §1).
     /// </summary>
     public static CharacterProgression Grant(CharacterProgression progression, AttributeGrant grant, ProgressionRules rules)
     {
-        if (grant.Amount <= 0 || string.IsNullOrEmpty(grant.SourceRef))
+        if (!grant.Valid)
             throw new ArgumentException($"Invalid attribute grant {grant}", nameof(grant));
         if (progression.Grants.Any(g => g.Source == grant.Source && g.SourceRef == grant.SourceRef))
             throw new InvalidOperationException($"{ProgressionKeys.Key(grant.Source)} '{grant.SourceRef}' has already granted an attribute");

@@ -23,7 +23,7 @@ public class GameSaveTests
     private static readonly (Regex Path, string? Given)[] AddedSince12 =
     {
         // Schema 13: the player gains a posture, standing on the ground; the player's digest covers it, so it moves.
-        (new Regex(@"^\$\.player\.Posture$"), """{"Stance":"Standing","Airborne":false,"AirMs":0}"""),
+        (new Regex(@"^\$\.player\.Posture$"), """{"Stance":"Standing","Airborne":false,"AirMs":0,"Wing":"Folded","FeetMm":0,"Aloft":false}"""),
         (new Regex(@"^\$\.player\.Digest$"), null),
         // Schema 14: every creature record gains its continuation - none was kept - and the world its sounds waiting to be heard - none.
         (new Regex(@"^\$\.world\.Creatures\[\d+\]\.(NextChargeTick|StaggerImmuneUntil|StaggerLastsTicks)$"), "0"),
@@ -38,7 +38,7 @@ public class GameSaveTests
         // Schema 16: the player has counted no deed.
         (new Regex(@"^\$\.player\.Deeds$"), "[]"),
         // Schema 17: the character the game made before the creator - "they", a Veth of the default body, with no Call.
-        (new Regex(@"^\$\.player\.Identity$"), """{"Pronouns":"They","PeopleId":"people.veth","BodyPresetId":"body.default","CallId":null,"Appearance":null}"""),
+        (new Regex(@"^\$\.player\.Identity$"), """{"Pronouns":"They","PeopleId":"people.veth","BodyPresetId":"body.default","CallId":null,"Appearance":null,"OriginId":"origin.frontier_road"}"""),
         // Schema 19: every stack may carry a notable record; none before.
         (new Regex(@"^\$\.(player\.Inventory|world\.Created|world\.Containers\[\d+\]\.Items)\[\d+\]\.Notable$"), "null"),
         // Schema 24 (WP3b): every stack may carry its wear; nothing was worn before.
@@ -73,6 +73,8 @@ public class GameSaveTests
         (new Regex(@"^\$\.player\.Findings$"), "[]"),
         // Schema 36 (pets): no animal had joined the character, so no pets.
         (new Regex(@"^\$\.player\.Pets$"), "[]"),
+        // Schema 40 (race abilities): no one had crossed, so no toll and no anchor.
+        (new Regex(@"^\$\.player\.Crossing$"), """{"Toll":0,"Costs":[],"Anchor":null,"Tier":0}"""),
         // Schema 35 (lore): no page had been filed in the journal, so no lore.
         (new Regex(@"^\$\.player\.Lore$"), "[]"),
         // Schema 32 (action bars): the quick bar is twelve slots, the other five bars are empty, and no gear set was kept.
@@ -127,8 +129,8 @@ public class GameSaveTests
         // the faction ledger, and the economy and merchants.
         int members = expected["player"]!["Companions"]!.AsArray().Count;
         // ... and, schema 21, four fields each party member and the party's ledger; schema 23, the quick bar and its cleared record;
-        // schema 24, each stack's (empty) wear; schema 25, the party's sheets; schema 26, the NPCs' lives; schema 27, no attack under way; schema 29, the adventurers; schema 30, the space and the portal; schema 31, the Findings; schema 32, the further bars and the gear sets; and, schema 33, the bag slots and each stack's place, lock and junk mark; schema 34, the held weapon family and its layouts; schema 35, the empty lore; and, schema 36, the empty pets.
-        Assert.Equal(2 + 6 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 1 + 2 + 4 * members + 1 + 2 + stacks + 1 + 1 + 1 + 1 + 2 + 1 + 2 + 1 + 4 * stacks + 4, differences.Count);
+        // schema 24, each stack's (empty) wear; schema 25, the party's sheets; schema 26, the NPCs' lives; schema 27, no attack under way; schema 29, the adventurers; schema 30, the space and the portal; schema 31, the Findings; schema 32, the further bars and the gear sets; and, schema 33, the bag slots and each stack's place, lock and junk mark; schema 34, the held weapon family and its layouts; schema 35, the empty lore; schema 36, the empty pets; and, schema 40, the empty crossing record.
+        Assert.Equal(2 + 6 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 1 + 2 + 4 * members + 1 + 2 + stacks + 1 + 1 + 1 + 1 + 2 + 1 + 2 + 1 + 4 * stacks + 4 + 1, differences.Count);
 
         // And it plays on: a fixed stretch of ticks, then a walk to the Ashen Waystone, with no observer failing, no body inside anything,
         // Tavar still at the character's side and every quest still answering the debugger.

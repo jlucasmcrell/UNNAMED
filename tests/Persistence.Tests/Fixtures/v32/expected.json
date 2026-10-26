@@ -262,7 +262,9 @@
     "posture": {
       "stance": "crouched",
       "airborne": false,
-      "air_ms": 0
+      "air_ms": 0,
+      "wing": "Folded",
+      "feet_mm": 0
     },
     "waystones": [
       {
@@ -311,7 +313,8 @@
       "people": "people.veth",
       "body_preset": "body.build_slender",
       "call": "call.scholar",
-      "appearance": null
+      "appearance": null,
+      "origin": "origin.frontier_road"
     },
     "factions": {
       "next_act_seq": 2,
@@ -564,6 +567,11 @@
       }
     ],
     "lore": [],
+    "crossing": {
+      "toll": 0,
+      "costs": [],
+      "anchor": null
+    },
     "pets": []
   },
   "cells": [

@@ -1,0 +1,27 @@
+id: people.constructed
+kind: people
+schema: 1
+display_key: people.constructed.name
+tags: [people]
+name: Constructed
+notes: The written (RACES.md section 6). NPC-only for now; traits and abilities are RACE_ABILITIES_PROPOSAL.md section 3.6, owner-approved (no biological growth - no regeneration, a free re-specification at an artificer). Modules wait until the Constructed become playable. The suggest names are PROPOSED functional names for owner review.
+playable: false
+card:
+  epithet: The written
+  summary: Natives of a reality that was built rather than born. They know they were made, precisely, and cannot find who wrote them.
+  body: Continuous liquid chrome under high surface tension, a beautiful human face and solid black eyes.
+  leans_toward: Science and magic.
+  trade_off: Masters of theory and artifice, but they do not heal on their own and reason poorly where intuition is needed.
+traits:
+  damage_taken_percent: { physical: 90, poison: 0 }
+  regenerates: false               # no growth - repaired, never healed
+  attribute_grant: { insight: 2, precision: 1, presence: -1 }
+learning:
+  aptitude_percent: { theory: 120, intuition: 75 }
+suggest_names:
+  - Errata
+  - Margin
+  - Index Seven
+  - Schedule Keeper
+  - Footnote
+  - Corollary

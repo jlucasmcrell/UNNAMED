@@ -1,0 +1,14 @@
+id: ability.people.orenth.planar_anchor
+kind: ability
+schema: 1
+display_key: ability.people.orenth.planar_anchor.name
+tags: [ability, people]
+name: Planar Anchor
+notes: Racial ability, innate biology - every Orenth has it and no other people can learn it (RACES.md section 4; RACE_ABILITIES_PROPOSAL.md section 3.4, owner-approved 2026-10-24). Every number is provisional.
+class: people
+people_ref: people.orenth
+action: anchor
+description: "Fix a point in this reality to walk back to. One anchor at a time; it holds for a day."
+cost: { focus: 10 }
+cooldown_s: 10
+duration_s: 2880

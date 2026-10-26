@@ -23,7 +23,8 @@ public class NonConversionTests
     [Fact]
     public void EveryMethodThatAdvancesAnAxis_TakesOnlyTheProgression_TheRules_AndAtMostOneCurrency()
     {
-        var allowed = Currencies.Append(typeof(CharacterProgression)).Append(typeof(ProgressionRules)).ToHashSet();
+        // A people's aptitude is a rule, not a currency: §13.1's "modify rate" on the same currency, never another axis's progress.
+        var allowed = Currencies.Append(typeof(CharacterProgression)).Append(typeof(ProgressionRules)).Append(typeof(LearningAptitude)).ToHashSet();
         var methods = AdvancingMethods().ToList();
         Assert.NotEmpty(methods);
         foreach (var method in methods)

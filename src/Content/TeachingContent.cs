@@ -20,7 +20,7 @@ namespace UNNAMED.Content;
 public static class TeachingContent
 {
     /// <summary>The ability classes built: a creature's attack (M3c) and the player's active technique (WP9). The rest of §4.7's arrive with their systems.</summary>
-    private static readonly string[] AbilityClasses = { "creature", "active" };
+    private static readonly string[] AbilityClasses = { "creature", "active", "people" };
 
     private static readonly string[] EntryFields = { "kind", "recipe_ref", "ability_ref", "spell_ref", "piece_ref", "fee", "by_dialogue", "requires" };
 

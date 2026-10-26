@@ -17,6 +17,9 @@ public sealed record BodyMoved(EntityId Actor, Body From, Body To, long Tick);
 /// <summary>The body left the ground (the owner's M6 playtest).</summary>
 public sealed record Jumped(EntityId Actor, long Tick);
 
+/// <summary>A winged body's wings changed (Kal): opened for a leap, spread to glide, flared to brake, folded to drop, folded on landing.</summary>
+public sealed record WingsChanged(EntityId Actor, UNNAMED.Domain.Spatial.WingState Wing, long Tick);
+
 /// <summary>The body crouched or stood up (the owner's M6 playtest).</summary>
 public sealed record StanceChanged(EntityId Actor, Stance Stance, long Tick);
 

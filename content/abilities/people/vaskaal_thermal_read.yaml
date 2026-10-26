@@ -1,0 +1,15 @@
+id: ability.people.vaskaal.thermal_read
+kind: ability
+schema: 1
+display_key: ability.people.vaskaal.thermal_read.name
+tags: [ability, people]
+name: Thermal Read
+notes: Racial ability, innate biology - every Vaskaal has it and no other people can learn it (RACES.md section 7; RACE_ABILITIES_PROPOSAL.md section 3.7, owner-approved 2026-10-24). Every number is provisional.
+class: people
+people_ref: people.vaskaal
+action: thermal_read
+description: "For 20 s see heat through foliage and smoke within 30 m."
+cost: { stamina: 15 }
+cooldown_s: 60
+duration_s: 20
+range_m: 30.0

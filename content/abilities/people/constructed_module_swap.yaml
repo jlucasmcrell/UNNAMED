@@ -1,0 +1,14 @@
+id: ability.people.constructed.module_swap
+kind: ability
+schema: 1
+display_key: ability.people.constructed.module_swap.name
+tags: [ability, people]
+name: Module Swap
+notes: Racial ability, innate biology - every Constructed has it and no other people can learn it (RACES.md section 6; RACE_ABILITIES_PROPOSAL.md section 3.6, owner-approved 2026-10-24). Every number is provisional.
+class: people
+people_ref: people.constructed
+action: module_swap
+description: "Rewrite one function module in the field: 10 s of stillness that a blow breaks. Free at a workbench."
+cost: { focus: 20 }
+cooldown_s: 300
+duration_s: 10

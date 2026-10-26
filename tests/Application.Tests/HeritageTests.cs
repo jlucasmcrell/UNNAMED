@@ -73,6 +73,16 @@ public class HeritageTests
     }
 
     [Fact]
+    public void TheRoll_IsNeverSalvaged()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = At(session, session.Setup, AtRenn, WithRoll);
+
+        Assert.Equal("Veth heritage is never salvaged.", arena.Simulation.Salvage(Carried(arena).ItemId).Refusal);
+    }
+
+    [Fact]
     public void AVeth_SellsTheRoll_ToAVethTrader_ButNotToAnother()
     {
         using var profile = new TempProfile();
@@ -80,9 +90,11 @@ public class HeritageTests
 
         var toKal = At(session, session.Setup, AtKera, WithRoll);   // Kera is no Veth
         Assert.Null(toKal.Simulation.Offer(Kera, Roll));   // she names no price for it
+        Assert.Equal("Kera Voss will not trade in Veth heritage", toKal.Simulation.HeritageRefusal(Kera, Roll));   // the reason the disabled Sell shows
         Assert.Equal("Kera Voss will not trade in Veth heritage", toKal.Submit(new SellCommand(toKal.Player, Kera, Carried(toKal).ItemId, 1)));
 
         var toVeth = At(session, KeraVeth(session.Setup), AtKera, r => WithRoll(r).WithCurrency(20));   // a trader asks more than she pays
+        Assert.Null(toVeth.Simulation.HeritageRefusal(Kera, Roll));
         long coin = toVeth.Simulation.Player.Currency;
         Assert.Null(toVeth.Submit(new SellCommand(toVeth.Player, Kera, Carried(toVeth).ItemId, 1)));
         Assert.DoesNotContain(toVeth.Simulation.Player.Inventory, e => e.DefId == Roll);

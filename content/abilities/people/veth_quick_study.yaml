@@ -1,0 +1,11 @@
+id: ability.people.veth.quick_study
+kind: ability
+schema: 1
+display_key: ability.people.veth.quick_study.name
+tags: [ability, people]
+name: Quick Study
+notes: Racial ability, innate biology - every Veth has it and no other people can learn it (RACES.md section 1; RACE_ABILITIES_PROPOSAL.md section 3.1, owner-approved 2026-10-24). Every number is provisional.
+class: people
+people_ref: people.veth
+action: passive
+description: "Skills come fast and then stall: use teaches half again as fast below 30 and a quarter faster to 60; a first success teaches half as much again; mastery stops at 90."

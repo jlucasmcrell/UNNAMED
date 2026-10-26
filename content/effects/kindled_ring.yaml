@@ -1,0 +1,16 @@
+id: effect.kindled_ring
+kind: effect
+schema: 1
+display_key: effect.kindled_ring.name
+tags: [effect]
+name: Kindled Ring
+notes: The Siann's Kindled Ring (RACES.md section 3, the inner ring that brightens during magic; RACE_ABILITIES_PROPOSAL.md section 3.3, owner-approved 2026-10-24) - for 8 s workings cost 30% less Strain and their tell is 15% shorter.
+category: buff
+stack_policy: refresh
+max_stacks: 1
+duration_min: 4.0          # game minutes (config.time): 8 s
+tick_interval_min: 0
+modifiers:
+  - { target: stat.strain_cost, op: multiply, value: 0.7 }
+  - { target: stat.cast_time, op: multiply, value: 0.85 }
+dispel_category: none

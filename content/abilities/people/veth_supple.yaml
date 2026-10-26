@@ -1,0 +1,11 @@
+id: ability.people.veth.supple
+kind: ability
+schema: 1
+display_key: ability.people.veth.supple.name
+tags: [ability, people]
+name: Supple
+notes: Racial ability, innate biology - every Veth has it and no other people can learn it (RACES.md section 1; RACE_ABILITIES_PROPOSAL.md section 3.1, owner-approved 2026-10-24). Every number is provisional.
+class: people
+people_ref: people.veth
+action: passive
+description: "Joints that bend further than they should: a jump climbs a ledge 15 cm higher than another body could."

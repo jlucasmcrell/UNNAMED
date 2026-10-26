@@ -1688,6 +1688,7 @@ public partial class Main : Node3D
         }
         UpdateOpenAir(feet);
         _avatar.SetPosture(crouched, airborne);
+        DrawWings(posture);
         _avatar.SetMovementDirection(new Vector3(_controller.Intent.DirXPermille, 0, _controller.Intent.DirZPermille));
         _soundEvents.ObserveFootPlants(_avatar,speed,airborne);
         _avatar.Pose(feet, facing, speed, delta);

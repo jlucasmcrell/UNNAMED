@@ -1,0 +1,14 @@
+id: item.heritage.finishing_tool
+kind: item
+schema: 1
+display_key: item.heritage.finishing_tool.name
+tags: [item]
+name: Finishing Tool
+notes: "In the game's voice, 'A small hand tool with a handle worn to someone else's grip. The Kal say a thing is not made until it is finished.' The Kal heritage item (owner-approved option A, HERITAGE_ITEMS_PROPOSAL.md / HERITAGE_DESIGN.md §2). From Kal workshop theology - their word for creation is a verb meaning to shape, join and finish (MYTHOLOGY.md §Kal Belief). Not stone: Kal stone is the person, waiting. Identity, not power - no smithing bonus (LORE_OWNER_QUESTIONS.md Heritage H-3 stays open). Heritage (owner, 2026-10-24) - only its own people use, buy, sell, trade or are given it, and its value counts only among them; never dropped, and the people's keeper re-issues a lost one (HERITAGE_DESIGN.md §1.4)."
+category: misc
+stack_max: 1
+weight: 0.3
+value_base: 8
+rarity: common
+no_drop: true
+heritage: people.kal

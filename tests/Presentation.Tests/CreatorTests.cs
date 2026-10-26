@@ -159,10 +159,11 @@ public class CreatorTests
         var types = Directory.GetFiles(Path.Combine(root, "content", "bodies"), "*.yaml")
             .Select(f => File.ReadAllLines(f).Single(l => l.StartsWith("type: ", StringComparison.Ordinal))[6..]).Distinct().ToList();
 
-        Assert.Equal(new[] { "veth_m", "veth_f" }, bodies.Types.Select(t => t.Type));
+        Assert.Equal(new[] { "veth_m", "veth_f", "kal_m", "kal_f", "siann_m", "siann_f", "orenth_m", "orenth_f" }, bodies.Types.Select(t => t.Type));
         Assert.Equal(types.OrderBy(t => t), bodies.Types.Select(t => t.Type).OrderBy(t => t));
+        // The Veth are the owner's MetaHumans; the peoples playable from 2026-10-24 their approved HumGen production bodies.
         foreach (var type in bodies.Types)
-            Assert.All(type.Models, m => Assert.StartsWith("mh_", m));
+            Assert.All(type.Models, m => Assert.StartsWith(type.Type.StartsWith("veth_", StringComparison.Ordinal) ? "mh_" : "humgen_", m));
         Assert.True(File.Exists(Path.Combine(root, "content", "bodies", bodies.Default["body.".Length..].Replace('.', '_') + ".yaml")));
     }
 

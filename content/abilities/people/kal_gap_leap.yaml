@@ -1,0 +1,15 @@
+id: ability.people.kal.gap_leap
+kind: ability
+schema: 1
+display_key: ability.people.kal.gap_leap.name
+tags: [ability, people]
+name: Gap Leap
+notes: Racial ability, innate biology - every Kal has it and no other people can learn it (RACES.md section 2; RACE_ABILITIES_PROPOSAL.md section 3.2, owner-approved 2026-10-24). Every number is provisional.
+class: people
+people_ref: people.kal
+action: leap
+description: "Sprint and jump to throw the wings open: half a metre higher and 60% further than a plain jump."
+cost: { stamina: 20 }
+cooldown_s: 3
+apex_bonus_m: 0.5
+distance_percent: 160

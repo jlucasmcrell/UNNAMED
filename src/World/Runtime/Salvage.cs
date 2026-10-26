@@ -26,6 +26,8 @@ internal sealed partial class CraftingSystem
         if (definition?.Class is UNNAMED.Domain.Items.ItemClass.Notable or UNNAMED.Domain.Items.ItemClass.Artefact
             || entry.Notable?.Provenance == UNNAMED.Domain.Items.ProvenanceKind.Given)
             return Refuse("Keepsakes, named rewards and artefacts cannot be salvaged.");
+        if (definition?.Heritage is { } people)
+            return Refuse($"{UNNAMED.Domain.Items.HeritageRules.PeopleWord(people)} heritage is never salvaged.");
         var plan = definition is null ? null : SalvageRules.Plan(definition, Setup.Recipes.Values, _context.Setup.Items.Catalog);
         if (plan is null) return Refuse("This item has no recoverable construction materials.");
         int percent = SalvageRules.RecoveryPercent(skill, definition!, entry.Wear, Setup.Constants);

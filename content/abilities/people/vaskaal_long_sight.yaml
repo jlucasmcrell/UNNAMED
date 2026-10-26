@@ -1,0 +1,11 @@
+id: ability.people.vaskaal.long_sight
+kind: ability
+schema: 1
+display_key: ability.people.vaskaal.long_sight.name
+tags: [ability, people]
+name: Long Sight
+notes: Racial ability, innate biology - every Vaskaal has it and no other people can learn it (RACES.md section 7; RACE_ABILITIES_PROPOSAL.md section 3.7, owner-approved 2026-10-24). Every number is provisional.
+class: people
+people_ref: people.vaskaal
+action: long_sight
+description: "Aim still to see further: a quarter more range and half the fall-off for ranged weapons."

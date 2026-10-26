@@ -1,0 +1,14 @@
+id: ability.people.ondrek.bedrock_stance
+kind: ability
+schema: 1
+display_key: ability.people.ondrek.bedrock_stance.name
+tags: [ability, people]
+name: Bedrock Stance
+notes: Racial ability, innate biology - every Ondrek has it and no other people can learn it (RACES.md section 8; RACE_ABILITIES_PROPOSAL.md section 3.8, owner-approved 2026-10-24). Every number is provisional.
+class: people
+people_ref: people.ondrek
+action: bedrock_stance
+description: "Root into the ground for 4 s: nothing moves or staggers you, and blows from the front do 30% less. You cannot move."
+cost: { stamina: 20 }
+cooldown_s: 25
+duration_s: 4
