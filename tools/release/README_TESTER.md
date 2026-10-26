@@ -85,6 +85,7 @@ Press **F8** (or Escape > **Report a problem**), write what happened, and choose
 
 - Armour and more outfits come later.
 - The first time you enter the Barrowworks the screen stays black for a while as the rooms are prepared. This is expected.
+- The Needle at the Stopped Gate can render as a solid black face from some angles at Medium and above.
 - Short hitches can happen as new parts of the frontier load in.
 
 ## Credits
