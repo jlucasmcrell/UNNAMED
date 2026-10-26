@@ -120,7 +120,19 @@ public partial class Main
         int bus=AudioServer.GetBusIndex("Master"),slot=AudioServer.GetBusEffectCount(bus);
         var audio=new AudioEffectRecord();AudioServer.AddBusEffect(bus,audio);audio.SetRecordingActive(true);
         var frameTimes=new List<double>();
-        void Sample()=>frameTimes.Add(GetProcessDeltaTime()*1000);
+        ulong wingAuditAt=0;
+        void Sample()
+        {
+            frameTimes.Add(GetProcessDeltaTime()*1000);
+            if(sim.Player.Identity.PeopleId=="people.kal"&&Time.GetTicksMsec()>=wingAuditAt)
+            {
+                wingAuditAt=Time.GetTicksMsec()+200;
+                var wing=native.Skeleton.GetNodeOrNull<KalWings>("KalWings");
+                File.AppendAllText(Path.Combine(directory,"wing_pose.jsonl"),JsonSerializer.Serialize(new {
+                    utc=DateTimeOffset.UtcNow,posture=sim.Posture,node_present=wing is not null,
+                    openness=wing?.Openness,can_process=wing?.CanProcess(),camera=camera.GlobalPosition.ToString()})+"\n");
+            }
+        }
         GetTree().ProcessFrame+=Sample;
         Mark("audio_start");
         try
