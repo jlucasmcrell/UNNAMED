@@ -87,7 +87,7 @@ public sealed class LookSwatchesTests
     {
         Assert.Equal(1.2f, LookSwatches.StoneCoverage(null));
         Assert.Equal(1.2f, LookSwatches.StoneCoverage(9));
-        Assert.Equal(new[] { .62f, .7f, 1.2f }, LookSwatches.KalStone.Select(l => l.Coverage));
-        Assert.Equal("Patched", LookSwatches.KalStone[0].Label);
+        Assert.Equal(new[] { .7f, 1.2f }, LookSwatches.KalStone.Select(l => l.Coverage));
+        Assert.Equal("Mostly stone", LookSwatches.KalStone[0].Label);
     }
 }

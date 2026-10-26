@@ -21,7 +21,8 @@ public static class LookSwatches
     /// graded mask's scale (race-looks: full needs 1.2 to clear the mask's noisy floor). None chosen is full stone; the choice takes the
     /// place of the coverage in the body's kal_stone.json.
     /// </summary>
-    public static readonly (string Label, float Coverage)[] KalStone = { ("Patched", .62f), ("Mostly stone", .7f), ("Full stone", 1.2f) };
+    // Patched (.62) is left out until playtest 2: on the graded mask it is a smudge on the nose that reads as a hurt (coordinator, 2026-10-26).
+    public static readonly (string Label, float Coverage)[] KalStone = { ("Mostly stone", .7f), ("Full stone", 1.2f) };
 
     /// <summary>The stone coverage an index names, full stone when none is chosen or the index is not in the list.</summary>
     public static float StoneCoverage(int? index) => index is int i && i >= 0 && i < KalStone.Length ? KalStone[i].Coverage : 1.2f;

@@ -353,8 +353,6 @@ public partial class Main
                 continue;
             }
             list.Add(($"{list.Count + 1:00}_people_kal_face", () => Stone(0, CreatorPreview.Framings[0].Zoom), 2500));
-            list.Add(($"{list.Count + 1:00}_kal_stone_patched", () => _creator.Frame(CreatorPreview.Framings[2].Zoom), 2500));
-            list.Add(($"{list.Count + 1:00}_kal_stone_patched_face", () => Stone(1, CreatorPreview.Framings[0].Zoom), 2500));
             list.Add(($"{list.Count + 1:00}_kal_stone_mostly", () => _creator.Frame(CreatorPreview.Framings[2].Zoom), 2500));
             list.Add(($"{list.Count + 1:00}_kal_stone_mostly_face", after, 6000));
         }
