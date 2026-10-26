@@ -102,6 +102,8 @@ public partial class NpcsView : Node3D
                 figure = (Figure?)native ?? body ?? (Figure)new Avatar { Clothing = Clothes(npc.Id) };
                 figure.Name = npc.Id;
                 AddChild(figure);
+                if (body is not null && body.ModelId.StartsWith("humgen_", StringComparison.Ordinal) && !_bindings.NamedCharacters.ContainsKey(npc.Id))
+                    Art.PeopleAppearance.ApplyResidentLook(body, npc.PeopleId, instance);
                 _figures[npc.Id] = figure;
                 string speakerId = npc.Id;
                 foreach (var face in figure.FindChildren("*", "", true, false).OfType<Art.FaceDriver>())

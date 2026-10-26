@@ -291,7 +291,7 @@ public static class PeopleAppearance
     /// dyed like the garments, each on this figure's own copy of the material. The material each surface had before is kept on the mesh, so choosing
     /// again starts from it rather than from the last tint, and "as made" puts it back.
     /// </summary>
-    public static void ApplyLook(Node model, string? people, CharacterAppearance? look, ArtLibrary? art = null, string? bodyModel = null)
+    public static void ApplyLook(Node model, string? people, CharacterAppearance? look, ArtLibrary? art = null, string? bodyModel = null, bool dyeClothes = true)
     {
         int? Index(string slider) => look is not null && look.Sliders.TryGetValue(slider, out int value) ? value : null;
         WearHairStyle(model, art, LookSwatches.HairStyles(bodyModel).ElementAtOrDefault(Index(LookSwatches.StyleSlider) ?? 0).Asset);
@@ -308,7 +308,7 @@ public static class PeopleAppearance
                 string name = WithoutLod(mesh.Mesh.SurfaceGetMaterial(surface)?.ResourceName ?? string.Empty);
                 bool isSkin = name.EndsWith("_Skin", StringComparison.OrdinalIgnoreCase);
                 bool isHair = HairSurfaces.Any(h => name.EndsWith(h, StringComparison.OrdinalIgnoreCase));
-                string? garment = isSkin || isHair ? null : LookSwatches.GarmentKind(name);
+                string? garment = isSkin || isHair || !dyeClothes ? null : LookSwatches.GarmentKind(name);
                 if (!isSkin && !isHair && garment is null)
                     continue;
                 string key = $"look_base_{surface}";
@@ -340,6 +340,23 @@ public static class PeopleAppearance
                 mesh.SetSurfaceOverrideMaterial(surface, drawn);
             }
         }
+    }
+
+    /// <summary>Per-instance resident tones through the creator's material path; no outfit recolouring or shared material writes.</summary>
+    public static void ApplyResidentLook(Node model, string? people, string instance)
+    {
+        var colours = LookSwatches.ResidentColours(people, instance);
+        var look = new CharacterAppearance(1700, null, null, null, null, null)
+        {
+            Sliders = System.Collections.Immutable.ImmutableSortedDictionary<string, int>.Empty
+                .Add(LookSwatches.SkinSlider, colours.Skin).Add(LookSwatches.HairSlider, colours.Hair),
+        };
+        ApplyLook(model, people, look, dyeClothes: false);
+        if (people != PeopleLooks.Kal || LookSwatches.Chosen(LookSwatches.Skin(people), colours.Skin) is not { } stone) return;
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+            for (int surface = 0; surface < (mesh.Mesh?.GetSurfaceCount() ?? 0); surface++)
+                if (mesh.GetSurfaceOverrideMaterial(surface) is ShaderMaterial skin && skin.GetShaderParameter("use_stone").AsBool())
+                    skin.SetShaderParameter("stone_tint", new Vector3(stone.R, stone.G, stone.B));
     }
 
     /// <summary>Whether <paramref name="model"/> wears a garment the creator's shirt and trouser colours dye.</summary>
