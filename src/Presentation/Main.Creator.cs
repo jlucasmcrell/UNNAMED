@@ -316,7 +316,26 @@ public partial class Main
             }, 6000));
             shown = $"{body.Type}_{body.Build}";
         }
-        list.Add(($"{list.Count + 1:00}_body_{shown}", () => _creator.Go(CreatorStep.Face), 1500));
+        // Every other people this build draws, on its default body, whole and at the face; then the people the road shots are taken
+        // with (--creator-people, the default people otherwise).
+        var others = _creator.DrawnPeoples().Where(p => p != CharacterSpec.DefaultPeople).ToList();
+        string worn = _options.GetValueOrDefault("--creator-people") ?? CharacterSpec.DefaultPeople;
+        Action Show(string people) => () =>
+        {
+            _creator.UsePeople(people);
+            _creator.Frame(CreatorPreview.Framings[0].Zoom);
+        };
+        list.Add(($"{list.Count + 1:00}_body_{shown}", others.Count > 0 ? Show(others[0]) : () => _creator.Go(CreatorStep.Face), others.Count > 0 ? 6000 : 1500));
+        for (int i = 0; i < others.Count; i++)
+        {
+            string name = others[i].Replace("people.", "");
+            list.Add(($"{list.Count + 1:00}_people_{name}", () => _creator.Frame(CreatorPreview.Framings[2].Zoom), 2500));
+            list.Add(($"{list.Count + 1:00}_people_{name}_face", i + 1 < others.Count ? Show(others[i + 1]) : () =>
+            {
+                Show(worn)();
+                _creator.Go(CreatorStep.Face);
+            }, 6000));
+        }
         list.Add(($"{list.Count + 1:00}_face", () => _creator.Go(CreatorStep.Hair), 1500));
         // A skin tone and a hair colour other than the baked ones (Tan, Blond), kept to the road so the game draws them too.
         list.Add(($"{list.Count + 1:00}_hair", () => _creator.Use(_creator.Draft with
