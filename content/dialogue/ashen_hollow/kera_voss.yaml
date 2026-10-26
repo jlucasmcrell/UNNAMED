@@ -251,13 +251,13 @@ nodes:
         - command: start_quest
           quest_ref: quest.story.lantern_ledger
   grip:
-    text: "She takes the tool and closes her own hand round it, and goes quiet, which she never does. \"Hesta. That's Hesta Brannock's grip - thumb high, always, like she was holding it back from the work. She kept the joints of the old Brannock hold, in the crags south of Cairnwold. Nobody's lived in it since before your grandmother, but a hold's a hold; somebody keeps it.\" She turns the handle over. \"She died with one open. The lintel over the mouth. I know because she told me she'd finish it in the spring, and there wasn't one. That's yours now, new iron. A Kal doesn't call a thing made until it's finished.\""
+    text: "\"A Kal with a Kal tool, and your wings folded like a borrowed coat. Whose line are you?\" She doesn't wait for the answer. She takes the tool and closes her own hand round it, and goes quiet, which she never does. \"Ottra. That's Ottra Brannock's grip - thumb high, always, like she was holding it back from the work. She kept the joints of the old Brannock hold, in the crags south of Cairnwold. Nobody's lived in it since before your grandmother, but a hold's a hold; somebody keeps it.\" She turns the handle over. \"She died with one open. The lintel over the mouth. I know because she told me she'd finish it in the spring, and there wasn't one. That's yours now, new iron. Whoever your line is, you're carrying Ottra's grip; the book will put you under her. A Kal doesn't call a thing made until it's finished.\""
     choices:
       - id: back
         text: "Then I'll go and look at it."
         next: again
   joint_choice:
-    text: "\"Carted east. Sold.\" She sets the hammer down very carefully, the way you'd set down something you wanted to throw. \"The Ondrek buy stone. They pay fair and they say it was never anyone. Maybe they believe it. The hold doesn't care what they believe; it's open over the mouth, and it's failing.\" She breathes out. \"Two ways, and neither of them clean. We finish it - new iron, a cramp across the gap, the joint closed in our hands the way it should have been. Or you go east after the stone that was in it, and the joint stays open till you're back.\""
+    text: "\"Carted east. Sold.\" She sets the hammer down very carefully, the way you'd set down something you wanted to throw. \"The Ondrek buy stone. They pay fair, they're polite about it, and they say it was never anyone. Polite right up until your grandmother's a doorstep. Maybe they believe it. The hold doesn't care what they believe; it's open over the mouth, and it's failing.\" She breathes out. \"Two ways, and neither of them clean. We finish it - new iron, a cramp across the gap, the joint closed in our hands the way it should have been. Or you go east after the stone that was in it, and the joint stays open till you're back.\""
     choices:
       - id: finish
         text: "Finish it. Here's the iron - two ingots, for the cramp."
@@ -278,25 +278,25 @@ nodes:
           - { kind: quest_state, quest_ref: quest.heritage.unfinished_joint, objective: o_trace, is: active }
         next: stone_traced
   joint_finished:
-    text: "The cramp comes out of the fire the colour of a sunset, and she walks it to the crags with you and sets it herself, your hand on the tool and hers over yours. \"There. Not mended - finished. The stone that went is gone, and the hold holds without it.\" She doesn't look at the gap where it was. \"Come back to the forge. Hesta's tool wants another name on it.\""
+    text: "The cramp comes out of the fire the colour of a sunset, and she walks it to the crags with you and sets it herself, your hand on the tool and hers over yours. Coming down off the ledge she throws her wings open and drops like a dropped anvil that has changed its mind, slowly, swearing the whole way. \"There. Not mended - finished. The stone that went is gone, and the hold holds without it.\" She doesn't look at the gap where it was. \"Come back to the forge. Ottra's tool wants another name on it.\""
     choices:
       - id: back
         text: "I'll come."
         next: again
   stone_traced:
-    text: "\"East, then.\" She nods slowly. \"Past where I've ever walked. The Ondrek will be courteous, and sad, and they'll tell you they know a person from a stone better than we do. Don't fight them over it. Just find out where it went.\" She sets a chalk mark on the anvil, a line with a gap in it. \"The joint stays open till you're back. Hesta would've said that's honest. Come here - the tool should carry who's carrying it.\""
+    text: "\"East, then.\" She nods slowly. \"Past where I've ever walked. The Ondrek will be courteous, and sad, and they'll tell you they know a person from a stone better than we do. Don't fight them over it. Just find out where it went.\" She sets a chalk mark on the anvil, a line with a gap in it. \"The joint stays open till you're back. Ottra would've said that's honest. Come here - the tool should carry who's carrying it.\""
     choices:
       - id: back
         text: "All right."
         next: again
   maker_mark:
-    text: "She sets a fine punch to the handle, just under Hesta's worn mark, and taps three times. \"There. Your mark, by hers. Anyone of the Kal who takes that tool in their hand will know whose it was, and whose it is, and that the Brannock hold still has someone keeping it.\" She hands it back, handle first. \"Named in the Brannock hold. Don't make me regret it.\""
+    text: "She sets a fine punch to the handle, just under Ottra's worn mark, and taps three times. \"There. Your mark, by hers. Anyone of the Kal who takes that tool in their hand will know whose it was, and whose it is, and that the Brannock hold still has someone keeping it.\" She hands it back, handle first. \"Named in the Brannock hold. Don't make me regret it.\""
     choices:
       - id: back
         text: "I won't."
         next: again
   reissued:
-    text: "\"Lost it? Ha. Kal don't keep one of anything.\" She reaches under the bench and comes up with another, handle worn smooth in the same high grip. \"Hesta's too. She had a hand for losing them herself. Keep this one closer.\""
+    text: "\"Lost it? Ha. Kal don't keep one of anything.\" She reaches under the bench and comes up with another, handle worn smooth in the same high grip. \"Ottra's too. She had a hand for losing them herself. Keep this one closer.\""
     choices:
       - id: back
         text: "I will."

@@ -62,7 +62,7 @@ public class UnfinishedJointTests
     }
 
     [Fact]
-    public void Kera_ReadsHestasGrip_AndTheHoldIsNext()
+    public void Kera_ReadsOttrasGrip_AndTheHoldIsNext()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
@@ -70,7 +70,7 @@ public class UnfinishedJointTests
 
         Assert.Contains("grip", Talk(arena, Kera));
         Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "grip")));
-        Assert.Contains("Hesta Brannock", arena.Simulation.Conversation!.Text);
+        Assert.Contains("Ottra Brannock", arena.Simulation.Conversation!.Text);
         arena.Tick(2);
 
         Assert.Equal("o_hold", Open(arena));

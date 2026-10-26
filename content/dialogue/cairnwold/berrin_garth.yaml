@@ -324,7 +324,7 @@ nodes:
         consequences: [{ command: tell_lore, lore_ref: lore.the_spill }]
         next: again
   crag_stone:
-    text: "A hold. ... Well, that would explain the crags, wouldn't it - a line, not a scatter. I always said it wasn't us. Let me look. ... Here, my grandmother's hand: 'One dressed stone from the crag face, fit for a lintel, carted east and sold to the stone-buyers, the year the beck froze.' Cairnwold took it, and sold it on, and wrote it down, and never thought on it since. The Ondrek, that'll be. They pay fair, and they say it was never anyone. I don't know who's right. I only know we did it, and it's in the book."
+    text: "A hold. ... Well, that would explain the crags, wouldn't it - a line, not a scatter. I always said it wasn't us. Let me look. ... Here, my grandmother's hand: 'One dressed stone from the crag face, fit for a lintel, carted east and sold to the stone-buyers, the year the beck froze.' Cairnwold took it, and sold it on, and wrote it down, and never thought on it since. The Ondrek, that'll be. They pay fair, and they say it was never anyone. I don't know who's right. I only know we did it, and it's in the book. ... You climbed up there? Not flew? Shame. I've always wanted to see one of you try it. Don't ask me to your funerals, mind - your lot take a week over a burial, and I'd only cry at the wrong bits."
     choices:
       - id: back
         text: "Thank you, Berrin."
