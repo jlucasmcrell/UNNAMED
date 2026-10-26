@@ -17,7 +17,7 @@ public partial class OpeningCinematic
     private void ReadyFilm()
     {
         _filmDisabled3D=GetViewport().Disable3D;
-        GetViewport().Disable3D=true;
+        _camera.Attributes=_exposure;AddChild(_camera);_camera.MakeCurrent();StartCamera.Track(this,_camera);
         _layer=new CanvasLayer {Layer=30,Visible=false};AddChild(_layer);
         var root=new ColorRect {Color=Colors.Black,MouseFilter=Control.MouseFilterEnum.Ignore};
         root.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);_layer.AddChild(root);
@@ -46,13 +46,22 @@ public partial class OpeningCinematic
         if(_film is null)return;
         if(_filmWarm==0)
         {
-            Warming?.Invoke();_film.Play();_film.Paused=true;_filmWarm=1;return;
+            if(_warm==0)Warming?.Invoke();
+            int poses=_shots.Length*WarmAt.Length;
+            if(_warm<poses*2)
+            {
+                var shot=_shots[_warm/2/WarmAt.Length];
+                Pose(shot.From+(shot.Until-shot.From)*WarmAt[_warm/2%WarmAt.Length]);_warm++;return;
+            }
+            SkyView.Show(SkyView.ClockAtWorldStart);
+            GetViewport().Disable3D=true;
+            _filmWarm=1;return;
         }
         if(_filmWarm==1){_filmWarm=2;Warmed?.Invoke();return;}
         if(Holding)return;
         if(_clock<0)
         {
-            _layer.Visible=true;_film.Paused=false;Started?.Invoke();
+            _layer.Visible=true;_film.Play();Started?.Invoke();
             GetViewport().GuiReleaseFocus();
         }
         if(_leaving){Finish(true);return;}
@@ -60,7 +69,10 @@ public partial class OpeningCinematic
         while(_filmSaid<OpeningFilmWords.Lines.Length&&_clock>=OpeningFilmWords.Lines[_filmSaid].From)
             Say?.Invoke(OpeningFilmWords.Lines[_filmSaid++].Voice);
         Words(_clock);_words.Visible=SettingsStore.Current.Profile.Interface.Subtitles;
-        if(!_hit&&_clock>=OpeningFilmWords.Hit){_hit=true;Named?.Invoke();}
+        if(!_hit&&_clock>=OpeningFilmWords.Hit)
+        {
+            _hit=true;Named?.Invoke();GetViewport().Disable3D=_filmDisabled3D;
+        }
         if(_clock>=OpeningFilmWords.End)Finish(false);
     }
 }
