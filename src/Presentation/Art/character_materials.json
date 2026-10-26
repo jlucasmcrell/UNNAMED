@@ -16,14 +16,16 @@
       "specular": 0.2
     },
     "hair": {
+      "alpha_coverage": true,
+      "alpha_cutoff": 0.3,
       "specular": 0.3,
       "backlight": [
         0.08,
         0.05,
         0.03
       ],
-      "rim": 0.15,
-      "rim_tint": 0.7,
+      "rim": 0.3,
+      "rim_tint": 1.0,
       "anisotropy": 0.75
     },
     "cloth": {
