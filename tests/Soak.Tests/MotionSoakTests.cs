@@ -1,5 +1,6 @@
 using UNNAMED.Domain;
 using UNNAMED.Domain.Companions;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
@@ -37,6 +38,17 @@ public sealed class MotionSoakTests(ITestOutputHelper output)
                 Assert.True(dx * dx + dz * dz <= 2002.0 * 2002.0, "party arrival outside documented 2 m ring");
                 allowed[npc.InstanceId.Value] = npc.Body;
             }
+        });
+        int blinked = 0;
+        w.Bus(sim).Subscribe<Blinked>(e => {
+            // Tavar is Orenth: only his published, range-bounded blink arrival on this interval is exempt.
+            Assert.Equal(sim.Npcs.Single(n => n.Id == "npc.ashen_hollow.tavar_orr").InstanceId, e.Actor);
+            var blink = setup.Character.AbilityOf("people.orenth", PeopleAction.Blink);
+            Assert.NotNull(blink);
+            double dx = e.To.XMm - e.From.XMm, dz = e.To.ZMm - e.From.ZMm;
+            Assert.InRange(Math.Sqrt(dx * dx + dz * dz), 0, blink.RangeMm + 2);
+            allowed[e.Actor.Value] = e.To;
+            blinked++;
         });
         var violations = new List<string>();
         var pushes = new List<string>();
@@ -81,6 +93,7 @@ public sealed class MotionSoakTests(ITestOutputHelper output)
         output.WriteLine($"seed={seed}: {ticks} ticks ({ticks * sim.Setup.TickMilliseconds / 1000.0:F0} simulated seconds), {observed} body intervals, {rejected} rejected commands, {pushes.Count} pushes, {violations.Count} violations");
         foreach (string push in pushes) output.WriteLine("push: " + push);
         Assert.True(observed > ticks && rejected > 0);
+        if (ticks == 36_000) Assert.True(blinked > 0, "The long fixture must exercise Tavar's blink allowance");
         Assert.True(violations.Count == 0, string.Join("\n", violations.Take(50)));
     }
 
