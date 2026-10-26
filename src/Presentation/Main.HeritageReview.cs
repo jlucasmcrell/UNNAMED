@@ -43,6 +43,11 @@ public partial class Main
             await HeritageKal(directory);
             return;
         }
+        if(OS.GetEnvironment("OTHERREACH_HERITAGE_REVIEW")=="kalkera")
+        {
+            await HeritageKera(directory);
+            return;
+        }
         if(OS.GetEnvironment("OTHERREACH_HERITAGE_REVIEW") is "kaljoint" or "kaljoint2" or "kaljoint3")
         {
             await HeritageJoint(directory);
@@ -335,6 +340,37 @@ public partial class Main
             status="HERITAGE_KAL_JOINT_LEASE3_REALTIME_REQUIRES_CLAUDE_REVIEW",people=sim.Player.Identity.PeopleId,nodes,branch_after_berrin=branch,
             quest_status=done.Status.ToString(),titles=sim.Titles,tool_carried=sim.Player.Inventory.Any(e=>e.DefId=="item.heritage.finishing_tool"),
             world_tick=sim.WorldTick,profile="The second lease's save at Ashen Hollow (heritage_kaljoint); ordinary steering and commands; no desktop input"},
+            new JsonSerializerOptions{WriteIndented=true}));
+        ulong deadline=Time.GetTicksMsec()+20000;
+        while(!File.Exists(Path.Combine(directory,"recording.stopped")) && Time.GetTicksMsec()<deadline)
+            await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+    }
+
+    /// <summary>
+    /// A new Kal on the Kal body at Kera's counter (OTHERREACH_HERITAGE_REVIEW=kalkera), one short lease: the Finishing Tool in the pack, then
+    /// Kera, a Kal, reading a Kal's tool - The Unfinished Joint's first step.
+    /// </summary>
+    private async Task HeritageKera(string directory)
+    {
+        var sim=_session.Simulation!;
+        const string Kera="npc.ashen_hollow.kera_voss";
+        if(sim.Player.Identity.PeopleId!="people.kal")throw new InvalidDataException("The run did not begin as a Kal");
+        var tool=sim.Player.Inventory.SingleOrDefault(e=>e.DefId=="item.heritage.finishing_tool") ?? throw new InvalidDataException("A new Kal carries no Finishing Tool");
+        _inventory.Open(null);await Rcd3Wait(1.5);
+        _inventory.FindChildren("*","",true,false).OfType<Control>()
+            .First(c=>c.HasMeta("item_reference") && c.GetMeta("item_reference").AsString()==tool.ItemId.Value).EmitSignal(Control.SignalName.MouseEntered);
+        await Rcd3Wait(5);CloseScreens();await Rcd3Wait(1);
+        await HeritageWalkTo(Kera);
+        _session.Submit(new TalkCommand(sim.PlayerId,Kera));await Rcd3Wait(3);
+        if(sim.Conversation?.Replies.Any(r=>r.Id=="grip")!=true)throw new InvalidDataException("Kera offers no reading of the grip");
+        _session.Submit(new ChooseCommand(sim.PlayerId,"grip"));await Rcd3Wait(18);
+        string node=sim.Conversation?.NodeId ?? "";
+        _session.Submit(new ChooseCommand(sim.PlayerId,"back"));await Rcd3Wait(1);
+        _session.Submit(new LeaveCommand(sim.PlayerId));await Rcd3Wait(4);
+        File.WriteAllText(Path.Combine(directory,"recording.finished"),DateTime.Now.ToString("o"));
+        File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {
+            status="HERITAGE_KAL_KERA_REALTIME_REQUIRES_CLAUDE_REVIEW",people=sim.Player.Identity.PeopleId,body=sim.Player.Identity.BodyPresetId,node,
+            world_tick=sim.WorldTick,profile="Fresh isolated profile; creator Begin as a Kal on the Kal body; ordinary steering and commands; no desktop input"},
             new JsonSerializerOptions{WriteIndented=true}));
         ulong deadline=Time.GetTicksMsec()+20000;
         while(!File.Exists(Path.Combine(directory,"recording.stopped")) && Time.GetTicksMsec()<deadline)

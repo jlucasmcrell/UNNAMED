@@ -20,7 +20,8 @@ public partial class Main
         var rows = new List<object>();
         try
         {
-            if (_avatar is SkinnedFigure comparison && VisualOptions.ComparisonCast is not null)
+            // A people's race body (humgen_race_*) comes from the package, not the comparison cast, so it has no cast height to check.
+            if (_avatar is SkinnedFigure comparison && VisualOptions.ComparisonCast is not null && !comparison.ModelId.StartsWith("humgen_race_", StringComparison.Ordinal))
             {
                 bool humgen = VisualOptions.ComparisonCast == "humgen";
                 using var cast = JsonDocument.Parse(Godot.FileAccess.GetFileAsString(humgen ? "res://Art/humgen_cast.json" : "res://Art/mpfb_cast.json"));
