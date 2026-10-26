@@ -346,15 +346,24 @@ public partial class Main
                 Show(worn)();
                 _creator.Go(CreatorStep.Face);
             };
+            // The people's other body type too (body.<people>_m.* and _f.*), on its own look, so each sex is shot.
+            Action otherSex = () =>
+            {
+                string body = _creator.Draft.BodyPresetId;
+                _creator.Use(_creator.Draft with { BodyPresetId = body.Contains("_m.") ? body.Replace("_m.", "_f.") : body.Replace("_f.", "_m."), Appearance = null });
+                _creator.Frame(CreatorPreview.Framings[0].Zoom);
+            };
             list.Add(($"{list.Count + 1:00}_people_{name}", () => _creator.Frame(CreatorPreview.Framings[2].Zoom), 2500));
             if (others[i] != PeopleLooks.Kal)
+                list.Add(($"{list.Count + 1:00}_people_{name}_face", otherSex, 6000));
+            else
             {
-                list.Add(($"{list.Count + 1:00}_people_{name}_face", after, 6000));
-                continue;
+                list.Add(($"{list.Count + 1:00}_people_kal_face", () => Stone(0, CreatorPreview.Framings[0].Zoom), 2500));
+                list.Add(($"{list.Count + 1:00}_kal_stone_mostly", () => _creator.Frame(CreatorPreview.Framings[2].Zoom), 2500));
+                list.Add(($"{list.Count + 1:00}_kal_stone_mostly_face", otherSex, 6000));
             }
-            list.Add(($"{list.Count + 1:00}_people_kal_face", () => Stone(0, CreatorPreview.Framings[0].Zoom), 2500));
-            list.Add(($"{list.Count + 1:00}_kal_stone_mostly", () => _creator.Frame(CreatorPreview.Framings[2].Zoom), 2500));
-            list.Add(($"{list.Count + 1:00}_kal_stone_mostly_face", after, 6000));
+            list.Add(($"{list.Count + 1:00}_people_{name}_other", () => _creator.Frame(CreatorPreview.Framings[2].Zoom), 2500));
+            list.Add(($"{list.Count + 1:00}_people_{name}_other_face", after, 6000));
         }
         list.Add(($"{list.Count + 1:00}_face", () => _creator.Go(CreatorStep.Hair), 1500));
         // A skin tone and a hair colour other than the baked ones (Tan, Blond), kept to the road so the game draws them too.
