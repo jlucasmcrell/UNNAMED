@@ -1357,6 +1357,9 @@ public sealed class ArtLibrary
         return maps;
     }
 
+    internal Texture2D ScopedTexture(string path, int maximum) =>
+        CacheFor(path).Scoped(TextureCache.Key(Path.GetRelativePath(WorkspaceOf(path), path)), path, maximum);
+
     /// <summary>A map file as a texture, through the texture cache (<paramref name="role"/> as TextureCache takes it); null when it will not load.</summary>
     public Texture2D? Texture(string path, string role)
     {

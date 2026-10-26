@@ -24,6 +24,9 @@ public sealed partial class SkinnedModel : Node3D
     private Godot.Collections.Dictionary _contacts = new();
     private AnimationPlayer _player = null!;
     private HumGenLods? _humgenLods;
+    private HumGenCloseupTextures? _closeTextures;
+    private bool? _reviewCloseTextures;
+    internal void ReviewCloseTextures(bool? enabled) { _reviewCloseTextures=enabled; _closeTextures?.Update((enabled??true) && _humgenLods?.Level==0 && IsVisibleInTree()); }
     internal void ReviewAllLods(bool all) => _humgenLods?.ReviewAllLevels(all);
     public bool ForceLod0
     {
@@ -114,6 +117,7 @@ public sealed partial class SkinnedModel : Node3D
             figure.Throttle();
         figure.FindOutfits(model);
         figure.SetOutfit("base");
+        if (owner=="player") figure._closeTextures=HumGenCloseupTextures.Create(model,art,assetId);
         return figure;
     }
 
@@ -314,9 +318,13 @@ public sealed partial class SkinnedModel : Node3D
         AddChild(_seen);
     }
 
+    public override void _Notification(int what) { if(what==NotificationDisabled) _closeTextures?.Update(false); }
+    public override void _ExitTree() => _closeTextures?.Update(false);
+
     public override void _Process(double delta)
     {
         _humgenLods?.Update(GetViewport().GetCamera3D() is { } eye ? eye.GlobalPosition.DistanceTo(GlobalPosition) : 0f);
+        _closeTextures?.Update((_reviewCloseTextures??true) && _humgenLods?.Level==0 && IsVisibleInTree());
         if (!_throttled)
             return;
         _owed += delta;

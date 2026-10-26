@@ -113,6 +113,15 @@ public sealed class TextureCache
         return Load(dds, VisualOptions.TextureMaxSize(key, role));
     }
 
+    // Close-up maps live only on the figure using them; never retain their 4K upload in the scene cache.
+    public Texture2D Scoped(string key, string source, int maximum)
+    {
+        var info = new FileInfo(source);
+        if (!info.Exists || !_entries.TryGetValue(key, out var entry) || entry.Size != info.Length || entry.Sig != Signature(source))
+            throw new InvalidDataException("Missing signed close-up texture: " + source);
+        return Load(entry.Dds, maximum, false) ?? throw new InvalidDataException("Close-up DDS did not load: " + source);
+    }
+
     /// <summary>A mip-chained BC7 copy of <paramref name="picture"/> in the cache, named by its content; null when it cannot be made.</summary>
     private string? Compress(Image picture, string role)
     {
@@ -160,14 +169,15 @@ public sealed class TextureCache
         return image;
     }
 
-    private Texture2D? Load(string name, int maxSize)
+    private Texture2D? Load(string name, int maxSize, bool retain = true)
     {
-        if (_loaded.TryGetValue(name, out var texture) && texture is not null)
+        Texture2D? texture = null;
+        if (retain && _loaded.TryGetValue(name, out texture) && texture is not null)
             return texture;
         texture = null;
         string path = Path.Combine(_root!, Folder, name);
         string? native = _nativeRoot is null ? null : Path.Combine(_nativeRoot, name + ".res").Replace('\\', '/');
-        if (!_buildNative && native is not null && File.Exists(native) && File.Exists(path)
+        if (retain && !_buildNative && native is not null && File.Exists(native) && File.Exists(path)
             && ResourceLoader.Load<ImageTexture>(native) is { } shared)
         {
             // Reuse the same external texture as native model scenes, including their LODs.
@@ -184,7 +194,7 @@ public sealed class TextureCache
             {
                 var upload = _buildNative ? image : WithinSize(image, maxSize);
                 texture = ImageTexture.CreateFromImage(upload);
-                CompressedBytes += upload.GetDataSize();
+                if (retain) CompressedBytes += upload.GetDataSize(); // Scoped player maps are not retained in this cache.
                 if (upload != image)
                     upload.Dispose();
                 if (_buildNative && native is not null)
@@ -196,7 +206,7 @@ public sealed class TextureCache
                 }
             }
         }
-        _loaded[name] = texture;
+        if (retain) _loaded[name] = texture;
         return texture;
     }
 
