@@ -204,7 +204,7 @@ public partial class Main
     /// Orenth blinks, and a still camera 7 m side-on to the place it left holds the afterimage and the wolf in frame. The roll is the real one,
     /// so it goes again on the next bite until one lands on the afterimage, or 60 s pass.
     /// </summary>
-    private async Task DecoyRoute(Action<string, object?> mark)
+    private async Task DecoyRoute(Action<string, object?> mark, float distance=7, float forward=0)
     {
         var sim = _session.Simulation!;
         var wolf = sim.Creatures.Where(c => c.DefId == DecoyWolf && c.Alive)
@@ -218,7 +218,8 @@ public partial class Main
         {
             var spot = new Vector3(at.XMm / 1000f, at.YMm / 1000f + 1f, at.ZMm / 1000f);
             var line = new Vector3((toward.XMm - at.XMm) / 1000f, 0, (toward.ZMm - at.ZMm) / 1000f).Normalized();
-            still.GlobalPosition = spot + new Vector3(line.Z, 0, -line.X) * 7 + Vector3.Up * .5f;
+            spot+=line*forward;
+            still.GlobalPosition = spot + new Vector3(line.Z, 0, -line.X) * distance + Vector3.Up * .5f;
             still.LookAt(spot);
             still.MakeCurrent();
         }

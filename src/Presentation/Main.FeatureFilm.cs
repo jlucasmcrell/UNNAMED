@@ -41,7 +41,7 @@ public partial class Main
         double Number(JsonElement e,string key,double fallback)=>e.TryGetProperty(key,out var v)?v.GetDouble():fallback;
         void Mark(string phase,object? detail=null)=>File.AppendAllText(Path.Combine(directory,"phases.jsonl"),JsonSerializer.Serialize(new {
             phase,detail,utc=DateTimeOffset.UtcNow,uptime_ms=Time.GetTicksMsec(),tick=sim.WorldTick,
-            name=sim.Player.Name,avatar_position=_avatar.GlobalPosition.ToString(),avatar_visible=_avatar.IsVisibleInTree(),lying=_lying,player=sim.Player.Body,health=sim.Combat.Health,level=sim.Player.Progression.Level,
+            name=sim.Player.Name,avatar_position=_avatar.GlobalPosition.ToString(),avatar_visible=_avatar.IsVisibleInTree(),lying=_lying,posture=sim.Posture,player=sim.Player.Body,health=sim.Combat.Health,level=sim.Player.Progression.Level,
             camera=camera.GlobalPosition.ToString(),model=native.ModelId,tier=VisualOptions.Tier})+"\n");
         _session.Subscribe<CommandRejected>(e=>Mark("rejected",e));
         _session.Subscribe<HitResolved>(e=>Mark("hit",e));
@@ -52,6 +52,8 @@ public partial class Main
         _session.Subscribe<AfterimageStruck>(e=>Mark("decoy_struck",e));
         _session.Subscribe<StoneTouched>(e=>Mark("stone_touched",e));
         _session.Subscribe<PetAdopted>(e=>Mark("pet_adopted",e));
+        _session.Subscribe<PeopleAbilityUsed>(e=>Mark("people_ability_used",e));
+        _session.Subscribe<EffectApplied>(e=>Mark("effect_applied",e));
         void Frame()
         {
             if(gameplayCamera){_camera.Camera.MakeCurrent();return;}
@@ -131,6 +133,7 @@ public partial class Main
                 if(step.TryGetProperty("fov",out var fov))camera.Fov=fov.GetSingle();
                 if(step.TryGetProperty("offset",out var off))offset=V(off);
                 if(step.TryGetProperty("aim",out var aim))fixedAim=V(aim);
+                if(step.TryGetProperty("head",out var head))fixedAim=head.GetBoolean()?_avatar.Head:null;
                 if(step.TryGetProperty("ground",out var ground))
                 {
                     var point=V(ground);fixedAim=new Vector3(point.X,_ground.Height(point.X,point.Z)+point.Y,point.Z);
@@ -173,7 +176,7 @@ public partial class Main
                         break;
                     case "decoy_route":
                         camera.GetNode<OmniLight3D>("CharacterFill").Reparent(_camera.Camera,false);
-                        _camera.Camera.MakeCurrent();await DecoyRoute(Mark);
+                        _camera.Camera.MakeCurrent();await DecoyRoute(Mark,(float)Number(step,"camera_distance",7),(float)Number(step,"camera_forward",0));
                         _camera.Camera.GetNode<OmniLight3D>("CharacterFill").Reparent(camera,false);break;
                     case "interact":_controller.Interact(Text(step,"id"));await Hold(seconds);break;
                     case "go":
@@ -246,7 +249,7 @@ public partial class Main
                     case "creator":
                         OpenCreator();
                         string people=Text(step,"people","people.veth");
-                        _creator.Use(_creator.Draft with {PeopleId=people,BodyPresetId=$"body.{people[7..]}_f.average"});
+                        _creator.Use(_creator.Draft with {Name=OS.GetEnvironment("OTHERREACH_FEATURE_FILM_NAME"),PeopleId=people,BodyPresetId=$"body.{people[7..]}_f.average"});
                         _creator.Go(Enum.Parse<CreatorStep>(Text(step,"page","People")));_creator.Frame((float)Number(step,"zoom",0));
                         await Hold(seconds);CloseCreator();break;
                     case "lore":
