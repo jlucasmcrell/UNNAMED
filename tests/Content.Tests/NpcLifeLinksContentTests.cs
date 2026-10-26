@@ -71,6 +71,39 @@ public class NpcLifeLinksContentTests
     }
 
     [Fact]
+    public void PublicTowns_MixSupportedPeoples_WithoutChangingJobOrTradeEligibility()
+    {
+        var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
+        Assert.Empty(loader.Errors);
+        var life = NpcLifeContent.Build(loader, "region.starting_frontier");
+        var items = ItemContent.BuildCatalog(loader);
+        var expected = new Dictionary<string, string> {
+            ["ashen_hollow.cook"] = "veth", ["ashen_hollow.fletcher"] = "siann",
+            ["ashen_hollow.guard"] = "kal", ["ashen_hollow.hunter"] = "orenth",
+            ["ashen_hollow.miner"] = "kal", ["ashen_hollow.porter"] = "veth",
+            ["cairnwold.carter"] = "orenth", ["cairnwold.guard"] = "siann",
+            ["cairnwold.herder"] = "veth", ["cairnwold.hunter"] = "veth",
+            ["cairnwold.trapper"] = "veth", ["cairnwold.woodcutter"] = "kal",
+        };
+        var residents = life.Routines.Values.Where(r => r.IsSlot).ToArray();
+        Assert.Equal(expected.Count, residents.Length);
+        foreach (var (slot, people) in expected)
+            Assert.Equal("people." + people, life.Routines["routine." + slot].PeopleId);
+        foreach (var resident in residents)
+        {
+            Assert.NotEmpty(NpcHireability.HiresAs(resident.Roles, life.Roles));
+            // These are workers, not the named vendors. No heritage vendor stock changes hands here.
+            Assert.DoesNotContain(NpcRoleKeys.Vendor, resident.Roles);
+            if (resident.Job is { } job)
+            {
+                var output = items.Get(job.ItemId);
+                Assert.Null(output.Heritage);
+                Assert.True(UNNAMED.Domain.Items.HeritageRules.Allows(output, resident.PeopleId));
+            }
+        }
+    }
+
+    [Fact]
     public void ATraderWhoIsNotAVendor_IsRefused() =>
         AssertRefused("NPL005", "routines/ashen_hollow/kera_voss.yaml", "roles: [smith, vendor, quest_giver]", "roles: [smith, quest_giver]", "trades, so is a vendor");
 
