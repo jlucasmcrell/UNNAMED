@@ -85,6 +85,8 @@ uniform float stone_crack_dark : hint_range(0.0, 1.0) = 0.55;
 uniform float stone_cavity : hint_range(0.0, 1.0) = 0.4;
 uniform float stone_skin_blend : hint_range(0.0, 1.0) = 0.35;
 uniform float stone_match : hint_range(0.0, 1.0) = 0.6;
+// the darkest the matched stone may go: a dark base body's slate stays dark grey, so the face and the eyes in it still read
+uniform float stone_floor : hint_range(0.0, 0.6) = 0.26;
 uniform float stone_glint : hint_range(0.0, 1.0) = 0.6;
 uniform float stone_normal_y : hint_range(-1.0, 1.0) = 1.0;
 uniform vec3 stone_tint : source_color = vec3(1.0);
@@ -234,7 +236,7 @@ void fragment() {
 		float luma = max(dot(ALBEDO, vec3(.299, .587, .114)), .02);
 		vec3 rock = rgbh.rgb * stone_tint;
 		// the stone's own colour at roughly this skin's lightness: neither a black blot nor a white chalk patch
-		rock *= mix(1.0, clamp(luma * 1.05 / max(dot(rock, vec3(.299, .587, .114)), .02), .5, 8.0), stone_match);
+		rock *= mix(1.0, clamp(max(luma, stone_floor) * 1.05 / max(dot(rock, vec3(.299, .587, .114)), .02), .5, 8.0), stone_match);
 		float rock_luma = dot(rock, vec3(.299, .587, .114));
 		// the skin's own hue carrying the stone's tone; toward the joints, the stone's own colour
 		vec3 mineral = mix(ALBEDO * clamp(rock_luma / max(luma, .05), .55, 1.35), mix(rock, rock_luma * ALBEDO / luma, stone_skin_blend), joint);
