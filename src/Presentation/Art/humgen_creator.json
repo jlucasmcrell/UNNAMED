@@ -123,23 +123,23 @@
    "footwear": "footwear.outdoor.garden_boot"
   },
   {
-   "model": "humgen_race_kal_f_frontier",
+   "model": "humgen_race_kal_f_compact",
    "sex": "f",
    "face": "face.f.caucasian_presets.caucasian_4",
    "age": 44,
-   "stature_cm": 162,
-   "hair": "hair.long.bob_short",
+   "stature_cm": 150,
+   "hair": null,
    "facial_hair": null,
    "outfit": "outfit.extra_outfits_pack.pirate",
    "footwear": "footwear.extra_outfits_pack.pirate_boots"
   },
   {
-   "model": "humgen_race_kal_m_frontier",
+   "model": "humgen_race_kal_m_compact",
    "sex": "m",
    "face": "face.m.caucasian_presets.caucasian_4",
    "age": 48,
-   "stature_cm": 168,
-   "hair": "hair.short.short_combed",
+   "stature_cm": 155,
+   "hair": null,
    "facial_hair": null,
    "outfit": "outfit.extra_outfits_pack.pirate",
    "footwear": "footwear.extra_outfits_pack.pirate_boots"

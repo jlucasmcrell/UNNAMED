@@ -87,8 +87,8 @@ public class CreatorCatalogueTests
     }
 
     [Theory]
-    [InlineData("kal", "f", "frontier", 1620)]
-    [InlineData("kal", "m", "frontier", 1680)]
+    [InlineData("kal", "f", "compact", 1500)]
+    [InlineData("kal", "m", "compact", 1550)]
     [InlineData("siann", "f", "long", 1420)]
     [InlineData("siann", "m", "long", 1500)]
     [InlineData("orenth", "f", "frontier", 1680)]
