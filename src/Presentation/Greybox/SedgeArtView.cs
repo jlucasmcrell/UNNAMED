@@ -34,8 +34,9 @@ public partial class SedgeArtView : Node3D
         foreach (var at in new[] { new Vector3(4860,135,1100), new Vector3(4910,165,600), new Vector3(5110,145,1700) })
         {
             var shaft = new SpotLight3D { Name = "CloudBreakShaft", Position = at,
-                LightColor = new Color(.87f,.93f,1), LightEnergy = 22f,
-                LightVolumetricFogEnergy = 8f, SpotRange = 260, SpotAngle = 13,
+                // Native inverse-square lights need this power for the 135–165m throw.
+                LightColor = new Color(.87f,.93f,1), LightEnergy = 12000f,
+                LightVolumetricFogEnergy = 12f, SpotRange = 260, SpotAngle = 13,
                 SpotAttenuation = .5f, ShadowEnabled = true,
                 RotationDegrees = new Vector3(-72, -20, 0) };
             view.AddChild(shaft);view._shafts.Add(shaft);
@@ -237,7 +238,7 @@ public partial class SedgeArtView : Node3D
         _elapsed += (float)delta;
         float energy = Mathf.Lerp(2.3f, .25f, SkyView.DaylightLevel);
         foreach (var lamp in _lamps) lamp.LightEnergy = energy;
-        foreach (var shaft in _shafts) shaft.LightEnergy = 22f * SkyView.DaylightLevel;
+        foreach (var shaft in _shafts) shaft.LightEnergy = 12000f * SkyView.DaylightLevel;
         foreach (var haze in _shaftHaze) haze.Visible = SkyView.DaylightLevel > .35f;
         foreach (var rain in _rain)
         {
