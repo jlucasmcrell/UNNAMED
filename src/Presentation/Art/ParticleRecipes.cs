@@ -165,6 +165,11 @@ public sealed class ParticleRecipes
         var material = new ShaderMaterial { Shader = add ? StreakAdd : StreakMix };
         material.SetShaderParameter("tex", texture);
         material.SetShaderParameter("energy", Number(r, "energy", 1f));
+        if (Numbers(r, "near_fade") is { Length: 2 } fade)
+        {
+            material.SetShaderParameter("near_fade_from", fade[0]);
+            material.SetShaderParameter("near_fade_to", fade[1]);
+        }
         return material;
     }
 
@@ -176,7 +181,11 @@ shader_type spatial;
 render_mode unshaded, BLEND, cull_disabled, depth_draw_never, shadows_disabled;
 uniform sampler2D tex : source_color, filter_linear_mipmap;
 uniform float energy = 1.0;
+uniform float near_fade_from = 0.0;
+uniform float near_fade_to = 0.0;
+varying float view_depth;
 void vertex() {
+    view_depth = -(VIEW_MATRIX * vec4(MODEL_MATRIX[3].xyz, 1.0)).z;
     vec3 along = MODEL_MATRIX[1].xyz;
     vec3 centre = MODEL_MATRIX[3].xyz;
     vec3 side = normalize(cross(normalize(along), normalize(CAMERA_POSITION_WORLD - centre))) * length(MODEL_MATRIX[0].xyz);
@@ -185,7 +194,9 @@ void vertex() {
 void fragment() {
     vec4 t = texture(tex, UV);
     ALBEDO = t.rgb * COLOR.rgb * energy;
-    ALPHA = t.a * COLOR.a;
+    // Fades out as the quad comes within near_fade_to metres of the camera (a rain streak on the lens), gone at near_fade_from.
+    float near = near_fade_to > near_fade_from ? smoothstep(near_fade_from, near_fade_to, view_depth) : 1.0;
+    ALPHA = t.a * COLOR.a * near;
 }
 ";
 

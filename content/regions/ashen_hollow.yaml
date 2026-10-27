@@ -63,7 +63,7 @@ terrain:
 # Footprints that block movement: box_m [min_x, min_z, max_x, max_z], circle_m [x, z, radius].
 structures:
   # Cell A - Ashen Hollow Waystation (bible §5). The Ashen Waystone, where a new character starts.
-  - { id: rock_waystone, circle_m: [27, 158, 0.8], height_m: 2.4 }
+  - { id: rock_waystone, circle_m: [27, 158, 0.85], height_m: 2.61 }
   # The communal lodge, Renn's (bible: (44, 128)): the M3 longhouse, door on the east wall.
   - { id: longhouse_north, box_m: [36, 131.6, 52, 132], height_m: 3.2 }
   - { id: longhouse_south, box_m: [36, 124, 52, 124.4], height_m: 3.2 }
@@ -77,10 +77,10 @@ structures:
   - { id: forge_west_north, box_m: [53, 142.8, 53.4, 146], height_m: 3.0 }
   - { id: forge_west_south, box_m: [53, 138, 53.4, 141.2], height_m: 3.0 }
   # A fence west of the smithy, leaving a narrow gap at its north-west corner (bible §26's camera test).
-  - { id: fence_smithy, box_m: [44, 146, 51.4, 146.4], height_m: 1.2 }
-  - { id: rock_well, circle_m: [49, 151, 1.0], height_m: 1.0 }
+  - { id: fence_smithy, box_m: [44, 142.5, 51.4, 149.9], height_m: 1.8 }
+  - { id: rock_well, circle_m: [49, 151, 1.32], height_m: 1.78 }
   # Sel's survey table (bible: Sel's survey area at (72, 122)).
-  - { id: survey_table, box_m: [73.4, 120.4, 75.2, 122.2], height_m: 0.9 }
+  - { id: survey_table, box_m: [73.1, 120.1, 75.5, 122.5], height_m: 0.9 }
   # Cell B - Charwood Verge (bible §6). The damaged merchant cart where the bow lies.
   - { id: cart_wreck, box_m: [155.5, 161.2, 158.5, 163.2], height_m: 1.4 }
   - { id: fallen_timber, box_m: [163, 147, 171, 147.8], height_m: 0.8 }
@@ -91,19 +91,19 @@ structures:
   - { id: rock_beam_east, circle_m: [152.7, 132, 0.7], height_m: 1.8 }
   # The wolves' den: a notch in the rock in Charwood's north-west corner (the prototype's den, kept; not in the bible), clear of the
   # bible's acceptance path.
-  - { id: den_rock_west, box_m: [93, 180, 109, 198], height_m: 6.0 }
-  - { id: den_rock_east, box_m: [115, 180, 131, 196], height_m: 5.0 }
+  - { id: den_rock_west, box_m: [91.97, 179.97, 110.03, 198.03], height_m: 7.35 }
+  - { id: den_rock_east, box_m: [114.62, 179.62, 131.38, 196.38], height_m: 6.96 }
   - { id: den_rock_back, box_m: [109, 190, 115, 198], height_m: 6.0 }
   # Cell C - Blackvein Cut (bible §7). The iron seam's rock on the quarry floor, the blocked shaft, boulders on the rim.
-  - { id: rock_iron_seam, circle_m: [28, 46.2, 1.2], height_m: 1.5 }
+  - { id: rock_iron_seam, circle_m: [28, 46.2, 1.19], height_m: 1.71 }
   - { id: rock_blocked_shaft, box_m: [73, 16, 79, 21], height_m: 4.0 }
-  - { id: rock_rim_01, circle_m: [10, 84, 2.0], height_m: 2.2 }
-  - { id: rock_rim_02, circle_m: [31, 88, 1.8], height_m: 2.0 }
+  - { id: rock_rim_01, circle_m: [10, 84, 2.2], height_m: 2.57 }
+  - { id: rock_rim_02, circle_m: [31, 88, 2.21], height_m: 2.71 }
   - { id: rock_rim_03, circle_m: [81, 58, 2.2], height_m: 2.4 }
-  - { id: rock_rim_04, circle_m: [80, 30, 2.0], height_m: 2.2 }
+  - { id: rock_rim_04, circle_m: [80, 30, 2.21], height_m: 2.71 }
   # Cell D - Foldscar Ruin (bible §8). The three Quiet Stones and the Foldscar's heart.
   - { id: rock_stone_north, circle_m: [150, 78, 0.9], height_m: 2.8 }
-  - { id: rock_stone_southwest, circle_m: [122, 38, 0.9], height_m: 2.8 }
+  - { id: rock_stone_southwest, circle_m: [122, 38, 1.08], height_m: 2.8 }
   - { id: rock_stone_southeast, circle_m: [181, 31, 0.9], height_m: 2.8 }
   - { id: rock_foldscar_heart, circle_m: [153, 48, 1.5], height_m: 3.5 }
   - { id: tree_01, circle_m: [108, 158, 0.4], height_m: 7.0 }
@@ -285,19 +285,19 @@ structures:
   - { id: ah_furn_longhouse_bed_03, box_m: [36.42, 129.00, 37.28, 130.90], height_m: 0.6200 }    # a straw-tick bed on a boarded frame in the longhouse -> cw_bed_straw
   - { id: ah_furn_longhouse_table_01, box_m: [42.00, 125.00, 43.20, 125.55], height_m: 0.8800 }    # a 1.20 m planked table in the longhouse -> cw_table_timber
   - { id: ah_furn_longhouse_table_02, box_m: [43.40, 125.00, 44.60, 125.55], height_m: 0.8800 }    # a 1.20 m planked table in the longhouse -> cw_table_timber
-  - { id: ah_furn_longhouse_stool_01, box_m: [42.60, 126.10, 42.94, 126.44], height_m: 0.4600 }    # a three-legged stool in the longhouse -> cw_stool_timber
-  - { id: ah_furn_longhouse_stool_02, box_m: [43.80, 126.10, 44.14, 126.44], height_m: 0.4600 }    # a three-legged stool in the longhouse -> cw_stool_timber
-  - { id: ah_furn_longhouse_stool_03, box_m: [42.60, 124.50, 42.94, 124.84], height_m: 0.4600 }    # a three-legged stool in the longhouse -> cw_stool_timber
-  - { id: ah_furn_longhouse_stool_04, box_m: [43.80, 124.50, 44.14, 124.84], height_m: 0.4600 }    # a three-legged stool in the longhouse -> cw_stool_timber
+  - { id: ah_furn_longhouse_stool_01, box_m: [42.5, 126, 43.04, 126.54], height_m: 0.46 }    # a three-legged stool in the longhouse -> cw_stool_timber
+  - { id: ah_furn_longhouse_stool_02, box_m: [43.7, 126, 44.24, 126.54], height_m: 0.46 }    # a three-legged stool in the longhouse -> cw_stool_timber
+  - { id: ah_furn_longhouse_stool_03, box_m: [42.5, 124.4, 43.04, 124.94], height_m: 0.46 }    # a three-legged stool in the longhouse -> cw_stool_timber
+  - { id: ah_furn_longhouse_stool_04, box_m: [43.7, 124.4, 44.24, 124.94], height_m: 0.46 }    # a three-legged stool in the longhouse -> cw_stool_timber
   - { id: ah_furn_longhouse_shelf, box_m: [44.00, 131.34, 45.20, 131.58], height_m: 1.50, clearance_m: 1.30 }    # a timber wall shelf, hung on the longhouse's north wall -> cw_shelf_timber
-  - { id: ah_furn_longhouse_chest, box_m: [49.92, 124.79, 50.70, 125.51], height_m: 0.8000 }    # an iron-banded strongbox in the longhouse -> container_bank_strongbox
+  - { id: ah_furn_longhouse_chest, box_m: [49.63, 124.47, 50.99, 125.83], height_m: 0.8 }    # an iron-banded strongbox in the longhouse -> container_bank_strongbox
   - { id: ah_furn_longhouse_barrel_01, box_m: [50.90, 124.60, 51.53, 125.32], height_m: 0.8500 }    # an oak barrel in the longhouse -> container_barrel_oak
   - { id: ah_furn_longhouse_barrel_02, box_m: [50.90, 125.50, 51.53, 126.22], height_m: 0.8500 }    # an oak barrel in the longhouse -> container_barrel_oak
   - { id: ah_furn_longhouse_trunk, box_m: [38.20, 130.40, 39.30, 131.50], height_m: 0.9180 }    # a leather travel trunk in the longhouse -> prop_leather_travel_trunk
-  - { id: ah_furn_forge_trough, box_m: [55.80, 139.20, 56.55, 140.05], height_m: 0.7020 }    # a carved stone quench trough in the forge -> prop_carved_stone_trough
-  - { id: ah_furn_forge_rack, box_m: [58.50, 138.42, 59.17, 139.02], height_m: 0.8000 }    # an armory rack in the forge -> container_armory_rack
+  - { id: ah_furn_forge_trough, box_m: [55.53, 138.99, 56.81, 140.26], height_m: 0.7 }    # a carved stone quench trough in the forge -> prop_carved_stone_trough
+  - { id: ah_furn_forge_rack, box_m: [58.13, 138.02, 59.54, 139.42], height_m: 1.39 }    # an armory rack in the forge -> container_armory_rack
   - { id: ah_furn_forge_barrel, box_m: [54.00, 144.70, 54.82, 145.55], height_m: 0.7060 }    # a mead barrel on its cradle in the forge -> prop_mead_barrel_cradle
-  - { id: ah_furn_forge_coalskip, box_m: [61.73, 144.62, 62.07, 144.98], height_m: 0.4000 }    # an iron coal skip in the forge -> prop_iron_coal_skip_basket
+  - { id: ah_furn_forge_coalskip, box_m: [61.59, 144.49, 62.21, 145.11], height_m: 0.4000 }    # an iron coal skip in the forge -> prop_iron_coal_skip_basket
   # ---- ASHEN HOLLOW TABLETOP PROPS, 2026-09-29 ----------------------------------------------
   # Round 537 furnished this longhouse and, in doing so, recreated the defect Cairnwold's tabletop pass
   # had closed: it put two tables in the room and left them BARE. The owner's priority 6 named "nothing
@@ -316,7 +316,7 @@ structures:
   - { id: ah_furn_longhouse_table_lamp, box_m: [42.2598, 125.0837, 42.6402, 125.4763], height_m: 1.2800, clearance_m: 0.8800 }    # a lidded clay oil lamp with a looped handle on the ah_furn_longhouse_table_01 top, 0.380 x 0.393 m, base at 0.8800 m -> prop_clay_oil_lamp_with_handle
   - { id: ah_furn_longhouse_table_jarrack, box_m: [42.7200, 125.1074, 43.1200, 125.4326], height_m: 1.1927, clearance_m: 0.8800 }    # a rack of six glazed apothecary jars on the ah_furn_longhouse_table_01 top, 0.400 x 0.325 m, base at 0.8800 m -> prop_apothecary_jar_rack
   - { id: ah_furn_longhouse_table_tinder, box_m: [43.6708, 125.1371, 44.0292, 125.4229], height_m: 1.2800, clearance_m: 0.8800 }    # a brass tinder box with a hinged lid on the ah_furn_longhouse_table_02 top, 0.358 x 0.286 m, base at 0.8800 m -> prop_brass_tinder_box
-  - { id: ah_furn_longhouse_table_bell, box_m: [44.2239, 125.1841, 44.4161, 125.3759], height_m: 1.2800, clearance_m: 0.8800 }    # a small brass hand bell on a turned handle on the ah_furn_longhouse_table_02 top, 0.192 x 0.192 m, base at 0.8800 m -> prop_brass_hand_bell
+  - { id: ah_furn_longhouse_table_bell, box_m: [44.145, 125.105, 44.495, 125.455], height_m: 1.2800, clearance_m: 0.8800 }    # a small brass hand bell on a turned handle on the ah_furn_longhouse_table_02 top, 0.192 x 0.192 m, base at 0.8800 m -> prop_brass_hand_bell
   # ---- ASHEN HOLLOW LANTERN POSTS, 2026-09-29 -------------------------------------------------
   # THE ASYMMETRY THIS CLOSES, MEASURED. Cairnwold places thirteen `cw_lantern_*` posts, each bound
   # through `structure_prefixes.cw_lantern` to `cw_lantern_post` with two particle emitters (torch
@@ -352,7 +352,7 @@ structures:
   # IT IS NOT CENTRED ON THE FLUE, and that is measured: the demo's own smoke walks into this hall
   # to (44, 128.6) (Smoke.cs:90), so the stone is shifted north out of that line by 0.47 m. The
   # shift is 0.409 m of body clearance at the tight end against the engine's own 0.35 m radius.
-  - { id: ah_furn_longhouse_hearth, box_m: [46.40, 128.82, 48.00, 130.42], height_m: 0.22 }    # a raised rubble-stone hearthstone, 1.60 x 1.60 m and 0.22 m high
+  - { id: ah_furn_longhouse_hearth, box_m: [46.40, 128.82, 48.00, 130.42], height_m: 0.39 }    # a raised rubble-stone hearthstone, 1.60 x 1.60 m and 0.22 m high
 doors:
   - { key: door.longhouse, flag_ref: world.hollow.longhouse_door_open, box_m: [51.6, 127.2, 52, 128.8], height_m: 2.4 }
   - { key: door.forge_shed, flag_ref: world.hollow.forge_shed_door_open, box_m: [53, 141.2, 53.4, 142.8], height_m: 2.4 }

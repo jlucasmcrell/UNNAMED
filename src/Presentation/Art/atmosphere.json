@@ -1,4 +1,4 @@
-{
+﻿{
   "comment": [
     "Atmospheric particles (Phase B, B11): presentation data. Each emitter is a particle recipe (vfx_recipes.json) either following the",
     "camera (follow: camera, at its offset) and running only while the ground under the camera is one of 'grounds' (world material IDs,",
@@ -14,8 +14,13 @@
       "note": "The waystation's meadow and the Cairnwold moor in sunlight." },
     { "recipe": "leaves_falling", "follow": "camera", "offset": [0, 9, 0], "grounds": ["cw_forest_floor"], "weather": ["fair", "clear", "overcast", "rain"],
       "note": "Under the birch flanks: a leaf now and then." },
-    { "recipe": "rain_light", "follow": "camera", "offset": [0, 12, 0], "weather": ["rain"] },
-    { "recipe": "rain", "follow": "camera", "offset": [0, 14, 0], "weather": ["rain", "storm"] },
+    { "recipe": "rain", "follow": "camera", "offset": [0, 12, 0], "weather": ["rain"], "needs_sky": true,
+      "note": "Steady rain (note 16), and the two tiers beside it: drizzle for the edges of a front, this for its body, the downpour for a storm." },
+    { "recipe": "rain_drizzle", "follow": "camera", "offset": [0, 12, 0], "weather": ["fog"], "needs_sky": true,
+      "note": "A thin drizzle in fog weather: the air is heavy, and this is what shows it." },
+    { "recipe": "rain_downpour", "follow": "camera", "offset": [0, 14, 0], "weather": ["storm"], "needs_sky": true },
+    { "recipe": "rain_splash", "follow": "camera", "offset": [0, 0.9, 0], "weather": ["rain", "storm"], "needs_sky": true },
+    { "recipe": "rain_ripple", "follow": "camera", "offset": [0, 0.35, 0], "weather": ["rain", "storm"], "needs_sky": true },
     { "recipe": "fog_bank", "follow": "camera", "offset": [0, 0.5, 0], "weather": ["fog"] },
     { "recipe": "snow", "follow": "camera", "offset": [0, 10, 0], "weather": ["snow"] },
     { "recipe": "river_mist", "at": "ravine_rivers", "note": "Mist over the river on the ravine floors." },
@@ -25,3 +30,4 @@
       "note": "Otherworld concept: 'lights some nights' in the moss (Berrin, Cairnwold) - faint green-teal points low over the ground after dark." }
   ]
 }
+

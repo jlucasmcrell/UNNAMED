@@ -16,7 +16,8 @@ public partial class AtmosphereView : Node3D
 {
     public const string ResourcePath = "res://Art/atmosphere.json";
 
-    private sealed record Follower(GpuParticles3D Particles, Vector3 Offset, HashSet<string>? Grounds, HashSet<string>? Weathers, bool DayOnly, bool NightOnly);
+    private sealed record Follower(GpuParticles3D Particles, Vector3 Offset, HashSet<string>? Grounds, HashSet<string>? Weathers, bool DayOnly, bool NightOnly,
+        bool NeedsSky);
 
     private readonly List<Follower> _followers = new();
     private GroundField _ground = null!;
@@ -74,9 +75,11 @@ public partial class AtmosphereView : Node3D
             var weathers = e.TryGetProperty("weather", out var w) ? w.EnumerateArray().Select(x => x.GetString()!).ToHashSet(StringComparer.Ordinal) : null;
             bool dayOnly = e.TryGetProperty("day_only", out var day) && day.ValueKind == JsonValueKind.True;
             bool nightOnly = e.TryGetProperty("night_only", out var night) && night.ValueKind == JsonValueKind.True;
+            // Rain falls from the open sky only (note 16): under a roof, an awning or a cave mouth there is none, whatever the weather says.
+            bool needsSky = e.TryGetProperty("needs_sky", out var sky) && sky.ValueKind == JsonValueKind.True;
             particles.Emitting = false;
             AddChild(particles);
-            _followers.Add(new Follower(particles, offset, grounds, weathers, dayOnly, nightOnly));
+            _followers.Add(new Follower(particles, offset, grounds, weathers, dayOnly, nightOnly, needsSky));
             built++;
         }
         GD.Print($"UNNAMED atmosphere: {built} emitters");
@@ -95,12 +98,36 @@ public partial class AtmosphereView : Node3D
             float share = follower.Weathers is not { } weathers ? 1f
                 : (weathers.Contains(WeatherStates.Now) ? WeatherStates.Blend : 0f) + (weathers.Contains(WeatherStates.Was) ? 1f - WeatherStates.Blend : 0f);
             bool on = share > 0.01f && WeatherStates.UnderSky && !(follower.DayOnly && !day) && !(follower.NightOnly && day)
-                      && (follower.Grounds is null || OnGround(eye, follower.Grounds));
+                      && (follower.Grounds is null || OnGround(eye, follower.Grounds))
+                      && (!follower.NeedsSky || OpenSky(eye));
             follower.Particles.GlobalPosition = eye + follower.Offset;
             follower.Particles.AmountRatio = Math.Min(1f, share);
             follower.Particles.Emitting = on;
         }
     }
+
+    /// <summary>
+    /// Whether nothing stands over the eye (note 16): a short ray straight up finds no roof, awning, bridge or cave ceiling. Asked a few times a
+    /// second rather than every frame, and answered from the last cast in between.
+    /// </summary>
+    private bool OpenSky(Vector3 eye)
+    {
+        if (_skyAskedAt != 0 && Time.GetTicksMsec() - _skyAskedAt < 250)
+            return _skyOpen;
+        _skyAskedAt = Time.GetTicksMsec();
+        var space = GetWorld3D().DirectSpaceState;
+        // From a little above the eye: the character's own body is the nearest thing over a third-person camera, and it is not a roof.
+        var from = eye + new Vector3(0, 2.5f, 0);
+        var hit = space.IntersectRay(PhysicsRayQueryParameters3D.Create(from, eye + new Vector3(0, SkyProbeMm, 0)));
+        _skyOpen = hit.Count == 0;
+        return _skyOpen;
+    }
+
+    /// <summary>How far above the eye the roof test looks, in metres: enough for a roof, an awning or a cave mouth, not the sky.</summary>
+    private const float SkyProbeMm = 12f;
+
+    private ulong _skyAskedAt;
+    private bool _skyOpen = true;
 
     /// <summary>Whether most of the ground under a point is one of <paramref name="grounds"/> (the cells' blended weights).</summary>
     private bool OnGround(Vector3 at, HashSet<string> grounds)
