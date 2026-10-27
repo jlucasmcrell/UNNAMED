@@ -120,7 +120,8 @@ void fragment() {
 		coat = mix(coat, mix(sheen_a, sheen_b, facing), sheen_strength * dark * (1.0 - facing * 0.5));
 	}
 	if (ruff_strength > 0.0) {
-		float ruff = smoothstep(0.48, 0.62, at.y) * smoothstep(0.50, 0.62, at.z) * (1.0 - smoothstep(0.78, 0.88, at.z));
+		float edge = (noise(rest * 18.0) - 0.5) * 0.10;
+		float ruff = smoothstep(0.40, 0.68, at.y + edge) * smoothstep(0.44, 0.68, at.z + edge) * (1.0 - smoothstep(0.68, 0.98, at.z + edge));
 		float fur = dot(tex.rgb, vec3(0.3, 0.59, 0.11));
 		coat = mix(coat, vec3(0.82, 0.86, 0.90) * (0.35 + fur * 0.65), ruff * ruff_strength);
 	}

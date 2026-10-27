@@ -108,6 +108,7 @@ public class CombatContentTests
                 "creature.construct.ring_custodian",
                 "creature.grazer.barrowback", "creature.grazer.fellhorn", "creature.undead.bone_walker_husk",
             }, setup.Creatures.Keys);
+        Assert.Equal(1_100L, setup.Creatures["creature.grazer.fellhorn"].RadiusMm); // C1 gore contact stays 0.3 m farther out.
         var barrowback = setup.Creatures["creature.grazer.barrowback"];
         Assert.Equal((5, 220, 1_400L, 16_000L), (barrowback.Level, barrowback.MaxHealth, barrowback.RadiusMm, barrowback.Charge!.ReachMm));
         var hound = setup.Creatures["creature.beast.ash_ember_hound"];

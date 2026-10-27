@@ -13,7 +13,7 @@ attack_set: [ability.creature.horn_butt, ability.creature.grazer_charge, ability
 armor: { head: 5, torso: 4, limbs: 2 }
 move_speed_m_s: 4.0
 turn_deg_s: 160
-body_radius_m: 0.8
+body_radius_m: 1.1
 xp_value: 40
 loot_table: loot.fellhorn
 perception: { sight_m: 26, hearing_m: 30, fov_deg: 240 }
