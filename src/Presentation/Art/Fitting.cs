@@ -26,7 +26,7 @@ public static class Fitting
     private const float OverhangExcess = 0.3f;
 
     /// <summary>The model for a structure, at its own size and stood on the terrain; null without a model or when it does not fit.</summary>
-    public static Node3D? Structure(ArtLibrary art, Placement look, Blocker blocker, TerrainGrid terrain)
+    public static Node3D? Structure(ArtLibrary art, Placement look, Blocker blocker, TerrainGrid terrain, WalkSpace? space = null)
     {
         if (look.Model is null || art.ModelWithLods(look.Model) is not { } model)
             return null;
@@ -130,8 +130,8 @@ public static class Fitting
             root.AddChild(holder);
         }
         root.Position = clearance > 0
-            ? new Vector3(cx / 1000f, terrain.HeightAtMm(cx, cz) / 1000f + clearance, cz / 1000f)
-            : new Vector3(cx / 1000f, LowestUnder(terrain, blocker), cz / 1000f);
+            ? new Vector3(cx / 1000f, (space?.HeightAtMm(cx, cz) ?? terrain.HeightAtMm(cx, cz)) / 1000f + clearance, cz / 1000f)
+            : new Vector3(cx / 1000f, LowestUnder(terrain, blocker, space), cz / 1000f);
         // The visible-model offset can align an authored collider with the actual trunk
         // while preserving the accepted mesh position and world-space support data.
         foreach (var holder in root.GetChildren().OfType<Node3D>()) holder.Position += look.Offset + Vector3.Down * look.GroundSinkM;
@@ -144,7 +144,7 @@ public static class Fitting
     /// chimney or a porch is not the centre). It must cover the footprint to within the side margin; null without a model or when it
     /// does not.
     /// </summary>
-    public static Node3D? Building(ArtLibrary art, Placement look, BoxBlocker footprint, TerrainGrid terrain)
+    public static Node3D? Building(ArtLibrary art, Placement look, BoxBlocker footprint, TerrainGrid terrain, WalkSpace? space = null)
     {
         if (look.Model is null || art.ModelWithLods(look.Model) is not { } model)
             return null;
@@ -160,7 +160,7 @@ public static class Fitting
             model.Free();
             return null;
         }
-        var root = new Node3D { Name = footprint.Id, Position = new Vector3(footprint.CenterXMm / 1000f, LowestUnder(terrain, footprint), footprint.CenterZMm / 1000f) };
+        var root = new Node3D { Name = footprint.Id, Position = new Vector3(footprint.CenterXMm / 1000f, LowestUnder(terrain, footprint, space), footprint.CenterZMm / 1000f) };
         root.AddChild(model);
         return root;
     }
@@ -231,15 +231,16 @@ public static class Fitting
         return (yaw, lean);
     }
 
-    private static float LowestUnder(TerrainGrid terrain, Blocker blocker)
+    private static float LowestUnder(TerrainGrid terrain, Blocker blocker, WalkSpace? space = null)
     {
+        long Height(long x, long z) => space?.HeightAtMm(x, z) ?? terrain.HeightAtMm(x, z);
         var (cx, cz) = Footprints.Center(blocker);
         if (blocker is not BoxBlocker box)
-            return terrain.HeightAtMm(cx, cz) / 1000f;
+            return Height(cx, cz) / 1000f;
         return new[]
         {
-            terrain.HeightAtMm(box.MinXMm, box.MinZMm), terrain.HeightAtMm(box.MaxXMm, box.MinZMm),
-            terrain.HeightAtMm(box.MinXMm, box.MaxZMm), terrain.HeightAtMm(box.MaxXMm, box.MaxZMm), terrain.HeightAtMm(cx, cz),
+            Height(box.MinXMm, box.MinZMm), Height(box.MaxXMm, box.MinZMm),
+            Height(box.MinXMm, box.MaxZMm), Height(box.MaxXMm, box.MaxZMm), Height(cx, cz),
         }.Min() / 1000f;
     }
 }

@@ -97,13 +97,14 @@ public partial class HollowView : Node3D
         bool cave = DenGorgeCave.Owns(layout);
         var ground = cave ? DenGorgeCave.Build(layout, _art) : BuildTerrain(terrain, layout.SpaceId);
         AddChild(ground);
+        _walkSpace = layout.Space;
         foreach (var building in ArtBuildings(layout, terrain))
             AddChild(building);
         foreach (var blocker in layout.Space.Blockers)
         {
             if (InArtBuilding(blocker.Id) || cave)
             {
-                AddChild(Unseen(BuildStructure(blocker, terrain)));
+                AddChild(Unseen(BuildStructure(blocker, terrain, SupportFor(blocker))));
                 continue;
             }
             if (ArtStructure(blocker, terrain) is { } drawn)
@@ -114,7 +115,7 @@ public partial class HollowView : Node3D
                 AddChild(drawn);
                 continue;
             }
-            AddChild(BuildStructure(blocker, terrain));
+            AddChild(BuildStructure(blocker, terrain, SupportFor(blocker)));
         }
         foreach (var roof in Roofs(layout))
         {
@@ -143,6 +144,7 @@ public partial class HollowView : Node3D
                 Position=new Vector3(surface.OriginXMm/1000f,0,surface.OriginZMm/1000f) };
             collider.AddChild(new CollisionShape3D { Shape=shape });AddChild(collider);
         }
+        BuildInnWing(layout);
         // Old Late (grand scale, GS-3): the stone giant in weathered carved stone, its crown on the top of its weathered head (gs_old_late's
         // own metres); the Dwarven Citadel statue's material raised its colour to the power 0.5, which the lift restores.
         if (_models.GetValueOrDefault("old_late") is { } giant)
@@ -419,6 +421,11 @@ public partial class HollowView : Node3D
     /// The buildings drawn whole from the asset library, each over the footprint its walls enclose. Their walls and roofs stay as the
     /// camera's colliders, unseen: what the body collides with is the truth.
     /// </summary>
+    private WalkSpace? _walkSpace;
+    private WalkSpace? SupportFor(Blocker blocker) =>
+        _bindings.Structure(blocker.Id)?.WalkableBase == true
+        || _bindings.Buildings.Any(b => b.Value.WalkableBase && blocker.Id.StartsWith(b.Key, StringComparison.Ordinal)) ? _walkSpace : null;
+
     private IEnumerable<Node3D> ArtBuildings(RegionLayout layout, TerrainGrid terrain)
     {
         foreach (var (prefix, look) in _bindings.Buildings)
@@ -428,13 +435,15 @@ public partial class HollowView : Node3D
             var footprint = Footprint(layout, prefix);
             if (footprint is null)
                 continue;
-            if (Art.Fitting.Building(_art, look, footprint, terrain) is not { } model)
+            if (Art.Fitting.Building(_art, look, footprint, terrain, look.WalkableBase ? _walkSpace : null) is not { } model)
             {
                 Coverage.Fallback("building", footprint.Id, $"{_art.Why(id, footprint.Id) ?? "not drawn"}: its walls and roof are drawn in greybox", id);
                 continue;
             }
             Coverage.Resolved("building", footprint.Id, id);
             _artBuildings.Add(prefix);
+            if (prefix == "ah_inn_upper_")
+                RepairInnWallMaterials(model);
             yield return model;
         }
     }
@@ -472,7 +481,7 @@ public partial class HollowView : Node3D
         }
         // Collision for art something else draws (the Barrowworks threshold's spoil bank): the camera's collider only.
         if (look.Hidden)
-            return Unseen(BuildStructure(blocker, terrain));
+            return Unseen(BuildStructure(blocker, terrain, SupportFor(blocker)));
         if (look.Surface is { } surface && look.Model is null)
         {
             if (_art.WorldMaterial(surface) is not { } material)
@@ -480,13 +489,13 @@ public partial class HollowView : Node3D
                 Coverage.Fallback("structure", blocker.Id, $"{_art.Why(surface) ?? "its surface would not load"}: {shape}", surface);
                 return null;
             }
-            var greybox = BuildStructure(blocker, terrain);
+            var greybox = BuildStructure(blocker, terrain, SupportFor(blocker));
             if (greybox is MeshInstance3D mesh)
                 mesh.MaterialOverride = material;
             Coverage.Resolved("structure", blocker.Id, surface);
             return greybox;
         }
-        if (Art.Fitting.Structure(_art, look, blocker, terrain) is not { } model)
+        if (Art.Fitting.Structure(_art, look, blocker, terrain, look.WalkableBase ? _walkSpace : null) is not { } model)
         {
             Coverage.Fallback("structure", blocker.Id, $"{(look.Model is { } id ? _art.Why(id, blocker.Id) ?? "not drawn" : "no model bound")}: {shape}", look.Model);
             return null;
@@ -544,7 +553,7 @@ public partial class HollowView : Node3D
             return model;
         }
         // The camera's collider stays the structure's own shape: what the body collides with is the truth.
-        var greyboxShape = BuildStructure(blocker, terrain);
+        var greyboxShape = BuildStructure(blocker, terrain, SupportFor(blocker));
         if (greyboxShape.GetChildren().OfType<StaticBody3D>().FirstOrDefault() is { } body)
         {
             greyboxShape.RemoveChild(body);
@@ -606,14 +615,14 @@ public partial class HollowView : Node3D
         }
     }
 
-    private static Node3D BuildStructure(Blocker blocker, TerrainGrid terrain)
+    private static Node3D BuildStructure(Blocker blocker, TerrainGrid terrain, WalkSpace? space = null)
     {
         switch (blocker)
         {
             case BoxBlocker box:
             {
                 // An overhang (a beam a crouched body passes under) is drawn from its clearance up, not from the ground.
-                float baseY = box.ClearanceMm > 0 ? (terrain.HeightAtMm(box.CenterXMm, box.CenterZMm) + box.ClearanceMm) / 1000f : LowestUnder(terrain, box) - 0.2f;
+                float baseY = box.ClearanceMm > 0 ? ((space?.HeightAtMm(box.CenterXMm, box.CenterZMm) ?? terrain.HeightAtMm(box.CenterXMm, box.CenterZMm)) + box.ClearanceMm) / 1000f : (space?.HeightAtMm(box.CenterXMm, box.CenterZMm) / 1000f ?? LowestUnder(terrain, box)) - 0.2f;
                 float height = box.ClearanceMm > 0 ? (box.HeightMm - box.ClearanceMm) / 1000f : box.HeightMm / 1000f + 0.2f;
                 var size = new Vector3((box.MaxXMm - box.MinXMm) / 1000f, height, (box.MaxZMm - box.MinZMm) / 1000f);
                 var node = Solid(box.Id, new BoxMesh { Size = size }, new BoxShape3D { Size = size }, MaterialFor(box.Id));
@@ -672,7 +681,8 @@ public partial class HollowView : Node3D
             if (walls.Count == 0)
                 continue;
             long minX = walls.Min(w => w.MinXMm), maxX = walls.Max(w => w.MaxXMm), minZ = walls.Min(w => w.MinZMm), maxZ = walls.Max(w => w.MaxZMm);
-            float top = walls.Max(w => LowestUnder(layout.Space.Terrain, w) - 0.2f + w.HeightMm / 1000f + 0.2f);
+            float top = walls.Max(w => (SupportFor(w)?.HeightAtMm(w.CenterXMm, w.CenterZMm) / 1000f
+                ?? LowestUnder(layout.Space.Terrain, w)) + w.HeightMm / 1000f);
             var size = new Vector3((maxX - minX) / 1000f + 0.6f, 0.3f, (maxZ - minZ) / 1000f + 0.6f);
             var roof = Solid(group + "_roof", new BoxMesh { Size = size }, new BoxShape3D { Size = size }, Palette.Roof);
             roof.Position = new Vector3((minX + maxX) / 2000f, top + 0.15f, (minZ + maxZ) / 2000f);
@@ -827,9 +837,9 @@ public partial class HollowView : Node3D
     private Node3D BuildBarrier(BarrierSite barrier, TerrainGrid terrain)
     {
         if (_bindings.Structure(barrier.Key) is { Model: not null } look
-            && Art.Fitting.Structure(_art, look, barrier.Footprint, terrain) is { } model)
+            && Art.Fitting.Structure(_art, look, barrier.Footprint, terrain, look.WalkableBase ? _walkSpace : null) is { } model)
         {
-            model.AddChild(Unseen(BuildStructure(barrier.Footprint, terrain)));
+            model.AddChild(Unseen(BuildStructure(barrier.Footprint, terrain, SupportFor(barrier.Footprint))));
             _barriers[barrier.Key] = model;
             if (look.AnimationFlag is { } flag && model.FindChildren("*", nameof(AnimationPlayer), true, false).FirstOrDefault() is AnimationPlayer player
                 && player.GetAnimationList().FirstOrDefault(name => name != "RESET") is { } clip)
@@ -1079,7 +1089,7 @@ public partial class HollowView : Node3D
         {
             if (recipes is null || look.Emitters is not { Count: > 0 } emitters || Footprint(layout, prefix) is not { } footprint)
                 continue;
-            var origin = new Vector3(footprint.CenterXMm / 1000f, LowestUnder(terrain, footprint), footprint.CenterZMm / 1000f);
+            var origin = new Vector3(footprint.CenterXMm / 1000f, (look.WalkableBase ? layout.Space.HeightAtMm(footprint.CenterXMm, footprint.CenterZMm) / 1000f : LowestUnder(terrain, footprint)), footprint.CenterZMm / 1000f);
             foreach (var (recipe, at) in emitters)
             {
                 if (recipes.Build(recipe) is not { } particles)
@@ -1094,7 +1104,7 @@ public partial class HollowView : Node3D
         {
             if (look.Lights is not { Count: > 0 } lights || Footprint(layout, prefix) is not { } footprint)
                 continue;
-            var origin = new Vector3(footprint.CenterXMm / 1000f, LowestUnder(terrain, footprint), footprint.CenterZMm / 1000f);
+            var origin = new Vector3(footprint.CenterXMm / 1000f, (look.WalkableBase ? layout.Space.HeightAtMm(footprint.CenterXMm, footprint.CenterZMm) / 1000f : LowestUnder(terrain, footprint)), footprint.CenterZMm / 1000f);
             for (int i = 0; i < lights.Count; i++)
             {
                 var light = lights[i].Build($"InteriorLight_{footprint.Id}_{i}");

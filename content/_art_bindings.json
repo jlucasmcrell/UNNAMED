@@ -1,6 +1,25 @@
 {
   "comment": "CAIRNWOLD's own art, layered over the shared bindings: the game merges this file onto art_bindings.json key by key, so the HUD, the icons, the effect sheets and the audio beds are the ones every region uses and only the world is this region's. A structure_prefixes key matches every placement whose id starts with it and picks one of its models per placement, which is how 90 birches share two trees. A building_walls key instead GATHERS every placement under it into one building, which is how Ashen Hollow builds a longhouse from four thin wall runs - so each cottage here has a key of its own.",
   "structure_prefixes": {
+    "ah_inn_bed_": {
+      "models": [
+        "prop_bp_bed_cw"
+      ],
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_table_": {
+      "models": [
+        "prop_cos_table_tavern_02_l120"
+      ],
+      "material": "wood"
+    },
+    "ah_inn_stool_": {
+      "models": [
+        "prop_ph_wooden_stool_01"
+      ],
+      "material": "wood"
+    },
     "cw_birch_": {
       "models": [
         "flora_bk_birch_tree",
@@ -190,6 +209,31 @@
     }
   },
   "building_walls": {
+    "ah_inn_upper_": {
+      "model": "bld_fab_ah_waystation",
+      "material": "wood",
+      "interior_light": {
+        "at": [
+          3.2,
+          1.6,
+          1.62
+        ],
+        "colour": [
+          1.0,
+          0.66,
+          0.38
+        ],
+        "energy": 1.5,
+        "range": 13,
+        "shadows": true,
+        "size": 0.3,
+        "fog_energy": 0.45,
+        "attenuation": 1.2
+      },
+      "note": "C2 upper guest wing reuses the shipped waystation kit over sealed stores.",
+      "note_vfx_fab": "vfx_fab: two Fab VDB fires (hearth_fire, FirePlace_2) side by side and a coal-bed glow replace hearth_fire_core + Flame02 hearth_fire; embers kept.",
+      "walkable_base": true
+    },
     "cw_smithy": {
       "model": "bld_fab_cw_smithy",
       "material": "stone",
@@ -691,10 +735,563 @@
       "note_vfx_fab": "vfx_fab: two Fab VDB fires (hearth_fire, FirePlace_2) side by side and a coal-bed glow replace hearth_fire_core + Flame02 hearth_fire; embers kept."
     }
   },
+  "roof_groups": ["longhouse", "forge", "ah_inn_upper"],
   "structures": {
+    "ah_tavern_bar": {"hidden": true},
+    "ah_tavern_bench_1": {"hidden": true},
+    "ah_tavern_bench_2": {"hidden": true},
+    "ah_tavern_bench_3": {"hidden": true},
+    "ah_tavern_bench_4": {"hidden": true},
+    "ah_tavern_bench_5": {"hidden": true},
+    "ah_tavern_bench_6": {"hidden": true},
+    "ah_inn_awning_collision_0": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_1": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_2": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_3": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_4": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_5": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_6": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_7": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_8": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_9": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_10": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_11": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_12": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_13": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_14": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_15": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_16": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_17": {"hidden": true, "walkable_base": true},
+    "ah_inn_room_lantern_0": {
+      "model": "prop_ph_wooden_lantern_01",
+      "material": "wood",
+      "emitters": [
+        {
+          "recipe": "lantern_flame",
+          "at": [
+            0.0,
+            0.211,
+            0.0
+          ]
+        },
+        {
+          "recipe": "lantern_glow",
+          "at": [
+            0.0,
+            0.231,
+            0.0
+          ]
+        }
+      ],
+      "light": {
+        "at": [
+          0.0,
+          0.26,
+          0.0
+        ],
+        "colour": [
+          1.0,
+          0.66,
+          0.34
+        ],
+        "energy": 1.0,
+        "range": 5,
+        "shadows": false,
+        "fog_energy": 0.3,
+        "attenuation": 1.4
+      },
+      "note": "candle wick inside the Poly Haven lantern (source candle top 0.20 + base offset 0.011); needs its glass transparent",
+      "note_vfx_fab": "vfx_fab: lantern_flame (energy 1.8) + its glow on each wick.",
+      "walkable_base": true
+    },
+    "ah_inn_room_lantern_1": {
+      "model": "prop_ph_wooden_lantern_01",
+      "material": "wood",
+      "emitters": [
+        {
+          "recipe": "lantern_flame",
+          "at": [
+            0.0,
+            0.211,
+            0.0
+          ]
+        },
+        {
+          "recipe": "lantern_glow",
+          "at": [
+            0.0,
+            0.231,
+            0.0
+          ]
+        }
+      ],
+      "light": {
+        "at": [
+          0.0,
+          0.26,
+          0.0
+        ],
+        "colour": [
+          1.0,
+          0.66,
+          0.34
+        ],
+        "energy": 1.0,
+        "range": 5,
+        "shadows": false,
+        "fog_energy": 0.3,
+        "attenuation": 1.4
+      },
+      "note": "candle wick inside the Poly Haven lantern (source candle top 0.20 + base offset 0.011); needs its glass transparent",
+      "note_vfx_fab": "vfx_fab: lantern_flame (energy 1.8) + its glow on each wick.",
+      "walkable_base": true
+    },
+    "ah_inn_room_lantern_2": {
+      "model": "prop_ph_wooden_lantern_01",
+      "material": "wood",
+      "emitters": [
+        {
+          "recipe": "lantern_flame",
+          "at": [
+            0.0,
+            0.211,
+            0.0
+          ]
+        },
+        {
+          "recipe": "lantern_glow",
+          "at": [
+            0.0,
+            0.231,
+            0.0
+          ]
+        }
+      ],
+      "light": {
+        "at": [
+          0.0,
+          0.26,
+          0.0
+        ],
+        "colour": [
+          1.0,
+          0.66,
+          0.34
+        ],
+        "energy": 1.0,
+        "range": 5,
+        "shadows": false,
+        "fog_energy": 0.3,
+        "attenuation": 1.4
+      },
+      "note": "candle wick inside the Poly Haven lantern (source candle top 0.20 + base offset 0.011); needs its glass transparent",
+      "note_vfx_fab": "vfx_fab: lantern_flame (energy 1.8) + its glow on each wick.",
+      "walkable_base": true
+    },
+    "ah_inn_room_lantern_3": {
+      "model": "prop_ph_wooden_lantern_01",
+      "material": "wood",
+      "emitters": [
+        {
+          "recipe": "lantern_flame",
+          "at": [
+            0.0,
+            0.211,
+            0.0
+          ]
+        },
+        {
+          "recipe": "lantern_glow",
+          "at": [
+            0.0,
+            0.231,
+            0.0
+          ]
+        }
+      ],
+      "light": {
+        "at": [
+          0.0,
+          0.26,
+          0.0
+        ],
+        "colour": [
+          1.0,
+          0.66,
+          0.34
+        ],
+        "energy": 1.0,
+        "range": 5,
+        "shadows": false,
+        "fog_energy": 0.3,
+        "attenuation": 1.4
+      },
+      "note": "candle wick inside the Poly Haven lantern (source candle top 0.20 + base offset 0.011); needs its glass transparent",
+      "note_vfx_fab": "vfx_fab: lantern_flame (energy 1.8) + its glow on each wick.",
+      "walkable_base": true
+    },
+    "ah_inn_room_lantern_4": {
+      "model": "prop_ph_wooden_lantern_01",
+      "material": "wood",
+      "emitters": [
+        {
+          "recipe": "lantern_flame",
+          "at": [
+            0.0,
+            0.211,
+            0.0
+          ]
+        },
+        {
+          "recipe": "lantern_glow",
+          "at": [
+            0.0,
+            0.231,
+            0.0
+          ]
+        }
+      ],
+      "light": {
+        "at": [
+          0.0,
+          0.26,
+          0.0
+        ],
+        "colour": [
+          1.0,
+          0.66,
+          0.34
+        ],
+        "energy": 1.0,
+        "range": 5,
+        "shadows": false,
+        "fog_energy": 0.3,
+        "attenuation": 1.4
+      },
+      "note": "candle wick inside the Poly Haven lantern (source candle top 0.20 + base offset 0.011); needs its glass transparent",
+      "note_vfx_fab": "vfx_fab: lantern_flame (energy 1.8) + its glow on each wick.",
+      "walkable_base": true
+    },
+    "ah_inn_room_lantern_5": {
+      "model": "prop_ph_wooden_lantern_01",
+      "material": "wood",
+      "emitters": [
+        {
+          "recipe": "lantern_flame",
+          "at": [
+            0.0,
+            0.211,
+            0.0
+          ]
+        },
+        {
+          "recipe": "lantern_glow",
+          "at": [
+            0.0,
+            0.231,
+            0.0
+          ]
+        }
+      ],
+      "light": {
+        "at": [
+          0.0,
+          0.26,
+          0.0
+        ],
+        "colour": [
+          1.0,
+          0.66,
+          0.34
+        ],
+        "energy": 1.0,
+        "range": 5,
+        "shadows": false,
+        "fog_energy": 0.3,
+        "attenuation": 1.4
+      },
+      "note": "candle wick inside the Poly Haven lantern (source candle top 0.20 + base offset 0.011); needs its glass transparent",
+      "note_vfx_fab": "vfx_fab: lantern_flame (energy 1.8) + its glow on each wick.",
+      "walkable_base": true
+    },
+    "ah_inn_room_shelf_0": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_room_shelf_1": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_room_shelf_2": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_room_shelf_3": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_room_shelf_4": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_room_shelf_5": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
     "threshold_bank_w": {"hidden": true},
     "threshold_bank_e": {"hidden": true},
     "threshold_bank_back": {"hidden": true},
+    "ah_inn_partition_south_0": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_partition_south_1": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_partition_south_door_0_a": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_partition_south_door_0_b": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_partition_south_door_1_a": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_partition_south_door_1_b": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_partition_south_door_2_a": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_partition_south_door_2_b": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_partition_north_0": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_partition_north_1": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_partition_north_door_0_a": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_partition_north_door_0_b": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_partition_north_door_1_a": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_partition_north_door_1_b": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_partition_north_door_2_a": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_partition_north_door_2_b": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_inner_4": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_inner_5": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_inner_6": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_inner_7": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_inner_8": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_inner_9": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_inner_10": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_inner_11": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_inner_12": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_inner_13": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_inner_14": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_inner_15": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_inner_16": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_inner_17": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_outer_0": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_outer_1": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_outer_2": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_outer_3": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_outer_4": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_outer_5": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_outer_6": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_outer_7": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_outer_8": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_outer_9": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_outer_10": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_outer_11": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_outer_12": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_outer_13": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_outer_14": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_outer_15": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_outer_16": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_outer_17": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_stair_end": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
     "fs_needle": {"model": "ruin_fs_needle", "material": "metal", "offset": [1.49, 0, -0.112], "light": {"at": [-14, 4, 0], "colour": [0.62, 0.3, 1.0], "energy": 4.0, "range": 26, "shadows": false}, "set_goes_dark": true, "surface": "material_firstfold_iron", "surface_tint": [0.82, 0.84, 0.9], "edge_wear": 0.8},
     "fs_gate": {"model": "ruin_fs_gate", "material": "metal"},
     "fs_anchor_west": {"model": "ruin_fs_anchor", "material": "metal", "light": {"at": [0, 5.5, 0], "colour": [0.62, 0.3, 1.0], "energy": 3.0, "range": 16, "shadows": false}, "set_goes_dark": true},

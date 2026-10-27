@@ -3,13 +3,17 @@ kind: routine
 schema: 1
 display_key: routine.ashen_hollow.sel_arien.name
 tags: [routine]
-notes: "Sel works at her survey table, where the region places her; sleeps in the lodge."
+notes: "C2: sel has a real work post, an evening meal in the common room, and an upstairs inn bed."
 region_ref: region.starting_frontier
 npc_ref: npc.ashen_hollow.sel_arien
 settlement: ashen_hollow
 role: scholar
-roles: [scholar, quest_giver]           # WP12b: town roles (config.npc_life); hireability is derived from them
+roles: [scholar, quest_giver]
 work_hours: [7, 19]
 anchors:
-  home: { position_m: [449.5, 733.4], facing_deg: 0 }
-  work: { position_m: [472, 722], facing_deg: 135 }
+  home: {position_m: [443.35, 715.5], facing_deg: 180}
+  work: {position_m: [472, 722], facing_deg: 135}
+  supper: {position_m: [442.77, 726.92], facing_deg: 180}
+schedule:
+  - {hours: [6, 7], at: supper}
+  - {hours: [19, 22], at: supper}

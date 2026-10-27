@@ -250,7 +250,7 @@ internal sealed partial class NpcSystem
 
     /// <summary>A body on the ground at a place: its height is the terrain's there.</summary>
     private Body BodyAt(long xMm, long zMm, int facingMdeg) =>
-        new(xMm, _context.Setup.Layout.Space.Terrain.HeightAtMm(xMm, zMm), zMm, facingMdeg);
+        new(xMm, _context.Setup.Layout.Space.HeightAtMm(xMm, zMm), zMm, facingMdeg);
 
     /// <summary>The body turned towards a facing by at most 18 degrees a tick, as NPCs turn.</summary>
     private static Body Turn(Body body, int towardMdeg)

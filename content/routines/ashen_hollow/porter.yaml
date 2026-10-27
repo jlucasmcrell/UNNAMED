@@ -3,13 +3,17 @@ kind: routine
 schema: 1
 display_key: routine.ashen_hollow.porter.name
 tags: [routine]
-notes: "An Ashen Hollow role resident (DN3): the porter. Each resident takes a name from their people's Suggest list (WP2); when one leaves, someone new arrives 3-7 days later (DN4)."
+notes: "C2: porter has a real work post, an evening meal in the common room, and an upstairs inn bed."
 region_ref: region.starting_frontier
 people_ref: people.veth
 settlement: ashen_hollow
 role: porter
-roles: [porter]           # WP12b: town roles (config.npc_life); hireability is derived from them
+roles: [porter]
 work_hours: [7, 19]
 anchors:
-  home: { position_m: [447.5, 733.4], facing_deg: 0 }
-  work: { position_m: [476, 731], facing_deg: 90 }
+  home: {position_m: [440.5, 719.05], facing_deg: 180}
+  work: {position_m: [476, 731], facing_deg: 90}
+  supper: {position_m: [439.7, 728.75], facing_deg: 180}
+schedule:
+  - {hours: [6, 7], at: supper}
+  - {hours: [19, 22], at: supper}

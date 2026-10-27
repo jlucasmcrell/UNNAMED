@@ -11,7 +11,7 @@ namespace UNNAMED.Application.Tests;
 
 /// <summary>
 /// WP13: NPC adventurers over the game's own content (SYSTEMS_COMPLETENESS_PLAN §2.13) - as many in each town as the config keeps (spec 15's
-/// dial: three in the hamlet, four at the cairnwold), living their days by the canon
+/// dial: one traveller in the hamlet, four at the cairnwold), living their days by the canon
 /// goal chain and the fixed outcome table (DN2), taking competitive bounties first, culling creatures, trading at the markets, levelling on
 /// the character's curve, dying and being replaced (DN4, DN5), hired with their level and gear, grouping up from LFG posts, and the world
 /// going on while the character is away (T-22).
@@ -77,21 +77,21 @@ public class AdventurerWorldTests
         var session = Harness.Boot(profile);
         var simulation = AtSpawn(session).Simulation;
         var adventurers = simulation.Adventurers;
-        // Spec 15 default 1 and the owner's dial, on in config.adventurers: three in the hamlet, four at the cairnwold - not the rules' four
+        // Spec 15 default 1 and the owner's dial, on in config.adventurers: one traveller in the hamlet, four at the cairnwold - not the rules' four
         // everywhere.
-        Assert.Equal(7, adventurers.Length);
-        Assert.Equal(3, adventurers.Count(a => a.Settlement == "ashen_hollow"));
+        Assert.Equal(5, adventurers.Length);
+        Assert.Equal(1, adventurers.Count(a => a.Settlement == "ashen_hollow"));
         Assert.Equal(4, adventurers.Count(a => a.Settlement == "cairnwold"));
         var names = session.Setup.Character.Peoples["people.veth"].Names.Names;
         Assert.All(adventurers, a => Assert.Contains(a.Name, names));
-        Assert.Equal(7, adventurers.Select(a => a.Name).Distinct().Count());
+        Assert.Equal(5, adventurers.Select(a => a.Name).Distinct().Count());
         Assert.DoesNotContain(adventurers, a => simulation.Lives.Any(l => l.Name == a.Name));
         Assert.All(adventurers, a => Assert.InRange(a.Level, 1, 5));
         Assert.All(adventurers, a => Assert.Contains("item.weapon.rusted_sword", a.Gear));
         // Each stands at their lodge, a body the world knows, and can be hired (WP15a).
         Assert.All(adventurers, a => Assert.True(a.InTown));
         var bodies = simulation.Npcs.Where(n => n.Role == "adventurer").ToList();
-        Assert.Equal(7, bodies.Count);
+        Assert.Equal(5, bodies.Count);
         Assert.All(bodies, b => Assert.Equal(simulation.World.Adventurers!.Agents[b.Id].PeopleId, b.PeopleId));
         Assert.All(bodies, b => Assert.NotNull(b.PeopleId));
         Assert.All(bodies, b => Assert.True(simulation.World.Registry.Exists(b.InstanceId)));

@@ -34,6 +34,9 @@ public sealed record Placement(string? Model, string Fit = "none", string? Surfa
     /// <summary>A switch's prop whose own light goes out once the switch is set (<c>set_goes_dark</c>): the Stopped Gate's anchors.</summary>
     public bool SetGoesDark { get; init; }
 
+    /// <summary>Stand authored upper-floor furnishings on the walkable support, rather than terrain.</summary>
+    public bool WalkableBase { get; init; }
+
     /// <summary>How far a worn surface's edges are chipped back to bright metal (<c>edge_wear</c>, 0 to 1): the Spill's iron.</summary>
     public float EdgeWear { get; init; }
 }
@@ -773,6 +776,7 @@ public sealed class ArtBindings
         Number(e, "scale", 1), e.TryGetProperty("tint", out var tinted) ? Vector(tinted) : null,
         e.TryGetProperty("spent_tint", out var spentTint) ? Vector(spentTint) : null, Number(e,"ground_sink_m",0))
     {
+        WalkableBase = Flag(e, "walkable_base"),
         SetGoesDark = Flag(e, "set_goes_dark"),
         EdgeWear = Number(e, "edge_wear", 0),
     };
