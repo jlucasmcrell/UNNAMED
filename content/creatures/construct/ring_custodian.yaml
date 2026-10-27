@@ -2,7 +2,7 @@ id: creature.construct.ring_custodian
 kind: creature
 schema: 1
 display_key: creature.construct.ring_custodian.name
-tags: [creature, construct]
+tags: [creature, construct, boss]
 name: Ring Custodian
 notes: "The service ring's own keeper (M8 I4), and the ring was built to gauge something and never finished the job - so what stands in the measuring court is a machine still waiting for a reading that stopped coming. Plate front and sides takes most of a blow; the back of the housing is open where the index mechanism runs, and that is where it comes apart. Three attacks, each with a telegraph a body can read: the long sweep, the overhead fall, and the short grasp. Slow to turn, which is the whole fight - stay behind it. Bloodless, and it does not pursue far past its own court. Level 5 and 150 health as the brief sets; its pace, turn and blows are calibrated to M8 08 (four to six blows fell the level-5 reference) and measured in docs/BARROWWORKS_BALANCE.md."
 family: construct

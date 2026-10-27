@@ -18,6 +18,7 @@ namespace UNNAMED.Presentation.Art;
 public sealed partial class SkinnedCreature : CreatureBody
 {
     private SkinnedModel _model = null!;
+    public string? ClipState => _model.Current;
     private readonly Label3D _mark = new()
     {
         Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, FontSize = 72, OutlineSize = 14, PixelSize = 0.004f, Visible = false,
@@ -28,6 +29,8 @@ public sealed partial class SkinnedCreature : CreatureBody
     private CombatPhase _phase = CombatPhase.Idle;
     private int _phaseTicks = 1;
     private string? _attackSource;
+    private string _chosenAttack = "attack";
+    private readonly HashSet<string> _charges = new(StringComparer.Ordinal);
     private HashSet<string> _clips = new(StringComparer.Ordinal);
     private readonly List<(BaseMaterial3D Material, float Energy)> _otherfire = new();
 
@@ -43,6 +46,7 @@ public sealed partial class SkinnedCreature : CreatureBody
         float size = OtherFauna.Apply(model, definition.Id, look.Fauna, individual);
         var creature = new SkinnedCreature { _model = model, _walkPace = Pace("walk", WalkPace) * size, _runPace = Pace("run", RunPace) * size,
             _clips = look.Clips.Keys.ToHashSet(StringComparer.Ordinal) };
+        foreach (var move in definition.Moves.Where(a => a.IsCharge)) creature._charges.Add(move.Source);
         creature.AddChild(model);
         // A body that burns with Otherfire (its materials named otherfire_*) gets its own copies, so its blow can flare them alone.
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>().Where(m => m.Mesh is not null))
@@ -183,11 +187,18 @@ public sealed partial class SkinnedCreature : CreatureBody
         }
         if (creature.Phase != _phase || creature.AttackSource != _attackSource)
         {
+            if (creature.Phase == CombatPhase.Windup)
+            {
+                var variants = creature.AttackSource is { } move
+                    ? _clips.Where(c => c == move || c.StartsWith(move+"_",StringComparison.Ordinal)).Order(StringComparer.Ordinal).ToArray()
+                    : [];
+                _chosenAttack = variants.Length > 0 ? variants[(int)((creature.AttackTick/7)%variants.Length)] : "attack";
+            }
             _phase = creature.Phase;
             _attackSource = creature.AttackSource;
             _phaseTicks = creature.PhaseDurationTicks > 0 ? creature.PhaseDurationTicks : Math.Max(1, creature.PhaseTicksLeft + 1);
         }
-        string attackClip = creature.AttackSource is { } source && _clips.Contains(source) ? source : "attack";
+        string attackClip = _chosenAttack;
         float t = 1f - (float)creature.PhaseTicksLeft / _phaseTicks;
         switch (creature.Phase)
         {
@@ -195,6 +206,7 @@ public sealed partial class SkinnedCreature : CreatureBody
                 _model.Hold(attackClip, 0.45f * t);
                 return;
             case CombatPhase.Active:
+                if (creature.AttackSource is { } chargeSource && _charges.Contains(chargeSource) && attackClip == "attack") { _model.Play("run", .08f); return; }
                 _model.Hold(attackClip, 0.45f + 0.25f * t);
                 return;
             case CombatPhase.Recovery:

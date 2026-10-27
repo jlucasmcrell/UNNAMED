@@ -922,26 +922,81 @@
    }
   },
   "creature.beast.wolf_grey_alpha": {
-      "model": "creature_frost_wolf",
-      "clips": "creature.frost_wolf",
-      "voice": "grey_wolf",
-      "flesh": "fur",
-      "blow": "bite",
-      "steps": { "walk": "walk", "run": "run" },
-      "note": "The den leader (owner finding 29) is the grey wolf's own model at its own size: the view scales a creature by its body_radius_m, so the alpha's 0.58 m against the pack's 0.45 draws it 1.29x. A distinct coat would need a separate model and is left to character art."
-    },
-    "creature.beast.wolf_grey": {
-   "model": "creature_frost_wolf",
-   "clips": "creature.frost_wolf",
-   "voice": "ash_ember_hound",
-   "flesh": "fur",
-   "blow": "bite",
-   "steps": {
+  "model": "creature_wm_grey_wolf_b",
+  "clips": {
+    "idle": "creature.creature_wm_grey_wolf_b.idle",
+    "walk": "creature.creature_wm_grey_wolf_b.walk",
+    "run": "creature.creature_wm_grey_wolf_b.run",
+    "attack": "creature.creature_wm_grey_wolf_b.attack",
+    "hit": "creature.creature_wm_grey_wolf_b.hit",
+    "death": "creature.creature_wm_grey_wolf_b.death",
+    "ability.creature.wolf_bite_1": "creature.creature_wm_grey_wolf_b.attack",
+    "ability.creature.wolf_bite_2": "creature.c1_wolf.bite_leg",
+    "ability.creature.wolf_grey_alpha_heavy_1": "creature.c1_wolf.sweep_left",
+    "ability.creature.wolf_grey_alpha_heavy_2": "creature.c1_wolf.sweep_right",
+    "ability.creature.wolf_grey_alpha_rush_1": "creature.c1_wolf.pounce_1",
+    "ability.creature.wolf_grey_alpha_rush_2": "creature.c1_wolf.pounce_2"
+  },
+  "voice": "grey_wolf",
+  "flesh": "fur",
+  "blow": "bite",
+  "steps": {
     "walk": "walk",
     "run": "run"
-   },
-   "note": "The wolves are the prototype's (not the bible's five): the frost wolf's body, and the hound's voice until a wolf set exists."
+  },
+  "note": "C1: same native wolf rig, 1.25x adult silhouette and a pale scarred mantle.",
+  "otherfauna": {
+    "scale": [
+      1.475,
+      1.475
+    ],
+    "shader": {
+      "saturation": 0.05,
+      "value": 0.24,
+      "mottle_tint": [
+        0.82,
+        0.86,
+        0.9
+      ],
+      "mottle_strength": 0,
+      "mottle_scale": 0.07,
+      "mottle_cover": 0.5,
+      "mottle_from": 0.4,
+      "ruff_strength": 1
+    }
   }
+},
+    "creature.beast.wolf_grey": {
+  "model": "creature_wm_grey_wolf_b",
+  "clips": {
+    "idle": "creature.creature_wm_grey_wolf_b.idle",
+    "walk": "creature.creature_wm_grey_wolf_b.walk",
+    "run": "creature.creature_wm_grey_wolf_b.run",
+    "attack": "creature.creature_wm_grey_wolf_b.attack",
+    "hit": "creature.creature_wm_grey_wolf_b.hit",
+    "death": "creature.creature_wm_grey_wolf_b.death",
+    "ability.creature.wolf_bite_1": "creature.creature_wm_grey_wolf_b.attack",
+    "ability.creature.wolf_bite_2": "creature.c1_wolf.bite_leg",
+    "ability.creature.wolf_grey_heavy_1": "creature.c1_wolf.sweep_left",
+    "ability.creature.wolf_grey_heavy_2": "creature.c1_wolf.sweep_right",
+    "ability.creature.wolf_grey_rush_1": "creature.c1_wolf.pounce_1",
+    "ability.creature.wolf_grey_rush_2": "creature.c1_wolf.pounce_2"
+  },
+  "voice": "grey_wolf",
+  "flesh": "fur",
+  "blow": "bite",
+  "steps": {
+    "walk": "walk",
+    "run": "run"
+  },
+  "note": "The wolves are the prototype's (not the bible's five): the frost wolf's body, and the hound's voice until a wolf set exists.",
+  "otherfauna": {
+    "scale": [
+      1.18,
+      1.18
+    ]
+  }
+}
  },
  "player_bodies": {
   "comment": "What each body preset (content/bodies, body.<type>.<build>; WP17) is drawn with. A type lists its models, the first one installed drawn; the player is a MetaHuman (the MPFB player bodies retired, owner 2026-10-17) - male Veth the MetaHuman blend Victor x Trey (mh_veth_m), female Sunita x Tuya (mh_veth_f), owner 2026-10-15. Each build is its own model, baked with its garments by tools/character_build: <model>_<build>, base_build drawn by the model itself. A body whose model is not installed is offered disabled; there is no stand-in. body.default (every character made before the creator) keeps the body the run was bound with. The Kal, Siann and Orenth (playable from 2026-10-24) are drawn by their approved HumGen production bodies (Race_Bodies/production), one native shape a type until more builds are baked.",

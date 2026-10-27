@@ -613,8 +613,8 @@ internal sealed partial class PetSystem : IAbstractAdvance
     private PetState Fight(PetState pet, CreatureState prey, long tick)
     {
         pet = pet with { TargetKey = prey.Key };
-        var attack = Bite(pet);
-        double reach = attack.ReachMm + prey.Definition.RadiusMm - 100;
+        var attack = CombatRules.ArmedMove(Bite(pet),(int)(tick/7%3)) with { ForcesStagger=false };
+        double reach = attack.ReachMm + attack.LungeMm + prey.Definition.RadiusMm - 100;
         if (Distance(pet.Body, prey.Body) > reach || Walled(pet.Body, prey.Body))
             return Walk(pet, prey.Body.XMm, prey.Body.ZMm, Gait.Sprint);
         int toward = CombatRules.FacingTowards(pet.Body.XMm, pet.Body.ZMm, prey.Body.XMm, prey.Body.ZMm);
@@ -633,6 +633,8 @@ internal sealed partial class PetSystem : IAbstractAdvance
         var attack = action.Attack ?? Bite(pet);
         if (pet.TargetKey is not { } key || !State.Creatures.TryGetValue(key, out var prey) || !prey.Alive || action.Struck.Contains(prey.Id))
             return pet;
+        if (attack.LungeMm > 0 && Distance(pet.Body,prey.Body) > attack.ReachMm + prey.Definition.RadiusMm - 100)
+            pet = Walk(pet,prey.Body.XMm,prey.Body.ZMm,Gait.Sprint);
         if (!CombatRules.InFront(pet.Body.XMm, pet.Body.ZMm, pet.Body.FacingMdeg, prey.Body.XMm, prey.Body.ZMm,
                 attack.ReachMm + prey.Definition.RadiusMm, C.MeleeArcMdeg) || Walled(pet.Body, prey.Body))
             return pet with { Action = action with { Struck = action.Struck.Add(prey.Id) }, NextAttackTick = tick + attack.TotalTicks };

@@ -9,7 +9,7 @@ family: beast
 archetype: predator
 level_band: [3, 3]
 pools: { health: 35 }
-attack_set: [ability.creature.hound_lunge]
+attack_set: [ability.creature.hound_lunge, ability.creature.ash_ember_hound_heavy, ability.creature.ash_ember_hound_rush]
 armor: { head: 1, torso: 1, limbs: 1 }
 move_speed_m_s: 6.0         # faster than a sprint: it cannot be outrun
 body_radius_m: 0.4

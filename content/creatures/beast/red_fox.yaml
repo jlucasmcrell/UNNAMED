@@ -9,7 +9,7 @@ family: beast
 archetype: prey
 level_band: [1, 1]
 pools: { health: 18 }
-attack_set: [ability.creature.peck]
+attack_set: [ability.creature.peck, ability.creature.red_fox_heavy, ability.creature.red_fox_rush]
 armor: { head: 0, torso: 0, limbs: 0 }
 move_speed_m_s: 5.0
 turn_deg_s: 420

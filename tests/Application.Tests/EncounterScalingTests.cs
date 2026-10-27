@@ -205,8 +205,8 @@ public class EncounterScalingTests
         var session = Harness.Boot(profile);
         // Test the archer's reward, not a pet's last hit. Waiting pets still count towards encounter strength,
         // but their post is outside the fight so ULID-dependent bite timing cannot steal this kill.
-        var solo = Den(session, Archer, count:1);
-        var party = Den(session, r => Archer(r).WithPets(Enumerable.Range(0, 4).Select(i =>
+        var solo = Den(session, r => Archer(r).WithProgression(r.Progression with { Level=4 }), count:1);
+        var party = Den(session, r => Archer(r).WithProgression(r.Progression with { Level=4 }).WithPets(Enumerable.Range(0, 4).Select(i =>
             Hound(50 + i, 150) with { Order = PetOrder.WaitHere, WaitXMm = At((50 + i, 150)).XMm, WaitZMm = At((50 + i, 150)).ZMm })), count:1);
         Assert.Equal(4, party.Simulation.PartyStrength);
         Assert.Equal(2, solo.Creature().Level);
@@ -231,7 +231,10 @@ public class EncounterScalingTests
         Assert.True(authored.Awarded > 0);
         // The percent is the worth; the anti-farm band guard then applies its own multiplier, which is why this is a floor and not the exact
         // 165: what matters is that the same wolf, met by a party, is worth materially more than it was to the lone character.
-        Assert.InRange(scaled.Awarded * 100 / authored.Awarded, 120, 200);
+        // The peer-level reward fixture now compares L4 versus L2/L4; undo the distinct anti-farm bands before comparing encounter worth.
+        double soloBand=session.Setup.Progression.Guards.LevelBandMultiplier(2-4);
+        double partyBand=session.Setup.Progression.Guards.LevelBandMultiplier(4-4);
+        Assert.InRange(scaled.Awarded*100.0*soloBand/(authored.Awarded*partyBand),120,200);
     }
 
 

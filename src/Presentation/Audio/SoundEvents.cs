@@ -406,7 +406,7 @@ public partial class SoundEvents : Node
 
     private void Hit(HitResolved e)
     {
-        if (e.Dodged || Where(e.Target) is not { } at)
+        if (e.Dodged || e.Damage == 0 || Where(e.Target) is not { } at)
             return;
         var simulation = _session.Simulation!;
         string? family = WeaponFamily(e.Attacker, e.Source);

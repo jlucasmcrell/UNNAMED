@@ -103,7 +103,7 @@ public partial class Main
         _hud.SetTarget(Target(simulation) is { } target
             ? new TargetPlate(Names.Of(_session, target.DefId), target.Level, target.Health, target.MaxHealth, target.Threat,
                 target.Temperament, target.Hostile, target.Huntable,
-                string.Join(" / ", new[] { target.Rooted ? "ROOTED" : null, target.Paralysed ? "PARALYSED" : null,
+                string.Join(" / ", new[] { target.DefId == "creature.beast.wolf_grey_alpha" ? "Alpha" : null, target.Enraged ? "Enraged" : null, target.Rooted ? "ROOTED" : null, target.Paralysed ? "PARALYSED" : null,
                     target.Asleep ? "ASLEEP" : null, target.Poisoned ? "POISONED" : null }.Where(s => s is not null)),
                 Bestiary(simulation, target.DefId))
             : null);

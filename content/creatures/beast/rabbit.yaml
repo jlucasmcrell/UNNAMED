@@ -9,7 +9,7 @@ family: beast
 archetype: prey
 level_band: [1, 1]
 pools: { health: 10 }
-attack_set: [ability.creature.peck]
+attack_set: [ability.creature.peck, ability.creature.rabbit_heavy, ability.creature.rabbit_rush]
 armor: { head: 0, torso: 0, limbs: 0 }
 move_speed_m_s: 2.4        # its hop is drawn at 0.76 m/s and its run at 3.3
 turn_deg_s: 540

@@ -1,0 +1,18 @@
+id: ability.creature.red_fox_heavy
+kind: ability
+schema: 1
+display_key: ability.creature.red_fox_heavy.name
+tags: [ability]
+name: Heavy Strike
+notes: First-update C1; a committed tell and recovery let a guarded or sidestepping player punish this move.
+class: creature
+range_m: 0.5
+windup_s: 0.90
+active_s: 0.2
+recovery_s: 1.0
+cost: { stamina: 0 }
+commit_facing: true
+forces_stagger: false
+lunge_m: 0.25
+payload:
+  - { type: damage, damage_type: physical_pierce, amount: [2, 4] }

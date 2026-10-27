@@ -9,7 +9,7 @@ family: grazer
 archetype: prey
 level_band: [5, 5]
 pools: { health: 220 }
-attack_set: [ability.creature.tusk_sweep, ability.creature.grazer_charge]
+attack_set: [ability.creature.tusk_sweep, ability.creature.grazer_charge, ability.creature.barrowback_heavy]
 armor: { head: 6, torso: 8, limbs: 4 }   # matted fleece over a hide like bark
 move_speed_m_s: 3.7
 turn_deg_s: 90             # it does not turn quickly; get round it

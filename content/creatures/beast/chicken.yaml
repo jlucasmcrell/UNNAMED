@@ -9,7 +9,7 @@ family: beast
 archetype: prey
 level_band: [1, 1]
 pools: { health: 8 }
-attack_set: [ability.creature.peck]
+attack_set: [ability.creature.peck, ability.creature.chicken_heavy, ability.creature.chicken_rush]
 armor: { head: 0, torso: 0, limbs: 0 }
 move_speed_m_s: 0.9        # a walk of 0.45 m/s and a scuttle of 0.9 - the hen clips' own paces (0.29 and 1.4 m/s)
 turn_deg_s: 360

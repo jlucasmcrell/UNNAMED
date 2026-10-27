@@ -163,6 +163,7 @@ public sealed record CombatConstants
 /// </summary>
 public sealed record Strike(AttackProfile Attack, double DamageMultiplier, int CritPercent, double StaggerPower)
 {
+    public int AccuracyPercent { get; init; } = 100;
     public BodyRegion? ForcedRegion { get; init; }
 
     /// <summary>Points of the struck region's armour a physical blow passes, over what a pierce finds (Kal: structural read).</summary>
@@ -191,6 +192,26 @@ public readonly record struct AttackContext(bool AttackerAlive, bool TargetAlive
 
 public static class CombatRules
 {
+    /// <summary>Owner first-update ruling: every higher level has an advantage; two or more levels of disadvantage require tactics. Peers keep authored numbers.</summary>
+    public static Strike LevelGap(Strike strike, int attackerLevel, int defenderLevel)
+    {
+        int gap = Math.Clamp(attackerLevel - defenderLevel, -7, 7);
+        int steps = Math.Max(0, Math.Abs(gap) - 1);
+        double factor = 1 + (gap == 0 ? 0 : .1) + .75 * steps;
+        return strike with
+        {
+            DamageMultiplier = strike.DamageMultiplier * (gap < 0 ? 1 / factor : factor),
+            AccuracyPercent = gap < 0 ? Math.Max(50, 95 - 10 * steps) : 100,
+        };
+    }
+
+    public static AttackProfile ArmedMove(AttackProfile weapon, int choice) => (choice % 3) switch
+    {
+        0 => weapon with { WindupTicks = Math.Max(3, weapon.WindupTicks * 2 / 3), DamageMin = Math.Max(1, weapon.DamageMin * 4 / 5), DamageMax = Math.Max(1, weapon.DamageMax * 4 / 5) },
+        1 => weapon with { WindupTicks = Math.Max(18, weapon.WindupTicks * 2), RecoveryTicks = Math.Max(12, weapon.RecoveryTicks), DamageMin = weapon.DamageMin * 3 / 2, DamageMax = weapon.DamageMax * 3 / 2, CommitFacing = true, ForcesStagger = true },
+        _ => weapon with { LungeMm = 1_200, CommitFacing = true, RecoveryTicks = Math.Max(10, weapon.RecoveryTicks) },
+    };
+
     /// <summary>The shared attack-legality seam. Either participant may be a player; no actor kind is privileged.</summary>
     public static bool CanAttemptAttack(EntityId attacker, EntityId target, AttackContext context) =>
         attacker != target && context.AttackerAlive && context.TargetAlive && context.AttacksEnabled;
@@ -207,6 +228,9 @@ public static class CombatRules
         var region = strike.ForcedRegion ?? Region(constants, random(0));
         if (defense.Dodging)
             return new HitResult(region, 0, 0, false, false, true, false, false);
+
+        if (random(5) * 100 >= strike.AccuracyPercent)
+            return new HitResult(region, 0, 0, false, false, false, false, false);
 
         int span = attack.DamageMax - attack.DamageMin + 1;
         int roll = attack.DamageMin + Math.Min(span - 1, (int)Math.Floor(random(1) * span));
@@ -235,7 +259,7 @@ public static class CombatRules
         double whole = Math.Floor(damage);
         int final = roll > 0 ? Math.Max(1, (int)whole + (random(4) < damage - whole ? 1 : 0)) : 0;
         if (strike.Execution) final = Math.Max(final, defense.MaxHealth);
-        bool staggered = !blocked && impact * strike.StaggerPower * 100 * 100 >= (double)defense.MaxHealth * constants.StaggerThresholdPercent * defense.StaggerThresholdPercent;
+        bool staggered = !blocked && (attack.ForcesStagger || impact * strike.StaggerPower * 100 * 100 >= (double)defense.MaxHealth * constants.StaggerThresholdPercent * defense.StaggerThresholdPercent);
         bool effect = attack.OnHitEffect is not null && !blocked && random(3) * 100 < attack.OnHitEffectPercent;
         return new HitResult(region, (int)Math.Round(impact, MidpointRounding.AwayFromZero), final, critical, blocked, false, staggered, effect);
     }
@@ -310,6 +334,8 @@ public sealed record CreatureDefinition(
     /// <summary>An optional shorter blow, used when a target crowds the main attack's reach.</summary>
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public AttackProfile? CloseAttack { get; init; }
+
+    public ImmutableArray<AttackProfile> Moves { get; init; } = ImmutableArray<AttackProfile>.Empty;
 
     /// <summary>How fast it turns, in millidegrees a second: a heavy body cannot swing round onto whoever gets behind it.</summary>
     public long TurnMdegPerSecond { get; init; } = 720_000;

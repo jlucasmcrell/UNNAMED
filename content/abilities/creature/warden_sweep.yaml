@@ -3,7 +3,7 @@ kind: ability
 schema: 1
 display_key: ability.creature.warden_sweep.name
 tags: [ability]
-name: Warden's Sweep
+name: Sweep
 notes: The Gate Warden's arm brought round through a wide arc - the custodian's sweep at a giant's reach. The arm tracks round before it commits, so a body that reads the windup can be somewhere else, ideally behind it.
 class: creature
 range_m: 4.2

@@ -131,17 +131,19 @@ public partial class NpcsView : Node3D
             figure.Visible = npc.Space == simulation.ActiveLayout.SpaceId;
             if (!figure.Visible)
                 continue;
-            // A companion carries their own weapon (M6: the March Spear, from their NPC definition's companion block).
-            if (figure is Art.SkinnedFigure skinned)
-                skinned.Equip(simulation.Companions.Any(c => c.NpcId == npc.Id) ? _bindings.CompanionWeapon : null);
-            else if (figure is MHCharacters.MetaHumanFigure nativeFigure)
-                nativeFigure.Equip(simulation.Companions.Any(c => c.NpcId == npc.Id) ? _bindings.CompanionWeapon : null);
+            var member = simulation.Companions.FirstOrDefault(c => c.NpcId == npc.Id);
+            var weapon = member is null ? null : _bindings.Weapons.GetValueOrDefault(member.WeaponId) ?? _bindings.CompanionWeapon;
+            if (figure is Art.SkinnedFigure skinned) skinned.Equip(weapon);
+            else if (figure is MHCharacters.MetaHumanFigure nativeFigure) nativeFigure.Equip(weapon);
             // How fast the body is going, for the stride, and where to draw it between the simulation's steps (GaitSpeed, H04).
             if (!_gaits.TryGetValue(npc.Id, out var gait))
                 _gaits[npc.Id] = gait = new GaitSpeed();
             var feet = gait.Sample(HollowView.ToGodot(npc.Body.XMm, npc.Body.YMm, npc.Body.ZMm), delta, tickSeconds);
             float speed = gait.Speed;
-            figure.SetStance(CombatStance.AtRest);
+            var heldWeapon = weapon?.Family switch { "spear" => Held.Spear, "bow" => Held.Bow, null => Held.Nothing, _ => Held.Sword };
+            figure.SetStance(member is null ? CombatStance.AtRest : new CombatStance(member.Phase,
+                1f-(float)member.PhaseTicksLeft/Math.Max(1,member.PhaseDurationTicks),heldWeapon,member.Guarding,
+                Ready: member.Doing == "fighting"));
             figure.SetIdleRole(npc.Role);
             bool held = npc.Id == FoldEcho.Held && simulation.Barriers.Any(b => b.Site.Key == FoldEcho.Barrier && b.Standing);
             figure.SetPosture(held, false);

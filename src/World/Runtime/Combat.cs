@@ -642,7 +642,7 @@ internal sealed partial class CombatSystem
         var definition = creature.Definition;
         var defense = new DefenseProfile(definition.MaxHealth, WithBonus(definition.Armor, EffectRules.ArmorBonus(EffectsOf(creature.Id), Setup.Effects)),
             definition.Resistances, Blocking: false, Dodging: false);
-        var strike = SneakStrike(creature, attack, PlayerStrike(attack));
+        var strike = CombatRules.LevelGap(SneakStrike(creature, attack, PlayerStrike(attack)), State.Progression.Level, definition.Level + creature.LevelBonus);
         // A weak point open from behind is where a blow from behind lands (COMBAT §19): position, not luck.
         if (definition.WeakPoint is { FromBehind: true } weak && Behind(creature.Body, State.Body))
             strike = strike with { ForcedRegion = weak.Region };
@@ -729,7 +729,7 @@ internal sealed partial class CombatSystem
         var fromBehind = Behind(creature.Body, body);
         bool execution = TakedownRules.Executes(true, true, fromBehind,
             ThreatRules.Of(definition.Level, State.Progression.Level), definition.Tags.Contains("boss") || creature.Site.Recovery is not null);
-        var outcome = TakedownRules.Resolve(PlayerStrike(attack) with { Execution = execution }, defense, C, creature.Health, fromBehind,
+        var outcome = TakedownRules.Resolve(CombatRules.LevelGap(PlayerStrike(attack) with { Execution = execution },State.Progression.Level,definition.Level+creature.LevelBonus), defense, C, creature.Health, fromBehind,
             Random("takedown", creature.Key, creature.Body, tick));
         State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick });
         _context.Dispatch(new WoundCreature(creature.Id, outcome.Hit, attack.Source));
@@ -802,7 +802,7 @@ internal sealed partial class CombatSystem
         {
             StaggerThresholdPercent = _context.PlayerTraits.StaggerThresholdPercent,
         };
-        var strike = new Strike(attack, EffectRules.DamageDealtMultiplier(EffectsOf(creature.Id), Setup.Effects), C.BaseCritPercent, 1.0);
+        var strike = CombatRules.LevelGap(new Strike(attack, EffectRules.DamageDealtMultiplier(EffectsOf(creature.Id), Setup.Effects), C.BaseCritPercent, 1.0), creature.Definition.Level + creature.LevelBonus, State.Progression.Level);
         var result = CombatRules.Resolve(strike, defense, C, Random(creature.Key, "player", body, tick));
 
         if (result.Blocked)
@@ -815,7 +815,7 @@ internal sealed partial class CombatSystem
             BreakCast(combat.Action, "wounded", tick);
             State.SetPlayerCombat(_owner, State.PlayerCombat with { Action = ActionState.Idle });
         }
-        bool knocked = attack.ForcesStagger && !result.Blocked && !result.Dodged;
+        bool knocked = attack.ForcesStagger && result.Final > 0 && !result.Blocked && !result.Dodged;
         bool staggered = (result.Staggered || knocked) && health > 0 && StaggerPlayer(tick, force: false);
         _context.Events.Publish(new HitResolved(creature.Id, creature.Definition.Id, _player, attack.Source, result.Region, result.Final,
             result.Critical, result.Blocked, result.Dodged, staggered, health, tick));

@@ -8,6 +8,17 @@ namespace UNNAMED.Presentation.Tests;
 public class CombatWordsTests
 {
     [Fact]
+    public void CreatureMoveUsesItsOwnWordsAfterTheAttackersName()
+    {
+        var player = EntityId.NewId(EntityKind.Character);
+        var alpha = EntityId.NewId(EntityKind.Creature);
+        var hit = new HitResolved(alpha, "creature.beast.wolf_grey_alpha", player, "ability.creature.wolf_grey_alpha_rush",
+            BodyRegion.Torso, 12, false, false, false, false, 40, 100);
+        Assert.Equal("The Grey Alpha's rush hits your torso for 12",
+            CombatWords.Hit(hit, player, "Grey Alpha", false, "", "Rush"));
+    }
+
+    [Fact]
     public void CompanionsBlowNamesTheWolf_AndOnlyAPlayerTargetSaysYourTorso()
     {
         var player = EntityId.NewId(EntityKind.Character);

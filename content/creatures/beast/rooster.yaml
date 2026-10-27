@@ -9,7 +9,7 @@ family: beast
 archetype: prey
 level_band: [1, 1]
 pools: { health: 10 }
-attack_set: [ability.creature.peck]
+attack_set: [ability.creature.peck, ability.creature.rooster_heavy, ability.creature.rooster_rush]
 armor: { head: 0, torso: 0, limbs: 0 }
 move_speed_m_s: 1.2
 turn_deg_s: 360

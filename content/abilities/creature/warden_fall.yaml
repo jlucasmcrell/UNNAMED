@@ -3,7 +3,7 @@ kind: ability
 schema: 1
 display_key: ability.creature.warden_fall.name
 tags: [ability]
-name: Warden's Fall
+name: Fall
 notes: "Both arms come up and the warden comes down and forward in a straight line - the heaviest thing it does, with the longest tell. It cannot turn while it commits; the recovery is the window to get behind it."
 class: creature
 windup_s: 1.3
