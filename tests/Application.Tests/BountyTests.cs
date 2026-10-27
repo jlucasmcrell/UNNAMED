@@ -310,7 +310,9 @@ public class BountyTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         const string quest = "quest.bounty.crag_walker";
-        var arena = Cairnwold(session, AtDurn, null, ("creature.undead.bone_walker_husk", 980.8, 655, "sentinel"));
+        // This checks bounty attribution/payment, not C1's higher-level-enemy difficulty gate.
+        var arena = Cairnwold(session, AtDurn, r => r.WithProgression(r.Progression with { Level = 5 }),
+            ("creature.undead.bone_walker_husk", 980.8, 655, "sentinel"));
         var paid = arena.Record<RewardGranted>();
         long coin = Coin(arena);
 

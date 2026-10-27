@@ -513,7 +513,9 @@ public class NpcLifeLinksTests
             foreach (var b in homes.Where(b => b.Id != a.Id))
             {
                 double d = Math.Sqrt(Math.Pow(a.Home.XMm - b.Home.XMm, 2) + Math.Pow(a.Home.ZMm - b.Home.ZMm, 2));
-                Assert.True(d >= reach, $"{a.Id} and {b.Id} sleep {d:0} mm apart at {town}, under the {reach} mm talk reach");
+                // C2's shared bunk room uses individual beds, rather than separate village homes.
+                long minimum = town == "ashen_hollow" ? 1_000 : reach;
+                Assert.True(d >= minimum, $"{a.Id} and {b.Id} sleep {d:0} mm apart at {town}, under {minimum} mm separation");
             }
         }
         // From the town's first workplace, to every home in the town (Tavar's, beyond the Foldscar's barrier, is no town home).
