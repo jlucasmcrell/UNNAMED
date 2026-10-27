@@ -189,24 +189,24 @@
     },
     "rain_drizzle": {
       "note": "Drizzle (note 16): a few thin drops, short-lived and half-transparent, so the air reads as wet rather than streaked with white. Tuned down from the old 4200 heavy streaks.",
-      "mode": "stream", "texture": "vfx/kenney_trace_rain.png", "box": [20, 2, 20], "quad": [0.045, 1.0], "billboard": "velocity",
-      "amount": 1100, "lifetime": 0.8, "size": [0.5, 0.65], "velocity": [7, 9], "spread": 2,
+      "mode": "stream", "texture": "vfx/kenney_trace_rain.png", "box": [20, 2, 20], "quad": [0.022, 1.0], "billboard": "velocity",
+      "amount": 900, "lifetime": 0.8, "size": [0.42, 0.55], "velocity": [7, 9], "spread": 2,
       "direction": [0.03, -1, 0.02], "gravity": [0, -9.8, 0], "blend": "mix", "energy": 1.0,
-      "color": ["#c3cfdb74", "#c3cfdb74"]
+      "color": ["#c6d2de5a", "#c6d2de5a"]
     },
     "rain": {
       "note": "Steady rain (note 16): thinner and shorter than the old streaks, translucent rather than flat white, and a fifth of the count.",
-      "mode": "stream", "texture": "vfx/kenney_trace_rain.png", "box": [22, 2, 22], "quad": [0.055, 1.0], "billboard": "velocity",
-      "amount": 2600, "lifetime": 0.95, "size": [0.6, 0.8], "velocity": [10, 13], "spread": 3,
+      "mode": "stream", "texture": "vfx/kenney_trace_rain.png", "box": [22, 2, 22], "quad": [0.026, 1.0], "billboard": "velocity",
+      "amount": 2200, "lifetime": 0.9, "size": [0.5, 0.66], "velocity": [10, 13], "spread": 3,
       "direction": [0.05, -1, 0.03], "gravity": [0, -9.8, 0], "blend": "mix", "energy": 1.0,
-      "color": ["#c6d2de80", "#c6d2de80"]
+      "color": ["#c9d5e166", "#c9d5e166"]
     },
     "rain_downpour": {
       "note": "Downpour in a storm (note 16): the most of the three, still thin and translucent - the count and the speed carry it, not the width.",
-      "mode": "stream", "texture": "vfx/kenney_trace_rain.png", "box": [26, 2, 26], "quad": [0.065, 1.0], "billboard": "velocity",
-      "amount": 4000, "lifetime": 1.1, "size": [0.7, 0.9], "velocity": [15, 18], "spread": 4,
+      "mode": "stream", "texture": "vfx/kenney_trace_rain.png", "box": [26, 2, 26], "quad": [0.030, 1.0], "billboard": "velocity",
+      "amount": 3400, "lifetime": 1.05, "size": [0.58, 0.76], "velocity": [15, 18], "spread": 4,
       "direction": [0.08, -1, 0.05], "gravity": [0, -9.8, 0], "blend": "mix", "energy": 1.0,
-      "color": ["#c9d6e28c", "#c9d6e28c"]
+      "color": ["#ccd8e472", "#ccd8e472"]
     },
     "rain_splash": {
       "note": "The hit of a drop on the ground (note 16): small, short-lived soft flecks a hand above the surface, so the ground answers the rain.",
