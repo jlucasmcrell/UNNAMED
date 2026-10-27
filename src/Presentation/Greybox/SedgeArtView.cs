@@ -15,6 +15,7 @@ public partial class SedgeArtView : Node3D
     private readonly List<SpotLight3D> _shafts = new();
     private readonly List<FogVolume> _shaftHaze = new();
     private float _elapsed;
+    private bool _airProbeLogged;
 
     public static SedgeArtView? Build(Node3D parent, Node3D terrain, ArtLibrary art, string region)
     {
@@ -34,9 +35,9 @@ public partial class SedgeArtView : Node3D
         foreach (var at in new[] { new Vector3(4860,135,1100), new Vector3(4910,165,600), new Vector3(5110,145,1700) })
         {
             var shaft = new SpotLight3D { Name = "CloudBreakShaft", Position = at,
-                // Native inverse-square lights need this power for the 135–165m throw.
-                LightColor = new Color(.87f,.93f,1), LightEnergy = 12000f,
-                LightVolumetricFogEnergy = 12f, SpotRange = 260, SpotAngle = 13,
+                // Godot low-density fog needs a separate high volumetric-energy multiplier.
+                LightColor = new Color(.87f,.93f,1), LightEnergy = 22f,
+                LightVolumetricFogEnergy = 25000f, SpotRange = 260, SpotAngle = 13,
                 SpotAttenuation = .5f, ShadowEnabled = true,
                 RotationDegrees = new Vector3(-72, -20, 0) };
             view.AddChild(shaft);view._shafts.Add(shaft);
@@ -238,8 +239,14 @@ public partial class SedgeArtView : Node3D
         _elapsed += (float)delta;
         float energy = Mathf.Lerp(2.3f, .25f, SkyView.DaylightLevel);
         foreach (var lamp in _lamps) lamp.LightEnergy = energy;
-        foreach (var shaft in _shafts) shaft.LightEnergy = 12000f * SkyView.DaylightLevel;
+        foreach (var shaft in _shafts) shaft.LightEnergy = 22f * SkyView.DaylightLevel * Mathf.SmoothStep(.35f, .65f, SkyView.DaylightLevel);
         foreach (var haze in _shaftHaze) haze.Visible = SkyView.DaylightLevel > .35f;
+        if (!_airProbeLogged && _elapsed > .5f)
+        {
+            _airProbeLogged = true;
+            var air = GetWorld3D().Environment;
+            GD.Print($"SEDGE_AIR volumetric={air?.VolumetricFogEnabled} density={air?.VolumetricFogDensity} length={air?.VolumetricFogLength} daylight={SkyView.DaylightLevel} shaft_energy={_shafts[0].LightEnergy} fog_energy={_shafts[0].LightVolumetricFogEnergy}");
+        }
         foreach (var rain in _rain)
         {
             rain.Direction = (Vector3.Down + WindField.Direction * (.25f + WindField.Strength * .55f)).Normalized();
