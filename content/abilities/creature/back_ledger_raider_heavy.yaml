@@ -1,0 +1,24 @@
+id: ability.creature.back_ledger_raider_heavy
+kind: ability
+schema: 1
+display_key: ability.creature.back_ledger_raider_heavy.name
+tags:
+- ability
+notes: PROPOSED Sedge Gate 4. Distinct tell, range and punishable recovery; tune after
+  native combat review.
+name: Committed cut
+class: creature
+range_m: 2.4
+windup_s: 1.15
+active_s: 0.3
+recovery_s: 1.15
+cost:
+  stamina: 0
+payload:
+- type: damage
+  damage_type: physical_slash
+  amount:
+  - 12
+  - 18
+forces_stagger: true
+commit_facing: true

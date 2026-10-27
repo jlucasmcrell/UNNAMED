@@ -18,6 +18,7 @@ namespace UNNAMED.Presentation.Art;
 public sealed partial class SkinnedCreature : CreatureBody
 {
     private SkinnedModel _model = null!;
+    public string? ClipState => _model.Current;
     private readonly Label3D _mark = new()
     {
         Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, FontSize = 72, OutlineSize = 14, PixelSize = 0.004f, Visible = false,
@@ -28,6 +29,8 @@ public sealed partial class SkinnedCreature : CreatureBody
     private CombatPhase _phase = CombatPhase.Idle;
     private int _phaseTicks = 1;
     private string? _attackSource;
+    private string _chosenAttack = "attack";
+    private long _attackTick = -1;
     private HashSet<string> _clips = new(StringComparer.Ordinal);
     private readonly List<(BaseMaterial3D Material, float Energy)> _otherfire = new();
 
@@ -36,14 +39,24 @@ public sealed partial class SkinnedCreature : CreatureBody
     {
         if (!bindings.Creatures.TryGetValue(definition.Id, out var look) || SkinnedModel.Create(art, look.Model, look.Clips, definition.Id) is not { } model)
             return null;
+        foreach (var (state, native) in look.NativeStates) model.Alias(state, native);
         // A clip that records the pace it is drawn at is played against that; the rest were retimed to the measured paces below.
         float Pace(string state, float measured) => look.Paces.TryGetValue(state, out float pace) && pace > 0
             ? pace : (float)(art.Info(look.Clips.GetValueOrDefault(state) ?? "")?.AuthoredSpeed ?? measured);
         // A bigger animal of the kind takes longer strides: its clips' paces grow with it.
         float size = OtherFauna.Apply(model, definition.Id, look.Fauna, individual);
         var creature = new SkinnedCreature { _model = model, _walkPace = Pace("walk", WalkPace) * size, _runPace = Pace("run", RunPace) * size,
-            _clips = look.Clips.Keys.ToHashSet(StringComparer.Ordinal) };
+            _clips = look.Clips.Keys.Concat(look.NativeStates.Keys).ToHashSet(StringComparer.Ordinal) };
         creature.AddChild(model);
+        if (look.WeaponItem is { } item)
+        {
+            var weapon = bindings.Weapons.GetValueOrDefault(item) ?? throw new InvalidDataException("Creature weapon unbound: " + item);
+            var fingers = BodyModifiers.Grip(model.Skeleton, "hand_r");
+            if (fingers is not null) fingers.Closed = 1;
+            var grip = SkinnedFigure.SocketGrip(model, "hand_r", fingers) ?? throw new InvalidDataException("Creature hand has no grip: " + look.Model);
+            var hand = model.Attach("hand_r") ?? throw new InvalidDataException("Creature hand missing: " + look.Model);
+            hand.AddChild(HeldWeapon.Mount(art, weapon.Model, grip) ?? throw new InvalidDataException("Creature weapon missing: " + item));
+        }
         // A body that burns with Otherfire (its materials named otherfire_*) gets its own copies, so its blow can flare them alone.
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>().Where(m => m.Mesh is not null))
             for (int i = 0; i < mesh.Mesh.GetSurfaceCount(); i++)
@@ -181,13 +194,24 @@ public sealed partial class SkinnedCreature : CreatureBody
             _model.Hold("idle", .25f, 0);
             return;
         }
-        if (creature.Phase != _phase || creature.AttackSource != _attackSource)
+        if (creature.Guarding)
         {
+            _model.Play("block", .08f);
+            return;
+        }
+        if (creature.Phase != _phase || creature.AttackSource != _attackSource || creature.AttackTick != _attackTick)
+        {
+            if (creature.AttackSource is { } move && (creature.Phase == CombatPhase.Windup || creature.AttackTick != _attackTick))
+            {
+                var variants = _clips.Where(c => c == move || c.StartsWith(move + "_", StringComparison.Ordinal)).Order(StringComparer.Ordinal).ToArray();
+                _chosenAttack = variants.Length > 0 ? variants[creature.AttackVariant % variants.Length] : "attack";
+            }
             _phase = creature.Phase;
+            _attackTick = creature.AttackTick;
             _attackSource = creature.AttackSource;
             _phaseTicks = creature.PhaseDurationTicks > 0 ? creature.PhaseDurationTicks : Math.Max(1, creature.PhaseTicksLeft + 1);
         }
-        string attackClip = creature.AttackSource is { } source && _clips.Contains(source) ? source : "attack";
+        string attackClip = _chosenAttack;
         float t = 1f - (float)creature.PhaseTicksLeft / _phaseTicks;
         switch (creature.Phase)
         {
@@ -202,6 +226,9 @@ public sealed partial class SkinnedCreature : CreatureBody
                 return;
             case CombatPhase.Staggered:
                 _model.Play("hit", 0.1f);
+                return;
+            case CombatPhase.Dodge:
+                _model.Play("dodge", .08f);
                 return;
         }
         if (creature.Asleep)

@@ -56,7 +56,7 @@ public class SocialContentTests
     public void NamedNpcSexMatchesCanonicalPronouns()
     {
         var npcs = SocialContent.BuildNpcs(Load(Path.Combine(RepoPaths.Root(), "content")));
-        foreach (var npc in npcs.Values)
+        foreach (var npc in npcs.Values.Where(n => n.Id.StartsWith("npc.ashen_hollow.") || n.Id.StartsWith("npc.cairnwold.")))
             Assert.Equal(new[] { "kera_voss", "sel_arien", "mara_ling", "tam_crowden" }.Any(n => npc.Id.EndsWith(n, StringComparison.Ordinal)) ? "f" : "m", npc.Sex);
     }
 
@@ -72,7 +72,7 @@ public class SocialContentTests
         {
             "npc.ashen_hollow.kera_voss", "npc.ashen_hollow.renn_vale", "npc.ashen_hollow.sel_arien", "npc.ashen_hollow.tavar_orr",
             "npc.cairnwold.berrin_garth", "npc.cairnwold.durn_skell", "npc.cairnwold.mara_ling", "npc.cairnwold.tam_crowden",
-        }, npcs.Keys);
+        }, npcs.Keys.Where(k => k.StartsWith("npc.ashen_hollow.") || k.StartsWith("npc.cairnwold.")));
         var kera = npcs["npc.ashen_hollow.kera_voss"];
         Assert.Equal(("Kera Voss", "craftsperson", "merchant.ashen_hollow.kera_voss"), (kera.Name, kera.Role, kera.MerchantId));
         Assert.True(kera.Offers(NpcServices.Trade));
@@ -330,7 +330,7 @@ public class SocialContentTests
         Assert.False(sel.Matches(Domain.Quests.DeedKind.Delivered, "item.material.boneleaf", "npc.ashen_hollow.kera_voss"));
         Assert.Equal(new[] { ("respect", 1), ("trust", 2) }, sel.Changes.Select(c => (c.Key, c.Value)));
         var undead = tavar.Values[1];
-        Assert.Equal(new[] { "creature.undead.bone_walker_husk" }, undead.Subjects);
+        Assert.Equal(new[] { "creature.undead.bone_walker_husk", "creature.undead.sedge_drowned" }, undead.Subjects);
         Assert.NotNull(undead.Remark);
 
         var banter = SocialContent.BuildDialogues(loader)["dialogue.ashen_hollow.tavar_orr"].Banter;

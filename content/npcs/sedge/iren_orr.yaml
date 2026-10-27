@@ -1,0 +1,14 @@
+id: npc.sedge.iren_orr
+kind: npc
+schema: 1
+display_key: npc.sedge.iren_orr.name
+tags:
+- npc
+notes: PROPOSED Sedge Gate 4 authoring; existing settlement, people and tide facts retained. New identity and tuning pending gate review.
+sex: m
+name: Iren Orr
+role: villager
+services: []
+people_ref: people.orenth
+dialogue_ref: dialogue.sedge.iren_orr
+unique: true

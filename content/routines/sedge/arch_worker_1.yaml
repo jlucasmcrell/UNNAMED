@@ -1,0 +1,28 @@
+id: routine.sedge.arch_worker_1
+kind: routine
+schema: 1
+display_key: routine.sedge.arch_worker_1.name
+tags:
+- routine
+notes: PROPOSED causeway maintenance crew; approved full-size bodies supply a true
+  scale cue beneath the 128m Arch.
+region_ref: region.sedge_levels
+people_ref: people.veth
+settlement: sedge_tollpiles
+role: woodcutter
+roles:
+- woodcutter
+work_hours:
+- 7
+- 19
+anchors:
+  home:
+    position_m:
+    - 4998.7
+    - 114
+    facing_deg: 0
+  work:
+    position_m:
+    - 4998.7
+    - 93
+    facing_deg: 0

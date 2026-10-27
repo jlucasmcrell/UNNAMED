@@ -9,6 +9,7 @@ using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Domain.Travel;
+using UNNAMED.Domain.Social;
 
 namespace UNNAMED.World.Runtime;
 
@@ -43,6 +44,9 @@ public sealed record TravelOption(string ToKey, string RegionId, TravelCost Cost
 internal sealed record ArriveWithParty(Body Arrival) : InternalCommand;
 internal sealed record RestageEncounterParty(Body Arrival, EncounterRecovery Court) : InternalCommand;
 
+internal sealed record TakePassage(string NpcId, TakePassageConsequence Passage) : InternalCommand;
+public sealed record PassageTaken(string NpcId, string LocationId, long Coin, Body Arrival, long Tick);
+
 /// <summary>
 /// Owns: <see cref="StateSlice.Waystones"/> - the stones the character knows and the one they chose to return to. A stone becomes known by
 /// touching it; a dormant stone wakes for someone who has heard its rite, and its flag is set in its cell. Travel goes only from a stone the
@@ -69,6 +73,31 @@ internal sealed class TravelSystem
 
     public bool IsAwake(WaystoneSite stone) =>
         stone.Dormant is not { } dormant || State.World.GetFlag(CellOf(stone), dormant.FlagId) != 0;
+
+    // A local boat service uses the same movement/party owners as other travel,
+    // but neither discovers a Waystone nor changes the return point or world time.
+    public string? Handle(TakePassage command, long tick)
+    {
+        if (!State.Space.IsExterior || !State.Npcs.TryGetValue(command.NpcId, out var npc)
+            || _context.DistanceToPlayer(npc.Body) > _context.TalkReachMm)
+            return "Speak to the ferry keeper at the landing";
+        if (Blocked("ferry crew") is { } blocked) return blocked;
+        var p = command.Passage;
+        if (p.MinTideMm is { } minimum && (Layout.Tide is not { } tide || tide.LevelAt(tick) < minimum))
+            return "Not enough water over the flats for the ferry. Use the raised walk until high water";
+        if (Layout.Locations.FirstOrDefault(l => l.Id == p.LocationId) is not { } location
+            || Math.Sqrt(Math.Pow(p.XMm - location.XMm,2) + Math.Pow(p.ZMm - location.ZMm,2)) > location.DiscoveryRadiusMm)
+            return "That landing is not part of this local passage";
+        if (!Kinematics.IsClear(p.XMm, p.ZMm, _context.Setup.Movement.BodyRadiusMm, Layout.Space, _context.ClosedDoors())
+            || State.Npcs.Values.Any(n => Math.Sqrt(Math.Pow(n.Body.XMm-p.XMm,2)+Math.Pow(n.Body.ZMm-p.ZMm,2))<1000))
+            return "The landing is obstructed";
+        if (_context.Dispatch(new SpendCurrency(p.Coin)) is { } unpaid) return unpaid;
+        var arrival = new Body(p.XMm, Layout.Space.HeightAtMm(p.XMm,p.ZMm), p.ZMm, State.Body.FacingMdeg);
+        _context.Dispatch(new Relocate(arrival));
+        _context.Dispatch(new ArriveWithParty(arrival));
+        _context.Events.Publish(new PassageTaken(command.NpcId, p.LocationId, p.Coin, arrival, tick));
+        return null;
+    }
 
     public string? Handle(TouchStoneCommand command, long tick)
     {
@@ -174,16 +203,16 @@ internal sealed class TravelSystem
     /// Why the stones will not carry the party now (19 §9.3, the plan's T3): anything fighting the character or a companion, or a companion
     /// down; null when nothing stops them.
     /// </summary>
-    private string? Blocked()
+    private string? Blocked(string carrier = "stones")
     {
         if (State.PlayerCombat.Defeated)
             return "dead";
         bool hunted = State.Creatures.Values.Any(c => c.Alive && c.Mind == CreatureMind.Engaged
             && State.Tiers.GetValueOrDefault(CellKey.OfWorld(c.Body.XMm / 1000.0, c.Body.ZMm / 1000.0).ToString(), SimulationTier.D) == SimulationTier.A);
         if (hunted)
-            return "You are being hunted. The stones will not take you while something is fighting you";
+            return $"You are being hunted. The {carrier} will not take you while something is fighting you";
         if (State.Companions.Values.FirstOrDefault(c => c.Condition == CompanionCondition.Downed) is { } down)
-            return $"{(State.Npcs.TryGetValue(down.NpcId, out var npc) ? npc.Definition.Name : down.NpcId)} is down. Help them up first: the stones carry only those who can stand";
+            return $"{(State.Npcs.TryGetValue(down.NpcId, out var npc) ? npc.Definition.Name : down.NpcId)} is down. Help them up first: the {carrier} carry only those who can stand";
         return null;
     }
 

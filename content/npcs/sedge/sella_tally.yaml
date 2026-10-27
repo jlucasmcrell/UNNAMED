@@ -1,0 +1,14 @@
+id: npc.sedge.sella_tally
+kind: npc
+schema: 1
+display_key: npc.sedge.sella_tally.name
+tags:
+- npc
+notes: PROPOSED Sedge Gate 4 authoring; existing settlement, people and tide facts retained. New identity and tuning pending gate review.
+sex: f
+name: Sella Tally
+role: quest_giver
+services: []
+people_ref: people.siann
+dialogue_ref: dialogue.sedge.sella_tally
+unique: true

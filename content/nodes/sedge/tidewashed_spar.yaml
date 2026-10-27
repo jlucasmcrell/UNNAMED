@@ -1,0 +1,14 @@
+id: node.sedge.tidewashed_spar
+kind: node
+schema: 1
+display_key: node.sedge.tidewashed_spar.name
+tags:
+- node
+name: Tide-washed Spar
+notes: 'PROPOSED shore source for the causeway crew: ordinary sound timber through
+  the existing survival harvest. No live ash grove added to the fen.'
+resource_ref: resource.wood.deadfall
+charges: 1
+respawn: daily
+harvest_skill: skill.survival
+difficulty: 1

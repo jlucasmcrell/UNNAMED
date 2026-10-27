@@ -103,10 +103,10 @@ public class CombatContentTests
         Assert.Equal(new[]
             {
                 "creature.beast.ash_ember_hound", "creature.beast.bristleback_boar", "creature.beast.buck", "creature.beast.cave_hunting_spider",
-                "creature.beast.chicken", "creature.beast.doe", "creature.beast.hound_pup", "creature.beast.hunting_spider_matriarch", "creature.beast.rabbit", "creature.beast.red_fox", "creature.beast.rooster",
+                "creature.beast.chicken", "creature.beast.doe", "creature.beast.hound_pup", "creature.beast.hunting_spider_matriarch", "creature.beast.rabbit", "creature.beast.red_fox", "creature.beast.rooster", "creature.beast.sedge_eel_serpent",
                 "creature.beast.wolf_grey", "creature.beast.wolf_grey_alpha", "creature.construct.animated_armour", "creature.construct.gate_tender", "creature.construct.gate_warden",
                 "creature.construct.ring_custodian",
-                "creature.grazer.barrowback", "creature.grazer.fellhorn", "creature.undead.bone_walker_husk",
+                "creature.grazer.barrowback", "creature.grazer.fellhorn", "creature.humanoid.back_ledger_raider", "creature.undead.bone_walker_husk", "creature.undead.sedge_drowned",
             }, setup.Creatures.Keys);
         var barrowback = setup.Creatures["creature.grazer.barrowback"];
         Assert.Equal((5, 220, 1_400L, 16_000L), (barrowback.Level, barrowback.MaxHealth, barrowback.RadiusMm, barrowback.Charge!.ReachMm));

@@ -1,0 +1,25 @@
+id: routine.sedge.resident_5
+kind: routine
+schema: 1
+display_key: routine.sedge.resident_5.name
+tags:
+- routine
+notes: PROPOSED Sedge Gate 4 authoring; existing settlement, people and tide facts retained. New identity and tuning pending gate review.
+region_ref: region.sedge_levels
+people_ref: people.veth
+settlement: sedge_pellow_cuts
+role: porter
+roles:
+- porter
+work_hours:
+- 7
+- 19
+anchors:
+  home:
+    position_m: &id001
+    - 4778.4
+    - 908
+    facing_deg: 90
+  work:
+    position_m: *id001
+    facing_deg: 90

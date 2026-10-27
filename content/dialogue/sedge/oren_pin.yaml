@@ -1,0 +1,62 @@
+id: dialogue.sedge.oren_pin
+kind: dialogue
+schema: 1
+display_key: dialogue.sedge.oren_pin.name
+tags:
+- dialogue
+notes: PROPOSED Sedge Gate 4 authoring; existing settlement, people and tide facts retained. New identity and tuning pending gate review.
+participants:
+- npc.sedge.oren_pin
+root_node: greet
+nodes:
+  greet:
+    text: Salt eats the pins, then the joints start talking. Let me see what needs mending.
+    choices:
+    - id: deliver
+      text: Two sound lengths for the crew.
+      conditions:
+      - kind: quest_state
+        quest_ref: quest.sedge.the_kept_crossing
+        objective: o_delivery
+        is: active
+      - kind: has_item
+        item_ref: item.material.timber
+        count: 2
+      consequences:
+      - command: transfer_item
+        item_ref: item.material.timber
+        count: 2
+        to: npc
+      next: delivered
+    - id: crew
+      text: What can I bring the causeway crew?
+      conditions:
+      - kind: quest_state
+        quest_ref: quest.sedge.the_kept_crossing
+        objective: o_crew
+        is: active
+      next: crew
+    - id: trade
+      text: Show me your stock.
+      consequences:
+      - command: open_service
+        service: trade
+    - id: repair
+      text: Repair my equipment.
+      consequences:
+      - command: open_service
+        service: repair
+    - id: leave
+      text: Goodbye.
+  crew:
+    text: Sound timber, two lengths. The tide puts fallen wood beside Pellow Cuts. Bring your own if you have it; the water does not
+      ask where a brace grew. It will not lift the sunken span, but it will keep a working landing sound.
+    choices:
+    - id: leave
+      text: I will bring them.
+  delivered:
+    text: Straight grain. This will do. The middle span still belongs to the tide; use the raised walk when it is covered. Take Sella
+      an observation, not a promise that the whole causeway is repaired.
+    choices:
+    - id: leave
+      text: I will compare the Arch mark.

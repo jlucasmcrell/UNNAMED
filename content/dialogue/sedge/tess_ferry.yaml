@@ -1,0 +1,29 @@
+id: dialogue.sedge.tess_ferry
+kind: dialogue
+schema: 1
+display_key: dialogue.sedge.tess_ferry.name
+tags:
+- dialogue
+notes: PROPOSED Sedge Gate 4 authoring; existing settlement, people and tide facts
+  retained. New identity and tuning pending gate review.
+participants:
+- npc.sedge.tess_ferry
+root_node: greet
+nodes:
+  greet:
+    text: The punt carries walkers as well as riders. Stay on the marked landing;
+      the black water beside it is deeper than your pole. The Tollpiles flats need
+      high water for a loaded punt; at ebb, use the raised walk.
+    choices:
+    - id: passage
+      text: Passage to Orr Winter Camp — 2 coin. High water only.
+      consequences:
+      - command: take_passage
+        location_ref: location.sedge_orr_camp
+        arrival_m:
+        - 4755.5
+        - 1343
+        coin: 2
+        min_tide_mm: 500
+    - id: leave
+      text: Goodbye.

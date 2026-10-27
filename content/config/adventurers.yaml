@@ -3,7 +3,7 @@ kind: config
 schema: 1
 display_key: config.adventurers.name
 tags: [config]
-notes: "NPC adventurers (WP13, SYSTEMS_COMPLETENESS_PLAN §2.13; canon NPC_SIMULATION 'Adventurer Agent'). Each settlement keeps target_per_settlement adventurers: a target refilled by arrivals 3-7 game days after a death or a retirement, never a cap (DN5: 4 in each town, 8 in region 1). They level on the character's own curve and skill rules, own real gear (the ladder, bought from the market or commissioned from the smith out of market stock), hunt the grounds listed, take competitive bounties (first claimant wins), sell what they bring back, travel the Old East Road, and retire past a wealth or an age. Off-screen outcomes are resolved by the fixed table below, never by a simulated fight (DN2 canon amendment): the row is the margin of their power (level, ladder pieces, companions) over the ground's danger (creature level, plus one for each more that comes at once). Names come from the people's Suggest list (WP2). Every number here is provisional, for the owner to tune."
+notes: "NPC adventurers (WP13, SYSTEMS_COMPLETENESS_PLAN Â§2.13; canon NPC_SIMULATION 'Adventurer Agent'). Each settlement keeps target_per_settlement adventurers: a target refilled by arrivals 3-7 game days after a death or a retirement, never a cap (DN5: 4 in each town, 8 in region 1). They level on the character's own curve and skill rules, own real gear (the ladder, bought from the market or commissioned from the smith out of market stock), hunt the grounds listed, take competitive bounties (first claimant wins), sell what they bring back, travel the Old East Road, and retire past a wealth or an age. Off-screen outcomes are resolved by the fixed table below, never by a simulated fight (DN2 canon amendment): the row is the margin of their power (level, ladder pieces, companions) over the ground's danger (creature level, plus one for each more that comes at once). Names come from the people's Suggest list (WP2). Every number here is provisional, for the owner to tune."
 target_per_settlement: 4
 starting_level: [1, 5]
 starting_coin: [10, 40]
@@ -38,7 +38,7 @@ gear_ladder:
   - item.armor.wool_trousers
   - item.armor.cloak
   - item.weapon.march_spear
-# The body a hired adventurer fights with before their gear: their gear and level are kept when hired (WP15a, §2.15).
+# The body a hired adventurer fights with before their gear: their gear and level are kept when hired (WP15a, Â§2.15).
 hire: { health: 90, weapon_item_ref: item.weapon.rusted_sword, roles: [guard, porter] }
 settlements:
   - id: ashen_hollow
@@ -97,5 +97,24 @@ settlements:
       - spawn.cairnwold.gorge_spiders
       - spawn.cairnwold.crag_walker
       - spawn.road.barrow_husks
+  # Sedge Gate 4: staffed rest uses the same no-time-skip inn contract.
+  - id: sedge_tollpiles
+    location_ref: location.sedge_tollpiles
+    market_ref: market.sedge_tollpiles
+    smith_merchant_ref: merchant.sedge.oren_pin
+    lodge: { position_m: [4989, 1082], facing_deg: 180 }
+    target: 0
+    grounds: []
+    inn:
+      keeper_npc_ref: npc.sedge.nessa_reed
+      room_coin: 5
+      door: { position_m: [4991, 1080], facing_deg: 180 }
+      keeper: { position_m: [4989, 1080], facing_deg: 180 }
+      board: { position_m: [4991, 1082], facing_deg: 180 }
+      hearth: { position_m: [4989, 1079], facing_deg: 180 }
+      seats: [{ position_m: [4989, 1081], facing_deg: 180 }]
+      beds: [[4989, 1077.5]]
+      gate: { position_m: [5000, 1110], facing_deg: 0 }
+      hours: { sleep_from: 22, breakfast_from: 6, board_from: 7, walk_minutes: 20, return_walk_minutes: 30, return_hours: 9 }
 roads:
   - { from: ashen_hollow, to: cairnwold }   # the Old East Road, walked in a day

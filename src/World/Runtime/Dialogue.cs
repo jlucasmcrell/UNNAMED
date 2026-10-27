@@ -128,6 +128,10 @@ internal sealed class DialogueSystem : IDialogueFacts
         if (choice.Consequences.OfType<TeachConsequence>().FirstOrDefault() is { } teach
             && _context.Dispatch(new Teach(open.NpcId, teach.DefinitionIds)) is { } refusedLesson)
             return refusedLesson;
+        if (choice.Consequences.OfType<TakePassageConsequence>().FirstOrDefault() is { } passage
+            && _context.Dispatch(new TakePassage(open.NpcId, passage)) is { } refusedPassage)
+            return refusedPassage;
+
         foreach (var consequence in choice.Consequences)
             Apply(open, consequence, tick);
         _context.Events.Publish(new ReplyChosen(open.NpcId, open.DialogueId, open.NodeId, choice.Id, tick));

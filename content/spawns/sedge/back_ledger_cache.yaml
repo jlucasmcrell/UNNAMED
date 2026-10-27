@@ -1,0 +1,26 @@
+id: spawn.sedge.back_ledger_cache
+kind: spawn
+schema: 1
+display_key: spawn.sedge.back_ledger_cache.name
+tags:
+- spawn
+notes: PROPOSED optional Sedge Gate 4 encounter. Outside the service posts; ordinary
+  dry-bank retreat remains available. Motion/art review pending.
+region_ref: region.sedge_levels
+creatures:
+- creature_ref: creature.humanoid.back_ledger_raider
+  count:
+  - 1
+  - 1
+  role: sentinel
+at:
+  position_m:
+  - 5135
+  - 1265
+  radius_m: 0
+level_band:
+- 12
+- 12
+respawn:
+  kind: none
+tier_hint: A

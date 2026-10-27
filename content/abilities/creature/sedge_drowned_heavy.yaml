@@ -1,0 +1,25 @@
+id: ability.creature.sedge_drowned_heavy
+kind: ability
+schema: 1
+display_key: ability.creature.sedge_drowned_heavy.name
+tags:
+- ability
+notes: PROPOSED Sedge Gate 4. Distinct tell, range and punishable recovery; tune after
+  native combat review.
+name: Raised-arm blow
+class: creature
+range_m: 1.35
+windup_s: 1.15
+active_s: 0.3
+recovery_s: 1.15
+cost:
+  stamina: 0
+payload:
+- type: damage
+  damage_type: physical_blunt
+  amount:
+  - 12
+  - 18
+forces_stagger: true
+commit_facing: true
+lunge_m: 0.55

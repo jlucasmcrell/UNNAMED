@@ -1,0 +1,25 @@
+id: routine.sedge.keeper_of_names
+kind: routine
+schema: 1
+display_key: routine.sedge.keeper_of_names.name
+tags:
+- routine
+notes: PROPOSED Sedge Gate 4 authoring; existing settlement, people and tide facts retained. New identity and tuning pending gate review.
+region_ref: region.sedge_levels
+npc_ref: npc.sedge.keeper_of_names
+settlement: sedge_pellow_cuts
+role: scholar
+roles:
+- scholar
+work_hours:
+- 6
+- 20
+anchors:
+  home:
+    position_m: &id001
+    - 4742
+    - 1100
+    facing_deg: 180
+  work:
+    position_m: *id001
+    facing_deg: 180

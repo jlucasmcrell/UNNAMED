@@ -51,6 +51,9 @@ public sealed record CreatureView(EntityId Id, string Key, string DefId, string 
     public string? AttackSource { get; init; }
     [System.Text.Json.Serialization.JsonIgnore]
     public int PhaseDurationTicks { get; init; }
+    public int AttackVariant { get; init; }
+    public long AttackTick { get; init; }
+    public bool Guarding { get; init; }
     public bool Alive => Condition == CreatureCondition.Alive;
 
     public bool Hostile => Mind == CreatureMind.Engaged;
@@ -119,6 +122,18 @@ internal sealed record CreatureState(
     public long SearchUntil { get; init; }
     public bool HasCalled { get; init; }
     public long NextChargeTick { get; init; }
+    // Like a swing in progress, these reactions are transient. A loaded body
+    // has to perceive the next windup anew; no unseen attack can provoke one.
+    public long GuardUntil { get; init; }
+    public int ComboStep { get; init; }
+    public long ComboUntil { get; init; }
+    public long ReactedToAttackTick { get; init; } = -1;
+    public bool Dodges(long tick, CombatConstants constants) => Action.Kind == ActionKind.Dodge
+        && Action.PhaseAt(tick, constants).Phase == CombatPhase.Dodge;
+    public bool Blocks(Body attacker, AttackProfile attack, long tick, CombatConstants constants) =>
+        GuardUntil > tick && DamageTypes.IsPhysical(attack.DamageType)
+        && CombatRules.InFront(Body.XMm, Body.ZMm, Body.FacingMdeg, attacker.XMm, attacker.ZMm,
+            long.MaxValue / 4, constants.BlockArcMdeg);
     public long DiedTick { get; init; }
     public long RespawnTick { get; init; }
 
@@ -352,7 +367,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                     }
                 }
                 int facing = (int)(channel.UInt64(40) % 360_000);
-                var body = new Body(x, space.Terrain.HeightAtMm(x, z), z, facing);
+                var body = new Body(x, space.HeightAtMm(x, z), z, facing);
                 var state = new CreatureState(Identity(key, 0), key, site, definition, role, x, z, facing, 0, CreatureCondition.Alive, body,
                     Math.Max(1, (int)Math.Round(definition.MaxHealth * scale.HealthFactor)), ActionState.Idle, 0)
                 {
@@ -366,7 +381,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                         Id = record.InstanceId,
                         Generation = record.Generation,
                         Condition = record.Condition,
-                        Body = new Body(record.XMm, space.Terrain.HeightAtMm(record.XMm, record.ZMm), record.ZMm, record.FacingMdeg),
+                        Body = new Body(record.XMm, space.HeightAtMm(record.XMm, record.ZMm), record.ZMm, record.FacingMdeg),
                         Health = record.Health,
                         ScalePercent = record.ScalePercent,
                         LevelBonus = record.LevelBonus,
@@ -417,7 +432,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// <summary>A living creature after an absence: at home as it stood at the start, its fight and its search forgotten. Its wounds stay.</summary>
     private CreatureState AtHome(CreatureState c) => c with
     {
-        Body = new Body(c.HomeXMm, _context.Setup.SpaceFor(c.Site.Space).Terrain.HeightAtMm(c.HomeXMm, c.HomeZMm), c.HomeZMm, c.HomeFacingMdeg),
+        Body = new Body(c.HomeXMm, _context.Setup.SpaceFor(c.Site.Space).HeightAtMm(c.HomeXMm, c.HomeZMm), c.HomeZMm, c.HomeFacingMdeg),
         Mind = CreatureMind.Unaware,
         Awareness = 0,
         Knows = false,
@@ -440,7 +455,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         {
             var safe = c.Site.Recovery!;
             Save(AtHome(c) with { Health = c.ScaledMaxHealth });
-            var arrival = new Body(safe.SafeXMm, _context.Setup.SpaceFor(State.Space).Terrain.HeightAtMm(safe.SafeXMm, safe.SafeZMm), safe.SafeZMm, State.Body.FacingMdeg);
+            var arrival = new Body(safe.SafeXMm, _context.Setup.SpaceFor(State.Space).HeightAtMm(safe.SafeXMm, safe.SafeZMm), safe.SafeZMm, State.Body.FacingMdeg);
             _context.Dispatch(new Relocate(arrival));
             _context.Dispatch(new RestageEncounterParty(arrival, safe));
             _context.Events.Publish(new EncounterRestarted(c.Site.Key, true, State.WorldTick));
@@ -492,7 +507,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 if (count >= 20)
                 {
                     Save(AtHome(creature) with { Health = creature.ScaledMaxHealth });
-                    var arrival = new Body(court.SafeXMm, _context.Setup.SpaceFor(State.Space).Terrain.HeightAtMm(court.SafeXMm, court.SafeZMm), court.SafeZMm, 0);
+                    var arrival = new Body(court.SafeXMm, _context.Setup.SpaceFor(State.Space).HeightAtMm(court.SafeXMm, court.SafeZMm), court.SafeZMm, 0);
                     _context.Dispatch(new RestageEncounterParty(arrival, court));
                     _context.Events.Publish(new EncounterRestarted(creature.Site.Key, false, tick));
                     _outsideAttemptTicks.Remove(key);
@@ -578,6 +593,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         {
             CombatPhase.Staggered or CombatPhase.Recovery => c,
             CombatPhase.Windup => Aim(c),
+            CombatPhase.Dodge => c with { Body = Move(c, c.Body.XMm + c.Action.DirXPermille * 2,
+                c.Body.ZMm + c.Action.DirZPermille * 2, Gait.Run,
+                C.DodgeDistanceMm * 1000 / Math.Max(1, C.DodgeTicks * TickMs)) with { FacingMdeg = c.Body.FacingMdeg } },
             CombatPhase.Active when c.Action.Kind == ActionKind.Charge => Run(c, tick),
             CombatPhase.Active => Strike(c, tick),
             _ => Act(c, tick),
@@ -825,6 +843,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         double distance = Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
         if (c.Definition.CloseAttack is { } close && distance <= close.ReachMm + _context.Setup.Movement.BodyRadiusMm - 100)
             attack = Scaled(close, c.ScalePercent);
+        bool humanoidCombo = c.Definition.Tags.Contains("humanoid") && c.Definition.CloseAttack is not null;
+        if (humanoidCombo && c.ComboStep >= 2 && c.ComboUntil >= tick)
+            attack = Scaled(c.Definition.Attack, c.ScalePercent);
         double toKnown = Distance(c.Body.XMm, c.Body.ZMm, targetX, targetZ);
         int facing = CombatRules.FacingTowards(c.Body.XMm, c.Body.ZMm, targetX, targetZ);
         // A territory holds the line: past its edge the guardian goes back and faces the intruder from inside.
@@ -848,6 +869,26 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
         bool clear = !Walled(c, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
         bool seesTarget = tick == c.LastSeenTick;
+        if (c.GuardUntil > tick)
+            return c with { Body = Turn(c, facing), ComboStep = 0, ComboUntil = 0 };
+        var incoming = State.PlayerCombat.Action;
+        if (c.Definition.Tags.Contains("humanoid") && atCharacter && seesTarget && clear && distance < 4_000
+            && incoming.Kind == ActionKind.Attack && incoming.PhaseAt(tick, C).Phase == CombatPhase.Windup
+            && incoming.StartTick != c.ReactedToAttackTick)
+        {
+            int reaction = RngChannel.Open(State.World.WorldSeed,
+                _context.CellOfSite(c.Site.Space, c.Site.XMm, c.Site.ZMm), "humanoid_defense",
+                $"{c.Key}/{incoming.StartTick}").Int(0, 0, 3);
+            c = c with { ReactedToAttackTick = incoming.StartTick };
+            if (reaction == 0)
+                return c with { Body = Turn(c, facing), ComboStep = 0, ComboUntil = 0, GuardUntil = incoming.StartTick
+                    + incoming.Attack!.WindupTicks + incoming.Attack.ActiveTicks + 2 };
+            if (reaction == 1 && _context.ControlOn(c.Id) != ControlKind.Roots)
+            {
+                var (dx, dz) = Direction(c.Body, player.XMm, player.ZMm);
+                return c with { ComboStep = 0, ComboUntil = 0, Action = ActionState.Begin(ActionKind.Dodge, tick, dirX: -dx, dirZ: -dz) };
+            }
+        }
 
         // A charge opens from range, committed to its line: only at a target it can see, and not too often - and only at the character.
         if (_context.ControlOn(c.Id) != ControlKind.Roots && c.Definition.Charge is { } charge && atCharacter && seesTarget && clear && tick >= c.NextChargeTick
@@ -861,6 +902,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 Body = Turn(c, facing),
                 Action = ActionState.Begin(ActionKind.Charge, tick, charge, dx, dz),
                 NextChargeTick = tick + charge.CooldownTicks,
+                ComboStep = 0, ComboUntil = 0,
             };
         }
 
@@ -874,7 +916,10 @@ internal sealed class CreatureSystem : IAbstractAdvance
             if (Math.Abs(Delta(turned.FacingMdeg, toward)) > 30_000)
                 return c with { Body = turned };
             _context.Events.Publish(new AttackStarted(c.Id, attack.Source, attack.WindupTicks, attack.ActiveTicks, attack.RecoveryTicks, tick));
-            return c with { Body = turned, Action = ActionState.Begin(ActionKind.Attack, tick, attack) };
+            return c with { Body = turned, Action = ActionState.Begin(ActionKind.Attack, tick, attack),
+                ComboStep = humanoidCombo && attack.Source == c.Definition.CloseAttack!.Source
+                    ? (c.ComboUntil >= tick ? c.ComboStep : 0) + 1 : 0,
+                ComboUntil = humanoidCombo ? tick + attack.TotalTicks + 12 : 0 };
         }
 
         // A pack hunter comes in from the side: aim off the straight line until close.
@@ -1021,6 +1066,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         {
             Health = health,
             Action = staggered && !longer ? ActionState.Begin(ActionKind.Staggered, tick) : c.Action,
+            GuardUntil = staggered ? 0 : c.GuardUntil,
+            ComboStep = staggered ? 0 : c.ComboStep,
+            ComboUntil = staggered ? 0 : c.ComboUntil,
             StaggerImmuneUntil = staggered ? tick + C.StaggerImmunityTicks : c.StaggerImmuneUntil,
             Awareness = Perception.Full,
             Knows = true,
@@ -1149,7 +1197,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 _context.Events.Publish(new CorpseGone(c.CorpseKey, tick));
             }
             int generation = c.Generation + 1;
-            var home = new Body(c.HomeXMm, _context.Setup.SpaceFor(c.Site.Space).Terrain.HeightAtMm(c.HomeXMm, c.HomeZMm), c.HomeZMm, c.HomeFacingMdeg);
+            var home = new Body(c.HomeXMm, _context.Setup.SpaceFor(c.Site.Space).HeightAtMm(c.HomeXMm, c.HomeZMm), c.HomeZMm, c.HomeFacingMdeg);
             var scale = ScaleOf();
             c = new CreatureState(Identity(c.Key, generation), c.Key, c.Site, c.Definition, c.Role, c.HomeXMm, c.HomeZMm, c.HomeFacingMdeg,
                 generation, CreatureCondition.Alive, home, Math.Max(1, (int)Math.Round(c.Definition.MaxHealth * scale.HealthFactor)), ActionState.Idle, 0)
@@ -1312,7 +1360,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
     private CreatureState? Find(EntityId id) => State.Creatures.Values.FirstOrDefault(c => c.Id == id);
 
-    private Body Move(CreatureState c, long toXMm, long toZMm, Gait gait)
+    private Body Move(CreatureState c, long toXMm, long toZMm, Gait gait, long? speedOverride = null)
     {
         var from = c.Body;
         double dx = toXMm - from.XMm, dz = toZMm - from.ZMm;
@@ -1321,7 +1369,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             return from;
         var intent = new MoveIntent((int)Math.Round(dx / length * 1000), (int)Math.Round(dz / length * 1000), gait,
             Turn(c, CombatRules.FacingTowards(from.XMm, from.ZMm, toXMm, toZMm)).FacingMdeg);
-        var rules = new MovementRules(c.Definition.MoveSpeedMmPerSecond, 50, 100, c.Definition.RadiusMm, 0);
+        var rules = new MovementRules(speedOverride ?? c.Definition.MoveSpeedMmPerSecond, 50, 100, c.Definition.RadiusMm, 0);
         var others = new List<Blocker>(Obstacles(c.Site.Space).Doors)
         {
             new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0),
@@ -1502,6 +1550,11 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 Temperament = TemperamentRules.Of(c.Role.Peaceful, c.Role.AnswersCalls, c.Mind == CreatureMind.Engaged),
                 Threat = ThreatRules.Of(c.Definition.Level + c.LevelBonus, State.Progression.Level),
                 AttackSource = c.Definition.CloseAttack is not null ? c.Action.Attack?.Source : null,
+                AttackVariant = c.Definition.CloseAttack is not null && c.Action.Attack is not null
+                    ? RngChannel.Open(State.World.WorldSeed, _context.CellOfSite(c.Site.Space, c.Site.XMm, c.Site.ZMm), "creature_motion",
+                        $"{c.Key}@{c.Action.StartTick}/{c.Action.Attack.Source}").Int(0, 0, int.MaxValue) : 0,
+                AttackTick = c.Action.StartTick,
+                Guarding = c.GuardUntil > tick,
                 PhaseDurationTicks = c.Definition.CloseAttack is not null && c.Action.Attack is { } attack ? phase switch
                 {
                     CombatPhase.Windup => attack.WindupTicks,

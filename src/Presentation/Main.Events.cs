@@ -95,6 +95,13 @@ public partial class Main
             _hud.Toast($"The {StoneName(e.StoneKey)} is your return point. When you fall, you come back here.", 5);
             WaystoneResponse(e.StoneKey, true);
         });
+        _session.Subscribe<PassageTaken>(e =>
+        {
+            _controller.Resync();
+            _autorun = false;
+            CloseScreens();
+            _hud.Toast($"The ferry puts you ashore at {Names.Of(_session,e.LocationId)}. Passage: {e.Coin} coin.", 6);
+        });
         _session.Subscribe<PlayerTravelled>(e =>
         {
             _waystoneArrived=true;
@@ -320,7 +327,7 @@ public partial class Main
         _session.Subscribe<ConversationEnded>(_ => _dialogue.Refresh());
         _session.Subscribe<ServiceOpened>(e =>
         {
-            if (e.Service == Domain.Social.NpcServices.Trade)
+            if (e.Service is Domain.Social.NpcServices.Trade or Domain.Social.NpcServices.Repair)
                 OpenTrade(e.NpcId);
         });
         _session.Subscribe<ItemBought>(e =>
@@ -333,10 +340,15 @@ public partial class Main
             _inventory.Refresh();
             Notice(NoticeKind.Items, $"Sold {Names.Of(_session, e.ItemId)}{(e.Count > 1 ? $" x{e.Count}" : "")} for {e.Price}", 3);
         });
+        _session.Subscribe<ItemRepaired>(e =>
+        {
+            _inventory.Refresh();
+            Notice(NoticeKind.Items,$"Repaired {Names.Of(_session,e.DefId)} for {e.Coin} coin",3);
+        });
         _session.Subscribe<RelationshipChanged>(QueueRelationshipNotice);
         _session.Subscribe<CommandRejected>(e =>
         {
-            if (e.Command is TalkCommand or ChooseCommand or BuyCommand or SellCommand)
+            if (e.Command is TalkCommand or ChooseCommand or BuyCommand or SellCommand or MerchantRepairCommand)
                 _hud.Toast(e.Reason, 3);
         });
     }

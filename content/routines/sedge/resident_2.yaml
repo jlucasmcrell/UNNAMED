@@ -1,0 +1,28 @@
+id: routine.sedge.resident_2
+kind: routine
+schema: 1
+display_key: routine.sedge.resident_2.name
+tags:
+- routine
+notes: PROPOSED Sedge Gate 4 authoring; existing settlement, people and tide facts
+  retained. New identity and tuning pending gate review.
+region_ref: region.sedge_levels
+people_ref: people.siann
+settlement: sedge_tollpiles
+role: scholar
+roles:
+- scholar
+work_hours:
+- 7
+- 19
+anchors:
+  home:
+    position_m:
+    - 5010
+    - 1086
+    facing_deg: 90
+  work:
+    position_m:
+    - 5012
+    - 1091
+    facing_deg: 90

@@ -1,0 +1,26 @@
+id: merchant.sedge.nessa_reed
+kind: merchant
+schema: 1
+display_key: merchant.sedge.nessa_reed.name
+tags:
+- merchant
+notes: PROPOSED Sedge Gate 4 authoring; existing settlement, people and tide facts retained. New identity and tuning pending gate review.
+stock_mode: fixed
+stock:
+- item_ref: item.consumable.roast_meat
+  count: 6
+  price_bias: 1.0
+- item_ref: item.material.ash_haft
+  count: 6
+  price_bias: 1.0
+buys_tags:
+- material
+- consumable
+- weapon
+- armor
+- misc
+- bag
+gold_reserve:
+- 80
+- 400
+restock_min: 60

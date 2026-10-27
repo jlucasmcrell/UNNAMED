@@ -198,7 +198,9 @@ public partial class SoundEvents : Node
                 // attack() and the creature's own swing fire with the attack's commit, not its windup.
                 if (Voice(creature.DefId) is { } voice)
                     _bank.Play($"sfx.creature.{voice}.attack", at2, commit);
-                if (Blow(creature.DefId) is { } blow)
+                if (WeaponFamily(e.Attacker,e.Source) is { } weapon)
+                    Swing(weapon, Chest(at2), commit);
+                else if (Blow(creature.DefId) is { } blow)
                     _bank.Play($"sfx.creature.swing.{blow}", Chest(at2), commit);
             }
         });
@@ -626,7 +628,8 @@ public partial class SoundEvents : Node
 
     /// <summary>The weapon family a person's blow comes from: the character's, or a party member's own weapon (else the bound companion weapon).</summary>
     private string? WeaponFamily(EntityId attacker, string source) =>
-        attacker == PlayerId ? Family(source) : Companion(attacker) is not null ? Family(source) ?? _bindings.CompanionWeapon?.Family : null;
+        attacker == PlayerId ? Family(source) : Companion(attacker) is not null ? Family(source) ?? _bindings.CompanionWeapon?.Family
+            : Creature(attacker) is { } creature ? Family(_bindings.Creatures.GetValueOrDefault(creature.DefId)?.WeaponItem) : null;
 
     private string? Voice(string defId) => _bindings.Creatures.GetValueOrDefault(defId)?.Voice is { Length: > 0 } voice ? voice : null;
 

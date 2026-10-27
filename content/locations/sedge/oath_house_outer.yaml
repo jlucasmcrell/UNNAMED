@@ -1,0 +1,20 @@
+id: location.sedge_oath_house_outer
+kind: location
+schema: 1
+display_key: location.sedge_oath_house_outer.name
+tags: [location]
+notes: PROPOSED bounded outer record hall beneath the Arch; sealed deep pocket remains optional level 30+ future scope.
+name: Drowned Oath-House - Outer Record Hall
+region_ref: region.sedge_levels
+anchor:
+  world: [5016, 2.45, 40]
+kind_of_place: ruin
+discovery:
+  methods: [visited]
+  radius_m: 3
+  xp: 0
+map:
+  reveals_radius_m: 30
+  marker: none
+fast_travel:
+  node: false

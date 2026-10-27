@@ -15,6 +15,11 @@ public partial class SedgeArtView : Node3D
 
     private float _elapsed;
     private bool _airProbeLogged;
+    private CompositorEffect? _clouds;
+    private WorldEnvironment? _sky;
+    private readonly List<Node3D> _punts = new();
+    private readonly List<(Node3D Boat, Vector2 At, float Ground)> _mooredPunts = new();
+    private float _waterLevel;
 
     public static SedgeArtView? Build(Node3D parent, Node3D terrain, ArtLibrary art, string region)
     {
@@ -23,13 +28,26 @@ public partial class SedgeArtView : Node3D
             return null;
         var view = new SedgeArtView { Name = "SedgeArt" };
         parent.AddChild(view);
+        view._sky = parent.GetNodeOrNull<WorldEnvironment>("Lighting/Sky3D");
         using var json = JsonDocument.Parse(File.ReadAllText(Path.Combine(art.Root, "sedge_art_gate3.json")));
         view.Ground(terrain, art);
         view.Masonry(parent, art);
         view.Reeds(art);
         view.Mist(json.RootElement.GetProperty("mist_banks"));
         view.Lamps(json.RootElement.GetProperty("lamps"));
+        if (json.RootElement.TryGetProperty("signs", out var signs))
+            foreach (var sign in signs.EnumerateArray())
+            {
+                var at = sign.GetProperty("at");
+                view.AddChild(new Label3D { Text = sign.GetProperty("text").GetString()!,
+                    Position = new Vector3(at[0].GetSingle(), at[1].GetSingle(), at[2].GetSingle()),
+                    RotationDegrees = new Vector3(0, sign.GetProperty("yaw").GetSingle(), 0),
+                    FontSize = 40, PixelSize = .009f, OutlineSize = 7,
+                    Modulate = new Color(.90f,.83f,.66f), NoDepthTest = false });
+            }
         view.Crest();
+        view.WorkingPunts(art);
+        view.MooredPunts(art);
         // Rain is disabled pending the shared D2 rework. Do not fork its tuning here.
         if (parent.GetNodeOrNull<Node3D>("Atmosphere") is { } atmosphere)
             foreach (var particles in atmosphere.GetChildren().OfType<GpuParticles3D>().Where(p => p.Name.ToString().StartsWith("rain", StringComparison.Ordinal)))
@@ -40,8 +58,38 @@ public partial class SedgeArtView : Node3D
 
     public void SetTideLevel(float level)
     {
+        _waterLevel = level;
         _ground?.SetShaderParameter("tide_level", level);
         if (_crest is not null) _crest.Visible = level >= .70f;
+    }
+
+    private void WorkingPunts(ArtLibrary art)
+    {
+        // Ambient working boats establish human scale in the Arch's water
+        // openings. Ferry travel is a separate, authoritative interaction.
+        for (int i = 0; i < 2; i++)
+        {
+            var boat = art.ModelWithLods("sedge_punt") ?? throw new InvalidDataException("Sedge punt missing");
+            var holder = new Node3D { Name = "WorkingPunt" + i, RotationDegrees = new Vector3(0, 90, 0) };
+            AddChild(holder); holder.AddChild(boat);
+            if (SkinnedModel.Create(art, i == 0 ? "humgen_pool_01" : "humgen_pool_03", new Dictionary<string, string>()) is not { } rower)
+                throw new InvalidDataException("Approved working-boat identity missing");
+            holder.AddChild(rower);
+            rower.Position = new Vector3(.8f, -.026f - ArtGallery.Bounds(rower).Position.Y, 0);
+            rower.RotationDegrees = new Vector3(0, -90, 0);
+            rower.Play("idle");
+            _punts.Add(holder);
+        }
+    }
+
+    private void MooredPunts(ArtLibrary art)
+    {
+        foreach (var (at,ground) in new[] { (new Vector2(4988,1100),.24f), (new Vector2(4775,1340),-.924f) })
+        {
+            var boat=art.ModelWithLods("sedge_punt") ?? throw new InvalidDataException("Sedge ferry punt missing");
+            AddChild(boat);boat.RotationDegrees=new Vector3(0,90,0);
+            _mooredPunts.Add((boat,at,ground));
+        }
     }
 
     private void Ground(Node3D terrain, ArtLibrary art)
@@ -62,7 +110,8 @@ public partial class SedgeArtView : Node3D
         var shader = GD.Load<Shader>("res://Greybox/SedgeMasonry.gdshader");
         foreach (var holder in dressing.GetChildren().OfType<Node3D>().Where(n =>
                      n.Name.ToString().StartsWith("sedge_arch_", StringComparison.Ordinal) ||
-                     n.Name.ToString().StartsWith("sedge_belfry_", StringComparison.Ordinal)))
+                     n.Name.ToString().StartsWith("sedge_belfry_", StringComparison.Ordinal) ||
+                     n.Name.ToString().StartsWith("sedge_review_walk_", StringComparison.Ordinal)))
             foreach (var mesh in Meshes(holder))
             {
                 // Keep every source surface's carved UV/albedo/normal. Weather
@@ -73,6 +122,8 @@ public partial class SedgeArtView : Node3D
                 {
                     if (mesh.GetActiveMaterial(surface) is not BaseMaterial3D source) continue;
                     var material = new ShaderMaterial { Shader = shader };
+                    material.SetShaderParameter("stone", source.ResourceName.StartsWith("MAT_sedge_", StringComparison.Ordinal));
+                    material.SetShaderParameter("boardwood", source.ResourceName.StartsWith("wet_grey_weathered_boards", StringComparison.Ordinal));
                     material.SetShaderParameter("source_colour", source.AlbedoColor);
                     material.SetShaderParameter("source_roughness", source.Roughness);
                     material.SetShaderParameter("source_metallic", source.Metallic);
@@ -218,15 +269,31 @@ public partial class SedgeArtView : Node3D
     public override void _Process(double delta)
     {
         _elapsed += (float)delta;
+        for (int i = 0; i < _punts.Count; i++)
+            _punts[i].Position = new Vector3(5000 + (i == 0 ? -28 : 28), _waterLevel + .3f,
+                45 + MathF.Sin(_elapsed * .025f + i * 2.4f) * 40);
+        foreach (var (boat,at,ground) in _mooredPunts)
+            boat.Position=new Vector3(at.X,Math.Max(_waterLevel+.3f,ground+.526f),at.Y);
+        // Sky3D attaches its compositor on Ready, after this view is built.
+        _clouds ??= _sky?.Compositor?.CompositorEffects.FirstOrDefault(e =>
+            e.HasMethod("_render_callback") && e.Get("clouds_coverage").VariantType != Variant.Type.Nil);
         float energy = Mathf.Lerp(2.3f, .25f, SkyView.DaylightLevel);
         foreach (var lamp in _lamps) lamp.LightEnergy = energy;
+        if (_clouds is not null)
+        {
+            // Sky3D's native layered clouds give Sedge daylight a readable
+            // silver overcast. Keep the accepted volumetric dusk unchanged.
+            bool day = SkyView.DaylightLevel > .5f;
+            _clouds.Enabled = !day;
+            _sky?.Set("clouds_enabled", day);
+        }
 
         if (!_airProbeLogged && _elapsed > .5f)
         {
             _airProbeLogged = true;
             var air = GetWorld3D().Environment;
             var skyMaterial = air?.Sky?.SkyMaterial as ShaderMaterial;
-            GD.Print($"SEDGE_AIR volumetric={air?.VolumetricFogEnabled} density={air?.VolumetricFogDensity} length={air?.VolumetricFogLength} sky_affect={air?.VolumetricFogSkyAffect} daylight={SkyView.DaylightLevel} marsh_day={skyMaterial?.GetShaderParameter("or_marsh_day")} soft_water_banks=true local_spotlights=0");
+            GD.Print($"SEDGE_AIR volumetric={air?.VolumetricFogEnabled} density={air?.VolumetricFogDensity} length={air?.VolumetricFogLength} sky_affect={air?.VolumetricFogSkyAffect} daylight={SkyView.DaylightLevel} marsh_day={skyMaterial?.GetShaderParameter("or_marsh_day")} structured_clouds={_clouds is not null} soft_water_banks=true local_spotlights=0");
         }
         foreach (var (bank, origin) in _mist)
             bank.Position = origin + WindField.Direction * MathF.Sin(_elapsed * .018f + origin.Z * .002f) * 8;

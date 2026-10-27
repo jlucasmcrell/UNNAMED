@@ -638,7 +638,8 @@ internal sealed partial class PetSystem : IAbstractAdvance
             return pet with { Action = action with { Struck = action.Struck.Add(prey.Id) }, NextAttackTick = tick + attack.TotalTicks };
         if (!CombatRules.CanAttemptAttack(pet.Id, prey.Id,
                 new(pet.Health > 0, prey.Alive, prey.Site.Space == State.Space))) return pet;
-        var defense = new DefenseProfile(prey.ScaledMaxHealth, prey.Definition.Armor, prey.Definition.Resistances, Blocking: false, Dodging: false);
+        var defense = new DefenseProfile(prey.ScaledMaxHealth, prey.Definition.Armor, prey.Definition.Resistances,
+            prey.Blocks(pet.Body, attack, tick, C), prey.Dodges(tick, C));
         var strike = new Strike(attack, PetSkills.DamageMultiplier(PetSkills.Of(pet.Skills, PetSkillKind.Bite)), C.BaseCritPercent, 1.0);
         var result = CombatRules.Resolve(strike, defense, C, Random(pet.Key, prey.Key, prey.Body, tick));
         _context.Dispatch(new WoundCreature(prey.Id, result, attack.Source)

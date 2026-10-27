@@ -429,6 +429,13 @@ public partial class InventoryPanel : CanvasLayer
             sell.TooltipText = refused;
             row.Root.AddChild(sell);
         }
+        if (OpenTrader is { } smith && simulation.RepairQuote(smith,entry.ItemId) is { } quote)
+        {
+            var repair=Button(id,$"Repair ({quote.Fee} coin)",()=>Submit(new MerchantRepairCommand(simulation.PlayerId,smith,entry.ItemId)));
+            repair.Disabled=player.Currency<quote.Fee;
+            repair.TooltipText=repair.Disabled?"Not enough coin":"Restore this piece's condition";
+            row.Root.AddChild(repair);
+        }
         if (definition is not { NoDrop: true })
             row.Root.AddChild(Button(id, "Drop", () => Submit(new MoveItemCommand(simulation.PlayerId, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.Ground, entry.Count)),
                 UiKit.Kind.Destructive));

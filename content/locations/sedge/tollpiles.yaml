@@ -6,11 +6,11 @@ tags: [location]
 name: Tollpiles
 region_ref: region.sedge_levels
 anchor:
-  world: [5000, 0, 1000]
+  world: [5000, 0, 1080]
 kind_of_place: landmark
 discovery:
   methods: [visited]
-  radius_m: 20
+  radius_m: 35
   xp: 0
 map:
   reveals_radius_m: 100

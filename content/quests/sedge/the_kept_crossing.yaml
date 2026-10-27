@@ -1,0 +1,108 @@
+id: quest.sedge.the_kept_crossing
+kind: quest
+schema: 1
+display_key: quest.sedge.the_kept_crossing.name
+tags:
+- quest
+notes: PROPOSED Sedge Gate 4 authoring; existing settlement, people and tide facts retained. New identity and tuning pending gate review.
+  Self-contained regional side thread; does not claim completion of The Kept Water or an Otherhome arrival.
+title: The Kept Crossing
+summary: Compare the wetland marks, supply Tollpiles' working crew, and decide who receives the observations. The deeper drowned country
+  remains unexplained.
+track: side
+giver_ref: npc.sedge.sella_tally
+entry_objective: o_brief
+objectives:
+- id: o_brief
+  type: talk_to
+  description: Hear Sella's survey brief.
+  params:
+    npc_ref: npc.sedge.sella_tally
+    nodes:
+    - brief
+  next:
+  - o_cuts
+- id: o_cuts
+  type: visit_location
+  description: Compare the dry bank at Pellow Cuts.
+  params:
+    location_ref: location.sedge_pellow_cuts
+  next:
+  - o_crew
+- id: o_crew
+  type: talk_to
+  description: Ask Oren what the causeway crew can use.
+  params:
+    npc_ref: npc.sedge.oren_pin
+    nodes:
+    - crew
+  next:
+  - o_timber
+- id: o_timber
+  type: acquire_item
+  description: Find two sound lengths of timber. Tide-washed wood lies beside Pellow Cuts; bought or previously gathered timber also
+    counts.
+  params:
+    item_ref: item.material.timber
+    count: 2
+  next:
+  - o_delivery
+- id: o_delivery
+  type: talk_to
+  description: Give Oren the two lengths for the working crew.
+  params:
+    npc_ref: npc.sedge.oren_pin
+    nodes:
+    - delivered
+  next:
+  - o_arch
+- id: o_arch
+  type: visit_location
+  description: Reach the Causeway Arch by the dry walk.
+  params:
+    location_ref: location.sedge_causeway_arch
+  next:
+  - o_hall
+- id: o_hall
+  type: visit_location
+  description: Read the hanging tally-staves in the outer Oath-House hall beside the Arch. The sealed deep stair is level 30+ danger;
+    do not descend.
+  params:
+    location_ref: location.sedge_oath_house_outer
+  next:
+  - o_public
+  - o_private
+  branch: first
+- id: o_public
+  type: dialogue_choice
+  description: Choose the public chart or the ferry-family account with Sella.
+  params:
+    npc_ref: npc.sedge.sella_tally
+    dialogue_ref: dialogue.sedge.sella_tally
+    node: greet
+    choice: public_report
+  effects:
+  - kind: choice
+    flag_ref: world.sedge.crossing_account
+    location_ref: location.sedge_tollpiles
+    value: 1
+    line: I entered the crossing marks in the public chart.
+- id: o_private
+  type: dialogue_choice
+  description: Choose the public chart or the ferry-family account with Sella.
+  params:
+    npc_ref: npc.sedge.sella_tally
+    dialogue_ref: dialogue.sedge.sella_tally
+    node: greet
+    choice: private_report
+  effects:
+  - kind: choice
+    flag_ref: world.sedge.crossing_account
+    location_ref: location.sedge_tollpiles
+    value: 2
+    line: I left the crossing marks with the ferry families, without moving any unlicensed cargo.
+rewards:
+- kind: xp
+  amount: 120
+- kind: currency
+  amount: 25

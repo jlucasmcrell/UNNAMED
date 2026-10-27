@@ -15,8 +15,12 @@ uniform bool has_normal = false;
 uniform float normal_strength = 1.0;
 uniform float source_roughness = .8;
 uniform float source_metallic = 0.0;
+uniform bool stone = true;
+uniform bool boardwood = false;
 varying vec3 wp;
-void vertex(){wp=(MODEL_MATRIX*vec4(VERTEX,1)).xyz;}
+varying float module_seed;
+varying float wood_top;
+void vertex(){wood_top=step(.8,NORMAL.y);wp=(MODEL_MATRIX*vec4(VERTEX,1)).xyz;module_seed=MODEL_MATRIX[3].x*3.17+MODEL_MATRIX[3].z*.83;}
 float channel(vec4 value,int c){
     if(c==0){return value.r;}if(c==1){return value.g;}if(c==2){return value.b;}if(c==3){return value.a;}
     return dot(value.rgb,vec3(.333333));
@@ -35,10 +39,21 @@ void fragment(){
     salt+=smoothstep(6.0,16.0,wp.y)*(1.0-smoothstep(18.0,31.0,wp.y))*smoothstep(.60,.92,runnel)*.3;
     a=mix(a,vec3(.58,.59,.50),salt);
     ALBEDO=a;
+    if(boardwood && wood_top>.5){
+        // Each physical crossboard gets its own stable tone; the scan's grain,
+        // gaps, fixings and full-size UVs remain untouched.
+        float board=floor((UV.y+2.0)*4.0);
+        float tone=fract(sin(board*127.1+module_seed)*43758.5453);
+        float wear=smoothstep(.2,.85,abs(sin(UV.x*3.1+board*2.7)))*.16;
+        ALBEDO=mix(source_colour.rgb*texture(source_albedo,UV).rgb*(.78+tone*.48),vec3(.31,.29,.24),wear);
+    }
     if(has_normal){NORMAL_MAP=texture(source_normal,UV).rgb;NORMAL_MAP_DEPTH=normal_strength;}
     float rough=source_roughness;
     float metal=source_metallic;
     if(has_roughness){rough*=channel(texture(source_roughness_tex,UV),roughness_channel);}
     if(has_metallic){metal*=channel(texture(source_metallic_tex,UV),metallic_channel);}
-    ROUGHNESS=mix(rough,.24,wet);METALLIC=metal;SPECULAR=.48;
+    // Porous wet masonry darkens, but never becomes silver metal. Keep the
+    // separately authored bronze cramps, iron bells and timber materials.
+    ROUGHNESS=boardwood?.82:(stone?mix(max(rough,.88),.66,wet):rough);
+    METALLIC=stone?0.0:metal;SPECULAR=stone?.28:.48;
 }

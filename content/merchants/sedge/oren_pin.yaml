@@ -1,0 +1,29 @@
+id: merchant.sedge.oren_pin
+kind: merchant
+schema: 1
+display_key: merchant.sedge.oren_pin.name
+tags:
+- merchant
+notes: PROPOSED Sedge Gate 4 authoring; existing settlement, people and tide facts retained. New identity and tuning pending gate review.
+stock_mode: fixed
+stock:
+- item_ref: item.armor.hide_vest
+  count: 2
+  price_bias: 1.0
+- item_ref: item.bag.satchel
+  count: 2
+  price_bias: 1.0
+- item_ref: item.material.iron_ingot
+  count: 4
+  price_bias: 1.0
+buys_tags:
+- material
+- consumable
+- weapon
+- armor
+- misc
+- bag
+gold_reserve:
+- 80
+- 400
+restock_min: 60

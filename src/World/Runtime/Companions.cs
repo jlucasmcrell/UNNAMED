@@ -713,7 +713,7 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
         var definition = creature.Definition;
         var effects = _context.Setup.Combat.Effects;
         var defense = new DefenseProfile(definition.MaxHealth, CombatSystem.WithBonus(definition.Armor, EffectRules.ArmorBonus(EffectsOf(creature.Id), effects)),
-            definition.Resistances, Blocking: false, Dodging: false);
+            definition.Resistances, creature.Blocks(npc.Body, attack, tick, C), creature.Dodges(tick, C));
         var strike = new Strike(attack, 1.0, C.BaseCritPercent, 1.0);
         if (definition.WeakPoint is { FromBehind: true } weak && CombatSystem.Behind(creature.Body, npc.Body))
             strike = strike with { ForcedRegion = weak.Region };

@@ -106,6 +106,8 @@ public sealed record LightSpec(Vector3 At, Color Colour, float Energy, float Ran
 public sealed record CreatureArt(string Model, IReadOnlyDictionary<string, string> Clips, string Voice, string Flesh, string Blow,
     IReadOnlyDictionary<string, string> Steps, int StepsPerSound)
 {
+    public IReadOnlyDictionary<string, string> NativeStates { get; init; } = new Dictionary<string, string>();
+    public string? WeaponItem { get; init; }
     public IReadOnlyDictionary<string, float> Paces { get; init; } = new Dictionary<string, float>();
     /// <summary>How the species is drawn "plausible but wrong" over its scanned model (<see cref="OtherFauna"/>), or null as scanned.</summary>
     public FaunaLook? Fauna { get; init; }
@@ -422,6 +424,8 @@ public sealed class ArtBindings
                         c.Value.TryGetProperty("steps_per_sound", out var steps) ? steps.GetInt32() : 1)
                         {
                             Fauna = FaunaLook.Parse(c.Value),
+                            NativeStates = Strings(c.Value, "native_states"),
+                            WeaponItem = Text(c.Value, "weapon_item"),
                             Paces = c.Value.TryGetProperty("paces", out var creaturePaces)
                                 ? creaturePaces.EnumerateObject().ToDictionary(p => p.Name, p => p.Value.GetSingle()) : new Dictionary<string, float>(),
                         },

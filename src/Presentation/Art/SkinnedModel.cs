@@ -352,6 +352,15 @@ public sealed partial class SkinnedModel : Node3D
 
     public bool Has(string state) => _states.Contains(state);
 
+    /// <summary>Name an already baked exact-target take for another combat state. No retarget or bone edits.</summary>
+    public void Alias(string state, string nativeState)
+    {
+        if (!Has(nativeState)) throw new InvalidDataException($"{Name}: native motion state missing: {nativeState}");
+        if (Has(state)) throw new InvalidDataException($"{Name}: duplicate motion alias: {state}");
+        _player.GetAnimationLibrary("").AddAnimation(state, _player.GetAnimation(nativeState));
+        _states.Add(state);
+    }
+
     /// <summary>Show a state, blending from the last over <paramref name="blend"/> seconds; the same state keeps playing unless restarted.</summary>
     public void Play(string state, float blend = 0.2f, float speed = 1f, bool restart = false)
     {

@@ -1,0 +1,22 @@
+id: ability.creature.sedge_drowned_light
+kind: ability
+schema: 1
+display_key: ability.creature.sedge_drowned_light.name
+tags:
+- ability
+notes: PROPOSED Sedge Gate 4. Distinct tell, range and punishable recovery; tune after
+  native combat review.
+name: Quick strike
+class: creature
+range_m: 1.1
+windup_s: 0.42
+active_s: 0.17
+recovery_s: 0.6
+cost:
+  stamina: 0
+payload:
+- type: damage
+  damage_type: physical_blunt
+  amount:
+  - 6
+  - 10

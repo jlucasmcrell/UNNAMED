@@ -1,0 +1,16 @@
+id: dialogue.sedge.keeper_of_names
+kind: dialogue
+schema: 1
+display_key: dialogue.sedge.keeper_of_names.name
+tags:
+- dialogue
+notes: PROPOSED Sedge Gate 4 authoring; existing settlement, people and tide facts retained. New identity and tuning pending gate review.
+participants:
+- npc.sedge.keeper_of_names
+root_node: greet
+nodes:
+  greet:
+    text: I keep the names of those houses. The dead in the mud are not my people. Do not confuse a custodian with what custody guards.
+    choices:
+    - id: leave
+      text: Goodbye.

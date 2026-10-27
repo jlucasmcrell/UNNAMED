@@ -1198,6 +1198,27 @@ public partial class Main : Node3D
             return;
         }
 
+        if (!_sedgeReviewStarted && _options.GetValueOrDefault("--sedge-boat-review") is { } sedgeBoats)
+        {
+            _sedgeReviewStarted = true;
+            RunSedgeBoatReview(sedgeBoats);
+            return;
+        }
+
+        if (!_sedgeReviewStarted && _options.GetValueOrDefault("--sedge-life-review") is { } sedgeLife)
+        {
+            _sedgeReviewStarted = true;
+            RunSedgeLifeReview(sedgeLife);
+            return;
+        }
+
+        if (!_sedgeReviewStarted && _options.GetValueOrDefault("--sedge-combat-review") is { } sedgeReview)
+        {
+            _sedgeReviewStarted = true;
+            RunSedgeCombatReview(sedgeReview);
+            return;
+        }
+
         if (_perf is not null)
         {
             if (!_perf.Update(delta, _controller, _camera, _stats!, _session.Setup.Layout))
@@ -1919,7 +1940,7 @@ public partial class Main : Node3D
                     or "--tide-tick" or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--creator-people" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
                     or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"
-                    or "--anim-person" or "--anim-compare" or "--anim-phase"
+                    or "--anim-person" or "--anim-compare" or "--anim-phase" or "--sedge-combat-review" or "--sedge-life-review" or "--sedge-boat-review" or "--sedge-return-services"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

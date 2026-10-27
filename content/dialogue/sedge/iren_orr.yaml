@@ -1,0 +1,29 @@
+id: dialogue.sedge.iren_orr
+kind: dialogue
+schema: 1
+display_key: dialogue.sedge.iren_orr.name
+tags:
+- dialogue
+notes: PROPOSED Sedge Gate 4 authoring; existing settlement, people and tide facts
+  retained. New identity and tuning pending gate review.
+participants:
+- npc.sedge.iren_orr
+root_node: greet
+nodes:
+  greet:
+    text: This is a winter camp, not the end of the road. Follow the dry bank if you
+      cannot ride; no crossing is owed merely for arriving. The Tollpiles flats need
+      high water for a loaded punt; at ebb, use the raised walk.
+    choices:
+    - id: passage
+      text: Passage to Tollpiles — 2 coin. High water only.
+      consequences:
+      - command: take_passage
+        location_ref: location.sedge_tollpiles
+        arrival_m:
+        - 4998.5
+        - 1098.5
+        coin: 2
+        min_tide_mm: 500
+    - id: leave
+      text: Goodbye.

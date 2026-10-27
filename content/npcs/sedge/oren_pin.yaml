@@ -1,0 +1,17 @@
+id: npc.sedge.oren_pin
+kind: npc
+schema: 1
+display_key: npc.sedge.oren_pin.name
+tags:
+- npc
+notes: PROPOSED Sedge Gate 4 authoring; existing settlement, people and tide facts retained. New identity and tuning pending gate review.
+sex: m
+name: Oren Pin
+role: craftsperson
+services:
+- trade
+- repair
+people_ref: people.veth
+dialogue_ref: dialogue.sedge.oren_pin
+unique: true
+merchant_ref: merchant.sedge.oren_pin

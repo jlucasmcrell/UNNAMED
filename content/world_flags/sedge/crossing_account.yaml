@@ -1,0 +1,11 @@
+id: world.sedge.crossing_account
+kind: world_flag
+schema: 1
+display_key: world.sedge.crossing_account.name
+tags:
+- world_flag
+notes: 'PROPOSED Gate 4 report choice: 0 unreported, 1 public chart, 2 private ferry-family
+  account. No cargo, licence, crime, city arrival or protected mystery is implied.'
+type: int
+default: 0
+owning_system: S-29
