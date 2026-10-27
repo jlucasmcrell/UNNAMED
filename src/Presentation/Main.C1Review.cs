@@ -35,7 +35,14 @@ public partial class Main
         }
         try
         {
-            Frame();SetProcess(false);
+            SetProcess(false);
+            // Creator Begin queues native NPC/mesh readiness. Let those deferred imports and draws
+            // complete with the simulation frozen before arming the real-time recorder.
+            for (int frame=0;frame<8;frame++)
+                await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+            Frame();
+            for (int frame=0;frame<2;frame++)
+                await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
             File.WriteAllText(Path.Combine(directory,"record_ready.json"),"{}");
             ulong deadline=Time.GetTicksMsec()+60_000;
             while(!File.Exists(Path.Combine(directory,"recording.started")))
