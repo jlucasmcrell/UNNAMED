@@ -116,6 +116,16 @@ def main():
     written, skipped = [], []
     for model, existing in sorted(by_model.items()):
         base = json.loads(existing[0].read_text(encoding="utf-8"))
+        # The record that names a source file is not always the first one alphabetically (a creature whose idle names the UAL library can
+        # still have an attack record with no file at all), so take the source from whichever record actually names one.
+        for candidate in existing:
+            try:
+                named = (json.loads(candidate.read_text(encoding="utf-8")).get("source") or {}).get("file") or ""
+            except (OSError, ValueError):
+                named = ""
+            if named:
+                base = json.loads(candidate.read_text(encoding="utf-8"))
+                break
         source_file = (base.get("source") or {}).get("file") or ""
         have = {r.name[len(f"anim.creature.{model}."):-len(".json")] for r in existing}
         source = find_source(source_file) if source_file else None
