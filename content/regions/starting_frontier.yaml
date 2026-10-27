@@ -141051,6 +141051,338 @@ structures:
   - 475.2
   - 722.2
   height_m: 0.9
+- id: survey_table_1
+  box_m: [476.3, 714.5, 478.09, 715.5]
+  height_m: 0.9
+- id: survey_table_2
+  box_m: [476.3, 716.7, 478.09, 717.7]
+  height_m: 0.9
+- id: survey_table_3
+  box_m: [476.3, 718.9, 478.09, 719.9]
+  height_m: 0.9
+- id: survey_table_4
+  box_m: [476.3, 721.1, 478.09, 722.1]
+  height_m: 0.9
+- id: survey_table_5
+  box_m: [478.3, 714.5, 480.09, 715.5]
+  height_m: 0.9
+- id: survey_table_6
+  box_m: [478.3, 716.7, 480.09, 717.7]
+  height_m: 0.9
+- id: survey_table_7
+  box_m: [478.3, 718.9, 480.09, 719.9]
+  height_m: 0.9
+- id: survey_table_8
+  box_m: [478.3, 721.1, 480.09, 722.1]
+  height_m: 0.9
+- id: survey_book_0
+  box_m: [474.46, 721.23, 474.74, 721.57]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_1
+  box_m: [476.38, 714.61, 476.66, 714.95]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_2
+  box_m: [476.72, 714.61, 477.0, 714.95]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_3
+  box_m: [477.06, 714.61, 477.34, 714.95]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_4
+  box_m: [477.4, 714.61, 477.68, 714.95]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_5
+  box_m: [477.74, 714.61, 478.02, 714.95]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_6
+  box_m: [476.38, 715.05, 476.66, 715.39]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_7
+  box_m: [476.72, 715.05, 477.0, 715.39]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_8
+  box_m: [477.06, 715.05, 477.34, 715.39]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_9
+  box_m: [477.4, 715.05, 477.68, 715.39]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_10
+  box_m: [477.74, 715.05, 478.02, 715.39]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_11
+  box_m: [476.38, 716.81, 476.66, 717.15]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_12
+  box_m: [476.72, 716.81, 477.0, 717.15]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_13
+  box_m: [477.06, 716.81, 477.34, 717.15]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_14
+  box_m: [477.4, 716.81, 477.68, 717.15]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_15
+  box_m: [477.74, 716.81, 478.02, 717.15]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_16
+  box_m: [476.38, 717.25, 476.66, 717.59]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_17
+  box_m: [476.72, 717.25, 477.0, 717.59]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_18
+  box_m: [477.06, 717.25, 477.34, 717.59]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_19
+  box_m: [477.4, 717.25, 477.68, 717.59]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_20
+  box_m: [477.74, 717.25, 478.02, 717.59]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_21
+  box_m: [476.38, 719.01, 476.66, 719.35]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_22
+  box_m: [476.72, 719.01, 477.0, 719.35]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_23
+  box_m: [477.06, 719.01, 477.34, 719.35]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_24
+  box_m: [477.4, 719.01, 477.68, 719.35]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_25
+  box_m: [477.74, 719.01, 478.02, 719.35]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_26
+  box_m: [476.38, 719.45, 476.66, 719.79]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_27
+  box_m: [476.72, 719.45, 477.0, 719.79]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_28
+  box_m: [477.06, 719.45, 477.34, 719.79]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_29
+  box_m: [477.4, 719.45, 477.68, 719.79]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_30
+  box_m: [477.74, 719.45, 478.02, 719.79]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_31
+  box_m: [476.38, 721.21, 476.66, 721.55]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_32
+  box_m: [476.72, 721.21, 477.0, 721.55]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_33
+  box_m: [477.06, 721.21, 477.34, 721.55]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_34
+  box_m: [477.4, 721.21, 477.68, 721.55]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_35
+  box_m: [477.74, 721.21, 478.02, 721.55]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_36
+  box_m: [476.38, 721.65, 476.66, 721.99]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_37
+  box_m: [476.72, 721.65, 477.0, 721.99]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_38
+  box_m: [477.06, 721.65, 477.34, 721.99]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_39
+  box_m: [477.4, 721.65, 477.68, 721.99]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_40
+  box_m: [477.74, 721.65, 478.02, 721.99]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_41
+  box_m: [478.38, 714.61, 478.66, 714.95]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_42
+  box_m: [478.72, 714.61, 479.0, 714.95]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_43
+  box_m: [479.06, 714.61, 479.34, 714.95]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_44
+  box_m: [479.4, 714.61, 479.68, 714.95]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_45
+  box_m: [479.74, 714.61, 480.02, 714.95]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_46
+  box_m: [478.38, 715.05, 478.66, 715.39]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_47
+  box_m: [478.72, 715.05, 479.0, 715.39]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_48
+  box_m: [479.06, 715.05, 479.34, 715.39]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_49
+  box_m: [479.4, 715.05, 479.68, 715.39]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_50
+  box_m: [478.38, 716.81, 478.66, 717.15]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_51
+  box_m: [478.72, 716.81, 479.0, 717.15]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_52
+  box_m: [479.06, 716.81, 479.34, 717.15]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_53
+  box_m: [479.4, 716.81, 479.68, 717.15]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_54
+  box_m: [479.74, 716.81, 480.02, 717.15]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_55
+  box_m: [478.38, 717.25, 478.66, 717.59]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_56
+  box_m: [478.72, 717.25, 479.0, 717.59]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_57
+  box_m: [479.06, 717.25, 479.34, 717.59]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_58
+  box_m: [479.4, 717.25, 479.68, 717.59]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_59
+  box_m: [478.38, 719.01, 478.66, 719.35]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_60
+  box_m: [478.72, 719.01, 479.0, 719.35]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_61
+  box_m: [479.06, 719.01, 479.34, 719.35]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_62
+  box_m: [479.4, 719.01, 479.68, 719.35]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_63
+  box_m: [479.74, 719.01, 480.02, 719.35]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_64
+  box_m: [478.38, 719.45, 478.66, 719.79]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_65
+  box_m: [478.72, 719.45, 479.0, 719.79]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_66
+  box_m: [479.06, 719.45, 479.34, 719.79]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_67
+  box_m: [479.4, 719.45, 479.68, 719.79]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_68
+  box_m: [478.38, 721.21, 478.66, 721.55]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_69
+  box_m: [478.72, 721.21, 479.0, 721.55]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_70
+  box_m: [479.06, 721.21, 479.34, 721.55]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_71
+  box_m: [479.4, 721.21, 479.68, 721.55]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_72
+  box_m: [479.74, 721.21, 480.02, 721.55]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_73
+  box_m: [478.38, 721.65, 478.66, 721.99]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_74
+  box_m: [478.72, 721.65, 479.0, 721.99]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_75
+  box_m: [479.06, 721.65, 479.34, 721.99]
+  height_m: 0.94
+  clearance_m: 0.88
+- id: survey_book_76
+  box_m: [479.4, 721.65, 479.68, 721.99]
+  height_m: 0.94
+  clearance_m: 0.88
 - id: cart_wreck
   box_m:
   - 555.5
@@ -149765,533 +150097,533 @@ readables:
     page: 1
     name: Survey's record of The Folded Note
     verb: Read
-    circle_m: [472.6, 717.8, 0.6]
-    height_m: 0.9
+    circle_m: [476.52, 714.78, 0.2]
+    height_m: 0.94
   - key: readable.overturned_wain_ii
     lore_ref: lore.overturned_wain
     page: 2
     name: Survey's record of The Overturned Wain
     verb: Read
-    circle_m: [472.6, 718.6, 0.6]
-    height_m: 0.9
+    circle_m: [476.86, 714.78, 0.2]
+    height_m: 0.94
   - key: readable.the_rim_ii
     lore_ref: lore.the_rim
     page: 2
     name: Survey's record of The Rim
     verb: Read
-    circle_m: [472.6, 719.5, 0.6]
-    height_m: 0.9
+    circle_m: [477.2, 714.78, 0.2]
+    height_m: 0.94
   - key: readable.vessmere_ii
     lore_ref: lore.vessmere
     page: 2
     name: Survey's record of Vessmere
     verb: Read
-    circle_m: [472.6, 720.3, 0.6]
-    height_m: 0.9
+    circle_m: [477.54, 714.78, 0.2]
+    height_m: 0.94
   - key: readable.mor_schism
     lore_ref: lore.mor_schism
     page: 1
     name: Survey's record of The Mor Schism
     verb: Read
-    circle_m: [472.6, 717.8, 0.6]
-    height_m: 0.9
+    circle_m: [477.88, 714.78, 0.2]
+    height_m: 0.94
   - key: readable.mor_schism_ii
     lore_ref: lore.mor_schism
     page: 2
     name: Survey's record of The Mor Schism
     verb: Read
-    circle_m: [472.6, 718.6, 0.6]
-    height_m: 0.9
+    circle_m: [476.52, 715.22, 0.2]
+    height_m: 0.94
   - key: readable.otherborn
     lore_ref: lore.otherborn
     page: 1
     name: Survey's record of Otherborn
     verb: Read
-    circle_m: [472.6, 719.5, 0.6]
-    height_m: 0.9
+    circle_m: [476.86, 715.22, 0.2]
+    height_m: 0.94
   - key: readable.othermarked
     lore_ref: lore.othermarked
     page: 1
     name: Survey's record of Othermarked
     verb: Read
-    circle_m: [472.6, 720.3, 0.6]
-    height_m: 0.9
+    circle_m: [477.2, 715.22, 0.2]
+    height_m: 0.94
   - key: readable.otherwhen
     lore_ref: lore.otherwhen
     page: 1
     name: Survey's record of Otherwhen
     verb: Read
-    circle_m: [472.6, 721.2, 0.6]
-    height_m: 0.9
+    circle_m: [477.54, 715.22, 0.2]
+    height_m: 0.94
   - key: readable.otherwhere
     lore_ref: lore.otherwhere
     page: 1
     name: Survey's record of Otherwhere
     verb: Read
-    circle_m: [472.6, 722.0, 0.6]
-    height_m: 0.9
+    circle_m: [477.88, 715.22, 0.2]
+    height_m: 0.94
   - key: readable.otherwrought
     lore_ref: lore.otherwrought
     page: 1
     name: Survey's record of Otherwrought
     verb: Read
-    circle_m: [474.0, 717.8, 0.6]
-    height_m: 0.9
+    circle_m: [476.52, 716.98, 0.2]
+    height_m: 0.94
   - key: readable.the_first_pacha
     lore_ref: lore.the_first_pacha
     page: 1
     name: Survey's record of The First Pacha
     verb: Read
-    circle_m: [474.0, 718.6, 0.6]
-    height_m: 0.9
+    circle_m: [476.86, 716.98, 0.2]
+    height_m: 0.94
   - key: readable.the_first_pacha_ii
     lore_ref: lore.the_first_pacha
     page: 2
     name: Survey's record of The First Pacha
     verb: Read
-    circle_m: [474.0, 719.5, 0.6]
-    height_m: 0.9
+    circle_m: [477.2, 716.98, 0.2]
+    height_m: 0.94
   - key: readable.the_found_pacha
     lore_ref: lore.the_found_pacha
     page: 1
     name: Survey's record of The Found Pacha
     verb: Read
-    circle_m: [474.0, 720.3, 0.6]
-    height_m: 0.9
+    circle_m: [477.54, 716.98, 0.2]
+    height_m: 0.94
   - key: readable.the_found_pacha_ii
     lore_ref: lore.the_found_pacha
     page: 2
     name: Survey's record of The Found Pacha
     verb: Read
-    circle_m: [474.0, 721.2, 0.6]
-    height_m: 0.9
+    circle_m: [477.88, 716.98, 0.2]
+    height_m: 0.94
   - key: readable.the_lantern_shrine_ii
     lore_ref: lore.the_lantern_shrine
     page: 2
     name: Survey's record of The Lantern Shrine
     verb: Read
-    circle_m: [474.0, 722.0, 0.6]
-    height_m: 0.9
+    circle_m: [476.52, 717.42, 0.2]
+    height_m: 0.94
   - key: readable.the_long_lodge_ii
     lore_ref: lore.the_long_lodge
     page: 2
     name: Survey's record of The Long Lodge
     verb: Read
-    circle_m: [475.4, 717.8, 0.6]
-    height_m: 0.9
+    circle_m: [476.86, 717.42, 0.2]
+    height_m: 0.94
   - key: readable.the_lost_pacha
     lore_ref: lore.the_lost_pacha
     page: 1
     name: Survey's record of The Lost Pacha
     verb: Read
-    circle_m: [475.4, 718.6, 0.6]
-    height_m: 0.9
+    circle_m: [477.2, 717.42, 0.2]
+    height_m: 0.94
   - key: readable.the_lost_pacha_ii
     lore_ref: lore.the_lost_pacha
     page: 2
     name: Survey's record of The Lost Pacha
     verb: Read
-    circle_m: [475.4, 719.5, 0.6]
-    height_m: 0.9
+    circle_m: [477.54, 717.42, 0.2]
+    height_m: 0.94
   - key: readable.the_ondrek_record
     lore_ref: lore.the_ondrek_record
     page: 1
     name: Survey's record of The Ondrek Record
     verb: Read
-    circle_m: [475.4, 720.3, 0.6]
-    height_m: 0.9
+    circle_m: [477.88, 717.42, 0.2]
+    height_m: 0.94
   - key: readable.the_ondrek_record_ii
     lore_ref: lore.the_ondrek_record
     page: 2
     name: Survey's record of The Ondrek Record
     verb: Read
-    circle_m: [475.4, 721.2, 0.6]
-    height_m: 0.9
+    circle_m: [476.52, 719.18, 0.2]
+    height_m: 0.94
   - key: readable.the_south_crag_seam_ii
     lore_ref: lore.the_south_crag_seam
     page: 2
     name: Survey's record of The South Crag Seam
     verb: Read
-    circle_m: [475.4, 722.0, 0.6]
-    height_m: 0.9
+    circle_m: [476.86, 719.18, 0.2]
+    height_m: 0.94
   - key: readable.the_vaskaal_and_pacha
     lore_ref: lore.the_vaskaal_and_pacha
     page: 1
     name: Survey's record of The Vaskaal and Pacha
     verb: Read
-    circle_m: [476.8, 717.8, 0.6]
-    height_m: 0.9
+    circle_m: [477.2, 719.18, 0.2]
+    height_m: 0.94
   - key: readable.the_vaskaal_and_pacha_ii
     lore_ref: lore.the_vaskaal_and_pacha
     page: 2
     name: Survey's record of The Vaskaal and Pacha
     verb: Read
-    circle_m: [476.8, 718.6, 0.6]
-    height_m: 0.9
+    circle_m: [477.54, 719.18, 0.2]
+    height_m: 0.94
   - key: readable.the_written_pacha
     lore_ref: lore.the_written_pacha
     page: 1
     name: Survey's record of The Written Pacha
     verb: Read
-    circle_m: [476.8, 719.5, 0.6]
-    height_m: 0.9
+    circle_m: [477.88, 719.18, 0.2]
+    height_m: 0.94
   - key: readable.the_written_pacha_ii
     lore_ref: lore.the_written_pacha
     page: 2
     name: Survey's record of The Written Pacha
     verb: Read
-    circle_m: [476.8, 720.3, 0.6]
-    height_m: 0.9
+    circle_m: [476.52, 719.62, 0.2]
+    height_m: 0.94
   - key: readable.veth_keeping
     lore_ref: lore.veth_keeping
     page: 1
     name: Survey's record of Veth Keeping
     verb: Read
-    circle_m: [476.8, 721.2, 0.6]
-    height_m: 0.9
+    circle_m: [476.86, 719.62, 0.2]
+    height_m: 0.94
   - key: readable.veth_keeping_ii
     lore_ref: lore.veth_keeping
     page: 2
     name: Survey's record of Veth Keeping
     verb: Read
-    circle_m: [476.8, 722.0, 0.6]
-    height_m: 0.9
+    circle_m: [477.2, 719.62, 0.2]
+    height_m: 0.94
   - key: readable.ashbloom
     lore_ref: lore.ashbloom
     page: 1
     name: Survey's record of Ashbloom
     verb: Read
-    circle_m: [472.6, 717.8, 0.6]
-    height_m: 0.9
+    circle_m: [477.54, 719.62, 0.2]
+    height_m: 0.94
   - key: readable.bog_cotton
     lore_ref: lore.bog_cotton
     page: 1
     name: Survey's record of Bog Cotton
     verb: Read
-    circle_m: [472.6, 718.6, 0.6]
-    height_m: 0.9
+    circle_m: [477.88, 719.62, 0.2]
+    height_m: 0.94
   - key: readable.boneleaf
     lore_ref: lore.boneleaf
     page: 1
     name: Survey's record of Boneleaf
     verb: Read
-    circle_m: [472.6, 719.5, 0.6]
-    height_m: 0.9
+    circle_m: [476.52, 721.38, 0.2]
+    height_m: 0.94
   - key: readable.cinder_sac
     lore_ref: lore.cinder_sac
     page: 1
     name: Survey's record of Cinder Sac
     verb: Read
-    circle_m: [472.6, 720.3, 0.6]
-    height_m: 0.9
+    circle_m: [476.86, 721.38, 0.2]
+    height_m: 0.94
   - key: readable.iron
     lore_ref: lore.iron
     page: 1
     name: Survey's record of Iron
     verb: Read
-    circle_m: [472.6, 721.2, 0.6]
-    height_m: 0.9
+    circle_m: [477.2, 721.38, 0.2]
+    height_m: 0.94
   - key: readable.spider_silk
     lore_ref: lore.spider_silk
     page: 1
     name: Survey's record of Spider Silk
     verb: Read
-    circle_m: [472.6, 722.0, 0.6]
-    height_m: 0.9
+    circle_m: [477.54, 721.38, 0.2]
+    height_m: 0.94
   - key: readable.woundmoss
     lore_ref: lore.woundmoss
     page: 1
     name: Survey's record of Woundmoss
     verb: Read
-    circle_m: [474.0, 717.8, 0.6]
-    height_m: 0.9
+    circle_m: [477.88, 721.38, 0.2]
+    height_m: 0.94
   - key: readable.barrowback_ii
     lore_ref: lore.barrowback
     page: 3
     name: Survey's record of The Barrowback
     verb: Read
-    circle_m: [472.6, 717.8, 0.6]
-    height_m: 0.9
+    circle_m: [476.52, 721.82, 0.2]
+    height_m: 0.94
   - key: readable.fellhorn_ii
     lore_ref: lore.fellhorn
     page: 3
     name: Survey's record of The Fellhorn
     verb: Read
-    circle_m: [472.6, 718.6, 0.6]
-    height_m: 0.9
+    circle_m: [476.86, 721.82, 0.2]
+    height_m: 0.94
   - key: readable.kal_ii
     lore_ref: lore.kal
     page: 3
     name: Survey's record of The Kal
     verb: Read
-    circle_m: [472.6, 719.5, 0.6]
-    height_m: 0.9
+    circle_m: [477.2, 721.82, 0.2]
+    height_m: 0.94
   - key: readable.mor_ii
     lore_ref: lore.mor
     page: 3
     name: Survey's record of The Mor
     verb: Read
-    circle_m: [472.6, 720.3, 0.6]
-    height_m: 0.9
+    circle_m: [477.54, 721.82, 0.2]
+    height_m: 0.94
   - key: readable.ondrek_ii
     lore_ref: lore.ondrek
     page: 3
     name: Survey's record of The Ondrek
     verb: Read
-    circle_m: [472.6, 721.2, 0.6]
-    height_m: 0.9
+    circle_m: [477.88, 721.82, 0.2]
+    height_m: 0.94
   - key: readable.orenth_ii
     lore_ref: lore.orenth
     page: 3
     name: Survey's record of The Orenth
     verb: Read
-    circle_m: [472.6, 722.0, 0.6]
-    height_m: 0.9
+    circle_m: [478.52, 714.78, 0.2]
+    height_m: 0.94
   - key: readable.pacha_ii
     lore_ref: lore.pacha
     page: 3
     name: Survey's record of The Pacha
     verb: Read
-    circle_m: [474.0, 717.8, 0.6]
-    height_m: 0.9
+    circle_m: [478.86, 714.78, 0.2]
+    height_m: 0.94
   - key: readable.pachakuti_ii
     lore_ref: lore.pachakuti
     page: 3
     name: Survey's record of The Pachakuti
     verb: Read
-    circle_m: [474.0, 718.6, 0.6]
-    height_m: 0.9
+    circle_m: [479.2, 714.78, 0.2]
+    height_m: 0.94
   - key: readable.ruined_cart_ii
     lore_ref: lore.ruined_cart
     page: 2
     name: Survey's record of The Ruined Cart
     verb: Read
-    circle_m: [474.0, 719.5, 0.6]
-    height_m: 0.9
+    circle_m: [479.54, 714.78, 0.2]
+    height_m: 0.94
   - key: readable.siann_ii
     lore_ref: lore.siann
     page: 3
     name: Survey's record of The Siann
     verb: Read
-    circle_m: [474.0, 720.3, 0.6]
-    height_m: 0.9
+    circle_m: [479.88, 714.78, 0.2]
+    height_m: 0.94
   - key: readable.sunk_barrow_ii
     lore_ref: lore.sunk_barrow
     page: 2
     name: Survey's record of The Sunk Barrow
     verb: Read
-    circle_m: [474.0, 721.2, 0.6]
-    height_m: 0.9
+    circle_m: [478.52, 715.22, 0.2]
+    height_m: 0.94
   - key: readable.the_kal_afterlife_ii
     lore_ref: lore.the_kal_afterlife
     page: 3
     name: Survey's record of The Kal Afterlife
     verb: Read
-    circle_m: [474.0, 722.0, 0.6]
-    height_m: 0.9
+    circle_m: [478.86, 715.22, 0.2]
+    height_m: 0.94
   - key: readable.the_kals_maker_ii
     lore_ref: lore.the_kals_maker
     page: 3
     name: Survey's record of The Kal's Maker
     verb: Read
-    circle_m: [475.4, 717.8, 0.6]
-    height_m: 0.9
+    circle_m: [479.2, 715.22, 0.2]
+    height_m: 0.94
   - key: readable.the_last_pachakuti_ii
     lore_ref: lore.the_last_pachakuti
     page: 3
     name: Survey's record of The Last Pachakuti
     verb: Read
-    circle_m: [475.4, 718.6, 0.6]
-    height_m: 0.9
+    circle_m: [479.54, 715.22, 0.2]
+    height_m: 0.94
   - key: readable.the_siann_missing_page_ii
     lore_ref: lore.the_siann_missing_page
     page: 3
     name: Survey's record of The Siann Missing Page
     verb: Read
-    circle_m: [475.4, 719.5, 0.6]
-    height_m: 0.9
+    circle_m: [478.52, 716.98, 0.2]
+    height_m: 0.94
   - key: readable.the_specification_ii
     lore_ref: lore.the_specification
     page: 3
     name: Survey's record of The Specification
     verb: Read
-    circle_m: [475.4, 720.3, 0.6]
-    height_m: 0.9
+    circle_m: [478.86, 716.98, 0.2]
+    height_m: 0.94
   - key: readable.vaskaal_ii
     lore_ref: lore.vaskaal
     page: 3
     name: Survey's record of The Vaskaal
     verb: Read
-    circle_m: [475.4, 721.2, 0.6]
-    height_m: 0.9
+    circle_m: [479.2, 716.98, 0.2]
+    height_m: 0.94
   - key: readable.veth_ii
     lore_ref: lore.veth
     page: 3
     name: Survey's record of The Veth
     verb: Read
-    circle_m: [475.4, 722.0, 0.6]
-    height_m: 0.9
+    circle_m: [479.54, 716.98, 0.2]
+    height_m: 0.94
   - key: readable.barrowworks
     lore_ref: lore.barrowworks
     page: 2
     name: Survey's record of The Barrowworks
     verb: Read
-    circle_m: [472.6, 717.8, 0.6]
-    height_m: 0.9
+    circle_m: [479.88, 716.98, 0.2]
+    height_m: 0.94
   - key: readable.constructed
     lore_ref: lore.constructed
     page: 0
     name: Survey's record of The Constructed
     verb: Read
-    circle_m: [472.6, 718.6, 0.6]
-    height_m: 0.9
+    circle_m: [478.52, 717.42, 0.2]
+    height_m: 0.94
   - key: readable.kal
     lore_ref: lore.kal
     page: 1
     name: Survey's record of The Kal
     verb: Read
-    circle_m: [472.6, 719.5, 0.6]
-    height_m: 0.9
+    circle_m: [478.86, 717.42, 0.2]
+    height_m: 0.94
   - key: readable.mor
     lore_ref: lore.mor
     page: 0
     name: Survey's record of The Mor
     verb: Read
-    circle_m: [472.6, 720.3, 0.6]
-    height_m: 0.9
+    circle_m: [479.2, 717.42, 0.2]
+    height_m: 0.94
   - key: readable.ondrek
     lore_ref: lore.ondrek
     page: 0
     name: Survey's record of The Ondrek
     verb: Read
-    circle_m: [472.6, 721.2, 0.6]
-    height_m: 0.9
+    circle_m: [479.54, 717.42, 0.2]
+    height_m: 0.94
   - key: readable.orenth
     lore_ref: lore.orenth
     page: 1
     name: Survey's record of The Orenth
     verb: Read
-    circle_m: [472.6, 722.0, 0.6]
-    height_m: 0.9
+    circle_m: [478.52, 719.18, 0.2]
+    height_m: 0.94
   - key: readable.otherfold
     lore_ref: lore.otherfold
     page: 2
     name: Survey's record of Otherfolds
     verb: Read
-    circle_m: [474.0, 717.8, 0.6]
-    height_m: 0.9
+    circle_m: [478.86, 719.18, 0.2]
+    height_m: 0.94
   - key: readable.othergate
     lore_ref: lore.othergate
     page: 2
     name: Survey's record of Othergates
     verb: Read
-    circle_m: [474.0, 718.6, 0.6]
-    height_m: 0.9
+    circle_m: [479.2, 719.18, 0.2]
+    height_m: 0.94
   - key: readable.otherway
     lore_ref: lore.otherway
     page: 2
     name: Survey's record of Otherways
     verb: Read
-    circle_m: [474.0, 719.5, 0.6]
-    height_m: 0.9
+    circle_m: [479.54, 719.18, 0.2]
+    height_m: 0.94
   - key: readable.pacha
     lore_ref: lore.pacha
     page: 2
     name: Survey's record of The Pacha
     verb: Read
-    circle_m: [474.0, 720.3, 0.6]
-    height_m: 0.9
+    circle_m: [479.88, 719.18, 0.2]
+    height_m: 0.94
   - key: readable.pachakuti
     lore_ref: lore.pachakuti
     page: 2
     name: Survey's record of The Pachakuti
     verb: Read
-    circle_m: [474.0, 721.2, 0.6]
-    height_m: 0.9
+    circle_m: [478.52, 719.62, 0.2]
+    height_m: 0.94
   - key: readable.siann
     lore_ref: lore.siann
     page: 1
     name: Survey's record of The Siann
     verb: Read
-    circle_m: [474.0, 722.0, 0.6]
-    height_m: 0.9
+    circle_m: [478.86, 719.62, 0.2]
+    height_m: 0.94
   - key: readable.the_kal_afterlife
     lore_ref: lore.the_kal_afterlife
     page: 2
     name: Survey's record of The Kal Afterlife
     verb: Read
-    circle_m: [475.4, 717.8, 0.6]
-    height_m: 0.9
+    circle_m: [479.2, 719.62, 0.2]
+    height_m: 0.94
   - key: readable.the_kals_maker
     lore_ref: lore.the_kals_maker
     page: 2
     name: Survey's record of The Kal's Maker
     verb: Read
-    circle_m: [475.4, 718.6, 0.6]
-    height_m: 0.9
+    circle_m: [479.54, 719.62, 0.2]
+    height_m: 0.94
   - key: readable.the_last_pachakuti
     lore_ref: lore.the_last_pachakuti
     page: 2
     name: Survey's record of The Last Pachakuti
     verb: Read
-    circle_m: [475.4, 719.5, 0.6]
-    height_m: 0.9
+    circle_m: [478.52, 721.38, 0.2]
+    height_m: 0.94
   - key: readable.the_other
     lore_ref: lore.the_other
     page: 2
     name: Survey's record of The Other
     verb: Read
-    circle_m: [475.4, 720.3, 0.6]
-    height_m: 0.9
+    circle_m: [478.86, 721.38, 0.2]
+    height_m: 0.94
   - key: readable.the_siann_missing_page
     lore_ref: lore.the_siann_missing_page
     page: 1
     name: Survey's record of The Siann Missing Page
     verb: Read
-    circle_m: [475.4, 721.2, 0.6]
-    height_m: 0.9
+    circle_m: [479.2, 721.38, 0.2]
+    height_m: 0.94
   - key: readable.the_silence
     lore_ref: lore.the_silence
     page: 0
     name: Survey's record of The Silence
     verb: Read
-    circle_m: [475.4, 722.0, 0.6]
-    height_m: 0.9
+    circle_m: [479.54, 721.38, 0.2]
+    height_m: 0.94
   - key: readable.the_specification
     lore_ref: lore.the_specification
     page: 2
     name: Survey's record of The Specification
     verb: Read
-    circle_m: [476.8, 717.8, 0.6]
-    height_m: 0.9
+    circle_m: [479.88, 721.38, 0.2]
+    height_m: 0.94
   - key: readable.the_substrate
     lore_ref: lore.the_substrate
     page: 2
     name: Survey's record of The Substrate
     verb: Read
-    circle_m: [476.8, 718.6, 0.6]
-    height_m: 0.9
+    circle_m: [478.52, 721.82, 0.2]
+    height_m: 0.94
   - key: readable.the_veil
     lore_ref: lore.the_veil
     page: 2
     name: Survey's record of The Veil
     verb: Read
-    circle_m: [476.8, 719.5, 0.6]
-    height_m: 0.9
+    circle_m: [478.86, 721.82, 0.2]
+    height_m: 0.94
   - key: readable.vaskaal
     lore_ref: lore.vaskaal
     page: 0
     name: Survey's record of The Vaskaal
     verb: Read
-    circle_m: [476.8, 720.3, 0.6]
-    height_m: 0.9
+    circle_m: [479.2, 721.82, 0.2]
+    height_m: 0.94
   - key: readable.veth
     lore_ref: lore.veth
     page: 1
     name: Survey's record of The Veth
     verb: Read
-    circle_m: [476.8, 721.2, 0.6]
-    height_m: 0.9
+    circle_m: [479.54, 721.82, 0.2]
+    height_m: 0.94
   # The dressed panel at the foot of Old Late, on the west face toward the waystation, outside the giant's box (621.5-673.5 x 750.4-782.4).
   - key: readable.old_late_carving
     lore_ref: lore.quiet_folk
