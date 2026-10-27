@@ -116,7 +116,7 @@ public partial class HollowView
         // Native benches, candles and tableware dress the four existing tables.
         foreach (var at in new[] { new Vector2(442.6f,725.275f),new Vector2(444,725.275f),new Vector2(438.4f,727.3f),new Vector2(440,727.3f) })
         {
-            Prop("prop_cos_bench_tavern_01_l100",new Vector3(at.X,ground,at.Y+1.1f));
+            Prop("prop_cos_bench_tavern_01_l100",new Vector3(at.X,ground,at.Y+(at.Y>727?.8f:1.1f)));
             Prop("prop_bp_table_candles",new Vector3(at.X,ground+.9f,at.Y));
             for (int side=-1;side<=1;side+=2) Mug(new Vector3(at.X+side*.32f,ground+.9f,at.Y));
         }

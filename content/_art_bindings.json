@@ -737,6 +737,11 @@
   },
   "roof_groups": ["longhouse", "forge", "ah_inn_upper"],
   "structures": {
+    "ah_tavern_bar": {"hidden": true},
+    "ah_tavern_bench_1": {"hidden": true},
+    "ah_tavern_bench_2": {"hidden": true},
+    "ah_tavern_bench_3": {"hidden": true},
+    "ah_tavern_bench_4": {"hidden": true},
     "ah_inn_awning_collision_0": {"hidden": true, "walkable_base": true},
     "ah_inn_awning_collision_1": {"hidden": true, "walkable_base": true},
     "ah_inn_awning_collision_2": {"hidden": true, "walkable_base": true},
