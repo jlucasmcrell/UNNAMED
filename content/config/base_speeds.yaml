@@ -20,9 +20,9 @@ jump_rise_s: 0.36        # to the top of the arc; the fall takes as long, so 0.7
 jump_tuck_radius_m: 0.2  # in the air, a structure lower than the apex meets the tucked legs, not the shoulders
 step_up_m: 0.5           # a structure top this far above the feet is walked onto without breaking stride
 vault_m: 1.2             # a running body vaults a top this far above its feet, with no stop (fences, carts, low walls, timber)
-scramble_grade_mm_per_m: 650   # rise per metre forward where ground stops being a walk and becomes a scramble
-escramble_percent: 45          # the pace a scramble keeps
-sheer_grade_mm_per_m: 1500    # steeper than this is a face, not ground: climbed, not scrambled
+scramble_grade_mm_per_m: 840   # 40 degrees: beyond this the ground is scrambled, not walked
+escramble_percent: 70          # slower than a walk, but never a crawl
+sheer_grade_mm_per_m: 1960    # 63 degrees: above this it is a face - climbed where there are handholds, else blocked
 mantle_reach_m: 3.0      # a climb-up onto a top this far above the take-off feet (walls, cliffs, crates, rock faces)
 climb_prefixes: []       # empty: everything is climbable except the deliberate barriers below (the old rock-only list is retired)
 unclimbable_prefixes: [barrier.fold, door.sealed]   # the fold/Other barriers and sealed doors stay shut to hands

@@ -281,7 +281,9 @@ public static class Kinematics
             if (!posture.Airborne && length > 0)
             {
                 long grade = rules.GradeMmPerM(x, z, x + intent.DirXPermille / length * 1_000, z + intent.DirZPermille / length * 1_000, space);
-                if (grade > rules.SheerGradeMmPerM && rules.MantleMm <= 0)
+                // A face above the scramble band is refused outright - the body must climb it (the mantle) or be stopped. Creeping up a
+                // cliff at a fraction of the walk was the owner's complaint; a scramble is for slopes that can be walked up, slower.
+                if (grade > rules.SheerGradeMmPerM)
                     pace = 0;
                 else if (grade > rules.ScrambleGradeMmPerM)
                     pace *= rules.ScramblePercent / 100.0;
@@ -429,7 +431,12 @@ public static class Kinematics
             long top = space.HeightAtMm(cx, cz) + blocker.HeightMm;
             // A face with handholds - a ladder, a rope, a scaffold - is climbed at any height; everything else only within the reach.
             long reach = rules.ClimbPrefixes.Any(p => blocker.Id.StartsWith(p, StringComparison.Ordinal)) ? long.MaxValue : rules.MantleMm;
-            if (top <= feet || top > ground + raised + reach || TopUnder(px, pz, long.MaxValue, space) != top)
+            if (top <= feet || top > ground + raised + reach)
+                continue;
+            // The top the probe point stands under must be this blocker's top - within a hand's width. It used to be an exact equality,
+            // which failed wherever the terrain under the footprint was not perfectly flat, so no wall was ever climbed (the owner saw the
+            // body stuck against one). 50 mm is far below any structural height and far above terrain noise.
+            if (Math.Abs(TopUnder(px, pz, long.MaxValue, space) - top) > 50)
                 continue;
             long under = space.HeightAtMm((long)Math.Round(px, MidpointRounding.AwayFromZero), (long)Math.Round(pz, MidpointRounding.AwayFromZero));
             return (px, pz, top - under);

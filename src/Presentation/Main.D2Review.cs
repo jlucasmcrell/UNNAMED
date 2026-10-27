@@ -66,7 +66,54 @@ public partial class Main
 
         try
         {
-            if (route == "rain")
+            if (route == "traversal")
+            {
+                // BRIEF D6 evidence pass: a running jump, a vault over the fallen timber, a climb onto the smithy fence and a climb up the
+                // rim boulder, all driven through the normal stick and the normal jump key - nothing is injected into the simulation.
+                _camera.Pitch = -.10f;
+                Mark("traversal_start");
+
+                // 1. The running jump, in the open yard, so the arc and the airtime are what the frame shows.
+                await Go(new[] { (30.0, 150.0) }, 25);
+                Mark("running_jump");
+                _controller.SteerWorld(new Vector3(0, 0, -1), Gait.Run, _camera);
+                await Rcd3Wait(.35);
+                _controller.Jump();
+                await Rcd3Wait(.55);
+                _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+                await Rcd3Wait(.6);
+                Mark("jump_done");
+
+                // 2. The vault: run at the fallen timber (0.8 m, inside the 1.2 m window) with no jump at all.
+                await Go(new[] { (167.0, 143.0) }, 40);
+                Mark("vault_approach");
+                _controller.SteerWorld(new Vector3(0, 0, -1), Gait.Run, _camera);
+                await Rcd3Wait(1.8);
+                _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+                await Rcd3Wait(.6);
+                Mark("vault_done", _controller.Authoritative);
+
+                // 3. The climb onto the smithy fence (1.2 m) - walk into it and the body mounts the top.
+                await Go(new[] { (47.5, 149.0), (47.5, 147.6) }, 60);
+                Mark("fence_approach");
+                _controller.SteerWorld(new Vector3(0, 0, -1), Gait.Run, _camera);
+                await Rcd3Wait(1.4);
+                _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+                await Rcd3Wait(.6);
+                Mark("fence_climbed", _controller.Authoritative);
+
+                // 4. The climb up the rim boulder (2.57 m, inside the 3 m mantle reach): a wall climb, not a vault.
+                await Go(new[] { (12.5, 88.0), (11.0, 84.6) }, 70);
+                Mark("rock_approach");
+                _controller.SteerWorld(new Vector3(-1, 0, -0.35f), Gait.Run, _camera);
+                await Rcd3Wait(1.6);
+                _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+                await Rcd3Wait(.8);
+                Mark("rock_climbed", _controller.Authoritative);
+                _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+                await Rcd3Wait(.4);
+            }
+            else if (route == "rain")
             {
                 // A lap of the yard and then standing in it: enough rain in frame to judge the streaks, the splashes and the wet ground.
                 // The spawn is already out in the open, looking east down the waystation: stand in it and turn slowly, which shows the
