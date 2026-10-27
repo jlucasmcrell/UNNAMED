@@ -1673,10 +1673,13 @@ public partial class Main : Node3D
             ? simulation.Player.Inventory.FirstOrDefault(e => e.ItemId == id)?.DefId : null;
         _avatar.WearEquipment(new Art.WornOutfit(Worn(EquipSlot.Chest), Worn(EquipSlot.Head), Worn(EquipSlot.Feet),
             Worn(EquipSlot.Hands), Worn(EquipSlot.Legs), Worn(EquipSlot.Cloak)));
-        // A torch in the off hand is a real light, from its own content, and not only a number in a tooltip (finding 25).
-        _avatar.LightInOffHand(Worn(EquipSlot.OffHand) is { } offhand
-            ? _session.Setup.Items.Catalog.Find(offhand)?.LightRadiusMm ?? 0
-            : 0);
+        // A torch or lantern in the off hand is a real light, from its own content, and not only a number in a tooltip (finding 25).
+        // It reaches as far as its content says while it has fuel, and goes out when it has burned down (note 13).
+        _avatar.LightInOffHand(simulation.Player.Equipment.TryGetValue(EquipSlot.OffHand, out var litId)
+            && simulation.Player.Inventory.FirstOrDefault(e => e.ItemId == litId) is { } lit
+            && _session.Setup.Items.Catalog.Find(lit.DefId) is { } lightItem
+                ? UNNAMED.Domain.Items.Durability.LitRadius(lightItem.LightRadiusMm, lightItem.DurabilityMax, lit.Wear)
+                : 0);
         var posture = simulation.Posture;
         bool airborne = posture.Airborne, crouched = posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched;
         float facing = PlayerController.FacingRadians(predicted.FacingMdeg);

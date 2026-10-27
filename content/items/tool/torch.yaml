@@ -4,7 +4,7 @@ schema: 1
 display_key: item.tool.torch.name
 tags: [item]
 name: Torch
-notes: An off-hand light (owner, ORR:1333) - timber and bog-cotton lint fired at the forge. It lights the way and is seen from further off - its stealth cost.
+notes: An off-hand light (owner, ORR:1333) - timber and bog-cotton lint fired at the forge. It lights the way and is seen from further off - its stealth cost. It burns down (note 13) - 300 points of burn is about five minutes in the hand - and then it is spent and gives no light; relight it at a forge with its lint, or make another, which is cheap.
 category: tool
 item_class: ordinary
 stack_max: 1
@@ -13,3 +13,5 @@ value_base: 3
 equip_slot: off_hand
 light_radius: 8
 stealth_penalty: 0.5
+durability_max: 300
+repair: { station: forge, skill_ref: skill.smithing, skill_min: 0, item_ref: item.material.bog_cotton }

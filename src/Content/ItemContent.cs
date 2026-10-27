@@ -58,11 +58,17 @@ public static class ItemContent
             rules = rules with
             {
                 Durability = new DurabilityRules(Int(durability, "wear_per_hit"), Int(durability, "wear_per_hit_taken"), Int(durability, "wear_per_gather"),
-                    Int(durability, "merchant_fee_percent"), Domain.Crafting.Quality.Parse(Text(durability, "merchant_quality_cap"))),
+                    Int(durability, "merchant_fee_percent"), Domain.Crafting.Quality.Parse(Text(durability, "merchant_quality_cap")))
+                {
+                    // How long a lit light burns for one point of its fuel (note 13); the records before this key keep the default.
+                    LightWearTicks = durability.ContainsKey("light_wear_ticks") ? Int(durability, "light_wear_ticks") : new DurabilityRules(0, 0, 0, 0, 0).LightWearTicks,
+                },
             };
             var d = rules.Durability;
             if (d.WearPerHit < 0 || d.WearPerHitTaken < 0 || d.WearPerGather < 0 || d.MerchantFeePercent < 0 || d.MerchantQualityCap == Domain.Crafting.Quality.Masterwork)
                 throw new FormatException("config.inventory durability: wear and the fee are not below 0, and no trader's repair gives masterwork");
+            if (d.LightWearTicks < 1)
+                throw new FormatException("config.inventory durability: light_wear_ticks is at least 1, or a lit light would never burn down");
         }
         if (map.GetValueOrDefault("laden") is Dictionary<object, object> laden)
         {

@@ -253,6 +253,7 @@ public sealed class Simulation
     private readonly GearSetSystem _gearSets;
     private readonly TeachingSystem _teaching;
     private readonly DurabilitySystem _durability;
+    private readonly BurningLightsSystem _lights;
     private readonly LadenSystem _laden;
     private readonly PartySheetSystem _sheets;
     private readonly PetSystem _pets;
@@ -369,6 +370,7 @@ public sealed class Simulation
         _teaching = new TeachingSystem(_context, player.Id, _dialogue.FactsOf, _npcs);
         _durability = new DurabilitySystem(_context, player.Id);
         _durability.Listen(bus);
+        _lights = new BurningLightsSystem(_context, player.Id);
         _laden = new LadenSystem(_context, () => _movement.Effective, _inventory.CarriedGrams, _inventory.CarryLimitGrams);
         _approval = new ApprovalSystem(_context, _dialogue.Banter, () => _quests.Tracked(null) is { } tracked ? _quests.Marker(tracked) : null);
         _approval.Listen(bus);
@@ -980,6 +982,7 @@ public sealed class Simulation
                 simulation.Tick(tick, _cells.Where(c => _state.Tiers.GetValueOrDefault(c.ToString(), SimulationTier.D) == simulation.Tier).ToList());
             _combat.Tick(tick);
             _laden.Tick(tick);
+            _lights.Tick(tick);
             _creatures.Tick(tick);
             _companions.Tick(tick);
             _pets.Tick(tick);

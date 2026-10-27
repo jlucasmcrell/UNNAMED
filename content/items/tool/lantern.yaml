@@ -1,0 +1,16 @@
+id: item.tool.lantern
+kind: item
+schema: 1
+display_key: item.tool.lantern.name
+tags: [item]
+name: Lantern
+notes: A closed lamp for the dark (owner note 13) - horn and tin, burning lamp oil, brighter and longer than a torch and costing more. Sold by Kera Voss; filled again with lamp oil at a workbench. It is light, not magic - the violet is the Other's, and this is only fire in a glass.
+category: tool
+item_class: ordinary
+stack_max: 1
+weight: 0.9
+value_base: 40
+equip_slot: off_hand
+light_radius: 14
+durability_max: 3600
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 0, item_ref: item.material.lamp_oil }

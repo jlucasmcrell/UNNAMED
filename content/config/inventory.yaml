@@ -17,6 +17,9 @@ durability:
   wear_per_gather: 1
   merchant_fee_percent: 40
   merchant_quality_cap: standard
+  # A lit light in the off hand burns one point of its own durability every this many ticks (note 13): 20 ticks is one world second, so a
+  # torch's 300 points is five minutes in the hand and a lantern's 3600 an hour. At its durability the light goes out until it is filled again.
+  light_wear_ticks: 20
 # The laden band (WP3b, D4): above this share of the carry limit, a sprint drains this share of its usual stamina and a dodge costs this
 # share of its usual. Nothing heavier than the limit itself is ever taken up.
 laden:
