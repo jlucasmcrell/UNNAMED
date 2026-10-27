@@ -20,7 +20,10 @@ noise_m:                      # STEALTH §7: how far each sound carries
   blow: 20
   call: 45                    # a howl
 corpse: { decay_s: 600, stack_slots: 8 }
-hours: { night_from_h: 20.5, day_from_h: 5.5 }   # when roles that keep hours rest, by the world clock (config.time's clock_at_world_start_h at tick 0, the sky's clock too)
+# When roles that keep hours rest, by the world clock (config.time's clock_at_world_start_h at tick 0, the sky's clock too). Note 23: the sky's sun
+# is the midsummer one (a92fcd7e), so real dark runs 20:30-03:30 with twilight 19:45-20:30 and 03:30-04:15. Night starts at dusk (19:45) and day
+# at the end of dawn (04:15), so a night walker is out for the whole dark and every day creature is in its bed by dusk instead of prowling at 05:00.
+hours: { night_from_h: 19.75, day_from_h: 4.25 }
 roles:
   den_alpha: { unaware: hold, territory_m: 18, calls_for_help: true, answers_calls: true, call_m: 70, focus_weakest: true, hunts_handler: true }   # the den's leader: howls wider than its kind, so the packs beyond its own come (owner finding 29), and reads the fight it is in
   den_guardian: { unaware: hold, territory_m: 16, calls_for_help: true, answers_calls: true }   # holds the den mouth and howls
