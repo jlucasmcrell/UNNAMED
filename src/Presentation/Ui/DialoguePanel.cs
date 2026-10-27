@@ -33,6 +33,9 @@ public partial class DialoguePanel : CanvasLayer
     /// <summary>The line last said (aloud, or found to have no recording), so a redraw of the same line does not say it again.</summary>
     private string? _said;
 
+    /// <summary>The lines already voiced in this conversation: going back to a topic list shows its words without saying it again.</summary>
+    private readonly HashSet<string> _voicedLines = new();
+
     /// <summary>The replies on screen, in order: what keys 1 to 9 answer.</summary>
     public IReadOnlyList<string> Replies { get; private set; } = Array.Empty<string>();
 
@@ -104,7 +107,7 @@ public partial class DialoguePanel : CanvasLayer
 
     /// <summary>
     /// Show the conversation as it stands now, or hide the panel when there is none. <paramref name="spoken"/>: a line was just said
-    /// (arriving at it again says it again); any other redraw says a line only when it is new.
+    /// (arriving at it again shows it again, voiced only the first time in a conversation); any other redraw says a line only when it is new.
     /// </summary>
     public void Refresh(bool spoken = false)
     {
@@ -113,6 +116,7 @@ public partial class DialoguePanel : CanvasLayer
             if (_said is not null)
                 Voice?.Hush();
             _said = null;
+            _voicedLines.Clear();
             Visible = false;
             Replies = Array.Empty<string>();
             return;
@@ -123,7 +127,13 @@ public partial class DialoguePanel : CanvasLayer
         if (spoken || view.LineId != _said)
         {
             _said = view.LineId;
-            _voiced = Voice?.Say(view.LineId) ?? false;
+            if (_voicedLines.Add(view.LineId))
+                _voiced = Voice?.Say(view.LineId) ?? false;
+            else
+            {
+                Voice?.Hush();
+                _voiced = false;
+            }
         }
         _line.Visible = Audio.VoiceRules.ShowWords(_voiced, Settings.SettingsStore.Current.Profile.Interface.Subtitles);
         foreach (var child in _replies.GetChildren())
