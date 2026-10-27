@@ -166,7 +166,8 @@ public partial class CraftingView : Node3D
                     Position=new Vector3(0,.18f,.73f),RotationDegrees=new Vector3(0,0,90),MaterialOverride=cloth });
                 foreach(float x in new[] {-.26f,.26f}) _bedroll.AddChild(new MeshInstance3D {
                     Mesh=new TorusMesh {InnerRadius=.14f,OuterRadius=.157f},Position=new Vector3(x,.18f,.73f),
-                    RotationDegrees=new Vector3(0,0,90),MaterialOverride=Palette.Leather });                AddChild(_bedroll);
+                    RotationDegrees=new Vector3(0,0,90),MaterialOverride=Palette.Leather });
+                AddChild(_bedroll);
             }
         }
         // The Other appears only beside a still-standing fold; ordinary firelight stays warm.

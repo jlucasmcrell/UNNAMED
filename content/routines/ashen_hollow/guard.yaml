@@ -12,7 +12,7 @@ roles: [guard]
 work_hours: [8, 20]
 anchors:
   home: {position_m: [438.9, 719.05], facing_deg: 180}
-  work: {position_m: [464, 748], facing_deg: 90}
+  work: {position_m: [465.5, 750], facing_deg: 90} # Clear of the adventurer's gate arrival anchor.
   supper: {position_m: [439, 725.85], facing_deg: 0}
 schedule:
   - {hours: [6, 8], at: supper}

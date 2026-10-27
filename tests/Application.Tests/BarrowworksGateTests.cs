@@ -13,9 +13,9 @@ namespace UNNAMED.Application.Tests;
 
 public class BarrowworksGateTests
 {
-    // Integrated frontier overlay: approved NPC migration, P0 props/weapons and three enemy bindings.
+    // Integrated frontier overlay: approved NPC migration, C1 creatures and C2 two-storey inn.
     // Keep the full-file guard, alongside the semantic option-off checks below; line endings are normalised.
-    private const string SnapshotOverlaySha256 = "d3762eaf957139aea99fd97406da3620a1440cb1db901d11c79969d7c771f69b"; // Integrated public overlay plus the accepted den gorge hollow and the threshold bank colliders; ring keys remain gated.
+    private const string SnapshotOverlaySha256 = "71e72ed36bdfaa70395c29782a674091ae742f18cdc381329b15c05fbf2ee053"; // Accepted C1 creature bindings and C2 inn additions over the integrated public overlay; ring keys remain gated.
 
     private static string Overlay => Path.Combine(Harness.RepoRoot(), "content", "_art_bindings.json");
 
@@ -35,13 +35,15 @@ public class BarrowworksGateTests
     }
 
     /// <summary>
-    /// The key that leaked. <c>Roofs</c> reads <c>_bindings.RoofGroups</c>, whose default is the longhouse and the
-    /// forge, so any overlay carrying this key takes both away from every other region - correctly populated or not.
+    /// C2 adds an upper inn roof. Preserve the default longhouse/forge groups and reject any ring groups
+    /// in the shipped frontier list; the ring's larger replacement remains in its gated overlay.
     /// </summary>
     [Fact]
-    public void TheShippedOverlay_DeclaresNoRoofGroups()
+    public void TheShippedOverlay_PreservesFrontierRoofsAndAddsOnlyTheAcceptedInn()
     {
-        Assert.DoesNotContain("\"roof_groups\"", File.ReadAllText(Overlay, Encoding.UTF8), StringComparison.Ordinal);
+        using var doc = JsonDocument.Parse(File.ReadAllText(Overlay, Encoding.UTF8));
+        Assert.Equal(new[] { "longhouse", "forge", "ah_inn_upper" },
+            doc.RootElement.GetProperty("roof_groups").EnumerateArray().Select(group => group.GetString()));
     }
 
     /// <summary>Checked by key as well as by hash: a hash says something changed, this says what.</summary>

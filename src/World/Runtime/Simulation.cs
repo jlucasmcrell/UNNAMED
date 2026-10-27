@@ -392,7 +392,7 @@ public sealed class Simulation
         // The abstract advance (WP11): the clock first, so every other system brings itself to the tick it reads. A new world system
         // that goes on while the character is away adds itself here. The party goes before the adventurers: an adventurer it lets go or
         // loses at a midnight of the absence takes up their life from that midnight, however the absence is split (T-22).
-        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _companions, _adventurers, _creatures, _effects, _gathering, _quests, _factions, _sheets, _approval, _npcs, _markets, _teaching, _durability, _laden, _lfg, _pets);
+        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _companions, _adventurers, _creatures, _effects, _gathering, _quests, _factions, _sheets, _approval, _npcs, _markets, _teaching, _durability, _lights, _laden, _lfg, _pets);
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
         _combat.Seed(player);
