@@ -32,6 +32,6 @@ public class IdleVarietyTests
             previous = clip;
             Assert.Equal("idle", idles.Step(3, "merchant", _ => true, _ => 2));
         }
-        Assert.Equal(4, seen.Count);
+        Assert.Equal(3, seen.Count);
     }
 }

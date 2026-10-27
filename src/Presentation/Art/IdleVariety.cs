@@ -32,8 +32,8 @@ public sealed class IdleVariety
         // distinct mocap observation; duplicated labels are not extra variety.
         string looking = has("idle_observe") ? "idle_observe" : "idle_look";
         string[] wanted = role?.Contains("guard", StringComparison.OrdinalIgnoreCase) == true
-            ? ["idle_foldarms", "idle_foldarms", looking, "idle_shift", "idle_settle"]
-            : ["idle_shift", looking, "idle_settle", "idle_foldarms"];
+            ? ["idle_foldarms", "idle_foldarms", looking, "idle_shift"]
+            : ["idle_shift", looking, "idle_foldarms"];
         var pool = wanted.Where(has).ToArray();
         var different = pool.Where(clip => clip != _previous).ToArray();
         if (different.Length > 0) pool = different;

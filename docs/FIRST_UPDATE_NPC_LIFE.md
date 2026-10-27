@@ -6,12 +6,14 @@ No body, mesh, rest transform, skin bind or authored identity weights change.
 
 ## Idle sources and delivery
 
-The installed pool has five distinct performances: UAL1 `Idle_Loop`, UAL2
-`Idle_No_Loop`, UAL2 `Idle_FoldArms_Loop`, CMU `77_02` (standing), and CMU
-`140_07` (idle). The old `idle_look` alias remains compatible but is not counted
+The installed pool has four distinct performances: UAL1 `Idle_Loop`, UAL2
+`Idle_No_Loop`, UAL2 `Idle_FoldArms_Loop`, and CMU `77_02` (standing).
+The old `idle_look` alias remains compatible but is not counted
 as variety and is not selected when the new observation is installed.
 The `idle_observe` state is CMU's stationary `77_02`; the searching crouch in
 `77_01` was rejected during private source inspection.
+CMU `140_07` passed numeric invariants but its crouched stance failed the
+in-game style review. It is retained only as negative proof, never installed.
 
 CMU provenance: <https://mocap.cs.cmu.edu/search.php?subjectnumber=77> and
 <https://mocap.cs.cmu.edu/search.php?subjectnumber=140>. Source BVHs use the
@@ -23,7 +25,7 @@ performance's facing through its native additive pose operation. No arm keys
 are authored; fingers and facial joints remain excluded from body retargeting.
 
 Exact-target native glTF transports pass the existing rest/finger guards.
-`merge_humgen_idle_motion.gd` adds `idle_observe` and `idle_settle` to each exact
+`merge_humgen_idle_motion.gd` adds only `idle_observe` to each exact
 body library, reloads it, and compares all previous animation keys, paths,
 interpolation, loop settings and metadata. Existing locomotion/combat stays
 unchanged. Install the external motion delivery with the code; never overwrite
