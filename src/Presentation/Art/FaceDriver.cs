@@ -246,7 +246,8 @@ public sealed partial class FaceDriver : Node
         foreach (var (channel, target) in _targets)
         {
             float now = _weights.GetValueOrDefault(channel);
-            float rate = 1f - Mathf.Exp(-(target > now ? 18f : 10f) * (float)delta);
+            bool speech = channel is "jawOpen" or "mouthClose" or "browInnerUp" || channel.StartsWith("viseme_", StringComparison.Ordinal);
+            float rate = 1f - Mathf.Exp(-(speech ? target > now ? 18f : 10f : 16f) * (float)delta);
             _weights[channel] = Mathf.Lerp(now, target, channel.StartsWith("eyeBlink", StringComparison.Ordinal) ? blinkRate : rate);
         }
         // The ARKit mouth a viseme stands for, where a face has no visemes of its own (summed over the visemes easing in and out).
