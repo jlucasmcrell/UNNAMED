@@ -69,4 +69,5 @@ except Exception:
 finally:
     state["minutes"] = (time.monotonic() - started) / 60
     report.write_text(json.dumps(state, indent=2), encoding="utf-8")
-    unreal.SystemLibrary.quit_editor()
+    if os.environ.get("OTHERREACH_HUMGEN_KEEP_EDITOR") != "1":
+        unreal.SystemLibrary.quit_editor()

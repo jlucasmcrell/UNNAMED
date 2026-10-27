@@ -204,7 +204,7 @@ public sealed partial class SkinnedFigure : Figure
     private HandGrip? _offFingers;
 
     /// <summary>How closed an empty hand rests (a relaxed curl, not the rest pose's flat fingers).</summary>
-    private const float RelaxedHand = 0.2f;
+    private const float RelaxedHand = 0.32f;
 
     private void Relax()
     {

@@ -1153,6 +1153,13 @@ public partial class Main : Node3D
         _crafting.Build(_session.Setup.Layout);
         _loading?.Stage("Bringing in the people", 0.78);
         _npcs = new NpcsView { Name = "Npcs", Ground = VisualOptions.BodyModifiers ? (x, z) => _session.Simulation!.ActiveLayout.Space.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f : null };
+        if (OS.GetEnvironment("OTHERREACH_NPC_LIFE_REVIEW") is { Length: > 0 }
+            && _options.GetValueOrDefault("--content-root") is { } reviewContent
+            && File.Exists(Path.Combine(reviewContent, "NPC_LIFE_REVIEW_FIXTURE.txt")))
+            _npcs.ReviewPeople = File.Exists(Path.Combine(reviewContent, "NPC_LIFE_TALK_ONLY.txt"))
+                ? new HashSet<string>(StringComparer.Ordinal) { "npc.ashen_hollow.renn_vale" }
+                : new HashSet<string>(StringComparer.Ordinal)
+                    { "npc.ashen_hollow.renn_vale", "npc.ashen_hollow.kera_voss", "npc.cairnwold.berrin_garth" };
         _npcs.Bind(_art, _bindings);
         if (_session.Setup.Interior is not null && VisualOptions.BodyModifiers)
             _npcs.Ground = (x, z) => _session.Simulation!.ActiveLayout.Space.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f;
@@ -1728,8 +1735,9 @@ public partial class Main : Node3D
         bool reviewCamera = _mhReviewDirectory is not null && GetViewport().GetCamera3D() != _camera.Camera;
         _avatar.SetFirstPerson(!reviewCamera && _camera.EffectiveDistance < 0.4f);
         // A conversation frames the speaker's face over the character's shoulder (not in first person).
-        _talkCamera.Frame(simulation.Conversation is { } talk && !_camera.IsFirstPerson ? _npcs.HeadOf(talk.NpcId) : null,
-            _avatar.Head, _camera.Camera, delta);
+        if (!_innFreeCamera)
+            _talkCamera.Frame(simulation.Conversation is { } talk && !_camera.IsFirstPerson ? _npcs.HeadOf(talk.NpcId) : null,
+                _avatar.Head, _camera.Camera, delta);
         Probe("camera/state log");
         ulong shadowsStarted = _frontierPerf is null ? 0 : Time.GetTicksUsec();
         if (GetViewport().GetCamera3D() is { } shadowEye) _shadowLods.Update(shadowEye.GlobalPosition);
@@ -1946,6 +1954,15 @@ public partial class Main : Node3D
             _creator.Use(_creator.Draft with { Name = "Rook", Start = UNNAMED.Domain.Character.StartPoint.Waystone });
             if (!_creator.PressBegin()) throw new InvalidDataException("D3 creator Begin refused");
             RunD3Review(review);
+            return;
+        }
+        if (OS.GetEnvironment("OTHERREACH_NPC_LIFE_REVIEW") is { Length: > 0 } npcReview
+            && _options.GetValueOrDefault("--content-root") is { } npcContent && File.Exists(Path.Combine(npcContent, "NPC_LIFE_REVIEW_FIXTURE.txt")))
+        {
+            _scripted = _rcd3Driving = true;
+            _creator.Use(_creator.Draft with { Name = "Rook", Start = UNNAMED.Domain.Character.StartPoint.Waystone });
+            if (!_creator.PressBegin()) throw new InvalidDataException("NPC life creator Begin refused");
+            RunNpcLifeReview(npcReview);
             return;
         }
         int body = _flags.FirstOrDefault(f => f.StartsWith("--autostart-body=")) is { } flag && int.TryParse(flag["--autostart-body=".Length..], out int index) ? index : 0;

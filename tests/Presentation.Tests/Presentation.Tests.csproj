@@ -45,6 +45,7 @@
     <Compile Include="..\..\src\Presentation\Art\LookSwatches.cs" Link="Linked\LookSwatches.cs" />
     <Compile Include="..\..\src\Presentation\Art\PlayerBodies.cs" Link="Linked\PlayerBodies.cs" />
     <Compile Include="..\..\src\Presentation\Art\IdleVariety.cs" Link="Linked\IdleVariety.cs" />
+    <Compile Include="..\..\src\Presentation\Art\SpeechArticulation.cs" Link="Linked\SpeechArticulation.cs" />
     <Compile Include="..\..\src\Presentation\Art\WornOutfit.cs" Link="Linked\WornOutfit.cs" />
     <Compile Include="..\..\src\Presentation\Ui\CreatorDraft.cs" Link="Linked\CreatorDraft.cs" />
     <Compile Include="..\..\src\Presentation\Ui\LootModel.cs" Link="Linked\LootModel.cs" />

@@ -191,6 +191,8 @@ public sealed partial class FaceDriver : Node
             _headAxis = (rig.GetBoneGlobalRest(_headBone).Basis.Inverse() * (rig.GlobalBasis.Inverse() * body.GlobalBasis.Z)).Normalized();
         UpdateNativeEyes(Vector2.Zero);
         rig.AddChild(new HumGenHeadLevel { Name = "HeadLevel", Body = body });
+        rig.AddChild(new HumGenSpeechNod { Name = "SpeechNod", Body = body,
+            Pitch = () => JawWeight * .07f * Mathf.Sin((float)_expressionTime * 2.7f) });
         var eyes = new HumGenEyes { Name = "FACSEyes", Body = body, WorldTarget = () => _eyeTarget.GlobalPosition };
         rig.AddChild(eyes);
         NativeEyeBindings = eyes.BoundCount;
@@ -239,12 +241,13 @@ public sealed partial class FaceDriver : Node
         Blink(delta);
         Speak(delta);
         if (ReviewJawOpen is { } jaw) _targets["jawOpen"] = Mathf.Clamp(jaw, 0, 1);
-        // Visemes and the jaw ease in and out (about 60 ms): the mouth moves between shapes, never snaps.
-        float rate = 1f - Mathf.Exp(-16f * (float)delta);
+        // Lips enter a sound quickly and settle more slowly; blinks retain their own timing.
         float blinkRate = 1f - Mathf.Exp(-40f * (float)delta);
         foreach (var (channel, target) in _targets)
         {
             float now = _weights.GetValueOrDefault(channel);
+            bool speech = channel is "jawOpen" or "mouthClose" or "browInnerUp" || channel.StartsWith("viseme_", StringComparison.Ordinal);
+            float rate = 1f - Mathf.Exp(-(speech ? target > now ? 18f : 10f : 16f) * (float)delta);
             _weights[channel] = Mathf.Lerp(now, target, channel.StartsWith("eyeBlink", StringComparison.Ordinal) ? blinkRate : rate);
         }
         // The ARKit mouth a viseme stands for, where a face has no visemes of its own (summed over the visemes easing in and out).
@@ -378,10 +381,13 @@ public sealed partial class FaceDriver : Node
         };
         // Punctuation holds the mouth shut a little longer; a question lifts the brows.
         _targets[shape] = shape == "viseme_sil" ? 0.6f : 0.85f;
-        _targets["jawOpen"] = recording?.Jaw ?? jaw * 0.6f;
+        // One weight drives both native jaw/teeth and the matching lip FACS. Reducing
+        // only the bone would separate the teeth from the mouth's authored shapes.
+        _targets["jawOpen"] = SpeechArticulation.Jaw(shape, recording?.Jaw ?? jaw * 0.6f);
+        _targets["browInnerUp"] = .035f + .025f * Mathf.Sin((float)_expressionTime * 1.9f);
         if (c is '.' or ',' or '!' or '?' or '-' or ';' or ':')
             _spoken += delta * 2.5;
         if (_line.TrimEnd().EndsWith('?'))
-            _targets["browInnerUp"] = 0.25f;
+            _targets["browInnerUp"] += .08f;
     }
 }
