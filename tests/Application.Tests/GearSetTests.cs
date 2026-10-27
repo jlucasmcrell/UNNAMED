@@ -117,7 +117,13 @@ public class GearSetTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = Arena.OpenCreatures(session, session.Setup, Ground, 0, new[] { (Arena.Wolf, Ground.X + 1.3, Ground.Z, "pack_hunter") },
+        // This checks gear-swap timing, not C1's knockdown interruption. Keep a basic bite threat
+        // so a random heavy strike cannot make the ordinary equip command refuse as staggered.
+        var wolf = session.Setup.Combat.Creatures[Arena.Wolf];
+        var setup = session.Setup with { Combat = session.Setup.Combat with {
+            Creatures = session.Setup.Combat.Creatures.SetItem(Arena.Wolf,
+                wolf with { Moves = ImmutableArray.Create(wolf.Attack), Charge = null, CloseAttack = null }) } };
+        var arena = Arena.OpenCreatures(session, setup, Ground, 0, new[] { (Arena.Wolf, Ground.X + 1.3, Ground.Z, "pack_hunter") },
             r => new PlayerRecord(r.Id, r.Name, r.XMm, r.YMm, r.ZMm, r.AppearanceSeed, r.Inventory.Concat(new[] { Arena.Stack(Bow, 1), Arena.Stack(Cap, 1) }), r.Progression, r.FacingMdeg,
                 r.Discoveries, r.Equipment, r.Currency, r.Effects));
         var sword = Worn(arena, EquipSlot.MainHand);
@@ -146,6 +152,7 @@ public class GearSetTests
 
         var swapped = Assert.Single(done);
         Assert.True(swapped.ArmourKept);
+        Assert.Empty(swapped.Refused);
         Assert.Equal(sword, Worn(arena, EquipSlot.MainHand));
         Assert.False(arena.Simulation.Player.Equipment.ContainsKey(EquipSlot.Head), "the cap was put on in a fight");
         Assert.DoesNotContain(EquipSlot.Head, swapped.Changed);
