@@ -416,6 +416,7 @@ public static class SkyView
             if (Tint("volumetric_fog_albedo") is { } albedo) environment.VolumetricFogAlbedo = albedo;
             if (Number("volumetric_fog_anisotropy") is { } anisotropy) environment.VolumetricFogAnisotropy = anisotropy;
             if (Number("volumetric_fog_length") is { } length) { environment.VolumetricFogLength = length; applied.Add($"length {length} m"); }
+            if (Number("volumetric_fog_sky_affect") is { } skyAffect) environment.VolumetricFogSkyAffect = skyAffect;
             if (Number("volumetric_fog_gi_inject") is { } inject) environment.VolumetricFogGIInject = inject;
             if (Number("volumetric_fog_ambient_inject") is { } ambientInject) environment.VolumetricFogAmbientInject = ambientInject;
             if (Number("ambient_light_energy") is { } energy) environment.AmbientLightEnergy = energy;

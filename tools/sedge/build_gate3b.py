@@ -179,7 +179,7 @@ def main():
     dump(out/'sedge_art_gate3.json',art)
     atmo=json.loads((out/'atmosphere.json').read_text(encoding='utf-8'))
     atmo.update(fog_density=.00034,fog_aerial_perspective=.64,volumetric_fog_density=.0006,
-                volumetric_fog_length=1100,volumetric_fog_anisotropy=.45)
+                volumetric_fog_length=1100,volumetric_fog_anisotropy=.45,volumetric_fog_sky_affect=.8)
     dump(out/'atmosphere.json',atmo)
     dump(out/'dressing.json',dict(places=places))
     credits['gate3b']=dict(arch='Existing Dwarven Citadel native rib vault, carved capital and broken gate column; source PBR retained. Broken front rib is a derivative of the source mesh.',

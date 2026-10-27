@@ -37,7 +37,7 @@ public partial class SedgeArtView : Node3D
             var shaft = new SpotLight3D { Name = "CloudBreakShaft", Position = at,
                 // Godot low-density fog needs a separate high volumetric-energy multiplier.
                 LightColor = new Color(.87f,.93f,1), LightEnergy = 22f,
-                LightVolumetricFogEnergy = 25000f, SpotRange = 260, SpotAngle = 13,
+                LightVolumetricFogEnergy = 250f, SpotRange = 260, SpotAngle = 13,
                 SpotAttenuation = .5f, ShadowEnabled = true,
                 RotationDegrees = new Vector3(-72, -20, 0) };
             view.AddChild(shaft);view._shafts.Add(shaft);
@@ -245,7 +245,7 @@ public partial class SedgeArtView : Node3D
         {
             _airProbeLogged = true;
             var air = GetWorld3D().Environment;
-            GD.Print($"SEDGE_AIR volumetric={air?.VolumetricFogEnabled} density={air?.VolumetricFogDensity} length={air?.VolumetricFogLength} daylight={SkyView.DaylightLevel} shaft_energy={_shafts[0].LightEnergy} fog_energy={_shafts[0].LightVolumetricFogEnergy}");
+            GD.Print($"SEDGE_AIR volumetric={air?.VolumetricFogEnabled} density={air?.VolumetricFogDensity} length={air?.VolumetricFogLength} sky_affect={air?.VolumetricFogSkyAffect} daylight={SkyView.DaylightLevel} shaft_energy={_shafts[0].LightEnergy} fog_energy={_shafts[0].LightVolumetricFogEnergy}");
         }
         foreach (var rain in _rain)
         {
