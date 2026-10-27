@@ -52,8 +52,10 @@ Text-timed visemes remain an approximation, not phoneme-aligned acting.
 Private review uses three actual named NPCs with adjacent initial positions
 and routine anchors within the waystation faction seat. It runs normal idle
 selection for twenty real seconds, then a normal voiced Renn greeting with
-the actual Master bus and native jaw readback. Only the foreground player is
-hidden for the review camera. No authoritative state writes, forced mouth
+the actual Master bus and native jaw readback. The review draws only its three
+NPC subjects (the simulation population remains intact); the foreground player
+is hidden for the review camera. This is not a world or performance gate.
+No authoritative state writes, forced mouth
 weights, animation clock override, public package change or promotion.
 
 Proof root: `D:/Otherreach_Scratch/npc_life_20261027`.

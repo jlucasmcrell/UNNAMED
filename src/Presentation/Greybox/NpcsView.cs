@@ -17,6 +17,7 @@ namespace UNNAMED.Presentation.Greybox;
 public partial class NpcsView : Node3D
 {
     public bool SuppressPresentationForBenchmark { get; set; }
+    internal IReadOnlySet<string>? ReviewPeople { get; set; }
     private int _performanceStage = System.Environment.GetEnvironmentVariable("OTHERREACH_MH_PERF_SWEEP") == "1" ? 0 : 4;
     public int PerformanceStage => _performanceStage;
     public void SetPerformanceStage(int stage)
@@ -81,6 +82,7 @@ public partial class NpcsView : Node3D
         var occupiedFurniture = new HashSet<string>(StringComparer.Ordinal);
         foreach (var npc in people)
         {
+            if (ReviewPeople is { } review && !review.Contains(npc.Id)) continue;
             string instance = npc.InstanceId.ToString();
             if (_instances.TryGetValue(npc.Id, out var previous) && previous != instance)
                 Forget(npc.Id);

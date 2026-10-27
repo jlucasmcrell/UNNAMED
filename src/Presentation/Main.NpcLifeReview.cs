@@ -102,7 +102,7 @@ public partial class Main
                 throw new InvalidDataException("Greeting native jaw/full utterance incomplete");
             await Rcd3Shot(directory, "after_greeting");
             File.WriteAllText(Path.Combine(directory, "evidence.json"), JsonSerializer.Serialize(new {
-                player = sim.Player.Name, scope = "Private adjacent anchors; production NPC draw/idle/hand/face/normal conversation and actual Master. Foreground player hidden for review only.",
+                player = sim.Player.Name, scope = "Private adjacent anchors; production NPC draw/idle/hand/face/normal conversation and actual Master. Render filter draws only the three subjects; simulation population retained. Foreground player hidden. Not a world/performance gate.",
                 resolution = GetViewport().GetVisibleRect().Size.ToString(), rows }, new JsonSerializerOptions { WriteIndented = true }));
             File.WriteAllText(Path.Combine(directory, "gate.exit"), "0");
         }

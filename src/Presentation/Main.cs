@@ -1926,6 +1926,8 @@ public partial class Main : Node3D
             && _options.GetValueOrDefault("--content-root") is { } content && File.Exists(Path.Combine(content, "NPC_LIFE_REVIEW_FIXTURE.txt")))
         {
             _scripted = _rcd3Driving = true;
+            _npcs.ReviewPeople = new HashSet<string>(StringComparer.Ordinal)
+                { "npc.ashen_hollow.renn_vale", "npc.ashen_hollow.kera_voss", "npc.cairnwold.berrin_garth" };
             _creator.Use(_creator.Draft with { Name = "Rook", Start = UNNAMED.Domain.Character.StartPoint.Waystone });
             if (!_creator.PressBegin()) throw new InvalidDataException("NPC life creator Begin refused");
             RunNpcLifeReview(review);
