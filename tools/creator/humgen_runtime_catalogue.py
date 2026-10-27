@@ -30,11 +30,23 @@ def main():
         group = parents[0] if parents else None
         native = f'{category[0]}_{{{group}}}_{name}' if group else f'{category[0]}_{name}'
         controls[name] = native
+    for sex in ('female', 'male'):
+        fit = ROOT / 'work/creator' / sex / 'eye_fit_source.json'
+        if fit.is_file(): controls.update(json.loads(fit.read_text())['key_mapping'])
+    # The older catalogue omitted capitalized native eye controls and lower-skull
+    # controls. Keep their native names while persisting valid lowercase IDs.
+    known = {slider['humgen'] for slider in data['sliders']}
+    groups = dict(eyes='Eyes', special='Eyes', l_skull='Mouth', u_skull='Brow and forehead')
+    for name, shape in controls.items():
+        if name in known or not shape.startswith('f_{'): continue
+        group = shape.split('{', 1)[1].split('}', 1)[0]
+        data['sliders'].append(dict(id='face.' + slug(name), label=name.replace('_', ' ').capitalize(), panel='face',
+                                    group=groups.get(group, group.capitalize()), humgen=name, min=-1000, max=1000, default=0, scale=.001))
     for option in data['faces']:
         source = CONTENT / next(iter(option['paths'].values())).replace('\\', '/')
         option['native'] = json.loads(source.read_text(encoding='utf-8'))
-    # All genuine body keys are retained in the assets, but bone-length/eye-placement
-    # controls stay hidden: they require refitting the exact-target skeleton and eyes.
+    # All genuine body keys are retained. Bone lengths stay hidden; native eye
+    # fitting is supported separately without changing the exact-target body rig.
     safe_body = {'muscular', 'overweight', 'skinny', 'Waist Thickness', 'Upper Arm Thickness',
                  'Forearm Thickness', 'Thigh Thickness', 'Shin Thickness', 'Neck Thickness',
                  'Shoulder Muscles', 'Chest Muscles', 'Back Muscles', 'Biceps', 'Triceps',
@@ -52,7 +64,9 @@ def main():
         for slider in data['sliders']:
             key, panel = slider['humgen'], slider['panel']
             lo, hi, default = slider['min'], slider['max'], slider['default']
-            if panel == 'body':
+            if people == 'siann' and key == 'age':
+                lo, hi, default = 18, 30, 30
+            elif panel == 'body':
                 if key not in safe_body:
                     continue
                 lo, hi = slider['min'], slider['max']
@@ -60,8 +74,6 @@ def main():
                     lo, hi, default = (450, 850, 650) if key == 'skinny' else (0, 200, 80) if key in ('muscular', 'overweight') else (-400, -100, -250)
                 elif people == 'kal':
                     lo, hi, default = (200, 800, 450) if key in ('muscular', 'overweight') else (0, 250, 50) if key == 'skinny' else (50, 450, 200)
-            elif key in ('Eye Depth', 'Eye Distance', 'Eye Height', 'Eye Scale'):
-                continue
             elif panel == 'face' and key != 'age' and not key.startswith('skin.'):
                 lo, hi = slider['min'], slider['max']
                 if people == 'siann':

@@ -13,9 +13,11 @@ internal static class HumGenMaterials
         Texture2D Map(string name, string role) => art.Texture(art.RiggedFile(id, data.GetProperty(name).GetString()!)
             ?? throw new InvalidDataException("Native HumGen map missing: " + name), role)
             ?? throw new InvalidDataException("Native HumGen map failed: " + name);
-        var pbr = Map("skin_pbr", "data");
-        var outerNormal = Map("cornea_normal", "normal");
-        var eyeScatter = Map("eye_scatter", "data");
+        // Modular native grooms/wardrobe carry their own inputs, without unused
+        // copies of the body's skin and eye maps.
+        var pbr = data.TryGetProperty("skin_pbr", out _) ? Map("skin_pbr", "data") : null;
+        var outerNormal = data.TryGetProperty("cornea_normal", out _) ? Map("cornea_normal", "normal") : null;
+        var eyeScatter = data.TryGetProperty("eye_scatter", out _) ? Map("eye_scatter", "data") : null;
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
         for (int surface = 0; surface < (mesh.Mesh?.GetSurfaceCount() ?? 0); surface++)
         {
@@ -26,7 +28,7 @@ internal static class HumGenMaterials
             {
                 skin.SetShaderParameter("native_humgen", true);
                 skin.SetShaderParameter("native_specular_map", true);
-                skin.SetShaderParameter("native_rough_spec_cavity", pbr);
+                skin.SetShaderParameter("native_rough_spec_cavity", pbr ?? throw new InvalidDataException("Native skin PBR map missing"));
                 skin.SetShaderParameter("roughness", source.Roughness);
                 skin.SetShaderParameter("double_specularity", false);
                 // Native cavity is already in the baked colour. ORM red is explicitly constant 1 in HumGen's exporter.
@@ -36,7 +38,7 @@ internal static class HumGenMaterials
             else if (mesh.Name.ToString().Contains("_Cornea_LOD0", StringComparison.Ordinal))
             {
                 var cornea = new ShaderMaterial { Shader = GD.Load<Shader>("res://Art/humgen_cornea.gdshader"), ResourceName = "HumGen_native_cornea" };
-                cornea.SetShaderParameter("normal_map", outerNormal);
+                cornea.SetShaderParameter("normal_map", outerNormal ?? throw new InvalidDataException("Native cornea normal missing"));
                 mesh.SetSurfaceOverrideMaterial(surface, cornea);
                 mesh.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
             }
@@ -45,7 +47,7 @@ internal static class HumGenMaterials
                 var eye = new ShaderMaterial { Shader = GD.Load<Shader>("res://Art/humgen_inner_eye.gdshader"), ResourceName = "HumGen_native_inner_eye" };
                 eye.SetShaderParameter("color_map", source.AlbedoTexture);
                 eye.SetShaderParameter("normal_map", source.NormalTexture);
-                eye.SetShaderParameter("scatter_map", eyeScatter);
+                eye.SetShaderParameter("scatter_map", eyeScatter ?? throw new InvalidDataException("Native eye scatter missing"));
                 eye.SetShaderParameter("roughness", data.GetProperty("eye_roughness").GetSingle());
                 eye.SetShaderParameter("metallic", data.GetProperty("eye_metallic").GetSingle());
                 mesh.SetSurfaceOverrideMaterial(surface, eye);
@@ -63,10 +65,13 @@ internal static class HumGenMaterials
                 }
                 if (hair.Transparency == BaseMaterial3D.TransparencyEnum.AlphaScissor)
                     hair.Transparency = BaseMaterial3D.TransparencyEnum.AlphaHash;
-                if (data.TryGetProperty("hair_flow", out _) && source.ResourceName.Contains("_HairCards", StringComparison.OrdinalIgnoreCase))
+                string suffix = System.Text.RegularExpressions.Regex.Match(mesh.Name, "_LOD([0-9]+)$") is { Success: true } level && level.Groups[1].Value != "0"
+                    ? "_lod" + level.Groups[1].Value : "";
+                string flow = "hair_flow" + suffix;
+                if (data.TryGetProperty(flow, out _) && source.ResourceName.Contains("_HairCards", StringComparison.OrdinalIgnoreCase))
                 {
                     hair.AnisotropyEnabled = true; hair.Anisotropy = .75f;
-                    hair.AnisotropyFlowmap = Map("hair_flow", "data");
+                    hair.AnisotropyFlowmap = Map(flow, "data");
                 }
                 mesh.SetSurfaceOverrideMaterial(surface, hair);
             }

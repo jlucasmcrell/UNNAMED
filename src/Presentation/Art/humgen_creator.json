@@ -1163,6 +1163,72 @@
    "max": 3000,
    "default": 1000,
    "scale": 0.001
+  },
+  {
+   "id": "face.eye_depth",
+   "label": "Eye depth",
+   "panel": "face",
+   "group": "Eyes",
+   "humgen": "Eye Depth",
+   "min": -1000,
+   "max": 1000,
+   "default": 0,
+   "scale": 0.001
+  },
+  {
+   "id": "face.eye_distance",
+   "label": "Eye distance",
+   "panel": "face",
+   "group": "Eyes",
+   "humgen": "Eye Distance",
+   "min": -1000,
+   "max": 1000,
+   "default": 0,
+   "scale": 0.001
+  },
+  {
+   "id": "face.eye_height",
+   "label": "Eye height",
+   "panel": "face",
+   "group": "Eyes",
+   "humgen": "Eye Height",
+   "min": -1000,
+   "max": 1000,
+   "default": 0,
+   "scale": 0.001
+  },
+  {
+   "id": "face.muzzle_location_horizontal",
+   "label": "Muzzle location horizontal",
+   "panel": "face",
+   "group": "Mouth",
+   "humgen": "muzzle_location_horizontal",
+   "min": -1000,
+   "max": 1000,
+   "default": 0,
+   "scale": 0.001
+  },
+  {
+   "id": "face.muzzle_location_vertical",
+   "label": "Muzzle location vertical",
+   "panel": "face",
+   "group": "Mouth",
+   "humgen": "muzzle_location_vertical",
+   "min": -1000,
+   "max": 1000,
+   "default": 0,
+   "scale": 0.001
+  },
+  {
+   "id": "face.eye_scale",
+   "label": "Eye scale",
+   "panel": "face",
+   "group": "Eyes",
+   "humgen": "Eye Scale",
+   "min": -1000,
+   "max": 1000,
+   "default": 0,
+   "scale": 0.001
   }
  ],
  "faces": [
@@ -22450,9 +22516,9 @@
    "ear_lobe_size": "f_{ears}_ear_lobe_size",
    "ear_turn": "f_{ears}_ear_turn",
    "ear_width": "f_{ears}_ear_width",
-   "Eye Depth": "s_{eyes}_Eye Depth",
-   "Eye Distance": "s_{eyes}_Eye Distance",
-   "Eye Height": "s_{eyes}_Eye Height",
+   "Eye Depth": "f_{eyes}_Eye Depth",
+   "Eye Distance": "f_{eyes}_Eye Distance",
+   "Eye Height": "f_{eyes}_Eye Height",
    "eye_height": "f_{eyes}_eye_height",
    "eye_orbit_size": "f_{eyes}_eye_orbit_size",
    "eye_tilt": "f_{eyes}_eye_tilt",
@@ -22482,7 +22548,7 @@
    "nose_tip_length": "f_{nose}_nose_tip_length",
    "nose_tip_size": "f_{nose}_nose_tip_size",
    "nose_tip_width": "f_{nose}_nose_tip_width",
-   "Eye Scale": "s_{eyes}_Eye Scale",
+   "Eye Scale": "f_{special}_Eye Scale",
    "browridge_center_size": "f_{u_skull}_browridge_center_size",
    "browridge_loc_horizontal": "f_{u_skull}_browridge_loc_horizontal",
    "browridge_loc_vertical": "f_{u_skull}_browridge_loc_vertical",
@@ -22605,7 +22671,7 @@
      "default": 0
     },
     "face.eye_height": {
-     "min": -1430,
+     "min": -1000,
      "max": 1000,
      "default": 0
     },
@@ -22828,6 +22894,31 @@
      "min": 300,
      "max": 3000,
      "default": 1000
+    },
+    "face.eye_depth": {
+     "min": -1000,
+     "max": 1000,
+     "default": 0
+    },
+    "face.eye_distance": {
+     "min": -1000,
+     "max": 1000,
+     "default": 0
+    },
+    "face.muzzle_location_horizontal": {
+     "min": -1000,
+     "max": 1000,
+     "default": 0
+    },
+    "face.muzzle_location_vertical": {
+     "min": -1000,
+     "max": 1000,
+     "default": 0
+    },
+    "face.eye_scale": {
+     "min": -1000,
+     "max": 1000,
+     "default": 0
     }
    },
    "people.orenth": {
@@ -22942,7 +23033,7 @@
      "default": 0
     },
     "face.eye_height": {
-     "min": -1430,
+     "min": -1000,
      "max": 1000,
      "default": 0
     },
@@ -23165,6 +23256,31 @@
      "min": 300,
      "max": 3000,
      "default": 1000
+    },
+    "face.eye_depth": {
+     "min": -1000,
+     "max": 1000,
+     "default": 0
+    },
+    "face.eye_distance": {
+     "min": -1000,
+     "max": 1000,
+     "default": 0
+    },
+    "face.muzzle_location_horizontal": {
+     "min": -1000,
+     "max": 1000,
+     "default": 0
+    },
+    "face.muzzle_location_vertical": {
+     "min": -1000,
+     "max": 1000,
+     "default": 0
+    },
+    "face.eye_scale": {
+     "min": -1000,
+     "max": 1000,
+     "default": 0
     }
    },
    "people.kal": {
@@ -23279,7 +23395,7 @@
      "default": 0
     },
     "face.eye_height": {
-     "min": -1430,
+     "min": -1000,
      "max": 1000,
      "default": 0
     },
@@ -23502,6 +23618,31 @@
      "min": 300,
      "max": 3000,
      "default": 1000
+    },
+    "face.eye_depth": {
+     "min": -1000,
+     "max": 1000,
+     "default": 0
+    },
+    "face.eye_distance": {
+     "min": -1000,
+     "max": 1000,
+     "default": 0
+    },
+    "face.muzzle_location_horizontal": {
+     "min": -1000,
+     "max": 1000,
+     "default": 0
+    },
+    "face.muzzle_location_vertical": {
+     "min": -1000,
+     "max": 1000,
+     "default": 0
+    },
+    "face.eye_scale": {
+     "min": -1000,
+     "max": 1000,
+     "default": 0
     }
    },
    "people.siann": {
@@ -23616,9 +23757,9 @@
      "default": 0
     },
     "face.eye_height": {
-     "min": -350,
-     "max": -100,
-     "default": -220
+     "min": -180,
+     "max": 180,
+     "default": 0
     },
     "face.eye_orbit_size": {
      "min": -180,
@@ -23812,8 +23953,33 @@
     },
     "face.age": {
      "min": 18,
-     "max": 90,
+     "max": 30,
      "default": 30
+    },
+    "face.eye_depth": {
+     "min": -180,
+     "max": 180,
+     "default": 0
+    },
+    "face.eye_distance": {
+     "min": -180,
+     "max": 180,
+     "default": 0
+    },
+    "face.muzzle_location_horizontal": {
+     "min": -180,
+     "max": 180,
+     "default": 0
+    },
+    "face.muzzle_location_vertical": {
+     "min": -180,
+     "max": 180,
+     "default": 0
+    },
+    "face.eye_scale": {
+     "min": -180,
+     "max": 180,
+     "default": 0
     }
    }
   },

@@ -44,7 +44,7 @@ public sealed class HumGenCreatorData
     public int Value(CharacterAppearance look, CreatorCatalogue catalogue, string people, CreatorSlider slider) =>
         look.Sliders.TryGetValue(slider.Id, out int moved) ? Math.Clamp(moved, slider.Min, slider.Max)
         : people is "people.siann" or "people.kal" && Key(slider.Humgen) is not null ? slider.Default
-        : catalogue.Value(look, slider);
+        : Math.Clamp(catalogue.Value(look, slider), slider.Min, slider.Max);
 
     public CharacterAppearance Reset(CharacterAppearance look, CreatorCatalogue catalogue, string people, string panel, string group)
     {
@@ -91,6 +91,8 @@ public sealed class HumGenCreatorData
             weights[shape] = Math.Clamp(chosen, range.Min, range.Max) * (float)slider.Scale;
         }
         int age = look.Sliders.GetValueOrDefault("face.age", preset.GetProperty("age").GetProperty("set").GetInt32());
+        var ageDial = catalogue.Sliders.First(s => s.Id == "face.age");
+        if (Allowed(people, ageDial) is { } ageRange) age = Math.Clamp(age, ageRange.Min, ageRange.Max);
         foreach (var entry in _data.GetProperty("runtime").GetProperty("keys").EnumerateObject())
             if (entry.Value.GetString() is { } shape && shape.StartsWith("s_{age}_", StringComparison.Ordinal))
                 weights[shape] = entry.Name == "aged_young" ? Math.Max(0, 3 - age * .1f) : Math.Max(0, (age - 40) / 30f);
@@ -119,8 +121,10 @@ public sealed class HumGenCreatorData
         foreach (var slider in Sliders(catalogue, people, "body"))
         {
             int value = slider.Default;
-            if (build == "slim" && slider.Humgen == "skinny") value = 650;
+            if (build is "slim" or "lean" && slider.Humgen == "skinny") value = 650;
+            if (build == "very_lean" && slider.Humgen == "skinny") value = 900;
             if (build == "heavy" && slider.Humgen == "overweight") value = 650;
+            if (build == "very_heavy" && slider.Humgen == "overweight") value = 950;
             if (build is "athletic" or "strong" && slider.Humgen == "muscular") value = 650;
             values = values.SetItem(slider.Id, Math.Clamp(value, slider.Min, slider.Max));
         }
@@ -129,4 +133,22 @@ public sealed class HumGenCreatorData
 
     public IReadOnlyList<JsonElement> BodyPresets(string sex) => _data.GetProperty("runtime").GetProperty("body_presets").EnumerateArray()
         .Where(p => p.GetProperty("sex").GetString() == sex).ToArray();
+
+    public static string Part(CreatorChoice choice, string sex, string option) => "humgen_creator_" + sex + "_" + (choice switch
+    {
+        CreatorChoice.Hair => "hair", CreatorChoice.FacialHair => "beard", CreatorChoice.Outfit => "outfit", CreatorChoice.Footwear => "footwear",
+        _ => throw new ArgumentException("Not a modular native part", nameof(choice)),
+    }) + "_" + System.Text.RegularExpressions.Regex.Replace(option.ToLowerInvariant(), "[^a-z0-9]+", "_").Trim('_');
+
+    public string? PresetPart(string face, CreatorChoice choice, CreatorCatalogue catalogue, string sex)
+    {
+        var preset = Preset(face);
+        JsonElement setting;
+        if (choice is CreatorChoice.Hair or CreatorChoice.FacialHair)
+            setting = preset.GetProperty("hair").GetProperty(choice == CreatorChoice.Hair ? "regular_hair" : "face_hair");
+        else setting = preset.GetProperty("clothing").GetProperty(choice == CreatorChoice.Outfit ? "outfit" : "footwear");
+        if (!setting.TryGetProperty("set", out var selected) || selected.ValueKind == JsonValueKind.Null) return null;
+        string path = selected.GetString()!.Replace('\\', '/');
+        return catalogue.Options(choice, sex).FirstOrDefault(o => o.Paths[sex].Replace('\\', '/').Equals(path, StringComparison.OrdinalIgnoreCase))?.Id;
+    }
 }

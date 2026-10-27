@@ -162,7 +162,7 @@ public partial class CreatorScreen
             _body.AddChild(section);
         }
         _body.AddChild(SwatchSection("Hair colour", LookSwatches.HairSlider, LookSwatches.Hair(Draft.PeopleId), new Color(.08f, .035f, .012f), multiply: false));
-        if (_catalogue.Options(CreatorChoice.FacialHair, Sex).Count > 0)
+        if (Draft.PeopleId != PeopleLooks.Siann && _catalogue.Options(CreatorChoice.FacialHair, Sex).Count > 0)
             _body.AddChild(OptionSection(CreatorChoice.FacialHair, "Facial hair", "", none: "Clean-shaven"));
         _body.AddChild(SliderSection("hair", "Colour", ""));
     }

@@ -29,8 +29,14 @@ for name, mesh in meshes_by_node.items():
     if len(base) != len(gltf["meshes"][mesh]["primitives"]):
         raise ValueError(f"{name}: LOD surface count differs from LOD0; cannot map materials safely")
     for index, primitive in enumerate(gltf["meshes"][mesh]["primitives"]):
-        # Every lower level uses the same part's baked UVs. Texture-name heuristics
-        # missed ordinary HG_TSHIRT_Material images and alternate eye/hair materials.
+        # Native eyes/hair have their own atlas and UVs at each level. Keep
+        # those baked maps; only the procedural garment fallback needs LOD0.
+        material = gltf["materials"][primitive["material"]] if "material" in primitive else {}
+        texture = material.get("pbrMetallicRoughness", {}).get("baseColorTexture")
+        if texture is not None:
+            image = gltf["images"][gltf["textures"][texture["index"]]["source"]]
+            if image.get("name", "").endswith("_LOD" + match.group(2)):
+                continue
         if "material" in base[index] and primitive.get("material") != base[index]["material"]:
             primitive["material"] = base[index]["material"]
             fixed += 1

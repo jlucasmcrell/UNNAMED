@@ -10,6 +10,7 @@ import struct
 import subprocess
 import sys
 from pathlib import Path
+from keep_native_eye_radius import keep_radius
 
 ROOT = Path(__file__).resolve().parents[2]
 WORK = ROOT / 'work/creator'
@@ -23,6 +24,7 @@ for sex in ('female', 'male'):
     folder.mkdir(parents=True, exist_ok=True)
     body = folder / (identifier + '_rigged.glb')
     subprocess.run([sys.executable, str(ROOT / 'tools/animation/fix_humgen_lod_materials.py'), str(source / (identifier + '.glb')), str(body)], check=True)
+    if (source / 'eye_fit_source.json').is_file(): keep_radius(body, source / 'eye_fit_source.json')
     with body.open('rb') as stream:
         stream.seek(12)
         length, _ = struct.unpack('<II', stream.read(8))

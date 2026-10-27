@@ -13,6 +13,8 @@ public class HumGenCreatorDataTests
         string json = File.ReadAllText(Path.Combine(directory!.FullName, "src", "Presentation", "Art", "humgen_creator.json"));
         var catalogue = CreatorCatalogue.Read(json);
         var native = new HumGenCreatorData(json);
+        foreach (string key in new[] { "Eye Depth", "Eye Distance", "Eye Height", "Eye Scale" })
+            Assert.StartsWith("f_", native.Key(key));
         Assert.Equal(83, catalogue.Options(CreatorChoice.Face, "f").Count + catalogue.Options(CreatorChoice.Face, "m").Count);
         foreach (string sex in new[] { "f", "m" })
         foreach (var face in catalogue.Options(CreatorChoice.Face, sex))

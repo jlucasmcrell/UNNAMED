@@ -4,6 +4,31 @@ namespace UNNAMED.Presentation.Art;
 
 public static partial class Outfit
 {
+    internal static void NameSkinBinds(IEnumerable<MeshInstance3D> meshes, Skeleton3D source)
+    {
+        var converted = new Dictionary<Skin, Skin>();
+        foreach (var mesh in meshes)
+        {
+            if (mesh.Skin is not { } original) continue;
+            if (!converted.TryGetValue(original, out var named))
+            {
+                named = new Skin();
+                for (int bind = 0; bind < original.GetBindCount(); bind++)
+                {
+                    var name = original.GetBindName(bind);
+                    if (name.IsEmpty)
+                    {
+                        int bone = original.GetBindBone(bind);
+                        if (bone < 0 || bone >= source.GetBoneCount()) throw new InvalidDataException("Native part has an invalid skin bind");
+                        name = source.GetBoneName(bone);
+                    }
+                    named.AddNamedBind(name, original.GetBindPose(bind));
+                }
+                converted.Add(original, named);
+            }
+            mesh.Skin = named;
+        }
+    }
     // Modular garments may author their own cloth joints. Append only positively
     // weighted cloth bones and their parents. Existing anatomy/rests/poses and
     // skin-bind indices are never replaced. Unworn cloth joints remain unused.
