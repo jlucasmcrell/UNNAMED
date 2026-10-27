@@ -40,6 +40,9 @@ public static class HintTriggers
     public const string SkillPracticed = "skill_practiced";
     public const string NodeGathered = "node_gathered";
     public const string StationOpened = "station_opened";
+    public const string DarkSpaceEntered = "dark_space_entered";
+    public const string RawMeatTaken = "raw_meat_taken";
+    public const string ForgeOpened = "forge_opened";
     public const string TradeOpened = "trade_opened";
     public const string StoneTouched = "stone_touched";
     public const string FormulaLearned = "formula_learned";
@@ -61,7 +64,8 @@ public static class HintTriggers
     public static readonly ImmutableSortedSet<string> All = ImmutableSortedSet.Create(StringComparer.Ordinal,
         NewGame, PromptShown, CreatureEngaged, HitTaken, HealthLow, PlayerDowned, PlayerDied, CreatureKilled, ItemPickedUp, OverLimit, PackFull,
         QuestStarted, LevelUp, SkillPracticed, NodeGathered, StationOpened, TradeOpened, StoneTouched, FormulaLearned, CompanionRecruited,
-        CompanionDowned, AwaySheet, HireOffered, PriceChanged, BarOpened, StashOpened, TrainerOpened, ItemWorn, ChatOpened, ReputationOpened, Stuck);
+        CompanionDowned, AwaySheet, HireOffered, PriceChanged, BarOpened, StashOpened, TrainerOpened, ItemWorn, ChatOpened, ReputationOpened, Stuck,
+        DarkSpaceEntered,RawMeatTaken,ForgeOpened);
 }
 
 public static partial class HintRules

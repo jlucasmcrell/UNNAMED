@@ -404,6 +404,15 @@ public partial class InventoryPanel : CanvasLayer
         }
         if (usable)
             row.Root.AddChild(Button(id, "Use", () => Submit(new UseItemCommand(simulation.PlayerId, entry.ItemId))));
+        if(entry.DefId=="item.tool.camp_kit")
+            row.Root.AddChild(Button(id,"Set camp",()=>Submit(new UseItemCommand(simulation.PlayerId,entry.ItemId))));
+        if(entry.DefId=="item.tool.water_flask_empty")
+        {
+            var refill=Button(id,"Refill",()=>Submit(new RefillFlaskCommand(simulation.PlayerId)));
+            refill.Disabled=!simulation.CanRefillFlask;
+            refill.TooltipText="Stand at a well or the stream's edge";
+            row.Root.AddChild(refill);
+        }
         if (simulation.Setup.Magic.Teaches.ContainsKey(entry.DefId))
             row.Root.AddChild(Button(id, "Read", () => Submit(new UseItemCommand(simulation.PlayerId, entry.ItemId))));
         // Remains take nothing in: the world takes a body away with whatever lies in it.
@@ -510,6 +519,28 @@ public partial class InventoryPanel : CanvasLayer
         var player = simulation.Player;
         var recipes = _controller.Recipes(station.Kind);
         _contextHead.AddChild(UiKit.Section(Names.Place(_session, station.Key)));
+        if(station.Key==CampView.StationKey)
+        {
+            var campActions=new HFlowContainer();
+            campActions.AddChild(Button("camp/rest",simulation.RestingAtCamp?"Stand up":"Rest by the fire",()=>
+                Submit(new RestAtCampCommand(simulation.PlayerId,!simulation.RestingAtCamp))));
+            campActions.AddChild(Button("camp/pack","Pack camp",()=> { Submit(new PackCampCommand(simulation.PlayerId)); Close(); }));
+            _contextHead.AddChild(campActions);
+            _contextHead.AddChild(UiKit.Words("Rest restores health faster outside a fight. Walking ends rest. The world keeps moving. After death, choose camp or your bound Waystone.",16,HudStyle.Ash));
+        }
+        if(station.Kind=="cookfire")
+        {
+            foreach(var entry in player.Inventory.Where(e=>Durability.NeedsRepair(e.Quality,e.Wear)))
+            {
+                var repair=simulation.Setup.Items.Catalog.Find(entry.DefId)?.Repair;
+                if(repair?.MaterialId is not ("item.material.iron_ingot" or "item.material.bog_iron_ingot" or "item.material.grey_iron_ingot")) continue;
+                var field=Button("field/"+entry.ItemId,"Field repair "+Names.Of(_session,entry.DefId)+" to standard",()=>
+                    Submit(new RepairCommand(simulation.PlayerId,entry.ItemId)));
+                field.Disabled=(entry.Wear?.Points??0)==0 && entry.Quality>=Quality.Standard;
+                field.TooltipText=field.Disabled?"A proper station can restore the original make":"Uses one repair material; needs the item's repair skill";
+                _contextHead.AddChild(field);
+            }
+        }
         var skills = new HFlowContainer();
         skills.AddThemeConstantOverride("h_separation", 8);
         foreach (string skill in recipes.Select(r => r.SkillId).Distinct())

@@ -1,0 +1,13 @@
+id: item.tool.camp_fire
+kind: item
+schema: 1
+display_key: item.tool.camp_fire.name
+tags: [item]
+name: Your Campfire
+notes: A placed piece of your camp. Pack the whole kit at the fire.
+category: tool
+stack_max: 1
+weight: 1.0
+value_base: 0
+rarity: common
+no_drop: true

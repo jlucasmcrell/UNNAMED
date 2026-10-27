@@ -259,6 +259,7 @@ public partial class Main : Node3D
             InstallMpfbComparison();
             InstallDsShots();
             InstallInnShots();
+            InstallCampReview();
             InstallInnRoom();
             InstallLoreShots();
             InstallPetOrders();
@@ -426,7 +427,7 @@ public partial class Main : Node3D
                         || _options.ContainsKey("--shot") || _options.ContainsKey("--stand") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
                         || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
                         || _options.ContainsKey("--showcase") || _options.ContainsKey("--inn-shots") || _options.ContainsKey("--lore-shots") || _options.ContainsKey("--pet-shots")
-                        || _options.ContainsKey("--pet-review"));
+                        || _options.ContainsKey("--pet-review") || _options.ContainsKey("--camp-review"));
         // No run of a harness takes the mouse - but the input check, which checks who has it.
         _scripted = c1Review || (scripted && !_flags.Contains("--input-check")) || _options.ContainsKey("--resume-shots");
         // A scripted run plays one world from its start - the acceptance playthrough a fixed one, so it is the same run every time (M6).
@@ -1713,6 +1714,7 @@ public partial class Main : Node3D
         _music.Update(feet, delta);
         Probe("music");
         _crafting.Refresh(simulation.Nodes);
+        _crafting.RefreshCamp(simulation);
         ulong npcsStarted = _frontierPerf is null ? 0 : Time.GetTicksUsec();
         _npcs.Draw(simulation, delta, _session.TickSeconds);
         Probe("crafting/NPCs");
@@ -1914,7 +1916,7 @@ public partial class Main : Node3D
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--stand" or "--purse" or "--start-items" or "--start-level" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--creator-people" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
-                    or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"
+                    or "--camp-review" or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"
                     or "--anim-person" or "--anim-compare" or "--anim-phase"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];

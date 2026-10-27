@@ -1,0 +1,13 @@
+id: item.consumable.herb_tea
+kind: item
+schema: 1
+display_key: item.consumable.herb_tea.name
+tags: [item]
+name: Woundmoss Tea
+notes: A mild restorative brewed at the fire. Comfort, not a thirst requirement.
+category: consumable
+stack_max: 5
+weight: 0.2
+value_base: 4
+rarity: common
+use: { effect_ref: effect.mending, consume: true }

@@ -81,7 +81,10 @@ public partial class Main
         _session.Subscribe<CreatureNoticed>(e =>
         {
             if (e.Mind == World.CreatureMind.Engaged)
+            {
+                if(!SettingsStore.Current.Profile.Interface.SeenHints.Contains("hint.mending")) Hint(HintTriggers.HealthLow);
                 Hint(HintTriggers.CreatureEngaged);
+            }
         });
         _session.Subscribe<HitResolved>(e =>
         {
@@ -98,7 +101,10 @@ public partial class Main
         _session.Subscribe<ItemMoved>(e =>
         {
             if (e.Actor == player() && e.To.Kind == PlaceKind.Inventory && e.From.Kind != PlaceKind.Inventory)
+            {
+                if(e.DefId=="item.material.raw_meat") Hint(HintTriggers.RawMeatTaken);
                 Hint(HintTriggers.ItemPickedUp);
+            }
         });
         _session.Subscribe<QuestStarted>(_ => Hint(HintTriggers.QuestStarted));
         _session.Subscribe<ExperienceGained>(e =>
@@ -124,6 +130,8 @@ public partial class Main
                 Hint(HintTriggers.ItemWorn);
         });
         _inventory.StashShown = () => Hint(HintTriggers.StashOpened);
+        _session.Subscribe<OpeningTorchGiven>(_=>OpeningHint("opening.torch","Renn gives you a torch. Equip it in your off hand: it lights the way, and others see you from farther off."));
+        _session.Subscribe<StationVisited>(e=> { if(e.Kind=="forge") Hint(HintTriggers.ForgeOpened); });
         _hud.Bars.Touched = () => Hint(HintTriggers.BarOpened);
         _session.Subscribe<CompanionRecruited>(_ => Hint(HintTriggers.CompanionRecruited));
         _session.Subscribe<CompanionDowned>(_ => Hint(HintTriggers.CompanionDowned));
@@ -141,6 +149,9 @@ public partial class Main
     {
         if (_hintLine is null)
             return;
+        if(!simulation.PlayerInExterior) Hint(HintTriggers.DarkSpaceEntered);
+        if(simulation.Player.Inventory.Any(i=>i.DefId=="item.material.raw_meat")) Hint(HintTriggers.RawMeatTaken);
+        if(_inventory.OpenStation?.Kind=="forge") Hint(HintTriggers.ForgeOpened);
         if (prompting)
             Hint(HintTriggers.PromptShown);
         if (!combat.Defeated && combat.Health > 0 && combat.Health <= combat.MaxHealth * LowHealthShare)

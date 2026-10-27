@@ -4,6 +4,7 @@
 using UNNAMED.Application;
 using UNNAMED.Domain.Crafting;
 using UNNAMED.Domain.Items;
+using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Presentation.Ui;
 
@@ -38,6 +39,8 @@ public static partial class Names
     /// ID (a placed piece's <c>pce_…</c>) for its definition, <paramref name="defId"/> - never the ID read as words.
     /// </summary>
     public static string Place(GameSession session, string key, string? defId = null) =>
+        key==CampView.StationKey ? "your campfire"
+        :
         session.Simulation?.Creatures.FirstOrDefault(c => c.CorpseKey == key) is { } dead ? $"{Of(session, dead.DefId)} remains"
         : session.DisplayName(key) is var named && named != key ? named
         : IsInstanceId(key) && defId is not null && defId != key ? Of(session, defId).ToLowerInvariant()

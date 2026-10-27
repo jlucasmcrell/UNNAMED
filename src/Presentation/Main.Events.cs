@@ -82,6 +82,9 @@ public partial class Main
                 _hud.Toast($"{Names.Of(_session, item.DefId)}: {why}", 4);
         });
         _session.Subscribe<BodyMoved>(_controller.OnBodyMoved);
+        _session.Subscribe<CampChanged>(e=> { _inventory.Refresh(); _hud.Toast(e.Placed?"Camp set. Use the fire to cook, rest or pack up.":"Camp packed.",4); });
+        _session.Subscribe<CampRestChanged>(e=> { _inventory.Refresh(); _hud.Toast(e.Resting?"Resting by the fire. Walking ends rest; the world keeps moving.":"You leave your rest.",4); });
+        _session.Subscribe<StationVisited>(_=>_inventory.Refresh());
         _session.Subscribe<PlayerRespawned>(_controller.OnRespawned);
         // Waystones (S-38): what a hand on a stone found, a return point chosen, and a journey's arrival with the time it took.
         _session.Subscribe<StoneTouched>(e =>
@@ -459,11 +462,11 @@ public partial class Main
             _autorun = false;
             string returnAt = _session.Simulation!.Waystones.FirstOrDefault(w => w.ReturnPoint)?.Site.Name ?? "Ashen Waystone";
             _hud.ShowDeath($"You died - killed by {killer}.\n\nThe last blows:\n{recap}\n\nXP debt +{e.DebtAdded} (nothing earned is lost). " +
-                           $"You return at the {returnAt}, weakened for a minute.");   // content bible §18; the return point chosen (S-38)
+                           (_session.Simulation.Camp is not null ? "Choose your camp or bound Waystone below. You return weakened for a minute." : $"You return at the {returnAt}, weakened for a minute."));
         });
         _session.Subscribe<CommandRejected>(e =>
         {
-            if (e.Command is AttackCommand or DodgeCommand or UseItemCommand or CastCommand or TechniqueCommand && !e.Reason.StartsWith("already", StringComparison.Ordinal)
+            if (e.Command is AttackCommand or DodgeCommand or UseItemCommand or CastCommand or TechniqueCommand or PlaceCampCommand or PackCampCommand or RestAtCampCommand or RefillFlaskCommand or CampReturnCommand or VisitStationCommand or RepairCommand && !e.Reason.StartsWith("already", StringComparison.Ordinal)
                 && e.Reason is not ("staggered" or "dodging" or "dead"))
                 _hud.Toast(e.Command is TechniqueCommand ? Regex.Replace(e.Reason, @"\b[a-z_]+(\.[a-z0-9_]+)+\b", m => Name(m.Value)) : e.Reason, 2);
         });

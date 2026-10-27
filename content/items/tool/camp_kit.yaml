@@ -1,0 +1,12 @@
+id: item.tool.camp_kit
+kind: item
+schema: 1
+display_key: item.tool.camp_kit.name
+tags: [item]
+name: Bedroll and Fire Kit
+notes: Set camp from your pack on clear, dry, level ground outside towns and roads. One camp; pack it at the fire before moving it. Kera sells these cheaply.
+category: tool
+stack_max: 1
+weight: 2.0
+value_base: 3
+rarity: common

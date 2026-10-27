@@ -7,4 +7,4 @@ notes: "Existing."
 category: survival
 trigger: health_low
 order: 0
-text: "Health comes back slowly once you are out of a fight. {key:use} uses a consumable you carry."
+text: "Health returns slowly outside a fight. {key:use} reaches for healing first. Rest by your campfire for faster recovery."

@@ -26,7 +26,10 @@ public sealed record LeaveCommand(EntityId Actor) : GameCommand(Actor);
 public sealed record ConversationStarted(string NpcId, string DialogueId, long Tick);
 
 /// <summary>A line is spoken: the conversation stands at this node now.</summary>
-public sealed record ConversationLine(string NpcId, string DialogueId, string NodeId, long Tick);
+public sealed record ConversationLine(string NpcId, string DialogueId, string NodeId, long Tick)
+{
+    public bool FirstVisit { get; init; }
+}
 
 public sealed record ReplyChosen(string NpcId, string DialogueId, string NodeId, string ReplyId, long Tick);
 
@@ -179,9 +182,10 @@ internal sealed class DialogueSystem : IDialogueFacts
 
     private void Enter(string npcId, DialogueDefinition dialogue, DialogueNode node, long tick)
     {
+        bool first=!Visited(dialogue.Id,node.Id);
         State.SetConversation(_owner, new Conversation(npcId, dialogue.Id, node.Id));
         State.MarkVisited(_owner, dialogue.Id, node.Id);
-        _context.Events.Publish(new ConversationLine(npcId, dialogue.Id, node.Id, tick));
+        _context.Events.Publish(new ConversationLine(npcId, dialogue.Id, node.Id, tick) { FirstVisit=first });
     }
 
     private void End(Conversation open, long tick)

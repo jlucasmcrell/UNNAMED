@@ -1,0 +1,9 @@
+id: hint.raw_meat
+kind: hint
+schema: 1
+display_key: hint.raw_meat.text
+tags: [hint]
+category: cooking
+trigger: raw_meat_taken
+order: 0
+text: "Raw meat cooks at a fire. Use the town cookfire, or buy a bedroll and fire kit from Kera and set camp outside town."

@@ -51,7 +51,8 @@ public partial class Main
         }
         if (_scripted || DisplayServer.GetName() == "headless")
             return;
-        var wanted = Modal || Input.IsActionPressed("free_cursor") ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Captured;
+        var wanted = Modal || _session?.Simulation is { Combat: { Defeated:true,Downed:false },Camp:not null }
+            || Input.IsActionPressed("free_cursor") ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Captured;
         if (Input.MouseMode != wanted)
             Input.MouseMode = wanted;
     }
@@ -279,6 +280,10 @@ public partial class Main
                     break;
                 case FocusKind.Station:
                     OpenStation(focus.Key);
+                    break;
+                case FocusKind.Water:
+                    _session.Submit(new RefillFlaskCommand(_session.Simulation!.PlayerId));
+                    _avatar.Interact();
                     break;
                 case FocusKind.Npc:
                     Approach(focus.Key);

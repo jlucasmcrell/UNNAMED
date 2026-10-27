@@ -25,6 +25,8 @@ namespace UNNAMED.World.Runtime;
 /// </summary>
 public enum StateSlice
 {
+    /// <summary>The current camp rest posture and death-screen choice. Transient, never saved.</summary>
+    CampSession,
     /// <summary><c>world_tick</c> (S-04, clock half).</summary>
     Clock,
 
@@ -209,6 +211,15 @@ internal sealed class RuntimeState
 
     public Crossing Crossing { get; private set; }
     public Body Body { get; private set; }
+    public Body? CampRestAt { get; private set; }
+    public bool ReturnToCamp { get; private set; }
+
+    public void SetCampSession(SliceOwner owner,Body? resting,bool returnToCamp)
+    {
+        Require(owner,StateSlice.CampSession);
+        CampRestAt=resting;
+        ReturnToCamp=returnToCamp;
+    }
     public Posture Posture { get; private set; }
     public CharacterProgression Progression { get; private set; }
     public ImmutableSortedDictionary<string, DiscoveryRecord> Discoveries { get; private set; }

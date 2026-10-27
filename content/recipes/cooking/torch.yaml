@@ -1,0 +1,15 @@
+id: recipe.cooking.torch
+kind: recipe
+schema: 1
+display_key: recipe.cooking.torch.name
+tags: [recipe]
+name: Field Torch
+station: cookfire
+skill_ref: skill.survival
+complexity: 0
+inputs:
+  - { item_ref: item.material.timber, count: 1 }
+  - { item_ref: item.material.bog_cotton, count: 1 }
+outputs:
+  - { item_ref: item.tool.torch, count: 1, quality_roll: false }
+xp_award: { xp: 5 }

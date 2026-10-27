@@ -1,0 +1,9 @@
+id: hint.dark_space
+kind: hint
+schema: 1
+display_key: hint.dark_space.text
+tags: [hint]
+category: light
+trigger: dark_space_entered
+order: 0
+text: "Too dark to see? A torch lights the way. Equip one in your off hand; Kera sells them and teaches how to make them."

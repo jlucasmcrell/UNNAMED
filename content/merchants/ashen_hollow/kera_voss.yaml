@@ -6,6 +6,8 @@ tags: [merchant]
 notes: Kera Voss's stock (PROTOTYPE.md §5 step 8, §7.4) - a stub merchant until WP14, opened by Kera in M4; now each line is her shelf's most, drawn from Ashen Hollow's market each restock. What she buys joins it. The road smith's stock - what a traveller wants on the way out to Blackvein or the Foldscar - she will make anything to carry out there - so arrows, a bow and salves for the road. The hide gear is Durn's.
 stock_mode: fixed
 stock:
+  - { item_ref: item.tool.camp_kit, count: 3, price_bias: 1.0 }
+  - { item_ref: item.tool.torch, count: 2, price_bias: 1.0 }
   - { item_ref: item.ammo.arrow_rough, count: 60, price_bias: 1.0 }
   - { item_ref: item.weapon.hunting_bow, count: 1, price_bias: 1.0 }   # she teaches the bow; this one is hers
   - { item_ref: item.consumable.salve_minor, count: 3, price_bias: 1.0 }

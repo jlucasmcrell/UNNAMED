@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Then teach me the forge."
         consequences:
-          - { command: teach, refs: [recipe.smithing.iron_billet, recipe.smithing.march_spear] }
+          - { command: teach, refs: [recipe.smithing.iron_billet, recipe.smithing.march_spear, recipe.smithing.torch, recipe.cooking.torch, recipe.cooking.boil_water, recipe.cooking.herb_tea, recipe.herbal.salve_minor_boiled] }
           - { command: record_relationship_event, npc_ref: npc.ashen_hollow.kera_voss, dimension: trust, delta: 5, event: asked_to_learn }
           - { command: start_quest, quest_ref: quest.ashen_hollow.iron_under_ash }
         next: lesson
@@ -42,7 +42,7 @@ nodes:
         text: "Teach me the forge."
         conditions: [{ kind: visited, node: lesson, not: true }]
         consequences:
-          - { command: teach, refs: [recipe.smithing.iron_billet, recipe.smithing.march_spear] }
+          - { command: teach, refs: [recipe.smithing.iron_billet, recipe.smithing.march_spear, recipe.smithing.torch, recipe.cooking.torch, recipe.cooking.boil_water, recipe.cooking.herb_tea, recipe.herbal.salve_minor_boiled] }
           - { command: record_relationship_event, npc_ref: npc.ashen_hollow.kera_voss, dimension: trust, delta: 5, event: asked_to_learn }
           - { command: start_quest, quest_ref: quest.ashen_hollow.iron_under_ash }
         next: lesson

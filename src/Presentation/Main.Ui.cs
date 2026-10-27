@@ -825,7 +825,8 @@ public partial class Main
 
     private void OpenStation(string key)
     {
-        var station = _session.Setup.Layout.Stations.Single(s => s.Key == key);
+        var station = _session.Simulation!.Stations.Single(s => s.Key == key);
+        _session.Submit(new VisitStationCommand(_session.Simulation.PlayerId,key));
         if (station.Kind == NoticeBoardPanel.Kind)
             Show(_noticeBoard, key);
         else
