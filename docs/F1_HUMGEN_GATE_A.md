@@ -1,6 +1,6 @@
 # HumGen fidelity — Gate A
 
-Status: NOT READY. Three world-startup attempts failed at Vulkan fence_wait (VkResult -4), before either fidelity subject loaded. No valid Godot image or side-by-side proof exists. Gate A is not complete.
+Status: REVIEW CANDIDATE, not fidelity acceptance. The normal cache-reading Vulkan run completed both unchanged presets in studio and game noon. Personally inspected all four source PNGs. Skin is still brighter/glossier and the resting eyes read differently from the native thumbnails. Gate A remains open for owner review and correction; Gates B/C are not complete.
 
 Scope: female Caucasian 2, then male Caucasian 2. Native preset shape, age, height, skin, eye colour, brows, lashes and neutral expression. Both presets are bald. No people colour, Siann shape, gentle-rest pose, outfit or animation override.
 
@@ -23,10 +23,21 @@ One installed zero-byte `Upper Arm Length. trial.npz` placeholder caused the nat
 
 Verification: focused existing LOD check 1/1 passed; presentation build passed. Native source controls/material inventory unchanged by the export. No capture campaign, broad test suite, new memory-saving measure or push.
 
-Gate B remains the full 83-preset face/body creator using retained keys and native skin sets. Gate C applies people looks on top. Neither has been declared complete.
+Build-2 scope supersedes the previous order: Gate B is the COMPLETE creator, including all 83 faces/body presets, per-people controls and people looks. Gate C rebuilds EVERY NPC with unique seeded faces while preserving named identities. Neither is complete. See F1_BUILD2_SCOPE.md.
 
-The shared-transmittance hypothesis did not resolve the startup failure. The final source restores the legacy skin shader byte-for-byte and isolates native skin in `humgen_skin.gdshader`; this final isolation is build-checked but not GPU-proven. The failure cause remains unconfirmed. All owned renderers were stopped and leases released. No further GPU attempt under the minimum-testing rule.
 
-The existing compressed cache was built offline for both native presets and their sidecars. This is asset preparation, not a visual proof. Native source controls, iris/cornea geometry, brows/lashes and native map payloads are delivered privately.
+## Build-2 proof and remaining gaps
 
-Totals, reported once: private asset roots 27,523,167,070 bytes (27.523 GB / 25.633 GiB); native asset delta 579,741,224 bytes; unique compressed native texture payload 260,047,488 bytes. These are unpacked assets, not a final release archive. Whole-game VRAM is unavailable because startup never reached a valid proof. No 30 GB archive or 12 GB VRAM pass is claimed. No new savings or downscaling were introduced.
+The final shader isolation did not prevent startup resets. Both Vulkan and D3D12 failed before fidelity subjects loaded while the launcher passed `--texture-cache` (cache BUILD mode). Removing that flag, with the offline cache already prepared, completed the same Vulkan full-quality source. Normal play should READ the prepared cache; build it offline. The exact low-level graphics-reset mechanism has not been proven. No driver or quality-setting change was required for the successful proof. The tested launcher is retained as tools/animation/run_humgen_fidelity_review.ps1.
+
+Proof: female_studio.png, female_noon.png, male_studio.png, male_noon.png in the Build-2 output. Studio originals1080x1080; noon originals1920x1080. Both source thumbnails256x256, enlarged only for the comparison sheet. The sheet center-crops the noon screenshot for layout; original full frames are linked. No generated or retouched pixels. One successful combined proof, no further render campaign.
+
+Actual boot: 541 assets drawn, 0 unavailable; 3407 cached textures, 0 added, 0 failed;3819.2MB compressed according to the engine. LOD0 selected for both subjects. Runtime readbacks show body colour/normal/native specular maps4096 and inner-eye colour/normal2048; original eye-scatter map remains at its native resolution. Original brows/lashes and native2K oral maps remain. These bald presets do not establish head-hair parity. Closed mouths do not establish speech-teeth parity.
+
+Still open: brightness/specular response is too strong relative to the native reference; brow tone and resting eye appearance differ; the reference light rig/exposure and thumbnail pose are not recorded in the preset JSON, so this is not a photometric match. The full native feature inputs and geometry are present, but visual parity is not yet accepted. Do not shape Siann over a declared-passing baseline until reviewed.
+
+Checks remain minimal: existing focused LOD check1/1PASS, final presentation build0errors/34warnings. No C# changes were made during this proof/launcher correction. Successful capture/controller exit0; official lease released and owned renderers exited. Two existing Godot geometry/light-unpair warnings remain during viewport reparenting/teardown; no shader compilation or asset-load failure in the successful run.
+
+Totals, reported without optimisation: retained private asset roots27,523,167,070bytes (27.523GB); native delta payload579,741,224bytes; unique compressed native texture payload260,047,488bytes. Final release archive unmeasured. Engine video-memory snapshots13,665,590,624 and13,870,313,888bytes; larger snapshot13.870GB/12.918GiB. These are engine estimates at two moments, not an independently measured peak or per-character cost. They exceed the12GB target; no budget acceptance claimed. No detail trimming, downscaling or new savings added.
+
+Canon: unchanged Caucasian2 fixtures establish no new NPC/world identity or race fact. Production character selections in B/C must update otherreach-canon and credits and be committed as required by the standing rule. Asset source/catalogue references and the new gate split are recorded in F1_BUILD2_SCOPE.md.
