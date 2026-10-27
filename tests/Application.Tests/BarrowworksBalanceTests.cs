@@ -68,7 +68,8 @@ public class BarrowworksBalanceTests
     {
         for (int i = 0; i < maxTicks; i++)
         {
-            var creature = arena.Simulation.Creatures.Single(c => c.Key == target.Key);
+            var creature = arena.Simulation.Creatures.FirstOrDefault(c => c.Key == target.Key);
+            Assert.True(creature is not null, $"Fight target {target.Key} disappeared: space={arena.Simulation.ActiveLayout.SpaceId}, body={arena.Simulation.Player.Body}, combat={arena.Simulation.Combat}");
             var combat = arena.Simulation.Combat;
             if (!creature.Alive) return (true, i);
             if (arena.Simulation.Player.Progression.Pools.Health is 0 || combat.Health <= 0) return (false, i);

@@ -242,7 +242,7 @@ public class AdventurerWorldTests
         Assert.True(arena.Simulation.World.Adventurers!.Vacancies.ContainsKey("ashen_hollow.slot_1"));
         arena.Simulation.Advance(8 * Day);
         Assert.Contains(arena.Simulation.Adventurers, a => a.Key == "npc.adventurer.ashen_hollow.slot_1_g1");
-        Assert.Equal(7, arena.Simulation.Adventurers.Length);
+        Assert.Equal(5, arena.Simulation.Adventurers.Length); // C2: one Hollow and four Cairnwold slots.
     }
 
     [Fact]

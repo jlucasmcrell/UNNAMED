@@ -402,7 +402,7 @@ public class NpcLifeLinksTests
         {
             Chat = session.Setup.Chat with { Corpus = corpus, Rules = session.Setup.Chat.Rules with { LocalChancePercent = 100, WorldChancePercent = 100, HistoryMessages = 100_000 } },
         };
-        var arena = Open(session, setup);
+        var arena = Open(session, setup, at: (444, 727)); // Hear the C2 residents around the inn, not the distant road spawn.
         arena.Tick((int)(3 * Hour));
         var residents = arena.Simulation.Npcs.Where(n => n.Resident).Select(n => n.InstanceId).ToHashSet();
         var said = arena.Simulation.Chat.Where(m => m.LineKey.StartsWith("chat.", StringComparison.Ordinal)).ToList();

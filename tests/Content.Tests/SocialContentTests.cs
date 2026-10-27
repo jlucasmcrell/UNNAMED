@@ -79,9 +79,10 @@ public class SocialContentTests
         Assert.False(npcs["npc.ashen_hollow.renn_vale"].Offers(NpcServices.Trade));
         Assert.All(npcs.Values, n => Assert.Contains(n.Id, dialogues[n.DialogueId!].Participants));
 
-        // Kera teaches the two recipes (the starting package no longer does); Sel hands over her field notes (Berrin keeps the primer).
+        // Kera teaches metalwork and C3 field basics; Sel hands over her field notes (Berrin keeps the primer).
         var teach = dialogues["dialogue.ashen_hollow.kera_voss"].Nodes["greet"].Choices.Single(c => c.Id == "teach");
-        Assert.Equal(new[] { "recipe.smithing.iron_billet", "recipe.smithing.march_spear" },
+        Assert.Equal(new[] { "recipe.smithing.iron_billet", "recipe.smithing.march_spear", "recipe.smithing.torch",
+            "recipe.cooking.torch", "recipe.cooking.boil_water", "recipe.cooking.herb_tea", "recipe.herbal.salve_minor_boiled" },
             teach.Consequences.OfType<TeachConsequence>().Single().DefinitionIds);
         var take = dialogues["dialogue.ashen_hollow.sel_arien"].Nodes["notes"].Choices.Single();
         Assert.Equal(new TransferItemConsequence("item.tome.field_notes", 1, true), take.Consequences.OfType<TransferItemConsequence>().Single());

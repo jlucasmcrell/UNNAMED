@@ -139,10 +139,10 @@ public class MagicTests
         var session = Harness.Boot(profile);
         int Damage(CharacterAttribute? raised)
         {
-            var arena = Caster(session, r => raised is not { } attribute ? r : r.WithProgression(r.Progression with
+            var arena = Caster(session, r => r.WithProgression(r.Progression with
             {
                 Level = 6,
-                Allocation = r.Progression.Allocation.SetItem(attribute, 5),
+                Allocation = raised is { } attribute ? r.Progression.Allocation.SetItem(attribute, 5) : r.Progression.Allocation,
             }), creatures: (Arena.Wolf, 120, 75, "sentinel"));
             var hits = arena.Record<HitResolved>();
             Cast(arena, Bolt);
