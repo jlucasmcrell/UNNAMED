@@ -35,7 +35,7 @@ public class ActOneStoryTests
         {
             if (Sim.Conversation is not null) SayCommand(new LeaveCommand(Arena.Player));
             var r = Sim.CaptureRecord();
-            var moved = new PlayerRecord(r.Id, r.Name, x, Sim.Setup.Layout.Space.Terrain.HeightAtMm(x, z), z,
+            var moved = new PlayerRecord(r.Id, r.Name, x, Sim.Setup.Layout.Space.HeightAtMm(x, z), z,
                 r.AppearanceSeed, r.Inventory, r.Progression, r.FacingMdeg, r.Discoveries, r.Equipment, r.Currency,
                 r.Effects, r.Relationships, r.Conversations, r.Quests, r.Companions)
             {
@@ -57,8 +57,10 @@ public class ActOneStoryTests
         public void Talk(string npc)
         {
             var body = Sim.Npcs.Single(n => n.Id == npc).Body;
-            At(body.XMm + 700, body.ZMm);
-            SayCommand(new TalkCommand(Arena.Player, npc));
+            if (npc == Renn) At(body.XMm, body.ZMm + 1_200); // The C2 aisle, clear of the supper table.
+            else At(body.XMm + 700, body.ZMm);
+            var refused = Arena.Submit(new TalkCommand(Arena.Player, npc));
+            Assert.True(refused is null, $"{refused}: player={Sim.Player.Body}; speaker={Sim.Npcs.Single(n => n.Id == npc).Body}");
             if (Sim.Conversation!.NodeId == "greet")
             {
                 SayCommand(new LeaveCommand(Arena.Player));

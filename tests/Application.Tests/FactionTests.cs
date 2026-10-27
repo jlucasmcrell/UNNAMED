@@ -84,11 +84,13 @@ public class FactionTests
         arena.Simulation.Advance(Day);
         Assert.Equal(before, Ledger(arena.Simulation));
 
-        Walk(arena, ToTavar);
+        Walk(arena, BackToSel);
+        var tavar = arena.Simulation.Npcs.Single(n => n.Id == Tavar).Body;
+        Walk(arena, (tavar.XMm / 1000.0 - arena.Origin.X, tavar.ZMm / 1000.0 - arena.Origin.Z + 1.2));
         Assert.Null(arena.Submit(new TalkCommand(arena.Player, Tavar)));
         Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "found")));
         Assert.Null(arena.Submit(new LeaveCommand(arena.Player)));
-        Walk(arena, BackToSel);
+        Walk(arena, AtSel);
         Assert.Null(arena.Submit(new TalkCommand(arena.Player, Sel)));
         Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "tavar_back")));
         Assert.Null(arena.Submit(new LeaveCommand(arena.Player)));
