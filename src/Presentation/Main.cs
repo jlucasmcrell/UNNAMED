@@ -1148,6 +1148,11 @@ public partial class Main : Node3D
         _crafting.Build(_session.Setup.Layout);
         _loading?.Stage("Bringing in the people", 0.78);
         _npcs = new NpcsView { Name = "Npcs", Ground = VisualOptions.BodyModifiers ? _ground.Height : null };
+        if (OS.GetEnvironment("OTHERREACH_NPC_LIFE_REVIEW") is { Length: > 0 }
+            && _options.GetValueOrDefault("--content-root") is { } reviewContent
+            && File.Exists(Path.Combine(reviewContent, "NPC_LIFE_REVIEW_FIXTURE.txt")))
+            _npcs.ReviewPeople = new HashSet<string>(StringComparer.Ordinal)
+                { "npc.ashen_hollow.renn_vale", "npc.ashen_hollow.kera_voss", "npc.cairnwold.berrin_garth" };
         _npcs.Bind(_art, _bindings);
         if (_session.Setup.Interior is not null && VisualOptions.BodyModifiers)
             _npcs.Ground = (x, z) => _session.Simulation!.ActiveLayout.Space.Terrain.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f;
@@ -1926,8 +1931,6 @@ public partial class Main : Node3D
             && _options.GetValueOrDefault("--content-root") is { } content && File.Exists(Path.Combine(content, "NPC_LIFE_REVIEW_FIXTURE.txt")))
         {
             _scripted = _rcd3Driving = true;
-            _npcs.ReviewPeople = new HashSet<string>(StringComparer.Ordinal)
-                { "npc.ashen_hollow.renn_vale", "npc.ashen_hollow.kera_voss", "npc.cairnwold.berrin_garth" };
             _creator.Use(_creator.Draft with { Name = "Rook", Start = UNNAMED.Domain.Character.StartPoint.Waystone });
             if (!_creator.PressBegin()) throw new InvalidDataException("NPC life creator Begin refused");
             RunNpcLifeReview(review);
