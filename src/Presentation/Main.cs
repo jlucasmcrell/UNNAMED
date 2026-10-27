@@ -343,6 +343,14 @@ public partial class Main : Node3D
             var catalog = AssetCatalog.Load(_options.GetValueOrDefault("--asset-root"), Home());
             if (_options.GetValueOrDefault("--asset-fallback") is { } sheetFallback && Directory.Exists(sheetFallback))
                 Art.ArtLibrary.FallbackRoot = sheetFallback;
+            if (OS.GetEnvironment("OTHERREACH_CREATURE_LINEUP") == "1")
+            {
+                AddChild(new Art.CreatureLineup(new Art.ArtLibrary(catalog.Root),
+                    Art.ArtBindings.LoadWithOverlay(Art.ArtBindings.ResourcePath, _options.GetValueOrDefault("--bindings-overlay")),
+                    Path.GetFullPath(_options["--content-root"]), Path.GetFullPath(sheet)));
+                SetProcess(false);
+                return;
+            }
             AddChild(new Art.AnimationSheet(new Art.ArtLibrary(catalog.Root),
                 Art.ArtBindings.LoadWithOverlay(Art.ArtBindings.ResourcePath, _options.GetValueOrDefault("--bindings-overlay")), Path.GetFullPath(sheet),
                 _flags.Contains("--anim-profiles"), _options.GetValueOrDefault("--anim-states"), _options.GetValueOrDefault("--anim-person") ?? "player", (_flags.Contains("--anim-faces") || _flags.Contains("--anim-faces-only")), _options.GetValueOrDefault("--anim-compare"), _flags.Contains("--anim-faces-only"), _options.GetValueOrDefault("--anim-phase")));
