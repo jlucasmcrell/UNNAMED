@@ -68,9 +68,10 @@ public class BarrowworksBalanceTests
     {
         for (int i = 0; i < maxTicks; i++)
         {
+            var combat = arena.Simulation.Combat;
+            if (combat.Defeated || combat.Health <= 0 || arena.Simulation.Player.Progression.Pools.Health is 0) return (false, i);
             var creature = arena.Simulation.Creatures.FirstOrDefault(c => c.Key == target.Key);
             Assert.True(creature is not null, $"Fight target {target.Key} disappeared: space={arena.Simulation.ActiveLayout.SpaceId}, body={arena.Simulation.Player.Body}, combat={arena.Simulation.Combat}");
-            var combat = arena.Simulation.Combat;
             if (!creature.Alive) return (true, i);
             if (arena.Simulation.Player.Progression.Pools.Health is 0 || combat.Health <= 0) return (false, i);
             var body = arena.Simulation.Player.Body;
@@ -89,7 +90,7 @@ public class BarrowworksBalanceTests
             else if (distance < 1900 && combat.Phase == CombatPhase.Idle && stamina > 15)
                 arena.Simulation.Enqueue(new AttackCommand(arena.Player));
             arena.Tick();
-            if (arena.Simulation.Combat.Health <= 0 || arena.Simulation.Player.Progression.Pools.Health is 0) return (false, i);
+            if (arena.Simulation.Combat.Defeated || arena.Simulation.Combat.Health <= 0 || arena.Simulation.Player.Progression.Pools.Health is 0) return (false, i);
         }
         return (false, maxTicks);
     }

@@ -96,7 +96,7 @@ public class NpcLifeLinksTests
         Assert.Contains("is needed in town", simulation.HireTerms(Kera, HirelingRole.Guard, 3).Refusal);
 
         var residents = simulation.Lives.Where(l => l.Resident).ToList();
-        Assert.Equal(12, residents.Count);
+        Assert.Equal(9, residents.Count); // C2 removes the Hollow fletcher, hunter and miner slots.
         // Every resident's roles hire out; each is hireable unless a trip has them waiting to leave or gone.
         Assert.All(residents, r => Assert.NotEmpty(simulation.Hiring.Hireability(r.Key)!.HiresAs));
         Assert.All(residents.Where(r => r.Activity is not (NpcActivities.SetOut or NpcActivities.Away)), r => Assert.True(simulation.IsHireable(r.Key), r.Key));

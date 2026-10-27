@@ -162,6 +162,14 @@ public class ReachabilityTests
         while (grew)
         {
             grew = false;
+            // Real item-use transitions, also exercised by CampTests: kit placement and drinking/boiling.
+            if (reachable.Contains("item.tool.camp_kit"))
+            {
+                grew |= reachable.Add("item.tool.camp_fire");
+                grew |= reachable.Add("item.tool.camp_bedroll");
+            }
+            if (reachable.Contains("item.tool.water_flask"))
+                grew |= reachable.Add("item.tool.water_flask_empty");
             foreach (var recipe in setup.Crafting.Recipes.Values.Where(r => r.Inputs.All(i => reachable.Contains(i.ItemId))))
                 grew |= reachable.Add(recipe.OutputItemId);
         }
