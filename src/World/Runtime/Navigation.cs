@@ -34,6 +34,7 @@ public static class NavigationLayout
         return layout.Space.Blockers.Where(Stops).Select(b => new NavInput(NavInputKind.Solid, b, null))
             .Concat(layout.Doors.Where(d => Stops(d.ClosedFootprint)).Select(d => new NavInput(NavInputKind.Door, d.ClosedFootprint, d.Key)))
             .Concat(layout.Barriers.Where(b => Stops(b.Footprint)).Select(b => new NavInput(NavInputKind.Barrier, b.Footprint, b.Key)))
+            .Concat((layout.Tide?.Passages ?? ImmutableArray<TidalPassage>.Empty).Select(p => new NavInput(NavInputKind.Tide, p.Footprint, p.Key)))
             .ToImmutableArray();
     }
 
@@ -113,6 +114,7 @@ internal sealed class WorldNavigation
     /// <summary>A gate's state now: a door's flag, a barrier's lift.</summary>
     public bool IsGateOpen(NavInput gate) => gate.Kind switch
     {
+        NavInputKind.Tide => _context.Setup.Layout.Tide is { } tide && tide.Passages.FirstOrDefault(p => p.Key == gate.GateKey) is { } passage && tide.Open(passage, _context.State.WorldTick),
         NavInputKind.Door => _doors.TryGetValue(gate.GateKey!, out var door) && _context.IsOpen(door),
         NavInputKind.Barrier => _barriers.TryGetValue(gate.GateKey!, out var barrier) && _context.IsLifted(barrier),
         _ => false,

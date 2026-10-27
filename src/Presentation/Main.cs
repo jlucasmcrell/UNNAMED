@@ -728,6 +728,13 @@ public partial class Main : Node3D
         }
         else if (_options.TryGetValue("--shot", out string? shotSpec))
         {
+            if (_options.TryGetValue("--tide-tick", out string? value))
+            {
+                if (!long.TryParse(value, out long target) || target < _session.Simulation!.WorldTick || _session.Setup.Layout.Tide is null)
+                    throw new ArgumentException("--tide-tick needs a tidal region and a future nonnegative world tick");
+                _session.Simulation.Advance(target - _session.Simulation.WorldTick);
+                GD.Print($"TIDE_REVIEW tick={_session.Simulation.WorldTick} level_mm={_session.Setup.Layout.Tide.LevelAt(_session.Simulation.WorldTick)}");
+            }
             // --shot "<x,z,yaw_deg[,pitch][,seconds]>" is WHERE TO STAND AND LOOK; the frames go to --shot-out.
             // (First cut passed the directory positionally, so the spec was taken as the output path and the
             // capture wrote its report into a folder named after the coordinates. Two different things: a place
@@ -1661,6 +1668,7 @@ public partial class Main : Node3D
         _drawnAlpha = alpha;
 
         var simulation = _session.Simulation!;
+        _hollow.SetTideTick(simulation.WorldTick);
         _interior?.DrawWorld(simulation.ActiveSpaceTick, _session.TickSeconds);
         var combat = simulation.Combat;
         _avatar.SetStance(Stance(combat, alpha));
@@ -1908,7 +1916,7 @@ public partial class Main : Node3D
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--stand" or "--purse" or "--start-items" or "--start-level" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
-                    or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
+                    or "--tide-tick" or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--creator-people" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
                     or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"
                     or "--anim-person" or "--anim-compare" or "--anim-phase"

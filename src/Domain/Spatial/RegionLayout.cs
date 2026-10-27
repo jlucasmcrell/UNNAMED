@@ -149,6 +149,9 @@ public sealed record RegionLayout(
     Body Spawn,
     RegionGeneration Generation)
 {
+    /// <summary>Optional world-clock tide and flood-gated passages.</summary>
+    public TidalWater? Tide { get; init; }
+
     /// <summary>The region's authored containers.</summary>
     public ImmutableArray<ContainerSite> Containers { get; init; } = ImmutableArray<ContainerSite>.Empty;
 

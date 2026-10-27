@@ -610,6 +610,7 @@ public static class WorldContent
             var layout = new RegionLayout(regionId, cells.Select(c => c.ToString()).ToImmutableArray(), space, doors.ToImmutable(),
                 locations.ToImmutable(), new Body(spawnX, terrain.HeightAtMm(spawnX, spawnZ), spawnZ, (int)facingMdeg), regionGeneration)
             {
+                Tide = map.ContainsKey("tidal_water") ? BuildTide(Map(map, "tidal_water")) : null,
                 Containers = containers.ToImmutable(),
                 Nodes = nodes.ToImmutable(),
                 Stations = stations.ToImmutable(),
@@ -656,6 +657,21 @@ public static class WorldContent
     {
         var (x, z) = Footprints.Center(blocker);
         return CellKey.OfInterior(space, x / 1000.0, z / 1000.0);
+    }
+
+    private static TidalWater BuildTide(Dictionary<object, object> map)
+    {
+        long low = Mm(map, "low_m"), high = Mm(map, "high_m"), period = Long(map, "period_ticks");
+        if (high <= low || period < 4 || period > 100000000 || period % 2 != 0)
+            throw new FormatException("tidal_water needs high > low and an even period_ticks in [4,100000000]");
+        var passages = List(map, "passages").Select(o =>
+        {
+            var p = o as Dictionary<object, object> ?? throw new FormatException("tidal passage must be a map");
+            return new TidalPassage(Text(p, "key"), Blocker(p), Mm(p, "dry_at_m"));
+        }).ToImmutableArray();
+        if (passages.Select(p => p.Key).Distinct(StringComparer.Ordinal).Count() != passages.Length)
+            throw new FormatException("tidal passage keys must be unique");
+        return new TidalWater(low, high, period, Long(map, "phase_ticks"), passages);
     }
 
     private static TerrainGrid BuildTerrain(Dictionary<object, object> terrain)

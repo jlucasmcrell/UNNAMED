@@ -63,6 +63,17 @@ public static class Dressing
                 var up = az.Cross(ax).Normalized();
                 holder.Basis = new Basis(ax, up, up.Cross(ax).Normalized()).Orthonormalized();
             }
+            if (entry.TryGetProperty("authored_transform", out var raw) && raw.GetBoolean())
+            {
+                model.Position = Vector3.Zero;
+                holder.Position = new Vector3(x, above, z);
+                if (entry.TryGetProperty("rotation_deg", out var rotation))
+                    holder.RotationDegrees = new Vector3(rotation[0].GetSingle(), rotation[1].GetSingle(), rotation[2].GetSingle());
+                if (entry.TryGetProperty("scale", out var scale))
+                    holder.Scale = new Vector3(scale[0].GetSingle(), scale[1].GetSingle(), scale[2].GetSingle());
+            }
+            if (entry.TryGetProperty("tidal_visible_above_m", out var crest))
+                holder.SetMeta("tidal_visible_above_m", crest.GetSingle());
             holder.AddChild(model);
             root.AddChild(holder);
             art.Coverage.Resolved("dressing", $"{id}@{x:0.#},{z:0.#}", id);

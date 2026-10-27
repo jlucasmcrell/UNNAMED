@@ -1,0 +1,19 @@
+id: location.sedge_pellow_cuts
+kind: location
+schema: 1
+display_key: location.sedge_pellow_cuts.name
+tags: [location]
+name: Pellow Cuts
+region_ref: region.sedge_levels
+anchor:
+  world: [4802, 0, 877]
+kind_of_place: landmark
+discovery:
+  methods: [visited]
+  radius_m: 20
+  xp: 0
+map:
+  reveals_radius_m: 100
+  marker: none
+fast_travel:
+  node: false

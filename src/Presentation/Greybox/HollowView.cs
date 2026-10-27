@@ -33,6 +33,22 @@ public partial class HollowView : Node3D
 
     public Godot.Environment? SpaceEnvironment => _environments?.FirstOrDefault().Environment;
 
+    private MeshInstance3D? _tidalWater;
+    private TidalWater? _tide;
+    private Node3D[]? _tidalProps;
+    public void SetTideTick(long tick)
+    {
+        if (_tidalWater is not null && _tide is not null)
+        {
+            float level = _tide.LevelAt(tick) / 1000f;
+            _tidalWater.Position = new Vector3(_tidalWater.Position.X, level, _tidalWater.Position.Z);
+            _tidalProps ??= GetNodeOrNull<Node3D>("Dressing")?.GetChildren().OfType<Node3D>()
+                .Where(n => n.HasMeta("tidal_visible_above_m")).ToArray() ?? Array.Empty<Node3D>();
+            foreach (var prop in _tidalProps)
+                prop.Visible = level >= prop.GetMeta("tidal_visible_above_m").AsSingle();
+        }
+    }
+
     public void SetSpaceActive(bool active)
     {
         Visible = active;
@@ -179,7 +195,12 @@ public partial class HollowView : Node3D
         bool exterior = layout.IsOutdoors;
         if (exterior)
         {
-            AddChild(BuildWater(layout.Space));
+            if (layout.Tide is { } tide)
+            {
+                _tidalWater = WaterView.BuildTidal(this, layout.Space);
+                _tide = tide;
+            }
+            else AddChild(BuildWater(layout.Space));
         // Phase B demo: the authored set dressing (Art/dressing.json) - scenery only, grounded on the domain's terrain.
         if (VisualOptions.Tier != "phase_a")
         {
@@ -187,9 +208,9 @@ public partial class HollowView : Node3D
                 _art.Root is { } artRoot ? Path.Combine(artRoot, "dressing.json") : null);
             GD.Print($"UNNAMED dressing: {placed} props placed, {skipped} skipped");
         }
-        var ravine = BuildRavine(layout.Space, terrain);
+        var ravine = layout.Tide is null ? BuildRavine(layout.Space, terrain) : new Node3D { Name = "OpenFenHorizon" };
         AddChild(ravine);
-        if (VisualOptions.Terrain == "terrain3d")
+        if (VisualOptions.Terrain == "terrain3d" && layout.Tide is null)
             DrawWithTerrain3D(terrain, ground, ravine, TerrainDetail(layout));
         // The air (B11): ash, pollen, rain and mist by rule, with the particle recipes.
         if (VisualOptions.Recipes && _ground is { } field)
@@ -469,6 +490,11 @@ public partial class HollowView : Node3D
         {
             Coverage.Fallback("structure", blocker.Id, $"no binding: {shape}");
             return null;
+        }
+        if (look.Hidden)
+        {
+            Coverage.Resolved("structure", blocker.Id, "domain-only footprint");
+            return look.CameraCollisionOff ? new Node3D { Name = blocker.Id } : Unseen(BuildStructure(blocker, terrain));
         }
         if (look.Surface is { } surface && look.Model is null)
         {

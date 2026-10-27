@@ -14,6 +14,21 @@ namespace UNNAMED.Presentation.Greybox;
 /// </summary>
 public static class WaterView
 {
+    public static MeshInstance3D BuildTidal(Node3D parent, UNNAMED.Domain.Spatial.WalkSpace space)
+    {
+        var material = (ShaderMaterial)FlowWater.Duplicate();
+        material.SetShaderParameter("flow_dir", new Vector2(0, -1));
+        material.SetShaderParameter("flow_speed", 0.22f);
+        material.SetShaderParameter("deep_colour", new Vector3(0.012f, 0.021f, 0.024f));
+        material.SetShaderParameter("shallow_colour", new Vector3(0.16f, 0.19f, 0.15f));
+        var water = new MeshInstance3D { Name = "TidalFlowWater", MaterialOverride = material,
+            Mesh = new PlaneMesh { Size = new Vector2((space.MaxXMm-space.MinXMm)/1000f, (space.MaxZMm-space.MinZMm)/1000f) },
+            Position = new Vector3((space.MinXMm+space.MaxXMm)/2000f, 0, (space.MinZMm+space.MaxZMm)/2000f),
+            CastShadow = GeometryInstance3D.ShadowCastingSetting.Off };
+        parent.AddChild(water);
+        return water;
+    }
+
     /// <summary>The rivers on the ravine floors; null (and why) when the run draws none.</summary>
     public static Node3D? BuildRavineRiver(Node3D parent, Rect2 region, Func<float, float, float> height, out string? why)
     {
