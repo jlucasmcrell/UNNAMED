@@ -735,7 +735,308 @@
       "note_vfx_fab": "vfx_fab: two Fab VDB fires (hearth_fire, FirePlace_2) side by side and a coal-bed glow replace hearth_fire_core + Flame02 hearth_fire; embers kept."
     }
   },
+  "roof_groups": ["longhouse", "forge", "ah_inn_upper"],
   "structures": {
+    "ah_inn_awning_collision_0": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_1": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_2": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_3": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_4": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_5": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_6": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_7": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_8": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_9": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_10": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_11": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_12": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_13": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_14": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_15": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_16": {"hidden": true, "walkable_base": true},
+    "ah_inn_awning_collision_17": {"hidden": true, "walkable_base": true},
+    "ah_inn_room_lantern_0": {
+      "model": "prop_ph_wooden_lantern_01",
+      "material": "wood",
+      "emitters": [
+        {
+          "recipe": "lantern_flame",
+          "at": [
+            0.0,
+            0.211,
+            0.0
+          ]
+        },
+        {
+          "recipe": "lantern_glow",
+          "at": [
+            0.0,
+            0.231,
+            0.0
+          ]
+        }
+      ],
+      "light": {
+        "at": [
+          0.0,
+          0.26,
+          0.0
+        ],
+        "colour": [
+          1.0,
+          0.66,
+          0.34
+        ],
+        "energy": 1.0,
+        "range": 5,
+        "shadows": false,
+        "fog_energy": 0.3,
+        "attenuation": 1.4
+      },
+      "note": "candle wick inside the Poly Haven lantern (source candle top 0.20 + base offset 0.011); needs its glass transparent",
+      "note_vfx_fab": "vfx_fab: lantern_flame (energy 1.8) + its glow on each wick.",
+      "walkable_base": true
+    },
+    "ah_inn_room_lantern_1": {
+      "model": "prop_ph_wooden_lantern_01",
+      "material": "wood",
+      "emitters": [
+        {
+          "recipe": "lantern_flame",
+          "at": [
+            0.0,
+            0.211,
+            0.0
+          ]
+        },
+        {
+          "recipe": "lantern_glow",
+          "at": [
+            0.0,
+            0.231,
+            0.0
+          ]
+        }
+      ],
+      "light": {
+        "at": [
+          0.0,
+          0.26,
+          0.0
+        ],
+        "colour": [
+          1.0,
+          0.66,
+          0.34
+        ],
+        "energy": 1.0,
+        "range": 5,
+        "shadows": false,
+        "fog_energy": 0.3,
+        "attenuation": 1.4
+      },
+      "note": "candle wick inside the Poly Haven lantern (source candle top 0.20 + base offset 0.011); needs its glass transparent",
+      "note_vfx_fab": "vfx_fab: lantern_flame (energy 1.8) + its glow on each wick.",
+      "walkable_base": true
+    },
+    "ah_inn_room_lantern_2": {
+      "model": "prop_ph_wooden_lantern_01",
+      "material": "wood",
+      "emitters": [
+        {
+          "recipe": "lantern_flame",
+          "at": [
+            0.0,
+            0.211,
+            0.0
+          ]
+        },
+        {
+          "recipe": "lantern_glow",
+          "at": [
+            0.0,
+            0.231,
+            0.0
+          ]
+        }
+      ],
+      "light": {
+        "at": [
+          0.0,
+          0.26,
+          0.0
+        ],
+        "colour": [
+          1.0,
+          0.66,
+          0.34
+        ],
+        "energy": 1.0,
+        "range": 5,
+        "shadows": false,
+        "fog_energy": 0.3,
+        "attenuation": 1.4
+      },
+      "note": "candle wick inside the Poly Haven lantern (source candle top 0.20 + base offset 0.011); needs its glass transparent",
+      "note_vfx_fab": "vfx_fab: lantern_flame (energy 1.8) + its glow on each wick.",
+      "walkable_base": true
+    },
+    "ah_inn_room_lantern_3": {
+      "model": "prop_ph_wooden_lantern_01",
+      "material": "wood",
+      "emitters": [
+        {
+          "recipe": "lantern_flame",
+          "at": [
+            0.0,
+            0.211,
+            0.0
+          ]
+        },
+        {
+          "recipe": "lantern_glow",
+          "at": [
+            0.0,
+            0.231,
+            0.0
+          ]
+        }
+      ],
+      "light": {
+        "at": [
+          0.0,
+          0.26,
+          0.0
+        ],
+        "colour": [
+          1.0,
+          0.66,
+          0.34
+        ],
+        "energy": 1.0,
+        "range": 5,
+        "shadows": false,
+        "fog_energy": 0.3,
+        "attenuation": 1.4
+      },
+      "note": "candle wick inside the Poly Haven lantern (source candle top 0.20 + base offset 0.011); needs its glass transparent",
+      "note_vfx_fab": "vfx_fab: lantern_flame (energy 1.8) + its glow on each wick.",
+      "walkable_base": true
+    },
+    "ah_inn_room_lantern_4": {
+      "model": "prop_ph_wooden_lantern_01",
+      "material": "wood",
+      "emitters": [
+        {
+          "recipe": "lantern_flame",
+          "at": [
+            0.0,
+            0.211,
+            0.0
+          ]
+        },
+        {
+          "recipe": "lantern_glow",
+          "at": [
+            0.0,
+            0.231,
+            0.0
+          ]
+        }
+      ],
+      "light": {
+        "at": [
+          0.0,
+          0.26,
+          0.0
+        ],
+        "colour": [
+          1.0,
+          0.66,
+          0.34
+        ],
+        "energy": 1.0,
+        "range": 5,
+        "shadows": false,
+        "fog_energy": 0.3,
+        "attenuation": 1.4
+      },
+      "note": "candle wick inside the Poly Haven lantern (source candle top 0.20 + base offset 0.011); needs its glass transparent",
+      "note_vfx_fab": "vfx_fab: lantern_flame (energy 1.8) + its glow on each wick.",
+      "walkable_base": true
+    },
+    "ah_inn_room_lantern_5": {
+      "model": "prop_ph_wooden_lantern_01",
+      "material": "wood",
+      "emitters": [
+        {
+          "recipe": "lantern_flame",
+          "at": [
+            0.0,
+            0.211,
+            0.0
+          ]
+        },
+        {
+          "recipe": "lantern_glow",
+          "at": [
+            0.0,
+            0.231,
+            0.0
+          ]
+        }
+      ],
+      "light": {
+        "at": [
+          0.0,
+          0.26,
+          0.0
+        ],
+        "colour": [
+          1.0,
+          0.66,
+          0.34
+        ],
+        "energy": 1.0,
+        "range": 5,
+        "shadows": false,
+        "fog_energy": 0.3,
+        "attenuation": 1.4
+      },
+      "note": "candle wick inside the Poly Haven lantern (source candle top 0.20 + base offset 0.011); needs its glass transparent",
+      "note_vfx_fab": "vfx_fab: lantern_flame (energy 1.8) + its glow on each wick.",
+      "walkable_base": true
+    },
+    "ah_inn_room_shelf_0": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_room_shelf_1": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_room_shelf_2": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_room_shelf_3": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_room_shelf_4": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
+    "ah_inn_room_shelf_5": {
+      "surface": "cw_timber_beam",
+      "material": "wood",
+      "walkable_base": true
+    },
     "threshold_bank_w": {"hidden": true},
     "threshold_bank_e": {"hidden": true},
     "threshold_bank_back": {"hidden": true},

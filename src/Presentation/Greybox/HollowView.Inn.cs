@@ -15,7 +15,7 @@ public partial class HollowView
             return;
         var timber = _art.WorldMaterial("cw_timber_beam") ?? Palette.Trunk;
         var stone = _art.WorldMaterial("cw_wet_stone_wall") ?? Palette.Rock;
-        var roof = _art.WorldMaterial("cw_thatch") ?? Palette.Roof;
+        var roof = _art.WorldMaterial("cw_timber_beam") ?? Palette.Roof;
         void Piece(string name, Vector3 centre, Vector3 size, Material material, float pitch = 0)
         {
             var mesh = new MeshInstance3D { Name = name, Position = centre,

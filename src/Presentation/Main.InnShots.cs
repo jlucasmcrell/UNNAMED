@@ -41,6 +41,7 @@ public partial class Main
     private void InstallInnShots()
     {
         if (_options.GetValueOrDefault(InnShotsOption) is not { Length: > 0 } directory) return;
+        DisplayServer.WindowSetTitle("Otherreach_C2_Inn_Proof");
         _innShotsDirectory = Path.GetFullPath(directory);
         Directory.CreateDirectory(_innShotsDirectory);
         _innNext = Time.GetTicksMsec() + 2500;
@@ -50,8 +51,22 @@ public partial class Main
         _innCaption.AddThemeFontSizeOverride("font_size",24);
         _innCaption.AddThemeConstantOverride("outline_size",8);
         layer.AddChild(_innCaption); AddChild(layer);
-        File.WriteAllText(Path.Combine(_innShotsDirectory,"ready.json"),"{\"gameplay_ready\":true}");
-        GD.Print("INN_SHOTS gameplay ready; waiting for recording.ready");
+        _ = InnFrameReady();
+    }
+
+    private async Task InnFrameReady()
+    {
+        // Cold HumGen loading can span several frames. Do not signal a recorder
+        // while the first resident draw is still importing bodies and exact-target clips.
+        do { await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame); }
+        while (_session.Simulation!.Npcs.Any(n => n.Space == _session.Simulation.ActiveLayout.SpaceId && _npcs.FigureOf(n.Id) is null));
+        await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+        File.WriteAllText(Path.Combine(_innShotsDirectory!, "ready.json"), JsonSerializer.Serialize(new {
+            gameplay_frame_rendered = true, game_pid = OS.GetProcessId(),
+            window_handle = DisplayServer.WindowGetNativeHandle(DisplayServer.HandleType.WindowHandle),
+            frames_drawn = Engine.GetFramesDrawn(), width = GetViewport().GetVisibleRect().Size.X,
+            height = GetViewport().GetVisibleRect().Size.Y }));
+        GD.Print("INN_SHOTS gameplay frame rendered; waiting for recording.ready");
     }
 
     private void TickInnShots()

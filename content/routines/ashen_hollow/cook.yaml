@@ -2,37 +2,17 @@ id: routine.ashen_hollow.cook
 kind: routine
 schema: 1
 display_key: routine.ashen_hollow.cook.name
-tags:
-- routine
-notes: 'C2: cook has a real work post, an evening meal in the common room, and an
-  upstairs inn bed.'
+tags: [routine]
+notes: "C2: cook has a real work post, an evening meal in the common room, and an upstairs inn bed."
 region_ref: region.starting_frontier
 people_ref: people.veth
 settlement: ashen_hollow
 role: cook
-roles:
-- cook
-work_hours:
-- 6
-- 18
+roles: [cook]
+work_hours: [6, 18]
 anchors:
-  home:
-    position_m:
-    - 437.3
-    - 719.05
-    facing_deg: 0
-  work:
-    position_m:
-    - 448.8
-    - 729.6
-    facing_deg: 270
-  supper:
-    position_m:
-    - 438
-    - 725.85
-    facing_deg: 0
+  home: {position_m: [437.3, 719.05], facing_deg: 0}
+  work: {position_m: [448.8, 729.6], facing_deg: 270}
+  supper: {position_m: [438, 725.85], facing_deg: 0}
 schedule:
-- hours:
-  - 18
-  - 22
-  at: supper
+  - {hours: [18, 22], at: supper}

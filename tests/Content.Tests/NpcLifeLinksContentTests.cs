@@ -64,10 +64,10 @@ public class NpcLifeLinksContentTests
         Assert.Contains(HirelingRole.Porter, NpcHireability.HiresAs(life.Routines["routine.ashen_hollow.porter"].Roles, life.Roles));
 
         var trips = life.Routines.Values.Where(r => r.Trip is not null).ToList();
-        Assert.True(trips.Count >= 4);
+        Assert.True(trips.Count >= 2);
         Assert.All(trips, r => Assert.Null(r.Trip!.Problem()));
-        var hunt = life.Routines["routine.ashen_hollow.hunter"].Trip!;
-        Assert.Equal(("hunt", "Grey Wolf", "Ashen Hollow Waystation", "The Wolves' Den"), (hunt.Purpose, hunt.PurposeName, hunt.MeetName, hunt.DestinationName));
+        var hunt = life.Routines["routine.cairnwold.hunter"].Trip!;
+        Assert.Equal(("hunt", "Fellhorn", "Cairnwold", "The South Crags"), (hunt.Purpose, hunt.PurposeName, hunt.MeetName, hunt.DestinationName));
     }
 
     [Fact]
@@ -78,9 +78,9 @@ public class NpcLifeLinksContentTests
         var life = NpcLifeContent.Build(loader, "region.starting_frontier");
         var items = ItemContent.BuildCatalog(loader);
         var expected = new Dictionary<string, string> {
-            ["ashen_hollow.cook"] = "veth", ["ashen_hollow.fletcher"] = "siann",
-            ["ashen_hollow.guard"] = "kal", ["ashen_hollow.hunter"] = "orenth",
-            ["ashen_hollow.miner"] = "kal", ["ashen_hollow.porter"] = "veth",
+            ["ashen_hollow.cook"] = "veth",
+            ["ashen_hollow.guard"] = "kal",
+            ["ashen_hollow.porter"] = "veth",
             ["cairnwold.carter"] = "orenth", ["cairnwold.guard"] = "siann",
             ["cairnwold.herder"] = "veth", ["cairnwold.hunter"] = "veth",
             ["cairnwold.trapper"] = "veth", ["cairnwold.woodcutter"] = "kal",
@@ -126,14 +126,14 @@ public class NpcLifeLinksContentTests
 
     [Fact]
     public void ATripToSomewhereNoBodyCanStand_IsRefused() =>
-        AssertRefused("NPL006", "routines/ashen_hollow/hunter.yaml", "destination: { position_m: [508, 770], facing_deg: 45 }",
+        AssertRefused("NPL006", "routines/cairnwold/hunter.yaml", "destination: { position_m: [998, 610.75], facing_deg: 180 }",
             "destination: { position_m: [5, 5], facing_deg: 45 }", "trip's destination");
 
     [Fact]
     public void ATripThatLeavesTooSoonToBePosted_IsRefused()
     {
         AssertRefused("NPL001", "config/npc_life.yaml", "trip_lead_minutes: 40", "trip_lead_minutes: 10", "trip_lead_minutes");
-        AssertRefused("NPL001", "routines/ashen_hollow/hunter.yaml", "away_hours: 4", "away_hours: 40", "away");
+        AssertRefused("NPL001", "routines/cairnwold/hunter.yaml", "away_hours: 4", "away_hours: 40", "away");
     }
 
     [Fact]

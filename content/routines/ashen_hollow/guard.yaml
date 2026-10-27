@@ -2,41 +2,18 @@ id: routine.ashen_hollow.guard
 kind: routine
 schema: 1
 display_key: routine.ashen_hollow.guard.name
-tags:
-- routine
-notes: 'C2: guard has a real work post, an evening meal in the common room, and an
-  upstairs inn bed.'
+tags: [routine]
+notes: "C2: guard has a real work post, an evening meal in the common room, and an upstairs inn bed."
 region_ref: region.starting_frontier
 people_ref: people.kal
 settlement: ashen_hollow
 role: guard
-roles:
-- guard
-work_hours:
-- 8
-- 20
+roles: [guard]
+work_hours: [8, 20]
 anchors:
-  home:
-    position_m:
-    - 438.9
-    - 719.05
-    facing_deg: 0
-  work:
-    position_m:
-    - 464
-    - 748
-    facing_deg: 90
-  supper:
-    position_m:
-    - 439
-    - 725.85
-    facing_deg: 0
+  home: {position_m: [438.9, 719.05], facing_deg: 0}
+  work: {position_m: [464, 748], facing_deg: 90}
+  supper: {position_m: [439, 725.85], facing_deg: 0}
 schedule:
-- hours:
-  - 6
-  - 8
-  at: supper
-- hours:
-  - 20
-  - 22
-  at: supper
+  - {hours: [6, 8], at: supper}
+  - {hours: [20, 22], at: supper}

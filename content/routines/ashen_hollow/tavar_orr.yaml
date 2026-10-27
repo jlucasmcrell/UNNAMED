@@ -2,42 +2,19 @@ id: routine.ashen_hollow.tavar_orr
 kind: routine
 schema: 1
 display_key: routine.ashen_hollow.tavar_orr.name
-tags:
-- routine
-notes: 'C2: tavar has a real work post, an evening meal in the common room, and an
-  upstairs inn bed.'
+tags: [routine]
+notes: "C2: tavar has a real work post, an evening meal in the common room, and an upstairs inn bed."
 region_ref: region.starting_frontier
 npc_ref: npc.ashen_hollow.tavar_orr
 settlement: ashen_hollow
 role: villager
-roles:
-- guide
-work_hours:
-- 7
-- 19
+roles: [guide]
+work_hours: [7, 19]
 anchors:
-  home:
-    position_m:
-    - 442.6
-    - 719.05
-    facing_deg: 0
-  work:
-    position_m:
-    - 478
-    - 731
-    facing_deg: 90
-  supper:
-    position_m:
-    - 445.58
-    - 725.27
-    facing_deg: 270
+  home: {position_m: [442.6, 719.05], facing_deg: 0}
+  work: {position_m: [478, 731], facing_deg: 90}
+  supper: {position_m: [445.58, 725.27], facing_deg: 270}
 release_barrier: barrier.foldscar_fold
 schedule:
-- hours:
-  - 6
-  - 7
-  at: supper
-- hours:
-  - 19
-  - 22
-  at: supper
+  - {hours: [6, 7], at: supper}
+  - {hours: [19, 22], at: supper}

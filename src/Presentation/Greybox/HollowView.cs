@@ -422,7 +422,9 @@ public partial class HollowView : Node3D
     /// camera's colliders, unseen: what the body collides with is the truth.
     /// </summary>
     private WalkSpace? _walkSpace;
-    private WalkSpace? SupportFor(Blocker blocker) => _bindings.Structure(blocker.Id)?.WalkableBase == true ? _walkSpace : null;
+    private WalkSpace? SupportFor(Blocker blocker) =>
+        _bindings.Structure(blocker.Id)?.WalkableBase == true
+        || _bindings.Buildings.Any(b => b.Value.WalkableBase && blocker.Id.StartsWith(b.Key, StringComparison.Ordinal)) ? _walkSpace : null;
 
     private IEnumerable<Node3D> ArtBuildings(RegionLayout layout, TerrainGrid terrain)
     {
@@ -477,7 +479,7 @@ public partial class HollowView : Node3D
         }
         // Collision for art something else draws (the Barrowworks threshold's spoil bank): the camera's collider only.
         if (look.Hidden)
-            return Unseen(BuildStructure(blocker, terrain));
+            return Unseen(BuildStructure(blocker, terrain, SupportFor(blocker)));
         if (look.Surface is { } surface && look.Model is null)
         {
             if (_art.WorldMaterial(surface) is not { } material)
@@ -677,7 +679,8 @@ public partial class HollowView : Node3D
             if (walls.Count == 0)
                 continue;
             long minX = walls.Min(w => w.MinXMm), maxX = walls.Max(w => w.MaxXMm), minZ = walls.Min(w => w.MinZMm), maxZ = walls.Max(w => w.MaxZMm);
-            float top = walls.Max(w => LowestUnder(layout.Space.Terrain, w) - 0.2f + w.HeightMm / 1000f + 0.2f);
+            float top = walls.Max(w => (SupportFor(w)?.HeightAtMm(w.CenterXMm, w.CenterZMm) / 1000f
+                ?? LowestUnder(layout.Space.Terrain, w)) + w.HeightMm / 1000f);
             var size = new Vector3((maxX - minX) / 1000f + 0.6f, 0.3f, (maxZ - minZ) / 1000f + 0.6f);
             var roof = Solid(group + "_roof", new BoxMesh { Size = size }, new BoxShape3D { Size = size }, Palette.Roof);
             roof.Position = new Vector3((minX + maxX) / 2000f, top + 0.15f, (minZ + maxZ) / 2000f);

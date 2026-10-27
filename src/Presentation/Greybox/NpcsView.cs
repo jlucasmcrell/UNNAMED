@@ -161,7 +161,7 @@ public partial class NpcsView : Node3D
                     _meals[npc.Id] = meal = Art.SeatedMeal.Attach(seated, _art, npc.Id);
                 int hour = simulation.Setup.Clock.MinuteOfDay(simulation.WorldTick) / 60;
                 meal?.Draw(furniture?.Clip == "sit" && hour >= 18 && hour < 22 && !npc.Talking,
-                    -figure.GlobalBasis.Z.Normalized(), delta);
+                    figure.GlobalBasis.Z.Normalized(), delta);
             }
             figure.SetGaze(furniture?.Clip!="lie_to_idle" && feet.DistanceSquaredTo(PlayerHead.GlobalPosition) < 64 ? PlayerHead.GlobalPosition : null);
             // Hide an intervening companion as a whole (including their outline/weapon). Keep

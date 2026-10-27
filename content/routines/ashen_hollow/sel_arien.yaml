@@ -2,42 +2,18 @@ id: routine.ashen_hollow.sel_arien
 kind: routine
 schema: 1
 display_key: routine.ashen_hollow.sel_arien.name
-tags:
-- routine
-notes: 'C2: sel has a real work post, an evening meal in the common room, and an upstairs
-  inn bed.'
+tags: [routine]
+notes: "C2: sel has a real work post, an evening meal in the common room, and an upstairs inn bed."
 region_ref: region.starting_frontier
 npc_ref: npc.ashen_hollow.sel_arien
 settlement: ashen_hollow
 role: scholar
-roles:
-- scholar
-- quest_giver
-work_hours:
-- 7
-- 19
+roles: [scholar, quest_giver]
+work_hours: [7, 19]
 anchors:
-  home:
-    position_m:
-    - 443.35
-    - 715.5
-    facing_deg: 270
-  work:
-    position_m:
-    - 472
-    - 722
-    facing_deg: 135
-  supper:
-    position_m:
-    - 442.77
-    - 726.92
-    facing_deg: 180
+  home: {position_m: [443.35, 715.5], facing_deg: 270}
+  work: {position_m: [472, 722], facing_deg: 135}
+  supper: {position_m: [442.77, 726.92], facing_deg: 180}
 schedule:
-- hours:
-  - 6
-  - 7
-  at: supper
-- hours:
-  - 19
-  - 22
-  at: supper
+  - {hours: [6, 7], at: supper}
+  - {hours: [19, 22], at: supper}
