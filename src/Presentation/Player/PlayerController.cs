@@ -164,12 +164,14 @@ public sealed class PlayerController
         return true;
     }
 
-    /// <summary>Use the first carried item that has a use (the salve). False when there is none.</summary>
+    /// <summary>Use a carried healing item (the salve) if there is one, else the first carried item that has a use. False when there is none.</summary>
     public bool UseConsumable()
     {
         var simulation = _session.Simulation!;
-        var uses = _session.Setup.Combat.UseEffects;
-        if (simulation.Player.Inventory.FirstOrDefault(e => uses.ContainsKey(e.DefId)) is not { } item)
+        var combat = _session.Setup.Combat;
+        bool Heals(string defId) => combat.UseEffects.TryGetValue(defId, out var effect) && combat.Effects.TryGetValue(effect, out var definition) && definition.HealPerTick > 0;
+        var carried = simulation.Player.Inventory.Where(e => combat.UseEffects.ContainsKey(e.DefId)).ToList();
+        if ((carried.FirstOrDefault(e => Heals(e.DefId)) ?? carried.FirstOrDefault()) is not { } item)
             return false;
         _session.Submit(new UseItemCommand(simulation.PlayerId, item.ItemId));
         return true;
