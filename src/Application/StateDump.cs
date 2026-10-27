@@ -71,7 +71,7 @@ public static partial class StateDump
             leftOut.Add($"combat.{path}");
         return new JsonObject
         {
-            ["creatures"] = View("creatures", simulation.Creatures.OrderBy(c => c.Key, StringComparer.Ordinal), "Phase", "PhaseTicksLeft"),
+            ["creatures"] = View("creatures", simulation.Creatures.OrderBy(c => c.Key, StringComparer.Ordinal), "Phase", "PhaseTicksLeft", "AttackTick"),
             ["npcs"] = View("npcs", simulation.Npcs.OrderBy(n => n.Id, StringComparer.Ordinal), "Talking", "Body.FacingMdeg"),
             ["companions"] = View("companions", simulation.Companions.OrderBy(c => c.NpcId, StringComparer.Ordinal), "Doing"),
             ["containers"] = View("containers", simulation.Containers.OrderBy(c => c.Site.Key, StringComparer.Ordinal)),

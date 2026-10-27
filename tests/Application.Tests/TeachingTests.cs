@@ -56,7 +56,8 @@ public class TeachingTests
 
         var view = arena.Simulation.Teaching(Kera)!;
         Assert.True(view.Available);   // at the forge, in her working hours (WP12)
-        Assert.Equal(new[] { Billet, "recipe.smithing.march_spear", "recipe.fletching.arrows", "recipe.fletching.hunting_bow",
+        Assert.Equal(new[] { "recipe.smithing.torch", "recipe.cooking.torch", "recipe.cooking.boil_water", "recipe.cooking.herb_tea",
+            "recipe.herbal.salve_minor_boiled", Billet, "recipe.smithing.march_spear", "recipe.fletching.arrows", "recipe.fletching.hunting_bow",
             "recipe.fletching.hunting_bow_silk", "recipe.smithing.lamework_jack", "recipe.smithing.lame_coif", "recipe.smithing.lame_sabatons",
             "recipe.smithing.fitting_wedge", PowerStrike }, view.Lessons.Select(l => l.DefinitionId));
         Assert.All(view.Lessons.Take(8), l => Assert.True(l.ByDialogue && l.Fee == 0 && l.Met));

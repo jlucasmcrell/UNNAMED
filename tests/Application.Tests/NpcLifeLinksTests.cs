@@ -589,7 +589,7 @@ public class NpcLifeLinksTests
             {
                 int seated = arena.Simulation.Npcs.Count(n => (n.Id.StartsWith($"npc.{town}.", StringComparison.Ordinal) || n.Id.StartsWith($"routine.{town}.", StringComparison.Ordinal))
                     && Math.Sqrt(Math.Pow(n.Body.XMm - cx, 2) + Math.Pow(n.Body.ZMm - cz, 2)) < 4_000);
-                Assert.True(seated >= 8, $"{seated} at the fire");
+                Assert.True(seated >= (town == "ashen_hollow" ? 6 : 8), $"{seated} at the fire"); // C2 cuts three Hollow roles.
                 // They stay solid: what the character's prediction walks round.
                 Assert.All(arena.Simulation.Npcs.Where(n => n.Id.StartsWith($"npc.{town}.", StringComparison.Ordinal) || n.Id.StartsWith($"routine.{town}.", StringComparison.Ordinal)),
                     n => Assert.Contains(arena.Simulation.DynamicBlockers, b => b.Id == n.Id));

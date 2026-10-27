@@ -65,7 +65,7 @@ public class StateDumpTests
         Assert.Contains(creatures, c => c!["Condition"]!.GetValue<string>() == "Corpse");
         Assert.Contains(creatures, c => c!["Condition"]!.GetValue<string>() == "Alive" && c["Health"]!.GetValue<int>() < c["MaxHealth"]!.GetValue<int>());
         Assert.Contains(live["containers"]!.AsArray(), c => c!["Site"]!["Key"]!.GetValue<string>() == arena.Creature(0).CorpseKey);
-        Assert.Equal(new[] { "creatures[].Phase", "creatures[].PhaseTicksLeft", "npcs[].Talking", "npcs[].Body.FacingMdeg", "companions[].Doing",
+        Assert.Equal(new[] { "creatures[].Phase", "creatures[].PhaseTicksLeft", "creatures[].AttackTick", "npcs[].Talking", "npcs[].Body.FacingMdeg", "companions[].Doing",
                 "combat.Phase", "combat.PhaseTicksLeft", "combat.AttackSource", "combat.Blocking", "combat.Casting" }.Order(StringComparer.Ordinal),
             live["left_out"]!.AsArray().Select(n => n!.GetValue<string>()).Order(StringComparer.Ordinal));
     }
