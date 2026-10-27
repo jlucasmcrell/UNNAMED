@@ -12,6 +12,7 @@ namespace UNNAMED.Application.Tests;
 public class QuickBarTests
 {
     private const string Salve = "item.consumable.salve_minor";
+    private const string Flask = "item.tool.water_flask";
     private const string Primer = "item.tome.resonance_primer";
     private const string Bolt = "spell.force.impulse_bolt";
     private const string Ward = "spell.warding.brace_ward";
@@ -39,12 +40,12 @@ public class QuickBarTests
         var arena = Open(Harness.Boot(profile), WithPrimer);
         var assigned = arena.Record<QuickSlotAssigned>();
         arena.Tick();
-        Assert.Equal(new string?[] { Salve, null, null, null, null, null, null, null, null, null, null, null }, arena.Simulation.QuickBar);
+        Assert.Equal(new string?[] { Salve, Flask, null, null, null, null, null, null, null, null, null, null }, arena.Simulation.QuickBar);
 
         Read(arena);
 
-        Assert.Equal(new string?[] { Salve, null, null, Bolt, Ward, Thread, null, null, null, null, null, null }, arena.Simulation.QuickBar);
-        Assert.Equal(new[] { (0, Salve), (3, Bolt), (4, Ward), (5, Thread) }, assigned.Select(a => (a.Slot, a.DefinitionId!)));
+        Assert.Equal(new string?[] { Salve, Flask, null, Bolt, Ward, Thread, null, null, null, null, null, null }, arena.Simulation.QuickBar);
+        Assert.Equal(new[] { (0, Salve), (1, Flask), (3, Bolt), (4, Ward), (5, Thread) }, assigned.Select(a => (a.Slot, a.DefinitionId!)));
     }
 
     [Fact]
@@ -56,11 +57,11 @@ public class QuickBarTests
         Read(arena);
 
         Assert.Null(arena.Submit(new AssignQuickSlotCommand(arena.Player, 0, Ward)));
-        Assert.Equal(new string?[] { Ward, null, null, Bolt, Salve, Thread, null, null, null, null, null, null }, arena.Simulation.QuickBar);
+        Assert.Equal(new string?[] { Ward, Flask, null, Bolt, Salve, Thread, null, null, null, null, null, null }, arena.Simulation.QuickBar);
         Assert.Null(arena.Submit(new AssignQuickSlotCommand(arena.Player, 7, Bolt)));
-        Assert.Equal(new string?[] { Ward, null, null, null, Salve, Thread, null, Bolt, null, null, null, null }, arena.Simulation.QuickBar);
+        Assert.Equal(new string?[] { Ward, Flask, null, null, Salve, Thread, null, Bolt, null, null, null, null }, arena.Simulation.QuickBar);
         Assert.Null(arena.Submit(new AssignQuickSlotCommand(arena.Player, 5, null)));
-        Assert.Equal(new string?[] { Ward, null, null, null, Salve, null, null, Bolt, null, null, null, null }, arena.Simulation.QuickBar);
+        Assert.Equal(new string?[] { Ward, Flask, null, null, Salve, null, null, Bolt, null, null, null, null }, arena.Simulation.QuickBar);
 
         // Cleared, a formula that is still known is not put back while the character plays on.
         arena.Tick(20);
@@ -78,7 +79,7 @@ public class QuickBarTests
         Assert.Equal("item.weapon.rusted_sword has no use", arena.Submit(new AssignQuickSlotCommand(arena.Player, 3, "item.weapon.rusted_sword")));
         Assert.Equal("recipe.smithing.iron_billet cannot go on an action bar", arena.Submit(new AssignQuickSlotCommand(arena.Player, 3, "recipe.smithing.iron_billet")));
         Assert.Equal("there is no slot 13 on action bar 1", arena.Submit(new AssignQuickSlotCommand(arena.Player, 12, Salve)));
-        Assert.Equal(new string?[] { Salve, null, null, null, null, null, null, null, null, null, null, null }, arena.Simulation.QuickBar);
+        Assert.Equal(new string?[] { Salve, Flask, null, null, null, null, null, null, null, null, null, null }, arena.Simulation.QuickBar);
     }
 
     [Fact]
@@ -103,12 +104,12 @@ public class QuickBarTests
         arena.Tick();
         Assert.Null(arena.Submit(new AssignQuickSlotCommand(arena.Player, 0, null)));
         arena.Tick(5);
-        Assert.All(arena.Simulation.QuickBar, slot => Assert.Null(slot));
+        Assert.Equal(new string?[] { null, Flask, null, null, null, null, null, null, null, null, null, null }, arena.Simulation.QuickBar);
 
         string salve = arena.Simulation.Player.Inventory.Single(e => e.DefId == Salve).ItemId.Value;
         Assert.Null(arena.Submit(new MoveItemCommand(arena.Player, salve, ItemPlace.Carried, ItemPlace.Ground, 1)));
         arena.Tick();
-        Assert.All(arena.Simulation.QuickBar, slot => Assert.Null(slot));
+        Assert.Equal(new string?[] { null, Flask, null, null, null, null, null, null, null, null, null, null }, arena.Simulation.QuickBar);
         Assert.Null(arena.Submit(new MoveItemCommand(arena.Player, salve, ItemPlace.Ground, ItemPlace.Carried, 1)));
         arena.Tick();
 
@@ -137,7 +138,7 @@ public class QuickBarTests
         Harness.Ticks(relaunched, 5);
         var simulation = relaunched.Simulation!;
         Assert.Contains(simulation.CaptureRecord().Inventory, e => e.DefId == Salve);
-        Assert.All(simulation.QuickBar, slot => Assert.Null(slot));
+        Assert.Equal(new string?[] { null, Flask, null, null, null, null, null, null, null, null, null, null }, simulation.QuickBar);
 
         relaunched.Submit(new AssignQuickSlotCommand(simulation.PlayerId, 2, Salve));
         Harness.Ticks(relaunched, 2);
