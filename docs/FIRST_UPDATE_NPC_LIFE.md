@@ -71,6 +71,38 @@ weights, animation clock override, public package change or promotion.
 Proof root: `D:/Otherreach_Scratch/npc_life_20261027`.
 Visual acceptance remains with Claude after original footage is inspected.
 
+## Teeth and two-metre hands follow-up
+
+Claude accepted the motion but found blue-purple oral shading. The original
+embedded and cached colour atlases are correct; the initial roughness-only
+hypothesis was rejected because the generic pass already fixes roughness.
+`HumGenMouth` now binds the paid native 2K TeethTongueSet colour, normal and
+roughness maps explicitly. The mouth is non-metallic and excludes unoccluded
+sky ambient; direct lights still apply. There is no emission or white tint.
+This restores native roughness detail and keeps the enclosed cavity dark.
+
+Required private asset supplement:
+`D:/Otherreach_Scratch/npc_life_20261027/mouth08/delivery`.
+Install its common `rigged/humgen_mouth` directory and merge its three cache
+entries by key. Do not overwrite the world's cache manifest. Source maps stay
+full2K, with the existing BC7/mipmap pipeline and existing body LODs.
+No new memory-saving measures or geometry/motion edits are introduced.
+The current28 body inventory has224 upper/lower mouth surfaces acrossLOD0-3;
+all match this common adapter, including creator/player and NPC load paths.
+This is CPU route coverage, not28 separate render passes. Future F1 exports
+need their own fidelity gate and must retain native oral UVs.
+
+Final proof: `D:/Otherreach_Scratch/npc_life_20261027/mouth_review.html`.
+One short real-art clip combines the measured2m hands shot and full Renn
+greeting. Original stills, WGC and actual Master are retained. Review08 native
+maps alone retained a cool cast and is diagnostic only; review09 includes the
+oral ambient correction. Visual acceptance remains Claude's. The private
+review09 binary replaces only the rebuilt Release Presentation assembly on
+the existing clean export; integration must clean-export source normally.
+Focused tests4/4 and build passed; no full suite, extra variants or performance
+gate. Creature replacements wait for Claude's selections from DeepSeek's audit,
+retain C1 move sets and use the usual pipeline at best source quality.
+
 ## Final review07
 
 Captured production source `4cb3ddf4`; review page
