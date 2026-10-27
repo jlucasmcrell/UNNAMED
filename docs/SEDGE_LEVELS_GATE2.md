@@ -14,6 +14,8 @@ Sources: otherreach-canon `proposals/new/wave-1/02_WORLD_MAP_AND_REGIONS.md:180-
 
 ## Shared implementation
 
+The renderer groups cell surfaces into meshes of at most 128 surfaces (four meshes for 400 cells), with normals/tangents and matching camera collision. Smaller regions retain their existing single-mesh root.
+
 `tidal_water` is optional region data. Its smooth integer tide is derived from the saved world tick, not frame time or another saved clock. PROPOSED tuning: -0.60m to +0.75m, period 28,800 ticks (12 game hours at current tuning). The existing `WaterView.FlowWater` shader renders that same level. Normal simulation movement/prediction and nav both close the flood footprint above the exposed middle deck (-0.30m). Nav does not let door-opening agents bypass tide gates. Save/load and abstract time advance derive the same phase without a schema change.
 
 The old ferry routes were only markers, not ferry code. Gate 2 adds an explicitly temporary raised inspection walk: 2.537km circuit, using ordinary `walkable_surfaces`, domain collision and camera support triangles. A dry detour passes west of the sunken span. It does not assert ferry operation or player swimming. Character foot IK samples those same support surfaces rather than the terrain under the planks. House and Arch pier footprints block bodies/nav and cameras; deep-water footprints block bodies/nav but not cameras. The site's deep level-30+ pocket, residents, services, combat kits/variants and quest/arrival transfer belong to Gates 3/4.
@@ -22,7 +24,7 @@ The existing region dressing loader accepts raw authored kit transforms. Reuse t
 
 ## Reproduction and review
 
-Generate external art and the region: `python tools/sedge/build_gate2.py --output <external-primary>`. Dependencies: NumPy, PyYAML, trimesh, Pillow. Sources remain in the external Oct-18 library. Full provenance and original BOM are in `SEDGE_SOURCE_CREDITS.json` beside the generated primary root. Use the signed full-resolution BC7 texture cache for a package. Compression here ran through Godot's native CPU Image API headlessly; no 3090 render or compression lease was needed.
+Generate external art and the region: `python tools/sedge/build_gate2.py --output <external-primary>`. Dependencies: NumPy, PyYAML, trimesh, Pillow. After generation, run the headless Godot script `tools/sedge/prepare_tangents.gd` with the external primary root as its user argument; this prepares the reed/walk normal maps through native SurfaceTool without altering their geometry. Then prepare/validate the signed texture cache. Sources remain in the external Oct-18 library. Full provenance and original BOM are in `SEDGE_SOURCE_CREDITS.json` beside the generated primary root. Use the signed full-resolution BC7 texture cache for a package. Compression here ran through Godot's native CPU Image API headlessly; no 3090 render or compression lease was needed.
 
 CPU proof: `dotnet test tests/World.Tests --filter FullyQualifiedName~SedgeGate2Tests` walks every circuit segment through Kinematics at both tides, plans navigation segments, proves low-tide access/high-tide closure and deep-water blocking. Content lint and the architecture/navigation regression checks accompany the review. Packaged captures use the standard --shot/--stand harness; --tide-tick advances a review session through the normal simulation's abstract advance, never overwrites a water mesh or authoritative state.
 

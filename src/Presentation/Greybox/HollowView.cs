@@ -402,12 +402,27 @@ public partial class HollowView : Node3D
         }
         var mesh = new ArrayMesh();
         var materials = new List<Material>();
+        var chunks = new Node3D { Name = "Terrain" };
+        void FinishChunk()
+        {
+            if (mesh.GetSurfaceCount() == 0) return;
+            var part = new MeshInstance3D { Name = $"Cells_{chunks.GetChildCount()}", Mesh = mesh };
+            for (int n = 0; n < materials.Count; n++) part.SetSurfaceOverrideMaterial(n, materials[n]);
+            var collision = new StaticBody3D { CollisionLayer = CameraCollisionLayer, CollisionMask = 0 };
+            using var shape = mesh.CreateTrimeshShape();
+            collision.AddChild(new CollisionShape3D { Shape = shape });
+            part.AddChild(collision); chunks.AddChild(part);
+            mesh = new ArrayMesh(); materials = new List<Material>();
+        }
         // The four grounds in one splat shader (their borders blended, the tiling broken up, the paths worn in: Phase A, the visual audit's
         // V2); without all four, each cell its own world material, or the greybox colour.
         var splat = _ground?.TerrainMaterial(_art);
         foreach (var (cell, tool) in cells)
         {
+            // Godot permits at most 256 surfaces in one ArrayMesh; a full region has 400 cells.
+            if (mesh.GetSurfaceCount() == 128) FinishChunk();
             tool.GenerateNormals();
+            tool.GenerateTangents();
             tool.Commit(mesh);
             string? id = _bindings.Terrain.GetValueOrDefault(cell);
             if (splat is not null && _ground!.Cells.Contains(cell))
@@ -426,14 +441,15 @@ public partial class HollowView : Node3D
                 Coverage.Fallback("terrain", cell, id is null ? "no ground bound for this cell: a flat colour" : _art.Why(id) ?? "its material would not load", id);
             }
         }
-        var node = new MeshInstance3D { Name = "Terrain", Mesh = mesh };
-        for (int s = 0; s < materials.Count; s++)
-            node.SetSurfaceOverrideMaterial(s, materials[s]);
-        var body = new StaticBody3D { CollisionLayer = CameraCollisionLayer, CollisionMask = 0 };
-        using var cameraShape = mesh.CreateTrimeshShape();
-        body.AddChild(new CollisionShape3D { Shape = cameraShape });
-        node.AddChild(body);
-        return node;
+        FinishChunk();
+        GD.Print($"UNNAMED terrain: {cells.Count} cell surfaces in {chunks.GetChildCount()} bounded mesh(es)");
+        if (chunks.GetChildCount() == 1)
+        {
+            var single = chunks.GetChild<Node3D>(0);
+            chunks.RemoveChild(single); chunks.Free(); single.Name = "Terrain";
+            return single;
+        }
+        return chunks;
     }
 
     /// <summary>

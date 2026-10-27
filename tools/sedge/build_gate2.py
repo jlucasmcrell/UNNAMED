@@ -96,9 +96,13 @@ def main():
     stone=trimesh.visual.material.PBRMaterial(baseColorFactor=[110,123,116,255],roughnessFactor=.9)
     timber=trimesh.visual.material.PBRMaterial(baseColorFactor=[58,47,31,255],roughnessFactor=.85)
     def export(id,mesh,material):
-        mesh.visual=trimesh.visual.TextureVisuals(material=material)
+        mesh.visual=trimesh.visual.TextureVisuals(uv=mesh.vertices[:,[0,2]]/np.array([3.6,1.0]),material=material)
         f=out/'ready'/id/(id+'.glb');f.parent.mkdir(parents=True,exist_ok=True);mesh.export(f)
-    export('sedge_review_walk',trimesh.creation.box(extents=[3.6,.18,1],transform=trimesh.transformations.translation_matrix([0,-.09,0])),timber)
+    wood_scene=trimesh.load(Path(r'D:\Otherreach_Scratch\sedge_20261018\models\plank_walk.glb'),force='scene')
+    wood=next(g.visual.material for g in wood_scene.geometry.values() if getattr(g.visual.material,'name','')=='weathered_plank')
+    boards=[trimesh.creation.box(extents=[3.6,.12,.053],transform=trimesh.transformations.translation_matrix([0,-.06,-.5+(n+.5)/18])) for n in range(18)]
+    boards += [trimesh.creation.box(extents=[.16,.18,1],transform=trimesh.transformations.translation_matrix([x,-.19,0])) for x in (-1.45,1.45)]
+    export('sedge_review_walk',trimesh.util.concatenate(boards),wood)
     vertices=[];faces=[]
     for z,y in [(-40,2.45),(-20,-.30),(20,-.30),(40,2.45)]:
         vertices.extend([[-3.5,y,z],[3.5,y,z],[-3.5,y-.5,z],[3.5,y-.5,z]])
@@ -130,11 +134,18 @@ def main():
     # Reeds: reuse the real kit clump, never frontier tree scatter; a bounded near-view field for Gate 2.
     sources['sedge_reed_clump']=Path(r'D:\Otherreach_Scratch\sedge_20261018\models\reed_clump_LOD0.glb')
     rng=np.random.default_rng(18)
-    for _ in range(1800):
+    for _ in range(14000):
         x=rng.uniform(4580,5460);z=rng.uniform(660,1410);i=int((x-4000)/5);j=int(z/5)
         if -.15<h[j,i]<1.6 and abs(x-5000)>150:
             near=min(np.linalg.norm(np.array([x,z])-p) for p in route)
-            if 7<near<75:place('sedge_reed_clump',x,z,max(.0,h[j,i]),rng.uniform(0,360),(1,1,1))
+            if 7<near<75:place('sedge_reed_clump',x,z,float(h[j,i]),rng.uniform(0,360),(1,1,1))
+    # Gate-2 near-shore reed patch: full clumps at true bed height, outside the clear walk.
+    for x in np.arange(4760,4810,2.1):
+        for z in np.arange(1150,1240,2.1):
+            px=x+rng.uniform(-.45,.45);pz=z+rng.uniform(-.45,.45)
+            y=float(h[int(pz/5),int((px-4000)/5)])
+            if -.60 <= y <= 1.2:
+                place('sedge_reed_clump',px,pz,y,rng.uniform(0,360),(1,1,1))
     for id,srcfile in sources.items():
         dest=out/'ready'/id/(id+'.glb');dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(srcfile,dest)
         credits.append(dict(id=id,source=str(srcfile),sha256=hashlib.sha256(srcfile.read_bytes()).hexdigest(),credit='Oct-18 Sedge kit; original BOM attribution retained'))
