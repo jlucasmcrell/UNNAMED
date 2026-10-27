@@ -142,6 +142,7 @@ public sealed partial class SkinnedFigure : Figure
         {
             figure.AddChild(face);
             figure._face = face;
+            face.GentleRest = person.PeopleId == PeopleLooks.Siann;
         }
         // A MetaHuman's corrective helper joints, then its garments' springs: they correct and swing the pose the clips, IK and
         // look-at made, so they stay the skeleton's last modifiers (CHARACTER_ANIMATION_STRATEGY.md 4.4), including over the ones

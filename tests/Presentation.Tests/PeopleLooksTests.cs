@@ -80,11 +80,10 @@ public class PeopleLooksTests
     }
 
     [Fact]
-    public void SiannScleraIsACoolPearl()
+    public void SiannKeepsTheNativeVeinedSclera()
     {
         var sclera = PeopleLooks.SiannIris(.2f, .8f);
-        Assert.True(sclera.B > sclera.R && sclera.R >= sclera.G, "cool: blue over red over green, never the warm HumGen white");
-        Assert.InRange(sclera.Blend, .5f, 1f);
+        Assert.Equal(0f, sclera.Blend);
     }
 
     [Fact]

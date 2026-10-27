@@ -31,6 +31,11 @@ static func clean_contacts(events: Array, duration: float) -> Array:
  result.sort_custom(func(a,b): return a.time < b.time)
  return result
 
+static func upright_torso(head_height: float, rest_height: float, crouched: bool) -> bool:
+ # A metre threshold rejected the accepted 1.42m Siann sprint (0.4258m).
+ # Judge the same retained fraction of each target's own torso, including compact peoples.
+ return rest_height > 0 and head_height > rest_height * (.27 if crouched else .6)
+
 func contacts(player: AnimationPlayer, rig: Skeleton3D, clip: StringName) -> Dictionary:
  var duration := player.get_animation(clip).length
  var count := maxi(24,ceili(duration*60))
@@ -90,6 +95,7 @@ func build() -> void:
  root.add_child(target)
  var rig: Skeleton3D = nodes(target,"Skeleton3D")[0]
  assert(rig.get_bone_count()==59)
+ var torso_rest_height := rig.get_bone_global_rest(rig.find_bone("Head")).origin.y-rig.get_bone_global_rest(rig.find_bone("Hips")).origin.y
  var library := AnimationLibrary.new()
  var sources := {}
  var paces := {}
@@ -187,7 +193,7 @@ func build() -> void:
   if entry.state in gaits:
    assert(measured.pace>.05,"No measurable native gait "+entry.state)
    assert(absf(measured.shoulder_heading_degrees)<38,"Gait faces sideways: "+entry.state+" "+str(measured.shoulder_heading_degrees))
-   assert(measured.head_height_above_hips_m>(.2 if entry.state=="crouch_walk" else .45),"Gait torso collapsed/tipped: "+entry.state)
+   assert(upright_torso(measured.head_height_above_hips_m,torso_rest_height,entry.state=="crouch_walk"),"Gait torso collapsed/tipped: "+entry.state)
    var travel := Vector2(0,-1) if entry.state in ["walk_back","run_back"] else Vector2(1,0) if "left" in entry.state else Vector2(-1,0) if "right" in entry.state else Vector2(0,1)
    var planted := Vector2(measured.stance_velocity_xz[0],measured.stance_velocity_xz[1])
    # The low-foot-height classifier covers standing locomotion. In the deep

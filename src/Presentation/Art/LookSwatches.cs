@@ -129,7 +129,7 @@ public static class LookSwatches
 
     private static readonly Swatch[] SiannSkin =
     {
-        AsMade, new("Pearl", 2f, 1.95f, 2.05f), new("Lavender", 1.85f, 1.75f, 2.05f), new("Rose", 1.95f, 1.75f, 1.85f), new("Sea glass", 1.75f, 1.95f, 1.95f),
+        AsMade, new("Opal", .98f, .97f, 1f), new("Moonlit", .96f, .94f, 1f), new("Rose porcelain", 1f, .94f, .95f), new("Warm ivory", 1f, .98f, .92f),
     };
 
     private static readonly Swatch[] NaturalHair =

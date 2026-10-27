@@ -102,7 +102,7 @@ uniform sampler2D opal_mask : hint_default_black, filter_linear_mipmap, repeat_d
 uniform float opal_pale : hint_range(0.0, 1.0) = 0.6;
 uniform float opal_sheen : hint_range(0.0, 1.0) = 0.85;
 uniform float opal_traces : hint_range(0.0, 1.0) = 0.4;
-uniform vec3 opal_pearl : source_color = vec3(0.97, 0.92, 0.92);
+uniform vec3 opal_pearl : source_color = vec3(0.88, 0.81, 0.79);
 
 group_uniforms u_v;
 uniform vec3 uv1_scale = vec3(1.);
@@ -261,7 +261,8 @@ void fragment() {
 		vec2 om = texture(opal_mask, base_uv).rg;
 		float luma = dot(ALBEDO, vec3(.299, .587, .114));
 		// a pale cool pearl that keeps the skin's own shading detail
-		ALBEDO = mix(ALBEDO, opal_pearl * clamp(0.74 + (luma - 0.45) * 0.6, 0.6, 0.92), opal_pale);
+		vec3 skin_chroma = ALBEDO - vec3(luma);
+		ALBEDO = mix(ALBEDO, opal_pearl * clamp(0.74 + (luma - 0.45) * 0.6, 0.6, 0.92) + skin_chroma * 0.65, opal_pale);
 		// mother-of-pearl: the hue drifts with the view angle and slowly across the skin
 		float nv = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
 		float drift = (1.0 - nv) * 1.4 + opal_noise(base_uv * 18.0) * 0.5;

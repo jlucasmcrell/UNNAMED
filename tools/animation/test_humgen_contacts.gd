@@ -3,6 +3,12 @@ extends SceneTree
 func _initialize() -> void:
  var args:=OS.get_cmdline_user_args()
  var builder=load(args[0])
+ assert(builder.upright_torso(.4258,.6194,false),"Accepted compact Siann sprint is upright")
+ assert(builder.upright_torso(.4258*1.3,.6194*1.3,false),"Same pose passes at human scale")
+ assert(not builder.upright_torso(.2,.6194,false),"Collapsed torso still fails")
+ assert(not builder.upright_torso(.2*1.3,.6194*1.3,false),"Collapsed torso fails at human scale too")
+ assert(builder.upright_torso(.2,.6194,true),"Crouched torso uses its own fraction")
+ assert(not builder.upright_torso(.1,.6194,true))
  var raw=[{"side":"L","time":.016},{"side":"L","time":.082},{"side":"R","time":.475}]
  var fixed:Array=builder.clean_contacts(raw,.933)
  assert(fixed.size()==2 and fixed[0].side=="L" and fixed[1].side=="R")

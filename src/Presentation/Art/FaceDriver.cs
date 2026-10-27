@@ -40,6 +40,7 @@ public sealed partial class FaceDriver : Node
     public void Gaze(Vector3? localDirection) => _gaze = localDirection;
     public float BlinkWeight => _weights.GetValueOrDefault("eyeBlinkLeft");
     public float JawWeight => _weights.GetValueOrDefault("jawOpen");
+    public bool GentleRest { get; set; }
     public Func<(double Position, double Duration, float Jaw)?>? RecordedSpeech { get; set; }
     // Opt-in native FACS inspection; ordinary speech leaves this unset.
     internal float? ReviewJawOpen { get; set; }
@@ -316,8 +317,8 @@ public sealed partial class FaceDriver : Node
         _targets["eyeSquintLeft"] = _targets["eyeSquintRight"] = wide ? .07f : .12f;
         _targets["eyeBlinkLeft"] = _targets["eyeBlinkRight"] = wide ? .035f : Mathf.Clamp(.17f + Math.Max(0, -look.Y) * .35f - Math.Max(0, look.Y) * .2f, 0, .45f);
         float expression = .02f + .015f * Mathf.Sin((float)_expressionTime * .37f);
-        _targets["browDownLeft"] = _targets["browDownRight"] = expression;
-        _targets["mouthSmileLeft"] = _targets["mouthSmileRight"] = _line is null ? expression * .5f : 0;
+        _targets["browDownLeft"] = _targets["browDownRight"] = GentleRest ? 0 : expression;
+        _targets["mouthSmileLeft"] = _targets["mouthSmileRight"] = _line is null ? (GentleRest ? .05f : 0) + expression * .5f : 0;
     }
 
     private void Blink(double delta)
