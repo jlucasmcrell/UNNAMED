@@ -204,7 +204,7 @@ public partial class Main
     /// Orenth blinks, and a still camera 7 m side-on to the place it left holds the afterimage and the wolf in frame. The roll is the real one,
     /// so it goes again on the next bite until one lands on the afterimage, or 60 s pass.
     /// </summary>
-    private async Task DecoyRoute(Action<string, object?> mark, float distance=7, float forward=0)
+    private async Task DecoyRoute(Action<string, object?> mark, float distance=7, float forward=0, float blinkBeforeBiteMeters=0)
     {
         var sim = _session.Simulation!;
         var wolf = sim.Creatures.Where(c => c.DefId == DecoyWolf && c.Alive)
@@ -239,10 +239,11 @@ public partial class Main
             // Walk at it until it is close; then stand and let it come.
             var toward = new Vector3((now.Body.XMm - me.XMm) / 1000f, 0, (now.Body.ZMm - me.ZMm) / 1000f);
             _controller.SteerWorld(apart > 6_000 ? toward.Normalized() : Vector3.Zero, Gait.Walk, _camera);
-            if (lunging && sim.PeopleAbilityCooldown("ability.people.orenth.blink") == 0)
+            if ((lunging || blinkBeforeBiteMeters > 0 && apart <= blinkBeforeBiteMeters * 1000)
+                && sim.PeopleAbilityCooldown("ability.people.orenth.blink") == 0)
             {
                 Frame(me, now.Body);
-                mark("lunge", null);
+                mark("lunge", new { apart_mm=apart, attack_started=lunging, input="normal blink command; no creature/afterimage state writes" });
                 _controller.PeopleAbility("ability.people.orenth.blink");
             }
             lunging = false;

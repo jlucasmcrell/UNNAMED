@@ -188,7 +188,7 @@ public partial class Main
                         break;
                     case "decoy_route":
                         camera.GetNode<OmniLight3D>("CharacterFill").Reparent(_camera.Camera,false);
-                        _camera.Camera.MakeCurrent();await DecoyRoute(Mark,(float)Number(step,"camera_distance",7),(float)Number(step,"camera_forward",0));
+                        _camera.Camera.MakeCurrent();await DecoyRoute(Mark,(float)Number(step,"camera_distance",7),(float)Number(step,"camera_forward",0),(float)Number(step,"blink_before_bite_m",0));
                         _camera.Camera.GetNode<OmniLight3D>("CharacterFill").Reparent(camera,false);break;
                     case "interact":_controller.Interact(Text(step,"id"));await Hold(seconds);break;
                     case "go":
