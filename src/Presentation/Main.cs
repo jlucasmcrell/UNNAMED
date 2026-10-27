@@ -611,11 +611,11 @@ public partial class Main : Node3D
         DefineInput();
         UseSettings(applyPicture: !harness);
 
-        if (verify || showcaseContinues)
+        if (verify || showcaseContinues || _flags.Contains("--sedge-services-continue"))
         {
             // The playthrough's relaunch proves the save came back exactly, so it restores the newest save with no catch-up (DN7); the
             // showcase logs in as a player would.
-            _continued = Continue(catchUp: !verify);
+            _continued = Continue(catchUp: !verify && !_flags.Contains("--sedge-services-continue"));
             if (_continued is null)
             {
                 GD.PushError(verify ? "UNNAMED playthrough verification: Continue loaded nothing" : "UNNAMED showcase: the profile has no save to continue");
@@ -1195,6 +1195,13 @@ public partial class Main : Node3D
         {
             TickMetaHumanReview();
             ReadFrontInput();
+            return;
+        }
+
+        if (!_sedgeReviewStarted && _options.GetValueOrDefault("--sedge-services-review") is { } sedgeServices)
+        {
+            _sedgeReviewStarted = true;
+            RunSedgeServicesReview(sedgeServices);
             return;
         }
 
@@ -1940,7 +1947,7 @@ public partial class Main : Node3D
                     or "--tide-tick" or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--creator-people" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
                     or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"
-                    or "--anim-person" or "--anim-compare" or "--anim-phase" or "--sedge-combat-review" or "--sedge-life-review" or "--sedge-boat-review" or "--sedge-return-services"
+                    or "--anim-person" or "--anim-compare" or "--anim-phase" or "--sedge-services-review" or "--sedge-combat-review" or "--sedge-life-review" or "--sedge-boat-review" or "--sedge-return-services"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

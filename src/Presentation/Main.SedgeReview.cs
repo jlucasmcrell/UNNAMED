@@ -11,6 +11,23 @@ public partial class Main
 {
     private bool _sedgeReviewStarted;
 
+    private async void RunSedgeServicesReview(string directory)
+    {
+        Directory.CreateDirectory(directory); _rcd3Driving=true;
+        try
+        {
+            var sim=_session.Simulation!;
+            if (!sim.Player.Inventory.Any(i=>i.DefId=="item.weapon.rusted_sword" && i.Wear is { Points: >0 }))
+                throw new InvalidOperationException("Service replay requires the actual worn sword from the saved encounter");
+            await SedgeReturnServices(directory);
+            CaptureQuit.At(this,0);
+        }
+        catch(Exception e)
+        {
+            File.WriteAllText(Path.Combine(directory,"FAILED.txt"),e.ToString());CaptureQuit.At(this,3);
+        }
+    }
+
     private async void RunSedgeBoatReview(string directory)
     {
         Directory.CreateDirectory(directory);_rcd3Driving=true;
@@ -105,7 +122,7 @@ public partial class Main
         {
             bool Reached()=>_controller.InTalkReach(sim.Npcs.Single(n=>n.Id==id));
             var at=sim.Npcs.Single(n=>n.Id==id).Body;
-            long approachX=at.XMm+(id.EndsWith("oren_pin",StringComparison.Ordinal)?-1500:1500);
+            long approachX=at.XMm+(id.EndsWith("oren_pin",StringComparison.Ordinal)?-800:800);
             // The local planner's window is 128 m. A several-hundred-metre
             // marsh journey needs the accepted road, not a direct fallback
             // through the intervening water barriers.
