@@ -9,7 +9,7 @@ family: construct
 archetype: construct
 level_band: [5, 5]
 pools: { health: 90 }
-attack_set: [ability.creature.armour_slam]
+attack_set: [ability.creature.armour_slam, ability.creature.animated_armour_heavy, ability.creature.animated_armour_rush]
 armor: { head: 0, torso: 45, limbs: 35 }
 resistances: { physical_pierce: 0.5 }
 weak_point: { region: head, from_behind: true }

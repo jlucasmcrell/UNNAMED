@@ -1,0 +1,18 @@
+id: ability.creature.doe_rush
+kind: ability
+schema: 1
+display_key: ability.creature.doe_rush.name
+tags: [ability]
+name: Timber Hind Rush
+notes: First-update C1; a committed tell and recovery let a guarded or sidestepping player punish this move.
+class: creature
+range_m: 1.2
+windup_s: 0.65
+active_s: 0.2
+recovery_s: 0.7
+cost: { stamina: 0 }
+commit_facing: true
+forces_stagger: false
+lunge_m: 1.2
+payload:
+  - { type: damage, damage_type: physical_blunt, amount: [4, 6] }

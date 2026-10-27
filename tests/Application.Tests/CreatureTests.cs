@@ -36,11 +36,14 @@ public class CreatureTests
     // ── helpers ─────────────────────────────────────────────────────────────
 
     private static Arena Place(GameSession session, (double X, double Z) player, int facingDeg, params (string DefId, double X, double Z, string Role)[] creatures) =>
-        Arena.OpenCreatures(session, session.Setup, player, facingDeg, creatures);
+        Arena.OpenCreatures(session, session.Setup, player, facingDeg, creatures,
+            r => r.WithProgression(r.Progression with { Level = creatures.Select(c => session.Setup.Combat.Creatures[c.DefId].Level).DefaultIfEmpty(1).Max() }));
 
     private static Arena Armed(GameSession session, (double X, double Z) player, int facingDeg, string weapon, params (string DefId, double X, double Z, string Role)[] creatures) =>
         Arena.OpenCreatures(session, session.Setup, player, facingDeg, creatures, r =>
         {
+            // Behaviour/armour/tell fixtures are peer-level; C1CombatTableTests covers actual level disadvantages.
+            r=r.WithProgression(r.Progression with { Level=creatures.Select(c=>session.Setup.Combat.Creatures[c.DefId].Level).DefaultIfEmpty(1).Max() });
             var inventory = r.Inventory.Append(Arena.Stack("item.ammo.arrow_rough", 20)).ToList();
             if (inventory.All(e => e.DefId != weapon))
                 inventory.Add(Arena.Stack(weapon, 1));   // the bow is found in the world, not carried from the start (M6)
@@ -444,8 +447,11 @@ public class CreatureTests
         // In the hound's eyes, 3 m off, the guard raised and 5 stamina behind it: no stamina returns while a guard is up.
         var hound = (120.0, 80.0);
         var at = Along(hound, FacingOf(session, Hound, hound, "pack_hunter"), 3);
-        var arena = Arena.OpenCreatures(session, session.Setup, at, 0, new[] { (Hound, hound.Item1, hound.Item2, "pack_hunter") },
-            r => r.WithProgression(r.Progression with { Pools = r.Progression.Pools with { Stamina = 5 } }));
+        var fire=session.Setup.Combat.Creatures[Hound];
+        var setup=session.Setup with { Combat=session.Setup.Combat with { Creatures=session.Setup.Combat.Creatures.SetItem(Hound,
+            fire with { Moves=ImmutableArray.Create(fire.Attack),Charge=null }) } };
+        var arena = Arena.OpenCreatures(session, setup, at, 0, new[] { (Hound, hound.Item1, hound.Item2, "pack_hunter") },
+            r => r.WithProgression(r.Progression with { Level=fire.Level,Pools = r.Progression.Pools with { Stamina = 5 } }));
         var broken = arena.Record<GuardBroken>();
         var hits = arena.Record<HitResolved>();
         arena.Face(Only(arena));

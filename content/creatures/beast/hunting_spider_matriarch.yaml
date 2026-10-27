@@ -2,14 +2,14 @@ id: creature.beast.hunting_spider_matriarch
 kind: creature
 schema: 1
 display_key: creature.beast.hunting_spider_matriarch.name
-tags: [creature, beast]
+tags: [creature, beast, boss]
 name: Hunting Spider Matriarch
 notes: "The hollow under the wolf den's keeper (spec 28): the cave hunting spider grown old and huge in the dark under the den (canon: a fauna creature that grows to an elite), and the reason the hollow is empty of anything else. The cave spider's own rule holds and is the fight - near-blind, it feels every footfall: a walker gets close, a runner is taken from twenty metres. A heavier bite than the small ones and a lunge with a long tell that it cannot turn out of. Level 4: Hard to the Ashen Hollow's level 2-3 characters, Even to the level 3-4 ones coming back from Old Late. The name is the trade's and provisional - the owner names creatures."
 family: beast
 archetype: predator
 level_band: [4, 4]
 pools: { health: 170, stamina: 120 }
-attack_set: [ability.creature.spider_bite, ability.creature.matriarch_lunge]
+attack_set: [ability.creature.spider_bite, ability.creature.matriarch_lunge, ability.creature.hunting_spider_matriarch_heavy]
 armor: { head: 8, torso: 10, limbs: 6 }
 resistances: { physical_pierce: 0.25 }
 move_speed_m_s: 5.0

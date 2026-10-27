@@ -2,7 +2,7 @@ id: creature.construct.gate_warden
 kind: creature
 schema: 1
 display_key: creature.construct.gate_warden.name
-tags: [creature, construct]
+tags: [creature, construct, boss]
 name: Gate Warden
 notes: "The Stopped Gate's lock (docs/FIELD_RUINS.md): it stands in the sunken court between the anchors, and once down it does not return. The same fight shape as the Ring Custodian at a giant's reach - three telegraphed attacks, slow to turn, open at the back where its mechanism runs - with its own body and a little more of it. Level 5, tier B; no scaling."
 family: construct

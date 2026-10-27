@@ -10,7 +10,7 @@ archetype: predator
 level_band: [1, 1]
 pools: { health: 24, stamina: 40 }
 attributes: { might: 6, endurance: 6, agility: 10, precision: 7, will: 8, insight: 9, presence: 8 }
-attack_set: [ability.creature.wolf_bite]
+attack_set: [ability.creature.wolf_bite, ability.creature.hound_pup_heavy, ability.creature.hound_pup_rush]
 armor: { head: 0, torso: 1, limbs: 0 }   # still a pup's coat
 move_speed_m_s: 3.8
 body_radius_m: 0.30

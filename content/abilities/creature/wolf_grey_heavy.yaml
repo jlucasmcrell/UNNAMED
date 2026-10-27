@@ -1,0 +1,19 @@
+id: ability.creature.wolf_grey_heavy
+kind: ability
+schema: 1
+display_key: ability.creature.wolf_grey_heavy.name
+tags: [ability]
+name: Grey Wolf Heavy Strike
+notes: First-update C1; a committed tell and recovery let a guarded or sidestepping player punish this move.
+class: creature
+range_m: 1.4
+windup_s: 0.90
+active_s: 0.2
+recovery_s: 1.0
+cost: { stamina: 0 }
+commit_facing: true
+forces_stagger: true
+lunge_m: 0.25
+payload:
+  - { type: damage, damage_type: physical_pierce, amount: [7, 11] }
+  - { type: apply_effect, effect_ref: effect.bleeding, chance: 0.6, on: hit }

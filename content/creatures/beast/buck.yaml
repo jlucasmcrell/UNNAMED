@@ -9,7 +9,7 @@ family: beast
 archetype: prey
 level_band: [2, 2]
 pools: { health: 32 }
-attack_set: [ability.creature.hoof_kick]
+attack_set: [ability.creature.hoof_kick, ability.creature.buck_heavy, ability.creature.buck_rush]
 armor: { head: 2, torso: 1, limbs: 0 }
 move_speed_m_s: 5.0
 turn_deg_s: 300

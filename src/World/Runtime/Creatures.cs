@@ -49,6 +49,8 @@ public sealed record CreatureView(EntityId Id, string Key, string DefId, string 
     // Presentation's sampled clip, part of the deliberately transient blow (as Phase/PhaseTicksLeft are in StateDump).
     [System.Text.Json.Serialization.JsonIgnore]
     public string? AttackSource { get; init; }
+    public long AttackTick { get; init; }
+    public bool Enraged { get; init; }
     [System.Text.Json.Serialization.JsonIgnore]
     public int PhaseDurationTicks { get; init; }
     public bool Alive => Condition == CreatureCondition.Alive;
@@ -622,7 +624,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             if (!Perception.Hears(c.Body, hearing, noise) || (noise.XMm == c.Body.XMm && noise.ZMm == c.Body.ZMm))
                 continue;
             // A call is its own kind's: a howl brings wolves, not whatever else is in earshot.
-            if (noise.Call && (!c.Role.AnswersCalls || noise.CallerKind != c.Definition.Id))
+            if (noise.Call && (!c.Role.AnswersCalls || PackKind(noise.CallerKind ?? "") != PackKind(c.Definition.Id)))
                 continue;
             int level = noise.Call ? rules.HeardCall : rules.HeardNoise;
             if (next.Mind == CreatureMind.Engaged && next.Knows && seen is not null)
@@ -694,10 +696,17 @@ internal sealed class CreatureSystem : IAbstractAdvance
         return next;
     }
 
+    private static string PackKind(string id) => id is "creature.beast.wolf_grey" or "creature.beast.wolf_grey_alpha" ? "grey_wolf_pack" : id;
+
     private bool Frightened(CreatureState c) =>
-        c.Role.FleeBelowPercent > 0 && c.Health * 100 < c.Definition.MaxHealth * c.Role.FleeBelowPercent;
+        c.Role.FleeBelowPercent > 0 && c.Health * 100 < c.ScaledMaxHealth * c.Role.FleeBelowPercent;
 
     // ── acting ──────────────────────────────────────────────────────────────
+
+    private static bool Enraged(CreatureState c) => c.Definition.Tags.Contains("boss") && c.Health * 2 < c.ScaledMaxHealth;
+    private static AttackProfile PhaseMove(CreatureState c, AttackProfile attack) => Enraged(c)
+        ? attack with { RecoveryTicks=Math.Max(4,attack.RecoveryTicks*3/4), DamageMin=attack.DamageMin*6/5,DamageMax=attack.DamageMax*6/5 }
+        : attack;
 
     private CreatureState Act(CreatureState c, long tick)
     {
@@ -818,13 +827,38 @@ internal sealed class CreatureSystem : IAbstractAdvance
     {
         var foe = Foe(c);
         var player = foe.Body;
+        if (PackKind(c.Definition.Id) == "grey_wolf_pack")
+        {
+            var pack = State.Creatures.Values.Where(o => o.Alive && o.Site.Space == c.Site.Space
+                && PackKind(o.Definition.Id) == "grey_wolf_pack" && o.Mind == CreatureMind.Engaged
+                && Distance(o.Body.XMm, o.Body.ZMm, player.XMm, player.ZMm) < 14_000)
+                .OrderBy(o => o.Key, StringComparer.Ordinal).ToArray();
+            bool otherStriking = pack.Any(o => o.Key != c.Key && o.Action.PhaseAt(tick, C).Phase is CombatPhase.Windup or CombatPhase.Active);
+            bool turn = pack.Length < 2 || pack[(int)(tick / 20 % pack.Length)].Key == c.Key;
+            if (c.Health * 100 < c.ScaledMaxHealth * 30 || otherStriking || !turn)
+            {
+                int index = Array.FindIndex(pack, o => o.Key == c.Key);
+                double angle = player.FacingMdeg / 1000.0 * Math.PI / 180 + Math.PI / 2 + index * 2.4 + tick * .012;
+                double radius = c.Health * 100 < c.ScaledMaxHealth * 30 ? 8_000 : 2_400;
+                long x = player.XMm + (long)(Math.Sin(angle) * radius), z = player.ZMm + (long)(Math.Cos(angle) * radius);
+                return c with { Body = Move(c, x, z, Gait.Run) };
+            }
+        }
         bool atCharacter = foe.Id == _player && foe.Decoy is null;
         var attack = Scaled(c.Definition.Attack, c.ScalePercent);
         // The character is gone after where they were last perceived; a companion or an animal that stands nearer is simply there (M6).
         long targetX = atCharacter && c.Knows ? c.KnownXMm : player.XMm, targetZ = atCharacter && c.Knows ? c.KnownZMm : player.ZMm;
         double distance = Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
-        if (c.Definition.CloseAttack is { } close && distance <= close.ReachMm + _context.Setup.Movement.BodyRadiusMm - 100)
-            attack = Scaled(close, c.ScalePercent);
+        if (!c.Definition.Moves.IsDefaultOrEmpty)
+        {
+            var choices = c.Definition.Moves.Where(a => !a.IsCharge
+                && distance <= a.ReachMm + a.LungeMm + _context.Setup.Movement.BodyRadiusMm - 100).ToArray();
+            if (choices.Length > 0)
+            {
+                var rng = RngChannel.Open(State.World.WorldSeed, _context.CellOf(c.Body), "combat.move", $"{c.Key}@{tick}");
+                attack = Scaled(choices[(int)(rng.UInt64(0) % (ulong)choices.Length)], c.ScalePercent);
+            }
+        }
         double toKnown = Distance(c.Body.XMm, c.Body.ZMm, targetX, targetZ);
         int facing = CombatRules.FacingTowards(c.Body.XMm, c.Body.ZMm, targetX, targetZ);
         // A territory holds the line: past its edge the guardian goes back and faces the intruder from inside.
@@ -853,7 +887,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         if (_context.ControlOn(c.Id) != ControlKind.Roots && c.Definition.Charge is { } charge && atCharacter && seesTarget && clear && tick >= c.NextChargeTick
             && distance >= charge.ChargeMinRangeMm && distance <= charge.ReachMm)
         {
-            charge = Scaled(charge, c.ScalePercent);
+            charge = PhaseMove(c, Scaled(charge, c.ScalePercent));
             var (dx, dz) = Direction(c.Body, player.XMm, player.ZMm);
             _context.Events.Publish(new AttackStarted(c.Id, charge.Source, charge.WindupTicks, charge.ActiveTicks, charge.RecoveryTicks, tick));
             return c with
@@ -873,6 +907,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             var turned = Turn(c, toward);
             if (Math.Abs(Delta(turned.FacingMdeg, toward)) > 30_000)
                 return c with { Body = turned };
+            attack = PhaseMove(c, attack);
             _context.Events.Publish(new AttackStarted(c.Id, attack.Source, attack.WindupTicks, attack.ActiveTicks, attack.RecoveryTicks, tick));
             return c with { Body = turned, Action = ActionState.Begin(ActionKind.Attack, tick, attack) };
         }
@@ -1501,8 +1536,10 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 Huntable = c.Definition.LootTableId is not null,
                 Temperament = TemperamentRules.Of(c.Role.Peaceful, c.Role.AnswersCalls, c.Mind == CreatureMind.Engaged),
                 Threat = ThreatRules.Of(c.Definition.Level + c.LevelBonus, State.Progression.Level),
-                AttackSource = c.Definition.CloseAttack is not null ? c.Action.Attack?.Source : null,
-                PhaseDurationTicks = c.Definition.CloseAttack is not null && c.Action.Attack is { } attack ? phase switch
+                AttackSource = c.Action.Attack?.Source,
+                AttackTick = c.Action.StartTick,
+                Enraged = Enraged(c),
+                PhaseDurationTicks = c.Action.Attack is { } attack ? phase switch
                 {
                     CombatPhase.Windup => attack.WindupTicks,
                     CombatPhase.Active => c.Action.Kind == ActionKind.Charge

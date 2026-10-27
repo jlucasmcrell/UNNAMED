@@ -9,7 +9,7 @@ family: grazer
 archetype: prey
 level_band: [3, 3]
 pools: { health: 90 }
-attack_set: [ability.creature.horn_butt, ability.creature.grazer_charge]
+attack_set: [ability.creature.horn_butt, ability.creature.grazer_charge, ability.creature.fellhorn_heavy]
 armor: { head: 5, torso: 4, limbs: 2 }
 move_speed_m_s: 4.0
 turn_deg_s: 160

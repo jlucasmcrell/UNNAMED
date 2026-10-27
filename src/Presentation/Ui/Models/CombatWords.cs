@@ -15,9 +15,13 @@ public static class CombatWords
         string targetObject = namedTarget ? target : $"the {target}";
         string attackerObject = namedAttacker ? attacker : $"the {attacker}";
         string weapon = source.ToLowerInvariant();
+        string who = namedAttacker ? attacker : $"The {attacker}";
+        if (hit.Damage == 0 && !hit.Dodged)
+            return hit.Attacker == player ? $"Your {weapon} misses {targetObject}"
+                : hit.Target == player ? $"{who}'s {weapon} misses you"
+                : $"{who}'s {weapon} misses {targetObject}";
         if (hit.Attacker == player)
             return hit.Dodged ? $"{targetSubject} dodges your {weapon}" : $"You hit {targetObject} ({region}) for {hit.Damage}{how}";
-        string who = namedAttacker ? attacker : $"The {attacker}";
         if (hit.Target == player)
             return hit.Dodged ? $"You dodge {attackerObject}'s {weapon}"
                 : $"{who}'s {weapon} hits your {region} for {hit.Damage}{how}";

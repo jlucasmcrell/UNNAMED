@@ -3800,6 +3800,50 @@
     "model": "prop_bp_haversack"
   },
   "creatures": {
+    "creature.beast.wolf_grey_alpha": {
+  "model": "creature_wm_grey_wolf_b",
+  "clips": {
+    "idle": "creature.creature_wm_grey_wolf_b.idle",
+    "walk": "creature.creature_wm_grey_wolf_b.walk",
+    "run": "creature.creature_wm_grey_wolf_b.run",
+    "attack": "creature.creature_wm_grey_wolf_b.attack",
+    "hit": "creature.creature_wm_grey_wolf_b.hit",
+    "death": "creature.creature_wm_grey_wolf_b.death",
+    "ability.creature.wolf_bite_1": "creature.creature_wm_grey_wolf_b.attack",
+    "ability.creature.wolf_bite_2": "creature.c1_wolf.bite_leg",
+    "ability.creature.wolf_grey_alpha_heavy_1": "creature.c1_wolf.sweep_left",
+    "ability.creature.wolf_grey_alpha_heavy_2": "creature.c1_wolf.sweep_right",
+    "ability.creature.wolf_grey_alpha_rush_1": "creature.c1_wolf.pounce_1",
+    "ability.creature.wolf_grey_alpha_rush_2": "creature.c1_wolf.pounce_2"
+  },
+  "voice": "grey_wolf",
+  "flesh": "fur",
+  "blow": "bite",
+  "steps": {
+    "walk": "walk",
+    "run": "run"
+  },
+  "note": "C1: same native wolf rig, 1.25x adult silhouette and a pale scarred mantle.",
+  "otherfauna": {
+    "scale": [
+      1.475,
+      1.475
+    ],
+    "shader": {
+      "saturation": 0.15,
+      "value": 0.72,
+      "mottle_tint": [
+        0.82,
+        0.86,
+        0.9
+      ],
+      "mottle_strength": 0.65,
+      "mottle_scale": 0.07,
+      "mottle_cover": 0.5,
+      "mottle_from": 0.4
+    }
+  }
+},
     "creature.construct.gate_tender": {"model": "creature_gate_tender", "clips": {"idle": "creature.creature_golem_stan.idle", "walk": "creature.creature_golem_stan.walk", "run": "creature.creature_golem_stan.run", "attack": "creature.creature_golem_stan.attack", "hit": "creature.creature_golem_stan.hit", "death": "creature.creature_golem_stan.death", "ability.creature.tender_strike": "creature.creature_golem_stan.attack"}, "voice": "animated_armour", "flesh": "plate", "blow": "slam", "steps": {"walk": "walk", "run": "move_heavy"}, "paces": {"walk": 1.41, "run": 4.58}},
     "creature.construct.gate_warden": {"model": "creature_gate_warden", "clips": {"idle": "creature.creature_golem_stan.idle", "walk": "creature.creature_golem_stan.walk", "run": "creature.creature_golem_stan.run", "attack": "creature.creature_golem_stan.attack", "hit": "creature.creature_golem_stan.hit", "death": "creature.creature_golem_stan.death", "ability.creature.warden_sweep": "creature.creature_golem_stan.attack", "ability.creature.warden_fall": "creature.creature_golem_stan.attack", "ability.creature.warden_grasp": "creature.creature_golem_stan.attack"}, "voice": "animated_armour", "flesh": "plate", "blow": "slam", "steps": {"walk": "move_heavy", "run": "move_heavy"}, "paces": {"walk": 3.76, "run": 12.2}},
     "creature.beast.hound_pup": {
@@ -3821,17 +3865,36 @@
       "note": "A wolf's pup: the grey wolf at 0.42-0.5 of its size, so it reads as a young animal and never as the wild adult beside it (the presentation gives the party's animals a collar of their own). Not the ember hound - that one is a hostile with cracks of fire in it. Swap the model when a young hound is scanned."
     },
     "creature.beast.wolf_grey": {
-      "model": "creature_wm_grey_wolf_b",
-      "clips": "creature.creature_wm_grey_wolf_b",
-      "voice": "grey_wolf",
-      "flesh": "fur",
-      "blow": "bite",
-      "steps": {
-        "walk": "walk",
-        "run": "run"
-      },
-      "note": "WildMesh SK_Wolf 1 (fur cards, native bite). Own recorded voice set grey_wolf (was the hound's AI set)."
-    },
+  "model": "creature_wm_grey_wolf_b",
+  "clips": {
+    "idle": "creature.creature_wm_grey_wolf_b.idle",
+    "walk": "creature.creature_wm_grey_wolf_b.walk",
+    "run": "creature.creature_wm_grey_wolf_b.run",
+    "attack": "creature.creature_wm_grey_wolf_b.attack",
+    "hit": "creature.creature_wm_grey_wolf_b.hit",
+    "death": "creature.creature_wm_grey_wolf_b.death",
+    "ability.creature.wolf_bite_1": "creature.creature_wm_grey_wolf_b.attack",
+    "ability.creature.wolf_bite_2": "creature.c1_wolf.bite_leg",
+    "ability.creature.wolf_grey_heavy_1": "creature.c1_wolf.sweep_left",
+    "ability.creature.wolf_grey_heavy_2": "creature.c1_wolf.sweep_right",
+    "ability.creature.wolf_grey_rush_1": "creature.c1_wolf.pounce_1",
+    "ability.creature.wolf_grey_rush_2": "creature.c1_wolf.pounce_2"
+  },
+  "voice": "grey_wolf",
+  "flesh": "fur",
+  "blow": "bite",
+  "steps": {
+    "walk": "walk",
+    "run": "run"
+  },
+  "note": "WildMesh SK_Wolf 1 (fur cards, native bite). Own recorded voice set grey_wolf (was the hound's AI set).",
+  "otherfauna": {
+    "scale": [
+      1.18,
+      1.18
+    ]
+  }
+},
     "creature.beast.ash_ember_hound": {
       "model": "creature_wm_ember_hound",
       "clips": "creature.creature_wm_ember_hound",

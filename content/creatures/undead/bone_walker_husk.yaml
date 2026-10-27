@@ -9,7 +9,7 @@ family: undead
 archetype: undead
 level_band: [3, 3]
 pools: { health: 55 }
-attack_set: [ability.creature.husk_slash]
+attack_set: [ability.creature.husk_slash, ability.creature.bone_walker_husk_heavy, ability.creature.bone_walker_husk_rush]
 armor: { head: 2, torso: 4, limbs: 2 }
 resistances: { physical_pierce: 0.6 }
 move_speed_m_s: 2.2         # a walk the player can outpace

@@ -2,7 +2,7 @@ id: creature.beast.wolf_grey_alpha
 kind: creature
 schema: 1
 display_key: creature.beast.wolf_grey_alpha.name
-tags: [creature]
+tags: [creature, boss]
 name: Grey Alpha
 notes: The den's leader (owner finding 29) - the grey wolf's own archetype one level up, and deliberately NOT a health pool. wolf_grey's note holds for this one too "dangerous in a pack by numbers and bleeding, never by a health pool", so its toughness is armour, reach and the pack it calls - 110 health where the pack has 50, hide where the pack has fur. It is drawn at 1.29x the wolf's size because the view scales a creature by body_radius_m, so the silhouette reads before the nameplate does. A name is provisional - the owner names characters.
 family: beast
@@ -10,7 +10,7 @@ archetype: predator
 level_band: [3, 3]
 pools: { health: 110, stamina: 90 }
 attributes: { might: 13, endurance: 13, agility: 15, precision: 11, will: 9, insight: 9, presence: 10 }
-attack_set: [ability.creature.wolf_bite]
+attack_set: [ability.creature.wolf_bite, ability.creature.wolf_grey_alpha_heavy, ability.creature.wolf_grey_alpha_rush]
 armor: { head: 3, torso: 4, limbs: 3 }   # a heavier neck and a scarred hide, not fur alone
 move_speed_m_s: 4.8        # a shade faster than the pack, still slower than a sprint
 body_radius_m: 0.58        # 1.29x the wolf's 0.45, so it reads as the leader at the den mouth

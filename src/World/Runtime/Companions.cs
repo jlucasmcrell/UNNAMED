@@ -69,6 +69,10 @@ public sealed record CompanionView(string NpcId, EntityId InstanceId, string Nam
     /// <summary>The weapon they fight with: their own, or the melee weapon they were handed (WP15b).</summary>
     public string WeaponId { get; init; } = "";
     public AttackProfile? Attack {get;init;}
+    public CombatPhase Phase { get; init; }
+    public int PhaseTicksLeft { get; init; }
+    public int PhaseDurationTicks { get; init; }
+    public bool Guarding { get; init; }
 
     /// <summary>Their armour on each region: their own plus what they wear (WP15b).</summary>
     public ImmutableSortedDictionary<BodyRegion, int> Armor { get; init; } = ImmutableSortedDictionary<BodyRegion, int>.Empty;
@@ -89,6 +93,11 @@ internal sealed record CompanionState(string NpcId, CompanionProfile Profile, At
     public ImmutableArray<TrailMark> Trail { get; init; } = ImmutableArray<TrailMark>.Empty;
     public ActionState Action { get; init; } = ActionState.Idle;
     public long NextAttackTick { get; init; }
+    public long GuardUntilTick { get; init; }
+    public long DefenseReadyTick { get; init; }
+    public long SidestepUntilTick { get; init; }
+    public long SidestepXMm { get; init; }
+    public long SidestepZMm { get; init; }
     public string? TargetKey { get; init; }
     public PartyMembership Membership { get; init; } = PartyMembership.Companion;
     public CompanionStance Stance { get; init; } = CompanionStance.Aggressive;
@@ -349,7 +358,7 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
             Leave(c.NpcId, npc.InstanceId, npc.Body, tick);
         }
         bool phased = EffectRules.Phased(EffectsOf(npc.InstanceId), _context.Setup.Combat.Effects);
-        var defense = new DefenseProfile(c.Profile.MaxHealth, c.Profile.Armor, PeopleRules.Resistances(traits), Blocking: false,
+        var defense = new DefenseProfile(c.Profile.MaxHealth, c.Profile.Armor, PeopleRules.Resistances(traits), Blocking: tick < c.GuardUntilTick && CombatRules.InFront(npc.Body.XMm,npc.Body.ZMm,npc.Body.FacingMdeg,creature.Body.XMm,creature.Body.ZMm,long.MaxValue/4,C.BlockArcMdeg),
             Dodging: phased && DamageTypes.IsPhysical(command.Attack.DamageType))
         {
             StaggerThresholdPercent = traits.StaggerThresholdPercent,
@@ -425,7 +434,7 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
         {
             case CombatPhase.Windup:
                 // The swing tracks its mark as fast as a body turns.
-                if (c.TargetKey is { } key && State.Creatures.TryGetValue(key, out var aimed) && aimed.Alive)
+                if (c.Action.Attack?.CommitFacing != true && c.TargetKey is { } key && State.Creatures.TryGetValue(key, out var aimed) && aimed.Alive)
                     Place(npc, Turn(npc.Body, CombatRules.FacingTowards(npc.Body.XMm, npc.Body.ZMm, aimed.Body.XMm, aimed.Body.ZMm)));
                 return c;
             case CombatPhase.Active:
@@ -613,14 +622,33 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
         c = c with { TargetKey = target.Key, LastCombatTick = tick, StuckTicks = 0 };
         double distance = Distance(body.XMm, body.ZMm, target.Body.XMm, target.Body.ZMm);
         int toward = CombatRules.FacingTowards(body.XMm, body.ZMm, target.Body.XMm, target.Body.ZMm);
+        if (tick < c.GuardUntilTick) { Place(npc, Turn(body, toward)); return c; }
+        if (tick < c.SidestepUntilTick) { Place(npc, Step(npc,c.SidestepXMm,c.SidestepZMm,Gait.Run)); return c; }
+        if (target.Action.PhaseAt(tick, C).Phase == CombatPhase.Windup && target.Action.Attack is { WindupTicks: >= 16 } tell
+            && distance < tell.ReachMm + 1_500 && tick >= c.DefenseReadyTick)
+        {
+            // Half the openings are guarded; the other half are beaten by actual lateral movement, not free invulnerability.
+            bool guard = tick / 45 % 2 == 0;
+            if (guard) Place(npc, Turn(body, toward));
+            else
+            {
+                double dx = target.Body.XMm-body.XMm, dz = target.Body.ZMm-body.ZMm, length = Math.Max(1,distance);
+                c = c with { SidestepUntilTick=tick+10, SidestepXMm=body.XMm+(long)(dz/length*2_500),
+                    SidestepZMm=body.ZMm-(long)(dx/length*2_500) };
+                Place(npc, Step(npc,c.SidestepXMm,c.SidestepZMm,Gait.Run));
+            }
+            return c with { GuardUntilTick = guard ? tick + tell.WindupTicks + tell.ActiveTicks : 0,
+                DefenseReadyTick = tick + 80, NextAttackTick = tick + 8 };
+        }
         if (distance <= c.Attack.ReachMm + target.Definition.RadiusMm - 100 && !Walled(body.XMm, body.ZMm, target.Body.XMm, target.Body.ZMm))
         {
             var turned = Turn(body, toward);
             Place(npc, turned);
             if (Math.Abs(Delta(turned.FacingMdeg, toward)) > 30_000 || tick < c.NextAttackTick)
                 return c;
-            _context.Events.Publish(new AttackStarted(npc.InstanceId, c.Attack.Source, c.Attack.WindupTicks, c.Attack.ActiveTicks, c.Attack.RecoveryTicks, tick));
-            return c with { Action = ActionState.Begin(ActionKind.Attack, tick, c.Attack) };
+            var move = CombatRules.ArmedMove(c.Attack, (int)(tick / 7 % 3));
+            _context.Events.Publish(new AttackStarted(npc.InstanceId, move.Source, move.WindupTicks, move.ActiveTicks, move.RecoveryTicks, tick));
+            return c with { Action = ActionState.Begin(ActionKind.Attack, tick, move), GuardUntilTick = 0 };
         }
         if (c.Order == CompanionOrder.Follow && Blink(c, npc, target, distance, tick))
             return c;
@@ -791,7 +819,17 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
                 Contract = c.Contract,
                 WeaponId = c.Profile.WeaponId,
                 Armor = c.Profile.Armor,
-                Attack=c.Attack,
+                Attack=c.Action.Attack ?? c.Attack,
+                Phase=c.Action.PhaseAt(State.WorldTick,C).Phase,
+                PhaseTicksLeft=c.Action.PhaseAt(State.WorldTick,C).TicksLeft,
+                PhaseDurationTicks=c.Action.PhaseAt(State.WorldTick,C).Phase switch
+                {
+                    CombatPhase.Windup => c.Action.Attack?.WindupTicks ?? 1,
+                    CombatPhase.Active => c.Action.Attack?.ActiveTicks ?? 1,
+                    CombatPhase.Recovery => c.Action.Attack?.RecoveryTicks ?? 1,
+                    _ => 1,
+                },
+                Guarding=State.WorldTick < c.GuardUntilTick,
             };
         }).ToImmutableArray();
 

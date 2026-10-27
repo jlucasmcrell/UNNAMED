@@ -328,24 +328,10 @@ public static class CombatContent
             var set = List(map, "attack_set").OfType<string>().ToList();
             string abilityId = set.FirstOrDefault() ?? throw new FormatException($"{id}: attack_set names the creature's attack");
             var ability = abilities.GetValueOrDefault(abilityId) ?? throw new FormatException($"{id}: {abilityId} is not an ability");
-            AttackProfile? charge = null;
-            if (set.Count > 1)
-            {
-                var second = abilities.GetValueOrDefault(set[1]) ?? throw new FormatException($"{id}: {set[1]} is not an ability");
-                charge = Attack(second, tickMs);
-                if (!charge.IsCharge)
-                    throw new FormatException($"{id}: a second attack is a charge (Phase 1 builds one blow and one charge)");
-            }
-            AttackProfile? close = null;
-            if (set.Count > 2)
-            {
-                var third = abilities.GetValueOrDefault(set[2]) ?? throw new FormatException($"{id}: {set[2]} is not an ability");
-                close = Attack(third, tickMs);
-                if (close.IsCharge || close.ReachMm >= Attack(ability, tickMs).ReachMm)
-                    throw new FormatException($"{id}: the third attack is a shorter melee blow");
-            }
-            if (set.Count > 3)
-                throw new FormatException($"{id}: attack_set builds a main blow, a charge and an optional shorter blow");
+            var moves = set.Select(key => Attack(abilities.GetValueOrDefault(key)
+                ?? throw new FormatException($"{id}: {key} is not an ability"), tickMs)).ToImmutableArray();
+            var charge = moves.FirstOrDefault(a => a.IsCharge);
+            var close = moves.Skip(1).FirstOrDefault(a => !a.IsCharge && a.ReachMm < moves[0].ReachMm);
             var armor = map.ContainsKey("armor") ? Map(map, "armor") : new Dictionary<object, object>();
             var resistances = map.ContainsKey("resistances") && map["resistances"] is Dictionary<object, object> r ? r : new Dictionary<object, object>();
             var creature = new CreatureDefinition(id, Text(map, "family"), IntOf(band, 0, "level_band"), Int(Map(map, "pools"), "health"),
@@ -355,6 +341,7 @@ public static class CombatContent
             {
                 LootTableId = map.GetValueOrDefault("loot_table") as string,
                 Senses = Senses(id, map),
+                Moves = moves,
                 Charge = charge,
                 CloseAttack = close,
                 TurnMdegPerSecond = map.ContainsKey("turn_deg_s") ? (long)Math.Round(Number(map, "turn_deg_s") * 1000) : 720_000,

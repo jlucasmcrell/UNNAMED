@@ -208,6 +208,11 @@ public partial class SoundEvents : Node
             if (e.Mind == CreatureMind.Engaged && Creature(e.Creature) is { } c && Voice(c.DefId) is { } voice && Where(e.Creature) is { } at)
                 _bank.Play($"sfx.creature.{voice}.alert", at);
         });
+        s.Subscribe<CreatureCalled>(e =>
+        {
+            if (Creature(e.Creature) is { } c && Voice(c.DefId) is { } voice && Where(e.Creature) is { } at)
+                _bank.Play($"sfx.creature.{voice}.alert", at);
+        });
         s.Subscribe<CreatureKilled>(e =>
         {
             if (Voice(e.DefId) is { } voice && Where(e.Creature) is { } at)
@@ -406,7 +411,7 @@ public partial class SoundEvents : Node
 
     private void Hit(HitResolved e)
     {
-        if (e.Dodged || Where(e.Target) is not { } at)
+        if (e.Dodged || e.Damage == 0 || Where(e.Target) is not { } at)
             return;
         var simulation = _session.Simulation!;
         string? family = WeaponFamily(e.Attacker, e.Source);

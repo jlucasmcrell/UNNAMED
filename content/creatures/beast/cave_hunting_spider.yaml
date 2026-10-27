@@ -9,7 +9,7 @@ family: beast
 archetype: predator
 level_band: [3, 3]
 pools: { health: 40 }
-attack_set: [ability.creature.spider_bite]
+attack_set: [ability.creature.spider_bite, ability.creature.cave_hunting_spider_heavy, ability.creature.cave_hunting_spider_rush]
 armor: { head: 2, torso: 3, limbs: 2 }
 move_speed_m_s: 5.5
 body_radius_m: 0.5

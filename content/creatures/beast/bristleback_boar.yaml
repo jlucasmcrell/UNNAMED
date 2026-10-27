@@ -9,7 +9,7 @@ family: beast
 archetype: prey
 level_band: [4, 4]
 pools: { health: 70 }
-attack_set: [ability.creature.boar_gore, ability.creature.boar_charge]
+attack_set: [ability.creature.boar_gore, ability.creature.boar_charge, ability.creature.bristleback_boar_heavy]
 armor: { head: 4, torso: 8, limbs: 3 }   # bristles
 move_speed_m_s: 4.0
 turn_deg_s: 240   # quick in a line, slow to turn

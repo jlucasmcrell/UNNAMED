@@ -10,15 +10,15 @@ A level-L character has put its L-1 level-up points into Might. The sword and ba
 
 | Weapon | Level | Might | Median s | Fastest s | Slowest s | Median attacks | In the 4-8 s band |
 |---|---|---|---|---|---|---|---|
-| Rusted Sword | 1 | 10 | 4.85 | 4.10 | 6.35 | 7 | yes |
-| Rusted Sword | 2 | 11 | 4.85 | 4.10 | 5.60 | 7 | yes |
-| Rusted Sword | 3 | 12 | 4.85 | 4.10 | 5.60 | 7 | yes |
-| Hunting Bow | 1 | 10 | 7.45 | 6.15 | 8.75 | 6 | yes |
-| Hunting Bow | 2 | 11 | 7.45 | 6.15 | 8.75 | 6 | yes |
-| Hunting Bow | 3 | 12 | 7.45 | 6.15 | 7.45 | 6 | yes |
-| Unarmed | 1 | 10 | 13.30 | 10.05 | 15.25 | 21 | no (a fallback, not a weapon family) |
-| Unarmed | 2 | 11 | 12.65 | 10.05 | 14.60 | 20 | no (a fallback, not a weapon family) |
-| Unarmed | 3 | 12 | 12.65 | 9.40 | 14.60 | 20 | no (a fallback, not a weapon family) |
+| Rusted Sword | 1 | 10 | 5.95 | 4.85 | 7.40 | 8 | yes |
+| Rusted Sword | 2 | 11 | 5.55 | 4.10 | 6.30 | 7 | yes |
+| Rusted Sword | 3 | 12 | 5.55 | 4.10 | 6.30 | 7 | yes |
+| Hunting Bow | 1 | 10 | 8.65 | 6.15 | 9.95 | 7 | no |
+| Hunting Bow | 2 | 11 | 7.45 | 6.15 | 9.95 | 6 | yes |
+| Hunting Bow | 3 | 12 | 8.65 | 6.15 | 9.95 | 7 | no |
+| Unarmed | 1 | 10 | 17.35 | 13.35 | 25.10 | 23 | no (a fallback, not a weapon family) |
+| Unarmed | 2 | 11 | 16.70 | 13.35 | 24.35 | 23 | no (a fallback, not a weapon family) |
+| Unarmed | 3 | 12 | 15.00 | 12.00 | 24.35 | 21 | no (a fallback, not a weapon family) |
 
 ## Dying, standing still
 
@@ -26,18 +26,18 @@ A level-1 character wakes the wolves with one swing each, then stands: no guard,
 
 | Wolves and armor | Median s | Fastest s | Slowest s | In the 8-15 s band |
 |---|---|---|---|---|
-| 1 wolf, armor: none | 23.20 | 18.00 | 31.90 | no |
-| 2 wolves, armor: none | 13.05 | 10.20 | 14.85 | yes |
-| 4 wolves, armor: none | 7.00 | 5.80 | 7.30 | no |
-| 1 wolf, armor: hide vest + cap | 23.20 | 18.85 | 33.00 | no |
-| 2 wolves, armor: hide vest + cap | 13.05 | 11.05 | 15.95 | yes |
-| 4 wolves, armor: hide vest + cap | 7.25 | 5.85 | 7.30 | no |
+| 1 wolf, armor: none | 20.40 | 16.00 | 28.55 | no |
+| 2 wolves, armor: none | 13.90 | 10.85 | 19.85 | yes |
+| 4 wolves, armor: none | 13.75 | 11.55 | 17.50 | yes |
+| 1 wolf, armor: hide vest + cap | 21.35 | 17.00 | 28.55 | no |
+| 2 wolves, armor: hide vest + cap | 14.85 | 11.00 | 21.05 | yes |
+| 4 wolves, armor: hide vest + cap | 14.40 | 12.25 | 17.50 | yes |
 
 ## No health sponges
 
-The same body authored at level 6 with a doubled bite (8-12). Level is not an input to the damage pipeline, and the health pool is unchanged, so it dies as fast as the level-2 wolf; it is more dangerous only because it hits harder.
+The same body authored at level 6 with a doubled bite (8-12). The owner first-update level-gap rule changes damage and accuracy, while the health pool stays unchanged; it is harder to trade blows with because its strikes and accuracy have the level advantage.
 
 | Wolf | Level | Health | Bite | Kill with the sword, median s | Death standing still, median s |
 |---|---|---|---|---|---|
-| As authored | 2 | 50 | 4-6 | 4.85 | 23.20 |
-| Over-band variant | 6 | 50 | 8-12 | 4.85 | 13.05 |
+| As authored | 2 | 50 | 4-6 | 5.95 | 20.40 |
+| Over-band variant | 6 | 50 | 8-12 | >=60 (trade lost/censored) | 5.05 |

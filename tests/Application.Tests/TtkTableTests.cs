@@ -28,6 +28,7 @@ public class TtkTableTests
 
     private sealed record Row(string Label, int Level, IReadOnlyList<double> Seconds, IReadOnlyList<int> Blows)
     {
+        public bool Censored { get; init; }
         public double Median => Percentile(0.5);
         public double Percentile(double p)
         {
@@ -56,14 +57,15 @@ public class TtkTableTests
         }
 
         // The over-band check: the same wolf body authored four levels higher with a doubled bite. Its health is
-        // unchanged, so it dies as fast; it is more dangerous only because it hits harder.
+        // unchanged; it is harder to trade blows with because its strikes and accuracy have the level advantage.
         var wolf = session.Setup.Combat.Creatures[Arena.Wolf];
-        var overBand = wolf with { Level = wolf.Level + 4, Attack = wolf.Attack with { DamageMin = wolf.Attack.DamageMin * 2, DamageMax = wolf.Attack.DamageMax * 2 } };
+        var overBite = wolf.Attack with { DamageMin = wolf.Attack.DamageMin * 2, DamageMax = wolf.Attack.DamageMax * 2 };
+        var overBand = wolf with { Level = wolf.Level + 4, Attack = overBite, Moves = wolf.Moves.SetItem(0, overBite) };
         var harder = session.Setup with
         {
             Combat = session.Setup.Combat with { Creatures = session.Setup.Combat.Creatures.SetItem(Arena.Wolf, overBand) },
         };
-        var overKill = TimeToKill(session, harder, "item.weapon.rusted_sword", "Rusted Sword", 1);
+        var overKill = TimeToKill(session, harder, "item.weapon.rusted_sword", "Rusted Sword", 1, allowCensored:true);
         var overDie = TimeToDie(session, harder, armored: false, wolves: 1);
 
         string table = Render(session, kills, dies, wolf, overBand, kills[0], overKill, dies[0], overDie);
@@ -72,12 +74,12 @@ public class TtkTableTests
             File.WriteAllBytes(path, Encoding.UTF8.GetBytes(table));
         Assert.Equal(File.ReadAllText(path).Replace("\r\n", "\n"), table);
 
-        foreach (var row in kills.Where(r => r.Label != "Unarmed"))
+        foreach (var row in kills.Where(r => r.Label != "Unarmed" && r.Level == wolf.Level))
             Assert.InRange(row.Median, KillBand.Low, KillBand.High);
         // Phase 1's encounters are pairs (the valley strays, the respawning pack) and the den's four: a pair is the standard one.
         Assert.InRange(dies.Single(d => d.Label == "2 wolves, armor: none").Median, DieBand.Low, DieBand.High);
-        Assert.Equal(kills[0].Median, overKill.Median, 1);           // an over-band creature is no sponge...
-        Assert.True(overDie.Median < dies[0].Median * 0.7);          // ...it is lethal by damage
+        Assert.True(overKill.Median > kills[0].Median);           // the explicit level-gap rule now reduces outgoing damage
+        Assert.True(overDie.Median < dies[0].Median * 0.7);          // and makes its reply lethal
     }
 
     private static PlayerRecord Character(SimulationSetup setup, PlayerRecord fresh, int level, string weapon, bool armored, int arrows)
@@ -113,10 +115,11 @@ public class TtkTableTests
     }
 
     /// <summary>Time from the first swing, draw or punch to the kill, over many worlds. The bow opens from 15 m.</summary>
-    private static Row TimeToKill(GameSession session, SimulationSetup setup, string weapon, string label, int level)
+    private static Row TimeToKill(GameSession session, SimulationSetup setup, string weapon, string label, int level, bool allowCensored=false)
     {
         var seconds = new List<double>();
         var blows = new List<int>();
+        bool censored = false;
         bool ranged = weapon == "item.weapon.hunting_bow";
         for (ulong seed = 1; seed <= Worlds; seed++)
         {
@@ -124,12 +127,13 @@ public class TtkTableTests
                 r => Character(setup, r, level, weapon, armored: false, arrows: ranged ? 40 : 0), seed);
             var started = arena.Record<AttackStarted>();
             int ticks = arena.Fight(arena.Creature(), 1_200);
-            Assert.False(arena.Creature().Alive, $"{label} L{level} world {seed} did not kill the wolf in 60 s");
+            censored |= arena.Creature().Alive;
+            if(!allowCensored) Assert.False(arena.Creature().Alive, $"{label} L{level} world {seed} did not kill the wolf in 60 s");
             long first = started.First(s => s.Attacker == arena.Player).Tick;
             seconds.Add((arena.Simulation.WorldTick - first) * TickSeconds);
             blows.Add(started.Count(s => s.Attacker == arena.Player));
         }
-        return new Row(label, level, seconds, blows);
+        return new Row(label, level, seconds, blows) { Censored=censored };
     }
 
     /// <summary>Time from the first blow taken to death, standing still after waking the pack: no guard, no dodge, no reply.</summary>
@@ -197,12 +201,12 @@ public class TtkTableTests
 
         b.Append("\n## No health sponges\n\n");
         b.Append($"The same body authored at level {overBand.Level} with a doubled bite ({overBand.Attack.DamageMin}-{overBand.Attack.DamageMax}). ");
-        b.Append("Level is not an input to the damage pipeline, and the health pool is unchanged, so it dies as fast as the level-2 wolf; ");
-        b.Append("it is more dangerous only because it hits harder.\n\n");
+        b.Append("The owner first-update level-gap rule changes damage and accuracy, while the health pool stays unchanged; ");
+        b.Append("it is harder to trade blows with because its strikes and accuracy have the level advantage.\n\n");
         b.Append("| Wolf | Level | Health | Bite | Kill with the sword, median s | Death standing still, median s |\n");
         b.Append("|---|---|---|---|---|---|\n");
         b.Append($"| As authored | {wolf.Level} | {wolf.MaxHealth} | {wolf.Attack.DamageMin}-{wolf.Attack.DamageMax} | {S(killBase.Median)} | {S(dieBase.Median)} |\n");
-        b.Append($"| Over-band variant | {overBand.Level} | {overBand.MaxHealth} | {overBand.Attack.DamageMin}-{overBand.Attack.DamageMax} | {S(killOver.Median)} | {S(dieOver.Median)} |\n");
+        b.Append($"| Over-band variant | {overBand.Level} | {overBand.MaxHealth} | {overBand.Attack.DamageMin}-{overBand.Attack.DamageMax} | {(killOver.Censored ? ">=60 (trade lost/censored)" : S(killOver.Median))} | {S(dieOver.Median)} |\n");
         return b.ToString();
     }
 }
