@@ -39,7 +39,7 @@ WANTED = [
 
 def takes_of_fbx(path: Path):
     try:
-        blob = path.read_bytes()[:24_000_000].decode("latin-1", "ignore")
+        blob = path.read_bytes().decode("latin-1", "ignore")
     except OSError:
         return []
     names = set()
@@ -97,6 +97,9 @@ def pick(takes, patterns, used, want_idle=False):
         rx = re.compile(pattern, re.I)
         for take in takes:
             if take in used or not rx.search(take) or len(take) < 7 or take.endswith("_") or take.endswith("."):
+                continue
+            if rx.pattern.startswith(("turn", "walk_", "trot", "run_", "_l$", "_r$", "left", "right")) and \
+                    not re.search(r"turn|loco|walk|trot|run|trans", take, re.I):
                 continue
             if want_idle and (NOT_IDLE.search(take) or not IDLE_WORDS.search(take)):
                 continue
