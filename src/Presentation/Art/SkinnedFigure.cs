@@ -66,7 +66,7 @@ public sealed partial class SkinnedFigure : Figure
                 return bone>=0?Skeleton.GlobalTransform*Skeleton.GetBoneGlobalPose(bone).Origin:GlobalPosition;
             }
             var pelvis=At("pelvis");
-            if (_restPose!="lie_to_idle") return pelvis-Vector3.Up*(.085f*_uniformScale);
+            if (_restPose!="get_up") return pelvis-Vector3.Up*(.085f*_uniformScale);
             var centre=(At("head")+(At("foot.L")+At("foot.R"))*.5f)*.5f;
             return new Vector3(centre.X,pelvis.Y-.115f*_uniformScale,centre.Z);
         }
@@ -506,7 +506,8 @@ public sealed partial class SkinnedFigure : Figure
         if (speed < .25f && _restPose is { } resting)
         {
             _idles.Interrupt();
-            if (resting == "lie_to_idle") m.Hold(resting, 0, .3f);
+            // The native get-up starts on the back; lie_to_idle starts face-down.
+            if (resting == "get_up") m.Hold(resting, 0, .3f);
             else if (resting == "captive_kneel") m.Hold(resting, .5f, .3f);
             else m.Play(_talking && m.Has("sit_talk") ? "sit_talk" : resting, .3f);
             return;

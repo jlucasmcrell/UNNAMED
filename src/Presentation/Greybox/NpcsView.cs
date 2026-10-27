@@ -163,7 +163,7 @@ public partial class NpcsView : Node3D
                 meal?.Draw(furniture?.Clip == "sit" && hour >= 18 && hour < 22 && !npc.Talking,
                     figure.GlobalBasis.Z.Normalized(), delta);
             }
-            figure.SetGaze(furniture?.Clip!="lie_to_idle" && feet.DistanceSquaredTo(PlayerHead.GlobalPosition) < 64 ? PlayerHead.GlobalPosition : null);
+            figure.SetGaze(furniture?.Clip!="get_up" && feet.DistanceSquaredTo(PlayerHead.GlobalPosition) < 64 ? PlayerHead.GlobalPosition : null);
             // Hide an intervening companion as a whole (including their outline/weapon). Keep
             // posing while hidden so they resume at the current gait when the camera moves away.
             if (simulation.Companions.Any(c => c.NpcId == npc.Id) && GetViewport().GetCamera3D() is { } camera)
@@ -381,7 +381,7 @@ public partial class NpcsView : Node3D
         if(body.Body is null) return null;
         occupied.Add(body.Body.Id);
         float floor=simulation.ActiveLayout.Space.HeightAtMm((long)(body.At.X*1000),(long)(body.At.Z*1000))/1000f;
-        return (sleeping?"lie_to_idle":"sit",body.At+Vector3.Up*(floor+body.Body.HeightMm/1000f));
+        return (sleeping?"get_up":"sit",body.At+Vector3.Up*(floor+body.Body.HeightMm/1000f));
     }
 
     private static StandardMaterial3D Clothes(string npcId)

@@ -93,13 +93,14 @@ public partial class Main
     {
         try
         {
-            if (_innStep >= InnShotsHours.Length)
+            int[] hours = _flags.Contains("--inn-fixes") ? [23] : InnShotsHours;
+            if (_innStep >= hours.Length)
             {
                 File.WriteAllText(Path.Combine(_innShotsDirectory!,"complete.json"),
-                    JsonSerializer.Serialize(new { day=InnShotsDay, hours=InnShotsHours }));
+                    JsonSerializer.Serialize(new { day=InnShotsDay, hours }));
                 CaptureQuit.At(this); return;
             }
-            int hour = InnShotsHours[_innStep++];
+            int hour = hours[_innStep++];
             AdvanceTo(hour * 60);
             var simulation = _session.Simulation!;
             var residents = simulation.Lives.Where(l=>l.Settlement=="ashen_hollow").Select(l=> new {
@@ -107,7 +108,8 @@ public partial class Main
             File.AppendAllText(Path.Combine(_innShotsDirectory!,"occupants.jsonl"),
                 JsonSerializer.Serialize(new { hour,residents,travellers=simulation.Adventurers.Where(a=>a.Settlement=="ashen_hollow") })+System.Environment.NewLine);
             _hud.Visible = false;
-            foreach (var view in InnViews(hour)) await InnShot(hour,view);
+            var views = InnViews(hour);
+            foreach (var view in _flags.Contains("--inn-fixes") ? new[] { views[3],views[5] } : views) await InnShot(hour,view);
         }
         catch(Exception error)
         {

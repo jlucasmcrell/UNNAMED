@@ -65,7 +65,7 @@ public partial class HollowView
                 {
                     var material = shape.SurfaceGetMaterial(i);
                     if (material is not null && new[] { "_0", "_1", "_2", "_3", "_4", "_5", "_6", "_8" }
-                        .Any(material.ResourceName.EndsWith))
+                        .Any(suffix => material.ResourceName.Split("_lod", StringSplitOptions.None)[0].EndsWith(suffix)))
                         mesh.SetSurfaceOverrideMaterial(i, wood);
                 }
     }
@@ -147,6 +147,23 @@ public partial class HollowView
         Board("TavernWovenRug",new Vector3(446,ground+.057f,727.4f),new Vector3(2.2f,.025f,2.8f),wool);
         Board("TavernNoticeBoard",new Vector3(450.5f,ground+1.65f,731.55f),new Vector3(1.3f,.9f,.08f),wood);
         for(int i=0;i<3;i++) Board($"Notice{i}",new Vector3(450.1f+i*.36f,ground+1.67f,731.495f),new Vector3(.28f,.48f,.012f),linen);
+        // Round a subdivided box: a plump rectangular cushion, with flat cloth
+        // faces and soft sewn edges, rather than an oval disc.
+        var pillowBox = new BoxMesh { Size = new Vector3(.88f,.19f,.48f), SubdivideWidth=8, SubdivideHeight=4, SubdivideDepth=6 };
+        var pillowArrays = pillowBox.GetMeshArrays();
+        var vertices = pillowArrays[(int)Mesh.ArrayType.Vertex].AsVector3Array();
+        var normals = pillowArrays[(int)Mesh.ArrayType.Normal].AsVector3Array();
+        var core = new Vector3(.37f,.025f,.17f);
+        for(int i=0;i<vertices.Length;i++)
+        {
+            var nearest = vertices[i].Clamp(-core,core);
+            normals[i] = (vertices[i]-nearest).Normalized();
+            vertices[i] = nearest+normals[i]*.07f;
+        }
+        pillowArrays[(int)Mesh.ArrayType.Vertex]=vertices;
+        pillowArrays[(int)Mesh.ArrayType.Normal]=normals;
+        var pillow = new ArrayMesh();
+        pillow.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles,pillowArrays);
         foreach(var bed in layout.Space.Blockers.OfType<BoxBlocker>().Where(b=>b.Id.StartsWith("ah_inn_bed_")))
         {
             float x=bed.CenterXMm/1000f,z=bed.CenterZMm/1000f;
@@ -156,7 +173,7 @@ public partial class HollowView
             foreach(float side in new[] {-.565f,.565f})
                 Board(bed.Id+"BlanketFold"+side,new Vector3(x+side,upper+.54f,z-.23f),new Vector3(.025f,.13f,1.25f),wool);
             AddChild(new MeshInstance3D { Name=bed.Id+"Pillow",Position=new Vector3(x,upper+.65f,z+.65f),
-                Mesh=new SphereMesh { Radius=.28f,Height=.56f },Scale=new Vector3(1.7f,.3f,.75f),MaterialOverride=linen });
+                Mesh=pillow,MaterialOverride=linen });
         }
         foreach(var at in new[] { new Vector2(439.8f,715),new Vector2(444.8f,715),new Vector2(449.8f,715),
             new Vector2(437.2f,718.8f),new Vector2(444.9f,718.8f),new Vector2(450.7f,720.7f) })
