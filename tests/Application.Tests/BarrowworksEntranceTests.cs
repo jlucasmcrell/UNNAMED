@@ -15,7 +15,7 @@ public class BarrowworksEntranceTests
     private const string Drain = "portal.barrowworks.drain";
 
     /// <summary>The two anchors as authored, in region metres - the same numbers as in the content.</summary>
-    private static readonly (double X, double Z) ThresholdAt = (438, 663);
+    private static readonly (double X, double Z) ThresholdAt = (440, 621);
     private static readonly (double X, double Z) DrainAt = (1050, 770);
 
     private static GameSession Boot(TempProfile profile, bool gated) =>

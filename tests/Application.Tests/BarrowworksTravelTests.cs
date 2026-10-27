@@ -15,7 +15,7 @@ public class BarrowworksTravelTests
     private const string Threshold = "portal.barrowworks.threshold";
 
     /// <summary>The threshold portal's exterior anchor: beside Blackvein's spoil heaps.</summary>
-    private static readonly (double X, double Z) ThresholdAnchor = (438, 663);
+    private static readonly (double X, double Z) ThresholdAnchor = (440, 621);
 
     /// <summary>
     /// The world's own region with the gate on, so the two entrances exist and the player walks in through one

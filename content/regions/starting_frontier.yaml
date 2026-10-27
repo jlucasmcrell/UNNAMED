@@ -149547,6 +149547,17 @@ structures:
   hull_m: [[842.91, 713.63], [842.90, 718.89], [838.02, 718.92], [837.32, 718.88], [837.09, 717.14], [837.36, 713.45], [839.59, 713.08]]
   height_m: 15.2
 # FIELD_RUINS END
+# The Barrowworks threshold's spoil bank either side of its mouth and behind it (portal.barrowworks.threshold): the art is
+# drawn by the portal entrance, these are what a body cannot walk through.
+- id: threshold_bank_w
+  box_m: [421.0, 615.5, 439.1, 623.0]
+  height_m: 4.0
+- id: threshold_bank_e
+  box_m: [440.9, 615.5, 455.0, 623.0]
+  height_m: 4.0
+- id: threshold_bank_back
+  box_m: [439.1, 615.5, 440.9, 620.4]
+  height_m: 4.0
 doors:
 - key: door.longhouse
   flag_ref: world.hollow.longhouse_door_open
@@ -150644,8 +150655,7 @@ readables:
 # used, so leaving returns a body to the anchor it came in by rather than to a single shared vector.
 #
 # PROVISIONAL PLACEMENT - the owner should move these (docs/BARROWWORKS_CODEX_HANDOFF.md OQ-11). The two anchors are the canon
-# features the phase brief names: entrance A beside Blackvein's spoil heaps (the nodes blackvein_spoil_1 and
-# _2, at 440,662 and 436,665), entrance B at The Sinking Moss (location.cairnwold.the_bog, anchored at
+# features the phase brief names: entrance A in Blackvein's north wall, entrance B at The Sinking Moss (location.cairnwold.the_bog, anchored at
 # 1050,770). Those two places are about 610 m apart, which is where the canon features are rather than a
 # decision anyone made: at that distance the interior becomes a shortcut between two distant places rather
 # than two ways into one dungeon. The coordinates are here so they can be moved.
@@ -150653,10 +150663,12 @@ readables:
 # Neither is registered unless the run asks for one: GameSession empties this set unless the Barrowworks gate
 # is on, so with the option off these two entries are inert.
 portals:
-  # A - R01 Threshold, the hill above Blackvein. Interior anchor is R01's centre in the blockout.
+  # A - R01 Threshold, the hill above Blackvein. Its spoil-bank art reaches 26 m behind the mouth: at the old anchor (438, 663) it
+  # buried the quarry floor and the seam, so the mouth stands at the foot of the north wall and the bank lies in the hill.
+  # Interior anchor is R01's centre in the blockout.
   - key: portal.barrowworks.threshold
     space: space.barrowworks
-    exterior_m: [438, 663]
+    exterior_m: [440, 621]
     interior_m: [50, 10]
     reachable_flag: { flag_ref: world.barrowworks.ring_accessible, location_ref: location.barrowworks.intake_hall }
   # B - R04 Drain Mouth, the Sinking Moss. Interior anchor is R04's centre in the blockout.

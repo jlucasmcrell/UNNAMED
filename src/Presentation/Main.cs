@@ -381,7 +381,7 @@ public partial class Main : Node3D
         if (_options.ContainsKey("--barrowworks-review") && (VisualOptions.Barrowworks
             || OS.GetEnvironment("BARROWWORKS_REVIEW_RETURN_BASELINE") == "1"))
             shotStart = OS.GetEnvironment("BARROWWORKS_REVIEW_RETURN_BASELINE") == "1"
-                ? (1_050_000, 770_000) : (438_000, 664_000);
+                ? (1_050_000, 770_000) : (440_000, 622_000);
         if (_options.ContainsKey("--ds-shots"))
             shotStart = DsShotsStart;
         // The inn's captures stand the character at the inn's board, where the day finds the adventurers (spec 15), so the bodies in the

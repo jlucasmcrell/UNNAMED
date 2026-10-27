@@ -470,6 +470,9 @@ public partial class HollowView : Node3D
             Coverage.Fallback("structure", blocker.Id, $"no binding: {shape}");
             return null;
         }
+        // Collision for art something else draws (the Barrowworks threshold's spoil bank): the camera's collider only.
+        if (look.Hidden)
+            return Unseen(BuildStructure(blocker, terrain));
         if (look.Surface is { } surface && look.Model is null)
         {
             if (_art.WorldMaterial(surface) is not { } material)

@@ -34,9 +34,9 @@ public class SpaceCompanionTests
     {
         using var profile = new TempProfile();
         using var session = Harness.Boot(profile, barrowworks: true);
-        var arena = Arena.OpenCreatures(session, session.Setup, (437, 663), 90,
+        var arena = Arena.OpenCreatures(session, session.Setup, (440, 622), 90,
             Array.Empty<(string, double, double, string)>(),
-            r => r.WithCompanions(new[] { new CompanionRecord(Tavar, order, CompanionCondition.Up, 436_000, 663_000, 90_000, 100) }),
+            r => r.WithCompanions(new[] { new CompanionRecord(Tavar, order, CompanionCondition.Up, 440_000, 624_000, 90_000, 100) }),
             origin: (0, 0));
         Assert.Null(arena.Submit(new EnterSpaceCommand(arena.Player, "portal.barrowworks.threshold")));
         arena.Tick();
