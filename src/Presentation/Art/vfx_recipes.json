@@ -187,19 +187,40 @@
       "direction": [0, 1, 0], "gravity": [0.0, 0.01, 0.0], "damping": [0.05, 0.1], "blend": "add", "energy": 4.0,
       "color": ["#7dffcf00", "#7dffcfcc", "#62e6ffaa", "#62e6ff00"]
     },
-    "rain": {
-      "note": "Heavy rain in a storm (overhaul): Kenney soft streak drawn ALONG each drop's fall (billboard velocity) instead of a 128 px generated bar standing upright.",
-      "mode": "stream", "texture": "vfx/kenney_trace_rain.png", "box": [24, 2, 24], "quad": [0.03, 1.0], "billboard": "velocity",
-      "amount": 4200, "lifetime": 0.9, "size": [0.55, 0.8], "velocity": [15, 18], "spread": 4,
-      "direction": [0.08, -1, 0.05], "gravity": [0, -9.8, 0], "blend": "mix", "energy": 1.0,
-      "color": ["#c4ccd460", "#c4ccd460"]
+    "rain_drizzle": {
+      "note": "Drizzle (note 16): a few thin drops, short-lived and half-transparent, so the air reads as wet rather than streaked with white. Tuned down from the old 4200 heavy streaks.",
+      "mode": "stream", "texture": "vfx/kenney_trace_rain.png", "box": [20, 2, 20], "quad": [0.010, 1.0], "billboard": "velocity",
+      "amount": 320, "lifetime": 0.7, "size": [0.16, 0.24], "velocity": [7, 9], "spread": 2,
+      "direction": [0.03, -1, 0.02], "gravity": [0, -9.8, 0], "blend": "mix", "energy": 1.0,
+      "color": ["#aebbc82e", "#aebbc82e"]
     },
-    "rain_light": {
-      "note": "Light rain: fewer, shorter, slower streaks.",
-      "mode": "stream", "texture": "vfx/kenney_trace_rain.png", "box": [22, 2, 22], "quad": [0.025, 1.0], "billboard": "velocity",
-      "amount": 1300, "lifetime": 1.3, "size": [0.3, 0.45], "velocity": [9, 11], "spread": 3,
-      "direction": [0.04, -1, 0.02], "gravity": [0, -9.8, 0], "blend": "mix", "energy": 1.0,
-      "color": ["#c4ccd448", "#c4ccd448"]
+    "rain": {
+      "note": "Steady rain (note 16): thinner and shorter than the old streaks, translucent rather than flat white, and a fifth of the count.",
+      "mode": "stream", "texture": "vfx/kenney_trace_rain.png", "box": [22, 2, 22], "quad": [0.012, 1.0], "billboard": "velocity",
+      "amount": 900, "lifetime": 0.85, "size": [0.22, 0.32], "velocity": [10, 13], "spread": 3,
+      "direction": [0.05, -1, 0.03], "gravity": [0, -9.8, 0], "blend": "mix", "energy": 1.0,
+      "color": ["#b6c2cf3a", "#b6c2cf3a"]
+    },
+    "rain_downpour": {
+      "note": "Downpour in a storm (note 16): the most of the three, still thin and translucent - the count and the speed carry it, not the width.",
+      "mode": "stream", "texture": "vfx/kenney_trace_rain.png", "box": [26, 2, 26], "quad": [0.013, 1.0], "billboard": "velocity",
+      "amount": 1500, "lifetime": 1.0, "size": [0.26, 0.38], "velocity": [15, 18], "spread": 4,
+      "direction": [0.08, -1, 0.05], "gravity": [0, -9.8, 0], "blend": "mix", "energy": 1.0,
+      "color": ["#b9c6d342", "#b9c6d342"]
+    },
+    "rain_splash": {
+      "note": "The hit of a drop on the ground (note 16): small, short-lived soft flecks a hand above the surface, so the ground answers the rain.",
+      "mode": "stream", "texture": "vfx/unity_discsmoke01_16x4.png", "grid": [16, 4], "frames": 64, "fps": 24, "soft": 1.0,
+      "box": [18, 0.4, 18], "amount": 140, "lifetime": 0.28, "size": [0.05, 0.09], "velocity": [0.4, 1.1], "spread": 55,
+      "direction": [0, 1, 0], "gravity": [0, -6, 0], "blend": "add", "energy": 0.5,
+      "color": ["#dfe8f000", "#dfe8f0aa", "#dfe8f000"]
+    },
+    "rain_ripple": {
+      "note": "The ring a drop leaves (note 16): a flat soft disc on the ground that grows and fades, faint enough to be a ripple and not a decal.",
+      "mode": "stream", "texture": "vfx/unity_discsmoke01_16x4.png", "grid": [16, 4], "frames": 64, "fps": 18, "soft": 1.0,
+      "box": [16, 0.05, 16], "amount": 90, "lifetime": 0.7, "size": [0.06, 0.1], "size_curve": [1.0, 3.2], "velocity": [0.02, 0.06], "spread": 90,
+      "direction": [0, 1, 0], "gravity": [0, 0, 0], "blend": "add", "energy": 0.35,
+      "color": ["#dfe8f0b0", "#dfe8f000"]
     },
     "snow": {
       "note": "Snow: soft irregular flakes (Cosmos NS1), tumbling and drifting down round the camera, lit.",
