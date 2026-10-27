@@ -23,3 +23,23 @@ Same23-definition real-art noon lineup for review: `C:/Otherreach_External_Asset
 The assembly includes the review-only Sedge source to show all23 current definitions. It is not a merge recommendation for Sedge gameplay. Production commit changes only creature bindings, bone-look parsing and credits. Existing scalar bone looks retain their prior behavior; XYZ arrays apply only to the juvenile pup. Full source shaders/geometry unchanged for retained creatures. This is an appearance gate, not motion acceptance.
 
 Credits: existing WildMesh `A-W01` / `creature_wm_` entry covers these sources; added modifications line in `content/credits.yaml`. No new item/material lore, location, race or mythology facts. Existing C1 move sets and source clips remain; animation depth and the other owner-selected rigs/HumGen mobs are subsequent batches.
+
+## Batch B — source-quality creature candidates
+
+Batch A6412dfe7 remains immutable. Batch B installs only a new private art delta; it does not promote a public build. Review: `C:/Otherreach_External_Assets/first_update/creature_batch_b/review.html`.
+
+| Subject | Native source / change |
+|---|---|
+| Cave spider | Matching Nephila native4K PBR maps; existing mesh, skin and LODs. |
+| Matriarch | Mixall tarantula, distinct skin,3m BODY length. Native1,428 triangles/70 joints/2K diffuse/six actions; legs extend beyond that measurement. No invented reaction/turn takes. |
+| Animated armour | Full native DM-913 knight plate,21,433 LOD0 triangles/original2K PBR; existing native rig and C1 takes. |
+| Tender / Warden / Custodian | Stan native28-joint rig and C1 clips;2K stone maps plus CC0 Rock064 normal, native Blender bevel/chipped surface. The556-triangle source is deliberately blocky;13,632 derivative LOD0 body triangles do not make it a high-detail hero source. Warden uniform2.5 scale, other two native4m. |
+| Barrowback | Left tusk another15% shorter than accepted Batch A, socket retained at all3 LODs. |
+| Raider | Native HumGen Cole, aged52, native Pirate garb and boots, scarf, DM-913 left plate pauldron fitted with HumGen's bilaplacian custom-content API; native4K skin/clothing, original body/rest, ordinary4 LODs. Existing credited Cosmos sword/sheath back carry. |
+| Drowned | Native HumGen Nico, aged58, weathered Pirate garb and kelp strips, desaturated pale waterlogged/salt skin baked through native HumGen; source pores/age/normals retained. Same native quality recipe. |
+
+Exact source paths/catalogue keys and licences are recorded in the canon repo's `canon/bestiary/PLAYTEST_CREATURE_ASSETS.md`; `BATCH_B_CATALOG_SNAPSHOT.json` preserves the reviewed catalogue snapshot. Current catalogue row numbers may change. Credits include Mixall, huangyuanqiang, DM-913, ShyrAssets (CC BY4.0), ambientCG Rock064 (CC0), licensed HumGen and existing Cosmos/Quaternius attribution.
+
+HumGen creature libraries use native Epic IK Retargeter → GLTFExporter transport onto each final body:48 owned approved source states +7 aliases =55. Native rest/finger/pace/direction guards and independent body SHA/no-Jaw/no-KayKit readbacks remain mandatory. Runtime bindings alias these baked states before AnimationPlayer/FootPlants setup; they do not retarget or change rest data. Drowned idle/walk use native UAL zombie takes. C1 move definitions/timing are unchanged. Hand grip/fill use the accepted character helpers. High/Ultra retain full source mob textures; ordinary BC7/mip/tier/LOD rules remain, with no new savings.
+
+Review combines the successful full23 B1 lineup with only the two polished HumGen retakes. Exact original-frame hashes/camera/material readbacks accompany the sheet. Large eel/construct/spider subjects use a disclosed3m surface stand-off; others3m centre. Earlier native heap-corruption evidence is retained; the final completed capture is separate, and no isolated cause is asserted. This is appearance evidence, not full combat-motion acceptance. Animation-depth expansion is handed to DeepSeek after Batch B.

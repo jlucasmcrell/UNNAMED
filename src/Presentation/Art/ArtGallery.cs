@@ -70,7 +70,7 @@ public partial class ArtGallery : Node3D
         float x = 0;
         foreach (var (defId, creature) in _bindings.Creatures)
         {
-            var model = SkinnedModel.Create(_art, creature.Model, creature.Clips);
+            var model = SkinnedModel.Create(_art, creature.Model, creature.Clips, nativeStates: creature.NativeStates);
             if (model is null)
                 continue;
             float size = OtherFauna.Apply(model, defId, creature.Fauna, defId);

@@ -125,7 +125,7 @@ public partial class AnimationSheet : Node3D
         float z = 0;
         foreach (var (defId, creature) in _bindings.Creatures)
         {
-            var first = SkinnedModel.Create(_art, creature.Model, creature.Clips);
+            var first = SkinnedModel.Create(_art, creature.Model, creature.Clips, nativeStates: creature.NativeStates);
             if (first is null)
             {
                 _notes.Add($"{defId}: {creature.Model} not drawn ({_art.Why(creature.Model) ?? "no model"})");
@@ -136,7 +136,7 @@ public partial class AnimationSheet : Node3D
             float spacing = Math.Max(1.2f, Math.Max(size.X, size.Z) * 1.25f + 0.4f);
             for (int i = 0; i < CreatureStates.Length; i++)
             {
-                var model = SkinnedModel.Create(_art, creature.Model, creature.Clips)!;
+                var model = SkinnedModel.Create(_art, creature.Model, creature.Clips, nativeStates: creature.NativeStates)!;
                 model.Position = new Vector3(i * spacing, 0, z);
                 model.Rotation = new Vector3(0, Mathf.DegToRad(60), 0);
                 AddChild(model);
@@ -390,7 +390,7 @@ public partial class AnimationSheet : Node3D
             var yard = at + new Vector3(0, 0, -26f);
             for (int i = 0; i < 2; i++)
             {
-                if (SkinnedModel.Create(_art, houndLook.Model, houndLook.Clips) is not { } body)
+                if (SkinnedModel.Create(_art, houndLook.Model, houndLook.Clips, nativeStates: houndLook.NativeStates) is not { } body)
                     break;
                 body.Position = yard + new Vector3(i * 3f, 0, 0);
                 AddChild(body);

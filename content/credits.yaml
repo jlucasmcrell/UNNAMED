@@ -112,7 +112,7 @@ sections:
         binds: [bw_codex_]
         text: "The Barrowworks interior kit: Lost Temple Environment by DanStudios and Ancient Mayan Ruins by Meshingun Studio, used under the Fab Standard License."
       - binds: [ruin_fs_, creature_gate_]
-        text: "The Spill and the Stopped Gate: Red Echo and Monolith Megastructure environment kits from Fab, used under the Fab Standard License. The gate tender and the Gate Warden are built on Stan - The Golem by ShyrAssets (fab.com/listings/0a80c04e-ad02-4bf3-a059-f98ee9bf782e), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/); changes: the body replaced with Red Echo pieces, rescaled rig, original animations."
+        text: "The Spill and the Stopped Gate: Red Echo and Monolith Megastructure environment kits from Fab, used under the Fab Standard License. The gate constructs' Stan - The Golem source, modifications and attribution are recorded under Creatures."
       - ledger: [A-F03]
         text: "Hearth and forge fire effects: Fire FX VDB by SHOGUN GAMES, used under the Fab Standard License."
       - ledger: [A-C01, A-C02]
@@ -174,12 +174,18 @@ sections:
       - binds: [creature_playtest_bone_walker]
         text: "Cursed Undead Soldier Rig by DM-913, CC BY 4.0. Modified bone/rag surfaces, removed glowing eyeball, converted and retargeted for Otherreach."
         url: "https://www.fab.com/listings/cf236a92-88d9-4f0d-af10-d4f878560b39"
-      - binds: [creature_playtest_empty_armour]
-        text: "Armored Guard Knight Rig by DM-913, CC BY 4.0. Modified empty/open helm, aged iron and gauntlet slam for Otherreach."
+      - binds: [creature_playtest_empty_armour, humgen_mob_raider]
+        text: "Armored Guard Knight Rig by DM-913, CC BY 4.0. Native full-detail plate geometry and PBR maps, empty armour conversion, fitted raider pauldron and C1 retargeted takes for Otherreach."
         url: "https://www.fab.com/listings/dfc7d8fe-6b8d-476c-876a-7574dbe023d4"
       - binds: [creature_playtest_cave_spider]
-        text: "Nephila pilipes spider by huangyuanqiang, CC BY 4.0. Converted, scaled, retimed and given additional animation states for Otherreach."
+        text: "Nephila pilipes spider by huangyuanqiang, CC BY 4.0. Matching native 4K maps, converted, scaled, retimed and given additional animation states for Otherreach."
         url: "https://www.fab.com/listings/4265106f-e4d6-4b82-88ab-5f54c359e77c"
+      - binds: [creature_d5_tarantula_matriarch]
+        text: "Spiders - characters with animations by Mixall, CC BY 4.0. Native tarantula skin, rig and six animations; converted and scaled for the hunting spider matriarch."
+        url: "https://www.fab.com/listings/41eeeaca-af9e-43b2-8a71-0874356cebb2"
+      - binds: [creature_d5_stan_carved]
+        text: "Stan - The Golem by ShyrAssets, CC BY 4.0. Original rig, native 2K surfaces and animations; Blender chipped-edge/surface geometry and faint violet joint seams for Otherreach. Rock064 surface normal texture by ambientCG, CC0."
+        url: "https://www.fab.com/listings/0a80c04e-ad02-4bf3-a059-f98ee9bf782e"
       - ledger: [A-W01]
         binds: [creature_wm_]
         text: "Creature models and animations: WildMesh 3D (UNITY Animated Animals Realistic Pack; 100 MODELS), used under the WildMesh Standard licence."

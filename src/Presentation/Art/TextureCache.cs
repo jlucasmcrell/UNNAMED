@@ -115,7 +115,9 @@ public sealed class TextureCache
 
     // Native Siann GLBs embed 4K skin. Baseline figures share a 2K upload;
     // the scoped close-up path alone holds 4K for eligible players/named NPCs.
+    // Upgraded HumGen creatures use their full source maps under the normal tier settings.
     private static int BaseMaximum(string key, string role) => key.StartsWith("rigged/humgen_", StringComparison.Ordinal)
+        && !key.StartsWith("rigged/humgen_mob_", StringComparison.Ordinal)
         ? Math.Min(2048, VisualOptions.TextureMaxSize(key, role)) : VisualOptions.TextureMaxSize(key, role);
 
     // Close-up maps live only on the figure using them; never retain their 4K upload in the scene cache.
