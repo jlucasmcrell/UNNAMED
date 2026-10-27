@@ -2,7 +2,10 @@ extends SceneTree
 func _initialize():
  var root=OS.get_cmdline_user_args()[0]
  var count=0
- for id in ["sedge_reed_clump","sedge_review_walk","sedge_review_pile","sedge_sunk_deck","sedge_arch_gate2","sedge_arch_crest_threshold"]:
+ var ids=["sedge_reed_clump","sedge_review_walk","sedge_review_pile","sedge_sunk_deck","sedge_arch_gate2","sedge_arch_crest_threshold"]
+ if OS.get_cmdline_user_args().size()>1:
+  ids=OS.get_cmdline_user_args()[1].split(",")
+ for id in ids:
   var path=root+"/ready/"+id+"/"+id+".glb"
   var doc=GLTFDocument.new()
   var state=GLTFState.new()

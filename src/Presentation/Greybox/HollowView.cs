@@ -36,16 +36,21 @@ public partial class HollowView : Node3D
     private MeshInstance3D? _tidalWater;
     private TidalWater? _tide;
     private Node3D[]? _tidalProps;
+    private SedgeArtView? _sedgeArt;
     public void SetTideTick(long tick)
     {
         if (_tidalWater is not null && _tide is not null)
         {
             float level = _tide.LevelAt(tick) / 1000f;
+            _sedgeArt?.SetTideLevel(level);
             _tidalWater.Position = new Vector3(_tidalWater.Position.X, level, _tidalWater.Position.Z);
             _tidalProps ??= GetNodeOrNull<Node3D>("Dressing")?.GetChildren().OfType<Node3D>()
-                .Where(n => n.HasMeta("tidal_visible_above_m")).ToArray() ?? Array.Empty<Node3D>();
+                .Where(n => n.HasMeta("tidal_visible_above_m") || n.HasMeta("tidal_float_offset_m")).ToArray() ?? Array.Empty<Node3D>();
             foreach (var prop in _tidalProps)
-                prop.Visible = level >= prop.GetMeta("tidal_visible_above_m").AsSingle();
+            {
+                if (prop.HasMeta("tidal_visible_above_m")) prop.Visible = level >= prop.GetMeta("tidal_visible_above_m").AsSingle();
+                if (prop.HasMeta("tidal_float_offset_m")) prop.Position = new Vector3(prop.Position.X, level + prop.GetMeta("tidal_float_offset_m").AsSingle(), prop.Position.Z);
+            }
         }
     }
 
@@ -241,6 +246,7 @@ public partial class HollowView : Node3D
 
         AddChild(BuildDebugMarkers(layout));
         AddChild(BuildLighting(layout, terrain, exterior));
+        if (exterior) _sedgeArt = SedgeArtView.Build(this, ground, _art, layout.Id);
     }
 
     /// <summary>
