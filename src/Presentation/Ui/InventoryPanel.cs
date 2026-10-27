@@ -56,6 +56,26 @@ public partial class InventoryPanel : CanvasLayer
     /// <summary>The item the details show: a carried stack's ID, or a container's or trader's entry ref.</summary>
     private string? _chosen;
 
+    /// <summary>How many of the recipe Make works: the − and + buttons move it, Make All fills it (the owner's note 12).</summary>
+    private int _amount = 1;
+
+    /// <summary>The most a single Make All will queue, so a typo is not a thousand ingots.</summary>
+    private const int AmountMax = 99;
+
+    /// <summary>
+    /// The craft queue (note 12): the recipe being worked, how many were asked for and how many are left. One craft is submitted at a
+    /// time through the ordinary command path, so each keeps its own quality roll, skill practice and first-time XP.
+    /// </summary>
+    private readonly CraftQueue _queue = new();
+
+    /// <summary>
+    /// How long the queue waits between crafts. A craft itself takes no world time in the rules, so this is the panel's own pace: it
+    /// keeps the queue from landing a dozen pieces in one tick and leaves the player a moment to cancel between them.
+    /// </summary>
+    private const double CraftPaceSeconds = 0.75;
+
+    private double _queueWait;
+
     /// <summary>The container open alongside the inventory, if any.</summary>
     public string? OpenContainer { get; private set; }
 
@@ -535,16 +555,35 @@ public partial class InventoryPanel : CanvasLayer
         var stashed = stashes.SelectMany(st => st.Items).ToList();
         var worn = player.Equipment.Values.ToList();
         InputSupply Supply(RecipeInput input) => PackModel.Supply(input.ItemId, input.Count, pack, stashed, worn, c => BagName(c.BagDefId!));
+        // What the station can draw of an item, for Make All: everything carried anywhere plus the settlement's stash.
+        int OnHand(string itemId) => Supply(new RecipeInput(itemId, 1)).Total;
         if (!stashes.IsEmpty)
             _contextHead.AddChild(UiKit.Words($"Also working from your stash here ({stashed.Sum(i => i.Count)} items).", 16, HudStyle.Brass));
+        // How many at a time (note 12): the amount field with its − and + buttons, above the recipes.
+        var amountRow = new HBoxContainer();
+        amountRow.AddThemeConstantOverride("separation", 8);
+        amountRow.AddChild(UiKit.Caption("Amount"));
+        amountRow.AddChild(Button("amount", "−", () => ChangeAmount(-1)));
+        amountRow.AddChild(UiKit.Words(_amount.ToString(), 20, HudStyle.Bone));
+        amountRow.AddChild(Button("amount", "+", () => ChangeAmount(1)));
+        _contextHead.AddChild(amountRow);
+        // The queue while it runs, with the way to stop it and the reason it stopped.
+        if (_queue.Running)
+            _contextHead.AddChild(QueueLine(recipes));
+        else if (_queue.Note is { } note)
+            _contextHead.AddChild(UiKit.Words(note, 16, HudStyle.Muted));
         foreach (var recipe in recipes)
         {
             var row = ItemRow("r:" + recipe.Id, recipe.OutputItemId, Quality.Standard, recipe.OutputCount, "");
             row.Root.AddChild(UiKit.Chip($"Complexity {recipe.Complexity}", HudStyle.Iron, HudStyle.Ash));
             var short_ = recipe.Inputs.Where(i => !Supply(i).Enough).ToList();
-            var make = Button("r:" + recipe.Id, "Make", () => Submit(new CraftCommand(simulation.PlayerId, recipe.Id)), UiKit.Kind.Primary);
+            int canMake = CraftingRules.MakeableFrom(recipe, OnHand);
+            var make = Button("r:" + recipe.Id, _amount > 1 ? $"Make {_amount}" : "Make", () => StartQueue(recipe, _amount), UiKit.Kind.Primary);
             make.Disabled = short_.Count > 0;
             row.Root.AddChild(make);
+            var makeAll = Button("r:" + recipe.Id, "Make All", () => StartQueue(recipe, canMake));
+            makeAll.Disabled = canMake == 0;
+            row.Root.AddChild(makeAll);
             var inputs = new HFlowContainer();
             inputs.AddThemeConstantOverride("h_separation", 6);
             inputs.AddThemeConstantOverride("v_separation", 4);
@@ -816,6 +855,72 @@ public partial class InventoryPanel : CanvasLayer
         simulation.Offer(npcId, defId, wear, quality, notable);
 
     private void Submit(GameCommand command) => _session.Submit(command);
+
+    /// <summary>The − and + of the amount field: one at least, a hundred at most, and a redraw so the number follows the press.</summary>
+    private void ChangeAmount(int step)
+    {
+        _amount = Math.Clamp(_amount + step, 1, AmountMax);
+        Refresh();
+    }
+
+    /// <summary>
+    /// Queue a recipe worked <paramref name="count"/> times (note 12). What stands in the way - nothing asked for, materials short for
+    /// even one - stops it before it starts, in the queue's own line rather than silently.
+    /// </summary>
+    private void StartQueue(RecipeDefinition recipe, int count)
+    {
+        if (_session.Simulation is null)
+            return;
+        _queue.Start(recipe.Id, Math.Clamp(count, 0, AmountMax));
+        _queueWait = 0;
+        Refresh();
+    }
+
+    /// <summary>Stop the queue where it stands; what is already made stays made.</summary>
+    public void CancelQueue()
+    {
+        _queue.Cancel();
+        Refresh();
+    }
+
+    /// <summary>What the queue is doing, or why it stopped, with the button that stops it.</summary>
+    private Control QueueLine(IReadOnlyList<RecipeDefinition> recipes)
+    {
+        var line = new HBoxContainer();
+        line.AddThemeConstantOverride("separation", 10);
+        string name = recipes.FirstOrDefault(r => r.Id == _queue.RecipeId) is { } recipe ? Names.Of(_session, recipe.OutputItemId) : _queue.RecipeId;
+        line.AddChild(UiKit.Chip($"Making {_queue.Made} of {_queue.Asked} · {name}", HudStyle.Brass));
+        line.AddChild(Button("queue", "Cancel", CancelQueue));
+        return line;
+    }
+
+    /// <summary>
+    /// Works the queue (note 12): one craft per pace tick through the same CraftCommand the Make button submits, so every piece keeps its own
+    /// quality roll, its skill practice and its first-time XP. It stops by itself when the materials no longer cover another piece.
+    /// </summary>
+    public override void _Process(double delta)
+    {
+        if (!Visible || !_queue.Running || _session.Simulation is not { } simulation)
+            return;
+        if (!simulation.Setup.Crafting.Recipes.TryGetValue(_queue.RecipeId, out var recipe))
+        {
+            _queue.Cancel();
+            return;
+        }
+        _queueWait += delta;
+        if (_queueWait < CraftPaceSeconds || OpenStation is not { } station)
+            return;
+        _queueWait = 0;
+        // Make All counted what was to hand when it was pressed; the pack may have emptied since, so each piece is checked again.
+        var stashed = simulation.StashesAt(station).SelectMany(s => s.Items).ToList();
+        var worn = simulation.Player.Equipment.Values.ToList();
+        int OnHand(string itemId) => PackModel.Supply(itemId, 1, simulation.Pack, stashed, worn, c => BagName(c.BagDefId!)).Total;
+        var step = _queue.Next(CraftingRules.MakeableFrom(recipe, OnHand));
+        if (step is CraftStep.MakeOne or CraftStep.Done)
+            Submit(new CraftCommand(simulation.PlayerId, recipe.Id));
+        Refresh();
+    }
+
 
     /// <summary>
     /// The pack's list stands as tall as its rows, up to what the band leaves under the totals and over the details; past that it

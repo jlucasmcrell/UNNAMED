@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using UNNAMED.Domain.Crafting;
 
 namespace UNNAMED.Domain.Tests;
@@ -36,6 +37,29 @@ public class CraftingRulesTests
         Assert.Equal(Quality.Standard, CraftingRules.Roll(Quality.Crude, 60, 0, Rules, 0.99));
         Assert.Equal(Quality.Fine, CraftingRules.Roll(Quality.Fine, 60, 0, Rules, 0.99));
         Assert.Equal(Quality.Crude, CraftingRules.Roll(Quality.Crude, 0, 40, Rules, 0.01));
+    }
+
+    [Fact]
+    public void MakeAll_CountsTheSmallestCompleteSet_AndNothingWhenOneInputIsMissing()
+    {
+        // Two iron and one ash a piece: the iron decides, and a recipe with no inputs is nothing to make.
+        var spear = new RecipeDefinition("recipe.test.spear", "anvil", "skill.smithing", 4,
+            new[] { new RecipeInput("item.material.iron_ingot", 2), new RecipeInput("item.material.ash_haft", 1) }.ToImmutableArray(),
+            "item.weapon.spear", 1, QualityRoll: true, FirstTimeXp: 10);
+        var supply = new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            ["item.material.iron_ingot"] = 7,
+            ["item.material.ash_haft"] = 3,
+        };
+        Assert.Equal(3, CraftingRules.MakeableFrom(spear, id => supply.GetValueOrDefault(id)));
+
+        // Short of one input: none complete, even though the other is plentiful.
+        supply["item.material.iron_ingot"] = 1;
+        Assert.Equal(0, CraftingRules.MakeableFrom(spear, id => supply.GetValueOrDefault(id)));
+
+        // Nothing at all, and a recipe with no inputs, are both simply none.
+        Assert.Equal(0, CraftingRules.MakeableFrom(spear, _ => 0));
+        Assert.Equal(0, CraftingRules.MakeableFrom(spear with { Inputs = ImmutableArray<RecipeInput>.Empty }, _ => 99));
     }
 
     [Fact]

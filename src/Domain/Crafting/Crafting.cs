@@ -145,6 +145,21 @@ public static class CraftingRules
             : quality;
 
     /// <summary>
+    /// How many whole crafts the supply allows - the player's "Make All" (note 12): the smallest number of complete sets any one input
+    /// reaches, so a recipe wanting two iron and one ash works as many times as the iron lasts. <paramref name="available"/> answers the
+    /// count of an item id anywhere the station can draw on. A recipe with no inputs is nothing to make, so nothing.
+    /// </summary>
+    public static int MakeableFrom(RecipeDefinition recipe, Func<string, int> available)
+    {
+        if (recipe.Inputs.IsDefaultOrEmpty)
+            return 0;
+        int most = int.MaxValue;
+        foreach (var input in recipe.Inputs)
+            most = Math.Min(most, Math.Max(0, available(input.ItemId)) / input.Count);
+        return Math.Max(0, most);
+    }
+
+    /// <summary>
     /// A drop's quality from the creature's level (DCP:662): the highest band at or below the level decides; below every band, standard.
     /// <paramref name="sample"/> is in [0, 1). Never masterwork (PROGRESSION.md §11.2).
     /// </summary>
