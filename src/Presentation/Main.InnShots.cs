@@ -16,12 +16,13 @@ public partial class Main
     private int _innStep;
     private bool _innBusy;
     private Label? _innCaption;
+    private Camera3D _innCamera = null!;
     private readonly record struct InnView(string Name, float X, float Z, float LookX, float LookZ);
 
     private static InnView[] InnViews(int hour) => hour switch
     {
         8 or 13 => [new("Waystation common room: Renn and the cook",449,730,442,726),
-            new("Smithy: Kera",460,737,461.6f,739.6f),
+            new("Smithy: Kera",460,739,461.6f,739.6f),
             new("Survey table: Sel",474,725,472,722),
             new("Road watch: guard",467,750,464,748),
             new("Road deliveries: porter",478,734,476,731),
@@ -46,6 +47,16 @@ public partial class Main
         Directory.CreateDirectory(_innShotsDirectory);
         _innNext = Time.GetTicksMsec() + 2500;
         _rcd3Driving = _innFreeCamera = true;
+        // SpringArm3D writes its child camera during physics even when Follow is
+        // paused. Use the existing review-camera pattern outside that rig.
+        var source = _camera.Camera;
+        _innCamera = new Camera3D { Name = "InnReviewCamera", Fov = 80, Near = source.Near,
+            Far = source.Far, CullMask = source.CullMask, Attributes = source.Attributes,
+            Environment = source.Environment, Position = new Vector3(449, 8.85f, 730) };
+        AddChild(_innCamera);
+        if (source.GetNodeOrNull<OmniLight3D>("CharacterFill") is { } fill) fill.Reparent(_innCamera, false);
+        _innCamera.LookAt(new Vector3(442, 8.2f, 726));
+        _innCamera.MakeCurrent();
         var layer = new CanvasLayer { Layer = 100 };
         _innCaption = new Label { Position = new Vector2(22,22) };
         _innCaption.AddThemeFontSizeOverride("font_size",24);
@@ -123,7 +134,7 @@ public partial class Main
         for(int frame=0;frame<48;frame++)
         {
             _avatar.Visible=false;
-            _camera.Camera.GlobalPosition=eye; _camera.Camera.LookAt(look); _camera.Camera.MakeCurrent();
+            _innCamera.GlobalPosition=eye; _innCamera.LookAt(look); _innCamera.MakeCurrent();
             await Rcd3Wait(.05);
         }
         if(hour==21 && view==InnViews(21)[0]) await Rcd3Shot(_innShotsDirectory!,"ground_floor");
