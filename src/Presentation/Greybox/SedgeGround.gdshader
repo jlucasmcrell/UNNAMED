@@ -25,6 +25,9 @@ void fragment() {
     vec3 colour=mix(peat*.72,crust*vec3(1.20,1.23,1.16),salt);
     colour*=mix(.78,1.18,macro);
     colour=mix(colour,colour*vec3(.40,.49,.49),pool*.72);
+    // A moving intertidal wet band follows the actual shared water level.
+    float tidemark=1.0-smoothstep(.02,.65,wp.y-tide_level);
+    colour=mix(colour,colour*vec3(.46,.53,.51),tidemark*.65);
     ALBEDO=colour;
     vec3 n=mix(texture(peat_normal,p/2.0).rgb,texture(salt_normal,p/3.0).rgb,salt);
     NORMAL_MAP=mix(n,vec3(.5,.5,1.0),pool*.80);

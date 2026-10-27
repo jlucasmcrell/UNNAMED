@@ -19,6 +19,9 @@ public static class WaterView
         var material = (ShaderMaterial)FlowWater.Duplicate();
         material.SetShaderParameter("flow_dir", new Vector2(0, -1));
         material.SetShaderParameter("flow_speed", 0.22f);
+        material.SetShaderParameter("foam_m", .22f);
+        material.SetShaderParameter("vertical_shore", true);
+        material.SetShaderParameter("depth_fade_m", 2.4f);
         material.SetShaderParameter("deep_colour", new Vector3(0.012f, 0.021f, 0.024f));
         material.SetShaderParameter("shallow_colour", new Vector3(0.16f, 0.19f, 0.15f));
         var water = new MeshInstance3D { Name = "TidalFlowWater", MaterialOverride = material,
@@ -160,6 +163,7 @@ uniform vec3 shallow_colour : source_color = vec3(0.16, 0.27, 0.24);
 uniform vec3 deep_colour : source_color = vec3(0.03, 0.07, 0.08);
 uniform float depth_fade_m = 1.6;
 uniform float foam_m = 0.12;
+uniform bool vertical_shore = false;
 uniform float refraction = 0.018;
 uniform float rapids = 0.0;    // how much the vertex colour's red (0 still, 1 a rapid) whitens the run: the den gorge's runs only
 uniform float edge_fade = 0.0;   // fades the surface to its sides by the vertex colour's green (the den gorge's runs only)
@@ -202,6 +206,9 @@ void fragment() {
     float raw = textureLod(depth_tex, SCREEN_UV, 0.0).r;
     vec4 view = INV_PROJECTION_MATRIX * vec4(SCREEN_UV * 2.0 - 1.0, raw, 1.0);
     float depth = max(-view.z / view.w - (-VERTEX.z), 0.0);
+    // Tidal flats need vertical water depth: ray length grows at grazing angles
+    // and otherwise makes shoreline foam vanish when looking across the sound.
+    if (vertical_shore) depth = max(world_pos.y - (INV_VIEW_MATRIX * vec4(view.xyz / view.w, 1.0)).y, 0.0);
     float deep = clamp(depth / depth_fade_m, 0.0, 1.0);
 
     // What lies under the water, bent a little by the ripples - only where the screen copy holds it (instances fading in or out are

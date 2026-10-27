@@ -1,3 +1,4 @@
+uniform float or_marsh_day = 0.0; // Sedge overcast: faint broad celestial forms, no sharp ring streaks.
 // Otherreach's own sky over Sky3D's atmosphere: the bodies, the world's ring, a neighbouring galaxy and the night glows.
 // Included by addons/sky_3d/shaders/SkyMaterial.gdshader and driven by Greybox/CelestialView.cs. Everything here is drawn in the
 // sky pass only (never into the radiance cubemap, so the scene's lighting is unchanged), behind terrain and clouds.
@@ -150,7 +151,7 @@ vec3 or_giant(vec3 d, out float a) {
 		float tr = dot(c, ax) / (abs(dd) > 1e-4 ? dd : 1e-4);
 		vec3 h = d * tr;
 		float rr = length(h - c) / r;
-		float fw = max(fwidth(rr), 1e-5);
+		float fw = max(fwidth(rr), mix(1e-5, .06, or_marsh_day));
 		// A footprint wider than the whole ring is where the ray runs along its plane (edge-on, sub-pixel): nothing to draw there.
 		if (abs(dd) > 1e-4 && tr > 0.0 && fw < or_ring_span.y - or_ring_span.x && rr > or_ring_span.x - fw && rr < or_ring_span.y + fw) {
 			vec4 prof = or_ring_sample(rr, fw, or_ring_span);
@@ -179,7 +180,7 @@ vec3 or_arc(vec3 d, out float a) {
 	float t = dot(centre, or_arc_axis) / (abs(dd) > 1e-5 ? dd : 1e-5);
 	vec3 h = d * t;
 	float rr = length(h - centre) / or_arc_world;
-	float fw = max(fwidth(rr), 1e-5);
+	float fw = max(fwidth(rr), mix(1e-5, .06, or_marsh_day));
 	// A footprint wider than the whole ring is where the ray runs along its plane (edge-on, sub-pixel): nothing to draw there.
 	if (d.y <= 0.0 || abs(dd) < 1e-5 || t <= 0.0 || fw > or_arc_span.y - or_arc_span.x || rr < or_arc_span.x - fw || rr > or_arc_span.y + fw) return vec3(0.0);
 	vec4 p = or_ring_sample(rr, fw, or_arc_span);
@@ -263,13 +264,14 @@ vec3 otherreach_sky(vec3 col, vec3 d, vec3 space, float moon_mask, float horizon
 	if (or_space_boost > 0.0)
 		add += (space * or_space_boost + space * space * or_space_boost * 6.0) * night * front;
 	if (or_galaxy_on)
-		add += or_galaxy(d) * smoothstep(0.75, 1.0, night) * horizon_blend * ext * or_fog_comp * front;   // a faint object: only once it is dark
+		add += or_galaxy(d) * max(smoothstep(0.75, 1.0, night), or_marsh_day * .065) * horizon_blend * ext * or_fog_comp * front;   // a faint object: only once it is dark
 	if (or_star_on) {
 		float sa; vec3 s = or_star(d, sa);
 		add += s * ext * or_fog_comp * front * (0.35 + 0.65 * night);
 	}
 	if (or_arc_on) {
 		float aa; vec3 arc = or_arc(d, aa);
+        arc *= 1.0 - or_marsh_day; aa *= 1.0 - or_marsh_day;
 		add = add * (1.0 - aa * front) + arc * ext * gain * front * (1.0 - hide);   // the ring hides what lies beyond it
 		hide = max(hide, aa * front);
 	}

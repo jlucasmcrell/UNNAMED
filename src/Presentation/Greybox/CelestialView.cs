@@ -32,6 +32,7 @@ public static class CelestialView
     private static GodotObject? _dome;
     private static DirectionalLight3D? _sun;
     private static string _applied = "";
+    public static bool SedgeOvercast { get; set; }
 
     /// <summary>The run's sky, once Sky3D has built it: the material its sky is drawn with, its dome and its sun.</summary>
     public static void Attach(WorldEnvironment sky)
@@ -69,6 +70,16 @@ public static class CelestialView
         var toSun = _sun is not null && GodotObject.IsInstanceValid(_sun) ? _sun.GlobalBasis.Z.Normalized() : Vector3.Up;
         Set("or_sun", toSun);
         Set("or_daylight", daylight);
+        // C# SmoothStep interpolates values; normalize the daylight interval first.
+        float marshDay = SedgeOvercast ? Mathf.Clamp((daylight - .35f) / .55f, 0f, 1f) : 0f;
+        marshDay = Mathf.SmoothStep(0f, 1f, marshDay);
+        Set("or_marsh_day", marshDay);
+        if (SedgeOvercast && WeatherStates.Now is "overcast" or "rain")
+        {
+            // Open patches in the shared cloud layer; preserve the accepted dusk sky.
+            _dome?.Set("cumulus_coverage", Mathf.Lerp(WeatherStates.Now == "rain" ? 1f : .97f, .78f, marshDay));
+            _dome?.Set("cirrus_coverage", Mathf.Lerp(WeatherStates.Now == "rain" ? .95f : .85f, .64f, marshDay));
+        }
         // The sky's fog lays (fog_sky_affect) of the fog colour over the whole sky; the bodies are added before it, so they are raised
         // by its inverse to reach the screen at the brightness the air leaves them.
         Set("or_fog_comp", environment.FogEnabled ? 1f / Mathf.Max(1f - environment.FogSkyAffect, 0.2f) : 1f);

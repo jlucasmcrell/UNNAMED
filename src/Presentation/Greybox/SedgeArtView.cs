@@ -10,14 +10,15 @@ public partial class SedgeArtView : Node3D
     private ShaderMaterial? _ground;
     private Node3D? _crest;
     private readonly List<OmniLight3D> _lamps = new();
-    private readonly List<ParticleProcessMaterial> _rain = new();
+
     private readonly List<(FogVolume Bank, Vector3 Origin)> _mist = new();
-    private readonly List<SpotLight3D> _shafts = new();
+
     private float _elapsed;
     private bool _airProbeLogged;
 
     public static SedgeArtView? Build(Node3D parent, Node3D terrain, ArtLibrary art, string region)
     {
+        CelestialView.SedgeOvercast = region == "region.sedge_levels";
         if (region != "region.sedge_levels" || art.Root is null || !File.Exists(Path.Combine(art.Root, "sedge_art_gate3.json")))
             return null;
         var view = new SedgeArtView { Name = "SedgeArt" };
@@ -29,26 +30,11 @@ public partial class SedgeArtView : Node3D
         view.Mist(json.RootElement.GetProperty("mist_banks"));
         view.Lamps(json.RootElement.GetProperty("lamps"));
         view.Crest();
-        // Openings in the overcast: real light scattered through the native
-        // water mist. Positions are art placements, never simulation state.
-        foreach (var at in new[] { new Vector3(4860,135,1100), new Vector3(4910,165,600), new Vector3(5110,145,1700) })
-        {
-            var shaft = new SpotLight3D { Name = "CloudBreakShaft", Position = at,
-                // Godot low-density fog needs a separate high volumetric-energy multiplier.
-                LightColor = new Color(.87f,.93f,1), LightEnergy = 22f,
-                LightVolumetricFogEnergy = 45f, SpotRange = 260, SpotAngle = 13,
-                SpotAttenuation = .5f, ShadowEnabled = true,
-                RotationDegrees = new Vector3(-72, -20, 0) };
-            view.AddChild(shaft);view._shafts.Add(shaft);
-
-        }
+        // Rain is disabled pending the shared D2 rework. Do not fork its tuning here.
         if (parent.GetNodeOrNull<Node3D>("Atmosphere") is { } atmosphere)
             foreach (var particles in atmosphere.GetChildren().OfType<GpuParticles3D>().Where(p => p.Name.ToString().StartsWith("rain", StringComparison.Ordinal)))
-                if (particles.ProcessMaterial is ParticleProcessMaterial process)
-                {
-                    var own = (ParticleProcessMaterial)process.Duplicate();particles.ProcessMaterial = own;view._rain.Add(own);
-                }
-        GD.Print($"SEDGE_ART Gate3: masonry, wet ground, layered mist, native rain, {view._lamps.Count} lamps; native kit reed LODs");
+                { particles.Emitting = false; particles.Visible = false; }
+        GD.Print($"SEDGE_ART Gate3: masonry, wet ground, layered mist, rain off pending shared D2, {view._lamps.Count} lamps; native kit reed LODs");
         return view;
     }
 
@@ -180,7 +166,7 @@ public partial class SedgeArtView : Node3D
         {
             var bank = new FogVolume { Name = "SoundMistBank", Shape = RenderingServer.FogVolumeShape.Ellipsoid,
                 Position = new Vector3(b[0].GetSingle(), b[1].GetSingle(), b[2].GetSingle()), Size = new Vector3(b[3].GetSingle(), b[4].GetSingle(), b[5].GetSingle()),
-                Material = new FogMaterial { Density = .12f, Albedo = new Color(.79f, .85f, .84f), EdgeFade = .55f, HeightFalloff = 0f, DensityTexture = noise } };
+                Material = new FogMaterial { Density = .018f, Albedo = new Color(.79f, .85f, .84f), EdgeFade = 2f, HeightFalloff = 0f, DensityTexture = noise } };
             AddChild(bank);_mist.Add((bank, bank.Position));
         }
     }
@@ -234,17 +220,13 @@ public partial class SedgeArtView : Node3D
         _elapsed += (float)delta;
         float energy = Mathf.Lerp(2.3f, .25f, SkyView.DaylightLevel);
         foreach (var lamp in _lamps) lamp.LightEnergy = energy;
-        foreach (var shaft in _shafts) shaft.LightEnergy = 22f * SkyView.DaylightLevel * Mathf.SmoothStep(.35f, .65f, SkyView.DaylightLevel);
+
         if (!_airProbeLogged && _elapsed > .5f)
         {
             _airProbeLogged = true;
             var air = GetWorld3D().Environment;
-            GD.Print($"SEDGE_AIR volumetric={air?.VolumetricFogEnabled} density={air?.VolumetricFogDensity} length={air?.VolumetricFogLength} sky_affect={air?.VolumetricFogSkyAffect} daylight={SkyView.DaylightLevel} shaft_energy={_shafts[0].LightEnergy} fog_energy={_shafts[0].LightVolumetricFogEnergy}");
-        }
-        foreach (var rain in _rain)
-        {
-            rain.Direction = (Vector3.Down + WindField.Direction * (.25f + WindField.Strength * .55f)).Normalized();
-            rain.Gravity = Vector3.Down * 9.8f + WindField.Direction * WindField.Strength * 5f;
+            var skyMaterial = air?.Sky?.SkyMaterial as ShaderMaterial;
+            GD.Print($"SEDGE_AIR volumetric={air?.VolumetricFogEnabled} density={air?.VolumetricFogDensity} length={air?.VolumetricFogLength} sky_affect={air?.VolumetricFogSkyAffect} daylight={SkyView.DaylightLevel} marsh_day={skyMaterial?.GetShaderParameter("or_marsh_day")} soft_water_banks=true local_spotlights=0");
         }
         foreach (var (bank, origin) in _mist)
             bank.Position = origin + WindField.Direction * MathF.Sin(_elapsed * .018f + origin.Z * .002f) * 8;
