@@ -64,6 +64,11 @@ for n in old.graph.nodes_geometry:
  tf,key=old.graph[n];g=old.geometry[key]
  if 'bell' in str(n).lower() or g.visual.material.name.startswith(('M_Bell','bell_iron','tarred_timber')):
   g=copy.deepcopy(g);g.apply_transform(tf);g.apply_translation([0,-1.35,0]);tower.add_geometry(g)
+# Bearing rails seat in four stone jambs; short uprights carry the headstock.
+timber=next(copy.deepcopy(g.visual.material) for g in tower.geometry.values() if g.visual.material.name.startswith('tarred_timber'))
+for x in (-2.1,2.1):
+ for size,at in [([.28,.36,4.7],[x,9.3,0]),([.28,1.6,.28],[x,10.1,0])]:
+  g=trimesh.creation.box(size);g.apply_translation(at);g.unmerge_vertices();g.visual=trimesh.visual.TextureVisuals(uv=g.vertices[:,[0,1]],material=timber);tower.add_geometry(g)
 # A missing front crown section leaves a genuinely broken open top.
 for g in tower.geometry.values():
  c=g.triangles_center;cut=(c[:,0]>.5)&(c[:,1]>12.15)&(c[:,2]>1.8);g.update_faces(~cut);g.remove_unreferenced_vertices()
