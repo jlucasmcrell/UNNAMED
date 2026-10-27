@@ -9,7 +9,7 @@ namespace UNNAMED.Application.Tests;
 public class BarrowworksFrontierTests
 {
     internal static Arena AtThreshold(GameSession session, bool creatures = false) =>
-        Arena.OpenCreatures(session, session.Setup, (437, 663), 90,
+        Arena.OpenCreatures(session, session.Setup, (440, 622), 90,
             Array.Empty<(string, double, double, string)>(), keepSpawns: creatures, origin: (0, 0));
 
     // Paths are found on the actual walk space and traversed with ordinary movement commands. No relocation to props.

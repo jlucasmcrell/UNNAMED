@@ -190,7 +190,7 @@ public class BarrowworksRulingsTests
     {
         using var profile = new TempProfile();
         using var session = Harness.Boot(profile, barrowworks: true);
-        var arena = Arena.OpenCreatures(session, session.Setup, (437, 663), 0, [(Arena.Wolf, 437, 665.2, "pack_hunter")], origin: (0, 0));
+        var arena = Arena.OpenCreatures(session, session.Setup, (440, 622), 0, [(Arena.Wolf, 440, 624.2, "pack_hunter")], origin: (0, 0));
         var wolf = arena.Creature();
         for (int i = 0; i < 200 && !arena.Creature().Hostile; i++)
         {

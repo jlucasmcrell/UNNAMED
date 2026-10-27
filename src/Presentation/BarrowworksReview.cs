@@ -181,7 +181,7 @@ public sealed class BarrowworksReview
         _stops.Enqueue(new Stop("threshold_out", 50_000, 10_000) { Leave = true });
         _stops.Enqueue(new Stop("forge_door", 452_000, 742_000, "door.forge_shed") { Near = true });
         _stops.Enqueue(new Stop("forge_anvil", 457_500, 740_500, LookAt: new Vector2(457.5f, 740.5f)) { Near = true, Craft = "recipe.smithing.fitting_wedge" });
-        _stops.Enqueue(new Stop("threshold_in", 438_000, 663_000) { Near = true, Enter = "portal.barrowworks.threshold" });
+        _stops.Enqueue(new Stop("threshold_in", 440_000, 621_000) { Near = true, Enter = "portal.barrowworks.threshold" });
         Add("archive_cover", 78, 62, "door.barrowworks.archive");
         Add("R09_blind_store", 92, 60, lookAt: new Vector2(95, 61));
         Add("blind_ledger", 95, 60, "switch.barrowworks.blind_ledger");

@@ -44,8 +44,8 @@ public class BarrowworksPersistenceTests
     /// The threshold portal's exterior anchor: beside Blackvein's spoil heaps. These are the portal's own region
     /// millimetres, which is the frame GameOptions.StartXMm takes and the frame the reach check measures in.
     /// </summary>
-    private const long ThresholdXMm = 438_000L;
-    private const long ThresholdZMm = 663_000L;
+    private const long ThresholdXMm = 440_000L;
+    private const long ThresholdZMm = 621_000L;
 
     /// <summary>
     /// A run with the gate on, opened AT the threshold. The start position is the mechanism P2 added for the

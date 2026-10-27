@@ -15,7 +15,7 @@ public class BarrowworksGateTests
 {
     // Integrated frontier overlay: approved NPC migration, P0 props/weapons and three enemy bindings.
     // Keep the full-file guard, alongside the semantic option-off checks below; line endings are normalised.
-    private const string SnapshotOverlaySha256 = "cb723e32f8020a478a2d7125492b85321024a8cd0764ac7fae8614be9acf2c45"; // Integrated public overlay plus the accepted den gorge hollow; ring keys remain gated.
+    private const string SnapshotOverlaySha256 = "d3762eaf957139aea99fd97406da3620a1440cb1db901d11c79969d7c771f69b"; // Integrated public overlay plus the accepted den gorge hollow and the threshold bank colliders; ring keys remain gated.
 
     private static string Overlay => Path.Combine(Harness.RepoRoot(), "content", "_art_bindings.json");
 
