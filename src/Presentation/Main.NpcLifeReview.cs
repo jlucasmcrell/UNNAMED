@@ -34,7 +34,7 @@ public partial class Main
                         for (int s = 0; s < mesh.Mesh.GetSurfaceCount(); s++)
                             if (mesh.GetActiveMaterial(s) is BaseMaterial3D m)
                                 rows.Add(new { phase = "mouth_material", f.ModelId, mesh = mesh.Name.ToString(),
-                                    m.Roughness, m.Metallic, m.MetallicSpecular,
+                                    m.Roughness, m.Metallic, m.MetallicSpecular, m.DisableAmbientLight,
                                     albedo = m.AlbedoTexture?.GetWidth(), normal = m.NormalTexture?.GetWidth(),
                                     roughness_texture = m.RoughnessTexture is not null,
                                     metallic_texture = m.MetallicTexture is not null });
@@ -104,7 +104,7 @@ public partial class Main
                 if (Time.GetTicksMsec() > deadline) throw new InvalidDataException("Normal conversation refused");
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             }
-            ulong speechStart = Time.GetTicksMsec(); float peak = 0;
+            ulong speechStart = Time.GetTicksMsec(); float peak = 0; bool mouthShot = false;
             while (_voice.Speaking || Time.GetTicksMsec() - speechStart < 150)
             {
                 if (Time.GetTicksMsec() - speechStart > 45000) throw new TimeoutException("Full greeting did not finish");
@@ -116,6 +116,11 @@ public partial class Main
                 if (speech is null || sim.Conversation?.LineId != expected || !_dialogue.Visible)
                     throw new InvalidDataException("Normal voiced greeting interrupted or not visible");
                 peak = Math.Max(peak, face.JawWeight);
+                if (!mouthShot && face.JawWeight > .3f)
+                {
+                    mouthShot = true;
+                    await Rcd3Shot(directory, "mouth_speaking");
+                }
                 rows.Add(new { phase = "normal_greeting", utc = DateTimeOffset.UtcNow, playback = speech.Value.Position,
                     duration = speech.Value.Duration, envelope = speech.Value.Jaw, jaw = face.JawWeight,
                     native_jaw_angle = figure.FindChildren("*", "", true, false).OfType<HumGenJaw>().Single().AppliedAngle,

@@ -19,6 +19,9 @@ public static class HumGenMouth
             Roughness = 1, RoughnessTexture = Map("TeethTongueSet_ROUGH_2K.png", "data"),
             RoughnessTextureChannel = BaseMaterial3D.TextureChannel.Red,
             Metallic = 0, MetallicSpecular = .35f,
+            // The enclosed oral cavity must not receive the unobstructed blue
+            // sky ambient that reaches exterior skin. Direct lights still apply.
+            DisableAmbientLight = true,
             CullMode = BaseMaterial3D.CullModeEnum.Disabled,
             TextureFilter = BaseMaterial3D.TextureFilterEnum.LinearWithMipmapsAnisotropic,
         };
