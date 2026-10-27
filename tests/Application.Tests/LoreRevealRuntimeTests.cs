@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
+using UNNAMED.Domain.Spatial;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -24,7 +25,8 @@ public class LoreRevealRuntimeTests
         var sim = session.Simulation!;
         const string place = "location.road.basin_rim";
         Assert.DoesNotContain(place, sim.Map.Places.Select(p => p.LocationId));
-        Assert.True(Harness.WalkTo(session, Harness.InRegion(74.0, 119.0).XMm, Harness.InRegion(74.0, 119.0).ZMm));
+        var shelf = Footprints.Center(sim.ActiveLayout.Readables.Single(r => r.Key == "readable.the_rim_ii").Body);
+        Assert.True(Harness.WalkTo(session, shelf.XMm, shelf.ZMm + 1_200));
         session.Submit(new InteractCommand(sim.PlayerId, "readable.the_rim_ii"));
         Harness.Ticks(session, 4);
         var known = sim.Map.Places.FirstOrDefault(p => p.LocationId == place);

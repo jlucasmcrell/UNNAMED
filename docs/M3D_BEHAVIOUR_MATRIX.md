@@ -8,12 +8,12 @@ Two layers, kept apart (owner ruling, M3d): a **creature archetype** is a body a
 
 | Creature | For | Level | Health | Armor torso / head | Speed m/s | Turn deg/s | Blow | Also | Sight m / FOV deg / hearing m |
 |---|---|---|---|---|---|---|---|---|---|
-| Ash Ember Hound | fast predator: movement, timing, pursuit | 3 | 35 | 1 / 1 | 6 | 720 | Ember Lunge: fire 5-7, reach 1.2 m + 2.2 m lunge, tell 0.4 s | bites on the run | 30 / 160 / 35 |
+| Ash Ember Hound | fast predator: movement, timing, pursuit | 3 | 35 | 1 / 1 | 6 | 720 | Ember Lunge: fire 5-7, reach 1.2 m + 2.2 m lunge, tell 0.4 s | Rush: 7 m/s from 2-6 m, fire 6-9, knocks down, stunned 1.1 s by what it runs into; bites on the run | 30 / 160 / 35 |
 | Bone Walker Husk | basic humanoid: readable melee and reach | 3 | 55 | 4 / 2 | 2.2 | 180 | Rusted Cleave: physical_slash 6-9, reach 2.4 m, tell 0.8 s | physical_pierce resisted 60%; immune to Bleeding, Sleep, Venom | 18 / 120 / 20 |
-| Animated Armour | armored heavy: armor and weak-point logic | 5 | 90 | 45 / 0 | 1.8 | 90 | Gauntlet Slam: physical_blunt 10-14, reach 1.8 m, tell 1.0 s | open head from behind; physical_pierce resisted 50%; immune to Bleeding, Sleep, Venom | 15 / 100 / 18 |
+| Animated Armour | armored heavy: armor and weak-point logic | 5 | 90 | 45 / 0 | 1.8 | 90 | Gauntlet Slam: physical_blunt 10-14, reach 1.8 m, tell 1.0 s | Rush: 7 m/s from 2-6 m, physical_blunt 13-18, knocks down, stunned 1.1 s by what it runs into; open head from behind; physical_pierce resisted 50%; immune to Bleeding, Sleep, Venom | 15 / 100 / 18 |
 | Bristleback Boar | charging brute: lateral movement and terrain | 4 | 70 | 8 / 4 | 4 | 240 | Gore: physical_pierce 6-9, reach 1.3 m, tell 0.5 s | Charge: 9 m/s from 5-14 m, physical_blunt 12-16, knocks down, stunned 2.0 s by what it runs into | 20 / 150 / 25 |
-| Cave Hunting Spider | ambush, nonhuman: perception and avoidance | 3 | 40 | 3 / 2 | 5.5 | 720 | Venom Bite: physical_pierce 4-6, reach 1.2 m, tell 0.4 s, Venom 60% | - | 6 / 360 / 14 |
-| Grey Wolf | the M3c proof archetype (pack beast) | 2 | 50 | 2 / 1 | 4.5 | 720 | Bite: physical_pierce 4-6, reach 1.4 m, tell 0.5 s, Bleeding 30% | - | 25 / 140 / 30 |
+| Cave Hunting Spider | ambush, nonhuman: perception and avoidance | 3 | 40 | 3 / 2 | 5.5 | 720 | Venom Bite: physical_pierce 4-6, reach 1.2 m, tell 0.4 s, Venom 60% | Rush: 7 m/s from 2-6 m, physical_pierce 5-8, knocks down, stunned 1.1 s by what it runs into | 6 / 360 / 14 |
+| Grey Wolf | the M3c proof archetype (pack beast) | 2 | 50 | 2 / 1 | 4.5 | 720 | Bite: physical_pierce 4-6, reach 1.4 m, tell 0.5 s, Bleeding 30% | Rush: 7 m/s from 2-6 m, physical_pierce 5-8, knocks down, stunned 1.1 s by what it runs into | 25 / 140 / 30 |
 
 ## Archetypes: measured in the simulation
 
@@ -27,12 +27,12 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 
 | Creature | Opens with | Tell at m | Lands from m | Arrow to blow s | Runs down a sprinter | Sword kill s (fighter died) | Death standing s | Walker seen at m | Sprinter heard at m |
 |---|---|---|---|---|---|---|---|---|---|
-| Ash Ember Hound | Ember Lunge | 2.3 | 0.8 | 2.1 | yes, 3.1 s (Ember Lunge) | 3.4 (0/8) | 24.7 | 28.8 | 15.7 |
-| Bone Walker Husk | Rusted Cleave | 2.6 | 2.6 | 5.8 | no | 5.6 (0/8) | 29.3 | 16.9 | 15.8 |
-| Animated Armour | Gauntlet Slam | 2.0 | 2.0 | 6.9 | no | 19.2 (0/8) | 22.1 | 13.9 | 15.8 |
-| Bristleback Boar | Charge | 12.0 | 0.8 | 1.8 | yes, 1.3 s (Charge) | 7.9 (0/8) | 22.5 | 18.9 | 15.8 |
-| Cave Hunting Spider | Venom Bite | 1.2 | 1.2 | 2.9 | no | 4.1 (0/8) | 18.4 | 5.1 | 13.7 |
-| Grey Wolf | Bite | 1.5 | 1.5 | 3.0 | no | 5.6 (0/8) | 23.2 | 23.8 | 15.8 |
+| Ash Ember Hound | Rush | 5.9 | 0.7 | 2.5 | yes, 6.2 s (Ember Lunge) | 3.4 (0/8) | 12.5 | 28.8 | 15.7 |
+| Bone Walker Husk | Rush | 3.8 | 2.6 | 5.3 | no | 6.4 (0/8) | 12.4 | 16.9 | 15.8 |
+| Animated Armour | Rush | 6.0 | 0.8 | 5.0 | no | no kill (8/8) | 3.3 | 13.9 | 15.8 |
+| Bristleback Boar | Charge | 12.0 | 0.8 | 1.8 | yes, 1.3 s (Charge) | 10.3 (0/8) | 7.3 | 18.9 | 15.8 |
+| Cave Hunting Spider | Rush | 3.1 | 1.0 | 3.1 | no | 4.5 (0/8) | 13.2 | 5.1 | 13.7 |
+| Grey Wolf | Rush | 5.8 | 0.9 | 3.0 | no | 4.9 (0/8) | 19.4 | 23.8 | 15.8 |
 
 ## Roles (content)
 
