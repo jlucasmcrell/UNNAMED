@@ -93,7 +93,9 @@ public sealed partial class SkinnedModel : Node3D
         // Imported players (none in these files today) would fight ours over the same bones.
         foreach (var imported in model.FindChildren("*", nameof(AnimationPlayer), true, false))
             imported.QueueFree();
-        var player = new AnimationPlayer { Name = "Clips" };
+        // Imported clips omit constant tracks. Missing channels must return to
+        // native bone rest, rather than retaining the preceding clip's root yaw.
+        var player = new AnimationPlayer { Name = "Clips", Deterministic = assetId.StartsWith("humgen_", StringComparison.Ordinal) };
         figure.AddChild(player);
         player.RootNode = new NodePath("..");
         string skeletonPath = figure.GetPathTo(skeleton);

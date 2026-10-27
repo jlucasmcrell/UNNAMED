@@ -37,6 +37,12 @@ activities differ when alternatives exist. Missing optional additions retain
 the old compatible pool. Armed/furniture/combat poses retain their existing
 prop-safe selection rules.
 
+HumGen's AnimationPlayer uses Godot's documented deterministic blending, as its
+locomotion AnimationTree already does. Omitted tracks then use native bone rest;
+otherwise the CMU root yaw persists after returning to an idle that has no root
+rotation track. No native rest or motion keys are rewritten. Reference:
+<https://docs.godotengine.org/en/latest/classes/class_animationmixer.html#class-animationmixer-property-deterministic>.
+
 ## Hands and speech
 
 Empty native hands use 0.32 of the existing anatomical grip curl, previously
