@@ -13,9 +13,9 @@ namespace UNNAMED.Application.Tests;
 
 public class BarrowworksGateTests
 {
-    // Integrated frontier overlay: approved NPC migration, C1 creatures and C2 two-storey inn.
+    // Integrated frontier overlay: approved NPC migration, C1 creatures, C2 inn and accepted creature batch A.
     // Keep the full-file guard, alongside the semantic option-off checks below; line endings are normalised.
-    private const string SnapshotOverlaySha256 = "71e72ed36bdfaa70395c29782a674091ae742f18cdc381329b15c05fbf2ee053"; // Accepted C1 creature bindings and C2 inn additions over the integrated public overlay; ring keys remain gated.
+    private const string SnapshotOverlaySha256 = "197545aa616e038de59032b912a24b3f729c18674b786a60e7b15cc0437f9349"; // Accepted creature batch A over the integrated C1/C2 overlay; ring keys remain gated.
 
     private static string Overlay => Path.Combine(Harness.RepoRoot(), "content", "_art_bindings.json");
 
