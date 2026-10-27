@@ -343,6 +343,10 @@ public static class Kinematics
             else if (Mantle(fromX, fromZ, x, z, raised, lift, rules, space, radius) is { } ledge)
                 return (ledge.X, ledge.Z, ledge.Raised, true);
         }
+        // On the ground, a body that meets a climbable face within its reach climbs it: a fence or a cart at a run (a vault), a wall or a
+        // rock face as a climb-up (BRIEF D6). The reach is the mantle's; the deliberate barriers are not climbable and are excluded there.
+        else if (tops && !posture.Airborne && Mantle(fromX, fromZ, x, z, raised, 0, rules, space, radius) is { } climbed)
+            return (climbed.X, climbed.Z, climbed.Raised, false);
         bool grounded = !posture.Airborne || landed;
         (x, z) = Resolve(x, z, radius, space, dynamicBlockers, raised + lift, height, grounded ? null : Tuck(posture, rules, lift),
             tops && grounded ? rules.StepUpMm : 0);

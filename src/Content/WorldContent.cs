@@ -285,9 +285,14 @@ public static class WorldContent
             Check(terrain.OriginXMm <= minX && terrain.OriginZMm <= minZ && terrain.MaxXMm >= maxX && terrain.MaxZMm >= maxZ,
                 "WLD003", "the terrain grid must cover the walkable bounds");
 
-            // What a body may climb (owner finding 50): structures whose id starts with one of config.base_speeds climbable_prefixes.
-            var climbable = Config(loader, "config.base_speeds") is var speeds && speeds.ContainsKey("climbable_prefixes")
-                ? List(speeds, "climbable_prefixes").Select(p => p as string ?? throw new FormatException("climbable_prefixes are id prefixes")).ToList()
+            // What a body may climb (owner finding 50, widened by BRIEF D6): everything except the deliberate barriers - the fold and the
+            // Other's walls, and sealed doors. climb_prefixes, when a pack names some, adds faces with handholds beyond the mantle reach.
+            var speeds = Config(loader, "config.base_speeds");
+            var climbable = speeds is not null && speeds.ContainsKey("climb_prefixes")
+                ? List(speeds, "climb_prefixes").Select(p => p as string ?? throw new FormatException("climb_prefixes are id prefixes")).ToList()
+                : new List<string>();
+            var unclimbable = speeds is not null && speeds.ContainsKey("unclimbable_prefixes")
+                ? List(speeds, "unclimbable_prefixes").Select(p => p as string ?? throw new FormatException("unclimbable_prefixes are id prefixes")).ToList()
                 : new List<string>();
             var structures = List(map, "structures").Select((s, i) => Blocker(s as Dictionary<object, object>
                 ?? throw new FormatException($"structures[{i}] must be a map")))
