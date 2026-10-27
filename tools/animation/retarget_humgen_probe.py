@@ -95,7 +95,7 @@ try:
         assert source_controller.set_skeletal_mesh(source_mesh)
         source_controller.apply_auto_generated_retarget_definition()
         assert source_controller.set_root_motion_bone("root")
-        if sid == "cmu_bow":
+        if sid == "cmu_bow" or sid.startswith("cmu_idle_"):
             assert source_controller.set_retarget_root("Hips")
             assert source_controller.set_retarget_chain_start_bone("Spine", "LowerBack")
             assert source_controller.set_retarget_chain_end_bone("Neck", "Neck1")
@@ -108,7 +108,7 @@ try:
         controller.set_preview_mesh(unreal.RetargetSourceOrTarget.TARGET, body)
         for mode in (unreal.RetargetSourceOrTarget.SOURCE, unreal.RetargetSourceOrTarget.TARGET):
             controller.reset_retarget_pose(controller.get_current_retarget_pose_name(mode), [], mode)
-        if sid == "cmu_bow":
+        if sid == "cmu_bow" or sid.startswith("cmu_idle_"):
             # BVH's root offset is zero; its original calibration frame places the
             # pelvis one metre up. Correct the SOURCE retarget pose through Epic's
             # native control so root-height normalization has a valid baseline.
@@ -125,21 +125,24 @@ try:
         held += ["LeftFoot", "LeftToes", "RightFoot", "RightToes", "Jaw", "LeftEye", "RightEye"]
         controller.reset_retarget_pose(controller.get_current_retarget_pose_name(unreal.RetargetSourceOrTarget.TARGET),
                                        held, unreal.RetargetSourceOrTarget.TARGET)
-        if sid == "fal_side_walk" or (sid == "fal" and target_id == "probe_ada"):
+        if sid.startswith("cmu_idle_") or sid == "fal_side_walk" or (sid == "fal" and target_id == "probe_ada"):
             # Acquired FAL WALK strafes face +X, while the source preview rest faces +Y.
             # Jog strafes/backward clips already match that rest and use no offset.
             # Epic's final additive pose op normalizes the entire output's facing;
             # no limb keys, original assets or native skeleton rests are changed.
             mode = unreal.RetargetSourceOrTarget.TARGET
             base_pose = controller.get_current_retarget_pose_name(mode)
-            facing_pose = controller.create_retarget_pose("FAL_SourceFacing", mode)
+            facing_pose = controller.create_retarget_pose("SourceFacing", mode)
             controller.set_current_retarget_pose(facing_pose, mode)
             controller.reset_retarget_pose(facing_pose, [], mode)
             reference_pose = unreal.AnimPoseExtensions.get_reference_pose(body.get_editor_property("skeleton"))
             reference = unreal.AnimPoseExtensions.get_ref_bone_pose(reference_pose, "Root", unreal.AnimPoseSpaces.WORLD).rotation
             inverse = unreal.Quat(x=-reference.x, y=-reference.y, z=-reference.z, w=reference.w)
-            delta = inverse * unreal.Rotator(pitch=0, yaw=90, roll=0).quaternion() * reference
-            state['facing_normalization'] = {'root_reference': str(reference), 'local_delta': str(delta), 'global_yaw_degrees': 90}
+            # Both acquired source families face +X in their performances;
+            # the target preview's forward is +Y. Rotate the whole output only.
+            yaw = 90
+            delta = inverse * unreal.Rotator(pitch=0, yaw=yaw, roll=0).quaternion() * reference
+            state['facing_normalization'] = {'root_reference': str(reference), 'local_delta': str(delta), 'global_yaw_degrees': yaw}
             controller.set_rotation_offset_for_retarget_pose_bone("Root", delta, mode)
             controller.set_current_retarget_pose(base_pose, mode)
             index = controller.add_retarget_op("/Script/IKRig.IKRetargetAdditivePoseOp")
