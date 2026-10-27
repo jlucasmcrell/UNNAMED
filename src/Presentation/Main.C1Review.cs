@@ -39,7 +39,10 @@ public partial class Main
             // Creator Begin queues native NPC/mesh readiness. Let those deferred imports and draws
             // complete with the simulation frozen before arming the real-time recorder.
             for (int frame=0;frame<8;frame++)
+            {
+                Draw(1, 1.0/60); // Instantiate the real lazy NPC/creature views without advancing simulation.
                 await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+            }
             Frame();
             for (int frame=0;frame<2;frame++)
                 await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
