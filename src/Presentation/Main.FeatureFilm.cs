@@ -105,6 +105,46 @@ public partial class Main
             }
             _controller.Guard(false);_controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);fixedAim=null;
         }
+        async Task StealthTake(JsonElement step)
+        {
+            var target=Target(Text(step,"target"));string key=target.Key;
+            CreatureView Current()=>sim.Creatures.Single(c=>c.Key==key);
+            _controller.Crouch(true);
+            async Task Walk(Vector3 goal)
+            {
+                var from=sim.Player.Body;
+                var destination=new Body((long)(goal.X*1000),from.YMm,(long)(goal.Z*1000),from.FacingMdeg);
+                ulong until=Time.GetTicksMsec()+20000;
+                foreach(var point in Playthrough.WayTo(sim,from,destination,standOff:0))
+                {
+                    while(Time.GetTicksMsec()<until)
+                    {
+                        var toward=new Vector3((float)(point.X-sim.Player.Body.XMm/1000.0),0,(float)(point.Z-sim.Player.Body.ZMm/1000.0));
+                        if(toward.Length()<.1f)break;
+                        _controller.SteerWorld(toward.Normalized(),Gait.Walk,_camera);
+                        fixedAim=(_avatar.GlobalPosition+Pos(Current().Body))*.5f+Vector3.Up*.7f;
+                        Frame();await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+                    }
+                }
+                _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);
+                if(new Vector2(goal.X-_avatar.GlobalPosition.X,goal.Z-_avatar.GlobalPosition.Z).Length()>.5f)
+                    throw new InvalidDataException("Normal stealth approach blocked");
+            }
+            float facing=target.Body.FacingMdeg/1000f*Mathf.Pi/180f;
+            var near=(_avatar.GlobalPosition-Pos(target.Body));near.Y=0;near=near.Normalized();
+            float startAngle=Mathf.Atan2(near.X,near.Z),rearAngle=facing+Mathf.Pi;
+            await Walk(Pos(target.Body)+near*5);
+            for(int arc=1;arc<=4;arc++)
+            {
+                float angle=startAngle+Mathf.AngleDifference(startAngle,rearAngle)*arc/4;
+                await Walk(Pos(Current().Body)+new Vector3(Mathf.Sin(angle),0,Mathf.Cos(angle))*5);
+            }
+            var forward=new Vector3(Mathf.Sin(facing),0,Mathf.Cos(facing));
+            await Walk(Pos(Current().Body)-forward*2.3f);
+            Mark("native_before_takedown",Current());await Hold(.4);
+            _controller.Takedown();await Hold(1.8);Mark("native_after_takedown",Current());
+            if(Current().Alive)throw new InvalidDataException("Normal takedown did not kill; do not claim an execution");
+        }
         Frame();await Hold(3);
         ulong last=Time.GetTicksMsec();
         for(int stable=0;stable<60;)
@@ -170,6 +210,7 @@ public partial class Main
                     case "crouch":_controller.Crouch(step.GetProperty("enabled").GetBoolean());await Hold(seconds);break;
                     case "ability":_controller.PeopleAbility(Text(step,"id"));await Hold(seconds);break;
                     case "takedown":_controller.Takedown();await Hold(seconds);break;
+                    case "stealth_take":await StealthTake(step);break;
                     case "kal_route":
                         _glideFrom=(sim.Player.Body,step.GetProperty("dx").GetInt32(),step.GetProperty("dz").GetInt32(),0);
                         var down=new Vector3(_glideFrom.DirX/1000f,0,_glideFrom.DirZ/1000f);
@@ -188,7 +229,7 @@ public partial class Main
                         break;
                     case "decoy_route":
                         camera.GetNode<OmniLight3D>("CharacterFill").Reparent(_camera.Camera,false);
-                        _camera.Camera.MakeCurrent();await DecoyRoute(Mark,(float)Number(step,"camera_distance",7),(float)Number(step,"camera_forward",0),(float)Number(step,"blink_before_bite_m",0));
+                        _camera.Camera.MakeCurrent();await DecoyRoute(Mark,(float)Number(step,"camera_distance",7),(float)Number(step,"camera_forward",0),(float)Number(step,"blink_before_bite_m",0),step.TryGetProperty("blink_away",out var blinkAway)&&blinkAway.GetBoolean());
                         _camera.Camera.GetNode<OmniLight3D>("CharacterFill").Reparent(camera,false);break;
                     case "interact":_controller.Interact(Text(step,"id"));await Hold(seconds);break;
                     case "go":
@@ -254,10 +295,14 @@ public partial class Main
                         var lead=sim.Player.Inventory.First(i=>i.DefId=="item.misc.hound_pup");
                         _session.Submit(new AdoptPetCommand(sim.PlayerId,lead.ItemId));await Hold(seconds);break;
                     case "pet":
-                        await Hold(seconds,()=>fixedAim=Pos(sim.Pets.First().Body)+Vector3.Up*.4f);break;
+                        Mark("pet_subject_before",sim.Pets.First());
+                        await Hold(seconds,()=>fixedAim=Pos(sim.Pets.First().Body)+Vector3.Up*.4f);
+                        Mark("pet_subject_after",sim.Pets.First());break;
                     case "npc":
                         var npc=sim.Npcs.Single(n=>n.Id==Text(step,"id"));fixedAim=Pos(npc.Body)+Vector3.Up;
-                        await Hold(seconds,()=>fixedAim=Pos(sim.Npcs.Single(n=>n.Id==npc.Id).Body)+Vector3.Up);break;
+                        Mark("npc_subject_before",npc);
+                        await Hold(seconds,()=>fixedAim=Pos(sim.Npcs.Single(n=>n.Id==npc.Id).Body)+Vector3.Up);
+                        Mark("npc_subject_after",sim.Npcs.Single(n=>n.Id==npc.Id));break;
                     case "creator":
                         OpenCreator();
                         string people=Text(step,"people","people.veth");
