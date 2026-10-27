@@ -140,7 +140,7 @@ public class CompanionTests
         Assert.Null(arena.Submit(new InteractCommand(arena.Player, "door.longhouse")));
         // Follow the C2 aisle between the table benches; the old (39.5,127) waypoint is now inside a table.
         foreach (var (x, z) in new[] { (50.5, 128.0), (44.0, 128.6), (39.5, 128.8), (44.0, 128.6), (50.5, 128.0), (53.5, 128.0), (54.5, 134.0),
-                     (55.0, 121.0), (35.0, 121.0), (34.0, 134.0), (44.0, 138.0) })
+                     (55.0, 121.0), (55.0, 112.0), (35.0, 112.0), (34.0, 134.0), (44.0, 138.0) })
         {
             int budget = 0;
             while (!ArriveOnce(arena, x, z))
