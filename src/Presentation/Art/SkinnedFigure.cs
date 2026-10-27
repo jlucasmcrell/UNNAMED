@@ -168,7 +168,7 @@ public sealed partial class SkinnedFigure : Figure
     /// frame in the hand bone's space - where the bindings give no grip of their own. The glTF import makes a socket under a bone a bone of
     /// its own, or a node under the hand's attachment; either is read. Null when the rig has none.
     /// </summary>
-    private static Transform3D? SocketGrip(SkinnedModel model, string hand, HandGrip? fingers)
+    internal static Transform3D? SocketGrip(SkinnedModel model, string hand, HandGrip? fingers)
     {
         var skeleton = model.Skeleton;
         hand = BoneNames.Resolve(skeleton, hand) ?? hand;

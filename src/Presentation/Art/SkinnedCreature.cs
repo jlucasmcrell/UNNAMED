@@ -37,17 +37,57 @@ public sealed partial class SkinnedCreature : CreatureBody
     /// <summary>The bound creature's skinned body, or null when the bindings or the asset lack it (the greybox is drawn instead).</summary>
     public static SkinnedCreature? Create(ArtLibrary art, ArtBindings bindings, CreatureDefinition definition, string individual)
     {
-        if (!bindings.Creatures.TryGetValue(definition.Id, out var look) || SkinnedModel.Create(art, look.Model, look.Clips, definition.Id) is not { } model)
+        if (!bindings.Creatures.TryGetValue(definition.Id, out var look) || SkinnedModel.Create(art, look.Model, look.Clips, definition.Id, look.NativeStates) is not { } model)
             return null;
         // A clip that records the pace it is drawn at is played against that; the rest were retimed to the measured paces below.
-        float Pace(string state, float measured) => look.Paces.TryGetValue(state, out float pace) && pace > 0
-            ? pace : (float)(art.Info(look.Clips.GetValueOrDefault(state) ?? "")?.AuthoredSpeed ?? measured);
+        float Pace(string state, float measured)
+        {
+            if (look.Paces.TryGetValue(state, out float pace) && pace > 0) return pace;
+            string native = look.NativeStates.GetValueOrDefault(state) ?? state;
+            if (model.MotionPaces is { } paces && paces.TryGetValue(native, out pace) && pace > 0) return pace;
+            return (float)(art.Info(look.Clips.GetValueOrDefault(state) ?? "")?.AuthoredSpeed ?? measured);
+        }
         // A bigger animal of the kind takes longer strides: its clips' paces grow with it.
         float size = OtherFauna.Apply(model, definition.Id, look.Fauna, individual);
+        if (!float.IsFinite(look.UniformScale) || look.UniformScale <= 0)
+            throw new InvalidDataException("Creature scale must be finite and positive: " + definition.Id);
+        model.Scale *= look.UniformScale;
+        size *= look.UniformScale;
         var creature = new SkinnedCreature { _model = model, _walkPace = Pace("walk", WalkPace) * size, _runPace = Pace("run", RunPace) * size,
-            _clips = look.Clips.Keys.ToHashSet(StringComparer.Ordinal) };
+            _clips = look.Clips.Keys.Concat(look.NativeStates.Keys).ToHashSet(StringComparer.Ordinal) };
         foreach (var move in definition.Moves.Where(a => a.IsCharge)) creature._charges.Add(move.Source);
         creature.AddChild(model);
+        if (look.Model.StartsWith("humgen_", StringComparison.Ordinal))
+        {
+            foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+                mesh.Layers |= MHCharacters.MetaHumanFigure.FillLayer;
+            var left = BodyModifiers.Grip(model.Skeleton, "hand_l");
+            if (left is not null) left.Closed = .32f;
+            if (look.WeaponItem is null)
+            {
+                var right = BodyModifiers.Grip(model.Skeleton, "hand_r");
+                if (right is not null) right.Closed = .32f;
+            }
+        }
+        if (look.WeaponItem is { } item)
+        {
+            var weapon = bindings.Weapons.GetValueOrDefault(item) ?? throw new InvalidDataException("Creature weapon unbound: " + item);
+            var fingers = BodyModifiers.Grip(model.Skeleton, "hand_r");
+            if (fingers is not null) fingers.Closed = 1;
+            var grip = SkinnedFigure.SocketGrip(model, "hand_r", fingers) ?? throw new InvalidDataException("Creature hand has no grip: " + look.Model);
+            var hand = model.Attach("hand_r") ?? throw new InvalidDataException("Creature hand missing: " + look.Model);
+            hand.AddChild(HeldWeapon.Mount(art, weapon.Model, grip) ?? throw new InvalidDataException("Creature weapon missing: " + item));
+        }
+        if (look.BackWeaponModel is { } backModel)
+        {
+            int chest = BoneNames.Find(model.Skeleton, "chest");
+            var mount = model.Attach("chest") ?? throw new InvalidDataException("Creature back mount missing: " + look.Model);
+            var carried = art.Model(backModel) ?? throw new InvalidDataException("Creature back weapon missing: " + backModel);
+            float height = ArtGallery.Bounds(model).Size.Y;
+            var bodyFrame = new Transform3D(Basis.FromEuler(new Vector3(Mathf.Pi, 0, -.38f)), new Vector3(-.08f * height, 1.02f * height, -.14f * height));
+            carried.Transform = model.Skeleton.GetBoneGlobalRest(chest).AffineInverse() * bodyFrame;
+            mount.AddChild(carried);
+        }
         // A body that burns with Otherfire (its materials named otherfire_*) gets its own copies, so its blow can flare them alone.
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>().Where(m => m.Mesh is not null))
             for (int i = 0; i < mesh.Mesh.GetSurfaceCount(); i++)

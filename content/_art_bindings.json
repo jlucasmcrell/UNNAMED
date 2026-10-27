@@ -4397,6 +4397,101 @@
     "model": "prop_bp_haversack"
   },
   "creatures": {
+    "creature.undead.sedge_drowned": {
+      "model": "humgen_mob_drowned",
+      "clips": {},
+      "voice": "bone_walker_husk",
+      "flesh": "flesh",
+      "blow": "claw",
+      "steps": {
+        "walk": "walk",
+        "run": "move_fast"
+      },
+      "native_states": {
+        "idle": "zombie_idle",
+        "walk": "zombie_walk",
+        "run": "zombie_walk",
+        "attack": "punch_cross",
+        "hit": "hit_knockback",
+        "ability.creature.sedge_drowned_light_1": "punch_jab",
+        "ability.creature.sedge_drowned_light_2": "punch_cross",
+        "ability.creature.sedge_drowned_heavy_1": "punch_cross",
+        "ability.creature.sedge_drowned_heavy_2": "zombie_scratch",
+        "ability.creature.sedge_drowned_rush_1": "punch_jab",
+        "ability.creature.sedge_drowned_rush_2": "punch_cross"
+      },
+      "note": "Native HumGen body and full-source material bakes; exact-target Epic IK/GLTFExporter motion; C1 moves unchanged."
+    },
+    "creature.humanoid.back_ledger_raider": {
+      "model": "humgen_mob_raider",
+      "clips": {
+        "idle": "player.mh.idle",
+        "walk": "player.mh.walk",
+        "run": "player.mh.run",
+        "sprint": "player.mh.sprint",
+        "crouch_idle": "player.mh.crouch_idle",
+        "crouch_walk": "player.mh.crouch_walk",
+        "jump_start": "player.mh.jump_start",
+        "fall": "player.mh.fall",
+        "land": "player.mh.land",
+        "interact": "player.mh.interact",
+        "stop": "player.mh.idle",
+        "turn": "player.mh.idle",
+        "talk": "player.mh.talk",
+        "sword_ready": "player.mh.sword_ready",
+        "sword_attack": "player.mh.sword_attack_1_mc",
+        "sword_attack_1": "player.mh.sword_attack_1_mc",
+        "sword_attack_2": "player.mh.sword_attack_2_mc",
+        "sword_attack_3": "player.mh.sword_attack_3_mc",
+        "sword_attack_4": "player.mh.sword_attack_4_mc",
+        "sword_block": "player.mh.sword_block_mc",
+        "bow_ready": "player.mh.bow_ready_mc",
+        "bow_draw": "player.mh.bow_draw_mc",
+        "spear_ready": "player.mh.spear_ready_mc",
+        "spear_thrust": "player.mh.spear_thrust_mc",
+        "cast": "player.mh.cast",
+        "hit": "player.mh.hit_mc",
+        "death": "player.mh.death_mc"
+      },
+      "native_states": {
+        "ability.creature.back_ledger_raider_light_1": "sword_attack_1",
+        "ability.creature.back_ledger_raider_light_2": "sword_attack_2",
+        "ability.creature.back_ledger_raider_heavy_1": "sword_attack_3",
+        "ability.creature.back_ledger_raider_heavy_2": "sword_attack_2",
+        "ability.creature.back_ledger_raider_rush_1": "sword_attack_1",
+        "ability.creature.back_ledger_raider_rush_2": "sword_attack_3"
+      },
+      "weapon_item": "item.weapon.rusted_sword",
+      "voice": "",
+      "flesh": "flesh",
+      "blow": "",
+      "steps": {
+        "walk": "walk",
+        "run": "run"
+      },
+      "back_weapon_model": "weapon_real_arming_sword_sheathed",
+      "note": "Native HumGen body and full-source material bakes; exact-target Epic IK/GLTFExporter motion; C1 moves unchanged."
+    },
+    "creature.construct.ring_custodian": {
+      "model": "creature_d5_stan_carved",
+      "clips": {
+        "idle": "creature.creature_golem_stan.idle",
+        "walk": "creature.creature_golem_stan.walk",
+        "run": "creature.creature_golem_stan.run",
+        "attack": "creature.creature_golem_stan.attack",
+        "hit": "creature.creature_golem_stan.hit",
+        "death": "creature.creature_golem_stan.death"
+      },
+      "voice": "animated_armour",
+      "flesh": "plate",
+      "blow": "slam",
+      "steps": {
+        "walk": "walk",
+        "run": "move_heavy"
+      },
+      "uniform_scale": 1,
+      "note": "Ring custodian now uses the native carved Stan golem rather than a greybox."
+    },
     "creature.beast.wolf_grey_alpha": {
   "model": "creature_wm_grey_wolf_b",
   "clips": {
@@ -4442,8 +4537,50 @@
     }
   }
 },
-    "creature.construct.gate_tender": {"model": "creature_gate_tender", "clips": {"idle": "creature.creature_golem_stan.idle", "walk": "creature.creature_golem_stan.walk", "run": "creature.creature_golem_stan.run", "attack": "creature.creature_golem_stan.attack", "hit": "creature.creature_golem_stan.hit", "death": "creature.creature_golem_stan.death", "ability.creature.tender_strike": "creature.creature_golem_stan.attack"}, "voice": "animated_armour", "flesh": "plate", "blow": "slam", "steps": {"walk": "walk", "run": "move_heavy"}, "paces": {"walk": 1.41, "run": 4.58}},
-    "creature.construct.gate_warden": {"model": "creature_gate_warden", "clips": {"idle": "creature.creature_golem_stan.idle", "walk": "creature.creature_golem_stan.walk", "run": "creature.creature_golem_stan.run", "attack": "creature.creature_golem_stan.attack", "hit": "creature.creature_golem_stan.hit", "death": "creature.creature_golem_stan.death", "ability.creature.warden_sweep": "creature.creature_golem_stan.attack", "ability.creature.warden_fall": "creature.creature_golem_stan.attack", "ability.creature.warden_grasp": "creature.creature_golem_stan.attack"}, "voice": "animated_armour", "flesh": "plate", "blow": "slam", "steps": {"walk": "move_heavy", "run": "move_heavy"}, "paces": {"walk": 3.76, "run": 12.2}},
+    "creature.construct.gate_tender": {
+      "model": "creature_d5_stan_carved",
+      "clips": {
+        "idle": "creature.creature_golem_stan.idle",
+        "walk": "creature.creature_golem_stan.walk",
+        "run": "creature.creature_golem_stan.run",
+        "attack": "creature.creature_golem_stan.attack",
+        "hit": "creature.creature_golem_stan.hit",
+        "death": "creature.creature_golem_stan.death",
+        "ability.creature.tender_strike": "creature.creature_golem_stan.attack"
+      },
+      "voice": "animated_armour",
+      "flesh": "plate",
+      "blow": "slam",
+      "steps": {
+        "walk": "walk",
+        "run": "move_heavy"
+      },
+      "uniform_scale": 1,
+      "note": "Native Stan skin/rest/C1 takes, full-size original maps plus CC0 Rock064 normals and native Blender chipped-edge detail; faint violet joint seams."
+    },
+    "creature.construct.gate_warden": {
+      "model": "creature_d5_stan_carved",
+      "clips": {
+        "idle": "creature.creature_golem_stan.idle",
+        "walk": "creature.creature_golem_stan.walk",
+        "run": "creature.creature_golem_stan.run",
+        "attack": "creature.creature_golem_stan.attack",
+        "hit": "creature.creature_golem_stan.hit",
+        "death": "creature.creature_golem_stan.death",
+        "ability.creature.warden_sweep": "creature.creature_golem_stan.attack",
+        "ability.creature.warden_fall": "creature.creature_golem_stan.attack",
+        "ability.creature.warden_grasp": "creature.creature_golem_stan.attack"
+      },
+      "voice": "animated_armour",
+      "flesh": "plate",
+      "blow": "slam",
+      "steps": {
+        "walk": "move_heavy",
+        "run": "move_heavy"
+      },
+      "uniform_scale": 2.5,
+      "note": "Native Stan skin/rest/C1 takes, full-size original maps plus CC0 Rock064 normals and native Blender chipped-edge detail; faint violet joint seams."
+    },
     "creature.beast.hound_pup": {
       "model": "creature_wm_grey_wolf_b",
       "clips": "creature.creature_wm_grey_wolf_b",
@@ -4984,21 +5121,23 @@
       }
     },
     "creature.beast.hunting_spider_matriarch": {
-      "model": "creature_playtest_cave_spider",
+      "model": "creature_d5_tarantula_matriarch",
       "clips": {
-        "idle": "creature.creature_playtest_cave_spider.idle",
-        "walk": "creature.creature_playtest_cave_spider.walk",
-        "run": "creature.creature_playtest_cave_spider.run",
-        "attack": "creature.creature_playtest_cave_spider.attack",
-        "hit": "creature.creature_playtest_cave_spider.hit",
-        "death": "creature.creature_playtest_cave_spider.death",
-        "ability.creature.spider_bite": "creature.creature_playtest_cave_spider.attack",
-        "ability.creature.matriarch_lunge": "creature.creature_playtest_cave_spider.attack"
+        "idle": "creature.creature_d5_tarantula_matriarch.idle",
+        "idle_2": "creature.creature_d5_tarantula_matriarch.idle_2",
+        "walk": "creature.creature_d5_tarantula_matriarch.walk",
+        "run": "creature.creature_d5_tarantula_matriarch.walk",
+        "attack": "creature.creature_d5_tarantula_matriarch.attack_1",
+        "attack_2": "creature.creature_d5_tarantula_matriarch.attack_2",
+        "death": "creature.creature_d5_tarantula_matriarch.dead",
+        "ability.creature.spider_bite": "creature.creature_d5_tarantula_matriarch.attack_1",
+        "ability.creature.matriarch_lunge": "creature.creature_d5_tarantula_matriarch.attack_2",
+        "ability.creature.hunting_spider_matriarch_heavy": "creature.creature_d5_tarantula_matriarch.attack_2"
       },
       "voice": "cave_hunting_spider",
       "flesh": "chitin",
       "blow": "sting",
-      "note": "Spec 28: the hollow's matriarch on the hunting spider's own model and clips, drawn 2.5x by her body radius.",
+      "note": "Distinct Mixall native brown/orange tarantula, 3m body length, original six takes/rig and full native 2K diffuse. Source has no dedicated hit take; not falsely borrowed from Nephila. Gait pace remains subject to native conversion review.",
       "steps": {
         "walk": "scuttle",
         "run": "scuttle_fast"

@@ -57,7 +57,8 @@ public sealed partial class SkinnedModel : Node3D
     /// The rigged model <paramref name="assetId"/> with <paramref name="clips"/> (state to clip ID); null without the model. With an
     /// <paramref name="owner"/> (what it draws: <c>creature.beast.wolf_grey</c>), each state's clip is recorded in the coverage report.
     /// </summary>
-    public static SkinnedModel? Create(ArtLibrary art, string assetId, IReadOnlyDictionary<string, string> clips, string? owner = null)
+    public static SkinnedModel? Create(ArtLibrary art, string assetId, IReadOnlyDictionary<string, string> clips, string? owner = null,
+        IReadOnlyDictionary<string, string>? nativeStates = null)
     {
         if (art.Rigged(assetId) is not { } model)
             return null;
@@ -118,6 +119,9 @@ public sealed partial class SkinnedModel : Node3D
         }
         if (IsComparisonBody(assetId))
             figure.ComparisonClips(assetId, library, skeletonPath, art.RiggedFile(assetId, assetId + "_rigged.glb"));
+        // Finish state selection before AnimationPlayer/FootPlants cache lookups and add per-state contact method tracks.
+        if (nativeStates is not null)
+            foreach (var (state, native) in nativeStates) figure.Alias(library, state, native);
         player.AddAnimationLibrary("", library);
         figure._player = player;
         var plants=GD.Load<GDScript>("res://Art/FootPlants.gd").New().As<Node>();
@@ -355,6 +359,32 @@ public sealed partial class SkinnedModel : Node3D
     }
 
     public bool Has(string state) => _states.Contains(state);
+
+    /// <summary>Name an already baked exact-target take for a creature state; no retarget or bone edits.</summary>
+    private void Alias(AnimationLibrary library, string state, string nativeState)
+    {
+        if (!Has(nativeState)) throw new InvalidDataException($"{Name}: native motion state missing: {nativeState}");
+        if (state == nativeState) return;
+        var take = (Animation)library.GetAnimation(nativeState).Duplicate(true);
+        // Explicit creature bindings may select the native undead idle/walk over the generic humanoid state.
+        if (Has(state)) library.RemoveAnimation(state);
+        library.AddAnimation(state, take);
+        if (MotionPaces is { } paces && paces.TryGetValue(nativeState, out float pace))
+            MotionPaces = new Dictionary<string, float>(paces) { [state] = pace };
+        if (_contacts.TryGetValue(nativeState, out var phase))
+        {
+            _contacts = _contacts.Duplicate();
+            _contacts[state] = phase;
+        }
+        var plants = library.GetMeta("foot_plants", new Godot.Collections.Dictionary()).AsGodotDictionary();
+        if (plants.TryGetValue(nativeState, out var events))
+        {
+            plants = plants.Duplicate();
+            plants[state] = events;
+            library.SetMeta("foot_plants", plants);
+        }
+        _states.Add(state);
+    }
 
     /// <summary>Show a state, blending from the last over <paramref name="blend"/> seconds; the same state keeps playing unless restarted.</summary>
     public void Play(string state, float blend = 0.2f, float speed = 1f, bool restart = false)
