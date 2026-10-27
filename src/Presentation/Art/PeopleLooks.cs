@@ -68,8 +68,8 @@ public static class PeopleLooks
         // Lavender with a brighter ring round the pupil and a dark limbal ring at the edge, so the iris reads at conversation distance.
         float ring = Smooth(.05f, .058f, radius) * (1f - Smooth(.066f, .082f, radius));
         float limbal = 1f - .65f * Smooth(.095f, .112f, radius);
-        return ((.32f * shade + .06f * ring) * limbal, (.27f * shade + .05f * ring) * limbal,
-            (.47f * shade + .08f * ring) * limbal, 1f);
+        return ((.44f * shade + .12f * ring) * limbal, (.43f * shade + .12f * ring) * limbal,
+            (.48f * shade + .13f * ring) * limbal, 1f);
     }
 
     /// <summary>

@@ -93,16 +93,14 @@ uniform vec3 stone_tint : source_color = vec3(1.0);
 // how much of the tint's hue the whole stone takes, beyond the skin tone it already scales
 uniform float stone_tint_hue : hint_range(0.0, 2.0) = 1.0;
 
-// Siann (Otherreach addition): opal skin - a pale pearl base whose mother-of-pearl sheen drifts through lavender-blue,
-// pink and teal with the view angle, strongest where opal_mask r is (neck, upper chest, shoulders, face), with fine
-// silver-lavender subdermal traces where opal_mask g is (temples, ears, throat, fingers). Never transparent.
+// Siann: white mineral base and restrained grazing pink/green/blue pearl. No violet.
 group_uniforms siann_opal;
 uniform bool use_opal = false;
 uniform sampler2D opal_mask : hint_default_black, filter_linear_mipmap, repeat_disable;
 uniform float opal_pale : hint_range(0.0, 1.0) = 0.6;
 uniform float opal_sheen : hint_range(0.0, 1.0) = 0.85;
 uniform float opal_traces : hint_range(0.0, 1.0) = 0.4;
-uniform vec3 opal_pearl : source_color = vec3(0.88, 0.81, 0.79);
+uniform vec3 opal_pearl : source_color = vec3(0.96, 0.97, 0.98);
 
 group_uniforms u_v;
 uniform vec3 uv1_scale = vec3(1.);
@@ -260,21 +258,16 @@ void fragment() {
 	if (use_opal){
 		vec2 om = texture(opal_mask, base_uv).rg;
 		float luma = dot(ALBEDO, vec3(.299, .587, .114));
-		// a pale cool pearl that keeps the skin's own shading detail
-		// Keep local warmth without carrying a preset's strong yellow/green tint into porcelain.
-		vec3 skin_chroma = clamp(ALBEDO - vec3(luma), vec3(-0.05), vec3(0.06));
-		ALBEDO = mix(ALBEDO, opal_pearl * clamp(0.74 + (luma - 0.45) * 0.6, 0.6, 0.92) + skin_chroma * 0.65, opal_pale);
-		// mother-of-pearl: the hue drifts with the view angle and slowly across the skin
+		// White mineral base retains luminance texture/pores but removes brown socket pigment.
+		ALBEDO = mix(ALBEDO, opal_pearl * clamp(.94 + (luma - .5) * .12, .87, .99), opal_pale);
 		float nv = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
-		float drift = (1.0 - nv) * 1.4 + opal_noise(base_uv * 18.0) * 0.5;
-		vec3 film = vec3(0.84, 0.84, 0.97) + vec3(0.16, 0.13, 0.12) * cos(6.2832 * (drift + vec3(0.0, 0.34, 0.63)));
-		// the lavender-blue cast under the sheen, deepest on the neck, chest and shoulders
-		ALBEDO = mix(ALBEDO, ALBEDO * vec3(0.93, 0.94, 1.03), opal_sheen * om.r);
-		ALBEDO = mix(ALBEDO, ALBEDO * film * 1.1, opal_sheen * om.r * (0.5 + 0.5 * (1.0 - nv)));
-		// silver-lavender traces where the skin is thinnest, instead of red vessels
-		float ridge = 1.0 - abs(opal_noise(base_uv * 140.0) * 2.0 - 1.0);
-		float trace = smoothstep(0.9, 0.98, ridge) * om.g;
-		ALBEDO = mix(ALBEDO, vec3(0.80, 0.77, 0.93), trace * opal_traces);
+		float grazing = pow(1.0 - nv, 2.5);
+		// Ordered pink -> green -> blue; never interpolate blue directly into pink (violet).
+		float phase = clamp((1.0 - nv) * .9 + opal_noise(base_uv * 18.0) * .1, 0.0, 1.0);
+		vec3 film = phase < .5 ? mix(vec3(1., .88, .86), vec3(.87, 1., .91), phase * 2.)
+		    : mix(vec3(.87, 1., .91), vec3(.87, .95, 1.), (phase - .5) * 2.);
+		ALBEDO *= mix(vec3(1.), film, opal_sheen * om.r * grazing);
+
 		ROUGHNESS = mix(ROUGHNESS, ROUGHNESS * 0.85, om.r * 0.4);
 	}
 
@@ -429,7 +422,14 @@ void light()
 		vec3 specularBRDF2 = max(NdotL * D2 * G2 * F, 0.0);
 		specularBRDF = mix(specularBRDF2, specularBRDF, .6) * 2.;
 	}
-	SPECULAR_LIGHT += specularBRDF * LIGHT_COLOR * ATTENUATION;
+	vec3 pearl_spec = vec3(1.);
+	if (use_opal) {
+		float angle = clamp(1. - NdotV, 0., 1.);
+		vec3 tint = angle < .5 ? mix(vec3(1., .88, .86), vec3(.87, 1., .91), angle * 2.)
+		    : mix(vec3(.87, 1., .91), vec3(.87, .95, 1.), (angle - .5) * 2.);
+		pearl_spec = mix(vec3(1.), tint, opal_sheen * pow(angle, 1.5));
+	}
+	SPECULAR_LIGHT += specularBRDF * pearl_spec * LIGHT_COLOR * ATTENUATION;
 	if (use_ambient_occlusion){
 		SPECULAR_LIGHT *= ao * ao_block_light + (1.-ao_block_light);
 	}

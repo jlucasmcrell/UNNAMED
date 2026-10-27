@@ -318,7 +318,7 @@ public sealed partial class FaceDriver : Node
         _targets["eyeBlinkLeft"] = _targets["eyeBlinkRight"] = wide ? .035f : Mathf.Clamp(.17f + Math.Max(0, -look.Y) * .35f - Math.Max(0, look.Y) * .2f, 0, .45f);
         float expression = .02f + .015f * Mathf.Sin((float)_expressionTime * .37f);
         _targets["browDownLeft"] = _targets["browDownRight"] = GentleRest ? 0 : expression;
-        _targets["mouthSmileLeft"] = _targets["mouthSmileRight"] = _line is null ? (GentleRest ? .05f : 0) + expression * .5f : 0;
+        _targets["mouthSmileLeft"] = _targets["mouthSmileRight"] = _line is null ? (GentleRest ? .11f : 0) + expression * .5f : 0;
     }
 
     private void Blink(double delta)

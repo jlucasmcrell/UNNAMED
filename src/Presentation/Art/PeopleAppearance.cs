@@ -42,6 +42,14 @@ public static class PeopleAppearance
         }
         if (people == PeopleLooks.Siann)
         {
+            // Canon applies to every age and preset, including an inherited native moustache.
+            foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+                if (mesh.Mesh is { } geometry && Enumerable.Range(0, geometry.GetSurfaceCount()).Any(surface =>
+                    WithoutLod(geometry.SurfaceGetMaterial(surface)?.ResourceName ?? "").EndsWith("_FaceHairCards", StringComparison.OrdinalIgnoreCase)))
+                {
+                    mesh.Visible = false;
+                    (model as SkinnedModel ?? model.FindChildren("*", "", true, false).OfType<SkinnedModel>().FirstOrDefault())?.OutfitVisible(mesh, false);
+                }
             // Only bodies made for the look carry its mask: a Siann on any other body (Sel Arien's voiced head) keeps her own look.
             if (art.RiggedFile(modelId, "siann_skin.png") is { } siannPath && art.Texture(siannPath, "data") is { } mask)
             {
@@ -186,9 +194,9 @@ public static class PeopleAppearance
                 var local = (ShaderMaterial)skin.Duplicate();
                 local.SetShaderParameter("use_opal", true);
                 local.SetShaderParameter("opal_mask", mask);
-                local.SetShaderParameter("opal_sheen", .12f);
+                local.SetShaderParameter("opal_sheen", .28f);
                 local.SetShaderParameter("opal_traces", 0f);
-                local.SetShaderParameter("opal_pale", pale ?? .85f);
+                local.SetShaderParameter("opal_pale", Math.Max(pale ?? 1f, .98f));
                 local.SetShaderParameter("subsurface_scattering_strength", .6f);
                 mesh.SetSurfaceOverrideMaterial(surface, local);
             }
@@ -214,6 +222,13 @@ public static class PeopleAppearance
                 var local = (BaseMaterial3D)hair.Duplicate();
                 local.AnisotropyEnabled = true;
                 local.AnisotropyFlowmap = flow;
+                if (GD.Load<Shader>("res://Art/siann_hair_pearl.gdshader") is { } pearlShader)
+                {
+                    var pearl = new ShaderMaterial { Shader = pearlShader };
+                    pearl.SetShaderParameter("hair_albedo", local.AlbedoTexture);
+                    pearl.SetShaderParameter("hair_flow", flow);
+                    local.NextPass = pearl;
+                }
                 mesh.SetSurfaceOverrideMaterial(surface, local);
             }
         }
@@ -383,8 +398,8 @@ public static class PeopleAppearance
                 bool faceHair = siann && isHair && (name.EndsWith("_Haircap", StringComparison.OrdinalIgnoreCase)
                     || name.EndsWith("_FaceHairCards", StringComparison.OrdinalIgnoreCase)
                     || mesh.Name.ToString().Contains("Eyelash", StringComparison.OrdinalIgnoreCase));
-                // HumGen's cap atlas shares brows and scalp. Keep both ash-coloured (including roots), independently of long hair.
-                var swatch = isSkin ? skin : faceHair ? new Swatch("Ash", .46f, .43f, .42f) : hair;
+                // The shared cap and brows stay pale, independently of the white hair lengths.
+                var swatch = isSkin ? skin : faceHair ? new Swatch("Pale brows", .88f, .9f, .92f) : hair;
                 var drawn = swatch is null ? original : isSkin ? Tinted(original, swatch) : Dyed(original, swatch, lift: siann ? .06f : .4f);
                 // A Kal's stone as the creator sets it, on the stone skin KalStone gave the body.
                 if (isSkin && stone is float coverage && drawn is ShaderMaterial stoneSkin && stoneSkin.GetShaderParameter("use_stone").AsBool())
@@ -546,7 +561,7 @@ public static class PeopleAppearance
             var albedo = original is ShaderMaterial source ? source.GetShaderParameter("albedo").AsColor() : Colors.White;
             shader.SetShaderParameter("albedo", new Color(albedo.R * tone.R, albedo.G * tone.G, albedo.B * tone.B, albedo.A));
             if (((ShaderMaterial)original).GetShaderParameter("use_opal").AsBool())
-                shader.SetShaderParameter("opal_pearl", new Color(.88f * tone.R, .81f * tone.G, .79f * tone.B));
+                shader.SetShaderParameter("opal_pearl", new Color(.96f * tone.R, .97f * tone.G, .98f * tone.B));
         }
         else if (copy is BaseMaterial3D material)
             material.AlbedoColor = new Color(material.AlbedoColor.R * tone.R, material.AlbedoColor.G * tone.G, material.AlbedoColor.B * tone.B, material.AlbedoColor.A);

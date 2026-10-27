@@ -129,7 +129,7 @@ public static class LookSwatches
 
     private static readonly Swatch[] SiannSkin =
     {
-        AsMade, new("Opal", .98f, .97f, 1f), new("Moonlit", .96f, .94f, 1f), new("Rose porcelain", 1f, .94f, .95f), new("Warm ivory", 1f, .98f, .92f),
+        AsMade, new("Chalk", 1f, 1f, 1f), new("Cool pearl", .98f, 1f, 1f), new("Porcelain", .99f, .99f, 1f),
     };
 
     private static readonly Swatch[] NaturalHair =
@@ -139,10 +139,10 @@ public static class LookSwatches
         new("Grey", .42f, .42f, .42f), new("White", .75f, .74f, .72f),
     };
 
-    // Siann hair runs from platinum to pure white with age, and nothing else.
+    // Owner canon: every Siann has white hair at every age.
     private static readonly Swatch[] SiannHair =
     {
-        new("Platinum", .84f, .82f, .76f), new("Silver", .8f, .81f, .84f), new("White", .91f, .91f, .91f),
+        new("Platinum white", .98f, .99f, 1f), new("Pearl white", 1f, 1f, 1f), new("White", .99f, .99f, .99f),
     };
 
     public static IReadOnlyList<Swatch> Skin(string? people) => people switch
@@ -163,7 +163,7 @@ public static class LookSwatches
             foreach (char c in instance + part) value = unchecked((value ^ c) * 16777619);
             return value;
         }
-        int[] skin = people switch { "people.siann" => new[] { 0, 1, 2, 3, 4 }, "people.kal" => new[] { 0, 1, 2, 4 }, _ => new[] { 0, 5, 6, 7 } };
+        int[] skin = people switch { "people.siann" => new[] { 0, 1, 2, 3 }, "people.kal" => new[] { 0, 1, 2, 4 }, _ => new[] { 0, 5, 6, 7 } };
         return (skin[Hash("|skin") % (uint)skin.Length], (int)(Hash("|hair") % (uint)Hair(people).Count));
     }
 
