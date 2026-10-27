@@ -72,13 +72,18 @@ def takes_of_glb(path: Path):
 
 
 def find_source(file_name: str):
-    """The source file a clip record names, anywhere under the creature source tree (or the art root's own copies)."""
-    for root in (SRC_TREE, Path(r"C:\Otherreach_Recovery\asset_work\creatures"), ART):
+    """The source file a clip record names, searched across every tree the owned art lives in."""
+    if not file_name:
+        return None
+    roots = (SRC_TREE, Path(r"C:\Otherreach_Recovery\asset_work\creatures"), ART,
+             Path(r"C:\Otherreach_External_Assets"), Path(r"D:\Otherreach_Depot"))
+    import os
+    for root in roots:
         if not root.exists():
             continue
-        hits = list(root.rglob(file_name))
-        if hits:
-            return hits[0]
+        for base, _dirs, files in os.walk(root):
+            if file_name in files:
+                return Path(base) / file_name
     return None
 
 
@@ -91,7 +96,7 @@ def pick(takes, patterns, used, want_idle=False):
     for pattern in patterns:
         rx = re.compile(pattern, re.I)
         for take in takes:
-            if take in used or not rx.search(take):
+            if take in used or not rx.search(take) or len(take) < 7 or take.endswith("_") or take.endswith("."):
                 continue
             if want_idle and (NOT_IDLE.search(take) or not IDLE_WORDS.search(take)):
                 continue
