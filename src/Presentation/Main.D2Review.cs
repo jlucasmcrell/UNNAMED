@@ -88,6 +88,10 @@ public partial class Main
                 await Rcd3Wait(.6);
                 Mark("attune");
                 _controller.TouchStone("waystone.ashen");
+                // The stone opens its own screen on a touch; close it at once so the answer itself is what the clip shows.
+                CloseScreens();
+                await Rcd3Wait(.4);
+                CloseScreens();
                 // The answer: runes, the ring, the surge and the chime, then the toast.
                 await Rcd3Wait(3.5);
                 bool known = sim.Waystones.Single(w => w.Site.Key == "waystone.ashen").Known;

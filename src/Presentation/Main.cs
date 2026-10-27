@@ -461,6 +461,8 @@ public partial class Main : Node3D
 
         _loading?.Stage("Finding the art", 0.08);
         _assets = AssetCatalog.Load(_options.GetValueOrDefault("--asset-root"), Path.GetDirectoryName(contentRoot)!);
+        // Held here because a rebuild clears the catalog before the sounds load, and the manifest is found from this path alone.
+        string? audioWorkspace = _assets.Root;
         GD.Print(_assets.Root is { } art ? $"UNNAMED assets: HUD and effect art from {art}" : "UNNAMED assets: no asset workspace - greybox HUD and effects");
         if (_assets.Problems.Count > 0)
             GD.PushWarning($"UNNAMED assets: {_assets.Problems.Count} manifest entries withheld, greybox stands in: {string.Join("; ", _assets.Problems)}");
@@ -561,7 +563,7 @@ public partial class Main : Node3D
         // The player's mix; a harness run keeps the defaults so its captures stay comparable.
         Settings.SettingsStore.ApplyAudio();
         _sounds = new Audio.SoundBank { Name = "Sounds" };
-        _sounds.Load(_assets.Root);
+        _sounds.Load(audioWorkspace);
         if (_sounds.Problems.Count > 0)
             GD.PushWarning($"UNNAMED audio: {_sounds.Problems.Count} sound entries left out, malformed: {string.Join(", ", _sounds.Problems)}");
         AddChild(_sounds);
