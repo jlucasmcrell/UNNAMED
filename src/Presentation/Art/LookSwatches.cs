@@ -123,8 +123,8 @@ public static class LookSwatches
 
     private static readonly Swatch[] KalSkin =
     {
-        AsMade, new("Slate", .9f, .95f, 1.05f), new("Basalt", .6f, .6f, .65f), new("Sandstone", 1.35f, 1.15f, .85f),
-        new("Granite", 1.1f, 1.08f, 1.05f), new("Ochre", 1.2f, .95f, .7f),
+        AsMade, new("Slate", .78f, .88f, 1.1f), new("Basalt", .5f, .5f, .56f), new("Sandstone", 1.4f, 1.12f, .76f),
+        new("Granite", 1.18f, 1.04f, 1.0f), new("Ochre", 1.3f, .92f, .55f),
     };
 
     private static readonly Swatch[] SiannSkin =

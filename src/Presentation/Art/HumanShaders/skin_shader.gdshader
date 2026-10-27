@@ -90,6 +90,8 @@ uniform float stone_floor : hint_range(0.0, 0.6) = 0.26;
 uniform float stone_glint : hint_range(0.0, 1.0) = 0.6;
 uniform float stone_normal_y : hint_range(-1.0, 1.0) = 1.0;
 uniform vec3 stone_tint : source_color = vec3(1.0);
+// how much of the tint's hue the whole stone takes, beyond the skin tone it already scales
+uniform float stone_tint_hue : hint_range(0.0, 2.0) = 1.0;
 
 // Siann (Otherreach addition): opal skin - a pale pearl base whose mother-of-pearl sheen drifts through lavender-blue,
 // pink and teal with the view angle, strongest where opal_mask r is (neck, upper chest, shoulders, face), with fine
@@ -241,6 +243,7 @@ void fragment() {
 		// the skin's own hue carrying the stone's tone; toward the joints, the stone's own colour
 		vec3 mineral = mix(ALBEDO * clamp(rock_luma / max(luma, .05), .55, 1.35), mix(rock, rock_luma * ALBEDO / luma, stone_skin_blend), joint);
 		mineral *= mix(1.0 - stone_cavity, 1.0, rgbh.a) * (1.0 - crack * stone_crack_dark);
+		mineral *= mix(vec3(1.0), stone_tint / max(dot(stone_tint, vec3(.299, .587, .114)), .02), stone_tint_hue);
 		ALBEDO = mix(ALBEDO, mineral, stone);
 		ROUGHNESS = mix(ROUGHNESS, max(rmb.r, .78), stone);
 		SPECULAR = mix(SPECULAR, .3, stone);

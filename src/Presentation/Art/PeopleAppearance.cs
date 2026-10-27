@@ -355,6 +355,8 @@ public static class PeopleAppearance
                     if (drawn == original)
                         stoneSkin = (ShaderMaterial)original.Duplicate();
                     stoneSkin.SetShaderParameter("stone_coverage", coverage);
+                    // The chosen stone colours the rock itself, not just the skin under it (owner: slate looked like ochre).
+                    stoneSkin.SetShaderParameter("stone_tint", skin is null ? Vector3.One : new Vector3(skin.R, skin.G, skin.B));
                     drawn = stoneSkin;
                 }
                 // The body's skin texture carries the baked hair's colour painted under the cap; blended, a recoloured cap lets it show
@@ -380,11 +382,6 @@ public static class PeopleAppearance
                 .Add(LookSwatches.SkinSlider, colours.Skin).Add(LookSwatches.HairSlider, colours.Hair),
         };
         ApplyLook(model, people, look, dyeClothes: false);
-        if (people != PeopleLooks.Kal || LookSwatches.Chosen(LookSwatches.Skin(people), colours.Skin) is not { } stone) return;
-        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
-            for (int surface = 0; surface < (mesh.Mesh?.GetSurfaceCount() ?? 0); surface++)
-                if (mesh.GetSurfaceOverrideMaterial(surface) is ShaderMaterial skin && skin.GetShaderParameter("use_stone").AsBool())
-                    skin.SetShaderParameter("stone_tint", new Vector3(stone.R, stone.G, stone.B));
     }
 
     /// <summary>Whether <paramref name="model"/> wears a garment the creator's shirt and trouser colours dye.</summary>
