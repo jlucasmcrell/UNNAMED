@@ -297,7 +297,7 @@ public static class SkyView
     private static float _loggedHour = float.NaN;
 
     /// <summary>Whether the run's hour is day (the sun well up): for what only runs by day (the atmosphere's pollen).</summary>
-    public static float DaylightNow => Hour is > 7f and < 18f ? 1f : 0f;
+    public static float DaylightNow => Hour is > 6f and < 19f ? 1f : 0f;
 
     /// <summary>How much daylight at a sun altitude (degrees): full from 10 degrees up, through civil twilight to none at -6.</summary>
     public static float Daylight(float sunAltitudeDegrees) => Mathf.Clamp((sunAltitudeDegrees + 6f) / 16f, 0f, 1f);
@@ -309,7 +309,14 @@ public static class SkyView
         sky.Set("current_time", Hour);
         // TimeOfDay moves the sun and moon when its time changes, once its dome is linked: recompute them next frame to be sure.
         if (sky.Get("tod").AsGodotObject() is { } tod)
+        {
+            // A temperate midsummer sun: up from about 04:30 to 19:30, so about two thirds of each 48-minute day is light. Sky3D's
+            // default (16 degrees on 1 January) gave 11 hours of sun, and the owner ran about at night more often than not.
+            tod.Set("latitude", Mathf.DegToRad(45f));
+            tod.Set("month", 6);
+            tod.Set("day", 21);
             tod.CallDeferred("_update_celestial_coords");
+        }
         if (sky.Get("sun").AsGodotObject() is DirectionalLight3D sun)
         {
             sun.ShadowEnabled = true;
