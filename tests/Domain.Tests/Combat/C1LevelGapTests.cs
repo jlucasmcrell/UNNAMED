@@ -3,8 +3,11 @@ namespace UNNAMED.Domain.Tests.Combat;
 public class C1LevelGapTests
 {
     private static readonly Strike Blow = new(new AttackProfile("test",10,10,"physical_blunt",1000,5,2,5,0),1,0,1);
-    [Fact] public void PeerAndOneLevelKeepAuthoredNumbers()
-    { Assert.Equal(Blow, CombatRules.LevelGap(Blow,2,2)); Assert.Equal(Blow, CombatRules.LevelGap(Blow,2,3)); }
+    [Fact] public void PeersKeepAuthoredNumbers()
+    { Assert.Equal(Blow, CombatRules.LevelGap(Blow,2,2)); }
+    [Fact] public void TheFirstHigherLevelAlreadyHasAnAdvantage()
+    { var weak=CombatRules.LevelGap(Blow,2,3);var strong=CombatRules.LevelGap(Blow,3,2);
+      Assert.True(weak.DamageMultiplier<1);Assert.True(weak.AccuracyPercent<100);Assert.True(strong.DamageMultiplier>1); }
     [Fact] public void ALevelGapMissCannotStaggerOrApplyAnEffect()
     {
         var blow=CombatRules.LevelGap(Blow with { Attack=Blow.Attack with { ForcesStagger=true,OnHitEffect="venom",OnHitEffectPercent=100 } },1,4);

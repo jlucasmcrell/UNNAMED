@@ -951,17 +951,18 @@
       1.475
     ],
     "shader": {
-      "saturation": 0.15,
-      "value": 0.72,
+      "saturation": 0.05,
+      "value": 0.24,
       "mottle_tint": [
         0.82,
         0.86,
         0.9
       ],
-      "mottle_strength": 0.65,
+      "mottle_strength": 0,
       "mottle_scale": 0.07,
       "mottle_cover": 0.5,
-      "mottle_from": 0.4
+      "mottle_from": 0.4,
+      "ruff_strength": 1
     }
   }
 },

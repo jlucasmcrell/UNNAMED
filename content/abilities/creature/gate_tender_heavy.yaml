@@ -3,7 +3,7 @@ kind: ability
 schema: 1
 display_key: ability.creature.gate_tender_heavy.name
 tags: [ability]
-name: Gate Tender Heavy Strike
+name: Heavy Strike
 notes: First-update C1; a committed tell and recovery let a guarded or sidestepping player punish this move.
 class: creature
 range_m: 2.0

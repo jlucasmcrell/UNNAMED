@@ -3,7 +3,7 @@ kind: ability
 schema: 1
 display_key: ability.creature.animated_armour_heavy.name
 tags: [ability]
-name: Animated Armour Heavy Strike
+name: Heavy Strike
 notes: First-update C1; a committed tell and recovery let a guarded or sidestepping player punish this move.
 class: creature
 range_m: 1.8

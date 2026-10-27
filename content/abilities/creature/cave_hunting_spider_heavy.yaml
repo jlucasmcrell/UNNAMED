@@ -3,7 +3,7 @@ kind: ability
 schema: 1
 display_key: ability.creature.cave_hunting_spider_heavy.name
 tags: [ability]
-name: Cave Hunting Spider Heavy Strike
+name: Heavy Strike
 notes: First-update C1; a committed tell and recovery let a guarded or sidestepping player punish this move.
 class: creature
 range_m: 1.2

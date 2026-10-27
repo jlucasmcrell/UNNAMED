@@ -3,7 +3,7 @@ kind: ability
 schema: 1
 display_key: ability.creature.rooster_heavy.name
 tags: [ability]
-name: Ashcomb Cock Heavy Strike
+name: Heavy Strike
 notes: First-update C1; a committed tell and recovery let a guarded or sidestepping player punish this move.
 class: creature
 range_m: 0.5

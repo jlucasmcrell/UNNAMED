@@ -47,7 +47,7 @@ public class TtkTableTests
         foreach (var (weapon, label) in new[] { ("item.weapon.rusted_sword", "Rusted Sword"), ("item.weapon.hunting_bow", "Hunting Bow"), ("unarmed", "Unarmed") })
         {
             for (int level = 1; level <= 3; level++)
-                kills.Add(TimeToKill(session, session.Setup, weapon, label, level));
+                kills.Add(TimeToKill(session, session.Setup, weapon, label, level, allowCensored: weapon == "unarmed"));
         }
         var dies = new List<Row>();
         foreach (bool armored in new[] { false, true })
@@ -180,14 +180,14 @@ public class TtkTableTests
 
         b.Append($"## Killing one grey wolf (level {wolf.Level}, {wolf.MaxHealth} health, fur {wolf.Armor.GetValueOrDefault(BodyRegion.Torso)} on the torso)\n\n");
         b.Append("A level-L character has put its L-1 level-up points into Might. The sword and bare hands close to reach; the bow opens ");
-        b.Append("from 15 m and keeps shooting. Time runs from the first swing or draw to the kill.\n\n");
+        b.Append("from 15 m and keeps shooting. Time runs from the first swing or draw to the kill. Bare-hand trials that reach 60 s are censored; an asterisk marks rows containing one.\n\n");
         b.Append("| Weapon | Level | Might | Median s | Fastest s | Slowest s | Median attacks | In the 4-8 s band |\n");
         b.Append("|---|---|---|---|---|---|---|---|\n");
         foreach (var row in kills)
         {
             int median = row.Blows.OrderBy(x => x).ElementAt(row.Blows.Count / 2);
             string band = row.Label == "Unarmed" ? "no (a fallback, not a weapon family)" : Band(row.Median, KillBand);
-            b.Append($"| {row.Label} | {row.Level} | {10 + row.Level - 1} | {S(row.Median)} | {S(row.Percentile(0))} | {S(row.Percentile(1))} | {median} | {band} |\n");
+            b.Append($"| {row.Label} | {row.Level} | {10 + row.Level - 1} | {S(row.Median)}{(row.Censored ? "*" : "")} | {S(row.Percentile(0))} | {S(row.Percentile(1))} | {median} | {band} |\n");
         }
 
         b.Append("\n## Dying, standing still\n\n");

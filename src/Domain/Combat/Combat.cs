@@ -192,16 +192,16 @@ public readonly record struct AttackContext(bool AttackerAlive, bool TargetAlive
 
 public static class CombatRules
 {
-    /// <summary>Owner first-update ruling: two or more levels of disadvantage require tactics. Peer/one-level fights keep their authored numbers.</summary>
+    /// <summary>Owner first-update ruling: every higher level has an advantage; two or more levels of disadvantage require tactics. Peers keep authored numbers.</summary>
     public static Strike LevelGap(Strike strike, int attackerLevel, int defenderLevel)
     {
         int gap = Math.Clamp(attackerLevel - defenderLevel, -7, 7);
         int steps = Math.Max(0, Math.Abs(gap) - 1);
-        double factor = 1 + .75 * steps;
+        double factor = 1 + (gap == 0 ? 0 : .1) + .75 * steps;
         return strike with
         {
             DamageMultiplier = strike.DamageMultiplier * (gap < 0 ? 1 / factor : factor),
-            AccuracyPercent = gap < 0 ? Math.Max(50, 100 - 10 * steps) : 100,
+            AccuracyPercent = gap < 0 ? Math.Max(50, 95 - 10 * steps) : 100,
         };
     }
 

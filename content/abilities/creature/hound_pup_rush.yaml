@@ -3,7 +3,7 @@ kind: ability
 schema: 1
 display_key: ability.creature.hound_pup_rush.name
 tags: [ability]
-name: Hound Pup Rush
+name: Rush
 notes: First-update C1; a committed tell and recovery let a guarded or sidestepping player punish this move.
 class: creature
 range_m: 1.4

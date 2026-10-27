@@ -43,6 +43,8 @@ uniform float mottle_strength = 0.0;
 uniform float mottle_scale = 0.12;
 uniform float mottle_cover = 0.4;
 uniform float mottle_from = 0.0;
+// A pale neck ruff over a dark coat; the scanned fur detail remains visible.
+uniform float ruff_strength = 0.0;
 // A sheen on the dark parts of the coat that turns between two colours with the view.
 uniform vec3 sheen_a = vec3(0.1, 0.4, 0.35);
 uniform vec3 sheen_b = vec3(0.35, 0.15, 0.5);
@@ -116,6 +118,11 @@ void fragment() {
 		float facing = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
 		float dark = 1.0 - smoothstep(0.08, 0.3, hsv.z);
 		coat = mix(coat, mix(sheen_a, sheen_b, facing), sheen_strength * dark * (1.0 - facing * 0.5));
+	}
+	if (ruff_strength > 0.0) {
+		float ruff = smoothstep(0.48, 0.62, at.y) * smoothstep(0.50, 0.62, at.z) * (1.0 - smoothstep(0.78, 0.88, at.z));
+		float fur = dot(tex.rgb, vec3(0.3, 0.59, 0.11));
+		coat = mix(coat, vec3(0.82, 0.86, 0.90) * (0.35 + fur * 0.65), ruff * ruff_strength);
 	}
 	ALBEDO = coat;
 	if (glow_strength > 0.0 && otherfauna_night > 0.01) {

@@ -3,7 +3,7 @@ kind: ability
 schema: 1
 display_key: ability.creature.chicken_rush.name
 tags: [ability]
-name: Ashcomb Hen Rush
+name: Rush
 notes: First-update C1; a committed tell and recovery let a guarded or sidestepping player punish this move.
 class: creature
 range_m: 0.5
