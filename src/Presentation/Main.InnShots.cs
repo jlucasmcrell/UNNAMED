@@ -93,7 +93,7 @@ public partial class Main
     {
         try
         {
-            int[] hours = _flags.Contains("--inn-fixes") ? [23] : InnShotsHours;
+            int[] hours = _flags.Contains("--inn-fixes") || _flags.Contains("--inn-side") ? [23] : InnShotsHours;
             if (_innStep >= hours.Length)
             {
                 File.WriteAllText(Path.Combine(_innShotsDirectory!,"complete.json"),
@@ -109,7 +109,9 @@ public partial class Main
                 JsonSerializer.Serialize(new { hour,residents,travellers=simulation.Adventurers.Where(a=>a.Settlement=="ashen_hollow") })+System.Environment.NewLine);
             _hud.Visible = false;
             var views = InnViews(hour);
-            foreach (var view in _flags.Contains("--inn-fixes") ? new[] { views[3],views[5] } : views) await InnShot(hour,view);
+            foreach (var view in _flags.Contains("--inn-side")
+                ? new[] { new InnView("Bunk sleepers: side angle",436.65f,719.2f,439.1f,721.0f,.35f,.05f) }
+                : _flags.Contains("--inn-fixes") ? new[] { views[3],views[5] } : views) await InnShot(hour,view);
         }
         catch(Exception error)
         {
@@ -148,5 +150,6 @@ public partial class Main
         if(hour==13 && view==InnViews(13)[0])
             await InnShot(13,new InnView("The raised guest storey and covered stair",465,736,447,720,2,2));
         if(view.Name=="The raised guest storey and covered stair") await Rcd3Shot(_innShotsDirectory!,"exterior_storey");
+        if(view.Name=="Bunk sleepers: side angle") await Rcd3Shot(_innShotsDirectory!,"bunk_side");
     }
 }
