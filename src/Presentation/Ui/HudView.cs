@@ -3,6 +3,7 @@
 
 using System.Text.RegularExpressions;
 using Godot;
+using UNNAMED.Presentation.Ui.Models;
 
 namespace UNNAMED.Presentation.Ui;
 
@@ -141,6 +142,9 @@ public partial class HudView : Control
     private readonly Label _trackerTitle = HudStyle.Text(HudStyle.Caps, 17, HudStyle.Ember);
     private readonly VBoxContainer _objectives = new();
     private string _trackerText = string.Empty;
+    public Action<string>? TrackQuest { get; set; }
+    private string? _questHover, _questFocus;
+    public string? QuestAtPointerOrFocus => _questHover ?? _questFocus;
 
     // Bottom centre and bottom right: the prompt and the log.
     private readonly PanelContainer _prompt = new();
@@ -1050,7 +1054,48 @@ void fragment() {
         _pets.Visible = lines.Length > 0;
     }
 
-    /// <summary>The tracked quest ("TITLE\nobjective\n..."), hidden while the debug overlay has the corner.</summary>
+    public void SetQuests(QuestTrackerList quests, string? direction, bool shown)
+    {
+        _trackerWanted = shown && quests.Rows.Count > 0;
+        _tracker.Visible = _trackerWanted && !_aside;
+        string signature = "quests|" + direction + "|" + quests.More + "|" + string.Join("|", quests.Rows);
+        if (signature == _trackerText) return;
+        _trackerText = signature;
+        _trackerTitle.Text = $"QUESTS    {HelpPanel.Key("free_cursor")}: cursor · T: track";
+        _questHover = _questFocus = null;
+        foreach (var child in _objectives.GetChildren()) { _objectives.RemoveChild(child); child.QueueFree(); }
+        foreach (var quest in quests.Rows)
+        {
+            var row = new VBoxContainer();
+            row.AddThemeConstantOverride("separation", 2);
+            var title = UiKit.Action((quest.Expanded ? "◆ " : "") + quest.Title,
+                () => TrackQuest?.Invoke(quest.Id), compact: true, id: "tracker/" + quest.Id);
+            title.Alignment = HorizontalAlignment.Left;
+            title.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+            title.AddThemeFontSizeOverride("font_size", HudStyle.Sized(quest.Expanded ? 19 : 17));
+            title.AddThemeColorOverride("font_color", quest.Expanded ? HudStyle.Brass : HudStyle.Bone);
+            title.TooltipText = quest.Title + "\n" + quest.Step + "\nT: track";
+            title.MouseEntered += () => _questHover = quest.Id;
+            title.MouseExited += () => { if (_questHover == quest.Id) _questHover = null; };
+            title.FocusEntered += () => _questFocus = quest.Id;
+            title.FocusExited += () => { if (_questFocus == quest.Id) _questFocus = null; };
+            row.AddChild(title);
+            var step = HudStyle.Text(HudStyle.Body, quest.Expanded ? 17 : 15, quest.Expanded ? HudStyle.Bone : HudStyle.Ash).Say(quest.Step);
+            step.CustomMinimumSize = new Vector2(340, 0);
+            step.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+            step.MaxLinesVisible = quest.Expanded ? 3 : 1;
+            step.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+            step.MouseFilter = MouseFilterEnum.Ignore;
+            row.AddChild(step);
+            if (quest.Expanded && !string.IsNullOrEmpty(direction))
+                row.AddChild(HudStyle.Text(HudStyle.Body, 15, HudStyle.Brass).Say(direction));
+            _objectives.AddChild(row);
+        }
+        if (quests.More > 0)
+            _objectives.AddChild(HudStyle.Text(HudStyle.Body, 16, HudStyle.Ash).Say($"+{quests.More} more · {HelpPanel.Key("journal")}: journal"));
+    }
+
+    /// <summary>Legacy preview text, hidden while the debug overlay has the corner.</summary>
     public void SetTracker(string? text, bool shown)
     {
         text ??= string.Empty;
@@ -1203,7 +1248,9 @@ void fragment() {
         _leftColumn.Size = new Vector2(regions.TopLeft.Width, 0);
 
         float room = Math.Max(0, regions.TopRight.Bottom - RightColumnTop);
-        float toastsKept = Math.Min(toastsWanted, room / 2);
+        // Active quests stay readable; incidental toasts use the space left below the list.
+        float toastsKept = Math.Min(toastsWanted, _trackerText.StartsWith("quests|", StringComparison.Ordinal)
+            ? Math.Max(0, room - trackerSize.Y - 10) : room / 2);
         float trackerRoom = Math.Max(0, room - (toastsKept > 0 ? toastsKept + 10 : 0));
         // Too little room for the whole of it and the tracker shrinks to its title; too little for that and it waits.
         bool whole = trackerRoom >= trackerSize.Y;

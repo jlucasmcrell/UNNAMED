@@ -326,7 +326,7 @@ public partial class JournalPanel : CanvasLayer
         Callable.From(() => Refresh(session)).CallDeferred();
     }
 
-    private void Track(string? id, GameSession session)
+    public void Track(string? id, GameSession session)
     {
         Tracked = id;
         _drawn = string.Empty;

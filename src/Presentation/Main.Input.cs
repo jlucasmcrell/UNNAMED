@@ -93,6 +93,15 @@ public partial class Main
             return;
         var combat = _session.Simulation!.Combat;
         bool modal = Modal;
+        // T keeps its normal chat meaning except on a quest card or a pointed/focused tracker row.
+        string? questChoice = _questCards.Cards.Current?.QuestId ??
+            (Input.MouseMode != Input.MouseModeEnum.Captured ? _hud.QuestAtPointerOrFocus : null);
+        bool questTrack = (!modal || _dialogue.Visible) && questChoice is not null && Input.IsActionJustPressed("quest_track");
+        if (questTrack)
+        {
+            _journal.Track(questChoice, _session);
+            _questCards.Cards.Dismiss();
+        }
         bool looting = _loot.Visible || _inventory.Visible && _inventory.Anchor is not null && _inventory.OpenStation is null &&
                        _inventory.OpenTrader is null && !_dialogue.Visible;
 
@@ -108,11 +117,15 @@ public partial class Main
             }
             _dialogue.Skip(Input.IsActionPressed("dialogue_skip"), Input.IsActionJustPressed("dialogue_skip"), GetProcessDeltaTime());
             if (Input.IsActionJustPressed("release_mouse"))
+            {
+                _questCards.Cards.Dismiss();
                 _dialogue.Leave();
+            }
         }
         else if (Input.IsActionJustPressed("release_mouse"))
         {
-            Escape();
+            if (_questCards.Cards.Current is not null) _questCards.Cards.Dismiss();
+            else Escape();
         }
         else if (!_journal.Typing && !_report.Typing)   // a note being written takes its letters, not the screens' keys (WP4)
         {
@@ -124,6 +137,7 @@ public partial class Main
                 Toggle(_skills, () => ShowSkills(null));
             if (Input.IsActionJustPressed("journal"))
             {
+                _questCards.Cards.Dismiss();
                 // A landmark banner still standing offers its page: the journal opens on it (spec 41 §2).
                 string? offered = (_hud.ActiveLandmarkTitle is { } title
                     ? _session.Setup.Lore.FirstOrDefault(entry => entry.Value.Title == title).Key
@@ -137,7 +151,7 @@ public partial class Main
             }
             if (Input.IsActionJustPressed("map"))
                 Toggle(_map, () => Show(_map));
-            if (Input.IsActionJustPressed("chat"))
+            if (Input.IsActionJustPressed("chat") && !questTrack)
                 Toggle(_chat, () => _chat.Open());
             if (Input.IsActionJustPressed("party"))
                 Toggle(_companionsPanel, () => ShowParty(null));
@@ -384,6 +398,7 @@ public partial class Main
         Bind("debug_overlay", Key.F3);
         Bind("quest_debug", Key.F4);
         Bind("journal", Key.J);
+        Bind("quest_track", Key.T); // Contextual: on the card or a tracker row; otherwise T still opens chat.
         Bind("map", Key.M);
         Bind("chat", Key.T);
         Bind("party", Key.O);

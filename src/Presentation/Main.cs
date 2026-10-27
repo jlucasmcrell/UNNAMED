@@ -1922,6 +1922,15 @@ public partial class Main : Node3D
     /// <summary>--autostart[-body=N]: a developer's way past the title and the creator, through the same Begin.</summary>
     private void AutoStart()
     {
+        if (OS.GetEnvironment("OTHERREACH_D3_REVIEW") is { Length: > 0 } review
+            && _options.GetValueOrDefault("--content-root") is { } content && File.Exists(Path.Combine(content, "D3_REVIEW_FIXTURE.txt")))
+        {
+            _scripted = _rcd3Driving = true;
+            _creator.Use(_creator.Draft with { Name = "Rook", Start = UNNAMED.Domain.Character.StartPoint.Waystone });
+            if (!_creator.PressBegin()) throw new InvalidDataException("D3 creator Begin refused");
+            RunD3Review(review);
+            return;
+        }
         int body = _flags.FirstOrDefault(f => f.StartsWith("--autostart-body=")) is { } flag && int.TryParse(flag["--autostart-body=".Length..], out int index) ? index : 0;
         if (!_creator.BeginQuick(body))
             GD.PushError("UNNAMED autostart: Begin was refused");

@@ -2,6 +2,7 @@
 // Godot presentation only: no gameplay state lives here (D-11)
 
 using Godot;
+using UNNAMED.Presentation.Ui.Models;
 
 namespace UNNAMED.Presentation.Ui;
 
@@ -18,6 +19,8 @@ namespace UNNAMED.Presentation.Ui;
 /// </summary>
 public partial class Hud : CanvasLayer
 {
+    public Action<string>? TrackQuest { get; set; }
+    public string? QuestAtPointerOrFocus => _view?.QuestAtPointerOrFocus;
     private readonly Label _fpsReadout = Text(15);
     private readonly Label _worldClock = Text(15);
     private ulong _fpsSampleAt;
@@ -191,7 +194,7 @@ public partial class Hud : CanvasLayer
 
     private void ReadyProduction()
     {
-        _view = new HudView { Name = "HudView", InspectCompanion=i=>InspectCompanion?.Invoke(i),InspectPet=i=>InspectPet?.Invoke(i) };
+        _view = new HudView { Name = "HudView", InspectCompanion=i=>InspectCompanion?.Invoke(i),InspectPet=i=>InspectPet?.Invoke(i), TrackQuest=id=>TrackQuest?.Invoke(id) };
         AddChild(_view);
         _compass.Styled = true;
         _compass.SetAnchorsPreset(Control.LayoutPreset.TopRight);
@@ -429,6 +432,13 @@ public partial class Hud : CanvasLayer
         }
         _tracker.Text = text ?? string.Empty;
         _tracker.Visible = !_debug.Visible;
+    }
+
+    public void SetQuests(QuestTrackerList quests, string? direction)
+    {
+        if (_view is not null) _view.SetQuests(quests, direction, !_debug.Visible);
+        else SetTracker(string.Join("\n", quests.Rows.Select(q => q.Title + "\n" + q.Step))
+            + (quests.More > 0 ? $"\n+{quests.More} more" : ""));
     }
 
     /// <summary>A moment the player should not miss - a level gained, a quest finished - announced at the top centre; classic toasts it.</summary>

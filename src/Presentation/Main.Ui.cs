@@ -17,6 +17,7 @@ public partial class Main
     private TitleScreen _title = null!;
     private FirstLaunchPanel _firstLaunch = null!;
     private SkillsPanel _skills = null!;
+    private QuestCards _questCards = null!;
 
     /// <summary>The settings as last applied: a change applies only the parts it touched (a volume slider never restyles the interface).</summary>
     private ClientPrefs _applied = new();
@@ -36,6 +37,9 @@ public partial class Main
         AddChild(_dialogue);
         _journal = new JournalPanel { Name = "Journal" };
         AddChild(_journal);
+        _questCards = new QuestCards { Name = "QuestCards" };
+        AddChild(_questCards);
+        _hud.TrackQuest = id => _journal.Track(id, _session);
         _reading = new ReadingPanel { Name = "Reading" };
         _reading.Bind(_session);
         AddChild(_reading);
