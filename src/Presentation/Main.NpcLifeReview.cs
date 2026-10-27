@@ -16,7 +16,7 @@ public partial class Main
             : ["npc.ashen_hollow.renn_vale", "npc.ashen_hollow.kera_voss", "npc.cairnwold.berrin_garth"];
         var rows = new List<object>();
         var source = _camera.Camera;
-        var camera = new Camera3D { Fov = 55, Near = source.Near, Far = source.Far,
+        var camera = new Camera3D { Name = "NpcReviewCamera", Fov = 55, Near = source.Near, Far = source.Far,
             CullMask = source.CullMask, Attributes = source.Attributes, Environment = source.Environment };
         AddChild(camera); _innFreeCamera = true;
         source.GetNode<OmniLight3D>("CharacterFill").Reparent(camera, false);
@@ -97,14 +97,18 @@ public partial class Main
             {
                 if (Time.GetTicksMsec() - speechStart > 45000) throw new TimeoutException("Full greeting did not finish");
                 if (File.Exists(@"C:\Otherreach_Recovery\OWNER_PLAYING.flag")) throw new OperationCanceledException("Owner playing");
-                CloseCamera(); var speech = _voice.Speech(expected);
+                CloseCamera();
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+                if (GetViewport().GetCamera3D() != camera) throw new InvalidDataException("Review close camera was replaced before draw");
+                var speech = _voice.Speech(expected);
                 if (speech is null || sim.Conversation?.LineId != expected || !_dialogue.Visible)
                     throw new InvalidDataException("Normal voiced greeting interrupted or not visible");
                 peak = Math.Max(peak, face.JawWeight);
                 rows.Add(new { phase = "normal_greeting", utc = DateTimeOffset.UtcNow, playback = speech.Value.Position,
                     duration = speech.Value.Duration, envelope = speech.Value.Jaw, jaw = face.JawWeight,
                     native_jaw_angle = figure.FindChildren("*", "", true, false).OfType<HumGenJaw>().Single().AppliedAngle,
-                    face.NativeJawBound, dialogue_visible = _dialogue.Visible });
+                    face.NativeJawBound, dialogue_visible = _dialogue.Visible, view_camera = camera.Name.ToString(),
+                    view_position = camera.GlobalPosition.ToString(), view_fov = camera.Fov });
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             }
             var ended = _voice.Speech(expected);
