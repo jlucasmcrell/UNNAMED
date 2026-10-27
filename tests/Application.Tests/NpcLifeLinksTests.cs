@@ -425,6 +425,8 @@ public class NpcLifeLinksTests
         var homebound = session.Setup with
         {
             NpcLife = session.Setup.NpcLife with { Routines = session.Setup.NpcLife.Routines.ToImmutableSortedDictionary(kv => kv.Key, kv => kv.Value with { Trip = null }, StringComparer.Ordinal) },
+            // The shipped content has rain off until the rain rework; the rule under test is about rain, so it draws it.
+            Weather = WeatherRules.Default,
         };
         var worlds = Enumerable.Range(1, 60).Select(seed => Open(session, homebound, seed: (ulong)seed).Simulation).ToList();
         var rainy = worlds.Where(w => w.Weather.State == WeatherState.Rain).Take(3).ToList();
