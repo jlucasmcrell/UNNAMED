@@ -150292,13 +150292,13 @@ readables:
     verb: Read
     circle_m: [476.8, 721.2, 0.6]
     height_m: 0.9
-  # The dressed panel at the foot of Old Late, on the south side, where a reader can stand (the giant is a circle of 4.5 m).
+  # The dressed panel at the foot of Old Late, on the west face toward the waystation, outside the giant's box (621.5-673.5 x 750.4-782.4).
   - key: readable.old_late_carving
     lore_ref: lore.quiet_folk
     page: 2
     name: carved panel
     verb: Read
-    circle_m: [650, 770.2, 0.7]
+    circle_m: [618.0, 766.0, 0.7]
     height_m: 1.4
   # Sel Arien's survey record, on her table east of the lodge (the table is the box beside her at 474.6, 721.3).
   - key: readable.sel_field_record

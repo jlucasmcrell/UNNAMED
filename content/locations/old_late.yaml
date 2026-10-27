@@ -8,6 +8,6 @@ notes: The Quiet-folk landmark giant; its crown answers the wind a breath late. 
 region_ref: region.starting_frontier
 anchor: { world: [650, 0, 765] }
 kind_of_place: landmark
-discovery: { methods: [visited], radius_m: 28, xp: 25 }
+discovery: { methods: [visited], radius_m: 45, xp: 25 }
 map: { reveals_radius_m: 45, marker: landmark }
 fast_travel: { node: false }
