@@ -373,6 +373,7 @@ public partial class AcceptanceWalkthroughTests
             That(wolfCorpse is not null, "no kill, so no corpse");
             var corpse = run.Sim.Containers.SingleOrDefault(c => c.Site.Key == wolfCorpse);
             That(corpse is not null, "the wolf left no corpse to search");
+            That(Harness.WalkTo(session, corpse!.Site.XMm, corpse.Site.ZMm), "approaching the carcass after the C1 lunge");
             int before = run.Sim.Player.Inventory.Sum(i => i.Count);
             Equal(null, run.Do(new TakeAllCommand(run.Sim.PlayerId, wolfCorpse!)), "taking the carcass's goods");
             int after = run.Sim.Player.Inventory.Sum(i => i.Count);
@@ -383,11 +384,12 @@ public partial class AcceptanceWalkthroughTests
         // ── equip and a gear set (the checklist does not number these: §90) ─────────
         Step("90.1", () =>
         {
+            run.Relocate(55, 140); // Back in town, clear of the remaining C1 pack for this equipment check.
             run.Give(0, new InventoryEntry(EntityId.NewId(EntityKind.Item), "item.weapon.hunting_bow", 1));
             var sim = run.Sim;
             var worn = sim.Player.Equipment;
             var bow = sim.Player.Inventory.First(e => e.DefId == "item.weapon.hunting_bow").ItemId;
-            run.Ticks(60);
+            run.Ticks(Math.Max(60, sim.Setup.Combat.Constants.OutOfCombatTicks + 1));
             Equal(null, run.Do(new SaveGearSetCommand(sim.PlayerId, 1, "Blade and vest")), "keeping the worn kit as a gear set");
             Equal(null, run.Do(new EquipCommand(sim.PlayerId, bow)), "equipping the hunting bow");
             Equal(bow, run.Sim.Player.Equipment[EquipSlot.MainHand], "main hand after equipping the bow");

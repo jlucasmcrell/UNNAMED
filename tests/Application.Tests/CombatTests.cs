@@ -671,7 +671,10 @@ public class CombatTests
         Assert.Equal(6, healed.Count(h => h.Source == "effect.mending"));
         Assert.DoesNotContain(arena.Simulation.Player.Inventory, e => e.DefId == "item.consumable.salve_minor");
         var flask = arena.Simulation.Player.Inventory.Single(e => e.DefId == "item.tool.water_flask").ItemId;
-        Assert.Equal("item.tool.water_flask has no use", arena.Submit(new UseItemCommand(arena.Player, flask)));
+        Assert.Null(arena.Submit(new UseItemCommand(arena.Player, flask)));
+        arena.Tick(70);
+        Assert.Equal(6, healed.Where(h => h.Source == "effect.water_sip").Sum(h => h.Delta));
+        Assert.Contains(arena.Simulation.Player.Inventory, e => e.DefId == "item.tool.water_flask_empty");
     }
 
     [Fact]

@@ -93,7 +93,7 @@ public class NpcTests
         var adventurers=session.Setup.Adventurers!;
         Assert.Equal(adventurers.Settlements.Values.Sum(s=>s.Target??adventurers.Rules.TargetPerSettlement), simulation.World.Adventurers!.Agents.Count);
         Assert.Equal(simulation.World.Adventurers.Bodies.Keys, simulation.Npcs.Where(n => n.Role == "adventurer").Select(n => n.Id).Order(StringComparer.Ordinal));
-        Assert.Equal(12, simulation.Npcs.Count(n => n.Resident));
+        Assert.Equal(9, simulation.Npcs.Count(n => n.Resident)); // C2: three Hollow and six Cairnwold residents.
         Assert.All(npcs, n => Assert.False(n.Talking));
         Assert.Equal((461_600L, 739_600L, 300_000), (npcs[0].Body.XMm, npcs[0].Body.ZMm, npcs[0].Body.FacingMdeg));
         // A named NPC is the same instance in every world: identity is derived, never rolled (D-10).

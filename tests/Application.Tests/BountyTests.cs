@@ -282,13 +282,29 @@ public class BountyTests
             PetOrder.Follow, PetCondition.Up, at.XMm, at.ZMm, 0, 50, PetBond.Sure,
             ImmutableArray.Create(new PetSkill(PetSkillKind.Bite, PetSkill.MaxLevel, 0)));
         // The character provokes it once, then lets the following pet finish the fight.
-        var setup = session.Setup with { NpcLife = NpcLifeSetup.Empty, Adventurers = null };
+        // Isolate owner-credit attribution from C1's flanking/forced-stagger attack selection.
+        var wolf = session.Setup.Combat.Creatures[Arena.Wolf];
+        var setup = session.Setup with { NpcLife = NpcLifeSetup.Empty, Adventurers = null,
+            Combat = session.Setup.Combat with { Creatures = session.Setup.Combat.Creatures.SetItem(Arena.Wolf,
+                wolf with { MaxHealth = 30, Moves = ImmutableArray.Create(wolf.Attack), Charge = null, CloseAttack = null }) } };
         var arena = Arena.OpenCreatures(session, setup, (120, 60), 90,
-            new[] { (Arena.Wolf, 123.0, 60.0, "pack_hunter") }, r => r.WithQuests(taken).WithPets(new[] { pet }));
+            new[] { (Arena.Wolf, 123.0, 60.0, "sentinel") }, r => r.WithQuests(taken).WithPets(new[] { pet }));
         var kills = arena.Record<CreatureKilled>();
         arena.Fight(arena.Creature(), 30);
-        for (int i = 0; i < 1000 && kills.Count == 0; i++) arena.Tick();
+        for (int i = 0; i < 1000 && kills.Count == 0; i++)
+        {
+            // Keep the owner near the fight; a following pet correctly gives up a distant chase.
+            var prey = arena.Creature().Body;
+            var owner = arena.Simulation.Player.Body;
+            long dx = prey.XMm - owner.XMm, dz = prey.ZMm - owner.ZMm;
+            var intent = dx * dx + dz * dz > 4_000_000
+                ? Harness.Toward(dx, dz)
+                : UNNAMED.Domain.Spatial.MoveIntent.Idle(owner.FacingMdeg);
+            arena.Simulation.Enqueue(new MoveCommand(arena.Player, intent));
+            arena.Tick();
+        }
         arena.Tick();
+        Assert.True(kills.Count == 1, $"kills={kills.Count}; enemy={arena.Creature()}; pet={arena.Simulation.Pets.Single()}; player={arena.Simulation.Combat}");
         var killed = Assert.Single(kills);
         Assert.Equal(pet.Id, killed.DirectAttacker);
         Assert.Equal(arena.Player, killed.Killer);
