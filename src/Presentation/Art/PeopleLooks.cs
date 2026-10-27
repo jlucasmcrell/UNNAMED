@@ -59,7 +59,7 @@ public static class PeopleLooks
     public static (float R, float G, float B, float Blend) SiannIris(float radius, float luma)
     {
         // a definite dark pupil, which a pale iris otherwise loses under the cornea's sky reflection
-        if (radius < .05f)
+        if (radius < .038f)
             return (.02f, .02f, .03f, .95f);
         float shade = .65f + .5f * luma;
         // Preserve the native veined sclera; whitening it loses separation from a pale iris.

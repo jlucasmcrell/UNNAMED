@@ -385,7 +385,7 @@ public static class PeopleAppearance
                     || name.EndsWith("_FaceHairCards", StringComparison.OrdinalIgnoreCase)
                     || mesh.Name.ToString().Contains("Eyelash", StringComparison.OrdinalIgnoreCase));
                 // HumGen's cap atlas shares brows and scalp. Keep both ash-coloured (including roots), independently of long hair.
-                var swatch = isSkin ? skin : faceHair ? new Swatch("Ash", .34f, .31f, .30f) : hair;
+                var swatch = isSkin ? skin : faceHair ? new Swatch("Ash", .46f, .43f, .42f) : hair;
                 var drawn = swatch is null ? original : isSkin ? Tinted(original, swatch) : Dyed(original, swatch, lift: siann ? .06f : .4f);
                 // A Kal's stone as the creator sets it, on the stone skin KalStone gave the body.
                 if (isSkin && stone is float coverage && drawn is ShaderMaterial stoneSkin && stoneSkin.GetShaderParameter("use_stone").AsBool())

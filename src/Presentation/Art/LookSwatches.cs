@@ -142,7 +142,7 @@ public static class LookSwatches
     // Siann hair runs from platinum to pure white with age, and nothing else.
     private static readonly Swatch[] SiannHair =
     {
-        new("Platinum", .7f, .68f, .62f), new("Silver", .72f, .72f, .74f), new("White", .86f, .86f, .86f),
+        new("Platinum", .84f, .82f, .76f), new("Silver", .8f, .81f, .84f), new("White", .91f, .91f, .91f),
     };
 
     public static IReadOnlyList<Swatch> Skin(string? people) => people switch
