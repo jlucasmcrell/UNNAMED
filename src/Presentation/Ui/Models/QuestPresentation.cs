@@ -27,6 +27,7 @@ public sealed class QuestCardQueue
 {
     private readonly Queue<QuestCard> _pending = new();
     public QuestCard? Current { get; private set; }
+    public bool HasCards => Current is not null || _pending.Count > 0;
     public double Age { get; private set; }
     public const double Seconds = 7.5;
     public double Opacity => Math.Clamp((Seconds - Age) / 0.6, 0, 1);

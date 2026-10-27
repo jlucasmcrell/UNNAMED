@@ -38,6 +38,7 @@ public class QuestPresentationTests
         var cards = new QuestCardQueue();
         var accepted = new QuestCard("q", 1, "Title", "Renn", "Journal text", "Find Renn", true);
         cards.Add(accepted);
+        Assert.True(cards.HasCards);
         cards.Add(accepted with { Started = false });
         cards.Add(accepted with { Tick = 2, Next = "Find Kera", Started = false });
         cards.Advance(0);
@@ -51,6 +52,7 @@ public class QuestPresentationTests
         Assert.Null(cards.Current);
         cards.Add(accepted);
         cards.Clear();
+        Assert.False(cards.HasCards);
         cards.Advance(0);
         Assert.Null(cards.Current);
     }

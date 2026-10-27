@@ -20,6 +20,7 @@ namespace UNNAMED.Presentation.Ui;
 public partial class Hud : CanvasLayer
 {
     public Action<string>? TrackQuest { get; set; }
+    public Func<bool>? QuestCardShowing { get; set; }
     public string? QuestAtPointerOrFocus => _view?.QuestAtPointerOrFocus;
     private readonly Label _fpsReadout = Text(15);
     private readonly Label _worldClock = Text(15);
@@ -194,7 +195,7 @@ public partial class Hud : CanvasLayer
 
     private void ReadyProduction()
     {
-        _view = new HudView { Name = "HudView", InspectCompanion=i=>InspectCompanion?.Invoke(i),InspectPet=i=>InspectPet?.Invoke(i), TrackQuest=id=>TrackQuest?.Invoke(id) };
+        _view = new HudView { Name = "HudView", InspectCompanion=i=>InspectCompanion?.Invoke(i),InspectPet=i=>InspectPet?.Invoke(i), TrackQuest=id=>TrackQuest?.Invoke(id), QuestCardShowing=()=>QuestCardShowing?.Invoke() == true };
         AddChild(_view);
         _compass.Styled = true;
         _compass.SetAnchorsPreset(Control.LayoutPreset.TopRight);

@@ -39,6 +39,7 @@ public partial class Main
         AddChild(_journal);
         _questCards = new QuestCards { Name = "QuestCards" };
         AddChild(_questCards);
+        _hud.QuestCardShowing = () => _questCards.Cards.HasCards;
         _hud.TrackQuest = id => _journal.Track(id, _session);
         _reading = new ReadingPanel { Name = "Reading" };
         _reading.Bind(_session);

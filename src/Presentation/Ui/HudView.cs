@@ -143,6 +143,8 @@ public partial class HudView : Control
     private readonly VBoxContainer _objectives = new();
     private string _trackerText = string.Empty;
     public Action<string>? TrackQuest { get; set; }
+    public Func<bool>? QuestCardShowing { get; set; }
+    private bool HoldLandmark => _announcements.FirstOrDefault()?.Kind == "Landmark discovered" && QuestCardShowing?.Invoke() == true;
     private string? _questHover, _questFocus;
     public string? QuestAtPointerOrFocus => _questHover ?? _questFocus;
 
@@ -168,7 +170,7 @@ public partial class HudView : Control
     private readonly VBoxContainer _bannerLines = new();
     private readonly List<Announcement> _announcements = new();
     private double _bannerSince;
-    public string? ActiveLandmarkTitle => _announcements.FirstOrDefault() is { Kind: "Landmark discovered" } active ? active.Title : null;
+    public string? ActiveLandmarkTitle => !HoldLandmark && _announcements.FirstOrDefault() is { Kind: "Landmark discovered" } active ? active.Title : null;
 
     // The middle: the crosshair and the death recap.
     private readonly Crosshair _crosshair = new();
@@ -537,6 +539,7 @@ public partial class HudView : Control
 
     private void ShowBanner()
     {
+        if (HoldLandmark) { _banner.Visible = false; return; }
         var announcement = _announcements[0];
         _bannerKind.Text = announcement.Kind;
         _bannerKind.AddThemeColorOverride("font_color", announcement.Tone);
@@ -606,6 +609,8 @@ void fragment() {
     {
         if (_announcements.Count == 0)
             return;
+        if (HoldLandmark) { _banner.Visible = false; return; }
+        if (!_banner.Visible) ShowBanner();
         _bannerSince += delta;
         double t = _bannerSince;
         double alpha = t < BannerIn ? t / BannerIn : t > BannerHold ? 1 - (t - BannerHold) / BannerOut : 1;
