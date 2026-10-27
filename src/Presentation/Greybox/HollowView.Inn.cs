@@ -89,6 +89,11 @@ public partial class HollowView
             AddChild(new OmniLight3D { Position=at, LightColor=new Color(1,.73f,.46f), LightEnergy=energy,
                 OmniRange=range, ShadowEnabled=false });
         }
+        // Shuttered stores under the guest rooms make both storeys legible from the road.
+        Board("InnStoresDoor",new Vector3(452.015f,ground+1.03f,719.5f),new Vector3(.08f,2.06f,1.2f),wood);
+        foreach(float z in new[] {715.4f,717.2f})
+            Board("InnStoresShutter"+z,new Vector3(452.02f,ground+1.7f,z),new Vector3(.08f,.65f,.85f),wood);
+        Board("InnStoreyBeam",new Vector3(452.04f,upper-.16f,718),new Vector3(.16f,.24f,8),wood);
         // Narrow boards and exposed joists give the hall a human-scale ceiling.
         for (int i=0;i<62;i++)
             Board($"TavernFloorBoard{i}",new Vector3(436.45f+i*.25f,ground+.025f,728),new Vector3(.244f,.05f,7.2f),wood);
@@ -103,19 +108,19 @@ public partial class HollowView
         Warm(new Vector3(448,ground+2.35f,727.8f),2.2f,8);
         Warm(new Vector3(447.2f,ground+.8f,729.6f),3,6);
         // Renn serves across this counter, with accessible circulation behind it.
-        Board("RennCounterFront",new Vector3(440.5f,ground+.5f,724.75f),new Vector3(4.6f,.95f,.52f),wood);
-        Board("RennCounterTop",new Vector3(440.5f,ground+1.02f,724.75f),new Vector3(4.8f,.12f,.75f),wood);
-        Prop("prop_bp_shelf_ah",new Vector3(439,ground,724.2f));
+        Board("RennCounterFront",new Vector3(438.8f,ground+.5f,725.25f),new Vector3(2.4f,.95f,.52f),wood);
+        Board("RennCounterTop",new Vector3(438.8f,ground+1.02f,725.25f),new Vector3(2.6f,.12f,.75f),wood);
+        Prop("prop_bp_shelf_ah",new Vector3(438.8f,ground,724.2f));
         Prop("prop_cos_barrel_met_01",new Vector3(437.1f,ground,724.9f));
-        Prop("prop_cos_barrel_met_01",new Vector3(444,ground,724.8f));
+        Prop("prop_cos_barrel_met_01",new Vector3(440.6f,ground,724.8f));
         // Native benches, candles and tableware dress the four existing tables.
-        foreach (var at in new[] { new Vector2(441.9f,726.1f),new Vector2(444.3f,726.1f),new Vector2(438.4f,727.3f),new Vector2(440,727.3f) })
+        foreach (var at in new[] { new Vector2(442.6f,725.275f),new Vector2(444,725.275f),new Vector2(438.4f,727.3f),new Vector2(440,727.3f) })
         {
             Prop("prop_cos_bench_tavern_01_l100",new Vector3(at.X,ground,at.Y+1.1f));
             Prop("prop_bp_table_candles",new Vector3(at.X,ground+.9f,at.Y));
             for (int side=-1;side<=1;side+=2) Mug(new Vector3(at.X+side*.32f,ground+.9f,at.Y));
         }
-        for (int i=0;i<5;i++) Mug(new Vector3(438.8f+i*.7f,ground+1.08f,724.75f));
+        for (int i=0;i<4;i++) Mug(new Vector3(438+i*.5f,ground+1.08f,725.25f));
         Board("TavernWovenRug",new Vector3(446,ground+.057f,727.4f),new Vector3(2.2f,.025f,2.8f),wool);
         Board("TavernNoticeBoard",new Vector3(450.5f,ground+1.65f,731.55f),new Vector3(1.3f,.9f,.08f),wood);
         for(int i=0;i<3;i++) Board($"Notice{i}",new Vector3(450.1f+i*.36f,ground+1.67f,731.495f),new Vector3(.28f,.48f,.012f),linen);
