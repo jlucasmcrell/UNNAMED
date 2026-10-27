@@ -11,7 +11,7 @@ role: villager
 roles: [guide]
 work_hours: [7, 19]
 anchors:
-  home: {position_m: [442.6, 719.05], facing_deg: 0}
+  home: {position_m: [442.6, 719.05], facing_deg: 180}
   work: {position_m: [478, 731], facing_deg: 90}
   supper: {position_m: [445.58, 725.27], facing_deg: 270}
 release_barrier: barrier.foldscar_fold

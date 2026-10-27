@@ -16,7 +16,10 @@ public class WaystationInnTests
         var routines = session.Setup.NpcLife.Routines.Values.Where(r => r.Settlement == "ashen_hollow").ToArray();
         Assert.Equal(7, routines.Length);
         // A visitor must not claim a stool reached by a resident's supper anchor.
-        var guestSeats = session.Setup.Adventurers!.Settlements["ashen_hollow"].Inn!.Seats;
+        var inn = session.Setup.Adventurers!.Settlements["ashen_hollow"].Inn!;
+        Assert.Equal(180_000, Assert.Single(inn.Beds).FacingMdeg);
+        Assert.All(routines, r => Assert.Equal(180_000, r.Anchors["home"].FacingMdeg));
+        var guestSeats = inn.Seats;
         foreach (var routine in routines)
         foreach (var guest in guestSeats)
         {

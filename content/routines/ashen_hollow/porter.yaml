@@ -11,7 +11,7 @@ role: porter
 roles: [porter]
 work_hours: [7, 19]
 anchors:
-  home: {position_m: [440.5, 719.05], facing_deg: 0}
+  home: {position_m: [440.5, 719.05], facing_deg: 180}
   work: {position_m: [476, 731], facing_deg: 90}
   supper: {position_m: [439.7, 728.75], facing_deg: 180}
 schedule:

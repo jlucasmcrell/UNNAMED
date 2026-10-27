@@ -45,8 +45,9 @@ public static class AdventurerContent
         Dictionary<object, object> Map1(string key) => Map(map, key);
         var seats = Rows(map, "seats", id).Select(s => At(s, "seat")).ToImmutableArray();
         var beds = (map.GetValueOrDefault("beds") as List<object> ?? throw new FormatException($"{id}'s inn names its beds"))
-            .Select(b => b as List<object> ?? throw new FormatException($"{id}'s inn beds are [x, z] pairs"))
-            .Select(b => b.Count == 2 ? new InnPlace(Mm(b[0], "bed"), Mm(b[1], "bed"), 0) : throw new FormatException($"{id}'s inn beds are [x, z] pairs"))
+            .Select(b => b is Dictionary<object, object> pose ? At(pose, "bed")
+                : b is List<object> { Count: 2 } pair ? new InnPlace(Mm(pair[0], "bed"), Mm(pair[1], "bed"), 0)
+                : throw new FormatException($"{id}'s inn beds are [x, z] pairs or places with position_m and facing_deg"))
             .ToImmutableArray();
         if (seats.IsEmpty || beds.IsEmpty)
             throw new FormatException($"{id}'s inn needs at least one seat and one bed");

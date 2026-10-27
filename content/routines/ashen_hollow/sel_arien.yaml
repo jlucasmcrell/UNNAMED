@@ -11,7 +11,7 @@ role: scholar
 roles: [scholar, quest_giver]
 work_hours: [7, 19]
 anchors:
-  home: {position_m: [443.35, 715.5], facing_deg: 270}
+  home: {position_m: [443.35, 715.5], facing_deg: 180}
   work: {position_m: [472, 722], facing_deg: 135}
   supper: {position_m: [442.77, 726.92], facing_deg: 180}
 schedule:

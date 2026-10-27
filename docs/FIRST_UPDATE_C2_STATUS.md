@@ -27,7 +27,7 @@ The existing licensed waystation kit remains the ground-floor common hall, with 
 
 The upper floor is at world Y = 10.0 m. The stair foot meets the actual terrain at 7.2 m and rises 2.8 m over eight metres. The sealed-store arrangement lets the existing single-support navigation represent the building without overlapping public paths at different heights. The same authored supports drive movement, player foot planting, NPC bodies, furniture placement and camera collision. Room walls, furniture, stair rails, the upper roof and stair awning have collision. Each chamber has its own shelf lantern.
 
-Supper uses the existing seated pose with the engine's arm IK to alternate a bite and a drink. Night uses the existing bed pose. These are presentation gestures selected by the fixed schedule; no hunger/needs system or new animation pipeline was added.
+Supper uses the existing seated pose with the engine's arm IK to alternate a bite and a drink. Night uses the existing bed pose, aligned along each mattress toward its pillow. Inn bed places may author a facing; legacy coordinate pairs keep their existing facing. These are presentation gestures selected by the fixed schedule; no hunger/needs system or new animation pipeline was added.
 
 ## Rental
 

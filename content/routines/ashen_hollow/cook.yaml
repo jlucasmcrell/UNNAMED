@@ -11,7 +11,7 @@ role: cook
 roles: [cook]
 work_hours: [6, 18]
 anchors:
-  home: {position_m: [437.3, 719.05], facing_deg: 0}
+  home: {position_m: [437.3, 719.05], facing_deg: 180}
   work: {position_m: [448.8, 729.6], facing_deg: 270}
   supper: {position_m: [438, 725.85], facing_deg: 0}
 schedule:
