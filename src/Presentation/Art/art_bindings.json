@@ -700,6 +700,18 @@
   }
  },
  "structure_prefixes": {
+  "survey_table_": {
+   "models": [
+    "prop_long_trestle_table"
+   ],
+   "material": "wood"
+  },
+  "survey_book_": {
+   "models": [
+    "lantern_ledger"
+   ],
+   "material": "wood"
+  },
   "tree_": {
    "models": [
     "flora_oak_real",
