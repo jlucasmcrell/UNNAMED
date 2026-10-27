@@ -198,8 +198,10 @@ public class NpcTests
         Assert.Null(arena.Submit(new TalkCommand(arena.Player, Kera)));
         Assert.Null(Say(arena, "teach"));
 
-        Assert.Equal(new[] { BilletRecipe, SpearRecipe }, learned.Select(l => l.DefinitionId));
-        Assert.All(new[] { BilletRecipe, SpearRecipe }, id =>
+        string[] lessons = [BilletRecipe, SpearRecipe, "recipe.smithing.torch", "recipe.cooking.torch",
+            "recipe.cooking.boil_water", "recipe.cooking.herb_tea", "recipe.herbal.salve_minor_boiled"];
+        Assert.Equal(lessons, learned.Select(l => l.DefinitionId));
+        Assert.All(lessons, id =>
         {
             var known = arena.Simulation.Player.Progression.Known[id];
             Assert.Equal((LearningSource.Teacher, Kera), (known.Source, known.SourceRef));
