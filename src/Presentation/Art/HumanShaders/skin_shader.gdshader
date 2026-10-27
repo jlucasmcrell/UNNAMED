@@ -261,7 +261,8 @@ void fragment() {
 		vec2 om = texture(opal_mask, base_uv).rg;
 		float luma = dot(ALBEDO, vec3(.299, .587, .114));
 		// a pale cool pearl that keeps the skin's own shading detail
-		vec3 skin_chroma = ALBEDO - vec3(luma);
+		// Keep local warmth without carrying a preset's strong yellow/green tint into porcelain.
+		vec3 skin_chroma = clamp(ALBEDO - vec3(luma), vec3(-0.05), vec3(0.06));
 		ALBEDO = mix(ALBEDO, opal_pearl * clamp(0.74 + (luma - 0.45) * 0.6, 0.6, 0.92) + skin_chroma * 0.65, opal_pale);
 		// mother-of-pearl: the hue drifts with the view angle and slowly across the skin
 		float nv = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
