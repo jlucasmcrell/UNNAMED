@@ -156,6 +156,14 @@ public partial class Main
         }
         const string smith="npc.sedge.oren_pin", keeper="npc.sedge.nessa_reed";
         await Approach(smith);
+        // A normal save preserves the real post-encounter gear for repeatable UI QA.
+        _session.Save("manual_01");
+        string profile=Path.GetFullPath(_options["--profile"]);
+        foreach(string file in Directory.EnumerateFiles(profile,"*",SearchOption.AllDirectories).Where(f=>Path.GetFileName(f)!=".lock"))
+        {
+            string copy=Path.Combine(directory,"checkpoint_profile",Path.GetRelativePath(profile,file));
+            Directory.CreateDirectory(Path.GetDirectoryName(copy)!);File.Copy(file,copy,true);
+        }
         _session.Submit(new TalkCommand(sim.PlayerId,smith));
         _session.Submit(new ChooseCommand(sim.PlayerId,"repair"));await Wait(2);
         if(_inventory.OpenTrader!=smith)throw new InvalidOperationException("Repair did not open Oren's service");
@@ -175,14 +183,19 @@ public partial class Main
         _session.Submit(new TalkCommand(sim.PlayerId,keeper));
         _session.Submit(new ChooseCommand(sim.PlayerId,"trade"));await Wait(2);SaveScreenshot(directory,"food_stock");
         var food=sim.Wares(keeper)!.Wares.First(w=>w.ItemId=="item.consumable.roast_meat");
+        long foodCoin=sim.Player.Currency;int foodCount=sim.Player.Inventory.Where(i=>i.DefId==food.ItemId).Sum(i=>i.Count);
         _session.Submit(new BuyCommand(sim.PlayerId,keeper,food.Ref,1));await Wait(.5);CloseScreens();
+        if(sim.Player.Currency!=foodCoin-food.Price || sim.Player.Inventory.Where(i=>i.DefId==food.ItemId).Sum(i=>i.Count)!=foodCount+1)
+            throw new InvalidOperationException("Food purchase did not deliver and charge its actual stock price");
+        var rentals=new List<RoomRented>();_session.Subscribe<RoomRented>(e=>rentals.Add(e));long restCoin=sim.Player.Currency;
         _session.Submit(new TalkCommand(sim.PlayerId,keeper));
         _session.Submit(new ChooseCommand(sim.PlayerId,"rest"));await Wait(2);SaveScreenshot(directory,"paid_rest");
-        if(sim.Combat.Health!=sim.Combat.MaxHealth || sim.Combat.Stamina!=sim.Combat.MaxStamina)
+        if(rentals.Count!=1 || rentals[0].KeeperId!=keeper || rentals[0].Coin!=5 || sim.Player.Currency!=restCoin-5
+            || sim.Combat.Health!=sim.Combat.MaxHealth || sim.Combat.Stamina!=sim.Combat.MaxStamina)
             throw new InvalidOperationException("Paid rest did not restore the character");
         File.WriteAllText(Path.Combine(directory,"services_evidence.json"),JsonSerializer.Serialize(new {
             quote,before,after_repair=before-quote.Fee,after_food_and_rest=sim.Player.Currency,
-            condition=worn,combat=sim.Combat,body=sim.Player.Body },new JsonSerializerOptions {WriteIndented=true}));
+            condition=worn,food_price=food.Price,food_count_before=foodCount,rentals,combat=sim.Combat,body=sim.Player.Body },new JsonSerializerOptions {WriteIndented=true}));
     }
 
     // Explicit packaged review only. Uses the shipped encounter, normal commands

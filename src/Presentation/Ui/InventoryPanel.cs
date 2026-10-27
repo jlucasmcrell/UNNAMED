@@ -429,13 +429,6 @@ public partial class InventoryPanel : CanvasLayer
             sell.TooltipText = refused;
             row.Root.AddChild(sell);
         }
-        if (OpenTrader is { } smith && simulation.RepairQuote(smith,entry.ItemId) is { } quote)
-        {
-            var repair=Button(id,$"Repair ({quote.Fee} coin)",()=>Submit(new MerchantRepairCommand(simulation.PlayerId,smith,entry.ItemId)));
-            repair.Disabled=player.Currency<quote.Fee;
-            repair.TooltipText=repair.Disabled?"Not enough coin":"Restore this piece's condition";
-            row.Root.AddChild(repair);
-        }
         if (definition is not { NoDrop: true })
             row.Root.AddChild(Button(id, "Drop", () => Submit(new MoveItemCommand(simulation.PlayerId, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.Ground, entry.Count)),
                 UiKit.Kind.Destructive));
@@ -574,10 +567,23 @@ public partial class InventoryPanel : CanvasLayer
     /// <summary>A trader's wares at their prices, each to buy one at a time or all at once while the coin allows.</summary>
     private void ShowWares(Simulation simulation, string npcId)
     {
-        if (simulation.Wares(npcId) is not { } wares)
-            return;
         long coin = simulation.Player.Currency;
         _contextHead.AddChild(UiKit.Section($"{Names.Of(_session, npcId)}'s wares", $"you have {coin} coin"));
+        var repairs=simulation.Player.Inventory.Select(entry=>(Entry:entry,Quote:simulation.RepairQuote(npcId,entry.ItemId)))
+            .Where(pair=>pair.Quote is not null).ToArray();
+        if (repairs.Length>0) _container.AddChild(UiKit.Section("Repairs", "Equipped and carried gear"));
+        foreach(var (entry,quote) in repairs)
+        {
+            string key="repair:"+entry.ItemId.Value;
+            var row=ItemRow(key,entry.DefId,entry.Quality,entry.Count,"");
+            if(simulation.Player.Equipment.ContainsValue(entry.ItemId))row.Root.AddChild(UiKit.Chip("Equipped",HudStyle.Iron,HudStyle.Bone));
+            var repair=Button(key,$"Repair ({quote!.Fee} coin)",()=>Submit(new MerchantRepairCommand(simulation.PlayerId,npcId,entry.ItemId)));
+            repair.Disabled=coin<quote.Fee;
+            repair.TooltipText=repair.Disabled?"Not enough coin":"Restore this piece's condition";
+            row.Root.AddChild(repair);_container.AddChild(row.Root);
+        }
+        if (simulation.Wares(npcId) is not { } wares) return;
+        if(repairs.Length>0)_container.AddChild(UiKit.Section("Stock"));
         if (wares.Wares.IsEmpty)
             _container.AddChild(UiKit.Quiet("Nothing left to sell."));
         foreach (var ware in wares.Wares)

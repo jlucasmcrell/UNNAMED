@@ -20,6 +20,7 @@ public partial class SedgeArtView : Node3D
     private readonly List<Node3D> _punts = new();
     private readonly List<(Node3D Boat, Vector2 At, float Ground)> _mooredPunts = new();
     private float _waterLevel;
+    private readonly List<OmniLight3D> _civicBounce = new();
 
     public static SedgeArtView? Build(Node3D parent, Node3D terrain, ArtLibrary art, string region)
     {
@@ -48,6 +49,18 @@ public partial class SedgeArtView : Node3D
         view.Crest();
         view.WorkingPunts(art);
         view.MooredPunts(art);
+        // Soft sky bounce from the wet platforms keeps covered services legible.
+        // No visible bulb or volumetric cone; it fades with the actual daylight.
+        foreach(var at in new[]{new Vector3(4989,4.4f,1080),new Vector3(5011,4.4f,1089)})
+        {
+            var fill=new OmniLight3D { Name="CivicSkyBounce",Position=at,LightColor=new Color(.65f,.72f,.78f),
+                LightEnergy=.45f,OmniRange=5.5f,OmniAttenuation=1.5f,LightVolumetricFogEnergy=0,ShadowEnabled=false };
+            view.AddChild(fill);view._civicBounce.Add(fill);
+            var roof=new StaticBody3D { Name="CivicRoofCamera",Position=at+Vector3.Up*.6f,
+                CollisionLayer=HollowView.CameraCollisionLayer,CollisionMask=0 };
+            roof.AddChild(new CollisionShape3D { Shape=new BoxShape3D { Size=new Vector3(7.5f,.22f,6.1f) } });
+            view.AddChild(roof);
+        }
         // Rain is disabled pending the shared D2 rework. Do not fork its tuning here.
         if (parent.GetNodeOrNull<Node3D>("Atmosphere") is { } atmosphere)
             foreach (var particles in atmosphere.GetChildren().OfType<GpuParticles3D>().Where(p => p.Name.ToString().StartsWith("rain", StringComparison.Ordinal)))
@@ -279,6 +292,7 @@ public partial class SedgeArtView : Node3D
             e.HasMethod("_render_callback") && e.Get("clouds_coverage").VariantType != Variant.Type.Nil);
         float energy = Mathf.Lerp(2.3f, .25f, SkyView.DaylightLevel);
         foreach (var lamp in _lamps) lamp.LightEnergy = energy;
+        foreach (var fill in _civicBounce) fill.LightEnergy = .45f*SkyView.DaylightLevel;
         if (_clouds is not null)
         {
             // Sky3D's native layered clouds give Sedge daylight a readable

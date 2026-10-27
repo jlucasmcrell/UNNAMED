@@ -21,7 +21,7 @@ All figures use existing approved HumGen bodies, garments and native motion. Sta
 
 ## Playable loop
 
-Nessa sells food and rents a five-coin berth through existing systems. Rest restores the character without skipping world time. Oren quotes and repairs actual worn inventory through `MerchantRepairCommand`; the inventory now exposes that existing service with an affordable/disabled repair button. Both platforms have collision, supports, covered workspaces and lamps. Neither blocks the causeway.
+Nessa sells food and rents a five-coin berth through existing systems. Rest restores the character without skipping world time. Oren quotes and repairs actual worn inventory through `MerchantRepairCommand`; the merchant pane now lists quotes for equipped and carried gear with affordable/disabled repair buttons. Both platforms have collision, supports, covered workspaces and lamps. Neither blocks the causeway.
 
 Tess and Iren offer two-coin local passage at high water. Low water, an obstructed landing, insufficient coin or active combat refuses the service. Travel reuses the movement and party owners, carries the party, and changes neither time nor Waystone knowledge/return point. The moored punts ground on the flats at ebb and rise with the tide. This is a local passage service; ambient boats are not player-driven vehicles.
 
@@ -43,7 +43,7 @@ Six playback labels do not mean six independently captured mocap takes. The eel 
 
 ## Art carry-overs
 
-The Arch gains an upper broken deck, sagging bronze suspension chains, ordinary-size maintenance workers, boats and two crow flocks as scale cues. Existing native carved stone is matte; bronze stays metal. Day uses the existing structured Sky3D clouds with Sedge-only tuning, while accepted dusk keeps its original sky. Physical board modules gain per-board tone, wear and roughness variation. No generated imagery or new custom rain system is used; rain remains disabled pending shared D2.
+The Arch gains an upper broken deck, sagging bronze suspension chains, ordinary-size maintenance workers, boats and two crow flocks as scale cues. Existing native carved stone is matte; bronze stays metal. Soft daylight-only sky bounce beneath the two service roofs addresses the interim dark-underside note, without visible bulbs or volumetric beams. Day uses the existing structured Sky3D clouds with Sedge-only tuning, while accepted dusk keeps its original sky. Physical board modules gain per-board tone, wear and roughness variation. No generated imagery or new custom rain system is used; rain remains disabled pending shared D2.
 
 ## Proof and integration
 
@@ -58,3 +58,7 @@ Use pathspec-only source commits on `art/sedge-levels`; no push/merge. The base 
 Private delivery contains changed primary assets and their SHA-256 manifest against accepted Gate-3b primary04, plus the required existing `humgen_characters` payload, credits and source receipts. Full-resolution BC7 cache entries accompany new models. CPU compression pads a constant 1-pixel image to one 4x4 BC block; original source art is unchanged. Never copy `.godot`, unrelated `.import`/`.uid` noise or the rejected procedural/blue eel drafts into the handoff.
 
 The final service replay restores the unmodified native encounter20 autosave through the normal selected-save Load (no catch-up), then walks the remaining road and uses the actual repair button. Its entry checks that the saved sword is worn. No character, position, level, coin or inventory edits are involved. `capture21_receipt.json` hashes the copied save files and binary; the private delivery includes that exact review profile. The earlier full return walk is retained even though its final interaction approach stopped outside reach.
+
+Final service UI proof also asserts the delivered food count and its actual stock price, plus an actual five-coin `RoomRented` event. A normal manual checkpoint is saved at Oren and copied to the private result folder before the repair click; save files are never edited. Intermediate failures (range tolerance; equipped gear hidden from backpack) are retained as diagnostics, not passing proof.
+
+FINISHED Gate 4: native23 confirms repair 50→49 coins, food at four coins and paid rest at five, ending at 40. Its daytime settlement still was reviewed as an image. Final game24 builds/exports with zero errors and 26 inherited Presentation warnings. The final camera-only roof colliders compile but were not recaptured: the owner's 13:15 minimum-testing rule ends capture repeats. Existing proofs remain available for review. Under the owner's 13:25 correction, Sedge continues through the planned gates; Gate 5 reports package and VRAM totals only, without downscaling, LOD trimming, impostors or performance work. Gate 4 visual acceptance and shipping acceptance remain separate.
