@@ -65,6 +65,12 @@ public class DurabilityTests
             Assert.NotNull(d.Repair);
         });
         Assert.All(catalog.Definitions.Values.Where(d => d.Category is not ("weapon" or "armor" or "tool")), d => Assert.Equal(0, d.DurabilityMax));
+        // A light carried in the hand burns down and says how it is filled again (note 13).
+        Assert.All(catalog.Definitions.Values.Where(d => d.LightRadiusMm > 0), d =>
+        {
+            Assert.True(d.DurabilityMax > 0, d.Id);
+            Assert.NotNull(d.Repair);
+        });
     }
 
     [Fact]
@@ -88,6 +94,29 @@ public class DurabilityTests
         Assert.Equal((Quality.Crude, new ItemWear(200, Quality.Standard)), (entry.Quality, entry.Wear));
         Assert.Equal(sword, Assert.Single(worn).Item);
         Assert.Equal((5, 5), (arena.Simulation.Combat.Weapon.DamageMin, arena.Simulation.Combat.Weapon.DamageMax));   // crude: 2 softer
+    }
+
+    [Fact]
+    public void ALitTorch_BurnsDown_AndThenGivesNoLight()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        const string Torch = "item.tool.torch";
+        var arena = At(session, Open, r => Kit(r, session.Setup, 0, new[] { Stack(Torch, wear: new ItemWear(297, Quality.Standard)) }, Torch));
+        var worn = arena.Record<ItemWornOut>();
+        var torch = Carried(arena, Torch);
+        var definition = session.Setup.Items.Catalog.Find(Torch)!;
+        Assert.Equal(torch.ItemId, arena.Simulation.Player.Equipment[EquipSlot.OffHand]);
+        // Lit while it has fuel; one point of burn every 20 ticks, so three is enough to spend it.
+        Assert.Equal(definition.LightRadiusMm, Durability.LitRadius(definition.LightRadiusMm, definition.DurabilityMax, torch.Wear));
+
+        arena.Tick(3 * session.Setup.Items.Inventory.Durability.LightWearTicks);
+
+        var burned = Carried(arena, Torch);
+        Assert.Equal(300, burned.Wear?.Points);
+        Assert.Equal(torch.ItemId, arena.Simulation.Player.Equipment[EquipSlot.OffHand]);   // spent, never lost
+        Assert.Equal(0, Durability.LitRadius(definition.LightRadiusMm, definition.DurabilityMax, burned.Wear));
+        Assert.Equal(torch.ItemId, Assert.Single(worn).Item);
     }
 
     [Fact]

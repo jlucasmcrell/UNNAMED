@@ -1,0 +1,12 @@
+id: item.material.lamp_oil
+kind: item
+schema: 1
+display_key: item.material.lamp_oil.name
+tags: [item]
+name: Lamp Oil
+notes: Rendered fat and resin in a stoppered flask (owner note 13) - what a lantern burns, and what fills one again at a workbench. Kera sells it by the flask beside the lanterns; a torch needs none of it, being lint and timber.
+category: material
+item_class: ordinary
+stack_max: 10
+weight: 0.2
+value_base: 4

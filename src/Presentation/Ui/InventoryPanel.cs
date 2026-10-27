@@ -794,6 +794,16 @@ public partial class InventoryPanel : CanvasLayer
             if (Durability.IsWornOut(wear, item.DurabilityMax))
                 notes.Add(("Worn out: it counts as crude work until it is mended. It will not break.", HudStyle.Wound, null));
         }
+        // A light in the hand (note 13): how far it reaches, and that a spent one gives nothing until it is filled again.
+        if (item is { LightRadiusMm: > 0 })
+        {
+            long lit = Durability.LitRadius(item.LightRadiusMm, item.DurabilityMax, wear);
+            Fact("Light", lit > 0 ? $"{lit / 1000.0:0.#} m" : "out", lit > 0 ? HudStyle.Brass : HudStyle.Wound);
+            if (lit == 0)
+                notes.Add(("Burnt out: it gives no light until it is filled again.", HudStyle.Wound, null));
+            else if (wear is { Points: > 0 } burning && item.DurabilityMax > 0)
+                notes.Add(($"Burning: {Durability.Remaining(wear, item.DurabilityMax) * 20 / 60} minutes or so of it left.", HudStyle.Ash, null));
+        }
         // Class, provenance and familiarity (WP3a, DCP:673-676).
         if (item is not null && ItemClasses.Of(item, quality) is var itemClass && itemClass != ItemClass.Ordinary)
             Fact("Class", Names.Words(ItemClasses.Key(itemClass)), HudStyle.Brass);
@@ -821,6 +831,19 @@ public partial class InventoryPanel : CanvasLayer
             line.AddChild(UiKit.Icon(_icons, icon, 24));
             line.AddChild(UiKit.Words(text, 17, tone));
             _details.AddChild(line);
+        }
+        // Mending at a station, and filling a light again (WP3b, note 13): the durability's repair, offered from the item's own card so a
+        // worn piece or a burnt-out lantern and torch can be brought back without hunting for the rule that does it.
+        if (item?.Repair is { } repair && wear is { Points: > 0 } && _chosen is not null
+            && simulation.Player.Inventory.FirstOrDefault(e => e.ItemId.Value == _chosen) is { } mendable)
+        {
+            var mend = new HBoxContainer();
+            mend.AddThemeConstantOverride("separation", 10);
+            string word = item.LightRadiusMm > 0 ? "Fill" : "Mend";
+            mend.AddChild(UiKit.Action($"{word} at a {repair.StationKind}", () => Submit(new RepairCommand(simulation.PlayerId, mendable.ItemId)),
+                UiKit.Kind.Primary, compact: true, id: $"repair/{mendable.ItemId.Value}"));
+            mend.AddChild(UiKit.Chip($"1 {Names.Of(_session, repair.MaterialId)}", HudStyle.Iron, HudStyle.Ash));
+            _details.AddChild(mend);
         }
     }
 

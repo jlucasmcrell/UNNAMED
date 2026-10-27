@@ -186,6 +186,13 @@ public sealed record RepairSpec(string StationKind, string SkillId, int SkillMin
 public sealed record DurabilityRules(int WearPerHit, int WearPerHitTaken, int WearPerGather, int MerchantFeePercent, int MerchantQualityCap)
 {
     public static readonly DurabilityRules Default = new(1, 1, 1, 50, Crafting.Quality.Standard);
+
+    /// <summary>
+    /// How many ticks a lit light in the off hand burns for one point of its durability (<c>durability light_wear_ticks</c>, note 13). 20 ticks
+    /// is the one-second world tick, so a torch authored at 300 lasts five minutes and a lantern at 3600 an hour. Not above 0: a light that
+    /// never burns down would make the fuel meaningless.
+    /// </summary>
+    public int LightWearTicks { get; init; } = 20;
 }
 
 /// <summary>
@@ -210,6 +217,13 @@ public static class Durability
 
     /// <summary>What is left of its durability, 0..max; 0 for an item with none.</summary>
     public static int Remaining(ItemWear? wear, int durabilityMax) => durabilityMax <= 0 ? 0 : Math.Max(0, durabilityMax - (wear?.Points ?? 0));
+
+    /// <summary>
+    /// How far a light in the hand reaches now (note 13): its authored <c>light_radius</c> while it has fuel left, and nothing once it has
+    /// burned out - a spent torch or lantern gives off no light, though it is still carried, and can be made again or filled again.
+    /// </summary>
+    public static long LitRadius(long radiusMm, int durabilityMax, ItemWear? wear) =>
+        radiusMm <= 0 ? 0 : IsWornOut(wear, durabilityMax) ? 0 : radiusMm;
 
     /// <summary>
     /// A stack after <paramref name="points"/> more wear: wear counts up to the item's durability and no further; at it the stack is worn

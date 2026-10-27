@@ -18,6 +18,9 @@ stock:
   # it, with the meat to feed it. Selling it is the whole of the settlement's part in the pet system.
   - { item_ref: item.misc.hound_pup, count: 1, price_bias: 1.0 }
   - { item_ref: item.material.raw_meat, count: 4, price_bias: 1.0 }
+  # Light for the road (owner note 13): a lantern and the oil that fills it again. The torch she does not sell - it is made at her forge.
+  - { item_ref: item.tool.lantern, count: 1, price_bias: 1.0 }
+  - { item_ref: item.material.lamp_oil, count: 4, price_bias: 1.0 }
 buys_tags: [material, consumable, weapon, armor, misc, bag]
 gold_reserve: [60, 400]   # her purse (WP14): the floor each restock brings it back to, and the most it holds
 restock_min: 1            # game days between restocks: her shelf is drawn again from Ashen Hollow's market   # Phase 1 matches these against the item category

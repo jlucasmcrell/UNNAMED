@@ -162,3 +162,46 @@ internal sealed class DurabilitySystem : IAbstractAdvance
         return Math.Sqrt(Math.Pow(station.XMm - body.XMm, 2) + Math.Pow(station.ZMm - body.ZMm, 2)) <= _context.Setup.Items.Inventory.ReachMm;
     }
 }
+
+/// <summary>
+/// Owns no state. A light carried lit burns down (note 13): the item in the off hand with a <see cref="ItemDefinition.LightRadiusMm"/> and a
+/// durability takes one point of wear every <see cref="DurabilityRules.LightWearTicks"/> ticks, so a torch is a torch and a lantern lasts. At
+/// the item's durability it is worn out and its light goes out (<see cref="Durability.LitRadius"/>); it is never lost, and filling it again is
+/// the durability's repair - a lantern with oil at a workbench, a torch with its lint at the forge. Nothing burns while the character is away.
+/// </summary>
+internal sealed class BurningLightsSystem : IAbstractAdvance
+{
+    private readonly SystemContext _context;
+    private readonly EntityId _player;
+
+    public BurningLightsSystem(SystemContext context, EntityId player)
+    {
+        _context = context;
+        _player = player;
+    }
+
+    private RuntimeState State => _context.State;
+    private DurabilityRules Rules => _context.Setup.Items.Inventory.Durability;
+
+    /// <summary>Nothing burns while the character is away (Â§2.4): the light is in their hand, and they are not there.</summary>
+    public void Advance(long fromTick, long toTick, AdvanceLog log)
+    {
+    }
+
+    public void Tick(long tick)
+    {
+        int every = Rules.LightWearTicks;
+        if (every <= 0 || tick % every != 0)
+            return;
+        if (!State.Equipment.TryGetValue(EquipSlot.OffHand, out var id))
+            return;
+        if (State.Inventory.FirstOrDefault(e => e.ItemId == id) is not { } entry)
+            return;
+        if (_context.Setup.Items.Catalog.Find(entry.DefId) is not { LightRadiusMm: > 0, DurabilityMax: > 0 })
+            return;
+        if (Durability.LitRadius(_context.Setup.Items.Catalog.Find(entry.DefId)!.LightRadiusMm,
+                _context.Setup.Items.Catalog.Find(entry.DefId)!.DurabilityMax, entry.Wear) == 0)
+            return;
+        _context.Dispatch(new WearEquipped(ImmutableArray.Create(EquipSlot.OffHand), 1));
+    }
+}
