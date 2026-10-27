@@ -76,7 +76,8 @@ public partial class SedgeArtView : Node3D
         }).ToArray();
         var ranges = new[] { 0f, 90f, 220f, 650f };
         var tints = new[] { new Color(1.06f, 1.17f, .87f), new Color(1.24f, 1.16f, .90f), new Color(1.32f, 1.21f, .95f) };
-        var windShader = new Shader { Code = WindField.TreeShader.Replace("render_mode cull_back", "render_mode cull_disabled") };
+        var windShader = new Shader { Code = WindField.TreeShader.Replace("render_mode cull_back", "render_mode cull_disabled")
+            .Replace("BACKLIGHT = vec3(0.88, 0.81, 0.63);", "BACKLIGHT = ALBEDO * 0.22;") };
         for (int lod = 0; lod < 3; lod++)
         {
             var source = art.ModelWithLods($"sedge_reeds_lod{lod}") ?? throw new InvalidDataException("Missing native reed LOD");

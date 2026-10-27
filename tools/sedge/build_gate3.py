@@ -180,8 +180,19 @@ def main():
             patch=(math.sin(px*.031+pz*.012)+math.sin(pz*.046-px*.017))*.5
             if not -.52<y<1.8 or patch<-.30 or rng.random()>.76:continue
             band=0 if y<.35 else (1 if y<.85 else 2)
-            sy=rng.uniform(.70,1.30)*(1.16 if band==0 else .90)
+            sy=rng.uniform(.90,1.55)*(1.20 if band==0 else 1.0)
             reeds.append(dict(at=[round(px,3),round(y-.035,3),round(pz,3)],yaw=round(float(rng.uniform(0,360)),2),scale=[round(float(rng.uniform(.80,1.20)),2),round(sy,2),round(float(rng.uniform(.80,1.20)),2)],band=band))
+    # Continuous tall banks close to the walking circuit; retain clear access and open-water channels.
+    # A second, independently jittered lattice fills gaps between the broader fen's clumps.
+    for z in np.arange(700,1420,1.9):
+        for x in np.arange(4580,5430,1.9):
+            px=x+rng.uniform(-.65,.65);pz=z+rng.uniform(-.65,.65);i=int((px-4000)/5);j=int(pz/5)
+            if abs(px-5000)<16 or not 5.6<distance[j,i]<80:continue
+            y=height(px,pz);patch=(math.sin(px*.031+pz*.012)+math.sin(pz*.046-px*.017))*.5
+            if not -.52<y<1.8 or patch<-.18 or rng.random()>.84:continue
+            band=0 if y<.35 else (1 if y<.85 else 2)
+            sy=rng.uniform(1.15,1.85) if band==0 else rng.uniform(.95,1.55)
+            reeds.append(dict(at=[round(px,3),round(y-.035,3),round(pz,3)],yaw=round(float(rng.uniform(0,360)),2),scale=[round(float(rng.uniform(.9,1.25)),2),round(sy,2),round(float(rng.uniform(.9,1.25)),2)],band=band))
     for lod in range(3):
         id=f'sedge_reeds_lod{lod}';d=out/'ready'/id;d.mkdir(parents=True,exist_ok=True);shutil.copy2(KIT/f'reed_clump_LOD{lod}.glb',d/(id+'.glb'))
     dump(out/'sedge_reeds.json',dict(instances=reeds,lod_ranges_m=[0,90,220,650],chunk_m=64))
