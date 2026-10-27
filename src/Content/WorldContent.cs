@@ -88,12 +88,17 @@ public static class WorldContent
                 StepUpMm = Mm(map, "step_up_m"),
                 MantleMm = map.ContainsKey("mantle_reach_m") ? Mm(map, "mantle_reach_m") : 0,
                 VaultMm = map.ContainsKey("vault_m") ? Mm(map, "vault_m") : 0,
+                ScrambleGradeMmPerM = map.ContainsKey("scramble_grade_mm_per_m") ? Mm(map, "scramble_grade_mm_per_m") : 650,
+                ScramblePercent = map.ContainsKey("scramble_percent") ? Int(map, "scramble_percent") : 45,
+                SheerGradeMmPerM = map.ContainsKey("sheer_grade_mm_per_m") ? Mm(map, "sheer_grade_mm_per_m") : 1_500,
                 ClimbPrefixes = map.ContainsKey("climb_prefixes") ? List(map, "climb_prefixes").Select(v => v as string ?? "").Where(v => v.Length > 0).ToImmutableArray() : ImmutableArray<string>.Empty,
                 UnclimbablePrefixes = map.ContainsKey("unclimbable_prefixes") ? List(map, "unclimbable_prefixes").Select(v => v as string ?? "").Where(v => v.Length > 0).ToImmutableArray() : ImmutableArray<string>.Empty,
             };
         // A vault is a mantle taken on the move, so it sits between the step and the climb; the mantle reaches above the vault.
         if (rules.StepUpMm < 0 || rules.VaultMm < 0 || rules.VaultMm < rules.StepUpMm
-            || rules.MantleMm < 0 || rules.MantleMm > 0 && rules.MantleMm <= rules.VaultMm)
+            || rules.MantleMm < 0 || rules.MantleMm > 0 && rules.MantleMm <= rules.VaultMm
+            || rules.ScrambleGradeMmPerM < 0 || rules.SheerGradeMmPerM <= rules.ScrambleGradeMmPerM
+            || rules.ScramblePercent is <= 0 or > 100)
             throw new FormatException("config.base_speeds step_up_m is at least 0, vault_m at least the step and no more than the mantle, and mantle_reach_m, if any, above the vault");
         if (rules.JumpApexMm <= 0 || rules.JumpRiseMs <= 0 || rules.JumpTuckRadiusMm <= 0 || rules.JumpTuckRadiusMm > rules.BodyRadiusMm
             || rules.CrouchHeightMm <= 0 || rules.CrouchHeightMm >= rules.StandHeightMm

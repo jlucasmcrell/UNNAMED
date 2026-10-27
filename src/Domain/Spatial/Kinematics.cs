@@ -143,6 +143,21 @@ public sealed record MovementRules(long BaseSpeedMmPerSecond, int WalkPercent, i
     /// <summary>A small distance bonus in the air, as a share of <see cref="JumpSpeedMmPerSecond"/>: the wing flutter (D6). Height is untouched.</summary>
     public int JumpDistancePercent { get; init; } = 100;
 
+    /// <summary>
+    /// The grade, in millimetres of rise per metre forward, at which ground stops being a walk and becomes a scramble (BRIEF D6 point 4).
+    /// Ordinary hills stay below it; a mountain slope above it is still traversable, hand over hand and slower.
+    /// </summary>
+    public long ScrambleGradeMmPerM { get; init; } = 650;
+
+    /// <summary>The share of the walking speed a scramble keeps while the grade is above <see cref="ScrambleGradeMmPerM"/>.</summary>
+    public int ScramblePercent { get; init; } = 45;
+
+    /// <summary>
+    /// The grade above which the ground is a sheer face: it is not walked or scrambled, only climbed. Anything steeper is refused by
+    /// <see cref="Step"/> unless the rules climb it.
+    /// </summary>
+    public long SheerGradeMmPerM { get; init; } = 1_500;
+
     /// <summary>From take-off to landing: the arc rises and falls in the same time.</summary>
     public int AirtimeMs => 2 * JumpRiseMs;
 
@@ -164,6 +179,17 @@ public sealed record MovementRules(long BaseSpeedMmPerSecond, int WalkPercent, i
         stance == Stance.Crouched ? BaseSpeedMmPerSecond * CrouchPercent / 100.0 : SpeedMmPerSecond(gait);
 
     public long HeightMm(Stance stance) => stance == Stance.Crouched ? CrouchHeightMm : StandHeightMm;
+
+    /// <summary>The absolute grade between two points, in millimetres of rise per metre of run: what a scramble and a sheer face are read from.</summary>
+    public long GradeMmPerM(double fromX, double fromZ, double toX, double toZ, WalkSpace space)
+    {
+        double run = Math.Sqrt((toX - fromX) * (toX - fromX) + (toZ - fromZ) * (toZ - fromZ));
+        if (run <= 0)
+            return 0;
+        long rise = space.HeightAtMm((long)Math.Round(toX, MidpointRounding.AwayFromZero), (long)Math.Round(toZ, MidpointRounding.AwayFromZero))
+                    - space.HeightAtMm((long)Math.Round(fromX, MidpointRounding.AwayFromZero), (long)Math.Round(fromZ, MidpointRounding.AwayFromZero));
+        return (long)Math.Round(Math.Abs(rise) * 1_000.0 / run);
+    }
 
     /// <summary>How far above the ground the feet are this long after take-off: a parabola, whole millimetres, 0 before and after.</summary>
     public long LiftMm(int airMs) =>
@@ -249,7 +275,18 @@ public static class Kinematics
         if (length > 0 && dtMs > 0)
         {
             double deflection = Math.Min(length, MoveIntent.FullDeflection) / MoveIntent.FullDeflection;
-            double travel = rules.JumpSpeed(intent.Gait, posture.Stance) * dtMs / 1000.0 * deflection;
+            double pace = rules.JumpSpeed(intent.Gait, posture.Stance);
+            // Scramble (BRIEF D6 point 4): across ground, the grade ahead decides the pace. A hill is walked, a mountain slope is
+            // scrambled hand over hand and slower, and only a sheer face is refused - that is what the climb is for.
+            if (!posture.Airborne && length > 0)
+            {
+                long grade = rules.GradeMmPerM(x, z, x + intent.DirXPermille / length * 1_000, z + intent.DirZPermille / length * 1_000, space);
+                if (grade > rules.SheerGradeMmPerM && rules.MantleMm <= 0)
+                    pace = 0;
+                else if (grade > rules.ScrambleGradeMmPerM)
+                    pace *= rules.ScramblePercent / 100.0;
+            }
+            double travel = pace * dtMs / 1000.0 * deflection;
             double dx = intent.DirXPermille / length * travel;
             double dz = intent.DirZPermille / length * travel;
             // Sub-steps no longer than half the body radius, so a fast step cannot tunnel through a thin wall.
@@ -390,7 +427,9 @@ public static class Kinematics
                 continue;
             var (cx, cz) = Footprints.Center(blocker);
             long top = space.HeightAtMm(cx, cz) + blocker.HeightMm;
-            if (top <= feet || top > ground + raised + rules.MantleMm || TopUnder(px, pz, long.MaxValue, space) != top)
+            // A face with handholds - a ladder, a rope, a scaffold - is climbed at any height; everything else only within the reach.
+            long reach = rules.ClimbPrefixes.Any(p => blocker.Id.StartsWith(p, StringComparison.Ordinal)) ? long.MaxValue : rules.MantleMm;
+            if (top <= feet || top > ground + raised + reach || TopUnder(px, pz, long.MaxValue, space) != top)
                 continue;
             long under = space.HeightAtMm((long)Math.Round(px, MidpointRounding.AwayFromZero), (long)Math.Round(pz, MidpointRounding.AwayFromZero));
             return (px, pz, top - under);
