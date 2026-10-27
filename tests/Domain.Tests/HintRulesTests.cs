@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using UNNAMED.Domain.Guidance;
 
 namespace UNNAMED.Domain.Tests;
@@ -11,10 +12,26 @@ public class HintRulesTests
         new("hint.guarding", "combat", HintTriggers.CreatureEngaged, "Hold {key:guard} to guard.", 1),
         new("hint.dodging", "combat", HintTriggers.HitTaken, "{key:dodge} dashes clear.", 0),
         new("hint.journal", "quests", HintTriggers.QuestStarted, "{key:journal} opens the journal.", 0),
+        new("hint.kal_wings", "movement", HintTriggers.NewGame, "Sprint and jump to throw your wings open.", 0) { People = new[] { "people.kal" }.ToImmutableArray() },
     };
 
     private static HintDefinition? Pick(string trigger, HintDepth depth, params string[] seen) =>
         HintRules.Pick(Hints, trigger, seen.ToHashSet(StringComparer.Ordinal), depth);
+
+    private static HintDefinition? PickFor(string people, string trigger, HintDepth depth, params string[] seen) =>
+        HintRules.Pick(Hints, trigger, seen.ToHashSet(StringComparer.Ordinal), depth, people);
+
+    [Fact]
+    public void APeoplesHint_ShowsOnlyToThatPeople_AndEveryonesShowsToAll()
+    {
+        // The Kal wing hint (note 3) is theirs alone; a Veth is told nothing about wings it has not got.
+        Assert.Equal("hint.kal_wings", PickFor("people.kal", HintTriggers.NewGame, HintDepth.Every)?.Id);
+        Assert.Null(PickFor("people.veth", HintTriggers.NewGame, HintDepth.Every));
+        Assert.Null(PickFor(null, HintTriggers.NewGame, HintDepth.Every));
+        // And a hint with no people listed is everyone's, however the character is made.
+        Assert.Equal("hint.fighting", PickFor("people.veth", HintTriggers.CreatureEngaged, HintDepth.Every)?.Id);
+        Assert.Equal("hint.fighting", PickFor(null, HintTriggers.CreatureEngaged, HintDepth.Every)?.Id);
+    }
 
     [Fact]
     public void Full_ShowsEachHintOnce_InOrder()
