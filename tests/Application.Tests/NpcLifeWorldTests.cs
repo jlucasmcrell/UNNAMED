@@ -36,31 +36,31 @@ public class NpcLifeWorldTests
         + "|" + string.Join(";", simulation.Lives.Select(l => $"{l.Key}:{l.Activity}:{l.AtWork}"));
 
     [Fact]
-    public void TheTowns_HoldTheEightNamed_AndSixRoleResidentsEach_NamedFromTheirPeople()
+    public void TheTowns_HoldEightNamed_AndRolesTheirInfrastructureSupports()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         var arena = AtSpawn(session);
         var lives = arena.Simulation.Lives;
         Assert.Equal(8, lives.Count(l => !l.Resident));
-        Assert.Equal(6, lives.Count(l => l.Resident && l.Settlement == "ashen_hollow"));
+        Assert.Equal(3, lives.Count(l => l.Resident && l.Settlement == "ashen_hollow"));
         Assert.Equal(6, lives.Count(l => l.Resident && l.Settlement == "cairnwold"));
         foreach (var town in lives.Where(l => l.Resident).GroupBy(l => l.Settlement))
         {
             Assert.Equal(town.Count(), town.Select(l => l.Name).Distinct().Count());
         }
         var residents = arena.Simulation.Npcs.Where(n => n.Resident).ToList();
-        Assert.Equal(12, residents.Count);
+        Assert.Equal(9, residents.Count);
         Assert.Equal(5, residents.Count(r => r.PeopleId == "people.veth"));
-        Assert.Equal(3, residents.Count(r => r.PeopleId == "people.kal"));
-        Assert.Equal(2, residents.Count(r => r.PeopleId == "people.siann"));
-        Assert.Equal(2, residents.Count(r => r.PeopleId == "people.orenth"));
+        Assert.Equal(2, residents.Count(r => r.PeopleId == "people.kal"));
+        Assert.Equal(1, residents.Count(r => r.PeopleId == "people.siann"));
+        Assert.Equal(1, residents.Count(r => r.PeopleId == "people.orenth"));
         Assert.DoesNotContain(residents, r => r.PeopleId == "people.ondrek");
         foreach (var town in lives.Where(l => l.Resident).GroupBy(l => l.Settlement))
-            Assert.Equal(new[] { "people.kal", "people.orenth", "people.siann", "people.veth" },
+            Assert.Equal(town.Key == "ashen_hollow" ? new[] { "people.kal", "people.veth" } : new[] { "people.kal", "people.orenth", "people.siann", "people.veth" },
                 residents.Where(r => town.Any(l => l.Key == r.Id)).Select(r => r.PeopleId).Distinct().OrderBy(p => p, StringComparer.Ordinal));
         Assert.All(residents, r => Assert.Contains(r.Name, session.Setup.Character.Peoples[r.PeopleId!].Names.Names));
-        Assert.Equal(12, residents.Select(n => n.InstanceId).Distinct().Count());
+        Assert.Equal(9, residents.Select(n => n.InstanceId).Distinct().Count());
         Assert.All(residents, r => Assert.True(arena.Simulation.World.Registry.Exists(r.InstanceId)));
     }
 

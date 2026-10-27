@@ -2,24 +2,41 @@ id: routine.ashen_hollow.guard
 kind: routine
 schema: 1
 display_key: routine.ashen_hollow.guard.name
-tags: [routine]
-notes: "An Ashen Hollow role resident (DN3): the guard. Each resident takes a name from their people's Suggest list (WP2); when one leaves, someone new arrives 3-7 days later (DN4)."
+tags:
+- routine
+notes: 'C2: guard has a real work post, an evening meal in the common room, and an
+  upstairs inn bed.'
 region_ref: region.starting_frontier
 people_ref: people.kal
 settlement: ashen_hollow
 role: guard
-roles: [guard]           # WP12b: town roles (config.npc_life); hireability is derived from them
-work_hours: [8, 20]
+roles:
+- guard
+work_hours:
+- 8
+- 20
 anchors:
-  home: { position_m: [433, 754], facing_deg: 0 }
-  work: { position_m: [433, 754], facing_deg: 0 }
-trip:                  # WP12b: now and then they set out, and ask along whoever will come (LFG in world chat)
-  purpose: bounty
-  quest_ref: quest.bounty.road_wolves
-  meet_location_ref: location.outpost
-  meet: { position_m: [450, 749], facing_deg: 90 }
-  destination_location_ref: location.den_mouth
-  destination: { position_m: [506, 772], facing_deg: 45 }
-  chance_percent: 20
-  hours: [9, 14]
-  away_hours: 3
+  home:
+    position_m:
+    - 438.9
+    - 719.05
+    facing_deg: 0
+  work:
+    position_m:
+    - 464
+    - 748
+    facing_deg: 90
+  supper:
+    position_m:
+    - 439
+    - 725.85
+    facing_deg: 0
+schedule:
+- hours:
+  - 6
+  - 8
+  at: supper
+- hours:
+  - 20
+  - 22
+  at: supper

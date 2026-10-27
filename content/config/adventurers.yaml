@@ -46,7 +46,7 @@ settlements:
     market_ref: market.ashen_hollow
     smith_merchant_ref: merchant.ashen_hollow.kera_voss
     lodge: { position_m: [460, 752], facing_deg: 0 }   # off the outpost's ways through: the row stood across the path from the spawn to the forge
-    target: 3                           # spec 15 default 1: three in the hamlet (the owner's dial, on; the rules keep four at Cairnwold)
+    target: 1                           # C2: one road traveller; seven residents have their own rooms.
     # Spec 15 (owner finding 15): Renn Vale's waystation IS the inn, and these are its places - measured off the props the region already
     # places (beds 01-03, tables 01-02, stools 01-03, the hearth, the east door) so a body sits ON a stool and sleeps IN a bed rather than
     # beside one. Hours are the game clock; the walk windows are how long they are seen walking to and from the gate.
@@ -58,11 +58,9 @@ settlements:
       seats:
         - { position_m: [442.77, 726.27], facing_deg: 180 }     # stool 01, facing its table
         - { position_m: [443.97, 726.27], facing_deg: 180 }     # stool 02
-        - { position_m: [441.67, 725.27], facing_deg: 0 }       # stool 03
+        - { position_m: [440.7, 728.1], facing_deg: 180 }       # C2 guest supper stool
       beds:
-        - [437.9, 725.75]                                       # bed 01, stood beside (a body at a bed stands at its side, not in it)
-        - [437.9, 727.85]                                       # bed 02
-        - [437.9, 729.95]                                       # bed 03
+        - [445.0, 719.05] # Upstairs guest cot; resident and player beds stay reserved.
       gate: { position_m: [464, 748], facing_deg: 90 }          # where the Old East Road leaves the hamlet
       room_coin: 5                                              # what a bed for the night costs the character, paid to the keeper (spec 15)
       keeper_npc_ref: npc.ashen_hollow.renn_vale                    # the one who keeps the inn, and the only voice that lets its rooms

@@ -286,7 +286,7 @@ nodes:
         text: "I'll ask them."
         next: again
   bed:
-    text: "Bed's five coin, paid to me and not to the road. The door's bolted from inside and nothing gets in but the weather. Take a moment to rest. You'll be fit for the road again; the world keeps its own hours."
+    text: "Bed's five coin, paid to me and not to the road. The covered stair outside the east door takes you to the guest rooms. Yours is the last room on the right, with its own cot. Take a moment to rest. You'll be fit for the road again; the world keeps its own hours."
     choices:
       - id: take
         text: "I'll take a room and rest."

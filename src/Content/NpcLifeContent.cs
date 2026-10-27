@@ -223,12 +223,15 @@ public static class NpcLifeContent
                 : ImmutableArray<string>.Empty;
             var routine = new RoutineDefinition(id, npcId, Text(map, "settlement"), Text(map, "role"), anchors, from % 24, to % 24)
             {
+                ReleaseBarrier = map.GetValueOrDefault("release_barrier") as string,
                 Schedule = schedule,
                 PeopleId = people,
                 Job = job,
                 Roles = roles,
                 Trip = map.TryGetValue("trip", out var t) ? Trip(loader, id, t as Dictionary<object, object> ?? throw new FormatException($"{id} trip must be a map")) : null,
             };
+            if (routine.ReleaseBarrier is { } barrier && (npcId is null || !WorldContent.BuildLayout(loader, regionId).Barriers.Any(b => b.Key == barrier)))
+                throw new FormatException($"{id} release_barrier must name a barrier in its layout and belong to a named NPC");
             routines.Add(routine);
         }
         var markets = EconomyContent.Build(loader).Markets;

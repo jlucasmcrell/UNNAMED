@@ -200,6 +200,9 @@ public sealed record RoutineDefinition(
 
     public NpcJob? Job { get; init; }
 
+    /// <summary>A captive stays at their authored site until this layout barrier lifts.</summary>
+    public string? ReleaseBarrier { get; init; }
+
     /// <summary>
     /// What they are in their town (WP12b; <c>config.npc_life</c>'s <c>roles</c> names each): what they are hired as, if anything, and how
     /// they talk. Whether they can be hired is derived from these (<see cref="NpcHireability"/>): a vendor or a quest giver never is.

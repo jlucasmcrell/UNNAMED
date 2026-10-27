@@ -165,6 +165,12 @@ internal sealed partial class NpcSystem
     private (long X, long Z, int Facing) Goal(NpcLifeRecord npc)
     {
         var routine = Life.Routines[npc.RoutineId];
+        // Captives keep their original site until the existing quest barrier is lifted.
+        if (routine.ReleaseBarrier is { } key
+            && _context.Setup.Layout.Barriers.FirstOrDefault(b => b.Key == key) is { } barrier
+            && State.World.GetFlag(Simulation.CellOf(_context.Setup.Layout.SpaceId, barrier), barrier.FlagId) == 0
+            && PlaceOf(npc.Key) is { } held)
+            return held;
         // A trip (WP12b): waiting at its meeting place, then gone to its destination.
         if (routine.Trip is { } trip && npc.Activity is NpcActivities.SetOut or NpcActivities.Away)
         {

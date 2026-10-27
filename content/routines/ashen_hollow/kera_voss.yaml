@@ -2,15 +2,43 @@ id: routine.ashen_hollow.kera_voss
 kind: routine
 schema: 1
 display_key: routine.ashen_hollow.kera_voss.name
-tags: [routine]
-notes: "Kera trades, so works the trading hours (06:00-20:00) at the anvil where the region places her; sleeps in the forge shed."
+tags:
+- routine
+notes: 'C2: kera has a real work post, an evening meal in the common room, and an
+  upstairs inn bed.'
 region_ref: region.starting_frontier
 npc_ref: npc.ashen_hollow.kera_voss
 settlement: ashen_hollow
 role: craftsperson
-roles: [smith, vendor, quest_giver]           # WP12b: town roles (config.npc_life); hireability is derived from them
-work_hours: [6, 20]
+roles:
+- smith
+- vendor
+- quest_giver
+work_hours:
+- 6
+- 20
 anchors:
-  home: { position_m: [455, 744.3], facing_deg: 90 }
-  work: { position_m: [461.6, 739.6], facing_deg: 300 }
-job: { market_ref: market.ashen_hollow, item_ref: item.material.iron_ingot, per_day: 1 }   # each day it is held, the market makes the larger of its floor and its jobs (WP12b: max(floor, jobs))
+  home:
+    position_m:
+    - 448.35
+    - 715.5
+    facing_deg: 270
+  work:
+    position_m:
+    - 461.6
+    - 739.6
+    facing_deg: 300
+  supper:
+    position_m:
+    - 443.97
+    - 726.92
+    facing_deg: 180
+job:
+  market_ref: market.ashen_hollow
+  item_ref: item.material.iron_ingot
+  per_day: 1
+schedule:
+- hours:
+  - 20
+  - 22
+  at: supper

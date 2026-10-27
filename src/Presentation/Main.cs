@@ -1147,10 +1147,10 @@ public partial class Main : Node3D
         AddChild(_crafting);
         _crafting.Build(_session.Setup.Layout);
         _loading?.Stage("Bringing in the people", 0.78);
-        _npcs = new NpcsView { Name = "Npcs", Ground = VisualOptions.BodyModifiers ? _ground.Height : null };
+        _npcs = new NpcsView { Name = "Npcs", Ground = VisualOptions.BodyModifiers ? (x, z) => _session.Simulation!.ActiveLayout.Space.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f : null };
         _npcs.Bind(_art, _bindings);
         if (_session.Setup.Interior is not null && VisualOptions.BodyModifiers)
-            _npcs.Ground = (x, z) => _session.Simulation!.ActiveLayout.Space.Terrain.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f;
+            _npcs.Ground = (x, z) => _session.Simulation!.ActiveLayout.Space.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f;
         AddChild(_npcs);
         // The character budget's harness (MetaHuman pipeline, Phase 1.4): bound people stood along the camera's view.
         if (OS.GetEnvironment("UNNAMED_PERF_CROWD") is { Length: > 0 } crowd)

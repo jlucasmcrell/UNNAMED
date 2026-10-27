@@ -2,14 +2,42 @@ id: routine.ashen_hollow.renn_vale
 kind: routine
 schema: 1
 display_key: routine.ashen_hollow.renn_vale.name
-tags: [routine]
-notes: "Renn keeps the waystation, which is the hamlet's inn (spec 15): stands behind the counter end of the long table facing the room and the door, and sleeps in the keeper's own north-wall cot. The keeper's post and the beds are the places the adventurers' own day uses, so the inn reads as one room."
+tags:
+- routine
+notes: 'C2: renn has a real work post, an evening meal in the common room, and an
+  upstairs inn bed.'
 region_ref: region.starting_frontier
 npc_ref: npc.ashen_hollow.renn_vale
 settlement: ashen_hollow
 role: steward
-roles: [steward, quest_giver]           # WP12b: town roles (config.npc_life); hireability is derived from them
-work_hours: [7, 19]
+roles:
+- steward
+- quest_giver
+work_hours:
+- 7
+- 19
 anchors:
-  home: { position_m: [441.0, 729.8], facing_deg: 90 }     # clear approach to his north-wall cot; the three guest beds stay free
-  work: { position_m: [441.0, 725.3], facing_deg: 90 }      # behind the counter end of table 01, facing the room and the door
+  home:
+    position_m:
+    - 438.25
+    - 715.5
+    facing_deg: 270
+  work:
+    position_m:
+    - 441.0
+    - 725.3
+    facing_deg: 90
+  supper:
+    position_m:
+    - 441.02
+    - 725.27
+    facing_deg: 0
+schedule:
+- hours:
+  - 6
+  - 7
+  at: supper
+- hours:
+  - 19
+  - 22
+  at: supper
