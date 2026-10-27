@@ -28,6 +28,16 @@ public partial class Main
             for (int i = 0; i < 8; i++) { Draw(1, 1.0 / 60); await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame); }
             var figures = ids.Select(id => _npcs.FigureOf(id) as SkinnedFigure
                 ?? throw new InvalidDataException("Expected real HumGen NPC " + id)).ToArray();
+            foreach (var f in figures)
+                foreach (var mesh in f.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+                    if (mesh.Name.ToString().Contains("_Teeth", StringComparison.Ordinal) && mesh.Mesh is not null)
+                        for (int s = 0; s < mesh.Mesh.GetSurfaceCount(); s++)
+                            if (mesh.GetActiveMaterial(s) is BaseMaterial3D m)
+                                rows.Add(new { phase = "mouth_material", f.ModelId, mesh = mesh.Name.ToString(),
+                                    m.Roughness, m.Metallic, m.MetallicSpecular,
+                                    albedo = m.AlbedoTexture?.GetWidth(), normal = m.NormalTexture?.GetWidth(),
+                                    roughness_texture = m.RoughnessTexture is not null,
+                                    metallic_texture = m.MetallicTexture is not null });
             _voice.Preload("dialogue.ashen_hollow.renn_vale/greet");
             var center = figures.Select(f => f.GlobalPosition).Aggregate(Vector3.Zero, (a, b) => a + b) / figures.Length;
             if (figures.Any(f => f.GlobalPosition.DistanceTo(center) > 4)) throw new InvalidDataException("Private adjacent anchors missing");
@@ -73,9 +83,11 @@ public partial class Main
             {
                 int hand = figure.Skeleton.FindBone("RightHand");
                 var hands = figure.Skeleton.GlobalTransform * figure.Skeleton.GetBoneGlobalPose(hand).Origin;
-                camera.Fov = 35; camera.GlobalPosition = hands + new Vector3(.1f, .1f, .9f); camera.LookAt(hands); camera.MakeCurrent();
-                rows.Add(new { phase = "hands", utc = DateTimeOffset.UtcNow, player = body, npc = npc.Body });
-                await Rcd3Wait(3); await Rcd3Shot(directory, "relaxed_hand");
+                camera.Fov = 20; camera.GlobalPosition = hands + new Vector3(.1f, .1f, 1).Normalized() * 2;
+                camera.LookAt(hands); camera.MakeCurrent();
+                rows.Add(new { phase = "hands", utc = DateTimeOffset.UtcNow, player = body, npc = npc.Body,
+                    camera_distance_m = camera.GlobalPosition.DistanceTo(hands), camera_fov = camera.Fov });
+                await Rcd3Wait(4); await Rcd3Shot(directory, "relaxed_hand");
             }
             void CloseCamera()
             {

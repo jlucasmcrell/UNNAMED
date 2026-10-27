@@ -79,6 +79,17 @@ public static class CharacterMaterials
                     continue;
                 }
                 Apply(material, spec);
+                // HumGen's exported teeth ORM has near-zero G even though its
+                // native roughness atlas is ~0.3. Multiplying the configured 0.3
+                // by that map makes the whole mouth a blue-sky mirror. Keep the
+                // approved colour atlas/UVs/normal; use the teeth kind's actual
+                // roughness, and explicitly keep enamel/gums non-metallic.
+                if (kind == "teeth" && instance.Name.ToString().Contains("_Teeth", StringComparison.Ordinal))
+                {
+                    material.RoughnessTexture = null;
+                    material.MetallicTexture = null;
+                    material.Metallic = 0;
+                }
                 upgraded++;
             }
         }
