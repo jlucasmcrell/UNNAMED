@@ -11,7 +11,9 @@ public partial class Main
     private async void RunNpcLifeReview(string directory)
     {
         Directory.CreateDirectory(directory);
-        string[] ids = ["npc.ashen_hollow.renn_vale", "npc.ashen_hollow.kera_voss", "npc.cairnwold.berrin_garth"];
+        bool talkOnly = File.Exists(Path.Combine(directory, "content", "NPC_LIFE_TALK_ONLY.txt"));
+        string[] ids = talkOnly ? ["npc.ashen_hollow.renn_vale"]
+            : ["npc.ashen_hollow.renn_vale", "npc.ashen_hollow.kera_voss", "npc.cairnwold.berrin_garth"];
         var rows = new List<object>();
         var source = _camera.Camera;
         var camera = new Camera3D { Fov = 55, Near = source.Near, Far = source.Far,
@@ -27,7 +29,7 @@ public partial class Main
             var figures = ids.Select(id => _npcs.FigureOf(id) as SkinnedFigure
                 ?? throw new InvalidDataException("Expected real HumGen NPC " + id)).ToArray();
             _voice.Preload("dialogue.ashen_hollow.renn_vale/greet");
-            var center = figures.Select(f => f.GlobalPosition).Aggregate(Vector3.Zero, (a, b) => a + b) / 3;
+            var center = figures.Select(f => f.GlobalPosition).Aggregate(Vector3.Zero, (a, b) => a + b) / figures.Length;
             if (figures.Any(f => f.GlobalPosition.DistanceTo(center) > 4)) throw new InvalidDataException("Private adjacent anchors missing");
             camera.GlobalPosition = center + new Vector3(0, 2, 6.5f);
             camera.LookAt(center + Vector3.Up); camera.MakeCurrent();
@@ -43,7 +45,7 @@ public partial class Main
             audio = new AudioEffectRecord(); AudioServer.AddBusEffect(bus, audio); audio.SetRecordingActive(true);
             SetProcess(true);
             ulong start = Time.GetTicksMsec(); int sample = -1;
-            while (Time.GetTicksMsec() - start < 20000)
+            while (Time.GetTicksMsec() - start < (talkOnly ? 0UL : 20000UL))
             {
                 if (File.Exists(@"C:\Otherreach_Recovery\OWNER_PLAYING.flag")) throw new OperationCanceledException("Owner playing");
                 int at = (int)((Time.GetTicksMsec() - start) / 250);
@@ -58,7 +60,7 @@ public partial class Main
                 }
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             }
-            await Rcd3Shot(directory, "three_npcs");
+            if (!talkOnly) await Rcd3Shot(directory, "three_npcs");
             var figure = figures[0];
             var face = figure.FindChildren("*", "", true, false).OfType<FaceDriver>().Single();
             var sim = _session.Simulation!;
@@ -66,12 +68,20 @@ public partial class Main
             double reach = (_session.Setup.Items.Inventory.ReachMm + _session.Setup.Movement.BodyRadiusMm) / 1000.0;
             var body = sim.Player.Body;
             if (new Vector2((body.XMm - npc.Body.XMm) / 1000f, (body.ZMm - npc.Body.ZMm) / 1000f).Length() > reach)
-                throw new InvalidDataException("Player not placed within greeting reach; no approach fallback");
+                throw new InvalidDataException($"Player {body} not within {reach:0.000}m of greeting NPC {npc.Body}; no approach fallback");
+            if (talkOnly)
+            {
+                int hand = figure.Skeleton.FindBone("RightHand");
+                var hands = figure.Skeleton.GlobalTransform * figure.Skeleton.GetBoneGlobalPose(hand).Origin;
+                camera.Fov = 35; camera.GlobalPosition = hands + new Vector3(.1f, .1f, .9f); camera.LookAt(hands); camera.MakeCurrent();
+                rows.Add(new { phase = "hands", utc = DateTimeOffset.UtcNow, player = body, npc = npc.Body });
+                await Rcd3Wait(3); await Rcd3Shot(directory, "relaxed_hand");
+            }
             void CloseCamera()
             {
                 var aim = figure.Head!.Value - Vector3.Up * .07f;
                 var toward = (_avatar.GlobalPosition - aim); toward.Y = 0; toward = toward.Normalized();
-                camera.Fov = 32; camera.GlobalPosition = aim + toward * .85f + Vector3.Up * .02f; camera.LookAt(aim);
+                camera.Fov = 32; camera.GlobalPosition = aim + toward * .85f + Vector3.Up * .02f; camera.LookAt(aim); camera.MakeCurrent();
             }
             CloseCamera();
             string expected = "dialogue.ashen_hollow.renn_vale/greet";
@@ -100,9 +110,11 @@ public partial class Main
             var ended = _voice.Speech(expected);
             if (peak < .03f || ended is null || ended.Value.Position < ended.Value.Duration - .15)
                 throw new InvalidDataException("Greeting native jaw/full utterance incomplete");
+            rows.Add(new { phase = "greeting_finished", utc = DateTimeOffset.UtcNow, full_utterance_finished = true,
+                duration = ended.Value.Duration, playback = ended.Value.Position, peak_jaw = peak });
             await Rcd3Shot(directory, "after_greeting");
             File.WriteAllText(Path.Combine(directory, "evidence.json"), JsonSerializer.Serialize(new {
-                player = sim.Player.Name, scope = "Private adjacent anchors; production NPC draw/idle/hand/face/normal conversation and actual Master. Render filter draws only the three subjects; simulation population retained. Foreground player hidden. Not a world/performance gate.",
+                player = sim.Player.Name, talkOnly, subjects = ids, scope = "Private anchors; production NPC draw/idle/hand/face/normal conversation and actual Master. Render filter draws only review subjects; simulation population retained. Foreground player hidden. Not a world/performance gate.",
                 resolution = GetViewport().GetVisibleRect().Size.ToString(), rows }, new JsonSerializerOptions { WriteIndented = true }));
             File.WriteAllText(Path.Combine(directory, "gate.exit"), "0");
         }

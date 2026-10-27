@@ -1151,8 +1151,10 @@ public partial class Main : Node3D
         if (OS.GetEnvironment("OTHERREACH_NPC_LIFE_REVIEW") is { Length: > 0 }
             && _options.GetValueOrDefault("--content-root") is { } reviewContent
             && File.Exists(Path.Combine(reviewContent, "NPC_LIFE_REVIEW_FIXTURE.txt")))
-            _npcs.ReviewPeople = new HashSet<string>(StringComparer.Ordinal)
-                { "npc.ashen_hollow.renn_vale", "npc.ashen_hollow.kera_voss", "npc.cairnwold.berrin_garth" };
+            _npcs.ReviewPeople = File.Exists(Path.Combine(reviewContent, "NPC_LIFE_TALK_ONLY.txt"))
+                ? new HashSet<string>(StringComparer.Ordinal) { "npc.ashen_hollow.renn_vale" }
+                : new HashSet<string>(StringComparer.Ordinal)
+                    { "npc.ashen_hollow.renn_vale", "npc.ashen_hollow.kera_voss", "npc.cairnwold.berrin_garth" };
         _npcs.Bind(_art, _bindings);
         if (_session.Setup.Interior is not null && VisualOptions.BodyModifiers)
             _npcs.Ground = (x, z) => _session.Simulation!.ActiveLayout.Space.Terrain.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f;
