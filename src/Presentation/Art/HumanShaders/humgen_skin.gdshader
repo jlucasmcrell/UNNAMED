@@ -29,6 +29,10 @@ uniform sampler2D native_rough_spec_cavity : filter_linear_mipmap;
 uniform vec2 native_specular_range = vec2(0.073, 0.7);
 uniform vec3 native_sss_radius = vec3(1., .2, .1);
 uniform float native_sss_scale = .01;
+// Owner Gate A review: matte satin and slightly less peach, preserving the native maps.
+uniform float native_saturation = .88;
+uniform float native_roughness_floor = .45;
+uniform float native_specular_scale = .65;
 varying float native_specular;
 
 uniform sampler2D texture_roughness : hint_roughness_r, filter_linear_mipmap, repeat_enable;
@@ -199,6 +203,10 @@ void fragment() {
 	}
 
 	final_albedo = albedo.rgb * albedo_tex.rgb;
+	if (native_humgen) {
+		float luminance = dot(final_albedo, vec3(.2126, .7152, .0722));
+		final_albedo = mix(vec3(luminance), final_albedo, native_saturation);
+	}
 
 	float metallic_tex = dot(texture(texture_metallic, base_uv), metallic_texture_channel);
 	final_metallic = metallic_tex * metallic;
@@ -215,6 +223,7 @@ void fragment() {
 	if (native_specular_map) {
 		native_specular = clamp((texture(native_rough_spec_cavity, base_uv).r - native_specular_range.x)
 			/ (native_specular_range.y - native_specular_range.x), 0., 1.);
+		native_specular *= native_specular_scale;
 		SPECULAR = native_specular;
 	}
 	if (use_ambient_occlusion){
@@ -224,6 +233,7 @@ void fragment() {
 	vec4 roughness_texture_channel = vec4(0.0, 1.0, 0.0, 0.0);
 	float roughness_tex = dot(texture(texture_roughness, base_uv), roughness_texture_channel);
 	ROUGHNESS = clamp(roughness_tex * roughness, 0.,1.);
+	if (native_humgen) ROUGHNESS = max(ROUGHNESS, native_roughness_floor);
 
 	// Normal Map: Enabled
 	vec3 micro_normal = mix(vec3(.5,.5,1.), vec3(micro_detail.xy, 1.), micro_normal_strength);

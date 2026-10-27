@@ -273,9 +273,10 @@ public partial class CreatorScreen : CanvasLayer
         int TypeOrder(string type) => typeOrder.IndexOf(type) is var i && i >= 0 ? i : typeOrder.Count;
         var offered = _session.Characters.OfferedBodies(people ?? _draft?.PeopleId ?? CharacterSpec.DefaultPeople).OrderBy(b => TypeOrder(b.Type)).ThenBy(b => b.Order).Select(b =>
         {
-            string? model = bodies.Model(b, Installed);
+            string sex = b.Type.EndsWith("_f", StringComparison.Ordinal) ? "f" : "m";
+            string? model = (b.PeopleId is "people.veth" or "people.orenth" or "people.kal" or "people.siann" ? NativeBase(sex) : null) ?? bodies.Model(b, Installed);
             return new Offered(b, model, model is not null);
-        }).Where(o => o.Model?.StartsWith("humgen_", StringComparison.Ordinal) != true || o.Body.Build == bodies.BaseBuild).ToList();
+        }).Where(o => o.Model?.StartsWith("humgen_creator_", StringComparison.Ordinal) == true || o.Model?.StartsWith("humgen_", StringComparison.Ordinal) != true || o.Body.Build == bodies.BaseBuild).ToList();
         if (offered.Count > 0 && offered.All(o => !o.Installed))
             offered = offered.Select(o => o with { Installed = true }).ToList();
         return offered;
@@ -300,7 +301,8 @@ public partial class CreatorScreen : CanvasLayer
 
     /// <summary>Whether this build draws a baked body for <paramref name="people"/>: one of its offered bodies is installed and baked.</summary>
     private bool Drawn(string people) =>
-        _catalogue.Race(people) is not { HumgenBody: false }
+        (people is "people.veth" or "people.orenth" or "people.kal" or "people.siann" && NativeBase("f") is not null && NativeBase("m") is not null)
+        || _catalogue.Race(people) is not { HumgenBody: false }
         && _session.Characters.OfferedBodies(people)
             .Select(b => _bindings.Bodies.Model(b, model => _art.RiggedFile(model, model + "_rigged.glb") is not null))
             .Any(model => _catalogue.BakedFor(model) is not null);
@@ -318,7 +320,7 @@ public partial class CreatorScreen : CanvasLayer
     {
         var body = OfferedBodies().FirstOrDefault(o => o.Id == Draft.BodyPresetId);
         var worn = Outfit(Draft.CallId);
-        string tones = Draft.Appearance is { } look ? string.Join(",", look.Sliders.Where(s => s.Key.StartsWith("look.", StringComparison.Ordinal))) : "";
+        string tones = Draft.Appearance is { } look ? $"{look.Face}|{look.StatureMm}|{string.Join(",", look.Sliders)}" : "";
         string? model = _catalogue.DrawnModel(body?.Model, Draft.Appearance?.Face);
         string shown = $"{model}|{body?.Body.ArmSplayDegrees}|{worn}|{Draft.PeopleId}|{tones}";
         if (shown == _shownBody)
@@ -506,6 +508,7 @@ public partial class CreatorScreen : CanvasLayer
         _body.AddChild(builds);
         _body.AddChild(PendingNote());
         _body.AddChild(HeightSection());
+        if (NativeActive) _body.AddChild(NativeBodyPresets());
         _body.AddChild(SwatchSection("Skin", LookSwatches.SkinSlider, LookSwatches.Skin(Draft.PeopleId), new Color(.36f, .26f, .2f), multiply: true));
         if (Draft.PeopleId == PeopleLooks.Kal)
             _body.AddChild(StoneSection());
@@ -513,6 +516,12 @@ public partial class CreatorScreen : CanvasLayer
 
         var randomise = UiKit.Action("Randomise", Deferred(() =>
         {
+            if (NativeActive)
+            {
+                Shape(look => NativeData.Randomize(look, _catalogue, Draft.PeopleId, Sex, _random.Randi()));
+                Render("creator.randomise");
+                return;
+            }
             var installed = OfferedBodies().Where(o => o.Installed).ToList();
             if (installed.Count > 0)
                 _draft = WithBody(installed[_random.RandiRange(0, installed.Count - 1)].Id);

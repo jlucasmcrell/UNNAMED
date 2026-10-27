@@ -25,6 +25,11 @@ public sealed partial class SkinnedFigure : Figure
     public bool ForceLod0 { set => _model.ForceLod0 = value; }
     internal void ReviewAllLods(bool all) => _model.ReviewAllLods(all);
     public float StatureScale => _uniformScale;
+    public void SetCreatorStature(int millimetres, float nativeMillimetres)
+    {
+        _uniformScale = millimetres / nativeMillimetres;
+        _model.Scale = Vector3.One * _uniformScale;
+    }
     private PostureModifier? _posture;
     private ArtLibrary _art = null!;
     private ArtBindings _bindings = null!;

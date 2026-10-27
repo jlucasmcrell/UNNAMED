@@ -8,7 +8,8 @@ from HumGen3D.backend.preferences.preference_func import get_prefs
 args=sys.argv[sys.argv.index('--')+1:]
 sex=args[0]; out=Path(args[1]); out.mkdir(parents=True,exist_ok=True)
 preset=Path('D:/HumGen Content/models')/sex/('Caucasian presets' if sex=='female' else 'Caucasian Presets')/'Caucasian 2.json'
-identifier='humgen_fidelity_'+sex+'_caucasian2'
+creator='--creator' in args
+identifier='humgen_creator_'+sex if creator else 'humgen_fidelity_'+sex+'_caucasian2'
 bpy.ops.wm.read_homefile(use_empty=True)
 human=Human.from_preset(str(preset.relative_to(Path('D:/HumGen Content'))))
 human.name=identifier
@@ -29,11 +30,17 @@ settings.textures.haircap_in_skin=False
 settings.shape_keys.body='keep'; settings.shape_keys.face='keep';settings.shape_keys.age='keep'
 invalid=[k for k in human.keys.all_livekeys if Path(get_prefs().filepath,k.path).stat().st_size==0]
 assert all(k.value==0 and 'trial' in k.name.lower() for k in invalid), 'Missing active or genuine native control'
-settings.shape_keys.keep['body']=[k.name for k in human.keys.all_livekeys if livekey_group(k)=='body' and k.path not in {bad.path for bad in invalid}]
+valid=[k for k in human.keys.all_livekeys if livekey_group(k)=='body' and k.path not in {bad.path for bad in invalid}]
+# HumGen compares the selection again after conversion, using the new prefixed name.
+# Selecting only the live-key name silently bakes the converted body key away.
+settings.shape_keys.keep['body']=[name for k in valid for name in (k.name, f'{k.category[0]}_{{{k.subcategory}}}_{k.name}' if k.subcategory else f'{k.category[0]}_{k.name}')]
+if creator: settings.shape_keys.lod0_only=False
 record['invalid_installed_trial_files']=[k.path for k in invalid]
 settings.lods=[QualitySettings(body='original',clothing='original',eyes='original',teeth='original',haircards='ultra'),QualitySettings(body='lower_face',eyes='medium',teeth='medium',haircards='medium'),QualitySettings(body='quarter',eyes='low',teeth='low',haircards='low'),QualitySettings(body='quarter',eyes='low',teeth='low',haircards='haircap_only')]
 settings.scripts.enabled=True
 settings.scripts.items=[ScriptSettings(path=str(Path(__file__).with_name('keep_humgen_native_eyes.py')),stage='before_export')]
+if creator:
+    settings.scripts.items.append(ScriptSettings(path=str(Path(__file__).with_name('keep_humgen_creator_groom_keys.py')),stage='before_meshes'))
 settings.output.folder=str(out);settings.output.name=identifier
 (out/'export_settings.json').write_text(json.dumps(settings.to_dict(),indent=2))
 start=time.time()

@@ -54,6 +54,13 @@ internal static class HumGenMaterials
                 || source.ResourceName.Contains("Haircap", StringComparison.OrdinalIgnoreCase))
             {
                 var hair = (BaseMaterial3D)source.Duplicate();
+                // Keep the native atlas and strand colour; recover fine brow coverage
+                // after the native alpha bake rather than painting a replacement brow.
+                if (mesh.Name.ToString().Contains("Eyebrow", StringComparison.OrdinalIgnoreCase))
+                {
+                    var colour = hair.AlbedoColor;
+                    hair.AlbedoColor = new Color(colour.R, colour.G, colour.B, colour.A * 1.15f);
+                }
                 if (hair.Transparency == BaseMaterial3D.TransparencyEnum.AlphaScissor)
                     hair.Transparency = BaseMaterial3D.TransparencyEnum.AlphaHash;
                 if (data.TryGetProperty("hair_flow", out _) && source.ResourceName.Contains("_HairCards", StringComparison.OrdinalIgnoreCase))

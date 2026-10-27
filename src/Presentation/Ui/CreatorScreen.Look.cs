@@ -17,6 +17,10 @@ public partial class CreatorScreen
     private readonly Dictionary<string, string> _groups = new(StringComparer.Ordinal);
 
     private CreatorCatalogue _catalogue = CreatorCatalogue.Empty;
+    private HumGenCreatorData? _humgen;
+    private HumGenCreatorData NativeData => _humgen ??= new(Godot.FileAccess.GetFileAsString(CataloguePath));
+    private string? NativeBase(string sex) => NativeData.Available && _art.RiggedFile(NativeData.Base(sex), "creator_ready.json") is not null ? NativeData.Base(sex) : null;
+    private bool NativeActive => Model?.StartsWith("humgen_creator_", StringComparison.Ordinal) == true;
     private Label? _pendingWords;
 
     /// <summary>
@@ -24,7 +28,7 @@ public partial class CreatorScreen
     /// up with, and no people without a baked body. The editor keeps the whole catalogue for the pipeline's work (<c>--public-creator</c>
     /// shows it the exported way).
     /// </summary>
-    private static bool BakedOnly => OS.HasFeature("template") || OS.GetCmdlineUserArgs().Contains("--public-creator");
+    private bool BakedOnly => !NativeActive && (OS.HasFeature("template") || OS.GetCmdlineUserArgs().Contains("--public-creator"));
 
     /// <summary>What a player is told in place of the choices this build cannot draw yet.</summary>
     private const string LaterWords = "More looks come in later playtests.";
@@ -40,7 +44,16 @@ public partial class CreatorScreen
     }
 
     /// <summary>The draft with this body: its look starts again from that body as baked (a look is per body, its options per sex).</summary>
-    private CreatorDraft WithBody(string id) => Draft with { BodyPresetId = id, Appearance = id == Draft.BodyPresetId ? Draft.Appearance : null };
+    private CreatorDraft WithBody(string id)
+    {
+        if (!_session.Characters.Bodies.TryGetValue(id, out var body)) return Draft with { BodyPresetId = id, Appearance = null };
+        string sex = body.Type.EndsWith("_f", StringComparison.Ordinal) ? "f" : "m";
+        if (NativeBase(sex) is null) return Draft with { BodyPresetId = id, Appearance = id == Draft.BodyPresetId ? Draft.Appearance : null };
+        var look = Draft.Appearance;
+        if (look is null || !NativeData.HasFace(look.Face) || !look.Face!.StartsWith("face." + sex + ".", StringComparison.Ordinal))
+            look = new CharacterAppearance(_catalogue.Race(Draft.PeopleId)?.MidStatureMm ?? 1750, NativeData.FirstFace(sex), null, null, null, null);
+        return Draft with { BodyPresetId = id, Appearance = NativeData.WithBuild(look, _catalogue, Draft.PeopleId, body.Build) };
+    }
 
     /// <summary>The model drawn: the body type's, or the body baked as the chosen face of it.</summary>
     private string? Model => _catalogue.DrawnModel(OfferedBodies().FirstOrDefault(o => o.Id == Draft.BodyPresetId)?.Model, Draft.Appearance?.Face);
@@ -58,14 +71,19 @@ public partial class CreatorScreen
     }
 
     /// <summary>The model a character's body and look are drawn with (the game's player, as the creator showed it).</summary>
-    public string? DrawnModel(string? model, CharacterAppearance? look) => _catalogue.DrawnModel(model, look?.Face);
+    public string? DrawnModel(string? model, CharacterAppearance? look) => (look?.Face is null || NativeData.HasFace(look.Face)
+        ? NativeBase(look?.Face?.StartsWith("face.f.", StringComparison.Ordinal) == true || (look?.Face is null
+            && (_catalogue.BakedFor(model)?.Sex == "f" || model?.EndsWith("_f", StringComparison.Ordinal) == true)) ? "f" : "m") : null)
+        ?? _catalogue.DrawnModel(model, look?.Face);
 
     /// <summary>The body's sex as HumGen's content folders split it: the baked body's own, else the body type's (<c>…_f</c>).</summary>
     private string Sex => _catalogue.BakedFor(Model)?.Sex
         ?? (OfferedBodies().FirstOrDefault(o => o.Id == Draft.BodyPresetId)?.Body.Type.EndsWith("_f", StringComparison.Ordinal) == true ? "f" : "m");
 
     /// <summary>The look as it stands: the draft's, or the body's as baked.</summary>
-    private CharacterAppearance Look => Draft.Appearance ?? _catalogue.Start(Model, Draft.PeopleId);
+    private CharacterAppearance Look => Draft.Appearance ?? (NativeActive
+        ? new CharacterAppearance(_catalogue.Race(Draft.PeopleId)?.MidStatureMm ?? 1750, NativeData.FirstFace(Sex), null, null, null, null)
+        : _catalogue.Start(Model, Draft.PeopleId));
 
     /// <summary>Change the look; a look back at exactly the body as baked is kept as none, so the draft says "as baked".</summary>
     private void Shape(Func<CharacterAppearance, CharacterAppearance> change)
@@ -73,6 +91,7 @@ public partial class CreatorScreen
         var look = change(Look);
         _draft = Draft with { Appearance = look.Equals(_catalogue.Start(Model, Draft.PeopleId)) ? null : look };
         PendingState();
+        ShowBody();
     }
 
     // ── the steps ───────────────────────────────────────────────────────────
@@ -218,6 +237,7 @@ public partial class CreatorScreen
     /// <summary>What the preview is: exactly the character, or the baked body with these parts of the look still to bake.</summary>
     private Control PendingNote()
     {
+        if (NativeActive) return new Control();
         if (BakedOnly)
             return new Control();
         _pendingWords = UiKit.Words(string.Empty, 16, HudStyle.Ember);
@@ -230,6 +250,7 @@ public partial class CreatorScreen
     /// <summary>The pending note, kept in place while a slider is dragged (the slider keeps the focus).</summary>
     private void PendingState()
     {
+        if (NativeActive) return;
         if (_pendingWords is null)
             return;
         var pending = _catalogue.Pending(Draft.Appearance, Model, Draft.PeopleId);
@@ -313,7 +334,8 @@ public partial class CreatorScreen
     /// <summary>A panel's sliders (body, face or hair), one group at a time behind a row of group tabs.</summary>
     private Control SliderSection(string panel, string heading, string note)
     {
-        var sliders = _catalogue.Sliders.Where(s => s.Panel == panel).ToList();
+        var sliders = NativeActive ? NativeData.Sliders(_catalogue, Draft.PeopleId, panel).ToList()
+            : _catalogue.Sliders.Where(s => s.Panel == panel).ToList();
         if (BakedOnly)
             return new Control();
         var section = UiKit.Section(heading, note);
@@ -325,13 +347,30 @@ public partial class CreatorScreen
         string key = "sliders." + panel;
         string group = Group(key, sliders.Select(s => s.Group), null);
         section.AddChild(GroupTabs(key, sliders.Select(s => s.Group).Distinct().ToList(), group));
+        if (NativeActive)
+            section.AddChild(UiKit.Action("Reset " + group, Deferred(() =>
+            {
+                Shape(l => NativeData.Reset(l, _catalogue, Draft.PeopleId, panel, group));
+                Render(null);
+            }), compact: true, id: "creator.reset." + panel + "." + group.ToLowerInvariant().Replace(' ', '_')));
         var look = Look;
         foreach (var slider in sliders.Where(s => s.Group == group))
         {
             var shown = slider;
-            section.AddChild(SliderRow("creator.slider." + slider.Id, slider.Label, slider.Min, slider.Max, 1, _catalogue.Value(look, slider),
+            section.AddChild(SliderRow("creator.slider." + slider.Id, slider.Label, slider.Min, slider.Max, 1, NativeActive ? NativeData.Value(look, _catalogue, Draft.PeopleId, slider) : _catalogue.Value(look, slider),
                 v => SliderWords(shown, v), v => Shape(l => _catalogue.WithSlider(l, shown, v))));
         }
+        return section;
+    }
+
+    private Control NativeBodyPresets()
+    {
+        var section = UiKit.Section("HumGen body presets");
+        var menu = new OptionButton();
+        foreach (var preset in NativeData.BodyPresets(Sex)) menu.AddItem(preset.GetProperty("label").GetString());
+        menu.Select(Math.Clamp(Look.Sliders.GetValueOrDefault("look.body_preset"), 0, menu.ItemCount - 1));
+        menu.ItemSelected += index => Shape(look => NativeData.WithBodyPreset(look, _catalogue, Draft.PeopleId, Sex, (int)index));
+        section.AddChild(menu);
         return section;
     }
 
@@ -390,7 +429,14 @@ public partial class CreatorScreen
     private Control OptionRow(string id, string name, bool selected, bool baked, Action pressed)
     {
         var row = UiKit.ListRow(id, name, height: 40);
-        if (!BakedOnly)
+        if (NativeActive && id.StartsWith("creator.face.face.", StringComparison.Ordinal)
+            && _art.RiggedFile("humgen_creator_materials", id["creator.face.".Length..] + "/thumbnail.jpg") is { } thumbnail)
+        {
+            row.Button.Icon = _art.Texture(thumbnail, "color");
+            row.Button.ExpandIcon = true;
+            row.Button.AddThemeConstantOverride("icon_max_width", 56);
+        }
+        if (!BakedOnly && !NativeActive)
             row.Right.AddChild(baked ? BakedChip() : PendingChip());
         UiKit.Select(row.Button, selected);
         row.Button.Pressed += Deferred(() =>

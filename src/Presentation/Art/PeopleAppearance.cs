@@ -362,6 +362,7 @@ public static class PeopleAppearance
     /// </summary>
     public static void ApplyLook(Node model, string? people, CharacterAppearance? look, ArtLibrary? art = null, string? bodyModel = null, bool dyeClothes = true)
     {
+        if (art is not null && HumGenCreatorAppearance.Apply(model, people, look, art, bodyModel)) return;
         int? Index(string slider) => look is not null && look.Sliders.TryGetValue(slider, out int value) ? value : null;
         WearHairStyle(model, art, LookSwatches.HairStyles(bodyModel).ElementAtOrDefault(Index(LookSwatches.StyleSlider) ?? 0).Asset);
         var skin = LookSwatches.Chosen(LookSwatches.Skin(people), Index(LookSwatches.SkinSlider));
