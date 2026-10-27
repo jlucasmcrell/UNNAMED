@@ -707,7 +707,9 @@ public class CreatureTests
             ImmutableArray.Create(new SpawnMember(Arena.Wolf, "pack_hunter"), new SpawnMember(Arena.Wolf, "pack_hunter"))) { RespawnTicks = 1_000 };
         var rules = session.Setup with { Progression = progression };
         var setup = rules with { Combat = rules.Combat with { Spawns = ImmutableArray.Create(site) } };
-        var arena = Arena.OpenCreatures(session, setup, (120, 60), 0, Array.Empty<(string, double, double, string)>(), keepSpawns: true);
+        // This pins spawn saturation, independently of C1's under-level combat penalty.
+        var arena = Arena.OpenCreatures(session, setup, (120, 60), 0, Array.Empty<(string, double, double, string)>(),
+            r => r.WithProgression(r.Progression with { Level = setup.Combat.Creatures[Arena.Wolf].Level }), keepSpawns: true);
         var saturated = arena.Record<SpawnerSaturated>();
         var killed = arena.Record<CreatureKilled>();
         arena.Fight(arena.Creature(0), 800);
