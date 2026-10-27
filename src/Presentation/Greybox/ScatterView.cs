@@ -268,6 +268,8 @@ public partial class ScatterView : Node3D
                 // No fade mode and no end margin: a stipple on an alpha-scissor material toggles the
                 // instance on and off rather than fading it, which is the blink the owner reported.
                 VisibilityRangeFadeMode = GeometryInstance3D.VisibilityRangeFadeModeEnum.Disabled,
+                // As for trees: the occlusion test runs a frame behind the camera, so plants it wrongly hides blink out and back.
+                IgnoreOcclusionCulling = true,
             });
             total += per[m].Count;
         }
@@ -371,6 +373,7 @@ public partial class ScatterView : Node3D
                 // The explicit fade comparison also exercises native chunk cross-fading.
                 VisibilityRangeFadeMode = fade ? GeometryInstance3D.VisibilityRangeFadeModeEnum.Self
                     : GeometryInstance3D.VisibilityRangeFadeModeEnum.Disabled,
+                IgnoreOcclusionCulling = true,
             };
             // Trees (the sapling stands): one full-detail band at every distance, by the owner's ruling (ArtLibrary.IsTree).
             if (kind.Rules.ModelId is { } treeId && ArtLibrary.IsTree(treeId))

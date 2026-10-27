@@ -361,6 +361,7 @@ public sealed class ArtLibrary
         // A tree's levels come sooner than its size alone would bring them (docs/phase_b/demo/trees/TREES.md): its needles and twigs thin
         // to sky on the lighter meshes past about 130 m, where the crossed-plane impostor holds a solid crown.
         bool tree = IsTreeFamily(id);
+        bool foliage = IsFoliage(id);
         float reach = Greybox.RenderTiers.LodReach;
         float[] from = tree
             ? new[] { 0f, 35f * reach, 80f * reach, 150f * reach }
@@ -403,6 +404,8 @@ public sealed class ArtLibrary
                 mesh.VisibilityRangeFadeMode = stipple
                     ? GeometryInstance3D.VisibilityRangeFadeModeEnum.Self
                     : GeometryInstance3D.VisibilityRangeFadeModeEnum.Disabled;
+                // Bushes and other placed plants are never culled by the buildings' occluders, like trees (Whole): the test runs a frame behind.
+                mesh.IgnoreOcclusionCulling = foliage;
             }
         }
         return root;
