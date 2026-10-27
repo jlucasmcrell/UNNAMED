@@ -215,6 +215,19 @@ def main():
         clearance=np.minimum(clearance,np.linalg.norm(roots-p-t[:,None]*delta,axis=1))
     reeds=[e for e,d in zip(reeds,clearance) if d>=5.6]
     assert len(reeds)>0 and min(clearance[clearance>=5.6])>=5.6
+    # Occupied kit footprints stay clear too: tall reeds must not grow through house floors,
+    # canvas or solid stone. Keep source bounds/scale/heading, including the relocated props.
+    roots=np.array([[e['at'][0],e['at'][2]] for e in reeds]);keep=np.ones(len(reeds),dtype=bool);bounds_cache={}
+    solid={'sedge_stilt_house','sedge_tollhouse','sedge_peat_cottage','sedge_felt_tent','sedge_cairn','sedge_waystone','sedge_drowned_bell_tower','sedge_tally_tower','sedge_oath_house_ruin','sedge_peat_stack'}
+    for p in places:
+        id=p['model']
+        if id not in solid:continue
+        if id not in bounds_cache:bounds_cache[id]=trimesh.load(out/'ready'/id/(id+'.glb'),force='scene').bounds
+        b=bounds_cache[id];corners=np.array([[x,z] for x in b[:,0] for z in b[:,2]])*np.array([p['scale'][0],p['scale'][2]])
+        a=math.radians(p['rotation_deg'][1]);rot=np.array([[math.cos(a),math.sin(a)],[-math.sin(a),math.cos(a)]])
+        corners=corners@rot.T+np.array(p['at']);lo=corners.min(axis=0)-2.5;hi=corners.max(axis=0)+2.5
+        keep&=~np.all((roots>=lo)&(roots<=hi),axis=1)
+    reeds=[e for e,on in zip(reeds,keep) if on]
     for lod in range(3):
         id=f'sedge_reeds_lod{lod}';d=out/'ready'/id;d.mkdir(parents=True,exist_ok=True);shutil.copy2(KIT/f'reed_clump_LOD{lod}.glb',d/(id+'.glb'))
     dump(out/'sedge_reeds.json',dict(instances=reeds,lod_ranges_m=[0,90,220,650],chunk_m=64))
