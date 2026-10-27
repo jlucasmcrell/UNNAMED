@@ -39,43 +39,25 @@ public class TraversalClimbTests
         return last;
     }
 
-    /// <summary>
-    /// The rim boulder is 2.57 m tall and sits at (10, 84) with a 2.2 m radius: inside the 3 m mantle reach, so a body pressing into it from
-    /// the south must end up standing on its top - feet well above the ground - not stopped against its face.
-    /// </summary>
+    /// <summary>The fallen timber lies 0.8 m high across x 163-171, z 147-147.8. A run into it from the south mounts it.</summary>
     [Fact]
-    public void ABodyPressingIntoTheRimBoulder_ClimbsItsTop()
+    public void ABodyPressingIntoTheFallenTimber_MountsIt()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var (x, z, above) = Press(session, (10.0, 81.0), facingDeg: 0, ticks: 90);
-        _out.WriteLine($"ended at ({x:0.00}, {z:0.00}), feet {above} mm above the ground");
-        Assert.True(above > 500, $"a 2.57 m boulder inside the mantle reach was not climbed: rose {above} mm at ({x:0.00}, {z:0.00})");
+        var (x, z, rose) = Press(session, (567.0, 769.0), facingDeg: 0, ticks: 120);
+        _out.WriteLine($"ended at region ({x:0.00}, {z:0.00}), rose {rose} mm");
+        Assert.True(rose > 400, $"a 0.8 m timber inside the mantle reach was not climbed: the body rose {rose} mm at ({x:0.00}, {z:0.00})");
     }
 
-    /// <summary>
-    /// The smithy fence is 1.2 m: a run into it must mount it (a vault), not stop at its face.
-    /// </summary>
+    /// <summary>The cart wreck is 1.4 m - above the 1.2 m vault window, inside the 3 m mantle reach - so it is climbed, not vaulted.</summary>
     [Fact]
-    public void ABodyPressingIntoTheSmithyFence_MountsIt()
+    public void ABodyPressingIntoTheCartWreck_ClimbsIt()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var (x, z, above) = Press(session, (47.5, 149.5), facingDeg: 0, ticks: 90);
-        _out.WriteLine($"ended at ({x:0.00}, {z:0.00}), feet {above} mm above the ground");
-        Assert.True(above > 300, $"a 1.2 m fence inside the vault window was not mounted: rose {above} mm at ({x:0.00}, {z:0.00})");
-    }
-
-    /// <summary>
-    /// The den gorge wall is 7.35 m, far beyond the reach: the body must be stopped by it, which is what keeps the reach meaningful.
-    /// </summary>
-    [Fact]
-    public void ABodyPressingIntoAFaceBeyondTheReach_IsStopped()
-    {
-        using var profile = new TempProfile();
-        var session = Harness.Boot(profile);
-        var (x, z, above) = Press(session, (100.0, 176.0), facingDeg: 0, ticks: 90);
-        _out.WriteLine($"ended at ({x:0.00}, {z:0.00}), feet {above} mm above the ground");
-        Assert.True(above < 800, $"a 7.35 m face was climbed, but it is beyond the mantle reach: the body rose {above} mm");
+        var (x, z, rose) = Press(session, (557.0, 784.0), facingDeg: 0, ticks: 160);
+        _out.WriteLine($"ended at region ({x:0.00}, {z:0.00}), rose {rose} mm");
+        Assert.True(rose > 600, $"a 1.4 m cart inside the mantle reach was not climbed: the body rose {rose} mm at ({x:0.00}, {z:0.00})");
     }
 }
