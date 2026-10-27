@@ -46,11 +46,11 @@ Capture uses Godot's built-in MovieWriter at 30 fps and the existing Low preset.
 
 All native runs check `OWNER_PLAYING.flag`, use the official GPU lock, stop at the lease deadline, and release the lock between runs. Final evidence and the exact commit/base are recorded in `CODEX_PROGRESS.md`.
 
-## Final local handoff — 2026-10-27
+## Final local handoff â€” 2026-10-27
 
 Captured gameplay source: `576f50f00356baff22937814c9016e2b63acf8d6`, based on current `claude/pp11-fixes` `7c1ae133`. No push.
 
-Final proof: `outputs/Waystation_Inn_C2_20261027/review.html` in the Codex task workspace. It contains the two untouched floor PNGs, one 35.67-second 1920 × 1080 H.264/AAC day-cycle clip, raw resident census, launch provenance, hashes and test logs. MP4 full decode reports zero errors. Floor stills and sampled video frames were checked; the traveller has a separate chair and sleepers lie along their mattresses. Claude's full frame acceptance remains pending.
+Final proof: `outputs/Waystation_Inn_C2_20261027/review.html` in the Codex task workspace. It contains the two untouched floor PNGs, one 35.67-second 1920 Ã— 1080 H.264/AAC day-cycle clip, raw resident census, launch provenance, hashes and test logs. MP4 full decode reports zero errors. Floor stills and sampled video frames were checked; the traveller has a separate chair and sleepers lie along their mattresses. Claude's full frame acceptance remains pending.
 
 Final focused gameplay tests: 7/7. Related content tests: 51/51. Final Release content lint: 666 definitions, zero errors. Presentation build: zero errors, existing warnings retained. Native capture completed all four hours; shutdown logged geometry/light-indexing and resource cleanup diagnostics, retained with the evidence. The GPU lease was released before the next lane acquired it.
 
