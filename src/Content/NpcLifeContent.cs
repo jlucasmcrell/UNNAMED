@@ -81,6 +81,8 @@ public static class NpcLifeContent
             foreach (var routine in setup.Routines.Values)
             {
                 string? file = loader.Definitions[routine.Id].SourceFile;
+                if (routine.ReleaseBarrier is { } barrier && (routine.NpcId is null || !layout.Barriers.Any(b => b.Key == barrier)))
+                    errors.Add(NavigationContent.Error("NPL001", $"{routine.Id} release_barrier must name a barrier in its layout and belong to a named NPC", file));
                 if (routine.NpcId is { } npcId)
                 {
                     if (!layout.Npcs.Any(n => n.NpcId == npcId))
@@ -230,8 +232,6 @@ public static class NpcLifeContent
                 Roles = roles,
                 Trip = map.TryGetValue("trip", out var t) ? Trip(loader, id, t as Dictionary<object, object> ?? throw new FormatException($"{id} trip must be a map")) : null,
             };
-            if (routine.ReleaseBarrier is { } barrier && (npcId is null || !WorldContent.BuildLayout(loader, regionId).Barriers.Any(b => b.Key == barrier)))
-                throw new FormatException($"{id} release_barrier must name a barrier in its layout and belong to a named NPC");
             routines.Add(routine);
         }
         var markets = EconomyContent.Build(loader).Markets;
