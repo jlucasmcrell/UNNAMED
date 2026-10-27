@@ -53,3 +53,9 @@ Captured gameplay source: `576f50f00356baff22937814c9016e2b63acf8d6`, based on c
 Final proof: `outputs/Waystation_Inn_C2_20261027/review.html` in the Codex task workspace. It contains the two untouched floor PNGs, one 35.67-second 1920 × 1080 H.264/AAC day-cycle clip, raw resident census, launch provenance, hashes and test logs. MP4 full decode reports zero errors. Floor stills and sampled video frames were checked; the traveller has a separate chair and sleepers lie along their mattresses. Claude's full frame acceptance remains pending.
 
 Final focused gameplay tests: 7/7. Related content tests: 51/51. Final Release content lint: 666 definitions, zero errors. Presentation build: zero errors, existing warnings retained. Native capture completed all four hours; shutdown logged geometry/light-indexing and resource cleanup diagnostics, retained with the evidence. The GPU lease was released before the next lane acquired it.
+
+## Art revision after Claude's verdict
+
+Six native tavern tables and benches now dress the common room with a plank floor, ceiling beams and hanging lanterns, Renn's bar/shelves/barrels/mugs, a rug and notices. Warm interior fills and a separate hearth light use no extra shadow maps. The new counter and benches have authoritative collision; the existing supper anchors and stair remain reachable (revised tests 2/2 PASS). Upstairs timber uses world-space sampling instead of stretched UVs. Native Cairnwold timber beds now carry thick ticking, wool covers and pillows; each chamber has candles on a stool as well as its lantern. Lower-storey shutters, a door and a storey beam clarify the exterior.
+
+The proof requests the same two floor stills plus common-room, bar, bunk-room and exterior views. Native art proof and the separate normal High check without a recorder remain pending the shared GPU queue; source completion does not imply visual acceptance or High safety.
