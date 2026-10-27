@@ -11,6 +11,7 @@ Gate 2 at `c62b5fc1` was accepted by the coordinator at 01:00 on 2026-10-27. Thi
 - Crest-only violet is an open array of animated, additive, wavering light shafts with local violet illumination. The flat coloured aperture polygon is removed. The existing authoritative tide still decides visibility; travel transfer remains Gate 4. Canon's bell timing remains slack water.
 - Small bronze pin caps, collapsed midpoint rubble and additional instances of the existing drowned bell-tower kit carry the Causeway. These do not alter its route or solid support.
 - Tollpiles retains its kit houses and walkways. Opaque weathered-thatch underlays close holes beneath the source geometric rafters/thatch. Native lantern lights follow the sky's continuous daylight level; punts follow the existing tide surface. Boats/weirs are scenery, with no ferry or NPC claim.
+- Stale kit waystones, felt tents and cairns sat on itinerary points, including inside the walking corridor. Their scenery now sits beside the route; civic/travel anchors and walking supports stay fixed. Obsolete static punts on the route are replaced by the four tide-following moored punts.
 
 All source images remain the existing real CC0/kit images; no generated images, new purchases or licensed source uploads. The external `SEDGE_SOURCE_CREDITS.json` retains the original BOM and records added scan source paths and SHA256s. Standard CPU trimesh authoring/export and native Godot SurfaceTool prepare normals/tangents.
 

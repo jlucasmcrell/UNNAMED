@@ -57,7 +57,21 @@ def main():
         # Same diagonal as the authoritative grid.
         return float(h[j,i]+(h[j,i+1]-h[j,i])*u+(h[j+1,i+1]-h[j,i+1])*v) if u>=v else float(h[j,i]+(h[j+1,i+1]-h[j+1,i])*u+(h[j+1,i]-h[j,i])*v)
     data=json.loads((a.base/'dressing.json').read_text(encoding='utf-8'));places=data['places']
-    places[:]=[p for p in places if p['model'] not in ('sedge_arch_gate2','sedge_arch_crest_threshold','sedge_reed_clump')]
+    places[:]=[p for p in places if p['model'] not in ('sedge_arch_gate2','sedge_arch_crest_threshold','sedge_reed_clump','sedge_punt')]
+    # The stale kit put markers and camp props on its itinerary points. Keep the itinerary,
+    # but seat those props beside it; do not make a player walk through a waystone or tent.
+    for p in places:
+        if p['model'] not in ('sedge_waystone','sedge_felt_tent','sedge_cairn'):continue
+        at=np.array(p['at']);best=(float('inf'),None,None)
+        for left,right in zip(path,path[1:]):
+            delta=right-left;t=np.clip(np.dot(at-left,delta)/np.dot(delta,delta),0,1);near=left+t*delta
+            d=float(np.linalg.norm(at-near))
+            if d<best[0]:best=(d,near,delta)
+        clear={'sedge_waystone':5.5,'sedge_felt_tent':8.0,'sedge_cairn':4.8}[p['model']]
+        if best[0]<clear:
+            delta=best[2];normal=np.array([delta[1],-delta[0]])/np.linalg.norm(delta)
+            if p['model']=='sedge_cairn':normal=-normal
+            new=best[1]+normal*clear;p['y']+=height(*new)-height(*at);p['at']=new.tolist()
     def place(model,x,z,y=0,yaw=0,scale=(1,1,1),**extra):
         p=dict(model=model,at=[float(x),float(z)],y=float(y),authored_transform=True,rotation_deg=[0,float(yaw),0],scale=list(scale));p.update(extra);places.append(p);return p
     # Preserve all original BOM source attribution, then record every reused scan added by this art pass.
