@@ -19,7 +19,7 @@ Ashen Hollow now supports four named people, three workers and one travelling ad
 
 Each has a supper place after work until 22:00, and an upstairs bed at night. Existing merchant hours remain 06:00–20:00. Tavar remains at 545 / 642 while the existing Foldscar barrier stands; freeing him enables his routine, and hiring him still overrides it. This is a barrier reference on the routine, not a change to the quest.
 
-The travelling adventurer has a separate cot. The player cot is reserved in the last north-side chamber, at 449.6 / 720.6. Neither cot is used as a resident's bed.
+The travelling adventurer has a separate supper chair and cot. The player cot is reserved in the first north-side chamber from the upper entrance, at 449.6 / 720.6. Neither cot is used as a resident's bed.
 
 ## Building and movement
 

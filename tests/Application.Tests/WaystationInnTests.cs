@@ -15,6 +15,15 @@ public class WaystationInnTests
         var sim = arena.Simulation;
         var routines = session.Setup.NpcLife.Routines.Values.Where(r => r.Settlement == "ashen_hollow").ToArray();
         Assert.Equal(7, routines.Length);
+        // A visitor must not claim a stool reached by a resident's supper anchor.
+        var guestSeats = session.Setup.Adventurers!.Settlements["ashen_hollow"].Inn!.Seats;
+        foreach (var routine in routines)
+        foreach (var guest in guestSeats)
+        {
+            var supper = routine.Anchors["supper"];
+            long dx = supper.XMm - guest.XMm, dz = supper.ZMm - guest.ZMm;
+            Assert.True(dx * dx + dz * dz > 850L * 850, $"{routine.Key} shares a supper chair with a guest");
+        }
         const string tavar = "npc.ashen_hollow.tavar_orr";
         var held = sim.Npcs.Single(n => n.Id == tavar).Body;
         void At(int hour)

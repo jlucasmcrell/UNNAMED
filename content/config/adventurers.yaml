@@ -56,9 +56,7 @@ settlements:
       board: { position_m: [449.6, 727.0], facing_deg: 90 }     # at the notice board, west of the door
       hearth: { position_m: [447.2, 728.6], facing_deg: 350 }   # warming at the fire in the north-east corner
       seats:
-        - { position_m: [442.77, 726.27], facing_deg: 180 }     # stool 01, facing its table
-        - { position_m: [443.97, 726.27], facing_deg: 180 }     # stool 02
-        - { position_m: [440.7, 728.1], facing_deg: 180 }       # C2 guest supper stool
+        - { position_m: [440.7, 728.1], facing_deg: 180 } # Guest stool; residents have reserved supper chairs.
       beds:
         - [445.0, 719.05] # Upstairs guest cot; resident and player beds stay reserved.
       gate: { position_m: [464, 748], facing_deg: 90 }          # where the Old East Road leaves the hamlet
