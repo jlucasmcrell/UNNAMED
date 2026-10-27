@@ -113,10 +113,11 @@ public partial class HollowView
         Prop("prop_bp_shelf_ah",new Vector3(438.8f,ground,724.2f));
         Prop("prop_cos_barrel_met_01",new Vector3(437.1f,ground,724.9f));
         Prop("prop_cos_barrel_met_01",new Vector3(440.6f,ground,724.8f));
-        // Native benches, candles and tableware dress the four existing tables.
-        foreach (var at in new[] { new Vector2(442.6f,725.275f),new Vector2(444,725.275f),new Vector2(438.4f,727.3f),new Vector2(440,727.3f) })
+        // Native benches, candles and tableware dress six tables across the hall.
+        foreach (var at in new[] { new Vector2(442.6f,725.275f),new Vector2(444,725.275f),new Vector2(438.4f,727.3f),new Vector2(440,727.3f),
+            new Vector2(440.2f,730.1f),new Vector2(449.8f,726.4f) })
         {
-            Prop("prop_cos_bench_tavern_01_l100",new Vector3(at.X,ground,at.Y+(at.Y>727?.8f:1.1f)));
+            Prop("prop_cos_bench_tavern_01_l100",new Vector3(at.X,ground,at.Y+(at.Y==727.3f?.8f:1.1f)));
             Prop("prop_bp_table_candles",new Vector3(at.X,ground+.9f,at.Y));
             for (int side=-1;side<=1;side+=2) Mug(new Vector3(at.X+side*.32f,ground+.9f,at.Y));
         }
