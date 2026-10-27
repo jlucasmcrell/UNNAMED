@@ -196,7 +196,7 @@ public static class PeopleAppearance
                 local.SetShaderParameter("opal_mask", mask);
                 local.SetShaderParameter("opal_sheen", .28f);
                 local.SetShaderParameter("opal_traces", 0f);
-                local.SetShaderParameter("opal_pale", Math.Max(pale ?? 1f, .98f));
+                local.SetShaderParameter("opal_pale", 1f);
                 local.SetShaderParameter("subsurface_scattering_strength", .6f);
                 mesh.SetSurfaceOverrideMaterial(surface, local);
             }

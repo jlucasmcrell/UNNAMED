@@ -14,7 +14,7 @@ void fragment() {
     // native strand grain and alpha, but bound pigment to the same white reflectance.
     ALBEDO = strand_colour * mix(.43, .58, grain);
     ALPHA = strand.a;
-    ALPHA_SCISSOR_THRESHOLD = .55;
+    ALPHA_SCISSOR_THRESHOLD = .18;
     ROUGHNESS = strand_roughness;
     SPECULAR = .45;
     ANISOTROPY = directional ? .7 : 0.;

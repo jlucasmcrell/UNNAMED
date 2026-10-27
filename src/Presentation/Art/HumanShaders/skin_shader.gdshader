@@ -386,6 +386,10 @@ void light()
 	}
 
 	// Stone takes plain Lambert on its own relief: the wrapped skin response would blur the plates away.
+	// Chalk-white Siann scatter neutral light; the human red-biased wrap otherwise paints brown eye sockets.
+	if (use_opal) {
+		diff_light = vec3(dot(diff_light, vec3(.333333)));
+	}
 	diff_light = mix(diff_light, vec3(NdotL), plain);
 
 	//Tint shadow penumbra:
