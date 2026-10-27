@@ -10,6 +10,6 @@ span_hours: 24                    # fronts are laid out a game day at a time; a 
 weights:                          # how often each state is drawn; fold is reserved and has no weight
   fair: 4
   overcast: 3
-  rain: 0                         # off until the rain rework (owner 2026-10-27: streaks too big, nothing gets wet)
+  rain: 2                         # the rain rework is accepted (Claude 2026-10-27 14:25): thin translucent streaks, splashes, wet ground
   fog: 1
   wind: 2
