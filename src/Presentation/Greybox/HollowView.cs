@@ -442,6 +442,8 @@ public partial class HollowView : Node3D
             }
             Coverage.Resolved("building", footprint.Id, id);
             _artBuildings.Add(prefix);
+            if (prefix == "ah_inn_upper_")
+                RepairInnWallMaterials(model);
             yield return model;
         }
     }

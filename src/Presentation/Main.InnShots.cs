@@ -17,7 +17,7 @@ public partial class Main
     private bool _innBusy;
     private Label? _innCaption;
     private Camera3D _innCamera = null!;
-    private readonly record struct InnView(string Name, float X, float Z, float LookX, float LookZ);
+    private readonly record struct InnView(string Name, float X, float Z, float LookX, float LookZ, float EyeRaise=0, float LookRaise=0);
 
     private static InnView[] InnViews(int hour) => hour switch
     {
@@ -29,6 +29,7 @@ public partial class Main
             new("Tavar remains captive until the Foldscar is steadied",548,645,545,642)],
         21 => [new("Supper in the common room",449,730.5f,441.5f,726.3f),
             new("The keeper, workers and travellers eat and drink",437.8f,729,443,725.8f),
+            new("Renn's bar and the common room",446,726.5f,440.5f,724.8f),
             new("Tavar remains captive until the Foldscar is steadied",548,645,545,642)],
         _ => [new("Upstairs: Renn's room",439,716.1f,437.3f,715.5f),
             new("Upstairs: Sel's room",444,716.1f,442.4f,715.5f),
@@ -128,8 +129,8 @@ public partial class Main
     private async Task InnShot(int hour,InnView view)
     {
         float Floor(float x,float z)=>_session.Simulation!.ActiveLayout.Space.HeightAtMm((long)(x*1000),(long)(z*1000))/1000f;
-        var eye=new Vector3(view.X,Floor(view.X,view.Z)+1.65f,view.Z);
-        var look=new Vector3(view.LookX,Floor(view.LookX,view.LookZ)+1,view.LookZ);
+        var eye=new Vector3(view.X,Floor(view.X,view.Z)+1.65f+view.EyeRaise,view.Z);
+        var look=new Vector3(view.LookX,Floor(view.LookX,view.LookZ)+1+view.LookRaise,view.LookZ);
         _innCaption!.Text=$"Day 2 · {hour:00}:00\n{view.Name}";
         for(int frame=0;frame<48;frame++)
         {
@@ -139,5 +140,11 @@ public partial class Main
         }
         if(hour==21 && view==InnViews(21)[0]) await Rcd3Shot(_innShotsDirectory!,"ground_floor");
         if(hour==23 && view==InnViews(23)[5]) await Rcd3Shot(_innShotsDirectory!,"upper_floor");
+        if(hour==21 && view==InnViews(21)[1]) await Rcd3Shot(_innShotsDirectory!,"common_room");
+        if(hour==21 && view==InnViews(21)[2]) await Rcd3Shot(_innShotsDirectory!,"bar_counter");
+        if(hour==23 && view==InnViews(23)[3]) await Rcd3Shot(_innShotsDirectory!,"bunk_room");
+        if(hour==13 && view==InnViews(13)[0])
+            await InnShot(13,new InnView("The raised guest storey and covered stair",465,736,447,720,2,2));
+        if(view.Name=="The raised guest storey and covered stair") await Rcd3Shot(_innShotsDirectory!,"exterior_storey");
     }
 }

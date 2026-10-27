@@ -3,7 +3,7 @@
   "structure_prefixes": {
     "ah_inn_bed_": {
       "models": [
-        "prop_bp_bed_ah"
+        "prop_bp_bed_cw"
       ],
       "material": "wood",
       "walkable_base": true
