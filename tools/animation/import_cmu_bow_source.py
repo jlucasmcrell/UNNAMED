@@ -29,7 +29,7 @@ try:
                             update_scene_fps=True, update_scene_duration=True,
                             use_fps_scale=False, use_cyclic=False, rotate_mode='QUATERNION')
     rig = next(o for o in bpy.context.scene.objects if o.type == 'ARMATURE')
-    rig.name = 'CMU' + clip_id + '_Source'
+    rig.name = 'CMU79_86_BowSource' if clip_id == '79_86' else 'CMU' + clip_id + '_Source'
     rig.animation_data.action.name = 'CMU' + clip_id + ('_Bow' if clip_id == '79_86' else '_Idle')
     bpy.context.view_layer.objects.active = rig
     rig.select_set(True)

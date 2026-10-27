@@ -7,9 +7,11 @@ No body, mesh, rest transform, skin bind or authored identity weights change.
 ## Idle sources and delivery
 
 The installed pool has five distinct performances: UAL1 `Idle_Loop`, UAL2
-`Idle_No_Loop`, UAL2 `Idle_FoldArms_Loop`, CMU `77_01` (looking around), and CMU
+`Idle_No_Loop`, UAL2 `Idle_FoldArms_Loop`, CMU `77_02` (standing), and CMU
 `140_07` (idle). The old `idle_look` alias remains compatible but is not counted
 as variety and is not selected when the new observation is installed.
+The `idle_observe` state is CMU's stationary `77_02`; the searching crouch in
+`77_01` was rejected during private source inspection.
 
 CMU provenance: <https://mocap.cs.cmu.edu/search.php?subjectnumber=77> and
 <https://mocap.cs.cmu.edu/search.php?subjectnumber=140>. Source BVHs use the

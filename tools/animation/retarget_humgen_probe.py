@@ -138,9 +138,9 @@ try:
             reference_pose = unreal.AnimPoseExtensions.get_reference_pose(body.get_editor_property("skeleton"))
             reference = unreal.AnimPoseExtensions.get_ref_bone_pose(reference_pose, "Root", unreal.AnimPoseSpaces.WORLD).rotation
             inverse = unreal.Quat(x=-reference.x, y=-reference.y, z=-reference.z, w=reference.w)
-            # Both acquired source families face +X in their performances;
-            # the target preview's forward is +Y. Rotate the whole output only.
-            yaw = 90
+            # CMU77_02 stands facing -X; CMU140_07 and the FAL walk face +X.
+            # The target preview's forward is +Y. Rotate the whole output only.
+            yaw = -90 if sid == "cmu_idle_77_02" else 90
             delta = inverse * unreal.Rotator(pitch=0, yaw=yaw, roll=0).quaternion() * reference
             state['facing_normalization'] = {'root_reference': str(reference), 'local_delta': str(delta), 'global_yaw_degrees': yaw}
             controller.set_rotation_offset_for_retarget_pose_bone("Root", delta, mode)

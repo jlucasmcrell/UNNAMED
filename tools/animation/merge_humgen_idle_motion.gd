@@ -4,6 +4,8 @@ func _initialize():
  var m: Dictionary=JSON.parse_string(FileAccess.get_file_as_string(OS.get_cmdline_user_args()[0]))
  var original: AnimationLibrary=load(m.original)
  var extra: AnimationLibrary=load(m.supplement)
+ assert(original!=null and extra!=null,"Missing baseline or exact-target idle supplement")
+ assert(m.output.simplify_path()!=m.original.simplify_path(),"Never replace the accepted baseline path")
  var sha=FileAccess.get_sha256(m.body)
  assert(original.get_meta("target_body_sha256")==sha and extra.get_meta("target_body_sha256")==sha)
  var merged: AnimationLibrary=original.duplicate(true)
@@ -17,7 +19,10 @@ func _initialize():
   sources[name_]=additions[name_]
  merged.set_meta("animation_sources",sources)
  DirAccess.make_dir_recursive_absolute(m.output.get_base_dir())
- assert(ResourceSaver.save(merged,m.output)==OK)
+ # Replace the directory entry, never the contents of a potentially shared hardlink.
+ var pending=m.output+".pending.res"
+ assert(ResourceSaver.save(merged,pending)==OK)
+ assert(DirAccess.rename_absolute(pending,m.output)==OK)
  var readback: AnimationLibrary=ResourceLoader.load(m.output,"",ResourceLoader.CACHE_MODE_IGNORE)
  var keys=0
  for name_ in original.get_animation_list():
