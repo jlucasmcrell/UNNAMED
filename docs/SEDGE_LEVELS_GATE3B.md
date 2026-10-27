@@ -8,7 +8,7 @@ Drowned bell towers reuse the Oct-18 stone lower storey and Cosmos CS1_Bell_01. 
 
 Review boardwalks are now actual four-metre modules with .238 m-wide boards and metre-based UVs. Placement length is divided by four; deck height, width and every domain support remain unchanged. The original-resolution 2K ambientCG Wood060 albedo, OpenGL normal, roughness and AO scans from the existing Oct-18 BOM now supply the wood; there is no resized or generated texture.
 
-Eight noisy native FogVolumes (18–26m bank height, with no exponential height suppression) layer the water, with depth haze and three native spotlights scattering through the air at breaks in the overcast. Local low-density aerosol volumes let the native lights scatter into visible shafts; their extra haze switches off below daylight .35. Light energy follows the existing daylight level. The crest's accepted violet style remains, with column heights clipped to the new aperture. Authoritative tide timing, span closure, routes, terrain and reed scatter are unchanged.
+Eight noisy native FogVolumes (18–26m bank height, with no exponential height suppression) layer the water, with depth haze and three native spotlights scattering through the air at breaks in the overcast. The regional native volume affects the sky (0.8), allowing the native spotlights to produce pale shafts above the horizon. Light energy follows the existing daylight level with a smooth dawn/dusk fade. The crest's accepted violet style remains, with column heights clipped to the new aperture. Authoritative tide timing, span closure, routes, terrain and reed scatter are unchanged.
 
 ## Reproduction
 

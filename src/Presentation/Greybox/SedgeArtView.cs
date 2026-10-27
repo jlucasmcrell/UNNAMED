@@ -13,7 +13,6 @@ public partial class SedgeArtView : Node3D
     private readonly List<ParticleProcessMaterial> _rain = new();
     private readonly List<(FogVolume Bank, Vector3 Origin)> _mist = new();
     private readonly List<SpotLight3D> _shafts = new();
-    private readonly List<FogVolume> _shaftHaze = new();
     private float _elapsed;
     private bool _airProbeLogged;
 
@@ -37,15 +36,11 @@ public partial class SedgeArtView : Node3D
             var shaft = new SpotLight3D { Name = "CloudBreakShaft", Position = at,
                 // Godot low-density fog needs a separate high volumetric-energy multiplier.
                 LightColor = new Color(.87f,.93f,1), LightEnergy = 22f,
-                LightVolumetricFogEnergy = 250f, SpotRange = 260, SpotAngle = 13,
+                LightVolumetricFogEnergy = 45f, SpotRange = 260, SpotAngle = 13,
                 SpotAttenuation = .5f, ShadowEnabled = true,
                 RotationDegrees = new Vector3(-72, -20, 0) };
             view.AddChild(shaft);view._shafts.Add(shaft);
-            var haze = new FogVolume { Name = "CloudBreakAerosols", Shape = RenderingServer.FogVolumeShape.Ellipsoid,
-                Position = at + shaft.Basis * Vector3.Forward * 70,
-                Size = new Vector3(32,145,32), RotationDegrees = new Vector3(18,-20,0),
-                Material = new FogMaterial { Density = .0014f, Albedo = new Color(.88f,.93f,1), EdgeFade = .75f } };
-            view.AddChild(haze);view._shaftHaze.Add(haze);
+
         }
         if (parent.GetNodeOrNull<Node3D>("Atmosphere") is { } atmosphere)
             foreach (var particles in atmosphere.GetChildren().OfType<GpuParticles3D>().Where(p => p.Name.ToString().StartsWith("rain", StringComparison.Ordinal)))
@@ -240,7 +235,6 @@ public partial class SedgeArtView : Node3D
         float energy = Mathf.Lerp(2.3f, .25f, SkyView.DaylightLevel);
         foreach (var lamp in _lamps) lamp.LightEnergy = energy;
         foreach (var shaft in _shafts) shaft.LightEnergy = 22f * SkyView.DaylightLevel * Mathf.SmoothStep(.35f, .65f, SkyView.DaylightLevel);
-        foreach (var haze in _shaftHaze) haze.Visible = SkyView.DaylightLevel > .35f;
         if (!_airProbeLogged && _elapsed > .5f)
         {
             _airProbeLogged = true;
