@@ -1,4 +1,4 @@
-{
+﻿{
   "comment": [
     "Atmospheric particles (Phase B, B11): presentation data. Each emitter is a particle recipe (vfx_recipes.json) either following the",
     "camera (follow: camera, at its offset) and running only while the ground under the camera is one of 'grounds' (world material IDs,",
@@ -30,3 +30,4 @@
       "note": "Otherworld concept: 'lights some nights' in the moss (Berrin, Cairnwold) - faint green-teal points low over the ground after dark." }
   ]
 }
+

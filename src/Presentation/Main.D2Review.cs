@@ -69,22 +69,49 @@ public partial class Main
             if (route == "rain")
             {
                 // A lap of the yard and then standing in it: enough rain in frame to judge the streaks, the splashes and the wet ground.
-                Mark("rain_walk");
-                await Go(new[] { (34.0, 150.0), (40.0, 146.0), (46.0, 150.0) }, 90);
-                _camera.Pitch = -.05f;
+                // The spawn is already out in the open, looking east down the waystation: stand in it and turn slowly, which shows the
+                // streaks against the sky, then against the buildings, and the wet ground under both.
                 Mark("rain_stand");
-                await Rcd3Wait(6);
-                Mark("rain_close");
+                _camera.Pitch = -.04f;
+                // The rain is off in the weather weights the owner asked for, and the world's first front is fair: pin the drawn sky to rain
+                // for the length of this clip so the reworked streaks, splashes and the wet ground are what is being filmed.
+                var sky = GetNodeOrNull<WorldEnvironment>("Sky") ?? FindChild("*", true, false) as WorldEnvironment;
+                for (int i = 0; i < 120 && sky is not null; i++)
+                {
+                    Greybox.WeatherStates.Apply(sky, "rain");
+                    if (i % 20 == 0) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                }
                 await Rcd3Wait(3);
+                Mark("rain_turn");
+                float startYaw = _camera.Yaw;
+                for (int i = 0; i < 60; i++)
+                {
+                    _camera.Yaw = startYaw + Mathf.Tau * i / 120f;
+                    await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                }
+                Mark("rain_ground");
+                _camera.Pitch = -.45f;
+                await Rcd3Wait(4);
             }
             else
             {
                 Mark("walk_to_stone");
                 await Go(new[] { (428.9, 758.0) }, 60);
-                var body = _controller.Authoritative;
                 var stone = sim.Waystones.Single(w => w.Site.Key == "waystone.ashen").Site;
-                _camera.Yaw = Mathf.Atan2(-(float)(stone.ArrivalXMm / 1000.0 - body.XMm / 1000.0),
-                    -(float)(stone.ArrivalZMm / 1000.0 - body.ZMm / 1000.0));
+                _camera.TargetDistance = 5f; _camera.Pitch = -.08f;
+                // One step toward the stone with the stick, so the character turns to it and the camera with them: the answer plays
+                // in front of the camera instead of off its shoulder.
+                for (int i = 0; i < 30; i++)
+                {
+                    var body = _controller.Authoritative;
+                    var toward = new Vector3((float)(stone.ArrivalXMm / 1000.0 - body.XMm / 1000.0), 0,
+                        (float)(stone.ArrivalZMm / 1000.0 - body.ZMm / 1000.0));
+                    if (toward.Length() < 1.4f) break;
+                    _camera.Yaw = Mathf.Atan2(-toward.X, -toward.Z);
+                    _controller.SteerWorld(toward.Normalized(), Gait.Walk, _camera);
+                    await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                }
+                _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
                 await Rcd3Wait(.6);
                 Mark("attune");
                 _controller.TouchStone("waystone.ashen");

@@ -116,7 +116,9 @@ public partial class AtmosphereView : Node3D
             return _skyOpen;
         _skyAskedAt = Time.GetTicksMsec();
         var space = GetWorld3D().DirectSpaceState;
-        var hit = space.IntersectRay(PhysicsRayQueryParameters3D.Create(eye, eye + new Vector3(0, SkyProbeMm, 0)));
+        // From a little above the eye: the character's own body is the nearest thing over a third-person camera, and it is not a roof.
+        var from = eye + new Vector3(0, 2.5f, 0);
+        var hit = space.IntersectRay(PhysicsRayQueryParameters3D.Create(from, eye + new Vector3(0, SkyProbeMm, 0)));
         _skyOpen = hit.Count == 0;
         return _skyOpen;
     }
