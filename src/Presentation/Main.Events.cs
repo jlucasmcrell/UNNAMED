@@ -276,6 +276,8 @@ public partial class Main
         {
             if (_session.Simulation?.Quests.FirstOrDefault(q => q.Id == id) is not { } view || !quests.TryGetValue(id, out var definition))
                 return;
+            if (view.Status != Domain.Quests.QuestStatus.Active)
+                return; // An objective activated and completed in one evaluation has no next step to announce.
             string? from = giver ?? definition.GiverId;
             _questCards.Cards.Add(new Ui.Models.QuestCard(id, tick, view.Title, from is null ? "" : Names.Of(_session, from),
                 view.Summary, Ui.Models.QuestPresentation.Step(view), started));
