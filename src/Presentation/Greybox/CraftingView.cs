@@ -158,15 +158,15 @@ public partial class CraftingView : Node3D
                     sparks.ProcessMaterial=violet;sparks.Amount=6;sparks.Position=Vector3.Up*.2f;
                     root.AddChild(sparks);_foldSparks=sparks;
                 }
-                var cloth=CampCloth();
+                var blanket=CampBlanket(out var cloth);
                 var at=camp.Pieces.First(p=>p.DefId=="item.tool.camp_bedroll");
                 _bedroll=new Node3D { Name="CampBedroll",Position=new Vector3(at.XMm/1000f,terrain.HeightAtMm(at.XMm,at.ZMm)/1000f,at.ZMm/1000f) };
-                _bedroll.AddChild(new MeshInstance3D { Mesh=new BoxMesh {Size=new Vector3(.86f,.12f,1.85f)},Position=Vector3.Up*.08f,MaterialOverride=cloth });
+                _bedroll.AddChild(blanket);
                 _bedroll.AddChild(new MeshInstance3D { Mesh=new CylinderMesh {TopRadius=.14f,BottomRadius=.14f,Height=.86f},
                     Position=new Vector3(0,.18f,.73f),RotationDegrees=new Vector3(0,0,90),MaterialOverride=cloth });
-                foreach(float z in new[] {-.4f,.35f}) _bedroll.AddChild(new MeshInstance3D {
-                    Mesh=new BoxMesh {Size=new Vector3(.88f,.025f,.045f)},Position=new Vector3(0,.15f,z),MaterialOverride=Palette.Leather });
-                AddChild(_bedroll);
+                foreach(float x in new[] {-.26f,.26f}) _bedroll.AddChild(new MeshInstance3D {
+                    Mesh=new TorusMesh {InnerRadius=.14f,OuterRadius=.157f},Position=new Vector3(x,.18f,.73f),
+                    RotationDegrees=new Vector3(0,0,90),MaterialOverride=Palette.Leather });                AddChild(_bedroll);
             }
         }
         // The Other appears only beside a still-standing fold; ordinary firelight stays warm.
@@ -174,8 +174,10 @@ public partial class CraftingView : Node3D
             Footprints.Center(b.Site.Footprint) is var p && Math.Pow(p.XMm-camp.XMm,2)+Math.Pow(p.ZMm-camp.ZMm,2)<60_000d*60_000);
     }
 
-    private Material CampCloth()
+    private MeshInstance3D CampBlanket(out Material cloth)
     {
+        // Reuse the bed kit's actual draped blanket surface, including its folds and UVs.
+        // The mattress material on a box made the previous camp read as a stone slab.
         if(_art.Model("prop_bp_bed_cw") is { } bed)
         {
             try
@@ -183,18 +185,28 @@ public partial class CraftingView : Node3D
                 foreach(var mesh in bed.FindChildren("*",nameof(MeshInstance3D),true,false).OfType<MeshInstance3D>())
                     if(mesh.Mesh is { } shape)
                         for(int i=0;i<shape.GetSurfaceCount();i++)
-                            if(shape.SurfaceGetMaterial(i) is BaseMaterial3D source && source.ResourceName.EndsWith("_3"))
+                            if(shape.SurfaceGetMaterial(i) is BaseMaterial3D source && source.ResourceName.EndsWith("_0"))
                             {
-                                var cloth=(BaseMaterial3D)source.Duplicate();
-                                cloth.Uv1Triplanar=cloth.Uv1WorldTriplanar=true;cloth.Uv1Scale=Vector3.One*2;cloth.Roughness=1;
-                                return cloth;
+                                var linen=(BaseMaterial3D)source.Duplicate();
+                                linen.AlbedoColor=new Color(.82f,.62f,.38f);linen.Roughness=1;linen.Metallic=0;
+                                cloth=linen;
+                                var blanket=new ArrayMesh();
+                                blanket.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles,shape.SurfaceGetArrays(i));
+                                var bounds=blanket.GetAabb();
+                                var scale=new Vector3(1.7f/bounds.Size.X,1,.85f/bounds.Size.Z);
+                                var center=bounds.Position+bounds.Size*.5f;
+                                var root=new MeshInstance3D {Mesh=blanket,MaterialOverride=cloth,Scale=scale,
+                                    RotationDegrees=new Vector3(0,90,0)};
+                                root.Position=-(root.Basis*new Vector3(center.X,bounds.Position.Y,center.Z))+Vector3.Up*.025f;
+                                return root;
                             }
             }
             finally { bed.Free(); }
         }
-        return Palette.Leather;
+        cloth=new StandardMaterial3D {AlbedoColor=new Color(.48f,.31f,.17f),Roughness=1};
+        return new MeshInstance3D {Mesh=new SphereMesh {Radius=.45f,Height=.14f},Scale=new Vector3(1,1,2),
+            Position=Vector3.Up*.07f,MaterialOverride=cloth};
     }
-
     /// <summary>What is drawn for a node (by its site's name) as it stands now - its ready look - for the outline; null when none is.</summary>
     public Node3D? Node(string name) => _nodes.TryGetValue(name, out var look) ? look.Ready : null;
 
