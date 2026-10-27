@@ -1097,7 +1097,9 @@ public partial class Main : Node3D
             _avatarModel = body;
             // Phase B: the feet planted on the ground under them (the ground field the terrain is drawn from).
             if (VisualOptions.BodyModifiers)
-                Art.BodyModifiers.PlantFeet(skinned.Skeleton, skinned, _ground.Height);
+                Art.BodyModifiers.PlantFeet(skinned.Skeleton, skinned, (x, z) =>
+                    (_session.Simulation?.ActiveLayout.Space ?? _session.Setup.Layout.Space)
+                    .HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f);
             _art.Coverage.Resolved("person", "player", body!);
         }
         else
