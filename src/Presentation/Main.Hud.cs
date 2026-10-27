@@ -123,9 +123,10 @@ public partial class Main
         string? tracked = simulation.TrackedQuest(_journal.Tracked);
         var questRows = QuestPresentation.Tracker(quests, tracked);
         var questBody = _controller.Authoritative;
-        var questMark = tracked is null ? null : CompassMarkerModel.Mark(simulation.Marker(tracked), questBody.XMm, questBody.ZMm,
+        var questTarget = tracked is null ? null : simulation.Marker(tracked);
+        var questMark = CompassMarkerModel.Mark(questTarget, questBody.XMm, questBody.ZMm,
             m => m.Kind == UNNAMED.Domain.Quests.TargetKind.Location ? Names.Of(_session, m.Label) : m.Label);
-        _hud.SetQuests(questRows, questMark is null ? null : $"{questMark.Label}, {CompassMarkerModel.Distance(questMark.Metres)}");
+        _hud.SetQuests(questRows, questMark is null ? questTarget is null ? null : "Nearby" : $"{questMark.Label}, {CompassMarkerModel.Distance(questMark.Metres)}");
         _questCards.Refresh(delta);
         if (_compassPreview)
             goto afterCompass;   // a harness is holding the compass on a picture

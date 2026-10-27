@@ -45,6 +45,7 @@ public partial class HelpPanel : CanvasLayer
         {
             ("Companion", new[] { ("Tell them to follow, or to wait", new[] { "companion_order" }) }),
             ("Conversation", new[] { ("Answer", new[] { "reply_1", "reply_9" }), ("Walk away", new[] { "release_mouse" }) }),
+            ("Quests", new[] { ("Track the quest card or pointed-at tracker row", new[] { "quest_track" }) }),
             ("Saving", new[]
             {
                 ("Save now", new[] { "quicksave" }), ("Every save, to restore one", new[] { "saves" }),
