@@ -70,3 +70,23 @@ weights, animation clock override, public package change or promotion.
 
 Proof root: `D:/Otherreach_Scratch/npc_life_20261027`.
 Visual acceptance remains with Claude after original footage is inspected.
+
+## Final review07
+
+Captured production source `4cb3ddf4`; review page
+`D:/Otherreach_Scratch/npc_life_20261027/review.html`. Final external payload
+is **asset_delivery02 only**, 28 libraries of 50 states (49 original plus
+idle_observe), 2,821,494 original keys unchanged. All target body SHA pins
+match the immutable baseline. F1 replacement bodies require fresh exact-target
+motion; do not install these libraries on different geometry/rest targets.
+
+Final packaged private capture exits 0: 20 seconds of three NPC idles and
+a complete 13.5-second Renn greeting, actual Master audio and 416 native
+speech samples. Original frames inspected; visual approval remains Claude's.
+Audio waveform presence correlation 0.9167, no clipping. AV timing has ±1s
+uncertainty; text visemes remain approximate. This private three-subject
+fixture is not a world, FPS or appearance gate. Existing teardown warnings
+are retained. Focused tests 4/4, architecture 23/23 at the earlier feature
+snapshot, final export 0. Native sequential return-to-idle position error
+0m; original49 clips at three phases retain position 0m (quaternion numeric
+precision <0.08 degrees) under deterministic mode. Prior failures retained.
