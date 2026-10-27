@@ -57,8 +57,13 @@ public partial class HollowView
     // Keep its relief and native roof/stone maps; sample only the timber in metres.
     private void RepairInnWallMaterials(Node3D model)
     {
-        var wood = _art.WorldMaterial("cw_timber_beam");
-        if (wood is null) return;
+        if (_art.WorldMaps("cw_timber_beam") is not { Normal: not null, Orm: not null } maps) return;
+        var wood = new ShaderMaterial { Shader = GD.Load<Shader>("res://Art/inn_timber.gdshader") };
+        wood.SetShaderParameter("colour_map", maps.Albedo);
+        wood.SetShaderParameter("normal_map", maps.Normal);
+        wood.SetShaderParameter("orm_map", maps.Orm);
+        wood.SetShaderParameter("tile_metres", maps.TileSizeM);
+        wood.SetShaderParameter("normal_strength", maps.NormalStrength);
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
             if (mesh.Mesh is { } shape)
                 for (int i = 0; i < shape.GetSurfaceCount(); i++)
