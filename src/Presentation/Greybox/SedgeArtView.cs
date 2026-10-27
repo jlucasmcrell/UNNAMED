@@ -137,7 +137,7 @@ public partial class SedgeArtView : Node3D
         {
             var bank = new FogVolume { Name = "SoundMistBank", Shape = RenderingServer.FogVolumeShape.Ellipsoid,
                 Position = new Vector3(b[0].GetSingle(), b[1].GetSingle(), b[2].GetSingle()), Size = new Vector3(b[3].GetSingle(), b[4].GetSingle(), b[5].GetSingle()),
-                Material = new FogMaterial { Density = .025f, Albedo = new Color(.74f, .82f, .81f), EdgeFade = .22f, HeightFalloff = .55f, DensityTexture = noise } };
+                Material = new FogMaterial { Density = .065f, Albedo = new Color(.74f, .82f, .81f), EdgeFade = .30f, HeightFalloff = .25f, DensityTexture = noise } };
             AddChild(bank);_mist.Add((bank, bank.Position));
         }
     }
@@ -160,14 +160,30 @@ public partial class SedgeArtView : Node3D
         _crest = new Node3D { Name = "OtherAtCrest", Position = new Vector3(5000, 2.45f, 58), Visible = false };AddChild(_crest);
         var material = new ShaderMaterial { Shader = GD.Load<Shader>("res://Greybox/SedgeOther.gdshader") };
         // An open threshold with drifting light columns. Nothing closes the entire aperture with a coloured polygon.
-        for (int i = 0; i < 17; i++)
+        float[] columns = { -47, -40, -31, -23, -18, -7, 3, 16, 28, 37, 48 };
+        for (int i = 0; i < columns.Length; i++)
         {
-            float x = -48 + i * 6;float height = 57 + MathF.Sqrt(Math.Max(0, 53 * 53 - x * x));
-            _crest.AddChild(new MeshInstance3D { Name = $"VioletShaft_{i}", Position = new Vector3(x, height * .5f, (i % 4) * 2.7f),
-                Mesh = new QuadMesh { Size = new Vector2(1.4f + (i % 3) * .9f, height) }, MaterialOverride = material, CastShadow = GeometryInstance3D.ShadowCastingSetting.Off });
+            float x = columns[i], bottom = (i % 4) * 4.2f;
+            float height = 54 + MathF.Sqrt(Math.Max(0, 53 * 53 - x * x)) - bottom;
+            _crest.AddChild(new MeshInstance3D { Name = $"VioletShaft_{i}", Position = new Vector3(x, bottom + height * .5f, (i % 4) * 3.1f),
+                Mesh = Ribbon(1.4f + (i % 3) * 1.3f, height, i), MaterialOverride = material, CastShadow = GeometryInstance3D.ShadowCastingSetting.Off });
         }
+        _crest.AddChild(new FogVolume { Name = "VioletThresholdBreath", Position = new Vector3(0, 5, 0), Size = new Vector3(92, 12, 18),
+            Shape = RenderingServer.FogVolumeShape.Ellipsoid,
+            Material = new FogMaterial { Density = .008f, Albedo = new Color(.38f, .22f, .58f), Emission = new Color(.11f, .015f, .28f), EdgeFade = .25f } });
         foreach (float x in new[] { -48f, 0f, 48f })
             _crest.AddChild(new OmniLight3D { Position = new Vector3(x, 12, 0), LightColor = new Color(.43f, .12f, 1), LightEnergy = 2f, OmniRange = 22f, LightVolumetricFogEnergy = 1.8f });
+    }
+
+    private static ArrayMesh Ribbon(float width, float height, int phase)
+    {
+        var tool = new SurfaceTool();tool.Begin(Mesh.PrimitiveType.Triangles);
+        Vector3 Point(float u, float v) => new((u - .5f) * width + MathF.Sin(v * 8 + phase) * 1.8f + MathF.Sin(v * 17 + phase * 1.7f) * .35f, (v - .5f) * height, MathF.Sin(v * 5 + phase) * .8f);
+        for (int row = 0; row < 64; row++)
+            foreach (var uv in new[] { new Vector2(0, row / 64f), new Vector2(1, row / 64f), new Vector2(1, (row + 1) / 64f),
+                new Vector2(0, row / 64f), new Vector2(1, (row + 1) / 64f), new Vector2(0, (row + 1) / 64f) })
+            { tool.SetUV(uv);tool.SetNormal(Vector3.Back);tool.AddVertex(Point(uv.X, uv.Y)); }
+        return tool.Commit();
     }
 
     public override void _Process(double delta)

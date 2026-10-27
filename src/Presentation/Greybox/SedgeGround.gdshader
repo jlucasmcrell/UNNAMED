@@ -16,6 +16,8 @@ void fragment() {
     float salt=smoothstep(5050.0,5250.0,p.x+(macro-.5)*100.0)*smoothstep(.35,.9,wp.y);
     vec3 peat=texture(peat_albedo,p/2.0).rgb;
     vec3 crust=texture(salt_albedo,p/3.0).rgb;
+    float crust_luma=dot(crust,vec3(.2126,.7152,.0722));
+    crust=mix(crust,vec3(crust_luma*1.16,crust_luma*1.18,crust_luma*1.15),.85);
     // High salt rims dry pale; ebb mud stays dark, saturated and reflective between ridges.
     float wet=max(1.0-smoothstep(tide_level+.08,tide_level+1.35,wp.y),.46);
     wet=max(wet,weather_wet*.86);
