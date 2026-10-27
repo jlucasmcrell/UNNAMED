@@ -73,7 +73,10 @@ public class WorldContentTests
         Assert.Equal(12, layout.Doors.Length);   // the hollow's longhouse and forge shed, and Cairnwold's ten
         Assert.Equal(21, layout.Locations.Length);   // Includes Old Late's owner-requested landmark, the Spill and the Stopped Gate, and the den gorge.
         Assert.Equal(45_000,layout.Locations.Single(l => l.Id == "location.old_late").DiscoveryRadiusMm);
-        Assert.Equal(250,Assert.Single(layout.Space.WalkableSurfaces).SpacingMm);
+        Assert.Equal(3, layout.Space.WalkableSurfaces.Count()); // Den gorge, C2 upper floor and stair.
+        Assert.Equal(250, layout.Space.WalkableSurfaces.Single(s => s.OriginXMm == 552_250).SpacingMm);
+        Assert.Contains(layout.Space.WalkableSurfaces, s => s.OriginXMm == 436_000 && s.HeightAtMm(440_000, 720_000) == 10_000);
+        Assert.Contains(layout.Space.WalkableSurfaces, s => s.OriginXMm == 452_000 && s.MaxXMm == 454_000);
         Assert.Equal(8_000, layout.Locations.Single(l => l.Id == "location.den_mouth").DiscoveryRadiusMm);   // PROTOTYPE.md O2
         Assert.Equal(new MovementRules(3_200, 50, 160, 350, 1_600) { StepUpMm = 400, MantleMm = 1_600 }, WorldContent.BuildMovement(loader));
         Assert.Equal(new TierRules(150_000, 600_000, 2_000_000, 10_000), WorldContent.BuildTiers(loader));

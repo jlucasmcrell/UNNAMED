@@ -18,7 +18,12 @@ public class NpcSpacingTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = AdventurerWorldTests.AtTheInn(session);
+        // C2 ships one Hollow adventurer; retain the original three-body regression fixture.
+        var adventurers = session.Setup.Adventurers!;
+        var setup = session.Setup with { Adventurers = adventurers with {
+            Settlements = adventurers.Settlements.SetItem("ashen_hollow", adventurers.Settlements["ashen_hollow"] with { Target = 3 }) } };
+        var arena = Arena.OpenCreatures(session, setup, (448.6, 727), 90,
+            Array.Empty<(string, double, double, string)>(), seed: 42, keepSpawns: true, origin: Harness.Region);
         var simulation = arena.Simulation;
         // The second day, 07:50: five minutes before the departure hour, the three of them are on the way out.
         simulation.Advance(58_400);
