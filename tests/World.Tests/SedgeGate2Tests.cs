@@ -15,6 +15,7 @@ public sealed class SedgeGate2Tests
         loader.LoadAll(Path.Combine(TestWorlds.RepoRoot(), "content"));
         var layout = WorldContent.BuildLayout(loader, "region.sedge_levels");
         var rules = WorldContent.BuildMovement(loader);
+        Assert.Equal(layout.Space.HeightAtMm(layout.Spawn.XMm,layout.Spawn.ZMm),layout.Spawn.YMm);
         var tide = Assert.IsType<TidalWater>(layout.Tide);
         Assert.Equal(-600, tide.LevelAt(0));
         Assert.Equal(750, tide.LevelAt(14400));

@@ -608,7 +608,7 @@ public static class WorldContent
                     "WLD003", "walkable surfaces must lie within the region bounds");
             var space = new WalkSpace(minX, minZ, maxX, maxZ, terrain, structures) { WalkableSurfaces = supports };
             var layout = new RegionLayout(regionId, cells.Select(c => c.ToString()).ToImmutableArray(), space, doors.ToImmutable(),
-                locations.ToImmutable(), new Body(spawnX, terrain.HeightAtMm(spawnX, spawnZ), spawnZ, (int)facingMdeg), regionGeneration)
+                locations.ToImmutable(), new Body(spawnX, space.HeightAtMm(spawnX, spawnZ), spawnZ, (int)facingMdeg), regionGeneration)
             {
                 Tide = map.ContainsKey("tidal_water") ? BuildTide(Map(map, "tidal_water")) : null,
                 Containers = containers.ToImmutable(),

@@ -42,6 +42,14 @@ def main():
     for j in range(401):
         z=j*5
         for i in (199,200,201): h[j,i]= (-.30 if 980<=z<=1020 else (2.45-(z-960)*2.75/20 if 960<=z<980 else -.30+(z-1020)*2.75/20)) if 960<=z<=1040 else 2.45
+    # The bed sits below paving, never coplanar with its bevelled stones. A shared support grid keeps feet/camera on the actual deck.
+    deck=h[:,199:202].copy()[:,1]
+    h[:,199:202]-=.40
+    deck_rows=[]
+    for z in range(2001):
+        top=float(np.interp(z,np.arange(401)*5,deck))
+        deck_rows.append([round(top,3)]*8)
+    supports.append(dict(origin_m=[4996.5,0],spacing_m=1,columns=8,rows=2001,heights_m=deck_rows))
     # These support surfaces are the ordinary domain support grids, also used by the camera collider.
     for x,y in spans:
         mid=(x+y)/2
@@ -52,6 +60,12 @@ def main():
         lo=np.floor(np.minimum(x,y)-2.0);hi=np.ceil(np.maximum(x,y)+2.0)
         size=max(hi-lo);supports.append(dict(origin_m=lo.tolist(),spacing_m=float(size),columns=2,rows=2,heights_m=[[round(level,3)]*2]*2))
         d=y-x;length=float(np.linalg.norm(d));place('sedge_review_walk',*mid,y=level,yaw=math.degrees(math.atan2(d[0],d[1])),scale=(1,1,length+0.06))
+        side=np.array([d[1],-d[0]])/length
+        for sign in (-1,1):
+            at=mid+side*1.45*sign
+            bed=float(h[max(0,min(400,int(at[1]/5))),max(0,min(400,int((at[0]-4000)/5)))])-.20
+            place('sedge_review_pile',*at,y=bed,scale=(1,max(.2,level-.12-bed),1))
+
     # Deep water is a real solid footprint, never a visible wall. Exclude supported walkway and road.
     xs=4000+np.arange(400)*5+2.5;zs=np.arange(400)*5+2.5
     xx,zz=np.meshgrid(xs,zs);distance=np.full(xx.shape,1e9)
@@ -96,13 +110,19 @@ def main():
     stone=trimesh.visual.material.PBRMaterial(baseColorFactor=[110,123,116,255],roughnessFactor=.9)
     timber=trimesh.visual.material.PBRMaterial(baseColorFactor=[58,47,31,255],roughnessFactor=.85)
     def export(id,mesh,material):
-        mesh.visual=trimesh.visual.TextureVisuals(uv=mesh.vertices[:,[0,2]]/np.array([3.6,1.0]),material=material)
-        f=out/'ready'/id/(id+'.glb');f.parent.mkdir(parents=True,exist_ok=True);mesh.export(f)
+        mesh.unmerge_vertices()
+        uv=np.zeros((len(mesh.vertices),2))
+        for face,normal in zip(mesh.faces,mesh.face_normals):
+            axes=([1,2],[0,2],[0,1])[int(np.argmax(np.abs(normal)))]
+            uv[face]=mesh.vertices[face][:,axes]/np.array([3.6,1.0])
+        mesh.visual=trimesh.visual.TextureVisuals(uv=uv,material=material)
+        f=out/'ready'/id/(id+'.glb');f.parent.mkdir(parents=True,exist_ok=True);mesh.export(f,include_normals=True)
     wood_scene=trimesh.load(Path(r'D:\Otherreach_Scratch\sedge_20261018\models\plank_walk.glb'),force='scene')
     wood=next(g.visual.material for g in wood_scene.geometry.values() if getattr(g.visual.material,'name','')=='weathered_plank')
     boards=[trimesh.creation.box(extents=[3.6,.12,.053],transform=trimesh.transformations.translation_matrix([0,-.06,-.5+(n+.5)/18])) for n in range(18)]
     boards += [trimesh.creation.box(extents=[.16,.18,1],transform=trimesh.transformations.translation_matrix([x,-.19,0])) for x in (-1.45,1.45)]
     export('sedge_review_walk',trimesh.util.concatenate(boards),wood)
+    export('sedge_review_pile',trimesh.creation.box(extents=[.22,1,.22],transform=trimesh.transformations.translation_matrix([0,.5,0])),wood)
     vertices=[];faces=[]
     for z,y in [(-40,2.45),(-20,-.30),(20,-.30),(40,2.45)]:
         vertices.extend([[-3.5,y,z],[3.5,y,z],[-3.5,y-.5,z],[3.5,y-.5,z]])
@@ -124,7 +144,7 @@ def main():
         for a0,a1,b0,b1 in [(0,1,4,5),(2,3,6,7),(0,2,4,6),(1,3,5,7)]:
             faces.extend([[b+a0,b+b0,b+a1],[b+a1,b+b0,b+b1]])
     ring=trimesh.Trimesh(vertices=verts,faces=faces,process=True);ring.fix_normals()
-    piers=[trimesh.creation.box(extents=[36,60,52],transform=trimesh.transformations.translation_matrix([side*72,30,0])) for side in (-1,1)]
+    piers=[trimesh.creation.box(extents=[36,63,52],transform=trimesh.transformations.translation_matrix([side*72,28.5,0])) for side in (-1,1)]
     export('sedge_arch_gate2',trimesh.util.concatenate([ring]+piers),stone);place('sedge_arch_gate2',5000,30)
     portal=trimesh.Trimesh(vertices=[[-53,0,0],[53,0,0],[53,58,0]]+[ [53*math.cos(t),58+53*math.sin(t),0] for t in np.linspace(0,math.pi,48) ]+[[-53,0,0]],faces=[[0,i,i+1] for i in range(1,50)],process=True)
     other=trimesh.visual.material.PBRMaterial(baseColorFactor=[76,22,137,88],emissiveFactor=[.19,.035,.42],alphaMode='BLEND',doubleSided=True,roughnessFactor=.6)
