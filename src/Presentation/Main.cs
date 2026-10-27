@@ -255,6 +255,7 @@ public partial class Main : Node3D
                 return;
             }
             Start();
+            if (OS.GetEnvironment("OTHERREACH_CREATURE_LINEUP") == "1") return;
             InstallMetaHumanReview();
             InstallMpfbComparison();
             InstallDsShots();
