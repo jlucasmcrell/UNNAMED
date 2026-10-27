@@ -193,6 +193,14 @@ def main():
             band=0 if y<.35 else (1 if y<.85 else 2)
             sy=rng.uniform(1.15,1.85) if band==0 else rng.uniform(.95,1.55)
             reeds.append(dict(at=[round(px,3),round(y-.035,3),round(pz,3)],yaw=round(float(rng.uniform(0,360)),2),scale=[round(float(rng.uniform(.9,1.25)),2),round(sy,2),round(float(rng.uniform(.9,1.25)),2)],band=band))
+    # The 5m field above is only a broad-phase test. Exact polyline clearance prevents clumps
+    # whose grid sample was clear from growing through a diagonal walkway or a tight bend.
+    roots=np.array([[e['at'][0],e['at'][2]] for e in reeds]);clearance=np.full(len(reeds),1e9)
+    for p,q in zip(path,path[1:]):
+        delta=q-p;t=np.clip(np.sum((roots-p)*delta,axis=1)/np.dot(delta,delta),0,1)
+        clearance=np.minimum(clearance,np.linalg.norm(roots-p-t[:,None]*delta,axis=1))
+    reeds=[e for e,d in zip(reeds,clearance) if d>=5.6]
+    assert len(reeds)>0 and min(clearance[clearance>=5.6])>=5.6
     for lod in range(3):
         id=f'sedge_reeds_lod{lod}';d=out/'ready'/id;d.mkdir(parents=True,exist_ok=True);shutil.copy2(KIT/f'reed_clump_LOD{lod}.glb',d/(id+'.glb'))
     dump(out/'sedge_reeds.json',dict(instances=reeds,lod_ranges_m=[0,90,220,650],chunk_m=64))
