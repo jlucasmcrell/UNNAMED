@@ -646,7 +646,8 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
             Place(npc, turned);
             if (Math.Abs(Delta(turned.FacingMdeg, toward)) > 30_000 || tick < c.NextAttackTick)
                 return c;
-            var move = CombatRules.ArmedMove(c.Attack, (int)(tick / 7 % 3));
+            var moveRandom = RngChannel.Open(State.World.WorldSeed, _context.CellOf(turned), "combat.npc.move", $"{npc.InstanceId}@{tick}");
+            var move = CombatRules.ArmedMove(c.Attack, (int)(moveRandom.UInt64(0) % 3));
             _context.Events.Publish(new AttackStarted(npc.InstanceId, move.Source, move.WindupTicks, move.ActiveTicks, move.RecoveryTicks, tick));
             return c with { Action = ActionState.Begin(ActionKind.Attack, tick, move), GuardUntilTick = 0 };
         }
