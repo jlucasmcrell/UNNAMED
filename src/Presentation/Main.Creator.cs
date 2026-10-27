@@ -93,6 +93,7 @@ public partial class Main
     private void BeginCharacter(CharacterSpec spec)
     {
         _begunMs = Time.GetTicksMsec();
+        _questCards.Cards.Clear();
         _session.NewGame(spec, NextWorldSeed);
         _nextWorld = 0;
         ulong made = Time.GetTicksMsec();

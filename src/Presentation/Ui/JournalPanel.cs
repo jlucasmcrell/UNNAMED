@@ -65,6 +65,12 @@ public partial class JournalPanel : CanvasLayer
         _drawn = string.Empty;
     }
 
+    public void OpenQuest(string questId)
+    {
+        _chosen = questId;
+        _drawn = string.Empty;
+    }
+
     public void Refresh(GameSession session)
     {
         if (!Visible || session.Simulation is not { } simulation || session.Journal is not { } journal)
@@ -326,7 +332,7 @@ public partial class JournalPanel : CanvasLayer
         Callable.From(() => Refresh(session)).CallDeferred();
     }
 
-    private void Track(string? id, GameSession session)
+    public void Track(string? id, GameSession session)
     {
         Tracked = id;
         _drawn = string.Empty;

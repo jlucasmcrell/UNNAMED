@@ -216,6 +216,7 @@ public partial class Main
         string what = SavesPanel.Describe(next.Slot, next.Copy);
         try
         {
+            _questCards.Cards.Clear();
             var login = _session.Continue();
             Started();
             _loadedFrom = what;
@@ -282,6 +283,7 @@ public partial class Main
         string what = SavesPanel.Describe(slot, copy);
         try
         {
+            _questCards.Cards.Clear();
             var result = offered is null ? _session.Load(slot, copy) : _session.Load(offered);
             Started();
             _loadedFrom = what;

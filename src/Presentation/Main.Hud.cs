@@ -1,4 +1,4 @@
-﻿// UNNAMED Presentation - Main's HUD: what it shows each frame, from the simulation's state (D-11)
+// UNNAMED Presentation - Main's HUD: what it shows each frame, from the simulation's state (D-11)
 // Godot presentation only: this file renders state and submits commands; it never writes state.
 
 using System.Collections.Immutable;
@@ -23,6 +23,7 @@ public partial class Main
     private void DrawHud(Simulation simulation, CombatView combat, Posture posture, double alpha, double delta)
     {
         DrawCampReturn(simulation,combat);
+        _questCards.Visible = _hud.Visible;
         _hud.SetHeading(PlayerController.FacingOf(_camera.GroundForward) / 1000f);
         _hud.SetClock(CalendarWords.HudClock(simulation.Calendar, simulation.Weather.State));
         bool aiming = Aim(simulation, combat);
@@ -122,7 +123,13 @@ public partial class Main
             .ToList());
         var quests = simulation.Quests;
         string? tracked = simulation.TrackedQuest(_journal.Tracked);
-        _hud.SetTracker(JournalPanel.Tracker(quests, tracked));
+        var questRows = QuestPresentation.Tracker(quests, tracked);
+        var questBody = _controller.Authoritative;
+        var questTarget = tracked is null ? null : simulation.Marker(tracked);
+        var questMark = CompassMarkerModel.Mark(questTarget, questBody.XMm, questBody.ZMm,
+            m => m.Kind == UNNAMED.Domain.Quests.TargetKind.Location ? Names.Of(_session, m.Label) : m.Label);
+        _hud.SetQuests(questRows, questMark is null ? questTarget is null ? null : "Nearby" : $"{questMark.Label}, {CompassMarkerModel.Distance(questMark.Metres)}");
+        _questCards.Refresh(delta);
         if (_compassPreview)
             goto afterCompass;   // a harness is holding the compass on a picture
         var body0 = _controller.Authoritative;
