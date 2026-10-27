@@ -1,0 +1,11 @@
+id: hint.kal_wings
+kind: hint
+schema: 1
+display_key: hint.kal_wings.text
+tags: [hint]
+notes: "Owner note 3: the Kal only. The stone wings are what the people is, and one who never jumps never learns they exist - so the first moments of a Kal run say how to open them and how to glide. Everyone else is told nothing, because a Veth has no wings to open (the people filter)."
+category: movement
+trigger: new_game
+order: 4
+people: [people.kal]
+text: "{key:sprint} and {key:jump} to throw your wings open. Hold {key:jump} in the air to glide."

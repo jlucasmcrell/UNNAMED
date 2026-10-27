@@ -51,7 +51,8 @@ public partial class Main
         var ui = prefs.Profile.Interface;
         var depth = ui.Guidance switch { Guidance.Full => HintDepth.Every, Guidance.Light => HintDepth.FirstOfEachCategory, _ => HintDepth.None };
         var seen = ui.SeenHints.ToHashSet(StringComparer.Ordinal);
-        if (HintRules.Pick(_session.Hints.Values, trigger, seen, depth) is not { } hint)
+        if (HintRules.Pick(_session.Hints.Values, trigger, seen, depth,
+                _session.Simulation?.Player.Identity.PeopleId) is not { } hint)
         {
             _hintless.Add(trigger);
             return false;

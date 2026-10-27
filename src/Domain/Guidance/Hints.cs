@@ -13,7 +13,17 @@ namespace UNNAMED.Domain.Guidance;
 /// <see cref="Order"/> ranks hints that share a trigger: the next unseen one shows the next time it comes round. The text may name an
 /// input action as <c>{key:action}</c>; presentation puts the key the player bound to it there.
 /// </summary>
-public sealed record HintDefinition(string Id, string Category, string Trigger, string Text, int Order);
+public sealed record HintDefinition(string Id, string Category, string Trigger, string Text, int Order)
+{
+    /// <summary>
+    /// The peoples a hint is for (note 3), by definition id - <c>people.kal</c> and so on. Empty (the default) means everyone: a hint with
+    /// one is shown only to a character of that people, so a wing hint never tells a Veth about wings it does not have.
+    /// </summary>
+    public ImmutableArray<string> People { get; init; } = ImmutableArray<string>.Empty;
+
+    /// <summary>Whether this hint is for a character of <paramref name="peopleId"/>: everyone's hints are, and a people's only theirs.</summary>
+    public bool IsFor(string? peopleId) => People.IsDefaultOrEmpty || (peopleId is not null && People.Contains(peopleId));
+}
 
 /// <summary>How much the game guides: every hint, the first of each category, or none.</summary>
 public enum HintDepth { Every, FirstOfEachCategory, None }
@@ -77,7 +87,7 @@ public static partial class HintRules
     /// The hint a moment shows: of the hints waiting on <paramref name="trigger"/> and not yet <paramref name="seen"/>, the first by
     /// order then ID - unless guidance is off, or is Light and a hint of that hint's category has been seen already. Null when none.
     /// </summary>
-    public static HintDefinition? Pick(IEnumerable<HintDefinition> hints, string trigger, IReadOnlySet<string> seen, HintDepth depth)
+    public static HintDefinition? Pick(IEnumerable<HintDefinition> hints, string trigger, IReadOnlySet<string> seen, HintDepth depth, string? peopleId = null)
     {
         if (depth == HintDepth.None)
             return null;
@@ -86,7 +96,7 @@ public static partial class HintRules
             ? all.Where(h => seen.Contains(h.Id)).Select(h => h.Category).ToHashSet(StringComparer.Ordinal)
             : null;
         return all
-            .Where(h => h.Trigger == trigger && !seen.Contains(h.Id) && learned?.Contains(h.Category) != true)
+            .Where(h => h.Trigger == trigger && !seen.Contains(h.Id) && h.IsFor(peopleId) && learned?.Contains(h.Category) != true)
             .OrderBy(h => h.Order).ThenBy(h => h.Id, StringComparer.Ordinal)
             .FirstOrDefault();
     }

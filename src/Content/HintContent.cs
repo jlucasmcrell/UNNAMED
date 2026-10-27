@@ -47,7 +47,14 @@ public static class HintContent
             string text = Text(map, "text").Trim();
             if (HintRules.Problem(text) is { } problem)
                 throw new FormatException($"{id} {problem}");
-            return new HintDefinition(id, category, trigger, text, order);
+            // Who the hint is for (note 3): none listed means everyone, and a listed people must be one the content defines.
+            var people = map.GetValueOrDefault("people") is System.Collections.IEnumerable listed and not string
+                ? listed.Cast<object>().Select(p => Convert.ToString(p, CultureInfo.InvariantCulture) ?? "").Where(p => p.Length > 0).ToImmutableArray()
+                : ImmutableArray<string>.Empty;
+            foreach (string person in people)
+                if (!loader.Definitions.TryGetValue(person, out var defined) || defined.Kind != "people")
+                    throw new FormatException($"{id} people: {person} is not a defined people");
+            return new HintDefinition(id, category, trigger, text, order) { People = people };
         }).ToImmutableSortedDictionary(h => h.Id, h => h, StringComparer.Ordinal);
         foreach (var clash in hints.Values.GroupBy(h => (h.Trigger, h.Order)).Where(g => g.Count() > 1))
             throw new FormatException($"{string.Join(" and ", clash.Select(h => h.Id))} wait on '{clash.Key.Trigger}' at the same order {clash.Key.Order}");

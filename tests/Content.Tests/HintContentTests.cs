@@ -26,9 +26,14 @@ public class HintContentTests
         foreach (string trigger in new[] { HintTriggers.AwaySheet, HintTriggers.HireOffered, HintTriggers.CompanionRecruited, HintTriggers.PriceChanged })
             Assert.Contains(hints.Values, h => h.Trigger == trigger);
         Assert.Contains("companion_order", HintRules.Actions(hints["hint.party"].Text));
-        // What a new game shows first: how to move, then where every key is listed.
+        // What a new game shows first: how to move, then where every key is listed - everyone's hints, in order.
         Assert.Equal(new[] { "hint.moving", "hint.help", "hint.calls", "hint.auto_run" },
-            hints.Values.Where(h => h.Trigger == HintTriggers.NewGame).OrderBy(h => h.Order).Select(h => h.Id));
+            hints.Values.Where(h => h.Trigger == HintTriggers.NewGame && h.People.IsDefaultOrEmpty).OrderBy(h => h.Order).Select(h => h.Id));
+        // And a people's own hint waits with them (note 3): the Kal are told how to open the wings only they have.
+        var wings = hints["hint.kal_wings"];
+        Assert.Equal(HintTriggers.NewGame, wings.Trigger);
+        Assert.Equal(new[] { "people.kal" }, wings.People);
+        Assert.Contains("{key:jump}", wings.Text);
     }
 
     [Fact]
