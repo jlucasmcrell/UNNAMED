@@ -90,7 +90,7 @@ public class C1CombatTableTests
             Assert.All(kills,k=>Assert.Equal(arena.Player,k.Killer));
             string outcome = dead ? "enemy_win" : arena.Simulation.Creatures.All(c => !c.Alive) ? "player_win" : "unresolved_60s";
             csv.WriteLine(string.Join(",", people, level, pack ? "wolf_pack_2_plus_alpha" : creature.Id, enemyLevel, seed, outcome,
-                (ticks*.05).ToString("0.00", CultureInfo.InvariantCulture), damage+effectDamage,damage,effectDamage, arena.Simulation.Creatures.Sum(c => c.Health), arena.Simulation.Combat.Health));
+                (ticks*.05).ToString("0.00", CultureInfo.InvariantCulture), damage+effectDamage,damage,effectDamage, arena.Simulation.Creatures.Sum(c => c.Health), dead ? 0 : arena.Simulation.Combat.Health));
         }
     }
 }
