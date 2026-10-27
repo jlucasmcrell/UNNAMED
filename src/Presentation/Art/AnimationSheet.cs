@@ -17,7 +17,12 @@ namespace UNNAMED.Presentation.Art;
 /// </summary>
 public partial class AnimationSheet : Node3D
 {
-    private static readonly string[] CreatureStates = { "idle", "walk", "run", "attack", "hit", "death" };
+    // D10: the six shipped states plus the variants the animation-depth work added, so the sheet proves each one draws on its own rig.
+    private static readonly string[] CreatureStates =
+    {
+        "idle", "idle_b", "idle_c", "walk", "run", "attack", "hit", "hit_b", "stagger", "turn_left", "turn_right",
+        "death", "death_b", "death_c",
+    };
     private static readonly float[] Fractions = { 0.2f, 0.5f, 0.85f };
 
     private sealed record Pose(string Name, SkinnedFigure Figure, Action<SkinnedFigure> Set, float Speed);
