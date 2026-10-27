@@ -24,7 +24,7 @@ public class HaldasTallyTests
     private static readonly (double X, double Z) AtTam = (941, 679.8);
 
     // Out of the longhouse's east door and up the north slope, along Halda's snares either side of the den, and back to its mouth.
-    private static readonly (double X, double Z)[] OutOfTheLonghouse = { (450.6, 728) };
+    private static readonly (double X, double Z)[] OutOfTheLonghouse = { (448, 728), (450.6, 728) };
     private static readonly (double X, double Z)[] ToTheWestPelts = { (455, 728), (470, 728), (485, 760), (477, 783.5) };
     private static readonly (double X, double Z)[] ToTheWestLarder = { (481.5, 791) };
     private static readonly (double X, double Z)[] ToTheEastPelts = { (488, 776), (520, 772), (530, 772), (541, 781), (537, 782.8) };
