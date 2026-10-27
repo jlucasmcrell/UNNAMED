@@ -44,7 +44,7 @@ public static class CharacterMaterials
     /// As above, with the HumanShaders eye inputs the model ships (<see cref="HumanEye.Load"/>): an eye surface named there is drawn by the
     /// eye shader, any other eye by the eye kind's settings.
     /// </summary>
-    public static int Upgrade(Node model, out int zoneNamed, IReadOnlyDictionary<string, HumanEye.Maps> eyes)
+    public static int Upgrade(Node model, out int zoneNamed, IReadOnlyDictionary<string, HumanEye.Maps> eyes, bool nativeHumGen = false)
     {
         var kinds = Kinds();
         int upgraded = 0, named = 0;
@@ -68,11 +68,14 @@ public static class CharacterMaterials
                 // diffuse and dual-lobe specular the same review asked for, and was already used on a character at an owner
                 // checkpoint. It returns false if the shader will not load, and the material then falls through to the
                 // engine's response rather than drawing nothing.
-                if (kind == "skin" && HumanSkin.Apply(instance, s, material))
+                if (kind == "skin" && HumanSkin.Apply(instance, s, material, nativeHumGen))
                 {
                     upgraded++;
                     continue;
                 }
+                // Native HumGen inputs have their own adapter. Preserve the exported hair, teeth and eye values;
+                // the generic kinds otherwise replace their roughness maps and specular with fixed approximations.
+                if (nativeHumGen) continue;
                 if (kind == "eye" && eyes.TryGetValue(name, out var eye) && HumanEye.Apply(instance, s, name, eye))
                 {
                     upgraded++;

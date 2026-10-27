@@ -113,10 +113,9 @@ public sealed class TextureCache
         return Load(dds, BaseMaximum(key, role));
     }
 
-    // Native Siann GLBs embed 4K skin. Baseline figures share a 2K upload;
-    // the scoped close-up path alone holds 4K for eligible players/named NPCs.
+    // Native HumGen maps retain source detail; the normal cache/compression/mip pipeline still applies.
     private static int BaseMaximum(string key, string role) => key.StartsWith("rigged/humgen_", StringComparison.Ordinal)
-        ? Math.Min(2048, VisualOptions.TextureMaxSize(key, role)) : VisualOptions.TextureMaxSize(key, role);
+        ? int.MaxValue : VisualOptions.TextureMaxSize(key, role);
 
     // Close-up maps live only on the figure using them; never retain their 4K upload in the scene cache.
     public Texture2D Scoped(string key, string source, int maximum)

@@ -66,6 +66,10 @@ public partial class Main
                 source.MakeCurrent();camera.QueueFree();
                 await RunHeritageReview(directory);GetTree().Quit();return;
             }
+            if(OS.GetEnvironment("OTHERREACH_HUMGEN_FIDELITY")=="1")
+            {
+                await RunHumGenFidelityReview(directory,camera);GetTree().Quit();return;
+            }
             if(OS.GetEnvironment("OTHERREACH_RACE_LOOKS_PLAN") is { Length: > 0 })
             {
                 await RunRaceLooksReview(directory,camera);GetTree().Quit();return;
