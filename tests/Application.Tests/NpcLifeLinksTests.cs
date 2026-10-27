@@ -450,7 +450,8 @@ public class NpcLifeLinksTests
         Assert.True(session.Setup.Chat.Corpus.Length >= 3_000, $"{session.Setup.Chat.Corpus.Length} corpus lines");
         var setup = session.Setup with
         {
-            Chat = session.Setup.Chat with { Rules = session.Setup.Chat.Rules with { LocalChancePercent = 100, WorldChancePercent = 100, HistoryMessages = 100_000 } },
+            // Exercise the region-wide corpus without depending on the player's distance from C2 work posts.
+            Chat = session.Setup.Chat with { Rules = session.Setup.Chat.Rules with { LocalChancePercent = 0, WorldChancePercent = 100, HistoryMessages = 100_000 } },
         };
         var arena = Open(session, setup);
         arena.Tick((int)(3 * Hour));
