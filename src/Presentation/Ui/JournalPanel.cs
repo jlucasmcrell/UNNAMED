@@ -65,6 +65,12 @@ public partial class JournalPanel : CanvasLayer
         _drawn = string.Empty;
     }
 
+    public void OpenQuest(string questId)
+    {
+        _chosen = questId;
+        _drawn = string.Empty;
+    }
+
     public void Refresh(GameSession session)
     {
         if (!Visible || session.Simulation is not { } simulation || session.Journal is not { } journal)

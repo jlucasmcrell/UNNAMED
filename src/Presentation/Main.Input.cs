@@ -137,12 +137,15 @@ public partial class Main
                 Toggle(_skills, () => ShowSkills(null));
             if (Input.IsActionJustPressed("journal"))
             {
+                string? cardQuest = _questCards.Cards.Current?.QuestId;
                 _questCards.Cards.Dismiss();
                 // A landmark banner still standing offers its page: the journal opens on it (spec 41 §2).
                 string? offered = (_hud.ActiveLandmarkTitle is { } title
                     ? _session.Setup.Lore.FirstOrDefault(entry => entry.Value.Title == title).Key
                     : null) ?? _loreOffered;
-                if (offered is not null)
+                if (cardQuest is not null)
+                    _journal.OpenQuest(cardQuest);
+                else if (offered is not null)
                 {
                     _journal.OpenLore(offered);
                     _loreOffered = null;
