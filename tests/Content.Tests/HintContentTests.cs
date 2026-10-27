@@ -48,7 +48,9 @@ public class HintContentTests
         }
         foreach (string category in new[] { "social", "hiring", "identity" })
             Assert.Contains(hints.Values, h => h.Category == category);
-        Assert.Equal(31, HintTriggers.All.Count);   // 30 moments plus 1I's stuck moment
+        Assert.Equal(34, HintTriggers.All.Count);   // 31 existing moments plus C3's three first-hour cues.
+        foreach (string trigger in new[] { HintTriggers.DarkSpaceEntered, HintTriggers.RawMeatTaken, HintTriggers.ForgeOpened })
+            Assert.Contains(hints.Values, h => h.Trigger == trigger);
         Assert.Contains(hints.Values, h => h.Trigger == HintTriggers.PackFull && h.Category == "bags");
     }
 
