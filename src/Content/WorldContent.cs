@@ -296,7 +296,10 @@ public static class WorldContent
                 : new List<string>();
             var structures = List(map, "structures").Select((s, i) => Blocker(s as Dictionary<object, object>
                 ?? throw new FormatException($"structures[{i}] must be a map")))
-                .Select(b => climbable.Any(p => b.Id.StartsWith(p, StringComparison.Ordinal)) ? b with { Climbable = true } : b).ToImmutableArray();
+                // Everything is climbable except the deliberate barriers (BRIEF D6): the fold and the Other's walls, and sealed doors.
+                // climb_prefixes, when a pack names some, is read above and adds nothing here - the reach is the mantle's.
+                .Select(b => unclimbable.Any(p => b.Id.StartsWith(p, StringComparison.Ordinal)) ? b with { Climbable = false } : b with { Climbable = true })
+                .ToImmutableArray();
             Check(structures.Select(s => s.Id).Distinct(StringComparer.Ordinal).Count() == structures.Length, "WLD002", "two structures share an id");
 
             var flags = loader.GetByKind("world_flag");
