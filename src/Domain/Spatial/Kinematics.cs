@@ -94,10 +94,26 @@ public sealed record MovementRules(long BaseSpeedMmPerSecond, int WalkPercent, i
     public long StepUpMm { get; init; }
 
     /// <summary>
-    /// How high above the feet a jump takes off from a ledge it meets can be and still be climbed onto (owner finding 50: the mantle). 0 is
-    /// none. Only with <see cref="StepUpMm"/>: a mantled top is stood on like any other.
+    /// How high above the feet a ledge a jump meets can be and still be climbed onto (the mantle). 0 is none. Only with
+    /// <see cref="StepUpMm"/>: a mantled top is stood on like any other. BRIEF D6 raises this to 3 m - a wall, a cliff, a crate or a rock
+    /// face is climbed, and taller faces are climbed where they carry handholds (see <see cref="MovementRules.ClimbPrefixes"/>).
     /// </summary>
     public long MantleMm { get; init; }
+
+    /// <summary>
+    /// A running body vaults a top this far above its feet without stopping (BRIEF D6): a fence, a cart, a low wall, fallen timber. 0 is
+    /// none. A vault is a mantle taken on the move - no jump, no halt - so it is limited to what a hand can push off.
+    /// </summary>
+    public long VaultMm { get; init; }
+
+    /// <summary>
+    /// Structure id prefixes a body may climb beyond <see cref="MantleMm"/> - a face with handholds (a ladder, a rope, a scaffold, a rock
+    /// face). Empty means only the mantle reach is climbed; the deliberate barriers are named in <see cref="UnclimbablePrefixes"/>.
+    /// </summary>
+    public ImmutableArray<string> ClimbPrefixes { get; init; } = ImmutableArray<string>.Empty;
+
+    /// <summary>Structure id prefixes that are never climbed and never vaulted: the fold and the Other's barriers, sealed doors.</summary>
+    public ImmutableArray<string> UnclimbablePrefixes { get; init; } = ImmutableArray<string>.Empty;
 
     /// <summary>The body's height standing and crouched: what an overhang is measured against.</summary>
     public long StandHeightMm { get; init; } = 1_800;
@@ -117,8 +133,25 @@ public sealed record MovementRules(long BaseSpeedMmPerSecond, int WalkPercent, i
         BaseSpeedMmPerSecond = BaseSpeedMmPerSecond * Wings.LeapDistancePercent / 100,
     };
 
+    /// <summary>
+    /// The horizontal speed the jump carries, before <see cref="JumpDistancePercent"/> (D6): 0 means the body's own gait speed, which is what
+    /// a plain jump has always used. A people whose wings carry them sets it to its unscaled base speed, so a jump is never taken at its
+    /// walking pace - and a Kal's flutter pushes it a little past a Veth's.
+    /// </summary>
+    public long JumpSpeedMmPerSecond { get; init; }
+
+    /// <summary>A small distance bonus in the air, as a share of <see cref="JumpSpeedMmPerSecond"/>: the wing flutter (D6). Height is untouched.</summary>
+    public int JumpDistancePercent { get; init; } = 100;
+
     /// <summary>From take-off to landing: the arc rises and falls in the same time.</summary>
     public int AirtimeMs => 2 * JumpRiseMs;
+
+    /// <summary>The horizontal speed a jump carries: its own if it has one, else the gait's, never slower than the gait on the ground.</summary>
+    public double JumpSpeed(Gait gait, Stance stance)
+    {
+        double ground = SpeedMmPerSecond(gait, stance);
+        return JumpSpeedMmPerSecond > 0 ? Math.Max(ground, JumpSpeedMmPerSecond * JumpDistancePercent / 100.0) : ground;
+    }
 
     public double SpeedMmPerSecond(Gait gait) => gait switch
     {
@@ -216,7 +249,7 @@ public static class Kinematics
         if (length > 0 && dtMs > 0)
         {
             double deflection = Math.Min(length, MoveIntent.FullDeflection) / MoveIntent.FullDeflection;
-            double travel = rules.SpeedMmPerSecond(intent.Gait, posture.Stance) * dtMs / 1000.0 * deflection;
+            double travel = rules.JumpSpeed(intent.Gait, posture.Stance) * dtMs / 1000.0 * deflection;
             double dx = intent.DirXPermille / length * travel;
             double dz = intent.DirZPermille / length * travel;
             // Sub-steps no longer than half the body radius, so a fast step cannot tunnel through a thin wall.

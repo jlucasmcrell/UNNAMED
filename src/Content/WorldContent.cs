@@ -81,11 +81,20 @@ public static class WorldContent
                 StandHeightMm = Mm(map, "stand_height_m"), CrouchHeightMm = Mm(map, "crouch_height_m"), CrouchPercent = Int(map, "crouch_percent"),
             };
         }
-        // Standing on structure tops (owner finding 50); a pack without it keeps the planar rule.
+        // Standing on structure tops (owner finding 50) and what is vaulted, climbed and scrambled (BRIEF D6).
         if (map.ContainsKey("step_up_m"))
-            rules = rules with { StepUpMm = Mm(map, "step_up_m"), MantleMm = map.ContainsKey("mantle_reach_m") ? Mm(map, "mantle_reach_m") : 0 };
-        if (rules.StepUpMm < 0 || rules.StepUpMm >= rules.JumpApexMm || rules.MantleMm < 0 || rules.MantleMm > 0 && rules.MantleMm <= rules.JumpApexMm)
-            throw new FormatException("config.base_speeds step_up_m is at least 0 and below the jump apex; mantle_reach_m, if any, is above it");
+            rules = rules with
+            {
+                StepUpMm = Mm(map, "step_up_m"),
+                MantleMm = map.ContainsKey("mantle_reach_m") ? Mm(map, "mantle_reach_m") : 0,
+                VaultMm = map.ContainsKey("vault_m") ? Mm(map, "vault_m") : 0,
+                ClimbPrefixes = map.ContainsKey("climb_prefixes") ? List(map, "climb_prefixes").Select(v => v as string ?? "").Where(v => v.Length > 0).ToImmutableArray() : ImmutableArray<string>.Empty,
+                UnclimbablePrefixes = map.ContainsKey("unclimbable_prefixes") ? List(map, "unclimbable_prefixes").Select(v => v as string ?? "").Where(v => v.Length > 0).ToImmutableArray() : ImmutableArray<string>.Empty,
+            };
+        // A vault is a mantle taken on the move, so it sits between the step and the climb; the mantle reaches above the vault.
+        if (rules.StepUpMm < 0 || rules.VaultMm < 0 || rules.VaultMm < rules.StepUpMm
+            || rules.MantleMm < 0 || rules.MantleMm > 0 && rules.MantleMm <= rules.VaultMm)
+            throw new FormatException("config.base_speeds step_up_m is at least 0, vault_m at least the step and no more than the mantle, and mantle_reach_m, if any, above the vault");
         if (rules.JumpApexMm <= 0 || rules.JumpRiseMs <= 0 || rules.JumpTuckRadiusMm <= 0 || rules.JumpTuckRadiusMm > rules.BodyRadiusMm
             || rules.CrouchHeightMm <= 0 || rules.CrouchHeightMm >= rules.StandHeightMm
             || rules.CrouchPercent is <= 0 or > 100)

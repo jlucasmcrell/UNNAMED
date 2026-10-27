@@ -12,12 +12,17 @@ interact_reach_m: 1.6    # measured from the body, never from the camera (CAMERA
 # The jump and the crouch (the owner's M6 playtest), tuned on the hollow's own geometry (JumpAndCrouchTests): from a run, a
 # jump clears the fallen timber (0.8 m tall, 0.8 m through) over a window of take-offs, and it never clears anything as tall
 # as the smithy fence (1.2 m) - nor the cart, a wall, a door or the fold. Nothing is stood on.
-jump_apex_m: 1.15        # how high the feet go: under the fence's 1.2 m
-jump_rise_s: 0.42        # to the top of the arc; the fall takes as long
+# TRAVERSAL (BRIEF D6, the owner's principle: whatever a real, fit person can do, a character can).
+# A real running jump lifts the feet 0.6-0.8 m and stays in the air long enough to read as a jump, not a hop. The old 1.15 m apex was an
+# agent's way of faking clearance over a fence; at a real apex the fence is vaulted, not jumped.
+jump_apex_m: 0.72        # the feet at the top of a running jump
+jump_rise_s: 0.36        # to the top of the arc; the fall takes as long, so 0.72 s of air
 jump_tuck_radius_m: 0.2  # in the air, a structure lower than the apex meets the tucked legs, not the shoulders
-step_up_m: 0.4           # a structure top this far above the feet is walked onto; higher ones are jumped onto (owner finding 50)
-mantle_reach_m: 1.6      # a jump that meets a ledge whose top is this far above the take-off feet climbs onto it
-climbable_prefixes: [cw_boulder_, cw_crag_, rock_, den_rock_]   # what is stepped onto, stood on and climbed: rock, never fences, carts, walls or doors
+step_up_m: 0.5           # a structure top this far above the feet is walked onto without breaking stride
+vault_m: 1.2             # a running body vaults a top this far above its feet, with no stop (fences, carts, low walls, timber)
+mantle_reach_m: 3.0      # a climb-up onto a top this far above the take-off feet (walls, cliffs, crates, rock faces)
+climb_prefixes: []       # empty: everything is climbable except the deliberate barriers below (the old rock-only list is retired)
+unclimbable_prefixes: [barrier.fold, door.sealed]   # the fold/Other barriers and sealed doors stay shut to hands
 stand_height_m: 1.8      # what an overhang is measured against
 crouch_height_m: 1.15
 crouch_percent: 50       # of base_m_s, whatever the gait

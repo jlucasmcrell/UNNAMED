@@ -26,6 +26,12 @@ public sealed record PeopleTraits
 
     public int SpeedPercent { get; init; } = 100;
 
+    /// <summary>
+    /// The wing flutter's share of the take-off speed, for a people whose wings carry it (D6): a plain jump goes this much further than its
+    /// take-off would. Distance only - the apex is untouched, so a fence is as unjumpable as it ever was.
+    /// </summary>
+    public int JumpDistancePercent { get; init; } = 112;
+
     /// <summary>Added to the carry limit (negative takes away).</summary>
     public long CarryGrams { get; init; }
 
@@ -300,6 +306,15 @@ public static class PeopleRules
             BaseSpeedMmPerSecond = rules.BaseSpeedMmPerSecond * traits.SpeedPercent / 100,
             MantleMm = rules.MantleMm > 0 ? rules.MantleMm + traits.MantleBonusMm : 0,
         };
+        // A winged people does not take off at its walking pace (D6, owner note 3): the wings throw it at the speed it had before its own
+        // traits slowed its feet, and the first beat of the wings carries it a little further - distance, never height.
+        bool winged = abilities.Any(a => a.Action is PeopleAction.Leap or PeopleAction.Glide);
+        if (winged)
+            moving = moving with
+            {
+                JumpSpeedMmPerSecond = rules.BaseSpeedMmPerSecond,
+                JumpDistancePercent = traits.JumpDistancePercent,
+            };
         foreach (var ability in abilities)
         {
             moving = ability.Action switch
