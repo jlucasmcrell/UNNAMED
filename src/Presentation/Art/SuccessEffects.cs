@@ -62,7 +62,32 @@ public partial class SuccessEffects : Node3D
         pulse.TweenProperty(light, "light_energy", FlashScale * .55f, seconds * .3);
         pulse.TweenProperty(light, "light_energy", 0f, seconds * .7);
         Burst(player + Vector3.Up * .15f, tone, false, repeat ? 12 : 24, seconds);
+        PulseRing(root, tone, seconds);
         GetTree().CreateTimer(seconds).Timeout += root.QueueFree;
+    }
+
+    /// <summary>
+    /// The ring the stone sends along the ground when it answers (note 18): a thin cyan circle standing flat at the stone's foot, widening past a
+    /// stride and thinning to nothing, so the attune reads as a pulse through the ground and not just a flash in the air.
+    /// </summary>
+    private static void PulseRing(Node3D root, Color tone, float seconds)
+    {
+        var ring = new MeshInstance3D
+        {
+            Mesh = new TorusMesh { InnerRadius = .82f, OuterRadius = .9f, RingSegments = 48, Rings = 3 },
+            // Flat on the ground, a hair above it: a torus is made standing, so lay it down and shrink the tube as it grows.
+            Rotation = new Vector3(Mathf.Pi / 2, 0, 0),
+            Position = new Vector3(0, .04f, 0),
+            MaterialOverride = Glow(tone),
+            CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+            GIMode = GeometryInstance3D.GIModeEnum.Disabled,
+            Scale = Vector3.One * .2f,
+        };
+        root.AddChild(ring);
+        var grow = root.CreateTween();
+        grow.SetParallel();
+        grow.TweenProperty(ring, "scale", Vector3.One * 3.4f, seconds * .55).SetTrans(Tween.TransitionType.Cubic).SetEase(Tween.EaseType.Out);
+        grow.TweenProperty(ring, "transparency", 1f, seconds * .55);
     }
 
     public void Travel(string key,Vector3 at,bool arriving)

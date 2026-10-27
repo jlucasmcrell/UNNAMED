@@ -87,6 +87,9 @@ public partial class Main
         _session.Subscribe<StoneTouched>(e =>
         {
             _hud.Toast(e.Text, 7);
+            // A stone woken for the first time is one the character will remember (note 18): say so, once, under the stone's own line.
+            if (e.Method == Domain.Travel.WaystoneMethod.Woken)
+                _hud.Toast($"The {StoneName(e.StoneKey)} remembers you now.", 6);
             WaystoneResponse(e.StoneKey, false);
             Show(_waystones, e.StoneKey);
         });

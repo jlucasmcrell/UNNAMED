@@ -21,6 +21,10 @@
     { "hook": "insects_night", "loop": "amb.insects.night.01", "gain": 0.4, "night_only": true, "weather": ["fair", "clear", "overcast"] },
     { "hook": "birds_distant", "one_shot": "sfx.amb.charwood.raven_call.01", "every_s": [20, 50], "day_only": true, "weather": ["fair", "clear", "overcast"] },
     { "hook": "chimney", "loop": "sfx.amb.ashen_hollow.forge_distant.01", "gain": 0.25, "grounds": ["material_packed_dirt_ground"], "note": "The smithy's fire, heard across the waystation (the chimney smoke's sound)." },
-    { "hook": "anomaly_fold", "loop": "amb.anomaly.fold_hum.01", "gain": 0.45, "grounds": ["material_churned_wet_mud"], "note": "The fold's own presence, under the Foldscar's V3 tone." }
+    { "hook": "anomaly_fold", "loop": "amb.anomaly.fold_hum.01", "gain": 0.45, "grounds": ["material_churned_wet_mud"], "note": "The fold's own presence, under the Foldscar's V3 tone." },
+    { "hook": "fold_echo", "one_shot": "sfx.amb.foldscar.tone_displacement.01", "every_s": [9, 26], "grounds": ["material_churned_wet_mud"], "gain": 0.5,
+      "note": "The fold's late echoes (note 18): a displaced tone now and then on the churned ground, so the Scar is heard as well as seen." },
+    { "hook": "waystone_hum", "loop": "sfx.travel.waystone.hum.01", "gain": 0.4, "near_m": [448, 727, 34],
+      "note": "A Waystone's own hum when one is near (note 18), under the stones' chime. AWAITING AUDIO: V3 has no waystone hum, so this is silent until one is added to the set; the arrived chime beside it is in the library." }
   ]
 }

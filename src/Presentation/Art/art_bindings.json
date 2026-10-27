@@ -5849,6 +5849,8 @@
   "panel.reputation": "ui.panel.reputation",
   "panel.credits": "ui.panel.credits",
   "item.tool.torch": "ui.item.torch",
+  "item.tool.lantern": "ui.item.torch",
+  "item.material.lamp_oil": "ui.item.water_flask",
   "skill.bow": "ui.skill.bow",
   "skill.polearm": "ui.skill.polearm",
   "effect.fed": "ui.status.fed",
