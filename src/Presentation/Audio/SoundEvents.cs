@@ -208,11 +208,6 @@ public partial class SoundEvents : Node
             if (e.Mind == CreatureMind.Engaged && Creature(e.Creature) is { } c && Voice(c.DefId) is { } voice && Where(e.Creature) is { } at)
                 _bank.Play($"sfx.creature.{voice}.alert", at);
         });
-        s.Subscribe<CreatureCalled>(e =>
-        {
-            if (Creature(e.Creature) is { } c && Voice(c.DefId) is { } voice && Where(e.Creature) is { } at)
-                _bank.Play($"sfx.creature.{voice}.alert", at);
-        });
         s.Subscribe<CreatureKilled>(e =>
         {
             if (Voice(e.DefId) is { } voice && Where(e.Creature) is { } at)
