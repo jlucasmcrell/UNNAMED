@@ -35,6 +35,7 @@ public partial class CreatureLineup(ArtLibrary art, ArtBindings bindings, string
             AddChild(camera);
             foreach (var definition in definitions.Values.OrderBy(d => d.Id, StringComparer.Ordinal))
             {
+                if (OS.GetEnvironment("OTHERREACH_LINEUP_ONLY") is { Length: > 0 } only && !only.Split(',').Contains(definition.Id)) continue;
                 if (File.Exists(@"C:\Otherreach_Recovery\OWNER_PLAYING.flag")) throw new OperationCanceledException("Owner playing");
                 var look = bindings.Creatures.GetValueOrDefault(definition.Id);
                 Node3D figure;
@@ -61,6 +62,25 @@ public partial class CreatureLineup(ArtLibrary art, ArtBindings bindings, string
                     foreach (var model in models) model.Hold("idle", .25f, 0);
                     await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 }
+                // Large subjects need an honest surface stand-off; skinning can move vertices beyond the imported rest AABB.
+                if (OS.GetEnvironment("OTHERREACH_LINEUP_ONLY").Length > 0)
+                {
+                    Aabb? posed = null;
+                    foreach (var mesh in figure.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+                    {
+                        if (mesh.Mesh is null || !mesh.IsVisibleInTree()) continue;
+                        using var baked = mesh.BakeMeshFromCurrentSkeletonPose();
+                        var b = mesh.GlobalTransform * baked.GetAabb();
+                        posed = posed is { } prior ? prior.Merge(b) : b;
+                    }
+                    box = posed ?? box;
+                    aim = box.GetCenter();
+                    radius = box.Size.Length() * .5f;
+                    camera.Position = aim + direction * (3 + radius);
+                    camera.LookAt(aim);
+                    camera.Fov = Mathf.Clamp(Mathf.RadToDeg(2 * Mathf.Atan(radius * 1.25f / (3 + radius))), 36, 100);
+                    for (int frame = 0; frame < 12; frame++) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                }
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 string file = definition.Id.Replace('.', '_');
                 Main.SaveScreenshot(GetViewport(), directory, file);
@@ -76,6 +96,7 @@ public partial class CreatureLineup(ArtLibrary art, ArtBindings bindings, string
                 rows.Add(new { id = definition.Id, name = labels.RootElement.GetProperty(definition.Id).GetString(),
                     model = look?.Model, fallback, png = file + ".png", camera_distance_m = camera.Position.DistanceTo(aim),
                     camera_fov = camera.Fov, angle_degrees = 45, sun_altitude_degrees = 51,
+                    framing = OS.GetEnvironment("OTHERREACH_LINEUP_ONLY").Length > 0 ? "3m stand-off beyond posed bounding sphere" : "3m from rest bounds centre",
                     bounds = box.Size.ToString(), materials });
                 figure.Free();
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
