@@ -31,9 +31,10 @@ public sealed record Placement(string? Model, string Fit = "none", string? Surfa
     string? AnimationFlag = null, bool HideSetMark = false, float Scale = 1, Vector3? Tint = null, Vector3? SpentTint = null,
     float GroundSinkM = 0)
 {
-    /// <summary>A switch's prop whose own light goes out once the switch is set (<c>set_goes_dark</c>): the Stopped Gate's anchors.</summary>
+    /// <summary>Domain-only volumes such as deep water do not stop the camera's spring arm.</summary>
     public bool CameraCollisionOff { get; init; }
 
+    /// <summary>A switch's prop whose own light goes out once the switch is set (<c>set_goes_dark</c>): the Stopped Gate's anchors.</summary>
     public bool SetGoesDark { get; init; }
 
     /// <summary>How far a worn surface's edges are chipped back to bright metal (<c>edge_wear</c>, 0 to 1): the Spill's iron.</summary>

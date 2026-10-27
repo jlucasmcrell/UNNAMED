@@ -166,4 +166,3 @@ def main():
         p.write_text(yaml.safe_dump(dict(id='location.sedge_'+id,kind='location',schema=1,display_key='location.sedge_'+id+'.name',tags=['location'],name=name,region_ref='region.sedge_levels',anchor={'world':[x,0,z]},kind_of_place='landmark',discovery={'methods':['visited'],'radius_m':20,'xp':0},map={'reveals_radius_m':100,'marker':'none'},fast_travel={'node':False}),sort_keys=False),encoding='utf-8')
     print(json.dumps(dict(placements=len(places),water_footprints=len(structures),supports=len(supports),route_points=len(walk),region=str(p))))
 if __name__=='__main__':main()
-

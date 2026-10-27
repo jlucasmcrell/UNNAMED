@@ -57,4 +57,3 @@ public sealed class SedgeGate2Tests
         Assert.False(Kinematics.IsClear(5000000-50000,1000000,350,layout.Space,ImmutableArray<Blocker>.Empty));
     }
 }
-
