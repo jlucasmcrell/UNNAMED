@@ -170,8 +170,8 @@ public class WorldContentTests
         Assert.Equal(new CalendarRules(14, 13, 1), WorldContent.BuildCalendar(loader));
         var weather = WorldContent.BuildWeather(loader);
         Assert.Equal((4, 12, 24), (weather.FrontHoursMin, weather.FrontHoursMax, weather.SpanHours));
-        // Rain is off in the shipped content until the rain rework (owner 2026-10-27).
-        Assert.Equal(WeatherRules.Default.Weights.SetItem(WeatherState.Rain, 0), weather.Weights);
+        // The accepted D2 rework restores rain, including the near-camera fade.
+        Assert.Equal(WeatherRules.Default.Weights.SetItem(WeatherState.Rain, 2), weather.Weights);
         Assert.Equal(24, WorldContent.BuildClock(loader).HoursPerDay);
     }
 
