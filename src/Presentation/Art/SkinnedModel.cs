@@ -78,6 +78,7 @@ public sealed partial class SkinnedModel : Node3D
         // 3 and the eyes 2 and named exactly those two absences. A count of zero means the names do not match and the
         // spec is being read for nothing, which is not something anyone can tell by looking at the frame.
         int upgraded = CharacterMaterials.Upgrade(model, out int zoneNamed, HumanEye.Load(art, assetId));
+        HumGenMouth.Apply(model, art, assetId);
         // SAY WHICH OF THE THREE REASONS IT IS, not the one this used to assume. See CharacterMaterials.Upgrade's
         // second parameter: a single-atlas model with no zone names at all is NORMAL and was being reported as a
         // name mismatch every run, which is how the creatures came to read as broken rather than as out of scope.
