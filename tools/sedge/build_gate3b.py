@@ -64,7 +64,7 @@ def main():
     for side in (-1,1):
         for z in (18,43):
             place('sedge_arch_pier',5000+side*72,z,-.8,(14,14,8),(0,180 if side<0 else 0,0))
-        place('sedge_arch_capital',5000+side*72,60,69,(10,8,5),(0,0,side*8))
+        place('sedge_arch_capital',5000+side*72,60,56,(10,8,5),(0,0,side*8))
     place('sedge_arch_capital',5000,58,113,(5,4.9,5))
     # Fallen carved voussoirs flank, never occupy, the central approach.
     for x,z,yaw in [(4938,98,38),(5075,115,-27),(4915,78,73)]:
@@ -85,7 +85,10 @@ def main():
             bell=g;continue
         if mat == 'tarred_timber_dark': timber=copy.deepcopy(g.visual.material)
         if mat in ('water_stained_stone','old_rubble_stone_dark','old_rubble_stone','silt','causeway_kerb'):
-            g.update_faces(np.all(g.vertices[g.faces][:,:,1] < 8.3, axis=1));g.remove_unreferenced_vertices()
+            v,f,uv=trimesh.intersections.slice_faces_plane(g.vertices,g.faces,[0,-1,0],[0,8.3,0],uv=g.visual.uv)
+            material=g.visual.material
+            g=trimesh.Trimesh(vertices=v,faces=f,process=False)
+            g.visual=trimesh.visual.TextureVisuals(uv=uv,material=material)
             if len(g.faces):lower.add_geometry(g)
     assert bell is not None and timber is not None
     # Preserve the source bell and texture; correct the unit mistake to a 2m
@@ -98,13 +101,22 @@ def main():
         tf[:3,3]=[math.sin(side*math.pi/2)*2.35,8.0,math.cos(side*math.pi/2)*2.35]
         for node in rib.graph.nodes_geometry:
             nt,name=rib.graph[node];g=copy.deepcopy(rib.geometry[name]);g.apply_transform(nt)
+            if side==0:
+                c=g.triangles_center
+                g.update_faces(~((c[:,0]>.8)&(c[:,1]>4.9)));g.remove_unreferenced_vertices()
             g.apply_scale([.64,.95,.55]);g.apply_transform(tf);lower.add_geometry(g)
     # Timber headstock spans the open chamber; stone cornice fragments leave a
     # broken top, not a closed cap hiding the bell.
     head=trimesh.creation.box([4.6,.35,.35]);head.apply_translation([0,12.25,0])
     head.visual=trimesh.visual.TextureVisuals(uv=head.vertices[:,[0,1]],material=timber)
     lower.add_geometry(head,node_name='bell_headstock')
-    for x,y,z,yaw in [(-2.4,12.7,-2.4,0),(2.2,12.4,2.2,90),(-2.5,13,2.0,23)]:
+    top=float(bell.bounds[1,1]);length=12.12-top
+    hanger=trimesh.creation.cylinder(radius=.055,height=length+.12,sections=12)
+    hanger.apply_transform(trimesh.transformations.rotation_matrix(math.pi/2,[1,0,0]))
+    hanger.apply_translation([0,(top+12.12)/2,0])
+    hanger.visual=trimesh.visual.TextureVisuals(uv=hanger.vertices[:,[0,1]],material=trimesh.visual.material.PBRMaterial(name='bell_iron_hanger',baseColorFactor=[40,42,38,255],metallicFactor=.8,roughnessFactor=.52))
+    lower.add_geometry(hanger,node_name='bell_iron_hanger')
+    for x,y,z,yaw in [(-2.4,8.7,-2.4,0),(2.2,8.7,2.2,90),(-2.5,8.7,2.0,23)]:
         frag=load('sedge_arch_capital')
         tf=trimesh.transformations.rotation_matrix(math.radians(yaw),[0,1,0]);tf[:3,3]=[x,y,z]
         frag.apply_scale(.55);frag.apply_transform(tf)
@@ -119,7 +131,7 @@ def main():
         place('sedge_belfry_ruin',x,z,-1,(s,s,s),(rx,i*31,rz))
 
     # Four actual metres per module; physical .24m boards. UVs are authored in
-    # metres (one source repeat / 2m along the grain, / .48m across), so varying
+    # metres (one source repeat / 1.2m along the grain, / .24m across), so varying
     # route segment lengths only make small joint closure adjustments.
     src=trimesh.load(kit/'plank_walk.glb',force='scene')
     wood=next(copy.deepcopy(g.visual.material) for g in src.geometry.values() if g.visual.material.name=='weathered_plank')
@@ -129,8 +141,8 @@ def main():
         uv=np.zeros((len(g.vertices),2))
         for face,normal in zip(g.faces,g.face_normals):
             # Source grain runs along texture U; local X is the board's length.
-            if abs(normal[1])>.5:uv[face]=g.vertices[face][:,[0,2]]/[2.0,.48]+[0,n*.137]
-            else:uv[face]=g.vertices[face][:,[0,1]]/[2.0,.48]
+            if abs(normal[1])>.5:uv[face]=g.vertices[face][:,[0,2]]/[1.2,.24]+[0,n*.137]
+            else:uv[face]=g.vertices[face][:,[0,1]]/[1.2,.24]
         g.visual=trimesh.visual.TextureVisuals(uv=uv,material=wood);boards.append(g)
     for x in (-1.45,1.45):
         g=trimesh.creation.box([.16,.18,4]);g.apply_translation([x,-.19,0]);g.unmerge_vertices()
@@ -151,10 +163,10 @@ def main():
             place('sedge_masonry_weed',5000+side*55.5,float(z),-.4,(1,1.5,1),(0,z*13,0))
     art=json.loads((out/'sedge_art_gate3.json').read_text(encoding='utf-8'))
     art['gate3b']=True
-    art['mist_banks']=[[4800,2,1160,240,7,100],[4900,2,550,250,8,110],
-                       [5090,1.5,1130,260,6,95],[5240,2,1290,250,9,110],
-                       [5020,2,220,260,8,100],[4980,3,790,300,9,85],
-                       [5130,2,1650,240,7,95],[4870,2,365,230,8,90]]
+    art['mist_banks']=[[4890,5,1080,170,20,90],[4900,6,550,250,22,110],
+                       [5090,5,1130,260,18,95],[5240,6,1290,250,24,110],
+                       [5020,7,220,260,24,100],[4980,7,790,300,26,85],
+                       [5130,6,1650,240,20,95],[4870,6,365,230,22,90]]
     dump(out/'sedge_art_gate3.json',art)
     atmo=json.loads((out/'atmosphere.json').read_text(encoding='utf-8'))
     atmo.update(fog_density=.00034,fog_aerial_perspective=.64,volumetric_fog_density=.0006,

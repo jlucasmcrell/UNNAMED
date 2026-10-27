@@ -30,11 +30,11 @@ public partial class SedgeArtView : Node3D
         view.Crest();
         // Openings in the overcast: real light scattered through the native
         // water mist. Positions are art placements, never simulation state.
-        foreach (var at in new[] { new Vector3(4860,135,1140), new Vector3(5100,165,570), new Vector3(4940,145,1550) })
+        foreach (var at in new[] { new Vector3(4860,135,1100), new Vector3(5100,165,570), new Vector3(4940,145,1550) })
         {
             var shaft = new SpotLight3D { Name = "CloudBreakShaft", Position = at,
-                LightColor = new Color(.87f,.93f,1), LightEnergy = 8f,
-                LightVolumetricFogEnergy = 5f, SpotRange = 240, SpotAngle = 11,
+                LightColor = new Color(.87f,.93f,1), LightEnergy = 22f,
+                LightVolumetricFogEnergy = 8f, SpotRange = 260, SpotAngle = 13,
                 SpotAttenuation = .5f, ShadowEnabled = true,
                 RotationDegrees = new Vector3(-72, -20, 0) };
             view.AddChild(shaft);view._shafts.Add(shaft);
@@ -87,6 +87,13 @@ public partial class SedgeArtView : Node3D
                     material.SetShaderParameter("source_colour", source.AlbedoColor);
                     material.SetShaderParameter("source_roughness", source.Roughness);
                     material.SetShaderParameter("source_metallic", source.Metallic);
+                    material.SetShaderParameter("use_vertex_colour", source.VertexColorUseAsAlbedo);
+                    material.SetShaderParameter("has_roughness", source.RoughnessTexture is not null);
+                    material.SetShaderParameter("has_metallic", source.MetallicTexture is not null);
+                    material.SetShaderParameter("roughness_channel", (int)source.RoughnessTextureChannel);
+                    material.SetShaderParameter("metallic_channel", (int)source.MetallicTextureChannel);
+                    if (source.RoughnessTexture is { } rough) material.SetShaderParameter("source_roughness_tex", rough);
+                    if (source.MetallicTexture is { } metal) material.SetShaderParameter("source_metallic_tex", metal);
                     material.SetShaderParameter("has_albedo", source.AlbedoTexture is not null);
                     material.SetShaderParameter("has_normal", source.NormalEnabled && source.NormalTexture is not null);
                     material.SetShaderParameter("normal_strength", source.NormalScale);
@@ -170,7 +177,7 @@ public partial class SedgeArtView : Node3D
         {
             var bank = new FogVolume { Name = "SoundMistBank", Shape = RenderingServer.FogVolumeShape.Ellipsoid,
                 Position = new Vector3(b[0].GetSingle(), b[1].GetSingle(), b[2].GetSingle()), Size = new Vector3(b[3].GetSingle(), b[4].GetSingle(), b[5].GetSingle()),
-                Material = new FogMaterial { Density = .17f, Albedo = new Color(.79f, .85f, .84f), Emission = new Color(.012f, .017f, .018f), EdgeFade = .55f, HeightFalloff = .65f, DensityTexture = noise } };
+                Material = new FogMaterial { Density = .12f, Albedo = new Color(.79f, .85f, .84f), Emission = new Color(.025f, .035f, .037f), EdgeFade = .55f, HeightFalloff = 0f, DensityTexture = noise } };
             AddChild(bank);_mist.Add((bank, bank.Position));
         }
     }
@@ -224,7 +231,7 @@ public partial class SedgeArtView : Node3D
         _elapsed += (float)delta;
         float energy = Mathf.Lerp(2.3f, .25f, SkyView.DaylightLevel);
         foreach (var lamp in _lamps) lamp.LightEnergy = energy;
-        foreach (var shaft in _shafts) shaft.LightEnergy = 8f * SkyView.DaylightLevel;
+        foreach (var shaft in _shafts) shaft.LightEnergy = 22f * SkyView.DaylightLevel;
         foreach (var rain in _rain)
         {
             rain.Direction = (Vector3.Down + WindField.Direction * (.25f + WindField.Strength * .55f)).Normalized();

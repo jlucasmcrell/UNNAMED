@@ -4,11 +4,11 @@ Scope: Claude's 2026-10-27 02:30 review. Gate 3's accepted fen, channels, salt, 
 
 The rejected block-built Arch is replaced with existing owned Dwarven Citadel meshes: `SM_ST_MainHall_Arch_A_01` (three separated vault ribs), `SM_ST_ExteriorGate_DESColumnM01` (four broken projecting piers), and `SM_ST_MainGate_Capital_01` (carved crown, springing capitals and fallen pieces). The front rib has a missing crown section. Source UVs and original-resolution PBR images are retained; region-only wet darkening, weed and salt bloom weather the source surfaces. Native kit reed clumps supply the lower weed silhouette. The adopted 180 m envelope and approximately 128 m crown are still PROPOSED art dimensions, not new canon history.
 
-Drowned bell towers reuse the Oct-18 stone lower storey and Cosmos CS1_Bell_01. The original bell was microscopic; its source mesh is restored to a two-metre mouth inside an open four-sided kit belfry. Old solid caps are removed, source capital fragments form broken tops, and six towers lean at varied distances. The bell remains slack-water canon; no scripted ringing is added by this art gate.
+Drowned bell towers reuse the Oct-18 stone lower storey and Cosmos CS1_Bell_01. The original bell was microscopic; its source mesh is restored to a two-metre mouth inside an open four-sided kit belfry. The bell hangs from an iron hanger beneath the timber headstock. UV-preserving clipping seats the posts into the old walls. Old solid caps are removed, source capital fragments form broken tops, and six towers lean at varied distances. The bell remains slack-water canon; no scripted ringing is added by this art gate.
 
 Review boardwalks are now actual four-metre modules with .238 m-wide boards and metre-based UVs. Placement length is divided by four; deck height, width and every domain support remain unchanged. Original weathered wood remains the material.
 
-Eight noisy native FogVolumes layer the water, with depth haze and three native spotlights scattering through the air at breaks in the overcast. Light energy follows the existing daylight level. The crest's accepted violet style remains, with column heights clipped to the new aperture. Authoritative tide timing, span closure, routes, terrain and reed scatter are unchanged.
+Eight noisy native FogVolumes (18–26m bank height, with no exponential height suppression) layer the water, with depth haze and three native spotlights scattering through the air at breaks in the overcast. Light energy follows the existing daylight level. The crest's accepted violet style remains, with column heights clipped to the new aperture. Authoritative tide timing, span closure, routes, terrain and reed scatter are unchanged.
 
 ## Reproduction
 
