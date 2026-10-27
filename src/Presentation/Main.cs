@@ -417,16 +417,18 @@ public partial class Main : Node3D
         });
         SkyView.ClockAtWorldStart = (float)_session.ClockAtWorldStartHours;
         _session.SubscriberFailed += SubscriberFailed;
+        bool c1Review = OS.GetEnvironment("OTHERREACH_C1_REVIEW_OUT").Length > 0
+            && File.Exists(Path.Combine(contentRoot, "C1_REVIEW_FIXTURE.txt"));
         bool verify = _options.ContainsKey("--playthrough-verify");
-        bool scripted = playthrough is not null || _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf")
+        bool scripted = !c1Review && (playthrough is not null || _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf")
                         || _options.ContainsKey("--ui-shots")
                         || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check") || _options.ContainsKey("--survey")
                         || _options.ContainsKey("--shot") || _options.ContainsKey("--stand") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
                         || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
                         || _options.ContainsKey("--showcase") || _options.ContainsKey("--inn-shots") || _options.ContainsKey("--lore-shots") || _options.ContainsKey("--pet-shots")
-                        || _options.ContainsKey("--pet-review");
+                        || _options.ContainsKey("--pet-review"));
         // No run of a harness takes the mouse - but the input check, which checks who has it.
-        _scripted = (scripted && !_flags.Contains("--input-check")) || _options.ContainsKey("--resume-shots");
+        _scripted = c1Review || (scripted && !_flags.Contains("--input-check")) || _options.ContainsKey("--resume-shots");
         // A scripted run plays one world from its start - the acceptance playthrough a fixed one, so it is the same run every time (M6).
         // A player's run begins at the start screen (the Phase-1 technical audit, B-01); the relaunch check continues as a player would.
         // --ui-shots-continue pictures the screens over the profile's newest save instead of a new character (WP9: one with skills,
