@@ -12,6 +12,7 @@ public partial class SedgeArtView : Node3D
     private readonly List<OmniLight3D> _lamps = new();
     private readonly List<ParticleProcessMaterial> _rain = new();
     private readonly List<(FogVolume Bank, Vector3 Origin)> _mist = new();
+    private readonly List<SpotLight3D> _shafts = new();
     private float _elapsed;
 
     public static SedgeArtView? Build(Node3D parent, Node3D terrain, ArtLibrary art, string region)
@@ -27,6 +28,17 @@ public partial class SedgeArtView : Node3D
         view.Mist(json.RootElement.GetProperty("mist_banks"));
         view.Lamps(json.RootElement.GetProperty("lamps"));
         view.Crest();
+        // Openings in the overcast: real light scattered through the native
+        // water mist. Positions are art placements, never simulation state.
+        foreach (var at in new[] { new Vector3(4860,135,1140), new Vector3(5100,165,570), new Vector3(4940,145,1550) })
+        {
+            var shaft = new SpotLight3D { Name = "CloudBreakShaft", Position = at,
+                LightColor = new Color(.87f,.93f,1), LightEnergy = 8f,
+                LightVolumetricFogEnergy = 5f, SpotRange = 240, SpotAngle = 11,
+                SpotAttenuation = .5f, ShadowEnabled = true,
+                RotationDegrees = new Vector3(-72, -20, 0) };
+            view.AddChild(shaft);view._shafts.Add(shaft);
+        }
         if (parent.GetNodeOrNull<Node3D>("Atmosphere") is { } atmosphere)
             foreach (var particles in atmosphere.GetChildren().OfType<GpuParticles3D>().Where(p => p.Name.ToString().StartsWith("rain", StringComparison.Ordinal)))
                 if (particles.ProcessMaterial is ParticleProcessMaterial process)
@@ -58,12 +70,32 @@ public partial class SedgeArtView : Node3D
     private void Masonry(Node3D parent, ArtLibrary art)
     {
         if (parent.GetNodeOrNull<Node3D>("Dressing") is not { } dressing) return;
-        var maps = art.WorldMaps("sedge_arch_stone") ?? throw new InvalidDataException("Missing ancient masonry scan");
-        var material = new ShaderMaterial { Shader = GD.Load<Shader>("res://Greybox/SedgeMasonry.gdshader") };
-        material.SetShaderParameter("stone_albedo", maps.Albedo);
-        material.SetShaderParameter("stone_normal", maps.Normal ?? throw new InvalidDataException("Missing masonry normal map"));
-        foreach (var holder in dressing.GetChildren().OfType<Node3D>().Where(n => n.Name.ToString().StartsWith("sedge_arch_masonry_", StringComparison.Ordinal)))
-            foreach (var mesh in Meshes(holder)) mesh.MaterialOverride = material;
+        var shader = GD.Load<Shader>("res://Greybox/SedgeMasonry.gdshader");
+        foreach (var holder in dressing.GetChildren().OfType<Node3D>().Where(n =>
+                     n.Name.ToString().StartsWith("sedge_arch_", StringComparison.Ordinal) ||
+                     n.Name.ToString().StartsWith("sedge_belfry_", StringComparison.Ordinal)))
+            foreach (var mesh in Meshes(holder))
+            {
+                // Keep every source surface's carved UV/albedo/normal. Weather
+                // the original material, rather than replacing it with bricks.
+                if (mesh.Mesh is not ArrayMesh original) continue;
+                var copy = (ArrayMesh)original.Duplicate();
+                for (int surface = 0; surface < copy.GetSurfaceCount(); surface++)
+                {
+                    if (mesh.GetActiveMaterial(surface) is not BaseMaterial3D source) continue;
+                    var material = new ShaderMaterial { Shader = shader };
+                    material.SetShaderParameter("source_colour", source.AlbedoColor);
+                    material.SetShaderParameter("source_roughness", source.Roughness);
+                    material.SetShaderParameter("source_metallic", source.Metallic);
+                    material.SetShaderParameter("has_albedo", source.AlbedoTexture is not null);
+                    material.SetShaderParameter("has_normal", source.NormalEnabled && source.NormalTexture is not null);
+                    material.SetShaderParameter("normal_strength", source.NormalScale);
+                    if (source.AlbedoTexture is { } albedo) material.SetShaderParameter("source_albedo", albedo);
+                    if (source.NormalTexture is { } normal) material.SetShaderParameter("source_normal", normal);
+                    copy.SurfaceSetMaterial(surface, material);
+                }
+                mesh.Mesh = copy;
+            }
     }
 
     private void Reeds(ArtLibrary art)
@@ -138,7 +170,7 @@ public partial class SedgeArtView : Node3D
         {
             var bank = new FogVolume { Name = "SoundMistBank", Shape = RenderingServer.FogVolumeShape.Ellipsoid,
                 Position = new Vector3(b[0].GetSingle(), b[1].GetSingle(), b[2].GetSingle()), Size = new Vector3(b[3].GetSingle(), b[4].GetSingle(), b[5].GetSingle()),
-                Material = new FogMaterial { Density = .065f, Albedo = new Color(.74f, .82f, .81f), EdgeFade = .30f, HeightFalloff = .25f, DensityTexture = noise } };
+                Material = new FogMaterial { Density = .17f, Albedo = new Color(.79f, .85f, .84f), Emission = new Color(.012f, .017f, .018f), EdgeFade = .55f, HeightFalloff = .65f, DensityTexture = noise } };
             AddChild(bank);_mist.Add((bank, bank.Position));
         }
     }
@@ -165,7 +197,7 @@ public partial class SedgeArtView : Node3D
         for (int i = 0; i < columns.Length; i++)
         {
             float x = columns[i], bottom = (i % 4) * 4.2f;
-            float height = 54 + MathF.Sqrt(Math.Max(0, 53 * 53 - x * x)) - bottom;
+            float height = MathF.Min(102, 21 * (4.9f - MathF.Max(0, MathF.Abs(x) / 24.3f - .95f) * 1.72f)) - bottom;
             _crest.AddChild(new MeshInstance3D { Name = $"VioletShaft_{i}", Position = new Vector3(x, bottom + height * .5f, (i % 4) * 3.1f),
                 Mesh = Ribbon(1.4f + (i % 3) * 1.3f, height, i), MaterialOverride = material, CastShadow = GeometryInstance3D.ShadowCastingSetting.Off });
         }
@@ -192,6 +224,7 @@ public partial class SedgeArtView : Node3D
         _elapsed += (float)delta;
         float energy = Mathf.Lerp(2.3f, .25f, SkyView.DaylightLevel);
         foreach (var lamp in _lamps) lamp.LightEnergy = energy;
+        foreach (var shaft in _shafts) shaft.LightEnergy = 8f * SkyView.DaylightLevel;
         foreach (var rain in _rain)
         {
             rain.Direction = (Vector3.Down + WindField.Direction * (.25f + WindField.Strength * .55f)).Normalized();
