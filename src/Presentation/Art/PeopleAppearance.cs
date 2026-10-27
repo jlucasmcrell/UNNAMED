@@ -403,13 +403,17 @@ public static class PeopleAppearance
                     || mesh.Name.ToString().Contains("Eyelash", StringComparison.OrdinalIgnoreCase));
                 // The shared cap and brows stay pale, independently of the white hair lengths.
                 var swatch = isSkin ? skin : faceHair ? new Swatch("Pale brows", .88f, .9f, .92f) : hair;
-                var drawn = swatch is null ? original : isSkin ? Tinted(original, swatch) : Dyed(original, swatch, lift: siann ? .06f : .4f,
-                    reflectance: siann && isHair ? .55f : 1f);
-                if (siann && isHair && drawn is BaseMaterial3D whiteHair)
+                var drawn = swatch is null ? original : isSkin ? Tinted(original, swatch) : siann && isHair ? original : Dyed(original, swatch, lift: siann ? .06f : .4f);
+                if (siann && isHair && drawn is BaseMaterial3D whiteHair
+                    && GD.Load<Shader>("res://Art/siann_white_hair.gdshader") is { } whiteShader)
                 {
-                    // White hair reflects strongly, but must retain strands instead of clipping or alpha-hash fuzz.
-                    whiteHair.Transparency = BaseMaterial3D.TransparencyEnum.AlphaScissor;
-                    whiteHair.AlphaScissorThreshold = .4f;
+                    var white = new ShaderMaterial { Shader = whiteShader, ResourceName = original.ResourceName, NextPass = whiteHair.NextPass };
+                    white.SetShaderParameter("strand_atlas", whiteHair.AlbedoTexture);
+                    white.SetShaderParameter("strand_colour", new Color(swatch?.R ?? 1f, swatch?.G ?? 1f, swatch?.B ?? 1f));
+                    white.SetShaderParameter("strand_roughness", faceHair ? .6f : .35f);
+                    white.SetShaderParameter("directional", whiteHair.AnisotropyEnabled && whiteHair.AnisotropyFlowmap is not null);
+                    if (whiteHair.AnisotropyFlowmap is { } flow) white.SetShaderParameter("strand_flow", flow);
+                    drawn = white;
                 }
                 // A Kal's stone as the creator sets it, on the stone skin KalStone gave the body.
                 if (isSkin && stone is float coverage && drawn is ShaderMaterial stoneSkin && stoneSkin.GetShaderParameter("use_stone").AsBool())
@@ -510,7 +514,7 @@ public static class PeopleAppearance
     /// The garment in <paramref name="cloth"/>'s colour, its weave kept: the albedo scaled (in linear light) by what takes the texture's mean
     /// colour to the cloth's, the mean read from the texture's smallest mip so nothing large is decompressed.
     /// </summary>
-    private static Material Dyed(Material original, Swatch cloth, float lift = .2f, float reflectance = 1f)
+    private static Material Dyed(Material original, Swatch cloth, float lift = .2f)
     {
         if (original.Duplicate() is not BaseMaterial3D copy)
             return original;
@@ -518,10 +522,10 @@ public static class PeopleAppearance
         var tint = copy.AlbedoColor.SrgbToLinear() * mean.SrgbToLinear();
         // Part of the colour (a fifth for cloth) is added under the dye, so parts baked black (the sweater's collar band, the rubber boots,
         // the roots and shadow in hair cards) come out as a darker shade of the same colour instead of staying black.
-        var target = new Color(cloth.R, cloth.G, cloth.B).SrgbToLinear() * ((1 - lift) * reflectance);
+        var target = new Color(cloth.R, cloth.G, cloth.B).SrgbToLinear() * (1 - lift);
         var dye = new Color(target.R / Math.Max(tint.R, .002f), target.G / Math.Max(tint.G, .002f), target.B / Math.Max(tint.B, .002f)).LinearToSrgb();
         copy.AlbedoColor = new Color(dye.R, dye.G, dye.B, copy.AlbedoColor.A);
-        var floor = (new Color(cloth.R, cloth.G, cloth.B).SrgbToLinear() * (lift * reflectance)).LinearToSrgb();
+        var floor = (new Color(cloth.R, cloth.G, cloth.B).SrgbToLinear() * lift).LinearToSrgb();
         var image = Image.CreateEmpty(1, 1, false, Image.Format.Rgba8);
         image.Fill(new Color(floor.R, floor.G, floor.B));
         copy.DetailEnabled = true;
