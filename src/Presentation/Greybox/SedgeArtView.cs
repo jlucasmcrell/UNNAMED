@@ -180,7 +180,7 @@ public partial class SedgeArtView : Node3D
         {
             var bank = new FogVolume { Name = "SoundMistBank", Shape = RenderingServer.FogVolumeShape.Ellipsoid,
                 Position = new Vector3(b[0].GetSingle(), b[1].GetSingle(), b[2].GetSingle()), Size = new Vector3(b[3].GetSingle(), b[4].GetSingle(), b[5].GetSingle()),
-                Material = new FogMaterial { Density = .12f, Albedo = new Color(.79f, .85f, .84f), Emission = new Color(.025f, .035f, .037f), EdgeFade = .55f, HeightFalloff = 0f, DensityTexture = noise } };
+                Material = new FogMaterial { Density = .12f, Albedo = new Color(.79f, .85f, .84f), EdgeFade = .55f, HeightFalloff = 0f, DensityTexture = noise } };
             AddChild(bank);_mist.Add((bank, bank.Position));
         }
     }
