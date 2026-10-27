@@ -100,7 +100,7 @@ uniform sampler2D opal_mask : hint_default_black, filter_linear_mipmap, repeat_d
 uniform float opal_pale : hint_range(0.0, 1.0) = 0.6;
 uniform float opal_sheen : hint_range(0.0, 1.0) = 0.85;
 uniform float opal_traces : hint_range(0.0, 1.0) = 0.4;
-uniform vec3 opal_pearl : source_color = vec3(0.96, 0.97, 0.98);
+uniform vec3 opal_pearl : source_color = vec3(0.84, 0.85, 0.86);
 
 group_uniforms u_v;
 uniform vec3 uv1_scale = vec3(1.);

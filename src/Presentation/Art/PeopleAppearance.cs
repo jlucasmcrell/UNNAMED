@@ -221,7 +221,10 @@ public static class PeopleAppearance
                     || (mesh.GetSurfaceOverrideMaterial(surface) ?? mesh.Mesh.SurfaceGetMaterial(surface)) is not BaseMaterial3D hair) continue;
                 var local = (BaseMaterial3D)hair.Duplicate();
                 local.AnisotropyEnabled = true;
+                local.Anisotropy = .7f;
                 local.AnisotropyFlowmap = flow;
+                local.Roughness = .32f;
+                local.MetallicSpecular = .45f;
                 if (GD.Load<Shader>("res://Art/siann_hair_pearl.gdshader") is { } pearlShader)
                 {
                     var pearl = new ShaderMaterial { Shader = pearlShader };
@@ -400,7 +403,14 @@ public static class PeopleAppearance
                     || mesh.Name.ToString().Contains("Eyelash", StringComparison.OrdinalIgnoreCase));
                 // The shared cap and brows stay pale, independently of the white hair lengths.
                 var swatch = isSkin ? skin : faceHair ? new Swatch("Pale brows", .88f, .9f, .92f) : hair;
-                var drawn = swatch is null ? original : isSkin ? Tinted(original, swatch) : Dyed(original, swatch, lift: siann ? .06f : .4f);
+                var drawn = swatch is null ? original : isSkin ? Tinted(original, swatch) : Dyed(original, swatch, lift: siann ? .06f : .4f,
+                    reflectance: siann && isHair ? .55f : 1f);
+                if (siann && isHair && drawn is BaseMaterial3D whiteHair)
+                {
+                    // White hair reflects strongly, but must retain strands instead of clipping or alpha-hash fuzz.
+                    whiteHair.Transparency = BaseMaterial3D.TransparencyEnum.AlphaScissor;
+                    whiteHair.AlphaScissorThreshold = .4f;
+                }
                 // A Kal's stone as the creator sets it, on the stone skin KalStone gave the body.
                 if (isSkin && stone is float coverage && drawn is ShaderMaterial stoneSkin && stoneSkin.GetShaderParameter("use_stone").AsBool())
                 {
@@ -500,7 +510,7 @@ public static class PeopleAppearance
     /// The garment in <paramref name="cloth"/>'s colour, its weave kept: the albedo scaled (in linear light) by what takes the texture's mean
     /// colour to the cloth's, the mean read from the texture's smallest mip so nothing large is decompressed.
     /// </summary>
-    private static Material Dyed(Material original, Swatch cloth, float lift = .2f)
+    private static Material Dyed(Material original, Swatch cloth, float lift = .2f, float reflectance = 1f)
     {
         if (original.Duplicate() is not BaseMaterial3D copy)
             return original;
@@ -508,10 +518,10 @@ public static class PeopleAppearance
         var tint = copy.AlbedoColor.SrgbToLinear() * mean.SrgbToLinear();
         // Part of the colour (a fifth for cloth) is added under the dye, so parts baked black (the sweater's collar band, the rubber boots,
         // the roots and shadow in hair cards) come out as a darker shade of the same colour instead of staying black.
-        var target = new Color(cloth.R, cloth.G, cloth.B).SrgbToLinear() * (1 - lift);
+        var target = new Color(cloth.R, cloth.G, cloth.B).SrgbToLinear() * ((1 - lift) * reflectance);
         var dye = new Color(target.R / Math.Max(tint.R, .002f), target.G / Math.Max(tint.G, .002f), target.B / Math.Max(tint.B, .002f)).LinearToSrgb();
         copy.AlbedoColor = new Color(dye.R, dye.G, dye.B, copy.AlbedoColor.A);
-        var floor = (new Color(cloth.R, cloth.G, cloth.B).SrgbToLinear() * lift).LinearToSrgb();
+        var floor = (new Color(cloth.R, cloth.G, cloth.B).SrgbToLinear() * (lift * reflectance)).LinearToSrgb();
         var image = Image.CreateEmpty(1, 1, false, Image.Format.Rgba8);
         image.Fill(new Color(floor.R, floor.G, floor.B));
         copy.DetailEnabled = true;
@@ -561,7 +571,7 @@ public static class PeopleAppearance
             var albedo = original is ShaderMaterial source ? source.GetShaderParameter("albedo").AsColor() : Colors.White;
             shader.SetShaderParameter("albedo", new Color(albedo.R * tone.R, albedo.G * tone.G, albedo.B * tone.B, albedo.A));
             if (((ShaderMaterial)original).GetShaderParameter("use_opal").AsBool())
-                shader.SetShaderParameter("opal_pearl", new Color(.96f * tone.R, .97f * tone.G, .98f * tone.B));
+                shader.SetShaderParameter("opal_pearl", new Color(.84f * tone.R, .85f * tone.G, .86f * tone.B));
         }
         else if (copy is BaseMaterial3D material)
             material.AlbedoColor = new Color(material.AlbedoColor.R * tone.R, material.AlbedoColor.G * tone.G, material.AlbedoColor.B * tone.B, material.AlbedoColor.A);

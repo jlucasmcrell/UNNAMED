@@ -25,5 +25,5 @@ void light() {
     vec3 pearl = pearl_angle < .5
         ? mix(vec3(1., .88, .86), vec3(.87, 1., .91), pearl_angle * 2.)
         : mix(vec3(.87, 1., .91), vec3(.87, .95, 1.), (pearl_angle - .5) * 2.);
-    SPECULAR_LIGHT += .065 * band * pearl * LIGHT_COLOR * ATTENUATION;
+    SPECULAR_LIGHT += .02 * band * pearl * LIGHT_COLOR * ATTENUATION;
 }
