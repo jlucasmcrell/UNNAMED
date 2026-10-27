@@ -7,6 +7,7 @@ from pathlib import Path
 import argparse, copy, hashlib, json, math, shutil
 import numpy as np
 import trimesh
+from PIL import Image
 
 
 def dump(path, value):
@@ -134,7 +135,15 @@ def main():
     # metres (one source repeat / 1.2m along the grain, / .24m across), so varying
     # route segment lengths only make small joint closure adjustments.
     src=trimesh.load(kit/'plank_walk.glb',force='scene')
-    wood=next(copy.deepcopy(g.visual.material) for g in src.geometry.values() if g.visual.material.name=='weathered_plank')
+    wood_root=Path(r'C:\Otherreach_External_Assets\Sourced_CC0_20261018\cloth_rope_leather_metal\Wood060\2K-JPG')
+    albedo=wood_root/'Wood060_2K-JPG_Color.jpg'
+    normal=wood_root/'Wood060_2K-JPG_NormalGL.jpg'
+    rough=wood_root/'Wood060_2K-JPG_Roughness.jpg'
+    ao=wood_root/'Wood060_2K-JPG_AmbientOcclusion.jpg'
+    orm=Image.merge('RGB',(Image.open(ao).convert('L'),Image.open(rough).convert('L'),Image.new('L',(2048,2048),0)))
+    wood=trimesh.visual.material.PBRMaterial(name='weathered_plank_fullres',baseColorTexture=Image.open(albedo),normalTexture=Image.open(normal),metallicRoughnessTexture=orm,roughnessFactor=1.0,metallicFactor=0.0)
+    for f in (albedo,normal,rough,ao):
+        credits['sources'].append(dict(id='sedge_review_walk:'+f.stem,source=str(f),sha256=hashlib.sha256(f.read_bytes()).hexdigest(),credit='ambientCG Wood060, CC0; existing Oct-18 BOM source, original 2K maps'))
     boards=[]
     for n in range(16):
         g=trimesh.creation.box([3.6,.12,.238]);g.apply_translation([0,-.06,-2+(n+.5)*.25]);g.unmerge_vertices()
@@ -175,7 +184,7 @@ def main():
     dump(out/'dressing.json',dict(places=places))
     credits['gate3b']=dict(arch='Existing Dwarven Citadel native rib vault, carved capital and broken gate column; source PBR retained. Broken front rib is a derivative of the source mesh.',
         towers='Oct-18 stone lower storey, restored Cosmos CS1_Bell_01, open Dwarven belfry arches, broken native capital fragments; leaned at placement.',
-        walks='Four-metre plank modules with physical board width and metre-based UVs; original Oct-18 weathered wood texture.',
+        walks='Four-metre plank modules with physical board width and metre-based UVs; original-resolution ambientCG Wood060 scan from the Oct-18 BOM.',
         atmosphere='Native layered FogVolumes and local volumetric spotlights; no generated textures.')
     dump(out/'SEDGE_SOURCE_CREDITS.json',credits)
     print(json.dumps(dict(dressing=len(places),towers=len(towers),accepted_ground_reeds_tides_unchanged=True)))
