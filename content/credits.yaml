@@ -183,6 +183,8 @@ sections:
       - ledger: [A-W01]
         binds: [creature_wm_]
         text: "Creature models and animations: WildMesh 3D (UNITY Animated Animals Realistic Pack; 100 MODELS), used under the WildMesh Standard licence."
+        lines:
+          - "Creature appearance corrections: native stag antler attachment and UV routing, natural hind and fox coats, juvenile hound proportions, and shorter mammoth tusks. Original WildMesh source models and textures retained."
 
   - id: characters
     title: "Characters"

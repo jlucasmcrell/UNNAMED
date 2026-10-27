@@ -13,7 +13,7 @@ namespace UNNAMED.Presentation.Art;
 /// size between the two <see cref="Scale"/> values, and its coat a little off its kin's (the shader's <c>variant</c>).
 /// </summary>
 public sealed record FaunaLook(IReadOnlyDictionary<string, JsonElement> Shader, IReadOnlyDictionary<string, IReadOnlyDictionary<string, JsonElement>> ByMaterial,
-    IReadOnlyDictionary<string, float> Bones, float ScaleMin, float ScaleMax)
+    IReadOnlyDictionary<string, Vector3> Bones, float ScaleMin, float ScaleMax)
 {
     public static FaunaLook? Parse(JsonElement creature)
     {
@@ -23,8 +23,11 @@ public sealed record FaunaLook(IReadOnlyDictionary<string, JsonElement> Shader, 
         var shader = look.TryGetProperty("shader", out var s) ? Uniforms(s) : new Dictionary<string, JsonElement>(StringComparer.Ordinal);
         var byMaterial = look.TryGetProperty("by_material", out var m) ? m.EnumerateObject().ToDictionary(p => p.Name, p => Uniforms(p.Value), StringComparer.Ordinal)
             : new Dictionary<string, IReadOnlyDictionary<string, JsonElement>>(StringComparer.Ordinal);
-        var bones = look.TryGetProperty("bones", out var b) ? b.EnumerateObject().ToDictionary(p => p.Name, p => (float)p.Value.GetDouble(), StringComparer.Ordinal)
-            : new Dictionary<string, float>(StringComparer.Ordinal);
+        var bones = look.TryGetProperty("bones", out var b) ? b.EnumerateObject().ToDictionary(p => p.Name, p =>
+            p.Value.ValueKind == JsonValueKind.Array
+                ? new Vector3(p.Value[0].GetSingle(), p.Value[1].GetSingle(), p.Value[2].GetSingle())
+                : new Vector3(1 + (p.Value.GetSingle() - 1) / 3, p.Value.GetSingle(), 1 + (p.Value.GetSingle() - 1) / 3), StringComparer.Ordinal)
+            : new Dictionary<string, Vector3>(StringComparer.Ordinal);
         float min = 1, max = 1;
         if (look.TryGetProperty("scale", out var scale))
             (min, max) = ((float)scale[0].GetDouble(), (float)scale[1].GetDouble());
@@ -145,11 +148,11 @@ public static partial class OtherFauna
 
         public Proportions() => _bones = Array.Empty<(int, Vector3)>();
 
-        public Proportions(Skeleton3D skeleton, IReadOnlyDictionary<string, float> bones)
+        public Proportions(Skeleton3D skeleton, IReadOnlyDictionary<string, Vector3> bones)
         {
             Name = "Proportions";
-            // Godot's bones run along their own +Y; the girth grows a third as much, so a longer ear is not a thin one.
-            _bones = bones.Select(b => (skeleton.FindBone(b.Key), new Vector3(1 + (b.Value - 1) / 3, b.Value, 1 + (b.Value - 1) / 3)))
+            // Scalar looks keep their original +Y/girth rule; explicit XYZ looks support juvenile head and paw proportions.
+            _bones = bones.Select(b => (skeleton.FindBone(b.Key), b.Value))
                 .Where(b => b.Item1 >= 0).ToArray();
         }
 

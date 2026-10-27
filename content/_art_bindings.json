@@ -4456,11 +4456,43 @@
       },
       "otherfauna": {
         "scale": [
-          0.65,
-          0.7
-        ]
+          0.5,
+          0.55
+        ],
+        "bones": {
+          "RigHead": [
+            1.22,
+            0.87,
+            1.22
+          ],
+          "RigJaw": [
+            1,
+            0.86,
+            1
+          ],
+          "RigLFLegDigit11": [
+            1.22,
+            1.15,
+            1.22
+          ],
+          "RigRFLegDigit11": [
+            1.22,
+            1.15,
+            1.22
+          ],
+          "RigLBLegDigit11": [
+            1.22,
+            1.15,
+            1.22
+          ],
+          "RigRBLegDigit11": [
+            1.22,
+            1.15,
+            1.22
+          ]
+        }
       },
-      "note": "A wolf's pup: the grey wolf at 0.42-0.5 of its size, so it reads as a young animal and never as the wild adult beside it (the presentation gives the party's animals a collar of their own). Not the ember hound - that one is a hostile with cracks of fire in it. Swap the model when a young hound is scanned."
+      "note": "Juvenile wolf-source hound, 0.50-0.55 adult scale, a broader shorter head and larger paws through native named-bone pose scaling. Approved source option in Claude's 2026-10-27 lineup verdict; the rest skeleton and C1 clips stay intact. The party collar remains separate."
     },
     "creature.beast.wolf_grey": {
   "model": "creature_wm_grey_wolf_b",
@@ -4685,15 +4717,15 @@
       "note": "WildMesh SK_FemaleDeer from the Animated Animals Realistic Pack (Unity) with the 100 MODELS FemaleDeer texture; replaces the blocked 100 MODELS Doe (RDR2-named textures). Not from BONUS 50 Static Animals or Animated Animals 1.0. Silent: no deer recording on disk.",
       "otherfauna": {
         "shader": {
-          "hue_shift": -6,
-          "saturation": 0.78,
-          "hue_jitter": 10,
+          "hue_shift": 0,
+          "saturation": 1,
+          "hue_jitter": 2,
           "mottle_tint": [
             0.7,
             0.86,
             0.55
           ],
-          "mottle_strength": 0.7,
+          "mottle_strength": 0,
           "mottle_scale": 0.14,
           "mottle_cover": 0.5,
           "mottle_from": 0.45,
@@ -4714,7 +4746,9 @@
             0.62,
             0.9,
             0.72
-          ]
+          ],
+          "value": 1,
+          "band_strength": 0
         },
         "bones": {
           "RigLEar1": 1.2,
@@ -4739,15 +4773,15 @@
       "note": "WildMesh SK_Deer stag (staged 2026-10-14). Silent.",
       "otherfauna": {
         "shader": {
-          "hue_shift": -6,
-          "saturation": 0.78,
-          "hue_jitter": 10,
+          "hue_shift": 0,
+          "saturation": 1,
+          "hue_jitter": 2,
           "mottle_tint": [
             0.7,
             0.86,
             0.55
           ],
-          "mottle_strength": 0.7,
+          "mottle_strength": 0,
           "mottle_scale": 0.14,
           "mottle_cover": 0.5,
           "mottle_from": 0.45,
@@ -4768,7 +4802,9 @@
             0.62,
             0.9,
             0.72
-          ]
+          ],
+          "value": 1,
+          "band_strength": 0
         },
         "by_material": {
           "antler": {
@@ -4818,16 +4854,16 @@
       "note": "WildMesh SK_Fox, the realistic A_ fox (staged 2026-10-14). Silent: no fox recording on disk.",
       "otherfauna": {
         "shader": {
-          "hue_shift": -8,
-          "saturation": 0.62,
-          "value": 0.72,
-          "hue_jitter": 12,
+          "hue_shift": 0,
+          "saturation": 1,
+          "value": 1,
+          "hue_jitter": 2,
           "band_tint": [
             0.32,
             0.3,
             0.3
           ],
-          "band_strength": 0.7,
+          "band_strength": 0,
           "band_spacing": 0.085,
           "band_width": 0.32,
           "band_wobble": 0.3,
@@ -4849,7 +4885,8 @@
             1,
             0.75,
             0.06
-          ]
+          ],
+          "mottle_strength": 0
         },
         "bones": {
           "EarL1": 1.3,
