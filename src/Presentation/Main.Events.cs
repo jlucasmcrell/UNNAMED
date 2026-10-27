@@ -146,12 +146,9 @@ public partial class Main
                 Notice(NoticeKind.Discovery, $"Lore: {title}", 3);
             }
         });
-        // Something written, read where it stands: it opens on its own panel at the page it was read at.
-        _session.Subscribe<LoreReadableRead>(e =>
-        {
-            var site = _session.Simulation!.ActiveLayout.Readables.FirstOrDefault(r => r.Key == e.Key);
-            Show(_reading, e.EntryId, site is { Page: > 0 } ? site.Page : 1);
-        });
+        // Something written, read where it stands: it opens on its own panel at its first page (opening at the page a site grants
+        // read as the last record's page carried over, owner 2026-10-27).
+        _session.Subscribe<LoreReadableRead>(e => Show(_reading, e.EntryId, 1));
         // Companions (M6): joined, told, downed, helped up, fallen back to the Waystone.
         _session.Subscribe<CompanionRecruited>(e => Notice(NoticeKind.Party, $"{Names.Of(_session, e.NpcId)} joins you"));
         _session.Subscribe<CompanionOrdered>(e => Notice(NoticeKind.Party, $"{Names.Of(_session, e.NpcId)}: {(e.Order == CompanionOrder.Follow ? "following" : "waiting")}", 2));
