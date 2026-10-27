@@ -29,7 +29,7 @@ public partial class Main
             new("Tavar remains captive until the Foldscar is steadied",548,645,545,642)],
         21 => [new("Supper in the common room",449,730.5f,441.5f,726.3f),
             new("The keeper, workers and travellers eat and drink",437.8f,729,443,725.8f),
-            new("Renn's bar and the common room",446,726.5f,440.5f,724.8f),
+            new("Renn's bar and the common room",440.8f,726,438.8f,724.65f),
             new("Tavar remains captive until the Foldscar is steadied",548,645,545,642)],
         _ => [new("Upstairs: Renn's room",439,716.1f,437.3f,715.5f),
             new("Upstairs: Sel's room",444,716.1f,442.4f,715.5f),

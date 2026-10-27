@@ -73,8 +73,30 @@ public partial class HollowView
     private void DressInn(RegionLayout layout, float upper)
     {
         var wood = _art.WorldMaterial("cw_timber_beam") ?? Palette.Wood;
-        var linen = new StandardMaterial3D { AlbedoColor = new Color(.69f,.62f,.46f), Roughness = 1 };
-        var wool = new StandardMaterial3D { AlbedoColor = new Color(.24f,.28f,.20f), Roughness = 1 };
+        Material linen = BedCloth(3) ?? new StandardMaterial3D { AlbedoColor = new Color(.69f,.62f,.46f), Roughness = 1 };
+        Material wool = BedCloth(0) ?? new StandardMaterial3D { AlbedoColor = new Color(.24f,.28f,.20f), Roughness = 1 };
+        // Reuse the native bed's ticking and scanned blanket maps, in metre-scale
+        // projection, rather than turning its bedding into flat-coloured slabs.
+        BaseMaterial3D? BedCloth(int slot)
+        {
+            if (_art.Model("prop_bp_bed_cw") is not { } bed) return null;
+            try
+            {
+                foreach (var mesh in bed.FindChildren("*",nameof(MeshInstance3D),true,false).OfType<MeshInstance3D>())
+                    if (mesh.Mesh is { } shape)
+                        for(int i=0;i<shape.GetSurfaceCount();i++)
+                            if (shape.SurfaceGetMaterial(i) is BaseMaterial3D source && source.ResourceName.EndsWith("_"+slot))
+                            {
+                                var cloth=(BaseMaterial3D)source.Duplicate();
+                                cloth.Uv1Triplanar=cloth.Uv1WorldTriplanar=true;
+                                cloth.Uv1Scale=Vector3.One*2;
+                                cloth.Roughness=1;
+                                return cloth;
+                            }
+                return null;
+            }
+            finally { bed.Free(); }
+        }
         float ground = layout.Space.Terrain.HeightAtMm(444_000,728_000)/1000f;
         void Board(string name, Vector3 at, Vector3 size, Material material)
         {
@@ -131,6 +153,8 @@ public partial class HollowView
             // Thick ticking, a folded wool cover and a proper pillow over the native timber bed.
             Board(bed.Id+"Mattress",new Vector3(x,upper+.48f,z),new Vector3(1.13f,.23f,1.8f),linen);
             Board(bed.Id+"Blanket",new Vector3(x,upper+.605f,z-.23f),new Vector3(1.15f,.04f,1.25f),wool);
+            foreach(float side in new[] {-.565f,.565f})
+                Board(bed.Id+"BlanketFold"+side,new Vector3(x+side,upper+.54f,z-.23f),new Vector3(.025f,.13f,1.25f),wool);
             AddChild(new MeshInstance3D { Name=bed.Id+"Pillow",Position=new Vector3(x,upper+.65f,z+.65f),
                 Mesh=new SphereMesh { Radius=.28f,Height=.56f },Scale=new Vector3(1.7f,.3f,.75f),MaterialOverride=linen });
         }
