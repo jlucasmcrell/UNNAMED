@@ -711,6 +711,13 @@ public partial class Main : Node3D
             Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
             _delta = new DeltaShots(_session, _controller, _camera, _inventory, _dialogue, _character, _help, _projectiles, Path.GetFullPath(deltaShots), _assets.Root);
         }
+        else if (_options.TryGetValue("--d2-review", out string? d2Review))
+        {
+            // The D2 evidence pass (notes 16 and 18): walk to the stone and attune, or walk a lap of the yard in the rain, recorded by the
+            // movie writer so the master audio is in the clip.
+            SizeForCapture();
+            RunD2Review(Path.GetFullPath(d2Review), OS.GetEnvironment("OTHERREACH_D2_ROUTE") is { Length: > 0 } route ? route : "waystone");
+        }
         else if (_options.TryGetValue("--barrowworks-review", out string? review) && (VisualOptions.Barrowworks
             || OS.GetEnvironment("BARROWWORKS_REVIEW_RETURN_BASELINE") == "1"))
         {
@@ -1910,7 +1917,7 @@ public partial class Main : Node3D
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
-                    or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--stand" or "--purse" or "--start-items" or "--start-level" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
+                    or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--d2-review" or "--stand" or "--purse" or "--start-items" or "--start-level" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--creator-people" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
                     or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"
