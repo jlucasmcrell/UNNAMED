@@ -106,6 +106,33 @@ public partial class Main
             bool Reached()=>_controller.InTalkReach(sim.Npcs.Single(n=>n.Id==id));
             var at=sim.Npcs.Single(n=>n.Id==id).Body;
             long approachX=at.XMm+(id.EndsWith("oren_pin",StringComparison.Ordinal)?-1500:1500);
+            // The local planner's window is 128 m. A several-hundred-metre
+            // marsh journey needs the accepted road, not a direct fallback
+            // through the intervening water barriers.
+            if (Math.Abs(sim.Player.Body.XMm-approachX)+Math.Abs(sim.Player.Body.ZMm-at.ZMm)>90000)
+            {
+                using var road=JsonDocument.Parse(File.ReadAllText(Path.Combine(_session.Options.ContentRoot,"sedge_gate2_route.json")));
+                var points=road.RootElement.GetProperty("points").EnumerateArray()
+                    .Select(p=>(X:(long)Math.Round(p[0].GetDouble()*1000),Z:(long)Math.Round(p[1].GetDouble()*1000))).ToArray();
+                int count=points.Length-1;
+                int Nearest(long x,long z)=>Enumerable.Range(0,count).MinBy(i=>Math.Pow(points[i].X-x,2)+Math.Pow(points[i].Z-z,2));
+                int first=Nearest(sim.Player.Body.XMm,sim.Player.Body.ZMm),last=Nearest(approachX,at.ZMm);
+                double Length(int direction)
+                {
+                    double length=0;int i=first;
+                    while(i!=last){int next=(i+direction+count)%count;length+=Math.Sqrt(Math.Pow(points[next].X-points[i].X,2)+Math.Pow(points[next].Z-points[i].Z,2));i=next;}
+                    return length;
+                }
+                int step=Length(1)<Length(-1)?1:-1;
+                await HeritageRoute(points[first].X,points[first].Z,()=>false,Gait.Run);
+                await HeritageStep(points[first].X,points[first].Z,Gait.Run);
+                for(int i=first;i!=last;)
+                {
+                    i=(i+step+count)%count;
+                    await HeritageStep(points[i].X,points[i].Z,Gait.Run);
+                }
+                SaveScreenshot(directory,"return_from_bank");
+            }
             await HeritageRoute(approachX,at.ZMm,Reached,Gait.Run);
             if(!Reached())await HeritageStep(approachX,at.ZMm,Gait.Run,Reached);
             if(!Reached())throw new InvalidOperationException("Could not reach "+id);
