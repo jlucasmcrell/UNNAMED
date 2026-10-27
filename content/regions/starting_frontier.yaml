@@ -149531,7 +149531,7 @@ structures:
   height_m: 4.0
 # C2: raised guest wing, rooms, furniture and stair rails.
 - id: ah_tavern_bar
-  box_m: [437.5, 724.875, 440.1, 725.625]
+  box_m: [437.5, 724.275, 440.1, 725.025]
   height_m: 1.08
 - id: ah_tavern_bench_1
   box_m: [442.1, 726.2, 443.1, 726.55]

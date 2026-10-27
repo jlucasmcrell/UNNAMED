@@ -108,8 +108,8 @@ public partial class HollowView
         Warm(new Vector3(448,ground+2.35f,727.8f),2.2f,8);
         Warm(new Vector3(447.2f,ground+.8f,729.6f),3,6);
         // Renn serves across this counter, with accessible circulation behind it.
-        Board("RennCounterFront",new Vector3(438.8f,ground+.5f,725.25f),new Vector3(2.4f,.95f,.52f),wood);
-        Board("RennCounterTop",new Vector3(438.8f,ground+1.02f,725.25f),new Vector3(2.6f,.12f,.75f),wood);
+        Board("RennCounterFront",new Vector3(438.8f,ground+.5f,724.65f),new Vector3(2.4f,.95f,.52f),wood);
+        Board("RennCounterTop",new Vector3(438.8f,ground+1.02f,724.65f),new Vector3(2.6f,.12f,.75f),wood);
         Prop("prop_bp_shelf_ah",new Vector3(438.8f,ground,724.2f));
         Prop("prop_cos_barrel_met_01",new Vector3(437.1f,ground,724.9f));
         Prop("prop_cos_barrel_met_01",new Vector3(440.6f,ground,724.8f));
@@ -120,7 +120,7 @@ public partial class HollowView
             Prop("prop_bp_table_candles",new Vector3(at.X,ground+.9f,at.Y));
             for (int side=-1;side<=1;side+=2) Mug(new Vector3(at.X+side*.32f,ground+.9f,at.Y));
         }
-        for (int i=0;i<4;i++) Mug(new Vector3(438+i*.5f,ground+1.08f,725.25f));
+        for (int i=0;i<4;i++) Mug(new Vector3(438+i*.5f,ground+1.08f,724.65f));
         Board("TavernWovenRug",new Vector3(446,ground+.057f,727.4f),new Vector3(2.2f,.025f,2.8f),wool);
         Board("TavernNoticeBoard",new Vector3(450.5f,ground+1.65f,731.55f),new Vector3(1.3f,.9f,.08f),wood);
         for(int i=0;i<3;i++) Board($"Notice{i}",new Vector3(450.1f+i*.36f,ground+1.67f,731.495f),new Vector3(.28f,.48f,.012f),linen);
