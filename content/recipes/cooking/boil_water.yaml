@@ -1,0 +1,14 @@
+id: recipe.cooking.boil_water
+kind: recipe
+schema: 1
+display_key: recipe.cooking.boil_water.name
+tags: [recipe]
+name: Boil Water
+station: cookfire
+skill_ref: skill.survival
+complexity: 0
+inputs:
+  - { item_ref: item.tool.water_flask, count: 1 }
+outputs:
+  - { item_ref: item.material.boiled_water, count: 1, quality_roll: false }
+xp_award: { xp: 0 }

@@ -426,6 +426,9 @@ public sealed class WorldDelta
 
     public CreatedEntityRecord? FindCreated(EntityId instanceId) => _created.GetValueOrDefault(instanceId);
 
+    /// <summary>Immutable placed-instance records, without constructing a save snapshot.</summary>
+    internal IEnumerable<CreatedEntityRecord> CreatedEntities => _created.Values;
+
     // ── world containers (schema 6) ─────────────────────────────────────────
 
     /// <summary>A changed container's record, or null while it still holds its baseline contents.</summary>

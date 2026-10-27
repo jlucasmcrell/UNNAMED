@@ -127,10 +127,14 @@ internal sealed class DurabilitySystem : IAbstractAdvance
             return $"{entry.DefId} is not something a station repairs";
         if (!Durability.NeedsRepair(entry.Quality, entry.Wear))
             return $"{definition.Id} needs no repair";
-        if (_context.Setup.Layout.Stations.Where(s => s.Kind == repair.StationKind && InReach(s))
-                .OrderBy(s => s.Key, StringComparer.Ordinal).FirstOrDefault() is not { } station)
+        bool field=repair.MaterialId is "item.material.iron_ingot" or "item.material.bog_iron_ingot" or "item.material.grey_iron_ingot";
+        if (_context.Stations(_player).Where(p=>p.Layout.SpaceId==State.Space).Select(p=>p.Site)
+                .Where(s => (s.Kind == repair.StationKind || field && s.Kind=="cookfire") && InReach(s))
+                .OrderBy(s=>s.Kind=="cookfire").ThenBy(s => s.Key, StringComparer.Ordinal).FirstOrDefault() is not { } station)
             return $"no {repair.StationKind} in reach";
         int skill = ProgressionEngine.SkillLevel(State.Progression, repair.SkillId);
+        if(station.Kind=="cookfire" && (entry.Wear?.Points??0)==0 && entry.Quality>=Quality.Standard)
+            return "This field repair is already sound; a proper station can restore its original make";
         if (skill < repair.SkillMin)
             return $"repairing {definition.Id} needs {repair.SkillId} {repair.SkillMin}; you have {skill}";
         // The best of the material carried: like a recipe's inputs, it caps the work.
@@ -141,6 +145,7 @@ internal sealed class DurabilitySystem : IAbstractAdvance
         var body = State.Body;
         var channel = RngChannel.Open(State.World.WorldSeed, CellKey.OfWorld(body.XMm / 1000.0, body.ZMm / 1000.0), "repair", $"{entry.ItemId}@{tick}");
         int rolled = CraftingRules.Roll(material.Quality, skill, repair.SkillMin, _context.Setup.Crafting.Constants, channel.UInt64(0) / SampleScale);
+        if(station.Kind=="cookfire") rolled=Quality.Standard;
         if (_context.Dispatch(new ExchangeItems(ImmutableArray.Create(new StackTake(material.ItemId, 1)), null, 0, Quality.Standard)) is { } refused)
             return refused;
         if (_context.Dispatch(new RepairItem(entry.ItemId, rolled)) is { } failed)

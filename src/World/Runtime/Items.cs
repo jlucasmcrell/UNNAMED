@@ -278,6 +278,7 @@ internal sealed partial class InventorySystem
             return placeProblem;
         if (Find(command.From, command.Item) is not { } source)
             return $"there is no '{command.Item}' in the {command.From}";
+        if(command.From.Kind==PlaceKind.Ground && Camps.IsPiece(source.DefId)) return "Pack the whole camp at its fire";
         if (command.Count > source.Count)
             return $"there are only {source.Count} of {source.DefId}";
         if (Items.Catalog.Find(source.DefId) is not { } definition)
@@ -382,6 +383,19 @@ internal sealed partial class InventorySystem
             return "dead";
         if (HeritageRules.Refusal(Items.Catalog.Get(entry.DefId), _context.PlayerPeople) is { } heritage)
             return heritage;
+        if(entry.DefId==Camps.Kit)
+        {
+            double yaw=State.Body.FacingMdeg*Math.PI/180_000;
+            return Handle(new PlaceCampCommand(_player,State.Body.XMm+(long)(Math.Sin(yaw)*2_000),State.Body.ZMm+(long)(Math.Cos(yaw)*2_000)),tick);
+        }
+        if(entry.DefId==Camps.EmptyFlask) return Handle(new RefillFlaskCommand(_player),tick);
+        if(entry.DefId==Camps.Flask)
+        {
+            if(Handle(new ExchangeItems(ImmutableArray.Create(new StackTake(entry.ItemId,1)),Camps.EmptyFlask,1,Quality.Standard),tick) is { } refused) return refused;
+            _context.Dispatch(new ApplyEffect(_player,"effect.water_sip"));
+            _context.Events.Publish(new ItemUsed(_player,entry.DefId,"effect.water_sip",tick));
+            return null;
+        }
         // A book teaches what it holds: formulas (M3e) or recipes (a recipe book, WP3a).
         if (_context.Setup.Magic.Teaches.TryGetValue(entry.DefId, out var formulas))
         {
@@ -681,7 +695,7 @@ internal sealed partial class InventorySystem
 
     public ImmutableArray<WorldItemView> WorldItems() =>
         _context.Setup.LayoutFor(State.Space).CellKeys.Select(CellKey.Parse)
-            .SelectMany(cell => State.World.CreatedIn(cell).Select(c =>
+            .SelectMany(cell => State.World.CreatedIn(cell).Where(c=>!Camps.IsPiece(c.DefId)).Select(c =>
             {
                 var (x, z) = WorldPosition(cell, c.XCm, c.ZCm);
                 return new WorldItemView(c.InstanceId, c.DefId, c.Count, x, z) { Quality = c.Quality, Notable = c.Notable, Wear = c.Wear };

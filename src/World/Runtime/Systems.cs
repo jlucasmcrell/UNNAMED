@@ -71,6 +71,9 @@ internal sealed class SystemContext
 
     public RuntimeState State { get; }
     public SimulationSetup Setup { get; }
+    public IEnumerable<(RegionLayout Layout,StationSite Site)> Stations(EntityId player) =>
+        Setup.Sites(l=>l.Stations).Concat(Camps.View(this,player) is { } camp
+            ? new[] { (Setup.Layout,camp.Station) } : Enumerable.Empty<(RegionLayout,StationSite)>());
     public IEventBus Events { get; }
 
     /// <summary>The player's people's biology and aptitude (RACE_ABILITIES_PROPOSAL.md): fixed for the run, as the people is.</summary>

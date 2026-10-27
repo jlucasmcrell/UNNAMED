@@ -233,6 +233,8 @@ public sealed class Simulation
     private readonly DeathSystem _death;
     private readonly GatheringSystem _gathering;
     private readonly CraftingSystem _crafting;
+    private readonly CampSystem _camp;
+    private readonly FirstHourSystem _firstHour;
     private readonly LoreSystem _lore;
     private readonly NpcSystem _npcs;
     private readonly WorldNavigation _navigation;
@@ -312,6 +314,9 @@ public sealed class Simulation
         _discovery = new DiscoverySystem(_context, _state.Claim(nameof(DiscoverySystem), StateSlice.Discoveries));
         _tiers = new TierSystem(_context, _state.Claim(nameof(TierSystem), StateSlice.CellTiers), _cells, setup.Observers);
         _inventory = new InventorySystem(_context, _state.Claim(nameof(InventorySystem), StateSlice.PlayerInventory, StateSlice.WorldItems), player.Id);
+        _camp = new CampSystem(_context,_state.Claim(nameof(CampSystem),StateSlice.CampSession),player.Id);
+        _firstHour=new FirstHourSystem(_context,player.Id);
+        _firstHour.Listen(bus);
         _equipment = new EquipmentSystem(_context, _state.Claim(nameof(EquipmentSystem), StateSlice.PlayerEquipment), player.Id);
         _combat = new CombatSystem(_context, _state.Claim(nameof(CombatSystem), StateSlice.Combat), player.Id, () => _movement.Effective);
         _creatures = new CreatureSystem(_context, _state.Claim(nameof(CreatureSystem), StateSlice.Creatures), player.Id, () => _movement.Effective);
@@ -580,6 +585,11 @@ public sealed class Simulation
 
     /// <summary>Items lying in the region.</summary>
     public ImmutableArray<WorldItemView> WorldItems => _inventory.WorldItems();
+    public CampView? Camp => Camps.View(_context,PlayerId);
+    public bool RestingAtCamp => _state.CampRestAt is not null;
+    public bool ReturnToCamp => _state.ReturnToCamp;
+    public bool CanRefillFlask => Camps.WaterNear(_context);
+    public ImmutableArray<StationSite> Stations => _context.Stations(PlayerId).Where(p=>p.Layout.SpaceId==_state.Space).Select(p=>p.Site).ToImmutableArray();
 
     public ImmutableArray<DoorView> Doors =>
         Setup.AllLayouts.SelectMany(l => l.Doors).Select(d => new DoorView(d, _context.IsOpen(d))).ToImmutableArray();
@@ -598,7 +608,7 @@ public sealed class Simulation
     /// not shown until found. (0, 0) for a station with no experiments, or no such station.
     /// </summary>
     public (int Found, int Total) Experiments(string stationKey) =>
-        Setup.Layout.Stations.FirstOrDefault(s => s.Key == stationKey) is { } station && _crafting.ExperimentSet(station) is var set
+        Stations.FirstOrDefault(s => s.Key == stationKey) is { } station && _crafting.ExperimentSet(station) is var set
             ? (set.Count(id => ProgressionEngine.Knows(_state.Progression, id)), set.Length)
             : (0, 0);
 
@@ -912,6 +922,12 @@ public sealed class Simulation
                 SalvageCommand salvage => _crafting.Handle(salvage, WorldTick),
                 ExperimentCommand experiment => _crafting.Handle(experiment, WorldTick),
                 UseItemCommand use => _inventory.Handle(use, WorldTick),
+                PlaceCampCommand placeCamp => _inventory.Handle(placeCamp,WorldTick),
+                PackCampCommand packCamp => _inventory.Handle(packCamp,WorldTick),
+                RestAtCampCommand restCamp => _camp.Handle(restCamp),
+                CampReturnCommand returnCamp => _camp.Handle(returnCamp),
+                RefillFlaskCommand refill => _inventory.Handle(refill,WorldTick),
+                VisitStationCommand visitStation => _firstHour.Handle(visitStation,WorldTick),
                 TalkCommand talk => _dialogue.Handle(talk, WorldTick),
                 ChooseCommand choose => _dialogue.Handle(choose, WorldTick),
                 LeaveCommand leave => _dialogue.Handle(leave, WorldTick),
@@ -978,6 +994,7 @@ public sealed class Simulation
             _weather.Tick(tick);
             foreach (var simulation in _tierSimulations)
                 simulation.Tick(tick, _cells.Where(c => _state.Tiers.GetValueOrDefault(c.ToString(), SimulationTier.D) == simulation.Tier).ToList());
+            _camp.Tick();
             _combat.Tick(tick);
             _laden.Tick(tick);
             _creatures.Tick(tick);

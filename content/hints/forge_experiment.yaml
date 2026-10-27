@@ -1,0 +1,9 @@
+id: hint.forge_experiment
+kind: hint
+schema: 1
+display_key: hint.forge_experiment.text
+tags: [hint]
+category: fieldcraft
+trigger: forge_opened
+order: 0
+text: "Kera teaches the torch here: timber and bog-cotton lint. Try Experiment with what you carry to discover other recipes."

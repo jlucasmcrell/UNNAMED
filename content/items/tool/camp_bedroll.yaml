@@ -1,0 +1,13 @@
+id: item.tool.camp_bedroll
+kind: item
+schema: 1
+display_key: item.tool.camp_bedroll.name
+tags: [item]
+name: Your Bedroll
+notes: A placed piece of your camp, kept while you are away.
+category: tool
+stack_max: 1
+weight: 1.0
+value_base: 0
+rarity: common
+no_drop: true

@@ -126,6 +126,13 @@ public partial class HelpPanel : CanvasLayer
                 entries.Add(new GuideEntry("Developer", does, $"Controls: {Words(actions)}"));
         entries.AddRange(Models.Explainers.All.Select(explainer =>
             new GuideEntry("How this world works", explainer.Title, string.Join(" ", explainer.Paragraphs))));
+        entries.Add(new GuideEntry("How this world works","Light, camp, water and a way home",
+            "Renn gives you a torch: equip it in your off hand. Kera teaches torches at the forge and sells a cheap Bedroll and Fire Kit. "
+            +"Set camp from your pack on clear, dry, level ground outside towns and roads. One camp: pack it at its fire to move it. "
+            +"At a cookfire make torches, roast meat, boil flask water, brew woundmoss tea and make salves. Boiling keeps your empty flask. "
+            +"Sip a full flask for a little recovery; refill at a well or the stream. Rest at your fire for faster health recovery outside a fight; movement ends rest. "
+            +"Bog and grey iron can be field-repaired to standard at a fire, using the repair material and skill shown on the item. "
+            +"After death, choose your camp or bound Waystone. Time and weather keep moving; there are no hunger or thirst meters."));
         foreach (var hint in Hints?.Invoke() ?? Enumerable.Empty<HintDefinition>())
             entries.Add(FieldGuide.Of(hint, Key));
         if (Files.Length > 0)

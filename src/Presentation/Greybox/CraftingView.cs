@@ -2,6 +2,7 @@
 // Godot presentation only: no gameplay state lives here (D-11)
 
 using Godot;
+using UNNAMED.Domain;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.World.Runtime;
 
@@ -20,6 +21,9 @@ public partial class CraftingView : Node3D
     private readonly Dictionary<string, Node3D> _stations = new(StringComparer.Ordinal);
     private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
     private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
+    private EntityId? _campId;
+    private Node3D? _bedroll;
+    private GpuParticles3D? _foldSparks;
 
     /// <summary>The asset library and its bindings (the Phase-1 asset integration); without them, greybox.</summary>
     public void Bind(Art.ArtLibrary art, Art.ArtBindings bindings)
@@ -31,6 +35,8 @@ public partial class CraftingView : Node3D
     public void Build(RegionLayout layout)
     {
         _nodes.Clear();
+        _stations.Clear();
+        _campId=null;_bedroll=null;_foldSparks=null;
         foreach (var child in GetChildren())
         {
             RemoveChild(child);
@@ -83,8 +89,12 @@ public partial class CraftingView : Node3D
             _nodes[site.Name] = (ready, spent);
             AddChild(root);
         }
-        foreach (var station in layout.Stations)
-        {
+        foreach (var station in layout.Stations) AddStation(station,terrain);
+    }
+
+    private void AddStation(StationSite station,TerrainGrid terrain)
+    {
+            var coverage=_art.Coverage;
             var look = _bindings.Stations.GetValueOrDefault(station.Kind);
             var root = look?.Model is not null ? Art.Fitting.Site(_art, look, Vector3.Zero) : null;
             if (root is not null)
@@ -121,7 +131,68 @@ public partial class CraftingView : Node3D
             root.Position = new Vector3(station.XMm / 1000f, terrain.HeightAtMm(station.XMm, station.ZMm) / 1000f, station.ZMm / 1000f);
             AddChild(root);
             _stations[station.Key] = root;
+    }
+
+    public void RefreshCamp(Simulation simulation)
+    {
+        var camp=simulation.PlayerInExterior?simulation.Camp:null;
+        var fire=camp?.Pieces.FirstOrDefault(p=>p.DefId=="item.tool.camp_fire");
+        if(_campId!=fire?.Id)
+        {
+            if(_stations.Remove(CampView.StationKey,out var old)) { RemoveChild(old);old.QueueFree(); }
+            if(_bedroll is not null) { RemoveChild(_bedroll);_bedroll.QueueFree(); }
+            _bedroll=null;_foldSparks=null;_campId=fire?.Id;
+            if(camp is not null)
+            {
+                var terrain=simulation.ActiveLayout.Space.Terrain;
+                AddStation(camp.Station,terrain);
+                var root=_stations[CampView.StationKey];
+                var recipes=Art.ParticleRecipes.Load(_art.Root);
+                foreach(string recipe in new[] {"hearth_fire","embers"})
+                    if(recipes.Build(recipe) is { } effect) { effect.Position=Vector3.Up*.18f;root.AddChild(effect); }
+                if(recipes.Build("embers") is { ProcessMaterial:ParticleProcessMaterial process } sparks)
+                {
+                    var violet=(ParticleProcessMaterial)process.Duplicate();
+                    violet.ColorRamp=new GradientTexture1D { Gradient=new Gradient {
+                        Colors=[new Color(.57f,.18f,.9f,0),new Color(.72f,.4f,1,1),new Color(.5f,.15f,.8f,0)],Offsets=[0,.2f,1] } };
+                    sparks.ProcessMaterial=violet;sparks.Amount=6;sparks.Position=Vector3.Up*.2f;
+                    root.AddChild(sparks);_foldSparks=sparks;
+                }
+                var cloth=CampCloth();
+                var at=camp.Pieces.First(p=>p.DefId=="item.tool.camp_bedroll");
+                _bedroll=new Node3D { Name="CampBedroll",Position=new Vector3(at.XMm/1000f,terrain.HeightAtMm(at.XMm,at.ZMm)/1000f,at.ZMm/1000f) };
+                _bedroll.AddChild(new MeshInstance3D { Mesh=new BoxMesh {Size=new Vector3(.86f,.12f,1.85f)},Position=Vector3.Up*.08f,MaterialOverride=cloth });
+                _bedroll.AddChild(new MeshInstance3D { Mesh=new CylinderMesh {TopRadius=.14f,BottomRadius=.14f,Height=.86f},
+                    Position=new Vector3(0,.18f,.73f),RotationDegrees=new Vector3(0,0,90),MaterialOverride=cloth });
+                foreach(float z in new[] {-.4f,.35f}) _bedroll.AddChild(new MeshInstance3D {
+                    Mesh=new BoxMesh {Size=new Vector3(.88f,.025f,.045f)},Position=new Vector3(0,.15f,z),MaterialOverride=Palette.Leather });
+                AddChild(_bedroll);
+            }
         }
+        // The Other appears only beside a still-standing fold; ordinary firelight stays warm.
+        if(_foldSparks is not null) _foldSparks.Visible=camp is not null && simulation.Barriers.Any(b=>b.Standing &&
+            Footprints.Center(b.Site.Footprint) is var p && Math.Pow(p.XMm-camp.XMm,2)+Math.Pow(p.ZMm-camp.ZMm,2)<60_000d*60_000);
+    }
+
+    private Material CampCloth()
+    {
+        if(_art.Model("prop_bp_bed_cw") is { } bed)
+        {
+            try
+            {
+                foreach(var mesh in bed.FindChildren("*",nameof(MeshInstance3D),true,false).OfType<MeshInstance3D>())
+                    if(mesh.Mesh is { } shape)
+                        for(int i=0;i<shape.GetSurfaceCount();i++)
+                            if(shape.SurfaceGetMaterial(i) is BaseMaterial3D source && source.ResourceName.EndsWith("_3"))
+                            {
+                                var cloth=(BaseMaterial3D)source.Duplicate();
+                                cloth.Uv1Triplanar=cloth.Uv1WorldTriplanar=true;cloth.Uv1Scale=Vector3.One*2;cloth.Roughness=1;
+                                return cloth;
+                            }
+            }
+            finally { bed.Free(); }
+        }
+        return Palette.Leather;
     }
 
     /// <summary>What is drawn for a node (by its site's name) as it stands now - its ready look - for the outline; null when none is.</summary>

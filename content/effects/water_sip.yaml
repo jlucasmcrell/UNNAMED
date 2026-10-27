@@ -1,0 +1,14 @@
+id: effect.water_sip
+kind: effect
+schema: 1
+display_key: effect.water_sip.name
+tags: [effect]
+name: Cool Water
+category: hot
+stack_policy: refresh
+max_stacks: 1
+duration_min: 1.5
+tick_interval_min: 0.5
+on_tick:
+  - { type: heal, amount: 2 }
+dispel_category: none

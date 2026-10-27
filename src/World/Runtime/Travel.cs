@@ -141,6 +141,11 @@ internal sealed class TravelSystem
     /// </remarks>
     public Body ReturnBody()
     {
+        if(State.ReturnToCamp && Camps.View(_context,_player) is { } camp)
+        {
+            long x=camp.XMm+1_800,z=camp.ZMm+1_200;
+            return new Body(x,Layout.Space.Terrain.HeightAtMm(x,z),z,0);
+        }
         if (State.ReturnPoint is { } key && Layout.FindWaystone(key) is { } stone)
             return new Body(stone.ArrivalXMm, Layout.Space.Terrain.HeightAtMm(stone.ArrivalXMm, stone.ArrivalZMm), stone.ArrivalZMm, AwayFrom(stone));
         var spawn = Layout.Spawn;

@@ -1,0 +1,12 @@
+id: item.tool.water_flask_empty
+kind: item
+schema: 1
+display_key: item.tool.water_flask_empty.name
+tags: [item]
+name: Empty Water Flask
+notes: Refill at the stream or a well. The flask is kept when its water is used.
+category: tool
+stack_max: 1
+weight: 0.3
+value_base: 4
+rarity: common

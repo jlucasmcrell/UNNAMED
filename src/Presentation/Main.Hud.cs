@@ -22,6 +22,7 @@ public partial class Main
     /// <summary>The HUD and the open panels, from the frame's state.</summary>
     private void DrawHud(Simulation simulation, CombatView combat, Posture posture, double alpha, double delta)
     {
+        DrawCampReturn(simulation,combat);
         _hud.SetHeading(PlayerController.FacingOf(_camera.GroundForward) / 1000f);
         _hud.SetClock(CalendarWords.HudClock(simulation.Calendar, simulation.Weather.State));
         bool aiming = Aim(simulation, combat);
@@ -51,6 +52,7 @@ public partial class Main
                 ? $"[{HelpPanel.Key("interact")}] Open the {Names.Place(_session, container.Key, container.DefId)}"
                 : $"[{HelpPanel.Key("interact")}] Search the {Names.Of(_session, container.DefId)}",
             { Kind: FocusKind.Node } node => NodePrompt(simulation, node),
+            { Kind: FocusKind.Water } => $"[{HelpPanel.Key("interact")}] Refill your flask",
             { Kind: FocusKind.Station } board when board.DefId == NoticeBoardPanel.Kind => $"[{HelpPanel.Key("interact")}] Read the notice board",
             { Kind: FocusKind.Station } station => $"[{HelpPanel.Key("interact")}] Work at the {Names.Place(_session, station.Key, station.DefId)}",
             { Kind: FocusKind.Npc } npc when DownedCompanion(npc.Key) is not null => $"[{HelpPanel.Key("interact")}] {ContextModel.Prompt(Facts(simulation, npc.Key))}",

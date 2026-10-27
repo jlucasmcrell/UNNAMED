@@ -1008,7 +1008,7 @@ internal sealed partial class CombatSystem
         }
         if (health < maxHealth && tick - combat.LastCombat >= C.OutOfCombatTicks)
         {
-            int milli = combat.HealthMilli + C.HealthRegenPerSecond * TickMs;
+            int milli = combat.HealthMilli + C.HealthRegenPerSecond * TickMs * (State.CampRestAt is not null ? 3 : 1);
             healthDelta += milli / 1000;
             next = next with { HealthMilli = milli % 1000 };
         }

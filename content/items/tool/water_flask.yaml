@@ -4,9 +4,10 @@ schema: 1
 display_key: item.tool.water_flask.name
 tags: [item]
 name: Water Flask
-notes: One charge, refilled at the stream (M3f); salve_minor spends it.
+notes: Sip for a little recovery, or boil the water at a fire. Keep the empty flask and refill at a well or stream.
 category: tool
 stack_max: 1
 weight: 0.5
 value_base: 6
 rarity: common
+use: { effect_ref: effect.water_sip, consume: true }

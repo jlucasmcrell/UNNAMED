@@ -1,0 +1,15 @@
+id: recipe.cooking.herb_tea
+kind: recipe
+schema: 1
+display_key: recipe.cooking.herb_tea.name
+tags: [recipe]
+name: Woundmoss Tea
+station: cookfire
+skill_ref: skill.survival
+complexity: 0
+inputs:
+  - { item_ref: item.material.boiled_water, count: 1 }
+  - { item_ref: item.material.herb_woundmoss, count: 1 }
+outputs:
+  - { item_ref: item.consumable.herb_tea, count: 1, quality_roll: false }
+xp_award: { xp: 5 }

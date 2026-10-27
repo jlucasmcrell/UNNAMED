@@ -3,8 +3,8 @@ kind: hint
 schema: 1
 display_key: hint.help.text
 tags: [hint]
-notes: "Existing. Full only."
-category: movement
+notes: "A separate help category keeps this reachable under Light guidance."
+category: help
 trigger: new_game
 order: 1
 text: "{key:help} lists every key. The world never stops for a menu: step somewhere quiet before you read."

@@ -22,6 +22,7 @@ public enum FocusKind
     Waystone,
     Portal,
     Readable,
+    Water,
 }
 
 /// <summary>
@@ -170,7 +171,8 @@ public sealed class PlayerController
         var simulation = _session.Simulation!;
         var combat = _session.Setup.Combat;
         bool Heals(string defId) => combat.UseEffects.TryGetValue(defId, out var effect) && combat.Effects.TryGetValue(effect, out var definition) && definition.HealPerTick > 0;
-        var carried = simulation.Player.Inventory.Where(e => combat.UseEffects.ContainsKey(e.DefId)).ToList();
+        var carried = simulation.Player.Inventory.Where(e => combat.UseEffects.ContainsKey(e.DefId))
+            .OrderByDescending(e=>combat.Effects[combat.UseEffects[e.DefId]].HealPerTick).ToList();
         if ((carried.FirstOrDefault(e => Heals(e.DefId)) ?? carried.FirstOrDefault()) is not { } item)
             return false;
         _session.Submit(new UseItemCommand(simulation.PlayerId, item.ItemId));
@@ -205,8 +207,10 @@ public sealed class PlayerController
         // Gathering and crafting (M3f) are measured like picking up: from the body, at the same reach.
         foreach (var node in simulation.Nodes.Where(n => n.Space == simulation.ActiveLayout.SpaceId))
             candidates.Add((new Focus(FocusKind.Node, node.Key, node.NodeDefId, node.XMm, node.ZMm), Distance(node.XMm, node.ZMm) - itemReach));
-        foreach (var station in simulation.ActiveLayout.Stations)
+        foreach (var station in simulation.Stations)
             candidates.Add((new Focus(FocusKind.Station, station.Key, station.Kind, station.XMm, station.ZMm), Distance(station.XMm, station.ZMm) - itemReach));
+        if(simulation.CanRefillFlask && simulation.Player.Inventory.Any(i=>i.DefId=="item.tool.water_flask_empty"))
+            candidates.Add((new Focus(FocusKind.Water,"water","water",Authoritative.XMm,Authoritative.ZMm),-itemReach));
         // An NPC is spoken to within a hand's reach of their body (M4), and not through a wall: the rule the simulation applies.
         long talkReach = itemReach + _session.Setup.Movement.BodyRadiusMm;
         foreach (var npc in simulation.Npcs.Where(n => n.Space == simulation.ActiveLayout.SpaceId && !simulation.Walled(Authoritative.XMm, Authoritative.ZMm, n.Body.XMm, n.Body.ZMm)))
