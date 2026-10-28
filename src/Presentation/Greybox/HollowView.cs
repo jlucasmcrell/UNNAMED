@@ -943,11 +943,23 @@ public partial class HollowView : Node3D
             }
         }
         surface.Commit(mesh);
+        // The gorge's own material (WaterView.BuildDenGorge): normals carried by a real current, colour by depth, foam
+        // at the shallows and along the banks. A flat stream shader is what made the first creek read as a grey sheet.
+        var material = (ShaderMaterial)WaterView.FlowWater.Duplicate();
+        Vector2 flow = points.Count > 1 ? (points[^1] - points[0]).Normalized() : new Vector2(0, -1);
+        material.SetShaderParameter("flow_dir", flow);
+        material.SetShaderParameter("flow_speed", water.Kind == "creek" || water.Kind == "stream" ? 1.3f : 0.35f);
+        material.SetShaderParameter("shallow_colour", new Vector3(0.20f, 0.31f, 0.28f));
+        material.SetShaderParameter("deep_colour", new Vector3(0.06f, 0.13f, 0.14f));
+        material.SetShaderParameter("depth_fade_m", 1.1f);
+        material.SetShaderParameter("foam_m", 0.25f);
+        material.SetShaderParameter("edge_fade", 1f);
+        material.SetShaderParameter("rapids", water.Kind is "creek" or "stream" ? 0.35f : 0.1f);
         return new MeshInstance3D
         {
             Name = water.Key,
             Mesh = mesh,
-            MaterialOverride = Palette.StreamWater,
+            MaterialOverride = material,
             CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
         };
     }
