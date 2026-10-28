@@ -918,28 +918,37 @@ public partial class HollowView : Node3D
         {
             // A pond, spring or well: one quad round the point, big enough to read through its opening.
             var c = points[0];
-            surface.SetNormal(Vector3.Up);
             foreach (var (a, b) in new[] { (-1f, -1f), (1f, -1f), (1f, 1f), (-1f, -1f), (1f, 1f), (-1f, 1f) })
+            {
+                surface.SetNormal(Vector3.Up);
+                surface.SetUV(new Vector2((a + 1) * 0.5f, (b + 1) * 0.5f));
                 surface.AddVertex(new Vector3(c.X + a * half, level, c.Y + b * half));
+            }
         }
         else
         {
+            float run = 0;
             for (int i = 0; i < points.Count - 1; i++)
             {
                 Vector2 a = points[i], b = points[i + 1];
                 var along = (b - a).Normalized();
                 var across = new Vector2(-along.Y, along.X) * half;
-                surface.SetNormal(Vector3.Up);
-                foreach (var v in new[]
+                float next = run + (b - a).Length();
+                foreach (var (v, u, w) in new[]
                 {
-                    new Vector3(a.X - across.X, level, a.Y - across.Y),
-                    new Vector3(a.X + across.X, level, a.Y + across.Y),
-                    new Vector3(b.X + across.X, level, b.Y + across.Y),
-                    new Vector3(a.X - across.X, level, a.Y - across.Y),
-                    new Vector3(b.X + across.X, level, b.Y + across.Y),
-                    new Vector3(b.X - across.X, level, b.Y - across.Y),
+                    (new Vector3(a.X - across.X, level, a.Y - across.Y), run, 0f),
+                    (new Vector3(a.X + across.X, level, a.Y + across.Y), run, 1f),
+                    (new Vector3(b.X + across.X, level, b.Y + across.Y), next, 1f),
+                    (new Vector3(a.X - across.X, level, a.Y - across.Y), run, 0f),
+                    (new Vector3(b.X + across.X, level, b.Y + across.Y), next, 1f),
+                    (new Vector3(b.X - across.X, level, b.Y - across.Y), next, 0f),
                 })
+                {
+                    surface.SetNormal(Vector3.Up);
+                    surface.SetUV(new Vector2(u, w));
                     surface.AddVertex(v);
+                }
+                run = next;
             }
         }
         surface.Commit(mesh);
