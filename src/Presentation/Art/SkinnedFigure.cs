@@ -72,6 +72,9 @@ public sealed partial class SkinnedFigure : Figure
         }
     }
     public override void SetIdleRole(string? role) => _idleRole = role;
+
+    /// <summary>A climb or a vault just happened (the domain's Climbed event): play the climb pose through once.</summary>
+    public void BeginClimb() => _climb = 0.001;
     public override void SetGaze(Vector3? target) => _face?.Gaze(target is { } at && Head is { } head ? GlobalBasis.Inverse() * (at - head).Normalized() : null);
     public override void SetMovementDirection(Vector3 direction) { if (direction.LengthSquared() > .001f) _moveDirection = direction.Normalized(); _hasDirection = true; }
     private double _striking;
@@ -445,6 +448,7 @@ public sealed partial class SkinnedFigure : Figure
     private string _gait = "walk";
     private bool _wasAirborne;
     private double _landing;
+    private double _climb;
     private double _airTime;
     // Coming to rest: a gait that has just ended settles through the "stop" clip once (-1 = not stopping).
     private double _stopping = -1;
