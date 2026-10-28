@@ -37,6 +37,14 @@ public partial class Main
             AddChild(camera);
             source.GetNode<OmniLight3D>("CharacterFill").Reparent(camera, false);
             camera.MakeCurrent();
+            // A plan for the race-look review is answered here, before the people-specific branches: it dresses its own figures
+            // and must not depend on the comparison cast, which throws for a creator body the cast does not list.
+            if (OS.GetEnvironment("OTHERREACH_RACE_LOOKS_PLAN") is { Length: > 0 })
+            {
+                await RunRaceLooksReview(directory, camera);
+                CaptureQuit.At(this);
+                return;
+            }
             if(OS.GetEnvironment("OTHERREACH_RCD8_MOTION_REVIEW")=="1")
             {
                 camera.GetNode<OmniLight3D>("CharacterFill").Reparent(source,false);
