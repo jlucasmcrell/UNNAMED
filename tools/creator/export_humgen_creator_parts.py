@@ -8,6 +8,7 @@ import json
 import re
 import sys
 from pathlib import Path
+import bmesh
 import bpy
 import numpy as np
 from mathutils import Vector
@@ -253,6 +254,33 @@ def covered_body(body, meshes):
     return dict(body_vertex_count=len(body.data.vertices), covered=len(covered), uv_triangles=triangles)
 
 
+def add_lining(meshes):
+    """Copy each worn mesh, flip it inside out and pull it 3 mm toward the body: the cloth seen through an opening."""
+    lining = []
+    for obj in meshes:
+        copy = obj.copy()
+        copy.data = obj.data.copy()
+        copy.name = obj.name + '_lining'
+        bpy.context.collection.objects.link(copy)
+        mesh = bmesh.new()
+        mesh.from_mesh(copy.data)
+        bmesh.ops.reverse_faces(mesh, faces=list(mesh.faces))
+        mesh.normal_update()
+        for vertex in mesh.verts:
+            vertex.co -= vertex.normal * .003
+        mesh.to_mesh(copy.data)
+        mesh.free()
+        copy.parent = obj.parent
+        copy.parent_type = obj.parent_type
+        if obj.parent_type == 'BONE': copy.parent_bone = obj.parent_bone
+        copy.matrix_world = obj.matrix_world
+        for modifier in obj.modifiers:
+            if modifier.type == 'ARMATURE':
+                copy.modifiers.new(modifier.name, 'ARMATURE').object = modifier.object
+        lining.append(copy)
+    return lining
+
+
 parts = [('hair', 'hair', 'hg_main_hair'), ('facial_hair', 'beard', 'hg_face_hair'),
          ('outfits', 'outfit', None), ('footwear', 'footwear', None)]
 def slug(value): return re.sub(r'[^a-z0-9]+', '_', value.lower()).strip('_')
@@ -336,6 +364,9 @@ for collection, kind, tag in parts:
                 print('NATIVE_PART_CORRECTIVES', identifier, share_correctives(copy.objects.body, meshes), flush=True)
             # A medium or long style gets the chains that let the hair move; a short one stays welded to the skull.
             chains = add_hair_chains(copy.objects.rig, meshes, hair_class(option['id']), option['id']) if tag else {}
+            # A worn garment ships with its own lining, so an opening reveals cloth rather than the body (owner's route b).
+            if not tag:
+                meshes = meshes + add_lining(meshes)
             bpy.ops.object.select_all(action='DESELECT')
             copy.objects.rig.select_set(True)
             for obj in meshes: obj.select_set(True)
