@@ -29,19 +29,19 @@ public class LockRulesTests
     {
         for (int level = 0; level <= 60; level++)
             for (int tier = 1; tier <= 3; tier++)
-                Assert.InRange(LockRules.Chance(level, tier), 0.05, 0.95);
+                Assert.InRange(LockRules.Chance(level, tier), 0.08, 0.95);
         Assert.Equal(0.95, LockRules.Chance(100, 1));   // clamped above
-        Assert.Equal(0.05, LockRules.Chance(0, 3));     // clamped below: a wall, but never quite a shut one
+        Assert.Equal(0.08, LockRules.Chance(0, 3));     // clamped below: a wall, but never quite a shut one
     }
 
     [Fact]
     public void TheNumbersTheDesignNames()
     {
         // 20% at a hand that matches the tier's whole demand, 2 points of skill to a point of chance, and 12 of demand per tier.
-        Assert.Equal(0.20, LockRules.Chance(12, 1), 6);
-        Assert.Equal(0.20, LockRules.Chance(24, 2), 6);
-        Assert.Equal(0.20, LockRules.Chance(36, 3), 6);
-        Assert.Equal(0.40, LockRules.Chance(22, 1), 6);
+        Assert.Equal(0.38, LockRules.Chance(12, 1), 6);
+        Assert.Equal(0.38, LockRules.Chance(24, 2), 6);
+        Assert.Equal(0.38, LockRules.Chance(36, 3), 6);
+        Assert.Equal(0.63, LockRules.Chance(22, 1), 6);
     }
 
     [Fact]
