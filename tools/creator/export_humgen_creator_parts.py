@@ -206,33 +206,49 @@ def add_hair_chains(rig, meshes, length_class, option_id):
 
 
 def covered_body(body, meshes):
-    """The body vertices the worn garments cover, taken from the mask vertex groups the garments name.
+    """Which body vertices each worn garment covers, and their triangles in the body's own UV space.
 
-    HumGen's masks are MASK modifiers on the body with `invert_vertex_group` set, so the named group holds exactly the region
-    hidden under that garment. The part ships with the body's vertex count so the runtime can refuse a mask for another body.
+    A vertex is covered when its nearest point on the worn garments is within 10 mm and the vertex lies behind that surface, which
+    is what HumGen's per-garment mask means geometrically. The triangles are written in UV so the runtime can discard the skin there
+    without touching the body mesh.
     """
-    names = []
+    from mathutils.bvhtree import BVHTree
+    points, polygons = [], []
     for obj in meshes:
-        for index in range(10):
-            key = 'mask_' + str(index)
-            if key in obj and obj[key]:
-                names.append(obj[key])
-    if not names:
+        offset = len(points)
+        points += [obj.matrix_world @ vertex.co for vertex in obj.data.vertices]
+        for polygon in obj.data.polygons:
+            polygons.append([offset + index for index in polygon.vertices])
+    if not polygons:
         return None
+    tree = BVHTree.FromPolygons(points, polygons)
     covered = set()
-    for name in names:
-        group = body.vertex_groups.get(name)
-        if group is None:
+    for vertex in body.data.vertices:
+        probe = body.matrix_world @ vertex.co
+        hit = tree.find_nearest(probe)
+        if hit[0] is None:
             continue
-        at = group.index
-        for vertex in body.data.vertices:
-            for membership in vertex.groups:
-                if membership.group == at and membership.weight > .5:
-                    covered.add(vertex.index)
-                    break
+        point, normal, _, distance = hit
+        if distance is None or distance > .010:
+            continue
+        if (probe - point).dot(normal) < .001:
+            covered.add(vertex.index)
     if not covered:
         return None
-    return dict(body_vertex_count=len(body.data.vertices), covered=len(covered), vertices=sorted(covered))
+    uv_layer = body.data.uv_layers.active
+    if uv_layer is None:
+        raise SystemExit('CREATOR_BODY_MASK_NO_UV: the body has no active UV layer to stencil against')
+    uvs = uv_layer.data
+    triangles = []
+    for polygon in body.data.polygons:
+        inside = [index for index in polygon.vertices if index in covered]
+        if len(inside) < 2:
+            continue
+        corners = [uvs[loop].uv for loop in polygon.loop_indices]
+        for step in range(1, len(corners) - 1):
+            triangles.append([corners[0].x, corners[0].y, corners[step].x, corners[step].y,
+                              corners[step + 1].x, corners[step + 1].y])
+    return dict(body_vertex_count=len(body.data.vertices), covered=len(covered), uv_triangles=triangles)
 
 
 parts = [('hair', 'hair', 'hg_main_hair'), ('facial_hair', 'beard', 'hg_face_hair'),
@@ -338,9 +354,10 @@ for collection, kind, tag in parts:
             if not tag:
                 mask = covered_body(copy.objects.body, meshes)
                 if mask:
-                    (folder / 'body_mask.json').write_text(json.dumps(
+                    (folder / 'body_coverage.json').write_text(json.dumps(
                         dict(target_body_sha256=identity['target_body_sha256'], **mask)))
-                    print('CREATOR_BODY_MASK', identifier, mask['covered'], 'of', mask['body_vertex_count'], flush=True)
+                    print('CREATOR_BODY_MASK', identifier, mask['covered'], 'of', mask['body_vertex_count'],
+                          len(mask['uv_triangles']), 'triangles', flush=True)
             (folder / 'creator_part.json').write_text(json.dumps(dict(kind=kind, option=option['id'], target_base=base,
                 target_body_sha256=identity['target_body_sha256'], source=path, native_meshes=[obj.name for obj in meshes],
                 **({'hair_chains': chains} if chains else {})), indent=2))

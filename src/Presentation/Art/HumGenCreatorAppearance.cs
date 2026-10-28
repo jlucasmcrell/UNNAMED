@@ -158,6 +158,28 @@ public sealed partial class HumGenCreatorAppearance : Node
             }
     }
 
+    /// <summary>
+    /// Drop the body fragments the worn part covers, using the coverage mask that part's export carries in the body's UV space. A
+    /// part without a mask clears the stencil, so no outfit inherits another's holes.
+    /// </summary>
+    private static void Stencil(ArtLibrary art, Node model, string? part)
+    {
+        Texture2D? mask = null;
+        if (part is not null && art.RiggedFile(part, "body_coverage.png") is { } path)
+            mask = ImageTexture.CreateFromImage(Image.LoadFromFile(path));
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+        {
+            if (mesh.HasMeta("creator_part_kind")) continue;
+            for (int surface = 0; surface < (mesh.Mesh?.GetSurfaceCount() ?? 0); surface++)
+            {
+                if (!Exported(mesh, surface).Contains("_Skin", StringComparison.Ordinal)) continue;
+                if (mesh.GetSurfaceOverrideMaterial(surface) is not ShaderMaterial skin) continue;
+                skin.SetShaderParameter("conceal_map", mask ?? skin.GetShaderParameter("conceal_map"));
+                skin.SetShaderParameter("conceal", mask is null ? 0f : 1f);
+            }
+        }
+    }
+
     /// <summary>The stand-off a worn garment keeps from the body, so the body cannot break through the cloth.</summary>
     private const float GarmentStandoff = .0045f;
 
@@ -458,6 +480,7 @@ public sealed partial class HumGenCreatorAppearance : Node
                 _meshes.Add((mesh, keys));
             }
             Standoff(body);
+            Stencil(art, body, asset);
             foreach (var driver in (body.GetParent() ?? model).FindChildren("*", "", true, false).OfType<FaceDriver>()) driver.Rebind(body);
             _parts[choice] = asset;
         }
