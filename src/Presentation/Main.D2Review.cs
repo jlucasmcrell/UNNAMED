@@ -118,26 +118,35 @@ public partial class Main
                 Shot("jump_done");
                 Mark("jump_done");
 
-                // The fence: stand in front of the smithy fence (its box is world 444..451.4 x 746..746.4) and run south into it.
+                // The fence: stand in front of the smithy fence (its box is world 444..451.4 x 746..746.4) and run north into it, shooting the
+                // run-up, the contact, the rise and the top so a reviewer sees the climb and not just where it ended.
                 await Go(new[] { (447.0, 743.5) }, 70);
+                Shot("fence_runup");
                 _controller.SteerWorld(new Vector3(0, 0, 1), Gait.Run, _camera);
-                await Rcd3Wait(.9);
+                await Rcd3Wait(.35);
+                Shot("fence_contact");
+                await Rcd3Wait(.25);
+                Shot("fence_rising");
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
-                await Rcd3Wait(1.2);
+                await Rcd3Wait(1.1);
+                Shot("fence_top");
                 PressReport("fence", 0, 1);
-                Shot("fence_vaulted");
                 Mark("fence_vaulted", _controller.Authoritative);
 
-                // The ladder (D6): its box is world 449.6..450.0 x 754.9..755.9, 2.8 m. Stand east of it and run west into it.
-                await Go(new[] { (460.9, 750.4) }, 90);
-                // Walk into the ladder, not run: a run blows straight past the 0.5 m footprint before the mantle can take the body up.
-                _controller.SteerWorld(new Vector3(-1, 0, 0), Gait.Walk, _camera);
-                await Rcd3Wait(2.0);
-                Shot("ladder_pressing");
+                // The ladder (D6) leans on the forge's north wall (box 453..463 x 745.6..746, 3.0 m), so the climb goes up the wall. Stand in
+                // the open yard south of it and walk north into its long face.
+                await Go(new[] { (456.1, 747.8) }, 90);
+                Shot("ladder_runup");
+                _controller.SteerWorld(new Vector3(0, 0, -1), Gait.Walk, _camera);
+                await Rcd3Wait(1.1);
+                Shot("ladder_contact");
+                await Rcd3Wait(.5);
+                Shot("ladder_rising");
+                await Rcd3Wait(.9);
+                Shot("ladder_top");
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
-                await Rcd3Wait(1.2);
-                PressReport("ladder", -1, 0);
-                Shot("ladder_climbed");
+                await Rcd3Wait(.5);
+                PressReport("ladder", 0, -1);
                 Mark("ladder_climbed", _controller.Authoritative);
 
                 // The slope: the waystation's own rise.
