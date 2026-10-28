@@ -161,6 +161,9 @@ public sealed partial class HumGenCreatorAppearance : Node
     /// <summary>The stand-off a worn garment keeps from the body, so the body cannot break through the cloth.</summary>
     private const float GarmentStandoff = .0035f;
 
+    /// <summary>How far the body is drawn inside itself while it is clothed, closing the rest of the gap from its own side.</summary>
+    private const float BodyRecess = -.004f;
+
     /// <summary>
     /// Draw the worn parts 3.5 mm off the body. The body's preset can be larger than the one a part was exported on, so a shirt
     /// that merely matches it at the waist lets the skin and the body's underwear through; growing the garment along its normals
@@ -180,6 +183,22 @@ public sealed partial class HumGenCreatorAppearance : Node
                 grown.SetMeta("creator_standoff", true);
                 grown.GrowAmount = GarmentStandoff;
                 mesh.SetSurfaceOverrideMaterial(surface, grown);
+            }
+        }
+        // The body is drawn a little inside itself, so the 3.5 mm of cloth stand-off is not the only thing between skin and
+        // cloth: a body dial that grows the waist past the garment still cannot reach the inside of the shirt.
+        foreach (var skin in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+        {
+            if (skin.HasMeta("creator_part_kind")) continue;
+            for (int surface = 0; surface < (skin.Mesh?.GetSurfaceCount() ?? 0); surface++)
+            {
+                if (!Exported(skin, surface).Contains("_Skin", StringComparison.Ordinal)) continue;
+                if ((skin.GetSurfaceOverrideMaterial(surface) ?? Origin(skin, surface)) is not BaseMaterial3D surface_cloth) continue;
+                if (surface_cloth.HasMeta("creator_recess")) continue;
+                var recessed = (BaseMaterial3D)surface_cloth.Duplicate();
+                recessed.SetMeta("creator_recess", true);
+                recessed.GrowAmount = BodyRecess;
+                skin.SetSurfaceOverrideMaterial(surface, recessed);
             }
         }
     }

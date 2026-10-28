@@ -205,6 +205,36 @@ def add_hair_chains(rig, meshes, length_class, option_id):
     return {'hair_' + chain: dict(spec['spring']) for chain in made}
 
 
+def covered_body(body, meshes):
+    """The body vertices the worn garments cover, taken from the mask vertex groups the garments name.
+
+    HumGen's masks are MASK modifiers on the body with `invert_vertex_group` set, so the named group holds exactly the region
+    hidden under that garment. The part ships with the body's vertex count so the runtime can refuse a mask for another body.
+    """
+    names = []
+    for obj in meshes:
+        for index in range(10):
+            key = 'mask_' + str(index)
+            if key in obj and obj[key]:
+                names.append(obj[key])
+    if not names:
+        return None
+    covered = set()
+    for name in names:
+        group = body.vertex_groups.get(name)
+        if group is None:
+            continue
+        at = group.index
+        for vertex in body.data.vertices:
+            for membership in vertex.groups:
+                if membership.group == at and membership.weight > .5:
+                    covered.add(vertex.index)
+                    break
+    if not covered:
+        return None
+    return dict(body_vertex_count=len(body.data.vertices), covered=len(covered), vertices=sorted(covered))
+
+
 parts = [('hair', 'hair', 'hg_main_hair'), ('facial_hair', 'beard', 'hg_face_hair'),
          ('outfits', 'outfit', None), ('footwear', 'footwear', None)]
 def slug(value): return re.sub(r'[^a-z0-9]+', '_', value.lower()).strip('_')
@@ -305,6 +335,12 @@ for collection, kind, tag in parts:
             assert max(float(np.max(np.abs(a[name] - b[name]))) for name in a) < .0001, 'Part rest differs from the exact creator base'
             (folder / 'native_materials.json').write_text(json.dumps(flow, indent=2))
             identity = json.loads((work / 'game/primary/rigged' / base / 'identity_weights.json').read_text())
+            if not tag:
+                mask = covered_body(copy.objects.body, meshes)
+                if mask:
+                    (folder / 'body_mask.json').write_text(json.dumps(
+                        dict(target_body_sha256=identity['target_body_sha256'], **mask)))
+                    print('CREATOR_BODY_MASK', identifier, mask['covered'], 'of', mask['body_vertex_count'], flush=True)
             (folder / 'creator_part.json').write_text(json.dumps(dict(kind=kind, option=option['id'], target_base=base,
                 target_body_sha256=identity['target_body_sha256'], source=path, native_meshes=[obj.name for obj in meshes],
                 **({'hair_chains': chains} if chains else {})), indent=2))
