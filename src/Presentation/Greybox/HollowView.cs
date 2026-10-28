@@ -918,7 +918,8 @@ public partial class HollowView : Node3D
         {
             // A pond, spring or well: one quad round the point, big enough to read through its opening.
             var c = points[0];
-            foreach (var (a, b) in new[] { (-1f, -1f), (1f, -1f), (1f, 1f), (-1f, -1f), (1f, 1f), (-1f, 1f) })
+            // Counter-clockwise seen from above (+Y facing), or the top face is culled and the surface never draws.
+            foreach (var (a, b) in new[] { (-1f, -1f), (1f, 1f), (1f, -1f), (-1f, -1f), (-1f, 1f), (1f, 1f) })
             {
                 surface.SetNormal(Vector3.Up);
                 surface.SetUV(new Vector2((a + 1) * 0.5f, (b + 1) * 0.5f));
@@ -937,11 +938,11 @@ public partial class HollowView : Node3D
                 foreach (var (v, u, w) in new[]
                 {
                     (new Vector3(a.X - across.X, level, a.Y - across.Y), run, 0f),
+                    (new Vector3(b.X + across.X, level, b.Y + across.Y), next, 1f),
                     (new Vector3(a.X + across.X, level, a.Y + across.Y), run, 1f),
-                    (new Vector3(b.X + across.X, level, b.Y + across.Y), next, 1f),
                     (new Vector3(a.X - across.X, level, a.Y - across.Y), run, 0f),
-                    (new Vector3(b.X + across.X, level, b.Y + across.Y), next, 1f),
                     (new Vector3(b.X - across.X, level, b.Y - across.Y), next, 0f),
+                    (new Vector3(b.X + across.X, level, b.Y + across.Y), next, 1f),
                 })
                 {
                     surface.SetNormal(Vector3.Up);
@@ -966,6 +967,7 @@ public partial class HollowView : Node3D
         // so leaving them on made the surface fully transparent - the creek was there and invisible.
         material.SetShaderParameter("edge_fade", 0f);
         material.SetShaderParameter("rapids", 0f);
+
         return new MeshInstance3D
         {
             Name = water.Key,
