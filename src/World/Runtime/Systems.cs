@@ -133,6 +133,19 @@ internal sealed class SystemContext
 
     public bool IsOpen(DoorSite door) => State.World.GetFlag(Simulation.CellOf(SpaceOf(door), door), door.FlagId) != 0;
 
+    /// <summary>Whether a door's lock still holds: no tier is no lock, and a picked lock's flag in the door's cell is its release.</summary>
+    public bool Locked(DoorSite door) => door.LockTier > 0
+        && State.World.GetFlag(Simulation.CellOf(SpaceOf(door), door), LockRules.FlagOf(door.Key)) == 0;
+
+    /// <summary>The same for a container, whose open is recorded in its cell the same way.</summary>
+    public bool Locked(ContainerSite site) => site.LockTier > 0
+        && State.World.GetFlag(CellOfSite(ContainerSpace(site), site.XMm, site.ZMm), LockRules.FlagOf(site.Key)) == 0;
+
+    /// <summary>The lock on the door or container a key names, by key: what the prompt reads and the pick is refused by. False for a key that is neither.</summary>
+    public bool Locked(string siteKey) =>
+        Setup.Sites(l => l.Doors).FirstOrDefault(p => p.Site.Key == siteKey).Site is { } door ? Locked(door)
+        : Setup.Sites(l => l.Containers).FirstOrDefault(p => p.Site.Key == siteKey).Site is { } container && Locked(container);
+
     public bool IsSet(SwitchSite site) => State.World.GetFlag(Simulation.CellOf(SpaceOf(site), site), site.FlagId) != 0;
 
     internal const string InteriorTicksFlag = "world.space.elapsed_ticks";
@@ -579,6 +592,9 @@ internal sealed class InteractionSystem
         bool open = _context.IsOpen(door);
         if (open && door.StaysOpen)
             return null;
+        // A tiered door is the pick's, not the handle's: it says why it will not open and leaves the lock to the picks.
+        if (!open && _context.Locked(door))
+            return door.LockedText ?? "The door is locked.";
         if (!open)
         {
             bool atLatch = door.LatchSide switch

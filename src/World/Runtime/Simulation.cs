@@ -235,6 +235,7 @@ public sealed class Simulation
     private readonly CraftingSystem _crafting;
     private readonly CampSystem _camp;
     private readonly FishingSystem _fishing;
+    private readonly LockpickSystem _lockpicking;
     private readonly FirstHourSystem _firstHour;
     private readonly LoreSystem _lore;
     private readonly NpcSystem _npcs;
@@ -316,8 +317,13 @@ public sealed class Simulation
         _discovery = new DiscoverySystem(_context, _state.Claim(nameof(DiscoverySystem), StateSlice.Discoveries));
         _tiers = new TierSystem(_context, _state.Claim(nameof(TierSystem), StateSlice.CellTiers), _cells, setup.Observers);
         _inventory = new InventorySystem(_context, _state.Claim(nameof(InventorySystem), StateSlice.PlayerInventory, StateSlice.WorldItems), player.Id);
+        // One timed activity is one record under one owner (ARCHITECTURE.md section 5): fishing claimed the slice first, and a pick is the
+        // same kind of commitment, so the lockpick system is handed the same owner rather than claiming the slice a second time - the two
+        // can never run at once, so there is never a second writer to disagree with.
+        var activity = _state.Claim(nameof(FishingSystem),StateSlice.Activity);
         _camp = new CampSystem(_context,_state.Claim(nameof(CampSystem),StateSlice.CampSession),player.Id);
-        _fishing = new FishingSystem(_context,_state.Claim(nameof(FishingSystem),StateSlice.Activity),player.Id);
+        _fishing = new FishingSystem(_context,activity,player.Id);
+        _lockpicking = new LockpickSystem(_context,activity,player.Id);
         _firstHour=new FirstHourSystem(_context,player.Id);
         _firstHour.Listen(bus);
         _equipment = new EquipmentSystem(_context, _state.Claim(nameof(EquipmentSystem), StateSlice.PlayerEquipment), player.Id);
@@ -607,6 +613,16 @@ public sealed class Simulation
 
     /// <summary>Whether a cast can start now: a fishable water at the bank, and nothing else running.</summary>
     public bool CanFish => _state.Activity is null && WaterKey is not null;
+
+    /// <summary>
+    /// Whether the door or container at this key is still shut by a lock that a pick could turn: what the prompt offers the verb for.
+    /// Read-only; false for a site with no lock and for a key that names neither.
+    /// </summary>
+    public bool IsLocked(string siteKey) => _context.Locked(siteKey);
+
+    /// <summary>Whether the character carries the picks a lock needs. Read-only: the prompt says so before the command is refused.</summary>
+    public bool CarriesPicks => _lockpicking.HasPicks;
+
     public ImmutableArray<StationSite> Stations => _context.Stations(PlayerId).Where(p=>p.Layout.SpaceId==_state.Space).Select(p=>p.Site).ToImmutableArray();
 
     public ImmutableArray<DoorView> Doors =>
@@ -947,7 +963,9 @@ public sealed class Simulation
                 RefillFlaskCommand refill => _inventory.Handle(refill,WorldTick),
                 StartFishingCommand fishing => _fishing.Handle(fishing,WorldTick),
                 ReelInCommand reel => _fishing.Handle(reel,WorldTick),
-                CancelActivityCommand cancelActivity => _fishing.Handle(cancelActivity),
+                PickLockCommand pick => _lockpicking.Handle(pick,WorldTick),
+                // A cancel ends whichever timed thing is running: a pick first, so the system that started it is the one that stops it.
+                CancelActivityCommand cancelActivity => _lockpicking.Handle(cancelActivity) ?? _fishing.Handle(cancelActivity),
                 VisitStationCommand visitStation => _firstHour.Handle(visitStation,WorldTick),
                 TalkCommand talk => _dialogue.Handle(talk, WorldTick),
                 ChooseCommand choose => _dialogue.Handle(choose, WorldTick),
@@ -1017,6 +1035,7 @@ public sealed class Simulation
                 simulation.Tick(tick, _cells.Where(c => _state.Tiers.GetValueOrDefault(c.ToString(), SimulationTier.D) == simulation.Tier).ToList());
             _camp.Tick();
             _fishing.Tick(tick);
+            _lockpicking.Tick(tick);
             _combat.Tick(tick);
             _laden.Tick(tick);
             _lights.Tick(tick);

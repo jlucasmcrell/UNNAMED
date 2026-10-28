@@ -27,7 +27,7 @@ public enum StateSlice
 {
     /// <summary>The current camp rest posture and death-screen choice. Transient, never saved.</summary>
     CampSession,
-    /// <summary>The timed activity the character is in the middle of - a cast, a wait, a reel (fishing). Transient, never saved.</summary>
+    /// <summary>The timed activity the character is in the middle of - a cast, a wait, a reel, a pick working a lock. Transient, never saved.</summary>
     Activity,
     /// <summary><c>world_tick</c> (S-04, clock half).</summary>
     Clock,
@@ -222,7 +222,7 @@ internal sealed class RuntimeState
         CampRestAt=resting;
         ReturnToCamp=returnToCamp;
     }
-    /// <summary>The cast, wait or reel running now, or null. Transient: a cast interrupted by a save is dropped, not saved.</summary>
+    /// <summary>The cast, wait, reel or lock being worked now, or null. Transient: one interrupted by a save is dropped, not saved.</summary>
     public PlayerActivity? Activity { get; private set; }
     public void SetActivity(SliceOwner owner,PlayerActivity? activity)
     {

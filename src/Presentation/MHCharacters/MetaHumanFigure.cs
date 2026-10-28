@@ -149,15 +149,15 @@ public sealed partial class MetaHumanFigure : Figure
     public override void Interact() => _reaching = .001;
 
     /// <summary>
-    /// The line in the water: the cast and the reel each play once, and the wait between them has no clip of its own - the body stands.
-    /// A cast broken off, or a line reeled early, simply stops where it is.
+    /// The line in the water and the picks in a lock: the cast, the reel and the pick each play once, and the wait between the cast and its
+    /// bite has no clip of its own - the body stands. One broken off simply stops where it is.
     /// </summary>
     public override void Fishing(ActivityKind kind)
     {
         if (kind == _fishKind)
             return;
         _fishKind = kind;
-        _fishing = kind is ActivityKind.FishCast or ActivityKind.FishReel ? .001 : 0;
+        _fishing = kind is ActivityKind.FishCast or ActivityKind.FishReel or ActivityKind.PickLock ? .001 : 0;
     }
     public override void SetFirstPerson(bool firstPerson) => _native.Call("set_shadow_only", firstPerson);
     private CrouchHeadLift _crouchHead=null!;
@@ -312,12 +312,17 @@ public sealed partial class MetaHumanFigure : Figure
             if (_landing < Math.Min(.6, Length("land")) && speed < 1.5f) { Play("land", .08f, 1, _landing - delta <= .001); return; }
             _landing = 0;
         }
-        // Fishing has no clip of its own in the art root, so the cast plays the clip the cast state names and the reel the one interact
-        // names, each once; the wait between them is an idle and the line's own status is the HUD's.
-        if (_fishing > 0 && _fishKind is ActivityKind.FishCast or ActivityKind.FishReel)
+        // Fishing and lockpicking have no clip of their own in the art root, so the cast plays the clip the cast state names, the reel and
+        // the pick the one interact names, each once; the wait between a cast and its bite is an idle and the line's own status is the HUD's.
+        if (_fishing > 0 && _fishKind is ActivityKind.FishCast or ActivityKind.FishReel or ActivityKind.PickLock)
         {
             _fishing += delta;
-            string fish = _fishKind == ActivityKind.FishCast ? "fish_cast" : "fish_reel";
+            string fish = _fishKind switch
+            {
+                ActivityKind.FishCast => "fish_cast",
+                ActivityKind.FishReel => "fish_reel",
+                _ => "pick_lock",
+            };
             if (!Has(fish))
                 fish = _fishKind == ActivityKind.FishCast ? "cast" : "interact";
             if (_fishing < Length(fish) && speed < .25f && Has(fish))

@@ -316,6 +316,11 @@ public static class WorldContent
                 Check((latch is null && !door.ContainsKey("requirement") && !door.ContainsKey("fitted")) || !string.IsNullOrWhiteSpace(locked), "WLD004", $"{key}: a locked door needs locked_text");
                 bool staysOpen = door.ContainsKey("stays_open") && bool.Parse(door["stays_open"].ToString()!);
                 Check(!door.ContainsKey("fitted") || staysOpen, "WLD004", $"{key}: a door that holds a fitted item must stay open");
+                int lockTier = door.ContainsKey("lock_tier") ? Int(door, "lock_tier") : 0;
+                Check(!door.ContainsKey("lock_tier") || lockTier is >= 1 and <= 3, "WLD004", $"{key}: lock_tier must be 1, 2 or 3; absent means no lock");
+                if (lockTier is >= 1 and <= 3)
+                    Check(flags.ContainsKey(UNNAMED.Domain.LockRules.FlagOf(key)), "WLD004",
+                        $"{key}: lock_tier needs the lock's world flag '{UNNAMED.Domain.LockRules.FlagOf(key)}' declared");
                 doors.Add(new DoorSite(key, flag, footprint)
                 {
                     Requirement = door.ContainsKey("requirement") ? Requirement(Map(door, "requirement")) : null,
@@ -323,6 +328,7 @@ public static class WorldContent
                     LockedText = locked,
                     StaysOpen = staysOpen,
                     Fitted = door.ContainsKey("fitted") ? SiteItem(Map(door, "fitted")) : null,
+                    LockTier = lockTier,
                 });
             }
             Check(doors.Select(d => d.Key).Distinct(StringComparer.Ordinal).Count() == doors.Count, "WLD004", "two doors share a key");
@@ -358,12 +364,18 @@ public static class WorldContent
             {
                 var site = entry as Dictionary<object, object> ?? throw new FormatException($"containers[{i}] must be a map");
                 var (cx, cz) = Pair(site, "position_m");
+                int lockTier = site.ContainsKey("lock_tier") ? Int(site, "lock_tier") : 0;
                 var container = new ContainerSite(Text(site, "key"), Text(site, "loot_ref"), cx, cz, Int(site, "stack_slots"))
                 {
                     EmptyFlag = site.GetValueOrDefault("flag_ref") as string,
                     Stash = site.ContainsKey("stash") && bool.Parse(site["stash"].ToString()!),
+                    LockTier = lockTier,
                 };
                 Check(container.EmptyFlag is null || flags.ContainsKey(container.EmptyFlag), "WLD009", $"{container.Key}: flag_ref must name a world flag");
+                Check(!site.ContainsKey("lock_tier") || lockTier is >= 1 and <= 3, "WLD009", $"{container.Key}: lock_tier must be 1, 2 or 3; absent means no lock");
+                if (lockTier is >= 1 and <= 3)
+                    Check(flags.ContainsKey(UNNAMED.Domain.LockRules.FlagOf(container.Key)), "WLD009",
+                        $"{container.Key}: lock_tier needs the lock's world flag '{UNNAMED.Domain.LockRules.FlagOf(container.Key)}' declared");
                 Check(container.Key.StartsWith("container.", StringComparison.Ordinal), "WLD009", $"container key '{container.Key}' must start with 'container.'");
                 Check(container.StackSlots >= 1, "WLD009", $"{container.Key} needs at least one stack slot");
                 Check(cx >= minX && cx <= maxX && cz >= minZ && cz <= maxZ, "WLD009", $"{container.Key} lies outside the walkable bounds");

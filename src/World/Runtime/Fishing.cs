@@ -127,6 +127,9 @@ internal sealed class FishingSystem
     public void Tick(long tick)
     {
         if(State.Activity is not { } activity) return;
+        // The record is shared with every timed thing the body can be in (a pick working a lock): a line's ends are a line's own, so
+        // another system's activity is not measured against this bank or broken off by this fight.
+        if(activity.Kind is not (ActivityKind.FishCast or ActivityKind.FishWaiting or ActivityKind.FishReel)) return;
         // The bank, the breath and the fight: either is reason enough for the line to come in.
         if(State.PlayerCombat.Defeated || !State.Space.IsExterior || Busy(tick)
             || Space.WaterAt(State.Body.XMm,State.Body.ZMm)?.Key!=activity.TargetKey)

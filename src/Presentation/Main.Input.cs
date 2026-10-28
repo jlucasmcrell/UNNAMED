@@ -278,6 +278,10 @@ public partial class Main
         {
             switch (focus.Kind)
             {
+                // A tiered lock is not worked by the handle: E starts the pick instead of opening, closing or searching.
+                case FocusKind.Door or FocusKind.Container when _session.Simulation!.IsLocked(focus.Key):
+                    _session.Submit(new PickLockCommand(_session.Simulation!.PlayerId, focus.Key));
+                    break;
                 case FocusKind.Door:
                 case FocusKind.Portal:
                     _controller.Interact(focus.Key);

@@ -125,6 +125,20 @@ public class WorldContentTests
     public void ADoorNamingAnUndeclaredFlag_IsRefused() =>
         AssertRefused("WLD004", "regions/ashen_hollow.yaml", "flag_ref: world.hollow.longhouse_door_open", "flag_ref: world.hollow.no_such_flag");
 
+    /// <summary>Lockpicking: a lock is a tier from one to three, and a tiered site names the flag its pick is recorded in.</summary>
+    [Fact]
+    public void ADoorLockTierOutsideOneToThree_IsRefused() =>
+        AssertRefused("WLD004", "regions/starting_frontier.yaml", "  lock_tier: 1", "  lock_tier: 4", "lock_tier must be 1, 2 or 3");
+
+    [Fact]
+    public void AContainerLockTierOutsideOneToThree_IsRefused() =>
+        AssertRefused("WLD009", "regions/starting_frontier.yaml", "  lock_tier: 2", "  lock_tier: 0", "lock_tier must be 1, 2 or 3");
+
+    [Fact]
+    public void ALockedSiteWhosePickFlagIsNotDeclared_IsRefused() =>
+        AssertRefused("WLD009", "world_flags/road/lock_barrow_cache.yaml", "id: world.lock.container.road.barrow_cache",
+            "id: world.lock.container.road.nothing", "lock_tier needs the lock's world flag 'world.lock.container.road.barrow_cache' declared");
+
     [Fact]
     public void APlaceInAnUnknownRegion_IsRefused() =>
         AssertRefused("WLD005", "locations/den_mouth.yaml", "region_ref: region.starting_frontier", "region_ref: region.elsewhere");

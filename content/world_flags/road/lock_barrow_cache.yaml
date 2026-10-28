@@ -1,0 +1,11 @@
+id: world.lock.container.road.barrow_cache
+kind: world_flag
+schema: 1
+display_key: world.lock.container.road.barrow_cache.name
+tags: [world_flag]
+notes: Whether the sunken barrow's cist has been picked open. Set once by the lockpick system (skill.lockpicking) in the container's own
+  cell, and named from the container's key; the contents are read as any container's once it stands set, so the grave goods keep their
+  own stacks and the world delta needs no new section for a lock.
+type: bool
+default: 0
+owning_system: S-22

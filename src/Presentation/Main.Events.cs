@@ -173,7 +173,7 @@ public partial class Main
         _session.Subscribe<CommandRejected>(e =>
         {
             if (e.Command is InteractCommand or MoveItemCommand or EquipCommand or UnequipCommand or GatherCommand or CraftCommand or TakeAllCommand
-                or SpendAttributeCommand or TouchStoneCommand or BindStoneCommand or TravelCommand
+                or SpendAttributeCommand or TouchStoneCommand or BindStoneCommand or TravelCommand or PickLockCommand
                 or SaveGearSetCommand or DeleteGearSetCommand or SwapGearSetCommand or CancelGearSwapCommand
                 or EquipBagCommand or UnequipBagCommand or PlaceStackCommand or SortPackCommand or MarkJunkCommand or LockStackCommand or SellJunkCommand)
             {
@@ -252,6 +252,19 @@ public partial class Main
             Notice(NoticeKind.Items, $"You have it: {Names.Of(_session, e.ItemId)}{(e.Count > 1 ? $" x{e.Count}" : "")}", 3);
         });
         _session.Subscribe<FishLost>(e => _hud.Log(e.Reason));
+        // Lockpicking: the picks go in, the lock gives or holds, and a turn that binds takes them out of the pack with it.
+        _session.Subscribe<LockAttemptStarted>(e => Notice(NoticeKind.World, "You work the picks", 2));
+        _session.Subscribe<LockPicked>(e => Notice(NoticeKind.World, "The lock gives", 3));
+        _session.Subscribe<LockPickFailed>(e =>
+        {
+            if (!e.Broke)
+            {
+                _hud.Log("It holds");
+                return;
+            }
+            _inventory.Refresh();
+            _hud.Log("Your picks bind and snap");
+        });
         SubscribeSocial();
         SubscribeParty();
         SubscribeQuests();

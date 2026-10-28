@@ -34,10 +34,15 @@ public partial class Main
         DrawOutlines(simulation, focus);
         DrawChatFeed(simulation);
         _hud.SetConversing(_dialogue.Visible);
+        // A lock the character can see is the picks' business: the prompt offers the verb, and says plainly when there are no picks for it.
+        string LockPrompt() => simulation.CarriesPicks
+            ? $"[{HelpPanel.Key("interact")}] Pick the lock"
+            : "Locked - you have no picks";
         // No prompt under a screen: nothing behind a sheet can be worked, and the hint line sits where the prompt was.
         _hud.SetPrompt(Screen is not null ? null : focus switch
         {
             null => null,
+            { Kind: FocusKind.Door } door when simulation.IsLocked(door.Key) => LockPrompt(),
             { Kind: FocusKind.Door } door when simulation.ActiveLayout.Doors.FirstOrDefault(d => d.Key == door.Key)?.Fitted is { } fitted
                 => _controller.IsOpen(door.Key)
                     ? $"A {Names.Of(_session, fitted.ItemId).ToLowerInvariant()} holds the {Names.Place(_session, door.Key, door.DefId)} open."
@@ -46,6 +51,7 @@ public partial class Main
                 && simulation.ActiveLayout.Doors.Any(d => d.Key == door.Key && d.StaysOpen)
                 => $"The {Names.Place(_session, door.Key, door.DefId)} is latched open.",
             { Kind: FocusKind.Door } door => $"[{HelpPanel.Key("interact")}] {(_controller.IsOpen(door.Key) ? "Close" : "Open")} the {Names.Place(_session, door.Key, door.DefId)}",
+            { Kind: FocusKind.Container } container when simulation.IsLocked(container.Key) => LockPrompt(),
             { Kind: FocusKind.Container } pickup when simulation.ActiveLayout.Containers.Any(c => PlayerController.IsPickup(c) && c.Key == pickup.Key)
                 && simulation.Containers.First(c => c.Site.Key == pickup.Key).Items.FirstOrDefault() is { } lying
                 => $"[{HelpPanel.Key("interact")}] Pick up {Names.Of(_session, lying.DefId)}",

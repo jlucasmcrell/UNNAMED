@@ -25,6 +25,11 @@ public sealed record DoorSite(string Key, string FlagId, BoxBlocker ClosedFootpr
     /// </summary>
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public SiteItem? Fitted { get; init; }
+    /// <summary>
+    /// How hard its lock is to pick: 0 is no lock, 1 to 3 a lock of that tier. Ordinary interaction will not open it while the lock
+    /// holds; a pick that turns records the open in <c>LockRules.FlagOf</c> of the key, and the door then swings as any door does.
+    /// </summary>
+    public int LockTier { get; init; }
 }
 
 public sealed record SiteFlagRequirement(string FlagId, string LocationId);
@@ -105,6 +110,12 @@ public sealed record ContainerSite(string Key, string LootTableId, long XMm, lon
     /// </summary>
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public bool Stash { get; init; }
+
+    /// <summary>
+    /// How hard its lock is to pick: 0 is no lock, 1 to 3 a lock of that tier. A locked container is not searched at all - no take-all,
+    /// no dragging out - until a pick turns and records the open in <c>LockRules.FlagOf</c> of its key.
+    /// </summary>
+    public int LockTier { get; init; }
 }
 
 /// <summary>

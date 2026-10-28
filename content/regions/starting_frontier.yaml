@@ -150407,6 +150407,9 @@ doors:
   - 982.7
   - 679.1
   height_m: 2.4
+# Lockpicking's door: Cairnwold's granary is barred against the moor's strays and a wrought-iron lock hangs on the hasp, so the handle
+# says why it will not open and E offers the picks instead. Tier 1 - the gentlest lock the build has - and world.lock.door.granary is its
+# own record, set once by the pick and named from this key (LockRules.FlagOf) rather than from a hand-written flag_ref.
 - key: door.granary
   flag_ref: world.cairnwold.granary_door_open
   box_m:
@@ -150415,6 +150418,8 @@ doors:
   - 941.7
   - 675.97
   height_m: 2.4
+  lock_tier: 1
+  locked_text: 'A bar of ash across the door, and a lock hung on the hasp. It wants a pick, not a shoulder.'
 - key: door.cw_house_05
   flag_ref: world.cairnwold.cw_house_05_door_open
   box_m:
@@ -150524,12 +150529,16 @@ containers:
   - 975.0
   - 678.0
   stack_slots: 8
+# Lockpicking's container: the cist on the sunken barrow is shut by a rusted box-lock in place of the stone lid, so its grave goods are
+# the first thing in the frontier a pick pays for - and the first a beginner mostly fails at. Tier 2, and world.lock.container.road.barrow_cache
+# is its record, named from the container's key.
 - key: container.road.barrow_cache
   loot_ref: loot.barrow_cache
   position_m:
   - 846.5
   - 631.0
   stack_slots: 12
+  lock_tier: 2
 - key: container.road.wain_load
   loot_ref: loot.wain_load
   position_m:
