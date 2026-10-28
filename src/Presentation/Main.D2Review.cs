@@ -21,6 +21,10 @@ public partial class Main
         _camera.Camera.MakeCurrent();
         _camera.TargetDistance = 4; _camera.Pitch = -.16f;
         var events = new List<object>();
+        // A still at every mark, written beside the phase log: the review runs on a farm where the desktop is not recorded, and a frame on
+        // disk is what lets anyone check the body is standing on the fence rather than beside it.
+        void Shot(string name) => Main.SaveScreenshot(GetViewport(), directory, $"traversal_{name}");
+
         void Mark(string phase, object? detail = null)
         {
             var row = new { phase, detail, utc = DateTimeOffset.UtcNow, uptime_ms = Time.GetTicksMsec(), world_tick = sim.WorldTick,
@@ -111,6 +115,7 @@ public partial class Main
                 await Rcd3Wait(1.4);
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
                 await Rcd3Wait(.4);
+                Shot("jump_done");
                 Mark("jump_done");
 
                 // The fence: stand in front of the smithy fence (its box is world 444..451.4 x 746..746.4) and run south into it.
@@ -120,6 +125,7 @@ public partial class Main
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
                 await Rcd3Wait(1.2);
                 PressReport("fence", 0, 1);
+                Shot("fence_vaulted");
                 Mark("fence_vaulted", _controller.Authoritative);
 
                 // The ladder (D6): its box is world 449.6..450.0 x 754.9..755.9, 2.8 m. Stand east of it and run west into it.
@@ -129,6 +135,7 @@ public partial class Main
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
                 await Rcd3Wait(1.2);
                 PressReport("ladder", -1, 0);
+                Shot("ladder_climbed");
                 Mark("ladder_climbed", _controller.Authoritative);
 
                 // The slope: the waystation's own rise.
@@ -137,6 +144,7 @@ public partial class Main
                 await Rcd3Wait(1.6);
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
                 await Rcd3Wait(.5);
+                Shot("slope_scrambled");
                 Mark("slope_scrambled", _controller.Authoritative);
                 Mark("traversal_done");
             }
