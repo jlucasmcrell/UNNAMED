@@ -962,8 +962,10 @@ public partial class HollowView : Node3D
         material.SetShaderParameter("deep_colour", new Vector3(0.06f, 0.13f, 0.14f));
         material.SetShaderParameter("depth_fade_m", 1.1f);
         material.SetShaderParameter("foam_m", 0.25f);
-        material.SetShaderParameter("edge_fade", 1f);
-        material.SetShaderParameter("rapids", water.Kind is "creek" or "stream" ? 0.35f : 0.1f);
+        // Both terms read the mesh's vertex colours (green for edge fade, red for rapids). A content ribbon carries none,
+        // so leaving them on made the surface fully transparent - the creek was there and invisible.
+        material.SetShaderParameter("edge_fade", 0f);
+        material.SetShaderParameter("rapids", 0f);
         return new MeshInstance3D
         {
             Name = water.Key,
