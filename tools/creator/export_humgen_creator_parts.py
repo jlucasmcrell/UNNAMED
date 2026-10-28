@@ -100,9 +100,9 @@ def complete_correctives(human, tag):
 # How much hair hangs below the skull decides how much of it moves (brief D12).
 HAIR_CHAINS = {
     'long': dict(chains=('back', 'side_l', 'side_r'), segments=4,
-                 spring=dict(stiffness=.28, drag=.22, gravity=.06, radius=.022)),
+                 spring=dict(stiffness=.55, drag=.45, gravity=.035, radius=.028)),
     'medium': dict(chains=('back', 'side_l', 'side_r'), segments=3,
-                   spring=dict(stiffness=.4, drag=.3, gravity=.05, radius=.02)),
+                   spring=dict(stiffness=.55, drag=.45, gravity=.035, radius=.028)),
 }
 
 
