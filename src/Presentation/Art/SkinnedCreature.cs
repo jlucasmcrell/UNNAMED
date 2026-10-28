@@ -31,6 +31,7 @@ public sealed partial class SkinnedCreature : CreatureBody
     private string? _attackSource;
     private string _chosenAttack = "attack";
     private readonly HashSet<string> _charges = new(StringComparer.Ordinal);
+    private readonly int _variantPick = System.Environment.TickCount & 0x7fffffff;
     private HashSet<string> _clips = new(StringComparer.Ordinal);
     private readonly List<(BaseMaterial3D Material, float Energy)> _otherfire = new();
 
@@ -100,6 +101,27 @@ public sealed partial class SkinnedCreature : CreatureBody
         creature._mark.Position = new Vector3(0, ArtGallery.Bounds(model).End.Y * size + 0.4f, 0);
         creature.AddChild(creature._mark);
         return creature;
+    }
+
+    /// <summary>
+    /// The clip to play for a state, choosing among the variants the records carry (idle_b, idle_c, hit_b, stagger, death_b, death_c): a
+    /// creature that dies twice dies differently, a second hit staggers, and idles vary by which animal it is, so a herd of one kind does not
+    /// breathe in unison. Falls back to the plain state when the import carried no variant.
+    /// </summary>
+    private string VariantClip(string state, int pick)
+    {
+        string[] variants = state switch
+        {
+            "idle" => new[] { "idle", "idle_b", "idle_c" },
+            "hit" => new[] { "hit", "hit_b", "stagger" },
+            "death" => new[] { "death", "death_b", "death_c" },
+            _ => new[] { state },
+        };
+        var present = new List<string>();
+        foreach (string candidate in variants)
+            if (_model is not null && _model.Has(candidate))
+                present.Add(candidate);
+        return present.Count == 0 ? state : present[(pick & 0x7fffffff) % present.Count];
     }
 
     public override void Place(Body body)
@@ -216,13 +238,13 @@ public sealed partial class SkinnedCreature : CreatureBody
         if (!creature.Alive)
         {
             _mark.Visible = false;
-            _model.Play("death", 0.15f);
+            _model.Play(VariantClip("death", _variantPick), 0.15f);
             return;
         }
         Mark(creature);
         if (creature.Paralysed)
         {
-            _model.Hold("idle", .25f, 0);
+            _model.Hold(VariantClip("idle", _variantPick), .25f, 0);
             return;
         }
         if (creature.Phase != _phase || creature.AttackSource != _attackSource)
@@ -253,11 +275,11 @@ public sealed partial class SkinnedCreature : CreatureBody
                 _model.Hold(attackClip, 0.7f + 0.3f * t);
                 return;
             case CombatPhase.Staggered:
-                _model.Play("hit", 0.1f);
+                _model.Play(VariantClip("hit", _variantPick), 0.1f);
                 return;
         }
         if (creature.Asleep)
-            _model.Play("idle", 0.3f, 0.35f);
+            _model.Play(VariantClip("idle", _variantPick), 0.3f, 0.35f);
         // THE PACES THE CLIPS ARE ACTUALLY AUTHORED AT, MEASURED - NOT ASSUMED (creature fidelity round, 2026-09-29).
         // These two divisors are what a gait clip's implied ground speed is divided by to get its playback scale, so a
         // wrong divisor skates the feet by exactly the ratio it is wrong by. The clips carry `root_motion: false`, which
@@ -284,7 +306,7 @@ public sealed partial class SkinnedCreature : CreatureBody
         else if (speed > Math.Min(0.3f, _walkPace / 2))
             _model.Play("walk", 0.2f, Mathf.Clamp(speed / _walkPace, 0.6f, 1.6f));
         else
-            _model.Play("idle", 0.3f);
+            _model.Play(VariantClip("idle", _variantPick), 0.3f);
     }
 
     /// <summary>The measured paces of the retimed gait clips (see <see cref="Pose"/>).</summary>
