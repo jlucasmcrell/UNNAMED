@@ -431,10 +431,15 @@ public static class Kinematics
         long feet = ground + raised + lift;
         foreach (var blocker in space.Blockers)
         {
-            if (!blocker.Climbable || blocker.HeightMm <= 0 || blocker.ClearanceMm > 0 || blocker.DistanceTo(px, pz) > 0)
+            if (!blocker.Climbable || blocker.HeightMm <= 0 || blocker.ClearanceMm > 0 || blocker.DistanceTo(px, pz) > ProbeSlackMm)
                 continue;
             var (cx, cz) = Footprints.Center(blocker);
-            long top = space.HeightAtMm(cx, cz) + blocker.HeightMm;
+            // The surface the structure rises from is the ground under it - but never lower than the surface the body is standing on: a fence
+            // on the waystation's deck rises from the deck, and measuring it from the field below the deck put its top under the body's feet,
+            // so nothing on a deck was ever climbed (the owner's bench-and-fence report, D6). Structures on structures use the same rule.
+            long structureGround = space.HeightAtMm(cx, cz);
+            long baseGround = Math.Max(structureGround, ground + raised);
+            long top = baseGround + blocker.HeightMm;
             // A face with handholds - a ladder, a rope, a scaffold - is climbed at any height; everything else only within the reach.
             long reach = rules.ClimbPrefixes.Any(p => blocker.Id.StartsWith(p, StringComparison.Ordinal)) ? long.MaxValue : rules.MantleMm;
             if (top <= feet || top > ground + raised + reach)
@@ -446,7 +451,7 @@ public static class Kinematics
             // The top under the probe point must be this structure's top, measured against the ground AT THE PROBE: the old 50 mm against
             // the structure's own centre-ground refused every climb on a slope, which is where the waystation's fence and ladder stand, so
             // nothing was ever climbed in play even though it climbed fine on flat test ground.
-            if (Math.Abs(TopUnder(px, pz, long.MaxValue, space) - (under + blocker.HeightMm)) > 300)
+            if (Math.Abs(TopUnder(px, pz, long.MaxValue, space) - (structureGround + blocker.HeightMm)) > 300)
                 continue;
             return (px, pz, top - under);
         }
@@ -459,7 +464,7 @@ public static class Kinematics
         long best = space.HeightAtMm((long)Math.Round(x, MidpointRounding.AwayFromZero), (long)Math.Round(z, MidpointRounding.AwayFromZero));
         foreach (var blocker in space.Blockers)
         {
-            if (!blocker.Climbable || blocker.HeightMm <= 0 || blocker.ClearanceMm > 0 || blocker.DistanceTo(x, z) > 0)
+            if (!blocker.Climbable || blocker.HeightMm <= 0 || blocker.ClearanceMm > 0 || blocker.DistanceTo(x, z) > ProbeSlackMm)
                 continue;
             var (cx, cz) = Footprints.Center(blocker);
             long top = space.HeightAtMm(cx, cz) + blocker.HeightMm;
@@ -475,6 +480,9 @@ public static class Kinematics
     /// </summary>
     public static bool Blocks(Blocker blocker, long liftMm, long bodyHeightMm) =>
         blocker.HeightMm <= 0 || (liftMm < blocker.HeightMm && liftMm + bodyHeightMm > blocker.ClearanceMm);
+
+    /// <summary>A probe point on a face is inside it: a millimetre of slack, so floating point does not decide whether a wall can be climbed.</summary>
+    private const double ProbeSlackMm = 1;
 
     /// <summary>True when the circle overlaps nothing and lies inside the bounds. A supplied body height permits clearance under roofs; zero retains the original full-column query.</summary>
     public static bool IsClear(long xMm, long zMm, long radiusMm, WalkSpace space, IReadOnlyList<Blocker> dynamicBlockers, long bodyHeightMm = 0) =>

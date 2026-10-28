@@ -66,7 +66,17 @@ public partial class Main
 
         try
         {
-            if (route == "traversal")
+            void PressReport(string what)
+        {
+            var body = _controller.Authoritative;
+            long ground = (long)(_ground.Height((float)(body.XMm / 1000.0), (float)(body.ZMm / 1000.0)) * 1000);
+            var space = _session.Setup.Layout.Space;
+            var touching = space.Blockers.Where(b => b.DistanceTo(body.XMm, body.ZMm) < 1_500)
+                .Select(b => $"{b.Id}(h={b.HeightMm},climb={b.Climbable})");
+            GD.Print($"UNNAMED D6 press {what}: body y={body.YMm} ground={ground} raised={body.YMm - ground}; touching {string.Join(' ', touching)}");
+        }
+
+        if (route == "traversal")
             {
                 // D6 traversal proof, all of it within twenty metres of where the character starts, so the walk cannot lose its way across the
                 // frontier: a running jump, a run at the smithy fence, the owned wooden ladder at (49.6, 147.2) region = (449.6, 755.2) world,
@@ -81,25 +91,25 @@ public partial class Main
                 await Rcd3Wait(.4);
                 Mark("jump_done");
 
-                // The fence: run at it and let the vault carry the body over.
-                await Go(new[] { (446.0, 757.0) }, 70);
-                _controller.SteerWorld(new Vector3(1, 0, 0), Gait.Run, _camera);
-                await Rcd3Wait(1.5);
+                // The fence: stand in front of the smithy fence (its box is world 444..451.4 x 746..746.4) and run south into it.
+                await Go(new[] { (447.0, 743.5) }, 70);
+                _controller.SteerWorld(new Vector3(0, 0, 1), Gait.Run, _camera);
+                await Rcd3Wait(1.6);
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
                 await Rcd3Wait(.4);
+                PressReport("fence");
                 Mark("fence_vaulted", _controller.Authoritative);
 
-                // The ladder (D6): 3.2 m, climbable at any height because its id starts with ladder_.
-                await Go(new[] { (449.0, 755.6) }, 60);
-                _controller.SteerWorld(new Vector3(1, 0, 0), Gait.Run, _camera);
-                await Rcd3Wait(2.2);
-                _controller.SteerWorld(new Vector3(0, 0, -1), Gait.Walk, _camera);
-                await Rcd3Wait(.8);
+                // The ladder (D6): its box is world 449.6..450.0 x 754.9..755.9, 2.8 m. Stand east of it and run west into it.
+                await Go(new[] { (462.4, 750.4) }, 60);
+                _controller.SteerWorld(new Vector3(-1, 0, 0), Gait.Run, _camera);
+                await Rcd3Wait(2.4);
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
-                await Rcd3Wait(.5);
+                await Rcd3Wait(.6);
+                PressReport("ladder");
                 Mark("ladder_climbed", _controller.Authoritative);
 
-                // The slope: the waystation's own rise, walked up at a run rather than a creep.
+                // The slope: the waystation's own rise.
                 await Go(new[] { (434.0, 752.0) }, 60);
                 _controller.SteerWorld(new Vector3(0, 0, -1), Gait.Run, _camera);
                 await Rcd3Wait(1.6);

@@ -42,6 +42,21 @@ public class MantleTests(ITestOutputHelper output)
     }
 
     [Fact]
+    public void ABodyStandingOnADeck_VaultsTheFenceOnIt()
+    {
+        // The waystation's own case: a 1.5 m deck with a 1.2 m fence standing on it. Measured from the field below, the fence's top is under the
+        // body's feet and nothing climbs; measured from the surface under the feet, the body stands on the fence at deck + fence.
+        // The plateau is terrain, which is what the waystation's deck actually is in play (the press report: body y = ground, raised = 0). The
+        // fence stands on it and the body stands on it, so the climb is measured from the surface under the feet, 1,500 up.
+        var raised = new WalkSpace(0, 0, 40_000, 40_000, new TerrainGrid(0, 0, 40_000, 2, 2, new long[] { 1_500, 1_500, 1_500, 1_500 }),
+            ImmutableArray.Create<Blocker>(new BoxBlocker("fence_smithy", 9_600, 4_700, 10_000, 5_300, 1_200) { Climbable = true }));
+        var (_, peak) = Press(raised, new Body(8_000, 1_500, 5_000, 90_000), 50);
+        // Press measures the peak as height above the ground under the body, so on a plateau the fence is still 1,200 up.
+        output.WriteLine($"plateau 1_500 + fence 1_200 => peak above the plateau={peak}");
+        Assert.True(peak >= 1_200 - 50, $"the body never stood on the fence on the plateau: peak={peak}");
+    }
+
+    [Fact]
     public void ABodyPressedIntoALadder_ClimbsItAtAnyHeight()
     {
         // Three metres: past the mantle reach, so only the ladder_ prefix can make this climbable.
