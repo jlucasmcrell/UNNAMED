@@ -229,9 +229,11 @@ def covered_body(body, meshes):
         if hit[0] is None:
             continue
         point, normal, _, distance = hit
-        if distance is None or distance > .010:
+        if distance is None:
             continue
-        if (probe - point).dot(normal) < .001:
+        # Inside the garment, or close enough to its edge that a hole in it would show skin: the second test is what closes the
+        # patches where the shirt's own triangles are missing.
+        if distance <= .020 and ((probe - point).dot(normal) < .001 or distance <= .008):
             covered.add(vertex.index)
     if not covered:
         return None
