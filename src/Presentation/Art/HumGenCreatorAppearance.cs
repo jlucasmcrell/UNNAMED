@@ -12,6 +12,8 @@ public sealed partial class HumGenCreatorAppearance : Node
     private CreatorCatalogue _catalogue = null!;
     private readonly List<(MeshInstance3D Mesh, Dictionary<string, int> Keys)> _meshes = new();
     private string? _face;
+    // The outfit part worn by the last Parts pass, so the stencil can run after the materials are built.
+    private string? _worn;
     private HumGenEyeFitData? _eyeFit;
     private readonly Dictionary<CreatorChoice, string?> _parts = new();
 
@@ -84,6 +86,9 @@ public sealed partial class HumGenCreatorAppearance : Node
         // re-applied with it so a live slider cannot leave a stale shared material on a
         // different preview.
         controller.Materials(art, face, look, people);
+        // Only now do the body's skin surfaces exist with their final materials, so this is where the covered fragments are
+        // dropped for the outfit that is actually worn (a part without a mask clears the stencil).
+        Stencil(art, model, controller._worn);
         controller._face = face;
         controller.People(model, people, look, art, sex);
         var nativeBase = controller._data.Preset(controller._catalogue.Options(CreatorChoice.Face, sex)
@@ -173,7 +178,11 @@ public sealed partial class HumGenCreatorAppearance : Node
             for (int surface = 0; surface < (mesh.Mesh?.GetSurfaceCount() ?? 0); surface++)
             {
                 if (!Exported(mesh, surface).Contains("_Skin", StringComparison.Ordinal)) continue;
-                if (mesh.GetSurfaceOverrideMaterial(surface) is not ShaderMaterial skin) continue;
+                if (mesh.GetSurfaceOverrideMaterial(surface) is not ShaderMaterial skin)
+                {
+                    GD.PushWarning($"creator stencil skipped: {Exported(mesh, surface)} is not a shader material");
+                    continue;
+                }
                 skin.SetShaderParameter("conceal_map", mask ?? skin.GetShaderParameter("conceal_map"));
                 skin.SetShaderParameter("conceal", mask is null ? 0f : 1f);
             }
@@ -438,6 +447,7 @@ public sealed partial class HumGenCreatorAppearance : Node
                 if (part.RootElement.GetProperty("target_base").GetString() != id || part.RootElement.GetProperty("target_body_sha256").GetString()
                     != identity.RootElement.GetProperty("target_body_sha256").GetString()) throw new InvalidDataException("Native part targets another body: " + asset);
                 var source = art.Rigged(asset) ?? throw new InvalidDataException("Native part could not load: " + asset);
+                if (choice == CreatorChoice.Outfit) _worn = asset;
                 var rig = ArtLibrary.Find<Skeleton3D>(source) ?? throw new InvalidDataException("Native part rig missing");
                 CharacterMaterials.Upgrade(source, out _, new Dictionary<string, HumanEye.Maps>(), nativeHumGen: true);
                 HumGenMaterials.Apply(source, art, asset);
@@ -480,7 +490,6 @@ public sealed partial class HumGenCreatorAppearance : Node
                 _meshes.Add((mesh, keys));
             }
             Standoff(body);
-            Stencil(art, body, asset);
             foreach (var driver in (body.GetParent() ?? model).FindChildren("*", "", true, false).OfType<FaceDriver>()) driver.Rebind(body);
             _parts[choice] = asset;
         }
