@@ -158,6 +158,32 @@ public sealed partial class HumGenCreatorAppearance : Node
             }
     }
 
+    /// <summary>The stand-off a worn garment keeps from the body, so the body cannot break through the cloth.</summary>
+    private const float GarmentStandoff = .0035f;
+
+    /// <summary>
+    /// Draw the worn parts 3.5 mm off the body. The body's preset can be larger than the one a part was exported on, so a shirt
+    /// that merely matches it at the waist lets the skin and the body's underwear through; growing the garment along its normals
+    /// keeps the cloth in front without touching its mesh, bones, weights or correctives.
+    /// </summary>
+    private void Standoff(Node model)
+    {
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+        {
+            string kind = mesh.GetMeta("creator_part_kind", "").AsString();
+            if (kind is not ("Outfit" or "Footwear")) continue;
+            for (int surface = 0; surface < (mesh.Mesh?.GetSurfaceCount() ?? 0); surface++)
+            {
+                if ((mesh.HasMeta("creator_part_kind") ? Origin(mesh, surface) : mesh.GetSurfaceOverrideMaterial(surface)) is not BaseMaterial3D cloth) continue;
+                if (cloth.HasMeta("creator_standoff")) continue;
+                var grown = (BaseMaterial3D)cloth.Duplicate();
+                grown.SetMeta("creator_standoff", true);
+                grown.GrowAmount = GarmentStandoff;
+                mesh.SetSurfaceOverrideMaterial(surface, grown);
+            }
+        }
+    }
+
     private void Materials(ArtLibrary art, string face, CharacterAppearance look, string people)
     {
         string manifest = art.RiggedFile("humgen_creator_materials", face + "/materials.json")
@@ -406,6 +432,7 @@ public sealed partial class HumGenCreatorAppearance : Node
                     }
                 _meshes.Add((mesh, keys));
             }
+            Standoff(body);
             foreach (var driver in (body.GetParent() ?? model).FindChildren("*", "", true, false).OfType<FaceDriver>()) driver.Rebind(body);
             _parts[choice] = asset;
         }
