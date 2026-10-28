@@ -1,0 +1,206 @@
+{
+ "steps": [
+  {
+   "do": "spawn",
+   "id": "siann",
+   "person": "player",
+   "people": "people.siann",
+   "body": "humgen_creator_female",
+   "yaw": 180,
+   "x": 0,
+   "z": 0
+  },
+  {
+   "do": "look",
+   "id": "siann",
+   "model": "humgen_creator_female",
+   "people": "people.siann",
+   "hair": "hair.long.bob_bangs",
+   "outfit": "outfit.office.new_intern"
+  },
+  {
+   "do": "camera",
+   "id": "siann",
+   "angle": 200,
+   "dist": 4.2,
+   "height": 1.05,
+   "fov": 38
+  },
+  {
+   "do": "film",
+   "name": "siann_idle",
+   "fps": 24,
+   "seconds": 1.5
+  },
+  {
+   "do": "walk",
+   "id": "siann",
+   "speed": 1.4,
+   "seconds": 0.4
+  },
+  {
+   "do": "film",
+   "name": "siann_walk",
+   "fps": 24,
+   "seconds": 2.5
+  },
+  {
+   "do": "walk",
+   "id": "siann",
+   "speed": 4.2,
+   "seconds": 0.4
+  },
+  {
+   "do": "film",
+   "name": "siann_run",
+   "fps": 24,
+   "seconds": 2.5
+  },
+  {
+   "do": "walk",
+   "id": "siann",
+   "speed": 1.4,
+   "dir": 120,
+   "seconds": 0.4
+  },
+  {
+   "do": "film",
+   "name": "siann_turn",
+   "fps": 24,
+   "seconds": 2.0
+  },
+  {
+   "do": "pose",
+   "id": "siann",
+   "clip": "jump_start"
+  },
+  {
+   "do": "film",
+   "name": "siann_jump",
+   "fps": 24,
+   "seconds": 1.5
+  },
+  {
+   "do": "pose",
+   "id": "siann",
+   "clip": ""
+  },
+  {
+   "do": "walk",
+   "id": "siann",
+   "speed": 0.0,
+   "seconds": 0.4
+  },
+  {
+   "do": "film",
+   "name": "siann_stop",
+   "fps": 24,
+   "seconds": 1.5
+  },
+  {
+   "do": "remove",
+   "id": "siann"
+  },
+  {
+   "do": "spawn",
+   "id": "veth",
+   "person": "player",
+   "people": "people.veth",
+   "body": "humgen_creator_male",
+   "yaw": 180,
+   "x": 0,
+   "z": 0
+  },
+  {
+   "do": "look",
+   "id": "veth",
+   "model": "humgen_creator_male",
+   "people": "people.veth",
+   "hair": "hair.long.medium_center_part",
+   "outfit": "outfit.extra_outfits_pack.pirate"
+  },
+  {
+   "do": "camera",
+   "id": "veth",
+   "angle": 200,
+   "dist": 4.2,
+   "height": 1.05,
+   "fov": 38
+  },
+  {
+   "do": "film",
+   "name": "veth_idle",
+   "fps": 24,
+   "seconds": 1.5
+  },
+  {
+   "do": "walk",
+   "id": "veth",
+   "speed": 1.4,
+   "seconds": 0.4
+  },
+  {
+   "do": "film",
+   "name": "veth_walk",
+   "fps": 24,
+   "seconds": 2.5
+  },
+  {
+   "do": "walk",
+   "id": "veth",
+   "speed": 4.2,
+   "seconds": 0.4
+  },
+  {
+   "do": "film",
+   "name": "veth_run",
+   "fps": 24,
+   "seconds": 2.5
+  },
+  {
+   "do": "walk",
+   "id": "veth",
+   "speed": 1.4,
+   "dir": 120,
+   "seconds": 0.4
+  },
+  {
+   "do": "film",
+   "name": "veth_turn",
+   "fps": 24,
+   "seconds": 2.0
+  },
+  {
+   "do": "pose",
+   "id": "veth",
+   "clip": "jump_start"
+  },
+  {
+   "do": "film",
+   "name": "veth_jump",
+   "fps": 24,
+   "seconds": 1.5
+  },
+  {
+   "do": "pose",
+   "id": "veth",
+   "clip": ""
+  },
+  {
+   "do": "walk",
+   "id": "veth",
+   "speed": 0.0,
+   "seconds": 0.4
+  },
+  {
+   "do": "film",
+   "name": "veth_stop",
+   "fps": 24,
+   "seconds": 1.5
+  },
+  {
+   "do": "shot",
+   "name": "d12_final"
+  }
+ ]
+}

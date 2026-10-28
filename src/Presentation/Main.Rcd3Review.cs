@@ -20,11 +20,18 @@ public partial class Main
         var rows = new List<object>();
         try
         {
-            if (_avatar is SkinnedFigure comparison && VisualOptions.ComparisonCast is not null)
+            // A race-look plan dresses its own figures, so it has no comparison cast to check against.
+            if (_avatar is SkinnedFigure comparison && VisualOptions.ComparisonCast is not null
+                && OS.GetEnvironment("OTHERREACH_RACE_LOOKS_PLAN") is not { Length: > 0 })
             {
                 bool humgen = VisualOptions.ComparisonCast == "humgen";
                 using var cast = JsonDocument.Parse(Godot.FileAccess.GetFileAsString(humgen ? "res://Art/humgen_cast.json" : "res://Art/mpfb_cast.json"));
-                var model = cast.RootElement.GetProperty("models").EnumerateArray().Single(m => m.GetProperty("id").GetString() == comparison.ModelId);
+                // A creator body is not one of the comparison cast's models; only a listed model gets the stature check.
+                var listed = cast.RootElement.GetProperty("models").EnumerateArray()
+                    .Where(m => m.GetProperty("id").GetString() == comparison.ModelId).ToList();
+                if (listed.Count == 0) throw new InvalidOperationException(
+                    $"The comparison cast lists no model {comparison.ModelId}; a creator body cannot be stature-checked against it");
+                var model = listed[0];
                 string sex = model.GetProperty("sex").GetString()!;
                 float expectedHeight = humgen ? model.GetProperty("height_m").GetSingle() : cast.RootElement.GetProperty("stature_m").GetProperty(sex).GetSingle();
                 float drawnHeight = comparison.StatureScale * model.GetProperty("height_m").GetSingle();
