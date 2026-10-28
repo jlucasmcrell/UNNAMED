@@ -32,7 +32,7 @@ public static class VisualOptions
         ["people"] = new[] { "phase_a", "production", "standard", "mpfb", "humgen" },  // production: the character-fidelity pass's models; standard: the character standard (charstd) demo cast
         // The player is a MetaHuman on the shared UE5-mannequin skeleton: the owner's blend bodies mh_veth_m / mh_veth_f, bound before the
         // creator chooses one. The MPFB player is retired (owner 2026-10-17).
-        ["player"] = new[] { "metahuman_m", "metahuman_f" },
+        ["player"] = new[] { "metahuman_m", "metahuman_f", "none" },   // none: the player is not drawn (hook close-ups)
         ["hud"] = new[] { "classic", "production" },  // production: the remediation's HUD direction (Ui/Hud.cs, M04)
         ["audio"] = new[] { "v3", "proof", "proof_open" },  // proof_open: only proofs whose sources set no AI/ML restriction (reviewable by an AI)
         ["textures"] = new[] { "cache", "raw" },      // cache: the texture cache's BC7 copies where it has them (B1); raw: as loaded          // proof: the external-audio proof batch (assets/audio_proof/<id>.wav) over V3 where it has one  // msaa_taa: the project's Phase-A setting (MSAA 4x with TAA)  // proof: B0.6's fold without a hard silhouette and the heart as a staged artifact
@@ -201,6 +201,9 @@ public static class VisualOptions
 
     /// <summary>Which cast the people are drawn with; <c>mpfb</c> and <c>humgen</c> are the comparison builds' casts.</summary>
     public static string People => Values["people"];
+
+    /// <summary>Who the player is drawn as; <c>none</c> draws nobody (a hook close-up).</summary>
+    public static string PlayerBody => Values["player"];
 
     /// <summary>
     /// The comparison cast this run draws, or null for the production cast: <c>mpfb</c> (the MakeHuman arm)

@@ -1100,7 +1100,13 @@ public partial class Main : Node3D
         GD.Print(MHCharacters.MetaHumanFigure.Available
             ? $"UNNAMED player body: the native MetaHuman bundle at {MHCharacters.MetaHumanFigure.AssetRoot}"
             : $"UNNAMED player body: no native MetaHuman bundle at {MHCharacters.MetaHumanFigure.AssetRoot} (no catalog.json); the avatar falls back");
-        if (MHCharacters.MetaHumanFigure.Create(_art, _bindings, "player") is { } native)
+        if (VisualOptions.PlayerBody == "none")
+        {
+            _avatar = new Avatar();
+            AddChild(_avatar);
+            GD.Print("UNNAMED player body: none - the run draws no player (hook close-up)");
+        }
+        else if (MHCharacters.MetaHumanFigure.Create(_art, _bindings, "player") is { } native)
         {
             _avatar = native;
             _avatarModel = "mh:mateo";
