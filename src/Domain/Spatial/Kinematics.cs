@@ -442,9 +442,12 @@ public static class Kinematics
             // The top the probe point stands under must be this blocker's top - within a hand's width. It used to be an exact equality,
             // which failed wherever the terrain under the footprint was not perfectly flat, so no wall was ever climbed (the owner saw the
             // body stuck against one). 50 mm is far below any structural height and far above terrain noise.
-            if (Math.Abs(TopUnder(px, pz, long.MaxValue, space) - top) > 50)
-                continue;
             long under = space.HeightAtMm((long)Math.Round(px, MidpointRounding.AwayFromZero), (long)Math.Round(pz, MidpointRounding.AwayFromZero));
+            // The top under the probe point must be this structure's top, measured against the ground AT THE PROBE: the old 50 mm against
+            // the structure's own centre-ground refused every climb on a slope, which is where the waystation's fence and ladder stand, so
+            // nothing was ever climbed in play even though it climbed fine on flat test ground.
+            if (Math.Abs(TopUnder(px, pz, long.MaxValue, space) - (under + blocker.HeightMm)) > 300)
+                continue;
             return (px, pz, top - under);
         }
         return null;
