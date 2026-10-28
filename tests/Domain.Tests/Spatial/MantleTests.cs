@@ -57,6 +57,18 @@ public class MantleTests(ITestOutputHelper output)
     }
 
     [Fact]
+    public void ALadderStandingOnRaisedGround_IsClimbedToo()
+    {
+        // The overflow that kept the ladder unclimbable in play: an unlimited reach added to a standing surface above world zero went negative,
+        // so the ladder was refused as beyond reach. On flat ground the sum could not overflow, which is why the tests were green.
+        var plateau = new WalkSpace(0, 0, 40_000, 40_000, new TerrainGrid(0, 0, 40_000, 2, 2, new long[] { 7_000, 7_000, 7_000, 7_000 }),
+            ImmutableArray.Create<Blocker>(new BoxBlocker("ladder_waystation", 9_600, 4_800, 10_000, 5_200, 2_800) { Climbable = true }));
+        var (_, peak) = Press(plateau, new Body(8_000, 7_000, 5_000, 90_000), 60);
+        output.WriteLine($"ladder 2_800 on 7_000 ground => peak above the plateau={peak}");
+        Assert.True(peak >= 2_800 - 50, $"the body never stood on the ladder top: peak={peak}");
+    }
+
+    [Fact]
     public void ABodyPressedIntoALadder_ClimbsItAtAnyHeight()
     {
         // Three metres: past the mantle reach, so only the ladder_ prefix can make this climbable.

@@ -440,9 +440,12 @@ public static class Kinematics
             long structureGround = space.HeightAtMm(cx, cz);
             long baseGround = Math.Max(structureGround, ground + raised);
             long top = baseGround + blocker.HeightMm;
-            // A face with handholds - a ladder, a rope, a scaffold - is climbed at any height; everything else only within the reach.
+            // A face with handholds - a ladder, a rope, a scaffold - is climbed at any height; everything else only within the reach. The rise is
+            // compared by SUBTRACTION: adding an unlimited reach to a standing surface overflowed to a negative number, so a ladder standing
+            // anywhere above world zero was refused as "beyond reach" while the same ladder on flat test ground climbed fine.
             long reach = rules.ClimbPrefixes.Any(p => blocker.Id.StartsWith(p, StringComparison.Ordinal)) ? long.MaxValue : rules.MantleMm;
-            if (top <= feet || top > ground + raised + reach)
+            long rise = top - (ground + raised);
+            if (top <= feet || rise > reach)
                 continue;
             // The top the probe point stands under must be this blocker's top - within a hand's width. It used to be an exact equality,
             // which failed wherever the terrain under the footprint was not perfectly flat, so no wall was ever climbed (the owner saw the

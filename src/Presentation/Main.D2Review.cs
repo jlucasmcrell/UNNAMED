@@ -66,14 +66,36 @@ public partial class Main
 
         try
         {
-            void PressReport(string what)
+            void PressReport(string what, float dirX = 0, float dirZ = 0)
         {
             var body = _controller.Authoritative;
             long ground = (long)(_ground.Height((float)(body.XMm / 1000.0), (float)(body.ZMm / 1000.0)) * 1000);
             var space = _session.Setup.Layout.Space;
             var touching = space.Blockers.Where(b => b.DistanceTo(body.XMm, body.ZMm) < 1_500)
                 .Select(b => $"{b.Id}(h={b.HeightMm},climb={b.Climbable})");
-            GD.Print($"UNNAMED D6 press {what}: body y={body.YMm} ground={ground} raised={body.YMm - ground}; touching {string.Join(' ', touching)}");
+            var rules = _session.Setup.Movement;
+            // Mantle's own arithmetic, recomputed here from the play data so the failing condition names itself.
+            double radius = rules.BodyRadiusMm, len = Math.Sqrt((double)dirX * dirX + (double)dirZ * dirZ);
+            var probe = new System.Text.StringBuilder();
+            if (len > 0)
+            {
+                double px = body.XMm + dirX / len * radius, pz = body.ZMm + dirZ / len * radius;
+                foreach (var b in space.Blockers.Where(b => b.DistanceTo(px, pz) < 2_000))
+                {
+                    var (cx, cz) = UNNAMED.Domain.Spatial.Footprints.Center(b);
+                    long structureGround = space.HeightAtMm(cx, cz);
+                    long top = structureGround + b.HeightMm;
+                    long feet = ground + (body.YMm - ground);
+                    long reach = rules.ClimbPrefixes.Any(x => b.Id.StartsWith(x, StringComparison.Ordinal)) ? long.MaxValue : rules.MantleMm;
+                    probe.Append($"{b.Id}: probeDist={b.DistanceTo(px, pz):F1} top={top} feet={feet} reach={reach} ")
+                         .Append($"climbable={b.Climbable} h={b.HeightMm} clearance={b.ClearanceMm} ")
+                         .Append($"skip={(!b.Climbable ? "notClimbable" : b.HeightMm <= 0 ? "noHeight" : b.ClearanceMm > 0 ? "overhang" : top <= feet ? "topBelowFeet" : top > ground + (body.YMm - ground) + reach ? "beyondReach" : "none")}; ");
+                }
+            }
+            GD.Print($"UNNAMED D6 press {what}: body y={body.YMm} ground={ground} raised={body.YMm - ground}; " +
+                     $"stepUp={rules.StepUpMm} vault={rules.VaultMm} mantle={rules.MantleMm} prefixes=[{string.Join(',', rules.ClimbPrefixes)}] " +
+                     $"posture={_session.Simulation?.Posture}; touching {string.Join(' ', touching)} " +
+                     $"blockerTypes {string.Join(' ', space.Blockers.Where(b => b.DistanceTo(body.XMm, body.ZMm) < 1_500).Select(b => b.GetType().Name))}; {probe}");
         }
 
         if (route == "traversal")
@@ -97,7 +119,7 @@ public partial class Main
                 await Rcd3Wait(1.6);
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
                 await Rcd3Wait(.4);
-                PressReport("fence");
+                PressReport("fence", 0, 1);
                 Mark("fence_vaulted", _controller.Authoritative);
 
                 // The ladder (D6): its box is world 449.6..450.0 x 754.9..755.9, 2.8 m. Stand east of it and run west into it.
@@ -106,7 +128,7 @@ public partial class Main
                 await Rcd3Wait(2.4);
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
                 await Rcd3Wait(.6);
-                PressReport("ladder");
+                PressReport("ladder", -1, 0);
                 Mark("ladder_climbed", _controller.Authoritative);
 
                 // The slope: the waystation's own rise.
