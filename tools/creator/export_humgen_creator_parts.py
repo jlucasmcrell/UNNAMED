@@ -10,6 +10,7 @@ import sys
 from pathlib import Path
 import bpy
 import numpy as np
+from mathutils import Vector
 from HumGen3D.human.human import Human
 from HumGen3D.human.process.settings import ExportSettings, QualitySettings, ScriptSettings
 from HumGen3D.human.process.shape_keys import livekey_group
@@ -114,67 +115,93 @@ def hair_class(option_id):
 
 
 def add_hair_chains(rig, meshes, length_class, option_id):
-    """Hang bone chains under Head along the falling hair and weight the cards to them.
+    """Hang bone chains along the hair's own fall and weight the cards to them.
 
     Returns the spring specification the runtime reads from the part's contract, or nothing for a short style.
     """
     if not length_class:
         return {}
-    spec = HAIR_CHAINS[length_class]
     import math
+    spec = HAIR_CHAINS[length_class]
     head = next((b for b in rig.data.bones if b.name == 'Head'), None)
     assert head is not None, 'Hair export found no Head bone on the rig'
-    corners = [mesh.matrix_world @ v.co for mesh in meshes for v in mesh.data.vertices]
-    top = max(c.z for c in corners)
-    bottom = min(c.z for c in corners)
-    axis_x = sum(c.x for c in corners) / len(corners)
-    axis_y = sum(c.y for c in corners) / len(corners)
-    fingers = {
-        'back': (axis_x, axis_y - (top - bottom) * .12),
-        'side_l': (axis_x - (top - bottom) * .10, axis_y),
-        'side_r': (axis_x + (top - bottom) * .10, axis_y),
-    }
+    origin = rig.matrix_world @ head.head_local
+    points = [rig.matrix_world @ v.co for mesh in meshes for v in mesh.data.vertices]
+    top = max(p.z for p in points)
+    bottom = min(p.z for p in points)
     drop = max(top - bottom, .05)
     segments = spec['segments']
-    length = drop / segments
+
+    def sector(point):
+        angle = math.degrees(math.atan2(point.x - origin.x, point.y - origin.y))
+        return 'back' if abs(angle) > 120 else ('side_r' if angle > 0 else 'side_l')
+
+    bands = {}
+    for point in points:
+        below = (top - point.z) / drop
+        index = min(int(below * segments), segments - 1)
+        bands.setdefault((sector(point), index), []).append(point)
+    chains = {}
+    for chain in spec['chains']:
+        nodes = []
+        for index in range(segments):
+            group = bands.get((chain, index)) or bands.get(('back', index)) or []
+            if group:
+                nodes.append(sum(group, Vector()) / len(group))
+        if len(nodes) < 2:
+            continue
+        chains[chain] = nodes
+    if not chains:
+        return {}
     bpy.context.view_layer.objects.active = rig
     bpy.ops.object.mode_set(mode='EDIT')
     made = {}
-    for chain in spec['chains']:
-        x, y = fingers[chain]
+    for chain, nodes in chains.items():
         parent = rig.data.edit_bones['Head']
         names = []
-        for n in range(segments):
-            bone = rig.data.edit_bones.new('hair_' + chain + '_' + str(n + 1))
-            bone.head = (x, y, top - length * n)
-            bone.tail = (x, y, top - length * (n + 1))
+        for index in range(len(nodes) - 1):
+            bone = rig.data.edit_bones.new('hair_' + chain + '_' + str(index + 1))
+            bone.head = nodes[index]
+            bone.tail = nodes[index + 1]
             bone.parent = parent
-            bone.use_connect = n > 0
+            bone.use_connect = index > 0
             parent = bone
             names.append(bone.name)
-        made[chain] = names
+        made[chain] = (names, nodes)
     bpy.ops.object.mode_set(mode='OBJECT')
     for mesh in meshes:
-        groups = {chain: [mesh.vertex_groups.new(name=bone) for bone in names] for chain, names in made.items()}
+        groups = {chain: [mesh.vertex_groups.new(name=bone) for bone in names] for chain, (names, _) in made.items()}
         head_group = mesh.vertex_groups.get('Head') or mesh.vertex_groups.new(name='Head')
         for vertex in mesh.data.vertices:
             point = mesh.matrix_world @ vertex.co
-            below = (top - point.z) / max(drop, .001)
-            if below <= 0:
+            below = (top - point.z) / drop
+            best = None
+            for chain, (names, nodes) in made.items():
+                for index in range(len(nodes) - 1):
+                    a, b = nodes[index], nodes[index + 1]
+                    span = (b - a)
+                    length = span.length
+                    if length < 1e-6:
+                        continue
+                    along = max(0.0, min(1.0, (point - a).dot(span) / (length * length)))
+                    distance = (a + span * along - point).length
+                    if best is None or distance < best[0]:
+                        best = (distance, chain, index, along)
+            if best is None or below <= .02:
                 head_group.add([vertex.index], 1.0, 'REPLACE')
                 continue
-            angle = math.atan2(point.x - axis_x, point.y - axis_y) * 180.0 / math.pi
-            chain = 'back' if abs(angle) > 120 else ('side_r' if angle > 0 else 'side_l')
-            held = min(max(below, 0.0), 1.0) * segments - .5
-            index = min(max(int(held), 0), segments - 1)
-            blend = max(0.0, min(1.0, held - index))
+            _, chain, index, along = best
+            names = made[chain][0]
+            names_for_group = groups[chain]
             tilt = min(1.0, below * 3.0)
-            groups[chain][index].add([vertex.index], (1.0 - blend) * tilt, 'REPLACE')
-            if index + 1 < segments:
-                groups[chain][index + 1].add([vertex.index], blend * tilt, 'REPLACE')
+            names_for_group[index].add([vertex.index], (1.0 - along) * tilt, 'REPLACE')
+            if index + 1 < len(names):
+                names_for_group[index + 1].add([vertex.index], along * tilt, 'REPLACE')
+            else:
+                names_for_group[index].add([vertex.index], along * tilt, 'REPLACE')
             if tilt < 1.0:
                 head_group.add([vertex.index], 1.0 - tilt, 'REPLACE')
-    print('CREATOR_HAIR_CHAINS', option_id, length_class, sum(len(v) for v in made.values()), flush=True)
+    print('CREATOR_HAIR_CHAINS', option_id, length_class, sum(len(names) for names, _ in made.values()), flush=True)
     return {'hair_' + chain: dict(spec['spring']) for chain in made}
 
 
