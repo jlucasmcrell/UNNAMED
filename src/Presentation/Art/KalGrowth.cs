@@ -36,17 +36,33 @@ public static class KalGrowth
         skeleton.AddChild(holder);
         // The bone is named once the attachment is in the tree, which is when it resolves the skeleton's bones.
         holder.BoneName = "Head";
+        // The growth is authored in metres for a head about this tall; a rig that stores its joints in another unit (centimetres,
+        // or a scaled armature) would shrink it into the skull. The head-to-neck rest distance says what one head is here.
+        int neck = skeleton.FindBone("Neck");
+        int head = skeleton.FindBone("Head");
+        float unit = neck >= 0 && head >= 0
+            ? (skeleton.GetBoneRest(head).Origin - skeleton.GetBoneRest(neck).Origin).Length() : 0f;
+        float scale = 1f;  // the growths are authored in metres for the skull these rigs actually have
+        if (OS.GetEnvironment("UNNAMED_KAL_GROWTH_PROBE") == "1")
+            GD.Print($"kal growth: head-to-neck {unit:0.###} units, growth scale {scale:0.###}");
         var material = Stone(stone);
-        if (style is 1) holder.AddChild(Part("crest", Plates(), material));
-        if (style is 2) holder.AddChild(Part("ridges", Ridges(), material));
-        if (style is 3) holder.AddChild(Part("crystals", Crystals(), material));
-        if (style is 4) holder.AddChild(Part("horns", Horns(), material));
-        if (jaw is 1) holder.AddChild(Part("jaw_ridges", JawRidges(), material));
-        if (jaw is 2) holder.AddChild(Part("fringe", Fringe(), material));
+        if (style is 1) holder.AddChild(Part("crest", Plates(), material, scale));
+        if (style is 2) holder.AddChild(Part("ridges", Ridges(), material, scale));
+        if (style is 3) holder.AddChild(Part("crystals", Crystals(), material, scale));
+        if (style is 4) holder.AddChild(Part("horns", Horns(), material, scale));
+        if (jaw is 1) holder.AddChild(Part("jaw_ridges", JawRidges(), material, scale));
+        if (jaw is 2) holder.AddChild(Part("fringe", Fringe(), material, scale));
+        if (OS.GetEnvironment("UNNAMED_KAL_GROWTH_PROBE") == "1")
+        {
+            foreach (var part in holder.GetChildren().OfType<MeshInstance3D>())
+                GD.Print($"kal growth part {part.Name}: surfaces {part.Mesh.GetSurfaceCount()} vertices "
+                    + $"{part.Mesh.SurfaceGetArrays(0)[(int)Mesh.ArrayType.Vertex].AsVector3Array().Length}, "
+                    + $"holder at {holder.GlobalPosition:0.###} visible {part.IsVisibleInTree()}");
+        }
     }
 
-    private static MeshInstance3D Part(string name, ArrayMesh mesh, Material material) =>
-        new() { Name = "KalGrowth_" + name, Mesh = mesh, MaterialOverride = material };
+    private static MeshInstance3D Part(string name, ArrayMesh mesh, Material material, float scale) =>
+        new() { Name = "KalGrowth_" + name, Mesh = mesh, MaterialOverride = material, Scale = Vector3.One * scale };
 
     /// <summary>A matte stone with a faint mineral sheen: the colour the Kal's skin is drawn in, so growth and skin match.</summary>
     private static Material Stone(Color stone) => new StandardMaterial3D
@@ -54,6 +70,9 @@ public static class KalGrowth
         AlbedoColor = stone,
         Roughness = .78f,
         MetallicSpecular = .4f,
+        // The spikes are built as open pyramids, and a growth is a hard thin thing seen from any side: culling either face
+        // would make half of every shard vanish, which is what hid the first cut of these meshes completely.
+        CullMode = BaseMaterial3D.CullModeEnum.Disabled,
     };
 
     private static ArrayMesh Build(List<Vector3> points, List<Vector3> normals)
