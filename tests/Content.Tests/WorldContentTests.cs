@@ -129,6 +129,22 @@ public class WorldContentTests
     public void APlaceInAnUnknownRegion_IsRefused() =>
         AssertRefused("WLD005", "locations/den_mouth.yaml", "region_ref: region.starting_frontier", "region_ref: region.elsewhere");
 
+    /// <summary>Fishing: a water names the loot table its catch rolls, and one that names nothing has nothing caught in it.</summary>
+    [Fact]
+    public void TheFrontier_WatersNameTheirCatchTables()
+    {
+        var layout = WorldContent.BuildLayout(Load(Path.Combine(RepoPaths.Root(), "content")), "region.starting_frontier");
+
+        Assert.Equal("loot.fishing.ah_creek", layout.Space.Waters.Single(w => w.Key == "water.ah_creek").CatchTableId);
+        Assert.Equal("loot.fishing.cw_millpond", layout.Space.Waters.Single(w => w.Key == "water.cw_millpond").CatchTableId);
+        Assert.Null(layout.Space.Waters.Single(w => w.Key == "water.cw_millrace").CatchTableId);
+    }
+
+    [Fact]
+    public void AWaterNamingACatchTableThatIsNotDefined_IsRefused() =>
+        AssertRefused("WLD003", "regions/starting_frontier.yaml", "catch: loot.fishing.ah_creek", "catch: loot.fishing.nowhere",
+            "names catch table 'loot.fishing.nowhere', which is not defined");
+
     [Fact]
     public void AFlagThatDoesNotStartAtZero_IsRefused() =>
         AssertRefused("WLD006", "world_flags/hollow/longhouse_door_open.yaml", "default: 0", "default: 1");

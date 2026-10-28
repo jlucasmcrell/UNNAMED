@@ -27,6 +27,8 @@ public enum StateSlice
 {
     /// <summary>The current camp rest posture and death-screen choice. Transient, never saved.</summary>
     CampSession,
+    /// <summary>The timed activity the character is in the middle of - a cast, a wait, a reel (fishing). Transient, never saved.</summary>
+    Activity,
     /// <summary><c>world_tick</c> (S-04, clock half).</summary>
     Clock,
 
@@ -219,6 +221,13 @@ internal sealed class RuntimeState
         Require(owner,StateSlice.CampSession);
         CampRestAt=resting;
         ReturnToCamp=returnToCamp;
+    }
+    /// <summary>The cast, wait or reel running now, or null. Transient: a cast interrupted by a save is dropped, not saved.</summary>
+    public PlayerActivity? Activity { get; private set; }
+    public void SetActivity(SliceOwner owner,PlayerActivity? activity)
+    {
+        Require(owner,StateSlice.Activity);
+        Activity=activity;
     }
     public Posture Posture { get; private set; }
     public CharacterProgression Progression { get; private set; }

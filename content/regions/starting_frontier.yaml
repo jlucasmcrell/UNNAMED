@@ -150819,11 +150819,13 @@ waters:
   path_m: [[492.0, 748.0], [486.0, 753.0], [478.0, 754.0], [470.0, 757.5], [461.0, 758.0], [452.0, 760.0], [442.0, 759.0], [432.0, 762.0], [420.0, 767.0]]
   level_m: 6.55
   width_m: 2.2
+  catch: loot.fishing.ah_creek
 - key: water.cw_millpond
   kind: pond
   path_m: [[958.0, 700.0]]
   level_m: 4.35
   width_m: 26.0
+  catch: loot.fishing.cw_millpond
 - key: water.cw_millrace
   kind: stream
   path_m: [[958.0, 700.0], [964.0, 706.0], [972.0, 712.0], [981.0, 719.0]]

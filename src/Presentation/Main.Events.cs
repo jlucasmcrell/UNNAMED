@@ -242,6 +242,16 @@ public partial class Main
             if (FindingWords.Toast(e.Finding, key => Names.Of(_session, key)) is { } said)
                 _hud.Toast(said, 4);
         });
+        // Fishing: one line at each turn of the loop - the cast as it goes out, the line when it lands, and the catch by name. A line that
+        // comes back empty says why in the simulation's own words.
+        _session.Subscribe<FishCastStarted>(_ => Notice(NoticeKind.World, "You cast", 2));
+        _session.Subscribe<FishingLineOut>(_ => _hud.Log("The line is out"));
+        _session.Subscribe<FishCaught>(e =>
+        {
+            _inventory.Refresh();
+            Notice(NoticeKind.Items, $"You have it: {Names.Of(_session, e.ItemId)}{(e.Count > 1 ? $" x{e.Count}" : "")}", 3);
+        });
+        _session.Subscribe<FishLost>(e => _hud.Log(e.Reason));
         SubscribeSocial();
         SubscribeParty();
         SubscribeQuests();
@@ -480,7 +490,7 @@ public partial class Main
         });
         _session.Subscribe<CommandRejected>(e =>
         {
-            if (e.Command is AttackCommand or DodgeCommand or UseItemCommand or CastCommand or TechniqueCommand or PlaceCampCommand or PackCampCommand or RestAtCampCommand or RefillFlaskCommand or CampReturnCommand or VisitStationCommand or RepairCommand && !e.Reason.StartsWith("already", StringComparison.Ordinal)
+            if (e.Command is AttackCommand or DodgeCommand or UseItemCommand or CastCommand or TechniqueCommand or PlaceCampCommand or PackCampCommand or RestAtCampCommand or RefillFlaskCommand or CampReturnCommand or VisitStationCommand or RepairCommand or StartFishingCommand && !e.Reason.StartsWith("already", StringComparison.Ordinal)
                 && e.Reason is not ("staggered" or "dodging" or "dead"))
                 _hud.Toast(e.Command is TechniqueCommand ? Regex.Replace(e.Reason, @"\b[a-z_]+(\.[a-z0-9_]+)+\b", m => Name(m.Value)) : e.Reason, 2);
         });

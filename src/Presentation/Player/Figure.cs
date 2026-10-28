@@ -106,4 +106,12 @@ public abstract partial class Figure : Node3D
     public virtual void Interact()
     {
     }
+
+    /// <summary>
+    /// The timed activity the simulation says the body is in the middle of - a cast, a wait, a reel - or
+    /// <see cref="UNNAMED.Domain.ActivityKind.None"/>. A figure that cannot show it stands as it would.
+    /// </summary>
+    public virtual void Fishing(UNNAMED.Domain.ActivityKind kind)
+    {
+    }
 }

@@ -234,6 +234,7 @@ public sealed class Simulation
     private readonly GatheringSystem _gathering;
     private readonly CraftingSystem _crafting;
     private readonly CampSystem _camp;
+    private readonly FishingSystem _fishing;
     private readonly FirstHourSystem _firstHour;
     private readonly LoreSystem _lore;
     private readonly NpcSystem _npcs;
@@ -316,6 +317,7 @@ public sealed class Simulation
         _tiers = new TierSystem(_context, _state.Claim(nameof(TierSystem), StateSlice.CellTiers), _cells, setup.Observers);
         _inventory = new InventorySystem(_context, _state.Claim(nameof(InventorySystem), StateSlice.PlayerInventory, StateSlice.WorldItems), player.Id);
         _camp = new CampSystem(_context,_state.Claim(nameof(CampSystem),StateSlice.CampSession),player.Id);
+        _fishing = new FishingSystem(_context,_state.Claim(nameof(FishingSystem),StateSlice.Activity),player.Id);
         _firstHour=new FirstHourSystem(_context,player.Id);
         _firstHour.Listen(bus);
         _equipment = new EquipmentSystem(_context, _state.Claim(nameof(EquipmentSystem), StateSlice.PlayerEquipment), player.Id);
@@ -591,6 +593,20 @@ public sealed class Simulation
     public bool RestingAtCamp => _state.CampRestAt is not null;
     public bool ReturnToCamp => _state.ReturnToCamp;
     public bool CanRefillFlask => Camps.WaterNear(_context);
+
+    /// <summary>The timed activity the character is in the middle of (a cast, a wait, a reel), or null. Transient, never saved.</summary>
+    public PlayerActivity? Activity => _state.Activity;
+
+    /// <summary>
+    /// The declared water the character stands at, by key - what F fishes. Null on dry land, indoors, or at water that names no catch,
+    /// which is the same rule the system itself uses.
+    /// </summary>
+    public string? WaterKey => _state.Space.IsExterior
+        ? Setup.Layout.Space.WaterAt(_state.Body.XMm,_state.Body.ZMm) is { CatchTableId: not null } water ? water.Key : null
+        : null;
+
+    /// <summary>Whether a cast can start now: a fishable water at the bank, and nothing else running.</summary>
+    public bool CanFish => _state.Activity is null && WaterKey is not null;
     public ImmutableArray<StationSite> Stations => _context.Stations(PlayerId).Where(p=>p.Layout.SpaceId==_state.Space).Select(p=>p.Site).ToImmutableArray();
 
     public ImmutableArray<DoorView> Doors =>
@@ -929,6 +945,9 @@ public sealed class Simulation
                 RestAtCampCommand restCamp => _camp.Handle(restCamp),
                 CampReturnCommand returnCamp => _camp.Handle(returnCamp),
                 RefillFlaskCommand refill => _inventory.Handle(refill,WorldTick),
+                StartFishingCommand fishing => _fishing.Handle(fishing,WorldTick),
+                ReelInCommand reel => _fishing.Handle(reel,WorldTick),
+                CancelActivityCommand cancelActivity => _fishing.Handle(cancelActivity),
                 VisitStationCommand visitStation => _firstHour.Handle(visitStation,WorldTick),
                 TalkCommand talk => _dialogue.Handle(talk, WorldTick),
                 ChooseCommand choose => _dialogue.Handle(choose, WorldTick),
@@ -997,6 +1016,7 @@ public sealed class Simulation
             foreach (var simulation in _tierSimulations)
                 simulation.Tick(tick, _cells.Where(c => _state.Tiers.GetValueOrDefault(c.ToString(), SimulationTier.D) == simulation.Tier).ToList());
             _camp.Tick();
+            _fishing.Tick(tick);
             _combat.Tick(tick);
             _laden.Tick(tick);
             _lights.Tick(tick);

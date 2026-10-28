@@ -166,6 +166,9 @@ public sealed record WaterSite(string Key, string Kind, long LevelMm, ImmutableA
 {
     /// <summary>How near a body has to be for its water to be reached (a bank, not a swim).</summary>
     public const long ReachMm = 2_000;
+
+    /// <summary>The loot table a line in this water rolls (<c>catch:</c>), or null for water nothing is caught in.</summary>
+    public string? CatchTableId { get; init; }
 }
 
 /// <summary>The static walkable space of a region: its movement bounds, its terrain, and what stands on it.</summary>

@@ -1,0 +1,11 @@
+id: loot.fishing.cw_millpond
+kind: loot
+schema: 1
+display_key: loot.fishing.cw_millpond.name
+tags: [loot]
+notes: A line in the Cairnwold millpond - eel in the still water, trout through it, and the pond's own leavings.
+rolls: 1
+entries:
+  - { item_ref: item.material.fish_eel, weight: 3 }
+  - { item_ref: item.material.fish_trout, weight: 2 }
+  - { item_ref: item.material.river_finds, weight: 1 }

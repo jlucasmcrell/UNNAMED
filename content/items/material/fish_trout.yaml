@@ -1,0 +1,12 @@
+id: item.material.fish_trout
+kind: item
+schema: 1
+display_key: item.material.fish_trout.name
+tags: [item]
+name: Trout
+notes: A stream trout out of Ashen Hollow's creek or the Cairnwold millpond; the cookfire's gain.
+category: material
+stack_max: 10
+weight: 0.4
+value_base: 3
+rarity: common

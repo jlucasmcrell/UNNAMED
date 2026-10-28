@@ -1,4 +1,5 @@
 ﻿using Godot;
+using UNNAMED.Domain;
 using UNNAMED.Presentation.Player;
 using UNNAMED.Presentation.Art;
 using UNNAMED.World.Runtime;
@@ -27,6 +28,8 @@ public sealed partial class MetaHumanFigure : Figure
     private Godot.Collections.Dictionary _resources = new();
     private bool _crouched, _airborne, _talking, _downed, _wasAirborne;
     private double _airTime, _landing, _reaching, _striking;
+    private ActivityKind _fishKind;
+    private double _fishing;
     private string _gait = "walk", _attack = "sword_attack_1";
     private int _attackTurn;
     private CombatPhase _lastPhase = CombatPhase.Idle;
@@ -144,6 +147,18 @@ public sealed partial class MetaHumanFigure : Figure
     public override bool SetDowned(bool downed) { _downed = downed; return Has("death"); }
     public override void Strike() => _striking = .001;
     public override void Interact() => _reaching = .001;
+
+    /// <summary>
+    /// The line in the water: the cast and the reel each play once, and the wait between them has no clip of its own - the body stands.
+    /// A cast broken off, or a line reeled early, simply stops where it is.
+    /// </summary>
+    public override void Fishing(ActivityKind kind)
+    {
+        if (kind == _fishKind)
+            return;
+        _fishKind = kind;
+        _fishing = kind is ActivityKind.FishCast or ActivityKind.FishReel ? .001 : 0;
+    }
     public override void SetFirstPerson(bool firstPerson) => _native.Call("set_shadow_only", firstPerson);
     private CrouchHeadLift _crouchHead=null!;
     public override void Pose(Vector3 feet, float facingRadians, float speedMetresPerSecond, double delta)
@@ -296,6 +311,21 @@ public sealed partial class MetaHumanFigure : Figure
             _landing += delta;
             if (_landing < Math.Min(.6, Length("land")) && speed < 1.5f) { Play("land", .08f, 1, _landing - delta <= .001); return; }
             _landing = 0;
+        }
+        // Fishing has no clip of its own in the art root, so the cast plays the clip the cast state names and the reel the one interact
+        // names, each once; the wait between them is an idle and the line's own status is the HUD's.
+        if (_fishing > 0 && _fishKind is ActivityKind.FishCast or ActivityKind.FishReel)
+        {
+            _fishing += delta;
+            string fish = _fishKind == ActivityKind.FishCast ? "fish_cast" : "fish_reel";
+            if (!Has(fish))
+                fish = _fishKind == ActivityKind.FishCast ? "cast" : "interact";
+            if (_fishing < Length(fish) && speed < .25f && Has(fish))
+            {
+                Play(fish, .15f, 1f, _fishing - delta <= .001);
+                return;
+            }
+            _fishing = 0;
         }
         if (_reaching > 0)
         {

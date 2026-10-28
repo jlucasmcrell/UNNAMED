@@ -1694,6 +1694,8 @@ public partial class Main : Node3D
         _interior?.DrawWorld(simulation.ActiveSpaceTick, _session.TickSeconds);
         var combat = simulation.Combat;
         _avatar.SetStance(Stance(combat, alpha));
+        // The timed activity the simulation says the body is in (fishing): its own key in the bindings, its own state on the body.
+        _avatar.Fishing(simulation.Activity?.Kind ?? UNNAMED.Domain.ActivityKind.None);
         _avatar.SetDowned(combat.Defeated);
         DrawOpening(delta);
         // Downed is not dead (OD-13 = B): the character lies in view until helped up, and the fade waits for a death.

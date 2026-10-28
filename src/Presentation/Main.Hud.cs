@@ -53,6 +53,8 @@ public partial class Main
                 ? $"[{HelpPanel.Key("interact")}] Open the {Names.Place(_session, container.Key, container.DefId)}"
                 : $"[{HelpPanel.Key("interact")}] Search the {Names.Of(_session, container.DefId)}",
             { Kind: FocusKind.Node } node => NodePrompt(simulation, node),
+            // A fishable bank offers both verbs: F puts a line in (and reels it), E fills the flask.
+            { Kind: FocusKind.Water } when simulation.CanFish => $"[{HelpPanel.Key("fish")}] Fish   [{HelpPanel.Key("interact")}] Refill your flask",
             { Kind: FocusKind.Water } => $"[{HelpPanel.Key("interact")}] Refill your flask",
             { Kind: FocusKind.Station } board when board.DefId == NoticeBoardPanel.Kind => $"[{HelpPanel.Key("interact")}] Read the notice board",
             { Kind: FocusKind.Station } station => $"[{HelpPanel.Key("interact")}] Work at the {Names.Place(_session, station.Key, station.DefId)}",

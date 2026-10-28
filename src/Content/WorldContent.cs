@@ -620,10 +620,16 @@ public static class WorldContent
                         throw new FormatException($"{key}: a path point must be [x, z]");
                     return (ToMm(pair[0], $"{key} path_m x"), ToMm(pair[1], $"{key} path_m z"));
                 }).ToImmutableArray();
-                var water = new WaterSite(key, Text(site, "kind"), Mm(site, "level_m"), points, Mm(site, "width_m"));
+                var water = new WaterSite(key, Text(site, "kind"), Mm(site, "level_m"), points, Mm(site, "width_m"))
+                {
+                    CatchTableId = site.GetValueOrDefault("catch") as string,
+                };
                 Check(key.StartsWith("water.", StringComparison.Ordinal), "WLD003", $"water key '{key}' must start with 'water.'");
                 Check(water.PointsMm.Length >= 1, "WLD003", $"{key} needs at least one path point");
                 Check(water.WidthMm > 0, "WLD003", $"{key} needs a width above zero");
+                // A water with a catch is fished, and what it gives is a loot table's; one that names none is water nothing is caught in.
+                Check(water.CatchTableId is not { } catchTable || loader.GetByKind("loot").ContainsKey(catchTable), "WLD003",
+                    $"{key} names catch table '{water.CatchTableId}', which is not defined");
                 Check(water.PointsMm.All(p => p.XMm >= minX && p.XMm <= maxX && p.ZMm >= minZ && p.ZMm <= maxZ), "WLD003",
                     $"{key} runs outside the walkable bounds");
                 waters.Add(water);

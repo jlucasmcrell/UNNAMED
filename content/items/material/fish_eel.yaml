@@ -1,0 +1,12 @@
+id: item.material.fish_eel
+kind: item
+schema: 1
+display_key: item.material.fish_eel.name
+tags: [item]
+name: Eel
+notes: An eel out of the still water of the Cairnwold millpond - heavier than a trout, and worth more.
+category: material
+stack_max: 10
+weight: 0.5
+value_base: 4
+rarity: common
