@@ -150336,31 +150336,31 @@ structures:
   - 484.6
   - 751.6
   - 0.55
-  height_m: 0.35
+  height_m: 0.19
 - id: cw_creek_stone_2
   circle_m:
   - 474.2
   - 756.2
   - 0.6
-  height_m: 0.4
+  height_m: 0.22
 - id: cw_creek_stone_3
   circle_m:
   - 455.8
   - 757.6
   - 0.8
-  height_m: 0.6
+  height_m: 0.33
 - id: cw_creek_stone_4
   circle_m:
   - 447.0
   - 760.8
   - 0.7
-  height_m: 0.55
+  height_m: 0.3
 - id: cw_creek_stone_5
   circle_m:
   - 437.2
   - 761.4
   - 0.5
-  height_m: 0.32
+  height_m: 0.18
 - id: cw_creek_ford_gravel
   circle_m:
   - 452.0
