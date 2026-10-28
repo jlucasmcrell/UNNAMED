@@ -68,66 +68,45 @@ public partial class Main
         {
             if (route == "traversal")
             {
-                // BRIEF D6 evidence pass: a running jump, a vault over the fallen timber, a climb onto the smithy fence and a climb up the
-                // rim boulder, all driven through the normal stick and the normal jump key - nothing is injected into the simulation.
-                _camera.Pitch = -.10f;
+                // D6 traversal proof, all of it within twenty metres of where the character starts, so the walk cannot lose its way across the
+                // frontier: a running jump, a run at the smithy fence, the owned wooden ladder at (49.6, 147.2) region = (449.6, 755.2) world,
+                // and the waystation slope. Region coordinates are world (x + 400, z + 608).
                 Mark("traversal_start");
-
-                // 1. The running jump, in the open yard, so the arc and the airtime are what the frame shows.
-                await Go(new[] { (430.0, 758.0) }, 25);
-                Mark("running_jump");
-                _controller.SteerWorld(new Vector3(0, 0, -1), Gait.Run, _camera);
-                await Rcd3Wait(.35);
+                _controller.SteerWorld(new Vector3(0, 0, -1), Gait.Sprint, _camera);
+                await Rcd3Wait(.8);
                 _controller.Jump();
-                await Rcd3Wait(.55);
+                Mark("running_jump");
+                await Rcd3Wait(1.4);
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
-                await Rcd3Wait(.6);
+                await Rcd3Wait(.4);
                 Mark("jump_done");
 
-                // 2. The vault: run at the fallen timber (0.8 m, inside the 1.2 m window) with no jump at all.
-                await Go(new[] { (567.0, 751.0) }, 40);
-                Mark("vault_approach");
-                _controller.SteerWorld(new Vector3(0, 0, -1), Gait.Run, _camera);
-                await Rcd3Wait(1.8);
+                // The fence: run at it and let the vault carry the body over.
+                await Go(new[] { (446.0, 757.0) }, 70);
+                _controller.SteerWorld(new Vector3(1, 0, 0), Gait.Run, _camera);
+                await Rcd3Wait(1.5);
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
-                await Rcd3Wait(.6);
-                Mark("vault_done", _controller.Authoritative);
+                await Rcd3Wait(.4);
+                Mark("fence_vaulted", _controller.Authoritative);
 
-                // 3. The climb onto the smithy fence (1.2 m) - walk into it and the body mounts the top.
-                await Go(new[] { (447.5, 757.0), (447.5, 755.6) }, 60);
-                Mark("fence_approach");
-                _controller.SteerWorld(new Vector3(0, 0, -1), Gait.Run, _camera);
-                await Rcd3Wait(1.4);
-                _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
-                await Rcd3Wait(.6);
-                Mark("fence_climbed", _controller.Authoritative);
-
-                // 4. The climb up the rim boulder (2.57 m, inside the 3 m mantle reach): a wall climb, not a vault.
-                await Go(new[] { (412.5, 696.0), (411.0, 692.6) }, 70);
-                Mark("rock_approach");
-                _controller.SteerWorld(new Vector3(-1, 0, -0.35f), Gait.Run, _camera);
-                await Rcd3Wait(1.6);
-                _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+                // The ladder (D6): 3.2 m, climbable at any height because its id starts with ladder_.
+                await Go(new[] { (449.0, 755.6) }, 60);
+                _controller.SteerWorld(new Vector3(1, 0, 0), Gait.Run, _camera);
+                await Rcd3Wait(2.2);
+                _controller.SteerWorld(new Vector3(0, 0, -1), Gait.Walk, _camera);
                 await Rcd3Wait(.8);
-                Mark("rock_climbed", _controller.Authoritative);
-
-                // 5. The ladder (D6): the owned wooden ladder at (449.6, 755.2), 3.2 m, climbable at any height by its prefix.
-                await Go(new[] { (451.6, 755.2), (450.6, 755.2) }, 70);
-                Mark("ladder_approach");
-                _controller.SteerWorld(new Vector3(-1, 0, 0), Gait.Run, _camera);
-                await Rcd3Wait(1.6);
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
-                await Rcd3Wait(.6);
+                await Rcd3Wait(.5);
                 Mark("ladder_climbed", _controller.Authoritative);
-                // 6. The scramble: the waystation's own slope, walked up at a pace rather than a creep.
-                await Go(new[] { (430.0, 748.0) }, 60);
+
+                // The slope: the waystation's own rise, walked up at a run rather than a creep.
+                await Go(new[] { (434.0, 752.0) }, 60);
                 _controller.SteerWorld(new Vector3(0, 0, -1), Gait.Run, _camera);
-                await Rcd3Wait(1.4);
+                await Rcd3Wait(1.6);
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
                 await Rcd3Wait(.5);
                 Mark("slope_scrambled", _controller.Authoritative);
-                _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
-                await Rcd3Wait(.4);
+                Mark("traversal_done");
             }
             else if (route == "rain")
             {
