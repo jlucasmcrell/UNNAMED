@@ -1,0 +1,19 @@
+id: npc.road.rim_keeper
+kind: npc
+sex: f
+schema: 1
+display_key: npc.road.rim_keeper.name
+tags: [npc]
+name: Maud Tarry
+notes: The keeper of the Rim's fire - the road's one person (the dossier's open question 1, answered here). She keeps the last fire before the moor, sells what a traveller forgot and teaches the blade's technique to anyone who has already held a blade. Placed at the Rim camp (886, 700) on the basin's lip.
+role: villager
+services: [trade]
+merchant_ref: merchant.road.rim_keeper
+dialogue_ref: dialogue.road.rim_keeper
+unique: true
+people_ref: people.orenth
+teaches:
+  - kind: technique
+    ability_ref: ability.blade.power_strike
+    fee: 20
+    requires: { skill: { skill_ref: skill.one_hand_blade, band: familiar } }

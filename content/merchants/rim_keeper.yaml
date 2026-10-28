@@ -1,0 +1,28 @@
+id: merchant.road.rim_keeper
+kind: merchant
+schema: 1
+display_key: merchant.road.rim_keeper.name
+tags: [merchant]
+notes: "Maud's pack at the Rim - what a traveller forgot on the way out and what a keeper sells rather than uses: light, a dry bed roll, a salve, and the meat the road's own snares bring in. No iron, no blade; the smith at Ashen Hollow has that."
+stock_mode: fixed
+stock:
+- item_ref: item.tool.torch
+  count: 4
+  price_bias: 1.0
+- item_ref: item.tool.camp_kit
+  count: 1
+  price_bias: 1.0
+- item_ref: item.consumable.salve_minor
+  count: 2
+  price_bias: 1.0
+- item_ref: item.material.raw_meat
+  count: 6
+  price_bias: 1.0
+- item_ref: item.bag.satchel
+  count: 1
+  price_bias: 1.0
+buys_tags: [material, consumable, misc, bag]
+gold_reserve:
+- 20
+- 80
+restock_min: 1
