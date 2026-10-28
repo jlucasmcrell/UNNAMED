@@ -2019,6 +2019,9 @@
         "attack": "creature.creature_playtest_cave_spider.attack",
         "hit": "creature.creature_playtest_cave_spider.hit",
         "death": "creature.creature_playtest_cave_spider.death",
+        "idle_b": "creature.creature_playtest_cave_spider.idle_b",
+        "ability.creature.spider_bite_b": "creature.creature_playtest_cave_spider.attack_b",
+        "ability.creature.spider_bite_c": "creature.creature_playtest_cave_spider.attack_c",
         "ability.creature.spider_bite": "creature.creature_playtest_cave_spider.attack"
       },
       "voice": "cave_hunting_spider",
