@@ -141038,7 +141038,7 @@ structures:
   - 451.4
   - 746.4
   height_m: 1.2
-- { id: ladder_waystation, circle_m: [49.6, 147.2, 0.45], height_m: 3.2 }   # D6: the owned wooden ladder against the smithy wall, climbable to its top (climb_prefixes: [ladder_])
+- { id: ladder_waystation, circle_m: [49.6, 147.2, 0.45], height_m: 2.8 }   # D6: the owned wooden ladder against the smithy wall, climbable to its top (climb_prefixes: [ladder_])
 - id: rock_well
   circle_m:
   - 449
