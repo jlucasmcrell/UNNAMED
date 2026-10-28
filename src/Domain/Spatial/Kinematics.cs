@@ -451,11 +451,9 @@ public static class Kinematics
             // which failed wherever the terrain under the footprint was not perfectly flat, so no wall was ever climbed (the owner saw the
             // body stuck against one). 50 mm is far below any structural height and far above terrain noise.
             long under = space.HeightAtMm((long)Math.Round(px, MidpointRounding.AwayFromZero), (long)Math.Round(pz, MidpointRounding.AwayFromZero));
-            // The top under the probe point must be this structure's top, measured against the ground AT THE PROBE: the old 50 mm against
-            // the structure's own centre-ground refused every climb on a slope, which is where the waystation's fence and ladder stand, so
-            // nothing was ever climbed in play even though it climbed fine on flat test ground.
-            if (Math.Abs(TopUnder(px, pz, long.MaxValue, space) - (structureGround + blocker.HeightMm)) > 300)
-                continue;
+            // No top-under-the-probe comparison here any more: the probe is already known to be inside THIS blocker's footprint, and asking what
+            // the highest top under it is meant a ladder leaning on a taller wall was refused whenever the probe reached the wall behind it
+            // (10,200 mm of wall against 8,530 mm of ladder top). The footprint test above is the check; the height checks below are the rest.
             return (px, pz, top - under);
         }
         return null;

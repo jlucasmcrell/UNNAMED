@@ -158,11 +158,13 @@ public partial class Main
                 await Go(new[] { (456.1, 747.8) }, 90);
                 Shot("ladder_runup");
                 _controller.SteerWorld(new Vector3(0, 0, -1), Gait.Walk, _camera);
-                await Rcd3Wait(1.1);
+                await Rcd3Wait(.75);
                 await ShotSide("ladder_contact");
-                await Rcd3Wait(.5);
+                await Rcd3Wait(.25);
+                await ShotSide("ladder_on_rung");
+                await Rcd3Wait(.35);
                 await ShotSide("ladder_rising");
-                await Rcd3Wait(.9);
+                await Rcd3Wait(.8);
                 await ShotSide("ladder_top");
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
                 await Rcd3Wait(.5);

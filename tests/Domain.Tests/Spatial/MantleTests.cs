@@ -69,6 +69,20 @@ public class MantleTests(ITestOutputHelper output)
     }
 
     [Fact]
+    public void ALadderLeaningOnATallerWall_IsStillClimbed()
+    {
+        // The case that kept the ladder unclimbed in play: the ladder stands against a 3.0 m wall, so the probe point one radius into the ladder
+        // fell inside the WALL's footprint and the old "highest top under the probe" test saw the wall's top instead of the ladder's.
+        // Press runs EAST, so the ladder stands across the path and the wall stands immediately behind it.
+        var ladder = new BoxBlocker("ladder_waystation", 9_600, 4_800, 10_000, 5_800, 1_330) { Climbable = true };
+        var wall = new BoxBlocker("forge_north", 10_000, 4_600, 10_200, 6_000, 3_000) { Climbable = true };
+        var space = Flat(ladder, wall);
+        var (_, peak) = Press(space, new Body(9_000, 0, 5_300, 90_000), 40);
+        output.WriteLine($"ladder 1_330 against wall 3_000 => peak={peak}");
+        Assert.True(peak >= 1_330 - 50, $"the body never stood on the ladder: peak={peak}");
+    }
+
+    [Fact]
     public void ABodyPressedIntoALadder_ClimbsItAtAnyHeight()
     {
         // Three metres: past the mantle reach, so only the ladder_ prefix can make this climbable.
