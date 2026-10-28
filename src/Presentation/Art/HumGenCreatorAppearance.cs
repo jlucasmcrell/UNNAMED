@@ -159,10 +159,10 @@ public sealed partial class HumGenCreatorAppearance : Node
     }
 
     /// <summary>The stand-off a worn garment keeps from the body, so the body cannot break through the cloth.</summary>
-    private const float GarmentStandoff = .0035f;
+    private const float GarmentStandoff = .0045f;
 
     /// <summary>How far the body is drawn inside itself while it is clothed, closing the rest of the gap from its own side.</summary>
-    private const float BodyRecess = -.004f;
+    private const float BodyRecess = -.006f;
 
     /// <summary>
     /// Draw the worn parts 3.5 mm off the body. The body's preset can be larger than the one a part was exported on, so a shirt
@@ -399,7 +399,7 @@ public sealed partial class HumGenCreatorAppearance : Node
             if (choice == CreatorChoice.FacialHair && (people == PeopleLooks.Siann || look.Sliders.GetValueOrDefault("look.native_clean_shaven") != 0)) selected = null;
             // A plain starter outfit, not the frontier coat: the hat that outfit carries hid the face on every step before
             // Outfit (the review, 2026-10-28). The frontier outfit is still in the list, and still the player's to choose.
-            if (choice == CreatorChoice.Outfit && selected is null) selected = _catalogue.Options(choice, sex).FirstOrDefault(o => o.Id == "outfit.casual.smart_casual")?.Id;
+            if (choice == CreatorChoice.Outfit && selected is null) selected = _catalogue.Options(choice, sex).FirstOrDefault(o => o.Id == "outfit.office.new_intern")?.Id;
             if (choice == CreatorChoice.Footwear && selected is null) selected = _catalogue.Options(choice, sex).FirstOrDefault(o => o.Label.Contains("Pirate", StringComparison.OrdinalIgnoreCase))?.Id;
             string? asset = selected is null ? (choice is CreatorChoice.Hair ? growth : choice is CreatorChoice.FacialHair ? growth : null)
                 : HumGenCreatorData.Part(choice, sex, selected);
