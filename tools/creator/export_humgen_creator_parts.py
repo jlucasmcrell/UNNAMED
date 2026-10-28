@@ -41,7 +41,7 @@ def share_correctives(body, meshes):
             mesh.shape_key_add(name='Basis', from_mix=False)
         missing = [block for block in wanted if mesh.data.shape_keys.key_blocks.get(block.name) is None]
         for block in missing:
-            keys.active_shape_key_index = keys.key_blocks.find(block.name)
+            body.active_shape_key_index = keys.key_blocks.find(block.name)
             bpy.ops.object.select_all(action='DESELECT')
             body.select_set(True)
             mesh.select_set(True)
