@@ -116,18 +116,18 @@ public partial class Main
                 // The fence: stand in front of the smithy fence (its box is world 444..451.4 x 746..746.4) and run south into it.
                 await Go(new[] { (447.0, 743.5) }, 70);
                 _controller.SteerWorld(new Vector3(0, 0, 1), Gait.Run, _camera);
-                await Rcd3Wait(1.6);
+                await Rcd3Wait(.9);
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
-                await Rcd3Wait(.4);
+                await Rcd3Wait(1.2);
                 PressReport("fence", 0, 1);
                 Mark("fence_vaulted", _controller.Authoritative);
 
                 // The ladder (D6): its box is world 449.6..450.0 x 754.9..755.9, 2.8 m. Stand east of it and run west into it.
-                await Go(new[] { (462.4, 750.4) }, 60);
+                await Go(new[] { (461.0, 750.4), (460.6, 750.4) }, 60);
                 _controller.SteerWorld(new Vector3(-1, 0, 0), Gait.Run, _camera);
-                await Rcd3Wait(2.4);
+                await Rcd3Wait(.9);
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
-                await Rcd3Wait(.6);
+                await Rcd3Wait(1.2);
                 PressReport("ladder", -1, 0);
                 Mark("ladder_climbed", _controller.Authoritative);
 

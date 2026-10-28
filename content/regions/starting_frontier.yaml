@@ -141040,11 +141040,11 @@ structures:
   height_m: 1.2
 - id: ladder_waystation
   box_m:
-  - 449.6
-  - 754.9
-  - 450.0
-  - 755.9
-  height_m: 2.8
+  - 459.35
+  - 749.95
+  - 459.85
+  - 750.91
+  height_m: 1.33
   # D6: the owned wooden ladder against the smithy wall, in world metres like the fence beside it, climbable to its top by its ladder_ prefix.
 - id: rock_well
   circle_m:
