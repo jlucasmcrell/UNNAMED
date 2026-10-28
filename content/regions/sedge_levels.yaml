@@ -14498,23 +14498,23 @@ nodes:
 - name: sedge_fen_woundmoss_1
   node_ref: node.herb.woundmoss
   position_m:
-  - 4996.9
-  - 1104.0
+  - 4984.0
+  - 1056.0
 - name: sedge_fen_woundmoss_2
   node_ref: node.herb.woundmoss
   position_m:
-  - 5003.1
-  - 1104.0
+  - 4980.0
+  - 1058.0
 - name: sedge_fen_boneleaf
   node_ref: node.herb.boneleaf
   position_m:
-  - 4996.9
-  - 1112.0
+  - 4986.0
+  - 1062.0
 - name: sedge_fen_ashbloom
   node_ref: node.firstplay.ashbloom
   position_m:
-  - 5003.1
-  - 1112.0
+  - 4978.0
+  - 1064.0
 - name: orr_camp_boneleaf
   node_ref: node.herb.boneleaf
   position_m:
@@ -14523,43 +14523,43 @@ nodes:
 - name: sedge_fen_bog_cotton_1
   node_ref: node.fibre.bog_cotton
   position_m:
-  - 5003.1
-  - 1128.0
+  - 4982.0
+  - 1052.0
 - name: sedge_fen_bog_cotton_2
   node_ref: node.fibre.bog_cotton
   position_m:
-  - 4996.9
-  - 1136.0
+  - 4978.0
+  - 1054.0
 - name: sedge_fen_deadfall_1
   node_ref: node.wood.deadfall
   position_m:
-  - 4996.9
-  - 1120.0
+  - 4984.0
+  - 1066.0
 - name: sedge_fen_deadfall_2
   node_ref: node.wood.deadfall
   position_m:
-  - 5003.1
-  - 1120.0
+  - 4980.0
+  - 1068.0
 - name: sedge_fen_ash_stand
   node_ref: node.wood.ash_stand
   position_m:
-  - 4996.9
-  - 1128.0
+  - 4976.0
+  - 1070.0
 - name: sedge_bank_iron_1
   node_ref: node.ore.loose_iron
   position_m:
-  - 5003.1
-  - 1136.0
+  - 4986.0
+  - 1052.0
 - name: sedge_bank_iron_2
   node_ref: node.ore.loose_iron
   position_m:
-  - 4996.9
-  - 1144.0
+  - 4976.0
+  - 1056.0
 - name: sedge_eel_snare
   node_ref: node.trap.larder_snare
   position_m:
-  - 5003.1
-  - 1144.0
+  - 4984.0
+  - 1060.0
 - name: orr_camp_pelt_snare
   node_ref: node.trap.pelt_snare
   position_m:
@@ -14569,8 +14569,8 @@ nodes:
 - name: sedge_fen_deadfall_3
   node_ref: node.wood.deadfall
   position_m:
-  - 5003.1
-  - 1152.0
+  - 4986.0
+  - 1070.0
 
 stations:
 - key: station.sedge_tollpiles_forge

@@ -1,0 +1,25 @@
+id: spawn.sedge.drowned_pair
+kind: spawn
+schema: 1
+display_key: spawn.sedge.drowned_pair.name
+tags:
+- spawn
+notes: "PROPOSED Sedge Gate 4 pack - two of the drowned walk the cache bank together: the flanking lesson the single sentinel cannot teach. It replaces an earlier pair of ledger raiders, whose bound body (humgen_pool_03) carries no hand socket for the weapon its binding names."
+region_ref: region.sedge_levels
+creatures:
+- creature_ref: creature.undead.sedge_drowned
+  count:
+  - 2
+  - 2
+  role: pack_hunter
+at:
+  position_m:
+  - 4900
+  - 1010
+  radius_m: 0
+level_band:
+- 12
+- 12
+respawn:
+  kind: none
+tier_hint: B
