@@ -109,7 +109,6 @@ public sealed partial class HumGenCreatorAppearance : Node
                 if (!skeleton.GetChildren().OfType<KalWings>().Any()
                     && art.RiggedFile("humgen_race_kal_" + sex + "_compact", "kal_wings.glb") is { } wings)
                     KalWings.Attach(skeleton, wings);
-                GrowKal(skeleton, look);
             }
             // A Kal has no hair, brows or lashes of hair at all: the head carries the stone and its growths only (owner's
             // ruling, 2026-10-28). The baked brow cap is hidden rather than recoloured, because stone is not a hair colour.
@@ -157,20 +156,6 @@ public sealed partial class HumGenCreatorAppearance : Node
                     mesh.SetSurfaceOverrideMaterial(surface, local);
                 }
             }
-    }
-
-    /// <summary>
-    /// The Kal's stone growths, on the head that carries its stone: the growth the hair step chose, tinted to the stone colour the
-    /// player picked, so a sandstone Kal grows sandstone and a basalt one grows basalt (owner's ruling, 2026-10-28).
-    /// </summary>
-    private static void GrowKal(Skeleton3D skeleton, CharacterAppearance look)
-    {
-        var stone = LookSwatches.Chosen(LookSwatches.Skin(PeopleLooks.Kal),
-            look.Sliders.TryGetValue(LookSwatches.SkinSlider, out int picked) ? picked : null);
-        // The swatch is a multiplier on the Kal's grey stone; the growth takes the same figure as its own colour.
-        Color tint = stone is null ? new Color(.62f, .62f, .64f) : new Color(
-            Mathf.Min(1f, .58f * stone.R), Mathf.Min(1f, .58f * stone.G), Mathf.Min(1f, .58f * stone.B));
-        KalGrowth.Attach(skeleton, look.Sliders.GetValueOrDefault(KalGrowth.StyleSlider), look.Sliders.GetValueOrDefault(KalGrowth.JawSlider), tint);
     }
 
     private void Materials(ArtLibrary art, string face, CharacterAppearance look, string people)
@@ -271,6 +256,17 @@ public sealed partial class HumGenCreatorAppearance : Node
             mesh.SetSurfaceOverrideMaterial(surface, local);
             return;
         }
+        // A Kal's growth is stone and takes the colour of the stone the player chose, not its authored grey.
+        if (name.Contains("kal_growth", StringComparison.OrdinalIgnoreCase) && material is BaseMaterial3D rock)
+        {
+            var tinted = (BaseMaterial3D)rock.Duplicate();
+            var swatch = LookSwatches.Chosen(LookSwatches.Skin(people),
+                look.Sliders.TryGetValue(LookSwatches.SkinSlider, out int picked) ? picked : null);
+            tinted.AlbedoColor = swatch is null ? new Color(.62f, .62f, .64f) : new Color(
+                Mathf.Min(1f, .58f * swatch.R), Mathf.Min(1f, .58f * swatch.G), Mathf.Min(1f, .58f * swatch.B));
+            mesh.SetSurfaceOverrideMaterial(surface, tinted);
+            return;
+        }
         if (material is not BaseMaterial3D groom) return;
         if (!name.EndsWith("_Haircap", StringComparison.OrdinalIgnoreCase) && !name.EndsWith("_HairCards", StringComparison.OrdinalIgnoreCase))
         {
@@ -347,13 +343,21 @@ public sealed partial class HumGenCreatorAppearance : Node
             selected ??= _data.PresetPart(face, choice, _catalogue, sex);
             if (choice == CreatorChoice.Hair && look.Sliders.GetValueOrDefault("look.native_bald") != 0) selected = null;
             // A Kal grows stone, never hair: no HumGen groom or beard on any Kal body, whatever a look or a save carries.
-            if (people == PeopleLooks.Kal && choice is CreatorChoice.Hair or CreatorChoice.FacialHair) selected = null;
+            // A Kal's head grows stone: the hair slot wears a stone growth and the beard slot a jaw or chin growth, both authored
+            // on the real head in Blender (owner's ruling, 2026-10-28), so no HumGen groom is ever resolved for a Kal.
+            string? growth = people == PeopleLooks.Kal
+                ? KalGrowth.Part(sex, look.Sliders.GetValueOrDefault(KalGrowth.StyleSlider), look.Sliders.GetValueOrDefault(KalGrowth.JawSlider))
+                : null;
+            if (people == PeopleLooks.Kal && choice == CreatorChoice.Hair && look.Sliders.GetValueOrDefault(KalGrowth.StyleSlider) > 0)
+                selected = null;
+            else if (people == PeopleLooks.Kal && choice is CreatorChoice.Hair or CreatorChoice.FacialHair) selected = null;
             if (choice == CreatorChoice.FacialHair && (people == PeopleLooks.Siann || look.Sliders.GetValueOrDefault("look.native_clean_shaven") != 0)) selected = null;
             // A plain starter outfit, not the frontier coat: the hat that outfit carries hid the face on every step before
             // Outfit (the review, 2026-10-28). The frontier outfit is still in the list, and still the player's to choose.
             if (choice == CreatorChoice.Outfit && selected is null) selected = _catalogue.Options(choice, sex).FirstOrDefault(o => o.Id == "outfit.casual.smart_casual")?.Id;
             if (choice == CreatorChoice.Footwear && selected is null) selected = _catalogue.Options(choice, sex).FirstOrDefault(o => o.Label.Contains("Pirate", StringComparison.OrdinalIgnoreCase))?.Id;
-            string? asset = selected is null ? null : HumGenCreatorData.Part(choice, sex, selected);
+            string? asset = selected is null ? (choice is CreatorChoice.Hair ? growth : choice is CreatorChoice.FacialHair ? growth : null)
+                : HumGenCreatorData.Part(choice, sex, selected);
             if (_parts.TryGetValue(choice, out var previous) && previous == asset) continue;
             var removed = body.Skeleton.GetChildren().OfType<MeshInstance3D>().Where(m => m.HasMeta("creator_part_kind")
                 && m.GetMeta("creator_part_kind").AsString() == choice.ToString()).ToArray();
