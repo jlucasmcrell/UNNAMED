@@ -25,6 +25,32 @@ only = set(args[2:])
 tools = Path(__file__).resolve().parents[1] / 'animation'
 sys.path.insert(0, str(tools))
 from audit_humgen_transport import Glb
+def share_correctives(body, meshes):
+    """Give every garment mesh the body's corrective shape keys, which HumGen's export leaves off most of them.
+
+    A worn garment that lacks a corrective does not follow the shoulder or the elbow when they move, and the body comes
+    through the cloth. The correctives are a small set, so a topology-independent transfer is cheap here.
+    """
+    keys = body.data.shape_keys
+    if keys is None:
+        return 0
+    wanted = [block for block in keys.key_blocks if block.name.startswith('cor_')]
+    shared = 0
+    for mesh in meshes:
+        if mesh.data.shape_keys is None:
+            mesh.shape_key_add(name='Basis', from_mix=False)
+        missing = [block for block in wanted if mesh.data.shape_keys.key_blocks.get(block.name) is None]
+        for block in missing:
+            keys.active_shape_key_index = keys.key_blocks.find(block.name)
+            bpy.ops.object.select_all(action='DESELECT')
+            body.select_set(True)
+            mesh.select_set(True)
+            bpy.context.view_layer.objects.active = body
+            bpy.ops.object.shape_key_transfer()
+            shared += 1
+    return shared
+
+
 parts = [('hair', 'hair', 'hg_main_hair'), ('facial_hair', 'beard', 'hg_face_hair'),
          ('outfits', 'outfit', None), ('footwear', 'footwear', None)]
 def slug(value): return re.sub(r'[^a-z0-9]+', '_', value.lower()).strip('_')
@@ -101,6 +127,10 @@ for collection, kind, tag in parts:
             meshes = list(copy.objects.haircards) if tag else list(copy.clothing.outfit.objects if kind == 'outfit' else copy.clothing.footwear.objects)
             if tag: meshes = [obj for obj in meshes if tag in obj]
             assert meshes, 'Native part selection is empty: ' + identifier
+            # A clasp, a shirt or a boot must follow the shoulder, the elbow and the knee exactly as the body does, or the skin
+            # comes through the cloth the moment a clip moves a joint (owner's fix 8).
+            if not tag:
+                print('NATIVE_PART_CORRECTIVES', identifier, share_correctives(copy.objects.body, meshes), flush=True)
             bpy.ops.object.select_all(action='DESELECT')
             copy.objects.rig.select_set(True)
             for obj in meshes: obj.select_set(True)
