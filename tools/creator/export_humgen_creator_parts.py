@@ -51,6 +51,51 @@ def share_correctives(body, meshes):
     return shared
 
 
+def complete_correctives(human, tag):
+    """Give the worn garment HumGen's full corrective set; its own completion bails out on a partial set.
+
+    `base_clothing._add_missing_correctives` returns as soon as a garment has any `cor_` key, and our native parts were saved
+    with four of the body's ten, so the elbow, shoulder and knee correctives never arrive and the body comes through the cloth.
+    Nothing here is allowed to kill the export: a failure is written down and the part still builds.
+    """
+    if tag:
+        return
+    try:
+        from HumGen3D.human.clothing.garment_fit import missing_correctives
+        body = human.objects.body
+        print('CREATOR_CLOTH_BODY', type(body).__name__, body.name, len(body.data.shape_keys.key_blocks)
+              if body.data.shape_keys else 0, flush=True)
+        wanted = [key.name for key in body.data.shape_keys.key_blocks if key.name.startswith('cor_')]
+        for obj in human.clothing.outfit.objects:
+            print('CREATOR_CLOTH_OBJ', type(obj).__name__, getattr(obj, 'name', '?'),
+                  len(obj.data.shape_keys.key_blocks) if obj.data.shape_keys else 0, flush=True)
+            if obj.data.shape_keys is None:
+                continue
+            have = {key.name for key in obj.data.shape_keys.key_blocks}
+            short = [name for name in wanted if name not in have]
+            if not short:
+                continue
+            # The fit leaves out a corrective that moves nothing on this garment (trousers and an elbow, say), which is
+            # HumGen's own rule, so only the keys it does return are added.
+            fitted = missing_correctives(human, obj)
+            added = 0
+            for name in short:
+                coords = fitted.get(name)
+                if coords is None:
+                    continue
+                key = obj.shape_key_add(name=name, from_mix=False)
+                key.interpolation = 'KEY_LINEAR'
+                key.data.foreach_set('co', coords.ravel())
+                key.value = 0
+                added += 1
+            print('CREATOR_CLOTH_CORRECTIVES', obj.name, 'added', added, 'of', len(short), 'missing', flush=True)
+    except Exception as failure:
+        import traceback
+        print('CREATOR_CLOTH_FAILED', repr(failure), flush=True)
+        traceback.print_exc()
+        (work / 'correctives_failure.txt').write_text(traceback.format_exc(), encoding='utf-8')
+
+
 parts = [('hair', 'hair', 'hg_main_hair'), ('facial_hair', 'beard', 'hg_face_hair'),
          ('outfits', 'outfit', None), ('footwear', 'footwear', None)]
 def slug(value): return re.sub(r'[^a-z0-9]+', '_', value.lower()).strip('_')
@@ -75,6 +120,7 @@ for collection, kind, tag in parts:
             human.name = identifier
             setting = human.hair.regular_hair if kind == 'hair' else human.hair.face_hair if kind == 'beard' else human.clothing.outfit if kind == 'outfit' else human.clothing.footwear
             setting.set(path)
+            complete_correctives(human, tag)
             settings = ExportSettings.from_recipe('godot')
             settings.output.format = 'in_file'
             settings.output.name = identifier
