@@ -1097,6 +1097,9 @@ public partial class Main : Node3D
         AddChild(_scatter);
         _loading?.Stage("Dressing the player", 0.66);
         string? body = _bindings.People.GetValueOrDefault("player")?.Model;
+        GD.Print(MHCharacters.MetaHumanFigure.Available
+            ? $"UNNAMED player body: the native MetaHuman bundle at {MHCharacters.MetaHumanFigure.AssetRoot}"
+            : $"UNNAMED player body: no native MetaHuman bundle at {MHCharacters.MetaHumanFigure.AssetRoot} (no catalog.json); the avatar falls back");
         if (MHCharacters.MetaHumanFigure.Create(_art, _bindings, "player") is { } native)
         {
             _avatar = native;

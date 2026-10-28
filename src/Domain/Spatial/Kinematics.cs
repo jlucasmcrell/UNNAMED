@@ -156,11 +156,36 @@ public sealed record WingRules
     public bool CanLeap => LeapApexBonusMm > 0 || LeapDistancePercent != 100;
 }
 
+/// <summary>An authored water body (D18): a surface at its own level along a line, or standing in one place.</summary>
+/// <param name="Key">Its content key, for the dossier and the log.</param>
+/// <param name="Kind">creek, stream, river, pond, lake or well - the word the area uses for it.</param>
+/// <param name="LevelMm">The water's own surface height, which its channel is cut below.</param>
+/// <param name="PointsMm">The line it runs along; one point is a spring, a pond or a well.</param>
+/// <param name="WidthMm">How wide the surface is, across the line.</param>
+public sealed record WaterSite(string Key, string Kind, long LevelMm, ImmutableArray<(long XMm, long ZMm)> PointsMm, long WidthMm)
+{
+    /// <summary>How near a body has to be for its water to be reached (a bank, not a swim).</summary>
+    public const long ReachMm = 2_000;
+}
+
 /// <summary>The static walkable space of a region: its movement bounds, its terrain, and what stands on it.</summary>
 public sealed record WalkSpace(long MinXMm, long MinZMm, long MaxXMm, long MaxZMm, TerrainGrid Terrain, ImmutableArray<Blocker> Blockers)
 {
     /// <summary>Authored prop tops: walking and prediction share the same bounded support height fields.</summary>
     public ImmutableArray<TerrainGrid> WalkableSurfaces { get; init; } = ImmutableArray<TerrainGrid>.Empty;
+
+    /// <summary>Authored water bodies (D18): a creek, pond or river surface at its own level.</summary>
+    public ImmutableArray<WaterSite> Waters { get; init; } = ImmutableArray<WaterSite>.Empty;
+
+    /// <summary>The nearest fresh water whose surface the body can reach from where it stands, if any.</summary>
+    public WaterSite? WaterAt(long xMm, long zMm)
+    {
+        foreach (var water in Waters)
+            foreach (var (px, pz) in water.PointsMm)
+                if (Math.Pow(px - xMm, 2) + Math.Pow(pz - zMm, 2) <= (water.WidthMm / 2 + WaterSite.ReachMm) * (double)(water.WidthMm / 2 + WaterSite.ReachMm))
+                    return water;
+        return null;
+    }
 
     public long HeightAtMm(long xMm, long zMm)
     {

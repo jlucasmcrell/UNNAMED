@@ -886,14 +886,72 @@ public partial class HollowView : Node3D
     private Node3D BuildWater(WalkSpace space)
     {
         Coverage.Resolved("water", "stream", "a ripple/depth-tint/fresnel water shader (Palette.StreamWater); an effect, not a model");
-        return new MeshInstance3D
+        var node = new Node3D { Name = "Water" };
+        node.AddChild(new MeshInstance3D
         {
-            Name = "Water",
+            Name = "RavineFloor",
             Mesh = new PlaneMesh { Size = new Vector2((space.MaxXMm - space.MinXMm) / 1000f, (space.MaxZMm - space.MinZMm) / 1000f) },
             MaterialOverride = Palette.StreamWater,
             Position = new Vector3((space.MinXMm + space.MaxXMm) / 2000f, 0.12f, (space.MinZMm + space.MaxZMm) / 2000f),
+        });
+        foreach (var water in space.Waters)
+            node.AddChild(WaterRibbon(water));
+        if (space.Waters.Length > 0)
+            Godot.GD.Print($"UNNAMED water: {space.Waters.Length} authored body(ies) drawn: " +
+                           string.Join(", ", space.Waters.Select(w => $"{w.Key} at {w.LevelMm / 1000.0:0.00} m, {w.WidthMm / 1000.0:0.0} m wide")));
+        return node;
+    }
+
+    /// <summary>
+    /// An authored water body (D18) drawn where the content puts it: a ribbon along its line at its own level, or a disc where it
+    /// stands in one place. The channel under it is cut into the terrain, so the water is only seen where the ground lets it through.
+    /// </summary>
+    private static MeshInstance3D WaterRibbon(WaterSite water)
+    {
+        float half = water.WidthMm / 2000f;
+        var points = water.PointsMm.Select(p => new Vector2(p.XMm / 1000f, p.ZMm / 1000f)).ToList();
+        float level = water.LevelMm / 1000f;
+        var mesh = new ArrayMesh();
+        var surface = new SurfaceTool();
+        surface.Begin(Mesh.PrimitiveType.Triangles);
+        if (points.Count == 1)
+        {
+            // A pond, spring or well: one quad round the point, big enough to read through its opening.
+            var c = points[0];
+            surface.SetNormal(Vector3.Up);
+            foreach (var (a, b) in new[] { (-1f, -1f), (1f, -1f), (1f, 1f), (-1f, -1f), (1f, 1f), (-1f, 1f) })
+                surface.AddVertex(new Vector3(c.X + a * half, level, c.Y + b * half));
+        }
+        else
+        {
+            for (int i = 0; i < points.Count - 1; i++)
+            {
+                Vector2 a = points[i], b = points[i + 1];
+                var along = (b - a).Normalized();
+                var across = new Vector2(-along.Y, along.X) * half;
+                surface.SetNormal(Vector3.Up);
+                foreach (var v in new[]
+                {
+                    new Vector3(a.X - across.X, level, a.Y - across.Y),
+                    new Vector3(a.X + across.X, level, a.Y + across.Y),
+                    new Vector3(b.X + across.X, level, b.Y + across.Y),
+                    new Vector3(a.X - across.X, level, a.Y - across.Y),
+                    new Vector3(b.X + across.X, level, b.Y + across.Y),
+                    new Vector3(b.X - across.X, level, b.Y - across.Y),
+                })
+                    surface.AddVertex(v);
+            }
+        }
+        surface.Commit(mesh);
+        return new MeshInstance3D
+        {
+            Name = water.Key,
+            Mesh = mesh,
+            MaterialOverride = Palette.StreamWater,
+            CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
         };
     }
+
 
     /// <summary>
     /// PROTOTYPE.md §3: a sheer ravine on three sides (west, north, east) and a cliff to the south. Scenery, in the bindings' cliff material

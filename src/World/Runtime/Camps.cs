@@ -49,6 +49,7 @@ internal static class Camps
     {
         if(!context.State.Space.IsExterior) return false;
         var space=context.Setup.Layout.Space; var body=context.State.Body;
+        if(space.WaterAt(body.XMm,body.ZMm) is not null) return true;
         if(space.Blockers.Any(b=>b.Id.Contains("well",StringComparison.OrdinalIgnoreCase) && b.DistanceTo(body.XMm,body.ZMm)<=2_000)) return true;
         // The existing exterior stream surface is at 0.12 m; terrain bounds its banks.
         foreach(long dx in new long[] {-2_000,0,2_000})
