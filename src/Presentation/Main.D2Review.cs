@@ -110,6 +110,22 @@ public partial class Main
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
                 await Rcd3Wait(.8);
                 Mark("rock_climbed", _controller.Authoritative);
+
+                // 5. The ladder (D6): the owned wooden ladder at (49.6, 147.2), 3.2 m, climbable at any height by its prefix.
+                await Go(new[] { (51.6, 147.2), (50.6, 147.2) }, 70);
+                Mark("ladder_approach");
+                _controller.SteerWorld(new Vector3(-1, 0, 0), Gait.Run, _camera);
+                await Rcd3Wait(1.6);
+                _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+                await Rcd3Wait(.6);
+                Mark("ladder_climbed", _controller.Authoritative);
+                // 6. The scramble: the waystation's own slope, walked up at a pace rather than a creep.
+                await Go(new[] { (30.0, 140.0) }, 60);
+                _controller.SteerWorld(new Vector3(0, 0, -1), Gait.Run, _camera);
+                await Rcd3Wait(1.4);
+                _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+                await Rcd3Wait(.5);
+                Mark("slope_scrambled", _controller.Authoritative);
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
                 await Rcd3Wait(.4);
             }
