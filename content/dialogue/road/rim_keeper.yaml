@@ -1,0 +1,50 @@
+id: dialogue.road.rim_keeper
+kind: dialogue
+schema: 1
+display_key: dialogue.road.rim_keeper.name
+tags: [dialogue]
+notes: "Maud Tarry at the Rim fire - the road's one person. A road keeper's voice: short sentences, no ceremony, and a fire kept because somebody has to keep it. She trades from her pack and, to anyone who has held a blade, sells the blade's technique."
+participants: [npc.road.rim_keeper]
+root_node: greet
+nodes:
+  greet:
+    text: "The fire is small and out of the wind, which is the whole trick of it. \"Rim's ahead of you, not behind. Sit if you're sitting; the basin doesn't care.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: trade
+        text: "What have you got?"
+        next: stock
+      - id: road
+        text: "Which way to the shrine?"
+        next: road
+      - id: leave
+        text: "Later."
+        next: farewell
+  stock:
+    text: "\"Light, a dry roll, a salve, and meat from the snares. Everything else you carry yourself.\""
+    choices:
+      - id: browse
+        text: "Let me look."
+        consequences:
+          - { command: open_service, service: trade }
+        next: farewell
+  road:
+    text: "\"West along the stones to the lantern, then the wain's wreck past it. Nobody walks the moor side after dark and I don't lend a torch to prove it.\""
+    choices:
+      - id: back
+        text: "Thanks."
+        next: farewell
+  again:
+    text: "\"Still here. The fire's not going anywhere, and neither am I.\""
+    choices:
+      - id: again_trade
+        text: "Show me your pack."
+        consequences:
+          - { command: open_service, service: trade }
+        next: farewell
+      - id: again_leave
+        text: "Later."
+        next: farewell
+  farewell:
+    text: "She puts another stick on the fire, the way other people close a door."
