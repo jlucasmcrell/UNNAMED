@@ -262,8 +262,8 @@ public sealed partial class HumGenCreatorAppearance : Node
             var tinted = (BaseMaterial3D)rock.Duplicate();
             var swatch = LookSwatches.Chosen(LookSwatches.Skin(people),
                 look.Sliders.TryGetValue(LookSwatches.SkinSlider, out int picked) ? picked : null);
-            tinted.AlbedoColor = swatch is null ? new Color(.62f, .62f, .64f) : new Color(
-                Mathf.Min(1f, .58f * swatch.R), Mathf.Min(1f, .58f * swatch.G), Mathf.Min(1f, .58f * swatch.B));
+            tinted.AlbedoColor = swatch is null ? new Color(.42f, .42f, .44f) : new Color(
+                Mathf.Min(1f, .38f * swatch.R), Mathf.Min(1f, .38f * swatch.G), Mathf.Min(1f, .38f * swatch.B));
             mesh.SetSurfaceOverrideMaterial(surface, tinted);
             return;
         }
