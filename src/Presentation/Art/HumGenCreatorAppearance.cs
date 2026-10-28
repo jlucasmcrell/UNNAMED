@@ -172,32 +172,26 @@ public sealed partial class HumGenCreatorAppearance : Node
         Texture2D? mask = null;
         if (part is not null && art.RiggedFile(part, "body_coverage.png") is { } path && Image.LoadFromFile(path) is { } painted)
             mask = ImageTexture.CreateFromImage(painted);
-        // The body is the figure's largest mesh that is not one of the creator's parts: eyes, lashes and teeth are small, and a
-        // preset's surface name is not a reliable way to find it.
-        MeshInstance3D? body = null;
-        int most = 0;
+        int stencilled = 0;
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
         {
-            if (mesh.HasMeta("creator_part_kind") || mesh.Mesh is null || mesh.Mesh.GetSurfaceCount() == 0) continue;
-            int count = mesh.Mesh.SurfaceGetArrays(0)[(int)Mesh.ArrayType.Vertex].AsVector3Array().Length;
-            if (count <= most) continue;
-            most = count;
-            body = mesh;
-        }
-        if (body is null)
-            return;
-        for (int surface = 0; surface < body.Mesh!.GetSurfaceCount(); surface++)
-        {
-            if (body.GetSurfaceOverrideMaterial(surface) is not ShaderMaterial skin)
+            if (mesh.HasMeta("creator_part_kind") || mesh.Mesh is null) continue;
+            for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
             {
-                GD.PushWarning($"creator stencil skipped: the body surface {surface} is not a shader material");
-                continue;
+                if (mesh.GetSurfaceOverrideMaterial(surface) is not ShaderMaterial skin) continue;
+                // Only a shader that declares the stencil can use it: that is the body's own material, whichever file it came from.
+                bool declares = false;
+                foreach (var uniform in skin.Shader.GetShaderUniformList())
+                    foreach (var (key, value) in uniform.AsGodotDictionary())
+                        if (key.AsString() == "name" && value.AsString() == "conceal") declares = true;
+                if (!declares) continue;
+                skin.SetShaderParameter("conceal_map", mask ?? skin.GetShaderParameter("conceal_map"));
+                skin.SetShaderParameter("conceal", mask is null ? 0f : 1f);
+                stencilled++;
             }
-            skin.SetShaderParameter("conceal_map", mask ?? skin.GetShaderParameter("conceal_map"));
-            skin.SetShaderParameter("conceal", mask is null ? 0f : 1f);
         }
         if (OS.GetEnvironment("UNNAMED_KAL_GROWTH_PROBE") == "1")
-            GD.Print($"creator stencil: {part}, {most} body vertices, mask {(mask is null ? "none" : "set")}");
+            GD.Print($"creator stencil: {part}, {stencilled} surface(s) stencilled, mask {(mask is null ? "none" : "set")}");
     }
 
     /// <summary>The stand-off a worn garment keeps from the body, so the body cannot break through the cloth.</summary>
