@@ -30,7 +30,12 @@
    "do": "film",
    "name": "siann_idle",
    "fps": 24,
-   "seconds": 1.5
+   "seconds": 1.5,
+   "id": "siann",
+   "dist": 4.0,
+   "height": 1.05,
+   "angle": 200,
+   "fov": 38
   },
   {
    "do": "walk",
@@ -42,7 +47,12 @@
    "do": "film",
    "name": "siann_walk",
    "fps": 24,
-   "seconds": 2.5
+   "seconds": 2.5,
+   "id": "siann",
+   "dist": 4.0,
+   "height": 1.05,
+   "angle": 200,
+   "fov": 38
   },
   {
    "do": "walk",
@@ -54,7 +64,12 @@
    "do": "film",
    "name": "siann_run",
    "fps": 24,
-   "seconds": 2.5
+   "seconds": 2.5,
+   "id": "siann",
+   "dist": 4.0,
+   "height": 1.05,
+   "angle": 200,
+   "fov": 38
   },
   {
    "do": "walk",
@@ -67,7 +82,12 @@
    "do": "film",
    "name": "siann_turn",
    "fps": 24,
-   "seconds": 2.0
+   "seconds": 2.0,
+   "id": "siann",
+   "dist": 4.0,
+   "height": 1.05,
+   "angle": 200,
+   "fov": 38
   },
   {
    "do": "pose",
@@ -78,7 +98,12 @@
    "do": "film",
    "name": "siann_jump",
    "fps": 24,
-   "seconds": 1.5
+   "seconds": 1.5,
+   "id": "siann",
+   "dist": 4.0,
+   "height": 1.05,
+   "angle": 200,
+   "fov": 38
   },
   {
    "do": "pose",
@@ -95,7 +120,12 @@
    "do": "film",
    "name": "siann_stop",
    "fps": 24,
-   "seconds": 1.5
+   "seconds": 1.5,
+   "id": "siann",
+   "dist": 4.0,
+   "height": 1.05,
+   "angle": 200,
+   "fov": 38
   },
   {
    "do": "remove",
@@ -131,7 +161,12 @@
    "do": "film",
    "name": "veth_idle",
    "fps": 24,
-   "seconds": 1.5
+   "seconds": 1.5,
+   "id": "veth",
+   "dist": 4.0,
+   "height": 1.05,
+   "angle": 200,
+   "fov": 38
   },
   {
    "do": "walk",
@@ -143,7 +178,12 @@
    "do": "film",
    "name": "veth_walk",
    "fps": 24,
-   "seconds": 2.5
+   "seconds": 2.5,
+   "id": "veth",
+   "dist": 4.0,
+   "height": 1.05,
+   "angle": 200,
+   "fov": 38
   },
   {
    "do": "walk",
@@ -155,7 +195,12 @@
    "do": "film",
    "name": "veth_run",
    "fps": 24,
-   "seconds": 2.5
+   "seconds": 2.5,
+   "id": "veth",
+   "dist": 4.0,
+   "height": 1.05,
+   "angle": 200,
+   "fov": 38
   },
   {
    "do": "walk",
@@ -168,7 +213,12 @@
    "do": "film",
    "name": "veth_turn",
    "fps": 24,
-   "seconds": 2.0
+   "seconds": 2.0,
+   "id": "veth",
+   "dist": 4.0,
+   "height": 1.05,
+   "angle": 200,
+   "fov": 38
   },
   {
    "do": "pose",
@@ -179,7 +229,12 @@
    "do": "film",
    "name": "veth_jump",
    "fps": 24,
-   "seconds": 1.5
+   "seconds": 1.5,
+   "id": "veth",
+   "dist": 4.0,
+   "height": 1.05,
+   "angle": 200,
+   "fov": 38
   },
   {
    "do": "pose",
@@ -196,7 +251,12 @@
    "do": "film",
    "name": "veth_stop",
    "fps": 24,
-   "seconds": 1.5
+   "seconds": 1.5,
+   "id": "veth",
+   "dist": 4.0,
+   "height": 1.05,
+   "angle": 200,
+   "fov": 38
   },
   {
    "do": "shot",

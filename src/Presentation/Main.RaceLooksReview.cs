@@ -181,15 +181,25 @@ public partial class Main
                 }
                 case "film":
                 {
-                    // A numbered still per frame: enough to edit into a clip offline, and honest about the frame rate.
+                    // A numbered still per frame, with the camera kept on the figure so a walk cannot carry it out of shot.
                     string name = s.GetProperty("name").GetString()!;
                     float fps = Num(s, "fps", 24);
                     double during = Num(s, "seconds", 2);
                     int total = Math.Max(1, (int)Math.Round(during * fps));
+                    string? watched = s.TryGetProperty("id", out var who) ? who.GetString() : null;
                     for (int frame = 0; frame < total; frame++)
                     {
+                        double dt = GetProcessDeltaTime();
+                        foreach (var (_, f) in figures.ToList()) f.Figure.Pose(f.Feet, f.Yaw, f.Speed, dt);
+                        if (watched is not null && figures.TryGetValue(watched, out var subject))
+                        {
+                            var aim = subject.Feet + Vector3.Up * Num(s, "height", 1.05f);
+                            camera.Fov = Num(s, "fov", 38);
+                            camera.GlobalPosition = aim + new Basis(Vector3.Up, subject.Yaw + Mathf.DegToRad(Num(s, "angle", 200)))
+                                * new Vector3(0f, 0f, Num(s, "dist", 4.2f));
+                            camera.LookAt(aim);
+                        }
                         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
-                        foreach (var (_, f) in figures.ToList()) f.Figure.Pose(f.Feet, f.Yaw, f.Speed, GetProcessDeltaTime());
                         GetViewport().GetTexture().GetImage()
                             .SavePng(Path.Combine(directory, $"{name}_{frame:000}.png"));
                         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
