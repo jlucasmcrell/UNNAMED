@@ -47,13 +47,12 @@ def frame(name):
 
 
 def face_caption(people, sex, at):
-    option = faces[sex][at]
-    return f"{people} {'male' if sex == 'm' else 'female'} · {option['group']} {option['label']}"
+    # The creator names presets in-world by their place in the people's own list, never by HumGen's human labels.
+    return f"{people} {'male' if sex == 'm' else 'female'} · Face {at + 1}"
 
 
 def body_caption(people, sex, at):
-    option = bodies[sex][at]
-    return f"{people} {'male' if sex == 'm' else 'female'} · body {option['label']}"
+    return f"{people} {'male' if sex == 'm' else 'female'} · Body {at + 1}"
 
 
 def face_names(people, sex):
