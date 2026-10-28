@@ -25,7 +25,7 @@ escramble_percent: 70          # slower than a walk, but never a crawl
 sheer_grade_mm_per_m: 1960    # 63 degrees: above this it is a face - climbed where there are handholds, else blocked
 climb_stamina_per_m: 6        # stamina points a metre of climb or vault costs (BRIEF D6)
 mantle_reach_m: 3.0      # a climb-up onto a top this far above the take-off feet (walls, cliffs, crates, rock faces)
-climb_prefixes: []       # empty: everything is climbable except the deliberate barriers below (the old rock-only list is retired)
+climb_prefixes: [ladder_]   # ids a body climbs at ANY height (a ladder); everything else within mantle_reach_m
 unclimbable_prefixes: [barrier.fold, door.sealed]   # the fold/Other barriers and sealed doors stay shut to hands
 stand_height_m: 1.8      # what an overhang is measured against
 crouch_height_m: 1.15
