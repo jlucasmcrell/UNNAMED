@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 using System.Text.Json;
 using UNNAMED.Domain.Character;
 using UNNAMED.Presentation.Ui.Models;
@@ -14,6 +14,25 @@ public sealed partial class HumGenCreatorAppearance : Node
     private string? _face;
     private HumGenEyeFitData? _eyeFit;
     private readonly Dictionary<CreatorChoice, string?> _parts = new();
+
+    /// <summary>
+    /// Whether the outfit's own headwear is drawn. The creator hides it on the steps that are about the face and the hair,
+    /// so a hat cannot cover what is being chosen, and shows it again from the Outfit step on (the review, 2026-10-28).
+    /// </summary>
+    public bool Headwear { get; private set; } = true;
+
+    /// <summary>Show or hide the outfit's headwear on a figure this controller drew; false when the model has no native creator body.</summary>
+    public static bool WearHeadwear(Node model, bool worn)
+    {
+        var controller = model.FindChildren("*", "", true, false).OfType<HumGenCreatorAppearance>().FirstOrDefault();
+        if (controller is null) return false;
+        if (controller.Headwear != worn)
+        {
+            controller.Headwear = worn;
+            controller.DressHead();
+        }
+        return true;
+    }
 
     public static bool Apply(Node model, string? people, CharacterAppearance? look, ArtLibrary art, string? id)
     {
@@ -40,6 +59,9 @@ public sealed partial class HumGenCreatorAppearance : Node
         string sex = id.EndsWith("female", StringComparison.Ordinal) ? "f" : "m";
         people ??= "people.veth";
         look ??= new CharacterAppearance(controller._catalogue.Race(people)?.MidStatureMm ?? 1750, controller._data.FirstFace(sex), null, null, null, null);
+        // The same shared rule the creator holds its draft to: a saved character drawn here cannot wear another people's options,
+        // so an old save or a hand-edited file is corrected at the one place every figure is built (the owner's ruling, 2026-10-28).
+        look = controller._data.Constrain(look, controller._catalogue, people);
         controller.Parts(model, art, id, look, people, sex);
         var weights = controller._data.Weights(look, controller._catalogue, people, sex);
         foreach (var (mesh, keys) in controller._meshes)
@@ -82,10 +104,19 @@ public sealed partial class HumGenCreatorAppearance : Node
         {
             PeopleAppearance.KalEyes(model);
             // The Kal's wings are exported beside the race body, on the same HumGen rig vocabulary.
-            if (ArtLibrary.Find<Skeleton3D>(model) is { } skeleton
-                && !skeleton.GetChildren().OfType<KalWings>().Any()
-                && art.RiggedFile("humgen_race_kal_" + sex + "_compact", "kal_wings.glb") is { } wings)
-                KalWings.Attach(skeleton, wings);
+            if (ArtLibrary.Find<Skeleton3D>(model) is { } skeleton)
+            {
+                if (!skeleton.GetChildren().OfType<KalWings>().Any()
+                    && art.RiggedFile("humgen_race_kal_" + sex + "_compact", "kal_wings.glb") is { } wings)
+                    KalWings.Attach(skeleton, wings);
+                GrowKal(skeleton, look);
+            }
+            // A Kal has no hair, brows or lashes of hair at all: the head carries the stone and its growths only (owner's
+            // ruling, 2026-10-28). The baked brow cap is hidden rather than recoloured, because stone is not a hair colour.
+            foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+                if (mesh.Name.ToString().Contains("Eyebrow", StringComparison.OrdinalIgnoreCase)
+                    || mesh.Name.ToString().Contains("Haircap_Brows", StringComparison.OrdinalIgnoreCase))
+                    mesh.Visible = false;
         }
         else if (people == PeopleLooks.Orenth && model is Node3D body && !model.FindChildren("*", "", true, false).OfType<OrenthPhase>().Any())
             OrenthPhase.Attach(body);
@@ -126,6 +157,20 @@ public sealed partial class HumGenCreatorAppearance : Node
                     mesh.SetSurfaceOverrideMaterial(surface, local);
                 }
             }
+    }
+
+    /// <summary>
+    /// The Kal's stone growths, on the head that carries its stone: the growth the hair step chose, tinted to the stone colour the
+    /// player picked, so a sandstone Kal grows sandstone and a basalt one grows basalt (owner's ruling, 2026-10-28).
+    /// </summary>
+    private static void GrowKal(Skeleton3D skeleton, CharacterAppearance look)
+    {
+        var stone = LookSwatches.Chosen(LookSwatches.Skin(PeopleLooks.Kal),
+            look.Sliders.TryGetValue(LookSwatches.SkinSlider, out int picked) ? picked : null);
+        // The swatch is a multiplier on the Kal's grey stone; the growth takes the same figure as its own colour.
+        Color tint = stone is null ? new Color(.62f, .62f, .64f) : new Color(
+            Mathf.Min(1f, .58f * stone.R), Mathf.Min(1f, .58f * stone.G), Mathf.Min(1f, .58f * stone.B));
+        KalGrowth.Attach(skeleton, look.Sliders.GetValueOrDefault(KalGrowth.StyleSlider), look.Sliders.GetValueOrDefault(KalGrowth.JawSlider), tint);
     }
 
     private void Materials(ArtLibrary art, string face, CharacterAppearance look, string people)
@@ -195,7 +240,9 @@ public sealed partial class HumGenCreatorAppearance : Node
                 local.SetShaderParameter("opal_grain", .05f);
                 local.SetShaderParameter("opal_protect_garment", true);
                 local.SetShaderParameter("opal_warm", .3f);
-                local.SetShaderParameter("opal_sheen", .5f);
+                // The sheen has to read in daylight on skin facing the camera, not only at grazing angles (the review,
+                // 2026-10-28: the pearl was invisible on the cheekbones), so it is a touch stronger and carries a floor.
+                local.SetShaderParameter("opal_sheen", .8f);
                 local.SetShaderParameter("opal_traces", 0f);
                 local.SetShaderParameter("native_tone", 1.18f);
                 local.SetShaderParameter("native_redness", -.35f);
@@ -225,7 +272,11 @@ public sealed partial class HumGenCreatorAppearance : Node
             return;
         }
         if (material is not BaseMaterial3D groom) return;
-        if (!name.EndsWith("_Haircap", StringComparison.OrdinalIgnoreCase) && !name.EndsWith("_HairCards", StringComparison.OrdinalIgnoreCase)) return;
+        if (!name.EndsWith("_Haircap", StringComparison.OrdinalIgnoreCase) && !name.EndsWith("_HairCards", StringComparison.OrdinalIgnoreCase))
+        {
+            Dye(mesh, surface, groom, name, look);
+            return;
+        }
         bool face = mesh.Name.ToString().Contains("Eyebrow", StringComparison.OrdinalIgnoreCase)
             || mesh.Name.ToString().Contains("Eyelash", StringComparison.OrdinalIgnoreCase);
         if (people == PeopleLooks.Siann)
@@ -260,6 +311,23 @@ public sealed partial class HumGenCreatorAppearance : Node
         mesh.SetSurfaceOverrideMaterial(surface, local2);
     }
 
+    /// <summary>
+    /// A garment the creator dresses the body in, drawn in the frontier's own cloth: HumGen's own clothes are blue denim and bright
+    /// sweaters and the owner's rule is earth dyes only (2026-10-25). The frontier outfit keeps its baked colours, because
+    /// <see cref="LookSwatches.GarmentKind"/> has no kind for its pieces; the normal and roughness maps are kept, so the weave stays.
+    /// </summary>
+    private static void Dye(MeshInstance3D mesh, int surface, BaseMaterial3D garment, string name, CharacterAppearance look)
+    {
+        if (LookSwatches.GarmentKind(name) is not { } kind) return;
+        var swatch = kind == "boots" ? LookSwatches.Boots
+            : LookSwatches.Cloth(kind == "trousers" ? LookSwatches.Trousers : LookSwatches.Shirts, look.Sliders.TryGetValue(
+                kind == "trousers" ? LookSwatches.TrouserSlider : LookSwatches.ShirtSlider, out int index) ? index : null);
+        var dyed = (BaseMaterial3D)garment.Duplicate();
+        dyed.AlbedoTexture = null;
+        dyed.AlbedoColor = new Color(swatch.R, swatch.G, swatch.B, dyed.AlbedoColor.A);
+        mesh.SetSurfaceOverrideMaterial(surface, dyed);
+    }
+
     private void Parts(Node model, ArtLibrary art, string id, CharacterAppearance look, string people, string sex)
     {
         var body = model as SkinnedModel ?? model.FindChildren("*", "", true, false).OfType<SkinnedModel>().FirstOrDefault();
@@ -272,12 +340,18 @@ public sealed partial class HumGenCreatorAppearance : Node
                 CreatorChoice.Hair => look.Hair, CreatorChoice.FacialHair => look.FacialHair,
                 CreatorChoice.Outfit => look.Outfit, _ => look.Footwear,
             };
-            // A Siann's hair is long and white whatever head the preset face was authored with.
-            if (choice == CreatorChoice.Hair && people == PeopleLooks.Siann && look.Hair is null) selected = "hair.long.medium_center_part";
+            // A Siann's hair is long and white whatever head the preset face was authored with. A full bob with a fringe
+            // reads as hair rather than scalp at creator distance; the centre-parted one drew as thin stringy strands.
+            if (choice == CreatorChoice.Hair && people == PeopleLooks.Siann && look.Hair is null)
+                selected = _catalogue.Options(choice, sex).FirstOrDefault(o => o.Id == "hair.long.bob_bangs")?.Id ?? "hair.long.medium_center_part";
             selected ??= _data.PresetPart(face, choice, _catalogue, sex);
             if (choice == CreatorChoice.Hair && look.Sliders.GetValueOrDefault("look.native_bald") != 0) selected = null;
+            // A Kal grows stone, never hair: no HumGen groom or beard on any Kal body, whatever a look or a save carries.
+            if (people == PeopleLooks.Kal && choice is CreatorChoice.Hair or CreatorChoice.FacialHair) selected = null;
             if (choice == CreatorChoice.FacialHair && (people == PeopleLooks.Siann || look.Sliders.GetValueOrDefault("look.native_clean_shaven") != 0)) selected = null;
-            if (choice == CreatorChoice.Outfit && selected is null) selected = _catalogue.Options(choice, sex).FirstOrDefault(o => o.Label == "Pirate")?.Id;
+            // A plain starter outfit, not the frontier coat: the hat that outfit carries hid the face on every step before
+            // Outfit (the review, 2026-10-28). The frontier outfit is still in the list, and still the player's to choose.
+            if (choice == CreatorChoice.Outfit && selected is null) selected = _catalogue.Options(choice, sex).FirstOrDefault(o => o.Id == "outfit.casual.smart_casual")?.Id;
             if (choice == CreatorChoice.Footwear && selected is null) selected = _catalogue.Options(choice, sex).FirstOrDefault(o => o.Label.Contains("Pirate", StringComparison.OrdinalIgnoreCase))?.Id;
             string? asset = selected is null ? null : HumGenCreatorData.Part(choice, sex, selected);
             if (_parts.TryGetValue(choice, out var previous) && previous == asset) continue;
@@ -336,6 +410,30 @@ public sealed partial class HumGenCreatorAppearance : Node
         foreach (var mesh in body.Skeleton.GetChildren().OfType<MeshInstance3D>().Where(m => m.HasMeta("creator_part_kind")))
             for (int surface = 0; surface < (mesh.Mesh?.GetSurfaceCount() ?? 0); surface++)
                 Colour(mesh, surface, preset, look, people);
+        // A garment swapped in with this pass carries the headwear the step is hiding.
+        DressHead();
+    }
+
+    /// <summary>
+    /// The outfit's own headwear apart from the rest of it. HumGen ships a hat as its own garment piece in the outfit, so it is
+    /// found by the piece's name; the creator's own rules then decide whether the step being looked at wants it on.
+    /// </summary>
+    private void DressHead()
+    {
+        foreach (var (mesh, _) in _meshes)
+        {
+            if (!mesh.HasMeta("creator_part_kind")
+                || mesh.GetMeta("creator_part_kind").AsString() != CreatorChoice.Outfit.ToString()) continue;
+            bool worn = IsHeadwear(mesh.Mesh?.SurfaceGetMaterial(0)?.ResourceName ?? "") || IsHeadwear(mesh.Name.ToString());
+            if (worn) mesh.Visible = Headwear;
+        }
+    }
+
+    private static bool IsHeadwear(string name)
+    {
+        string lower = name.ToLowerInvariant();
+        // "Masked" is a HumGen garment piece cut for the body, not a hat; the hat, hood and helmet pieces are the headwear.
+        return !lower.Contains("masked") && new[] { "hat", "cap", "hood", "helmet", "beret" }.Any(lower.Contains);
     }
 
     /// <summary>The surface's own exported material: every pass starts here, so a colour never compounds.</summary>
@@ -358,3 +456,5 @@ public sealed partial class HumGenCreatorAppearance : Node
     private static float Ratio(float chosen, float native, float low, float high) =>
         Mathf.Clamp(chosen / Mathf.Max(native, .01f), low, high);
 }
+
+

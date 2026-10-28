@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Text.Json;
 using UNNAMED.Domain.Character;
+using UNNAMED.Presentation.Art;
 using UNNAMED.World;
 
 namespace UNNAMED.Presentation.Ui.Models;
@@ -27,17 +28,18 @@ public sealed class HumGenCreatorData
     public string FirstFace(string sex) => _data.GetProperty("faces").EnumerateArray().First(f => f.GetProperty("paths").TryGetProperty(sex, out _)
         && f.GetProperty("label").GetString() == "Caucasian 2").GetProperty("id").GetString()!;
     public string? Key(string name) => _data.GetProperty("runtime").GetProperty("keys").TryGetProperty(name, out var key) ? key.GetString() : null;
-    public Range? Allowed(string people, CreatorSlider slider)
+    public Range? Allowed(string people, CreatorSlider slider, string sex)
     {
         if (!Available || !_data.GetProperty("runtime").GetProperty("people").TryGetProperty(people, out var allowed)
             || !allowed.TryGetProperty(slider.Id, out var value)) return null;
-        return new(value.GetProperty("min").GetInt32(), value.GetProperty("max").GetInt32(), value.GetProperty("default").GetInt32());
+        return new(value.GetProperty("min").GetInt32(), value.GetProperty("max").GetInt32(),
+            LookSwatches.FaceDefault(people, sex, slider.Id) ?? value.GetProperty("default").GetInt32());
     }
 
-    public IReadOnlyList<CreatorSlider> Sliders(CreatorCatalogue catalogue, string people, string panel) => catalogue.Sliders
-        .Where(s => s.Panel == panel && Allowed(people, s) is not null).Select(s =>
+    public IReadOnlyList<CreatorSlider> Sliders(CreatorCatalogue catalogue, string people, string panel, string sex) => catalogue.Sliders
+        .Where(s => s.Panel == panel && Allowed(people, s, sex) is not null).Select(s =>
         {
-            var range = Allowed(people, s)!;
+            var range = Allowed(people, s, sex)!;
             return s with { Min = range.Min, Max = range.Max, Default = range.Default };
         }).ToArray();
 
@@ -73,10 +75,10 @@ public sealed class HumGenCreatorData
     private static int? Units(JsonElement owner, string name) =>
         owner.TryGetProperty(name, out var value) ? (int)Math.Round(value.GetSingle() * 1000) : null;
 
-    public CharacterAppearance Reset(CharacterAppearance look, CreatorCatalogue catalogue, string people, string panel, string group)
+    public CharacterAppearance Reset(CharacterAppearance look, CreatorCatalogue catalogue, string people, string panel, string group, string sex)
     {
         var values = look.Sliders;
-        foreach (var slider in Sliders(catalogue, people, panel).Where(s => s.Group == group))
+        foreach (var slider in Sliders(catalogue, people, panel, sex).Where(s => s.Group == group))
             values = values.Remove(slider.Id);
         return look with { Sliders = values };
     }
@@ -88,15 +90,30 @@ public sealed class HumGenCreatorData
         look = catalogue.WithFace(look, faces[Pick("preset", 0, faces.Count)].Id);
         var values = look.Sliders;
         foreach (var panel in new[] { "face", "body", "hair" })
-        foreach (var slider in Sliders(catalogue, people, panel))
+        foreach (var slider in Sliders(catalogue, people, panel, sex))
         {
             int centre = Value(look, catalogue, people, slider);
             int radius = Math.Max(1, (slider.Max - slider.Min) / 12);
             values = values.SetItem(slider.Id, Pick(slider.Id, Math.Max(slider.Min, centre - radius), Math.Min(slider.Max, centre + radius) + 1));
         }
         var race = catalogue.Race(people)!;
-        return look with { StatureMm = Pick("stature", race.MinStatureMm / 10, race.MaxStatureMm / 10 + 1) * 10,
-            FacialHair = people == "people.siann" ? null : look.FacialHair, Sliders = values };
+        return Constrain(look with { StatureMm = Pick("stature", race.MinStatureMm / 10, race.MaxStatureMm / 10 + 1) * 10,
+            FacialHair = people == "people.siann" ? null : look.FacialHair, Sliders = values }, catalogue, people);
+    }
+
+    /// <summary>
+    /// A look with every choice this people does not offer taken out (the owner's ruling, 2026-10-28): the shape sliders its
+    /// own ranges do not list, and the cosmetic choices its canon refuses. The creator's draft and the figure drawn from a
+    /// saved character both come through here, so an old save or a hand-edited file cannot paint a Kal's stone on a Siann.
+    /// </summary>
+    public CharacterAppearance Constrain(CharacterAppearance look, CreatorCatalogue catalogue, string people)
+    {
+        var values = look.Sliders;
+        _data.GetProperty("runtime").GetProperty("people").TryGetProperty(people, out var allowed);
+        foreach (var slider in catalogue.Sliders)
+            if (values.ContainsKey(slider.Id) && (allowed.ValueKind != JsonValueKind.Object || !allowed.TryGetProperty(slider.Id, out _)))
+                values = values.Remove(slider.Id);
+        return LookSwatches.Constrain(people, look with { Sliders = values });
     }
 
     public IReadOnlyDictionary<string, float> Weights(CharacterAppearance look, CreatorCatalogue catalogue, string people, string sex)
@@ -107,10 +124,10 @@ public sealed class HumGenCreatorData
             if (Key(property.Name) is { } shape && shape.StartsWith("f_", StringComparison.Ordinal))
                 weights[shape] = property.Value.GetSingle();
         foreach (var panel in new[] { "face", "body" })
-        foreach (var slider in Sliders(catalogue, people, panel))
+        foreach (var slider in Sliders(catalogue, people, panel, sex))
         {
             if (Key(slider.Humgen) is not { } shape) continue;
-            var range = Allowed(people, slider)!;
+            var range = Allowed(people, slider, sex)!;
             if (panel == "face" && people is not ("people.siann" or "people.kal") && !look.Sliders.ContainsKey(slider.Id)) continue;
             // Preset features remain native; people defaults constrain only their canonical morphology.
             int chosen = look.Sliders.TryGetValue(slider.Id, out int value) ? value
@@ -119,7 +136,7 @@ public sealed class HumGenCreatorData
         }
         int age = look.Sliders.GetValueOrDefault("face.age", preset.GetProperty("age").GetProperty("set").GetInt32());
         var ageDial = catalogue.Sliders.First(s => s.Id == "face.age");
-        if (Allowed(people, ageDial) is { } ageRange) age = Math.Clamp(age, ageRange.Min, ageRange.Max);
+        if (Allowed(people, ageDial, sex) is { } ageRange) age = Math.Clamp(age, ageRange.Min, ageRange.Max);
         foreach (var entry in _data.GetProperty("runtime").GetProperty("keys").EnumerateObject())
             if (entry.Value.GetString() is { } shape && shape.StartsWith("s_{age}_", StringComparison.Ordinal))
                 weights[shape] = entry.Name == "aged_young" ? Math.Max(0, 3 - age * .1f) : Math.Max(0, (age - 40) / 30f);
@@ -132,7 +149,7 @@ public sealed class HumGenCreatorData
         if (index < 0 || index >= presets.Count) throw new ArgumentOutOfRangeException(nameof(index));
         var keys = presets[index].GetProperty("keys");
         var values = look.Sliders;
-        foreach (var slider in Sliders(catalogue, people, "body"))
+        foreach (var slider in Sliders(catalogue, people, "body", sex))
         {
             int value = keys.TryGetProperty(slider.Humgen, out var native) ? (int)Math.Round(native.GetDouble() / slider.Scale) : slider.Default;
             values = values.SetItem(slider.Id, Math.Clamp(value, slider.Min, slider.Max));
@@ -142,10 +159,10 @@ public sealed class HumGenCreatorData
         return look with { StatureMm = Math.Clamp(stature, race.MinStatureMm, race.MaxStatureMm), Sliders = values.SetItem("look.body_preset", index) };
     }
 
-    public CharacterAppearance WithBuild(CharacterAppearance look, CreatorCatalogue catalogue, string people, string build)
+    public CharacterAppearance WithBuild(CharacterAppearance look, CreatorCatalogue catalogue, string people, string sex, string build)
     {
         var values = look.Sliders;
-        foreach (var slider in Sliders(catalogue, people, "body"))
+        foreach (var slider in Sliders(catalogue, people, "body", sex))
         {
             int value = slider.Default;
             if (build is "slim" or "lean" && slider.Humgen == "skinny") value = 650;

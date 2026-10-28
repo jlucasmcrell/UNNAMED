@@ -1,6 +1,8 @@
 // UNNAMED Presentation - the creator's skin tones and hair colours by people, over each body as it was baked (owner, 2026-10-25)
 // Godot-free: plain values, so the tests read the same tables the game draws with
 
+using UNNAMED.Domain.Character;
+
 namespace UNNAMED.Presentation.Art;
 
 /// <summary>One choice: its name, and three numbers - a multiplier for a skin tone, an added colour for hair (sRGB, 0 to 1 and over).</summary>
@@ -83,6 +85,34 @@ public static class LookSwatches
     public const string FrontierOutfit = "Frontier: linen shirt, baldric and sash";
 
     /// <summary>
+    /// The sex difference a Siann's own canon asks for inside the people's allowed ranges: the review of 2026-10-28 found the male
+    /// and the female drawn as the same face, because every preset was pulled to one set of people defaults. The female keeps the
+    /// softer read the rules ask for (narrower jaw and chin, smaller chin, smoother brow, higher soft cheekbones, more upswept
+    /// eyes, a thinner nose) and the male takes a little more bone in the same delicate frame. The values are the sliders' own
+    /// stored units (a thousandth of the shape key's weight); every one of them sits inside the range the people allows.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, int>> SiannFaceBySex =
+        new Dictionary<string, IReadOnlyDictionary<string, int>>(StringComparer.Ordinal)
+        {
+            ["f"] = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["face.jaw_width"] = -780, ["face.chin_width"] = -790, ["face.chin_size"] = -430,
+                ["face.browridge_center_size"] = -70, ["face.cheek_zygomatic_bone"] = 750,
+                ["face.eye_tilt"] = 350, ["face.nose_bridge_width"] = -740, ["face.nose_tip_width"] = -580,
+            },
+            ["m"] = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["face.jaw_width"] = -620, ["face.chin_width"] = -620, ["face.chin_size"] = -280,
+                ["face.browridge_center_size"] = 110, ["face.cheek_zygomatic_bone"] = 610,
+                ["face.eye_tilt"] = 265, ["face.nose_bridge_width"] = -660, ["face.nose_tip_width"] = -460,
+            },
+        };
+
+    /// <summary>A people's sex-specific default for one face slider, stored units; null when the people draws no such difference.</summary>
+    public static int? FaceDefault(string people, string sex, string slider) =>
+        people == PeopleLooks.Siann && SiannFaceBySex.TryGetValue(sex, out var bySex) && bySex.TryGetValue(slider, out int value) ? value : null;
+
+    /// <summary>
     /// A garment's kind from its material name: a top, trousers, boots, or null (belts and the rest keep their colour). The frontier
     /// outfit's pieces (HumGen's Pirate set) keep their own colours: its shirt is one material with the baldric and sash.
     /// </summary>
@@ -153,6 +183,36 @@ public static class LookSwatches
     };
 
     public static IReadOnlyList<Swatch> Hair(string? people) => people == "people.siann" ? SiannHair : NaturalHair;
+
+    /// <summary>
+    /// The choices a people's canon allows (owner ruling, 2026-10-28): only a Kal has stone skin and the stone's tints, only a
+    /// Siann is chalk-white with white hair, and facial hair and a free hair or brow colour are refused by the Siann alone. A
+    /// Veth or an Orenth takes the natural lists and nothing else, because every other list is gated on one of those peoples.
+    /// </summary>
+    public static bool Stone(string? people) => people == "people.kal";
+    public static bool FacialHair(string? people) => people != "people.siann";
+    public static bool HairColour(string? people) => people != "people.siann";
+    public static bool BrowColour(string? people) => people != "people.siann";
+
+    /// <summary>
+    /// The cosmetic half of the same rule, on a look that may have come from an old save or a hand-edited file: a swatch index
+    /// the people's own list does not reach is dropped rather than read as some other people's tone, facial hair is cleared
+    /// where a people never wears it, and the stone level only survives on a Kal. Shape sliders are the ranges' business and
+    /// are constrained by <c>HumGenCreatorData.Constrain</c>, which owns that data.
+    /// </summary>
+    public static CharacterAppearance Constrain(string? people, CharacterAppearance look)
+    {
+        var values = look.Sliders;
+        foreach (var (slider, list) in new (string, IReadOnlyList<Swatch>)[] { (SkinSlider, Skin(people)), (HairSlider, Hair(people)) })
+            if (values.TryGetValue(slider, out int index) && (index < 0 || index >= list.Count)) values = values.Remove(slider);
+        if (!Stone(people)) values = values.Remove(StoneSlider);
+        // A Kal's head grows stone, never hair, and nobody else grows stone: the HumGen grooms and the growth choices are each
+        // kept only where they belong (owner's rulings of 2026-10-28).
+        if (people == PeopleLooks.Kal) look = look with { Hair = null, FacialHair = null };
+        else values = values.Remove("look.kal_growth").Remove("look.kal_jaw");
+        string? beard = FacialHair(people) ? look.FacialHair : null;
+        return look with { FacialHair = beard, Sliders = values };
+    }
 
     /// <summary>Stable resident variation from the existing natural palettes; identity and garments stay as authored.</summary>
     public static (int Skin, int Hair) ResidentColours(string? people, string instance)

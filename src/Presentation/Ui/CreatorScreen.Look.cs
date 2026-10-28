@@ -52,7 +52,7 @@ public partial class CreatorScreen
         var look = Draft.Appearance;
         if (look is null || !NativeData.HasFace(look.Face) || !look.Face!.StartsWith("face." + sex + ".", StringComparison.Ordinal))
             look = new CharacterAppearance(_catalogue.Race(Draft.PeopleId)?.MidStatureMm ?? 1750, NativeData.FirstFace(sex), null, null, null, null);
-        return Draft with { BodyPresetId = id, Appearance = NativeData.WithBuild(look, _catalogue, Draft.PeopleId, body.Build) };
+        return Draft with { BodyPresetId = id, Appearance = NativeData.WithBuild(look, _catalogue, Draft.PeopleId, sex, body.Build) };
     }
 
     /// <summary>The native face presets the FACE step offers a sex, in catalogue order (the gate proof browses them).</summary>
@@ -98,6 +98,8 @@ public partial class CreatorScreen
     private void Shape(Func<CharacterAppearance, CharacterAppearance> change)
     {
         var look = change(Look);
+        // A people only ever holds the choices its canon allows, whoever the change came from (the owner's ruling, 2026-10-28).
+        if (NativeActive) look = NativeData.Constrain(look, _catalogue, Draft.PeopleId);
         _draft = Draft with { Appearance = look.Equals(_catalogue.Start(Model, Draft.PeopleId)) ? null : look };
         PendingState();
         ShowBody();
@@ -139,10 +141,36 @@ public partial class CreatorScreen
         return section;
     }
 
-    /// <summary>Step 4: head hair, facial hair where HumGen has it for this body, and the hair's colour.</summary>
+    /// <summary>
+    /// A Kal's growth picker: the same tile grid as every other choice, over the styles the people actually grows, held in the
+    /// look's own slider so a save carries it and Randomise and Reset move within it like any other choice.
+    /// </summary>
+    private Control GrowthSection(string heading, string slider, IReadOnlyList<string> styles)
+    {
+        var section = UiKit.Section(heading);
+        var grid = Grid();
+        int worn = Look.Sliders.GetValueOrDefault(slider);
+        for (int at = 0; at < styles.Count; at++)
+        {
+            int index = at;
+            grid.AddChild(OptionTile($"creator.{slider}.{index}", styles[index], null, index == worn,
+                () => Shape(look => look with { Sliders = index == 0 ? look.Sliders.Remove(slider) : look.Sliders.SetItem(slider, index) })));
+        }
+        section.AddChild(grid);
+        return section;
+    }
+
+    /// <summary>Step 4: head hair, facial hair where HumGen has it for this body, and the hair's colour. A Kal gets stone growths instead.</summary>
     private void HairStep()
     {
         _body.AddChild(PendingNote());
+        // A Kal has no hair at all: the step offers the stone growths its head grows instead (owner's ruling, 2026-10-28).
+        if (NativeActive && Draft.PeopleId == PeopleLooks.Kal)
+        {
+            _body.AddChild(GrowthSection("Stone growth", KalGrowth.StyleSlider, KalGrowth.Styles));
+            _body.AddChild(GrowthSection("Jaw and chin", KalGrowth.JawSlider, KalGrowth.Jaw));
+            return;
+        }
         // Hairstyles baked on this body's rig and installed in this build, the body's own first; the row is only there when there is a choice.
         var styles = LookSwatches.HairStyles(Model).Select((s, i) => (s.Label, Index: i, s.Asset))
             .Where(s => s.Asset is null || _art.RiggedFile(s.Asset, s.Asset + "_rigged.glb") is not null).ToList();
@@ -174,7 +202,9 @@ public partial class CreatorScreen
             _body.AddChild(SwatchSection("Hair colour", LookSwatches.HairSlider, LookSwatches.Hair(Draft.PeopleId), new Color(.08f, .035f, .012f), multiply: false));
         if (Draft.PeopleId != PeopleLooks.Siann && _catalogue.Options(CreatorChoice.FacialHair, Sex).Count > 0)
             _body.AddChild(OptionSection(CreatorChoice.FacialHair, "Facial hair", "", none: "Clean-shaven"));
-        _body.AddChild(SliderSection("hair", "Colour", ""));
+        // A people with no hair-colour control at all (a Siann's hair is white at every age) is not shown an empty one.
+        if (!NativeActive || NativeData.Sliders(_catalogue, Draft.PeopleId, "hair", Sex).Count > 0)
+            _body.AddChild(SliderSection("hair", "Colour", ""));
     }
 
     /// <summary>Step 5: the outfit and the footwear, with the gear fit family the people's frame takes (RACE_SCALE_SPEC.md §8).</summary>
@@ -185,7 +215,8 @@ public partial class CreatorScreen
             _body.AddChild(UiKit.Words($"Fit family: {race.FitFamily.Replace('_', ' ')}. What you start in is fitted to this body; gear found later is fitted by crafters.", 16, HudStyle.Muted));
         _body.AddChild(OptionSection(CreatorChoice.Outfit, "Outfit", "fitted by HumGen"));
         _body.AddChild(OptionSection(CreatorChoice.Footwear, "Footwear", ""));
-        if (!NativeActive && _preview.WearsDyedCloth)
+        // Cloth colours the cloth that was dyed: the frontier outfit keeps its own, so the choice is not offered over it.
+        if (_preview.WearsDyedCloth)
         {
             _body.AddChild(SwatchSection("Shirt", LookSwatches.ShirtSlider, LookSwatches.Shirts, Colors.Black, multiply: false));
             _body.AddChild(SwatchSection("Trousers", LookSwatches.TrouserSlider, LookSwatches.Trousers, Colors.Black, multiply: false));
@@ -344,7 +375,7 @@ public partial class CreatorScreen
     /// <summary>A panel's sliders (body, face or hair), one group at a time behind a row of group tabs.</summary>
     private Control SliderSection(string panel, string heading, string note)
     {
-        var sliders = NativeActive ? NativeData.Sliders(_catalogue, Draft.PeopleId, panel).ToList()
+        var sliders = NativeActive ? NativeData.Sliders(_catalogue, Draft.PeopleId, panel, Sex).ToList()
             : _catalogue.Sliders.Where(s => s.Panel == panel).ToList();
         if (BakedOnly)
             return new Control();
@@ -360,7 +391,7 @@ public partial class CreatorScreen
         if (NativeActive)
             section.AddChild(UiKit.Action("Reset " + group, Deferred(() =>
             {
-                Shape(l => NativeData.Reset(l, _catalogue, Draft.PeopleId, panel, group));
+                Shape(l => NativeData.Reset(l, _catalogue, Draft.PeopleId, panel, group, Sex));
                 Render(null);
             }), compact: true, id: "creator.reset." + panel + "." + group.ToLowerInvariant().Replace(' ', '_')));
         var look = Look;
@@ -373,15 +404,87 @@ public partial class CreatorScreen
         return section;
     }
 
+    /// <summary>
+    /// The native body presets as the same tile grid as every other picker, named in-world ("Body 2") rather than by HumGen's
+    /// own human names, and pictured with the preset's own face preview (the owner's rulings, 2026-10-28).
+    /// </summary>
     private Control NativeBodyPresets()
     {
-        var section = UiKit.Section("HumGen body presets");
-        var menu = new OptionButton();
-        foreach (var preset in NativeData.BodyPresets(Sex)) menu.AddItem(preset.GetProperty("label").GetString());
-        menu.Select(Math.Clamp(Look.Sliders.GetValueOrDefault("look.body_preset"), 0, menu.ItemCount - 1));
-        menu.ItemSelected += index => Shape(look => NativeData.WithBodyPreset(look, _catalogue, Draft.PeopleId, Sex, (int)index));
-        section.AddChild(menu);
+        var section = UiKit.Section("Body shape");
+        var presets = NativeData.BodyPresets(Sex);
+        int chosen = Math.Clamp(Look.Sliders.GetValueOrDefault("look.body_preset"), 0, presets.Count - 1);
+        _body.AddChild(BodyGrid(section, presets, chosen));
         return section;
+    }
+
+    private Control BodyGrid(Control section, IReadOnlyList<System.Text.Json.JsonElement> presets, int chosen)
+    {
+        var grid = Grid();
+        for (int at = 0; at < presets.Count; at++)
+        {
+            int index = at;
+            string id = presets[index].GetProperty("id").GetString()!;
+            grid.AddChild(OptionTile($"creator.body.{id}", $"Body {index + 1}", BodyThumbnail(id), index == chosen,
+                () => Shape(look => NativeData.WithBodyPreset(look, _catalogue, Draft.PeopleId, Sex, index))));
+        }
+        return grid;
+    }
+
+    /// <summary>The tile grid every picker is drawn in: three across, each tile big enough to judge, its name underneath.</summary>
+    private static GridContainer Grid()
+    {
+        var grid = new GridContainer { Columns = 3, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        grid.AddThemeConstantOverride("h_separation", 8);
+        grid.AddThemeConstantOverride("v_separation", 10);
+        return grid;
+    }
+
+    /// <summary>The native preview staged for a choice: the preset set's own thumbnail for a face, the part's own for a groom or a garment.</summary>
+    private Texture2D? Thumbnail(CreatorChoice choice, string id)
+    {
+        if (!NativeActive) return null;
+        string? file = choice switch
+        {
+            CreatorChoice.Face => _art.RiggedFile("humgen_creator_materials", id + "/thumbnail.jpg"),
+            CreatorChoice.Hair or CreatorChoice.FacialHair or CreatorChoice.Outfit or CreatorChoice.Footwear =>
+                _art.RiggedFile(HumGenCreatorData.Part(choice, Sex, id), "thumbnail.jpg"),
+            _ => null,
+        };
+        return file is null ? null : _art.Texture(file, "color");
+    }
+
+    /// <summary>A body preset's preview is the same preset's face thumbnail: HumGen ships one model and one preview for both.</summary>
+    private Texture2D? BodyThumbnail(string presetId) =>
+        _art.RiggedFile("humgen_creator_materials", "face." + presetId["bodyshape.".Length..] + "/thumbnail.jpg") is { } file
+            ? _art.Texture(file, "color")
+            : null;
+
+    /// <summary>One picker tile: the picture in a button, the name under it (never over it), the chosen one highlighted.</summary>
+    private Control OptionTile(string id, string name, Texture2D? icon, bool selected, Action pressed)
+    {
+        var cell = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        cell.AddThemeConstantOverride("separation", 4);
+        var button = new Button
+        {
+            Icon = icon,
+            ExpandIcon = true,
+            FocusMode = Control.FocusModeEnum.All,
+            CustomMinimumSize = new Vector2(0, 104 * HudStyle.TextScale),
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+        };
+        UiKit.Select(button, selected);
+        cell.AddChild(button);
+        var label = HudStyle.Text(HudStyle.Body, 15, selected ? HudStyle.Bone : HudStyle.Muted);
+        label.Text = name;
+        label.HorizontalAlignment = HorizontalAlignment.Center;
+        label.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        cell.AddChild(label);
+        button.Pressed += Deferred(() =>
+        {
+            pressed();
+            Render(id);
+        });
+        return cell;
     }
 
     /// <summary>A list of choices of one kind for this body's sex, grouped behind tabs when it is long, each marked baked or pending bake.</summary>
@@ -410,21 +513,26 @@ public partial class CreatorScreen
         };
         string key = "options." + choice;
         var shown = options;
-        if (options.Count > 12)
+        // A face preset is offered as an in-world choice: no ethnicity tabs and no HumGen name (the owner's ruling, 2026-10-28).
+        if (options.Count > 12 && choice != CreatorChoice.Face)
         {
             string group = Group(key, options.Select(o => o.Group), _catalogue.Option(choice, chosen)?.Group);
             section.AddChild(GroupTabs(key, options.Select(o => o.Group).Distinct().ToList(), group));
             shown = options.Where(o => o.Group == group).ToList();
         }
         string kind = choice.ToString().ToLowerInvariant();
+        var numbers = options.Select((option, at) => (option.Id, At: at)).ToDictionary(p => p.Id, p => p.At + 1);
+        var grid = Grid();
         if (none is not null && (!BakedOnly || _catalogue.IsBaked(choice, null, Model)))
-            section.AddChild(OptionRow($"creator.{kind}.none", none, chosen is null, _catalogue.IsBaked(choice, null, Model), () => Choose(choice, null)));
+            grid.AddChild(OptionTile($"creator.{kind}.none", none, null, chosen is null, () => Choose(choice, null)));
         foreach (var option in shown)
         {
             string id = option.Id;
-            section.AddChild(OptionRow($"creator.{kind}.{id}", OptionName(choice, id, option.Label), chosen == id,
-                _catalogue.IsBaked(choice, id, Model), () => Choose(choice, id)));
+            // The number is the choice's place in the people's own list, so "Face 12" is the same face every time it is opened.
+            string name = choice == CreatorChoice.Face && NativeActive ? $"Face {numbers[id]}" : OptionName(choice, id, option.Label);
+            grid.AddChild(OptionTile($"creator.{kind}.{id}", name, Thumbnail(choice, id), chosen == id, () => Choose(choice, id)));
         }
+        section.AddChild(grid);
         if (BakedOnly)
             section.AddChild(UiKit.Words(LaterWords, 16, HudStyle.Muted));
         return section;
@@ -444,27 +552,6 @@ public partial class CreatorScreen
         choice == CreatorChoice.Outfit && _preview.WearsFrontier ? LookSwatches.FrontierOutfit
         : choice == CreatorChoice.Face && BakedOnly ? LookSwatches.BakedFace
         : LookSwatches.ShownNames.GetValueOrDefault(id, label);
-
-    private Control OptionRow(string id, string name, bool selected, bool baked, Action pressed)
-    {
-        var row = UiKit.ListRow(id, name, height: 40);
-        if (NativeActive && id.StartsWith("creator.face.face.", StringComparison.Ordinal)
-            && _art.RiggedFile("humgen_creator_materials", id["creator.face.".Length..] + "/thumbnail.jpg") is { } thumbnail)
-        {
-            row.Button.Icon = _art.Texture(thumbnail, "color");
-            row.Button.ExpandIcon = true;
-            row.Button.AddThemeConstantOverride("icon_max_width", 56);
-        }
-        if (!BakedOnly && !NativeActive)
-            row.Right.AddChild(baked ? BakedChip() : PendingChip());
-        UiKit.Select(row.Button, selected);
-        row.Button.Pressed += Deferred(() =>
-        {
-            pressed();
-            Render(id);
-        });
-        return row.Button;
-    }
 
     private void Choose(CreatorChoice choice, string? id) => Shape(look => choice switch
     {

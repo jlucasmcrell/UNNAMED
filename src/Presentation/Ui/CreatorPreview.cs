@@ -148,6 +148,13 @@ public sealed partial class CreatorPreview : TextureRect
             PeopleAppearance.ApplyLook(_figure, people, look, _art, _model);
     }
 
+    /// <summary>Draw the outfit's own headwear or not: the creator hides it on the steps that are about the face and the hair.</summary>
+    public void WearHeadwear(bool worn)
+    {
+        if (_figure is not null)
+            HumGenCreatorAppearance.WearHeadwear(_figure, worn);
+    }
+
     /// <summary>Turn the body by an angle, in radians.</summary>
     public void Turn(float radians) => _yaw = Mathf.Wrap(_yaw + radians, -Mathf.Pi, Mathf.Pi);
 

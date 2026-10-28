@@ -322,11 +322,21 @@ void fragment() {
 		ALBEDO *= mix(vec3(1.), skin_chroma, opal_warm);
 		float nv = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
 		float grazing = pow(1.0 - nv, 2.5);
-		// Ordered pink -> green -> blue; never interpolate blue directly into pink (violet).
+		// Ordered pink -> green -> blue; never interpolate blue directly into pink (violet). The film carries enough chroma to
+		// be seen at a low mix: a near-white film under a near-white albedo is arithmetically invisible, which is why the pearl
+		// did not read at all (the review, 2026-10-28).
 		float phase = clamp((1.0 - nv) * .9 + opal_noise(base_uv * 18.0) * .1, 0.0, 1.0);
-		vec3 film = phase < .5 ? mix(vec3(1., .88, .86), vec3(.87, 1., .91), phase * 2.)
-		    : mix(vec3(.87, 1., .91), vec3(.87, .95, 1.), (phase - .5) * 2.);
-		ALBEDO *= mix(vec3(1.), film, opal_sheen * om.r * grazing);
+		vec3 film = phase < .5 ? mix(vec3(1., .8, .76), vec3(.8, 1., .88), phase * 2.)
+		    : mix(vec3(.8, 1., .88), vec3(.82, .92, 1.), (phase - .5) * 2.);
+		// A cheekbone in daylight faces the camera, so a sheen that only exists at grazing angles never reads (the review,
+		// 2026-10-28 found the pearl invisible). It keeps a faint floor over the glossier skin - cheekbones, nose, lip - and
+		// still peaks along the rim, so it is iridescence rather than a flat colour cast.
+		float gloss = 1.0 - clamp(ROUGHNESS, 0.0, 1.0);
+		float pearl = clamp(grazing * .85 + gloss * .5 + .1, 0.0, 1.0);
+		ALBEDO *= mix(vec3(1.), film, opal_sheen * om.r * pearl);
+		// The pearl needs its own highlight to read as sheen rather than a tint: a brighter, tighter specular over the
+		// same film, so the cheekbone and the nose catch a cool gleam in daylight.
+		SPECULAR = clamp(SPECULAR * (1.0 + opal_sheen * 1.2), 0.0, 1.0);
 
 		ROUGHNESS = mix(ROUGHNESS, ROUGHNESS * 0.85, om.r * 0.4);
 	}
@@ -492,7 +502,7 @@ void light()
 		float angle = clamp(1. - NdotV, 0., 1.);
 		vec3 tint = angle < .5 ? mix(vec3(1., .88, .86), vec3(.87, 1., .91), angle * 2.)
 		    : mix(vec3(.87, 1., .91), vec3(.87, .95, 1.), (angle - .5) * 2.);
-		pearl_spec = mix(vec3(1.), tint, opal_sheen * pow(angle, 1.5));
+		pearl_spec = mix(vec3(1.), tint, opal_sheen * pow(angle, 1.1));
 	}
 	SPECULAR_LIGHT += specularBRDF * pearl_spec * LIGHT_COLOR * ATTENUATION;
 	if (use_ambient_occlusion){

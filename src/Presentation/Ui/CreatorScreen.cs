@@ -192,7 +192,8 @@ public partial class CreatorScreen : CanvasLayer
     /// <summary>Use this draft, as a harness or Quick start does; the step on screen is drawn again.</summary>
     public void Use(CreatorDraft draft)
     {
-        _draft = draft;
+        // A draft can arrive from anywhere (a harness, a quick start, a save): it is held to the people's own options here.
+        _draft = NativeActive && draft.Appearance is { } look ? draft with { Appearance = NativeData.Constrain(look, _catalogue, draft.PeopleId) } : draft;
         Render(null);
     }
 
@@ -291,8 +292,13 @@ public partial class CreatorScreen : CanvasLayer
         _draft = Draft with { PeopleId = people };
         if (!OfferedBodies().Any(b => b.Id == Draft.BodyPresetId && b.Installed))
             _draft = WithBody(DefaultBody());
-        if (Draft.Appearance is { } look && _catalogue.Race(people) is { } chosen)
-            _draft = Draft with { Appearance = look with { StatureMm = Math.Clamp(look.StatureMm, chosen.MinStatureMm, chosen.MaxStatureMm) } };
+        // The look is kept across a people change only in the parts this people is allowed to hold (the owner's ruling).
+        if (Draft.Appearance is { } look)
+        {
+            if (NativeActive) _draft = Draft with { Appearance = NativeData.Constrain(look, _catalogue, people) };
+            if (_catalogue.Race(people) is { } chosen)
+                _draft = Draft with { Appearance = Draft.Appearance! with { StatureMm = Math.Clamp(look.StatureMm, chosen.MinStatureMm, chosen.MaxStatureMm) } };
+        }
         Render(focus);
     }
 
@@ -397,6 +403,8 @@ public partial class CreatorScreen : CanvasLayer
         _next.Text = Step == CreatorStep.Confirm ? "Begin" : "Next";
         _next.Disabled = Step == CreatorStep.Confirm && Draft.Problem is not null;
         ShowBody();
+        // A hat covers the hair and the forehead, so it is off until the garment step that puts it on (the review, 2026-10-28).
+        _preview.WearHeadwear(Step >= CreatorStep.Outfit);
         _scroll.ScrollVertical = 0;
         Callable.From(() =>
         {
