@@ -7,13 +7,17 @@ uniform vec3 strand_colour : source_color = vec3(1.);
 uniform bool directional = false;
 uniform float strand_roughness = .35;
 uniform vec2 grain_range = vec2(.43, .58);
+uniform float self_light : hint_range(0., .5) = .14;
 
 void fragment() {
     vec4 strand = texture(strand_atlas, UV);
     float grain = sqrt(clamp(dot(strand.rgb, vec3(.299, .587, .114)), 0., 1.));
     // A multiplicative dye cannot turn baked black brows/roots white. Preserve their
     // native strand grain and alpha, but bound pigment to the same white reflectance.
-    ALBEDO = strand_colour * mix(grain_range.x, grain_range.y, grain);
+    vec3 dye = strand_colour * mix(grain_range.x, grain_range.y, grain);
+    ALBEDO = dye;
+    // The cap sits under the cards and takes their shadow; a faint self-light keeps it white instead of grey.
+    EMISSION = dye * self_light;
     ALPHA = strand.a;
     ALPHA_SCISSOR_THRESHOLD = .18;
     ROUGHNESS = strand_roughness;

@@ -125,6 +125,8 @@ uniform vec3 opal_pearl : source_color = vec3(0.84, 0.85, 0.86);
 // How much of the skin's own light and dark (pores, stubble shadow) and its own pink survives the white base.
 uniform float opal_grain : hint_range(0.0, .3) = .12;
 uniform float opal_warm : hint_range(0.0, 1.0) = 0.0;
+// The native skin atlas also carries the body's underwear: where the atlas is much darker than its own average the white base stays off it.
+uniform bool opal_protect_garment = false;
 
 group_uniforms u_v;
 uniform vec3 uv1_scale = vec3(1.);
@@ -311,7 +313,12 @@ void fragment() {
 		float luma = dot(ALBEDO, vec3(.299, .587, .114));
 		// White mineral base retains luminance texture/pores but removes brown socket pigment.
 		vec3 skin_chroma = ALBEDO / max(luma, .05);
-		ALBEDO = mix(ALBEDO, opal_pearl * clamp(.94 + (luma - .5) * opal_grain, .87, .99), opal_pale);
+		float pale = opal_pale;
+		if (opal_protect_garment){
+			vec3 grey = vec3(.2126, .7152, .0722);
+			pale *= smoothstep(.45, .75, dot(albedo_tex.rgb, grey) / max(dot(textureLod(texture_albedo, base_uv, 11.).rgb, grey), .005));
+		}
+		ALBEDO = mix(ALBEDO, opal_pearl * clamp(.94 + (luma - .5) * opal_grain, .87, .99), pale);
 		ALBEDO *= mix(vec3(1.), skin_chroma, opal_warm);
 		float nv = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
 		float grazing = pow(1.0 - nv, 2.5);

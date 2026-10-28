@@ -91,7 +91,8 @@ for collection, kind, tag in parts:
                 if not tag and level > 0:
                     copy.process.share_textures(copies[0])
                     continue
-                baked = run(textures.bake_steps(copy, settings.textures, namer, str(folder), bpy.context, only_sets=selected, per_level=level > 0))
+                # Wardrobe textures end up embedded in the glb; their doubled-up names would pass Windows' path limit in the part's own folder.
+                baked = run(textures.bake_steps(copy, settings.textures, namer, str(folder if tag else Path(work.anchor) / 'hg_tex'), bpy.context, only_sets=selected, per_level=level > 0))
                 for image in baked:
                     if '_Flow' in image.name:
                         flow['hair_flow' + ('_lod' + str(level) if level else '')] = Path(bpy.path.abspath(image.filepath)).name

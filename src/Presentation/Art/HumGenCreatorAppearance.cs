@@ -193,6 +193,7 @@ public sealed partial class HumGenCreatorAppearance : Node
                 local.SetShaderParameter("opal_procedural_mask", true);
                 local.SetShaderParameter("opal_pale", .9f);
                 local.SetShaderParameter("opal_grain", .05f);
+                local.SetShaderParameter("opal_protect_garment", true);
                 local.SetShaderParameter("opal_warm", .3f);
                 local.SetShaderParameter("opal_sheen", .5f);
                 local.SetShaderParameter("opal_traces", 0f);
@@ -237,13 +238,13 @@ public sealed partial class HumGenCreatorAppearance : Node
             {
                 pearl.SetShaderParameter("strand_colour", new Vector3(1f, 1f, 1f));
                 pearl.SetShaderParameter("strand_roughness", .6f);
-                pearl.SetShaderParameter("grain_range", new Vector2(.3f, .85f));
+                pearl.SetShaderParameter("grain_range", new Vector2(.6f, .96f));
             }
             else if (face) pearl.SetShaderParameter("strand_colour", new Color(.6f, .59f, .56f));
             else
             {
                 pearl.SetShaderParameter("strand_colour", new Color(1f, 1f, 1f));
-                pearl.SetShaderParameter("grain_range", new Vector2(.45f, 1f));
+                pearl.SetShaderParameter("grain_range", new Vector2(.62f, 1f));
                 pearl.SetShaderParameter("strand_roughness", .35f);
             }
             mesh.SetSurfaceOverrideMaterial(surface, pearl);
