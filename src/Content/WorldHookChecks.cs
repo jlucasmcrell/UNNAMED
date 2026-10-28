@@ -444,10 +444,31 @@ public static class WorldHookChecks
                                              .Contains(Scalar(argument, "service")));
             case "location":
                 return area?.Locations.Count(id => facts.LocationKinds.GetValueOrDefault(id) == Scalar(argument, "kind_of_place")) ?? 0;
+            case "structure_prefix":
+                return placed.Count(p => p.Section == "structures" && MatchesAnyPrefix(Scalar(p.Node, "id"), argument));
+            case "knowledge_in_area":
+                return placed.Count(p => (p.Section == "containers" && LootTeaches(Scalar(p.Node, "loot_ref"), facts))
+                                         || (p.Section == "npcs" && NpcGivesKnowledge(Scalar(p.Node, "npc_ref"), facts)));
             default:
                 return 0;
         }
     }
+
+    /// <summary>A structure whose art id starts one of the climbable prefixes <c>config.base_speeds</c> declares.</summary>
+    private static bool MatchesAnyPrefix(string? id, YamlMappingNode argument) =>
+        id is not null && Texts(argument, "prefixes").Any(prefix => id.StartsWith(prefix, StringComparison.Ordinal));
+
+    private static bool LootTeaches(string? lootRef, WorldFacts facts)
+    {
+        if (lootRef is null || !facts.LootItems.TryGetValue(lootRef, out var items))
+            return false;
+        return items.Any(item => facts.TeachingItems.Contains(item));
+    }
+
+    /// <summary>Whether an NPC hands over, in their own dialogue, an item that teaches something when read.</summary>
+    private static bool NpcGivesKnowledge(string? npcRef, WorldFacts facts) =>
+        npcRef is not null && facts.NpcDialogueGifts.GetValueOrDefault(npcRef) is { } gifts
+        && gifts.Any(item => facts.TeachingItems.Contains(item));
 
     private static bool SpawnMatches(YamlMappingNode spawn, YamlMappingNode argument, WorldFacts facts)
     {
@@ -476,13 +497,24 @@ public static class WorldHookChecks
 
     // ---- content lookups the evidence needs -----------------------------------------------------
 
-    /// <summary>What a spawn or an NPC means, read once from the definitions the loader already holds.</summary>
+    /// <summary>What a spawn, an NPC, a loot table or an item means, read once from the definitions the loader holds.</summary>
     private sealed class WorldFacts
     {
         public Dictionary<string, string> Archetypes { get; } = new(StringComparer.Ordinal);
         public Dictionary<string, List<string?>> NpcTeaches { get; } = new(StringComparer.Ordinal);
         public Dictionary<string, List<string?>> NpcServices { get; } = new(StringComparer.Ordinal);
         public Dictionary<string, string?> LocationKinds { get; } = new(StringComparer.Ordinal);
+
+        /// <summary>The item definitions that teach something when read (<c>use.grants</c>): the build's books.</summary>
+        public HashSet<string> TeachingItems { get; } = new(StringComparer.Ordinal);
+
+        /// <summary>Each loot table's items, so a container can be asked whether what it holds teaches.</summary>
+        public Dictionary<string, List<string>> LootItems { get; } = new(StringComparer.Ordinal);
+
+        /// <summary>The knowledge items each NPC hands over in their own dialogue (<c>transfer_item</c>).</summary>
+        public Dictionary<string, List<string>> NpcDialogueGifts { get; } = new(StringComparer.Ordinal);
+
+        private readonly Dictionary<string, List<string>> _dialogueGifts = new(StringComparer.Ordinal);
 
         public WorldFacts(ContentLoader loader)
         {
@@ -498,10 +530,58 @@ public static class WorldHookChecks
                     case "location":
                         LocationKinds[definition.Id] = Scalar(root, "kind_of_place");
                         break;
+                    case "item":
+                        if (Map(root, "use") is { } use && Items(use, "grants").Count > 0)
+                            TeachingItems.Add(definition.Id);
+                        break;
+                    case "loot":
+                        LootItems[definition.Id] = ItemRefs(root);
+                        break;
+                    case "dialogue":
+                        _dialogueGifts[definition.Id] = TransferredItems(root);
+                        break;
                     case "npc":
                         NpcTeaches[definition.Id] = Maps(root, "teaches").Select(entry => Scalar(entry, "kind")).ToList();
                         NpcServices[definition.Id] = Texts(root, "services").Select(s => (string?)s).ToList();
                         break;
+                }
+            }
+
+            // A dialogue may be read after the NPC that names it, so the gifts are settled in a second pass.
+            foreach (var definition in loader.Definitions.Values.Where(d => d.Kind == "npc"))
+            {
+                if (ContentChecks.Parse(definition) is not { } root || Scalar(root, "dialogue_ref") is not { } dialogue)
+                    continue;
+                if (_dialogueGifts.TryGetValue(dialogue, out var gifts))
+                    NpcDialogueGifts[definition.Id] = gifts;
+            }
+        }
+
+        /// <summary>Every item a loot table names, in its guaranteed and its rolled entries.</summary>
+        private static List<string> ItemRefs(YamlMappingNode root) =>
+            new[] { "guaranteed", "rolls", "entries", "always" }.SelectMany(section => Maps(root, section))
+                .Select(entry => Scalar(entry, "item_ref")).Where(id => id is not null).Select(id => id!).ToList();
+
+        /// <summary>Every item a dialogue transfers to the player, found at any depth in its consequences.</summary>
+        private static List<string> TransferredItems(YamlNode node)
+        {
+            var found = new List<string>();
+            Walk(node);
+            return found;
+
+            void Walk(YamlNode current)
+            {
+                if (current is YamlMappingNode map)
+                {
+                    if (Scalar(map, "command") == "transfer_item" && Scalar(map, "item_ref") is { } item)
+                        found.Add(item);
+                    foreach (var child in map.Children.Values)
+                        Walk(child);
+                }
+                else if (current is YamlSequenceNode sequence)
+                {
+                    foreach (var child in sequence.Children)
+                        Walk(child);
                 }
             }
         }

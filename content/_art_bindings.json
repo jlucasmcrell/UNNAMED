@@ -735,33 +735,105 @@
       "note_vfx_fab": "vfx_fab: two Fab VDB fires (hearth_fire, FirePlace_2) side by side and a coal-bed glow replace hearth_fire_core + Flame02 hearth_fire; embers kept."
     }
   },
-  "roof_groups": ["longhouse", "forge", "ah_inn_upper"],
+  "roof_groups": [
+    "longhouse",
+    "forge",
+    "ah_inn_upper"
+  ],
   "structures": {
-    "ah_tavern_bar": {"hidden": true},
-    "ah_tavern_bench_1": {"hidden": true},
-    "ah_tavern_bench_2": {"hidden": true},
-    "ah_tavern_bench_3": {"hidden": true},
-    "ah_tavern_bench_4": {"hidden": true},
-    "ah_tavern_bench_5": {"hidden": true},
-    "ah_tavern_bench_6": {"hidden": true},
-    "ah_inn_awning_collision_0": {"hidden": true, "walkable_base": true},
-    "ah_inn_awning_collision_1": {"hidden": true, "walkable_base": true},
-    "ah_inn_awning_collision_2": {"hidden": true, "walkable_base": true},
-    "ah_inn_awning_collision_3": {"hidden": true, "walkable_base": true},
-    "ah_inn_awning_collision_4": {"hidden": true, "walkable_base": true},
-    "ah_inn_awning_collision_5": {"hidden": true, "walkable_base": true},
-    "ah_inn_awning_collision_6": {"hidden": true, "walkable_base": true},
-    "ah_inn_awning_collision_7": {"hidden": true, "walkable_base": true},
-    "ah_inn_awning_collision_8": {"hidden": true, "walkable_base": true},
-    "ah_inn_awning_collision_9": {"hidden": true, "walkable_base": true},
-    "ah_inn_awning_collision_10": {"hidden": true, "walkable_base": true},
-    "ah_inn_awning_collision_11": {"hidden": true, "walkable_base": true},
-    "ah_inn_awning_collision_12": {"hidden": true, "walkable_base": true},
-    "ah_inn_awning_collision_13": {"hidden": true, "walkable_base": true},
-    "ah_inn_awning_collision_14": {"hidden": true, "walkable_base": true},
-    "ah_inn_awning_collision_15": {"hidden": true, "walkable_base": true},
-    "ah_inn_awning_collision_16": {"hidden": true, "walkable_base": true},
-    "ah_inn_awning_collision_17": {"hidden": true, "walkable_base": true},
+    "ah_tavern_bar": {
+      "hidden": true
+    },
+    "ah_tavern_bench_1": {
+      "hidden": true
+    },
+    "ah_tavern_bench_2": {
+      "hidden": true
+    },
+    "ah_tavern_bench_3": {
+      "hidden": true
+    },
+    "ah_tavern_bench_4": {
+      "hidden": true
+    },
+    "ah_tavern_bench_5": {
+      "hidden": true
+    },
+    "ah_tavern_bench_6": {
+      "hidden": true
+    },
+    "ah_inn_awning_collision_0": {
+      "hidden": true,
+      "walkable_base": true
+    },
+    "ah_inn_awning_collision_1": {
+      "hidden": true,
+      "walkable_base": true
+    },
+    "ah_inn_awning_collision_2": {
+      "hidden": true,
+      "walkable_base": true
+    },
+    "ah_inn_awning_collision_3": {
+      "hidden": true,
+      "walkable_base": true
+    },
+    "ah_inn_awning_collision_4": {
+      "hidden": true,
+      "walkable_base": true
+    },
+    "ah_inn_awning_collision_5": {
+      "hidden": true,
+      "walkable_base": true
+    },
+    "ah_inn_awning_collision_6": {
+      "hidden": true,
+      "walkable_base": true
+    },
+    "ah_inn_awning_collision_7": {
+      "hidden": true,
+      "walkable_base": true
+    },
+    "ah_inn_awning_collision_8": {
+      "hidden": true,
+      "walkable_base": true
+    },
+    "ah_inn_awning_collision_9": {
+      "hidden": true,
+      "walkable_base": true
+    },
+    "ah_inn_awning_collision_10": {
+      "hidden": true,
+      "walkable_base": true
+    },
+    "ah_inn_awning_collision_11": {
+      "hidden": true,
+      "walkable_base": true
+    },
+    "ah_inn_awning_collision_12": {
+      "hidden": true,
+      "walkable_base": true
+    },
+    "ah_inn_awning_collision_13": {
+      "hidden": true,
+      "walkable_base": true
+    },
+    "ah_inn_awning_collision_14": {
+      "hidden": true,
+      "walkable_base": true
+    },
+    "ah_inn_awning_collision_15": {
+      "hidden": true,
+      "walkable_base": true
+    },
+    "ah_inn_awning_collision_16": {
+      "hidden": true,
+      "walkable_base": true
+    },
+    "ah_inn_awning_collision_17": {
+      "hidden": true,
+      "walkable_base": true
+    },
     "ah_inn_room_lantern_0": {
       "model": "prop_ph_wooden_lantern_01",
       "material": "wood",
@@ -1044,9 +1116,15 @@
       "material": "wood",
       "walkable_base": true
     },
-    "threshold_bank_w": {"hidden": true},
-    "threshold_bank_e": {"hidden": true},
-    "threshold_bank_back": {"hidden": true},
+    "threshold_bank_w": {
+      "hidden": true
+    },
+    "threshold_bank_e": {
+      "hidden": true
+    },
+    "threshold_bank_back": {
+      "hidden": true
+    },
     "ah_inn_partition_south_0": {
       "surface": "cw_timber_beam",
       "material": "wood",
@@ -1292,25 +1370,325 @@
       "material": "wood",
       "walkable_base": true
     },
-    "fs_needle": {"model": "ruin_fs_needle", "material": "metal", "offset": [1.49, 0, -0.112], "light": {"at": [-14, 4, 0], "colour": [0.62, 0.3, 1.0], "energy": 4.0, "range": 26, "shadows": false}, "set_goes_dark": true, "surface": "material_firstfold_iron", "surface_tint": [0.82, 0.84, 0.9], "edge_wear": 0.8},
-    "fs_gate": {"model": "ruin_fs_gate", "material": "metal"},
-    "fs_anchor_west": {"model": "ruin_fs_anchor", "material": "metal", "light": {"at": [0, 5.5, 0], "colour": [0.62, 0.3, 1.0], "energy": 3.0, "range": 16, "shadows": false}, "set_goes_dark": true},
-    "fs_anchor_northeast": {"model": "ruin_fs_anchor", "material": "metal", "light": {"at": [0, 5.5, 0], "colour": [0.62, 0.3, 1.0], "energy": 3.0, "range": 16, "shadows": false}, "set_goes_dark": true},
-    "fs_anchor_south": {"model": "ruin_fs_anchor", "material": "metal", "light": {"at": [0, 5.5, 0], "colour": [0.62, 0.3, 1.0], "energy": 3.0, "range": 16, "shadows": false}, "set_goes_dark": true},
-    "fs_panel": {"model": "ruin_fs_panel", "material": "stone", "offset": [-0.361, 0, -0.001]},
-    "fs_colonnade": {"model": "ruin_fs_colonnade", "material": "metal", "offset": [3.384, 0, 0.186], "surface": "material_firstfold_iron", "surface_tint": [1.12, 1.08, 1.02], "edge_wear": 0.8},
-    "fs_frame_north": {"model": "ruin_fs_frame", "material": "metal", "surface": "material_firstfold_iron", "surface_tint": [1.12, 1.08, 1.02], "edge_wear": 0.8},
-    "fs_frame_south": {"model": "ruin_fs_frame", "material": "metal", "surface": "material_firstfold_iron", "surface_tint": [1.12, 1.08, 1.02], "edge_wear": 0.8},
-    "fs_slab": {"model": "ruin_fs_slab", "material": "stone", "offset": [0.138, 0, -0.237], "surface": "material_firstfold_iron", "surface_tint": [1.06, 1.0, 0.94], "edge_wear": 0.8},
-    "fs_block": {"model": "ruin_fs_block", "material": "stone", "offset": [-8.336, 0, 2.234], "surface": "material_firstfold_iron", "surface_tint": [1.06, 1.0, 0.94], "edge_wear": 0.8},
-    "fs_rib_north": {"model": "ruin_fs_rib_a", "material": "metal", "offset": [-0.49, 0, -4.324], "surface": "material_firstfold_iron", "surface_tint": [0.92, 0.96, 1.06], "edge_wear": 0.8, "light": {"at": [-3.0, 9.0, 30.5], "colour": [1.0, 0.96, 0.88], "energy": 1.6, "range": 30, "shadows": false, "daylight": -1}},
-    "fs_rib_east": {"model": "ruin_fs_rib_c", "material": "metal", "offset": [-0.065, 0, -0.176], "surface": "material_firstfold_iron", "surface_tint": [0.92, 0.96, 1.06], "edge_wear": 0.8},
-    "fs_pylon_a": {"model": "ruin_fs_pylon_a", "material": "metal", "offset": [-0.364, 0, -0.441], "surface": "material_firstfold_iron", "surface_tint": [1.0, 1.0, 1.0], "edge_wear": 0.8},
-    "fs_pylon_b": {"model": "ruin_fs_pylon_b", "material": "metal", "offset": [-0.184, 0, -0.113], "surface": "material_firstfold_iron", "surface_tint": [1.0, 1.0, 1.0], "edge_wear": 0.8},
-    "fs_pylon_c": {"model": "ruin_fs_pylon_c", "material": "metal", "offset": [-0.046, 0, 0.482], "surface": "material_firstfold_iron", "surface_tint": [1.0, 1.0, 1.0], "edge_wear": 0.8},
-    "fs_stub_a": {"model": "ruin_fs_stub_a", "material": "metal", "offset": [0.428, 0, -0.83], "surface": "material_firstfold_iron", "surface_tint": [0.95, 0.95, 0.97], "edge_wear": 0.8},
-    "fs_stub_b": {"model": "ruin_fs_stub_b", "material": "metal", "offset": [0.568, 0, -0.08], "surface": "material_firstfold_iron", "surface_tint": [0.95, 0.95, 0.97], "edge_wear": 0.8},
-    "fs_stub_c": {"model": "ruin_fs_stub_c", "material": "metal", "offset": [0.688, 0, -0.284], "surface": "material_firstfold_iron", "surface_tint": [0.95, 0.95, 0.97], "edge_wear": 0.8},
+    "fs_needle": {
+      "model": "ruin_fs_needle",
+      "material": "metal",
+      "offset": [
+        1.49,
+        0,
+        -0.112
+      ],
+      "light": {
+        "at": [
+          -14,
+          4,
+          0
+        ],
+        "colour": [
+          0.62,
+          0.3,
+          1.0
+        ],
+        "energy": 4.0,
+        "range": 26,
+        "shadows": false
+      },
+      "set_goes_dark": true,
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        0.82,
+        0.84,
+        0.9
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_gate": {
+      "model": "ruin_fs_gate",
+      "material": "metal"
+    },
+    "fs_anchor_west": {
+      "model": "ruin_fs_anchor",
+      "material": "metal",
+      "light": {
+        "at": [
+          0,
+          5.5,
+          0
+        ],
+        "colour": [
+          0.62,
+          0.3,
+          1.0
+        ],
+        "energy": 3.0,
+        "range": 16,
+        "shadows": false
+      },
+      "set_goes_dark": true
+    },
+    "fs_anchor_northeast": {
+      "model": "ruin_fs_anchor",
+      "material": "metal",
+      "light": {
+        "at": [
+          0,
+          5.5,
+          0
+        ],
+        "colour": [
+          0.62,
+          0.3,
+          1.0
+        ],
+        "energy": 3.0,
+        "range": 16,
+        "shadows": false
+      },
+      "set_goes_dark": true
+    },
+    "fs_anchor_south": {
+      "model": "ruin_fs_anchor",
+      "material": "metal",
+      "light": {
+        "at": [
+          0,
+          5.5,
+          0
+        ],
+        "colour": [
+          0.62,
+          0.3,
+          1.0
+        ],
+        "energy": 3.0,
+        "range": 16,
+        "shadows": false
+      },
+      "set_goes_dark": true
+    },
+    "fs_panel": {
+      "model": "ruin_fs_panel",
+      "material": "stone",
+      "offset": [
+        -0.361,
+        0,
+        -0.001
+      ]
+    },
+    "fs_colonnade": {
+      "model": "ruin_fs_colonnade",
+      "material": "metal",
+      "offset": [
+        3.384,
+        0,
+        0.186
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        1.12,
+        1.08,
+        1.02
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_frame_north": {
+      "model": "ruin_fs_frame",
+      "material": "metal",
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        1.12,
+        1.08,
+        1.02
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_frame_south": {
+      "model": "ruin_fs_frame",
+      "material": "metal",
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        1.12,
+        1.08,
+        1.02
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_slab": {
+      "model": "ruin_fs_slab",
+      "material": "stone",
+      "offset": [
+        0.138,
+        0,
+        -0.237
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        1.06,
+        1.0,
+        0.94
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_block": {
+      "model": "ruin_fs_block",
+      "material": "stone",
+      "offset": [
+        -8.336,
+        0,
+        2.234
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        1.06,
+        1.0,
+        0.94
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_rib_north": {
+      "model": "ruin_fs_rib_a",
+      "material": "metal",
+      "offset": [
+        -0.49,
+        0,
+        -4.324
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        0.92,
+        0.96,
+        1.06
+      ],
+      "edge_wear": 0.8,
+      "light": {
+        "at": [
+          -3.0,
+          9.0,
+          30.5
+        ],
+        "colour": [
+          1.0,
+          0.96,
+          0.88
+        ],
+        "energy": 1.6,
+        "range": 30,
+        "shadows": false,
+        "daylight": -1
+      }
+    },
+    "fs_rib_east": {
+      "model": "ruin_fs_rib_c",
+      "material": "metal",
+      "offset": [
+        -0.065,
+        0,
+        -0.176
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        0.92,
+        0.96,
+        1.06
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_pylon_a": {
+      "model": "ruin_fs_pylon_a",
+      "material": "metal",
+      "offset": [
+        -0.364,
+        0,
+        -0.441
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_pylon_b": {
+      "model": "ruin_fs_pylon_b",
+      "material": "metal",
+      "offset": [
+        -0.184,
+        0,
+        -0.113
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_pylon_c": {
+      "model": "ruin_fs_pylon_c",
+      "material": "metal",
+      "offset": [
+        -0.046,
+        0,
+        0.482
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_stub_a": {
+      "model": "ruin_fs_stub_a",
+      "material": "metal",
+      "offset": [
+        0.428,
+        0,
+        -0.83
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        0.95,
+        0.95,
+        0.97
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_stub_b": {
+      "model": "ruin_fs_stub_b",
+      "material": "metal",
+      "offset": [
+        0.568,
+        0,
+        -0.08
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        0.95,
+        0.95,
+        0.97
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_stub_c": {
+      "model": "ruin_fs_stub_c",
+      "material": "metal",
+      "offset": [
+        0.688,
+        0,
+        -0.284
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        0.95,
+        0.95,
+        0.97
+      ],
+      "edge_wear": 0.8
+    },
     "cw_well": {
       "model": "prop_bp_well_cw",
       "material": "stone"
@@ -2090,7 +2468,11 @@
       "model": "gs_foldscar_heart",
       "material": "stone",
       "surface": "mat_acg_onyx015",
-      "surface_tint": [0.2, 0.21, 0.26],
+      "surface_tint": [
+        0.2,
+        0.21,
+        0.26
+      ],
       "note": "Grand scale 2026-10-24 (GS-2): the lower 24 m of a broken dressed monolith in the heart's dark polished stone (FoldscarDressing re-dresses it satin, and hangs its missing upper half over it)."
     },
     "rock_iron_seam": {
@@ -2442,11 +2824,20 @@
     },
     "great_tree": {
       "model": "flora_old_late",
-      "offset": [2.5, -0.058, -1.4],
+      "offset": [
+        2.5,
+        -0.058,
+        -1.4
+      ],
       "ground_sink_m": 4.0,
       "material": "wood",
       "wind": 3.0,
       "note": "Grand scale 2026-10-24 (GS-10): the BlenderKit ceiba that stood for Old Late, moved into the hollow as its great tree; its trunk, offset and root support carried with it."
+    },
+    "well_square": {
+      "model": "prop_bp_well_ah",
+      "material": "stone",
+      "note": "D18 water addendum: the square's stone well (the waystation's own well art)."
     }
   },
   "doors": {
@@ -2510,7 +2901,11 @@
         "model": "gs_foldscar_heart",
         "material": "stone",
         "surface": "mat_acg_onyx015",
-        "surface_tint": [0.2, 0.21, 0.26]
+        "surface_tint": [
+          0.2,
+          0.21,
+          0.26
+        ]
       }
     },
     "cairnwold_roofs=slate": {
@@ -2548,84 +2943,132 @@
   "models": {
     "gs_fold_fluorite": {
       "category": "landmark",
-      "dims_m": [2.4125, 3.0007, 2.6736],
+      "dims_m": [
+        2.4125,
+        3.0007,
+        2.6736
+      ],
       "triangles": 45000,
       "lods": {},
       "texture_px": 4096
     },
     "gs_foldscar_heart": {
       "category": "landmark",
-      "dims_m": [7.69, 24.0, 7.9358],
+      "dims_m": [
+        7.69,
+        24.0,
+        7.9358
+      ],
       "triangles": 11182,
       "lods": {},
       "texture_px": 4096
     },
     "gs_foldscar_shard_a": {
       "category": "landmark",
-      "dims_m": [2.3713, 4.7, 3.5205],
+      "dims_m": [
+        2.3713,
+        4.7,
+        3.5205
+      ],
       "triangles": 13534,
       "lods": {},
       "texture_px": 4096
     },
     "gs_foldscar_shard_b": {
       "category": "landmark",
-      "dims_m": [2.4036, 3.7, 3.583],
+      "dims_m": [
+        2.4036,
+        3.7,
+        3.583
+      ],
       "triangles": 13310,
       "lods": {},
       "texture_px": 4096
     },
     "gs_foldscar_shard_c": {
       "category": "landmark",
-      "dims_m": [2.4227, 3.6, 3.6141],
+      "dims_m": [
+        2.4227,
+        3.6,
+        3.6141
+      ],
       "triangles": 13112,
       "lods": {},
       "texture_px": 4096
     },
     "gs_foldscar_slab_a": {
       "category": "landmark",
-      "dims_m": [10.4865, 18.9, 12.2959],
+      "dims_m": [
+        10.4865,
+        18.9,
+        12.2959
+      ],
       "triangles": 14355,
       "lods": {},
       "texture_px": 4096
     },
     "gs_old_late": {
       "category": "landmark",
-      "dims_m": [56.4144, 58.0, 34.4929],
+      "dims_m": [
+        56.4144,
+        58.0,
+        34.4929
+      ],
       "triangles": 57864,
       "lods": {},
       "texture_px": 4096
     },
     "gs_old_late_crown": {
       "category": "landmark",
-      "dims_m": [2.992, 3.9835, 1.381],
+      "dims_m": [
+        2.992,
+        3.9835,
+        1.381
+      ],
       "triangles": 268,
       "lods": {},
       "texture_px": 4096
     },
     "gs_quiet_stone_a": {
       "category": "landmark",
-      "dims_m": [3.2911, 16.0, 4.8839],
+      "dims_m": [
+        3.2911,
+        16.0,
+        4.8839
+      ],
       "triangles": 39956,
       "lods": {},
       "texture_px": 4096
     },
     "gs_quiet_stone_b": {
       "category": "landmark",
-      "dims_m": [3.341, 16.0, 3.3067],
+      "dims_m": [
+        3.341,
+        16.0,
+        3.3067
+      ],
       "triangles": 13816,
       "lods": {},
       "texture_px": 4096
     },
     "gs_waystone_ashen": {
       "category": "landmark",
-      "dims_m": [3.6363, 6.0, 2.412],
+      "dims_m": [
+        3.6363,
+        6.0,
+        2.412
+      ],
       "triangles": 16548,
       "lods": {},
       "texture_px": 4096
     },
     "gs_waystone_rim": {
       "category": "landmark",
-      "dims_m": [4.5453, 7.5, 3.015],
+      "dims_m": [
+        4.5453,
+        7.5,
+        3.015
+      ],
       "triangles": 16548,
       "lods": {},
       "texture_px": 4096
@@ -3633,7 +4076,9 @@
         "frontier_vest_trousers_set__mh_veth_m"
       ],
       "equipment_outfits": {
-        "default:feet": ["frontier_sealed_boots__mh_veth_m"],
+        "default:feet": [
+          "frontier_sealed_boots__mh_veth_m"
+        ],
         "set:|": [
           "frontier_vest_trousers_set__mh_veth_m"
         ],
@@ -3751,7 +4196,9 @@
           "frontier_vest_trousers_set__mh_veth_m"
         ],
         "equipment_outfits": {
-          "default:feet": ["frontier_sealed_boots__mh_veth_m"],
+          "default:feet": [
+            "frontier_sealed_boots__mh_veth_m"
+          ],
           "set:|": [
             "frontier_vest_trousers_set__mh_veth_m"
           ],
@@ -3833,7 +4280,9 @@
           "frontier_vest_trousers_set__mh_veth_m"
         ],
         "equipment_outfits": {
-          "default:feet": ["frontier_sealed_boots__mh_veth_m"],
+          "default:feet": [
+            "frontier_sealed_boots__mh_veth_m"
+          ],
           "set:|": [
             "frontier_vest_trousers_set__mh_veth_m"
           ],
@@ -3915,7 +4364,9 @@
           "frontier_vest_trousers_set__mh_veth_f"
         ],
         "equipment_outfits": {
-          "default:feet": ["frontier_sealed_boots__mh_veth_f"],
+          "default:feet": [
+            "frontier_sealed_boots__mh_veth_f"
+          ],
           "set:|": [
             "frontier_vest_trousers_set__mh_veth_f"
           ],
@@ -4208,6 +4659,10 @@
       "scale": 1.6,
       "sound": "chest",
       "note": "M1 relic: Codex's page, authored size x1.6."
+    },
+    "container.longhouse_shelf": {
+      "model": "prop_bp_shelf_ah",
+      "sound": "chest"
     }
   },
   "nodes": {
@@ -4322,7 +4777,11 @@
     "notice_board": {
       "model": "bw_codex_notice",
       "scale": 0.65,
-      "offset": [0, 0.8, 0],
+      "offset": [
+        0,
+        0.8,
+        0
+      ],
       "note": "Reuse the shipped licensed wooden notice panel; lifted to reading height on the inn wall."
     },
     "anvil": {
@@ -4382,6 +4841,34 @@
       },
       "note": "World life 2026-10-15: a banked fire in a stone ring - roast meat and salves.",
       "sound": "cook"
+    },
+    "alembic": {
+      "model": "herb_press",
+      "beside": "drying_herb_bundle",
+      "beside_offset": [
+        0.9,
+        0,
+        0.35
+      ],
+      "note": "D18: Sel's apothecary bench - an herb press with a hanging bundle; a working still is art the catalog does not own."
+    },
+    "tanning_rack": {
+      "model": "cw_hurdle_fence",
+      "scale": 0.9,
+      "material": "wood",
+      "note": "D18: a wattle hurdle for stretching a hide; the catalog's dedicated tanning_rack is unconverted."
+    },
+    "archive": {
+      "model": "prop_bp_table_supper",
+      "material": "wood",
+      "scale": 0.9,
+      "beside": "prop_bp_shelf_ah",
+      "beside_offset": [
+        0.95,
+        0,
+        0.2
+      ],
+      "note": "D18: Sel's study table with its shelf - the S learning source's first home."
     }
   },
   "companion_weapon": {
@@ -4495,54 +4982,54 @@
       "note": "MR-0175 measuring automaton: brass gauge face, iron frame and its own sweep/fall/grasp takes; the same body the Barrowworks region binds."
     },
     "creature.beast.wolf_grey_alpha": {
-  "model": "creature_wm_grey_wolf_b",
-  "clips": {
-    "idle": "creature.creature_wm_grey_wolf_b.idle",
-    "walk": "creature.creature_wm_grey_wolf_b.walk",
-    "run": "creature.creature_wm_grey_wolf_b.run",
-    "attack": "creature.creature_wm_grey_wolf_b.attack",
-    "hit": "creature.creature_wm_grey_wolf_b.hit",
-    "death": "creature.creature_wm_grey_wolf_b.death",
-    "idle_b": "creature.creature_wm_grey_wolf_b.idle_b",
-    "idle_c": "creature.creature_wm_grey_wolf_b.idle_c",
-    "hit_b": "creature.creature_wm_grey_wolf_b.hit_b",
-    "death_b": "creature.creature_wm_grey_wolf_b.death_b",
-    "ability.creature.wolf_bite_1": "creature.creature_wm_grey_wolf_b.attack",
-    "ability.creature.wolf_bite_2": "creature.c1_wolf.bite_leg",
-    "ability.creature.wolf_grey_alpha_heavy_1": "creature.c1_wolf.sweep_left",
-    "ability.creature.wolf_grey_alpha_heavy_2": "creature.c1_wolf.sweep_right",
-    "ability.creature.wolf_grey_alpha_rush_1": "creature.c1_wolf.pounce_1",
-    "ability.creature.wolf_grey_alpha_rush_2": "creature.c1_wolf.pounce_2"
-  },
-  "voice": "grey_wolf",
-  "flesh": "fur",
-  "blow": "bite",
-  "steps": {
-    "walk": "walk",
-    "run": "run"
-  },
-  "note": "C1 rework: same native wolf rig, exactly 1.30x the standard grey wolf, with a high-contrast pale mantle over a charcoal coat.",
-  "otherfauna": {
-    "scale": [
-      1.534,
-      1.534
-    ],
-    "shader": {
-      "saturation": 0.12,
-      "value": 0.14,
-      "mottle_tint": [
-        0.82,
-        0.86,
-        0.9
-      ],
-      "mottle_strength": 0,
-      "mottle_scale": 0.07,
-      "mottle_cover": 0.5,
-      "mottle_from": 0.4,
-      "ruff_strength": 1.45
-    }
-  }
-},
+      "model": "creature_wm_grey_wolf_b",
+      "clips": {
+        "idle": "creature.creature_wm_grey_wolf_b.idle",
+        "walk": "creature.creature_wm_grey_wolf_b.walk",
+        "run": "creature.creature_wm_grey_wolf_b.run",
+        "attack": "creature.creature_wm_grey_wolf_b.attack",
+        "hit": "creature.creature_wm_grey_wolf_b.hit",
+        "death": "creature.creature_wm_grey_wolf_b.death",
+        "idle_b": "creature.creature_wm_grey_wolf_b.idle_b",
+        "idle_c": "creature.creature_wm_grey_wolf_b.idle_c",
+        "hit_b": "creature.creature_wm_grey_wolf_b.hit_b",
+        "death_b": "creature.creature_wm_grey_wolf_b.death_b",
+        "ability.creature.wolf_bite_1": "creature.creature_wm_grey_wolf_b.attack",
+        "ability.creature.wolf_bite_2": "creature.c1_wolf.bite_leg",
+        "ability.creature.wolf_grey_alpha_heavy_1": "creature.c1_wolf.sweep_left",
+        "ability.creature.wolf_grey_alpha_heavy_2": "creature.c1_wolf.sweep_right",
+        "ability.creature.wolf_grey_alpha_rush_1": "creature.c1_wolf.pounce_1",
+        "ability.creature.wolf_grey_alpha_rush_2": "creature.c1_wolf.pounce_2"
+      },
+      "voice": "grey_wolf",
+      "flesh": "fur",
+      "blow": "bite",
+      "steps": {
+        "walk": "walk",
+        "run": "run"
+      },
+      "note": "C1 rework: same native wolf rig, exactly 1.30x the standard grey wolf, with a high-contrast pale mantle over a charcoal coat.",
+      "otherfauna": {
+        "scale": [
+          1.534,
+          1.534
+        ],
+        "shader": {
+          "saturation": 0.12,
+          "value": 0.14,
+          "mottle_tint": [
+            0.82,
+            0.86,
+            0.9
+          ],
+          "mottle_strength": 0,
+          "mottle_scale": 0.07,
+          "mottle_cover": 0.5,
+          "mottle_from": 0.4,
+          "ruff_strength": 1.45
+        }
+      }
+    },
     "creature.construct.gate_tender": {
       "model": "creature_d5_rock_golem",
       "clips": {
@@ -4649,40 +5136,40 @@
       "note": "Juvenile wolf-source hound, 0.50-0.55 adult scale, a broader shorter head and larger paws through native named-bone pose scaling. Approved source option in Claude's 2026-10-27 lineup verdict; the rest skeleton and C1 clips stay intact. The party collar remains separate."
     },
     "creature.beast.wolf_grey": {
-  "model": "creature_wm_grey_wolf_b",
-  "clips": {
-    "idle": "creature.creature_wm_grey_wolf_b.idle",
-    "walk": "creature.creature_wm_grey_wolf_b.walk",
-    "run": "creature.creature_wm_grey_wolf_b.run",
-    "attack": "creature.creature_wm_grey_wolf_b.attack",
-    "hit": "creature.creature_wm_grey_wolf_b.hit",
-    "death": "creature.creature_wm_grey_wolf_b.death",
-    "idle_b": "creature.creature_wm_grey_wolf_b.idle_b",
-    "idle_c": "creature.creature_wm_grey_wolf_b.idle_c",
-    "hit_b": "creature.creature_wm_grey_wolf_b.hit_b",
-    "death_b": "creature.creature_wm_grey_wolf_b.death_b",
-    "ability.creature.wolf_bite_1": "creature.creature_wm_grey_wolf_b.attack",
-    "ability.creature.wolf_bite_2": "creature.c1_wolf.bite_leg",
-    "ability.creature.wolf_grey_heavy_1": "creature.c1_wolf.sweep_left",
-    "ability.creature.wolf_grey_heavy_2": "creature.c1_wolf.sweep_right",
-    "ability.creature.wolf_grey_rush_1": "creature.c1_wolf.pounce_1",
-    "ability.creature.wolf_grey_rush_2": "creature.c1_wolf.pounce_2"
-  },
-  "voice": "grey_wolf",
-  "flesh": "fur",
-  "blow": "bite",
-  "steps": {
-    "walk": "walk",
-    "run": "run"
-  },
-  "note": "WildMesh SK_Wolf 1 (fur cards, native bite). Own recorded voice set grey_wolf (was the hound's AI set).",
-  "otherfauna": {
-    "scale": [
-      1.18,
-      1.18
-    ]
-  }
-},
+      "model": "creature_wm_grey_wolf_b",
+      "clips": {
+        "idle": "creature.creature_wm_grey_wolf_b.idle",
+        "walk": "creature.creature_wm_grey_wolf_b.walk",
+        "run": "creature.creature_wm_grey_wolf_b.run",
+        "attack": "creature.creature_wm_grey_wolf_b.attack",
+        "hit": "creature.creature_wm_grey_wolf_b.hit",
+        "death": "creature.creature_wm_grey_wolf_b.death",
+        "idle_b": "creature.creature_wm_grey_wolf_b.idle_b",
+        "idle_c": "creature.creature_wm_grey_wolf_b.idle_c",
+        "hit_b": "creature.creature_wm_grey_wolf_b.hit_b",
+        "death_b": "creature.creature_wm_grey_wolf_b.death_b",
+        "ability.creature.wolf_bite_1": "creature.creature_wm_grey_wolf_b.attack",
+        "ability.creature.wolf_bite_2": "creature.c1_wolf.bite_leg",
+        "ability.creature.wolf_grey_heavy_1": "creature.c1_wolf.sweep_left",
+        "ability.creature.wolf_grey_heavy_2": "creature.c1_wolf.sweep_right",
+        "ability.creature.wolf_grey_rush_1": "creature.c1_wolf.pounce_1",
+        "ability.creature.wolf_grey_rush_2": "creature.c1_wolf.pounce_2"
+      },
+      "voice": "grey_wolf",
+      "flesh": "fur",
+      "blow": "bite",
+      "steps": {
+        "walk": "walk",
+        "run": "run"
+      },
+      "note": "WildMesh SK_Wolf 1 (fur cards, native bite). Own recorded voice set grey_wolf (was the hound's AI set).",
+      "otherfauna": {
+        "scale": [
+          1.18,
+          1.18
+        ]
+      }
+    },
     "creature.beast.ash_ember_hound": {
       "model": "creature_wm_ember_hound",
       "clips": "creature.creature_wm_ember_hound",

@@ -141038,6 +141038,14 @@ structures:
   - 451.4
   - 746.4
   height_m: 1.2
+# D18 water addendum: the stone well in the square. The id says 'well' on purpose - the game drinks at a
+# blocker whose id names a well, so this is a working water source (empty flask -> refill), not scenery.
+- id: well_square
+  circle_m:
+  - 443.6
+  - 734.8
+  - 1.0
+  height_m: 1.1
 - id: rock_well
   circle_m:
   - 449
@@ -150390,6 +150398,14 @@ containers:
   - 512
   - 789
   stack_slots: 12
+# D18: the longhouse aumbry. Sel's copied herbal is what makes the hollow's B source real: a book
+# that teaches two salves when read (item.tome.herbal_remedies, use.grants).
+- key: container.longhouse_shelf
+  loot_ref: loot.longhouse_shelf
+  position_m:
+  - 452.8
+  - 728.0
+  stack_slots: 6
 - key: container.waystation_chest
   loot_ref: loot.waystation_chest
   position_m:
@@ -150524,6 +150540,22 @@ npcs:
   - 681.5
   facing_deg: 180
 nodes:
+# D18: what grows and stands inside the walls, so the first hour has something to gather.
+- name: ah_yard_woundmoss
+  node_ref: node.herb.woundmoss
+  position_m:
+  - 452.8
+  - 755.2
+- name: ah_yard_boneleaf
+  node_ref: node.herb.boneleaf
+  position_m:
+  - 444.6
+  - 753.4
+- name: ah_yard_bog_cotton
+  node_ref: node.fibre.bog_cotton
+  position_m:
+  - 456.4
+  - 749.6
 - name: hollow_woundmoss_1
   node_ref: node.herb.woundmoss
   position_m:
@@ -150736,6 +150768,22 @@ stations:
   position_m:
   - 450.3
   - 726.3
+# D18: the trades Ashen Hollow's dossier asks a town for and the build had no station for.
+- key: station.ah_alembic
+  kind: alembic
+  position_m:
+  - 470.8
+  - 725.6
+- key: station.ah_tanning
+  kind: tanning_rack
+  position_m:
+  - 466.5
+  - 743.2
+- key: station.ah_archive
+  kind: archive
+  position_m:
+  - 471.4
+  - 712.6
 - key: station.cairnwold.workbench
   kind: workbench
   position_m:
