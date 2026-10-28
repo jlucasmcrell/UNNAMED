@@ -258,6 +258,9 @@ def add_lining(meshes):
     """Copy each worn mesh, flip it inside out and pull it 3 mm toward the body: the cloth seen through an opening."""
     lining = []
     for obj in meshes:
+        # Only a skinned garment piece gets a lining: a static piece (a collar) has no bones to follow and would sit apart.
+        if not any(modifier.type == 'ARMATURE' for modifier in obj.modifiers):
+            continue
         copy = obj.copy()
         copy.data = obj.data.copy()
         copy.name = obj.name + '_lining'
