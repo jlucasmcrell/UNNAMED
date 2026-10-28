@@ -273,6 +273,9 @@ def add_lining(meshes):
             vertex.co -= vertex.normal * .003
         mesh.to_mesh(copy.data)
         mesh.free()
+        # A lining needs no shape keys: their absolute positions describe the unflipped surface, so any that stayed would pull the
+        # lining apart the moment a corrective was active. Keep the basis only.
+        copy.shape_key_clear()
         copy.parent = obj.parent
         copy.parent_type = obj.parent_type
         if obj.parent_type == 'BONE': copy.parent_bone = obj.parent_bone
