@@ -320,6 +320,8 @@ public static class WorldHookChecks
             {
                 if (TryPosition(item, out double x, out double y))
                     all.Add(new Placement(section, item, x, y));
+                else if (section == "waters" && FirstPathPoint(item) is { } spring)
+                    all.Add(new Placement(section, item, spring.X, spring.Y));
                 else if (structures.GetValueOrDefault(Scalar(item, "structure") ?? "") is { } mounted)
                     all.Add(new Placement(section, item, mounted.X, mounted.Y));
             }
@@ -333,6 +335,13 @@ public static class WorldHookChecks
         }
         return all;
     }
+
+    /// <summary>Where an authored water starts, so it is audited in the area its first point belongs to.</summary>
+    private static (double X, double Y)? FirstPathPoint(YamlMappingNode water) =>
+        Items(water, "path_m").Count > 0 && Items(water, "path_m")[0] is YamlSequenceNode pair && pair.Children.Count == 2
+        && AsNumber(pair.Children[0]) is { } x && AsNumber(pair.Children[1]) is { } y
+            ? (x, y)
+            : null;
 
     /// <summary>A region's structures by id, so an entry mounted on one can be given a place to be audited at.</summary>
     private static Dictionary<string, (double X, double Y)> Structures(YamlMappingNode region)
@@ -446,6 +455,8 @@ public static class WorldHookChecks
                 return area?.Locations.Count(id => facts.LocationKinds.GetValueOrDefault(id) == Scalar(argument, "kind_of_place")) ?? 0;
             case "structure_prefix":
                 return placed.Count(p => p.Section == "structures" && MatchesAnyPrefix(Scalar(p.Node, "id"), argument));
+            case "water":
+                return placed.Count(p => p.Section == "waters");
             case "knowledge_in_area":
                 return placed.Count(p => (p.Section == "containers" && LootTeaches(Scalar(p.Node, "loot_ref"), facts))
                                          || (p.Section == "npcs" && NpcGivesKnowledge(Scalar(p.Node, "npc_ref"), facts)));

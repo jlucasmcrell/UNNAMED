@@ -606,7 +606,31 @@ public static class WorldContent
             foreach (var surface in supports)
                 Check(surface.OriginXMm >= minX && surface.OriginZMm >= minZ && surface.MaxXMm <= maxX && surface.MaxZMm <= maxZ,
                     "WLD003", "walkable surfaces must lie within the region bounds");
-            var space = new WalkSpace(minX, minZ, maxX, maxZ, terrain, structures) { WalkableSurfaces = supports };
+            // Authored water (D18): a surface at its own level, which the terrain is cut below. A creek or a pond needs no
+            // system beyond this: it is drawn where it is declared and the bank is where the world says it is.
+            var waters = ImmutableArray.CreateBuilder<WaterSite>();
+            foreach (var (entry, i) in (map.ContainsKey("waters") ? List(map, "waters") : new List<object>()).Select((w, i) => (w, i)))
+            {
+                var site = entry as Dictionary<object, object> ?? throw new FormatException($"waters[{i}] must be a map");
+                string key = Text(site, "key");
+                var points = List(site, "path_m").Select(p =>
+                {
+                    var pair = p as List<object> ?? throw new FormatException($"{key}: a path point must be [x, z]");
+                    if (pair.Count != 2)
+                        throw new FormatException($"{key}: a path point must be [x, z]");
+                    return (ToMm(pair[0], $"{key} path_m x"), ToMm(pair[1], $"{key} path_m z"));
+                }).ToImmutableArray();
+                var water = new WaterSite(key, Text(site, "kind"), Mm(site, "level_m"), points, Mm(site, "width_m"));
+                Check(key.StartsWith("water.", StringComparison.Ordinal), "WLD003", $"water key '{key}' must start with 'water.'");
+                Check(water.PointsMm.Length >= 1, "WLD003", $"{key} needs at least one path point");
+                Check(water.WidthMm > 0, "WLD003", $"{key} needs a width above zero");
+                Check(water.PointsMm.All(p => p.XMm >= minX && p.XMm <= maxX && p.ZMm >= minZ && p.ZMm <= maxZ), "WLD003",
+                    $"{key} runs outside the walkable bounds");
+                waters.Add(water);
+            }
+            Check(waters.Select(w => w.Key).Distinct(StringComparer.Ordinal).Count() == waters.Count, "WLD003", "two waters share a key");
+
+            var space = new WalkSpace(minX, minZ, maxX, maxZ, terrain, structures) { WalkableSurfaces = supports, Waters = waters.ToImmutable() };
             var layout = new RegionLayout(regionId, cells.Select(c => c.ToString()).ToImmutableArray(), space, doors.ToImmutable(),
                 locations.ToImmutable(), new Body(spawnX, terrain.HeightAtMm(spawnX, spawnZ), spawnZ, (int)facingMdeg), regionGeneration)
             {
