@@ -25,6 +25,26 @@ public partial class Main
         // disk is what lets anyone check the body is standing on the fence rather than beside it.
         void Shot(string name) => Main.SaveScreenshot(GetViewport(), directory, $"traversal_{name}");
 
+        // A climb is one or two frames from the chase camera, and against a wall the chase camera ends up inside the timber. This puts a
+        // still camera three metres to the climber's side for the beat, so the frame shows the body on the rail or rung rather than the wall.
+        Camera3D? side = null;
+        async Task ShotSide(string name)
+        {
+            var body = _controller.Authoritative;
+            var at = new Vector3(body.XMm / 1000f, body.YMm / 1000f, body.ZMm / 1000f);
+            side ??= new Camera3D { Fov = 55 };
+            if (side.GetParent() is null)
+                AddChild(side);
+            var offset = new Vector3(3.2f, 1.9f, 3.2f);
+            side.GlobalPosition = at + offset;
+            side.LookAt(at + new Vector3(0, .6f, 0), Vector3.Up);
+            side.MakeCurrent();
+            await Rcd3Wait(.12);
+            Main.SaveScreenshot(GetViewport(), directory, $"traversal_{name}");
+            _camera.Camera.MakeCurrent();
+            await Rcd3Wait(.05);
+        }
+
         void Mark(string phase, object? detail = null)
         {
             var row = new { phase, detail, utc = DateTimeOffset.UtcNow, uptime_ms = Time.GetTicksMsec(), world_tick = sim.WorldTick,
@@ -124,12 +144,12 @@ public partial class Main
                 Shot("fence_runup");
                 _controller.SteerWorld(new Vector3(0, 0, 1), Gait.Run, _camera);
                 await Rcd3Wait(.35);
-                Shot("fence_contact");
+                await ShotSide("fence_contact");
                 await Rcd3Wait(.25);
-                Shot("fence_rising");
+                await ShotSide("fence_rising");
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
                 await Rcd3Wait(1.1);
-                Shot("fence_top");
+                await ShotSide("fence_top");
                 PressReport("fence", 0, 1);
                 Mark("fence_vaulted", _controller.Authoritative);
 
@@ -139,11 +159,11 @@ public partial class Main
                 Shot("ladder_runup");
                 _controller.SteerWorld(new Vector3(0, 0, -1), Gait.Walk, _camera);
                 await Rcd3Wait(1.1);
-                Shot("ladder_contact");
+                await ShotSide("ladder_contact");
                 await Rcd3Wait(.5);
-                Shot("ladder_rising");
+                await ShotSide("ladder_rising");
                 await Rcd3Wait(.9);
-                Shot("ladder_top");
+                await ShotSide("ladder_top");
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
                 await Rcd3Wait(.5);
                 PressReport("ladder", 0, -1);
