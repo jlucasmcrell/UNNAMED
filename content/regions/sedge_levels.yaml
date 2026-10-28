@@ -8660,8 +8660,8 @@ structures:
 # D18: the Tollpiles stone stands where the tolls are taken, so death returns you to the crossing you paid at.
 - id: sedge_tollpiles_waystone
   circle_m:
-  - 5001.6
-  - 1075.4
+  - 5004.6
+  - 1077.8
   - 0.9
   height_m: 1.6
 
@@ -14610,5 +14610,5 @@ waystones:
   structure: sedge_tollpiles_waystone
   location_ref: location.sedge_tollpiles
   arrival_m:
-  - 5001.6
-  - 1077.6
+  - 5004.6
+  - 1080.0
