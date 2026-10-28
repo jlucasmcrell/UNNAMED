@@ -132,6 +132,82 @@ public class WorldHookLintTests : IDisposable
     }
 
     [Fact]
+    public void AClimbableFaceIsAStructureWhoseIdStartsAClimbablePrefix()
+    {
+        // Climbing is a mesh-prefix rule (config.base_speeds: climbable_prefixes), not an authored climb field.
+        Write("_world_hooks.yaml", """
+            meta: { schema: 1 }
+            band_scales: { "1-5": 1.0 }
+            areas:
+              - { slug: test-hollow, name: Test Hollow, region_ref: region.test, locations: [location.test], type: wilderness, status: development, band: "1-5" }
+            hooks:
+              - { id: HOOK.TRAV.CLIMB_FACE, class: placeable, scope: area, skills: [skill.climbing], evidence: { structure_prefix: { prefixes: [rock_, cw_crag_] } }, min: { wilderness: 1 }, band_scaled: false, note: "a face" }
+            """);
+        Location("location.test", 50, 50);
+        Region("""
+            structures:
+              - { id: rock_climb_face, circle_m: [52, 52, 1.2], height_m: 4.0 }
+              - { id: fence_yard, circle_m: [55, 52, 1.0], height_m: 1.2 }
+            """);
+        var report = Audit();
+        var face = Assert.Single(report.Findings.Where(f => f.HookId == "HOOK.TRAV.CLIMB_FACE"));
+        Assert.Equal(HookState.Placed, face.State);
+        Assert.Equal(1, face.Placed);
+    }
+
+    [Fact]
+    public void ABookCountsWhenAnNpcHandsItOverOrAContainerHoldsIt()
+    {
+        // The engine teaches from items with use.grants; a dialogue's transfer_item is how a teacher gives one.
+        Write("_world_hooks.yaml", """
+            meta: { schema: 1 }
+            band_scales: { "1-5": 1.0 }
+            areas:
+              - { slug: test-hollow, name: Test Hollow, region_ref: region.test, locations: [location.test], type: town, status: development, band: "1-5" }
+            hooks:
+              - { id: HOOK.TEACHING.BOOK, class: readable, scope: area, skills: [skill.research], evidence: { knowledge_in_area: { books: true } }, min: { town: 1 }, band_scaled: false, note: "a book that teaches" }
+            """);
+        Location("location.test", 50, 50);
+        Write("items/primer.yaml", """
+            id: item.tome.primer
+            kind: item
+            schema: 1
+            display_key: item.tome.primer.name
+            tags: [item]
+            name: Primer
+            category: book
+            use:
+              consume: true
+              grants:
+                - { kind: spell, ref: spell.force.impulse_bolt }
+            """);
+        Write("npcs/teacher.yaml", """
+            id: npc.test.teacher
+            kind: npc
+            schema: 1
+            display_key: npc.test.teacher.name
+            tags: [npc]
+            name: Teacher
+            dialogue_ref: dialogue.test.teacher
+            """);
+        Write("dialogue/teacher.yaml", """
+            id: dialogue.test.teacher
+            kind: dialogue
+            schema: 1
+            display_key: dialogue.test.teacher.name
+            tags: [dialogue]
+            root:
+              text: "Take this."
+              consequences:
+                - { command: transfer_item, item_ref: item.tome.primer, count: 1, to: player }
+            """);
+        Region("npcs:\n  - { npc_ref: npc.test.teacher, position_m: [52, 52], facing_deg: 0 }");
+        var report = Audit();
+        Assert.Equal(HookState.Placed,
+            Assert.Single(report.Findings.Where(f => f.HookId == "HOOK.TEACHING.BOOK")).State);
+    }
+
+    [Fact]
     public void APlacementBelongsToTheNearestAreasAnchor()
     {
         Write("_world_hooks.yaml", """

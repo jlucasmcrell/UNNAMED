@@ -1,0 +1,9 @@
+id: loot.longhouse_shelf
+kind: loot
+schema: 1
+display_key: loot.longhouse_shelf.name
+tags: [loot]
+notes: "D18: the longhouse aumbry - Sel's fair copy of the herbal, the one book in the waystation that teaches something (two salves worked at the cookfire). Canon: the archivist's shelf, not the Primer's, which Sel keeps for Berrin (NPC_PERSONALITY_BIBLE O-8)."
+rolls: 0
+guaranteed:
+  - { item_ref: item.tome.herbal_remedies, count_range: [1, 1] }

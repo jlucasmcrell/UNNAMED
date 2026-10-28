@@ -1,13 +1,22 @@
-id: npc.ashen_hollow.renn_vale
+﻿id: npc.ashen_hollow.renn_vale
 kind: npc
 sex: m
 schema: 1
 display_key: npc.ashen_hollow.renn_vale.name
 tags: [npc]
 name: Renn Vale
-notes: The waystation's steward (content bible §9) - orientation, structured dialogue, acknowledging the world. PROTOTYPE.md's keeper and quest giver.
+notes: The waystation's steward (content bible Â§9) - orientation, structured dialogue, acknowledging the world. PROTOTYPE.md's keeper and quest giver.
 role: steward
 dialogue_ref: dialogue.ashen_hollow.renn_vale
 unique: true
 faction_ref: faction.ashen_hollow.wayhold
 people_ref: people.veth
+teaches:
+  # D18: the Wayhold keeps the pieces it built the waystation from, and its steward hands the knowledge on.
+  - { kind: building_piece, piece_ref: piece.pad.timber, fee: 5 }
+  - { kind: building_piece, piece_ref: piece.wall.timber, fee: 10, requires: { prerequisite: piece.pad.timber } }
+  - { kind: building_piece, piece_ref: piece.doorway.timber, fee: 10, requires: { prerequisite: piece.wall.timber } }
+  - { kind: building_piece, piece_ref: piece.door.timber, fee: 10, requires: { prerequisite: piece.doorway.timber } }
+  - { kind: building_piece, piece_ref: piece.roof.timber, fee: 15, requires: { prerequisite: piece.wall.timber } }
+  - { kind: building_piece, piece_ref: piece.storage.chest, fee: 8 }
+  - { kind: building_piece, piece_ref: piece.station.anvil, fee: 20, requires: { prerequisite: piece.wall.timber } }
