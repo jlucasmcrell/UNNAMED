@@ -103,6 +103,9 @@ uniform float opal_traces : hint_range(0.0, 1.0) = 0.4;
 uniform vec3 opal_pearl : source_color = vec3(0.84, 0.85, 0.86);
 
 group_uniforms u_v;
+// Coverage stencil (F1 fix 8): the body fragments a worn garment covers are dropped, in the body's own UV space.
+uniform sampler2D conceal_map : hint_default_white, filter_nearest;
+uniform float conceal : hint_range(0., 1.) = 0.;
 uniform vec3 uv1_scale = vec3(1.);
 uniform vec3 uv1_offset = vec3(0.);
 uniform vec3 uv2_scale = vec3(1.);
@@ -161,6 +164,8 @@ float ScreenSpaceDither12(vec2 vScreenPos, float time){
 	return fract(vDither / 53.2);
 }
 void fragment() {
+	// Hidden under the worn garment: the mask is painted in the same UV space as the body's own atlas.
+	if (conceal > .5 && texture(conceal_map, UV).r > .5) discard;
 	vec2 base_uv = UV;
 	TBN = mat3(TANGENT, -BINORMAL, NORMAL);
 
