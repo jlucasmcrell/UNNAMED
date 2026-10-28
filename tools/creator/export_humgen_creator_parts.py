@@ -96,6 +96,88 @@ def complete_correctives(human, tag):
         (work / 'correctives_failure.txt').write_text(traceback.format_exc(), encoding='utf-8')
 
 
+# How much hair hangs below the skull decides how much of it moves (brief D12).
+HAIR_CHAINS = {
+    'long': dict(chains=('back', 'side_l', 'side_r'), segments=4,
+                 spring=dict(stiffness=.28, drag=.22, gravity=.06, radius=.022)),
+    'medium': dict(chains=('back', 'side_l', 'side_r'), segments=3,
+                   spring=dict(stiffness=.4, drag=.3, gravity=.05, radius=.02)),
+}
+
+
+def hair_class(option_id):
+    if option_id.startswith('hair.long.'):
+        return 'long'
+    if option_id.startswith('hair.curls.'):
+        return 'medium'
+    return ''
+
+
+def add_hair_chains(rig, meshes, length_class, option_id):
+    """Hang bone chains under Head along the falling hair and weight the cards to them.
+
+    Returns the spring specification the runtime reads from the part's contract, or nothing for a short style.
+    """
+    if not length_class:
+        return {}
+    spec = HAIR_CHAINS[length_class]
+    import math
+    head = next((b for b in rig.data.bones if b.name == 'Head'), None)
+    assert head is not None, 'Hair export found no Head bone on the rig'
+    corners = [mesh.matrix_world @ v.co for mesh in meshes for v in mesh.data.vertices]
+    top = max(c.z for c in corners)
+    bottom = min(c.z for c in corners)
+    axis_x = sum(c.x for c in corners) / len(corners)
+    axis_y = sum(c.y for c in corners) / len(corners)
+    fingers = {
+        'back': (axis_x, axis_y - (top - bottom) * .12),
+        'side_l': (axis_x - (top - bottom) * .10, axis_y),
+        'side_r': (axis_x + (top - bottom) * .10, axis_y),
+    }
+    drop = max(top - bottom, .05)
+    segments = spec['segments']
+    length = drop / segments
+    bpy.context.view_layer.objects.active = rig
+    bpy.ops.object.mode_set(mode='EDIT')
+    made = {}
+    for chain in spec['chains']:
+        x, y = fingers[chain]
+        parent = rig.data.edit_bones['Head']
+        names = []
+        for n in range(segments):
+            bone = rig.data.edit_bones.new('hair_' + chain + '_' + str(n + 1))
+            bone.head = (x, y, top - length * n)
+            bone.tail = (x, y, top - length * (n + 1))
+            bone.parent = parent
+            bone.use_connect = n > 0
+            parent = bone
+            names.append(bone.name)
+        made[chain] = names
+    bpy.ops.object.mode_set(mode='OBJECT')
+    for mesh in meshes:
+        groups = {chain: [mesh.vertex_groups.new(name=bone) for bone in names] for chain, names in made.items()}
+        head_group = mesh.vertex_groups.get('Head') or mesh.vertex_groups.new(name='Head')
+        for vertex in mesh.data.vertices:
+            point = mesh.matrix_world @ vertex.co
+            below = (top - point.z) / max(drop, .001)
+            if below <= 0:
+                head_group.add([vertex.index], 1.0, 'REPLACE')
+                continue
+            angle = math.atan2(point.x - axis_x, point.y - axis_y) * 180.0 / math.pi
+            chain = 'back' if abs(angle) > 120 else ('side_r' if angle > 0 else 'side_l')
+            held = min(max(below, 0.0), 1.0) * segments - .5
+            index = min(max(int(held), 0), segments - 1)
+            blend = max(0.0, min(1.0, held - index))
+            tilt = min(1.0, below * 3.0)
+            groups[chain][index].add([vertex.index], (1.0 - blend) * tilt, 'REPLACE')
+            if index + 1 < segments:
+                groups[chain][index + 1].add([vertex.index], blend * tilt, 'REPLACE')
+            if tilt < 1.0:
+                head_group.add([vertex.index], 1.0 - tilt, 'REPLACE')
+    print('CREATOR_HAIR_CHAINS', option_id, length_class, sum(len(v) for v in made.values()), flush=True)
+    return {'hair_' + chain: dict(spec['spring']) for chain in made}
+
+
 parts = [('hair', 'hair', 'hg_main_hair'), ('facial_hair', 'beard', 'hg_face_hair'),
          ('outfits', 'outfit', None), ('footwear', 'footwear', None)]
 def slug(value): return re.sub(r'[^a-z0-9]+', '_', value.lower()).strip('_')
@@ -177,6 +259,8 @@ for collection, kind, tag in parts:
             # comes through the cloth the moment a clip moves a joint (owner's fix 8).
             if not tag:
                 print('NATIVE_PART_CORRECTIVES', identifier, share_correctives(copy.objects.body, meshes), flush=True)
+            # A medium or long style gets the chains that let the hair move; a short one stays welded to the skull.
+            chains = add_hair_chains(copy.objects.rig, meshes, hair_class(option['id']), option['id']) if tag else {}
             bpy.ops.object.select_all(action='DESELECT')
             copy.objects.rig.select_set(True)
             for obj in meshes: obj.select_set(True)
@@ -187,12 +271,15 @@ for collection, kind, tag in parts:
             target = Glb(work / 'game/primary/rigged' / base / (base + '_rigged.glb'))
             exported = Glb(destination)
             assert not any('_Body_LOD' in node.get('name', '') and 'mesh' in node for node in exported.nodes), 'Part export contains another body'
-            assert target.names.keys() == exported.names.keys(), 'Part rig vocabulary differs from the base'
+            extra = set(exported.names.keys()) - set(target.names.keys())
+            assert all(name.startswith('hair_') for name in extra), 'Part adds bones that are not hair chains: ' + str(sorted(extra))
+            assert target.names.keys() <= exported.names.keys(), 'Part rig vocabulary differs from the base'
             a, b = target.globals(), exported.globals()
             assert max(float(np.max(np.abs(a[name] - b[name]))) for name in a) < .0001, 'Part rest differs from the exact creator base'
             (folder / 'native_materials.json').write_text(json.dumps(flow, indent=2))
             identity = json.loads((work / 'game/primary/rigged' / base / 'identity_weights.json').read_text())
             (folder / 'creator_part.json').write_text(json.dumps(dict(kind=kind, option=option['id'], target_base=base,
-                target_body_sha256=identity['target_body_sha256'], source=path, native_meshes=[obj.name for obj in meshes]), indent=2))
+                target_body_sha256=identity['target_body_sha256'], source=path, native_meshes=[obj.name for obj in meshes],
+                **({'hair_chains': chains} if chains else {})), indent=2))
             print('NATIVE_PART_DONE', identifier, len(meshes), flush=True)
 print('NATIVE_PARTS_COMPLETE', flush=True)

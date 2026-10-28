@@ -40,7 +40,7 @@ public static partial class Outfit
             int existing = target.FindBone(name);
             if (existing >= 0)
                 return existing;
-            if (!name.StartsWith("cloth_", StringComparison.Ordinal))
+            if (!name.StartsWith("cloth_", StringComparison.Ordinal) && !name.StartsWith("hair_", StringComparison.Ordinal))
                 throw new InvalidDataException($"Garment requires missing body joint {name}; no anatomy is substituted");
             int parent = source.GetBoneParent(bone);
             int above = parent < 0 ? -1 : Ensure(parent);

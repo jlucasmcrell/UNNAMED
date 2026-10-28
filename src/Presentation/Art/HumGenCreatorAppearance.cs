@@ -402,6 +402,12 @@ public sealed partial class HumGenCreatorAppearance : Node
                 HumGenMaterials.Apply(source, art, asset);
                 added.AddRange(source.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>());
                 Outfit.NameSkinBinds(added, rig);
+                // A long style brings its own bone chains: join them to the body skeleton and let them swing (brief D12).
+                if (part.RootElement.TryGetProperty("hair_chains", out var chains))
+                {
+                    Outfit.GarmentBones(body.Skeleton, rig, added);
+                    Outfit.HairSprings(body.Skeleton, chains);
+                }
                 foreach (var mesh in added)
                 {
                     mesh.Owner = null;
