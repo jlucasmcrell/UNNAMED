@@ -89,6 +89,7 @@ public static class WorldContent
                 MantleMm = map.ContainsKey("mantle_reach_m") ? Mm(map, "mantle_reach_m") : 0,
                 VaultMm = map.ContainsKey("vault_m") ? Mm(map, "vault_m") : 0,
                 ScrambleGradeMmPerM = map.ContainsKey("scramble_grade_mm_per_m") ? Mm(map, "scramble_grade_mm_per_m") : 650,
+                ClimbStaminaPerMetre = map.ContainsKey("climb_stamina_per_m") ? Int(map, "climb_stamina_per_m") : 6,
                 ScramblePercent = map.ContainsKey("scramble_percent") ? Int(map, "scramble_percent") : 45,
                 SheerGradeMmPerM = map.ContainsKey("sheer_grade_mm_per_m") ? Mm(map, "sheer_grade_mm_per_m") : 1_500,
                 ClimbPrefixes = map.ContainsKey("climb_prefixes") ? List(map, "climb_prefixes").Select(v => v as string ?? "").Where(v => v.Length > 0).ToImmutableArray() : ImmutableArray<string>.Empty,

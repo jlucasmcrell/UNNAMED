@@ -17,6 +17,12 @@ public sealed record BodyMoved(EntityId Actor, Body From, Body To, long Tick);
 /// <summary>The body left the ground (the owner's M6 playtest).</summary>
 public sealed record Jumped(EntityId Actor, long Tick);
 
+/// <summary>
+/// A climb or a vault (BRIEF D6): the feet came up more than a step in one tick, and it cost this much stamina. The presentation plays the
+/// climb pose on it and the HUD can show the cost.
+/// </summary>
+public sealed record Climbed(EntityId Actor, Body From, Body To, int StaminaSpent, long Tick);
+
 /// <summary>A winged body's wings changed (Kal): opened for a leap, spread to glide, flared to brake, folded to drop, folded on landing.</summary>
 public sealed record WingsChanged(EntityId Actor, UNNAMED.Domain.Spatial.WingState Wing, long Tick);
 

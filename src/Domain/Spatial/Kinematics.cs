@@ -112,6 +112,12 @@ public sealed record MovementRules(long BaseSpeedMmPerSecond, int WalkPercent, i
     /// </summary>
     public ImmutableArray<string> ClimbPrefixes { get; init; } = ImmutableArray<string>.Empty;
 
+    /// <summary>
+    /// Stamina a metre of climb or vault costs (BRIEF D6): a mantle up more than a step is work, and a body with none left does not get up
+    /// the wall at all. 0 costs nothing.
+    /// </summary>
+    public int ClimbStaminaPerMetre { get; init; } = 6;
+
     /// <summary>Structure id prefixes that are never climbed and never vaulted: the fold and the Other's barriers, sealed doors.</summary>
     public ImmutableArray<string> UnclimbablePrefixes { get; init; } = ImmutableArray<string>.Empty;
 
