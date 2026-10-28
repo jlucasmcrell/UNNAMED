@@ -4473,14 +4473,17 @@
       "note": "Native HumGen body and full-source material bakes; exact-target Epic IK/GLTFExporter motion; C1 moves unchanged."
     },
     "creature.construct.ring_custodian": {
-      "model": "creature_d5_stan_carved",
+      "model": "bw_codex_custodian",
       "clips": {
-        "idle": "creature.creature_golem_stan.idle",
-        "walk": "creature.creature_golem_stan.walk",
-        "run": "creature.creature_golem_stan.run",
-        "attack": "creature.creature_golem_stan.attack",
-        "hit": "creature.creature_golem_stan.hit",
-        "death": "creature.creature_golem_stan.death"
+        "idle": "creature.bw_codex_custodian.idle",
+        "walk": "creature.bw_codex_custodian.walk",
+        "run": "creature.bw_codex_custodian.run",
+        "hit": "creature.bw_codex_custodian.hit",
+        "death": "creature.bw_codex_custodian.death",
+        "attack": "creature.bw_codex_custodian.sweep",
+        "ability.creature.gauge_sweep": "creature.bw_codex_custodian.sweep",
+        "ability.creature.measure_fall": "creature.bw_codex_custodian.fall",
+        "ability.creature.index_grasp": "creature.bw_codex_custodian.grasp"
       },
       "voice": "animated_armour",
       "flesh": "plate",
@@ -4489,8 +4492,7 @@
         "walk": "walk",
         "run": "move_heavy"
       },
-      "uniform_scale": 1,
-      "note": "Ring custodian now uses the native carved Stan golem rather than a greybox."
+      "note": "MR-0175 measuring automaton: brass gauge face, iron frame and its own sweep/fall/grasp takes; the same body the Barrowworks region binds."
     },
     "creature.beast.wolf_grey_alpha": {
   "model": "creature_wm_grey_wolf_b",
@@ -4515,15 +4517,15 @@
     "walk": "walk",
     "run": "run"
   },
-  "note": "C1: same native wolf rig, 1.25x adult silhouette and a pale scarred mantle.",
+  "note": "C1 rework: same native wolf rig, exactly 1.30x the standard grey wolf, with a high-contrast pale mantle over a charcoal coat.",
   "otherfauna": {
     "scale": [
-      1.475,
-      1.475
+      1.534,
+      1.534
     ],
     "shader": {
-      "saturation": 0.05,
-      "value": 0.24,
+      "saturation": 0.12,
+      "value": 0.14,
       "mottle_tint": [
         0.82,
         0.86,
@@ -4533,20 +4535,20 @@
       "mottle_scale": 0.07,
       "mottle_cover": 0.5,
       "mottle_from": 0.4,
-      "ruff_strength": 1
+      "ruff_strength": 1.45
     }
   }
 },
     "creature.construct.gate_tender": {
-      "model": "creature_d5_stan_carved",
+      "model": "creature_d5_rock_golem",
       "clips": {
-        "idle": "creature.creature_golem_stan.idle",
-        "walk": "creature.creature_golem_stan.walk",
-        "run": "creature.creature_golem_stan.run",
-        "attack": "creature.creature_golem_stan.attack",
-        "hit": "creature.creature_golem_stan.hit",
-        "death": "creature.creature_golem_stan.death",
-        "ability.creature.tender_strike": "creature.creature_golem_stan.attack"
+        "idle": "creature.creature_d5_rock_golem.idle",
+        "walk": "creature.creature_d5_rock_golem.walk",
+        "run": "creature.creature_d5_rock_golem.run",
+        "attack": "creature.creature_d5_rock_golem.attack",
+        "hit": "creature.creature_d5_rock_golem.hit",
+        "death": "creature.creature_d5_rock_golem.death",
+        "ability.creature.tender_strike": "creature.creature_d5_rock_golem.attack_2"
       },
       "voice": "animated_armour",
       "flesh": "plate",
@@ -4555,21 +4557,21 @@
         "walk": "walk",
         "run": "move_heavy"
       },
-      "uniform_scale": 1,
-      "note": "Native Stan skin/rest/C1 takes, full-size original maps plus CC0 Rock064 normals and native Blender chipped-edge detail; faint violet joint seams."
+      "uniform_scale": 0.5,
+      "note": "MR-0150 rock golem: crystal-spined stone brute, mirrored to a full body, native rig and its own idle/run/attack/hurt/death takes (walk is the run slowed)."
     },
     "creature.construct.gate_warden": {
-      "model": "creature_d5_stan_carved",
+      "model": "creature_d5_stone_giant",
       "clips": {
-        "idle": "creature.creature_golem_stan.idle",
-        "walk": "creature.creature_golem_stan.walk",
-        "run": "creature.creature_golem_stan.run",
-        "attack": "creature.creature_golem_stan.attack",
-        "hit": "creature.creature_golem_stan.hit",
-        "death": "creature.creature_golem_stan.death",
-        "ability.creature.warden_sweep": "creature.creature_golem_stan.attack",
-        "ability.creature.warden_fall": "creature.creature_golem_stan.attack",
-        "ability.creature.warden_grasp": "creature.creature_golem_stan.attack"
+        "idle": "creature.creature_d5_stone_giant.idle",
+        "walk": "creature.creature_d5_stone_giant.walk",
+        "run": "creature.creature_d5_stone_giant.run",
+        "attack": "creature.creature_d5_stone_giant.attack",
+        "hit": "creature.creature_d5_stone_giant.hit",
+        "death": "creature.creature_d5_stone_giant.death",
+        "ability.creature.warden_sweep": "creature.creature_d5_stone_giant.attack",
+        "ability.creature.warden_fall": "creature.creature_d5_stone_giant.attack",
+        "ability.creature.warden_grasp": "creature.creature_d5_stone_giant.attack"
       },
       "voice": "animated_armour",
       "flesh": "plate",
@@ -4578,8 +4580,8 @@
         "walk": "move_heavy",
         "run": "move_heavy"
       },
-      "uniform_scale": 2.5,
-      "note": "Native Stan skin/rest/C1 takes, full-size original maps plus CC0 Rock064 normals and native Blender chipped-edge detail; faint violet joint seams."
+      "uniform_scale": 1.8,
+      "note": "MR-0002 giant stone: armoured stone titan, 4K PBR, 79-bone deform rig; accepted UAL humanoid takes retargeted and slowed for weight."
     },
     "creature.beast.hound_pup": {
       "model": "creature_wm_grey_wolf_b",

@@ -186,6 +186,11 @@ sections:
       - binds: [creature_d5_stan_carved]
         text: "Stan - The Golem by ShyrAssets, CC BY 4.0. Original rig, native 2K surfaces and animations; Blender chipped-edge/surface geometry and faint violet joint seams for Otherreach. Rock064 surface normal texture by ambientCG, CC0."
         url: "https://www.fab.com/listings/0a80c04e-ad02-4bf3-a059-f98ee9bf782e"
+      - binds: [creature_d5_rock_golem]
+        text: "Rock Golem by Dm3d (revision of hendori-sama / umask007 work, Yughues texture), CC BY-SA 3.0, OpenGameArt. Mirrored to a full body, rescaled and given a walk for Otherreach."
+        url: "https://opengameart.org/content/rock-golem"
+      - binds: [creature_d5_stone_giant]
+        text: "Giant stone Rigged Game Ready by Silent Wolf, BlenderKit Royalty Free License. Rescaled to one unit scale; Universal Animation Library takes by Quaternius (CC0) retargeted and slowed for Otherreach."
       - ledger: [A-W01]
         binds: [creature_wm_]
         text: "Creature models and animations: WildMesh 3D (UNITY Animated Animals Realistic Pack; 100 MODELS), used under the WildMesh Standard licence."
