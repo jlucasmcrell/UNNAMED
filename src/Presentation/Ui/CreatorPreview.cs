@@ -112,6 +112,8 @@ public sealed partial class CreatorPreview : TextureRect
         UseLight(0);
     }
 
+    private string? _model;
+
     /// <summary>
     /// Draw this body: <paramref name="model"/> on the player's binding (null: the greybox mannequin, as the game would), its arms at the
     /// build's <paramref name="armSplay"/>, wearing <paramref name="worn"/>. A body already
@@ -120,6 +122,7 @@ public sealed partial class CreatorPreview : TextureRect
     public void Show(string? model, string? people, float armSplay, WornOutfit worn,string? weapon=null)
     {
         string key = (model ?? "") + "|" + people;
+        _model = model;
         if (!_figures.TryGetValue(key, out var figure))
         {
             figure = (Figure?)MHCharacters.MetaHumanFigure.Create(_art, _bindings, "player", model) ?? (model is not null && SkinnedFigure.Create(_art, _bindings, "player", model, people: people) is { } skinned ? skinned : new Avatar());
@@ -142,7 +145,7 @@ public sealed partial class CreatorPreview : TextureRect
     public void Look(string? people, Domain.Character.CharacterAppearance? look)
     {
         if (_figure is not null)
-            PeopleAppearance.ApplyLook(_figure, people, look, _art, _figure.Name);
+            PeopleAppearance.ApplyLook(_figure, people, look, _art, _model);
     }
 
     /// <summary>Turn the body by an angle, in radians.</summary>

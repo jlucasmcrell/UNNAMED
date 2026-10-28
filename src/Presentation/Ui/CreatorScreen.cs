@@ -299,6 +299,10 @@ public partial class CreatorScreen : CanvasLayer
     /// <summary>The ids of the bodies the Body step offers <paramref name="people"/> that this build draws (the creator-shots harness walks these).</summary>
     public IReadOnlyList<string> DrawnBodyIds(string people) => OfferedBodies(people).Where(o => o.Installed).Select(o => o.Body.Id).ToList();
 
+    /// <summary>The body choosing <paramref name="people"/> puts the draft on (the gate proof lays its walk out with it).</summary>
+    public string DefaultBodyFor(string people) =>
+        OfferedBodies(people).FirstOrDefault(o => o.Installed)?.Id ?? CharacterSpec.DefaultBodyPreset;
+
     /// <summary>Whether this build draws a baked body for <paramref name="people"/>: one of its offered bodies is installed and baked.</summary>
     private bool Drawn(string people) =>
         (people is "people.veth" or "people.orenth" or "people.kal" or "people.siann" && NativeBase("f") is not null && NativeBase("m") is not null)
@@ -509,7 +513,8 @@ public partial class CreatorScreen : CanvasLayer
         _body.AddChild(PendingNote());
         _body.AddChild(HeightSection());
         if (NativeActive) _body.AddChild(NativeBodyPresets());
-        _body.AddChild(SwatchSection("Skin", LookSwatches.SkinSlider, LookSwatches.Skin(Draft.PeopleId), new Color(.36f, .26f, .2f), multiply: true));
+        if (!NativeActive || Draft.PeopleId == PeopleLooks.Kal)
+            _body.AddChild(SwatchSection(NativeActive ? "Stone colour" : "Skin", LookSwatches.SkinSlider, LookSwatches.Skin(Draft.PeopleId), new Color(.36f, .26f, .2f), multiply: true));
         if (Draft.PeopleId == PeopleLooks.Kal)
             _body.AddChild(StoneSection());
         _body.AddChild(SliderSection("body", "Shape", "HumGen body proportions"));

@@ -15,6 +15,11 @@ from keep_native_eye_radius import keep_radius
 ROOT = Path(__file__).resolve().parents[2]
 WORK = ROOT / 'work/creator'
 ART = WORK / 'game/primary/rigged'
+# Native teeth/tongue atlases (HumGenMouth.Apply) ship beside the rigs.
+mouth = ART / 'humgen_mouth'
+mouth.mkdir(parents=True, exist_ok=True)
+for map_name in ('TeethTongueSet_C_2K.png', 'TeethTongueSet_N_2K.png', 'TeethTongueSet_ROUGH_2K.png'):
+    shutil.copy2(Path('D:/HumGen Content/textures/teeth') / map_name, mouth / map_name)
 for sex in ('female', 'male'):
     source = WORK / sex
     record = json.loads((source / 'export_receipt.json').read_text(encoding='utf-8'))

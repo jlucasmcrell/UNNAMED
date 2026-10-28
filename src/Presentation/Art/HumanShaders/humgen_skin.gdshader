@@ -33,6 +33,12 @@ uniform float native_sss_scale = .01;
 uniform float native_saturation = .88;
 uniform float native_roughness_floor = .45;
 uniform float native_specular_scale = .65;
+// HumGen's creator values remain live over its native texture set.  These are
+// deliberately colour corrections, never a replacement skin texture.
+uniform float native_tone = 1.0;
+uniform float native_redness = 0.0;
+uniform float native_creator_saturation = 1.0;
+uniform bool opal_procedural_mask = false;
 varying float native_specular;
 
 uniform sampler2D texture_roughness : hint_roughness_r, filter_linear_mipmap, repeat_enable;
@@ -104,6 +110,9 @@ uniform float stone_normal_y : hint_range(-1.0, 1.0) = 1.0;
 uniform vec3 stone_tint : source_color = vec3(1.0);
 // how much of the tint's hue the whole stone takes, beyond the skin tone it already scales
 uniform float stone_tint_hue : hint_range(0.0, 2.0) = 1.0;
+// A Kal on a body with no baked stone maps (the creator's native base): the same slate plates and
+// crack network, spread from the coverage alone. The race bodies keep their own baked maps.
+uniform bool stone_procedural = false;
 
 // Siann: white mineral base and restrained grazing pink/green/blue pearl. No violet.
 group_uniforms siann_opal;
@@ -113,6 +122,9 @@ uniform float opal_pale : hint_range(0.0, 1.0) = 0.6;
 uniform float opal_sheen : hint_range(0.0, 1.0) = 0.85;
 uniform float opal_traces : hint_range(0.0, 1.0) = 0.4;
 uniform vec3 opal_pearl : source_color = vec3(0.84, 0.85, 0.86);
+// How much of the skin's own light and dark (pores, stubble shadow) and its own pink survives the white base.
+uniform float opal_grain : hint_range(0.0, .3) = .12;
+uniform float opal_warm : hint_range(0.0, 1.0) = 0.0;
 
 group_uniforms u_v;
 uniform vec3 uv1_scale = vec3(1.);
@@ -206,6 +218,10 @@ void fragment() {
 	if (native_humgen) {
 		float luminance = dot(final_albedo, vec3(.2126, .7152, .0722));
 		final_albedo = mix(vec3(luminance), final_albedo, native_saturation);
+		final_albedo *= native_tone;
+		final_albedo.r += native_redness * .12;
+		float creator_luma = dot(final_albedo, vec3(.2126, .7152, .0722));
+		final_albedo = mix(vec3(creator_luma), final_albedo, native_creator_saturation);
 	}
 
 	float metallic_tex = dot(texture(texture_metallic, base_uv), metallic_texture_channel);
@@ -245,7 +261,18 @@ void fragment() {
 	NORMAL_MAP_DEPTH = normal_strength;
 
 	stone = 0.0;
-	if (use_stone){
+	if (use_stone && stone_procedural){
+		float plate = opal_noise(base_uv * 96.0) * .62 + opal_noise(base_uv * 26.0) * .38;
+		float spread = 1.0 - clamp(stone_coverage, 0., 1.);
+		stone = smoothstep(spread, spread + .22, plate);
+		vec3 rock = vec3(.33, .34, .36) * stone_tint;
+		float skin_luma = max(dot(ALBEDO, vec3(.299, .587, .114)), .02);
+		rock *= mix(1.0, clamp(max(skin_luma, stone_floor) * 1.05 / max(dot(rock, vec3(.299, .587, .114)), .02), .5, 8.0), stone_match);
+		float crack = 1.0 - smoothstep(.45, .5, abs(plate - .5));
+		ALBEDO = mix(ALBEDO, rock * (1.0 - crack * stone_crack_dark), stone);
+		ROUGHNESS = mix(ROUGHNESS, .8, stone);
+		SPECULAR = mix(SPECULAR, .3, stone);
+	} else if (use_stone){
 		vec4 rgbh = texture(stone_rgbh, base_uv);
 		vec3 rmb = texture(stone_rm, base_uv).rgb;
 		vec2 px = 1.5 / vec2(textureSize(stone_rgbh, 0));
@@ -280,10 +307,12 @@ void fragment() {
 
 	plain = stone * .8;
 	if (use_opal){
-		vec2 om = texture(opal_mask, base_uv).rg;
+		vec2 om = opal_procedural_mask ? vec2(1.) : texture(opal_mask, base_uv).rg;
 		float luma = dot(ALBEDO, vec3(.299, .587, .114));
 		// White mineral base retains luminance texture/pores but removes brown socket pigment.
-		ALBEDO = mix(ALBEDO, opal_pearl * clamp(.94 + (luma - .5) * .12, .87, .99), opal_pale);
+		vec3 skin_chroma = ALBEDO / max(luma, .05);
+		ALBEDO = mix(ALBEDO, opal_pearl * clamp(.94 + (luma - .5) * opal_grain, .87, .99), opal_pale);
+		ALBEDO *= mix(vec3(1.), skin_chroma, opal_warm);
 		float nv = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
 		float grazing = pow(1.0 - nv, 2.5);
 		// Ordered pink -> green -> blue; never interpolate blue directly into pink (violet).

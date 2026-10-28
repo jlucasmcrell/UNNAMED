@@ -43,8 +43,35 @@ public sealed class HumGenCreatorData
 
     public int Value(CharacterAppearance look, CreatorCatalogue catalogue, string people, CreatorSlider slider) =>
         look.Sliders.TryGetValue(slider.Id, out int moved) ? Math.Clamp(moved, slider.Min, slider.Max)
+        : Authored(look.Face, slider.Id) is int authored ? Math.Clamp(authored, slider.Min, slider.Max)
         : people is "people.siann" or "people.kal" && Key(slider.Humgen) is not null ? slider.Default
         : Math.Clamp(catalogue.Value(look, slider), slider.Min, slider.Max);
+
+    /// <summary>
+    /// A colour slider's value as the face preset itself was authored with it, in the slider's stored units: the native
+    /// texture set already carries that colour, so an untouched slider must sit on it rather than on the catalogue's median.
+    /// </summary>
+    private int? Authored(string? face, string id)
+    {
+        if (face is null || !_faces.TryGetValue(face, out var option)) return null;
+        var preset = option.GetProperty("native");
+        if (!preset.TryGetProperty("skin", out var skin) || !preset.TryGetProperty("hair", out var hair)) return null;
+        if (!hair.TryGetProperty("regular_hair", out var strands) || !hair.TryGetProperty("eyebrows", out var brows)) return null;
+        return id switch
+        {
+            "skin.tone" => Units(skin, "tone"),
+            "skin.redness" => Units(skin, "redness"),
+            "skin.saturation" => Units(skin, "saturation"),
+            "hair.lightness" => Units(strands, "lightness"),
+            "hair.redness" => Units(strands, "redness"),
+            "brows.lightness" => Units(brows, "lightness"),
+            "brows.redness" => Units(brows, "redness"),
+            _ => null,
+        };
+    }
+
+    private static int? Units(JsonElement owner, string name) =>
+        owner.TryGetProperty(name, out var value) ? (int)Math.Round(value.GetSingle() * 1000) : null;
 
     public CharacterAppearance Reset(CharacterAppearance look, CreatorCatalogue catalogue, string people, string panel, string group)
     {

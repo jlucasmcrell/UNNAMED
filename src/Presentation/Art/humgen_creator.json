@@ -190,7 +190,6 @@
   },
   {
    "model": "humgen_veth_m_face_holt",
-   "face_of": "humgen_player_mateo_m",
    "sex": "m",
    "face": "face.veth.m_holt",
    "age": 30,
@@ -198,11 +197,11 @@
    "hair": "hair.veth.m_holt",
    "facial_hair": "facehair.veth.m_holt",
    "outfit": "outfit.extra_outfits_pack.pirate",
-   "footwear": "footwear.extra_outfits_pack.pirate_boots"
+   "footwear": "footwear.extra_outfits_pack.pirate_boots",
+   "face_of": "humgen_player_mateo_m"
   },
   {
    "model": "humgen_veth_m_face_marsh",
-   "face_of": "humgen_player_mateo_m",
    "sex": "m",
    "face": "face.veth.m_marsh",
    "age": 30,
@@ -210,11 +209,11 @@
    "hair": "hair.veth.m_marsh",
    "facial_hair": null,
    "outfit": "outfit.extra_outfits_pack.pirate",
-   "footwear": "footwear.extra_outfits_pack.pirate_boots"
+   "footwear": "footwear.extra_outfits_pack.pirate_boots",
+   "face_of": "humgen_player_mateo_m"
   },
   {
    "model": "humgen_veth_m_face_tarr",
-   "face_of": "humgen_player_mateo_m",
    "sex": "m",
    "face": "face.veth.m_tarr",
    "age": 30,
@@ -222,11 +221,11 @@
    "hair": "hair.veth.m_tarr",
    "facial_hair": "facehair.veth.m_tarr",
    "outfit": "outfit.extra_outfits_pack.pirate",
-   "footwear": "footwear.extra_outfits_pack.pirate_boots"
+   "footwear": "footwear.extra_outfits_pack.pirate_boots",
+   "face_of": "humgen_player_mateo_m"
   },
   {
    "model": "humgen_veth_f_face_holt",
-   "face_of": "humgen_player_ada_f",
    "sex": "f",
    "face": "face.veth.f_holt",
    "age": 30,
@@ -234,11 +233,11 @@
    "hair": "hair.veth.f_holt",
    "facial_hair": null,
    "outfit": "outfit.extra_outfits_pack.pirate",
-   "footwear": "footwear.extra_outfits_pack.pirate_boots"
+   "footwear": "footwear.extra_outfits_pack.pirate_boots",
+   "face_of": "humgen_player_ada_f"
   },
   {
    "model": "humgen_veth_f_face_marsh",
-   "face_of": "humgen_player_ada_f",
    "sex": "f",
    "face": "face.veth.f_marsh",
    "age": 30,
@@ -246,11 +245,11 @@
    "hair": "hair.veth.f_marsh",
    "facial_hair": null,
    "outfit": "outfit.extra_outfits_pack.pirate",
-   "footwear": "footwear.extra_outfits_pack.pirate_boots"
+   "footwear": "footwear.extra_outfits_pack.pirate_boots",
+   "face_of": "humgen_player_ada_f"
   },
   {
    "model": "humgen_veth_f_face_tarr",
-   "face_of": "humgen_player_ada_f",
    "sex": "f",
    "face": "face.veth.f_tarr",
    "age": 30,
@@ -258,7 +257,8 @@
    "hair": "hair.veth.f_tarr",
    "facial_hair": null,
    "outfit": "outfit.extra_outfits_pack.pirate",
-   "footwear": "footwear.extra_outfits_pack.pirate_boots"
+   "footwear": "footwear.extra_outfits_pack.pirate_boots",
+   "face_of": "humgen_player_ada_f"
   }
  ],
  "sliders": [
@@ -1110,6 +1110,28 @@
    "scale": 1
   },
   {
+   "id": "brows.lightness",
+   "label": "Lightness",
+   "panel": "face",
+   "group": "Brows",
+   "humgen": "brows.lightness",
+   "min": 0,
+   "max": 4000,
+   "default": 100,
+   "scale": 0.001
+  },
+  {
+   "id": "brows.redness",
+   "label": "Redness",
+   "panel": "face",
+   "group": "Brows",
+   "humgen": "brows.redness",
+   "min": 0,
+   "max": 1000,
+   "default": 900,
+   "scale": 0.001
+  },
+  {
    "id": "hair.lightness",
    "label": "Lightness",
    "panel": "hair",
@@ -1165,6 +1187,17 @@
    "scale": 0.001
   },
   {
+   "id": "eyes.lightness",
+   "label": "Iris lightness",
+   "panel": "face",
+   "group": "Eyes",
+   "humgen": "eyes.lightness",
+   "min": 300,
+   "max": 2000,
+   "default": 1000,
+   "scale": 0.001
+  },
+  {
    "id": "face.eye_depth",
    "label": "Eye depth",
    "panel": "face",
@@ -1187,8 +1220,8 @@
    "scale": 0.001
   },
   {
-   "id": "face.eye_height",
-   "label": "Eye height",
+   "id": "face.eye_height_fit",
+   "label": "Eye height (fit)",
    "panel": "face",
    "group": "Eyes",
    "humgen": "Eye Height",
@@ -1285,6 +1318,7 @@
     "face.ear_turn": 1094,
     "face.ear_width": -749,
     "face.age": 57,
+    "brows.lightness": 97,
     "hair.lightness": 343,
     "hair.redness": 266
    },
@@ -1518,6 +1552,8 @@
    },
    "values": {
     "face.age": 32,
+    "brows.lightness": 75,
+    "brows.redness": 820,
     "hair.lightness": 101,
     "hair.redness": 1000
    },
@@ -2098,6 +2134,7 @@
     "face.ear_turn": -976,
     "face.ear_width": -266,
     "face.age": 63,
+    "brows.lightness": 97,
     "hair.lightness": 1736,
     "hair.redness": 177,
     "skin.redness": -354,
@@ -4009,6 +4046,8 @@
     "face.ear_turn": -1,
     "face.ear_width": 60,
     "face.age": 70,
+    "brows.lightness": 1085,
+    "brows.redness": 463,
     "hair.lightness": 2343,
     "hair.redness": 101
    },
@@ -4290,6 +4329,7 @@
     "face.ear_lobe_size": -390,
     "face.ear_turn": 803,
     "face.ear_width": -385,
+    "brows.lightness": 97,
     "hair.lightness": 141,
     "hair.redness": 1000
    },
@@ -4574,6 +4614,7 @@
     "face.ear_lobe_size": 60,
     "face.ear_turn": 1,
     "face.ear_width": 487,
+    "brows.lightness": 97,
     "hair.lightness": 141,
     "hair.redness": 1000,
     "skin.redness": -63,
@@ -4810,6 +4851,7 @@
    "values": {
     "body.overweight": 1000,
     "body.chest_width": 250,
+    "brows.lightness": 97,
     "hair.lightness": 141,
     "hair.redness": 1000,
     "skin.redness": -63,
@@ -5099,6 +5141,7 @@
     "face.ear_lobe_size": 799,
     "face.ear_turn": 179,
     "face.ear_width": -990,
+    "brows.lightness": 97,
     "hair.lightness": 141,
     "hair.redness": 1000,
     "skin.redness": -63,
@@ -5402,6 +5445,8 @@
     "face.ear_lobe_size": 81,
     "face.ear_turn": -252,
     "face.ear_width": -623,
+    "brows.lightness": 479,
+    "brows.redness": 1000,
     "hair.lightness": 300,
     "hair.redness": 1000,
     "skin.saturation": 807,
@@ -7385,6 +7430,8 @@
     "face.ear_turn": -130,
     "face.ear_width": 670,
     "face.age": 51,
+    "brows.lightness": 1387,
+    "brows.redness": 820,
     "hair.lightness": 2688,
     "hair.redness": 836
    },
@@ -7662,6 +7709,8 @@
     "face.ear_turn": 83,
     "face.ear_width": 574,
     "face.age": 20,
+    "brows.lightness": 1387,
+    "brows.redness": 820,
     "hair.lightness": 2688,
     "hair.redness": 533
    },
@@ -8225,6 +8274,7 @@
     "face.ear_turn": -134,
     "face.ear_width": -130,
     "face.age": 70,
+    "brows.lightness": 1543,
     "hair.lightness": 3315,
     "hair.redness": 406,
     "skin.tone": 761
@@ -8740,6 +8790,8 @@
    },
    "values": {
     "face.age": 70,
+    "brows.lightness": 1387,
+    "brows.redness": 297,
     "hair.lightness": 2688,
     "hair.redness": 0
    },
@@ -9042,6 +9094,8 @@
     "face.ear_turn": 354,
     "face.ear_width": 137,
     "face.age": 70,
+    "brows.lightness": 4000,
+    "brows.redness": 435,
     "hair.lightness": 2549,
     "hair.redness": 0,
     "skin.saturation": 855,
@@ -11059,6 +11113,8 @@
     "face.ear_turn": 111,
     "face.ear_width": -585,
     "face.age": 70,
+    "brows.lightness": 75,
+    "brows.redness": 820,
     "hair.lightness": 2152,
     "hair.redness": 146
    },
@@ -11291,6 +11347,7 @@
     "f": "models\\female\\Hispanic\\Tara.json"
    },
    "values": {
+    "brows.lightness": 97,
     "hair.lightness": 141,
     "hair.redness": 1000
    },
@@ -11532,6 +11589,7 @@
     "face.nose_nostril_turn": 676,
     "face.nose_tip_angle": 1270,
     "face.age": 47,
+    "brows.lightness": 97,
     "hair.lightness": 470,
     "hair.redness": 285,
     "skin.redness": -63,
@@ -11767,6 +11825,8 @@
    },
    "values": {
     "face.age": 70,
+    "brows.lightness": 2206,
+    "brows.redness": 0,
     "hair.lightness": 1735,
     "hair.redness": 0,
     "skin.redness": -114,
@@ -11981,6 +12041,8 @@
    },
    "values": {
     "face.age": 70,
+    "brows.lightness": 1291,
+    "brows.redness": 460,
     "hair.lightness": 1544,
     "hair.redness": 0,
     "skin.tone": 1189
@@ -12405,6 +12467,8 @@
    },
    "values": {
     "face.age": 58,
+    "brows.lightness": 0,
+    "brows.redness": 460,
     "hair.lightness": 0,
     "hair.redness": 445,
     "skin.tone": 1189
@@ -14823,6 +14887,8 @@
     "face.ear_turn": -18,
     "face.ear_width": 359,
     "face.age": 70,
+    "brows.lightness": 303,
+    "brows.redness": 425,
     "hair.lightness": 1113,
     "hair.redness": 0,
     "skin.redness": -165
@@ -15080,6 +15146,8 @@
     "face.ear_turn": 117,
     "face.ear_width": -293,
     "face.age": 70,
+    "brows.lightness": 950,
+    "brows.redness": 372,
     "hair.lightness": 1121,
     "hair.redness": 0,
     "skin.redness": -425,
@@ -16654,6 +16722,8 @@
     "face.ear_turn": 754,
     "face.ear_width": 78,
     "face.age": 50,
+    "brows.lightness": 1259,
+    "brows.redness": 1000,
     "hair.lightness": 1915,
     "hair.redness": 659,
     "skin.saturation": 865,
@@ -16919,6 +16989,8 @@
     "face.ear_turn": 258,
     "face.ear_width": 772,
     "face.age": 70,
+    "brows.lightness": 2682,
+    "brows.redness": 647,
     "hair.lightness": 2354,
     "hair.redness": 178,
     "skin.redness": 620,
@@ -17461,6 +17533,8 @@
     "face.ear_turn": 82,
     "face.ear_width": 219,
     "face.age": 50,
+    "brows.lightness": 1000,
+    "brows.redness": 1000,
     "hair.lightness": 1000,
     "hair.redness": 691,
     "skin.saturation": 983,
@@ -17726,6 +17800,7 @@
     "face.ear_lobe_size": -189,
     "face.ear_turn": 107,
     "face.ear_width": 675,
+    "brows.lightness": 1897,
     "hair.lightness": 859,
     "hair.redness": 577,
     "skin.redness": 967,
@@ -17991,6 +18066,7 @@
     "face.ear_lobe_size": -679,
     "face.ear_turn": 367,
     "face.ear_width": 1247,
+    "brows.lightness": 1897,
     "hair.lightness": 3416,
     "hair.redness": 691,
     "skin.redness": 620,
@@ -18257,6 +18333,7 @@
     "face.ear_turn": -261,
     "face.ear_width": -224,
     "face.age": 24,
+    "brows.lightness": 1897,
     "hair.lightness": 2303,
     "hair.redness": 697,
     "skin.redness": 139,
@@ -18517,6 +18594,7 @@
     "face.ear_turn": 698,
     "face.ear_width": 812,
     "face.age": 50,
+    "brows.lightness": 2699,
     "hair.lightness": 2220,
     "hair.redness": 534
    },
@@ -18790,6 +18868,7 @@
     "face.ear_turn": -210,
     "face.ear_width": 176,
     "face.age": 38,
+    "brows.lightness": 1897,
     "hair.lightness": 1999,
     "hair.redness": 514,
     "skin.redness": 1000,
@@ -20151,6 +20230,8 @@
     "face.ear_turn": 414,
     "face.ear_width": 450,
     "face.age": 70,
+    "brows.lightness": 1063,
+    "brows.redness": 772,
     "hair.lightness": 962,
     "hair.redness": 323,
     "skin.redness": -11,
@@ -20434,6 +20515,8 @@
     "face.ear_turn": -671,
     "face.ear_width": 859,
     "face.age": 34,
+    "brows.lightness": 0,
+    "brows.redness": 1000,
     "hair.lightness": 0,
     "hair.redness": 1000,
     "skin.redness": -12,
@@ -20709,6 +20792,7 @@
     "face.ear_lobe_size": 361,
     "face.ear_turn": 201,
     "face.ear_width": -347,
+    "brows.lightness": 1897,
     "hair.lightness": 277,
     "hair.redness": 691,
     "skin.redness": 215,
@@ -20967,6 +21051,8 @@
     "face.ear_turn": 82,
     "face.ear_width": -313,
     "face.age": 70,
+    "brows.lightness": 582,
+    "brows.redness": 460,
     "hair.lightness": 1595,
     "hair.redness": 445,
     "skin.tone": 1189
@@ -21224,6 +21310,8 @@
     "face.ear_turn": -236,
     "face.ear_width": 101,
     "face.age": 34,
+    "brows.lightness": 0,
+    "brows.redness": 1000,
     "hair.lightness": 0,
     "hair.redness": 1000,
     "skin.redness": -11,
@@ -21485,6 +21573,8 @@
     "face.ear_turn": 786,
     "face.ear_width": -105,
     "face.age": 34,
+    "brows.lightness": 0,
+    "brows.redness": 460,
     "hair.lightness": 0,
     "hair.redness": 445,
     "skin.redness": -12,
@@ -22671,7 +22761,7 @@
      "default": 0
     },
     "face.eye_height": {
-     "min": -1000,
+     "min": -1430,
      "max": 1000,
      "default": 0
     },
@@ -22870,6 +22960,16 @@
      "max": 90,
      "default": 30
     },
+    "brows.lightness": {
+     "min": 0,
+     "max": 4000,
+     "default": 100
+    },
+    "brows.redness": {
+     "min": 0,
+     "max": 1000,
+     "default": 900
+    },
     "hair.lightness": {
      "min": 0,
      "max": 3416,
@@ -22895,12 +22995,22 @@
      "max": 3000,
      "default": 1000
     },
+    "eyes.lightness": {
+     "min": 300,
+     "max": 2000,
+     "default": 1000
+    },
     "face.eye_depth": {
      "min": -1000,
      "max": 1000,
      "default": 0
     },
     "face.eye_distance": {
+     "min": -1000,
+     "max": 1000,
+     "default": 0
+    },
+    "face.eye_height_fit": {
      "min": -1000,
      "max": 1000,
      "default": 0
@@ -23033,7 +23143,7 @@
      "default": 0
     },
     "face.eye_height": {
-     "min": -1000,
+     "min": -1430,
      "max": 1000,
      "default": 0
     },
@@ -23232,6 +23342,16 @@
      "max": 90,
      "default": 30
     },
+    "brows.lightness": {
+     "min": 0,
+     "max": 4000,
+     "default": 100
+    },
+    "brows.redness": {
+     "min": 0,
+     "max": 1000,
+     "default": 900
+    },
     "hair.lightness": {
      "min": 0,
      "max": 3416,
@@ -23257,12 +23377,22 @@
      "max": 3000,
      "default": 1000
     },
+    "eyes.lightness": {
+     "min": 300,
+     "max": 2000,
+     "default": 1000
+    },
     "face.eye_depth": {
      "min": -1000,
      "max": 1000,
      "default": 0
     },
     "face.eye_distance": {
+     "min": -1000,
+     "max": 1000,
+     "default": 0
+    },
+    "face.eye_height_fit": {
      "min": -1000,
      "max": 1000,
      "default": 0
@@ -23395,7 +23525,7 @@
      "default": 0
     },
     "face.eye_height": {
-     "min": -1000,
+     "min": -1430,
      "max": 1000,
      "default": 0
     },
@@ -23594,6 +23724,16 @@
      "max": 90,
      "default": 30
     },
+    "brows.lightness": {
+     "min": 0,
+     "max": 4000,
+     "default": 100
+    },
+    "brows.redness": {
+     "min": 0,
+     "max": 1000,
+     "default": 900
+    },
     "hair.lightness": {
      "min": 0,
      "max": 3416,
@@ -23619,12 +23759,22 @@
      "max": 3000,
      "default": 1000
     },
+    "eyes.lightness": {
+     "min": 300,
+     "max": 2000,
+     "default": 1000
+    },
     "face.eye_depth": {
      "min": -1000,
      "max": 1000,
      "default": 0
     },
     "face.eye_distance": {
+     "min": -1000,
+     "max": 1000,
+     "default": 0
+    },
+    "face.eye_height_fit": {
      "min": -1000,
      "max": 1000,
      "default": 0
@@ -23757,9 +23907,9 @@
      "default": 0
     },
     "face.eye_height": {
-     "min": -180,
-     "max": 180,
-     "default": 0
+     "min": -300,
+     "max": 100,
+     "default": -60
     },
     "face.eye_orbit_size": {
      "min": -180,
@@ -23768,8 +23918,8 @@
     },
     "face.eye_tilt": {
      "min": 150,
-     "max": 400,
-     "default": 250
+     "max": 450,
+     "default": 300
     },
     "face.eye_width": {
      "min": 0,
@@ -23962,6 +24112,11 @@
      "default": 0
     },
     "face.eye_distance": {
+     "min": -180,
+     "max": 180,
+     "default": 0
+    },
+    "face.eye_height_fit": {
      "min": -180,
      "max": 180,
      "default": 0

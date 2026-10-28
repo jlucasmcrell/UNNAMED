@@ -40,7 +40,10 @@ def main():
     for name, shape in controls.items():
         if name in known or not shape.startswith('f_{'): continue
         group = shape.split('{', 1)[1].split('}', 1)[0]
-        data['sliders'].append(dict(id='face.' + slug(name), label=name.replace('_', ' ').capitalize(), panel='face',
+        slider_id, label = 'face.' + slug(name), name.replace('_', ' ').capitalize()
+        # "Eye Height" is a second native control beside eye_height: keep both, each with its own id.
+        if any(slider['id'] == slider_id for slider in data['sliders']): slider_id, label = slider_id + '_fit', label + ' (fit)'
+        data['sliders'].append(dict(id=slider_id, label=label, panel='face',
                                     group=groups.get(group, group.capitalize()), humgen=name, min=-1000, max=1000, default=0, scale=.001))
     for option in data['faces']:
         source = CONTENT / next(iter(option['paths'].values())).replace('\\', '/')
@@ -56,14 +59,17 @@ def main():
              'chin_size': (-550, -200, -350), 'nose_bridge_width': (-850, -550, -700),
              'nose_tip_width': (-700, -350, -500), 'nose_tip_size': (-650, -300, -450),
              'nose_nostril_flare': (-650, -250, -450), 'cheek_zygomatic_bone': (450, 850, 650),
-             'cheek_fullness': (-450, -100, -250), 'eye_height': (-350, -100, -220),
-             'eye_width': (0, 200, 100), 'eye_tilt': (150, 400, 250),
+             'cheek_fullness': (-450, -100, -250), 'eye_height': (-300, 100, -60),
+             'eye_width': (0, 200, 100), 'eye_tilt': (150, 450, 300),
              'lip_width': (-500, -200, -350), 'lip_cupid_bow': (100, 400, 250)}
     for people in ('veth', 'orenth', 'kal', 'siann'):
         allowed = {}
         for slider in data['sliders']:
             key, panel = slider['humgen'], slider['panel']
             lo, hi, default = slider['min'], slider['max'], slider['default']
+            # Canon fixes a Siann's own colours: chalk skin, white hair, ash brows and the violet iris.
+            if people == 'siann' and key.startswith(('hair.', 'skin.', 'brows.', 'eyes.')):
+                continue
             if people == 'siann' and key == 'age':
                 lo, hi, default = 18, 30, 30
             elif panel == 'body':
@@ -74,14 +80,12 @@ def main():
                     lo, hi, default = (450, 850, 650) if key == 'skinny' else (0, 200, 80) if key in ('muscular', 'overweight') else (-400, -100, -250)
                 elif people == 'kal':
                     lo, hi, default = (200, 800, 450) if key in ('muscular', 'overweight') else (0, 250, 50) if key == 'skinny' else (50, 450, 200)
-            elif panel == 'face' and key != 'age' and not key.startswith('skin.'):
+            elif panel == 'face' and key != 'age' and not key.startswith(('skin.', 'brows.', 'eyes.')):
                 lo, hi = slider['min'], slider['max']
                 if people == 'siann':
                     lo, hi, default = siann.get(key, (-180, 180, 0))
                 elif people == 'kal' and key in ('jaw_width', 'chin_width', 'cheek_zygomatic_bone'):
                     lo, hi, default = 100, 600, 300
-            elif people == 'siann' and key.startswith(('hair.', 'skin.')):
-                continue
             allowed[slider['id']] = dict(min=lo, max=hi, default=max(lo, min(hi, default)))
         rules['people.' + people] = allowed
     data['runtime'] = dict(schema=1, bases={'f': 'humgen_creator_female', 'm': 'humgen_creator_male'},

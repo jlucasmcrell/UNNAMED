@@ -55,6 +55,15 @@ public partial class CreatorScreen
         return Draft with { BodyPresetId = id, Appearance = NativeData.WithBuild(look, _catalogue, Draft.PeopleId, body.Build) };
     }
 
+    /// <summary>The native face presets the FACE step offers a sex, in catalogue order (the gate proof browses them).</summary>
+    public IReadOnlyList<string> NativeFaces(string sex) => _catalogue.Options(CreatorChoice.Face, sex).Select(o => o.Id).ToList();
+
+    /// <summary>How many HumGen body presets the FACE/BODY steps offer this body's sex (the gate proof browses them).</summary>
+    public int BodyPresetCount(string body) => NativeData.BodyPresets(body.Contains("_f.", StringComparison.Ordinal) ? "f" : "m").Count;
+
+    /// <summary>Choose a HumGen body preset as the Body step's menu does (the gate proof).</summary>
+    public void UseBodyPreset(int index) => Shape(look => NativeData.WithBodyPreset(look, _catalogue, Draft.PeopleId, Sex, index));
+
     /// <summary>The model drawn: the body type's, or the body baked as the chosen face of it.</summary>
     private string? Model => _catalogue.DrawnModel(OfferedBodies().FirstOrDefault(o => o.Id == Draft.BodyPresetId)?.Model, Draft.Appearance?.Face);
 
@@ -161,7 +170,8 @@ public partial class CreatorScreen
             section.AddChild(row);
             _body.AddChild(section);
         }
-        _body.AddChild(SwatchSection("Hair colour", LookSwatches.HairSlider, LookSwatches.Hair(Draft.PeopleId), new Color(.08f, .035f, .012f), multiply: false));
+        if (!NativeActive)
+            _body.AddChild(SwatchSection("Hair colour", LookSwatches.HairSlider, LookSwatches.Hair(Draft.PeopleId), new Color(.08f, .035f, .012f), multiply: false));
         if (Draft.PeopleId != PeopleLooks.Siann && _catalogue.Options(CreatorChoice.FacialHair, Sex).Count > 0)
             _body.AddChild(OptionSection(CreatorChoice.FacialHair, "Facial hair", "", none: "Clean-shaven"));
         _body.AddChild(SliderSection("hair", "Colour", ""));
@@ -175,7 +185,7 @@ public partial class CreatorScreen
             _body.AddChild(UiKit.Words($"Fit family: {race.FitFamily.Replace('_', ' ')}. What you start in is fitted to this body; gear found later is fitted by crafters.", 16, HudStyle.Muted));
         _body.AddChild(OptionSection(CreatorChoice.Outfit, "Outfit", "fitted by HumGen"));
         _body.AddChild(OptionSection(CreatorChoice.Footwear, "Footwear", ""));
-        if (_preview.WearsDyedCloth)
+        if (!NativeActive && _preview.WearsDyedCloth)
         {
             _body.AddChild(SwatchSection("Shirt", LookSwatches.ShirtSlider, LookSwatches.Shirts, Colors.Black, multiply: false));
             _body.AddChild(SwatchSection("Trousers", LookSwatches.TrouserSlider, LookSwatches.Trousers, Colors.Black, multiply: false));
@@ -380,6 +390,10 @@ public partial class CreatorScreen
         var options = _catalogue.Options(choice, Sex);
         if (BakedOnly)
             options = options.Where(o => _catalogue.IsBaked(choice, o.Id, Model)).ToList();
+        else if (NativeActive)
+            // A native groom or garment is offered once its own export exists: the body keeps its
+            // own until then, and a batch still running must not offer a choice it cannot draw.
+            options = options.Where(o => Installed(choice, o.Id)).ToList();
         var section = UiKit.Section(heading, BakedOnly ? "" : note);
         if (options.Count == 0)
         {
@@ -415,6 +429,11 @@ public partial class CreatorScreen
             section.AddChild(UiKit.Words(LaterWords, 16, HudStyle.Muted));
         return section;
     }
+
+    /// <summary>Whether this build holds a native groom's or garment's own export (the modular export batch writes one file per part).</summary>
+    private bool Installed(CreatorChoice choice, string id) =>
+        choice is not (CreatorChoice.Hair or CreatorChoice.FacialHair or CreatorChoice.Outfit or CreatorChoice.Footwear)
+        || _art.RiggedFile(HumGenCreatorData.Part(choice, Sex, id), "creator_part.json") is not null;
 
     /// <summary>The baked face's name on Confirm: "their own" for the body type's own face, else the face's shown name.</summary>
     private string FaceName(string? face) => _catalogue.Faces(Model).FirstOrDefault(f => f.Look.Face == face) is { FaceOf: not null } variant
