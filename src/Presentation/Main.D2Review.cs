@@ -129,9 +129,11 @@ public partial class Main
                 Mark("fence_vaulted", _controller.Authoritative);
 
                 // The ladder (D6): its box is world 449.6..450.0 x 754.9..755.9, 2.8 m. Stand east of it and run west into it.
-                await Go(new[] { (461.0, 750.4), (460.6, 750.4) }, 60);
-                _controller.SteerWorld(new Vector3(-1, 0, 0), Gait.Run, _camera);
-                await Rcd3Wait(.9);
+                await Go(new[] { (460.9, 750.4) }, 90);
+                // Walk into the ladder, not run: a run blows straight past the 0.5 m footprint before the mantle can take the body up.
+                _controller.SteerWorld(new Vector3(-1, 0, 0), Gait.Walk, _camera);
+                await Rcd3Wait(2.0);
+                Shot("ladder_pressing");
                 _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
                 await Rcd3Wait(1.2);
                 PressReport("ladder", -1, 0);
