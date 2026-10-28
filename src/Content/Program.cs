@@ -46,6 +46,8 @@ public static class Program
                 return ContentCliApp.ChatterCoverage(contentRoot);
             case "lore-coverage":
                 return ContentCliApp.LoreCoverage(contentRoot);
+            case "hooks":
+                return ContentCliApp.WorldHooks(contentRoot, format);
             case "schema-dump":
                 return ContentCliApp.SchemaDump(contentRoot, format);
             case "xref":
@@ -72,6 +74,7 @@ public static class Program
         Console.WriteLine("Commands:");
         Console.WriteLine("  lint           Validate all content files");
         Console.WriteLine("  chatter-coverage  List the chatter corpus's thin speaker x place x time-band cells");
+        Console.WriteLine("  hooks          Audit each area's placement against the world-hooks minimums (brief D15)");
         Console.WriteLine("  schema-dump    Dump schema information for content kinds");
         Console.WriteLine("  xref           Generate cross-reference report");
         Console.WriteLine("  help           Show this help message");
