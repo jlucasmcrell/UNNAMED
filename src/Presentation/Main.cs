@@ -1102,8 +1102,8 @@ public partial class Main : Node3D
             : $"UNNAMED player body: no native MetaHuman bundle at {MHCharacters.MetaHumanFigure.AssetRoot} (no catalog.json); the avatar falls back");
         if (VisualOptions.PlayerBody == "none")
         {
+            // The node is never added: nothing is drawn where the player would stand, and the camera still follows the body.
             _avatar = new Avatar();
-            AddChild(_avatar);
             GD.Print("UNNAMED player body: none - the run draws no player (hook close-up)");
         }
         else if (MHCharacters.MetaHumanFigure.Create(_art, _bindings, "player") is { } native)
@@ -1131,7 +1131,8 @@ public partial class Main : Node3D
             _art.Coverage.Fallback("person", "player", body is null ? "no binding: the greybox mannequin" : $"{_art.Why(body) ?? "not drawn"}: the greybox mannequin", body);
         }
         _avatar.Name = "Player";
-        AddChild(_avatar);
+        if (VisualOptions.PlayerBody != "none")
+            AddChild(_avatar);
         _camera = new CameraRig { Name = "CameraRig" };
         AddChild(_camera);
         if (MHCharacters.MetaHumanFigure.Available || VisualOptions.ComparisonCast is not null)
