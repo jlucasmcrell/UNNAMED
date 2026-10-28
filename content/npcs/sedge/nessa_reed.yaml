@@ -14,3 +14,7 @@ people_ref: people.veth
 dialogue_ref: dialogue.sedge.nessa_reed
 unique: true
 merchant_ref: merchant.sedge.nessa_reed
+# D18: the inn's fire is where the fen's meat and simples are made eatable and useful.
+teaches:
+  - { kind: recipe, recipe_ref: recipe.cooking.roast_meat, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.herbal.salve_minor, by_dialogue: true }

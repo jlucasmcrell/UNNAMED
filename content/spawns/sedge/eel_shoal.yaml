@@ -1,0 +1,25 @@
+id: spawn.sedge.eel_shoal
+kind: spawn
+schema: 1
+display_key: spawn.sedge.eel_shoal.name
+tags:
+- spawn
+notes: "PROPOSED Sedge Gate 4 pack - the channel's eels hunt together where the tide runs. Outside the service posts; the causeway stays the dry way past them."
+region_ref: region.sedge_levels
+creatures:
+- creature_ref: creature.beast.sedge_eel_serpent
+  count:
+  - 3
+  - 3
+  role: pack_hunter
+at:
+  position_m:
+  - 4820
+  - 1240
+  radius_m: 0
+level_band:
+- 12
+- 12
+respawn:
+  kind: none
+tier_hint: B

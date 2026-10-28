@@ -8657,6 +8657,14 @@ structures:
 - id: sedge_oath_outer_seal
   box_m: [5014.7, 45.25, 5017.3, 45.55]
   height_m: 6
+# D18: the Tollpiles stone stands where the tolls are taken, so death returns you to the crossing you paid at.
+- id: sedge_tollpiles_waystone
+  circle_m:
+  - 5001.6
+  - 1075.4
+  - 0.9
+  height_m: 1.6
+
 doors: []
 walkable_surfaces:
 - origin_m: [4996.5, 0]
@@ -14487,3 +14495,120 @@ nodes:
 - name: sedge_tidewashed_spar
   node_ref: node.sedge.tidewashed_spar
   position_m: [4798, 882]
+- name: sedge_fen_woundmoss_1
+  node_ref: node.herb.woundmoss
+  position_m:
+  - 4996.9
+  - 1104.0
+- name: sedge_fen_woundmoss_2
+  node_ref: node.herb.woundmoss
+  position_m:
+  - 5003.1
+  - 1104.0
+- name: sedge_fen_boneleaf
+  node_ref: node.herb.boneleaf
+  position_m:
+  - 4996.9
+  - 1112.0
+- name: sedge_fen_ashbloom
+  node_ref: node.firstplay.ashbloom
+  position_m:
+  - 5003.1
+  - 1112.0
+- name: orr_camp_boneleaf
+  node_ref: node.herb.boneleaf
+  position_m:
+  - 4760.0
+  - 1340.0
+- name: sedge_fen_bog_cotton_1
+  node_ref: node.fibre.bog_cotton
+  position_m:
+  - 5003.1
+  - 1128.0
+- name: sedge_fen_bog_cotton_2
+  node_ref: node.fibre.bog_cotton
+  position_m:
+  - 4996.9
+  - 1136.0
+- name: sedge_fen_deadfall_1
+  node_ref: node.wood.deadfall
+  position_m:
+  - 4996.9
+  - 1120.0
+- name: sedge_fen_deadfall_2
+  node_ref: node.wood.deadfall
+  position_m:
+  - 5003.1
+  - 1120.0
+- name: sedge_fen_ash_stand
+  node_ref: node.wood.ash_stand
+  position_m:
+  - 4996.9
+  - 1128.0
+- name: sedge_bank_iron_1
+  node_ref: node.ore.loose_iron
+  position_m:
+  - 5003.1
+  - 1136.0
+- name: sedge_bank_iron_2
+  node_ref: node.ore.loose_iron
+  position_m:
+  - 4996.9
+  - 1144.0
+- name: sedge_eel_snare
+  node_ref: node.trap.larder_snare
+  position_m:
+  - 5003.1
+  - 1144.0
+- name: orr_camp_pelt_snare
+  node_ref: node.trap.pelt_snare
+  position_m:
+  - 4758.0
+  - 1345.0
+
+- name: sedge_fen_deadfall_3
+  node_ref: node.wood.deadfall
+  position_m:
+  - 5003.1
+  - 1152.0
+
+stations:
+- key: station.sedge_tollpiles_forge
+  kind: forge
+  position_m:
+  - 5003.0
+  - 1095.0
+- key: station.sedge_tollpiles_anvil
+  kind: anvil
+  position_m:
+  - 5002.2
+  - 1092.6
+- key: station.sedge_tollpiles_workbench
+  kind: workbench
+  position_m:
+  - 4997.4
+  - 1096.0
+- key: station.sedge_inn_cookfire
+  kind: cookfire
+  position_m:
+  - 4996.9
+  - 1084.4
+- key: station.sedge_toll_board
+  kind: notice_board
+  position_m:
+  - 5001.2
+  - 1073.2
+- key: station.sedge_inn_still
+  kind: alembic
+  position_m:
+  - 4996.9
+  - 1092.0
+
+waystones:
+- key: waystone.sedge_tollpiles
+  name: Tollpiles stone
+  structure: sedge_tollpiles_waystone
+  location_ref: location.sedge_tollpiles
+  arrival_m:
+  - 5001.6
+  - 1077.6

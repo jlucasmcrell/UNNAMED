@@ -110,6 +110,16 @@ areas:
     status: development
     band: "1-5"
 
+  # D18: Sedge is the project's water area - the first place whose defining feature is the water itself.
+  - slug: sedge-and-the-tollpiles
+    name: Sedge and the Tollpiles
+    region_ref: region.sedge_levels
+    locations: [location.sedge_causeway_arch, location.sedge_tollpiles, location.sedge_oath_house_outer,
+                location.sedge_orr_camp, location.sedge_pellow_cuts]
+    type: water
+    status: development
+    band: "11-15"
+
 # The evidence vocabulary the checker understands. Every hook names one. `unmodelled` means the
 # content model cannot carry it yet and says why, in words a task can be cut from.
 #   any_field:      {section, field}                      entries in a region section that carry the field

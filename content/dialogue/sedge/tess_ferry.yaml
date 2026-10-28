@@ -25,5 +25,10 @@ nodes:
         - 1343
         coin: 2
         min_tide_mm: 500
+    - id: teach
+      text: "Show me how you shoot the fen birds."
+      consequences:
+      - command: teach
+        refs: [ability.bow.aimed_shot]
     - id: leave
       text: Goodbye.

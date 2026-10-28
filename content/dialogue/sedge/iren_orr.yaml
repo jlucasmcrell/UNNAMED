@@ -25,5 +25,10 @@ nodes:
         - 1098.5
         coin: 2
         min_tide_mm: 500
+    - id: teach
+      text: "Show me the camp's knife work."
+      consequences:
+      - command: teach
+        refs: [ability.blade.power_strike]
     - id: leave
       text: Goodbye.

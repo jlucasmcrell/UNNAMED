@@ -15,3 +15,8 @@ people_ref: people.veth
 dialogue_ref: dialogue.sedge.oren_pin
 unique: true
 merchant_ref: merchant.sedge.oren_pin
+# D18: the Tollpiles craftsperson keeps the crossing's iron: billets, wedges and the crew's satchels.
+teaches:
+  - { kind: recipe, recipe_ref: recipe.smithing.iron_billet, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.smithing.fitting_wedge, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.outfitting.satchel, by_dialogue: true }

@@ -21,5 +21,10 @@ nodes:
       text: A dry berth and a rest.
       consequences:
       - command: rent_room
+    - id: teach
+      text: "Show me how you make that."
+      consequences:
+      - command: teach
+        refs: [recipe.cooking.roast_meat, recipe.herbal.salve_minor]
     - id: leave
       text: Goodbye.

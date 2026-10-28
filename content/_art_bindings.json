@@ -692,25 +692,325 @@
     }
   },
   "structures": {
-    "fs_needle": {"model": "ruin_fs_needle", "material": "metal", "offset": [1.49, 0, -0.112], "light": {"at": [-14, 4, 0], "colour": [0.62, 0.3, 1.0], "energy": 4.0, "range": 26, "shadows": false}, "set_goes_dark": true, "surface": "material_firstfold_iron", "surface_tint": [0.82, 0.84, 0.9], "edge_wear": 0.8},
-    "fs_gate": {"model": "ruin_fs_gate", "material": "metal"},
-    "fs_anchor_west": {"model": "ruin_fs_anchor", "material": "metal", "light": {"at": [0, 5.5, 0], "colour": [0.62, 0.3, 1.0], "energy": 3.0, "range": 16, "shadows": false}, "set_goes_dark": true},
-    "fs_anchor_northeast": {"model": "ruin_fs_anchor", "material": "metal", "light": {"at": [0, 5.5, 0], "colour": [0.62, 0.3, 1.0], "energy": 3.0, "range": 16, "shadows": false}, "set_goes_dark": true},
-    "fs_anchor_south": {"model": "ruin_fs_anchor", "material": "metal", "light": {"at": [0, 5.5, 0], "colour": [0.62, 0.3, 1.0], "energy": 3.0, "range": 16, "shadows": false}, "set_goes_dark": true},
-    "fs_panel": {"model": "ruin_fs_panel", "material": "stone", "offset": [-0.361, 0, -0.001]},
-    "fs_colonnade": {"model": "ruin_fs_colonnade", "material": "metal", "offset": [3.384, 0, 0.186], "surface": "material_firstfold_iron", "surface_tint": [1.12, 1.08, 1.02], "edge_wear": 0.8},
-    "fs_frame_north": {"model": "ruin_fs_frame", "material": "metal", "surface": "material_firstfold_iron", "surface_tint": [1.12, 1.08, 1.02], "edge_wear": 0.8},
-    "fs_frame_south": {"model": "ruin_fs_frame", "material": "metal", "surface": "material_firstfold_iron", "surface_tint": [1.12, 1.08, 1.02], "edge_wear": 0.8},
-    "fs_slab": {"model": "ruin_fs_slab", "material": "stone", "offset": [0.138, 0, -0.237], "surface": "material_firstfold_iron", "surface_tint": [1.06, 1.0, 0.94], "edge_wear": 0.8},
-    "fs_block": {"model": "ruin_fs_block", "material": "stone", "offset": [-8.336, 0, 2.234], "surface": "material_firstfold_iron", "surface_tint": [1.06, 1.0, 0.94], "edge_wear": 0.8},
-    "fs_rib_north": {"model": "ruin_fs_rib_a", "material": "metal", "offset": [-0.49, 0, -4.324], "surface": "material_firstfold_iron", "surface_tint": [0.92, 0.96, 1.06], "edge_wear": 0.8, "light": {"at": [-3.0, 9.0, 30.5], "colour": [1.0, 0.96, 0.88], "energy": 1.6, "range": 30, "shadows": false, "daylight": -1}},
-    "fs_rib_east": {"model": "ruin_fs_rib_c", "material": "metal", "offset": [-0.065, 0, -0.176], "surface": "material_firstfold_iron", "surface_tint": [0.92, 0.96, 1.06], "edge_wear": 0.8},
-    "fs_pylon_a": {"model": "ruin_fs_pylon_a", "material": "metal", "offset": [-0.364, 0, -0.441], "surface": "material_firstfold_iron", "surface_tint": [1.0, 1.0, 1.0], "edge_wear": 0.8},
-    "fs_pylon_b": {"model": "ruin_fs_pylon_b", "material": "metal", "offset": [-0.184, 0, -0.113], "surface": "material_firstfold_iron", "surface_tint": [1.0, 1.0, 1.0], "edge_wear": 0.8},
-    "fs_pylon_c": {"model": "ruin_fs_pylon_c", "material": "metal", "offset": [-0.046, 0, 0.482], "surface": "material_firstfold_iron", "surface_tint": [1.0, 1.0, 1.0], "edge_wear": 0.8},
-    "fs_stub_a": {"model": "ruin_fs_stub_a", "material": "metal", "offset": [0.428, 0, -0.83], "surface": "material_firstfold_iron", "surface_tint": [0.95, 0.95, 0.97], "edge_wear": 0.8},
-    "fs_stub_b": {"model": "ruin_fs_stub_b", "material": "metal", "offset": [0.568, 0, -0.08], "surface": "material_firstfold_iron", "surface_tint": [0.95, 0.95, 0.97], "edge_wear": 0.8},
-    "fs_stub_c": {"model": "ruin_fs_stub_c", "material": "metal", "offset": [0.688, 0, -0.284], "surface": "material_firstfold_iron", "surface_tint": [0.95, 0.95, 0.97], "edge_wear": 0.8},
+    "fs_needle": {
+      "model": "ruin_fs_needle",
+      "material": "metal",
+      "offset": [
+        1.49,
+        0,
+        -0.112
+      ],
+      "light": {
+        "at": [
+          -14,
+          4,
+          0
+        ],
+        "colour": [
+          0.62,
+          0.3,
+          1.0
+        ],
+        "energy": 4.0,
+        "range": 26,
+        "shadows": false
+      },
+      "set_goes_dark": true,
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        0.82,
+        0.84,
+        0.9
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_gate": {
+      "model": "ruin_fs_gate",
+      "material": "metal"
+    },
+    "fs_anchor_west": {
+      "model": "ruin_fs_anchor",
+      "material": "metal",
+      "light": {
+        "at": [
+          0,
+          5.5,
+          0
+        ],
+        "colour": [
+          0.62,
+          0.3,
+          1.0
+        ],
+        "energy": 3.0,
+        "range": 16,
+        "shadows": false
+      },
+      "set_goes_dark": true
+    },
+    "fs_anchor_northeast": {
+      "model": "ruin_fs_anchor",
+      "material": "metal",
+      "light": {
+        "at": [
+          0,
+          5.5,
+          0
+        ],
+        "colour": [
+          0.62,
+          0.3,
+          1.0
+        ],
+        "energy": 3.0,
+        "range": 16,
+        "shadows": false
+      },
+      "set_goes_dark": true
+    },
+    "fs_anchor_south": {
+      "model": "ruin_fs_anchor",
+      "material": "metal",
+      "light": {
+        "at": [
+          0,
+          5.5,
+          0
+        ],
+        "colour": [
+          0.62,
+          0.3,
+          1.0
+        ],
+        "energy": 3.0,
+        "range": 16,
+        "shadows": false
+      },
+      "set_goes_dark": true
+    },
+    "fs_panel": {
+      "model": "ruin_fs_panel",
+      "material": "stone",
+      "offset": [
+        -0.361,
+        0,
+        -0.001
+      ]
+    },
+    "fs_colonnade": {
+      "model": "ruin_fs_colonnade",
+      "material": "metal",
+      "offset": [
+        3.384,
+        0,
+        0.186
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        1.12,
+        1.08,
+        1.02
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_frame_north": {
+      "model": "ruin_fs_frame",
+      "material": "metal",
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        1.12,
+        1.08,
+        1.02
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_frame_south": {
+      "model": "ruin_fs_frame",
+      "material": "metal",
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        1.12,
+        1.08,
+        1.02
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_slab": {
+      "model": "ruin_fs_slab",
+      "material": "stone",
+      "offset": [
+        0.138,
+        0,
+        -0.237
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        1.06,
+        1.0,
+        0.94
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_block": {
+      "model": "ruin_fs_block",
+      "material": "stone",
+      "offset": [
+        -8.336,
+        0,
+        2.234
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        1.06,
+        1.0,
+        0.94
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_rib_north": {
+      "model": "ruin_fs_rib_a",
+      "material": "metal",
+      "offset": [
+        -0.49,
+        0,
+        -4.324
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        0.92,
+        0.96,
+        1.06
+      ],
+      "edge_wear": 0.8,
+      "light": {
+        "at": [
+          -3.0,
+          9.0,
+          30.5
+        ],
+        "colour": [
+          1.0,
+          0.96,
+          0.88
+        ],
+        "energy": 1.6,
+        "range": 30,
+        "shadows": false,
+        "daylight": -1
+      }
+    },
+    "fs_rib_east": {
+      "model": "ruin_fs_rib_c",
+      "material": "metal",
+      "offset": [
+        -0.065,
+        0,
+        -0.176
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        0.92,
+        0.96,
+        1.06
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_pylon_a": {
+      "model": "ruin_fs_pylon_a",
+      "material": "metal",
+      "offset": [
+        -0.364,
+        0,
+        -0.441
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_pylon_b": {
+      "model": "ruin_fs_pylon_b",
+      "material": "metal",
+      "offset": [
+        -0.184,
+        0,
+        -0.113
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_pylon_c": {
+      "model": "ruin_fs_pylon_c",
+      "material": "metal",
+      "offset": [
+        -0.046,
+        0,
+        0.482
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_stub_a": {
+      "model": "ruin_fs_stub_a",
+      "material": "metal",
+      "offset": [
+        0.428,
+        0,
+        -0.83
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        0.95,
+        0.95,
+        0.97
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_stub_b": {
+      "model": "ruin_fs_stub_b",
+      "material": "metal",
+      "offset": [
+        0.568,
+        0,
+        -0.08
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        0.95,
+        0.95,
+        0.97
+      ],
+      "edge_wear": 0.8
+    },
+    "fs_stub_c": {
+      "model": "ruin_fs_stub_c",
+      "material": "metal",
+      "offset": [
+        0.688,
+        0,
+        -0.284
+      ],
+      "surface": "material_firstfold_iron",
+      "surface_tint": [
+        0.95,
+        0.95,
+        0.97
+      ],
+      "edge_wear": 0.8
+    },
     "cw_well": {
       "model": "prop_bp_well_cw",
       "material": "stone"
@@ -1490,7 +1790,11 @@
       "model": "gs_foldscar_heart",
       "material": "stone",
       "surface": "mat_acg_onyx015",
-      "surface_tint": [0.2, 0.21, 0.26],
+      "surface_tint": [
+        0.2,
+        0.21,
+        0.26
+      ],
       "note": "Grand scale 2026-10-24 (GS-2): the lower 24 m of a broken dressed monolith in the heart's dark polished stone (FoldscarDressing re-dresses it satin, and hangs its missing upper half over it)."
     },
     "rock_iron_seam": {
@@ -1851,11 +2155,20 @@
     },
     "great_tree": {
       "model": "flora_old_late",
-      "offset": [2.5, -0.058, -1.4],
+      "offset": [
+        2.5,
+        -0.058,
+        -1.4
+      ],
       "ground_sink_m": 4.0,
       "material": "wood",
       "wind": 3.0,
       "note": "Grand scale 2026-10-24 (GS-10): the BlenderKit ceiba that stood for Old Late, moved into the hollow as its great tree; its trunk, offset and root support carried with it."
+    },
+    "sedge_tollpiles_waystone": {
+      "model": "landmark_ph_waystone_a",
+      "material": "stone",
+      "note": "D18 Sedge: the Tollpiles toll stone, the same scanned standing stone Cairnwold's waystone uses."
     }
   },
   "doors": {
@@ -1919,7 +2232,11 @@
         "model": "gs_foldscar_heart",
         "material": "stone",
         "surface": "mat_acg_onyx015",
-        "surface_tint": [0.2, 0.21, 0.26]
+        "surface_tint": [
+          0.2,
+          0.21,
+          0.26
+        ]
       }
     },
     "cairnwold_roofs=slate": {
@@ -1957,84 +2274,132 @@
   "models": {
     "gs_fold_fluorite": {
       "category": "landmark",
-      "dims_m": [2.4125, 3.0007, 2.6736],
+      "dims_m": [
+        2.4125,
+        3.0007,
+        2.6736
+      ],
       "triangles": 45000,
       "lods": {},
       "texture_px": 4096
     },
     "gs_foldscar_heart": {
       "category": "landmark",
-      "dims_m": [7.69, 24.0, 7.9358],
+      "dims_m": [
+        7.69,
+        24.0,
+        7.9358
+      ],
       "triangles": 11182,
       "lods": {},
       "texture_px": 4096
     },
     "gs_foldscar_shard_a": {
       "category": "landmark",
-      "dims_m": [2.3713, 4.7, 3.5205],
+      "dims_m": [
+        2.3713,
+        4.7,
+        3.5205
+      ],
       "triangles": 13534,
       "lods": {},
       "texture_px": 4096
     },
     "gs_foldscar_shard_b": {
       "category": "landmark",
-      "dims_m": [2.4036, 3.7, 3.583],
+      "dims_m": [
+        2.4036,
+        3.7,
+        3.583
+      ],
       "triangles": 13310,
       "lods": {},
       "texture_px": 4096
     },
     "gs_foldscar_shard_c": {
       "category": "landmark",
-      "dims_m": [2.4227, 3.6, 3.6141],
+      "dims_m": [
+        2.4227,
+        3.6,
+        3.6141
+      ],
       "triangles": 13112,
       "lods": {},
       "texture_px": 4096
     },
     "gs_foldscar_slab_a": {
       "category": "landmark",
-      "dims_m": [10.4865, 18.9, 12.2959],
+      "dims_m": [
+        10.4865,
+        18.9,
+        12.2959
+      ],
       "triangles": 14355,
       "lods": {},
       "texture_px": 4096
     },
     "gs_old_late": {
       "category": "landmark",
-      "dims_m": [56.4144, 58.0, 34.4929],
+      "dims_m": [
+        56.4144,
+        58.0,
+        34.4929
+      ],
       "triangles": 57864,
       "lods": {},
       "texture_px": 4096
     },
     "gs_old_late_crown": {
       "category": "landmark",
-      "dims_m": [2.992, 3.9835, 1.381],
+      "dims_m": [
+        2.992,
+        3.9835,
+        1.381
+      ],
       "triangles": 268,
       "lods": {},
       "texture_px": 4096
     },
     "gs_quiet_stone_a": {
       "category": "landmark",
-      "dims_m": [3.2911, 16.0, 4.8839],
+      "dims_m": [
+        3.2911,
+        16.0,
+        4.8839
+      ],
       "triangles": 39956,
       "lods": {},
       "texture_px": 4096
     },
     "gs_quiet_stone_b": {
       "category": "landmark",
-      "dims_m": [3.341, 16.0, 3.3067],
+      "dims_m": [
+        3.341,
+        16.0,
+        3.3067
+      ],
       "triangles": 13816,
       "lods": {},
       "texture_px": 4096
     },
     "gs_waystone_ashen": {
       "category": "landmark",
-      "dims_m": [3.6363, 6.0, 2.412],
+      "dims_m": [
+        3.6363,
+        6.0,
+        2.412
+      ],
       "triangles": 16548,
       "lods": {},
       "texture_px": 4096
     },
     "gs_waystone_rim": {
       "category": "landmark",
-      "dims_m": [4.5453, 7.5, 3.015],
+      "dims_m": [
+        4.5453,
+        7.5,
+        3.015
+      ],
       "triangles": 16548,
       "lods": {},
       "texture_px": 4096
@@ -3042,7 +3407,9 @@
         "frontier_vest_trousers_set__mh_veth_m"
       ],
       "equipment_outfits": {
-        "default:feet": ["frontier_sealed_boots__mh_veth_m"],
+        "default:feet": [
+          "frontier_sealed_boots__mh_veth_m"
+        ],
         "set:|": [
           "frontier_vest_trousers_set__mh_veth_m"
         ],
@@ -3160,7 +3527,9 @@
           "frontier_vest_trousers_set__mh_veth_m"
         ],
         "equipment_outfits": {
-          "default:feet": ["frontier_sealed_boots__mh_veth_m"],
+          "default:feet": [
+            "frontier_sealed_boots__mh_veth_m"
+          ],
           "set:|": [
             "frontier_vest_trousers_set__mh_veth_m"
           ],
@@ -3242,7 +3611,9 @@
           "frontier_vest_trousers_set__mh_veth_m"
         ],
         "equipment_outfits": {
-          "default:feet": ["frontier_sealed_boots__mh_veth_m"],
+          "default:feet": [
+            "frontier_sealed_boots__mh_veth_m"
+          ],
           "set:|": [
             "frontier_vest_trousers_set__mh_veth_m"
           ],
@@ -3324,7 +3695,9 @@
           "frontier_vest_trousers_set__mh_veth_f"
         ],
         "equipment_outfits": {
-          "default:feet": ["frontier_sealed_boots__mh_veth_f"],
+          "default:feet": [
+            "frontier_sealed_boots__mh_veth_f"
+          ],
           "set:|": [
             "frontier_vest_trousers_set__mh_veth_f"
           ],
@@ -3729,10 +4102,20 @@
   },
   "stations": {
     "notice_board": {
-      "model": "bw_codex_notice",
-      "scale": 0.65,
-      "offset": [0, 0.8, 0],
-      "note": "Reuse the shipped licensed wooden notice panel; lifted to reading height on the inn wall."
+      "model": "piece_bp_timber_wall",
+      "scale": 0.8,
+      "offset": [
+        0,
+        0.9,
+        0
+      ],
+      "note": "D18 Sedge: a tarred timber toll board on a lamp post. The previous model (bw_codex_notice) is not in D:\\Otherreach_Shared\\art_root, so the station had no visible art.",
+      "beside": "prop_bp_lantern_post",
+      "beside_offset": [
+        1.1,
+        0,
+        0
+      ]
     },
     "anvil": {
       "model": "station_bp_anvil",
@@ -3791,6 +4174,16 @@
       },
       "note": "World life 2026-10-15: a banked fire in a stone ring - roast meat and salves.",
       "sound": "cook"
+    },
+    "alembic": {
+      "model": "herb_press",
+      "beside": "drying_herb_bundle",
+      "beside_offset": [
+        0.9,
+        0,
+        0.35
+      ],
+      "note": "D18 Sedge: the Oath House still - an herb press with a drying bundle over it. A working alembic is art the catalog does not own."
     }
   },
   "companion_weapon": {
@@ -3806,8 +4199,54 @@
     "model": "prop_bp_haversack"
   },
   "creatures": {
-    "creature.construct.gate_tender": {"model": "creature_gate_tender", "clips": {"idle": "creature.creature_golem_stan.idle", "walk": "creature.creature_golem_stan.walk", "run": "creature.creature_golem_stan.run", "attack": "creature.creature_golem_stan.attack", "hit": "creature.creature_golem_stan.hit", "death": "creature.creature_golem_stan.death", "ability.creature.tender_strike": "creature.creature_golem_stan.attack"}, "voice": "animated_armour", "flesh": "plate", "blow": "slam", "steps": {"walk": "walk", "run": "move_heavy"}, "paces": {"walk": 1.41, "run": 4.58}},
-    "creature.construct.gate_warden": {"model": "creature_gate_warden", "clips": {"idle": "creature.creature_golem_stan.idle", "walk": "creature.creature_golem_stan.walk", "run": "creature.creature_golem_stan.run", "attack": "creature.creature_golem_stan.attack", "hit": "creature.creature_golem_stan.hit", "death": "creature.creature_golem_stan.death", "ability.creature.warden_sweep": "creature.creature_golem_stan.attack", "ability.creature.warden_fall": "creature.creature_golem_stan.attack", "ability.creature.warden_grasp": "creature.creature_golem_stan.attack"}, "voice": "animated_armour", "flesh": "plate", "blow": "slam", "steps": {"walk": "move_heavy", "run": "move_heavy"}, "paces": {"walk": 3.76, "run": 12.2}},
+    "creature.construct.gate_tender": {
+      "model": "creature_gate_tender",
+      "clips": {
+        "idle": "creature.creature_golem_stan.idle",
+        "walk": "creature.creature_golem_stan.walk",
+        "run": "creature.creature_golem_stan.run",
+        "attack": "creature.creature_golem_stan.attack",
+        "hit": "creature.creature_golem_stan.hit",
+        "death": "creature.creature_golem_stan.death",
+        "ability.creature.tender_strike": "creature.creature_golem_stan.attack"
+      },
+      "voice": "animated_armour",
+      "flesh": "plate",
+      "blow": "slam",
+      "steps": {
+        "walk": "walk",
+        "run": "move_heavy"
+      },
+      "paces": {
+        "walk": 1.41,
+        "run": 4.58
+      }
+    },
+    "creature.construct.gate_warden": {
+      "model": "creature_gate_warden",
+      "clips": {
+        "idle": "creature.creature_golem_stan.idle",
+        "walk": "creature.creature_golem_stan.walk",
+        "run": "creature.creature_golem_stan.run",
+        "attack": "creature.creature_golem_stan.attack",
+        "hit": "creature.creature_golem_stan.hit",
+        "death": "creature.creature_golem_stan.death",
+        "ability.creature.warden_sweep": "creature.creature_golem_stan.attack",
+        "ability.creature.warden_fall": "creature.creature_golem_stan.attack",
+        "ability.creature.warden_grasp": "creature.creature_golem_stan.attack"
+      },
+      "voice": "animated_armour",
+      "flesh": "plate",
+      "blow": "slam",
+      "steps": {
+        "walk": "move_heavy",
+        "run": "move_heavy"
+      },
+      "paces": {
+        "walk": 3.76,
+        "run": 12.2
+      }
+    },
     "creature.beast.hound_pup": {
       "model": "creature_wm_grey_wolf_b",
       "clips": "creature.creature_wm_grey_wolf_b",

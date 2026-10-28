@@ -46,6 +46,11 @@ nodes:
       consequences:
       - command: open_service
         service: repair
+    - id: teach
+      text: "Teach me the iron."
+      consequences:
+      - command: teach
+        refs: [recipe.smithing.iron_billet, recipe.smithing.fitting_wedge, recipe.outfitting.satchel]
     - id: leave
       text: Goodbye.
   crew:
