@@ -295,6 +295,15 @@ public partial class Main
             _hud.Log(e.Reason);
             Tackle().LineOut = false;
         });
+        // Tracking: what the ground said, in the read's own words - the way, how old it is, how many left it, and when the sign refuses to
+        // say (cold, stone, water) the reason it refuses.
+        _session.Subscribe<SpoorRead>(e =>
+        {
+            _tracked = e.Readable;
+            _hud.Log(e.Readable
+                ? $"The ground says: {e.Count} went {Compass(e.BearingMdeg)}, {e.AgeTicks / 20.0:0.#} s ago{(e.Uncertain ? " - and it is not certain" : "")}"
+                : e.Reason);
+        });
         // The water's second use (D20): a wash is a rest at the bank, and going under is the swim's own lesson, in the HUD's own words.
         _session.Subscribe<Washed>(_ => Notice(NoticeKind.World, "You wash at the water's edge", 3));
         _session.Subscribe<WentUnder>(_ => Notice(NoticeKind.World, "You go under - the water puts you ashore", 4));
@@ -574,6 +583,19 @@ public partial class Main
 
     private string CreatureDef(Domain.EntityId id) =>
         _session.Simulation!.Creatures.FirstOrDefault(c => c.Id == id)?.DefId ?? "creature";
+
+
+
+    /// <summary>A bearing in degrees (0 = north, 90 = east) in the eight words a walker uses.</summary>
+    private static string Compass(int bearingMdeg)
+    {
+        string[] points = { "north", "north-east", "east", "south-east", "south", "south-west", "west", "north-west" };
+        int octant = (int)Math.Round(((bearingMdeg % 360 + 360) % 360) / 45.0) % 8;
+        return points[octant];
+    }
+
+    /// <summary>Whether the last read of the ground found sign - what a capture waits on.</summary>
+    private bool _tracked;
 
     /// <summary>The rod, line and float the character fishes with, made once and kept on the player's body.</summary>
     private Art.FishingTackle? _tackle;

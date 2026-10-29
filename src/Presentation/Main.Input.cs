@@ -364,6 +364,16 @@ public partial class Main
     }
 
     /// <summary>
+    /// G: read the ground, or take up the trail that was read. Sign is the creatures' own - prints, broken stems, blood, droppings and
+    /// scent on the wind - and what a read says depends on the tracking techniques the character has (canon's seven).
+    /// </summary>
+    private void Track()
+    {
+        var simulation = _session.Simulation!;
+        _session.Submit(new ReadTrailCommand(simulation.PlayerId));
+    }
+
+    /// <summary>
     /// F: a line into the water, or the line brought in. A cast is offered only at a fishable bank - a water that names a catch, with
     /// nothing else running - and with a line already out the same key reels, so the simulation may say what came of it.
     /// </summary>
@@ -431,6 +441,7 @@ public partial class Main
         Bind("interact", Key.E);
         Bind("fish", Key.N);              // a line in the water: cast, and the same key reels it in (F is the takedown; E still refills the flask)
         Bind("wash", Key.B);              // the water's second verb: a wash at the bank, beside N's line and E's flask
+        Bind("track", Key.G);             // read the ground; press again to follow what it found (canon: skill.tracking)              // the water's second verb: a wash at the bank, beside N's line and E's flask
         Bind("jump", Key.Space);
         Bind("crouch", Key.X);            // a toggle by default (the owner's M6 playtest; Settings can make it a hold); C stays the dodge
         Bind("character", Key.K);
