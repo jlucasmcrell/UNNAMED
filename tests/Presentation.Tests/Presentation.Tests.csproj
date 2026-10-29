@@ -43,6 +43,7 @@
     <Compile Include="..\..\src\Presentation\Diagnostics\CrashLog.cs" Link="Linked\CrashLog.cs" />
     <Compile Include="..\..\src\Presentation\Diagnostics\ProblemReport.cs" Link="Linked\ProblemReport.cs" />
     <Compile Include="..\..\src\Presentation\Art\LookSwatches.cs" Link="Linked\LookSwatches.cs" />
+    <Compile Include="..\..\src\Presentation\Art\NpcLooks.cs" Link="Linked\NpcLooks.cs" />
     <Compile Include="..\..\src\Presentation\Art\PlayerBodies.cs" Link="Linked\PlayerBodies.cs" />
     <Compile Include="..\..\src\Presentation\Art\IdleVariety.cs" Link="Linked\IdleVariety.cs" />
     <Compile Include="..\..\src\Presentation\Art\WornOutfit.cs" Link="Linked\WornOutfit.cs" />

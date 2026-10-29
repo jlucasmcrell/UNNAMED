@@ -103,6 +103,33 @@ public class NpcLifeLinksContentTests
         }
     }
 
+    /// <summary>F1 Gate C: a resident has no NPC file, so the slot says the sex they are drawn as - and a town has both.</summary>
+    [Fact]
+    public void RoleSlots_AreDrawnAsBothSexes_AndNamedNpcsAreNot()
+    {
+        var life = NpcLifeContent.Build(Load(Path.Combine(RepoPaths.Root(), "content")), "region.starting_frontier");
+        var slots = life.Routines.Values.Where(r => r.IsSlot).ToArray();
+
+        Assert.Equal(12, slots.Length);
+        Assert.All(slots, slot => Assert.Contains(slot.Sex, new[] { "f", "m" }));
+        Assert.Equal(6, slots.Count(slot => slot.Sex == "f"));
+        Assert.All(life.Routines.Values.Where(r => !r.IsSlot), r => Assert.Null(r.Sex));
+    }
+
+    [Fact]
+    public void AResidentsSexThatIsNotOne_IsRefused() =>
+        AssertRefused("NPL001", "routines/ashen_hollow/cook.yaml", "sex: f", "sex: unknown", "draws its residents as f or m");
+
+    /// <summary>A slot nobody sexed still builds: it is optional, and the look generator needs a people and a sex to draw anyone.</summary>
+    [Fact]
+    public void ASlotsSex_IsOptional()
+    {
+        using var content = new EditedContent("routines/ashen_hollow/cook.yaml", "sex: f\n", "");
+        var life = NpcLifeContent.Build(Load(content.Root), "region.starting_frontier");
+
+        Assert.Null(life.Routines["routine.ashen_hollow.cook"].Sex);
+    }
+
     [Fact]
     public void ATraderWhoIsNotAVendor_IsRefused() =>
         AssertRefused("NPL005", "routines/ashen_hollow/kera_voss.yaml", "roles: [smith, vendor, quest_giver]", "roles: [smith, quest_giver]", "trades, so is a vendor");
