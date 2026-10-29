@@ -101,8 +101,8 @@ public partial class Main
                     GD.PushError($"NPC_LOOKS {settlement}: {person.Id} is not drawn, so it has no frame");
                     continue;
                 }
-                if(fullBody && figure is SkinnedFigure native && native.ModelId!=(sex=="f"?"humgen_creator_female":"humgen_creator_male"))
-                    throw new InvalidDataException("Outfit review must use the exact creator target: "+person.Id+" -> "+native.ModelId);
+                if(fullBody && figure is SkinnedFigure targetFigure && targetFigure.ModelId!=(sex=="f"?"humgen_creator_female":"humgen_creator_male"))
+                    throw new InvalidDataException("Outfit review must use the exact creator target: "+person.Id+" -> "+targetFigure.ModelId);
                 var originalTransform=figure.GlobalTransform;
                 if(root.TryGetProperty("clear_stage",out var clearStage) && clearStage.GetBoolean())
                 {
