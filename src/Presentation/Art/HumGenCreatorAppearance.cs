@@ -86,6 +86,10 @@ public sealed partial class HumGenCreatorAppearance : Node
         // re-applied with it so a live slider cannot leave a stale shared material on a
         // different preview.
         controller.Materials(art, face, look, people);
+        if (OS.GetEnvironment("OTHERREACH_HIDE_BODY") == "1")
+            foreach (var hidden in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+                if (!hidden.HasMeta("creator_part_kind"))
+                    hidden.Visible = false;   // Review probe only: whose triangles are showing through the cloth?
         // Only now do the body's skin surfaces exist with their final materials, so this is where the covered fragments are
         // dropped for the outfit that is actually worn (a part without a mask clears the stencil).
         Stencil(art, model, controller._worn);
@@ -195,7 +199,7 @@ public sealed partial class HumGenCreatorAppearance : Node
     }
 
     /// <summary>The stand-off a worn garment keeps from the body, so the body cannot break through the cloth.</summary>
-    private const float GarmentStandoff = .006f;
+    private const float GarmentStandoff = 0f;
 
     /// <summary>How far the body is drawn inside itself while it is clothed, closing the rest of the gap from its own side.</summary>
     private const float BodyRecess = -.012f;
