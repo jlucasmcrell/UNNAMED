@@ -5248,15 +5248,15 @@
    }
   },
   "creature.construct.gate_tender": {
-   "model": "creature_d5_stan_carved",
+   "model": "creature_d5_rock_golem",
    "clips": {
-    "idle": "creature.creature_golem_stan.idle",
-    "walk": "creature.creature_golem_stan.walk",
-    "run": "creature.creature_golem_stan.run",
-    "attack": "creature.creature_golem_stan.attack",
-    "hit": "creature.creature_golem_stan.hit",
-    "death": "creature.creature_golem_stan.death",
-    "ability.creature.tender_strike": "creature.creature_golem_stan.attack"
+    "idle": "creature.creature_d5_rock_golem.idle",
+    "walk": "creature.creature_d5_rock_golem.walk",
+    "run": "creature.creature_d5_rock_golem.run",
+    "attack": "creature.creature_d5_rock_golem.attack",
+    "hit": "creature.creature_d5_rock_golem.hit",
+    "death": "creature.creature_d5_rock_golem.death",
+    "ability.creature.tender_strike": "creature.creature_d5_rock_golem.attack_2"
    },
    "voice": "animated_armour",
    "flesh": "plate",
@@ -5265,8 +5265,8 @@
     "walk": "walk",
     "run": "move_heavy"
    },
-   "uniform_scale": 1,
-   "note": "D19: the binding the D5 batch B delivery specifies for the Gate Tender - the native carved Stan golem with its own skin, rest pose and C1 takes. The old binding pointed at creature_d5_rock_golem, which was never staged in the art library, so the trial drew torn stone."
+   "uniform_scale": 0.5,
+   "note": "D19: the D5 batch B rework pair - the rock golem body with the rework clip set of the same batch (its own idle/run/attack/attack_2/hit/death takes). The old records clashed with a second golem clip family in the primary art root, which skinned this body into torn stone."
   },
   "creature.construct.gate_warden": {
    "model": "creature_d5_stone_giant",
