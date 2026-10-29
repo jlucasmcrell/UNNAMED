@@ -366,10 +366,10 @@ public sealed class VisualAudit
         {
             // A capture that must stand inside a space (the Barrowworks ring) asks for the portal once, and then waits
             // longer than the settle so the interior has been built and lit before the picture is taken.
-            if (_enter is { Length: > 0 } portal && _entered == false)
+            if (_enter is { Length: > 0 } portal && _entered == false && _session.Simulation is { } running)
             {
                 _entered = true;
-                _session.Submit(new UNNAMED.World.Runtime.EnterSpaceCommand(_session.Simulation!.PlayerId, portal));
+                _session.Submit(new UNNAMED.World.Runtime.EnterSpaceCommand(running.PlayerId, portal));
                 GD.Print($"UNNAMED audit: stepped through {portal} before {shot.Name}");
                 _wait = -240;
                 return;
