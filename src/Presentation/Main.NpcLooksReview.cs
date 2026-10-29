@@ -56,6 +56,7 @@ public partial class Main
         // Freeze Main's normal draw loop for this presentation-only fixture. Otherwise NpcsView.Draw
         // restores every live actor's transform and animation between staging it and reading pixels.
         SetProcess(false);
+        var reviewFigures=_npcs.GetChildren().OfType<Figure>().Select(figure=>(Figure:figure,Visible:figure.Visible)).ToArray();
         foreach (var town in root.GetProperty("towns").EnumerateArray())
         {
             string settlement = town.GetString()!;
@@ -92,6 +93,8 @@ public partial class Main
                 var originalTransform=figure.GlobalTransform;
                 if(root.TryGetProperty("clear_stage",out var clearStage) && clearStage.GetBoolean())
                 {
+                    foreach(var other in reviewFigures)other.Figure.Visible=other.Figure==figure;
+                    figure.Visible=true;
                     Vector2 stage=settlement=="ashen_hollow"?new Vector2(450,749):new Vector2(949,695);
                     float floor=_npcs.Ground?.Invoke(stage.X,stage.Y)??figure.GlobalPosition.Y;
                     figure.GlobalPosition=new Vector3(stage.X,floor,stage.Y);
@@ -201,6 +204,7 @@ public partial class Main
                     original_position=originalTransform.Origin.ToString(),review_position=figure.GlobalPosition.ToString(),
                 });
                 figure.GlobalTransform=originalTransform;
+                foreach(var other in reviewFigures)other.Figure.Visible=other.Visible;
                 GD.Print($"NPC_LOOKS {settlement} face {person.Id}: {people} {sex}, {worn?.Face ?? "(no record)"}");
             }
             var reached = await WideShots(camera, folder, settlement, feet, wides, Frames);
