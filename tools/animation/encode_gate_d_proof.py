@@ -33,7 +33,8 @@ for index, frame in enumerate(frames):
     if frame.get('voice_position') is not None:
         voiced_duration += step
 lines.append(lines[-2])  # Concat needs the last image repeated to retain its duration.
-manifest = args.frames / 'timed_frames.ffconcat'
+args.output.parent.mkdir(parents=True, exist_ok=True)
+manifest = args.output.with_suffix('.ffconcat')
 manifest.write_text('\n'.join(lines) + '\n', encoding='utf-8')
 ffmpeg = 'C:/Otherreach_Worker/tools/ffmpeg/bin/ffmpeg.exe'
 command = [ffmpeg, '-hide_banner', '-y', '-f', 'concat', '-safe', '0', '-i', str(manifest)]
@@ -45,7 +46,7 @@ if args.voice_root and data.get('line'):
     assert position is not None, 'Capture predates voice-clock metadata; recapture before muxing'
     command += ['-ss', str(position), '-i', str(voice), '-af', f'atrim=duration={voiced_duration:.6f},apad', '-c:a', 'aac', '-b:a', '192k']
 args.output.parent.mkdir(parents=True, exist_ok=True)
-command += ['-vf', 'fps=30', '-c:v', 'libx264', '-preset', 'fast', '-crf', '18',
+command += ['-vf', 'pad=ceil(iw/2)*2:ceil(ih/2)*2,fps=30', '-c:v', 'libx264', '-preset', 'fast', '-crf', '18',
             '-pix_fmt', 'yuv420p', '-t', str(duration), '-movflags', '+faststart', str(args.output)]
 subprocess.run(command, check=True)
 print('Native proof encoded:', args.output, 'seconds:', round(duration, 2), 'voice:', voice)
