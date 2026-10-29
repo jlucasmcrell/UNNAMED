@@ -3405,6 +3405,486 @@
       "material": "wood",
       "scale": 1.0,
       "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_stair_t0_f0_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t0_f0_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t0_f0_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t0_f0_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t0_f1_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t0_f1_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t0_f1_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t0_f1_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t0_f2_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t0_f2_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t0_f2_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t0_f2_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t0_f3_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t0_f3_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t0_f3_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t0_f3_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t1_f0_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t1_f0_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t1_f0_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t1_f0_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t1_f1_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t1_f1_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t1_f1_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t1_f1_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t1_f2_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t1_f2_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t1_f2_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t1_f2_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t1_f3_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t1_f3_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t1_f3_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t1_f3_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t2_f0_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t2_f0_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t2_f0_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t2_f0_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t2_f1_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t2_f1_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t2_f1_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t2_f1_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t2_f2_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t2_f2_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t2_f2_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t2_f2_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t2_f3_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t2_f3_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t2_f3_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t2_f3_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t3_f0_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t3_f0_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t3_f0_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t3_f0_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t3_f1_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t3_f1_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t3_f1_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t3_f1_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t3_f2_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t3_f2_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t3_f2_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t3_f2_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t3_f3_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t3_f3_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t3_f3_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t3_f3_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t4_f0_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t4_f0_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t4_f0_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t4_f0_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t4_f1_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t4_f1_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t4_f1_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t4_f1_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t4_f2_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t4_f2_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t4_f2_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t4_f2_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t4_f3_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t4_f3_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t4_f3_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t4_f3_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t5_f0_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t5_f0_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t5_f0_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t5_f0_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t5_f1_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t5_f1_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t5_f1_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t5_f1_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t5_f2_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t5_f2_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t5_f2_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t5_f2_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t5_f3_l0": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t5_f3_l1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t5_f3_l2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_stair_t5_f3_l3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
     }
   },
   "doors": {
