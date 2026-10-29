@@ -21,6 +21,19 @@ public sealed record NodeDefinition(string Id, string ItemId, int YieldMin, int 
 {
     /// <summary>The resource the node yields (DATA_MODEL.md §4.16's <c>resource_ref</c>): what a quest's <c>harvest_resource</c> counts (M5).</summary>
     public string? ResourceId { get; init; }
+
+    /// <summary>
+    /// The grade of what the node yields, 1 to 5: tier 1 is the spoil and the ground's own litter, and each grade above it
+    /// is a better seam of the same material. The crafting ladder above standard iron needs grades, and the world hooks
+    /// count them (HOOK.NODE.ORE.T2).
+    /// </summary>
+    public int Tier { get; init; } = 1;
+
+    /// <summary>
+    /// Whether the node does not show until it is prospected. A hidden deposit is placed, counted and harvested, but the
+    /// ground reads as ore only to someone looking for it - HOOK.PROSPECT.SIGN's whole activity.
+    /// </summary>
+    public bool Hidden { get; init; }
 }
 
 public sealed record RecipeInput(string ItemId, int Count);

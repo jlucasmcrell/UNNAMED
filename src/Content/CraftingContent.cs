@@ -153,9 +153,16 @@ public static class CraftingContent
             if (!skills.ContainsKey(skill))
                 throw new FormatException($"{id}: harvest_skill {skill} is not a skill");
             var node = new NodeDefinition(id, Text(yield, "item_ref"), IntOf(range, 0, "count_range"), IntOf(range, 1, "count_range"),
-                Int(map, "charges"), respawn, skill, Int(map, "difficulty")) { ResourceId = resourceId };
+                Int(map, "charges"), respawn, skill, Int(map, "difficulty"))
+            {
+                ResourceId = resourceId,
+                Tier = map.ContainsKey("tier") ? Int(map, "tier") : 1,
+                Hidden = (map.GetValueOrDefault("hidden") as string) == "true",
+            };
             if (node.YieldMin < 1 || node.YieldMax < node.YieldMin || node.Charges < 1 || node.Difficulty < 0)
                 throw new FormatException($"{id}: a yield of [min, max] with 1 <= min <= max, at least one charge, and a difficulty not below 0");
+            if (node.Tier is < 1 or > 5)
+                throw new FormatException($"{id}: tier {node.Tier} is outside 1-5");
             if (node.Respawn == Respawn.Daily && node.Charges != 1)
                 throw new FormatException($"{id}: a daily node holds one charge a day");
             if (map.ContainsKey("tool_tier_min"))

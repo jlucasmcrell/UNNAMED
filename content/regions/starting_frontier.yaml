@@ -150699,6 +150699,31 @@ nodes:
   position_m:
   - 546
   - 792
+- name: fold_grey_iron_seam
+  node_ref: node.ore.grey_iron
+  position_m:
+  - 559.0
+  - 648.0
+  tier: 2
+- name: fold_bog_iron_nodule
+  node_ref: node.ore.bog_iron
+  position_m:
+  - 558.2
+  - 651.0
+  tier: 3
+- name: fold_weathered_grey_iron
+  node_ref: node.ore.hidden_grey_iron
+  position_m:
+  - 556.0
+  - 653.2
+  tier: 2
+  hidden: true
+- name: fold_resin_pine
+  node_ref: node.wood.pine_resin
+  position_m:
+  - 553.0
+  - 654.0
+  tier: 1
 stations:
 - key: station.forge_hearth
   kind: forge

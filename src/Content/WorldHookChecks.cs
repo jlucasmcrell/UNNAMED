@@ -427,6 +427,36 @@ public static class WorldHookChecks
             }
             case "readable_field":
                 return placed.Count(p => p.Section == "readables" && Has(p.Node, Scalar(argument, "field")));
+            case "node_tier":
+            {
+                // A node of a given grade: "a second and third ore grade" is a tier, and the build states it on the node
+                // kind (a placement may override it). Content scope: the capability exists in the build for areas to use.
+                string prefix = $"node.{Scalar(argument, "prefix")}.";
+                int atLeast = (int)(AsNumber(Node(argument, "min_tier")) ?? 2);
+                return facts.NodeList.Count(n => n.Id.StartsWith(prefix, StringComparison.Ordinal) && n.Tier >= atLeast);
+            }
+            case "node_hidden":
+            {
+                string prefix = $"node.{Scalar(argument, "prefix")}.";
+                return facts.NodeList.Count(n => n.Id.StartsWith(prefix, StringComparison.Ordinal) && n.Hidden);
+            }
+            case "node_ref":
+            {
+                // One named node, for a hook that is about that kind of thing rather than a prefix of it (resin).
+                string? wanted = Scalar(argument, "ref");
+                return facts.NodeList.Count(n => n.Id == wanted);
+            }
+            case "node_skill":
+            {
+                // The node's own harvest skill: what rises from it, rather than every node riding survival.
+                string? wanted = Scalar(argument, "skill_ref");
+                string? notWanted = Scalar(argument, "not_skill");
+                return placed.Count(p => p.Section == "nodes"
+                                         && Scalar(p.Node, "node_ref") is { } node
+                                         && facts.Nodes.GetValueOrDefault(node).Skill is { Length: > 0 } skill
+                                         && (string.IsNullOrEmpty(wanted) || skill == wanted)
+                                         && (string.IsNullOrEmpty(notWanted) || skill != notWanted));
+            }
             case "spawn":
                 return placed.Count(p => p.Section == "spawns" && SpawnMatches(p.Node, argument, facts));
             case "spawn_pack":
@@ -483,6 +513,8 @@ public static class WorldHookChecks
         public Dictionary<string, List<string?>> NpcTeaches { get; } = new(StringComparer.Ordinal);
         public Dictionary<string, List<string?>> NpcServices { get; } = new(StringComparer.Ordinal);
         public Dictionary<string, string?> LocationKinds { get; } = new(StringComparer.Ordinal);
+        public Dictionary<string, (int Tier, bool Hidden, string Skill)> Nodes { get; } = new(StringComparer.Ordinal);
+        public List<(string Id, int Tier, bool Hidden, string Skill)> NodeList { get; } = [];
 
         public WorldFacts(ContentLoader loader)
         {
@@ -497,6 +529,13 @@ public static class WorldHookChecks
                         break;
                     case "location":
                         LocationKinds[definition.Id] = Scalar(root, "kind_of_place");
+                        break;
+                    case "node":
+                        Nodes[definition.Id] = (
+                            int.TryParse(Scalar(root, "tier"), out int tier) ? tier : 1,
+                            Scalar(root, "hidden") is { } hiddenText && string.Equals(hiddenText, "true", StringComparison.OrdinalIgnoreCase),
+                            Scalar(root, "harvest_skill") ?? "");
+                        NodeList.Add((definition.Id, Nodes[definition.Id].Tier, Nodes[definition.Id].Hidden, Nodes[definition.Id].Skill));
                         break;
                     case "npc":
                         NpcTeaches[definition.Id] = Maps(root, "teaches").Select(entry => Scalar(entry, "kind")).ToList();

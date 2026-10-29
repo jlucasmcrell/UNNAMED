@@ -1,0 +1,14 @@
+﻿id: node.ore.hidden_bog_iron
+kind: node
+schema: 1
+display_key: node.ore.hidden_bog_iron.name
+tags: [node]
+name: Seeped Bog Iron
+notes: "D18 SYSTEMS (needed-2): a second deposit that only prospecting finds - the bog's iron under a seep of rust water, read from colour and weight before anything is dug."
+resource_ref: resource.ore.bog_iron
+charges: 2
+respawn: none
+harvest_skill: skill.prospecting
+difficulty: 16
+tier: 3
+hidden: true

@@ -1,0 +1,9 @@
+﻿id: resource.ore.bog_iron
+kind: resource
+schema: 1
+display_key: resource.ore.bog_iron.name
+tags: [resource]
+name: Bog Iron
+notes: "D18 SYSTEMS (needed-2): the third iron grade, the bog's own nodule, denser than the shelf's spoil. The grade lives on the node (tier 3)."
+yields:
+  - { item_ref: item.material.iron_ore, count_range: [2, 3] }

@@ -1,0 +1,14 @@
+﻿id: node.ore.hidden_grey_iron
+kind: node
+schema: 1
+display_key: node.ore.hidden_grey_iron.name
+tags: [node]
+name: Weathered Grey Iron
+notes: "D18 SYSTEMS (needed-2): a seam that does not show until it is prospected - hidden means the ground reads as ore to a prospector (colour, weight, seep) while the node itself is not drawn, which is HOOK.PROSPECT.SIGN's whole activity."
+resource_ref: resource.ore.grey_iron
+charges: 2
+respawn: none
+harvest_skill: skill.prospecting
+difficulty: 14
+tier: 2
+hidden: true

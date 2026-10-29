@@ -1,0 +1,9 @@
+﻿id: skill.herbalism
+kind: skill
+schema: 1
+display_key: skill.herbalism.name
+tags: [skill]
+name: Herbalism
+family: world
+notes: "D18 SYSTEMS (needed-2): the gathering skill a node of this kind trains. Authored so HOOK.NODE.SKILL_BOUND can be placed: a node names the skill that should rise from it, instead of every node riding skill.survival."
+teaches: "Knowing the green things by name and use: which leaf closes a wound and which closes a throat."

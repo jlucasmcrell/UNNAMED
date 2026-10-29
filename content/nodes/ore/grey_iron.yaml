@@ -1,0 +1,13 @@
+﻿id: node.ore.grey_iron
+kind: node
+schema: 1
+display_key: node.ore.grey_iron.name
+tags: [node]
+name: Grey Iron Seam
+notes: "D18 SYSTEMS (needed-2): the second ore grade, dug out of a crag face rather than picked off the spoil. Tier 2, mined rather than scavenged, so the harvest trains skill.mining and not skill.survival."
+resource_ref: resource.ore.grey_iron
+charges: 3
+respawn: none
+harvest_skill: skill.mining
+difficulty: 12
+tier: 2
