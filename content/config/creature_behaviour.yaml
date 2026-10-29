@@ -27,6 +27,17 @@ noise_m:                      # STEALTH §7: how far each sound carries
   crouch: 1.5                 # crouch-walking, quieter than a walk (§2.6)
   prone: 0.25                 # crawling (§2.6)
 corpse: { decay_s: 600, stack_slots: 8 }
+# Seeing, as physics rather than a stealth meter (STEALTH §2.1-§2.6). Every number here is a condition the player can read and change:
+# the light they stand in, what they are behind, and how tall they are. The dark shortens a sight line; it never makes anyone invisible.
+light:
+  bands: { dark: 150, dim: 400, lit: 750 }              # per-mille ceilings: at or below is that band
+  sight: { dark: 0.35, dim: 0.6, lit: 1.0, bright: 1.15, night_sight_dark: 0.9 }   # what the band multiplies a sight line by
+  ambient: { day: 800, night: 90, interior: 120 }        # by the sky clock outside, and what a room keeps without a window
+  carrier_sight_multiple: 8                              # a held light is seen from this many times its own radius (the Thief rule)
+  postures:                                              # eye height, how much harder the posture is to pick out, and its own height
+    standing: { eye_m: 1.8, sight_gain: 1.0, height_m: 1.8 }
+    crouched: { eye_m: 1.1, sight_gain: 0.7, height_m: 1.1 }
+    prone: { eye_m: 0.5, sight_gain: 0.35, height_m: 0.5 }
 # When roles that keep hours rest, by the world clock (config.time's clock_at_world_start_h at tick 0, the sky's clock too). Note 23: the sky's sun
 # is the midsummer one (a92fcd7e), so real dark runs 20:30-03:30 with twilight 19:45-20:30 and 03:30-04:15. Night starts at dusk (19:45) and day
 # at the end of dawn (04:15), so a night walker is out for the whole dark and every day creature is in its bed by dusk instead of prowling at 05:00.

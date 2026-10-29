@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using UNNAMED.Domain;
 using UNNAMED.World;
@@ -122,6 +122,7 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.CaptureRecord), nameof(UNNAMED.World.Runtime.Simulation.StateDigest),
             nameof(UNNAMED.World.Runtime.Simulation.Wares), nameof(UNNAMED.World.Runtime.Simulation.Diagnose),
             nameof(UNNAMED.World.Runtime.Simulation.Aim),   // where a shot would stop, for the aiming reticle (the owner's M6 playtest)
+            nameof(UNNAMED.World.Runtime.Simulation.PlayerVisibilityTo),   // how visible the character is to one creature, for tests and reviews (D23 S1)
             nameof(UNNAMED.World.Runtime.Simulation.Walled),   // whether a wall lies across a line, for the talk prompt (the Phase-1 technical audit, L-09)
             nameof(UNNAMED.World.Runtime.Simulation.DialogueVisited), // read-only history for unread dialogue topics
             nameof(UNNAMED.World.Runtime.Simulation.Barks),   // which of an NPC's barks hold now, for the lines said in passing

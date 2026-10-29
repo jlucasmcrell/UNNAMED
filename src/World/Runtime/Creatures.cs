@@ -1,4 +1,4 @@
-// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
+﻿// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
 // (SYSTEMS.md S-23, S-31; STEALTH_DETECTION_AND_THREAT.md §1-§7, §16; PROTOTYPE.md §4.1, §7.4; M3d)
 // No Godot references - pure C#
 
@@ -62,6 +62,14 @@ public sealed record CreatureView(EntityId Id, string Key, string DefId, string 
 
     /// <summary>It is fighting an animal of the party rather than the character: what bit it, while the grudge lasts.</summary>
     public bool OnAnAnimal { get; init; }
+
+    /// <summary>Whether it has a place to look at all, and where that place is (STEALTH §2.7): the HUD's direction wedge points at this, so a
+    /// body drawn by a noise is drawn toward the noise and not toward the character.</summary>
+    public bool Knows { get; init; }
+
+    public long KnownXMm { get; init; }
+
+    public long KnownZMm { get; init; }
 
     /// <summary>What a <see cref="MoveItemCommand"/> names the body by while it lies there.</summary>
     public string CorpseKey => CreatureSystem.CorpseKeyOf(Key, Generation);
@@ -544,22 +552,41 @@ internal sealed class CreatureSystem : IAbstractAdvance
         if (combat.Defeated)
             yield break;
         var body = State.Body;
-        var intent = _intent();
+        long radius = NoiseRadiusMm();
+        if (radius > 0)
+            yield return new Noise(body.XMm, body.ZMm, radius) { Source = SoundSource.Footfall };
+    }
+
+    /// <summary>
+    /// How far the character is heard this instant, in millimetres: the gait (a crouch and a crawl are quieter than a walk, §2.6), a swing if one
+    /// is in the air (the weapon's own, not the build's), less for a stealthy rank. Zero when nothing is moving - which is what the HUD's noise
+    /// ring draws, so the ring and the listener are the same number.
+    /// </summary>
+    public long PlayerNoiseRadiusMm() => NoiseRadiusMm();
+
+    private long NoiseRadiusMm()
+    {
+        var combat = State.PlayerCombat;
+        if (combat.Defeated)
+            return 0;
         var sound = Setup.Noise;
-        long radius = !intent.IsMoving ? 0 : combat.Blocking ? sound.WalkMm : intent.Gait switch
+        var intent = _intent();
+        long radius = !intent.IsMoving ? 0 : combat.Blocking ? sound.WalkMm : State.Posture.Stance switch
         {
-            Gait.Walk => sound.WalkMm,
-            Gait.Sprint when (State.Progression.Pools.Stamina ?? 1) > 0 => sound.SprintMm,
-            _ => sound.RunMm,
+            Stance.Crouched => sound.CrouchMm,
+            Stance.Prone => sound.ProneMm,
+            _ => intent.Gait switch
+            {
+                Gait.Walk => sound.WalkMm,
+                Gait.Sprint when (State.Progression.Pools.Stamina ?? 1) > 0 => sound.SprintMm,
+                _ => sound.RunMm,
+            },
         };
         var (phase, _) = combat.Action.PhaseAt(State.WorldTick + 1, C);
         if (combat.Action.Kind == ActionKind.Attack && !Ranged(combat.Action) && phase is CombatPhase.Windup or CombatPhase.Active)
             radius = Math.Max(radius, SwingNoise());
         // A stealthy character makes less of every sound (finding 26: -15/30/45% of the effective radius by rank).
-        if (radius > 0)
-            radius = Math.Max(1, (long)Math.Round(radius * StealthNoiseFactor(), MidpointRounding.AwayFromZero));
-        if (radius > 0)
-            yield return new Noise(body.XMm, body.ZMm, radius) { Source = SoundSource.Footfall };
+        return radius > 0 ? Math.Max(1, (long)Math.Round(radius * StealthNoiseFactor(), MidpointRounding.AwayFromZero)) : 0;
     }
 
     /// <summary>
@@ -635,6 +662,78 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
     // ── perception and the mind ─────────────────────────────────────────────
 
+    /// <summary>The light at a point in the character's space, in per mille of full day (STEALTH §2.1): the ambient, plus every burning light.</summary>
+    public int LitAt(long xMm, long zMm) =>
+        Light.At(Lights, xMm, zMm, Light.Ambient(State.Space.IsExterior, Night));
+
+    /// <summary>The band the character stands in, which is what the HUD's gem shows and what an observer's sight is scaled by (§2.1, §2.7).</summary>
+    public LightBand BandAt(long xMm, long zMm) => Light.Band(LitAt(xMm, zMm));
+
+    /// <summary>The band the character is in right now: the very number the sight check uses, so the gem cannot lie.</summary>
+    public LightBand PlayerBand => BandAt(State.Body.XMm, State.Body.ZMm);
+
+    private LightRules Light => Setup.Light;
+
+    private bool Night => Setup.Hours?.IsNight(State.WorldTick) ?? false;
+
+    /// <summary>
+    /// Every light burning in the character's space: the authored ones, and the one they are carrying. A lit torch in the hand is a light
+    /// standing where the body is (STEALTH §2.2) - carrying one is the loudest thing a stealth player can do.
+    /// </summary>
+    private IEnumerable<LightSource> Lights
+    {
+        get
+        {
+            foreach (var light in _context.Setup.LayoutFor(State.Space).Lights)
+                yield return light;
+            long carried = _context.PlayerLightRadiusMm();
+            if (carried > 0)
+                yield return new LightSource("light.carried", State.Body.XMm, State.Body.ZMm, carried, 900);
+        }
+    }
+
+    /// <summary>
+    /// How visible the character is to one observer (STEALTH §2): the light they are both standing in, the share of them the cover leaves,
+    /// their posture, whether the observer has only its periphery on them, and the brightness of what they carry. The dark shortens this
+    /// observer's sight; it does not hide anyone.
+    /// </summary>
+    internal double VisibleTo(CreatureState c, Body player)
+    {
+        var rules = Light;
+        var posture = rules.Posture(State.Posture.Stance);
+        bool nightSight = c.Definition.Senses.NightSight;
+        var band = BandAt(player.XMm, player.ZMm);
+        double distance = Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
+        var cover = BestCover(player, posture);
+        double fraction = Visibility.SeenFraction(cover, posture, cover is null ? long.MaxValue : (long)Distance(cover.XMm, cover.ZMm, player.XMm, player.ZMm));
+        bool peripheral = Visibility.InPeriphery(c.Body.FacingMdeg, c.Definition.Senses.FieldOfViewMdeg, c.Body.XMm, c.Body.ZMm,
+            player.XMm, player.ZMm);
+        // The periphery is the band that reads movement, and only near: a body standing still beyond six metres is scenery to it (§2.3).
+        if (peripheral && (distance > 6_000 || !_intent().IsMoving))
+            return 0;
+        double factor = Visibility.Factor(rules, band, nightSight, fraction, posture, peripheral, silhouette: false);
+        // Bright gear and gilt read at a distance in good light (STEALTH §3.3).
+        double penalty = _context.PlayerStealthPenalty();
+        return penalty > 0 ? factor * (1 + penalty) : factor;
+    }
+
+    /// <summary>The cover that hides most of a body where it stands, at its posture (STEALTH §2.3).</summary>
+    private CoverVolume? BestCover(Body player, PostureRule posture)
+    {
+        CoverVolume? best = null;
+        double bestSeen = 1.0;
+        foreach (var cover in _context.Setup.LayoutFor(State.Space).Covers)
+        {
+            long toCover = (long)Distance(cover.XMm, cover.ZMm, player.XMm, player.ZMm);
+            double fraction = Visibility.SeenFraction(cover, posture, toCover);
+            if (fraction >= bestSeen)
+                continue;
+            bestSeen = fraction;
+            best = cover;
+        }
+        return best;
+    }
+
     /// <summary>
     /// What it sees and hears this tick, and what that changes: awareness rises with sight and fades without it; a
     /// sound gives a place to look; a call from a packmate brings those who answer calls to the caller.
@@ -642,18 +741,18 @@ internal sealed class CreatureSystem : IAbstractAdvance
     private CreatureState Perceive(CreatureState c, long tick, List<Noise> noises)
     {
         var rules = Setup.Awareness;
-        // A lit torch in hand is seen from further off (its stealth cost, WP3a).
-        var senses = c.Definition.Senses is var own && _context.PlayerStealthPenalty() is > 0 and var penalty
-            ? own with { SightMm = (long)Math.Round(own.SightMm * (1 + penalty)) }
-            : c.Definition.Senses;
+        var senses = c.Definition.Senses;
         var player = State.Body;
         bool target = c.Site.Space == State.Space && !State.PlayerCombat.Defeated && !InGrace(tick);
         bool asleep = Asleep(c, tick);
         // A lure has it: it is watching where the decoy went, and the character is not what it is looking at (spec 43's control skill).
         bool drawn = tick < c.DrawnUntil;
-        double? seen = !asleep && target && !drawn ? Perception.Sees(c.Body, senses, player.XMm, player.ZMm, Walls(c)) : null;
+        // How visible the character is to THIS observer, from light, cover and posture (STEALTH §2.1-§2.3): a physical condition, never a flag.
+        double visibility = !asleep && target && !drawn ? VisibleTo(c, player) : 0;
+        var effective = senses with { SightMm = Math.Max(1, (long)Math.Round(senses.SightMm * Math.Max(visibility, 1e-3))) };
+        double? seen = !asleep && target && !drawn && visibility > 0 ? Perception.Sees(c.Body, effective, player.XMm, player.ZMm, Walls(c)) : null;
         // The character's stealth rank slows how fast a sighting registers (finding 26) - it never stops it (§20: no hidden flag).
-        int awareness = Perception.Accrue(c.Awareness, seen, senses.SightMm, rules, TickMs, StealthAwarenessFactor());
+        int awareness = Perception.Accrue(c.Awareness, seen, effective.SightMm, rules, TickMs, StealthAwarenessFactor());
         var next = c with { Awareness = awareness };
         if (seen is not null)
             next = next with { Knows = true, KnownXMm = player.XMm, KnownZMm = player.ZMm, LastSeenTick = tick };
@@ -1396,7 +1495,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             State.SetCreatureRecord(_owner, record);
     }
 
-    private CreatureState? Find(EntityId id) => State.Creatures.Values.FirstOrDefault(c => c.Id == id);
+    internal CreatureState? Find(EntityId id) => State.Creatures.Values.FirstOrDefault(c => c.Id == id);
 
     private Body Move(CreatureState c, long toXMm, long toZMm, Gait gait)
     {
@@ -1578,7 +1677,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             return new CreatureView(c.Id, c.Key, c.Definition.Id, c.Role.Id, c.Body, c.Health, c.ScaledMaxHealth, phase, left, c.Condition,
                 c.Mind, c.Awareness, Asleep(c, tick))
             {
-                Generation = c.Generation, Peaceful = c.Role.Peaceful,
+                Generation = c.Generation, Peaceful = c.Role.Peaceful, Knows = c.Knows, KnownXMm = c.KnownXMm, KnownZMm = c.KnownZMm,
                 Rooted = c.Alive && _context.ControlOn(c.Id) == ControlKind.Roots,
                 Paralysed = c.Alive && State.Effects.GetValueOrDefault(c.Id, ImmutableArray<ActiveEffect>.Empty).Any(e => e.EffectId == "effect.paralyse"),
                 Poisoned = c.Alive && State.Effects.GetValueOrDefault(c.Id, ImmutableArray<ActiveEffect>.Empty).Any(e => e.EffectId == "effect.venom"),

@@ -1,20 +1,23 @@
-// UNNAMED Presentation - the awareness indicator (STEALTH_DETECTION_AND_THREAT.md §20)
+// UNNAMED Presentation - the awareness indicator (STEALTH_DETECTION_AND_THREAT.md §20; STEALTH.md §2.7)
 // Godot presentation only: it draws the awareness creatures already carry; no simulation state lives here.
 
 using Godot;
+using UNNAMED.Presentation.Ui.Models;
 
 namespace UNNAMED.Presentation.Ui;
 
 /// <summary>
-/// What one nearby creature has noticed, as the indicator shows it: the real awareness number, the two thresholds it is measured against, and
-/// the scale it runs on. Presentation only - the numbers come from the creature view.
+/// What one nearby creature has noticed, as the indicator shows it: the real awareness number, the scale it runs on, what told it (an eye saw
+/// the character, an ear heard something, a nose scented it), and the bearing to the place it thinks they are - which for a noise is the
+/// noise's own place, not the body. Presentation only; every number comes from the creature view.
 /// </summary>
-public readonly record struct AwarenessCue(string Name, int Awareness, int HeardNoise, int Suspicious, int Full, bool Engaged);
+public readonly record struct AwarenessCue(string Name, int Awareness, int HeardNoise, int Suspicious, int Full, bool Engaged,
+    NoticeSense Sense = NoticeSense.Eye, float BearingDegrees = 0, bool HasDirection = false);
 
 /// <summary>
-/// §20's design rule made visible: the awareness of the nearest few creatures, each an arc that fills with the real number and empties as it
-/// decays. There is deliberately no open/closed eye and no "hidden" light - those would be the hidden flag the doc forbids. A player reads how
-/// close each body is to noticing them, and why: the tick at the second threshold is where it stops and looks.
+/// §20's design rule made visible: each nearby body is an arc that fills with the real number and empties as it decays, with what told it and
+/// which way it is looking. There is deliberately no open/closed eye and no "hidden" light - those would be the hidden flag the doc forbids.
+/// A player reads how close each body is to noticing them, why, and in which direction to move out of it.
 /// </summary>
 public partial class AwarenessMeter : Control
 {
@@ -35,7 +38,7 @@ public partial class AwarenessMeter : Control
     public override void _Ready()
     {
         MouseFilter = MouseFilterEnum.Ignore;
-        CustomMinimumSize = new Vector2(300, Rows * RowHeight);
+        CustomMinimumSize = new Vector2(320, Rows * RowHeight);
         Size = CustomMinimumSize;
     }
 
@@ -74,9 +77,47 @@ public partial class AwarenessMeter : Control
                 var direction = new Vector2(Mathf.Cos(Mathf.DegToRad(at)), Mathf.Sin(Mathf.DegToRad(at)));
                 DrawLine(centre + direction * (Radius - 2.5f), centre + direction * (Radius + 2.5f), new Color(1, 1, 1, 0.35f), weight, true);
             }
-            DrawString(font, new Vector2(2 * Radius + 16, row * RowHeight + 18), cue.Name, HorizontalAlignment.Left, -1, 13, Words);
-            DrawString(font, new Vector2(2 * Radius + 16 + 190, row * RowHeight + 18), cue.Awareness.ToString(),
+            // What told it: an eye saw the character, an ear heard something, a nose scented it. A glyph, not a colour, because the glyph is the
+            // part a player can read at a glance in the middle of a fight.
+            DrawSense(centre + new Vector2(0, -Radius - 8), cue.Sense, colour);
+            // Which way it is looking: a wedge on the rim, at the bearing to the place it thinks the character is.
+            if (cue.HasDirection)
+                DrawWedge(centre, cue.BearingDegrees, colour);
+            DrawString(font, new Vector2(2 * Radius + 26, row * RowHeight + 18), cue.Name, HorizontalAlignment.Left, -1, 13, Words);
+            DrawString(font, new Vector2(2 * Radius + 26 + 200, row * RowHeight + 18), cue.Awareness.ToString(),
                 HorizontalAlignment.Right, 60, 12, colour);
         }
+    }
+
+    /// <summary>An eye (a lens on a line), an ear (a hook and a bowl), or three motes for a scent: tiny, but each is its own silhouette.</summary>
+    private void DrawSense(Vector2 at, NoticeSense sense, Color colour)
+    {
+        switch (sense)
+        {
+            case NoticeSense.Ear:
+                DrawArc(at, 3.5f, Mathf.Pi * 0.15f, Mathf.Pi * 1.15f, 10, colour, 1.2f, true);
+                DrawLine(at + new Vector2(0, 3.5f), at + new Vector2(0, 6.5f), colour, 1.2f, true);
+                break;
+            case NoticeSense.Nose:
+                foreach (float dy in new[] { -3f, 0f, 3f })
+                    DrawCircle(at + new Vector2(0, dy), 1f, colour);
+                break;
+            default:
+                DrawArc(at, 3.5f, Mathf.Pi, Mathf.Tau, 10, colour, 1.2f, true);
+                DrawArc(at, 3.5f, 0, Mathf.Pi, 10, colour, 1.2f, true);
+                DrawCircle(at, 1.1f, colour);
+                break;
+        }
+    }
+
+    /// <summary>A three-pixel arrow on the rim pointing at the noticed place: direction, never an exact cone (the WEB rule is kept).</summary>
+    private void DrawWedge(Vector2 centre, float bearingDegrees, Color colour)
+    {
+        // The world's bearings run clockwise from +Z; on screen +Z is away from the camera, so north is drawn upward.
+        float angle = Mathf.DegToRad(bearingDegrees);
+        var direction = new Vector2(Mathf.Sin(angle), -Mathf.Cos(angle));
+        var tip = centre + direction * (Radius + 5);
+        var side = new Vector2(-direction.Y, direction.X) * 2.5f;
+        DrawColoredPolygon(new[] { tip, centre + direction * (Radius + 0.5f) + side, centre + direction * (Radius + 0.5f) - side }, colour);
     }
 }

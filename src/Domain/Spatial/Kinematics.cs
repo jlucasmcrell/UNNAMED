@@ -16,6 +16,9 @@ public enum Stance
 {
     Standing,
     Crouched,
+
+    /// <summary>On the belly (STEALTH §2.6): the lowest and slowest way a body moves, and the only one that fits under a low gap.</summary>
+    Prone,
 }
 
 /// <summary>
@@ -129,6 +132,12 @@ public sealed record MovementRules(long BaseSpeedMmPerSecond, int WalkPercent, i
     /// <summary>A crouched body's speed, of the base, whatever the gait.</summary>
     public int CrouchPercent { get; init; } = 50;
 
+    /// <summary>How tall a crawling body is: what a low gap, an overhang and a cover volume are measured against (STEALTH §2.6).</summary>
+    public long ProneHeightMm { get; init; } = 500;
+
+    /// <summary>A crawling body's speed, of the base, whatever the gait: slower than a crouch, and the one gait that never tires.</summary>
+    public int PronePercent { get; init; } = 22;
+
     /// <summary>A swimming body's speed, of the walk's, whatever the gait asked: half of it, so a sprint in the water is no faster (D20).</summary>
     public int SwimPercent { get; init; } = 50;
 
@@ -187,10 +196,19 @@ public sealed record MovementRules(long BaseSpeedMmPerSecond, int WalkPercent, i
         _ => BaseSpeedMmPerSecond,
     };
 
-    public double SpeedMmPerSecond(Gait gait, Stance stance) =>
-        stance == Stance.Crouched ? BaseSpeedMmPerSecond * CrouchPercent / 100.0 : SpeedMmPerSecond(gait);
+    public double SpeedMmPerSecond(Gait gait, Stance stance) => stance switch
+    {
+        Stance.Prone => BaseSpeedMmPerSecond * PronePercent / 100.0,
+        Stance.Crouched => BaseSpeedMmPerSecond * CrouchPercent / 100.0,
+        _ => SpeedMmPerSecond(gait),
+    };
 
-    public long HeightMm(Stance stance) => stance == Stance.Crouched ? CrouchHeightMm : StandHeightMm;
+    public long HeightMm(Stance stance) => stance switch
+    {
+        Stance.Prone => ProneHeightMm,
+        Stance.Crouched => CrouchHeightMm,
+        _ => StandHeightMm,
+    };
 
     /// <summary>The absolute grade between two points, in millimetres of rise per metre of run: what a scramble and a sheer face are read from.</summary>
     public long GradeMmPerM(double fromX, double fromZ, double toX, double toZ, WalkSpace space)

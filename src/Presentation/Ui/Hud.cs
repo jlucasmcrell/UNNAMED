@@ -56,6 +56,7 @@ public partial class Hud : CanvasLayer
     private readonly Compass _compass = new();
     private readonly Reticle _reticle = new();
     private readonly AwarenessMeter _awareness = new();
+    private readonly LightGem _gem = new();
     private readonly PanelContainer _death = new();
     private readonly Label _deathText = Text(20);
     private double _deathUntil;
@@ -98,6 +99,11 @@ public partial class Hud : CanvasLayer
         _awareness.SetAnchorsPreset(Control.LayoutPreset.CenterLeft);
         _awareness.Position = new Vector2(24, -150);
         AddChild(_awareness);
+        // The light gem and the noise ring sit under the awareness rows in both HUD styles (STEALTH §2.7): the three reads belong together, so a
+        // player looks at one place to see how visible they are, how loud, and how close each body is to noticing.
+        _gem.SetAnchorsPreset(Control.LayoutPreset.CenterLeft);
+        _gem.Position = new Vector2(24, -150 + AwarenessMeter.Rows * 26 + 6);
+        AddChild(_gem);
         if (_production)
         {
             ReadyProduction();
@@ -301,6 +307,9 @@ public partial class Hud : CanvasLayer
     /// The awareness of the nearest few creatures (STEALTH §20): an arc each, filled with the real number, never an "invisible" light.
     /// </summary>
     public void SetAwareness(IReadOnlyList<AwarenessCue> cues) => _awareness.Set(cues);
+
+    /// <summary>The band the character stands in and the radius they are heard at: both are the simulation's own numbers (STEALTH §2.7).</summary>
+    public void SetStealth(LightGemModel gem, NoiseRingModel noise, bool crouched) => _gem.Set(gem, noise, crouched);
 
     /// <summary>The creature the character is fighting or facing, or nothing.</summary>
     public void SetTarget(TargetPlate? plate)

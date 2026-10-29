@@ -1,4 +1,4 @@
-// UNNAMED Content Validation Tests
+﻿// UNNAMED Content Validation Tests
 // Tests for M1b: Content Validation Tooling
 // No Godot references
 
@@ -515,7 +515,7 @@ public class ContentLoaderTests
         Assert.Empty(loader.Errors);        Assert.Equal(
             new[]
             {
-                "ability.blade.power_strike", "ability.bow.aimed_shot", "ability.creature.animated_armour_heavy", "ability.creature.animated_armour_rush",
+                "ability.blade.power_strike", "ability.bow.aimed_shot", "ability.bow.weak_point_shot", "ability.creature.animated_armour_heavy", "ability.creature.animated_armour_rush",
                 "ability.creature.armour_slam", "ability.creature.ash_ember_hound_heavy", "ability.creature.ash_ember_hound_rush", "ability.creature.barrowback_heavy",
                 "ability.creature.boar_charge", "ability.creature.boar_gore", "ability.creature.bone_walker_husk_heavy", "ability.creature.bone_walker_husk_rush",
                 "ability.creature.bristleback_boar_heavy", "ability.creature.buck_heavy", "ability.creature.buck_rush", "ability.creature.cave_hunting_spider_heavy",
@@ -572,7 +572,7 @@ public class ContentLoaderTests
                 "hint.points_keep", "hint.prices", "hint.quality", "hint.raw_meat",
                 "hint.reputation", "hint.skills", "hint.specialised_bags", "hint.stash",
                 "hint.station_storage", "hint.stuck", "hint.teacher_practise", "hint.trade",
-                "hint.trainers", "hint.waystones", "hint.worn_price", "item.ammo.arrow_rough",
+                "hint.trainers", "hint.waystones", "hint.worn_price", "item.ammo.arrow_rough", "item.ammo.bolt_iron", "item.ammo.knife_thrown",
                 "item.armor.cloak", "item.armor.hide_boots", "item.armor.hide_cap", "item.armor.hide_vest",
                 "item.armor.lame_coif", "item.armor.lame_sabatons", "item.armor.lamework_jack", "item.armor.smith_gloves",
                 "item.armor.timber_shield", "item.armor.wool_trousers", "item.artefact.lantern_foot", "item.bag.herb_pouch",
@@ -593,7 +593,8 @@ public class ContentLoaderTests
                 "item.tool.camp_fire", "item.tool.camp_kit", "item.tool.fitting_wedge", "item.tool.lantern",
                 "item.tool.lockpicks", "item.tool.torch", "item.tool.water_flask", "item.tool.water_flask_empty", "item.trinket.alpha_fang",
                 "item.trinket.matriarch_fang", "item.trinket.wolf_fang", "item.weapon.haldas_bow", "item.weapon.haldas_knife",
-                "item.weapon.hunting_bow", "item.weapon.iron_dagger", "item.weapon.march_spear", "item.weapon.rusted_sword",
+                "item.weapon.hunting_bow", "item.weapon.iron_dagger", "item.weapon.knife_brace", "item.weapon.light_crossbow", "item.weapon.march_spear",
+                "item.weapon.rusted_sword",
                 "location.barrowworks.blind_store", "location.barrowworks.gauge_archive", "location.barrowworks.headworks", "location.barrowworks.intake_hall",
                 "location.barrowworks.r01_threshold", "location.barrowworks.r03_wash_passage", "location.barrowworks.r04_drain_mouth", "location.barrowworks.r05_sorting_floor",
                 "location.barrowworks.r06_still_bay", "location.barrowworks.r08_return_gallery", "location.barrowworks.r11_measuring_court", "location.barrowworks.r13_inspection_bay",
@@ -671,7 +672,7 @@ public class ContentLoaderTests
                 "skill.athletics", "skill.bow", "skill.cooking", "skill.fishing", "skill.foraging",
                 "skill.force", "skill.handling", "skill.herbalism", "skill.lockpicking", "skill.logging",
                 "skill.mining", "skill.one_hand_blade", "skill.polearm", "skill.salvage", "skill.skinning",
-                "skill.smithing", "skill.stealth", "skill.survival", "skill.vital", "skill.warding",
+                "skill.smithing", "skill.stealth", "skill.survival", "skill.thrown", "skill.vital", "skill.warding",
                 "skill.woodworking",
                 "spawn.barrowworks.bend_husk", "spawn.barrowworks.inspection_spiders", "spawn.barrowworks.ring_custodian", "spawn.barrowworks.sorting_spider_north",
                 "spawn.barrowworks.sorting_spider_south", "spawn.barrowworks.wash_spider", "spawn.cairnwold.barrow_sentinel", "spawn.cairnwold.birch_boar",

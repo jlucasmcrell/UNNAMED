@@ -30,3 +30,7 @@ unclimbable_prefixes: [barrier.fold, door.sealed]   # the fold/Other barriers an
 stand_height_m: 1.8      # what an overhang is measured against
 crouch_height_m: 1.15
 crouch_percent: 50       # of base_m_s, whatever the gait
+# Crawling on the belly (STEALTH §2.6): the slowest way a body moves, and the lowest. It is how a body gets under a 0.8 m gap and
+# how it stays off a skyline; it cannot dodge and it cannot run.
+prone_height_m: 0.5
+prone_percent: 22        # of base_m_s: slower than a crouch, and the one gait with no stamina cost at all

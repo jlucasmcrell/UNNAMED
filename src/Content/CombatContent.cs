@@ -112,8 +112,56 @@ public static class CombatContent
         var hours = map.ContainsKey("hours") ? Hours(loader, Map(map, "hours"), tickMs) : null;
         if (hours is null && roles.Values.FirstOrDefault(r => r.Rests != RestTime.Never) is { } keeper)
             throw new FormatException($"roles.{keeper.Id} rests by {keeper.Rests.ToString().ToLowerInvariant()}, so the config gives hours");
-        return setup => setup with { Awareness = rules, Noise = sounds, Roles = roles, CorpseDecayTicks = decay, CorpseStackSlots = slots, Hours = hours };
+        var light = map.ContainsKey("light") ? Light(Map(map, "light")) : new LightRules();
+        return setup => setup with
+        {
+            Awareness = rules, Noise = sounds, Roles = roles, CorpseDecayTicks = decay, CorpseStackSlots = slots, Hours = hours, Light = light,
+        };
     }
+
+    /// <summary>
+    /// How light, cover and posture make a body visible (STEALTH §2): the four bands' ceilings, what each does to a sight line, the ambient by
+    /// the clock, and the three postures' heights and gains. Every one of them is a condition the player can read and change.
+    /// </summary>
+    private static LightRules Light(Dictionary<object, object> light)
+    {
+        var bands = Map(light, "bands");
+        var sight = Map(light, "sight");
+        var ambient = Map(light, "ambient");
+        var postures = Map(light, "postures");
+        var rules = new LightRules
+        {
+            DarkBelow = Int(bands, "dark"),
+            DimBelow = Int(bands, "dim"),
+            LitBelow = Int(bands, "lit"),
+            DarkFactor = Number(sight, "dark"),
+            DimFactor = Number(sight, "dim"),
+            LitFactor = Number(sight, "lit"),
+            BrightFactor = Number(sight, "bright"),
+            NightSightDarkFactor = Number(sight, "night_sight_dark"),
+            AmbientDay = Int(ambient, "day"),
+            AmbientNight = Int(ambient, "night"),
+            InteriorAmbient = Int(ambient, "interior"),
+            CarrierSightMultiple = light.ContainsKey("carrier_sight_multiple") ? Int(light, "carrier_sight_multiple") : 8,
+            Standing = Posture(Map(postures, "standing")),
+            Crouched = Posture(Map(postures, "crouched")),
+            Prone = Posture(Map(postures, "prone")),
+        };
+        if (rules.DarkBelow is <= 0 or > LightRules.PerMille || rules.DimBelow <= rules.DarkBelow || rules.LitBelow <= rules.DimBelow
+            || rules.LitBelow >= LightRules.PerMille)
+            throw new FormatException("light.bands is three rising ceilings in 1..1000 per mille (dark < dim < lit)");
+        if (rules.DarkFactor is <= 0 or > 1 || rules.DimFactor is <= 0 or > 1 || rules.LitFactor <= 0 || rules.BrightFactor < rules.LitFactor
+            || rules.NightSightDarkFactor is <= 0 or > 1)
+            throw new FormatException("light.sight needs positive factors, dark and dim no brighter than lit, and bright no darker than lit");
+        if (rules.AmbientDay <= rules.AmbientNight || rules.InteriorAmbient < 0 || rules.CarrierSightMultiple < 1)
+            throw new FormatException("light.ambient needs a day brighter than its night, a non-negative interior, and a carrier multiple of at least 1");
+        if (rules.Crouched.HeightMm >= rules.Standing.HeightMm || rules.Prone.HeightMm >= rules.Crouched.HeightMm)
+            throw new FormatException("light.postures must be lower than the last: prone < crouched < standing");
+        return rules;
+    }
+
+    private static PostureRule Posture(Dictionary<object, object> posture) =>
+        new(Mm(posture, "eye_m"), Number(posture, "sight_gain"), Mm(posture, "height_m"));
 
     /// <summary>
     /// <c>hours</c>: when night falls and day breaks, by the world clock - which reads config.time's <c>clock_at_world_start_h</c> at
@@ -472,7 +520,10 @@ public static class CombatContent
         if (map.GetValueOrDefault("perception") is not Dictionary<object, object> perception)
             return new Senses(25_000, 140_000, 30_000);
         var senses = new Senses(Mm(perception, "sight_m"), perception.ContainsKey("fov_deg") ? (long)Math.Round(Number(perception, "fov_deg") * 1000) : 140_000,
-            Mm(perception, "hearing_m"));
+            Mm(perception, "hearing_m"))
+        {
+            NightSight = perception.GetValueOrDefault("night_sight") as string == "true",
+        };
         if (senses.SightMm < 0 || senses.HearingMm < 0 || senses.FieldOfViewMdeg is <= 0 or > 360_000)
             throw new FormatException($"{id}: perception needs non-negative ranges and a field of view in (0, 360]");
         return senses;

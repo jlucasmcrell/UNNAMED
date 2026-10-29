@@ -190,6 +190,15 @@ public sealed record RegionLayout(
     public ImmutableArray<RoadSite> Roads { get; init; } = ImmutableArray<RoadSite>.Empty;
 
     /// <summary>
+    /// The lights standing in this space (STEALTH §2.2): what a body can be seen by, and what a stealth player can put out. Authored, so
+    /// the light is deterministic and savable; the renderer's own lights only drive the look.
+    /// </summary>
+    public ImmutableArray<LightSource> Lights { get; init; } = ImmutableArray<LightSource>.Empty;
+
+    /// <summary>Cover volumes (STEALTH §2.3): what a body can be partly behind, and at what posture.</summary>
+    public ImmutableArray<CoverVolume> Covers { get; init; } = ImmutableArray<CoverVolume>.Empty;
+
+    /// <summary>
     /// The portals leading out of this region and into an interior space (M8 D10). Empty for every region
     /// that has no interior, which is all of them until the Barrowworks is gated on; a region's own
     /// entrances are the exterior anchors of these.

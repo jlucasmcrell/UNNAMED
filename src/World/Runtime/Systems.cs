@@ -246,6 +246,15 @@ internal sealed class SystemContext
             .Select(id => State.Inventory.FirstOrDefault(e => e.ItemId == id))
             .Sum(entry => entry is null ? 0 : Setup.Items.Catalog.Find(entry.DefId)?.StealthPenalty ?? 0));
 
+    /// <summary>
+    /// How far the character's own held light reaches, if anything equipped gives light (STEALTH §2.2): a torch or a lantern is a light
+    /// standing where the body is, and it lights the body it is carried by. Zero when nothing equipped gives light.
+    /// </summary>
+    public long PlayerLightRadiusMm() =>
+        State.Equipment.Values
+            .Select(id => State.Inventory.FirstOrDefault(e => e.ItemId == id))
+            .Max(entry => entry is null ? 0 : Setup.Items.Catalog.Find(entry.DefId)?.LightRadiusMm ?? 0);
+
     /// <summary>How close the body must be to speak or trade with an NPC: a hand's reach, to the NPC's body (M4).</summary>
     public long TalkReachMm => Setup.Items.Inventory.ReachMm + Setup.Movement.BodyRadiusMm;
 

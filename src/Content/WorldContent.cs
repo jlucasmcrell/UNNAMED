@@ -4,6 +4,7 @@
 
 using System.Collections.Immutable;
 using System.Globalization;
+using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Domain.Travel;
 using UNNAMED.World;
@@ -694,6 +695,8 @@ public static class WorldContent
                 Portals = new SpacePortalSet(portals.ToImmutable()).Validate(),
                 Waystones = waystones.ToImmutable(),
                 Roads = roads.ToImmutable(),
+                Lights = Lights(map, minX, minZ, maxX, maxZ, Check),
+                Covers = Covers(map, minX, minZ, maxX, maxZ, Check),
                 Opening = opening,
             };
 
@@ -729,8 +732,55 @@ public static class WorldContent
         return CellKey.OfInterior(space, x / 1000.0, z / 1000.0);
     }
 
-    private static TidalWater BuildTide(Dictionary<object, object> map)
+    /// <summary>
+    /// The lights a space stands in (STEALTH §2.2): <c>lights: [{ key, position_m, radius_m, intensity, dousable }]</c>. A light is a place
+    /// and what it gives, never whether it is burning - that is the world's flag, so a doused torch is the same authored light.
+    /// </summary>
+    private static ImmutableArray<LightSource> Lights(Dictionary<object, object> map, long minX, long minZ, long maxX, long maxZ, Action<bool, string, string> check)
     {
+        var lights = ImmutableArray.CreateBuilder<LightSource>();
+        foreach (var (entry, i) in (map.ContainsKey("lights") ? List(map, "lights") : new List<object>()).Select((l, i) => (l, i)))
+        {
+            var site = entry as Dictionary<object, object> ?? throw new FormatException($"lights[{i}] must be a map");
+            var (lx, lz) = Pair(site, "position_m");
+            var light = new LightSource(Text(site, "key"), lx, lz, Mm(site, "radius_m"), Int(site, "intensity"))
+            {
+                Dousable = !site.ContainsKey("dousable") || bool.Parse(site["dousable"].ToString()!),
+            };
+            check(light.Key.StartsWith("light.", StringComparison.Ordinal), "WLD014", $"light key '{light.Key}' must start with 'light.'");
+            check(light.RadiusMm > 0, "WLD014", $"{light.Key} needs a positive radius_m");
+            check(light.IntensityPermille is > 0 and <= LightRules.PerMille, "WLD014", $"{light.Key} needs an intensity in 1..1000 (per mille of full day)");
+            check(lx >= minX && lx <= maxX && lz >= minZ && lz <= maxZ, "WLD014", $"{light.Key} lies outside the walkable bounds");
+            lights.Add(light);
+        }
+        check(lights.Select(l => l.Key).Distinct(StringComparer.Ordinal).Count() == lights.Count, "WLD014", "two lights share a key");
+        return lights.ToImmutable();
+    }
+
+    /// <summary>
+    /// The cover a space offers (STEALTH §2.3): <c>covers: [{ key, kind, position_m, radius_m, height_m, blocks_sight_percent }]</c>. Its kind
+    /// is one of the level kit's own, its height is what decides which postures it hides, and the fraction is what a body behind it is worth.
+    /// </summary>
+    private static ImmutableArray<CoverVolume> Covers(Dictionary<object, object> map, long minX, long minZ, long maxX, long maxZ, Action<bool, string, string> check)
+    {
+        var covers = ImmutableArray.CreateBuilder<CoverVolume>();
+        foreach (var (entry, i) in (map.ContainsKey("covers") ? List(map, "covers") : new List<object>()).Select((c, i) => (c, i)))
+        {
+            var site = entry as Dictionary<object, object> ?? throw new FormatException($"covers[{i}] must be a map");
+            var (cx, cz) = Pair(site, "position_m");
+            string kind = Text(site, "kind");
+            var cover = new CoverVolume(Text(site, "key"), kind, cx, cz, Mm(site, "radius_m"), Mm(site, "height_m"), Int(site, "blocks_sight_percent"));
+            check(CoverVolume.Kinds.Contains(kind), "WLD015", $"{cover.Key}: kind '{kind}' is not one of {string.Join(", ", CoverVolume.Kinds)}");
+            check(cover.RadiusMm > 0 && cover.HeightMm > 0, "WLD015", $"{cover.Key} needs a positive radius_m and height_m");
+            check(cover.BlocksSightPercent is > 0 and <= 100, "WLD015", $"{cover.Key}: blocks_sight_percent is 1..100");
+            check(cx >= minX && cx <= maxX && cz >= minZ && cz <= maxZ, "WLD015", $"{cover.Key} lies outside the walkable bounds");
+            covers.Add(cover);
+        }
+        check(covers.Select(c => c.Key).Distinct(StringComparer.Ordinal).Count() == covers.Count, "WLD015", "two covers share a key");
+        return covers.ToImmutable();
+    }
+
+    private static TidalWater BuildTide(Dictionary<object, object> map)    {
         long low = Mm(map, "low_m"), high = Mm(map, "high_m"), period = Long(map, "period_ticks");
         if (high <= low || period < 4 || period > 100000000 || period % 2 != 0)
             throw new FormatException("tidal_water needs high > low and an even period_ticks in [4,100000000]");

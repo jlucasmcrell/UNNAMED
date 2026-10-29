@@ -78,7 +78,8 @@ public class TeachingContentTests
 
         Assert.Equal(new[] { "ability.blade.power_strike" }, Lessons("npc.ashen_hollow.kera_voss", TeachingKind.Technique));
         Assert.Equal(new[] { "ability.polearm.long_thrust" }, Lessons("npc.cairnwold.durn_skell", TeachingKind.Technique));
-        Assert.Equal(new[] { "ability.bow.aimed_shot" }, Lessons("npc.ashen_hollow.tavar_orr", TeachingKind.Technique));
+        // Tavar teaches the bow twice over: how hard to loose it, and (D23) where to put the arrow.
+        Assert.Equal(new[] { "ability.bow.aimed_shot", "ability.bow.weak_point_shot" }, Lessons("npc.ashen_hollow.tavar_orr", TeachingKind.Technique));
         Assert.Equal(new[] { "ability.blade.power_strike" }, Lessons("npc.sedge.iren_orr", TeachingKind.Technique));
         Assert.Equal(new[] { "ability.bow.aimed_shot" }, Lessons("npc.sedge.tess_ferry", TeachingKind.Technique));
         Assert.Equal(new[] { "recipe.herbal.salve_minor", "recipe.herbal.salve_ember" }, Lessons("npc.ashen_hollow.sel_arien", TeachingKind.Recipe));
@@ -99,7 +100,10 @@ public class TeachingContentTests
         Assert.All(paidTechniqueLessons, o =>
         {
             Assert.True(o.Fee > 0);
-            Assert.Equal(15, Assert.IsType<SkillBandRequirement>(Assert.Single(o.Requirements)).MinLevel);
+            // A weapon's first technique is open to anyone familiar with the family (15); the placed shot needs the family's proficiency (30),
+            // because where to put an arrow is a harder thing to teach than how hard to loose it (D23, STEALTH §7.2).
+            int expected = o.DefinitionId == "ability.bow.weak_point_shot" ? 30 : 15;
+            Assert.Equal(expected, Assert.IsType<SkillBandRequirement>(Assert.Single(o.Requirements)).MinLevel);
         });
         var dialogueTechniqueLessons = npcs.Values.SelectMany(n => n.Teaches)
             .Where(o => o.Kind == TeachingKind.Technique && o.ByDialogue);
@@ -112,8 +116,13 @@ public class TeachingContentTests
         var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
         var techniques = TeachingContent.BuildTechniques(loader);
 
+        // The bow carries two: how hard to loose it (aimed_shot) and where to put the arrow (weak_point_shot, D23). Both are the bow's own
+        // blow with the bow's own weapon, so neither is a second family's.
         Assert.Equal(new[] { ("ability.blade.power_strike", "skill.one_hand_blade"), ("ability.bow.aimed_shot", "skill.bow"),
-            ("ability.polearm.long_thrust", "skill.polearm") }, techniques.Values.Select(t => (t.Id, t.SkillId)));
+            ("ability.bow.weak_point_shot", "skill.bow"), ("ability.polearm.long_thrust", "skill.polearm") },
+            techniques.Values.Select(t => (t.Id, t.SkillId)));
+        Assert.Equal(UNNAMED.Domain.Combat.BodyRegion.Head, techniques["ability.bow.weak_point_shot"].AimRegion);
+        Assert.Null(techniques["ability.bow.aimed_shot"].AimRegion);
         var strike = techniques["ability.blade.power_strike"];
         Assert.Equal((1.6, 1.5, 0L, 22, 120, "effect.bleeding", 50), (strike.DamageMultiplier, strike.WindupMultiplier, strike.ReachBonusMm,
             strike.StaminaCost, strike.CooldownTicks, strike.OnHitEffect, strike.OnHitEffectPercent));

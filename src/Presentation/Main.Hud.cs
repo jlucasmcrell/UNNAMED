@@ -130,9 +130,23 @@ public partial class Main
             .Where(c => c.Alive && Nearness(c) < 30_000)
             .OrderBy(Nearness)
             .Take(AwarenessMeter.Rows)
-            .Select(c => new AwarenessCue(Names.Of(_session, c.DefId), c.Awareness, awarenessRules.HeardNoise, awarenessRules.Suspicious,
-                UNNAMED.Domain.Creatures.Perception.Full, c.Mind == CreatureMind.Engaged))
+            .Select(c =>
+            {
+                // What told it, and which way it is looking: the sight of the character is an eye at the body; a noise or a sign is an ear at the
+                // place it believes they are, which is exactly the wedge the player uses to move out of the search (STEALTH §2.7).
+                bool saw = c.Knows && c.KnownXMm == playerBody.XMm && c.KnownZMm == playerBody.ZMm;
+                var (bearing, has) = c.Knows
+                    ? AwarenessRead.Toward(playerBody.XMm, playerBody.ZMm, c.KnownXMm, c.KnownZMm)
+                    : (0f, false);
+                return new AwarenessCue(Names.Of(_session, c.DefId), c.Awareness, awarenessRules.HeardNoise, awarenessRules.Suspicious,
+                    UNNAMED.Domain.Creatures.Perception.Full, c.Mind == CreatureMind.Engaged,
+                    saw ? NoticeSense.Eye : NoticeSense.Ear, bearing, has);
+            })
             .ToList());
+        // The light gem and the noise ring, from the same numbers the creatures are read by (STEALTH §2.7).
+        _hud.SetStealth(UNNAMED.Presentation.Ui.Models.LightGemModel.From(simulation.PlayerLightBand),
+            UNNAMED.Presentation.Ui.Models.NoiseRingModel.From(simulation.PlayerNoiseMm),
+            posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched);
         var quests = simulation.Quests;
         string? tracked = simulation.TrackedQuest(_journal.Tracked);
         var questRows = QuestPresentation.Tracker(quests, tracked);

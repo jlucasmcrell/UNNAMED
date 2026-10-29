@@ -7,7 +7,14 @@ using UNNAMED.Domain.Spatial;
 namespace UNNAMED.Domain.Creatures;
 
 /// <summary>An actor's senses (DATA_MODEL.md §4.4 <c>perception</c>): how far it sees, across what arc, and how far it hears.</summary>
-public sealed record Senses(long SightMm, long FieldOfViewMdeg, long HearingMm);
+public sealed record Senses(long SightMm, long FieldOfViewMdeg, long HearingMm)
+{
+    /// <summary>
+    /// It hunts by night (STEALTH §2.1, <c>night_sight</c>): the dark it stands in costs it 0.9 rather than 0.35. The wolf, the owl and the
+    /// spider read a dark room; a person does not, which is the whole of a stealth player's night.
+    /// </summary>
+    public bool NightSight { get; init; }
+}
 
 /// <summary>
 /// How awareness grows and fades (STEALTH §3: awareness is not binary). It runs 0..<see cref="Perception.Full"/>: at

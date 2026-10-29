@@ -1,4 +1,4 @@
-// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md Â§4.5, Â§7, Â§8.1)
+﻿// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md Â§4.5, Â§7, Â§8.1)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -680,6 +680,25 @@ public sealed class Simulation
 
     /// <summary>Every creature the region holds, living or dead.</summary>
     public ImmutableArray<CreatureView> Creatures => _creatures.Views();
+
+    /// <summary>The light the character is standing in, in per mille of full day, and the band it falls in (STEALTH §2.1): the HUD's gem and
+    /// the sight check read the same number, so the gem cannot lie about what an observer gets.</summary>
+    public int PlayerLitPermille => _creatures.LitAt(Player.Body.XMm, Player.Body.ZMm);
+
+    public UNNAMED.Domain.Combat.LightBand PlayerLightBand => _creatures.PlayerBand;
+
+    /// <summary>How far the character is heard right now, in millimetres: the HUD's noise ring is drawn at exactly this radius (§2.7).</summary>
+    public long PlayerNoiseMm => _creatures.PlayerNoiseRadiusMm();
+
+    /// <summary>
+    /// How visible the character is to one creature, from 0 (not in a state to be seen at all) upward, as the sight check itself computes it
+    /// (STEALTH §2): the light they both stand in, the cover the character is behind, their posture and what they carry. Read-only, for tests
+    /// and reviews that need the factor rather than the consequence.
+    /// </summary>
+    public double PlayerVisibilityTo(EntityId creature) =>
+        _creatures.Views().FirstOrDefault(c => c.Id == creature) is { } view && _creatures.Find(creature) is { } state
+            ? _creatures.VisibleTo(state, Player.Body)
+            : 0;
 
     /// <summary>The region's named NPCs (M4).</summary>
     public ImmutableArray<NpcView> Npcs => _npcs.Views();

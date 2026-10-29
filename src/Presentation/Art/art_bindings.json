@@ -1,4 +1,4 @@
-{
+﻿{
  "comment": [
   "What the game draws and plays for each thing the simulation has: game IDs on the left, the asset pipeline's stable semantic IDs on the right.",
   "Presentation data, not game content: nothing here changes a rule, a save or the content hash. An asset that is missing or will not load",
@@ -6199,9 +6199,13 @@
   "item.consumable.salve_minor": "ui.item.restorative",
   "item.weapon.hunting_bow": "ui.item.hunting_bow",
   "item.weapon.haldas_bow": "ui.item.hunting_bow",
+  "item.weapon.light_crossbow": "ui.item.hunting_bow",
+  "item.weapon.knife_brace": "ui.item.iron_dagger",
   "item.weapon.march_spear": "ui.item.march_spear",
   "item.weapon.rusted_sword": "ui.item.rusted_sword",
   "item.ammo.arrow_rough": "ui.item.arrow_rough",
+  "item.ammo.bolt_iron": "ui.item.arrow_rough",
+  "item.ammo.knife_thrown": "ui.item.iron_dagger",
   "item.armor.hide_cap": "ui.item.hide_cap",
   "item.armor.hide_vest": "ui.item.hide_vest",
   "item.material.ash_haft": "ui.item.ash_haft",
@@ -6349,6 +6353,7 @@
   "panel.credits": "ui.panel.credits",
   "item.tool.torch": "ui.item.torch",
   "skill.bow": "ui.skill.bow",
+  "skill.thrown": "ui.skill.bow",
   "skill.polearm": "ui.skill.polearm",
   "effect.fed": "ui.status.fed",
   "effect.ember_mending": "ui.status.ember_mending",

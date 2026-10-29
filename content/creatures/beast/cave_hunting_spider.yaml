@@ -15,7 +15,7 @@ move_speed_m_s: 5.5
 body_radius_m: 0.5
 xp_value: 40
 loot_table: loot.cave_hunting_spider   # its silk; its corpse holds this until searched
-perception: { sight_m: 6, hearing_m: 14, fov_deg: 360 }   # it feels, rather than sees
+perception: { sight_m: 6, hearing_m: 14, fov_deg: 360, night_sight: true }   # it feels, rather than sees
 # Its head is a mouth on legs; what a spider cannot armour is the abdomen behind it (STEALTH §7.2).
 hit_zones:
   head: { multiplier: 1.0 }
