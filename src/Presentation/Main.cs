@@ -613,11 +613,6 @@ public partial class Main : Node3D
         _loading?.Note(UNNAMED.Domain.Knowledge.LoreRules.Latest(_session.Setup.Lore, _session.Simulation?.Lore ?? default));
         BuildPanels(profile);
         Subscribe();
-        if (VisualOptions.NoHud)
-        {
-            _hud.Visible = false;
-            GD.Print("UNNAMED hud: none - the run draws no HUD (proof frame)");
-        }
         DefineInput();
         UseSettings(applyPicture: !harness);
 
@@ -751,6 +746,9 @@ public partial class Main : Node3D
             // and a destination.)
             Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
             string shotDir = _options.GetValueOrDefault("--shot-out") ?? Path.Combine(OS.GetUserDataDir(), "scratch", "shot");
+            // A still is proof of the world, not of the interface: hide the HUD with everything else already wired.
+            if (_options.ContainsKey("--shot-hud"))
+                _hud.Visible = false;
             _survey = SurveyShots.One(_session, _controller, _camera, Path.GetFullPath(shotDir), shotSpec);
         }
         else if (_options.TryGetValue("--survey", out string? survey))
