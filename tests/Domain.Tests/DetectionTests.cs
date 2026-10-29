@@ -52,6 +52,15 @@ public class DetectionTests
     }
 
     [Fact]
+    public void AThrownLure_CrossesAWardBeforeTheCharacterDoes()
+    {
+        // STEALTH.md 3.2, 10: the distraction is the ward's counter, and it only works because it crosses the ward first.
+        long radius = 2_000;
+        Assert.True(WardRules.Alarms(200, radius, quieted: false, crossedByDistraction: false, hasRuneKey: false));
+        Assert.False(WardRules.Alarms(200, radius, quieted: false, crossedByDistraction: true, hasRuneKey: false));
+    }
+
+    [Fact]
     public void AWardAlarmsOnCrossing_AndIsQuietWhenSomethingElseCrossedItFirst()
     {
         Assert.True(WardRules.Alarms(toWardMm: 200, radiusMm: 500, quieted: false, crossedByDistraction: false, hasRuneKey: false));

@@ -13,3 +13,4 @@ guaranteed:
   # needs is findable in the place that most rewards it.
   - { item_ref: item.tool.detector_motion, count_range: [1, 1] }
   - { item_ref: item.armor.cloak_optical, count_range: [1, 1] }
+  - { item_ref: item.tool.lure_stone, count_range: [2, 3] }

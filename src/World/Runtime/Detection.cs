@@ -8,6 +8,12 @@ using UNNAMED.Domain.Spatial;
 
 namespace UNNAMED.World.Runtime;
 
+/// <summary>
+/// Throw something to make a noise somewhere else (STEALTH.md 3.2, 10): the distraction a ward can be beaten with, and every creature within
+/// earshot turns to it. It disables no ward by itself - it crosses one first, which is the canon's own counter.
+/// </summary>
+public sealed record DistractCommand(EntityId Actor, long XMm, long ZMm) : GameCommand(Actor);
+
 /// <summary>A carried detector read something (S7): the sense that found it, its key, and where it stood when it was found.</summary>
 public sealed record DetectorContact(string Sense, string CreatureKey, long XMm, long ZMm, long Tick);
 
@@ -35,6 +41,20 @@ internal sealed class DetectionSystem
     /// <summary>What the carried sensors read this tick: transient, and empty when nothing is carried.</summary>
     public ImmutableArray<DetectorContact> Contacts { get; private set; } = ImmutableArray<DetectorContact>.Empty;
     private readonly HashSet<string> _tripped = new(StringComparer.Ordinal);
+
+    /// <summary>The wards a thrown noise has already crossed, by key: each is spent once, as a distraction is.</summary>
+    private readonly HashSet<string> _distracted = new(StringComparer.Ordinal);
+
+    /// <summary>A thrown lure landed: any ward within its own radius is crossed by the noise before the character is.</summary>
+    public void Distract(SpaceId space, long xMm, long zMm)
+    {
+        foreach (var ward in _context.Setup.LayoutFor(space).Wards)
+        {
+            long dx = ward.XMm - xMm, dz = ward.ZMm - zMm;
+            if (dx * dx + dz * dz <= ward.RadiusMm * ward.RadiusMm * 4)
+                _distracted.Add(ward.Key);
+        }
+    }
 
     public DetectionSystem(SystemContext context, EntityId player)
     {
@@ -97,7 +117,7 @@ internal sealed class DetectionSystem
             if (dx * dx + dz * dz > ward.RadiusMm * ward.RadiusMm)
                 continue;
             _tripped.Add(ward.Key);
-            if (WardRules.Alarms(toWardMm: 0, radiusMm: ward.RadiusMm, quieted: false, crossedByDistraction: false,
+            if (WardRules.Alarms(toWardMm: 0, radiusMm: ward.RadiusMm, quieted: false, crossedByDistraction: _distracted.Contains(ward.Key),
                     hasRuneKey: State.Progression.Known.ContainsKey(ward.RuneKey)))
             {
                 _context.Events.Publish(new WardTripped(ward.Key, space.ToString(), lens.XMm, lens.ZMm, tick));

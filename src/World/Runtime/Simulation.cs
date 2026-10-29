@@ -544,6 +544,18 @@ public sealed class Simulation
     }
 
     /// <summary>The cell a door stands in, in the space its layout stands in: its flag lives in that cell's delta.</summary>
+    /// <summary>A thrown lure: the world hears it where it lands, and the wards it crossed are spent (D23 S7, STEALTH.md 3.2).</summary>
+    private string? Distract(DistractCommand command)
+    {
+        _detection.Distract(_state.Space, command.XMm, command.ZMm);
+        // A thrown lure is an impact heard where it landed, which is what a thrown stone is (STEALTH.md 3.2).
+        _context.Dispatch(new RaiseNoise(new UNNAMED.Domain.Creatures.Noise(command.XMm, command.ZMm, Setup.Combat.Noise.ImpactSolidMm)
+        {
+            Source = UNNAMED.Domain.Creatures.SoundSource.Impact,
+        }));
+        return null;
+    }
+
     public static CellKey CellOf(SpaceId space, DoorSite door) => CellOf(space, door.ClosedFootprint);
 
     /// <summary>The cell a switch stands in (M6): its flag, and every flag it requires, live in that cell's delta.</summary>
@@ -1059,6 +1071,7 @@ public sealed class Simulation
                 SwapGearSetCommand swap => _gearSets.Handle(swap, WorldTick),
                 CancelGearSwapCommand cancel => _gearSets.Handle(cancel, WorldTick),
                 RepairCommand repair => _durability.Handle(repair, WorldTick),
+        DistractCommand distract => Distract(distract),
                 MerchantRepairCommand repair => _trade.Handle(repair, WorldTick),
                 JoinGroupCommand join => _lfg.Handle(join, WorldTick),
                 _ => $"no system handles {command.GetType().Name}",
