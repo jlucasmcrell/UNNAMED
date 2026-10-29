@@ -1,0 +1,13 @@
+id: node.carcass.grey_wolf
+kind: node
+schema: 1
+display_key: node.carcass.grey_wolf.name
+tags: [node]
+name: Wolf Carcass
+notes: "D18 SYSTEMS (needed-2): a body left where it fell. Skinning trains skill.skinning and not survival, which is what HOOK.NODE.SKILL_BOUND and HOOK.NODE.CARCASS both ask for. Two charges: the meat first, then the hide."
+resource_ref: resource.carcass.grey_wolf
+charges: 2
+respawn: none
+harvest_skill: skill.skinning
+difficulty: 8
+tier: 1

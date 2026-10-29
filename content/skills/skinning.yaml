@@ -1,0 +1,9 @@
+id: skill.skinning
+kind: skill
+schema: 1
+display_key: skill.skinning.name
+tags: [skill]
+name: Skinning
+family: world
+notes: "D18 SYSTEMS (needed-2): taking a hide off a body without ruining it - the skill a carcass trains and the reason a kill is worth walking back to."
+teaches: "Work a carcass before it spoils: the cut, the pull, and where a pelt tears if you hurry."

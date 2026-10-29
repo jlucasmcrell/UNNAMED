@@ -1,0 +1,13 @@
+id: node.carcass.deer
+kind: node
+schema: 1
+display_key: node.carcass.deer.name
+tags: [node]
+name: Deer Carcass
+notes: "D18 SYSTEMS (needed-2): a stag's body in the grass - the cleanest first skinning a new hunter can find."
+resource_ref: resource.carcass.grey_wolf
+charges: 2
+respawn: none
+harvest_skill: skill.skinning
+difficulty: 6
+tier: 1

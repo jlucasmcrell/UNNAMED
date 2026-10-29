@@ -150724,6 +150724,16 @@ nodes:
   - 553.0
   - 654.0
   tier: 1
+- name: fold_carcass_deer
+  node_ref: node.carcass.deer
+  position_m:
+  - 549.1
+  - 652.6
+- name: fold_carcass_wolf
+  node_ref: node.carcass.grey_wolf
+  position_m:
+  - 547.1
+  - 649.0
 stations:
 - key: station.forge_hearth
   kind: forge

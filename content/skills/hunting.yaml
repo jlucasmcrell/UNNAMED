@@ -1,0 +1,9 @@
+id: skill.hunting
+kind: skill
+schema: 1
+display_key: skill.hunting.name
+tags: [skill]
+name: Hunting
+family: world
+notes: "D18 SYSTEMS (needed-2): finding and taking a beast - the approach and the shot; skinning is what follows it."
+teaches: "Read sign and wind before the shot; a clean kill leaves a body worth skinning."

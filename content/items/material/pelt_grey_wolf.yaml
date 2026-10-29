@@ -1,0 +1,12 @@
+id: item.material.pelt_grey_wolf
+kind: item
+schema: 1
+display_key: item.material.pelt_grey_wolf.name
+tags: [item]
+name: Grey Wolf Pelt
+notes: "D18 SYSTEMS (needed-2): a wolf's hide off a carcass, whole enough to work. No leatherworking recipe spends it yet."
+category: material
+stack_max: 10
+weight: 1.0
+value_base: 9
+rarity: common
