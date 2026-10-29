@@ -330,3 +330,16 @@ file was expected. Reading the run's own log instead is decisive:
 The cylinder in the den frame is therefore not my marker. Next step, and it is concrete: diff my marker entry against a
 structures: entry that does render (one with a kind, material or structure field), and give the marker whatever
 field makes it a blocker - then the prefix binding already committed will have something to act on.
+
+### Round 19 - the binding resolves; a second world view has none, and the frame is still grey
+One instrumented run, one print in ArtStructure, answered it:
+GRAVEDIAG id=grave_marker_halda look=landmark_ph_waystone_a and the same for errin - **the structure_prefixes
+binding is found and correct** - followed by the same two ids printing look=NO BINDING. There are two world views
+(Main.BuildScene's "Hollow" and the interior "DenGorgeCave"/"Barrowworks", Main.cs:858 and 1087); the second is bound
+to a view whose bindings carry no prefixes, and it is the one drawn in the frame the audit captured.
+So the remaining questions are narrow and ordered:
+1. which view the audit's shots are rendered from, and whether the interior view is what stands at the gorge lip;
+2. why Fitting.Structure does not put landmark_ph_waystone_a on the marker even where the binding resolves (the
+   probe to add next is _art.Why(\"landmark_ph_waystone_a\", blocker.Id) beside the look, which prints the reason the
+   library gives).
+The diagnostic is removed again; the tree builds clean.
