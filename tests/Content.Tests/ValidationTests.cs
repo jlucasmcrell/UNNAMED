@@ -512,8 +512,7 @@ public class ContentLoaderTests
         bool success = loader.LoadAll(Path.Combine(RepoPaths.Root(), "content"));
 
         Assert.True(success, string.Join("\n", loader.Errors));
-        Assert.Empty(loader.Errors);
-        Assert.Equal(
+        Assert.Empty(loader.Errors);        Assert.Equal(
             new[]
             {
                 "ability.blade.power_strike", "ability.bow.aimed_shot", "ability.creature.animated_armour_heavy", "ability.creature.animated_armour_rush",
@@ -700,7 +699,45 @@ public class ContentLoaderTests
                 "world.hollow.longhouse_door_open", "world.lock.container.road.barrow_cache", "world.lock.door.granary", "world.main.carrier",
                 "world.main.gauge_seen", "world.main.named_dandelion",
                 "world.main.named_robin", "world.road.rim_stone_woken", "world.space.elapsed_ticks",
-            },
+            }.Concat(new[] {
+                "ability.creature.back_ledger_raider_heavy", "ability.creature.back_ledger_raider_light", "ability.creature.back_ledger_raider_rush", "ability.creature.sedge_drowned_heavy",
+                "ability.creature.sedge_drowned_light", "ability.creature.sedge_drowned_rush", "ability.creature.sedge_eel_serpent_heavy", "ability.creature.sedge_eel_serpent_light",
+                "ability.creature.sedge_eel_serpent_rush", "ambience.den_gorge", "ambience.foldscar", "ambience.rim_road",
+                "creature.beast.sedge_eel_serpent", "creature.humanoid.back_ledger_raider", "creature.undead.sedge_drowned", "dialogue.road.rim_keeper",
+                "dialogue.sedge.iren_orr", "dialogue.sedge.keeper_of_names", "dialogue.sedge.nessa_reed", "dialogue.sedge.oren_pin",
+                "dialogue.sedge.sella_tally", "dialogue.sedge.tess_ferry", "grave.blackvein_cut", "grave.cairnwold_village",
+                "grave.den_gorge.halda", "grave.field_the_spill", "grave.foldscar", "grave.old_late",
+                "grave.road_basin_rim", "grave.the_road.berrin", "item.material.leather", "item.material.meat_raw",
+                "item.material.pelt_grey_wolf", "item.tome.fitting_tables", "location.sedge_causeway_arch", "location.sedge_oath_house_outer",
+                "location.sedge_orr_camp", "location.sedge_pellow_cuts", "location.sedge_tollpiles", "loot.barrowworks_archivist_case",
+                "loot.barrowworks.coffer", "loot.barrowworks.coffer_master", "loot.blackvein_strongbox", "loot.blackvein_tool_cache",
+                "lore.brannock_stone", "lore.grave_berrin", "lore.grave_blackvein_cut", "lore.grave_cairnwold_village",
+                "lore.grave_field_the_spill", "lore.grave_foldscar", "lore.grave_halda", "lore.grave_old_late",
+                "lore.grave_road_basin_rim", "lore.ritual_blackvein_cut", "lore.ritual_cairnwold_village", "lore.ritual_den_listening",
+                "lore.ritual_field_the_spill", "lore.ritual_foldscar_watch", "lore.ritual_old_late", "lore.ritual_outpost",
+                "lore.ritual_road_basin_rim", "market.sedge_tollpiles", "merchant.road.rim_keeper", "merchant.sedge.nessa_reed",
+                "merchant.sedge.oren_pin", "node.carcass.boar", "node.carcass.deer", "node.carcass.grey_wolf",
+                "node.ore.bog_iron", "node.ore.grey_iron", "node.ore.hidden_bog_iron", "node.ore.hidden_grey_iron",
+                "node.sedge.tidewashed_spar", "node.wood.pine_resin", "npc.road.rim_keeper", "npc.sedge.iren_orr",
+                "npc.sedge.keeper_of_names", "npc.sedge.nessa_reed", "npc.sedge.oren_pin", "npc.sedge.sella_tally",
+                "npc.sedge.tess_ferry", "quest.heritage.unfinished_joint", "quest.sedge.the_kept_crossing", "recipe.tanning.wolf_hide",
+                "region.sedge_levels", "resource.carcass.grey_wolf", "resource.ore.bog_iron", "resource.ore.grey_iron",
+                "resource.wood.resin", "ritual.blackvein_cut", "ritual.cairnwold_village", "ritual.den_listening",
+                "ritual.field_the_spill", "ritual.foldscar_watch", "ritual.old_late", "ritual.outpost",
+                "ritual.road_basin_rim", "routine.sedge.arch_worker_0", "routine.sedge.arch_worker_1", "routine.sedge.iren_orr",
+                "routine.sedge.keeper_of_names", "routine.sedge.nessa_reed", "routine.sedge.oren_pin", "routine.sedge.resident_0",
+                "routine.sedge.resident_1", "routine.sedge.resident_2", "routine.sedge.resident_3", "routine.sedge.resident_4",
+                "routine.sedge.resident_5", "routine.sedge.resident_6", "routine.sedge.resident_7", "routine.sedge.sella_tally",
+                "routine.sedge.tess_ferry", "skill.hunting", "skill.prospecting", "spawn.foldscar.pack",
+                "spawn.old_late.brute", "spawn.sedge.back_ledger_cache", "spawn.sedge.drowned_bank", "spawn.sedge.drowned_pair",
+                "spawn.sedge.eel_channel", "spawn.sedge.eel_shoal", "world.barrowworks.coffer_store_open", "world.blackvein.seam_gate_open",
+                "world.blackvein.tool_shed_open", "world.lock.container.barrowworks.coffer_master", "world.lock.container.barrowworks.coffer_sorting", "world.lock.container.barrowworks.coffer_still_bay",
+                "world.lock.container.blackvein.strongbox", "world.lock.container.blackvein.tool_cache", "world.lock.container.den_cache", "world.lock.container.foldscar_cache",
+                "world.lock.container.old_late_cache", "world.lock.door.barrowworks.coffer_store", "world.lock.door.blackvein.seam_gate", "world.lock.door.blackvein.tool_shed",
+                "world.old_late.steadied", "world.ritual.blackvein_cut_drawn", "world.ritual.cairnwold_village_drawn", "world.ritual.den_listening_drawn",
+                "world.ritual.field_the_spill_drawn", "world.ritual.foldscar_watch_drawn", "world.ritual.old_late_drawn", "world.ritual.outpost_drawn",
+                "world.ritual.road_basin_rim_drawn", "world.sedge.crossing_account",
+            }).OrderBy(k => k, StringComparer.Ordinal),
             loader.Definitions.Keys.OrderBy(k => k, StringComparer.Ordinal));
     }
 

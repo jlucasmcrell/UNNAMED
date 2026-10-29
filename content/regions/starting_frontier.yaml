@@ -141053,7 +141053,8 @@ structures:
   - 462.1
   - 747.15
   height_m: 1.33
-  # D6: the owned wooden ladder against the smithy wall, in world metres like the fence beside it, climbable to its top by its ladder_ prefix.- id: rock_well
+  # D6: the owned wooden ladder against the smithy wall, in world metres like the fence beside it, climbable to its top by its ladder_ prefix.
+- id: rock_well
   circle_m:
   - 449
   - 751
@@ -151145,6 +151146,19 @@ waters:
   width_m: 2.2
   depth_m: 0.55
   catch: loot.fishing.ah_creek
+# D18 water addendum: Cairnwold's millpond and the millrace that leaves it north-east.
+- key: water.cw_millpond
+  kind: pond
+  path_m: [[958.0, 700.0]]
+  level_m: 4.35
+  width_m: 26.0
+  depth_m: 2.4
+  catch: loot.fishing.cw_millpond
+- key: water.cw_millrace
+  kind: stream
+  path_m: [[958.0, 700.0], [964.0, 706.0], [972.0, 712.0], [981.0, 719.0]]
+  level_m: 4.30
+  width_m: 2.6
 # D18: Blackvein's sump - the standing water at the low end of the quarry floor, where the seam drains.
 - key: water.bv_sump
   kind: pond
@@ -152029,8 +152043,8 @@ waystones:
   name: The Gorge Stone
   location_ref: location.den_gorge
   arrival_m:
-  - 535.0
-  - 789.2
+  - 540.0
+  - 776.0
 - key: waystone.foldscar
   structure: foldscar_waystone
   name: The Scar Stone

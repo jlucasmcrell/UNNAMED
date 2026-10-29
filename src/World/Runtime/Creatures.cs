@@ -53,6 +53,8 @@ public sealed record CreatureView(EntityId Id, string Key, string DefId, string 
     public bool Enraged { get; init; }
     [System.Text.Json.Serialization.JsonIgnore]
     public int PhaseDurationTicks { get; init; }
+    public int AttackVariant { get; init; }
+    public bool Guarding { get; init; }
     public bool Alive => Condition == CreatureCondition.Alive;
 
     public bool Hostile => Mind == CreatureMind.Engaged;
@@ -121,6 +123,17 @@ internal sealed record CreatureState(
     public long SearchUntil { get; init; }
     public bool HasCalled { get; init; }
     public long NextChargeTick { get; init; }
+    // Transient human-like defense and attack chain state (Sedge D18).
+    public long GuardUntil { get; init; }
+    public int ComboStep { get; init; }
+    public long ComboUntil { get; init; }
+    public long ReactedToAttackTick { get; init; } = -1;
+    public bool Dodges(long tick, CombatConstants constants) => Action.Kind == ActionKind.Dodge
+        && Action.PhaseAt(tick, constants).Phase == CombatPhase.Dodge;
+    public bool Blocks(Body attacker, AttackProfile attack, long tick, CombatConstants constants) =>
+        GuardUntil > tick && DamageTypes.IsPhysical(attack.DamageType)
+        && CombatRules.InFront(Body.XMm, Body.ZMm, Body.FacingMdeg, attacker.XMm, attacker.ZMm,
+            long.MaxValue / 4, constants.BlockArcMdeg);
     public long DiedTick { get; init; }
     public long RespawnTick { get; init; }
 
@@ -1542,7 +1555,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 Temperament = TemperamentRules.Of(c.Role.Peaceful, c.Role.AnswersCalls, c.Mind == CreatureMind.Engaged),
                 Threat = ThreatRules.Of(c.Definition.Level + c.LevelBonus, State.Progression.Level),
                 AttackSource = c.Action.Attack?.Source,
+                AttackVariant = 0,
                 AttackTick = c.Action.StartTick,
+                Guarding = c.GuardUntil > tick,
                 Enraged = Enraged(c),
                 PhaseDurationTicks = c.Action.Attack is { } attack ? phase switch
                 {

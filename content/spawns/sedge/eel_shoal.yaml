@@ -14,8 +14,8 @@ creatures:
   role: pack_hunter
 at:
   position_m:
-  - 4820
-  - 1240
+  - 4745
+  - 1241
   radius_m: 0
 level_band:
 - 12

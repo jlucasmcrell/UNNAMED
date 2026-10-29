@@ -2955,6 +2955,20 @@
       "model": "landmark_ph_waystone_a",
       "material": "stone",
       "note": "D18: the area waystone, the same scanned stone as Ashen, the Rim and the Den."
+    },
+    "hold_brannock_mouth": {
+      "model": "landmark_dc_brannock_hold_mouth",
+      "material": "stone",
+      "note": "The Brannock hold's mouth (The Unfinished Joint, HERITAGE_DESIGN.md 3.2): Dwarven Citadel main-gate arch scaled 1.416 with its door shut and a 0.7 m notch cut from the lintel course; built by C:/Otherreach_Build/heritage_hold_art/src/build_brannock_hold_mouth.py."
+    },
+    "hold_brannock_rubble": {
+      "model": "bw_codex_mine_rubble",
+      "material": "stone"
+    },
+    "sedge_tollpiles_waystone": {
+      "model": "landmark_ph_waystone_a",
+      "material": "stone",
+      "note": "D18 Sedge: the Tollpiles toll stone, the same scanned standing stone Cairnwold's waystone uses."
     }
   },
   "doors": {
@@ -4899,7 +4913,13 @@
         0.8,
         0
       ],
-      "note": "Reuse the shipped licensed wooden notice panel; lifted to reading height on the inn wall."
+      "note": "Reuse the shipped licensed wooden notice panel; lifted to reading height on the inn wall.",
+      "beside": "prop_bp_lantern_post",
+      "beside_offset": [
+        1.1,
+        0,
+        0
+      ]
     },
     "anvil": {
       "model": "station_bp_anvil",
@@ -5005,7 +5025,7 @@
       "model": "humgen_mob_drowned",
       "clips": {},
       "voice": "bone_walker_husk",
-      "flesh": "flesh",
+      "flesh": "bone",
       "blow": "claw",
       "steps": {
         "walk": "walk",
@@ -5067,8 +5087,8 @@
       },
       "weapon_item": "item.weapon.rusted_sword",
       "voice": "",
-      "flesh": "flesh",
-      "blow": "",
+      "flesh": "plate",
+      "blow": "slam",
       "steps": {
         "walk": "walk",
         "run": "run"
@@ -5166,7 +5186,11 @@
         "run": "move_heavy"
       },
       "uniform_scale": 0.5,
-      "note": "MR-0150 rock golem: crystal-spined stone brute, mirrored to a full body, native rig and its own idle/run/attack/hurt/death takes (walk is the run slowed)."
+      "note": "MR-0150 rock golem: crystal-spined stone brute, mirrored to a full body, native rig and its own idle/run/attack/hurt/death takes (walk is the run slowed).",
+      "paces": {
+        "walk": 1.41,
+        "run": 4.58
+      }
     },
     "creature.construct.gate_warden": {
       "model": "creature_d5_stone_giant",
@@ -5189,7 +5213,11 @@
         "run": "move_heavy"
       },
       "uniform_scale": 1.8,
-      "note": "MR-0002 giant stone: armoured stone titan, 4K PBR, 79-bone deform rig; accepted UAL humanoid takes retargeted and slowed for weight."
+      "note": "MR-0002 giant stone: armoured stone titan, 4K PBR, 79-bone deform rig; accepted UAL humanoid takes retargeted and slowed for weight.",
+      "paces": {
+        "walk": 3.76,
+        "run": 12.2
+      }
     },
     "creature.beast.hound_pup": {
       "model": "creature_wm_grey_wolf_b",
@@ -5783,7 +5811,8 @@
         "death": "creature.creature_d5_tarantula_matriarch.dead",
         "ability.creature.spider_bite": "creature.creature_d5_tarantula_matriarch.attack_1",
         "ability.creature.matriarch_lunge": "creature.creature_d5_tarantula_matriarch.attack_2",
-        "ability.creature.hunting_spider_matriarch_heavy": "creature.creature_d5_tarantula_matriarch.attack_2"
+        "ability.creature.hunting_spider_matriarch_heavy": "creature.creature_d5_tarantula_matriarch.attack_2",
+        "hit": "creature.creature_playtest_cave_spider.hit"
       },
       "voice": "cave_hunting_spider",
       "flesh": "chitin",
@@ -5793,6 +5822,18 @@
         "walk": "scuttle",
         "run": "scuttle_fast"
       }
+    },
+    "creature.beast.sedge_eel_serpent": {
+      "model": "sedge_eel_serpent",
+      "clips": {},
+      "voice": "sedge_eel_serpent",
+      "flesh": "chitin",
+      "blow": "sting",
+      "steps": {
+        "walk": "walk",
+        "run": "move_fast"
+      },
+      "note": "D5 private creature payload; Sedge Gate 4 art reviewed separately from the station capture."
     }
   },
   "audio": {

@@ -1,0 +1,9 @@
+id: world.lock.container.old_late_cache
+kind: world_flag
+schema: 1
+display_key: world.lock.container.old_late_cache.name
+tags: [world_flag]
+notes: Whether the authored container.old_late_cache has been opened by the accepted lockpicking system. The state is named from the site key and set once in that cell.
+type: bool
+default: 0
+owning_system: S-22

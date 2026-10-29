@@ -4,6 +4,6 @@ schema: 1
 display_key: skill.prospecting.name
 tags: [skill]
 name: Prospecting
-family: world
+family: gathering
 notes: "D18 SYSTEMS (needed-2): the gathering skill a node of this kind trains. Authored so HOOK.NODE.SKILL_BOUND can be placed: a node names the skill that should rise from it, instead of every node riding skill.survival."
 teaches: "Reading ground for what it holds: colour, weight and seep say where a seam lies before a pick touches it."

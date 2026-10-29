@@ -38,6 +38,7 @@ concepts:
   status: covered
   covered_by:
   - lore.ashen_hollow
+  - lore.ritual_outpost
   fact: Ashen Hollow is the frontier waystation of one longhouse, one forge and one standing stone on the old road between the quarry and the woods.
   source: content/lore/ashen_hollow.yaml; content/regions/ashen_hollow.yaml notes
 - id: canon.ashen_waystone
@@ -67,7 +68,9 @@ concepts:
 - id: canon.berrin_garth
   name: Berrin Garth
   kind: other
-  status: missing
+  status: partly
+  covered_by:
+  - lore.grave_berrin
   fact: Berrin Garth keeps the long lodge and is Cairnwold's memory - who built the walls, why the granary stands on staddles, and what in the basin is older than the village.
   source: content/npcs/cairnwold/berrin_garth.yaml notes
 - id: canon.blackvein_cut
@@ -78,6 +81,8 @@ concepts:
   source: content/lore/blackvein.yaml
   covered_by:
   - lore.blackvein
+  - lore.grave_blackvein_cut
+  - lore.ritual_blackvein_cut
 - id: canon.bog_cotton
   name: Bog Cotton
   kind: material
@@ -118,6 +123,8 @@ concepts:
   source: content/locations/cairnwold/village.yaml notes
   covered_by:
   - lore.cairnwold
+  - lore.grave_cairnwold_village
+  - lore.ritual_cairnwold_village
 - id: canon.cave_hunting_spider
   name: Cave Hunting Spider
   kind: creature
@@ -167,6 +174,7 @@ concepts:
   source: content/locations/den_gorge.yaml notes; content/locations/den_gorge/*.yaml notes (spec 28)
   covered_by:
   - lore.den_gorge
+  - lore.ritual_den_listening
 - id: canon.durn_skell
   name: Durn Skell
   kind: other
@@ -217,6 +225,8 @@ concepts:
   source: content/lore/tavar_and_the_fold.yaml; content/regions/ashen_hollow.yaml switches; owner-approved grand-scale answers GS-1, GS-2 (2026-10-24)
   covered_by:
   - lore.tavar_and_the_fold
+  - lore.grave_foldscar
+  - lore.ritual_foldscar_watch
 - id: canon.found_pacha
   name: The Found Pacha
   kind: cosmology
@@ -249,6 +259,7 @@ concepts:
   source: content/quests/ashen_hollow/haldas_tally.yaml notes; content/dialogue/cairnwold/tam_crowden.yaml halda
   covered_by:
   - lore.halda_crowden
+  - lore.grave_halda
 - id: canon.iron
   name: Iron
   kind: material
@@ -398,6 +409,8 @@ concepts:
   status: covered
   covered_by:
   - lore.old_late
+  - lore.grave_old_late
+  - lore.ritual_old_late
   fact: Old Late is a dressed stone giant some sixty metres tall, kneeling on a planted sword east of the waystation, whose crown answers the wind a breath late, cut from the same stone as the three Quiet Stones (kneeling - owner-approved grand-scale answer GS-3, 2026-10-24).
   source: content/lore/old_late.yaml
 - id: canon.ondrek
@@ -729,6 +742,8 @@ concepts:
   source: content/locations/road/basin_rim.yaml notes
   covered_by:
   - lore.the_rim
+  - lore.grave_road_basin_rim
+  - lore.ritual_road_basin_rim
 - id: canon.the_silence
   name: The Silence
   kind: myth
@@ -868,6 +883,8 @@ concepts:
   source: docs/FIELD_RUINS.md Canon (owner-approved 2026-10-24)
   covered_by:
   - lore.the_spill
+  - lore.grave_field_the_spill
+  - lore.ritual_field_the_spill
 - id: canon.stopped_gate
   name: The Stopped Gate
   kind: place

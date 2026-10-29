@@ -6368,7 +6368,22 @@
   "travel.return_point": "ui.travel.return_point",
   "item.armor.lamework_jack": "ui.item.lamework_jack",
   "item.armor.lame_coif": "ui.item.lame_coif",
-  "item.armor.lame_sabatons": "ui.item.lame_sabatons"
+  "item.armor.lame_sabatons": "ui.item.lame_sabatons",
+  "item.material.pelt_grey_wolf": "ui.item.wolf_hide",
+  "skill.foraging": "ui.skill.survival",
+  "skill.logging": "ui.skill.smithing",
+  "item.material.leather": "ui.item.small_hide",
+  "item.tool.lockpicks": "ui.item.brass_key",
+  "skill.hunting": "ui.skill.bow",
+  "skill.prospecting": "ui.skill.survival",
+  "item.tome.fitting_tables": "ui.item.bench_patterns",
+  "skill.herbalism": "ui.skill.survival",
+  "skill.skinning": "ui.skill.survival",
+  "skill.woodworking": "ui.skill.smithing",
+  "item.material.meat_raw": "ui.item.raw_meat",
+  "skill.cooking": "ui.skill.survival",
+  "skill.mining": "ui.skill.smithing",
+  "skill.lockpicking": "ui.skill.survival"
  },
  "effects": {
   "cast_charge": "vfx.magic.cast_charge",

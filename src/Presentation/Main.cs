@@ -1964,7 +1964,7 @@ public partial class Main : Node3D
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--creator-people" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
                     or "--camp-review" or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"
-                    or "--anim-person" or "--anim-compare" or "--anim-phase"
+                    or "--anim-person" or "--anim-compare" or "--anim-phase" or "--sedge-services-review" or "--sedge-combat-review" or "--sedge-life-review" or "--sedge-boat-review" or "--sedge-return-services"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

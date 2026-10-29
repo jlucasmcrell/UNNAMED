@@ -143,6 +143,5 @@ public abstract partial class Figure : Node3D
     /// </summary>
     public virtual void Work()
     {
-    }    {
     }
 }

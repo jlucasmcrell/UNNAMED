@@ -479,9 +479,12 @@ public partial class HollowView : Node3D
             Coverage.Fallback("structure", blocker.Id, $"no binding: {shape}");
             return null;
         }
-        // Collision for art something else draws (the Barrowworks threshold's spoil bank): the camera's collider only.
+        // Hidden domain volumes can be invisible to the camera while authored hidden structures keep their collision.
         if (look.Hidden)
-            return Unseen(BuildStructure(blocker, terrain, SupportFor(blocker)));
+        {
+            Coverage.Resolved("structure", blocker.Id, "domain-only footprint");
+            return look.CameraCollisionOff ? new Node3D { Name = blocker.Id } : Unseen(BuildStructure(blocker, terrain, SupportFor(blocker)));
+        }
         if (look.Surface is { } surface && look.Model is null)
         {
             if (_art.WorldMaterial(surface) is not { } material)

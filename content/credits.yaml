@@ -20,6 +20,7 @@ first_party:
   - barrowback_hide_folded
   - deer_hide_folded
   - fellhorn_hide_folded
+  - herb_press
   - small_hide_folded
   - wolf_hide_folded
   - brass_key

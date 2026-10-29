@@ -25,14 +25,14 @@ public sealed class SedgeEncounterTests
     }
 
     [Fact]
-    public void ThreeMoveEncountersHaveClearReachableBanksOutsideTheServicePosts()
+    public void MoveEncountersHaveClearReachableBanksOutsideTheServicePosts()
     {
         var loader = new ContentLoader();
         Assert.True(loader.LoadAll(Path.Combine(TestWorlds.RepoRoot(), "content")));
         var layout = WorldContent.BuildLayout(loader, "region.sedge_levels");
         var definitions = CombatContent.BuildCreatures(loader, WorldContent.TickMilliseconds(loader));
         var sites = CombatContent.BuildSpawns(loader, "region.sedge_levels");
-        Assert.Equal(3, sites.Length);
+        Assert.Equal(5, sites.Length);
         using var route = JsonDocument.Parse(File.ReadAllText(Path.Combine(TestWorlds.RepoRoot(), "content/sedge_gate2_route.json")));
         var points = route.RootElement.GetProperty("points").EnumerateArray()
             .Select(p => new NavPoint((long)(p[0].GetDouble()*1000), (long)(p[1].GetDouble()*1000))).ToArray();
@@ -40,10 +40,15 @@ public sealed class SedgeEncounterTests
         var query = new NavQuery(grid, _ => true, NavConfig.Default, new NavScratch(), null);
         foreach (var site in sites)
         {
-            var definition = definitions[Assert.Single(site.Members).CreatureId];
-            Assert.NotNull(definition.Charge);
-            Assert.NotNull(definition.CloseAttack);
-            Assert.True(Kinematics.IsClear(site.XMm, site.ZMm, definition.RadiusMm, layout.Space,
+            Assert.NotEmpty(site.Members);
+            var members = site.Members.Select(member => definitions[member.CreatureId]).ToArray();
+            Assert.All(members, definition =>
+            {
+                Assert.NotNull(definition.Charge);
+                Assert.NotNull(definition.CloseAttack);
+            });
+            var radius = members.Max(definition => definition.RadiusMm);
+            Assert.True(Kinematics.IsClear(site.XMm, site.ZMm, radius, layout.Space,
                 System.Collections.Immutable.ImmutableArray<Blocker>.Empty), site.Key + " is obstructed");
             var nearest = points.MinBy(p => Math.Abs(p.XMm-site.XMm)+Math.Abs(p.ZMm-site.ZMm))!;
             var path = NavSearch.Plan(query, new NavAgent(0, true), nearest, new NavPoint(site.XMm, site.ZMm));

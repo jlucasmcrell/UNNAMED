@@ -73,10 +73,10 @@ internal sealed class LockpickSystem
     {
         if(_context.Setup.Sites(l=>l.Doors).FirstOrDefault(p=>p.Site.Key==key) is { Site: { } door, Layout: var home })
             return home.SpaceId!=State.Space ? null
-                : (door.LockTier,door.ClosedFootprint.DistanceTo(State.Body.XMm,State.Body.ZMm));
+                : (door.LockTier ?? 0,door.ClosedFootprint.DistanceTo(State.Body.XMm,State.Body.ZMm));
         if(_context.Setup.Sites(l=>l.Containers).FirstOrDefault(p=>p.Site.Key==key) is { Site: { } container, Layout: var containerHome })
             return containerHome.SpaceId!=State.Space ? null
-                : (container.LockTier,Distance(container.XMm,container.ZMm));
+                : (container.LockTier ?? 0,Distance(container.XMm,container.ZMm));
         return null;
     }
 
