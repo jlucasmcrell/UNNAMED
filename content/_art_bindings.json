@@ -206,6 +206,48 @@
    "material": "wood",
    "wind": 1.0,
    "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. Replaces the procedural oak/pine/dead set; all >= 11.9 m, trunk within 0.53 m of box centre."
+  },
+  "arena_chalk_trial_": {
+   "models": [
+    "arena_chalk_ring"
+   ],
+   "material": "stone",
+   "note": "D19 arena paint: the Wayholder's trial circle in the waystation yard. A flat mark laid on the ground - the arena's boundary is the court the boss record carries, and this is what draws it."
+  },
+  "arena_chalk_late_": {
+   "models": [
+    "arena_chalk_ring"
+   ],
+   "material": "stone",
+   "note": "D19 arena paint: the circle under Old Late's crown, where the Breath Late answers. A flat mark laid on the ground - the arena's boundary is the court the boss record carries, and this is what draws it."
+  },
+  "arena_chalk_hart_": {
+   "models": [
+    "arena_chalk_ring"
+   ],
+   "material": "stone",
+   "note": "D19 arena paint: the basin inside the three Quiet Stones, the Doubled Hart's circle. A flat mark laid on the ground - the arena's boundary is the court the boss record carries, and this is what draws it."
+  },
+  "arena_chalk_matriarch_": {
+   "models": [
+    "arena_chalk_ring"
+   ],
+   "material": "stone",
+   "note": "D19 arena paint: the Matriarch's great chamber, chalked so the ring is a place in the cave. A flat mark laid on the ground - the arena's boundary is the court the boss record carries, and this is what draws it."
+  },
+  "arena_measure_court_": {
+   "models": [
+    "arena_measure_floor"
+   ],
+   "material": "stone",
+   "note": "D19 arena paint: the measuring court's floor, scored in one-metre measures. A flat mark laid on the ground - the arena's boundary is the court the boss record carries, and this is what draws it."
+  },
+  "arena_chalk_channel_": {
+   "models": [
+    "arena_chalk_ring"
+   ],
+   "material": "stone",
+   "note": "D19 arena paint: the channel under the causeway, chalked at Old Channel's water. A flat mark laid on the ground - the arena's boundary is the court the boss record carries, and this is what draws it."
   }
  },
  "building_walls": {

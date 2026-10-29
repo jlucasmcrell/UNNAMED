@@ -874,6 +874,7 @@ public partial class Main : Node3D
         _interior.Bind(_art, bindings, new GroundField(ring, bindings, _scatterRules));
         AddChild(_interior);
         _interior.Build(ring);
+        Greybox.ArenaMarks.Build(_interior, _art, _session.Setup.Combat.Spawns, ring);
         _interior.SetFlags(_session.Simulation!.Switches, _session.Simulation.Barriers, inPlay: false);
         foreach (var site in ring.Doors)
         {
@@ -1104,6 +1105,7 @@ public partial class Main : Node3D
         AddChild(_hollow);
         _loading?.Stage("Raising the terrain and buildings", 0.2);
         _hollow.Build(layout);
+        Greybox.ArenaMarks.Build(_hollow, _art, _session.Setup.Combat.Spawns, layout);
         _loading?.Stage("Building the interiors", 0.6);
         BuildInterior();
         // What grows and lies on the ground (Phase A, the visual audit's V3): placed once a world, and so its seed, is known (Resync).
