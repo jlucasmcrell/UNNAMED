@@ -739,9 +739,22 @@ public partial class InventoryPanel : CanvasLayer
         }
         var setup = simulation.Setup;
         var item = setup.Items.Catalog.Find(defId);
-        var head = UiKit.Section(Names.Item(_session, defId, quality),
+        // D21 G4: an assembled piece reads by its build - its own name, what it was made from, and who made it.
+        var built = _chosen is not null && simulation.Player.Inventory.FirstOrDefault(e => e.ItemId.Value == _chosen) is { Built: { } build }
+            ? build
+            : null;
+        string title = item is null ? "" : built is { } made && _session.Setup.Gear.Makers.TryGetValue(made.MakerId, out var makerOf)
+            ? GearNaming.NameOf(item, made, _session.Setup.Gear.Parts, _session.Setup.Gear.Materials, makerOf)
+            : Names.Item(_session, defId, quality);
+        var head = UiKit.Section(title,
             item is null ? "" : item.Heritage is { } people ? HeritageRules.PeopleWord(people) + " heritage" : Names.Words(item.Category));
         _details.AddChild(head);
+        if (built is { } shown && item is not null)
+        {
+            _session.Setup.Gear.Makers.TryGetValue(shown.MakerId, out var maker);
+            foreach (string line in GearNaming.TooltipLines(shown, _session.Setup.Gear.Parts, _session.Setup.Gear.Materials, maker))
+                _details.AddChild(UiKit.Words(line, 16, HudStyle.Brass));
+        }
         if (_chosen is not null && item?.Heritage is null && simulation.Player.Inventory.FirstOrDefault(e => e.ItemId.Value == _chosen) is { } selected)
         {
             var salvage = simulation.Salvage(selected.ItemId);

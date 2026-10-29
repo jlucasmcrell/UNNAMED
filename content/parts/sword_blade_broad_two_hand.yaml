@@ -3,6 +3,7 @@ kind: part
 schema: 1
 display_key: part.sword.blade.broad_two_hand.name
 asset: "D21 Blade blank: blade_01 [B], OWNED"
+noun: "greatsword"
 tags: [blade, broad, two_hand]
 name: Broad Two-Hand Blade
 notes: "A greatsword's blade: heavier in the hand and heavier in the hit."

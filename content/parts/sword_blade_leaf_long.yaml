@@ -3,6 +3,7 @@ kind: part
 schema: 1
 display_key: part.sword.blade.leaf_long.name
 asset: "D21 Blade blank: blade_01 [B], OWNED"
+noun: "longsword"
 tags: [blade, leaf, one_hand]
 name: Leaf Long Blade
 notes: "A blade that widens before the point: more reach, a touch slower."

@@ -21,6 +21,7 @@ material_palette: [{ material_ref: mat.iron.charcoal_steel, weight: 4 }, { mater
 signature: { tendency: heavy_and_durable, stat_bias: { weight_mult: 1.09, durability_mult: 1.08, speed_mult: 0.96 } }
 tier_range: [1, 5]
 name_grammar: name.maker.ondrek_deep_works
+maker_words: ["Deep", "Strata", "Old-works"]
 tooltip_line_key: maker.ondrek.deep_works.line
 source_notes:
   - "WORLD_ATLAS Ondrek row: stone strata, deep works, old stone tools still in use."

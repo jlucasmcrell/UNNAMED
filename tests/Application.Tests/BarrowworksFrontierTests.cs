@@ -1,4 +1,5 @@
 using UNNAMED.Domain.Spatial;
+using UNNAMED.Domain.Items;
 using UNNAMED.Persistence;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
@@ -99,6 +100,39 @@ public class BarrowworksFrontierTests
         Walk(arena, (x, z) => headworks.ClosedFootprint.DistanceTo(x, z) < session.Setup.Movement.InteractReachMm - 200);
         Assert.Equal(headworks.LockedText, arena.Submit(new InteractCommand(arena.Player, headworks.Key)));
         Assert.False(arena.Simulation.Doors.Single(d => d.Site == headworks).Open);
+    }
+
+
+    [Fact]
+    public void TheCratesSword_ArrivesAssembled_AndKeepsItsPartsWhenTaken()
+    {
+        // D21 G4: a piece of gear lying in a chest is a rolled build - maker, part per slot, material - and it stays that build in the pack.
+        using var profile = new TempProfile();
+        using var session = Harness.Boot(profile, barrowworks: true);
+        var arena = AtThreshold(session);
+        Assert.Null(arena.Submit(new EnterSpaceCommand(arena.Player, "portal.barrowworks.threshold")));
+        arena.Tick();
+        var crate = arena.Simulation.ActiveLayout.Containers.Single(c => c.Key == "container.barrowworks.archive_crate");
+        Walk(arena, (x, z) => Math.Sqrt(Math.Pow(x - crate.XMm, 2) + Math.Pow(z - crate.ZMm, 2)) < session.Setup.Items.Inventory.ReachMm - 200);
+        Assert.Null(arena.Submit(new TakeAllCommand(arena.Player, crate.Key)));
+
+        // The character already carries a plain starting sword, so the one from the crate is the one with a build.
+        var rolled = Assert.Single(arena.Simulation.Player.Inventory.Where(i => i.DefId == "item.weapon.rusted_sword" && i.Built is not null));
+        var build = rolled.Built!;
+        Assert.Equal("sword", build.Family);
+        Assert.Equal("maker.veth.waystation_smithy", build.MakerId);
+        Assert.Equal(4, build.Parts.Count);
+        Assert.All(build.Parts.Keys, slot => Assert.Contains(slot, new[] { "blade", "guard", "grip", "pommel" }));
+        Assert.NotEmpty(build.Materials);
+
+        // And it reads and resolves as that build, not as the template it came from.
+        var item = session.Setup.Items.Catalog.Find(rolled.DefId);
+        var maker = session.Setup.Gear.Makers[build.MakerId];
+        string name = GearNaming.NameOf(item, build, session.Setup.Gear.Parts, session.Setup.Gear.Materials, maker);
+        Assert.Contains(GearNaming.NounOf(item, build, session.Setup.Gear.Parts), name);
+        var resolved = GearResolver.Resolve(item, build, session.Setup.Gear.Parts, session.Setup.Gear.Materials, maker);
+        Assert.False(resolved.Clamped);
+        Assert.True(resolved.DamageMax > 0);
     }
 
     [Fact]

@@ -3,6 +3,7 @@ kind: part
 schema: 1
 display_key: part.sword.blade.arming_straight.name
 asset: "D21 Blade blank: blade_01 [B], OWNED"
+noun: "arming sword"
 tags: [blade, straight, one_hand]
 name: Straight Arming Blade
 notes: "The baseline blade: forgiving, slightly long (the ORR arming sword)."

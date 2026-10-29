@@ -3,6 +3,7 @@ kind: part
 schema: 1
 display_key: part.staff.cap.iron.name
 asset: "D21 socketed head, OWNED"
+noun: "iron-shod staff"
 tags: [cap, iron]
 name: Iron Staff Cap
 notes: "An iron cap: a staff that is also a mace when it needs to be."

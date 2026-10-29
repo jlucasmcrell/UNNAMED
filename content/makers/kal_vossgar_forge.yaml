@@ -30,6 +30,7 @@ material_palette: [{ material_ref: mat.iron.kal_folded, weight: 5 }, { material_
 signature: { tendency: heavy_and_durable, stat_bias: { weight_mult: 1.08, durability_mult: 1.1, speed_mult: 0.97 } }
 tier_range: [1, 5]
 name_grammar: name.maker.kal_vossgar
+maker_words: ["Vossgar", "Basalt-hafted", "Gallery"]
 tooltip_line_key: maker.kal.vossgar_forge.line
 source_notes:
   - "WORLD_ATLAS Kal row: granite, basalt, copper, charcoal steel."

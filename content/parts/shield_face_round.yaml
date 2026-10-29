@@ -3,6 +3,7 @@ kind: part
 schema: 1
 display_key: part.shield.face.round.name
 asset: "D21 Shield board: kite_shield [B], OWNED"
+noun: "round shield"
 tags: [face, round]
 name: Round Board
 notes: "A round board: less coverage, and a shield that turns a blow instead of eating it."
