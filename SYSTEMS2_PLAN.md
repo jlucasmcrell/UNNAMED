@@ -357,3 +357,20 @@ the type exposes them), then fix that construction path. That is one instrumente
 Housekeeping this round: the probe is gone, ArtStructure restored to its committed form, content/graves (the moved
 duplicates) removed, content lint 0, and the audit stands at **67 placed, 110 missing, 78 unmodelled across 9 areas**
 with no HOOK.DEATH.GRAVE warning anywhere.
+
+### Round 21 - death and graves closed; the marker was real art all along
+The two rounds of bindings archaeology ended in a **capture mistake, not a code one**. The grave captures had been run
+**without the --visual profile**, and without it the scene build throws
+FileNotFoundException: HumGen exact-target motion payload is missing, the catch block swaps in ArtBindings.Empty and
+rebuilds the whole world in greybox - which is exactly the "second build named Hollow with no prefixes" the probe found.
+With the profile restored the same content draws:
+rt: 474 assets drawn from the library at boot; 3 withheld, and the markers are **standing stones** in the two frames.
+Recorded as a capture landmine for the whole lane: **an audit without --visual is a greybox world and proves nothing.**
+
+Posted **FINISHED - DEATH AND GRAVES**: HOOK.DEATH.GRAVE no warning in any of the nine areas (67 placed / 110 missing
+/ 78 unmodelled), eight graves with eight pages, two markers standing (den 540.5,797.5 - the road 461.5,752.0, moved clear
+of the waystation wall). Canon row closed. Frames: ds_sys2_shots\audit_grave\raw\sys2_grave_den.png,
+sys2_grave_road.png.
+Honest gaps carried in the post: **ANIM.SPEAK_DEAD has no clip in the catalog** so this system ships without the
+animation the brief asks for; no dressed grave-marker model; six of the eight graves have no stone in the world yet; the
+lane's farm check is still owed.
