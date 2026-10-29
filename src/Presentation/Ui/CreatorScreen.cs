@@ -644,9 +644,9 @@ public partial class CreatorScreen : CanvasLayer
                      .ThenBy(c => Names.Of(_session, c.Id)))
         {
             string id = "creator.call." + call.Id;
-            var card = UiKit.ListRow(id, Names.Of(_session, call.Id), call.Tagline, height: 126);
+            var card = UiKit.ListRow(id, Names.Of(_session, call.Id), call.Tagline, height: 142);
             card.Button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            card.Button.CustomMinimumSize = new Vector2(0, 126);
+            card.Button.CustomMinimumSize = new Vector2(0, 142);
             card.Button.ClipContents = true;
             var words = UiKit.Words(Opening(call.Description), 14, HudStyle.Ash);
             words.MaxLinesVisible = 4;
