@@ -1,0 +1,11 @@
+id: npc.otherhome.porter
+kind: npc
+sex: f
+schema: 1
+display_key: npc.otherhome.porter.name
+tags: [npc]
+name: Tess Anwar
+notes: "A quay porter: hired by the load, and the district's own index of what arrived and what did not."
+unique: true
+role: villager
+services: []

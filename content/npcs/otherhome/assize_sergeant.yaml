@@ -1,0 +1,11 @@
+id: npc.otherhome.assize_sergeant
+kind: npc
+sex: m
+schema: 1
+display_key: npc.otherhome.assize_sergeant.name
+tags: [npc]
+name: Bal Corrin
+notes: "The Gate Assize's sergeant: the notice on the ring is his hand, and the licence to work the waters is his to issue or refuse."
+unique: true
+role: guard
+services: []

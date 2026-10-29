@@ -1,0 +1,12 @@
+id: npc.otherhome.harbour_smith
+kind: npc
+sex: f
+schema: 1
+display_key: npc.otherhome.harbour_smith.name
+tags: [npc]
+name: Dema Orsk
+notes: "The harbour's smith: the quay's ironwork, the boats' fittings and the Assize's chain, mended in the same hour."
+unique: true
+role: craftsperson
+services: [trade, repair]
+merchant_ref: merchant.otherhome.tidepearl_clerk

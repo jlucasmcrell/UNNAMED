@@ -1,0 +1,11 @@
+id: npc.otherhome.ferryman
+kind: npc
+sex: m
+schema: 1
+display_key: npc.otherhome.ferryman.name
+tags: [npc]
+name: Mor Hask
+notes: "The ferry steps' own man: he takes the crossings the jetties cannot, and knows which of the district's roofs leak."
+unique: true
+role: villager
+services: []
