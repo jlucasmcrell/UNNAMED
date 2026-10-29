@@ -780,6 +780,8 @@ public partial class Main : Node3D
 
     private void Prefetch(string path)
     {
+        // The isolated role-outfit fixture loads its subjects on demand, with no unrelated creature imports.
+        if (OS.GetEnvironment("OTHERREACH_NPC_OUTFIT_REVIEW") == "1") return;
         if (!File.Exists(path))
             return;
         var order = File.ReadAllLines(path);
@@ -1701,7 +1703,8 @@ public partial class Main : Node3D
         _avatar.Pose(feet, facing, speed, delta);
         _camera.Crouch = _avatar.Crouch;
         Probe("avatar/world");
-        _creatures.Draw(simulation, alpha, delta);
+        if (OS.GetEnvironment("OTHERREACH_NPC_OUTFIT_REVIEW") != "1")
+            _creatures.Draw(simulation, alpha, delta);
         Probe("creatures");
         _magicEffects.Draw(_avatar, combat.Casting, combat.Phase,
             combat.Effects.Select(e => (e.EffectId, Math.Max(0, e.ExpiresTick - simulation.WorldTick) * _session.TickSeconds)),
