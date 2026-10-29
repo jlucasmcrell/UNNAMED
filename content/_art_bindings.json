@@ -2839,25 +2839,65 @@
       "material": "stone",
       "note": "D18 water addendum: the square's stone well (the waystation's own well art)."
     },
-    "cw_reeds": {
+    "cw_creek_reeds_1": {
       "model": "flora_cattail_clump",
       "material": "reed",
-      "note": "D18: the creek's cattails, Poly Haven's clump on the wet bank."
+      "note": "D18: cattails on the creek's wet bank."
     },
-    "cw_creek_pebble": {
+    "cw_creek_reeds_2": {
+      "model": "flora_cattail_clump",
+      "material": "reed",
+      "note": "D18: cattails on the creek's wet bank."
+    },
+    "cw_creek_reeds_3": {
+      "model": "flora_cattail_clump",
+      "material": "reed",
+      "note": "D18: cattails on the creek's wet bank."
+    },
+    "cw_creek_reeds_4": {
+      "model": "flora_cattail_clump",
+      "material": "reed",
+      "note": "D18: cattails on the creek's wet bank."
+    },
+    "cw_creek_reeds_5": {
+      "model": "flora_cattail_clump",
+      "material": "reed",
+      "note": "D18: cattails on the creek's wet bank."
+    },
+    "cw_creek_reeds_6": {
+      "model": "flora_cattail_clump",
+      "material": "reed",
+      "note": "D18: cattails on the creek's wet bank."
+    },
+    "cw_creek_stone_1": {
       "model": "rock_ph_moss_pebble_a",
       "material": "stone",
-      "note": "D18: a moss pebble where the creek shoals."
+      "note": "D18: a rock sunk into the creek's bank."
     },
-    "cw_creek_rock": {
+    "cw_creek_stone_2": {
+      "model": "rock_ph_moss_pebble_a",
+      "material": "stone",
+      "note": "D18: a rock sunk into the creek's bank."
+    },
+    "cw_creek_stone_5": {
+      "model": "rock_ph_moss_pebble_a",
+      "material": "stone",
+      "note": "D18: a rock sunk into the creek's bank."
+    },
+    "cw_creek_stone_3": {
       "model": "rock_ph_moss_rock_small_a",
       "material": "stone",
-      "note": "D18: a small mossy rock at the creek's edge."
+      "note": "D18: a rock sunk into the creek's bank."
     },
-    "cw_creek_gravel": {
+    "cw_creek_stone_4": {
+      "model": "rock_ph_moss_rock_small_a",
+      "material": "stone",
+      "note": "D18: a rock sunk into the creek's bank."
+    },
+    "cw_creek_ford_gravel": {
       "model": "cw_gravel_stone_a",
       "material": "stone",
-      "note": "D18: the ford's gravel bar - the shallow crossing itself."
+      "note": "D18: the gravel bar at the creek's ford."
     }
   },
   "doors": {
