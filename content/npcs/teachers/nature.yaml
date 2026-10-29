@@ -1,0 +1,28 @@
+id: npc.teacher.nature
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.nature.name
+tags: [npc]
+name: "Wren Farrow"
+notes: "The nature teacher of the D13 catalogue, a veth of sedge levels. Voice: conspiratorial delight; low and quick; snaps a stem and smells the sap before naming it."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.nature
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.nature.bramble_snare
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.nature, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.nature.quiet_the_animal
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.nature, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.nature.the_ground_s_own_answer
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.nature, band: expert } }

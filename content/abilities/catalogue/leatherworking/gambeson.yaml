@@ -1,0 +1,11 @@
+id: ability.catalogue.leatherworking.gambeson
+kind: ability
+schema: 1
+display_key: ability.catalogue.leatherworking.gambeson.name
+tags: [ability]
+name: "Gambeson"
+notes: "Twenty layers of linen that stop an arrow: the world's most underrated armour Taught through the D13 catalogue."
+class: technique
+discipline: skill.leatherworking
+band: 45
+needs: "leatherworking 45, tailoring 30"

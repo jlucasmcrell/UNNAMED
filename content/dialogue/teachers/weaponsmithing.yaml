@@ -1,0 +1,31 @@
+id: dialogue.teacher.weaponsmithing
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.weaponsmithing.name
+tags: [dialogue]
+notes: "The weaponsmithing teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.weaponsmithing]
+root_node: greet
+nodes:
+  greet:
+    text: "Everyone wants an edge. Nobody wants a tang. The tang is what keeps it your hand and not his."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.weaponsmithing.cut_and_thrust_geometry, ability.catalogue.weaponsmithing.haft_and_socket, ability.catalogue.weaponsmithing.grip_for_a_hand, ability.catalogue.weaponsmithing.balanced_for_one_mode, ability.catalogue.weaponsmithing.production_slow_strike] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "That is a shape. Now make it a tool."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.weaponsmithing.cut_and_thrust_geometry, ability.catalogue.weaponsmithing.haft_and_socket, ability.catalogue.weaponsmithing.grip_for_a_hand, ability.catalogue.weaponsmithing.balanced_for_one_mode, ability.catalogue.weaponsmithing.production_slow_strike] }
+        next: lesson
+  lesson:
+    text: "A blade is a balance, not a shape. Show me where the weight sits and I will tell you who dies."

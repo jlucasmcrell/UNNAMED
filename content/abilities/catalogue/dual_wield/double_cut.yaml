@@ -1,0 +1,11 @@
+id: ability.catalogue.dual_wield.double_cut
+kind: ability
+schema: 1
+display_key: ability.catalogue.dual_wield.double_cut.name
+tags: [ability]
+name: "Double Cut"
+notes: "Two cuts that arrive close enough together to be one decision Taught through the D13 catalogue."
+class: technique
+discipline: skill.dual_wield
+band: 30
+needs: "dual_wield 30"

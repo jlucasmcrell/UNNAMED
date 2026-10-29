@@ -1,0 +1,31 @@
+id: dialogue.teacher.necromancy
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.necromancy.name
+tags: [dialogue]
+notes: "The necromancy / soulcraft teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.necromancy]
+root_node: greet
+nodes:
+  greet:
+    text: "You may ask me anything of the dead. They may answer first; you have been standing on one."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.necromancy.grave_sense, ability.catalogue.necromancy.sever, ability.catalogue.necromancy.speak_the_echo, ability.catalogue.necromancy.grave_seal, ability.catalogue.necromancy.raise_bearer, ability.catalogue.necromancy.bind_lesser_servant] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "You called it up. Now ask it something only the living would think to ask."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.necromancy.grave_sense, ability.catalogue.necromancy.sever, ability.catalogue.necromancy.speak_the_echo, ability.catalogue.necromancy.grave_seal, ability.catalogue.necromancy.raise_bearer, ability.catalogue.necromancy.bind_lesser_servant] }
+        next: lesson
+  lesson:
+    text: "Custody, not command. A thing that chose to answer once may choose otherwise."

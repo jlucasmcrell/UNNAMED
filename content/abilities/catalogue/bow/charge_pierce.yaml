@@ -1,0 +1,11 @@
+id: ability.catalogue.bow.charge_pierce
+kind: ability
+schema: 1
+display_key: ability.catalogue.bow.charge_pierce.name
+tags: [ability]
+name: "Charge-pierce"
+notes: "An arrow that goes through the armour into what was behind it Taught through the D13 catalogue."
+class: technique
+discipline: skill.bow
+band: 75
+needs: "bow 75 + mastery"

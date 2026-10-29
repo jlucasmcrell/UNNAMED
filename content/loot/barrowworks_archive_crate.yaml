@@ -6,5 +6,6 @@ tags: [loot]
 notes: "The gauge archive's service crate (M8-D1): the haft wood the ring's own ash stand could not supply in one day, and nothing else. It is convenience rather than the only supply - the stand at (24, 38) is authored and grows back daily, so the Unfinished Measure's acquire stage is reachable whether a character takes the crate, cuts the stand, or does both. All static: the contents are fixed, so a save that has opened it and one that has not roll the same table."
 rolls: 0
 guaranteed:
+  - { item_ref: item.tome.pinning_and_patience, count_range: [1, 1] }   # D13: the works' own archery diagrams
   - { item_ref: item.material.ash_haft, count_range: [2, 3] }
   - { item_ref: item.material.timber, count_range: [1, 1] }

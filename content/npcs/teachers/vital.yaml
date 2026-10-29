@@ -1,0 +1,38 @@
+id: npc.teacher.vital
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.vital.name
+tags: [npc]
+name: "Avel"
+notes: "The vital teacher of the D13 catalogue, a mor of sedge levels. Voice: quiet warmth with a sharp edge; soft, quick on the retort; puts two fingers to his own throat when he means you should think about breath."
+role: trainer
+unique: true
+people_ref: people.mor
+dialogue_ref: dialogue.teacher.vital
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.vital.mending_thread
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.vital, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.vital.staunch
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.vital, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.vital.purge_the_blood
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.vital, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.vital.lend_focus
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.vital, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.vital.the_body_s_own_account
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.vital, band: expert } }

@@ -1,0 +1,11 @@
+id: ability.catalogue.leatherworking.harness_and_strap
+kind: ability
+schema: 1
+display_key: ability.catalogue.leatherworking.harness_and_strap.name
+tags: [ability]
+name: "Harness and Strap"
+notes: "A load-bearing harness that does not cut the wearer Taught through the D13 catalogue."
+class: technique
+discipline: skill.leatherworking
+band: 30
+needs: "leatherworking 30, riding 15"

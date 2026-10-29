@@ -1,0 +1,11 @@
+id: ability.catalogue.illusion.the_wrong_shape
+kind: ability
+schema: 1
+display_key: ability.catalogue.illusion.the_wrong_shape.name
+tags: [ability]
+name: "The Wrong Shape"
+notes: "Something in a room looks like something it is not, for as long as nobody touches it Taught through the D13 catalogue."
+class: technique
+discipline: skill.illusion
+band: 30
+needs: "illusion 30"

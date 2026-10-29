@@ -1,0 +1,18 @@
+id: item.manual.projector
+kind: item
+schema: 1
+display_key: item.manual.projector.name
+tags: [item]
+name: "The Projector Manual"
+notes: "A working manual of the D13 catalogue: Charge discipline, Long sight, Recoil that pays. Read once, it teaches what canon says is learned from a book."
+category: book
+item_class: ordinary
+stack_max: 1
+weight: 0.4
+value_base: 40
+use:
+  consume: true
+  grants:
+    - { kind: ability, ref: ability.catalogue.projector.charge_discipline }
+    - { kind: ability, ref: ability.catalogue.projector.long_sight }
+    - { kind: ability, ref: ability.catalogue.projector.recoil_that_pays }

@@ -1,0 +1,11 @@
+id: ability.catalogue.animal_handling.through_fire_and_fold
+kind: ability
+schema: 1
+display_key: ability.catalogue.animal_handling.through_fire_and_fold.name
+tags: [ability]
+name: "Through Fire and Fold"
+notes: "The animal does not bolt, whatever happens Taught through the D13 catalogue."
+class: technique
+discipline: skill.animal_handling
+band: 45
+needs: "handling 45, will 30"

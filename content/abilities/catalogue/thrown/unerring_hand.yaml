@@ -1,0 +1,11 @@
+id: ability.catalogue.thrown.unerring_hand
+kind: ability
+schema: 1
+display_key: ability.catalogue.thrown.unerring_hand.name
+tags: [ability]
+name: "Unerring Hand"
+notes: "Throws lead a moving target and may be placed on a merely engaged one Taught through the D13 catalogue."
+class: technique
+discipline: skill.thrown
+band: 75
+needs: "thrown 75 + mastery"

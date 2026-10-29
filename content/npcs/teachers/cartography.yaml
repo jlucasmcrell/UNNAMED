@@ -1,0 +1,23 @@
+id: npc.teacher.cartography
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.cartography.name
+tags: [npc]
+name: "Lirien Sael"
+notes: "The cartography teacher of the D13 catalogue, a siann of starting frontier. Voice: precise pedantry; even, clause by clause; draws a line and then erases part of it to make it honest."
+role: trainer
+unique: true
+people_ref: people.siann
+dialogue_ref: dialogue.teacher.cartography
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.cartography.grade_your_confidence
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.cartography, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.cartography.triangulate
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.cartography, band: proficient } }

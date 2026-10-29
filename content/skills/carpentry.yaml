@@ -1,0 +1,9 @@
+id: skill.carpentry
+kind: skill
+schema: 1
+display_key: skill.carpentry.name
+tags: [skill]
+name: "Carpentry and construction"
+family: world
+notes: "D13 catalogue skill: Carpentry and construction (3.5 Crafting). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a structure that stands, and a repair that holds"

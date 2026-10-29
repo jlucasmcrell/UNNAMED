@@ -1,0 +1,9 @@
+id: skill.swimming
+kind: skill
+schema: 1
+display_key: skill.swimming.name
+tags: [skill]
+name: "Swimming"
+family: world
+notes: "D13 catalogue skill: Swimming (3.7 Survival and travel). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "water that was trying to stop you"

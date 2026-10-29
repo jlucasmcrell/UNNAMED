@@ -1,0 +1,11 @@
+id: ability.catalogue.dagger.every_seam
+kind: ability
+schema: 1
+display_key: ability.catalogue.dagger.every_seam.name
+tags: [ability]
+name: "Every Seam"
+notes: "You can name and reach the seam of anything that is standing in front of you Taught through the D13 catalogue."
+class: technique
+discipline: skill.dagger
+band: 75
+needs: "dagger 75 + mastery"

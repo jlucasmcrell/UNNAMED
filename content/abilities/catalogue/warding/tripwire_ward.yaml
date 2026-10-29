@@ -1,0 +1,11 @@
+id: ability.catalogue.warding.tripwire_ward
+kind: ability
+schema: 1
+display_key: ability.catalogue.warding.tripwire_ward.name
+tags: [ability]
+name: "Tripwire Ward"
+notes: "A line across an approach that wakes you when it is crossed, until dawn Taught through the D13 catalogue."
+class: technique
+discipline: skill.warding
+band: 30
+needs: "warding 30"

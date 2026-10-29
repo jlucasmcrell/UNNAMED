@@ -1,0 +1,11 @@
+id: ability.catalogue.conjuration.bind_with_a_term
+kind: ability
+schema: 1
+display_key: ability.catalogue.conjuration.bind_with_a_term.name
+tags: [ability]
+name: "Bind with a Term"
+notes: "A binding that names what is owed and what ends it — the only kind the world tolerates Taught through the D13 catalogue."
+class: technique
+discipline: skill.conjuration
+band: 45
+needs: "conjuration 45, lore 30"

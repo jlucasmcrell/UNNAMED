@@ -1,0 +1,13 @@
+id: dialogue.teacher.salvage
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.salvage.name
+tags: [dialogue]
+notes: "The salvage and reverse engineering teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.salvage]
+root_node: greet
+nodes:
+  greet:
+    text: "Nothing here is rubbish. Some of it is a puzzle with the answer already broken off."
+    once: true
+    choices:

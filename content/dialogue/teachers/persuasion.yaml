@@ -1,0 +1,31 @@
+id: dialogue.teacher.persuasion
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.persuasion.name
+tags: [dialogue]
+notes: "The persuasion teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.persuasion]
+root_node: greet
+nodes:
+  greet:
+    text: "You are arguing with what they said. Argue with what they want, it is more durable."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.persuasion.read_a_person, ability.catalogue.persuasion.appeal_to_interest, ability.catalogue.persuasion.win_the_room, ability.catalogue.persuasion.trusted_voice] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "You were persuasive. They agreed and will not act. That is a different failure."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.persuasion.read_a_person, ability.catalogue.persuasion.appeal_to_interest, ability.catalogue.persuasion.win_the_room, ability.catalogue.persuasion.trusted_voice] }
+        next: lesson
+  lesson:
+    text: "Find the smallest true thing they will admit, and build the rest on it."

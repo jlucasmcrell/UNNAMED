@@ -15,6 +15,7 @@ objectives:
     description: Bring 2 boneleaf to Sel Arien.
     params: { npc_ref: npc.ashen_hollow.sel_arien, item_ref: item.material.boneleaf, count: 2 }
 rewards:
+  - { kind: technique, technique_ref: ability.catalogue.excavation.the_barrow_question }   # D13: the job ends in a lesson (canon's Q)
   - { kind: xp, amount: 35 }
   - { kind: currency, amount: 12 }
 repeat_policy: { repeatable: true, cooldown_min: 1440 }   # one world day (48 real minutes) after it is done, the work is posted again

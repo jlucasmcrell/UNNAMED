@@ -1,0 +1,58 @@
+id: npc.teacher.dual_wield
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.dual_wield.name
+tags: [npc]
+name: "Rook Sable"
+notes: "The paired weapons teacher of the D13 catalogue, a veth of ashen hollow. Voice: competitive needling; two quick sentences, then a stare; holds both blades low and circles you without meaning to."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.dual_wield
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.dual_wield.second_hand_live
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.dual_wield, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.dual_wield.cover_and_strike
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.dual_wield, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.dual_wield.alternate_beat
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.dual_wield, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.dual_wield.double_cut
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.dual_wield, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.dual_wield.off_hand_lock
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.dual_wield, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.dual_wield.unsheathe_together
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.dual_wield, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.dual_wield.cross_guard
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.dual_wield, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.dual_wield.two_fronts
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.dual_wield, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.dual_wield.one_mind_two_hands
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.dual_wield, band: master } }

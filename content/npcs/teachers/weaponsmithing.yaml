@@ -1,0 +1,38 @@
+id: npc.teacher.weaponsmithing
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.weaponsmithing.name
+tags: [npc]
+name: "Sorr Grieve"
+notes: "The weaponsmithing teacher of the D13 catalogue, a veth of ashen hollow. Voice: irritable craftsperson pride; clipped, with the last word always sharpened; holds a piece up to the window and turns it instead of judging it out loud."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.weaponsmithing
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.weaponsmithing.cut_and_thrust_geometry
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.weaponsmithing, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.weaponsmithing.haft_and_socket
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.weaponsmithing, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.weaponsmithing.grip_for_a_hand
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.weaponsmithing, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.weaponsmithing.balanced_for_one_mode
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.weaponsmithing, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.weaponsmithing.production_slow_strike
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.weaponsmithing, band: adept } }

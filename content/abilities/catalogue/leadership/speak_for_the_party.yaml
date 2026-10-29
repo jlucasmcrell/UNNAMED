@@ -1,0 +1,11 @@
+id: ability.catalogue.leadership.speak_for_the_party
+kind: ability
+schema: 1
+display_key: ability.catalogue.leadership.speak_for_the_party.name
+tags: [ability]
+name: "Speak for the Party"
+notes: "Be the one who talks, and mean it Taught through the D13 catalogue."
+class: technique
+discipline: skill.leadership
+band: 30
+needs: "leadership 30, persuasion 30"

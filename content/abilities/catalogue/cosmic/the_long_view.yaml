@@ -1,0 +1,11 @@
+id: ability.catalogue.cosmic.the_long_view
+kind: ability
+schema: 1
+display_key: ability.catalogue.cosmic.the_long_view.name
+tags: [ability]
+name: "The Long View"
+notes: "See the sky of a place that is not here: bearings, weather, and where the ground is Taught through the D13 catalogue."
+class: technique
+discipline: skill.cosmic
+band: 45
+needs: "cosmic 45, navigation 30"

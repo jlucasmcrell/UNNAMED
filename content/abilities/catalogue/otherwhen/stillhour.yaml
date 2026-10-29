@@ -1,0 +1,11 @@
+id: ability.catalogue.otherwhen.stillhour
+kind: ability
+schema: 1
+display_key: ability.catalogue.otherwhen.stillhour.name
+tags: [ability]
+name: "Stillhour"
+notes: "A 3 m space where decay and process run a tenth as fast until dawn: a larder, a body, evidence, a wound Taught through the D13 catalogue."
+class: technique
+discipline: skill.otherwhen
+band: 30
+needs: "otherwhen 30"

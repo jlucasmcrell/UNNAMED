@@ -1,0 +1,11 @@
+id: ability.catalogue.veilward.material_sense
+kind: ability
+schema: 1
+display_key: ability.catalogue.veilward.material_sense.name
+tags: [ability]
+name: "Material Sense"
+notes: "Know what a material will do before you commit to it Taught through the D13 catalogue."
+class: technique
+discipline: skill.veilward
+band: 30
+needs: "any craft 30, gathering 15"

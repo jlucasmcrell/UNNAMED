@@ -302,12 +302,25 @@ public partial class SkillsPanel : CanvasLayer
             all.AddChild(OpeningRow(opening, level));
         _panes.Detail.AddChild(all);
 
-        var held = UiKit.Section("Techniques");
+        var held = UiKit.Section("Techniques", "everything this discipline owns, from the catalogue");
         var known = progression.Known.Keys.Where(IsTechnique).ToList();
         if (known.Count == 0)
-            held.AddChild(UiKit.Quiet("This discipline holds no techniques you know yet."));
+            held.AddChild(UiKit.Quiet("None of them known yet: a teacher, a manual, an institution, a study site, a discovery or a trial teaches each one."));
         foreach (string id in known)
             held.AddChild(UiKit.Row(UiKit.Chip("Known", HudStyle.Iron, HudStyle.Bone), Names.Of(session, id), Source(session, progression.Known[id])).Root);
+        // The catalogue's own techniques for this discipline: the band each sits at, and what it needs.
+        foreach (var technique in session.Setup.Catalogue.Values
+                     .Where(t => t.SkillId == skillId)
+                     .OrderBy(t => t.Band).ThenBy(t => t.Id, StringComparer.Ordinal))
+        {
+            bool isKnown = known.Contains(technique.Id);
+            var chip = UiKit.Chip(isKnown ? "Known" : $"At {technique.Band}",
+                isKnown ? HudStyle.Lichen : HudStyle.Iron, isKnown ? HudStyle.Lichen : HudStyle.Ash);
+            chip.CustomMinimumSize = new Vector2(72, 0);
+            held.AddChild(UiKit.Row(chip, Names.Of(session, technique.Id),
+                isKnown ? Source(session, progression.Known[technique.Id]) : technique.Needs,
+                isKnown ? HudStyle.Bone : HudStyle.Muted, height: 36).Root);
+        }
         _panes.Detail.AddChild(held);
 
         var rise = UiKit.Section("How skills rise");

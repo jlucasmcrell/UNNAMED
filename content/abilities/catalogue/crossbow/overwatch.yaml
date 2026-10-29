@@ -1,0 +1,11 @@
+id: ability.catalogue.crossbow.overwatch
+kind: ability
+schema: 1
+display_key: ability.catalogue.crossbow.overwatch.name
+tags: [ability]
+name: "Overwatch"
+notes: "Cover a doorway or a road: the shot is fired when the condition is met, not before Taught through the D13 catalogue."
+class: technique
+discipline: skill.crossbow
+band: 30
+needs: "crossbow 30"

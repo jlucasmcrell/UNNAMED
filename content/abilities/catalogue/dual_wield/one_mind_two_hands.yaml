@@ -1,0 +1,11 @@
+id: ability.catalogue.dual_wield.one_mind_two_hands
+kind: ability
+schema: 1
+display_key: ability.catalogue.dual_wield.one_mind_two_hands.name
+tags: [ability]
+name: "One Mind, Two Hands"
+notes: "The two weapons stop being a decision at all Taught through the D13 catalogue."
+class: technique
+discipline: skill.dual_wield
+band: 75
+needs: "dual_wield 75 + mastery"

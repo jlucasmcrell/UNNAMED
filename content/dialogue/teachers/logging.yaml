@@ -1,0 +1,31 @@
+id: dialogue.teacher.logging
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.logging.name
+tags: [dialogue]
+notes: "The woodcutting teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.logging]
+root_node: greet
+nodes:
+  greet:
+    text: "Fell where it falls, they say. No. You decide where it falls, then you are allowed to cut."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.logging.fell_where_it_falls, ability.catalogue.logging.season_and_stack, ability.catalogue.logging.feller_s_eye] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "Your notch is a suggestion. Make it a hinge."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.logging.fell_where_it_falls, ability.catalogue.logging.season_and_stack, ability.catalogue.logging.feller_s_eye] }
+        next: lesson
+  lesson:
+    text: "Two cuts and a hinge. The tree does the rest, and it does not negotiate."

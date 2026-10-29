@@ -1,0 +1,11 @@
+id: ability.catalogue.persuasion.appeal_to_interest
+kind: ability
+schema: 1
+display_key: ability.catalogue.persuasion.appeal_to_interest.name
+tags: [ability]
+name: "Appeal to Interest"
+notes: "Frame it in terms of what they already want Taught through the D13 catalogue."
+class: technique
+discipline: skill.persuasion
+band: 15
+needs: "persuasion 15"

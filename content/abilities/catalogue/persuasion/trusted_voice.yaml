@@ -1,0 +1,11 @@
+id: ability.catalogue.persuasion.trusted_voice
+kind: ability
+schema: 1
+display_key: ability.catalogue.persuasion.trusted_voice.name
+tags: [ability]
+name: "Trusted Voice"
+notes: "People believe you because you have been right before Taught through the D13 catalogue."
+class: technique
+discipline: skill.persuasion
+band: 60
+needs: "persuasion 60"

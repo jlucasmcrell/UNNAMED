@@ -1,0 +1,11 @@
+id: ability.catalogue.tactics.combined_strike
+kind: ability
+schema: 1
+display_key: ability.catalogue.tactics.combined_strike.name
+tags: [ability]
+name: "Combined Strike"
+notes: "Time a companion's attack with yours so the defence cannot answer both Taught through the D13 catalogue."
+class: technique
+discipline: skill.tactics
+band: 45
+needs: "tactics 45, leadership 30"

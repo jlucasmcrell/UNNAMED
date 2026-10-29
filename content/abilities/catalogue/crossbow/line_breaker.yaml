@@ -1,0 +1,11 @@
+id: ability.catalogue.crossbow.line_breaker
+kind: ability
+schema: 1
+display_key: ability.catalogue.crossbow.line_breaker.name
+tags: [ability]
+name: "Line Breaker"
+notes: "A shot placed to break a formation's nerve rather than a body Taught through the D13 catalogue."
+class: technique
+discipline: skill.crossbow
+band: 60
+needs: "crossbow 60, tactics 30"

@@ -1,0 +1,11 @@
+id: ability.catalogue.two_hand_blade.murder_stroke
+kind: ability
+schema: 1
+display_key: ability.catalogue.two_hand_blade.murder_stroke.name
+tags: [ability]
+name: "Murder-stroke"
+notes: "A downward half-sword blow into a downed or prone target that ends the fight Taught through the D13 catalogue."
+class: technique
+discipline: skill.two_hand_blade
+band: 45
+needs: "greatsword 45, after Half-sword"

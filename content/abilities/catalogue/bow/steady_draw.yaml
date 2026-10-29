@@ -1,0 +1,11 @@
+id: ability.catalogue.bow.steady_draw
+kind: ability
+schema: 1
+display_key: ability.catalogue.bow.steady_draw.name
+tags: [ability]
+name: "Steady Draw"
+notes: "Hold a draw without your aim failing: the difference between a shot and a hope Taught through the D13 catalogue."
+class: technique
+discipline: skill.bow
+band: 15
+needs: "bow 15"

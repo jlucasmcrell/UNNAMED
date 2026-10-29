@@ -1,0 +1,11 @@
+id: ability.catalogue.thrown.sling_skip_shot
+kind: ability
+schema: 1
+display_key: ability.catalogue.thrown.sling_skip_shot.name
+tags: [ability]
+name: "Sling: Skip Shot"
+notes: "A stone skipped off flat ground to strike the legs under a shield Taught through the D13 catalogue."
+class: technique
+discipline: skill.thrown
+band: 45
+needs: "thrown 45"

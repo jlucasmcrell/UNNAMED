@@ -1,0 +1,11 @@
+id: ability.catalogue.riding.post_and_chair
+kind: ability
+schema: 1
+display_key: ability.catalogue.riding.post_and_chair.name
+tags: [ability]
+name: "Post and Chair"
+notes: "The gait that does not ruin you after an hour Taught through the D13 catalogue."
+class: technique
+discipline: skill.riding
+band: 15
+needs: "riding 15, agility 12"

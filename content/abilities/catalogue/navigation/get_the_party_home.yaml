@@ -1,0 +1,11 @@
+id: ability.catalogue.navigation.get_the_party_home
+kind: ability
+schema: 1
+display_key: ability.catalogue.navigation.get_the_party_home.name
+tags: [ability]
+name: "Get the Party Home"
+notes: "Lead people back from somewhere you have never been Taught through the D13 catalogue."
+class: technique
+discipline: skill.navigation
+band: 45
+needs: "navigation 45, leadership 30"

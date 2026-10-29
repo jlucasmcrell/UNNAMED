@@ -1,0 +1,11 @@
+id: ability.catalogue.mining.deep_seam
+kind: ability
+schema: 1
+display_key: ability.catalogue.mining.deep_seam.name
+tags: [ability]
+name: "Deep Seam"
+notes: "Work a seam that needs real infrastructure — below forty metres Taught through the D13 catalogue."
+class: technique
+discipline: skill.mining
+band: 45
+needs: "mining 45, engineering 30"

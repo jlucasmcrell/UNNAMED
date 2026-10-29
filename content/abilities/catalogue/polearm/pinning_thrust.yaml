@@ -1,0 +1,11 @@
+id: ability.catalogue.polearm.pinning_thrust
+kind: ability
+schema: 1
+display_key: ability.catalogue.polearm.pinning_thrust.name
+tags: [ability]
+name: "Pinning Thrust"
+notes: "Pin a body or a limb to the ground or a wall: capture instead of kill Taught through the D13 catalogue."
+class: technique
+discipline: skill.polearm
+band: 45
+needs: "polearm 45"

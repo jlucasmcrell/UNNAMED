@@ -1,0 +1,11 @@
+id: ability.catalogue.mind.steady_voice
+kind: ability
+schema: 1
+display_key: ability.catalogue.mind.steady_voice.name
+tags: [ability]
+name: "Steady Voice"
+notes: "A calm that holds a frightened person for a minute Taught through the D13 catalogue."
+class: technique
+discipline: skill.mind
+band: 15
+needs: "mind 15, persuasion 15"

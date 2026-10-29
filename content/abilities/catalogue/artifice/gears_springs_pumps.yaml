@@ -1,0 +1,11 @@
+id: ability.catalogue.artifice.gears_springs_pumps
+kind: ability
+schema: 1
+display_key: ability.catalogue.artifice.gears_springs_pumps.name
+tags: [ability]
+name: "Gears, Springs, Pumps"
+notes: "The small moving parts everything bigger depends on Taught through the D13 catalogue."
+class: technique
+discipline: skill.artifice
+band: 30
+needs: "artifice 30, mechanisms 30"

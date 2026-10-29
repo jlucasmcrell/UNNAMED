@@ -1,0 +1,11 @@
+id: ability.catalogue.crossbow.heavy_bolt_drive
+kind: ability
+schema: 1
+display_key: ability.catalogue.crossbow.heavy_bolt_drive.name
+tags: [ability]
+name: "Heavy Bolt Drive"
+notes: "A heavy bolt into a formed line or a shield face: disrupt, don't duel Taught through the D13 catalogue."
+class: technique
+discipline: skill.crossbow
+band: 45
+needs: "crossbow 45"

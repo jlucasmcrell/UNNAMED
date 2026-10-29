@@ -1,0 +1,11 @@
+id: ability.catalogue.dagger.seize_and_stab
+kind: ability
+schema: 1
+display_key: ability.catalogue.dagger.seize_and_stab.name
+tags: [ability]
+name: "Seize and Stab"
+notes: "Trap a limb and work the blade with the other hand Taught through the D13 catalogue."
+class: technique
+discipline: skill.dagger
+band: 30
+needs: "dagger 30, after Inside Step"

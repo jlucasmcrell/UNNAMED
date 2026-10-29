@@ -1,0 +1,11 @@
+id: ability.catalogue.animal_handling.taming_by_habituation
+kind: ability
+schema: 1
+display_key: ability.catalogue.animal_handling.taming_by_habituation.name
+tags: [ability]
+name: "Taming by Habituation"
+notes: "Weeks of the same kindness; the game's own taming odds improve with handling Taught through the D13 catalogue."
+class: technique
+discipline: skill.animal_handling
+band: 30
+needs: "handling 30"

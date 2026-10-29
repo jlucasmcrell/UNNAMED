@@ -1,0 +1,11 @@
+id: ability.catalogue.axe.axe_throw
+kind: ability
+schema: 1
+display_key: ability.catalogue.axe.axe_throw.name
+tags: [ability]
+name: "Axe Throw"
+notes: "Throw the axe into an oncoming target, then draw Taught through the D13 catalogue."
+class: technique
+discipline: skill.axe
+band: 15
+needs: "axe 15, after a throw"

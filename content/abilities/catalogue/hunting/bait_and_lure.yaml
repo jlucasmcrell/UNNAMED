@@ -1,0 +1,11 @@
+id: ability.catalogue.hunting.bait_and_lure
+kind: ability
+schema: 1
+display_key: ability.catalogue.hunting.bait_and_lure.name
+tags: [ability]
+name: "Bait and Lure"
+notes: "Make a creature come to a place of your choosing Taught through the D13 catalogue."
+class: technique
+discipline: skill.hunting
+band: 30
+needs: "hunting 30, survival 15"

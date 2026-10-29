@@ -1,0 +1,11 @@
+id: ability.catalogue.animal_handling.pack_tactics
+kind: ability
+schema: 1
+display_key: ability.catalogue.animal_handling.pack_tactics.name
+tags: [ability]
+name: "Pack Tactics"
+notes: "You and the animal fight as one unit Taught through the D13 catalogue."
+class: technique
+discipline: skill.animal_handling
+band: 45
+needs: "handling 45, tactics 30"

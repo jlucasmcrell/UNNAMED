@@ -1,0 +1,11 @@
+id: ability.catalogue.fabrication.cold_work_native_metal
+kind: ability
+schema: 1
+display_key: ability.catalogue.fabrication.cold_work_native_metal.name
+tags: [ability]
+name: "Cold-work native metal"
+notes: "Hammer and anneal copper, electrum or meteoric iron without a furnace Taught through the D13 catalogue."
+class: technique
+discipline: skill.fabrication
+band: 60
+needs: "fabrication 30"

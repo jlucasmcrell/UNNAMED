@@ -1,0 +1,21 @@
+id: item.manual.fabrication
+kind: item
+schema: 1
+display_key: item.manual.fabrication.name
+tags: [item]
+name: "The Fabrication Manual"
+notes: "A working manual of the D13 catalogue: Cold-work native metal, Reproduce a Firstfold form, Pack a gland, Turn a true shaft, Optics, Sustain a machine without parts. Read once, it teaches what canon says is learned from a book."
+category: book
+item_class: ordinary
+stack_max: 1
+weight: 0.4
+value_base: 40
+use:
+  consume: true
+  grants:
+    - { kind: ability, ref: ability.catalogue.fabrication.cold_work_native_metal }
+    - { kind: ability, ref: ability.catalogue.fabrication.reproduce_a_firstfold_form }
+    - { kind: ability, ref: ability.catalogue.fabrication.pack_a_gland }
+    - { kind: ability, ref: ability.catalogue.fabrication.turn_a_true_shaft }
+    - { kind: ability, ref: ability.catalogue.fabrication.optics }
+    - { kind: ability, ref: ability.catalogue.fabrication.sustain_a_machine_without_parts }

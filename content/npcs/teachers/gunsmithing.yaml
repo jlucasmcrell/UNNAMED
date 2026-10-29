@@ -1,0 +1,13 @@
+id: npc.teacher.gunsmithing
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.gunsmithing.name
+tags: [npc]
+name: "Askraa"
+notes: "The gunsmithing teacher of the D13 catalogue, a vaskaal of starting frontier. Voice: aquatic calm; slow, with a breath between steps; blows down the barrel before she seats anything."
+role: trainer
+unique: true
+people_ref: people.vaskaal
+dialogue_ref: dialogue.teacher.gunsmithing
+teaches:

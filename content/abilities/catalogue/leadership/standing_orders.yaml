@@ -1,0 +1,11 @@
+id: ability.catalogue.leadership.standing_orders
+kind: ability
+schema: 1
+display_key: ability.catalogue.leadership.standing_orders.name
+tags: [ability]
+name: "Standing Orders"
+notes: "A companion who knows what to do when you are busy Taught through the D13 catalogue."
+class: technique
+discipline: skill.leadership
+band: 15
+needs: "leadership 15"

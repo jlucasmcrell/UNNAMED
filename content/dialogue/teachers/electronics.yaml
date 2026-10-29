@@ -1,0 +1,13 @@
+id: dialogue.teacher.electronics
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.electronics.name
+tags: [dialogue]
+notes: "The electrics and electronics teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.electronics]
+root_node: greet
+nodes:
+  greet:
+    text: "It is invisible, it is fast, and it does not care what you meant. Now: one hand behind your back."
+    once: true
+    choices:

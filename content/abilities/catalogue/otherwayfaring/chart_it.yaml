@@ -1,0 +1,11 @@
+id: ability.catalogue.otherwayfaring.chart_it
+kind: ability
+schema: 1
+display_key: ability.catalogue.otherwayfaring.chart_it.name
+tags: [ability]
+name: "Chart It"
+notes: "Record a way so somebody else can use it, and be right about the danger Taught through the D13 catalogue."
+class: technique
+discipline: skill.otherwayfaring
+band: 45
+needs: "otherwayfaring 45, cartography 30"

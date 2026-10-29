@@ -1,0 +1,11 @@
+id: ability.catalogue.axe.retreating_chop
+kind: ability
+schema: 1
+display_key: ability.catalogue.axe.retreating_chop.name
+tags: [ability]
+name: "Retreating Chop"
+notes: "Cut on the way *out*: a fighting withdrawal that still pays the enemy for following Taught through the D13 catalogue."
+class: technique
+discipline: skill.axe
+band: 30
+needs: "axe 30"

@@ -1,0 +1,11 @@
+id: ability.catalogue.herbalism.the_right_ground
+kind: ability
+schema: 1
+display_key: ability.catalogue.herbalism.the_right_ground.name
+tags: [ability]
+name: "The Right Ground"
+notes: "Find a plant by its habitat rather than by luck Taught through the D13 catalogue."
+class: technique
+discipline: skill.herbalism
+band: 30
+needs: "herbalism 30, lore 15"

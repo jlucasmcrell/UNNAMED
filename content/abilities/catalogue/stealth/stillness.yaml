@@ -1,0 +1,11 @@
+id: ability.catalogue.stealth.stillness
+kind: ability
+schema: 1
+display_key: ability.catalogue.stealth.stillness.name
+tags: [ability]
+name: "Stillness"
+notes: "Freezing at the edge of suspicion makes you scenery Taught through the D13 catalogue."
+class: technique
+discipline: skill.stealth
+band: 30
+needs: "stealth 30"

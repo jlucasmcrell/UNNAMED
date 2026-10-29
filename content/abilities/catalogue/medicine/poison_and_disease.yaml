@@ -1,0 +1,11 @@
+id: ability.catalogue.medicine.poison_and_disease
+kind: ability
+schema: 1
+display_key: ability.catalogue.medicine.poison_and_disease.name
+tags: [ability]
+name: "Poison and Disease"
+notes: "Identify, treat and dose without killing the patient Taught through the D13 catalogue."
+class: technique
+discipline: skill.medicine
+band: 30
+needs: "medicine 30, herbalism 30"

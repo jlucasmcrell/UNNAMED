@@ -1,0 +1,11 @@
+id: ability.catalogue.tracking.trail_sign
+kind: ability
+schema: 1
+display_key: ability.catalogue.tracking.trail_sign.name
+tags: [ability]
+name: "Trail Sign"
+notes: "Tell a party what you found in a way they can act on Taught through the D13 catalogue."
+class: technique
+discipline: skill.tracking
+band: 15
+needs: "tracking 15, leadership 15"

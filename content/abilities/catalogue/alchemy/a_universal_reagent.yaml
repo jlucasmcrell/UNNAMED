@@ -1,0 +1,11 @@
+id: ability.catalogue.alchemy.a_universal_reagent
+kind: ability
+schema: 1
+display_key: ability.catalogue.alchemy.a_universal_reagent.name
+tags: [ability]
+name: "A Universal Reagent"
+notes: "Work the reagent that appears only during a tide, before it rots Taught through the D13 catalogue."
+class: technique
+discipline: skill.alchemy
+band: 75
+needs: "alchemy 75 + mastery"

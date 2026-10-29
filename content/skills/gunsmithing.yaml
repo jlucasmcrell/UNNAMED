@@ -3,7 +3,7 @@ kind: skill
 schema: 1
 display_key: skill.gunsmithing.name
 tags: [skill]
-name: Gunsmithing
-family: crafting
-notes: "D14 CALLS: taken from canon SKILLS_AND_TECHNIQUES.md (D13), which rides precision, insight. Authored because the 24 Calls start it at 15 and the build did not have it."
+name: "Gunsmithing"
+family: world
+notes: "D13 catalogue skill: Gunsmithing (4.5 The technology catalogue). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
 teaches: "a barrel, a lock, a cartridge or a powder batch that behaves predictably"

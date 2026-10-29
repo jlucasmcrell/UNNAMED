@@ -1,0 +1,31 @@
+id: dialogue.teacher.divination
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.divination.name
+tags: [dialogue]
+notes: "The divination teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.divination]
+root_node: greet
+nodes:
+  greet:
+    text: "You want to know what happens. I want to know what you will do when you do. Different trades."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.divination.read_the_trace, ability.catalogue.divination.detect_working, ability.catalogue.divination.circle_of_recall, ability.catalogue.divination.a_thing_that_has_not_happened] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "Your question was a wish. Ask a question that could be wrong."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.divination.read_the_trace, ability.catalogue.divination.detect_working, ability.catalogue.divination.circle_of_recall, ability.catalogue.divination.a_thing_that_has_not_happened] }
+        next: lesson
+  lesson:
+    text: "Read the small thing honestly, and the large thing follows without being asked."

@@ -1,0 +1,9 @@
+id: skill.divination
+kind: skill
+schema: 1
+display_key: skill.divination.name
+tags: [skill]
+name: "Divination"
+family: world
+notes: "D13 catalogue skill: Divination (3.3 Spellcasting). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "reading a trace, a residue or a possible future and being usefully right"

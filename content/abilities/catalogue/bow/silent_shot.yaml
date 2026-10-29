@@ -1,0 +1,11 @@
+id: ability.catalogue.bow.silent_shot
+kind: ability
+schema: 1
+display_key: ability.catalogue.bow.silent_shot.name
+tags: [ability]
+name: "Silent Shot"
+notes: "A loosed arrow that does not announce where it came from Taught through the D13 catalogue."
+class: technique
+discipline: skill.bow
+band: 45
+needs: "bow 45, stealth 30"

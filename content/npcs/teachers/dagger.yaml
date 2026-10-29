@@ -1,0 +1,53 @@
+id: npc.teacher.dagger
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.dagger.name
+tags: [npc]
+name: "Wren Farrow"
+notes: "The dagger teacher of the D13 catalogue, a veth of ashen hollow. Voice: conspiratorial delight; low and quick, leaning in; keeps the knife out of sight and pats an empty belt where it was."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.dagger
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.dagger.gap_thrust
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.dagger, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.dagger.inside_step
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.dagger, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.dagger.seize_and_stab
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.dagger, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.dagger.off_hand_parry
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.dagger, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.dagger.hidden_draw
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.dagger, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.dagger.quiet_blade
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.dagger, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.dagger.mercy_stroke
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.dagger, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.dagger.every_seam
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.dagger, band: master } }

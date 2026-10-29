@@ -1,0 +1,11 @@
+id: ability.catalogue.mace_hammer.beak_strike
+kind: ability
+schema: 1
+display_key: ability.catalogue.mace_hammer.beak_strike.name
+tags: [ability]
+name: "Beak Strike"
+notes: "A pick's point into a joint gap or a seam: penetration, not percussion Taught through the D13 catalogue."
+class: technique
+discipline: skill.mace_hammer
+band: 30
+needs: "hammer 30, feature: beak/spike"

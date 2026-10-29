@@ -1,0 +1,11 @@
+id: ability.catalogue.mace_hammer.drive_through_the_guard
+kind: ability
+schema: 1
+display_key: ability.catalogue.mace_hammer.drive_through_the_guard.name
+tags: [ability]
+name: "Drive Through the Guard"
+notes: "A blow that spends the defender's guard instead of being stopped by it Taught through the D13 catalogue."
+class: technique
+discipline: skill.mace_hammer
+band: 15
+needs: "hammer 15"

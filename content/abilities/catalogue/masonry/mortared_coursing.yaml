@@ -1,0 +1,11 @@
+id: ability.catalogue.masonry.mortared_coursing
+kind: ability
+schema: 1
+display_key: ability.catalogue.masonry.mortared_coursing.name
+tags: [ability]
+name: "Mortared Coursing"
+notes: "Load-bearing wall with proper bond and lime Taught through the D13 catalogue."
+class: technique
+discipline: skill.masonry
+band: 30
+needs: "masonry 30"

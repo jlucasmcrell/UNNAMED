@@ -1,0 +1,31 @@
+id: dialogue.teacher.fishing
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.fishing.name
+tags: [dialogue]
+notes: "The fishing teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.fishing]
+root_node: greet
+nodes:
+  greet:
+    text: "Match what is in the water, not what is in your pocket. The river is not impressed by your kit."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.fishing.the_right_bait, ability.catalogue.fishing.line_net_spear, ability.catalogue.fishing.wait] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "You are fishing for yourself. Fish for the fish."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.fishing.the_right_bait, ability.catalogue.fishing.line_net_spear, ability.catalogue.fishing.wait] }
+        next: lesson
+  lesson:
+    text: "Stillness is a technique. Everything in the water can hear a man who wants something."

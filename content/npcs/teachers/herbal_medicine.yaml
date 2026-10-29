@@ -1,0 +1,38 @@
+id: npc.teacher.herbal_medicine
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.herbal_medicine.name
+tags: [npc]
+name: "Linn Ashdown"
+notes: "The herbcraft and physick teacher of the D13 catalogue, a veth of starting frontier. Voice: social observation, delivered mildly; brisk, pausing after the rude part; grinds a leaf between two fingers and smells it before speaking."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.herbal_medicine
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.herbal_medicine.poultice
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.herbal_medicine, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.herbal_medicine.tea_for_what_ails
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.herbal_medicine, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.herbal_medicine.dose
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.herbal_medicine, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.herbal_medicine.bitterroot_and_heartleaf
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.herbal_medicine, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.herbal_medicine.the_long_illness
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.herbal_medicine, band: adept } }

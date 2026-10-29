@@ -1,0 +1,31 @@
+id: dialogue.teacher.excavation
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.excavation.name
+tags: [dialogue]
+notes: "The excavation and archaeology teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.excavation]
+root_node: greet
+nodes:
+  greet:
+    text: "A hole wants to close. Everything you do is a polite disagreement with that."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.excavation.read_the_layer] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "You are digging faster. The hole noticed."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.excavation.read_the_layer] }
+        next: lesson
+  lesson:
+    text: "Shore as you go. The one you skip is the one that keeps the story."

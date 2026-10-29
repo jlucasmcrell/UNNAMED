@@ -1,0 +1,11 @@
+id: ability.catalogue.medicine.a_body_that_came_back
+kind: ability
+schema: 1
+display_key: ability.catalogue.medicine.a_body_that_came_back.name
+tags: [ability]
+name: "A Body That Came Back"
+notes: "Where healing magic ends and medicine begins, and how to be the one who knows Taught through the D13 catalogue."
+class: technique
+discipline: skill.medicine
+band: 75
+needs: "medicine 75 + mastery, vital 45"

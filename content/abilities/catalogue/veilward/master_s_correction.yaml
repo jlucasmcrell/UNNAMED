@@ -1,0 +1,11 @@
+id: ability.catalogue.veilward.master_s_correction
+kind: ability
+schema: 1
+display_key: ability.catalogue.veilward.master_s_correction.name
+tags: [ability]
+name: "Master's Correction"
+notes: "Fix someone else's masterwork without ruining it Taught through the D13 catalogue."
+class: technique
+discipline: skill.veilward
+band: 60
+needs: "any craft 60"

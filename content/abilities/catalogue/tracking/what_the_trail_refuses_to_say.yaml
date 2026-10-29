@@ -1,0 +1,11 @@
+id: ability.catalogue.tracking.what_the_trail_refuses_to_say
+kind: ability
+schema: 1
+display_key: ability.catalogue.tracking.what_the_trail_refuses_to_say.name
+tags: [ability]
+name: "What the Trail Refuses to Say"
+notes: "Know the limits of your own read: age, water, stone, and honest uncertainty Taught through the D13 catalogue."
+class: technique
+discipline: skill.tracking
+band: 60
+needs: "tracking 60, insight 30"

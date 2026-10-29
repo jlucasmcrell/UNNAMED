@@ -1,0 +1,11 @@
+id: ability.catalogue.staff.vault
+kind: ability
+schema: 1
+display_key: ability.catalogue.staff.vault.name
+tags: [ability]
+name: "Vault"
+notes: "The staff as a lever to clear an obstacle or a fall Taught through the D13 catalogue."
+class: technique
+discipline: skill.staff
+band: 30
+needs: "staff 30, athletics 30"

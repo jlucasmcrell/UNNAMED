@@ -1,0 +1,11 @@
+id: ability.catalogue.teaching.teach_what_cannot_be_said
+kind: ability
+schema: 1
+display_key: ability.catalogue.teaching.teach_what_cannot_be_said.name
+tags: [ability]
+name: "Teach What Cannot Be Said"
+notes: "Pass on a tacit technique (hold forging, a Kal method) by apprenticeship Taught through the D13 catalogue."
+class: technique
+discipline: skill.teaching
+band: 45
+needs: "teaching 45 + the technique"

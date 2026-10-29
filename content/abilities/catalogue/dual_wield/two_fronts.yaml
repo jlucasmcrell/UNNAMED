@@ -1,0 +1,11 @@
+id: ability.catalogue.dual_wield.two_fronts
+kind: ability
+schema: 1
+display_key: ability.catalogue.dual_wield.two_fronts.name
+tags: [ability]
+name: "Two Fronts"
+notes: "Fight two attackers, one per hand, without turning your back on either Taught through the D13 catalogue."
+class: technique
+discipline: skill.dual_wield
+band: 60
+needs: "dual_wield 60"

@@ -1,0 +1,11 @@
+id: ability.catalogue.shield.advancing_guard
+kind: ability
+schema: 1
+display_key: ability.catalogue.shield.advancing_guard.name
+tags: [ability]
+name: "Advancing Guard"
+notes: "Walk into a fight behind the guard at full pace without lowering it Taught through the D13 catalogue."
+class: technique
+discipline: skill.shield
+band: 60
+needs: "shield 60, endurance 30"

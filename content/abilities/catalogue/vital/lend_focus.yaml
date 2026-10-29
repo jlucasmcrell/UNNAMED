@@ -1,0 +1,11 @@
+id: ability.catalogue.vital.lend_focus
+kind: ability
+schema: 1
+display_key: ability.catalogue.vital.lend_focus.name
+tags: [ability]
+name: "Lend Focus"
+notes: "Give your concentration to another caster mid-working Taught through the D13 catalogue."
+class: technique
+discipline: skill.vital
+band: 30
+needs: "vital 30, leadership 15"

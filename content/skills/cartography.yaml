@@ -3,7 +3,7 @@ kind: skill
 schema: 1
 display_key: skill.cartography.name
 tags: [skill]
-name: Cartography
+name: "Cartography"
 family: world
-notes: "D14 CALLS: the exploration skill the Courier and the Cartographer's apprentice start at 15. Authored because the 24 Calls in canon/CALLS.md name it and the build did not have it."
-teaches: "Making a map that is worth carrying: pacing a road by its water and its rises, taking the bearings that survive a week of walking, and drawing a place so the drawing is what you remember when the place is gone."
+notes: "D13 catalogue skill: Cartography (3.7 Survival and travel). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "mapping ground you walked, accurately, from what you could see"

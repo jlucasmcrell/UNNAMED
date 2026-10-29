@@ -1,0 +1,11 @@
+id: ability.catalogue.swimming.stay_up
+kind: ability
+schema: 1
+display_key: ability.catalogue.swimming.stay_up.name
+tags: [ability]
+name: "Stay Up"
+notes: "The first forty strokes, and the calm that goes with them Taught through the D13 catalogue."
+class: technique
+discipline: skill.swimming
+band: 15
+needs: "swimming 15"

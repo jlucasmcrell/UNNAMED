@@ -1,0 +1,11 @@
+id: ability.catalogue.dagger.quiet_blade
+kind: ability
+schema: 1
+display_key: ability.catalogue.dagger.quiet_blade.name
+tags: [ability]
+name: "Quiet Blade"
+notes: "A strike that spends nothing noisy: no shout, no clatter, no alarm Taught through the D13 catalogue."
+class: technique
+discipline: skill.dagger
+band: 30
+needs: "dagger 30, stealth 15"

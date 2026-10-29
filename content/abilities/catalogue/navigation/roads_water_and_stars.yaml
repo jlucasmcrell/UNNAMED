@@ -1,0 +1,11 @@
+id: ability.catalogue.navigation.roads_water_and_stars
+kind: ability
+schema: 1
+display_key: ability.catalogue.navigation.roads_water_and_stars.name
+tags: [ability]
+name: "Roads, Water and Stars"
+notes: "Arrive where you meant, by the tools the world has Taught through the D13 catalogue."
+class: technique
+discipline: skill.navigation
+band: 15
+needs: "navigation 15, insight 12"

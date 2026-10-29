@@ -1,0 +1,9 @@
+id: skill.otherwhen
+kind: skill
+schema: 1
+display_key: skill.otherwhen.name
+tags: [skill]
+name: "Otherwhen"
+family: world
+notes: "D13 catalogue skill: Otherwhen (3.4 The cosmic, and the Other). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a temporal working that held its own duration (deep mastery only)"

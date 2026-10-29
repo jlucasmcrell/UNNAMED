@@ -1,0 +1,11 @@
+id: ability.catalogue.salvage.read_an_old_hinge
+kind: ability
+schema: 1
+display_key: ability.catalogue.salvage.read_an_old_hinge.name
+tags: [ability]
+name: "Read an old hinge"
+notes: "Tell an ancient mechanism's material and maker by the wear on it — the first step of every salvage Taught through the D13 catalogue."
+class: technique
+discipline: skill.salvage
+band: 45
+needs: "salvage 45, stonesense 30 (or Ondrek)"

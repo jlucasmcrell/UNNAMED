@@ -1,0 +1,11 @@
+id: ability.catalogue.cosmic.weigh_and_pull
+kind: ability
+schema: 1
+display_key: ability.catalogue.cosmic.weigh_and_pull.name
+tags: [ability]
+name: "Weigh and Pull"
+notes: "Make a thing heavier or lighter for a minute: a gate, a portcullis, a falling body Taught through the D13 catalogue."
+class: technique
+discipline: skill.cosmic
+band: 30
+needs: "cosmic 30"

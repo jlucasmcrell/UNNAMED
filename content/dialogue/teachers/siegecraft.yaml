@@ -1,0 +1,13 @@
+id: dialogue.teacher.siegecraft
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.siegecraft.name
+tags: [dialogue]
+notes: "The siegecraft teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.siegecraft]
+root_node: greet
+nodes:
+  greet:
+    text: "You are aiming at people. Engines are for places."
+    once: true
+    choices:

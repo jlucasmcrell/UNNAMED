@@ -1,0 +1,11 @@
+id: ability.catalogue.otherwayfaring.walk_it_steady
+kind: ability
+schema: 1
+display_key: ability.catalogue.otherwayfaring.walk_it_steady.name
+tags: [ability]
+name: "Walk It Steady"
+notes: "Move through an unstable way at the pace the instability allows, arriving where you meant Taught through the D13 catalogue."
+class: technique
+discipline: skill.otherwayfaring
+band: 30
+needs: "otherwayfaring 30"

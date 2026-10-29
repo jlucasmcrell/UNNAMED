@@ -1,0 +1,11 @@
+id: ability.catalogue.polearm.master_of_distance
+kind: ability
+schema: 1
+display_key: ability.catalogue.polearm.master_of_distance.name
+tags: [ability]
+name: "Master of Distance"
+notes: "Own the gap: no one closes, no one escapes, nothing happens at a range you did not choose Taught through the D13 catalogue."
+class: technique
+discipline: skill.polearm
+band: 75
+needs: "polearm 75 + mastery"

@@ -1,0 +1,33 @@
+id: npc.teacher.warding
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.warding.name
+tags: [npc]
+name: "Kaavel"
+notes: "The warding teacher of the D13 catalogue, a vaskaal of sedge levels. Voice: workshop shorthand that sounds like an insult; clipped, tool noise between clauses; knuckles a symbol onto the doorframe before opening it."
+role: trainer
+unique: true
+people_ref: people.vaskaal
+dialogue_ref: dialogue.teacher.warding
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.warding.brace_ward
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.warding, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.warding.threshold_seal
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.warding, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.warding.tripwire_ward
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.warding, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.warding.warded_guard
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.warding, band: proficient } }

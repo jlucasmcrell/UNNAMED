@@ -1,0 +1,11 @@
+id: ability.catalogue.veilward.living_workshop
+kind: ability
+schema: 1
+display_key: ability.catalogue.veilward.living_workshop.name
+tags: [ability]
+name: "Living Workshop"
+notes: "A workshop whose tools, stock and apprentices make work nobody else can price Taught through the D13 catalogue."
+class: technique
+discipline: skill.veilward
+band: 75
+needs: "any craft 75 + mastery"

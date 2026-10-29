@@ -1,0 +1,11 @@
+id: ability.catalogue.bowyery.hunting_bow
+kind: ability
+schema: 1
+display_key: ability.catalogue.bowyery.hunting_bow.name
+tags: [ability]
+name: "Hunting Bow"
+notes: "A self-bow matched to its owner's draw Taught through the D13 catalogue."
+class: technique
+discipline: skill.bowyery
+band: 30
+needs: "bowyery 30"

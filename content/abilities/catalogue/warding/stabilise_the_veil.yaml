@@ -1,0 +1,11 @@
+id: ability.catalogue.warding.stabilise_the_veil
+kind: ability
+schema: 1
+display_key: ability.catalogue.warding.stabilise_the_veil.name
+tags: [ability]
+name: "Stabilise the Veil"
+notes: "Hold a place steady for a while: the working that keeps a thin spot from thinning Taught through the D13 catalogue."
+class: technique
+discipline: skill.warding
+band: 45
+needs: "warding 45, otherlore 30"

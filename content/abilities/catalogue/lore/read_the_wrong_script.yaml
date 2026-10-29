@@ -1,0 +1,11 @@
+id: ability.catalogue.lore.read_the_wrong_script
+kind: ability
+schema: 1
+display_key: ability.catalogue.lore.read_the_wrong_script.name
+tags: [ability]
+name: "Read the Wrong Script"
+notes: "Get meaning out of a language you do not have Taught through the D13 catalogue."
+class: technique
+discipline: skill.lore
+band: 30
+needs: "lore 30, languages 15"

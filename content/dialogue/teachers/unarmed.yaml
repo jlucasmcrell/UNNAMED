@@ -1,0 +1,31 @@
+id: dialogue.teacher.unarmed
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.unarmed.name
+tags: [dialogue]
+notes: "The unarmed teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.unarmed]
+root_node: greet
+nodes:
+  greet:
+    text: "No weapons. Good. Then nobody can be robbed of the lesson. Take my wrist - properly - no, that is a hug."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.unarmed.shove, ability.catalogue.unarmed.clinch, ability.catalogue.unarmed.field_restraint, ability.catalogue.unarmed.trip_throw, ability.catalogue.unarmed.disarm_seize, ability.catalogue.unarmed.break_hold, ability.catalogue.unarmed.roll_out, ability.catalogue.unarmed.joint_lock, ability.catalogue.unarmed.choke, ability.catalogue.unarmed.turn_their_weapon, ability.catalogue.unarmed.use_their_weight] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "You have been practising on somebody. They lost, I hope."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.unarmed.shove, ability.catalogue.unarmed.clinch, ability.catalogue.unarmed.field_restraint, ability.catalogue.unarmed.trip_throw, ability.catalogue.unarmed.disarm_seize, ability.catalogue.unarmed.break_hold, ability.catalogue.unarmed.roll_out, ability.catalogue.unarmed.joint_lock, ability.catalogue.unarmed.choke, ability.catalogue.unarmed.turn_their_weapon, ability.catalogue.unarmed.use_their_weight] }
+        next: lesson
+  lesson:
+    text: "Bone is a lever, weight is a gift. Give it away where you want them."

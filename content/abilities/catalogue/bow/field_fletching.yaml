@@ -1,0 +1,11 @@
+id: ability.catalogue.bow.field_fletching
+kind: ability
+schema: 1
+display_key: ability.catalogue.bow.field_fletching.name
+tags: [ability]
+name: "Field Fletching"
+notes: "Make an arrow that flies true, in the field, from what is there Taught through the D13 catalogue."
+class: technique
+discipline: skill.bow
+band: 15
+needs: "bow 15, bowyery 15"

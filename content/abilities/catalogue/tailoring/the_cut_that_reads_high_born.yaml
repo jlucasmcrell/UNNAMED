@@ -1,0 +1,11 @@
+id: ability.catalogue.tailoring.the_cut_that_reads_high_born
+kind: ability
+schema: 1
+display_key: ability.catalogue.tailoring.the_cut_that_reads_high_born.name
+tags: [ability]
+name: "The Cut That Reads High Born"
+notes: "Tailoring as persuasion: a garment that changes how a room treats you Taught through the D13 catalogue."
+class: technique
+discipline: skill.tailoring
+band: 60
+needs: "tailoring 60, persuasion 30"

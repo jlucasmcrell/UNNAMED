@@ -15,6 +15,7 @@ objectives:
     description: Bring 2 raw iron ore to Kera Voss.
     params: { npc_ref: npc.ashen_hollow.kera_voss, item_ref: item.material.iron_ore, count: 2 }
 rewards:
+  - { kind: technique, technique_ref: ability.catalogue.artifice.a_device_that_serves }   # D13: the job ends in a lesson (canon's Q)
   - { kind: xp, amount: 25 }
   - { kind: currency, amount: 10 }
 repeat_policy: { repeatable: true, cooldown_min: 1440 }   # one world day (48 real minutes) after it is done, the work is posted again

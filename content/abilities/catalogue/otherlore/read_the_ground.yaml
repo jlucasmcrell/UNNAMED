@@ -1,0 +1,11 @@
+id: ability.catalogue.otherlore.read_the_ground
+kind: ability
+schema: 1
+display_key: ability.catalogue.otherlore.read_the_ground.name
+tags: [ability]
+name: "Read the Ground"
+notes: "Feel where a place is thin, and which way the thinness runs Taught through the D13 catalogue."
+class: technique
+discipline: skill.otherlore
+band: 15
+needs: "otherlore 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.force.sorting_impulse
+kind: ability
+schema: 1
+display_key: ability.catalogue.force.sorting_impulse.name
+tags: [ability]
+name: "Sorting Impulse"
+notes: "Scatter Impulse that spares chosen allies — the technique that makes a caster safe to stand near Taught through the D13 catalogue."
+class: technique
+discipline: skill.force
+band: 45
+needs: "force 45"

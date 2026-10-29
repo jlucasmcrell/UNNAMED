@@ -1,0 +1,11 @@
+id: ability.catalogue.medicine.clean_and_close
+kind: ability
+schema: 1
+display_key: ability.catalogue.medicine.clean_and_close.name
+tags: [ability]
+name: "Clean and Close"
+notes: "Prevent the wound that kills two days after the fight Taught through the D13 catalogue."
+class: technique
+discipline: skill.medicine
+band: 15
+needs: "medicine 15, first_aid 15"

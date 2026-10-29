@@ -1,0 +1,11 @@
+id: ability.catalogue.fishing.wait
+kind: ability
+schema: 1
+display_key: ability.catalogue.fishing.wait.name
+tags: [ability]
+name: "Wait"
+notes: "Patience as a technique: the catch that only comes from stillness Taught through the D13 catalogue."
+class: technique
+discipline: skill.fishing
+band: 30
+needs: "fishing 30, will 15"

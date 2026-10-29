@@ -1,0 +1,11 @@
+id: ability.catalogue.shield.bind_the_blade
+kind: ability
+schema: 1
+display_key: ability.catalogue.shield.bind_the_blade.name
+tags: [ability]
+name: "Bind the Blade"
+notes: "Catch a weapon on the rim and hold it there for a beat Taught through the D13 catalogue."
+class: technique
+discipline: skill.shield
+band: 30
+needs: "shield 30"

@@ -1,0 +1,33 @@
+id: npc.teacher.barter
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.barter.name
+tags: [npc]
+name: "Iven Pell"
+notes: "The barter teacher of the D13 catalogue, a veth of starting frontier. Voice: self-deprecating prop comedy; gentle pauses timed to a gesture; lays out two prices and moves one with a finger."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.barter
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.barter.haggle
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.barter, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.barter.appraise
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.barter, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.barter.commission_work
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.barter, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.barter.name_in_the_ledgers
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.barter, band: adept } }

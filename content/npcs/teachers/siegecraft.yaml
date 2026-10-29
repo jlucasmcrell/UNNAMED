@@ -1,0 +1,13 @@
+id: npc.teacher.siegecraft
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.siegecraft.name
+tags: [npc]
+name: "Torg Vekk"
+notes: "The siegecraft teacher of the D13 catalogue, a kal of starting frontier. Voice: deadpan mass; three words at a time; lays a hand on the engine's frame and leans, testing it."
+role: trainer
+unique: true
+people_ref: people.kal
+dialogue_ref: dialogue.teacher.siegecraft
+teaches:

@@ -1,0 +1,48 @@
+id: npc.teacher.bowyery
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.bowyery.name
+tags: [npc]
+name: "Roan Tarro"
+notes: "The bowyery and fletching teacher of the D13 catalogue, a orenth of ashen hollow. Voice: easy mockery of your ambition; rolling, unhurried; bends a stave against his knee and listens for a sound he will not describe."
+role: trainer
+unique: true
+people_ref: people.orenth
+dialogue_ref: dialogue.teacher.bowyery
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.bowyery.rough_arrows
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.bowyery, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.bowyery.field_fletching
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.bowyery, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.bowyery.hunting_bow
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.bowyery, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.bowyery.silk_string
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.bowyery, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.bowyery.composite_and_horn
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.bowyery, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.bowyery.tillering_by_ear
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.bowyery, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.bowyery.a_bow_for_a_body
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.bowyery, band: master } }

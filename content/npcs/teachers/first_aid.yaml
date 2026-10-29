@@ -1,0 +1,33 @@
+id: npc.teacher.first_aid
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.first_aid.name
+tags: [npc]
+name: "Selarin Ieth"
+notes: "The first aid teacher of the D13 catalogue, a siann of starting frontier. Voice: clinical bluntness softened at the last word; precise, unhurried; checks your pulse without asking."
+role: trainer
+unique: true
+people_ref: people.siann
+dialogue_ref: dialogue.teacher.first_aid
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.first_aid.stop_the_bleed
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.first_aid, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.first_aid.splint
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.first_aid, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.first_aid.stabilise
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.first_aid, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.first_aid.clean_it_properly
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.first_aid, band: proficient } }

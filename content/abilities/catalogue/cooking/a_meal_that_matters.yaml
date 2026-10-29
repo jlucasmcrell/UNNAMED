@@ -1,0 +1,11 @@
+id: ability.catalogue.cooking.a_meal_that_matters
+kind: ability
+schema: 1
+display_key: ability.catalogue.cooking.a_meal_that_matters.name
+tags: [ability]
+name: "A Meal That Matters"
+notes: "Affinity at a shared table: the cheapest diplomacy in the world Taught through the D13 catalogue."
+class: technique
+discipline: skill.cooking
+band: 45
+needs: "cooking 45, persuasion 30"

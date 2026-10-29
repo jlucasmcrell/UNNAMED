@@ -1,0 +1,11 @@
+id: ability.catalogue.axe.beard_trip
+kind: ability
+schema: 1
+display_key: ability.catalogue.axe.beard_trip.name
+tags: [ability]
+name: "Beard Trip"
+notes: "Hook a leg or a hock with the beard and put the weight down Taught through the D13 catalogue."
+class: technique
+discipline: skill.axe
+band: 30
+needs: "axe 30"

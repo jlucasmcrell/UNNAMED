@@ -1,0 +1,53 @@
+id: npc.teacher.crossbow
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.crossbow.name
+tags: [npc]
+name: "Perrin Sallow"
+notes: "The crossbow teacher of the D13 catalogue, a veth of ashen hollow. Voice: curmudgeonly pride; slow, complaints folded into instructions; cranks the windlass with two fingers while explaining you should use your whole arm."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.crossbow
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.crossbow.braced_aim
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.crossbow, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.crossbow.field_maintenance
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.crossbow, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.crossbow.overwatch
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.crossbow, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.crossbow.walking_span
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.crossbow, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.crossbow.stock_strike
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.crossbow, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.crossbow.rune_channel_bolt
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.crossbow, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.crossbow.repeating_stream
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.crossbow, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.crossbow.trigger_discipline
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.crossbow, band: master } }

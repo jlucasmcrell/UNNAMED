@@ -1,0 +1,11 @@
+id: ability.catalogue.warding.threshold_seal
+kind: ability
+schema: 1
+display_key: ability.catalogue.warding.threshold_seal.name
+tags: [ability]
+name: "Threshold Seal"
+notes: "A door, lid or hatch will not open for ten minutes except by breaking it Taught through the D13 catalogue."
+class: technique
+discipline: skill.warding
+band: 15
+needs: "warding 15"

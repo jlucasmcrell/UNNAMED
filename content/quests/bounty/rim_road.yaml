@@ -16,6 +16,7 @@ objectives:
     description: Put down three gate tenders on the Spill.
     params: { creature_ref: creature.construct.gate_tender, count: 3 }
 rewards:
+  - { kind: technique, technique_ref: ability.catalogue.carpentry.settlement }   # D13: the job ends in a lesson (canon's Q)
   - { kind: xp, amount: 80 }
   - { kind: currency, amount: 20 }
 repeat_policy: { repeatable: true, cooldown_min: 1440 }   # one world day (48 real minutes) after it is done, the work is posted again

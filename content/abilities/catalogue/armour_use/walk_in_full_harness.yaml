@@ -1,0 +1,11 @@
+id: ability.catalogue.armour_use.walk_in_full_harness
+kind: ability
+schema: 1
+display_key: ability.catalogue.armour_use.walk_in_full_harness.name
+tags: [ability]
+name: "Walk in Full Harness"
+notes: "Full pace, guard up, for a whole fight Taught through the D13 catalogue."
+class: technique
+discipline: skill.armour_use
+band: 60
+needs: "armour 60, endurance 30"

@@ -1,0 +1,38 @@
+id: npc.teacher.cooking
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.cooking.name
+tags: [npc]
+name: "Nan Tiller"
+notes: "The cooking teacher of the D13 catalogue, a veth of ashen hollow. Voice: matter-of-fact comfort; steady, with a tap of the spoon for emphasis; tastes from the same spoon twice and refuses to explain why."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.cooking
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.cooking.roast_meat
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.cooking, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.cooking.field_torch_by_fire
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.cooking, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.cooking.woundmoss_tea
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.cooking, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.cooking.provision_for_a_road
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.cooking, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.cooking.a_meal_that_matters
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.cooking, band: adept } }

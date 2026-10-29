@@ -1,0 +1,43 @@
+id: npc.teacher.carpentry
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.carpentry.name
+tags: [npc]
+name: "Rook Sable"
+notes: "The carpentry and construction teacher of the D13 catalogue, a veth of ashen hollow. Voice: competitive needling; two quick sentences, then a stare; tests every joint with her whole palm, once."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.carpentry
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.carpentry.pad_and_footing
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.carpentry, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.carpentry.wall_and_doorway
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.carpentry, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.carpentry.roof_and_ridge
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.carpentry, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.carpentry.blueprint
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.carpentry, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.carpentry.stores_and_cellar
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.carpentry, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.carpentry.plant_cover
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.carpentry, band: adept } }

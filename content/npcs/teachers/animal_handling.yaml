@@ -1,0 +1,33 @@
+id: npc.teacher.animal_handling
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.animal_handling.name
+tags: [npc]
+name: "Mara Ling"
+notes: "The animal handling teacher of the D13 catalogue, a veth of starting frontier. Voice: dry observation of animals and people equally; slow, with a pause for the animal to answer; lets the animal come to her hand and does not reach."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.animal_handling
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.animal_handling.read_temperament
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.animal_handling, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.animal_handling.silent_signals
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.animal_handling, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.animal_handling.teach_commands
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.animal_handling, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.animal_handling.pack_tactics
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.animal_handling, band: adept } }

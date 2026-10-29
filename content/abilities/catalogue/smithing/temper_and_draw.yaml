@@ -1,0 +1,11 @@
+id: ability.catalogue.smithing.temper_and_draw
+kind: ability
+schema: 1
+display_key: ability.catalogue.smithing.temper_and_draw.name
+tags: [ability]
+name: "Temper and draw"
+notes: "Bring an edge up without taking its spring out; the difference between a tool and a good tool Taught through the D13 catalogue."
+class: technique
+discipline: skill.smithing
+band: 30
+needs: "smithing 30"

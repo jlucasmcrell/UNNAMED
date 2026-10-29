@@ -1,0 +1,31 @@
+id: dialogue.teacher.axe
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.axe.name
+tags: [dialogue]
+notes: "The axe teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.axe]
+root_node: greet
+nodes:
+  greet:
+    text: "An axe does not need to be clever. It needs to arrive. Watch - that is the whole lesson, watch again."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.axe.splitting_chop, ability.catalogue.axe.shield_hook, ability.catalogue.axe.axe_throw, ability.catalogue.axe.beard_trip, ability.catalogue.axe.haft_punch, ability.catalogue.axe.retreating_chop, ability.catalogue.axe.hamstring, ability.catalogue.axe.sunder, ability.catalogue.axe.breaker_of_walls] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "Good. Bring your shoulders this time, your arms are only passengers."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.axe.splitting_chop, ability.catalogue.axe.shield_hook, ability.catalogue.axe.axe_throw, ability.catalogue.axe.beard_trip, ability.catalogue.axe.haft_punch, ability.catalogue.axe.retreating_chop, ability.catalogue.axe.hamstring, ability.catalogue.axe.sunder, ability.catalogue.axe.breaker_of_walls] }
+        next: lesson
+  lesson:
+    text: "Split, do not slice. Then hook. A shield is a handle if you are rude enough about it."

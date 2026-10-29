@@ -1,0 +1,33 @@
+id: npc.teacher.skinning
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.skinning.name
+tags: [npc]
+name: "Bess Marrow"
+notes: "The skinning teacher of the D13 catalogue, a veth of starting frontier. Voice: warm menace; conversational, threat early; runs the blade flat over the pelt, never the edge."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.skinning
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.skinning.off_clean
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.skinning, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.skinning.cure_in_the_field
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.skinning, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.skinning.read_the_pelt
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.skinning, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.skinning.a_beast_s_own_armour
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.skinning, band: adept } }

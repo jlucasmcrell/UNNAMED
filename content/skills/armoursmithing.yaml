@@ -1,0 +1,9 @@
+id: skill.armoursmithing
+kind: skill
+schema: 1
+display_key: skill.armoursmithing.name
+tags: [skill]
+name: "Armoursmithing"
+family: world
+notes: "D13 catalogue skill: Armoursmithing (3.5 Crafting). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "armour that fits, layers and covers the gaps you meant it to"

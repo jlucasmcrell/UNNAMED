@@ -1,0 +1,11 @@
+id: ability.catalogue.dual_wield.alternate_beat
+kind: ability
+schema: 1
+display_key: ability.catalogue.dual_wield.alternate_beat.name
+tags: [ability]
+name: "Alternate Beat"
+notes: "Strike on the off-beat: the defence that read your rhythm is now wrong Taught through the D13 catalogue."
+class: technique
+discipline: skill.dual_wield
+band: 30
+needs: "dual_wield 30"

@@ -1,0 +1,13 @@
+id: dialogue.teacher.cosmic
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.cosmic.name
+tags: [dialogue]
+notes: "The cosmic teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.cosmic]
+root_node: greet
+nodes:
+  greet:
+    text: "You have come to learn the stars. They have not agreed to be learned. Begin anyway."
+    once: true
+    choices:

@@ -1,0 +1,11 @@
+id: ability.catalogue.foraging.water_fibre_tinder
+kind: ability
+schema: 1
+display_key: ability.catalogue.foraging.water_fibre_tinder.name
+tags: [ability]
+name: "Water, Fibre, Tinder"
+notes: "Live one night off ground you do not own Taught through the D13 catalogue."
+class: technique
+discipline: skill.foraging
+band: 30
+needs: "foraging 30, survival 30"

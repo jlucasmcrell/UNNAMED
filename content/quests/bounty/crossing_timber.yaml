@@ -15,6 +15,7 @@ objectives:
     description: Bring 6 rough timber to Renn Vale.
     params: { npc_ref: npc.ashen_hollow.renn_vale, item_ref: item.material.timber, count: 6 }
 rewards:
+  - { kind: technique, technique_ref: ability.catalogue.woodworking.a_structure_that_outlives_you }   # D13: the job ends in a lesson (canon's Q)
   - { kind: xp, amount: 25 }
   - { kind: currency, amount: 8 }
 repeat_policy: { repeatable: true, cooldown_min: 1440 }   # one world day (48 real minutes) after it is done, the work is posted again

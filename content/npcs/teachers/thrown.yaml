@@ -1,0 +1,63 @@
+id: npc.teacher.thrown
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.thrown.name
+tags: [npc]
+name: "Alder Quist"
+notes: "The thrown and sling teacher of the D13 catalogue, a veth of ashen hollow. Voice: absurd precision about small things; counting aloud under his breath; lines up five stones on a fence rail before he will talk."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.thrown
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.thrown.quick_throw
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.thrown, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.thrown.lure_stone
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.thrown, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.thrown.gap_throw
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.thrown, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.thrown.parting_throw
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.thrown, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.thrown.running_throw
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.thrown, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.thrown.brace_of_knives
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.thrown, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.thrown.throw_any_weapon
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.thrown, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.thrown.unerring_hand
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.thrown, band: master } }
+  - kind: technique
+    ability_ref: ability.catalogue.thrown.sling_skip_shot
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.thrown, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.thrown.sling_unseen_arc
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.thrown, band: master } }

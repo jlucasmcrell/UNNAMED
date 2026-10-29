@@ -3,7 +3,7 @@ kind: skill
 schema: 1
 display_key: skill.othercraft.name
 tags: [skill]
-name: Othercraft
-family: magic
-notes: "D14 CALLS: taken from canon SKILLS_AND_TECHNIQUES.md (D13), which rides will, insight. Authored because the 24 Calls start it at 15 and the build did not have it."
+name: "Othercraft"
+family: world
+notes: "D13 catalogue skill: Othercraft (3.4 The cosmic, and the Other). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
 teaches: "a fold that opened where you said, closed when you said, and left you standing"

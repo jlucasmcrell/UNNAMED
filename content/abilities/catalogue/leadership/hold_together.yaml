@@ -1,0 +1,11 @@
+id: ability.catalogue.leadership.hold_together
+kind: ability
+schema: 1
+display_key: ability.catalogue.leadership.hold_together.name
+tags: [ability]
+name: "Hold Together"
+notes: "A broken force reforms around you Taught through the D13 catalogue."
+class: technique
+discipline: skill.leadership
+band: 60
+needs: "leadership 60, tactics 45"

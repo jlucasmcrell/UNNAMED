@@ -1,0 +1,11 @@
+id: ability.catalogue.force.thunder_clap
+kind: ability
+schema: 1
+display_key: ability.catalogue.force.thunder_clap.name
+tags: [ability]
+name: "Thunder Clap"
+notes: "Staggers everything within 3 m, and is loud enough to wake a den Taught through the D13 catalogue."
+class: technique
+discipline: skill.force
+band: 30
+needs: "force 30"

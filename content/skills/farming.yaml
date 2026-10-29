@@ -1,0 +1,9 @@
+id: skill.farming
+kind: skill
+schema: 1
+display_key: skill.farming.name
+tags: [skill]
+name: "Farming and husbandry"
+family: world
+notes: "D13 catalogue skill: Farming and husbandry (3.6 Gathering). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a crop or a herd through a season, including the bad ones"

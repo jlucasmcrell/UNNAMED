@@ -1,0 +1,11 @@
+id: ability.catalogue.illusion.disbelieve
+kind: ability
+schema: 1
+display_key: ability.catalogue.illusion.disbelieve.name
+tags: [ability]
+name: "Disbelieve"
+notes: "See through another's illusion by knowing what does not add up Taught through the D13 catalogue."
+class: technique
+discipline: skill.illusion
+band: 45
+needs: "illusion 45, insight 20"

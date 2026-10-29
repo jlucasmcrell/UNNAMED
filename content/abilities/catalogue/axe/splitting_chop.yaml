@@ -1,0 +1,11 @@
+id: ability.catalogue.axe.splitting_chop
+kind: ability
+schema: 1
+display_key: ability.catalogue.axe.splitting_chop.name
+tags: [ability]
+name: "Splitting Chop"
+notes: "A vertical blow that is hard to parry and impossible to ignore Taught through the D13 catalogue."
+class: technique
+discipline: skill.axe
+band: 15
+needs: "axe 15"

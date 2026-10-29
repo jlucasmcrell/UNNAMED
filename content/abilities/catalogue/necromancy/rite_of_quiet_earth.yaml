@@ -1,0 +1,11 @@
+id: ability.catalogue.necromancy.rite_of_quiet_earth
+kind: ability
+schema: 1
+display_key: ability.catalogue.necromancy.rite_of_quiet_earth.name
+tags: [ability]
+name: "Rite of Quiet Earth"
+notes: "Release every animated or restless dead within 10 m of the circle, and seal the ground until dawn Taught through the D13 catalogue."
+class: technique
+discipline: skill.necromancy
+band: 60
+needs: "necromancy 60, ritualcraft 30"

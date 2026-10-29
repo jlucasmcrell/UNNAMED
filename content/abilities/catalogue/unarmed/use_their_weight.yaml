@@ -1,0 +1,11 @@
+id: ability.catalogue.unarmed.use_their_weight
+kind: ability
+schema: 1
+display_key: ability.catalogue.unarmed.use_their_weight.name
+tags: [ability]
+name: "Use Their Weight"
+notes: "Any body, any size, any armour: leverage instead of strength Taught through the D13 catalogue."
+class: technique
+discipline: skill.unarmed
+band: 75
+needs: "unarmed 75 + mastery"

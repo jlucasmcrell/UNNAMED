@@ -1,0 +1,9 @@
+id: skill.mace_hammer
+kind: skill
+schema: 1
+display_key: skill.mace_hammer.name
+tags: [skill]
+name: "Hammer"
+family: world
+notes: "D13 catalogue skill: Hammer (3.1 Battle). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "blows that overcome armour instead of bypassing it; ringing a helmeted target"

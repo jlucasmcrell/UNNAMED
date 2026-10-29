@@ -1,0 +1,11 @@
+id: ability.catalogue.cosmic.read_the_tide
+kind: ability
+schema: 1
+display_key: ability.catalogue.cosmic.read_the_tide.name
+tags: [ability]
+name: "Read the Tide"
+notes: "A forecast of the next Othertide *here*: when, how strong, what opens. With a confidence word Taught through the D13 catalogue."
+class: technique
+discipline: skill.cosmic
+band: 15
+needs: "cosmic 15, star_reading 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.one_hand_blade.beat_the_guard
+kind: ability
+schema: 1
+display_key: ability.catalogue.one_hand_blade.beat_the_guard.name
+tags: [ability]
+name: "Beat the Guard"
+notes: "Strike the *guard* instead of the body: drains the defender's guard pool until it breaks Taught through the D13 catalogue."
+class: technique
+discipline: skill.one_hand_blade
+band: 15
+needs: "sword 15"

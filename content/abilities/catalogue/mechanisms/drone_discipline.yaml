@@ -1,0 +1,11 @@
+id: ability.catalogue.mechanisms.drone_discipline
+kind: ability
+schema: 1
+display_key: ability.catalogue.mechanisms.drone_discipline.name
+tags: [ability]
+name: "Drone discipline"
+notes: "Send a small machine where you will not go, and read what it returns without over-reading it Taught through the D13 catalogue."
+class: technique
+discipline: skill.mechanisms
+band: 45
+needs: "mechanisms 45, electronics 45"

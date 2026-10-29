@@ -1,0 +1,31 @@
+id: dialogue.teacher.shield
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.shield.name
+tags: [dialogue]
+notes: "The shield teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.shield]
+root_node: greet
+nodes:
+  greet:
+    text: "You will not be killed today. That is what this is. Not a wall - a promise."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.shield.shield_bash, ability.catalogue.shield.cover_an_ally, ability.catalogue.shield.deflect, ability.catalogue.shield.bind_the_blade, ability.catalogue.shield.shield_charge, ability.catalogue.shield.focus_shield_ward, ability.catalogue.shield.shield_step, ability.catalogue.shield.advancing_guard, ability.catalogue.shield.block_reflect] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "You flinched. The board did not. Follow the board."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.shield.shield_bash, ability.catalogue.shield.cover_an_ally, ability.catalogue.shield.deflect, ability.catalogue.shield.bind_the_blade, ability.catalogue.shield.shield_charge, ability.catalogue.shield.focus_shield_ward, ability.catalogue.shield.shield_step, ability.catalogue.shield.advancing_guard, ability.catalogue.shield.block_reflect] }
+        next: lesson
+  lesson:
+    text: "Do not block the blow. Block the place the blow wanted to be."

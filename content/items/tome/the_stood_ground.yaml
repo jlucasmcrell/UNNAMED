@@ -1,0 +1,16 @@
+id: item.tome.the_stood_ground
+kind: item
+schema: 1
+display_key: item.tome.the_stood_ground.name
+tags: [item]
+name: The Stood Ground
+notes: "A technique book found at the Spill (D13). Read once, it teaches the polearm lever: how a hook behind the knee takes a body down a size."
+category: book
+item_class: ordinary
+stack_max: 1
+weight: 0.3
+value_base: 40
+use:
+  consume: true
+  grants:
+    - { kind: ability, ref: ability.polearm.sweeping_hook }

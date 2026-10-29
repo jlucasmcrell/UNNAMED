@@ -1,0 +1,11 @@
+id: ability.catalogue.athletics.climb_charge
+kind: ability
+schema: 1
+display_key: ability.catalogue.athletics.climb_charge.name
+tags: [ability]
+name: "Climb Charge"
+notes: "Spend stamina to climb or vault a face under time pressure Taught through the D13 catalogue."
+class: technique
+discipline: skill.athletics
+band: 30
+needs: "athletics 30"

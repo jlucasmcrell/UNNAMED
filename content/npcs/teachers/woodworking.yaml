@@ -1,0 +1,38 @@
+id: npc.teacher.woodworking
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.woodworking.name
+tags: [npc]
+name: "Fen Ottery"
+notes: "The woodworking teacher of the D13 catalogue, a veth of ashen hollow. Voice: gentle pedantry; slow, precise, ending mid-thought; runs a thumb along an edge and frowns at the answer."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.woodworking
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.woodworking.joint_that_holds
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.woodworking, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.woodworking.straight_and_true
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.woodworking, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.woodworking.steam_bend
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.woodworking, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.woodworking.socket_and_shaft
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.woodworking, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.woodworking.the_bench_itself
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.woodworking, band: expert } }

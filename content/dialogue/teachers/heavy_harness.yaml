@@ -1,0 +1,13 @@
+id: dialogue.teacher.heavy_harness
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.heavy_harness.name
+tags: [dialogue]
+notes: "The harness and powered armour teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.heavy_harness]
+root_node: greet
+nodes:
+  greet:
+    text: "A plant is a heavy animal that cannot move. Harness it as an animal, not as a building."
+    once: true
+    choices:

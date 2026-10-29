@@ -1,0 +1,11 @@
+id: ability.catalogue.two_hand_blade.harness_wrestling
+kind: ability
+schema: 1
+display_key: ability.catalogue.two_hand_blade.harness_wrestling.name
+tags: [ability]
+name: "Harness Wrestling"
+notes: "Fight in armour at contact range, where greatswords and gauntlets are the same weapon Taught through the D13 catalogue."
+class: technique
+discipline: skill.two_hand_blade
+band: 45
+needs: "greatsword 45, armour_use 30"

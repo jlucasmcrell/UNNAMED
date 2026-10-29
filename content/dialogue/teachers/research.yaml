@@ -1,0 +1,31 @@
+id: dialogue.teacher.research
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.research.name
+tags: [dialogue]
+notes: "The research teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.research]
+root_node: greet
+nodes:
+  greet:
+    text: "Research is a question narrow enough to fail. Yours is a mood."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.research.read_the_shelf] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "You have found an answer. Now find the question that would refute it."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.research.read_the_shelf] }
+        next: lesson
+  lesson:
+    text: "Write the method before the finding. The finding is the easy half."

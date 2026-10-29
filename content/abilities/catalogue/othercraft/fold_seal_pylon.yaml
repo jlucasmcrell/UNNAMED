@@ -1,0 +1,11 @@
+id: ability.catalogue.othercraft.fold_seal_pylon
+kind: ability
+schema: 1
+display_key: ability.catalogue.othercraft.fold_seal_pylon.name
+tags: [ability]
+name: "Fold-seal Pylon"
+notes: "One of four pylons that pin a fold's edge so it cannot drift while it is closed Taught through the D13 catalogue."
+class: technique
+discipline: skill.othercraft
+band: 45
+needs: "othercraft 45, enchanting 45, masonry 30"

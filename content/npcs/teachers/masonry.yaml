@@ -1,0 +1,28 @@
+id: npc.teacher.masonry
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.masonry.name
+tags: [npc]
+name: "Grondur"
+notes: "The masonry teacher of the D13 catalogue, a ondrek of ashen hollow. Voice: slow geological humour; long, with a rumble at the end; puts his palm flat on the wall and keeps it there while he speaks."
+role: trainer
+unique: true
+people_ref: people.ondrek
+dialogue_ref: dialogue.teacher.masonry
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.masonry.foot_and_course
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.masonry, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.masonry.mortared_coursing
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.masonry, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.masonry.arch_and_lintel
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.masonry, band: proficient } }

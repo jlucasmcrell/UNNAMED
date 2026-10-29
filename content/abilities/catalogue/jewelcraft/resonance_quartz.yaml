@@ -1,0 +1,11 @@
+id: ability.catalogue.jewelcraft.resonance_quartz
+kind: ability
+schema: 1
+display_key: ability.catalogue.jewelcraft.resonance_quartz.name
+tags: [ability]
+name: "Resonance Quartz"
+notes: "Tune quartz to a hum and hold it there: the component that makes gates reliable Taught through the D13 catalogue."
+class: technique
+discipline: skill.jewelcraft
+band: 45
+needs: "jewelcraft 45, otherlore 30"

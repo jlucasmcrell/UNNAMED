@@ -1,0 +1,11 @@
+id: ability.catalogue.projector.charge_discipline
+kind: ability
+schema: 1
+display_key: ability.catalogue.projector.charge_discipline.name
+tags: [ability]
+name: "Charge discipline"
+notes: "Count charges, read heat, and never be the one who finds out what a fault does Taught through the D13 catalogue."
+class: technique
+discipline: skill.projector
+band: 30
+needs: "projector 15"

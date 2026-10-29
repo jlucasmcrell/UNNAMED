@@ -1,0 +1,31 @@
+id: dialogue.teacher.teaching
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.teaching.name
+tags: [dialogue]
+notes: "The teaching teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.teaching]
+root_node: greet
+nodes:
+  greet:
+    text: "You have taught someone. I observed. They learned something, though not what you were teaching."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.teaching.show_then_watch, ability.catalogue.teaching.find_the_misunderstanding] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "Your explanation was correct and useless. Try the useful one."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.teaching.show_then_watch, ability.catalogue.teaching.find_the_misunderstanding] }
+        next: lesson
+  lesson:
+    text: "A lesson is a change you can see. If nothing changed, nothing was taught."

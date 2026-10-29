@@ -1,0 +1,11 @@
+id: ability.catalogue.veilward.quick_work
+kind: ability
+schema: 1
+display_key: ability.catalogue.veilward.quick_work.name
+tags: [ability]
+name: "Quick Work"
+notes: "Half the time for a lower ceiling: the difference between a commission and a fix Taught through the D13 catalogue."
+class: technique
+discipline: skill.veilward
+band: 15
+needs: "any craft 15"

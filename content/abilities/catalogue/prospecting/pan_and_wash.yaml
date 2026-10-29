@@ -1,0 +1,11 @@
+id: ability.catalogue.prospecting.pan_and_wash
+kind: ability
+schema: 1
+display_key: ability.catalogue.prospecting.pan_and_wash.name
+tags: [ability]
+name: "Pan and Wash"
+notes: "Find the heavy thing in river gravel Taught through the D13 catalogue."
+class: technique
+discipline: skill.prospecting
+band: 30
+needs: "prospecting 30, survival 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.smithing.forge_weld
+kind: ability
+schema: 1
+display_key: ability.catalogue.smithing.forge_weld.name
+tags: [ability]
+name: "Forge Weld"
+notes: "Join two pieces so the join is not the weak point Taught through the D13 catalogue."
+class: technique
+discipline: skill.smithing
+band: 15
+needs: "smithing 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.two_hand_blade.unbroken_wheel
+kind: ability
+schema: 1
+display_key: ability.catalogue.two_hand_blade.unbroken_wheel.name
+tags: [ability]
+name: "Unbroken Wheel"
+notes: "Chain a cut, a step and a cut so the weapon never stops moving Taught through the D13 catalogue."
+class: technique
+discipline: skill.two_hand_blade
+band: 60
+needs: "greatsword 60"

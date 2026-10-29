@@ -1,0 +1,68 @@
+id: npc.teacher.unarmed
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.unarmed.name
+tags: [npc]
+name: "Dekk Var"
+notes: "The unarmed teacher of the D13 catalogue, a kal of ashen hollow. Voice: physical comedy, at his own expense; short, with a demonstration between each line; puts his own hand on your shoulder and then cannot get it back."
+role: trainer
+unique: true
+people_ref: people.kal
+dialogue_ref: dialogue.teacher.unarmed
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.unarmed.shove
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.unarmed, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.unarmed.clinch
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.unarmed, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.unarmed.field_restraint
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.unarmed, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.unarmed.trip_throw
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.unarmed, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.unarmed.disarm_seize
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.unarmed, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.unarmed.break_hold
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.unarmed, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.unarmed.roll_out
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.unarmed, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.unarmed.joint_lock
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.unarmed, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.unarmed.choke
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.unarmed, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.unarmed.turn_their_weapon
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.unarmed, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.unarmed.use_their_weight
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.unarmed, band: master } }

@@ -1,0 +1,11 @@
+id: ability.catalogue.survival.keeper_of_the_camp
+kind: ability
+schema: 1
+display_key: ability.catalogue.survival.keeper_of_the_camp.name
+tags: [ability]
+name: "Keeper of the Camp"
+notes: "A camp that holds through a night attack Taught through the D13 catalogue."
+class: technique
+discipline: skill.survival
+band: 60
+needs: "survival 60, leadership 45"

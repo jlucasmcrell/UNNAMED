@@ -1,0 +1,11 @@
+id: ability.catalogue.transmutation.soften_stone
+kind: ability
+schema: 1
+display_key: ability.catalogue.transmutation.soften_stone.name
+tags: [ability]
+name: "Soften Stone"
+notes: "A patch of stone, wood or lock-metal goes soft for a minute: open it, disarm it, climb it Taught through the D13 catalogue."
+class: technique
+discipline: skill.transmutation
+band: 30
+needs: "transmutation 30"

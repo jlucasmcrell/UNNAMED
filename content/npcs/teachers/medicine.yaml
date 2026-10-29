@@ -1,0 +1,48 @@
+id: npc.teacher.medicine
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.medicine.name
+tags: [npc]
+name: "Selarin Ieth"
+notes: "The medicine teacher of the D13 catalogue, a siann of ashen hollow. Voice: clinical bluntness softened at the last word; precise, unhurried; checks your pulse without asking."
+role: trainer
+unique: true
+people_ref: people.siann
+dialogue_ref: dialogue.teacher.medicine
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.medicine.diagnose
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.medicine, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.medicine.clean_and_close
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.medicine, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.medicine.set_the_bone
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.medicine, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.medicine.poison_and_disease
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.medicine, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.medicine.cut_for_a_reason
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.medicine, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.medicine.read_the_dead
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.medicine, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.medicine.the_long_recovery
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.medicine, band: expert } }

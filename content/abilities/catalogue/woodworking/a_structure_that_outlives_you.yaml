@@ -1,0 +1,11 @@
+id: ability.catalogue.woodworking.a_structure_that_outlives_you
+kind: ability
+schema: 1
+display_key: ability.catalogue.woodworking.a_structure_that_outlives_you.name
+tags: [ability]
+name: "A Structure That Outlives You"
+notes: "Design in wood for a century of weather Taught through the D13 catalogue."
+class: technique
+discipline: skill.woodworking
+band: 75
+needs: "woodworking 75 + mastery"

@@ -1,0 +1,11 @@
+id: ability.catalogue.swimming.water_rescue
+kind: ability
+schema: 1
+display_key: ability.catalogue.swimming.water_rescue.name
+tags: [ability]
+name: "Water Rescue"
+notes: "Get somebody else out without being the second casualty Taught through the D13 catalogue."
+class: technique
+discipline: skill.swimming
+band: 45
+needs: "swimming 45, first_aid 30"

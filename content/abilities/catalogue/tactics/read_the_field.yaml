@@ -1,0 +1,11 @@
+id: ability.catalogue.tactics.read_the_field
+kind: ability
+schema: 1
+display_key: ability.catalogue.tactics.read_the_field.name
+tags: [ability]
+name: "Read the Field"
+notes: "A quick read of ground, numbers and escape: the fight you are about to have Taught through the D13 catalogue."
+class: technique
+discipline: skill.tactics
+band: 15
+needs: "tactics 15, insight 15"

@@ -1,0 +1,31 @@
+id: dialogue.teacher.vital
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.vital.name
+tags: [dialogue]
+notes: "The vital teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.vital]
+root_node: greet
+nodes:
+  greet:
+    text: "You are asking where life is kept. It is kept nowhere; it is spent, and you are spending it now."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.vital.mending_thread, ability.catalogue.vital.staunch, ability.catalogue.vital.purge_the_blood, ability.catalogue.vital.lend_focus, ability.catalogue.vital.the_body_s_own_account] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "You mended the flesh and forgot the exhaustion. They are one bill."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.vital.mending_thread, ability.catalogue.vital.staunch, ability.catalogue.vital.purge_the_blood, ability.catalogue.vital.lend_focus, ability.catalogue.vital.the_body_s_own_account] }
+        next: lesson
+  lesson:
+    text: "Rest is part of the working. A body that has been mended still remembers the wound."

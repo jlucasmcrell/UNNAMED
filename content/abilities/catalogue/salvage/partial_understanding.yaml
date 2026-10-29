@@ -1,0 +1,11 @@
+id: ability.catalogue.salvage.partial_understanding
+kind: ability
+schema: 1
+display_key: ability.catalogue.salvage.partial_understanding.name
+tags: [ability]
+name: "Partial understanding"
+notes: "Get 80% of how a device works and know exactly which 20% you do not — and refuse to trust the device past it Taught through the D13 catalogue."
+class: technique
+discipline: skill.salvage
+band: 60
+needs: "salvage 60, research 45"

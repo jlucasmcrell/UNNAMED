@@ -1,0 +1,11 @@
+id: ability.catalogue.demolition.demolish_a_building
+kind: ability
+schema: 1
+display_key: ability.catalogue.demolition.demolish_a_building.name
+tags: [ability]
+name: "Demolish a building"
+notes: "Bring a structure down the way you said, with the street next to it still standing Taught through the D13 catalogue."
+class: technique
+discipline: skill.demolition
+band: 60
+needs: "demolition 60, engineering 45"

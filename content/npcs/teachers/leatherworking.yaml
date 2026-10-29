@@ -1,0 +1,43 @@
+id: npc.teacher.leatherworking
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.leatherworking.name
+tags: [npc]
+name: "Bess Marrow"
+notes: "The leatherwork teacher of the D13 catalogue, a veth of ashen hollow. Voice: warm menace; conversational, threat early; keeps a hide over her knee and works it while looking at you."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.leatherworking
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.leatherworking.tan_and_cure
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.leatherworking, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.leatherworking.stitch_that_grips
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.leatherworking, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.leatherworking.hide_vest
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.leatherworking, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.leatherworking.harness_and_strap
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.leatherworking, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.leatherworking.gambeson
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.leatherworking, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.leatherworking.a_sheath_that_waits
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.leatherworking, band: expert } }

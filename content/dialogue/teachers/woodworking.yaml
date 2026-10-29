@@ -1,0 +1,31 @@
+id: dialogue.teacher.woodworking
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.woodworking.name
+tags: [dialogue]
+notes: "The woodworking teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.woodworking]
+root_node: greet
+nodes:
+  greet:
+    text: "Shaving is not scraping, and scraping is not smoothing. Three different verbs. Three different craftsmen."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.woodworking.joint_that_holds, ability.catalogue.woodworking.straight_and_true, ability.catalogue.woodworking.steam_bend, ability.catalogue.woodworking.socket_and_shaft, ability.catalogue.woodworking.the_bench_itself] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "Go with the grain. You always go against it when you are in a hurry."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.woodworking.joint_that_holds, ability.catalogue.woodworking.straight_and_true, ability.catalogue.woodworking.steam_bend, ability.catalogue.woodworking.socket_and_shaft, ability.catalogue.woodworking.the_bench_itself] }
+        next: lesson
+  lesson:
+    text: "A finish is not a surface. It is the edge you cannot see, holding."

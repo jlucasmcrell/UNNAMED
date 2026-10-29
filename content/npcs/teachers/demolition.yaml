@@ -1,0 +1,13 @@
+id: npc.teacher.demolition
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.demolition.name
+tags: [npc]
+name: "Schedule Nine"
+notes: "The demolition teacher of the D13 catalogue, a constructed of starting frontier. Voice: procedural dread; measured, one clause per instruction; counts on his fingers and stops, deliberately, at the last one."
+role: trainer
+unique: true
+people_ref: people.constructed
+dialogue_ref: dialogue.teacher.demolition
+teaches:

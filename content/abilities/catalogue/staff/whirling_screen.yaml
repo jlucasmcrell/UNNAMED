@@ -1,0 +1,11 @@
+id: ability.catalogue.staff.whirling_screen
+kind: ability
+schema: 1
+display_key: ability.catalogue.staff.whirling_screen.name
+tags: [ability]
+name: "Whirling Screen"
+notes: "A staff in motion is a shield you can also walk with Taught through the D13 catalogue."
+class: technique
+discipline: skill.staff
+band: 45
+needs: "staff 45"

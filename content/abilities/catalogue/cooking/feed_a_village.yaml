@@ -1,0 +1,11 @@
+id: ability.catalogue.cooking.feed_a_village
+kind: ability
+schema: 1
+display_key: ability.catalogue.cooking.feed_a_village.name
+tags: [ability]
+name: "Feed a Village"
+notes: "Cook for forty people from what is in the store Taught through the D13 catalogue."
+class: technique
+discipline: skill.cooking
+band: 60
+needs: "cooking 60, leadership 30"

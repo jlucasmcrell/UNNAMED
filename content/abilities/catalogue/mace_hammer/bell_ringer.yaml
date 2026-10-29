@@ -1,0 +1,11 @@
+id: ability.catalogue.mace_hammer.bell_ringer
+kind: ability
+schema: 1
+display_key: ability.catalogue.mace_hammer.bell_ringer.name
+tags: [ability]
+name: "Bell-ringer"
+notes: "A ringing blow to a helmeted head: concusses through the metal Taught through the D13 catalogue."
+class: technique
+discipline: skill.mace_hammer
+band: 15
+needs: "hammer 15, target armoured"

@@ -1,0 +1,23 @@
+id: npc.teacher.music
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.music.name
+tags: [npc]
+name: "Iaelin Sareth"
+notes: "The music teacher of the D13 catalogue, a siann of sedge levels. Voice: eerie patience; very slow, as though the room should wait; hums a note and waits for the room to agree."
+role: trainer
+unique: true
+people_ref: people.siann
+dialogue_ref: dialogue.teacher.music
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.music.the_working_song
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.music, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.music.playing_the_room
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.music, band: proficient } }

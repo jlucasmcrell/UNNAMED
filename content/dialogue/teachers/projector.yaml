@@ -1,0 +1,13 @@
+id: dialogue.teacher.projector
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.projector.name
+tags: [dialogue]
+notes: "The otherwrought projectors teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.projector]
+root_node: greet
+nodes:
+  greet:
+    text: "A projector throws something that arrives. Where it arrives is your entire job."
+    once: true
+    choices:

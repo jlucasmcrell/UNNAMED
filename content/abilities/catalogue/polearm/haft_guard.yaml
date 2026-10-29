@@ -1,0 +1,11 @@
+id: ability.catalogue.polearm.haft_guard
+kind: ability
+schema: 1
+display_key: ability.catalogue.polearm.haft_guard.name
+tags: [ability]
+name: "Haft Guard"
+notes: "Use the shaft to block — a polearm has a second weapon along most of its length Taught through the D13 catalogue."
+class: technique
+discipline: skill.polearm
+band: 15
+needs: "polearm 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.dual_wield.second_hand_live
+kind: ability
+schema: 1
+display_key: ability.catalogue.dual_wield.second_hand_live.name
+tags: [ability]
+name: "Second Hand Live"
+notes: "Keep the off-hand weapon actually holding a line instead of trailing Taught through the D13 catalogue."
+class: technique
+discipline: skill.dual_wield
+band: 15
+needs: "dual_wield 15"

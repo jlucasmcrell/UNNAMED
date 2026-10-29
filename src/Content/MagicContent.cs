@@ -157,6 +157,7 @@ public static class MagicContent
         ImmutableSortedDictionary<string, FormulaDefinition> formulas)
     {
         var recipes = loader.GetByKind("recipe");
+        var abilities = loader.GetByKind("ability");
         return loader.GetByKind("item").Values
             .Select(d => (d.Id, Use: Read(d.YamlSource).GetValueOrDefault("use") as Dictionary<object, object>))
             .Where(d => d.Use?.ContainsKey("grants") == true)
@@ -174,7 +175,10 @@ public static class MagicContent
                         "spell" => formulas.ContainsKey(taught) ? taught : throw new FormatException($"{d.Id}: {taught} is not a formula"),
                         // A recipe book (WP3a, K2): read once, it teaches its recipes as a tome teaches formulas.
                         "recipe" => recipes.ContainsKey(taught) ? taught : throw new FormatException($"{d.Id}: {taught} is not a recipe"),
-                        var other => throw new FormatException($"{d.Id}: a book teaches formulas or recipes (grants of kind spell or recipe), not {other}"),
+                        // A drilled manual (D13): read once, it teaches a technique the way a tome teaches formulas. The read path in the
+                        // world learns whatever ids a book holds and stamps them with the book as their source, so nothing else changes.
+                        "ability" => abilities.ContainsKey(taught) ? taught : throw new FormatException($"{d.Id}: {taught} is not a technique"),
+                        var other => throw new FormatException($"{d.Id}: a book teaches formulas, recipes or techniques (grants of kind spell, recipe or ability), not {other}"),
                     };
                 }).ToImmutableArray();
             }, StringComparer.Ordinal);

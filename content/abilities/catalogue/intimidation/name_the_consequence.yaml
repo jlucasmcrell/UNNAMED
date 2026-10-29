@@ -1,0 +1,11 @@
+id: ability.catalogue.intimidation.name_the_consequence
+kind: ability
+schema: 1
+display_key: ability.catalogue.intimidation.name_the_consequence.name
+tags: [ability]
+name: "Name the Consequence"
+notes: "Say exactly what happens next, and be believed Taught through the D13 catalogue."
+class: technique
+discipline: skill.intimidation
+band: 15
+needs: "intimidation 15"

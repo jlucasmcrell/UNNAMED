@@ -1,0 +1,11 @@
+id: ability.catalogue.tactics.withdraw_in_order
+kind: ability
+schema: 1
+display_key: ability.catalogue.tactics.withdraw_in_order.name
+tags: [ability]
+name: "Withdraw in Order"
+notes: "Leave a losing fight without it becoming a rout Taught through the D13 catalogue."
+class: technique
+discipline: skill.tactics
+band: 45
+needs: "tactics 45, leadership 30"

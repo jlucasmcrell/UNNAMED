@@ -1,0 +1,11 @@
+id: ability.catalogue.jewelcraft.lens_grinding
+kind: ability
+schema: 1
+display_key: ability.catalogue.jewelcraft.lens_grinding.name
+tags: [ability]
+name: "Lens Grinding"
+notes: "A lens that is actually sharp, from a jewelcraft bench Taught through the D13 catalogue."
+class: technique
+discipline: skill.jewelcraft
+band: 30
+needs: "jewelcraft 30"

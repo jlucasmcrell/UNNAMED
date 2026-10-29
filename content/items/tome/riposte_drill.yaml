@@ -1,0 +1,16 @@
+id: item.tome.riposte_drill
+kind: item
+schema: 1
+display_key: item.tome.riposte_drill.name
+tags: [item]
+name: The Counter, Drilled
+notes: "A technique book (D13). Read once, it teaches the blade's counter, which Kera also charges sixty for - the book is the other way in."
+category: book
+item_class: ordinary
+stack_max: 1
+weight: 0.3
+value_base: 45
+use:
+  consume: true
+  grants:
+    - { kind: ability, ref: ability.blade.riposte }

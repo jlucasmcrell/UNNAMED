@@ -1,0 +1,11 @@
+id: ability.catalogue.staff.ground_the_ward
+kind: ability
+schema: 1
+display_key: ability.catalogue.staff.ground_the_ward.name
+tags: [ability]
+name: "Ground the Ward"
+notes: "Set the staff to close a circuit of a ward or a working: the implement as a tool, not a talisman Taught through the D13 catalogue."
+class: technique
+discipline: skill.staff
+band: 45
+needs: "staff 45, warding 30"

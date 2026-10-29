@@ -1,0 +1,48 @@
+id: npc.teacher.survival
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.survival.name
+tags: [npc]
+name: "Cade Marchant"
+notes: "The survival teacher of the D13 catalogue, a veth of starting frontier. Voice: bleak cheerfulness; brisk, with the bad news first; checks the sky once, thoroughly, and never again."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.survival
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.survival.fire_in_the_wet
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.survival, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.survival.set_snare
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.survival, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.survival.improvised_shelter
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.survival, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.survival.cold_camp
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.survival, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.survival.weatherproof
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.survival, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.survival.live_off_the_land
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.survival, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.survival.keeper_of_the_camp
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.survival, band: expert } }

@@ -1,0 +1,11 @@
+id: ability.catalogue.transmutation.coldbloom_pressing
+kind: ability
+schema: 1
+display_key: ability.catalogue.transmutation.coldbloom_pressing.name
+tags: [ability]
+name: "Coldbloom pressing"
+notes: "Work metal that grew rather than was smelted. Nobody can make more of it Taught through the D13 catalogue."
+class: technique
+discipline: skill.transmutation
+band: 60
+needs: "transmutation 60, smithing 60, otherlore 45"

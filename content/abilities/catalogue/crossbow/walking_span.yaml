@@ -1,0 +1,11 @@
+id: ability.catalogue.crossbow.walking_span
+kind: ability
+schema: 1
+display_key: ability.catalogue.crossbow.walking_span.name
+tags: [ability]
+name: "Walking Span"
+notes: "Reload at a walk, which is the only reload that survives contact Taught through the D13 catalogue."
+class: technique
+discipline: skill.crossbow
+band: 30
+needs: "crossbow 30"

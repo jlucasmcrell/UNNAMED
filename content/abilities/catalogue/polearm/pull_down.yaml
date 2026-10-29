@@ -1,0 +1,11 @@
+id: ability.catalogue.polearm.pull_down
+kind: ability
+schema: 1
+display_key: ability.catalogue.polearm.pull_down.name
+tags: [ability]
+name: "Pull Down"
+notes: "Hook a shield, an arm or a rider and bring them into your range Taught through the D13 catalogue."
+class: technique
+discipline: skill.polearm
+band: 30
+needs: "polearm 30, feature: a hook"

@@ -1,0 +1,11 @@
+id: ability.catalogue.axe.shield_hook
+kind: ability
+schema: 1
+display_key: ability.catalogue.axe.shield_hook.name
+tags: [ability]
+name: "Shield Hook"
+notes: "Catch a shield rim with the beard and *pull* — a shield that leaves the line is not a shield Taught through the D13 catalogue."
+class: technique
+discipline: skill.axe
+band: 15
+needs: "axe 15, feature: a bearded axe"

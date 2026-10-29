@@ -1,0 +1,11 @@
+id: ability.catalogue.armour_use.brace
+kind: ability
+schema: 1
+display_key: ability.catalogue.armour_use.brace.name
+tags: [ability]
+name: "Brace"
+notes: "Plant and refuse to be moved: no movement, no stagger Taught through the D13 catalogue."
+class: technique
+discipline: skill.armour_use
+band: 30
+needs: "armour 30, endurance 15"

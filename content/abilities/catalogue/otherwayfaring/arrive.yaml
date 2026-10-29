@@ -1,0 +1,11 @@
+id: ability.catalogue.otherwayfaring.arrive
+kind: ability
+schema: 1
+display_key: ability.catalogue.otherwayfaring.arrive.name
+tags: [ability]
+name: "Arrive"
+notes: "Bring a whole party out where you said, having lost nothing on the way Taught through the D13 catalogue."
+class: technique
+discipline: skill.otherwayfaring
+band: 60
+needs: "otherwayfaring 60"

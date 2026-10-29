@@ -1,0 +1,31 @@
+id: dialogue.teacher.armour_use
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.armour_use.name
+tags: [dialogue]
+notes: "The armour teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.armour_use]
+root_node: greet
+nodes:
+  greet:
+    text: "Plate does not make you safe. It makes you slow and confident, which is worse. Now walk."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.armour_use.settle_the_harness, ability.catalogue.armour_use.wear_it_all_day, ability.catalogue.armour_use.take_it_on_the_plate, ability.catalogue.armour_use.brace, ability.catalogue.armour_use.silent_harness, ability.catalogue.armour_use.armour_in_the_water, ability.catalogue.armour_use.walk_in_full_harness, ability.catalogue.armour_use.walking_fortress] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "You are carrying it, not wearing it. Different verbs, different deaths."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.armour_use.settle_the_harness, ability.catalogue.armour_use.wear_it_all_day, ability.catalogue.armour_use.take_it_on_the_plate, ability.catalogue.armour_use.brace, ability.catalogue.armour_use.silent_harness, ability.catalogue.armour_use.armour_in_the_water, ability.catalogue.armour_use.walk_in_full_harness, ability.catalogue.armour_use.walking_fortress] }
+        next: lesson
+  lesson:
+    text: "The armour buys you one mistake. Choose the mistake before the fight starts."

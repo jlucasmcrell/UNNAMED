@@ -1,0 +1,28 @@
+id: npc.teacher.navigation
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.navigation.name
+tags: [npc]
+name: "Maro Venn"
+notes: "The navigation teacher of the D13 catalogue, a orenth of starting frontier. Voice: airy confidence; quick, with a sweeping gesture; points at a direction that is slightly wrong, then corrects it while you are looking."
+role: trainer
+unique: true
+people_ref: people.orenth
+dialogue_ref: dialogue.teacher.navigation
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.navigation.by_rumour
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.navigation, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.navigation.bearings_by_stars
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.navigation, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.navigation.get_the_party_home
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.navigation, band: adept } }

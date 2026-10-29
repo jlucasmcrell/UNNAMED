@@ -1,0 +1,11 @@
+id: ability.catalogue.illusion.a_room_that_was_not
+kind: ability
+schema: 1
+display_key: ability.catalogue.illusion.a_room_that_was_not.name
+tags: [ability]
+name: "A Room That Was Not"
+notes: "A place persists as a false place until something contradicts it physically Taught through the D13 catalogue."
+class: technique
+discipline: skill.illusion
+band: 60
+needs: "illusion 60, ritualcraft 30"

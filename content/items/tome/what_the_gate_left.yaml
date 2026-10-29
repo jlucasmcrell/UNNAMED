@@ -1,0 +1,16 @@
+id: item.tome.what_the_gate_left
+kind: item
+schema: 1
+display_key: item.tome.what_the_gate_left.name
+tags: [item]
+name: What the Gate Left
+notes: "A technique book found at the Spill (D13): a blade drill annotated by someone who fought at the Stopped Gate. Teaches the hewing cut."
+category: book
+item_class: ordinary
+stack_max: 1
+weight: 0.3
+value_base: 40
+use:
+  consume: true
+  grants:
+    - { kind: ability, ref: ability.blade.hewing_cut }

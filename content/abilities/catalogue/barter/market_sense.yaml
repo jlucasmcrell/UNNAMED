@@ -1,0 +1,11 @@
+id: ability.catalogue.barter.market_sense
+kind: ability
+schema: 1
+display_key: ability.catalogue.barter.market_sense.name
+tags: [ability]
+name: "Market Sense"
+notes: "Know what a market lacks before you get there Taught through the D13 catalogue."
+class: technique
+discipline: skill.barter
+band: 30
+needs: "barter 30, insight 15"

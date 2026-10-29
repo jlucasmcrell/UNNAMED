@@ -1,0 +1,11 @@
+id: ability.catalogue.stealth.misdirect
+kind: ability
+schema: 1
+display_key: ability.catalogue.stealth.misdirect.name
+tags: [ability]
+name: "Misdirect"
+notes: "A noise at a point of your choosing, so hearers get a place to look Taught through the D13 catalogue."
+class: technique
+discipline: skill.stealth
+band: 15
+needs: "stealth 15"

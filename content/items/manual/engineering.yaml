@@ -1,0 +1,22 @@
+id: item.manual.engineering
+kind: item
+schema: 1
+display_key: item.manual.engineering.name
+tags: [item]
+name: "The Engineering Manual"
+notes: "A working manual of the D13 catalogue: Water and weight, Read a pipe run, Pressure discipline, Steam cycle, Keep it in specification, Schedule, Internal combustion, in principle. Read once, it teaches what canon says is learned from a book."
+category: book
+item_class: ordinary
+stack_max: 1
+weight: 0.4
+value_base: 40
+use:
+  consume: true
+  grants:
+    - { kind: ability, ref: ability.catalogue.engineering.water_and_weight }
+    - { kind: ability, ref: ability.catalogue.engineering.read_a_pipe_run }
+    - { kind: ability, ref: ability.catalogue.engineering.pressure_discipline }
+    - { kind: ability, ref: ability.catalogue.engineering.steam_cycle }
+    - { kind: ability, ref: ability.catalogue.engineering.keep_it_in_specification }
+    - { kind: ability, ref: ability.catalogue.engineering.schedule }
+    - { kind: ability, ref: ability.catalogue.engineering.internal_combustion_in_principle }

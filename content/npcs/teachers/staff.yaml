@@ -1,0 +1,58 @@
+id: npc.teacher.staff
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.staff.name
+tags: [npc]
+name: "Corin Ostley"
+notes: "The staff teacher of the D13 catalogue, a veth of ashen hollow. Voice: philosophical drift into the practical; wandering, then suddenly exact; spins the staff once, badly, and pretends not to notice."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.staff
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.staff.two_ended_guard
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.staff, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.staff.leg_sweep
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.staff, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.staff.grip_shift
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.staff, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.staff.trap_and_twist
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.staff, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.staff.strike_and_cast
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.staff, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.staff.whirling_screen
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.staff, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.staff.ground_the_ward
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.staff, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.staff.pivot_on_the_staff
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.staff, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.staff.ring_of_the_staff
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.staff, band: master } }

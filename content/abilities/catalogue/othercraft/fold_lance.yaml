@@ -1,0 +1,11 @@
+id: ability.catalogue.othercraft.fold_lance
+kind: ability
+schema: 1
+display_key: ability.catalogue.othercraft.fold_lance.name
+tags: [ability]
+name: "Fold Lance"
+notes: "Strike a seen target through a fold, around cover, while held. Every primitive exposed Taught through the D13 catalogue."
+class: technique
+discipline: skill.othercraft
+band: 30
+needs: "othercraft 30, force 30"

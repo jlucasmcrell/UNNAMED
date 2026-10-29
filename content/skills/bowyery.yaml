@@ -1,0 +1,9 @@
+id: skill.bowyery
+kind: skill
+schema: 1
+display_key: skill.bowyery.name
+tags: [skill]
+name: "Bowyery and fletching"
+family: world
+notes: "D13 catalogue skill: Bowyery and fletching (3.5 Crafting). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a bow or a batch of arrows that matches its owner and its purpose"

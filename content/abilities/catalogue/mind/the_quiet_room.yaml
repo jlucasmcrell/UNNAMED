@@ -1,0 +1,11 @@
+id: ability.catalogue.mind.the_quiet_room
+kind: ability
+schema: 1
+display_key: ability.catalogue.mind.the_quiet_room.name
+tags: [ability]
+name: "The Quiet Room"
+notes: "Everyone within 5 m stops shouting, and nobody can say why Taught through the D13 catalogue."
+class: technique
+discipline: skill.mind
+band: 60
+needs: "mind 60, ritualcraft 30"

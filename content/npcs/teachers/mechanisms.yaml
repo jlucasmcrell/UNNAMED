@@ -1,0 +1,13 @@
+id: npc.teacher.mechanisms
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.mechanisms.name
+tags: [npc]
+name: "Tuuvek"
+notes: "The mechanisms teacher of the D13 catalogue, a vaskaal of starting frontier. Voice: dry numerical fatalism; steady, ending each line on a number; turns a gear between thumb and finger and counts the teeth under his breath."
+role: trainer
+unique: true
+people_ref: people.vaskaal
+dialogue_ref: dialogue.teacher.mechanisms
+teaches:

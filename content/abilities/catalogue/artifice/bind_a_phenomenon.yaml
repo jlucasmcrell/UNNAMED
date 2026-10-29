@@ -1,0 +1,11 @@
+id: ability.catalogue.artifice.bind_a_phenomenon
+kind: ability
+schema: 1
+display_key: ability.catalogue.artifice.bind_a_phenomenon.name
+tags: [ability]
+name: "Bind a phenomenon"
+notes: "Capture a *natural* phenomenon (a wisp, a residue, an Otherwake) in a device and release it later, once Taught through the D13 catalogue."
+class: technique
+discipline: skill.artifice
+band: 60
+needs: "artifice 60, enchanting 45, otherlore 45"

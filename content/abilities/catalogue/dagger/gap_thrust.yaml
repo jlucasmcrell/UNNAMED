@@ -1,0 +1,11 @@
+id: ability.catalogue.dagger.gap_thrust
+kind: ability
+schema: 1
+display_key: ability.catalogue.dagger.gap_thrust.name
+tags: [ability]
+name: "Gap Thrust"
+notes: "A short point into whatever is not covered — the whole art in one move Taught through the D13 catalogue."
+class: technique
+discipline: skill.dagger
+band: 15
+needs: "dagger 15"

@@ -1,0 +1,28 @@
+id: npc.teacher.prospecting
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.prospecting.name
+tags: [npc]
+name: "Gorndu"
+notes: "The prospecting teacher of the D13 catalogue, a ondrek of starting frontier. Voice: reverent practicality; slow, touching the ground between sentences; crouches and picks up a handful of soil, then smells it."
+role: trainer
+unique: true
+people_ref: people.ondrek
+dialogue_ref: dialogue.teacher.prospecting
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.prospecting.ground_colour
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.prospecting, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.prospecting.pan_and_wash
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.prospecting, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.prospecting.the_seam_before_you_dig
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.prospecting, band: adept } }

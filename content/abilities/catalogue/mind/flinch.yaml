@@ -1,0 +1,11 @@
+id: ability.catalogue.mind.flinch
+kind: ability
+schema: 1
+display_key: ability.catalogue.mind.flinch.name
+tags: [ability]
+name: "Flinch"
+notes: "A moment of unreasoning fear: it breaks a wind-up or a held aim Taught through the D13 catalogue."
+class: technique
+discipline: skill.mind
+band: 30
+needs: "mind 30"

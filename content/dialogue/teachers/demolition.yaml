@@ -1,0 +1,13 @@
+id: dialogue.teacher.demolition
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.demolition.name
+tags: [dialogue]
+notes: "The demolition teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.demolition]
+root_node: greet
+nodes:
+  greet:
+    text: "I am the document that says which part comes down. You are the part that must not be standing near it."
+    once: true
+    choices:

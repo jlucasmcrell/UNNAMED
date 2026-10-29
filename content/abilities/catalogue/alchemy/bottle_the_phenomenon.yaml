@@ -1,0 +1,11 @@
+id: ability.catalogue.alchemy.bottle_the_phenomenon
+kind: ability
+schema: 1
+display_key: ability.catalogue.alchemy.bottle_the_phenomenon.name
+tags: [ability]
+name: "Bottle the Phenomenon"
+notes: "Hold an Other-derived substance without it changing you Taught through the D13 catalogue."
+class: technique
+discipline: skill.alchemy
+band: 45
+needs: "alchemy 45, otherlore 30"

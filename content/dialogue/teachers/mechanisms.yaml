@@ -1,0 +1,13 @@
+id: dialogue.teacher.mechanisms
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.mechanisms.name
+tags: [dialogue]
+notes: "The mechanisms teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.mechanisms]
+root_node: greet
+nodes:
+  greet:
+    text: "A mechanism is a promise about time. Yours is late."
+    once: true
+    choices:

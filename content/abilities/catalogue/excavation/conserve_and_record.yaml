@@ -1,0 +1,11 @@
+id: ability.catalogue.excavation.conserve_and_record
+kind: ability
+schema: 1
+display_key: ability.catalogue.excavation.conserve_and_record.name
+tags: [ability]
+name: "Conserve and Record"
+notes: "Keep what you lifted from falling apart Taught through the D13 catalogue."
+class: technique
+discipline: skill.excavation
+band: 30
+needs: "excavation 30, lore 15"

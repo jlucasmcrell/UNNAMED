@@ -1,0 +1,11 @@
+id: ability.catalogue.intimidation.stand_like_you_mean_it
+kind: ability
+schema: 1
+display_key: ability.catalogue.intimidation.stand_like_you_mean_it.name
+tags: [ability]
+name: "Stand Like You Mean It"
+notes: "Presence as a first move Taught through the D13 catalogue."
+class: technique
+discipline: skill.intimidation
+band: 15
+needs: "intimidation 15, presence 12"

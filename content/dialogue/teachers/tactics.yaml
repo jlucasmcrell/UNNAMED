@@ -1,0 +1,31 @@
+id: dialogue.teacher.tactics
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.tactics.name
+tags: [dialogue]
+notes: "The tactics teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.tactics]
+root_node: greet
+nodes:
+  greet:
+    text: "There are five of them and two of you. That is not a problem. That is arithmetic with a solution."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.tactics.read_the_field, ability.catalogue.tactics.guard_the_fallen, ability.catalogue.tactics.combined_strike, ability.catalogue.tactics.battle_plan, ability.catalogue.tactics.hold_together] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "Your plan still has a moment where you hope. Remove it."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.tactics.read_the_field, ability.catalogue.tactics.guard_the_fallen, ability.catalogue.tactics.combined_strike, ability.catalogue.tactics.battle_plan, ability.catalogue.tactics.hold_together] }
+        next: lesson
+  lesson:
+    text: "Ground, time, and who panics first. Everything else is decoration."

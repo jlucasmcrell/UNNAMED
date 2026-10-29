@@ -3,7 +3,7 @@ kind: skill
 schema: 1
 display_key: skill.armour_use.name
 tags: [skill]
-name: Armour
-family: combat
-notes: "D14 CALLS: taken from canon SKILLS_AND_TECHNIQUES.md (D13), which rides endurance, might. Authored because the 24 Calls start it at 15 and the build did not have it."
+name: "Armour"
+family: world
+notes: "D13 catalogue skill: Armour (3.2 Battle arts). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
 teaches: "taking blows that your coverage actually turned, and moving in weight"

@@ -1,0 +1,11 @@
+id: ability.catalogue.teaching.show_then_watch
+kind: ability
+schema: 1
+display_key: ability.catalogue.teaching.show_then_watch.name
+tags: [ability]
+name: "Show, Then Watch"
+notes: "The oldest teaching technique there is Taught through the D13 catalogue."
+class: technique
+discipline: skill.teaching
+band: 15
+needs: "teaching 15"

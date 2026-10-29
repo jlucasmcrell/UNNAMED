@@ -1,0 +1,11 @@
+id: ability.catalogue.otherwhen.the_echo_of_a_deed
+kind: ability
+schema: 1
+display_key: ability.catalogue.otherwhen.the_echo_of_a_deed.name
+tags: [ability]
+name: "The Echo of a Deed"
+notes: "A room shows what recently happened in it, without sound Taught through the D13 catalogue."
+class: technique
+discipline: skill.otherwhen
+band: 45
+needs: "otherwhen 45, divination 30"

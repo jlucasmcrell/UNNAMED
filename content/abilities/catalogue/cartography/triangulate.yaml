@@ -1,0 +1,11 @@
+id: ability.catalogue.cartography.triangulate
+kind: ability
+schema: 1
+display_key: ability.catalogue.cartography.triangulate.name
+tags: [ability]
+name: "Triangulate"
+notes: "Fix a position from bearings instead of guessing Taught through the D13 catalogue."
+class: technique
+discipline: skill.cartography
+band: 30
+needs: "cartography 30, precision 20"

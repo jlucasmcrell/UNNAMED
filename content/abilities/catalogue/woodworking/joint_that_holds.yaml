@@ -1,0 +1,11 @@
+id: ability.catalogue.woodworking.joint_that_holds
+kind: ability
+schema: 1
+display_key: ability.catalogue.woodworking.joint_that_holds.name
+tags: [ability]
+name: "Joint That Holds"
+notes: "A mortise, a dovetail, a scarf: the joint carries the load, not the nail Taught through the D13 catalogue."
+class: technique
+discipline: skill.woodworking
+band: 15
+needs: "woodworking 15"

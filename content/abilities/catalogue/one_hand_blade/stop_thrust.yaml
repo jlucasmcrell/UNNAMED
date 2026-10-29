@@ -1,0 +1,11 @@
+id: ability.catalogue.one_hand_blade.stop_thrust
+kind: ability
+schema: 1
+display_key: ability.catalogue.one_hand_blade.stop_thrust.name
+tags: [ability]
+name: "Stop-thrust"
+notes: "Meet a committed advance with a thrust into it: the attacker's own momentum finishes the argument Taught through the D13 catalogue."
+class: technique
+discipline: skill.one_hand_blade
+band: 60
+needs: "sword 60"

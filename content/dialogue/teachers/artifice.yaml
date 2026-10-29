@@ -1,0 +1,31 @@
+id: dialogue.teacher.artifice
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.artifice.name
+tags: [dialogue]
+notes: "The artifice teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.artifice]
+root_node: greet
+nodes:
+  greet:
+    text: "I am Annex. I am the part of the workshop that remembers. You are the part that will break things."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.artifice.jury_rig, ability.catalogue.artifice.field_maintenance, ability.catalogue.artifice.anchor_a_mechanism, ability.catalogue.artifice.gears_springs_pumps] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "You have invented a new failure. I have recorded it. Continue."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.artifice.jury_rig, ability.catalogue.artifice.field_maintenance, ability.catalogue.artifice.anchor_a_mechanism, ability.catalogue.artifice.gears_springs_pumps] }
+        next: lesson
+  lesson:
+    text: "A device is a list of promises. Find the promise that is a lie before anyone stands near it."

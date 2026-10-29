@@ -1,0 +1,11 @@
+id: ability.catalogue.force.bare_bolt
+kind: ability
+schema: 1
+display_key: ability.catalogue.force.bare_bolt.name
+tags: [ability]
+name: "Bare Bolt"
+notes: "The same bolt with its safeguards stripped: two complexity lighter, and no slip is ever a harmless fizzle Taught through the D13 catalogue."
+class: technique
+discipline: skill.force
+band: 15
+needs: "force 15"

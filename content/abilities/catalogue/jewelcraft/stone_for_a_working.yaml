@@ -1,0 +1,11 @@
+id: ability.catalogue.jewelcraft.stone_for_a_working
+kind: ability
+schema: 1
+display_key: ability.catalogue.jewelcraft.stone_for_a_working.name
+tags: [ability]
+name: "Stone for a Working"
+notes: "Set a stone so it stabilises a working rather than spoiling it Taught through the D13 catalogue."
+class: technique
+discipline: skill.jewelcraft
+band: 30
+needs: "jewelcraft 30, enchanting 15"

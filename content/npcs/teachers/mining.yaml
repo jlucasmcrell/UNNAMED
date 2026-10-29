@@ -1,0 +1,28 @@
+id: npc.teacher.mining
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.mining.name
+tags: [npc]
+name: "Grondur"
+notes: "The mining teacher of the D13 catalogue, a ondrek of starting frontier. Voice: slow geological humour; long, with a rumble at the end; puts his palm flat on the rock face while he speaks."
+role: trainer
+unique: true
+people_ref: people.ondrek
+dialogue_ref: dialogue.teacher.mining
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.mining.read_the_face
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.mining, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.mining.timber_and_prop
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.mining, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.mining.the_stair_in_the_rock
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.mining, band: adept } }

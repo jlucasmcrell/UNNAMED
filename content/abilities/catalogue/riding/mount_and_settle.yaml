@@ -1,0 +1,11 @@
+id: ability.catalogue.riding.mount_and_settle
+kind: ability
+schema: 1
+display_key: ability.catalogue.riding.mount_and_settle.name
+tags: [ability]
+name: "Mount and Settle"
+notes: "Get on, stay on, and not make the animal nervous Taught through the D13 catalogue."
+class: technique
+discipline: skill.riding
+band: 15
+needs: "riding 15, presence 12"

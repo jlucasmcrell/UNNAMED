@@ -1,0 +1,11 @@
+id: ability.catalogue.marksmanship.name_the_place
+kind: ability
+schema: 1
+display_key: ability.catalogue.marksmanship.name_the_place.name
+tags: [ability]
+name: "Name the Place"
+notes: "Name the exact point you will hit before you loose it, and hit it Taught through the D13 catalogue."
+class: technique
+discipline: skill.marksmanship
+band: 75
+needs: "marksmanship 75 + mastery"

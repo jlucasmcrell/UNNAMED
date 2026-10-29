@@ -1,0 +1,11 @@
+id: ability.catalogue.axe.hamstring
+kind: ability
+schema: 1
+display_key: ability.catalogue.axe.hamstring.name
+tags: [ability]
+name: "Hamstring"
+notes: "A low, deliberate cut to the back of a leg: the fight ends when the walking does Taught through the D13 catalogue."
+class: technique
+discipline: skill.axe
+band: 45
+needs: "axe 45, anatomy knowledge helps"

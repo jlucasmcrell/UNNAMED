@@ -1,0 +1,38 @@
+id: npc.teacher.swimming
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.swimming.name
+tags: [npc]
+name: "Askraa"
+notes: "The swimming teacher of the D13 catalogue, a vaskaal of starting frontier. Voice: aquatic calm; slow, with the breathing rhythm of the stroke; moves her arms as though the air were water."
+role: trainer
+unique: true
+people_ref: people.vaskaal
+dialogue_ref: dialogue.teacher.swimming
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.swimming.stay_up
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.swimming, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.swimming.cold_water
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.swimming, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.swimming.cross_with_a_load
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.swimming, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.swimming.weirs_and_currents
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.swimming, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.swimming.shed_the_weight
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.swimming, band: adept } }

@@ -1,0 +1,11 @@
+id: ability.catalogue.dual_wield.cover_and_strike
+kind: ability
+schema: 1
+display_key: ability.catalogue.dual_wield.cover_and_strike.name
+tags: [ability]
+name: "Cover and Strike"
+notes: "The off-hand covers while the main hand does the work Taught through the D13 catalogue."
+class: technique
+discipline: skill.dual_wield
+band: 15
+needs: "dual_wield 15"

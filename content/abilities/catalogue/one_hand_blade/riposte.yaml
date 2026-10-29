@@ -1,0 +1,11 @@
+id: ability.catalogue.one_hand_blade.riposte
+kind: ability
+schema: 1
+display_key: ability.catalogue.one_hand_blade.riposte.name
+tags: [ability]
+name: "Riposte"
+notes: "A parry that *is* an attack: the counter lands inside the opening you just made Taught through the D13 catalogue."
+class: technique
+discipline: skill.one_hand_blade
+band: 30
+needs: "sword 30, after Parry"

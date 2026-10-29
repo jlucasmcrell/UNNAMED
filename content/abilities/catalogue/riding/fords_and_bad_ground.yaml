@@ -1,0 +1,11 @@
+id: ability.catalogue.riding.fords_and_bad_ground
+kind: ability
+schema: 1
+display_key: ability.catalogue.riding.fords_and_bad_ground.name
+tags: [ability]
+name: "Fords and Bad Ground"
+notes: "Take a horse where horses should not go Taught through the D13 catalogue."
+class: technique
+discipline: skill.riding
+band: 30
+needs: "riding 30, survival 15"

@@ -1,0 +1,26 @@
+id: item.manual.salvage
+kind: item
+schema: 1
+display_key: item.manual.salvage.name
+tags: [item]
+name: "The Salvage Manual"
+notes: "A working manual of the D13 catalogue: Read an old hinge, Repair what you did not build, Reverse the whole device, Teardown, Read the maker, Keep the intel, Work blind, Bottle a hazard, Partial understanding, Total teardown, One true idea. Read once, it teaches what canon says is learned from a book."
+category: book
+item_class: ordinary
+stack_max: 1
+weight: 0.4
+value_base: 40
+use:
+  consume: true
+  grants:
+    - { kind: ability, ref: ability.catalogue.salvage.read_an_old_hinge }
+    - { kind: ability, ref: ability.catalogue.salvage.repair_what_you_did_not_build }
+    - { kind: ability, ref: ability.catalogue.salvage.reverse_the_whole_device }
+    - { kind: ability, ref: ability.catalogue.salvage.teardown }
+    - { kind: ability, ref: ability.catalogue.salvage.read_the_maker }
+    - { kind: ability, ref: ability.catalogue.salvage.keep_the_intel }
+    - { kind: ability, ref: ability.catalogue.salvage.work_blind }
+    - { kind: ability, ref: ability.catalogue.salvage.bottle_a_hazard }
+    - { kind: ability, ref: ability.catalogue.salvage.partial_understanding }
+    - { kind: ability, ref: ability.catalogue.salvage.total_teardown }
+    - { kind: ability, ref: ability.catalogue.salvage.one_true_idea }

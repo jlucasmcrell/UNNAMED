@@ -1,0 +1,48 @@
+id: npc.teacher.evasion
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.evasion.name
+tags: [npc]
+name: "Nairin Saelis"
+notes: "The evasion teacher of the D13 catalogue, a siann of ashen hollow. Voice: airy refusal to be impressed; quick, with a laugh she does not share; steps out of your reach before you have decided to reach."
+role: trainer
+unique: true
+people_ref: people.siann
+dialogue_ref: dialogue.teacher.evasion
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.evasion.slip
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.evasion, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.evasion.recover_footing
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.evasion, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.evasion.rolling_fall
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.evasion, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.evasion.read_the_press
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.evasion, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.evasion.endure
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.evasion, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.evasion.borrowed_momentum
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.evasion, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.evasion.nothing_to_hit
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.evasion, band: master } }

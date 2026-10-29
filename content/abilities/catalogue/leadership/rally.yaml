@@ -1,0 +1,11 @@
+id: ability.catalogue.leadership.rally
+kind: ability
+schema: 1
+display_key: ability.catalogue.leadership.rally.name
+tags: [ability]
+name: "Rally"
+notes: "Bring a broken nerve back Taught through the D13 catalogue."
+class: technique
+discipline: skill.leadership
+band: 30
+needs: "leadership 30, presence 20"

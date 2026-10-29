@@ -1,0 +1,11 @@
+id: ability.catalogue.warding.alarm_lattice
+kind: ability
+schema: 1
+display_key: ability.catalogue.warding.alarm_lattice.name
+tags: [ability]
+name: "Alarm Lattice"
+notes: "A settlement's walls carry an alarm that wakes the keepers. Needs maintenance Taught through the D13 catalogue."
+class: technique
+discipline: skill.warding
+band: 60
+needs: "warding 60, engineering 30"

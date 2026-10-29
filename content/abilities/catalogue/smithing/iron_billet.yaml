@@ -1,0 +1,11 @@
+id: ability.catalogue.smithing.iron_billet
+kind: ability
+schema: 1
+display_key: ability.catalogue.smithing.iron_billet.name
+tags: [ability]
+name: "Iron Billet"
+notes: "Ore to a usable billet: the floor of every metal thing in the world Taught through the D13 catalogue."
+class: technique
+discipline: skill.smithing
+band: 15
+needs: "smithing 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.cartography.chart_a_route_as_a_place
+kind: ability
+schema: 1
+display_key: ability.catalogue.cartography.chart_a_route_as_a_place.name
+tags: [ability]
+name: "Chart a Route as a Place"
+notes: "Record an Otherway so a copy is worth something Taught through the D13 catalogue."
+class: technique
+discipline: skill.cartography
+band: 45
+needs: "cartography 45, otherwayfaring 30"

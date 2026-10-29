@@ -1,0 +1,11 @@
+id: ability.catalogue.enchanting.anchor_a_working_in_a_mechanism
+kind: ability
+schema: 1
+display_key: ability.catalogue.enchanting.anchor_a_working_in_a_mechanism.name
+tags: [ability]
+name: "Anchor a working in a mechanism"
+notes: "Give a working something to *hold*: an anchor in the object, so the magic does not need you standing there Taught through the D13 catalogue."
+class: technique
+discipline: skill.enchanting
+band: 45
+needs: "enchanting 45, artifice 30, mechanisms 30"

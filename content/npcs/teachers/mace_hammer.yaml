@@ -1,0 +1,53 @@
+id: npc.teacher.mace_hammer
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.mace_hammer.name
+tags: [npc]
+name: "Osric Bell"
+notes: "The hammer teacher of the D13 catalogue, a veth of ashen hollow. Voice: understatement; slow, with long pauses he fills by looking at you; weighs the hammer head in one palm, then the other, and says nothing."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.mace_hammer
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.mace_hammer.drive_through_the_guard
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.mace_hammer, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.mace_hammer.bell_ringer
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.mace_hammer, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.mace_hammer.beak_strike
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.mace_hammer, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.mace_hammer.short_grip
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.mace_hammer, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.mace_hammer.counterweight_recovery
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.mace_hammer, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.mace_hammer.dent_the_harness
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.mace_hammer, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.mace_hammer.rivet_breaker
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.mace_hammer, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.mace_hammer.fell_the_armoured
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.mace_hammer, band: master } }

@@ -1,0 +1,11 @@
+id: ability.catalogue.leatherworking.stitch_that_grips
+kind: ability
+schema: 1
+display_key: ability.catalogue.leatherworking.stitch_that_grips.name
+tags: [ability]
+name: "Stitch That Grips"
+notes: "Saddle stitch, awl and wax: a seam that holds under load Taught through the D13 catalogue."
+class: technique
+discipline: skill.leatherworking
+band: 15
+needs: "leatherworking 15"

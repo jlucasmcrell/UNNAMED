@@ -1,0 +1,11 @@
+id: ability.catalogue.electronics.damper_field
+kind: ability
+schema: 1
+display_key: ability.catalogue.electronics.damper_field.name
+tags: [ability]
+name: "Damper field"
+notes: "Run and hold a field that keeps unstable phenomena from noticing you — a passive, not a weapon Taught through the D13 catalogue."
+class: technique
+discipline: skill.electronics
+band: 30
+needs: "electronics 30, artifice 30"

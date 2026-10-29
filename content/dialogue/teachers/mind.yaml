@@ -1,0 +1,31 @@
+id: dialogue.teacher.mind
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.mind.name
+tags: [dialogue]
+notes: "The mind and influence teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.mind]
+root_node: greet
+nodes:
+  greet:
+    text: "You are thinking about thinking. It will get worse before it is useful."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.mind.steady_voice, ability.catalogue.mind.flinch, ability.catalogue.mind.loose_thread, ability.catalogue.mind.suggest, ability.catalogue.mind.the_quiet_room] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "You are watching yourself. That is a good tool and a bad habit."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.mind.steady_voice, ability.catalogue.mind.flinch, ability.catalogue.mind.loose_thread, ability.catalogue.mind.suggest, ability.catalogue.mind.the_quiet_room] }
+        next: lesson
+  lesson:
+    text: "Attention is a muscle with a short memory. Train it before you try to move a thought."

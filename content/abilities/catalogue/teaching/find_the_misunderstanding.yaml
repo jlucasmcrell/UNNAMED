@@ -1,0 +1,11 @@
+id: ability.catalogue.teaching.find_the_misunderstanding
+kind: ability
+schema: 1
+display_key: ability.catalogue.teaching.find_the_misunderstanding.name
+tags: [ability]
+name: "Find the Misunderstanding"
+notes: "Say the one thing that unblocks a learner Taught through the D13 catalogue."
+class: technique
+discipline: skill.teaching
+band: 30
+needs: "teaching 30, insight 20"

@@ -1,0 +1,33 @@
+id: npc.teacher.enchanting
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.enchanting.name
+tags: [npc]
+name: "Iaelin Sareth"
+notes: "The enchanting teacher of the D13 catalogue, a siann of ashen hollow. Voice: eerie patience; very slow, as though the room should wait; holds a ring between two fingers and does not look at it."
+role: trainer
+unique: true
+people_ref: people.siann
+dialogue_ref: dialogue.teacher.enchanting
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.enchanting.inscribe_scroll
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.enchanting, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.enchanting.rune_channel
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.enchanting, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.enchanting.anchor_a_working
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.enchanting, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.enchanting.a_working_in_the_world
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.enchanting, band: expert } }

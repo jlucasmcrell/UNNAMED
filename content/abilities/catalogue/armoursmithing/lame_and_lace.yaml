@@ -1,0 +1,11 @@
+id: ability.catalogue.armoursmithing.lame_and_lace
+kind: ability
+schema: 1
+display_key: ability.catalogue.armoursmithing.lame_and_lace.name
+tags: [ability]
+name: "Lame and Lace"
+notes: "Plates that articulate without gaping Taught through the D13 catalogue."
+class: technique
+discipline: skill.armoursmithing
+band: 15
+needs: "armoursmithing 15, smithing 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.foraging.the_fallow_year
+kind: ability
+schema: 1
+display_key: ability.catalogue.foraging.the_fallow_year.name
+tags: [ability]
+name: "The Fallow Year"
+notes: "Know what not to take, and still eat Taught through the D13 catalogue."
+class: technique
+discipline: skill.foraging
+band: 45
+needs: "foraging 45, nature 30"

@@ -1,0 +1,11 @@
+id: ability.catalogue.survival.fire_in_the_wet
+kind: ability
+schema: 1
+display_key: ability.catalogue.survival.fire_in_the_wet.name
+tags: [ability]
+name: "Fire in the Wet"
+notes: "A fire that lights in rain, with wet hands, from what is around Taught through the D13 catalogue."
+class: technique
+discipline: skill.survival
+band: 15
+needs: "survival 15"

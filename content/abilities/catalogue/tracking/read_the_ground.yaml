@@ -1,0 +1,11 @@
+id: ability.catalogue.tracking.read_the_ground
+kind: ability
+schema: 1
+display_key: ability.catalogue.tracking.read_the_ground.name
+tags: [ability]
+name: "Read the Ground"
+notes: "Which way, how long ago, how many, what they carried Taught through the D13 catalogue."
+class: technique
+discipline: skill.tracking
+band: 15
+needs: "tracking 15, insight 12"

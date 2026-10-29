@@ -1,0 +1,31 @@
+id: dialogue.teacher.stealth
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.stealth.name
+tags: [dialogue]
+notes: "The stealth teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.stealth]
+root_node: greet
+nodes:
+  greet:
+    text: "Being unnoticed is not being quiet. It is being unsurprising."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.stealth.quiet_step, ability.catalogue.stealth.misdirect, ability.catalogue.stealth.stillness, ability.catalogue.stealth.unseen_strike, ability.catalogue.stealth.light_hands, ability.catalogue.stealth.lose_them, ability.catalogue.stealth.silence_the_sentry] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "You were quiet. You were also where a person would be."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.stealth.quiet_step, ability.catalogue.stealth.misdirect, ability.catalogue.stealth.stillness, ability.catalogue.stealth.unseen_strike, ability.catalogue.stealth.light_hands, ability.catalogue.stealth.lose_them, ability.catalogue.stealth.silence_the_sentry] }
+        next: lesson
+  lesson:
+    text: "Move when something else moves. Let the world explain you."

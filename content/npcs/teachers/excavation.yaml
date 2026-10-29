@@ -1,0 +1,18 @@
+id: npc.teacher.excavation
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.excavation.name
+tags: [npc]
+name: "Durnkol"
+notes: "The excavation and archaeology teacher of the D13 catalogue, a ondrek of starting frontier. Voice: patient doom; slow, ending on a warning; taps the shoring with his knuckles before he stands under it."
+role: trainer
+unique: true
+people_ref: people.ondrek
+dialogue_ref: dialogue.teacher.excavation
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.excavation.read_the_layer
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.excavation, band: familiar } }

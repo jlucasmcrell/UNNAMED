@@ -1,0 +1,11 @@
+id: ability.catalogue.weaponsmithing.production_slow_strike
+kind: ability
+schema: 1
+display_key: ability.catalogue.weaponsmithing.production_slow_strike.name
+tags: [ability]
+name: "Production Slow-strike"
+notes: "A heavy head that strikes slowly *because* it is heavy — a design, not a flaw Taught through the D13 catalogue."
+class: technique
+discipline: skill.weaponsmithing
+band: 45
+needs: "weaponsmithing 45, engineering 30"

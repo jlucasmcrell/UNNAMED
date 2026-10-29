@@ -1,0 +1,11 @@
+id: ability.catalogue.one_hand_blade.turn_the_shaft
+kind: ability
+schema: 1
+display_key: ability.catalogue.one_hand_blade.turn_the_shaft.name
+tags: [ability]
+name: "Turn the Shaft"
+notes: "Change the blade's role mid-exchange — cut to thrust to hilt to off-hand — without a beat of hesitation Taught through the D13 catalogue."
+class: technique
+discipline: skill.one_hand_blade
+band: 75
+needs: "sword 75 + mastery"

@@ -1,0 +1,11 @@
+id: ability.catalogue.stealth.lose_them
+kind: ability
+schema: 1
+display_key: ability.catalogue.stealth.lose_them.name
+tags: [ability]
+name: "Lose Them"
+notes: "Break line of sight so their last-known direction is wrong Taught through the D13 catalogue."
+class: technique
+discipline: skill.stealth
+band: 45
+needs: "stealth 45, athletics 30"

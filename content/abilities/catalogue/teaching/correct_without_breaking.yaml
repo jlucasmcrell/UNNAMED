@@ -1,0 +1,11 @@
+id: ability.catalogue.teaching.correct_without_breaking
+kind: ability
+schema: 1
+display_key: ability.catalogue.teaching.correct_without_breaking.name
+tags: [ability]
+name: "Correct Without Breaking"
+notes: "Fix a fault in someone's work without taking the work away from them Taught through the D13 catalogue."
+class: technique
+discipline: skill.teaching
+band: 30
+needs: "teaching 30, a craft 30"

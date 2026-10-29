@@ -1,0 +1,31 @@
+id: dialogue.teacher.ritualcraft
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.ritualcraft.name
+tags: [dialogue]
+notes: "The rite and circle teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.ritualcraft]
+root_node: greet
+nodes:
+  greet:
+    text: "A ritual is a method written in gesture. Get the order wrong and you have made a different thing entirely."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.ritualcraft.the_working] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "You skipped the closing. Now you have a working with no door."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.ritualcraft.the_working] }
+        next: lesson
+  lesson:
+    text: "Open, keep, close. The keeping is the part people lose their nerve in."

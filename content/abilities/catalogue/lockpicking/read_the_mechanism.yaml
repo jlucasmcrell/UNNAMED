@@ -1,0 +1,11 @@
+id: ability.catalogue.lockpicking.read_the_mechanism
+kind: ability
+schema: 1
+display_key: ability.catalogue.lockpicking.read_the_mechanism.name
+tags: [ability]
+name: "Read the Mechanism"
+notes: "Say how it works and what it will do before you touch it Taught through the D13 catalogue."
+class: technique
+discipline: skill.lockpicking
+band: 30
+needs: "lockpicking 30, mechanisms 30"

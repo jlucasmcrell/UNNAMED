@@ -3,7 +3,7 @@ kind: skill
 schema: 1
 display_key: skill.herbal_medicine.name
 tags: [skill]
-name: Herbcraft and physick
-family: social
-notes: "D14 CALLS: taken from canon SKILLS_AND_TECHNIQUES.md (D13), which rides insight, precision. Authored because the 24 Calls start it at 15 and the build did not have it."
+name: "Herbcraft and physick"
+family: world
+notes: "D13 catalogue skill: Herbcraft and physick (3.8 Care, social, trade and knowledge). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
 teaches: "a treatment that matched the illness, not the symptom"

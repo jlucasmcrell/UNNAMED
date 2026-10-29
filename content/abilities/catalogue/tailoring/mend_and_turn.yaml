@@ -1,0 +1,11 @@
+id: ability.catalogue.tailoring.mend_and_turn
+kind: ability
+schema: 1
+display_key: ability.catalogue.tailoring.mend_and_turn.name
+tags: [ability]
+name: "Mend and Turn"
+notes: "Repair so the repair does not show Taught through the D13 catalogue."
+class: technique
+discipline: skill.tailoring
+band: 15
+needs: "tailoring 15"

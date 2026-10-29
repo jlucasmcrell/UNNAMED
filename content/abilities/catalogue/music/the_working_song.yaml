@@ -1,0 +1,11 @@
+id: ability.catalogue.music.the_working_song
+kind: ability
+schema: 1
+display_key: ability.catalogue.music.the_working_song.name
+tags: [ability]
+name: "The Working Song"
+notes: "Keep a work crew or a march in rhythm Taught through the D13 catalogue."
+class: technique
+discipline: skill.music
+band: 15
+needs: "music 15"

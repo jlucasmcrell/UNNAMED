@@ -1,0 +1,11 @@
+id: ability.catalogue.nature.bramble_snare
+kind: ability
+schema: 1
+display_key: ability.catalogue.nature.bramble_snare.name
+tags: [ability]
+name: "Bramble Snare"
+notes: "Roots hold the first creature into a 2 m circle for 3 s. Not on stone, in water, or indoors Taught through the D13 catalogue."
+class: technique
+discipline: skill.nature
+band: 15
+needs: "nature 15"

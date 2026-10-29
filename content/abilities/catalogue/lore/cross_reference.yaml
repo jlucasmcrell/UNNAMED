@@ -1,0 +1,11 @@
+id: ability.catalogue.lore.cross_reference
+kind: ability
+schema: 1
+display_key: ability.catalogue.lore.cross_reference.name
+tags: [ability]
+name: "Cross-reference"
+notes: "Put two sources against each other and find the seam Taught through the D13 catalogue."
+class: technique
+discipline: skill.lore
+band: 30
+needs: "lore 30, research 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.enchanting.the_pattern_that_holds
+kind: ability
+schema: 1
+display_key: ability.catalogue.enchanting.the_pattern_that_holds.name
+tags: [ability]
+name: "The Pattern That Holds"
+notes: "Cut a pattern that keeps working without an item's channel: a wall, a door, a stone Taught through the D13 catalogue."
+class: technique
+discipline: skill.enchanting
+band: 45
+needs: "enchanting 45, material knowledge"

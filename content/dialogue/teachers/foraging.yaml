@@ -1,0 +1,31 @@
+id: dialogue.teacher.foraging
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.foraging.name
+tags: [dialogue]
+notes: "The foraging teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.foraging]
+root_node: greet
+nodes:
+  greet:
+    text: "Water, fibre, tinder. Three things make a night possible. Everything else is appetite."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.foraging.water_fibre_tinder, ability.catalogue.foraging.forage_shot] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "You are taking the easy stand. The easy stand is the one everyone has already taken."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.foraging.water_fibre_tinder, ability.catalogue.foraging.forage_shot] }
+        next: lesson
+  lesson:
+    text: "Take what grows back, leave what does not, and never take the last one standing."

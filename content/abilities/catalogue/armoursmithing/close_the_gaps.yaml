@@ -1,0 +1,11 @@
+id: ability.catalogue.armoursmithing.close_the_gaps
+kind: ability
+schema: 1
+display_key: ability.catalogue.armoursmithing.close_the_gaps.name
+tags: [ability]
+name: "Close the Gaps"
+notes: "Gorget, bevor, voiders, besagews: the pieces that decide whether a thrust from above kills Taught through the D13 catalogue."
+class: technique
+discipline: skill.armoursmithing
+band: 30
+needs: "armoursmithing 30"

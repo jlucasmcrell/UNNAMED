@@ -1,0 +1,11 @@
+id: ability.catalogue.carpentry.stores_and_cellar
+kind: ability
+schema: 1
+display_key: ability.catalogue.carpentry.stores_and_cellar.name
+tags: [ability]
+name: "Stores and Cellar"
+notes: "Keep food, water and materials through a season Taught through the D13 catalogue."
+class: technique
+discipline: skill.carpentry
+band: 45
+needs: "carpentry 45"

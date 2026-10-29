@@ -1,0 +1,31 @@
+id: dialogue.teacher.medicine
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.medicine.name
+tags: [dialogue]
+notes: "The medicine teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.medicine]
+root_node: greet
+nodes:
+  greet:
+    text: "You are asking about medicine while your hands are dirty. That is your first answer."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.medicine.diagnose, ability.catalogue.medicine.clean_and_close, ability.catalogue.medicine.set_the_bone, ability.catalogue.medicine.poison_and_disease, ability.catalogue.medicine.cut_for_a_reason, ability.catalogue.medicine.read_the_dead, ability.catalogue.medicine.the_long_recovery] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "Wash. Then ask."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.medicine.diagnose, ability.catalogue.medicine.clean_and_close, ability.catalogue.medicine.set_the_bone, ability.catalogue.medicine.poison_and_disease, ability.catalogue.medicine.cut_for_a_reason, ability.catalogue.medicine.read_the_dead, ability.catalogue.medicine.the_long_recovery] }
+        next: lesson
+  lesson:
+    text: "Treat the bleeding before the pain. The pain will wait; the bleeding has an opinion about waiting."

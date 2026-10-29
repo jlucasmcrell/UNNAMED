@@ -1,0 +1,11 @@
+id: ability.catalogue.climbing.free_solo_the_honest_face
+kind: ability
+schema: 1
+display_key: ability.catalogue.climbing.free_solo_the_honest_face.name
+tags: [ability]
+name: "Free Solo the Honest Face"
+notes: "Climb without protection, knowing exactly what it costs if you are wrong Taught through the D13 catalogue."
+class: technique
+discipline: skill.climbing
+band: 45
+needs: "climbing 45, will 20"

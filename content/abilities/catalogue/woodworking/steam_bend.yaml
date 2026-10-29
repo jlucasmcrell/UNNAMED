@@ -1,0 +1,11 @@
+id: ability.catalogue.woodworking.steam_bend
+kind: ability
+schema: 1
+display_key: ability.catalogue.woodworking.steam_bend.name
+tags: [ability]
+name: "Steam Bend"
+notes: "Bend wood without breaking its grain (canon's own craft method) Taught through the D13 catalogue."
+class: technique
+discipline: skill.woodworking
+band: 30
+needs: "woodworking 30"

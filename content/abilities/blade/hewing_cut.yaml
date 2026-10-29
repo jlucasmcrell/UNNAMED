@@ -1,0 +1,15 @@
+id: ability.blade.hewing_cut
+kind: ability
+schema: 1
+display_key: ability.blade.hewing_cut.name
+tags: [ability]
+name: Hewing Cut
+notes: "The blade's heavy cut (D13, expert band): a long wind-up on a two-handed line, and a cut that opens the seam it crosses. Kera's own, and she charges for it."
+class: active
+discipline: skill.one_hand_blade
+cost: { stamina: 30 }
+cooldown_s: 10
+windup_multiplier: 1.6
+payload:
+  - { type: damage, multiplier_of_weapon: 1.55 }
+  - { type: apply_effect, effect_ref: effect.bleeding, chance: 0.55 }

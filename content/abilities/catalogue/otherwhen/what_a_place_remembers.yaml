@@ -1,0 +1,11 @@
+id: ability.catalogue.otherwhen.what_a_place_remembers
+kind: ability
+schema: 1
+display_key: ability.catalogue.otherwhen.what_a_place_remembers.name
+tags: [ability]
+name: "What a Place Remembers"
+notes: "Read a place's *own* chronology rather than a person's: wall, floor, door, in order Taught through the D13 catalogue."
+class: technique
+discipline: skill.otherwhen
+band: 60
+needs: "otherwhen 60, lore 45"

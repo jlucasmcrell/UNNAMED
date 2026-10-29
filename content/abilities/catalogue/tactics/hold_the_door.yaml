@@ -1,0 +1,11 @@
+id: ability.catalogue.tactics.hold_the_door
+kind: ability
+schema: 1
+display_key: ability.catalogue.tactics.hold_the_door.name
+tags: [ability]
+name: "Hold the Door"
+notes: "Make a doorway a position instead of a gap Taught through the D13 catalogue."
+class: technique
+discipline: skill.tactics
+band: 30
+needs: "tactics 30, might 15"

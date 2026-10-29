@@ -1,0 +1,31 @@
+id: dialogue.teacher.mace_hammer
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.mace_hammer.name
+tags: [dialogue]
+notes: "The hammer teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.mace_hammer]
+root_node: greet
+nodes:
+  greet:
+    text: "This one does not cut. It tells a body to stop being where it is."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.mace_hammer.drive_through_the_guard, ability.catalogue.mace_hammer.bell_ringer, ability.catalogue.mace_hammer.beak_strike, ability.catalogue.mace_hammer.short_grip, ability.catalogue.mace_hammer.counterweight_recovery, ability.catalogue.mace_hammer.dent_the_harness, ability.catalogue.mace_hammer.rivet_breaker, ability.catalogue.mace_hammer.fell_the_armoured] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "Mm. Still swinging it like a hoe."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.mace_hammer.drive_through_the_guard, ability.catalogue.mace_hammer.bell_ringer, ability.catalogue.mace_hammer.beak_strike, ability.catalogue.mace_hammer.short_grip, ability.catalogue.mace_hammer.counterweight_recovery, ability.catalogue.mace_hammer.dent_the_harness, ability.catalogue.mace_hammer.rivet_breaker, ability.catalogue.mace_hammer.fell_the_armoured] }
+        next: lesson
+  lesson:
+    text: "You are not breaking the armour. You are breaking the plan inside it."

@@ -1,0 +1,11 @@
+id: ability.catalogue.mechanisms.gate_tuner
+kind: ability
+schema: 1
+display_key: ability.catalogue.mechanisms.gate_tuner.name
+tags: [ability]
+name: "Gate-tuner"
+notes: "The Concord device: a resonance-quartz frame on Kal steel with a Vaskaal regulator. Built by no single tradition Taught through the D13 catalogue."
+class: technique
+discipline: skill.mechanisms
+band: 60
+needs: "mechanisms 60, enchanting 45, artifice 45, engineering 45"

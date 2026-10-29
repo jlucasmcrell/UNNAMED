@@ -1,0 +1,11 @@
+id: ability.catalogue.farming.sow_and_hoe
+kind: ability
+schema: 1
+display_key: ability.catalogue.farming.sow_and_hoe.name
+tags: [ability]
+name: "Sow and Hoe"
+notes: "A crop that comes up Taught through the D13 catalogue."
+class: technique
+discipline: skill.farming
+band: 15
+needs: "farming 15, endurance 12"

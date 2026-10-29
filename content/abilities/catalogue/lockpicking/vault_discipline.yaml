@@ -1,0 +1,11 @@
+id: ability.catalogue.lockpicking.vault_discipline
+kind: ability
+schema: 1
+display_key: ability.catalogue.lockpicking.vault_discipline.name
+tags: [ability]
+name: "Vault Discipline"
+notes: "Work a lock that has a trap, an alarm or a second lock behind it Taught through the D13 catalogue."
+class: technique
+discipline: skill.lockpicking
+band: 45
+needs: "lockpicking 45, mechanisms 45"

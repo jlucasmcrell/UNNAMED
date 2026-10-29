@@ -1,0 +1,11 @@
+id: ability.catalogue.two_hand_blade.wide_cut
+kind: ability
+schema: 1
+display_key: ability.catalogue.two_hand_blade.wide_cut.name
+tags: [ability]
+name: "Wide Cut"
+notes: "A committed horizontal that covers a whole doorway and hits everything in it Taught through the D13 catalogue."
+class: technique
+discipline: skill.two_hand_blade
+band: 15
+needs: "greatsword 15"

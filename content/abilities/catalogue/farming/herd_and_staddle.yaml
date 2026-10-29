@@ -1,0 +1,11 @@
+id: ability.catalogue.farming.herd_and_staddle
+kind: ability
+schema: 1
+display_key: ability.catalogue.farming.herd_and_staddle.name
+tags: [ability]
+name: "Herd and Staddle"
+notes: "Keep animals and grain through winter Taught through the D13 catalogue."
+class: technique
+discipline: skill.farming
+band: 30
+needs: "farming 30, handling 30"

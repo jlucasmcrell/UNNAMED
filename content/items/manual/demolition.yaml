@@ -1,0 +1,17 @@
+id: item.manual.demolition
+kind: item
+schema: 1
+display_key: item.manual.demolition.name
+tags: [item]
+name: "The Demolition Manual"
+notes: "A working manual of the D13 catalogue: Lay a charge, Demolish a building. Read once, it teaches what canon says is learned from a book."
+category: book
+item_class: ordinary
+stack_max: 1
+weight: 0.4
+value_base: 40
+use:
+  consume: true
+  grants:
+    - { kind: ability, ref: ability.catalogue.demolition.lay_a_charge }
+    - { kind: ability, ref: ability.catalogue.demolition.demolish_a_building }

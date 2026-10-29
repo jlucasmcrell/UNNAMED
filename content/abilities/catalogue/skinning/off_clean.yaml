@@ -1,0 +1,11 @@
+id: ability.catalogue.skinning.off_clean
+kind: ability
+schema: 1
+display_key: ability.catalogue.skinning.off_clean.name
+tags: [ability]
+name: "Off Clean"
+notes: "A hide off intact and worth something Taught through the D13 catalogue."
+class: technique
+discipline: skill.skinning
+band: 15
+needs: "skinning 15, precision 12"

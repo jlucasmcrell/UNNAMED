@@ -1,0 +1,11 @@
+id: ability.catalogue.engineering.schedule
+kind: ability
+schema: 1
+display_key: ability.catalogue.engineering.schedule.name
+tags: [ability]
+name: "Schedule"
+notes: "Plan maintenance for a system larger than a life: what runs, what is deferred, what is allowed to fail Taught through the D13 catalogue."
+class: technique
+discipline: skill.engineering
+band: 75
+needs: "engineering 75, lore 60"

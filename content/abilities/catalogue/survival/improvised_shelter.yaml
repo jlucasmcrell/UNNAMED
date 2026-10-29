@@ -1,0 +1,11 @@
+id: ability.catalogue.survival.improvised_shelter
+kind: ability
+schema: 1
+display_key: ability.catalogue.survival.improvised_shelter.name
+tags: [ability]
+name: "Improvised Shelter"
+notes: "Wind and rain off, without a tent Taught through the D13 catalogue."
+class: technique
+discipline: skill.survival
+band: 30
+needs: "survival 30"

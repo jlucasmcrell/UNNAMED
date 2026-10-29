@@ -16,6 +16,7 @@ objectives:
     description: Kill three grey wolves anywhere along the road.
     params: { creature_ref: creature.beast.wolf_grey, count: 3 }
 rewards:
+  - { kind: technique, technique_ref: ability.catalogue.jewelcraft.the_setting_nobody_can_copy }   # D13: the job ends in a lesson (canon's Q)
   - { kind: xp, amount: 60 }
   - { kind: currency, amount: 15 }
 repeat_policy: { repeatable: true, cooldown_min: 1440 }   # one world day (48 real minutes) after it is done, the work is posted again

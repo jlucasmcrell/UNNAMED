@@ -1,0 +1,31 @@
+id: dialogue.teacher.cartography
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.cartography.name
+tags: [dialogue]
+notes: "The cartography teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.cartography]
+root_node: greet
+nodes:
+  greet:
+    text: "A map is a sentence about a place. Yours currently has no verbs."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.cartography.grade_your_confidence, ability.catalogue.cartography.triangulate] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "Your distances came from your legs. Use somebody else's legs too."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.cartography.grade_your_confidence, ability.catalogue.cartography.triangulate] }
+        next: lesson
+  lesson:
+    text: "Write down what you did not see. The blank is the most honest thing on the page."

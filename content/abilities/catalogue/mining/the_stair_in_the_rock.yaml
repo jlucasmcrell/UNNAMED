@@ -1,0 +1,11 @@
+id: ability.catalogue.mining.the_stair_in_the_rock
+kind: ability
+schema: 1
+display_key: ability.catalogue.mining.the_stair_in_the_rock.name
+tags: [ability]
+name: "The Stair in the Rock"
+notes: "Cut steps, a lift or a winch-way into a working Taught through the D13 catalogue."
+class: technique
+discipline: skill.mining
+band: 45
+needs: "mining 45, masonry 30"

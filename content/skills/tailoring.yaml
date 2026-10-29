@@ -1,0 +1,9 @@
+id: skill.tailoring
+kind: skill
+schema: 1
+display_key: skill.tailoring.name
+tags: [skill]
+name: "Tailoring"
+family: world
+notes: "D13 catalogue skill: Tailoring (3.5 Crafting). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a garment that fits a *body* — including a body nobody else had to kit"

@@ -1,0 +1,28 @@
+id: npc.teacher.fishing
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.fishing.name
+tags: [npc]
+name: "Ratho Vell"
+notes: "The fishing teacher of the D13 catalogue, a orenth of starting frontier. Voice: relaxed boast; rolling, unhurried; casts without looking where."
+role: trainer
+unique: true
+people_ref: people.orenth
+dialogue_ref: dialogue.teacher.fishing
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.fishing.the_right_bait
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.fishing, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.fishing.line_net_spear
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.fishing, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.fishing.wait
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.fishing, band: proficient } }

@@ -1,0 +1,11 @@
+id: ability.catalogue.veilward.hold_the_firm_ground
+kind: ability
+schema: 1
+display_key: ability.catalogue.veilward.hold_the_firm_ground.name
+tags: [ability]
+name: "Hold the Firm Ground"
+notes: "A circle, a doorway or a village stays *here* for as long as you can stand it, and it costs you Taught through the D13 catalogue."
+class: technique
+discipline: skill.veilward
+band: 60
+needs: "veilward 60, will 30"

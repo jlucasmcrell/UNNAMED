@@ -1,0 +1,11 @@
+id: ability.catalogue.athletics.second_wind
+kind: ability
+schema: 1
+display_key: ability.catalogue.athletics.second_wind.name
+tags: [ability]
+name: "Second Wind"
+notes: "Find another effort when the tank is empty — once, and it costs Taught through the D13 catalogue."
+class: technique
+discipline: skill.athletics
+band: 45
+needs: "athletics 45, will 30"

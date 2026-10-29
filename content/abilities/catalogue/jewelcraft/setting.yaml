@@ -1,0 +1,11 @@
+id: ability.catalogue.jewelcraft.setting
+kind: ability
+schema: 1
+display_key: ability.catalogue.jewelcraft.setting.name
+tags: [ability]
+name: "Setting"
+notes: "Hold a stone without cracking it Taught through the D13 catalogue."
+class: technique
+discipline: skill.jewelcraft
+band: 15
+needs: "jewelcraft 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.dagger.punch_through
+kind: ability
+schema: 1
+display_key: ability.catalogue.dagger.punch_through.name
+tags: [ability]
+name: "Punch Through"
+notes: "Point into mail, leather or a gap in a plate — penetration by intent Taught through the D13 catalogue."
+class: technique
+discipline: skill.dagger
+band: 45
+needs: "dagger 45, armour knowledge"

@@ -1,0 +1,11 @@
+id: ability.catalogue.woodworking.the_bench_itself
+kind: ability
+schema: 1
+display_key: ability.catalogue.woodworking.the_bench_itself.name
+tags: [ability]
+name: "The Bench Itself"
+notes: "Build a workbench, clamp or vice that makes other crafts possible Taught through the D13 catalogue."
+class: technique
+discipline: skill.woodworking
+band: 60
+needs: "woodworking 60, mechanisms 30"

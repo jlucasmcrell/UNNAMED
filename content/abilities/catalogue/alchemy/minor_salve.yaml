@@ -1,0 +1,11 @@
+id: ability.catalogue.alchemy.minor_salve
+kind: ability
+schema: 1
+display_key: ability.catalogue.alchemy.minor_salve.name
+tags: [ability]
+name: "Minor Salve"
+notes: "Bruising and swelling, from what grows beside the road Taught through the D13 catalogue."
+class: technique
+discipline: skill.alchemy
+band: 15
+needs: "alchemy 15"

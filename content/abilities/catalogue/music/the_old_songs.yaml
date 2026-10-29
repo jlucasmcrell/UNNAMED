@@ -1,0 +1,11 @@
+id: ability.catalogue.music.the_old_songs
+kind: ability
+schema: 1
+display_key: ability.catalogue.music.the_old_songs.name
+tags: [ability]
+name: "The Old Songs"
+notes: "Songs that carry history and open doors with people who remember them Taught through the D13 catalogue."
+class: technique
+discipline: skill.music
+band: 30
+needs: "music 30, lore 30"

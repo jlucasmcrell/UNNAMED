@@ -1,0 +1,11 @@
+id: ability.catalogue.warding.brace_ward
+kind: ability
+schema: 1
+display_key: ability.catalogue.warding.brace_ward.name
+tags: [ability]
+name: "Brace Ward"
+notes: "+20 armour on every region for 10 s. Quick enough to answer a charge's tell Taught through the D13 catalogue."
+class: technique
+discipline: skill.warding
+band: 15
+needs: "warding 15"

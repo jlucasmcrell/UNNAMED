@@ -1,0 +1,11 @@
+id: ability.catalogue.excavation.read_the_layer
+kind: ability
+schema: 1
+display_key: ability.catalogue.excavation.read_the_layer.name
+tags: [ability]
+name: "Read the Layer"
+notes: "Which soil is which, and in what order it was laid Taught through the D13 catalogue."
+class: technique
+discipline: skill.excavation
+band: 15
+needs: "excavation 15, insight 12"

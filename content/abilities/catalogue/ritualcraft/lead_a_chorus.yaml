@@ -1,0 +1,11 @@
+id: ability.catalogue.ritualcraft.lead_a_chorus
+kind: ability
+schema: 1
+display_key: ability.catalogue.ritualcraft.lead_a_chorus.name
+tags: [ability]
+name: "Lead a Chorus"
+notes: "Direct up to six participants as one working, each adding what they have Taught through the D13 catalogue."
+class: technique
+discipline: skill.ritualcraft
+band: 30
+needs: "ritualcraft 30, presence 20"

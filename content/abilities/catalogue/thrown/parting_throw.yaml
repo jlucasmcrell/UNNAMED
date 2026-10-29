@@ -1,0 +1,11 @@
+id: ability.catalogue.thrown.parting_throw
+kind: ability
+schema: 1
+display_key: ability.catalogue.thrown.parting_throw.name
+tags: [ability]
+name: "Parting Throw"
+notes: "Throw *while* retreating: deterrence priced as a weapon Taught through the D13 catalogue."
+class: technique
+discipline: skill.thrown
+band: 30
+needs: "thrown 30"

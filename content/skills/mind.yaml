@@ -1,0 +1,9 @@
+id: skill.mind
+kind: skill
+schema: 1
+display_key: skill.mind.name
+tags: [skill]
+name: "Mind and influence"
+family: world
+notes: "D13 catalogue skill: Mind and influence (3.3 Spellcasting). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a calm, a fear or a suggestion that changed what someone did"

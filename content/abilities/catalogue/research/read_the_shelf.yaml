@@ -1,0 +1,11 @@
+id: ability.catalogue.research.read_the_shelf
+kind: ability
+schema: 1
+display_key: ability.catalogue.research.read_the_shelf.name
+tags: [ability]
+name: "Read the Shelf"
+notes: "Find the source that matters in a library of noise Taught through the D13 catalogue."
+class: technique
+discipline: skill.research
+band: 15
+needs: "research 15, lore 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.hunting.dress_the_kill
+kind: ability
+schema: 1
+display_key: ability.catalogue.hunting.dress_the_kill.name
+tags: [ability]
+name: "Dress the Kill"
+notes: "Meat, hide, sinew and bone out of one animal, in the field, in order Taught through the D13 catalogue."
+class: technique
+discipline: skill.hunting
+band: 15
+needs: "hunting 15, skinning 15"

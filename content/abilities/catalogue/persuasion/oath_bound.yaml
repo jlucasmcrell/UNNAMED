@@ -1,0 +1,11 @@
+id: ability.catalogue.persuasion.oath_bound
+kind: ability
+schema: 1
+display_key: ability.catalogue.persuasion.oath_bound.name
+tags: [ability]
+name: "Oath-bound"
+notes: "Make a promise that the world treats as binding Taught through the D13 catalogue."
+class: technique
+discipline: skill.persuasion
+band: 45
+needs: "persuasion 45, keeping 30"

@@ -1,0 +1,11 @@
+id: ability.catalogue.cartography.copy_and_combine
+kind: ability
+schema: 1
+display_key: ability.catalogue.cartography.copy_and_combine.name
+tags: [ability]
+name: "Copy and Combine"
+notes: "Merge two maps into one, including where they disagree Taught through the D13 catalogue."
+class: technique
+discipline: skill.cartography
+band: 30
+needs: "cartography 30, lore 30"

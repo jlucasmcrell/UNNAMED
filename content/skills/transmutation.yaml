@@ -1,0 +1,9 @@
+id: skill.transmutation
+kind: skill
+schema: 1
+display_key: skill.transmutation.name
+tags: [skill]
+name: "Transmutation"
+family: world
+notes: "D13 catalogue skill: Transmutation (3.3 Spellcasting). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "changing a material's properties and being right about what it becomes"

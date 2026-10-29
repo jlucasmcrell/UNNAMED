@@ -1,0 +1,17 @@
+id: item.manual.medicine
+kind: item
+schema: 1
+display_key: item.manual.medicine.name
+tags: [item]
+name: "The Medicine Manual"
+notes: "A working manual of the D13 catalogue: Field surgery, Component fitting. Read once, it teaches what canon says is learned from a book."
+category: book
+item_class: ordinary
+stack_max: 1
+weight: 0.4
+value_base: 40
+use:
+  consume: true
+  grants:
+    - { kind: ability, ref: ability.catalogue.medicine.field_surgery }
+    - { kind: ability, ref: ability.catalogue.medicine.component_fitting }

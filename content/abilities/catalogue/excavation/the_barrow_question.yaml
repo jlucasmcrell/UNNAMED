@@ -1,0 +1,11 @@
+id: ability.catalogue.excavation.the_barrow_question
+kind: ability
+schema: 1
+display_key: ability.catalogue.excavation.the_barrow_question.name
+tags: [ability]
+name: "The Barrow Question"
+notes: "Work a burial without being a grave-robber, and the world will have an opinion Taught through the D13 catalogue."
+class: technique
+discipline: skill.excavation
+band: 45
+needs: "excavation 45, lore 30"

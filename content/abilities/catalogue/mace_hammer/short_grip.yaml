@@ -1,0 +1,11 @@
+id: ability.catalogue.mace_hammer.short_grip
+kind: ability
+schema: 1
+display_key: ability.catalogue.mace_hammer.short_grip.name
+tags: [ability]
+name: "Short Grip"
+notes: "Choke up for a fast, awkward-range swing when the enemy is inside your arc Taught through the D13 catalogue."
+class: technique
+discipline: skill.mace_hammer
+band: 30
+needs: "hammer 30"

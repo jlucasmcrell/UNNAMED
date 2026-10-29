@@ -1,0 +1,11 @@
+id: ability.catalogue.woodworking.straight_and_true
+kind: ability
+schema: 1
+display_key: ability.catalogue.woodworking.straight_and_true.name
+tags: [ability]
+name: "Straight and True"
+notes: "Square, straighten and season timber so it stays where you put it Taught through the D13 catalogue."
+class: technique
+discipline: skill.woodworking
+band: 15
+needs: "woodworking 15"

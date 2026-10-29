@@ -1,0 +1,31 @@
+id: dialogue.teacher.navigation
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.navigation.name
+tags: [dialogue]
+notes: "The navigation teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.navigation]
+root_node: greet
+nodes:
+  greet:
+    text: "The road is a story told by other people. Learn the ground and you can hear the story change."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.navigation.by_rumour, ability.catalogue.navigation.bearings_by_stars, ability.catalogue.navigation.get_the_party_home] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "You are following the path. Paths lie politely."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.navigation.by_rumour, ability.catalogue.navigation.bearings_by_stars, ability.catalogue.navigation.get_the_party_home] }
+        next: lesson
+  lesson:
+    text: "Two bearings and a landmark. Never one, and never your memory of one."

@@ -1,0 +1,11 @@
+id: ability.catalogue.dual_wield.unsheathe_together
+kind: ability
+schema: 1
+display_key: ability.catalogue.dual_wield.unsheathe_together.name
+tags: [ability]
+name: "Unsheathe Together"
+notes: "Both weapons out in one motion, from a standing or seated start Taught through the D13 catalogue."
+class: technique
+discipline: skill.dual_wield
+band: 30
+needs: "dual_wield 30"

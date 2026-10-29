@@ -1,0 +1,11 @@
+id: ability.catalogue.veilward.field_workshop
+kind: ability
+schema: 1
+display_key: ability.catalogue.veilward.field_workshop.name
+tags: [ability]
+name: "Field Workshop"
+notes: "Work at a real standard away from a real bench Taught through the D13 catalogue."
+class: technique
+discipline: skill.veilward
+band: 30
+needs: "any craft 30, carpentry 15"

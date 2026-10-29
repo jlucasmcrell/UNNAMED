@@ -1,0 +1,11 @@
+id: ability.catalogue.one_hand_blade.disarming_wind
+kind: ability
+schema: 1
+display_key: ability.catalogue.one_hand_blade.disarming_wind.name
+tags: [ability]
+name: "Disarming Wind"
+notes: "Take the weapon out of a hand in the bind, and it comes into yours if it is one-handed Taught through the D13 catalogue."
+class: technique
+discipline: skill.one_hand_blade
+band: 45
+needs: "sword 45, after Bind and Wind"

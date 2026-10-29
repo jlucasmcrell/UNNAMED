@@ -1,0 +1,11 @@
+id: ability.catalogue.armour_use.walking_fortress
+kind: ability
+schema: 1
+display_key: ability.catalogue.armour_use.walking_fortress.name
+tags: [ability]
+name: "Walking Fortress"
+notes: "Raise the guard, widen the arc, and walk wherever you like Taught through the D13 catalogue."
+class: technique
+discipline: skill.armour_use
+band: 75
+needs: "armour 75 + mastery"

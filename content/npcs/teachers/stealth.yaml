@@ -1,0 +1,48 @@
+id: npc.teacher.stealth
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.stealth.name
+tags: [npc]
+name: "Renn Vale"
+notes: "The stealth teacher of the D13 catalogue, a veth of starting frontier. Voice: deadpan; flat, with a beat before the joke; stands very still while everything else in the room moves."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.stealth
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.stealth.quiet_step
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.stealth, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.stealth.misdirect
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.stealth, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.stealth.stillness
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.stealth, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.stealth.unseen_strike
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.stealth, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.stealth.light_hands
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.stealth, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.stealth.lose_them
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.stealth, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.stealth.silence_the_sentry
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.stealth, band: expert } }

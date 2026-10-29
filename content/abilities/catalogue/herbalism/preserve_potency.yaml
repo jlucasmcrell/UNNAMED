@@ -1,0 +1,11 @@
+id: ability.catalogue.herbalism.preserve_potency
+kind: ability
+schema: 1
+display_key: ability.catalogue.herbalism.preserve_potency.name
+tags: [ability]
+name: "Preserve Potency"
+notes: "Dry, infuse or press so the reagent is still good in a month Taught through the D13 catalogue."
+class: technique
+discipline: skill.herbalism
+band: 15
+needs: "herbalism 15, alchemy 15"

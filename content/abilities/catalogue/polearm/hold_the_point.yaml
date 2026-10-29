@@ -1,0 +1,11 @@
+id: ability.catalogue.polearm.hold_the_point
+kind: ability
+schema: 1
+display_key: ability.catalogue.polearm.hold_the_point.name
+tags: [ability]
+name: "Hold the Point"
+notes: "Keep the point between you and the enemy while moving: the basis of everything else Taught through the D13 catalogue."
+class: technique
+discipline: skill.polearm
+band: 15
+needs: "polearm 15"

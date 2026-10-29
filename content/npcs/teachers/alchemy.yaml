@@ -1,0 +1,43 @@
+id: npc.teacher.alchemy
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.alchemy.name
+tags: [npc]
+name: "Perrin Sallow"
+notes: "The alchemy teacher of the D13 catalogue, a veth of ashen hollow. Voice: curmudgeonly pride; slow, complaints folded in; sniffs the jar before he touches it."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.alchemy
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.alchemy.minor_salve
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.alchemy, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.alchemy.boil_clean
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.alchemy, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.alchemy.ember_salve
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.alchemy, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.alchemy.extract_and_distil
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.alchemy, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.alchemy.widow_s_thimble
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.alchemy, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.alchemy.an_alchemist_s_patience
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.alchemy, band: expert } }

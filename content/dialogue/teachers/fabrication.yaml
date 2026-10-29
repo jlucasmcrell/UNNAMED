@@ -1,0 +1,13 @@
+id: dialogue.teacher.fabrication
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.fabrication.name
+tags: [dialogue]
+notes: "The fabrication and machining teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.fabrication]
+root_node: greet
+nodes:
+  greet:
+    text: "You measure, I fabricate. No - you measure again. Fabrication is what happens when measurement is finished."
+    once: true
+    choices:

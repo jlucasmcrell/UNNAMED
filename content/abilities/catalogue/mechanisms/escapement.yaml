@@ -1,0 +1,11 @@
+id: ability.catalogue.mechanisms.escapement
+kind: ability
+schema: 1
+display_key: ability.catalogue.mechanisms.escapement.name
+tags: [ability]
+name: "Escapement"
+notes: "Build a regulated mechanism that keeps a rhythm on its own — the gate to every clock, gauge and timer Taught through the D13 catalogue."
+class: technique
+discipline: skill.mechanisms
+band: 45
+needs: "mechanisms 45"

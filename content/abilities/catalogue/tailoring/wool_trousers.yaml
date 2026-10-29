@@ -1,0 +1,11 @@
+id: ability.catalogue.tailoring.wool_trousers
+kind: ability
+schema: 1
+display_key: ability.catalogue.tailoring.wool_trousers.name
+tags: [ability]
+name: "Wool Trousers"
+notes: "Working clothes that survive weather Taught through the D13 catalogue."
+class: technique
+discipline: skill.tailoring
+band: 30
+needs: "tailoring 30"

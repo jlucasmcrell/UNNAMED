@@ -1,0 +1,11 @@
+id: ability.catalogue.stealth.quiet_step
+kind: ability
+schema: 1
+display_key: ability.catalogue.stealth.quiet_step.name
+tags: [ability]
+name: "Quiet Step"
+notes: "Walk upright at a crouch's noise while keeping full eye height Taught through the D13 catalogue."
+class: technique
+discipline: skill.stealth
+band: 15
+needs: "stealth 15"

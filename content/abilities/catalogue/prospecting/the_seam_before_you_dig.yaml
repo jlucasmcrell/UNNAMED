@@ -1,0 +1,11 @@
+id: ability.catalogue.prospecting.the_seam_before_you_dig
+kind: ability
+schema: 1
+display_key: ability.catalogue.prospecting.the_seam_before_you_dig.name
+tags: [ability]
+name: "The Seam Before You Dig"
+notes: "Say where the seam runs before the first trench Taught through the D13 catalogue."
+class: technique
+discipline: skill.prospecting
+band: 45
+needs: "prospecting 45, masonry 15"

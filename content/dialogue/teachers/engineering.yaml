@@ -1,0 +1,13 @@
+id: dialogue.teacher.engineering
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.engineering.name
+tags: [dialogue]
+notes: "The engineering teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.engineering]
+root_node: greet
+nodes:
+  greet:
+    text: "Everything holds until it does not. My work is predicting which, and when, within a season."
+    once: true
+    choices:

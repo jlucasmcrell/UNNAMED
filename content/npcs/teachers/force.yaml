@@ -1,0 +1,38 @@
+id: npc.teacher.force
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.force.name
+tags: [npc]
+name: "Skavel"
+notes: "The force teacher of the D13 catalogue, a vaskaal of sedge levels. Voice: dry numerical fatalism; steady, ending on a number; presses a palm to the air like testing a door."
+role: trainer
+unique: true
+people_ref: people.vaskaal
+dialogue_ref: dialogue.teacher.force
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.force.impulse_bolt
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.force, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.force.scatter_impulse
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.force, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.force.thunder_clap
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.force, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.force.ember_line
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.force, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.force.conductor_at_rest
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.force, band: expert } }

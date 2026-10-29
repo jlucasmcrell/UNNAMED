@@ -1,0 +1,13 @@
+id: npc.teacher.electronics
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.electronics.name
+tags: [npc]
+name: "Kveet"
+notes: "The electrics and electronics teacher of the D13 catalogue, a vaskaal of starting frontier. Voice: deadpan about invisible danger; clipped, with a pointed pause before the warning; touches the wire with the back of one finger, always the back."
+role: trainer
+unique: true
+people_ref: people.vaskaal
+dialogue_ref: dialogue.teacher.electronics
+teaches:

@@ -1,0 +1,11 @@
+id: ability.catalogue.warding.warded_guard
+kind: ability
+schema: 1
+display_key: ability.catalogue.warding.warded_guard.name
+tags: [ability]
+name: "Warded Guard"
+notes: "Your guard carries a ward, so the block is also the spell Taught through the D13 catalogue."
+class: technique
+discipline: skill.warding
+band: 30
+needs: "warding 30, a weapon 15"

@@ -1,0 +1,9 @@
+id: skill.demolition
+kind: skill
+schema: 1
+display_key: skill.demolition.name
+tags: [skill]
+name: "Demolition"
+family: world
+notes: "D13 catalogue skill: Demolition (4.5 The technology catalogue). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a charge or a structural break that did what you said it would, and only that"

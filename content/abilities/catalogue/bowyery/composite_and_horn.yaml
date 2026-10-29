@@ -1,0 +1,11 @@
+id: ability.catalogue.bowyery.composite_and_horn
+kind: ability
+schema: 1
+display_key: ability.catalogue.bowyery.composite_and_horn.name
+tags: [ability]
+name: "Composite and Horn"
+notes: "A composite limb that stores more and dies later Taught through the D13 catalogue."
+class: technique
+discipline: skill.bowyery
+band: 45
+needs: "bowyery 45"

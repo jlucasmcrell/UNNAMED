@@ -1,0 +1,11 @@
+id: ability.catalogue.mace_hammer.fell_the_armoured
+kind: ability
+schema: 1
+display_key: ability.catalogue.mace_hammer.fell_the_armoured.name
+tags: [ability]
+name: "Fell the Armoured"
+notes: "Bring down something in full harness by percussion and patience Taught through the D13 catalogue."
+class: technique
+discipline: skill.mace_hammer
+band: 75
+needs: "hammer 75 + mastery"

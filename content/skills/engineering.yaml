@@ -1,0 +1,9 @@
+id: skill.engineering
+kind: skill
+schema: 1
+display_key: skill.engineering.name
+tags: [skill]
+name: "Engineering"
+family: world
+notes: "D13 catalogue skill: Engineering (4.5 The technology catalogue). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a built thing carrying a load it was calculated to carry"

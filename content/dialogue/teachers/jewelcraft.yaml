@@ -1,0 +1,31 @@
+id: dialogue.teacher.jewelcraft
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.jewelcraft.name
+tags: [dialogue]
+notes: "The jewelcraft and lapidary teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.jewelcraft]
+root_node: greet
+nodes:
+  greet:
+    text: "A gem is a documented fact with a rim. My task: teach you to read the rim without damaging the fact."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.jewelcraft.cut_and_polish, ability.catalogue.jewelcraft.setting, ability.catalogue.jewelcraft.lens_grinding] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "Your setting is adequate. Adequacy is a documented failure."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.jewelcraft.cut_and_polish, ability.catalogue.jewelcraft.setting, ability.catalogue.jewelcraft.lens_grinding] }
+        next: lesson
+  lesson:
+    text: "Tolerance is the whole craft. A stone loose by a hair is a stone lost by a season."

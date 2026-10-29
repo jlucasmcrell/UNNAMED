@@ -1,0 +1,28 @@
+id: npc.teacher.otherwhen
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.otherwhen.name
+tags: [npc]
+name: "Errata"
+notes: "The otherwhen teacher of the D13 catalogue, a constructed of sedge levels. Voice: procedural dread; measured, one clause per instruction; reads a date from the wall and writes a correction beside it."
+role: trainer
+unique: true
+people_ref: people.constructed
+dialogue_ref: dialogue.teacher.otherwhen
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.otherwhen.the_echo_of_a_deed
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.otherwhen, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.otherwhen.hold_the_hour
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.otherwhen, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.otherwhen.what_a_place_remembers
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.otherwhen, band: expert } }

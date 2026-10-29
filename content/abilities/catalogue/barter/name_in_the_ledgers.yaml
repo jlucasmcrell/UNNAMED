@@ -1,0 +1,11 @@
+id: ability.catalogue.barter.name_in_the_ledgers
+kind: ability
+schema: 1
+display_key: ability.catalogue.barter.name_in_the_ledgers.name
+tags: [ability]
+name: "Name in the Ledgers"
+notes: "Your word becomes credit Taught through the D13 catalogue."
+class: technique
+discipline: skill.barter
+band: 45
+needs: "barter 45, keeping 30"

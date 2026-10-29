@@ -1,0 +1,11 @@
+id: ability.catalogue.herbal_medicine.bitterroot_and_heartleaf
+kind: ability
+schema: 1
+display_key: ability.catalogue.herbal_medicine.bitterroot_and_heartleaf.name
+tags: [ability]
+name: "Bitterroot and Heartleaf"
+notes: "Use the dangerous plants, deliberately, and survive your own confidence Taught through the D13 catalogue."
+class: technique
+discipline: skill.herbal_medicine
+band: 30
+needs: "herb_medicine 30, herbalism 30"

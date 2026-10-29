@@ -1,0 +1,11 @@
+id: ability.catalogue.herbal_medicine.tea_for_what_ails
+kind: ability
+schema: 1
+display_key: ability.catalogue.herbal_medicine.tea_for_what_ails.name
+tags: [ability]
+name: "Tea for What Ails"
+notes: "Sleep, pain, fever, courage — and the honest cost of each Taught through the D13 catalogue."
+class: technique
+discipline: skill.herbal_medicine
+band: 15
+needs: "herb_medicine 15"

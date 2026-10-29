@@ -1,0 +1,9 @@
+id: skill.marksmanship
+kind: skill
+schema: 1
+display_key: skill.marksmanship.name
+tags: [skill]
+name: "Marksmanship"
+family: world
+notes: "D13 catalogue skill: Marksmanship (3.2 Battle arts). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "hitting the *part* you chose, not just the target"

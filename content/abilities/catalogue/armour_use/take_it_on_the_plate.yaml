@@ -1,0 +1,11 @@
+id: ability.catalogue.armour_use.take_it_on_the_plate
+kind: ability
+schema: 1
+display_key: ability.catalogue.armour_use.take_it_on_the_plate.name
+tags: [ability]
+name: "Take It on the Plate"
+notes: "Angle so the blow lands on your best-covered region: stamina instead of stagger Taught through the D13 catalogue."
+class: technique
+discipline: skill.armour_use
+band: 30
+needs: "armour 30, heavy torso armour"

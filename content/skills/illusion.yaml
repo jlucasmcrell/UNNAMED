@@ -1,0 +1,9 @@
+id: skill.illusion
+kind: skill
+schema: 1
+display_key: skill.illusion.name
+tags: [skill]
+name: "Illusion"
+family: world
+notes: "D13 catalogue skill: Illusion (3.3 Spellcasting). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a deception that survived contact with someone who was looking for it"

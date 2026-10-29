@@ -1,0 +1,38 @@
+id: npc.teacher.leadership
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.leadership.name
+tags: [npc]
+name: "Berrin Garth"
+notes: "The leadership teacher of the D13 catalogue, a veth of starting frontier. Voice: stewardly dryness; even, with a pause over the numbers; counts heads while speaking."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.leadership
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.leadership.cover_me
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.leadership, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.leadership.standing_orders
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.leadership, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.leadership.rally
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.leadership, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.leadership.instruct
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.leadership, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.leadership.hold_together
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.leadership, band: expert } }

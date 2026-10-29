@@ -1,0 +1,11 @@
+id: ability.catalogue.masonry.build_for_a_thousand_years
+kind: ability
+schema: 1
+display_key: ability.catalogue.masonry.build_for_a_thousand_years.name
+tags: [ability]
+name: "Build for a Thousand Years"
+notes: "Stonework that will need no repair in your lifetime or anyone's Taught through the D13 catalogue."
+class: technique
+discipline: skill.masonry
+band: 75
+needs: "masonry 75 + mastery"

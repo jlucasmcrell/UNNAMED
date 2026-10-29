@@ -1,0 +1,9 @@
+id: skill.research
+kind: skill
+schema: 1
+display_key: skill.research.name
+tags: [skill]
+name: "Research"
+family: world
+notes: "D13 catalogue skill: Research (3.8 Care, social, trade and knowledge). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "time, materials and a source turned into a formula or a method nobody handed you"

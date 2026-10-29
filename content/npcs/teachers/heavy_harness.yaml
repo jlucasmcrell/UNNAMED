@@ -1,0 +1,13 @@
+id: npc.teacher.heavy_harness
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.heavy_harness.name
+tags: [npc]
+name: "Annex"
+notes: "The harness and powered armour teacher of the D13 catalogue, a constructed of starting frontier. Voice: literal-minded, accidentally funny; declarative, small bow per fact; traces a harness line on the ground with a boot."
+role: trainer
+unique: true
+people_ref: people.constructed
+dialogue_ref: dialogue.teacher.heavy_harness
+teaches:

@@ -1,0 +1,31 @@
+id: dialogue.teacher.leadership
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.leadership.name
+tags: [dialogue]
+notes: "The leadership teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.leadership]
+root_node: greet
+nodes:
+  greet:
+    text: "A plan is a promise made to people who have to keep it. Say it in their words or do not bother."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.leadership.cover_me, ability.catalogue.leadership.standing_orders, ability.catalogue.leadership.rally, ability.catalogue.leadership.instruct, ability.catalogue.leadership.hold_together] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "You have their obedience. That is not the same thing and it does not last the winter."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.leadership.cover_me, ability.catalogue.leadership.standing_orders, ability.catalogue.leadership.rally, ability.catalogue.leadership.instruct, ability.catalogue.leadership.hold_together] }
+        next: lesson
+  lesson:
+    text: "Decide, explain, then be there when it goes wrong. In that order, every time."

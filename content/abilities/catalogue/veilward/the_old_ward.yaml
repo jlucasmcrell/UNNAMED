@@ -1,0 +1,11 @@
+id: ability.catalogue.veilward.the_old_ward
+kind: ability
+schema: 1
+display_key: ability.catalogue.veilward.the_old_ward.name
+tags: [ability]
+name: "The Old Ward"
+notes: "Chalk, silver and a straight answer: a place that stays firm for a night Taught through the D13 catalogue."
+class: technique
+discipline: skill.veilward
+band: 15
+needs: "veilward 15, lore 15"

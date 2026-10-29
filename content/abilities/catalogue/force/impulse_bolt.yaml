@@ -1,0 +1,11 @@
+id: ability.catalogue.force.impulse_bolt
+kind: ability
+schema: 1
+display_key: ability.catalogue.force.impulse_bolt.name
+tags: [ability]
+name: "Impulse Bolt"
+notes: "A blunt blow along your facing to 20 m, scaled by Resonance Taught through the D13 catalogue."
+class: technique
+discipline: skill.force
+band: 15
+needs: "force 15"

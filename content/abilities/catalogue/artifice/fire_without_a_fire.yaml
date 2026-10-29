@@ -1,0 +1,11 @@
+id: ability.catalogue.artifice.fire_without_a_fire
+kind: ability
+schema: 1
+display_key: ability.catalogue.artifice.fire_without_a_fire.name
+tags: [ability]
+name: "Fire without a fire"
+notes: "Bow-drill, firesteel or flint-spark; a fire that stays lit in wet weather with what is actually around you Taught through the D13 catalogue."
+class: technique
+discipline: skill.artifice
+band: 15
+needs: "—"

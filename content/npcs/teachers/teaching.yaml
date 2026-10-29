@@ -1,0 +1,23 @@
+id: npc.teacher.teaching
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.teaching.name
+tags: [npc]
+name: "Annex"
+notes: "The teaching teacher of the D13 catalogue, a constructed of starting frontier. Voice: literal-minded, accidentally funny; declarative, small bow per fact; repeats your last sentence back with one word changed."
+role: trainer
+unique: true
+people_ref: people.constructed
+dialogue_ref: dialogue.teacher.teaching
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.teaching.show_then_watch
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.teaching, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.teaching.find_the_misunderstanding
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.teaching, band: proficient } }

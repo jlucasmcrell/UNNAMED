@@ -1,0 +1,31 @@
+id: dialogue.teacher.warding
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.warding.name
+tags: [dialogue]
+notes: "The warding teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.warding]
+root_node: greet
+nodes:
+  greet:
+    text: "A ward is a door with opinions. Yours is standing open and looking hopeful."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.warding.brace_ward, ability.catalogue.warding.threshold_seal, ability.catalogue.warding.tripwire_ward, ability.catalogue.warding.warded_guard] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "You closed it against the wrong thing. Now it is closed against you too."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.warding.brace_ward, ability.catalogue.warding.threshold_seal, ability.catalogue.warding.tripwire_ward, ability.catalogue.warding.warded_guard] }
+        next: lesson
+  lesson:
+    text: "Name what may pass. A ward without a list is a wall, and walls keep everybody out eventually."

@@ -1,0 +1,11 @@
+id: ability.catalogue.leatherworking.hide_vest
+kind: ability
+schema: 1
+display_key: ability.catalogue.leatherworking.hide_vest.name
+tags: [ability]
+name: "Hide Vest"
+notes: "A cured, fitted vest with the coverage in the right places Taught through the D13 catalogue."
+class: technique
+discipline: skill.leatherworking
+band: 30
+needs: "leatherworking 30"

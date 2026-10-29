@@ -1,0 +1,38 @@
+id: npc.teacher.climbing
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.climbing.name
+tags: [npc]
+name: "Thrun Kald"
+notes: "The climbing teacher of the D13 catalogue, a kal of starting frontier. Voice: encouraging menace; short, with a pause at the height; puts a hand on the rock and finds a hold without looking."
+role: trainer
+unique: true
+people_ref: people.kal
+dialogue_ref: dialogue.teacher.climbing
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.climbing.three_points
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.climbing, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.climbing.tie_in
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.climbing, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.climbing.traverse
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.climbing, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.climbing.scramble_the_slope
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.climbing, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.climbing.the_high_route
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.climbing, band: expert } }

@@ -1,0 +1,28 @@
+id: npc.teacher.jewelcraft
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.jewelcraft.name
+tags: [npc]
+name: "Quire"
+notes: "The jewelcraft and lapidary teacher of the D13 catalogue, a constructed of ashen hollow. Voice: over-precise definitions; even, clause by clause; sets three stones in a line and corrects their spacing twice."
+role: trainer
+unique: true
+people_ref: people.constructed
+dialogue_ref: dialogue.teacher.jewelcraft
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.jewelcraft.cut_and_polish
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.jewelcraft, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.jewelcraft.setting
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.jewelcraft, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.jewelcraft.lens_grinding
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.jewelcraft, band: proficient } }

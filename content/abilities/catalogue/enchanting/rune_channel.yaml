@@ -1,0 +1,11 @@
+id: ability.catalogue.enchanting.rune_channel
+kind: ability
+schema: 1
+display_key: ability.catalogue.enchanting.rune_channel.name
+tags: [ability]
+name: "Rune-channel"
+notes: "Make an item a delivery path: a crossbow's bolts or a staff's blows can carry formulas Taught through the D13 catalogue."
+class: technique
+discipline: skill.enchanting
+band: 15
+needs: "enchanting 15, weaponsmithing 15"

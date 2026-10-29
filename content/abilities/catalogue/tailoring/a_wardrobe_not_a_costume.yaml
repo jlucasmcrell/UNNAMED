@@ -1,0 +1,11 @@
+id: ability.catalogue.tailoring.a_wardrobe_not_a_costume
+kind: ability
+schema: 1
+display_key: ability.catalogue.tailoring.a_wardrobe_not_a_costume.name
+tags: [ability]
+name: "A Wardrobe, Not a Costume"
+notes: "Clothes for every place and weather, all fitting the same body Taught through the D13 catalogue."
+class: technique
+discipline: skill.tailoring
+band: 75
+needs: "tailoring 75 + mastery"

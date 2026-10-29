@@ -1,0 +1,11 @@
+id: ability.catalogue.fishing.the_river_snake
+kind: ability
+schema: 1
+display_key: ability.catalogue.fishing.the_river_snake.name
+tags: [ability]
+name: "The River Snake"
+notes: "Land something that does not want to be landed Taught through the D13 catalogue."
+class: technique
+discipline: skill.fishing
+band: 45
+needs: "fishing 45, athletics 30"

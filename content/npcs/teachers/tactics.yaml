@@ -1,0 +1,38 @@
+id: npc.teacher.tactics
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.tactics.name
+tags: [npc]
+name: "Vul Dragg"
+notes: "The tactics teacher of the D13 catalogue, a kal of ashen hollow. Voice: sandbagging, then a sharp turn; deliberately slow, then very fast; draws lines in the dirt with the butt of a spear and rubs them out as he talks."
+role: trainer
+unique: true
+people_ref: people.kal
+dialogue_ref: dialogue.teacher.tactics
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.tactics.read_the_field
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.tactics, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.tactics.guard_the_fallen
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.tactics, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.tactics.combined_strike
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.tactics, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.tactics.battle_plan
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.tactics, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.tactics.hold_together
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.tactics, band: master } }

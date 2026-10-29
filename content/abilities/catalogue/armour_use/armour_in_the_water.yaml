@@ -1,0 +1,11 @@
+id: ability.catalogue.armour_use.armour_in_the_water
+kind: ability
+schema: 1
+display_key: ability.catalogue.armour_use.armour_in_the_water.name
+tags: [ability]
+name: "Armour in the Water"
+notes: "Not drowning in it: shed, float, or refuse to fall in Taught through the D13 catalogue."
+class: technique
+discipline: skill.armour_use
+band: 45
+needs: "armour 45, swimming 30"

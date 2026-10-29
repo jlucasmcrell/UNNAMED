@@ -1,0 +1,23 @@
+id: npc.teacher.herbalism
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.herbalism.name
+tags: [npc]
+name: "Wren Farrow"
+notes: "The herbalism teacher of the D13 catalogue, a veth of starting frontier. Voice: conspiratorial delight; low and quick; holds a leaf to the light and turns it before naming it."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.herbalism
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.herbalism.read_the_leaf
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.herbalism, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.herbalism.preserve_potency
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.herbalism, band: familiar } }

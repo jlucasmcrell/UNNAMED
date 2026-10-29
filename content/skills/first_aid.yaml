@@ -3,7 +3,7 @@ kind: skill
 schema: 1
 display_key: skill.first_aid.name
 tags: [skill]
-name: First aid
-family: social
-notes: "D14 CALLS: taken from canon SKILLS_AND_TECHNIQUES.md (D13), which rides precision, will. Authored because the 24 Calls start it at 15 and the build did not have it."
+name: "First aid"
+family: world
+notes: "D13 catalogue skill: First aid (3.8 Care, social, trade and knowledge). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
 teaches: "a bleed stopped, a splint stayed, a dying stranger stabilised"

@@ -1,0 +1,11 @@
+id: ability.catalogue.stealth.read_the_watch
+kind: ability
+schema: 1
+display_key: ability.catalogue.stealth.read_the_watch.name
+tags: [ability]
+name: "Read the Watch"
+notes: "A direction where an unaware actor is looking — never an exact cone Taught through the D13 catalogue."
+class: technique
+discipline: skill.stealth
+band: 15
+needs: "stealth 15, insight 12"

@@ -1,0 +1,11 @@
+id: ability.catalogue.necromancy.grave_sense
+kind: ability
+schema: 1
+display_key: ability.catalogue.necromancy.grave_sense.name
+tags: [ability]
+name: "Grave Sense"
+notes: "Remains, recent deaths and harvestable essence within 3 m show to you, for a minute Taught through the D13 catalogue."
+class: technique
+discipline: skill.necromancy
+band: 15
+needs: "necromancy 15"

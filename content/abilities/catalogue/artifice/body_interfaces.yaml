@@ -1,0 +1,11 @@
+id: ability.catalogue.artifice.body_interfaces
+kind: ability
+schema: 1
+display_key: ability.catalogue.artifice.body_interfaces.name
+tags: [ability]
+name: "Body Interfaces"
+notes: "Fit a device to a *body*, with everything that implies Taught through the D13 catalogue."
+class: technique
+discipline: skill.artifice
+band: 60
+needs: "artifice 60, medicine 45"

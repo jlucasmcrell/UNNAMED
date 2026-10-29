@@ -1,0 +1,11 @@
+id: ability.catalogue.enchanting.inscribe_scroll
+kind: ability
+schema: 1
+display_key: ability.catalogue.enchanting.inscribe_scroll.name
+tags: [ability]
+name: "Inscribe Scroll"
+notes: "Store one known formula (complexity ≤ 15) in a prepared sheet; anyone with Resonance can release it later, and the Strain is paid when it is written Taught through the D13 catalogue."
+class: technique
+discipline: skill.enchanting
+band: 15
+needs: "enchanting 15"

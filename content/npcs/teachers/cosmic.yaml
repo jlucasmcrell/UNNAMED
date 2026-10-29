@@ -1,0 +1,13 @@
+id: npc.teacher.cosmic
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.cosmic.name
+tags: [npc]
+name: "Thaelis Anwe"
+notes: "The cosmic teacher of the D13 catalogue, a siann of sedge levels. Voice: awe held at arm's length; very slow, with the sentence ending upward; looks slightly to the side of what she is talking about."
+role: trainer
+unique: true
+people_ref: people.siann
+dialogue_ref: dialogue.teacher.cosmic
+teaches:

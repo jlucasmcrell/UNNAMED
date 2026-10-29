@@ -1,0 +1,11 @@
+id: ability.catalogue.survival.live_off_the_land
+kind: ability
+schema: 1
+display_key: ability.catalogue.survival.live_off_the_land.name
+tags: [ability]
+name: "Live off the Land"
+notes: "Fed, watered and warm for days with no supply Taught through the D13 catalogue."
+class: technique
+discipline: skill.survival
+band: 45
+needs: "survival 45, foraging 45"

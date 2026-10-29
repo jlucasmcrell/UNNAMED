@@ -1,0 +1,11 @@
+id: ability.catalogue.tactics.guard_the_fallen
+kind: ability
+schema: 1
+display_key: ability.catalogue.tactics.guard_the_fallen.name
+tags: [ability]
+name: "Guard the Fallen"
+notes: "Stand over a downed companion: blows meet your guard, their timer pauses Taught through the D13 catalogue."
+class: technique
+discipline: skill.tactics
+band: 30
+needs: "tactics 30, leadership 15"

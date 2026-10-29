@@ -1,0 +1,11 @@
+id: ability.catalogue.shield.shield_wall
+kind: ability
+schema: 1
+display_key: ability.catalogue.shield.shield_wall.name
+tags: [ability]
+name: "Shield Wall"
+notes: "Stand with others and become a wall: the unit's coverage is not the sum of its parts Taught through the D13 catalogue."
+class: technique
+discipline: skill.shield
+band: 30
+needs: "shield 30, leadership 15"

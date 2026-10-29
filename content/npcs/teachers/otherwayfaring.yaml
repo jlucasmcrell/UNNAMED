@@ -1,0 +1,18 @@
+id: npc.teacher.otherwayfaring
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.otherwayfaring.name
+tags: [npc]
+name: "Oravin Tor"
+notes: "The otherwayfaring teacher of the D13 catalogue, a orenth of sedge levels. Voice: friendly derision of townsfolk; loose, a joke in every other line; steps four paces and then four more, counting under his breath."
+role: trainer
+unique: true
+people_ref: people.orenth
+dialogue_ref: dialogue.teacher.otherwayfaring
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.otherwayfaring.arrive
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.otherwayfaring, band: expert } }

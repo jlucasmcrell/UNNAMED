@@ -1,0 +1,11 @@
+id: ability.catalogue.nature.quiet_the_animal
+kind: ability
+schema: 1
+display_key: ability.catalogue.nature.quiet_the_animal.name
+tags: [ability]
+name: "Quiet the Animal"
+notes: "An animal's aggression drops for a minute unless it is struck Taught through the D13 catalogue."
+class: technique
+discipline: skill.nature
+band: 30
+needs: "nature 30, handling 15"

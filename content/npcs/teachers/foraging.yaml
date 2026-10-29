@@ -1,0 +1,23 @@
+id: npc.teacher.foraging
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.foraging.name
+tags: [npc]
+name: "Fen Ottery"
+notes: "The foraging teacher of the D13 catalogue, a veth of starting frontier. Voice: gentle pedantry; slow, ending mid-thought; turns a mushroom over with a stick rather than a finger."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.foraging
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.foraging.water_fibre_tinder
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.foraging, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.foraging.forage_shot
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.foraging, band: proficient } }

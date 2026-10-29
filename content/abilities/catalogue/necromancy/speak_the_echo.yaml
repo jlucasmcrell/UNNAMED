@@ -1,0 +1,11 @@
+id: ability.catalogue.necromancy.speak_the_echo
+kind: ability
+schema: 1
+display_key: ability.catalogue.necromancy.speak_the_echo.name
+tags: [ability]
+name: "Speak the Echo"
+notes: "A memory-echo answers up to three questions it could know — with a confidence word Taught through the D13 catalogue."
+class: technique
+discipline: skill.necromancy
+band: 30
+needs: "necromancy 30"

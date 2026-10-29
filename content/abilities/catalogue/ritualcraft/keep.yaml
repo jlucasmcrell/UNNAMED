@@ -1,0 +1,11 @@
+id: ability.catalogue.ritualcraft.keep
+kind: ability
+schema: 1
+display_key: ability.catalogue.ritualcraft.keep.name
+tags: [ability]
+name: "Keep"
+notes: "Hold a circle's integrity while someone else carries the working Taught through the D13 catalogue."
+class: technique
+discipline: skill.ritualcraft
+band: 30
+needs: "ritualcraft 30, will 20"

@@ -1,0 +1,11 @@
+id: ability.catalogue.bowyery.field_fletching
+kind: ability
+schema: 1
+display_key: ability.catalogue.bowyery.field_fletching.name
+tags: [ability]
+name: "Field Fletching"
+notes: "Repair and rematch arrows away from a bench Taught through the D13 catalogue."
+class: technique
+discipline: skill.bowyery
+band: 15
+needs: "bowyery 15"

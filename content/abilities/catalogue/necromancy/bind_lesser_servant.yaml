@@ -1,0 +1,11 @@
+id: ability.catalogue.necromancy.bind_lesser_servant
+kind: ability
+schema: 1
+display_key: ability.catalogue.necromancy.bind_lesser_servant.name
+tags: [ability]
+name: "Bind Lesser Servant"
+notes: "A lasting servant, at most two, bound with essence and a binding agent Taught through the D13 catalogue."
+class: technique
+discipline: skill.necromancy
+band: 45
+needs: "necromancy 45"

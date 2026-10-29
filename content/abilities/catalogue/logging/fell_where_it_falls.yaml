@@ -1,0 +1,11 @@
+id: ability.catalogue.logging.fell_where_it_falls
+kind: ability
+schema: 1
+display_key: ability.catalogue.logging.fell_where_it_falls.name
+tags: [ability]
+name: "Fell Where It Falls"
+notes: "Cut a tree so it goes where you want, safely Taught through the D13 catalogue."
+class: technique
+discipline: skill.logging
+band: 15
+needs: "logging 15, might 12"

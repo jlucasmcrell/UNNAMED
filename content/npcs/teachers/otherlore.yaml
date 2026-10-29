@@ -1,0 +1,28 @@
+id: npc.teacher.otherlore
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.otherlore.name
+tags: [npc]
+name: "the One Who Counts the Doors"
+notes: "The otherlore teacher of the D13 catalogue, a mor of sedge levels. Voice: patient, unsettling accuracy; very slow, ending each line at a door; counts on the fingers of one hand and stops at four."
+role: trainer
+unique: true
+people_ref: people.mor
+dialogue_ref: dialogue.teacher.otherlore
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.otherlore.name_the_thing
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.otherlore, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.otherlore.the_words_are_not_the_thing
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.otherlore, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.otherlore.mark_and_meaning
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.otherlore, band: adept } }

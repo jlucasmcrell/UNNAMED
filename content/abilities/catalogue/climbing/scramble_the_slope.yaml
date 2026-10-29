@@ -1,0 +1,11 @@
+id: ability.catalogue.climbing.scramble_the_slope
+kind: ability
+schema: 1
+display_key: ability.catalogue.climbing.scramble_the_slope.name
+tags: [ability]
+name: "Scramble the Slope"
+notes: "Move fast up loose ground without starting a slide Taught through the D13 catalogue."
+class: technique
+discipline: skill.climbing
+band: 30
+needs: "climbing 30, athletics 30"

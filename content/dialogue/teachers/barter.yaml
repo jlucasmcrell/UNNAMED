@@ -1,0 +1,31 @@
+id: dialogue.teacher.barter
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.barter.name
+tags: [dialogue]
+notes: "The barter teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.barter]
+root_node: greet
+nodes:
+  greet:
+    text: "Everything here has two prices. The one I say, and the one I will take when you are worth talking to."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.barter.haggle, ability.catalogue.barter.appraise, ability.catalogue.barter.commission_work, ability.catalogue.barter.name_in_the_ledgers] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "You haggled for the coin. Haggle for the thing."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.barter.haggle, ability.catalogue.barter.appraise, ability.catalogue.barter.commission_work, ability.catalogue.barter.name_in_the_ledgers] }
+        next: lesson
+  lesson:
+    text: "Know what it is worth to them, not to you. Then find the middle you can both live in."

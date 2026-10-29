@@ -1,0 +1,31 @@
+id: dialogue.teacher.lore
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.lore.name
+tags: [dialogue]
+notes: "The lore teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.lore]
+root_node: greet
+nodes:
+  greet:
+    text: "You want the story. Then you must want the version that is inconvenient, or you are collecting ornaments."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.lore.the_chief_things, ability.catalogue.lore.cross_reference, ability.catalogue.lore.read_the_wrong_script] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "You have memorised it. Now argue with it."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.lore.the_chief_things, ability.catalogue.lore.cross_reference, ability.catalogue.lore.read_the_wrong_script] }
+        next: lesson
+  lesson:
+    text: "A thing is remembered by whoever kept the record. Ask who they were before you trust the date."

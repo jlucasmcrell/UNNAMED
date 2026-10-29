@@ -1,0 +1,9 @@
+id: skill.intimidation
+kind: skill
+schema: 1
+display_key: skill.intimidation.name
+tags: [skill]
+name: "Intimidation"
+family: world
+notes: "D13 catalogue skill: Intimidation (3.8 Care, social, trade and knowledge). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a threat that was believed, and did not have to be carried out"

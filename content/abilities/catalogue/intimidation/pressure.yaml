@@ -1,0 +1,11 @@
+id: ability.catalogue.intimidation.pressure
+kind: ability
+schema: 1
+display_key: ability.catalogue.intimidation.pressure.name
+tags: [ability]
+name: "Pressure"
+notes: "Push until they fold, without touching them Taught through the D13 catalogue."
+class: technique
+discipline: skill.intimidation
+band: 30
+needs: "intimidation 30, presence 20"

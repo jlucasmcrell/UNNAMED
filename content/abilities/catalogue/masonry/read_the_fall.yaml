@@ -1,0 +1,11 @@
+id: ability.catalogue.masonry.read_the_fall
+kind: ability
+schema: 1
+display_key: ability.catalogue.masonry.read_the_fall.name
+tags: [ability]
+name: "Read the Fall"
+notes: "Know how a building came down, and what will come down next Taught through the D13 catalogue."
+class: technique
+discipline: skill.masonry
+band: 60
+needs: "masonry 60, lore 45"

@@ -3,7 +3,7 @@ kind: skill
 schema: 1
 display_key: skill.persuasion.name
 tags: [skill]
-name: Persuasion
-family: social
-notes: "D14 CALLS: taken from canon SKILLS_AND_TECHNIQUES.md (D13), which rides presence, insight. Authored because the 24 Calls start it at 15 and the build did not have it."
+name: "Persuasion"
+family: world
+notes: "D13 catalogue skill: Persuasion (3.8 Care, social, trade and knowledge). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
 teaches: "a person who changed their mind because you spoke, not because you paid"

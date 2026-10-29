@@ -1,0 +1,11 @@
+id: ability.catalogue.survival.cold_camp
+kind: ability
+schema: 1
+display_key: ability.catalogue.survival.cold_camp.name
+tags: [ability]
+name: "Cold Camp"
+notes: "A camp with no fire, no smoke and no smell Taught through the D13 catalogue."
+class: technique
+discipline: skill.survival
+band: 30
+needs: "survival 30, stealth 30"

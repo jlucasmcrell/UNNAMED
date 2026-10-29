@@ -1,0 +1,13 @@
+id: npc.teacher.fabrication
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.fabrication.name
+tags: [npc]
+name: "Hraask"
+notes: "The fabrication and machining teacher of the D13 catalogue, a vaskaal of ashen hollow. Voice: workshop shorthand that sounds like an insult; clipped, with a tool noise between clauses; files something while you are speaking and does not stop for the answer."
+role: trainer
+unique: true
+people_ref: people.vaskaal
+dialogue_ref: dialogue.teacher.fabrication
+teaches:

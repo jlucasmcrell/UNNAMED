@@ -1,0 +1,10 @@
+id: loot.field_spill_cache
+kind: loot
+schema: 1
+display_key: loot.field_spill_cache.name
+tags: [loot]
+notes: "The Spill's own cache (D13/D15): two drilled manuals left in a ruined store at the field ruins, so the area has teaching sources of its own. Static contents."
+rolls: 0
+guaranteed:
+  - { item_ref: item.tome.the_stood_ground, count_range: [1, 1] }
+  - { item_ref: item.tome.what_the_gate_left, count_range: [1, 1] }

@@ -1,0 +1,11 @@
+id: ability.catalogue.vital.mending_thread
+kind: ability
+schema: 1
+display_key: ability.catalogue.vital.mending_thread.name
+tags: [ability]
+name: "Mending Thread"
+notes: "Stops bleeding and venom; 18 health over 6 s Taught through the D13 catalogue."
+class: technique
+discipline: skill.vital
+band: 15
+needs: "vital 15"

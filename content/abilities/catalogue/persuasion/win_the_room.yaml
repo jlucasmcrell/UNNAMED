@@ -1,0 +1,11 @@
+id: ability.catalogue.persuasion.win_the_room
+kind: ability
+schema: 1
+display_key: ability.catalogue.persuasion.win_the_room.name
+tags: [ability]
+name: "Win the Room"
+notes: "Turn a crowd, not a person Taught through the D13 catalogue."
+class: technique
+discipline: skill.persuasion
+band: 30
+needs: "persuasion 30, presence 20"

@@ -1,0 +1,11 @@
+id: ability.catalogue.shield.plant_the_pavise
+kind: ability
+schema: 1
+display_key: ability.catalogue.shield.plant_the_pavise.name
+tags: [ability]
+name: "Plant the Pavise"
+notes: "A standing shield that covers a position, not a person Taught through the D13 catalogue."
+class: technique
+discipline: skill.shield
+band: 45
+needs: "shield 45"

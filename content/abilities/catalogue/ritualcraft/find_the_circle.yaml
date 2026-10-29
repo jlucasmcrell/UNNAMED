@@ -1,0 +1,11 @@
+id: ability.catalogue.ritualcraft.find_the_circle
+kind: ability
+schema: 1
+display_key: ability.catalogue.ritualcraft.find_the_circle.name
+tags: [ability]
+name: "Find the Circle"
+notes: "Use a circle already there, cut by somebody else, without losing the argument with it Taught through the D13 catalogue."
+class: technique
+discipline: skill.ritualcraft
+band: 45
+needs: "ritualcraft 45, lore 30"

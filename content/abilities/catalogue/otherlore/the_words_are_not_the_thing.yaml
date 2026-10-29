@@ -1,0 +1,11 @@
+id: ability.catalogue.otherlore.the_words_are_not_the_thing
+kind: ability
+schema: 1
+display_key: ability.catalogue.otherlore.the_words_are_not_the_thing.name
+tags: [ability]
+name: "The Words Are Not the Thing"
+notes: "Hold both accounts at once — the Siann record and what the farmer says — and be useful with either Taught through the D13 catalogue."
+class: technique
+discipline: skill.otherlore
+band: 30
+needs: "otherlore 30, lore 30"

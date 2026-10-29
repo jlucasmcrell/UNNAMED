@@ -1,0 +1,11 @@
+id: ability.catalogue.divination.detect_working
+kind: ability
+schema: 1
+display_key: ability.catalogue.divination.detect_working.name
+tags: [ability]
+name: "Detect Working"
+notes: "Active workings within 3 m for a minute, and a glimpse of one option of each Taught through the D13 catalogue."
+class: technique
+discipline: skill.divination
+band: 15
+needs: "divination 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.polearm.tip_discipline
+kind: ability
+schema: 1
+display_key: ability.catalogue.polearm.tip_discipline.name
+tags: [ability]
+name: "Tip Discipline"
+notes: "Keep the point exactly where you want it while under pressure, fatigue and fear Taught through the D13 catalogue."
+class: technique
+discipline: skill.polearm
+band: 60
+needs: "polearm 60"

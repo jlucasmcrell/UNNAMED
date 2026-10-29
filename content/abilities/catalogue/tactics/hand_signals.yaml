@@ -1,0 +1,11 @@
+id: ability.catalogue.tactics.hand_signals
+kind: ability
+schema: 1
+display_key: ability.catalogue.tactics.hand_signals.name
+tags: [ability]
+name: "Hand Signals"
+notes: "Silent orders across a room or a ridge Taught through the D13 catalogue."
+class: technique
+discipline: skill.tactics
+band: 15
+needs: "tactics 15, leadership 15"

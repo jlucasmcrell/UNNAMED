@@ -1,0 +1,11 @@
+id: ability.catalogue.unarmed.disarm_seize
+kind: ability
+schema: 1
+display_key: ability.catalogue.unarmed.disarm_seize.name
+tags: [ability]
+name: "Disarm Seize"
+notes: "Strip the weapon out of the hand in a contest of strength and skill Taught through the D13 catalogue."
+class: technique
+discipline: skill.unarmed
+band: 30
+needs: "unarmed 30"

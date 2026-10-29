@@ -1,0 +1,58 @@
+id: npc.teacher.axe
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.axe.name
+tags: [npc]
+name: "Brann Gorsk"
+notes: "The axe teacher of the D13 catalogue, a kal of ashen hollow. Voice: delighted destruction; quick, with a laugh in the middle of the sentence; swings a haft with no head on it while she talks."
+role: trainer
+unique: true
+people_ref: people.kal
+dialogue_ref: dialogue.teacher.axe
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.axe.splitting_chop
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.axe, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.axe.shield_hook
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.axe, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.axe.axe_throw
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.axe, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.axe.beard_trip
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.axe, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.axe.haft_punch
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.axe, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.axe.retreating_chop
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.axe, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.axe.hamstring
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.axe, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.axe.sunder
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.axe, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.axe.breaker_of_walls
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.axe, band: master } }

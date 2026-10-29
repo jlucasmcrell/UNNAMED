@@ -1,0 +1,31 @@
+id: dialogue.teacher.alchemy
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.alchemy.name
+tags: [dialogue]
+notes: "The alchemy teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.alchemy]
+root_node: greet
+nodes:
+  greet:
+    text: "Half of alchemy is not making poison by accident. The other half is knowing which half you are in."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.alchemy.minor_salve, ability.catalogue.alchemy.boil_clean, ability.catalogue.alchemy.ember_salve, ability.catalogue.alchemy.extract_and_distil, ability.catalogue.alchemy.widow_s_thimble, ability.catalogue.alchemy.an_alchemist_s_patience] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "You have made something. Now find out what it does before somebody else does."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.alchemy.minor_salve, ability.catalogue.alchemy.boil_clean, ability.catalogue.alchemy.ember_salve, ability.catalogue.alchemy.extract_and_distil, ability.catalogue.alchemy.widow_s_thimble, ability.catalogue.alchemy.an_alchemist_s_patience] }
+        next: lesson
+  lesson:
+    text: "Measured, written, repeated. The mystery is in the materials, not in your mood."

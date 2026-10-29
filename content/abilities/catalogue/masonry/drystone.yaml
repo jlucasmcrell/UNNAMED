@@ -1,0 +1,11 @@
+id: ability.catalogue.masonry.drystone
+kind: ability
+schema: 1
+display_key: ability.catalogue.masonry.drystone.name
+tags: [ability]
+name: "Drystone"
+notes: "A wall without mortar that stands for a century (Cairnwold's own) Taught through the D13 catalogue."
+class: technique
+discipline: skill.masonry
+band: 15
+needs: "masonry 15"

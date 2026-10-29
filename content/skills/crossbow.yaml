@@ -1,0 +1,9 @@
+id: skill.crossbow
+kind: skill
+schema: 1
+display_key: skill.crossbow.name
+tags: [skill]
+name: "Crossbow"
+family: world
+notes: "D13 catalogue skill: Crossbow (3.1 Battle). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "made shots after the waiting, and reloading under threat"

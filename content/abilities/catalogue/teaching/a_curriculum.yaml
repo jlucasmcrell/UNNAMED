@@ -1,0 +1,11 @@
+id: ability.catalogue.teaching.a_curriculum
+kind: ability
+schema: 1
+display_key: ability.catalogue.teaching.a_curriculum.name
+tags: [ability]
+name: "A Curriculum"
+notes: "Order what you know so another can follow it Taught through the D13 catalogue."
+class: technique
+discipline: skill.teaching
+band: 45
+needs: "teaching 45, lore 30"

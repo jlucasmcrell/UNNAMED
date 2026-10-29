@@ -1,0 +1,28 @@
+id: npc.teacher.logging
+kind: npc
+sex: m
+schema: 1
+display_key: npc.teacher.logging.name
+tags: [npc]
+name: "Kurgen"
+notes: "The woodcutting teacher of the D13 catalogue, a ondrek of starting frontier. Voice: gruff affection for trees; short, with a pause to look up at the canopy; points with his chin, never his hand."
+role: trainer
+unique: true
+people_ref: people.ondrek
+dialogue_ref: dialogue.teacher.logging
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.logging.fell_where_it_falls
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.logging, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.logging.season_and_stack
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.logging, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.logging.feller_s_eye
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.logging, band: proficient } }

@@ -1,0 +1,11 @@
+id: ability.catalogue.lore.where_a_fact_is_buried
+kind: ability
+schema: 1
+display_key: ability.catalogue.lore.where_a_fact_is_buried.name
+tags: [ability]
+name: "Where a Fact Is Buried"
+notes: "Know which archive, which faction or which person would hold the answer Taught through the D13 catalogue."
+class: technique
+discipline: skill.lore
+band: 45
+needs: "lore 45, persuasion 30"

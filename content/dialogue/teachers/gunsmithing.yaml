@@ -1,0 +1,13 @@
+id: dialogue.teacher.gunsmithing
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.gunsmithing.name
+tags: [dialogue]
+notes: "The gunsmithing teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.gunsmithing]
+root_node: greet
+nodes:
+  greet:
+    text: "Powder is a patient thing. It waits for you to be careless, and it brings friends."
+    once: true
+    choices:

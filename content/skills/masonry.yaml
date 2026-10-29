@@ -3,7 +3,7 @@ kind: skill
 schema: 1
 display_key: skill.masonry.name
 tags: [skill]
-name: Masonry
-family: crafting
-notes: "D14 CALLS: taken from canon SKILLS_AND_TECHNIQUES.md (D13), which rides might, insight. Authored because the 24 Calls start it at 15 and the build did not have it."
+name: "Masonry"
+family: world
+notes: "D13 catalogue skill: Masonry (3.5 Crafting). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
 teaches: "stone that stays where you put it for a season"

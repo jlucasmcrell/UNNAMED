@@ -1,0 +1,11 @@
+id: ability.catalogue.skinning.read_the_pelt
+kind: ability
+schema: 1
+display_key: ability.catalogue.skinning.read_the_pelt.name
+tags: [ability]
+name: "Read the Pelt"
+notes: "Which parts are worth taking, and which the buyer will refuse Taught through the D13 catalogue."
+class: technique
+discipline: skill.skinning
+band: 30
+needs: "skinning 30, trade 15"

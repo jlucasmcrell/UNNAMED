@@ -1,0 +1,9 @@
+id: skill.artifice
+kind: skill
+schema: 1
+display_key: skill.artifice.name
+tags: [skill]
+name: "Artifice"
+family: world
+notes: "D13 catalogue skill: Artifice (3.5 Crafting). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a device that holds a working and a mechanism at once, and can be serviced"

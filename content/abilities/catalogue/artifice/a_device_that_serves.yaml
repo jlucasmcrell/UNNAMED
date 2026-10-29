@@ -1,0 +1,11 @@
+id: ability.catalogue.artifice.a_device_that_serves
+kind: ability
+schema: 1
+display_key: ability.catalogue.artifice.a_device_that_serves.name
+tags: [ability]
+name: "A Device That Serves"
+notes: "One device that does a job for years, in a world with no spares Taught through the D13 catalogue."
+class: technique
+discipline: skill.artifice
+band: 75
+needs: "artifice 75 + mastery"

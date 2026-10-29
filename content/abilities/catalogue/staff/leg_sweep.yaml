@@ -1,0 +1,11 @@
+id: ability.catalogue.staff.leg_sweep
+kind: ability
+schema: 1
+display_key: ability.catalogue.staff.leg_sweep.name
+tags: [ability]
+name: "Leg Sweep"
+notes: "Take the feet, not the head — a prone enemy is a solved enemy Taught through the D13 catalogue."
+class: technique
+discipline: skill.staff
+band: 15
+needs: "staff 15"

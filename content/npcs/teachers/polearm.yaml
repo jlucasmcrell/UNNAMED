@@ -1,0 +1,63 @@
+id: npc.teacher.polearm
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.polearm.name
+tags: [npc]
+name: "Merra Stanch"
+notes: "The spear and polearm teacher of the D13 catalogue, a veth of ashen hollow. Voice: patient needling; a long sentence per correction; sets the butt of the spear on her boot and rests her chin on the shaft."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.polearm
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.polearm.hold_the_point
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.polearm, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.polearm.giving_ground
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.polearm, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.polearm.haft_guard
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.polearm, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.polearm.set_against_the_charge
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.polearm, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.polearm.shorten_the_grip
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.polearm, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.polearm.pull_down
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.polearm, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.polearm.pinning_thrust
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.polearm, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.polearm.beak_at_reach
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.polearm, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.polearm.tip_discipline
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.polearm, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.polearm.master_of_distance
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.polearm, band: master } }

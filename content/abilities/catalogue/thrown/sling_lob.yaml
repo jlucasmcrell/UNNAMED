@@ -1,0 +1,11 @@
+id: ability.catalogue.thrown.sling_lob
+kind: ability
+schema: 1
+display_key: ability.catalogue.thrown.sling_lob.name
+tags: [ability]
+name: "Sling: Lob"
+notes: "A high arc onto a point you know, over a wall or a shield rim Taught through the D13 catalogue."
+class: technique
+discipline: skill.thrown
+band: 30
+needs: "thrown 30"

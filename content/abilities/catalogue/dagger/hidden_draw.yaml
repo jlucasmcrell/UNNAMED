@@ -1,0 +1,11 @@
+id: ability.catalogue.dagger.hidden_draw
+kind: ability
+schema: 1
+display_key: ability.catalogue.dagger.hidden_draw.name
+tags: [ability]
+name: "Hidden Draw"
+notes: "Produce a dagger from concealment mid-fight, or under observation Taught through the D13 catalogue."
+class: technique
+discipline: skill.dagger
+band: 30
+needs: "dagger 30, concealment"

@@ -1,0 +1,11 @@
+id: ability.catalogue.cooking.roast_meat
+kind: ability
+schema: 1
+display_key: ability.catalogue.cooking.roast_meat.name
+tags: [ability]
+name: "Roast Meat"
+notes: "Raw meat over a fire, edible and warming Taught through the D13 catalogue."
+class: technique
+discipline: skill.cooking
+band: 15
+needs: "cooking 15"

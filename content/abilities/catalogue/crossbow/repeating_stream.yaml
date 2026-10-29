@@ -1,0 +1,11 @@
+id: ability.catalogue.crossbow.repeating_stream
+kind: ability
+schema: 1
+display_key: ability.catalogue.crossbow.repeating_stream.name
+tags: [ability]
+name: "Repeating Stream"
+notes: "Sustained fire from a repeating mechanism, paced by its own heat and faults Taught through the D13 catalogue."
+class: technique
+discipline: skill.crossbow
+band: 45
+needs: "crossbow 45, mechanisms 30"

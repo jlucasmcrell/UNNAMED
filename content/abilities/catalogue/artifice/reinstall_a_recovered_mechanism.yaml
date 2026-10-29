@@ -1,0 +1,11 @@
+id: ability.catalogue.artifice.reinstall_a_recovered_mechanism
+kind: ability
+schema: 1
+display_key: ability.catalogue.artifice.reinstall_a_recovered_mechanism.name
+tags: [ability]
+name: "Reinstall a Recovered Mechanism"
+notes: "Put a mechanism you did not build into a place where it works Taught through the D13 catalogue."
+class: technique
+discipline: skill.artifice
+band: 45
+needs: "artifice 45, salvage 45"

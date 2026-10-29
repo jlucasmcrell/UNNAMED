@@ -1,0 +1,20 @@
+id: item.manual.electronics
+kind: item
+schema: 1
+display_key: item.manual.electronics.name
+tags: [item]
+name: "The Electronics Manual"
+notes: "A working manual of the D13 catalogue: Cell and coil, Close a circuit, Signal, Damper field, Rift-tap. Read once, it teaches what canon says is learned from a book."
+category: book
+item_class: ordinary
+stack_max: 1
+weight: 0.4
+value_base: 40
+use:
+  consume: true
+  grants:
+    - { kind: ability, ref: ability.catalogue.electronics.cell_and_coil }
+    - { kind: ability, ref: ability.catalogue.electronics.close_a_circuit }
+    - { kind: ability, ref: ability.catalogue.electronics.signal }
+    - { kind: ability, ref: ability.catalogue.electronics.damper_field }
+    - { kind: ability, ref: ability.catalogue.electronics.rift_tap }

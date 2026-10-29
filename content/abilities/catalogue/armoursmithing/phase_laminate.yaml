@@ -1,0 +1,11 @@
+id: ability.catalogue.armoursmithing.phase_laminate
+kind: ability
+schema: 1
+display_key: ability.catalogue.armoursmithing.phase_laminate.name
+tags: [ability]
+name: "Phase Laminate"
+notes: "Defence against displacement and phase attacks, and it is never comfortable Taught through the D13 catalogue."
+class: technique
+discipline: skill.armoursmithing
+band: 45
+needs: "armoursmithing 45, otherlore 30"

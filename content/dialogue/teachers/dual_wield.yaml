@@ -1,0 +1,31 @@
+id: dialogue.teacher.dual_wield
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.dual_wield.name
+tags: [dialogue]
+notes: "The paired weapons teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.dual_wield]
+root_node: greet
+nodes:
+  greet:
+    text: "Two hands, two blades, one brain. That is the problem with two blades."
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.dual_wield.second_hand_live, ability.catalogue.dual_wield.cover_and_strike, ability.catalogue.dual_wield.alternate_beat, ability.catalogue.dual_wield.double_cut, ability.catalogue.dual_wield.off_hand_lock, ability.catalogue.dual_wield.unsheathe_together, ability.catalogue.dual_wield.cross_guard, ability.catalogue.dual_wield.two_fronts, ability.catalogue.dual_wield.one_mind_two_hands] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "You are favouring the right. Everyone favours the right. Fix it before I do."
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.dual_wield.second_hand_live, ability.catalogue.dual_wield.cover_and_strike, ability.catalogue.dual_wield.alternate_beat, ability.catalogue.dual_wield.double_cut, ability.catalogue.dual_wield.off_hand_lock, ability.catalogue.dual_wield.unsheathe_together, ability.catalogue.dual_wield.cross_guard, ability.catalogue.dual_wield.two_fronts, ability.catalogue.dual_wield.one_mind_two_hands] }
+        next: lesson
+  lesson:
+    text: "One blade talks, the other arranges. If both are swinging, you are only one fighter."

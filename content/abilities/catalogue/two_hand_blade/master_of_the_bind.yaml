@@ -1,0 +1,11 @@
+id: ability.catalogue.two_hand_blade.master_of_the_bind
+kind: ability
+schema: 1
+display_key: ability.catalogue.two_hand_blade.master_of_the_bind.name
+tags: [ability]
+name: "Master of the Bind"
+notes: "Win any blade contact on your terms, including against a shorter, faster weapon Taught through the D13 catalogue."
+class: technique
+discipline: skill.two_hand_blade
+band: 75
+needs: "greatsword 75 + mastery"

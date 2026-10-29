@@ -1,0 +1,11 @@
+id: ability.catalogue.veilward.interpose
+kind: ability
+schema: 1
+display_key: ability.catalogue.veilward.interpose.name
+tags: [ability]
+name: "Interpose"
+notes: "Take a working meant for someone else Taught through the D13 catalogue."
+class: technique
+discipline: skill.veilward
+band: 45
+needs: "veilward 45, endurance 30"

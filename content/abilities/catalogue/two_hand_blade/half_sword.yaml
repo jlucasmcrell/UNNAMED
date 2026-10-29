@@ -1,0 +1,11 @@
+id: ability.catalogue.two_hand_blade.half_sword
+kind: ability
+schema: 1
+display_key: ability.catalogue.two_hand_blade.half_sword.name
+tags: [ability]
+name: "Half-sword"
+notes: "Hand on the blade, point down: a greatsword becomes a murderous short weapon in a clinch Taught through the D13 catalogue."
+class: technique
+discipline: skill.two_hand_blade
+band: 30
+needs: "greatsword 30"

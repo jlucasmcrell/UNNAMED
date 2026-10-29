@@ -1,0 +1,11 @@
+id: ability.catalogue.animal_handling.silent_signals
+kind: ability
+schema: 1
+display_key: ability.catalogue.animal_handling.silent_signals.name
+tags: [ability]
+name: "Silent Signals"
+notes: "Hand, whistle and posture instead of shouting Taught through the D13 catalogue."
+class: technique
+discipline: skill.animal_handling
+band: 15
+needs: "handling 15"

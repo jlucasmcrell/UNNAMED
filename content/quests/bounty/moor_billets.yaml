@@ -20,6 +20,7 @@ objectives:
     description: Bring 1 iron billet to Durn Skell.
     params: { npc_ref: npc.cairnwold.durn_skell, item_ref: item.material.iron_ingot, count: 1 }
 rewards:
+  - { kind: technique, technique_ref: ability.catalogue.carpentry.bridge_the_gap }   # D13: the job ends in a lesson (canon's Q)
   - { kind: xp, amount: 30 }
   - { kind: currency, amount: 10 }
 repeat_policy: { repeatable: true, cooldown_min: 1440 }   # one world day (48 real minutes) after it is done, the work is posted again

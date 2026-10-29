@@ -1,0 +1,9 @@
+id: skill.excavation
+kind: skill
+schema: 1
+display_key: skill.excavation.name
+tags: [skill]
+name: "Excavation and archaeology"
+family: world
+notes: "D13 catalogue skill: Excavation and archaeology (3.6 Gathering). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "getting a thing out of the ground with its story still attached"
