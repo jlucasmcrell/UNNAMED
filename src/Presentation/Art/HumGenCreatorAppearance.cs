@@ -195,10 +195,10 @@ public sealed partial class HumGenCreatorAppearance : Node
     }
 
     /// <summary>The stand-off a worn garment keeps from the body, so the body cannot break through the cloth.</summary>
-    private const float GarmentStandoff = .0045f;
+    private const float GarmentStandoff = .006f;
 
     /// <summary>How far the body is drawn inside itself while it is clothed, closing the rest of the gap from its own side.</summary>
-    private const float BodyRecess = -.006f;
+    private const float BodyRecess = -.012f;
 
     /// <summary>
     /// Draw the worn parts 3.5 mm off the body. The body's preset can be larger than the one a part was exported on, so a shirt
