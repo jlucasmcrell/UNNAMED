@@ -1,4 +1,4 @@
-﻿// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
+// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
 // (SYSTEMS.md S-23, S-31; STEALTH_DETECTION_AND_THREAT.md §1-§7, §16; PROTOTYPE.md §4.1, §7.4; M3d)
 // No Godot references - pure C#
 
@@ -711,8 +711,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         double fraction = Visibility.SeenFraction(cover, posture, cover is null ? long.MaxValue : (long)Distance(cover.XMm, cover.ZMm, player.XMm, player.ZMm));
         bool peripheral = Visibility.InPeriphery(c.Body.FacingMdeg, c.Definition.Senses.FieldOfViewMdeg, c.Body.XMm, c.Body.ZMm,
             player.XMm, player.ZMm);
-        // The periphery is the band that reads movement, and only near: a body standing still beyond six metres is scenery to it (§2.3).
-        if (peripheral && (distance > 6_000 || !_intent().IsMoving))
+        // The periphery is the band that reads movement: a body standing still beyond six metres is scenery to it, and inside six metres it is
+        // still a body in front of it, read at the periphery's own 0.4 (§2.3).
+        if (peripheral && distance > 6_000)
             return 0;
         double factor = Visibility.Factor(rules, band, nightSight, fraction, posture, peripheral, silhouette: false);
         // Bright gear and gilt read at a distance in good light (STEALTH §3.3).
