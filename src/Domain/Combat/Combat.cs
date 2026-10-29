@@ -1,5 +1,5 @@
-// UNNAMED Domain - the one damage pipeline, creature combat definitions and status effects
-// (SYSTEMS.md S-11, S-12; COMBAT_DAMAGE_ARMOR_AND_DEATH.md §17-§19, §32; M3c)
+﻿// UNNAMED Domain - the one damage pipeline, creature combat definitions and status effects
+// (SYSTEMS.md S-11, S-12; COMBAT_DAMAGE_ARMOR_AND_DEATH.md Â§17-Â§19, Â§32; M3c)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -7,7 +7,7 @@ using UNNAMED.Domain.Creatures;
 
 namespace UNNAMED.Domain.Combat;
 
-/// <summary>Where a blow lands (COMBAT §17: a few regions, never every finger). Arms and legs share one region in Phase 1.</summary>
+/// <summary>Where a blow lands (COMBAT Â§17: a few regions, never every finger). Arms and legs share one region in Phase 1.</summary>
 public enum BodyRegion
 {
     Head,
@@ -38,7 +38,7 @@ public static class BodyRegions
 
 public static class DamageTypes
 {
-    /// <summary>DATA_MODEL.md §4.2's closed set.</summary>
+    /// <summary>DATA_MODEL.md Â§4.2's closed set.</summary>
     public static readonly ImmutableArray<string> All = ImmutableArray.Create(
         "physical_slash", "physical_pierce", "physical_blunt", "fire", "frost", "shock", "arcane", "holy", "necrotic", "poison");
 
@@ -70,7 +70,7 @@ public sealed record AttackProfile(
     /// <summary>The ammunition a ranged attack spends at release.</summary>
     public string? AmmoDefId { get; init; }
 
-    /// <summary>The weapon-family skill an effective hit trains (PROGRESSION.md §6).</summary>
+    /// <summary>The weapon-family skill an effective hit trains (PROGRESSION.md Â§6).</summary>
     public string? SkillId { get; init; }
 
     public string? OnHitEffect { get; init; }
@@ -101,7 +101,7 @@ public sealed record AttackProfile(
     public bool Magic { get; init; }
 
     /// <summary>
-    /// What this blow multiplies by when the target has not noticed the attacker (STEALTH §12): the dagger class's own number, applied
+    /// What this blow multiplies by when the target has not noticed the attacker (STEALTH Â§12): the dagger class's own number, applied
     /// before armour so the armour still decides. 1.0 - the default - is every other weapon.
     /// </summary>
     public double SneakMultiplier { get; init; } = 1.0;
@@ -111,7 +111,7 @@ public sealed record AttackProfile(
     public int TotalTicks => WindupTicks + ActiveTicks + RecoveryTicks;
 }
 
-/// <summary>Combat tuning from <c>config.damage_constants</c> (PROTOTYPE.md §4.4). Durations are in ticks, distances in millimetres.</summary>
+/// <summary>Combat tuning from <c>config.damage_constants</c> (PROTOTYPE.md Â§4.4). Durations are in ticks, distances in millimetres.</summary>
 public sealed record CombatConstants
 {
     public double ArmorK { get; init; } = 50;
@@ -147,7 +147,7 @@ public sealed record CombatConstants
     public int DeathTicks { get; init; } = 80;
 
     /// <summary>
-    /// Downed (OD-13 = B, SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.10 X8): with a companion or hireling up and this near, a character
+    /// Downed (OD-13 = B, SYSTEMS_COMPLETENESS_PLAN_20261017.md Â§2.10 X8): with a companion or hireling up and this near, a character
     /// brought to nothing lies downed for <see cref="DownedTicks"/> and is helped up with <see cref="DownedRevivePercent"/> of their
     /// health; with none, or once the last hand near them falls or leaves, they die as before. The party rule, not a difficulty.
     /// </summary>
@@ -172,7 +172,7 @@ public sealed record Strike(AttackProfile Attack, double DamageMultiplier, int C
     public bool Execution { get; init; }
 }
 
-/// <summary>What stands between the blow and the body. Armor is coverage: each region has its own (COMBAT §11).</summary>
+/// <summary>What stands between the blow and the body. Armor is coverage: each region has its own (COMBAT Â§11).</summary>
 public sealed record DefenseProfile(
     int MaxHealth,
     ImmutableSortedDictionary<BodyRegion, int> Armor,
@@ -217,8 +217,8 @@ public static class CombatRules
         attacker != target && context.AttackerAlive && context.TargetAlive && context.AttacksEnabled;
 
     /// <summary>
-    /// COMBAT §18: attack -> contact region -> armor on that region -> penetration -> damage, stagger, effect. Level is not
-    /// an input: the same blow on the same unarmoured spot wounds a level-50 body as much as a level-1 one (§1, §32).
+    /// COMBAT Â§18: attack -> contact region -> armor on that region -> penetration -> damage, stagger, effect. Level is not
+    /// an input: the same blow on the same unarmoured spot wounds a level-50 body as much as a level-1 one (Â§1, Â§32).
     /// Stagger comes from impact - the blow before armor - scaled by the striker's stagger power; blocking absorbs it.
     /// <paramref name="random"/> maps a sample index to [0, 1); callers key it so a replay rolls the same.
     /// </summary>
@@ -255,7 +255,7 @@ public static class CombatRules
             damage *= 1 - constants.BlockMitigationPercent / 100.0;
 
         // Whole points, with the fraction kept as a chance of one more, so a few points of armor matter on average
-        // instead of rounding away. A blow that lands always wounds: there is no immunity by numbers (COMBAT §32).
+        // instead of rounding away. A blow that lands always wounds: there is no immunity by numbers (COMBAT Â§32).
         double whole = Math.Floor(damage);
         int final = roll > 0 ? Math.Max(1, (int)whole + (random(4) < damage - whole ? 1 : 0)) : 0;
         if (strike.Execution) final = Math.Max(final, defense.MaxHealth);
@@ -304,12 +304,12 @@ public static class CombatRules
     }
 }
 
-/// <summary>A weak point (COMBAT_DAMAGE_ARMOR_AND_DEATH.md §19): a region a blow reaches only from the right side.</summary>
+/// <summary>A weak point (COMBAT_DAMAGE_ARMOR_AND_DEATH.md Â§19): a region a blow reaches only from the right side.</summary>
 public sealed record WeakPoint(BodyRegion Region, bool FromBehind);
 
 /// <summary>
-/// A creature as combat knows it (DATA_MODEL.md §4.4): an authored level and stat block that nothing scales to the
-/// player (charter §1). Its attack comes from its <c>attack_set</c>; a second, charging ability may follow it.
+/// A creature as combat knows it (DATA_MODEL.md Â§4.4): an authored level and stat block that nothing scales to the
+/// player (charter Â§1). Its attack comes from its <c>attack_set</c>; a second, charging ability may follow it.
 /// </summary>
 public sealed record CreatureDefinition(
     string Id,
@@ -325,7 +325,14 @@ public sealed record CreatureDefinition(
 {
     public string? LootTableId { get; init; }
 
-    /// <summary>What it perceives with (M3d; DATA_MODEL.md §4.4 <c>perception</c>).</summary>
+    /// <summary>
+    /// The carcass this body leaves when it falls (D18 SYSTEMS, needed-2): a node kind a skinner can work. Null for a
+    /// creature with nothing worth taking off it - HOOK.NODE.CARCASS asks for a body worth skinning after the kill, and
+    /// this is the field that says which bodies are.
+    /// </summary>
+    public string? CarcassRef { get; init; }
+
+    /// <summary>What it perceives with (M3d; DATA_MODEL.md Â§4.4 <c>perception</c>).</summary>
     public Senses Senses { get; init; } = new(25_000, 140_000, 30_000);
 
     /// <summary>A charge it can open with (the boar's), or null.</summary>
@@ -352,7 +359,7 @@ public enum StackPolicy
     StackIntensity,
 }
 
-/// <summary>What a control effect takes from the body it is on (STEALTH §14: sleep, root, paralysis are conditions, not immunities).</summary>
+/// <summary>What a control effect takes from the body it is on (STEALTH Â§14: sleep, root, paralysis are conditions, not immunities).</summary>
 public enum ControlKind
 {
     /// <summary>Not a control effect.</summary>
@@ -366,7 +373,7 @@ public enum ControlKind
 }
 
 /// <summary>
-/// A status effect definition (DATA_MODEL.md §4.8) in ticks. Modifiers are the Phase-1 stat set: damage dealt and
+/// A status effect definition (DATA_MODEL.md Â§4.8) in ticks. Modifiers are the Phase-1 stat set: damage dealt and
 /// stamina regeneration multiply, armor adds.
 /// </summary>
 public sealed record EffectDefinition(
@@ -394,11 +401,11 @@ public sealed record EffectDefinition(
     /// </summary>
     public bool Phased { get; init; }
 
-    /// <summary>DATA_MODEL.md §4.8 <c>immunity_tags</c>: a body carrying any of these does not take the effect (no blood, no bleeding).</summary>
+    /// <summary>DATA_MODEL.md Â§4.8 <c>immunity_tags</c>: a body carrying any of these does not take the effect (no blood, no bleeding).</summary>
     public ImmutableSortedSet<string> ImmuneTags { get; init; } = ImmutableSortedSet<string>.Empty;
 
     /// <summary>
-    /// What the effect takes away from the body it is on (STEALTH §14, the assassin's control effects): nothing, its feet, or its
+    /// What the effect takes away from the body it is on (STEALTH Â§14, the assassin's control effects): nothing, its feet, or its
     /// actions. A controlled body is not made "immune" to a takedown - it simply cannot move or strike back while it lasts.
     /// </summary>
     public ControlKind Control { get; init; }
@@ -414,7 +421,7 @@ public static class EffectRules
 {
     /// <summary>
     /// One more application: the duration restarts, and a stacking effect gains a stack up to its maximum. A control effect
-    /// (<see cref="ControlKind"/>) shrinks with each stack - half, then a quarter - which is the diminishing return STEALTH §14 asks for:
+    /// (<see cref="ControlKind"/>) shrinks with each stack - half, then a quarter - which is the diminishing return STEALTH Â§14 asks for:
     /// a body that has just been put down resists being put down again, and the resistance lives in the effect it already carries rather
     /// than in a second counter that would have to be saved.
     /// </summary>

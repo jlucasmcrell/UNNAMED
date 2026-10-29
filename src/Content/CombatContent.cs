@@ -1,6 +1,6 @@
-// UNNAMED Content - combat from content: the damage constants, status effects, creatures and their attacks, spawners,
-// behaviour roles, skill passives and item uses (DATA_MODEL.md §4.4, §4.7, §4.8, §4.17, §4.19, §4.21; PROTOTYPE.md §4.1,
-// §4.4; M3c, M3d)
+﻿// UNNAMED Content - combat from content: the damage constants, status effects, creatures and their attacks, spawners,
+// behaviour roles, skill passives and item uses (DATA_MODEL.md Â§4.4, Â§4.7, Â§4.8, Â§4.17, Â§4.19, Â§4.21; PROTOTYPE.md Â§4.1,
+// Â§4.4; M3c, M3d)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -16,7 +16,7 @@ namespace UNNAMED.Content;
 /// <summary>
 /// Builds the simulation's <see cref="CombatSetup"/> and lints what the reference and semantic passes cannot see (CMB001):
 /// that every effect, creature attack, spawn site and passive builds, in whole ticks. Seconds in content become ticks
-/// through <c>config.time</c>; effect durations are in game minutes (DATA_MODEL.md §4.8, §4.19). A pack without
+/// through <c>config.time</c>; effect durations are in game minutes (DATA_MODEL.md Â§4.8, Â§4.19). A pack without
 /// <c>config.time</c> has no tick, and so no combat to check.
 /// </summary>
 public static class CombatContent
@@ -80,7 +80,7 @@ public static class CombatContent
     }
 
     /// <summary>
-    /// <c>config.creature_behaviour</c> (M3d): how awareness grows (STEALTH §3), how far sounds carry (§7), how long a
+    /// <c>config.creature_behaviour</c> (M3d): how awareness grows (STEALTH Â§3), how far sounds carry (Â§7), how long a
     /// corpse lies, and the behaviour roles - as a change to apply to a setup.
     /// </summary>
     public static Func<CombatSetup, CombatSetup> BuildBehaviour(ContentLoader loader, int tickMs)
@@ -340,6 +340,7 @@ public static class CombatContent
                 Attack(ability, tickMs), Mm(map, "move_speed_m_s"), Mm(map, "body_radius_m"), map.ContainsKey("xp_value") ? Long(map, "xp_value") : 0)
             {
                 LootTableId = map.GetValueOrDefault("loot_table") as string,
+                CarcassRef = map.GetValueOrDefault("carcass_ref") as string,
                 Senses = Senses(id, map),
                 Moves = moves,
                 Charge = charge,
@@ -453,7 +454,7 @@ public static class CombatContent
             }).ToImmutableArray();
     }
 
-    /// <summary>A creature's senses (DATA_MODEL.md §4.4 <c>perception</c>): sight and hearing in metres, the field of view in degrees.</summary>
+    /// <summary>A creature's senses (DATA_MODEL.md Â§4.4 <c>perception</c>): sight and hearing in metres, the field of view in degrees.</summary>
     private static Senses Senses(string id, Dictionary<object, object> map)
     {
         if (map.GetValueOrDefault("perception") is not Dictionary<object, object> perception)
@@ -488,7 +489,7 @@ public static class CombatContent
             .Where(d => d.Use?.GetValueOrDefault("effect_ref") is string)
             .ToImmutableSortedDictionary(d => d.Id, d => (string)d.Use!["effect_ref"], StringComparer.Ordinal);
 
-    // ── reading (shared with MagicContent) ─────────────────────────────────
+    // â”€â”€ reading (shared with MagicContent) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private static double GameMinuteSeconds(ContentLoader loader) => Number(Config(loader, "config.time"), "seconds_per_game_minute");
 
@@ -518,7 +519,7 @@ public static class CombatContent
     internal static Dictionary<object, object> Config(ContentLoader loader, string id) =>
         loader.Definitions.TryGetValue(id, out var definition)
             ? Read(definition.YamlSource)
-            : throw new KeyNotFoundException($"{id} is missing (DATA_MODEL.md §4.19)");
+            : throw new KeyNotFoundException($"{id} is missing (DATA_MODEL.md Â§4.19)");
 
     internal static Dictionary<object, object> Read(string? yaml) =>
         string.IsNullOrEmpty(yaml) ? new Dictionary<object, object>() : Yaml.Deserialize<Dictionary<object, object>>(yaml) ?? new Dictionary<object, object>();
