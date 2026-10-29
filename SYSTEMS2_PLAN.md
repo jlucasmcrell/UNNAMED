@@ -32,3 +32,27 @@ Never fake a system: if a piece needs an asset or a clip the build does not have
 
 ## State
 - Worktree created, branch at `e2fd64d9`. Nothing implemented yet.
+
+## System 1 (resource tiers) - what the code says, gathered 2026-10-28
+- NodeDefinition is src/Domain/Crafting/Crafting.cs:20 - (Id, ItemId, YieldMin, YieldMax, Charges, Respawn, SkillId,
+  Difficulty) plus ResourceId. **No tier, no rarity, no hidden flag, no per-node skill variety.**
+- Nodes are built in src/Content/CraftingContent.cs:131 BuildNodes: one resource of exactly one yield, espawn
+  none|daily, harvest_skill must be a skill, and 	ool_tier_min is explicitly rejected ("not built in Phase 1").
+- A resource is one file per material (content/resources/ore/iron.yaml: yields: [{item_ref, count_range}]), a node is
+  one file per kind (content/nodes/ore/loose_iron.yaml: esource_ref, charges, respawn, harvest_skill, difficulty).
+- The hooks audit is src/Content/WorldHookChecks.cs: a hook declared unmodelled: <reason> in
+  content/_world_hooks.yaml is reported and **never places** (line 118); evidence kinds are switched at ~line 422
+  (case "node":, case "spawn":, ...). So each tier hook needs BOTH a new content field and a new evidence kind.
+
+### Order of work for system 1
+1. Tier on NodeDefinition + 	ier: read in BuildNodes with validation 1-5; hidden: for a prospectable deposit;
+   keep the per-node harvest_skill as it already is.
+2. New evidence kinds in WorldHookChecks (
+ode_tier, 
+ode_hidden, 
+ode_kind), then delete the three
+   unmodelled: lines for ORE.T2/T3, PROSPECT.SIGN, NODE.SKILL_BOUND and NODE.RESIN and give them evidence.
+3. Content: iron T2/T3 nodes, a prospect sign on a hidden deposit, a resin node and its resource, and two nodes on
+   different harvest skills - placed in the Foldscar (open ground, band 1-5) and the Den.
+4. Gate: build, lint 0, content hooks placing each hook with its id, dossier + SYSTEMS_NEEDED rows updated.
+5. Farm clip: prospect-then-mine and a skinning/other clip per the catalog, captured with --asset-root and checked.
