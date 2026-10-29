@@ -26,28 +26,3 @@ teaches:
     by_dialogue: true
     fee: 35
     requires: { skill: { skill_ref: skill.jewelcraft, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.jewelcraft.stone_for_a_working
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.jewelcraft, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.jewelcraft.resonance_quartz
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.jewelcraft, band: adept } }
-  - kind: technique
-    ability_ref: ability.catalogue.jewelcraft.otherglass
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.jewelcraft, band: adept } }
-  - kind: technique
-    ability_ref: ability.catalogue.jewelcraft.a_stone_that_remembers
-    by_dialogue: true
-    fee: 90
-    requires: { skill: { skill_ref: skill.jewelcraft, band: expert } }
-  - kind: technique
-    ability_ref: ability.catalogue.jewelcraft.the_setting_nobody_can_copy
-    by_dialogue: true
-    fee: 150
-    requires: { skill: { skill_ref: skill.jewelcraft, band: master } }

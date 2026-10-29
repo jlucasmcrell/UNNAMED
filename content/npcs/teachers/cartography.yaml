@@ -12,11 +12,6 @@ people_ref: people.siann
 dialogue_ref: dialogue.teacher.cartography
 teaches:
   - kind: technique
-    ability_ref: ability.catalogue.cartography.survey_the_ground
-    by_dialogue: true
-    fee: 15
-    requires: { skill: { skill_ref: skill.cartography, band: familiar } }
-  - kind: technique
     ability_ref: ability.catalogue.cartography.grade_your_confidence
     by_dialogue: true
     fee: 15
@@ -26,13 +21,3 @@ teaches:
     by_dialogue: true
     fee: 35
     requires: { skill: { skill_ref: skill.cartography, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.cartography.copy_and_combine
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.cartography, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.cartography.chart_a_route_as_a_place
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.cartography, band: adept } }

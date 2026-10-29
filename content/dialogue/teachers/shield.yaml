@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.shield.shield_bash, ability.catalogue.shield.cover_an_ally, ability.catalogue.shield.deflect, ability.catalogue.shield.bind_the_blade, ability.catalogue.shield.shield_wall, ability.catalogue.shield.shield_charge, ability.catalogue.shield.focus_shield_ward, ability.catalogue.shield.shield_step, ability.catalogue.shield.plant_the_pavise, ability.catalogue.shield.advancing_guard, ability.catalogue.shield.block_reflect] }
+          - { command: teach, refs: [ability.catalogue.shield.shield_bash, ability.catalogue.shield.cover_an_ally, ability.catalogue.shield.deflect, ability.catalogue.shield.bind_the_blade, ability.catalogue.shield.shield_charge, ability.catalogue.shield.focus_shield_ward, ability.catalogue.shield.shield_step, ability.catalogue.shield.advancing_guard, ability.catalogue.shield.block_reflect] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.shield.shield_bash, ability.catalogue.shield.cover_an_ally, ability.catalogue.shield.deflect, ability.catalogue.shield.bind_the_blade, ability.catalogue.shield.shield_wall, ability.catalogue.shield.shield_charge, ability.catalogue.shield.focus_shield_ward, ability.catalogue.shield.shield_step, ability.catalogue.shield.plant_the_pavise, ability.catalogue.shield.advancing_guard, ability.catalogue.shield.block_reflect] }
+          - { command: teach, refs: [ability.catalogue.shield.shield_bash, ability.catalogue.shield.cover_an_ally, ability.catalogue.shield.deflect, ability.catalogue.shield.bind_the_blade, ability.catalogue.shield.shield_charge, ability.catalogue.shield.focus_shield_ward, ability.catalogue.shield.shield_step, ability.catalogue.shield.advancing_guard, ability.catalogue.shield.block_reflect] }
         next: lesson
   lesson:
     text: "Do not block the blow. Block the place the blow wanted to be."

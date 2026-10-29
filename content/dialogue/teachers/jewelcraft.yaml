@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.jewelcraft.cut_and_polish, ability.catalogue.jewelcraft.setting, ability.catalogue.jewelcraft.lens_grinding, ability.catalogue.jewelcraft.stone_for_a_working, ability.catalogue.jewelcraft.resonance_quartz, ability.catalogue.jewelcraft.otherglass, ability.catalogue.jewelcraft.a_stone_that_remembers, ability.catalogue.jewelcraft.the_setting_nobody_can_copy] }
+          - { command: teach, refs: [ability.catalogue.jewelcraft.cut_and_polish, ability.catalogue.jewelcraft.setting, ability.catalogue.jewelcraft.lens_grinding] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.jewelcraft.cut_and_polish, ability.catalogue.jewelcraft.setting, ability.catalogue.jewelcraft.lens_grinding, ability.catalogue.jewelcraft.stone_for_a_working, ability.catalogue.jewelcraft.resonance_quartz, ability.catalogue.jewelcraft.otherglass, ability.catalogue.jewelcraft.a_stone_that_remembers, ability.catalogue.jewelcraft.the_setting_nobody_can_copy] }
+          - { command: teach, refs: [ability.catalogue.jewelcraft.cut_and_polish, ability.catalogue.jewelcraft.setting, ability.catalogue.jewelcraft.lens_grinding] }
         next: lesson
   lesson:
     text: "Tolerance is the whole craft. A stone loose by a hair is a stone lost by a season."

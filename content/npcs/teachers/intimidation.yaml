@@ -31,8 +31,3 @@ teaches:
     by_dialogue: true
     fee: 35
     requires: { skill: { skill_ref: skill.intimidation, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.intimidation.break_a_formation_s_nerve
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.intimidation, band: adept } }

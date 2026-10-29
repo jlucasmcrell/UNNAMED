@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.lore.the_chief_things, ability.catalogue.lore.cross_reference, ability.catalogue.lore.read_the_wrong_script, ability.catalogue.lore.where_a_fact_is_buried, ability.catalogue.lore.the_undecided] }
+          - { command: teach, refs: [ability.catalogue.lore.the_chief_things, ability.catalogue.lore.cross_reference, ability.catalogue.lore.read_the_wrong_script] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.lore.the_chief_things, ability.catalogue.lore.cross_reference, ability.catalogue.lore.read_the_wrong_script, ability.catalogue.lore.where_a_fact_is_buried, ability.catalogue.lore.the_undecided] }
+          - { command: teach, refs: [ability.catalogue.lore.the_chief_things, ability.catalogue.lore.cross_reference, ability.catalogue.lore.read_the_wrong_script] }
         next: lesson
   lesson:
     text: "A thing is remembered by whoever kept the record. Ask who they were before you trust the date."

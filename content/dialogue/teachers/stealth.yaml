@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.stealth.quiet_step, ability.catalogue.stealth.read_the_watch, ability.catalogue.stealth.misdirect, ability.catalogue.stealth.stillness, ability.catalogue.stealth.unseen_strike, ability.catalogue.stealth.light_hands, ability.catalogue.stealth.lose_them, ability.catalogue.stealth.silence_the_sentry] }
+          - { command: teach, refs: [ability.catalogue.stealth.quiet_step, ability.catalogue.stealth.misdirect, ability.catalogue.stealth.stillness, ability.catalogue.stealth.unseen_strike, ability.catalogue.stealth.light_hands, ability.catalogue.stealth.lose_them, ability.catalogue.stealth.silence_the_sentry] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.stealth.quiet_step, ability.catalogue.stealth.read_the_watch, ability.catalogue.stealth.misdirect, ability.catalogue.stealth.stillness, ability.catalogue.stealth.unseen_strike, ability.catalogue.stealth.light_hands, ability.catalogue.stealth.lose_them, ability.catalogue.stealth.silence_the_sentry] }
+          - { command: teach, refs: [ability.catalogue.stealth.quiet_step, ability.catalogue.stealth.misdirect, ability.catalogue.stealth.stillness, ability.catalogue.stealth.unseen_strike, ability.catalogue.stealth.light_hands, ability.catalogue.stealth.lose_them, ability.catalogue.stealth.silence_the_sentry] }
         next: lesson
   lesson:
     text: "Move when something else moves. Let the world explain you."

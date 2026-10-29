@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.transmutation.temper_edge, ability.catalogue.transmutation.soften_stone, ability.catalogue.transmutation.reinforce_the_seam, ability.catalogue.transmutation.reading_the_grain, ability.catalogue.transmutation.coldbloom_pressing] }
+          - { command: teach, refs: [ability.catalogue.transmutation.temper_edge, ability.catalogue.transmutation.soften_stone, ability.catalogue.transmutation.reinforce_the_seam] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.transmutation.temper_edge, ability.catalogue.transmutation.soften_stone, ability.catalogue.transmutation.reinforce_the_seam, ability.catalogue.transmutation.reading_the_grain, ability.catalogue.transmutation.coldbloom_pressing] }
+          - { command: teach, refs: [ability.catalogue.transmutation.temper_edge, ability.catalogue.transmutation.soften_stone, ability.catalogue.transmutation.reinforce_the_seam] }
         next: lesson
   lesson:
     text: "Mass first, form second, structure third. Skip mass and you have made a very expensive ghost."

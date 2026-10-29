@@ -12,32 +12,7 @@ people_ref: people.veth
 dialogue_ref: dialogue.teacher.athletics
 teaches:
   - kind: technique
-    ability_ref: ability.catalogue.athletics.hard_going
-    by_dialogue: true
-    fee: 15
-    requires: { skill: { skill_ref: skill.athletics, band: familiar } }
-  - kind: technique
     ability_ref: ability.catalogue.athletics.carry_the_load
     by_dialogue: true
     fee: 15
     requires: { skill: { skill_ref: skill.athletics, band: familiar } }
-  - kind: technique
-    ability_ref: ability.catalogue.athletics.vault_and_roll
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.athletics, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.athletics.climb_charge
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.athletics, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.athletics.haul_as_a_team
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.athletics, band: adept } }
-  - kind: technique
-    ability_ref: ability.catalogue.athletics.second_wind
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.athletics, band: adept } }

@@ -10,22 +10,4 @@ nodes:
   greet:
     text: "I am the document that says which part comes down. You are the part that must not be standing near it."
     once: true
-    next_if_exhausted: again
     choices:
-      - id: teach
-        text: "Teach me what you know of it."
-        consequences:
-          - { command: teach, refs: [ability.catalogue.demolition.lay_a_charge, ability.catalogue.demolition.demolish_a_building] }
-        next: lesson
-      - id: leave
-        text: "Another time."
-  again:
-    text: "You cleared the building. You did not clear the roof."
-    choices:
-      - id: teach
-        text: "Teach me."
-        consequences:
-          - { command: teach, refs: [ability.catalogue.demolition.lay_a_charge, ability.catalogue.demolition.demolish_a_building] }
-        next: lesson
-  lesson:
-    text: "Charge, path, distance. The charge is arithmetic; the other two are your life."

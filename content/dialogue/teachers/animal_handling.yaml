@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.animal_handling.read_temperament, ability.catalogue.animal_handling.silent_signals, ability.catalogue.animal_handling.taming_by_habituation, ability.catalogue.animal_handling.teach_commands, ability.catalogue.animal_handling.pack_tactics, ability.catalogue.animal_handling.through_fire_and_fold] }
+          - { command: teach, refs: [ability.catalogue.animal_handling.read_temperament, ability.catalogue.animal_handling.silent_signals, ability.catalogue.animal_handling.teach_commands, ability.catalogue.animal_handling.pack_tactics] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.animal_handling.read_temperament, ability.catalogue.animal_handling.silent_signals, ability.catalogue.animal_handling.taming_by_habituation, ability.catalogue.animal_handling.teach_commands, ability.catalogue.animal_handling.pack_tactics, ability.catalogue.animal_handling.through_fire_and_fold] }
+          - { command: teach, refs: [ability.catalogue.animal_handling.read_temperament, ability.catalogue.animal_handling.silent_signals, ability.catalogue.animal_handling.teach_commands, ability.catalogue.animal_handling.pack_tactics] }
         next: lesson
   lesson:
     text: "Food, patience, and no sudden hands. That is the whole of handling; the rest is their temperament."

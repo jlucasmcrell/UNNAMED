@@ -1,0 +1,16 @@
+id: item.manual.heavy_harness
+kind: item
+schema: 1
+display_key: item.manual.heavy_harness.name
+tags: [item]
+name: "The Heavy Harness Manual"
+notes: "A working manual of the D13 catalogue: Hold a harness. Read once, it teaches what canon says is learned from a book."
+category: book
+item_class: ordinary
+stack_max: 1
+weight: 0.4
+value_base: 40
+use:
+  consume: true
+  grants:
+    - { kind: ability, ref: ability.catalogue.heavy_harness.hold_a_harness }

@@ -16,18 +16,3 @@ teaches:
     by_dialogue: true
     fee: 15
     requires: { skill: { skill_ref: skill.excavation, band: familiar } }
-  - kind: technique
-    ability_ref: ability.catalogue.excavation.lift_without_breaking
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.excavation, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.excavation.conserve_and_record
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.excavation, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.excavation.the_barrow_question
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.excavation, band: adept } }

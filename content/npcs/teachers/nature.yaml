@@ -17,20 +17,10 @@ teaches:
     fee: 15
     requires: { skill: { skill_ref: skill.nature, band: familiar } }
   - kind: technique
-    ability_ref: ability.catalogue.nature.ask_the_green
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.nature, band: proficient } }
-  - kind: technique
     ability_ref: ability.catalogue.nature.quiet_the_animal
     by_dialogue: true
     fee: 35
     requires: { skill: { skill_ref: skill.nature, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.nature.weather_turn
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.nature, band: adept } }
   - kind: technique
     ability_ref: ability.catalogue.nature.the_ground_s_own_answer
     by_dialogue: true

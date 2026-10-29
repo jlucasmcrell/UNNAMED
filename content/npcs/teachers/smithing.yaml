@@ -41,28 +41,3 @@ teaches:
     by_dialogue: true
     fee: 60
     requires: { skill: { skill_ref: skill.smithing, band: adept } }
-  - kind: technique
-    ability_ref: ability.catalogue.smithing.charcoal_steel
-    by_dialogue: true
-    fee: 90
-    requires: { skill: { skill_ref: skill.smithing, band: expert } }
-  - kind: technique
-    ability_ref: ability.catalogue.smithing.named_work
-    by_dialogue: true
-    fee: 150
-    requires: { skill: { skill_ref: skill.smithing, band: master } }
-  - kind: technique
-    ability_ref: ability.catalogue.smithing.bloomery_smelt
-    by_dialogue: true
-    fee: 90
-    requires: { skill: { skill_ref: skill.smithing, band: expert } }
-  - kind: technique
-    ability_ref: ability.catalogue.smithing.charcoal_steel_charge
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.smithing, band: adept } }
-  - kind: technique
-    ability_ref: ability.catalogue.smithing.temper_and_draw
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.smithing, band: proficient } }

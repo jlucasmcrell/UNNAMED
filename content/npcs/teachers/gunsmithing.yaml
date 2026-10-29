@@ -11,8 +11,3 @@ unique: true
 people_ref: people.vaskaal
 dialogue_ref: dialogue.teacher.gunsmithing
 teaches:
-  - kind: technique
-    ability_ref: ability.catalogue.gunsmithing.powder_charge
-    by_dialogue: true
-    fee: 90
-    requires: { skill: { skill_ref: skill.gunsmithing, band: expert } }

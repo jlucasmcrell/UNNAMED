@@ -32,16 +32,6 @@ teaches:
     fee: 35
     requires: { skill: { skill_ref: skill.climbing, band: proficient } }
   - kind: technique
-    ability_ref: ability.catalogue.climbing.free_solo_the_honest_face
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.climbing, band: adept } }
-  - kind: technique
-    ability_ref: ability.catalogue.climbing.anchor_and_haul
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.climbing, band: adept } }
-  - kind: technique
     ability_ref: ability.catalogue.climbing.the_high_route
     by_dialogue: true
     fee: 90

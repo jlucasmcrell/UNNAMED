@@ -10,22 +10,4 @@ nodes:
   greet:
     text: "You have come to learn the stars. They have not agreed to be learned. Begin anyway."
     once: true
-    next_if_exhausted: again
     choices:
-      - id: teach
-        text: "Teach me what you know of it."
-        consequences:
-          - { command: teach, refs: [ability.catalogue.cosmic.read_the_tide, ability.catalogue.cosmic.weigh_and_pull, ability.catalogue.cosmic.star_iron, ability.catalogue.cosmic.the_long_view, ability.catalogue.cosmic.an_observatory_for_othertides] }
-        next: lesson
-      - id: leave
-        text: "Another time."
-  again:
-    text: "You are reading the sky as a message. It is a weather, and a very old one."
-    choices:
-      - id: teach
-        text: "Teach me."
-        consequences:
-          - { command: teach, refs: [ability.catalogue.cosmic.read_the_tide, ability.catalogue.cosmic.weigh_and_pull, ability.catalogue.cosmic.star_iron, ability.catalogue.cosmic.the_long_view, ability.catalogue.cosmic.an_observatory_for_othertides] }
-        next: lesson
-  lesson:
-    text: "Pattern, cycle, then meaning. Skip the second and you are inventing gods out of nothing."

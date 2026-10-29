@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.barter.haggle, ability.catalogue.barter.appraise, ability.catalogue.barter.market_sense, ability.catalogue.barter.commission_work, ability.catalogue.barter.cross_market_trade, ability.catalogue.barter.name_in_the_ledgers] }
+          - { command: teach, refs: [ability.catalogue.barter.haggle, ability.catalogue.barter.appraise, ability.catalogue.barter.commission_work, ability.catalogue.barter.name_in_the_ledgers] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.barter.haggle, ability.catalogue.barter.appraise, ability.catalogue.barter.market_sense, ability.catalogue.barter.commission_work, ability.catalogue.barter.cross_market_trade, ability.catalogue.barter.name_in_the_ledgers] }
+          - { command: teach, refs: [ability.catalogue.barter.haggle, ability.catalogue.barter.appraise, ability.catalogue.barter.commission_work, ability.catalogue.barter.name_in_the_ledgers] }
         next: lesson
   lesson:
     text: "Know what it is worth to them, not to you. Then find the middle you can both live in."

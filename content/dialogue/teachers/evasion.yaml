@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.evasion.sidestep, ability.catalogue.evasion.read_the_windup, ability.catalogue.evasion.slip, ability.catalogue.evasion.recover_footing, ability.catalogue.evasion.rolling_fall, ability.catalogue.evasion.read_the_press, ability.catalogue.evasion.endure, ability.catalogue.evasion.borrowed_momentum, ability.catalogue.evasion.nothing_to_hit] }
+          - { command: teach, refs: [ability.catalogue.evasion.slip, ability.catalogue.evasion.recover_footing, ability.catalogue.evasion.rolling_fall, ability.catalogue.evasion.read_the_press, ability.catalogue.evasion.endure, ability.catalogue.evasion.borrowed_momentum, ability.catalogue.evasion.nothing_to_hit] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.evasion.sidestep, ability.catalogue.evasion.read_the_windup, ability.catalogue.evasion.slip, ability.catalogue.evasion.recover_footing, ability.catalogue.evasion.rolling_fall, ability.catalogue.evasion.read_the_press, ability.catalogue.evasion.endure, ability.catalogue.evasion.borrowed_momentum, ability.catalogue.evasion.nothing_to_hit] }
+          - { command: teach, refs: [ability.catalogue.evasion.slip, ability.catalogue.evasion.recover_footing, ability.catalogue.evasion.rolling_fall, ability.catalogue.evasion.read_the_press, ability.catalogue.evasion.endure, ability.catalogue.evasion.borrowed_momentum, ability.catalogue.evasion.nothing_to_hit] }
         next: lesson
   lesson:
     text: "Three avoided blows is how this is learned. Not one. Three, honestly."

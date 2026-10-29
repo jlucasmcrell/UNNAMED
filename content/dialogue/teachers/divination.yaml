@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.divination.read_the_trace, ability.catalogue.divination.detect_working, ability.catalogue.divination.circle_of_recall, ability.catalogue.divination.sense_the_seam, ability.catalogue.divination.the_confident_wrong, ability.catalogue.divination.a_thing_that_has_not_happened] }
+          - { command: teach, refs: [ability.catalogue.divination.read_the_trace, ability.catalogue.divination.detect_working, ability.catalogue.divination.circle_of_recall, ability.catalogue.divination.a_thing_that_has_not_happened] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.divination.read_the_trace, ability.catalogue.divination.detect_working, ability.catalogue.divination.circle_of_recall, ability.catalogue.divination.sense_the_seam, ability.catalogue.divination.the_confident_wrong, ability.catalogue.divination.a_thing_that_has_not_happened] }
+          - { command: teach, refs: [ability.catalogue.divination.read_the_trace, ability.catalogue.divination.detect_working, ability.catalogue.divination.circle_of_recall, ability.catalogue.divination.a_thing_that_has_not_happened] }
         next: lesson
   lesson:
     text: "Read the small thing honestly, and the large thing follows without being asked."

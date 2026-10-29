@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.teaching.show_then_watch, ability.catalogue.teaching.find_the_misunderstanding, ability.catalogue.teaching.correct_without_breaking, ability.catalogue.teaching.a_curriculum, ability.catalogue.teaching.teach_what_cannot_be_said] }
+          - { command: teach, refs: [ability.catalogue.teaching.show_then_watch, ability.catalogue.teaching.find_the_misunderstanding] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.teaching.show_then_watch, ability.catalogue.teaching.find_the_misunderstanding, ability.catalogue.teaching.correct_without_breaking, ability.catalogue.teaching.a_curriculum, ability.catalogue.teaching.teach_what_cannot_be_said] }
+          - { command: teach, refs: [ability.catalogue.teaching.show_then_watch, ability.catalogue.teaching.find_the_misunderstanding] }
         next: lesson
   lesson:
     text: "A lesson is a change you can see. If nothing changed, nothing was taught."

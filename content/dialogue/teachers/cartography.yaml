@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.cartography.survey_the_ground, ability.catalogue.cartography.grade_your_confidence, ability.catalogue.cartography.triangulate, ability.catalogue.cartography.copy_and_combine, ability.catalogue.cartography.chart_a_route_as_a_place] }
+          - { command: teach, refs: [ability.catalogue.cartography.grade_your_confidence, ability.catalogue.cartography.triangulate] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.cartography.survey_the_ground, ability.catalogue.cartography.grade_your_confidence, ability.catalogue.cartography.triangulate, ability.catalogue.cartography.copy_and_combine, ability.catalogue.cartography.chart_a_route_as_a_place] }
+          - { command: teach, refs: [ability.catalogue.cartography.grade_your_confidence, ability.catalogue.cartography.triangulate] }
         next: lesson
   lesson:
     text: "Write down what you did not see. The blank is the most honest thing on the page."

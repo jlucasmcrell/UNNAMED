@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.two_hand_blade.wide_cut, ability.catalogue.two_hand_blade.displace, ability.catalogue.two_hand_blade.half_sword, ability.catalogue.two_hand_blade.return_stroke, ability.catalogue.two_hand_blade.cross_shove, ability.catalogue.two_hand_blade.murder_stroke, ability.catalogue.two_hand_blade.harness_wrestling, ability.catalogue.two_hand_blade.mail_breaker, ability.catalogue.two_hand_blade.unbroken_wheel, ability.catalogue.two_hand_blade.master_of_the_bind] }
+          - { command: teach, refs: [ability.catalogue.two_hand_blade.wide_cut, ability.catalogue.two_hand_blade.displace, ability.catalogue.two_hand_blade.half_sword, ability.catalogue.two_hand_blade.return_stroke, ability.catalogue.two_hand_blade.murder_stroke, ability.catalogue.two_hand_blade.harness_wrestling, ability.catalogue.two_hand_blade.mail_breaker, ability.catalogue.two_hand_blade.unbroken_wheel, ability.catalogue.two_hand_blade.master_of_the_bind] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.two_hand_blade.wide_cut, ability.catalogue.two_hand_blade.displace, ability.catalogue.two_hand_blade.half_sword, ability.catalogue.two_hand_blade.return_stroke, ability.catalogue.two_hand_blade.cross_shove, ability.catalogue.two_hand_blade.murder_stroke, ability.catalogue.two_hand_blade.harness_wrestling, ability.catalogue.two_hand_blade.mail_breaker, ability.catalogue.two_hand_blade.unbroken_wheel, ability.catalogue.two_hand_blade.master_of_the_bind] }
+          - { command: teach, refs: [ability.catalogue.two_hand_blade.wide_cut, ability.catalogue.two_hand_blade.displace, ability.catalogue.two_hand_blade.half_sword, ability.catalogue.two_hand_blade.return_stroke, ability.catalogue.two_hand_blade.murder_stroke, ability.catalogue.two_hand_blade.harness_wrestling, ability.catalogue.two_hand_blade.mail_breaker, ability.catalogue.two_hand_blade.unbroken_wheel, ability.catalogue.two_hand_blade.master_of_the_bind] }
         next: lesson
   lesson:
     text: "The long blade is distance and recovery. Be too far to be hit, or already swinging. There is no third place."

@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.navigation.roads_water_and_stars, ability.catalogue.navigation.by_rumour, ability.catalogue.navigation.bearings_by_stars, ability.catalogue.navigation.get_the_party_home] }
+          - { command: teach, refs: [ability.catalogue.navigation.by_rumour, ability.catalogue.navigation.bearings_by_stars, ability.catalogue.navigation.get_the_party_home] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.navigation.roads_water_and_stars, ability.catalogue.navigation.by_rumour, ability.catalogue.navigation.bearings_by_stars, ability.catalogue.navigation.get_the_party_home] }
+          - { command: teach, refs: [ability.catalogue.navigation.by_rumour, ability.catalogue.navigation.bearings_by_stars, ability.catalogue.navigation.get_the_party_home] }
         next: lesson
   lesson:
     text: "Two bearings and a landmark. Never one, and never your memory of one."

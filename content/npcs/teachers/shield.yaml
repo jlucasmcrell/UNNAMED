@@ -32,11 +32,6 @@ teaches:
     fee: 35
     requires: { skill: { skill_ref: skill.shield, band: proficient } }
   - kind: technique
-    ability_ref: ability.catalogue.shield.shield_wall
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.shield, band: proficient } }
-  - kind: technique
     ability_ref: ability.catalogue.shield.shield_charge
     by_dialogue: true
     fee: 35
@@ -51,11 +46,6 @@ teaches:
     by_dialogue: true
     fee: 35
     requires: { skill: { skill_ref: skill.shield, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.shield.plant_the_pavise
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.shield, band: adept } }
   - kind: technique
     ability_ref: ability.catalogue.shield.advancing_guard
     by_dialogue: true

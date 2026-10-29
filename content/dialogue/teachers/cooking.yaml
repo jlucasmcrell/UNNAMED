@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.cooking.roast_meat, ability.catalogue.cooking.field_torch_by_fire, ability.catalogue.cooking.woundmoss_tea, ability.catalogue.cooking.provision_for_a_road, ability.catalogue.cooking.a_meal_that_matters, ability.catalogue.cooking.feed_a_village] }
+          - { command: teach, refs: [ability.catalogue.cooking.roast_meat, ability.catalogue.cooking.field_torch_by_fire, ability.catalogue.cooking.woundmoss_tea, ability.catalogue.cooking.provision_for_a_road, ability.catalogue.cooking.a_meal_that_matters] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.cooking.roast_meat, ability.catalogue.cooking.field_torch_by_fire, ability.catalogue.cooking.woundmoss_tea, ability.catalogue.cooking.provision_for_a_road, ability.catalogue.cooking.a_meal_that_matters, ability.catalogue.cooking.feed_a_village] }
+          - { command: teach, refs: [ability.catalogue.cooking.roast_meat, ability.catalogue.cooking.field_torch_by_fire, ability.catalogue.cooking.woundmoss_tea, ability.catalogue.cooking.provision_for_a_road, ability.catalogue.cooking.a_meal_that_matters] }
         next: lesson
   lesson:
     text: "Heat is patience with a deadline. Learn the deadline and you stop guessing."

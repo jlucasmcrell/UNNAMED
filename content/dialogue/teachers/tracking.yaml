@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.tracking.read_the_ground, ability.catalogue.tracking.trail_sign, ability.catalogue.tracking.follow_the_quarry, ability.catalogue.tracking.predator_s_bearing, ability.catalogue.tracking.walk_their_road, ability.catalogue.tracking.read_the_wake, ability.catalogue.tracking.what_the_trail_refuses_to_say] }
+          - { command: teach, refs: [ability.catalogue.tracking.read_the_ground, ability.catalogue.tracking.follow_the_quarry, ability.catalogue.tracking.what_the_trail_refuses_to_say] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.tracking.read_the_ground, ability.catalogue.tracking.trail_sign, ability.catalogue.tracking.follow_the_quarry, ability.catalogue.tracking.predator_s_bearing, ability.catalogue.tracking.walk_their_road, ability.catalogue.tracking.read_the_wake, ability.catalogue.tracking.what_the_trail_refuses_to_say] }
+          - { command: teach, refs: [ability.catalogue.tracking.read_the_ground, ability.catalogue.tracking.follow_the_quarry, ability.catalogue.tracking.what_the_trail_refuses_to_say] }
         next: lesson
   lesson:
     text: "Speed, weight, intent. Every sign writes all three, and one of them is always a lie."

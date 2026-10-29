@@ -237,6 +237,7 @@ public static class TeachingContent
     private static object CheckSources(ContentLoader loader)
     {
         var sources = new HashSet<string>(StringComparer.Ordinal);
+        var sources_seen = new HashSet<string>(StringComparer.Ordinal);
         foreach (var npc in SocialContent.BuildNpcs(loader).Values)
             sources.UnionWith(npc.Teaches.Select(o => o.DefinitionId));
         foreach (var item in loader.GetByKind("item").Values.Concat(loader.GetByKind("item.weapon").Values).Concat(loader.GetByKind("item.armor").Values))
@@ -249,8 +250,21 @@ public static class TeachingContent
             if (Read(recipe.YamlSource).GetValueOrDefault("discovery") is Dictionary<object, object> discovery && discovery.GetValueOrDefault("experiment") as string == "true")
                 sources.Add(recipe.Id);
         }
+        // A teaching source in a region teaches what it names: a study site, an institution, a discovery, a working or a trial (D13).
+        foreach (var region in loader.GetByKind("region").Values)
+        {
+            if (Read(region.YamlSource).GetValueOrDefault("sources") is System.Collections.IEnumerable sourceRows)
+            {
+                foreach (var row in sourceRows.OfType<Dictionary<object, object>>())
+                {
+                    if (row.GetValueOrDefault("technique_ref") is string taught)
+                        sources_seen.Add(taught);
+                }
+            }
+        }
         foreach (var quest in QuestContent.BuildQuests(loader).Values)
             sources.UnionWith(quest.Rewards.OfType<Domain.Quests.TechniqueReward>().Select(r => r.DefinitionId));
+        sources.UnionWith(sources_seen);
         sources.UnionWith(ProgressionContent.BuildRules(loader).StartingPackage.Techniques);
         foreach (var call in CharacterContent.BuildCalls(loader).Values)
             sources.UnionWith(call.Package.Techniques);

@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.woodworking.joint_that_holds, ability.catalogue.woodworking.straight_and_true, ability.catalogue.woodworking.steam_bend, ability.catalogue.woodworking.socket_and_shaft, ability.catalogue.woodworking.frame_and_ridge, ability.catalogue.woodworking.the_bench_itself, ability.catalogue.woodworking.a_structure_that_outlives_you] }
+          - { command: teach, refs: [ability.catalogue.woodworking.joint_that_holds, ability.catalogue.woodworking.straight_and_true, ability.catalogue.woodworking.steam_bend, ability.catalogue.woodworking.socket_and_shaft, ability.catalogue.woodworking.the_bench_itself] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.woodworking.joint_that_holds, ability.catalogue.woodworking.straight_and_true, ability.catalogue.woodworking.steam_bend, ability.catalogue.woodworking.socket_and_shaft, ability.catalogue.woodworking.frame_and_ridge, ability.catalogue.woodworking.the_bench_itself, ability.catalogue.woodworking.a_structure_that_outlives_you] }
+          - { command: teach, refs: [ability.catalogue.woodworking.joint_that_holds, ability.catalogue.woodworking.straight_and_true, ability.catalogue.woodworking.steam_bend, ability.catalogue.woodworking.socket_and_shaft, ability.catalogue.woodworking.the_bench_itself] }
         next: lesson
   lesson:
     text: "A finish is not a surface. It is the edge you cannot see, holding."

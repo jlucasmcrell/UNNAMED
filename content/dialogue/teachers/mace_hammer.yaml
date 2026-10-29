@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.mace_hammer.drive_through_the_guard, ability.catalogue.mace_hammer.bell_ringer, ability.catalogue.mace_hammer.beak_strike, ability.catalogue.mace_hammer.short_grip, ability.catalogue.mace_hammer.counterweight_recovery, ability.catalogue.mace_hammer.dent_the_harness, ability.catalogue.mace_hammer.rivet_breaker, ability.catalogue.mace_hammer.fault_strike, ability.catalogue.mace_hammer.fell_the_armoured] }
+          - { command: teach, refs: [ability.catalogue.mace_hammer.drive_through_the_guard, ability.catalogue.mace_hammer.bell_ringer, ability.catalogue.mace_hammer.beak_strike, ability.catalogue.mace_hammer.short_grip, ability.catalogue.mace_hammer.counterweight_recovery, ability.catalogue.mace_hammer.dent_the_harness, ability.catalogue.mace_hammer.rivet_breaker, ability.catalogue.mace_hammer.fell_the_armoured] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.mace_hammer.drive_through_the_guard, ability.catalogue.mace_hammer.bell_ringer, ability.catalogue.mace_hammer.beak_strike, ability.catalogue.mace_hammer.short_grip, ability.catalogue.mace_hammer.counterweight_recovery, ability.catalogue.mace_hammer.dent_the_harness, ability.catalogue.mace_hammer.rivet_breaker, ability.catalogue.mace_hammer.fault_strike, ability.catalogue.mace_hammer.fell_the_armoured] }
+          - { command: teach, refs: [ability.catalogue.mace_hammer.drive_through_the_guard, ability.catalogue.mace_hammer.bell_ringer, ability.catalogue.mace_hammer.beak_strike, ability.catalogue.mace_hammer.short_grip, ability.catalogue.mace_hammer.counterweight_recovery, ability.catalogue.mace_hammer.dent_the_harness, ability.catalogue.mace_hammer.rivet_breaker, ability.catalogue.mace_hammer.fell_the_armoured] }
         next: lesson
   lesson:
     text: "You are not breaking the armour. You are breaking the plan inside it."

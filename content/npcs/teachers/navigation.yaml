@@ -12,11 +12,6 @@ people_ref: people.orenth
 dialogue_ref: dialogue.teacher.navigation
 teaches:
   - kind: technique
-    ability_ref: ability.catalogue.navigation.roads_water_and_stars
-    by_dialogue: true
-    fee: 15
-    requires: { skill: { skill_ref: skill.navigation, band: familiar } }
-  - kind: technique
     ability_ref: ability.catalogue.navigation.by_rumour
     by_dialogue: true
     fee: 35

@@ -17,11 +17,6 @@ teaches:
     fee: 15
     requires: { skill: { skill_ref: skill.stealth, band: familiar } }
   - kind: technique
-    ability_ref: ability.catalogue.stealth.read_the_watch
-    by_dialogue: true
-    fee: 15
-    requires: { skill: { skill_ref: skill.stealth, band: familiar } }
-  - kind: technique
     ability_ref: ability.catalogue.stealth.misdirect
     by_dialogue: true
     fee: 15

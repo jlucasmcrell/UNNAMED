@@ -12,26 +12,6 @@ people_ref: people.orenth
 dialogue_ref: dialogue.teacher.otherwayfaring
 teaches:
   - kind: technique
-    ability_ref: ability.catalogue.otherwayfaring.read_a_route
-    by_dialogue: true
-    fee: 15
-    requires: { skill: { skill_ref: skill.otherwayfaring, band: familiar } }
-  - kind: technique
-    ability_ref: ability.catalogue.otherwayfaring.walk_it_steady
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.otherwayfaring, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.otherwayfaring.rope_and_anchor
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.otherwayfaring, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.otherwayfaring.chart_it
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.otherwayfaring, band: adept } }
-  - kind: technique
     ability_ref: ability.catalogue.otherwayfaring.arrive
     by_dialogue: true
     fee: 90

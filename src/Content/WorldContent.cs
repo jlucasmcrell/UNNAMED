@@ -437,6 +437,23 @@ public static class WorldContent
             }
             Check(stations.Select(s => s.Key).Distinct(StringComparer.Ordinal).Count() == stations.Count, "WLD011", "two stations share a key");
 
+            // Teaching sources (D13): the place a technique is learned when canon's code is not a teacher or a book.
+            var teachingSources = ImmutableArray.CreateBuilder<TeachingSourceSite>();
+            foreach (var (entry, i) in (map.ContainsKey("sources") ? List(map, "sources") : new List<object>()).Select((s, i) => (s, i)))
+            {
+                var site = entry as Dictionary<object, object> ?? throw new FormatException($"sources[{i}] must be a map");
+                var (tx, tz) = Pair(site, "position_m");
+                var source = new TeachingSourceSite(Text(site, "key"), Text(site, "technique_ref"), Text(site, "kind"), tx, tz);
+                Check(source.Key.StartsWith("source.", StringComparison.Ordinal), "WLD016", $"source key '{source.Key}' must start with 'source.'");
+                Check(loader.Definitions.TryGetValue(source.TechniqueId, out var taught) && taught.Kind == "ability", "WLD016",
+                    $"{source.Key}: technique_ref {source.TechniqueId} is not an ability");
+                Check(source.Kind is "study" or "culture" or "experiment" or "discovery" or "artifact" or "trial", "WLD016",
+                    $"{source.Key}: kind is study, culture, experiment, discovery, artifact or trial");
+                Check(tx >= minX && tx <= maxX && tz >= minZ && tz <= maxZ, "WLD016", $"{source.Key} lies outside the walkable bounds");
+                teachingSources.Add(source);
+            }
+            Check(teachingSources.Select(s => s.Key).Distinct(StringComparer.Ordinal).Count() == teachingSources.Count, "WLD016", "two teaching sources share a key");
+
             // The named NPCs (M4): each where they stand and which way they face; a named NPC stands in one place.
             var npcs = ImmutableArray.CreateBuilder<NpcSite>();
             foreach (var (entry, i) in (map.ContainsKey("npcs") ? List(map, "npcs") : new List<object>()).Select((n, i) => (n, i)))
@@ -684,6 +701,7 @@ public static class WorldContent
                 Containers = containers.ToImmutable(),
                 Nodes = nodes.ToImmutable(),
                 Stations = stations.ToImmutable(),
+                Sources = teachingSources.ToImmutable(),
                 Npcs = npcs.ToImmutable(),
                 Switches = switches.ToImmutable(),
                 Barriers = barriers.ToImmutable(),

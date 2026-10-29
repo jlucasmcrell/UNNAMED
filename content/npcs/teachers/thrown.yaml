@@ -17,22 +17,12 @@ teaches:
     fee: 15
     requires: { skill: { skill_ref: skill.thrown, band: familiar } }
   - kind: technique
-    ability_ref: ability.catalogue.thrown.shield_lodging
-    by_dialogue: true
-    fee: 15
-    requires: { skill: { skill_ref: skill.thrown, band: familiar } }
-  - kind: technique
     ability_ref: ability.catalogue.thrown.lure_stone
     by_dialogue: true
     fee: 15
     requires: { skill: { skill_ref: skill.thrown, band: familiar } }
   - kind: technique
     ability_ref: ability.catalogue.thrown.gap_throw
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.thrown, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.thrown.atlatl_cast
     by_dialogue: true
     fee: 35
     requires: { skill: { skill_ref: skill.thrown, band: proficient } }
@@ -61,11 +51,6 @@ teaches:
     by_dialogue: true
     fee: 150
     requires: { skill: { skill_ref: skill.thrown, band: master } }
-  - kind: technique
-    ability_ref: ability.catalogue.thrown.sling_lob
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.thrown, band: proficient } }
   - kind: technique
     ability_ref: ability.catalogue.thrown.sling_skip_shot
     by_dialogue: true

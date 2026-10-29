@@ -31,18 +31,3 @@ teaches:
     by_dialogue: true
     fee: 35
     requires: { skill: { skill_ref: skill.warding, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.warding.door_ward
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.warding, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.warding.stabilise_the_veil
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.warding, band: adept } }
-  - kind: technique
-    ability_ref: ability.catalogue.warding.alarm_lattice
-    by_dialogue: true
-    fee: 90
-    requires: { skill: { skill_ref: skill.warding, band: expert } }

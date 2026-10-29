@@ -1,0 +1,16 @@
+id: item.manual.carpentry
+kind: item
+schema: 1
+display_key: item.manual.carpentry.name
+tags: [item]
+name: "The Carpentry Manual"
+notes: "A working manual of the D13 catalogue: Frame and brace. Read once, it teaches what canon says is learned from a book."
+category: book
+item_class: ordinary
+stack_max: 1
+weight: 0.4
+value_base: 40
+use:
+  consume: true
+  grants:
+    - { kind: ability, ref: ability.catalogue.carpentry.frame_and_brace }

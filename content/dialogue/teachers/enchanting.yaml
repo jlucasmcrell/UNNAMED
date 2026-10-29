@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.enchanting.inscribe_scroll, ability.catalogue.enchanting.rune_channel, ability.catalogue.enchanting.anchor_a_working, ability.catalogue.enchanting.stability, ability.catalogue.enchanting.the_pattern_that_holds, ability.catalogue.enchanting.a_working_in_the_world, ability.catalogue.enchanting.anchor_a_working_in_a_mechanism, ability.catalogue.enchanting.field_repair_a_working] }
+          - { command: teach, refs: [ability.catalogue.enchanting.inscribe_scroll, ability.catalogue.enchanting.rune_channel, ability.catalogue.enchanting.anchor_a_working, ability.catalogue.enchanting.a_working_in_the_world] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.enchanting.inscribe_scroll, ability.catalogue.enchanting.rune_channel, ability.catalogue.enchanting.anchor_a_working, ability.catalogue.enchanting.stability, ability.catalogue.enchanting.the_pattern_that_holds, ability.catalogue.enchanting.a_working_in_the_world, ability.catalogue.enchanting.anchor_a_working_in_a_mechanism, ability.catalogue.enchanting.field_repair_a_working] }
+          - { command: teach, refs: [ability.catalogue.enchanting.inscribe_scroll, ability.catalogue.enchanting.rune_channel, ability.catalogue.enchanting.anchor_a_working, ability.catalogue.enchanting.a_working_in_the_world] }
         next: lesson
   lesson:
     text: "Enchanting is not adding. It is persuading a thing to stay itself while carrying something else."

@@ -448,3 +448,55 @@ barriers:
     circle_m: [145, 42, 3]
     height_m: 2.6
     prompt: "Tavar Orr, half a breath out of true - your hand stops short of him"
+sources:
+- { key: source.smithing.named_work, technique_ref: ability.catalogue.smithing.named_work, kind: study, position_m: [60.5, 143.5] }
+- { key: source.weaponsmithing.a_weapon_with_a_name, technique_ref: ability.catalogue.weaponsmithing.a_weapon_with_a_name, kind: study, position_m: [60.5, 143.5] }
+- { key: source.woodworking.a_structure_that_outlives_you, technique_ref: ability.catalogue.woodworking.a_structure_that_outlives_you, kind: study, position_m: [60.5, 143.5] }
+- { key: source.masonry.build_for_a_thousand_years, technique_ref: ability.catalogue.masonry.build_for_a_thousand_years, kind: study, position_m: [60.5, 143.5] }
+- { key: source.carpentry.bridge_the_gap, technique_ref: ability.catalogue.carpentry.bridge_the_gap, kind: study, position_m: [60.5, 143.5] }
+- { key: source.carpentry.settlement, technique_ref: ability.catalogue.carpentry.settlement, kind: study, position_m: [60.5, 143.5] }
+- { key: source.jewelcraft.the_setting_nobody_can_copy, technique_ref: ability.catalogue.jewelcraft.the_setting_nobody_can_copy, kind: study, position_m: [60.5, 143.5] }
+- { key: source.artifice.a_device_that_serves, technique_ref: ability.catalogue.artifice.a_device_that_serves, kind: study, position_m: [60.5, 143.5] }
+- { key: source.medicine.a_body_that_came_back, technique_ref: ability.catalogue.medicine.a_body_that_came_back, kind: study, position_m: [60.5, 143.5] }
+- { key: source.shield.shield_wall, technique_ref: ability.catalogue.shield.shield_wall, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.shield.plant_the_pavise, technique_ref: ability.catalogue.shield.plant_the_pavise, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.crossbow.heavy_bolt_drive, technique_ref: ability.catalogue.crossbow.heavy_bolt_drive, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.crossbow.line_breaker, technique_ref: ability.catalogue.crossbow.line_breaker, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.thrown.shield_lodging, technique_ref: ability.catalogue.thrown.shield_lodging, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.thrown.atlatl_cast, technique_ref: ability.catalogue.thrown.atlatl_cast, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.thrown.sling_lob, technique_ref: ability.catalogue.thrown.sling_lob, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.tactics.hand_signals, technique_ref: ability.catalogue.tactics.hand_signals, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.tactics.formation_drill, technique_ref: ability.catalogue.tactics.formation_drill, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.tactics.withdraw_in_order, technique_ref: ability.catalogue.tactics.withdraw_in_order, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.enchanting.the_pattern_that_holds, technique_ref: ability.catalogue.enchanting.the_pattern_that_holds, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.smithing.charcoal_steel, technique_ref: ability.catalogue.smithing.charcoal_steel, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.weaponsmithing.conductor_blade, technique_ref: ability.catalogue.weaponsmithing.conductor_blade, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.armoursmithing.harness_a_wing, technique_ref: ability.catalogue.armoursmithing.harness_a_wing, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.woodworking.frame_and_ridge, technique_ref: ability.catalogue.woodworking.frame_and_ridge, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.leatherworking.hide_of_a_beast_that_bit_you, technique_ref: ability.catalogue.leatherworking.hide_of_a_beast_that_bit_you, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.masonry.drystone, technique_ref: ability.catalogue.masonry.drystone, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.masonry.repair_the_old_work, technique_ref: ability.catalogue.masonry.repair_the_old_work, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.masonry.curtain_and_tower, technique_ref: ability.catalogue.masonry.curtain_and_tower, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.alchemy.bottle_the_phenomenon, technique_ref: ability.catalogue.alchemy.bottle_the_phenomenon, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.cooking.feed_a_village, technique_ref: ability.catalogue.cooking.feed_a_village, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.jewelcraft.resonance_quartz, technique_ref: ability.catalogue.jewelcraft.resonance_quartz, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.jewelcraft.a_stone_that_remembers, technique_ref: ability.catalogue.jewelcraft.a_stone_that_remembers, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.artifice.reinstall_a_recovered_mechanism, technique_ref: ability.catalogue.artifice.reinstall_a_recovered_mechanism, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.artifice.containment, technique_ref: ability.catalogue.artifice.containment, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.artifice.body_interfaces, technique_ref: ability.catalogue.artifice.body_interfaces, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.intimidation.break_a_formation_s_nerve, technique_ref: ability.catalogue.intimidation.break_a_formation_s_nerve, kind: culture, position_m: [46.5, 126.2] }
+- { key: source.mace_hammer.fault_strike, technique_ref: ability.catalogue.mace_hammer.fault_strike, kind: study, position_m: [60.5, 143.5] }
+- { key: source.dagger.punch_through, technique_ref: ability.catalogue.dagger.punch_through, kind: study, position_m: [60.5, 143.5] }
+- { key: source.armour_use.gap_awareness, technique_ref: ability.catalogue.armour_use.gap_awareness, kind: study, position_m: [60.5, 143.5] }
+- { key: source.marksmanship.the_vital_not_the_body, technique_ref: ability.catalogue.marksmanship.the_vital_not_the_body, kind: study, position_m: [60.5, 143.5] }
+- { key: source.enchanting.stability, technique_ref: ability.catalogue.enchanting.stability, kind: study, position_m: [60.5, 143.5] }
+- { key: source.masonry.read_the_fall, technique_ref: ability.catalogue.masonry.read_the_fall, kind: study, position_m: [60.5, 143.5] }
+- { key: source.jewelcraft.stone_for_a_working, technique_ref: ability.catalogue.jewelcraft.stone_for_a_working, kind: study, position_m: [60.5, 143.5] }
+- { key: source.evasion.sidestep, technique_ref: ability.catalogue.evasion.sidestep, kind: experiment, position_m: [60.5, 143.5] }
+- { key: source.two_hand_blade.cross_shove, technique_ref: ability.catalogue.two_hand_blade.cross_shove, kind: discovery, position_m: [63.5, 146.5] }
+- { key: source.staff.vault, technique_ref: ability.catalogue.staff.vault, kind: discovery, position_m: [63.5, 146.5] }
+- { key: source.evasion.read_the_windup, technique_ref: ability.catalogue.evasion.read_the_windup, kind: discovery, position_m: [63.5, 146.5] }
+- { key: source.tactics.hold_the_door, technique_ref: ability.catalogue.tactics.hold_the_door, kind: discovery, position_m: [63.5, 146.5] }
+- { key: source.marksmanship.read_the_tell, technique_ref: ability.catalogue.marksmanship.read_the_tell, kind: discovery, position_m: [63.5, 146.5] }
+- { key: source.alchemy.a_universal_reagent, technique_ref: ability.catalogue.alchemy.a_universal_reagent, kind: discovery, position_m: [63.5, 146.5] }
+- { key: source.jewelcraft.otherglass, technique_ref: ability.catalogue.jewelcraft.otherglass, kind: discovery, position_m: [63.5, 146.5] }

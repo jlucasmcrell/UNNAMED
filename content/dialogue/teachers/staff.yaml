@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.staff.two_ended_guard, ability.catalogue.staff.leg_sweep, ability.catalogue.staff.grip_shift, ability.catalogue.staff.trap_and_twist, ability.catalogue.staff.vault, ability.catalogue.staff.strike_and_cast, ability.catalogue.staff.whirling_screen, ability.catalogue.staff.ground_the_ward, ability.catalogue.staff.pivot_on_the_staff, ability.catalogue.staff.ring_of_the_staff] }
+          - { command: teach, refs: [ability.catalogue.staff.two_ended_guard, ability.catalogue.staff.leg_sweep, ability.catalogue.staff.grip_shift, ability.catalogue.staff.trap_and_twist, ability.catalogue.staff.strike_and_cast, ability.catalogue.staff.whirling_screen, ability.catalogue.staff.ground_the_ward, ability.catalogue.staff.pivot_on_the_staff, ability.catalogue.staff.ring_of_the_staff] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.staff.two_ended_guard, ability.catalogue.staff.leg_sweep, ability.catalogue.staff.grip_shift, ability.catalogue.staff.trap_and_twist, ability.catalogue.staff.vault, ability.catalogue.staff.strike_and_cast, ability.catalogue.staff.whirling_screen, ability.catalogue.staff.ground_the_ward, ability.catalogue.staff.pivot_on_the_staff, ability.catalogue.staff.ring_of_the_staff] }
+          - { command: teach, refs: [ability.catalogue.staff.two_ended_guard, ability.catalogue.staff.leg_sweep, ability.catalogue.staff.grip_shift, ability.catalogue.staff.trap_and_twist, ability.catalogue.staff.strike_and_cast, ability.catalogue.staff.whirling_screen, ability.catalogue.staff.ground_the_ward, ability.catalogue.staff.pivot_on_the_staff, ability.catalogue.staff.ring_of_the_staff] }
         next: lesson
   lesson:
     text: "Both ends are the weapon, and so is the middle if you are honest about your hands."

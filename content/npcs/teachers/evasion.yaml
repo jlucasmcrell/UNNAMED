@@ -12,16 +12,6 @@ people_ref: people.siann
 dialogue_ref: dialogue.teacher.evasion
 teaches:
   - kind: technique
-    ability_ref: ability.catalogue.evasion.sidestep
-    by_dialogue: true
-    fee: 15
-    requires: { skill: { skill_ref: skill.evasion, band: familiar } }
-  - kind: technique
-    ability_ref: ability.catalogue.evasion.read_the_windup
-    by_dialogue: true
-    fee: 15
-    requires: { skill: { skill_ref: skill.evasion, band: familiar } }
-  - kind: technique
     ability_ref: ability.catalogue.evasion.slip
     by_dialogue: true
     fee: 35

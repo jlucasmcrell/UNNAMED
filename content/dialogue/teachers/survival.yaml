@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.survival.fire_in_the_wet, ability.catalogue.survival.set_snare, ability.catalogue.survival.improvised_shelter, ability.catalogue.survival.cold_camp, ability.catalogue.survival.weatherproof, ability.catalogue.survival.read_the_land, ability.catalogue.survival.live_off_the_land, ability.catalogue.survival.keeper_of_the_camp] }
+          - { command: teach, refs: [ability.catalogue.survival.fire_in_the_wet, ability.catalogue.survival.set_snare, ability.catalogue.survival.improvised_shelter, ability.catalogue.survival.cold_camp, ability.catalogue.survival.weatherproof, ability.catalogue.survival.live_off_the_land, ability.catalogue.survival.keeper_of_the_camp] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.survival.fire_in_the_wet, ability.catalogue.survival.set_snare, ability.catalogue.survival.improvised_shelter, ability.catalogue.survival.cold_camp, ability.catalogue.survival.weatherproof, ability.catalogue.survival.read_the_land, ability.catalogue.survival.live_off_the_land, ability.catalogue.survival.keeper_of_the_camp] }
+          - { command: teach, refs: [ability.catalogue.survival.fire_in_the_wet, ability.catalogue.survival.set_snare, ability.catalogue.survival.improvised_shelter, ability.catalogue.survival.cold_camp, ability.catalogue.survival.weatherproof, ability.catalogue.survival.live_off_the_land, ability.catalogue.survival.keeper_of_the_camp] }
         next: lesson
   lesson:
     text: "Shelter, water, fire, food. In that order, and you may only skip what you already have."

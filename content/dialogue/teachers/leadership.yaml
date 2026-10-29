@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.leadership.cover_me, ability.catalogue.leadership.standing_orders, ability.catalogue.leadership.rally, ability.catalogue.leadership.instruct, ability.catalogue.leadership.speak_for_the_party, ability.catalogue.leadership.hire_and_keep, ability.catalogue.leadership.hold_together] }
+          - { command: teach, refs: [ability.catalogue.leadership.cover_me, ability.catalogue.leadership.standing_orders, ability.catalogue.leadership.rally, ability.catalogue.leadership.instruct, ability.catalogue.leadership.hold_together] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.leadership.cover_me, ability.catalogue.leadership.standing_orders, ability.catalogue.leadership.rally, ability.catalogue.leadership.instruct, ability.catalogue.leadership.speak_for_the_party, ability.catalogue.leadership.hire_and_keep, ability.catalogue.leadership.hold_together] }
+          - { command: teach, refs: [ability.catalogue.leadership.cover_me, ability.catalogue.leadership.standing_orders, ability.catalogue.leadership.rally, ability.catalogue.leadership.instruct, ability.catalogue.leadership.hold_together] }
         next: lesson
   lesson:
     text: "Decide, explain, then be there when it goes wrong. In that order, every time."

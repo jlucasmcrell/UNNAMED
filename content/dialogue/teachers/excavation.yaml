@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.excavation.read_the_layer, ability.catalogue.excavation.lift_without_breaking, ability.catalogue.excavation.conserve_and_record, ability.catalogue.excavation.the_barrow_question] }
+          - { command: teach, refs: [ability.catalogue.excavation.read_the_layer] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.excavation.read_the_layer, ability.catalogue.excavation.lift_without_breaking, ability.catalogue.excavation.conserve_and_record, ability.catalogue.excavation.the_barrow_question] }
+          - { command: teach, refs: [ability.catalogue.excavation.read_the_layer] }
         next: lesson
   lesson:
     text: "Shore as you go. The one you skip is the one that keeps the story."

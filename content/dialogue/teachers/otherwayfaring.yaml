@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.otherwayfaring.read_a_route, ability.catalogue.otherwayfaring.walk_it_steady, ability.catalogue.otherwayfaring.rope_and_anchor, ability.catalogue.otherwayfaring.chart_it, ability.catalogue.otherwayfaring.arrive] }
+          - { command: teach, refs: [ability.catalogue.otherwayfaring.arrive] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.otherwayfaring.read_a_route, ability.catalogue.otherwayfaring.walk_it_steady, ability.catalogue.otherwayfaring.rope_and_anchor, ability.catalogue.otherwayfaring.chart_it, ability.catalogue.otherwayfaring.arrive] }
+          - { command: teach, refs: [ability.catalogue.otherwayfaring.arrive] }
         next: lesson
   lesson:
     text: "Four, eight, twelve paces. Past twelve and something notices you have arrived."

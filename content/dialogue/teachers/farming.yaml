@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.farming.sow_and_hoe, ability.catalogue.farming.herd_and_staddle, ability.catalogue.farming.the_bad_year] }
+          - { command: teach, refs: [ability.catalogue.farming.sow_and_hoe] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.farming.sow_and_hoe, ability.catalogue.farming.herd_and_staddle, ability.catalogue.farming.the_bad_year] }
+          - { command: teach, refs: [ability.catalogue.farming.sow_and_hoe] }
         next: lesson
   lesson:
     text: "Rotate, rest, and put back more than you take. That is the whole of it, and nobody believes it."

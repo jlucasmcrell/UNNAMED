@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.medicine.diagnose, ability.catalogue.medicine.clean_and_close, ability.catalogue.medicine.set_the_bone, ability.catalogue.medicine.poison_and_disease, ability.catalogue.medicine.cut_for_a_reason, ability.catalogue.medicine.read_the_dead, ability.catalogue.medicine.the_long_recovery, ability.catalogue.medicine.a_body_that_came_back, ability.catalogue.medicine.field_surgery, ability.catalogue.medicine.component_fitting] }
+          - { command: teach, refs: [ability.catalogue.medicine.diagnose, ability.catalogue.medicine.clean_and_close, ability.catalogue.medicine.set_the_bone, ability.catalogue.medicine.poison_and_disease, ability.catalogue.medicine.cut_for_a_reason, ability.catalogue.medicine.read_the_dead, ability.catalogue.medicine.the_long_recovery] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.medicine.diagnose, ability.catalogue.medicine.clean_and_close, ability.catalogue.medicine.set_the_bone, ability.catalogue.medicine.poison_and_disease, ability.catalogue.medicine.cut_for_a_reason, ability.catalogue.medicine.read_the_dead, ability.catalogue.medicine.the_long_recovery, ability.catalogue.medicine.a_body_that_came_back, ability.catalogue.medicine.field_surgery, ability.catalogue.medicine.component_fitting] }
+          - { command: teach, refs: [ability.catalogue.medicine.diagnose, ability.catalogue.medicine.clean_and_close, ability.catalogue.medicine.set_the_bone, ability.catalogue.medicine.poison_and_disease, ability.catalogue.medicine.cut_for_a_reason, ability.catalogue.medicine.read_the_dead, ability.catalogue.medicine.the_long_recovery] }
         next: lesson
   lesson:
     text: "Treat the bleeding before the pain. The pain will wait; the bleeding has an opinion about waiting."

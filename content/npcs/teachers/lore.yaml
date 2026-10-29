@@ -26,13 +26,3 @@ teaches:
     by_dialogue: true
     fee: 35
     requires: { skill: { skill_ref: skill.lore, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.lore.where_a_fact_is_buried
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.lore, band: adept } }
-  - kind: technique
-    ability_ref: ability.catalogue.lore.the_undecided
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.lore, band: adept } }

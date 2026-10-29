@@ -21,13 +21,3 @@ teaches:
     by_dialogue: true
     fee: 15
     requires: { skill: { skill_ref: skill.herbalism, band: familiar } }
-  - kind: technique
-    ability_ref: ability.catalogue.herbalism.the_four_nodes
-    by_dialogue: true
-    fee: 15
-    requires: { skill: { skill_ref: skill.herbalism, band: familiar } }
-  - kind: technique
-    ability_ref: ability.catalogue.herbalism.the_right_ground
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.herbalism, band: proficient } }

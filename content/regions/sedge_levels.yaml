@@ -14702,3 +14702,50 @@ waystones:
   arrival_m:
   - 5004.6
   - 1080.0
+sources:
+- { key: source.cosmic.an_observatory_for_othertides, technique_ref: ability.catalogue.cosmic.an_observatory_for_othertides, kind: study, position_m: [5003.0, 1095.0] }
+- { key: source.otherlore.what_the_quiet_stones_hold, technique_ref: ability.catalogue.otherlore.what_the_quiet_stones_hold, kind: study, position_m: [5003.0, 1095.0] }
+- { key: source.othercraft.the_closing, technique_ref: ability.catalogue.othercraft.the_closing, kind: study, position_m: [5003.0, 1095.0] }
+- { key: source.veilward.living_workshop, technique_ref: ability.catalogue.veilward.living_workshop, kind: study, position_m: [5003.0, 1095.0] }
+- { key: source.warding.stabilise_the_veil, technique_ref: ability.catalogue.warding.stabilise_the_veil, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.warding.alarm_lattice, technique_ref: ability.catalogue.warding.alarm_lattice, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.vital.mending_circle, technique_ref: ability.catalogue.vital.mending_circle, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.necromancy.rite_of_quiet_earth, technique_ref: ability.catalogue.necromancy.rite_of_quiet_earth, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.transmutation.reading_the_grain, technique_ref: ability.catalogue.transmutation.reading_the_grain, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.nature.weather_turn, technique_ref: ability.catalogue.nature.weather_turn, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.divination.sense_the_seam, technique_ref: ability.catalogue.divination.sense_the_seam, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.conjuration.calling_under_contract, technique_ref: ability.catalogue.conjuration.calling_under_contract, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.ritualcraft.draw_the_circle, technique_ref: ability.catalogue.ritualcraft.draw_the_circle, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.ritualcraft.lead_a_chorus, technique_ref: ability.catalogue.ritualcraft.lead_a_chorus, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.ritualcraft.keep, technique_ref: ability.catalogue.ritualcraft.keep, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.cosmic.read_the_tide, technique_ref: ability.catalogue.cosmic.read_the_tide, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.cosmic.the_long_view, technique_ref: ability.catalogue.cosmic.the_long_view, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.otherlore.read_the_ground, technique_ref: ability.catalogue.otherlore.read_the_ground, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.otherlore.read_the_wake, technique_ref: ability.catalogue.otherlore.read_the_wake, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.othercraft.fold_seal_pylon, technique_ref: ability.catalogue.othercraft.fold_seal_pylon, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.otherwayfaring.read_a_route, technique_ref: ability.catalogue.otherwayfaring.read_a_route, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.otherwayfaring.walk_it_steady, technique_ref: ability.catalogue.otherwayfaring.walk_it_steady, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.otherwayfaring.rope_and_anchor, technique_ref: ability.catalogue.otherwayfaring.rope_and_anchor, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.otherwayfaring.chart_it, technique_ref: ability.catalogue.otherwayfaring.chart_it, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.veilward.the_old_ward, technique_ref: ability.catalogue.veilward.the_old_ward, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.veilward.null_discipline, technique_ref: ability.catalogue.veilward.null_discipline, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.veilward.maker_s_mark, technique_ref: ability.catalogue.veilward.maker_s_mark, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.music.the_old_songs, technique_ref: ability.catalogue.music.the_old_songs, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.music.a_wake_for_the_dead, technique_ref: ability.catalogue.music.a_wake_for_the_dead, kind: culture, position_m: [4989.0, 1080.0] }
+- { key: source.force.sorting_impulse, technique_ref: ability.catalogue.force.sorting_impulse, kind: study, position_m: [5003.0, 1095.0] }
+- { key: source.warding.door_ward, technique_ref: ability.catalogue.warding.door_ward, kind: study, position_m: [5003.0, 1095.0] }
+- { key: source.vital.wound_matching, technique_ref: ability.catalogue.vital.wound_matching, kind: study, position_m: [5003.0, 1095.0] }
+- { key: source.nature.ask_the_green, technique_ref: ability.catalogue.nature.ask_the_green, kind: study, position_m: [5003.0, 1095.0] }
+- { key: source.ritualcraft.inlay_and_anchor, technique_ref: ability.catalogue.ritualcraft.inlay_and_anchor, kind: study, position_m: [5003.0, 1095.0] }
+- { key: source.cosmic.weigh_and_pull, technique_ref: ability.catalogue.cosmic.weigh_and_pull, kind: study, position_m: [5003.0, 1095.0] }
+- { key: source.veilward.material_sense, technique_ref: ability.catalogue.veilward.material_sense, kind: study, position_m: [5003.0, 1095.0] }
+- { key: source.veilward.know_the_hand, technique_ref: ability.catalogue.veilward.know_the_hand, kind: study, position_m: [5003.0, 1095.0] }
+- { key: source.force.bare_bolt, technique_ref: ability.catalogue.force.bare_bolt, kind: experiment, position_m: [5003.0, 1095.0] }
+- { key: source.force.weighted_strike, technique_ref: ability.catalogue.force.weighted_strike, kind: experiment, position_m: [5003.0, 1095.0] }
+- { key: source.divination.the_confident_wrong, technique_ref: ability.catalogue.divination.the_confident_wrong, kind: experiment, position_m: [5003.0, 1095.0] }
+- { key: source.transmutation.coldbloom_pressing, technique_ref: ability.catalogue.transmutation.coldbloom_pressing, kind: discovery, position_m: [5002.9, 1098.0] }
+- { key: source.ritualcraft.find_the_circle, technique_ref: ability.catalogue.ritualcraft.find_the_circle, kind: discovery, position_m: [5002.9, 1098.0] }
+- { key: source.cosmic.star_iron, technique_ref: ability.catalogue.cosmic.star_iron, kind: discovery, position_m: [5002.9, 1098.0] }
+- { key: source.othercraft.fold_lance, technique_ref: ability.catalogue.othercraft.fold_lance, kind: discovery, position_m: [5002.9, 1098.0] }
+- { key: source.othercraft.rift_tap, technique_ref: ability.catalogue.othercraft.rift_tap, kind: discovery, position_m: [5002.9, 1098.0] }
+- { key: source.otherwhen.stillhour, technique_ref: ability.catalogue.otherwhen.stillhour, kind: discovery, position_m: [5002.9, 1098.0] }

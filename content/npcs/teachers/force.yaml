@@ -17,17 +17,7 @@ teaches:
     fee: 15
     requires: { skill: { skill_ref: skill.force, band: familiar } }
   - kind: technique
-    ability_ref: ability.catalogue.force.bare_bolt
-    by_dialogue: true
-    fee: 15
-    requires: { skill: { skill_ref: skill.force, band: familiar } }
-  - kind: technique
     ability_ref: ability.catalogue.force.scatter_impulse
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.force, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.force.weighted_strike
     by_dialogue: true
     fee: 35
     requires: { skill: { skill_ref: skill.force, band: proficient } }
@@ -36,11 +26,6 @@ teaches:
     by_dialogue: true
     fee: 35
     requires: { skill: { skill_ref: skill.force, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.force.sorting_impulse
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.force, band: adept } }
   - kind: technique
     ability_ref: ability.catalogue.force.ember_line
     by_dialogue: true

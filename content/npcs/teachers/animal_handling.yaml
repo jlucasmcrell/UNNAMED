@@ -22,22 +22,12 @@ teaches:
     fee: 15
     requires: { skill: { skill_ref: skill.animal_handling, band: familiar } }
   - kind: technique
-    ability_ref: ability.catalogue.animal_handling.taming_by_habituation
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.animal_handling, band: proficient } }
-  - kind: technique
     ability_ref: ability.catalogue.animal_handling.teach_commands
     by_dialogue: true
     fee: 35
     requires: { skill: { skill_ref: skill.animal_handling, band: proficient } }
   - kind: technique
     ability_ref: ability.catalogue.animal_handling.pack_tactics
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.animal_handling, band: adept } }
-  - kind: technique
-    ability_ref: ability.catalogue.animal_handling.through_fire_and_fold
     by_dialogue: true
     fee: 60
     requires: { skill: { skill_ref: skill.animal_handling, band: adept } }

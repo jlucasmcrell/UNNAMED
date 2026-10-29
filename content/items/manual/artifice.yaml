@@ -1,0 +1,21 @@
+id: item.manual.artifice
+kind: item
+schema: 1
+display_key: item.manual.artifice.name
+tags: [item]
+name: "The Artifice Manual"
+notes: "A working manual of the D13 catalogue: Knap a cutting edge, Fire without a fire, Cordage, Build a cell from nothing local, Bind a phenomenon, The Concord object. Read once, it teaches what canon says is learned from a book."
+category: book
+item_class: ordinary
+stack_max: 1
+weight: 0.4
+value_base: 40
+use:
+  consume: true
+  grants:
+    - { kind: ability, ref: ability.catalogue.artifice.knap_a_cutting_edge }
+    - { kind: ability, ref: ability.catalogue.artifice.fire_without_a_fire }
+    - { kind: ability, ref: ability.catalogue.artifice.cordage }
+    - { kind: ability, ref: ability.catalogue.artifice.build_a_cell_from_nothing_local }
+    - { kind: ability, ref: ability.catalogue.artifice.bind_a_phenomenon }
+    - { kind: ability, ref: ability.catalogue.artifice.the_concord_object }

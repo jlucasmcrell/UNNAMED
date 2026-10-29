@@ -11,33 +11,3 @@ unique: true
 people_ref: people.vaskaal
 dialogue_ref: dialogue.teacher.fabrication
 teaches:
-  - kind: technique
-    ability_ref: ability.catalogue.fabrication.cold_work_native_metal
-    by_dialogue: true
-    fee: 90
-    requires: { skill: { skill_ref: skill.fabrication, band: expert } }
-  - kind: technique
-    ability_ref: ability.catalogue.fabrication.reproduce_a_firstfold_form
-    by_dialogue: true
-    fee: 150
-    requires: { skill: { skill_ref: skill.fabrication, band: master } }
-  - kind: technique
-    ability_ref: ability.catalogue.fabrication.pack_a_gland
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.fabrication, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.fabrication.turn_a_true_shaft
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.fabrication, band: adept } }
-  - kind: technique
-    ability_ref: ability.catalogue.fabrication.optics
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.fabrication, band: adept } }
-  - kind: technique
-    ability_ref: ability.catalogue.fabrication.sustain_a_machine_without_parts
-    by_dialogue: true
-    fee: 90
-    requires: { skill: { skill_ref: skill.fabrication, band: expert } }

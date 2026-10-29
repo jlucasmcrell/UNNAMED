@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.veilward.the_old_ward, ability.catalogue.veilward.shed_the_overload, ability.catalogue.veilward.null_discipline, ability.catalogue.veilward.interpose, ability.catalogue.veilward.veil_collar, ability.catalogue.veilward.hold_the_firm_ground, ability.catalogue.veilward.improvised_tools, ability.catalogue.veilward.quick_work, ability.catalogue.veilward.material_sense, ability.catalogue.veilward.recover_whole, ability.catalogue.veilward.field_workshop, ability.catalogue.veilward.maker_s_mark, ability.catalogue.veilward.know_the_hand, ability.catalogue.veilward.master_s_correction, ability.catalogue.veilward.living_workshop] }
+          - { command: teach, refs: [ability.catalogue.veilward.shed_the_overload, ability.catalogue.veilward.interpose, ability.catalogue.veilward.veil_collar, ability.catalogue.veilward.hold_the_firm_ground, ability.catalogue.veilward.improvised_tools, ability.catalogue.veilward.quick_work, ability.catalogue.veilward.recover_whole, ability.catalogue.veilward.field_workshop, ability.catalogue.veilward.master_s_correction] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.veilward.the_old_ward, ability.catalogue.veilward.shed_the_overload, ability.catalogue.veilward.null_discipline, ability.catalogue.veilward.interpose, ability.catalogue.veilward.veil_collar, ability.catalogue.veilward.hold_the_firm_ground, ability.catalogue.veilward.improvised_tools, ability.catalogue.veilward.quick_work, ability.catalogue.veilward.material_sense, ability.catalogue.veilward.recover_whole, ability.catalogue.veilward.field_workshop, ability.catalogue.veilward.maker_s_mark, ability.catalogue.veilward.know_the_hand, ability.catalogue.veilward.master_s_correction, ability.catalogue.veilward.living_workshop] }
+          - { command: teach, refs: [ability.catalogue.veilward.shed_the_overload, ability.catalogue.veilward.interpose, ability.catalogue.veilward.veil_collar, ability.catalogue.veilward.hold_the_firm_ground, ability.catalogue.veilward.improvised_tools, ability.catalogue.veilward.quick_work, ability.catalogue.veilward.recover_whole, ability.catalogue.veilward.field_workshop, ability.catalogue.veilward.master_s_correction] }
         next: lesson
   lesson:
     text: "Hide the work in the ordinary. The best ward looks like a bench someone forgot to tidy."

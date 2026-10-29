@@ -130,6 +130,13 @@ public sealed record StationSite(string Key, string Kind, long XMm, long ZMm)
     public int Grade { get; init; }
 }
 
+/// <summary>
+/// A place in the world that teaches a technique the way canon's own code says it is learned (D13's nine learning sources): a study site at a
+/// station, a culture's own institution, a thing found in the world, a working that taught you by working (experiment), a relic that teaches
+/// its holder, or a master's gate a body may only pass by passing it (trial). It names the technique, the kind of source, and where it stands.
+/// </summary>
+public sealed record TeachingSourceSite(string Key, string TechniqueId, string Kind, long XMm, long ZMm);
+
 /// <summary>Where a named NPC stands (M4), and which way they face: their place in the settlement's authored layout.</summary>
 public sealed record NpcSite(string NpcId, long XMm, long ZMm, int FacingMdeg);
 
@@ -170,6 +177,9 @@ public sealed record RegionLayout(
 
     /// <summary>The region's crafting stations (M3f).</summary>
     public ImmutableArray<StationSite> Stations { get; init; } = ImmutableArray<StationSite>.Empty;
+
+    /// <summary>The region's teaching sources (D13): study sites, institutions, discoveries, experiments, relics and trials, each with what it teaches.</summary>
+    public ImmutableArray<TeachingSourceSite> Sources { get; init; } = ImmutableArray<TeachingSourceSite>.Empty;
 
     /// <summary>The region's named NPCs, each where they stand (M4).</summary>
     public ImmutableArray<NpcSite> Npcs { get; init; } = ImmutableArray<NpcSite>.Empty;

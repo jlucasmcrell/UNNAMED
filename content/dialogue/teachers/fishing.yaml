@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.fishing.the_right_bait, ability.catalogue.fishing.line_net_spear, ability.catalogue.fishing.wait, ability.catalogue.fishing.the_river_snake] }
+          - { command: teach, refs: [ability.catalogue.fishing.the_right_bait, ability.catalogue.fishing.line_net_spear, ability.catalogue.fishing.wait] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.fishing.the_right_bait, ability.catalogue.fishing.line_net_spear, ability.catalogue.fishing.wait, ability.catalogue.fishing.the_river_snake] }
+          - { command: teach, refs: [ability.catalogue.fishing.the_right_bait, ability.catalogue.fishing.line_net_spear, ability.catalogue.fishing.wait] }
         next: lesson
   lesson:
     text: "Stillness is a technique. Everything in the water can hear a man who wants something."

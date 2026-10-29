@@ -32,16 +32,6 @@ teaches:
     fee: 35
     requires: { skill: { skill_ref: skill.leadership, band: proficient } }
   - kind: technique
-    ability_ref: ability.catalogue.leadership.speak_for_the_party
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.leadership, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.leadership.hire_and_keep
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.leadership, band: adept } }
-  - kind: technique
     ability_ref: ability.catalogue.leadership.hold_together
     by_dialogue: true
     fee: 90

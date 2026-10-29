@@ -11,28 +11,3 @@ unique: true
 people_ref: people.siann
 dialogue_ref: dialogue.teacher.cosmic
 teaches:
-  - kind: technique
-    ability_ref: ability.catalogue.cosmic.read_the_tide
-    by_dialogue: true
-    fee: 15
-    requires: { skill: { skill_ref: skill.cosmic, band: familiar } }
-  - kind: technique
-    ability_ref: ability.catalogue.cosmic.weigh_and_pull
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.cosmic, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.cosmic.star_iron
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.cosmic, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.cosmic.the_long_view
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.cosmic, band: adept } }
-  - kind: technique
-    ability_ref: ability.catalogue.cosmic.an_observatory_for_othertides
-    by_dialogue: true
-    fee: 90
-    requires: { skill: { skill_ref: skill.cosmic, band: expert } }

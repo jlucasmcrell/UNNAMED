@@ -32,16 +32,6 @@ teaches:
     fee: 35
     requires: { skill: { skill_ref: skill.vital, band: proficient } }
   - kind: technique
-    ability_ref: ability.catalogue.vital.mending_circle
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.vital, band: adept } }
-  - kind: technique
-    ability_ref: ability.catalogue.vital.wound_matching
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.vital, band: adept } }
-  - kind: technique
     ability_ref: ability.catalogue.vital.the_body_s_own_account
     by_dialogue: true
     fee: 90

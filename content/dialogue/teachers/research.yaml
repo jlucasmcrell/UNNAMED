@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.research.read_the_shelf, ability.catalogue.research.reproduce_a_result, ability.catalogue.research.the_experiment, ability.catalogue.research.reverse_a_method, ability.catalogue.research.a_formula_of_your_own] }
+          - { command: teach, refs: [ability.catalogue.research.read_the_shelf] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.research.read_the_shelf, ability.catalogue.research.reproduce_a_result, ability.catalogue.research.the_experiment, ability.catalogue.research.reverse_a_method, ability.catalogue.research.a_formula_of_your_own] }
+          - { command: teach, refs: [ability.catalogue.research.read_the_shelf] }
         next: lesson
   lesson:
     text: "Write the method before the finding. The finding is the easy half."

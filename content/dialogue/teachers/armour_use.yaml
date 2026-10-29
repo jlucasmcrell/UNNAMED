@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.armour_use.settle_the_harness, ability.catalogue.armour_use.wear_it_all_day, ability.catalogue.armour_use.take_it_on_the_plate, ability.catalogue.armour_use.brace, ability.catalogue.armour_use.silent_harness, ability.catalogue.armour_use.gap_awareness, ability.catalogue.armour_use.armour_in_the_water, ability.catalogue.armour_use.walk_in_full_harness, ability.catalogue.armour_use.walking_fortress] }
+          - { command: teach, refs: [ability.catalogue.armour_use.settle_the_harness, ability.catalogue.armour_use.wear_it_all_day, ability.catalogue.armour_use.take_it_on_the_plate, ability.catalogue.armour_use.brace, ability.catalogue.armour_use.silent_harness, ability.catalogue.armour_use.armour_in_the_water, ability.catalogue.armour_use.walk_in_full_harness, ability.catalogue.armour_use.walking_fortress] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.armour_use.settle_the_harness, ability.catalogue.armour_use.wear_it_all_day, ability.catalogue.armour_use.take_it_on_the_plate, ability.catalogue.armour_use.brace, ability.catalogue.armour_use.silent_harness, ability.catalogue.armour_use.gap_awareness, ability.catalogue.armour_use.armour_in_the_water, ability.catalogue.armour_use.walk_in_full_harness, ability.catalogue.armour_use.walking_fortress] }
+          - { command: teach, refs: [ability.catalogue.armour_use.settle_the_harness, ability.catalogue.armour_use.wear_it_all_day, ability.catalogue.armour_use.take_it_on_the_plate, ability.catalogue.armour_use.brace, ability.catalogue.armour_use.silent_harness, ability.catalogue.armour_use.armour_in_the_water, ability.catalogue.armour_use.walk_in_full_harness, ability.catalogue.armour_use.walking_fortress] }
         next: lesson
   lesson:
     text: "The armour buys you one mistake. Choose the mistake before the fight starts."

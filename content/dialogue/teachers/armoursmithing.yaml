@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.armoursmithing.fit_to_a_body, ability.catalogue.armoursmithing.lame_and_lace, ability.catalogue.armoursmithing.close_the_gaps, ability.catalogue.armoursmithing.harness_a_wing, ability.catalogue.armoursmithing.layer_for_the_weather, ability.catalogue.armoursmithing.phase_laminate, ability.catalogue.armoursmithing.harness_for_a_heavy_frame, ability.catalogue.armoursmithing.a_suit_that_is_worn] }
+          - { command: teach, refs: [ability.catalogue.armoursmithing.fit_to_a_body, ability.catalogue.armoursmithing.lame_and_lace, ability.catalogue.armoursmithing.close_the_gaps, ability.catalogue.armoursmithing.layer_for_the_weather, ability.catalogue.armoursmithing.phase_laminate, ability.catalogue.armoursmithing.harness_for_a_heavy_frame, ability.catalogue.armoursmithing.a_suit_that_is_worn] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.armoursmithing.fit_to_a_body, ability.catalogue.armoursmithing.lame_and_lace, ability.catalogue.armoursmithing.close_the_gaps, ability.catalogue.armoursmithing.harness_a_wing, ability.catalogue.armoursmithing.layer_for_the_weather, ability.catalogue.armoursmithing.phase_laminate, ability.catalogue.armoursmithing.harness_for_a_heavy_frame, ability.catalogue.armoursmithing.a_suit_that_is_worn] }
+          - { command: teach, refs: [ability.catalogue.armoursmithing.fit_to_a_body, ability.catalogue.armoursmithing.lame_and_lace, ability.catalogue.armoursmithing.close_the_gaps, ability.catalogue.armoursmithing.layer_for_the_weather, ability.catalogue.armoursmithing.phase_laminate, ability.catalogue.armoursmithing.harness_for_a_heavy_frame, ability.catalogue.armoursmithing.a_suit_that_is_worn] }
         next: lesson
   lesson:
     text: "Protection is not thickness. It is deflection and a seam that does not find the body."

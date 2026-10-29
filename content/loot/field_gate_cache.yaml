@@ -6,4 +6,11 @@ tags: [loot]
 notes: "The Stopped Gate's cache (D13/D15): a satchel of drills left against the gate, the area's second teaching source. Static contents."
 rolls: 0
 guaranteed:
+  - { item_ref: item.manual.heavy_harness, count_range: [1, 1] }   # D13: the manual canon says teaches this
+  - { item_ref: item.manual.projector, count_range: [1, 1] }   # D13: the manual canon says teaches this
+  - { item_ref: item.manual.electronics, count_range: [1, 1] }   # D13: the manual canon says teaches this
+  - { item_ref: item.manual.demolition, count_range: [1, 1] }   # D13: the manual canon says teaches this
+  - { item_ref: item.manual.gunsmithing, count_range: [1, 1] }   # D13: the manual canon says teaches this
+  - { item_ref: item.manual.siegecraft, count_range: [1, 1] }   # D13: the manual canon says teaches this
+  - { item_ref: item.manual.mechanisms, count_range: [1, 1] }   # D13: the manual canon says teaches this
   - { item_ref: item.tome.what_the_gate_left, count_range: [1, 1] }

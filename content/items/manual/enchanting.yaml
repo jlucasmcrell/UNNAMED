@@ -1,0 +1,17 @@
+id: item.manual.enchanting
+kind: item
+schema: 1
+display_key: item.manual.enchanting.name
+tags: [item]
+name: "The Enchanting Manual"
+notes: "A working manual of the D13 catalogue: Anchor a working in a mechanism, Field-repair a working. Read once, it teaches what canon says is learned from a book."
+category: book
+item_class: ordinary
+stack_max: 1
+weight: 0.4
+value_base: 40
+use:
+  consume: true
+  grants:
+    - { kind: ability, ref: ability.catalogue.enchanting.anchor_a_working_in_a_mechanism }
+    - { kind: ability, ref: ability.catalogue.enchanting.field_repair_a_working }

@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.mining.read_the_face, ability.catalogue.mining.iron_seam, ability.catalogue.mining.timber_and_prop, ability.catalogue.mining.loose_iron, ability.catalogue.mining.deep_seam, ability.catalogue.mining.the_stair_in_the_rock] }
+          - { command: teach, refs: [ability.catalogue.mining.read_the_face, ability.catalogue.mining.timber_and_prop, ability.catalogue.mining.the_stair_in_the_rock] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.mining.read_the_face, ability.catalogue.mining.iron_seam, ability.catalogue.mining.timber_and_prop, ability.catalogue.mining.loose_iron, ability.catalogue.mining.deep_seam, ability.catalogue.mining.the_stair_in_the_rock] }
+          - { command: teach, refs: [ability.catalogue.mining.read_the_face, ability.catalogue.mining.timber_and_prop, ability.catalogue.mining.the_stair_in_the_rock] }
         next: lesson
   lesson:
     text: "Follow the seam, not the ore. The seam is the honest line."

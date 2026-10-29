@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.necromancy.grave_sense, ability.catalogue.necromancy.sever, ability.catalogue.necromancy.speak_the_echo, ability.catalogue.necromancy.grave_seal, ability.catalogue.necromancy.raise_bearer, ability.catalogue.necromancy.bind_lesser_servant, ability.catalogue.necromancy.rite_of_quiet_earth] }
+          - { command: teach, refs: [ability.catalogue.necromancy.grave_sense, ability.catalogue.necromancy.sever, ability.catalogue.necromancy.speak_the_echo, ability.catalogue.necromancy.grave_seal, ability.catalogue.necromancy.raise_bearer, ability.catalogue.necromancy.bind_lesser_servant] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.necromancy.grave_sense, ability.catalogue.necromancy.sever, ability.catalogue.necromancy.speak_the_echo, ability.catalogue.necromancy.grave_seal, ability.catalogue.necromancy.raise_bearer, ability.catalogue.necromancy.bind_lesser_servant, ability.catalogue.necromancy.rite_of_quiet_earth] }
+          - { command: teach, refs: [ability.catalogue.necromancy.grave_sense, ability.catalogue.necromancy.sever, ability.catalogue.necromancy.speak_the_echo, ability.catalogue.necromancy.grave_seal, ability.catalogue.necromancy.raise_bearer, ability.catalogue.necromancy.bind_lesser_servant] }
         next: lesson
   lesson:
     text: "Custody, not command. A thing that chose to answer once may choose otherwise."

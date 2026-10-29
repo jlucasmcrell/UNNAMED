@@ -346,6 +346,8 @@ public static class QuestContent
             "item" => new ItemReward(Defined(loader, Text(map, "item_ref"), "item", at), Positive(map, "count", at, 1)),
             "recipe" => new TechniqueReward(Defined(loader, Text(map, "recipe_ref"), "recipe", at), kind),
             "spell" => new TechniqueReward(Defined(loader, Text(map, "spell_ref"), "spell", at), kind),
+            // A job that ends in a lesson, not a coin (D13's Q): the reward is a catalogue technique.
+            "technique" => new TechniqueReward(Defined(loader, Text(map, "technique_ref"), "ability", at), kind),
             "relationship" => new RelationshipReward(Defined(loader, Text(map, "npc_ref"), "npc", at), Dimension(Text(map, "dimension"), at),
                 LongOf(map, "amount", at) is var delta && delta != 0 && Math.Abs(delta) <= Relationships.Max
                     ? (int)delta

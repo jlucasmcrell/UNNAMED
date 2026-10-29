@@ -17,25 +17,10 @@ teaches:
     fee: 15
     requires: { skill: { skill_ref: skill.mining, band: familiar } }
   - kind: technique
-    ability_ref: ability.catalogue.mining.iron_seam
-    by_dialogue: true
-    fee: 15
-    requires: { skill: { skill_ref: skill.mining, band: familiar } }
-  - kind: technique
     ability_ref: ability.catalogue.mining.timber_and_prop
     by_dialogue: true
     fee: 35
     requires: { skill: { skill_ref: skill.mining, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.mining.loose_iron
-    by_dialogue: true
-    fee: 35
-    requires: { skill: { skill_ref: skill.mining, band: proficient } }
-  - kind: technique
-    ability_ref: ability.catalogue.mining.deep_seam
-    by_dialogue: true
-    fee: 60
-    requires: { skill: { skill_ref: skill.mining, band: adept } }
   - kind: technique
     ability_ref: ability.catalogue.mining.the_stair_in_the_rock
     by_dialogue: true

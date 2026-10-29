@@ -47,11 +47,6 @@ teaches:
     fee: 60
     requires: { skill: { skill_ref: skill.mace_hammer, band: adept } }
   - kind: technique
-    ability_ref: ability.catalogue.mace_hammer.fault_strike
-    by_dialogue: true
-    fee: 90
-    requires: { skill: { skill_ref: skill.mace_hammer, band: expert } }
-  - kind: technique
     ability_ref: ability.catalogue.mace_hammer.fell_the_armoured
     by_dialogue: true
     fee: 150

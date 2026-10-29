@@ -41,8 +41,3 @@ teaches:
     by_dialogue: true
     fee: 90
     requires: { skill: { skill_ref: skill.leatherworking, band: expert } }
-  - kind: technique
-    ability_ref: ability.catalogue.leatherworking.hide_of_a_beast_that_bit_you
-    by_dialogue: true
-    fee: 150
-    requires: { skill: { skill_ref: skill.leatherworking, band: master } }
