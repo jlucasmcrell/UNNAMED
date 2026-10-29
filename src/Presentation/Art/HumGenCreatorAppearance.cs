@@ -212,7 +212,7 @@ public sealed partial class HumGenCreatorAppearance : Node
     private const float GarmentStandoff = 0f;
 
     /// <summary>How far the body is drawn inside itself while it is clothed, closing the rest of the gap from its own side.</summary>
-    private const float BodyRecess = -.012f;
+    private const float BodyRecess = 0f;
 
     /// <summary>
     /// Draw the worn parts 3.5 mm off the body. The body's preset can be larger than the one a part was exported on, so a shirt
@@ -248,7 +248,8 @@ public sealed partial class HumGenCreatorAppearance : Node
                 var recessed = (BaseMaterial3D)surface_cloth.Duplicate();
                 recessed.SetMeta("creator_recess", true);
                 recessed.GrowAmount = BodyRecess;
-                skin.SetSurfaceOverrideMaterial(surface, recessed);
+                if (BodyRecess != 0f)
+                    skin.SetSurfaceOverrideMaterial(surface, recessed);
             }
         }
     }
