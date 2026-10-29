@@ -1,4 +1,4 @@
-// UNNAMED Content - the world-hooks audit (brief D15)
+﻿// UNNAMED Content - the world-hooks audit (brief D15)
 // No Godot references - pure C#
 
 using System.Globalization;
@@ -421,7 +421,7 @@ public static class WorldHookChecks
                                          && Scalar(p.Node, Scalar(argument, "field")) == Scalar(argument, "equals"));
             case "node":
             {
-                string prefix = $"node.{Scalar(argument, "prefix")}.";
+                string prefix = $"node.{Scalar(argument, "prefix")?.TrimEnd('.')}.";
                 return placed.Count(p => p.Section == "nodes"
                                          && Scalar(p.Node, "node_ref")?.StartsWith(prefix, StringComparison.Ordinal) == true);
             }
@@ -431,13 +431,14 @@ public static class WorldHookChecks
             {
                 // A node of a given grade: "a second and third ore grade" is a tier, and the build states it on the node
                 // kind (a placement may override it). Content scope: the capability exists in the build for areas to use.
-                string prefix = $"node.{Scalar(argument, "prefix")}.";
+                string prefix = $"node.{Scalar(argument, "prefix")?.TrimEnd('.')}.";
                 int atLeast = (int)(AsNumber(Node(argument, "min_tier")) ?? 2);
                 return facts.NodeList.Count(n => n.Id.StartsWith(prefix, StringComparison.Ordinal) && n.Tier >= atLeast);
             }
             case "node_hidden":
             {
-                string prefix = $"node.{Scalar(argument, "prefix")}.";
+                string prefix = $"node.{Scalar(argument, "prefix")?.TrimEnd('.')}.";
+                
                 return facts.NodeList.Count(n => n.Id.StartsWith(prefix, StringComparison.Ordinal) && n.Hidden);
             }
             case "node_ref":
