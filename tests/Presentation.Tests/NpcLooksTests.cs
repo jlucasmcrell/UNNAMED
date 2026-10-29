@@ -1,4 +1,6 @@
+using UNNAMED.Content;
 using UNNAMED.Domain.Character;
+using UNNAMED.Domain.Social;
 using UNNAMED.Presentation.Art;
 using UNNAMED.Presentation.Ui.Models;
 
@@ -20,6 +22,30 @@ public class NpcLooksTests
     }
 
     private static readonly (CreatorCatalogue Catalogue, HumGenCreatorData Data) Shipped = Catalogue();
+
+    /// <summary>The NPCs the pack authors, read from the content tree beside this checkout.</summary>
+    private static IReadOnlyList<NpcDefinition> Cast()
+    {
+        var loader = new ContentLoader();
+        Assert.True(loader.LoadAll(Path.Combine(RepoRoot(), "content")), string.Join("\n", loader.Errors));
+        return SocialContent.BuildNpcs(loader).Values.ToList();
+    }
+
+    private static string RepoRoot()
+    {
+        for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
+        {
+            if (Directory.Exists(Path.Combine(directory.FullName, "src", "Presentation"))) return directory.FullName;
+        }
+        throw new DirectoryNotFoundException("Repository root (src/Presentation) not found above " + AppContext.BaseDirectory);
+    }
+
+    /// <summary>The look-only slider keys, which no catalogue slider names (owner's rulings of 2026-10-28, and the dyes of 2026-10-25).</summary>
+    private static readonly string[] LookKeys =
+    {
+        "look.native_bald", "look.kal_growth", "look.kal_jaw", "look.kal_stone", "look.skin_tone", "look.hair_colour",
+        "look.shirt_colour", "look.trouser_colour", "look.hair_style",
+    };
 
     private static CharacterAppearance Resident(string slot, string people, string sex, int position, int generation = 0,
         string settlement = "ashen_hollow") =>
@@ -91,6 +117,53 @@ public class NpcLooksTests
             Assert.Null(siann.FacialHair);
             Assert.InRange(siann.Sliders["face.age"], 18, 30);
             Assert.Contains(siann.Face, Shipped.Catalogue.Options(CreatorChoice.Face, sex).Select(o => o.Id));
+        }
+    }
+
+    /// <summary>
+    /// The cast's authored records (F1 Gate C), read out of the content tree: every named NPC is dressed, and nothing a record names would
+    /// be taken off it or clamped when it is drawn. Content cannot make these checks itself - the people's ranges and what the catalogue
+    /// offers a sex live here - so this is the half the loader's shape check leaves to a test.
+    /// </summary>
+    [Fact]
+    public void EveryNamedNpc_IsDressed_AndWearsOnlyWhatItsPeopleOffers()
+    {
+        var cast = Cast();
+
+        Assert.Equal(8, cast.Count);
+        Assert.All(cast, npc => Assert.NotNull(npc.Appearance));
+        foreach (var npc in cast)
+        {
+            var look = npc.Appearance!;
+            string people = npc.PeopleId!, sex = npc.Sex!;
+            string at = $"{npc.Id} ({people} {sex})";
+
+            Assert.Null(look.Problem());
+            Assert.Equal(look, Shipped.Data.Constrain(look, Shipped.Catalogue, people));
+            Assert.InRange(look.StatureMm, Shipped.Catalogue.Race(people)!.MinStatureMm, Shipped.Catalogue.Race(people)!.MaxStatureMm);
+            foreach (var (choice, id) in new[] { (CreatorChoice.Face, look.Face), (CreatorChoice.Hair, look.Hair),
+                (CreatorChoice.FacialHair, look.FacialHair), (CreatorChoice.Outfit, look.Outfit), (CreatorChoice.Footwear, look.Footwear) })
+                if (id is not null)
+                    Assert.True(Shipped.Catalogue.Options(choice, sex).Any(o => o.Id == id), $"{at}: {choice} '{id}' is not offered to a '{sex}' body");
+            foreach (var (sliderId, value) in look.Sliders)
+            {
+                if (Shipped.Catalogue.Sliders.FirstOrDefault(s => s.Id == sliderId) is not { } slider)
+                {
+                    Assert.Contains(sliderId, LookKeys);
+                    continue;
+                }
+                // A value outside the people's band is clamped rather than refused when it is drawn, so it has to be checked here.
+                var band = Shipped.Data.Allowed(people, slider, sex);
+                Assert.True(band is not null, $"{at}: {people} lists no {sliderId}");
+                Assert.InRange(value, band!.Min, band.Max);
+            }
+            if (people == "people.kal")
+            {
+                Assert.Null(look.Hair);
+                Assert.Null(look.FacialHair);
+            }
+            else
+                Assert.DoesNotContain(look.Sliders.Keys, key => key.StartsWith("look.kal_", StringComparison.Ordinal));
         }
     }
 }

@@ -58,10 +58,13 @@
     <Compile Include="..\..\src\Presentation\Ui\Models\*.cs" LinkBase="Linked\Models" />
   </ItemGroup>
 
-  <!-- The creator's draft and bodies (WP2) speak the domain's CharacterSpec; the screens' view models read the world's views. -->
+  <!-- The creator's draft and bodies (WP2) speak the domain's CharacterSpec; the screens' view models read the world's views; the cast's
+       authored looks (F1 Gate C) are content, read with the creator's catalogue so a record is held to the people it is drawn for. Content
+       is engine-free and depends on nothing in presentation, so this adds no rule to the architecture tests. -->
   <ItemGroup>
     <ProjectReference Include="..\..\src\Domain\Domain.csproj" />
     <ProjectReference Include="..\..\src\World\World.csproj" />
+    <ProjectReference Include="..\..\src\Content\Content.csproj" />
   </ItemGroup>
 
   <ItemGroup>

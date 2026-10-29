@@ -12,6 +12,24 @@ merchant_ref: merchant.ashen_hollow.kera_voss
 dialogue_ref: dialogue.ashen_hollow.kera_voss
 unique: true
 people_ref: people.kal   # content bible §9
+# Her look (F1 Gate C): dense and broad with a forge's muscle, and the stone her people grows — a Kal has no hair at all (owner's
+# ruling, 2026-10-28). She reads 35 to 50 (NPC_PERSONALITY_BIBLE.md:185), so the dial sits inside that.
+appearance:
+  stature_cm: 160
+  face: face.f.caucasian_presets.caucasian_4
+  outfit: outfit.casual.smart_casual
+  footwear: footwear.outdoor.garden_boot
+  sliders:
+    face.age: 44
+    body.overweight: 620
+    body.muscular: 520
+    body.waist_thickness: 250
+    face.jaw_width: 420
+    face.chin_width: 300
+    look.kal_growth: 1              # the crown crest the hair slot wears
+    look.kal_jaw: 1                 # the jaw ridges the beard slot wears
+    look.kal_stone: 2               # Basalt
+    look.shirt_colour: 3            # Ochre: forge dust
 faction_ref: faction.ashen_hollow.wayhold
 # What she teaches (WP9, C10): the forge and the fletching bench by her own lines, free, as she always has; the blade's technique to
 # anyone familiar with a blade, for a fee into her purse. Fees are provisional.

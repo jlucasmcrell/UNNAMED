@@ -10,6 +10,22 @@ role: steward
 dialogue_ref: dialogue.cairnwold.berrin_garth
 unique: true
 people_ref: people.veth   # Veth, by his voice note (NPC_PERSONALITY_BIBLE.md, dialogue.cairnwold.berrin_garth)
+# His look (F1 Gate C): "Veth, elder" and in his seventies (NPC_PERSONALITY_BIBLE.md:88,296), near-white at hair and brows. The full
+# beard is the art team's; canon says nothing either way.
+appearance:
+  stature_cm: 174
+  face: face.m.caucasian_presets.caucasian_4
+  hair: hair.short.short_combed
+  facial_hair: facehair.beard.groomed_beard_1
+  outfit: outfit.casual.smart_casual
+  footwear: footwear.outdoor.garden_boot
+  sliders:
+    face.age: 72
+    body.overweight: 480
+    face.jaw_width: 260
+    hair.lightness: 2600
+    brows.lightness: 2200
+    look.shirt_colour: 2            # Moss
 # What he teaches (WP9, C10; owner decision, 2026-10-17): the timber building pieces, the anvil and the storage chest, each for a fee,
 # a pad before walls, walls before a doorway or a roof, a doorway before its door. Fees are provisional.
 teaches:
