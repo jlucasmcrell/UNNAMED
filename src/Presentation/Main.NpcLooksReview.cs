@@ -56,6 +56,7 @@ public partial class Main
         // Freeze Main's normal draw loop for this presentation-only fixture. Otherwise NpcsView.Draw
         // restores every live actor's transform and animation between staging it and reading pixels.
         SetProcess(false);
+        if(fullBody && _scatter is not null)_scatter.Visible=false; // Opt-in outfit fixture: expose feet and hems.
         var reviewFigures=_npcs.GetChildren().OfType<Figure>().Select(figure=>(Figure:figure,Visible:figure.Visible)).ToArray();
         foreach (var town in root.GetProperty("towns").EnumerateArray())
         {
@@ -98,7 +99,7 @@ public partial class Main
                     Vector2 stage=root.TryGetProperty("stage",out var stageAt)
                         ?new Vector2(stageAt[0].GetSingle(),stageAt[1].GetSingle())
                         :settlement=="ashen_hollow"?new Vector2(426,754):new Vector2(949,695);
-                    float floor=_npcs.Ground?.Invoke(stage.X,stage.Y)??figure.GlobalPosition.Y;
+                    float floor=_ground.Height(stage.X,stage.Y);
                     figure.GlobalPosition=new Vector3(stage.X,floor,stage.Y);
                     if(fullBody && FindChildren("*",nameof(DirectionalLight3D),true,false).OfType<DirectionalLight3D>().FirstOrDefault(light=>light.Name.ToString().Contains("Sun",StringComparison.OrdinalIgnoreCase)) is {} stageSun)
                     {
@@ -254,6 +255,8 @@ public partial class Main
             File.WriteAllText(Path.Combine(folder, "npc_looks.json"), JsonSerializer.Serialize(new
             {
                 town = settlement, dist, height, fov, full_body=fullBody, hour = VisualOptions.Hour,
+                fixture_ground_y=root.TryGetProperty("stage",out var groundAt)?_ground.Height(groundAt[0].GetSingle(),groundAt[1].GetSingle()):(float?)null,
+                foreground_scatter_hidden=fullBody,
                 npcs = rows, wide = reached, missing,
             }, new JsonSerializerOptions { WriteIndented = true }));
             // A town's marker is written only once its frames and its manifest are on disk, so a reader never sees half a town.

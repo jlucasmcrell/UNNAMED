@@ -7,7 +7,7 @@ root=Path(sys.argv[1])
 if not (root/'CAPTURE_READBACK.json').is_file():raise SystemExit('Run check_role_review.py first')
 readback=json.loads((root/'CAPTURE_READBACK.json').read_text())
 if readback['errors']:raise SystemExit('Readback failed')
-index=['<h1>Gate C native role outfits</h1><p>Actual Ashen Hollow and Cairnwold rosters, staged on the same clear Cairnwold ground at noon. Appearance fixture, not world performance proof. Original frames retained. Motion sheets sample native clips at phase .45; they are not continuous-video gates.</p>']
+index=['<h1>Gate C native role outfits</h1><p>Actual Ashen Hollow and Cairnwold rosters, staged on the same clear Cairnwold ground at noon. Foreground scatter hidden to expose feet and hems. Appearance fixture, not world performance proof. Original frames retained. Motion sheets sample native clips at phase .45; they are not continuous-video gates.</p>']
 for town in ['ashen_hollow','cairnwold']:
  folder=root/town;build(folder);index+=['<h2>'+town+'</h2>',f'<img width="1000" src="{town}/NPC_LOOKS.png">']
  rows=json.loads((folder/'npc_looks.json').read_text())['npcs']

@@ -1,5 +1,5 @@
 """Check the captured Gate C receipts; pixels still require personal visual review."""
-import hashlib,json,math,sys
+import hashlib,json,math,re,sys
 from pathlib import Path
 from PIL import Image
 
@@ -11,10 +11,14 @@ for town in ['ashen_hollow','cairnwold']:
     poses=json.loads((folder/'pose_samples.json').read_text())
     if manifest['missing'] or len(manifest['npcs'])!=10:errors.append(town+': incomplete roster')
     if not manifest.get('full_body') or manifest['hour']!=12:errors.append(town+': framing/hour mismatch')
+    if manifest.get('fixture_ground_y') is None:errors.append(town+': authoritative staging height was not recorded')
     for row in manifest['npcs']:
         identifier=row['id']; samples=[p for p in poses if p['id']==identifier]
         if not row['outfit'].startswith('outfit.period.'):errors.append(identifier+': non-period outfit')
         if row['original_position']==row['review_position']:errors.append(identifier+': stage was overwritten')
+        if manifest.get('fixture_ground_y') is not None:
+            position=[float(x) for x in re.findall(r'-?\d+(?:\.\d+)?',row['review_position'])]
+            if len(position)!=3 or not math.isclose(position[1],manifest['fixture_ground_y'],abs_tol=.002):errors.append(identifier+': incorrect fixture ground height')
         if {p['requested'] for p in samples}!={'walk','run','crouch_idle','sword_attack_1'}:errors.append(identifier+': motion coverage missing')
         if any(p['requested']!=p['actual'] for p in samples):errors.append(identifier+': wrong held motion')
         if len({json.dumps(p['bone_origins']) for p in samples})!=4:errors.append(identifier+': repeated bone pose')

@@ -17,11 +17,11 @@
     "sources":["C:/Otherreach_External_Assets/Sourced_20261018/Master_List_20261018/Owned_Staging/MakeHuman/dress03_cc-by/clothes/punkduck_winter_coat/punkduck_winter_coat.mhclo","D:/Otherreach_Depot/Otherreach_External_Assets/MakeHuman/community/clothes/1194_Wool_Pants/pants_wool.mhclo"]
   },
   "outfit.period.apron": {
-    "label":"Cook's apron and tunic", "region":"full",
+    "label":"Cook's apron and tunic", "region":"full", "layer_clearance":true,
     "sources":["D:/Otherreach_Depot/Otherreach_External_Assets/MakeHuman/community/clothes/2617_Tunic_Viking/tunicviking.mhclo","D:/Otherreach_Depot/Otherreach_External_Assets/MakeHuman/community/clothes/1194_Wool_Pants/pants_wool.mhclo","D:/Otherreach_Depot/Otherreach_External_Assets/MakeHuman/community/clothes/2542_Elvs_Mens_Apron1/elvs_mens_apron1.mhclo"]
   },
   "outfit.period.smith_apron": {
-    "label":"Smith's leather apron", "region":"full", "leather_apron":true,
+    "label":"Smith's leather apron", "region":"full", "leather_apron":true, "layer_clearance":true,
     "sources":["D:/Otherreach_Depot/Otherreach_External_Assets/MakeHuman/community/clothes/2617_Tunic_Viking/tunicviking.mhclo","D:/Otherreach_Depot/Otherreach_External_Assets/MakeHuman/community/clothes/1194_Wool_Pants/pants_wool.mhclo","D:/Otherreach_Depot/Otherreach_External_Assets/MakeHuman/community/clothes/2542_Elvs_Mens_Apron1/elvs_mens_apron1.mhclo"]
   },
   "outfit.period.leathers": {

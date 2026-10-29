@@ -1,4 +1,4 @@
-"""Export native modular grooms/wardrobe on the two creator skeletons. CPU only.
+﻿"""Export native modular grooms/wardrobe on the two creator skeletons. CPU only.
 
 HumGen processes its own highest-quality LOD and materials. Export selection
 contains only the requested parts and their exact base rig, never another body.
@@ -387,8 +387,13 @@ for collection, kind, tag in parts:
             bpy.ops.wm.save_as_mainfile(filepath=str(source_scene), compress=True)
             folder.mkdir(parents=True, exist_ok=True)
             flow = {}
+            layer_receipts=[]
             for level, copy in enumerate(copies):
                 copy.location = (0, 0, 0)
+                if roles.get(option['id'],{}).get('layer_clearance'):
+                    from conform_role_layers import conform
+                    layer_receipts.append(dict(level=level,**conform(copy)))
+                    (folder/'layer_clearance.json').write_text(json.dumps(layer_receipts,indent=2))
                 namer = Namer(settings.output, identifier, level, 4)
                 # Native material baking, including source alpha/normal/roughness
                 # and directional flow. No generic hair/cloth replacement shader.
