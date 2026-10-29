@@ -98,6 +98,11 @@ public partial class Main
                     Vector2 stage=settlement=="ashen_hollow"?new Vector2(450,749):new Vector2(949,695);
                     float floor=_npcs.Ground?.Invoke(stage.X,stage.Y)??figure.GlobalPosition.Y;
                     figure.GlobalPosition=new Vector3(stage.X,floor,stage.Y);
+                    if(fullBody && FindChildren("*",nameof(DirectionalLight3D),true,false).OfType<DirectionalLight3D>().FirstOrDefault(light=>light.Name.ToString().Contains("Sun",StringComparison.OrdinalIgnoreCase)) is {} stageSun)
+                    {
+                        var lit=stageSun.GlobalBasis.Z;
+                        figure.GlobalRotation=new Vector3(0,Mathf.Atan2(lit.X,lit.Z)+Mathf.DegToRad(20),0);
+                    }
                 }
                 feet.Add(figure.GlobalPosition);
                 // Two metres from the eyes, level with them: along the line to the player where the game has them looking at the player
