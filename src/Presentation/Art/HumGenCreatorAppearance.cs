@@ -451,6 +451,8 @@ public sealed partial class HumGenCreatorAppearance : Node
                 using var identity = JsonDocument.Parse(File.ReadAllText(art.RiggedFile(id, "identity_weights.json")!));
                 if (part.RootElement.GetProperty("target_base").GetString() != id || part.RootElement.GetProperty("target_body_sha256").GetString()
                     != identity.RootElement.GetProperty("target_body_sha256").GetString()) throw new InvalidDataException("Native part targets another body: " + asset);
+                if (OS.GetEnvironment("OTHERREACH_NPC_LOOKS_PLAN") is { Length: > 0 })
+                    GD.Print($"CREATOR_PART {sex} {choice} -> {asset ?? "none"}");
                 var source = art.Rigged(asset) ?? throw new InvalidDataException("Native part could not load: " + asset);
                 if (choice == CreatorChoice.Outfit) _worn = asset;
                 var rig = ArtLibrary.Find<Skeleton3D>(source) ?? throw new InvalidDataException("Native part rig missing");
