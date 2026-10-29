@@ -231,3 +231,19 @@ the farm check.
 
 **NEXT SYSTEMS, in the order the brief lists them:** ambience binding, grapple, scramble, grave, ritual circle. Each
 needs: the content kind, the hook's evidence, a catalog animation where a body moves, the gate, and a clip.
+
+### Round 13 - the grave's content and pages exist; the hook still counts zero
+Landed (lint 0, committed): the **grave content kind** (content/graves/halda.yaml, errin.yaml - whose it is, the
+epitaph, the marker, the place), the **two lore pages** the markers open (lore.grave_halda, lore.grave_berrin,
+bound by { how: inspected, ref: readable.grave_* } inside the page, which is how lore pages say how they are found),
+**two marker structures and two readables** in the frontier region, and a grave evidence branch in
+WorldHookChecks counting readables that open a lore.grave. page.
+**It still reports HOOK.DEATH.GRAVE 0/1.** Moving the markers inside their locations' discovery radii (den_gorge
+anchor 540,797 r10; outpost 455,745 r30) did not change it, so the area placement assignment is not picking up
+eadables at all - or assigns by a mechanism I have not matched. Next round: check how placed is built for
+eadables (whether they are assigned to areas at all), and if they are not, express the marker as a 
+odes-section
+placement that references the grave kind, or extend the assignment.
+
+Also learned and worth keeping: lore pages put sources: **inside each page** as { how: <kind>, ref: <id> }, and a
+region section's list items carry the section's own indentation (eadables: items are indented two spaces).
