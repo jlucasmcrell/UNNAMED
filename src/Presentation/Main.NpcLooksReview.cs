@@ -280,7 +280,7 @@ public partial class Main
             {
                 town = settlement, dist, height, fov, full_body=fullBody, hour = VisualOptions.Hour,
                 fixture_ground_y=root.TryGetProperty("stage",out var groundAt)?_ground.Height(groundAt[0].GetSingle(),groundAt[1].GetSingle()):(float?)null,
-                foreground_scatter_hidden=fullBody,
+                foreground_scatter_hidden=fullBody,unrelated_containers_omitted=fullBody,
                 npcs = rows, wide = reached, missing,
             }, new JsonSerializerOptions { WriteIndented = true }));
             // A town's marker is written only once its frames and its manifest are on disk, so a reader never sees half a town.

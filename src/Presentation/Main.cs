@@ -1,4 +1,4 @@
-// UNNAMED Presentation - boot, the frame loop, and input (ARCHITECTURE.md Â§2, Â§8.1; D-11)
+﻿// UNNAMED Presentation - boot, the frame loop, and input (ARCHITECTURE.md Â§2, Â§8.1; D-11)
 // Godot presentation only: this file renders state and submits commands; it never writes state.
 
 using Godot;
@@ -907,7 +907,7 @@ public partial class Main : Node3D
         Step("views shown");
         var bindings = outside ? _bindings : _interiorBindings ?? _bindings;
         _items.Bind(_art, bindings);
-        _items.BuildContainers(_session.Simulation!.ActiveLayout);
+        if(OS.GetEnvironment("OTHERREACH_NPC_OUTFIT_REVIEW")!="1")_items.BuildContainers(_session.Simulation!.ActiveLayout);
         _items.Refresh(_session.Simulation!);
         Step("items");
         _crafting.Bind(_art, bindings);
@@ -1143,7 +1143,7 @@ public partial class Main : Node3D
         _items = new ItemsView { Name = "Items" };
         _items.Bind(_art, _bindings);
         AddChild(_items);
-        _items.BuildContainers(_session.Setup.Layout);
+        if(OS.GetEnvironment("OTHERREACH_NPC_OUTFIT_REVIEW")!="1")_items.BuildContainers(_session.Setup.Layout);
         _creatures = new CreaturesView { Name = "Creatures" };
         _creatures.Bind(_art, _bindings);
         AddChild(_creatures);
