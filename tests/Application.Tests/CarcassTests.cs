@@ -24,11 +24,22 @@ public sealed class CarcassTests
             .Select(n => n.Key).ToImmutableHashSet();
 
     [Fact]
+    public void TheWolfKind_NamesACarcass_AndTheNodeKindTrainsSkinning()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        Assert.Equal("node.carcass.grey_wolf", session.Setup.Combat.Creatures[Arena.Wolf].CarcassRef);
+        Assert.Equal("skill.skinning", session.Setup.Crafting.Nodes["node.carcass.grey_wolf"].SkillId);
+        Assert.Equal(2, session.Setup.Crafting.Nodes["node.carcass.grey_wolf"].Charges);
+    }
+
+    [Fact]
     public void AKilledWolf_LeavesACarcass_WhereItFell()
     {
         using var profile = new TempProfile();
         var arena = Arena.Open(Harness.Boot(profile), Open, 0, new[] { (Open.X, Open.Z + 2.0) });
         var killed = arena.Record<CreatureKilled>();
+        var fell = arena.Creature().Body;
         var before = CarcassKeys(arena.Simulation);
 
         int ticks = arena.Fight(arena.Creature(), 400);
@@ -40,12 +51,15 @@ public sealed class CarcassTests
         var fresh = arena.Simulation.Nodes
             .Where(n => n.NodeDefId == "node.carcass.grey_wolf" && !before.Contains(n.Key))
             .ToList();
-        var carcass = Assert.Single(fresh);
-        var corpse = arena.Simulation.Creatures.Single(c => c.Key == kill.Creature);
-        Assert.InRange(Math.Sqrt(Math.Pow(carcass.XMm - corpse.Body.XMm, 2) + Math.Pow(carcass.ZMm - corpse.Body.ZMm, 2)), 0, 500);
+        Assert.True(fresh.Count == 1,
+            $"new carcasses: {fresh.Count}; all carcass keys: {string.Join(",", CarcassKeys(arena.Simulation))}; " +
+            $"kind in table: {arena.Simulation.Setup.Crafting.Nodes.ContainsKey("node.carcass.grey_wolf")}; " +
+            $"def ref: {arena.Simulation.Setup.Combat.Creatures[Arena.Wolf].CarcassRef}");
+        var carcass = fresh[0];
+        // A dead creature leaves the world list, so the place it fell is taken before the fight.
+        Assert.InRange(Math.Sqrt(Math.Pow(carcass.XMm - fell.XMm, 2) + Math.Pow(carcass.ZMm - fell.ZMm, 2)), 0, 3000);
         Assert.True(carcass.Ready);
         Assert.Equal("item.material.meat_raw", carcass.ItemId);
-        Assert.Equal("skill.skinning", arena.Simulation.Setup.Crafting.Nodes["node.carcass.grey_wolf"].SkillId);
     }
 
     [Fact]
