@@ -112,3 +112,24 @@ ode.carcass.deer, both
 natural other half and needs a station kind; the carcass nodes need art bindings (no carcass prop exists in the art
 root - the library has dead trees, not bodies); the **kill-to-carcass wire** is not built, so authored carcasses are
 the only ones that exist; and the clip waits on the farm.
+
+### Round 5 - the farm's own art root, and a queue problem
+**Discovery that changes the farm cost:** the 6900XT already holds a valid art workspace at
+C:\Otherreach_Test\ds_anim_art (= \\6900XT\Otherreach_Test\ds_anim_art) - manifests/ui_icons.json and
+indings.json are there, with 304 ready models. Earlier farm runs that reported "0 assets drawn" were not missing art
+on the box, so the cause is still unexplained; the path is good.
+
+- My first farm job (sys2_tiers01) staged 17.9 GB of art inside the build because I had assumed the farm had none.
+  The runner mirrors the build folder to the 6900XT, so that job spent its whole life copying: rt landed (272 ready
+  dirs on the box), game had not, and it was still unning with nothing to read.
+- Second build staged game and content only (**0.29 GB**) with --asset-root C:\Otherreach_Test\ds_anim_art, and
+  jobs\sys2_tiers02.json was queued behind the stuck one. Both are still in the queue.
+
+**NEXT (in order):**
+1. Read esults\sys2_tiers02 when it lands; look at the three frames; if the art root answers, every later system's
+   clip is a 0.29 GB job. If it does not, the "0 assets" cause is the thing to chase, with the log line
+   rt: N assets drawn from the library at boot as the test.
+2. carcass_ref on the creature schema (CreatureDefinition + a field in the creature loader) and on the wolf, stag
+   and boar, then the kill-to-carcass wire: CreatureKilled(Creature, DefId, Killer, Tick) needs the body's position,
+   and the carcass has to appear in the layout as a harvestable node. That is the half system 2 still owes.
+3. Then a tanning station kind for HOOK.STATION.TANNING, which the audit raised the moment a carcass existed.
