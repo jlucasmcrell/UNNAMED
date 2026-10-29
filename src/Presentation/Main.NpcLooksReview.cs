@@ -36,6 +36,7 @@ public partial class Main
         // The player's own body stands in these frames otherwise, and a face sheet is about the town's people.
         _avatar.Visible = false;
         var simulation = _session.Simulation ?? throw new InvalidDataException("The NPC looks review needs a live world");
+        int paced = 0;
         if (root.TryGetProperty("hour", out var hour))
             VisualOptions.Pin("hour", hour.GetSingle().ToString(CultureInfo.InvariantCulture));
         var (catalogue, data) = CreatorLook();
@@ -132,6 +133,24 @@ public partial class Main
                 Face();
                 await Frames(.2, Face);   // the camera's own frame, and the visibility and LOD that follow it
                 await Rcd3Shot(folder, person.Id);
+                if (OS.GetEnvironment("OTHERREACH_FACE_SHEET") is { Length: > 0 } && paced < 2)
+                {
+                    // One man and one woman of the town, so the sheet shows the library on both faces.
+                    paced++;
+                    foreach (string expression in Art.FaceExpression.Sheet)
+                    {
+                        foreach (var face in figure.FindChildren("*", "", true, false).OfType<Art.FaceDriver>())
+                            face.Express(expression, 1f);
+                        camera.GlobalPosition = aim + (camera.GlobalPosition - aim).Normalized() * Mathf.Min(dist, 1.1f);
+                        camera.LookAt(aim);
+                        await Frames(.6, null);
+                        await Rcd3Shot(folder, person.Id + "_face_" + expression);
+                        foreach (var face in figure.FindChildren("*", "", true, false).OfType<Art.FaceDriver>())
+                            face.Express(null);
+                    }
+                    Face();
+                    await Frames(.2, Face);
+                }
                 if (fullBody && people==PeopleLooks.Kal)
                 {
                     Vector3 torso=figure.GlobalPosition+Vector3.Up*1.25f;
