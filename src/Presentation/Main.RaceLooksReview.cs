@@ -187,6 +187,8 @@ public partial class Main
                     double during = Num(s, "seconds", 2);
                     int total = Math.Max(1, (int)Math.Round(during * fps));
                     string? watched = s.TryGetProperty("id", out var who) ? who.GetString() : null;
+                    if (watched is not null && figures.TryGetValue(watched, out var held))
+                        figures[watched] = held with { Speed = Num(s, "speed", held.Speed) };
                     for (int frame = 0; frame < total; frame++)
                     {
                         double dt = GetProcessDeltaTime();
