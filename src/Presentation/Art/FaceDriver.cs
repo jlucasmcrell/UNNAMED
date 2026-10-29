@@ -40,6 +40,8 @@ public sealed partial class FaceDriver : Node
     public void Gaze(Vector3? localDirection) => _gaze = localDirection;
     public float BlinkWeight => _weights.GetValueOrDefault("eyeBlinkLeft");
     public float JawWeight => _weights.GetValueOrDefault("jawOpen");
+    public bool GentleRest { get; set; }
+    private float _restingLid = .17f;
     public Func<(double Position, double Duration, float Jaw)?>? RecordedSpeech { get; set; }
     // Opt-in native FACS inspection; ordinary speech leaves this unset.
     internal float? ReviewJawOpen { get; set; }
@@ -169,6 +171,7 @@ public sealed partial class FaceDriver : Node
             driver._nativeRig = rig;
             driver._nativeBody = body;
         }
+        if (driver._meshes.Any(m => m.Mesh.FindBlendShapeByName("eyeBlink_L") >= 0)) driver._restingLid = .22f;
         driver._random.Seed = (ulong)seed.GetHashCode();
         driver._blinkIn = driver._random.RandfRange(0.5f, 3f);
         driver._seed = seed;
@@ -317,10 +320,10 @@ public sealed partial class FaceDriver : Node
         // the HumGen renders, and follows the eye down (and lifts as it looks up). Blinks take precedence.
         bool wide = VisualOptions.All.GetValueOrDefault("lids") == "wide";
         _targets["eyeSquintLeft"] = _targets["eyeSquintRight"] = wide ? .07f : .12f;
-        _targets["eyeBlinkLeft"] = _targets["eyeBlinkRight"] = wide ? .035f : Mathf.Clamp(.17f + Math.Max(0, -look.Y) * .35f - Math.Max(0, look.Y) * .2f, 0, .45f);
+        _targets["eyeBlinkLeft"] = _targets["eyeBlinkRight"] = wide ? .035f : Mathf.Clamp(_restingLid + Math.Max(0, -look.Y) * .35f - Math.Max(0, look.Y) * .2f, 0, .45f);
         float expression = .02f + .015f * Mathf.Sin((float)_expressionTime * .37f);
-        _targets["browDownLeft"] = _targets["browDownRight"] = expression;
-        _targets["mouthSmileLeft"] = _targets["mouthSmileRight"] = _line is null ? expression * .5f : 0;
+        _targets["browDownLeft"] = _targets["browDownRight"] = GentleRest ? 0 : expression;
+        _targets["mouthSmileLeft"] = _targets["mouthSmileRight"] = _line is null ? (GentleRest ? .11f : 0) + expression * .5f : 0;
     }
 
     private void Blink(double delta)

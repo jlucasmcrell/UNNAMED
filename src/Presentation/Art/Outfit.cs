@@ -148,8 +148,20 @@ public static partial class Outfit
         ("lowerarm_l", "hand_l", 0.045f), ("lowerarm_r", "hand_r", 0.045f),
     };
 
+
+    // What a hair chain swings against: the skull, the neck and the shoulders it hangs from, in the HumGen rig's own joint names.
+    private static readonly (string Bone, string Child, float Radius)[] HairCapsules =
+    {
+        ("Head", "Neck", 0.095f), ("Neck", "UpperChest", 0.065f), ("UpperChest", "Chest", 0.11f),
+        ("LeftShoulder", "LeftUpperArm", 0.05f), ("RightShoulder", "RightUpperArm", 0.05f),
+    };
+
+    /// <summary>A long style's chains, sprung against the head and shoulders (brief D12).</summary>
+    internal static void HairSprings(Skeleton3D skeleton, JsonElement chains) => Springs(skeleton, "hair", chains, HairCapsules);
+
     /// <summary>One spring simulator for a garment's chains: every chain of the skeleton whose bones are <c>&lt;prefix&gt;[_n]_&lt;k&gt;</c>.</summary>
-    private static void Springs(Skeleton3D skeleton, string garment, JsonElement chains)
+    private static void Springs(Skeleton3D skeleton, string garment, JsonElement chains,
+        IReadOnlyList<(string Bone, string Child, float Radius)>? capsules = null)
     {
         var settings = new List<(string Root, string End, JsonElement Spec)>();
         foreach (var chain in chains.EnumerateObject())
@@ -181,7 +193,7 @@ public static partial class Outfit
         }
         if (OS.GetEnvironment("UNNAMED_SPRING_PROBE") == "1")
             springs.AddChild(new SpringProbe { Chains = settings.Select(c => c.End).ToArray() });
-        foreach (var (bone, child, radius) in ClothCapsules)
+        foreach (var (bone, child, radius) in capsules ?? ClothCapsules)
         {
             int at = skeleton.FindBone(child);
             if (skeleton.FindBone(bone) < 0 || at < 0)

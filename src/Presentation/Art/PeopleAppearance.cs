@@ -42,6 +42,14 @@ public static class PeopleAppearance
         }
         if (people == PeopleLooks.Siann)
         {
+            // Canon applies to every age and preset, including an inherited native moustache.
+            foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+                if (mesh.Mesh is { } geometry && Enumerable.Range(0, geometry.GetSurfaceCount()).Any(surface =>
+                    WithoutLod(geometry.SurfaceGetMaterial(surface)?.ResourceName ?? "").EndsWith("_FaceHairCards", StringComparison.OrdinalIgnoreCase)))
+                {
+                    mesh.Visible = false;
+                    (model as SkinnedModel ?? model.FindChildren("*", "", true, false).OfType<SkinnedModel>().FirstOrDefault())?.OutfitVisible(mesh, false);
+                }
             // Only bodies made for the look carry its mask: a Siann on any other body (Sel Arien's voiced head) keeps her own look.
             if (art.RiggedFile(modelId, "siann_skin.png") is { } siannPath && art.Texture(siannPath, "data") is { } mask)
             {
@@ -54,6 +62,8 @@ public static class PeopleAppearance
                 }
                 SiannSkin(model, mask, pale);
                 SiannEyes(model);
+                SiannHairFlow(model, art, modelId);
+                ApplyLook(model, people, null, dyeClothes: false);
             }
             return;
         }
@@ -184,8 +194,9 @@ public static class PeopleAppearance
                 var local = (ShaderMaterial)skin.Duplicate();
                 local.SetShaderParameter("use_opal", true);
                 local.SetShaderParameter("opal_mask", mask);
-                if (pale is { } p)
-                    local.SetShaderParameter("opal_pale", p);
+                local.SetShaderParameter("opal_sheen", .28f);
+                local.SetShaderParameter("opal_traces", 0f);
+                local.SetShaderParameter("opal_pale", 1f);
                 local.SetShaderParameter("subsurface_scattering_strength", .6f);
                 mesh.SetSurfaceOverrideMaterial(surface, local);
             }
@@ -194,8 +205,40 @@ public static class PeopleAppearance
 
     private static readonly Dictionary<(ulong, string), (Texture2D Iris, Texture2D Glow)> Irises = new();
 
-    /// <summary>The HumGen eye surfaces with their iris recoloured pale lavender around a brighter inner ring, a cool pearl sclera and a faint glow.</summary>
-    public static void SiannEyes(Node model) => Eyes(model, PeopleLooks.Siann, PeopleLooks.SiannIris, new Color(.72f, .68f, .95f));
+    // HumGen exports the groom's directional flow beside the GLB; glTF has no input for it.
+    private static void SiannHairFlow(Node model, ArtLibrary art, string modelId)
+    {
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+        {
+            if (mesh.Mesh is null) continue;
+            for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
+            {
+                string name = mesh.Mesh.SurfaceGetMaterial(surface)?.ResourceName ?? "";
+                if (!WithoutLod(name).EndsWith("_HairCards", StringComparison.OrdinalIgnoreCase)) continue;
+                string level = name.LastIndexOf("_LOD", StringComparison.Ordinal) is int at and >= 0 ? name[at..] : "";
+                if (art.RiggedFile(modelId, "hair_flow" + level + ".png") is not { } file
+                    || art.Texture(file, "data") is not { } flow
+                    || (mesh.GetSurfaceOverrideMaterial(surface) ?? mesh.Mesh.SurfaceGetMaterial(surface)) is not BaseMaterial3D hair) continue;
+                var local = (BaseMaterial3D)hair.Duplicate();
+                local.AnisotropyEnabled = true;
+                local.Anisotropy = .7f;
+                local.AnisotropyFlowmap = flow;
+                local.Roughness = .32f;
+                local.MetallicSpecular = .45f;
+                if (GD.Load<Shader>("res://Art/siann_hair_pearl.gdshader") is { } pearlShader)
+                {
+                    var pearl = new ShaderMaterial { Shader = pearlShader };
+                    pearl.SetShaderParameter("hair_albedo", local.AlbedoTexture);
+                    pearl.SetShaderParameter("hair_flow", flow);
+                    local.NextPass = pearl;
+                }
+                mesh.SetSurfaceOverrideMaterial(surface, local);
+            }
+        }
+    }
+
+    /// <summary>Violet-grey irises with a dark pupil/limbal ring, the native veined sclera and a wet, non-emissive cornea.</summary>
+    public static void SiannEyes(Node model) => Eyes(model, PeopleLooks.Siann, PeopleLooks.SiannIris, null);
 
     /// <summary>The HumGen eye surfaces with a warm amber iris round a dark pupil: the same eye for every Kal, whatever the body baked.</summary>
     public static void KalEyes(Node model) => Eyes(model, PeopleLooks.Kal, PeopleLooks.KalIris, null);
@@ -241,6 +284,13 @@ public static class PeopleAppearance
                 }
                 var local = (BaseMaterial3D)eye.Duplicate();
                 local.AlbedoTexture = made.Iris;
+                if (people == PeopleLooks.Siann && GD.Load<Shader>("res://Art/siann_eye.gdshader") is { } shader)
+                {
+                    var wetEye = new ShaderMaterial { Shader = shader, ResourceName = eye.ResourceName + "_Siann" };
+                    wetEye.SetShaderParameter("eye_albedo", made.Iris);
+                    mesh.SetSurfaceOverrideMaterial(surface, wetEye);
+                    continue;
+                }
                 if (glowColour is { } colour)
                 {
                     // the faint glow of a Siann's eyes: noticeable up close, never a constant glowing-eye effect at dusk
@@ -312,6 +362,7 @@ public static class PeopleAppearance
     /// </summary>
     public static void ApplyLook(Node model, string? people, CharacterAppearance? look, ArtLibrary? art = null, string? bodyModel = null, bool dyeClothes = true)
     {
+        if (art is not null && HumGenCreatorAppearance.Apply(model, people, look, art, bodyModel)) return;
         int? Index(string slider) => look is not null && look.Sliders.TryGetValue(slider, out int value) ? value : null;
         WearHairStyle(model, art, LookSwatches.HairStyles(bodyModel).ElementAtOrDefault(Index(LookSwatches.StyleSlider) ?? 0).Asset);
         var skin = LookSwatches.Chosen(LookSwatches.Skin(people), Index(LookSwatches.SkinSlider));
@@ -347,8 +398,24 @@ public static class PeopleAppearance
                     mesh.SetSurfaceOverrideMaterial(surface, dyed);
                     continue;
                 }
-                var swatch = isSkin ? skin : hair;
-                var drawn = swatch is null ? original : isSkin ? Tinted(original, swatch) : Dyed(original, swatch, lift: .4f);
+                bool siann = people == PeopleLooks.Siann;
+                bool faceHair = siann && isHair && (name.EndsWith("_Haircap", StringComparison.OrdinalIgnoreCase)
+                    || name.EndsWith("_FaceHairCards", StringComparison.OrdinalIgnoreCase)
+                    || mesh.Name.ToString().Contains("Eyelash", StringComparison.OrdinalIgnoreCase));
+                // The shared cap and brows stay pale, independently of the white hair lengths.
+                var swatch = isSkin ? skin : faceHair ? new Swatch("Pale brows", .88f, .9f, .92f) : hair;
+                var drawn = swatch is null ? original : isSkin ? Tinted(original, swatch) : siann && isHair ? original : Dyed(original, swatch, lift: siann ? .06f : .4f);
+                if (siann && isHair && drawn is BaseMaterial3D whiteHair
+                    && GD.Load<Shader>("res://Art/siann_white_hair.gdshader") is { } whiteShader)
+                {
+                    var white = new ShaderMaterial { Shader = whiteShader, ResourceName = original.ResourceName, NextPass = whiteHair.NextPass };
+                    white.SetShaderParameter("strand_atlas", whiteHair.AlbedoTexture);
+                    white.SetShaderParameter("strand_colour", new Color(swatch?.R ?? 1f, swatch?.G ?? 1f, swatch?.B ?? 1f));
+                    white.SetShaderParameter("strand_roughness", faceHair ? .6f : .35f);
+                    white.SetShaderParameter("directional", whiteHair.AnisotropyEnabled && whiteHair.AnisotropyFlowmap is not null);
+                    if (whiteHair.AnisotropyFlowmap is { } flow) white.SetShaderParameter("strand_flow", flow);
+                    drawn = white;
+                }
                 // A Kal's stone as the creator sets it, on the stone skin KalStone gave the body.
                 if (isSkin && stone is float coverage && drawn is ShaderMaterial stoneSkin && stoneSkin.GetShaderParameter("use_stone").AsBool())
                 {
@@ -508,6 +575,8 @@ public static class PeopleAppearance
         {
             var albedo = original is ShaderMaterial source ? source.GetShaderParameter("albedo").AsColor() : Colors.White;
             shader.SetShaderParameter("albedo", new Color(albedo.R * tone.R, albedo.G * tone.G, albedo.B * tone.B, albedo.A));
+            if (((ShaderMaterial)original).GetShaderParameter("use_opal").AsBool())
+                shader.SetShaderParameter("opal_pearl", new Color(.84f * tone.R, .85f * tone.G, .86f * tone.B));
         }
         else if (copy is BaseMaterial3D material)
             material.AlbedoColor = new Color(material.AlbedoColor.R * tone.R, material.AlbedoColor.G * tone.G, material.AlbedoColor.B * tone.B, material.AlbedoColor.A);

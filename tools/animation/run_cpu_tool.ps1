@@ -23,6 +23,7 @@ try {
   $owned.Refresh()
  }
  $owned.WaitForExit()
+ if($FailIfStderrMatches -and (Test-Path -LiteralPath ($Log+'.stderr')) -and (Select-String -LiteralPath ($Log+'.stderr') -Pattern $FailIfStderrMatches -Quiet)){throw 'Owned CPU tool reported a fatal error; see stderr'}
  if($owned.ExitCode -ne 0){throw ('Owned CPU tool failed: '+$owned.ExitCode)}
  'Owned CPU tool completed: 0'
 }finally{

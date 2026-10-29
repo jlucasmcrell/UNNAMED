@@ -1,5 +1,7 @@
 using Godot;
+using System.Collections.Immutable;
 using System.Text.Json;
+using UNNAMED.Domain.Character;
 using UNNAMED.Presentation.Art;
 using UNNAMED.Presentation.Player;
 
@@ -149,6 +151,61 @@ public partial class Main
                 case "shot":
                     await Rcd3Shot(directory, s.GetProperty("name").GetString()!);
                     break;
+                case "look":
+                {
+                    // The figure wears a creator look: the same parts, chains and tints the creator draws, through the same call.
+                    string id = s.GetProperty("id").GetString()!;
+                    var model = s.GetProperty("model").GetString()!;
+                    var sliders = ImmutableSortedDictionary.CreateBuilder<string, int>(StringComparer.Ordinal);
+                    if (s.TryGetProperty("sliders", out var values))
+                        foreach (var slider in values.EnumerateObject()) sliders[slider.Name] = slider.Value.GetInt32();
+                    var look = new CharacterAppearance(
+                        s.TryGetProperty("stature", out var stature) ? stature.GetInt32() : 1750,
+                        s.TryGetProperty("face", out var face) ? face.GetString() : null,
+                        s.TryGetProperty("hair", out var hair) ? hair.GetString() : null,
+                        s.TryGetProperty("facial_hair", out var beard) ? beard.GetString() : null,
+                        s.TryGetProperty("outfit", out var outfit) ? outfit.GetString() : null,
+                        s.TryGetProperty("footwear", out var shoes) ? shoes.GetString() : null) { Sliders = sliders.ToImmutable() };
+                    var figure = figures[id].Figure;
+                    PeopleAppearance.ApplyLook(figure, s.TryGetProperty("people", out var people) ? people.GetString() : null,
+                        look, _art, model, dyeClothes: false);
+                    GD.Print($"RACE_LOOKS look {id}: hair {look.Hair}, outfit {look.Outfit}, footwear {look.Footwear}");
+                    break;
+                }
+                case "pose":
+                {
+                    // Hold a named clip on the figure, which is how a jump is shown without a locomotion speed.
+                    var figure = figures[s.GetProperty("id").GetString()!].Figure;
+                    figure.SetRestPose(s.GetProperty("clip").GetString());
+                    break;
+                }
+                case "film":
+                {
+                    // A numbered still per frame, with the camera kept on the figure so a walk cannot carry it out of shot.
+                    string name = s.GetProperty("name").GetString()!;
+                    float fps = Num(s, "fps", 24);
+                    double during = Num(s, "seconds", 2);
+                    int total = Math.Max(1, (int)Math.Round(during * fps));
+                    string? watched = s.TryGetProperty("id", out var who) ? who.GetString() : null;
+                    for (int frame = 0; frame < total; frame++)
+                    {
+                        double dt = GetProcessDeltaTime();
+                        foreach (var (_, f) in figures.ToList()) f.Figure.Pose(f.Feet, f.Yaw, f.Speed, dt);
+                        if (watched is not null && figures.TryGetValue(watched, out var subject))
+                        {
+                            var aim = subject.Feet + Vector3.Up * Num(s, "height", 1.05f);
+                            camera.Fov = Num(s, "fov", 38);
+                            camera.GlobalPosition = aim + new Basis(Vector3.Up, subject.Yaw + Mathf.DegToRad(Num(s, "angle", 200)))
+                                * new Vector3(0f, 0f, Num(s, "dist", 4.2f));
+                            camera.LookAt(aim);
+                        }
+                        await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+                        GetViewport().GetTexture().GetImage()
+                            .SavePng(Path.Combine(directory, $"{name}_{frame:000}.png"));
+                        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                    }
+                    break;
+                }
                 case "walk":
                 {
                     string id = s.GetProperty("id").GetString()!;

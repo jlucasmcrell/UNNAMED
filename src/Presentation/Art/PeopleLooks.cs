@@ -53,23 +53,23 @@ public static class PeopleLooks
 
     /// <summary>
     /// A Siann iris texel at distance <paramref name="radius"/> from the eye texture's centre (UV units; the HumGen iris spans
-    /// 0.035-0.118, the pupil inside): pale lavender keeping the iris's own grain (<paramref name="luma"/>), with a brighter
+    /// 0.035-0.118, the pupil inside): violet-grey keeping the iris's own grain (<paramref name="luma"/>), with a brighter
     /// inner ring around the pupil. Returns the colour and how much of it replaces the original (0 outside the iris).
     /// </summary>
     public static (float R, float G, float B, float Blend) SiannIris(float radius, float luma)
     {
         // a definite dark pupil, which a pale iris otherwise loses under the cornea's sky reflection
-        if (radius < .05f)
+        if (radius < .038f)
             return (.02f, .02f, .03f, .95f);
-        float shade = .55f + .7f * luma;
-        // Past the iris the HumGen sclera's warm, veined white turns a cool pearl, so the eye reads lavender, not orange.
+        float shade = .65f + .5f * luma;
+        // Preserve the native veined sclera; whitening it loses separation from a pale iris.
         if (radius > .118f)
-            return (.86f * shade, .85f * shade, .9f * shade, .6f);
+            return (0, 0, 0, 0);
         // Lavender with a brighter ring round the pupil and a dark limbal ring at the edge, so the iris reads at conversation distance.
         float ring = Smooth(.05f, .058f, radius) * (1f - Smooth(.066f, .082f, radius));
         float limbal = 1f - .65f * Smooth(.095f, .112f, radius);
-        return (Math.Min(1f, (.55f * shade + .15f * ring) * limbal), Math.Min(1f, (.46f * shade + .13f * ring) * limbal),
-            Math.Min(1f, (.82f * shade + .16f * ring) * limbal), 1f);
+        return ((.44f * shade + .12f * ring) * limbal, (.43f * shade + .12f * ring) * limbal,
+            (.48f * shade + .13f * ring) * limbal, 1f);
     }
 
     /// <summary>

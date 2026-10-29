@@ -28,6 +28,10 @@ public partial class HumGenEyes : SkeletonModifier3D
         foreach (var (bone, opticalAxis) in _eyes)
         {
             var pose = rig.GetBoneGlobalPose(bone);
+            string key = "creator_eye_offset_" + rig.GetBoneName(bone);
+            int head = rig.FindBone("Head");
+            if (rig.HasMeta(key) && head >= 0)
+                pose.Origin += rig.GetBoneGlobalPose(head).Basis * rig.GetBoneGlobalRest(head).Basis.Inverse() * rig.GetMeta(key).AsVector3();
             var toward = target - pose.Origin;
             if (toward.LengthSquared() < .0001f) continue;
             var from = (pose.Basis * opticalAxis).Normalized();

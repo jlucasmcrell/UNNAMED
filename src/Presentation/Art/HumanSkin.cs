@@ -26,9 +26,11 @@ namespace UNNAMED.Presentation.Art;
 public static class HumanSkin
 {
     private const string ShaderPath = "res://Art/HumanShaders/skin_shader.gdshader";
+    private const string NativeShaderPath = "res://Art/HumanShaders/humgen_skin.gdshader";
     private const string LightwarpPath = "res://Art/HumanShaders/lightwarp_skin1.tres";
 
     private static Shader? _shader;
+    private static Shader? _nativeShader;
     private static Texture2D? _lightwarp;
     private static Texture2D? _white;
     private static Texture2D? _flatNormal;
@@ -57,7 +59,7 @@ public static class HumanSkin
     /// Replace one skin surface with the HumanShaders material. False when the shader will not load or the surface is not
     /// a plain material, so the caller can fall back to the built-in response rather than draw nothing.
     /// </summary>
-    public static bool Apply(MeshInstance3D mesh, int surface, BaseMaterial3D source)
+    public static bool Apply(MeshInstance3D mesh, int surface, BaseMaterial3D source, bool nativeHumGen = false)
     {
         // `--visual skin=engine` DRAWS THE SAME CHARACTER WITHOUT THIS SHADER, which is what makes the comparison
         // possible at all. Every blind A/B of it so far had to be run by moving the shader file aside, so the two
@@ -86,27 +88,29 @@ public static class HumanSkin
         if (_shader is null || _lightwarp is null)
             return false;
 
-        var m = new ShaderMaterial { ResourceName = (source.ResourceName ?? "skin") + "_HumanShaders", Shader = _shader };
+        if (nativeHumGen) _nativeShader ??= GD.Load<Shader>(NativeShaderPath);
+        var m = new ShaderMaterial { ResourceName = (source.ResourceName ?? "skin") + "_HumanShaders", Shader = nativeHumGen ? _nativeShader : _shader };
+        if (nativeHumGen) m.SetShaderParameter("native_humgen", true);
         m.SetShaderParameter("albedo", source.AlbedoColor);
         m.SetShaderParameter("texture_albedo", source.AlbedoTexture ?? _white);
         // A touch rougher and less specular than the export: its doubled lobe drew a broad oily sheen across the
         // cheeks and forehead (owner review 2026-10-25); the highlight now stays narrow on the nose and brow.
-        m.SetShaderParameter("roughness", source.Roughness * 1.15f);
+        m.SetShaderParameter("roughness", source.Roughness * (nativeHumGen ? 1f : 1.15f));
         m.SetShaderParameter("texture_roughness", source.RoughnessTexture ?? _white);
         m.SetShaderParameter("texture_normal",
             source.NormalEnabled && source.NormalTexture is not null ? source.NormalTexture : _flatNormal);
         m.SetShaderParameter("normal_strength", source.NormalEnabled ? source.NormalScale : 0f);
-        m.SetShaderParameter("specular", source.MetallicSpecular * 0.8f);
+        m.SetShaderParameter("specular", source.MetallicSpecular * (nativeHumGen ? 1f : 0.8f));
         // Skin is a dielectric: no metallic map, and the shader multiplies the texture by this scalar.
         m.SetShaderParameter("metallic", 0f);
         m.SetShaderParameter("texture_metallic", _white);
         // Pores: the paid HumGen skin ships only a 2K normal, which reads as plastic at conversation distance. A tiling
         // procedural pore normal (no asset) breaks up the highlight; its blue channel is left out of the micro occlusion.
-        m.SetShaderParameter("texture_micro_detail", Pores());
+        m.SetShaderParameter("texture_micro_detail", nativeHumGen ? _flatNormal : Pores());
         m.SetShaderParameter("micro_detail_scale", 40f);
-        m.SetShaderParameter("micro_normal_strength", 0.35f);
+        m.SetShaderParameter("micro_normal_strength", nativeHumGen ? 0f : 0.35f);
         m.SetShaderParameter("micro_ao_strength", 0f);
-        m.SetShaderParameter("use_micro_detail", true);
+        m.SetShaderParameter("use_micro_detail", !nativeHumGen);
         m.SetShaderParameter("use_noise", false);
         m.SetShaderParameter("lightwarp", _lightwarp);
         m.SetShaderParameter("texture_translucency", _white);

@@ -28,11 +28,14 @@ public sealed class LookSwatchesTests
     }
 
     [Fact]
-    public void SiannHair_IsAlwaysPlatinumToWhite()
+    public void SiannHair_IsAlwaysWhite()
     {
         var hair = LookSwatches.Hair("people.siann");
-        Assert.Equal("Platinum", LookSwatches.Chosen(hair, null)!.Label);
-        Assert.All(hair, s => Assert.True(Math.Min(s.R, Math.Min(s.G, s.B)) >= .6f, s.Label));
+        Assert.Equal("Platinum white", LookSwatches.Chosen(hair, null)!.Label);
+        Assert.All(hair, s => {
+            Assert.True(Math.Min(s.R, Math.Min(s.G, s.B)) >= .98f, s.Label);
+            Assert.True(Math.Max(s.R, Math.Max(s.G, s.B)) - Math.Min(s.R, Math.Min(s.G, s.B)) <= .025f, s.Label);
+        });
     }
 
     [Fact]

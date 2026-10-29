@@ -1225,6 +1225,8 @@ public partial class Main : Node3D
             FrontShots(frontShots);
         if (_options.GetValueOrDefault("--creator-shots") is { } creatorShots && _session is not null)
             CreatorShots(creatorShots);
+        if (_mhReviewDirectory is { } gateB && OS.GetEnvironment("OTHERREACH_CREATOR_GATE_B") == "1" && _session is not null)
+            CreatorGateB(gateB);
         if (_session?.Simulation is null)
         {
             TickMetaHumanReview();

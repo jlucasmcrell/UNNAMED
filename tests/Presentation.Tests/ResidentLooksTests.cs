@@ -33,6 +33,6 @@ public class ResidentLooksTests
         Assert.Equal(choices,Enumerable.Range(0,48).Select(i=>LookSwatches.ResidentColours(people,"resident-instance-"+i)).ToArray());
         Assert.True(choices.Distinct().Count()>=8);
         Assert.All(choices,c=>{Assert.InRange(c.Skin,0,LookSwatches.Skin(people).Count-1);Assert.InRange(c.Hair,0,LookSwatches.Hair(people).Count-1);});
-        if(people=="people.siann")Assert.All(choices,c=>Assert.Contains(LookSwatches.Hair(people)[c.Hair].Label,new[]{"Platinum","Silver","White"}));
+        if(people=="people.siann")Assert.All(choices,c=>Assert.Contains(LookSwatches.Hair(people)[c.Hair].Label,new[]{"Platinum white","Pearl white","White"}));
     }
 }

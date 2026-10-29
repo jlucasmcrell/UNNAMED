@@ -20,11 +20,18 @@ public partial class Main
         var rows = new List<object>();
         try
         {
-            if (_avatar is SkinnedFigure comparison && VisualOptions.ComparisonCast is not null)
+            // A race-look plan dresses its own figures, so it has no comparison cast to check against.
+            if (_avatar is SkinnedFigure comparison && VisualOptions.ComparisonCast is not null
+                && OS.GetEnvironment("OTHERREACH_RACE_LOOKS_PLAN") is not { Length: > 0 })
             {
                 bool humgen = VisualOptions.ComparisonCast == "humgen";
                 using var cast = JsonDocument.Parse(Godot.FileAccess.GetFileAsString(humgen ? "res://Art/humgen_cast.json" : "res://Art/mpfb_cast.json"));
-                var model = cast.RootElement.GetProperty("models").EnumerateArray().Single(m => m.GetProperty("id").GetString() == comparison.ModelId);
+                // A creator body is not one of the comparison cast's models; only a listed model gets the stature check.
+                var listed = cast.RootElement.GetProperty("models").EnumerateArray()
+                    .Where(m => m.GetProperty("id").GetString() == comparison.ModelId).ToList();
+                if (listed.Count == 0) throw new InvalidOperationException(
+                    $"The comparison cast lists no model {comparison.ModelId}; a creator body cannot be stature-checked against it");
+                var model = listed[0];
                 string sex = model.GetProperty("sex").GetString()!;
                 float expectedHeight = humgen ? model.GetProperty("height_m").GetSingle() : cast.RootElement.GetProperty("stature_m").GetProperty(sex).GetSingle();
                 float drawnHeight = comparison.StatureScale * model.GetProperty("height_m").GetSingle();
@@ -37,6 +44,14 @@ public partial class Main
             AddChild(camera);
             source.GetNode<OmniLight3D>("CharacterFill").Reparent(camera, false);
             camera.MakeCurrent();
+            // A plan for the race-look review is answered here, before the people-specific branches: it dresses its own figures
+            // and must not depend on the comparison cast, which throws for a creator body the cast does not list.
+            if (OS.GetEnvironment("OTHERREACH_RACE_LOOKS_PLAN") is { Length: > 0 })
+            {
+                await RunRaceLooksReview(directory, camera);
+                CaptureQuit.At(this);
+                return;
+            }
             if(OS.GetEnvironment("OTHERREACH_RCD8_MOTION_REVIEW")=="1")
             {
                 camera.GetNode<OmniLight3D>("CharacterFill").Reparent(source,false);
@@ -65,6 +80,10 @@ public partial class Main
                 camera.GetNode<OmniLight3D>("CharacterFill").Reparent(source,false);
                 source.MakeCurrent();camera.QueueFree();
                 await RunHeritageReview(directory);GetTree().Quit();return;
+            }
+            if(OS.GetEnvironment("OTHERREACH_HUMGEN_FIDELITY")=="1")
+            {
+                await RunHumGenFidelityReview(directory,camera);GetTree().Quit();return;
             }
             if(OS.GetEnvironment("OTHERREACH_RACE_LOOKS_PLAN") is { Length: > 0 })
             {

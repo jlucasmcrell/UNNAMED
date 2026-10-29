@@ -267,6 +267,111 @@ public partial class Main
     private ulong _creatorNext;
     private int _creatorStep;
 
+    private (string Shot, Action? Then, int NextMs)[]? _gateB;
+    private int _gateBStep;
+    private string? _gateBShot;
+
+    /// <summary>
+    /// <c>OTHERREACH_CREATOR_GATE_B=1</c> beside the review output directory: the native creator over each of the four peoples, both sexes: its FACE step browsing four of HumGen's
+    /// own presets, its BODY step browsing the body presets, then the Siann look at the face framing in both lights and turned,
+    /// then Begin so the same look is drawn in play. A harness: it writes no player settings, and quits when done.
+    /// </summary>
+    private void CreatorGateB(string directory)
+    {
+        if (_creatorNext == 0)
+            _creatorNext = Time.GetTicksMsec() + 8000;
+        if (Time.GetTicksMsec() < _creatorNext)
+            return;
+        if (_gateBShot is { } taken)
+        {
+            if (DisplayServer.GetName() != "headless")
+                SaveScreenshot(directory, taken);
+            GD.Print($"UNNAMED creator gate B: {taken} ({_creator.Draft.PeopleId} {_creator.Draft.BodyPresetId} {_creator.Draft.Appearance?.Face})");
+            _gateBShot = null;
+        }
+        if (_gateB is null)
+        {
+            var steps = new List<(string Shot, Action? Then, int NextMs)>();
+            string Shot(string name) => $"{steps.Count + 1:00}_{name}";
+            float face = CreatorPreview.Framings[2].Zoom, whole = CreatorPreview.Framings[0].Zoom;
+            string BodyOf(string people, string sex) => _creator.DrawnBodyIds(people).First(id => id.Contains($"_{sex}.", StringComparison.Ordinal));
+            foreach (string people in _creator.DrawnPeoples())
+            {
+                string label = people.Replace("people.", "");
+                foreach (string sex in new[] { "m", "f" })
+                {
+                    string body = BodyOf(people, sex);
+                    var faces = _creator.NativeFaces(sex);
+                    foreach (int at in new[] { 0, faces.Count / 4, faces.Count / 2, faces.Count * 3 / 4 })
+                        steps.Add((Shot($"{label}_{sex}_face_{at + 1:00}"), () =>
+                        {
+                            _creator.UsePeople(people);
+                            _creator.Go(CreatorStep.Face);
+                            _creator.UseFace(body, faces[at]);
+                            _creator.Frame(face);
+                        }, 5000));
+                    int presets = _creator.BodyPresetCount(body);
+                    foreach (int at in sex == "m" ? new[] { 0, presets / 2, presets - 1 } : new[] { 0, presets - 1 })
+                        steps.Add((Shot($"{label}_{sex}_body_{at + 1:00}"), () =>
+                        {
+                            _creator.UsePeople(people);
+                            _creator.Go(CreatorStep.Body);
+                            _creator.UseFace(body, faces[0]);
+                            _creator.UseBodyPreset(at);
+                            _creator.Frame(whole);
+                        }, 4500));
+                }
+            }
+            // The Siann look itself, each sex: the face in the noon key, the overcast fill, turned, and the upper body.
+            foreach (string sex in new[] { "m", "f" })
+            {
+                string body = BodyOf(PeopleLooks.Siann, sex);
+                string first = _creator.NativeFaces(sex)[0];
+                steps.Add((Shot($"siann_{sex}_face_noon"), () =>
+                {
+                    _creator.UsePeople(PeopleLooks.Siann);
+                    _creator.Go(CreatorStep.Face);
+                    _creator.UseFace(body, first);
+                    _creator.Light(0);
+                    _creator.Frame(face);
+                }, 6000));
+                steps.Add((Shot($"siann_{sex}_face_overcast"), () => _creator.Light(1), 3000));
+                steps.Add((Shot($"siann_{sex}_face_turned"), () => _creator.Turn(.6f), 3000));
+                steps.Add((Shot($"siann_{sex}_upper"), () =>
+                {
+                    _creator.Turn(-.6f);
+                    _creator.Light(0);
+                    _creator.Frame(CreatorPreview.Framings[1].Zoom);
+                }, 3000));
+            }
+            steps.Add((Shot("siann_confirmed"), () =>
+            {
+                _creator.Use(_creator.Draft with { Name = "Siann Proof", Pronouns = Pronouns.She, Start = StartPoint.Waystone, CallId = CreatorDraft.FirstCall });
+                _creator.RoadWalked = true;
+                _creator.Go(CreatorStep.Confirm);
+            }, 2500));
+            steps.Add((Shot("siann_in_play"), () =>
+            {
+                if (!_creator.PressBegin())
+                    GD.PushError("UNNAMED creator gate B: Begin was refused");
+            }, 9000));
+            // OTHERREACH_GATE_B_ONLY=<text>: only the pictures whose name has this text (a rerun of one look).
+            if (OS.GetEnvironment("OTHERREACH_GATE_B_ONLY") is { Length: > 0 } only)
+                steps = steps.Where(s => s.Shot.Contains(only, StringComparison.Ordinal)).ToList();
+            _gateB = steps.ToArray();
+        }
+        if (_gateBStep >= _gateB.Length)
+        {
+            GD.Print($"UNNAMED creator gate B: {_gateB.Length} pictures written to {directory} for {string.Join(", ", _creator.DrawnPeoples())}");
+            CaptureQuit.At(this, 0);
+            return;
+        }
+        var (shot, then, next) = _gateB[_gateBStep++];
+        then?.Invoke();
+        _gateBShot = shot;
+        _creatorNext = Time.GetTicksMsec() + (ulong)next;
+    }
+
     /// <summary>
     /// <c>--creator-shots dir</c>: every creator step pictured as a player meets it - People, Body (each type and build), Face, Hair, Outfit, Identity (empty,
     /// then a suggested name), Call, Confirm with and without the skip - then Begin on the road: lying, getting up, standing. Each picture

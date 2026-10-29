@@ -192,7 +192,8 @@ public partial class CreatorScreen : CanvasLayer
     /// <summary>Use this draft, as a harness or Quick start does; the step on screen is drawn again.</summary>
     public void Use(CreatorDraft draft)
     {
-        _draft = draft;
+        // A draft can arrive from anywhere (a harness, a quick start, a save): it is held to the people's own options here.
+        _draft = NativeActive && draft.Appearance is { } look ? draft with { Appearance = NativeData.Constrain(look, _catalogue, draft.PeopleId) } : draft;
         Render(null);
     }
 
@@ -273,9 +274,10 @@ public partial class CreatorScreen : CanvasLayer
         int TypeOrder(string type) => typeOrder.IndexOf(type) is var i && i >= 0 ? i : typeOrder.Count;
         var offered = _session.Characters.OfferedBodies(people ?? _draft?.PeopleId ?? CharacterSpec.DefaultPeople).OrderBy(b => TypeOrder(b.Type)).ThenBy(b => b.Order).Select(b =>
         {
-            string? model = bodies.Model(b, Installed);
+            string sex = b.Type.EndsWith("_f", StringComparison.Ordinal) ? "f" : "m";
+            string? model = (b.PeopleId is "people.veth" or "people.orenth" or "people.kal" or "people.siann" ? NativeBase(sex) : null) ?? bodies.Model(b, Installed);
             return new Offered(b, model, model is not null);
-        }).Where(o => o.Model?.StartsWith("humgen_", StringComparison.Ordinal) != true || o.Body.Build == bodies.BaseBuild).ToList();
+        }).Where(o => o.Model?.StartsWith("humgen_creator_", StringComparison.Ordinal) == true || o.Model?.StartsWith("humgen_", StringComparison.Ordinal) != true || o.Body.Build == bodies.BaseBuild).ToList();
         if (offered.Count > 0 && offered.All(o => !o.Installed))
             offered = offered.Select(o => o with { Installed = true }).ToList();
         return offered;
@@ -290,17 +292,27 @@ public partial class CreatorScreen : CanvasLayer
         _draft = Draft with { PeopleId = people };
         if (!OfferedBodies().Any(b => b.Id == Draft.BodyPresetId && b.Installed))
             _draft = WithBody(DefaultBody());
-        if (Draft.Appearance is { } look && _catalogue.Race(people) is { } chosen)
-            _draft = Draft with { Appearance = look with { StatureMm = Math.Clamp(look.StatureMm, chosen.MinStatureMm, chosen.MaxStatureMm) } };
+        // The look is kept across a people change only in the parts this people is allowed to hold (the owner's ruling).
+        if (Draft.Appearance is { } look)
+        {
+            if (NativeActive) _draft = Draft with { Appearance = NativeData.Constrain(look, _catalogue, people) };
+            if (_catalogue.Race(people) is { } chosen)
+                _draft = Draft with { Appearance = Draft.Appearance! with { StatureMm = Math.Clamp(look.StatureMm, chosen.MinStatureMm, chosen.MaxStatureMm) } };
+        }
         Render(focus);
     }
 
     /// <summary>The ids of the bodies the Body step offers <paramref name="people"/> that this build draws (the creator-shots harness walks these).</summary>
     public IReadOnlyList<string> DrawnBodyIds(string people) => OfferedBodies(people).Where(o => o.Installed).Select(o => o.Body.Id).ToList();
 
+    /// <summary>The body choosing <paramref name="people"/> puts the draft on (the gate proof lays its walk out with it).</summary>
+    public string DefaultBodyFor(string people) =>
+        OfferedBodies(people).FirstOrDefault(o => o.Installed)?.Id ?? CharacterSpec.DefaultBodyPreset;
+
     /// <summary>Whether this build draws a baked body for <paramref name="people"/>: one of its offered bodies is installed and baked.</summary>
     private bool Drawn(string people) =>
-        _catalogue.Race(people) is not { HumgenBody: false }
+        (people is "people.veth" or "people.orenth" or "people.kal" or "people.siann" && NativeBase("f") is not null && NativeBase("m") is not null)
+        || _catalogue.Race(people) is not { HumgenBody: false }
         && _session.Characters.OfferedBodies(people)
             .Select(b => _bindings.Bodies.Model(b, model => _art.RiggedFile(model, model + "_rigged.glb") is not null))
             .Any(model => _catalogue.BakedFor(model) is not null);
@@ -318,7 +330,7 @@ public partial class CreatorScreen : CanvasLayer
     {
         var body = OfferedBodies().FirstOrDefault(o => o.Id == Draft.BodyPresetId);
         var worn = Outfit(Draft.CallId);
-        string tones = Draft.Appearance is { } look ? string.Join(",", look.Sliders.Where(s => s.Key.StartsWith("look.", StringComparison.Ordinal))) : "";
+        string tones = Draft.Appearance is { } look ? $"{look.Face}|{look.StatureMm}|{string.Join(",", look.Sliders)}" : "";
         string? model = _catalogue.DrawnModel(body?.Model, Draft.Appearance?.Face);
         string shown = $"{model}|{body?.Body.ArmSplayDegrees}|{worn}|{Draft.PeopleId}|{tones}";
         if (shown == _shownBody)
@@ -391,6 +403,8 @@ public partial class CreatorScreen : CanvasLayer
         _next.Text = Step == CreatorStep.Confirm ? "Begin" : "Next";
         _next.Disabled = Step == CreatorStep.Confirm && Draft.Problem is not null;
         ShowBody();
+        // A hat covers the hair and the forehead, so it is off until the garment step that puts it on (the review, 2026-10-28).
+        _preview.WearHeadwear(Step >= CreatorStep.Outfit);
         _scroll.ScrollVertical = 0;
         Callable.From(() =>
         {
@@ -506,13 +520,21 @@ public partial class CreatorScreen : CanvasLayer
         _body.AddChild(builds);
         _body.AddChild(PendingNote());
         _body.AddChild(HeightSection());
-        _body.AddChild(SwatchSection("Skin", LookSwatches.SkinSlider, LookSwatches.Skin(Draft.PeopleId), new Color(.36f, .26f, .2f), multiply: true));
+        if (NativeActive) _body.AddChild(NativeBodyPresets());
+        if (!NativeActive || Draft.PeopleId == PeopleLooks.Kal)
+            _body.AddChild(SwatchSection(NativeActive ? "Stone colour" : "Skin", LookSwatches.SkinSlider, LookSwatches.Skin(Draft.PeopleId), new Color(.36f, .26f, .2f), multiply: true));
         if (Draft.PeopleId == PeopleLooks.Kal)
             _body.AddChild(StoneSection());
         _body.AddChild(SliderSection("body", "Shape", "HumGen body proportions"));
 
         var randomise = UiKit.Action("Randomise", Deferred(() =>
         {
+            if (NativeActive)
+            {
+                Shape(look => NativeData.Randomize(look, _catalogue, Draft.PeopleId, Sex, _random.Randi()));
+                Render("creator.randomise");
+                return;
+            }
             var installed = OfferedBodies().Where(o => o.Installed).ToList();
             if (installed.Count > 0)
                 _draft = WithBody(installed[_random.RandiRange(0, installed.Count - 1)].Id);

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Godot;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Spatial;
@@ -99,6 +99,8 @@ public partial class Main
                 _mhReviewBusy = true;
                 HeritageCreatorTour(_mhReviewDirectory);
             }
+            else if (OS.GetEnvironment("OTHERREACH_CREATOR_GATE_B") == "1")
+                _mhReviewBusy = true;
             else
             {
                 if (!_creator.PressBegin()) throw new InvalidOperationException("Lighting diagnostic Begin refused");

@@ -21,8 +21,8 @@ SEXES = {"f": "female", "m": "male"}
 RACES = [
     ("people.veth", "Veth", "The touched lineage", 160, 190, "standard", "standard", True),
     ("people.orenth", "Orenth", "The walkers", 160, 190, "standard", "standard", True),
-    ("people.kal", "Kal", "The calcified", 150, 175, "broad", "compact_broad", False),
-    ("people.siann", "Siann", "The long view", 140, 155, "slight", "compact_broad", False),
+    ("people.kal", "Kal", "The calcified", 150, 175, "broad", "compact_broad", True),
+    ("people.siann", "Siann", "The long view", 140, 155, "slight", "compact_broad", True),
     ("people.mor", "Mor", "The stolen", 160, 190, "nonphysical", "non_physical", False),
     ("people.constructed", "Constructed", "The written", 210, 230, "lean_long", "modular", False),
     ("people.vaskaal", "Vaskaal", "The void-farers", 220, 250, "lean_long", "tall_narrow", False),
@@ -36,6 +36,23 @@ BAKED = [
      "outfits/female/Casual/Smart_Casual.blend", "footwear/female/Outdoor/HG_Garden_Boot_Female.blend"),
     ("humgen_player_mateo_m", "m", "models/male/Caucasian Presets/Caucasian 2.json", 29, 182, "hair/head/male/Long/Ponytail Short.json",
      "hair/face_hair/Other/Stubble_Short.json", "outfits/male/Casual/Casual_Weekday.blend", "footwear/male/Outdoor/HG_Garden_Boot_Male.blend"),
+]
+
+# The race bodies and the Veth face variants the cast pipelines have already baked into the art root. They are not choices
+# of HumGen's content folder but of our own exports, so they are named by catalogue id: the creator offers them as baked.
+EXPORTED = [
+    ("humgen_race_kal_f_compact", "f", None, "face.f.caucasian_presets.caucasian_4", 44, 150, None, None),
+    ("humgen_race_kal_m_compact", "m", None, "face.m.caucasian_presets.caucasian_4", 48, 155, None, None),
+    ("humgen_race_siann_f_long", "f", None, "face.f.caucasian_presets.caucasian_1", 24, 142, "hair.long.medium_center_part", None),
+    ("humgen_race_siann_m_long", "m", None, "face.m.caucasian_presets.caucasian_2", 27, 150, "hair.long.medium_center_part", None),
+    ("humgen_race_orenth_f_frontier", "f", None, "face.f.caucasian_presets.caucasian_3", 34, 168, "hair.long.bob_short", None),
+    ("humgen_race_orenth_m_frontier", "m", None, "face.m.caucasian_presets.caucasian_1", 38, 188, "hair.short.short_combed", None),
+    ("humgen_veth_m_face_holt", "m", "humgen_player_mateo_m", "face.veth.m_holt", 30, 178, "hair.veth.m_holt", "facehair.veth.m_holt"),
+    ("humgen_veth_m_face_marsh", "m", "humgen_player_mateo_m", "face.veth.m_marsh", 30, 178, "hair.veth.m_marsh", None),
+    ("humgen_veth_m_face_tarr", "m", "humgen_player_mateo_m", "face.veth.m_tarr", 30, 178, "hair.veth.m_tarr", "facehair.veth.m_tarr"),
+    ("humgen_veth_f_face_holt", "f", "humgen_player_ada_f", "face.veth.f_holt", 30, 168, "hair.veth.f_holt", None),
+    ("humgen_veth_f_face_marsh", "f", "humgen_player_ada_f", "face.veth.f_marsh", 30, 168, "hair.veth.f_marsh", None),
+    ("humgen_veth_f_face_tarr", "f", "humgen_player_ada_f", "face.veth.f_tarr", 30, 168, "hair.veth.f_tarr", None),
 ]
 
 # Sliders: (id, label, panel, group, HumGen key, min, max). Livekey values are HumGen's soft range, stored as thousandths.
@@ -90,6 +107,11 @@ def faces(sliders):
                 key = slider["humgen"]
                 if key == "age":
                     value = data["age"]["set"]
+                elif key.startswith("eyes."):
+                    continue
+                elif key.startswith("brows."):
+                    # The brows carry their own colour in the preset, apart from the head hair's.
+                    value = data["hair"]["eyebrows"][key.split(".", 1)[1]] / slider["scale"]
                 elif key.startswith(("skin.", "hair.")):
                     part, name = key.split(".")
                     value = (data["skin"] if part == "skin" else data["hair"]["regular_hair"])[name] / slider["scale"]
@@ -129,7 +151,7 @@ def livekey_sliders():
 
 
 def preset_ranges():
-    """Skin and hair colour ranges, as the shipped model presets span them."""
+    """Skin, hair, brow and iris colour ranges, as the shipped model presets span them."""
     values = {}
     for path in (CONTENT / "models").rglob("*.json"):
         if path.name == "face_rig.json":
@@ -139,12 +161,16 @@ def preset_ranges():
             values.setdefault(("skin", key), []).append(data["skin"][key])
         for key in ("lightness", "redness"):
             values.setdefault(("hair", key), []).append(data["hair"]["regular_hair"][key])
+            values.setdefault(("brows", key), []).append(data["hair"]["eyebrows"][key])
     sliders = [{"id": "face.age", "label": "Age", "panel": "face", "group": "Age", "humgen": "age", "min": 18, "max": 90, "default": 30, "scale": 1}]
     for (part, key), seen in sorted(values.items()):
-        sliders.append({"id": f"{part}.{key}", "label": key.capitalize(), "panel": "face" if part == "skin" else "hair",
-                        "group": "Skin" if part == "skin" else "Hair colour", "humgen": f"{part}.{key}",
+        sliders.append({"id": f"{part}.{key}", "label": key.capitalize(), "panel": "face" if part != "hair" else "hair",
+                        "group": "Skin" if part == "skin" else "Brows" if part == "brows" else "Hair colour", "humgen": f"{part}.{key}",
                         "min": round(min(seen) * 1000), "max": round(max(seen) * 1000), "default": round(sorted(seen)[len(seen) // 2] * 1000),
                         "scale": 0.001})
+    # The iris itself is baked per face preset; this lights or dims that authored colour.
+    sliders.append({"id": "eyes.lightness", "label": "Iris lightness", "panel": "face", "group": "Eyes", "humgen": "eyes.lightness",
+                    "min": 300, "max": 2000, "default": 1000, "scale": 0.001})
     return sliders
 
 
@@ -152,6 +178,9 @@ def main():
     hair = shared("hair", "hair/head", "*.json")
     outfits = shared("outfit", "outfits", "*.blend")
     footwear = shared("footwear", "footwear", "*.blend")
+    # Our own frontier bake fixtures sit beside HumGen's outfits in the same folder: the creator
+    # offers HumGen's content, and those have no native export behind them.
+    outfits = [option for option in outfits if option["group"].lower() != "frontier"]
     sliders = livekey_sliders() + preset_ranges()
     face_options = faces(sliders)
     # A preset may set a key past the slider's soft range (HumGen allows -10..10): the slider reaches every preset's value.
@@ -169,6 +198,12 @@ def main():
     baked = [{"model": model, "sex": sex, "face": by_path(face_options, face), "age": age, "stature_cm": height, "hair": by_path(hair, head),
               "facial_hair": by_path(beards, beard), "outfit": by_path(outfits, outfit), "footwear": by_path(footwear, shoes)}
              for model, sex, face, age, height, head, beard, outfit, shoes in BAKED]
+    # Every baked body wears the frontier outfit and its boots.
+    frontier = next(o["id"] for o in outfits if o["label"] == "Pirate")
+    boots = next(o["id"] for o in footwear if "Pirate" in o["label"])
+    for model, sex, face_of, face, age, height, head, beard in EXPORTED:
+        baked.append({"model": model, "sex": sex, "face": face, "age": age, "stature_cm": height, "hair": head, "facial_hair": beard,
+                      "outfit": frontier, "footwear": boots, **({"face_of": face_of} if face_of else {})})
     catalogue = {
         "comment": "Written by tools/creator/humgen_catalogue.py from the HumGen 4.0.38 content folder. Paths are content-relative, as HumGen's "
                    "get_options()/set() take them. Only the baked bodies exist as GLBs with motion; any other choice is pending bake.",
