@@ -56,3 +56,36 @@ ode_kind), then delete the three
    different harvest skills - placed in the Foldscar (open ground, band 1-5) and the Den.
 4. Gate: build, lint 0, content hooks placing each hook with its id, dossier + SYSTEMS_NEEDED rows updated.
 5. Farm clip: prospect-then-mine and a skinning/other clip per the catalog, captured with --asset-root and checked.
+
+### Round 2 result (system 1, resource tiers)
+Landed, committed 3f8628d, lint 0:
+- NodeDefinition.Tier (1-5) and .Hidden, read and validated in CraftingContent.BuildNodes;
+  	ier: outside 1-5 is an error, hidden: true marks a deposit only prospecting finds.
+- Five gathering skills the hooks had been asking for but content never had: **skill.mining, skill.prospecting,
+  skill.foraging, skill.herbalism, skill.logging** (content/skills/*.yaml).
+- Ore grades: 
+ode.ore.grey_iron (tier 2), 
+ode.ore.bog_iron (tier 3), plus two hidden deposits
+  
+ode.ore.hidden_grey_iron (tier 2) and 
+ode.ore.hidden_bog_iron (tier 3); resin as 
+ode.wood.pine_resin
+  with esource.wood.resin. Resources esource.ore.grey_iron / esource.ore.bog_iron.
+- Placed in the Foldscar: old_grey_iron_seam, old_bog_iron_nodule, old_weathered_grey_iron (hidden),
+  old_resin_pine, each with its own 	ier:.
+- Audit vocabulary: 
+ode_tier, 
+ode_hidden, 
+ode_skill, 
+ode_ref, counting the node **kinds** the build holds
+  (a grade is a capability, not a place). hidden/	ier reads are case-insensitive.
+
+Gate state this round: in **foldscar**, HOOK.NODE.ORE.T2, HOOK.NODE.SKILL_BOUND and HOOK.NODE.RESIN place
+(they no longer appear as warnings); HOOK.PROSPECT.SIGN still reads 0/2 although two hidden ore kinds exist.
+
+OPEN QUESTION for the next round, with the evidence: 
+ode_hidden returns 0 while 
+ode_tier on the same list
+returns >0, so the hidden scalar is not what the audit compares. Next diagnostic is to print the parsed hidden
+value for one kind (a two-line temporary log in WorldFacts), not to guess again. Content scope was tried first and
+abandoned: the report prints no content-scope section, so a content hook would have been silently invisible.
