@@ -11,8 +11,9 @@ namespace UNNAMED.Content;
 
 /// <summary>
 /// Builds the simulation's <see cref="CraftingSetup"/> and lints what the reference and semantic passes cannot see (CRF001):
-/// a node's material yields one item; a finite node has charges and a daily one exactly one; a recipe names a station
-/// kind, a skill, its inputs and one output; <c>config.crafting</c> is in range; a yield passive adds to gathering.
+/// a node's material yields one item; a finite node has charges and a daily one exactly one; a node takes 0 to 10 swings;
+/// a recipe names a station kind, a skill, its inputs and one output; <c>config.crafting</c> is in range; a yield passive adds to
+/// gathering.
 /// </summary>
 public static class CraftingContent
 {
@@ -126,7 +127,8 @@ public static class CraftingContent
 
     /// <summary>
     /// Nodes (DATA_MODEL.md §4.16) with their material folded in (§4.10): <c>resource_ref</c>'s single yield, <c>charges</c>,
-    /// <c>respawn</c> (<c>none</c> or <c>daily</c>), <c>harvest_skill</c> and the <c>difficulty</c> a harvest trains it at.
+    /// <c>respawn</c> (<c>none</c> or <c>daily</c>), <c>harvest_skill</c> and the <c>difficulty</c> a harvest trains it at, and the
+    /// <c>swings</c> one harvest takes (one unless the node says otherwise, so every node that names none is worked at a touch).
     /// </summary>
     public static ImmutableSortedDictionary<string, NodeDefinition> BuildNodes(ContentLoader loader)
     {
@@ -153,9 +155,15 @@ public static class CraftingContent
             if (!skills.ContainsKey(skill))
                 throw new FormatException($"{id}: harvest_skill {skill} is not a skill");
             var node = new NodeDefinition(id, Text(yield, "item_ref"), IntOf(range, 0, "count_range"), IntOf(range, 1, "count_range"),
-                Int(map, "charges"), respawn, skill, Int(map, "difficulty")) { ResourceId = resourceId };
+                Int(map, "charges"), respawn, skill, Int(map, "difficulty"))
+            {
+                ResourceId = resourceId,
+                Swings = map.ContainsKey("swings") ? Int(map, "swings") : 1,
+            };
             if (node.YieldMin < 1 || node.YieldMax < node.YieldMin || node.Charges < 1 || node.Difficulty < 0)
                 throw new FormatException($"{id}: a yield of [min, max] with 1 <= min <= max, at least one charge, and a difficulty not below 0");
+            if (node.Swings is < 0 or > 10)
+                throw new FormatException($"{id}: swings must be 0..10 (how many swings one harvest takes)");
             if (node.Respawn == Respawn.Daily && node.Charges != 1)
                 throw new FormatException($"{id}: a daily node holds one charge a day");
             if (map.ContainsKey("tool_tier_min"))

@@ -2,6 +2,7 @@
 // Godot presentation only: no gameplay state lives here (D-11)
 
 using Godot;
+using UNNAMED.Domain;
 using UNNAMED.Presentation.Player;
 using UNNAMED.World.Runtime;
 
@@ -252,9 +253,50 @@ public sealed partial class SkinnedFigure : Figure
 
     private float? _waking;
 
+    private ActivityKind _fishKind;
+    private double _fishing;
+    private long _swingAt = -1;
+    private double _swinging;
+    private bool _swimming;
+    private bool _washing;
+    private double _washElapsed;
+
     public override void Strike() => _striking = 0.001;
 
     public override void Interact() => _reaching = 0.001;
+
+    /// <summary>
+    /// The line in the water and the picks in a lock: the cast, the reel and the pick each play once, and the wait between the cast and its
+    /// bite has no clip of its own - the body stands. One broken off simply stops where it is.
+    /// </summary>
+    public override void Fishing(ActivityKind kind)
+    {
+        if (kind == _fishKind)
+            return;
+        _fishKind = kind;
+        _fishing = kind is ActivityKind.FishCast or ActivityKind.FishReel or ActivityKind.PickLock ? 0.001 : 0;
+    }
+
+    /// <summary>The pick into a node: each swing the simulation counts plays the clip once, so a later start tick is a new swing.</summary>
+    public override void Swinging(long startedTick)
+    {
+        if (startedTick == _swingAt)
+            return;
+        _swingAt = startedTick;
+        _swinging = 0.001;
+    }
+
+    /// <summary>In the water or out of it: the body's height carries it low in the water, and the pose is the bindings' swim state.</summary>
+    public override void Swimming(bool swimming) => _swimming = swimming;
+
+    /// <summary>Washing at a bank for as long as the simulation holds it, from the moment it began: the one clip plays once.</summary>
+    public override void Washing(bool washing)
+    {
+        if (washing == _washing)
+            return;
+        _washing = washing;
+        _washElapsed = washing ? 0.001 : 0;
+    }
 
     public override Vector3? CastPoint => _hand is { } hand && hand.IsInsideTree() ? hand.GlobalPosition : null;
 
@@ -605,6 +647,49 @@ public sealed partial class SkinnedFigure : Figure
             }
             _landing = 0;
         }
+        // Fishing and lockpicking have no clip of their own in the art root, so the cast plays the clip the cast state names, the reel and
+        // the pick the one interact names, each once; the wait between a cast and its bite is an idle and the line's own status is the HUD's.
+        if (_fishing > 0 && _fishKind is ActivityKind.FishCast or ActivityKind.FishReel or ActivityKind.PickLock)
+        {
+            _fishing += delta;
+            string fish = _fishKind switch
+            {
+                ActivityKind.FishCast => "fish_cast",
+                ActivityKind.FishReel => "fish_reel",
+                _ => "pick_lock",
+            };
+            if (!m.Has(fish))
+                fish = _fishKind == ActivityKind.FishCast ? "cast" : "interact";
+            if (_fishing < m.Length(fish) && speed < 0.25f && m.Has(fish))
+            {
+                m.Play(fish, 0.15f, 1f, _fishing - delta <= 0.001);
+                return;
+            }
+            _fishing = 0;
+        }
+        // A swing at a node has no clip of its own in the art root either, so it plays the clip the mine_swing state names - the sword's
+        // overhead chop, which is the honest reuse for a pick - once for each swing the simulation counts.
+        if (_swinging > 0)
+        {
+            _swinging += delta;
+            if (_swinging < m.Length("mine_swing") && speed < 0.25f && m.Has("mine_swing"))
+            {
+                m.Play("mine_swing", 0.1f, 1f, _swinging - delta <= 0.001);
+                return;
+            }
+            _swinging = 0;
+        }
+        // A wash is a rest at the bank and has no clip of its own either, so it plays the clip the wash state names - the interact's - once.
+        if (_washElapsed > 0)
+        {
+            _washElapsed += delta;
+            if (_washElapsed < m.Length("wash") && speed < 0.25f && m.Has("wash"))
+            {
+                m.Play("wash", 0.15f, 1f, _washElapsed - delta <= 0.001);
+                return;
+            }
+            _washElapsed = 0;
+        }
         // A reach plays through once, standing (walking on cuts it short).
         if (_reaching > 0)
         {
@@ -619,6 +704,13 @@ public sealed partial class SkinnedFigure : Figure
         if (_talking && speed < 0.3f && m.Has("talk"))
         {
             m.Play("talk", 0.3f);
+            return;
+        }
+        // In the water the body swims, and the art root has no swim clip: the swim state bound here is the crouch's low travelling loop, at
+        // the pace the simulation swims at - half a walk - and the body's own height, floating its feet at the surface, is the rest of it.
+        if (_swimming && m.Has("swim"))
+        {
+            m.Play("swim", 0.25f, Mathf.Clamp(speed / Pace("swim", 0.8f), MinRate, MaxRate));
             return;
         }
         // Crouched, a body with crouch clips plays them (a crouched walk is authored at 1.6 m/s, the simulation's crouched pace).

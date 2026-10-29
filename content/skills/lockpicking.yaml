@@ -1,0 +1,9 @@
+id: skill.lockpicking
+kind: skill
+schema: 1
+display_key: skill.lockpicking.name
+tags: [skill]
+name: Lockpicking
+family: world
+notes: A door or a container shut by a lock of tier 1 to 3, worked open with item.tool.lockpicks. The tier is the demand and the hand is the chance; a failed turn can snap the picks.
+teaches: "A lock is a conversation held with two pieces of bent iron: the tension bar asks, the pick answers. Patience, and a light hand."

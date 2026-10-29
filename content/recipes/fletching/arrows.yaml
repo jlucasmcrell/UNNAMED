@@ -6,7 +6,7 @@ tags: [recipe]
 name: Rough Arrows
 notes: An ash haft split into shafts and fletched with feathers - Kera's Kal way of doing it, a dozen at a time.
 station: workbench
-skill_ref: skill.survival
+skill_ref: skill.woodworking
 complexity: 2
 inputs:
   - { item_ref: item.material.ash_haft, count: 1 }

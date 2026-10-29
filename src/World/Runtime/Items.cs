@@ -721,6 +721,9 @@ internal sealed partial class InventorySystem
             return null;
         if (_context.FindContainer(place.ContainerKey ?? string.Empty) is not { } site)
             return $"there is no container '{place.ContainerKey}'";
+        // A locked container is not searched at all - take-all and a drag out alike - until the picks have been to it.
+        if (!trading && _context.Locked(site))
+            return $"{site.Key} is locked";
         bool wares = Items.Merchants.ContainsKey(site.Key);
         if (wares != trading)
             return wares ? $"{site.Key} is a trader's wares: buy and sell" : $"{site.Key} is not a trader's wares";

@@ -8,5 +8,6 @@ notes: A stand of young ash in the east woods (content bible §6) - one haft a d
 resource_ref: resource.wood.ash
 charges: 1
 respawn: daily
-harvest_skill: skill.survival
+harvest_skill: skill.logging
 difficulty: 2
+swings: 1

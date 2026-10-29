@@ -300,6 +300,9 @@ internal sealed record PlayerCombat(ActionState Action, bool Blocking, long Stag
     public int FocusMilli { get; init; }
     public int StrainMilli { get; init; }
 
+    /// <summary>Thousandths of a point spent swimming: the sprint's own accumulator, for the water (D20).</summary>
+    public int SwimMilli { get; init; }
+
     /// <summary>The last working begun or released: Focus and Strain return only after a pause from it.</summary>
     public long LastCast { get; init; } = -1_000_000;
 
@@ -992,7 +995,15 @@ internal sealed partial class CombatSystem
         var (phase, _) = combat.Action.PhaseAt(tick, C);
         int staminaDelta = 0, healthDelta = 0;
         var next = combat;
-        if (intent.IsMoving && intent.Gait == Gait.Sprint && phase == CombatPhase.Idle && !combat.Blocking)
+        if (State.Swimming)
+        {
+            // Swimming is exertion: the body holds itself up, and the wind it spends is half a sprint's own rate (config.damage_constants
+            // stamina.sprint_per_s). A pool that runs out is the movement system's to bring ashore.
+            int milli = stamina > 0 ? combat.SwimMilli + C.SprintStaminaPerSecond * TickMs / 2 : 0;
+            staminaDelta -= milli / 1000;
+            next = next with { SwimMilli = milli % 1000, LastExertion = tick };
+        }
+        else if (intent.IsMoving && intent.Gait == Gait.Sprint && phase == CombatPhase.Idle && !combat.Blocking)
         {
             // Holding a sprint is exertion even on an empty pool: nothing returns until the legs rest.
             int milli = stamina > 0 ? combat.SprintMilli + C.SprintStaminaPerSecond * TickMs : 0;

@@ -1,0 +1,9 @@
+id: skill.fishing
+kind: skill
+schema: 1
+display_key: skill.fishing.name
+tags: [skill]
+name: Fishing
+family: gathering
+notes: A cast, a wait and a reel, against the catch table the water names. Harder water teaches more.
+teaches: "A line in the water and the reel that takes what has bitten. The harder the water, the more it teaches."

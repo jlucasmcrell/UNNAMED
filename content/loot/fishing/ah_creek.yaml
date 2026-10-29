@@ -1,0 +1,10 @@
+id: loot.fishing.ah_creek
+kind: loot
+schema: 1
+display_key: loot.fishing.ah_creek.name
+tags: [loot]
+notes: A line in Ashen Hollow's creek - trout for the pot, and whatever the water has carried down.
+rolls: 1
+entries:
+  - { item_ref: item.material.fish_trout, weight: 3 }
+  - { item_ref: item.material.river_finds, weight: 1 }

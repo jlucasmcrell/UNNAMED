@@ -8,5 +8,6 @@ notes: A boneleaf bush on the Foldscar's edge, the spider's ground among them - 
 resource_ref: resource.herb.boneleaf
 charges: 1
 respawn: daily
-harvest_skill: skill.survival
+harvest_skill: skill.herbalism
 difficulty: 4
+swings: 1

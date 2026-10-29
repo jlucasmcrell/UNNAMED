@@ -72,7 +72,7 @@ public class CraftingContentTests
         var spoil = crafting.Nodes["node.ore.loose_iron"];
         Assert.Equal(("item.material.iron_ore", 1, 1, Respawn.Daily), (spoil.ItemId, spoil.Charges, spoil.YieldMin, spoil.Respawn));
         var seam = crafting.Nodes["node.ore.iron_seam"];
-        Assert.Equal(("item.material.iron_ore", 1, 2, 3, Respawn.None, "skill.survival", 5),
+        Assert.Equal(("item.material.iron_ore", 1, 2, 3, Respawn.None, "skill.mining", 5),
             (seam.ItemId, seam.YieldMin, seam.YieldMax, seam.Charges, seam.Respawn, seam.SkillId, seam.Difficulty));
         var stand = crafting.Nodes["node.wood.ash_stand"];
         Assert.Equal(("item.material.ash_haft", 1, 1, 1, Respawn.Daily), (stand.ItemId, stand.YieldMin, stand.YieldMax, stand.Charges, stand.Respawn));
@@ -106,7 +106,10 @@ public class CraftingContentTests
         Assert.Equal(("anvil", 10, "item.weapon.march_spear", true, 40L), (spear.StationKind, spear.Complexity, spear.OutputItemId, spear.QualityRoll, spear.FirstTimeXp));
         Assert.Equal(new[] { new RecipeInput("item.material.iron_ingot", 1), new RecipeInput("item.material.ash_haft", 1) }, spear.Inputs.ToList());
 
-        Assert.Equal(new YieldBonus("skill.survival", 3, 1), Assert.Single(crafting.YieldBonuses));   // PROTOTYPE.md §4.1
+        // PROTOTYPE.md §4.1's one more of whatever a harvest gives, carried by the skill its node practises (D13 §2.7).
+        Assert.Equal(new[] { "skill.foraging", "skill.herbalism", "skill.logging", "skill.mining", "skill.skinning" },
+            crafting.YieldBonuses.Select(b => b.SkillId));
+        Assert.All(crafting.YieldBonuses, bonus => Assert.Equal((3, 1), (bonus.FromLevel, bonus.Amount)));
         var c = crafting.Constants;
         Assert.Equal((10, 2, 60, 3, 40, 2),
             (c.FinePercentAtComplexity, c.FinePercentPerPoint, c.FinePercentMax, c.CrudePercentPerPoint, c.CrudePercentMax, c.WeaponDamagePerStep));
@@ -115,6 +118,25 @@ public class CraftingContentTests
     [Fact]
     public void ADailyNodeOfManyCharges_IsRefused() =>
         AssertRefused("nodes/wood/ash_stand.yaml", "charges: 1", "charges: 3", "a daily node holds one charge a day");
+
+    /// <summary>
+    /// The swings one harvest takes are content: three at a seam, one at a stand, and one at every node that names none - the default that
+    /// keeps every node authored before the swing working at a touch.
+    /// </summary>
+    [Fact]
+    public void ASwingCountIsContent_AndOneIsTheDefault()
+    {
+        var crafting = CraftingContent.Build(Load(Path.Combine(RepoPaths.Root(), "content")));
+
+        Assert.Equal(3, crafting.Nodes["node.ore.iron_seam"].Swings);
+        Assert.Equal(1, crafting.Nodes["node.wood.ash_stand"].Swings);
+        Assert.Equal(1, crafting.Nodes["node.herb.boneleaf"].Swings);
+        Assert.Equal(1, crafting.Nodes["node.fibre.bog_cotton"].Swings);   // names no swings: one, as every node did before
+    }
+
+    [Fact]
+    public void MoreThanTenSwings_IsRefused() =>
+        AssertRefused("nodes/ore/iron_seam.yaml", "swings: 3", "swings: 11", "swings must be 0..10");
 
     [Fact]
     public void ANodeNeedingATool_IsRefused() =>
@@ -139,5 +161,5 @@ public class CraftingContentTests
 
     [Fact]
     public void AYieldPassiveThatIsNotAnAddition_IsRefused() =>
-        AssertRefused("skills/survival.yaml", "target: stat.gather_yield, op: add", "target: stat.gather_yield, op: mul", "is raised with op add");
+        AssertRefused("skills/mining.yaml", "target: stat.gather_yield, op: add", "target: stat.gather_yield, op: mul", "is raised with op add");
 }

@@ -1,0 +1,12 @@
+id: item.material.river_finds
+kind: item
+schema: 1
+display_key: item.material.river_finds.name
+tags: [item]
+name: River Finds
+notes: "What a line drags up besides fish: weed, a lost button, a scrap the water carried down. Not fish, but not nothing."
+category: material
+stack_max: 5
+weight: 0.2
+value_base: 1
+rarity: common

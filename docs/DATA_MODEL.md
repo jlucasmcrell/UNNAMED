@@ -665,7 +665,7 @@ tool_tier_min: 1
 placement: { biomes: [rocky_slope], density: 0.15, cluster: [1, 1] }
 ```
 
-**As implemented (M3f).** A node names its `resource_ref`, its `charges`, `respawn` (`none`, or `daily` with exactly one charge), the `harvest_skill` a harvest trains and the `difficulty` it trains it at. There are no tools in Phase 1, so `tool_tier_min` is refused (CRF001), and `placement` is not built: Phase 1's nodes are authored, each at its place in its region's `nodes` list (`name`, `node_ref`, `position_m`, lint WLD010). An authored node is part of its cell's baseline (the generator's fixed nodes), so a harvest is an ordinary node record; a region's `stations` list (`key`, `kind`, `position_m`, lint WLD011) places the crafting stations. A skill passive on `stat.gather_yield` (`op: add`) adds to every harvest of a node that trains that skill: survival's +1 at level 3. `node.ore.iron_seam` (3 charges, never refills) and `node.wood.ash_stand` (one haft a world day) are the two respawn classes of `PROTOTYPE.md` C12.
+**As implemented (M3f).** A node names its `resource_ref`, its `charges`, `respawn` (`none`, or `daily` with exactly one charge), the `harvest_skill` a harvest trains and the `difficulty` it trains it at. There are no tools in Phase 1, so `tool_tier_min` is refused (CRF001), and `placement` is not built: Phase 1's nodes are authored, each at its place in its region's `nodes` list (`name`, `node_ref`, `position_m`, lint WLD010). An authored node is part of its cell's baseline (the generator's fixed nodes), so a harvest is an ordinary node record; a region's `stations` list (`key`, `kind`, `position_m`, lint WLD011) places the crafting stations. A skill passive on `stat.gather_yield` (`op: add`) adds to every harvest of a node that trains that skill: the gathering family's +1 at level 3, each node naming the skill its yield belongs to (`skill.mining`, `skill.herbalism`, `skill.foraging`, `skill.logging`, `skill.skinning` - `SKILLS_AND_TECHNIQUES.md` §2.7). `node.ore.iron_seam` (3 charges, never refills) and `node.wood.ash_stand` (one haft a world day) are the two respawn classes of `PROTOTYPE.md` C12.
 
 ### 4.17 SpawnDefinition — `kind: spawn`
 
@@ -791,7 +791,7 @@ display_key: skill.one_hand_blade.name
 
 **As implemented (M3e).** The magic domains are skills of `family: magic`: `skill.force`, `skill.warding` and `skill.vital`. A formula's domain skill against its complexity sets its Strain and its chance to fizzle.
 
-**As implemented (M3f).** `skill.smithing` (`family: crafting`) is the one crafting skill; a recipe's complexity is its difficulty. Harvests train `skill.survival`, whose passive adds a yield at level 3 (`stat.gather_yield`).
+**As implemented (M3f).** A recipe names the skill it trains (`skill.smithing` at the forge and anvil, `skill.cooking` at the cookfire, `skill.woodworking` at the bench for its shaft work); its complexity is its difficulty. Harvests train their node's `harvest_skill` - the gathering family of `SKILLS_AND_TECHNIQUES.md` §2.7 - and each of those skills' passive adds a yield at level 3 (`stat.gather_yield`).
 
 The progression constants live in one config group, alongside `config.time`, `config.xp_curve` and `config.level_cap` (§4.19):
 

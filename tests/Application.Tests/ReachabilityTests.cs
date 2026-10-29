@@ -132,8 +132,10 @@ public class ReachabilityTests
     private static HashSet<string> Reachable(SimulationSetup setup)
     {
         var items = setup.Items;
-        // Loot a fresh character can reach: the region's containers, and the corpses of the creatures that spawn.
+        // Loot a fresh character can reach: the region's containers, the corpses of the creatures that spawn, and the catch of every
+        // water a bank can be fished from (fishing is a route to an item like a node is).
         var tables = new Queue<string>(setup.AllLayouts.SelectMany(l => l.Containers).Select(c => c.LootTableId)
+            .Concat(setup.AllLayouts.SelectMany(l => l.Space.Waters).Select(w => w.CatchTableId).OfType<string>())
             .Concat(setup.Combat.Spawns.SelectMany(s => s.Members).Select(m => setup.Combat.Creatures[m.CreatureId].LootTableId).OfType<string>()));
         var seenTables = new HashSet<string>(StringComparer.Ordinal);
         var reachable = new HashSet<string>(items.StartingKit.Select(k => k.ItemId), StringComparer.Ordinal);

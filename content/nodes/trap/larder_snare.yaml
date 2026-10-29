@@ -8,5 +8,5 @@ notes: One of Halda Crowden's snares along the north slope, west and east of the
 resource_ref: resource.trap.larder_snare
 charges: 1
 respawn: daily
-harvest_skill: skill.survival
+harvest_skill: skill.foraging
 difficulty: 1

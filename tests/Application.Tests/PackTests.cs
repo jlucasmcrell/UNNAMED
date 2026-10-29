@@ -56,7 +56,7 @@ public class PackTests
     public void WornItems_LeavePackSlotsButKeepTheirWeight_AndFullPackUnequipIsRefused()
     {
         using var profile=new TempProfile();
-        var arena=Start(Harness.Boot(profile),AtChest,Enumerable.Range(0,20).Select(_=>Stack(Flask,1)).Append(Stack("item.armor.hide_vest",1)).ToArray());
+        var arena=Start(Harness.Boot(profile),AtChest,Enumerable.Range(0,19).Select(_=>Stack(Flask,1)).Append(Stack("item.armor.hide_vest",1)).ToArray());
         var vest=Id(arena,"item.armor.hide_vest");var before=arena.Simulation.Pack.Used;long grams=arena.Simulation.Player.CarriedGrams;
         Assert.Equal(24,before);
         Assert.Null(arena.Submit(new EquipCommand(arena.Player,vest)));
@@ -187,7 +187,7 @@ public class PackTests
     {
         using var profile = new TempProfile();
         // 24 stacks fill the backpack; a quiver takes the arrows so the backpack stays full, then there is no room for the arrows' stacks and the quiver.
-        var arena = Start(Harness.Boot(profile), Open, Enumerable.Range(0, 21).Select(_ => Stack(Flask, 1))
+        var arena = Start(Harness.Boot(profile), Open, Enumerable.Range(0, 20).Select(_ => Stack(Flask, 1))
             .Concat(new[] { Stack(Quiver, 1), Stack(Arrow, 20), Stack(Arrow, 20), Stack(Arrow, 20) }).ToArray());
         Assert.Null(arena.Submit(new EquipBagCommand(arena.Player, Id(arena, Quiver), 1)));
         Assert.Equal(3, Bag(arena, 1).Stacks.Length);

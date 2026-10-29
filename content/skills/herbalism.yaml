@@ -1,0 +1,11 @@
+id: skill.herbalism
+kind: skill
+schema: 1
+display_key: skill.herbalism.name
+tags: [skill]
+name: Herbalism
+family: gathering
+notes: D13 SKILLS_AND_TECHNIQUES.md §2.7 (gathering) - finding and taking the right plant, at the right stage, and preserving it. Woundmoss, boneleaf and ashbloom practise it, and so do the salves that work them down, which D13 gives herbalism beside herbcraft. The cotton grass is a fibre and answers to foraging. No technique carrier in the build, so its entry technique waits - Read the Leaf at band N (herbalism 15, insight 12), and Preserve Potency at the same band.
+passives:
+  - { at: 3, modifiers: [{ target: stat.gather_yield, op: add, value: 1 }] }   # one more of whatever a harvest gives
+teaches: "Taking the right plant at the right stage, and telling it from the one growing beside it. A herb you cannot name teaches nothing."

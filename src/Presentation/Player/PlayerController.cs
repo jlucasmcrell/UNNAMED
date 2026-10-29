@@ -334,12 +334,11 @@ public sealed class PlayerController
         Reached?.Invoke();
     }
 
-    /// <summary>Harvest a node within reach (M3f).</summary>
-    public void Gather(string nodeKey)
-    {
-        _session.Submit(new GatherCommand(_session.Simulation!.PlayerId, nodeKey));
-        Reached?.Invoke();
-    }
+    /// <summary>
+    /// Swing at a node within reach (M3f): the pick goes in for its ticks, and the node gives when the last swing fills it - its own clip,
+    /// so no reach of the hand is played over it.
+    /// </summary>
+    public void Gather(string nodeKey) => _session.Submit(new SwingAtNodeCommand(_session.Simulation!.PlayerId, nodeKey));
 
     /// <summary>Work a recipe at the station in reach (M3f).</summary>
     public void Craft(string recipeId) => _session.Submit(new CraftCommand(_session.Simulation!.PlayerId, recipeId));

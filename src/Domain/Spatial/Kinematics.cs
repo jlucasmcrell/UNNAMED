@@ -107,6 +107,12 @@ public sealed record MovementRules(long BaseSpeedMmPerSecond, int WalkPercent, i
     /// <summary>A crouched body's speed, of the base, whatever the gait.</summary>
     public int CrouchPercent { get; init; } = 50;
 
+    /// <summary>A swimming body's speed, of the walk's, whatever the gait asked: half of it, so a sprint in the water is no faster (D20).</summary>
+    public int SwimPercent { get; init; } = 50;
+
+    /// <summary>How deep a swimming body floats: the waterline at its chest, so its head and its eye stay above the surface.</summary>
+    public long SwimFloatMm { get; init; } = 1_200;
+
     /// <summary>What wings let the body do; <see cref="WingRules.None"/> for a body without them.</summary>
     public WingRules Wings { get; init; } = WingRules.None;
 
@@ -166,6 +172,61 @@ public sealed record WaterSite(string Key, string Kind, long LevelMm, ImmutableA
 {
     /// <summary>How near a body has to be for its water to be reached (a bank, not a swim).</summary>
     public const long ReachMm = 2_000;
+
+    /// <summary>A water that names no depth of its own is a ford: ankle deep, waded, and never swum.</summary>
+    public const long FordMm = 150;
+
+    /// <summary>Deeper than this and a water is a body to float in; shallower, it is wading and the feet keep the ground.</summary>
+    public const long SwimDepthMm = 900;
+
+    /// <summary>How near the surface the ground under a swimmer comes before it climbs out and walks.</summary>
+    public const long ClimbOutMm = 300;
+
+    /// <summary>The loot table a line in this water rolls (<c>catch:</c>), or null for water nothing is caught in.</summary>
+    public string? CatchTableId { get; init; }
+
+    /// <summary>
+    /// How deep the water's bed lies below its surface at its deepest, from its own <c>depth_m</c>, and <see cref="FordMm"/> when it names
+    /// none. This is what makes a water a body rather than a bank: a ford keeps the feet on the ground, a millpond is swam.
+    /// </summary>
+    public long DepthMm { get; init; } = FordMm;
+
+    /// <summary>
+    /// Whether a body at this point stands inside the water's own footprint: within half its width of the line the water runs along. A pond
+    /// is one point and a creek a run of them, and two points are a stretch of water, not a spot on it.
+    /// </summary>
+    public bool Covers(long xMm, long zMm) => NearestMm(xMm, zMm).DistanceMm <= WidthMm / 2;
+
+    /// <summary>The nearest point of the water's own line to a body, and how far off it that is.</summary>
+    public (long XMm, long ZMm, double DistanceMm) NearestMm(long xMm, long zMm)
+    {
+        double Spread(long px, long pz) => Math.Sqrt(Math.Pow(px - xMm, 2) + Math.Pow(pz - zMm, 2));
+        var (fx, fz) = PointsMm[0];
+        var best = (XMm: fx, ZMm: fz, DistanceMm: Spread(fx, fz));
+        for (int i = 1; i < PointsMm.Length; i++)
+        {
+            var (ax, az) = PointsMm[i - 1];
+            var (bx, bz) = PointsMm[i];
+            double dx = bx - ax, dz = bz - az, square = dx * dx + dz * dz;
+            double t = square == 0 ? 0 : Math.Clamp(((xMm - ax) * dx + (zMm - az) * dz) / square, 0, 1);
+            long nx = (long)Math.Round(ax + dx * t, MidpointRounding.AwayFromZero), nz = (long)Math.Round(az + dz * t, MidpointRounding.AwayFromZero);
+            double distance = Spread(nx, nz);
+            if (distance < best.DistanceMm)
+                best = (nx, nz, distance);
+        }
+        return best;
+    }
+
+    /// <summary>
+    /// The bank a body in this water is put on: out from the water's own nearest point through the body, a body's radius past the water's
+    /// edge, so it comes out on its feet and wading rather than in the water still.
+    /// </summary>
+    public (long XMm, long ZMm) ShoreFrom(long xMm, long zMm, long marginMm)
+    {
+        var (nx, nz, distance) = NearestMm(xMm, zMm);
+        double dx = distance < 1 ? 1 : (xMm - nx) / distance, dz = distance < 1 ? 0 : (zMm - nz) / distance, outMm = WidthMm / 2.0 + marginMm;
+        return ((long)Math.Round(nx + dx * outMm, MidpointRounding.AwayFromZero), (long)Math.Round(nz + dz * outMm, MidpointRounding.AwayFromZero));
+    }
 }
 
 /// <summary>The static walkable space of a region: its movement bounds, its terrain, and what stands on it.</summary>
@@ -185,6 +246,19 @@ public sealed record WalkSpace(long MinXMm, long MinZMm, long MaxXMm, long MaxZM
                 if (Math.Pow(px - xMm, 2) + Math.Pow(pz - zMm, 2) <= (water.WidthMm / 2 + WaterSite.ReachMm) * (double)(water.WidthMm / 2 + WaterSite.ReachMm))
                     return water;
         return null;
+    }
+
+    /// <summary>
+    /// The water a body standing at this point is in - the deepest of those whose footprint covers it - or null on dry land. Only where the
+    /// body stands, never a bank's reach: a swim is in the water, and whether that water floats it is <see cref="WaterSite.DepthMm"/>'s.
+    /// </summary>
+    public WaterSite? WaterUnder(long xMm, long zMm)
+    {
+        WaterSite? deepest = null;
+        foreach (var water in Waters)
+            if (water.Covers(xMm, zMm) && (deepest is null || water.DepthMm > deepest.DepthMm))
+                deepest = water;
+        return deepest;
     }
 
     public long HeightAtMm(long xMm, long zMm)
@@ -219,7 +293,9 @@ public static class Kinematics
     /// the feet on an arc (<see cref="MovementRules.LiftMm"/>), and while they are higher than a structure's top the structure is
     /// passed over - landing on one pushes the body off it, the same as walking into it, unless the rules stand on tops
     /// (<see cref="MovementRules.StepUpMm"/>): then the body's feet keep their height above the ground under it, and a top is walked up
-    /// onto or landed on. A body of unknown height (a creature, a person, a door) is never jumped or stood on.
+    /// onto or landed on. A body of unknown height (a creature, a person, a door) is never jumped or stood on. In deep water it floats
+    /// instead (<see cref="SwimWater"/>): at half a walk, its feet at the surface rather than on the ground, and out again as soon as the
+    /// ground under it comes up to the bank.
     /// </summary>
     public static (Body Body, Posture Posture) Step(Body body, Posture posture, MoveIntent intent, MovementRules rules, WalkSpace space,
         IReadOnlyList<Blocker> dynamicBlockers, int dtMs)
@@ -241,7 +317,12 @@ public static class Kinematics
         if (length > 0 && dtMs > 0)
         {
             double deflection = Math.Min(length, MoveIntent.FullDeflection) / MoveIntent.FullDeflection;
-            double travel = rules.SpeedMmPerSecond(intent.Gait, posture.Stance) * dtMs / 1000.0 * deflection;
+            // A body in deep water goes at half a walk whatever the gait asked: the sprint is refused in the water, and the swim's pace is
+            // the walk's, not the gait's (D20).
+            double speed = SwimWater(body.XMm, body.ZMm, space) is not null
+                ? rules.SpeedMmPerSecond(Gait.Walk) * rules.SwimPercent / 100.0
+                : rules.SpeedMmPerSecond(intent.Gait, posture.Stance);
+            double travel = speed * dtMs / 1000.0 * deflection;
             double dx = intent.DirXPermille / length * travel;
             double dz = intent.DirZPermille / length * travel;
             // Sub-steps no longer than half the body radius, so a fast step cannot tunnel through a thin wall.
@@ -268,8 +349,24 @@ public static class Kinematics
         long qz = (long)Math.Round(z, MidpointRounding.AwayFromZero);
         if (tops && !next.Airborne && !landed)
             (raised, _) = Settle(qx, qz, raised, 0, 0, 0, false, rules, space);
-        return (new Body(qx, space.HeightAtMm(qx, qz) + raised + rules.LiftMm(next.AirMs), qz, intent.FacingMdeg), next);
+        // A swim is where the body is, not something it owns: floating, its feet are the surface's, not the ground's, so it sits lower in
+        // the water than it stands. Entering and climbing out are the same test, on the point it has come to, so it needs no history.
+        var ground = space.HeightAtMm(qx, qz);
+        var standing = new Body(qx, ground + raised + rules.LiftMm(next.AirMs), qz, intent.FacingMdeg);
+        return (next.Airborne || SwimWater(qx, qz, space) is not { } floats ? standing : standing with { YMm = floats.LevelMm - rules.SwimFloatMm }, next);
     }
+
+    /// <summary>
+    /// The water that floats a body standing at this point, or null (D20). It is the water the body stands inside the footprint of, whose
+    /// bed is deep enough to be a body rather than a bank (<see cref="WaterSite.DepthMm"/>), with the ground under it well below the surface
+    /// - and the ground coming up to within <see cref="WaterSite.ClimbOutMm"/> of the surface is the bank it climbs out onto. Where the body
+    /// is decides it, purely: the simulation floats it and presentation's prediction draws the same float from the same function.
+    /// </summary>
+    public static WaterSite? SwimWater(long xMm, long zMm, WalkSpace space) =>
+        space.WaterUnder(xMm, zMm) is { } water && water.DepthMm > WaterSite.SwimDepthMm
+        && water.LevelMm - space.HeightAtMm(xMm, zMm) > WaterSite.ClimbOutMm
+            ? water
+            : null;
 
     /// <summary>
     /// A body aloft on its wings: it goes forward at the glide's speed (none in a flare, a walk in a fall), comes down at the wing state's

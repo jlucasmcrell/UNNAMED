@@ -27,10 +27,12 @@ public enum StateSlice
 {
     /// <summary>The current camp rest posture and death-screen choice. Transient, never saved.</summary>
     CampSession,
+    /// <summary>The timed activity the character is in the middle of - a cast, a wait, a reel, a pick working a lock. Transient, never saved.</summary>
+    Activity,
     /// <summary><c>world_tick</c> (S-04, clock half).</summary>
     Clock,
 
-    /// <summary>The player's position and facing (ARCHITECTURE.md §5: "Position (actors) - Movement system").</summary>
+    /// <summary>The player's position and facing, and what it is standing in (ARCHITECTURE.md §5: "Position (actors) - Movement system").</summary>
     PlayerBody,
 
     /// <summary>
@@ -220,6 +222,13 @@ internal sealed class RuntimeState
         CampRestAt=resting;
         ReturnToCamp=returnToCamp;
     }
+    /// <summary>The cast, wait, reel, pick or swing being worked now, or null. Transient: one interrupted by a save is dropped, not saved.</summary>
+    public PlayerActivity? Activity { get; private set; }
+    public void SetActivity(SliceOwner owner,PlayerActivity? activity)
+    {
+        Require(owner,StateSlice.Activity);
+        Activity=activity;
+    }
     public Posture Posture { get; private set; }
     public CharacterProgression Progression { get; private set; }
     public ImmutableSortedDictionary<string, DiscoveryRecord> Discoveries { get; private set; }
@@ -329,6 +338,19 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.PlayerBody);
         Posture = posture;
+    }
+
+    /// <summary>
+    /// Whether the body is floating in deep water (D20): part of the body's slice, and worked out from where it stands on every tick. Not on
+    /// the posture, because the posture is saved and a swim is a place, not a possession - a load stands on the ground and the next step
+    /// decides again.
+    /// </summary>
+    public bool Swimming { get; private set; }
+
+    public void SetSwimming(SliceOwner owner, bool swimming)
+    {
+        Require(owner, StateSlice.PlayerBody);
+        Swimming = swimming;
     }
 
     /// <summary>

@@ -34,10 +34,15 @@ public partial class Main
         DrawOutlines(simulation, focus);
         DrawChatFeed(simulation);
         _hud.SetConversing(_dialogue.Visible);
+        // A lock the character can see is the picks' business: the prompt offers the verb, and says plainly when there are no picks for it.
+        string LockPrompt() => simulation.CarriesPicks
+            ? $"[{HelpPanel.Key("interact")}] Pick the lock"
+            : "Locked - you have no picks";
         // No prompt under a screen: nothing behind a sheet can be worked, and the hint line sits where the prompt was.
         _hud.SetPrompt(Screen is not null ? null : focus switch
         {
             null => null,
+            { Kind: FocusKind.Door } door when simulation.IsLocked(door.Key) => LockPrompt(),
             { Kind: FocusKind.Door } door when simulation.ActiveLayout.Doors.FirstOrDefault(d => d.Key == door.Key)?.Fitted is { } fitted
                 => _controller.IsOpen(door.Key)
                     ? $"A {Names.Of(_session, fitted.ItemId).ToLowerInvariant()} holds the {Names.Place(_session, door.Key, door.DefId)} open."
@@ -46,6 +51,7 @@ public partial class Main
                 && simulation.ActiveLayout.Doors.Any(d => d.Key == door.Key && d.StaysOpen)
                 => $"The {Names.Place(_session, door.Key, door.DefId)} is latched open.",
             { Kind: FocusKind.Door } door => $"[{HelpPanel.Key("interact")}] {(_controller.IsOpen(door.Key) ? "Close" : "Open")} the {Names.Place(_session, door.Key, door.DefId)}",
+            { Kind: FocusKind.Container } container when simulation.IsLocked(container.Key) => LockPrompt(),
             { Kind: FocusKind.Container } pickup when simulation.ActiveLayout.Containers.Any(c => PlayerController.IsPickup(c) && c.Key == pickup.Key)
                 && simulation.Containers.First(c => c.Site.Key == pickup.Key).Items.FirstOrDefault() is { } lying
                 => $"[{HelpPanel.Key("interact")}] Pick up {Names.Of(_session, lying.DefId)}",
@@ -53,6 +59,10 @@ public partial class Main
                 ? $"[{HelpPanel.Key("interact")}] Open the {Names.Place(_session, container.Key, container.DefId)}"
                 : $"[{HelpPanel.Key("interact")}] Search the {Names.Of(_session, container.DefId)}",
             { Kind: FocusKind.Node } node => NodePrompt(simulation, node),
+            // A fishable bank offers both water verbs, and a bank offers the wash: F puts a line in (and reels it), E fills the flask, B washes.
+            { Kind: FocusKind.Water } when simulation.CanFish => $"[{HelpPanel.Key("fish")}] Fish   [{HelpPanel.Key("interact")}] Refill your flask"
+                + (simulation.CanWash ? $"   [{HelpPanel.Key("wash")}] Wash" : ""),
+            { Kind: FocusKind.Water } when simulation.CanWash => $"[{HelpPanel.Key("interact")}] Refill your flask   [{HelpPanel.Key("wash")}] Wash",
             { Kind: FocusKind.Water } => $"[{HelpPanel.Key("interact")}] Refill your flask",
             { Kind: FocusKind.Station } board when board.DefId == NoticeBoardPanel.Kind => $"[{HelpPanel.Key("interact")}] Read the notice board",
             { Kind: FocusKind.Station } station => $"[{HelpPanel.Key("interact")}] Work at the {Names.Place(_session, station.Key, station.DefId)}",
@@ -80,6 +90,8 @@ public partial class Main
             (view.Progression.XpDebt > 0 ? $"   debt {view.Progression.XpDebt}" : "") +
             (view.Progression.UnspentAttributePoints > 0 ? $"   [{HelpPanel.Key("character")}] a point to spend" : "") +
             (posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched ? "   Crouched" : "") +
+            // In the water the body's state is the one line it gets: the way out is to swim for the bank, which is the movement's own.
+            (simulation.Swimming ? "   Swimming" : "") +
             $"\nHealth {combat.Health}/{combat.MaxHealth}   Stamina {combat.Stamina}/{combat.MaxStamina}" +
             $"   Focus {pools.Focus ?? stats.FocusMax}/{stats.FocusMax}   Strain {pools.Strain}/{stats.StrainTolerance}   Resonance {stats.Resonance}" +
             $"\n{Names.Item(_session, combat.Weapon.Source, Wielded(view)?.Quality ?? 0)}{(combat.Blocking ? " (guarding)" : "")}   Coin {view.Currency}   Armor {view.Armor}" +

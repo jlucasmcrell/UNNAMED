@@ -1,0 +1,9 @@
+id: skill.cooking
+kind: skill
+schema: 1
+display_key: skill.cooking.name
+tags: [skill]
+name: Cooking
+family: crafting
+notes: D13 SKILLS_AND_TECHNIQUES.md §2.6 (crafting), which PRG001 accepts under that name - food that is worth eating, and that does something for the eater. Every cookfire recipe practises it, and three of them are cooking's own entry techniques in D13's catalogue - Roast Meat at band N, Field Torch by Fire at N, Woundmoss Tea at P. The salves share that fire and are herbalism's.
+teaches: "Food made worth eating over a fire, and what it does for the eater. Water boiled teaches little."
