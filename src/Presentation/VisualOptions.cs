@@ -33,7 +33,7 @@ public static class VisualOptions
         // The player is a MetaHuman on the shared UE5-mannequin skeleton: the owner's blend bodies mh_veth_m / mh_veth_f, bound before the
         // creator chooses one. The MPFB player is retired (owner 2026-10-17).
         ["player"] = new[] { "metahuman_m", "metahuman_f", "none" },   // none: the player is not drawn (hook close-ups)
-        ["hud"] = new[] { "classic", "production" },  // production: the remediation's HUD direction (Ui/Hud.cs, M04)
+        ["hud"] = new[] { "classic", "production", "none" },   // none: no HUD node at all (proof frames)  // production: the remediation's HUD direction (Ui/Hud.cs, M04)
         ["audio"] = new[] { "v3", "proof", "proof_open" },  // proof_open: only proofs whose sources set no AI/ML restriction (reviewable by an AI)
         ["textures"] = new[] { "cache", "raw" },      // cache: the texture cache's BC7 copies where it has them (B1); raw: as loaded          // proof: the external-audio proof batch (assets/audio_proof/<id>.wav) over V3 where it has one  // msaa_taa: the project's Phase-A setting (MSAA 4x with TAA)  // proof: B0.6's fold without a hard silhouette and the heart as a staged artifact
         ["hour"] = Array.Empty<string>(),        // a number: the harness's time-of-day override, 0-24
@@ -154,6 +154,9 @@ public static class VisualOptions
     public static bool Recipes => Values["vfx"] == "recipes";
     public static bool BodyModifiers => Values["body"] == "modifiers";
     public static bool ProductionHud => Values["hud"] == "production";
+
+    /// <summary>No HUD node at all, for a clean proof frame.</summary>
+    public static bool NoHud => Values["hud"] == "none";
 
     /// <summary>The share of the prepared plant models' density this profile draws, times the player's plant density dial.</summary>
     public static float PlantDensity => PlantScale * Tier switch
