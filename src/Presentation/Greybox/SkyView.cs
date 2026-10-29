@@ -340,6 +340,10 @@ public static class SkyView
         {
             if (CloudsView.Attach(sky, cloudSun, out string? cloudsWhy))
                 sky.Set("clouds_enabled", false);   // Sky3D's flat 2D cloud layer gives way to the volumetric one
+        else if (VisualOptions.Clouds == "none")
+            // No cloud layer at all: Sky3D would otherwise draw its cumulus disc, whose rim reads as a hard arc across
+            // the sky from anywhere near the ground (the owner's "hard diagonal seam", Gate 2 verdict).
+            sky.Set("clouds_enabled", false);
             else
                 GD.PushWarning("UNNAMED clouds: " + cloudsWhy);
         }
